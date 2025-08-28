@@ -25,16 +25,10 @@ import { type CollectionMetadata } from 'mongodb-collection-model';
 import {
   SCHEMA_ANALYSIS_STATE_COMPLETE,
   SCHEMA_ANALYSIS_STATE_INITIAL,
-  SchemaAnalysisState,
 } from '../schema-analysis-types';
-import {
-  MOCK_DATA_GENERATOR_REQUEST_COMPLETED,
-  MOCK_DATA_GENERATOR_REQUEST_GENERATING,
-  MOCK_DATA_GENERATOR_REQUEST_IDLE,
-  MOCK_DATA_GENERATOR_REQUEST_ERROR,
-  MockDataGeneratorState,
-  MockDataGeneratorStep,
-} from '../components/mock-data-generator-modal/types';
+import type { SchemaAnalysisState } from '../schema-analysis-types';
+import { MockDataGeneratorStep } from '../components/mock-data-generator-modal/types';
+import type { MockDataGeneratorState } from '../components/mock-data-generator-modal/types';
 import { CollectionActions } from '../modules/collection-tab';
 import { type MockDataSchemaResponse } from '@mongodb-js/compass-generative-ai';
 
@@ -330,7 +324,7 @@ describe('Collection Tab Content store', function () {
             validationRules: null,
           },
         },
-        fakerSchemaGeneration: { status: MOCK_DATA_GENERATOR_REQUEST_IDLE },
+        fakerSchemaGeneration: { status: 'idle' },
       });
       const logger = {
         log: { error: sandbox.spy() },
@@ -345,14 +339,6 @@ describe('Collection Tab Content store', function () {
               probability: 1.0,
               mongoType: 'string',
               fakerMethod: 'person.firstName',
-              fakerArgs: [],
-              isArray: false,
-            },
-            {
-              fieldPath: 'age',
-              probability: 1.0,
-              mongoType: 'number',
-              fakerMethod: 'number.int',
               fakerArgs: [],
               isArray: false,
             },
@@ -404,7 +390,7 @@ describe('Collection Tab Content store', function () {
           status: SCHEMA_ANALYSIS_STATE_COMPLETE,
           processedSchema: undefined,
         },
-        fakerSchemaGeneration: { status: MOCK_DATA_GENERATOR_REQUEST_IDLE },
+        fakerSchemaGeneration: { status: 'idle' },
       });
       const logger = {
         log: { error: sandbox.spy() },
@@ -445,7 +431,7 @@ describe('Collection Tab Content store', function () {
       const dispatch = sandbox.spy();
       const getState = sandbox.stub().returns({
         schemaAnalysis: { status: SCHEMA_ANALYSIS_STATE_INITIAL },
-        fakerSchemaGeneration: { status: MOCK_DATA_GENERATOR_REQUEST_IDLE },
+        fakerSchemaGeneration: { status: 'idle' },
       });
       const logger = {
         log: { error: sandbox.spy() },
@@ -470,7 +456,7 @@ describe('Collection Tab Content store', function () {
       const getState = sandbox.stub().returns({
         schemaAnalysis: { status: SCHEMA_ANALYSIS_STATE_COMPLETE },
         fakerSchemaGeneration: {
-          status: MOCK_DATA_GENERATOR_REQUEST_GENERATING,
+          status: 'generating',
         },
       });
       const logger = {
@@ -503,7 +489,7 @@ describe('Collection Tab Content store', function () {
         isModalOpen: false,
         currentStep: MockDataGeneratorStep.AI_DISCLAIMER,
       },
-      fakerSchemaGeneration: { status: MOCK_DATA_GENERATOR_REQUEST_IDLE },
+      fakerSchemaGeneration: { status: 'idle' },
     };
 
     const completeSchemaState: SchemaAnalysisState = {
@@ -537,7 +523,7 @@ describe('Collection Tab Content store', function () {
               currentStep: MockDataGeneratorStep.SCHEMA_CONFIRMATION,
             },
             fakerSchemaGeneration: {
-              status: MOCK_DATA_GENERATOR_REQUEST_GENERATING,
+              status: 'generating',
               requestId: 'existing_id',
             },
           },
@@ -549,7 +535,7 @@ describe('Collection Tab Content store', function () {
               currentStep: MockDataGeneratorStep.SCHEMA_CONFIRMATION,
             },
             fakerSchemaGeneration: {
-              status: MOCK_DATA_GENERATOR_REQUEST_COMPLETED,
+              status: 'completed',
               fakerSchema: {
                 content: {
                   fields: [
@@ -583,13 +569,13 @@ describe('Collection Tab Content store', function () {
             isModalOpen: false,
             currentStep: MockDataGeneratorStep.SCHEMA_CONFIRMATION,
           },
-          fakerSchemaGeneration: { status: MOCK_DATA_GENERATOR_REQUEST_IDLE },
+          fakerSchemaGeneration: { status: 'idle' },
         };
         const action = fakerMappingGenerationStartedAction;
         const newState = collectionTabReducer(state, action);
 
         expect(newState.fakerSchemaGeneration).to.deep.equal({
-          status: MOCK_DATA_GENERATOR_REQUEST_GENERATING,
+          status: 'generating',
           requestId: 'some_request_id',
         });
 
@@ -624,9 +610,9 @@ describe('Collection Tab Content store', function () {
 
       it('should not transition to completed if in idle, completed, or error state', function () {
         const noOpStates: MockDataGeneratorState[] = [
-          { status: MOCK_DATA_GENERATOR_REQUEST_IDLE },
+          { status: 'idle' },
           {
-            status: MOCK_DATA_GENERATOR_REQUEST_COMPLETED,
+            status: 'completed',
             fakerSchema: {
               content: {
                 fields: [
@@ -644,7 +630,7 @@ describe('Collection Tab Content store', function () {
             requestId: 'existing_id',
           },
           {
-            status: MOCK_DATA_GENERATOR_REQUEST_ERROR,
+            status: 'error',
             error: 'Some error',
             requestId: 'error_request_id',
           },
@@ -665,7 +651,7 @@ describe('Collection Tab Content store', function () {
         const state: CollectionState = {
           ...baseState,
           fakerSchemaGeneration: {
-            status: MOCK_DATA_GENERATOR_REQUEST_GENERATING,
+            status: 'generating',
             requestId: 'generating_request_id',
           },
         };
@@ -673,7 +659,7 @@ describe('Collection Tab Content store', function () {
         const newState = collectionTabReducer(state, action);
 
         expect(newState.fakerSchemaGeneration).to.deep.equal({
-          status: MOCK_DATA_GENERATOR_REQUEST_COMPLETED,
+          status: 'completed',
           fakerSchema: action.fakerSchema,
           requestId: action.requestId,
         });
@@ -698,9 +684,9 @@ describe('Collection Tab Content store', function () {
 
       it('should not transition to error if in idle, completed, or error state', function () {
         const noOpStates: MockDataGeneratorState[] = [
-          { status: MOCK_DATA_GENERATOR_REQUEST_IDLE },
+          { status: 'idle' },
           {
-            status: MOCK_DATA_GENERATOR_REQUEST_COMPLETED,
+            status: 'completed',
             fakerSchema: {
               content: {
                 fields: [
@@ -718,7 +704,7 @@ describe('Collection Tab Content store', function () {
             requestId: 'existing_id',
           },
           {
-            status: MOCK_DATA_GENERATOR_REQUEST_ERROR,
+            status: 'error',
             error: 'Previous error',
             requestId: 'error_request_id',
           },
@@ -739,7 +725,7 @@ describe('Collection Tab Content store', function () {
         const state: CollectionState = {
           ...baseState,
           fakerSchemaGeneration: {
-            status: MOCK_DATA_GENERATOR_REQUEST_GENERATING,
+            status: 'generating',
             requestId: 'generating_request_id',
           },
         };
@@ -747,7 +733,7 @@ describe('Collection Tab Content store', function () {
         const newState = collectionTabReducer(state, action);
 
         expect(newState.fakerSchemaGeneration).to.deep.equal({
-          status: MOCK_DATA_GENERATOR_REQUEST_ERROR,
+          status: 'error',
           error: action.error,
           requestId: action.requestId,
         });

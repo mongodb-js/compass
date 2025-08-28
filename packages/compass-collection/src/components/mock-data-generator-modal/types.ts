@@ -9,28 +9,23 @@ export enum MockDataGeneratorStep {
   GENERATE_DATA = 'GENERATE_DATA',
 }
 
-export const MOCK_DATA_GENERATOR_REQUEST_IDLE = 'idle';
-export const MOCK_DATA_GENERATOR_REQUEST_GENERATING = 'generating';
-export const MOCK_DATA_GENERATOR_REQUEST_COMPLETED = 'completed';
-export const MOCK_DATA_GENERATOR_REQUEST_ERROR = 'error';
-
 type MockDataGeneratorIdleState = {
-  status: typeof MOCK_DATA_GENERATOR_REQUEST_IDLE;
+  status: 'idle';
 };
 
 type MockDataGeneratorGeneratingState = {
-  status: typeof MOCK_DATA_GENERATOR_REQUEST_GENERATING;
+  status: 'generating';
   requestId: string;
 };
 
 type MockDataGeneratorCompletedState = {
-  status: typeof MOCK_DATA_GENERATOR_REQUEST_COMPLETED;
+  status: 'completed';
   fakerSchema: MockDataSchemaResponse;
   requestId: string;
 };
 
 type MockDataGeneratorErrorState = {
-  status: typeof MOCK_DATA_GENERATOR_REQUEST_ERROR;
+  status: 'error';
   error: unknown;
   requestId: string;
 };

@@ -13,7 +13,7 @@ import type { experimentationServiceLocator } from '@mongodb-js/compass-telemetr
 import { type Logger, mongoLogId } from '@mongodb-js/compass-logging/provider';
 import { type PreferencesAccess } from 'compass-preferences-model/provider';
 import {
-  MockDataSchemaRequestShape,
+  type MockDataSchemaRequest,
   type MockDataSchemaResponse,
 } from '@mongodb-js/compass-generative-ai';
 import { isInternalFieldPath } from 'hadron-document';
@@ -30,13 +30,7 @@ import {
 import { calculateSchemaDepth } from '../calculate-schema-depth';
 import { processSchema } from '../transform-schema-to-field-info';
 import type { Document, MongoError } from 'mongodb';
-import {
-  MockDataGeneratorStep,
-  MOCK_DATA_GENERATOR_REQUEST_IDLE,
-  MOCK_DATA_GENERATOR_REQUEST_GENERATING,
-  MOCK_DATA_GENERATOR_REQUEST_COMPLETED,
-  MOCK_DATA_GENERATOR_REQUEST_ERROR,
-} from '../components/mock-data-generator-modal/types';
+import { MockDataGeneratorStep } from '../components/mock-data-generator-modal/types';
 import type { MockDataGeneratorState } from '../components/mock-data-generator-modal/types';
 
 const DEFAULT_SAMPLE_SIZE = 100;
@@ -186,7 +180,7 @@ const reducer: Reducer<CollectionState, Action> = (
       currentStep: MockDataGeneratorStep.AI_DISCLAIMER,
     },
     fakerSchemaGeneration: {
-      status: MOCK_DATA_GENERATOR_REQUEST_IDLE,
+      status: 'idle',
     },
   },
   action
@@ -386,10 +380,8 @@ const reducer: Reducer<CollectionState, Action> = (
     }
 
     if (
-      state.fakerSchemaGeneration.status ===
-        MOCK_DATA_GENERATOR_REQUEST_GENERATING ||
-      state.fakerSchemaGeneration.status ===
-        MOCK_DATA_GENERATOR_REQUEST_COMPLETED
+      state.fakerSchemaGeneration.status === 'generating' ||
+      state.fakerSchemaGeneration.status === 'completed'
     ) {
       return state;
     }
@@ -397,7 +389,7 @@ const reducer: Reducer<CollectionState, Action> = (
     return {
       ...state,
       fakerSchemaGeneration: {
-        status: MOCK_DATA_GENERATOR_REQUEST_GENERATING,
+        status: 'generating',
         requestId: action.requestId,
       },
     };
@@ -409,17 +401,14 @@ const reducer: Reducer<CollectionState, Action> = (
       CollectionActions.FakerMappingGenerationCompleted
     )
   ) {
-    if (
-      state.fakerSchemaGeneration.status !==
-      MOCK_DATA_GENERATOR_REQUEST_GENERATING
-    ) {
+    if (state.fakerSchemaGeneration.status !== 'generating') {
       return state;
     }
 
     return {
       ...state,
       fakerSchemaGeneration: {
-        status: MOCK_DATA_GENERATOR_REQUEST_COMPLETED,
+        status: 'completed',
         fakerSchema: action.fakerSchema,
         requestId: action.requestId,
       },
@@ -432,17 +421,14 @@ const reducer: Reducer<CollectionState, Action> = (
       CollectionActions.FakerMappingGenerationFailed
     )
   ) {
-    if (
-      state.fakerSchemaGeneration.status !==
-      MOCK_DATA_GENERATOR_REQUEST_GENERATING
-    ) {
+    if (state.fakerSchemaGeneration.status !== 'generating') {
       return state;
     }
 
     return {
       ...state,
       fakerSchemaGeneration: {
-        status: MOCK_DATA_GENERATOR_REQUEST_ERROR,
+        status: 'error',
         error: action.error,
         requestId: action.requestId,
       },
@@ -589,9 +575,7 @@ export const generateFakerMappings = (
       return;
     }
 
-    if (
-      fakerSchemaGeneration.status === MOCK_DATA_GENERATOR_REQUEST_GENERATING
-    ) {
+    if (fakerSchemaGeneration.status === 'generating') {
       logger.debug(
         'Faker mapping generation is already in progress, skipping new generation.'
       );
@@ -611,12 +595,29 @@ export const generateFakerMappings = (
         requestId: requestId,
       });
 
-      const mockDataSchemaRequest = MockDataSchemaRequestShape.parse({
+      // Convert FieldInfo objects to MockDataSchemaRawField format
+      const schema: Record<
+        string,
+        { type: string; sampleValues?: unknown[]; probability?: number }
+      > = {};
+      for (const [fieldName, fieldInfo] of Object.entries(
+        schemaAnalysis.processedSchema
+      )) {
+        schema[fieldName] = {
+          type: fieldInfo.type,
+          sampleValues: fieldInfo.sample_values,
+          probability: fieldInfo.probability,
+        };
+      }
+
+      const mockDataSchemaRequest: MockDataSchemaRequest = {
         databaseName: database,
         collectionName: collection,
-        schema: schemaAnalysis.processedSchema,
+        schema: schema,
         validationRules: schemaAnalysis.schemaMetadata.validationRules,
-      });
+        // todo
+        includeSampleValues: true,
+      };
 
       const response = await atlasAiService.getMockDataSchema(
         mockDataSchemaRequest,
