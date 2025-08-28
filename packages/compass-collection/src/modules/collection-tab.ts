@@ -611,6 +611,7 @@ export const generateFakerMappings = (
         schema: schemaAnalysis.processedSchema,
         validationRules: schemaAnalysis.schemaMetadata.validationRules,
         includeSampleValues,
+        requestId,
       };
 
       const response = await atlasAiService.getMockDataSchema(
