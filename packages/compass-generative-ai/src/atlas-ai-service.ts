@@ -215,22 +215,19 @@ const aiURLConfig = {
   },
 } as const;
 
-export const MockDataSchemaRawFieldMappingShape = z.record(
-  z.string(),
-  z.object({
-    type: z.string(),
-    sampleValues: z.array(z.unknown()).optional(),
-    probability: z.number().min(0).max(1).optional(),
-  })
-);
+export interface MockDataSchemaRawField {
+  type: string;
+  sampleValues?: unknown[];
+  probability?: number;
+}
 
-export const MockDataSchemaRequestShape = z.object({
-  collectionName: z.string(),
-  databaseName: z.string(),
-  schema: MockDataSchemaRawFieldMappingShape,
-  validationRules: z.record(z.string(), z.unknown()).nullable().optional(),
-  includeSampleValues: z.boolean().default(false),
-});
+export interface MockDataSchemaRequest {
+  collectionName: string;
+  databaseName: string;
+  schema: Record<string, MockDataSchemaRawField>;
+  validationRules?: Record<string, unknown> | null;
+  includeSampleValues?: boolean;
+}
 
 export const MockDataSchemaResponseShape = z.object({
   content: z.object({
@@ -256,11 +253,6 @@ export const MockDataSchemaResponseShape = z.object({
   }),
 });
 
-export type MockDataSchemaRawFieldMapping = z.infer<
-  typeof MockDataSchemaRawFieldMappingShape
->;
-export type MockDataSchemaRawField = MockDataSchemaRawFieldMapping[string];
-export type MockDataSchemaRequest = z.infer<typeof MockDataSchemaRequestShape>;
 export type MockDataSchemaResponse = z.infer<
   typeof MockDataSchemaResponseShape
 >;
@@ -467,12 +459,6 @@ export class AtlasAiService {
     );
   }
 
-  /**
-   * @returns {MockDataSchemaResponse} which contains faker.js mappings used to produce a
-   * faker.js factory function for the purposes of generating mock document data.
-   *
-   * @throws {AtlasAiServiceApiResponseParseError} when the response cannot be parsed into the expected schema.
-   */
   async getMockDataSchema(
     input: MockDataSchemaRequest,
     connectionInfo: ConnectionInfo
@@ -480,7 +466,7 @@ export class AtlasAiService {
     const { collectionName, databaseName } = input;
     let schema = input.schema;
 
-    const url = `${this.getUrlForEndpoint('mock-data-schema', connectionInfo)}`;
+    const url = this.getUrlForEndpoint('mock-data-schema', connectionInfo);
 
     if (!input.includeSampleValues) {
       const newSchema: Record<
@@ -509,11 +495,16 @@ export class AtlasAiService {
     try {
       const data = await res.json();
       return MockDataSchemaResponseShape.parse(data);
-    } catch {
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.stack : String(err);
       this.logger.log.error(
         mongoLogId(1_001_000_311),
         'AtlasAiService',
-        'Failed to parse mock data schema response with expected schema'
+        'Failed to parse mock data schema response with expected schema',
+        {
+          namespace: `${databaseName}.${collectionName}`,
+          message: errorMessage,
+        }
       );
       throw new AtlasAiServiceApiResponseParseError(
         'Response does not match expected schema'

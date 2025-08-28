@@ -12,6 +12,7 @@ import RelationshipDrawerContent from './relationship-drawer-content';
 import {
   deleteCollection,
   deleteRelationship,
+  removeField,
   selectCurrentModelFromState,
   type SelectedItems,
 } from '../../store/diagram';
@@ -19,6 +20,7 @@ import { getDefaultRelationshipName } from '../../utils';
 import FieldDrawerContent from './field-drawer-content';
 import type { FieldPath } from '../../services/data-model-storage';
 import { getFieldFromSchema } from '../../utils/schema-traversal';
+import { isIdField } from '../../utils/utils';
 
 export const DATA_MODELING_DRAWER_ID = 'data-modeling-drawer';
 
@@ -109,7 +111,15 @@ function DiagramEditorSidePanel({
           ></FieldDrawerContent>
         ),
         actions: [
-          { action: 'delete', label: 'Delete', icon: 'Trash' as const },
+          ...(!isIdField(selectedItems.fieldPath)
+            ? [
+                {
+                  action: 'delete',
+                  label: 'Delete Field',
+                  icon: 'Trash' as const,
+                },
+              ]
+            : []),
         ],
         handleAction: (actionName: string) => {
           if (actionName === 'delete') {
@@ -241,6 +251,6 @@ export default connect(
   {
     onDeleteCollection: deleteCollection,
     onDeleteRelationship: deleteRelationship,
-    onDeleteField: () => {}, // TODO(COMPASS-9659) part 2 - implement onDeleteField,
+    onDeleteField: removeField,
   }
 )(DiagramEditorSidePanel);
