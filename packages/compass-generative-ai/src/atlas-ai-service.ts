@@ -467,12 +467,6 @@ export class AtlasAiService {
     );
   }
 
-  /**
-   * @returns {MockDataSchemaResponse} which contains faker.js mappings used to produce a
-   * faker.js factory function for the purposes of generating mock document data.
-   *
-   * @throws {AtlasAiServiceApiResponseParseError} when the response cannot be parsed into the expected schema.
-   */
   async getMockDataSchema(
     input: MockDataSchemaRequest,
     connectionInfo: ConnectionInfo
@@ -480,7 +474,7 @@ export class AtlasAiService {
     const { collectionName, databaseName } = input;
     let schema = input.schema;
 
-    const url = `${this.getUrlForEndpoint('mock-data-schema', connectionInfo)}`;
+    const url = this.getUrlForEndpoint('mock-data-schema', connectionInfo);
 
     if (!input.includeSampleValues) {
       const newSchema: Record<
@@ -510,14 +504,17 @@ export class AtlasAiService {
       const data = await res.json();
       return MockDataSchemaResponseShape.parse(data);
     } catch {
+      const errorMessage = 'Response does not match expected schema';
       this.logger.log.error(
         mongoLogId(1_001_000_311),
         'AtlasAiService',
-        'Failed to parse mock data schema response with expected schema'
+        'Failed to parse mock data schema response with expected schema',
+        {
+          namespace: `${databaseName}.${collectionName}`,
+          message: errorMessage,
+        }
       );
-      throw new AtlasAiServiceApiResponseParseError(
-        'Response does not match expected schema'
-      );
+      throw new AtlasAiServiceApiResponseParseError(errorMessage);
     }
   }
 
