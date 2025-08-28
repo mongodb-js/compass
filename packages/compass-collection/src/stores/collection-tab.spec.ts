@@ -474,7 +474,7 @@ describe('Collection Tab Content store', function () {
       const getState = sandbox.stub().returns({
         schemaAnalysis: { status: SCHEMA_ANALYSIS_STATE_COMPLETE },
         fakerSchemaGeneration: {
-          status: 'generating',
+          status: 'in-progress',
         },
       });
       const logger = {
@@ -541,7 +541,7 @@ describe('Collection Tab Content store', function () {
               currentStep: MockDataGeneratorStep.SCHEMA_CONFIRMATION,
             },
             fakerSchemaGeneration: {
-              status: 'generating',
+              status: 'in-progress',
               requestId: 'existing_id',
             },
           },
@@ -593,7 +593,7 @@ describe('Collection Tab Content store', function () {
         const newState = collectionTabReducer(state, action);
 
         expect(newState.fakerSchemaGeneration).to.deep.equal({
-          status: 'generating',
+          status: 'in-progress',
           requestId: 'some_request_id',
         });
 
@@ -669,7 +669,7 @@ describe('Collection Tab Content store', function () {
         const state: CollectionState = {
           ...baseState,
           fakerSchemaGeneration: {
-            status: 'generating',
+            status: 'in-progress',
             requestId: 'generating_request_id',
           },
         };
@@ -743,7 +743,7 @@ describe('Collection Tab Content store', function () {
         const state: CollectionState = {
           ...baseState,
           fakerSchemaGeneration: {
-            status: 'generating',
+            status: 'in-progress',
             requestId: 'generating_request_id',
           },
         };

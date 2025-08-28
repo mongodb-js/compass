@@ -382,7 +382,7 @@ const reducer: Reducer<CollectionState, Action> = (
     }
 
     if (
-      state.fakerSchemaGeneration.status === 'generating' ||
+      state.fakerSchemaGeneration.status === 'in-progress' ||
       state.fakerSchemaGeneration.status === 'completed'
     ) {
       return state;
@@ -391,7 +391,7 @@ const reducer: Reducer<CollectionState, Action> = (
     return {
       ...state,
       fakerSchemaGeneration: {
-        status: 'generating',
+        status: 'in-progress',
         requestId: action.requestId,
       },
     };
@@ -403,7 +403,7 @@ const reducer: Reducer<CollectionState, Action> = (
       CollectionActions.FakerMappingGenerationCompleted
     )
   ) {
-    if (state.fakerSchemaGeneration.status !== 'generating') {
+    if (state.fakerSchemaGeneration.status !== 'in-progress') {
       return state;
     }
 
@@ -423,7 +423,7 @@ const reducer: Reducer<CollectionState, Action> = (
       CollectionActions.FakerMappingGenerationFailed
     )
   ) {
-    if (state.fakerSchemaGeneration.status !== 'generating') {
+    if (state.fakerSchemaGeneration.status !== 'in-progress') {
       return state;
     }
 
@@ -581,7 +581,7 @@ export const generateFakerMappings = (
       return;
     }
 
-    if (fakerSchemaGeneration.status === 'generating') {
+    if (fakerSchemaGeneration.status === 'in-progress') {
       logger.debug(
         'Faker mapping generation is already in progress, skipping new generation.'
       );

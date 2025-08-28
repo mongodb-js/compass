@@ -13,8 +13,8 @@ type MockDataGeneratorIdleState = {
   status: 'idle';
 };
 
-type MockDataGeneratorGeneratingState = {
-  status: 'generating';
+type MockDataGeneratorInProgressState = {
+  status: 'in-progress';
   requestId: string;
 };
 
@@ -32,6 +32,6 @@ type MockDataGeneratorErrorState = {
 
 export type MockDataGeneratorState =
   | MockDataGeneratorIdleState
-  | MockDataGeneratorGeneratingState
+  | MockDataGeneratorInProgressState
   | MockDataGeneratorCompletedState
   | MockDataGeneratorErrorState;
