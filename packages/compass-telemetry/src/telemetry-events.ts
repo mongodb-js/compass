@@ -1490,10 +1490,10 @@ type AssistantFeedbackSubmittedEvent = CommonEvent<{
  *
  * @category Gen AI
  */
-type AssistantEntryPointUsedEvent = ConnectionScopedEvent<{
+type AssistantEntryPointUsedEvent = CommonEvent<{
   name: 'Assistant Entry Point Used';
   payload: {
-    source: 'explain plan' | 'performance insights' | 'error message';
+    source: 'explain plan' | 'performance insights' | 'connection error';
   };
 }>;
 

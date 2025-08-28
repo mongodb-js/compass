@@ -14,6 +14,7 @@ import { usePreference } from 'compass-preferences-model/provider';
 import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import { redactConnectionString } from 'mongodb-connection-string-url';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 
 export const ASSISTANT_DRAWER_ID = 'compass-assistant-drawer';
 
@@ -88,6 +89,7 @@ export const AssistantProvider: React.FunctionComponent<
     chat: Chat<AssistantMessage>;
   }>
 > = ({ chat, children }) => {
+  const track = useTelemetry();
   const assistantActionsContext = useRef<AssistantActionsContextType>({
     interpretExplainPlan: ({ explainPlan }) => {
       openDrawer(ASSISTANT_DRAWER_ID);
@@ -103,6 +105,9 @@ export const AssistantProvider: React.FunctionComponent<
         },
         {}
       );
+      track('Assistant Entry Point Used', {
+        source: 'explain plan',
+      });
     },
     interpretConnectionError: ({ connectionInfo, error }) => {
       openDrawer(ASSISTANT_DRAWER_ID);
@@ -122,6 +127,9 @@ export const AssistantProvider: React.FunctionComponent<
         },
         {}
       );
+      track('Assistant Entry Point Used', {
+        source: 'connection error',
+      });
     },
     clearChat: () => {
       chat.messages = [];
