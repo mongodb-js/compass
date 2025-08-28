@@ -330,6 +330,11 @@ describe('Collection Tab Content store', function () {
         log: { error: sandbox.spy() },
         debug: sandbox.spy(),
       };
+      const preferences = {
+        getConfigurableUserPreferences: sandbox.stub().resolves({
+          enableGenAISampleDocumentPassing: true,
+        }),
+      };
 
       const mockDataSchemaResponse: MockDataSchemaResponse = {
         content: {
@@ -361,7 +366,11 @@ describe('Collection Tab Content store', function () {
       const thunk = collectionTabModule.generateFakerMappings(
         mockAtlasConnectionInfo.current
       );
-      await thunk(dispatch, getState, { logger, atlasAiService } as any);
+      await thunk(dispatch, getState, {
+        logger,
+        atlasAiService,
+        preferences,
+      } as any);
 
       // Assert
       expect(dispatch).to.have.been.calledTwice;
@@ -396,6 +405,11 @@ describe('Collection Tab Content store', function () {
         log: { error: sandbox.spy() },
         debug: sandbox.spy(),
       };
+      const preferences = {
+        getConfigurableUserPreferences: sandbox.stub().resolves({
+          enableGenAISampleDocumentPassing: true,
+        }),
+      };
 
       const atlasAiService = {
         getMockDataSchema: sandbox.stub().resolves({}),
@@ -405,7 +419,11 @@ describe('Collection Tab Content store', function () {
       const thunk = collectionTabModule.generateFakerMappings(
         mockAtlasConnectionInfo.current
       );
-      await thunk(dispatch, getState, { logger, atlasAiService } as any);
+      await thunk(dispatch, getState, {
+        logger,
+        atlasAiService,
+        preferences,
+      } as any);
 
       // Assert
       expect(dispatch).to.have.been.calledTwice;
