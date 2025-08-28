@@ -109,11 +109,11 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
       const feedback: 'positive' | 'negative' =
         rating === 'liked' ? 'positive' : 'negative';
 
-      track('Assistant Feedback Submitted', () => ({
+      track('Assistant Feedback Submitted', {
         feedback,
         text: textFeedback,
         request_id: null,
-      }));
+      });
     },
     [track]
   );
