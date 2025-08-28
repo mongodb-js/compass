@@ -822,9 +822,7 @@ export const selectCurrentModelFromState = (state: DataModelingState) => {
   return selectCurrentModel(selectCurrentDiagramFromState(state).edits);
 };
 
-export function extractFieldsFromSchema(
-  parentSchema: MongoDBJSONSchema
-): FieldPath[] {
+function extractFieldsFromSchema(parentSchema: MongoDBJSONSchema): FieldPath[] {
   const fields: FieldPath[] = [];
   traverseSchema({
     jsonSchema: parentSchema,

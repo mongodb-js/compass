@@ -13,9 +13,10 @@ import { BSONType } from 'mongodb';
 import {
   createNewRelationship,
   deleteRelationship,
-  extractFieldsFromSchema,
+  getCurrentDiagramFromState,
   renameField,
-  selectCurrentModelFromState,
+  selectCurrentModel,
+  selectFieldsForCurrentModel,
   selectRelationship,
 } from '../../store/diagram';
 import type { DataModelingState } from '../../store/reducer';
@@ -196,7 +197,8 @@ export default connect(
     state: DataModelingState,
     ownProps: { namespace: string; fieldPath: FieldPath }
   ) => {
-    const model = selectCurrentModelFromState(state);
+    const diagram = getCurrentDiagramFromState(state);
+    const model = selectCurrentModel(diagram.edits);
     const collectionSchema = model.collections.find(
       (collection) => collection.ns === ownProps.namespace
     )?.jsonSchema;
@@ -209,7 +211,9 @@ export default connect(
           jsonSchema: collectionSchema,
           fieldPath: ownProps.fieldPath,
         })?.fieldTypes ?? [],
-      fieldPaths: extractFieldsFromSchema(collectionSchema),
+      fieldPaths: selectFieldsForCurrentModel(diagram.edits)[
+        ownProps.namespace
+      ],
       relationships: model.relationships.filter(({ relationship }) =>
         isRelationshipOfAField(
           relationship,
