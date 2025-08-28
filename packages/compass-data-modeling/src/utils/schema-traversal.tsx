@@ -220,11 +220,10 @@ const applySchemaUpdate = ({
         );
       return {
         ...schema,
-        properties: Object.fromEntries(
-          Object.entries(schema.properties).map(([key, value]) =>
-            key === fieldName ? [key, newFieldSchema] : [key, value]
-          )
-        ),
+        properties: {
+          ...schema.properties,
+          [fieldName]: newFieldSchema,
+        },
       };
     }
     default:
@@ -370,16 +369,10 @@ export function getSchemaForNewTypes(
 ): MongoDBJSONSchema {
   const oldTypes = getFieldTypes(oldSchema);
   if (oldTypes.join(',') === newTypes.join(',')) return oldSchema;
-  const newSchema: MongoDBJSONSchema = { ...oldSchema };
-  delete newSchema.anyOf;
 
   // Simple schema - new type does includes neither object nor array
   if (!newTypes.some((t) => t === 'object' || t === 'array')) {
-    newSchema.bsonType = newTypes;
-    delete newSchema.properties;
-    delete newSchema.items;
-    delete newSchema.required;
-    return newSchema;
+    return { bsonType: newTypes };
   }
 
   // Complex schema
@@ -398,8 +391,5 @@ export function getSchemaForNewTypes(
   if (newVariants.length === 1) {
     return newVariants[0];
   }
-  newSchema.anyOf = newVariants;
-  delete newSchema.bsonType;
-
-  return newSchema;
+  return { anyOf: newVariants };
 }

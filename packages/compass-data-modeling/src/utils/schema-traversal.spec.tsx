@@ -1187,11 +1187,13 @@ describe('getSchemaForNewTypes', function () {
         const result = getSchemaForNewTypes(oldSchema, newTypes);
         expect(result).not.to.have.property('bsonType');
         expect(result.anyOf).to.have.lengthOf(3);
-        expect(result.anyOf).to.deep.include(oldSchema.anyOf[0]);
-        expect(result.anyOf).to.deep.include(oldSchema.anyOf[1]);
-        expect(result.anyOf).to.deep.include({
-          bsonType: 'bool',
-        });
+        expect(result.anyOf).to.have.deep.members([
+          oldSchema.anyOf[0],
+          oldSchema.anyOf[1],
+          {
+            bsonType: 'bool',
+          },
+        ]);
       });
 
       it('adds object alongside a string', function () {
@@ -1227,6 +1229,46 @@ describe('getSchemaForNewTypes', function () {
           bsonType: 'array',
           items: {},
         });
+      });
+
+      it('adds string alongside an object', function () {
+        const newTypes = ['string', 'object'];
+        const oldSchema = {
+          bsonType: 'object',
+          properties: {
+            name: { bsonType: 'string' },
+          },
+          required: ['name'],
+        };
+        const result = getSchemaForNewTypes(oldSchema, newTypes);
+        expect(result).not.to.have.property('bsonType');
+        expect(result).not.to.have.property('properties');
+        expect(result).not.to.have.property('required');
+        expect(result.anyOf).to.have.lengthOf(2);
+        expect(result.anyOf).to.have.deep.members([
+          {
+            bsonType: 'string',
+          },
+          oldSchema,
+        ]);
+      });
+
+      it('adds string alongside an array', function () {
+        const newTypes = ['string', 'array'];
+        const oldSchema = {
+          bsonType: 'array',
+          items: { bsonType: 'int' },
+        };
+        const result = getSchemaForNewTypes(oldSchema, newTypes);
+        expect(result).not.to.have.property('bsonType');
+        expect(result).not.to.have.property('items');
+        expect(result.anyOf).to.have.lengthOf(2);
+        expect(result.anyOf).to.have.deep.members([
+          {
+            bsonType: 'string',
+          },
+          oldSchema,
+        ]);
       });
     });
 
