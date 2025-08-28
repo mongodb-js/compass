@@ -495,8 +495,8 @@ export class AtlasAiService {
     try {
       const data = await res.json();
       return MockDataSchemaResponseShape.parse(data);
-    } catch {
-      const errorMessage = 'Response does not match expected schema';
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.stack : String(err);
       this.logger.log.error(
         mongoLogId(1_001_000_311),
         'AtlasAiService',
@@ -506,7 +506,9 @@ export class AtlasAiService {
           message: errorMessage,
         }
       );
-      throw new AtlasAiServiceApiResponseParseError(errorMessage);
+      throw new AtlasAiServiceApiResponseParseError(
+        'Response does not match expected schema'
+      );
     }
   }
 
