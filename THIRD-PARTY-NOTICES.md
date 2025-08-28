@@ -256,7 +256,7 @@ This document was automatically generated on Thu Aug 28 2025.
 | **[dunder-proto](#390fd69f2035b583e461890d5b0a3230f4adb33b042e6f0d1472dd911bc1de98)**                                       | 1.0.1        | MIT                                 |
 | **[ee-first](#e2746902c758ae8a6f91ffb9618cd53717f936cb33c6323e65b6b7b24f7ebefe)**                                           | 1.1.1        | MIT                                 |
 | **[electron-dl](#e97e034c7b93c63e7a433d75f6f1de3e0668764225ebbd61dbde8d1b55d6f3b7)**                                        | 3.5.0        | MIT                                 |
-| **[electron](#77028953dbf1c0658e7548098ee9c65eb010bf5a40354ff46424dd36f72bbc94)**                                           | 37.2.6       | MIT                                 |
+| **[electron](#b13f074539b075948968158072ac29654e9385ace5841cc1cc6c4b52f1f2a3f2)**                                           | 37.4.0       | MIT                                 |
 | **[encodeurl](#177948a319ae0aeebbd65742c53c62b37c75ec1d021afa5a188d10a7ceae6623)**                                          | 2.0.0        | MIT                                 |
 | **[end-of-stream](#fadc10994f5fa767d06fb25cfff35fb17a895daf3bc3477c782907668ed16563)**                                      | 1.4.4        | MIT                                 |
 | **[ensure-error](#3b1eba5276d89414cef21a1007e85c4f1d6749bf57b300e082ab23975a41dbc9)**                                       | 3.0.1        | MIT                                 |
@@ -537,7 +537,7 @@ This document was automatically generated on Thu Aug 28 2025.
 | **[tunnel-agent](#09f746d17a1777efda5a12a6072da10c6820d7f56ea8aa0af202a2c83d6ccb67)**                                       | 0.6.0        | Apache-2.0                          |
 | **[tweetnacl](#496caef692284d7a5d6acd31283b785ebca47d82b2d85c9af7ea1913bb4b49a8)**                                          | 0.14.5       | Unlicense                           |
 | **[type-is](#4826b8bc816d5627e521607ab8df332add6d9dd0634bdf34c73473d2bb15900e)**                                            | 2.0.1        | MIT                                 |
-| **[typescript](#6cb25bc9ba0f21035f44b6adb3efea5debe28ff4ea5b63543f704bf2b8d6ebaa)**                                         | 5.8.3        | Apache-2.0                          |
+| **[typescript](#0d7c73afc2d40aadc1fe27e650c887e6552f535cb6cd76912b3290cf78eecb4e)**                                         | 5.9.2        | Apache-2.0                          |
 | **[unified](#1057cb75b5de167b6a4f09619b14f32f3249236942408e06d520f9f60d44def7)**                                            | 10.1.2       | MIT                                 |
 | **[unist-util-generated](#384eae97d41fb95170618763917d7bf8404e7cfafa59c4b02b21166f31cac86c)**                               | 2.0.1        | MIT                                 |
 | **[unist-util-is](#d4d7a620dba27154bcfa90fe9ce5abd1d5707149899214b5f3e5d8c65f3b7f2d)**                                      | 5.2.1        | MIT                                 |
@@ -22438,9 +22438,9 @@ License files:
 
       THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-<a id="77028953dbf1c0658e7548098ee9c65eb010bf5a40354ff46424dd36f72bbc94"></a>
+<a id="b13f074539b075948968158072ac29654e9385ace5841cc1cc6c4b52f1f2a3f2"></a>
 
-### [electron](https://www.npmjs.com/package/electron) (version 37.2.6)
+### [electron](https://www.npmjs.com/package/electron) (version 37.4.0)
 
 License tags: MIT
 
@@ -39489,9 +39489,9 @@ License files:
       TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
       SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-<a id="6cb25bc9ba0f21035f44b6adb3efea5debe28ff4ea5b63543f704bf2b8d6ebaa"></a>
+<a id="0d7c73afc2d40aadc1fe27e650c887e6552f535cb6cd76912b3290cf78eecb4e"></a>
 
-### [typescript](https://www.npmjs.com/package/typescript) (version 5.8.3)
+### [typescript](https://www.npmjs.com/package/typescript) (version 5.9.2)
 
 License tags: Apache-2.0
 
