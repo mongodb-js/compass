@@ -11,6 +11,7 @@ import {
   spacing,
   css,
   Banner,
+  cx,
 } from '@mongodb-js/compass-components';
 
 const { ChatWindow } = LgChatChatWindow;
@@ -23,13 +24,55 @@ interface AssistantChatProps {
   chat: Chat<AssistantMessage>;
 }
 
+const assistantChatStyles = css({
+  // Compass has a global bullet point override but we clear this for the chat.
+  ul: {
+    listStyleType: 'disc',
+  },
+  ol: {
+    listStyleType: 'decimal',
+  },
+});
+
 // TODO(COMPASS-9751): These are temporary patches to make the Assistant chat take the entire
 // width and height of the drawer since Leafygreen doesn't support this yet.
 const assistantChatFixesStyles = css({
   // Negative margin to patch the padding of the drawer.
-  margin: -spacing[400],
-  '> div, > div > div, > div > div > div, > div > div > div > div': {
+  marginTop: -spacing[400],
+  '> div, > div > div, > div > div > div, > div > div > div': {
     height: '100%',
+  },
+  // This is currently set to 'pre-wrap' which causes list items to be on a different line than the list markers.
+  'li, ol': {
+    whiteSpace: 'normal',
+  },
+  /** TODO(COMPASS-9751): We're adjusting styling of all the headers to a lower level than the default for chat, this should be updated in Leafygreen as well and removed from our end. */
+  'h1, h2, h3, h4, h5, h6': {
+    margin: 'unset',
+    color: '#001E2B',
+    fontFamily:
+      "'Euclid Circular A','Helvetica Neue',Helvetica,Arial, sans-serif",
+  },
+  /** h4, h5, h6 -> body 1 styling */
+  'h4, h5, h6': {
+    fontSize: '13px',
+  },
+  /** h1 -> h3 styling */
+  h1: {
+    fontSize: '24px',
+    lineHeight: '32px',
+    fontWeight: 'medium',
+  },
+  /** h2 -> subtitle styling */
+  h2: {
+    color: '#001E2B',
+    fontWeight: 'semibold',
+    fontSize: '18px',
+  },
+  /** h3 -> body 2 styling */
+  h3: {
+    fontSize: '16px',
+    fontWeight: 'semibold',
   },
 });
 const messageFeedFixesStyles = css({ height: '100%' });
@@ -79,7 +122,7 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
   return (
     <div
       data-testid="assistant-chat"
-      className={assistantChatFixesStyles}
+      className={cx(assistantChatFixesStyles, assistantChatStyles)}
       style={{ height: '100%', width: '100%' }}
     >
       <LeafyGreenChatProvider variant={Variant.Compact}>
