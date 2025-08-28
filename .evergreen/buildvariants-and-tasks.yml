@@ -171,7 +171,7 @@ buildvariants:
       - name: test-server-latest-alpha-3
   - name: test-packaged-app-ubuntu
     display_name: Test Packaged App Ubuntu 20.04
-    run_on: ubuntu2004-large
+    run_on: ubuntu2404-latest-large
     patchable: true
     depends_on:
       - name: package-compass
@@ -193,7 +193,7 @@ buildvariants:
       - name: test-packaged-app-3
   - name: test-packaged-app-rhel
     display_name: Test Packaged App RHEL 8.0
-    run_on: rhel80-large
+    run_on: rhel9-latest-large
     patchable: true
     depends_on:
       - name: package-compass

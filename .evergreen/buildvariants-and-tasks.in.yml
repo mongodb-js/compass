@@ -64,7 +64,7 @@ const TEST_PACKAGED_APP_BUILD_VARIANTS = [
   {
     name: 'test-packaged-app-ubuntu',
     display_name: 'Ubuntu 20.04',
-    run_on: 'ubuntu2004-large',
+    run_on: 'ubuntu2404-latest-large',
     depends_on: 'package-ubuntu',
   },
   {
@@ -76,7 +76,7 @@ const TEST_PACKAGED_APP_BUILD_VARIANTS = [
   {
     name: 'test-packaged-app-rhel',
     display_name: 'RHEL 8.0',
-    run_on: 'rhel80-large',
+    run_on: 'rhel9-latest-large',
     depends_on: 'package-rhel',
   },
   {
@@ -104,7 +104,20 @@ const TEST_PACKAGED_APP_BUILD_VARIANTS = [
     run_on: 'macos-14-gui',
     patchable: false,
     depends_on: 'package-macos-x64'
-  }
+  },
+  // {
+  //   name: 'test-packaged-app-macos-15-arm',
+  //   display_name: 'MacOS arm64 15',
+  //   run_on: 'macos-15-arm-gui',
+  //   depends_on: 'package-macos-arm'
+  // },
+  // {
+  //   name: 'test-packaged-app-macos-15-x64',
+  //   display_name: 'MacOS x64 15',
+  //   run_on: 'macos-15-gui',
+  //   patchable: false,
+  //   depends_on: 'package-macos-x64'
+  // }
 ];
 
 const EOL_SERVER_VERSIONS = [
