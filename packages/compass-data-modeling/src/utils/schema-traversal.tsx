@@ -363,7 +363,7 @@ const getOtherVariants = (
   return [...existingAnyOfVariants, ...existingBasicVariants, ...newVariants];
 };
 
-export function getSchemaForNewTypes(
+export function getSchemaWithNewTypes(
   oldSchema: MongoDBJSONSchema,
   newTypes: string[]
 ): MongoDBJSONSchema {
