@@ -1,5 +1,8 @@
 import type { FieldPath, Relationship } from '../services/data-model-storage';
 
+export const isIdField = (fieldPath: FieldPath): boolean =>
+  fieldPath.length === 1 && fieldPath[0] === '_id';
+
 export function areFieldPathsEqual(
   fieldA: FieldPath,
   fieldB: FieldPath

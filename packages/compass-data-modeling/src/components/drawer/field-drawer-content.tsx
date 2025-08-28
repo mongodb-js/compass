@@ -26,7 +26,11 @@ import {
 import { useChangeOnBlur } from './use-change-on-blur';
 import { RelationshipsSection } from './relationships-section';
 import { getFieldFromSchema } from '../../utils/schema-traversal';
-import { areFieldPathsEqual, isRelationshipOfAField } from '../../utils/utils';
+import {
+  areFieldPathsEqual,
+  isIdField,
+  isRelationshipOfAField,
+} from '../../utils/utils';
 
 type FieldDrawerContentProps = {
   namespace: string;
@@ -138,6 +142,7 @@ const FieldDrawerContent: React.FunctionComponent<FieldDrawerContentProps> = ({
         <DMFormFieldContainer>
           <TextInput
             label="Field name"
+            disabled={isIdField(fieldPath)}
             data-testid="data-model-collection-drawer-name-input"
             sizeVariant="small"
             value={fieldName}

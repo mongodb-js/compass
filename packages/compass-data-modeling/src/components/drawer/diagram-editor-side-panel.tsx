@@ -20,6 +20,7 @@ import { getDefaultRelationshipName } from '../../utils';
 import FieldDrawerContent from './field-drawer-content';
 import type { FieldPath } from '../../services/data-model-storage';
 import { getFieldFromSchema } from '../../utils/schema-traversal';
+import { isIdField } from '../../utils/utils';
 
 export const DATA_MODELING_DRAWER_ID = 'data-modeling-drawer';
 
@@ -110,11 +111,15 @@ function DiagramEditorSidePanel({
           ></FieldDrawerContent>
         ),
         actions: [
-          {
-            action: 'delete',
-            label: 'Delete Field',
-            icon: 'Trash' as const,
-          },
+          ...(!isIdField(selectedItems.fieldPath)
+            ? [
+                {
+                  action: 'delete',
+                  label: 'Delete Field',
+                  icon: 'Trash' as const,
+                },
+              ]
+            : []),
         ],
         handleAction: (actionName: string) => {
           if (actionName === 'delete') {
