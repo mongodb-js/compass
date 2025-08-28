@@ -224,13 +224,13 @@ export const MockDataSchemaRawFieldMappingShape = z.record(
   })
 );
 
-export const MockDataSchemaRequestShape = z.object({
-  collectionName: z.string(),
-  databaseName: z.string(),
-  schema: MockDataSchemaRawFieldMappingShape,
-  validationRules: z.record(z.string(), z.unknown()).nullable().optional(),
-  includeSampleValues: z.boolean().default(false),
-});
+export interface MockDataSchemaRequest {
+  collectionName: string;
+  databaseName: string;
+  schema: MockDataSchemaRawFieldMapping;
+  validationRules?: Record<string, unknown> | null;
+  includeSampleValues?: boolean;
+}
 
 export const MockDataSchemaResponseShape = z.object({
   content: z.object({
@@ -260,7 +260,6 @@ export type MockDataSchemaRawFieldMapping = z.infer<
   typeof MockDataSchemaRawFieldMappingShape
 >;
 export type MockDataSchemaRawField = MockDataSchemaRawFieldMapping[string];
-export type MockDataSchemaRequest = z.infer<typeof MockDataSchemaRequestShape>;
 export type MockDataSchemaResponse = z.infer<
   typeof MockDataSchemaResponseShape
 >;

@@ -25,7 +25,6 @@ export {
 } from './components';
 
 export {
-  MockDataSchemaRequestShape,
   MockDataSchemaRawFieldMappingShape,
   MockDataSchemaResponseShape,
 } from './atlas-ai-service';
