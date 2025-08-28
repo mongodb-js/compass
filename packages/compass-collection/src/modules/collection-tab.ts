@@ -1,5 +1,6 @@
 import type { Reducer, AnyAction, Action } from 'redux';
 import { analyzeDocuments } from 'mongodb-schema';
+import { UUID } from 'bson';
 
 import type { CollectionMetadata } from 'mongodb-collection-model';
 import type { ThunkAction } from 'redux-thunk';
@@ -15,7 +16,6 @@ import { type PreferencesAccess } from 'compass-preferences-model/provider';
 import type {
   MockDataSchemaRequest,
   MockDataSchemaResponse,
-  MockDataSchemaRawField,
 } from '@mongodb-js/compass-generative-ai';
 import { isInternalFieldPath } from 'hadron-document';
 import toNS from 'mongodb-ns';
@@ -584,8 +584,8 @@ export const generateFakerMappings = (
       return;
     }
 
-    // todo: dedup/abort around requestId
-    const requestId = 'some-request-id';
+    // todo: dedup/abort requests using requestId (CLOUDP-333850)
+    const requestId = new UUID().toString();
 
     try {
       logger.debug('Generating faker mappings');
