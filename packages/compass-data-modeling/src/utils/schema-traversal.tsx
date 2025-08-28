@@ -166,12 +166,12 @@ export const getFieldFromSchema = ({
   });
 };
 
-type MutationParameters = {
+type UpdateOperationParameters = {
   update: 'removeField' | 'renameField';
   newFieldName?: string;
 };
 
-const getMutatedSchema = ({
+const applySchemaUpdate = ({
   schema,
   fieldName,
   newFieldName,
@@ -179,7 +179,7 @@ const getMutatedSchema = ({
 }: {
   schema: MongoDBJSONSchema;
   fieldName: string;
-} & MutationParameters): MongoDBJSONSchema => {
+} & UpdateOperationParameters): MongoDBJSONSchema => {
   switch (update) {
     case 'removeField': {
       if (!schema.properties || !schema.properties[fieldName])
@@ -221,7 +221,7 @@ export const updateSchema = ({
 }: {
   jsonSchema: MongoDBJSONSchema;
   fieldPath: FieldPath;
-} & MutationParameters): MongoDBJSONSchema => {
+} & UpdateOperationParameters): MongoDBJSONSchema => {
   const newSchema = {
     ...jsonSchema,
   };
@@ -231,7 +231,7 @@ export const updateSchema = ({
   if (newSchema.properties && newSchema.properties[nextInPath]) {
     if (targetReached) {
       // reached the field to remove
-      return getMutatedSchema({
+      return applySchemaUpdate({
         schema: newSchema,
         fieldName: nextInPath,
         update,

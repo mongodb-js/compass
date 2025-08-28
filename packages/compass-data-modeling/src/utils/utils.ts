@@ -14,16 +14,7 @@ export function isSameFieldOrAncestor(
   ancestor: FieldPath,
   child: FieldPath
 ): boolean {
-  if (ancestor.length === child.length)
-    return areFieldPathsEqual(ancestor, child);
-  if (ancestor.length > child.length) return false;
-  // ignore the last character - closing bracket
-  const ancestorPath = JSON.stringify(ancestor).slice(0, -1);
-  const beginningOfChildPath = JSON.stringify(child).slice(
-    0,
-    ancestorPath.length
-  );
-  return ancestorPath === beginningOfChildPath;
+  return ancestor.every((pathPart, index) => pathPart === child[index]);
 }
 
 export function isRelationshipOfAField(

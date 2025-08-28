@@ -81,12 +81,16 @@ export function getIsFieldNameValid(
   const siblingFields = existingFields
     .filter(
       (fieldPath) =>
+        // same level
         fieldPath.length === currentFieldPath.length &&
+        // same path to that level
         areFieldPathsEqual(
           fieldPath.slice(0, fieldPath.length - 1),
           currentFieldPath.slice(0, fieldPath.length - 1)
         ) &&
-        !areFieldPathsEqual(fieldPath, currentFieldPath)
+        // not the same field
+        fieldPath[fieldPath.length - 1] !==
+          currentFieldPath[currentFieldPath.length - 1]
     )
     .map((fieldPath) => fieldPath[fieldPath.length - 1]);
 
