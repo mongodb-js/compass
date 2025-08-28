@@ -11,6 +11,7 @@ import {
 } from '@mongodb-js/compass-components';
 import { BSONType } from 'mongodb';
 import {
+  changeFieldType,
   createNewRelationship,
   deleteRelationship,
   getCurrentDiagramFromState,
@@ -56,8 +57,7 @@ type FieldDrawerContentProps = {
   onChangeFieldType: (
     namespace: string,
     fieldPath: FieldPath,
-    fromBsonType: string | string[],
-    toBsonType: string | string[]
+    newTypes: string[]
   ) => void;
 };
 
@@ -137,9 +137,11 @@ const FieldDrawerContent: React.FunctionComponent<FieldDrawerContentProps> = ({
       [fieldPath, fieldPaths, fieldName]
     );
 
-  const handleTypeChange = (newTypes: string | string[]) => {
-    onChangeFieldType(namespace, fieldPath, types, newTypes);
+  const handleTypeChange = (newTypes: string[]) => {
+    onChangeFieldType(namespace, fieldPath, newTypes);
   };
+
+  const isReadOnly = useMemo(() => isIdField(fieldPath), [fieldPath]);
 
   return (
     <>
@@ -147,7 +149,7 @@ const FieldDrawerContent: React.FunctionComponent<FieldDrawerContentProps> = ({
         <DMFormFieldContainer>
           <TextInput
             label="Field name"
-            disabled={isIdField(fieldPath)}
+            disabled={isReadOnly}
             data-testid="data-model-collection-drawer-name-input"
             sizeVariant="small"
             value={fieldName}
@@ -162,7 +164,7 @@ const FieldDrawerContent: React.FunctionComponent<FieldDrawerContentProps> = ({
             data-testid="lg-combobox-datatype"
             label="Datatype"
             aria-label="Datatype"
-            disabled={true} // TODO(COMPASS-9659): enable when field type change is implemented
+            disabled={isReadOnly}
             value={types}
             size="small"
             multiselect={true}
@@ -228,6 +230,6 @@ export default connect(
     onEditRelationshipClick: selectRelationship,
     onDeleteRelationshipClick: deleteRelationship,
     onRenameField: renameField,
-    onChangeFieldType: () => {}, // TODO(COMPASS-9659): updateFieldSchema,
+    onChangeFieldType: changeFieldType,
   }
 )(FieldDrawerContent);

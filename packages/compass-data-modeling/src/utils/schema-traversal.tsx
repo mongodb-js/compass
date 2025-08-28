@@ -1,4 +1,4 @@
-import type { MongoDBJSONSchema } from 'mongodb-schema';
+import type { JSONSchema, MongoDBJSONSchema } from 'mongodb-schema';
 import type { FieldPath } from '../services/data-model-storage';
 
 /**
@@ -167,14 +167,16 @@ export const getFieldFromSchema = ({
 };
 
 type UpdateOperationParameters = {
-  update: 'removeField' | 'renameField';
+  update: 'removeField' | 'renameField' | 'changeFieldSchema';
   newFieldName?: string;
+  newFieldSchema?: MongoDBJSONSchema;
 };
 
 const applySchemaUpdate = ({
   schema,
   fieldName,
   newFieldName,
+  newFieldSchema,
   update,
 }: {
   schema: MongoDBJSONSchema;
@@ -205,6 +207,22 @@ const applySchemaUpdate = ({
         ),
       };
     }
+    case 'changeFieldSchema': {
+      if (!schema.properties || !schema.properties[fieldName])
+        throw new Error('Field to change type does not exist');
+      if (!newFieldSchema)
+        throw new Error(
+          'New field schema is required for the change operation'
+        );
+      return {
+        ...schema,
+        properties: Object.fromEntries(
+          Object.entries(schema.properties).map(([key, value]) =>
+            key === fieldName ? [key, newFieldSchema] : [key, value]
+          )
+        ),
+      };
+    }
     default:
       return schema;
   }
@@ -216,12 +234,12 @@ const applySchemaUpdate = ({
 export const updateSchema = ({
   jsonSchema,
   fieldPath,
-  update,
-  newFieldName,
+  updateParameters,
 }: {
   jsonSchema: MongoDBJSONSchema;
   fieldPath: FieldPath;
-} & UpdateOperationParameters): MongoDBJSONSchema => {
+  updateParameters: UpdateOperationParameters;
+}): MongoDBJSONSchema => {
   const newSchema = {
     ...jsonSchema,
   };
@@ -234,8 +252,7 @@ export const updateSchema = ({
       return applySchemaUpdate({
         schema: newSchema,
         fieldName: nextInPath,
-        update,
-        newFieldName,
+        ...updateParameters,
       });
     }
     newSchema.properties = {
@@ -243,8 +260,7 @@ export const updateSchema = ({
       [nextInPath]: updateSchema({
         jsonSchema: newSchema.properties[nextInPath],
         fieldPath: remainingFieldPath,
-        update,
-        newFieldName,
+        updateParameters,
       }),
     };
   }
@@ -253,8 +269,7 @@ export const updateSchema = ({
       updateSchema({
         jsonSchema: variant,
         fieldPath: fieldPath,
-        update,
-        newFieldName,
+        updateParameters,
       })
     );
   }
@@ -263,16 +278,14 @@ export const updateSchema = ({
       newSchema.items = updateSchema({
         jsonSchema: newSchema.items,
         fieldPath: fieldPath,
-        update,
-        newFieldName,
+        updateParameters,
       });
     } else {
       newSchema.items = newSchema.items.map((item) =>
         updateSchema({
           jsonSchema: item,
           fieldPath: fieldPath,
-          update,
-          newFieldName,
+          updateParameters,
         })
       );
     }
@@ -280,3 +293,114 @@ export const updateSchema = ({
 
   return newSchema;
 };
+
+const getMin1ArrayVariants = (oldSchema: JSONSchema) => {
+  const arrayVariants = oldSchema.anyOf?.filter(
+    (variant) => variant.bsonType === 'array'
+  );
+  if (arrayVariants && arrayVariants.length > 0) {
+    return arrayVariants as [MongoDBJSONSchema, ...MongoDBJSONSchema[]];
+  }
+  return [
+    {
+      bsonType: 'array',
+      items: oldSchema.items || [],
+    },
+  ];
+};
+
+const getMin1ObjectVariants = (
+  oldSchema: JSONSchema
+): [MongoDBJSONSchema, ...MongoDBJSONSchema[]] => {
+  const objectVariants = oldSchema.anyOf?.filter(
+    (variant) => variant.bsonType === 'object'
+  );
+  if (objectVariants && objectVariants.length > 0) {
+    return objectVariants as [MongoDBJSONSchema, ...MongoDBJSONSchema[]];
+  }
+  return [
+    {
+      bsonType: 'object',
+      items: oldSchema.properties || {},
+      required: oldSchema.required || [],
+    },
+  ];
+};
+
+const getOtherVariants = (
+  oldSchema: JSONSchema,
+  newTypes: string[]
+): MongoDBJSONSchema[] => {
+  const existingAnyOfVariants =
+    oldSchema.anyOf?.filter(
+      (variant) => variant.bsonType !== 'object' && variant.bsonType !== 'array'
+    ) || [];
+  const existingAnyOfTypes = existingAnyOfVariants
+    .map((v) => v.bsonType)
+    .flat();
+  const existingBasicTypes = oldSchema.bsonType
+    ? []
+    : Array.isArray(oldSchema.bsonType)
+    ? oldSchema.bsonType
+    : [oldSchema.bsonType];
+  const existingBasicVariants = existingBasicTypes
+    .filter(
+      (type) => newTypes.includes(type) && type !== 'object' && type !== 'array'
+    )
+    .map((type) => ({ bsonType: type }));
+  const newVariants = newTypes
+    .filter(
+      (type) =>
+        type !== 'object' &&
+        type !== 'array' &&
+        !existingAnyOfTypes.includes(type) &&
+        !existingBasicTypes.includes(type)
+    )
+    .map((type) => ({ bsonType: type }));
+  return [...existingAnyOfVariants, ...existingBasicVariants, ...newVariants];
+};
+
+export function getSchemaForNewTypes(
+  field: {
+    fieldTypes: string[];
+    jsonSchema: MongoDBJSONSchema;
+  },
+  newTypes: string[]
+): MongoDBJSONSchema {
+  const { fieldTypes: oldTypes, jsonSchema: oldSchema } = field;
+  if (oldTypes.join(',') === newTypes.join(',')) return oldSchema;
+  const newSchema: MongoDBJSONSchema = { ...oldSchema };
+
+  // Simple schema - new type does includes neither object nor array
+  if (!newTypes.some((t) => t === 'object' || t === 'array')) {
+    newSchema.bsonType = newTypes;
+    delete newSchema.anyOf;
+    delete newSchema.properties;
+    delete newSchema.items;
+    delete newSchema.required;
+    return newSchema;
+  }
+
+  // Complex schema
+
+  // We collect array sub-schemas we need to keep
+  // Then we add new sub-schemas if needed
+  const arraySchemas: MongoDBJSONSchema[] = newTypes.includes('array')
+    ? getMin1ArrayVariants(oldSchema)
+    : [];
+
+  // We collect object sub-schemas we need to keep
+  const objectSchemas: MongoDBJSONSchema[] = newTypes.includes('object')
+    ? getMin1ObjectVariants(oldSchema)
+    : [];
+
+  const otherSchemas: MongoDBJSONSchema[] = getOtherVariants(
+    oldSchema,
+    newTypes
+  );
+
+  // Finally we set the anyOf to the collected sub-schemas
+  newSchema.anyOf = [...arraySchemas, ...objectSchemas, ...otherSchemas];
+
+  return newSchema;
+}
