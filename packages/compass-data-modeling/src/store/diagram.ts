@@ -31,7 +31,7 @@ import { collectionToDiagramNode } from '../utils/nodes-and-edges';
 import toNS from 'mongodb-ns';
 import {
   getFieldFromSchema,
-  getSchemaForNewTypes,
+  getSchemaWithNewTypes,
   traverseSchema,
 } from '../utils/schema-traversal';
 import { applyEdit as _applyEdit } from './apply-edit';
@@ -703,7 +703,7 @@ export function changeFieldType(
       fieldPath: fieldPath,
     });
     if (!field) throw new Error('Field not found in schema');
-    const to = getSchemaForNewTypes(field.jsonSchema, newTypes);
+    const to = getSchemaWithNewTypes(field.jsonSchema, newTypes);
     dispatch(
       applyEdit({
         type: 'ChangeFieldType',

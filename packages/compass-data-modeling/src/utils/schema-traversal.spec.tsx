@@ -3,7 +3,7 @@ import {
   traverseSchema,
   getFieldFromSchema,
   updateSchema,
-  getSchemaForNewTypes,
+  getSchemaWithNewTypes,
 } from './schema-traversal';
 import Sinon from 'sinon';
 
@@ -1055,17 +1055,17 @@ describe('renameField', function () {
   });
 });
 
-describe('getSchemaForNewTypes', function () {
+describe('getSchemaWithNewTypes', function () {
   describe('basic types', function () {
     it('updates a single type', function () {
       const newTypes = ['string', 'int'];
-      const result = getSchemaForNewTypes({ bsonType: 'string' }, newTypes);
+      const result = getSchemaWithNewTypes({ bsonType: 'string' }, newTypes);
       expect(result).to.deep.equal({ bsonType: newTypes });
     });
 
     it('updates an array of types', function () {
       const newTypes = ['bool', 'int'];
-      const result = getSchemaForNewTypes(
+      const result = getSchemaWithNewTypes(
         { bsonType: ['string', 'bool'] },
         newTypes
       );
@@ -1077,7 +1077,7 @@ describe('getSchemaForNewTypes', function () {
     describe('cleans up the root schema', function () {
       it('changes an object to a string', function () {
         const newTypes = ['string'];
-        const result = getSchemaForNewTypes(
+        const result = getSchemaWithNewTypes(
           {
             bsonType: 'object',
             properties: {
@@ -1092,7 +1092,7 @@ describe('getSchemaForNewTypes', function () {
 
       it('changes an array to a string', function () {
         const newTypes = ['string'];
-        const result = getSchemaForNewTypes(
+        const result = getSchemaWithNewTypes(
           {
             bsonType: 'array',
             items: {
@@ -1128,7 +1128,7 @@ describe('getSchemaForNewTypes', function () {
             },
           ],
         };
-        const result = getSchemaForNewTypes(oldSchema, newTypes);
+        const result = getSchemaWithNewTypes(oldSchema, newTypes);
         // array is no longer part of anyOf, now it is the only type and so the root schema
         expect(result).to.deep.equal(oldSchema.anyOf[1]);
       });
@@ -1155,7 +1155,7 @@ describe('getSchemaForNewTypes', function () {
             },
           ],
         };
-        const result = getSchemaForNewTypes(oldSchema, newTypes);
+        const result = getSchemaWithNewTypes(oldSchema, newTypes);
         // object is no longer part of anyOf, now it is the only type and so the root schema
         expect(result).to.deep.equal(oldSchema.anyOf[0]);
       });
@@ -1184,7 +1184,7 @@ describe('getSchemaForNewTypes', function () {
             },
           ],
         };
-        const result = getSchemaForNewTypes(oldSchema, newTypes);
+        const result = getSchemaWithNewTypes(oldSchema, newTypes);
         expect(result).not.to.have.property('bsonType');
         expect(result.anyOf).to.have.lengthOf(3);
         expect(result.anyOf).to.have.deep.members([
@@ -1201,7 +1201,7 @@ describe('getSchemaForNewTypes', function () {
         const oldSchema = {
           bsonType: 'string',
         };
-        const result = getSchemaForNewTypes(oldSchema, newTypes);
+        const result = getSchemaWithNewTypes(oldSchema, newTypes);
         expect(result).not.to.have.property('bsonType');
         expect(result.anyOf).to.have.lengthOf(2);
         expect(result.anyOf).to.deep.include({
@@ -1219,7 +1219,7 @@ describe('getSchemaForNewTypes', function () {
         const oldSchema = {
           bsonType: 'string',
         };
-        const result = getSchemaForNewTypes(oldSchema, newTypes);
+        const result = getSchemaWithNewTypes(oldSchema, newTypes);
         expect(result).not.to.have.property('bsonType');
         expect(result.anyOf).to.have.lengthOf(2);
         expect(result.anyOf).to.deep.include({
@@ -1240,7 +1240,7 @@ describe('getSchemaForNewTypes', function () {
           },
           required: ['name'],
         };
-        const result = getSchemaForNewTypes(oldSchema, newTypes);
+        const result = getSchemaWithNewTypes(oldSchema, newTypes);
         expect(result).not.to.have.property('bsonType');
         expect(result).not.to.have.property('properties');
         expect(result).not.to.have.property('required');
@@ -1259,7 +1259,7 @@ describe('getSchemaForNewTypes', function () {
           bsonType: 'array',
           items: { bsonType: 'int' },
         };
-        const result = getSchemaForNewTypes(oldSchema, newTypes);
+        const result = getSchemaWithNewTypes(oldSchema, newTypes);
         expect(result).not.to.have.property('bsonType');
         expect(result).not.to.have.property('items');
         expect(result.anyOf).to.have.lengthOf(2);
@@ -1289,7 +1289,7 @@ describe('getSchemaForNewTypes', function () {
             },
           ],
         };
-        const result = getSchemaForNewTypes(oldSchema, newTypes);
+        const result = getSchemaWithNewTypes(oldSchema, newTypes);
         expect(result).not.to.have.property('anyOf');
         expect(result).to.deep.equal({ bsonType: newTypes });
       });
@@ -1313,7 +1313,7 @@ describe('getSchemaForNewTypes', function () {
             },
           ],
         };
-        const result = getSchemaForNewTypes(oldSchema, newTypes);
+        const result = getSchemaWithNewTypes(oldSchema, newTypes);
         expect(result).not.to.have.property('anyOf');
         expect(result).to.deep.equal({ bsonType: newTypes });
       });
