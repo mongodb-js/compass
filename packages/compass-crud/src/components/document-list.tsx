@@ -38,6 +38,7 @@ import {
   useLastAppliedQuery,
 } from '@mongodb-js/compass-query-bar';
 import { usePreference } from 'compass-preferences-model/provider';
+import { useAssistantActions } from '@mongodb-js/compass-assistant';
 
 // Table has its own scrollable container.
 const tableStyles = css({
@@ -516,6 +517,8 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
     docs.forEach((doc) => doc.expanded && doc.collapse());
   }, [docs]);
 
+  const { tellMoreAboutInsight } = useAssistantActions();
+
   return (
     <div className={documentsContainerStyles} data-testid="compass-crud">
       <WorkspaceContainer
@@ -549,13 +552,18 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
             resultId={resultId}
             querySkip={query.skip}
             queryLimit={query.limit}
-            insights={getToolbarSignal(
-              JSON.stringify(query.filter ?? {}),
-              Boolean(isCollectionScan),
+            insights={getToolbarSignal({
+              query: JSON.stringify(query.filter ?? {}),
+              isCollectionScan: Boolean(isCollectionScan),
               isSearchIndexesSupported,
-              store.openCreateIndexModal.bind(store),
-              store.openCreateSearchIndexModal.bind(store)
-            )}
+              onCreateIndex: store.openCreateIndexModal.bind(store),
+              onCreateSearchIndex: store.openCreateSearchIndexModal.bind(store),
+              onAssistantButtonClick: () =>
+                tellMoreAboutInsight({
+                  id: 'query-executed-without-index',
+                  query: JSON.stringify(query),
+                }),
+            })}
             docsPerPage={docsPerPage}
             updateMaxDocumentsPerPage={handleMaxDocsPerPageChanged}
           />
