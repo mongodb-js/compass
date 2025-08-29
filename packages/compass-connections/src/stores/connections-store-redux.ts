@@ -1813,6 +1813,17 @@ const connectWithOptions = (
           );
         }
 
+        // This is used for Data Explorer connection latency tracing
+        log.info(
+          mongoLogId(1_001_000_006),
+          'Compass Connection Attempt Succeeded',
+          'Connection attempt succeeded',
+          {
+            clusterName: connectionInfo.atlasMetadata?.clusterName,
+            connectionId: connectionInfo.id,
+          }
+        );
+
         track(
           'New Connection',
           async () => {
@@ -1861,17 +1872,6 @@ const connectWithOptions = (
         debug(
           'connection attempt succeeded with connection info',
           connectionInfo
-        );
-
-        // This is used for Data Explorer connection latency tracing
-        log.info(
-          mongoLogId(1_001_000_006),
-          'Compass Connection Attempt Succeeded',
-          'Connection attempt succeeded',
-          {
-            clusterName: connectionInfo.atlasMetadata?.clusterName,
-            connectionId: connectionInfo.id,
-          }
         );
 
         connectionProgress.openConnectionSucceededToast(connectionInfo);
