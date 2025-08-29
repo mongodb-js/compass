@@ -1159,6 +1159,52 @@ describe('getSchemaWithNewTypes', function () {
         // object is no longer part of anyOf, now it is the only type and so the root schema
         expect(result).to.deep.equal(oldSchema.anyOf[0]);
       });
+
+      it('removes one of many types', function () {
+        const newTypes = ['object', 'array', 'string', 'bool']; // removes int
+        const oldSchema = {
+          anyOf: [
+            {
+              bsonType: 'object',
+              properties: {
+                name: { bsonType: 'string' },
+              },
+              required: ['name'],
+            },
+            {
+              bsonType: 'array',
+              items: {
+                properties: {
+                  name: { bsonType: 'string' },
+                },
+                required: ['name'],
+              },
+            },
+            {
+              bsonType: 'string',
+            },
+            {
+              bsonType: 'int',
+            },
+            {
+              bsonType: 'bool',
+            },
+          ],
+        };
+        const result = getSchemaWithNewTypes(oldSchema, newTypes);
+        expect(result).to.not.to.have.property('bsonType');
+        expect(result.anyOf).to.have.lengthOf(4);
+        expect(result.anyOf).to.have.deep.members([
+          oldSchema.anyOf[0],
+          oldSchema.anyOf[1],
+          oldSchema.anyOf[2],
+          // int - is missing
+          oldSchema.anyOf[4],
+        ]);
+        expect(result.anyOf).to.not.have.deep.members([
+          oldSchema.anyOf[3], // int - is missing
+        ]);
+      });
     });
 
     describe('uses anyOf for a mixture of simple and complex types', function () {
@@ -1316,6 +1362,27 @@ describe('getSchemaWithNewTypes', function () {
         const result = getSchemaWithNewTypes(oldSchema, newTypes);
         expect(result).not.to.have.property('anyOf');
         expect(result).to.deep.equal({ bsonType: newTypes });
+      });
+
+      it('removes string from a mixed type, leaving object', function () {
+        const newTypes = ['object'];
+        const oldSchema = {
+          anyOf: [
+            {
+              bsonType: 'object',
+              properties: {
+                name: { bsonType: 'string' },
+              },
+              required: ['name'],
+            },
+            {
+              bsonType: 'string',
+            },
+          ],
+        };
+        const result = getSchemaWithNewTypes(oldSchema, newTypes);
+        expect(result).not.to.have.property('anyOf');
+        expect(result).to.deep.equal(oldSchema.anyOf[0]);
       });
     });
   });

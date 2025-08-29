@@ -331,24 +331,28 @@ const getMin1ObjectVariants = (
 };
 
 const getOtherVariants = (
-  oldSchema: JSONSchema,
+  oldSchema: MongoDBJSONSchema,
   newTypes: string[]
 ): MongoDBJSONSchema[] => {
   const existingAnyOfVariants =
     oldSchema.anyOf?.filter(
-      (variant) => variant.bsonType !== 'object' && variant.bsonType !== 'array'
+      (variant) =>
+        typeof variant.bsonType === 'string' &&
+        variant.bsonType !== 'object' &&
+        variant.bsonType !== 'array' &&
+        newTypes.includes(variant.bsonType)
     ) || [];
   const existingAnyOfTypes = existingAnyOfVariants
     .map((v) => v.bsonType)
     .flat();
   const existingBasicTypes = oldSchema.bsonType
-    ? []
-    : Array.isArray(oldSchema.bsonType)
-    ? oldSchema.bsonType
-    : [oldSchema.bsonType];
+    ? Array.isArray(oldSchema.bsonType)
+      ? oldSchema.bsonType
+      : [oldSchema.bsonType]
+    : [];
   const existingBasicVariants = existingBasicTypes
     .filter(
-      (type) => newTypes.includes(type) && type !== 'object' && type !== 'array'
+      (type) => type !== 'object' && type !== 'array' && newTypes.includes(type)
     )
     .map((type) => ({ bsonType: type }));
   const newVariants = newTypes

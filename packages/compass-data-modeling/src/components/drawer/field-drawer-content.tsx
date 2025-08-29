@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { connect } from 'react-redux';
 import type {
   FieldPath,
@@ -117,6 +117,15 @@ const FieldDrawerContent: React.FunctionComponent<FieldDrawerContentProps> = ({
   onRenameField,
   onChangeFieldType,
 }) => {
+  const [fieldTypeEditErrorMessage, setFieldTypeEditErrorMessage] = useState<
+    string | undefined
+  >();
+  const [fieldTypes, setFieldTypes] = useState<string[]>(types);
+
+  useEffect(() => {
+    setFieldTypes(types);
+  }, [types]);
+
   const { value: fieldName, ...nameInputProps } = useChangeOnBlur(
     fieldPath[fieldPath.length - 1],
     (fieldName) => {
@@ -138,6 +147,12 @@ const FieldDrawerContent: React.FunctionComponent<FieldDrawerContentProps> = ({
     );
 
   const handleTypeChange = (newTypes: string[]) => {
+    setFieldTypes(newTypes);
+    if (newTypes.length === 0) {
+      setFieldTypeEditErrorMessage('Field must have a type.');
+      return;
+    }
+    setFieldTypeEditErrorMessage(undefined);
     onChangeFieldType(namespace, fieldPath, newTypes);
   };
 
@@ -165,11 +180,13 @@ const FieldDrawerContent: React.FunctionComponent<FieldDrawerContentProps> = ({
             label="Datatype"
             aria-label="Datatype"
             disabled={isReadOnly}
-            value={types}
+            value={fieldTypes}
             size="small"
             multiselect={true}
             clearable={false}
             onChange={handleTypeChange}
+            state={fieldTypeEditErrorMessage ? 'error' : undefined}
+            errorMessage={fieldTypeEditErrorMessage}
           >
             {BSON_TYPES.map((type) => (
               <ComboboxOption key={type} value={type} />
