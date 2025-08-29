@@ -1459,6 +1459,57 @@ type IndexDroppedEvent = ConnectionScopedEvent<{
 }>;
 
 /**
+ * This event is fired when user enters a prompt in the assistant chat
+ * and hits "enter".
+ *
+ * @category Gen AI
+ */
+type AssistantPromptSubmittedEvent = CommonEvent<{
+  name: 'Assistant Prompt Submitted';
+  payload: {
+    user_input_length?: number;
+  };
+}>;
+
+/**
+ * This event is fired when a user submits feedback for the assistant.
+ *
+ * @category Assistant
+ */
+type AssistantFeedbackSubmittedEvent = CommonEvent<{
+  name: 'Assistant Feedback Submitted';
+  payload: {
+    feedback: 'positive' | 'negative';
+    text: string | undefined;
+    request_id: string | null;
+  };
+}>;
+
+/**
+ * This event is fired when a user uses an assistant entry point.
+ *
+ * @category Gen AI
+ */
+type AssistantEntryPointUsedEvent = CommonEvent<{
+  name: 'Assistant Entry Point Used';
+  payload: {
+    source: 'explain plan' | 'performance insights' | 'connection error';
+  };
+}>;
+
+/**
+ * This event is fired when the AI response encounters an error.
+ *
+ * @category Gen AI
+ */
+type AssistantResponseFailedEvent = CommonEvent<{
+  name: 'Assistant Response Failed';
+  payload: {
+    error_name?: string;
+  };
+}>;
+
+/**
  * This event is fired when a user submits feedback for a query generation.
  *
  * @category Gen AI
@@ -2992,6 +3043,10 @@ export type TelemetryEvent =
   | AggregationTimedOutEvent
   | AggregationUseCaseAddedEvent
   | AggregationUseCaseSavedEvent
+  | AssistantPromptSubmittedEvent
+  | AssistantResponseFailedEvent
+  | AssistantFeedbackSubmittedEvent
+  | AssistantEntryPointUsedEvent
   | AiOptInModalShownEvent
   | AiOptInModalDismissedEvent
   | AiSignInModalShownEvent
