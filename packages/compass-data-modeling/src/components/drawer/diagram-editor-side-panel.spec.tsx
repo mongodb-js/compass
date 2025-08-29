@@ -180,15 +180,15 @@ describe('DiagramEditorSidePanel', function () {
     it('should render a nested field context drawer', async function () {
       const result = renderDrawer();
       result.plugin.store.dispatch(
-        selectField('flights.routes', ['airline', 'id'])
+        selectField('flights.routes', ['airline', '_id'])
       );
 
       await waitForDrawerToOpen();
-      expect(screen.getByTitle('routes.airline.id')).to.be.visible;
+      expect(screen.getByTitle('routes.airline._id')).to.be.visible;
 
       const nameInput = screen.getByLabelText('Field name');
       expect(nameInput).to.be.visible;
-      expect(nameInput).to.have.value('id');
+      expect(nameInput).to.have.value('_id');
 
       const selectedTypes = getMultiComboboxValues('lg-combobox-datatype');
       expect(selectedTypes).to.have.lengthOf(1);
@@ -198,16 +198,16 @@ describe('DiagramEditorSidePanel', function () {
     it('should delete a field', async function () {
       const result = renderDrawer();
       result.plugin.store.dispatch(
-        selectField('flights.routes', ['airline', 'id'])
+        selectField('flights.routes', ['airline', '_id'])
       );
 
       await waitForDrawerToOpen();
-      expect(screen.getByTitle('routes.airline.id')).to.be.visible;
+      expect(screen.getByTitle('routes.airline._id')).to.be.visible;
 
       userEvent.click(screen.getByLabelText(/delete field/i));
 
       await waitFor(() => {
-        expect(screen.queryByText('routes.airline.id')).not.to.exist;
+        expect(screen.queryByText('routes.airline._id')).not.to.exist;
       });
       expect(screen.queryByLabelText('Name')).to.not.exist;
 
@@ -219,7 +219,7 @@ describe('DiagramEditorSidePanel', function () {
 
       expect(
         modifiedCollection?.jsonSchema.properties?.airline.properties
-      ).to.not.have.property('id'); // deleted field
+      ).to.not.have.property('_id'); // deleted field
       expect(
         modifiedCollection?.jsonSchema.properties?.airline.properties
       ).to.have.property('name'); // sibling field remains
@@ -268,7 +268,7 @@ describe('DiagramEditorSidePanel', function () {
       await waitForDrawerToOpen();
       expect(screen.getByTitle('routes.airline.name')).to.be.visible;
 
-      updateInputWithBlur('Field name', 'id');
+      updateInputWithBlur('Field name', '_id');
 
       await waitFor(() => {
         expect(screen.queryByText('Field already exists.')).to.exist;
@@ -358,6 +358,48 @@ describe('DiagramEditorSidePanel', function () {
             .bsonType
         ).to.have.members(['bool', 'int']);
       });
+    });
+
+    it('top level _id field is treated as readonly', async function () {
+      const result = renderDrawer();
+      result.plugin.store.dispatch(selectField('flights.routes', ['_id']));
+
+      await waitForDrawerToOpen();
+      expect(screen.getByTitle('routes._id')).to.be.visible;
+
+      expect(screen.queryByLabelText(/delete field/i)).not.to.exist;
+      expect(screen.getByLabelText('Field name')).to.have.attribute(
+        'aria-disabled',
+        'true'
+      );
+      expect(screen.getByLabelText('Datatype')).to.have.attribute(
+        'aria-disabled',
+        'true'
+      );
+    });
+
+    it('nested _id field is not treated as readonly', async function () {
+      const result = renderDrawer();
+      result.plugin.store.dispatch(
+        selectField('flights.routes', ['airline', '_id'])
+      );
+
+      await waitForDrawerToOpen();
+      expect(screen.getByTitle('routes.airline._id')).to.be.visible;
+
+      expect(screen.queryByLabelText(/delete field/i)).to.exist;
+      expect(screen.queryByLabelText(/delete field/i)).to.have.attribute(
+        'aria-disabled',
+        'false'
+      );
+      expect(screen.getByLabelText('Field name')).to.have.attribute(
+        'aria-disabled',
+        'false'
+      );
+      expect(screen.getByLabelText('Datatype')).to.have.attribute(
+        'aria-disabled',
+        'false'
+      );
     });
   });
 
