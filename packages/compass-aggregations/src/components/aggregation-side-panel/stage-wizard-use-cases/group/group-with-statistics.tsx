@@ -20,7 +20,7 @@ import type { RootState } from '../../../../modules';
 import type { WizardComponentProps } from '..';
 import { FieldCombobox } from '../field-combobox';
 
-type Accumulator = typeof ACCUMULATORS[number];
+type Accumulator = (typeof ACCUMULATORS)[number];
 
 const ACCUMULATOR_LABELS = {
   $avg: 'Average',
