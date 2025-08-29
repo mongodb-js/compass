@@ -90,8 +90,7 @@ describe('AssistantChat', function () {
     expect(sendButton.disabled).to.be.false;
   });
 
-  // Not currently supported by the LeafyGreen Input Bar
-  it.skip('send button is disabled for whitespace-only input', async function () {
+  it('send button is disabled for whitespace-only input', async function () {
     renderWithChat([]);
 
     const inputField = screen.getByPlaceholderText(
