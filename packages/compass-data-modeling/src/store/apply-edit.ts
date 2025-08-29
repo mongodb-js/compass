@@ -4,6 +4,7 @@ import type {
   Relationship,
   StaticModel,
 } from '../services/data-model-storage';
+import { addFieldToJSONSchema } from '../utils/schema';
 import { updateSchema } from '../utils/schema-traversal';
 import {
   isRelationshipInvolvingField,
@@ -143,6 +144,24 @@ export function applyEdit(edit: Edit, model?: StaticModel): StaticModel {
             return {
               ...collection,
               note: edit.note,
+            };
+          }
+          return collection;
+        }),
+      };
+    }
+    case 'AddField': {
+      return {
+        ...model,
+        collections: model.collections.map((collection) => {
+          if (collection.ns === edit.ns) {
+            return {
+              ...collection,
+              jsonSchema: addFieldToJSONSchema(
+                collection.jsonSchema,
+                edit.field,
+                edit.jsonSchema
+              ),
             };
           }
           return collection;
