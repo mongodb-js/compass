@@ -5,3 +5,4 @@ export {
   compassAssistantServiceLocator,
 } from './compass-assistant-provider';
 export type { CompassAssistantService } from './compass-assistant-provider';
+export type { ProactiveInsightsContext, EntryPointMessage } from './prompts';
