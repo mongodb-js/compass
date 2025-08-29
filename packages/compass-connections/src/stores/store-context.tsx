@@ -33,6 +33,7 @@ import {
   toggleConnectionFavoritedStatus,
   importConnections,
   refreshConnections,
+  updateConnectionStep,
 } from './connections-store-redux';
 import type { Store } from 'redux';
 import {
@@ -140,6 +141,13 @@ function getConnectionsActions(dispatch: ConnectionsStore['dispatch']) {
     },
     refreshConnections: () => {
       return dispatch(refreshConnections());
+    },
+    updateConnectionStep: (
+      connectionId: ConnectionId,
+      step: 'topology' | 'authentication' | 'listingDatabases',
+      status: 'pending' | 'in-progress' | 'completed' | 'failed'
+    ) => {
+      return dispatch(updateConnectionStep(connectionId, step, status));
     },
   };
 }
@@ -384,4 +392,25 @@ export function useConnectionsListLoadingStatus() {
       isInitialLoad: status === 'initial' || status === 'loading',
     };
   }, isEqual);
+}
+
+/**
+ * Returns the connecting steps for a specific connection when in connecting state
+ */
+export function useConnectionConnectingSteps(connectionId: ConnectionId): {
+  topology: 'pending' | 'in-progress' | 'completed' | 'failed';
+  authentication: 'pending' | 'in-progress' | 'completed' | 'failed';
+  listingDatabases: 'pending' | 'in-progress' | 'completed' | 'failed';
+} | null {
+  return useSelector(
+    (state) => {
+      const connection = state.connections.byId[connectionId];
+      return connection?.status === 'connecting'
+        ? connection.connectingSteps
+        : null;
+    },
+    (a, b) => {
+      return isShallowEqual(a, b);
+    }
+  );
 }

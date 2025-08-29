@@ -38,7 +38,9 @@ import type {
   ServerClosedEvent,
   ServerDescription,
   ServerHeartbeatFailedEvent,
+  ServerHeartbeatStartedEvent,
   ServerHeartbeatSucceededEvent,
+  CommandStartedEvent,
   TopologyDescription,
   TopologyDescriptionChangedEvent,
   TopologyType,
@@ -179,6 +181,11 @@ export type SampleOptions = {
 export interface DataServiceEventMap {
   topologyDescriptionChanged: (evt: TopologyDescriptionChangedEvent) => void;
   serverHeartbeatFailed: (evt: ServerHeartbeatFailedEvent) => void;
+  serverHeartbeatStarted: (evt: ServerHeartbeatStartedEvent) => void;
+  serverHeartbeatSucceeded: (evt: ServerHeartbeatSucceededEvent) => void;
+  commandStarted: (evt: CommandStartedEvent) => void;
+  commandSucceeded: (evt: CommandSucceededEvent) => void;
+  commandFailed: (evt: CommandFailedEvent) => void;
   connectionInfoSecretsChanged: () => void;
   close: () => void;
   oidcAuthFailed: (error: string) => void;
@@ -2547,6 +2554,13 @@ class DataServiceImpl extends WithLogContext implements DataService {
       };
 
       client.on(
+        'serverHeartbeatStarted',
+        (evt: ServerHeartbeatStartedEvent) => {
+          this._emitter.emit('serverHeartbeatStarted', evt);
+        }
+      );
+
+      client.on(
         'serverHeartbeatSucceeded',
         (evt: ServerHeartbeatSucceededEvent) => {
           const previousStatus = heartbeatStatusMap.get(evt.connectionId);
@@ -2568,6 +2582,8 @@ class DataServiceImpl extends WithLogContext implements DataService {
               }
             );
           }
+
+          this._emitter.emit('serverHeartbeatSucceeded', evt);
         }
       );
 
@@ -2595,6 +2611,10 @@ class DataServiceImpl extends WithLogContext implements DataService {
         this._emitter.emit('serverHeartbeatFailed', evt);
       });
 
+      client.on('commandStarted', (evt: CommandStartedEvent) => {
+        this._emitter.emit('commandStarted', evt);
+      });
+
       client.on('commandSucceeded', (evt: CommandSucceededEvent) => {
         const { address, connectionId, duration, commandName } = evt;
         this._logger.debug(
@@ -2607,6 +2627,8 @@ class DataServiceImpl extends WithLogContext implements DataService {
             commandName,
           }
         );
+
+        this._emitter.emit('commandSucceeded', evt);
       });
 
       client.on('commandFailed', (evt: CommandFailedEvent) => {
@@ -2618,6 +2640,8 @@ class DataServiceImpl extends WithLogContext implements DataService {
           commandName,
           failure: failure.message,
         });
+
+        this._emitter.emit('commandFailed', evt);
       });
     }
   }

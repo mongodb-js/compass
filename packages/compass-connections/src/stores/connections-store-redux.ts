@@ -159,13 +159,17 @@ export type ConnectionState = {
   isAutoconnectInfo?: boolean;
 } & (
   | {
-      status:
-        | 'initial'
-        | 'connecting'
-        | 'connected'
-        | 'disconnected'
-        | 'canceled';
+      status: 'initial' | 'connected' | 'disconnected' | 'canceled';
       error: null;
+    }
+  | {
+      status: 'connecting';
+      error: null;
+      connectingSteps: {
+        topology: 'pending' | 'in-progress' | 'completed' | 'failed';
+        authentication: 'pending' | 'in-progress' | 'completed' | 'failed';
+        listingDatabases: 'pending' | 'in-progress' | 'completed' | 'failed';
+      };
     }
   | { status: 'failed'; error: Error }
 );
@@ -253,6 +257,8 @@ export const enum ActionTypes {
   // entering a device code on the external website. Only required for single
   // connection mode and can be removed afterwards
   OidcNotifyDeviceAuth = 'OidcNotifyDeviceAuth',
+  // Update individual connecting steps
+  ConnectionStepUpdate = 'ConnectionStepUpdate',
   Disconnect = 'Disconnect',
 
   // Actions related to modifying connection info
@@ -359,6 +365,13 @@ type ConnectionAttemptErrorAction = {
 type ConnectionAttemptCancelledAction = {
   type: ActionTypes.ConnectionAttemptCancelled;
   connectionId: ConnectionId;
+};
+
+type ConnectionStepUpdateAction = {
+  type: ActionTypes.ConnectionStepUpdate;
+  connectionId: ConnectionId;
+  step: 'topology' | 'authentication' | 'listingDatabases';
+  status: 'pending' | 'in-progress' | 'completed' | 'failed';
 };
 
 type DisconnectAction = {
@@ -873,6 +886,11 @@ const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
               }),
           status: 'connecting',
           error: null,
+          connectingSteps: {
+            topology: 'pending',
+            authentication: 'pending',
+            listingDatabases: 'pending',
+          },
         }
       ),
       isEditingConnectionInfoModalOpen:
@@ -888,17 +906,28 @@ const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
       ActionTypes.ConnectionAttemptSuccess
     )
   ) {
+    // When connection succeeds, we need to properly handle the discriminating union
+    // by removing connectingSteps property that exists only in 'connecting' state
+    const existingConnection = state.connections.byId[action.connectionId];
+
+    // Create a proper 'connected' state, which excludes connectingSteps
+    const newConnectionState: ConnectionState = {
+      info: existingConnection?.info || ({} as ConnectionInfo),
+      isBeingCreated: false,
+      isAutoconnectInfo: existingConnection?.isAutoconnectInfo,
+      status: 'connected',
+      error: null,
+    };
+
     return {
       ...state,
-      connections: mergeConnectionStateById(
-        state.connections,
-        action.connectionId,
-        {
-          isBeingCreated: false,
-          status: 'connected',
-          error: null,
-        }
-      ),
+      connections: {
+        ...state.connections,
+        byId: {
+          ...state.connections.byId,
+          [action.connectionId]: newConnectionState,
+        },
+      },
     };
   }
   if (
@@ -935,6 +964,31 @@ const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
         }
       ),
       editingConnectionInfoId: connectionState.info.id,
+    };
+  }
+  if (
+    isAction<ConnectionStepUpdateAction>(
+      action,
+      ActionTypes.ConnectionStepUpdate
+    )
+  ) {
+    const currentConnection = state.connections.byId[action.connectionId];
+    if (!currentConnection || currentConnection.status !== 'connecting') {
+      return state;
+    }
+
+    return {
+      ...state,
+      connections: mergeConnectionStateById(
+        state.connections,
+        action.connectionId,
+        {
+          connectingSteps: {
+            ...currentConnection.connectingSteps,
+            [action.step]: action.status,
+          },
+        }
+      ),
     };
   }
   if (isAction<DisconnectAction>(action, ActionTypes.Disconnect)) {
@@ -1299,6 +1353,19 @@ const connectionAttemptError = (
   };
 };
 
+export const updateConnectionStep = (
+  connectionId: ConnectionId,
+  step: 'topology' | 'authentication' | 'listingDatabases',
+  status: 'pending' | 'in-progress' | 'completed' | 'failed'
+): ConnectionStepUpdateAction => {
+  return {
+    type: ActionTypes.ConnectionStepUpdate,
+    connectionId,
+    step,
+    status,
+  };
+};
+
 export const autoconnectCheck = (
   getAutoconnectInfo: (
     connectionStorage: ConnectionStorage
@@ -1474,6 +1541,7 @@ export const connect = (
   | ConnectionAttemptErrorAction
   | ConnectionAttemptSuccessAction
   | ConnectionAttemptCancelledAction
+  | ConnectionStepUpdateAction
 > => {
   return connectWithOptions(connectionInfo, { forceSave: false });
 };
@@ -1486,6 +1554,7 @@ export const saveAndConnect = (
   | ConnectionAttemptErrorAction
   | ConnectionAttemptSuccessAction
   | ConnectionAttemptCancelledAction
+  | ConnectionStepUpdateAction
 > => {
   return connectWithOptions(connectionInfo, { forceSave: true });
 };
@@ -1501,6 +1570,7 @@ const connectWithOptions = (
   | ConnectionAttemptErrorAction
   | ConnectionAttemptSuccessAction
   | ConnectionAttemptCancelledAction
+  | ConnectionStepUpdateAction
 > => {
   return async (
     dispatch,
@@ -1565,6 +1635,11 @@ const connectWithOptions = (
           connectionInfo,
           options: { forceSave: options.forceSave },
         });
+
+        // Start the topology discovery step
+        dispatch(
+          updateConnectionStep(connectionInfo.id, 'topology', 'in-progress')
+        );
 
         track(
           'Connection Attempt',
@@ -1697,6 +1772,58 @@ const connectWithOptions = (
             void dataService.disconnect();
           }
         );
+
+        // Listen for MongoDB driver events and interpret them as connection steps
+        let topologyDiscoveryCompleted = false;
+        let authenticationCompleted = false;
+
+        dataService.on('topologyDescriptionChanged', () => {
+          if (!topologyDiscoveryCompleted) {
+            topologyDiscoveryCompleted = true;
+            dispatch(
+              updateConnectionStep(connectionInfo.id, 'topology', 'completed')
+            );
+            dispatch(
+              updateConnectionStep(
+                connectionInfo.id,
+                'authentication',
+                'in-progress'
+              )
+            );
+          }
+        });
+
+        dataService.on('serverHeartbeatSucceeded', () => {
+          if (!authenticationCompleted && topologyDiscoveryCompleted) {
+            authenticationCompleted = true;
+            dispatch(
+              updateConnectionStep(
+                connectionInfo.id,
+                'authentication',
+                'completed'
+              )
+            );
+            dispatch(
+              updateConnectionStep(
+                connectionInfo.id,
+                'listingDatabases',
+                'in-progress'
+              )
+            );
+          }
+        });
+
+        dataService.on('commandSucceeded', (evt) => {
+          if (evt.commandName === 'listDatabases') {
+            dispatch(
+              updateConnectionStep(
+                connectionInfo.id,
+                'listingDatabases',
+                'completed'
+              )
+            );
+          }
+        });
 
         dataService.on('oidcAuthFailed', (error) => {
           openToast('oidc-auth-failed', {

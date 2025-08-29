@@ -381,6 +381,107 @@ describe('CompassConnections store', function () {
     });
   });
 
+  describe('#updateConnectionStep', function () {
+    it('should update connecting steps in connection state', async function () {
+      const { connectionsStore } = renderCompassConnections({
+        connectFn: async () => {
+          // Simulate a slow connection process
+          await wait(100);
+          return {};
+        },
+      });
+
+      const connectionInfo = createDefaultConnectionInfo();
+
+      // Start connecting (but don't await it)
+      const connectPromise = connectionsStore.actions.connect(connectionInfo);
+
+      // Wait for connection to be in connecting state
+      await waitFor(() => {
+        const state = connectionsStore.getState();
+        const connection = state.connections.byId[connectionInfo.id];
+        expect(connection?.status).to.equal('connecting');
+        if (connection?.status === 'connecting') {
+          expect(connection.connectingSteps).to.deep.equal({
+            topology: 'in-progress', // topology automatically starts as in-progress
+            authentication: 'pending',
+            listingDatabases: 'pending',
+          });
+        }
+      });
+
+      // Update topology discovery step to completed (no longer need to set to in-progress)
+      connectionsStore.actions.updateConnectionStep(
+        connectionInfo.id,
+        'topology',
+        'completed'
+      );
+
+      // Verify topology step was updated to completed
+      await waitFor(() => {
+        const state = connectionsStore.getState();
+        const connection = state.connections.byId[connectionInfo.id];
+        if (connection?.status === 'connecting') {
+          expect(connection.connectingSteps.topology).to.equal('completed');
+        }
+      });
+
+      // Update authentication to in-progress
+      connectionsStore.actions.updateConnectionStep(
+        connectionInfo.id,
+        'authentication',
+        'in-progress'
+      );
+
+      // Verify both steps were updated
+      await waitFor(() => {
+        const state = connectionsStore.getState();
+        const connection = state.connections.byId[connectionInfo.id];
+        if (connection?.status === 'connecting') {
+          expect(connection.connectingSteps).to.deep.equal({
+            topology: 'completed',
+            authentication: 'in-progress',
+            listingDatabases: 'pending',
+          });
+        }
+      });
+
+      // Finish the connection
+      await connectPromise;
+
+      // Verify connection is completed and connectingSteps are no longer present
+      await waitFor(() => {
+        const state = connectionsStore.getState();
+        const connection = state.connections.byId[connectionInfo.id];
+        expect(connection?.status).to.equal('connected');
+        // When status is connected, connectingSteps should not be present (discriminating union)
+        if (connection?.status === 'connected') {
+          expect(connection).to.not.have.property('connectingSteps');
+        }
+      });
+    });
+
+    it('should not update steps for non-connecting connections', function () {
+      const { connectionsStore } = renderCompassConnections({
+        connections: mockConnections,
+      });
+
+      // Try to update a step for a non-connecting connection
+      connectionsStore.actions.updateConnectionStep(
+        mockConnections[0].id,
+        'topology',
+        'in-progress'
+      );
+
+      // Verify the connection state hasn't changed
+      const state = connectionsStore.getState();
+      const connection = state.connections.byId[mockConnections[0].id];
+      // Connection should be in initial state when loaded from mockConnections
+      expect(connection?.status).to.equal('initial');
+      expect(connection).to.not.have.property('connectingSteps');
+    });
+  });
+
   describe('#saveAndConnect', function () {
     it('saves the connection options before connecting', async function () {
       const { connectionsStore, track, connectionStorage } =
