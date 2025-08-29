@@ -628,12 +628,17 @@ describe('Data Modeling tab', function () {
         .waitForDisplayed();
       await relationshipItem
         .$(Selectors.DataModelCollectionRelationshipItemEdit)
+        .waitForClickable();
+      await relationshipItem
+        .$(Selectors.DataModelCollectionRelationshipItemEdit)
         .click();
 
+      const foreignCardinalitySelect = await browser.getInputByLabel(
+        drawer.$(Selectors.DataModelRelationshipForeignCardinalitySelect)
+      );
+      await foreignCardinalitySelect.waitForDisplayed();
       await browser.selectOption({
-        selectSelector: await browser.getInputByLabel(
-          drawer.$(Selectors.DataModelRelationshipForeignCardinalitySelect)
-        ),
+        selectSelector: foreignCardinalitySelect,
         optionSelector: Selectors.DataModelRelationshipCardinalityOption('100'),
       });
 
