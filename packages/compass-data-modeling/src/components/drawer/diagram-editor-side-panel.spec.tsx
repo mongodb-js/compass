@@ -302,7 +302,7 @@ describe('DiagramEditorSidePanel', function () {
         return coll.ns === 'flights.routes';
       });
       expect(
-        modifiedCollection?.jsonSchema.properties.airline.properties.name
+        modifiedCollection?.jsonSchema.properties?.airline?.properties?.name
           .bsonType
       ).to.have.members(['int', 'bool']);
     });
@@ -335,7 +335,7 @@ describe('DiagramEditorSidePanel', function () {
         });
         // type remains unchanged
         expect(
-          modifiedCollection?.jsonSchema.properties.airline.properties.name
+          modifiedCollection?.jsonSchema.properties?.airline?.properties?.name
             .bsonType
         ).to.equal('string');
       });
@@ -354,7 +354,7 @@ describe('DiagramEditorSidePanel', function () {
         });
         // new type applied
         expect(
-          modifiedCollection?.jsonSchema.properties.airline.properties.name
+          modifiedCollection?.jsonSchema.properties?.airline?.properties?.name
             .bsonType
         ).to.have.members(['bool', 'int']);
       });
