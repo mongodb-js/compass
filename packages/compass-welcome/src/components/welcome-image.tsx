@@ -430,8 +430,6 @@ export function WelcomeTabImage(props: SVGProps<SVGSVGElement>) {
 export function ConnectingPlugImage(props: SVGProps<SVGSVGElement>) {
   return (
     <svg
-      width="448"
-      height="298"
       viewBox="0 0 448 298"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"

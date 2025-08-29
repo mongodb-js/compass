@@ -44,33 +44,55 @@ const containerStyles = css({
 const connectingLayoutStyles = css({
   display: 'flex',
   flexDirection: 'column',
-  alignItems: 'center',
+  alignItems: 'flex-start', // Changed from 'center' to 'flex-start' for left alignment
   gap: spacing[300], // Reduce gap to compress layout
-  textAlign: 'center',
+  textAlign: 'left', // Changed from 'center' to 'left'
   maxWidth: '600px',
   width: '100%',
 });
 
 const connectingImageContainerStyles = css({
   display: 'flex',
-  justifyContent: 'center',
+  justifyContent: 'flex-start', // Align with the text
   marginBottom: spacing[200], // Add margin below image
+  width: 'fit-content', // Only take up as much width as needed
+  alignSelf: 'flex-start', // Align to the start of the container
+});
+
+const connectingImageStyles = css({
+  width: '334px', // Match the exact text width (333.22px rounded up)
+  height: 'auto', // Maintain aspect ratio
+  maxWidth: '100%', // Ensure it doesn't overflow container
+});
+
+const connectingTitleStyles = css({
+  width: 'fit-content', // Let the title determine its natural width
+  margin: 0, // Remove any default margins
 });
 
 const connectionListStyles = css({
   display: 'flex',
   flexDirection: 'column',
   gap: spacing[300], // Increase gap for better separation of connections
-  alignItems: 'center',
+  alignItems: 'flex-start', // Changed from 'center' to 'flex-start' for left alignment
   width: '100%',
   marginTop: spacing[400], // Add more space above connection list
 });
 
-const connectionItemStyles = css({
+const connectingConnectionItemStyles = css({
   display: 'flex',
   alignItems: 'center',
   gap: spacing[200],
   fontSize: '14px',
+  color: palette.gray.dark1, // Grayish color for connecting state
+});
+
+const connectedConnectionItemStyles = css({
+  display: 'flex',
+  alignItems: 'center',
+  gap: spacing[200],
+  fontSize: '14px',
+  color: palette.black, // Black color for connected state
 });
 
 const greenIconStyles = css({
@@ -101,11 +123,17 @@ function ConnectionStatus({
     return null;
   }
 
-  const connectionName = connectionInfo.favorite?.name || connectionInfo.id;
+  const connectionName = connectionInfo.title;
 
   return (
     <div>
-      <div className={connectionItemStyles}>
+      <div
+        className={
+          isConnected
+            ? connectedConnectionItemStyles
+            : connectingConnectionItemStyles
+        }
+      >
         {isConnected ? (
           <Icon glyph="Checkmark" size="small" className={greenIconStyles} />
         ) : (
@@ -159,9 +187,13 @@ export default function WebWelcomeTab() {
       <div className={containerStyles}>
         <div className={connectingLayoutStyles}>
           <div className={connectingImageContainerStyles}>
-            <ConnectingPlugImage />
+            <div className={connectingImageStyles}>
+              <ConnectingPlugImage />
+            </div>
           </div>
-          <H3>Connecting to your clusters...</H3>
+          <H3 className={connectingTitleStyles}>
+            Connecting to your clusters...
+          </H3>
           <div className={connectionListStyles}>
             {connectingConnectionIds.map((connectionId) => (
               <ConnectionStatus
