@@ -16,6 +16,7 @@ import type { workspacesServiceLocator } from '@mongodb-js/compass-workspaces/pr
 import type { experimentationServiceLocator } from '@mongodb-js/compass-telemetry/provider';
 import type { connectionInfoRefLocator } from '@mongodb-js/compass-connections/provider';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
+import type { AtlasAiService } from '@mongodb-js/compass-generative-ai/provider';
 import {
   isAIFeatureEnabled,
   type PreferencesAccess,
@@ -43,6 +44,7 @@ export type CollectionTabServices = {
   dataService: DataService;
   collection: Collection;
   localAppRegistry: AppRegistry;
+  atlasAiService: AtlasAiService;
   workspaces: ReturnType<typeof workspacesServiceLocator>;
   experimentationServices: ReturnType<typeof experimentationServiceLocator>;
   connectionInfoRef: ReturnType<typeof connectionInfoRefLocator>;
@@ -62,6 +64,7 @@ export function activatePlugin(
     dataService,
     collection: collectionModel,
     localAppRegistry,
+    atlasAiService,
     workspaces,
     experimentationServices,
     connectionInfoRef,
@@ -89,10 +92,14 @@ export function activatePlugin(
         isModalOpen: false,
         currentStep: MockDataGeneratorStep.AI_DISCLAIMER,
       },
+      fakerSchemaGeneration: {
+        status: 'idle',
+      },
     },
     applyMiddleware(
       thunk.withExtraArgument({
         dataService,
+        atlasAiService,
         workspaces,
         localAppRegistry,
         experimentationServices,

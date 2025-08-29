@@ -227,6 +227,7 @@ export interface MockDataSchemaRequest {
   schema: Record<string, MockDataSchemaRawField>;
   validationRules?: Record<string, unknown> | null;
   includeSampleValues?: boolean;
+  requestId: string;
 }
 
 export const MockDataSchemaResponseShape = z.object({
@@ -466,7 +467,10 @@ export class AtlasAiService {
     const { collectionName, databaseName } = input;
     let schema = input.schema;
 
-    const url = this.getUrlForEndpoint('mock-data-schema', connectionInfo);
+    const url = `${this.getUrlForEndpoint(
+      'mock-data-schema',
+      connectionInfo
+    )}?request_id=${encodeURIComponent(input.requestId)}`;
 
     if (!input.includeSampleValues) {
       const newSchema: Record<
