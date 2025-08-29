@@ -26,7 +26,7 @@ function renderCollectionHeader(
   const mockStore = createStore(() => ({
     mockDataGenerator: {
       isModalOpen: false,
-      currentStep: MockDataGeneratorStep.AI_DISCLAIMER,
+      currentStep: MockDataGeneratorStep.SCHEMA_CONFIRMATION,
     },
   }));
 
