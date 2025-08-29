@@ -1,14 +1,16 @@
 /* eslint-disable no-console */
 import { createOpenAI } from '@ai-sdk/openai';
-import { streamText } from 'ai';
+import { defaultSettingsMiddleware, wrapLanguageModel } from 'ai';
 import { init, Factuality as _Factuality } from 'autoevals';
-import { Eval } from 'braintrust';
+import { Eval, BraintrustMiddleware } from 'braintrust';
 import type { EvalCase, EvalScorer } from 'braintrust';
 import { OpenAI } from 'openai';
 import { evalCases } from './eval-cases';
 import { fuzzyLinkMatch } from './fuzzylinkmatch';
 import { binaryNdcgAtK } from './binaryndcgatk';
 import { makeEntrypointCases } from './entrypoints';
+import { makeCreateResponse } from '../src/docs-provider-transport';
+import { type buildPrompts } from '../src/prompts';
 
 const client = new OpenAI({
   baseURL: 'https://api.braintrust.dev/v1/proxy',
@@ -20,8 +22,13 @@ init({ client });
 export type SimpleEvalCase = {
   name?: string;
   input: string;
+  /**
+   * Include this in eval cases where you want to test the custom system prompt behavior.
+   */
+  systemPromptType?: keyof typeof buildPrompts;
   expected: string;
   expectedSources?: string[];
+  tags?: string[];
 };
 
 type Message = {
@@ -33,6 +40,7 @@ type ExpectedMessage = OutputMessage;
 
 type ConversationEvalCaseInput = {
   messages: InputMessage[];
+  systemPromptType?: keyof typeof buildPrompts;
 };
 
 type ConversationEvalCaseExpected = {
@@ -78,6 +86,29 @@ function getScorerTemperature(): number | undefined {
   return undefined;
 }
 
+const createResponse = makeCreateResponse({
+  languageModel: wrapLanguageModel({
+    model: createOpenAI({
+      baseURL:
+        process.env.COMPASS_ASSISTANT_BASE_URL_OVERRIDE ??
+        'https://knowledge.staging.corp.mongodb.com/api/v1',
+      apiKey: '',
+      headers: { 'User-Agent': 'mongodb-compass/x.x.x' },
+    }).responses('mongodb-chat-latest'),
+    middleware: [
+      // Traces calls to Assistant API
+      BraintrustMiddleware({
+        debug: true,
+      }),
+      defaultSettingsMiddleware({
+        settings: {
+          temperature: getChatTemperature(),
+        },
+      }),
+    ],
+  }),
+});
+
 function makeEvalCases(): ConversationEvalCase[] {
   const entrypointCases: ConversationEvalCase[] = makeEntrypointCases();
 
@@ -90,6 +121,7 @@ function makeEvalCases(): ConversationEvalCase[] {
       expected: {
         messages: [{ text: c.expected, sources: c.expectedSources || [] }],
       },
+      tags: c.tags ?? [],
       metadata: {},
     };
   });
@@ -100,42 +132,17 @@ function makeEvalCases(): ConversationEvalCase[] {
 async function makeAssistantCall(
   input: ConversationEvalCaseInput
 ): Promise<ConversationTaskOutput> {
-  const openai = createOpenAI({
-    baseURL:
-      process.env.COMPASS_ASSISTANT_BASE_URL_OVERRIDE ??
-      'https://knowledge.staging.corp.mongodb.com/api/v1',
-    apiKey: '',
-    headers: {
-      'User-Agent': 'mongodb-compass/x.x.x',
-    },
-  });
   const prompt = allText(input.messages);
 
-  const result = streamText({
-    model: openai.responses('mongodb-chat-latest'),
-    temperature: getChatTemperature(),
-    prompt,
+  const result = createResponse({
+    messages: [{ content: prompt, role: 'user' }],
+    systemPromptType: input.systemPromptType,
   });
-
-  const chunks: string[] = [];
-
-  for await (const chunk of result.toUIMessageStream()) {
-    const t = ((chunk as any).delta as string) || '';
-    if (t) {
-      chunks.push(t);
-    }
-  }
-  const text = chunks.join('');
-
-  // TODO: something's up with this type. url does exist on it.
-  const resolvedSources = (await result.sources) as { url: string }[];
-
-  const sources = resolvedSources
-    .map((source) => {
-      console.log(source);
-      return source.url;
-    })
-    .filter((url) => !!url);
+  const text = await result.text;
+  // TODO: validate that this works as expected. If not, we must pull the sources out of the stream
+  const sources = (await result.sources).map((source) => {
+    return source.id;
+  });
 
   return {
     messages: [{ text, sources }],

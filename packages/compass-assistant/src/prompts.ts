@@ -1,4 +1,6 @@
-export const buildExplainPlanPrompt = ({
+const explainPlanSystemPrompt = `TODO:....add custom prompt stuff here`;
+
+const buildExplainPlanUserPrompt = ({
   explainPlan,
 }: {
   explainPlan: string;
@@ -12,7 +14,9 @@ ${explainPlan}`,
   };
 };
 
-export const buildConnectionErrorPrompt = ({
+const connectionErrorSystemPrompt = `TODO:....add custom prompt stuff here`;
+
+const buildConnectionUserErrorPrompt = ({
   connectionString,
   connectionError,
 }: {
@@ -29,3 +33,14 @@ Error message:
 ${connectionError}`,
   };
 };
+
+export const buildPrompts = {
+  'explain-plan': {
+    user: buildExplainPlanUserPrompt,
+    system: explainPlanSystemPrompt,
+  },
+  'connection-error': {
+    user: buildConnectionUserErrorPrompt,
+    system: connectionErrorSystemPrompt,
+  },
+} as const;

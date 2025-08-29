@@ -1,8 +1,11 @@
 import type { SimpleEvalCase } from '../assistant.eval';
 
-const evalCase: SimpleEvalCase = {
-  input: 'What is an aggregation pipeline?',
-  expected: `The aggregation pipeline in MongoDB is a framework for data processing and transformation. It consists of a sequence of stages, where each stage performs an operation on the input documents and passes the results to the next stage. Common operations include filtering, grouping, projecting, joining, and calculating values. Aggregation pipelines are powerful for data analysis, reporting, and transformation tasks in MongoDB.
+export const aggregationTag = 'aggregation';
+
+const evalCases: SimpleEvalCase[] = [
+  {
+    input: 'What is an aggregation pipeline?',
+    expected: `The aggregation pipeline in MongoDB is a framework for data processing and transformation. It consists of a sequence of stages, where each stage performs an operation on the input documents and passes the results to the next stage. Common operations include filtering, grouping, projecting, joining, and calculating values. Aggregation pipelines are powerful for data analysis, reporting, and transformation tasks in MongoDB.
 
 Compass makes it easy to create and run aggregation pipelines under the Aggregations tab. You may generate an aggregation pipeline with natural language, utilize the visual stage editor, or edit aggregations in the text view. 
 
@@ -30,10 +33,11 @@ db.orders.aggregate([
    { $unset: ["_id"] }
 ])
 `,
-  expectedSources: [
-    'https://www.mongodb.com/docs/manual/core/aggregation-pipeline/',
-    'https://www.mongodb.com/docs/compass/create-agg-pipeline/',
-  ],
-};
+    expectedSources: [
+      'https://www.mongodb.com/docs/manual/core/aggregation-pipeline/',
+      'https://www.mongodb.com/docs/compass/create-agg-pipeline/',
+    ],
+  },
+].map((c) => ({ ...c, tags: [aggregationTag] }));
 
-export default evalCase;
+export default evalCases;

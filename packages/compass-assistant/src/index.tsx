@@ -5,3 +5,7 @@ export {
   compassAssistantServiceLocator,
 } from './compass-assistant-provider';
 export type { CompassAssistantService } from './compass-assistant-provider';
+export type {
+  DocsProviderTransport,
+  makeCreateResponse,
+} from './docs-provider-transport';

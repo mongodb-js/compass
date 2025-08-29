@@ -9,7 +9,7 @@ import {
 import { atlasServiceLocator } from '@mongodb-js/atlas-service/provider';
 import { DocsProviderTransport } from './docs-provider-transport';
 import { useDrawerActions } from '@mongodb-js/compass-components';
-import { buildConnectionErrorPrompt, buildExplainPlanPrompt } from './prompts';
+import { buildPrompts } from './prompts';
 import { usePreference } from 'compass-preferences-model/provider';
 import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
@@ -22,6 +22,7 @@ export type AssistantMessage = UIMessage & {
   metadata?: {
     /** The text to display instead of the message text. */
     displayText?: string;
+    type?: keyof typeof buildPrompts;
   };
 };
 
@@ -93,7 +94,7 @@ export const AssistantProvider: React.FunctionComponent<
   const assistantActionsContext = useRef<AssistantActionsContextType>({
     interpretExplainPlan: ({ explainPlan }) => {
       openDrawer(ASSISTANT_DRAWER_ID);
-      const { prompt, displayText } = buildExplainPlanPrompt({
+      const { prompt, displayText } = buildPrompts['explain-plan'].user({
         explainPlan,
       });
       void chat.sendMessage(
@@ -101,6 +102,7 @@ export const AssistantProvider: React.FunctionComponent<
           text: prompt,
           metadata: {
             displayText,
+            type: 'explain-plan',
           },
         },
         {}
@@ -117,13 +119,16 @@ export const AssistantProvider: React.FunctionComponent<
       );
       const connectionError = error.toString();
 
-      const { prompt } = buildConnectionErrorPrompt({
+      const { prompt } = buildPrompts['connection-error'].user({
         connectionString,
         connectionError,
       });
       void chat.sendMessage(
         {
           text: prompt,
+          metadata: {
+            type: 'connection-error',
+          },
         },
         {}
       );
