@@ -9,6 +9,7 @@ import { evalCases } from './eval-cases';
 import { fuzzyLinkMatch } from './fuzzylinkmatch';
 import { binaryNdcgAtK } from './binaryndcgatk';
 import { makeEntrypointCases } from './entrypoints';
+import { buildConversationInstructionsPrompt } from '../src/prompts';
 
 const client = new OpenAI({
   baseURL: 'https://api.braintrust.dev/v1/proxy',
@@ -32,6 +33,7 @@ type OutputMessage = Message & { sources: string[] };
 type ExpectedMessage = OutputMessage;
 
 type ConversationEvalCaseInput = {
+  instructions: Message;
   messages: InputMessage[];
 };
 
@@ -79,13 +81,32 @@ function getScorerTemperature(): number | undefined {
 }
 
 function makeEvalCases(): ConversationEvalCase[] {
-  const entrypointCases: ConversationEvalCase[] = makeEntrypointCases();
+  const instructions = buildConversationInstructionsPrompt({
+    target: 'Compass',
+  });
+
+  const entrypointCases: ConversationEvalCase[] = makeEntrypointCases().map(
+    (c) => {
+      return {
+        name: c.name ?? c.input,
+        input: {
+          messages: [{ text: c.input }],
+          instructions: { text: instructions },
+        },
+        expected: {
+          messages: [{ text: c.expected, sources: c.expectedSources || [] }],
+        },
+        metadata: {},
+      };
+    }
+  );
 
   const userCases: ConversationEvalCase[] = evalCases.map((c) => {
     return {
       name: c.name ?? c.input,
       input: {
         messages: [{ text: c.input }],
+        instructions: { text: instructions },
       },
       expected: {
         messages: [{ text: c.expected, sources: c.expectedSources || [] }],
@@ -115,6 +136,11 @@ async function makeAssistantCall(
     model: openai.responses('mongodb-chat-latest'),
     temperature: getChatTemperature(),
     prompt,
+    providerOptions: {
+      openai: {
+        instructions: input.instructions.text,
+      },
+    },
   });
 
   const chunks: string[] = [];
