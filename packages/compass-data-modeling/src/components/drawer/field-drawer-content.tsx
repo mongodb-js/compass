@@ -13,7 +13,10 @@ import { BSONType } from 'mongodb';
 import {
   createNewRelationship,
   deleteRelationship,
-  selectCurrentModelFromState,
+  getCurrentDiagramFromState,
+  renameField,
+  selectCurrentModel,
+  selectFieldsForCurrentModel,
   selectRelationship,
 } from '../../store/diagram';
 import type { DataModelingState } from '../../store/reducer';
@@ -24,7 +27,11 @@ import {
 import { useChangeOnBlur } from './use-change-on-blur';
 import { RelationshipsSection } from './relationships-section';
 import { getFieldFromSchema } from '../../utils/schema-traversal';
-import { areFieldPathsEqual } from '../../utils/utils';
+import {
+  areFieldPathsEqual,
+  isIdField,
+  isRelationshipOfAField,
+} from '../../utils/utils';
 
 type FieldDrawerContentProps = {
   namespace: string;
@@ -44,7 +51,7 @@ type FieldDrawerContentProps = {
   onRenameField: (
     namespace: string,
     fromFieldPath: FieldPath,
-    toFieldPath: FieldPath
+    newName: string
   ) => void;
   onChangeFieldType: (
     namespace: string,
@@ -72,11 +79,23 @@ export function getIsFieldNameValid(
     };
   }
 
-  const fieldsNamesWithoutCurrent = existingFields
-    .filter((fieldPath) => !areFieldPathsEqual(fieldPath, currentFieldPath))
+  const siblingFields = existingFields
+    .filter(
+      (fieldPath) =>
+        // same level
+        fieldPath.length === currentFieldPath.length &&
+        // same path to that level
+        areFieldPathsEqual(
+          fieldPath.slice(0, fieldPath.length - 1),
+          currentFieldPath.slice(0, fieldPath.length - 1)
+        ) &&
+        // not the same field
+        fieldPath[fieldPath.length - 1] !==
+          currentFieldPath[currentFieldPath.length - 1]
+    )
     .map((fieldPath) => fieldPath[fieldPath.length - 1]);
 
-  const isDuplicate = fieldsNamesWithoutCurrent.some(
+  const isDuplicate = siblingFields.some(
     (fieldName) => fieldName === trimmedName
   );
 
@@ -108,10 +127,7 @@ const FieldDrawerContent: React.FunctionComponent<FieldDrawerContentProps> = ({
       if (!isFieldNameValid) {
         return;
       }
-      onRenameField(namespace, fieldPath, [
-        ...fieldPath.slice(0, fieldPath.length - 1),
-        trimmedName,
-      ]);
+      onRenameField(namespace, fieldPath, trimmedName);
     }
   );
 
@@ -131,7 +147,7 @@ const FieldDrawerContent: React.FunctionComponent<FieldDrawerContentProps> = ({
         <DMFormFieldContainer>
           <TextInput
             label="Field name"
-            disabled={true} // TODO: enable when field renaming is implemented
+            disabled={isIdField(fieldPath)}
             data-testid="data-model-collection-drawer-name-input"
             sizeVariant="small"
             value={fieldName}
@@ -181,35 +197,37 @@ export default connect(
     state: DataModelingState,
     ownProps: { namespace: string; fieldPath: FieldPath }
   ) => {
-    const model = selectCurrentModelFromState(state);
+    const diagram = getCurrentDiagramFromState(state);
+    const model = selectCurrentModel(diagram.edits);
+    const collectionSchema = model.collections.find(
+      (collection) => collection.ns === ownProps.namespace
+    )?.jsonSchema;
+    if (!collectionSchema) {
+      throw new Error('Collection not found');
+    }
     return {
       types:
         getFieldFromSchema({
-          jsonSchema:
-            model.collections.find(
-              (collection) => collection.ns === ownProps.namespace
-            )?.jsonSchema ?? {},
+          jsonSchema: collectionSchema,
           fieldPath: ownProps.fieldPath,
         })?.fieldTypes ?? [],
-      fieldPaths: [], // TODO(COMPASS-9659): get existing field paths
-      relationships: model.relationships.filter((r) => {
-        const [local, foreign] = r.relationship;
-        return (
-          (local.ns === ownProps.namespace &&
-            local.fields &&
-            areFieldPathsEqual(local.fields, ownProps.fieldPath)) ||
-          (foreign.ns === ownProps.namespace &&
-            foreign.fields &&
-            areFieldPathsEqual(foreign.fields, ownProps.fieldPath))
-        );
-      }),
+      fieldPaths: selectFieldsForCurrentModel(diagram.edits)[
+        ownProps.namespace
+      ],
+      relationships: model.relationships.filter(({ relationship }) =>
+        isRelationshipOfAField(
+          relationship,
+          ownProps.namespace,
+          ownProps.fieldPath
+        )
+      ),
     };
   },
   {
     onCreateNewRelationshipClick: createNewRelationship,
     onEditRelationshipClick: selectRelationship,
     onDeleteRelationshipClick: deleteRelationship,
-    onRenameField: () => {}, // TODO(COMPASS-9659): renameField,
+    onRenameField: renameField,
     onChangeFieldType: () => {}, // TODO(COMPASS-9659): updateFieldSchema,
   }
 )(FieldDrawerContent);
