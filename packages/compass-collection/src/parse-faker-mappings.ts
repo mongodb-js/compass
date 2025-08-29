@@ -123,7 +123,7 @@ function countSeparators(input: string): number {
 export function renderFakerCallTree(input: FakerCallTree): string {
   let result = '\n';
 
-  function inner(data: any, indent: number): string {
+  function inner(data: FakerCallTree, indent: number): string {
     const entries = Object.entries(data);
     let innerContent = '';
 
@@ -136,7 +136,7 @@ export function renderFakerCallTree(input: FakerCallTree): string {
       } else if (typeof value === 'object' && !Array.isArray(value)) {
         // recursive case
         line += '{\n';
-        line += inner(value, indent + 1); // Recursively process the nested object
+        line += inner(value, indent + 1);
         line += `${'\t'.repeat(indent)}}`;
       } else {
         throw Error(
@@ -148,7 +148,6 @@ export function renderFakerCallTree(input: FakerCallTree): string {
         line += ',';
       }
 
-      // Add formatting and accumulate content
       line += '\n';
       innerContent += line;
     });
