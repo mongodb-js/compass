@@ -748,4 +748,77 @@ describe('CrudToolbar Component', function () {
       });
     });
   });
+
+  describe('insights signal functionality', function () {
+    it('should show "Tell me more" button and hide standalone "Learn more" link when insights with onAssistantButtonClick is provided', function () {
+      const onAssistantButtonClick = sinon.spy();
+      const insights = {
+        id: 'test-insight',
+        title: 'Test Insight',
+        description: 'This is a test insight.',
+        learnMoreLink: 'https://example.com',
+        onAssistantButtonClick,
+      };
+
+      renderCrudToolbar({
+        insights,
+      });
+
+      userEvent.click(screen.getByTestId('insight-badge-button'));
+
+      expect(screen.getByTestId('tell-me-more-button')).to.exist;
+      expect(screen.getByText('Tell me more')).to.exist;
+
+      const learnMoreLinks = screen.getAllByTestId('insight-signal-link');
+      expect(learnMoreLinks).to.have.length(1);
+    });
+
+    it('should show "Learn more" link and hide "Tell me more" button when insights without onAssistantButtonClick is provided', function () {
+      const insights = {
+        id: 'test-insight',
+        title: 'Test Insight',
+        description: 'This is a test insight.',
+        learnMoreLink: 'https://example.com',
+      };
+
+      renderCrudToolbar({
+        insights,
+      });
+
+      userEvent.click(screen.getByTestId('insight-badge-button'));
+
+      expect(screen.getByTestId('insight-signal-link')).to.exist;
+      expect(screen.getByText('Learn more')).to.exist;
+
+      expect(() => screen.getByTestId('tell-me-more-button')).to.throw();
+    });
+
+    it('should call onAssistantButtonClick when "Tell me more" button is clicked', function () {
+      const onAssistantButtonClick = sinon.spy();
+      const insights = {
+        id: 'test-insight',
+        title: 'Test Insight',
+        description: 'This is a test insight.',
+        learnMoreLink: 'https://example.com',
+        onAssistantButtonClick,
+      };
+
+      renderCrudToolbar({
+        insights,
+      });
+
+      userEvent.click(screen.getByTestId('insight-badge-button'));
+
+      const tellMeMoreButton = screen.getByTestId('tell-me-more-button');
+      userEvent.click(tellMeMoreButton);
+
+      expect(onAssistantButtonClick).to.have.been.calledOnce;
+    });
+
+    it('should not render signal popover when insights is not provided', function () {
+      renderCrudToolbar();
+
+      expect(() => screen.getByTestId('insight-badge-button')).to.throw();
+    });
+  });
 });
