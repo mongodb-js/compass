@@ -278,6 +278,7 @@ const reducer: Reducer<WorkspacesState, Action> = (
   state = getInitialState(),
   action
 ) => {
+  // TODO: basically just add code here to make sure userData is updated
   if (isAction<OpenWorkspaceAction>(action, WorkspacesActions.OpenWorkspace)) {
     const currentActiveTab = getActiveTab(state);
     const newTab = getInitialTabState(action.workspace);
