@@ -150,7 +150,7 @@ describe('CompassConnections store', function () {
       }
     });
 
-    it('should show debug toast in addition to the connection error toast if connection fails and the assistant is enabled', async function () {
+    it('should show debug action in addition to review if connection fails and the assistant is enabled', async function () {
       const { connectionsStore } = renderCompassConnections({
         preferences: {
           enableAIAssistant: true,
@@ -169,8 +169,7 @@ describe('CompassConnections store', function () {
       });
 
       await waitFor(() => {
-        expect(screen.getByText('Need help debugging your connection error?'))
-          .to.exist;
+        expect(screen.getByText('Debug for me')).to.exist;
       });
     });
 

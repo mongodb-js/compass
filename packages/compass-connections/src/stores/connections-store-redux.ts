@@ -1270,24 +1270,29 @@ const connectionAttemptError = (
     _getState,
     { track, getExtraConnectionData, compassAssistant }
   ) => {
-    const { openConnectionFailedToast, openDebugConnectionErrorToast } =
-      getNotificationTriggers();
+    const { openConnectionFailedToast } = getNotificationTriggers();
 
     const isAssistanceEnabled = compassAssistant.getIsAssistantEnabled();
-    if (isAssistanceEnabled && connectionInfo) {
-      openDebugConnectionErrorToast(connectionInfo, err, () => {
-        compassAssistant.interpretConnectionError({
-          connectionInfo,
-          error: err,
-        });
-      });
-    }
 
     const showReviewButton = !!connectionInfo && !connectionInfo.atlasMetadata;
-    openConnectionFailedToast(connectionInfo, err, showReviewButton, () => {
-      if (connectionInfo) {
-        dispatch(editConnection(connectionInfo.id));
-      }
+    openConnectionFailedToast({
+      connectionInfo,
+      error: err,
+      showReviewButton,
+      showDebugButton: isAssistanceEnabled,
+      onReviewClick() {
+        if (connectionInfo) {
+          dispatch(editConnection(connectionInfo.id));
+        }
+      },
+      onDebugClick() {
+        if (connectionInfo) {
+          compassAssistant.interpretConnectionError({
+            connectionInfo,
+            error: err,
+          });
+        }
+      },
     });
 
     track(
