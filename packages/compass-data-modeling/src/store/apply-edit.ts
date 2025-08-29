@@ -167,7 +167,7 @@ export function applyEdit(edit: Edit, model?: StaticModel): StaticModel {
             jsonSchema: updateSchema({
               jsonSchema: collection.jsonSchema,
               fieldPath: edit.field,
-              update: 'removeField',
+              updateParameters: { update: 'removeField' },
             }),
           };
         }),
@@ -198,8 +198,29 @@ export function applyEdit(edit: Edit, model?: StaticModel): StaticModel {
             jsonSchema: updateSchema({
               jsonSchema: collection.jsonSchema,
               fieldPath: edit.field,
-              update: 'renameField',
-              newFieldName: edit.newName,
+              updateParameters: {
+                update: 'renameField',
+                newFieldName: edit.newName,
+              },
+            }),
+          };
+        }),
+      };
+    }
+    case 'ChangeFieldType': {
+      return {
+        ...model,
+        collections: model.collections.map((collection) => {
+          if (collection.ns !== edit.ns) return collection;
+          return {
+            ...collection,
+            jsonSchema: updateSchema({
+              jsonSchema: collection.jsonSchema,
+              fieldPath: edit.field,
+              updateParameters: {
+                update: 'changeFieldSchema',
+                newFieldSchema: edit.to,
+              },
             }),
           };
         }),
