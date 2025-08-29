@@ -356,10 +356,7 @@ export const saveRecentAsFavorite = (
       };
 
       // add it in the favorite
-      await favoriteQueryStorage?.updateAttributes(
-        favoriteQuery._id,
-        favoriteQuery
-      );
+      await favoriteQueryStorage?.saveQuery(favoriteQuery, favoriteQuery._id);
 
       // update favorites
       void dispatch(fetchFavorites());

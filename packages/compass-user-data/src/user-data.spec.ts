@@ -2,13 +2,14 @@ import fs from 'fs/promises';
 import os from 'os';
 import path from 'path';
 import { expect } from 'chai';
-import {
-  FileUserData,
-  AtlasUserData,
-  type FileUserDataOptions,
-} from './user-data';
 import { z, type ZodError } from 'zod';
 import sinon from 'sinon';
+
+import {
+  AtlasUserData,
+  FileUserData,
+  type FileUserDataOptions,
+} from './user-data';
 
 type ValidatorOptions = {
   allowUnknownProps?: boolean;
