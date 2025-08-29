@@ -12,6 +12,8 @@ export function mockRegularIndex(info: Partial<RegularIndex>): RegularIndex {
     relativeSize: 0,
     cardinality: 'single',
     properties: [],
+    buildProgress: 0,
+    usageCount: 0,
     ...info,
     extra: {
       ...info.extra,

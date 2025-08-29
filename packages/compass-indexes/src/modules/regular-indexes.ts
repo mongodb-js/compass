@@ -36,12 +36,14 @@ export type RegularIndex = Partial<IndexDefinition> &
     | 'size'
     | 'relativeSize'
     | 'usageCount'
+    | 'buildProgress'
   >;
 
 export type InProgressIndex = Pick<IndexDefinition, 'name' | 'fields'> & {
   id: string;
   status: 'inprogress' | 'failed';
   error?: string;
+  buildProgress: number;
 };
 
 export type RollingIndex = Partial<AtlasIndexStats> &
@@ -83,6 +85,7 @@ export const prepareInProgressIndex = (
     status: 'inprogress',
     fields: inProgressIndexFields,
     name: inProgressIndexName,
+    buildProgress: 0,
     // TODO(COMPASS-8335): we never mapped properties and the table does have
     // room to display them
   };
