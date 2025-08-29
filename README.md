@@ -10,7 +10,7 @@ For contributing, please refer to [CONTRIBUTING.md](CONTRIBUTING.md)
 
 For issues, please create a ticket in our [JIRA Project](https://jira.mongodb.org/browse/COMPASS).
 
-Is there anything else you’d like to see in Compass? Let us know by submitting suggestions in out [feedback forum](https://feedback.mongodb.com/forums/924283-compass).
+Is there anything else you’d like to see in Compass? Let us know by submitting suggestions in out [feedback forum](https://feedback.mongodb.com/).
 
 ## Packages Overview
 

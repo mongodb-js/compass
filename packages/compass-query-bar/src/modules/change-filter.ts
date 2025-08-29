@@ -328,7 +328,7 @@ const CHANGE_FNS = {
 export type ChangeFilterEvent = {
   [key in keyof typeof CHANGE_FNS]: {
     type: key;
-    payload: typeof CHANGE_FNS[key] extends (
+    payload: (typeof CHANGE_FNS)[key] extends (
       _: unknown,
       args: infer A
     ) => unknown
@@ -339,7 +339,7 @@ export type ChangeFilterEvent = {
 
 export function changeFilter<FilterName extends keyof typeof CHANGE_FNS>(
   name: FilterName,
-  ...args: Parameters<typeof CHANGE_FNS[FilterName]>
+  ...args: Parameters<(typeof CHANGE_FNS)[FilterName]>
 ) {
   // @ts-expect-error ts wants a tuple here
   return CHANGE_FNS[name](...args);

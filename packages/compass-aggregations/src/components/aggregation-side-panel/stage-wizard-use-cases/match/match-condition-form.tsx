@@ -103,7 +103,7 @@ const MATCH_OPERATOR_LABELS = [
   },
 ] as const;
 
-export type MatchOperator = typeof MATCH_OPERATOR_LABELS[number]['operator'];
+export type MatchOperator = (typeof MATCH_OPERATOR_LABELS)[number]['operator'];
 
 // Components - Condition
 const conditionContainerStyles = css({

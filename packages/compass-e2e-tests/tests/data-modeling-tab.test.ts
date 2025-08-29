@@ -22,6 +22,7 @@ import toNS from 'mongodb-ns';
 import path from 'path';
 import os from 'os';
 import fs from 'fs/promises';
+import type { ChainablePromiseElement } from 'webdriverio';
 
 interface Node {
   id: string;
@@ -41,6 +42,34 @@ type DiagramInstance = {
   getNodes: () => Array<Node>;
   getEdges: () => Array<Edge>;
 };
+
+/**
+ * Clicks on a specific element at the given coordinates.
+ * element.click({ x: number, y: number }) doesn't work as expected,
+ * so we do this manually using the actions API.
+ * @param browser The Compass browser instance.
+ * @param element The WebdriverIO element to click on.
+ * @param coordinates The coordinates to click at.
+ */
+async function clickElementAtCoordinates(
+  browser: CompassBrowser,
+  element: ChainablePromiseElement,
+  coordinates: {
+    x: number;
+    y: number;
+  }
+) {
+  await element.waitForClickable();
+  const location = await element.getLocation();
+  await browser
+    .action('pointer')
+    .move({
+      x: location.x + coordinates.x,
+      y: location.y + coordinates.y,
+    })
+    .down({ button: 0 }) // Left mouse button
+    .perform();
+}
 
 async function setupDiagram(
   browser: CompassBrowser,
@@ -107,7 +136,12 @@ async function selectCollectionOnTheDiagram(
   const collectionNode = browser.$(Selectors.DataModelPreviewCollection(ns));
   await collectionNode.waitForClickable();
 
-  await collectionNode.click();
+  await clickElementAtCoordinates(browser, collectionNode, {
+    // we're aiming for the header (top of the node)
+    // the default click is in the middle, most likely on a field
+    x: 100,
+    y: 15,
+  });
 
   await drawer.waitForDisplayed();
 
@@ -178,7 +212,7 @@ async function dragNode(
     .action('pointer')
     .move({
       x: Math.round(startPosition.x + nodeSize.width / 2),
-      y: Math.round(startPosition.y + nodeSize.height / 2),
+      y: Math.round(startPosition.y + 15), // we're aiming for the header area (top of the node)
     })
     .down({ button: 0 }) // Left mouse button
     .move({ duration: 1000, origin: 'pointer', ...pointerActionMoveParams })
@@ -547,7 +581,7 @@ describe('Data Modeling tab', function () {
       // Click the add relationship button
       const drawer = browser.$(Selectors.SideDrawer);
 
-      const addRelationshipBtn = browser.$(
+      const addRelationshipBtn = drawer.$(
         Selectors.DataModelAddRelationshipBtn
       );
       await addRelationshipBtn.waitForClickable();
@@ -585,11 +619,13 @@ describe('Data Modeling tab', function () {
       const relationshipItem = drawer.$(
         Selectors.DataModelCollectionRelationshipItem(relationshipId)
       );
-      expect(await relationshipItem.isDisplayed()).to.be.true;
+      await relationshipItem.waitForDisplayed();
       expect(await relationshipItem.getText()).to.include('testCollection-one');
 
       // Edit the relationship
-      await relationshipItem.waitForDisplayed();
+      await relationshipItem
+        .$(Selectors.DataModelCollectionRelationshipItemEdit)
+        .waitForDisplayed();
       await relationshipItem
         .$(Selectors.DataModelCollectionRelationshipItemEdit)
         .click();
@@ -619,7 +655,7 @@ describe('Data Modeling tab', function () {
         .click();
 
       // Verify that the relationship is removed from the list and the diagram
-      expect(await relationshipItem.isExisting()).to.be.false;
+      await relationshipItem.waitForDisplayed({ reverse: true });
       await getDiagramEdges(browser, 0);
     });
 
@@ -696,7 +732,7 @@ describe('Data Modeling tab', function () {
       // Rename the collection (it submits on unfocus).
       await browser.setValueVisible(
         browser.$(Selectors.DataModelNameInput),
-        'testCollection-renamedOne'
+        'renamedOne'
       );
       await drawer.click(); // Unfocus the input.
 
@@ -705,16 +741,14 @@ describe('Data Modeling tab', function () {
         const collectionName = await browser.getInputByLabel(
           browser.$(Selectors.SideDrawer).$(Selectors.DataModelNameInputLabel)
         );
-        return (
-          (await collectionName.getValue()) === 'testCollection-renamedOne'
-        );
+        return (await collectionName.getValue()) === 'renamedOne';
       });
 
       // Select the second collection and verify that the new name is in the diagram.
       await selectCollectionOnTheDiagram(browser, 'test.testCollection-two');
       const nodes = await getDiagramNodes(browser, 2);
       expect(nodes).to.have.lengthOf(2);
-      expect(nodes[0].id).to.equal('test.testCollection-renamedOne');
+      expect(nodes[0].id).to.equal('test.renamedOne');
       expect(nodes[1].id).to.equal('test.testCollection-two');
 
       // Remove the collection.
@@ -731,7 +765,47 @@ describe('Data Modeling tab', function () {
       // Verify that the collection is removed from the list and the diagram.
       const nodesPostDelete = await getDiagramNodes(browser, 1);
       expect(nodesPostDelete).to.have.lengthOf(1);
-      expect(nodesPostDelete[0].id).to.equal('test.testCollection-renamedOne');
+      expect(nodesPostDelete[0].id).to.equal('test.renamedOne');
+    });
+
+    it('adding a new collection from the toolbar', async function () {
+      const dataModelName = 'Test Edit Collection';
+      await setupDiagram(browser, {
+        diagramName: dataModelName,
+        connectionName: DEFAULT_CONNECTION_NAME_1,
+        databaseName: 'test',
+      });
+
+      const dataModelEditor = browser.$(Selectors.DataModelEditor);
+      await dataModelEditor.waitForDisplayed();
+
+      // Click on the add collection button.
+      await browser.clickVisible(Selectors.DataModelAddCollectionBtn);
+
+      // Verify that the new collection is added to the diagram.
+      const nodes = await getDiagramNodes(browser, 3);
+      expect(nodes[2].id).to.equal('test.new-collection');
+
+      // Verify that the drawer is opened.
+      const drawer = browser.$(Selectors.SideDrawer);
+      await drawer.waitForDisplayed();
+
+      // Name the collection (it submits on unfocus).
+      const collectionName = 'testCollection-newOne';
+      await browser.setValueVisible(
+        browser.$(Selectors.DataModelNameInput),
+        collectionName
+      );
+      await drawer.click(); // Unfocus the input.
+
+      // Verify that the new collection is named in the diagram.
+      const nodesAfterNaming = await getDiagramNodes(browser, 3);
+      expect(nodesAfterNaming[2].id).to.equal(`test.${collectionName}`);
+
+      // Undo once - verify that the collection is removed
+      // This is to ensure that the initial edit of the collection name wasn't a separate edit
+      await browser.clickVisible(Selectors.DataModelUndoButton);
+      await getDiagramNodes(browser, 2);
     });
   });
 });

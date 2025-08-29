@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import type { TypeCastTypes } from 'hadron-type-checker';
 import type { Editor, Element } from 'hadron-document';
 import type Document from 'hadron-document';
@@ -571,26 +570,6 @@ class CellEditor
       </LeafyGreenProvider>
     );
   }
-
-  static propTypes = {
-    value: PropTypes.any,
-    column: PropTypes.any,
-    node: PropTypes.any,
-    api: PropTypes.any,
-    columnApi: PropTypes.any,
-    context: PropTypes.any,
-    addColumn: PropTypes.func.isRequired,
-    removeColumn: PropTypes.func.isRequired,
-    renameColumn: PropTypes.func.isRequired,
-    elementAdded: PropTypes.func.isRequired,
-    elementRemoved: PropTypes.func.isRequired,
-    elementTypeChanged: PropTypes.func.isRequired,
-    elementMarkRemoved: PropTypes.func.isRequired,
-    drillDown: PropTypes.func.isRequired,
-    eGridCell: PropTypes.any,
-    tz: PropTypes.string.isRequired,
-    darkMode: PropTypes.bool,
-  };
 
   static displayName = 'CellEditor';
 }

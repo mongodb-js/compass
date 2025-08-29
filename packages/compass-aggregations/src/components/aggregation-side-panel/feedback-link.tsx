@@ -1,7 +1,7 @@
 import React from 'react';
 import { css, Icon, Link, spacing } from '@mongodb-js/compass-components';
 
-const FEEDBACK_URL = 'https://feedback.mongodb.com/forums/924283-compass';
+const FEEDBACK_URL = 'https://feedback.mongodb.com/';
 
 const linkContainerStyles = css({
   paddingTop: spacing[1600],

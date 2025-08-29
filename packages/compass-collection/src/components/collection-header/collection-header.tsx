@@ -18,6 +18,9 @@ import { CollectionBadge } from './badges';
 import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
+import MockDataGeneratorModal from '../mock-data-generator-modal/mock-data-generator-modal';
+import { connect } from 'react-redux';
+import { mockDataGeneratorModalOpened } from '../../modules/collection-tab';
 
 const collectionHeaderStyles = css({
   padding: spacing[400],
@@ -58,6 +61,7 @@ type CollectionHeaderProps = {
   sourceName?: string;
   editViewName?: string;
   sourcePipeline?: unknown[];
+  onOpenMockDataModal: () => void;
 };
 
 const getInsightsForPipeline = (pipeline: any[], isAtlas: boolean) => {
@@ -82,9 +86,7 @@ const getInsightsForPipeline = (pipeline: any[], isAtlas: boolean) => {
   return Array.from(insights);
 };
 
-export const CollectionHeader: React.FunctionComponent<
-  CollectionHeaderProps
-> = ({
+const CollectionHeader: React.FunctionComponent<CollectionHeaderProps> = ({
   namespace,
   isReadonly,
   isTimeSeries,
@@ -94,6 +96,7 @@ export const CollectionHeader: React.FunctionComponent<
   sourceName,
   editViewName,
   sourcePipeline,
+  onOpenMockDataModal,
 }) => {
   const darkMode = useDarkMode();
   const showInsights = usePreference('showInsights');
@@ -170,8 +173,16 @@ export const CollectionHeader: React.FunctionComponent<
           namespace={namespace}
           sourceName={sourceName}
           sourcePipeline={sourcePipeline}
+          onOpenMockDataModal={onOpenMockDataModal}
         />
       </div>
+      <MockDataGeneratorModal />
     </div>
   );
 };
+
+const ConnectedCollectionHeader = connect(undefined, {
+  onOpenMockDataModal: mockDataGeneratorModalOpened,
+})(CollectionHeader);
+
+export default ConnectedCollectionHeader;

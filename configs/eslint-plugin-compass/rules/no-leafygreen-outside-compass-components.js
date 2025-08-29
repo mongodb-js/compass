@@ -138,12 +138,12 @@ module.exports = {
 
     return {
       ImportDeclaration(node) {
-        if (isImportSourceEquals(/^@leafygreen-ui/, node)) {
+        if (isImportSourceEquals(/^@(leafygreen-ui|lg-chat)/, node)) {
           reportLeafygreenUsage(context, node, node.source);
         }
       },
       CallExpression(node) {
-        if (isRequireSourceEquals(/^@leafygreen-ui/, node)) {
+        if (isRequireSourceEquals(/^@(leafygreen-ui|lg-chat)/, node)) {
           reportLeafygreenUsage(context, node, node.arguments[0]);
         }
       },

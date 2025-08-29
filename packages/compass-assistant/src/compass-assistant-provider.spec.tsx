@@ -4,14 +4,16 @@ import {
   screen,
   userEvent,
   waitFor,
+  waitForElementToBeRemoved,
+  within,
 } from '@mongodb-js/testing-library-compass';
 import {
   AssistantProvider,
   CompassAssistantProvider,
+  type AssistantMessage,
 } from './compass-assistant-provider';
 import { expect } from 'chai';
 import sinon from 'sinon';
-import type { UIMessage } from './@ai-sdk/react/use-chat';
 import { Chat } from './@ai-sdk/react/chat-react';
 
 import {
@@ -24,7 +26,7 @@ import { createMockChat } from '../test/utils';
 
 // Test component that renders AssistantProvider with children
 const TestComponent: React.FunctionComponent<{
-  chat: Chat<UIMessage>;
+  chat: Chat<AssistantMessage>;
   autoOpen?: boolean;
 }> = ({ chat, autoOpen }) => {
   return (
@@ -40,6 +42,19 @@ const TestComponent: React.FunctionComponent<{
 };
 
 describe('AssistantProvider', function () {
+  const mockMessages: AssistantMessage[] = [
+    {
+      id: '1',
+      role: 'user',
+      parts: [{ type: 'text', text: 'Test message' }],
+    },
+    {
+      id: '2',
+      role: 'assistant',
+      parts: [{ type: 'text', text: 'Test assistant message' }],
+    },
+  ];
+
   it('always renders children', function () {
     render(<TestComponent chat={createMockChat({ messages: [] })} />, {
       preferences: { enableAIAssistant: true },
@@ -78,7 +93,7 @@ describe('AssistantProvider', function () {
     });
 
     async function renderOpenAssistantDrawer(
-      mockChat: Chat<UIMessage>
+      mockChat: Chat<AssistantMessage>
     ): Promise<ReturnType<typeof render>> {
       const result = render(<TestComponent chat={mockChat} autoOpen={true} />, {
         preferences: { enableAIAssistant: true },
@@ -92,18 +107,6 @@ describe('AssistantProvider', function () {
     }
 
     it('displays messages in the chat feed', async function () {
-      const mockMessages: UIMessage[] = [
-        {
-          id: '1',
-          role: 'user',
-          parts: [{ type: 'text', text: 'Test message' }],
-        },
-        {
-          id: '2',
-          role: 'assistant',
-          parts: [{ type: 'text', text: 'Test assistant message' }],
-        },
-      ];
       const mockChat = createMockChat({ messages: mockMessages });
 
       await renderOpenAssistantDrawer(mockChat);
@@ -114,13 +117,13 @@ describe('AssistantProvider', function () {
       );
 
       expect(screen.getByTestId('assistant-message-2')).to.exist;
-      expect(screen.getByTestId('assistant-message-2')).to.have.text(
+      expect(screen.getByTestId('assistant-message-2')).to.contain.text(
         'Test assistant message'
       );
     });
 
     it('handles message sending with custom chat when drawer is open', async function () {
-      const mockChat = new Chat<UIMessage>({
+      const mockChat = new Chat<AssistantMessage>({
         messages: [
           {
             id: 'assistant',
@@ -134,8 +137,10 @@ describe('AssistantProvider', function () {
 
       await renderOpenAssistantDrawer(mockChat);
 
-      const input = screen.getByTestId('assistant-chat-input');
-      const sendButton = screen.getByTestId('assistant-chat-send-button');
+      const input = screen.getByPlaceholderText(
+        'Ask MongoDB Assistant a question'
+      );
+      const sendButton = screen.getByLabelText('Send message');
 
       userEvent.type(input, 'Hello assistant');
       userEvent.click(sendButton);
@@ -149,7 +154,7 @@ describe('AssistantProvider', function () {
     });
 
     it('new messages are added to the chat feed when the send button is clicked', async function () {
-      const mockChat = new Chat<UIMessage>({
+      const mockChat = new Chat<AssistantMessage>({
         messages: [
           {
             id: 'assistant',
@@ -172,10 +177,10 @@ describe('AssistantProvider', function () {
       await renderOpenAssistantDrawer(mockChat);
 
       userEvent.type(
-        screen.getByTestId('assistant-chat-input'),
+        screen.getByPlaceholderText('Ask MongoDB Assistant a question'),
         'Hello assistant!'
       );
-      userEvent.click(screen.getByTestId('assistant-chat-send-button'));
+      userEvent.click(screen.getByLabelText('Send message'));
 
       expect(sendMessageSpy.calledOnce).to.be.true;
       expect(sendMessageSpy.firstCall.args[0]).to.deep.include({
@@ -184,6 +189,68 @@ describe('AssistantProvider', function () {
 
       await waitFor(() => {
         expect(screen.getByText('Hello assistant!')).to.exist;
+      });
+    });
+
+    describe('clear chat button', function () {
+      it('clears the chat when the user clicks and confirms', async function () {
+        const mockChat = createMockChat({ messages: mockMessages });
+
+        await renderOpenAssistantDrawer(mockChat);
+
+        const clearButton = screen.getByTestId('assistant-clear-chat');
+        userEvent.click(clearButton);
+
+        await waitFor(() => {
+          expect(screen.getByTestId('assistant-confirm-clear-chat-modal')).to
+            .exist;
+        });
+
+        // There should be messages in the chat
+        expect(screen.getByTestId('assistant-message-1')).to.exist;
+        expect(screen.getByTestId('assistant-message-2')).to.exist;
+
+        const modal = screen.getByTestId('assistant-confirm-clear-chat-modal');
+        const confirmButton = within(modal).getByText('Clear chat');
+        userEvent.click(confirmButton);
+
+        await waitForElementToBeRemoved(() =>
+          screen.getByTestId('assistant-confirm-clear-chat-modal')
+        );
+
+        expect(mockChat.messages).to.be.empty;
+        expect(screen.queryByTestId('assistant-message-1')).to.not.exist;
+        expect(screen.queryByTestId('assistant-message-2')).to.not.exist;
+      });
+
+      it('does not clear the chat when the user clicks the button and cancels', async function () {
+        const mockChat = createMockChat({ messages: mockMessages });
+
+        await renderOpenAssistantDrawer(mockChat);
+
+        const clearButton = screen.getByTestId('assistant-clear-chat');
+        userEvent.click(clearButton);
+
+        await waitFor(() => {
+          expect(screen.getByTestId('assistant-confirm-clear-chat-modal')).to
+            .exist;
+        });
+
+        // There should be messages in the chat
+        expect(screen.getByTestId('assistant-message-1')).to.exist;
+        expect(screen.getByTestId('assistant-message-2')).to.exist;
+
+        const modal = screen.getByTestId('assistant-confirm-clear-chat-modal');
+        const cancelButton = within(modal).getByText('Cancel');
+        userEvent.click(cancelButton);
+
+        await waitForElementToBeRemoved(() =>
+          screen.getByTestId('assistant-confirm-clear-chat-modal')
+        );
+
+        expect(mockChat.messages).to.deep.equal(mockMessages);
+        expect(screen.getByTestId('assistant-message-1')).to.exist;
+        expect(screen.getByTestId('assistant-message-2')).to.exist;
       });
     });
   });

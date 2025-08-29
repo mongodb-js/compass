@@ -18,7 +18,7 @@ const SCHEMA_FIELD_FIELDS = ['name', 'path', 'count', 'type'] as const;
 
 export type SchemaFieldSubset = Pick<
   SchemaField,
-  typeof SCHEMA_FIELD_FIELDS[number]
+  (typeof SCHEMA_FIELD_FIELDS)[number]
 >;
 
 /**

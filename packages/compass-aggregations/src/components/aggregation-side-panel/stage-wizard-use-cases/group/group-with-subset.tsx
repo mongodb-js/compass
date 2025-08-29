@@ -21,7 +21,7 @@ import type { RootState } from '../../../../modules';
 import type { WizardComponentProps } from '..';
 import { FieldCombobox } from '../field-combobox';
 
-type Accumulator = typeof ACCUMULATORS[number];
+type Accumulator = (typeof ACCUMULATORS)[number];
 
 const SUBSET_ACCUMULATORS = {
   $first: {
@@ -54,7 +54,7 @@ const N_OPERATORS = Object.values(SUBSET_ACCUMULATORS).map(
   (acc) => acc.nOperator
 );
 
-function isGroupNOperator(k: string): k is typeof N_OPERATORS[number] {
+function isGroupNOperator(k: string): k is (typeof N_OPERATORS)[number] {
   return N_OPERATORS.includes(k as any);
 }
 

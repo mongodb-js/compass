@@ -39,12 +39,16 @@ import type { RootState } from '../../modules';
 import BadgeWithIconLink from '../indexes-table/badge-with-icon-link';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { useWorkspaceTabId } from '@mongodb-js/compass-workspaces/provider';
+import type { CollectionStats } from '../../modules/collection-stats';
+import { VIEW_PIPELINE_UTILS } from '@mongodb-js/mongodb-constants';
 
 type SearchIndexesTableProps = {
   namespace: string;
   indexes: SearchIndex[];
   isWritable?: boolean;
   readOnly?: boolean;
+  isReadonlyView: boolean;
+  collectionStats?: CollectionStats;
   status: FetchStatus;
   onDropIndexClick: (name: string) => void;
   onEditIndexClick: (name: string) => void;
@@ -63,8 +67,10 @@ function isReadyStatus(status: FetchStatus) {
 
 function ZeroState({
   onOpenCreateModalClick,
+  isViewPipelineSearchQueryable,
 }: {
   onOpenCreateModalClick: () => void;
+  isViewPipelineSearchQueryable: boolean;
 }) {
   return (
     <EmptyContent
@@ -72,14 +78,25 @@ function ZeroState({
       title="No search indexes yet"
       subTitle="Atlas Search is an embedded full-text search in MongoDB Atlas that gives you a seamless, scalable experience for building relevance-based app features."
       callToAction={
-        <Button
-          onClick={onOpenCreateModalClick}
-          data-testid="create-atlas-search-index-button"
-          variant="primary"
-          size="small"
+        <Tooltip
+          enabled={!isViewPipelineSearchQueryable}
+          align="top"
+          justify="middle"
+          trigger={
+            <Button
+              onClick={onOpenCreateModalClick}
+              data-testid="create-atlas-search-index-button"
+              variant="primary"
+              size="small"
+              disabled={!isViewPipelineSearchQueryable}
+            >
+              Create Atlas Search Index
+            </Button>
+          }
         >
-          Create Atlas Search Index
-        </Button>
+          Search indexes can only be created on views containing $addFields,
+          $set or $match stages with the $expr operator.
+        </Tooltip>
       }
       callToActionLink={
         <span>
@@ -283,6 +300,7 @@ export const SearchIndexesTable: React.FunctionComponent<
   namespace,
   indexes,
   isWritable,
+  collectionStats,
   readOnly,
   status,
   onOpenCreateModalClick,
@@ -290,6 +308,7 @@ export const SearchIndexesTable: React.FunctionComponent<
   onDropIndexClick,
   onSearchIndexesOpened,
   onSearchIndexesClosed,
+  isReadonlyView,
 }) => {
   const { openCollectionWorkspace } = useOpenWorkspace();
   const { id: connectionId } = useConnectionInfo();
@@ -302,6 +321,12 @@ export const SearchIndexesTable: React.FunctionComponent<
       onSearchIndexesClosed(tabId);
     };
   }, [tabId, onSearchIndexesOpened, onSearchIndexesClosed]);
+  const isViewPipelineSearchQueryable =
+    isReadonlyView && collectionStats?.pipeline
+      ? VIEW_PIPELINE_UTILS.isPipelineSearchQueryable(
+          collectionStats.pipeline as Document[]
+        )
+      : true;
 
   const data = useMemo<LGTableDataType<SearchIndexInfo>[]>(
     () =>
@@ -384,7 +409,12 @@ export const SearchIndexesTable: React.FunctionComponent<
   }
 
   if (indexes.length === 0) {
-    return <ZeroState onOpenCreateModalClick={onOpenCreateModalClick} />;
+    return (
+      <ZeroState
+        onOpenCreateModalClick={onOpenCreateModalClick}
+        isViewPipelineSearchQueryable={isViewPipelineSearchQueryable}
+      />
+    );
   }
 
   const canModifyIndex = isWritable && !readOnly;
@@ -399,9 +429,17 @@ export const SearchIndexesTable: React.FunctionComponent<
   );
 };
 
-const mapState = ({ searchIndexes, isWritable, namespace }: RootState) => ({
+const mapState = ({
+  searchIndexes,
+  isWritable,
+  namespace,
+  collectionStats,
+  isReadonlyView,
+}: RootState) => ({
   namespace,
   isWritable,
+  collectionStats,
+  isReadonlyView,
   indexes: searchIndexes.indexes,
   status: searchIndexes.status,
 });
