@@ -1596,6 +1596,7 @@ class CrudStoreImpl
 
     if (onApply) {
       const { isTimeSeries, isReadonly } = this.state;
+      const { defaultSortOrder } = this.preferences.getPreferences();
       this.track(
         'Query Executed',
         {
@@ -1603,6 +1604,11 @@ class CrudStoreImpl
             !!query.project && Object.keys(query.project).length > 0,
           has_skip: (query.skip ?? 0) > 0,
           has_sort: !!query.sort && Object.keys(query.sort).length > 0,
+          default_sort: !defaultSortOrder
+            ? 'none'
+            : /_id/.test(defaultSortOrder)
+            ? '_id'
+            : 'natural',
           has_limit: (query.limit ?? 0) > 0,
           has_collation: !!query.collation,
           changed_maxtimems: query.maxTimeMS !== DEFAULT_INITIAL_MAX_TIME_MS,

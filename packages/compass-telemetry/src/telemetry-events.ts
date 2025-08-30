@@ -1787,6 +1787,11 @@ type QueryExecutedEvent = ConnectionScopedEvent<{
     has_sort: boolean;
 
     /**
+     * Indicates which default sort was set in settings
+     */
+    default_sort: 'natural' | '_id' | 'none';
+
+    /**
      * Indicates whether the query includes a limit operation.
      */
     has_limit: boolean;
