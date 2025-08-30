@@ -400,7 +400,29 @@ function createWrapper(
   return { wrapperState, wrapper };
 }
 
-export type RenderConnectionsOptions = RenderOptions & TestConnectionsOptions;
+/**
+ * Returns a new {@link RenderResult} with the {@link RenderResult.container} replaced by the container inserted by the context menu provider.
+ */
+function unwrapContextMenuContainer(result: RenderResult) {
+  const { container, ...rest } = result;
+  const { firstChild } = container;
+  if (
+    firstChild instanceof HTMLElement &&
+    firstChild.getAttribute('data-testid') === 'context-menu-children-container'
+  ) {
+    return { container: firstChild, ...rest };
+  } else {
+    return { container, ...rest };
+  }
+}
+
+export type RenderConnectionsOptions = RenderOptions &
+  TestConnectionsOptions & {
+    /**
+     * Whether to include the context menu container and menu in the container of the returned result.
+     */
+    includeContextMenu?: boolean;
+  };
 
 export type RenderWithConnectionsResult = ReturnType<
   typeof createWrapper
@@ -415,6 +437,7 @@ function renderWithConnections(
     baseElement,
     queries,
     hydrate,
+    includeContextMenu = false,
     ...connectionsOptions
   }: RenderConnectionsOptions = {}
 ): RenderWithConnectionsResult {
@@ -443,7 +466,10 @@ function renderWithConnections(
     true,
     'Expected initial connections to load before rendering rest of the tested UI, but it did not happen'
   );
-  return { ...wrapperState, ...result };
+  return {
+    ...wrapperState,
+    ...(includeContextMenu ? result : unwrapContextMenuContainer(result)),
+  };
 }
 
 export type RenderHookConnectionsOptions<HookProps> = Omit<
