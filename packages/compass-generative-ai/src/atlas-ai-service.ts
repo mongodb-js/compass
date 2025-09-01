@@ -341,7 +341,12 @@ export class AtlasAiService {
   }
 
   async ensureAiFeatureAccess({ signal }: { signal?: AbortSignal } = {}) {
-    return getStore().dispatch(optIntoGenAIWithModalPrompt({ signal }));
+    return getStore().dispatch(
+      optIntoGenAIWithModalPrompt({
+        signal,
+        isCloudOptIn: this.apiURLPreset === 'cloud',
+      })
+    );
   }
 
   private getQueryOrAggregationFromUserInput = async <T>(

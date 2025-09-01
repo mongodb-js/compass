@@ -10,6 +10,8 @@ import type { DataService } from '@mongodb-js/compass-connections/provider';
 import type { experimentationServiceLocator } from '@mongodb-js/compass-telemetry/provider';
 import { type Logger, mongoLogId } from '@mongodb-js/compass-logging/provider';
 import { type PreferencesAccess } from 'compass-preferences-model/provider';
+import type { AtlasAiService } from '@mongodb-js/compass-generative-ai/provider';
+
 import { isInternalFieldPath } from 'hadron-document';
 import toNS from 'mongodb-ns';
 import {
@@ -24,11 +26,11 @@ import {
 import { calculateSchemaDepth } from '../calculate-schema-depth';
 import { processSchema } from '../transform-schema-to-field-info';
 import type { Document, MongoError } from 'mongodb';
+import { MockDataGeneratorStep } from '../components/mock-data-generator-modal/types';
 
 const DEFAULT_SAMPLE_SIZE = 100;
 
 const NO_DOCUMENTS_ERROR = 'No documents found in the collection to analyze.';
-import { MockDataGeneratorStep } from '../components/mock-data-generator-modal/types';
 
 function isAction<A extends AnyAction>(
   action: AnyAction,
@@ -65,6 +67,7 @@ type CollectionThunkAction<R, A extends AnyAction = AnyAction> = ThunkAction<
     experimentationServices: ReturnType<typeof experimentationServiceLocator>;
     logger: Logger;
     preferences: PreferencesAccess;
+    atlasAiService: AtlasAiService;
   },
   A
 >;
@@ -148,7 +151,7 @@ const reducer: Reducer<CollectionState, Action> = (
     },
     mockDataGenerator: {
       isModalOpen: false,
-      currentStep: MockDataGeneratorStep.AI_DISCLAIMER,
+      currentStep: MockDataGeneratorStep.SCHEMA_CONFIRMATION,
     },
   },
   action
@@ -236,7 +239,7 @@ const reducer: Reducer<CollectionState, Action> = (
       mockDataGenerator: {
         ...state.mockDataGenerator,
         isModalOpen: true,
-        currentStep: MockDataGeneratorStep.AI_DISCLAIMER,
+        currentStep: MockDataGeneratorStep.SCHEMA_CONFIRMATION,
       },
     };
   }
@@ -266,9 +269,6 @@ const reducer: Reducer<CollectionState, Action> = (
     let nextStep: MockDataGeneratorStep;
 
     switch (currentStep) {
-      case MockDataGeneratorStep.AI_DISCLAIMER:
-        nextStep = MockDataGeneratorStep.SCHEMA_CONFIRMATION;
-        break;
       case MockDataGeneratorStep.SCHEMA_CONFIRMATION:
         nextStep = MockDataGeneratorStep.SCHEMA_EDITOR;
         break;
@@ -305,7 +305,8 @@ const reducer: Reducer<CollectionState, Action> = (
 
     switch (currentStep) {
       case MockDataGeneratorStep.SCHEMA_CONFIRMATION:
-        previousStep = MockDataGeneratorStep.AI_DISCLAIMER;
+        // TODO: Decide with product what we want behavior to be: close modal? Re-open disclaimer modal, if possible?
+        previousStep = MockDataGeneratorStep.SCHEMA_CONFIRMATION;
         break;
       case MockDataGeneratorStep.SCHEMA_EDITOR:
         previousStep = MockDataGeneratorStep.SCHEMA_CONFIRMATION;
@@ -369,6 +370,27 @@ export const selectTab = (
       getState().workspaceTabId,
       tabName
     );
+  };
+};
+
+export const openMockDataGeneratorModal = (): CollectionThunkAction<
+  Promise<void>
+> => {
+  return async (dispatch, _getState, { atlasAiService, logger }) => {
+    try {
+      if (process.env.COMPASS_E2E_SKIP_ATLAS_SIGNIN !== 'true') {
+        await atlasAiService.ensureAiFeatureAccess();
+      }
+      dispatch(mockDataGeneratorModalOpened());
+    } catch (error) {
+      // if failed or user canceled we just don't show the modal
+      logger.log.error(
+        mongoLogId(1_001_000_364),
+        'Collections',
+        'Failed to ensure AI feature access and open mock data generator modal',
+        error
+      );
+    }
   };
 };
 
