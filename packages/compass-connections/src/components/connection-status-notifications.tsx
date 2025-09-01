@@ -201,7 +201,7 @@ const openConnectionFailedToast = ({
         onReview={
           onReviewClick
             ? () => {
-                if (!showDebugButton) {
+                if (!onDebugClick) {
                   // don't close the toast if there are two actions so that the user
                   // can still use the other one
                   closeToast(`connection-status--${failedToastId}`);
