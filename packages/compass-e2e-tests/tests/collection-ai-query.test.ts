@@ -29,7 +29,7 @@ describe('Collection ai query', function () {
   before(async function () {
     skipForWeb(this, 'ai queries not yet available in compass-web');
 
-    process.env.COMPASS_E2E_SKIP_ATLAS_SIGNIN = 'true';
+    process.env.COMPASS_E2E_SKIP_AI_OPT_IN = 'true';
 
     // Start a mock server to pass an ai response.
     const {
@@ -72,7 +72,7 @@ describe('Collection ai query', function () {
 
     await stopMockAtlasServer();
 
-    delete process.env.COMPASS_E2E_SKIP_ATLAS_SIGNIN;
+    delete process.env.COMPASS_E2E_SKIP_AI_OPT_IN;
 
     await cleanup(compass);
     await telemetry.stop();

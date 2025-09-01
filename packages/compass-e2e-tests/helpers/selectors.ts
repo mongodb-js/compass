@@ -1392,14 +1392,6 @@ export const ModifySourceBanner = '[data-testid="modify-source-banner"]';
 export const InsightIconButton = '[data-testid="insight-badge-button"]';
 export const InsightPopoverCard = '[data-testid="insight-signal-card"]';
 
-// Atlas login
-export const LogInWithAtlasButton = 'button=Log in with Atlas';
-export const LogInWithAtlasModalButton = 'button*=Log in to Atlas';
-export const DisconnectAtlasAccountButton = 'button=Log Out';
-export const AtlasLoginStatus = '[data-testid="atlas-login-status"]';
-export const AtlasLoginErrorToast = '#atlas-sign-in-error';
-export const AgreeAndContinueButton = 'button=Agree and continue';
-
 // Proxy settings
 export const ProxyUrl =
   '[data-testid="proxy-settings"] [data-testid="proxy-url"]';
