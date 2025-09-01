@@ -63,6 +63,13 @@ describe('AssistantChat', function () {
     expect(inputField.value).to.equal('What is MongoDB?');
   });
 
+  it('displays the disclaimer text', function () {
+    renderWithChat([]);
+    expect(screen.getByText(/This feature is powered by generative AI/)).to
+      .exist;
+    expect(screen.getByText(/Please review the outputs carefully/)).to.exist;
+  });
+
   it('send button is disabled when input is empty', function () {
     renderWithChat([]);
 

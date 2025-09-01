@@ -16,15 +16,20 @@ import {
   fontFamilies,
   palette,
   useDarkMode,
+  LgChatChatDisclaimer,
+  Link,
 } from '@mongodb-js/compass-components';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 
+const { DisclaimerText } = LgChatChatDisclaimer;
 const { ChatWindow } = LgChatChatWindow;
 const { LeafyGreenChatProvider, Variant } = LgChatLeafygreenChatProvider;
 const { Message } = LgChatMessage;
 const { MessageFeed } = LgChatMessageFeed;
 const { MessageActions } = LgChatMessageActions;
 const { InputBar } = LgChatInputBar;
+
+const GEN_AI_FAQ_LINK = 'https://www.mongodb.com/docs/generative-ai-faq/';
 
 interface AssistantChatProps {
   chat: Chat<AssistantMessage>;
@@ -191,6 +196,17 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
             data-testid="assistant-chat-messages"
             className={messageFeedFixesStyles}
           >
+            <DisclaimerText>
+              This feature is powered by generative AI. See our{' '}
+              <Link
+                hideExternalIcon={false}
+                href={GEN_AI_FAQ_LINK}
+                target="_blank"
+              >
+                FAQ
+              </Link>{' '}
+              for more information. Please review the outputs carefully.
+            </DisclaimerText>
             {lgMessages.map((messageFields) => (
               <Message
                 key={messageFields.id}
