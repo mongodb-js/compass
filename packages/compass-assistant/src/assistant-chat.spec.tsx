@@ -68,7 +68,17 @@ describe('AssistantChat', function () {
     expect(screen.getByText(/This feature is powered by generative AI/)).to
       .exist;
     expect(screen.getByText(/Please review the outputs carefully/)).to.exist;
+  });
+
+  it('displays the welcome text when there are no messages', function () {
+    renderWithChat([]);
     expect(screen.getByText(/Welcome to your MongoDB Assistant./)).to.exist;
+  });
+
+  it('does not display the welcome text when there are messages', function () {
+    renderWithChat(mockMessages);
+    expect(screen.queryByText(/Welcome to your MongoDB Assistant./)).to.not
+      .exist;
   });
 
   it('send button is disabled when input is empty', function () {
