@@ -42,6 +42,7 @@ export const SaveQueryForm = forwardRef<HTMLFormElement, SaveQueryFormProps>(
         className={formStyles}
         onSubmit={(event) => {
           event.preventDefault();
+          event.stopPropagation();
           onSave(name);
         }}
       >
