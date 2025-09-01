@@ -344,7 +344,7 @@ describe('Connection string', function () {
 
       await browser.waitUntil(async () => {
         return (await messagesElement.getText()).includes(
-          'Given the error message below,'
+          'Diagnose why my Compass connection is failing and help me debug it.'
         );
       });
 
