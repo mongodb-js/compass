@@ -1,6 +1,7 @@
 import React from 'react';
 import {
   render,
+  renderHook,
   screen,
   userEvent,
   waitFor,
@@ -10,6 +11,7 @@ import {
 import {
   AssistantProvider,
   CompassAssistantProvider,
+  useAssistantActions,
   type AssistantMessage,
 } from './compass-assistant-provider';
 import { expect } from 'chai';
@@ -40,6 +42,94 @@ const TestComponent: React.FunctionComponent<{
     </DrawerContentProvider>
   );
 };
+
+describe('useAssistantActions', function () {
+  const createWrapper = (chat: Chat<AssistantMessage>) => {
+    function TestWrapper({ children }: { children: React.ReactNode }) {
+      return (
+        <DrawerContentProvider>
+          <AssistantProvider chat={chat}>{children}</AssistantProvider>
+        </DrawerContentProvider>
+      );
+    }
+    return TestWrapper;
+  };
+
+  it('returns empty object when AI features are disabled via isAIFeatureEnabled', function () {
+    const { result } = renderHook(() => useAssistantActions(), {
+      wrapper: createWrapper(createMockChat({ messages: [] })),
+      preferences: {
+        enableAIAssistant: true,
+        // These control isAIFeatureEnabled
+        enableGenAIFeatures: false,
+        enableGenAIFeaturesAtlasOrg: true,
+        cloudFeatureRolloutAccess: { GEN_AI_COMPASS: true },
+      },
+    });
+
+    expect(result.current).to.deep.equal({});
+  });
+
+  it('returns empty object when enableGenAIFeaturesAtlasOrg is disabled', function () {
+    const { result } = renderHook(() => useAssistantActions(), {
+      wrapper: createWrapper(createMockChat({ messages: [] })),
+      preferences: {
+        enableAIAssistant: true,
+        enableGenAIFeatures: true,
+        enableGenAIFeaturesAtlasOrg: false,
+        cloudFeatureRolloutAccess: { GEN_AI_COMPASS: true },
+      },
+    });
+
+    expect(result.current).to.deep.equal({});
+  });
+
+  it('returns empty object when cloudFeatureRolloutAccess is disabled', function () {
+    const { result } = renderHook(() => useAssistantActions(), {
+      wrapper: createWrapper(createMockChat({ messages: [] })),
+      preferences: {
+        enableAIAssistant: true,
+        enableGenAIFeatures: true,
+        enableGenAIFeaturesAtlasOrg: true,
+        cloudFeatureRolloutAccess: { GEN_AI_COMPASS: false },
+      },
+    });
+
+    expect(result.current).to.deep.equal({});
+  });
+
+  it('returns empty object when enableAIAssistant preference is disabled', function () {
+    const { result } = renderHook(() => useAssistantActions(), {
+      wrapper: createWrapper(createMockChat({ messages: [] })),
+      preferences: {
+        enableAIAssistant: false,
+        enableGenAIFeatures: true,
+        enableGenAIFeaturesAtlasOrg: true,
+        cloudFeatureRolloutAccess: { GEN_AI_COMPASS: true },
+      },
+    });
+
+    expect(result.current).to.deep.equal({});
+  });
+
+  it('returns actions when both AI features and assistant flag are enabled', function () {
+    const { result } = renderHook(() => useAssistantActions(), {
+      wrapper: createWrapper(createMockChat({ messages: [] })),
+      preferences: {
+        enableAIAssistant: true,
+        enableGenAIFeatures: true,
+        enableGenAIFeaturesAtlasOrg: true,
+        cloudFeatureRolloutAccess: { GEN_AI_COMPASS: true },
+      },
+    });
+
+    expect(Object.keys(result.current)).to.have.length.greaterThan(0);
+    expect(result.current.interpretExplainPlan).to.be.a('function');
+    expect(result.current.interpretConnectionError).to.be.a('function');
+    expect(result.current.tellMoreAboutInsight).to.be.a('function');
+    expect(result.current.clearChat).to.be.a('function');
+  });
+});
 
 describe('AssistantProvider', function () {
   const mockMessages: AssistantMessage[] = [

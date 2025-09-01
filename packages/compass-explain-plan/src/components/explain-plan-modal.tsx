@@ -132,7 +132,7 @@ export const ExplainPlanModal: React.FunctionComponent<
             }
           />
         </div>
-        {isAssistantEnabled && explainPlan && (
+        {explainPlan && (
           <div className={headerButtonSectionStyles}>
             <Button
               size="small"
