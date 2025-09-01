@@ -24,10 +24,10 @@ import os from 'os';
 import fs from 'fs/promises';
 import type { ChainablePromiseElement } from 'webdriverio';
 
-interface Node {
+type Node = {
   id: string;
   position: { x: number; y: number };
-}
+};
 
 interface Edge {
   id: string;
@@ -162,9 +162,17 @@ async function getDiagramNodes(
       if (!node) {
         throw new Error(`Element with selector ${selector} not found`);
       }
-      return (
-        node as Element & { _diagram: DiagramInstance }
-      )._diagram.getNodes();
+
+      return (node as Element & { _diagram: DiagramInstance })._diagram
+        .getNodes()
+        .map(
+          (node: Node): Node => ({
+            // do not add any non-serializable properties here,
+            // the result of browser.execute must be serializable
+            id: node.id,
+            position: node.position,
+          })
+        );
     }, Selectors.DataModelEditor);
     return nodes.length === expectedCount;
   });
@@ -182,9 +190,20 @@ async function getDiagramEdges(
       if (!node) {
         throw new Error(`Element with selector ${selector} not found`);
       }
-      return (
-        node as Element & { _diagram: DiagramInstance }
-      )._diagram.getEdges();
+      return (node as Element & { _diagram: DiagramInstance })._diagram
+        .getEdges()
+        .map(
+          (edge: Edge): Edge => ({
+            // do not add any non-serializable properties here,
+            // the result of browser.execute must be serializable
+            id: edge.id,
+            source: edge.source,
+            target: edge.target,
+            markerStart: edge.markerStart,
+            markerEnd: edge.markerEnd,
+            selected: edge.selected,
+          })
+        );
     }, Selectors.DataModelEditor);
     return edges.length === expectedCount;
   });

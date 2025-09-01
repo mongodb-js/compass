@@ -93,7 +93,7 @@ const mockDiagramming = {
     <div data-testid="mock-diagram">
       {Object.entries(props).map(([key, value]) => (
         <div key={key} data-testid={`diagram-prop-${key}`}>
-          {JSON.stringify(value)}
+          {typeof value === 'object' ? 'object' : JSON.stringify(value)}
         </div>
       ))}
     </div>
