@@ -59,6 +59,9 @@ const headerStyleLightModeFixes = css({
 
 // TODO(COMPASS-9751): These are temporary patches to make the Assistant chat take the entire
 // width and height of the drawer since Leafygreen doesn't support this yet.
+const inputBarFixesStyles = css({
+  marginBottom: -spacing[400],
+});
 const assistantChatFixesStyles = css({
   // Negative margin to patch the padding of the drawer.
   marginTop: -spacing[400],
@@ -99,6 +102,9 @@ const assistantChatFixesStyles = css({
 const messageFeedFixesStyles = css({ height: '100%' });
 const chatWindowFixesStyles = css({
   height: '100%',
+});
+const welcomeMessageStyles = css({
+  padding: spacing[400],
 });
 
 function makeErrorMessage(message: string) {
@@ -237,9 +243,17 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
               </Banner>
             </div>
           )}
+          {lgMessages.length === 0 && (
+            <div className={welcomeMessageStyles}>
+              <h4>Welcome to your MongoDB Assistant.</h4>
+              Ask any question about MongoDB to receive expert guidance and
+              documentation right in your window.
+            </div>
+          )}
           <InputBar
             data-testid="assistant-chat-input"
             onMessageSend={handleMessageSend}
+            className={inputBarFixesStyles}
             textareaProps={{
               placeholder: 'Ask MongoDB Assistant a question',
             }}
