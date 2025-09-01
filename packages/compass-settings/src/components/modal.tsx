@@ -30,7 +30,6 @@ type Settings = {
 };
 
 type SettingsModalProps = {
-  isAIFeatureEnabled: boolean;
   isOpen: boolean;
   isOIDCEnabled: boolean;
   selectedTab: SettingsTabId | undefined;
@@ -157,7 +156,6 @@ export default connect(
     return {
       isOpen:
         state.settings.isModalOpen && state.settings.loadingState === 'ready',
-      isAIFeatureEnabled: !!state.settings.settings.enableGenAIFeatures,
       isOIDCEnabled: !!state.settings.settings.enableOidc,
       hasChangedSettings: state.settings.updatedFields.length > 0,
       selectedTab: state.settings.tab,
