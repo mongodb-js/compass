@@ -209,7 +209,7 @@ describe('SearchIndexesTable Component', function () {
   describe('sorting', function () {
     function getIndexNames() {
       return screen.getAllByTestId('search-indexes-name-field').map((el) => {
-        return (el.textContent as string).trim();
+        return el.textContent.trim();
       });
     }
 

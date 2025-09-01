@@ -170,7 +170,7 @@ export async function waitForConnectionResult(
     await browser
       .$(Selectors.ConnectionToastErrorText)
       .waitForDisplayed(waitOptions);
-    return browser.$(Selectors.LGToastTitle).getText();
+    return browser.$(Selectors.ConnectionToastErrorText).getText();
   } else {
     const exhaustiveCheck: never = connectionStatus;
     throw new Error(`Unhandled connectionStatus case: ${exhaustiveCheck}`);

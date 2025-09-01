@@ -117,7 +117,7 @@ describe('AssistantProvider', function () {
       );
 
       expect(screen.getByTestId('assistant-message-2')).to.exist;
-      expect(screen.getByTestId('assistant-message-2')).to.have.text(
+      expect(screen.getByTestId('assistant-message-2')).to.contain.text(
         'Test assistant message'
       );
     });
@@ -137,8 +137,10 @@ describe('AssistantProvider', function () {
 
       await renderOpenAssistantDrawer(mockChat);
 
-      const input = screen.getByTestId('assistant-chat-input');
-      const sendButton = screen.getByTestId('assistant-chat-send-button');
+      const input = screen.getByPlaceholderText(
+        'Ask MongoDB Assistant a question'
+      );
+      const sendButton = screen.getByLabelText('Send message');
 
       userEvent.type(input, 'Hello assistant');
       userEvent.click(sendButton);
@@ -175,10 +177,10 @@ describe('AssistantProvider', function () {
       await renderOpenAssistantDrawer(mockChat);
 
       userEvent.type(
-        screen.getByTestId('assistant-chat-input'),
+        screen.getByPlaceholderText('Ask MongoDB Assistant a question'),
         'Hello assistant!'
       );
-      userEvent.click(screen.getByTestId('assistant-chat-send-button'));
+      userEvent.click(screen.getByLabelText('Send message'));
 
       expect(sendMessageSpy.calledOnce).to.be.true;
       expect(sendMessageSpy.firstCall.args[0]).to.deep.include({
@@ -200,19 +202,20 @@ describe('AssistantProvider', function () {
         userEvent.click(clearButton);
 
         await waitFor(() => {
-          expect(screen.getByTestId('confirmation-modal')).to.exist;
+          expect(screen.getByTestId('assistant-confirm-clear-chat-modal')).to
+            .exist;
         });
 
         // There should be messages in the chat
         expect(screen.getByTestId('assistant-message-1')).to.exist;
         expect(screen.getByTestId('assistant-message-2')).to.exist;
 
-        const modal = screen.getByTestId('confirmation-modal');
+        const modal = screen.getByTestId('assistant-confirm-clear-chat-modal');
         const confirmButton = within(modal).getByText('Clear chat');
         userEvent.click(confirmButton);
 
         await waitForElementToBeRemoved(() =>
-          screen.getByTestId('confirmation-modal')
+          screen.getByTestId('assistant-confirm-clear-chat-modal')
         );
 
         expect(mockChat.messages).to.be.empty;
@@ -229,19 +232,20 @@ describe('AssistantProvider', function () {
         userEvent.click(clearButton);
 
         await waitFor(() => {
-          expect(screen.getByTestId('confirmation-modal')).to.exist;
+          expect(screen.getByTestId('assistant-confirm-clear-chat-modal')).to
+            .exist;
         });
 
         // There should be messages in the chat
         expect(screen.getByTestId('assistant-message-1')).to.exist;
         expect(screen.getByTestId('assistant-message-2')).to.exist;
 
-        const modal = screen.getByTestId('confirmation-modal');
+        const modal = screen.getByTestId('assistant-confirm-clear-chat-modal');
         const cancelButton = within(modal).getByText('Cancel');
         userEvent.click(cancelButton);
 
         await waitForElementToBeRemoved(() =>
-          screen.getByTestId('confirmation-modal')
+          screen.getByTestId('assistant-confirm-clear-chat-modal')
         );
 
         expect(mockChat.messages).to.deep.equal(mockMessages);
