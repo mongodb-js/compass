@@ -30,7 +30,6 @@ type OptInModalProps = {
 };
 
 const bodyStyles = css({
-  marginBottom: spacing[400],
   marginTop: spacing[400],
   marginLeft: spacing[300],
   marginRight: spacing[300],
@@ -109,13 +108,11 @@ const disabledButtonStyles: Record<Theme, string> = {
   }),
 };
 
-const CloudAIOptInBody: React.FunctionComponent<{
+const CloudAIOptInBannerContent: React.FunctionComponent<{
   isProjectAIEnabled: boolean;
   isSampleDocumentPassingEnabled: boolean;
   projectId?: string;
 }> = ({ isProjectAIEnabled, isSampleDocumentPassingEnabled, projectId }) => {
-  const darkMode = useDarkMode();
-
   const projectSettingsLink = projectId ? (
     <Link
       href={
@@ -129,54 +126,30 @@ const CloudAIOptInBody: React.FunctionComponent<{
   ) : (
     'Project Settings'
   );
-
-  const getCloudAIOptInBannerContent = () => {
-    if (!isProjectAIEnabled) {
-      // Both disabled case (main AI features disabled)
-      return (
-        <>
-          AI features are disabled for project users with data access. Project
-          Owners can enable Data Explorer AI features in {projectSettingsLink}.
-        </>
-      );
-    } else if (!isSampleDocumentPassingEnabled) {
-      // Only sample values disabled case
-      return (
-        <>
-          AI features are enabled for project users with data access. Project
-          Owners can disable these features or enable sending sample field
-          values in Data Explorer AI features to improve their accuracy in{' '}
-          {projectSettingsLink}.
-        </>
-      );
-    } else {
-      // Both enabled case
-      return (
-        <>
-          AI features are enabled for project users with data access. Project
-          Owners can disable Data Explorer AI features in {projectSettingsLink}.
-        </>
-      );
-    }
-  };
-
+  if (!isProjectAIEnabled) {
+    // Both disabled case (main AI features disabled)
+    return (
+      <>
+        AI features are disabled for project users with data access. Project
+        Owners can enable Data Explorer AI features in {projectSettingsLink}.
+      </>
+    );
+  } else if (!isSampleDocumentPassingEnabled) {
+    // Only sample values disabled case
+    return (
+      <>
+        AI features are enabled for project users with data access. Project
+        Owners can disable these features or enable sending sample field values
+        in Data Explorer AI features to improve their accuracy in{' '}
+        {projectSettingsLink}.
+      </>
+    );
+  }
   return (
-    <Body
-      className={cx(
-        bodyStyles,
-        darkMode ? bodyDarkThemeStyles : bodyLightThemeStyles
-      )}
-    >
-      AI-powered features in Data Explorer supply users with an intelligent
-      toolset to build faster and smarter with MongoDB.
-      <Banner
-        data-testid="ai-optin-cloud-banner"
-        variant={isProjectAIEnabled ? 'info' : 'warning'}
-        className={bannerStyles}
-      >
-        {getCloudAIOptInBannerContent()}
-      </Banner>
-    </Body>
+    <>
+      AI features are enabled for project users with data access. Project Owners
+      can disable Data Explorer AI features in {projectSettingsLink}.
+    </>
   );
 };
 
@@ -219,11 +192,7 @@ export const AIOptInModal: React.FunctionComponent<OptInModalProps> = ({
     <MarketingModal
       showBlob
       blobPosition="top right"
-      title={
-        isCloudOptIn
-          ? 'Use AI Features in Data Explorer'
-          : 'Use AI Features in Compass'
-      }
+      title={`Use AI Features in ${isCloudOptIn ? 'Data Explorer' : 'Compass'}`}
       open={isOptInModalVisible}
       onClose={handleModalClose}
       // TODO Button Disabling
@@ -244,13 +213,29 @@ export const AIOptInModal: React.FunctionComponent<OptInModalProps> = ({
         </div>
       }
     >
-      {isCloudOptIn && (
-        <CloudAIOptInBody
-          isProjectAIEnabled={isProjectAIEnabled}
-          isSampleDocumentPassingEnabled={isSampleDocumentPassingEnabled}
-          projectId={projectId}
-        />
-      )}
+      <Body
+        className={cx(
+          bodyStyles,
+          darkMode ? bodyDarkThemeStyles : bodyLightThemeStyles
+        )}
+      >
+        AI-powered features in {isCloudOptIn ? 'Data Explorer' : 'Compass'}{' '}
+        supply users with an intelligent toolset to build faster and smarter
+        with MongoDB.
+        {isCloudOptIn && (
+          <Banner
+            data-testid="ai-optin-cloud-banner"
+            variant={isProjectAIEnabled ? 'info' : 'warning'}
+            className={bannerStyles}
+          >
+            <CloudAIOptInBannerContent
+              isProjectAIEnabled={isProjectAIEnabled}
+              isSampleDocumentPassingEnabled={isSampleDocumentPassingEnabled}
+              projectId={projectId}
+            />
+          </Banner>
+        )}
+      </Body>
     </MarketingModal>
   );
 };

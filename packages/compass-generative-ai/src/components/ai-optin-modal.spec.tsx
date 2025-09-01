@@ -30,64 +30,84 @@ describe('AIOptInModal Component', function () {
     sandbox.restore();
   });
 
-  it('should show the correct modal title when in a cloud opt-in environment', function () {
-    render(
-      <PreferencesProvider value={mockPreferences}>
-        <AIOptInModal {...baseProps} />
-      </PreferencesProvider>
-    );
-    expect(
-      screen.getByRole('heading', {
-        name: 'Use AI Features in Data Explorer',
-      })
-    ).to.exist;
-  });
-
-  it('should show the correct modal title when not in a cloud opt-in environment', function () {
-    render(
-      <PreferencesProvider value={mockPreferences}>
-        <AIOptInModal {...baseProps} isCloudOptIn={false} />
-      </PreferencesProvider>
-    );
-    expect(
-      screen.getByRole('heading', {
-        name: 'Use AI Features in Compass',
-      })
-    ).to.exist;
-  });
-
-  it('should show the Not now link', function () {
-    render(
-      <PreferencesProvider value={mockPreferences}>
-        <AIOptInModal {...baseProps} />
-      </PreferencesProvider>
-    );
-    expect(screen.getByText('Not now')).to.exist;
-  });
-
-  it('should show an info banner when in a cloud opt-in environment', async function () {
-    await mockPreferences.savePreferences({
-      enableGenAIFeaturesAtlasProject: true,
+  describe('with cloud opt-in environment', function () {
+    it('should show the correct modal title and description', function () {
+      render(
+        <PreferencesProvider value={mockPreferences}>
+          <AIOptInModal {...baseProps} />
+        </PreferencesProvider>
+      );
+      expect(
+        screen.getByRole('heading', {
+          name: 'Use AI Features in Data Explorer',
+        })
+      ).to.exist;
+      expect(
+        screen.getByText(
+          'AI-powered features in Data Explorer supply users with an intelligent toolset to build faster and smarter with MongoDB.'
+        )
+      ).to.exist;
     });
 
-    render(
-      <PreferencesProvider value={mockPreferences}>
-        <AIOptInModal {...baseProps} />
-      </PreferencesProvider>
-    );
+    it('should show an info banner', async function () {
+      await mockPreferences.savePreferences({
+        enableGenAIFeaturesAtlasProject: true,
+      });
 
-    const banner = screen.getByTestId('ai-optin-cloud-banner');
-    expect(banner).to.exist;
+      render(
+        <PreferencesProvider value={mockPreferences}>
+          <AIOptInModal {...baseProps} />
+        </PreferencesProvider>
+      );
+
+      const banner = screen.getByTestId('ai-optin-cloud-banner');
+      expect(banner).to.exist;
+    });
+
+    it('should show the Use AI Features and Not now buttons', function () {
+      render(
+        <PreferencesProvider value={mockPreferences}>
+          <AIOptInModal {...baseProps} />
+        </PreferencesProvider>
+      );
+      expect(screen.getByText('Use AI Features')).to.exist;
+      expect(screen.getByText('Not now')).to.exist;
+    });
   });
 
-  it('should not show a banner when in non-cloud environment', function () {
-    render(
-      <PreferencesProvider value={mockPreferences}>
-        <AIOptInModal {...baseProps} isCloudOptIn={false} />
-      </PreferencesProvider>
-    );
-    const banner = screen.queryByTestId('ai-optin-cloud-banner');
-    expect(banner).to.not.exist;
+  describe('with non-cloud opt-in environment', function () {
+    it('should show the correct modal title and not show the banner', function () {
+      render(
+        <PreferencesProvider value={mockPreferences}>
+          <AIOptInModal {...baseProps} isCloudOptIn={false} />
+        </PreferencesProvider>
+      );
+      expect(screen.getByText('Use AI Features in Compass')).to.exist;
+      expect(
+        screen.getByText(
+          'AI-powered features in Compass supply users with an intelligent toolset to build faster and smarter with MongoDB.'
+        )
+      ).to.exist;
+    });
+
+    it('should not show the banner', function () {
+      render(
+        <PreferencesProvider value={mockPreferences}>
+          <AIOptInModal {...baseProps} isCloudOptIn={false} />
+        </PreferencesProvider>
+      );
+      expect(screen.queryByTestId('ai-optin-cloud-banner')).to.not.exist;
+    });
+
+    it('should show the Use AI Features and Not now buttons', function () {
+      render(
+        <PreferencesProvider value={mockPreferences}>
+          <AIOptInModal {...baseProps} />
+        </PreferencesProvider>
+      );
+      expect(screen.getByText('Use AI Features')).to.exist;
+      expect(screen.getByText('Not now')).to.exist;
+    });
   });
 
   it('should show the opt in button enabled when project AI setting is enabled', async function () {
