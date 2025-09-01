@@ -30,6 +30,7 @@ import { getCoordinatesForNewNode } from '@mongodb-js/diagramming';
 import { collectionToDiagramNode } from '../utils/nodes-and-edges';
 import toNS from 'mongodb-ns';
 import { traverseSchema } from '../utils/schema-traversal';
+import { applyEdit as _applyEdit } from './apply-edit';
 
 function isNonEmptyArray<T>(arr: T[]): arr is [T, ...T[]] {
   return Array.isArray(arr) && arr.length > 0;
@@ -383,6 +384,16 @@ const updateSelectedItemsFromAppliedEdit = (
         id: edit.ns,
       };
     }
+    case 'RenameField': {
+      return {
+        type: 'field',
+        namespace: edit.ns,
+        fieldPath: [
+          ...edit.field.slice(0, edit.field.length - 1),
+          edit.newName,
+        ],
+      };
+    }
   }
 
   return currentSelection;
@@ -658,6 +669,21 @@ export function updateCollectionNote(
   return applyEdit({ type: 'UpdateCollectionNote', ns, note });
 }
 
+export function removeField(
+  ns: string,
+  field: FieldPath
+): DataModelingThunkAction<boolean, ApplyEditAction | ApplyEditFailedAction> {
+  return applyEdit({ type: 'RemoveField', ns, field });
+}
+
+export function renameField(
+  ns: string,
+  field: FieldPath,
+  newName: string
+): DataModelingThunkAction<boolean, ApplyEditAction | ApplyEditFailedAction> {
+  return applyEdit({ type: 'RenameField', ns, field, newName });
+}
+
 function getPositionForNewCollection(
   existingCollections: DataModelCollection[],
   newCollection: Omit<DataModelCollection, 'displayPosition'>
@@ -730,130 +756,6 @@ export function addCollection(
     dispatch(applyEdit(edit));
     return true;
   };
-}
-
-function _applyEdit(edit: Edit, model?: StaticModel): StaticModel {
-  if (edit.type === 'SetModel') {
-    return edit.model;
-  }
-  if (!model) {
-    throw new Error('Editing a model that has not been initialized');
-  }
-  switch (edit.type) {
-    case 'AddCollection': {
-      const newCollection: DataModelCollection = {
-        ns: edit.ns,
-        jsonSchema: edit.initialSchema,
-        displayPosition: edit.position,
-        indexes: [],
-      };
-      return {
-        ...model,
-        collections: [...model.collections, newCollection],
-      };
-    }
-    case 'AddRelationship': {
-      return {
-        ...model,
-        relationships: [...model.relationships, edit.relationship],
-      };
-    }
-    case 'RemoveRelationship': {
-      return {
-        ...model,
-        relationships: model.relationships.filter(
-          (relationship) => relationship.id !== edit.relationshipId
-        ),
-      };
-    }
-    case 'UpdateRelationship': {
-      const existingRelationship = model.relationships.find((r) => {
-        return r.id === edit.relationship.id;
-      });
-      if (!existingRelationship) {
-        throw new Error('Can not update non-existent relationship');
-      }
-      return {
-        ...model,
-        relationships: model.relationships.map((r) => {
-          return r === existingRelationship ? edit.relationship : r;
-        }),
-      };
-    }
-    case 'MoveCollection': {
-      return {
-        ...model,
-        collections: model.collections.map((collection) => {
-          if (collection.ns === edit.ns) {
-            return {
-              ...collection,
-              displayPosition: edit.newPosition,
-            };
-          }
-          return collection;
-        }),
-      };
-    }
-    case 'RemoveCollection': {
-      return {
-        ...model,
-        // Remove any relationships involving the collection being removed.
-        relationships: model.relationships.filter((r) => {
-          return !(
-            r.relationship[0].ns === edit.ns || r.relationship[1].ns === edit.ns
-          );
-        }),
-        collections: model.collections.filter(
-          (collection) => collection.ns !== edit.ns
-        ),
-      };
-    }
-    case 'RenameCollection': {
-      return {
-        ...model,
-        // Update relationships to point to the renamed namespace.
-        relationships: model.relationships.map((relationship) => {
-          const [local, foreign] = relationship.relationship;
-
-          return {
-            ...relationship,
-            relationship: [
-              {
-                ...local,
-                ns: local.ns === edit.fromNS ? edit.toNS : local.ns,
-              },
-              {
-                ...foreign,
-                ns: foreign.ns === edit.fromNS ? edit.toNS : foreign.ns,
-              },
-            ],
-          };
-        }),
-        collections: model.collections.map((collection) => ({
-          ...collection,
-          // Rename the collection.
-          ns: collection.ns === edit.fromNS ? edit.toNS : collection.ns,
-        })),
-      };
-    }
-    case 'UpdateCollectionNote': {
-      return {
-        ...model,
-        collections: model.collections.map((collection) => {
-          if (collection.ns === edit.ns) {
-            return {
-              ...collection,
-              note: edit.note,
-            };
-          }
-          return collection;
-        }),
-      };
-    }
-    default: {
-      return model;
-    }
-  }
 }
 
 /**

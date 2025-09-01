@@ -273,9 +273,7 @@ describe('Connection string', function () {
   before(async function () {
     compass = await init(this.test?.fullTitle());
     browser = compass.browser;
-    // TODO(COMPASS-9746) the debug toast obscures the connection toast which
-    // breaks the connect custom commands and who knows what else
-    //await browser.setFeature('enableAIAssistant', true)
+    await browser.setFeature('enableAIAssistant', true);
   });
 
   beforeEach(async function () {
@@ -312,15 +310,15 @@ describe('Connection string', function () {
     });
 
     // check the error
-    const toastTitle = await browser.$(Selectors.LGToastTitle).getText();
-    expect(toastTitle).to.equal('Authentication failed.');
+    const connectionError = await browser
+      .$(Selectors.ConnectionToastErrorText)
+      .getText();
+    expect(connectionError).to.equal('Authentication failed.');
 
     const errorMessage = await browser
       .$(Selectors.ConnectionToastErrorText)
       .getText();
-    expect(errorMessage).to.equal(
-      'There was a problem connecting to 127.0.0.1:27091'
-    );
+    expect(errorMessage).to.equal('Authentication failed.');
 
     // click the review button in the toast
     await browser.clickVisible(Selectors.ConnectionToastErrorReviewButton);
@@ -336,22 +334,25 @@ describe('Connection string', function () {
       .$(Selectors.ConnectionModal)
       .waitForDisplayed({ reverse: true });
 
-    // TODO(COMPASS-9746) the toasts should be swapped around before this can work
-    /*
-    await browser.clickVisible(Selectors.ConnectionToastErrorDebugButton);
-    const messagesElement = browser.$(Selectors.AssistantChatMessages)
-    await messagesElement.waitForDisplayed();
-    // TODO(COMPASS-9744) check the response from the chatbot too
-    
-    await browser.waitUntil(async () => {
-      return (await messagesElement.getText()).includes('Given the error message below,');
-    });
+    // TODO(COMPASS-9768) this should work on compass web
+    if (!TEST_COMPASS_WEB) {
+      await browser.clickVisible(Selectors.ConnectionToastErrorDebugButton);
+      // TODO(COMPASS-9759) we might have to opt-in via the modal once that's a thing
+      const messagesElement = browser.$(Selectors.AssistantChatMessages);
+      await messagesElement.waitForDisplayed();
+      // TODO(COMPASS-9748) check the response from the chatbot too
 
-    // clear the chat so that a broken message doesn't break every future message
-    await browser.clickVisible(Selectors.AssistantClearChatButton);
-    await browser.clickVisible(Selectors.ConfirmClearChatModalConfirmButton);
-    await browser.clickVisible(Selectors.SideDrawerCloseButton);
-    */
+      await browser.waitUntil(async () => {
+        return (await messagesElement.getText()).includes(
+          'Given the error message below,'
+        );
+      });
+
+      // clear the chat so that a broken message doesn't break every future message
+      await browser.clickVisible(Selectors.AssistantClearChatButton);
+      await browser.clickVisible(Selectors.ConfirmClearChatModalConfirmButton);
+      await browser.clickVisible(Selectors.SideDrawerCloseButton);
+    }
   });
 
   it('can connect to an Atlas replicaset without srv', async function () {
@@ -1001,7 +1002,7 @@ describe('Connection form', function () {
     const connections: {
       state: ConnectFormState;
       connectionId?: string;
-      connectionError: string;
+      toastErrorTitle: string;
       toastErrorText: string;
     }[] = [
       {
@@ -1011,16 +1012,16 @@ describe('Connection form', function () {
           defaultPassword: 'b',
           connectionName: connection1Name,
         },
-        connectionError: 'Authentication failed.',
-        toastErrorText: `There was a problem connecting to ${connection1Name}`,
+        toastErrorTitle: connection1Name,
+        toastErrorText: `Authentication failed.`,
       },
       {
         state: {
           hosts: ['127.0.0.1:16666'],
           connectionName: connection2Name,
         },
-        connectionError: 'connect ECONNREFUSED 127.0.0.1:16666',
-        toastErrorText: `There was a problem connecting to ${connection2Name}`,
+        toastErrorTitle: connection2Name,
+        toastErrorText: `connect ECONNREFUSED 127.0.0.1:16666`,
       },
     ];
 
@@ -1058,13 +1059,13 @@ describe('Connection form', function () {
       );
       await browser.$(toastSelector).waitForDisplayed();
 
-      // check the toast title
-      const toastTitle = await browser
-        .$(`${toastSelector} ${Selectors.LGToastTitle}`)
+      // check the title
+      const errorTitle = await browser
+        .$(`${toastSelector} ${Selectors.ConnectionToastTitleText}`)
         .getText();
-      expect(toastTitle).to.equal(expected.connectionError);
+      expect(errorTitle).to.equal(expected.toastErrorTitle);
 
-      // check the toast body text
+      // check the text
       const errorMessage = await browser
         .$(`${toastSelector} ${Selectors.ConnectionToastErrorText}`)
         .getText();
@@ -1083,7 +1084,7 @@ describe('Connection form', function () {
       const errorText = await browser
         .$(Selectors.ConnectionFormErrorMessage)
         .getText();
-      expect(errorText).to.equal(expected.connectionError);
+      expect(errorText).to.equal(expected.toastErrorText);
 
       const state = await browser.getConnectFormState();
       expect(state.hosts).to.deep.equal(expected.state.hosts);

@@ -237,6 +237,8 @@ export const ConnectionModalSaveButton = '[data-testid="save-button"]';
 export const connectionToastById = (connectionId: string) => {
   return `[data-testid="toast-connection-status--${connectionId}"]`;
 };
+export const ConnectionToastTitleText =
+  '[data-testid="connection-error-title"]';
 export const ConnectionToastErrorText = '[data-testid="connection-error-text"]';
 export const ConnectionToastErrorReviewButton =
   '[data-testid="connection-error-review"]';

@@ -165,3 +165,118 @@ export const getFieldFromSchema = ({
     parentFieldPath: [...parentFieldPath, nextInPath],
   });
 };
+
+type UpdateOperationParameters = {
+  update: 'removeField' | 'renameField';
+  newFieldName?: string;
+};
+
+const applySchemaUpdate = ({
+  schema,
+  fieldName,
+  newFieldName,
+  update,
+}: {
+  schema: MongoDBJSONSchema;
+  fieldName: string;
+} & UpdateOperationParameters): MongoDBJSONSchema => {
+  switch (update) {
+    case 'removeField': {
+      if (!schema.properties || !schema.properties[fieldName])
+        throw new Error('Field to remove does not exist');
+      return {
+        ...schema,
+        properties: Object.fromEntries(
+          Object.entries(schema.properties).filter(([key]) => key !== fieldName)
+        ),
+      };
+    }
+    case 'renameField': {
+      if (!schema.properties || !schema.properties[fieldName])
+        throw new Error('Field to rename does not exist');
+      if (!newFieldName)
+        throw new Error('New field name is required for the rename operation');
+      return {
+        ...schema,
+        properties: Object.fromEntries(
+          Object.entries(schema.properties).map(([key, value]) =>
+            key === fieldName ? [newFieldName, value] : [key, value]
+          )
+        ),
+      };
+    }
+    default:
+      return schema;
+  }
+};
+
+/**
+ * Finds a single field in a MongoDB JSON schema and performs an update operation on it.
+ */
+export const updateSchema = ({
+  jsonSchema,
+  fieldPath,
+  update,
+  newFieldName,
+}: {
+  jsonSchema: MongoDBJSONSchema;
+  fieldPath: FieldPath;
+} & UpdateOperationParameters): MongoDBJSONSchema => {
+  const newSchema = {
+    ...jsonSchema,
+  };
+  const nextInPath = fieldPath[0];
+  const remainingFieldPath = fieldPath.slice(1);
+  const targetReached = remainingFieldPath.length === 0;
+  if (newSchema.properties && newSchema.properties[nextInPath]) {
+    if (targetReached) {
+      // reached the field to remove
+      return applySchemaUpdate({
+        schema: newSchema,
+        fieldName: nextInPath,
+        update,
+        newFieldName,
+      });
+    }
+    newSchema.properties = {
+      ...newSchema.properties,
+      [nextInPath]: updateSchema({
+        jsonSchema: newSchema.properties[nextInPath],
+        fieldPath: remainingFieldPath,
+        update,
+        newFieldName,
+      }),
+    };
+  }
+  if (newSchema.anyOf) {
+    newSchema.anyOf = newSchema.anyOf.map((variant) =>
+      updateSchema({
+        jsonSchema: variant,
+        fieldPath: fieldPath,
+        update,
+        newFieldName,
+      })
+    );
+  }
+  if (newSchema.items) {
+    if (!Array.isArray(newSchema.items)) {
+      newSchema.items = updateSchema({
+        jsonSchema: newSchema.items,
+        fieldPath: fieldPath,
+        update,
+        newFieldName,
+      });
+    } else {
+      newSchema.items = newSchema.items.map((item) =>
+        updateSchema({
+          jsonSchema: item,
+          fieldPath: fieldPath,
+          update,
+          newFieldName,
+        })
+      );
+    }
+  }
+
+  return newSchema;
+};
