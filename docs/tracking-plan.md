@@ -1283,6 +1283,8 @@ This event is fired when user executes a query
   - Indicates whether the query includes a skip operation.
 - **has_sort** (required): `boolean`
   - Indicates whether the query includes a sort operation.
+- **default_sort** (required): `"none" | "natural" | "_id"`
+  - Indicates which default sort was set in settings
 - **has_limit** (required): `boolean`
   - Indicates whether the query includes a limit operation.
 - **has_collation** (required): `boolean`
