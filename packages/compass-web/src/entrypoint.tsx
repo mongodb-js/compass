@@ -437,7 +437,10 @@ const CompassWeb = ({
                                 ></CompassWorkspace>
                               </WithConnectionsStore>
                             </FieldStorePlugin>
-                            <CompassGenerativeAIPlugin projectId={projectId} />
+                            <CompassGenerativeAIPlugin
+                              projectId={projectId}
+                              isCloudOptIn={true}
+                            />
                           </CompassAssistantProvider>
                         </CompassInstanceStorePlugin>
                       </CompassConnections>

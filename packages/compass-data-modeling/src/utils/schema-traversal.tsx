@@ -184,19 +184,26 @@ const applySchemaUpdate = ({
     case 'removeField': {
       if (!schema.properties || !schema.properties[fieldName])
         throw new Error('Field to remove does not exist');
-      return {
+      const newSchema = {
         ...schema,
         properties: Object.fromEntries(
           Object.entries(schema.properties).filter(([key]) => key !== fieldName)
         ),
       };
+      // clean up required if needed
+      if (newSchema.required && Array.isArray(newSchema.required)) {
+        newSchema.required = newSchema.required.filter(
+          (key) => key !== fieldName
+        );
+      }
+      return newSchema;
     }
     case 'renameField': {
       if (!schema.properties || !schema.properties[fieldName])
         throw new Error('Field to rename does not exist');
       if (!newFieldName)
         throw new Error('New field name is required for the rename operation');
-      return {
+      const newSchema = {
         ...schema,
         properties: Object.fromEntries(
           Object.entries(schema.properties).map(([key, value]) =>
@@ -204,6 +211,13 @@ const applySchemaUpdate = ({
           )
         ),
       };
+      // update required if needed
+      if (newSchema.required && Array.isArray(newSchema.required)) {
+        newSchema.required = newSchema.required.map((key) =>
+          key !== fieldName ? key : newFieldName
+        );
+      }
+      return newSchema;
     }
     default:
       return schema;

@@ -1,7 +1,16 @@
 import React from 'react';
 import type { Signal } from './signal-popover';
 
-const SIGNALS = [
+const SIGNALS: Pick<
+  Signal,
+  | 'id'
+  | 'title'
+  | 'description'
+  | 'learnMoreLink'
+  | 'primaryActionButtonLabel'
+  | 'primaryActionButtonLink'
+  | 'primaryActionButtonIcon'
+>[] = [
   {
     id: 'aggregation-executed-without-index',
     title: 'Aggregation executed without index',

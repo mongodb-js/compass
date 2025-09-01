@@ -12,12 +12,10 @@ import { EJSON } from 'bson';
 import { z } from 'zod';
 import { getStore } from './store/atlas-ai-store';
 import { optIntoGenAIWithModalPrompt } from './store/atlas-optin-reducer';
-import { signIntoAtlasWithModalPrompt } from './store/atlas-signin-reducer';
 import {
   AtlasAiServiceInvalidInputError,
   AtlasAiServiceApiResponseParseError,
 } from './atlas-ai-errors';
-import { mongoLogId } from '@mongodb-js/compass-logging/provider';
 
 type GenerativeAiInput = {
   userInput: string;
@@ -203,9 +201,11 @@ const aiURLConfig = {
   // There are two different sets of endpoints we use for our requests.
   // Down the line we'd like to only use the admin api, however,
   // we cannot currently call that from the Atlas UI. Pending CLOUDP-251201
+  // NOTE: The unauthenticated endpoints are also rate limited by IP address
+  // rather than by logged in user.
   'admin-api': {
-    aggregation: 'ai/api/v1/mql-aggregation',
-    query: 'ai/api/v1/mql-query',
+    aggregation: 'unauth/ai/api/v1/mql-aggregation',
+    query: 'unauth/ai/api/v1/mql-query',
   },
   cloud: {
     aggregation: (groupId: string) => `ai/v1/groups/${groupId}/mql-aggregation`,
@@ -341,17 +341,12 @@ export class AtlasAiService {
   }
 
   async ensureAiFeatureAccess({ signal }: { signal?: AbortSignal } = {}) {
-    if (this.preferences.getPreferences().enableUnauthenticatedGenAI) {
-      return getStore().dispatch(optIntoGenAIWithModalPrompt({ signal }));
-    }
-
-    // When the ai feature is attempted to be opened we make sure
-    // the user is signed into Atlas and opted in.
-
-    if (this.apiURLPreset === 'cloud') {
-      return getStore().dispatch(optIntoGenAIWithModalPrompt({ signal }));
-    }
-    return getStore().dispatch(signIntoAtlasWithModalPrompt({ signal }));
+    return getStore().dispatch(
+      optIntoGenAIWithModalPrompt({
+        signal,
+        isCloudOptIn: this.apiURLPreset === 'cloud',
+      })
+    );
   }
 
   private getQueryOrAggregationFromUserInput = async <T>(
@@ -498,7 +493,7 @@ export class AtlasAiService {
     } catch (err) {
       const errorMessage = err instanceof Error ? err.stack : String(err);
       this.logger.log.error(
-        mongoLogId(1_001_000_311),
+        this.logger.mongoLogId(1_001_000_311),
         'AtlasAiService',
         'Failed to parse mock data schema response with expected schema',
         {

@@ -9,11 +9,16 @@ import {
 import { atlasServiceLocator } from '@mongodb-js/atlas-service/provider';
 import { DocsProviderTransport } from './docs-provider-transport';
 import { useDrawerActions } from '@mongodb-js/compass-components';
-import { buildConnectionErrorPrompt, buildExplainPlanPrompt } from './prompts';
+import {
+  buildConnectionErrorPrompt,
+  buildExplainPlanPrompt,
+  buildProactiveInsightsPrompt,
+  type EntryPointMessage,
+  type ProactiveInsightsContext,
+} from './prompts';
 import { usePreference } from 'compass-preferences-model/provider';
 import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
-import { redactConnectionString } from 'mongodb-connection-string-url';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 
 export const ASSISTANT_DRAWER_ID = 'compass-assistant-drawer';
@@ -47,11 +52,13 @@ type AssistantActionsContextType = {
     error: Error;
   }) => void;
   clearChat: () => void;
+  tellMoreAboutInsight: (context: ProactiveInsightsContext) => void;
 };
 export const AssistantActionsContext =
   createContext<AssistantActionsContextType>({
     interpretExplainPlan: () => {},
     interpretConnectionError: () => {},
+    tellMoreAboutInsight: () => {},
     clearChat: () => {},
   });
 
@@ -89,53 +96,41 @@ export const AssistantProvider: React.FunctionComponent<
     chat: Chat<AssistantMessage>;
   }>
 > = ({ chat, children }) => {
+  const { openDrawer } = useDrawerActions();
   const track = useTelemetry();
+  const createEntryPointHandler = useRef(function <T>(
+    entryPointName:
+      | 'explain plan'
+      | 'performance insights'
+      | 'connection error',
+    builder: (props: T) => EntryPointMessage
+  ) {
+    return (props: T) => {
+      openDrawer(ASSISTANT_DRAWER_ID);
+      const { prompt, displayText } = builder(props);
+      void chat.sendMessage({ text: prompt, metadata: { displayText } }, {});
+      track('Assistant Entry Point Used', {
+        source: entryPointName,
+      });
+    };
+  });
   const assistantActionsContext = useRef<AssistantActionsContextType>({
-    interpretExplainPlan: ({ explainPlan }) => {
-      openDrawer(ASSISTANT_DRAWER_ID);
-      const { prompt, displayText } = buildExplainPlanPrompt({
-        explainPlan,
-      });
-      void chat.sendMessage(
-        {
-          text: prompt,
-          metadata: {
-            displayText,
-          },
-        },
-        {}
-      );
-      track('Assistant Entry Point Used', {
-        source: 'explain plan',
-      });
-    },
-    interpretConnectionError: ({ connectionInfo, error }) => {
-      openDrawer(ASSISTANT_DRAWER_ID);
-
-      const connectionString = redactConnectionString(
-        connectionInfo.connectionOptions.connectionString
-      );
-      const connectionError = error.toString();
-
-      const { prompt } = buildConnectionErrorPrompt({
-        connectionString,
-        connectionError,
-      });
-      void chat.sendMessage(
-        {
-          text: prompt,
-        },
-        {}
-      );
-      track('Assistant Entry Point Used', {
-        source: 'connection error',
-      });
-    },
+    interpretExplainPlan: createEntryPointHandler.current(
+      'explain plan',
+      buildExplainPlanPrompt
+    ),
+    interpretConnectionError: createEntryPointHandler.current(
+      'connection error',
+      buildConnectionErrorPrompt
+    ),
+    tellMoreAboutInsight: createEntryPointHandler.current(
+      'performance insights',
+      buildProactiveInsightsPrompt
+    ),
     clearChat: () => {
       chat.messages = [];
     },
   });
-  const { openDrawer } = useDrawerActions();
 
   return (
     <AssistantContext.Provider value={chat}>
@@ -165,7 +160,7 @@ export const CompassAssistantProvider = registerCompassPlugin(
         transport: new DocsProviderTransport({
           baseUrl: atlasService.assistantApiEndpoint(),
         }),
-        onError: (err: any) => {
+        onError: (err) => {
           logger.log.error(
             logger.mongoLogId(1_001_000_370),
             'Assistant',

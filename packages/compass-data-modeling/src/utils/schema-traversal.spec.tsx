@@ -518,6 +518,23 @@ describe('removeField', function () {
         },
       });
     });
+
+    it('clean up required', function () {
+      const schema = {
+        bsonType: 'object',
+        properties: {
+          name: { bsonType: 'string' },
+          age: { bsonType: ['string', 'int'] },
+        },
+        required: ['name', 'age'],
+      };
+      const result = updateSchema({
+        fieldPath: ['name'],
+        jsonSchema: schema,
+        update: 'removeField',
+      });
+      expect(result.required).to.deep.equal(['age']);
+    });
   });
 
   describe('nested schema', function () {
@@ -796,6 +813,24 @@ describe('renameField', function () {
           age: schema.properties.age,
         },
       });
+    });
+
+    it('update required', function () {
+      const schema = {
+        bsonType: 'object',
+        properties: {
+          name: { bsonType: 'string' },
+          age: { bsonType: ['string', 'int'] },
+        },
+        required: ['name', 'age'],
+      };
+      const result = updateSchema({
+        fieldPath: ['name'],
+        jsonSchema: schema,
+        update: 'renameField',
+        newFieldName: 'newName',
+      });
+      expect(result.required).to.deep.equal(['newName', 'age']);
     });
   });
 

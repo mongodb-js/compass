@@ -121,7 +121,9 @@ function Home({
           <CompassSettingsPlugin></CompassSettingsPlugin>
           <CompassFindInPagePlugin></CompassFindInPagePlugin>
           <AtlasAuthPlugin></AtlasAuthPlugin>
-          <CompassGenerativeAIPlugin></CompassGenerativeAIPlugin>
+          <CompassGenerativeAIPlugin
+            isCloudOptIn={false}
+          ></CompassGenerativeAIPlugin>
           <LegacyConnectionsModal />
         </FieldStorePlugin>
       </CompassInstanceStorePlugin>

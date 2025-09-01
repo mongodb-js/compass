@@ -6,7 +6,7 @@
 > the tracking plan for the specific Compass version you can use the following
 > URL: `https://github.com/mongodb-js/compass/blob/<compass version>/docs/tracking-plan.md`
 
-Generated on Sun, Aug 31, 2025
+Generated on Mon, Sep 1, 2025
 
 ## Table of Contents
 
@@ -1283,6 +1283,8 @@ This event is fired when user executes a query
   - Indicates whether the query includes a skip operation.
 - **has_sort** (required): `boolean`
   - Indicates whether the query includes a sort operation.
+- **default_sort** (required): `"none" | "natural" | "_id"`
+  - Indicates which default sort was set in settings
 - **has_limit** (required): `boolean`
   - Indicates whether the query includes a limit operation.
 - **has_collation** (required): `boolean`
