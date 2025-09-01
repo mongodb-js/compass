@@ -20,6 +20,7 @@ import { usePreference } from 'compass-preferences-model/provider';
 import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
+import { useAtlasAiServiceContext } from '@mongodb-js/compass-generative-ai/provider';
 
 export const ASSISTANT_DRAWER_ID = 'compass-assistant-drawer';
 
@@ -35,6 +36,9 @@ type AssistantContextType = Chat<AssistantMessage>;
 export const AssistantContext = createContext<AssistantContextType | null>(
   null
 );
+
+type SendMessage = Parameters<Chat<AssistantMessage>['sendMessage']>[0];
+type SendOptions = Parameters<Chat<AssistantMessage>['sendMessage']>[1];
 
 type AssistantActionsContextType = {
   interpretExplainPlan: ({
@@ -53,6 +57,11 @@ type AssistantActionsContextType = {
   }) => void;
   clearChat: () => void;
   tellMoreAboutInsight: (context: ProactiveInsightsContext) => void;
+  ensureOptInAndSend: (
+    message: SendMessage,
+    options: SendOptions,
+    callback: () => void
+  ) => Promise<void>;
 };
 export const AssistantActionsContext =
   createContext<AssistantActionsContextType>({
@@ -60,6 +69,7 @@ export const AssistantActionsContext =
     interpretConnectionError: () => {},
     tellMoreAboutInsight: () => {},
     clearChat: () => {},
+    ensureOptInAndSend: async () => {},
   });
 
 export function useAssistantActions(): AssistantActionsContextType & {
@@ -98,6 +108,7 @@ export const AssistantProvider: React.FunctionComponent<
 > = ({ chat, children }) => {
   const { openDrawer } = useDrawerActions();
   const track = useTelemetry();
+  const atlasAiService = useAtlasAiServiceContext();
   const createEntryPointHandler = useRef(function <T>(
     entryPointName:
       | 'explain plan'
@@ -106,12 +117,18 @@ export const AssistantProvider: React.FunctionComponent<
     builder: (props: T) => EntryPointMessage
   ) {
     return (props: T) => {
-      openDrawer(ASSISTANT_DRAWER_ID);
       const { prompt, displayText } = builder(props);
-      void chat.sendMessage({ text: prompt, metadata: { displayText } }, {});
-      track('Assistant Entry Point Used', {
-        source: entryPointName,
-      });
+      void assistantActionsContext.current.ensureOptInAndSend(
+        { text: prompt, metadata: { displayText } },
+        {},
+        () => {
+          openDrawer(ASSISTANT_DRAWER_ID);
+
+          track('Assistant Entry Point Used', {
+            source: entryPointName,
+          });
+        }
+      );
     };
   });
   const assistantActionsContext = useRef<AssistantActionsContextType>({
@@ -129,6 +146,24 @@ export const AssistantProvider: React.FunctionComponent<
     ),
     clearChat: () => {
       chat.messages = [];
+    },
+    ensureOptInAndSend: async (
+      message: SendMessage,
+      options: SendOptions,
+      callback: () => void
+    ) => {
+      try {
+        await atlasAiService.ensureAiFeatureAccess();
+      } catch {
+        // opt-in failed: just do nothing
+        return;
+      }
+
+      // Call the callback to indicate that the opt-in was successful. A good
+      // place to do tracking.
+      callback();
+
+      await chat.sendMessage(message);
     },
   });
 

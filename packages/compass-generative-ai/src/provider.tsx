@@ -36,7 +36,7 @@ export const AtlasAiServiceProvider: React.FC<{
   );
 });
 
-function useAtlasAiServiceContext(): AtlasAiService {
+export function useAtlasAiServiceContext(): AtlasAiService {
   const service = useContext(AtlasAiServiceContext);
   if (!service) {
     throw new Error('No AtlasAiService available in this context');
