@@ -632,6 +632,12 @@ export const storedUserPreferencesProps: Required<{
     description: {
       short: 'Default Sort for Query Bar',
       long: 'All queries executed from the query bar will apply this sort. Not available for views and timeseries.',
+      longReact: (
+        <>
+          All queries executed from the query bar will apply this sort.{' '}
+          <strong>Not available for views and timeseries.</strong>
+        </>
+      ),
       options: {
         '': {
           label: 'MongoDB server default',
