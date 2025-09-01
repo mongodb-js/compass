@@ -5,15 +5,20 @@ import { ConfirmationModalArea } from '@mongodb-js/compass-components';
 
 export interface AtlasAiPluginProps {
   projectId?: string;
+  isCloudOptIn: boolean;
 }
 
 export const AtlasAiPlugin: React.FunctionComponent<AtlasAiPluginProps> = ({
   projectId,
+  isCloudOptIn,
 }) => {
   return (
     <ConfirmationModalArea>
       <AISignInModal></AISignInModal>
-      <AIOptInModal projectId={projectId}></AIOptInModal>
+      <AIOptInModal
+        isCloudOptIn={isCloudOptIn}
+        projectId={projectId}
+      ></AIOptInModal>
     </ConfirmationModalArea>
   );
 };

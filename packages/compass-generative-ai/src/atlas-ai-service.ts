@@ -342,14 +342,18 @@ export class AtlasAiService {
 
   async ensureAiFeatureAccess({ signal }: { signal?: AbortSignal } = {}) {
     if (this.preferences.getPreferences().enableUnauthenticatedGenAI) {
-      return getStore().dispatch(optIntoGenAIWithModalPrompt({ signal }));
+      return getStore().dispatch(
+        optIntoGenAIWithModalPrompt({ signal, isCloudOptIn: false })
+      );
     }
 
     // When the ai feature is attempted to be opened we make sure
     // the user is signed into Atlas and opted in.
 
     if (this.apiURLPreset === 'cloud') {
-      return getStore().dispatch(optIntoGenAIWithModalPrompt({ signal }));
+      return getStore().dispatch(
+        optIntoGenAIWithModalPrompt({ signal, isCloudOptIn: true })
+      );
     }
     return getStore().dispatch(signIntoAtlasWithModalPrompt({ signal }));
   }
