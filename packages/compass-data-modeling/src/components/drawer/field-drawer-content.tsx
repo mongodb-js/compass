@@ -122,10 +122,6 @@ const FieldDrawerContent: React.FunctionComponent<FieldDrawerContentProps> = ({
   >();
   const [fieldTypes, setFieldTypes] = useState<string[]>(types);
 
-  useEffect(() => {
-    setFieldTypes(types);
-  }, [types]);
-
   const { value: fieldName, ...nameInputProps } = useChangeOnBlur(
     fieldPath[fieldPath.length - 1],
     (fieldName) => {
