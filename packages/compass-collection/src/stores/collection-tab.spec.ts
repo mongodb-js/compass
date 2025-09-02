@@ -1,6 +1,7 @@
 import type { CollectionTabOptions } from './collection-tab';
 import { activatePlugin } from './collection-tab';
 import { selectTab } from '../modules/collection-tab';
+import * as collectionTabModule from '../modules/collection-tab';
 import { waitFor } from '@mongodb-js/testing-library-compass';
 import Sinon from 'sinon';
 import AppRegistry from '@mongodb-js/compass-app-registry';
@@ -11,6 +12,7 @@ import type { connectionInfoRefLocator } from '@mongodb-js/compass-connections/p
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import { ReadOnlyPreferenceAccess } from 'compass-preferences-model/provider';
 import { ExperimentTestName } from '@mongodb-js/compass-telemetry/provider';
+import { type CollectionMetadata } from 'mongodb-collection-model';
 
 const defaultMetadata = {
   namespace: 'test.foo',
@@ -25,16 +27,6 @@ const defaultMetadata = {
 const defaultTabOptions = {
   tabId: 'workspace-tab-id',
   namespace: defaultMetadata.namespace,
-};
-
-const mockCollection = {
-  _id: defaultMetadata.namespace,
-  fetchMetadata() {
-    return Promise.resolve(defaultMetadata);
-  },
-  toJSON() {
-    return this;
-  },
 };
 
 const mockAtlasConnectionInfo = {
@@ -67,7 +59,11 @@ describe('Collection Tab Content store', function () {
   const sandbox = Sinon.createSandbox();
 
   const localAppRegistry = sandbox.spy(new AppRegistry());
+  const analyzeCollectionSchemaStub = sandbox
+    .stub(collectionTabModule, 'analyzeCollectionSchema')
+    .returns(async () => {});
   const dataService = {} as any;
+  const atlasAiService = {} as any;
   let store: ReturnType<typeof activatePlugin>['store'];
   let deactivate: ReturnType<typeof activatePlugin>['deactivate'];
 
@@ -85,8 +81,18 @@ describe('Collection Tab Content store', function () {
       enableGenAIFeatures: true,
       enableGenAIFeaturesAtlasOrg: true,
       cloudFeatureRolloutAccess: { GEN_AI_COMPASS: true },
-    })
+    }),
+    collectionMetadata: Partial<CollectionMetadata> = defaultMetadata
   ) => {
+    const mockCollection = {
+      _id: collectionMetadata.namespace,
+      fetchMetadata() {
+        return Promise.resolve(collectionMetadata);
+      },
+      toJSON() {
+        return this;
+      },
+    };
     ({ store, deactivate } = activatePlugin(
       {
         ...defaultTabOptions,
@@ -101,13 +107,14 @@ describe('Collection Tab Content store', function () {
         connectionInfoRef: connectionInfoRef as any,
         logger,
         preferences,
+        atlasAiService,
       },
       { on() {}, cleanup() {} } as any
     ));
     await waitFor(() => {
       expect(store.getState())
         .to.have.property('metadata')
-        .deep.eq(defaultMetadata);
+        .deep.eq(collectionMetadata);
     });
     return store;
   };
@@ -229,6 +236,42 @@ describe('Collection Tab Content store', function () {
           .to.have.property('metadata')
           .deep.eq(defaultMetadata);
       });
+    });
+  });
+
+  describe('schema analysis on collection load', function () {
+    it('should start schema analysis if collection is not read-only and not time-series', async function () {
+      await configureStore();
+
+      expect(analyzeCollectionSchemaStub).to.have.been.calledOnce;
+    });
+
+    it('should not start schema analysis if collection is read-only', async function () {
+      await configureStore(
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        { ...defaultMetadata, isReadonly: true }
+      );
+
+      expect(analyzeCollectionSchemaStub).to.not.have.been.called;
+    });
+
+    it('should not start schema analysis if collection is time-series', async function () {
+      await configureStore(
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        { ...defaultMetadata, isTimeSeries: true }
+      );
+
+      expect(analyzeCollectionSchemaStub).to.not.have.been.called;
     });
   });
 });

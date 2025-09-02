@@ -13,6 +13,7 @@ import { IndexesToolbar } from './indexes-toolbar';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 import { PreferencesProvider } from 'compass-preferences-model/provider';
+import type { Document } from 'mongodb';
 
 describe('IndexesToolbar Component', function () {
   before(cleanup);
@@ -39,6 +40,7 @@ describe('IndexesToolbar Component', function () {
           onRefreshIndexes={() => {}}
           isSearchIndexesSupported={false}
           isRefreshing={false}
+          collectionStats={{ index_count: 0, index_size: 0, pipeline: [] }}
           onIndexViewChanged={() => {}}
           onCreateRegularIndexClick={() => {}}
           onCreateSearchIndexClick={() => {}}
@@ -113,27 +115,77 @@ describe('IndexesToolbar Component', function () {
         });
       });
     });
-
-    it('should not render a warning', function () {
-      expect(screen.queryByText('Readonly views may not contain indexes')).to
-        .not.exist;
-    });
   });
 
   describe('when it is a readonly view', function () {
-    beforeEach(function () {
-      renderIndexesToolbar({
-        isReadonlyView: true,
+    describe('and server version is < 8.1+', function () {
+      beforeEach(function () {
+        renderIndexesToolbar({
+          isReadonlyView: true,
+          indexView: 'search-indexes',
+        });
+      });
+
+      it('should not render the create index button', function () {
+        expect(screen.queryByText('Create Index')).to.not.exist;
+      });
+
+      it('should not render the create search index button', function () {
+        expect(screen.queryByText('Create Search Index')).to.not.exist;
+      });
+
+      it('should not render the refresh button', function () {
+        expect(screen.queryByText('Refresh')).to.not.exist;
+      });
+    });
+    describe('and server version is > 8.1+', function () {
+      beforeEach(function () {
+        renderIndexesToolbar({
+          isReadonlyView: true,
+          serverVersion: '8.1.0',
+          indexView: 'search-indexes',
+        });
+      });
+
+      it('should not render the create index button', function () {
+        expect(screen.queryByText('Create Index')).to.not.exist;
+      });
+
+      it('should render the create search index button <8.1', function () {
+        expect(screen.getByText('Create Search Index')).to.be.visible;
+      });
+
+      it('should render the refresh button', function () {
+        expect(screen.queryByText('Refresh')).to.be.visible;
       });
     });
 
-    it('should not render the create index button', function () {
-      expect(screen.queryByText('Create Index')).to.not.exist;
-    });
+    describe('and pipeline is not queryable', function () {
+      it('should disable the create search index button', function () {
+        const pipelineMock: Document[] = [
+          { $project: { newField: 'testValue' } },
+        ];
+        const mockCollectionStats = {
+          index_count: 0,
+          index_size: 0,
+          pipeline: pipelineMock,
+        };
 
-    it('should render a warning', function () {
-      expect(screen.getByText('Readonly views may not contain indexes.')).to.be
-        .visible;
+        renderIndexesToolbar({
+          isReadonlyView: true,
+          serverVersion: '8.1.0',
+          indexView: 'search-indexes',
+          collectionStats: mockCollectionStats,
+        });
+
+        expect(screen.getByText('Create Search Index')).to.be.visible;
+        expect(
+          screen
+            .getByText('Create Search Index')
+            .closest('button')
+            ?.getAttribute('aria-disabled')
+        ).to.equal('true');
+      });
     });
   });
 
@@ -331,6 +383,22 @@ describe('IndexesToolbar Component', function () {
 
       expect(segmentControl.closest('button')).to.have.attr('disabled');
       expect(onChangeViewCallback).to.not.have.been.calledOnce;
+    });
+
+    describe('and readonly view >8.1', function () {
+      beforeEach(function () {
+        renderIndexesToolbar({
+          isReadonlyView: true,
+          serverVersion: '8.1.0',
+        });
+      });
+
+      it('it renders tabs with Indexes disabled', function () {
+        const indexesTab = screen.getByText('Indexes');
+        expect(indexesTab).to.be.visible;
+        expect(indexesTab.closest('button')).to.have.attr('disabled');
+        expect(screen.getByText('Search Indexes')).to.be.visible;
+      });
     });
   });
 });

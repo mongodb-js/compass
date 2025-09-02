@@ -149,11 +149,9 @@ function useCollectionTabs(props: CollectionMetadata) {
           </WithErrorBoundary>
         ),
         title: (
-          <WithErrorBoundary name={name} type="header">
-            <Provider {...props}>
-              <Header />
-            </Provider>
-          </WithErrorBoundary>
+          <Provider {...props}>
+            <Header />
+          </Provider>
         ),
       };
     });

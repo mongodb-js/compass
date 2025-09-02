@@ -1,127 +1,259 @@
-import React, { useCallback, useState } from 'react';
-import type { UIMessage } from './@ai-sdk/react/use-chat';
+import React, { useCallback } from 'react';
+import type { AssistantMessage } from './compass-assistant-provider';
 import type { Chat } from './@ai-sdk/react/chat-react';
 import { useChat } from './@ai-sdk/react/use-chat';
+import {
+  LgChatChatWindow,
+  LgChatLeafygreenChatProvider,
+  LgChatMessage,
+  LgChatMessageFeed,
+  LgChatMessageActions,
+  LgChatInputBar,
+  spacing,
+  css,
+  Banner,
+  cx,
+  fontFamilies,
+  palette,
+  useDarkMode,
+  LgChatChatDisclaimer,
+  Link,
+} from '@mongodb-js/compass-components';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
+
+const { DisclaimerText } = LgChatChatDisclaimer;
+const { ChatWindow } = LgChatChatWindow;
+const { LeafyGreenChatProvider, Variant } = LgChatLeafygreenChatProvider;
+const { Message } = LgChatMessage;
+const { MessageFeed } = LgChatMessageFeed;
+const { MessageActions } = LgChatMessageActions;
+const { InputBar } = LgChatInputBar;
+
+const GEN_AI_FAQ_LINK = 'https://www.mongodb.com/docs/generative-ai-faq/';
 
 interface AssistantChatProps {
-  chat: Chat<UIMessage>;
+  chat: Chat<AssistantMessage>;
 }
 
-/**
- * This component is currently using placeholders as Leafygreen UI updates are not available yet.
- * Before release, we will replace this with the actual Leafygreen chat components.
- */
+const assistantChatStyles = css({
+  // Compass has a global bullet point override but we clear this for the chat.
+  ul: {
+    listStyleType: 'disc',
+  },
+  ol: {
+    listStyleType: 'decimal',
+  },
+});
+
+const headerStyleDarkModeFixes = css({
+  'h1, h2, h3, h4, h5, h6': {
+    color: palette.gray.light2,
+  },
+});
+
+const headerStyleLightModeFixes = css({
+  'h1, h2, h3, h4, h5, h6': {
+    color: palette.black,
+  },
+});
+
+// TODO(COMPASS-9751): These are temporary patches to make the Assistant chat take the entire
+// width and height of the drawer since Leafygreen doesn't support this yet.
+const inputBarFixesStyles = css({
+  marginBottom: -spacing[400],
+});
+const assistantChatFixesStyles = css({
+  // Negative margin to patch the padding of the drawer.
+  marginTop: -spacing[400],
+  '> div, > div > div, > div > div > div, > div > div > div': {
+    height: '100%',
+  },
+  // This is currently set to 'pre-wrap' which causes list items to be on a different line than the list markers.
+  'li, ol': {
+    whiteSpace: 'normal',
+  },
+  /** TODO(COMPASS-9751): We're adjusting styling of all the headers to a lower level than the default for chat, this should be updated in Leafygreen as well and removed from our end. */
+  'h1, h2, h3, h4, h5, h6': {
+    margin: 'unset',
+    fontFamily: fontFamilies.default,
+  },
+  /** h4, h5, h6 -> body 1 styling */
+  'h4, h5, h6': {
+    fontSize: '13px',
+  },
+  /** h1 -> h3 styling */
+  h1: {
+    fontSize: '24px',
+    lineHeight: '32px',
+    fontWeight: 'medium',
+  },
+  /** h2 -> subtitle styling */
+  h2: {
+    color: '#001E2B',
+    fontWeight: 'semibold',
+    fontSize: '18px',
+  },
+  /** h3 -> body 2 styling */
+  h3: {
+    fontSize: '16px',
+    fontWeight: 'semibold',
+  },
+});
+const messageFeedFixesStyles = css({ height: '100%' });
+const chatWindowFixesStyles = css({
+  height: '100%',
+});
+const welcomeMessageStyles = css({
+  padding: spacing[400],
+});
+
+function makeErrorMessage(message: string) {
+  message = message || 'An error occurred';
+  return `${message}. Try clearing the chat if the error persists.`;
+}
+
+const errorBannerWrapperStyles = css({
+  margin: spacing[400],
+});
+
 export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
   chat,
 }) => {
-  const [inputValue, setInputValue] = useState('');
-  const { messages, sendMessage } = useChat({
+  const track = useTelemetry();
+  const darkMode = useDarkMode();
+  const { messages, sendMessage, status, error, clearError } = useChat({
     chat,
+    onError: (error) => {
+      track('Assistant Response Failed', () => ({
+        error_name: error.name,
+      }));
+    },
   });
 
-  const handleInputSubmit = useCallback(
-    (e: React.FormEvent) => {
-      e.preventDefault();
-      if (inputValue.trim()) {
-        void sendMessage({ text: inputValue.trim() });
-        setInputValue('');
+  // Transform AI SDK messages to LeafyGreen chat format
+  const lgMessages = messages.map((message) => ({
+    id: message.id,
+    messageBody:
+      message.metadata?.displayText ||
+      message.parts
+        ?.filter((part) => part.type === 'text')
+        .map((part) => part.text)
+        .join('') ||
+      '',
+    isSender: message.role === 'user',
+  }));
+
+  const handleMessageSend = useCallback(
+    (messageBody: string) => {
+      const trimmedMessageBody = messageBody.trim();
+      if (trimmedMessageBody) {
+        track('Assistant Prompt Submitted', {
+          user_input_length: trimmedMessageBody.length,
+        });
+        void sendMessage({ text: trimmedMessageBody });
       }
     },
-    [inputValue, sendMessage]
+    [sendMessage, track]
+  );
+
+  const handleFeedback = useCallback(
+    (
+      event,
+      state:
+        | {
+            feedback: string;
+            rating: string;
+          }
+        | {
+            rating: string;
+          }
+        | undefined
+    ) => {
+      if (!state) {
+        return;
+      }
+      const { rating } = state;
+      const textFeedback = 'feedback' in state ? state.feedback : undefined;
+      const feedback: 'positive' | 'negative' =
+        rating === 'liked' ? 'positive' : 'negative';
+
+      track('Assistant Feedback Submitted', {
+        feedback,
+        text: textFeedback,
+        request_id: null,
+      });
+    },
+    [track]
   );
 
   return (
     <div
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        height: '100%',
-        width: '100%',
-      }}
       data-testid="assistant-chat"
+      className={cx(
+        assistantChatFixesStyles,
+        assistantChatStyles,
+        darkMode ? headerStyleDarkModeFixes : headerStyleLightModeFixes
+      )}
+      style={{ height: '100%', width: '100%' }}
     >
-      {/* Message Feed */}
-      <div
-        data-testid="assistant-chat-messages"
-        style={{
-          width: '100%',
-          flex: 1,
-          overflowY: 'auto',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '16px',
-          minHeight: 0,
-        }}
-      >
-        {messages.map((message) => (
-          <div
-            key={message.id}
-            data-testid={`assistant-message-${message.id}`}
-            style={{
-              marginBottom: '12px',
-              padding: '8px 12px',
-              borderRadius: '8px',
-              backgroundColor: message.role === 'user' ? '#207245' : '#e9ecef',
-              color: message.role === 'user' ? 'white' : '#333',
-              alignSelf: message.role === 'user' ? 'flex-end' : 'flex-start',
-              maxWidth: '80%',
-              wordWrap: 'break-word',
-              whiteSpace: 'pre-wrap',
-            }}
+      <LeafyGreenChatProvider variant={Variant.Compact}>
+        <ChatWindow title="MongoDB Assistant" className={chatWindowFixesStyles}>
+          <MessageFeed
+            data-testid="assistant-chat-messages"
+            className={messageFeedFixesStyles}
           >
-            {message.parts
-              ?.filter((part) => part.type === 'text')
-              .map((part) => part.text)
-              .join('') || ''}
-          </div>
-        ))}
-      </div>
-
-      {/* Input Bar */}
-      <form
-        data-testid="assistant-chat-form"
-        onSubmit={handleInputSubmit}
-        style={{
-          display: 'flex',
-          gap: '8px',
-          flexShrink: 0, // Prevents the input bar from shrinking
-          position: 'sticky',
-          bottom: 0,
-          backgroundColor: 'inherit',
-          paddingTop: '8px',
-        }}
-      >
-        <input
-          data-testid="assistant-chat-input"
-          type="text"
-          value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
-          placeholder="Ask MongoDB Assistant a question"
-          style={{
-            flex: 1,
-            padding: '8px 12px',
-            border: '1px solid #ddd',
-            borderRadius: '4px',
-            fontSize: '14px',
-          }}
-        />
-        <button
-          data-testid="assistant-chat-send-button"
-          type="submit"
-          disabled={!inputValue.trim()}
-          style={{
-            padding: '8px 16px',
-            backgroundColor: '#207245',
-            color: 'white',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: inputValue.trim() ? 'pointer' : 'not-allowed',
-            opacity: inputValue.trim() ? 1 : 0.6,
-          }}
-        >
-          Send
-        </button>
-      </form>
+            <DisclaimerText>
+              This feature is powered by generative AI. See our{' '}
+              <Link
+                hideExternalIcon={false}
+                href={GEN_AI_FAQ_LINK}
+                target="_blank"
+              >
+                FAQ
+              </Link>{' '}
+              for more information. Please review the outputs carefully.
+            </DisclaimerText>
+            {lgMessages.map((messageFields) => (
+              <Message
+                key={messageFields.id}
+                sourceType="markdown"
+                {...messageFields}
+                data-testid={`assistant-message-${messageFields.id}`}
+              >
+                {messageFields.isSender === false && (
+                  <MessageActions
+                    onRatingChange={handleFeedback}
+                    onSubmitFeedback={handleFeedback}
+                  />
+                )}
+              </Message>
+            ))}
+          </MessageFeed>
+          {error && (
+            <div className={errorBannerWrapperStyles}>
+              <Banner variant="danger" dismissible onClose={clearError}>
+                {makeErrorMessage(error.message)}
+              </Banner>
+            </div>
+          )}
+          {lgMessages.length === 0 && (
+            <div className={welcomeMessageStyles}>
+              <h4>Welcome to your MongoDB Assistant.</h4>
+              Ask any question about MongoDB to receive expert guidance and
+              documentation right in your window.
+            </div>
+          )}
+          <InputBar
+            data-testid="assistant-chat-input"
+            onMessageSend={handleMessageSend}
+            className={inputBarFixesStyles}
+            state={status === 'submitted' ? 'loading' : undefined}
+            textareaProps={{
+              placeholder: 'Ask MongoDB Assistant a question',
+            }}
+          />
+        </ChatWindow>
+      </LeafyGreenChatProvider>
     </div>
   );
 };

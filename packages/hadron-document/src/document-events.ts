@@ -22,4 +22,4 @@ export const DocumentEvents = {
 } as const;
 
 export type DocumentEventsType =
-  typeof DocumentEvents[keyof typeof DocumentEvents];
+  (typeof DocumentEvents)[keyof typeof DocumentEvents];
