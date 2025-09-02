@@ -2140,37 +2140,57 @@ class DataServiceImpl extends WithLogContext implements DataService {
       progress: number;
     };
 
-    const currentOps: IndexProgressResult[] = await this._database(
-      'admin',
-      'META'
-    )
-      .aggregate([
-        { $currentOp: { allUsers: true, localOps: true } }, // get all ops
-        {
-          $match: {
-            ns,
-            progress: { $type: 'object' },
-            'command.createIndexes': { $exists: true },
-          },
-        }, // filter for createIndexes
-        { $unwind: '$command.indexes' }, // explode the "indexes" array for each createIndexes command
-        {
-          $group: {
-            _id: '$command.indexes.name',
-            progress: {
-              $first: {
-                $cond: {
-                  if: { $gt: ['$progress.total', 0] },
-                  then: { $divide: ['$progress.done', '$progress.total'] },
-                  else: 0,
-                },
+    const currentOp = { $currentOp: { allUsers: true, localOps: false } };
+    const pipeline = [
+      // get all ops
+      currentOp,
+      {
+        // filter for createIndexes commands
+        $match: {
+          ns,
+          progress: { $type: 'object' },
+          'command.createIndexes': { $exists: true },
+        },
+      },
+      {
+        // explode the "indexes" array for each createIndexes command
+        $unwind: '$command.indexes',
+      },
+      {
+        // group on index name
+        $group: {
+          _id: '$command.indexes.name',
+          progress: {
+            $first: {
+              $cond: {
+                if: { $gt: ['$progress.total', 0] },
+                then: { $divide: ['$progress.done', '$progress.total'] },
+                else: 0,
               },
             },
           },
-        }, // group on index name
-      ])
-      .toArray()
-      .then(undefined, () => []);
+        },
+      },
+    ];
+
+    let currentOps: IndexProgressResult[] = [];
+    const db = this._database('admin', 'META');
+
+    try {
+      currentOps = (await db
+        .aggregate(pipeline)
+        .toArray()) as IndexProgressResult[];
+    } catch {
+      // Try limiting the permissions needed:
+      currentOp.$currentOp.allUsers = false;
+      try {
+        currentOps = (await db
+          .aggregate(pipeline)
+          .toArray()) as IndexProgressResult[];
+      } catch {
+        // ignore errors
+      }
+    }
 
     const indexToProgress = Object.create(null);
     for (const { _id, progress } of currentOps) {
