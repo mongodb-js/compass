@@ -55,7 +55,7 @@
     "@mongodb-js/tsconfig-compass": "^1.2.9",
     "chai": "^4.2.0",
     "depcheck": "^1.4.1",
-    "electron": "^37.2.6",
+    "electron": "^37.4.0",
     "electron-mocha": "^12.2.0",
     "hadron-ipc": "^3.5.11",
     "mocha": "^10.2.0",
@@ -63,7 +63,7 @@
     "nyc": "^15.1.0",
     "react-dom": "^17.0.2",
     "sinon": "^8.1.1",
-    "typescript": "^5.8.3"
+    "typescript": "^5.9.2"
   },
   "dependencies": {
     "@mongodb-js/compass-app-registry": "^9.4.20",

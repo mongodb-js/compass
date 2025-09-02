@@ -47,7 +47,7 @@
     "nyc": "^15.1.0",
     "react-dom": "^17.0.2",
     "sinon": "^9.2.3",
-    "typescript": "^5.8.3",
+    "typescript": "^5.9.2",
     "xvfb-maybe": "^0.2.1"
   },
   "dependencies": {
@@ -60,6 +60,7 @@
     "@mongodb-js/atlas-service": "^0.56.0",
     "@mongodb-js/compass-app-registry": "^9.4.20",
     "@mongodb-js/compass-app-stores": "^7.57.0",
+    "@mongodb-js/compass-assistant": "^1.2.0",
     "@mongodb-js/compass-collection": "^4.70.0",
     "@mongodb-js/compass-components": "^1.49.0",
     "@mongodb-js/compass-connections": "^1.71.0",

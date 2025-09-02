@@ -1,6 +1,7 @@
 import React from 'react';
 import {
   render,
+  renderHook,
   screen,
   userEvent,
   waitFor,
@@ -10,6 +11,7 @@ import {
 import {
   AssistantProvider,
   CompassAssistantProvider,
+  useAssistantActions,
   type AssistantMessage,
 } from './compass-assistant-provider';
 import { expect } from 'chai';
@@ -41,6 +43,94 @@ const TestComponent: React.FunctionComponent<{
   );
 };
 
+describe('useAssistantActions', function () {
+  const createWrapper = (chat: Chat<AssistantMessage>) => {
+    function TestWrapper({ children }: { children: React.ReactNode }) {
+      return (
+        <DrawerContentProvider>
+          <AssistantProvider chat={chat}>{children}</AssistantProvider>
+        </DrawerContentProvider>
+      );
+    }
+    return TestWrapper;
+  };
+
+  it('returns empty object when AI features are disabled via isAIFeatureEnabled', function () {
+    const { result } = renderHook(() => useAssistantActions(), {
+      wrapper: createWrapper(createMockChat({ messages: [] })),
+      preferences: {
+        enableAIAssistant: true,
+        // These control isAIFeatureEnabled
+        enableGenAIFeatures: false,
+        enableGenAIFeaturesAtlasOrg: true,
+        cloudFeatureRolloutAccess: { GEN_AI_COMPASS: true },
+      },
+    });
+
+    expect(result.current).to.deep.equal({});
+  });
+
+  it('returns empty object when enableGenAIFeaturesAtlasOrg is disabled', function () {
+    const { result } = renderHook(() => useAssistantActions(), {
+      wrapper: createWrapper(createMockChat({ messages: [] })),
+      preferences: {
+        enableAIAssistant: true,
+        enableGenAIFeatures: true,
+        enableGenAIFeaturesAtlasOrg: false,
+        cloudFeatureRolloutAccess: { GEN_AI_COMPASS: true },
+      },
+    });
+
+    expect(result.current).to.deep.equal({});
+  });
+
+  it('returns empty object when cloudFeatureRolloutAccess is disabled', function () {
+    const { result } = renderHook(() => useAssistantActions(), {
+      wrapper: createWrapper(createMockChat({ messages: [] })),
+      preferences: {
+        enableAIAssistant: true,
+        enableGenAIFeatures: true,
+        enableGenAIFeaturesAtlasOrg: true,
+        cloudFeatureRolloutAccess: { GEN_AI_COMPASS: false },
+      },
+    });
+
+    expect(result.current).to.deep.equal({});
+  });
+
+  it('returns empty object when enableAIAssistant preference is disabled', function () {
+    const { result } = renderHook(() => useAssistantActions(), {
+      wrapper: createWrapper(createMockChat({ messages: [] })),
+      preferences: {
+        enableAIAssistant: false,
+        enableGenAIFeatures: true,
+        enableGenAIFeaturesAtlasOrg: true,
+        cloudFeatureRolloutAccess: { GEN_AI_COMPASS: true },
+      },
+    });
+
+    expect(result.current).to.deep.equal({});
+  });
+
+  it('returns actions when both AI features and assistant flag are enabled', function () {
+    const { result } = renderHook(() => useAssistantActions(), {
+      wrapper: createWrapper(createMockChat({ messages: [] })),
+      preferences: {
+        enableAIAssistant: true,
+        enableGenAIFeatures: true,
+        enableGenAIFeaturesAtlasOrg: true,
+        cloudFeatureRolloutAccess: { GEN_AI_COMPASS: true },
+      },
+    });
+
+    expect(Object.keys(result.current)).to.have.length.greaterThan(0);
+    expect(result.current.interpretExplainPlan).to.be.a('function');
+    expect(result.current.interpretConnectionError).to.be.a('function');
+    expect(result.current.tellMoreAboutInsight).to.be.a('function');
+    expect(result.current.clearChat).to.be.a('function');
+  });
+});
+
 describe('AssistantProvider', function () {
   const mockMessages: AssistantMessage[] = [
     {
@@ -57,7 +147,12 @@ describe('AssistantProvider', function () {
 
   it('always renders children', function () {
     render(<TestComponent chat={createMockChat({ messages: [] })} />, {
-      preferences: { enableAIAssistant: true },
+      preferences: {
+        enableAIAssistant: true,
+        enableGenAIFeatures: true,
+        enableGenAIFeaturesAtlasOrg: true,
+        cloudFeatureRolloutAccess: { GEN_AI_COMPASS: true },
+      },
     });
 
     expect(screen.getByTestId('provider-children')).to.exist;
@@ -65,7 +160,12 @@ describe('AssistantProvider', function () {
 
   it('does not render assistant drawer when AI assistant is disabled', function () {
     render(<TestComponent chat={createMockChat({ messages: [] })} />, {
-      preferences: { enableAIAssistant: false },
+      preferences: {
+        enableAIAssistant: false,
+        enableGenAIFeatures: true,
+        enableGenAIFeaturesAtlasOrg: true,
+        cloudFeatureRolloutAccess: { GEN_AI_COMPASS: true },
+      },
     });
 
     expect(screen.getByTestId('provider-children')).to.exist;
@@ -75,7 +175,12 @@ describe('AssistantProvider', function () {
 
   it('renders the assistant drawer as the first drawer item when AI assistant is enabled', function () {
     render(<TestComponent chat={createMockChat({ messages: [] })} />, {
-      preferences: { enableAIAssistant: true },
+      preferences: {
+        enableAIAssistant: true,
+        enableGenAIFeatures: true,
+        enableGenAIFeaturesAtlasOrg: true,
+        cloudFeatureRolloutAccess: { GEN_AI_COMPASS: true },
+      },
     });
 
     expect(screen.getByTestId('lg-drawer-toolbar-icon_button-0')).to.have.attr(
@@ -96,7 +201,12 @@ describe('AssistantProvider', function () {
       mockChat: Chat<AssistantMessage>
     ): Promise<ReturnType<typeof render>> {
       const result = render(<TestComponent chat={mockChat} autoOpen={true} />, {
-        preferences: { enableAIAssistant: true },
+        preferences: {
+          enableAIAssistant: true,
+          enableGenAIFeatures: true,
+          enableGenAIFeaturesAtlasOrg: true,
+          cloudFeatureRolloutAccess: { GEN_AI_COMPASS: true },
+        },
       });
 
       await waitFor(() => {
@@ -202,19 +312,20 @@ describe('AssistantProvider', function () {
         userEvent.click(clearButton);
 
         await waitFor(() => {
-          expect(screen.getByTestId('confirmation-modal')).to.exist;
+          expect(screen.getByTestId('assistant-confirm-clear-chat-modal')).to
+            .exist;
         });
 
         // There should be messages in the chat
         expect(screen.getByTestId('assistant-message-1')).to.exist;
         expect(screen.getByTestId('assistant-message-2')).to.exist;
 
-        const modal = screen.getByTestId('confirmation-modal');
+        const modal = screen.getByTestId('assistant-confirm-clear-chat-modal');
         const confirmButton = within(modal).getByText('Clear chat');
         userEvent.click(confirmButton);
 
         await waitForElementToBeRemoved(() =>
-          screen.getByTestId('confirmation-modal')
+          screen.getByTestId('assistant-confirm-clear-chat-modal')
         );
 
         expect(mockChat.messages).to.be.empty;
@@ -231,19 +342,20 @@ describe('AssistantProvider', function () {
         userEvent.click(clearButton);
 
         await waitFor(() => {
-          expect(screen.getByTestId('confirmation-modal')).to.exist;
+          expect(screen.getByTestId('assistant-confirm-clear-chat-modal')).to
+            .exist;
         });
 
         // There should be messages in the chat
         expect(screen.getByTestId('assistant-message-1')).to.exist;
         expect(screen.getByTestId('assistant-message-2')).to.exist;
 
-        const modal = screen.getByTestId('confirmation-modal');
+        const modal = screen.getByTestId('assistant-confirm-clear-chat-modal');
         const cancelButton = within(modal).getByText('Cancel');
         userEvent.click(cancelButton);
 
         await waitForElementToBeRemoved(() =>
-          screen.getByTestId('confirmation-modal')
+          screen.getByTestId('assistant-confirm-clear-chat-modal')
         );
 
         expect(mockChat.messages).to.deep.equal(mockMessages);
@@ -279,7 +391,12 @@ describe('AssistantProvider', function () {
           <MockedProvider chat={new Chat({})} />
         </DrawerContentProvider>,
         {
-          preferences: { enableAIAssistant: true },
+          preferences: {
+            enableAIAssistant: true,
+            enableGenAIFeatures: true,
+            enableGenAIFeaturesAtlasOrg: true,
+            cloudFeatureRolloutAccess: { GEN_AI_COMPASS: true },
+          },
         }
       );
 

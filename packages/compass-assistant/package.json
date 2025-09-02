@@ -53,7 +53,11 @@
     "@mongodb-js/atlas-service": "^0.56.0",
     "@mongodb-js/compass-app-registry": "^9.4.20",
     "@mongodb-js/compass-components": "^1.49.0",
-    "ai": "^5.0.5",
+    "@mongodb-js/compass-telemetry": "^1.14.0",
+    "@mongodb-js/connection-info": "^0.17.1",
+    "@mongodb-js/compass-logging": "^1.7.12",
+    "mongodb-connection-string-url": "^3.0.1",
+    "ai": "^5.0.26",
     "compass-preferences-model": "^2.51.0",
     "react": "^17.0.2",
     "throttleit": "^2.1.0",
@@ -79,7 +83,7 @@
     "nyc": "^15.1.0",
     "openai": "^4.104.0",
     "sinon": "^17.0.1",
-    "typescript": "^5.8.3",
+    "typescript": "^5.9.2",
     "xvfb-maybe": "^0.2.1"
   },
   "is_compass_plugin": true

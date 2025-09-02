@@ -4,6 +4,7 @@ import type { Writable } from 'stream';
 import { mongoLogId } from '@mongodb-js/compass-logging/provider';
 import { useRef } from 'react';
 
+/** @public */
 export type LogMessage = {
   id: number;
   t: { $date: string };
@@ -13,8 +14,11 @@ export type LogMessage = {
   msg: string;
   attr?: any;
 };
+
+/** @public */
 export type LogFunction = (message: LogMessage) => void;
 
+/** @public */
 export type DebugFunction = (...args: any[]) => void;
 
 type Debugger = Logger['debug'];

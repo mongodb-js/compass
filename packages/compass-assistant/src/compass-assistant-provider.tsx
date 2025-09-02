@@ -2,12 +2,27 @@ import React, { type PropsWithChildren, useRef } from 'react';
 import { type UIMessage } from './@ai-sdk/react/use-chat';
 import { Chat } from './@ai-sdk/react/chat-react';
 import { createContext, useContext } from 'react';
-import { registerCompassPlugin } from '@mongodb-js/compass-app-registry';
+import {
+  createServiceLocator,
+  registerCompassPlugin,
+} from '@mongodb-js/compass-app-registry';
 import { atlasServiceLocator } from '@mongodb-js/atlas-service/provider';
 import { DocsProviderTransport } from './docs-provider-transport';
 import { useDrawerActions } from '@mongodb-js/compass-components';
-import { buildExplainPlanPrompt } from './prompts';
-import { usePreference } from 'compass-preferences-model/provider';
+import {
+  buildConnectionErrorPrompt,
+  buildExplainPlanPrompt,
+  buildProactiveInsightsPrompt,
+  type EntryPointMessage,
+  type ProactiveInsightsContext,
+} from './prompts';
+import {
+  useIsAIFeatureEnabled,
+  usePreference,
+} from 'compass-preferences-model/provider';
+import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
+import type { ConnectionInfo } from '@mongodb-js/connection-info';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 
 export const ASSISTANT_DRAWER_ID = 'compass-assistant-drawer';
 
@@ -25,58 +40,92 @@ export const AssistantContext = createContext<AssistantContextType | null>(
 );
 
 type AssistantActionsContextType = {
-  interpretExplainPlan: ({
+  interpretExplainPlan?: ({
     namespace,
     explainPlan,
   }: {
     namespace: string;
     explainPlan: string;
   }) => void;
-  clearChat: () => void;
+  interpretConnectionError?: ({
+    connectionInfo,
+    error,
+  }: {
+    connectionInfo: ConnectionInfo;
+    error: Error;
+  }) => void;
+  clearChat?: () => void;
+  tellMoreAboutInsight?: (context: ProactiveInsightsContext) => void;
 };
 export const AssistantActionsContext =
   createContext<AssistantActionsContextType>({
     interpretExplainPlan: () => {},
+    interpretConnectionError: () => {},
+    tellMoreAboutInsight: () => {},
     clearChat: () => {},
   });
 
-export function useAssistantActions(): AssistantActionsContextType & {
-  isAssistantEnabled: boolean;
-} {
-  const isAssistantEnabled = usePreference('enableAIAssistant');
+export function useAssistantActions(): AssistantActionsContextType {
+  const isAIFeatureEnabled = useIsAIFeatureEnabled();
+  const isAssistantFlagEnabled = usePreference('enableAIAssistant');
+  const actions = useContext(AssistantActionsContext);
+  if (!isAIFeatureEnabled || !isAssistantFlagEnabled) {
+    return {};
+  }
 
-  return {
-    ...useContext(AssistantActionsContext),
-    isAssistantEnabled,
-  };
+  return actions;
 }
+
+export const compassAssistantServiceLocator = createServiceLocator(function () {
+  const actions = useAssistantActions();
+
+  return actions;
+}, 'compassAssistantLocator');
+
+export type CompassAssistantService = ReturnType<
+  typeof compassAssistantServiceLocator
+>;
 
 export const AssistantProvider: React.FunctionComponent<
   PropsWithChildren<{
     chat: Chat<AssistantMessage>;
   }>
 > = ({ chat, children }) => {
-  const assistantActionsContext = useRef<AssistantActionsContextType>({
-    interpretExplainPlan: ({ explainPlan }) => {
+  const { openDrawer } = useDrawerActions();
+  const track = useTelemetry();
+  const createEntryPointHandler = useRef(function <T>(
+    entryPointName:
+      | 'explain plan'
+      | 'performance insights'
+      | 'connection error',
+    builder: (props: T) => EntryPointMessage
+  ) {
+    return (props: T) => {
       openDrawer(ASSISTANT_DRAWER_ID);
-      const { prompt, displayText } = buildExplainPlanPrompt({
-        explainPlan,
+      const { prompt, displayText } = builder(props);
+      void chat.sendMessage({ text: prompt, metadata: { displayText } }, {});
+      track('Assistant Entry Point Used', {
+        source: entryPointName,
       });
-      void chat.sendMessage(
-        {
-          text: prompt,
-          metadata: {
-            displayText,
-          },
-        },
-        {}
-      );
-    },
+    };
+  });
+  const assistantActionsContext = useRef<AssistantActionsContextType>({
+    interpretExplainPlan: createEntryPointHandler.current(
+      'explain plan',
+      buildExplainPlanPrompt
+    ),
+    interpretConnectionError: createEntryPointHandler.current(
+      'connection error',
+      buildConnectionErrorPrompt
+    ),
+    tellMoreAboutInsight: createEntryPointHandler.current(
+      'performance insights',
+      buildProactiveInsightsPrompt
+    ),
     clearChat: () => {
       chat.messages = [];
     },
   });
-  const { openDrawer } = useDrawerActions();
 
   return (
     <AssistantContext.Provider value={chat}>
@@ -101,11 +150,19 @@ export const CompassAssistantProvider = registerCompassPlugin(
       }
       return <AssistantProvider chat={chat}>{children}</AssistantProvider>;
     },
-    activate: (initialProps, { atlasService }) => {
+    activate: (initialProps, { atlasService, logger }) => {
       const chat = new Chat({
         transport: new DocsProviderTransport({
           baseUrl: atlasService.assistantApiEndpoint(),
         }),
+        onError: (err: Error) => {
+          logger.log.error(
+            logger.mongoLogId(1_001_000_370),
+            'Assistant',
+            'Failed to send a message',
+            { err }
+          );
+        },
       });
       return {
         store: { state: { chat } },
@@ -115,5 +172,6 @@ export const CompassAssistantProvider = registerCompassPlugin(
   },
   {
     atlasService: atlasServiceLocator,
+    logger: createLoggerLocator('COMPASS-ASSISTANT'),
   }
 );

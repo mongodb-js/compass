@@ -22,11 +22,12 @@ import toNS from 'mongodb-ns';
 import path from 'path';
 import os from 'os';
 import fs from 'fs/promises';
+import type { ChainablePromiseElement } from 'webdriverio';
 
-interface Node {
+type Node = {
   id: string;
   position: { x: number; y: number };
-}
+};
 
 interface Edge {
   id: string;
@@ -41,6 +42,34 @@ type DiagramInstance = {
   getNodes: () => Array<Node>;
   getEdges: () => Array<Edge>;
 };
+
+/**
+ * Clicks on a specific element at the given coordinates.
+ * element.click({ x: number, y: number }) doesn't work as expected,
+ * so we do this manually using the actions API.
+ * @param browser The Compass browser instance.
+ * @param element The WebdriverIO element to click on.
+ * @param coordinates The coordinates to click at.
+ */
+async function clickElementAtCoordinates(
+  browser: CompassBrowser,
+  element: ChainablePromiseElement,
+  coordinates: {
+    x: number;
+    y: number;
+  }
+) {
+  await element.waitForClickable();
+  const location = await element.getLocation();
+  await browser
+    .action('pointer')
+    .move({
+      x: location.x + coordinates.x,
+      y: location.y + coordinates.y,
+    })
+    .down({ button: 0 }) // Left mouse button
+    .perform();
+}
 
 async function setupDiagram(
   browser: CompassBrowser,
@@ -107,7 +136,12 @@ async function selectCollectionOnTheDiagram(
   const collectionNode = browser.$(Selectors.DataModelPreviewCollection(ns));
   await collectionNode.waitForClickable();
 
-  await collectionNode.click();
+  await clickElementAtCoordinates(browser, collectionNode, {
+    // we're aiming for the header (top of the node)
+    // the default click is in the middle, most likely on a field
+    x: 100,
+    y: 15,
+  });
 
   await drawer.waitForDisplayed();
 
@@ -128,9 +162,17 @@ async function getDiagramNodes(
       if (!node) {
         throw new Error(`Element with selector ${selector} not found`);
       }
-      return (
-        node as Element & { _diagram: DiagramInstance }
-      )._diagram.getNodes();
+
+      return (node as Element & { _diagram: DiagramInstance })._diagram
+        .getNodes()
+        .map(
+          (node: Node): Node => ({
+            // do not add any non-serializable properties here,
+            // the result of browser.execute must be serializable
+            id: node.id,
+            position: node.position,
+          })
+        );
     }, Selectors.DataModelEditor);
     return nodes.length === expectedCount;
   });
@@ -148,9 +190,20 @@ async function getDiagramEdges(
       if (!node) {
         throw new Error(`Element with selector ${selector} not found`);
       }
-      return (
-        node as Element & { _diagram: DiagramInstance }
-      )._diagram.getEdges();
+      return (node as Element & { _diagram: DiagramInstance })._diagram
+        .getEdges()
+        .map(
+          (edge: Edge): Edge => ({
+            // do not add any non-serializable properties here,
+            // the result of browser.execute must be serializable
+            id: edge.id,
+            source: edge.source,
+            target: edge.target,
+            markerStart: edge.markerStart,
+            markerEnd: edge.markerEnd,
+            selected: edge.selected,
+          })
+        );
     }, Selectors.DataModelEditor);
     return edges.length === expectedCount;
   });
@@ -178,7 +231,7 @@ async function dragNode(
     .action('pointer')
     .move({
       x: Math.round(startPosition.x + nodeSize.width / 2),
-      y: Math.round(startPosition.y + nodeSize.height / 2),
+      y: Math.round(startPosition.y + 15), // we're aiming for the header area (top of the node)
     })
     .down({ button: 0 }) // Left mouse button
     .move({ duration: 1000, origin: 'pointer', ...pointerActionMoveParams })
@@ -594,12 +647,17 @@ describe('Data Modeling tab', function () {
         .waitForDisplayed();
       await relationshipItem
         .$(Selectors.DataModelCollectionRelationshipItemEdit)
+        .waitForClickable();
+      await relationshipItem
+        .$(Selectors.DataModelCollectionRelationshipItemEdit)
         .click();
 
+      const foreignCardinalitySelect = await browser.getInputByLabel(
+        drawer.$(Selectors.DataModelRelationshipForeignCardinalitySelect)
+      );
+      await foreignCardinalitySelect.waitForDisplayed();
       await browser.selectOption({
-        selectSelector: await browser.getInputByLabel(
-          drawer.$(Selectors.DataModelRelationshipForeignCardinalitySelect)
-        ),
+        selectSelector: foreignCardinalitySelect,
         optionSelector: Selectors.DataModelRelationshipCardinalityOption('100'),
       });
 
@@ -616,6 +674,9 @@ describe('Data Modeling tab', function () {
       // Select the first collection again and delete the relationship
       await selectCollectionOnTheDiagram(browser, 'test.testCollection-one');
       await relationshipItem.waitForDisplayed();
+      await relationshipItem
+        .$(Selectors.DataModelCollectionRelationshipItemDelete)
+        .waitForClickable();
       await relationshipItem
         .$(Selectors.DataModelCollectionRelationshipItemDelete)
         .click();

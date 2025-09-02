@@ -108,27 +108,24 @@ function Home({
   return (
     <ConnectionImportExportProvider>
       <CompassInstanceStorePlugin>
-        <CompassAssistantProvider>
-          <FieldStorePlugin>
-            <div data-testid="home" className={verticalSplitStyles}>
-              <AppRegistryProvider scopeName="Connections">
-                <Workspace
-                  appName={appName}
-                  onActiveWorkspaceTabChange={onWorkspaceChange}
-                />
-              </AppRegistryProvider>
-            </div>
-            <WelcomeModal
-              isOpen={isWelcomeOpen}
-              closeModal={closeWelcomeModal}
-            />
-            <CompassSettingsPlugin></CompassSettingsPlugin>
-            <CompassFindInPagePlugin></CompassFindInPagePlugin>
-            <AtlasAuthPlugin></AtlasAuthPlugin>
-            <CompassGenerativeAIPlugin></CompassGenerativeAIPlugin>
-            <LegacyConnectionsModal />
-          </FieldStorePlugin>
-        </CompassAssistantProvider>
+        <FieldStorePlugin>
+          <div data-testid="home" className={verticalSplitStyles}>
+            <AppRegistryProvider scopeName="Connections">
+              <Workspace
+                appName={appName}
+                onActiveWorkspaceTabChange={onWorkspaceChange}
+              />
+            </AppRegistryProvider>
+          </div>
+          <WelcomeModal isOpen={isWelcomeOpen} closeModal={closeWelcomeModal} />
+          <CompassSettingsPlugin></CompassSettingsPlugin>
+          <CompassFindInPagePlugin></CompassFindInPagePlugin>
+          <AtlasAuthPlugin></AtlasAuthPlugin>
+          <CompassGenerativeAIPlugin
+            isCloudOptIn={false}
+          ></CompassGenerativeAIPlugin>
+          <LegacyConnectionsModal />
+        </FieldStorePlugin>
       </CompassInstanceStorePlugin>
     </ConnectionImportExportProvider>
   );
@@ -152,21 +149,23 @@ function HomeWithConnections({
   return (
     <ConnectionStorageProvider value={connectionStorage}>
       <FileInputBackendProvider createFileInputBackend={createFileInputBackend}>
-        <CompassConnections
-          appName={props.appName}
-          onExtraConnectionDataRequest={getExtraConnectionData}
-          onAutoconnectInfoRequest={onAutoconnectInfoRequest}
-          doNotReconnectDisconnectedAutoconnectInfo
-          onFailToLoadConnections={(error) => {
-            openToast('failed-to-load-connections', {
-              title: 'Failed to load connections',
-              description: error.message,
-              variant: 'warning',
-            });
-          }}
-        >
-          <Home {...props}></Home>
-        </CompassConnections>
+        <CompassAssistantProvider>
+          <CompassConnections
+            appName={props.appName}
+            onExtraConnectionDataRequest={getExtraConnectionData}
+            onAutoconnectInfoRequest={onAutoconnectInfoRequest}
+            doNotReconnectDisconnectedAutoconnectInfo
+            onFailToLoadConnections={(error) => {
+              openToast('failed-to-load-connections', {
+                title: 'Failed to load connections',
+                description: error.message,
+                variant: 'warning',
+              });
+            }}
+          >
+            <Home {...props}></Home>
+          </CompassConnections>
+        </CompassAssistantProvider>
       </FileInputBackendProvider>
     </ConnectionStorageProvider>
   );

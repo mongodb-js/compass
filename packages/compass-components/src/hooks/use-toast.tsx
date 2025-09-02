@@ -17,6 +17,7 @@ export type ToastProperties = Pick<
   | 'timeout'
   | 'dismissible'
   | 'onClose'
+  | 'className'
 >;
 
 const defaultToastProperties: Partial<ToastProperties> = {

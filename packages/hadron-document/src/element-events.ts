@@ -15,4 +15,4 @@ export const ElementEvents = {
 } as const;
 
 export type ElementEventsType =
-  typeof ElementEvents[keyof typeof ElementEvents];
+  (typeof ElementEvents)[keyof typeof ElementEvents];

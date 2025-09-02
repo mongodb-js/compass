@@ -41,6 +41,7 @@ import {
 } from '../utils/end-of-life-server';
 import type { ImportConnectionOptions } from '@mongodb-js/connection-storage/provider';
 import { getErrorCodeCauseChain } from '../utils/telemetry';
+import type { CompassAssistantService } from '@mongodb-js/compass-assistant';
 
 export type ConnectionsEventMap = {
   connected: (
@@ -212,6 +213,7 @@ type ThunkExtraArg = {
   connectFn?: typeof devtoolsConnect;
   globalAppRegistry: Pick<AppRegistry, 'on' | 'emit' | 'removeListener'>;
   onFailToLoadConnections: (error: Error) => void;
+  compassAssistant: CompassAssistantService;
 };
 
 export type ConnectionsThunkAction<
@@ -1263,15 +1265,33 @@ const connectionAttemptError = (
   connectionInfo: ConnectionInfo | null,
   err: any
 ): ConnectionsThunkAction<void, ConnectionAttemptErrorAction> => {
-  return (dispatch, _getState, { track, getExtraConnectionData }) => {
+  return (
+    dispatch,
+    _getState,
+    { track, getExtraConnectionData, compassAssistant }
+  ) => {
     const { openConnectionFailedToast } = getNotificationTriggers();
 
     const showReviewButton = !!connectionInfo && !connectionInfo.atlasMetadata;
-
-    openConnectionFailedToast(connectionInfo, err, showReviewButton, () => {
-      if (connectionInfo) {
-        dispatch(editConnection(connectionInfo.id));
-      }
+    openConnectionFailedToast({
+      connectionInfo,
+      error: err,
+      onReviewClick: showReviewButton
+        ? () => {
+            if (connectionInfo) {
+              dispatch(editConnection(connectionInfo.id));
+            }
+          }
+        : undefined,
+      onDebugClick:
+        compassAssistant.interpretConnectionError && connectionInfo
+          ? () => {
+              compassAssistant.interpretConnectionError?.({
+                connectionInfo,
+                error: err,
+              });
+            }
+          : undefined,
     });
 
     track(
@@ -1418,7 +1438,7 @@ function isAtlasStreamsInstance(
 // https://github.com/10gen/mms/blob/de2a9c463cfe530efb8e2a0941033e8207b6cb11/server/src/main/com/xgen/cloud/services/clusterconnection/runtime/res/CustomCloseCodes.java
 const NonRetryableErrorCodes = [3000, 3003, 4004, 1008] as const;
 const NonRetryableErrorDescriptionFallbacks: {
-  [code in typeof NonRetryableErrorCodes[number]]: string;
+  [code in (typeof NonRetryableErrorCodes)[number]]: string;
 } = {
   3000: 'Unauthorized',
   3003: 'Forbidden',
@@ -1443,7 +1463,7 @@ function getDescriptionForNonRetryableError(error: Error): string {
     : NonRetryableErrorDescriptionFallbacks[
         Number(
           error.message.match(/code: (\d+),/)?.[1]
-        ) as typeof NonRetryableErrorCodes[number]
+        ) as (typeof NonRetryableErrorCodes)[number]
       ] ?? 'Unknown';
 }
 

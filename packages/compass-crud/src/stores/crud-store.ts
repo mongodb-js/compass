@@ -269,6 +269,7 @@ export type CrudStoreOptions = Pick<
   | 'namespace'
   | 'isTimeSeries'
   | 'isSearchIndexesSupported'
+  | 'sourceName'
 > & {
   noRefreshOnConfigure?: boolean;
 };
@@ -1596,6 +1597,7 @@ class CrudStoreImpl
 
     if (onApply) {
       const { isTimeSeries, isReadonly } = this.state;
+      const { defaultSortOrder } = this.preferences.getPreferences();
       this.track(
         'Query Executed',
         {
@@ -1603,6 +1605,11 @@ class CrudStoreImpl
             !!query.project && Object.keys(query.project).length > 0,
           has_skip: (query.skip ?? 0) > 0,
           has_sort: !!query.sort && Object.keys(query.sort).length > 0,
+          default_sort: !defaultSortOrder
+            ? 'none'
+            : /_id/.test(defaultSortOrder)
+            ? '_id'
+            : 'natural',
           has_limit: (query.limit ?? 0) > 0,
           has_collation: !!query.collation,
           changed_maxtimems: query.maxTimeMS !== DEFAULT_INITIAL_MAX_TIME_MS,
@@ -1646,12 +1653,19 @@ class CrudStoreImpl
       countOptions.hint = '_id_';
     }
 
+    const isView = this.options.isReadonly && this.options.sourceName;
+    // Default sort options that we allow to choose from in settings will have a
+    // massive negative effect on the query performance for views and view-like
+    // collections in all cases. To avoid that, we're not applying default sort
+    // for those
+    const allowDefaultSort = !isView && !this.options.isTimeSeries;
+
+    const { defaultSortOrder } = this.preferences.getPreferences();
+
     let sort = query.sort;
-    if (!sort && this.preferences.getPreferences().defaultSortOrder) {
-      sort = validate(
-        'sort',
-        this.preferences.getPreferences().defaultSortOrder
-      );
+
+    if (!sort && allowDefaultSort && defaultSortOrder) {
+      sort = validate('sort', defaultSortOrder);
     }
 
     const findOptions = {

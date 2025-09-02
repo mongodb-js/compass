@@ -3,13 +3,21 @@ import {
   type Signal,
 } from '@mongodb-js/compass-components';
 
-export const getToolbarSignal = (
-  query: string,
-  isCollectionScan: boolean,
-  isSearchIndexesSupported: boolean,
-  onCreateIndex: () => void,
-  onCreateSearchIndex: () => void
-): Signal | undefined => {
+export const getToolbarSignal = ({
+  query,
+  isCollectionScan,
+  isSearchIndexesSupported,
+  onCreateIndex,
+  onCreateSearchIndex,
+  onAssistantButtonClick,
+}: {
+  query: string;
+  isCollectionScan: boolean;
+  isSearchIndexesSupported: boolean;
+  onCreateIndex: () => void;
+  onCreateSearchIndex: () => void;
+  onAssistantButtonClick?: () => void;
+}): Signal | undefined => {
   if (!isCollectionScan) {
     return undefined;
   }
@@ -22,5 +30,6 @@ export const getToolbarSignal = (
   return {
     ...PerformanceSignals.get('query-executed-without-index'),
     onPrimaryActionButtonClick: onCreateIndex,
+    onAssistantButtonClick,
   };
 };
