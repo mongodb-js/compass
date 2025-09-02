@@ -363,9 +363,9 @@ describe('AtlasUserData', function () {
     orgId = 'test-org',
     projectId = 'test-proj',
     type:
-      | 'RecentQueries'
-      | 'FavoriteQueries'
-      | 'SavedPipelines' = 'FavoriteQueries'
+      | 'recentQueries'
+      | 'favoriteQueries'
+      | 'favoriteAggregations' = 'favoriteQueries'
   ) => {
     return new AtlasUserData(getTestSchema(validatorOpts), type, {
       orgId,
@@ -405,12 +405,13 @@ describe('AtlasUserData', function () {
       expect(options.headers['Content-Type']).to.equal('application/json');
 
       const body = JSON.parse(options.body as string);
-      expect(body.id).to.equal('test-id');
-      expect(body.projectId).to.equal('test-proj');
       expect(body.data).to.be.a('string');
       expect(JSON.parse(body.data as string)).to.deep.equal({ name: 'VSCode' });
       expect(body.createdAt).to.be.a('string');
       expect(new Date(body.createdAt as string)).to.be.instanceOf(Date);
+      // id and projectId should not be in the body (they're in the URL path)
+      expect(body.id).to.be.undefined;
+      expect(body.projectId).to.be.undefined;
     });
 
     it('returns false when authenticatedFetch throws an error', async function () {
@@ -462,6 +463,7 @@ describe('AtlasUserData', function () {
       const [, options] = authenticatedFetchStub.firstCall.args;
       const body = JSON.parse(options.body as string);
       expect(body.data).to.equal('custom:{"name":"Custom"}');
+      expect(body.createdAt).to.be.a('string');
     });
   });
 
@@ -768,9 +770,11 @@ describe('AtlasUserData', function () {
       await userData.updateAttributes('test-id', { name: 'Updated' });
 
       const [, putOptions] = authenticatedFetchStub.secondCall.args;
-      expect(putOptions.body as string).to.equal(
+      const body = JSON.parse(putOptions.body as string);
+      expect(body.data).to.equal(
         'custom:{"name":"Updated","hasDarkMode":true,"hasWebSupport":false}'
       );
+      expect(body.createdAt).to.be.a('string');
     });
   });
 
@@ -778,7 +782,7 @@ describe('AtlasUserData', function () {
     it('constructs URL correctly for write operation', async function () {
       authenticatedFetchStub.resolves(mockResponse({}));
       getResourceUrlStub.resolves(
-        'cluster-connection.cloud.mongodb.com/FavoriteQueries/custom-org/custom-proj'
+        'cluster-connection.cloud.mongodb.com/favoriteQueries/custom-org/custom-proj/test-id'
       );
 
       const userData = getAtlasUserData({}, 'custom-org', 'custom-proj');
@@ -786,7 +790,7 @@ describe('AtlasUserData', function () {
 
       const [url] = authenticatedFetchStub.firstCall.args;
       expect(url).to.equal(
-        'cluster-connection.cloud.mongodb.com/FavoriteQueries/custom-org/custom-proj'
+        'cluster-connection.cloud.mongodb.com/favoriteQueries/custom-org/custom-proj/test-id'
       );
     });
 
