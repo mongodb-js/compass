@@ -63,7 +63,7 @@
     "bson": "^6.10.4",
     "compass-preferences-model": "^2.51.0",
     "lodash": "^4.17.21",
-    "mongodb": "^6.17.0",
+    "mongodb": "^6.19.0",
     "mongodb-build-info": "^1.7.2",
     "mongodb-connection-string-url": "^3.0.1",
     "mongodb-data-service": "^22.30.2",
