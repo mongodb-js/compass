@@ -27,6 +27,7 @@ import type { ChainablePromiseElement } from 'webdriverio';
 type Node = {
   id: string;
   position: { x: number; y: number };
+  fields: { name: string; type: string }[];
 };
 
 interface Edge {
@@ -117,12 +118,7 @@ async function setupDiagram(
   await dataModelEditor.waitForDisplayed();
 }
 
-async function selectCollectionOnTheDiagram(
-  browser: CompassBrowser,
-  ns: string
-) {
-  // If the drawer is open, close it
-  // Otherwise the drawer or the minimap can cover the collection node
+async function ensureClosedDrawer(browser: CompassBrowser) {
   const drawer = browser.$(Selectors.SideDrawer);
   if (
     (await drawer.isDisplayed()) &&
@@ -131,6 +127,15 @@ async function selectCollectionOnTheDiagram(
     await browser.clickVisible(Selectors.SideDrawerCloseButton);
     await drawer.waitForDisplayed({ reverse: true });
   }
+}
+
+async function selectCollectionOnTheDiagram(
+  browser: CompassBrowser,
+  ns: string
+) {
+  // If the drawer is open, close it
+  // Otherwise the drawer or the minimap can cover the collection node
+  await ensureClosedDrawer(browser);
 
   // Click on the collection node to open the drawer
   const collectionNode = browser.$(Selectors.DataModelPreviewCollection(ns));
@@ -143,12 +148,37 @@ async function selectCollectionOnTheDiagram(
     y: 15,
   });
 
+  const drawer = browser.$(Selectors.SideDrawer);
   await drawer.waitForDisplayed();
 
   const collectionName = await browser.getInputByLabel(
     browser.$(Selectors.SideDrawer).$(Selectors.DataModelNameInputLabel)
   );
   expect(await collectionName.getValue()).to.equal(toNS(ns).collection);
+}
+
+async function selectFieldOnTheDiagram(
+  browser: CompassBrowser,
+  ns: string,
+  fieldName: string
+) {
+  // If the drawer is open, close it
+  // Otherwise the drawer or the minimap can cover the collection node
+  await ensureClosedDrawer(browser);
+
+  // Find the collection node
+  const collectionNode = browser.$(Selectors.DataModelPreviewCollection(ns));
+  await collectionNode.waitForClickable();
+
+  await collectionNode.$(`[text()='${fieldName}']`).click();
+
+  const drawer = browser.$(Selectors.SideDrawer);
+  await drawer.waitForDisplayed();
+
+  const fieldNameInput = await browser.getInputByLabel(
+    browser.$(Selectors.SideDrawer).$(Selectors.DataModelFieldNameInputLabel)
+  );
+  expect(await fieldNameInput.getValue()).to.equal(fieldName);
 }
 
 async function getDiagramNodes(
@@ -158,12 +188,12 @@ async function getDiagramNodes(
   let nodes: Node[] = [];
   await browser.waitUntil(async () => {
     nodes = await browser.execute(function (selector) {
-      const node = document.querySelector(selector);
-      if (!node) {
+      const diagram = document.querySelector(selector);
+      if (!diagram) {
         throw new Error(`Element with selector ${selector} not found`);
       }
 
-      return (node as Element & { _diagram: DiagramInstance })._diagram
+      return (diagram as Element & { _diagram: DiagramInstance })._diagram
         .getNodes()
         .map(
           (node: Node): Node => ({
@@ -171,6 +201,10 @@ async function getDiagramNodes(
             // the result of browser.execute must be serializable
             id: node.id,
             position: node.position,
+            fields: node.fields.map((field) => ({
+              name: field.name,
+              type: field.type,
+            })),
           })
         );
     }, Selectors.DataModelEditor);
@@ -754,10 +788,10 @@ describe('Data Modeling tab', function () {
       const drawer = browser.$(Selectors.SideDrawer);
 
       // Rename the collection (it submits on unfocus).
-      await browser.setValueVisible(
-        browser.$(Selectors.DataModelNameInput),
-        'renamedOne'
+      const nameInput = await browser.getInputByLabel(
+        browser.$(Selectors.SideDrawer).$(Selectors.DataModelNameInputLabel)
       );
+      await browser.setValueVisible(nameInput, 'renamedOne');
       await drawer.click(); // Unfocus the input.
 
       // Verify that the renamed collection is still selected.
@@ -816,10 +850,10 @@ describe('Data Modeling tab', function () {
 
       // Name the collection (it submits on unfocus).
       const collectionName = 'testCollection-newOne';
-      await browser.setValueVisible(
-        browser.$(Selectors.DataModelNameInput),
-        collectionName
+      const nameInput = await browser.getInputByLabel(
+        browser.$(Selectors.SideDrawer).$(Selectors.DataModelNameInputLabel)
       );
+      await browser.setValueVisible(nameInput, collectionName);
       await drawer.click(); // Unfocus the input.
 
       // Verify that the new collection is named in the diagram.
@@ -830,6 +864,59 @@ describe('Data Modeling tab', function () {
       // This is to ensure that the initial edit of the collection name wasn't a separate edit
       await browser.clickVisible(Selectors.DataModelUndoButton);
       await getDiagramNodes(browser, 2);
+    });
+
+    it.only('allows field management via the sidebar', async function () {
+      const dataModelName = 'Test Field Edits';
+      await setupDiagram(browser, {
+        diagramName: dataModelName,
+        connectionName: DEFAULT_CONNECTION_NAME_1,
+        databaseName: 'test',
+      });
+
+      const dataModelEditor = browser.$(Selectors.DataModelEditor);
+      await dataModelEditor.waitForDisplayed();
+
+      // Click on the field to open the drawer.
+      await selectFieldOnTheDiagram(
+        browser,
+        'test.testCollection-one',
+        'iString'
+      );
+
+      // Rename the field
+      const drawer = browser.$(Selectors.SideDrawer);
+      const fieldName = await browser.getInputByLabel(
+        drawer.$(Selectors.DataModelFieldNameInputLabel)
+      );
+      await browser.setValueVisible(fieldName, 'iString-renamed');
+
+      const nodesAfterRename = await getDiagramNodes(browser, 2);
+      expect(nodesAfterRename[0].fields).to.include.members([
+        { name: 'iString-renamed', type: 'string' },
+      ]);
+
+      // Change the field type
+      // const fieldType = await browser.getInputByLabel(drawer.$(Selectors.DataModelFieldTypeInputLabel));
+      await browser.setComboBoxValue(
+        Selectors.DataModelFieldTypeInputLabel,
+        'bool'
+      );
+
+      const nodesAfterRetype = await getDiagramNodes(browser, 2);
+      expect(nodesAfterRetype[0].fields).to.include.members([
+        { name: 'iString-renamed', type: 'bool' },
+      ]);
+
+      // Delete the field
+      await drawer
+        .$(Selectors.DataModelCollectionFieldItemDelete)
+        .waitForClickable();
+
+      const nodesAfterDelete = await getDiagramNodes(browser, 2);
+      expect(nodesAfterDelete[0].fields).not.to.include.members([
+        { name: 'iString-renamed', type: 'bool' },
+      ]);
     });
   });
 });
