@@ -75,7 +75,7 @@ export const AssistantActionsContext =
 
 export function useAssistantActions(): Omit<
   AssistantActionsContextType,
-  'ensureOptInAndSend'
+  'ensureOptInAndSend' | 'clearChat'
 > & {
   isAssistantEnabled: boolean;
 } {
@@ -84,19 +84,20 @@ export function useAssistantActions(): Omit<
     interpretExplainPlan,
     interpretConnectionError,
     tellMoreAboutInsight,
-    clearChat,
   } = useContext(AssistantActionsContext);
 
   return {
     interpretExplainPlan,
     interpretConnectionError,
     tellMoreAboutInsight,
-    clearChat,
     isAssistantEnabled,
   };
 }
 
-export type CompassAssistantService = AssistantActionsContextType & {
+export type CompassAssistantService = Omit<
+  AssistantActionsContextType,
+  'isAssistantEnabled' | 'ensureOptInAndSend' | 'clearChat'
+> & {
   getIsAssistantEnabled: () => boolean;
 };
 
