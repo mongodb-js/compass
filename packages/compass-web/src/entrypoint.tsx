@@ -62,6 +62,7 @@ import {
   CompassAssistantDrawer,
   CompassAssistantProvider,
 } from '@mongodb-js/compass-assistant';
+import { useMyQueriesFeature } from './hooks/use-my-queries-feature';
 
 export type TrackFunction = (
   event: string,
@@ -280,6 +281,8 @@ const CompassWeb = ({
     onDebug,
   });
   const preferencesAccess = useCompassWebPreferences(initialPreferences);
+  const isMyQueriesEnabled = useMyQueriesFeature();
+  // TODO: This will be used to conditionally provide My Queries storage providers in the implementation PR
   const initialWorkspaceRef = useRef(initialWorkspace);
   const initialWorkspaceTabsRef = useRef(
     initialWorkspaceRef.current ? [initialWorkspaceRef.current] : []

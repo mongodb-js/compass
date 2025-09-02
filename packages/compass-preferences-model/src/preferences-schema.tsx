@@ -112,6 +112,7 @@ export type InternalUserPreferences = {
   id: string;
   cloudFeatureRolloutAccess?: {
     GEN_AI_COMPASS?: boolean;
+    MY_QUERIES_DATA_EXPLORER?: boolean;
   };
   lastKnownVersion: string;
   highestInstalledVersion?: string;
@@ -470,6 +471,7 @@ export const storedUserPreferencesProps: Required<{
     validator: z
       .object({
         GEN_AI_COMPASS: z.boolean().optional(),
+        MY_QUERIES_DATA_EXPLORER: z.boolean().optional(),
       })
       .optional(),
     type: 'object',
