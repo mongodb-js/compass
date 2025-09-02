@@ -29,8 +29,15 @@ describe('AssistantChat', function () {
     },
   ];
 
-  function renderWithChat(messages: AssistantMessage[]) {
-    const chat = createMockChat({ messages });
+  function renderWithChat(
+    messages: AssistantMessage[],
+    {
+      status,
+    }: {
+      status?: 'submitted' | 'streaming';
+    } = {}
+  ) {
+    const chat = createMockChat({ messages, status });
     const result = render(<AssistantChat chat={chat} />);
     return {
       result,
@@ -79,6 +86,16 @@ describe('AssistantChat', function () {
     renderWithChat(mockMessages);
     expect(screen.queryByText(/Welcome to your MongoDB Assistant./)).to.not
       .exist;
+  });
+
+  it('displays loading state when chat status is submitted', function () {
+    renderWithChat([], { status: 'submitted' });
+    expect(screen.getByText(/MongoDB Assistant is thinking/)).to.exist;
+  });
+
+  it('does not display loading in all other cases', function () {
+    renderWithChat(mockMessages, { status: 'streaming' });
+    expect(screen.queryByText(/MongoDB Assistant is thinking/)).to.not.exist;
   });
 
   it('send button is disabled when input is empty', function () {

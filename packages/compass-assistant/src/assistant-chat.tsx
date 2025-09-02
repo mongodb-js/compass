@@ -228,13 +228,6 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
                 )}
               </Message>
             ))}
-            {status === 'submitted' && (
-              <Message
-                id="loading"
-                messageBody="Thinking..."
-                isSender={false}
-              />
-            )}
           </MessageFeed>
           {error && (
             <div className={errorBannerWrapperStyles}>
@@ -254,6 +247,7 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
             data-testid="assistant-chat-input"
             onMessageSend={handleMessageSend}
             className={inputBarFixesStyles}
+            state={status === 'submitted' ? 'loading' : undefined}
             textareaProps={{
               placeholder: 'Ask MongoDB Assistant a question',
             }}
