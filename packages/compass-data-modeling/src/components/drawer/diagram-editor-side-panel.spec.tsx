@@ -63,20 +63,6 @@ async function comboboxSelectItem(
   });
 }
 
-async function multiComboboxToggleItem(
-  label: string,
-  value: string,
-  visibleLabel = value
-) {
-  userEvent.click(screen.getByRole('textbox', { name: label }));
-  await waitFor(() => {
-    const listbox = screen.getByRole('listbox');
-    expect(listbox).to.be.visible;
-    const option = within(listbox).getByRole('option', { name: visibleLabel });
-    userEvent.click(option);
-  });
-}
-
 function getMultiComboboxValues(testId: string) {
   const combobox = screen.getByTestId(testId);
   expect(combobox).to.be.visible;
@@ -180,15 +166,15 @@ describe('DiagramEditorSidePanel', function () {
     it('should render a nested field context drawer', async function () {
       const result = renderDrawer();
       result.plugin.store.dispatch(
-        selectField('flights.routes', ['airline', '_id'])
+        selectField('flights.routes', ['airline', 'id'])
       );
 
       await waitForDrawerToOpen();
-      expect(screen.getByTitle('routes.airline._id')).to.be.visible;
+      expect(screen.getByTitle('routes.airline.id')).to.be.visible;
 
       const nameInput = screen.getByLabelText('Field name');
       expect(nameInput).to.be.visible;
-      expect(nameInput).to.have.value('_id');
+      expect(nameInput).to.have.value('id');
 
       const selectedTypes = getMultiComboboxValues('lg-combobox-datatype');
       expect(selectedTypes).to.have.lengthOf(1);
@@ -198,16 +184,16 @@ describe('DiagramEditorSidePanel', function () {
     it('should delete a field', async function () {
       const result = renderDrawer();
       result.plugin.store.dispatch(
-        selectField('flights.routes', ['airline', '_id'])
+        selectField('flights.routes', ['airline', 'id'])
       );
 
       await waitForDrawerToOpen();
-      expect(screen.getByTitle('routes.airline._id')).to.be.visible;
+      expect(screen.getByTitle('routes.airline.id')).to.be.visible;
 
       userEvent.click(screen.getByLabelText(/delete field/i));
 
       await waitFor(() => {
-        expect(screen.queryByText('routes.airline._id')).not.to.exist;
+        expect(screen.queryByText('routes.airline.id')).not.to.exist;
       });
       expect(screen.queryByLabelText('Name')).to.not.exist;
 
@@ -219,7 +205,7 @@ describe('DiagramEditorSidePanel', function () {
 
       expect(
         modifiedCollection?.jsonSchema.properties?.airline.properties
-      ).to.not.have.property('_id'); // deleted field
+      ).to.not.have.property('id'); // deleted field
       expect(
         modifiedCollection?.jsonSchema.properties?.airline.properties
       ).to.have.property('name'); // sibling field remains
@@ -268,138 +254,12 @@ describe('DiagramEditorSidePanel', function () {
       await waitForDrawerToOpen();
       expect(screen.getByTitle('routes.airline.name')).to.be.visible;
 
-      updateInputWithBlur('Field name', '_id');
+      updateInputWithBlur('Field name', 'id');
 
       await waitFor(() => {
         expect(screen.queryByText('Field already exists.')).to.exist;
         expect(screen.queryByText('routes.airline.name')).to.exist;
       });
-    });
-
-    it('should change the field type', async function () {
-      const result = renderDrawer();
-      result.plugin.store.dispatch(
-        selectField('flights.routes', ['airline', 'name'])
-      );
-
-      await waitForDrawerToOpen();
-      expect(screen.getByTitle('routes.airline.name')).to.be.visible;
-
-      // before - string
-      const selectedTypesBefore = getMultiComboboxValues(
-        'lg-combobox-datatype'
-      );
-      expect(selectedTypesBefore).to.have.members(['string']);
-
-      // add int and bool and remove string
-      await multiComboboxToggleItem('Datatype', 'int');
-      await multiComboboxToggleItem('Datatype', 'bool');
-      await multiComboboxToggleItem('Datatype', 'string');
-
-      const modifiedCollection = selectCurrentModelFromState(
-        result.plugin.store.getState()
-      ).collections.find((coll) => {
-        return coll.ns === 'flights.routes';
-      });
-      expect(
-        modifiedCollection?.jsonSchema.properties?.airline?.properties?.name
-          .bsonType
-      ).to.have.members(['int', 'bool']);
-    });
-
-    it('should not completely remove the type', async function () {
-      const result = renderDrawer();
-      result.plugin.store.dispatch(
-        selectField('flights.routes', ['airline', 'name'])
-      );
-
-      await waitForDrawerToOpen();
-      expect(screen.getByTitle('routes.airline.name')).to.be.visible;
-
-      // before - string
-      const selectedTypesBefore = getMultiComboboxValues(
-        'lg-combobox-datatype'
-      );
-      expect(selectedTypesBefore).to.have.members(['string']);
-
-      // remove string without adding anything else
-      await multiComboboxToggleItem('Datatype', 'string');
-
-      await waitFor(() => {
-        // error message shown
-        expect(screen.queryByText('Field must have a type.')).to.exist;
-        const modifiedCollection = selectCurrentModelFromState(
-          result.plugin.store.getState()
-        ).collections.find((coll) => {
-          return coll.ns === 'flights.routes';
-        });
-        // type remains unchanged
-        expect(
-          modifiedCollection?.jsonSchema.properties?.airline?.properties?.name
-            .bsonType
-        ).to.equal('string');
-      });
-
-      // finally, add some types
-      await multiComboboxToggleItem('Datatype', 'bool');
-      await multiComboboxToggleItem('Datatype', 'int');
-
-      await waitFor(() => {
-        // error goes away
-        expect(screen.queryByText('Field must have a type.')).not.to.exist;
-        const modifiedCollection = selectCurrentModelFromState(
-          result.plugin.store.getState()
-        ).collections.find((coll) => {
-          return coll.ns === 'flights.routes';
-        });
-        // new type applied
-        expect(
-          modifiedCollection?.jsonSchema.properties?.airline?.properties?.name
-            .bsonType
-        ).to.have.members(['bool', 'int']);
-      });
-    });
-
-    it('top level _id field is treated as readonly', async function () {
-      const result = renderDrawer();
-      result.plugin.store.dispatch(selectField('flights.routes', ['_id']));
-
-      await waitForDrawerToOpen();
-      expect(screen.getByTitle('routes._id')).to.be.visible;
-
-      expect(screen.queryByLabelText(/delete field/i)).not.to.exist;
-      expect(screen.getByLabelText('Field name')).to.have.attribute(
-        'aria-disabled',
-        'true'
-      );
-      expect(screen.getByLabelText('Datatype')).to.have.attribute(
-        'aria-disabled',
-        'true'
-      );
-    });
-
-    it('nested _id field is not treated as readonly', async function () {
-      const result = renderDrawer();
-      result.plugin.store.dispatch(
-        selectField('flights.routes', ['airline', '_id'])
-      );
-
-      await waitForDrawerToOpen();
-      expect(screen.getByTitle('routes.airline._id')).to.be.visible;
-
-      expect(screen.queryByLabelText(/delete field/i)).to.exist;
-      expect(screen.queryByLabelText(/delete field/i)).to.have.attribute(
-        'aria-disabled',
-        'false'
-      );
-      expect(screen.getByLabelText('Field name')).to.have.attribute(
-        'aria-disabled',
-        'false'
-      );
-      expect(screen.getByLabelText('Datatype')).to.have.attribute(
-        'aria-disabled',
-        'false'
-      );
     });
   });
 

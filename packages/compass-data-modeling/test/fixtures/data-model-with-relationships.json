@@ -204,7 +204,7 @@
                     "name": {
                       "bsonType": "string"
                     },
-                    "_id": {
+                    "id": {
                       "bsonType": "string"
                     }
                   }

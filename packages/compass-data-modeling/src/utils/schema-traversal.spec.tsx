@@ -3,7 +3,6 @@ import {
   traverseSchema,
   getFieldFromSchema,
   updateSchema,
-  getSchemaWithNewTypes,
 } from './schema-traversal';
 import Sinon from 'sinon';
 
@@ -464,9 +463,7 @@ describe('removeField', function () {
       const result = updateSchema({
         fieldPath: ['name'],
         jsonSchema: {},
-        updateParameters: {
-          update: 'removeField',
-        },
+        update: 'removeField',
       });
       expect(result).to.deep.equal({});
     });
@@ -494,9 +491,7 @@ describe('removeField', function () {
       const result = updateSchema({
         fieldPath: ['address', 'age'],
         jsonSchema: schema,
-        updateParameters: {
-          update: 'removeField',
-        },
+        update: 'removeField',
       });
       expect(result).to.deep.equal(schema);
     });
@@ -514,9 +509,7 @@ describe('removeField', function () {
       const result = updateSchema({
         fieldPath: ['name'],
         jsonSchema: schema,
-        updateParameters: {
-          update: 'removeField',
-        },
+        update: 'removeField',
       });
       expect(result).to.deep.equal({
         ...schema,
@@ -567,9 +560,7 @@ describe('removeField', function () {
       const result = updateSchema({
         fieldPath: ['person', 'address'],
         jsonSchema: schema,
-        updateParameters: {
-          update: 'removeField',
-        },
+        update: 'removeField',
       });
       expect(result).to.deep.equal({
         ...schema,
@@ -606,9 +597,7 @@ describe('removeField', function () {
       const result = updateSchema({
         fieldPath: ['person', 'address', 'city'],
         jsonSchema: schema,
-        updateParameters: {
-          update: 'removeField',
-        },
+        update: 'removeField',
       });
       expect(result).to.deep.equal({
         ...schema,
@@ -652,9 +641,7 @@ describe('removeField', function () {
       const result = updateSchema({
         fieldPath: ['names', 'first'],
         jsonSchema: schema,
-        updateParameters: {
-          update: 'removeField',
-        },
+        update: 'removeField',
       });
       expect(result).to.deep.equal({
         ...schema,
@@ -694,9 +681,7 @@ describe('removeField', function () {
       const result = updateSchema({
         fieldPath: ['addresses', 'streetNumber'],
         jsonSchema: schema,
-        updateParameters: {
-          update: 'removeField',
-        },
+        update: 'removeField',
       });
       expect(result).to.deep.equal({
         ...schema,
@@ -739,9 +724,7 @@ describe('removeField', function () {
       const result = updateSchema({
         fieldPath: ['todos', 'completed'],
         jsonSchema: schema,
-        updateParameters: {
-          update: 'removeField',
-        },
+        update: 'removeField',
       });
       expect(result).to.deep.equal({
         ...schema,
@@ -772,10 +755,8 @@ describe('renameField', function () {
       const result = updateSchema({
         fieldPath: ['name'],
         jsonSchema: {},
-        updateParameters: {
-          update: 'renameField',
-          newFieldName: 'newName',
-        },
+        update: 'renameField',
+        newFieldName: 'newName',
       });
       expect(result).to.deep.equal({});
     });
@@ -803,10 +784,8 @@ describe('renameField', function () {
       const result = updateSchema({
         fieldPath: ['address', 'age'],
         jsonSchema: schema,
-        updateParameters: {
-          update: 'renameField',
-          newFieldName: 'newName',
-        },
+        update: 'renameField',
+        newFieldName: 'newName',
       });
       expect(result).to.deep.equal(schema);
     });
@@ -824,10 +803,8 @@ describe('renameField', function () {
       const result = updateSchema({
         fieldPath: ['name'],
         jsonSchema: schema,
-        updateParameters: {
-          update: 'renameField',
-          newFieldName: 'newName',
-        },
+        update: 'renameField',
+        newFieldName: 'newName',
       });
       expect(result).to.deep.equal({
         ...schema,
@@ -880,10 +857,8 @@ describe('renameField', function () {
       const result = updateSchema({
         fieldPath: ['person', 'address'],
         jsonSchema: schema,
-        updateParameters: {
-          update: 'renameField',
-          newFieldName: 'location',
-        },
+        update: 'renameField',
+        newFieldName: 'location',
       });
       expect(result).to.deep.equal({
         ...schema,
@@ -921,10 +896,8 @@ describe('renameField', function () {
       const result = updateSchema({
         fieldPath: ['person', 'address', 'city'],
         jsonSchema: schema,
-        updateParameters: {
-          update: 'renameField',
-          newFieldName: 'town',
-        },
+        update: 'renameField',
+        newFieldName: 'town',
       });
       expect(result).to.deep.equal({
         ...schema,
@@ -970,10 +943,8 @@ describe('renameField', function () {
       const result = updateSchema({
         fieldPath: ['names', 'first'],
         jsonSchema: schema,
-        updateParameters: {
-          update: 'renameField',
-          newFieldName: 'given',
-        },
+        update: 'renameField',
+        newFieldName: 'given',
       });
       expect(result).to.deep.equal({
         ...schema,
@@ -1014,10 +985,8 @@ describe('renameField', function () {
       const result = updateSchema({
         fieldPath: ['addresses', 'streetNumber'],
         jsonSchema: schema,
-        updateParameters: {
-          update: 'renameField',
-          newFieldName: 'street_num',
-        },
+        update: 'renameField',
+        newFieldName: 'street_num',
       });
       expect(result).to.deep.equal({
         ...schema,
@@ -1061,10 +1030,8 @@ describe('renameField', function () {
       const result = updateSchema({
         fieldPath: ['todos', 'completed'],
         jsonSchema: schema,
-        updateParameters: {
-          update: 'renameField',
-          newFieldName: 'done',
-        },
+        update: 'renameField',
+        newFieldName: 'done',
       });
       expect(result).to.deep.equal({
         ...schema,
@@ -1085,339 +1052,6 @@ describe('renameField', function () {
             },
           },
         },
-      });
-    });
-  });
-});
-
-describe('getSchemaWithNewTypes', function () {
-  describe('basic types', function () {
-    it('updates a single type', function () {
-      const newTypes = ['string', 'int'];
-      const result = getSchemaWithNewTypes({ bsonType: 'string' }, newTypes);
-      expect(result).to.deep.equal({ bsonType: newTypes });
-    });
-
-    it('updates an array of types', function () {
-      const newTypes = ['bool', 'int'];
-      const result = getSchemaWithNewTypes(
-        { bsonType: ['string', 'bool'] },
-        newTypes
-      );
-      expect(result).to.deep.equal({ bsonType: newTypes });
-    });
-  });
-
-  describe('complex types', function () {
-    describe('cleans up the root schema', function () {
-      it('changes an object to a string', function () {
-        const newTypes = ['string'];
-        const result = getSchemaWithNewTypes(
-          {
-            bsonType: 'object',
-            properties: {
-              name: { bsonType: 'string' },
-            },
-            required: ['name'],
-          },
-          newTypes
-        );
-        expect(result).to.deep.equal({ bsonType: newTypes });
-      });
-
-      it('changes an array to a string', function () {
-        const newTypes = ['string'];
-        const result = getSchemaWithNewTypes(
-          {
-            bsonType: 'array',
-            items: {
-              bsonType: 'int',
-            },
-          },
-          newTypes
-        );
-        expect(result).to.deep.equal({ bsonType: newTypes });
-      });
-    });
-
-    describe('cleans up parts of anyOf', function () {
-      it('removes object but keeps array', function () {
-        const newTypes = ['array'];
-        const oldSchema = {
-          anyOf: [
-            {
-              bsonType: 'object',
-              properties: {
-                name: { bsonType: 'string' },
-              },
-              required: ['name'],
-            },
-            {
-              bsonType: 'array',
-              items: {
-                properties: {
-                  name: { bsonType: 'string' },
-                },
-                required: ['name'],
-              },
-            },
-          ],
-        };
-        const result = getSchemaWithNewTypes(oldSchema, newTypes);
-        // array is no longer part of anyOf, now it is the only type and so the root schema
-        expect(result).to.deep.equal(oldSchema.anyOf[1]);
-      });
-
-      it('removes array but keeps object', function () {
-        const newTypes = ['object'];
-        const oldSchema = {
-          anyOf: [
-            {
-              bsonType: 'object',
-              properties: {
-                name: { bsonType: 'string' },
-              },
-              required: ['name'],
-            },
-            {
-              bsonType: 'array',
-              items: {
-                properties: {
-                  name: { bsonType: 'string' },
-                },
-                required: ['name'],
-              },
-            },
-          ],
-        };
-        const result = getSchemaWithNewTypes(oldSchema, newTypes);
-        // object is no longer part of anyOf, now it is the only type and so the root schema
-        expect(result).to.deep.equal(oldSchema.anyOf[0]);
-      });
-
-      it('removes one of many types', function () {
-        const newTypes = ['object', 'array', 'string', 'bool']; // removes int
-        const oldSchema = {
-          anyOf: [
-            {
-              bsonType: 'object',
-              properties: {
-                name: { bsonType: 'string' },
-              },
-              required: ['name'],
-            },
-            {
-              bsonType: 'array',
-              items: {
-                properties: {
-                  name: { bsonType: 'string' },
-                },
-                required: ['name'],
-              },
-            },
-            {
-              bsonType: 'string',
-            },
-            {
-              bsonType: 'int',
-            },
-            {
-              bsonType: 'bool',
-            },
-          ],
-        };
-        const result = getSchemaWithNewTypes(oldSchema, newTypes);
-        expect(result).to.not.to.have.property('bsonType');
-        expect(result.anyOf).to.have.lengthOf(4);
-        expect(result.anyOf).to.have.deep.members([
-          oldSchema.anyOf[0],
-          oldSchema.anyOf[1],
-          oldSchema.anyOf[2],
-          // int - is missing
-          oldSchema.anyOf[4],
-        ]);
-        expect(result.anyOf).to.not.have.deep.members([
-          oldSchema.anyOf[3], // int - is missing
-        ]);
-      });
-    });
-
-    describe('uses anyOf for a mixture of simple and complex types', function () {
-      it('adds another type on top of object and array', function () {
-        const newTypes = ['object', 'array', 'bool'];
-        const oldSchema = {
-          anyOf: [
-            {
-              bsonType: 'object',
-              properties: {
-                name: { bsonType: 'string' },
-              },
-              required: ['name'],
-            },
-            {
-              bsonType: 'array',
-              items: {
-                properties: {
-                  name: { bsonType: 'string' },
-                },
-                required: ['name'],
-              },
-            },
-          ],
-        };
-        const result = getSchemaWithNewTypes(oldSchema, newTypes);
-        expect(result).not.to.have.property('bsonType');
-        expect(result.anyOf).to.have.lengthOf(3);
-        expect(result.anyOf).to.have.deep.members([
-          oldSchema.anyOf[0],
-          oldSchema.anyOf[1],
-          {
-            bsonType: 'bool',
-          },
-        ]);
-      });
-
-      it('adds object alongside a string', function () {
-        const newTypes = ['string', 'object'];
-        const oldSchema = {
-          bsonType: 'string',
-        };
-        const result = getSchemaWithNewTypes(oldSchema, newTypes);
-        expect(result).not.to.have.property('bsonType');
-        expect(result.anyOf).to.have.lengthOf(2);
-        expect(result.anyOf).to.deep.include({
-          bsonType: 'string',
-        });
-        expect(result.anyOf).to.deep.include({
-          bsonType: 'object',
-          properties: {},
-          required: [],
-        });
-      });
-
-      it('adds array alongside a string', function () {
-        const newTypes = ['string', 'array'];
-        const oldSchema = {
-          bsonType: 'string',
-        };
-        const result = getSchemaWithNewTypes(oldSchema, newTypes);
-        expect(result).not.to.have.property('bsonType');
-        expect(result.anyOf).to.have.lengthOf(2);
-        expect(result.anyOf).to.deep.include({
-          bsonType: 'string',
-        });
-        expect(result.anyOf).to.deep.include({
-          bsonType: 'array',
-          items: {},
-        });
-      });
-
-      it('adds string alongside an object', function () {
-        const newTypes = ['string', 'object'];
-        const oldSchema = {
-          bsonType: 'object',
-          properties: {
-            name: { bsonType: 'string' },
-          },
-          required: ['name'],
-        };
-        const result = getSchemaWithNewTypes(oldSchema, newTypes);
-        expect(result).not.to.have.property('bsonType');
-        expect(result).not.to.have.property('properties');
-        expect(result).not.to.have.property('required');
-        expect(result.anyOf).to.have.lengthOf(2);
-        expect(result.anyOf).to.have.deep.members([
-          {
-            bsonType: 'string',
-          },
-          oldSchema,
-        ]);
-      });
-
-      it('adds string alongside an array', function () {
-        const newTypes = ['string', 'array'];
-        const oldSchema = {
-          bsonType: 'array',
-          items: { bsonType: 'int' },
-        };
-        const result = getSchemaWithNewTypes(oldSchema, newTypes);
-        expect(result).not.to.have.property('bsonType');
-        expect(result).not.to.have.property('items');
-        expect(result.anyOf).to.have.lengthOf(2);
-        expect(result.anyOf).to.have.deep.members([
-          {
-            bsonType: 'string',
-          },
-          oldSchema,
-        ]);
-      });
-    });
-
-    describe('cleans up anyOf when it is no longer needed', function () {
-      it('removes array from a mixed type', function () {
-        const newTypes = ['int', 'double'];
-        const oldSchema = {
-          anyOf: [
-            {
-              bsonType: 'array',
-              items: [{ bsonType: 'string' }],
-            },
-            {
-              bsonType: 'int',
-            },
-            {
-              bsonType: 'double',
-            },
-          ],
-        };
-        const result = getSchemaWithNewTypes(oldSchema, newTypes);
-        expect(result).not.to.have.property('anyOf');
-        expect(result).to.deep.equal({ bsonType: newTypes });
-      });
-
-      it('removes object from a mixed type', function () {
-        const newTypes = ['int', 'bool'];
-        const oldSchema = {
-          anyOf: [
-            {
-              bsonType: 'object',
-              properties: {
-                name: { bsonType: 'string' },
-              },
-              required: ['name'],
-            },
-            {
-              bsonType: 'int',
-            },
-            {
-              bsonType: 'bool',
-            },
-          ],
-        };
-        const result = getSchemaWithNewTypes(oldSchema, newTypes);
-        expect(result).not.to.have.property('anyOf');
-        expect(result).to.deep.equal({ bsonType: newTypes });
-      });
-
-      it('removes string from a mixed type, leaving object', function () {
-        const newTypes = ['object'];
-        const oldSchema = {
-          anyOf: [
-            {
-              bsonType: 'object',
-              properties: {
-                name: { bsonType: 'string' },
-              },
-              required: ['name'],
-            },
-            {
-              bsonType: 'string',
-            },
-          ],
-        };
-        const result = getSchemaWithNewTypes(oldSchema, newTypes);
-        expect(result).not.to.have.property('anyOf');
-        expect(result).to.deep.equal(oldSchema.anyOf[0]);
       });
     });
   });
