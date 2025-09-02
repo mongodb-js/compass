@@ -128,11 +128,11 @@ describe('CompassIndexesPlugin', function () {
 
       expect(inProgressIndex).to.exist;
 
-      /** Wait for the row to appear with in-progress bagde first */
+      /** Wait for the row to appear with creating badge first */
 
       expect(
         within(screen.getByTestId('indexes-row-field_a_1')).getByText(
-          'In Progress'
+          'Creating'
         )
       ).to.exist;
 
