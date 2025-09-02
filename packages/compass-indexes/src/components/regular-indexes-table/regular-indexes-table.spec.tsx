@@ -121,7 +121,7 @@ const inProgressIndexes: InProgressIndex[] = [
         value: -1,
       },
     ],
-    status: 'inprogress',
+    status: 'creating',
     buildProgress: 0,
   },
   {
@@ -133,7 +133,7 @@ const inProgressIndexes: InProgressIndex[] = [
         value: 'text',
       },
     ],
-    status: 'inprogress',
+    status: 'creating',
     error: 'this is an error',
     buildProgress: 0,
   },
@@ -274,7 +274,7 @@ describe('RegularIndexesTable Component', function () {
 
       expect(() => within(indexRow).getByTestId('index-actions-hide-action')).to
         .throw;
-      if (index.status === 'inprogress') {
+      if (index.status === 'creating') {
         expect(() =>
           within(indexRow).getByTestId('index-actions-delete-action')
         ).to.throw;
