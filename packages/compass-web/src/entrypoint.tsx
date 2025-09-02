@@ -76,6 +76,7 @@ import {
   CompassAssistantDrawer,
   CompassAssistantProvider,
 } from '@mongodb-js/compass-assistant';
+import { useMyQueriesFeature } from './hooks/use-my-queries-feature';
 
 export type TrackFunction = (
   event: string,
@@ -102,19 +103,34 @@ const WithStorageProviders: React.FC<{ orgId: string; projectId: string }> = ({
   projectId,
 }) => {
   const atlasService = useAtlasServiceContext();
+  const isMyQueriesEnabled = useMyQueriesFeature();
   const authenticatedFetch = atlasService.authenticatedFetch.bind(atlasService);
   const getResourceUrl = (path?: string) =>
-    Promise.resolve(atlasService.tempEndpoint(`/userdata/${path || ''}`));
+    Promise.resolve(atlasService.tempEndpoint(`/userData/${path || ''}`));
   const pipelineStorage = useRef(
-    new CompassPipelineStorage({
-      orgId,
-      projectId,
-      getResourceUrl,
-      authenticatedFetch,
-    })
+    isMyQueriesEnabled
+      ? new CompassPipelineStorage({
+          orgId,
+          projectId,
+          getResourceUrl,
+          authenticatedFetch,
+        })
+      : null
   );
   const favoriteQueryStorage = useRef<FavoriteQueryStorageAccess>({
     getStorage(options) {
+      if (!isMyQueriesEnabled) {
+        // Return a storage that always returns empty results when feature is disabled
+        return {
+          loadAll: async () => [],
+          loadOne: async () => null,
+          create: async () => false,
+          updateAttributes: async () => false,
+          delete: async () => false,
+          createOrUpdate: async () => false,
+          saveQuery: async () => false,
+        } as any;
+      }
       return new CompassFavoriteQueryStorage({
         basepath: options?.basepath,
         orgId,
@@ -126,6 +142,18 @@ const WithStorageProviders: React.FC<{ orgId: string; projectId: string }> = ({
   });
   const recentQueryStorage = useRef<RecentQueryStorageAccess>({
     getStorage(options) {
+      if (!isMyQueriesEnabled) {
+        // Return a storage that always returns empty results when feature is disabled
+        return {
+          loadAll: async () => [],
+          loadOne: async () => null,
+          create: async () => false,
+          updateAttributes: async () => false,
+          delete: async () => false,
+          createOrUpdate: async () => false,
+          saveQuery: async () => false,
+        } as any;
+      }
       return new CompassRecentQueryStorage({
         basepath: options?.basepath,
         orgId,
@@ -345,6 +373,7 @@ const CompassWeb = ({
     onDebug,
   });
   const preferencesAccess = useCompassWebPreferences(initialPreferences);
+  const isMyQueriesEnabled = useMyQueriesFeature();
   const initialWorkspaceRef = useRef(initialWorkspace);
   const initialWorkspaceTabsRef = useRef(
     initialWorkspaceRef.current ? [initialWorkspaceRef.current] : []
