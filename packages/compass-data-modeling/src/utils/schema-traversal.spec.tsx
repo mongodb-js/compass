@@ -538,7 +538,9 @@ describe('removeField', function () {
       const result = updateSchema({
         fieldPath: ['name'],
         jsonSchema: schema,
-        update: 'removeField',
+        updateParameters: {
+          update: 'removeField',
+        },
       });
       expect(result.required).to.deep.equal(['age']);
     });
@@ -850,8 +852,10 @@ describe('renameField', function () {
       const result = updateSchema({
         fieldPath: ['name'],
         jsonSchema: schema,
-        update: 'renameField',
-        newFieldName: 'newName',
+        updateParameters: {
+          update: 'renameField',
+          newFieldName: 'newName',
+        },
       });
       expect(result.required).to.deep.equal(['newName', 'age']);
     });

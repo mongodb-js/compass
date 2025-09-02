@@ -676,6 +676,9 @@ describe('Data Modeling tab', function () {
       await relationshipItem.waitForDisplayed();
       await relationshipItem
         .$(Selectors.DataModelCollectionRelationshipItemDelete)
+        .waitForClickable();
+      await relationshipItem
+        .$(Selectors.DataModelCollectionRelationshipItemDelete)
         .click();
 
       // Verify that the relationship is removed from the list and the diagram
