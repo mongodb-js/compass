@@ -573,7 +573,7 @@ export const generateFakerMappings = (
   ) => {
     const { schemaAnalysis, fakerSchemaGeneration, namespace } = getState();
     if (schemaAnalysis.status !== SCHEMA_ANALYSIS_STATE_COMPLETE) {
-      logger.log.error(
+      logger.log.warn(
         mongoLogId(1_001_000_305),
         'Collection',
         'Cannot call `generateFakeMappings` unless schema analysis is complete'
@@ -588,9 +588,8 @@ export const generateFakerMappings = (
       return;
     }
 
-    const includeSampleValues = (
-      await preferences.getConfigurableUserPreferences()
-    ).enableGenAISampleDocumentPassing;
+    const includeSampleValues =
+      preferences.getPreferences().enableGenAISampleDocumentPassing;
 
     // todo: dedup/abort requests using requestId (CLOUDP-333850)
     const requestId = new UUID().toString();
