@@ -178,7 +178,7 @@ const reducer: Reducer<CollectionState, Action> = (
     },
     mockDataGenerator: {
       isModalOpen: false,
-      currentStep: MockDataGeneratorStep.AI_DISCLAIMER,
+      currentStep: MockDataGeneratorStep.SCHEMA_CONFIRMATION,
     },
     fakerSchemaGeneration: {
       status: 'idle',
@@ -269,7 +269,7 @@ const reducer: Reducer<CollectionState, Action> = (
       mockDataGenerator: {
         ...state.mockDataGenerator,
         isModalOpen: true,
-        currentStep: MockDataGeneratorStep.AI_DISCLAIMER,
+        currentStep: MockDataGeneratorStep.SCHEMA_CONFIRMATION,
       },
     };
   }
@@ -302,9 +302,6 @@ const reducer: Reducer<CollectionState, Action> = (
     let nextStep: MockDataGeneratorStep;
 
     switch (currentStep) {
-      case MockDataGeneratorStep.AI_DISCLAIMER:
-        nextStep = MockDataGeneratorStep.SCHEMA_CONFIRMATION;
-        break;
       case MockDataGeneratorStep.SCHEMA_CONFIRMATION:
         nextStep = MockDataGeneratorStep.SCHEMA_EDITOR;
         break;
@@ -341,7 +338,8 @@ const reducer: Reducer<CollectionState, Action> = (
 
     switch (currentStep) {
       case MockDataGeneratorStep.SCHEMA_CONFIRMATION:
-        previousStep = MockDataGeneratorStep.AI_DISCLAIMER;
+        // TODO: Decide with product what we want behavior to be: close modal? Re-open disclaimer modal, if possible?
+        previousStep = MockDataGeneratorStep.SCHEMA_CONFIRMATION;
         break;
       case MockDataGeneratorStep.SCHEMA_EDITOR:
         previousStep = MockDataGeneratorStep.SCHEMA_CONFIRMATION;
@@ -474,6 +472,27 @@ export const selectTab = (
       getState().workspaceTabId,
       tabName
     );
+  };
+};
+
+export const openMockDataGeneratorModal = (): CollectionThunkAction<
+  Promise<void>
+> => {
+  return async (dispatch, _getState, { atlasAiService, logger }) => {
+    try {
+      if (process.env.COMPASS_E2E_SKIP_ATLAS_SIGNIN !== 'true') {
+        await atlasAiService.ensureAiFeatureAccess();
+      }
+      dispatch(mockDataGeneratorModalOpened());
+    } catch (error) {
+      // if failed or user canceled we just don't show the modal
+      logger.log.error(
+        mongoLogId(1_001_000_364),
+        'Collections',
+        'Failed to ensure AI feature access and open mock data generator modal',
+        error
+      );
+    }
   };
 };
 

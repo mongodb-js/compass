@@ -29,8 +29,15 @@ describe('AssistantChat', function () {
     },
   ];
 
-  function renderWithChat(messages: AssistantMessage[]) {
-    const chat = createMockChat({ messages });
+  function renderWithChat(
+    messages: AssistantMessage[],
+    {
+      status,
+    }: {
+      status?: 'submitted' | 'streaming';
+    } = {}
+  ) {
+    const chat = createMockChat({ messages, status });
     const result = render(<AssistantChat chat={chat} />);
     return {
       result,
@@ -61,6 +68,34 @@ describe('AssistantChat', function () {
     userEvent.type(inputField, 'What is MongoDB?');
 
     expect(inputField.value).to.equal('What is MongoDB?');
+  });
+
+  it('displays the disclaimer and welcome text', function () {
+    renderWithChat([]);
+    expect(screen.getByText(/This feature is powered by generative AI/)).to
+      .exist;
+    expect(screen.getByText(/Please review the outputs carefully/)).to.exist;
+  });
+
+  it('displays the welcome text when there are no messages', function () {
+    renderWithChat([]);
+    expect(screen.getByText(/Welcome to your MongoDB Assistant./)).to.exist;
+  });
+
+  it('does not display the welcome text when there are messages', function () {
+    renderWithChat(mockMessages);
+    expect(screen.queryByText(/Welcome to your MongoDB Assistant./)).to.not
+      .exist;
+  });
+
+  it('displays loading state when chat status is submitted', function () {
+    renderWithChat([], { status: 'submitted' });
+    expect(screen.getByText(/MongoDB Assistant is thinking/)).to.exist;
+  });
+
+  it('does not display loading in all other cases', function () {
+    renderWithChat(mockMessages, { status: 'streaming' });
+    expect(screen.queryByText(/MongoDB Assistant is thinking/)).to.not.exist;
   });
 
   it('send button is disabled when input is empty', function () {

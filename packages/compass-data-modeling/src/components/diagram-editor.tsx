@@ -8,6 +8,7 @@ import React, {
 import { connect } from 'react-redux';
 import type { DataModelingState } from '../store/reducer';
 import {
+  addNewFieldToCollection,
   moveCollection,
   selectCollection,
   selectRelationship,
@@ -111,6 +112,7 @@ const DiagramContent: React.FunctionComponent<{
   isInRelationshipDrawingMode: boolean;
   editErrors?: string[];
   newCollection?: string;
+  onAddNewFieldToCollection: (ns: string) => void;
   onMoveCollection: (ns: string, newPosition: [number, number]) => void;
   onCollectionSelect: (namespace: string) => void;
   onRelationshipSelect: (rId: string) => void;
@@ -130,6 +132,7 @@ const DiagramContent: React.FunctionComponent<{
   model,
   isInRelationshipDrawingMode,
   newCollection,
+  onAddNewFieldToCollection,
   onMoveCollection,
   onCollectionSelect,
   onRelationshipSelect,
@@ -171,17 +174,21 @@ const DiagramContent: React.FunctionComponent<{
         !!selectedItems &&
         selectedItems.type === 'collection' &&
         selectedItems.id === coll.ns;
-      return collectionToDiagramNode(coll, {
+      return collectionToDiagramNode({
+        ...coll,
         highlightedFields,
         selectedField:
           selectedItems?.type === 'field' && selectedItems.namespace === coll.ns
             ? selectedItems.fieldPath
             : undefined,
+        onClickAddNewFieldToCollection: () =>
+          onAddNewFieldToCollection(coll.ns),
         selected,
         isInRelationshipDrawingMode,
       });
     });
   }, [
+    onAddNewFieldToCollection,
     model?.collections,
     model?.relationships,
     selectedItems,
@@ -301,6 +308,7 @@ const ConnectedDiagramContent = connect(
     };
   },
   {
+    onAddNewFieldToCollection: addNewFieldToCollection,
     onMoveCollection: moveCollection,
     onCollectionSelect: selectCollection,
     onRelationshipSelect: selectRelationship,

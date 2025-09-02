@@ -90,7 +90,7 @@ export function activatePlugin(
       },
       mockDataGenerator: {
         isModalOpen: false,
-        currentStep: MockDataGeneratorStep.AI_DISCLAIMER,
+        currentStep: MockDataGeneratorStep.SCHEMA_CONFIRMATION,
       },
       fakerSchemaGeneration: {
         status: 'idle',

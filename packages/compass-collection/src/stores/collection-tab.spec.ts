@@ -81,7 +81,6 @@ describe('Collection Tab Content store', function () {
 
   const dataService = {} as any;
   const atlasAiService = {} as any;
-
   let store: ReturnType<typeof activatePlugin>['store'];
   let deactivate: ReturnType<typeof activatePlugin>['deactivate'];
 
@@ -126,6 +125,7 @@ describe('Collection Tab Content store', function () {
         connectionInfoRef: connectionInfoRef as any,
         logger,
         preferences,
+        atlasAiService,
       },
       { on() {}, cleanup() {} } as any
     ));

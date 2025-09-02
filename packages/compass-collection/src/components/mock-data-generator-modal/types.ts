@@ -1,7 +1,6 @@
 import type { MockDataSchemaResponse } from '@mongodb-js/compass-generative-ai';
 
 export enum MockDataGeneratorStep {
-  AI_DISCLAIMER = 'AI_DISCLAIMER',
   SCHEMA_CONFIRMATION = 'SCHEMA_CONFIRMATION',
   SCHEMA_EDITOR = 'SCHEMA_EDITOR',
   DOCUMENT_COUNT = 'DOCUMENT_COUNT',
