@@ -49,7 +49,7 @@ export const CompassAssistantDrawer: React.FunctionComponent<{
       'data-testid': 'assistant-confirm-clear-chat-modal',
     });
     if (confirmed) {
-      clearChat();
+      clearChat?.();
     }
   }, [clearChat]);
 

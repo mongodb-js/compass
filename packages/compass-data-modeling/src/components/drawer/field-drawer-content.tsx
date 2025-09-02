@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { connect } from 'react-redux';
 import type {
   FieldPath,
@@ -11,6 +11,7 @@ import {
 } from '@mongodb-js/compass-components';
 import { BSONType } from 'mongodb';
 import {
+  changeFieldType,
   createNewRelationship,
   deleteRelationship,
   getCurrentDiagramFromState,
@@ -56,8 +57,7 @@ type FieldDrawerContentProps = {
   onChangeFieldType: (
     namespace: string,
     fieldPath: FieldPath,
-    fromBsonType: string | string[],
-    toBsonType: string | string[]
+    newTypes: string[]
   ) => void;
 };
 
@@ -117,6 +117,11 @@ const FieldDrawerContent: React.FunctionComponent<FieldDrawerContentProps> = ({
   onRenameField,
   onChangeFieldType,
 }) => {
+  const [fieldTypeEditErrorMessage, setFieldTypeEditErrorMessage] = useState<
+    string | undefined
+  >();
+  const [fieldTypes, setFieldTypes] = useState<string[]>(types);
+
   const { value: fieldName, ...nameInputProps } = useChangeOnBlur(
     fieldPath[fieldPath.length - 1],
     (fieldName) => {
@@ -137,9 +142,17 @@ const FieldDrawerContent: React.FunctionComponent<FieldDrawerContentProps> = ({
       [fieldPath, fieldPaths, fieldName]
     );
 
-  const handleTypeChange = (newTypes: string | string[]) => {
-    onChangeFieldType(namespace, fieldPath, types, newTypes);
+  const handleTypeChange = (newTypes: string[]) => {
+    setFieldTypes(newTypes);
+    if (newTypes.length === 0) {
+      setFieldTypeEditErrorMessage('Field must have a type.');
+      return;
+    }
+    setFieldTypeEditErrorMessage(undefined);
+    onChangeFieldType(namespace, fieldPath, newTypes);
   };
+
+  const isReadOnly = useMemo(() => isIdField(fieldPath), [fieldPath]);
 
   return (
     <>
@@ -147,7 +160,7 @@ const FieldDrawerContent: React.FunctionComponent<FieldDrawerContentProps> = ({
         <DMFormFieldContainer>
           <TextInput
             label="Field name"
-            disabled={isIdField(fieldPath)}
+            disabled={isReadOnly}
             data-testid="data-model-collection-drawer-name-input"
             sizeVariant="small"
             value={fieldName}
@@ -162,12 +175,14 @@ const FieldDrawerContent: React.FunctionComponent<FieldDrawerContentProps> = ({
             data-testid="lg-combobox-datatype"
             label="Datatype"
             aria-label="Datatype"
-            disabled={true} // TODO(COMPASS-9659): enable when field type change is implemented
-            value={types}
+            disabled={isReadOnly}
+            value={fieldTypes}
             size="small"
             multiselect={true}
             clearable={false}
             onChange={handleTypeChange}
+            state={fieldTypeEditErrorMessage ? 'error' : undefined}
+            errorMessage={fieldTypeEditErrorMessage}
           >
             {BSON_TYPES.map((type) => (
               <ComboboxOption key={type} value={type} />
@@ -228,6 +243,6 @@ export default connect(
     onEditRelationshipClick: selectRelationship,
     onDeleteRelationshipClick: deleteRelationship,
     onRenameField: renameField,
-    onChangeFieldType: () => {}, // TODO(COMPASS-9659): updateFieldSchema,
+    onChangeFieldType: changeFieldType,
   }
 )(FieldDrawerContent);
