@@ -106,8 +106,11 @@ const WithStorageProviders: React.FC<{ orgId: string; projectId: string }> = ({
 }) => {
   const atlasService = useAtlasServiceContext();
   const authenticatedFetch = atlasService.authenticatedFetch.bind(atlasService);
-  // TODO: use non-hardcoded endpoint
-  const getResourceUrl = atlasService.tempEndpoint.bind(atlasService);
+  const getResourceUrl = (path?: string) => {
+    const url = atlasService.userDataEndpoint(`/${path || ''}`);
+    console.log('getResourceUrl called with path:', path, '-> URL:', url);
+    return Promise.resolve(url);
+  };
   const pipelineStorage = useRef(
     new CompassPipelineStorage({
       orgId,
