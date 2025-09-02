@@ -73,13 +73,25 @@ export const AssistantActionsContext =
     ensureOptInAndSend: async () => {},
   });
 
-export function useAssistantActions(): AssistantActionsContextType & {
+export function useAssistantActions(): Omit<
+  AssistantActionsContextType,
+  'ensureOptInAndSend'
+> & {
   isAssistantEnabled: boolean;
 } {
   const isAssistantEnabled = usePreference('enableAIAssistant');
+  const {
+    interpretExplainPlan,
+    interpretConnectionError,
+    tellMoreAboutInsight,
+    clearChat,
+  } = useContext(AssistantActionsContext);
 
   return {
-    ...useContext(AssistantActionsContext),
+    interpretExplainPlan,
+    interpretConnectionError,
+    tellMoreAboutInsight,
+    clearChat,
     isAssistantEnabled,
   };
 }

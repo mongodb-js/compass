@@ -1,6 +1,6 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useContext } from 'react';
 import type { AssistantMessage } from './compass-assistant-provider';
-import { useAssistantActions } from './compass-assistant-provider';
+import { AssistantActionsContext } from './compass-assistant-provider';
 import type { Chat } from './@ai-sdk/react/chat-react';
 import { useChat } from './@ai-sdk/react/use-chat';
 import {
@@ -111,7 +111,7 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
 }) => {
   const track = useTelemetry();
   const darkMode = useDarkMode();
-  const { ensureOptInAndSend } = useAssistantActions();
+  const { ensureOptInAndSend } = useContext(AssistantActionsContext);
   const { messages, status, error, clearError } = useChat({
     chat,
     onError: (error) => {
