@@ -274,6 +274,11 @@ describe('Connection string', function () {
     compass = await init(this.test?.fullTitle());
     browser = compass.browser;
     await browser.setFeature('enableAIAssistant', true);
+    await browser.setFeature('enableGenAIFeatures', true);
+    await browser.setFeature('enableGenAIFeaturesAtlasOrg', true);
+    await browser.setFeature('cloudFeatureRolloutAccess', {
+      GEN_AI_COMPASS: true,
+    });
   });
 
   beforeEach(async function () {
