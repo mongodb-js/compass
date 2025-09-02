@@ -19,7 +19,6 @@ import {
   CollectionWorkspaceTitle,
   CollectionPluginTitleComponent,
 } from './plugin-tab-title';
-import { atlasAiServiceLocator } from '@mongodb-js/compass-generative-ai/provider';
 
 export const WorkspaceTab: WorkspacePlugin<typeof CollectionWorkspaceTitle> = {
   name: CollectionWorkspaceTitle,
@@ -40,7 +39,6 @@ export const WorkspaceTab: WorkspacePlugin<typeof CollectionWorkspaceTitle> = {
       connectionInfoRef: connectionInfoRefLocator,
       logger: createLoggerLocator('COMPASS-COLLECTION'),
       preferences: preferencesLocator,
-      atlasAiService: atlasAiServiceLocator,
     }
   ),
   content: CollectionTab,
