@@ -154,6 +154,9 @@ describe('CompassConnections store', function () {
       const { connectionsStore } = renderCompassConnections({
         preferences: {
           enableAIAssistant: true,
+          enableGenAIFeatures: true,
+          enableGenAIFeaturesAtlasOrg: true,
+          cloudFeatureRolloutAccess: { GEN_AI_COMPASS: true },
         },
         connectFn: sinon
           .stub()
