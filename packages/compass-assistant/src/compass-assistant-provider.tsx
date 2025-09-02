@@ -84,23 +84,26 @@ export function useAssistantActions(): AssistantActionsContextType & {
   };
 }
 
-export const compassAssistantServiceLocator = createServiceLocator(function () {
-  const { isAssistantEnabled, ...actions } = useAssistantActions();
+export type CompassAssistantService = AssistantActionsContextType & {
+  getIsAssistantEnabled: () => boolean;
+};
 
-  const assistantEnabledRef = useRef(isAssistantEnabled);
-  assistantEnabledRef.current = isAssistantEnabled;
+export const compassAssistantServiceLocator = createServiceLocator(
+  function (): CompassAssistantService {
+    const { isAssistantEnabled, ...actions } = useAssistantActions();
 
-  return {
-    ...actions,
-    getIsAssistantEnabled() {
-      return assistantEnabledRef.current;
-    },
-  };
-}, 'compassAssistantLocator');
+    const assistantEnabledRef = useRef(isAssistantEnabled);
+    assistantEnabledRef.current = isAssistantEnabled;
 
-export type CompassAssistantService = ReturnType<
-  typeof compassAssistantServiceLocator
->;
+    return {
+      ...actions,
+      getIsAssistantEnabled() {
+        return assistantEnabledRef.current;
+      },
+    };
+  },
+  'compassAssistantLocator'
+);
 
 export const AssistantProvider: React.FunctionComponent<
   PropsWithChildren<{
