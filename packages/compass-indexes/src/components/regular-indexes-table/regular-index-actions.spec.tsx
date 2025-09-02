@@ -58,7 +58,7 @@ describe('IndexActions Component', function () {
       expect(() => screen.getByTestId('index-building-spinner')).to.throw(
         /Unable to find/
       );
-      expect(() => screen.getByText(/Building\.\.\. \d+%/)).to.throw(
+      expect(() => screen.getByText(/Building… \d+%/)).to.throw(
         /Unable to find/
       );
     });
