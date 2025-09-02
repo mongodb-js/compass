@@ -5,4 +5,4 @@ export const ItemActionButtonSize = {
 } as const;
 
 export type ItemActionButtonSize =
-  typeof ItemActionButtonSize[keyof typeof ItemActionButtonSize];
+  (typeof ItemActionButtonSize)[keyof typeof ItemActionButtonSize];

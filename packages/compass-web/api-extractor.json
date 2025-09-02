@@ -1,0 +1,37 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/api-extractor/v7/api-extractor.schema.json",
+  "mainEntryPointFilePath": "./dist/index.d.ts",
+  "newlineKind": "lf",
+  "bundledPackages": [
+    "@mongodb-js/*",
+    "@mongodb-js/mdb-experiment-js",
+    "@mongodb-js/connection-info",
+    "bson-transpilers",
+    "compass-e2e-tests",
+    "compass-preferences-model",
+    "hadron-build",
+    "hadron-document",
+    "hadron-ipc",
+    "hadron-type-checker",
+    "mongodb-instance-model",
+    "mongodb-explain-compat",
+    "mongodb-query-util",
+    "mongodb-data-service",
+    "mongodb-database-model",
+    "mongodb-collection-model",
+    "mongodb-compass"
+  ],
+  "compiler": {
+    "tsconfigFilePath": "./tsconfig-build.json"
+  },
+  "dtsRollup": {
+    "enabled": true,
+    "publicTrimmedFilePath": "./dist/<unscopedPackageName>.d.ts"
+  },
+  "apiReport": {
+    "enabled": false
+  },
+  "docModel": {
+    "enabled": false
+  }
+}

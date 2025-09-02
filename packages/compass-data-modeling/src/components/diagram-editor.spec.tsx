@@ -16,6 +16,7 @@ import sinon from 'sinon';
 import { DiagramProvider } from '@mongodb-js/diagramming';
 import { DataModelingWorkspaceTab } from '..';
 import { openDiagram } from '../store/diagram';
+import { DrawerAnchor } from '@mongodb-js/compass-components';
 
 const storageItems: MongoDBDataModelDescription[] = [
   {
@@ -92,7 +93,7 @@ const mockDiagramming = {
     <div data-testid="mock-diagram">
       {Object.entries(props).map(([key, value]) => (
         <div key={key} data-testid={`diagram-prop-${key}`}>
-          {JSON.stringify(value)}
+          {typeof value === 'object' ? 'object' : JSON.stringify(value)}
         </div>
       ))}
     </div>
@@ -143,9 +144,11 @@ const renderDiagramEditor = ({
   const {
     plugin: { store },
   } = renderWithConnections(
-    <DiagramProvider fitView>
-      <DiagramEditor />
-    </DiagramProvider>
+    <DrawerAnchor>
+      <DiagramProvider fitView>
+        <DiagramEditor />
+      </DiagramProvider>
+    </DrawerAnchor>
   );
   store.dispatch(openDiagram(renderedItem));
 

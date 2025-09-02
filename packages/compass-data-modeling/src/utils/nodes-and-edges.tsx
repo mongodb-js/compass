@@ -1,13 +1,22 @@
 import React from 'react';
 import toNS from 'mongodb-ns';
-import { InlineDefinition, Body, css } from '@mongodb-js/compass-components';
-import type { NodeProps, EdgeProps } from '@mongodb-js/diagramming';
+import {
+  Body,
+  IconButton,
+  InlineDefinition,
+  css,
+} from '@mongodb-js/compass-components';
+import type { NodeProps, EdgeProps, BaseNode } from '@mongodb-js/diagramming';
 import type { MongoDBJSONSchema } from 'mongodb-schema';
 import type { SelectedItems } from '../store/diagram';
 import type {
   DataModelCollection,
+  FieldPath,
   Relationship,
 } from '../services/data-model-storage';
+import { traverseSchema } from './schema-traversal';
+import { areFieldPathsEqual } from './utils';
+import PlusWithSquare from '../components/icons/plus-with-square';
 
 function getBsonTypeName(bsonType: string) {
   switch (bsonType) {
@@ -17,6 +26,10 @@ function getBsonTypeName(bsonType: string) {
       return bsonType;
   }
 }
+
+const addNewFieldStyles = css({
+  marginLeft: 'auto',
+});
 
 const mixedTypeTooltipContentStyles = css({
   overflowWrap: 'anywhere',
@@ -51,7 +64,7 @@ function getFieldTypeDisplay(bsonTypes: string[]) {
   );
 }
 
-export const getSelectedFields = (
+export const getHighlightedFields = (
   selectedItems: SelectedItems | null,
   relationships?: Relationship[]
 ): Record<string, string[][] | undefined> => {
@@ -71,107 +84,119 @@ export const getSelectedFields = (
   return selection;
 };
 
-export const getFieldsFromSchema = (
-  jsonSchema: MongoDBJSONSchema,
-  highlightedFields: string[][] = [],
-  depth = 0
-): NodeProps['fields'] => {
+export const getFieldsFromSchema = ({
+  jsonSchema,
+  highlightedFields = [],
+  selectedField,
+}: {
+  jsonSchema: MongoDBJSONSchema;
+  highlightedFields?: FieldPath[];
+  selectedField?: FieldPath;
+}): NodeProps['fields'] => {
   if (!jsonSchema || !jsonSchema.properties) {
     return [];
   }
-  let fields: NodeProps['fields'] = [];
-  for (const [name, field] of Object.entries(jsonSchema.properties)) {
-    // field has types, properties and (optional) children
-    // types are either direct, or from anyof
-    // children are either direct (properties), from anyOf, items or items.anyOf
-    const types: (string | string[])[] = [];
-    const children: (MongoDBJSONSchema | MongoDBJSONSchema[])[] = [];
-    if (field.bsonType) {
-      types.push(field.bsonType);
-    }
-    if (field.properties) {
-      children.push(field);
-    }
-    if (field.items) {
-      children.push((field.items as MongoDBJSONSchema).anyOf || field.items);
-    }
-    if (field.anyOf) {
-      for (const variant of field.anyOf) {
-        if (variant.bsonType) {
-          types.push(variant.bsonType);
-        }
-        if (variant.properties) {
-          children.push(variant);
-        }
-        if (variant.items) {
-          children.push(variant.items);
-        }
-      }
-    }
+  const fields: NodeProps['fields'] = [];
 
-    fields.push({
-      name,
-      type: getFieldTypeDisplay(types.flat()),
-      depth: depth,
-      glyphs: types.length === 1 && types[0] === 'objectId' ? ['key'] : [],
-      variant:
-        highlightedFields.length &&
-        highlightedFields.some(
-          (field) => field.length === 1 && field[0] === name
-        )
-          ? 'preview'
-          : undefined,
-    });
-
-    if (children.length > 0) {
-      fields = [
-        ...fields,
-        ...children.flat().flatMap((child) =>
-          getFieldsFromSchema(
-            child,
-            highlightedFields
-              .filter((field) => field[0] === name)
-              .map((field) => field.slice(1)),
-            depth + 1
+  traverseSchema({
+    jsonSchema,
+    visitor: ({ fieldPath, fieldTypes }) => {
+      fields.push({
+        name: fieldPath[fieldPath.length - 1],
+        id: fieldPath,
+        type: getFieldTypeDisplay(fieldTypes),
+        depth: fieldPath.length - 1,
+        glyphs:
+          fieldTypes.length === 1 && fieldTypes[0] === 'objectId'
+            ? ['key']
+            : [],
+        selectable: true,
+        selected: areFieldPathsEqual(fieldPath, selectedField ?? []),
+        variant:
+          highlightedFields.length &&
+          highlightedFields.some((highlightedField) =>
+            areFieldPathsEqual(fieldPath, highlightedField)
           )
-        ),
-      ];
-    }
-  }
+            ? 'preview'
+            : undefined,
+      });
+    },
+  });
 
   return fields;
 };
 
-export function collectionToDiagramNode(
-  coll: Pick<DataModelCollection, 'ns' | 'jsonSchema' | 'displayPosition'>,
-  options: {
-    selectedFields?: Record<string, string[][] | undefined>;
-    selected?: boolean;
-    isInRelationshipDrawingMode?: boolean;
-  } = {}
-): NodeProps {
-  const {
-    selectedFields = {},
-    selected = false,
-    isInRelationshipDrawingMode = false,
-  } = options;
-
+/**
+ * Create a base node to be used for positioning and measuring in node layouts.
+ */
+export function collectionToBaseNodeForLayout({
+  ns,
+  jsonSchema,
+  displayPosition,
+}: Pick<
+  DataModelCollection,
+  'ns' | 'jsonSchema' | 'displayPosition'
+>): BaseNode & Pick<NodeProps, 'fields'> {
   return {
-    id: coll.ns,
+    id: ns,
+    position: {
+      x: displayPosition[0],
+      y: displayPosition[1],
+    },
+    fields: getFieldsFromSchema({ jsonSchema }),
+  };
+}
+
+type CollectionWithRenderOptions = Pick<
+  DataModelCollection,
+  'ns' | 'jsonSchema' | 'displayPosition'
+> & {
+  highlightedFields: Record<string, FieldPath[] | undefined>;
+  selectedField?: FieldPath;
+  selected: boolean;
+  isInRelationshipDrawingMode: boolean;
+  onClickAddNewFieldToCollection: () => void;
+};
+
+export function collectionToDiagramNode({
+  ns,
+  jsonSchema,
+  displayPosition,
+  selectedField,
+  highlightedFields,
+  selected,
+  isInRelationshipDrawingMode,
+  onClickAddNewFieldToCollection,
+}: CollectionWithRenderOptions): NodeProps {
+  return {
+    id: ns,
     type: 'collection',
     position: {
-      x: coll.displayPosition[0],
-      y: coll.displayPosition[1],
+      x: displayPosition[0],
+      y: displayPosition[1],
     },
-    title: toNS(coll.ns).collection,
-    fields: getFieldsFromSchema(
-      coll.jsonSchema,
-      selectedFields[coll.ns] ?? undefined,
-      0
-    ),
+    title: toNS(ns).collection,
+    fields: getFieldsFromSchema({
+      jsonSchema: jsonSchema,
+      highlightedFields: highlightedFields[ns] ?? undefined,
+      selectedField,
+    }),
     selected,
     connectable: isInRelationshipDrawingMode,
     draggable: !isInRelationshipDrawingMode,
+    actions: onClickAddNewFieldToCollection ? (
+      <IconButton
+        aria-label="Add Field"
+        className={addNewFieldStyles}
+        onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
+          event.stopPropagation();
+          onClickAddNewFieldToCollection();
+        }}
+        title="Add Field"
+      >
+        <PlusWithSquare />
+      </IconButton>
+    ) : undefined,
   };
 }
 

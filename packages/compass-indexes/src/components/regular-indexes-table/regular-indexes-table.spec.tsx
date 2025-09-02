@@ -411,7 +411,7 @@ describe('RegularIndexesTable Component', function () {
   describe('sorting', function () {
     function getIndexNames() {
       return screen.getAllByTestId('indexes-name-field').map((el) => {
-        return (el.textContent as string).trim();
+        return el.textContent.trim();
       });
     }
 

@@ -12,7 +12,7 @@ export const Variant = {
   Danger: ButtonVariant.Danger,
 } as const;
 
-export type Variant = typeof Variant[keyof typeof Variant];
+export type Variant = (typeof Variant)[keyof typeof Variant];
 
 const headerStyle = css({
   padding: spacing[800],

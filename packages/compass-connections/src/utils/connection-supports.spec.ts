@@ -188,7 +188,7 @@ const mockConnections = [
 ] as const;
 
 function connectionInfoById(
-  connectionId: typeof mockConnections[number]['id']
+  connectionId: (typeof mockConnections)[number]['id']
 ): ConnectionInfo {
   const connectionInfo = mockConnections.find(({ id }) => id === connectionId);
   if (!connectionInfo) {

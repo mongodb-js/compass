@@ -1,5 +1,5 @@
 import type { Reducer, AnyAction, Action } from 'redux';
-import { analyzeDocuments, type Schema } from 'mongodb-schema';
+import { analyzeDocuments } from 'mongodb-schema';
 
 import type { CollectionMetadata } from 'mongodb-collection-model';
 import type { ThunkAction } from 'redux-thunk';
@@ -10,6 +10,8 @@ import type { DataService } from '@mongodb-js/compass-connections/provider';
 import type { experimentationServiceLocator } from '@mongodb-js/compass-telemetry/provider';
 import { type Logger, mongoLogId } from '@mongodb-js/compass-logging/provider';
 import { type PreferencesAccess } from 'compass-preferences-model/provider';
+import type { AtlasAiService } from '@mongodb-js/compass-generative-ai/provider';
+
 import { isInternalFieldPath } from 'hadron-document';
 import toNS from 'mongodb-ns';
 import {
@@ -19,14 +21,16 @@ import {
   SCHEMA_ANALYSIS_STATE_INITIAL,
   type SchemaAnalysisError,
   type SchemaAnalysisState,
+  type FieldInfo,
 } from '../schema-analysis-types';
 import { calculateSchemaDepth } from '../calculate-schema-depth';
+import { processSchema } from '../transform-schema-to-field-info';
 import type { Document, MongoError } from 'mongodb';
+import { MockDataGeneratorStep } from '../components/mock-data-generator-modal/types';
 
 const DEFAULT_SAMPLE_SIZE = 100;
 
 const NO_DOCUMENTS_ERROR = 'No documents found in the collection to analyze.';
-import { MockDataGeneratorStep } from '../components/mock-data-generator-modal/types';
 
 function isAction<A extends AnyAction>(
   action: AnyAction,
@@ -63,6 +67,7 @@ type CollectionThunkAction<R, A extends AnyAction = AnyAction> = ThunkAction<
     experimentationServices: ReturnType<typeof experimentationServiceLocator>;
     logger: Logger;
     preferences: PreferencesAccess;
+    atlasAiService: AtlasAiService;
   },
   A
 >;
@@ -106,7 +111,7 @@ interface SchemaAnalysisStartedAction {
 
 interface SchemaAnalysisFinishedAction {
   type: CollectionActions.SchemaAnalysisFinished;
-  schema: Schema;
+  processedSchema: Record<string, FieldInfo>;
   sampleDocument: Document;
   schemaMetadata: {
     maxNestingDepth: number;
@@ -146,7 +151,7 @@ const reducer: Reducer<CollectionState, Action> = (
     },
     mockDataGenerator: {
       isModalOpen: false,
-      currentStep: MockDataGeneratorStep.AI_DISCLAIMER,
+      currentStep: MockDataGeneratorStep.SCHEMA_CONFIRMATION,
     },
   },
   action
@@ -201,7 +206,7 @@ const reducer: Reducer<CollectionState, Action> = (
       ...state,
       schemaAnalysis: {
         status: SCHEMA_ANALYSIS_STATE_COMPLETE,
-        schema: action.schema,
+        processedSchema: action.processedSchema,
         sampleDocument: action.sampleDocument,
         schemaMetadata: action.schemaMetadata,
       },
@@ -234,7 +239,7 @@ const reducer: Reducer<CollectionState, Action> = (
       mockDataGenerator: {
         ...state.mockDataGenerator,
         isModalOpen: true,
-        currentStep: MockDataGeneratorStep.AI_DISCLAIMER,
+        currentStep: MockDataGeneratorStep.SCHEMA_CONFIRMATION,
       },
     };
   }
@@ -264,9 +269,6 @@ const reducer: Reducer<CollectionState, Action> = (
     let nextStep: MockDataGeneratorStep;
 
     switch (currentStep) {
-      case MockDataGeneratorStep.AI_DISCLAIMER:
-        nextStep = MockDataGeneratorStep.SCHEMA_CONFIRMATION;
-        break;
       case MockDataGeneratorStep.SCHEMA_CONFIRMATION:
         nextStep = MockDataGeneratorStep.SCHEMA_EDITOR;
         break;
@@ -303,7 +305,8 @@ const reducer: Reducer<CollectionState, Action> = (
 
     switch (currentStep) {
       case MockDataGeneratorStep.SCHEMA_CONFIRMATION:
-        previousStep = MockDataGeneratorStep.AI_DISCLAIMER;
+        // TODO: Decide with product what we want behavior to be: close modal? Re-open disclaimer modal, if possible?
+        previousStep = MockDataGeneratorStep.SCHEMA_CONFIRMATION;
         break;
       case MockDataGeneratorStep.SCHEMA_EDITOR:
         previousStep = MockDataGeneratorStep.SCHEMA_CONFIRMATION;
@@ -370,6 +373,27 @@ export const selectTab = (
   };
 };
 
+export const openMockDataGeneratorModal = (): CollectionThunkAction<
+  Promise<void>
+> => {
+  return async (dispatch, _getState, { atlasAiService, logger }) => {
+    try {
+      if (process.env.COMPASS_E2E_SKIP_ATLAS_SIGNIN !== 'true') {
+        await atlasAiService.ensureAiFeatureAccess();
+      }
+      dispatch(mockDataGeneratorModalOpened());
+    } catch (error) {
+      // if failed or user canceled we just don't show the modal
+      logger.log.error(
+        mongoLogId(1_001_000_364),
+        'Collections',
+        'Failed to ensure AI feature access and open mock data generator modal',
+        error
+      );
+    }
+  };
+};
+
 export const analyzeCollectionSchema = (): CollectionThunkAction<
   Promise<void>
 > => {
@@ -420,7 +444,9 @@ export const analyzeCollectionSchema = (): CollectionThunkAction<
       schema.fields = schema.fields.filter(
         ({ path }) => !isInternalFieldPath(path[0])
       );
-      // TODO: Transform schema to structure that will be used by the LLM.
+
+      // Transform schema to structure that will be used by the LLM
+      const processedSchema = processSchema(schema);
 
       const maxNestingDepth = await calculateSchemaDepth(schema);
       const { database, collection } = toNS(namespace);
@@ -432,7 +458,7 @@ export const analyzeCollectionSchema = (): CollectionThunkAction<
       };
       dispatch({
         type: CollectionActions.SchemaAnalysisFinished,
-        schema,
+        processedSchema,
         sampleDocument: sampleDocuments[0],
         schemaMetadata,
       });

@@ -14,7 +14,7 @@ const COMPASS_PATH = path.resolve(__dirname, '../../compass');
 
 const SUPPORTED_CHANNELS = ['dev', 'beta', 'stable'] as const;
 
-export type Channel = typeof SUPPORTED_CHANNELS[number];
+export type Channel = (typeof SUPPORTED_CHANNELS)[number];
 
 function assertObjectHasKeys<
   Keys extends readonly string[],
@@ -33,7 +33,7 @@ function assertObjectHasKeys<
 // subsets of the hadron-build info result
 
 export const commonKeys = ['productName', 'version', 'channel'] as const;
-export type CommonBuildInfo = Record<typeof commonKeys[number], string> & {
+export type CommonBuildInfo = Record<(typeof commonKeys)[number], string> & {
   channel: Channel;
 };
 
@@ -56,7 +56,7 @@ export const windowsFilenameKeys = [
   'windows_nupkg_full_filename',
 ] as const;
 export type WindowsBuildInfo = CommonBuildInfo &
-  Record<typeof windowsFilenameKeys[number], string> & {
+  Record<(typeof windowsFilenameKeys)[number], string> & {
     installerOptions: {
       name: string;
     };
@@ -89,7 +89,7 @@ export const osxFilenameKeys = [
   'osx_zip_filename',
 ] as const;
 export type OSXBuildInfo = CommonBuildInfo &
-  Record<typeof osxFilenameKeys[number], string> & {
+  Record<(typeof osxFilenameKeys)[number], string> & {
     installerOptions: {
       title: string;
     };
@@ -122,7 +122,7 @@ export const ubuntuFilenameKeys = [
   'linux_tar_filename',
 ] as const;
 export type UbuntuBuildInfo = CommonBuildInfo &
-  Record<typeof ubuntuFilenameKeys[number], string>;
+  Record<(typeof ubuntuFilenameKeys)[number], string>;
 
 export function assertBuildInfoIsUbuntu(
   buildInfo: unknown
@@ -133,7 +133,7 @@ export function assertBuildInfoIsUbuntu(
 
 const rhelFilenameKeys = ['linux_rpm_filename', 'rhel_tar_filename'] as const;
 export type RHELBuildInfo = CommonBuildInfo &
-  Record<typeof rhelFilenameKeys[number], string>;
+  Record<(typeof rhelFilenameKeys)[number], string>;
 
 export function assertBuildInfoIsRHEL(
   buildInfo: unknown

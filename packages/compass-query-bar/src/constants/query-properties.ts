@@ -12,7 +12,7 @@ export const QUERY_PROPERTIES = [
   'maxTimeMS',
 ] as const;
 
-export type QueryProperty = typeof QUERY_PROPERTIES[number];
+export type QueryProperty = (typeof QUERY_PROPERTIES)[number];
 
 // How each query property is represented in the UI state.
 export type FormField<T> = {

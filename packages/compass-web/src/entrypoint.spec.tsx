@@ -115,7 +115,7 @@ describe('CompassWeb', function () {
     }) as any);
 
     await waitFor(() => {
-      screen.getByText('There was a problem connecting to localhost:27017');
+      screen.getByText('Failed to connect');
     });
 
     expect(onTrackSpy).to.have.been.calledWith('Connection Failed');

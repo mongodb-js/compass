@@ -70,7 +70,7 @@ const MockDataGeneratorModal = ({
       <ModalFooter className={footerStyles}>
         <Button
           onClick={onPreviousStep}
-          disabled={currentStep === MockDataGeneratorStep.AI_DISCLAIMER}
+          disabled={currentStep === MockDataGeneratorStep.SCHEMA_CONFIRMATION}
         >
           Back
         </Button>

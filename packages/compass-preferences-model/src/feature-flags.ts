@@ -153,7 +153,7 @@ export const featureFlags: Required<{
   },
 
   enableUnauthenticatedGenAI: {
-    stage: 'development',
+    stage: 'released',
     description: {
       short: 'Enable GenAI for unauthenticated users',
     },

@@ -1,2 +1,3 @@
 .nyc-output
 dist
+test/types

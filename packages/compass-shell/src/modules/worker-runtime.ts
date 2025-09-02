@@ -49,7 +49,7 @@ export function createWorkerRuntime(
   log: MongoLogWriter,
   track: TrackFunction,
   connectionInfo: ConnectionInfoRef
-): typeof WorkerRuntime['prototype'] {
+): (typeof WorkerRuntime)['prototype'] {
   const emitter = new EventEmitter();
 
   const loggingAndTelemetry = setupLoggingAndTelemetry({

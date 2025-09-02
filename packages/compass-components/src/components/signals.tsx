@@ -1,7 +1,16 @@
 import React from 'react';
 import type { Signal } from './signal-popover';
 
-const SIGNALS = [
+const SIGNALS: Pick<
+  Signal,
+  | 'id'
+  | 'title'
+  | 'description'
+  | 'learnMoreLink'
+  | 'primaryActionButtonLabel'
+  | 'primaryActionButtonLink'
+  | 'primaryActionButtonIcon'
+>[] = [
   {
     id: 'aggregation-executed-without-index',
     title: 'Aggregation executed without index',
@@ -160,6 +169,6 @@ export const PerformanceSignals = new Map(
   })
 ) as {
   get(
-    key: typeof SIGNALS[number]['id']
-  ): Pick<Signal, keyof typeof SIGNALS[number]>;
+    key: (typeof SIGNALS)[number]['id']
+  ): Pick<Signal, keyof (typeof SIGNALS)[number]>;
 };

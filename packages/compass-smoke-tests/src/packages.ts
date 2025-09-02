@@ -10,4 +10,4 @@ export const SUPPORTED_PACKAGES = [
   'rhel_tar',
 ] as const;
 
-export type PackageKind = typeof SUPPORTED_PACKAGES[number];
+export type PackageKind = (typeof SUPPORTED_PACKAGES)[number];

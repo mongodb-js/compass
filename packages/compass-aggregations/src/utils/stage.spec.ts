@@ -66,6 +66,24 @@ describe('utils', function () {
         expect(searchMeta.length).to.be.equal(1);
       });
 
+      it('returns $search stage for a view', function () {
+        const search = filterStageOperators({
+          ...filter,
+          sourceName: 'simple.sample',
+        }).filter((o) => o.name === '$search');
+
+        expect(search.length).to.be.equal(1);
+      });
+
+      it('returns $searchMeta stage for a view', function () {
+        const searchMeta = filterStageOperators({
+          ...filter,
+          sourceName: 'simple.sample',
+        }).filter((o) => o.name === '$searchMeta');
+
+        expect(searchMeta.length).to.be.equal(1);
+      });
+
       // $documents only works for db.aggregate, not coll.aggregate
       it('does not return $documents stage for a regular collection', function () {
         const documents = filterStageOperators({ ...filter }).filter(
@@ -91,17 +109,6 @@ describe('utils', function () {
           ...filter,
           isTimeSeries: true,
           env: 'atlas',
-        }).filter((o) =>
-          ['$search', '$searchMeta', '$documents'].includes(o.name)
-        );
-
-        expect(searchStages.length).to.be.equal(0);
-      });
-
-      it('does not return full-text search stages for views', function () {
-        const searchStages = filterStageOperators({
-          ...filter,
-          sourceName: 'simple.sample',
         }).filter((o) =>
           ['$search', '$searchMeta', '$documents'].includes(o.name)
         );

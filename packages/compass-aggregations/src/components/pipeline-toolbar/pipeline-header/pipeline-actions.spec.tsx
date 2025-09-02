@@ -50,6 +50,7 @@ describe('PipelineActions', function () {
           onUpdateView={() => {}}
           onCollectionScanInsightActionButtonClick={() => {}}
           onShowAIInputClick={() => {}}
+          stages={[]}
         />
       );
     });
@@ -115,6 +116,7 @@ describe('PipelineActions', function () {
           onExplainAggregation={() => {}}
           onCollectionScanInsightActionButtonClick={() => {}}
           onShowAIInputClick={() => {}}
+          stages={[]}
         />
       );
     });
@@ -158,6 +160,7 @@ describe('PipelineActions', function () {
             onExplainAggregation={() => {}}
             onCollectionScanInsightActionButtonClick={() => {}}
             onShowAIInputClick={() => {}}
+            stages={[]}
           />
         </PreferencesProvider>
       );
@@ -195,6 +198,7 @@ describe('PipelineActions', function () {
           onUpdateView={() => {}}
           onCollectionScanInsightActionButtonClick={() => {}}
           onShowAIInputClick={() => {}}
+          stages={[]}
         />
       );
     });

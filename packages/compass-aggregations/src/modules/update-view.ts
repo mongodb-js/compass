@@ -8,6 +8,9 @@ import {
 import type { PipelineBuilderThunkAction } from '.';
 import { isAction } from '../utils/is-action';
 import type { AnyAction } from 'redux';
+import { showConfirmation as showConfirmationModal } from '@mongodb-js/compass-components';
+import { namespaceHasSearchIndexes } from './search-indexes';
+import { VIEW_PIPELINE_UTILS } from '@mongodb-js/mongodb-constants';
 
 export type UpdateViewState = null | string;
 
@@ -73,6 +76,8 @@ export const dismissViewError = (): DismissViewUpdateErrorAction => ({
   type: DISMISS_VIEW_UPDATE_ERROR,
 });
 
+//Exporting this for test only to stub it and set its value
+export const showConfirmation = showConfirmationModal;
 /**
  * Updates a view.
  *
@@ -96,6 +101,7 @@ export const updateView = (): PipelineBuilderThunkAction<Promise<void>> => {
     const state = getState();
     const ds = state.dataService.dataService;
     const viewNamespace = state.editViewName;
+    const serverVersion = state.serverVersion;
 
     if (!viewNamespace) {
       return;
@@ -107,6 +113,30 @@ export const updateView = (): PipelineBuilderThunkAction<Promise<void>> => {
       getState(),
       pipelineBuilder
     );
+
+    if (
+      VIEW_PIPELINE_UTILS.isVersionSearchCompatibleForViewsDataExplorer(
+        serverVersion
+      ) &&
+      ds &&
+      (await namespaceHasSearchIndexes(viewNamespace, ds))
+    ) {
+      const pipelineIsSearchQueryable =
+        VIEW_PIPELINE_UTILS.isPipelineSearchQueryable(viewPipeline);
+      const confirmed = await showConfirmation({
+        title: `Are you sure you want to update the view?`,
+        description: pipelineIsSearchQueryable
+          ? 'There are search indexes created on this view. Updating the view will result in an index rebuild, which will consume additional resources on your cluster.'
+          : 'This update will make the view incompatible with search indexes and will cause all search indexes to fail. Only views containing $addFields, $set or $match stages with the $expr operator are compatible with search indexes.',
+        buttonText: 'Update',
+        variant: pipelineIsSearchQueryable ? 'primary' : 'danger',
+      });
+
+      if (!confirmed) {
+        return;
+      }
+    }
+
     const options = {
       viewOn: toNS(state.namespace).collection,
       pipeline: viewPipeline,

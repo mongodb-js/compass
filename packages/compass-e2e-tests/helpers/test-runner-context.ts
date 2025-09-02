@@ -113,8 +113,8 @@ const atlasCloudExternalArgs = [
 ] as const;
 
 type AtlasCloudExternalArgs =
-  | typeof atlasCloudExternalArgs[number]
-  | CamelCase<typeof atlasCloudExternalArgs[number]>;
+  | (typeof atlasCloudExternalArgs)[number]
+  | CamelCase<(typeof atlasCloudExternalArgs)[number]>;
 
 const atlasCloudSandboxArgs = [
   'atlas-cloud-sandbox-cloud-config',
@@ -126,8 +126,8 @@ const atlasCloudSandboxArgs = [
 ] as const;
 
 type AtlasCloudSandboxArgs =
-  | typeof atlasCloudSandboxArgs[number]
-  | CamelCase<typeof atlasCloudSandboxArgs[number]>;
+  | (typeof atlasCloudSandboxArgs)[number]
+  | CamelCase<(typeof atlasCloudSandboxArgs)[number]>;
 
 let testEnv: 'desktop' | 'web' | undefined;
 

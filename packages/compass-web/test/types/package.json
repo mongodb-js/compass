@@ -1,0 +1,20 @@
+{
+  "name": "@mongodb-js/compass-web-types-test",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Test package to verify compass-web types work correctly for external consumers",
+  "scripts": {
+    "test": "tsd --typings ./node_modules/@mongodb-js/compass-web/dist/compass-web.d.ts --files ./*.test-d.ts"
+  },
+  "dependencies": {
+    "@mongodb-js/compass-web": "file:../../",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2"
+  },
+  "devDependencies": {
+    "@types/react": "^17.0.2",
+    "@types/react-dom": "^17.0.2",
+    "tsd": "^0.31.0",
+    "typescript": "^5.0.0"
+  }
+}

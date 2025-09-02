@@ -28,7 +28,7 @@ export const SORT_DIRECTION_OPTIONS = [
   },
 ] as const;
 
-export type SortDirection = typeof SORT_DIRECTION_OPTIONS[number]['value'];
+export type SortDirection = (typeof SORT_DIRECTION_OPTIONS)[number]['value'];
 
 export const mapSortDataToStageValue = (
   data: {

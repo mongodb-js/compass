@@ -17,24 +17,12 @@ import type { FetchReason } from '../utils/fetch-reason';
 import type { IndexesThunkAction } from '.';
 import { switchToSearchIndexes } from './index-view';
 import type { IndexViewChangedAction } from './index-view';
-import semver from 'semver';
+import { VIEW_PIPELINE_UTILS } from '@mongodb-js/mongodb-constants';
 
 const ATLAS_SEARCH_SERVER_ERRORS: Record<string, string> = {
   InvalidIndexSpecificationOption: 'Invalid index definition.',
   IndexAlreadyExists:
     'This index name is already in use. Please choose another one.',
-};
-
-const MIN_VERSION_FOR_VIEW_SEARCH_COMPATIBILITY_COMPASS = '8.1.0';
-export const isVersionSearchCompatibleForViews = (serverVersion: string) => {
-  try {
-    return semver.gte(
-      serverVersion,
-      MIN_VERSION_FOR_VIEW_SEARCH_COMPATIBILITY_COMPASS
-    );
-  } catch {
-    return false;
-  }
 };
 
 export enum ActionTypes {
@@ -620,7 +608,10 @@ const fetchIndexes = (
     } = getState();
 
     if (
-      (isReadonlyView && !isVersionSearchCompatibleForViews(serverVersion)) ||
+      (isReadonlyView &&
+        !VIEW_PIPELINE_UTILS.isVersionSearchCompatibleForViewsCompass(
+          serverVersion
+        )) ||
       !isWritable
     ) {
       return; // return if view is not search compatible

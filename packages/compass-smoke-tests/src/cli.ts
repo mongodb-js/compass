@@ -22,14 +22,14 @@ const SUPPORTED_ARCHS = ['x64', 'arm64'] as const;
 
 function isSupportedPlatform(
   value: unknown
-): value is typeof SUPPORTED_PLATFORMS[number] {
+): value is (typeof SUPPORTED_PLATFORMS)[number] {
   // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-explicit-any
   return SUPPORTED_PLATFORMS.includes(value as any);
 }
 
 function isSupportedArch(
   value: unknown
-): value is typeof SUPPORTED_ARCHS[number] {
+): value is (typeof SUPPORTED_ARCHS)[number] {
   // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-explicit-any
   return SUPPORTED_ARCHS.includes(value as any);
 }

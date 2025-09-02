@@ -72,7 +72,7 @@ describe('Connection Import / Export', function () {
 
   function verifyExportedFile(
     contents: any,
-    variant: typeof variants[number]
+    variant: (typeof variants)[number]
   ): any {
     expect(contents.type).to.equal('Compass Connections');
     expect(contents.version.$numberInt).to.equal('1');
@@ -101,7 +101,7 @@ describe('Connection Import / Export', function () {
   async function verifyAndRemoveImportedFavorite(
     browser: CompassBrowser,
     favoriteName: string,
-    variant: typeof variants[number]
+    variant: (typeof variants)[number]
   ) {
     await browser.selectConnection(favoriteName);
     await browser.clickVisible(Selectors.EditConnectionStringToggle);

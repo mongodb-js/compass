@@ -3,10 +3,14 @@ import AppRegistry, {
   AppRegistryProvider,
   GlobalAppRegistryProvider,
 } from '@mongodb-js/compass-app-registry';
-import type { ConnectionInfo } from '@mongodb-js/compass-connections/provider';
+import type { AtlasClusterMetadata } from '@mongodb-js/connection-info';
 import { useConnectionActions } from '@mongodb-js/compass-connections/provider';
 import { CompassInstanceStorePlugin } from '@mongodb-js/compass-app-stores';
-import type { OpenWorkspaceOptions } from '@mongodb-js/compass-workspaces';
+import type {
+  CollectionTabInfo,
+  OpenWorkspaceOptions,
+  WorkspaceTab,
+} from '@mongodb-js/compass-workspaces';
 import WorkspacesPlugin, {
   WorkspacesProvider,
 } from '@mongodb-js/compass-workspaces';
@@ -63,6 +67,7 @@ import {
   CompassAssistantProvider,
 } from '@mongodb-js/compass-assistant';
 
+/** @public */
 export type TrackFunction = (
   event: string,
   properties: Record<string, any>
@@ -91,7 +96,8 @@ type CompassWorkspaceProps = Pick<
     'onOpenConnectViaModal'
   >;
 
-type CompassWebProps = {
+/** @public */
+export type CompassWebProps = {
   /**
    * App name to be passed with the connection string when connection to a
    * cluster (default: "Compass Web")
@@ -131,9 +137,12 @@ type CompassWebProps = {
    * communicate current workspace back to the parent component for example to
    * sync router with the current active workspace
    */
-  onActiveWorkspaceTabChange: React.ComponentProps<
-    typeof WorkspacesPlugin
-  >['onActiveWorkspaceTabChange'];
+  onActiveWorkspaceTabChange<WS extends WorkspaceTab>(
+    ws: WS | null,
+    collectionInfo: WS extends { type: 'Collection' }
+      ? CollectionTabInfo | null
+      : never
+  ): void;
 
   /**
    * Set of initial preferences to override default values
@@ -159,9 +168,7 @@ type CompassWebProps = {
    * when the action is selected from the sidebar actions. Should be used to
    * show the Atlas Cloud "Connect" modal
    */
-  onOpenConnectViaModal?: (
-    atlasMetadata: ConnectionInfo['atlasMetadata']
-  ) => void;
+  onOpenConnectViaModal?: (atlasMetadata?: AtlasClusterMetadata) => void;
 
   /**
    * Callback prop called when connections fail to load
@@ -259,6 +266,7 @@ const connectedContainerStyles = css({
   display: 'flex',
 });
 
+/** @public */
 const CompassWeb = ({
   appName,
   orgId,
@@ -429,7 +437,10 @@ const CompassWeb = ({
                                 ></CompassWorkspace>
                               </WithConnectionsStore>
                             </FieldStorePlugin>
-                            <CompassGenerativeAIPlugin projectId={projectId} />
+                            <CompassGenerativeAIPlugin
+                              projectId={projectId}
+                              isCloudOptIn={true}
+                            />
                           </CompassAssistantProvider>
                         </CompassInstanceStorePlugin>
                       </CompassConnections>

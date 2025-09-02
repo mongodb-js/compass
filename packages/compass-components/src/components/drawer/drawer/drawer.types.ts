@@ -15,7 +15,7 @@ export const DisplayMode = {
   Embedded: 'embedded',
   Overlay: 'overlay',
 } as const;
-export type DisplayMode = typeof DisplayMode[keyof typeof DisplayMode];
+export type DisplayMode = (typeof DisplayMode)[keyof typeof DisplayMode];
 
 export interface DrawerProps
   extends Omit<HTMLElementProps<'dialog' | 'div'>, 'title'>,

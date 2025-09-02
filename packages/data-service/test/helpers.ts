@@ -20,7 +20,7 @@ const ALLOWED_COMMANDS = [
 
 export type ClientMockOptions = {
   hosts: [{ host: string; port: number }];
-  commands: Partial<Record<typeof ALLOWED_COMMANDS[number], unknown>>;
+  commands: Partial<Record<(typeof ALLOWED_COMMANDS)[number], unknown>>;
   collections: Record<string, string[] | Error>;
   searchIndexes: Record<string, Record<string, SearchIndex[] | Error>>;
   clientOptions: Record<string, unknown>;
@@ -41,7 +41,7 @@ export function createMongoClientMock({
   const db = {
     command(spec: Document) {
       const cmd = Object.keys(spec).find((key) =>
-        ALLOWED_COMMANDS.includes(key as typeof ALLOWED_COMMANDS[number])
+        ALLOWED_COMMANDS.includes(key as (typeof ALLOWED_COMMANDS)[number])
       );
       if (cmd && commands[cmd]) {
         const command = commands[cmd];

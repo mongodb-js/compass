@@ -235,7 +235,9 @@ export const OPTIONS = {
 type OptionNames = keyof typeof OPTIONS;
 
 export type CheckboxOptions = {
-  [k in OptionNames]: typeof OPTIONS[k]['type'] extends 'checkbox' ? k : never;
+  [k in OptionNames]: (typeof OPTIONS)[k]['type'] extends 'checkbox'
+    ? k
+    : never;
 }[OptionNames];
 
 export type InputOptions = Exclude<OptionNames, CheckboxOptions>;
@@ -243,13 +245,13 @@ export type InputOptions = Exclude<OptionNames, CheckboxOptions>;
 type Options = {
   [k in OptionNames]: {
     enabled: boolean;
-  } & (typeof OPTIONS[k]['type'] extends 'checkbox'
+  } & ((typeof OPTIONS)[k]['type'] extends 'checkbox'
     ? { value: boolean }
     : { value: string });
 };
 
 type ValueForOption<O extends OptionNames> =
-  typeof OPTIONS[O]['type'] extends 'checkbox' ? boolean : string;
+  (typeof OPTIONS)[O]['type'] extends 'checkbox' ? boolean : string;
 
 type OptionChangedAction<O extends OptionNames = OptionNames> = {
   type: ActionTypes.OptionChanged;

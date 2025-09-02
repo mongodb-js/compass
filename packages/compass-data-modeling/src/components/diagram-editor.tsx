@@ -8,6 +8,7 @@ import React, {
 import { connect } from 'react-redux';
 import type { DataModelingState } from '../store/reducer';
 import {
+  addNewFieldToCollection,
   moveCollection,
   selectCollection,
   selectRelationship,
@@ -15,6 +16,8 @@ import {
   type DiagramState,
   selectCurrentModelFromState,
   createNewRelationship,
+  addCollection,
+  selectField,
 } from '../store/diagram';
 import {
   Banner,
@@ -25,6 +28,7 @@ import {
   Button,
   useDarkMode,
   useDrawerActions,
+  useDrawerState,
   rafraf,
 } from '@mongodb-js/compass-components';
 import { cancelAnalysis, retryAnalysis } from '../store/analysis-process';
@@ -34,13 +38,13 @@ import {
   type EdgeProps,
   useDiagram,
 } from '@mongodb-js/diagramming';
-import type { StaticModel } from '../services/data-model-storage';
+import type { FieldPath, StaticModel } from '../services/data-model-storage';
 import DiagramEditorToolbar from './diagram-editor-toolbar';
 import ExportDiagramModal from './export-diagram-modal';
 import { DATA_MODELING_DRAWER_ID } from './drawer/diagram-editor-side-panel';
 import {
   collectionToDiagramNode,
-  getSelectedFields,
+  getHighlightedFields,
   relationshipToDiagramEdge,
 } from '../utils/nodes-and-edges';
 
@@ -107,20 +111,32 @@ const DiagramContent: React.FunctionComponent<{
   model: StaticModel | null;
   isInRelationshipDrawingMode: boolean;
   editErrors?: string[];
+  newCollection?: string;
+  onAddNewFieldToCollection: (ns: string) => void;
   onMoveCollection: (ns: string, newPosition: [number, number]) => void;
   onCollectionSelect: (namespace: string) => void;
   onRelationshipSelect: (rId: string) => void;
+  onFieldSelect: (namespace: string, fieldPath: FieldPath) => void;
   onDiagramBackgroundClicked: () => void;
   selectedItems: SelectedItems;
-  onCreateNewRelationship: (source: string, target: string) => void;
+  onCreateNewRelationship: ({
+    localNamespace,
+    foreignNamespace,
+  }: {
+    localNamespace: string;
+    foreignNamespace: string;
+  }) => void;
   onRelationshipDrawn: () => void;
 }> = ({
   diagramLabel,
   model,
   isInRelationshipDrawingMode,
+  newCollection,
+  onAddNewFieldToCollection,
   onMoveCollection,
   onCollectionSelect,
   onRelationshipSelect,
+  onFieldSelect,
   onDiagramBackgroundClicked,
   onCreateNewRelationship,
   onRelationshipDrawn,
@@ -129,6 +145,7 @@ const DiagramContent: React.FunctionComponent<{
   const isDarkMode = useDarkMode();
   const diagram = useRef(useDiagram());
   const { openDrawer } = useDrawerActions();
+  const { isDrawerOpen } = useDrawerState();
 
   const setDiagramContainerRef = useCallback((ref: HTMLDivElement | null) => {
     if (ref) {
@@ -148,7 +165,7 @@ const DiagramContent: React.FunctionComponent<{
   }, [model?.relationships, selectedItems]);
 
   const nodes = useMemo<NodeProps[]>(() => {
-    const selectedFields = getSelectedFields(
+    const highlightedFields = getHighlightedFields(
       selectedItems,
       model?.relationships
     );
@@ -157,13 +174,21 @@ const DiagramContent: React.FunctionComponent<{
         !!selectedItems &&
         selectedItems.type === 'collection' &&
         selectedItems.id === coll.ns;
-      return collectionToDiagramNode(coll, {
-        selectedFields,
+      return collectionToDiagramNode({
+        ...coll,
+        highlightedFields,
+        selectedField:
+          selectedItems?.type === 'field' && selectedItems.namespace === coll.ns
+            ? selectedItems.fieldPath
+            : undefined,
+        onClickAddNewFieldToCollection: () =>
+          onAddNewFieldToCollection(coll.ns),
         selected,
         isInRelationshipDrawingMode,
       });
     });
   }, [
+    onAddNewFieldToCollection,
     model?.collections,
     model?.relationships,
     selectedItems,
@@ -183,9 +208,41 @@ const DiagramContent: React.FunctionComponent<{
     });
   }, []);
 
+  // Center on a new collection when it is added
+  const previouslyOpenedDrawer = useRef<boolean>(false);
+  useEffect(() => {
+    const wasDrawerPreviouslyOpened = previouslyOpenedDrawer.current;
+    previouslyOpenedDrawer.current = !!isDrawerOpen;
+
+    if (!newCollection) return;
+    const node = nodes.find((n) => n.id === newCollection);
+    if (!node) return;
+
+    // For calculating the center, we're taking into account the drawer,
+    // so that the new node is centered in the visible part.
+    const drawerOffset = wasDrawerPreviouslyOpened ? 0 : 240;
+    const zoom = diagram.current.getViewport().zoom;
+    const drawerOffsetInDiagramCoords = drawerOffset / zoom;
+    const newNodeWidth = 244;
+    const newNodeHeight = 64;
+    return rafraf(() => {
+      void diagram.current.setCenter(
+        node.position.x + newNodeWidth / 2 + drawerOffsetInDiagramCoords,
+        node.position.y + newNodeHeight / 2,
+        {
+          duration: 500,
+          zoom,
+        }
+      );
+    });
+  }, [newCollection, nodes, isDrawerOpen]);
+
   const handleNodesConnect = useCallback(
     (source: string, target: string) => {
-      onCreateNewRelationship(source, target);
+      onCreateNewRelationship({
+        localNamespace: source,
+        foreignNamespace: target,
+      });
       onRelationshipDrawn();
     },
     [onRelationshipDrawn, onCreateNewRelationship]
@@ -218,6 +275,12 @@ const DiagramContent: React.FunctionComponent<{
             onRelationshipSelect(edge.id);
             openDrawer(DATA_MODELING_DRAWER_ID);
           }}
+          onFieldClick={(_evt, { id: fieldPath, nodeId: namespace }) => {
+            _evt.stopPropagation(); // TODO(COMPASS-9659): should this be handled by the diagramming package?
+            if (!Array.isArray(fieldPath)) return; // TODO(COMPASS-9659): could be avoided with generics in the diagramming package
+            onFieldSelect(namespace, fieldPath);
+            openDrawer(DATA_MODELING_DRAWER_ID);
+          }}
           fitViewOptions={{
             maxZoom: 1,
             minZoom: 0.25,
@@ -241,12 +304,15 @@ const ConnectedDiagramContent = connect(
       model: diagram ? selectCurrentModelFromState(state) : null,
       diagramLabel: diagram?.name || 'Schema Preview',
       selectedItems: state.diagram?.selectedItems ?? null,
+      newCollection: diagram?.draftCollection,
     };
   },
   {
+    onAddNewFieldToCollection: addNewFieldToCollection,
     onMoveCollection: moveCollection,
     onCollectionSelect: selectCollection,
     onRelationshipSelect: selectRelationship,
+    onFieldSelect: selectField,
     onDiagramBackgroundClicked: selectBackground,
     onCreateNewRelationship: createNewRelationship,
   }
@@ -257,7 +323,15 @@ const DiagramEditor: React.FunctionComponent<{
   diagramId?: string;
   onRetryClick: () => void;
   onCancelClick: () => void;
-}> = ({ step, diagramId, onRetryClick, onCancelClick }) => {
+  onAddCollectionClick: () => void;
+}> = ({
+  step,
+  diagramId,
+  onRetryClick,
+  onCancelClick,
+  onAddCollectionClick,
+}) => {
+  const { openDrawer } = useDrawerActions();
   let content;
 
   const [isInRelationshipDrawingMode, setIsInRelationshipDrawingMode] =
@@ -270,6 +344,11 @@ const DiagramEditor: React.FunctionComponent<{
   const onRelationshipDrawn = useCallback(() => {
     setIsInRelationshipDrawingMode(false);
   }, []);
+
+  const handleAddCollectionClick = useCallback(() => {
+    onAddCollectionClick();
+    openDrawer(DATA_MODELING_DRAWER_ID);
+  }, [openDrawer, onAddCollectionClick]);
 
   if (step === 'NO_DIAGRAM_SELECTED') {
     return null;
@@ -320,6 +399,7 @@ const DiagramEditor: React.FunctionComponent<{
         <DiagramEditorToolbar
           onRelationshipDrawingToggle={handleRelationshipDrawingToggle}
           isInRelationshipDrawingMode={isInRelationshipDrawingMode}
+          onAddCollectionClick={handleAddCollectionClick}
         />
       }
     >
@@ -341,5 +421,6 @@ export default connect(
   {
     onRetryClick: retryAnalysis,
     onCancelClick: cancelAnalysis,
+    onAddCollectionClick: addCollection,
   }
 )(DiagramEditor);

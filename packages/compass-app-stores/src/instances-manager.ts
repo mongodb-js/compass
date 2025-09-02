@@ -11,7 +11,7 @@ export const MongoDBInstancesManagerEvents = {
 } as const;
 
 type MongoDBInstancesManagerEvent =
-  typeof MongoDBInstancesManagerEvents[keyof typeof MongoDBInstancesManagerEvents];
+  (typeof MongoDBInstancesManagerEvents)[keyof typeof MongoDBInstancesManagerEvents];
 
 export type MongoDBInstancesManagerEventListeners = {
   [MongoDBInstancesManagerEvents.InstanceCreated]: (
