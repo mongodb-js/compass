@@ -147,7 +147,12 @@ describe('AssistantProvider', function () {
 
   it('always renders children', function () {
     render(<TestComponent chat={createMockChat({ messages: [] })} />, {
-      preferences: { enableAIAssistant: true },
+      preferences: {
+        enableAIAssistant: true,
+        enableGenAIFeatures: true,
+        enableGenAIFeaturesAtlasOrg: true,
+        cloudFeatureRolloutAccess: { GEN_AI_COMPASS: true },
+      },
     });
 
     expect(screen.getByTestId('provider-children')).to.exist;
@@ -155,7 +160,12 @@ describe('AssistantProvider', function () {
 
   it('does not render assistant drawer when AI assistant is disabled', function () {
     render(<TestComponent chat={createMockChat({ messages: [] })} />, {
-      preferences: { enableAIAssistant: false },
+      preferences: {
+        enableAIAssistant: false,
+        enableGenAIFeatures: true,
+        enableGenAIFeaturesAtlasOrg: true,
+        cloudFeatureRolloutAccess: { GEN_AI_COMPASS: true },
+      },
     });
 
     expect(screen.getByTestId('provider-children')).to.exist;
@@ -165,7 +175,12 @@ describe('AssistantProvider', function () {
 
   it('renders the assistant drawer as the first drawer item when AI assistant is enabled', function () {
     render(<TestComponent chat={createMockChat({ messages: [] })} />, {
-      preferences: { enableAIAssistant: true },
+      preferences: {
+        enableAIAssistant: true,
+        enableGenAIFeatures: true,
+        enableGenAIFeaturesAtlasOrg: true,
+        cloudFeatureRolloutAccess: { GEN_AI_COMPASS: true },
+      },
     });
 
     expect(screen.getByTestId('lg-drawer-toolbar-icon_button-0')).to.have.attr(
@@ -186,7 +201,12 @@ describe('AssistantProvider', function () {
       mockChat: Chat<AssistantMessage>
     ): Promise<ReturnType<typeof render>> {
       const result = render(<TestComponent chat={mockChat} autoOpen={true} />, {
-        preferences: { enableAIAssistant: true },
+        preferences: {
+          enableAIAssistant: true,
+          enableGenAIFeatures: true,
+          enableGenAIFeaturesAtlasOrg: true,
+          cloudFeatureRolloutAccess: { GEN_AI_COMPASS: true },
+        },
       });
 
       await waitFor(() => {
@@ -371,7 +391,12 @@ describe('AssistantProvider', function () {
           <MockedProvider chat={new Chat({})} />
         </DrawerContentProvider>,
         {
-          preferences: { enableAIAssistant: true },
+          preferences: {
+            enableAIAssistant: true,
+            enableGenAIFeatures: true,
+            enableGenAIFeaturesAtlasOrg: true,
+            cloudFeatureRolloutAccess: { GEN_AI_COMPASS: true },
+          },
         }
       );
 
