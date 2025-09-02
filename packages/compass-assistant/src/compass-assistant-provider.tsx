@@ -4,6 +4,7 @@ import { Chat } from './@ai-sdk/react/chat-react';
 import { createContext, useContext } from 'react';
 import {
   createServiceLocator,
+  createServiceProvider,
   registerCompassPlugin,
 } from '@mongodb-js/compass-app-registry';
 import { atlasServiceLocator } from '@mongodb-js/atlas-service/provider';
@@ -20,7 +21,7 @@ import { usePreference } from 'compass-preferences-model/provider';
 import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
-import { useAtlasAiServiceContext } from '@mongodb-js/compass-generative-ai/provider';
+import { atlasAiServiceLocator } from '@mongodb-js/compass-generative-ai/provider';
 
 export const ASSISTANT_DRAWER_ID = 'compass-assistant-drawer';
 
@@ -105,10 +106,10 @@ export const AssistantProvider: React.FunctionComponent<
   PropsWithChildren<{
     chat: Chat<AssistantMessage>;
   }>
-> = ({ chat, children }) => {
+> = createServiceProvider(function AssistantProvider({ chat, children }) {
   const { openDrawer } = useDrawerActions();
   const track = useTelemetry();
-  const atlasAiService = useAtlasAiServiceContext();
+  const atlasAiService = atlasAiServiceLocator();
   const createEntryPointHandler = useRef(function <T>(
     entryPointName:
       | 'explain plan'
@@ -174,7 +175,7 @@ export const AssistantProvider: React.FunctionComponent<
       </AssistantActionsContext.Provider>
     </AssistantContext.Provider>
   );
-};
+});
 
 export const CompassAssistantProvider = registerCompassPlugin(
   {
