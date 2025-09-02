@@ -83,6 +83,11 @@ export class AtlasService {
       path
     )}`;
   }
+  userDataEndpoint(path?: string): string {
+    return `https://cluster-connection.cloud-dev.mongodb.com/userData${normalizePath(
+      path
+    )}`;
+  }
   driverProxyEndpoint(path?: string): string {
     return `${this.config.ccsBaseUrl}${normalizePath(path)}`;
   }
@@ -134,6 +139,7 @@ export class AtlasService {
     const authHeaders = await this.authService.getAuthHeaders();
     return this.fetch(url, {
       ...init,
+      credentials: 'include',
       headers: {
         ...init?.headers,
         ...authHeaders,

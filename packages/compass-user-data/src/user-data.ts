@@ -309,7 +309,7 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
 
   async write(id: string, content: z.input<T>): Promise<boolean> {
     const url = await this.getResourceUrl(
-      `${this.dataType}/${this.orgId}/${this.projectId}`
+      `${this.dataType}/${this.orgId}/${this.projectId}/${id}`
     );
 
     try {
@@ -321,10 +321,8 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          id: id,
           data: this.serialize(content),
           createdAt: new Date(),
-          projectId: this.projectId,
         }),
       });
 
@@ -417,7 +415,10 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
           headers: {
             'Content-Type': 'application/json',
           },
-          body: this.serialize(newData),
+          body: JSON.stringify({
+            data: this.serialize(newData),
+            createdAt: new Date(),
+          }),
         }
       );
       return true;
