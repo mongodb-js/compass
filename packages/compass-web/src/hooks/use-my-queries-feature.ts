@@ -9,5 +9,10 @@ import { usePreference } from 'compass-preferences-model/provider';
  */
 export function useMyQueriesFeature(): boolean {
   const cloudFeatureRolloutAccess = usePreference('cloudFeatureRolloutAccess');
-  return cloudFeatureRolloutAccess?.MY_QUERIES_DATA_EXPLORER ?? false;
+  // return cloudFeatureRolloutAccess?.MY_QUERIES_DATA_EXPLORER ?? false;
+  const isEnabled =
+    cloudFeatureRolloutAccess?.MY_QUERIES_DATA_EXPLORER ?? false;
+
+  // FORCE ENABLE for testing - remove this in production
+  return true || isEnabled;
 }

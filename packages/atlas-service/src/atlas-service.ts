@@ -128,6 +128,7 @@ export class AtlasService {
     const authHeaders = await this.authService.getAuthHeaders();
     return this.fetch(url, {
       ...init,
+      credentials: 'include', // Include cookies for cross-origin requests (needed for local dev)
       headers: {
         ...init?.headers,
         ...authHeaders,

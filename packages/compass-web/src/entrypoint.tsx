@@ -11,17 +11,20 @@ import WorkspacesPlugin, {
   WorkspacesProvider,
 } from '@mongodb-js/compass-workspaces';
 import {
-  DatabasesWorkspaceTab,
   CollectionsWorkspaceTab,
+  CreateNamespacePlugin,
+  DatabasesWorkspaceTab,
+  DropNamespacePlugin,
+  RenameCollectionPlugin,
 } from '@mongodb-js/compass-databases-collections';
 import { CompassComponentsProvider, css } from '@mongodb-js/compass-components';
 import {
-  WorkspaceTab as CollectionWorkspace,
   CollectionTabsProvider,
+  WorkspaceTab as CollectionWorkspace,
 } from '@mongodb-js/compass-collection';
 import {
-  CompassSidebarPlugin,
   AtlasClusterConnectionsOnlyProvider,
+  CompassSidebarPlugin,
 } from '@mongodb-js/compass-sidebar';
 import CompassQueryBarPlugin from '@mongodb-js/compass-query-bar';
 import { CompassDocumentsPlugin } from '@mongodb-js/compass-crud';
@@ -36,13 +39,8 @@ import { CompassGlobalWritesPlugin } from '@mongodb-js/compass-global-writes';
 import { CompassGenerativeAIPlugin } from '@mongodb-js/compass-generative-ai';
 import ExplainPlanCollectionTabModal from '@mongodb-js/compass-explain-plan';
 import ExportToLanguageCollectionTabModal from '@mongodb-js/compass-export-to-language';
-import {
-  CreateNamespacePlugin,
-  DropNamespacePlugin,
-  RenameCollectionPlugin,
-} from '@mongodb-js/compass-databases-collections';
-import { PreferencesProvider } from 'compass-preferences-model/provider';
 import type { AllPreferences } from 'compass-preferences-model/provider';
+import { PreferencesProvider } from 'compass-preferences-model/provider';
 import FieldStorePlugin from '@mongodb-js/compass-field-store';
 import { AtlasServiceProvider } from '@mongodb-js/atlas-service/provider';
 import { AtlasAiServiceProvider } from '@mongodb-js/compass-generative-ai/provider';
@@ -51,7 +49,7 @@ import { TelemetryProvider } from '@mongodb-js/compass-telemetry/provider';
 import CompassConnections from '@mongodb-js/compass-connections';
 import { AtlasCloudConnectionStorageProvider } from './connection-storage';
 import { AtlasCloudAuthServiceProvider } from './atlas-auth-service';
-import type { LogFunction, DebugFunction } from './logger';
+import type { DebugFunction, LogFunction } from './logger';
 import { useCompassWebLogger } from './logger';
 import { type TelemetryServiceOptions } from '@mongodb-js/compass-telemetry';
 import { WebWorkspaceTab as WelcomeWorkspaceTab } from '@mongodb-js/compass-welcome';
@@ -282,7 +280,9 @@ const CompassWeb = ({
   });
   const preferencesAccess = useCompassWebPreferences(initialPreferences);
   const isMyQueriesEnabled = useMyQueriesFeature();
-  // TODO: This will be used to conditionally provide My Queries storage providers in the implementation PR
+  // FORCE ENABLE for testing - remove this line in production
+  const forceEnabledForTesting = true;
+  const finalMyQueriesEnabled = forceEnabledForTesting || isMyQueriesEnabled;
   const initialWorkspaceRef = useRef(initialWorkspace);
   const initialWorkspaceTabsRef = useRef(
     initialWorkspaceRef.current ? [initialWorkspaceRef.current] : []
