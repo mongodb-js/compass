@@ -35,7 +35,7 @@ const CSFLE_DIRECTORY = path.resolve(PACKAGE_ROOT, 'src', 'deps', 'csfle');
   const downloadOptions = {
     enterprise: true,
     crypt_shared: true,
-    version: '8.2.0-rc4',
+    version: 'continuous',
   };
   if (process.platform === 'linux') {
     // The CSFLE shared library is built for different distros,
@@ -47,7 +47,7 @@ const CSFLE_DIRECTORY = path.resolve(PACKAGE_ROOT, 'src', 'deps', 'csfle');
 
   const { downloadedBinDir, version } = await downloadMongoDbWithVersionInfo(
     CACHE_DIR,
-    '8.2.0-rc4',
+    'continuous',
     downloadOptions
   );
   await fs.mkdir(CSFLE_DIRECTORY, { recursive: true });
