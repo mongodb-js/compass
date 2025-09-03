@@ -7,6 +7,11 @@ including the specific instances listed below.
 
 # Security Tests
 
+## Atlas Login Integration Tests
+
+The Atlas Login feature is thoroughly tested, including proper authentication token
+handling and credential revocation upon signout.
+
 <!-- Source File: `packages/atlas-service/src/main.spec.ts` -->
 
 ## Connection Import / Export Testing
