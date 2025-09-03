@@ -108,7 +108,6 @@ const WithStorageProviders: React.FC<{ orgId: string; projectId: string }> = ({
   const authenticatedFetch = atlasService.authenticatedFetch.bind(atlasService);
   const getResourceUrl = (path?: string) => {
     const url = atlasService.userDataEndpoint(`/${path || ''}`);
-    console.log('getResourceUrl called with path:', path, '-> URL:', url);
     return Promise.resolve(url);
   };
   const pipelineStorage = useRef(

@@ -14,8 +14,12 @@ import {
   createAIPlaceholderHTMLPlaceholder,
 } from '@mongodb-js/compass-generative-ai';
 import { connect } from '../stores/context';
-import { useIsAIFeatureEnabled } from 'compass-preferences-model/provider';
+import {
+  useIsAIFeatureEnabled,
+  usePreference,
+} from 'compass-preferences-model/provider';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
+import { useMyQueriesFeature } from '@mongodb-js/compass-web';
 
 import {
   OPTION_DEFINITION,
@@ -202,8 +206,11 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
 
   const favoriteQueryStorageAvailable = !!useFavoriteQueryStorageAccess();
   const recentQueryStorageAvailable = !!useRecentQueryStorageAccess();
+  const isMyQueriesEnabled = useMyQueriesFeature();
   const enableSavedAggregationsQueries =
-    favoriteQueryStorageAvailable && recentQueryStorageAvailable;
+    favoriteQueryStorageAvailable &&
+    recentQueryStorageAvailable &&
+    isMyQueriesEnabled;
 
   return (
     <form
