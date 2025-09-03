@@ -387,18 +387,19 @@ export function useConnectionsListLoadingStatus() {
 }
 
 /**
- * Returns the connecting steps for a specific connection when in connecting state
+ * Returns the connecting progress for a specific connection when in connecting state.
+ * This interprets driver monitoring events to provide connection progress to the UI.
  */
 export function useConnectionConnectingSteps(connectionId: ConnectionId): {
-  topology: 'pending' | 'in-progress' | 'completed' | 'failed';
-  authentication: 'pending' | 'in-progress' | 'completed' | 'failed';
-  listingDatabases: 'pending' | 'in-progress' | 'completed' | 'failed';
+  topologyDiscovered: boolean;
+  authenticated: boolean;
+  metadataReceived: boolean;
 } | null {
   return useSelector(
     (state) => {
       const connection = state.connections.byId[connectionId];
       return connection?.status === 'connecting'
-        ? connection.connectingSteps
+        ? connection.connectionProgress || null
         : null;
     },
     (a, b) => {

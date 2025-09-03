@@ -14,6 +14,7 @@ import {
 import {
   useConnectionIds,
   useConnectionInfoForId,
+  useConnectionForId,
   useConnectionConnectingSteps,
 } from '@mongodb-js/compass-connections/provider';
 import { WelcomeTabImage, ConnectingPlugImage } from './welcome-image';
@@ -111,67 +112,73 @@ const subItemStyles = css({
   color: palette.gray.dark1,
 });
 
-function ConnectionStatus({
-  connectionId,
-  isConnected,
-}: {
-  connectionId: string;
-  isConnected: boolean;
-}) {
+function ConnectionStatus({ connectionId }: { connectionId: string }) {
   const connectionInfo = useConnectionInfoForId(connectionId);
+  const connection = useConnectionForId(connectionId);
   const connectingSteps = useConnectionConnectingSteps(connectionId);
 
-  if (!connectionInfo) {
+  if (!connectionInfo || !connection) {
     return null;
   }
 
   const connectionName = connectionInfo.title;
+  const isConnected = connection.status === 'connected';
+  const isConnecting = connection.status === 'connecting';
+  const isFailed = connection.status === 'failed';
+
+  let icon;
+  let statusText;
+  let statusColor = undefined;
+
+  if (isConnected) {
+    icon = <Icon glyph="Checkmark" size="small" className={greenIconStyles} />;
+    statusText = `Connected to ${connectionName}`;
+  } else if (isFailed) {
+    icon = <Icon glyph="X" size="small" style={{ color: palette.red.base }} />;
+    statusText = `Failed to connect to ${connectionName}`;
+    statusColor = palette.red.base;
+  } else if (isConnecting) {
+    icon = <SpinLoader size={12} />;
+    statusText = `Connecting to ${connectionName}`;
+  } else {
+    // Fallback for other states
+    icon = <SpinLoader size={12} />;
+    statusText = `Connecting to ${connectionName}`;
+  }
 
   // Create sub-items for connecting steps
   const renderConnectingSteps = () => {
-    if (!connectingSteps) return null;
+    if (!connectingSteps || !isConnecting) return null;
 
     const steps = [
       {
         key: 'topology',
         label: 'Discovering Topology...',
-        status: connectingSteps.topology,
+        completed: connectingSteps.topologyDiscovered,
       },
       {
         key: 'authentication',
         label: 'Authenticating...',
-        status: connectingSteps.authentication,
+        completed: connectingSteps.authenticated,
       },
       {
-        key: 'listingDatabases',
-        label: 'Listing Databases...',
-        status: connectingSteps.listingDatabases,
+        key: 'metadata',
+        label: 'Getting Metadata...',
+        completed: connectingSteps.metadataReceived,
       },
     ];
 
-    return steps.map(({ key, label, status }) => {
-      const isCompleted = status === 'completed';
-      const isInProgress = status === 'in-progress';
-      const isFailed = status === 'failed';
-
+    return steps.map(({ key, label, completed }) => {
       return (
         <div key={key} className={subItemStyles}>
-          {isCompleted ? (
+          {completed ? (
             <Icon glyph="Checkmark" size="small" className={greenIconStyles} />
-          ) : isFailed ? (
-            <Icon glyph="X" size="small" style={{ color: palette.red.base }} />
-          ) : isInProgress ? (
-            <SpinLoader size={10} />
           ) : (
-            <div style={{ width: '10px', height: '10px' }} /> // Empty space for pending
+            <SpinLoader size={10} />
           )}
           <span
             style={{
-              color: isCompleted
-                ? palette.green.dark2
-                : isFailed
-                ? palette.red.base
-                : undefined,
+              color: completed ? palette.green.dark2 : undefined,
             }}
           >
             {label}
@@ -190,18 +197,10 @@ function ConnectionStatus({
             : connectingConnectionItemStyles
         }
       >
-        {isConnected ? (
-          <Icon glyph="Checkmark" size="small" className={greenIconStyles} />
-        ) : (
-          <SpinLoader size={12} />
-        )}
-        <span>
-          {isConnected
-            ? `Connected to ${connectionName}`
-            : `Connecting to ${connectionName}`}
-        </span>
+        {icon}
+        <span style={{ color: statusColor }}>{statusText}</span>
       </div>
-      {!isConnected && <div>{renderConnectingSteps()}</div>}
+      {isConnecting && <div>{renderConnectingSteps()}</div>}
     </div>
   );
 }
@@ -219,11 +218,18 @@ export default function WebWelcomeTab() {
     (connection) => connection.status === 'connected'
   );
 
-  // Show connecting layout if any connection is connecting or connected
-  const hasConnectingConnections = connectingConnectionIds.length > 0;
-  const hasConnectedConnections = connectedConnectionIds.length > 0;
+  // Get IDs of connections that failed
+  const failedConnectionIds = useConnectionIds(
+    (connection) => connection.status === 'failed'
+  );
 
-  if (hasConnectingConnections || hasConnectedConnections) {
+  // Show connecting layout if any connection is connecting, connected, or failed
+  const hasConnectionActivity =
+    connectingConnectionIds.length > 0 ||
+    connectedConnectionIds.length > 0 ||
+    failedConnectionIds.length > 0;
+
+  if (hasConnectionActivity) {
     return (
       <div className={containerStyles}>
         <div className={connectingLayoutStyles}>
@@ -240,14 +246,18 @@ export default function WebWelcomeTab() {
               <ConnectionStatus
                 key={connectionId}
                 connectionId={connectionId}
-                isConnected={false}
               />
             ))}
             {connectedConnectionIds.map((connectionId) => (
               <ConnectionStatus
                 key={connectionId}
                 connectionId={connectionId}
-                isConnected={true}
+              />
+            ))}
+            {failedConnectionIds.map((connectionId) => (
+              <ConnectionStatus
+                key={connectionId}
+                connectionId={connectionId}
               />
             ))}
           </div>

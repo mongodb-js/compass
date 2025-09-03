@@ -3,13 +3,7 @@ import type { Reducer, AnyAction, Action } from 'redux';
 import { createStore, applyMiddleware } from 'redux';
 import type { ThunkAction } from 'redux-thunk';
 import thunk from 'redux-thunk';
-import type {
-  CommandStartedEvent,
-  CommandSucceededEvent,
-  ServerHeartbeatFailedEvent,
-  ServerHeartbeatSucceededEvent,
-  TopologyDescriptionChangedEvent,
-} from 'mongodb';
+import type { ServerHeartbeatFailedEvent } from 'mongodb';
 import {
   getConnectionTitle,
   type ConnectionInfo,
@@ -172,10 +166,10 @@ export type ConnectionState = {
   | {
       status: 'connecting';
       error: null;
-      connectingSteps: {
-        topology: 'pending' | 'in-progress' | 'completed' | 'failed';
-        authentication: 'pending' | 'in-progress' | 'completed' | 'failed';
-        listingDatabases: 'pending' | 'in-progress' | 'completed' | 'failed';
+      connectionProgress?: {
+        topologyDiscovered: boolean;
+        authenticated: boolean;
+        metadataReceived: boolean;
       };
     }
   | { status: 'failed'; error: Error }
@@ -265,10 +259,9 @@ export const enum ActionTypes {
   // entering a device code on the external website. Only required for single
   // connection mode and can be removed afterwards
   OidcNotifyDeviceAuth = 'OidcNotifyDeviceAuth',
-  // MongoDB driver events for connection progress
+  // Generic driver monitoring events - 1:1 with MongoDB driver events
   TopologyDescriptionChanged = 'TopologyDescriptionChanged',
   ServerHeartbeatSucceeded = 'ServerHeartbeatSucceeded',
-  CommandStarted = 'CommandStarted',
   CommandSucceeded = 'CommandSucceeded',
   Disconnect = 'Disconnect',
 
@@ -381,25 +374,17 @@ type ConnectionAttemptCancelledAction = {
 type TopologyDescriptionChangedAction = {
   type: ActionTypes.TopologyDescriptionChanged;
   connectionId: ConnectionId;
-  event: TopologyDescriptionChangedEvent;
 };
 
 type ServerHeartbeatSucceededAction = {
   type: ActionTypes.ServerHeartbeatSucceeded;
   connectionId: ConnectionId;
-  event: ServerHeartbeatSucceededEvent;
-};
-
-type CommandStartedAction = {
-  type: ActionTypes.CommandStarted;
-  connectionId: ConnectionId;
-  event: CommandStartedEvent;
 };
 
 type CommandSucceededAction = {
   type: ActionTypes.CommandSucceeded;
   connectionId: ConnectionId;
-  event: CommandSucceededEvent;
+  commandName: string;
 };
 
 type DisconnectAction = {
@@ -914,10 +899,10 @@ const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
               }),
           status: 'connecting',
           error: null,
-          connectingSteps: {
-            topology: 'in-progress',
-            authentication: 'pending',
-            listingDatabases: 'pending',
+          connectionProgress: {
+            topologyDiscovered: false,
+            authenticated: false,
+            metadataReceived: false,
           },
         }
       ),
@@ -934,28 +919,17 @@ const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
       ActionTypes.ConnectionAttemptSuccess
     )
   ) {
-    // When connection succeeds, we need to properly handle the discriminating union
-    // by removing connectingSteps property that exists only in 'connecting' state
-    const existingConnection = state.connections.byId[action.connectionId];
-
-    // Create a proper 'connected' state, which excludes connectingSteps
-    const newConnectionState: ConnectionState = {
-      info: existingConnection?.info || ({} as ConnectionInfo),
-      isBeingCreated: false,
-      isAutoconnectInfo: existingConnection?.isAutoconnectInfo,
-      status: 'connected',
-      error: null,
-    };
-
     return {
       ...state,
-      connections: {
-        ...state.connections,
-        byId: {
-          ...state.connections.byId,
-          [action.connectionId]: newConnectionState,
-        },
-      },
+      connections: mergeConnectionStateById(
+        state.connections,
+        action.connectionId,
+        {
+          isBeingCreated: false,
+          status: 'connected',
+          error: null,
+        }
+      ),
     };
   }
   if (
@@ -1011,10 +985,9 @@ const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
         state.connections,
         action.connectionId,
         {
-          connectingSteps: {
-            ...currentConnection.connectingSteps,
-            topology: 'completed',
-            authentication: 'in-progress',
+          connectionProgress: {
+            ...currentConnection.connectionProgress,
+            topologyDiscovered: true,
           },
         }
       ),
@@ -1031,8 +1004,28 @@ const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
       return state;
     }
 
-    // Only update authentication if topology is completed
-    if (currentConnection.connectingSteps.topology !== 'completed') {
+    return {
+      ...state,
+      connections: mergeConnectionStateById(
+        state.connections,
+        action.connectionId,
+        {
+          connectionProgress: {
+            ...currentConnection.connectionProgress,
+            authenticated: true,
+          },
+        }
+      ),
+    };
+  }
+  if (isAction<CommandSucceededAction>(action, ActionTypes.CommandSucceeded)) {
+    const currentConnection = state.connections.byId[action.connectionId];
+    if (!currentConnection || currentConnection.status !== 'connecting') {
+      return state;
+    }
+
+    // Only update for non-ping commands (which indicate actual metadata operations)
+    if (action.commandName === 'ping' || action.commandName === 'hello') {
       return state;
     }
 
@@ -1042,10 +1035,9 @@ const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
         state.connections,
         action.connectionId,
         {
-          connectingSteps: {
-            ...currentConnection.connectingSteps,
-            authentication: 'completed',
-            listingDatabases: 'in-progress',
+          connectionProgress: {
+            ...currentConnection.connectionProgress,
+            metadataReceived: true,
           },
         }
       ),
@@ -1432,46 +1424,31 @@ const connectionAttemptError = (
 };
 
 export const topologyDescriptionChanged = (
-  connectionId: ConnectionId,
-  event: TopologyDescriptionChangedEvent
+  connectionId: ConnectionId
 ): TopologyDescriptionChangedAction => {
   return {
     type: ActionTypes.TopologyDescriptionChanged,
     connectionId,
-    event,
   };
 };
 
 export const serverHeartbeatSucceeded = (
-  connectionId: ConnectionId,
-  event: ServerHeartbeatSucceededEvent
+  connectionId: ConnectionId
 ): ServerHeartbeatSucceededAction => {
   return {
     type: ActionTypes.ServerHeartbeatSucceeded,
     connectionId,
-    event,
-  };
-};
-
-export const commandStarted = (
-  connectionId: ConnectionId,
-  event: CommandStartedEvent
-): CommandStartedAction => {
-  return {
-    type: ActionTypes.CommandStarted,
-    connectionId,
-    event,
   };
 };
 
 export const commandSucceeded = (
   connectionId: ConnectionId,
-  event: CommandSucceededEvent
+  commandName: string
 ): CommandSucceededAction => {
   return {
     type: ActionTypes.CommandSucceeded,
     connectionId,
-    event,
+    commandName,
   };
 };
 
@@ -1594,7 +1571,7 @@ function isAtlasStreamsInstance(
 // https://github.com/10gen/mms/blob/de2a9c463cfe530efb8e2a0941033e8207b6cb11/server/src/main/com/xgen/cloud/services/clusterconnection/runtime/res/CustomCloseCodes.java
 const NonRetryableErrorCodes = [3000, 3003, 4004, 1008] as const;
 const NonRetryableErrorDescriptionFallbacks: {
-  [code in typeof NonRetryableErrorCodes[number]]: string;
+  [code in (typeof NonRetryableErrorCodes)[number]]: string;
 } = {
   3000: 'Unauthorized',
   3003: 'Forbidden',
@@ -1619,7 +1596,7 @@ function getDescriptionForNonRetryableError(error: Error): string {
     : NonRetryableErrorDescriptionFallbacks[
         Number(
           error.message.match(/code: (\d+),/)?.[1]
-        ) as typeof NonRetryableErrorCodes[number]
+        ) as (typeof NonRetryableErrorCodes)[number]
       ] ?? 'Unknown';
 }
 
@@ -1652,6 +1629,7 @@ export const connect = (
   | ConnectionAttemptCancelledAction
   | TopologyDescriptionChangedAction
   | ServerHeartbeatSucceededAction
+  | CommandSucceededAction
 > => {
   return connectWithOptions(connectionInfo, { forceSave: false });
 };
@@ -1666,6 +1644,7 @@ export const saveAndConnect = (
   | ConnectionAttemptCancelledAction
   | TopologyDescriptionChangedAction
   | ServerHeartbeatSucceededAction
+  | CommandSucceededAction
 > => {
   return connectWithOptions(connectionInfo, { forceSave: true });
 };
@@ -1683,7 +1662,6 @@ const connectWithOptions = (
   | ConnectionAttemptCancelledAction
   | TopologyDescriptionChangedAction
   | ServerHeartbeatSucceededAction
-  | CommandStartedAction
   | CommandSucceededAction
 > => {
   return async (
@@ -1903,19 +1881,18 @@ const connectWithOptions = (
           }
         );
 
-        dataService
-          .on('topologyDescriptionChanged', (event) => {
-            dispatch(topologyDescriptionChanged(connectionInfo.id, event));
-          })
-          .on('serverHeartbeatSucceeded', (event) => {
-            dispatch(serverHeartbeatSucceeded(connectionInfo.id, event));
-          })
-          .on('commandStarted', (event) => {
-            dispatch(commandStarted(connectionInfo.id, event));
-          })
-          .on('commandSucceeded', (event) => {
-            dispatch(commandSucceeded(connectionInfo.id, event));
-          });
+        // Listen to MongoDB driver monitoring events and dispatch 1:1 actions
+        dataService.on('topologyDescriptionChanged', () => {
+          dispatch(topologyDescriptionChanged(connectionInfo.id));
+        });
+
+        dataService.on('serverHeartbeatSucceeded', () => {
+          dispatch(serverHeartbeatSucceeded(connectionInfo.id));
+        });
+
+        dataService.on('commandSucceeded', (evt) => {
+          dispatch(commandSucceeded(connectionInfo.id, evt.commandName));
+        });
 
         dataService.on('oidcAuthFailed', (error) => {
           openToast('oidc-auth-failed', {
