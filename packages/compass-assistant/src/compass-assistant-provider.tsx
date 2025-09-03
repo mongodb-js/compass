@@ -160,7 +160,6 @@ export const AssistantProvider: React.FunctionComponent<
         return;
       }
 
-      openDrawer(ASSISTANT_DRAWER_ID);
       const { prompt, displayText } = builder(props);
       void assistantActionsContext.current.ensureOptInAndSend(
         { text: prompt, metadata: { displayText } },
