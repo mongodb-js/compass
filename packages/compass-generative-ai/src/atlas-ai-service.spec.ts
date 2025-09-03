@@ -403,6 +403,7 @@ describe('AtlasAiService', function () {
           },
           includeSampleValues: false,
           requestId: 'test-request-id',
+          signal: new AbortController().signal,
         };
 
         if (apiURLPreset === 'admin-api') {
