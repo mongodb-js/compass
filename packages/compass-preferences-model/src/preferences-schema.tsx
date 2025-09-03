@@ -1019,6 +1019,16 @@ export const storedUserPreferencesProps: Required<{
     validator: z.boolean().default(true),
     type: 'boolean',
   },
+  enableMyQueries: {
+    ui: false,
+    cli: true,
+    global: true,
+    description: {
+      short: 'Enable My Queries feature in Data Explorer',
+    },
+    validator: z.boolean().default(false),
+    type: 'boolean',
+  },
 
   inferNamespacesFromPrivileges: {
     ui: true,
