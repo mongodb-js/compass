@@ -1284,9 +1284,9 @@ const connectionAttemptError = (
           }
         : undefined,
       onDebugClick:
-        compassAssistant.interpretConnectionError && connectionInfo
+        compassAssistant.getIsAssistantEnabled() && connectionInfo
           ? () => {
-              compassAssistant.interpretConnectionError?.({
+              compassAssistant.interpretConnectionError({
                 connectionInfo,
                 error: err,
               });

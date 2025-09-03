@@ -1,5 +1,6 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useContext } from 'react';
 import type { AssistantMessage } from './compass-assistant-provider';
+import { AssistantActionsContext } from './compass-assistant-provider';
 import type { Chat } from './@ai-sdk/react/chat-react';
 import { useChat } from './@ai-sdk/react/use-chat';
 import {
@@ -129,7 +130,8 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
 }) => {
   const track = useTelemetry();
   const darkMode = useDarkMode();
-  const { messages, sendMessage, status, error, clearError } = useChat({
+  const { ensureOptInAndSend } = useContext(AssistantActionsContext);
+  const { messages, status, error, clearError } = useChat({
     chat,
     onError: (error) => {
       track('Assistant Response Failed', () => ({
@@ -157,13 +159,14 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
     (messageBody: string) => {
       const trimmedMessageBody = messageBody.trim();
       if (trimmedMessageBody) {
-        track('Assistant Prompt Submitted', {
-          user_input_length: trimmedMessageBody.length,
+        void ensureOptInAndSend?.({ text: trimmedMessageBody }, {}, () => {
+          track('Assistant Prompt Submitted', {
+            user_input_length: trimmedMessageBody.length,
+          });
         });
-        void sendMessage({ text: trimmedMessageBody });
       }
     },
-    [sendMessage, track]
+    [track, ensureOptInAndSend]
   );
 
   const handleFeedback = useCallback(

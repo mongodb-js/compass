@@ -9,7 +9,6 @@ import {
   within,
 } from '@mongodb-js/testing-library-compass';
 import {
-  AssistantProvider,
   CompassAssistantProvider,
   useAssistantActions,
   type AssistantMessage,
@@ -22,23 +21,74 @@ import {
   DrawerAnchor,
   DrawerContentProvider,
 } from '@mongodb-js/compass-components';
+import type { AtlasAuthService } from '@mongodb-js/atlas-service/provider';
 import type { AtlasService } from '@mongodb-js/atlas-service/provider';
 import { CompassAssistantDrawer } from './compass-assistant-drawer';
 import { createMockChat } from '../test/utils';
+import { type AtlasAiService } from '@mongodb-js/compass-generative-ai/provider';
 
-// Test component that renders AssistantProvider with children
+function createMockProvider({
+  mockAtlasService,
+  mockAtlasAiService,
+  mockAtlasAuthService,
+}: {
+  mockAtlasService?: any;
+  mockAtlasAiService?: any;
+  mockAtlasAuthService?: any;
+} = {}) {
+  if (!mockAtlasService) {
+    mockAtlasService = {
+      assistantApiEndpoint: sinon
+        .stub()
+        .returns('https://example.com/assistant/api/v1'),
+    };
+  }
+
+  if (!mockAtlasAiService) {
+    mockAtlasAiService = {
+      ensureAiFeatureAccess: sinon.stub().resolves(),
+    };
+  }
+
+  if (!mockAtlasAuthService) {
+    mockAtlasAuthService = {};
+  }
+
+  return CompassAssistantProvider.withMockServices({
+    atlasService: mockAtlasService as unknown as AtlasService,
+    atlasAiService: mockAtlasAiService as unknown as AtlasAiService,
+    atlasAuthService: mockAtlasAuthService as unknown as AtlasAuthService,
+  });
+}
+
+// Test component that renders CompassAssistantProvider (and AssistantProvider) with children
 const TestComponent: React.FunctionComponent<{
   chat: Chat<AssistantMessage>;
   autoOpen?: boolean;
-}> = ({ chat, autoOpen }) => {
+  mockAtlasService?: any;
+  mockAtlasAiService?: any;
+  mockAtlasAuthService?: any;
+}> = ({
+  chat,
+  autoOpen,
+  mockAtlasService,
+  mockAtlasAiService,
+  mockAtlasAuthService,
+}) => {
+  const MockedProvider = createMockProvider({
+    mockAtlasService: mockAtlasService as unknown as AtlasService,
+    mockAtlasAiService: mockAtlasAiService as unknown as AtlasAiService,
+    mockAtlasAuthService: mockAtlasAuthService as unknown as AtlasAuthService,
+  });
+
   return (
     <DrawerContentProvider>
-      <AssistantProvider chat={chat}>
+      <MockedProvider chat={chat}>
         <DrawerAnchor>
           <div data-testid="provider-children">Provider children</div>
           <CompassAssistantDrawer autoOpen={autoOpen} />
         </DrawerAnchor>
-      </AssistantProvider>
+      </MockedProvider>
     </DrawerContentProvider>
   );
 };
@@ -46,16 +96,18 @@ const TestComponent: React.FunctionComponent<{
 describe('useAssistantActions', function () {
   const createWrapper = (chat: Chat<AssistantMessage>) => {
     function TestWrapper({ children }: { children: React.ReactNode }) {
+      const MockedProvider = createMockProvider();
+
       return (
         <DrawerContentProvider>
-          <AssistantProvider chat={chat}>{children}</AssistantProvider>
+          <MockedProvider chat={chat}>{children}</MockedProvider>
         </DrawerContentProvider>
       );
     }
     return TestWrapper;
   };
 
-  it('returns empty object when AI features are disabled via isAIFeatureEnabled', function () {
+  it('returns mostly empty object when AI features are disabled via isAIFeatureEnabled', function () {
     const { result } = renderHook(() => useAssistantActions(), {
       wrapper: createWrapper(createMockChat({ messages: [] })),
       preferences: {
@@ -67,10 +119,10 @@ describe('useAssistantActions', function () {
       },
     });
 
-    expect(result.current).to.deep.equal({});
+    expect(result.current).to.have.keys(['getIsAssistantEnabled']);
   });
 
-  it('returns empty object when enableGenAIFeaturesAtlasOrg is disabled', function () {
+  it('returns mostly empty object when enableGenAIFeaturesAtlasOrg is disabled', function () {
     const { result } = renderHook(() => useAssistantActions(), {
       wrapper: createWrapper(createMockChat({ messages: [] })),
       preferences: {
@@ -81,10 +133,10 @@ describe('useAssistantActions', function () {
       },
     });
 
-    expect(result.current).to.deep.equal({});
+    expect(result.current).to.have.keys(['getIsAssistantEnabled']);
   });
 
-  it('returns empty object when cloudFeatureRolloutAccess is disabled', function () {
+  it('returns mostly empty object when cloudFeatureRolloutAccess is disabled', function () {
     const { result } = renderHook(() => useAssistantActions(), {
       wrapper: createWrapper(createMockChat({ messages: [] })),
       preferences: {
@@ -95,10 +147,10 @@ describe('useAssistantActions', function () {
       },
     });
 
-    expect(result.current).to.deep.equal({});
+    expect(result.current).to.have.keys(['getIsAssistantEnabled']);
   });
 
-  it('returns empty object when enableAIAssistant preference is disabled', function () {
+  it('returns mostly empty object when enableAIAssistant preference is disabled', function () {
     const { result } = renderHook(() => useAssistantActions(), {
       wrapper: createWrapper(createMockChat({ messages: [] })),
       preferences: {
@@ -109,7 +161,7 @@ describe('useAssistantActions', function () {
       },
     });
 
-    expect(result.current).to.deep.equal({});
+    expect(result.current).to.have.keys(['getIsAssistantEnabled']);
   });
 
   it('returns actions when both AI features and assistant flag are enabled', function () {
@@ -127,11 +179,10 @@ describe('useAssistantActions', function () {
     expect(result.current.interpretExplainPlan).to.be.a('function');
     expect(result.current.interpretConnectionError).to.be.a('function');
     expect(result.current.tellMoreAboutInsight).to.be.a('function');
-    expect(result.current.clearChat).to.be.a('function');
   });
 });
 
-describe('AssistantProvider', function () {
+describe('CompassAssistantProvider', function () {
   const mockMessages: AssistantMessage[] = [
     {
       id: '1',
@@ -198,16 +249,24 @@ describe('AssistantProvider', function () {
     });
 
     async function renderOpenAssistantDrawer(
-      mockChat: Chat<AssistantMessage>
+      mockChat: Chat<AssistantMessage>,
+      mockAtlasAiService?: any
     ): Promise<ReturnType<typeof render>> {
-      const result = render(<TestComponent chat={mockChat} autoOpen={true} />, {
-        preferences: {
-          enableAIAssistant: true,
-          enableGenAIFeatures: true,
-          enableGenAIFeaturesAtlasOrg: true,
-          cloudFeatureRolloutAccess: { GEN_AI_COMPASS: true },
-        },
-      });
+      const result = render(
+        <TestComponent
+          chat={mockChat}
+          mockAtlasAiService={mockAtlasAiService}
+          autoOpen={true}
+        />,
+        {
+          preferences: {
+            enableAIAssistant: true,
+            enableGenAIFeatures: true,
+            enableGenAIFeaturesAtlasOrg: true,
+            cloudFeatureRolloutAccess: { GEN_AI_COMPASS: true },
+          },
+        }
+      );
 
       await waitFor(() => {
         expect(screen.getByTestId('assistant-chat')).to.exist;
@@ -220,6 +279,11 @@ describe('AssistantProvider', function () {
       const mockChat = createMockChat({ messages: mockMessages });
 
       await renderOpenAssistantDrawer(mockChat);
+
+      // ensureAiFeatureAccess is async
+      await waitFor(() => {
+        expect(screen.getByTestId('assistant-message-1')).to.exist;
+      });
 
       expect(screen.getByTestId('assistant-message-1')).to.exist;
       expect(screen.getByTestId('assistant-message-1')).to.have.text(
@@ -255,8 +319,8 @@ describe('AssistantProvider', function () {
       userEvent.type(input, 'Hello assistant');
       userEvent.click(sendButton);
 
-      expect(sendMessageSpy.calledOnce).to.be.true;
       await waitFor(() => {
+        expect(sendMessageSpy.calledOnce).to.be.true;
         expect(sendMessageSpy.firstCall.args[0]).to.deep.include({
           text: 'Hello assistant',
         });
@@ -292,14 +356,54 @@ describe('AssistantProvider', function () {
       );
       userEvent.click(screen.getByLabelText('Send message'));
 
-      expect(sendMessageSpy.calledOnce).to.be.true;
-      expect(sendMessageSpy.firstCall.args[0]).to.deep.include({
-        text: 'Hello assistant!',
-      });
-
       await waitFor(() => {
+        expect(sendMessageSpy.calledOnce).to.be.true;
+        expect(sendMessageSpy.firstCall.args[0]).to.deep.include({
+          text: 'Hello assistant!',
+        });
+
         expect(screen.getByText('Hello assistant!')).to.exist;
       });
+    });
+
+    it('will not send new messages if the user does not opt in', async function () {
+      const mockChat = new Chat<AssistantMessage>({
+        messages: [
+          {
+            id: 'assistant',
+            role: 'assistant',
+            parts: [{ type: 'text', text: 'Hello user!' }],
+          },
+        ],
+        transport: {
+          sendMessages: sinon.stub().returns(
+            new Promise(() => {
+              return new ReadableStream({});
+            })
+          ),
+          reconnectToStream: sinon.stub(),
+        },
+      });
+
+      const mockAtlasAiService = {
+        ensureAiFeatureAccess: sinon.stub().rejects(),
+      };
+
+      const sendMessageSpy = sinon.spy(mockChat, 'sendMessage');
+
+      await renderOpenAssistantDrawer(mockChat, mockAtlasAiService);
+
+      userEvent.type(
+        screen.getByPlaceholderText('Ask MongoDB Assistant a question'),
+        'Hello assistant!'
+      );
+      userEvent.click(screen.getByLabelText('Send message'));
+
+      await waitFor(() => {
+        expect(mockAtlasAiService.ensureAiFeatureAccess.calledOnce).to.be.true;
+        expect(sendMessageSpy.called).to.be.false;
+      });
+      expect(screen.queryByText('Hello assistant!')).to.not.exist;
     });
 
     describe('clear chat button', function () {
@@ -366,29 +470,31 @@ describe('AssistantProvider', function () {
   });
 
   describe('CompassAssistantProvider', function () {
-    beforeEach(function () {
-      process.env.COMPASS_ASSISTANT_USE_ATLAS_SERVICE_URL = 'true';
-    });
-
-    afterEach(function () {
-      delete process.env.COMPASS_ASSISTANT_USE_ATLAS_SERVICE_URL;
-    });
-
-    it('uses the Atlas Service assistantApiEndpoint', function () {
+    it('uses the Atlas Service assistantApiEndpoint', async function () {
       const mockAtlasService = {
         assistantApiEndpoint: sinon
           .stub()
           .returns('https://example.com/assistant/api/v1'),
       };
 
+      const mockAtlasAiService = {
+        ensureAiFeatureAccess: sinon.stub().callsFake(() => {
+          return Promise.resolve();
+        }),
+      };
+
+      const mockAtlasAuthService = {};
+
       const MockedProvider = CompassAssistantProvider.withMockServices({
         atlasService: mockAtlasService as unknown as AtlasService,
+        atlasAiService: mockAtlasAiService as unknown as AtlasAiService,
+        atlasAuthService: mockAtlasAuthService as unknown as AtlasAuthService,
       });
 
       render(
         <DrawerContentProvider>
           <DrawerAnchor />
-          <MockedProvider chat={new Chat({})} />
+          <MockedProvider />
         </DrawerContentProvider>,
         {
           preferences: {
@@ -400,7 +506,9 @@ describe('AssistantProvider', function () {
         }
       );
 
-      expect(mockAtlasService.assistantApiEndpoint.calledOnce).to.be.true;
+      await waitFor(() => {
+        expect(mockAtlasService.assistantApiEndpoint.calledOnce).to.be.true;
+      });
     });
   });
 });
