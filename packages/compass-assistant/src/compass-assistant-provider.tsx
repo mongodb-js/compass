@@ -74,7 +74,9 @@ type AssistantActionsContextType = {
 type AssistantActionsType = Omit<
   AssistantActionsContextType,
   'ensureOptInAndSend' | 'clearChat'
->;
+> & {
+  getIsAssistantEnabled: () => boolean;
+};
 
 export const AssistantActionsContext =
   createContext<AssistantActionsContextType>({
@@ -90,7 +92,9 @@ export function useAssistantActions(): AssistantActionsType {
   const isAIFeatureEnabled = useIsAIFeatureEnabled();
   const isAssistantFlagEnabled = usePreference('enableAIAssistant');
   if (!isAIFeatureEnabled || !isAssistantFlagEnabled) {
-    return {};
+    return {
+      getIsAssistantEnabled: () => false,
+    };
   }
 
   const {
@@ -103,15 +107,37 @@ export function useAssistantActions(): AssistantActionsType {
     interpretExplainPlan,
     interpretConnectionError,
     tellMoreAboutInsight,
+    getIsAssistantEnabled: () => true,
   };
 }
 
-export const compassAssistantServiceLocator = createServiceLocator(function () {
+export const compassAssistantServiceLocator = createServiceLocator(() => {
   const actions = useAssistantActions();
-  return actions;
+
+  const interpretConnectionErrorRef = useRef(actions.interpretConnectionError);
+  interpretConnectionErrorRef.current = actions.interpretConnectionError;
+
+  const getIsAssistantEnabledRef = useRef(actions.getIsAssistantEnabled);
+  getIsAssistantEnabledRef.current = actions.getIsAssistantEnabled;
+
+  return {
+    interpretConnectionError: (options: {
+      connectionInfo: ConnectionInfo;
+      error: Error;
+    }) => interpretConnectionErrorRef.current?.(options),
+    getIsAssistantEnabled: () => {
+      return getIsAssistantEnabledRef.current();
+    },
+  };
 }, 'compassAssistantLocator');
 
-export type CompassAssistantService = AssistantActionsType;
+export type CompassAssistantService = {
+  interpretConnectionError: (options: {
+    connectionInfo: ConnectionInfo;
+    error: Error;
+  }) => void;
+  getIsAssistantEnabled: () => boolean;
+};
 
 export const AssistantProvider: React.FunctionComponent<
   PropsWithChildren<{
@@ -121,6 +147,7 @@ export const AssistantProvider: React.FunctionComponent<
 > = ({ chat, atlasAiService, children }) => {
   const { openDrawer } = useDrawerActions();
   const track = useTelemetry();
+
   const createEntryPointHandler = useRef(function <T>(
     entryPointName:
       | 'explain plan'

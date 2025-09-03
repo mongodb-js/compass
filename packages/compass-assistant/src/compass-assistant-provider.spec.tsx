@@ -107,7 +107,7 @@ describe('useAssistantActions', function () {
     return TestWrapper;
   };
 
-  it('returns empty object when AI features are disabled via isAIFeatureEnabled', function () {
+  it('returns mostly empty object when AI features are disabled via isAIFeatureEnabled', function () {
     const { result } = renderHook(() => useAssistantActions(), {
       wrapper: createWrapper(createMockChat({ messages: [] })),
       preferences: {
@@ -119,10 +119,10 @@ describe('useAssistantActions', function () {
       },
     });
 
-    expect(result.current).to.deep.equal({});
+    expect(result.current).to.have.keys(['getIsAssistantEnabled']);
   });
 
-  it('returns empty object when enableGenAIFeaturesAtlasOrg is disabled', function () {
+  it('returns mostly empty object when enableGenAIFeaturesAtlasOrg is disabled', function () {
     const { result } = renderHook(() => useAssistantActions(), {
       wrapper: createWrapper(createMockChat({ messages: [] })),
       preferences: {
@@ -133,10 +133,10 @@ describe('useAssistantActions', function () {
       },
     });
 
-    expect(result.current).to.deep.equal({});
+    expect(result.current).to.have.keys(['getIsAssistantEnabled']);
   });
 
-  it('returns empty object when cloudFeatureRolloutAccess is disabled', function () {
+  it('returns mostly empty object when cloudFeatureRolloutAccess is disabled', function () {
     const { result } = renderHook(() => useAssistantActions(), {
       wrapper: createWrapper(createMockChat({ messages: [] })),
       preferences: {
@@ -147,10 +147,10 @@ describe('useAssistantActions', function () {
       },
     });
 
-    expect(result.current).to.deep.equal({});
+    expect(result.current).to.have.keys(['getIsAssistantEnabled']);
   });
 
-  it('returns empty object when enableAIAssistant preference is disabled', function () {
+  it('returns mostly empty object when enableAIAssistant preference is disabled', function () {
     const { result } = renderHook(() => useAssistantActions(), {
       wrapper: createWrapper(createMockChat({ messages: [] })),
       preferences: {
@@ -161,7 +161,7 @@ describe('useAssistantActions', function () {
       },
     });
 
-    expect(result.current).to.deep.equal({});
+    expect(result.current).to.have.keys(['getIsAssistantEnabled']);
   });
 
   it('returns actions when both AI features and assistant flag are enabled', function () {
