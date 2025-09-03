@@ -6,7 +6,6 @@ import {
   LgChatChatWindow,
   LgChatLeafygreenChatProvider,
   LgChatMessage,
-  LgChatMessageFeed,
   LgChatMessageActions,
   LgChatInputBar,
   spacing,
@@ -25,7 +24,6 @@ const { DisclaimerText } = LgChatChatDisclaimer;
 const { ChatWindow } = LgChatChatWindow;
 const { LeafyGreenChatProvider, Variant } = LgChatLeafygreenChatProvider;
 const { Message } = LgChatMessage;
-const { MessageFeed } = LgChatMessageFeed;
 const { MessageActions } = LgChatMessageActions;
 const { InputBar } = LgChatInputBar;
 
@@ -99,12 +97,26 @@ const assistantChatFixesStyles = css({
     fontWeight: 'semibold',
   },
 });
-const messageFeedFixesStyles = css({ height: '100%' });
+const messageFeedFixesStyles = css({
+  display: 'flex',
+  flexDirection: 'column-reverse',
+  overflowY: 'auto',
+  flex: 1,
+  padding: spacing[400],
+});
 const chatWindowFixesStyles = css({
   height: '100%',
+  display: 'flex',
+  flexDirection: 'column',
 });
 const welcomeMessageStyles = css({
-  padding: spacing[400],
+  paddingBottom: spacing[400],
+  paddingLeft: spacing[400],
+  paddingRight: spacing[400],
+});
+const disclaimerTextStyles = css({
+  marginTop: spacing[400],
+  marginBottom: spacing[400],
 });
 
 function makeErrorMessage(message: string) {
@@ -130,18 +142,31 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
     },
   });
 
-  // Transform AI SDK messages to LeafyGreen chat format
-  const lgMessages = messages.map((message) => ({
-    id: message.id,
-    messageBody:
-      message.metadata?.displayText ||
-      message.parts
-        ?.filter((part) => part.type === 'text')
-        .map((part) => part.text)
-        .join('') ||
-      '',
-    isSender: message.role === 'user',
-  }));
+  // Transform AI SDK messages to LeafyGreen chat format and reverse the order of the messages
+  // for displaying it correctly with flex-direction: column-reverse.
+  const lgMessages = messages.reduce<
+    {
+      id: string;
+      messageBody: string;
+      isSender: boolean;
+    }[]
+  >(
+    (acc, message) => [
+      {
+        id: message.id,
+        messageBody:
+          message.metadata?.displayText ||
+          (message.parts
+            ?.filter((part) => part.type === 'text')
+            .map((part) => part.text)
+            .join('') ??
+            ''),
+        isSender: message.role === 'user',
+      },
+      ...acc,
+    ],
+    []
+  );
 
   const handleMessageSend = useCallback(
     (messageBody: string) => {
@@ -198,21 +223,10 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
     >
       <LeafyGreenChatProvider variant={Variant.Compact}>
         <ChatWindow title="MongoDB Assistant" className={chatWindowFixesStyles}>
-          <MessageFeed
+          <div
             data-testid="assistant-chat-messages"
             className={messageFeedFixesStyles}
           >
-            <DisclaimerText>
-              This feature is powered by generative AI. See our{' '}
-              <Link
-                hideExternalIcon={false}
-                href={GEN_AI_FAQ_LINK}
-                target="_blank"
-              >
-                FAQ
-              </Link>{' '}
-              for more information. Please review the outputs carefully.
-            </DisclaimerText>
             {lgMessages.map((messageFields) => (
               <Message
                 key={messageFields.id}
@@ -228,7 +242,18 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
                 )}
               </Message>
             ))}
-          </MessageFeed>
+            <DisclaimerText className={disclaimerTextStyles}>
+              This feature is powered by generative AI. See our{' '}
+              <Link
+                hideExternalIcon={false}
+                href={GEN_AI_FAQ_LINK}
+                target="_blank"
+              >
+                FAQ
+              </Link>{' '}
+              for more information. Please review the outputs carefully.
+            </DisclaimerText>
+          </div>
           {error && (
             <div className={errorBannerWrapperStyles}>
               <Banner variant="danger" dismissible onClose={clearError}>
