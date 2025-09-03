@@ -149,7 +149,7 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
     (messageBody: string) => {
       const trimmedMessageBody = messageBody.trim();
       if (trimmedMessageBody) {
-        void ensureOptInAndSend({ text: trimmedMessageBody }, {}, () => {
+        void ensureOptInAndSend?.({ text: trimmedMessageBody }, {}, () => {
           track('Assistant Prompt Submitted', {
             user_input_length: trimmedMessageBody.length,
           });
