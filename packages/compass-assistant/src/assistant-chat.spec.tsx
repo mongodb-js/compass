@@ -8,7 +8,11 @@ import {
 import { AssistantChat } from './assistant-chat';
 import { expect } from 'chai';
 import { createMockChat } from '../test/utils';
-import type { AssistantMessage } from './compass-assistant-provider';
+import {
+  AssistantActionsContext,
+  type AssistantMessage,
+} from './compass-assistant-provider';
+import sinon from 'sinon';
 
 describe('AssistantChat', function () {
   const mockMessages: AssistantMessage[] = [
@@ -31,10 +35,30 @@ describe('AssistantChat', function () {
 
   function renderWithChat(messages: AssistantMessage[]) {
     const chat = createMockChat({ messages });
-    const result = render(<AssistantChat chat={chat} />);
+
+    // The chat component does not use chat.sendMessage() directly, it uses
+    // ensureOptInAndSend() via the AssistantActionsContext.
+    const ensureOptInAndSendStub = sinon
+      .stub()
+      .callsFake(async (message, options, callback) => {
+        // call the callback so we can test the tracking
+        callback();
+
+        await chat.sendMessage(message, options);
+      });
+
+    const assistantActionsContext = {
+      ensureOptInAndSend: ensureOptInAndSendStub,
+    };
+    const result = render(
+      <AssistantActionsContext.Provider value={assistantActionsContext as any}>
+        <AssistantChat chat={chat} />
+      </AssistantActionsContext.Provider>
+    );
     return {
       result,
       chat,
+      ensureOptInAndSendStub,
     };
   }
 
@@ -121,8 +145,8 @@ describe('AssistantChat', function () {
     );
   });
 
-  it('calls sendMessage when form is submitted', async function () {
-    const { chat, result } = renderWithChat([]);
+  it('calls ensureOptInAndSend when form is submitted', async function () {
+    const { ensureOptInAndSendStub, result } = renderWithChat([]);
     const { track } = result;
     const inputField = screen.getByPlaceholderText(
       'Ask MongoDB Assistant a question'
@@ -132,8 +156,7 @@ describe('AssistantChat', function () {
     userEvent.type(inputField, 'What is aggregation?');
     userEvent.click(sendButton);
 
-    expect(chat.sendMessage.calledWith({ text: 'What is aggregation?' })).to.be
-      .true;
+    expect(ensureOptInAndSendStub.called).to.be.true;
 
     await waitFor(() => {
       expect(track).to.have.been.calledWith('Assistant Prompt Submitted', {
@@ -158,7 +181,7 @@ describe('AssistantChat', function () {
   });
 
   it('trims whitespace from input before sending', async function () {
-    const { chat, result } = renderWithChat([]);
+    const { ensureOptInAndSendStub, result } = renderWithChat([]);
     const { track } = result;
 
     const inputField = screen.getByPlaceholderText(
@@ -168,8 +191,7 @@ describe('AssistantChat', function () {
     userEvent.type(inputField, '  What is sharding?  ');
     userEvent.click(screen.getByLabelText('Send message'));
 
-    expect(chat.sendMessage.calledWith({ text: 'What is sharding?' })).to.be
-      .true;
+    expect(ensureOptInAndSendStub.called).to.be.true;
 
     await waitFor(() => {
       expect(track).to.have.been.calledWith('Assistant Prompt Submitted', {
@@ -178,8 +200,8 @@ describe('AssistantChat', function () {
     });
   });
 
-  it('does not call sendMessage when input is empty or whitespace-only', function () {
-    const { chat } = renderWithChat([]);
+  it('does not call ensureOptInAndSend when input is empty or whitespace-only', function () {
+    const { ensureOptInAndSendStub } = renderWithChat([]);
 
     const inputField = screen.getByPlaceholderText(
       'Ask MongoDB Assistant a question'
@@ -188,12 +210,12 @@ describe('AssistantChat', function () {
 
     // Test empty input
     userEvent.click(chatForm);
-    expect(chat.sendMessage.notCalled).to.be.true;
+    expect(ensureOptInAndSendStub.notCalled).to.be.true;
 
     // Test whitespace-only input
     userEvent.type(inputField, '   ');
     userEvent.click(chatForm);
-    expect(chat.sendMessage.notCalled).to.be.true;
+    expect(ensureOptInAndSendStub.notCalled).to.be.true;
   });
 
   it('displays user and assistant messages with different styling', function () {

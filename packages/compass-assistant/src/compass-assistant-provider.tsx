@@ -4,10 +4,12 @@ import { Chat } from './@ai-sdk/react/chat-react';
 import { createContext, useContext } from 'react';
 import {
   createServiceLocator,
-  createServiceProvider,
   registerCompassPlugin,
 } from '@mongodb-js/compass-app-registry';
-import { atlasServiceLocator } from '@mongodb-js/atlas-service/provider';
+import {
+  atlasAuthServiceLocator,
+  atlasServiceLocator,
+} from '@mongodb-js/atlas-service/provider';
 import { DocsProviderTransport } from './docs-provider-transport';
 import { useDrawerActions } from '@mongodb-js/compass-components';
 import {
@@ -21,6 +23,7 @@ import { usePreference } from 'compass-preferences-model/provider';
 import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
+import type { AtlasAiService } from '@mongodb-js/compass-generative-ai/provider';
 import { atlasAiServiceLocator } from '@mongodb-js/compass-generative-ai/provider';
 
 export const ASSISTANT_DRAWER_ID = 'compass-assistant-drawer';
@@ -121,11 +124,11 @@ export const compassAssistantServiceLocator = createServiceLocator(
 export const AssistantProvider: React.FunctionComponent<
   PropsWithChildren<{
     chat: Chat<AssistantMessage>;
+    atlasAiService: AtlasAiService;
   }>
-> = createServiceProvider(function AssistantProvider({ chat, children }) {
+> = ({ chat, atlasAiService, children }) => {
   const { openDrawer } = useDrawerActions();
   const track = useTelemetry();
-  const atlasAiService = atlasAiServiceLocator();
   const createEntryPointHandler = useRef(function <T>(
     entryPointName:
       | 'explain plan'
@@ -191,44 +194,57 @@ export const AssistantProvider: React.FunctionComponent<
       </AssistantActionsContext.Provider>
     </AssistantContext.Provider>
   );
-});
+};
 
 export const CompassAssistantProvider = registerCompassPlugin(
   {
     name: 'CompassAssistant',
     component: ({
       chat,
+      atlasAiService,
       children,
     }: PropsWithChildren<{
       chat?: Chat<AssistantMessage>;
+      atlasAiService?: AtlasAiService;
     }>) => {
       if (!chat) {
         throw new Error('Chat was not provided by the state');
       }
-      return <AssistantProvider chat={chat}>{children}</AssistantProvider>;
+      if (!atlasAiService) {
+        throw new Error('atlasAiService was not provided by the state');
+      }
+      return (
+        <AssistantProvider chat={chat} atlasAiService={atlasAiService}>
+          {children}
+        </AssistantProvider>
+      );
     },
-    activate: (initialProps, { atlasService, logger }) => {
-      const chat = new Chat({
-        transport: new DocsProviderTransport({
-          baseUrl: atlasService.assistantApiEndpoint(),
-        }),
-        onError: (err) => {
-          logger.log.error(
-            logger.mongoLogId(1_001_000_370),
-            'Assistant',
-            'Failed to send a message',
-            { err }
-          );
-        },
-      });
+    activate: (initialProps, { atlasService, atlasAiService, logger }) => {
+      const chat =
+        initialProps.chat ??
+        new Chat({
+          transport: new DocsProviderTransport({
+            baseUrl: atlasService.assistantApiEndpoint(),
+          }),
+          onError: (err) => {
+            logger.log.error(
+              logger.mongoLogId(1_001_000_370),
+              'Assistant',
+              'Failed to send a message',
+              { err }
+            );
+          },
+        });
       return {
-        store: { state: { chat } },
+        store: { state: { chat, atlasAiService } },
         deactivate: () => {},
       };
     },
   },
   {
     atlasService: atlasServiceLocator,
+    atlasAiService: atlasAiServiceLocator,
+    atlasAuthService: atlasAuthServiceLocator,
     logger: createLoggerLocator('COMPASS-ASSISTANT'),
   }
 );
