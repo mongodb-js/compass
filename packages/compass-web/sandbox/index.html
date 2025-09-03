@@ -11,28 +11,16 @@
     <style>
       body {
         margin: 0;
-        background: #00a35c;
-      }
-      #container {
-        --offset: 30px;
-        position: absolute;
-        top: var(--offset);
-        bottom: var(--offset);
-        left: var(--offset);
-        right: var(--offset);
       }
       #sandbox-app {
-        width: 100%;
-        height: 100%;
+        width: 100vw;
+        height: 100vh;
       }
     </style>
   </head>
 
   <body>
-    <!-- Mounting app inside an offset container simulate embedding more realistically -->
-    <div id="container">
-      <div id="sandbox-app"></div>
-    </div>
+    <div id="sandbox-app"></div>
     <script src="/index.js"></script>
   </body>
 </html>
