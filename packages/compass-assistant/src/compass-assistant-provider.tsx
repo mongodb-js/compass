@@ -70,6 +70,12 @@ type AssistantActionsContextType = {
     callback: () => void
   ) => Promise<void>;
 };
+
+type AssistantActionsType = Omit<
+  AssistantActionsContextType,
+  'ensureOptInAndSend' | 'clearChat'
+>;
+
 export const AssistantActionsContext =
   createContext<AssistantActionsContextType>({
     interpretExplainPlan: () => {},
@@ -79,10 +85,7 @@ export const AssistantActionsContext =
     ensureOptInAndSend: async () => {},
   });
 
-export function useAssistantActions(): Omit<
-  AssistantActionsContextType,
-  'ensureOptInAndSend' | 'clearChat'
-> {
+export function useAssistantActions(): AssistantActionsType {
   const actions = useContext(AssistantActionsContext);
   const isAIFeatureEnabled = useIsAIFeatureEnabled();
   const isAssistantFlagEnabled = usePreference('enableAIAssistant');
@@ -105,16 +108,10 @@ export function useAssistantActions(): Omit<
 
 export const compassAssistantServiceLocator = createServiceLocator(function () {
   const actions = useAssistantActions();
-
   return actions;
 }, 'compassAssistantLocator');
 
-export type CompassAssistantService = Omit<
-  AssistantActionsContextType,
-  'ensureOptInAndSend' | 'clearChat'
-> & {
-  getIsAssistantEnabled: () => boolean;
-};
+export type CompassAssistantService = AssistantActionsType;
 
 export const AssistantProvider: React.FunctionComponent<
   PropsWithChildren<{
