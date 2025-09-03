@@ -168,7 +168,7 @@ describe('MockDataGeneratorModal', () => {
       expect(mockServices.atlasAiService.getAbortSignalReceived()).to.be.true;
     });
 
-    it('cancels in-flight faker mapping requests when the back button is clicked', async () => {
+    it('cancels in-flight faker mapping requests when the back button is clicked after schema confirmation', async () => {
       const mockServices = createMockServicesWithSlowAiRequest();
       renderModal({ mockServices: mockServices as any });
 

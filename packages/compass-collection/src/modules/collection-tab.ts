@@ -384,12 +384,7 @@ const reducer: Reducer<CollectionState, Action> = (
   ) {
     if (
       state.mockDataGenerator.currentStep !==
-      MockDataGeneratorStep.SCHEMA_CONFIRMATION
-    ) {
-      return state;
-    }
-
-    if (
+        MockDataGeneratorStep.SCHEMA_CONFIRMATION ||
       state.fakerSchemaGeneration.status === 'in-progress' ||
       state.fakerSchemaGeneration.status === 'completed'
     ) {
