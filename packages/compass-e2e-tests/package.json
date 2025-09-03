@@ -58,7 +58,7 @@
     "hadron-build": "^25.8.11",
     "lodash": "^4.17.21",
     "mocha": "^10.2.0",
-    "mongodb": "^6.17.0",
+    "mongodb": "^6.19.0",
     "mongodb-build-info": "^1.7.2",
     "mongodb-connection-string-url": "^3.0.1",
     "mongodb-log-writer": "^2.3.4",

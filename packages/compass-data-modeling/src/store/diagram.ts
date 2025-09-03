@@ -29,7 +29,11 @@ import type { MongoDBJSONSchema } from 'mongodb-schema';
 import { getCoordinatesForNewNode } from '@mongodb-js/diagramming';
 import { collectionToBaseNodeForLayout } from '../utils/nodes-and-edges';
 import toNS from 'mongodb-ns';
-import { traverseSchema } from '../utils/schema-traversal';
+import {
+  getFieldFromSchema,
+  getSchemaWithNewTypes,
+  traverseSchema,
+} from '../utils/schema-traversal';
 import { applyEdit as _applyEdit } from './apply-edit';
 import { getNewUnusedFieldName } from '../utils/schema';
 
@@ -716,6 +720,34 @@ export function renameField(
   newName: string
 ): DataModelingThunkAction<boolean, ApplyEditAction | ApplyEditFailedAction> {
   return applyEdit({ type: 'RenameField', ns, field, newName });
+}
+
+export function changeFieldType(
+  ns: string,
+  fieldPath: FieldPath,
+  newTypes: string[]
+): DataModelingThunkAction<void, ApplyEditAction | ApplyEditFailedAction> {
+  return (dispatch, getState) => {
+    const collectionSchema = selectCurrentModelFromState(
+      getState()
+    ).collections.find((collection) => collection.ns === ns)?.jsonSchema;
+    if (!collectionSchema) throw new Error('Collection not found in model');
+    const field = getFieldFromSchema({
+      jsonSchema: collectionSchema,
+      fieldPath: fieldPath,
+    });
+    if (!field) throw new Error('Field not found in schema');
+    const to = getSchemaWithNewTypes(field.jsonSchema, newTypes);
+    dispatch(
+      applyEdit({
+        type: 'ChangeFieldType',
+        ns,
+        field: fieldPath,
+        from: field.jsonSchema,
+        to,
+      })
+    );
+  };
 }
 
 function getPositionForNewCollection(
