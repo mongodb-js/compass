@@ -385,3 +385,24 @@ export function useConnectionsListLoadingStatus() {
     };
   }, isEqual);
 }
+
+/**
+ * Returns the connecting steps for a specific connection when in connecting state
+ */
+export function useConnectionConnectingSteps(connectionId: ConnectionId): {
+  topology: 'pending' | 'in-progress' | 'completed' | 'failed';
+  authentication: 'pending' | 'in-progress' | 'completed' | 'failed';
+  listingDatabases: 'pending' | 'in-progress' | 'completed' | 'failed';
+} | null {
+  return useSelector(
+    (state) => {
+      const connection = state.connections.byId[connectionId];
+      return connection?.status === 'connecting'
+        ? connection.connectingSteps
+        : null;
+    },
+    (a, b) => {
+      return isShallowEqual(a, b);
+    }
+  );
+}
