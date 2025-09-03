@@ -273,7 +273,6 @@ describe('Connection string', function () {
   before(async function () {
     compass = await init(this.test?.fullTitle());
     browser = compass.browser;
-    await browser.setFeature('enableAIAssistant', true);
   });
 
   beforeEach(async function () {
@@ -333,26 +332,6 @@ describe('Connection string', function () {
     await browser
       .$(Selectors.ConnectionModal)
       .waitForDisplayed({ reverse: true });
-
-    // TODO(COMPASS-9768) this should work on compass web
-    if (!TEST_COMPASS_WEB) {
-      await browser.clickVisible(Selectors.ConnectionToastErrorDebugButton);
-      // TODO(COMPASS-9759) we might have to opt-in via the modal once that's a thing
-      const messagesElement = browser.$(Selectors.AssistantChatMessages);
-      await messagesElement.waitForDisplayed();
-      // TODO(COMPASS-9748) check the response from the chatbot too
-
-      await browser.waitUntil(async () => {
-        return (await messagesElement.getText()).includes(
-          'Diagnose why my Compass connection is failing and help me debug it.'
-        );
-      });
-
-      // clear the chat so that a broken message doesn't break every future message
-      await browser.clickVisible(Selectors.AssistantClearChatButton);
-      await browser.clickVisible(Selectors.ConfirmClearChatModalConfirmButton);
-      await browser.clickVisible(Selectors.SideDrawerCloseButton);
-    }
   });
 
   it('can connect to an Atlas replicaset without srv', async function () {

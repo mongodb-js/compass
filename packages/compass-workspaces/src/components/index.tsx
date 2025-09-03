@@ -72,12 +72,13 @@ const horizontalSplitStyles = css({
   display: 'grid',
   gridTemplateColumns: 'min-content auto',
   minHeight: 0,
+  overflowX: 'auto',
 });
 
 const workspacesStyles = css({
   minHeight: 0,
   overflow: 'hidden',
-  minWidth: '750px', // roughly the minimum needed for the CRUD toolbars
+  minWidth: '730px', // roughly the minimum needed for the CRUD toolbars
 });
 
 const sidebarStyles = css({

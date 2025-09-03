@@ -60,7 +60,7 @@
     "@mongodb-js/mongodb-constants": "^0.14.0",
     "compass-preferences-model": "^2.51.0",
     "hadron-document": "^8.9.6",
-    "mongodb": "^6.17.0",
+    "mongodb": "^6.19.0",
     "mongodb-collection-model": "^5.31.2",
     "mongodb-ns": "^2.4.2",
     "mongodb-schema": "^12.6.2",

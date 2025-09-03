@@ -1601,26 +1601,6 @@ type AiOptInModalDismissedEvent = CommonEvent<{
 }>;
 
 /**
- * This event is fired when the AI Sign-In Modal is shown to the user.
- *
- * @category Gen AI
- */
-type AiSignInModalShownEvent = CommonEvent<{
-  name: 'AI Sign In Modal Shown';
-  payload: Record<string, never>;
-}>;
-
-/**
- * This event is fired when the AI Sign-In Modal is dismissed by the user.
- *
- * @category Gen AI
- */
-type AiSignInModalDismissedEvent = CommonEvent<{
-  name: 'AI Sign In Modal Dismissed';
-  payload: Record<string, never>;
-}>;
-
-/**
  * This event is fired when a user clicks the Generate Query / Aggregation entry point.
  *
  * @category Gen AI
@@ -3054,8 +3034,6 @@ export type TelemetryEvent =
   | AssistantEntryPointUsedEvent
   | AiOptInModalShownEvent
   | AiOptInModalDismissedEvent
-  | AiSignInModalShownEvent
-  | AiSignInModalDismissedEvent
   | AiGenerateQueryClickedEvent
   | AiPromptSubmittedEvent
   | AiQueryFeedbackEvent

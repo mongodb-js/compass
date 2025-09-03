@@ -50,7 +50,7 @@
     "eventemitter3": "^4.0.0",
     "hadron-type-checker": "^7.4.18",
     "lodash": "^4.17.21",
-    "mongodb": "^6.17.0"
+    "mongodb": "^6.19.0"
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-compass": "^1.4.7",

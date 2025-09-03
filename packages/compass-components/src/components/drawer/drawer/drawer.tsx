@@ -28,6 +28,11 @@ import {
 } from './drawer.styles';
 import { DisplayMode, type DrawerProps } from './drawer.types';
 import { Icon } from '../../leafygreen';
+import { css, cx } from '@leafygreen-ui/emotion';
+
+const noPaddingFixesStyles = css({
+  padding: 0,
+});
 
 export const Drawer = forwardRef<HTMLDivElement, DrawerProps>(
   (
@@ -40,6 +45,7 @@ export const Drawer = forwardRef<HTMLDivElement, DrawerProps>(
       onClose,
       open = false,
       title,
+      hasPadding = true,
       ...rest
     },
     fwdRef
@@ -168,7 +174,11 @@ export const Drawer = forwardRef<HTMLDivElement, DrawerProps>(
                   theme,
                 })}
               >
-                <div className={innerChildrenContainerStyles}>
+                <div
+                  className={cx(innerChildrenContainerStyles, {
+                    [noPaddingFixesStyles]: !hasPadding,
+                  })}
+                >
                   {/* Empty span element used to track if children container has scrolled down */}
                   {<span ref={interceptRef} />}
                   {children}

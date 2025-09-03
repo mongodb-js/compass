@@ -104,7 +104,7 @@ export const ExplainPlanModal: React.FunctionComponent<
   error,
   onModalClose,
 }) => {
-  const { interpretExplainPlan, isAssistantEnabled } = useAssistantActions();
+  const { interpretExplainPlan } = useAssistantActions();
 
   return (
     <Modal
@@ -132,7 +132,7 @@ export const ExplainPlanModal: React.FunctionComponent<
             }
           />
         </div>
-        {isAssistantEnabled && explainPlan && (
+        {explainPlan && interpretExplainPlan && (
           <div className={headerButtonSectionStyles}>
             <Button
               size="small"

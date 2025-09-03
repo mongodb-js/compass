@@ -16,7 +16,10 @@ import {
   type EntryPointMessage,
   type ProactiveInsightsContext,
 } from './prompts';
-import { usePreference } from 'compass-preferences-model/provider';
+import {
+  useIsAIFeatureEnabled,
+  usePreference,
+} from 'compass-preferences-model/provider';
 import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
@@ -37,22 +40,22 @@ export const AssistantContext = createContext<AssistantContextType | null>(
 );
 
 type AssistantActionsContextType = {
-  interpretExplainPlan: ({
+  interpretExplainPlan?: ({
     namespace,
     explainPlan,
   }: {
     namespace: string;
     explainPlan: string;
   }) => void;
-  interpretConnectionError: ({
+  interpretConnectionError?: ({
     connectionInfo,
     error,
   }: {
     connectionInfo: ConnectionInfo;
     error: Error;
   }) => void;
-  clearChat: () => void;
-  tellMoreAboutInsight: (context: ProactiveInsightsContext) => void;
+  clearChat?: () => void;
+  tellMoreAboutInsight?: (context: ProactiveInsightsContext) => void;
 };
 export const AssistantActionsContext =
   createContext<AssistantActionsContextType>({
@@ -62,29 +65,21 @@ export const AssistantActionsContext =
     clearChat: () => {},
   });
 
-export function useAssistantActions(): AssistantActionsContextType & {
-  isAssistantEnabled: boolean;
-} {
-  const isAssistantEnabled = usePreference('enableAIAssistant');
+export function useAssistantActions(): AssistantActionsContextType {
+  const isAIFeatureEnabled = useIsAIFeatureEnabled();
+  const isAssistantFlagEnabled = usePreference('enableAIAssistant');
+  const actions = useContext(AssistantActionsContext);
+  if (!isAIFeatureEnabled || !isAssistantFlagEnabled) {
+    return {};
+  }
 
-  return {
-    ...useContext(AssistantActionsContext),
-    isAssistantEnabled,
-  };
+  return actions;
 }
 
 export const compassAssistantServiceLocator = createServiceLocator(function () {
-  const { isAssistantEnabled, ...actions } = useAssistantActions();
+  const actions = useAssistantActions();
 
-  const assistantEnabledRef = useRef(isAssistantEnabled);
-  assistantEnabledRef.current = isAssistantEnabled;
-
-  return {
-    ...actions,
-    getIsAssistantEnabled() {
-      return assistantEnabledRef.current;
-    },
-  };
+  return actions;
 }, 'compassAssistantLocator');
 
 export type CompassAssistantService = ReturnType<
@@ -160,7 +155,7 @@ export const CompassAssistantProvider = registerCompassPlugin(
         transport: new DocsProviderTransport({
           baseUrl: atlasService.assistantApiEndpoint(),
         }),
-        onError: (err) => {
+        onError: (err: Error) => {
           logger.log.error(
             logger.mongoLogId(1_001_000_370),
             'Assistant',

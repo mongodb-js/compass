@@ -35,7 +35,7 @@ declare module 'process' {
         HADRON_AUTO_UPDATE_ENDPOINT_OVERRIDE?: string;
         COMPASS_ATLAS_SERVICE_UNAUTH_BASE_URL_OVERRIDE?: string;
         COMPASS_CLIENT_ID_OVERRIDE?: string;
-        COMPASS_E2E_SKIP_ATLAS_SIGNIN?: string;
+        COMPASS_E2E_SKIP_AI_OPT_IN?: string;
         COMPASS_OIDC_ISSUER_OVERRIDE?: string;
         COMPASS_ATLAS_AUTH_PORTAL_URL_OVERRIDE?: string;
       }

@@ -21,7 +21,6 @@ import Sidebar from './sidebar';
 import type { SettingsTabId } from '../stores/settings';
 import { saveSettings, closeModal, selectTab } from '../stores/settings';
 import type { RootState } from '../stores';
-import { getUserInfo } from '../stores/atlas-login';
 import { useHasAIFeatureCloudRolloutAccess } from 'compass-preferences-model/provider';
 
 type Settings = {
@@ -31,7 +30,6 @@ type Settings = {
 };
 
 type SettingsModalProps = {
-  isAIFeatureEnabled: boolean;
   isOpen: boolean;
   isOIDCEnabled: boolean;
   selectedTab: SettingsTabId | undefined;
@@ -63,7 +61,6 @@ const settingsStyles = css(
 );
 
 export const SettingsModal: React.FunctionComponent<SettingsModalProps> = ({
-  isAIFeatureEnabled,
   isOpen,
   selectedTab,
   onMount,
@@ -91,11 +88,7 @@ export const SettingsModal: React.FunctionComponent<SettingsModalProps> = ({
     },
   ];
 
-  if (
-    isOIDCEnabled ||
-    // because oidc options overlap with atlas login used for ai feature
-    isAIFeatureEnabled
-  ) {
+  if (isOIDCEnabled) {
     settings.push({
       tabId: 'oidc',
       name: 'OIDC',
@@ -163,14 +156,12 @@ export default connect(
     return {
       isOpen:
         state.settings.isModalOpen && state.settings.loadingState === 'ready',
-      isAIFeatureEnabled: !!state.settings.settings.enableGenAIFeatures,
       isOIDCEnabled: !!state.settings.settings.enableOidc,
       hasChangedSettings: state.settings.updatedFields.length > 0,
       selectedTab: state.settings.tab,
     };
   },
   {
-    onMount: getUserInfo,
     onClose: closeModal,
     onSave: saveSettings,
     onSelectTab: selectTab,

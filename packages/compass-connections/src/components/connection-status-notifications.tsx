@@ -41,10 +41,8 @@ export function getConnectingStatusText(connectionInfo: ConnectionInfo) {
 type ConnectionErrorToastBodyProps = {
   info?: ConnectionInfo | null;
   error: Error;
-  showReviewButton: boolean;
-  showDebugButton: boolean;
-  onReview: () => void;
-  onDebug: () => void;
+  onReview?: () => void;
+  onDebug?: () => void;
 };
 
 const connectionErrorToastStyles = css({
@@ -94,8 +92,6 @@ const debugActionStyles = css({
 function ConnectionErrorToastBody({
   info,
   error,
-  showReviewButton,
-  showDebugButton,
   onReview,
   onDebug,
 }: ConnectionErrorToastBodyProps): React.ReactElement {
@@ -111,7 +107,7 @@ function ConnectionErrorToastBody({
         <span data-testid="connection-error-text">{error.message}</span>
       </span>
       <span className={connectionErrorActionsStyles}>
-        {info && showReviewButton && (
+        {info && onReview && (
           <span>
             <Button
               onClick={onReview}
@@ -122,7 +118,7 @@ function ConnectionErrorToastBody({
             </Button>
           </span>
         )}
-        {info && showDebugButton && (
+        {info && onDebug && (
           <span className={debugActionStyles}>
             <Icon glyph="Sparkle" size="small"></Icon>
             <Link
@@ -182,8 +178,6 @@ const openConnectionSucceededToast = (connectionInfo: ConnectionInfo) => {
 const openConnectionFailedToast = ({
   connectionInfo,
   error,
-  showReviewButton,
-  showDebugButton,
   onReviewClick,
   onDebugClick,
 }: {
@@ -192,10 +186,8 @@ const openConnectionFailedToast = ({
   // can happen is autoconnect flow
   connectionInfo: ConnectionInfo | null | undefined;
   error: Error;
-  showReviewButton: boolean;
-  showDebugButton: boolean;
-  onReviewClick: () => void;
-  onDebugClick: () => void;
+  onReviewClick?: () => void;
+  onDebugClick?: () => void;
 }) => {
   const failedToastId = connectionInfo?.id ?? 'failed';
 
@@ -206,19 +198,19 @@ const openConnectionFailedToast = ({
       <ConnectionErrorToastBody
         info={connectionInfo}
         error={error}
-        showReviewButton={showReviewButton}
-        showDebugButton={showDebugButton}
-        onReview={() => {
-          if (!showDebugButton) {
-            // don't close the toast if there are two actions so that the user
-            // can still use the other one
-            closeToast(`connection-status--${failedToastId}`);
-          }
-          onReviewClick();
-        }}
-        onDebug={() => {
-          onDebugClick();
-        }}
+        onReview={
+          onReviewClick
+            ? () => {
+                if (!onDebugClick) {
+                  // don't close the toast if there are two actions so that the user
+                  // can still use the other one
+                  closeToast(`connection-status--${failedToastId}`);
+                }
+                onReviewClick();
+              }
+            : undefined
+        }
+        onDebug={onDebugClick}
       />
     ),
     variant: 'warning',

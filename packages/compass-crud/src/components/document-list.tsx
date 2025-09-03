@@ -558,11 +558,13 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
               isSearchIndexesSupported,
               onCreateIndex: store.openCreateIndexModal.bind(store),
               onCreateSearchIndex: store.openCreateSearchIndexModal.bind(store),
-              onAssistantButtonClick: () =>
-                tellMoreAboutInsight({
-                  id: 'query-executed-without-index',
-                  query: JSON.stringify(query),
-                }),
+              onAssistantButtonClick: tellMoreAboutInsight
+                ? () =>
+                    tellMoreAboutInsight({
+                      id: 'query-executed-without-index',
+                      query: JSON.stringify(query),
+                    })
+                : undefined,
             })}
             docsPerPage={docsPerPage}
             updateMaxDocumentsPerPage={handleMaxDocsPerPageChanged}

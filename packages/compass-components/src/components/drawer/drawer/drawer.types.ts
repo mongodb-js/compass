@@ -44,4 +44,10 @@ export interface DrawerProps
    * Title of the Drawer
    */
   title: React.ReactNode;
+
+  /**
+   * Determines if the Drawer has padding
+   * @defaultValue true
+   */
+  hasPadding?: boolean;
 }
