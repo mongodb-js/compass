@@ -16,7 +16,7 @@ export const getToolbarSignal = ({
   isSearchIndexesSupported: boolean;
   onCreateIndex: () => void;
   onCreateSearchIndex: () => void;
-  onAssistantButtonClick: () => void;
+  onAssistantButtonClick?: () => void;
 }): Signal | undefined => {
   if (!isCollectionScan) {
     return undefined;

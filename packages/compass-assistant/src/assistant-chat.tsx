@@ -17,15 +17,20 @@ import {
   fontFamilies,
   palette,
   useDarkMode,
+  LgChatChatDisclaimer,
+  Link,
 } from '@mongodb-js/compass-components';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 
+const { DisclaimerText } = LgChatChatDisclaimer;
 const { ChatWindow } = LgChatChatWindow;
 const { LeafyGreenChatProvider, Variant } = LgChatLeafygreenChatProvider;
 const { Message } = LgChatMessage;
 const { MessageFeed } = LgChatMessageFeed;
 const { MessageActions } = LgChatMessageActions;
 const { InputBar } = LgChatInputBar;
+
+const GEN_AI_FAQ_LINK = 'https://www.mongodb.com/docs/generative-ai-faq/';
 
 interface AssistantChatProps {
   chat: Chat<AssistantMessage>;
@@ -55,6 +60,9 @@ const headerStyleLightModeFixes = css({
 
 // TODO(COMPASS-9751): These are temporary patches to make the Assistant chat take the entire
 // width and height of the drawer since Leafygreen doesn't support this yet.
+const inputBarFixesStyles = css({
+  marginBottom: -spacing[400],
+});
 const assistantChatFixesStyles = css({
   // Negative margin to patch the padding of the drawer.
   marginTop: -spacing[400],
@@ -95,6 +103,9 @@ const assistantChatFixesStyles = css({
 const messageFeedFixesStyles = css({ height: '100%' });
 const chatWindowFixesStyles = css({
   height: '100%',
+});
+const welcomeMessageStyles = css({
+  padding: spacing[400],
 });
 
 function makeErrorMessage(message: string) {
@@ -194,6 +205,17 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
             data-testid="assistant-chat-messages"
             className={messageFeedFixesStyles}
           >
+            <DisclaimerText>
+              This feature is powered by generative AI. See our{' '}
+              <Link
+                hideExternalIcon={false}
+                href={GEN_AI_FAQ_LINK}
+                target="_blank"
+              >
+                FAQ
+              </Link>{' '}
+              for more information. Please review the outputs carefully.
+            </DisclaimerText>
             {lgMessages.map((messageFields) => (
               <Message
                 key={messageFields.id}
@@ -209,13 +231,6 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
                 )}
               </Message>
             ))}
-            {status === 'submitted' && (
-              <Message
-                id="loading"
-                messageBody="Thinking..."
-                isSender={false}
-              />
-            )}
           </MessageFeed>
           {error && (
             <div className={errorBannerWrapperStyles}>
@@ -224,9 +239,18 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
               </Banner>
             </div>
           )}
+          {lgMessages.length === 0 && (
+            <div className={welcomeMessageStyles}>
+              <h4>Welcome to your MongoDB Assistant.</h4>
+              Ask any question about MongoDB to receive expert guidance and
+              documentation right in your window.
+            </div>
+          )}
           <InputBar
             data-testid="assistant-chat-input"
             onMessageSend={handleMessageSend}
+            className={inputBarFixesStyles}
+            state={status === 'submitted' ? 'loading' : undefined}
             textareaProps={{
               placeholder: 'Ask MongoDB Assistant a question',
             }}

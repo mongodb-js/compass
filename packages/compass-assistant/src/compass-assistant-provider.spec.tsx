@@ -1,6 +1,7 @@
 import React from 'react';
 import {
   render,
+  renderHook,
   screen,
   userEvent,
   waitFor,
@@ -9,6 +10,7 @@ import {
 } from '@mongodb-js/testing-library-compass';
 import {
   CompassAssistantProvider,
+  useAssistantActions,
   type AssistantMessage,
 } from './compass-assistant-provider';
 import { expect } from 'chai';
@@ -25,20 +27,15 @@ import { CompassAssistantDrawer } from './compass-assistant-drawer';
 import { createMockChat } from '../test/utils';
 import { type AtlasAiService } from '@mongodb-js/compass-generative-ai/provider';
 
-// Test component that renders CompassAssistantProvider (and AssistantProvider) with children
-const TestComponent: React.FunctionComponent<{
-  chat: Chat<AssistantMessage>;
-  autoOpen?: boolean;
-  mockAtlasService?: any;
-  mockAtlasAiService?: any;
-  mockAtlasAuthService?: any;
-}> = ({
-  chat,
-  autoOpen,
+function createMockProvider({
   mockAtlasService,
   mockAtlasAiService,
   mockAtlasAuthService,
-}) => {
+}: {
+  mockAtlasService?: any;
+  mockAtlasAiService?: any;
+  mockAtlasAuthService?: any;
+} = {}) {
   if (!mockAtlasService) {
     mockAtlasService = {
       assistantApiEndpoint: sinon
@@ -57,10 +54,31 @@ const TestComponent: React.FunctionComponent<{
     mockAtlasAuthService = {};
   }
 
-  const MockedProvider = CompassAssistantProvider.withMockServices({
+  return CompassAssistantProvider.withMockServices({
     atlasService: mockAtlasService as unknown as AtlasService,
     atlasAiService: mockAtlasAiService as unknown as AtlasAiService,
     atlasAuthService: mockAtlasAuthService as unknown as AtlasAuthService,
+  });
+}
+
+// Test component that renders CompassAssistantProvider (and AssistantProvider) with children
+const TestComponent: React.FunctionComponent<{
+  chat: Chat<AssistantMessage>;
+  autoOpen?: boolean;
+  mockAtlasService?: any;
+  mockAtlasAiService?: any;
+  mockAtlasAuthService?: any;
+}> = ({
+  chat,
+  autoOpen,
+  mockAtlasService,
+  mockAtlasAiService,
+  mockAtlasAuthService,
+}) => {
+  const MockedProvider = createMockProvider({
+    mockAtlasService: mockAtlasService as unknown as AtlasService,
+    mockAtlasAiService: mockAtlasAiService as unknown as AtlasAiService,
+    mockAtlasAuthService: mockAtlasAuthService as unknown as AtlasAuthService,
   });
 
   return (
@@ -74,6 +92,95 @@ const TestComponent: React.FunctionComponent<{
     </DrawerContentProvider>
   );
 };
+
+describe('useAssistantActions', function () {
+  const createWrapper = (chat: Chat<AssistantMessage>) => {
+    function TestWrapper({ children }: { children: React.ReactNode }) {
+      const MockedProvider = createMockProvider();
+
+      return (
+        <DrawerContentProvider>
+          <MockedProvider chat={chat}>{children}</MockedProvider>
+        </DrawerContentProvider>
+      );
+    }
+    return TestWrapper;
+  };
+
+  it('returns empty object when AI features are disabled via isAIFeatureEnabled', function () {
+    const { result } = renderHook(() => useAssistantActions(), {
+      wrapper: createWrapper(createMockChat({ messages: [] })),
+      preferences: {
+        enableAIAssistant: true,
+        // These control isAIFeatureEnabled
+        enableGenAIFeatures: false,
+        enableGenAIFeaturesAtlasOrg: true,
+        cloudFeatureRolloutAccess: { GEN_AI_COMPASS: true },
+      },
+    });
+
+    expect(result.current).to.deep.equal({});
+  });
+
+  it('returns empty object when enableGenAIFeaturesAtlasOrg is disabled', function () {
+    const { result } = renderHook(() => useAssistantActions(), {
+      wrapper: createWrapper(createMockChat({ messages: [] })),
+      preferences: {
+        enableAIAssistant: true,
+        enableGenAIFeatures: true,
+        enableGenAIFeaturesAtlasOrg: false,
+        cloudFeatureRolloutAccess: { GEN_AI_COMPASS: true },
+      },
+    });
+
+    expect(result.current).to.deep.equal({});
+  });
+
+  it('returns empty object when cloudFeatureRolloutAccess is disabled', function () {
+    const { result } = renderHook(() => useAssistantActions(), {
+      wrapper: createWrapper(createMockChat({ messages: [] })),
+      preferences: {
+        enableAIAssistant: true,
+        enableGenAIFeatures: true,
+        enableGenAIFeaturesAtlasOrg: true,
+        cloudFeatureRolloutAccess: { GEN_AI_COMPASS: false },
+      },
+    });
+
+    expect(result.current).to.deep.equal({});
+  });
+
+  it('returns empty object when enableAIAssistant preference is disabled', function () {
+    const { result } = renderHook(() => useAssistantActions(), {
+      wrapper: createWrapper(createMockChat({ messages: [] })),
+      preferences: {
+        enableAIAssistant: false,
+        enableGenAIFeatures: true,
+        enableGenAIFeaturesAtlasOrg: true,
+        cloudFeatureRolloutAccess: { GEN_AI_COMPASS: true },
+      },
+    });
+
+    expect(result.current).to.deep.equal({});
+  });
+
+  it('returns actions when both AI features and assistant flag are enabled', function () {
+    const { result } = renderHook(() => useAssistantActions(), {
+      wrapper: createWrapper(createMockChat({ messages: [] })),
+      preferences: {
+        enableAIAssistant: true,
+        enableGenAIFeatures: true,
+        enableGenAIFeaturesAtlasOrg: true,
+        cloudFeatureRolloutAccess: { GEN_AI_COMPASS: true },
+      },
+    });
+
+    expect(Object.keys(result.current)).to.have.length.greaterThan(0);
+    expect(result.current.interpretExplainPlan).to.be.a('function');
+    expect(result.current.interpretConnectionError).to.be.a('function');
+    expect(result.current.tellMoreAboutInsight).to.be.a('function');
+  });
+});
 
 describe('CompassAssistantProvider', function () {
   const mockMessages: AssistantMessage[] = [
@@ -91,7 +198,12 @@ describe('CompassAssistantProvider', function () {
 
   it('always renders children', function () {
     render(<TestComponent chat={createMockChat({ messages: [] })} />, {
-      preferences: { enableAIAssistant: true },
+      preferences: {
+        enableAIAssistant: true,
+        enableGenAIFeatures: true,
+        enableGenAIFeaturesAtlasOrg: true,
+        cloudFeatureRolloutAccess: { GEN_AI_COMPASS: true },
+      },
     });
 
     expect(screen.getByTestId('provider-children')).to.exist;
@@ -99,7 +211,12 @@ describe('CompassAssistantProvider', function () {
 
   it('does not render assistant drawer when AI assistant is disabled', function () {
     render(<TestComponent chat={createMockChat({ messages: [] })} />, {
-      preferences: { enableAIAssistant: false },
+      preferences: {
+        enableAIAssistant: false,
+        enableGenAIFeatures: true,
+        enableGenAIFeaturesAtlasOrg: true,
+        cloudFeatureRolloutAccess: { GEN_AI_COMPASS: true },
+      },
     });
 
     expect(screen.getByTestId('provider-children')).to.exist;
@@ -109,7 +226,12 @@ describe('CompassAssistantProvider', function () {
 
   it('renders the assistant drawer as the first drawer item when AI assistant is enabled', function () {
     render(<TestComponent chat={createMockChat({ messages: [] })} />, {
-      preferences: { enableAIAssistant: true },
+      preferences: {
+        enableAIAssistant: true,
+        enableGenAIFeatures: true,
+        enableGenAIFeaturesAtlasOrg: true,
+        cloudFeatureRolloutAccess: { GEN_AI_COMPASS: true },
+      },
     });
 
     expect(screen.getByTestId('lg-drawer-toolbar-icon_button-0')).to.have.attr(
@@ -137,7 +259,12 @@ describe('CompassAssistantProvider', function () {
           autoOpen={true}
         />,
         {
-          preferences: { enableAIAssistant: true },
+          preferences: {
+            enableAIAssistant: true,
+            enableGenAIFeatures: true,
+            enableGenAIFeaturesAtlasOrg: true,
+            cloudFeatureRolloutAccess: { GEN_AI_COMPASS: true },
+          },
         }
       );
 
@@ -370,7 +497,12 @@ describe('CompassAssistantProvider', function () {
           <MockedProvider />
         </DrawerContentProvider>,
         {
-          preferences: { enableAIAssistant: true },
+          preferences: {
+            enableAIAssistant: true,
+            enableGenAIFeatures: true,
+            enableGenAIFeaturesAtlasOrg: true,
+            cloudFeatureRolloutAccess: { GEN_AI_COMPASS: true },
+          },
         }
       );
 

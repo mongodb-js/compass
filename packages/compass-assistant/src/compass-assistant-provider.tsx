@@ -19,7 +19,10 @@ import {
   type EntryPointMessage,
   type ProactiveInsightsContext,
 } from './prompts';
-import { usePreference } from 'compass-preferences-model/provider';
+import {
+  useIsAIFeatureEnabled,
+  usePreference,
+} from 'compass-preferences-model/provider';
 import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
@@ -45,23 +48,23 @@ type SendMessage = Parameters<Chat<AssistantMessage>['sendMessage']>[0];
 type SendOptions = Parameters<Chat<AssistantMessage>['sendMessage']>[1];
 
 type AssistantActionsContextType = {
-  interpretExplainPlan: ({
+  interpretExplainPlan?: ({
     namespace,
     explainPlan,
   }: {
     namespace: string;
     explainPlan: string;
   }) => void;
-  interpretConnectionError: ({
+  interpretConnectionError?: ({
     connectionInfo,
     error,
   }: {
     connectionInfo: ConnectionInfo;
     error: Error;
   }) => void;
-  clearChat: () => void;
-  tellMoreAboutInsight: (context: ProactiveInsightsContext) => void;
-  ensureOptInAndSend: (
+  clearChat?: () => void;
+  tellMoreAboutInsight?: (context: ProactiveInsightsContext) => void;
+  ensureOptInAndSend?: (
     message: SendMessage,
     options: SendOptions,
     callback: () => void
@@ -79,47 +82,39 @@ export const AssistantActionsContext =
 export function useAssistantActions(): Omit<
   AssistantActionsContextType,
   'ensureOptInAndSend' | 'clearChat'
-> & {
-  isAssistantEnabled: boolean;
-} {
-  const isAssistantEnabled = usePreference('enableAIAssistant');
+> {
+  const actions = useContext(AssistantActionsContext);
+  const isAIFeatureEnabled = useIsAIFeatureEnabled();
+  const isAssistantFlagEnabled = usePreference('enableAIAssistant');
+  if (!isAIFeatureEnabled || !isAssistantFlagEnabled) {
+    return {};
+  }
+
   const {
     interpretExplainPlan,
     interpretConnectionError,
     tellMoreAboutInsight,
-  } = useContext(AssistantActionsContext);
+  } = actions;
 
   return {
     interpretExplainPlan,
     interpretConnectionError,
     tellMoreAboutInsight,
-    isAssistantEnabled,
   };
 }
 
+export const compassAssistantServiceLocator = createServiceLocator(function () {
+  const actions = useAssistantActions();
+
+  return actions;
+}, 'compassAssistantLocator');
+
 export type CompassAssistantService = Omit<
   AssistantActionsContextType,
-  'isAssistantEnabled' | 'ensureOptInAndSend' | 'clearChat'
+  'ensureOptInAndSend' | 'clearChat'
 > & {
   getIsAssistantEnabled: () => boolean;
 };
-
-export const compassAssistantServiceLocator = createServiceLocator(
-  function (): CompassAssistantService {
-    const { isAssistantEnabled, ...actions } = useAssistantActions();
-
-    const assistantEnabledRef = useRef(isAssistantEnabled);
-    assistantEnabledRef.current = isAssistantEnabled;
-
-    return {
-      ...actions,
-      getIsAssistantEnabled() {
-        return assistantEnabledRef.current;
-      },
-    };
-  },
-  'compassAssistantLocator'
-);
 
 export const AssistantProvider: React.FunctionComponent<
   PropsWithChildren<{
@@ -137,6 +132,11 @@ export const AssistantProvider: React.FunctionComponent<
     builder: (props: T) => EntryPointMessage
   ) {
     return (props: T) => {
+      if (!assistantActionsContext.current.ensureOptInAndSend) {
+        return;
+      }
+
+      openDrawer(ASSISTANT_DRAWER_ID);
       const { prompt, displayText } = builder(props);
       void assistantActionsContext.current.ensureOptInAndSend(
         { text: prompt, metadata: { displayText } },
@@ -226,7 +226,7 @@ export const CompassAssistantProvider = registerCompassPlugin(
           transport: new DocsProviderTransport({
             baseUrl: atlasService.assistantApiEndpoint(),
           }),
-          onError: (err) => {
+          onError: (err: Error) => {
             logger.log.error(
               logger.mongoLogId(1_001_000_370),
               'Assistant',
