@@ -20,7 +20,7 @@ describe('atlasOptInReducer', function () {
   beforeEach(async function () {
     mockPreferences = await createSandboxFromDefaultPreferences();
     await mockPreferences.savePreferences({
-      optInDataExplorerGenAIFeatures: false,
+      optInGenAIFeatures: false,
     });
   });
 
@@ -31,7 +31,7 @@ describe('atlasOptInReducer', function () {
   describe('optIn', function () {
     it('should check state and set state to success if already opted in', async function () {
       const mockAtlasAiService = {
-        optIntoGenAIFeaturesAtlas: sandbox.stub().resolves({ sub: '1234' }),
+        optIntoGenAIFeatures: sandbox.stub().resolves({ sub: '1234' }),
       };
       const store = configureStore({
         atlasAuthService: {} as any,
@@ -45,8 +45,7 @@ describe('atlasOptInReducer', function () {
       );
       void store.dispatch(atlasAiServiceOptedIn());
       await store.dispatch(optIn());
-      expect(mockAtlasAiService.optIntoGenAIFeaturesAtlas).not.to.have.been
-        .called;
+      expect(mockAtlasAiService.optIntoGenAIFeatures).not.to.have.been.called;
       expect(store.getState().optIn).to.have.nested.property(
         'state',
         'optin-success'
@@ -55,7 +54,7 @@ describe('atlasOptInReducer', function () {
 
     it('should start opt in, and set state to success', async function () {
       const mockAtlasAiService = {
-        optIntoGenAIFeaturesAtlas: sandbox.stub().resolves({ sub: '1234' }),
+        optIntoGenAIFeatures: sandbox.stub().resolves({ sub: '1234' }),
       };
       const store = configureStore({
         atlasAuthService: {} as any,
@@ -67,10 +66,11 @@ describe('atlasOptInReducer', function () {
         'state',
         'initial'
       );
-      void store.dispatch(optIntoGenAIWithModalPrompt()).catch(() => {});
+      void store
+        .dispatch(optIntoGenAIWithModalPrompt({ isCloudOptIn: true }))
+        .catch(() => {});
       await store.dispatch(optIn());
-      expect(mockAtlasAiService.optIntoGenAIFeaturesAtlas).to.have.been
-        .calledOnce;
+      expect(mockAtlasAiService.optIntoGenAIFeatures).to.have.been.calledOnce;
       expect(store.getState().optIn).to.have.nested.property(
         'state',
         'optin-success'
@@ -81,13 +81,13 @@ describe('atlasOptInReducer', function () {
       beforeEach(async function () {
         await mockPreferences.savePreferences({
           enableGenAIFeaturesAtlasProject: false,
-          optInDataExplorerGenAIFeatures: true,
+          optInGenAIFeatures: true,
         });
       });
 
       it('should start the opt in flow', async function () {
         const mockAtlasAiService = {
-          optIntoGenAIFeaturesAtlas: sandbox.stub().resolves({ sub: '1234' }),
+          optIntoGenAIFeatures: sandbox.stub().resolves({ sub: '1234' }),
         };
         const store = configureStore({
           atlasAuthService: {} as any,
@@ -99,10 +99,11 @@ describe('atlasOptInReducer', function () {
           'state',
           'initial'
         );
-        void store.dispatch(optIntoGenAIWithModalPrompt()).catch(() => {});
+        void store
+          .dispatch(optIntoGenAIWithModalPrompt({ isCloudOptIn: true }))
+          .catch(() => {});
         await store.dispatch(optIn());
-        expect(mockAtlasAiService.optIntoGenAIFeaturesAtlas).to.have.been
-          .calledOnce;
+        expect(mockAtlasAiService.optIntoGenAIFeatures).to.have.been.calledOnce;
         expect(store.getState().optIn).to.have.nested.property(
           'state',
           'optin-success'
@@ -112,9 +113,7 @@ describe('atlasOptInReducer', function () {
 
     it('should fail opt in if opt in failed', async function () {
       const mockAtlasAiService = {
-        optIntoGenAIFeaturesAtlas: sandbox
-          .stub()
-          .rejects(new Error('Whooops!')),
+        optIntoGenAIFeatures: sandbox.stub().rejects(new Error('Whooops!')),
       };
       const store = configureStore({
         atlasAuthService: {} as any,
@@ -122,13 +121,14 @@ describe('atlasOptInReducer', function () {
         preferences: mockPreferences,
       });
 
-      void store.dispatch(optIntoGenAIWithModalPrompt()).catch(() => {});
+      void store
+        .dispatch(optIntoGenAIWithModalPrompt({ isCloudOptIn: true }))
+        .catch(() => {});
       const optInPromise = store.dispatch(optIn());
       // Avoid unhandled rejections.
       AttemptStateMap.get(attemptId)?.promise.catch(() => {});
       await optInPromise;
-      expect(mockAtlasAiService.optIntoGenAIFeaturesAtlas).to.have.been
-        .calledOnce;
+      expect(mockAtlasAiService.optIntoGenAIFeatures).to.have.been.calledOnce;
       expect(store.getState().optIn).to.have.nested.property('state', 'error');
     });
   });
@@ -153,7 +153,7 @@ describe('atlasOptInReducer', function () {
 
     it('should cancel opt in if opt in is in progress', async function () {
       const mockAtlasAiService = {
-        optIntoGenAIFeaturesAtlas: sandbox
+        optIntoGenAIFeatures: sandbox
           .stub()
           .callsFake(({ signal }: { signal: AbortSignal }) => {
             return new Promise((resolve, reject) => {
@@ -170,7 +170,9 @@ describe('atlasOptInReducer', function () {
         preferences: mockPreferences,
       });
 
-      void store.dispatch(optIntoGenAIWithModalPrompt()).catch(() => {});
+      void store
+        .dispatch(optIntoGenAIWithModalPrompt({ isCloudOptIn: true }))
+        .catch(() => {});
 
       await Promise.all([
         store.dispatch(optIn()),
@@ -183,10 +185,10 @@ describe('atlasOptInReducer', function () {
     });
   });
 
-  describe('optIntoAtlasWithModalPrompt', function () {
+  describe('optIntoGenAIWithModalPrompt', function () {
     it('should resolve when user finishes opt in with prompt flow', async function () {
       const mockAtlasAiService = {
-        optIntoGenAIFeaturesAtlas: sandbox.stub().resolves({ sub: '1234' }),
+        optIntoGenAIFeatures: sandbox.stub().resolves({ sub: '1234' }),
       };
       const store = configureStore({
         atlasAuthService: {} as any,
@@ -194,7 +196,9 @@ describe('atlasOptInReducer', function () {
         preferences: mockPreferences,
       });
 
-      const optInPromise = store.dispatch(optIntoGenAIWithModalPrompt());
+      const optInPromise = store.dispatch(
+        optIntoGenAIWithModalPrompt({ isCloudOptIn: true })
+      );
       await store.dispatch(optIn());
       await optInPromise;
 
@@ -203,7 +207,7 @@ describe('atlasOptInReducer', function () {
 
     it('should reject if opt in flow fails', async function () {
       const mockAtlasAiService = {
-        optIntoGenAIFeaturesAtlas: sandbox.stub().rejects(new Error('Whoops!')),
+        optIntoGenAIFeatures: sandbox.stub().rejects(new Error('Whoops!')),
       };
       const store = configureStore({
         atlasAuthService: {} as any,
@@ -211,7 +215,9 @@ describe('atlasOptInReducer', function () {
         preferences: mockPreferences,
       });
 
-      const optInPromise = store.dispatch(optIntoGenAIWithModalPrompt());
+      const optInPromise = store.dispatch(
+        optIntoGenAIWithModalPrompt({ isCloudOptIn: true })
+      );
       await store.dispatch(optIn());
 
       try {
@@ -226,7 +232,7 @@ describe('atlasOptInReducer', function () {
 
     it('should reject if user dismissed the modal', async function () {
       const mockAtlasAiService = {
-        optIntoGenAIFeaturesAtlas: sandbox.stub().resolves({ sub: '1234' }),
+        optIntoGenAIFeatures: sandbox.stub().resolves({ sub: '1234' }),
       };
       const store = configureStore({
         atlasAuthService: {} as any,
@@ -234,7 +240,9 @@ describe('atlasOptInReducer', function () {
         preferences: mockPreferences,
       });
 
-      const optInPromise = store.dispatch(optIntoGenAIWithModalPrompt());
+      const optInPromise = store.dispatch(
+        optIntoGenAIWithModalPrompt({ isCloudOptIn: true })
+      );
       store.dispatch(closeOptInModal(new Error('This operation was aborted')));
 
       try {
@@ -249,7 +257,7 @@ describe('atlasOptInReducer', function () {
 
     it('should reject if provided signal was aborted', async function () {
       const mockAtlasAiService = {
-        optIntoGenAIFeaturesAtlas: sandbox.stub().resolves({ sub: '1234' }),
+        optIntoGenAIFeatures: sandbox.stub().resolves({ sub: '1234' }),
       };
       const store = configureStore({
         atlasAuthService: {} as any,
@@ -259,7 +267,7 @@ describe('atlasOptInReducer', function () {
 
       const c = new AbortController();
       const optInPromise = store.dispatch(
-        optIntoGenAIWithModalPrompt({ signal: c.signal })
+        optIntoGenAIWithModalPrompt({ signal: c.signal, isCloudOptIn: true })
       );
       c.abort(new Error('Aborted from outside'));
 

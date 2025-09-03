@@ -60,11 +60,14 @@ import {
 import CompassConnections, {
   ConnectFnProvider,
 } from '@mongodb-js/compass-connections/src/index';
-import type { HadronPluginComponent, HadronPlugin } from 'hadron-app-registry';
+import type {
+  CompassPluginComponent,
+  CompassPlugin,
+} from '@mongodb-js/compass-app-registry';
 import AppRegistry, {
   AppRegistryProvider,
   GlobalAppRegistryProvider,
-} from 'hadron-app-registry';
+} from '@mongodb-js/compass-app-registry';
 import { expect } from 'chai';
 import { Provider } from 'react-redux';
 import ConnectionString from 'mongodb-connection-string-url';
@@ -280,7 +283,9 @@ function createWrapper(
   const wrapperState = {
     globalAppRegistry: new AppRegistry(),
     localAppRegistry: new AppRegistry(),
-    preferences: new InMemoryPreferencesAccess(options.preferences),
+    preferences: new InMemoryPreferencesAccess(
+      options.preferences
+    ) as PreferencesAccess,
     track: Sinon.stub(),
     logger: createNoopLogger(),
     connectionStorage:
@@ -560,9 +565,9 @@ async function renderHookWithActiveConnection<HookProps, HookResult>(
 function createPluginWrapper<
   Props,
   ServiceLocators extends Record<string, () => unknown>,
-  PluginContext extends HadronPlugin
+  PluginContext extends CompassPlugin
 >(
-  Plugin: HadronPluginComponent<Props, ServiceLocators, PluginContext>,
+  Plugin: CompassPluginComponent<Props, ServiceLocators, PluginContext>,
   initialPluginProps?: Props,
   ReactTestingLibraryWrapper: ComponentWithChildren = EmptyWrapper
 ) {
@@ -582,12 +587,18 @@ function createPluginWrapper<
   return { ref, Wrapper: ComponentWithProvider };
 }
 
+export type RenderPluginWithConnectionsResult<
+  T extends CompassPluginComponent<any, any, any>
+> = RenderWithConnectionsResult & {
+  plugin: ReturnType<T['useActivate']>;
+};
+
 function createPluginTestHelpers<
   Props,
   ServiceLocators extends Record<string, () => unknown>,
-  PluginContext extends HadronPlugin
+  PluginContext extends CompassPlugin
 >(
-  Plugin: HadronPluginComponent<Props, ServiceLocators, PluginContext>,
+  Plugin: CompassPluginComponent<Props, ServiceLocators, PluginContext>,
   defaultInitialPluginProps?: Props
 ) {
   return {

@@ -10,6 +10,7 @@ import {
   type ListChildComponentProps,
 } from 'react-window';
 import {
+  type ContextMenuItemGroup,
   css,
   mergeProps,
   useFocusRing,
@@ -73,6 +74,10 @@ type RenderItem<T> = (props: {
       collapseAfter: number;
     };
   };
+  getContextMenuGroups: (
+    this: void,
+    item: SidebarTreeItem
+  ) => ContextMenuItemGroup[];
 }) => React.ReactNode;
 export type OnDefaultAction<T> = (
   item: T,
@@ -104,6 +109,10 @@ type VirtualTreeProps<T extends VirtualItem> = {
       collapseAfter: number;
     };
   };
+  getContextMenuGroups(
+    this: void,
+    item: SidebarTreeItem
+  ): ContextMenuItemGroup[];
 
   __TEST_OVER_SCAN_COUNT?: number;
 };
@@ -133,6 +142,7 @@ export function VirtualTree<T extends VirtualItem>({
   onItemExpand,
   onItemAction,
   getItemActions,
+  getContextMenuGroups,
   __TEST_OVER_SCAN_COUNT,
 }: VirtualTreeProps<T>) {
   const listRef = useRef<List | null>(null);
@@ -172,6 +182,7 @@ export function VirtualTree<T extends VirtualItem>({
       onItemAction,
       onItemExpand,
       getItemActions,
+      getContextMenuGroups,
     };
   }, [
     items,
@@ -183,6 +194,7 @@ export function VirtualTree<T extends VirtualItem>({
     onItemAction,
     getItemActions,
     onItemExpand,
+    getContextMenuGroups,
   ]);
 
   const getItemKey = useCallback(
@@ -241,6 +253,10 @@ type VirtualItemData<T extends VirtualItem> = {
       collapseAfter: number;
     };
   };
+  getContextMenuGroups(
+    this: void,
+    item: SidebarTreeItem
+  ): ContextMenuItemGroup[];
 };
 function TreeItem<T extends VirtualItem>({
   index,
@@ -263,6 +279,7 @@ function TreeItem<T extends VirtualItem>({
       onItemAction: data.onItemAction,
       onItemExpand: data.onItemExpand,
       getItemActions: data.getItemActions,
+      getContextMenuGroups: data.getContextMenuGroups,
     });
   }, [
     renderItem,
@@ -274,6 +291,7 @@ function TreeItem<T extends VirtualItem>({
     data.onItemAction,
     data.getItemActions,
     data.onItemExpand,
+    data.getContextMenuGroups,
   ]);
 
   const actionProps = useDefaultAction(

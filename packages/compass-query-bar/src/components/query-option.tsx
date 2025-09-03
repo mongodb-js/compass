@@ -87,7 +87,7 @@ type QueryOptionProps = {
   value?: string;
   hasError: boolean;
   onChange: (name: QueryBarProperty, value: string) => void;
-  placeholder?: string | HTMLElement;
+  placeholder?: string | (() => HTMLElement);
   onApply?(): void;
   disabled?: boolean;
 };
@@ -96,7 +96,7 @@ type QueryOptionProps = {
 // component if the query option definition suggests it. In particular,
 // using a separate component allows those extra props to use React hooks in their definition.
 const WithOptionDefinitionTextInputProps: React.FunctionComponent<{
-  definition: typeof OPTION_DEFINITION[QueryOptionType];
+  definition: (typeof OPTION_DEFINITION)[QueryOptionType];
   children: ({
     props,
   }: {

@@ -258,7 +258,8 @@ describe('My Queries tab', function () {
 
         await browser.selectConnectionMenuItem(
           DEFAULT_CONNECTION_NAME_1,
-          Selectors.RefreshDatabasesItem
+          Selectors.RefreshDatabasesItem,
+          false
         );
 
         // go to My Queries
@@ -272,14 +273,14 @@ describe('My Queries tab', function () {
         // the open item modal - select a new collection
         const openModal = browser.$(Selectors.OpenSavedItemModal);
         await openModal.waitForDisplayed();
-        await browser.selectOption(
-          `${Selectors.OpenSavedItemDatabaseField} button`,
-          'test'
-        );
-        await browser.selectOption(
-          `${Selectors.OpenSavedItemCollectionField} button`,
-          'numbers-renamed'
-        );
+        await browser.selectOption({
+          selectSelector: `${Selectors.OpenSavedItemDatabaseField} button`,
+          optionText: 'test',
+        });
+        await browser.selectOption({
+          selectSelector: `${Selectors.OpenSavedItemCollectionField} button`,
+          optionText: 'numbers-renamed',
+        });
         await browser.clickVisible(Selectors.OpenSavedItemModalConfirmButton);
         await openModal.waitForDisplayed({ reverse: true });
 
@@ -389,7 +390,8 @@ describe('My Queries tab', function () {
 
         await browser.selectConnectionMenuItem(
           DEFAULT_CONNECTION_NAME_1,
-          Selectors.RefreshDatabasesItem
+          Selectors.RefreshDatabasesItem,
+          false
         );
 
         await browser.navigateToMyQueries();
@@ -399,14 +401,14 @@ describe('My Queries tab', function () {
         // the open item modal - select a new collection
         const openModal = browser.$(Selectors.OpenSavedItemModal);
         await openModal.waitForDisplayed();
-        await browser.selectOption(
-          `${Selectors.OpenSavedItemDatabaseField} button`,
-          'test'
-        );
-        await browser.selectOption(
-          `${Selectors.OpenSavedItemCollectionField} button`,
-          newCollectionName
-        );
+        await browser.selectOption({
+          selectSelector: `${Selectors.OpenSavedItemDatabaseField} button`,
+          optionText: 'test',
+        });
+        await browser.selectOption({
+          selectSelector: `${Selectors.OpenSavedItemCollectionField} button`,
+          optionText: newCollectionName,
+        });
 
         await browser.clickParent(
           '[data-testid="update-query-aggregation-checkbox"]'
@@ -449,7 +451,8 @@ describe('My Queries tab', function () {
 
         await browser.selectConnectionMenuItem(
           DEFAULT_CONNECTION_NAME_1,
-          Selectors.RefreshDatabasesItem
+          Selectors.RefreshDatabasesItem,
+          false
         );
 
         await browser.navigateToMyQueries();
@@ -495,11 +498,13 @@ describe('My Queries tab', function () {
 
         await browser.selectConnectionMenuItem(
           DEFAULT_CONNECTION_NAME_1,
-          Selectors.RefreshDatabasesItem
+          Selectors.RefreshDatabasesItem,
+          false
         );
         await browser.selectConnectionMenuItem(
           DEFAULT_CONNECTION_NAME_2,
-          Selectors.RefreshDatabasesItem
+          Selectors.RefreshDatabasesItem,
+          false
         );
 
         await browser.navigateToMyQueries();
@@ -510,18 +515,18 @@ describe('My Queries tab', function () {
         // the open item modal - select a new connection, database and collection
         const openModal = browser.$(Selectors.OpenSavedItemModal);
         await openModal.waitForDisplayed();
-        await browser.selectOption(
-          `${Selectors.OpenSavedItemConnectionField} button`,
-          DEFAULT_CONNECTION_NAME_2
-        );
-        await browser.selectOption(
-          `${Selectors.OpenSavedItemDatabaseField} button`,
-          'test'
-        );
-        await browser.selectOption(
-          `${Selectors.OpenSavedItemCollectionField} button`,
-          newCollectionName
-        );
+        await browser.selectOption({
+          selectSelector: `${Selectors.OpenSavedItemConnectionField} button`,
+          optionText: DEFAULT_CONNECTION_NAME_2,
+        });
+        await browser.selectOption({
+          selectSelector: `${Selectors.OpenSavedItemDatabaseField} button`,
+          optionText: 'test',
+        });
+        await browser.selectOption({
+          selectSelector: `${Selectors.OpenSavedItemCollectionField} button`,
+          optionText: newCollectionName,
+        });
 
         await browser.clickVisible(Selectors.OpenSavedItemModalConfirmButton);
 
@@ -557,11 +562,13 @@ describe('My Queries tab', function () {
 
         await browser.selectConnectionMenuItem(
           DEFAULT_CONNECTION_NAME_1,
-          Selectors.RefreshDatabasesItem
+          Selectors.RefreshDatabasesItem,
+          false
         );
         await browser.selectConnectionMenuItem(
           DEFAULT_CONNECTION_NAME_2,
-          Selectors.RefreshDatabasesItem
+          Selectors.RefreshDatabasesItem,
+          false
         );
 
         await browser.navigateToMyQueries();

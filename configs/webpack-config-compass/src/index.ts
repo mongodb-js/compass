@@ -45,6 +45,9 @@ const sharedIgnoreWarnings: NonNullable<Configuration['ignoreWarnings']> = [
   /the request of a dependency is an expression/,
   // Optional, platform-specific dependencies (mostly from driver)
   /Module not found.+?(mongo_crypt_v1.(dll|so|dylib)|@mongodb-js\/zstd|aws-crt|gcp-metadata)/,
+  // Optional, comes from emotion trying to (safely) use react apis that we
+  // don't have in React 17
+  /export 'useInsertionEffect'/,
 ];
 
 const sharedResolveOptions = (
@@ -83,11 +86,6 @@ const sharedResolveOptions = (
       // Additionally `ampersand-sync` brings into the bundle a number of other dependencies
       // that are outdated and having known vulnerabilities.
       'ampersand-sync': false,
-      // `jose` provides a browser export that uses webcrypto APIs and returns
-      // webcrypto objects to represent keys, but openid-client requires
-      // KeyObject instances from the Node.js crypto API (https://tinyurl.com/2rrtu2hy).
-      // Manually resolve `jose` to use the Node.js export here.
-      jose: require.resolve('jose'),
 
       // Leafygreen tries to include all the server-side emotion stuff in the
       // client bundle, this requires packaging a ton of otherwise unneccessary
@@ -278,10 +276,26 @@ export function createElectronRendererConfig(
               writeToDisk: true,
             },
             client: {
-              overlay: {
-                errors: true,
-                warnings: false,
-              },
+              overlay:
+                process.env.DISABLE_DEVSERVER_OVERLAY === 'true'
+                  ? false
+                  : {
+                      runtimeErrors: (error) => {
+                        // ResizeObserver errors are harmless and expected in some cases.
+                        // We currently get them when opening the Assistant drawer.
+                        if (
+                          error?.message ===
+                          'ResizeObserver loop completed with undelivered notifications.'
+                        ) {
+                          // eslint-disable-next-line no-console
+                          console.warn(error);
+                          return false;
+                        }
+                        return true;
+                      },
+                      errors: true,
+                      warnings: false,
+                    },
             },
             https: false,
             hot: opts.hot,

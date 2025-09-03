@@ -2,7 +2,7 @@ import React from 'react';
 import { expect } from 'chai';
 import WorkspacesPlugin, { WorkspacesProvider } from './index';
 import Sinon from 'sinon';
-import type { AnyWorkspaceComponent } from './components/workspaces-provider';
+import type { AnyWorkspacePlugin } from './components/workspaces-provider';
 import { useOpenWorkspace } from './provider';
 import {
   renderWithConnections,
@@ -12,14 +12,35 @@ import {
   userEvent,
 } from '@mongodb-js/testing-library-compass';
 import { TestMongoDBInstanceManager } from '@mongodb-js/compass-app-stores/provider';
+import { WorkspaceTab } from '@mongodb-js/compass-components';
 
 function mockWorkspace(name: string) {
   return {
     name,
-    component: function Component() {
+    provider: function Component({
+      children,
+      props,
+    }: {
+      children?: React.ReactNode;
+      props?: any;
+    }) {
+      return <div {...props}>{children}</div>;
+    },
+    content: function Component() {
       return <>{name}</>;
     },
-  } as unknown as AnyWorkspaceComponent;
+    header: function Component(props: any) {
+      return (
+        <WorkspaceTab
+          {...props}
+          name={props.namespace ?? name}
+          title={props.namespace ?? name}
+          iconGlyph="Home"
+          type={name}
+        />
+      );
+    },
+  } as unknown as AnyWorkspacePlugin;
 }
 
 const TEST_CONNECTION_INFO = {
@@ -71,10 +92,33 @@ describe('WorkspacesPlugin', function () {
         connectFn() {
           return {
             listDatabases() {
-              return Promise.resolve([]);
+              return Promise.resolve([
+                // Mock the databases and collections so we don't trigger the onNamespaceNotFound
+                // fallback handler which redirects collections to the databases view.
+                {
+                  _id: 'db',
+                  name: 'db',
+                  inferred_from_privileges: false,
+                  collection_count: 0,
+                  document_count: 0,
+                  index_count: 0,
+                  storage_size: 0,
+                  data_size: 0,
+                  index_size: 0,
+                },
+              ]);
             },
             listCollections() {
-              return Promise.resolve([]);
+              return Promise.resolve(
+                Array.from({
+                  length: 3,
+                }).map((_, index) => ({
+                  _id: `db.coll${index}`,
+                  name: `coll${index}`,
+                  database: 'db',
+                  type: 'collection',
+                })) as any
+              );
             },
           };
         },
@@ -90,16 +134,12 @@ describe('WorkspacesPlugin', function () {
     cleanup();
   });
 
-  const connectionName = TEST_CONNECTION_INFO.favorite.name;
   const tabs = [
     ['My Queries', () => openFns.openMyQueriesWorkspace()],
-    [connectionName, () => openFns.openDatabasesWorkspace('1')], // Databases
-    [
-      `Performance: ${connectionName}`,
-      () => openFns.openPerformanceWorkspace('1'),
-    ],
+    ['Databases', () => openFns.openDatabasesWorkspace('1')],
+    ['Performance', () => openFns.openPerformanceWorkspace('1')],
     ['db', () => openFns.openCollectionsWorkspace('1', 'db')],
-    ['coll', () => openFns.openCollectionWorkspace('1', 'db.coll')],
+    ['db.coll0', () => openFns.openCollectionWorkspace('1', 'db.coll0')],
   ] as const;
 
   for (const suite of tabs) {
@@ -118,23 +158,25 @@ describe('WorkspacesPlugin', function () {
 
     expect(onTabChangeSpy).to.have.been.calledWith(null);
 
+    openFns.openCollectionWorkspace('1', 'db.coll0', { newTab: true });
     openFns.openCollectionWorkspace('1', 'db.coll1', { newTab: true });
     openFns.openCollectionWorkspace('1', 'db.coll2', { newTab: true });
-    openFns.openCollectionWorkspace('1', 'db.coll3', { newTab: true });
-
-    expect(screen.getByRole('tab', { name: 'coll3' })).to.have.attribute(
-      'aria-selected',
-      'true'
-    );
-
-    userEvent.click(screen.getByRole('tab', { name: 'coll1' }));
 
     await waitFor(() => {
-      expect(screen.getByRole('tab', { name: /coll3/i })).to.have.attribute(
+      expect(screen.getByRole('tab', { name: 'db.coll2' })).to.have.attribute(
+        'aria-selected',
+        'true'
+      );
+    });
+
+    userEvent.click(screen.getByRole('tab', { name: 'db.coll0' }));
+
+    await waitFor(() => {
+      expect(screen.getByRole('tab', { name: 'db.coll2' })).to.have.attribute(
         'aria-selected',
         'false'
       );
-      expect(screen.getByRole('tab', { name: /coll1/i })).to.have.attribute(
+      expect(screen.getByRole('tab', { name: 'db.coll0' })).to.have.attribute(
         'aria-selected',
         'true'
       );

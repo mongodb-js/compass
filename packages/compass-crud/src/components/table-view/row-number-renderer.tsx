@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 
 /**
  Custom cell renderer for the row numbers. Required because we can't rely on
@@ -13,10 +12,6 @@ function RowNumberRenderer({
 }) {
   return <div className="table-view-cell-row-number">{value}</div>;
 }
-
-RowNumberRenderer.propTypes = {
-  value: PropTypes.any,
-};
 
 RowNumberRenderer.displayName = 'RowNumberRenderer';
 

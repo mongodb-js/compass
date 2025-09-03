@@ -205,8 +205,7 @@ type AggregationEditedEvent = ConnectionScopedEvent<{
       | 'stage_renamed'
       | 'stage_added'
       | 'stage_deleted'
-      | 'stage_reordered'
-      | 'stage_added';
+      | 'stage_reordered';
 
     /**
      * The name of the stage edited.
@@ -833,6 +832,12 @@ type ConnectionFailedEvent = ConnectionScopedEvent<{
      * The error name.
      */
     error_name: string;
+
+    /**
+     * The error codes (or code names) from the error's cause chain.
+     * The driver and the OIDC library we use are two places that use cause chains.
+     */
+    error_code_cause_chain: (string | number)[] | undefined;
   } & ExtraConnectionData;
 }>;
 
@@ -1454,6 +1459,57 @@ type IndexDroppedEvent = ConnectionScopedEvent<{
 }>;
 
 /**
+ * This event is fired when user enters a prompt in the assistant chat
+ * and hits "enter".
+ *
+ * @category Gen AI
+ */
+type AssistantPromptSubmittedEvent = CommonEvent<{
+  name: 'Assistant Prompt Submitted';
+  payload: {
+    user_input_length?: number;
+  };
+}>;
+
+/**
+ * This event is fired when a user submits feedback for the assistant.
+ *
+ * @category Assistant
+ */
+type AssistantFeedbackSubmittedEvent = CommonEvent<{
+  name: 'Assistant Feedback Submitted';
+  payload: {
+    feedback: 'positive' | 'negative';
+    text: string | undefined;
+    request_id: string | null;
+  };
+}>;
+
+/**
+ * This event is fired when a user uses an assistant entry point.
+ *
+ * @category Gen AI
+ */
+type AssistantEntryPointUsedEvent = CommonEvent<{
+  name: 'Assistant Entry Point Used';
+  payload: {
+    source: 'explain plan' | 'performance insights' | 'connection error';
+  };
+}>;
+
+/**
+ * This event is fired when the AI response encounters an error.
+ *
+ * @category Gen AI
+ */
+type AssistantResponseFailedEvent = CommonEvent<{
+  name: 'Assistant Response Failed';
+  payload: {
+    error_name?: string;
+  };
+}>;
+
+/**
  * This event is fired when a user submits feedback for a query generation.
  *
  * @category Gen AI
@@ -1541,26 +1597,6 @@ type AiOptInModalShownEvent = CommonEvent<{
  */
 type AiOptInModalDismissedEvent = CommonEvent<{
   name: 'AI Opt In Modal Dismissed';
-  payload: Record<string, never>;
-}>;
-
-/**
- * This event is fired when the AI Sign-In Modal is shown to the user.
- *
- * @category Gen AI
- */
-type AiSignInModalShownEvent = CommonEvent<{
-  name: 'AI Sign In Modal Shown';
-  payload: Record<string, never>;
-}>;
-
-/**
- * This event is fired when the AI Sign-In Modal is dismissed by the user.
- *
- * @category Gen AI
- */
-type AiSignInModalDismissedEvent = CommonEvent<{
-  name: 'AI Sign In Modal Dismissed';
   payload: Record<string, never>;
 }>;
 
@@ -1729,6 +1765,11 @@ type QueryExecutedEvent = ConnectionScopedEvent<{
      * Indicates whether the query includes a sort operation.
      */
     has_sort: boolean;
+
+    /**
+     * Indicates which default sort was set in settings
+     */
+    default_sort: 'natural' | '_id' | 'none';
 
     /**
      * Indicates whether the query includes a limit operation.
@@ -2709,7 +2750,8 @@ type ScreenEvent = ConnectionScopedEvent<{
       | 'save_pipeline_modal'
       | 'shell_info_modal'
       | 'update_search_index_modal'
-      | 'end_of_life_mongodb_modal';
+      | 'end_of_life_mongodb_modal'
+      | 'export_diagram_modal';
   };
 }>;
 
@@ -2877,6 +2919,99 @@ type CreateIndexStrategiesDocumentationClicked = CommonEvent<{
   };
 }>;
 
+/**
+ * This event is fired when a new data modeling diagram is created
+ *
+ * @category Data Modeling
+ */
+type DataModelingDiagramCreated = CommonEvent<{
+  name: 'Data Modeling Diagram Created';
+  payload: {
+    num_collections: number;
+  };
+}>;
+
+/**
+ * This event is fired when user exports data modeling diagram.
+ *
+ * @category Data Modeling
+ */
+type DataModelingDiagramExported = CommonEvent<{
+  name: 'Data Modeling Diagram Exported';
+  payload: {
+    format: 'png' | 'json' | 'diagram';
+  };
+}>;
+
+/**
+ * This event is fired when user imports data modeling diagram.
+ *
+ * @category Data Modeling
+ */
+type DataModelingDiagramImported = CommonEvent<{
+  name: 'Data Modeling Diagram Imported';
+  payload: Record<string, never>;
+}>;
+
+/**
+ * This event is fired when user adds a new relationship to a data modeling diagram.
+ *
+ * @category Data Modeling
+ */
+type DataModelingDiagramRelationshipAdded = CommonEvent<{
+  name: 'Data Modeling Relationship Added';
+  payload: {
+    num_relationships: number;
+  };
+}>;
+
+/**
+ * This event is fired when user edits a relationship in a data modeling diagram.
+ *
+ * @category Data Modeling
+ */
+type DataModelingDiagramRelationshipEdited = CommonEvent<{
+  name: 'Data Modeling Relationship Form Opened';
+  payload: Record<string, never>;
+}>;
+
+/**
+ * This event is fired when user deletes a relationship from a data modeling diagram.
+ *
+ * @category Data Modeling
+ */
+type DataModelingDiagramRelationshipDeleted = CommonEvent<{
+  name: 'Data Modeling Relationship Deleted';
+  payload: {
+    num_relationships: number;
+  };
+}>;
+
+/**
+ * This event is fired when the context menu is opened.
+ *
+ * @category Context Menu
+ */
+type ContextMenuOpened = CommonEvent<{
+  name: 'Context Menu Opened';
+  payload: {
+    item_groups: string[];
+  };
+}>;
+
+/**
+ * This event is fired when a context menu item is clicked.
+ *
+ * @category Context Menu
+ */
+type ContextMenuItemClicked = CommonEvent<{
+  name: 'Context Menu Item Clicked';
+  payload: {
+    item_group: string;
+    item_label: string;
+  };
+}>;
+
 export type TelemetryEvent =
   | AggregationCanceledEvent
   | AggregationCopiedEvent
@@ -2893,10 +3028,12 @@ export type TelemetryEvent =
   | AggregationTimedOutEvent
   | AggregationUseCaseAddedEvent
   | AggregationUseCaseSavedEvent
+  | AssistantPromptSubmittedEvent
+  | AssistantResponseFailedEvent
+  | AssistantFeedbackSubmittedEvent
+  | AssistantEntryPointUsedEvent
   | AiOptInModalShownEvent
   | AiOptInModalDismissedEvent
-  | AiSignInModalShownEvent
-  | AiSignInModalDismissedEvent
   | AiGenerateQueryClickedEvent
   | AiPromptSubmittedEvent
   | AiQueryFeedbackEvent
@@ -2927,6 +3064,7 @@ export type TelemetryEvent =
   | ConnectionRemovedEvent
   | CurrentOpShowOperationDetailsEvent
   | DatabaseCreatedEvent
+  | DataModelingDiagramCreated
   | DeleteExportedEvent
   | DeleteExportOpenedEvent
   | DetailViewHideOperationDetailsEvent
@@ -3022,4 +3160,11 @@ export type TelemetryEvent =
   | CreateIndexInputIndexCopied
   | CreateIndexIndexSuggestionsCopied
   | CreateIndexStrategiesDocumentationClicked
-  | UUIDEncounteredEvent;
+  | UUIDEncounteredEvent
+  | DataModelingDiagramExported
+  | DataModelingDiagramImported
+  | DataModelingDiagramRelationshipAdded
+  | DataModelingDiagramRelationshipEdited
+  | DataModelingDiagramRelationshipDeleted
+  | ContextMenuOpened
+  | ContextMenuItemClicked;

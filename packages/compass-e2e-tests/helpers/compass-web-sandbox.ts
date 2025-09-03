@@ -6,7 +6,7 @@ import Debug from 'debug';
 import {
   COMPASS_WEB_SANDBOX_RUNNER_PATH,
   COMPASS_WEB_WDIO_USER_DATA_PATH,
-  ELECTRON_CHROMIUM_VERSION,
+  MONOREPO_ELECTRON_CHROMIUM_VERSION,
   ELECTRON_PATH,
 } from './test-runner-paths';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
@@ -19,7 +19,7 @@ const debug = Debug('compass-e2e-tests:compass-web-sandbox');
  * with webdriver will get the values
  */
 process.env.OPEN_BROWSER = 'false'; // tell webpack dev server not to open the default browser
-process.env.DISABLE_DEVSERVER_OVERLAY = 'false';
+process.env.DISABLE_DEVSERVER_OVERLAY = 'true';
 process.env.APP_ENV = 'webdriverio';
 
 const wait = (ms: number) => {
@@ -86,7 +86,7 @@ export async function spawnCompassWebSandboxAndSignInToAtlas(
   const electronProxyRemote = await remote({
     capabilities: {
       browserName: 'chromium',
-      browserVersion: ELECTRON_CHROMIUM_VERSION,
+      browserVersion: MONOREPO_ELECTRON_CHROMIUM_VERSION,
       'goog:chromeOptions': {
         binary: ELECTRON_PATH,
         args: [

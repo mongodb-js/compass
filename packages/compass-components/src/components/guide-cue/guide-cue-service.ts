@@ -16,27 +16,12 @@ export type ShowCueEventDetail = CustomEvent<{
   groupId?: GroupName;
 }>;
 
+type CustomEventListenerOrEventListenerObject<E> =
+  | { handleEvent: (evt: E) => void }
+  | ((evt: E) => void);
+
 interface GuideCueEventMap {
   'show-cue': ShowCueEventDetail;
-}
-
-export interface GuideCueService extends EventTarget {
-  addEventListener<K extends keyof GuideCueEventMap>(
-    type: K,
-    listener: (this: GuideCueEventMap, ev: GuideCueEventMap[K]) => void
-  ): void;
-  addEventListener(
-    type: string,
-    listener: EventListenerOrEventListenerObject
-  ): void;
-  removeEventListener<K extends keyof GuideCueEventMap>(
-    type: K,
-    listener: (this: GuideCueEventMap, ev: GuideCueEventMap[K]) => void
-  ): void;
-  removeEventListener(
-    type: string,
-    listener: EventListenerOrEventListenerObject
-  ): void;
 }
 
 export type Cue = {
@@ -260,6 +245,30 @@ export class GuideCueService extends EventTarget {
     if (isActiveCueNotShowable || isNewCueShowable) {
       return this.onNext();
     }
+  }
+
+  addEventListener<K extends keyof GuideCueEventMap>(
+    type: K,
+    listener: CustomEventListenerOrEventListenerObject<
+      GuideCueEventMap[K]
+    > | null
+  ): void {
+    return super.addEventListener(
+      type,
+      listener as EventListenerOrEventListenerObject
+    );
+  }
+
+  removeEventListener<K extends keyof GuideCueEventMap>(
+    type: K,
+    listener: CustomEventListenerOrEventListenerObject<
+      GuideCueEventMap[K]
+    > | null
+  ): void {
+    return super.removeEventListener(
+      type,
+      listener as EventListenerOrEventListenerObject
+    );
   }
 }
 

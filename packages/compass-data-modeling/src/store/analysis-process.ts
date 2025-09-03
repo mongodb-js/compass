@@ -6,6 +6,8 @@ import { getCurrentDiagramFromState } from './diagram';
 import type { Document } from 'bson';
 import type { AggregationCursor } from 'mongodb';
 import type { Relationship } from '../services/data-model-storage';
+import { applyLayout } from '@mongodb-js/diagramming';
+import { collectionToBaseNodeForLayout } from '../utils/nodes-and-edges';
 
 export type AnalysisProcessState = {
   currentAnalysisOptions:
@@ -62,7 +64,11 @@ export type AnalysisFinishedAction = {
   type: AnalysisProcessActionTypes.ANALYSIS_FINISHED;
   name: string;
   connectionId: string;
-  collections: { ns: string; schema: MongoDBJSONSchema }[];
+  collections: {
+    ns: string;
+    schema: MongoDBJSONSchema;
+    position: { x: number; y: number };
+  }[];
   relations: Relationship[];
 };
 
@@ -144,7 +150,7 @@ export function startAnalysis(
     const namespaces = collections.map((collName) => {
       return `${database}.${collName}`;
     });
-    const cancelController = (services.cancelControllerRef.current =
+    const cancelController = (services.cancelAnalysisControllerRef.current =
       new AbortController());
     dispatch({
       type: AnalysisProcessActionTypes.ANALYZING_COLLECTIONS_START,
@@ -191,19 +197,45 @@ export function startAnalysis(
           return { ns, schema };
         })
       );
+
       if (options.automaticallyInferRelations) {
         // TODO
       }
+
       if (cancelController.signal.aborted) {
         throw cancelController.signal.reason;
       }
+
+      const positioned = await applyLayout(
+        collections.map((coll) =>
+          collectionToBaseNodeForLayout({
+            ns: coll.ns,
+            jsonSchema: coll.schema,
+            displayPosition: [0, 0],
+          })
+        ),
+        [],
+        'LEFT_RIGHT'
+      );
+
       dispatch({
         type: AnalysisProcessActionTypes.ANALYSIS_FINISHED,
         name,
         connectionId,
-        collections,
+        collections: collections.map((coll) => {
+          const node = positioned.nodes.find((node) => {
+            return node.id === coll.ns;
+          });
+          const position = node ? node.position : { x: 0, y: 0 };
+          return { ...coll, position };
+        }),
         relations: [],
       });
+
+      services.track('Data Modeling Diagram Created', {
+        num_collections: collections.length,
+      });
+
       void services.dataModelStorage.save(
         getCurrentDiagramFromState(getState())
       );
@@ -223,7 +255,7 @@ export function startAnalysis(
         });
       }
     } finally {
-      services.cancelControllerRef.current = null;
+      services.cancelAnalysisControllerRef.current = null;
     }
   };
 }
@@ -250,8 +282,8 @@ export function retryAnalysis(): DataModelingThunkAction<void, never> {
 }
 
 export function cancelAnalysis(): DataModelingThunkAction<void, never> {
-  return (_dispatch, _getState, { cancelControllerRef }) => {
-    cancelControllerRef.current?.abort();
-    cancelControllerRef.current = null;
+  return (_dispatch, _getState, { cancelAnalysisControllerRef }) => {
+    cancelAnalysisControllerRef.current?.abort();
+    cancelAnalysisControllerRef.current = null;
   };
 }

@@ -8,7 +8,6 @@ import React, {
 import { css, cx } from '@leafygreen-ui/emotion';
 import { palette } from '@leafygreen-ui/palette';
 import { spacing } from '@leafygreen-ui/tokens';
-import type { GlyphName } from '@leafygreen-ui/icon';
 import { rgba } from 'polished';
 
 import {
@@ -28,7 +27,8 @@ import { useDarkMode } from '../../hooks/use-theme';
 import { FocusState, useFocusState } from '../../hooks/use-focus-hover';
 import { Icon, IconButton } from '../leafygreen';
 import { mergeProps } from '../../utils/merge-props';
-import { Tab } from './tab';
+import type { Tab } from './tab';
+import type { WorkspaceTabCoreProps } from './tab';
 import { useHotkeys } from '../../hooks/use-hotkeys';
 
 export const scrollbarThumbLightTheme = rgba(palette.gray.base, 0.65);
@@ -139,21 +139,30 @@ function useTabListKeyboardNavigation<HTMLDivElement>({
   return [{ onKeyDown }];
 }
 
+type TabItem = {
+  id: string;
+  renderTab: (props: WorkspaceTabCoreProps) => ReturnType<typeof Tab>;
+};
+
 type SortableItemProps = {
-  tab: TabProps;
+  tab: TabItem;
   index: number;
   selectedTabIndex: number;
   activeId: UniqueIdentifier | null;
   onSelect: (tabIndex: number) => void;
+  onDuplicate: (tabIndex: number) => void;
   onClose: (tabIndex: number) => void;
+  onCloseAllOthers: (tabIndex: number) => void;
 };
 
 type SortableListProps = {
-  tabs: TabProps[];
+  tabs: TabItem[];
   selectedTabIndex: number;
   onMove: (oldTabIndex: number, newTabIndex: number) => void;
   onSelect: (tabIndex: number) => void;
+  onDuplicate: (tabIndex: number) => void;
   onClose: (tabIndex: number) => void;
+  onCloseAllOthers: (tabIndex: number) => void;
 };
 
 type WorkspaceTabsProps = {
@@ -162,20 +171,13 @@ type WorkspaceTabsProps = {
   onSelectTab: (tabIndex: number) => void;
   onSelectNextTab: () => void;
   onSelectPrevTab: () => void;
+  onDuplicateTab: (tabIndex: number) => void;
   onCloseTab: (tabIndex: number) => void;
+  onCloseAllOtherTabs: (tabIndex: number) => void;
   onMoveTab: (oldTabIndex: number, newTabIndex: number) => void;
-  tabs: TabProps[];
+  tabs: TabItem[];
   selectedTabIndex: number;
 };
-
-export type TabProps = {
-  id: string;
-  type: string;
-  title: string;
-  tooltip?: [string, string][];
-  connectionId?: string;
-  iconGlyph: GlyphName | 'Logo' | 'Server';
-} & Omit<React.HTMLProps<HTMLDivElement>, 'id' | 'title'>;
 
 export function useRovingTabIndex<T extends HTMLElement = HTMLElement>({
   currentTabbable,
@@ -213,7 +215,9 @@ const SortableList = ({
   onMove,
   onSelect,
   selectedTabIndex,
+  onDuplicate,
   onClose,
+  onCloseAllOthers,
 }: SortableListProps) => {
   const items = tabs.map((tab) => tab.id);
   const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
@@ -263,14 +267,16 @@ const SortableList = ({
     >
       <SortableContext items={items} strategy={horizontalListSortingStrategy}>
         <div className={sortableItemContainerStyles}>
-          {tabs.map((tab: TabProps, index: number) => (
+          {tabs.map((tab: TabItem, index: number) => (
             <SortableItem
               key={tab.id}
               index={index}
               tab={tab}
               activeId={activeId}
               onSelect={onSelect}
+              onDuplicate={onDuplicate}
               onClose={onClose}
+              onCloseAllOthers={onCloseAllOthers}
               selectedTabIndex={selectedTabIndex}
             />
           ))}
@@ -281,22 +287,30 @@ const SortableList = ({
 };
 
 const SortableItem = ({
-  tab: tabProps,
+  tab: { id: tabId, renderTab },
   index,
   selectedTabIndex,
   activeId,
   onSelect,
+  onDuplicate,
   onClose,
+  onCloseAllOthers,
 }: SortableItemProps) => {
-  const { id: tabId } = tabProps;
-
   const onTabSelected = useCallback(() => {
     onSelect(index);
   }, [onSelect, index]);
 
+  const onTabDuplicated = useCallback(() => {
+    onDuplicate(index);
+  }, [onDuplicate, index]);
+
   const onTabClosed = useCallback(() => {
     onClose(index);
   }, [onClose, index]);
+
+  const onAllOthersTabsClosed = useCallback(() => {
+    onCloseAllOthers(index);
+  }, [onCloseAllOthers, index]);
 
   const isSelected = useMemo(
     () => selectedTabIndex === index,
@@ -305,22 +319,23 @@ const SortableItem = ({
 
   const isDragging = useMemo(() => tabId === activeId, [tabId, activeId]);
 
-  return (
-    <Tab
-      {...tabProps}
-      isSelected={isSelected}
-      isDragging={isDragging}
-      tabContentId={tabId}
-      onSelect={onTabSelected}
-      onClose={onTabClosed}
-    />
-  );
+  return renderTab({
+    isSelected,
+    isDragging,
+    tabContentId: tabId,
+    onSelect: onTabSelected,
+    onDuplicate: onTabDuplicated,
+    onClose: onTabClosed,
+    onCloseAllOthers: onAllOthersTabsClosed,
+  });
 };
 
 function WorkspaceTabs({
   ['aria-label']: ariaLabel,
   onCreateNewTab,
+  onDuplicateTab,
   onCloseTab,
+  onCloseAllOtherTabs,
   onMoveTab,
   onSelectTab,
   onSelectNextTab,
@@ -417,7 +432,9 @@ function WorkspaceTabs({
             tabs={tabs}
             onMove={onMoveTab}
             onSelect={onSelectTab}
+            onDuplicate={onDuplicateTab}
             onClose={onCloseTab}
+            onCloseAllOthers={onCloseAllOtherTabs}
             selectedTabIndex={selectedTabIndex}
           />
         </div>

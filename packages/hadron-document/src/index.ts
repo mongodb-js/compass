@@ -1,27 +1,22 @@
-import Document, {
-  Events as DocumentEvents,
+import { Document } from './document';
+export default Document;
+export {
+  Document,
   DEFAULT_VISIBLE_ELEMENTS as DEFAULT_VISIBLE_DOCUMENT_ELEMENTS,
 } from './document';
-import Element, {
-  Events as ElementEvents,
+export { DocumentEvents, type DocumentEventsType } from './document-events';
+
+export {
+  Element,
   isInternalFieldPath,
   DEFAULT_VISIBLE_ELEMENTS,
 } from './element';
-import ElementEditor from './editor';
-import type { Editor } from './editor';
-import { getDefaultValueForType, objectToIdiomaticEJSON } from './utils';
+export { ElementEvents, type ElementEventsType } from './element-events';
 
-export default Document;
-export type { Editor };
+export { ElementEditor, type Editor } from './editor';
+
 export {
-  Document,
-  DocumentEvents,
-  DEFAULT_VISIBLE_DOCUMENT_ELEMENTS,
-  Element,
-  ElementEvents,
-  DEFAULT_VISIBLE_ELEMENTS,
-  ElementEditor,
-  isInternalFieldPath,
   getDefaultValueForType,
   objectToIdiomaticEJSON,
-};
+  type BSONValue,
+} from './utils';

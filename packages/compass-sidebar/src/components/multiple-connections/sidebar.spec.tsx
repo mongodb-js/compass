@@ -21,7 +21,7 @@ import {
   CompassSidebarPlugin,
 } from '../../index';
 import type { ConnectionInfo } from '@mongodb-js/compass-connections/provider';
-import type AppRegistry from '../../../../hadron-app-registry/dist';
+import type AppRegistry from '@mongodb-js/compass-app-registry';
 
 const savedFavoriteConnection: ConnectionInfo = {
   id: '12345',
@@ -106,8 +106,18 @@ describe('Multiple Connections Sidebar Component', function () {
       <ConnectionImportExportProvider>
         <WorkspacesProvider
           value={[
-            { name: 'My Queries', component: () => null },
-            { name: 'Performance', component: () => null },
+            {
+              name: 'My Queries',
+              content: () => null,
+              header: () => null as any,
+              provider: (() => null) as any,
+            },
+            {
+              name: 'Performance',
+              content: () => null,
+              header: () => null as any,
+              provider: (() => null) as any,
+            },
           ]}
         >
           <WorkspacesServiceProvider value={workspace as any}>
@@ -230,6 +240,25 @@ describe('Multiple Connections Sidebar Component', function () {
         ).to.equal('Search clusters');
       });
     });
+
+    it('should have context-menu with expected actions', function () {
+      doRender(undefined, []);
+      const header = screen.getByTestId('connections-header');
+      userEvent.click(header, { button: 2 });
+      const menu = screen.getByTestId('context-menu');
+      expect(within(menu).getByTestId('menu-group-0-item-0')).to.have.text(
+        'Collapse all connections'
+      );
+      expect(within(menu).getByTestId('menu-group-0-item-1')).to.have.text(
+        'Add new connection'
+      );
+      expect(within(menu).getByTestId('menu-group-0-item-2')).to.have.text(
+        'Import connections'
+      );
+      expect(within(menu).getByTestId('menu-group-0-item-3')).to.have.text(
+        'Export connections'
+      );
+    });
   });
 
   describe('connections list', function () {
@@ -326,13 +355,13 @@ describe('Multiple Connections Sidebar Component', function () {
           expect(copyAction).to.be.visible;
 
           // Unfavorite because the connection is already a favorite
-          const favAction = screen.getByText('Unfavorite');
+          const favAction = screen.getByText('Unfavorite connection');
           expect(favAction).to.be.visible;
 
-          const duplicateAction = screen.getByText('Duplicate');
+          const duplicateAction = screen.getByText('Duplicate connection');
           expect(duplicateAction).to.be.visible;
 
-          const removeAction = screen.getByText('Remove');
+          const removeAction = screen.getByText('Remove connection');
           expect(removeAction).to.be.visible;
         });
 
@@ -357,13 +386,13 @@ describe('Multiple Connections Sidebar Component', function () {
           expect(copyAction).to.be.visible;
 
           // Favorite because the connection is not yet a favorite
-          const favAction = screen.getByText('Favorite');
+          const favAction = screen.getByText('Favorite connection');
           expect(favAction).to.be.visible;
 
-          const duplicateAction = screen.getByText('Duplicate');
+          const duplicateAction = screen.getByText('Duplicate connection');
           expect(duplicateAction).to.be.visible;
 
-          const removeAction = screen.getByText('Remove');
+          const removeAction = screen.getByText('Remove connection');
           expect(removeAction).to.be.visible;
         });
       });
@@ -408,9 +437,9 @@ describe('Multiple Connections Sidebar Component', function () {
 
           expect(screen.getByText('Copy connection string')).to.be.visible;
           // because it is already a favorite
-          expect(screen.getByText('Unfavorite')).to.be.visible;
-          expect(screen.getByText('Duplicate')).to.be.visible;
-          expect(screen.getByText('Remove')).to.be.visible;
+          expect(screen.getByText('Unfavorite connection')).to.be.visible;
+          expect(screen.getByText('Duplicate connection')).to.be.visible;
+          expect(screen.getByText('Remove connection')).to.be.visible;
         });
 
         it('should render the only connected connections when toggled', async () => {
@@ -482,7 +511,11 @@ describe('Multiple Connections Sidebar Component', function () {
 
             expect(workspace.openShellWorkspace).to.have.been.calledWith(
               savedFavoriteConnection.id,
-              { newTab: true }
+              {
+                newTab: true,
+                initialEvaluate: undefined,
+                initialInput: undefined,
+              }
             );
 
             await waitFor(() => {
@@ -602,7 +635,7 @@ describe('Multiple Connections Sidebar Component', function () {
               within(connectionItem).getByLabelText('Show actions')
             );
 
-            userEvent.click(screen.getByText('Unfavorite'));
+            userEvent.click(screen.getByText('Unfavorite connection'));
 
             await waitFor(() => {
               expect(
@@ -623,7 +656,7 @@ describe('Multiple Connections Sidebar Component', function () {
               within(connectionItem).getByLabelText('Show actions')
             );
 
-            userEvent.click(screen.getByText('Duplicate'));
+            userEvent.click(screen.getByText('Duplicate connection'));
 
             // We see the connect button in the form modal
             expect(screen.getByTestId('connect-button')).to.be.visible;
@@ -646,7 +679,7 @@ describe('Multiple Connections Sidebar Component', function () {
               within(connectionItem).getByLabelText('Show actions')
             );
 
-            userEvent.click(screen.getByText('Remove'));
+            userEvent.click(screen.getByText('Remove connection'));
 
             await waitFor(() => {
               expect(

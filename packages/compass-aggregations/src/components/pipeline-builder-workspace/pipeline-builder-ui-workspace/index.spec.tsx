@@ -36,7 +36,7 @@ describe('PipelineBuilderUIWorkspace [Component]', function () {
       await renderPipelineBuilderUIWorkspace();
       const buttons = screen.getAllByTestId('add-stage');
       expect(buttons.length).to.equal(1);
-      expect(buttons[0]).to.have.text('Add Stage');
+      expect(buttons[0]).to.have.text('Add stage');
     });
 
     it('adds a stage to the start of pipeline when first icon button is clicked', async function () {
@@ -95,7 +95,7 @@ describe('PipelineBuilderUIWorkspace [Component]', function () {
       await renderPipelineBuilderUIWorkspace({}, { pipeline: [] });
       const button = screen.getByTestId('add-stage');
       expect(button).to.exist;
-      expect(button).to.have.text('Add Stage');
+      expect(button).to.have.text('Add stage');
     });
 
     it('adds a stage when (text) button is clicked', async function () {

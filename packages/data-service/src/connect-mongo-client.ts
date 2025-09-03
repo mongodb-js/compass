@@ -8,7 +8,6 @@ import type {
 import {
   createSocks5Tunnel,
   hookLogger as hookProxyLogger,
-  createAgent,
 } from '@mongodb-js/devtools-proxy-support';
 import type {
   DevtoolsProxyOptions,
@@ -112,9 +111,7 @@ export function prepareOIDCOptions({
   if (connectionOptions.oidc?.shareProxyWithConnection) {
     options.applyProxyToOIDC = true;
   } else {
-    options.oidc.customHttpOptions = {
-      agent: createAgent(proxyOptions),
-    };
+    options.applyProxyToOIDC = proxyOptions;
   }
 
   options.oidc.signal = signal;
@@ -252,7 +249,12 @@ export async function connectMongoClientDataService({
       connectLogger,
       CompassMongoClient
     );
-    await runCommand(client.db('admin'), { ping: 1 });
+    try {
+      await runCommand(client.db('admin'), { ping: 1 });
+    } catch (err) {
+      await client.close().catch(() => {});
+      throw err;
+    }
     return {
       client: Object.assign(client, {
         async [createClonedClient]() {

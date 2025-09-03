@@ -9,14 +9,23 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 
 import { WorkspaceTabs } from './workspace-tabs';
-import type { TabProps } from './workspace-tabs';
+import { Tab, type WorkspaceTabCoreProps } from './tab';
 
-function mockTab(tabId: number): TabProps {
+function mockTab(tabId: number): {
+  id: string;
+  renderTab: (tabProps: WorkspaceTabCoreProps) => ReturnType<typeof Tab>;
+} {
   return {
-    type: 'Documents',
-    title: `mock-tab-${tabId}`,
     id: `${tabId}-content`,
-    iconGlyph: 'Folder',
+    renderTab: (tabProps: WorkspaceTabCoreProps) => (
+      <Tab
+        {...tabProps}
+        type="Documents"
+        title={`mock-tab-${tabId}`}
+        id={`${tabId}-content`}
+        iconGlyph="Folder"
+      />
+    ),
   };
 }
 
@@ -27,6 +36,8 @@ describe('WorkspaceTabs', function () {
   let onSelectNextSpy: sinon.SinonSpy;
   let onSelectPrevSpy: sinon.SinonSpy;
   let onMoveTabSpy: sinon.SinonSpy;
+  let onDuplicateSpy: sinon.SinonSpy;
+  let onCloseAllOthersSpy: sinon.SinonSpy;
 
   beforeEach(function () {
     onCreateNewTabSpy = sinon.spy();
@@ -35,6 +46,8 @@ describe('WorkspaceTabs', function () {
     onSelectNextSpy = sinon.spy();
     onSelectPrevSpy = sinon.spy();
     onMoveTabSpy = sinon.spy();
+    onDuplicateSpy = sinon.spy();
+    onCloseAllOthersSpy = sinon.spy();
   });
 
   afterEach(cleanup);
@@ -50,6 +63,8 @@ describe('WorkspaceTabs', function () {
           onSelectNextTab={onSelectNextSpy}
           onSelectPrevTab={onSelectPrevSpy}
           onMoveTab={onMoveTabSpy}
+          onDuplicateTab={onDuplicateSpy}
+          onCloseAllOtherTabs={onCloseAllOthersSpy}
           tabs={[]}
           selectedTabIndex={0}
         />
@@ -78,7 +93,11 @@ describe('WorkspaceTabs', function () {
           onCreateNewTab={onCreateNewTabSpy}
           onCloseTab={onCloseTabSpy}
           onSelectTab={onSelectSpy}
+          onSelectNextTab={onSelectNextSpy}
+          onSelectPrevTab={onSelectPrevSpy}
           onMoveTab={onMoveTabSpy}
+          onDuplicateTab={onDuplicateSpy}
+          onCloseAllOtherTabs={onCloseAllOthersSpy}
           tabs={[1, 2, 3].map((tabId) => mockTab(tabId))}
           selectedTabIndex={1}
         />
@@ -147,7 +166,11 @@ describe('WorkspaceTabs', function () {
           onCreateNewTab={onCreateNewTabSpy}
           onCloseTab={onCloseTabSpy}
           onSelectTab={onSelectSpy}
+          onSelectNextTab={onSelectNextSpy}
+          onSelectPrevTab={onSelectPrevSpy}
           onMoveTab={onMoveTabSpy}
+          onDuplicateTab={onDuplicateSpy}
+          onCloseAllOtherTabs={onCloseAllOthersSpy}
           tabs={[1, 2].map((tabId) => mockTab(tabId))}
           selectedTabIndex={0}
         />
@@ -173,7 +196,11 @@ describe('WorkspaceTabs', function () {
           onCreateNewTab={onCreateNewTabSpy}
           onCloseTab={onCloseTabSpy}
           onSelectTab={onSelectSpy}
+          onSelectNextTab={onSelectNextSpy}
+          onSelectPrevTab={onSelectPrevSpy}
           onMoveTab={onMoveTabSpy}
+          onDuplicateTab={onDuplicateSpy}
+          onCloseAllOtherTabs={onCloseAllOthersSpy}
           tabs={[1, 2].map((tabId) => mockTab(tabId))}
           selectedTabIndex={1}
         />

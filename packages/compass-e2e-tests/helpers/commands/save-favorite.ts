@@ -14,7 +14,10 @@ export async function saveFavorite(
     Selectors.ConnectionFormConnectionName,
     favoriteName
   );
-  await browser.selectOption(Selectors.ConnectionFormConnectionColor, color);
+  await browser.selectOption({
+    selectSelector: Selectors.ConnectionFormConnectionColor,
+    optionText: color,
+  });
 
   await browser.clickVisible(Selectors.ConnectionModalSaveButton);
   await browser.$(Selectors.ConnectionModal).waitForExist({ reverse: true });

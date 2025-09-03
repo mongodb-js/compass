@@ -1,6 +1,6 @@
 import { z } from '@mongodb-js/compass-user-data';
 import { UUID } from 'bson';
-import { UserData } from '@mongodb-js/compass-user-data';
+import { FileUserData } from '@mongodb-js/compass-user-data';
 
 const UserSchema = z.object({
   id: z.string().uuid(),
@@ -24,10 +24,9 @@ export interface UserStorage {
 }
 
 export class UserStorageImpl implements UserStorage {
-  private readonly userData: UserData<typeof UserSchema>;
+  private readonly userData: FileUserData<typeof UserSchema>;
   constructor(basePath?: string) {
-    this.userData = new UserData(UserSchema, {
-      subdir: 'Users',
+    this.userData = new FileUserData(UserSchema, 'Users', {
       basePath,
     });
   }
@@ -78,9 +77,5 @@ export class UserStorageImpl implements UserStorage {
   private async writeUser(user: z.input<typeof UserSchema>): Promise<User> {
     await this.userData.write(user.id, user);
     return this.getUser(user.id);
-  }
-
-  private getFileName(id: string) {
-    return `${id}.json`;
   }
 }

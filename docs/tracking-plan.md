@@ -6,7 +6,7 @@
 > the tracking plan for the specific Compass version you can use the following
 > URL: `https://github.com/mongodb-js/compass/blob/<compass version>/docs/tracking-plan.md`
 
-Generated on Mon, Jun 16, 2025
+Generated on Wed, Sep 3, 2025
 
 ## Table of Contents
 
@@ -35,6 +35,10 @@ Generated on Mon, Jun 16, 2025
 - [Focus Mode Closed](#event--FocusModeClosedEvent)
 - [Focus Mode Opened](#event--FocusModeOpenedEvent)
 - [View Updated](#event--ViewUpdatedEvent)
+
+### Assistant
+
+- [Assistant Feedback Submitted](#event--AssistantFeedbackSubmittedEvent)
 
 ### Atlas
 
@@ -73,6 +77,20 @@ Generated on Mon, Jun 16, 2025
 - [Connection Removed](#event--ConnectionRemovedEvent)
 - [New Connection](#event--NewConnectionEvent)
 
+### Context Menu
+
+- [Context Menu Opened](#event--ContextMenuOpened)
+- [Context Menu Item Clicked](#event--ContextMenuItemClicked)
+
+### Data Modeling
+
+- [Data Modeling Diagram Created](#event--DataModelingDiagramCreated)
+- [Data Modeling Diagram Exported](#event--DataModelingDiagramExported)
+- [Data Modeling Diagram Imported](#event--DataModelingDiagramImported)
+- [Data Modeling Relationship Added](#event--DataModelingDiagramRelationshipAdded)
+- [Data Modeling Relationship Form Opened](#event--DataModelingDiagramRelationshipEdited)
+- [Data Modeling Relationship Deleted](#event--DataModelingDiagramRelationshipDeleted)
+
 ### Database / Collection List
 
 - [Collection Created](#event--CollectionCreatedEvent)
@@ -110,10 +128,11 @@ Generated on Mon, Jun 16, 2025
 
 ### Gen AI
 
+- [Assistant Prompt Submitted](#event--AssistantPromptSubmittedEvent)
+- [Assistant Response Failed](#event--AssistantResponseFailedEvent)
+- [Assistant Entry Point Used](#event--AssistantEntryPointUsedEvent)
 - [AI Opt In Modal Shown](#event--AiOptInModalShownEvent)
 - [AI Opt In Modal Dismissed](#event--AiOptInModalDismissedEvent)
-- [AI Sign In Modal Shown](#event--AiSignInModalShownEvent)
-- [AI Sign In Modal Dismissed](#event--AiSignInModalDismissedEvent)
 - [AI Generate Query Clicked](#event--AiGenerateQueryClickedEvent)
 - [AI Prompt Submitted](#event--AiPromptSubmittedEvent)
 - [AI Query Feedback](#event--AiQueryFeedbackEvent)
@@ -599,6 +618,21 @@ builder.
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
+## Assistant
+
+<a name="event--AssistantFeedbackSubmittedEvent"></a>
+
+### Assistant Feedback Submitted
+
+This event is fired when a user submits feedback for the assistant.
+
+**Properties**:
+
+- **feedback** (required): `"positive" | "negative"`
+- **text** (optional): `string | undefined`
+- **request_id** (required): `string | null`
+- **is_compass_web** (optional): `true | undefined`
+
 ## Atlas
 
 <a name="event--AtlasSignInErrorEvent"></a>
@@ -855,6 +889,9 @@ This event is fired when a connection attempt fails.
   - The error code (if available).
 - **error_name** (required): `string`
   - The error name.
+- **error_code_cause_chain** (optional): `{} | undefined`
+  - The error codes (or code names) from the error's cause chain.
+    The driver and the OIDC library we use are two places that use cause chains.
 - **auth_type** (optional): `string | undefined`
   - Desktop only. The authentication type used in the connection.
 - **tunnel** (optional): `string | undefined`
@@ -976,6 +1013,89 @@ This event is fired when user successfully connects to a new server/cluster.
 - **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
+
+## Context Menu
+
+<a name="event--ContextMenuOpened"></a>
+
+### Context Menu Opened
+
+This event is fired when the context menu is opened.
+
+**Properties**:
+
+- **item_groups** (required): `{}`
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--ContextMenuItemClicked"></a>
+
+### Context Menu Item Clicked
+
+This event is fired when a context menu item is clicked.
+
+**Properties**:
+
+- **item_group** (required): `string`
+- **item_label** (required): `string`
+- **is_compass_web** (optional): `true | undefined`
+
+## Data Modeling
+
+<a name="event--DataModelingDiagramCreated"></a>
+
+### Data Modeling Diagram Created
+
+This event is fired when a new data modeling diagram is created
+
+**Properties**:
+
+- **num_collections** (required): `number`
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--DataModelingDiagramExported"></a>
+
+### Data Modeling Diagram Exported
+
+This event is fired when user exports data modeling diagram.
+
+**Properties**:
+
+- **format** (required): `"json" | "png" | "diagram"`
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--DataModelingDiagramImported"></a>
+
+### Data Modeling Diagram Imported
+
+This event is fired when user imports data modeling diagram.
+
+<a name="event--DataModelingDiagramRelationshipAdded"></a>
+
+### Data Modeling Relationship Added
+
+This event is fired when user adds a new relationship to a data modeling diagram.
+
+**Properties**:
+
+- **num_relationships** (required): `number`
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--DataModelingDiagramRelationshipEdited"></a>
+
+### Data Modeling Relationship Form Opened
+
+This event is fired when user edits a relationship in a data modeling diagram.
+
+<a name="event--DataModelingDiagramRelationshipDeleted"></a>
+
+### Data Modeling Relationship Deleted
+
+This event is fired when user deletes a relationship from a data modeling diagram.
+
+**Properties**:
+
+- **num_relationships** (required): `number`
+- **is_compass_web** (optional): `true | undefined`
 
 ## Database / Collection List
 
@@ -1161,6 +1281,8 @@ This event is fired when user executes a query
   - Indicates whether the query includes a skip operation.
 - **has_sort** (required): `boolean`
   - Indicates whether the query includes a sort operation.
+- **default_sort** (required): `"none" | "natural" | "_id"`
+  - Indicates which default sort was set in settings
 - **has_limit** (required): `boolean`
   - Indicates whether the query includes a limit operation.
 - **has_collation** (required): `boolean`
@@ -1313,6 +1435,40 @@ the query results.
 
 ## Gen AI
 
+<a name="event--AssistantPromptSubmittedEvent"></a>
+
+### Assistant Prompt Submitted
+
+This event is fired when user enters a prompt in the assistant chat
+and hits "enter".
+
+**Properties**:
+
+- **user_input_length** (optional): `number | undefined`
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--AssistantResponseFailedEvent"></a>
+
+### Assistant Response Failed
+
+This event is fired when the AI response encounters an error.
+
+**Properties**:
+
+- **error_name** (optional): `string | undefined`
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--AssistantEntryPointUsedEvent"></a>
+
+### Assistant Entry Point Used
+
+This event is fired when a user uses an assistant entry point.
+
+**Properties**:
+
+- **source** (required): `"explain plan" | "performance insights" | "connection error"`
+- **is_compass_web** (optional): `true | undefined`
+
 <a name="event--AiOptInModalShownEvent"></a>
 
 ### AI Opt In Modal Shown
@@ -1324,18 +1480,6 @@ This event is fired when the AI Opt-In Modal is shown to the user.
 ### AI Opt In Modal Dismissed
 
 This event is fired when the AI Opt-In Modal is dismissed by the user.
-
-<a name="event--AiSignInModalShownEvent"></a>
-
-### AI Sign In Modal Shown
-
-This event is fired when the AI Sign-In Modal is shown to the user.
-
-<a name="event--AiSignInModalDismissedEvent"></a>
-
-### AI Sign In Modal Dismissed
-
-This event is fired when the AI Sign-In Modal is dismissed by the user.
 
 <a name="event--AiGenerateQueryClickedEvent"></a>
 
@@ -1829,7 +1973,7 @@ This event is fired when a user activates (i.e., navigates to) a screen.
 
 **Properties**:
 
-- **name** (optional): `"my_queries" | "aggregations" | "documents" | "collections" | "databases" | "indexes" | "globalwrites" | "performance" | "schema" | "validation" | "confirm_new_pipeline_modal" | "create_collection_modal" | "create_database_modal" | "drop_collection_modal" | "drop_database_modal" | "create_index_modal" | "create_search_index_modal" | "create_view_modal" | "csfle_connection_modal" | "delete_pipeline_modal" | "drop_index_modal" | "export_modal" | "export_to_language_modal" | "import_modal" | "insert_document_modal" | "non_genuine_mongodb_modal" | "rename_collection_modal" | "restore_pipeline_modal" | "save_pipeline_modal" | "shell_info_modal" | "update_search_index_modal" | "end_of_life_mongodb_modal" | undefined`
+- **name** (optional): `"my_queries" | "aggregations" | "documents" | "collections" | "databases" | "indexes" | "globalwrites" | "performance" | "schema" | "validation" | "confirm_new_pipeline_modal" | "create_collection_modal" | "create_database_modal" | "drop_collection_modal" | "drop_database_modal" | "create_index_modal" | "create_search_index_modal" | "create_view_modal" | "csfle_connection_modal" | "delete_pipeline_modal" | "drop_index_modal" | "export_modal" | "export_to_language_modal" | "import_modal" | "insert_document_modal" | "non_genuine_mongodb_modal" | "rename_collection_modal" | "restore_pipeline_modal" | "save_pipeline_modal" | "shell_info_modal" | "update_search_index_modal" | "end_of_life_mongodb_modal" | "export_diagram_modal" | undefined`
   - The name of the screen that was activated.
 - **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`

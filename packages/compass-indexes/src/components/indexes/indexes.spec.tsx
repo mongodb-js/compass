@@ -19,6 +19,7 @@ import Indexes from './indexes';
 import { setupStore } from '../../../test/setup-store';
 import { searchIndexes } from '../../../test/fixtures/search-indexes';
 import type { RootState } from '../../modules';
+import type { Document } from 'mongodb';
 
 const renderIndexes = async (
   options: Partial<IndexesPluginOptions> = {},
@@ -45,20 +46,8 @@ const renderIndexes = async (
 
   if (props) {
     const state = store.getState();
-
-    const allProps: Partial<RootState> = {
-      indexView: props.indexView ?? 'regular-indexes',
-      regularIndexes: {
-        ...state.regularIndexes,
-        ...props.regularIndexes,
-      },
-      searchIndexes: {
-        ...state.searchIndexes,
-        ...props.searchIndexes,
-      },
-    };
-
-    Object.assign(store.getState(), allProps);
+    const newState = { ...state, ...props };
+    Object.assign(store.getState(), newState);
   }
 
   render(
@@ -331,6 +320,110 @@ describe('Indexes Component', function () {
       fireEvent.click(refreshButton);
 
       expect(getSearchIndexesStub.callCount).to.equal(2);
+    });
+
+    describe('when isReadonly view', function () {
+      it('renders ViewVersionIncompatibleBanner if view version is <8.0', async function () {
+        await renderIndexes(undefined, undefined, {
+          isReadonlyView: true,
+          serverVersion: '8.0.0',
+          indexView: 'search-indexes',
+        });
+
+        expect(screen.getByTestId('view-version-incompatible-banner')).to.exist;
+      });
+
+      it('renders ViewNotSearchCompatibleBanner if view pipeline is not queryable', async function () {
+        const pipelineMock: Document[] = [
+          { $project: { newField: 'testValue' } },
+        ];
+        const mockCollectionStats = {
+          index_count: 0,
+          index_size: 0,
+          pipeline: pipelineMock,
+        };
+        await renderIndexes(undefined, undefined, {
+          isReadonlyView: true,
+          serverVersion: '8.1.0',
+          indexView: 'search-indexes',
+          collectionStats: mockCollectionStats,
+        });
+
+        expect(
+          screen.getByTestId('view-not-search-compatible-banner')
+        ).to.exist;
+      });
+
+      it('renders search indexes list if 8.1+ and has indexes', async function () {
+        const getSearchIndexesStub = sinon.stub().resolves(searchIndexes);
+        const dataProvider = {
+          getSearchIndexes: getSearchIndexesStub,
+        };
+        await renderIndexes(undefined, dataProvider, {
+          indexView: 'search-indexes',
+          isReadonlyView: true,
+          serverVersion: '8.1.0',
+        });
+
+        await waitFor(() => {
+          expect(screen.getByTestId('search-indexes-list')).to.exist;
+        });
+      });
+
+      it('renders correct empty state if 8.1+ and has no indexes', async function () {
+        const getSearchIndexesStub = sinon.stub().resolves([]);
+        const dataProvider = {
+          getSearchIndexes: getSearchIndexesStub,
+        };
+        await renderIndexes(undefined, dataProvider, {
+          indexView: 'search-indexes',
+          isReadonlyView: true,
+          serverVersion: '8.1.0',
+        });
+
+        expect(screen.getByText('No search indexes yet')).to.be.visible;
+        expect(screen.getByText('Create Atlas Search Index')).to.be.visible;
+      });
+
+      it('renders correct empty state if 8.0 and has no indexes', async function () {
+        const getSearchIndexesStub = sinon.stub().resolves([]);
+        const dataProvider = {
+          getSearchIndexes: getSearchIndexesStub,
+        };
+        await renderIndexes(undefined, dataProvider, {
+          indexView: 'search-indexes',
+          isReadonlyView: true,
+          serverVersion: '8.0.0',
+        });
+
+        expect(
+          screen.queryByText(
+            /Upgrade your cluster or manage search indexes on views in the Atlas UI./i
+          )
+        ).to.exist;
+        expect(screen.queryByText('No standard indexes')).to.exist;
+        expect(screen.queryByText('Create Atlas Search Index')).to.not.exist;
+      });
+
+      it('renders correct empty state if <8.0 and has no indexes', async function () {
+        const getSearchIndexesStub = sinon.stub().resolves([]);
+        const dataProvider = {
+          getSearchIndexes: getSearchIndexesStub,
+        };
+        await renderIndexes(undefined, dataProvider, {
+          indexView: 'search-indexes',
+          isReadonlyView: true,
+          serverVersion: '7.0.0',
+        });
+
+        expect(
+          screen.queryByText(
+            /Upgrade your cluster to create search indexes on views./i
+          )
+        ).to.exist;
+        expect(screen.queryByText('No standard indexes')).to.exist;
+        expect(screen.queryByText('Create Atlas Search Index')).to.not.exist;
+      });
     });
   });
 });

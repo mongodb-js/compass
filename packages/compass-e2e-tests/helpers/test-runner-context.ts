@@ -49,9 +49,9 @@ function buildCommonArgs(yargs: Argv) {
     .option('mocha-timeout', {
       type: 'number',
       description: 'Set a custom default mocha timeout',
-      // Kinda arbitrary, but longer than webdriver-waitfor-timeout so the test
-      // can fail before Mocha times out
-      default: 240_000,
+      // 4min, kinda arbitrary, but longer than webdriver-waitfor-timeout so the
+      // test can fail before Mocha times out
+      default: 1000 * 60 * 4,
     })
     .option('mocha-bail', {
       type: 'boolean',
@@ -113,8 +113,8 @@ const atlasCloudExternalArgs = [
 ] as const;
 
 type AtlasCloudExternalArgs =
-  | typeof atlasCloudExternalArgs[number]
-  | CamelCase<typeof atlasCloudExternalArgs[number]>;
+  | (typeof atlasCloudExternalArgs)[number]
+  | CamelCase<(typeof atlasCloudExternalArgs)[number]>;
 
 const atlasCloudSandboxArgs = [
   'atlas-cloud-sandbox-cloud-config',
@@ -126,8 +126,8 @@ const atlasCloudSandboxArgs = [
 ] as const;
 
 type AtlasCloudSandboxArgs =
-  | typeof atlasCloudSandboxArgs[number]
-  | CamelCase<typeof atlasCloudSandboxArgs[number]>;
+  | (typeof atlasCloudSandboxArgs)[number]
+  | CamelCase<(typeof atlasCloudSandboxArgs)[number]>;
 
 let testEnv: 'desktop' | 'web' | undefined;
 
@@ -344,7 +344,7 @@ process.env.HADRON_DISTRIBUTION ??= context.hadronDistribution;
 process.env.COMPASS_WEB_HTTP_PROXY_CLOUD_CONFIG ??=
   context.atlasCloudSandboxCloudConfig ?? 'dev';
 
-if (isTestingAtlasCloudSandbox(context)) {
+if (isTestingWeb()) {
   process.env.E2E_TEST_CLOUD_WEB_ENABLE_PREFERENCE_SAVING ??= 'true';
 }
 

@@ -14,16 +14,17 @@ export {
   cache,
 } from '@leafygreen-ui/emotion';
 import ConfirmationModal from './components/modals/confirmation-modal';
+import MarketingModal from './components/modals/marketing-modal';
 import type {
   ElectronFileDialogOptions,
   ElectronShowFileDialogProvider,
   FileInputBackend,
-} from './components/file-input';
-import FileInput, {
+} from './components/file-picker-dialog';
+import FilePickerDialog, {
   createElectronFileInputBackend,
   createJSDomFileInputDummyBackend,
   FileInputBackendProvider,
-} from './components/file-input';
+} from './components/file-picker-dialog';
 import { OptionsToggle } from './components/options-toggle';
 import {
   ErrorSummary,
@@ -38,29 +39,38 @@ export {
 import { ResizeHandle, ResizeDirection } from './components/resize-handle';
 import { Accordion } from './components/accordion';
 import { CollapsibleFieldSet } from './components/collapsible-field-set';
-export { type TabTheme } from './components/workspace-tabs/tab';
+export {
+  Tab as WorkspaceTab,
+  type WorkspaceTabCoreProps,
+} from './components/workspace-tabs/tab';
+export {
+  TabThemeProvider,
+  useTabTheme,
+} from './components/workspace-tabs/use-tab-theme';
 import { WorkspaceTabs } from './components/workspace-tabs/workspace-tabs';
 import ResizableSidebar, {
   defaultSidebarWidth,
 } from './components/resizeable-sidebar';
 
-import type {
+export type {
   ItemAction,
   ItemComponentProps,
   ItemSeparator,
+  MenuAction,
 } from './components/actions/types';
-import type { GroupedItemAction } from './components/actions/item-action-group';
-import type { MenuAction } from './components/actions/item-action-menu';
+export { splitBySeparator } from './components/actions/utils';
+export type { GroupedItemAction } from './components/actions/item-action-group';
 
-import { ItemActionControls } from './components/actions/item-action-controls';
-import { ItemActionGroup } from './components/actions/item-action-group';
-import { ItemActionMenu } from './components/actions/item-action-menu';
-import { DropdownMenuButton } from './components/actions/dropdown-menu-button';
+export { ItemActionControls } from './components/actions/item-action-controls';
+export { ItemActionGroup } from './components/actions/item-action-group';
+export { ItemActionMenu } from './components/actions/item-action-menu';
+export { DropdownMenuButton } from './components/actions/dropdown-menu-button';
 
 export { DocumentIcon } from './components/icons/document-icon';
 export { FavoriteIcon } from './components/icons/favorite-icon';
 export { ServerIcon } from './components/icons/server-icon';
 export { NoSavedItemsIcon } from './components/icons/no-saved-items-icon';
+export { PngIcon } from './components/icons/png-icon';
 export { GuideCue as LGGuideCue } from '@leafygreen-ui/guide-cue';
 export { Variant as BadgeVariant } from '@leafygreen-ui/badge';
 export { Variant as BannerVariant } from '@leafygreen-ui/banner';
@@ -73,7 +83,7 @@ export { SplitButton } from '@leafygreen-ui/split-button';
 export { default as LeafyGreenProvider } from '@leafygreen-ui/leafygreen-provider';
 
 export { palette } from '@leafygreen-ui/palette';
-export { rgba, lighten } from 'polished';
+export { rgba, lighten, transparentize } from 'polished';
 export { default as Portal } from '@leafygreen-ui/portal';
 export { Size as RadioBoxSize } from '@leafygreen-ui/radio-box-group';
 export { Size as SelectSize } from '@leafygreen-ui/select';
@@ -93,13 +103,14 @@ export { ModalHeader } from './components/modals/modal-header';
 export { FormModal } from './components/modals/form-modal';
 export { InfoModal } from './components/modals/info-modal';
 
+export {
+  useContextMenuGroups,
+  type ContextMenuItem,
+  type ContextMenuItemGroup,
+} from './components/context-menu';
+
 export type {
   FileInputBackend,
-  ItemAction,
-  ItemComponentProps,
-  GroupedItemAction,
-  MenuAction,
-  ItemSeparator,
   ElectronFileDialogOptions,
   ElectronShowFileDialogProvider,
 };
@@ -108,7 +119,7 @@ export {
   CollapsibleFieldSet,
   ConfirmationModal,
   ErrorSummary,
-  FileInput,
+  FilePickerDialog,
   FileInputBackendProvider,
   IndexIcon,
   OptionsToggle,
@@ -118,13 +129,10 @@ export {
   ResizableSidebar,
   WarningSummary,
   WorkspaceTabs,
-  ItemActionControls,
-  ItemActionGroup,
-  ItemActionMenu,
-  DropdownMenuButton,
   defaultSidebarWidth,
   createElectronFileInputBackend,
   createJSDomFileInputDummyBackend,
+  MarketingModal,
 };
 export {
   useFocusState,
@@ -214,3 +222,5 @@ export { SelectList } from './components/select-list';
 export { ParagraphSkeleton } from '@leafygreen-ui/skeleton-loader';
 export { InsightsChip } from './components/insights-chip';
 export { useForceUpdate } from './hooks/use-force-update';
+export * from './components/drawer-portal';
+export { FileSelector } from './components/file-selector';

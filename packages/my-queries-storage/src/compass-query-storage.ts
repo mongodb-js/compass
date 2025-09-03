@@ -1,5 +1,6 @@
 import { UUID, EJSON } from 'bson';
-import { UserData, type z } from '@mongodb-js/compass-user-data';
+import { type z } from '@mongodb-js/compass-user-data';
+import { type IUserData, FileUserData } from '@mongodb-js/compass-user-data';
 import { RecentQuerySchema, FavoriteQuerySchema } from './query-storage-schema';
 import type { FavoriteQueryStorage, RecentQueryStorage } from './query-storage';
 
@@ -7,22 +8,22 @@ export type QueryStorageOptions = {
   basepath?: string;
 };
 
-export abstract class CompassQueryStorage<T extends typeof RecentQuerySchema> {
-  protected readonly userData: UserData<T>;
+export abstract class CompassQueryStorage<TSchema extends z.Schema> {
+  protected readonly userData: IUserData<TSchema>;
   constructor(
-    schemaValidator: T,
+    schemaValidator: TSchema,
     protected readonly folder: string,
     protected readonly options: QueryStorageOptions
   ) {
-    this.userData = new UserData(schemaValidator, {
-      subdir: folder,
+    // TODO: logic for whether we're in compass web or compass desktop
+    this.userData = new FileUserData(schemaValidator, folder, {
       basePath: options.basepath,
       serialize: (content) => EJSON.stringify(content, undefined, 2),
-      deserialize: (content) => EJSON.parse(content),
+      deserialize: (content: string) => EJSON.parse(content),
     });
   }
 
-  async loadAll(namespace?: string): Promise<z.output<T>[]> {
+  async loadAll(namespace?: string): Promise<z.output<TSchema>[]> {
     try {
       const { data } = await this.userData.readAll();
       const sortedData = data
@@ -36,20 +37,22 @@ export abstract class CompassQueryStorage<T extends typeof RecentQuerySchema> {
     }
   }
 
-  async updateAttributes(
-    id: string,
-    data: Partial<z.input<T>>
-  ): Promise<z.output<T>> {
-    await this.userData.write(id, {
-      ...((await this.userData.readOne(id)) ?? {}),
-      ...data,
-    });
-    return await this.userData.readOne(id);
+  async write(id: string, content: z.input<TSchema>): Promise<boolean> {
+    return await this.userData.write(id, content);
   }
 
   async delete(id: string) {
     return await this.userData.delete(id);
   }
+
+  async updateAttributes(
+    id: string,
+    data: Partial<z.input<TSchema>>
+  ): Promise<boolean> {
+    return await this.userData.updateAttributes(id, data);
+  }
+
+  abstract saveQuery(data: Partial<z.input<TSchema>>): Promise<void>;
 }
 
 export class CompassRecentQueryStorage
@@ -73,6 +76,7 @@ export class CompassRecentQueryStorage
     }
 
     const _id = new UUID().toString();
+    // this creates a recent query that we will write to system/db
     const recentQuery = {
       ...data,
       _id,
@@ -97,6 +101,7 @@ export class CompassFavoriteQueryStorage
     >
   ): Promise<void> {
     const _id = new UUID().toString();
+    // this creates a favorite query that we will write to system/db
     const favoriteQuery = {
       ...data,
       _id,

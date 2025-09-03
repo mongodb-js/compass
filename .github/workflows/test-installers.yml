@@ -46,7 +46,10 @@ jobs:
         run: echo "[Evergreen Task](${{ github.event.inputs.evergreen_task_url }})" >> $GITHUB_STEP_SUMMARY
   test:
     name: ${{ matrix.package }} test ${{ matrix.test }} (${{ matrix.hadron-distribution }})
-    timeout-minutes: 30
+    # Windows specifically takes A TON of time to bootstrap itself before being
+    # able to run tests, so we're setting the timeout pretty high to account for
+    # that
+    timeout-minutes: 60
     strategy:
       fail-fast: false
       matrix:
@@ -109,6 +112,7 @@ jobs:
             hadron-platform: linux
             distro-id: rhel80
             post-checkout-command: |
+              dnf clean all && dnf update -y --refresh
               dnf install -y gcc gcc-c++ make git nss dbus xorg-x11-server-Xvfb yum-utils
               # Enable the devel repo to install compat-openssl11 (bringing libcrupto.so.1.1 to run mongod)
               dnf config-manager --set-enabled devel
@@ -174,7 +178,11 @@ jobs:
     runs-on: ${{ matrix.runs-on }}
     container: ${{ matrix.container }}
     env:
-      DEBUG: compass:smoketests:*
+      DEBUG: compass:smoketests:*,compass-e2e-tests:*
+      # Similar to total task timeout, setting these higher than the default
+      # value to account for very slow windows machines
+      COMPASS_E2E_MOCHA_TIMEOUT: 720000 # 12min
+      COMPASS_E2E_WEBDRIVER_WAITFOR_TIMEOUT: 360000 # 6min
     steps:
       - name: Checkout
         uses: actions/checkout@v2

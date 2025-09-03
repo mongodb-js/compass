@@ -10,6 +10,7 @@ import type { IndexesThunkAction, RootState } from '.';
 import { createRegularIndex } from './regular-indexes';
 import * as mql from 'mongodb-mql-engines';
 import _parseShellBSON, { ParseMode } from '@mongodb-js/shell-bson-parser';
+import toNS from 'mongodb-ns';
 
 export enum ActionTypes {
   FieldAdded = 'compass-indexes/create-index/fields/field-added',
@@ -30,8 +31,13 @@ export enum ActionTypes {
 
   TabUpdated = 'compass-indexes/create-index/tab-updated',
 
+  // Query Flow
   SuggestedIndexesRequested = 'compass-indexes/create-index/suggested-indexes-requested',
   SuggestedIndexesFetched = 'compass-indexes/create-index/suggested-indexes-fetched',
+  QueryUpdatedAction = 'compass-indexes/create-index/clear-has-query-changes',
+
+  // Index Flow
+  CoveredQueriesFetched = 'compass-indexes/create-index/covered-queries-fetched',
 }
 
 // fields
@@ -76,7 +82,7 @@ type ErrorClearedAction = {
 
 export type CreateIndexOpenedAction = {
   type: ActionTypes.CreateIndexOpened;
-  query?: Document;
+  initialQuery?: Document;
 };
 
 type CreateIndexClosedAction = {
@@ -215,9 +221,9 @@ export const OPTIONS = {
     label: 'Build in rolling process',
     description: (
       <>
-        Building indexes in a rolling fashion can minimize the performance
-        impact of index builds. We only recommend using rolling index builds
-        when regular index builds do not meet your needs.{' '}
+        Building an index in a rolling fashion reduces the resiliency of your
+        cluster and increases index build times. We only recommend using rolling
+        index builds when regular index builds do not meet your needs.{' '}
         <Link href="https://www.mongodb.com/docs/manual/core/rolling-index-builds/">
           Learn More
         </Link>
@@ -229,7 +235,9 @@ export const OPTIONS = {
 type OptionNames = keyof typeof OPTIONS;
 
 export type CheckboxOptions = {
-  [k in OptionNames]: typeof OPTIONS[k]['type'] extends 'checkbox' ? k : never;
+  [k in OptionNames]: (typeof OPTIONS)[k]['type'] extends 'checkbox'
+    ? k
+    : never;
 }[OptionNames];
 
 export type InputOptions = Exclude<OptionNames, CheckboxOptions>;
@@ -237,13 +245,13 @@ export type InputOptions = Exclude<OptionNames, CheckboxOptions>;
 type Options = {
   [k in OptionNames]: {
     enabled: boolean;
-  } & (typeof OPTIONS[k]['type'] extends 'checkbox'
+  } & ((typeof OPTIONS)[k]['type'] extends 'checkbox'
     ? { value: boolean }
     : { value: string });
 };
 
 type ValueForOption<O extends OptionNames> =
-  typeof OPTIONS[O]['type'] extends 'checkbox' ? boolean : string;
+  (typeof OPTIONS)[O]['type'] extends 'checkbox' ? boolean : string;
 
 type OptionChangedAction<O extends OptionNames = OptionNames> = {
   type: ActionTypes.OptionChanged;
@@ -313,7 +321,19 @@ export type State = {
   sampleDocs: Array<Document> | null;
 
   // base query to be used for query flow index creation
-  query: Document | null;
+  query: string;
+
+  // the initial query that user had prefilled from the insights nudge in the documents tab
+  initialQuery: string;
+
+  // to determine whether there has been new query changes since user last pressed the button
+  hasQueryChanges: boolean;
+
+  // covered queries array for the index flow to keep track of what the user last sees after pressing the covered queries button
+  coveredQueriesArr: Array<Record<string, number>> | null;
+
+  // to determine whether there has been new index field changes since user last pressed the button
+  hasIndexFieldChanges: boolean;
 };
 
 export const INITIAL_STATE: State = {
@@ -323,10 +343,18 @@ export const INITIAL_STATE: State = {
   fields: INITIAL_FIELDS_STATE,
   options: INITIAL_OPTIONS_STATE,
   currentTab: 'IndexFlow',
+
+  // Query flow
   fetchingSuggestionsState: 'initial',
   indexSuggestions: null,
   sampleDocs: null,
-  query: null,
+  query: '',
+  initialQuery: '',
+  hasQueryChanges: false,
+
+  // Index flow
+  coveredQueriesArr: null,
+  hasIndexFieldChanges: false,
 };
 
 function getInitialState(): State {
@@ -338,10 +366,27 @@ function getInitialState(): State {
 
 //-------
 
-export const createIndexOpened = (query?: Document) => ({
-  type: ActionTypes.CreateIndexOpened,
-  query,
-});
+export const createIndexOpened = (
+  initialQuery?: Document
+): IndexesThunkAction<
+  Promise<void>,
+  SuggestedIndexFetchedAction | CreateIndexOpenedAction
+> => {
+  return async (dispatch) => {
+    dispatch({
+      type: ActionTypes.CreateIndexOpened,
+      initialQuery,
+    });
+
+    if (initialQuery) {
+      await dispatch(
+        fetchIndexSuggestions({
+          query: JSON.stringify(initialQuery, null, 2) || '',
+        })
+      );
+    }
+  };
+};
 
 export const createIndexClosed = () => ({
   type: ActionTypes.CreateIndexClosed,
@@ -373,20 +418,25 @@ export type SuggestedIndexFetchedAction = {
 };
 
 export type SuggestedIndexFetchedProps = {
-  dbName: string;
-  collectionName: string;
-  inputQuery: string;
+  query: string;
+};
+
+export type CoveredQueriesFetchedAction = {
+  type: ActionTypes.CoveredQueriesFetched;
+};
+
+export type QueryUpdatedProps = {
+  query: string;
+};
+
+export type QueryUpdatedAction = {
+  type: ActionTypes.QueryUpdatedAction;
+  query: string;
 };
 
 export const fetchIndexSuggestions = ({
-  dbName,
-  collectionName,
-  inputQuery,
-}: {
-  dbName: string;
-  collectionName: string;
-  inputQuery: string;
-}): IndexesThunkAction<
+  query,
+}: SuggestedIndexFetchedProps): IndexesThunkAction<
   Promise<void>,
   SuggestedIndexFetchedAction | SuggestedIndexesRequestedAction
 > => {
@@ -394,12 +444,11 @@ export const fetchIndexSuggestions = ({
     dispatch({
       type: ActionTypes.SuggestedIndexesRequested,
     });
-    const namespace = `${dbName}.${collectionName}`;
 
+    const namespace = getState().namespace;
     // Get sample documents from state if it's already there, otherwise fetch it
     let sampleDocuments: Array<Document> | null =
       getState().createIndex.sampleDocs || null;
-
     // If it's null, that means it has not been fetched before
     if (sampleDocuments === null) {
       try {
@@ -426,16 +475,17 @@ export const fetchIndexSuggestions = ({
 
     // Analyze namespace and fetch suggestions
     try {
+      const { database, collection } = toNS(getState().namespace);
       const analyzedNamespace = mql.analyzeNamespace(
-        { database: dbName, collection: collectionName },
+        { database, collection },
         sampleDocuments
       );
 
-      const query = mql.parseQuery(
-        _parseShellBSON(inputQuery, { mode: ParseMode.Loose }),
+      const parsedQuery = mql.parseQuery(
+        _parseShellBSON(query, { mode: ParseMode.Loose }),
         analyzedNamespace
       );
-      const results = await mql.suggestIndex([query]);
+      const results = await mql.suggestIndex([parsedQuery]);
       const indexSuggestions = results?.index;
 
       if (
@@ -460,6 +510,17 @@ export const fetchIndexSuggestions = ({
     }
   };
 };
+
+export const fetchCoveredQueries = (): CoveredQueriesFetchedAction => ({
+  type: ActionTypes.CoveredQueriesFetched,
+});
+
+export const queryUpdated = ({
+  query,
+}: QueryUpdatedProps): QueryUpdatedAction => ({
+  type: ActionTypes.QueryUpdatedAction,
+  query,
+});
 
 function isEmptyValue(value: unknown) {
   if (value === '') {
@@ -639,6 +700,8 @@ const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
     return {
       ...state,
       fields: [...state.fields, { name: '', type: '' }],
+      hasIndexFieldChanges: true,
+      error: null,
     };
   }
 
@@ -648,6 +711,8 @@ const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
     return {
       ...state,
       fields,
+      hasIndexFieldChanges: true,
+      error: null,
     };
   }
 
@@ -661,6 +726,8 @@ const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
     return {
       ...state,
       fields,
+      hasIndexFieldChanges: true,
+      error: null,
     };
   }
 
@@ -668,6 +735,8 @@ const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
     return {
       ...state,
       fields: action.fields,
+      hasIndexFieldChanges: true,
+      error: null,
     };
   }
 
@@ -705,11 +774,17 @@ const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
   if (
     isAction<CreateIndexOpenedAction>(action, ActionTypes.CreateIndexOpened)
   ) {
+    const parsedInitialQuery = action.initialQuery
+      ? JSON.stringify(action.initialQuery, null, 2)
+      : '';
+
     return {
       ...getInitialState(),
       isVisible: true,
-      query: action.query ?? null,
-      currentTab: action.query ? 'QueryFlow' : 'IndexFlow',
+      // get it from the current query or initial query from insights nudge
+      query: state.query || parsedInitialQuery,
+      initialQuery: parsedInitialQuery,
+      currentTab: action.initialQuery ? 'QueryFlow' : 'IndexFlow',
     };
   }
 
@@ -733,6 +808,7 @@ const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
     return {
       ...state,
       isVisible: false,
+      query: '',
     };
   }
 
@@ -781,6 +857,31 @@ const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
       error: action.error,
       indexSuggestions: action.indexSuggestions,
       sampleDocs: action.sampleDocs,
+      hasQueryChanges: false,
+    };
+  }
+
+  if (
+    isAction<CoveredQueriesFetchedAction>(
+      action,
+      ActionTypes.CoveredQueriesFetched
+    )
+  ) {
+    return {
+      ...state,
+      coveredQueriesArr: state.fields.map((field, index) => {
+        return { [field.name]: index + 1 };
+      }),
+      hasIndexFieldChanges: false,
+    };
+  }
+
+  if (isAction<QueryUpdatedAction>(action, ActionTypes.QueryUpdatedAction)) {
+    return {
+      ...state,
+      query: action.query,
+      hasQueryChanges: true,
+      error: null,
     };
   }
 

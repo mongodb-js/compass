@@ -2,7 +2,6 @@ import type { Listenable, Store } from 'reflux';
 import Reflux from 'reflux';
 import toNS from 'mongodb-ns';
 import { findIndex, isEmpty, isEqual } from 'lodash';
-import type { MongoServerError } from 'mongodb';
 import semver from 'semver';
 import StateMixin from '@mongodb-js/reflux-state-mixin';
 import type { Element } from 'hadron-document';
@@ -41,8 +40,8 @@ import type { UpdatePreview } from 'mongodb-data-service';
 import type { GridStore, TableHeaderType } from './grid-store';
 import configureGridStore from './grid-store';
 import type { TypeCastMap } from 'hadron-type-checker';
-import type AppRegistry from 'hadron-app-registry';
-import type { ActivateHelpers } from 'hadron-app-registry';
+import type AppRegistry from '@mongodb-js/compass-app-registry';
+import type { ActivateHelpers } from '@mongodb-js/compass-app-registry';
 import { BaseRefluxStore } from './base-reflux-store';
 import { openToast, showConfirmation } from '@mongodb-js/compass-components';
 import {
@@ -69,6 +68,7 @@ import type {
 } from '@mongodb-js/compass-connections/provider';
 import type { Query, QueryBarService } from '@mongodb-js/compass-query-bar';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
+import type { MongoServerError } from 'mongodb';
 
 export type BSONObject = TypeCastMap['Object'];
 export type BSONArray = TypeCastMap['Array'];
@@ -269,6 +269,7 @@ export type CrudStoreOptions = Pick<
   | 'namespace'
   | 'isTimeSeries'
   | 'isSearchIndexesSupported'
+  | 'sourceName'
 > & {
   noRefreshOnConfigure?: boolean;
 };
@@ -1243,6 +1244,7 @@ class CrudStoreImpl
     } catch (err: any) {
       openBulkUpdateFailureToast({
         affectedDocuments: this.state.bulkUpdate.affected,
+        error: err as Error,
       });
 
       this.logger.log.error(
@@ -1595,6 +1597,7 @@ class CrudStoreImpl
 
     if (onApply) {
       const { isTimeSeries, isReadonly } = this.state;
+      const { defaultSortOrder } = this.preferences.getPreferences();
       this.track(
         'Query Executed',
         {
@@ -1602,6 +1605,11 @@ class CrudStoreImpl
             !!query.project && Object.keys(query.project).length > 0,
           has_skip: (query.skip ?? 0) > 0,
           has_sort: !!query.sort && Object.keys(query.sort).length > 0,
+          default_sort: !defaultSortOrder
+            ? 'none'
+            : /_id/.test(defaultSortOrder)
+            ? '_id'
+            : 'natural',
           has_limit: (query.limit ?? 0) > 0,
           has_collation: !!query.collation,
           changed_maxtimems: query.maxTimeMS !== DEFAULT_INITIAL_MAX_TIME_MS,
@@ -1645,12 +1653,19 @@ class CrudStoreImpl
       countOptions.hint = '_id_';
     }
 
+    const isView = this.options.isReadonly && this.options.sourceName;
+    // Default sort options that we allow to choose from in settings will have a
+    // massive negative effect on the query performance for views and view-like
+    // collections in all cases. To avoid that, we're not applying default sort
+    // for those
+    const allowDefaultSort = !isView && !this.options.isTimeSeries;
+
+    const { defaultSortOrder } = this.preferences.getPreferences();
+
     let sort = query.sort;
-    if (!sort && this.preferences.getPreferences().defaultSortOrder) {
-      sort = validate(
-        'sort',
-        this.preferences.getPreferences().defaultSortOrder
-      );
+
+    if (!sort && allowDefaultSort && defaultSortOrder) {
+      sort = validate('sort', defaultSortOrder);
     }
 
     const findOptions = {
@@ -1899,6 +1914,7 @@ class CrudStoreImpl
   bulkDeleteFailed(ex: Error) {
     openBulkDeleteFailureToast({
       affectedDocuments: this.state.bulkDelete.affected,
+      error: ex,
     });
 
     this.logger.log.error(

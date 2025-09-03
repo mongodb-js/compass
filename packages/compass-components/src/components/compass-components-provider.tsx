@@ -6,6 +6,12 @@ import { GuideCueProvider } from './guide-cue/guide-cue';
 import { SignalHooksProvider } from './signal-popover';
 import { RequiredURLSearchParamsProvider } from './links/link';
 import { StackedComponentProvider } from '../hooks/use-stacked-component';
+import {
+  type ContextMenuItem,
+  type ContextMenuItemGroup,
+  ContextMenuProvider,
+} from './context-menu';
+import { DrawerContentProvider } from './drawer-portal';
 
 type GuideCueProviderProps = React.ComponentProps<typeof GuideCueProvider>;
 
@@ -33,12 +39,28 @@ type CompassComponentsProviderProps = {
    * zIndex for the stacked elements (modal, toast, popover)
    */
   stackedElementsZIndex?: number;
+
+  /**
+   * Set to disable context menus in the application.
+   */
+  disableContextMenus?: boolean;
 } & {
   onNextGuideGue?: GuideCueProviderProps['onNext'];
   onNextGuideCueGroup?: GuideCueProviderProps['onNextGroup'];
 } & {
   utmSource?: string;
   utmMedium?: string;
+  /**
+   * Callback for when the context menu is opened.
+   */
+  onContextMenuOpen?: (itemGroups: ContextMenuItemGroup[]) => void;
+  /**
+   * Callback for when a context menu item is clicked.
+   */
+  onContextMenuItemClick?: (
+    itemGroup: ContextMenuItemGroup,
+    item: ContextMenuItem
+  ) => void;
 } & React.ComponentProps<typeof SignalHooksProvider>;
 
 const darkModeMediaQuery = (() => {
@@ -95,10 +117,13 @@ export const CompassComponentsProvider = ({
   children,
   onNextGuideGue,
   onNextGuideCueGroup,
+  onContextMenuOpen,
+  onContextMenuItemClick,
   utmSource,
   utmMedium,
   stackedElementsZIndex,
   popoverPortalContainer: _popoverPortalContainer,
+  disableContextMenus,
   ...signalHooksProviderProps
 }: CompassComponentsProviderProps) => {
   const darkMode = useDarkMode(_darkMode);
@@ -124,31 +149,39 @@ export const CompassComponentsProvider = ({
       darkMode={darkMode}
       popoverPortalContainer={popoverPortalContainer}
     >
-      <StackedComponentProvider zIndex={stackedElementsZIndex}>
-        <RequiredURLSearchParamsProvider
-          utmSource={utmSource}
-          utmMedium={utmMedium}
-        >
-          <GuideCueProvider
-            onNext={onNextGuideGue}
-            onNextGroup={onNextGuideCueGroup}
+      <DrawerContentProvider>
+        <StackedComponentProvider zIndex={stackedElementsZIndex}>
+          <RequiredURLSearchParamsProvider
+            utmSource={utmSource}
+            utmMedium={utmMedium}
           >
-            <SignalHooksProvider {...signalHooksProviderProps}>
-              <ConfirmationModalArea>
-                <ToastArea>
-                  {typeof children === 'function'
-                    ? children({
-                        darkMode,
-                        portalContainerRef: setPortalContainer,
-                        scrollContainerRef: setScrollContainer,
-                      })
-                    : children}
-                </ToastArea>
-              </ConfirmationModalArea>
-            </SignalHooksProvider>
-          </GuideCueProvider>
-        </RequiredURLSearchParamsProvider>
-      </StackedComponentProvider>
+            <GuideCueProvider
+              onNext={onNextGuideGue}
+              onNextGroup={onNextGuideCueGroup}
+            >
+              <SignalHooksProvider {...signalHooksProviderProps}>
+                <ConfirmationModalArea>
+                  <ContextMenuProvider
+                    disabled={disableContextMenus}
+                    onContextMenuOpen={onContextMenuOpen}
+                    onContextMenuItemClick={onContextMenuItemClick}
+                  >
+                    <ToastArea>
+                      {typeof children === 'function'
+                        ? children({
+                            darkMode,
+                            portalContainerRef: setPortalContainer,
+                            scrollContainerRef: setScrollContainer,
+                          })
+                        : children}
+                    </ToastArea>
+                  </ContextMenuProvider>
+                </ConfirmationModalArea>
+              </SignalHooksProvider>
+            </GuideCueProvider>
+          </RequiredURLSearchParamsProvider>
+        </StackedComponentProvider>
+      </DrawerContentProvider>
     </LeafyGreenProvider>
   );
 };

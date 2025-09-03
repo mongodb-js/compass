@@ -10,6 +10,9 @@ export const AggregationsPlugin: React.FunctionComponent<
   const showExportButton = usePreference('enableImportExport');
   const showRunButton = usePreference('enableAggregationBuilderRunPipeline');
   const showExplainButton = usePreference('enableExplainPlan');
+  const enableSearchActivationProgramP1 = usePreference(
+    'enableSearchActivationProgramP1'
+  );
 
   return (
     <ConfirmationModalArea>
@@ -17,6 +20,7 @@ export const AggregationsPlugin: React.FunctionComponent<
         showExportButton={showExportButton}
         showRunButton={showRunButton}
         showExplainButton={showExplainButton}
+        enableSearchActivationProgramP1={enableSearchActivationProgramP1}
       />
     </ConfirmationModalArea>
   );

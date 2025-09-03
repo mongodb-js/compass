@@ -1,3 +1,5 @@
+import { getDrawerIds } from '@mongodb-js/compass-components';
+
 export type WorkspaceTabSelectorOptions = {
   id?: string;
   connectionName?: string;
@@ -235,11 +237,15 @@ export const ConnectionModalSaveButton = '[data-testid="save-button"]';
 export const connectionToastById = (connectionId: string) => {
   return `[data-testid="toast-connection-status--${connectionId}"]`;
 };
+export const ConnectionToastTitleText =
+  '[data-testid="connection-error-title"]';
 export const ConnectionToastErrorText = '[data-testid="connection-error-text"]';
 export const ConnectionToastErrorReviewButton =
   '[data-testid="connection-error-review"]';
 export const ConenctionToastCancelConnectionButton =
   '[data-testid="cancel-connection-button"]';
+export const ConnectionToastErrorDebugButton =
+  '[data-testid="connection-error-debug"]';
 
 // Connections sidebar
 export const ConnectionsTitle = '[data-testid="connections-header"]';
@@ -601,6 +607,8 @@ export const ImportFileOption =
 export const DocumentListEntry = '[data-testid="editable-document"]';
 export const DocumentJSONEntry = '[data-testid="document-json-item"]';
 export const DocumentExpandButton = '[data-testid="expand-document-button"]';
+export const DocumentList =
+  '[data-testid="document-list"] [data-testid="virtual-list-inner-container"]';
 export const SelectJSONView = '[data-testid="toolbar-view-json"]';
 export const SelectTableView = '[data-testid="toolbar-view-table"]';
 export const SelectListView = '[data-testid="toolbar-view-list"]';
@@ -730,6 +738,8 @@ export const HadronDocumentClickableKey =
   '[data-testid="hadron-document-clickable-key"]';
 export const HadronDocumentKeyEditor =
   '[data-testid="hadron-document-key-editor"]';
+export const HadronDocumentTypeEditor =
+  '[data-testid="hadron-document-type-editor"]';
 export const HadronDocumentValue =
   '[data-testid="hadron-document-element-value"]';
 export const HadronDocumentValueEditor =
@@ -1382,14 +1392,6 @@ export const ModifySourceBanner = '[data-testid="modify-source-banner"]';
 export const InsightIconButton = '[data-testid="insight-badge-button"]';
 export const InsightPopoverCard = '[data-testid="insight-signal-card"]';
 
-// Atlas login
-export const LogInWithAtlasButton = 'button=Log in with Atlas';
-export const LogInWithAtlasModalButton = 'button*=Log in to Atlas';
-export const DisconnectAtlasAccountButton = 'button=Log Out';
-export const AtlasLoginStatus = '[data-testid="atlas-login-status"]';
-export const AtlasLoginErrorToast = '#atlas-sign-in-error';
-export const AgreeAndContinueButton = 'button=Agree and continue';
-
 // Proxy settings
 export const ProxyUrl =
   '[data-testid="proxy-settings"] [data-testid="proxy-url"]';
@@ -1430,6 +1432,7 @@ export const AutoUpdateReleaseNotesLink =
 
 // Data Modeling
 export const SidebarDataModelingTab = `${Sidebar} [aria-label="Data Modeling"]`;
+export const ImportDataModelInput = '[data-testid="import-diagram-file-input"]';
 export const CreateNewDataModelButton = '[data-testid="create-diagram-button"]';
 export const CreateDataModelModal = '[data-testid="new-diagram-modal"]';
 export const CreateDataModelConfirmButton = `${CreateDataModelModal} [data-testid="new-diagram-confirm-button"]`;
@@ -1441,15 +1444,73 @@ export const CreateDataModelCollectionCheckbox = (
 ): string =>
   `${CreateDataModelModal} [data-testid="new-diagram-collection-checkbox-${collectionName}"]`;
 export const DataModelEditor = '[data-testid="diagram-editor-container"]';
+export const DataModelZoomOutButton = `${DataModelEditor} [aria-label="Minus Icon"]`;
+export const DataModelZoomInButton = `${DataModelEditor} [aria-label="Plus Icon"]`;
 export const DataModelPreview = `${DataModelEditor} [data-testid="model-preview"]`;
+export const DataModelPreviewCollection = (collectionId: string) =>
+  `${DataModelPreview} [data-id="${collectionId}"]`; // TODO(COMPASS-9719): add once we upgrade reactflow again in diagramming: [aria-roleDescription="node"]
+export const DataModelPreviewRelationship = (relationshipId: string) =>
+  `${DataModelPreview} [data-id="${relationshipId}"]`; // TODO(COMPASS-9719): add once we upgrade reactflow again in diagramming: [aria-roleDescription="edge"]
 export const DataModelApplyEditor = `${DataModelEditor} [data-testid="apply-editor"]`;
 export const DataModelEditorApplyButton = `${DataModelApplyEditor} [data-testid="apply-button"]`;
 export const DataModelUndoButton = 'button[aria-label="Undo"]';
 export const DataModelRedoButton = 'button[aria-label="Redo"]';
-export const DataModelsListItem = (diagramName: string) =>
-  `[data-testid="saved-diagram-card"][data-diagram-name="${diagramName}"]`;
+export const DataModelRelationshipDrawingButton = (isActive: boolean = false) =>
+  `button[aria-label="${
+    isActive ? 'Exit Relationship Drawing Mode' : 'Add Relationship'
+  }"]`;
+export const DataModelExportButton = 'button[aria-label="Export"]';
+export const DataModelExportModal = '[data-testid="export-diagram-modal"]';
+export const DataModelExportPngOption = `${DataModelExportModal} input[aria-label="PNG"]`;
+export const DataModelExportJsonOption = `${DataModelExportModal} input[aria-label="JSON"]`;
+export const DataModelExportDiagramOption = `${DataModelExportModal} input[aria-label="Diagram File"]`;
+export const DataModelExportModalConfirmButton =
+  '[data-testid="export-button"]';
+export const DataModelsListItem = (diagramName?: string) => {
+  const diagramListSelector = `[data-testid="saved-diagram-card"]`;
+  if (diagramName) {
+    return `${diagramListSelector}[data-diagram-name="${diagramName}"]`;
+  }
+  return diagramListSelector;
+};
 export const DataModelsListItemActions = (diagramName: string) =>
   `${DataModelsListItem(diagramName)} [aria-label="Show actions"]`;
 export const DataModelsListItemDeleteButton = `[data-action="delete"]`;
-export const DataModelingDiagram = '.react-flow';
-export const DataModelingDiagramNode = '.react-flow__node > div';
+export const DataModelAddRelationshipBtn = 'aria/Add Relationship';
+export const DataModelAddCollectionBtn = 'aria/Add Collection';
+export const DataModelNameInputLabel = '//label[text()="Name"]';
+export const DataModelNameInput =
+  'input[data-testid="data-model-collection-drawer-name-input"]';
+export const DataModelRelationshipLocalCollectionSelect =
+  '//label[text()="Local collection"]';
+export const DataModelRelationshipLocalFieldSelect =
+  '//label[text()="Local field"]';
+export const DataModelRelationshipLocalCardinalitySelect =
+  '//label[text()="Local cardinality"]';
+export const DataModelRelationshipForeignCollectionSelect =
+  '//label[text()="Foreign collection"]';
+export const DataModelRelationshipForeignFieldSelect =
+  '//label[text()="Foreign field"]';
+export const DataModelRelationshipForeignCardinalitySelect =
+  '//label[text()="Foreign cardinality"]';
+export const DataModelRelationshipCardinalityOption = (value: string) =>
+  `[role="option"][value="${value}"]`;
+export const DataModelCollectionRelationshipItem = (relationshipId: string) =>
+  `li[data-relationship-id="${relationshipId}"]`;
+export const DataModelCollectionRelationshipItemEdit = `[aria-label="Edit relationship"]`;
+export const DataModelCollectionRelationshipItemDelete = `[aria-label="Delete relationship"]`;
+export const DataModelCollectionSidebarItemDelete = `[aria-label="Delete collection"]`;
+export const DataModelCollectionSidebarItemDeleteButton = `[data-action="delete"]`;
+
+// Side drawer
+export const SideDrawer = `[data-testid="${getDrawerIds().root}"]`;
+export const SideDrawerCloseButton = `[data-testid="${
+  getDrawerIds().closeButton
+}"]`;
+
+// Assistant
+export const AssistantChatMessages = '[data-testid="assistant-chat-messages"]';
+export const AssistantClearChatButton = '[data-testid="assistant-clear-chat"]';
+export const ConfirmClearChatModal =
+  '[data-testid="assistant-confirm-clear-chat-modal"]';
+export const ConfirmClearChatModalConfirmButton = `${ConfirmClearChatModal} [data-testid="lg-confirmation_modal-footer-confirm_button"]`;

@@ -3038,4 +3038,82 @@ describe('Element', function () {
       });
     }
   );
+
+  describe('#toEJSON', function () {
+    it('handles null values', function () {
+      const element = new Element('test', {
+        a: 1,
+        b: { foo: 2 },
+        null_val: null,
+      });
+      expect(element.toEJSON('current', { indent: undefined })).to.equal(
+        '{"a":1,"b":{"foo":2},"null_val":null}'
+      );
+    });
+
+    it('serializes Int32/Double as relaxed but not Int64', function () {
+      const element = new Element('test', {
+        a: 1,
+        b: 1.5,
+        c: Long.fromNumber(2),
+      });
+      expect(element.toEJSON('current', { indent: undefined })).to.equal(
+        '{"a":1,"b":1.5,"c":{"$numberLong":"2"}}'
+      );
+    });
+
+    it('serializes Date as relaxed, but not dates before 1970 and after 9999', function () {
+      const element = new Element('test', {
+        epoch: new Date(0),
+        negative: new Date(-1),
+        y10k: new Date(253402300800000),
+      });
+      expect(element.toEJSON('current', { indent: undefined })).to.equal(
+        '{"epoch":{"$date":"1970-01-01T00:00:00.000Z"},"negative":{"$date":{"$numberLong":"-1"}},"y10k":{"$date":{"$numberLong":"253402300800000"}}}'
+      );
+    });
+
+    it('optionally serializes the current or the original element', function () {
+      const element = new Element('test', {
+        a: 1,
+        b: 1.5,
+        c: Long.fromNumber(2),
+      });
+      element.get('a')?.edit(new Int32(2));
+      expect(element.toEJSON('current', { indent: undefined })).to.equal(
+        '{"a":2,"b":1.5,"c":{"$numberLong":"2"}}'
+      );
+      expect(element.toEJSON('original', { indent: undefined })).to.equal(
+        '{"a":1,"b":1.5,"c":{"$numberLong":"2"}}'
+      );
+    });
+
+    it('allows specifying JSON indent', function () {
+      const element = new Element('test', { a: 1 });
+      expect(element.toEJSON('current', { indent: '>' })).to.equal(
+        '{\n>"a": 1\n}'
+      );
+    });
+
+    it('handles oddball floating point values', function () {
+      const element = new Element('test', {
+        negzero: new Double(-0),
+        int: new Int32(1),
+        inf: Infinity,
+        ninf: -Infinity,
+        nan: NaN,
+      });
+      expect(element.toEJSON('current', { indent: undefined })).to.equal(
+        '{' +
+          [
+            '"negzero":{"$numberDouble":"-0.0"},',
+            '"int":1,',
+            '"inf":{"$numberDouble":"Infinity"},',
+            '"ninf":{"$numberDouble":"-Infinity"},',
+            '"nan":{"$numberDouble":"NaN"}',
+          ].join('') +
+          '}'
+      );
+    });
+  });
 });

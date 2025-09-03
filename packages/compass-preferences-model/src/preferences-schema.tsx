@@ -17,7 +17,7 @@ import {
 import { Link } from '@mongodb-js/compass-components';
 
 export const THEMES_VALUES = ['DARK', 'LIGHT', 'OS_THEME'] as const;
-export type THEMES = typeof THEMES_VALUES[number];
+export type THEMES = (typeof THEMES_VALUES)[number];
 
 const enableDbAndCollStatsDescription: React.ReactNode = (
   <>
@@ -37,11 +37,12 @@ const enableDbAndCollStatsDescription: React.ReactNode = (
 
 export const SORT_ORDER_VALUES = [
   '',
-  '{ $natural: -1 }',
   '{ _id: 1 }',
   '{ _id: -1 }',
+  '{ $natural: -1 }',
 ] as const;
-export type SORT_ORDERS = typeof SORT_ORDER_VALUES[number];
+
+export type SORT_ORDERS = (typeof SORT_ORDER_VALUES)[number];
 
 export type PermanentFeatureFlags = {
   showDevFeatureFlags?: boolean;
@@ -85,7 +86,7 @@ export type UserConfigurablePreferences = PermanentFeatureFlags &
       | 'web-sandbox-atlas-dev'
       | 'web-sandbox-atlas-qa'
       | 'web-sandbox-atlas';
-    optInDataExplorerGenAIFeatures: boolean;
+    optInGenAIFeatures: boolean;
     // Features that are enabled by default in Compass, but are disabled in Data
     // Explorer
     enableExplainPlan: boolean;
@@ -101,6 +102,7 @@ export type UserConfigurablePreferences = PermanentFeatureFlags &
     enableCreatingNewConnections: boolean;
     enableProxySupport: boolean;
     proxy: string;
+    inferNamespacesFromPrivileges?: boolean;
   };
 
 /**
@@ -134,6 +136,7 @@ export type CliOnlyPreferences = {
   importConnections?: string;
   passphrase?: string;
   version?: boolean;
+  versions?: boolean;
   help?: boolean;
   showExampleConfig?: boolean;
   trustedConnectionString?: boolean;
@@ -628,23 +631,30 @@ export const storedUserPreferencesProps: Required<{
     global: true,
     description: {
       short: 'Default Sort for Query Bar',
-      long: 'All queries executed from the query bar will apply this sort.',
+      long: 'All queries executed from the query bar will apply this sort. Not available for views and timeseries.',
+      longReact: (
+        <>
+          All queries executed from the query bar will apply this sort.{' '}
+          <strong>Not available for views and timeseries.</strong>
+        </>
+      ),
       options: {
         '': {
-          label: '$natural: 1 (MongoDB server default)',
-          description: 'in natural order of documents',
-        },
-        '{ $natural: -1 }': {
-          label: '$natural: -1',
-          description: 'in reverse natural order of documents',
+          label: 'MongoDB server default',
+          description: 'Return documents in natural order of documents',
         },
         '{ _id: 1 }': {
           label: '_id: 1',
-          description: 'in ascending order by id',
+          description: 'Return documents in ascending order by id',
         },
         '{ _id: -1 }': {
           label: '_id: -1',
-          description: 'in descending order by id',
+          description: 'Return documents in in descending order by id',
+        },
+        '{ $natural: -1 }': {
+          label: '$natural: -1',
+          description:
+            'Return documents in reverse natural order, but ignores existing indexes. ⚠️ Suitable if you use Compass only with development clusters. Avoid this option if you connect to production clusters as well.',
         },
       },
     },
@@ -809,17 +819,16 @@ export const storedUserPreferencesProps: Required<{
       .default('atlas'),
     type: 'string',
   },
-  optInDataExplorerGenAIFeatures: {
+  optInGenAIFeatures: {
     ui: true,
     cli: false,
     global: false,
     description: {
-      short: 'User Opt-in for Data Explorer Gen AI Features',
+      short: 'User or Client Opt-in for Gen AI Features',
     },
-    validator: z.boolean().default(true),
+    validator: z.boolean().default(false),
     type: 'boolean',
   },
-
   enableAtlasSearchIndexes: {
     ui: true,
     cli: true,
@@ -1011,6 +1020,18 @@ export const storedUserPreferencesProps: Required<{
     type: 'boolean',
   },
 
+  inferNamespacesFromPrivileges: {
+    ui: true,
+    cli: true,
+    global: true,
+    description: {
+      short: 'Infer additional namespaces from privileges',
+      long: "Show databases and collections implied by your roles and privileges, in addition to those returned by listDatabases and listCollections. This may include namespaces that don't exist yet.",
+    },
+    validator: z.boolean().default(true),
+    type: 'boolean',
+  },
+
   ...allFeatureFlagsProps,
 };
 
@@ -1066,6 +1087,16 @@ const cliOnlyPreferencesProps: Required<{
     global: false,
     description: {
       short: 'Show Compass Version',
+    },
+    validator: z.boolean().optional(),
+    type: 'boolean',
+  },
+  versions: {
+    ui: false,
+    cli: true,
+    global: false,
+    description: {
+      short: 'Show Node, Electron, Chromium Versions',
     },
     validator: z.boolean().optional(),
     type: 'boolean',
@@ -1237,7 +1268,7 @@ export function getPreferencesValidator() {
       validator,
     ])
   ) as {
-    [K in keyof typeof storedUserPreferencesProps]: typeof storedUserPreferencesProps[K]['validator'];
+    [K in keyof typeof storedUserPreferencesProps]: (typeof storedUserPreferencesProps)[K]['validator'];
   };
 
   return z.object(preferencesPropsValidator);

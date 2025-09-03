@@ -3,7 +3,7 @@ import { type ConnectionInfo } from '@mongodb-js/connection-info';
 import {
   createServiceLocator,
   createServiceProvider,
-} from 'hadron-app-registry';
+} from '@mongodb-js/compass-app-registry';
 import {
   useConnectionForId,
   useConnectionInfoForId,

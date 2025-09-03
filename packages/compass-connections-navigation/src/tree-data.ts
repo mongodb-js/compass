@@ -54,7 +54,7 @@ export type Database = {
   collectionsStatus: DatabaseOrCollectionStatus;
   collectionsLength: number;
   collections: Collection[];
-  isNonExistent: boolean;
+  inferredFromPrivileges: boolean;
 };
 
 type PlaceholderTreeItem = VirtualPlaceholderItem & {
@@ -68,7 +68,7 @@ export type Collection = {
   type: 'view' | 'collection' | 'timeseries';
   sourceName: string | null;
   pipeline: unknown[];
-  isNonExistent: boolean;
+  inferredFromPrivileges: boolean;
 };
 
 export type NotConnectedConnectionTreeItem = VirtualTreeItem & {
@@ -100,9 +100,10 @@ export type DatabaseTreeItem = VirtualTreeItem & {
   colorCode?: string;
   isExpanded: boolean;
   connectionId: string;
+  connectionItem: ConnectedConnectionTreeItem;
   dbName: string;
   hasWriteActionsDisabled: boolean;
-  isNonExistent: boolean;
+  inferredFromPrivileges: boolean;
 };
 
 export type CollectionTreeItem = VirtualTreeItem & {
@@ -111,9 +112,10 @@ export type CollectionTreeItem = VirtualTreeItem & {
   type: 'collection' | 'view' | 'timeseries';
   colorCode?: string;
   connectionId: string;
+  databaseItem: DatabaseTreeItem;
   namespace: string;
   hasWriteActionsDisabled: boolean;
-  isNonExistent: boolean;
+  inferredFromPrivileges: boolean;
 };
 
 export type SidebarActionableItem =
@@ -240,6 +242,7 @@ const connectedConnectionToItems = ({
     databases.flatMap((database, databaseIndex) => {
       return databaseToItems({
         connectionId: connectionInfo.id,
+        connectionItem: connectionTI,
         database,
         expandedItems: expandedItems[connectionInfo.id] || {},
         level: 2,
@@ -259,9 +262,10 @@ const databaseToItems = ({
     collections,
     collectionsLength,
     collectionsStatus,
-    isNonExistent,
+    inferredFromPrivileges,
   },
   connectionId,
+  connectionItem,
   expandedItems = {},
   level,
   colorCode,
@@ -271,6 +275,7 @@ const databaseToItems = ({
 }: {
   database: Database;
   connectionId: string;
+  connectionItem: ConnectedConnectionTreeItem;
   expandedItems?: Record<string, boolean>;
   level: number;
   colorCode?: string;
@@ -289,10 +294,11 @@ const databaseToItems = ({
     isExpanded,
     colorCode,
     connectionId,
+    connectionItem,
     dbName: id,
     isExpandable: true,
     hasWriteActionsDisabled,
-    isNonExistent,
+    inferredFromPrivileges,
   };
 
   const sidebarData: SidebarTreeItem[] = [databaseTI];
@@ -321,7 +327,7 @@ const databaseToItems = ({
 
   return sidebarData.concat(
     collections.map(
-      ({ _id: id, name, type, isNonExistent }, collectionIndex) => ({
+      ({ _id: id, name, type, inferredFromPrivileges }, collectionIndex) => ({
         id: `${connectionId}.${id}`, // id is the namespace of the collection, so includes db as well
         level: level + 1,
         name,
@@ -330,10 +336,11 @@ const databaseToItems = ({
         posInSet: collectionIndex + 1,
         colorCode,
         connectionId,
+        databaseItem: databaseTI,
         namespace: id,
         hasWriteActionsDisabled,
         isExpandable: false,
-        isNonExistent,
+        inferredFromPrivileges,
       })
     )
   );

@@ -1,0 +1,127 @@
+// Copyright 2023 Vercel, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+import type { AbstractChat, ChatInit, CreateUIMessage, UIMessage } from 'ai';
+import { useCallback, useEffect, useRef } from 'react';
+import { useSyncExternalStore } from 'use-sync-external-store/shim';
+import { Chat } from './chat-react';
+
+export type { CreateUIMessage, UIMessage };
+
+export type UseChatHelpers<UI_MESSAGE extends UIMessage> = {
+  /**
+   * The id of the chat.
+   */
+  readonly id: string;
+
+  /**
+   * Update the `messages` state locally. This is useful when you want to
+   * edit the messages on the client, and then trigger the `reload` method
+   * manually to regenerate the AI response.
+   */
+  setMessages: (
+    messages: UI_MESSAGE[] | ((messages: UI_MESSAGE[]) => UI_MESSAGE[])
+  ) => void;
+
+  error: Error | undefined;
+} & Pick<
+  AbstractChat<UI_MESSAGE>,
+  | 'sendMessage'
+  | 'regenerate'
+  | 'stop'
+  | 'resumeStream'
+  | 'addToolResult'
+  | 'status'
+  | 'messages'
+  | 'clearError'
+>;
+
+export type UseChatOptions<UI_MESSAGE extends UIMessage> =
+  // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
+  ({ chat: Chat<UI_MESSAGE> } | ChatInit<UI_MESSAGE>) & {
+    /**
+Custom throttle wait in ms for the chat messages and data updates.
+Default is undefined, which disables throttling.
+   */
+    experimental_throttle?: number;
+
+    /**
+     * Whether to resume an ongoing chat generation stream.
+     */
+    resume?: boolean;
+  };
+
+export function useChat<UI_MESSAGE extends UIMessage = UIMessage>({
+  experimental_throttle: throttleWaitMs,
+  resume = false,
+  ...options
+}: UseChatOptions<UI_MESSAGE> = {}): UseChatHelpers<UI_MESSAGE> {
+  const chatRef = useRef('chat' in options ? options.chat : new Chat(options));
+
+  const subscribeToMessages = useCallback(
+    (update: () => void) =>
+      chatRef.current['~registerMessagesCallback'](update, throttleWaitMs),
+    [throttleWaitMs]
+  );
+
+  const messages = useSyncExternalStore(
+    subscribeToMessages,
+    () => chatRef.current.messages,
+    () => chatRef.current.messages
+  );
+
+  const status = useSyncExternalStore(
+    chatRef.current['~registerStatusCallback'],
+    () => chatRef.current.status,
+    () => chatRef.current.status
+  );
+
+  const error = useSyncExternalStore(
+    chatRef.current['~registerErrorCallback'],
+    () => chatRef.current.error,
+    () => chatRef.current.error
+  );
+
+  const setMessages = useCallback(
+    (
+      messagesParam: UI_MESSAGE[] | ((messages: UI_MESSAGE[]) => UI_MESSAGE[])
+    ) => {
+      if (typeof messagesParam === 'function') {
+        messagesParam = messagesParam(messages);
+      }
+
+      chatRef.current.messages = messagesParam;
+    },
+    [messages, chatRef]
+  );
+
+  useEffect(() => {
+    if (resume) {
+      void chatRef.current.resumeStream();
+    }
+  }, [resume, chatRef]);
+
+  return {
+    id: chatRef.current.id,
+    messages,
+    setMessages,
+    sendMessage: chatRef.current.sendMessage,
+    regenerate: chatRef.current.regenerate,
+    clearError: chatRef.current.clearError,
+    stop: chatRef.current.stop,
+    error,
+    resumeStream: chatRef.current.resumeStream,
+    status,
+    addToolResult: chatRef.current.addToolResult,
+  };
+}

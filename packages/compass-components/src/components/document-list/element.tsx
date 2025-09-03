@@ -28,6 +28,8 @@ import { palette } from '@leafygreen-ui/palette';
 import { Icon } from '../leafygreen';
 import { useDarkMode } from '../../hooks/use-theme';
 import VisibleFieldsToggle from './visible-field-toggle';
+import { hasDistinctValue } from 'mongodb-query-util';
+import { useContextMenuGroups } from '../context-menu';
 
 function getEditorByType(type: HadronElementType['type']) {
   switch (type) {
@@ -409,6 +411,38 @@ export const calculateShowMoreToggleOffset = ({
   return spacerWidth + editableOffset + expandIconSize;
 };
 
+// Helper function to check if a string is a URL
+const isValidUrl = (str: string): boolean => {
+  try {
+    const url = new URL(str);
+    return url.protocol === 'http:' || url.protocol === 'https:';
+  } catch {
+    return false;
+  }
+};
+
+/**
+ * Helper function to get the nested key path of an element, skips array keys
+ * Meant for keypaths used in query conditions from a selected element
+ */
+export const getNestedKeyPathForElement = (
+  element: HadronElementType
+): string => {
+  const keyPath: string[] = [];
+  let currentElement: HadronElementType | HadronDocumentType | null = element;
+  while (
+    currentElement &&
+    'parent' in currentElement &&
+    currentElement.parent
+  ) {
+    if (currentElement.parent.currentType !== 'Array') {
+      keyPath.unshift(currentElement.currentKey.toString());
+    }
+    currentElement = currentElement.parent;
+  }
+  return keyPath.join('.');
+};
+
 export const HadronElement: React.FunctionComponent<{
   value: HadronElementType;
   editable: boolean;
@@ -417,6 +451,8 @@ export const HadronElement: React.FunctionComponent<{
   lineNumberSize: number;
   onAddElement(el: HadronElementType): void;
   extraGutterWidth?: number;
+  onUpdateQuery?: (field: string, value: unknown) => void;
+  query?: Record<string, unknown>;
 }> = ({
   value: element,
   editable,
@@ -425,9 +461,12 @@ export const HadronElement: React.FunctionComponent<{
   lineNumberSize,
   onAddElement,
   extraGutterWidth = 0,
+  onUpdateQuery,
+  query,
 }) => {
   const darkMode = useDarkMode();
   const autoFocus = useAutoFocusContext();
+
   const {
     id,
     key,
@@ -446,6 +485,62 @@ export const HadronElement: React.FunctionComponent<{
     expand,
     collapse,
   } = useHadronElement(element);
+
+  // Function to check if a field is in the query
+  // TODO: COMPASS-9541 Improve the functionality when checking for nested objects.
+  const isFieldInQuery = useCallback(
+    (field: string, fieldValue: unknown): boolean => {
+      return hasDistinctValue(
+        query?.[field] as Record<string, unknown>,
+        fieldValue
+      );
+    },
+    [query]
+  );
+
+  // Add context menu hook for the field
+  const fieldContextMenuRef = useContextMenuGroups(
+    () => [
+      {
+        telemetryLabel: 'Element Field',
+        items: [
+          onUpdateQuery
+            ? {
+                label: isFieldInQuery(
+                  getNestedKeyPathForElement(element),
+                  element.generateObject()
+                )
+                  ? 'Remove from query'
+                  : 'Add to query',
+                onAction: () => {
+                  onUpdateQuery(
+                    getNestedKeyPathForElement(element),
+                    element.generateObject()
+                  );
+                },
+              }
+            : undefined,
+          {
+            label: 'Copy field & value',
+            onAction: () => {
+              void navigator.clipboard.writeText(
+                `${key.value}: ${element.toEJSON()}`
+              );
+            },
+          },
+          type.value === 'String' && isValidUrl(value.value)
+            ? {
+                label: 'Open URL in browser',
+                onAction: () => {
+                  window.open(value.value, '_blank', 'noopener');
+                },
+              }
+            : undefined,
+        ],
+      },
+    ],
+    [element, key.value, value.value, type.value, onUpdateQuery, isFieldInQuery]
+  );
 
   const toggleExpanded = () => {
     if (expanded) {
@@ -493,6 +588,7 @@ export const HadronElement: React.FunctionComponent<{
     : elementInvalidLightMode;
 
   const elementProps = {
+    ref: fieldContextMenuRef,
     className: cx(
       hadronElement,
       darkMode ? hadronElementDarkMode : hadronElementLightMode,
@@ -625,7 +721,7 @@ export const HadronElement: React.FunctionComponent<{
               // double-clicked on a field and so auto focusing the input is
               // expected in this case
               // eslint-disable-next-line jsx-a11y/no-autofocus
-              autoFocus={autoFocus?.id === id && autoFocus.type === 'key'}
+              autoFocus={autoFocus?.id === id && autoFocus?.type === 'key'}
               editing={editingEnabled}
               onEditStart={() => {
                 onEditStart?.(element.uuid, 'key');
@@ -664,7 +760,7 @@ export const HadronElement: React.FunctionComponent<{
               }}
               // See above
               // eslint-disable-next-line jsx-a11y/no-autofocus
-              autoFocus={autoFocus?.id === id && autoFocus.type === 'value'}
+              autoFocus={autoFocus?.id === id && autoFocus?.type === 'value'}
               editing={editingEnabled}
               onEditStart={() => {
                 onEditStart?.(element.uuid, 'value');
@@ -706,7 +802,7 @@ export const HadronElement: React.FunctionComponent<{
               type={type.value}
               // See above
               // eslint-disable-next-line jsx-a11y/no-autofocus
-              autoFocus={autoFocus?.id === id && autoFocus.type === 'type'}
+              autoFocus={autoFocus?.id === id && autoFocus?.type === 'type'}
               onChange={(newType) => {
                 type.change(newType);
 
@@ -722,7 +818,7 @@ export const HadronElement: React.FunctionComponent<{
       </div>
       {expandable && expanded && (
         <>
-          {visibleChildren.map((el, idx) => {
+          {visibleChildren.map((el: HadronElementType, idx: React.Key) => {
             return (
               <HadronElement
                 key={idx}
@@ -733,6 +829,8 @@ export const HadronElement: React.FunctionComponent<{
                 lineNumberSize={lineNumberSize}
                 onAddElement={onAddElement}
                 extraGutterWidth={extraGutterWidth}
+                onUpdateQuery={onUpdateQuery}
+                query={query}
               ></HadronElement>
             );
           })}

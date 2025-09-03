@@ -6,22 +6,9 @@ import { Menu, MenuItem, MenuSeparator } from '../leafygreen';
 
 import { ItemActionButtonSize } from './constants';
 import { ActionGlyph } from './action-glyph';
-import type { ItemBase, ItemSeparator } from './types';
+import type { MenuAction } from './types';
 import { SmallIconButton } from './small-icon-button';
-import { actionTestId } from './utils';
-
-export type MenuAction<Action extends string> =
-  | ItemBase<Action>
-  | ItemSeparator;
-
-export function isSeparatorMenuAction(value: unknown): value is ItemSeparator {
-  return (
-    typeof value === 'object' &&
-    value !== null &&
-    'separator' in value &&
-    value.separator === true
-  );
-}
+import { actionTestId, isSeparatorMenuAction } from './utils';
 
 const containerStyle = css({
   flex: 'none',

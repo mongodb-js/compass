@@ -5,11 +5,13 @@ import SavedDiagramsList from './saved-diagrams-list';
 import NewDiagramFormModal from './new-diagram-form';
 import type { DataModelingState } from '../store/reducer';
 import { DiagramProvider } from '@mongodb-js/diagramming';
-type DataModelingPluginInitialProps = {
+import DiagramEditorSidePanel from './drawer/diagram-editor-side-panel';
+
+type DataModelingProps = {
   showList: boolean;
 };
 
-const DataModeling: React.FunctionComponent<DataModelingPluginInitialProps> = ({
+const DataModeling: React.FunctionComponent<DataModelingProps> = ({
   showList,
 }) => {
   return (
@@ -19,6 +21,7 @@ const DataModeling: React.FunctionComponent<DataModelingPluginInitialProps> = ({
       ) : (
         <DiagramProvider fitView>
           <DiagramEditor />
+          <DiagramEditorSidePanel />
         </DiagramProvider>
       )}
       <NewDiagramFormModal></NewDiagramFormModal>

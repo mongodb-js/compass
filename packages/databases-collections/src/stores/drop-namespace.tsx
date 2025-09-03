@@ -6,9 +6,9 @@ import {
   ToastArea,
 } from '@mongodb-js/compass-components';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
-import type AppRegistry from 'hadron-app-registry';
+import type AppRegistry from '@mongodb-js/compass-app-registry';
 import toNS from 'mongodb-ns';
-import type { ActivateHelpers } from 'hadron-app-registry';
+import type { ActivateHelpers } from '@mongodb-js/compass-app-registry';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 import type { ConnectionsService } from '@mongodb-js/compass-connections/provider';
 
@@ -59,7 +59,7 @@ export function activatePlugin(
     );
     const confirmed = await showConfirmation({
       variant: 'danger',
-      title: `Drop ${namespaceLabel}`,
+      title: `Drop ${namespaceLabel}?`,
       description: `Are you sure you want to drop ${namespaceLabel.toLocaleLowerCase()} "${ns}"?`,
       requiredInputText: isCollection ? collection : database,
       buttonText: `Drop ${namespaceLabel}`,

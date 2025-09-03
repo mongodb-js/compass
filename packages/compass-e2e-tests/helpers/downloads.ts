@@ -15,7 +15,7 @@ export const waitForFileDownload = async (
     function () {
       return fs.existsSync(filePath);
     },
-    { timeout: 10000, timeoutMsg: 'file not downloaded yet.' }
+    { timeout: 10_000, timeoutMsg: `File ${filePath} not downloaded yet.` }
   );
 
   return { fileExists: fs.existsSync(filePath), filePath };

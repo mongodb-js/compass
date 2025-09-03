@@ -135,22 +135,9 @@ const InstanceModel = AmpersandModel.extend(
       isSearchIndexesSupported: 'boolean',
       atlasVersion: { type: 'string', default: '' },
       csfleMode: { type: 'string', default: 'unavailable' },
-      shouldFetchDbAndCollStats: { type: 'boolean', default: false },
     },
     initialize: function ({ preferences, ...props }) {
-      // Initialize the property directly from preferences
-      this.set({
-        shouldFetchDbAndCollStats:
-          preferences.getPreferences().enableDbAndCollStats,
-      });
-
-      // Listen to preference changes using the preferences API
-      this._preferenceUnsubscribe = preferences.onPreferenceValueChanged(
-        'enableDbAndCollStats',
-        (value) => {
-          this.set({ shouldFetchDbAndCollStats: value });
-        }
-      );
+      this.preferences = preferences;
 
       AmpersandModel.prototype.initialize.call(this, props);
     },
@@ -323,6 +310,7 @@ const InstanceModel = AmpersandModel.extend(
       fetchDbStats = false,
       fetchCollections = false,
       fetchCollStats = false,
+      firstRun = false,
     }) {
       this.set({
         refreshingStatus:
@@ -331,7 +319,15 @@ const InstanceModel = AmpersandModel.extend(
 
       try {
         // First fetch instance info ...
-        await this.fetch({ dataService, force: true });
+        await this.fetch({
+          dataService,
+          // NB: We're optimizing the first run case by passing the instance
+          // info directly to the instance when constructing the class. In all
+          // the other cases we will force refresh it, but if this is a first
+          // run, we won't force this (and it will short circuit in the fetch
+          // method)
+          force: !firstRun,
+        });
 
         // ... and databases list. These are the essentials that we need to make
         // Compass somewhat usable
@@ -400,11 +396,15 @@ const InstanceModel = AmpersandModel.extend(
       return coll;
     },
 
+    shouldFetchDbAndCollStats() {
+      return this.preferences.getPreferences().enableDbAndCollStats;
+    },
+
+    shouldFetchNamespacesFromPrivileges() {
+      return this.preferences.getPreferences().inferNamespacesFromPrivileges;
+    },
+
     removeAllListeners() {
-      // Clean up preference listeners
-      if (this._preferenceUnsubscribe) {
-        this._preferenceUnsubscribe();
-      }
       InstanceModel.removeAllListeners(this);
     },
 

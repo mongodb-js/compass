@@ -38,11 +38,11 @@ const CardTitleGroup: React.FunctionComponent = ({ children }) => {
   return <div className={cardTitleGroup}>{children}</div>;
 };
 
-const nonExistantLightStyles = css({
+const inferredFromPrivilegesLightStyles = css({
   color: palette.gray.dark1,
 });
 
-const nonExistantDarkStyles = css({
+const inferredFromPrivilegesDarkStyles = css({
   color: palette.gray.base,
 });
 
@@ -86,8 +86,8 @@ const cardName = css({
 
 const CardName: React.FunctionComponent<{
   children: string;
-  isNonExistent: boolean;
-}> = ({ children, isNonExistent }) => {
+  inferredFromPrivileges: boolean;
+}> = ({ children, inferredFromPrivileges }) => {
   const darkMode = useDarkMode();
   return (
     <div title={children} className={cardNameWrapper}>
@@ -96,8 +96,10 @@ const CardName: React.FunctionComponent<{
         className={cx(
           cardName,
           darkMode ? cardNameDark : cardNameLight,
-          isNonExistent && !darkMode && nonExistantLightStyles,
-          isNonExistent && darkMode && nonExistantDarkStyles
+          inferredFromPrivileges &&
+            !darkMode &&
+            inferredFromPrivilegesLightStyles,
+          inferredFromPrivileges && darkMode && inferredFromPrivilegesDarkStyles
         )}
       >
         {children}
@@ -189,7 +191,7 @@ export type NamespaceItemCardProps = {
   status: 'initial' | 'fetching' | 'refreshing' | 'ready' | 'error';
   data: DataProp[];
   badges?: BadgeProp[] | null;
-  isNonExistent: boolean;
+  inferredFromPrivileges: boolean;
   onItemClick(id: string): void;
   onItemDeleteClick?: (id: string) => void;
 };
@@ -222,7 +224,7 @@ export const NamespaceItemCard: React.FunctionComponent<
   onItemDeleteClick,
   badges = null,
   viewType,
-  isNonExistent,
+  inferredFromPrivileges,
   ...props
 }) => {
   const { readOnly, enableDbAndCollStats } = usePreferences([
@@ -239,7 +241,7 @@ export const NamespaceItemCard: React.FunctionComponent<
 
   const hasDeleteHandler = !!onItemDeleteClick;
   const cardActions: ItemAction<NamespaceAction>[] = useMemo(() => {
-    return readOnly || !hasDeleteHandler || isNonExistent
+    return readOnly || !hasDeleteHandler || inferredFromPrivileges
       ? []
       : [
           {
@@ -248,7 +250,7 @@ export const NamespaceItemCard: React.FunctionComponent<
             icon: 'Trash',
           },
         ];
-  }, [type, readOnly, isNonExistent, hasDeleteHandler]);
+  }, [type, readOnly, inferredFromPrivileges, hasDeleteHandler]);
 
   const defaultActionProps = useDefaultAction(onDefaultAction);
 
@@ -273,9 +275,9 @@ export const NamespaceItemCard: React.FunctionComponent<
     {
       className: cx(
         card,
-        isNonExistent && [
-          !darkMode && nonExistantLightStyles,
-          darkMode && nonExistantDarkStyles,
+        inferredFromPrivileges && [
+          !darkMode && inferredFromPrivilegesLightStyles,
+          darkMode && inferredFromPrivilegesDarkStyles,
           inactiveCardStyles,
         ]
       ),
@@ -303,9 +305,11 @@ export const NamespaceItemCard: React.FunctionComponent<
       {...cardProps}
     >
       <CardTitleGroup>
-        <CardName isNonExistent={isNonExistent}>{name}</CardName>
+        <CardName inferredFromPrivileges={inferredFromPrivileges}>
+          {name}
+        </CardName>
 
-        {isNonExistent && (
+        {inferredFromPrivileges && (
           <Tooltip
             align="bottom"
             justify="start"
@@ -315,7 +319,7 @@ export const NamespaceItemCard: React.FunctionComponent<
               </div>
             }
           >
-            Your privileges grant you access to this namespace, but it does not
+            Your privileges grant you access to this namespace, but it might not
             currently exist
           </Tooltip>
         )}
@@ -340,7 +344,7 @@ export const NamespaceItemCard: React.FunctionComponent<
               <NamespaceParam
                 key={idx}
                 label={label}
-                hint={!isNonExistent && hint}
+                hint={!inferredFromPrivileges && hint}
                 value={value}
                 status={status}
                 viewType={viewType}

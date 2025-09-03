@@ -2,14 +2,20 @@ import type { MongoDBInstanceProps } from 'mongodb-instance-model';
 import { MongoDBInstance } from 'mongodb-instance-model';
 import toNS from 'mongodb-ns';
 import type {
+  ConnectionInfo,
   ConnectionsService,
   DataService,
 } from '@mongodb-js/compass-connections/provider';
-import type { ActivateHelpers, AppRegistry } from 'hadron-app-registry';
+import type {
+  ActivateHelpers,
+  AppRegistry,
+} from '@mongodb-js/compass-app-registry';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
 import { openToast } from '@mongodb-js/compass-components';
 import { MongoDBInstancesManager } from '../instances-manager';
 import type { PreferencesAccess } from 'compass-preferences-model';
+
+type InstanceDetails = Awaited<ReturnType<DataService['instance']>>;
 
 function serversArray(
   serversMap: NonNullable<
@@ -95,8 +101,6 @@ export function createInstancesStore(
     > = {},
     { connectionId }: { connectionId?: string } = {}
   ) => {
-    let isFirstRun: boolean | undefined;
-
     try {
       if (!connectionId) {
         throw new Error('No connectionId provided');
@@ -104,7 +108,6 @@ export function createInstancesStore(
       const instance =
         instancesManager.getMongoDBInstanceForConnection(connectionId);
       const dataService = connections.getDataServiceForConnection(connectionId);
-      isFirstRun = instance.status === 'initial';
       await instance.refresh({
         dataService,
         ...refreshOptions,
@@ -117,7 +120,7 @@ export function createInstancesStore(
         {
           message: (err as Error).message,
           connectionId: connectionId,
-          isFirstRun,
+          isFirstRun: refreshOptions.firstRun,
         }
       );
       // The `instance.refresh` method is catching all expected errors: we treat
@@ -131,7 +134,7 @@ export function createInstancesStore(
       // place for the user to see the error. This is a very rare case, but we
       // don't want to leave the user without any indication that something went
       // wrong and so we show an toast with the error message
-      if (isFirstRun) {
+      if (refreshOptions.firstRun) {
         const { name, message } = err as Error;
         openToast('instance-refresh-failed', {
           title: 'Failed to retrieve server info',
@@ -283,6 +286,15 @@ export function createInstancesStore(
     }
   );
 
+  preferences.onPreferenceValueChanged('inferNamespacesFromPrivileges', () => {
+    const connectedConnectionIds = Array.from(
+      instancesManager.listMongoDBInstances().keys()
+    );
+    for (const connectionId of connectedConnectionIds) {
+      void refreshDatabases({ connectionId });
+    }
+  });
+
   on(connections, 'disconnected', function (connectionInfoId: string) {
     try {
       const instance =
@@ -302,55 +314,79 @@ export function createInstancesStore(
     instancesManager.removeMongoDBInstanceForConnection(connectionInfoId);
   });
 
-  on(connections, 'connected', function (instanceConnectionId: string) {
-    const dataService =
-      connections.getDataServiceForConnection(instanceConnectionId);
-    const connectionString = dataService.getConnectionString();
-    const firstHost = connectionString.hosts[0] || '';
-    const [hostname, port] = firstHost.split(':');
+  on(
+    connections,
+    'connected',
+    function (
+      instanceConnectionId: string,
+      _connectionInfo: ConnectionInfo,
+      instanceInfo: InstanceDetails
+    ) {
+      const dataService =
+        connections.getDataServiceForConnection(instanceConnectionId);
+      const connectionString = dataService.getConnectionString();
+      const firstHost = connectionString.hosts[0] || '';
+      const [hostname, port] = (() => {
+        if (firstHost.startsWith('[')) {
+          return firstHost.slice(1).split(']'); // IPv6
+        }
+        return firstHost.split(':');
+      })();
 
-    const initialInstanceProps: Partial<MongoDBInstanceProps> = {
-      _id: firstHost,
-      hostname: hostname,
-      port: port ? +port : undefined,
-      topologyDescription: getTopologyDescription(
-        dataService.getLastSeenTopology()
-      ),
-      preferences,
-    };
-    const instance = instancesManager.createMongoDBInstanceForConnection(
-      instanceConnectionId,
-      initialInstanceProps as MongoDBInstanceProps
-    );
+      const initialInstanceProps: Partial<MongoDBInstanceProps> = {
+        // We pre-fetched instance info and so can right away construct it in a
+        // "ready" state
+        ...(instanceInfo as Partial<MongoDBInstanceProps>),
+        status: 'ready',
+        statusError: null,
 
-    addCleanup(() => {
-      instance.removeAllListeners();
-    });
+        // Required initial values that are not returned with instance info
+        _id: firstHost,
+        hostname: hostname,
+        port: port ? +port : undefined,
+        topologyDescription: getTopologyDescription(
+          dataService.getLastSeenTopology()
+        ),
 
-    void refreshInstance(
-      {
-        fetchDatabases: true,
-        fetchDbStats: true,
-      },
-      {
-        connectionId: instanceConnectionId,
-      }
-    );
+        // Service injection for preferences (currently only controls namespace
+        // stats fetching)
+        preferences,
+      };
+      const instance = instancesManager.createMongoDBInstanceForConnection(
+        instanceConnectionId,
+        initialInstanceProps as MongoDBInstanceProps
+      );
 
-    on(
-      dataService,
-      'topologyDescriptionChanged',
-      ({
-        newDescription,
-      }: {
-        newDescription: ReturnType<DataService['getLastSeenTopology']>;
-      }) => {
-        instance.set({
-          topologyDescription: getTopologyDescription(newDescription),
-        });
-      }
-    );
-  });
+      addCleanup(() => {
+        instance.removeAllListeners();
+      });
+
+      void refreshInstance(
+        {
+          fetchDatabases: true,
+          fetchDbStats: true,
+          firstRun: true,
+        },
+        {
+          connectionId: instanceConnectionId,
+        }
+      );
+
+      on(
+        dataService,
+        'topologyDescriptionChanged',
+        ({
+          newDescription,
+        }: {
+          newDescription: ReturnType<DataService['getLastSeenTopology']>;
+        }) => {
+          instance.set({
+            topologyDescription: getTopologyDescription(newDescription),
+          });
+        }
+      );
+    }
+  );
 
   on(
     globalAppRegistry,

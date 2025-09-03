@@ -1,4 +1,4 @@
-import type AppRegistry from 'hadron-app-registry';
+import type AppRegistry from '@mongodb-js/compass-app-registry';
 import type { Reducer, AnyAction, Action } from 'redux';
 import { createStore, applyMiddleware } from 'redux';
 import type { ThunkAction } from 'redux-thunk';
@@ -16,6 +16,7 @@ import type {
   ConnectionAttempt,
   ConnectionOptions,
   DataService,
+  InstanceDetails,
 } from 'mongodb-data-service';
 import { createConnectionAttempt } from 'mongodb-data-service';
 import { UUID } from 'bson';
@@ -38,11 +39,15 @@ import {
   getLatestEndOfLifeServerVersion,
   isEndOfLifeVersion,
 } from '../utils/end-of-life-server';
+import type { ImportConnectionOptions } from '@mongodb-js/connection-storage/provider';
+import { getErrorCodeCauseChain } from '../utils/telemetry';
+import type { CompassAssistantService } from '@mongodb-js/compass-assistant';
 
 export type ConnectionsEventMap = {
   connected: (
     connectionId: ConnectionId,
-    connectionInfo: ConnectionInfo
+    connectionInfo: ConnectionInfo,
+    instanceInfo: InstanceDetails
   ) => void;
   disconnected: (
     connectionId: ConnectionId,
@@ -208,6 +213,7 @@ type ThunkExtraArg = {
   connectFn?: typeof devtoolsConnect;
   globalAppRegistry: Pick<AppRegistry, 'on' | 'emit' | 'removeListener'>;
   onFailToLoadConnections: (error: Error) => void;
+  compassAssistant: CompassAssistantService;
 };
 
 export type ConnectionsThunkAction<
@@ -1259,15 +1265,33 @@ const connectionAttemptError = (
   connectionInfo: ConnectionInfo | null,
   err: any
 ): ConnectionsThunkAction<void, ConnectionAttemptErrorAction> => {
-  return (dispatch, _getState, { track, getExtraConnectionData }) => {
+  return (
+    dispatch,
+    _getState,
+    { track, getExtraConnectionData, compassAssistant }
+  ) => {
     const { openConnectionFailedToast } = getNotificationTriggers();
 
     const showReviewButton = !!connectionInfo && !connectionInfo.atlasMetadata;
-
-    openConnectionFailedToast(connectionInfo, err, showReviewButton, () => {
-      if (connectionInfo) {
-        dispatch(editConnection(connectionInfo.id));
-      }
+    openConnectionFailedToast({
+      connectionInfo,
+      error: err,
+      onReviewClick: showReviewButton
+        ? () => {
+            if (connectionInfo) {
+              dispatch(editConnection(connectionInfo.id));
+            }
+          }
+        : undefined,
+      onDebugClick:
+        compassAssistant.interpretConnectionError && connectionInfo
+          ? () => {
+              compassAssistant.interpretConnectionError?.({
+                connectionInfo,
+                error: err,
+              });
+            }
+          : undefined,
     });
 
     track(
@@ -1275,6 +1299,7 @@ const connectionAttemptError = (
       async () => {
         const trackParams = {
           error_code: err.code,
+          error_code_cause_chain: getErrorCodeCauseChain(err),
           error_name: err.codeName ?? err.name,
         };
         if (connectionInfo) {
@@ -1413,7 +1438,7 @@ function isAtlasStreamsInstance(
 // https://github.com/10gen/mms/blob/de2a9c463cfe530efb8e2a0941033e8207b6cb11/server/src/main/com/xgen/cloud/services/clusterconnection/runtime/res/CustomCloseCodes.java
 const NonRetryableErrorCodes = [3000, 3003, 4004, 1008] as const;
 const NonRetryableErrorDescriptionFallbacks: {
-  [code in typeof NonRetryableErrorCodes[number]]: string;
+  [code in (typeof NonRetryableErrorCodes)[number]]: string;
 } = {
   3000: 'Unauthorized',
   3003: 'Forbidden',
@@ -1438,7 +1463,7 @@ function getDescriptionForNonRetryableError(error: Error): string {
     : NonRetryableErrorDescriptionFallbacks[
         Number(
           error.message.match(/code: (\d+),/)?.[1]
-        ) as typeof NonRetryableErrorCodes[number]
+        ) as (typeof NonRetryableErrorCodes)[number]
       ] ?? 'Unknown';
 }
 
@@ -1630,6 +1655,17 @@ const connectWithOptions = (
           );
         }
 
+        // This is used for Data Explorer connection latency tracing
+        log.info(
+          mongoLogId(1_001_000_005),
+          'Compass Connection Attempt Started',
+          'Connection attempt started',
+          {
+            clusterName: connectionInfo.atlasMetadata?.clusterName,
+            connectionId: connectionInfo.id,
+          }
+        );
+
         const connectionAttempt = createConnectionAttempt({
           logger: log.unbound,
           proxyOptions: proxyPreferenceToProxyOptions(
@@ -1650,12 +1686,30 @@ const connectWithOptions = (
         // This is how connection attempt indicates that the connection was
         // aborted
         if (!dataService || connectionAttempt.isClosed()) {
+          // This is used for Data Explorer connection latency tracing
+          log.info(
+            mongoLogId(1_001_000_007),
+            'Compass Connection Attempt Cancelled',
+            'Connection attempt cancelled',
+            {
+              clusterName: connectionInfo.atlasMetadata?.clusterName,
+              connectionId: connectionInfo.id,
+            }
+          );
           dispatch({
             type: ActionTypes.ConnectionAttemptCancelled,
             connectionId: connectionInfo.id,
           });
           return;
         }
+
+        // We're trying to optimise the initial Compass loading times here: to
+        // make sure that the driver connection pool doesn't immediately get
+        // overwhelmed with requests, we fetch instance info only once and then
+        // pass it down to telemetry and instance model. This is a relatively
+        // expensive dataService operation so we're trying to keep the usage
+        // very limited
+        const instanceInfo = await dataService.instance();
 
         let showedNonRetryableErrorToast = false;
         // Listen for non-retry-able errors on failed server heartbeats.
@@ -1761,13 +1815,17 @@ const connectWithOptions = (
         track(
           'New Connection',
           async () => {
-            const [
-              { dataLake, genuineMongoDB, host, build, isAtlas, isLocalAtlas },
-              [extraInfo, resolvedHostname],
-            ] = await Promise.all([
-              dataService.instance(),
-              getExtraConnectionData(connectionInfo),
-            ]);
+            const {
+              dataLake,
+              genuineMongoDB,
+              host,
+              build,
+              isAtlas,
+              isLocalAtlas,
+            } = instanceInfo;
+            const [extraInfo, resolvedHostname] = await getExtraConnectionData(
+              connectionInfo
+            );
 
             const connections = getState().connections;
             // Counting all connections, we need to filter out any connections currently being created
@@ -1804,13 +1862,25 @@ const connectWithOptions = (
           connectionInfo
         );
 
+        // This is used for Data Explorer connection latency tracing
+        log.info(
+          mongoLogId(1_001_000_006),
+          'Compass Connection Attempt Succeeded',
+          'Connection attempt succeeded',
+          {
+            clusterName: connectionInfo.atlasMetadata?.clusterName,
+            connectionId: connectionInfo.id,
+          }
+        );
+
         connectionProgress.openConnectionSucceededToast(connectionInfo);
 
         // Emit before changing state because some plugins rely on this
         connectionsEventEmitter.emit(
           'connected',
           connectionInfo.id,
-          connectionInfo
+          connectionInfo,
+          instanceInfo
         );
 
         dispatch({
@@ -1818,38 +1888,36 @@ const connectWithOptions = (
           connectionId: connectionInfo.id,
         });
 
-        const { networkTraffic, showEndOfLifeConnectionModal } =
-          preferences.getPreferences();
-
         if (
           getGenuineMongoDB(connectionInfo.connectionOptions.connectionString)
             .isGenuine === false
         ) {
           dispatch(showNonGenuineMongoDBWarningModal(connectionInfo.id));
-        } else if (showEndOfLifeConnectionModal) {
-          void dataService
-            .instance()
-            .then(async (instance) => {
-              const { version } = instance.build;
-              const latestEndOfLifeServerVersion =
-                await getLatestEndOfLifeServerVersion(networkTraffic);
-              if (isEndOfLifeVersion(version, latestEndOfLifeServerVersion)) {
-                dispatch(
-                  showEndOfLifeMongoDBWarningModal(
-                    connectionInfo.id,
-                    instance.build.version
-                  )
-                );
-              }
-            })
-            .catch((err) => {
-              debug(
-                'failed to get instance details to determine if the server version is end-of-life',
-                err
-              );
-            });
+        } else if (
+          await shouldShowEndOfLifeWarning(
+            instanceInfo.build.version,
+            preferences,
+            debug
+          )
+        ) {
+          dispatch(
+            showEndOfLifeMongoDBWarningModal(
+              connectionInfo.id,
+              instanceInfo.build.version
+            )
+          );
         }
       } catch (err) {
+        log.info(
+          mongoLogId(1_001_000_008),
+          'Compass Connection Attempt Failed',
+          'Connection attempt failed',
+          {
+            clusterName: connectionInfo.atlasMetadata?.clusterName,
+            connectionId: connectionInfo.id,
+            error: (err as Error).message,
+          }
+        );
         dispatch(connectionAttemptError(connectionInfo, err));
       } finally {
         deviceAuthAbortController.abort();
@@ -2172,6 +2240,30 @@ export const showNonGenuineMongoDBWarningModal = (
   };
 };
 
+async function shouldShowEndOfLifeWarning(
+  serverVersion: string,
+  preferences: PreferencesAccess,
+  debug: Logger['debug']
+) {
+  try {
+    const { showEndOfLifeConnectionModal, networkTraffic } =
+      preferences.getPreferences();
+    if (!showEndOfLifeConnectionModal) {
+      return;
+    }
+    const latestEndOfLifeServerVersion = await getLatestEndOfLifeServerVersion(
+      networkTraffic
+    );
+    return isEndOfLifeVersion(serverVersion, latestEndOfLifeServerVersion);
+  } catch (err) {
+    debug(
+      'failed to get instance details to determine if the server version is end-of-life',
+      err
+    );
+    return false;
+  }
+}
+
 export const showEndOfLifeMongoDBWarningModal = (
   connectionId: string,
   version: string
@@ -2183,11 +2275,11 @@ export const showEndOfLifeMongoDBWarningModal = (
   };
 };
 
-type ImportConnectionsFn = Required<ConnectionStorage>['importConnections'];
-
-export const importConnections = (
-  ...args: Parameters<ImportConnectionsFn>
-): ConnectionsThunkAction<
+export const importConnections = (options: {
+  content: string;
+  options?: ImportConnectionOptions;
+  signal?: AbortSignal;
+}): ConnectionsThunkAction<
   Promise<void>,
   ConnectionsImportStartAction | ConnectionsImportFinishAction
 > => {
@@ -2197,7 +2289,7 @@ export const importConnections = (
     let error;
     try {
       if (connectionStorage.importConnections) {
-        await connectionStorage.importConnections(...args);
+        await connectionStorage.importConnections(options);
         connections = await connectionStorage.loadAll();
       }
     } catch (err) {

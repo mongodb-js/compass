@@ -1,5 +1,5 @@
 import { ipcRenderer } from 'hadron-ipc';
-import type AppRegistry from 'hadron-app-registry';
+import type AppRegistry from '@mongodb-js/compass-app-registry';
 import type { Reducer, AnyAction } from 'redux';
 import { createStore, combineReducers, applyMiddleware } from 'redux';
 import type { ThunkAction } from 'redux-thunk';
@@ -9,11 +9,6 @@ import type { AtlasAiService } from '@mongodb-js/compass-generative-ai/provider'
 import { PreferencesSandbox } from './preferences-sandbox';
 import type { SettingsTabId } from './settings';
 import { openModal, reducer as settingsReducer } from './settings';
-import atlasLoginReducer, {
-  getUserInfo,
-  atlasServiceSignedOut,
-  atlasServiceTokenRefreshFailed,
-} from './atlas-login';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
 import type { PreferencesAccess } from 'compass-preferences-model';
 
@@ -44,10 +39,8 @@ export function configureStore(
   const store = createStore(
     combineReducers({
       settings: settingsReducer,
-      atlasLogin: atlasLoginReducer,
     }) as Reducer<{
       settings: ReturnType<typeof settingsReducer>;
-      atlasLogin: ReturnType<typeof atlasLoginReducer>;
     }>, // combineReducers CombinedState return type is broken, have to remove the EmptyObject from the union that it returns
     applyMiddleware(
       thunk.withExtraArgument({
@@ -59,18 +52,6 @@ export function configureStore(
       })
     )
   );
-
-  options.atlasAuthService.on('signed-in', () => {
-    void store.dispatch(getUserInfo());
-  });
-
-  options.atlasAuthService.on('signed-out', () => {
-    void store.dispatch(atlasServiceSignedOut());
-  });
-
-  options.atlasAuthService.on('token-refresh-failed', () => {
-    void store.dispatch(atlasServiceTokenRefreshFailed());
-  });
 
   return store;
 }

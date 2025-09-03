@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { FileInput } from '@mongodb-js/compass-components';
+import { FilePickerDialog } from '@mongodb-js/compass-components';
 
 type ImportFileInputProps = {
   autoOpen?: boolean;
@@ -28,7 +28,7 @@ function ImportFileInput({
   const values = fileName ? [fileName] : undefined;
 
   return (
-    <FileInput
+    <FilePickerDialog
       autoOpen={autoOpen}
       label="Import file:"
       id="import-file"

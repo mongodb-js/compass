@@ -16,6 +16,7 @@ type AttemptState = {
 
 export type AtlasOptInState = {
   error: string | null;
+  isCloudOptIn: boolean;
   isModalOpen: boolean;
   attemptId: number | null;
   state: 'initial' | 'in-progress' | 'error' | 'canceled' | 'optin-success';
@@ -62,6 +63,7 @@ export type AtlasOptInAttemptEndAction = {
 
 export type AtlasOptInStartAction = {
   type: AtlasOptInActions.Start;
+  isCloudOptIn: boolean;
 };
 
 export type AtlasOptInSuccessAction = {
@@ -77,6 +79,7 @@ export type AtlasOptInCancelAction = { type: AtlasOptInActions.Cancel };
 
 const INITIAL_STATE = {
   state: 'initial' as const,
+  isCloudOptIn: true,
   error: null,
   isModalOpen: false,
   attemptId: null,
@@ -142,7 +145,11 @@ const optInReducer: Reducer<AtlasOptInState, Action> = (
   }
 
   if (isAction<AtlasOptInStartAction>(action, AtlasOptInActions.Start)) {
-    return { ...state, state: 'in-progress' };
+    return {
+      ...state,
+      state: 'in-progress',
+      isCloudOptIn: action.isCloudOptIn,
+    };
   }
 
   if (
@@ -220,22 +227,24 @@ const startAttempt = (
 
 export const optIntoGenAIWithModalPrompt = ({
   signal,
-}: { signal?: AbortSignal } = {}): GenAIAtlasOptInThunkAction<
-  Promise<void>
-> => {
+  isCloudOptIn,
+}: {
+  signal?: AbortSignal;
+  isCloudOptIn: boolean;
+}): GenAIAtlasOptInThunkAction<Promise<void>> => {
   return (dispatch, getState, { preferences }) => {
     // Nothing to do if we already opted in.
     const { state } = getState().optIn;
     if (
       (state === 'optin-success' ||
-        preferences.getPreferences().optInDataExplorerGenAIFeatures) &&
+        preferences.getPreferences().optInGenAIFeatures) &&
       preferences.getPreferences().enableGenAIFeaturesAtlasProject
     ) {
       return Promise.resolve();
     }
     const attempt = dispatch(
       startAttempt(() => {
-        dispatch(openOptInModal());
+        dispatch(openOptInModal({ isCloudOptIn }));
       })
     );
     signal?.addEventListener('abort', () => {
@@ -261,11 +270,12 @@ export const optIn = (): GenAIAtlasOptInThunkAction<Promise<void>> => {
     } = getAttempt(getState().optIn.attemptId);
     dispatch({
       type: AtlasOptInActions.Start,
+      isCloudOptIn: getState().optIn.isCloudOptIn,
     });
 
     try {
       throwIfAborted(signal);
-      await atlasAiService.optIntoGenAIFeaturesAtlas();
+      await atlasAiService.optIntoGenAIFeatures();
       dispatch(atlasAiServiceOptedIn());
       resolve();
     } catch (err) {
@@ -281,8 +291,8 @@ export const optIn = (): GenAIAtlasOptInThunkAction<Promise<void>> => {
   };
 };
 
-export const openOptInModal = () => {
-  return { type: AtlasOptInActions.OpenOptInModal };
+export const openOptInModal = ({ isCloudOptIn }: { isCloudOptIn: boolean }) => {
+  return { type: AtlasOptInActions.OpenOptInModal, isCloudOptIn };
 };
 
 export const closeOptInModal = (

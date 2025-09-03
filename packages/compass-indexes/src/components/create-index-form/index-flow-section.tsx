@@ -13,10 +13,10 @@ import {
   Tooltip,
   useDarkMode,
 } from '@mongodb-js/compass-components';
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
-  errorCleared,
   errorEncountered,
+  fetchCoveredQueries,
   type Field,
 } from '../../modules/create-index';
 import MDBCodeViewer from './mdb-code-viewer';
@@ -24,6 +24,7 @@ import { areAllFieldsFilledIn } from '../../utils/create-index-modal-validation'
 import { connect } from 'react-redux';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry/provider';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
+import type { RootState } from '../../modules';
 
 const flexContainerStyles = css({
   display: 'flex',
@@ -106,13 +107,18 @@ export type IndexFlowSectionProps = {
   dbName: string;
   collectionName: string;
   onErrorEncountered: (error: string) => void;
-  onErrorCleared: () => void;
+  onCoveredQueriesFetched: () => void;
+  coveredQueriesArr: Array<Record<string, number>> | null;
+  hasIndexFieldChanges: boolean;
 };
 
-const generateCoveredQueries = (
-  coveredQueriesArr: Array<Record<string, number>>,
+export const generateCoveredQueries = (
+  coveredQueriesArr: Array<Record<string, number>> | null,
   track: TrackFunction
 ) => {
+  if (!coveredQueriesArr) {
+    return;
+  }
   const rows = [];
   for (let i = 0; i < coveredQueriesArr.length; i++) {
     const currentRow = Object.assign({}, ...coveredQueriesArr.slice(0, i + 1));
@@ -135,9 +141,12 @@ const generateCoveredQueries = (
   return <>{rows}</>;
 };
 
-const generateOptimalQueries = (
-  coveredQueriesArr: Array<Record<string, number>>
+export const generateOptimalQueries = (
+  coveredQueriesArr: Array<Record<string, number>> | null
 ) => {
+  if (!coveredQueriesArr) {
+    return;
+  }
   const numOfFields = coveredQueriesArr.length;
 
   // Do not show for 1 field or less
@@ -149,7 +158,7 @@ const generateOptimalQueries = (
   const lastFieldKey = Object.keys(lastField)[0];
 
   // If there are only two fields, we want to show two examples
-  // i.e. {a:1, b: {$gt:2}} and {a:1}.sort({b: 2})
+  // i.e. {a:1, b: {$gt:2}} and {a:1}.sort({b: 1})
   if (numOfFields === 2) {
     const firstField = coveredQueriesArr[0];
     const firstFieldKey = Object.keys(firstField)[0];
@@ -158,7 +167,7 @@ const generateOptimalQueries = (
       <>
         {`{"${firstFieldKey}":1,"${lastFieldKey}":{"$gt":2}}`}
         <br />
-        {`{"${firstFieldKey}":1}.sort({"${lastFieldKey}":2})`}
+        {`{"${firstFieldKey}":1}.sort({"${lastFieldKey}":1})`}
       </>
     );
   }
@@ -187,18 +196,25 @@ const generateOptimalQueries = (
   );
 };
 
+export const generateCoveredQueriesArr = (fields: Field[]) => {
+  return fields.map((field, index) => {
+    return { [field.name]: index + 1 };
+  });
+};
+
 const IndexFlowSection = ({
   createIndexFieldsComponent,
   fields,
   dbName,
   collectionName,
   onErrorEncountered,
-  onErrorCleared,
+  onCoveredQueriesFetched,
+  coveredQueriesArr,
+  hasIndexFieldChanges,
 }: IndexFlowSectionProps) => {
   const darkMode = useDarkMode();
   const [isCodeEquivalentToggleChecked, setIsCodeEquivalentToggleChecked] =
     useState(false);
-  const [hasFieldChanges, setHasFieldChanges] = useState(false);
 
   const hasUnsupportedQueryTypes = fields.some((field) => {
     return field.type === '2dsphere' || field.type === 'text';
@@ -208,7 +224,7 @@ const IndexFlowSection = ({
   const isCoveredQueriesButtonDisabled =
     !areAllFieldsFilledIn(fields) ||
     hasUnsupportedQueryTypes ||
-    !hasFieldChanges;
+    !hasIndexFieldChanges;
 
   const indexNameTypeMap = fields.reduce<Record<string, string>>(
     (accumulator, currentValue) => {
@@ -220,45 +236,21 @@ const IndexFlowSection = ({
     {}
   );
 
-  const [coveredQueriesObj, setCoveredQueriesObj] = useState<{
-    coveredQueries: JSX.Element;
-    optimalQueries: string | JSX.Element;
-    showCoveredQueries: boolean;
-  }>({
-    coveredQueries: <></>,
-    optimalQueries: '',
-    showCoveredQueries: false,
-  });
-
   const onCoveredQueriesButtonClick = useCallback(() => {
-    const coveredQueriesArr = fields.map((field, index) => {
-      return { [field.name]: index + 1 };
-    });
-
     track('Covered Queries Button Clicked', {
       context: 'Create Index Modal',
     });
 
     try {
-      setCoveredQueriesObj({
-        coveredQueries: generateCoveredQueries(coveredQueriesArr, track),
-        optimalQueries: generateOptimalQueries(coveredQueriesArr),
-        showCoveredQueries: true,
-      });
+      onCoveredQueriesFetched();
     } catch (e) {
       onErrorEncountered(e instanceof Error ? e.message : String(e));
     }
+  }, [onCoveredQueriesFetched, onErrorEncountered, track]);
 
-    setHasFieldChanges(false);
-  }, [fields, onErrorEncountered, track]);
-
-  useEffect(() => {
-    setHasFieldChanges(true);
-    onErrorCleared();
-  }, [fields, onErrorCleared]);
-
-  const { coveredQueries, optimalQueries, showCoveredQueries } =
-    coveredQueriesObj;
+  const coveredQueries = generateCoveredQueries(coveredQueriesArr, track);
+  const optimalQueries = generateOptimalQueries(coveredQueriesArr);
+  const showCoveredQueries = coveredQueriesArr !== null;
 
   return (
     <div>
@@ -422,13 +414,17 @@ const IndexFlowSection = ({
   );
 };
 
-const mapState = () => {
-  return {};
+const mapState = ({ createIndex }: RootState) => {
+  const { coveredQueriesArr, hasIndexFieldChanges } = createIndex;
+  return {
+    coveredQueriesArr,
+    hasIndexFieldChanges,
+  };
 };
 
 const mapDispatch = {
   onErrorEncountered: errorEncountered,
-  onErrorCleared: errorCleared,
+  onCoveredQueriesFetched: fetchCoveredQueries,
 };
 
 export default connect(mapState, mapDispatch)(IndexFlowSection);

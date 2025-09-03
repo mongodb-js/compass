@@ -1,5 +1,4 @@
 import React, { useMemo } from 'react';
-import PropTypes from 'prop-types';
 import HadronDocument from 'hadron-document';
 import type { EditableDocumentProps } from './editable-document';
 import EditableDocument from './editable-document';
@@ -11,6 +10,8 @@ export type DocumentProps = {
   doc: HadronDocument | BSONObject;
   editable: boolean;
   isTimeSeries?: boolean;
+  onUpdateQuery?: (field: string, value: unknown) => void;
+  query?: BSONObject;
 } & Omit<EditableDocumentProps, 'doc' | 'expandAll'> &
   Pick<ReadonlyDocumentProps, 'copyToClipboard' | 'openInsertDocumentDialog'>;
 
@@ -21,6 +22,8 @@ const Document = (props: DocumentProps) => {
     copyToClipboard,
     openInsertDocumentDialog,
     doc: _doc,
+    onUpdateQuery,
+    query,
   } = props;
 
   const doc = useMemo(() => {
@@ -29,7 +32,7 @@ const Document = (props: DocumentProps) => {
     if (typeof _doc?.isRoot === 'function' && _doc?.isRoot()) {
       return _doc as HadronDocument;
     }
-    return new HadronDocument(_doc as any);
+    return new HadronDocument(_doc as Record<string, unknown>);
   }, [_doc]);
 
   if (editable && isTimeSeries) {
@@ -40,27 +43,31 @@ const Document = (props: DocumentProps) => {
         openInsertDocumentDialog={(doc, cloned) => {
           void openInsertDocumentDialog?.(doc, cloned);
         }}
+        onUpdateQuery={onUpdateQuery}
+        query={query}
       />
     );
   }
 
   if (editable) {
-    return <EditableDocument {...props} doc={doc} />;
+    return (
+      <EditableDocument
+        {...props}
+        doc={doc}
+        onUpdateQuery={onUpdateQuery}
+        query={query}
+      />
+    );
   }
 
-  return <ReadonlyDocument doc={doc} copyToClipboard={copyToClipboard} />;
-};
-
-Document.propTypes = {
-  doc: PropTypes.object.isRequired,
-  editable: PropTypes.bool,
-  isTimeSeries: PropTypes.bool,
-  removeDocument: PropTypes.func,
-  replaceDocument: PropTypes.func,
-  updateDocument: PropTypes.func,
-  openInsertDocumentDialog: PropTypes.func,
-  copyToClipboard: PropTypes.func,
-  isExpanded: PropTypes.bool,
+  return (
+    <ReadonlyDocument
+      doc={doc}
+      copyToClipboard={copyToClipboard}
+      onUpdateQuery={onUpdateQuery}
+      query={query}
+    />
+  );
 };
 
 export default React.memo(Document);

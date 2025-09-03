@@ -76,7 +76,7 @@ export type CollectionDetails = {
     validationAction: string;
     validationLevel: string;
   } | null;
-  is_non_existent: boolean;
+  inferred_from_privileges: boolean;
 };
 
 export type DatabaseDetails = {
@@ -89,7 +89,7 @@ export type DatabaseDetails = {
   index_count: number;
   index_size: number;
   collections: CollectionDetails[];
-  is_non_existent: boolean;
+  inferred_from_privileges: boolean;
 };
 
 export type InstanceDetails = {
@@ -362,7 +362,10 @@ export function adaptBuildInfo(
 
 export function adaptDatabaseInfo(
   databaseStats: Partial<DbStats> & Partial<DatabaseInfo>
-): Omit<DatabaseDetails, '_id' | 'collections' | 'name' | 'is_non_existent'> {
+): Omit<
+  DatabaseDetails,
+  '_id' | 'collections' | 'name' | 'inferred_from_privileges'
+> {
   return {
     collection_count: databaseStats.collections ?? 0,
     document_count: databaseStats.objects ?? 0,
@@ -382,7 +385,7 @@ export function adaptCollectionInfo({
 }: CollectionInfoNameOnly &
   Partial<CollectionInfo> & {
     db: string;
-  }): Omit<CollectionDetails, 'is_non_existent'> {
+  }): Omit<CollectionDetails, 'inferred_from_privileges'> {
   const ns = toNS(`${db}.${name}`);
   const {
     collection,

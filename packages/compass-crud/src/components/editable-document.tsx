@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import type { Document } from 'hadron-document';
 import HadronDocument from 'hadron-document';
 import { DocumentList, css } from '@mongodb-js/compass-components';
@@ -21,6 +20,8 @@ export type EditableDocumentProps = {
   openInsertDocumentDialog?: CrudActions['openInsertDocumentDialog'];
   copyToClipboard?: CrudActions['copyToClipboard'];
   showInsights?: boolean;
+  onUpdateQuery?: (field: string, value: unknown) => void;
+  query?: Record<string, unknown>;
 };
 
 type EditableDocumentState = {
@@ -250,6 +251,8 @@ class EditableDocument extends React.Component<
         editable
         editing={this.state.editing}
         onEditStart={this.handleStartEditing.bind(this)}
+        onUpdateQuery={this.props.onUpdateQuery}
+        query={this.props.query}
       />
     );
   }
@@ -305,17 +308,6 @@ class EditableDocument extends React.Component<
   }
 
   static displayName = 'EditableDocument';
-
-  static propTypes = {
-    doc: PropTypes.object.isRequired,
-    expandAll: PropTypes.bool,
-    removeDocument: PropTypes.func.isRequired,
-    replaceDocument: PropTypes.func.isRequired,
-    updateDocument: PropTypes.func.isRequired,
-    openInsertDocumentDialog: PropTypes.func.isRequired,
-    copyToClipboard: PropTypes.func.isRequired,
-    showInsights: PropTypes.bool,
-  };
 }
 
 export default withPreferences(EditableDocument, ['showInsights']);

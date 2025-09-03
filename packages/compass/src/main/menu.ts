@@ -254,9 +254,7 @@ function feedbackForumLink(): MenuItemConstructorOptions {
   return {
     label: `&Suggest a Feature`,
     click() {
-      void shell.openExternal(
-        'https://feedback.mongodb.com/forums/924283-compass'
-      );
+      void shell.openExternal('https://feedback.mongodb.com/');
     },
   };
 }

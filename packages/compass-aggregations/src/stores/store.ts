@@ -15,7 +15,7 @@ import {
   mapStoreStagesToStageIdAndType,
 } from '../modules/pipeline-builder/stage-editor';
 import { updatePipelinePreview } from '../modules/pipeline-builder/builder-helpers';
-import type AppRegistry from 'hadron-app-registry';
+import type AppRegistry from '@mongodb-js/compass-app-registry';
 import type { ENVS } from '@mongodb-js/mongodb-constants';
 import {
   setCollectionFields,
@@ -26,7 +26,7 @@ import { INITIAL_STATE as SEARCH_INDEXES_INITIAL_STATE } from '../modules/search
 import { INITIAL_PANEL_OPEN_LOCAL_STORAGE_KEY } from '../modules/side-panel';
 import type { DataService } from '../modules/data-service';
 import type { WorkspacesService } from '@mongodb-js/compass-workspaces/provider';
-import type { ActivateHelpers } from 'hadron-app-registry';
+import type { ActivateHelpers } from '@mongodb-js/compass-app-registry';
 import type { MongoDBInstance } from 'mongodb-instance-model';
 import type Database from 'mongodb-database-model';
 import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection';
@@ -52,7 +52,7 @@ export type ConfigureStoreOptions = CollectionTabPluginMetadata &
      * Current connection env type. Affects available stages. Accepted values:
      * "atlas" | "on-prem" | "adl"
      */
-    env: typeof ENVS[number] | null;
+    env: (typeof ENVS)[number] | null;
     /**
      * Namespace field values that will be used in autocomplete
      */
@@ -148,7 +148,7 @@ export function activateAggregationsPlugin(
         // mms specifies options.env whereas we don't currently get this variable when
         // we use the aggregations plugin inside compass. In that use case we get it
         // from the instance model above.
-        options.env ?? (instance.env as typeof ENVS[number]),
+        options.env ?? (instance.env as (typeof ENVS)[number]),
       // options.outResultsFn is only used by mms
       outResultsFn: options.outResultsFn,
       pipelineBuilder: {

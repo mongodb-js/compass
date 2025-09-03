@@ -200,6 +200,9 @@ describe('Collection aggregations tab', function () {
     if (serverSatisfies('>=6.0.10 <7.0.0 || >=7.0.2')) {
       expectedAggregations.push('$vectorSearch');
     }
+    if (serverSatisfies('>=8.1.0')) {
+      expectedAggregations.push('$rankFusion');
+    }
 
     expectedAggregations.sort();
 
@@ -1593,10 +1596,12 @@ describe('Collection aggregations tab', function () {
         'name'
       );
 
-      await browser.selectOption(
-        `${Selectors.AggregationWizardSortFormDirectionSelect(0)} button`,
-        'Ascending'
-      );
+      await browser.selectOption({
+        selectSelector: `${Selectors.AggregationWizardSortFormDirectionSelect(
+          0
+        )} button`,
+        optionText: 'Ascending',
+      });
 
       await browser.clickVisible(Selectors.AggregationWizardApplyButton);
 

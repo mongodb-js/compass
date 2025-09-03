@@ -87,11 +87,12 @@ const disallowedConnectionStringOptions = [
   'ciphers',
   'crl',
   'ecdhCurve',
+  'keepAliveInitialDelay',
   'lookup',
   'minDHSize',
-  'mongodbLogPath',
   'mongodbLogComponentSeverities',
   'mongodbLogMaxDocumentLength',
+  'mongodbLogPath',
   'pkFactory',
   'proxyHost',
   'proxyPort',
@@ -130,14 +131,14 @@ const disallowedAuthMechanismProperties = [
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 function checkAllowedPlusDisallowedEqualsOptionsKeys(
   input1:
-    | typeof allowedConnectionStringOptions[number]
-    | typeof disallowedConnectionStringOptions[number],
+    | (typeof allowedConnectionStringOptions)[number]
+    | (typeof disallowedConnectionStringOptions)[number],
   input2: keyof MongoClientOptions
 ): [
   keyof MongoClientOptions,
   (
-    | typeof allowedConnectionStringOptions[number]
-    | typeof disallowedConnectionStringOptions[number]
+    | (typeof allowedConnectionStringOptions)[number]
+    | (typeof disallowedConnectionStringOptions)[number]
   )
 ] {
   return [input1, input2];
@@ -155,14 +156,14 @@ type ExactAuthMechanismProperties = {
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 function checkAllowedPlusDisallowedEqualsAuthMechanismKeys(
   input1:
-    | typeof allowedAuthMechanismProperties[number]
-    | typeof disallowedAuthMechanismProperties[number],
+    | (typeof allowedAuthMechanismProperties)[number]
+    | (typeof disallowedAuthMechanismProperties)[number],
   input2: keyof ExactAuthMechanismProperties
 ): [
   keyof ExactAuthMechanismProperties,
   (
-    | typeof allowedAuthMechanismProperties[number]
-    | typeof disallowedAuthMechanismProperties[number]
+    | (typeof allowedAuthMechanismProperties)[number]
+    | (typeof disallowedAuthMechanismProperties)[number]
   )
 ] {
   return [input1, input2];

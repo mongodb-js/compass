@@ -3,12 +3,16 @@ import { expect } from 'chai';
 import { ERROR_UPDATING_VIEW, updateView } from './update-view';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
-import AppRegistry from 'hadron-app-registry';
+import AppRegistry from '@mongodb-js/compass-app-registry';
 import {
   type ConnectionInfoRef,
   ConnectionScopedAppRegistryImpl,
 } from '@mongodb-js/compass-connections/provider';
 import { createDefaultConnectionInfo } from '@mongodb-js/testing-library-compass';
+
+// Importing this to stub showConfirmation
+import * as updateViewSlice from './update-view';
+import * as searchIndexesSlice from './search-indexes';
 
 const TEST_CONNECTION_INFO = { ...createDefaultConnectionInfo(), title: '' };
 
@@ -48,10 +52,20 @@ describe('update-view module', function () {
     let stateMock: any;
     let getStateMock: () => any;
     let updateCollectionFake = sinon.fake();
+    let showConfirmationStub: sinon.SinonStub;
+    let namespaceHasSearchIndexesStub: sinon.SinonStub;
 
-    beforeEach(async function () {
+    beforeEach(function () {
       dispatchFake = sinon.fake();
       updateCollectionFake = sinon.fake.resolves(undefined);
+      showConfirmationStub = sinon
+        .stub(updateViewSlice, 'showConfirmation')
+        .resolves(true);
+
+      namespaceHasSearchIndexesStub = sinon
+        .stub(searchIndexesSlice, 'namespaceHasSearchIndexes')
+        .resolves(true);
+
       stateMock = {
         pipelineBuilder: { pipelineMode: 'builder-ui' },
         focusMode: { isEnabled: false },
@@ -62,20 +76,57 @@ describe('update-view module', function () {
             updateCollection: updateCollectionFake,
           },
         },
+        serverVersion: '8.1.0',
       };
       getStateMock = () => stateMock;
-
-      const runUpdateView = updateView();
-      await runUpdateView(dispatchFake, getStateMock, thunkArg as any);
     });
 
-    it('first it calls to dismiss any existing error', function () {
+    afterEach(function () {
+      showConfirmationStub.restore();
+      namespaceHasSearchIndexesStub.restore();
+    });
+
+    it('first it calls to dismiss any existing error', async function () {
+      const runUpdateView = updateView();
+      await runUpdateView(dispatchFake, getStateMock, thunkArg as any);
+
       expect(dispatchFake.firstCall.args[0]).to.deep.equal({
         type: 'aggregations/update-view/DISMISS_VIEW_UPDATE_ERROR',
       });
     });
 
-    it('calls the data service to update the view for the provided ns', function () {
+    it('does not shows confirmation banner if search indexes are not present', async function () {
+      namespaceHasSearchIndexesStub.resolves(false);
+      const runUpdateView = updateView();
+      await runUpdateView(dispatchFake, getStateMock, thunkArg as any);
+
+      expect(showConfirmationStub.calledOnce).to.be.false;
+    });
+
+    it('shows confirmation banner when search indexes are present', async function () {
+      const runUpdateView = updateView();
+      await runUpdateView(dispatchFake, getStateMock, thunkArg as any);
+
+      expect(showConfirmationStub.calledOnce).to.be.true;
+      expect(showConfirmationStub.firstCall.args[0]).to.deep.include({
+        title: `Are you sure you want to update the view?`,
+        buttonText: 'Update',
+      });
+    });
+
+    it('does not update view if not confirmed', async function () {
+      showConfirmationStub.resolves(false);
+
+      const runUpdateView = updateView();
+      await runUpdateView(dispatchFake, getStateMock, thunkArg as any);
+
+      expect(updateCollectionFake.calledOnce).to.be.false;
+    });
+
+    it('calls the data service to update the view for the provided ns', async function () {
+      const runUpdateView = updateView();
+      await runUpdateView(dispatchFake, getStateMock, thunkArg as any);
+
       expect(updateCollectionFake.firstCall.args[0]).to.equal('aa.bb');
       expect(updateCollectionFake.firstCall.args[1]).to.deep.equal({
         viewOn: 'bb',

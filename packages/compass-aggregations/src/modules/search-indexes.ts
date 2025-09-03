@@ -123,4 +123,26 @@ export const createSearchIndex = (): PipelineBuilderThunkAction<void> => {
   };
 };
 
+/**
+ * Checks whether a namespace has existing search indexes
+ *
+ * @param namespace - collection/view namespace
+ * @param dataService - dataService instance
+ * @returns whether namespace has existing search indexes
+ */
+export const namespaceHasSearchIndexes = async (
+  namespace: string,
+  dataService: { getSearchIndexes?: (ns: string) => Promise<SearchIndex[]> }
+): Promise<boolean> => {
+  try {
+    if (!dataService.getSearchIndexes) {
+      throw new Error('Cannot get search indexes in this environment');
+    }
+    const indexes = await dataService.getSearchIndexes(namespace);
+    return indexes.length > 0;
+  } catch {
+    return false;
+  }
+};
+
 export default reducer;

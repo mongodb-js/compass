@@ -1,5 +1,4 @@
 import React, { PureComponent } from 'react';
-import PropTypes from 'prop-types';
 import {
   Banner,
   WorkspaceContainer,
@@ -75,38 +74,13 @@ export type PipelineProps = Pick<
     limit?: number;
     maxTimeMS?: number | null;
     largeLimit?: number;
+    enableSearchActivationProgramP1: boolean;
   };
 class Pipeline extends PureComponent<
   PipelineProps,
   { pipelineOutputOption: PipelineOutputOption }
 > {
   static displayName = 'PipelineComponent';
-
-  static propTypes = {
-    saveCurrentPipeline: PropTypes.func.isRequired,
-    clonePipeline: PropTypes.func.isRequired,
-    isCommenting: PropTypes.bool.isRequired,
-    name: PropTypes.string,
-    dismissViewError: PropTypes.func.isRequired,
-    updateViewError: PropTypes.string,
-    settings: PropTypes.object.isRequired,
-    toggleSettingsIsExpanded: PropTypes.func.isRequired,
-    toggleSettingsIsCommentMode: PropTypes.func.isRequired,
-    setSettingsSampleSize: PropTypes.func.isRequired,
-    setSettingsLimit: PropTypes.func.isRequired,
-    limit: PropTypes.number.isRequired,
-    largeLimit: PropTypes.number.isRequired,
-    maxTimeMS: PropTypes.number,
-    applySettings: PropTypes.func.isRequired,
-    savingPipelineNameChanged: PropTypes.func.isRequired,
-    savingPipelineApply: PropTypes.func.isRequired,
-    savingPipelineCancel: PropTypes.func.isRequired,
-    savingPipeline: PropTypes.object.isRequired,
-    workspace: PropTypes.string.isRequired,
-    showExportButton: PropTypes.bool.isRequired,
-    showRunButton: PropTypes.bool.isRequired,
-    showExplainButton: PropTypes.bool.isRequired,
-  };
 
   static defaultProps = {
     maxTimeMS: DEFAULT_MAX_TIME_MS,

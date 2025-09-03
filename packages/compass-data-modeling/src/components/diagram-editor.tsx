@@ -1,35 +1,52 @@
-import React, { useMemo, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { connect } from 'react-redux';
 import type { DataModelingState } from '../store/reducer';
 import {
-  applyEdit,
-  getCurrentDiagramFromState,
-  redoEdit,
-  selectCurrentModel,
-  undoEdit,
+  addNewFieldToCollection,
+  moveCollection,
+  selectCollection,
+  selectRelationship,
+  selectBackground,
+  type DiagramState,
+  selectCurrentModelFromState,
+  createNewRelationship,
+  addCollection,
+  selectField,
 } from '../store/diagram';
 import {
   Banner,
-  Icon,
-  IconButton,
   CancelLoader,
   WorkspaceContainer,
   css,
   spacing,
   Button,
-  palette,
-  ErrorSummary,
   useDarkMode,
+  useDrawerActions,
+  useDrawerState,
+  rafraf,
 } from '@mongodb-js/compass-components';
-import { CodemirrorMultilineEditor } from '@mongodb-js/compass-editor';
 import { cancelAnalysis, retryAnalysis } from '../store/analysis-process';
 import {
   Diagram,
   type NodeProps,
   type EdgeProps,
+  useDiagram,
 } from '@mongodb-js/diagramming';
-import type { Edit, StaticModel } from '../services/data-model-storage';
-import { UUID } from 'bson';
+import type { FieldPath, StaticModel } from '../services/data-model-storage';
+import DiagramEditorToolbar from './diagram-editor-toolbar';
+import ExportDiagramModal from './export-diagram-modal';
+import { DATA_MODELING_DRAWER_ID } from './drawer/diagram-editor-side-panel';
+import {
+  collectionToDiagramNode,
+  getHighlightedFields,
+  relationshipToDiagramEdge,
+} from '../utils/nodes-and-edges';
 
 const loadingContainerStyles = css({
   width: '100%',
@@ -79,158 +96,262 @@ const modelPreviewContainerStyles = css({
 
 const modelPreviewStyles = css({
   minHeight: 0,
+
+  /** reactflow handles this normally, but there is a `* { userSelect: 'text' }` in this project,
+   *  which overrides inherited userSelect */
+  ['.connectablestart']: {
+    userSelect: 'none',
+  },
 });
 
-const editorContainerStyles = css({
-  display: 'flex',
-  flexDirection: 'column',
-  gap: 8,
-  boxShadow: `0 0 0 2px ${palette.gray.light2}`,
-});
+type SelectedItems = NonNullable<DiagramState>['selectedItems'];
 
-const editorContainerApplyContainerStyles = css({
-  padding: spacing[200],
-  justifyContent: 'flex-end',
-  gap: spacing[200],
-  display: 'flex',
-  width: '100%',
-  alignItems: 'center',
-});
-
-const editorContainerPlaceholderButtonStyles = css({
-  paddingLeft: 8,
-  paddingRight: 8,
-  alignSelf: 'flex-start',
-  display: 'flex',
-  gap: spacing[200],
-  paddingTop: spacing[200],
-});
-
-const DiagramEditor: React.FunctionComponent<{
+const DiagramContent: React.FunctionComponent<{
   diagramLabel: string;
-  step: DataModelingState['step'];
-  hasUndo: boolean;
-  onUndoClick: () => void;
-  hasRedo: boolean;
-  onRedoClick: () => void;
   model: StaticModel | null;
+  isInRelationshipDrawingMode: boolean;
   editErrors?: string[];
-  onRetryClick: () => void;
-  onCancelClick: () => void;
-  onApplyClick: (edit: Omit<Edit, 'id' | 'timestamp'>) => void;
+  newCollection?: string;
+  onAddNewFieldToCollection: (ns: string) => void;
+  onMoveCollection: (ns: string, newPosition: [number, number]) => void;
+  onCollectionSelect: (namespace: string) => void;
+  onRelationshipSelect: (rId: string) => void;
+  onFieldSelect: (namespace: string, fieldPath: FieldPath) => void;
+  onDiagramBackgroundClicked: () => void;
+  selectedItems: SelectedItems;
+  onCreateNewRelationship: ({
+    localNamespace,
+    foreignNamespace,
+  }: {
+    localNamespace: string;
+    foreignNamespace: string;
+  }) => void;
+  onRelationshipDrawn: () => void;
 }> = ({
   diagramLabel,
-  step,
-  hasUndo,
-  onUndoClick,
-  hasRedo,
-  onRedoClick,
   model,
-  editErrors,
-  onRetryClick,
-  onCancelClick,
-  onApplyClick,
+  isInRelationshipDrawingMode,
+  newCollection,
+  onAddNewFieldToCollection,
+  onMoveCollection,
+  onCollectionSelect,
+  onRelationshipSelect,
+  onFieldSelect,
+  onDiagramBackgroundClicked,
+  onCreateNewRelationship,
+  onRelationshipDrawn,
+  selectedItems,
 }) => {
   const isDarkMode = useDarkMode();
-  const [applyInput, setApplyInput] = useState('{}');
+  const diagram = useRef(useDiagram());
+  const { openDrawer } = useDrawerActions();
+  const { isDrawerOpen } = useDrawerState();
 
-  const isEditValid = useMemo(() => {
-    try {
-      JSON.parse(applyInput);
-      return true;
-    } catch {
-      return false;
+  const setDiagramContainerRef = useCallback((ref: HTMLDivElement | null) => {
+    if (ref) {
+      // For debugging purposes, we attach the diagram to the ref.
+      (ref as any)._diagram = diagram.current;
     }
-  }, [applyInput]);
+  }, []);
 
-  const applyPlaceholder =
-    (type: 'AddRelationship' | 'RemoveRelationship') => () => {
-      let placeholder = {};
-      switch (type) {
-        case 'AddRelationship':
-          placeholder = {
-            type: 'AddRelationship',
-            relationship: {
-              id: new UUID().toString(),
-              relationship: [
-                {
-                  ns: 'db.sourceCollection',
-                  cardinality: 1,
-                  fields: ['field1'],
-                },
-                {
-                  ns: 'db.targetCollection',
-                  cardinality: 1,
-                  fields: ['field2'],
-                },
-              ],
-              isInferred: false,
-            },
-          };
-          break;
-        case 'RemoveRelationship':
-          placeholder = {
-            type: 'RemoveRelationship',
-            relationshipId: new UUID().toString(),
-          };
-          break;
-        default:
-          throw new Error(`Unknown placeholder ${type}`);
-      }
-      setApplyInput(JSON.stringify(placeholder, null, 2));
-    };
-
-  const edges = useMemo(() => {
-    return (model?.relationships ?? []).map((relationship): EdgeProps => {
-      const [source, target] = relationship.relationship;
-      return {
-        id: relationship.id,
-        source: source.ns,
-        target: target.ns,
-        markerStart: source.cardinality === 1 ? 'one' : 'many',
-        markerEnd: target.cardinality === 1 ? 'one' : 'many',
-      };
+  const edges = useMemo<EdgeProps[]>(() => {
+    return (model?.relationships ?? []).map((relationship) => {
+      const selected =
+        !!selectedItems &&
+        selectedItems.type === 'relationship' &&
+        selectedItems.id === relationship.id;
+      return relationshipToDiagramEdge(relationship, selected);
     });
-  }, [model?.relationships]);
+  }, [model?.relationships, selectedItems]);
 
-  const nodes = useMemo(() => {
-    return (model?.collections ?? []).map(
-      (coll): NodeProps => ({
-        id: coll.ns,
-        type: 'collection',
-        position: {
-          x: coll.displayPosition[0],
-          y: coll.displayPosition[1],
-        },
-        title: coll.ns,
-        fields: Object.entries(coll.jsonSchema.properties ?? {}).map(
-          ([name, field]) => {
-            const type =
-              field.bsonType === undefined
-                ? 'Unknown'
-                : typeof field.bsonType === 'string'
-                ? field.bsonType
-                : // TODO: Show possible types of the field
-                  field.bsonType[0];
-            return {
-              name,
-              type,
-              glyphs: type === 'objectId' ? ['key'] : [],
-            };
-          }
-        ),
-        measured: {
-          width: 100,
-          height: 200,
-        },
-      })
+  const nodes = useMemo<NodeProps[]>(() => {
+    const highlightedFields = getHighlightedFields(
+      selectedItems,
+      model?.relationships
     );
-  }, [model?.collections]);
+    return (model?.collections ?? []).map((coll) => {
+      const selected =
+        !!selectedItems &&
+        selectedItems.type === 'collection' &&
+        selectedItems.id === coll.ns;
+      return collectionToDiagramNode({
+        ...coll,
+        highlightedFields,
+        selectedField:
+          selectedItems?.type === 'field' && selectedItems.namespace === coll.ns
+            ? selectedItems.fieldPath
+            : undefined,
+        onClickAddNewFieldToCollection: () =>
+          onAddNewFieldToCollection(coll.ns),
+        selected,
+        isInRelationshipDrawingMode,
+      });
+    });
+  }, [
+    onAddNewFieldToCollection,
+    model?.collections,
+    model?.relationships,
+    selectedItems,
+    isInRelationshipDrawingMode,
+  ]);
 
+  // Fit to view on initial mount
+  useEffect(() => {
+    // Schedule the fitView call to make sure that diagramming package had a
+    // chance to set initial nodes, edges state
+    // TODO: react-flow documentation suggests that we should be able to do this
+    // without unrelyable scheduling by calling the fitView after initial state
+    // is set, but for this we will need to make some changes to the diagramming
+    // package first
+    return rafraf(() => {
+      void diagram.current.fitView();
+    });
+  }, []);
+
+  // Center on a new collection when it is added
+  const previouslyOpenedDrawer = useRef<boolean>(false);
+  useEffect(() => {
+    const wasDrawerPreviouslyOpened = previouslyOpenedDrawer.current;
+    previouslyOpenedDrawer.current = !!isDrawerOpen;
+
+    if (!newCollection) return;
+    const node = nodes.find((n) => n.id === newCollection);
+    if (!node) return;
+
+    // For calculating the center, we're taking into account the drawer,
+    // so that the new node is centered in the visible part.
+    const drawerOffset = wasDrawerPreviouslyOpened ? 0 : 240;
+    const zoom = diagram.current.getViewport().zoom;
+    const drawerOffsetInDiagramCoords = drawerOffset / zoom;
+    const newNodeWidth = 244;
+    const newNodeHeight = 64;
+    return rafraf(() => {
+      void diagram.current.setCenter(
+        node.position.x + newNodeWidth / 2 + drawerOffsetInDiagramCoords,
+        node.position.y + newNodeHeight / 2,
+        {
+          duration: 500,
+          zoom,
+        }
+      );
+    });
+  }, [newCollection, nodes, isDrawerOpen]);
+
+  const handleNodesConnect = useCallback(
+    (source: string, target: string) => {
+      onCreateNewRelationship({
+        localNamespace: source,
+        foreignNamespace: target,
+      });
+      onRelationshipDrawn();
+    },
+    [onRelationshipDrawn, onCreateNewRelationship]
+  );
+
+  return (
+    <div
+      ref={setDiagramContainerRef}
+      className={modelPreviewContainerStyles}
+      data-testid="diagram-editor-container"
+    >
+      <div className={modelPreviewStyles} data-testid="model-preview">
+        <Diagram
+          isDarkMode={isDarkMode}
+          title={diagramLabel}
+          edges={edges}
+          nodes={nodes}
+          // With threshold too low clicking sometimes gets confused with
+          // dragging
+          nodeDragThreshold={5}
+          onNodeClick={(_evt, node) => {
+            if (node.type !== 'collection') {
+              return;
+            }
+            onCollectionSelect(node.id);
+            openDrawer(DATA_MODELING_DRAWER_ID);
+          }}
+          onPaneClick={onDiagramBackgroundClicked}
+          onEdgeClick={(_evt, edge) => {
+            onRelationshipSelect(edge.id);
+            openDrawer(DATA_MODELING_DRAWER_ID);
+          }}
+          onFieldClick={(_evt, { id: fieldPath, nodeId: namespace }) => {
+            _evt.stopPropagation(); // TODO(COMPASS-9659): should this be handled by the diagramming package?
+            if (!Array.isArray(fieldPath)) return; // TODO(COMPASS-9659): could be avoided with generics in the diagramming package
+            onFieldSelect(namespace, fieldPath);
+            openDrawer(DATA_MODELING_DRAWER_ID);
+          }}
+          fitViewOptions={{
+            maxZoom: 1,
+            minZoom: 0.25,
+          }}
+          onNodeDragStop={(evt, node) => {
+            onMoveCollection(node.id, [node.position.x, node.position.y]);
+          }}
+          onConnect={({ source, target }) => {
+            handleNodesConnect(source, target);
+          }}
+        />
+      </div>
+    </div>
+  );
+};
+
+const ConnectedDiagramContent = connect(
+  (state: DataModelingState) => {
+    const { diagram } = state;
+    return {
+      model: diagram ? selectCurrentModelFromState(state) : null,
+      diagramLabel: diagram?.name || 'Schema Preview',
+      selectedItems: state.diagram?.selectedItems ?? null,
+      newCollection: diagram?.draftCollection,
+    };
+  },
+  {
+    onAddNewFieldToCollection: addNewFieldToCollection,
+    onMoveCollection: moveCollection,
+    onCollectionSelect: selectCollection,
+    onRelationshipSelect: selectRelationship,
+    onFieldSelect: selectField,
+    onDiagramBackgroundClicked: selectBackground,
+    onCreateNewRelationship: createNewRelationship,
+  }
+)(DiagramContent);
+
+const DiagramEditor: React.FunctionComponent<{
+  step: DataModelingState['step'];
+  diagramId?: string;
+  onRetryClick: () => void;
+  onCancelClick: () => void;
+  onAddCollectionClick: () => void;
+}> = ({
+  step,
+  diagramId,
+  onRetryClick,
+  onCancelClick,
+  onAddCollectionClick,
+}) => {
+  const { openDrawer } = useDrawerActions();
   let content;
 
+  const [isInRelationshipDrawingMode, setIsInRelationshipDrawingMode] =
+    useState(false);
+
+  const handleRelationshipDrawingToggle = useCallback(() => {
+    setIsInRelationshipDrawingMode((prev) => !prev);
+  }, []);
+
+  const onRelationshipDrawn = useCallback(() => {
+    setIsInRelationshipDrawingMode(false);
+  }, []);
+
+  const handleAddCollectionClick = useCallback(() => {
+    onAddCollectionClick();
+    openDrawer(DATA_MODELING_DRAWER_ID);
+  }, [openDrawer, onAddCollectionClick]);
+
   if (step === 'NO_DIAGRAM_SELECTED') {
-    throw new Error('Unexpected');
+    return null;
   }
 
   if (step === 'ANALYZING') {
@@ -262,100 +383,28 @@ const DiagramEditor: React.FunctionComponent<{
     );
   }
 
-  if (step === 'EDITING') {
+  if (step === 'EDITING' && diagramId) {
     content = (
-      <div
-        className={modelPreviewContainerStyles}
-        data-testid="diagram-editor-container"
-      >
-        <div className={modelPreviewStyles} data-testid="model-preview">
-          <Diagram
-            isDarkMode={isDarkMode}
-            title={diagramLabel}
-            edges={edges}
-            nodes={nodes}
-            onEdgeClick={(evt, edge) => {
-              setApplyInput(
-                JSON.stringify(
-                  {
-                    type: 'RemoveRelationship',
-                    relationshipId: edge.id,
-                  },
-                  null,
-                  2
-                )
-              );
-            }}
-          />
-        </div>
-        <div className={editorContainerStyles} data-testid="apply-editor">
-          <div className={editorContainerPlaceholderButtonStyles}>
-            <Button
-              onClick={applyPlaceholder('AddRelationship')}
-              data-testid="placeholder-addrelationship-button"
-            >
-              Add relationship
-            </Button>
-            <Button
-              onClick={applyPlaceholder('RemoveRelationship')}
-              data-testid="placeholder-removerelationship-button"
-            >
-              Remove relationship
-            </Button>
-          </div>
-          <div>
-            <CodemirrorMultilineEditor
-              language="json"
-              text={applyInput}
-              onChangeText={setApplyInput}
-              maxLines={10}
-            ></CodemirrorMultilineEditor>
-          </div>
-          <div className={editorContainerApplyContainerStyles}>
-            {editErrors && <ErrorSummary errors={editErrors} />}
-            <Button
-              onClick={() => {
-                onApplyClick(JSON.parse(applyInput));
-              }}
-              data-testid="apply-button"
-              disabled={!isEditValid}
-            >
-              Apply
-            </Button>
-          </div>
-        </div>
-      </div>
+      <ConnectedDiagramContent
+        key={diagramId}
+        isInRelationshipDrawingMode={isInRelationshipDrawingMode}
+        onRelationshipDrawn={onRelationshipDrawn}
+      ></ConnectedDiagramContent>
     );
   }
 
   return (
     <WorkspaceContainer
-      toolbar={() => {
-        if (step !== 'EDITING') {
-          return null;
-        }
-
-        return (
-          <>
-            <IconButton
-              aria-label="Undo"
-              disabled={!hasUndo}
-              onClick={onUndoClick}
-            >
-              <Icon glyph="Undo"></Icon>
-            </IconButton>
-            <IconButton
-              aria-label="Redo"
-              disabled={!hasRedo}
-              onClick={onRedoClick}
-            >
-              <Icon glyph="Redo"></Icon>
-            </IconButton>
-          </>
-        );
-      }}
+      toolbar={
+        <DiagramEditorToolbar
+          onRelationshipDrawingToggle={handleRelationshipDrawingToggle}
+          isInRelationshipDrawingMode={isInRelationshipDrawingMode}
+          onAddCollectionClick={handleAddCollectionClick}
+        />
+      }
     >
       {content}
+      <ExportDiagramModal />
     </WorkspaceContainer>
   );
 };
@@ -365,20 +414,13 @@ export default connect(
     const { diagram, step } = state;
     return {
       step: step,
-      hasUndo: (diagram?.edits.prev.length ?? 0) > 0,
-      hasRedo: (diagram?.edits.next.length ?? 0) > 0,
-      model: diagram
-        ? selectCurrentModel(getCurrentDiagramFromState(state))
-        : null,
       editErrors: diagram?.editErrors,
-      diagramLabel: diagram?.name || 'Schema Preview',
+      diagramId: diagram?.id,
     };
   },
   {
-    onUndoClick: undoEdit,
-    onRedoClick: redoEdit,
     onRetryClick: retryAnalysis,
     onCancelClick: cancelAnalysis,
-    onApplyClick: applyEdit,
+    onAddCollectionClick: addCollection,
   }
 )(DiagramEditor);

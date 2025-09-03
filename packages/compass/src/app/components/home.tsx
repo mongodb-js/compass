@@ -18,7 +18,7 @@ import type { SettingsTabId } from '@mongodb-js/compass-settings';
 import { CompassSettingsPlugin } from '@mongodb-js/compass-settings';
 import { WelcomeModal } from '@mongodb-js/compass-welcome';
 import { type ConnectionStorage } from '@mongodb-js/connection-storage/provider';
-import { AppRegistryProvider } from 'hadron-app-registry';
+import { AppRegistryProvider } from '@mongodb-js/compass-app-registry';
 import React, { useCallback, useState } from 'react';
 import Workspace from './workspace';
 import { getExtraConnectionData } from '../utils/telemetry';
@@ -33,6 +33,8 @@ import type { WorkspaceTab } from '@mongodb-js/compass-workspaces';
 import { ConnectionStorageProvider } from '@mongodb-js/connection-storage/provider';
 import { ConnectionImportExportProvider } from '@mongodb-js/compass-connection-import-export';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
+import { usePreference } from 'compass-preferences-model/provider';
+import { CompassAssistantProvider } from '@mongodb-js/compass-assistant';
 
 resetGlobalCSS();
 
@@ -119,7 +121,9 @@ function Home({
           <CompassSettingsPlugin></CompassSettingsPlugin>
           <CompassFindInPagePlugin></CompassFindInPagePlugin>
           <AtlasAuthPlugin></AtlasAuthPlugin>
-          <CompassGenerativeAIPlugin></CompassGenerativeAIPlugin>
+          <CompassGenerativeAIPlugin
+            isCloudOptIn={false}
+          ></CompassGenerativeAIPlugin>
           <LegacyConnectionsModal />
         </FieldStorePlugin>
       </CompassInstanceStorePlugin>
@@ -145,21 +149,23 @@ function HomeWithConnections({
   return (
     <ConnectionStorageProvider value={connectionStorage}>
       <FileInputBackendProvider createFileInputBackend={createFileInputBackend}>
-        <CompassConnections
-          appName={props.appName}
-          onExtraConnectionDataRequest={getExtraConnectionData}
-          onAutoconnectInfoRequest={onAutoconnectInfoRequest}
-          doNotReconnectDisconnectedAutoconnectInfo
-          onFailToLoadConnections={(error) => {
-            openToast('failed-to-load-connections', {
-              title: 'Failed to load connections',
-              description: error.message,
-              variant: 'warning',
-            });
-          }}
-        >
-          <Home {...props}></Home>
-        </CompassConnections>
+        <CompassAssistantProvider>
+          <CompassConnections
+            appName={props.appName}
+            onExtraConnectionDataRequest={getExtraConnectionData}
+            onAutoconnectInfoRequest={onAutoconnectInfoRequest}
+            doNotReconnectDisconnectedAutoconnectInfo
+            onFailToLoadConnections={(error) => {
+              openToast('failed-to-load-connections', {
+                title: 'Failed to load connections',
+                description: error.message,
+                variant: 'warning',
+              });
+            }}
+          >
+            <Home {...props}></Home>
+          </CompassConnections>
+        </CompassAssistantProvider>
       </FileInputBackendProvider>
     </ConnectionStorageProvider>
   );
@@ -169,6 +175,7 @@ export default function ThemedHome(
   props: HomeWithConnectionsProps
 ): ReturnType<typeof HomeWithConnections> {
   const track = useTelemetry();
+  const disableContextMenus = !usePreference('enableContextMenus');
   return (
     <CompassComponentsProvider
       onNextGuideGue={(cue) => {
@@ -187,6 +194,19 @@ export default function ThemedHome(
           });
         }
       }}
+      onContextMenuOpen={(itemGroups) => {
+        if (itemGroups.length > 0) {
+          track('Context Menu Opened', {
+            item_groups: itemGroups.map((group) => group.telemetryLabel),
+          });
+        }
+      }}
+      onContextMenuItemClick={(itemGroup, item) => {
+        track('Context Menu Item Clicked', {
+          item_group: itemGroup.telemetryLabel,
+          item_label: item.label,
+        });
+      }}
       utmSource="compass"
       utmMedium="product"
       onSignalMount={(id) => {
@@ -204,6 +224,7 @@ export default function ThemedHome(
       onSignalClose={(id) => {
         track('Signal Closed', { id });
       }}
+      disableContextMenus={disableContextMenus}
     >
       {({ darkMode, portalContainerRef }) => {
         return (

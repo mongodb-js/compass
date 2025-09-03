@@ -7,7 +7,7 @@ import { getActiveUser } from './utils';
 
 const editablePreferences: (keyof UserPreferences)[] = [
   // Value can change from false to true during allocation / checking
-  'optInDataExplorerGenAIFeatures',
+  'optInGenAIFeatures',
   'cloudFeatureRolloutAccess',
   // TODO(COMPASS-9353): Provide a standard for updating Compass preferences in web
   'enableIndexesGuidanceExp',
@@ -17,6 +17,7 @@ const editablePreferences: (keyof UserPreferences)[] = [
   'enableGenAISampleDocumentPassingOnAtlasProject',
   'enableGenAIFeaturesAtlasOrg',
   'enableGenAIFeaturesAtlasProject',
+  'enableDataModeling',
 ];
 
 export class CompassWebPreferencesAccess implements PreferencesAccess {

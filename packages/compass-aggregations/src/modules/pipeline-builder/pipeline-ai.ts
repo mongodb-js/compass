@@ -430,14 +430,14 @@ export const cancelAIPipelineGeneration = (): PipelineBuilderThunkAction<
   };
 };
 
-type resetIsAggregationGeneratedFromQueryAction = {
+type ResetIsAggregationGeneratedFromQueryAction = {
   type: AIPipelineActionTypes.resetIsAggregationGeneratedFromQuery;
 };
 
 export const resetIsAggregationGeneratedFromQuery =
   (): PipelineBuilderThunkAction<
     void,
-    resetIsAggregationGeneratedFromQueryAction
+    ResetIsAggregationGeneratedFromQueryAction
   > => {
     return (dispatch) => {
       dispatch({
@@ -449,7 +449,7 @@ export const resetIsAggregationGeneratedFromQuery =
 export const showInput = (): PipelineBuilderThunkAction<Promise<void>> => {
   return async (dispatch, _getState, { atlasAiService }) => {
     try {
-      if (process.env.COMPASS_E2E_SKIP_ATLAS_SIGNIN !== 'true') {
+      if (process.env.COMPASS_E2E_SKIP_AI_OPT_IN !== 'true') {
         await atlasAiService.ensureAiFeatureAccess();
       }
       dispatch({
@@ -477,9 +477,8 @@ export type AIPipelineAction =
   | AIPipelineFailedAction
   | LoadGeneratedPipelineAction
   | PipelineGeneratedFromQueryAction
-  | LoadGeneratedPipelineAction
   | CancelAIPipelineGenerationAction
-  | resetIsAggregationGeneratedFromQueryAction
+  | ResetIsAggregationGeneratedFromQueryAction
   | ShowInputAction
   | HideInputAction
   | ChangeAIPromptTextAction;
@@ -567,7 +566,7 @@ const aiPipelineReducer: Reducer<AIPipelineState, AIPipelineAction> = (
   }
 
   if (
-    isAction<resetIsAggregationGeneratedFromQueryAction>(
+    isAction<ResetIsAggregationGeneratedFromQueryAction>(
       action,
       AIPipelineActionTypes.resetIsAggregationGeneratedFromQuery
     )

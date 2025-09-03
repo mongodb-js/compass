@@ -26,9 +26,7 @@ type StoredLegacyPipelineStage = {
   stage: string;
 };
 
-function savedPipelineToText(
-  pipeline?: StoredLegacyPipelineStage[] | undefined
-): string {
+function savedPipelineToText(pipeline?: StoredLegacyPipelineStage[]): string {
   const stages =
     pipeline?.map(({ stageOperator, isEnabled, stage }) => {
       return stageToString(stageOperator, stage, !isEnabled);
@@ -64,8 +62,8 @@ export const PipelineSchema = z.preprocess(
     pipelineText: z.string(),
     lastModified: z
       .number()
-      .transform((x) => new Date(x))
-      .optional(),
+      .default(0)
+      .transform((x) => new Date(x)),
   })
 );
 

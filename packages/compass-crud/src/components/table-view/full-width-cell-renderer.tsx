@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import {
   DocumentList,
   LeafyGreenProvider,
@@ -7,7 +6,7 @@ import {
 import type Document from 'hadron-document';
 import type { CellEditorProps } from './cell-editor';
 import type { GridActions } from '../../stores/grid-store';
-import type { Element } from 'hadron-document';
+import { DocumentEvents, type Element } from 'hadron-document';
 import type { BSONObject, CrudActions } from '../../stores/crud-store';
 
 export type FullWidthCellRendererProps = Pick<
@@ -51,16 +50,22 @@ class FullWidthCellRenderer extends React.Component<
    * Subscribe to the update store on mount.
    */
   componentDidMount() {
-    this.doc.on('remove-success', this.handleRemoveSuccess);
-    this.doc.on('update-success', this.handleUpdateSuccess);
+    this.doc.on(DocumentEvents.RemoveSuccess, this.handleRemoveSuccess);
+    this.doc.on(DocumentEvents.UpdateSuccess, this.handleUpdateSuccess);
   }
 
   /**
    * Unsubscribe from the update store on unmount.
    */
   componentWillUnmount() {
-    this.doc.removeListener('remove-success', this.handleRemoveSuccess);
-    this.doc.removeListener('update-success', this.handleUpdateSuccess);
+    this.doc.removeListener(
+      DocumentEvents.RemoveSuccess,
+      this.handleRemoveSuccess
+    );
+    this.doc.removeListener(
+      DocumentEvents.UpdateSuccess,
+      this.handleUpdateSuccess
+    );
   }
 
   /**
@@ -154,19 +159,6 @@ class FullWidthCellRenderer extends React.Component<
       </LeafyGreenProvider>
     );
   }
-
-  static propTypes = {
-    api: PropTypes.any,
-    data: PropTypes.any,
-    context: PropTypes.any,
-    node: PropTypes.any,
-    updateDocument: PropTypes.func.isRequired,
-    removeDocument: PropTypes.func.isRequired,
-    replaceDocument: PropTypes.func.isRequired,
-    replaceDoc: PropTypes.func.isRequired,
-    cleanCols: PropTypes.func.isRequired,
-    darkMode: PropTypes.bool,
-  };
 
   static displayName = 'FullWidthCellRenderer';
 }

@@ -1,6 +1,6 @@
 import { createStore, applyMiddleware, type Action, type Store } from 'redux';
 import thunk from 'redux-thunk';
-import type { ActivateHelpers } from 'hadron-app-registry';
+import type { ActivateHelpers } from '@mongodb-js/compass-app-registry';
 import type { Logger } from '@mongodb-js/compass-logging';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 import type { ConnectionInfoRef } from '@mongodb-js/compass-connections/provider';

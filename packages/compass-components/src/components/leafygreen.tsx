@@ -70,9 +70,7 @@ import { Tabs, Tab } from '@leafygreen-ui/tabs';
 import TextArea from '@leafygreen-ui/text-area';
 import LeafyGreenTextInput from '@leafygreen-ui/text-input';
 import { SearchInput } from '@leafygreen-ui/search-input';
-export type { ToastProps } from '@leafygreen-ui/toast';
-export { ToastProvider, useToast } from '@leafygreen-ui/toast';
-export { usePrevious } from '@leafygreen-ui/hooks';
+export { usePrevious, useMergeRefs } from '@leafygreen-ui/hooks';
 import Toggle from '@leafygreen-ui/toggle';
 import Tooltip from '@leafygreen-ui/tooltip';
 import {
@@ -93,6 +91,8 @@ import {
   ComboboxOption,
   ComboboxGroup,
 } from '@leafygreen-ui/combobox';
+
+export { getLgIds as getDrawerIds } from './drawer';
 
 // 2. Wrap and make any changes/workaround to leafygreen components.
 const Icon = ({
@@ -204,3 +204,23 @@ export {
   ComboboxGroup,
   ComboboxOption,
 };
+
+export * as Avatar from '@leafygreen-ui/avatar';
+export * as InputOption from '@leafygreen-ui/input-option';
+
+export * as LgChatAvatar from '@lg-chat/avatar';
+export * as LgChatChatDisclaimer from '@lg-chat/chat-disclaimer';
+export * as LgChatChatWindow from '@lg-chat/chat-window';
+export * as LgChatFixedChatWindow from '@lg-chat/fixed-chat-window';
+export * as LgChatInputBar from '@lg-chat/input-bar';
+export * as LgChatLeafygreenChatProvider from '@lg-chat/leafygreen-chat-provider';
+export * as LgChatLgMarkdown from '@lg-chat/lg-markdown';
+export * as LgChatMessageActions from '@lg-chat/message-actions';
+export * as LgChatMessageFeed from '@lg-chat/message-feed';
+export * as LgChatMessageFeedback from '@lg-chat/message-feedback';
+export * as LgChatMessagePrompts from '@lg-chat/message-prompts';
+export * as LgChatMessageRating from '@lg-chat/message-rating';
+export * as LgChatMessage from '@lg-chat/message';
+export * as LgChatRichLinks from '@lg-chat/rich-links';
+export * as LgChatSuggestions from '@lg-chat/suggestions';
+export * as LgChatTitleBar from '@lg-chat/title-bar';

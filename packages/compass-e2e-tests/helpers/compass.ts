@@ -32,7 +32,7 @@ import {
   isTestingAtlasCloudExternal,
 } from './test-runner-context';
 import {
-  ELECTRON_CHROMIUM_VERSION,
+  MONOREPO_ELECTRON_CHROMIUM_VERSION,
   LOG_PATH,
   LOG_COVERAGE_PATH,
   COMPASS_DESKTOP_PATH,
@@ -473,6 +473,15 @@ function execFileIgnoreError(
   });
 }
 
+async function getChromiumVersionFromBinary(path: string) {
+  const { stdout } = await execFileIgnoreError(path, ['--versions'], {});
+  try {
+    return JSON.parse(stdout).chrome;
+  } catch {
+    return MONOREPO_ELECTRON_CHROMIUM_VERSION;
+  }
+}
+
 export async function runCompassOnce(args: string[], timeout = 30_000) {
   const { binary } = await getCompassExecutionParameters();
   debug('spawning compass...', {
@@ -636,6 +645,7 @@ async function startCompassElectron(
   const maybeWrappedBinary = (await opts.wrapBinary?.(binary)) ?? binary;
 
   process.env.APP_ENV = 'webdriverio';
+  process.env.DISABLE_DEVSERVER_OVERLAY = 'true';
   // For webdriverio env we are changing appName so that keychain records do not
   // overlap with anything else. But leave it alone when testing auto-update.
   if (!process.env.HADRON_AUTO_UPDATE_ENDPOINT_OVERRIDE) {
@@ -654,7 +664,9 @@ async function startCompassElectron(
     automationProtocol: 'webdriver' as const,
     capabilities: {
       browserName: 'chromium',
-      browserVersion: ELECTRON_CHROMIUM_VERSION,
+      browserVersion: testPackagedApp
+        ? await getChromiumVersionFromBinary(binary)
+        : MONOREPO_ELECTRON_CHROMIUM_VERSION,
       // https://chromedriver.chromium.org/capabilities#h.p_ID_106
       'goog:chromeOptions': {
         binary: maybeWrappedBinary,
@@ -781,6 +793,8 @@ export async function startBrowser(
           'browser.download.folderList': 2,
           'browser.download.manager.showWhenStarting': false,
           'browser.helperApps.neverAsk.saveToDisk': '*/*',
+          // Hide the download (progress) panel
+          'browser.download.alwaysOpenPanel': false,
         },
       },
     },
@@ -1210,7 +1224,7 @@ function redact(value: string): string {
       continue;
     }
 
-    const quoted = `'${process.env[field] as string}'`;
+    const quoted = `'${process.env[field]}'`;
     // /regex/s would be ideal, but we'd have to escape the value to not be
     // interpreted as a regex.
     while (value.indexOf(quoted) !== -1) {
