@@ -62,7 +62,7 @@
     "@mongodb-js/compass-utils": "^0.9.11",
     "bson": "^6.10.4",
     "compass-preferences-model": "^2.51.0",
-    "mongodb": "^6.17.0",
+    "mongodb": "^6.19.0",
     "mongodb-schema": "^12.6.2",
     "react": "^17.0.2",
     "react-redux": "^8.1.3",

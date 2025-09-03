@@ -322,7 +322,7 @@ export class AtlasAiService {
   }
 
   private throwIfAINotEnabled() {
-    if (process.env.COMPASS_E2E_SKIP_ATLAS_SIGNIN === 'true') {
+    if (process.env.COMPASS_E2E_SKIP_AI_OPT_IN === 'true') {
       return;
     }
     if (!isAIFeatureEnabled(this.preferences.getPreferences())) {
