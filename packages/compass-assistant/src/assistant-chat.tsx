@@ -57,12 +57,8 @@ const headerStyleLightModeFixes = css({
 
 // TODO(COMPASS-9751): These are temporary patches to make the Assistant chat take the entire
 // width and height of the drawer since Leafygreen doesn't support this yet.
-const inputBarFixesStyles = css({
-  marginBottom: -spacing[400],
-});
 const assistantChatFixesStyles = css({
   // Negative margin to patch the padding of the drawer.
-  marginTop: -spacing[400],
   '> div, > div > div, > div > div > div, > div > div > div': {
     height: '100%',
   },
@@ -144,29 +140,18 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
 
   // Transform AI SDK messages to LeafyGreen chat format and reverse the order of the messages
   // for displaying it correctly with flex-direction: column-reverse.
-  const lgMessages = messages.reduce<
-    {
-      id: string;
-      messageBody: string;
-      isSender: boolean;
-    }[]
-  >(
-    (acc, message) => [
-      {
-        id: message.id,
-        messageBody:
-          message.metadata?.displayText ||
-          (message.parts
-            ?.filter((part) => part.type === 'text')
-            .map((part) => part.text)
-            .join('') ??
-            ''),
-        isSender: message.role === 'user',
-      },
-      ...acc,
-    ],
-    []
-  );
+  const lgMessages = messages
+    .map((message) => ({
+      id: message.id,
+      messageBody:
+        message.metadata?.displayText ||
+        message.parts
+          ?.filter((part) => part.type === 'text')
+          .map((part) => part.text)
+          .join(''),
+      isSender: message.role === 'user',
+    }))
+    .reverse();
 
   const handleMessageSend = useCallback(
     (messageBody: string) => {
@@ -271,7 +256,6 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
           <InputBar
             data-testid="assistant-chat-input"
             onMessageSend={handleMessageSend}
-            className={inputBarFixesStyles}
             state={status === 'submitted' ? 'loading' : undefined}
             textareaProps={{
               placeholder: 'Ask MongoDB Assistant a question',
