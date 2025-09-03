@@ -1,13 +1,16 @@
 import type { Reducer, AnyAction, Action } from 'redux';
 import { analyzeDocuments } from 'mongodb-schema';
 import { UUID } from 'bson';
+import { isCancelError } from '@mongodb-js/compass-utils';
 
 import type { CollectionMetadata } from 'mongodb-collection-model';
 import type { ThunkAction } from 'redux-thunk';
 import type AppRegistry from '@mongodb-js/compass-app-registry';
-import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import type { workspacesServiceLocator } from '@mongodb-js/compass-workspaces/provider';
-import type { DataService } from '@mongodb-js/compass-connections/provider';
+import type {
+  ConnectionInfoRef,
+  DataService,
+} from '@mongodb-js/compass-connections/provider';
 import type { CollectionSubtab } from '@mongodb-js/compass-workspaces';
 import type { AtlasAiService } from '@mongodb-js/compass-generative-ai/provider';
 import type { experimentationServiceLocator } from '@mongodb-js/compass-telemetry/provider';
@@ -74,6 +77,8 @@ type CollectionThunkAction<R, A extends AnyAction = AnyAction> = ThunkAction<
     experimentationServices: ReturnType<typeof experimentationServiceLocator>;
     logger: Logger;
     preferences: PreferencesAccess;
+    connectionInfoRef: ConnectionInfoRef;
+    fakerSchemaGenerationAbortControllerRef: { current?: AbortController };
   },
   A
 >;
@@ -302,9 +307,6 @@ const reducer: Reducer<CollectionState, Action> = (
     let nextStep: MockDataGeneratorStep;
 
     switch (currentStep) {
-      case MockDataGeneratorStep.SCHEMA_CONFIRMATION:
-        nextStep = MockDataGeneratorStep.SCHEMA_EDITOR;
-        break;
       case MockDataGeneratorStep.SCHEMA_EDITOR:
         nextStep = MockDataGeneratorStep.DOCUMENT_COUNT;
         break;
@@ -342,8 +344,16 @@ const reducer: Reducer<CollectionState, Action> = (
         previousStep = MockDataGeneratorStep.SCHEMA_CONFIRMATION;
         break;
       case MockDataGeneratorStep.SCHEMA_EDITOR:
-        previousStep = MockDataGeneratorStep.SCHEMA_CONFIRMATION;
-        break;
+        return {
+          ...state,
+          fakerSchemaGeneration: {
+            status: 'idle',
+          },
+          mockDataGenerator: {
+            ...state.mockDataGenerator,
+            currentStep: MockDataGeneratorStep.SCHEMA_CONFIRMATION,
+          },
+        };
       case MockDataGeneratorStep.DOCUMENT_COUNT:
         previousStep = MockDataGeneratorStep.SCHEMA_EDITOR;
         break;
@@ -388,6 +398,10 @@ const reducer: Reducer<CollectionState, Action> = (
 
     return {
       ...state,
+      mockDataGenerator: {
+        ...state.mockDataGenerator,
+        currentStep: MockDataGeneratorStep.SCHEMA_EDITOR,
+      },
       fakerSchemaGeneration: {
         status: 'in-progress',
         requestId: action.requestId,
@@ -432,6 +446,10 @@ const reducer: Reducer<CollectionState, Action> = (
         error: action.error,
         requestId: action.requestId,
       },
+      mockDataGenerator: {
+        ...state.mockDataGenerator,
+        currentStep: MockDataGeneratorStep.SCHEMA_CONFIRMATION,
+      },
     };
   }
 
@@ -449,20 +467,32 @@ export const mockDataGeneratorModalOpened =
     return { type: CollectionActions.MockDataGeneratorModalOpened };
   };
 
-export const mockDataGeneratorModalClosed =
-  (): MockDataGeneratorModalClosedAction => {
-    return { type: CollectionActions.MockDataGeneratorModalClosed };
+export const mockDataGeneratorModalClosed = (): CollectionThunkAction<
+  void,
+  MockDataGeneratorModalClosedAction
+> => {
+  return (dispatch, _getState, { fakerSchemaGenerationAbortControllerRef }) => {
+    fakerSchemaGenerationAbortControllerRef.current?.abort();
+    dispatch({ type: CollectionActions.MockDataGeneratorModalClosed });
   };
+};
 
 export const mockDataGeneratorNextButtonClicked =
   (): MockDataGeneratorNextButtonClickedAction => {
     return { type: CollectionActions.MockDataGeneratorNextButtonClicked };
   };
 
-export const mockDataGeneratorPreviousButtonClicked =
-  (): MockDataGeneratorPreviousButtonClickedAction => {
-    return { type: CollectionActions.MockDataGeneratorPreviousButtonClicked };
+export const mockDataGeneratorPreviousButtonClicked = (): CollectionThunkAction<
+  void,
+  MockDataGeneratorPreviousButtonClickedAction
+> => {
+  return (dispatch, _getState, { fakerSchemaGenerationAbortControllerRef }) => {
+    fakerSchemaGenerationAbortControllerRef.current?.abort();
+    dispatch({
+      type: CollectionActions.MockDataGeneratorPreviousButtonClicked,
+    });
   };
+};
 
 export const selectTab = (
   tabName: CollectionSubtab
@@ -582,13 +612,19 @@ export const analyzeCollectionSchema = (): CollectionThunkAction<
   };
 };
 
-export const generateFakerMappings = (
-  connectionInfo: ConnectionInfo
-): CollectionThunkAction<Promise<void>> => {
+export const generateFakerMappings = (): CollectionThunkAction<
+  Promise<void>
+> => {
   return async (
     dispatch,
     getState,
-    { logger, atlasAiService, preferences }
+    {
+      logger,
+      atlasAiService,
+      preferences,
+      connectionInfoRef,
+      fakerSchemaGenerationAbortControllerRef,
+    }
   ) => {
     const { schemaAnalysis, fakerSchemaGeneration, namespace } = getState();
     if (schemaAnalysis.status !== SCHEMA_ANALYSIS_STATE_COMPLETE) {
@@ -607,11 +643,10 @@ export const generateFakerMappings = (
       return;
     }
 
+    const requestId = new UUID().toString();
+
     const includeSampleValues =
       preferences.getPreferences().enableGenAISampleDocumentPassing;
-
-    // todo: dedup/abort requests using requestId (CLOUDP-333850)
-    const requestId = new UUID().toString();
 
     try {
       logger.debug('Generating faker mappings');
@@ -623,6 +658,11 @@ export const generateFakerMappings = (
         requestId: requestId,
       });
 
+      fakerSchemaGenerationAbortControllerRef.current?.abort();
+      fakerSchemaGenerationAbortControllerRef.current = new AbortController();
+      const abortSignal =
+        fakerSchemaGenerationAbortControllerRef.current.signal;
+
       const mockDataSchemaRequest: MockDataSchemaRequest = {
         databaseName: database,
         collectionName: collection,
@@ -630,18 +670,26 @@ export const generateFakerMappings = (
         validationRules: schemaAnalysis.schemaMetadata.validationRules,
         includeSampleValues,
         requestId,
+        signal: abortSignal,
       };
 
       const response = await atlasAiService.getMockDataSchema(
         mockDataSchemaRequest,
-        connectionInfo
+        connectionInfoRef.current
       );
+
+      fakerSchemaGenerationAbortControllerRef.current = undefined;
       dispatch({
         type: CollectionActions.FakerMappingGenerationCompleted,
         fakerSchema: response,
         requestId: requestId,
       });
     } catch (e) {
+      if (isCancelError(e)) {
+        // abort errors should not produce error logs
+        return;
+      }
+
       const errorMessage = e instanceof Error ? e.stack : String(e);
 
       logger.log.error(

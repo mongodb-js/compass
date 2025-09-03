@@ -78,6 +78,9 @@ export function activatePlugin(
     );
   }
 
+  const fakerSchemaGenerationAbortControllerRef = {
+    current: undefined,
+  };
   const store = createStore(
     reducer,
     {
@@ -103,8 +106,10 @@ export function activatePlugin(
         workspaces,
         localAppRegistry,
         experimentationServices,
+        connectionInfoRef,
         logger,
         preferences,
+        fakerSchemaGenerationAbortControllerRef,
       })
     )
   );

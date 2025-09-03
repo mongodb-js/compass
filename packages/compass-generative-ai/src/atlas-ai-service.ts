@@ -228,6 +228,7 @@ export interface MockDataSchemaRequest {
   validationRules?: Record<string, unknown> | null;
   includeSampleValues?: boolean;
   requestId: string;
+  signal: AbortSignal;
 }
 
 export const MockDataSchemaResponseShape = z.object({
@@ -489,6 +490,7 @@ export class AtlasAiService {
         'Content-Type': 'application/json',
         Accept: 'application/json',
       },
+      signal: input.signal,
     });
 
     try {
