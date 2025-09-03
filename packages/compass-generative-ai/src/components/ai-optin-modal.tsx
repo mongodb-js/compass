@@ -47,12 +47,23 @@ const bodyDarkThemeStyles = css({
   color: palette.gray.light2,
 });
 
-const disclaimerStyles = css({
-  color: palette.gray.dark1,
+const disclaimerStylesCommon = {
   marginTop: spacing[400],
   marginLeft: spacing[800],
   marginRight: spacing[800],
-});
+  textAlign: 'center',
+};
+
+const disclaimerStyles = {
+  [Theme.Light]: css({
+    color: palette.gray.dark1,
+    ...disclaimerStylesCommon,
+  }),
+  [Theme.Dark]: css({
+    color: palette.gray.light2,
+    ...disclaimerStylesCommon,
+  }),
+};
 
 const bannerStyles = css({
   width: '480px',
@@ -203,13 +214,14 @@ export const AIOptInModal: React.FunctionComponent<OptInModalProps> = ({
       onLinkClick={onOptInModalClose}
       graphic={<AiImageBanner />}
       disclaimer={
-        <div className={disclaimerStyles}>
-          This is a feature powered by generative AI, and may give inaccurate
-          responses. Please see our{' '}
+        <div className={disclaimerStyles[darkMode ? Theme.Dark : Theme.Light]}>
+          Features in {isCloudOptIn ? 'Data Explorer' : 'Compass'} powered by
+          generative AI may produce inaccurate responses. Please see our{' '}
           <Link hideExternalIcon={false} href={GEN_AI_FAQ_LINK} target="_blank">
             FAQ
           </Link>{' '}
-          for more information.
+          for more information. Continue to opt into all AI-powered features
+          within {isCloudOptIn ? 'Data Explorer' : 'Compass'}.
         </div>
       }
     >
