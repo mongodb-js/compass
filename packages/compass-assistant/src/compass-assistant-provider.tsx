@@ -207,7 +207,7 @@ export const AssistantProvider: React.FunctionComponent<
       // place to do tracking.
       callback();
 
-      await chat.sendMessage(message);
+      await chat.sendMessage(message, options);
     },
   });
 
