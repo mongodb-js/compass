@@ -1,4 +1,4 @@
-import React, { useContext, useRef, useEffect } from 'react';
+import React, { useContext, useEffect, useRef } from 'react';
 import type { AllPreferences } from 'compass-preferences-model/provider';
 import { CompassWebPreferencesAccess } from 'compass-preferences-model/provider';
 
@@ -49,6 +49,7 @@ export function useCompassWebPreferences(
       enablePerformanceAdvisorBanner: true,
       cloudFeatureRolloutAccess: {
         GEN_AI_COMPASS: false,
+        MY_QUERIES_DATA_EXPLORER: true, // Enabled for testing implementation
       },
       maximumNumberOfActiveConnections: 10,
       trackUsageStatistics: true,
