@@ -21,7 +21,7 @@ module.exports = {
     'eslint-plugin-react',
     'eslint-plugin-react-hooks',
   ],
-  typescript: ['typescript', 'ts-node'],
+  typescript: ['@microsoft/api-extractor', 'typescript', 'ts-node'],
   leafygreen: [
     '@emotion/*',
     '@leafygreen-ui/*',
@@ -32,6 +32,5 @@ module.exports = {
   // TODO(COMPASS-9443): Update update-* github actions to handle all groups as
   // a matrix inside one action instead of having separate action for every
   // group and add more groups following the ones in _dependabot
-  // mongosh: [],
   // 'devtools-shared-prod': [],
 };
