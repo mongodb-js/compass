@@ -134,7 +134,7 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
         )
       : true;
   const pipelineNotSearchQueryableDescription =
-    'Search indexes can only be created on  views containing $addFields, $set or $match stages with the $expr operator.';
+    'Search indexes can only be created on views containing $match stages with the $expr operator, $addFields, or $set';
   return (
     <div
       className={indexesToolbarContainerStyles}
