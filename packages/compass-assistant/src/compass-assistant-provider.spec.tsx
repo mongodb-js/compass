@@ -481,6 +481,7 @@ describe('CompassAssistantProvider', function () {
         ensureAiFeatureAccess: sinon.stub().callsFake(() => {
           return Promise.resolve();
         }),
+        getAppNameForPrompt: sinon.stub().returns('MongoDB Compass'),
       };
 
       const mockAtlasAuthService = {};
