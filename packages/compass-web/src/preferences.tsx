@@ -47,9 +47,9 @@ export function useCompassWebPreferences(
       enableGenAISampleDocumentPassingOnAtlasProject: false,
       enableGenAIFeaturesAtlasOrg: false,
       enablePerformanceAdvisorBanner: true,
+      enableMyQueries: false, // Default disabled for local development
       cloudFeatureRolloutAccess: {
         GEN_AI_COMPASS: false,
-        MY_QUERIES_DATA_EXPLORER: false,
       },
       maximumNumberOfActiveConnections: 10,
       trackUsageStatistics: true,

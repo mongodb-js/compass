@@ -1,10 +1,10 @@
 import React, { useCallback, useLayoutEffect, useRef } from 'react';
 import ReactDOM from 'react-dom';
 import {
-  resetGlobalCSS,
-  css,
   Body,
+  css,
   openToast,
+  resetGlobalCSS,
 } from '@mongodb-js/compass-components';
 import type { AllPreferences } from 'compass-preferences-model';
 import { CompassWeb } from '../src/index';
@@ -137,8 +137,9 @@ const App = () => {
                 isAtlas && !!enableGenAIFeaturesAtlasOrg,
               optInGenAIFeatures: isAtlas && !!optInGenAIFeatures,
               enableDataModeling: true,
+              enableMyQueries: true,
               cloudFeatureRolloutAccess: {
-                MY_QUERIES_DATA_EXPLORER: false, // Disabled by default
+                GEN_AI_COMPASS: true,
               },
             }}
             onTrack={sandboxTelemetry.track}
