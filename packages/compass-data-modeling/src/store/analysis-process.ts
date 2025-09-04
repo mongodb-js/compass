@@ -7,7 +7,7 @@ import type { Document } from 'bson';
 import type { AggregationCursor } from 'mongodb';
 import type { Relationship } from '../services/data-model-storage';
 import { applyLayout } from '@mongodb-js/diagramming';
-import { collectionToDiagramNode } from '../utils/nodes-and-edges';
+import { collectionToBaseNodeForLayout } from '../utils/nodes-and-edges';
 
 export type AnalysisProcessState = {
   currentAnalysisOptions:
@@ -207,13 +207,13 @@ export function startAnalysis(
       }
 
       const positioned = await applyLayout(
-        collections.map((coll) => {
-          return collectionToDiagramNode({
+        collections.map((coll) =>
+          collectionToBaseNodeForLayout({
             ns: coll.ns,
             jsonSchema: coll.schema,
             displayPosition: [0, 0],
-          });
-        }),
+          })
+        ),
         [],
         'LEFT_RIGHT'
       );

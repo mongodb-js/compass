@@ -150,6 +150,32 @@ describe('CompassConnections store', function () {
       }
     });
 
+    it('should show debug action in addition to review if connection fails and the assistant is enabled', async function () {
+      const { connectionsStore } = renderCompassConnections({
+        preferences: {
+          enableAIAssistant: true,
+          enableGenAIFeatures: true,
+          enableGenAIFeaturesAtlasOrg: true,
+          cloudFeatureRolloutAccess: { GEN_AI_COMPASS: true },
+        },
+        connectFn: sinon
+          .stub()
+          .rejects(new Error('Failed to connect to cluster')),
+      });
+
+      const connectionInfo = createDefaultConnectionInfo();
+
+      void connectionsStore.actions.connect(connectionInfo);
+
+      await waitFor(() => {
+        expect(screen.getByText('Failed to connect to cluster')).to.exist;
+      });
+
+      await waitFor(() => {
+        expect(screen.getByText('Debug for me')).to.exist;
+      });
+    });
+
     it('should show non-genuine modal at the end of connection if non genuine mongodb detected', async function () {
       const { connectionsStore } = renderCompassConnections({});
 

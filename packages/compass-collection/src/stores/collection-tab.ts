@@ -8,6 +8,8 @@ import reducer, {
   collectionMetadataFetched,
   analyzeCollectionSchema,
 } from '../modules/collection-tab';
+import { MockDataGeneratorStep } from '../components/mock-data-generator-modal/types';
+
 import type { Collection } from '@mongodb-js/compass-app-stores/provider';
 import type { ActivateHelpers } from '@mongodb-js/compass-app-registry';
 import type { workspacesServiceLocator } from '@mongodb-js/compass-workspaces/provider';
@@ -20,6 +22,7 @@ import {
 } from 'compass-preferences-model/provider';
 import { ExperimentTestName } from '@mongodb-js/compass-telemetry/provider';
 import { SCHEMA_ANALYSIS_STATE_INITIAL } from '../schema-analysis-types';
+import type { AtlasAiService } from '@mongodb-js/compass-generative-ai/provider';
 
 export type CollectionTabOptions = {
   /**
@@ -46,6 +49,7 @@ export type CollectionTabServices = {
   connectionInfoRef: ReturnType<typeof connectionInfoRefLocator>;
   logger: Logger;
   preferences: PreferencesAccess;
+  atlasAiService: AtlasAiService;
 };
 
 export function activatePlugin(
@@ -65,6 +69,7 @@ export function activatePlugin(
     connectionInfoRef,
     logger,
     preferences,
+    atlasAiService,
   } = services;
 
   if (!collectionModel) {
@@ -83,6 +88,10 @@ export function activatePlugin(
       schemaAnalysis: {
         status: SCHEMA_ANALYSIS_STATE_INITIAL,
       },
+      mockDataGenerator: {
+        isModalOpen: false,
+        currentStep: MockDataGeneratorStep.SCHEMA_CONFIRMATION,
+      },
     },
     applyMiddleware(
       thunk.withExtraArgument({
@@ -92,6 +101,7 @@ export function activatePlugin(
         experimentationServices,
         logger,
         preferences,
+        atlasAiService,
       })
     )
   );

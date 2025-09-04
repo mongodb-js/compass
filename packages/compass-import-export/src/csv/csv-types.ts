@@ -13,10 +13,10 @@ import type {
 } from 'bson';
 
 export const supportedDelimiters = [',', '\t', ';', ' '] as const;
-export type Delimiter = typeof supportedDelimiters[number];
+export type Delimiter = (typeof supportedDelimiters)[number];
 
 export const supportedLinebreaks = ['\r\n', '\n'] as const;
-export type Linebreak = typeof supportedLinebreaks[number];
+export type Linebreak = (typeof supportedLinebreaks)[number];
 
 // the subset of bson types that we can detect
 export const detectableFieldTypes = [
@@ -39,7 +39,7 @@ export const detectableFieldTypes = [
   'ejson',
   'null',
 ] as const;
-export type CSVDetectableFieldType = typeof detectableFieldTypes[number];
+export type CSVDetectableFieldType = (typeof detectableFieldTypes)[number];
 
 // NOTE: 'undefined' exists internally for ignored empty strings, but it is
 // deprecated as a bson type so we can't actually parse it, so it is left out of
@@ -55,7 +55,7 @@ export const parsableFieldTypes = [
   'number', // like 'mixed', but for use when everything is an int, long or double.
   'mixed',
 ] as const;
-export type CSVParsableFieldType = typeof parsableFieldTypes[number];
+export type CSVParsableFieldType = (typeof parsableFieldTypes)[number];
 
 export const CSVFieldTypeLabels: Record<CSVParsableFieldType, string> = {
   int: 'Int32',

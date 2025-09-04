@@ -27,6 +27,7 @@ import {
   useIsAIFeatureEnabled,
 } from 'compass-preferences-model/provider';
 import { showInput as showAIInput } from '../../../modules/pipeline-builder/pipeline-ai';
+import { useAssistantActions } from '@mongodb-js/compass-assistant';
 
 const containerStyles = css({
   display: 'flex',
@@ -59,6 +60,8 @@ type PipelineActionsProps = {
 
   showCollectionScanInsight?: boolean;
   onCollectionScanInsightActionButtonClick: () => void;
+
+  stages: string[];
 };
 
 export const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
@@ -80,12 +83,14 @@ export const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
   onExplainAggregation,
   showCollectionScanInsight,
   onCollectionScanInsightActionButtonClick,
+  stages,
 }) => {
   const enableAggregationBuilderExtraOptions = usePreference(
     'enableAggregationBuilderExtraOptions'
   );
   const showInsights = usePreference('showInsights');
   const isAIFeatureEnabled = useIsAIFeatureEnabled();
+  const { tellMoreAboutInsight } = useAssistantActions();
 
   return (
     <div className={containerStyles}>
@@ -99,6 +104,14 @@ export const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
               ...PerformanceSignals.get('aggregation-executed-without-index'),
               onPrimaryActionButtonClick:
                 onCollectionScanInsightActionButtonClick,
+              onAssistantButtonClick:
+                tellMoreAboutInsight &&
+                (() => {
+                  tellMoreAboutInsight({
+                    id: 'aggregation-executed-without-index',
+                    stages,
+                  });
+                }),
             }}
           ></SignalPopover>
         </div>
@@ -185,6 +198,7 @@ const mapState = (state: RootState) => {
     isUpdateViewButtonDisabled:
       !state.isModified || hasSyntaxErrors || isAIFetching,
     showCollectionScanInsight: state.insights.isCollectionScan,
+    stages: resultPipeline,
   };
 };
 

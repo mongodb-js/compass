@@ -8,6 +8,8 @@ import {
   redoEdit,
   undoEdit,
   selectFieldsForCurrentModel,
+  addCollection,
+  renameCollection,
 } from './diagram';
 import type {
   Edit,
@@ -19,14 +21,14 @@ import { UUID } from 'bson';
 const model: StaticModel = {
   collections: [
     {
-      ns: 'collection1',
+      ns: 'db.collection1',
       indexes: [],
       displayPosition: [0, 0],
       shardKey: {},
       jsonSchema: { bsonType: 'object' },
     },
     {
-      ns: 'collection2',
+      ns: 'db.collection2',
       indexes: [],
       displayPosition: [1, 1],
       shardKey: {},
@@ -77,12 +79,12 @@ describe('Data Modeling store', function () {
         connectionId: 'connection-id',
         collections: [
           {
-            ns: 'collection1',
+            ns: 'db.collection1',
             schema: model.collections[0].jsonSchema,
             position: { x: 0, y: 0 },
           },
           {
-            ns: 'collection2',
+            ns: 'db.collection2',
             schema: model.collections[1].jsonSchema,
             position: { x: 0, y: 0 },
           },
@@ -140,7 +142,7 @@ describe('Data Modeling store', function () {
         model: {
           collections: [
             {
-              ns: 'collection2',
+              ns: 'db.collection2',
               indexes: [],
               displayPosition: [0, 0],
               shardKey: {},
@@ -221,6 +223,118 @@ describe('Data Modeling store', function () {
       );
       const diagram = getCurrentDiagramFromState(store.getState());
       expect(diagram.edits).to.deep.equal(loadedDiagram.edits);
+    });
+
+    it('should handle the collection creation flow', function () {
+      store.dispatch(openDiagram(loadedDiagram));
+
+      // start creating a new collection
+      store.dispatch(addCollection());
+
+      // the new collection is in the diagram
+      const diagramAtCreation = getCurrentDiagramFromState(store.getState());
+      expect(diagramAtCreation.edits).to.have.length(2);
+      const firstAddCollectionEdit = diagramAtCreation.edits[1] as Extract<
+        Edit,
+        { type: 'AddCollection' }
+      >;
+      const firstCollectionDraftName = 'db.new-collection';
+      expect(firstAddCollectionEdit.type).to.equal('AddCollection');
+      expect(firstAddCollectionEdit.ns).to.equal(firstCollectionDraftName);
+      expect(firstAddCollectionEdit.initialSchema).to.deep.equal({
+        bsonType: 'object',
+        properties: {
+          _id: {
+            bsonType: 'objectId',
+          },
+        },
+        required: ['_id'],
+      });
+
+      // the selection changes to the new collection
+      const selectedItems = store.getState().diagram?.selectedItems;
+      expect(selectedItems).to.deep.equal({
+        type: 'collection',
+        id: firstCollectionDraftName,
+      });
+
+      // name the new collection
+      const newCollectionNs = 'db.myCollection';
+      store.dispatch(
+        renameCollection(firstCollectionDraftName, newCollectionNs)
+      );
+
+      // now the collection is added to the edit history
+      const diagramAfterCreation = getCurrentDiagramFromState(store.getState());
+      expect(diagramAfterCreation.edits).to.have.length(2);
+      expect(diagramAfterCreation.edits[0]).to.deep.equal(
+        loadedDiagram.edits[0]
+      );
+      const addCollectionEdit = diagramAfterCreation.edits[1] as Extract<
+        Edit,
+        { type: 'AddCollection' }
+      >;
+      expect(addCollectionEdit.type).to.equal('AddCollection');
+      expect(addCollectionEdit.ns).to.equal(newCollectionNs);
+      expect(addCollectionEdit.initialSchema).to.deep.equal({
+        bsonType: 'object',
+        properties: {
+          _id: {
+            bsonType: 'objectId',
+          },
+        },
+        required: ['_id'],
+      });
+
+      // and it is selected
+      const selectedItemsAfterCreation =
+        store.getState().diagram?.selectedItems;
+      expect(selectedItemsAfterCreation).to.deep.equal({
+        type: 'collection',
+        id: newCollectionNs,
+      });
+    });
+
+    it('should iterate the names for new collections', function () {
+      store.dispatch(openDiagram(loadedDiagram));
+
+      // start creating a new collection
+      store.dispatch(addCollection());
+
+      // creates the first collection and makes it selected
+      const firstCollectionDraftName = 'db.new-collection';
+      const diagram1 = getCurrentDiagramFromState(store.getState());
+      expect(diagram1.edits).to.have.length(2);
+      const firstAddCollectionEdit = diagram1.edits[1] as Extract<
+        Edit,
+        { type: 'AddCollection' }
+      >;
+      expect(firstAddCollectionEdit.type).to.equal('AddCollection');
+      expect(firstAddCollectionEdit.ns).to.equal(firstCollectionDraftName);
+      const selectedItems1 = store.getState().diagram?.selectedItems;
+      expect(selectedItems1).to.deep.equal({
+        type: 'collection',
+        id: firstCollectionDraftName,
+      });
+
+      // start creating another new collection
+      store.dispatch(addCollection());
+
+      // creates the second collection and makes it selected
+      const secondCollectionDraftName = 'db.new-collection-1';
+      const diagramAtCreation = getCurrentDiagramFromState(store.getState());
+      expect(diagramAtCreation.edits).to.have.length(3);
+      const secondAddCollectionEdit = diagramAtCreation.edits[2] as Extract<
+        Edit,
+        { type: 'AddCollection' }
+      >;
+      expect(secondAddCollectionEdit.type).to.equal('AddCollection');
+      expect(secondAddCollectionEdit.ns).to.equal(secondCollectionDraftName);
+      const selectedItems2 = store.getState().diagram?.selectedItems;
+      expect(selectedItems2).to.deep.equal({
+        type: 'collection',
+        id: secondCollectionDraftName,
+      });
     });
 
     it('should apply a valid MoveCollection edit', function () {
@@ -307,7 +421,7 @@ describe('Data Modeling store', function () {
           model: {
             collections: [
               {
-                ns: 'collection1',
+                ns: 'db.collection1',
                 indexes: [],
                 displayPosition: [0, 0],
                 shardKey: {},
@@ -328,7 +442,7 @@ describe('Data Modeling store', function () {
       const selectedFields = selectFieldsForCurrentModel(edits);
 
       expect(selectedFields).to.deep.equal({
-        collection1: [['field1'], ['field2'], ['field3']],
+        'db.collection1': [['field1'], ['field2'], ['field3']],
       });
     });
 
@@ -341,7 +455,7 @@ describe('Data Modeling store', function () {
           model: {
             collections: [
               {
-                ns: 'collection1',
+                ns: 'db.collection1',
                 indexes: [],
                 displayPosition: [0, 0],
                 shardKey: {},
@@ -417,29 +531,46 @@ describe('Data Modeling store', function () {
         },
       ];
       const selectedFields = selectFieldsForCurrentModel(edits);
-
-      expect(selectedFields).to.have.property('collection1');
-      expect(selectedFields.collection1).to.deep.include(['prop1']);
-      expect(selectedFields.collection1).to.deep.include(['prop2']);
-      expect(selectedFields.collection1).to.deep.include(['prop2', 'prop2A']);
-      expect(selectedFields.collection1).to.deep.include([
+      expect(selectedFields).to.have.property('db.collection1');
+      expect(selectedFields['db.collection1']).to.deep.include(['prop1']);
+      expect(selectedFields['db.collection1']).to.deep.include(['prop2']);
+      expect(selectedFields['db.collection1']).to.deep.include([
+        'prop2',
+        'prop2A',
+      ]);
+      expect(selectedFields['db.collection1']).to.deep.include([
         'prop2',
         'prop2B',
         'prop2B1',
       ]);
-      expect(selectedFields.collection1).to.deep.include([
+      expect(selectedFields['db.collection1']).to.deep.include([
         'prop2',
         'prop2B',
         'prop2B2',
       ]);
-      expect(selectedFields.collection1).to.deep.include(['prop3']);
-      expect(selectedFields.collection1).to.deep.include(['prop3', 'prop3A']);
-      expect(selectedFields.collection1).to.deep.include(['prop4']);
-      expect(selectedFields.collection1).to.deep.include(['prop4', 'prop4A']);
-      expect(selectedFields.collection1).to.deep.include(['prop4', 'prop4B']);
-      expect(selectedFields.collection1).to.deep.include(['prop5']);
-      expect(selectedFields.collection1).to.deep.include(['prop5', 'prop5A']);
-      expect(selectedFields.collection1).to.deep.include(['prop5', 'prop5B']);
+      expect(selectedFields['db.collection1']).to.deep.include(['prop3']);
+      expect(selectedFields['db.collection1']).to.deep.include([
+        'prop3',
+        'prop3A',
+      ]);
+      expect(selectedFields['db.collection1']).to.deep.include(['prop4']);
+      expect(selectedFields['db.collection1']).to.deep.include([
+        'prop4',
+        'prop4A',
+      ]);
+      expect(selectedFields['db.collection1']).to.deep.include([
+        'prop4',
+        'prop4B',
+      ]);
+      expect(selectedFields['db.collection1']).to.deep.include(['prop5']);
+      expect(selectedFields['db.collection1']).to.deep.include([
+        'prop5',
+        'prop5A',
+      ]);
+      expect(selectedFields['db.collection1']).to.deep.include([
+        'prop5',
+        'prop5B',
+      ]);
     });
   });
 });

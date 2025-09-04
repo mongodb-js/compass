@@ -9,9 +9,13 @@ import type { ConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import type { Document } from 'mongodb';
 import type { Logger } from '@mongodb-js/compass-logging';
 import { EJSON } from 'bson';
+import { z } from 'zod';
 import { getStore } from './store/atlas-ai-store';
 import { optIntoGenAIWithModalPrompt } from './store/atlas-optin-reducer';
-import { signIntoAtlasWithModalPrompt } from './store/atlas-signin-reducer';
+import {
+  AtlasAiServiceInvalidInputError,
+  AtlasAiServiceApiResponseParseError,
+} from './atlas-ai-errors';
 
 type GenerativeAiInput = {
   userInput: string;
@@ -197,16 +201,66 @@ const aiURLConfig = {
   // There are two different sets of endpoints we use for our requests.
   // Down the line we'd like to only use the admin api, however,
   // we cannot currently call that from the Atlas UI. Pending CLOUDP-251201
+  // NOTE: The unauthenticated endpoints are also rate limited by IP address
+  // rather than by logged in user.
   'admin-api': {
-    aggregation: 'ai/api/v1/mql-aggregation',
-    query: 'ai/api/v1/mql-query',
+    aggregation: 'unauth/ai/api/v1/mql-aggregation',
+    query: 'unauth/ai/api/v1/mql-query',
   },
   cloud: {
     aggregation: (groupId: string) => `ai/v1/groups/${groupId}/mql-aggregation`,
     query: (groupId: string) => `ai/v1/groups/${groupId}/mql-query`,
+    'mock-data-schema': (groupId: string) =>
+      `ai/v1/groups/${groupId}/mock-data-schema`,
   },
 } as const;
-type AIEndpoint = 'query' | 'aggregation';
+
+export interface MockDataSchemaRawField {
+  type: string;
+  sampleValues?: unknown[];
+  probability?: number;
+}
+
+export interface MockDataSchemaRequest {
+  collectionName: string;
+  databaseName: string;
+  schema: Record<string, MockDataSchemaRawField>;
+  validationRules?: Record<string, unknown> | null;
+  includeSampleValues?: boolean;
+}
+
+export const MockDataSchemaResponseShape = z.object({
+  content: z.object({
+    fields: z.array(
+      z.object({
+        fieldPath: z.string(),
+        mongoType: z.string(),
+        fakerMethod: z.string(),
+        fakerArgs: z.array(
+          z.union([
+            z.object({
+              json: z.string(),
+            }),
+            z.string(),
+            z.number(),
+            z.boolean(),
+          ])
+        ),
+        isArray: z.boolean(),
+        probability: z.number(),
+      })
+    ),
+  }),
+});
+
+export type MockDataSchemaResponse = z.infer<
+  typeof MockDataSchemaResponseShape
+>;
+
+/**
+ * The type of resource from the natural language query REST API
+ */
+type AIResourceType = 'query' | 'aggregation' | 'mock-data-schema';
 
 export class AtlasAiService {
   private initPromise: Promise<void> | null = null;
@@ -235,28 +289,38 @@ export class AtlasAiService {
     this.initPromise = this.setupAIAccess();
   }
 
+  /**
+   * @throws {AtlasAiServiceInvalidInputError} when given invalid arguments
+   */
   private getUrlForEndpoint(
-    urlId: AIEndpoint,
+    resourceType: AIResourceType,
     connectionInfo?: ConnectionInfo
   ) {
     if (this.apiURLPreset === 'cloud') {
       const atlasMetadata = connectionInfo?.atlasMetadata;
       if (!atlasMetadata) {
-        throw new Error(
+        throw new AtlasAiServiceInvalidInputError(
           "Can't perform generative ai request: atlasMetadata is not available"
         );
       }
 
       return this.atlasService.cloudEndpoint(
-        aiURLConfig[this.apiURLPreset][urlId](atlasMetadata.projectId)
+        aiURLConfig[this.apiURLPreset][resourceType](atlasMetadata.projectId)
       );
     }
-    const urlPath = aiURLConfig[this.apiURLPreset][urlId];
+
+    if (resourceType === 'mock-data-schema') {
+      throw new AtlasAiServiceInvalidInputError(
+        "Can't perform generative ai request: mock-data-schema is not available for admin-api"
+      );
+    }
+
+    const urlPath = aiURLConfig[this.apiURLPreset][resourceType];
     return this.atlasService.adminApiEndpoint(urlPath);
   }
 
   private throwIfAINotEnabled() {
-    if (process.env.COMPASS_E2E_SKIP_ATLAS_SIGNIN === 'true') {
+    if (process.env.COMPASS_E2E_SKIP_AI_OPT_IN === 'true') {
       return;
     }
     if (!isAIFeatureEnabled(this.preferences.getPreferences())) {
@@ -277,17 +341,12 @@ export class AtlasAiService {
   }
 
   async ensureAiFeatureAccess({ signal }: { signal?: AbortSignal } = {}) {
-    if (this.preferences.getPreferences().enableUnauthenticatedGenAI) {
-      return getStore().dispatch(optIntoGenAIWithModalPrompt({ signal }));
-    }
-
-    // When the ai feature is attempted to be opened we make sure
-    // the user is signed into Atlas and opted in.
-
-    if (this.apiURLPreset === 'cloud') {
-      return getStore().dispatch(optIntoGenAIWithModalPrompt({ signal }));
-    }
-    return getStore().dispatch(signIntoAtlasWithModalPrompt({ signal }));
+    return getStore().dispatch(
+      optIntoGenAIWithModalPrompt({
+        signal,
+        isCloudOptIn: this.apiURLPreset === 'cloud',
+      })
+    );
   }
 
   private getQueryOrAggregationFromUserInput = async <T>(
@@ -393,6 +452,59 @@ export class AtlasAiService {
       },
       validateAIQueryResponse
     );
+  }
+
+  async getMockDataSchema(
+    input: MockDataSchemaRequest,
+    connectionInfo: ConnectionInfo
+  ): Promise<MockDataSchemaResponse> {
+    const { collectionName, databaseName } = input;
+    let schema = input.schema;
+
+    const url = this.getUrlForEndpoint('mock-data-schema', connectionInfo);
+
+    if (!input.includeSampleValues) {
+      const newSchema: Record<
+        string,
+        Omit<MockDataSchemaRawField, 'sampleValues'>
+      > = {};
+      for (const [k, v] of Object.entries(schema)) {
+        newSchema[k] = { type: v.type, probability: v.probability };
+      }
+      schema = newSchema;
+    }
+
+    const res = await this.atlasService.authenticatedFetch(url, {
+      method: 'POST',
+      body: JSON.stringify({
+        collectionName,
+        databaseName,
+        schema,
+      }),
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+    });
+
+    try {
+      const data = await res.json();
+      return MockDataSchemaResponseShape.parse(data);
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.stack : String(err);
+      this.logger.log.error(
+        this.logger.mongoLogId(1_001_000_311),
+        'AtlasAiService',
+        'Failed to parse mock data schema response with expected schema',
+        {
+          namespace: `${databaseName}.${collectionName}`,
+          message: errorMessage,
+        }
+      );
+      throw new AtlasAiServiceApiResponseParseError(
+        'Response does not match expected schema'
+      );
+    }
   }
 
   async optIntoGenAIFeatures() {
