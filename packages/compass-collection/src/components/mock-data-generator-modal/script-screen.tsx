@@ -91,8 +91,8 @@ const ScriptScreen = () => {
           1. Create a .js file with the following script
         </Body>
         <Body className={sectionInstructionStyles}>
-          In the directory that you created, create a file
-          named mockdatascript.js (or any name you’d like).
+          In the directory that you created, create a file named
+          mockdatascript.js (or any name you&apos;d like).
         </Body>
         {/* TODO: Fill in with real code */}
         <Code copyable language={Language.JavaScript}>
