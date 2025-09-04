@@ -88,7 +88,7 @@ Tell the user if indexes need to be created or modified to enable any recommenda
 </guidelines>
 <input>
 ${explainPlan}
-</explain-plan>`,
+</input>`,
     displayText: 'Interpret this explain plan output for me.',
   };
 };
