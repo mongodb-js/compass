@@ -17,7 +17,7 @@ import {
 import { Link } from '@mongodb-js/compass-components';
 
 export const THEMES_VALUES = ['DARK', 'LIGHT', 'OS_THEME'] as const;
-export type THEMES = typeof THEMES_VALUES[number];
+export type THEMES = (typeof THEMES_VALUES)[number];
 
 const enableDbAndCollStatsDescription: React.ReactNode = (
   <>
@@ -41,7 +41,7 @@ export const SORT_ORDER_VALUES = [
   '{ _id: 1 }',
   '{ _id: -1 }',
 ] as const;
-export type SORT_ORDERS = typeof SORT_ORDER_VALUES[number];
+export type SORT_ORDERS = (typeof SORT_ORDER_VALUES)[number];
 
 export type PermanentFeatureFlags = {
   showDevFeatureFlags?: boolean;
@@ -112,7 +112,6 @@ export type InternalUserPreferences = {
   id: string;
   cloudFeatureRolloutAccess?: {
     GEN_AI_COMPASS?: boolean;
-    MY_QUERIES_DATA_EXPLORER?: boolean;
   };
   lastKnownVersion: string;
   highestInstalledVersion?: string;
@@ -471,7 +470,6 @@ export const storedUserPreferencesProps: Required<{
     validator: z
       .object({
         GEN_AI_COMPASS: z.boolean().optional(),
-        MY_QUERIES_DATA_EXPLORER: z.boolean().optional(),
       })
       .optional(),
     type: 'object',
@@ -1262,7 +1260,7 @@ export function getPreferencesValidator() {
       validator,
     ])
   ) as {
-    [K in keyof typeof storedUserPreferencesProps]: typeof storedUserPreferencesProps[K]['validator'];
+    [K in keyof typeof storedUserPreferencesProps]: (typeof storedUserPreferencesProps)[K]['validator'];
   };
 
   return z.object(preferencesPropsValidator);

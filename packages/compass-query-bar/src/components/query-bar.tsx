@@ -205,9 +205,7 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
 
   const favoriteQueryStorageAvailable = !!useFavoriteQueryStorageAccess();
   const recentQueryStorageAvailable = !!useRecentQueryStorageAccess();
-  const cloudFeatureRolloutAccess = usePreference('cloudFeatureRolloutAccess');
-  const isMyQueriesEnabled =
-    cloudFeatureRolloutAccess?.MY_QUERIES_DATA_EXPLORER ?? false;
+  const isMyQueriesEnabled = usePreference('enableMyQueries');
   const enableSavedAggregationsQueries =
     favoriteQueryStorageAvailable &&
     recentQueryStorageAvailable &&

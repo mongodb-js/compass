@@ -102,9 +102,7 @@ export function Navigation({
   const { openMyQueriesWorkspace, openDataModelingWorkspace } =
     useOpenWorkspace();
   const isDataModelingEnabled = usePreference('enableDataModeling');
-  const cloudFeatureRolloutAccess = usePreference('cloudFeatureRolloutAccess');
-  const isMyQueriesEnabled =
-    cloudFeatureRolloutAccess?.MY_QUERIES_DATA_EXPLORER ?? false;
+  const isMyQueriesEnabled = usePreference('enableMyQueries');
   return (
     <div>
       {hasWorkspacePlugin('My Queries') && isMyQueriesEnabled && (
