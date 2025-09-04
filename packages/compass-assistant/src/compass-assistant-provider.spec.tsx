@@ -178,6 +178,24 @@ describe('useAssistantActions', function () {
     expect(Object.keys(result.current)).to.have.length.greaterThan(0);
     expect(result.current.interpretExplainPlan).to.be.a('function');
     expect(result.current.interpretConnectionError).to.be.a('function');
+    expect(result.current.tellMoreAboutInsight).to.be.undefined;
+  });
+
+  it('returns actions when both AI features and assistant flag AND enablePerformanceInsightsEntrypoints are enabled', function () {
+    const { result } = renderHook(() => useAssistantActions(), {
+      wrapper: createWrapper(createMockChat({ messages: [] })),
+      preferences: {
+        enableAIAssistant: true,
+        enablePerformanceInsightsEntrypoints: true,
+        enableGenAIFeatures: true,
+        enableGenAIFeaturesAtlasOrg: true,
+        cloudFeatureRolloutAccess: { GEN_AI_COMPASS: true },
+      },
+    });
+
+    expect(Object.keys(result.current)).to.have.length.greaterThan(0);
+    expect(result.current.interpretExplainPlan).to.be.a('function');
+    expect(result.current.interpretConnectionError).to.be.a('function');
     expect(result.current.tellMoreAboutInsight).to.be.a('function');
   });
 });
