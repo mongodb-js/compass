@@ -65,6 +65,7 @@ type CollectionHeaderProps = {
   sourcePipeline?: unknown[];
   onOpenMockDataModal: () => void;
   hasData: boolean;
+  maxNestingDepth: number;
 };
 
 const getInsightsForPipeline = (pipeline: any[], isAtlas: boolean) => {
@@ -101,6 +102,7 @@ const CollectionHeader: React.FunctionComponent<CollectionHeaderProps> = ({
   sourcePipeline,
   onOpenMockDataModal,
   hasData,
+  maxNestingDepth,
 }) => {
   const darkMode = useDarkMode();
   const showInsights = usePreference('showInsights');
@@ -179,6 +181,7 @@ const CollectionHeader: React.FunctionComponent<CollectionHeaderProps> = ({
           sourcePipeline={sourcePipeline}
           onOpenMockDataModal={onOpenMockDataModal}
           hasData={hasData}
+          maxNestingDepth={maxNestingDepth}
         />
       </div>
       <MockDataGeneratorModal />
@@ -194,6 +197,11 @@ const mapStateToProps = (state: CollectionState) => {
       schemaAnalysis.status === SCHEMA_ANALYSIS_STATE_COMPLETE &&
       schemaAnalysis.processedSchema &&
       Object.keys(schemaAnalysis.processedSchema).length > 0,
+    maxNestingDepth:
+      schemaAnalysis.status === SCHEMA_ANALYSIS_STATE_COMPLETE &&
+      schemaAnalysis.schemaMetadata
+        ? schemaAnalysis.schemaMetadata.maxNestingDepth
+        : 0,
   };
 };
 

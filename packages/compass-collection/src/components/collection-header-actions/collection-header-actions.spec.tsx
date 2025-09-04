@@ -58,6 +58,7 @@ describe('CollectionHeaderActions [Component]', function () {
               isReadonly={false}
               onOpenMockDataModal={sinon.stub()}
               hasData={true}
+              maxNestingDepth={2}
               {...props}
             />
           </PreferencesProvider>
@@ -424,6 +425,31 @@ describe('CollectionHeaderActions [Component]', function () {
         'collection-header-generate-mock-data-button'
       );
       expect(button).to.not.have.attribute('aria-disabled', 'true');
+    });
+
+    it('should not show Mock Data Generator button for collections with excessive nesting depth', async function () {
+      mockUseAssignment.returns({
+        assignment: {
+          assignmentData: {
+            variant: 'mockDataGeneratorVariant',
+          },
+        },
+      });
+
+      await renderCollectionHeaderActions(
+        {
+          namespace: 'test.collection',
+          isReadonly: false,
+          hasData: true,
+          maxNestingDepth: 4, // Exceeds the limit of 3
+        },
+        {},
+        atlasConnectionInfo
+      );
+
+      expect(
+        screen.queryByTestId('collection-header-generate-mock-data-button')
+      ).to.not.exist;
     });
   });
 });

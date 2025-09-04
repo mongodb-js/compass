@@ -48,6 +48,7 @@ type CollectionHeaderActionsProps = {
   sourcePipeline?: unknown[];
   onOpenMockDataModal: () => void;
   hasData: boolean;
+  maxNestingDepth: number;
 };
 
 const CollectionHeaderActions: React.FunctionComponent<
@@ -60,6 +61,7 @@ const CollectionHeaderActions: React.FunctionComponent<
   sourcePipeline,
   onOpenMockDataModal,
   hasData,
+  maxNestingDepth,
 }: CollectionHeaderActionsProps) => {
   const connectionInfo = useConnectionInfo();
   const { id: connectionId, atlasMetadata } = connectionInfo;
@@ -86,8 +88,8 @@ const CollectionHeaderActions: React.FunctionComponent<
     isInMockDataTreatmentVariant &&
     atlasMetadata && // Only show in Atlas
     !isReadonly && // Don't show for readonly collections (views)
-    !sourceName; // sourceName indicates it's a view
-  // TODO: CLOUDP-337090: also filter out overly nested collections
+    !sourceName && // sourceName indicates it's a view
+    maxNestingDepth < 4; // Filter out overly nested collections (4+ levels)
 
   return (
     <div
