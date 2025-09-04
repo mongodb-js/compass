@@ -3,29 +3,28 @@ import AppRegistry, {
   AppRegistryProvider,
   GlobalAppRegistryProvider,
 } from '@mongodb-js/compass-app-registry';
-import type { AtlasClusterMetadata } from '@mongodb-js/connection-info';
+import type { ConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { useConnectionActions } from '@mongodb-js/compass-connections/provider';
 import { CompassInstanceStorePlugin } from '@mongodb-js/compass-app-stores';
-import type {
-  CollectionTabInfo,
-  OpenWorkspaceOptions,
-  WorkspaceTab,
-} from '@mongodb-js/compass-workspaces';
+import type { OpenWorkspaceOptions } from '@mongodb-js/compass-workspaces';
 import WorkspacesPlugin, {
   WorkspacesProvider,
 } from '@mongodb-js/compass-workspaces';
 import {
-  DatabasesWorkspaceTab,
   CollectionsWorkspaceTab,
+  CreateNamespacePlugin,
+  DatabasesWorkspaceTab,
+  DropNamespacePlugin,
+  RenameCollectionPlugin,
 } from '@mongodb-js/compass-databases-collections';
 import { CompassComponentsProvider, css } from '@mongodb-js/compass-components';
 import {
-  WorkspaceTab as CollectionWorkspace,
   CollectionTabsProvider,
+  WorkspaceTab as CollectionWorkspace,
 } from '@mongodb-js/compass-collection';
 import {
-  CompassSidebarPlugin,
   AtlasClusterConnectionsOnlyProvider,
+  CompassSidebarPlugin,
 } from '@mongodb-js/compass-sidebar';
 import CompassQueryBarPlugin from '@mongodb-js/compass-query-bar';
 import { CompassDocumentsPlugin } from '@mongodb-js/compass-crud';
@@ -40,13 +39,8 @@ import { CompassGlobalWritesPlugin } from '@mongodb-js/compass-global-writes';
 import { CompassGenerativeAIPlugin } from '@mongodb-js/compass-generative-ai';
 import ExplainPlanCollectionTabModal from '@mongodb-js/compass-explain-plan';
 import ExportToLanguageCollectionTabModal from '@mongodb-js/compass-export-to-language';
-import {
-  CreateNamespacePlugin,
-  DropNamespacePlugin,
-  RenameCollectionPlugin,
-} from '@mongodb-js/compass-databases-collections';
-import { PreferencesProvider } from 'compass-preferences-model/provider';
 import type { AllPreferences } from 'compass-preferences-model/provider';
+import { PreferencesProvider } from 'compass-preferences-model/provider';
 import FieldStorePlugin from '@mongodb-js/compass-field-store';
 import { AtlasServiceProvider } from '@mongodb-js/atlas-service/provider';
 import { AtlasAiServiceProvider } from '@mongodb-js/compass-generative-ai/provider';
@@ -55,7 +49,7 @@ import { TelemetryProvider } from '@mongodb-js/compass-telemetry/provider';
 import CompassConnections from '@mongodb-js/compass-connections';
 import { AtlasCloudConnectionStorageProvider } from './connection-storage';
 import { AtlasCloudAuthServiceProvider } from './atlas-auth-service';
-import type { LogFunction, DebugFunction } from './logger';
+import type { DebugFunction, LogFunction } from './logger';
 import { useCompassWebLogger } from './logger';
 import { type TelemetryServiceOptions } from '@mongodb-js/compass-telemetry';
 import { WebWorkspaceTab as WelcomeWorkspaceTab } from '@mongodb-js/compass-welcome';
@@ -67,7 +61,6 @@ import {
   CompassAssistantProvider,
 } from '@mongodb-js/compass-assistant';
 
-/** @public */
 export type TrackFunction = (
   event: string,
   properties: Record<string, any>
@@ -96,8 +89,7 @@ type CompassWorkspaceProps = Pick<
     'onOpenConnectViaModal'
   >;
 
-/** @public */
-export type CompassWebProps = {
+type CompassWebProps = {
   /**
    * App name to be passed with the connection string when connection to a
    * cluster (default: "Compass Web")
@@ -137,12 +129,9 @@ export type CompassWebProps = {
    * communicate current workspace back to the parent component for example to
    * sync router with the current active workspace
    */
-  onActiveWorkspaceTabChange<WS extends WorkspaceTab>(
-    ws: WS | null,
-    collectionInfo: WS extends { type: 'Collection' }
-      ? CollectionTabInfo | null
-      : never
-  ): void;
+  onActiveWorkspaceTabChange: React.ComponentProps<
+    typeof WorkspacesPlugin
+  >['onActiveWorkspaceTabChange'];
 
   /**
    * Set of initial preferences to override default values
@@ -168,7 +157,9 @@ export type CompassWebProps = {
    * when the action is selected from the sidebar actions. Should be used to
    * show the Atlas Cloud "Connect" modal
    */
-  onOpenConnectViaModal?: (atlasMetadata?: AtlasClusterMetadata) => void;
+  onOpenConnectViaModal?: (
+    atlasMetadata: ConnectionInfo['atlasMetadata']
+  ) => void;
 
   /**
    * Callback prop called when connections fail to load
@@ -266,7 +257,6 @@ const connectedContainerStyles = css({
   display: 'flex',
 });
 
-/** @public */
 const CompassWeb = ({
   appName,
   orgId,
@@ -288,6 +278,7 @@ const CompassWeb = ({
     onDebug,
   });
   const preferencesAccess = useCompassWebPreferences(initialPreferences);
+  // TODO: My Queries feature flag will be used to conditionally provide storage providers in COMPASS-9565
   const initialWorkspaceRef = useRef(initialWorkspace);
   const initialWorkspaceTabsRef = useRef(
     initialWorkspaceRef.current ? [initialWorkspaceRef.current] : []
@@ -437,10 +428,7 @@ const CompassWeb = ({
                                 ></CompassWorkspace>
                               </WithConnectionsStore>
                             </FieldStorePlugin>
-                            <CompassGenerativeAIPlugin
-                              projectId={projectId}
-                              isCloudOptIn={true}
-                            />
+                            <CompassGenerativeAIPlugin projectId={projectId} />
                           </CompassAssistantProvider>
                         </CompassInstanceStorePlugin>
                       </CompassConnections>
