@@ -25,7 +25,8 @@ import type { AtlasAuthService } from '@mongodb-js/atlas-service/provider';
 import type { AtlasService } from '@mongodb-js/atlas-service/provider';
 import { CompassAssistantDrawer } from './compass-assistant-drawer';
 import { createMockChat } from '../test/utils';
-import { type AtlasAiService } from '@mongodb-js/compass-generative-ai/provider';
+import type { ConnectionInfo } from '@mongodb-js/connection-info';
+import type { AtlasAiService } from '@mongodb-js/compass-generative-ai/provider';
 
 function createMockProvider({
   mockAtlasService,
@@ -249,13 +250,19 @@ describe('CompassAssistantProvider', function () {
     });
 
     async function renderOpenAssistantDrawer(
-      mockChat: Chat<AssistantMessage>,
-      mockAtlasAiService?: any
+      {
+        chat,
+        atlastAiService,
+      }: {
+        chat: Chat<AssistantMessage>;
+        atlastAiService?: Partial<AtlasAiService>;
+      },
+      { connections }: { connections?: ConnectionInfo[] } = {}
     ): Promise<ReturnType<typeof render>> {
       const result = render(
         <TestComponent
-          chat={mockChat}
-          mockAtlasAiService={mockAtlasAiService}
+          chat={chat}
+          mockAtlasAiService={atlastAiService}
           autoOpen={true}
         />,
         {
@@ -265,6 +272,7 @@ describe('CompassAssistantProvider', function () {
             enableGenAIFeaturesAtlasOrg: true,
             cloudFeatureRolloutAccess: { GEN_AI_COMPASS: true },
           },
+          connections,
         }
       );
 
@@ -278,7 +286,7 @@ describe('CompassAssistantProvider', function () {
     it('displays messages in the chat feed', async function () {
       const mockChat = createMockChat({ messages: mockMessages });
 
-      await renderOpenAssistantDrawer(mockChat);
+      await renderOpenAssistantDrawer({ chat: mockChat });
 
       // ensureAiFeatureAccess is async
       await waitFor(() => {
@@ -309,7 +317,7 @@ describe('CompassAssistantProvider', function () {
 
       const sendMessageSpy = sinon.spy(mockChat, 'sendMessage');
 
-      await renderOpenAssistantDrawer(mockChat);
+      await renderOpenAssistantDrawer({ chat: mockChat });
 
       const input = screen.getByPlaceholderText(
         'Ask MongoDB Assistant a question'
@@ -348,7 +356,7 @@ describe('CompassAssistantProvider', function () {
 
       const sendMessageSpy = sinon.spy(mockChat, 'sendMessage');
 
-      await renderOpenAssistantDrawer(mockChat);
+      await renderOpenAssistantDrawer({ chat: mockChat });
 
       userEvent.type(
         screen.getByPlaceholderText('Ask MongoDB Assistant a question'),
@@ -367,7 +375,7 @@ describe('CompassAssistantProvider', function () {
     });
 
     it('will not send new messages if the user does not opt in', async function () {
-      const mockChat = new Chat<AssistantMessage>({
+      const chat = new Chat<AssistantMessage>({
         messages: [
           {
             id: 'assistant',
@@ -385,13 +393,13 @@ describe('CompassAssistantProvider', function () {
         },
       });
 
-      const mockAtlasAiService = {
+      const atlastAiService = {
         ensureAiFeatureAccess: sinon.stub().rejects(),
       };
 
-      const sendMessageSpy = sinon.spy(mockChat, 'sendMessage');
+      const sendMessageSpy = sinon.spy(chat, 'sendMessage');
 
-      await renderOpenAssistantDrawer(mockChat, mockAtlasAiService);
+      await renderOpenAssistantDrawer({ chat, atlastAiService });
 
       userEvent.type(
         screen.getByPlaceholderText('Ask MongoDB Assistant a question'),
@@ -400,7 +408,7 @@ describe('CompassAssistantProvider', function () {
       userEvent.click(screen.getByLabelText('Send message'));
 
       await waitFor(() => {
-        expect(mockAtlasAiService.ensureAiFeatureAccess.calledOnce).to.be.true;
+        expect(atlastAiService.ensureAiFeatureAccess.calledOnce).to.be.true;
         expect(sendMessageSpy.called).to.be.false;
       });
       expect(screen.queryByText('Hello assistant!')).to.not.exist;
@@ -410,7 +418,7 @@ describe('CompassAssistantProvider', function () {
       it('clears the chat when the user clicks and confirms', async function () {
         const mockChat = createMockChat({ messages: mockMessages });
 
-        await renderOpenAssistantDrawer(mockChat);
+        await renderOpenAssistantDrawer({ chat: mockChat });
 
         const clearButton = screen.getByTestId('assistant-clear-chat');
         userEvent.click(clearButton);
@@ -440,7 +448,7 @@ describe('CompassAssistantProvider', function () {
       it('does not clear the chat when the user clicks the button and cancels', async function () {
         const mockChat = createMockChat({ messages: mockMessages });
 
-        await renderOpenAssistantDrawer(mockChat);
+        await renderOpenAssistantDrawer({ chat: mockChat });
 
         const clearButton = screen.getByTestId('assistant-clear-chat');
         userEvent.click(clearButton);
@@ -465,6 +473,59 @@ describe('CompassAssistantProvider', function () {
         expect(mockChat.messages).to.deep.equal(mockMessages);
         expect(screen.getByTestId('assistant-message-1')).to.exist;
         expect(screen.getByTestId('assistant-message-2')).to.exist;
+      });
+
+      it('should persist permanent warning messages when clearing chat', async function () {
+        const chat = createMockChat({ messages: [] });
+        // Non-genuine host warning message should be permanent
+        await renderOpenAssistantDrawer(
+          { chat },
+          {
+            connections: [
+              {
+                id: 'genuine',
+                connectionOptions: {
+                  connectionString: 'mongodb://localhost:27017',
+                },
+              },
+              {
+                id: 'non-genuine',
+                connectionOptions: {
+                  connectionString:
+                    'mongodb://docdb-elastic.amazonaws.com:27017',
+                },
+              },
+            ],
+          }
+        );
+
+        expect(chat.messages).to.have.length(1);
+        expect(chat.messages[0].id).to.equal('non-genuine-warning');
+
+        expect(
+          screen.getByText(
+            /MongoDB Assistant will not provide accurate guidance for non-genuine hosts/
+          )
+        ).to.exist;
+
+        // Click and confirm the clear chat
+        const clearButton = screen.getByTestId('assistant-clear-chat');
+        userEvent.click(clearButton);
+
+        await waitFor(() => {
+          expect(screen.getByTestId('assistant-confirm-clear-chat-modal')).to
+            .exist;
+        });
+
+        const modal = screen.getByTestId('assistant-confirm-clear-chat-modal');
+        const confirmButton = within(modal).getByText('Clear chat');
+        userEvent.click(confirmButton);
+
+        expect(
+          screen.getByText(
+            /MongoDB Assistant will not provide accurate guidance for non-genuine hosts/
+          )
+        ).to.exist;
       });
     });
   });

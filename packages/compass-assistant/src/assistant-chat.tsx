@@ -1,4 +1,4 @@
-import React, { useCallback, useContext } from 'react';
+import React, { useCallback, useEffect, useContext } from 'react';
 import type { AssistantMessage } from './compass-assistant-provider';
 import { AssistantActionsContext } from './compass-assistant-provider';
 import type { Chat } from './@ai-sdk/react/chat-react';
@@ -20,6 +20,9 @@ import {
   Link,
 } from '@mongodb-js/compass-components';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
+import { useConnectionsList } from '@mongodb-js/compass-connections/provider';
+import { getGenuineMongoDB } from 'mongodb-build-info';
+import { NON_GENUINE_WARNING_MESSAGE } from './preset-messages';
 
 const { DisclaimerText } = LgChatChatDisclaimer;
 const { ChatWindow } = LgChatChatWindow;
@@ -130,8 +133,9 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
 }) => {
   const track = useTelemetry();
   const darkMode = useDarkMode();
+
   const { ensureOptInAndSend } = useContext(AssistantActionsContext);
-  const { messages, status, error, clearError } = useChat({
+  const { messages, status, error, clearError, setMessages } = useChat({
     chat,
     onError: (error) => {
       track('Assistant Response Failed', () => ({
@@ -139,6 +143,31 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
       }));
     },
   });
+
+  // Check for non-genuine connections
+  const hasNonGenuineConnections =
+    useConnectionsList(
+      (conn) =>
+        getGenuineMongoDB(conn.info.connectionOptions.connectionString)
+          .isGenuine === false
+    ).length > 0;
+
+  useEffect(() => {
+    const nonGenuineWarningIndex = chat.messages.findIndex(
+      (message) => message.id === 'non-genuine-warning'
+    );
+    if (hasNonGenuineConnections && nonGenuineWarningIndex === -1) {
+      setMessages((messages) => {
+        messages.push(NON_GENUINE_WARNING_MESSAGE);
+        return messages;
+      });
+    } else if (nonGenuineWarningIndex !== -1 && !hasNonGenuineConnections) {
+      setMessages((messages) => {
+        messages.splice(nonGenuineWarningIndex, 1);
+        return messages;
+      });
+    }
+  }, [chat, hasNonGenuineConnections, setMessages]);
 
   // Transform AI SDK messages to LeafyGreen chat format and reverse the order of the messages
   // for displaying it correctly with flex-direction: column-reverse.
