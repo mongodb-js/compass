@@ -28,6 +28,7 @@ import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import type { AtlasAiService } from '@mongodb-js/compass-generative-ai/provider';
 import { atlasAiServiceLocator } from '@mongodb-js/compass-generative-ai/provider';
+import { buildConversationInstructionsPrompt } from './prompts';
 
 export const ASSISTANT_DRAWER_ID = 'compass-assistant-drawer';
 
@@ -248,6 +249,9 @@ export const CompassAssistantProvider = registerCompassPlugin(
         new Chat({
           transport: new DocsProviderTransport({
             baseUrl: atlasService.assistantApiEndpoint(),
+            instructions: buildConversationInstructionsPrompt({
+              target: atlasAiService.getAppNameForPrompt(),
+            }),
           }),
           onError: (err: Error) => {
             logger.log.error(
