@@ -68,6 +68,7 @@ const workspacesContentStyles = css({
 const workspacesSectionStyles = css({
   display: 'flex',
   minWidth: '600px',
+  width: '100%',
 });
 
 type CompassWorkspacesProps = {
