@@ -19,7 +19,6 @@ import {
   usePreference,
 } from 'compass-preferences-model/provider';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
-import { useMyQueriesFeature } from '@mongodb-js/compass-web';
 
 import {
   OPTION_DEFINITION,
@@ -206,7 +205,7 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
 
   const favoriteQueryStorageAvailable = !!useFavoriteQueryStorageAccess();
   const recentQueryStorageAvailable = !!useRecentQueryStorageAccess();
-  const isMyQueriesEnabled = useMyQueriesFeature();
+  const isMyQueriesEnabled = usePreference('enableMyQueries');
   const enableSavedAggregationsQueries =
     favoriteQueryStorageAvailable &&
     recentQueryStorageAvailable &&
