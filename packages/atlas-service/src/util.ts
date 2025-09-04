@@ -143,7 +143,7 @@ const config = {
       issuer: 'https://auth-qa.mongodb.com/oauth2/default',
     },
     authPortalUrl: 'https://account-dev.mongodb.com/account/login',
-    assistantApiBaseUrl: 'https://knowledge.staging.corp.mongodb.com/api/v1',
+    assistantApiBaseUrl: 'https://knowledge.mongodb.com/api/v1',
   },
   'atlas-dev': {
     ccsBaseUrl: '',
@@ -154,7 +154,7 @@ const config = {
       issuer: 'https://auth-qa.mongodb.com/oauth2/default',
     },
     authPortalUrl: 'https://account-dev.mongodb.com/account/login',
-    assistantApiBaseUrl: 'https://knowledge.staging.corp.mongodb.com/api/v1',
+    assistantApiBaseUrl: 'https://knowledge.mongodb.com/api/v1',
   },
   'atlas-qa': {
     ccsBaseUrl: '',
@@ -187,7 +187,7 @@ const config = {
       issuer: 'https://auth-qa.mongodb.com/oauth2/default',
     },
     authPortalUrl: 'https://account-dev.mongodb.com/account/login',
-    assistantApiBaseUrl: 'https://knowledge.staging.corp.mongodb.com/api/v1',
+    assistantApiBaseUrl: 'https://knowledge.mongodb.com/api/v1',
   },
   'web-sandbox-atlas-dev': {
     ccsBaseUrl: '/ccs',
@@ -198,7 +198,7 @@ const config = {
       issuer: 'https://auth-qa.mongodb.com/oauth2/default',
     },
     authPortalUrl: 'https://account-dev.mongodb.com/account/login',
-    assistantApiBaseUrl: 'https://knowledge.staging.corp.mongodb.com/api/v1',
+    assistantApiBaseUrl: 'https://knowledge.mongodb.com/api/v1',
   },
   'web-sandbox-atlas-qa': {
     ccsBaseUrl: '/ccs',
