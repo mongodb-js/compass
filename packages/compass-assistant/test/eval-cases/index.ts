@@ -1,10 +1,15 @@
 import type { SimpleEvalCase } from '../assistant.eval';
-import atlasSearch from './atlas-search';
-import aggregationPipeline from './aggregation-pipeline';
-import modelData from './model-data';
-
+import aggregationPipelineCases from './aggregation-pipeline';
+import connectionErrorCases from './connection-errors';
+import oidcAuthCases from './oidc-auth';
+import explainPlanCases from './explain-plan';
+import atlasSearchCases from './atlas-search';
+import dataModelingCases from './data-modeling';
 export const evalCases: SimpleEvalCase[] = [
-  ...atlasSearch,
-  ...aggregationPipeline,
-  ...modelData,
+  ...aggregationPipelineCases,
+  ...connectionErrorCases,
+  ...oidcAuthCases,
+  ...explainPlanCases,
+  ...atlasSearchCases,
+  ...dataModelingCases,
 ];
