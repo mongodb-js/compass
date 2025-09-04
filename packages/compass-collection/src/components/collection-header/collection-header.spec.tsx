@@ -3,6 +3,7 @@ import type { ComponentProps } from 'react';
 import React from 'react';
 import {
   renderWithConnections,
+  renderWithActiveConnection,
   screen,
   cleanup,
   within,
@@ -16,19 +17,26 @@ import {
   type WorkspacesService,
 } from '@mongodb-js/compass-workspaces/provider';
 import { MockDataGeneratorStep } from '../mock-data-generator-modal/types';
+import { SCHEMA_ANALYSIS_STATE_COMPLETE } from '../../schema-analysis-types';
+import { CompassExperimentationProvider } from '@mongodb-js/compass-telemetry';
+import type { ConnectionInfo } from '@mongodb-js/compass-connections/provider';
 
 import Sinon from 'sinon';
 
 function renderCollectionHeader(
   props: Partial<ComponentProps<typeof CollectionHeader>> = {},
-  workspaceService: Partial<WorkspacesService> = {}
+  workspaceService: Partial<WorkspacesService> = {},
+  stateOverrides: any = {}
 ) {
-  const mockStore = createStore(() => ({
+  const defaultState = {
     mockDataGenerator: {
       isModalOpen: false,
       currentStep: MockDataGeneratorStep.SCHEMA_CONFIRMATION,
     },
-  }));
+    ...stateOverrides,
+  };
+
+  const mockStore = createStore(() => defaultState);
 
   return renderWithConnections(
     <Provider store={mockStore}>
@@ -324,5 +332,260 @@ describe('CollectionHeader [Component]', function () {
 
     expect(screen.getByTestId('collection-header')).to.exist;
     expect(screen.getByTestId('collection-header-actions')).to.exist;
+  });
+
+  describe('Mock Data Generator integration', function () {
+    let mockUseAssignment: Sinon.SinonStub;
+
+    beforeEach(function () {
+      // Mock the useAssignment hook from compass-experimentation
+      mockUseAssignment = Sinon.stub().returns({
+        assignment: {
+          assignmentData: {
+            variant: 'mockDataGeneratorVariant',
+          },
+        },
+      });
+    });
+
+    afterEach(function () {
+      Sinon.restore();
+    });
+
+    const atlasConnectionInfo: ConnectionInfo = {
+      id: 'test-atlas-connection',
+      connectionOptions: {
+        connectionString: 'mongodb://localhost:27017',
+      },
+      atlasMetadata: {
+        orgId: 'test-org',
+        projectId: 'test-project',
+        clusterName: 'test-cluster',
+        clusterUniqueId: 'test-cluster-unique-id',
+        clusterType: 'REPLICASET',
+        clusterState: 'IDLE',
+        metricsId: 'test-metrics-id',
+        metricsType: 'replicaSet',
+        regionalBaseUrl: null,
+        instanceSize: 'M10',
+        supports: {
+          globalWrites: false,
+          rollingIndexes: true,
+        },
+      },
+    };
+
+    function renderCollectionHeaderWithExperimentation(
+      props: Partial<ComponentProps<typeof CollectionHeader>> = {},
+      workspaceService: Partial<WorkspacesService> = {},
+      stateOverrides: any = {},
+      connectionInfo?: ConnectionInfo
+    ) {
+      const defaultState = {
+        mockDataGenerator: {
+          isModalOpen: false,
+          currentStep: MockDataGeneratorStep.SCHEMA_CONFIRMATION,
+        },
+        ...stateOverrides,
+      };
+
+      const mockStore = createStore(() => defaultState);
+
+      return renderWithActiveConnection(
+        <CompassExperimentationProvider
+          useAssignment={mockUseAssignment}
+          assignExperiment={Sinon.stub()}
+        >
+          <Provider store={mockStore}>
+            <WorkspacesServiceProvider
+              value={workspaceService as WorkspacesService}
+            >
+              <CollectionHeader
+                isAtlas={false}
+                isReadonly={false}
+                isTimeSeries={false}
+                isClustered={false}
+                isFLE={false}
+                namespace="test.test"
+                {...props}
+              />
+            </WorkspacesServiceProvider>
+          </Provider>
+        </CompassExperimentationProvider>,
+        connectionInfo
+      );
+    }
+
+    it('should show Mock Data Generator button when all conditions are met', async function () {
+      await renderCollectionHeaderWithExperimentation(
+        {
+          isAtlas: true, // Atlas environment
+          isReadonly: false, // Not readonly
+          namespace: 'test.collection',
+        },
+        {},
+        {
+          schemaAnalysis: {
+            status: SCHEMA_ANALYSIS_STATE_COMPLETE,
+            processedSchema: {
+              field1: { type: 'String', sample_values: ['value1'] },
+            },
+            schemaMetadata: {
+              maxNestingDepth: 2, // Below the limit of 4
+            },
+          },
+        },
+        atlasConnectionInfo
+      );
+
+      expect(screen.getByTestId('collection-header-generate-mock-data-button'))
+        .to.exist;
+      expect(
+        screen.getByTestId('collection-header-generate-mock-data-button')
+      ).to.not.have.attribute('aria-disabled', 'true');
+    });
+
+    it('should disable Mock Data Generator button when collection has no schema analysis data', async function () {
+      await renderCollectionHeaderWithExperimentation(
+        {
+          isAtlas: true,
+          isReadonly: false,
+          namespace: 'test.collection',
+        },
+        {},
+        {
+          schemaAnalysis: {
+            status: SCHEMA_ANALYSIS_STATE_COMPLETE,
+            processedSchema: {}, // Empty schema
+            schemaMetadata: {
+              maxNestingDepth: 2,
+            },
+          },
+        },
+        atlasConnectionInfo
+      );
+
+      const button = screen.getByTestId(
+        'collection-header-generate-mock-data-button'
+      );
+      expect(button).to.exist;
+      expect(button).to.have.attribute('aria-disabled', 'true');
+    });
+
+    it('should not show Mock Data Generator button for collections with excessive nesting depth', async function () {
+      await renderCollectionHeaderWithExperimentation(
+        {
+          isAtlas: true,
+          isReadonly: false,
+          namespace: 'test.collection',
+        },
+        {},
+        {
+          schemaAnalysis: {
+            status: SCHEMA_ANALYSIS_STATE_COMPLETE,
+            processedSchema: {
+              field1: { type: 'String', sample_values: ['value1'] },
+            },
+            schemaMetadata: {
+              maxNestingDepth: 4, // Exceeds the limit
+            },
+          },
+        },
+        atlasConnectionInfo
+      );
+
+      expect(
+        screen.queryByTestId('collection-header-generate-mock-data-button')
+      ).to.not.exist;
+    });
+
+    it('should not show Mock Data Generator button for readonly collections (views)', async function () {
+      await renderCollectionHeaderWithExperimentation(
+        {
+          isAtlas: true,
+          isReadonly: true, // Readonly (view)
+          namespace: 'test.view',
+        },
+        {},
+        {
+          schemaAnalysis: {
+            status: SCHEMA_ANALYSIS_STATE_COMPLETE,
+            processedSchema: {
+              field1: { type: 'String', sample_values: ['value1'] },
+            },
+            schemaMetadata: {
+              maxNestingDepth: 2,
+            },
+          },
+        },
+        atlasConnectionInfo
+      );
+
+      expect(
+        screen.queryByTestId('collection-header-generate-mock-data-button')
+      ).to.not.exist;
+    });
+
+    it('should not show Mock Data Generator button in non-Atlas environments', async function () {
+      await renderCollectionHeaderWithExperimentation(
+        {
+          isAtlas: false, // Not Atlas
+          isReadonly: false,
+          namespace: 'test.collection',
+        },
+        {},
+        {
+          schemaAnalysis: {
+            status: SCHEMA_ANALYSIS_STATE_COMPLETE,
+            processedSchema: {
+              field1: { type: 'String', sample_values: ['value1'] },
+            },
+            schemaMetadata: {
+              maxNestingDepth: 2,
+            },
+          },
+        }
+        // Don't pass atlasConnectionInfo to simulate non-Atlas environment
+      );
+
+      expect(
+        screen.queryByTestId('collection-header-generate-mock-data-button')
+      ).to.not.exist;
+    });
+
+    it('should not show Mock Data Generator button when not in treatment variant', async function () {
+      mockUseAssignment.returns({
+        assignment: {
+          assignmentData: {
+            variant: 'control',
+          },
+        },
+      });
+
+      await renderCollectionHeaderWithExperimentation(
+        {
+          isAtlas: true,
+          isReadonly: false,
+          namespace: 'test.collection',
+        },
+        {},
+        {
+          schemaAnalysis: {
+            status: SCHEMA_ANALYSIS_STATE_COMPLETE,
+            processedSchema: {
+              field1: { type: 'String', sample_values: ['value1'] },
+            },
+            schemaMetadata: {
+              maxNestingDepth: 2,
+            },
+          },
+        },
+        atlasConnectionInfo
+      );
+
+      expect(
+        screen.queryByTestId('collection-header-generate-mock-data-button')
+      ).to.not.exist;
+    });
   });
 });
