@@ -32,6 +32,8 @@
   "types": "./dist/index.d.ts",
   "scripts": {
     "bootstrap": "npm run compile",
+    "clean": "node -e \"fs.rmSync('dist', { recursive: true, force: true })\" || true",
+    "precompile": "npm run clean",
     "compile": "tsc -p tsconfig.json",
     "typecheck": "tsc -p tsconfig-lint.json --noEmit",
     "eslint": "eslint-compass",
