@@ -16,13 +16,13 @@ import type { workspacesServiceLocator } from '@mongodb-js/compass-workspaces/pr
 import type { experimentationServiceLocator } from '@mongodb-js/compass-telemetry/provider';
 import type { connectionInfoRefLocator } from '@mongodb-js/compass-connections/provider';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
+import type { AtlasAiService } from '@mongodb-js/compass-generative-ai/provider';
 import {
   isAIFeatureEnabled,
   type PreferencesAccess,
 } from 'compass-preferences-model/provider';
 import { ExperimentTestName } from '@mongodb-js/compass-telemetry/provider';
 import { SCHEMA_ANALYSIS_STATE_INITIAL } from '../schema-analysis-types';
-import type { AtlasAiService } from '@mongodb-js/compass-generative-ai/provider';
 
 export type CollectionTabOptions = {
   /**
@@ -44,12 +44,12 @@ export type CollectionTabServices = {
   dataService: DataService;
   collection: Collection;
   localAppRegistry: AppRegistry;
+  atlasAiService: AtlasAiService;
   workspaces: ReturnType<typeof workspacesServiceLocator>;
   experimentationServices: ReturnType<typeof experimentationServiceLocator>;
   connectionInfoRef: ReturnType<typeof connectionInfoRefLocator>;
   logger: Logger;
   preferences: PreferencesAccess;
-  atlasAiService: AtlasAiService;
 };
 
 export function activatePlugin(
@@ -64,12 +64,12 @@ export function activatePlugin(
     dataService,
     collection: collectionModel,
     localAppRegistry,
+    atlasAiService,
     workspaces,
     experimentationServices,
     connectionInfoRef,
     logger,
     preferences,
-    atlasAiService,
   } = services;
 
   if (!collectionModel) {
@@ -78,6 +78,9 @@ export function activatePlugin(
     );
   }
 
+  const fakerSchemaGenerationAbortControllerRef = {
+    current: undefined,
+  };
   const store = createStore(
     reducer,
     {
@@ -92,16 +95,21 @@ export function activatePlugin(
         isModalOpen: false,
         currentStep: MockDataGeneratorStep.SCHEMA_CONFIRMATION,
       },
+      fakerSchemaGeneration: {
+        status: 'idle',
+      },
     },
     applyMiddleware(
       thunk.withExtraArgument({
         dataService,
+        atlasAiService,
         workspaces,
         localAppRegistry,
         experimentationServices,
+        connectionInfoRef,
         logger,
         preferences,
-        atlasAiService,
+        fakerSchemaGenerationAbortControllerRef,
       })
     )
   );
