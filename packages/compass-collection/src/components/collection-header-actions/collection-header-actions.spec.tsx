@@ -57,8 +57,8 @@ describe('CollectionHeaderActions [Component]', function () {
               namespace="test.test"
               isReadonly={false}
               onOpenMockDataModal={sinon.stub()}
-              hasData={true}
-              maxNestingDepth={2}
+              hasSchemaAnalysisData={true}
+              analyzedSchemaDepth={2}
               {...props}
             />
           </PreferencesProvider>
@@ -377,7 +377,7 @@ describe('CollectionHeaderActions [Component]', function () {
       expect(onOpenMockDataModal).to.have.been.calledOnce;
     });
 
-    it('should disable Mock Data Generator button when hasData is false', async function () {
+    it('should disable Mock Data Generator button when hasSchemaAnalysisData is false', async function () {
       mockUseAssignment.returns({
         assignment: {
           assignmentData: {
@@ -390,7 +390,7 @@ describe('CollectionHeaderActions [Component]', function () {
         {
           namespace: 'test.collection',
           isReadonly: false,
-          hasData: false,
+          hasSchemaAnalysisData: false,
         },
         {},
         atlasConnectionInfo
@@ -402,7 +402,7 @@ describe('CollectionHeaderActions [Component]', function () {
       expect(button).to.have.attribute('aria-disabled', 'true');
     });
 
-    it('should enable Mock Data Generator button when hasData is true', async function () {
+    it('should enable Mock Data Generator button when hasSchemaAnalysisData is true', async function () {
       mockUseAssignment.returns({
         assignment: {
           assignmentData: {
@@ -415,7 +415,7 @@ describe('CollectionHeaderActions [Component]', function () {
         {
           namespace: 'test.collection',
           isReadonly: false,
-          hasData: true,
+          hasSchemaAnalysisData: true,
         },
         {},
         atlasConnectionInfo
@@ -440,8 +440,8 @@ describe('CollectionHeaderActions [Component]', function () {
         {
           namespace: 'test.collection',
           isReadonly: false,
-          hasData: true,
-          maxNestingDepth: 4, // Exceeds the limit of 3
+          hasSchemaAnalysisData: true,
+          analyzedSchemaDepth: 4, // Exceeds the limit of 3
         },
         {},
         atlasConnectionInfo

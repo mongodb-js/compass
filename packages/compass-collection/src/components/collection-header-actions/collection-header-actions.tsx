@@ -19,6 +19,11 @@ import {
   ExperimentTestGroup,
 } from '@mongodb-js/compass-telemetry/provider';
 
+/**
+ * Maximum allowed nesting depth for collections to show Mock Data Generator
+ */
+const MAX_COLLECTION_NESTING_DEPTH = 4;
+
 const collectionHeaderActionsStyles = css({
   display: 'flex',
   alignItems: 'center',
@@ -47,8 +52,8 @@ type CollectionHeaderActionsProps = {
   sourceName?: string;
   sourcePipeline?: unknown[];
   onOpenMockDataModal: () => void;
-  hasData: boolean;
-  maxNestingDepth: number;
+  hasSchemaAnalysisData: boolean;
+  analyzedSchemaDepth: number;
 };
 
 const CollectionHeaderActions: React.FunctionComponent<
@@ -60,8 +65,8 @@ const CollectionHeaderActions: React.FunctionComponent<
   sourceName,
   sourcePipeline,
   onOpenMockDataModal,
-  hasData,
-  maxNestingDepth,
+  hasSchemaAnalysisData,
+  analyzedSchemaDepth,
 }: CollectionHeaderActionsProps) => {
   const connectionInfo = useConnectionInfo();
   const { id: connectionId, atlasMetadata } = connectionInfo;
@@ -89,7 +94,7 @@ const CollectionHeaderActions: React.FunctionComponent<
     atlasMetadata && // Only show in Atlas
     !isReadonly && // Don't show for readonly collections (views)
     !sourceName && // sourceName indicates it's a view
-    maxNestingDepth < 4; // Filter out overly nested collections (4+ levels)
+    analyzedSchemaDepth < MAX_COLLECTION_NESTING_DEPTH; // Filter out overly nested collections
 
   return (
     <div
@@ -113,13 +118,13 @@ const CollectionHeaderActions: React.FunctionComponent<
       )}
       {shouldShowMockDataButton && (
         <Tooltip
-          enabled={!hasData}
+          enabled={!hasSchemaAnalysisData}
           trigger={
             <div>
               <Button
                 data-testid="collection-header-generate-mock-data-button"
                 size={ButtonSize.Small}
-                disabled={!hasData}
+                disabled={!hasSchemaAnalysisData}
                 onClick={onOpenMockDataModal}
                 leftGlyph={<Icon glyph="Sparkle" />}
               >
