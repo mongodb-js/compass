@@ -476,39 +476,24 @@ describe('CompassAssistantProvider', function () {
       });
 
       it('should persist permanent warning messages when clearing chat', async function () {
-        const chat = createMockChat({ messages: [] });
-        // Non-genuine host warning message should be permanent
-        await renderOpenAssistantDrawer(
-          { chat },
-          {
-            connections: [
-              {
-                id: 'genuine',
-                connectionOptions: {
-                  connectionString: 'mongodb://localhost:27017',
-                },
-              },
-              {
-                id: 'non-genuine',
-                connectionOptions: {
-                  connectionString:
-                    'mongodb://docdb-elastic.amazonaws.com:27017',
-                },
-              },
-            ],
-          }
+        const mockChat = createMockChat({ messages: mockMessages });
+        const nonGenuineConnectionInfo = {
+          id: 'non-genuine',
+          connectionOptions: {
+            connectionString: 'mongodb://docdb-elastic.amazonaws.com:27017',
+          },
+        };
+        const { connectionsStore } = await renderOpenAssistantDrawer(
+          { chat: mockChat },
+          { connections: [nonGenuineConnectionInfo] }
+        );
+        await connectionsStore.actions.connect(nonGenuineConnectionInfo);
+
+        // Click on the confirm button to close the non-genuine warning modal
+        userEvent.click(
+          screen.getByTestId('lg-confirmation_modal-footer-confirm_button')
         );
 
-        expect(chat.messages).to.have.length(1);
-        expect(chat.messages[0].id).to.equal('non-genuine-warning');
-
-        expect(
-          screen.getByText(
-            /MongoDB Assistant will not provide accurate guidance for non-genuine hosts/
-          )
-        ).to.exist;
-
-        // Click and confirm the clear chat
         const clearButton = screen.getByTestId('assistant-clear-chat');
         userEvent.click(clearButton);
 
@@ -517,15 +502,26 @@ describe('CompassAssistantProvider', function () {
             .exist;
         });
 
+        // There should be messages in the chat
+        expect(screen.getByTestId('assistant-message-1')).to.exist;
+        expect(screen.getByTestId('assistant-message-2')).to.exist;
+        expect(screen.getByTestId('assistant-message-non-genuine-warning')).to
+          .exist;
+
         const modal = screen.getByTestId('assistant-confirm-clear-chat-modal');
         const confirmButton = within(modal).getByText('Clear chat');
         userEvent.click(confirmButton);
 
-        expect(
-          screen.getByText(
-            /MongoDB Assistant will not provide accurate guidance for non-genuine hosts/
-          )
-        ).to.exist;
+        await waitForElementToBeRemoved(() =>
+          screen.getByTestId('assistant-confirm-clear-chat-modal')
+        );
+
+        // The non-genuine warning message should still be in the chat
+        expect(screen.getByTestId('assistant-message-non-genuine-warning')).to
+          .exist;
+        // The user messages should be gone
+        expect(screen.queryByTestId('assistant-message-1')).to.not.exist;
+        expect(screen.queryByTestId('assistant-message-2')).to.not.exist;
       });
     });
   });

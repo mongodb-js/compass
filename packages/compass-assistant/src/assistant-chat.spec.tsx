@@ -205,9 +205,20 @@ describe('AssistantChat', function () {
 
     it('shows warning message in chat when connected to non-genuine MongoDB', async function () {
       const chat = createMockChat({ messages: [] });
-      render(<AssistantChat chat={chat} />, {
+      const { connectionsStore } = render(<AssistantChat chat={chat} />, {
         connections: [nonGenuineConnectionInfo],
       });
+
+      // Not connected yet, so no warning message
+      expect(chat.messages).to.have.length(0);
+      expect(
+        screen.queryByText(
+          /MongoDB Assistant will not provide accurate guidance for non-genuine hosts/
+        )
+      ).to.not.exist;
+
+      // Connect to the non-genuine connection
+      await connectionsStore.actions.connect(nonGenuineConnectionInfo);
 
       await waitFor(() => {
         expect(chat.messages).to.have.length(1);
@@ -220,11 +231,13 @@ describe('AssistantChat', function () {
       expect(warningMessage).to.exist;
     });
 
-    it('does not show warning message when all connections are genuine', function () {
+    it('does not show warning message when all connections are genuine', async function () {
       const chat = createMockChat({ messages: [] });
-      render(<AssistantChat chat={chat} />, {
+      const { connectionsStore } = render(<AssistantChat chat={chat} />, {
         connections: [genuineConnectionInfo],
       });
+
+      await connectionsStore.actions.connect(genuineConnectionInfo);
 
       const warningMessage = screen.queryByText(
         /MongoDB Assistant will not provide accurate guidance for non-genuine hosts/
@@ -268,11 +281,15 @@ describe('AssistantChat', function () {
       });
     });
 
-    it('warning message is removed when connections are changed to genuine', async function () {
+    it('warning message is removed when all active connections are changed to genuine', async function () {
       const chat = createMockChat({ messages: [] });
       const { connectionsStore } = render(<AssistantChat chat={chat} />, {
         connections: [genuineConnectionInfo, nonGenuineConnectionInfo],
       });
+
+      // Connect to the genuine and non-genuine connections
+      await connectionsStore.actions.connect(genuineConnectionInfo);
+      await connectionsStore.actions.connect(nonGenuineConnectionInfo);
 
       expect(
         screen.getByText(
@@ -281,7 +298,7 @@ describe('AssistantChat', function () {
       ).to.exist;
 
       // Remove the non-genuine connection
-      connectionsStore.actions.removeConnection(nonGenuineConnectionInfo.id);
+      connectionsStore.actions.disconnect(nonGenuineConnectionInfo.id);
 
       await waitFor(() => {
         const warningMessage = screen.queryByText(
