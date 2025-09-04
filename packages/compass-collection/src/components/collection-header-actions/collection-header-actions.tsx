@@ -47,6 +47,7 @@ type CollectionHeaderActionsProps = {
   sourceName?: string;
   sourcePipeline?: unknown[];
   onOpenMockDataModal: () => void;
+  hasData: boolean;
 };
 
 const CollectionHeaderActions: React.FunctionComponent<
@@ -58,6 +59,7 @@ const CollectionHeaderActions: React.FunctionComponent<
   sourceName,
   sourcePipeline,
   onOpenMockDataModal,
+  hasData,
 }: CollectionHeaderActionsProps) => {
   const connectionInfo = useConnectionInfo();
   const { id: connectionId, atlasMetadata } = connectionInfo;
@@ -86,8 +88,6 @@ const CollectionHeaderActions: React.FunctionComponent<
     !isReadonly && // Don't show for readonly collections (views)
     !sourceName; // sourceName indicates it's a view
   // TODO: CLOUDP-337090: also filter out overly nested collections
-
-  const hasData = true; // TODO: CLOUDP-337090
 
   return (
     <div

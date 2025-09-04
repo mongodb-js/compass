@@ -57,6 +57,7 @@ describe('CollectionHeaderActions [Component]', function () {
               namespace="test.test"
               isReadonly={false}
               onOpenMockDataModal={sinon.stub()}
+              hasData={true}
               {...props}
             />
           </PreferencesProvider>
@@ -373,6 +374,56 @@ describe('CollectionHeaderActions [Component]', function () {
       button.click();
 
       expect(onOpenMockDataModal).to.have.been.calledOnce;
+    });
+
+    it('should disable Mock Data Generator button when hasData is false', async function () {
+      mockUseAssignment.returns({
+        assignment: {
+          assignmentData: {
+            variant: 'mockDataGeneratorVariant',
+          },
+        },
+      });
+
+      await renderCollectionHeaderActions(
+        {
+          namespace: 'test.collection',
+          isReadonly: false,
+          hasData: false,
+        },
+        {},
+        atlasConnectionInfo
+      );
+
+      const button = screen.getByTestId(
+        'collection-header-generate-mock-data-button'
+      );
+      expect(button).to.have.attribute('aria-disabled', 'true');
+    });
+
+    it('should enable Mock Data Generator button when hasData is true', async function () {
+      mockUseAssignment.returns({
+        assignment: {
+          assignmentData: {
+            variant: 'mockDataGeneratorVariant',
+          },
+        },
+      });
+
+      await renderCollectionHeaderActions(
+        {
+          namespace: 'test.collection',
+          isReadonly: false,
+          hasData: true,
+        },
+        {},
+        atlasConnectionInfo
+      );
+
+      const button = screen.getByTestId(
+        'collection-header-generate-mock-data-button'
+      );
+      expect(button).to.not.have.attribute('aria-disabled', 'true');
     });
   });
 });
