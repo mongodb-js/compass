@@ -24,7 +24,6 @@ export type FeatureFlags = {
   showDisabledConnections: boolean;
   enableGlobalWrites: boolean;
   enableDataModeling: boolean;
-  enableMyQueries: boolean;
   enableIndexesGuidanceExp: boolean;
   showIndexesGuidanceVariant: boolean;
   enableContextMenus: boolean;
@@ -124,16 +123,6 @@ export const featureFlags: Required<{
     stage: 'development',
     description: {
       short: 'Design, Visualize, and Evolve your Data Model',
-    },
-  },
-
-  /**
-   * Enable My Queries feature in Data Explorer
-   */
-  enableMyQueries: {
-    stage: 'development',
-    description: {
-      short: 'Save and manage favorite queries and aggregations',
     },
   },
 
