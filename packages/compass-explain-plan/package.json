@@ -6,7 +6,7 @@
     "email": "compass@mongodb.com"
   },
   "private": true,
-  "version": "6.71.0",
+  "version": "6.72.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/compass.git"
@@ -48,11 +48,11 @@
     "reformat": "npm run eslint . -- --fix && npm run prettier -- --write ."
   },
   "devDependencies": {
-    "@mongodb-js/eslint-config-compass": "^1.4.7",
-    "@mongodb-js/mocha-config-compass": "^1.7.0",
+    "@mongodb-js/eslint-config-compass": "^1.4.8",
+    "@mongodb-js/mocha-config-compass": "^1.7.1",
     "@mongodb-js/prettier-config-compass": "^1.2.8",
-    "@mongodb-js/testing-library-compass": "^1.3.10",
-    "@mongodb-js/tsconfig-compass": "^1.2.9",
+    "@mongodb-js/testing-library-compass": "^1.3.11",
+    "@mongodb-js/tsconfig-compass": "^1.2.10",
     "@types/d3": "^3.5.x",
     "@types/d3-flextree": "^2.1.0",
     "@types/d3-hierarchy": "^3.1.2",
@@ -68,16 +68,16 @@
     "xvfb-maybe": "^0.2.1"
   },
   "dependencies": {
-    "@mongodb-js/compass-assistant": "^1.2.0",
-    "@mongodb-js/compass-app-registry": "^9.4.20",
-    "@mongodb-js/compass-collection": "^4.70.0",
-    "@mongodb-js/compass-components": "^1.49.0",
-    "@mongodb-js/compass-connections": "^1.71.0",
-    "@mongodb-js/compass-editor": "^0.51.0",
-    "@mongodb-js/compass-logging": "^1.7.12",
-    "@mongodb-js/compass-telemetry": "^1.14.0",
-    "@mongodb-js/explain-plan-helper": "^1.4.18",
-    "compass-preferences-model": "^2.51.0",
+    "@mongodb-js/compass-assistant": "^1.3.0",
+    "@mongodb-js/compass-app-registry": "^9.4.21",
+    "@mongodb-js/compass-collection": "^4.71.0",
+    "@mongodb-js/compass-components": "^1.50.0",
+    "@mongodb-js/compass-connections": "^1.72.0",
+    "@mongodb-js/compass-editor": "^0.52.0",
+    "@mongodb-js/compass-logging": "^1.7.13",
+    "@mongodb-js/compass-telemetry": "^1.14.1",
+    "@mongodb-js/explain-plan-helper": "^1.4.19",
+    "compass-preferences-model": "^2.52.0",
     "d3": "^3.5.17",
     "d3-flextree": "^2.1.2",
     "d3-hierarchy": "^3.1.2",
