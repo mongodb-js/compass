@@ -23,6 +23,15 @@ import {
 } from '../../modules/collection-tab';
 import { default as SchemaConfirmationScreen } from './raw-schema-confirmation';
 import FakerSchemaEditor from './faker-schema-editor';
+import ScriptScreen from './script-screen';
+
+const STEP_TO_COMPONENT: Record<MockDataGeneratorStep, React.JSX.Element> = {
+  [MockDataGeneratorStep.SCHEMA_CONFIRMATION]: <SchemaConfirmationScreen />,
+  [MockDataGeneratorStep.SCHEMA_EDITOR]: <FakerSchemaEditor />,
+  [MockDataGeneratorStep.DOCUMENT_COUNT]: <></>, // TODO: Implement as part of CLOUDP-XXXXXX
+  [MockDataGeneratorStep.PREVIEW_DATA]: <></>, // TODO: Implement as part of CLOUDP-XXXXXX
+  [MockDataGeneratorStep.GENERATE_DATA]: <ScriptScreen />,
+};
 
 const footerStyles = css`
   flex-direction: row;
@@ -62,18 +71,9 @@ const MockDataGeneratorModal = ({
     }
   };
 
-  let stepContent: React.ReactNode;
-
-  if (currentStep === MockDataGeneratorStep.SCHEMA_CONFIRMATION) {
-    stepContent = <SchemaConfirmationScreen />;
-  }
-
-  if (currentStep === MockDataGeneratorStep.SCHEMA_EDITOR) {
-    stepContent = <FakerSchemaEditor />;
-  }
-
   return (
     <Modal
+      size="large"
       open={isOpen}
       setOpen={(open) => {
         if (!open) {
@@ -84,8 +84,9 @@ const MockDataGeneratorModal = ({
     >
       <ModalHeader title="Generate Mock Data" />
       <ModalBody>
-        {stepContent}
-        <div data-testid={`generate-mock-data-step-${currentStep}`} />
+        <div data-testid={`generate-mock-data-step-${currentStep}`}>
+          {STEP_TO_COMPONENT[currentStep]}
+        </div>
       </ModalBody>
       <ModalFooter className={footerStyles}>
         <Button
