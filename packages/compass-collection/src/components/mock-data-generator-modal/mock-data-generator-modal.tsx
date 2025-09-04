@@ -25,7 +25,7 @@ import { default as SchemaConfirmationScreen } from './raw-schema-confirmation';
 import FakerSchemaEditor from './faker-schema-editor';
 import ScriptScreen from './script-screen';
 
-const STEP_TO_COMPONENT: Record<MockDataGeneratorStep, React.JSX.Element> = {
+const STEP_TO_STEP_CONTENT: Record<MockDataGeneratorStep, React.JSX.Element> = {
   [MockDataGeneratorStep.SCHEMA_CONFIRMATION]: <SchemaConfirmationScreen />,
   [MockDataGeneratorStep.SCHEMA_EDITOR]: <FakerSchemaEditor />,
   [MockDataGeneratorStep.DOCUMENT_COUNT]: <></>, // TODO: Implement as part of CLOUDP-XXXXXX
@@ -85,7 +85,7 @@ const MockDataGeneratorModal = ({
       <ModalHeader title="Generate Mock Data" />
       <ModalBody>
         <div data-testid={`generate-mock-data-step-${currentStep}`}>
-          {STEP_TO_COMPONENT[currentStep]}
+          {STEP_TO_STEP_CONTENT[currentStep]}
         </div>
       </ModalBody>
       <ModalFooter className={footerStyles}>
