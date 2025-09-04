@@ -58,10 +58,12 @@ import { DataModelingWorkspaceTab as DataModelingWorkspace } from '@mongodb-js/c
 import { DataModelStorageServiceProviderInMemory } from '@mongodb-js/compass-data-modeling/web';
 import { WorkspaceTab as MyQueriesWorkspace } from '@mongodb-js/compass-saved-aggregations-queries';
 import {
-  FavoriteQueryStorageProvider,
-  RecentQueryStorageProvider,
   compassFavoriteQueryStorageAccess,
   compassRecentQueryStorageAccess,
+  CompassPipelineStorage,
+  FavoriteQueryStorageProvider,
+  RecentQueryStorageProvider,
+  PipelineStorageProvider,
 } from '@mongodb-js/my-queries-storage';
 import {
   CompassAssistantDrawer,
@@ -179,67 +181,72 @@ function CompassWorkspace({
   onActiveWorkspaceTabChange,
   onOpenConnectViaModal,
 }: CompassWorkspaceProps) {
+  // Create a simple pipeline storage instance for sandbox
+  const pipelineStorage = new CompassPipelineStorage();
+
   return (
-    <FavoriteQueryStorageProvider value={compassFavoriteQueryStorageAccess}>
-      <RecentQueryStorageProvider value={compassRecentQueryStorageAccess}>
-        <WorkspacesProvider
-          value={[
-            WelcomeWorkspaceTab,
-            DatabasesWorkspaceTab,
-            CollectionsWorkspaceTab,
-            CollectionWorkspace,
-            DataModelingWorkspace,
-            MyQueriesWorkspace,
-          ]}
-        >
-          <CollectionTabsProvider
-            queryBar={CompassQueryBarPlugin}
-            tabs={[
-              CompassDocumentsPlugin,
-              CompassAggregationsPlugin,
-              CompassSchemaPlugin,
-              CompassIndexesPlugin,
-              CompassSchemaValidationPlugin,
-              CompassGlobalWritesPlugin,
-            ]}
-            modals={[
-              ExplainPlanCollectionTabModal,
-              ExportToLanguageCollectionTabModal,
+    <PipelineStorageProvider value={pipelineStorage}>
+      <FavoriteQueryStorageProvider value={compassFavoriteQueryStorageAccess}>
+        <RecentQueryStorageProvider value={compassRecentQueryStorageAccess}>
+          <WorkspacesProvider
+            value={[
+              WelcomeWorkspaceTab,
+              DatabasesWorkspaceTab,
+              CollectionsWorkspaceTab,
+              CollectionWorkspace,
+              DataModelingWorkspace,
+              MyQueriesWorkspace,
             ]}
           >
-            <div
-              data-testid="compass-web-connected"
-              className={connectedContainerStyles}
+            <CollectionTabsProvider
+              queryBar={CompassQueryBarPlugin}
+              tabs={[
+                CompassDocumentsPlugin,
+                CompassAggregationsPlugin,
+                CompassSchemaPlugin,
+                CompassIndexesPlugin,
+                CompassSchemaValidationPlugin,
+                CompassGlobalWritesPlugin,
+              ]}
+              modals={[
+                ExplainPlanCollectionTabModal,
+                ExportToLanguageCollectionTabModal,
+              ]}
             >
-              <WorkspacesPlugin
-                initialWorkspaceTabs={initialWorkspaceTabs}
-                openOnEmptyWorkspace={{ type: 'Welcome' }}
-                onActiveWorkspaceTabChange={onActiveWorkspaceTabChange}
-                renderSidebar={() => {
-                  return (
-                    <CompassSidebarPlugin
-                      onOpenConnectViaModal={onOpenConnectViaModal}
-                      isCompassWeb={true}
-                    ></CompassSidebarPlugin>
-                  );
-                }}
-                renderModals={() => {
-                  return (
-                    <>
-                      <CreateViewPlugin></CreateViewPlugin>
-                      <CreateNamespacePlugin></CreateNamespacePlugin>
-                      <DropNamespacePlugin></DropNamespacePlugin>
-                      <RenameCollectionPlugin></RenameCollectionPlugin>
-                      <CompassAssistantDrawer />
-                    </>
-                  );
-                }}
-              ></WorkspacesPlugin>
-            </div>
-          </CollectionTabsProvider>
-        </WorkspacesProvider>
-      </RecentQueryStorageProvider>
-    </FavoriteQueryStorageProvider>
+              <div
+                data-testid="compass-web-connected"
+                className={connectedContainerStyles}
+              >
+                <WorkspacesPlugin
+                  initialWorkspaceTabs={initialWorkspaceTabs}
+                  openOnEmptyWorkspace={{ type: 'Welcome' }}
+                  onActiveWorkspaceTabChange={onActiveWorkspaceTabChange}
+                  renderSidebar={() => {
+                    return (
+                      <CompassSidebarPlugin
+                        onOpenConnectViaModal={onOpenConnectViaModal}
+                        isCompassWeb={true}
+                      ></CompassSidebarPlugin>
+                    );
+                  }}
+                  renderModals={() => {
+                    return (
+                      <>
+                        <CreateViewPlugin></CreateViewPlugin>
+                        <CreateNamespacePlugin></CreateNamespacePlugin>
+                        <DropNamespacePlugin></DropNamespacePlugin>
+                        <RenameCollectionPlugin></RenameCollectionPlugin>
+                        <CompassAssistantDrawer />
+                      </>
+                    );
+                  }}
+                ></WorkspacesPlugin>
+              </div>
+            </CollectionTabsProvider>
+          </WorkspacesProvider>
+        </RecentQueryStorageProvider>
+      </FavoriteQueryStorageProvider>
+    </PipelineStorageProvider>
   );
 }
 
@@ -290,7 +297,7 @@ const CompassWeb = ({
     onDebug,
   });
   const preferencesAccess = useCompassWebPreferences(initialPreferences);
-  // TODO: My Queries feature flag will be used to conditionally provide storage providers in COMPASS-9565
+  // TODO (COMPASS-9565): My Queries feature flag will be used to conditionally provide storage providers
   const initialWorkspaceRef = useRef(initialWorkspace);
   const initialWorkspaceTabsRef = useRef(
     initialWorkspaceRef.current ? [initialWorkspaceRef.current] : []

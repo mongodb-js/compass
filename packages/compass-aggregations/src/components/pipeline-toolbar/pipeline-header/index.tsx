@@ -8,6 +8,7 @@ import {
   InteractivePopover,
 } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
+import { usePreference } from 'compass-preferences-model/provider';
 
 import PipelineStages from './pipeline-stages';
 import PipelineActions from './pipeline-actions';
@@ -112,7 +113,10 @@ export const PipelineHeader: React.FunctionComponent<PipelineHeaderProps> = ({
 }) => {
   // TODO: remove direct check for storage existing, breaks single source of
   // truth rule and exposes services to UI, this breaks the rules for locators
-  const isSavingAggregationsEnabled = !!usePipelineStorage();
+  const pipelineStorageAvailable = !!usePipelineStorage();
+  const isMyQueriesEnabled = usePreference('enableMyQueries');
+  const isSavingAggregationsEnabled =
+    pipelineStorageAvailable && isMyQueriesEnabled;
   return (
     <div className={containerStyles} data-testid="pipeline-header">
       {isOpenPipelineVisible && isSavingAggregationsEnabled && (
