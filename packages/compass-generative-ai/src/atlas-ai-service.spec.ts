@@ -93,7 +93,7 @@ describe('AtlasAiService', function () {
     },
     {
       apiURLPreset: 'cloud',
-      expectedPromptName: 'Atlas Data Explorer',
+      expectedPromptName: 'MongoDB Atlas Data Explorer',
       expectedEndpoints: {
         'mql-aggregation':
           '/cloud/ai/v1/groups/testProject/mql-aggregation?request_id=abc',

@@ -8,7 +8,7 @@ export const buildConversationInstructionsPrompt = ({
 }) => {
   // TODO: we'll want to greatly expand on this, but at minimum this is where we
   // make the distinction between running inside Data Explorer vs Compass.
-  return `You are an assistant running in a side-panel inside ${target}.`;
+  return `You are an assistant running in a side-panel inside ${target}. Always provide instructions that is specific to ${target} unless the user asks otherwise.`;
 };
 
 export type EntryPointMessage = {

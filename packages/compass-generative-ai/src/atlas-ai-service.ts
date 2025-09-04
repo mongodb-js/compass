@@ -545,7 +545,7 @@ export class AtlasAiService {
     // different between dev/beta/staging or readonly vs isolated, so it doesn't
     // map to the electron app name either.
     if (this.apiURLPreset === 'cloud') {
-      return 'Atlas Data Explorer';
+      return 'MongoDB Atlas Data Explorer';
     }
     return 'MongoDB Compass';
   }
