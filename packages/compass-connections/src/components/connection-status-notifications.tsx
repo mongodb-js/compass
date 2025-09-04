@@ -75,6 +75,7 @@ const connectionErrorActionsStyles = css({
 const connectionErrorStyles = css({
   display: 'flex',
   flexDirection: 'column',
+  wordBreak: 'break-word',
 });
 
 const connectionErrorTitleStyles = css({
