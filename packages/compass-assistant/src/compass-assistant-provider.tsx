@@ -36,6 +36,10 @@ export type AssistantMessage = UIMessage & {
   metadata?: {
     /** The text to display instead of the message text. */
     displayText?: string;
+    /** Whether to persist the message after chat clearing.
+     *  Used for warning messages in cases like using non-genuine MongoDB.
+     */
+    isPermanent?: boolean;
   };
 };
 
@@ -190,7 +194,9 @@ export const AssistantProvider: React.FunctionComponent<
       buildProactiveInsightsPrompt
     ),
     clearChat: () => {
-      chat.messages = [];
+      chat.messages = chat.messages.filter(
+        (message) => message.metadata?.isPermanent
+      );
     },
     ensureOptInAndSend: async (
       message: SendMessage,

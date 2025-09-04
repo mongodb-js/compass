@@ -1,4 +1,4 @@
-import React, { useCallback, useContext } from 'react';
+import React, { useCallback, useEffect, useContext } from 'react';
 import type { AssistantMessage } from './compass-assistant-provider';
 import { AssistantActionsContext } from './compass-assistant-provider';
 import type { Chat } from './@ai-sdk/react/chat-react';
@@ -20,6 +20,7 @@ import {
   Link,
 } from '@mongodb-js/compass-components';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
+import { NON_GENUINE_WARNING_MESSAGE } from './preset-messages';
 
 const { DisclaimerText } = LgChatChatDisclaimer;
 const { ChatWindow } = LgChatChatWindow;
@@ -32,6 +33,7 @@ const GEN_AI_FAQ_LINK = 'https://www.mongodb.com/docs/generative-ai-faq/';
 
 interface AssistantChatProps {
   chat: Chat<AssistantMessage>;
+  hasNonGenuineConnections: boolean;
 }
 
 const assistantChatStyles = css({
@@ -127,11 +129,13 @@ const errorBannerWrapperStyles = css({
 
 export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
   chat,
+  hasNonGenuineConnections,
 }) => {
   const track = useTelemetry();
   const darkMode = useDarkMode();
+
   const { ensureOptInAndSend } = useContext(AssistantActionsContext);
-  const { messages, status, error, clearError } = useChat({
+  const { messages, status, error, clearError, setMessages } = useChat({
     chat,
     onError: (error) => {
       track('Assistant Response Failed', () => ({
@@ -139,6 +143,23 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
       }));
     },
   });
+
+  useEffect(() => {
+    const hasExistingNonGenuineWarning = chat.messages.some(
+      (message) => message.id === 'non-genuine-warning'
+    );
+    if (hasNonGenuineConnections && !hasExistingNonGenuineWarning) {
+      setMessages((messages) => {
+        return [NON_GENUINE_WARNING_MESSAGE, ...messages];
+      });
+    } else if (hasExistingNonGenuineWarning && !hasNonGenuineConnections) {
+      setMessages((messages) => {
+        return messages.filter(
+          (message) => message.id !== 'non-genuine-warning'
+        );
+      });
+    }
+  }, [hasNonGenuineConnections, chat, setMessages]);
 
   // Transform AI SDK messages to LeafyGreen chat format and reverse the order of the messages
   // for displaying it correctly with flex-direction: column-reverse.
