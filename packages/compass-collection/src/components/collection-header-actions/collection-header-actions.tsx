@@ -22,7 +22,7 @@ import {
 /**
  * Maximum allowed nesting depth for collections to show Mock Data Generator
  */
-const MAX_COLLECTION_NESTING_DEPTH = 4;
+const MAX_COLLECTION_NESTING_DEPTH = 3;
 
 const collectionHeaderActionsStyles = css({
   display: 'flex',
@@ -94,7 +94,7 @@ const CollectionHeaderActions: React.FunctionComponent<
     atlasMetadata && // Only show in Atlas
     !isReadonly && // Don't show for readonly collections (views)
     !sourceName && // sourceName indicates it's a view
-    analyzedSchemaDepth < MAX_COLLECTION_NESTING_DEPTH; // Filter out overly nested collections
+    analyzedSchemaDepth <= MAX_COLLECTION_NESTING_DEPTH; // Filter out overly nested collections
 
   return (
     <div
