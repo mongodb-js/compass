@@ -91,6 +91,10 @@ export function useAssistantActions(): AssistantActionsType {
   const actions = useContext(AssistantActionsContext);
   const isAIFeatureEnabled = useIsAIFeatureEnabled();
   const isAssistantFlagEnabled = usePreference('enableAIAssistant');
+  const isPerformanceInsightEntrypointsEnabled = usePreference(
+    'enablePerformanceInsightsEntrypoints'
+  );
+
   if (!isAIFeatureEnabled || !isAssistantFlagEnabled) {
     return {
       getIsAssistantEnabled: () => false,
@@ -106,7 +110,9 @@ export function useAssistantActions(): AssistantActionsType {
   return {
     interpretExplainPlan,
     interpretConnectionError,
-    tellMoreAboutInsight,
+    tellMoreAboutInsight: isPerformanceInsightEntrypointsEnabled
+      ? tellMoreAboutInsight
+      : undefined,
     getIsAssistantEnabled: () => true,
   };
 }
