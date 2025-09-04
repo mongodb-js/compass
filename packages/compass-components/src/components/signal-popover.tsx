@@ -24,6 +24,7 @@ type SignalTrackingHooks = {
   onSignalLinkClick(id: string): void;
   onSignalPrimaryActionClick(id: string): void;
   onSignalClose(id: string): void;
+  onAssistantButtonClick?: () => void;
 };
 
 const TrackingHooksContext = React.createContext<SignalTrackingHooks>({
@@ -40,6 +41,9 @@ const TrackingHooksContext = React.createContext<SignalTrackingHooks>({
     /** noop */
   },
   onSignalClose() {
+    /** noop */
+  },
+  onAssistantButtonClick() {
     /** noop */
   },
 });
@@ -66,6 +70,7 @@ const SignalHooksProvider: React.FunctionComponent<
       onSignalClose(id: string) {
         hooksRef.current.onSignalClose?.(id);
       },
+      onAssistantButtonClick: hooksRef.current.onAssistantButtonClick,
     };
   }, []);
 
@@ -116,6 +121,11 @@ export type Signal = {
    * button click
    */
   onPrimaryActionButtonClick?: React.MouseEventHandler;
+
+  /**
+   * Optional, when provided will be called with a signal id and assistant context
+   */
+  onAssistantButtonClick?: React.MouseEventHandler;
 };
 
 type SignalPopoverProps = {
@@ -192,6 +202,7 @@ const SignalCard: React.FunctionComponent<
   primaryActionButtonIcon,
   primaryActionButtonVariant,
   primaryActionButtonLink,
+  onAssistantButtonClick,
   darkMode: _darkMode,
   onPrimaryActionButtonClick,
   hasMultiSignals,
@@ -217,6 +228,22 @@ const SignalCard: React.FunctionComponent<
       </strong>
       <Body as="div" baseFontSize={13} className={signalCardDescriptionStyles}>
         {description}
+        {onAssistantButtonClick && (
+          <>
+            {' '}
+            <Link
+              data-testid="insight-signal-link"
+              className={signalCardLearnMoreLinkStyles}
+              href={learnMoreLink}
+              target="_blank"
+              onClick={() => {
+                hooks.onSignalLinkClick(id);
+              }}
+            >
+              {learnMoreLabel ?? 'Learn more'}
+            </Link>
+          </>
+        )}
       </Body>
       <div className={signalCardActionGroupStyles}>
         {primaryActionButtonLabel && (
@@ -241,17 +268,32 @@ const SignalCard: React.FunctionComponent<
             {primaryActionButtonLabel}
           </Button>
         )}
-        <Link
-          data-testid="insight-signal-link"
-          className={signalCardLearnMoreLinkStyles}
-          href={learnMoreLink}
-          target="_blank"
-          onClick={() => {
-            hooks.onSignalLinkClick(id);
-          }}
-        >
-          {learnMoreLabel ?? 'Learn more'}
-        </Link>
+        {onAssistantButtonClick ? (
+          <Button
+            size="small"
+            variant="default"
+            leftGlyph={
+              // TODO(COMPASS-9751): Will be replaced with Sparkle gradient icon once Leafygreen components are updated.
+              <Icon glyph="Sparkle" style={{ color: palette.green.dark1 }} />
+            }
+            data-testid="tell-me-more-button"
+            onClick={onAssistantButtonClick}
+          >
+            Tell me more
+          </Button>
+        ) : (
+          <Link
+            data-testid="insight-signal-link"
+            className={signalCardLearnMoreLinkStyles}
+            href={learnMoreLink}
+            target="_blank"
+            onClick={() => {
+              hooks.onSignalLinkClick(id);
+            }}
+          >
+            {learnMoreLabel ?? 'Learn more'}
+          </Link>
+        )}
       </div>
     </div>
   );
@@ -658,6 +700,14 @@ const SignalPopover: React.FunctionComponent<SignalPopoverProps> = ({
         )}
         <SignalCard
           {...currentSignal}
+          onAssistantButtonClick={
+            currentSignal.onAssistantButtonClick
+              ? (event) => {
+                  currentSignal.onAssistantButtonClick?.(event);
+                  setPopoverOpen(false);
+                }
+              : undefined
+          }
           darkMode={darkMode}
           hasMultiSignals={multiSignals}
         ></SignalCard>

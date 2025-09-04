@@ -117,7 +117,7 @@ function getConnectionsActions(dispatch: ConnectionsStore['dispatch']) {
       return dispatch(saveEditedConnectionInfo(connectionInfo));
     },
     cancelEditConnection: (connectionId: ConnectionId) => {
-      return dispatch(cancelEditConnection(connectionId));
+      dispatch(cancelEditConnection(connectionId));
     },
     toggleFavoritedConnectionStatus: (connectionId: ConnectionId) => {
       return dispatch(toggleConnectionFavoritedStatus(connectionId));

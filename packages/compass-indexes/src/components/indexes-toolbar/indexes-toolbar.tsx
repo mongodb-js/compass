@@ -1,24 +1,23 @@
 import React, { useCallback } from 'react';
 import { connect } from 'react-redux';
 import {
-  withPreferences,
   usePreference,
+  withPreferences,
 } from 'compass-preferences-model/provider';
 import {
   Button,
-  ErrorSummary,
-  Tooltip,
-  WarningSummary,
-  Link,
   css,
-  spacing,
-  Icon,
-  SpinLoader,
-  SignalPopover,
-  PerformanceSignals,
   DropdownMenuButton,
+  ErrorSummary,
+  Icon,
+  Link,
+  PerformanceSignals,
   SegmentedControl,
   SegmentedControlOption,
+  SignalPopover,
+  spacing,
+  SpinLoader,
+  Tooltip,
 } from '@mongodb-js/compass-components';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import semver from 'semver';
@@ -29,6 +28,9 @@ import { getAtlasSearchIndexesLink } from '../../utils/atlas-search-indexes-link
 import { createIndexOpened } from '../../modules/create-index';
 import type { IndexView } from '../../modules/index-view';
 import { indexViewChanged } from '../../modules/index-view';
+import type { CollectionStats } from '../../modules/collection-stats';
+import type { Document } from 'mongodb';
+import { VIEW_PIPELINE_UTILS } from '@mongodb-js/mongodb-constants';
 
 const toolbarButtonsContainer = css({
   display: 'flex',
@@ -86,6 +88,7 @@ type IndexesToolbarProps = {
   isSearchIndexesSupported: boolean;
   // via withPreferences:
   readOnly?: boolean;
+  collectionStats: CollectionStats;
 };
 
 export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
@@ -105,11 +108,18 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
   onIndexViewChanged,
   serverVersion,
   readOnly, // preferences readOnly.
+  collectionStats,
 }) => {
   const isSearchManagementActive = usePreference('enableAtlasSearchIndexes');
   const { atlasMetadata } = useConnectionInfo();
   const showInsights = usePreference('showInsights') && !errorMessage;
-  const showCreateIndexButton = !isReadonlyView && !readOnly && !errorMessage;
+  const showCreateIndexButton =
+    (!isReadonlyView ||
+      VIEW_PIPELINE_UTILS.isVersionSearchCompatibleForViewsCompass(
+        serverVersion
+      )) &&
+    !readOnly &&
+    !errorMessage;
   const refreshButtonIcon = isRefreshing ? (
     <div className={spinnerStyles}>
       <SpinLoader title="Refreshing Indexes" />
@@ -117,18 +127,29 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
   ) : (
     <Icon glyph="Refresh" title="Refresh Indexes" />
   );
-
+  const isViewPipelineSearchQueryable =
+    isReadonlyView && collectionStats?.pipeline
+      ? VIEW_PIPELINE_UTILS.isPipelineSearchQueryable(
+          collectionStats.pipeline as Document[]
+        )
+      : true;
+  const pipelineNotSearchQueryableDescription =
+    'Search indexes can only be created on views containing $match stages with the $expr operator, $addFields, or $set';
   return (
     <div
       className={indexesToolbarContainerStyles}
       data-testid="indexes-toolbar-container"
     >
-      {!isReadonlyView && (
+      {(!isReadonlyView ||
+        (VIEW_PIPELINE_UTILS.isVersionSearchCompatibleForViewsCompass(
+          serverVersion
+        ) &&
+          isSearchManagementActive)) && (
         <div data-testid="indexes-toolbar">
           <div className={toolbarButtonsContainer}>
             {showCreateIndexButton && (
               <Tooltip
-                enabled={!isWritable}
+                enabled={!isWritable || !isViewPipelineSearchQueryable}
                 align="top"
                 justify="middle"
                 trigger={
@@ -139,11 +160,18 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
                       isWritable={isWritable}
                       onCreateRegularIndexClick={onCreateRegularIndexClick}
                       onCreateSearchIndexClick={onCreateSearchIndexClick}
-                    ></CreateIndexButton>
+                      isReadonlyView={isReadonlyView}
+                      indexView={indexView}
+                      isViewPipelineSearchQueryable={
+                        isViewPipelineSearchQueryable
+                      }
+                    />
                   </div>
                 }
               >
-                {writeStateDescription}
+                {(!isWritable && writeStateDescription) ||
+                  (!isViewPipelineSearchQueryable &&
+                    pipelineNotSearchQueryableDescription)}
               </Tooltip>
             )}
             <Button
@@ -173,6 +201,7 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
                 signals={PerformanceSignals.get('too-many-indexes')}
               />
             )}
+
             {isSearchManagementActive && (
               <SegmentedControl
                 size="xsmall"
@@ -182,13 +211,34 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
                 value={indexView}
                 data-testid="indexes-segment-controls"
               >
-                <SegmentedControlOption
-                  data-testid="regular-indexes-tab"
-                  value="regular-indexes"
-                >
-                  Indexes
-                </SegmentedControlOption>
-                {!isSearchIndexesSupported && (
+                {isReadonlyView && (
+                  <Tooltip
+                    align="top"
+                    justify="end"
+                    enabled={true}
+                    renderMode="portal"
+                    trigger={
+                      <SegmentedControlOption
+                        data-testid="regular-indexes-tab"
+                        value="regular-indexes"
+                        disabled={isReadonlyView}
+                      >
+                        Indexes
+                      </SegmentedControlOption>
+                    }
+                  >
+                    Readonly views may not contain standard indexes.
+                  </Tooltip>
+                )}
+                {!isReadonlyView && (
+                  <SegmentedControlOption
+                    data-testid="regular-indexes-tab"
+                    value="regular-indexes"
+                  >
+                    Indexes
+                  </SegmentedControlOption>
+                )}
+                {!isSearchIndexesSupported && !isReadonlyView && (
                   <Tooltip
                     align="top"
                     justify="end"
@@ -227,7 +277,7 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
                     )}
                   </Tooltip>
                 )}
-                {isSearchIndexesSupported && (
+                {(isSearchIndexesSupported || isReadonlyView) && (
                   <SegmentedControlOption
                     data-testid="search-indexes-tab"
                     value="search-indexes"
@@ -240,14 +290,8 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
           </div>
         </div>
       )}
-      {isReadonlyView ? (
-        <WarningSummary
-          warnings={['Readonly views may not contain indexes.']}
-        />
-      ) : (
-        !!errorMessage && (
-          <ErrorSummary data-testid="indexes-error" errors={[errorMessage]} />
-        )
+      {!!errorMessage && isSearchManagementActive && (
+        <ErrorSummary data-testid="indexes-error" errors={[errorMessage]} />
       )}
     </div>
   );
@@ -259,6 +303,9 @@ type CreateIndexButtonProps = {
   isWritable: boolean;
   onCreateRegularIndexClick: () => void;
   onCreateSearchIndexClick: () => void;
+  isReadonlyView: boolean;
+  indexView: IndexView;
+  isViewPipelineSearchQueryable: boolean;
 };
 
 type CreateIndexActions = 'createRegularIndex' | 'createSearchIndex';
@@ -271,6 +318,9 @@ export const CreateIndexButton: React.FunctionComponent<
   isWritable,
   onCreateRegularIndexClick,
   onCreateSearchIndexClick,
+  isReadonlyView,
+  indexView,
+  isViewPipelineSearchQueryable,
 }) => {
   const onActionDispatch = useCallback(
     (action: CreateIndexActions) => {
@@ -284,7 +334,23 @@ export const CreateIndexButton: React.FunctionComponent<
     [onCreateRegularIndexClick, onCreateSearchIndexClick]
   );
 
-  if (isSearchIndexesSupported && isSearchManagementActive) {
+  if (isReadonlyView && isSearchManagementActive) {
+    if (indexView === 'search-indexes') {
+      return (
+        <Button
+          disabled={!isWritable || !isViewPipelineSearchQueryable}
+          onClick={onCreateSearchIndexClick}
+          variant="primary"
+          size="small"
+        >
+          Create Search Index
+        </Button>
+      );
+    }
+
+    return null;
+  }
+  if (!isReadonlyView && isSearchIndexesSupported && isSearchManagementActive) {
     return (
       <DropdownMenuButton
         data-testid="multiple-index-types-creation-dropdown"
@@ -326,6 +392,7 @@ const mapState = ({
   serverVersion,
   searchIndexes,
   indexView,
+  collectionStats,
 }: RootState) => ({
   namespace,
   isWritable,
@@ -335,6 +402,7 @@ const mapState = ({
   indexView,
   serverVersion,
   searchIndexes,
+  collectionStats,
 });
 
 const mapDispatch = {

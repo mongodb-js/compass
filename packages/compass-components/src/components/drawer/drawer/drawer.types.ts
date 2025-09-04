@@ -15,7 +15,7 @@ export const DisplayMode = {
   Embedded: 'embedded',
   Overlay: 'overlay',
 } as const;
-export type DisplayMode = typeof DisplayMode[keyof typeof DisplayMode];
+export type DisplayMode = (typeof DisplayMode)[keyof typeof DisplayMode];
 
 export interface DrawerProps
   extends Omit<HTMLElementProps<'dialog' | 'div'>, 'title'>,
@@ -44,4 +44,10 @@ export interface DrawerProps
    * Title of the Drawer
    */
   title: React.ReactNode;
+
+  /**
+   * Determines if the Drawer has padding
+   * @defaultValue true
+   */
+  hasPadding?: boolean;
 }

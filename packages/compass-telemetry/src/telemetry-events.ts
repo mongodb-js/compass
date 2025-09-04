@@ -1459,6 +1459,57 @@ type IndexDroppedEvent = ConnectionScopedEvent<{
 }>;
 
 /**
+ * This event is fired when user enters a prompt in the assistant chat
+ * and hits "enter".
+ *
+ * @category Gen AI
+ */
+type AssistantPromptSubmittedEvent = CommonEvent<{
+  name: 'Assistant Prompt Submitted';
+  payload: {
+    user_input_length?: number;
+  };
+}>;
+
+/**
+ * This event is fired when a user submits feedback for the assistant.
+ *
+ * @category Assistant
+ */
+type AssistantFeedbackSubmittedEvent = CommonEvent<{
+  name: 'Assistant Feedback Submitted';
+  payload: {
+    feedback: 'positive' | 'negative';
+    text: string | undefined;
+    request_id: string | null;
+  };
+}>;
+
+/**
+ * This event is fired when a user uses an assistant entry point.
+ *
+ * @category Gen AI
+ */
+type AssistantEntryPointUsedEvent = CommonEvent<{
+  name: 'Assistant Entry Point Used';
+  payload: {
+    source: 'explain plan' | 'performance insights' | 'connection error';
+  };
+}>;
+
+/**
+ * This event is fired when the AI response encounters an error.
+ *
+ * @category Gen AI
+ */
+type AssistantResponseFailedEvent = CommonEvent<{
+  name: 'Assistant Response Failed';
+  payload: {
+    error_name?: string;
+  };
+}>;
+
+/**
  * This event is fired when a user submits feedback for a query generation.
  *
  * @category Gen AI
@@ -1546,26 +1597,6 @@ type AiOptInModalShownEvent = CommonEvent<{
  */
 type AiOptInModalDismissedEvent = CommonEvent<{
   name: 'AI Opt In Modal Dismissed';
-  payload: Record<string, never>;
-}>;
-
-/**
- * This event is fired when the AI Sign-In Modal is shown to the user.
- *
- * @category Gen AI
- */
-type AiSignInModalShownEvent = CommonEvent<{
-  name: 'AI Sign In Modal Shown';
-  payload: Record<string, never>;
-}>;
-
-/**
- * This event is fired when the AI Sign-In Modal is dismissed by the user.
- *
- * @category Gen AI
- */
-type AiSignInModalDismissedEvent = CommonEvent<{
-  name: 'AI Sign In Modal Dismissed';
   payload: Record<string, never>;
 }>;
 
@@ -1734,6 +1765,11 @@ type QueryExecutedEvent = ConnectionScopedEvent<{
      * Indicates whether the query includes a sort operation.
      */
     has_sort: boolean;
+
+    /**
+     * Indicates which default sort was set in settings
+     */
+    default_sort: 'natural' | '_id' | 'none';
 
     /**
      * Indicates whether the query includes a limit operation.
@@ -2992,10 +3028,12 @@ export type TelemetryEvent =
   | AggregationTimedOutEvent
   | AggregationUseCaseAddedEvent
   | AggregationUseCaseSavedEvent
+  | AssistantPromptSubmittedEvent
+  | AssistantResponseFailedEvent
+  | AssistantFeedbackSubmittedEvent
+  | AssistantEntryPointUsedEvent
   | AiOptInModalShownEvent
   | AiOptInModalDismissedEvent
-  | AiSignInModalShownEvent
-  | AiSignInModalDismissedEvent
   | AiGenerateQueryClickedEvent
   | AiPromptSubmittedEvent
   | AiQueryFeedbackEvent

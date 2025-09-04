@@ -1,21 +1,28 @@
 import React from 'react';
+import { connect } from 'react-redux';
 
 import {
   css,
+  Button,
+  ButtonVariant,
   ModalBody,
   ModalHeader,
+  Modal,
+  ModalFooter,
   spacing,
 } from '@mongodb-js/compass-components';
 
-import {
-  Button,
-  Modal,
-  ModalFooter,
-  ButtonVariant,
-} from '@mongodb-js/compass-components';
 import { MockDataGeneratorStep } from './types';
 import { StepButtonLabelMap } from './constants';
-import { getNextStep, getPreviousStep } from './utils';
+import type { CollectionState } from '../../modules/collection-tab';
+import {
+  mockDataGeneratorModalClosed,
+  mockDataGeneratorNextButtonClicked,
+  generateFakerMappings,
+  mockDataGeneratorPreviousButtonClicked,
+} from '../../modules/collection-tab';
+import { default as SchemaConfirmationScreen } from './raw-schema-confirmation';
+import FakerSchemaEditor from './faker-schema-editor';
 
 const footerStyles = css`
   flex-direction: row;
@@ -30,54 +37,68 @@ const rightButtonsStyles = css`
 
 interface Props {
   isOpen: boolean;
-  onOpenChange: (isOpen: boolean) => void;
+  onClose: () => void;
   currentStep: MockDataGeneratorStep;
-  onCurrentStepChange: (step: MockDataGeneratorStep) => void;
+  onNextStep: () => void;
+  onConfirmSchema: () => Promise<void>;
+  onPreviousStep: () => void;
 }
 
 const MockDataGeneratorModal = ({
   isOpen,
-  onOpenChange,
+  onClose,
   currentStep,
-  onCurrentStepChange,
+  onNextStep,
+  onConfirmSchema,
+  onPreviousStep,
 }: Props) => {
-  const onNext = () => {
-    const nextStep = getNextStep(currentStep);
-    onCurrentStepChange(nextStep);
+  const handleNextClick = () => {
+    if (currentStep === MockDataGeneratorStep.GENERATE_DATA) {
+      onClose();
+    } else if (currentStep === MockDataGeneratorStep.SCHEMA_CONFIRMATION) {
+      void onConfirmSchema();
+    } else {
+      onNextStep();
+    }
   };
 
-  const onBack = () => {
-    const previousStep = getPreviousStep(currentStep);
-    onCurrentStepChange(previousStep);
-  };
+  let stepContent: React.ReactNode;
 
-  const onCancel = () => {
-    onOpenChange(false);
-  };
+  if (currentStep === MockDataGeneratorStep.SCHEMA_CONFIRMATION) {
+    stepContent = <SchemaConfirmationScreen />;
+  }
+
+  if (currentStep === MockDataGeneratorStep.SCHEMA_EDITOR) {
+    stepContent = <FakerSchemaEditor />;
+  }
 
   return (
     <Modal
       open={isOpen}
-      setOpen={(open) => onOpenChange(open)}
+      setOpen={(open) => {
+        if (!open) {
+          onClose();
+        }
+      }}
       data-testid="generate-mock-data-modal"
     >
       <ModalHeader title="Generate Mock Data" />
       <ModalBody>
-        {/* TODO: Render actual step content here based on currentStep. (CLOUDP-333851) */}
+        {stepContent}
         <div data-testid={`generate-mock-data-step-${currentStep}`} />
       </ModalBody>
       <ModalFooter className={footerStyles}>
         <Button
-          onClick={onBack}
-          disabled={currentStep === MockDataGeneratorStep.AI_DISCLAIMER}
+          onClick={onPreviousStep}
+          disabled={currentStep === MockDataGeneratorStep.SCHEMA_CONFIRMATION}
         >
           Back
         </Button>
         <div className={rightButtonsStyles}>
-          <Button onClick={onCancel}>Cancel</Button>
+          <Button onClick={onClose}>Cancel</Button>
           <Button
             variant={ButtonVariant.Primary}
-            onClick={onNext}
+            onClick={handleNextClick}
             data-testid="next-step-button"
           >
             {StepButtonLabelMap[currentStep]}
@@ -88,4 +109,16 @@ const MockDataGeneratorModal = ({
   );
 };
 
-export default MockDataGeneratorModal;
+const mapStateToProps = (state: CollectionState) => ({
+  isOpen: state.mockDataGenerator.isModalOpen,
+  currentStep: state.mockDataGenerator.currentStep,
+});
+
+const ConnectedMockDataGeneratorModal = connect(mapStateToProps, {
+  onClose: mockDataGeneratorModalClosed,
+  onNextStep: mockDataGeneratorNextButtonClicked,
+  onConfirmSchema: generateFakerMappings,
+  onPreviousStep: mockDataGeneratorPreviousButtonClicked,
+})(MockDataGeneratorModal);
+
+export default ConnectedMockDataGeneratorModal;
