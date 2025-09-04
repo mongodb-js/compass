@@ -124,7 +124,7 @@ async function makeAssistantCall(
   const openai = createOpenAI({
     baseURL:
       process.env.COMPASS_ASSISTANT_BASE_URL_OVERRIDE ??
-      'https://knowledge.staging.corp.mongodb.com/api/v1',
+      'https://knowledge.mongodb.com/api/v1',
     apiKey: '',
     headers: {
       'User-Agent': 'mongodb-compass/x.x.x',

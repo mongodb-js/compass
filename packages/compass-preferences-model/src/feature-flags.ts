@@ -30,6 +30,7 @@ export type FeatureFlags = {
   enableSearchActivationProgramP1: boolean;
   enableUnauthenticatedGenAI: boolean;
   enableAIAssistant: boolean;
+  enablePerformanceInsightsEntrypoints: boolean;
 };
 
 export const featureFlags: Required<{
@@ -176,6 +177,16 @@ export const featureFlags: Required<{
     stage: 'development',
     description: {
       short: 'Enable AI Assistant',
+    },
+  },
+
+  /*
+   * Feature flag for AI Assistant's performance insight entrypoints.
+   */
+  enablePerformanceInsightsEntrypoints: {
+    stage: 'development',
+    description: {
+      short: 'Enable the performance insights AI Assistant entrypoints',
     },
   },
 };
