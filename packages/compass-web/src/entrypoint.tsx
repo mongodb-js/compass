@@ -423,7 +423,7 @@ const CompassWeb = ({
                         }}
                       >
                         <CompassInstanceStorePlugin>
-                          <CompassAssistantProvider>
+                          <CompassAssistantProvider appNameForPrompt="MongoDB Atlas Data Explorer">
                             <FieldStorePlugin>
                               <WithConnectionsStore>
                                 <CompassWorkspace
