@@ -15,7 +15,8 @@ export abstract class CompassQueryStorage<TSchema extends z.Schema> {
     protected readonly folder: string,
     protected readonly options: QueryStorageOptions
   ) {
-    // TODO: logic for whether we're in compass web or compass desktop
+    // Simple implementation - use FileUserData for now
+    // The use-atlas-user-data branch will add proper Atlas integration
     this.userData = new FileUserData(schemaValidator, folder, {
       basePath: options.basepath,
       serialize: (content) => EJSON.stringify(content, undefined, 2),

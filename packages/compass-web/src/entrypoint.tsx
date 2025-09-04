@@ -56,6 +56,13 @@ import { WebWorkspaceTab as WelcomeWorkspaceTab } from '@mongodb-js/compass-welc
 import { useCompassWebPreferences } from './preferences';
 import { DataModelingWorkspaceTab as DataModelingWorkspace } from '@mongodb-js/compass-data-modeling';
 import { DataModelStorageServiceProviderInMemory } from '@mongodb-js/compass-data-modeling/web';
+import { WorkspaceTab as MyQueriesWorkspace } from '@mongodb-js/compass-saved-aggregations-queries';
+import {
+  FavoriteQueryStorageProvider,
+  RecentQueryStorageProvider,
+  compassFavoriteQueryStorageAccess,
+  compassRecentQueryStorageAccess,
+} from '@mongodb-js/my-queries-storage';
 import {
   CompassAssistantDrawer,
   CompassAssistantProvider,
@@ -173,61 +180,66 @@ function CompassWorkspace({
   onOpenConnectViaModal,
 }: CompassWorkspaceProps) {
   return (
-    <WorkspacesProvider
-      value={[
-        WelcomeWorkspaceTab,
-        DatabasesWorkspaceTab,
-        CollectionsWorkspaceTab,
-        CollectionWorkspace,
-        DataModelingWorkspace,
-      ]}
-    >
-      <CollectionTabsProvider
-        queryBar={CompassQueryBarPlugin}
-        tabs={[
-          CompassDocumentsPlugin,
-          CompassAggregationsPlugin,
-          CompassSchemaPlugin,
-          CompassIndexesPlugin,
-          CompassSchemaValidationPlugin,
-          CompassGlobalWritesPlugin,
-        ]}
-        modals={[
-          ExplainPlanCollectionTabModal,
-          ExportToLanguageCollectionTabModal,
-        ]}
-      >
-        <div
-          data-testid="compass-web-connected"
-          className={connectedContainerStyles}
+    <FavoriteQueryStorageProvider value={compassFavoriteQueryStorageAccess}>
+      <RecentQueryStorageProvider value={compassRecentQueryStorageAccess}>
+        <WorkspacesProvider
+          value={[
+            WelcomeWorkspaceTab,
+            DatabasesWorkspaceTab,
+            CollectionsWorkspaceTab,
+            CollectionWorkspace,
+            DataModelingWorkspace,
+            MyQueriesWorkspace,
+          ]}
         >
-          <WorkspacesPlugin
-            initialWorkspaceTabs={initialWorkspaceTabs}
-            openOnEmptyWorkspace={{ type: 'Welcome' }}
-            onActiveWorkspaceTabChange={onActiveWorkspaceTabChange}
-            renderSidebar={() => {
-              return (
-                <CompassSidebarPlugin
-                  onOpenConnectViaModal={onOpenConnectViaModal}
-                  isCompassWeb={true}
-                ></CompassSidebarPlugin>
-              );
-            }}
-            renderModals={() => {
-              return (
-                <>
-                  <CreateViewPlugin></CreateViewPlugin>
-                  <CreateNamespacePlugin></CreateNamespacePlugin>
-                  <DropNamespacePlugin></DropNamespacePlugin>
-                  <RenameCollectionPlugin></RenameCollectionPlugin>
-                  <CompassAssistantDrawer />
-                </>
-              );
-            }}
-          ></WorkspacesPlugin>
-        </div>
-      </CollectionTabsProvider>
-    </WorkspacesProvider>
+          <CollectionTabsProvider
+            queryBar={CompassQueryBarPlugin}
+            tabs={[
+              CompassDocumentsPlugin,
+              CompassAggregationsPlugin,
+              CompassSchemaPlugin,
+              CompassIndexesPlugin,
+              CompassSchemaValidationPlugin,
+              CompassGlobalWritesPlugin,
+            ]}
+            modals={[
+              ExplainPlanCollectionTabModal,
+              ExportToLanguageCollectionTabModal,
+            ]}
+          >
+            <div
+              data-testid="compass-web-connected"
+              className={connectedContainerStyles}
+            >
+              <WorkspacesPlugin
+                initialWorkspaceTabs={initialWorkspaceTabs}
+                openOnEmptyWorkspace={{ type: 'Welcome' }}
+                onActiveWorkspaceTabChange={onActiveWorkspaceTabChange}
+                renderSidebar={() => {
+                  return (
+                    <CompassSidebarPlugin
+                      onOpenConnectViaModal={onOpenConnectViaModal}
+                      isCompassWeb={true}
+                    ></CompassSidebarPlugin>
+                  );
+                }}
+                renderModals={() => {
+                  return (
+                    <>
+                      <CreateViewPlugin></CreateViewPlugin>
+                      <CreateNamespacePlugin></CreateNamespacePlugin>
+                      <DropNamespacePlugin></DropNamespacePlugin>
+                      <RenameCollectionPlugin></RenameCollectionPlugin>
+                      <CompassAssistantDrawer />
+                    </>
+                  );
+                }}
+              ></WorkspacesPlugin>
+            </div>
+          </CollectionTabsProvider>
+        </WorkspacesProvider>
+      </RecentQueryStorageProvider>
+    </FavoriteQueryStorageProvider>
   );
 }
 
