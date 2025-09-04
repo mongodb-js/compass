@@ -25,7 +25,6 @@ import type { AtlasAuthService } from '@mongodb-js/atlas-service/provider';
 import type { AtlasService } from '@mongodb-js/atlas-service/provider';
 import { CompassAssistantDrawer } from './compass-assistant-drawer';
 import { createMockChat } from '../test/utils';
-import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import type { AtlasAiService } from '@mongodb-js/compass-generative-ai/provider';
 
 function createMockProvider({
@@ -69,12 +68,14 @@ const TestComponent: React.FunctionComponent<{
   mockAtlasService?: any;
   mockAtlasAiService?: any;
   mockAtlasAuthService?: any;
+  hasNonGenuineConnections?: boolean;
 }> = ({
   chat,
   autoOpen,
   mockAtlasService,
   mockAtlasAiService,
   mockAtlasAuthService,
+  hasNonGenuineConnections,
 }) => {
   const MockedProvider = createMockProvider({
     mockAtlasService: mockAtlasService as unknown as AtlasService,
@@ -87,7 +88,10 @@ const TestComponent: React.FunctionComponent<{
       <MockedProvider chat={chat}>
         <DrawerAnchor>
           <div data-testid="provider-children">Provider children</div>
-          <CompassAssistantDrawer autoOpen={autoOpen} />
+          <CompassAssistantDrawer
+            autoOpen={autoOpen}
+            hasNonGenuineConnections={hasNonGenuineConnections}
+          />
         </DrawerAnchor>
       </MockedProvider>
     </DrawerContentProvider>
@@ -249,21 +253,21 @@ describe('CompassAssistantProvider', function () {
       }
     });
 
-    async function renderOpenAssistantDrawer(
-      {
-        chat,
-        atlastAiService,
-      }: {
-        chat: Chat<AssistantMessage>;
-        atlastAiService?: Partial<AtlasAiService>;
-      },
-      { connections }: { connections?: ConnectionInfo[] } = {}
-    ): Promise<ReturnType<typeof render>> {
+    async function renderOpenAssistantDrawer({
+      chat,
+      atlastAiService,
+      hasNonGenuineConnections,
+    }: {
+      chat: Chat<AssistantMessage>;
+      atlastAiService?: Partial<AtlasAiService>;
+      hasNonGenuineConnections?: boolean;
+    }): Promise<ReturnType<typeof render>> {
       const result = render(
         <TestComponent
           chat={chat}
           mockAtlasAiService={atlastAiService}
           autoOpen={true}
+          hasNonGenuineConnections={hasNonGenuineConnections}
         />,
         {
           preferences: {
@@ -272,7 +276,6 @@ describe('CompassAssistantProvider', function () {
             enableGenAIFeaturesAtlasOrg: true,
             cloudFeatureRolloutAccess: { GEN_AI_COMPASS: true },
           },
-          connections,
         }
       );
 
@@ -477,22 +480,10 @@ describe('CompassAssistantProvider', function () {
 
       it('should persist permanent warning messages when clearing chat', async function () {
         const mockChat = createMockChat({ messages: mockMessages });
-        const nonGenuineConnectionInfo = {
-          id: 'non-genuine',
-          connectionOptions: {
-            connectionString: 'mongodb://docdb-elastic.amazonaws.com:27017',
-          },
-        };
-        const { connectionsStore } = await renderOpenAssistantDrawer(
-          { chat: mockChat },
-          { connections: [nonGenuineConnectionInfo] }
-        );
-        await connectionsStore.actions.connect(nonGenuineConnectionInfo);
-
-        // Click on the confirm button to close the non-genuine warning modal
-        userEvent.click(
-          screen.getByTestId('lg-confirmation_modal-footer-confirm_button')
-        );
+        await renderOpenAssistantDrawer({
+          chat: mockChat,
+          hasNonGenuineConnections: true,
+        });
 
         const clearButton = screen.getByTestId('assistant-clear-chat');
         userEvent.click(clearButton);

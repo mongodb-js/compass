@@ -20,8 +20,6 @@ import {
   Link,
 } from '@mongodb-js/compass-components';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
-import { useConnectionIds } from '@mongodb-js/compass-connections/provider';
-import { getGenuineMongoDB } from 'mongodb-build-info';
 import { NON_GENUINE_WARNING_MESSAGE } from './preset-messages';
 
 const { DisclaimerText } = LgChatChatDisclaimer;
@@ -35,6 +33,7 @@ const GEN_AI_FAQ_LINK = 'https://www.mongodb.com/docs/generative-ai-faq/';
 
 interface AssistantChatProps {
   chat: Chat<AssistantMessage>;
+  hasNonGenuineConnections: boolean;
 }
 
 const assistantChatStyles = css({
@@ -130,6 +129,7 @@ const errorBannerWrapperStyles = css({
 
 export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
   chat,
+  hasNonGenuineConnections,
 }) => {
   const track = useTelemetry();
   const darkMode = useDarkMode();
@@ -144,15 +144,7 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
     },
   });
 
-  // Check for non-genuine connections
-  const activeConnectionIds = useConnectionIds(
-    (conn) =>
-      getGenuineMongoDB(conn.info.connectionOptions.connectionString)
-        .isGenuine === false && conn.status === 'connected'
-  );
-
   useEffect(() => {
-    const hasNonGenuineConnections = activeConnectionIds.length > 0;
     const hasExistingNonGenuineWarning = chat.messages.some(
       (message) => message.id === 'non-genuine-warning'
     );
@@ -167,7 +159,7 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
         );
       });
     }
-  }, [activeConnectionIds, chat, setMessages]);
+  }, [hasNonGenuineConnections, chat, setMessages]);
 
   // Transform AI SDK messages to LeafyGreen chat format and reverse the order of the messages
   // for displaying it correctly with flex-direction: column-reverse.
