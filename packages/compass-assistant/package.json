@@ -61,7 +61,6 @@
     "@mongodb-js/connection-info": "^0.17.1",
     "ai": "^5.0.26",
     "compass-preferences-model": "^2.51.0",
-    "mongodb-build-info": "^1.7.2",
     "mongodb-connection-string-url": "^3.0.1",
     "react": "^17.0.2",
     "throttleit": "^2.1.0",
