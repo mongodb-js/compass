@@ -194,10 +194,12 @@ const mapStateToProps = (state: CollectionState) => {
 
   return {
     hasData:
+      schemaAnalysis &&
       schemaAnalysis.status === SCHEMA_ANALYSIS_STATE_COMPLETE &&
       schemaAnalysis.processedSchema &&
       Object.keys(schemaAnalysis.processedSchema).length > 0,
     maxNestingDepth:
+      schemaAnalysis &&
       schemaAnalysis.status === SCHEMA_ANALYSIS_STATE_COMPLETE &&
       schemaAnalysis.schemaMetadata
         ? schemaAnalysis.schemaMetadata.maxNestingDepth

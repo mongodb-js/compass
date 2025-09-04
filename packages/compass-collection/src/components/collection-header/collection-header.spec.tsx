@@ -294,4 +294,35 @@ describe('CollectionHeader [Component]', function () {
       });
     });
   });
+
+  it('should handle undefined schemaAnalysis gracefully and render collection header successfully', function () {
+    // Create a store with undefined schemaAnalysis to simulate initial state
+    const mockStoreWithUndefinedSchema = createStore(() => ({
+      mockDataGenerator: {
+        isModalOpen: false,
+        currentStep: MockDataGeneratorStep.SCHEMA_CONFIRMATION,
+      },
+      // schemaAnalysis not provided
+    }));
+
+    expect(() => {
+      renderWithConnections(
+        <Provider store={mockStoreWithUndefinedSchema}>
+          <WorkspacesServiceProvider value={{} as WorkspacesService}>
+            <CollectionHeader
+              isAtlas={false}
+              isReadonly={false}
+              isTimeSeries={false}
+              isClustered={false}
+              isFLE={false}
+              namespace="test.test"
+            />
+          </WorkspacesServiceProvider>
+        </Provider>
+      );
+    }).to.not.throw();
+
+    expect(screen.getByTestId('collection-header')).to.exist;
+    expect(screen.getByTestId('collection-header-actions')).to.exist;
+  });
 });
