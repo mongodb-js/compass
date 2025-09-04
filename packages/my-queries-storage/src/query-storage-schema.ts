@@ -12,7 +12,7 @@ const queryProps = {
 };
 
 const commonMetadata = {
-  _id: z.string().uuid(),
+  _id: z.string(),
   _lastExecuted: z
     .union([z.coerce.date(), z.number()])
     .transform((x) => new Date(x)),

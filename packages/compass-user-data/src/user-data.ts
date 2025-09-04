@@ -45,6 +45,7 @@ export abstract class IUserData<T extends z.Schema> {
   protected readonly dataType: string;
   protected readonly serialize: SerializeContent<z.input<T>>;
   protected readonly deserialize: DeserializeContent;
+
   constructor(
     validator: T,
     dataType: string,
@@ -63,8 +64,16 @@ export abstract class IUserData<T extends z.Schema> {
   }
 
   abstract write(id: string, content: z.input<T>): Promise<boolean>;
+
   abstract delete(id: string): Promise<boolean>;
+
   abstract readAll(options?: ReadOptions): Promise<ReadAllResult<T>>;
+
+  abstract readOne(
+    id: string,
+    options?: ReadOptions
+  ): Promise<z.output<T> | undefined>;
+
   abstract updateAttributes(
     id: string,
     data: Partial<z.input<T>>
@@ -72,8 +81,8 @@ export abstract class IUserData<T extends z.Schema> {
 }
 
 export class FileUserData<T extends z.Schema> extends IUserData<T> {
-  private readonly basePath?: string;
   protected readonly semaphore = new Semaphore(100);
+  private readonly basePath?: string;
 
   constructor(
     validator: T,
@@ -84,79 +93,9 @@ export class FileUserData<T extends z.Schema> extends IUserData<T> {
     this.basePath = basePath;
   }
 
-  private getFileName(id: string) {
-    return `${id}.json`;
-  }
-
-  private async getEnsuredBasePath(): Promise<string> {
-    const basepath = this.basePath ? this.basePath : getStoragePath();
-
-    const root = path.join(basepath, this.dataType);
-
-    await fs.mkdir(root, { recursive: true });
-
-    return root;
-  }
-
-  private async getFileAbsolutePath(filepath?: string): Promise<string> {
-    const root = await this.getEnsuredBasePath();
-    const pathRelativeToRoot = path.relative(
-      root,
-      path.join(root, filepath ?? '')
-    );
-
-    if (
-      pathRelativeToRoot.startsWith('..') ||
-      path.isAbsolute(pathRelativeToRoot)
-    ) {
-      throw new Error(
-        `Invalid file path: '${filepath}' is not a subpath of ${root}.`
-      );
-    }
-
-    return path.resolve(root, pathRelativeToRoot);
-  }
-
-  private async readAndParseFile(
-    absolutePath: string,
-    options: ReadOptions
-  ): Promise<z.output<T> | undefined> {
-    let data: string;
-    let release: (() => void) | undefined = undefined;
-    try {
-      release = await this.semaphore.waitForRelease();
-      data = await fs.readFile(absolutePath, 'utf-8');
-    } catch (error) {
-      log.error(mongoLogId(1_001_000_234), 'Filesystem', 'Error reading file', {
-        path: absolutePath,
-        error: (error as Error).message,
-      });
-      if (options.ignoreErrors) {
-        return undefined;
-      }
-      throw error;
-    } finally {
-      release?.();
-    }
-
-    try {
-      const content = this.deserialize(data);
-      return this.validator.parse(content);
-    } catch (error) {
-      log.error(mongoLogId(1_001_000_235), 'Filesystem', 'Error parsing data', {
-        path: absolutePath,
-        error: (error as Error).message,
-      });
-      if (options.ignoreErrors) {
-        return undefined;
-      }
-      throw error;
-    }
-  }
-
   async write(id: string, content: z.input<T>) {
     // Validate the input. Here we are not saving the parsed content
-    // because after reading we validate the data again and it parses
+    // because after reading we validate the data again, and it parses
     // the read content back to the expected output. This way we ensure
     // that we exactly save what we want without transforming it.
     this.validator.parse(content);
@@ -234,14 +173,17 @@ export class FileUserData<T extends z.Schema> extends IUserData<T> {
     id: string,
     options?: { ignoreErrors: false }
   ): Promise<z.output<T>>;
+
   async readOne(
     id: string,
     options?: { ignoreErrors: true }
   ): Promise<z.output<T> | undefined>;
+
   async readOne(
     id: string,
     options?: ReadOptions
   ): Promise<z.output<T> | undefined>;
+
   async readOne(
     id: string,
     options: ReadOptions = {
@@ -267,6 +209,76 @@ export class FileUserData<T extends z.Schema> extends IUserData<T> {
       return false;
     }
   }
+
+  private getFileName(id: string) {
+    return `${id}.json`;
+  }
+
+  private async getEnsuredBasePath(): Promise<string> {
+    const basepath = this.basePath ? this.basePath : getStoragePath();
+
+    const root = path.join(basepath, this.dataType);
+
+    await fs.mkdir(root, { recursive: true });
+
+    return root;
+  }
+
+  private async getFileAbsolutePath(filepath?: string): Promise<string> {
+    const root = await this.getEnsuredBasePath();
+    const pathRelativeToRoot = path.relative(
+      root,
+      path.join(root, filepath ?? '')
+    );
+
+    if (
+      pathRelativeToRoot.startsWith('..') ||
+      path.isAbsolute(pathRelativeToRoot)
+    ) {
+      throw new Error(
+        `Invalid file path: '${filepath}' is not a subpath of ${root}.`
+      );
+    }
+
+    return path.resolve(root, pathRelativeToRoot);
+  }
+
+  private async readAndParseFile(
+    absolutePath: string,
+    options: ReadOptions
+  ): Promise<z.output<T> | undefined> {
+    let data: string;
+    let release: (() => void) | undefined = undefined;
+    try {
+      release = await this.semaphore.waitForRelease();
+      data = await fs.readFile(absolutePath, 'utf-8');
+    } catch (error) {
+      log.error(mongoLogId(1_001_000_234), 'Filesystem', 'Error reading file', {
+        path: absolutePath,
+        error: (error as Error).message,
+      });
+      if (options.ignoreErrors) {
+        return undefined;
+      }
+      throw error;
+    } finally {
+      release?.();
+    }
+
+    try {
+      const content = this.deserialize(data);
+      return this.validator.parse(content);
+    } catch (error) {
+      log.error(mongoLogId(1_001_000_235), 'Filesystem', 'Error parsing data', {
+        path: absolutePath,
+        error: (error as Error).message,
+      });
+      if (options.ignoreErrors) {
+        return undefined;
+      }
+      throw error;
+    }
+  }
 }
 
 // TODO: update endpoints to reflect the merged api endpoints https://jira.mongodb.org/browse/CLOUDP-329716
@@ -275,6 +287,7 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
   private readonly getResourceUrl;
   private orgId: string;
   private projectId: string;
+
   constructor(
     validator: T,
     dataType: string,
@@ -296,7 +309,7 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
 
   async write(id: string, content: z.input<T>): Promise<boolean> {
     const url = await this.getResourceUrl(
-      `${this.dataType}/${this.orgId}/${this.projectId}`
+      `${this.dataType}/${this.orgId}/${this.projectId}/${id}`
     );
 
     try {
@@ -308,10 +321,8 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          id: id,
           data: this.serialize(content),
           createdAt: new Date(),
-          projectId: this.projectId,
         }),
       });
 
@@ -404,7 +415,10 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
           headers: {
             'Content-Type': 'application/json',
           },
-          body: this.serialize(newData),
+          body: JSON.stringify({
+            data: this.serialize(newData),
+            createdAt: new Date(),
+          }),
         }
       );
       return true;
