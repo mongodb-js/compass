@@ -142,6 +142,7 @@ export type CompassAssistantService = {
 
 export const AssistantProvider: React.FunctionComponent<
   PropsWithChildren<{
+    appNameForPrompt: string;
     chat: Chat<AssistantMessage>;
     atlasAiService: AtlasAiService;
   }>
@@ -224,10 +225,12 @@ export const CompassAssistantProvider = registerCompassPlugin(
   {
     name: 'CompassAssistant',
     component: ({
+      appNameForPrompt,
       chat,
       atlasAiService,
       children,
     }: PropsWithChildren<{
+      appNameForPrompt: string;
       chat?: Chat<AssistantMessage>;
       atlasAiService?: AtlasAiService;
     }>) => {
@@ -238,7 +241,11 @@ export const CompassAssistantProvider = registerCompassPlugin(
         throw new Error('atlasAiService was not provided by the state');
       }
       return (
-        <AssistantProvider chat={chat} atlasAiService={atlasAiService}>
+        <AssistantProvider
+          appNameForPrompt={appNameForPrompt}
+          chat={chat}
+          atlasAiService={atlasAiService}
+        >
           {children}
         </AssistantProvider>
       );
@@ -250,7 +257,7 @@ export const CompassAssistantProvider = registerCompassPlugin(
           transport: new DocsProviderTransport({
             baseUrl: atlasService.assistantApiEndpoint(),
             instructions: buildConversationInstructionsPrompt({
-              target: atlasAiService.getAppNameForPrompt(),
+              target: initialProps.appNameForPrompt,
             }),
           }),
           onError: (err: Error) => {

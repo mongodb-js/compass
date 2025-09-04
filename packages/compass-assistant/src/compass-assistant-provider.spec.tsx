@@ -83,7 +83,7 @@ const TestComponent: React.FunctionComponent<{
 
   return (
     <DrawerContentProvider>
-      <MockedProvider chat={chat}>
+      <MockedProvider appNameForPrompt="MongoDB Compass" chat={chat}>
         <DrawerAnchor>
           <div data-testid="provider-children">Provider children</div>
           <CompassAssistantDrawer autoOpen={autoOpen} />
@@ -100,7 +100,9 @@ describe('useAssistantActions', function () {
 
       return (
         <DrawerContentProvider>
-          <MockedProvider chat={chat}>{children}</MockedProvider>
+          <MockedProvider appNameForPrompt="MongoDB Compass" chat={chat}>
+            {children}
+          </MockedProvider>
         </DrawerContentProvider>
       );
     }
@@ -481,7 +483,6 @@ describe('CompassAssistantProvider', function () {
         ensureAiFeatureAccess: sinon.stub().callsFake(() => {
           return Promise.resolve();
         }),
-        getAppNameForPrompt: sinon.stub().returns('MongoDB Compass'),
       };
 
       const mockAtlasAuthService = {};
@@ -495,7 +496,7 @@ describe('CompassAssistantProvider', function () {
       render(
         <DrawerContentProvider>
           <DrawerAnchor />
-          <MockedProvider />
+          <MockedProvider appNameForPrompt="MongoDB Compass" />
         </DrawerContentProvider>,
         {
           preferences: {

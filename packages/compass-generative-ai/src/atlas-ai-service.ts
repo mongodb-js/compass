@@ -537,16 +537,4 @@ export class AtlasAiService {
       throw new Error('Unexpected response: expected features to be an object');
     }
   }
-
-  getAppNameForPrompt() {
-    // This returns the name we will use to inform the chatbot of the
-    // application context. The more descriptive the better so we probably don't
-    // want it to match the marketing name. We also don't want it to behave
-    // different between dev/beta/staging or readonly vs isolated, so it doesn't
-    // map to the electron app name either.
-    if (this.apiURLPreset === 'cloud') {
-      return 'MongoDB Atlas Data Explorer';
-    }
-    return 'MongoDB Compass';
-  }
 }

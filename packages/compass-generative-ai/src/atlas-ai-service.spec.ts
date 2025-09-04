@@ -85,7 +85,6 @@ describe('AtlasAiService', function () {
   const endpointBasepathTests = [
     {
       apiURLPreset: 'admin-api',
-      expectedPromptName: 'MongoDB Compass',
       expectedEndpoints: {
         'mql-aggregation': `http://example.com/unauth/ai/api/v1/mql-aggregation?request_id=abc`,
         'mql-query': `http://example.com/unauth/ai/api/v1/mql-query?request_id=abc`,
@@ -93,7 +92,6 @@ describe('AtlasAiService', function () {
     },
     {
       apiURLPreset: 'cloud',
-      expectedPromptName: 'MongoDB Atlas Data Explorer',
       expectedEndpoints: {
         'mql-aggregation':
           '/cloud/ai/v1/groups/testProject/mql-aggregation?request_id=abc',
@@ -104,11 +102,7 @@ describe('AtlasAiService', function () {
     },
   ] as const;
 
-  for (const {
-    apiURLPreset,
-    expectedPromptName,
-    expectedEndpoints,
-  } of endpointBasepathTests) {
+  for (const { apiURLPreset, expectedEndpoints } of endpointBasepathTests) {
     describe(`api URL Preset "${apiURLPreset}"`, function () {
       let atlasAiService: AtlasAiService;
 
@@ -120,11 +114,6 @@ describe('AtlasAiService', function () {
           preferences,
           logger: createNoopLogger(),
         });
-      });
-
-      it('returns the correct app name for prompts', function () {
-        const appName = atlasAiService.getAppNameForPrompt();
-        expect(appName).to.equal(expectedPromptName);
       });
 
       describe('getQueryFromUserInput and getAggregationFromUserInput', function () {
