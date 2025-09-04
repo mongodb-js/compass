@@ -138,9 +138,6 @@ const App = () => {
               optInGenAIFeatures: isAtlas && !!optInGenAIFeatures,
               enableDataModeling: true,
               enableMyQueries: true,
-              cloudFeatureRolloutAccess: {
-                GEN_AI_COMPASS: true,
-              },
             }}
             onTrack={sandboxTelemetry.track}
             onDebug={sandboxLogger.debug}
