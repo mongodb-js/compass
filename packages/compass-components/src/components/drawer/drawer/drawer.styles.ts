@@ -54,8 +54,7 @@ const getBaseStyles = ({ theme }: { theme: Theme }) => css`
   all: unset;
   background-color: ${color[theme].background.primary.default};
   border: 1px solid ${color[theme].border.secondary.default};
-  width: 100%;
-  max-width: ${PANEL_WIDTH}px;
+  width: ${PANEL_WIDTH}px;
   height: 100%;
   overflow: hidden;
   box-sizing: border-box;

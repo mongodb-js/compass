@@ -65,6 +65,11 @@ const workspacesContentStyles = css({
   minHeight: 0,
 });
 
+const workspacesSectionStyles = css({
+  display: 'flex',
+  minWidth: '600px',
+});
+
 type CompassWorkspacesProps = {
   tabs: WorkspaceTab[];
   activeTab?: WorkspaceTab | null;
@@ -217,11 +222,13 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
 
       <div className={workspacesContentStyles}>
         <DrawerAnchor>
-          {activeTab && workspaceTabContent ? (
-            workspaceTabContent
-          ) : (
-            <EmptyWorkspaceContent></EmptyWorkspaceContent>
-          )}
+          <div className={workspacesSectionStyles}>
+            {activeTab && workspaceTabContent ? (
+              workspaceTabContent
+            ) : (
+              <EmptyWorkspaceContent></EmptyWorkspaceContent>
+            )}
+          </div>
         </DrawerAnchor>
       </div>
     </div>
