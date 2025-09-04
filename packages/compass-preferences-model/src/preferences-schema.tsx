@@ -92,6 +92,7 @@ export type UserConfigurablePreferences = PermanentFeatureFlags &
     enableExplainPlan: boolean;
     enableAtlasSearchIndexes: boolean;
     enableImportExport: boolean;
+    enableMyQueries: boolean;
     enableAggregationBuilderRunPipeline: boolean;
     enableAggregationBuilderExtraOptions: boolean;
     enableGenAISampleDocumentPassing: boolean;
@@ -1020,13 +1021,14 @@ export const storedUserPreferencesProps: Required<{
     type: 'boolean',
   },
   enableMyQueries: {
-    ui: false,
+    ui: true,
     cli: true,
     global: true,
     description: {
-      short: 'Enable My Queries feature in Data Explorer',
+      short:
+        'Enable My Queries feature to save and manage favorite queries and aggregations',
     },
-    validator: z.boolean().default(false),
+    validator: z.boolean().default(true),
     type: 'boolean',
   },
 
