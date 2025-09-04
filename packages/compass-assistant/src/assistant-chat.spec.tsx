@@ -8,6 +8,7 @@ import {
 import { AssistantChat } from './assistant-chat';
 import { expect } from 'chai';
 import { createMockChat } from '../test/utils';
+import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import {
   AssistantActionsContext,
   type AssistantMessage,
@@ -36,13 +37,14 @@ describe('AssistantChat', function () {
   function renderWithChat(
     messages: AssistantMessage[],
     {
+      connections,
       status,
     }: {
+      connections?: ConnectionInfo[];
       status?: 'submitted' | 'streaming';
     } = {}
   ) {
     const chat = createMockChat({ messages, status });
-
     // The chat component does not use chat.sendMessage() directly, it uses
     // ensureOptInAndSend() via the AssistantActionsContext.
     const ensureOptInAndSendStub = sinon
@@ -59,8 +61,11 @@ describe('AssistantChat', function () {
     };
     const result = render(
       <AssistantActionsContext.Provider value={assistantActionsContext as any}>
-        <AssistantChat chat={chat} />
-      </AssistantActionsContext.Provider>
+        <AssistantChat chat={chat} hasNonGenuineConnections={false} />
+      </AssistantActionsContext.Provider>,
+      {
+        connections,
+      }
     );
     return {
       result,
@@ -180,8 +185,58 @@ describe('AssistantChat', function () {
     );
   });
 
-  it('calls ensureOptInAndSend when form is submitted', async function () {
-    const { ensureOptInAndSendStub, result } = renderWithChat([]);
+  describe('non-genuine MongoDB host handling', function () {
+    it('shows warning message in chat when connected to non-genuine MongoDB', function () {
+      const chat = createMockChat({ messages: [] });
+      render(<AssistantChat chat={chat} hasNonGenuineConnections={true} />);
+
+      expect(chat.messages).to.have.length(1);
+      expect(chat.messages[0].id).to.equal('non-genuine-warning');
+
+      const warningMessage = screen.getByText(
+        /MongoDB Assistant will not provide accurate guidance for non-genuine hosts/
+      );
+      expect(warningMessage).to.exist;
+    });
+
+    it('does not show warning message when all connections are genuine', function () {
+      const chat = createMockChat({ messages: [] });
+      render(<AssistantChat chat={chat} hasNonGenuineConnections={false} />, {
+        connections: [],
+      });
+
+      const warningMessage = screen.queryByText(
+        /MongoDB Assistant will not provide accurate guidance for non-genuine hosts/
+      );
+      expect(warningMessage).to.not.exist;
+    });
+
+    it('warning message is removed when all active connections are changed to genuine', async function () {
+      const chat = createMockChat({ messages: [] });
+      const { rerender } = render(
+        <AssistantChat chat={chat} hasNonGenuineConnections={true} />,
+        {}
+      );
+
+      expect(
+        screen.getByText(
+          /MongoDB Assistant will not provide accurate guidance for non-genuine hosts/
+        )
+      ).to.exist;
+
+      rerender(<AssistantChat chat={chat} hasNonGenuineConnections={false} />);
+
+      await waitFor(() => {
+        const warningMessage = screen.queryByText(
+          /MongoDB Assistant will not provide accurate guidance for non-genuine hosts/
+        );
+        expect(warningMessage).to.not.exist;
+      });
+    });
+  });
+
+  it('calls sendMessage when form is submitted', async function () {
+    const { result, ensureOptInAndSendStub } = renderWithChat([]);
     const { track } = result;
     const inputField = screen.getByPlaceholderText(
       'Ask MongoDB Assistant a question'
