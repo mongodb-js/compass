@@ -15,13 +15,6 @@ export {
 } from './compass-query-storage';
 export type { RecentQuery, FavoriteQuery } from './query-storage-schema';
 
-// Export providers for use in applications
-export {
-  FavoriteQueryStorageProvider,
-  RecentQueryStorageProvider,
-  PipelineStorageProvider,
-} from '@mongodb-js/my-queries-storage/provider';
-
 // These are exported to aid in testing
 export const compassFavoriteQueryStorageAccess: FavoriteQueryStorageAccess = {
   getStorage() {
