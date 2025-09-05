@@ -20,6 +20,11 @@ import workspacesReducer, {
 import Workspaces from './components';
 import { applyMiddleware, createStore } from 'redux';
 import thunk from 'redux-thunk';
+import {
+  workspacesStateChangeMiddleware,
+  loadWorkspaceStateFromUserData,
+  convertSavedStateToInitialTabs,
+} from './stores/workspaces-middleware';
 import type { MongoDBInstance } from '@mongodb-js/compass-app-stores/provider';
 import { mongoDBInstancesManagerLocator } from '@mongodb-js/compass-app-stores/provider';
 import type Collection from 'mongodb-collection-model';
@@ -66,10 +71,45 @@ export function configureStore(
       collectionInfo: {},
       databaseInfo: {},
     },
-    applyMiddleware(thunk.withExtraArgument(services))
+    applyMiddleware(
+      thunk.withExtraArgument(services),
+      workspacesStateChangeMiddleware
+    )
   );
 
   return store;
+}
+
+/**
+ * Configures the store with optional state restoration from UserData
+ */
+export async function configureStoreWithStateRestoration(
+  initialWorkspaceTabs: OpenWorkspaceOptions[] | undefined | null,
+  services: WorkspacesServices,
+  restoreFromUserData = false
+) {
+  let tabsToUse = initialWorkspaceTabs;
+
+  // If restoration is enabled and no initial tabs provided, try to restore from UserData
+  if (
+    restoreFromUserData &&
+    (!initialWorkspaceTabs || initialWorkspaceTabs.length === 0)
+  ) {
+    try {
+      const savedState = await loadWorkspaceStateFromUserData();
+      if (savedState && savedState.tabs.length > 0) {
+        // Convert saved state back to initial tabs format
+        tabsToUse = convertSavedStateToInitialTabs(
+          savedState
+        ) as OpenWorkspaceOptions[];
+      }
+    } catch (error) {
+      services.logger?.debug('Workspace State Restoration', { error });
+      // Continue with original initialWorkspaceTabs (empty or provided)
+    }
+  }
+
+  return configureStore(tabsToUse, services);
 }
 
 export function activateWorkspacePlugin(
