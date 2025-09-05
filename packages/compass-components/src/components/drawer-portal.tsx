@@ -16,6 +16,7 @@ import {
 import { css, cx } from '@leafygreen-ui/emotion';
 import { isEqual } from 'lodash';
 import { rafraf } from '../utils/rafraf';
+import { BaseFontSize, fontWeights } from '@leafygreen-ui/tokens';
 
 type ToolbarData = Required<DrawerLayoutProps>['toolbarData'];
 
@@ -175,6 +176,14 @@ const drawerLayoutFixesStyles = css({
     borderTop: 'none',
     borderBottom: 'none',
   },
+
+  // drawer content > title content
+  '& > div:nth-child(2) > div:nth-child(2) > div:first-child > div:first-child > div:first-child > div:first-child':
+    {
+      // fix for the flex parent not allowing flex children to collapse if they
+      // are overflowing the container
+      minWidth: 0,
+    },
 });
 
 const emptyDrawerLayoutFixesStyles = css({
@@ -203,6 +212,16 @@ const drawerSectionPortalStyles = css({
   minWidth: '100%',
   minHeight: '100%',
   height: '100%',
+});
+
+// Leafygreen dynamically changes styles of the title group based on whether or
+// not title is a `string` or a `ReactNode`, we want it to consistently have
+// bold title styles no matter what title you provided, so we wrap it in our own
+// container
+const drawerTitleGroupStyles = css({
+  width: '100%',
+  fontSize: BaseFontSize.Body2,
+  fontWeight: fontWeights.bold,
 });
 
 /**
@@ -235,6 +254,7 @@ export const DrawerAnchor: React.FunctionComponent<{
       .map((data) => {
         return {
           ...data,
+          title: <div className={drawerTitleGroupStyles}>{data.title}</div>,
           content: (
             <div
               key={data.id}
