@@ -13,6 +13,7 @@ import {
   spacing,
   useDarkMode,
 } from '@mongodb-js/compass-components';
+import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 
 const RUN_SCRIPT_COMMAND = `
 mongosh "mongodb+srv://<your-cluster>.mongodb.net/mockDataDB" \\
@@ -60,6 +61,7 @@ const resourceSectionHeader = css({
 
 const ScriptScreen = () => {
   const isDarkMode = useDarkMode();
+  const connectionInfo = useConnectionInfo();
 
   return (
     <section className={outerSectionStyles}>
@@ -134,10 +136,16 @@ const ScriptScreen = () => {
               Learn About the MongoDB Shell
             </Link>
           </li>
-          <li>
-            {/* TODO: Update URL */}
-            <Link href="#">Access your Database Users</Link>
-          </li>
+          {connectionInfo.atlasMetadata &&
+            connectionInfo.atlasMetadata.projectId && (
+              <li>
+                <Link
+                  href={`/v2/${connectionInfo.atlasMetadata.projectId}#/security/database/users`}
+                >
+                  Access your Database Users
+                </Link>
+              </li>
+            )}
         </ul>
       </section>
     </section>
