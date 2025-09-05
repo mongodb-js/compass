@@ -385,3 +385,25 @@ export function useConnectionsListLoadingStatus() {
     };
   }, isEqual);
 }
+
+/**
+ * Returns the connecting progress for a specific connection when in connecting state.
+ * This interprets driver monitoring events to provide connection progress to the UI.
+ */
+export function useConnectionConnectingSteps(connectionId: ConnectionId): {
+  topologyDiscovered: boolean;
+  authenticated: boolean;
+  metadataReceived: boolean;
+} | null {
+  return useSelector(
+    (state) => {
+      const connection = state.connections.byId[connectionId];
+      return connection?.status === 'connecting'
+        ? connection.connectionProgress || null
+        : null;
+    },
+    (a, b) => {
+      return isShallowEqual(a, b);
+    }
+  );
+}

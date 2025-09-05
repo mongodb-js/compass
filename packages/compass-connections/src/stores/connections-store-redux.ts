@@ -160,13 +160,17 @@ export type ConnectionState = {
   isAutoconnectInfo?: boolean;
 } & (
   | {
-      status:
-        | 'initial'
-        | 'connecting'
-        | 'connected'
-        | 'disconnected'
-        | 'canceled';
+      status: 'initial' | 'connected' | 'disconnected' | 'canceled';
       error: null;
+    }
+  | {
+      status: 'connecting';
+      error: null;
+      connectionProgress?: {
+        topologyDiscovered: boolean;
+        authenticated: boolean;
+        metadataReceived: boolean;
+      };
     }
   | { status: 'failed'; error: Error }
 );
@@ -255,6 +259,10 @@ export const enum ActionTypes {
   // entering a device code on the external website. Only required for single
   // connection mode and can be removed afterwards
   OidcNotifyDeviceAuth = 'OidcNotifyDeviceAuth',
+  // Generic driver monitoring events - 1:1 with MongoDB driver events
+  TopologyDescriptionChanged = 'TopologyDescriptionChanged',
+  ServerHeartbeatSucceeded = 'ServerHeartbeatSucceeded',
+  CommandSucceeded = 'CommandSucceeded',
   Disconnect = 'Disconnect',
 
   // Actions related to modifying connection info
@@ -361,6 +369,22 @@ type ConnectionAttemptErrorAction = {
 type ConnectionAttemptCancelledAction = {
   type: ActionTypes.ConnectionAttemptCancelled;
   connectionId: ConnectionId;
+};
+
+type TopologyDescriptionChangedAction = {
+  type: ActionTypes.TopologyDescriptionChanged;
+  connectionId: ConnectionId;
+};
+
+type ServerHeartbeatSucceededAction = {
+  type: ActionTypes.ServerHeartbeatSucceeded;
+  connectionId: ConnectionId;
+};
+
+type CommandSucceededAction = {
+  type: ActionTypes.CommandSucceeded;
+  connectionId: ConnectionId;
+  commandName: string;
 };
 
 type DisconnectAction = {
@@ -875,6 +899,11 @@ const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
               }),
           status: 'connecting',
           error: null,
+          connectionProgress: {
+            topologyDiscovered: false,
+            authenticated: false,
+            metadataReceived: false,
+          },
         }
       ),
       isEditingConnectionInfoModalOpen:
@@ -937,6 +966,81 @@ const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
         }
       ),
       editingConnectionInfoId: connectionState.info.id,
+    };
+  }
+  if (
+    isAction<TopologyDescriptionChangedAction>(
+      action,
+      ActionTypes.TopologyDescriptionChanged
+    )
+  ) {
+    const currentConnection = state.connections.byId[action.connectionId];
+    if (!currentConnection || currentConnection.status !== 'connecting') {
+      return state;
+    }
+
+    return {
+      ...state,
+      connections: mergeConnectionStateById(
+        state.connections,
+        action.connectionId,
+        {
+          connectionProgress: {
+            ...currentConnection.connectionProgress,
+            topologyDiscovered: true,
+          },
+        }
+      ),
+    };
+  }
+  if (
+    isAction<ServerHeartbeatSucceededAction>(
+      action,
+      ActionTypes.ServerHeartbeatSucceeded
+    )
+  ) {
+    const currentConnection = state.connections.byId[action.connectionId];
+    if (!currentConnection || currentConnection.status !== 'connecting') {
+      return state;
+    }
+
+    return {
+      ...state,
+      connections: mergeConnectionStateById(
+        state.connections,
+        action.connectionId,
+        {
+          connectionProgress: {
+            ...currentConnection.connectionProgress,
+            authenticated: true,
+          },
+        }
+      ),
+    };
+  }
+  if (isAction<CommandSucceededAction>(action, ActionTypes.CommandSucceeded)) {
+    const currentConnection = state.connections.byId[action.connectionId];
+    if (!currentConnection || currentConnection.status !== 'connecting') {
+      return state;
+    }
+
+    // Only update for non-ping commands (which indicate actual metadata operations)
+    if (action.commandName === 'ping' || action.commandName === 'hello') {
+      return state;
+    }
+
+    return {
+      ...state,
+      connections: mergeConnectionStateById(
+        state.connections,
+        action.connectionId,
+        {
+          connectionProgress: {
+            ...currentConnection.connectionProgress,
+            metadataReceived: true,
+          },
+        }
+      ),
     };
   }
   if (isAction<DisconnectAction>(action, ActionTypes.Disconnect)) {
@@ -1319,6 +1423,35 @@ const connectionAttemptError = (
   };
 };
 
+export const topologyDescriptionChanged = (
+  connectionId: ConnectionId
+): TopologyDescriptionChangedAction => {
+  return {
+    type: ActionTypes.TopologyDescriptionChanged,
+    connectionId,
+  };
+};
+
+export const serverHeartbeatSucceeded = (
+  connectionId: ConnectionId
+): ServerHeartbeatSucceededAction => {
+  return {
+    type: ActionTypes.ServerHeartbeatSucceeded,
+    connectionId,
+  };
+};
+
+export const commandSucceeded = (
+  connectionId: ConnectionId,
+  commandName: string
+): CommandSucceededAction => {
+  return {
+    type: ActionTypes.CommandSucceeded,
+    connectionId,
+    commandName,
+  };
+};
+
 export const autoconnectCheck = (
   getAutoconnectInfo: (
     connectionStorage: ConnectionStorage
@@ -1494,6 +1627,9 @@ export const connect = (
   | ConnectionAttemptErrorAction
   | ConnectionAttemptSuccessAction
   | ConnectionAttemptCancelledAction
+  | TopologyDescriptionChangedAction
+  | ServerHeartbeatSucceededAction
+  | CommandSucceededAction
 > => {
   return connectWithOptions(connectionInfo, { forceSave: false });
 };
@@ -1506,6 +1642,9 @@ export const saveAndConnect = (
   | ConnectionAttemptErrorAction
   | ConnectionAttemptSuccessAction
   | ConnectionAttemptCancelledAction
+  | TopologyDescriptionChangedAction
+  | ServerHeartbeatSucceededAction
+  | CommandSucceededAction
 > => {
   return connectWithOptions(connectionInfo, { forceSave: true });
 };
@@ -1521,6 +1660,9 @@ const connectWithOptions = (
   | ConnectionAttemptErrorAction
   | ConnectionAttemptSuccessAction
   | ConnectionAttemptCancelledAction
+  | TopologyDescriptionChangedAction
+  | ServerHeartbeatSucceededAction
+  | CommandSucceededAction
 > => {
   return async (
     dispatch,
@@ -1738,6 +1880,19 @@ const connectWithOptions = (
             void dataService.disconnect();
           }
         );
+
+        // Listen to MongoDB driver monitoring events and dispatch 1:1 actions
+        dataService.on('topologyDescriptionChanged', () => {
+          dispatch(topologyDescriptionChanged(connectionInfo.id));
+        });
+
+        dataService.on('serverHeartbeatSucceeded', () => {
+          dispatch(serverHeartbeatSucceeded(connectionInfo.id));
+        });
+
+        dataService.on('commandSucceeded', (evt) => {
+          dispatch(commandSucceeded(connectionInfo.id, evt.commandName));
+        });
 
         dataService.on('oidcAuthFailed', (error) => {
           openToast('oidc-auth-failed', {
