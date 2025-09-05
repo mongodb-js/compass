@@ -20,7 +20,7 @@ export {
   FavoriteQueryStorageProvider,
   RecentQueryStorageProvider,
   PipelineStorageProvider,
-} from './provider';
+} from '@mongodb-js/my-queries-storage/provider';
 
 // These are exported to aid in testing
 export const compassFavoriteQueryStorageAccess: FavoriteQueryStorageAccess = {
