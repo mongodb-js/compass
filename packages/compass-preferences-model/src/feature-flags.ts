@@ -31,6 +31,7 @@ export type FeatureFlags = {
   enableUnauthenticatedGenAI: boolean;
   enableAIAssistant: boolean;
   enablePerformanceInsightsEntrypoints: boolean;
+  enableAutomaticRelationshipInference: boolean;
 };
 
 export const featureFlags: Required<{
@@ -187,6 +188,14 @@ export const featureFlags: Required<{
     stage: 'development',
     description: {
       short: 'Enable the performance insights AI Assistant entrypoints',
+    },
+  },
+
+  enableAutomaticRelationshipInference: {
+    stage: 'development',
+    description: {
+      short:
+        'Enable automatic relationship inference during data model generation process',
     },
   },
 };

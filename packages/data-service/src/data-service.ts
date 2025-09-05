@@ -55,6 +55,8 @@ import type {
   ReadPreferenceMode,
   CommandStartedEvent,
   ConnectionCreatedEvent,
+  IndexDescriptionInfo,
+  ReadPreferenceLike,
 } from 'mongodb';
 import { ReadPreference } from 'mongodb';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
@@ -100,11 +102,7 @@ import {
   createCancelError,
   isCancelError,
 } from '@mongodb-js/compass-utils';
-import type {
-  IndexDefinition,
-  IndexStats,
-  IndexInfo,
-} from './index-detail-helper';
+import type { IndexDefinition, IndexStats } from './index-detail-helper';
 import { createIndexDefinition } from './index-detail-helper';
 import type { SearchIndex } from './search-index-detail-helper';
 import type {
@@ -498,7 +496,8 @@ export interface DataService {
    */
   indexes(
     ns: string,
-    options?: IndexInformationOptions
+    options?: IndexInformationOptions,
+    executionOptions?: ExecutionOptions
   ): Promise<IndexDefinition[]>;
 
   /**
@@ -697,7 +696,9 @@ export interface DataService {
     ns: string,
     filter: Filter<Document>,
     options?: CountDocumentsOptions,
-    executionOptions?: ExecutionOptions
+    executionOptions?: ExecutionOptions & {
+      fallbackReadPreference?: ReadPreferenceMode;
+    }
   ): Promise<number>;
 
   /**
@@ -1040,6 +1041,24 @@ class DataServiceImpl extends WithLogContext implements DataService {
    * To be passed to the connect-mongo-client
    */
   private _unboundLogger?: UnboundDataServiceImplLogger;
+
+  private _getOptionsWithFallbackReadPreference(
+    options?: { readPreference?: ReadPreferenceLike },
+    executionOptions?: { fallbackReadPreference?: ReadPreferenceMode }
+  ) {
+    if (!options || !executionOptions) {
+      return options;
+    }
+    const maybeReadPreference =
+      options.readPreference ??
+      isReadPreferenceSet(this._connectionOptions.connectionString)
+        ? undefined
+        : executionOptions.fallbackReadPreference;
+    return {
+      ...options,
+      ...(maybeReadPreference && { readPreference: maybeReadPreference }),
+    };
+  }
 
   constructor(
     connectionOptions: Readonly<ConnectionOptions>,
@@ -1704,12 +1723,17 @@ class DataServiceImpl extends WithLogContext implements DataService {
     ns: string,
     filter: Filter<Document>,
     options: CountDocumentsOptions = {},
-    executionOptions?: ExecutionOptions
+    executionOptions?: ExecutionOptions & {
+      fallbackReadPreference: ReadPreferenceMode;
+    }
   ): Promise<number> {
     return this._cancellableOperation(
       async (session) => {
         return this._collection(ns, 'CRUD').countDocuments(filter, {
-          ...options,
+          ...this._getOptionsWithFallbackReadPreference(
+            options,
+            executionOptions
+          ),
           session,
         });
       },
@@ -2145,24 +2169,41 @@ class DataServiceImpl extends WithLogContext implements DataService {
     ns: string,
     options?: IndexInformationOptions
   ): Promise<IndexDefinition[]> {
+    if (options?.full === false) {
+      const indexes = Object.entries(
+        await this._collection(ns, 'CRUD').indexes({ ...options, full: false })
+      );
+      return indexes.map((compactIndexEntry) => {
+        const [name, keys] = compactIndexEntry;
+        return createIndexDefinition(ns, {
+          name,
+          key: Object.fromEntries(keys),
+        });
+      });
+    }
+
     const [indexes, indexStats, indexSizes] = await Promise.all([
-      this._collection(ns, 'CRUD').indexes(options) as Promise<IndexInfo[]>,
+      this._collection(ns, 'CRUD').indexes({ ...options, full: true }),
       this._indexStats(ns),
       this._indexSizes(ns),
     ]);
 
     const maxSize = Math.max(...Object.values(indexSizes));
 
-    return indexes.map((index) => {
-      const name = index.name;
-      return createIndexDefinition(
-        ns,
-        index,
-        indexStats[name],
-        indexSizes[name],
-        maxSize
-      );
-    });
+    return indexes
+      .filter((index): index is IndexDescriptionInfo & { name: string } => {
+        return !!index.name;
+      })
+      .map((index) => {
+        const name = index.name;
+        return createIndexDefinition(
+          ns,
+          index,
+          indexStats[name],
+          indexSizes[name],
+          maxSize
+        );
+      });
   }
 
   @op(mongoLogId(1_001_000_024), (_, instanceData) => {
@@ -2358,13 +2399,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
       // When the read preference isn't set in the connection string explicitly,
       // then we allow consumers to default to a read preference, for instance
       // secondaryPreferred to avoid using the primary for analyzing documents.
-      ...(executionOptions?.fallbackReadPreference &&
-      !isReadPreferenceSet(this._connectionOptions.connectionString)
-        ? {
-            readPreference: executionOptions?.fallbackReadPreference,
-          }
-        : {}),
-      ...options,
+      ...this._getOptionsWithFallbackReadPreference(options, executionOptions),
     });
   }
 
@@ -2386,13 +2421,10 @@ class DataServiceImpl extends WithLogContext implements DataService {
         // When the read preference isn't set in the connection string explicitly,
         // then we allow consumers to default to a read preference, for instance
         // secondaryPreferred to avoid using the primary for analyzing documents.
-        ...(executionOptions?.fallbackReadPreference &&
-        !isReadPreferenceSet(this._connectionOptions.connectionString)
-          ? {
-              readPreference: executionOptions?.fallbackReadPreference,
-            }
-          : {}),
-        ...options,
+        ...this._getOptionsWithFallbackReadPreference(
+          options,
+          executionOptions
+        ),
       },
       executionOptions
     );

@@ -20,7 +20,7 @@ export type AnalysisProcessState = {
     | null;
   samplesFetched: number;
   schemasAnalyzed: number;
-  relationsInferred: boolean;
+  relationsInferred: number;
 };
 
 export enum AnalysisProcessActionTypes {
@@ -96,7 +96,7 @@ const INITIAL_STATE = {
   currentAnalysisOptions: null,
   samplesFetched: 0,
   schemasAnalyzed: 0,
-  relationsInferred: false,
+  relationsInferred: 0,
 };
 
 export const analysisProcessReducer: Reducer<AnalysisProcessState> = (
@@ -200,7 +200,11 @@ export function startAnalysis(
         })
       );
 
-      if (options.automaticallyInferRelations) {
+      if (
+        services.preferences.getPreferences()
+          .enableAutomaticRelationshipInference &&
+        options.automaticallyInferRelations
+      ) {
         relations = (
           await Promise.all(
             collections.map(

@@ -1,3 +1,5 @@
+import type { IndexDescriptionInfo } from 'mongodb';
+
 export type IndexInfo = {
   ns?: string;
   name: string;
@@ -117,7 +119,7 @@ export function getIndexType(
 
 export function createIndexDefinition(
   ns: string,
-  { name, key, v, ...extra }: IndexInfo,
+  { name, key, v, ...extra }: IndexDescriptionInfo & { name: string },
   indexStats?: IndexStats,
   indexSize?: number,
   maxSize?: number
@@ -134,7 +136,7 @@ export function createIndexDefinition(
     ns,
     name,
     key,
-    version: v,
+    version: v ?? 1,
     fields: Object.entries(key).map(([field, value]) => {
       return { field, value };
     }),

@@ -87,9 +87,7 @@ export async function inferForeignToLocalRelationshipsForCollection(
     return [];
   }
   const indexes = await dataService
-    .indexes(foreignNamespace, {
-      // TODO: add proper support for `full`, add support for abortSignal
-    })
+    .indexes(foreignNamespace, { full: false })
     .catch(() => {
       return [];
     });
@@ -128,8 +126,8 @@ export async function inferForeignToLocalRelationshipsForCollection(
                   $in: sampleDocs as any[], // TODO: driver wants this to be an ObjectId?
                 },
               },
-              { readPreference: 'secondaryPreferred', maxTimeMS: 10_000 },
-              { abortSignal }
+              { maxTimeMS: 10_000 },
+              { abortSignal, fallbackReadPreference: 'secondaryPreferred' }
             );
             if (matchingDocCount !== sampleDocs.length) {
               return null;
