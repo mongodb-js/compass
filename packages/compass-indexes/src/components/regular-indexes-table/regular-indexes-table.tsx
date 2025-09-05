@@ -371,7 +371,15 @@ function getRegularIndexInfo(
         properties={index.properties}
       />
     ),
-    status: <StatusField status="ready" />,
+    status: (
+      <StatusField
+        status={
+          index.buildProgress > 0 && index.buildProgress < 1
+            ? 'building'
+            : 'ready'
+        }
+      />
+    ),
     actions: index.name !== '_id_' && (
       <RegularIndexActions
         index={index}
