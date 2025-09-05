@@ -3,11 +3,11 @@ import { isAction } from './util';
 import type { DataModelingThunkAction } from './reducer';
 import { analyzeDocuments, type MongoDBJSONSchema } from 'mongodb-schema';
 import { getCurrentDiagramFromState } from './diagram';
-import type { Document } from 'bson';
-import type { AggregationCursor } from 'mongodb';
+import { UUID } from 'bson';
 import type { Relationship } from '../services/data-model-storage';
 import { applyLayout } from '@mongodb-js/diagramming';
 import { collectionToBaseNodeForLayout } from '../utils/nodes-and-edges';
+import { inferForeignToLocalRelationshipsForCollection } from './relationships';
 
 export type AnalysisProcessState = {
   currentAnalysisOptions:
@@ -20,7 +20,7 @@ export type AnalysisProcessState = {
     | null;
   samplesFetched: number;
   schemasAnalyzed: number;
-  relationsInferred: boolean;
+  relationsInferred: number;
 };
 
 export enum AnalysisProcessActionTypes {
@@ -58,6 +58,8 @@ export type NamespaceSchemaAnalyzedAction = {
 
 export type NamespacesRelationsInferredAction = {
   type: AnalysisProcessActionTypes.NAMESPACES_RELATIONS_INFERRED;
+  namespace: string;
+  count: number;
 };
 
 export type AnalysisFinishedAction = {
@@ -94,7 +96,7 @@ const INITIAL_STATE = {
   currentAnalysisOptions: null,
   samplesFetched: 0,
   schemasAnalyzed: 0,
-  relationsInferred: false,
+  relationsInferred: 0,
 };
 
 export const analysisProcessReducer: Reducer<AnalysisProcessState> = (
@@ -161,18 +163,18 @@ export function startAnalysis(
       options,
     });
     try {
+      let relations: Relationship[] = [];
       const dataService =
         services.connections.getDataServiceForConnection(connectionId);
+
       const collections = await Promise.all(
         namespaces.map(async (ns) => {
-          const sample: AggregationCursor<Document> = dataService.sampleCursor(
+          const sample = await dataService.sample(
             ns,
             { size: 100 },
+            { promoteValues: false },
             {
-              signal: cancelController.signal,
-              promoteValues: false,
-            },
-            {
+              abortSignal: cancelController.signal,
               fallbackReadPreference: 'secondaryPreferred',
             }
           );
@@ -194,12 +196,49 @@ export function startAnalysis(
             type: AnalysisProcessActionTypes.NAMESPACE_SCHEMA_ANALYZED,
             namespace: ns,
           });
-          return { ns, schema };
+          return { ns, schema, sample };
         })
       );
 
-      if (options.automaticallyInferRelations) {
-        // TODO
+      if (
+        services.preferences.getPreferences()
+          .enableAutomaticRelationshipInference &&
+        options.automaticallyInferRelations
+      ) {
+        relations = (
+          await Promise.all(
+            collections.map(
+              async ({
+                ns,
+                schema,
+                sample,
+              }): Promise<Relationship['relationship'][]> => {
+                const relationships =
+                  await inferForeignToLocalRelationshipsForCollection(
+                    ns,
+                    schema,
+                    sample,
+                    collections,
+                    dataService
+                  );
+                dispatch({
+                  type: AnalysisProcessActionTypes.NAMESPACES_RELATIONS_INFERRED,
+                  namespace: ns,
+                  count: relationships.length,
+                });
+                return relationships;
+              }
+            )
+          )
+        ).flatMap((relationships) => {
+          return relationships.map((relationship) => {
+            return {
+              id: new UUID().toHexString(),
+              relationship,
+              isInferred: true,
+            };
+          });
+        });
       }
 
       if (cancelController.signal.aborted) {
@@ -207,13 +246,13 @@ export function startAnalysis(
       }
 
       const positioned = await applyLayout(
-        collections.map((coll) =>
-          collectionToBaseNodeForLayout({
+        collections.map((coll) => {
+          return collectionToBaseNodeForLayout({
             ns: coll.ns,
             jsonSchema: coll.schema,
             displayPosition: [0, 0],
-          })
-        ),
+          });
+        }),
         [],
         'LEFT_RIGHT'
       );
@@ -229,7 +268,7 @@ export function startAnalysis(
           const position = node ? node.position : { x: 0, y: 0 };
           return { ...coll, position };
         }),
-        relations: [],
+        relations,
       });
 
       services.track('Data Modeling Diagram Created', {
