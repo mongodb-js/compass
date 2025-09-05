@@ -169,8 +169,11 @@ const drawerLayoutFixesStyles = css({
   },
 
   // drawer section
-  '& > div:nth-child(2)': {
-    marginTop: -1, // hiding the top border as we already have one in the place where the Anchor is currently rendered
+  '& > div:nth-child(2) > div': {
+    // hiding the border border as we already have one in the place where the
+    // Anchor is currently rendered
+    borderTop: 'none',
+    borderBottom: 'none',
   },
 });
 
