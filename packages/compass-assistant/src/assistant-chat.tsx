@@ -71,29 +71,36 @@ const assistantChatFixesStyles = css({
   },
   /** TODO(COMPASS-9751): We're adjusting styling of all the headers to a lower level than the default for chat, this should be updated in Leafygreen as well and removed from our end. */
   'h1, h2, h3, h4, h5, h6': {
-    margin: 'unset',
     fontFamily: fontFamilies.default,
+    margin: 'unset',
   },
   /** h4, h5, h6 -> body 1 styling */
   'h4, h5, h6': {
     fontSize: '13px',
+    lineHeight: '15px',
+    marginTop: '4px',
   },
   /** h1 -> h3 styling */
   h1: {
-    fontSize: '24px',
-    lineHeight: '32px',
+    fontSize: '20px',
+    marginTop: '8px',
     fontWeight: 'medium',
+    lineHeight: '22px',
   },
   /** h2 -> subtitle styling */
   h2: {
     color: '#001E2B',
     fontWeight: 'semibold',
     fontSize: '18px',
+    lineHeight: '20px',
+    marginTop: '8px',
   },
   /** h3 -> body 2 styling */
   h3: {
     fontSize: '16px',
     fontWeight: 'semibold',
+    lineHeight: '18px',
+    marginTop: '4px',
   },
 });
 const messageFeedFixesStyles = css({
@@ -102,6 +109,12 @@ const messageFeedFixesStyles = css({
   overflowY: 'auto',
   flex: 1,
   padding: spacing[400],
+  gap: spacing[400],
+
+  // TODO(COMPASS-9751): We're setting the font weight to 600 here as the LG styling for the Assistant header isn't set
+  '& > div > div:has(svg[aria-label="Sparkle Icon"]) p': {
+    fontWeight: 600,
+  },
 });
 const chatWindowFixesStyles = css({
   height: '100%',
