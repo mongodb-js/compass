@@ -94,7 +94,7 @@ const ScriptScreen = () => {
           In the directory that you created, create a file named
           mockdatascript.js (or any name you&apos;d like).
         </Body>
-        {/* TODO: Fill in with real code */}
+        {/* TODO: CLOUDP-333860: Hook up to the code generated as part script generation */}
         <Code copyable language={Language.JavaScript}>
           TK
         </Code>
