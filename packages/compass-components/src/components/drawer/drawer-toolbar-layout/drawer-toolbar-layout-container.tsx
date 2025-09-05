@@ -114,6 +114,7 @@ export const DrawerToolbarLayoutContainer = forwardRef<
             data-testid={`${dataLgId}`}
             aria-live="polite"
             aria-atomic="true"
+            hasPadding={false}
           >
             {content}
           </Drawer>

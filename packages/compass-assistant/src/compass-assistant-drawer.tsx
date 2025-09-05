@@ -33,7 +33,8 @@ const assistantTitleTextStyles = css({
  */
 export const CompassAssistantDrawer: React.FunctionComponent<{
   autoOpen?: boolean;
-}> = ({ autoOpen }) => {
+  hasNonGenuineConnections?: boolean;
+}> = ({ autoOpen, hasNonGenuineConnections = false }) => {
   const chat = useContext(AssistantContext);
   const { clearChat } = useContext(AssistantActionsContext);
 
@@ -49,7 +50,7 @@ export const CompassAssistantDrawer: React.FunctionComponent<{
       'data-testid': 'assistant-confirm-clear-chat-modal',
     });
     if (confirmed) {
-      clearChat();
+      clearChat?.();
     }
   }, [clearChat]);
 
@@ -88,7 +89,10 @@ export const CompassAssistantDrawer: React.FunctionComponent<{
       glyph="Sparkle"
       autoOpen={autoOpen}
     >
-      <AssistantChat chat={chat} />
+      <AssistantChat
+        chat={chat}
+        hasNonGenuineConnections={hasNonGenuineConnections}
+      />
     </DrawerSection>
   );
 };

@@ -62,10 +62,8 @@ import { WebWorkspaceTab as WelcomeWorkspaceTab } from '@mongodb-js/compass-welc
 import { useCompassWebPreferences } from './preferences';
 import { DataModelingWorkspaceTab as DataModelingWorkspace } from '@mongodb-js/compass-data-modeling';
 import { DataModelStorageServiceProviderInMemory } from '@mongodb-js/compass-data-modeling/web';
-import {
-  CompassAssistantDrawer,
-  CompassAssistantProvider,
-} from '@mongodb-js/compass-assistant';
+import { CompassAssistantProvider } from '@mongodb-js/compass-assistant';
+import { CompassAssistantDrawerWithConnections } from './compass-assistant-drawer';
 
 /** @public */
 export type TrackFunction = (
@@ -229,7 +227,7 @@ function CompassWorkspace({
                   <CreateNamespacePlugin></CreateNamespacePlugin>
                   <DropNamespacePlugin></DropNamespacePlugin>
                   <RenameCollectionPlugin></RenameCollectionPlugin>
-                  <CompassAssistantDrawer />
+                  <CompassAssistantDrawerWithConnections />
                 </>
               );
             }}
@@ -423,7 +421,7 @@ const CompassWeb = ({
                         }}
                       >
                         <CompassInstanceStorePlugin>
-                          <CompassAssistantProvider>
+                          <CompassAssistantProvider appNameForPrompt="MongoDB Atlas Data Explorer">
                             <FieldStorePlugin>
                               <WithConnectionsStore>
                                 <CompassWorkspace

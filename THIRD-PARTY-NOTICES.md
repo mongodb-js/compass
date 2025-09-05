@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **Mongodb Compass**.
-This document was automatically generated on Tue Sep 02 2025.
+This document was automatically generated on Thu Sep 04 2025.
 
 ## List of dependencies
 
@@ -388,7 +388,7 @@ This document was automatically generated on Tue Sep 02 2025.
 | **[mkdirp-classic](#e79cc875152b50c2eb57a97163d99f0155bf4e4af7ba4a7e01c12a17a4a3305c)**                                     | 0.5.3        | MIT                                 |
 | **[modify-filename](#7153be07939379ccf0072006c519fba2bdf5ab79ca8bb59bc5273f87a7bacbf6)**                                    | 1.1.0        | MIT                                 |
 | **[mongodb-build-info](#f0a98c22ae0766702726f79e058ac6dc4e4bead8557b67b816f40bd13fb54170)**                                 | 1.7.2        | Apache-2.0                          |
-| **[mongodb-client-encryption](#4bfa384a74d9b7da2ef68a7c6792e662d64dd2dc08303f7400c63fda55922482)**                          | 6.3.0        | Apache-2.0                          |
+| **[mongodb-client-encryption](#b69198b27f91ae57d05c6db2f6c1e6afdf2e56f8b5a66a2142292cd7efde2e53)**                          | 6.5.0        | Apache-2.0                          |
 | **[mongodb-cloud-info](#5437e58440df6b1fefae8943353daf4f333e29974720113bcddd634c6bcc3f75)**                                 | 2.1.7        | Apache-2.0                          |
 | **[mongodb-connection-string-url](#2e1146256a89ebd24e3398881e03807fe363d58444e6b7952ea50bd6108707bc)**                      | 3.0.1        | Apache-2.0                          |
 | **[mongodb-log-writer](#2773a73e5385ed96d47f2a1d6236804c4b9bfeccf4b2359d30b989810409b0f1)**                                 | 2.4.1        | Apache-2.0                          |
@@ -397,7 +397,7 @@ This document was automatically generated on Tue Sep 02 2025.
 | **[mongodb-query-parser](#15068a4e6d825438a4e6d365a3566f58762ef216402070179557503b775f3ff4)**                               | 4.3.0        | Apache-2.0                          |
 | **[mongodb-redact](#6e144657052b14482fcf7c46948b75815e885a6a92d9770bf29d479ba3188617)**                                     | 1.1.8        | Apache-2.0                          |
 | **[mongodb-schema](#dc7b6e03e707abdf4c8e28a57ca2df873ec3a9fc74b1822a899a0f7eb0cc4bd5)**                                     | 12.6.2       | Apache-2.0                          |
-| **[mongodb](#e9259a133815c37f78beb53d1e96543d3af8114834d306de35d623db235b3cca)**                                            | 6.17.0       | Apache-2.0                          |
+| **[mongodb](#6ccc8437faa6b7dd23d9b92f07f505450a6274463303eb7bb08af9943163ff9a)**                                            | 6.19.0       | Apache-2.0                          |
 | **[ms](#0a987b2f79ff37005e452a5afa7dacd3042061a7077054d2ba9cabacd88506d2)**                                                 | 2.1.2        | MIT                                 |
 | **[ms](#2083576c5af8054927640b4788059806d07e250a26066c9ccb2d928394fb9226)**                                                 | 2.1.3        | MIT                                 |
 | **[napi-build-utils](#4446cbf58ee41dfc4c30b35af90a053cab7e15fcc9736c67a43265eeef531372)**                                   | 2.0.0        | MIT                                 |
@@ -26601,9 +26601,9 @@ License files:
          See the License for the specific language governing permissions and
          limitations under the License.
 
-<a id="4bfa384a74d9b7da2ef68a7c6792e662d64dd2dc08303f7400c63fda55922482"></a>
+<a id="b69198b27f91ae57d05c6db2f6c1e6afdf2e56f8b5a66a2142292cd7efde2e53"></a>
 
-### [mongodb-client-encryption](https://www.npmjs.com/package/mongodb-client-encryption) (version 6.3.0)
+### [mongodb-client-encryption](https://www.npmjs.com/package/mongodb-client-encryption) (version 6.5.0)
 
 License tags: Apache-2.0
 
@@ -28111,9 +28111,9 @@ License files:
          See the License for the specific language governing permissions and
          limitations under the License.
 
-<a id="e9259a133815c37f78beb53d1e96543d3af8114834d306de35d623db235b3cca"></a>
+<a id="6ccc8437faa6b7dd23d9b92f07f505450a6274463303eb7bb08af9943163ff9a"></a>
 
-### [mongodb](https://www.npmjs.com/package/mongodb) (version 6.17.0)
+### [mongodb](https://www.npmjs.com/package/mongodb) (version 6.19.0)
 
 License tags: Apache-2.0
 

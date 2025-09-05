@@ -94,8 +94,8 @@ function ZeroState({
             </Button>
           }
         >
-          Search indexes can only be created on views containing $addFields,
-          $set or $match stages with the $expr operator.
+          Search indexes can only be created on views containing $match stages
+          with the $expr operator, $addFields, or $set.
         </Tooltip>
       }
       callToActionLink={

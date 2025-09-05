@@ -1,6 +1,16 @@
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import { redactConnectionString } from 'mongodb-connection-string-url';
 
+export const buildConversationInstructionsPrompt = ({
+  target,
+}: {
+  target: string;
+}) => {
+  // TODO: we'll want to greatly expand on this, but at minimum this is where we
+  // make the distinction between running inside Data Explorer vs Compass.
+  return `You are an assistant running in a side-panel inside ${target}. Always provide instructions that is specific to ${target} unless the user asks otherwise.`;
+};
+
 export type EntryPointMessage = {
   prompt: string;
   displayText?: string;
@@ -78,7 +88,7 @@ Tell the user if indexes need to be created or modified to enable any recommenda
 </guidelines>
 <input>
 ${explainPlan}
-</explain-plan>`,
+</input>`,
     displayText: 'Interpret this explain plan output for me.',
   };
 };

@@ -402,6 +402,8 @@ describe('AtlasAiService', function () {
             },
           },
           includeSampleValues: false,
+          requestId: 'test-request-id',
+          signal: new AbortController().signal,
         };
 
         if (apiURLPreset === 'admin-api') {
@@ -460,7 +462,7 @@ describe('AtlasAiService', function () {
             expect(fetchStub).to.have.been.calledOnce;
             const { args } = fetchStub.firstCall;
             expect(args[0]).to.eq(
-              '/cloud/ai/v1/groups/testProject/mock-data-schema'
+              '/cloud/ai/v1/groups/testProject/mock-data-schema?request_id=test-request-id'
             );
             expect(result).to.deep.equal(mockResponse);
           });

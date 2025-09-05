@@ -149,7 +149,7 @@ function HomeWithConnections({
   return (
     <ConnectionStorageProvider value={connectionStorage}>
       <FileInputBackendProvider createFileInputBackend={createFileInputBackend}>
-        <CompassAssistantProvider>
+        <CompassAssistantProvider appNameForPrompt="MongoDB Compass">
           <CompassConnections
             appName={props.appName}
             onExtraConnectionDataRequest={getExtraConnectionData}
