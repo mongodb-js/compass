@@ -28,8 +28,8 @@ import ScriptScreen from './script-screen';
 const STEP_TO_STEP_CONTENT: Record<MockDataGeneratorStep, React.JSX.Element> = {
   [MockDataGeneratorStep.SCHEMA_CONFIRMATION]: <SchemaConfirmationScreen />,
   [MockDataGeneratorStep.SCHEMA_EDITOR]: <FakerSchemaEditor />,
-  [MockDataGeneratorStep.DOCUMENT_COUNT]: <></>, // TODO: Implement as part of CLOUDP-XXXXXX
-  [MockDataGeneratorStep.PREVIEW_DATA]: <></>, // TODO: Implement as part of CLOUDP-XXXXXX
+  [MockDataGeneratorStep.DOCUMENT_COUNT]: <></>, // TODO: Implement as part of CLOUDP-333856
+  [MockDataGeneratorStep.PREVIEW_DATA]: <></>, // TODO: Implement as part of CLOUDP-333857
   [MockDataGeneratorStep.GENERATE_DATA]: <ScriptScreen />,
 };
 
