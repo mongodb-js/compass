@@ -54,7 +54,6 @@ const getBaseStyles = ({ theme }: { theme: Theme }) => css`
   all: unset;
   background-color: ${color[theme].background.primary.default};
   border: 1px solid ${color[theme].border.secondary.default};
-  width: 100%;
   max-width: ${PANEL_WIDTH}px;
   height: 100%;
   overflow: hidden;
@@ -207,6 +206,7 @@ const getInnerOpenContainerStyles = css`
   transition-duration: ${transitionDuration.slowest}ms;
   transition-timing-function: linear;
   opacity: 1;
+  width: ${PANEL_WIDTH}px;
 `;
 
 export const getInnerContainerStyles = ({
