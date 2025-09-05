@@ -7,20 +7,27 @@ import React, {
   useRef,
   useState,
 } from 'react';
-
 import {
   DrawerLayout,
   DisplayMode as DrawerDisplayMode,
   useDrawerToolbarContext,
   type DrawerLayoutProps,
-} from './drawer';
+} from '@leafygreen-ui/drawer';
 import { css, cx } from '@leafygreen-ui/emotion';
 import { isEqual } from 'lodash';
 import { rafraf } from '../utils/rafraf';
+import { BaseFontSize, fontWeights } from '@leafygreen-ui/tokens';
 
-type SectionData = Required<DrawerLayoutProps>['toolbarData'][number];
+type ToolbarData = Required<DrawerLayoutProps>['toolbarData'];
+
+type SectionData = ToolbarData[number];
 
 type DrawerSectionProps = Omit<SectionData, 'content' | 'onClick'> & {
+  // Title exists in DrawerLayoutProps, but is optional, whereas for us it needs
+  // to be required (also due to merging of types inside leafygreen, we can't
+  // convince typescript that our toolbarData is compatible with lg toolbarData
+  // if that is not explicit)
+  title: React.ReactNode;
   /**
    * If `true` will automatically open the section when first mounted. Default: `false`
    */
@@ -163,22 +170,19 @@ const drawerLayoutFixesStyles = css({
   },
 
   // drawer section
-  '& > div:nth-child(2)': {
-    marginTop: -1, // hiding the top border as we already have one in the place where the Anchor is currently rendered
+  '& > div:nth-child(2) > div': {
+    // hiding the border border as we already have one in the place where the
+    // Anchor is currently rendered
+    borderTop: 'none',
+    borderBottom: 'none',
   },
 
-  // We're stretching the title container to all available width so that we can
-  // layout the controls there better. Doing our best to target the section
-  // title here, leafygreen really doesn't give us anything else to try.
-  //
-  // TODO(ticket): This is obviously a horrible selector and we should make sure
-  // that LG team provides a better one for us to achieve this behavior when
-  // we're removing the vendored version of the drawer
+  // drawer content > title content
   '& > div:nth-child(2) > div:nth-child(2) > div:first-child > div:first-child > div:first-child > div:first-child':
     {
-      flex: 'none',
-      width: 'calc(100% - 28px)', // disallow going over the title size (100 - close button width)
-      overflow: 'hidden',
+      // fix for the flex parent not allowing flex children to collapse if they
+      // are overflowing the container
+      minWidth: 0,
     },
 });
 
@@ -208,6 +212,16 @@ const drawerSectionPortalStyles = css({
   minWidth: '100%',
   minHeight: '100%',
   height: '100%',
+});
+
+// Leafygreen dynamically changes styles of the title group based on whether or
+// not title is a `string` or a `ReactNode`, we want it to consistently have
+// bold title styles no matter what title you provided, so we wrap it in our own
+// container
+const drawerTitleGroupStyles = css({
+  width: '100%',
+  fontSize: BaseFontSize.Body2,
+  fontWeight: fontWeights.bold,
 });
 
 /**
@@ -240,6 +254,7 @@ export const DrawerAnchor: React.FunctionComponent<{
       .map((data) => {
         return {
           ...data,
+          title: <div className={drawerTitleGroupStyles}>{data.title}</div>,
           content: (
             <div
               key={data.id}
@@ -352,3 +367,5 @@ export const useDrawerState = () => {
       drawerState.length > 0,
   };
 };
+
+export { getLgIds as getDrawerIds } from '@leafygreen-ui/drawer';

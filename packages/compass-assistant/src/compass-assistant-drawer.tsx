@@ -88,6 +88,7 @@ export const CompassAssistantDrawer: React.FunctionComponent<{
       label="MongoDB Assistant"
       glyph="Sparkle"
       autoOpen={autoOpen}
+      hasPadding={false}
     >
       <AssistantChat
         chat={chat}
