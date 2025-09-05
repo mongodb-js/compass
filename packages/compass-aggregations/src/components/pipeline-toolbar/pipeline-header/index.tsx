@@ -14,7 +14,6 @@ import PipelineStages from './pipeline-stages';
 import PipelineActions from './pipeline-actions';
 import SavedPipelines from '../../saved-pipelines/saved-pipelines';
 import type { RootState } from '../../../modules';
-import { usePipelineStorage } from '@mongodb-js/my-queries-storage/provider';
 
 const containerStyles = css({
   display: 'flex',
@@ -111,12 +110,7 @@ export const PipelineHeader: React.FunctionComponent<PipelineHeaderProps> = ({
   isOptionsVisible,
   isOpenPipelineVisible,
 }) => {
-  // TODO: remove direct check for storage existing, breaks single source of
-  // truth rule and exposes services to UI, this breaks the rules for locators
-  const pipelineStorageAvailable = !!usePipelineStorage();
-  const isMyQueriesEnabled = usePreference('enableMyQueries');
-  const isSavingAggregationsEnabled =
-    pipelineStorageAvailable && isMyQueriesEnabled;
+  const isSavingAggregationsEnabled = usePreference('enableMyQueries');
   return (
     <div className={containerStyles} data-testid="pipeline-header">
       {isOpenPipelineVisible && isSavingAggregationsEnabled && (

@@ -65,10 +65,12 @@ import {
   compassFavoriteQueryStorageAccess,
   compassRecentQueryStorageAccess,
   CompassPipelineStorage,
+} from '@mongodb-js/my-queries-storage';
+import {
   FavoriteQueryStorageProvider,
   RecentQueryStorageProvider,
   PipelineStorageProvider,
-} from '@mongodb-js/my-queries-storage';
+} from '@mongodb-js/my-queries-storage/provider';
 import { CompassAssistantProvider } from '@mongodb-js/compass-assistant';
 import { CompassAssistantDrawerWithConnections } from './compass-assistant-drawer';
 

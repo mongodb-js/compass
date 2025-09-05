@@ -52,7 +52,7 @@
     "@mongodb-js/compass-logging": "^1.7.13",
     "@mongodb-js/compass-utils": "^0.9.12",
     "write-file-atomic": "^5.0.1",
-    "zod": "^3.25.17"
+    "zod": "^3.25.76"
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-compass": "^1.4.8",
