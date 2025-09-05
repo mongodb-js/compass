@@ -228,6 +228,39 @@ describe('MockDataGeneratorModal', () => {
     // todo: assert that closing then re-opening the modal after an LLM err removes the err message
   });
 
+  describe('on the generate data step', () => {
+    it('enables the Back button', () => {
+      renderModal({ currentStep: MockDataGeneratorStep.GENERATE_DATA });
+
+      expect(
+        screen
+          .getByRole('button', { name: 'Back' })
+          .getAttribute('aria-disabled')
+      ).to.not.equal('true');
+    });
+
+    it('renders the main sections: Prerequisites, steps, and Resources', () => {
+      renderModal({ currentStep: MockDataGeneratorStep.GENERATE_DATA });
+
+      expect(screen.getByText('Prerequisites')).to.exist;
+      expect(screen.getByText('1. Create a .js file with the following script'))
+        .to.exist;
+      expect(screen.getByText('2. Run the script with')).to.exist;
+      expect(screen.getByText('Resources')).to.exist;
+    });
+
+    it('closes the modal when the Done button is clicked', async () => {
+      renderModal({ currentStep: MockDataGeneratorStep.GENERATE_DATA });
+
+      expect(screen.getByTestId('generate-mock-data-modal')).to.exist;
+      userEvent.click(screen.getByText('Done'));
+      await waitFor(
+        () =>
+          expect(screen.queryByTestId('generate-mock-data-modal')).to.not.exist
+      );
+    });
+  });
+
   describe('when rendering the modal in a specific step', () => {
     const steps = Object.keys(
       StepButtonLabelMap
