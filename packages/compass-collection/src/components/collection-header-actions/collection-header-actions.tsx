@@ -19,6 +19,11 @@ import {
   ExperimentTestGroup,
 } from '@mongodb-js/compass-telemetry/provider';
 
+/**
+ * Maximum allowed nesting depth for collections to show Mock Data Generator
+ */
+const MAX_COLLECTION_NESTING_DEPTH = 3;
+
 const collectionHeaderActionsStyles = css({
   display: 'flex',
   alignItems: 'center',
@@ -47,6 +52,8 @@ type CollectionHeaderActionsProps = {
   sourceName?: string;
   sourcePipeline?: unknown[];
   onOpenMockDataModal: () => void;
+  hasSchemaAnalysisData: boolean;
+  analyzedSchemaDepth: number;
 };
 
 const CollectionHeaderActions: React.FunctionComponent<
@@ -58,6 +65,8 @@ const CollectionHeaderActions: React.FunctionComponent<
   sourceName,
   sourcePipeline,
   onOpenMockDataModal,
+  hasSchemaAnalysisData,
+  analyzedSchemaDepth,
 }: CollectionHeaderActionsProps) => {
   const connectionInfo = useConnectionInfo();
   const { id: connectionId, atlasMetadata } = connectionInfo;
@@ -84,10 +93,8 @@ const CollectionHeaderActions: React.FunctionComponent<
     isInMockDataTreatmentVariant &&
     atlasMetadata && // Only show in Atlas
     !isReadonly && // Don't show for readonly collections (views)
-    !sourceName; // sourceName indicates it's a view
-  // TODO: CLOUDP-337090: also filter out overly nested collections
-
-  const hasData = true; // TODO: CLOUDP-337090
+    !sourceName && // sourceName indicates it's a view
+    analyzedSchemaDepth <= MAX_COLLECTION_NESTING_DEPTH; // Filter out overly nested collections
 
   return (
     <div
@@ -111,13 +118,13 @@ const CollectionHeaderActions: React.FunctionComponent<
       )}
       {shouldShowMockDataButton && (
         <Tooltip
-          enabled={!hasData}
+          enabled={!hasSchemaAnalysisData}
           trigger={
             <div>
               <Button
                 data-testid="collection-header-generate-mock-data-button"
                 size={ButtonSize.Small}
-                disabled={!hasData}
+                disabled={!hasSchemaAnalysisData}
                 onClick={onOpenMockDataModal}
                 leftGlyph={<Icon glyph="Sparkle" />}
               >

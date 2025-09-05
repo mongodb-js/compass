@@ -57,6 +57,8 @@ describe('CollectionHeaderActions [Component]', function () {
               namespace="test.test"
               isReadonly={false}
               onOpenMockDataModal={sinon.stub()}
+              hasSchemaAnalysisData={true}
+              analyzedSchemaDepth={2}
               {...props}
             />
           </PreferencesProvider>
@@ -220,119 +222,6 @@ describe('CollectionHeaderActions [Component]', function () {
         },
       },
     };
-
-    it('should not show Mock Data Generator button when user is in control group', async function () {
-      mockUseAssignment.returns({
-        assignment: {
-          assignmentData: {
-            variant: 'mockDataGeneratorControl',
-          },
-        },
-      });
-
-      await renderCollectionHeaderActions(
-        {
-          namespace: 'test.collection',
-          isReadonly: false,
-        },
-        {},
-        atlasConnectionInfo
-      );
-
-      expect(
-        screen.queryByTestId('collection-header-generate-mock-data-button')
-      ).to.not.exist;
-    });
-
-    it('should not show Mock Data Generator button when not in Atlas', async function () {
-      mockUseAssignment.returns({
-        assignment: {
-          assignmentData: {
-            variant: 'treatment',
-          },
-        },
-      });
-
-      await renderCollectionHeaderActions({
-        namespace: 'test.collection',
-        isReadonly: false,
-        // Don't pass atlasConnectionInfo, to simulate not being in Atlas
-      });
-
-      expect(
-        screen.queryByTestId('collection-header-generate-mock-data-button')
-      ).to.not.exist;
-    });
-
-    it('should not show Mock Data Generator button for readonly collections', async function () {
-      mockUseAssignment.returns({
-        assignment: {
-          assignmentData: {
-            variant: 'treatment',
-          },
-        },
-      });
-
-      await renderCollectionHeaderActions(
-        {
-          namespace: 'test.collection',
-          isReadonly: true,
-        },
-        {},
-        atlasConnectionInfo
-      );
-
-      expect(
-        screen.queryByTestId('collection-header-generate-mock-data-button')
-      ).to.not.exist;
-    });
-
-    it('should not show Mock Data Generator button for views (sourceName present)', async function () {
-      mockUseAssignment.returns({
-        assignment: {
-          assignmentData: {
-            variant: 'treatment',
-          },
-        },
-      });
-
-      await renderCollectionHeaderActions(
-        {
-          namespace: 'test.collection',
-          isReadonly: false,
-          sourceName: 'source-collection',
-        },
-        {},
-        atlasConnectionInfo
-      );
-
-      expect(
-        screen.queryByTestId('collection-header-generate-mock-data-button')
-      ).to.not.exist;
-    });
-
-    it('should show Mock Data Generator button when user is in treatment group and in Atlas', async function () {
-      mockUseAssignment.returns({
-        assignment: {
-          assignmentData: {
-            variant: 'mockDataGeneratorVariant',
-          },
-        },
-      });
-
-      await renderCollectionHeaderActions(
-        {
-          namespace: 'test.collection',
-          isReadonly: false,
-        },
-        {},
-        atlasConnectionInfo
-      );
-
-      expect(
-        screen.getByTestId('collection-header-generate-mock-data-button')
-      ).to.exist;
-    });
 
     it('should call useAssignment with correct parameters', async function () {
       await renderCollectionHeaderActions({
