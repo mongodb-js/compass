@@ -1,4 +1,4 @@
-import React, { useContext, useRef, useEffect } from 'react';
+import React, { useContext, useEffect, useRef } from 'react';
 import type { AllPreferences } from 'compass-preferences-model/provider';
 import { CompassWebPreferencesAccess } from 'compass-preferences-model/provider';
 
@@ -47,6 +47,7 @@ export function useCompassWebPreferences(
       enableGenAISampleDocumentPassingOnAtlasProject: false,
       enableGenAIFeaturesAtlasOrg: false,
       enablePerformanceAdvisorBanner: true,
+      enableMyQueries: false,
       cloudFeatureRolloutAccess: {
         GEN_AI_COMPASS: false,
       },

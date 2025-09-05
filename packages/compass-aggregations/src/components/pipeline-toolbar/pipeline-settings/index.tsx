@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { Button, Icon, css, spacing } from '@mongodb-js/compass-components';
+import { Button, css, Icon, spacing } from '@mongodb-js/compass-components';
 import { exportToLanguage } from '../../../modules/export-to-language';
 import { SaveMenu } from './pipeline-menus';
 import PipelineName from './pipeline-name';
@@ -10,7 +10,8 @@ import { getIsPipelineInvalidFromBuilderState } from '../../../modules/pipeline-
 import { confirmNewPipeline } from '../../../modules/is-new-pipeline-confirm';
 import { hiddenOnNarrowPipelineToolbarStyles } from '../pipeline-toolbar-container';
 import ModifySourceBanner from '../../modify-source-banner';
-import { usePipelineStorage } from '@mongodb-js/my-queries-storage/provider';
+
+import { usePreference } from 'compass-preferences-model/provider';
 
 const containerStyles = css({
   display: 'flex',
@@ -47,9 +48,7 @@ export const PipelineSettings: React.FunctionComponent<
   onExportToLanguage,
   onCreateNewPipeline,
 }) => {
-  // TODO: remove direct check for storage existing, breaks single source of
-  // truth rule and exposes services to UI, this breaks the rules for locators
-  const enableSavedAggregationsQueries = !!usePipelineStorage();
+  const enableSavedAggregationsQueries = usePreference('enableMyQueries');
   const isPipelineNameDisplayed =
     !editViewName && !!enableSavedAggregationsQueries;
 

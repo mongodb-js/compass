@@ -15,17 +15,20 @@ import WorkspacesPlugin, {
   WorkspacesProvider,
 } from '@mongodb-js/compass-workspaces';
 import {
-  DatabasesWorkspaceTab,
   CollectionsWorkspaceTab,
+  CreateNamespacePlugin,
+  DatabasesWorkspaceTab,
+  DropNamespacePlugin,
+  RenameCollectionPlugin,
 } from '@mongodb-js/compass-databases-collections';
 import { CompassComponentsProvider, css } from '@mongodb-js/compass-components';
 import {
-  WorkspaceTab as CollectionWorkspace,
   CollectionTabsProvider,
+  WorkspaceTab as CollectionWorkspace,
 } from '@mongodb-js/compass-collection';
 import {
-  CompassSidebarPlugin,
   AtlasClusterConnectionsOnlyProvider,
+  CompassSidebarPlugin,
 } from '@mongodb-js/compass-sidebar';
 import CompassQueryBarPlugin from '@mongodb-js/compass-query-bar';
 import { CompassDocumentsPlugin } from '@mongodb-js/compass-crud';
@@ -40,13 +43,8 @@ import { CompassGlobalWritesPlugin } from '@mongodb-js/compass-global-writes';
 import { CompassGenerativeAIPlugin } from '@mongodb-js/compass-generative-ai';
 import ExplainPlanCollectionTabModal from '@mongodb-js/compass-explain-plan';
 import ExportToLanguageCollectionTabModal from '@mongodb-js/compass-export-to-language';
-import {
-  CreateNamespacePlugin,
-  DropNamespacePlugin,
-  RenameCollectionPlugin,
-} from '@mongodb-js/compass-databases-collections';
-import { PreferencesProvider } from 'compass-preferences-model/provider';
 import type { AllPreferences } from 'compass-preferences-model/provider';
+import { PreferencesProvider } from 'compass-preferences-model/provider';
 import FieldStorePlugin from '@mongodb-js/compass-field-store';
 import { AtlasServiceProvider } from '@mongodb-js/atlas-service/provider';
 import { AtlasAiServiceProvider } from '@mongodb-js/compass-generative-ai/provider';
@@ -55,13 +53,24 @@ import { TelemetryProvider } from '@mongodb-js/compass-telemetry/provider';
 import CompassConnections from '@mongodb-js/compass-connections';
 import { AtlasCloudConnectionStorageProvider } from './connection-storage';
 import { AtlasCloudAuthServiceProvider } from './atlas-auth-service';
-import type { LogFunction, DebugFunction } from './logger';
+import type { DebugFunction, LogFunction } from './logger';
 import { useCompassWebLogger } from './logger';
 import { type TelemetryServiceOptions } from '@mongodb-js/compass-telemetry';
 import { WebWorkspaceTab as WelcomeWorkspaceTab } from '@mongodb-js/compass-welcome';
 import { useCompassWebPreferences } from './preferences';
 import { DataModelingWorkspaceTab as DataModelingWorkspace } from '@mongodb-js/compass-data-modeling';
 import { DataModelStorageServiceProviderInMemory } from '@mongodb-js/compass-data-modeling/web';
+import { WorkspaceTab as MyQueriesWorkspace } from '@mongodb-js/compass-saved-aggregations-queries';
+import {
+  compassFavoriteQueryStorageAccess,
+  compassRecentQueryStorageAccess,
+  CompassPipelineStorage,
+} from '@mongodb-js/my-queries-storage';
+import {
+  FavoriteQueryStorageProvider,
+  RecentQueryStorageProvider,
+  PipelineStorageProvider,
+} from '@mongodb-js/my-queries-storage/provider';
 import { CompassAssistantProvider } from '@mongodb-js/compass-assistant';
 import { CompassAssistantDrawerWithConnections } from './compass-assistant-drawer';
 
@@ -179,62 +188,72 @@ function CompassWorkspace({
   onActiveWorkspaceTabChange,
   onOpenConnectViaModal,
 }: CompassWorkspaceProps) {
+  // Create a simple pipeline storage instance for sandbox
+  const pipelineStorage = new CompassPipelineStorage();
+
   return (
-    <WorkspacesProvider
-      value={[
-        WelcomeWorkspaceTab,
-        DatabasesWorkspaceTab,
-        CollectionsWorkspaceTab,
-        CollectionWorkspace,
-        DataModelingWorkspace,
-      ]}
-    >
-      <CollectionTabsProvider
-        queryBar={CompassQueryBarPlugin}
-        tabs={[
-          CompassDocumentsPlugin,
-          CompassAggregationsPlugin,
-          CompassSchemaPlugin,
-          CompassIndexesPlugin,
-          CompassSchemaValidationPlugin,
-          CompassGlobalWritesPlugin,
-        ]}
-        modals={[
-          ExplainPlanCollectionTabModal,
-          ExportToLanguageCollectionTabModal,
-        ]}
-      >
-        <div
-          data-testid="compass-web-connected"
-          className={connectedContainerStyles}
-        >
-          <WorkspacesPlugin
-            initialWorkspaceTabs={initialWorkspaceTabs}
-            openOnEmptyWorkspace={{ type: 'Welcome' }}
-            onActiveWorkspaceTabChange={onActiveWorkspaceTabChange}
-            renderSidebar={() => {
-              return (
-                <CompassSidebarPlugin
-                  onOpenConnectViaModal={onOpenConnectViaModal}
-                  isCompassWeb={true}
-                ></CompassSidebarPlugin>
-              );
-            }}
-            renderModals={() => {
-              return (
-                <>
-                  <CreateViewPlugin></CreateViewPlugin>
-                  <CreateNamespacePlugin></CreateNamespacePlugin>
-                  <DropNamespacePlugin></DropNamespacePlugin>
-                  <RenameCollectionPlugin></RenameCollectionPlugin>
-                  <CompassAssistantDrawerWithConnections />
-                </>
-              );
-            }}
-          ></WorkspacesPlugin>
-        </div>
-      </CollectionTabsProvider>
-    </WorkspacesProvider>
+    <PipelineStorageProvider value={pipelineStorage}>
+      <FavoriteQueryStorageProvider value={compassFavoriteQueryStorageAccess}>
+        <RecentQueryStorageProvider value={compassRecentQueryStorageAccess}>
+          <WorkspacesProvider
+            value={[
+              WelcomeWorkspaceTab,
+              DatabasesWorkspaceTab,
+              CollectionsWorkspaceTab,
+              CollectionWorkspace,
+              DataModelingWorkspace,
+              MyQueriesWorkspace,
+            ]}
+          >
+            <CollectionTabsProvider
+              queryBar={CompassQueryBarPlugin}
+              tabs={[
+                CompassDocumentsPlugin,
+                CompassAggregationsPlugin,
+                CompassSchemaPlugin,
+                CompassIndexesPlugin,
+                CompassSchemaValidationPlugin,
+                CompassGlobalWritesPlugin,
+              ]}
+              modals={[
+                ExplainPlanCollectionTabModal,
+                ExportToLanguageCollectionTabModal,
+              ]}
+            >
+              <div
+                data-testid="compass-web-connected"
+                className={connectedContainerStyles}
+              >
+                <WorkspacesPlugin
+                  initialWorkspaceTabs={initialWorkspaceTabs}
+                  openOnEmptyWorkspace={{ type: 'Welcome' }}
+                  onActiveWorkspaceTabChange={onActiveWorkspaceTabChange}
+                  renderSidebar={() => {
+                    return (
+                      <CompassSidebarPlugin
+                        onOpenConnectViaModal={onOpenConnectViaModal}
+                        isCompassWeb={true}
+                      ></CompassSidebarPlugin>
+                    );
+                  }}
+                  renderModals={() => {
+                    return (
+                      <>
+                        <CreateViewPlugin></CreateViewPlugin>
+                        <CreateNamespacePlugin></CreateNamespacePlugin>
+                        <DropNamespacePlugin></DropNamespacePlugin>
+                        <RenameCollectionPlugin></RenameCollectionPlugin>
+                        <CompassAssistantDrawerWithConnections />
+                      </>
+                    );
+                  }}
+                ></WorkspacesPlugin>
+              </div>
+            </CollectionTabsProvider>
+          </WorkspacesProvider>
+        </RecentQueryStorageProvider>
+      </FavoriteQueryStorageProvider>
+    </PipelineStorageProvider>
   );
 }
 
@@ -286,6 +305,7 @@ const CompassWeb = ({
     onDebug,
   });
   const preferencesAccess = useCompassWebPreferences(initialPreferences);
+  // TODO (COMPASS-9565): My Queries feature flag will be used to conditionally provide storage providers
   const initialWorkspaceRef = useRef(initialWorkspace);
   const initialWorkspaceTabsRef = useRef(
     initialWorkspaceRef.current ? [initialWorkspaceRef.current] : []
