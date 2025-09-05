@@ -234,19 +234,67 @@ describe('CompassAssistantProvider', function () {
     expect(screen.getByTestId('provider-children')).to.exist;
   });
 
-  it('does not render assistant drawer when AI assistant is disabled', function () {
-    render(<TestComponent chat={createMockChat({ messages: [] })} />, {
-      preferences: {
-        enableAIAssistant: false,
-        enableGenAIFeatures: true,
-        enableGenAIFeaturesAtlasOrg: true,
-        cloudFeatureRolloutAccess: { GEN_AI_COMPASS: true },
-      },
+  describe('disabling the Assistant', function () {
+    it('does not render assistant drawer when AI assistant is disabled', function () {
+      render(<TestComponent chat={createMockChat({ messages: [] })} />, {
+        preferences: {
+          enableAIAssistant: false,
+          enableGenAIFeatures: true,
+          enableGenAIFeaturesAtlasOrg: true,
+          cloudFeatureRolloutAccess: { GEN_AI_COMPASS: true },
+        },
+      });
+
+      expect(screen.getByTestId('provider-children')).to.exist;
+      // The drawer toolbar button should not exist when disabled
+      expect(screen.queryByLabelText('MongoDB Assistant')).to.not.exist;
     });
 
-    expect(screen.getByTestId('provider-children')).to.exist;
-    // The drawer toolbar button should not exist when disabled
-    expect(screen.queryByLabelText('MongoDB Assistant')).to.not.exist;
+    it('does not render assistant drawer when AI features are disabled via isAIFeatureEnabled', function () {
+      render(<TestComponent chat={createMockChat({ messages: [] })} />, {
+        preferences: {
+          enableAIAssistant: true,
+          // These control isAIFeatureEnabled
+          enableGenAIFeatures: false,
+          enableGenAIFeaturesAtlasOrg: true,
+          cloudFeatureRolloutAccess: { GEN_AI_COMPASS: true },
+        },
+      });
+
+      expect(screen.getByTestId('provider-children')).to.exist;
+      // The drawer toolbar button should not exist when AI features are disabled
+      expect(screen.queryByLabelText('MongoDB Assistant')).to.not.exist;
+    });
+
+    it('does not render assistant drawer when Atlas org AI features are disabled', function () {
+      render(<TestComponent chat={createMockChat({ messages: [] })} />, {
+        preferences: {
+          enableAIAssistant: true,
+          enableGenAIFeatures: true,
+          enableGenAIFeaturesAtlasOrg: false,
+          cloudFeatureRolloutAccess: { GEN_AI_COMPASS: true },
+        },
+      });
+
+      expect(screen.getByTestId('provider-children')).to.exist;
+      // The drawer toolbar button should not exist when Atlas org AI features are disabled
+      expect(screen.queryByLabelText('MongoDB Assistant')).to.not.exist;
+    });
+
+    it('does not render assistant drawer when cloud feature rollout access is disabled', function () {
+      render(<TestComponent chat={createMockChat({ messages: [] })} />, {
+        preferences: {
+          enableAIAssistant: true,
+          enableGenAIFeatures: true,
+          enableGenAIFeaturesAtlasOrg: true,
+          cloudFeatureRolloutAccess: { GEN_AI_COMPASS: false },
+        },
+      });
+
+      expect(screen.getByTestId('provider-children')).to.exist;
+      // The drawer toolbar button should not exist when cloud feature rollout access is disabled
+      expect(screen.queryByLabelText('MongoDB Assistant')).to.not.exist;
+    });
   });
 
   it('renders the assistant drawer as the first drawer item when AI assistant is enabled', function () {

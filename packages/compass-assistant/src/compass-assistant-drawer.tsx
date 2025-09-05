@@ -14,7 +14,10 @@ import {
   AssistantActionsContext,
   AssistantContext,
 } from './compass-assistant-provider';
-import { usePreference } from 'compass-preferences-model/provider';
+import {
+  useIsAIFeatureEnabled,
+  usePreference,
+} from 'compass-preferences-model/provider';
 
 const assistantTitleStyles = css({
   display: 'flex',
@@ -39,6 +42,7 @@ export const CompassAssistantDrawer: React.FunctionComponent<{
   const { clearChat } = useContext(AssistantActionsContext);
 
   const enableAIAssistant = usePreference('enableAIAssistant');
+  const isAiFeatureEnabled = useIsAIFeatureEnabled();
 
   const handleClearChat = useCallback(async () => {
     const confirmed = await showConfirmation({
@@ -54,7 +58,7 @@ export const CompassAssistantDrawer: React.FunctionComponent<{
     }
   }, [clearChat]);
 
-  if (!enableAIAssistant) {
+  if (!enableAIAssistant || !isAiFeatureEnabled) {
     return null;
   }
 
