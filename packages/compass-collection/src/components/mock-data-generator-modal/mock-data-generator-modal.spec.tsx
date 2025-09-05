@@ -259,6 +259,8 @@ describe('MockDataGeneratorModal', () => {
           expect(screen.queryByTestId('generate-mock-data-modal')).to.not.exist
       );
     });
+
+    // todo: assert that the generated script is displayed in the code block
   });
 
   describe('when rendering the modal in a specific step', () => {
