@@ -16,9 +16,9 @@ import {
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 
 const RUN_SCRIPT_COMMAND = `
-mongosh "mongodb+srv://<your-cluster>.mongodb.net/mockDataDB" \\
-  --username <yourUsername> \\
-  --password "<yourPassword>" \\
+mongosh "mongodb+srv://<your-cluster>.mongodb.net/<your-database>" \\
+  --username <your-username> \\
+  --password "<your-password>" \\
   mockdatascript.js
 `;
 
