@@ -66,7 +66,7 @@ const ScriptScreen = () => {
   return (
     <section className={outerSectionStyles}>
       <section>
-        <Body baseFontSize={16} weight="medium">
+        <Body as="h2" baseFontSize={16} weight="medium">
           Prerequisites
         </Body>
         <Body className={css({ marginTop: spacing[200] })}>
@@ -89,7 +89,7 @@ const ScriptScreen = () => {
         </ul>
       </section>
       <section>
-        <Body baseFontSize={16} weight="medium">
+        <Body as="h2" baseFontSize={16} weight="medium">
           1. Create a .js file with the following script
         </Body>
         <Body className={sectionInstructionStyles}>
@@ -102,7 +102,7 @@ const ScriptScreen = () => {
         </Code>
       </section>
       <section>
-        <Body baseFontSize={16} weight="medium">
+        <Body as="h2" baseFontSize={16} weight="medium">
           2. Run the script with <InlineCode>mongosh</InlineCode>
         </Body>
         <Body className={sectionInstructionStyles}>
