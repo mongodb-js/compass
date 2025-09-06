@@ -136,7 +136,7 @@ describe('Collection Rename Modal', () => {
       await browser.clickVisible(Selectors.SidebarFilterInput);
       await browser.setValueVisible(
         Selectors.SidebarFilterInput,
-        `^(${databaseName}|${newCollectionName})$`
+        `${databaseName}.${newCollectionName}`
       );
       await browser
         .$(
