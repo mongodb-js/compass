@@ -57,7 +57,7 @@ const defaultCSP = {
     'https://compass.mongodb.com',
     'https://ip-ranges.amazonaws.com',
     'https://knowledge.staging.corp.mongodb.com',
-    'https://knowledge.corp.mongodb.com',
+    'https://knowledge.mongodb.com',
   ],
   'child-src': [
     'blob:',

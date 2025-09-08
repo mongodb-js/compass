@@ -62,6 +62,7 @@ describe('Collection Tab Content store', function () {
   const analyzeCollectionSchemaStub = sandbox
     .stub(collectionTabModule, 'analyzeCollectionSchema')
     .returns(async () => {});
+
   const dataService = {} as any;
   const atlasAiService = {} as any;
   let store: ReturnType<typeof activatePlugin>['store'];
@@ -100,6 +101,7 @@ describe('Collection Tab Content store', function () {
       },
       {
         dataService,
+        atlasAiService,
         localAppRegistry,
         collection: mockCollection as any,
         workspaces: workspaces as any,
@@ -107,7 +109,6 @@ describe('Collection Tab Content store', function () {
         connectionInfoRef: connectionInfoRef as any,
         logger,
         preferences,
-        atlasAiService,
       },
       { on() {}, cleanup() {} } as any
     ));

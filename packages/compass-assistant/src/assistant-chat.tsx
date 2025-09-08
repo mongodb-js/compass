@@ -1,5 +1,6 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect, useContext } from 'react';
 import type { AssistantMessage } from './compass-assistant-provider';
+import { AssistantActionsContext } from './compass-assistant-provider';
 import type { Chat } from './@ai-sdk/react/chat-react';
 import { useChat } from './@ai-sdk/react/use-chat';
 import {
@@ -19,6 +20,7 @@ import {
   Link,
 } from '@mongodb-js/compass-components';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
+import { NON_GENUINE_WARNING_MESSAGE } from './preset-messages';
 
 const { DisclaimerText } = LgChatChatDisclaimer;
 const { ChatWindow } = LgChatChatWindow;
@@ -31,6 +33,7 @@ const GEN_AI_FAQ_LINK = 'https://www.mongodb.com/docs/generative-ai-faq/';
 
 interface AssistantChatProps {
   chat: Chat<AssistantMessage>;
+  hasNonGenuineConnections: boolean;
 }
 
 const assistantChatStyles = css({
@@ -68,29 +71,36 @@ const assistantChatFixesStyles = css({
   },
   /** TODO(COMPASS-9751): We're adjusting styling of all the headers to a lower level than the default for chat, this should be updated in Leafygreen as well and removed from our end. */
   'h1, h2, h3, h4, h5, h6': {
-    margin: 'unset',
     fontFamily: fontFamilies.default,
+    margin: 'unset',
   },
   /** h4, h5, h6 -> body 1 styling */
   'h4, h5, h6': {
     fontSize: '13px',
+    lineHeight: '15px',
+    marginTop: '4px',
   },
   /** h1 -> h3 styling */
   h1: {
-    fontSize: '24px',
-    lineHeight: '32px',
+    fontSize: '20px',
+    marginTop: '8px',
     fontWeight: 'medium',
+    lineHeight: '22px',
   },
   /** h2 -> subtitle styling */
   h2: {
     color: '#001E2B',
     fontWeight: 'semibold',
     fontSize: '18px',
+    lineHeight: '20px',
+    marginTop: '8px',
   },
   /** h3 -> body 2 styling */
   h3: {
     fontSize: '16px',
     fontWeight: 'semibold',
+    lineHeight: '18px',
+    marginTop: '4px',
   },
 });
 const messageFeedFixesStyles = css({
@@ -99,6 +109,12 @@ const messageFeedFixesStyles = css({
   overflowY: 'auto',
   flex: 1,
   padding: spacing[400],
+  gap: spacing[400],
+
+  // TODO(COMPASS-9751): We're setting the font weight to 600 here as the LG styling for the Assistant header isn't set
+  '& > div > div:has(svg[aria-label="Sparkle Icon"]) p': {
+    fontWeight: 600,
+  },
 });
 const chatWindowFixesStyles = css({
   height: '100%',
@@ -126,10 +142,13 @@ const errorBannerWrapperStyles = css({
 
 export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
   chat,
+  hasNonGenuineConnections,
 }) => {
   const track = useTelemetry();
   const darkMode = useDarkMode();
-  const { messages, sendMessage, status, error, clearError } = useChat({
+
+  const { ensureOptInAndSend } = useContext(AssistantActionsContext);
+  const { messages, status, error, clearError, setMessages } = useChat({
     chat,
     onError: (error) => {
       track('Assistant Response Failed', () => ({
@@ -137,6 +156,23 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
       }));
     },
   });
+
+  useEffect(() => {
+    const hasExistingNonGenuineWarning = chat.messages.some(
+      (message) => message.id === 'non-genuine-warning'
+    );
+    if (hasNonGenuineConnections && !hasExistingNonGenuineWarning) {
+      setMessages((messages) => {
+        return [NON_GENUINE_WARNING_MESSAGE, ...messages];
+      });
+    } else if (hasExistingNonGenuineWarning && !hasNonGenuineConnections) {
+      setMessages((messages) => {
+        return messages.filter(
+          (message) => message.id !== 'non-genuine-warning'
+        );
+      });
+    }
+  }, [hasNonGenuineConnections, chat, setMessages]);
 
   // Transform AI SDK messages to LeafyGreen chat format and reverse the order of the messages
   // for displaying it correctly with flex-direction: column-reverse.
@@ -157,13 +193,14 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
     (messageBody: string) => {
       const trimmedMessageBody = messageBody.trim();
       if (trimmedMessageBody) {
-        track('Assistant Prompt Submitted', {
-          user_input_length: trimmedMessageBody.length,
+        void ensureOptInAndSend?.({ text: trimmedMessageBody }, {}, () => {
+          track('Assistant Prompt Submitted', {
+            user_input_length: trimmedMessageBody.length,
+          });
         });
-        void sendMessage({ text: trimmedMessageBody });
       }
     },
-    [sendMessage, track]
+    [track, ensureOptInAndSend]
   );
 
   const handleFeedback = useCallback(

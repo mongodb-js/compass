@@ -9,12 +9,20 @@ import { createOpenAI } from '@ai-sdk/openai';
 
 export class DocsProviderTransport implements ChatTransport<UIMessage> {
   private openai: ReturnType<typeof createOpenAI>;
+  private instructions: string;
 
-  constructor({ baseUrl }: { baseUrl: string }) {
+  constructor({
+    baseUrl,
+    instructions,
+  }: {
+    baseUrl: string;
+    instructions: string;
+  }) {
     this.openai = createOpenAI({
       baseURL: baseUrl,
       apiKey: '',
     });
+    this.instructions = instructions;
   }
 
   sendMessages({
@@ -25,6 +33,11 @@ export class DocsProviderTransport implements ChatTransport<UIMessage> {
       model: this.openai.responses('mongodb-chat-latest'),
       messages: convertToModelMessages(messages),
       abortSignal: abortSignal,
+      providerOptions: {
+        openai: {
+          instructions: this.instructions,
+        },
+      },
     });
 
     return Promise.resolve(result.toUIMessageStream());

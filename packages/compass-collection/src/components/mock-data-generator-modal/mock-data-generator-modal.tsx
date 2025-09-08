@@ -3,25 +3,26 @@ import { connect } from 'react-redux';
 
 import {
   css,
+  Button,
+  ButtonVariant,
   ModalBody,
   ModalHeader,
+  Modal,
+  ModalFooter,
   spacing,
 } from '@mongodb-js/compass-components';
 
-import {
-  Button,
-  Modal,
-  ModalFooter,
-  ButtonVariant,
-} from '@mongodb-js/compass-components';
 import { MockDataGeneratorStep } from './types';
 import { StepButtonLabelMap } from './constants';
 import type { CollectionState } from '../../modules/collection-tab';
 import {
   mockDataGeneratorModalClosed,
   mockDataGeneratorNextButtonClicked,
+  generateFakerMappings,
   mockDataGeneratorPreviousButtonClicked,
 } from '../../modules/collection-tab';
+import { default as SchemaConfirmationScreen } from './raw-schema-confirmation';
+import FakerSchemaEditor from './faker-schema-editor';
 
 const footerStyles = css`
   flex-direction: row;
@@ -39,6 +40,7 @@ interface Props {
   onClose: () => void;
   currentStep: MockDataGeneratorStep;
   onNextStep: () => void;
+  onConfirmSchema: () => Promise<void>;
   onPreviousStep: () => void;
 }
 
@@ -47,10 +49,28 @@ const MockDataGeneratorModal = ({
   onClose,
   currentStep,
   onNextStep,
+  onConfirmSchema,
   onPreviousStep,
 }: Props) => {
-  const handleNextClick =
-    currentStep === MockDataGeneratorStep.GENERATE_DATA ? onClose : onNextStep;
+  const handleNextClick = () => {
+    if (currentStep === MockDataGeneratorStep.GENERATE_DATA) {
+      onClose();
+    } else if (currentStep === MockDataGeneratorStep.SCHEMA_CONFIRMATION) {
+      void onConfirmSchema();
+    } else {
+      onNextStep();
+    }
+  };
+
+  let stepContent: React.ReactNode;
+
+  if (currentStep === MockDataGeneratorStep.SCHEMA_CONFIRMATION) {
+    stepContent = <SchemaConfirmationScreen />;
+  }
+
+  if (currentStep === MockDataGeneratorStep.SCHEMA_EDITOR) {
+    stepContent = <FakerSchemaEditor />;
+  }
 
   return (
     <Modal
@@ -64,7 +84,7 @@ const MockDataGeneratorModal = ({
     >
       <ModalHeader title="Generate Mock Data" />
       <ModalBody>
-        {/* TODO: Render actual step content here based on currentStep. (CLOUDP-333851) */}
+        {stepContent}
         <div data-testid={`generate-mock-data-step-${currentStep}`} />
       </ModalBody>
       <ModalFooter className={footerStyles}>
@@ -97,8 +117,8 @@ const mapStateToProps = (state: CollectionState) => ({
 const ConnectedMockDataGeneratorModal = connect(mapStateToProps, {
   onClose: mockDataGeneratorModalClosed,
   onNextStep: mockDataGeneratorNextButtonClicked,
+  onConfirmSchema: generateFakerMappings,
   onPreviousStep: mockDataGeneratorPreviousButtonClicked,
 })(MockDataGeneratorModal);
 
 export default ConnectedMockDataGeneratorModal;
-export { MockDataGeneratorModal as UnconnectedMockDataGeneratorModal };
