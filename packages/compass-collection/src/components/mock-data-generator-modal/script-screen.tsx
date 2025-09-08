@@ -47,6 +47,10 @@ const resourceSectionStyles = css({
   borderRadius: spacing[400],
 });
 
+const instructionTextStyle = css({
+  marginTop: spacing[200],
+});
+
 const resourceSectionLightStyles = css({
   backgroundColor: palette.gray.light3,
 });
@@ -69,7 +73,7 @@ const ScriptScreen = () => {
         <Body as="h2" baseFontSize={16} weight="medium">
           Prerequisites
         </Body>
-        <Body className={css({ marginTop: spacing[200] })}>
+        <Body className={instructionTextStyle}>
           To run the generated script, you must:
         </Body>
         <ul className={listStyles}>

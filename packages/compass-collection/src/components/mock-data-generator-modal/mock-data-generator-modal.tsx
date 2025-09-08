@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { connect } from 'react-redux';
 
 import {
@@ -24,14 +24,6 @@ import {
 import { default as SchemaConfirmationScreen } from './raw-schema-confirmation';
 import FakerSchemaEditor from './faker-schema-editor';
 import ScriptScreen from './script-screen';
-
-const STEP_TO_STEP_CONTENT: Record<MockDataGeneratorStep, React.JSX.Element> = {
-  [MockDataGeneratorStep.SCHEMA_CONFIRMATION]: <SchemaConfirmationScreen />,
-  [MockDataGeneratorStep.SCHEMA_EDITOR]: <FakerSchemaEditor />,
-  [MockDataGeneratorStep.DOCUMENT_COUNT]: <></>, // TODO: Implement as part of CLOUDP-333856
-  [MockDataGeneratorStep.PREVIEW_DATA]: <></>, // TODO: Implement as part of CLOUDP-333857
-  [MockDataGeneratorStep.GENERATE_DATA]: <ScriptScreen />,
-};
 
 const footerStyles = css`
   flex-direction: row;
@@ -61,6 +53,21 @@ const MockDataGeneratorModal = ({
   onConfirmSchema,
   onPreviousStep,
 }: Props) => {
+  const modalBodyContent = useMemo(() => {
+    switch (currentStep) {
+      case MockDataGeneratorStep.SCHEMA_CONFIRMATION:
+        return <SchemaConfirmationScreen />;
+      case MockDataGeneratorStep.SCHEMA_EDITOR:
+        return <FakerSchemaEditor />;
+      case MockDataGeneratorStep.DOCUMENT_COUNT:
+        return <></>; // TODO: CLOUDP-333856
+      case MockDataGeneratorStep.PREVIEW_DATA:
+        return <></>; // TODO: CLOUDP-333857
+      case MockDataGeneratorStep.GENERATE_DATA:
+        return <ScriptScreen />;
+    }
+  }, [currentStep]);
+
   const handleNextClick = () => {
     if (currentStep === MockDataGeneratorStep.GENERATE_DATA) {
       onClose();
@@ -85,7 +92,7 @@ const MockDataGeneratorModal = ({
       <ModalHeader title="Generate Mock Data" />
       <ModalBody>
         <div data-testid={`generate-mock-data-step-${currentStep}`}>
-          {STEP_TO_STEP_CONTENT[currentStep]}
+          {modalBodyContent}
         </div>
       </ModalBody>
       <ModalFooter className={footerStyles}>

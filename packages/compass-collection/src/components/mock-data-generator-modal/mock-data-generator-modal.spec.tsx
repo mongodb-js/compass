@@ -319,7 +319,7 @@ describe('MockDataGeneratorModal', () => {
         .to.not.exist;
     });
 
-    // todo: assert that the generated script is displayed in the code block
+    // todo: assert that the generated script is displayed in the code block (CLOUDP-333860)
   });
 
   describe('when rendering the modal in a specific step', () => {
