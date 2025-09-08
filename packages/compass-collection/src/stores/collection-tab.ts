@@ -13,7 +13,7 @@ import { MockDataGeneratorStep } from '../components/mock-data-generator-modal/t
 import type { Collection } from '@mongodb-js/compass-app-stores/provider';
 import type { ActivateHelpers } from '@mongodb-js/compass-app-registry';
 import type { workspacesServiceLocator } from '@mongodb-js/compass-workspaces/provider';
-import type { experimentationServiceLocator } from '@mongodb-js/compass-telemetry/provider';
+import type { ExperimentationServices } from '@mongodb-js/compass-telemetry/provider';
 import type { connectionInfoRefLocator } from '@mongodb-js/compass-connections/provider';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
 import type { AtlasAiService } from '@mongodb-js/compass-generative-ai/provider';
@@ -21,7 +21,10 @@ import {
   isAIFeatureEnabled,
   type PreferencesAccess,
 } from 'compass-preferences-model/provider';
-import { ExperimentTestName } from '@mongodb-js/compass-telemetry/provider';
+import {
+  ExperimentTestName,
+  ExperimentTestGroup,
+} from '@mongodb-js/compass-telemetry/provider';
 import { SCHEMA_ANALYSIS_STATE_INITIAL } from '../schema-analysis-types';
 
 export type CollectionTabOptions = {
@@ -46,7 +49,7 @@ export type CollectionTabServices = {
   localAppRegistry: AppRegistry;
   atlasAiService: AtlasAiService;
   workspaces: ReturnType<typeof workspacesServiceLocator>;
-  experimentationServices: ReturnType<typeof experimentationServiceLocator>;
+  experimentationServices: ExperimentationServices;
   connectionInfoRef: ReturnType<typeof connectionInfoRefLocator>;
   logger: Logger;
   preferences: PreferencesAccess;
@@ -153,8 +156,37 @@ export function activatePlugin(
     }
 
     if (!metadata.isReadonly && !metadata.isTimeSeries) {
-      // TODO: Consider checking experiment variant
-      void store.dispatch(analyzeCollectionSchema());
+      // Check experiment variant before running schema analysis
+      // Only run schema analysis if user is in treatment variant
+      const shouldRunSchemaAnalysis = async () => {
+        try {
+          const assignment = await experimentationServices.getAssignment(
+            ExperimentTestName.mockDataGenerator,
+            false // Don't track "Experiment Viewed" event here
+          );
+          return (
+            assignment?.assignmentData?.variant ===
+            ExperimentTestGroup.mockDataGeneratorVariant
+          );
+        } catch (error) {
+          // On error, default to not running schema analysis
+          logger.debug(
+            'Failed to get Mock Data Generator experiment assignment',
+            {
+              experiment: ExperimentTestName.mockDataGenerator,
+              namespace: namespace,
+              error: error instanceof Error ? error.message : String(error),
+            }
+          );
+          return false;
+        }
+      };
+
+      void shouldRunSchemaAnalysis().then((shouldRun) => {
+        if (shouldRun) {
+          void store.dispatch(analyzeCollectionSchema());
+        }
+      });
     }
   });
 
