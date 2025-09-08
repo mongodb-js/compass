@@ -63,7 +63,7 @@ export default function WebWelcomeTab() {
             )}
           </div>
         )}
-        {activeConnectionIds.length && <ConnectionList />}
+        {activeConnectionIds.length > 0 && <ConnectionList />}
       </div>
     </div>
   );
