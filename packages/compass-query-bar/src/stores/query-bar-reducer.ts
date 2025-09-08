@@ -272,8 +272,8 @@ export const fetchRecents = (): QueryBarThunkAction<
   ) => {
     try {
       // Check if My Queries feature is enabled
-      const isMyQueriesEnabled = preferences.getPreferences().enableMyQueries;
-      if (!isMyQueriesEnabled) {
+      const { enableMyQueries } = preferences.getPreferences();
+      if (!enableMyQueries) {
         // If feature is disabled, dispatch empty array
         dispatch({
           type: QueryBarActions.RecentQueriesFetched,
@@ -299,8 +299,8 @@ export const fetchRecents = (): QueryBarThunkAction<
 export const fetchSavedQueries = (): QueryBarThunkAction<void> => {
   return (dispatch, _getState, { preferences }) => {
     // Check if My Queries feature is enabled
-    const isMyQueriesEnabled = preferences.getPreferences().enableMyQueries;
-    if (!isMyQueriesEnabled) {
+    const { enableMyQueries } = preferences.getPreferences();
+    if (!enableMyQueries) {
       // If feature is disabled, don't fetch anything
       return;
     }
@@ -325,8 +325,8 @@ export const fetchFavorites = (): QueryBarThunkAction<
   ) => {
     try {
       // Check if My Queries feature is enabled
-      const isMyQueriesEnabled = preferences.getPreferences().enableMyQueries;
-      if (!isMyQueriesEnabled) {
+      const { enableMyQueries } = preferences.getPreferences();
+      if (!enableMyQueries) {
         // If feature is disabled, dispatch empty array
         dispatch({
           type: QueryBarActions.FavoriteQueriesFetched,
