@@ -6,6 +6,7 @@ import {
   spacing,
   css,
   palette,
+  keyframes,
 } from '@mongodb-js/compass-components';
 import {
   useConnectionIds,
@@ -31,6 +32,20 @@ const connectionListStyles = css({
   marginTop: spacing[400],
   listStyle: 'none',
   padding: 0,
+  // Save space to avoid jumping
+  // items are about: spacing[200] (margin) + ~24px (icon/text height)
+  minHeight: `${spacing[200] * 3 + 72}px`,
+});
+
+const fadeInFromAbove = keyframes({
+  '0%': {
+    opacity: 0,
+    transform: `translateY(-${spacing[100]}px)`,
+  },
+  '100%': {
+    opacity: 1,
+    transform: 'translateY(0)',
+  },
 });
 
 const connectionItemStyles = css({
@@ -38,6 +53,7 @@ const connectionItemStyles = css({
   display: 'flex',
   alignItems: 'center',
   gap: spacing[200],
+  animation: `${fadeInFromAbove} 300ms ease-out`,
 });
 
 interface ConnectionStatusProps {
