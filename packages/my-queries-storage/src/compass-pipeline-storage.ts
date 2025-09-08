@@ -1,14 +1,49 @@
-import { FileUserData } from '@mongodb-js/compass-user-data';
-import { PipelineSchema } from './pipeline-storage-schema';
+import {
+  AtlasUserData,
+  FileUserData,
+  type IUserData,
+} from '@mongodb-js/compass-user-data';
 import type { SavedPipeline } from './pipeline-storage-schema';
+import { PipelineSchema } from './pipeline-storage-schema';
 import type { PipelineStorage } from './pipeline-storage';
 
+export type PipelineStorageOptions = {
+  basePath?: string;
+  orgId?: string;
+  projectId?: string;
+  getResourceUrl?: (path?: string) => Promise<string>;
+  authenticatedFetch?: (
+    url: RequestInfo | URL,
+    options?: RequestInit
+  ) => Promise<Response>;
+};
+
 export class CompassPipelineStorage implements PipelineStorage {
-  private readonly userData: FileUserData<typeof PipelineSchema>;
-  constructor(basePath?: string) {
-    this.userData = new FileUserData(PipelineSchema, 'SavedPipelines', {
-      basePath,
-    });
+  private readonly userData: IUserData<typeof PipelineSchema>;
+
+  constructor(options: PipelineStorageOptions = {}) {
+    const dataType = 'SavedPipelines';
+    if (
+      options.orgId &&
+      options.projectId &&
+      options.getResourceUrl &&
+      options.authenticatedFetch
+    ) {
+      this.userData = new AtlasUserData(
+        PipelineSchema,
+        'favoriteAggregations',
+        {
+          orgId: options.orgId,
+          projectId: options.projectId,
+          getResourceUrl: options.getResourceUrl,
+          authenticatedFetch: options.authenticatedFetch,
+        }
+      );
+    } else {
+      this.userData = new FileUserData(PipelineSchema, dataType, {
+        basePath: options.basePath,
+      });
+    }
   }
 
   async loadAll(): Promise<SavedPipeline[]> {
@@ -25,10 +60,6 @@ export class CompassPipelineStorage implements PipelineStorage {
     predicate: (arg0: SavedPipeline) => boolean
   ): Promise<SavedPipeline[]> {
     return this.loadAll().then((pipelines) => pipelines.filter(predicate));
-  }
-
-  private async loadOne(id: string): Promise<SavedPipeline> {
-    return await this.userData.readOne(id);
   }
 
   async createOrUpdate(
@@ -71,5 +102,13 @@ export class CompassPipelineStorage implements PipelineStorage {
 
   async delete(id: string) {
     await this.userData.delete(id);
+  }
+
+  private async loadOne(id: string): Promise<SavedPipeline> {
+    const result = await this.userData.readOne(id);
+    if (!result) {
+      throw new Error(`Pipeline with id ${id} not found`);
+    }
+    return result;
   }
 }
