@@ -131,12 +131,10 @@ export default function DesktopWelcomeTab() {
 
   return (
     <div className={welcomeTabStyles}>
-      {(activeConnectionIds.length && <WelcomePlugImage />) || (
-        <WelcomeTabImage />
-      )}
+      {activeConnectionIds.length ? <WelcomePlugImage /> : <WelcomeTabImage />}
       <div>
         <H3>Welcome to MongoDB Compass</H3>
-        {(!activeConnectionIds.length && enableCreatingNewConnections && (
+        {!activeConnectionIds.length && enableCreatingNewConnections ? (
           <>
             <Body>To get started, connect to an existing server or</Body>
             <Button
@@ -150,8 +148,9 @@ export default function DesktopWelcomeTab() {
             </Button>
             <AtlasHelpSection />
           </>
-        )) ||
-          (activeConnectionIds.length && <ConnectionList />)}
+        ) : activeConnectionIds.length ? (
+          <ConnectionList />
+        ) : null}
       </div>
     </div>
   );

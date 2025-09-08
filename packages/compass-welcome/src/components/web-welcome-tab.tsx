@@ -33,9 +33,7 @@ export default function WebWelcomeTab() {
 
   return (
     <div className={welcomeTabStyles}>
-      {(activeConnectionIds.length && <WelcomePlugImage />) || (
-        <WelcomeTabImage />
-      )}
+      {activeConnectionIds.length ? <WelcomePlugImage /> : <WelcomeTabImage />}
       <div>
         <H3>Welcome! Explore your data</H3>
         {!activeConnectionIds.length && (
@@ -65,7 +63,7 @@ export default function WebWelcomeTab() {
             )}
           </div>
         )}
-        {activeConnectionIds.length > 0 && <ConnectionList />}
+        {activeConnectionIds.length > 0 ? <ConnectionList /> : null}
       </div>
     </div>
   );
