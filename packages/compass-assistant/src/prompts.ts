@@ -1,6 +1,11 @@
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import { redactConnectionString } from 'mongodb-connection-string-url';
 
+export const APP_NAMES_FOR_PROMPT = {
+  Compass: 'MongoDB Compass',
+  'Data Explorer': 'MongoDB Atlas Data Explorer',
+};
+
 export const buildConversationInstructionsPrompt = ({
   target,
 }: {
