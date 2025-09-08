@@ -79,6 +79,7 @@ type CollectionThunkAction<R, A extends AnyAction = AnyAction> = ThunkAction<
     preferences: PreferencesAccess;
     connectionInfoRef: ConnectionInfoRef;
     fakerSchemaGenerationAbortControllerRef: { current?: AbortController };
+    schemaAnalysisAbortControllerRef: { current?: AbortController };
   },
   A
 >;
@@ -101,6 +102,7 @@ export enum CollectionActions {
   SchemaAnalysisStarted = 'compass-collection/SchemaAnalysisStarted',
   SchemaAnalysisFinished = 'compass-collection/SchemaAnalysisFinished',
   SchemaAnalysisFailed = 'compass-collection/SchemaAnalysisFailed',
+  SchemaAnalysisCanceled = 'compass-collection/SchemaAnalysisCanceled',
   SchemaAnalysisReset = 'compass-collection/SchemaAnalysisReset',
   MockDataGeneratorModalOpened = 'compass-collection/MockDataGeneratorModalOpened',
   MockDataGeneratorModalClosed = 'compass-collection/MockDataGeneratorModalClosed',
@@ -137,6 +139,10 @@ interface SchemaAnalysisFinishedAction {
 interface SchemaAnalysisFailedAction {
   type: CollectionActions.SchemaAnalysisFailed;
   error: Error;
+}
+
+interface SchemaAnalysisCanceledAction {
+  type: CollectionActions.SchemaAnalysisCanceled;
 }
 
 interface MockDataGeneratorModalOpenedAction {
@@ -259,6 +265,20 @@ const reducer: Reducer<CollectionState, Action> = (
       schemaAnalysis: {
         status: SCHEMA_ANALYSIS_STATE_ERROR,
         error: getErrorDetails(action.error),
+      },
+    };
+  }
+
+  if (
+    isAction<SchemaAnalysisCanceledAction>(
+      action,
+      CollectionActions.SchemaAnalysisCanceled
+    )
+  ) {
+    return {
+      ...state,
+      schemaAnalysis: {
+        status: SCHEMA_ANALYSIS_STATE_INITIAL,
       },
     };
   }
@@ -524,7 +544,11 @@ export const openMockDataGeneratorModal = (): CollectionThunkAction<
 export const analyzeCollectionSchema = (): CollectionThunkAction<
   Promise<void>
 > => {
-  return async (dispatch, getState, { dataService, preferences, logger }) => {
+  return async (
+    dispatch,
+    getState,
+    { dataService, preferences, logger, schemaAnalysisAbortControllerRef }
+  ) => {
     const { schemaAnalysis, namespace } = getState();
     const analysisStatus = schemaAnalysis.status;
     if (analysisStatus === SCHEMA_ANALYSIS_STATE_ANALYZING) {
@@ -533,6 +557,10 @@ export const analyzeCollectionSchema = (): CollectionThunkAction<
       );
       return;
     }
+
+    // Create abort controller for this analysis
+    const abortController = new AbortController();
+    schemaAnalysisAbortControllerRef.current = abortController;
 
     try {
       logger.debug('Schema analysis started.');
@@ -552,8 +580,15 @@ export const analyzeCollectionSchema = (): CollectionThunkAction<
         driverOptions,
         {
           fallbackReadPreference: 'secondaryPreferred',
+          abortSignal: abortController.signal,
         }
       );
+
+      // Check if analysis was aborted after sampling
+      if (abortController.signal.aborted) {
+        logger.debug('Schema analysis was aborted during sampling');
+        return;
+      }
       if (sampleDocuments.length === 0) {
         logger.debug(NO_DOCUMENTS_ERROR);
         dispatch({
@@ -565,6 +600,13 @@ export const analyzeCollectionSchema = (): CollectionThunkAction<
 
       // Analyze sampled documents
       const schemaAccessor = await analyzeDocuments(sampleDocuments);
+
+      // Check if analysis was aborted after document analysis
+      if (abortController.signal.aborted) {
+        logger.debug('Schema analysis was aborted during document analysis');
+        return;
+      }
+
       const schema = await schemaAccessor.getInternalSchema();
 
       // Filter out internal fields from the schema
@@ -583,6 +625,13 @@ export const analyzeCollectionSchema = (): CollectionThunkAction<
         maxNestingDepth,
         validationRules,
       };
+
+      // Final check before dispatching results
+      if (abortController.signal.aborted) {
+        logger.debug('Schema analysis was aborted before completion');
+        return;
+      }
+
       dispatch({
         type: CollectionActions.SchemaAnalysisFinished,
         processedSchema,
@@ -590,6 +639,15 @@ export const analyzeCollectionSchema = (): CollectionThunkAction<
         schemaMetadata,
       });
     } catch (err: any) {
+      // Check if the error is due to cancellation
+      if (isCancelError(err) || abortController.signal.aborted) {
+        logger.debug('Schema analysis was aborted');
+        dispatch({
+          type: CollectionActions.SchemaAnalysisCanceled,
+        });
+        return;
+      }
+
       logger.log.error(
         mongoLogId(1_001_000_363),
         'Collection',
@@ -603,6 +661,23 @@ export const analyzeCollectionSchema = (): CollectionThunkAction<
         type: CollectionActions.SchemaAnalysisFailed,
         error: err as Error,
       });
+    } finally {
+      // Clean up abort controller
+      schemaAnalysisAbortControllerRef.current = undefined;
+    }
+  };
+};
+
+export const cancelSchemaAnalysis = (): CollectionThunkAction<void> => {
+  return (
+    _dispatch,
+    _getState,
+    { schemaAnalysisAbortControllerRef, logger }
+  ) => {
+    if (schemaAnalysisAbortControllerRef.current) {
+      logger.debug('Canceling schema analysis');
+      schemaAnalysisAbortControllerRef.current.abort();
+      schemaAnalysisAbortControllerRef.current = undefined;
     }
   };
 };

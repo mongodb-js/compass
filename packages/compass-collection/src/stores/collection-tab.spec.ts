@@ -134,7 +134,7 @@ describe('Collection Tab Content store', function () {
         logger,
         preferences,
       },
-      { on() {}, cleanup() {} } as any
+      { on() {}, cleanup() {}, addCleanup() {} } as any
     ));
     await waitFor(() => {
       expect(store.getState())
@@ -415,6 +415,30 @@ describe('Collection Tab Content store', function () {
       // Wait a bit to ensure schema analysis would not have been called
       await new Promise((resolve) => setTimeout(resolve, 50));
       expect(analyzeCollectionSchemaStub).to.not.have.been.called;
+    });
+  });
+
+  describe('schema analysis cancellation', function () {
+    it('should cancel schema analysis when cancelSchemaAnalysis is dispatched', async function () {
+      const getAssignment = sandbox.spy(() =>
+        Promise.resolve(
+          createMockAssignment(ExperimentTestGroup.mockDataGeneratorVariant)
+        )
+      );
+      const assignExperiment = sandbox.spy(() => Promise.resolve(null));
+
+      const store = await configureStore(undefined, undefined, {
+        getAssignment,
+        assignExperiment,
+      });
+
+      // Dispatch cancel action
+      store.dispatch(collectionTabModule.cancelSchemaAnalysis() as any);
+
+      // Verify the state is reset to initial
+      expect((store.getState() as any).schemaAnalysis.status).to.equal(
+        'initial'
+      );
     });
   });
 });

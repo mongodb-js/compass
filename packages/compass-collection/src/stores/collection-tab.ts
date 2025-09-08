@@ -7,6 +7,7 @@ import reducer, {
   selectTab,
   collectionMetadataFetched,
   analyzeCollectionSchema,
+  cancelSchemaAnalysis,
 } from '../modules/collection-tab';
 import { MockDataGeneratorStep } from '../components/mock-data-generator-modal/types';
 
@@ -58,7 +59,7 @@ export type CollectionTabServices = {
 export function activatePlugin(
   { namespace, editViewName, tabId }: CollectionTabOptions,
   services: CollectionTabServices,
-  { on, cleanup }: ActivateHelpers
+  { on, cleanup, addCleanup }: ActivateHelpers
 ): {
   store: ReturnType<typeof createStore>;
   deactivate: () => void;
@@ -82,6 +83,9 @@ export function activatePlugin(
   }
 
   const fakerSchemaGenerationAbortControllerRef = {
+    current: undefined,
+  };
+  const schemaAnalysisAbortControllerRef = {
     current: undefined,
   };
   const store = createStore(
@@ -113,6 +117,7 @@ export function activatePlugin(
         logger,
         preferences,
         fakerSchemaGenerationAbortControllerRef,
+        schemaAnalysisAbortControllerRef,
       })
     )
   );
@@ -189,6 +194,9 @@ export function activatePlugin(
       });
     }
   });
+
+  // Cancel schema analysis when plugin is deactivated
+  addCleanup(() => store.dispatch(cancelSchemaAnalysis()));
 
   return {
     store,
