@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 
 import {
@@ -11,9 +11,10 @@ import {
   Modal,
   ModalFooter,
   spacing,
+  SpinLoaderWithLabel,
 } from '@mongodb-js/compass-components';
 
-import { MockDataGeneratorStep } from './types';
+import { type FakerMapping, MockDataGeneratorStep } from './types';
 import { StepButtonLabelMap } from './constants';
 import type { CollectionState } from '../../modules/collection-tab';
 import {
@@ -25,6 +26,7 @@ import {
 import RawSchemaConfirmationScreen from './raw-schema-confirmation-screen';
 import FakerSchemaEditorScreen from './faker-schema-editor-screen';
 import ScriptScreen from './script-screen';
+import type { MockDataSchemaResponse } from '@mongodb-js/compass-generative-ai';
 
 const footerStyles = css`
   flex-direction: row;
@@ -42,6 +44,12 @@ const namespaceStyles = css({
   marginBottom: spacing[400],
 });
 
+const schemaEditorLoaderStyles = css({
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+});
+
 interface Props {
   isOpen: boolean;
   onClose: () => void;
@@ -50,6 +58,7 @@ interface Props {
   onConfirmSchema: () => Promise<void>;
   onPreviousStep: () => void;
   namespace: string;
+  fakerSchema?: MockDataSchemaResponse;
 }
 
 const MockDataGeneratorModal = ({
@@ -60,13 +69,21 @@ const MockDataGeneratorModal = ({
   onConfirmSchema,
   onPreviousStep,
   namespace,
+  fakerSchema,
 }: Props) => {
   const modalBodyContent = useMemo(() => {
     switch (currentStep) {
       case MockDataGeneratorStep.SCHEMA_CONFIRMATION:
         return <RawSchemaConfirmationScreen />;
       case MockDataGeneratorStep.SCHEMA_EDITOR:
-        return <FakerSchemaEditorScreen />;
+        return fakerSchema === undefined ? (
+          <SpinLoaderWithLabel
+            className={schemaEditorLoaderStyles}
+            progressText="Processing Documents..."
+          />
+        ) : (
+          <FakerSchemaEditorScreen fakerSchema={fakerSchema.content.fields} />
+        );
       case MockDataGeneratorStep.DOCUMENT_COUNT:
         return <></>; // TODO: CLOUDP-333856
       case MockDataGeneratorStep.PREVIEW_DATA:
@@ -135,6 +152,10 @@ const mapStateToProps = (state: CollectionState) => ({
   isOpen: state.mockDataGenerator.isModalOpen,
   currentStep: state.mockDataGenerator.currentStep,
   namespace: state.namespace,
+  fakerSchema:
+    state.fakerSchemaGeneration.status === 'completed'
+      ? state.fakerSchemaGeneration.fakerSchema
+      : undefined,
 });
 
 const ConnectedMockDataGeneratorModal = connect(mapStateToProps, {

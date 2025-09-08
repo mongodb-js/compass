@@ -34,3 +34,19 @@ export type MockDataGeneratorState =
   | MockDataGeneratorInProgressState
   | MockDataGeneratorCompletedState
   | MockDataGeneratorErrorState;
+
+export type FakerMapping = {
+  fieldPath: string;
+  mongoType: string;
+  fakerMethod: string;
+  fakerArgs: Array<
+    | string
+    | number
+    | boolean
+    | {
+        json: string;
+      }
+  >;
+  isArray: boolean;
+  probability: number;
+};
