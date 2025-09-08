@@ -222,7 +222,8 @@ describe('MockDataGeneratorModal', () => {
         expect(screen.queryByTestId('faker-schema-editor')).to.not.exist;
       });
 
-      // todo: assert a user-friendly error is displayed (CLOUDP-333852)
+      expect(screen.getByText('LLM Request failed. Please confirm again.')).to
+        .exist;
     });
 
     // todo: assert that closing then re-opening the modal after an LLM err removes the err message

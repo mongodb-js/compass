@@ -21,8 +21,8 @@ import {
   generateFakerMappings,
   mockDataGeneratorPreviousButtonClicked,
 } from '../../modules/collection-tab';
-import { default as SchemaConfirmationScreen } from './raw-schema-confirmation';
-import FakerSchemaEditor from './faker-schema-editor';
+import RawSchemaConfirmationScreen from './raw-schema-confirmation-screen';
+import FakerSchemaEditor from './faker-schema-editor-screen';
 
 const footerStyles = css`
   flex-direction: row;
@@ -65,7 +65,7 @@ const MockDataGeneratorModal = ({
   let stepContent: React.ReactNode;
 
   if (currentStep === MockDataGeneratorStep.SCHEMA_CONFIRMATION) {
-    stepContent = <SchemaConfirmationScreen />;
+    stepContent = <RawSchemaConfirmationScreen />;
   }
 
   if (currentStep === MockDataGeneratorStep.SCHEMA_EDITOR) {
