@@ -163,6 +163,7 @@ function DiagramEditorSidePanel({
       label={label}
       glyph="Wrench"
       autoOpen
+      hasPadding={false}
     >
       {content}
     </DrawerSection>
