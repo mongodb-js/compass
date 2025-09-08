@@ -48,6 +48,7 @@
     "reformat": "npm run eslint . -- --fix && npm run prettier -- --write ."
   },
   "dependencies": {
+    "@faker-js/faker": "^10.0.0",
     "@mongodb-js/compass-app-registry": "^9.4.22",
     "@mongodb-js/compass-app-stores": "^7.59.0",
     "@mongodb-js/compass-components": "^1.51.0",
