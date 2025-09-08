@@ -1,5 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
+import { usePreference } from 'compass-preferences-model/provider';
 import { Button, Icon, css, spacing } from '@mongodb-js/compass-components';
 import { exportToLanguage } from '../../../modules/export-to-language';
 import { SaveMenu } from './pipeline-menus';
@@ -49,7 +50,10 @@ export const PipelineSettings: React.FunctionComponent<
 }) => {
   // TODO: remove direct check for storage existing, breaks single source of
   // truth rule and exposes services to UI, this breaks the rules for locators
-  const enableSavedAggregationsQueries = !!usePipelineStorage();
+  const pipelineStorageAvailable = !!usePipelineStorage();
+  const isMyQueriesEnabled = usePreference('enableMyQueries');
+  const enableSavedAggregationsQueries =
+    pipelineStorageAvailable && isMyQueriesEnabled;
   const isPipelineNameDisplayed =
     !editViewName && !!enableSavedAggregationsQueries;
 

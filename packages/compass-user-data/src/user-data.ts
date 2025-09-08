@@ -10,7 +10,7 @@ const { log, mongoLogId } = createLogger('COMPASS-USER-STORAGE');
 
 type SerializeContent<I> = (content: I) => string;
 type DeserializeContent = (content: string) => unknown;
-type GetResourceUrl = (path?: string) => Promise<string>;
+type GetResourceUrl = (path?: string) => string;
 type AuthenticatedFetch = (
   url: RequestInfo | URL,
   options?: RequestInit
@@ -65,6 +65,10 @@ export abstract class IUserData<T extends z.Schema> {
   abstract write(id: string, content: z.input<T>): Promise<boolean>;
   abstract delete(id: string): Promise<boolean>;
   abstract readAll(options?: ReadOptions): Promise<ReadAllResult<T>>;
+  abstract readOne(
+    id: string,
+    options?: ReadOptions
+  ): Promise<z.output<T> | undefined>;
   abstract updateAttributes(
     id: string,
     data: Partial<z.input<T>>
@@ -273,8 +277,8 @@ export class FileUserData<T extends z.Schema> extends IUserData<T> {
 export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
   private readonly authenticatedFetch;
   private readonly getResourceUrl;
-  private orgId: string;
-  private projectId: string;
+  private orgId: string = '';
+  private projectId: string = '';
   constructor(
     validator: T,
     dataType: string,
@@ -295,34 +299,42 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
   }
 
   async write(id: string, content: z.input<T>): Promise<boolean> {
-    const url = await this.getResourceUrl(
-      `${this.dataType}/${this.orgId}/${this.projectId}`
-    );
-
     try {
       this.validator.parse(content);
 
-      await this.authenticatedFetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          id: id,
-          data: this.serialize(content),
-          createdAt: new Date(),
-          projectId: this.projectId,
-        }),
-      });
+      const response = await this.authenticatedFetch(
+        this.getResourceUrl(
+          `userData/${this.dataType}/${this.orgId}/${this.projectId}/${id}`
+        ),
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            data: this.serialize(content),
+            createdAt: new Date(),
+          }),
+          credentials: 'include',
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(
+          `Failed to post data: ${response.status} ${response.statusText}`
+        );
+      }
 
       return true;
     } catch (error) {
       log.error(
-        mongoLogId(1_001_000_366),
+        mongoLogId(1_001_000_362),
         'Atlas Backend',
         'Error writing data',
         {
-          url,
+          url: this.getResourceUrl(
+            `userData/${this.dataType}/${this.orgId}/${this.projectId}`
+          ),
           error: (error as Error).message,
         }
       );
@@ -331,22 +343,31 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
   }
 
   async delete(id: string): Promise<boolean> {
-    const url = await this.getResourceUrl(
-      `${this.dataType}/${this.orgId}/${this.projectId}/${id}`
-    );
-
     try {
-      await this.authenticatedFetch(url, {
-        method: 'DELETE',
-      });
+      const response = await this.authenticatedFetch(
+        this.getResourceUrl(
+          `userData/${this.dataType}/${this.orgId}/${this.projectId}/${id}`
+        ),
+        {
+          method: 'DELETE',
+          credentials: 'include',
+        }
+      );
+      if (!response.ok) {
+        throw new Error(
+          `Failed to delete data: ${response.status} ${response.statusText}`
+        );
+      }
       return true;
     } catch (error) {
       log.error(
-        mongoLogId(1_001_000_367),
+        mongoLogId(1_001_000_363),
         'Atlas Backend',
         'Error deleting data',
         {
-          url,
+          url: this.getResourceUrl(
+            `userData/${this.dataType}/${this.orgId}/${this.projectId}/${id}`
+          ),
           error: (error as Error).message,
         }
       );
@@ -359,15 +380,22 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
       data: [],
       errors: [],
     };
+    // debugger;
     try {
       const response = await this.authenticatedFetch(
-        await this.getResourceUrl(
-          `${this.dataType}/${this.orgId}/${this.projectId}`
+        this.getResourceUrl(
+          `userData/${this.dataType}/${this.orgId}/${this.projectId}`
         ),
         {
           method: 'GET',
+          credentials: 'include',
         }
       );
+      if (!response.ok) {
+        throw new Error(
+          `Failed to get data: ${response.status} ${response.statusText}`
+        );
+      }
       const json = await response.json();
       for (const item of json) {
         try {
@@ -395,59 +423,76 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
         ...data,
       };
 
-      await this.authenticatedFetch(
-        await this.getResourceUrl(
-          `${this.dataType}/${this.orgId}/${this.projectId}/${id}`
+      const response = await this.authenticatedFetch(
+        this.getResourceUrl(
+          `userData/${this.dataType}/${this.orgId}/${this.projectId}/${id}`
         ),
         {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: this.serialize(newData),
+          body: JSON.stringify({
+            data: this.serialize(newData),
+            createdAt: new Date(),
+          }),
+          credentials: 'include',
         }
       );
+      if (!response.ok) {
+        throw new Error(
+          `Failed to update data: ${response.status} ${response.statusText}`
+        );
+      }
       return true;
     } catch (error) {
       log.error(
-        mongoLogId(1_001_000_368),
+        mongoLogId(1_001_000_364),
         'Atlas Backend',
         'Error updating data',
         {
-          url: await this.getResourceUrl(
-            `${this.dataType}/${this.orgId}/${this.projectId}/${id}`
+          url: this.getResourceUrl(
+            `userData/${this.dataType}/${this.orgId}/${this.projectId}/${id}`
           ),
           error: (error as Error).message,
         }
       );
-      throw error;
+      return false;
     }
   }
 
   // TODO: change this depending on whether or not updateAttributes can provide all current data
-  async readOne(id: string): Promise<z.output<T>> {
-    const url = await this.getResourceUrl(
-      `${this.dataType}/${this.orgId}/${this.projectId}/${id}`
-    );
-
+  async readOne(id: string): Promise<z.output<T> | undefined> {
     try {
-      const getResponse = await this.authenticatedFetch(url, {
-        method: 'GET',
-      });
+      const getResponse = await this.authenticatedFetch(
+        this.getResourceUrl(
+          `userData/${this.dataType}/${this.orgId}/${this.projectId}/${id}`
+        ),
+        {
+          method: 'GET',
+          credentials: 'include',
+        }
+      );
+      if (!getResponse.ok) {
+        throw new Error(
+          `Failed to fetch data: ${getResponse.status} ${getResponse.statusText}`
+        );
+      }
       const json = await getResponse.json();
       const data = this.validator.parse(this.deserialize(json.data as string));
       return data;
     } catch (error) {
       log.error(
-        mongoLogId(1_001_000_369),
+        mongoLogId(1_001_000_365),
         'Atlas Backend',
         'Error reading data',
         {
-          url,
+          url: this.getResourceUrl(
+            `userData/${this.dataType}/${this.orgId}/${this.projectId}/${id}`
+          ),
           error: (error as Error).message,
         }
       );
-      throw error;
     }
   }
 }

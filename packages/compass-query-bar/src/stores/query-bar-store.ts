@@ -130,6 +130,7 @@ export function activatePlugin(
 
   const favoriteQueryStorage = favoriteQueryStorageAccess?.getStorage();
   const recentQueryStorage = recentQueryStorageAccess?.getStorage();
+
   const store = configureStore(
     {
       namespace: namespace ?? '',
