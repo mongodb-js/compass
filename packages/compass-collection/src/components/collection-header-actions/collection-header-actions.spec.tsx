@@ -60,6 +60,7 @@ describe('CollectionHeaderActions [Component]', function () {
               onOpenMockDataModal={sinon.stub()}
               hasSchemaAnalysisData={true}
               analyzedSchemaDepth={2}
+              schemaAnalysisStatus="complete"
               {...props}
             />
           </PreferencesProvider>

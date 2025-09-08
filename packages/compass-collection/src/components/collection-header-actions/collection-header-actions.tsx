@@ -18,6 +18,10 @@ import {
   ExperimentTestName,
   ExperimentTestGroup,
 } from '@mongodb-js/compass-telemetry/provider';
+import {
+  SCHEMA_ANALYSIS_STATE_ANALYZING,
+  type SchemaAnalysisStatus,
+} from '../../schema-analysis-types';
 
 /**
  * Maximum allowed nesting depth for collections to show Mock Data Generator
@@ -54,6 +58,7 @@ type CollectionHeaderActionsProps = {
   onOpenMockDataModal: () => void;
   hasSchemaAnalysisData: boolean;
   analyzedSchemaDepth: number;
+  schemaAnalysisStatus: SchemaAnalysisStatus | null;
 };
 
 const CollectionHeaderActions: React.FunctionComponent<
@@ -67,6 +72,7 @@ const CollectionHeaderActions: React.FunctionComponent<
   onOpenMockDataModal,
   hasSchemaAnalysisData,
   analyzedSchemaDepth,
+  schemaAnalysisStatus,
 }: CollectionHeaderActionsProps) => {
   const connectionInfo = useConnectionInfo();
   const { id: connectionId, atlasMetadata } = connectionInfo;
@@ -118,7 +124,10 @@ const CollectionHeaderActions: React.FunctionComponent<
       )}
       {shouldShowMockDataButton && (
         <Tooltip
-          enabled={!hasSchemaAnalysisData}
+          enabled={
+            !hasSchemaAnalysisData &&
+            schemaAnalysisStatus !== SCHEMA_ANALYSIS_STATE_ANALYZING
+          }
           trigger={
             <div>
               <Button

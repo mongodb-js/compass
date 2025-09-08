@@ -22,7 +22,10 @@ import MockDataGeneratorModal from '../mock-data-generator-modal/mock-data-gener
 import { connect } from 'react-redux';
 import { openMockDataGeneratorModal } from '../../modules/collection-tab';
 import type { CollectionState } from '../../modules/collection-tab';
-import { SCHEMA_ANALYSIS_STATE_COMPLETE } from '../../schema-analysis-types';
+import {
+  SCHEMA_ANALYSIS_STATE_COMPLETE,
+  type SchemaAnalysisStatus,
+} from '../../schema-analysis-types';
 
 const collectionHeaderStyles = css({
   padding: spacing[400],
@@ -66,6 +69,7 @@ type CollectionHeaderProps = {
   onOpenMockDataModal: () => void;
   hasSchemaAnalysisData: boolean;
   analyzedSchemaDepth: number;
+  schemaAnalysisStatus: SchemaAnalysisStatus | null;
 };
 
 const getInsightsForPipeline = (pipeline: any[], isAtlas: boolean) => {
@@ -103,6 +107,7 @@ const CollectionHeader: React.FunctionComponent<CollectionHeaderProps> = ({
   onOpenMockDataModal,
   hasSchemaAnalysisData,
   analyzedSchemaDepth,
+  schemaAnalysisStatus,
 }) => {
   const darkMode = useDarkMode();
   const showInsights = usePreference('showInsights');
@@ -182,6 +187,7 @@ const CollectionHeader: React.FunctionComponent<CollectionHeaderProps> = ({
           onOpenMockDataModal={onOpenMockDataModal}
           hasSchemaAnalysisData={hasSchemaAnalysisData}
           analyzedSchemaDepth={analyzedSchemaDepth}
+          schemaAnalysisStatus={schemaAnalysisStatus}
         />
       </div>
       <MockDataGeneratorModal />
@@ -201,6 +207,7 @@ const mapStateToProps = (state: CollectionState) => {
       schemaAnalysis && schemaAnalysis.status === SCHEMA_ANALYSIS_STATE_COMPLETE
         ? schemaAnalysis.schemaMetadata.maxNestingDepth
         : 0,
+    schemaAnalysisStatus: schemaAnalysis?.status || null,
   };
 };
 
