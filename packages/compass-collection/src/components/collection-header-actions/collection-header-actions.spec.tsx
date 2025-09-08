@@ -265,5 +265,34 @@ describe('CollectionHeaderActions [Component]', function () {
 
       expect(onOpenMockDataModal).to.have.been.calledOnce;
     });
+
+    it('should disable button for deeply nested collections', async function () {
+      mockUseAssignment.returns({
+        assignment: {
+          assignmentData: {
+            variant: 'mockDataGeneratorVariant', // Treatment variant
+          },
+        },
+      });
+
+      await renderCollectionHeaderActions(
+        {
+          namespace: 'test.collection',
+          isReadonly: false,
+          hasSchemaAnalysisData: true,
+          analyzedSchemaDepth: 5, // Exceeds MAX_COLLECTION_NESTING_DEPTH (3)
+          schemaAnalysisStatus: 'complete',
+          onOpenMockDataModal: sinon.stub(),
+        },
+        {},
+        atlasConnectionInfo
+      );
+
+      const button = screen.getByTestId(
+        'collection-header-generate-mock-data-button'
+      );
+      expect(button).to.exist;
+      expect(button).to.have.attribute('aria-disabled', 'true');
+    });
   });
 });

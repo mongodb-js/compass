@@ -473,7 +473,7 @@ describe('CollectionHeader [Component]', function () {
       expect(button).to.have.attribute('aria-disabled', 'true');
     });
 
-    it('should not show Mock Data Generator button for collections with excessive nesting depth', async function () {
+    it('should disable Mock Data Generator button for collections with excessive nesting depth', async function () {
       await renderCollectionHeaderWithExperimentation(
         {
           isAtlas: true,
@@ -495,9 +495,11 @@ describe('CollectionHeader [Component]', function () {
         atlasConnectionInfo
       );
 
-      expect(
-        screen.queryByTestId('collection-header-generate-mock-data-button')
-      ).to.not.exist;
+      const button = screen.getByTestId(
+        'collection-header-generate-mock-data-button'
+      );
+      expect(button).to.exist;
+      expect(button).to.have.attribute('aria-disabled', 'true');
     });
 
     it('should not show Mock Data Generator button for readonly collections (views)', async function () {

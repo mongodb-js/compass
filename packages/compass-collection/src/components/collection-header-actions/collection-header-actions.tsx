@@ -99,8 +99,14 @@ const CollectionHeaderActions: React.FunctionComponent<
     isInMockDataTreatmentVariant &&
     atlasMetadata && // Only show in Atlas
     !isReadonly && // Don't show for readonly collections (views)
-    !sourceName && // sourceName indicates it's a view
-    analyzedSchemaDepth <= MAX_COLLECTION_NESTING_DEPTH; // Filter out overly nested collections
+    !sourceName; // sourceName indicates it's a view
+
+  const exceedsMaxNestingDepth =
+    analyzedSchemaDepth > MAX_COLLECTION_NESTING_DEPTH;
+
+  const isCollectionEmpty =
+    !hasSchemaAnalysisData &&
+    schemaAnalysisStatus !== SCHEMA_ANALYSIS_STATE_ANALYZING;
 
   return (
     <div
@@ -124,16 +130,13 @@ const CollectionHeaderActions: React.FunctionComponent<
       )}
       {shouldShowMockDataButton && (
         <Tooltip
-          enabled={
-            !hasSchemaAnalysisData &&
-            schemaAnalysisStatus !== SCHEMA_ANALYSIS_STATE_ANALYZING
-          }
+          enabled={exceedsMaxNestingDepth || isCollectionEmpty}
           trigger={
             <div>
               <Button
                 data-testid="collection-header-generate-mock-data-button"
                 size={ButtonSize.Small}
-                disabled={!hasSchemaAnalysisData}
+                disabled={!hasSchemaAnalysisData || exceedsMaxNestingDepth}
                 onClick={onOpenMockDataModal}
                 leftGlyph={<Icon glyph="Sparkle" />}
               >
@@ -142,7 +145,10 @@ const CollectionHeaderActions: React.FunctionComponent<
             </div>
           }
         >
-          Please add data to your collection to generate similar mock documents
+          {exceedsMaxNestingDepth &&
+            'At this time we are unable to generate mock data for collections that have deeply nested documents'}
+          {isCollectionEmpty &&
+            'Please add data to your collection to generate similar mock documents'}
         </Tooltip>
       )}
       {atlasMetadata && (
