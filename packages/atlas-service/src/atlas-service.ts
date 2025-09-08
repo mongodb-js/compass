@@ -139,7 +139,6 @@ export class AtlasService {
     const authHeaders = await this.authService.getAuthHeaders();
     return this.fetch(url, {
       ...init,
-      credentials: 'include',
       headers: {
         ...init?.headers,
         ...authHeaders,

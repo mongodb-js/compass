@@ -1,6 +1,5 @@
 export { CompassWeb } from './entrypoint';
 export type { CompassWebProps, TrackFunction } from './entrypoint';
-export { useMyQueriesFeature } from './hooks/use-my-queries-feature';
 export * from './url-builder';
 export type {
   OpenWorkspaceOptions,

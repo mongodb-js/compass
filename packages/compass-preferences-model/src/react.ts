@@ -135,9 +135,8 @@ export function withPreferences<
  * - Favorite queries/aggregations
  */
 export function useMyQueriesFeature(): boolean {
-  // This preference will be passed from MMS router as initialPreference
-  // based on settingsModel.hasProjectFeature('DATA_EXPLORER_SAVES_USER_DATA')
   const enableMyQueries = usePreference('enableMyQueries');
 
-  return enableMyQueries ?? false;
+  // Default to true to match the preference schema default
+  return enableMyQueries ?? true;
 }
