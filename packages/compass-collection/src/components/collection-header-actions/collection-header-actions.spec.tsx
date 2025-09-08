@@ -48,6 +48,7 @@ describe('CollectionHeaderActions [Component]', function () {
       <CompassExperimentationProvider
         useAssignment={mockUseAssignment}
         assignExperiment={sinon.stub()}
+        getAssignment={sinon.stub().resolves(null)}
       >
         <WorkspacesServiceProvider
           value={workspaceService as WorkspacesService}

@@ -395,6 +395,7 @@ describe('CollectionHeader [Component]', function () {
         <CompassExperimentationProvider
           useAssignment={mockUseAssignment}
           assignExperiment={Sinon.stub()}
+          getAssignment={Sinon.stub().resolves(null)}
         >
           <Provider store={mockStore}>
             <WorkspacesServiceProvider
