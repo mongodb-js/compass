@@ -9,7 +9,7 @@ import {
   Link,
 } from '@mongodb-js/compass-components';
 import { useConnectionIds } from '@mongodb-js/compass-connections/provider';
-import { WelcomeTabImage } from './welcome-image';
+import { WelcomePlugImage, WelcomeTabImage } from './welcome-image';
 import ConnectionList, { useActiveConnectionIds } from './connection-list';
 
 const welcomeTabStyles = css({
@@ -33,7 +33,9 @@ export default function WebWelcomeTab() {
 
   return (
     <div className={welcomeTabStyles}>
-      <WelcomeTabImage />
+      {(activeConnectionIds.length && <WelcomePlugImage />) || (
+        <WelcomeTabImage />
+      )}
       <div>
         <H3>Welcome! Explore your data</H3>
         {!activeConnectionIds.length && (
