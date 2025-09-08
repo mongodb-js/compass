@@ -11,8 +11,7 @@ import {
   useOpenWorkspace,
   useWorkspacePlugins,
 } from '@mongodb-js/compass-workspaces/provider';
-import { usePreference } from 'compass-preferences-model/provider';
-import { useMyQueriesFeature } from '@mongodb-js/compass-web';
+import { usePreference, useMyQueriesFeature } from 'compass-preferences-model/provider';
 import React from 'react';
 
 const navigationItem = css({
