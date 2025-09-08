@@ -3,7 +3,7 @@ import { redactConnectionString } from 'mongodb-connection-string-url';
 
 export const APP_NAMES_FOR_PROMPT = {
   Compass: 'MongoDB Compass',
-  'Data Explorer': 'MongoDB Atlas Data Explorer',
+  DataExplorer: 'MongoDB Atlas Data Explorer',
 };
 
 export const buildConversationInstructionsPrompt = ({

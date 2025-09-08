@@ -423,9 +423,7 @@ const CompassWeb = ({
                       >
                         <CompassInstanceStorePlugin>
                           <CompassAssistantProvider
-                            appNameForPrompt={
-                              APP_NAMES_FOR_PROMPT['Data Explorer']
-                            }
+                            appNameForPrompt={APP_NAMES_FOR_PROMPT.DataExplorer}
                           >
                             <FieldStorePlugin>
                               <WithConnectionsStore>
