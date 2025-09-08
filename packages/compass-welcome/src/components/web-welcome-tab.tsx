@@ -10,7 +10,7 @@ import {
 } from '@mongodb-js/compass-components';
 import { useConnectionIds } from '@mongodb-js/compass-connections/provider';
 import { WelcomeTabImage } from './welcome-image';
-import ConnectionList from './connection-list';
+import ConnectionList, { useActiveConnectionIds } from './connection-list';
 
 const welcomeTabStyles = css({
   display: 'flex',
@@ -29,12 +29,7 @@ const contentBodyStyles = css({
 
 export default function WebWelcomeTab() {
   const numConnections = useConnectionIds().length;
-  const activeConnectionIds = useConnectionIds(
-    (connection) =>
-      connection.status === 'connecting' ||
-      connection.status === 'connected' ||
-      connection.status === 'failed'
-  );
+  const activeConnectionIds = useActiveConnectionIds();
 
   return (
     <div className={welcomeTabStyles}>

@@ -13,6 +13,20 @@ import {
   useConnectionForId,
 } from '@mongodb-js/compass-connections/provider';
 
+/**
+ * Returns a list of connection ids for connections that are in an active state
+ * (connecting, connected, or failed). This is useful for components that need
+ * to show activity status without subscribing to the full connection state.
+ */
+export function useActiveConnectionIds() {
+  return useConnectionIds(
+    (connection) =>
+      connection.status === 'connecting' ||
+      connection.status === 'connected' ||
+      connection.status === 'failed'
+  );
+}
+
 const connectionListStyles = css({
   marginTop: spacing[400],
   listStyle: 'none',
@@ -68,12 +82,7 @@ function ConnectionStatus({ connectionId }: ConnectionStatusProps) {
 }
 
 export default function ConnectionList() {
-  const activeConnectionIds = useConnectionIds(
-    (connection) =>
-      connection.status === 'connecting' ||
-      connection.status === 'connected' ||
-      connection.status === 'failed'
-  );
+  const activeConnectionIds = useActiveConnectionIds();
 
   if (activeConnectionIds.length === 0) {
     return null;

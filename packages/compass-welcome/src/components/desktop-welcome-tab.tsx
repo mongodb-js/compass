@@ -16,13 +16,10 @@ import {
   Icon,
 } from '@mongodb-js/compass-components';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
-import {
-  useConnectionActions,
-  useConnectionIds,
-} from '@mongodb-js/compass-connections/provider';
+import { useConnectionActions } from '@mongodb-js/compass-connections/provider';
 import { usePreference } from 'compass-preferences-model/provider';
 import { WelcomeTabImage } from './welcome-image';
-import ConnectionList from './connection-list';
+import ConnectionList, { useActiveConnectionIds } from './connection-list';
 
 const sectionContainerStyles = css({
   margin: 0,
@@ -130,12 +127,7 @@ export default function DesktopWelcomeTab() {
     'enableCreatingNewConnections'
   );
 
-  const activeConnectionIds = useConnectionIds(
-    (connection) =>
-      connection.status === 'connecting' ||
-      connection.status === 'connected' ||
-      connection.status === 'failed'
-  );
+  const activeConnectionIds = useActiveConnectionIds();
 
   return (
     <div className={welcomeTabStyles}>
