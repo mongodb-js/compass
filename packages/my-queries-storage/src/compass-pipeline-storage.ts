@@ -1,3 +1,4 @@
+import { EJSON } from 'bson';
 import {
   type IUserData,
   FileUserData,
@@ -21,7 +22,6 @@ export type PipelineStorageOptions = {
 export class CompassPipelineStorage implements PipelineStorage {
   private readonly userData: IUserData<typeof PipelineSchema>;
   constructor(options: PipelineStorageOptions = {}) {
-    const dataType = 'SavedPipelines';
     if (
       options.orgId &&
       options.projectId &&
@@ -31,14 +31,17 @@ export class CompassPipelineStorage implements PipelineStorage {
       this.userData = new AtlasUserData(
         PipelineSchema,
         'favoriteAggregations',
-        options.orgId,
-        options.projectId,
-        options.getResourceUrl,
-        options.authenticatedFetch,
-        {}
+        {
+          orgId: options.orgId,
+          projectId: options.projectId,
+          getResourceUrl: options.getResourceUrl,
+          authenticatedFetch: options.authenticatedFetch,
+          serialize: (content) => EJSON.stringify(content),
+          deserialize: (content: string) => EJSON.parse(content),
+        }
       );
     } else {
-      this.userData = new FileUserData(PipelineSchema, dataType, {
+      this.userData = new FileUserData(PipelineSchema, 'SavedPipelines', {
         basePath: options.basePath,
       });
     }

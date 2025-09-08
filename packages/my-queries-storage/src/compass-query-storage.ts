@@ -34,18 +34,14 @@ export abstract class CompassQueryStorage<TSchema extends z.Schema> {
     ) {
       const type =
         dataType === 'RecentQueries' ? 'recentQueries' : 'favoriteQueries';
-      this.userData = new AtlasUserData(
-        schemaValidator,
-        type,
-        options.orgId,
-        options.projectId,
-        options.getResourceUrl,
-        options.authenticatedFetch,
-        {
-          serialize: (content) => EJSON.stringify(content, undefined, 2),
-          deserialize: (content: string) => EJSON.parse(content),
-        }
-      );
+      this.userData = new AtlasUserData(schemaValidator, type, {
+        orgId: options.orgId,
+        projectId: options.projectId,
+        getResourceUrl: options.getResourceUrl,
+        authenticatedFetch: options.authenticatedFetch,
+        serialize: (content) => EJSON.stringify(content),
+        deserialize: (content: string) => EJSON.parse(content),
+      });
     } else {
       this.userData = new FileUserData(schemaValidator, dataType, {
         basePath: options.basepath,

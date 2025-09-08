@@ -78,6 +78,7 @@ import {
   type FavoriteQueryStorageAccess,
   type RecentQueryStorageAccess,
 } from '@mongodb-js/my-queries-storage/provider';
+import { CompassAssistantDrawerWithConnections } from './compass-assistant-drawer';
 
 /** @public */
 export type TrackFunction = (
@@ -108,7 +109,7 @@ const WithStorageProviders: React.FC<{ orgId: string; projectId: string }> = ({
   const authenticatedFetch = atlasService.authenticatedFetch.bind(atlasService);
   const getResourceUrl = (path?: string) => {
     const url = atlasService.userDataEndpoint(`/${path || ''}`);
-    return Promise.resolve(url);
+    return url;
   };
   const pipelineStorage = useRef(
     new CompassPipelineStorage({
@@ -502,7 +503,10 @@ const CompassWeb = ({
                                 ></CompassWorkspace>
                               </WithConnectionsStore>
                             </FieldStorePlugin>
-                            <CompassGenerativeAIPlugin projectId={projectId} />
+                            <CompassGenerativeAIPlugin
+                              projectId={projectId}
+                              isCloudOptIn={true}
+                            />
                           </CompassInstanceStorePlugin>
                         </CompassConnections>
                       </AtlasCloudConnectionStorageProvider>

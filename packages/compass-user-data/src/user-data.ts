@@ -282,11 +282,14 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
   constructor(
     validator: T,
     dataType: string,
-    orgId: string,
-    projectId: string,
-    getResourceUrl: GetResourceUrl,
-    authenticatedFetch: AuthenticatedFetch,
-    { serialize, deserialize }: AtlasUserDataOptions<z.input<T>>
+    {
+      orgId,
+      projectId,
+      getResourceUrl,
+      authenticatedFetch,
+      serialize,
+      deserialize,
+    }: AtlasUserDataOptions<z.input<T>>
   ) {
     super(validator, dataType, { serialize, deserialize });
     this.authenticatedFetch = authenticatedFetch;
