@@ -9,7 +9,7 @@ import type {
   CollectionTabInfo,
 } from '@mongodb-js/compass-workspaces';
 
-import loadWorkspaceStateFromUserData from '@mongodb-js/compass-workspaces';
+import { loadWorkspaceStateFromUserData } from '@mongodb-js/compass-workspaces';
 
 import WorkspacesPlugin, {
   WorkspacesProvider,

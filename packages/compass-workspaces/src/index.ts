@@ -16,7 +16,6 @@ import workspacesReducer, {
   connectionDisconnected,
   updateDatabaseInfo,
   updateCollectionInfo,
-  loadAndRestoreWorkspaceState,
 } from './stores/workspaces';
 import Workspaces from './components';
 import { applyMiddleware, createStore } from 'redux';
@@ -246,7 +245,6 @@ const WorkspacesPlugin = registerCompassPlugin(
 
 export default WorkspacesPlugin;
 export { WorkspacesProvider } from './components/workspaces-provider';
-export { loadAndRestoreWorkspaceState } from './stores/workspaces';
 export { loadWorkspaceStateFromUserData } from './stores/workspaces-middleware';
 export type { OpenWorkspaceOptions, CollectionTabInfo };
 export type {

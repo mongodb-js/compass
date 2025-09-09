@@ -86,30 +86,29 @@ const sidebarStyles = css({
   minHeight: 0,
 });
 
-// function usePromise(promise) {
-//   const [state, setState] = useState({
-//     data: null,
-//     error: null,
-//     loading: true
-//   });
+function usePromise(promise) {
+  const [state, setState] = useState({
+    data: null,
+    error: null,
+    loading: true,
+  });
 
-//   useEffect(() => {
-//     if (!promise) return;
+  useEffect(() => {
+    if (!promise) return;
 
-//     setState({ data: null, error: null, loading: true });
+    setState({ data: null, error: null, loading: true });
 
-//     promise
-//       .then(data => {
-//         // Only update if this is still the current promise
-//         setState({ data, error: null, loading: false });
-//       })
-//       .catch(error => {
-//         setState({ data: null, error, loading: false });
-//       });
-//   }, [promise]);
+    promise
+      .then((data) => {
+        setState({ data, error: null, loading: false });
+      })
+      .catch((error) => {
+        setState({ data: null, error, loading: false });
+      });
+  }, [promise]);
 
-//   return state;
-// }
+  return state;
+}
 
 const WorkspacesWithSidebar: React.FunctionComponent<
   WorkspacesWithSidebarProps
@@ -120,6 +119,7 @@ const WorkspacesWithSidebar: React.FunctionComponent<
   onActiveWorkspaceTabChange,
   renderSidebar,
   renderModals,
+  savedWorkspacesPromise,
 }) => {
   console.log('Loadaweswsf');
   const darkMode = useDarkMode();
@@ -131,11 +131,16 @@ const WorkspacesWithSidebar: React.FunctionComponent<
 
   console.log('Loadawef');
 
-  // const { data: savedTabs, loading, error } = usePromise(savedWorkspacesPromise);
-  // if (loading) return <div>Loading...</div>;
-  // if (error) return <div>Error: {error.message}</div>;
+  const {
+    data: savedTabs,
+    loading,
+    error,
+  } = usePromise(savedWorkspacesPromise);
+  // TODO: test these
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error.message}</div>;
 
-  // console.log("Loaded saved tabs in workspace with sidebar", savedTabs);
+  console.log('Loaded saved tabs in workspace with sidebar', savedTabs);
 
   return (
     <WorkspacesServiceProvider>
