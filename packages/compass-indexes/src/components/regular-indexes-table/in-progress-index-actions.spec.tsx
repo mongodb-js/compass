@@ -26,6 +26,7 @@ describe('IndexActions Component', function () {
         index={{
           name: 'artist_id_index',
           status: 'inprogress',
+          buildProgress: 0,
         }}
         onDeleteFailedIndexClick={onDeleteSpy}
       />
@@ -41,6 +42,7 @@ describe('IndexActions Component', function () {
         index={{
           name: 'artist_id_index',
           status: 'failed',
+          buildProgress: 0,
         }}
         onDeleteFailedIndexClick={onDeleteSpy}
       />
