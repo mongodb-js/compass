@@ -9,11 +9,10 @@ import {
   BannerVariant,
   Code,
   Body,
-  Subtitle,
 } from '@mongodb-js/compass-components';
 
 import { usePreference } from 'compass-preferences-model/provider';
-import toUserFriendlyFieldInfo from './to-user-friendly-field-info';
+import toSimplifiedFieldInfo from './to-simplified-field-info';
 import type { CollectionState } from '../../modules/collection-tab';
 import type { SchemaAnalysisState } from '../../schema-analysis-types';
 import type { MockDataGeneratorState } from './types';
@@ -49,11 +48,12 @@ const errorBannerTextStyles = css({
   color: palette.red.dark2,
 });
 
-// Note: Currently a placeholder. The final contents will be addressed by CLOUDP-333852
-const RawSchemaConfirmationScreen = (
-  props: RawSchemaConfirmationScreenProps
-) => {
-  let enableSampleDocumentPassing = usePreference(
+const RawSchemaConfirmationScreen = ({
+  schemaAnalysis,
+  namespace,
+  fakerSchemaGenerationStatus,
+}: RawSchemaConfirmationScreenProps) => {
+  const enableSampleDocumentPassing = usePreference(
     'enableGenAISampleDocumentPassing'
   );
 
@@ -73,9 +73,9 @@ const RawSchemaConfirmationScreen = (
 
   return (
     <div data-testid="raw-schema-confirmation">
-      {props.schemaAnalysis.status === 'complete' ? (
+      {schemaAnalysis.status === 'complete' ? (
         <>
-          <Body className={namespaceStyles}>{props.namespace}</Body>
+          <Body className={namespaceStyles}>{namespace}</Body>
           <Body
             as="h2"
             className={headingStyles}
@@ -87,14 +87,14 @@ const RawSchemaConfirmationScreen = (
           <Body className={descriptionStyles}>{descriptionText}</Body>
           <Code language="javascript" copyable={false} className={codeStyles}>
             {enableSampleDocumentPassing
-              ? JSON.stringify(props.schemaAnalysis.sampleDocument, null, 4)
+              ? JSON.stringify(schemaAnalysis.sampleDocument, null, 4)
               : JSON.stringify(
-                  toUserFriendlyFieldInfo(props.schemaAnalysis.processedSchema),
+                  toSimplifiedFieldInfo(schemaAnalysis.processedSchema),
                   null,
                   4
                 )}
           </Code>
-          {props.fakerSchemaGenerationStatus === 'error' && (
+          {fakerSchemaGenerationStatus === 'error' && (
             <Banner
               variant={BannerVariant.Danger}
               className={errorBannerStyles}

@@ -1,4 +1,4 @@
-import { processSchema } from '../../transform-schema-to-field-info';
+import type { processSchema } from '../../transform-schema-to-field-info';
 import type { FieldInfo } from '../../schema-analysis-types';
 
 type UserFriendlyFieldInfoNode =
@@ -10,10 +10,9 @@ export type UserFriendlyFieldInfoTree = {
 
 /**
  * Usage is for display purposes only. The result is derived from the work of `processSchema`,
- * instead of directly derived from the `Schema` type from `mongodb-schema`, ensuring that what
- * the user sees in `RawSchemaConfirmationScreen` is constrained to what the LLM processes.
+ * ensuring that what is a simplification of what the LLM processes.
  */
-export default function toUserFriendlyFieldInfo(
+export default function toSimplifiedFieldInfo(
   input: ReturnType<typeof processSchema>
 ): UserFriendlyFieldInfoTree {
   // ensure parent nodes are created before their children
@@ -21,7 +20,6 @@ export default function toUserFriendlyFieldInfo(
     (f1, f2) => countSeparators(f1) - countSeparators(f2)
   );
 
-  // Assumes "." and "[]" placement is valid
   const result: UserFriendlyFieldInfoTree = {};
   for (const path of sortedFieldPaths) {
     const fieldParts = path.split('.');
@@ -44,13 +42,6 @@ export default function toUserFriendlyFieldInfo(
   return result;
 }
 
-/**
- * note: assumes `processSchema` constructs field paths in this manner:
- * - 1+ "[]" can only appear at the end of field paths
- * - field keys do not contain "." or "[]"
- */
 function countSeparators(input: string): number {
-  const c1 = input.split('.').length - 1;
-  const c2 = input.split('[]').length - 1;
-  return c1 + c2;
+  return input.split('.').length - 1;
 }

@@ -122,6 +122,8 @@ function isPrimitiveSchemaType(type: SchemaType): type is PrimitiveSchemaType {
 /**
  * Transforms a raw mongodb-schema Schema into a flat Record<string, FieldInfo>
  * using dot notation for nested fields and bracket notation for arrays.
+ *
+ * The result is used for the Mock Data Generator LLM call.
  */
 export function processSchema(schema: Schema): Record<string, FieldInfo> {
   const result: Record<string, FieldInfo> = {};
@@ -133,6 +135,11 @@ export function processSchema(schema: Schema): Record<string, FieldInfo> {
   // Process each top-level field
   for (const field of schema.fields) {
     processNamedField(field, '', result);
+  }
+
+  // post-processing validation
+  for (const fieldPath of Object.keys(result)) {
+    validateFieldPath(fieldPath);
   }
 
   return result;
@@ -220,4 +227,37 @@ function getMostFrequentType(types: SchemaType[]): SchemaType | null {
     .sort((a, b) => (b.probability || 0) - (a.probability || 0));
 
   return validTypes[0] || null;
+}
+
+/**
+ * Note: This validation is takes an extra defensive stance. As illustrated by the unit tests, malformed
+ * inputs are required to simulate these unlikely errors.
+ */
+function validateFieldPath(fieldPath: string) {
+  const parts = fieldPath.split('.');
+
+  for (const part of parts) {
+    if (part === '') {
+      throw new Error(
+        `invalid fieldPath "${fieldPath}": field parts cannot be empty`
+      );
+    }
+
+    if (part.replaceAll('[]', '') === '') {
+      throw Error("expected fieldPath to have a non-empty part before '[]'");
+    }
+
+    // Check that [] only appears as complete pairs and only at the end of the part
+    // Remove all trailing [] pairs and check if any [] remains in the middle
+    // Regex breakdown: (\[\])+$
+    //   (\[\]) - matches exactly the characters "[]" (brackets are escaped)
+    //   +      - one or more times
+    //   $      - at the end of the string
+    const remaining = part.replace(/(\[\])+$/, '');
+    if (remaining.includes('[') || remaining.includes(']')) {
+      throw new Error(
+        `invalid fieldPath "${fieldPath}": "[]" can only appear at the end of field parts`
+      );
+    }
+  }
 }

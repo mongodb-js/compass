@@ -1105,4 +1105,149 @@ describe('processSchema', function () {
       },
     });
   });
+
+  /**
+   * Verifies malformed field paths can be caught by bugs in the construction logic.
+   * These are unlikely to occur with valid `Schema` inputs to `processSchema`.
+   */
+  describe('validateFieldPath error conditions', function () {
+    it('throws error for incomplete brackets in middle of field part', function () {
+      const schema: Schema = {
+        fields: [
+          {
+            name: 'field[invalid', // Incomplete bracket
+            path: ['field[invalid'],
+            count: 1,
+            type: ['String'],
+            probability: 1.0,
+            hasDuplicates: false,
+            types: [
+              {
+                name: 'String',
+                bsonType: 'String',
+                path: ['field[invalid'],
+                count: 1,
+                probability: 1.0,
+                values: ['test'],
+              },
+            ],
+          },
+        ],
+        count: 1,
+      };
+
+      expect(() => processSchema(schema)).to.throw(
+        'invalid fieldPath "field[invalid": "[]" can only appear at the end of field parts'
+      );
+    });
+
+    it('throws error for brackets in middle of field part', function () {
+      const schema: Schema = {
+        fields: [
+          {
+            name: 'field[]invalid', // Brackets in middle
+            path: ['field[]invalid'],
+            count: 1,
+            type: ['String'],
+            probability: 1.0,
+            hasDuplicates: false,
+            types: [
+              {
+                name: 'String',
+                bsonType: 'String',
+                path: ['field[]invalid'],
+                count: 1,
+                probability: 1.0,
+                values: ['test'],
+              },
+            ],
+          },
+        ],
+        count: 1,
+      };
+
+      expect(() => processSchema(schema)).to.throw(
+        'invalid fieldPath "field[]invalid": "[]" can only appear at the end of field parts'
+      );
+    });
+
+    it('throws error for empty field parts', function () {
+      const schema: Schema = {
+        fields: [
+          {
+            name: 'parent',
+            path: ['parent'],
+            count: 1,
+            type: ['Document'],
+            probability: 1.0,
+            hasDuplicates: false,
+            types: [
+              {
+                name: 'Document',
+                bsonType: 'Document',
+                path: ['parent'],
+                count: 1,
+                probability: 1.0,
+                fields: [
+                  {
+                    name: '', // Empty field name
+                    path: ['parent', ''],
+                    count: 1,
+                    type: ['String'],
+                    probability: 1.0,
+                    hasDuplicates: false,
+                    types: [
+                      {
+                        name: 'String',
+                        bsonType: 'String',
+                        path: ['parent', ''],
+                        count: 1,
+                        probability: 1.0,
+                        values: ['test'],
+                      },
+                    ],
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+        count: 1,
+      };
+
+      expect(() => processSchema(schema)).to.throw(
+        'invalid fieldPath "parent.": field parts cannot be empty'
+      );
+    });
+
+    it('throws error for field part that is only "[]"', function () {
+      const schema: Schema = {
+        fields: [
+          {
+            name: '[]', // Field name is just "[]"
+            path: ['[]'],
+            count: 1,
+            type: ['String'],
+            probability: 1.0,
+            hasDuplicates: false,
+            types: [
+              {
+                name: 'String',
+                bsonType: 'String',
+                path: ['[]'],
+                count: 1,
+                probability: 1.0,
+                values: ['test'],
+              },
+            ],
+          },
+        ],
+        count: 1,
+      };
+
+      expect(() => processSchema(schema)).to.throw(
+        "expected fieldPath to have a non-empty part before '[]'"
+      );
+    });
+  });
 });

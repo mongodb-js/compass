@@ -20,10 +20,12 @@ describe('MockDataGeneratorModal', () => {
   async function renderModal({
     isOpen = true,
     currentStep = MockDataGeneratorStep.SCHEMA_CONFIRMATION,
+    enableGenAISampleDocumentPassing = false,
     mockServices = createMockServices(),
     connectionInfo,
   }: {
     isOpen?: boolean;
+    enableGenAISampleDocumentPassing?: boolean;
     currentStep?: MockDataGeneratorStep;
     mockServices?: any;
     connectionInfo?: ConnectionInfo;
@@ -63,7 +65,12 @@ describe('MockDataGeneratorModal', () => {
       <Provider store={store}>
         <MockDataGeneratorModal />
       </Provider>,
-      connectionInfo
+      connectionInfo,
+      {
+        preferences: {
+          enableGenAISampleDocumentPassing,
+        },
+      }
     );
   }
 
@@ -107,6 +114,34 @@ describe('MockDataGeneratorModal', () => {
       await renderModal({ isOpen: false });
 
       expect(screen.queryByTestId('generate-mock-data-modal')).to.not.exist;
+    });
+
+    it('uses the appropriate copy when Generative AI sample document passing is enabled', async () => {
+      await renderModal({ enableGenAISampleDocumentPassing: true });
+      expect(screen.queryByText('Sample Documents Collected')).to.exist;
+      expect(
+        screen.queryByText(
+          'A sample of document values from your collection will be sent to an LLM for processing.'
+        )
+      ).to.exist;
+      // fragment from { "name": "John" }
+      expect(screen.queryByText('"John"')).to.exist;
+      expect(screen.queryByText('"String"')).to.not.exist;
+    });
+
+    it('uses the appropriate copy when Generative AI sample document passing is disabled', async () => {
+      await renderModal();
+      expect(screen.queryByText('Document Schema Identified')).to.exist;
+      expect(
+        screen.queryByText(
+          'We have identified the following schema from your documents. This schema will be sent to an LLM for processing.'
+        )
+      ).to.exist;
+      // fragment from { "name": "String" }
+      expect(screen.queryByText('"String"')).to.exist;
+      expect(screen.queryByText('"John"')).to.not.exist;
+
+      screen.debug();
     });
 
     it('closes the modal when the close button is clicked', async () => {
