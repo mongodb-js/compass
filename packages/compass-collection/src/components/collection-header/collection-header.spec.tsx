@@ -41,11 +41,7 @@ function renderCollectionHeader(
 
   const mockStore = createStore(() => defaultState);
 
-  const renderMethod = connectionInfo
-    ? renderWithActiveConnection
-    : renderWithConnections;
-
-  return renderMethod(
+  return renderWithActiveConnection(
     <Provider store={mockStore}>
       <WorkspacesServiceProvider value={workspaceService as WorkspacesService}>
         <CollectionHeader
