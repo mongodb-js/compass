@@ -1,10 +1,11 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import {
   DrawerAnchor,
   ErrorBoundary,
   MongoDBLogoMark,
   WorkspaceTabs,
   css,
+  showConfirmation,
   spacing,
   useDarkMode,
   type WorkspaceTabCoreProps,
@@ -26,6 +27,7 @@ import {
   selectNextTab,
   selectPrevTab,
   selectTab,
+  restoreTabs,
 } from '../stores/workspaces';
 import { useWorkspacePlugins } from './workspaces-provider';
 import toNS from 'mongodb-ns';
@@ -33,6 +35,7 @@ import { useLogger } from '@mongodb-js/compass-logging/provider';
 import { connect } from '../stores/context';
 import { WorkspaceTabContextProvider } from './workspace-tab-context-provider';
 import type { WorkspaceTab } from '../types';
+import { convertSavedStateToInitialTabs } from '../stores/workspaces-middleware';
 
 const emptyWorkspaceStyles = css({
   margin: '0 auto',
@@ -71,6 +74,7 @@ type CompassWorkspacesProps = {
   collectionInfo: Record<string, CollectionTabInfo>;
   databaseInfo: Record<string, DatabaseTabInfo>;
   openOnEmptyWorkspace?: OpenWorkspaceOptions | null;
+  savedTabsPromise?: Promise<any>;
 
   onSelectTab(at: number): void;
   onSelectNextTab(): void;
@@ -84,6 +88,7 @@ type CompassWorkspacesProps = {
     tab: Extract<WorkspaceTab, { namespace: string }>,
     fallbackNamespace: string | null
   ): void;
+  onRestoreTabs(tabs: OpenWorkspaceOptions[]): void;
 };
 
 const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
@@ -92,6 +97,7 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
   collectionInfo,
   databaseInfo,
   openOnEmptyWorkspace,
+  savedTabsPromise,
   onSelectTab,
   onSelectNextTab,
   onSelectPrevTab,
@@ -101,6 +107,7 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
   onCloseTab,
   onCloseAllOtherTabs,
   onNamespaceNotFound,
+  onRestoreTabs,
 }) => {
   const { log, mongoLogId } = useLogger('COMPASS-WORKSPACES');
   const { getWorkspacePluginByName } = useWorkspacePlugins();
@@ -110,6 +117,50 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
   const onCreateNewTab = useCallback(() => {
     onCreateTab(openOnEmptyWorkspace);
   }, [onCreateTab, openOnEmptyWorkspace]);
+
+  useEffect(() => {
+    savedTabsPromise
+      .then((res) => {
+        if (res !== null) {
+          console.log('Showing confirmation');
+          showConfirmation({
+            title: 'Reopen closed tabs?',
+            description:
+              'Your connection and tabs were closed, this action will reopen your previous session',
+            buttonText: 'Reopen tabs',
+          })
+            .then((confirm) => {
+              if (confirm) {
+                // TODO: figure out all the connections that need to be reconnected
+                // dispatch action to reconnect them all
+                // after all connections are reconnected,
+                // dispatch action to restore tabs
+
+                // What happens if I try to dispatch open on a nonexistent tab?
+                //       openWorkspaceAction(
+                //   {
+                //     type: 'Collection',
+                //     connectionId,
+                //     namespace,
+                //     ...collectionOptions,
+                //   },
+                //   { newTab }
+                // )
+                console.log('Restoring tabs');
+                onRestoreTabs(convertSavedStateToInitialTabs(res));
+              }
+            })
+            .catch((err) => {
+              // TODO
+              console.error(err);
+            });
+        }
+      })
+      .catch((err) => {
+        // TODO
+        console.error(err);
+      });
+  }, [savedTabsPromise, onRestoreTabs]);
 
   const workspaceTabs = useMemo(() => {
     return tabs.map((tab) => {
@@ -248,5 +299,6 @@ export default connect(
     onCloseTab: closeTab,
     onCloseAllOtherTabs: closeAllOtherTabs,
     onNamespaceNotFound: openFallbackWorkspace,
+    onRestoreTabs: restoreTabs,
   }
 )(CompassWorkspaces);

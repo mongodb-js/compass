@@ -203,6 +203,7 @@ function CompassWorkspace({
           data-testid="compass-web-connected"
           className={connectedContainerStyles}
         >
+          {/* TODO: only show this after user confirms the confirmation screen*/}
           <WorkspacesPlugin
             //TODO:
             // savedWorkspacesPromise={savedTabs}

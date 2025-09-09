@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { WorkspaceTab as ShellWorkspace } from '@mongodb-js/compass-shell';
 import {
   WorkspaceTab as CollectionWorkspace,
@@ -43,6 +43,7 @@ import { getConnectionTitle } from '@mongodb-js/connection-info';
 import { useConnectionsListRef } from '@mongodb-js/compass-connections/provider';
 import { DataModelingWorkspaceTab } from '@mongodb-js/compass-data-modeling';
 import { CompassAssistantDrawer } from '@mongodb-js/compass-assistant';
+import { showConfirmation } from '@mongodb-js/compass-components';
 
 export default function Workspace({
   appName,

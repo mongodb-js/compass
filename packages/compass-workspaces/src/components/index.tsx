@@ -10,6 +10,7 @@ import type { WorkspaceTab } from '../types';
 import Workspaces from './workspaces';
 import { connect } from '../stores/context';
 import { WorkspacesServiceProvider } from '../provider';
+import { convertSavedStateToInitialTabs } from '../stores/workspaces-middleware';
 
 type WorkspacesWithSidebarProps = {
   /**
@@ -152,7 +153,10 @@ const WorkspacesWithSidebar: React.FunctionComponent<
       >
         <div className={sidebarStyles}>{renderSidebar?.()}</div>
         <div className={workspacesStyles}>
-          <Workspaces openOnEmptyWorkspace={openOnEmptyWorkspace}></Workspaces>
+          <Workspaces
+            openOnEmptyWorkspace={openOnEmptyWorkspace}
+            savedTabsPromise={savedWorkspacesPromise}
+          ></Workspaces>
         </div>
       </div>
       {renderModals?.()}

@@ -1,5 +1,5 @@
 import type { Middleware, AnyAction } from 'redux';
-import type { WorkspacesState } from './workspaces';
+import type { OpenWorkspaceOptions, WorkspacesState } from './workspaces';
 import { FileUserData } from '@mongodb-js/compass-user-data';
 import { EJSON } from 'bson';
 import {
@@ -169,7 +169,7 @@ export async function loadWorkspaceStateFromUserData(): Promise<WorkspacesStateD
  */
 export function convertSavedStateToInitialTabs(
   savedState: WorkspacesStateData
-): Array<Record<string, unknown>> {
+): OpenWorkspaceOptions[] {
   return savedState.tabs.map((tab) => {
     const baseTab: Record<string, unknown> = { type: tab.type };
 
@@ -207,6 +207,6 @@ export function convertSavedStateToInitialTabs(
       baseTab.initialSubtab = tab.subTab;
     }
 
-    return baseTab;
+    return baseTab as OpenWorkspaceOptions;
   });
 }

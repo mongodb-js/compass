@@ -55,6 +55,7 @@ export enum WorkspacesActions {
   SelectNextTab = 'compass-workspaces/SelectNextTab',
   MoveTab = 'compass-workspaces/MoveTab',
   OpenTabFromCurrentActive = 'compass-workspaces/OpenTabFromCurrentActive',
+  RestoreTabs = 'compass-workspaces/RestoreTabs',
   DuplicateTab = 'compass-workspaces/DuplicateTab',
   CloseTabs = 'compass-workspaces/CloseTabs',
   CollectionRenamed = 'compass-workspaces/CollectionRenamed',
@@ -345,6 +346,27 @@ const reducer: Reducer<WorkspacesState, Action> = (
       ...state,
       tabs: newTabs,
       activeTabId: newTab.id,
+    };
+  }
+
+  if (isAction<RestoreTabs>(action, WorkspacesActions.RestoreTabs)) {
+    // TODO: catch exceptions here? e.g. what if the tab doesn't exist?
+    // Currently, the tabs just aren't visible until the connections are connected, and then
+    // all of a sudden they show up.
+    // So, invalid tabs likely just remain invisible. Is this okay? Do we want to
+    // filter for only the ones that will be visible?
+    // e.g. if the connection no longer exists, we can probably get rid of it.
+
+    // Also if the tab is welcome tab, do we wanna just replace it? That's the default behavior right now.
+    // However, handle the case where the initial tab opens *after* the restored tabs. Is this even possible?
+    // Since tabs just remain hidden, this probably isn't actually possible.
+    console.log(
+      'Restoring tabs to state',
+      ...action.tabs.map(getInitialTabState)
+    );
+    return {
+      ...state,
+      tabs: [...state.tabs, ...action.tabs.map(getInitialTabState)],
     };
   }
 
@@ -854,6 +876,12 @@ type OpenTabFromCurrentActiveAction = {
   defaultTab: OpenWorkspaceOptions;
 };
 
+// TODO
+type RestoreTabs = {
+  type: WorkspacesActions.RestoreTabs;
+  tabs: OpenWorkspaceOptions[];
+};
+
 export const openTabFromCurrent = (
   defaultTab?: OpenWorkspaceOptions | null
 ): OpenTabFromCurrentActiveAction => {
@@ -972,6 +1000,19 @@ export const collectionRemoved = (
 type DatabaseRemovedAction = {
   type: WorkspacesActions.DatabaseRemoved;
   namespace: string;
+};
+
+export const restoreTabs = (
+  tabs: OpenWorkspaceOptions[]
+): WorkspacesThunkAction<void, RestoreTabs> => {
+  return (dispatch, getState) => {
+    // TODO: maybe I dispatch connecting to connections first here?
+    console.log('Dispatching restore tabs with tabs:', tabs);
+    dispatch({
+      type: WorkspacesActions.RestoreTabs,
+      tabs,
+    });
+  };
 };
 
 export const databaseRemoved = (
