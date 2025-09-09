@@ -1,4 +1,4 @@
-import React, { useMemo, useEffect, useState } from 'react';
+import React, { useMemo } from 'react';
 import { connect } from 'react-redux';
 
 import {
@@ -14,7 +14,7 @@ import {
   SpinLoaderWithLabel,
 } from '@mongodb-js/compass-components';
 
-import { type FakerMapping, MockDataGeneratorStep } from './types';
+import { type FakerSchemaMapping, MockDataGeneratorStep } from './types';
 import { StepButtonLabelMap } from './constants';
 import type { CollectionState } from '../../modules/collection-tab';
 import {
@@ -26,7 +26,6 @@ import {
 import RawSchemaConfirmationScreen from './raw-schema-confirmation-screen';
 import FakerSchemaEditorScreen from './faker-schema-editor-screen';
 import ScriptScreen from './script-screen';
-import type { MockDataSchemaResponse } from '@mongodb-js/compass-generative-ai';
 
 const footerStyles = css`
   flex-direction: row;
@@ -58,7 +57,7 @@ interface Props {
   onConfirmSchema: () => Promise<void>;
   onPreviousStep: () => void;
   namespace: string;
-  fakerSchema?: MockDataSchemaResponse;
+  fakerSchema?: Array<FakerSchemaMapping>;
 }
 
 const MockDataGeneratorModal = ({
@@ -82,7 +81,11 @@ const MockDataGeneratorModal = ({
             progressText="Processing Documents..."
           />
         ) : (
-          <FakerSchemaEditorScreen fakerSchema={fakerSchema.content.fields} />
+          <FakerSchemaEditorScreen
+            isSchemaConfirmed={isSchemaConfirmed}
+            onSchemaConfirmed={() => setIsSchemaConfirmed(true)}
+            fakerMappings={fakerSchema}
+          />
         );
       case MockDataGeneratorStep.DOCUMENT_COUNT:
         return <></>; // TODO: CLOUDP-333856
@@ -92,6 +95,13 @@ const MockDataGeneratorModal = ({
         return <ScriptScreen />;
     }
   }, [currentStep]);
+  const [isSchemaConfirmed, setIsSchemaConfirmed] =
+    React.useState<boolean>(false);
+
+  const isNextButtonDisabled =
+    currentStep === MockDataGeneratorStep.SCHEMA_EDITOR &&
+    !isSchemaConfirmed &&
+    fakerSchema === undefined;
 
   const handleNextClick = () => {
     if (currentStep === MockDataGeneratorStep.GENERATE_DATA) {
@@ -139,6 +149,7 @@ const MockDataGeneratorModal = ({
             variant={ButtonVariant.Primary}
             onClick={handleNextClick}
             data-testid="next-step-button"
+            disabled={isNextButtonDisabled}
           >
             {StepButtonLabelMap[currentStep]}
           </Button>

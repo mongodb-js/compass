@@ -188,7 +188,6 @@ export { KeylineCard } from './components/keyline-card';
 export { variantColors as codePalette } from '@leafygreen-ui/code';
 export { useEffectOnChange } from './hooks/use-effect-on-change';
 export { HorizontalRule } from './components/horizontal-rule';
-export { VerticalRule } from './components/vertical-rule';
 export { IndexBadge, IndexKeysBadge } from './components/index-keys-badge';
 export {
   ConfirmationModalVariant,
@@ -229,3 +228,4 @@ export { ParagraphSkeleton } from '@leafygreen-ui/skeleton-loader';
 export { InsightsChip } from './components/insights-chip';
 export * from './components/drawer-portal';
 export { FileSelector } from './components/file-selector';
+export { transitionDuration } from '@leafygreen-ui/tokens';

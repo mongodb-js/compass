@@ -38,7 +38,10 @@ import {
 } from '../transform-schema-to-field-info';
 import type { Document, MongoError } from 'mongodb';
 import { MockDataGeneratorStep } from '../components/mock-data-generator-modal/types';
-import type { MockDataGeneratorState } from '../components/mock-data-generator-modal/types';
+import type {
+  FakerSchemaMapping,
+  MockDataGeneratorState,
+} from '../components/mock-data-generator-modal/types';
 
 const DEFAULT_SAMPLE_SIZE = 100;
 
@@ -52,6 +55,7 @@ function isAction<A extends AnyAction>(
 }
 
 const ERROR_CODE_MAX_TIME_MS_EXPIRED = 50;
+export const UNRECOGNIZED_FAKER_METHOD = 'Unrecognized';
 
 function getErrorDetails(error: Error): SchemaAnalysisError {
   if (error instanceof ProcessSchemaUnsupportedStateError) {
@@ -178,7 +182,7 @@ export interface FakerMappingGenerationStartedAction {
 
 export interface FakerMappingGenerationCompletedAction {
   type: CollectionActions.FakerMappingGenerationCompleted;
-  fakerSchema: MockDataSchemaResponse;
+  fakerSchema: Array<FakerSchemaMapping>;
   requestId: string;
 }
 
@@ -692,6 +696,68 @@ export const cancelSchemaAnalysis = (): CollectionThunkAction<void> => {
   };
 };
 
+const validateFakerSchema = async (
+  fakerSchema: MockDataSchemaResponse,
+  logger: Logger
+) => {
+  const { faker } = await import('@faker-js/faker');
+  return fakerSchema.content.fields.map((field) => {
+    const { fakerMethod, fakerArgs } = field;
+
+    const [first, second] = fakerMethod.split('.');
+    try {
+      // Try with arguments first
+      const fakerMethodWithArgs = eval(
+        `(faker, ...fakerArgs) => faker["${first}"]["${second}"](...fakerArgs)`
+      );
+      fakerMethodWithArgs(faker, ...fakerArgs);
+      return field;
+    } catch (error) {
+      // If that fails and there are arguments, try without arguments
+      if (fakerArgs.length > 0) {
+        try {
+          const fakerMethodWithoutArgs = eval(
+            `(faker) => faker["${first}"]["${second}"]()`
+          );
+          fakerMethodWithoutArgs(faker);
+          return field;
+        } catch (error) {
+          logger.log.debug(
+            mongoLogId(1_001_000_371),
+            'Collection',
+            'Failed to validate faker schema with arguments',
+            {
+              error: error instanceof Error ? error.message : String(error),
+              fakerMethod,
+              fakerArgs,
+            }
+          );
+          return {
+            ...field,
+            fakerMethod: UNRECOGNIZED_FAKER_METHOD,
+            fakerArgs: [],
+          };
+        }
+      }
+      logger.log.debug(
+        mongoLogId(1_001_000_372),
+        'Collection',
+        'Failed to validate faker schema',
+        {
+          error: error instanceof Error ? error.message : String(error),
+          fakerMethod,
+          fakerArgs,
+        }
+      );
+      return {
+        ...field,
+        fakerMethod: UNRECOGNIZED_FAKER_METHOD,
+        fakerArgs: [],
+      };
+    }
+  });
+};
+
 export const generateFakerMappings = (): CollectionThunkAction<
   Promise<void>
 > => {
@@ -758,10 +824,12 @@ export const generateFakerMappings = (): CollectionThunkAction<
         connectionInfoRef.current
       );
 
+      const validatedFakerSchema = await validateFakerSchema(response, logger);
+
       fakerSchemaGenerationAbortControllerRef.current = undefined;
       dispatch({
         type: CollectionActions.FakerMappingGenerationCompleted,
-        fakerSchema: response,
+        fakerSchema: validatedFakerSchema,
         requestId: requestId,
       });
     } catch (e) {

@@ -175,7 +175,7 @@ describe('MockDataGeneratorModal', () => {
       userEvent.click(screen.getByText('Confirm'));
 
       await waitFor(() => {
-        expect(screen.getByTestId('faker-schema-editor')).to.exist;
+        expect(screen.getByTestId('schema-editor-loading')).to.exist;
       });
 
       userEvent.click(screen.getByText('Cancel'));
@@ -191,7 +191,7 @@ describe('MockDataGeneratorModal', () => {
       userEvent.click(screen.getByText('Confirm'));
 
       await waitFor(() => {
-        expect(screen.getByTestId('faker-schema-editor')).to.exist;
+        expect(screen.getByTestId('schema-editor-loading')).to.exist;
       });
 
       userEvent.click(screen.getByText('Back'));

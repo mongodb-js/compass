@@ -1,5 +1,3 @@
-import type { MockDataSchemaResponse } from '@mongodb-js/compass-generative-ai';
-
 export enum MockDataGeneratorStep {
   SCHEMA_CONFIRMATION = 'SCHEMA_CONFIRMATION',
   SCHEMA_EDITOR = 'SCHEMA_EDITOR',
@@ -19,7 +17,7 @@ type MockDataGeneratorInProgressState = {
 
 type MockDataGeneratorCompletedState = {
   status: 'completed';
-  fakerSchema: MockDataSchemaResponse;
+  fakerSchema: Array<FakerSchemaMapping>;
   requestId: string;
 };
 
@@ -35,7 +33,7 @@ export type MockDataGeneratorState =
   | MockDataGeneratorCompletedState
   | MockDataGeneratorErrorState;
 
-export type FakerMapping = {
+export type FakerSchemaMapping = {
   fieldPath: string;
   mongoType: string;
   fakerMethod: string;
