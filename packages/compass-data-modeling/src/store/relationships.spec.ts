@@ -133,7 +133,7 @@ describe('relationships', function () {
             { name: '_id_', fields: [{ field: '_id' }] },
           ]);
         },
-        count(ns) {
+        count(ns: string) {
           if (ns === 'db.coll1') {
             return Promise.resolve(1);
           }
