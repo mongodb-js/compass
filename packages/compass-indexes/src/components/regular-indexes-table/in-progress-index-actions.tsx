@@ -1,12 +1,20 @@
 import React, { useCallback, useMemo } from 'react';
 import type { GroupedItemAction } from '@mongodb-js/compass-components';
-import { ItemActionGroup } from '@mongodb-js/compass-components';
+import { ItemActionGroup, css, spacing } from '@mongodb-js/compass-components';
 import type { InProgressIndex } from '../../modules/regular-indexes';
 
 type Index = {
   name: string;
   status: InProgressIndex['status'];
+  buildProgress: number;
 };
+
+const indexActionsContainerStyles = css({
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'flex-end',
+  gap: spacing[200],
+});
 
 type IndexActionsProps = {
   index: Index;
@@ -44,11 +52,13 @@ const IndexActions: React.FunctionComponent<IndexActionsProps> = ({
   );
 
   return (
-    <ItemActionGroup<IndexAction>
-      data-testid="index-actions"
-      actions={indexActions}
-      onAction={onAction}
-    ></ItemActionGroup>
+    <div className={indexActionsContainerStyles}>
+      <ItemActionGroup<IndexAction>
+        data-testid="index-actions"
+        actions={indexActions}
+        onAction={onAction}
+      />
+    </div>
   );
 };
 
