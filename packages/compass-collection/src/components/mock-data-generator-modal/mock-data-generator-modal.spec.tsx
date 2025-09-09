@@ -116,32 +116,6 @@ describe('MockDataGeneratorModal', () => {
       expect(screen.queryByTestId('generate-mock-data-modal')).to.not.exist;
     });
 
-    it('uses the appropriate copy when Generative AI sample document passing is enabled', async () => {
-      await renderModal({ enableGenAISampleDocumentPassing: true });
-      expect(screen.queryByText('Sample Documents Collected')).to.exist;
-      expect(
-        screen.queryByText(
-          'A sample of document values from your collection will be sent to an LLM for processing.'
-        )
-      ).to.exist;
-      // fragment from { "name": "John" }
-      expect(screen.queryByText('"John"')).to.exist;
-      expect(screen.queryByText('"String"')).to.not.exist;
-    });
-
-    it('uses the appropriate copy when Generative AI sample document passing is disabled', async () => {
-      await renderModal();
-      expect(screen.queryByText('Document Schema Identified')).to.exist;
-      expect(
-        screen.queryByText(
-          'We have identified the following schema from your documents. This schema will be sent to an LLM for processing.'
-        )
-      ).to.exist;
-      // fragment from { "name": "String" }
-      expect(screen.queryByText('"String"')).to.exist;
-      expect(screen.queryByText('"John"')).to.not.exist;
-    });
-
     it('closes the modal when the close button is clicked', async () => {
       await renderModal();
 
@@ -235,6 +209,32 @@ describe('MockDataGeneratorModal', () => {
           .getByRole('button', { name: 'Back' })
           .getAttribute('aria-disabled')
       ).to.equal('true');
+    });
+
+    it('uses the appropriate copy when Generative AI sample document passing is enabled', async () => {
+      await renderModal({ enableGenAISampleDocumentPassing: true });
+      expect(screen.queryByText('Sample Documents Collected')).to.exist;
+      expect(
+        screen.queryByText(
+          'A sample of document values from your collection will be sent to an LLM for processing.'
+        )
+      ).to.exist;
+      // fragment from { "name": "John" }
+      expect(screen.queryByText('"John"')).to.exist;
+      expect(screen.queryByText('"String"')).to.not.exist;
+    });
+
+    it('uses the appropriate copy when Generative AI sample document passing is disabled', async () => {
+      await renderModal();
+      expect(screen.queryByText('Document Schema Identified')).to.exist;
+      expect(
+        screen.queryByText(
+          'We have identified the following schema from your documents. This schema will be sent to an LLM for processing.'
+        )
+      ).to.exist;
+      // fragment from { "name": "String" }
+      expect(screen.queryByText('"String"')).to.exist;
+      expect(screen.queryByText('"John"')).to.not.exist;
     });
 
     it('renders the faker schema editor when the confirm button is clicked', async () => {
