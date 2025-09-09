@@ -1,17 +1,17 @@
 import {
   Body,
   Button,
+  ButtonSize,
   ButtonVariant,
   css,
-  H3,
   Link,
+  palette,
   spacing,
-  VerticalRule,
 } from '@mongodb-js/compass-components';
 import React from 'react';
 import FieldSelector from './schema-field-selector';
-import FakerMappingSelector from './field-mapping-selectors';
-import { FakerMapping } from './types';
+import FakerMappingSelector from './faker-mapping-selector';
+import type { FakerSchemaMapping } from './types';
 
 const containerStyles = css({
   display: 'flex',
@@ -23,8 +23,18 @@ const innerEditorStyles = css({
   display: 'flex',
   flexDirection: 'row',
   justifyContent: 'space-between',
-  maxHeight: '500px',
-  overflow: 'auto',
+});
+
+const titleStyles = css({
+  color: palette.black,
+  fontWeight: 600,
+  fontSize: '16px',
+  lineHeight: '20px',
+  marginBottom: 0,
+});
+
+const bodyStyles = css({
+  color: palette.gray.dark1,
 });
 
 const confirmMappingsButtonStyles = css({
@@ -32,12 +42,15 @@ const confirmMappingsButtonStyles = css({
 });
 
 const FakerSchemaEditor = ({
-  fakerSchema,
+  onSchemaConfirmed,
+  fakerMappings,
 }: {
-  fakerSchema: Array<FakerMapping>;
+  isSchemaConfirmed: boolean;
+  onSchemaConfirmed: () => void;
+  fakerMappings: Array<FakerSchemaMapping>;
 }) => {
   const [fakerSchemaFormValues, setFakerSchemaFormValues] =
-    React.useState<Array<FakerMapping>>(fakerSchema);
+    React.useState<Array<FakerSchemaMapping>>(fakerMappings);
   const [activeField, setActiveField] = React.useState<string>(
     fakerSchemaFormValues[0].fieldPath
   );
@@ -48,6 +61,10 @@ const FakerSchemaEditor = ({
   const activeFakerFunction = fakerSchemaFormValues.find(
     (mapping) => mapping.fieldPath === activeField
   )?.fakerMethod;
+
+  const activeFakerArgs = fakerSchemaFormValues.find(
+    (mapping) => mapping.fieldPath === activeField
+  )?.fakerArgs;
 
   const onJsonTypeSelect = (newJsonType: string) => {
     const updatedFakerFieldMapping = fakerSchemaFormValues.find(
@@ -78,18 +95,21 @@ const FakerSchemaEditor = ({
   };
 
   const onConfirmMappings = () => {
-    console.log('Clicked confirm mappings');
+    onSchemaConfirmed();
   };
 
   return (
     <div data-testid="faker-schema-editor" className={containerStyles}>
       <div>
-        <H3>Confirm Field to Faker Function Mappings</H3>
-        <Body>
+        <h3 className={titleStyles}>
+          Confirm Field to Faker Function Mappings
+        </h3>
+        <Body className={bodyStyles}>
           We have sampled your collection and created a schema based on your
           documents. That schema has been sent to an LLM and it has returned the
           following mapping between your schema fields and{' '}
-          <Link href="TODO">faker functions</Link>.
+          <Link href="https://fakerjs.dev/api/faker.html">faker functions</Link>
+          .
         </Body>
       </div>
       <div className={innerEditorStyles}>
@@ -98,17 +118,18 @@ const FakerSchemaEditor = ({
           fields={fakerSchemaFormValues.map((mapping) => mapping.fieldPath)}
           onFieldSelect={setActiveField}
         />
-        <VerticalRule />
         {activeJsonType && activeFakerFunction && (
           <FakerMappingSelector
             activeJsonType={activeJsonType}
             activeFakerFunction={activeFakerFunction}
+            activeFakerArgs={activeFakerArgs || []}
             onJsonTypeSelect={onJsonTypeSelect}
             onFakerFunctionSelect={onFakerFunctionSelect}
           />
         )}
       </div>
       <Button
+        size={ButtonSize.Small}
         className={confirmMappingsButtonStyles}
         variant={ButtonVariant.Primary}
         onClick={onConfirmMappings}

@@ -8,11 +8,16 @@ import {
   Body,
 } from '@mongodb-js/compass-components';
 
-const fieldSelectorStyles = css({
+const fieldsContainerStyles = css({
   width: '40%',
   display: 'flex',
   flexDirection: 'column',
   gap: spacing[100],
+});
+
+const fieldSelectorStyles = css({
+  maxHeight: '300px',
+  overflow: 'auto',
 });
 
 const buttonStyles = css({
@@ -27,36 +32,41 @@ const buttonStyles = css({
   fontWeight: 500,
 });
 
-const hoverStylesLight = css({
-  '&:hover,&:focus': {
-    backgroundColor: palette.green.light2,
-    color: palette.gray.dark3,
+const activeStylesLight = css({
+  color: palette.green.dark2,
+  backgroundColor: palette.green.light3,
+  fontWeight: 600,
+
+  '&:active,&:focus': {
+    backgroundColor: palette.green.light3,
   },
 });
 
-const activeStylesLight = css({
-  backgroundColor: palette.green.light3,
-  color: palette.gray.dark3,
+const activeStylesDark = css({
+  color: palette.white,
   '&:active,&:focus': {
-    backgroundColor: palette.green.light3,
-    color: palette.gray.dark3,
+    backgroundColor: palette.gray.dark3,
+    color: palette.white,
+  },
+});
+
+const hoverStylesLight = css({
+  '&:hover,&:focus': {
+    backgroundColor: palette.gray.light2,
+    color: palette.black,
   },
 });
 
 const hoverStylesDark = css({
   '&:hover,&:focus': {
     backgroundColor: palette.gray.dark3,
-    color: palette.white,
+    color: palette.gray.light2,
   },
 });
 
-const activeStylesDark = css({
-  backgroundColor: palette.gray.dark2,
-  color: palette.white,
-  '&:active,&:focus': {
-    backgroundColor: palette.gray.dark2,
-    color: palette.white,
-  },
+const labelStyles = css({
+  color: palette.gray.dark1,
+  fontWeight: 600,
 });
 
 type SidebarProps = {
@@ -77,30 +87,31 @@ const FieldSelector: React.FunctionComponent<SidebarProps> = ({
       data-testid="schema-field-selector"
       role="tablist"
       aria-label="Schema Field Selector"
-      className={fieldSelectorStyles}
+      className={fieldsContainerStyles}
     >
-      <Body>Document fields</Body>
-
-      {fields.map((field) => (
-        <button
-          type="button"
-          key={field}
-          role="tab"
-          aria-controls={`${field}-section`}
-          aria-selected={activeField === field}
-          className={cx(buttonStyles, {
-            [darkMode ? hoverStylesDark : hoverStylesLight]:
-              field !== activeField,
-            [darkMode ? activeStylesDark : activeStylesLight]:
-              field === activeField,
-          })}
-          id={`${field}-tab`}
-          data-testid={`schema-field-selector-${field}-field`}
-          onClick={() => onFieldSelect(field)}
-        >
-          {field}
-        </button>
-      ))}
+      <Body className={labelStyles}>Document Fields</Body>
+      <div className={fieldSelectorStyles}>
+        {fields.map((field) => (
+          <button
+            type="button"
+            key={field}
+            role="tab"
+            aria-controls={`${field}-section`}
+            aria-selected={activeField === field}
+            className={cx(buttonStyles, {
+              [darkMode ? hoverStylesDark : hoverStylesLight]:
+                field !== activeField,
+              [darkMode ? activeStylesDark : activeStylesLight]:
+                field === activeField,
+            })}
+            id={`${field}-tab`}
+            data-testid={`schema-field-selector-${field}-field`}
+            onClick={() => onFieldSelect(field)}
+          >
+            {field}
+          </button>
+        ))}
+      </div>
     </div>
   );
 };
