@@ -101,7 +101,6 @@
     "@mongodb-js/devtools-proxy-support": "^0.5.2",
     "@mongodb-js/eslint-config-compass": "^1.4.8",
     "@mongodb-js/mocha-config-compass": "^1.7.1",
-    "@mongodb-js/my-queries-storage": "^0.39.1",
     "@mongodb-js/prettier-config-compass": "^1.2.8",
     "@mongodb-js/testing-library-compass": "^1.3.11",
     "@mongodb-js/tsconfig-compass": "^1.2.10",
