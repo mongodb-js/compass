@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { connect } from 'react-redux';
 
 import {
@@ -23,6 +23,7 @@ import {
 } from '../../modules/collection-tab';
 import { default as SchemaConfirmationScreen } from './raw-schema-confirmation';
 import FakerSchemaEditor from './faker-schema-editor';
+import ScriptScreen from './script-screen';
 
 const footerStyles = css`
   flex-direction: row;
@@ -52,6 +53,21 @@ const MockDataGeneratorModal = ({
   onConfirmSchema,
   onPreviousStep,
 }: Props) => {
+  const modalBodyContent = useMemo(() => {
+    switch (currentStep) {
+      case MockDataGeneratorStep.SCHEMA_CONFIRMATION:
+        return <SchemaConfirmationScreen />;
+      case MockDataGeneratorStep.SCHEMA_EDITOR:
+        return <FakerSchemaEditor />;
+      case MockDataGeneratorStep.DOCUMENT_COUNT:
+        return <></>; // TODO: CLOUDP-333856
+      case MockDataGeneratorStep.PREVIEW_DATA:
+        return <></>; // TODO: CLOUDP-333857
+      case MockDataGeneratorStep.GENERATE_DATA:
+        return <ScriptScreen />;
+    }
+  }, [currentStep]);
+
   const handleNextClick = () => {
     if (currentStep === MockDataGeneratorStep.GENERATE_DATA) {
       onClose();
@@ -62,18 +78,9 @@ const MockDataGeneratorModal = ({
     }
   };
 
-  let stepContent: React.ReactNode;
-
-  if (currentStep === MockDataGeneratorStep.SCHEMA_CONFIRMATION) {
-    stepContent = <SchemaConfirmationScreen />;
-  }
-
-  if (currentStep === MockDataGeneratorStep.SCHEMA_EDITOR) {
-    stepContent = <FakerSchemaEditor />;
-  }
-
   return (
     <Modal
+      size="large"
       open={isOpen}
       setOpen={(open) => {
         if (!open) {
@@ -84,8 +91,9 @@ const MockDataGeneratorModal = ({
     >
       <ModalHeader title="Generate Mock Data" />
       <ModalBody>
-        {stepContent}
-        <div data-testid={`generate-mock-data-step-${currentStep}`} />
+        <div data-testid={`generate-mock-data-step-${currentStep}`}>
+          {modalBodyContent}
+        </div>
       </ModalBody>
       <ModalFooter className={footerStyles}>
         <Button

@@ -63,6 +63,7 @@ import { DataModelStorageServiceProviderInMemory } from '@mongodb-js/compass-dat
 import { WorkspaceTab as MyQueriesWorkspace } from '@mongodb-js/compass-saved-aggregations-queries';
 import { CompassAssistantProvider } from '@mongodb-js/compass-assistant';
 import { CompassAssistantDrawerWithConnections } from './compass-assistant-drawer';
+import { APP_NAMES_FOR_PROMPT } from '@mongodb-js/compass-assistant';
 
 /** @public */
 export type TrackFunction = (
@@ -422,7 +423,9 @@ const CompassWeb = ({
                         }}
                       >
                         <CompassInstanceStorePlugin>
-                          <CompassAssistantProvider appNameForPrompt="MongoDB Atlas Data Explorer">
+                          <CompassAssistantProvider
+                            appNameForPrompt={APP_NAMES_FOR_PROMPT.DataExplorer}
+                          >
                             <FieldStorePlugin>
                               <WithConnectionsStore>
                                 <CompassWorkspace
