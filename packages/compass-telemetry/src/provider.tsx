@@ -162,3 +162,4 @@ export const useFireExperimentViewed = ({
 
 export type { TrackFunction };
 export { ExperimentTestName, ExperimentTestGroup } from './growth-experiments';
+export { useAssignment } from './experimentation-provider';
