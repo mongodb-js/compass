@@ -25,6 +25,7 @@ export const workspacesStateChangeMiddleware: Middleware<
   Record<string, never>,
   WorkspacesState
 > = (store) => (next) => (action: AnyAction) => {
+  console.log('WOKRSPEF');
   const prevState = store.getState();
   const result = next(action);
   const nextState = store.getState();
@@ -153,6 +154,7 @@ export async function loadWorkspaceStateFromUserData(): Promise<WorkspacesStateD
     const savedState = await workspacesUserData.readOne('current-workspace', {
       ignoreErrors: true,
     });
+    console.log('Loaded saved state', savedState);
     return savedState || null;
   } catch (error) {
     // eslint-disable-next-line no-console

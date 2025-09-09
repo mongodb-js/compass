@@ -204,6 +204,8 @@ function CompassWorkspace({
           className={connectedContainerStyles}
         >
           <WorkspacesPlugin
+            //TODO:
+            // savedWorkspacesPromise={savedTabs}
             initialWorkspaceTabs={initialWorkspaceTabs}
             openOnEmptyWorkspace={{ type: 'Welcome' }}
             onActiveWorkspaceTabChange={onActiveWorkspaceTabChange}

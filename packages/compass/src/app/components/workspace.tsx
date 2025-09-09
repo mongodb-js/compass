@@ -9,6 +9,8 @@ import type {
   CollectionTabInfo,
 } from '@mongodb-js/compass-workspaces';
 
+import loadWorkspaceStateFromUserData from '@mongodb-js/compass-workspaces';
+
 import WorkspacesPlugin, {
   WorkspacesProvider,
 } from '@mongodb-js/compass-workspaces';
@@ -115,6 +117,7 @@ export default function Workspace({
               <CompassAssistantDrawer />
             </>
           )}
+          savedWorkspacesPromise={loadWorkspaceStateFromUserData()}
         ></WorkspacesPlugin>
       </CollectionTabsProvider>
     </WorkspacesProvider>

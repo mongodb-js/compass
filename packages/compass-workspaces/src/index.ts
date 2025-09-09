@@ -16,15 +16,12 @@ import workspacesReducer, {
   connectionDisconnected,
   updateDatabaseInfo,
   updateCollectionInfo,
+  loadAndRestoreWorkspaceState,
 } from './stores/workspaces';
 import Workspaces from './components';
 import { applyMiddleware, createStore } from 'redux';
 import thunk from 'redux-thunk';
-import {
-  workspacesStateChangeMiddleware,
-  loadWorkspaceStateFromUserData,
-  convertSavedStateToInitialTabs,
-} from './stores/workspaces-middleware';
+import { workspacesStateChangeMiddleware } from './stores/workspaces-middleware';
 import type { MongoDBInstance } from '@mongodb-js/compass-app-stores/provider';
 import { mongoDBInstancesManagerLocator } from '@mongodb-js/compass-app-stores/provider';
 import type Collection from 'mongodb-collection-model';
@@ -78,38 +75,6 @@ export function configureStore(
   );
 
   return store;
-}
-
-/**
- * Configures the store with optional state restoration from UserData
- */
-export async function configureStoreWithStateRestoration(
-  initialWorkspaceTabs: OpenWorkspaceOptions[] | undefined | null,
-  services: WorkspacesServices,
-  restoreFromUserData = false
-) {
-  let tabsToUse = initialWorkspaceTabs;
-
-  // If restoration is enabled and no initial tabs provided, try to restore from UserData
-  if (
-    restoreFromUserData &&
-    (!initialWorkspaceTabs || initialWorkspaceTabs.length === 0)
-  ) {
-    try {
-      const savedState = await loadWorkspaceStateFromUserData();
-      if (savedState && savedState.tabs.length > 0) {
-        // Convert saved state back to initial tabs format
-        tabsToUse = convertSavedStateToInitialTabs(
-          savedState
-        ) as OpenWorkspaceOptions[];
-      }
-    } catch (error) {
-      services.logger?.debug('Workspace State Restoration', { error });
-      // Continue with original initialWorkspaceTabs (empty or provided)
-    }
-  }
-
-  return configureStore(tabsToUse, services);
 }
 
 export function activateWorkspacePlugin(
@@ -281,6 +246,8 @@ const WorkspacesPlugin = registerCompassPlugin(
 
 export default WorkspacesPlugin;
 export { WorkspacesProvider } from './components/workspaces-provider';
+export { loadAndRestoreWorkspaceState } from './stores/workspaces';
+export { loadWorkspaceStateFromUserData } from './stores/workspaces-middleware';
 export type { OpenWorkspaceOptions, CollectionTabInfo };
 export type {
   WelcomeWorkspace,

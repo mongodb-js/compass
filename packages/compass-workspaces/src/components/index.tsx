@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { css, cx, palette, useDarkMode } from '@mongodb-js/compass-components';
 import type { CollectionTabInfo } from '../stores/workspaces';
 import {
@@ -54,6 +54,8 @@ type WorkspacesWithSidebarProps = {
    * actions from service locator context
    */
   renderModals?: () => React.ReactElement | null;
+
+  savedWorkspacesPromise?: Promise<any>;
 };
 
 const containerLightThemeStyles = css({
@@ -84,6 +86,31 @@ const sidebarStyles = css({
   minHeight: 0,
 });
 
+// function usePromise(promise) {
+//   const [state, setState] = useState({
+//     data: null,
+//     error: null,
+//     loading: true
+//   });
+
+//   useEffect(() => {
+//     if (!promise) return;
+
+//     setState({ data: null, error: null, loading: true });
+
+//     promise
+//       .then(data => {
+//         // Only update if this is still the current promise
+//         setState({ data, error: null, loading: false });
+//       })
+//       .catch(error => {
+//         setState({ data: null, error, loading: false });
+//       });
+//   }, [promise]);
+
+//   return state;
+// }
+
 const WorkspacesWithSidebar: React.FunctionComponent<
   WorkspacesWithSidebarProps
 > = ({
@@ -94,12 +121,22 @@ const WorkspacesWithSidebar: React.FunctionComponent<
   renderSidebar,
   renderModals,
 }) => {
+  console.log('Loadaweswsf');
   const darkMode = useDarkMode();
   const onChange = useRef(onActiveWorkspaceTabChange);
   onChange.current = onActiveWorkspaceTabChange;
   useEffect(() => {
     onChange.current(activeTab, activeTabCollectionInfo);
   }, [activeTab, activeTabCollectionInfo]);
+
+  console.log('Loadawef');
+
+  // const { data: savedTabs, loading, error } = usePromise(savedWorkspacesPromise);
+  // if (loading) return <div>Loading...</div>;
+  // if (error) return <div>Error: {error.message}</div>;
+
+  // console.log("Loaded saved tabs in workspace with sidebar", savedTabs);
+
   return (
     <WorkspacesServiceProvider>
       <div
