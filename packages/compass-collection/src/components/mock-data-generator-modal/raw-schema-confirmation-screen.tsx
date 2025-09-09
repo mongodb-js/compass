@@ -49,7 +49,9 @@ const RawSchemaConfirmationScreen = ({
   namespace,
   fakerSchemaGenerationStatus,
 }: RawSchemaConfirmationScreenProps) => {
-  const enableSampleDocumentPassing = true;
+  const enableSampleDocumentPassing = usePreference(
+    'enableGenAISampleDocumentPassing'
+  );
 
   const subtitleText = enableSampleDocumentPassing
     ? 'Sample Documents Collected'
