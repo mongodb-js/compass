@@ -53,7 +53,7 @@ const BadgeWithTooltip: React.FunctionComponent<{
 };
 
 type StatusFieldProps = {
-  status: InProgressIndex['status'] | 'ready' | 'building';
+  status: InProgressIndex['status'] | 'ready' | 'building' | 'inprogress';
   error?: InProgressIndex['error'];
 };
 
@@ -81,9 +81,9 @@ const StatusField: React.FunctionComponent<StatusFieldProps> = ({
         </BadgeWithTooltip>
       )}
 
-      {status === 'inprogress' && (
-        <Badge data-testid="index-in-progress" variant={BadgeVariant.Blue}>
-          In Progress
+      {status === 'creating' && (
+        <Badge data-testid="index-creating" variant={BadgeVariant.Blue}>
+          Creating
         </Badge>
       )}
 
