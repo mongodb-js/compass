@@ -21,6 +21,11 @@ import { getConnectionTitle } from '@mongodb-js/connection-info';
 import MockDataGeneratorModal from '../mock-data-generator-modal/mock-data-generator-modal';
 import { connect } from 'react-redux';
 import { openMockDataGeneratorModal } from '../../modules/collection-tab';
+import type { CollectionState } from '../../modules/collection-tab';
+import {
+  SCHEMA_ANALYSIS_STATE_COMPLETE,
+  type SchemaAnalysisStatus,
+} from '../../schema-analysis-types';
 
 const collectionHeaderStyles = css({
   padding: spacing[400],
@@ -62,6 +67,9 @@ type CollectionHeaderProps = {
   editViewName?: string;
   sourcePipeline?: unknown[];
   onOpenMockDataModal: () => void;
+  hasSchemaAnalysisData: boolean;
+  analyzedSchemaDepth: number;
+  schemaAnalysisStatus: SchemaAnalysisStatus | null;
 };
 
 const getInsightsForPipeline = (pipeline: any[], isAtlas: boolean) => {
@@ -97,6 +105,9 @@ const CollectionHeader: React.FunctionComponent<CollectionHeaderProps> = ({
   editViewName,
   sourcePipeline,
   onOpenMockDataModal,
+  hasSchemaAnalysisData,
+  analyzedSchemaDepth,
+  schemaAnalysisStatus,
 }) => {
   const darkMode = useDarkMode();
   const showInsights = usePreference('showInsights');
@@ -174,6 +185,9 @@ const CollectionHeader: React.FunctionComponent<CollectionHeaderProps> = ({
           sourceName={sourceName}
           sourcePipeline={sourcePipeline}
           onOpenMockDataModal={onOpenMockDataModal}
+          hasSchemaAnalysisData={hasSchemaAnalysisData}
+          analyzedSchemaDepth={analyzedSchemaDepth}
+          schemaAnalysisStatus={schemaAnalysisStatus}
         />
       </div>
       <MockDataGeneratorModal />
@@ -181,7 +195,23 @@ const CollectionHeader: React.FunctionComponent<CollectionHeaderProps> = ({
   );
 };
 
-const ConnectedCollectionHeader = connect(undefined, {
+const mapStateToProps = (state: CollectionState) => {
+  const { schemaAnalysis } = state;
+
+  return {
+    hasSchemaAnalysisData:
+      schemaAnalysis &&
+      schemaAnalysis.status === SCHEMA_ANALYSIS_STATE_COMPLETE &&
+      Object.keys(schemaAnalysis.processedSchema).length > 0,
+    analyzedSchemaDepth:
+      schemaAnalysis && schemaAnalysis.status === SCHEMA_ANALYSIS_STATE_COMPLETE
+        ? schemaAnalysis.schemaMetadata.maxNestingDepth
+        : 0,
+    schemaAnalysisStatus: schemaAnalysis?.status || null,
+  };
+};
+
+const ConnectedCollectionHeader = connect(mapStateToProps, {
   onOpenMockDataModal: openMockDataGeneratorModal,
 })(CollectionHeader);
 
