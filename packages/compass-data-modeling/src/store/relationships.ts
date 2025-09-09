@@ -11,6 +11,9 @@ import type { Relationship } from '../services/data-model-storage';
  *
  * Types are unwrapped: every bson type is treated as its own item to visit.
  *
+ * Array items will have the same path as the array itself, mimicking how the
+ * paths would look like in mongodb query.
+ *
  * @internal exported only for testing purposes
  */
 export function traverseMongoDBJSONSchema(
