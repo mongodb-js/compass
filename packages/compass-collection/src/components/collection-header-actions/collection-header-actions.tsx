@@ -80,7 +80,7 @@ const CollectionHeaderActions: React.FunctionComponent<
 
   const { database, collection } = toNS(namespace);
 
-  // Show Mock Data Generator button if schema analysis has bee initiated (indicating user is in treatment variant)
+  // Show Mock Data Generator button if schema analysis has been initiated (indicating user is in treatment variant)
   // Schema analysis only runs for users in the treatment variant
   const shouldShowMockDataButton =
     (schemaAnalysisStatus === SCHEMA_ANALYSIS_STATE_ANALYZING ||
