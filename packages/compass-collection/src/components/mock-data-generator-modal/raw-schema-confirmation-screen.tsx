@@ -24,16 +24,12 @@ interface RawSchemaConfirmationScreenProps {
 }
 
 const namespaceStyles = css({
-  marginTop: spacing[100],
-  marginBottom: spacing[500],
-});
-
-const headingStyles = css({
-  marginBottom: spacing[100],
+  marginTop: spacing[200],
+  marginBottom: spacing[400],
 });
 
 const descriptionStyles = css({
-  marginBottom: spacing[300],
+  marginBottom: spacing[200],
 });
 
 const codeStyles = css({
@@ -53,9 +49,7 @@ const RawSchemaConfirmationScreen = ({
   namespace,
   fakerSchemaGenerationStatus,
 }: RawSchemaConfirmationScreenProps) => {
-  const enableSampleDocumentPassing = usePreference(
-    'enableGenAISampleDocumentPassing'
-  );
+  const enableSampleDocumentPassing = true;
 
   const subtitleText = enableSampleDocumentPassing
     ? 'Sample Documents Collected'
@@ -76,12 +70,7 @@ const RawSchemaConfirmationScreen = ({
       {schemaAnalysis.status === 'complete' ? (
         <>
           <Body className={namespaceStyles}>{namespace}</Body>
-          <Body
-            as="h2"
-            className={headingStyles}
-            baseFontSize={16}
-            weight="medium"
-          >
+          <Body as="h2" baseFontSize={16} weight="medium">
             {subtitleText}
           </Body>
           <Body className={descriptionStyles}>{descriptionText}</Body>

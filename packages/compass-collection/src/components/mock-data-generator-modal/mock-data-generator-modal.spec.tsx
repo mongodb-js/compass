@@ -140,8 +140,6 @@ describe('MockDataGeneratorModal', () => {
       // fragment from { "name": "String" }
       expect(screen.queryByText('"String"')).to.exist;
       expect(screen.queryByText('"John"')).to.not.exist;
-
-      screen.debug();
     });
 
     it('closes the modal when the close button is clicked', async () => {
