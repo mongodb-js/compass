@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { generateScript, type FieldMapping } from './script-generation-utils';
 
-describe('Simple Script Generation', () => {
+describe('Script Generation', () => {
   const createFieldMapping = (fakerMethod: string): FieldMapping => ({
     mongoType: 'String',
     fakerMethod,
@@ -194,7 +194,7 @@ describe('Simple Script Generation', () => {
 
       const result = generateScript(schema, {
         databaseName: 'testdb',
-        collectionName: 'simple',
+        collectionName: 'coll',
         documentCount: 1,
       });
 
