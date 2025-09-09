@@ -171,6 +171,10 @@ export async function inferForeignToLocalRelationshipsForCollection(
               .flatMap((doc) => {
                 return getValuesFromPath(doc, propPath);
               })
+              .filter((doc) => {
+                // remove missing values from the data sample
+                return doc !== undefined && doc !== null;
+              })
               // in case sample data is an array that contains a lot of values,
               // we limit the amount of samples to reduce the matching time
               .slice(0, 100);
