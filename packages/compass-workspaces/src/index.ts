@@ -20,6 +20,7 @@ import workspacesReducer, {
 import Workspaces from './components';
 import { applyMiddleware, createStore } from 'redux';
 import thunk from 'redux-thunk';
+import { workspacesStateChangeMiddleware } from './stores/workspaces-middleware';
 import type { MongoDBInstance } from '@mongodb-js/compass-app-stores/provider';
 import { mongoDBInstancesManagerLocator } from '@mongodb-js/compass-app-stores/provider';
 import type Collection from 'mongodb-collection-model';
@@ -66,7 +67,10 @@ export function configureStore(
       collectionInfo: {},
       databaseInfo: {},
     },
-    applyMiddleware(thunk.withExtraArgument(services))
+    applyMiddleware(
+      thunk.withExtraArgument(services),
+      workspacesStateChangeMiddleware
+    )
   );
 
   return store;
@@ -241,6 +245,7 @@ const WorkspacesPlugin = registerCompassPlugin(
 
 export default WorkspacesPlugin;
 export { WorkspacesProvider } from './components/workspaces-provider';
+export { loadWorkspaceStateFromUserData } from './stores/workspaces-middleware';
 export type { OpenWorkspaceOptions, CollectionTabInfo };
 export type {
   WelcomeWorkspace,
