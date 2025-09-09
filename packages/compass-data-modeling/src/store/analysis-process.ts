@@ -8,6 +8,7 @@ import type { Relationship } from '../services/data-model-storage';
 import { applyLayout } from '@mongodb-js/diagramming';
 import { collectionToBaseNodeForLayout } from '../utils/nodes-and-edges';
 import { inferForeignToLocalRelationshipsForCollection } from './relationships';
+import { mongoLogId } from '@mongodb-js/compass-logging/provider';
 
 export type AnalysisProcessState = {
   currentAnalysisOptions:
@@ -148,11 +149,22 @@ export function startAnalysis(
   | AnalysisCanceledAction
   | AnalysisFailedAction
 > {
-  return async (dispatch, getState, services) => {
+  return async (
+    dispatch,
+    getState,
+    {
+      connections,
+      cancelAnalysisControllerRef,
+      logger,
+      track,
+      dataModelStorage,
+      preferences,
+    }
+  ) => {
     const namespaces = collections.map((collName) => {
       return `${database}.${collName}`;
     });
-    const cancelController = (services.cancelAnalysisControllerRef.current =
+    const cancelController = (cancelAnalysisControllerRef.current =
       new AbortController());
     dispatch({
       type: AnalysisProcessActionTypes.ANALYZING_COLLECTIONS_START,
@@ -164,8 +176,7 @@ export function startAnalysis(
     });
     try {
       let relations: Relationship[] = [];
-      const dataService =
-        services.connections.getDataServiceForConnection(connectionId);
+      const dataService = connections.getDataServiceForConnection(connectionId);
 
       const collections = await Promise.all(
         namespaces.map(async (ns) => {
@@ -201,8 +212,7 @@ export function startAnalysis(
       );
 
       if (
-        services.preferences.getPreferences()
-          .enableAutomaticRelationshipInference &&
+        preferences.getPreferences().enableAutomaticRelationshipInference &&
         options.automaticallyInferRelations
       ) {
         relations = (
@@ -219,7 +229,16 @@ export function startAnalysis(
                     schema,
                     sample,
                     collections,
-                    dataService
+                    dataService,
+                    cancelController.signal,
+                    (err) => {
+                      logger.log.warn(
+                        mongoLogId(1_001_000_357),
+                        'DataModeling',
+                        'Failed when identifying relationship for the collection',
+                        { ns, error: err.message }
+                      );
+                    }
                   );
                 dispatch({
                   type: AnalysisProcessActionTypes.NAMESPACES_RELATIONS_INFERRED,
@@ -271,19 +290,17 @@ export function startAnalysis(
         relations,
       });
 
-      services.track('Data Modeling Diagram Created', {
+      track('Data Modeling Diagram Created', {
         num_collections: collections.length,
       });
 
-      void services.dataModelStorage.save(
-        getCurrentDiagramFromState(getState())
-      );
+      void dataModelStorage.save(getCurrentDiagramFromState(getState()));
     } catch (err) {
       if (cancelController.signal.aborted) {
         dispatch({ type: AnalysisProcessActionTypes.ANALYSIS_CANCELED });
       } else {
-        services.logger.log.error(
-          services.logger.mongoLogId(1_001_000_350),
+        logger.log.error(
+          mongoLogId(1_001_000_350),
           'DataModeling',
           'Failed to analyze schema',
           { err }
@@ -294,7 +311,7 @@ export function startAnalysis(
         });
       }
     } finally {
-      services.cancelAnalysisControllerRef.current = null;
+      cancelAnalysisControllerRef.current = null;
     }
   };
 }
