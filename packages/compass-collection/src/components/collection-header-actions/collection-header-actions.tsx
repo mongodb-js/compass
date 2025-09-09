@@ -18,6 +18,15 @@ import {
   ExperimentTestName,
   ExperimentTestGroup,
 } from '@mongodb-js/compass-telemetry/provider';
+import {
+  SCHEMA_ANALYSIS_STATE_ANALYZING,
+  type SchemaAnalysisStatus,
+} from '../../schema-analysis-types';
+
+/**
+ * Maximum allowed nesting depth for collections to show Mock Data Generator
+ */
+const MAX_COLLECTION_NESTING_DEPTH = 3;
 
 const collectionHeaderActionsStyles = css({
   display: 'flex',
@@ -47,6 +56,9 @@ type CollectionHeaderActionsProps = {
   sourceName?: string;
   sourcePipeline?: unknown[];
   onOpenMockDataModal: () => void;
+  hasSchemaAnalysisData: boolean;
+  analyzedSchemaDepth: number;
+  schemaAnalysisStatus: SchemaAnalysisStatus | null;
 };
 
 const CollectionHeaderActions: React.FunctionComponent<
@@ -58,6 +70,9 @@ const CollectionHeaderActions: React.FunctionComponent<
   sourceName,
   sourcePipeline,
   onOpenMockDataModal,
+  hasSchemaAnalysisData,
+  analyzedSchemaDepth,
+  schemaAnalysisStatus,
 }: CollectionHeaderActionsProps) => {
   const connectionInfo = useConnectionInfo();
   const { id: connectionId, atlasMetadata } = connectionInfo;
@@ -85,9 +100,13 @@ const CollectionHeaderActions: React.FunctionComponent<
     atlasMetadata && // Only show in Atlas
     !isReadonly && // Don't show for readonly collections (views)
     !sourceName; // sourceName indicates it's a view
-  // TODO: CLOUDP-337090: also filter out overly nested collections
 
-  const hasData = true; // TODO: CLOUDP-337090
+  const exceedsMaxNestingDepth =
+    analyzedSchemaDepth > MAX_COLLECTION_NESTING_DEPTH;
+
+  const isCollectionEmpty =
+    !hasSchemaAnalysisData &&
+    schemaAnalysisStatus !== SCHEMA_ANALYSIS_STATE_ANALYZING;
 
   return (
     <div
@@ -111,13 +130,13 @@ const CollectionHeaderActions: React.FunctionComponent<
       )}
       {shouldShowMockDataButton && (
         <Tooltip
-          enabled={!hasData}
+          enabled={exceedsMaxNestingDepth || isCollectionEmpty}
           trigger={
             <div>
               <Button
                 data-testid="collection-header-generate-mock-data-button"
                 size={ButtonSize.Small}
-                disabled={!hasData}
+                disabled={!hasSchemaAnalysisData || exceedsMaxNestingDepth}
                 onClick={onOpenMockDataModal}
                 leftGlyph={<Icon glyph="Sparkle" />}
               >
@@ -126,7 +145,10 @@ const CollectionHeaderActions: React.FunctionComponent<
             </div>
           }
         >
-          Please add data to your collection to generate similar mock documents
+          {exceedsMaxNestingDepth &&
+            'At this time we are unable to generate mock data for collections that have deeply nested documents'}
+          {isCollectionEmpty &&
+            'Please add data to your collection to generate similar mock documents'}
         </Tooltip>
       )}
       {atlasMetadata && (

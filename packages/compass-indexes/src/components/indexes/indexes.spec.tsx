@@ -190,6 +190,7 @@ describe('Indexes Component', function () {
                 },
               ],
               usageCount: 20,
+              buildProgress: 0,
             },
           ],
           inProgressIndexes: [
@@ -203,6 +204,7 @@ describe('Indexes Component', function () {
                 },
               ],
               status: 'inprogress',
+              buildProgress: 0,
             },
           ],
           error: undefined,
@@ -245,6 +247,7 @@ describe('Indexes Component', function () {
                 },
               ],
               usageCount: 20,
+              buildProgress: 0,
             },
           ],
           inProgressIndexes: [
@@ -259,6 +262,7 @@ describe('Indexes Component', function () {
               ],
               status: 'failed',
               error: 'Error message',
+              buildProgress: 0,
             },
           ],
           error: undefined,
