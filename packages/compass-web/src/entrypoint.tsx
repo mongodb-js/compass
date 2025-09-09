@@ -61,16 +61,6 @@ import { useCompassWebPreferences } from './preferences';
 import { DataModelingWorkspaceTab as DataModelingWorkspace } from '@mongodb-js/compass-data-modeling';
 import { DataModelStorageServiceProviderInMemory } from '@mongodb-js/compass-data-modeling/web';
 import { WorkspaceTab as MyQueriesWorkspace } from '@mongodb-js/compass-saved-aggregations-queries';
-import {
-  compassFavoriteQueryStorageAccess,
-  compassRecentQueryStorageAccess,
-  CompassPipelineStorage,
-} from '@mongodb-js/my-queries-storage';
-import {
-  FavoriteQueryStorageProvider,
-  RecentQueryStorageProvider,
-  PipelineStorageProvider,
-} from '@mongodb-js/my-queries-storage/provider';
 import { CompassAssistantProvider } from '@mongodb-js/compass-assistant';
 import { CompassAssistantDrawerWithConnections } from './compass-assistant-drawer';
 
@@ -188,72 +178,63 @@ function CompassWorkspace({
   onActiveWorkspaceTabChange,
   onOpenConnectViaModal,
 }: CompassWorkspaceProps) {
-  // Create a simple pipeline storage instance for sandbox
-  const pipelineStorage = new CompassPipelineStorage();
-
   return (
-    <PipelineStorageProvider value={pipelineStorage}>
-      <FavoriteQueryStorageProvider value={compassFavoriteQueryStorageAccess}>
-        <RecentQueryStorageProvider value={compassRecentQueryStorageAccess}>
-          <WorkspacesProvider
-            value={[
-              WelcomeWorkspaceTab,
-              DatabasesWorkspaceTab,
-              CollectionsWorkspaceTab,
-              CollectionWorkspace,
-              DataModelingWorkspace,
-              MyQueriesWorkspace,
-            ]}
-          >
-            <CollectionTabsProvider
-              queryBar={CompassQueryBarPlugin}
-              tabs={[
-                CompassDocumentsPlugin,
-                CompassAggregationsPlugin,
-                CompassSchemaPlugin,
-                CompassIndexesPlugin,
-                CompassSchemaValidationPlugin,
-                CompassGlobalWritesPlugin,
-              ]}
-              modals={[
-                ExplainPlanCollectionTabModal,
-                ExportToLanguageCollectionTabModal,
-              ]}
-            >
-              <div
-                data-testid="compass-web-connected"
-                className={connectedContainerStyles}
-              >
-                <WorkspacesPlugin
-                  initialWorkspaceTabs={initialWorkspaceTabs}
-                  openOnEmptyWorkspace={{ type: 'Welcome' }}
-                  onActiveWorkspaceTabChange={onActiveWorkspaceTabChange}
-                  renderSidebar={() => {
-                    return (
-                      <CompassSidebarPlugin
-                        onOpenConnectViaModal={onOpenConnectViaModal}
-                        isCompassWeb={true}
-                      ></CompassSidebarPlugin>
-                    );
-                  }}
-                  renderModals={() => {
-                    return (
-                      <>
-                        <CreateViewPlugin></CreateViewPlugin>
-                        <CreateNamespacePlugin></CreateNamespacePlugin>
-                        <DropNamespacePlugin></DropNamespacePlugin>
-                        <RenameCollectionPlugin></RenameCollectionPlugin>
-                        <CompassAssistantDrawerWithConnections />
-                      </>
-                    );
-                  }}
-                ></WorkspacesPlugin>
-              </div>
-            </CollectionTabsProvider>
-          </WorkspacesProvider>
-        </RecentQueryStorageProvider>
-      </FavoriteQueryStorageProvider>
-    </PipelineStorageProvider>
+    <WorkspacesProvider
+      value={[
+        WelcomeWorkspaceTab,
+        DatabasesWorkspaceTab,
+        CollectionsWorkspaceTab,
+        CollectionWorkspace,
+        DataModelingWorkspace,
+        MyQueriesWorkspace,
+      ]}
+    >
+      <CollectionTabsProvider
+        queryBar={CompassQueryBarPlugin}
+        tabs={[
+          CompassDocumentsPlugin,
+          CompassAggregationsPlugin,
+          CompassSchemaPlugin,
+          CompassIndexesPlugin,
+          CompassSchemaValidationPlugin,
+          CompassGlobalWritesPlugin,
+        ]}
+        modals={[
+          ExplainPlanCollectionTabModal,
+          ExportToLanguageCollectionTabModal,
+        ]}
+      >
+        <div
+          data-testid="compass-web-connected"
+          className={connectedContainerStyles}
+        >
+          <WorkspacesPlugin
+            initialWorkspaceTabs={initialWorkspaceTabs}
+            openOnEmptyWorkspace={{ type: 'Welcome' }}
+            onActiveWorkspaceTabChange={onActiveWorkspaceTabChange}
+            renderSidebar={() => {
+              return (
+                <CompassSidebarPlugin
+                  onOpenConnectViaModal={onOpenConnectViaModal}
+                  isCompassWeb={true}
+                ></CompassSidebarPlugin>
+              );
+            }}
+            renderModals={() => {
+              return (
+                <>
+                  <CreateViewPlugin></CreateViewPlugin>
+                  <CreateNamespacePlugin></CreateNamespacePlugin>
+                  <DropNamespacePlugin></DropNamespacePlugin>
+                  <RenameCollectionPlugin></RenameCollectionPlugin>
+                  <CompassAssistantDrawerWithConnections />
+                </>
+              );
+            }}
+          ></WorkspacesPlugin>
+        </div>
+      </CollectionTabsProvider>
+    </WorkspacesProvider>
   );
 }
 
