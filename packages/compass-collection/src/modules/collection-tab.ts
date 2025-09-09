@@ -722,11 +722,6 @@ const validateFakerSchema = async (
               fakerArgs,
             }
           );
-          return {
-            ...field,
-            fakerMethod: UNRECOGNIZED_FAKER_METHOD,
-            fakerArgs: [],
-          };
         }
       }
       logger.log.debug(
