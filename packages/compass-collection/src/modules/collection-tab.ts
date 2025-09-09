@@ -39,8 +39,6 @@ import type { MockDataGeneratorState } from '../components/mock-data-generator-m
 
 const DEFAULT_SAMPLE_SIZE = 100;
 
-const NO_DOCUMENTS_ERROR = 'No documents found in the collection to analyze.';
-
 function isAction<A extends AnyAction>(
   action: AnyAction,
   type: A['type']
@@ -590,10 +588,17 @@ export const analyzeCollectionSchema = (): CollectionThunkAction<
         return;
       }
       if (sampleDocuments.length === 0) {
-        logger.debug(NO_DOCUMENTS_ERROR);
+        logger.debug(
+          'Collection is empty, completing schema analysis with empty schema'
+        );
         dispatch({
-          type: CollectionActions.SchemaAnalysisFailed,
-          error: new Error(NO_DOCUMENTS_ERROR),
+          type: CollectionActions.SchemaAnalysisFinished,
+          processedSchema: {},
+          sampleDocument: {},
+          schemaMetadata: {
+            maxNestingDepth: 0,
+            validationRules: null,
+          },
         });
         return;
       }
