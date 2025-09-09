@@ -145,6 +145,8 @@ const CollectionHeaderActions: React.FunctionComponent<
             </div>
           }
         >
+          // todo within (CLOUDP-333853): update disabled open-modal button
+          tooltip to communicate if schema analysis is incomplete
           {exceedsMaxNestingDepth &&
             'At this time we are unable to generate mock data for collections that have deeply nested documents'}
           {isCollectionEmpty &&

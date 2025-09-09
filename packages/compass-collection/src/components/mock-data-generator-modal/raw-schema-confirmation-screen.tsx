@@ -61,12 +61,6 @@ const RawSchemaConfirmationScreen = ({
     ? 'A sample of document values from your collection will be sent to an LLM for processing.'
     : 'We have identified the following schema from your documents. This schema will be sent to an LLM for processing.';
 
-  // (CLOUDP-333853) todo: disable button that opens modal and update tooltip while schema analysis is underway.
-  // after the todo this state should not be reachable
-  const schemaAnalysisIncompletePlaceholder = (
-    <Body>We are analyzing your collection.</Body>
-  );
-
   return (
     <div data-testid="raw-schema-confirmation">
       {schemaAnalysis.status === 'complete' ? (
@@ -97,7 +91,8 @@ const RawSchemaConfirmationScreen = ({
           )}
         </>
       ) : (
-        schemaAnalysisIncompletePlaceholder
+        // Not reachable since schema analysis must be finished before the modal can be opened
+        <Body>We are analyzing your collection.</Body>
       )}
     </div>
   );
