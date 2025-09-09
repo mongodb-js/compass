@@ -171,7 +171,7 @@ describe('DiagramEditorSidePanel', function () {
       expect(nameInput).to.be.visible;
       expect(nameInput).to.have.value('alias');
 
-      const selectedTypes = getMultiComboboxValues('lg-combobox-datatype');
+      const selectedTypes = getMultiComboboxValues('field-type-combobox');
       expect(selectedTypes).to.have.lengthOf(2);
       expect(selectedTypes).to.include('string');
       expect(selectedTypes).to.include('int');
@@ -190,7 +190,7 @@ describe('DiagramEditorSidePanel', function () {
       expect(nameInput).to.be.visible;
       expect(nameInput).to.have.value('_id');
 
-      const selectedTypes = getMultiComboboxValues('lg-combobox-datatype');
+      const selectedTypes = getMultiComboboxValues('field-type-combobox');
       expect(selectedTypes).to.have.lengthOf(1);
       expect(selectedTypes).to.include('string');
     });
@@ -286,9 +286,7 @@ describe('DiagramEditorSidePanel', function () {
       expect(screen.getByTitle('routes.airline.name')).to.be.visible;
 
       // before - string
-      const selectedTypesBefore = getMultiComboboxValues(
-        'lg-combobox-datatype'
-      );
+      const selectedTypesBefore = getMultiComboboxValues('field-type-combobox');
       expect(selectedTypesBefore).to.have.members(['string']);
 
       // add int and bool and remove string
@@ -317,9 +315,7 @@ describe('DiagramEditorSidePanel', function () {
       expect(screen.getByTitle('routes.airline.name')).to.be.visible;
 
       // before - string
-      const selectedTypesBefore = getMultiComboboxValues(
-        'lg-combobox-datatype'
-      );
+      const selectedTypesBefore = getMultiComboboxValues('field-type-combobox');
       expect(selectedTypesBefore).to.have.members(['string']);
 
       // remove string without adding anything else

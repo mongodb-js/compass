@@ -34,6 +34,30 @@ describe('schema diagram utils', function () {
       const newFieldName = getNewUnusedFieldName(jsonSchema);
       expect(newFieldName).to.equal('field-3');
     });
+
+    it('should return a new unused field name in a nested object', function () {
+      const jsonSchema = {
+        bsonType: 'object',
+        properties: {
+          a: {
+            bsonType: 'object',
+            properties: {
+              'field-1': {
+                bsonType: 'string',
+              },
+              'field-2': {
+                bsonType: 'string',
+              },
+            },
+          },
+          b: {
+            bsonType: 'string',
+          },
+        },
+      };
+      const newFieldName = getNewUnusedFieldName(jsonSchema, ['a']);
+      expect(newFieldName).to.equal('field-3');
+    });
   });
 
   describe('#addFieldToJSONSchema', function () {

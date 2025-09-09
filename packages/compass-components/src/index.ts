@@ -92,7 +92,11 @@ export { VisuallyHidden } from '@react-aria/visually-hidden';
 
 export { openToast, closeToast, ToastArea } from './hooks/use-toast';
 
-export { breakpoints, spacing } from '@leafygreen-ui/tokens';
+export {
+  breakpoints,
+  spacing,
+  transitionDuration,
+} from '@leafygreen-ui/tokens';
 import IndexIcon from './components/index-icon';
 
 export { default as FormFieldContainer } from './components/form-field-container';

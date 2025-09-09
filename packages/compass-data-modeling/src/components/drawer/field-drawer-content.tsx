@@ -172,7 +172,7 @@ const FieldDrawerContent: React.FunctionComponent<FieldDrawerContentProps> = ({
 
         <DMFormFieldContainer>
           <Combobox
-            data-testid="lg-combobox-datatype"
+            data-testid="field-type-combobox"
             label="Datatype"
             aria-label="Datatype"
             disabled={isReadOnly}

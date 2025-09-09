@@ -6,26 +6,121 @@ import {
   render,
   userEvent,
 } from '@mongodb-js/testing-library-compass';
-import { getFieldsFromSchema } from './nodes-and-edges';
+import type { NodeProps } from '@mongodb-js/diagramming';
 
-describe('getFieldsFromSchema', function () {
-  const validateMixedType = async (
-    type: React.ReactNode,
-    expectedTooltip: RegExp
-  ) => {
-    render(<>{type}</>);
-    const mixed = screen.getByText('(mixed)');
-    expect(mixed).to.be.visible;
-    expect(screen.queryByText(expectedTooltip)).to.not.exist;
-    userEvent.hover(mixed);
-    await waitFor(() => {
-      expect(screen.getByText(expectedTooltip)).to.be.visible;
-    });
-  };
+import {
+  getFieldsFromSchema,
+  getBaseFieldsFromSchema,
+} from './nodes-and-edges';
 
+const validateMixedType = async (
+  type: React.ReactNode,
+  expectedTooltip: RegExp
+) => {
+  render(<>{type}</>);
+  const mixed = screen.getByText('(mixed)');
+  expect(mixed).to.be.visible;
+  expect(screen.queryByText(expectedTooltip)).to.not.exist;
+  userEvent.hover(mixed);
+  await waitFor(() => {
+    expect(screen.getByText(expectedTooltip)).to.be.visible;
+  });
+};
+
+function withoutObjectReactType(fields: NodeProps['fields']) {
+  return fields.map((f) => ({
+    ...f,
+    type:
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      typeof f.type === 'object' &&
+      (f?.type as any)?.$$typeof === Symbol.for('react.element')
+        ? 'object'
+        : f.type,
+  }));
+}
+
+describe('getBaseFieldsFromSchema', function () {
   describe('flat schema', function () {
     it('return empty array for empty schema', function () {
-      const result = getFieldsFromSchema({ jsonSchema: {} });
+      const result = getBaseFieldsFromSchema({ jsonSchema: {} });
+      expect(result).to.deep.equal([]);
+    });
+
+    it('returns fields for a simple schema', function () {
+      const result = getBaseFieldsFromSchema({
+        jsonSchema: {
+          bsonType: 'object',
+          properties: {
+            name: { bsonType: 'string' },
+            age: { bsonType: 'int' },
+          },
+        },
+      });
+      expect(result).to.deep.equal([
+        {
+          name: 'name',
+          id: ['name'],
+          depth: 0,
+        },
+        {
+          name: 'age',
+          id: ['age'],
+          depth: 0,
+        },
+      ]);
+    });
+
+    it('returns fields for an array of mixed (including objects)', function () {
+      const result = getBaseFieldsFromSchema({
+        jsonSchema: {
+          bsonType: 'object',
+          properties: {
+            todos: {
+              bsonType: 'array',
+              items: {
+                anyOf: [
+                  {
+                    bsonType: 'object',
+                    properties: {
+                      title: { bsonType: 'string' },
+                      completed: { bsonType: 'boolean' },
+                    },
+                  },
+                  { bsonType: 'string' },
+                ],
+              },
+            },
+          },
+        },
+      });
+      expect(result).to.deep.equal([
+        {
+          name: 'todos',
+          id: ['todos'],
+          depth: 0,
+        },
+        {
+          name: 'title',
+          id: ['todos', 'title'],
+          depth: 1,
+        },
+        {
+          name: 'completed',
+          id: ['todos', 'completed'],
+          depth: 1,
+        },
+      ]);
+    });
+  });
+});
+
+describe('getFieldsFromSchema', function () {
+  describe('flat schema', function () {
+    it('return empty array for empty schema', function () {
+      const result = getFieldsFromSchema({
+        jsonSchema: {},
+        onClickAddNestedField: () => {},
+      });
       expect(result).to.deep.equal([]);
     });
 
@@ -38,6 +133,7 @@ describe('getFieldsFromSchema', function () {
             age: { bsonType: 'int' },
           },
         },
+        onClickAddNestedField: () => {},
       });
       expect(result).to.deep.equal([
         {
@@ -71,6 +167,7 @@ describe('getFieldsFromSchema', function () {
             age: { bsonType: ['int', 'string'] },
           },
         },
+        onClickAddNestedField: () => {},
       });
       expect(result[0]).to.deep.include({
         name: 'age',
@@ -95,6 +192,7 @@ describe('getFieldsFromSchema', function () {
           },
         },
         highlightedFields: [['age']],
+        onClickAddNestedField: () => {},
       });
       expect(result).to.deep.equal([
         {
@@ -141,6 +239,7 @@ describe('getFieldsFromSchema', function () {
           },
         },
         highlightedFields: [['age'], ['profession']],
+        onClickAddNestedField: () => {},
       });
       expect(result).to.deep.equal([
         {
@@ -198,8 +297,9 @@ describe('getFieldsFromSchema', function () {
             },
           },
         },
+        onClickAddNestedField: () => {},
       });
-      expect(result).to.deep.equal([
+      expect(withoutObjectReactType(result)).to.deep.equal([
         {
           name: 'person',
           id: ['person'],
@@ -274,8 +374,9 @@ describe('getFieldsFromSchema', function () {
           },
         },
         highlightedFields: [['person', 'address', 'street']],
+        onClickAddNestedField: () => {},
       });
-      expect(result).to.deep.equal([
+      expect(withoutObjectReactType(result)).to.deep.equal([
         {
           name: 'person',
           id: ['person'],
@@ -360,8 +461,9 @@ describe('getFieldsFromSchema', function () {
           ['person', 'address', 'street'],
           ['person', 'billingAddress', 'city'],
         ],
+        onClickAddNestedField: () => {},
       });
-      expect(result).to.deep.equal([
+      expect(withoutObjectReactType(result)).to.deep.equal([
         {
           name: 'person',
           id: ['person'],
@@ -456,6 +558,7 @@ describe('getFieldsFromSchema', function () {
             },
           },
         },
+        onClickAddNestedField: () => {},
       });
       expect(result).to.deep.equal([
         {
@@ -488,6 +591,7 @@ describe('getFieldsFromSchema', function () {
             },
           },
         },
+        onClickAddNestedField: () => {},
       });
       expect(result).to.deep.equal([
         {
@@ -542,6 +646,7 @@ describe('getFieldsFromSchema', function () {
             },
           },
         },
+        onClickAddNestedField: () => {},
       });
       expect(result).to.have.lengthOf(3);
       expect(result[0]).to.deep.include({
@@ -598,6 +703,7 @@ describe('getFieldsFromSchema', function () {
             },
           },
         },
+        onClickAddNestedField: () => {},
       });
       expect(result).to.deep.equal([
         {

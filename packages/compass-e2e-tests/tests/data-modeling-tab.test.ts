@@ -834,5 +834,99 @@ describe('Data Modeling tab', function () {
       await browser.clickVisible(Selectors.DataModelUndoButton);
       await getDiagramNodes(browser, 2);
     });
+
+    it('allows field editing', async function () {
+      const dataModelName = 'Test Edit Collection';
+      await setupDiagram(browser, {
+        diagramName: dataModelName,
+        connectionName: DEFAULT_CONNECTION_NAME_1,
+        databaseName: 'test',
+      });
+
+      const dataModelEditor = browser.$(Selectors.DataModelEditor);
+      await dataModelEditor.waitForDisplayed();
+
+      let collectionText = await browser
+        .$(Selectors.DataModelPreviewCollection('test.testCollection-one'))
+        .getText();
+      expect(collectionText).to.not.include('field-1');
+
+      // Add two fields to the collection.
+      await browser.clickVisible(
+        Selectors.DataModelCollectionAddFieldBtn('test.testCollection-one')
+      );
+      await browser.clickVisible(
+        Selectors.DataModelCollectionAddFieldBtn('test.testCollection-one')
+      );
+
+      // Verify they both exist.
+      await browser.waitUntil(async () => {
+        collectionText = await browser
+          .$(Selectors.DataModelPreviewCollection('test.testCollection-one'))
+          .getText();
+        return (
+          collectionText.includes('field-1') &&
+          collectionText.includes('field-2')
+        );
+      });
+
+      // Rename the field (field-2 is selected).
+      await browser.setValueVisible(
+        browser.$(Selectors.DataModelNameInput),
+        'renamedField'
+      );
+      await browser.$(Selectors.SideDrawer).click(); // Unfocus the input.
+
+      // Ensure the name is updated in the diagram.
+      await browser.waitUntil(async () => {
+        collectionText = await browser
+          .$(Selectors.DataModelPreviewCollection('test.testCollection-one'))
+          .getText();
+        const previousNameExists = collectionText.includes('field-2');
+        const renamedFieldExists = collectionText.includes('renamedField');
+
+        return !previousNameExists && renamedFieldExists;
+      });
+
+      // Change the field type to object.
+      await browser.setMultiComboBoxValue(
+        Selectors.DataModelFieldTypeCombobox,
+        Selectors.DataModelFieldTypeComboboxInput,
+        ['object']
+      );
+      await browser.$(Selectors.SideDrawer).click(); // Unfocus the input.
+
+      // Drag the node into view to ensure the add nested field button is visible.
+      await dragNode(
+        browser,
+        Selectors.DataModelPreviewCollection('test.testCollection-one'),
+        { x: -200, y: -200 }
+      );
+      await browser.waitForAnimations(dataModelEditor);
+
+      // Add two new fields to the new object.
+      await browser.clickVisible(
+        Selectors.DataModelAddNestedFieldBtn('test.testCollection-one', [
+          'renamedField',
+        ])
+      );
+      await browser.clickVisible(
+        Selectors.DataModelAddNestedFieldBtn('test.testCollection-one', [
+          'renamedField',
+        ])
+      );
+
+      // Ensure the new fields are in the diagram.
+      await browser.waitUntil(async () => {
+        collectionText = await browser
+          .$(Selectors.DataModelPreviewCollection('test.testCollection-one'))
+          .getText();
+
+        return (
+          collectionText.split('field-1').length === 3 &&
+          collectionText.includes('field-2')
+        );
+      });
+    });
   });
 });

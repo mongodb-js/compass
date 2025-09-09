@@ -1,7 +1,23 @@
 import type { MongoDBJSONSchema } from 'mongodb-schema';
 
-export function getNewUnusedFieldName(jsonSchema: MongoDBJSONSchema): string {
-  const existingFieldNames = new Set(Object.keys(jsonSchema.properties || {}));
+export function getNewUnusedFieldName(
+  jsonSchema: MongoDBJSONSchema,
+  parentFieldPath: string[] = []
+): string {
+  const fieldPathToTraverse = [...parentFieldPath];
+  let parentJSONSchema: MongoDBJSONSchema | undefined = jsonSchema;
+  while (fieldPathToTraverse.length > 0) {
+    const currentField = fieldPathToTraverse.shift();
+    if (!currentField) {
+      throw new Error('Invalid field path to get new field name');
+    }
+    parentJSONSchema = parentJSONSchema?.properties?.[currentField];
+  }
+
+  const existingFieldNames = new Set(
+    Object.keys(parentJSONSchema?.properties || {})
+  );
+
   let i = 1;
   let fieldName = `field-${i}`;
 
