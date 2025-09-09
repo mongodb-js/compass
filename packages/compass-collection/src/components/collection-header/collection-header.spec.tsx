@@ -17,8 +17,10 @@ import {
   type WorkspacesService,
 } from '@mongodb-js/compass-workspaces/provider';
 import { MockDataGeneratorStep } from '../mock-data-generator-modal/types';
-import { SCHEMA_ANALYSIS_STATE_COMPLETE } from '../../schema-analysis-types';
-import { CompassExperimentationProvider } from '@mongodb-js/compass-telemetry';
+import {
+  SCHEMA_ANALYSIS_STATE_COMPLETE,
+  SCHEMA_ANALYSIS_STATE_INITIAL,
+} from '../../schema-analysis-types';
 import type { ConnectionInfo } from '@mongodb-js/compass-connections/provider';
 
 import Sinon from 'sinon';
@@ -335,23 +337,6 @@ describe('CollectionHeader [Component]', function () {
   });
 
   describe('Mock Data Generator integration', function () {
-    let mockUseAssignment: Sinon.SinonStub;
-
-    beforeEach(function () {
-      // Mock the useAssignment hook from compass-experimentation
-      mockUseAssignment = Sinon.stub().returns({
-        assignment: {
-          assignmentData: {
-            variant: 'mockDataGeneratorVariant',
-          },
-        },
-      });
-    });
-
-    afterEach(function () {
-      Sinon.restore();
-    });
-
     const atlasConnectionInfo: ConnectionInfo = {
       id: 'test-atlas-connection',
       connectionOptions: {
@@ -375,7 +360,7 @@ describe('CollectionHeader [Component]', function () {
       },
     };
 
-    function renderCollectionHeaderWithExperimentation(
+    function renderCollectionHeaderWithSchemaAnalysis(
       props: Partial<ComponentProps<typeof CollectionHeader>> = {},
       workspaceService: Partial<WorkspacesService> = {},
       stateOverrides: any = {},
@@ -392,33 +377,27 @@ describe('CollectionHeader [Component]', function () {
       const mockStore = createStore(() => defaultState);
 
       return renderWithActiveConnection(
-        <CompassExperimentationProvider
-          useAssignment={mockUseAssignment}
-          assignExperiment={Sinon.stub()}
-          getAssignment={Sinon.stub().resolves(null)}
-        >
-          <Provider store={mockStore}>
-            <WorkspacesServiceProvider
-              value={workspaceService as WorkspacesService}
-            >
-              <CollectionHeader
-                isAtlas={false}
-                isReadonly={false}
-                isTimeSeries={false}
-                isClustered={false}
-                isFLE={false}
-                namespace="test.test"
-                {...props}
-              />
-            </WorkspacesServiceProvider>
-          </Provider>
-        </CompassExperimentationProvider>,
+        <Provider store={mockStore}>
+          <WorkspacesServiceProvider
+            value={workspaceService as WorkspacesService}
+          >
+            <CollectionHeader
+              isAtlas={false}
+              isReadonly={false}
+              isTimeSeries={false}
+              isClustered={false}
+              isFLE={false}
+              namespace="test.test"
+              {...props}
+            />
+          </WorkspacesServiceProvider>
+        </Provider>,
         connectionInfo
       );
     }
 
     it('should show Mock Data Generator button when all conditions are met', async function () {
-      await renderCollectionHeaderWithExperimentation(
+      await renderCollectionHeaderWithSchemaAnalysis(
         {
           isAtlas: true, // Atlas environment
           isReadonly: false, // Not readonly
@@ -447,7 +426,7 @@ describe('CollectionHeader [Component]', function () {
     });
 
     it('should disable Mock Data Generator button when collection has no schema analysis data', async function () {
-      await renderCollectionHeaderWithExperimentation(
+      await renderCollectionHeaderWithSchemaAnalysis(
         {
           isAtlas: true,
           isReadonly: false,
@@ -474,7 +453,7 @@ describe('CollectionHeader [Component]', function () {
     });
 
     it('should disable Mock Data Generator button for collections with excessive nesting depth', async function () {
-      await renderCollectionHeaderWithExperimentation(
+      await renderCollectionHeaderWithSchemaAnalysis(
         {
           isAtlas: true,
           isReadonly: false,
@@ -503,7 +482,7 @@ describe('CollectionHeader [Component]', function () {
     });
 
     it('should not show Mock Data Generator button for readonly collections (views)', async function () {
-      await renderCollectionHeaderWithExperimentation(
+      await renderCollectionHeaderWithSchemaAnalysis(
         {
           isAtlas: true,
           isReadonly: true, // Readonly (view)
@@ -530,7 +509,7 @@ describe('CollectionHeader [Component]', function () {
     });
 
     it('should not show Mock Data Generator button in non-Atlas environments', async function () {
-      await renderCollectionHeaderWithExperimentation(
+      await renderCollectionHeaderWithSchemaAnalysis(
         {
           isAtlas: false, // Not Atlas
           isReadonly: false,
@@ -556,16 +535,8 @@ describe('CollectionHeader [Component]', function () {
       ).to.not.exist;
     });
 
-    it('should not show Mock Data Generator button when not in treatment variant', async function () {
-      mockUseAssignment.returns({
-        assignment: {
-          assignmentData: {
-            variant: 'control',
-          },
-        },
-      });
-
-      await renderCollectionHeaderWithExperimentation(
+    it('should not show Mock Data Generator button when schema analysis has not run', async function () {
+      await renderCollectionHeaderWithSchemaAnalysis(
         {
           isAtlas: true,
           isReadonly: false,
@@ -574,13 +545,7 @@ describe('CollectionHeader [Component]', function () {
         {},
         {
           schemaAnalysis: {
-            status: SCHEMA_ANALYSIS_STATE_COMPLETE,
-            processedSchema: {
-              field1: { type: 'String', sample_values: ['value1'] },
-            },
-            schemaMetadata: {
-              maxNestingDepth: 2,
-            },
+            status: SCHEMA_ANALYSIS_STATE_INITIAL, // No schema analysis has run
           },
         },
         atlasConnectionInfo
