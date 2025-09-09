@@ -61,10 +61,10 @@ const RawSchemaConfirmationScreen = ({
     ? 'A sample of document values from your collection will be sent to an LLM for processing.'
     : 'We have identified the following schema from your documents. This schema will be sent to an LLM for processing.';
 
-  // todo: should establish if unfinished schema analysis edge case should be handled within the modal or
-  // from the button opening the modal
+  // (CLOUDP-333853) todo: disable button that opens modal and update tooltip while schema analysis is underway.
+  // after the todo this state should not be reachable
   const schemaAnalysisIncompletePlaceholder = (
-    <Body>Schema analysis has yet to complete successfully.</Body>
+    <Body>We are analyzing your collection.</Body>
   );
 
   return (

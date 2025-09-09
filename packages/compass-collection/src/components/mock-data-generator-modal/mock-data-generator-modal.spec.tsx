@@ -211,6 +211,11 @@ describe('MockDataGeneratorModal', () => {
       ).to.equal('true');
     });
 
+    it('displays the namespace', async () => {
+      await renderModal();
+      expect(screen.queryByText('test.collection')).to.exist;
+    });
+
     it('uses the appropriate copy when Generative AI sample document passing is enabled', async () => {
       await renderModal({ enableGenAISampleDocumentPassing: true });
       expect(screen.queryByText('Sample Documents Collected')).to.exist;
@@ -266,8 +271,6 @@ describe('MockDataGeneratorModal', () => {
       expect(screen.getByText('LLM Request failed. Please confirm again.')).to
         .exist;
     });
-
-    // todo: assert that closing then re-opening the modal after an LLM err removes the err message
   });
 
   describe('on the generate data step', () => {
