@@ -328,7 +328,7 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
       return true;
     } catch (error) {
       log.error(
-        mongoLogId(1_001_000_362),
+        mongoLogId(1_001_000_371),
         'Atlas Backend',
         'Error writing data',
         {
