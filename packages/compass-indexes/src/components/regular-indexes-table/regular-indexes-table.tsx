@@ -359,7 +359,7 @@ function getRegularIndexInfo(
       <StatusField
         status={
           index.buildProgress > 0 && index.buildProgress < 1
-            ? 'building'
+            ? 'inprogress'
             : 'ready'
         }
       />
