@@ -19,6 +19,7 @@ export type AnalysisProcessState = {
         collections: string[];
       } & AnalysisOptions)
     | null;
+  analysisProcessStatus: 'idle' | 'in-progress';
   samplesFetched: number;
   schemasAnalyzed: number;
   relationsInferred: number;
@@ -95,6 +96,7 @@ export type AnalysisProgressActions =
 
 const INITIAL_STATE = {
   currentAnalysisOptions: null,
+  analysisProcessStatus: 'idle' as const,
   samplesFetched: 0,
   schemasAnalyzed: 0,
   relationsInferred: 0,
@@ -109,6 +111,7 @@ export const analysisProcessReducer: Reducer<AnalysisProcessState> = (
   ) {
     return {
       ...INITIAL_STATE,
+      analysisProcessStatus: 'in-progress',
       currentAnalysisOptions: {
         name: action.name,
         connectionId: action.connectionId,
@@ -128,6 +131,16 @@ export const analysisProcessReducer: Reducer<AnalysisProcessState> = (
     return {
       ...state,
       schemasAnalyzed: state.schemasAnalyzed + 1,
+    };
+  }
+  if (
+    isAction(action, AnalysisProcessActionTypes.ANALYSIS_CANCELED) ||
+    isAction(action, AnalysisProcessActionTypes.ANALYSIS_FAILED) ||
+    isAction(action, AnalysisProcessActionTypes.ANALYSIS_FINISHED)
+  ) {
+    return {
+      ...state,
+      analysisProcessStatus: 'idle',
     };
   }
   return state;
@@ -161,6 +174,10 @@ export function startAnalysis(
       preferences,
     }
   ) => {
+    // Analysis is in progress, don't start a new one unless user canceled it
+    if (cancelAnalysisControllerRef.current) {
+      return;
+    }
     const namespaces = collections.map((collName) => {
       return `${database}.${collName}`;
     });
