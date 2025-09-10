@@ -346,4 +346,153 @@ describe('Script Generation', () => {
       }
     });
   });
+
+  describe('Unrecognized Field Defaults', () => {
+    it('should use default faker method for unrecognized string fields', () => {
+      const schema = {
+        unknownField: {
+          mongoType: 'string',
+          fakerMethod: 'unrecognized',
+          fakerArgs: [],
+        },
+      };
+
+      const result = generateScript(schema, {
+        databaseName: 'testdb',
+        collectionName: 'test',
+        documentCount: 1,
+      });
+
+      expect(result.success).to.equal(true);
+      if (result.success) {
+        expect(result.script).to.contain('faker.lorem.word()');
+      }
+    });
+
+    it('should use default faker method for unrecognized number fields', () => {
+      const schema = {
+        unknownNumber: {
+          mongoType: 'number',
+          fakerMethod: 'unrecognized',
+          fakerArgs: [],
+        },
+      };
+
+      const result = generateScript(schema, {
+        databaseName: 'testdb',
+        collectionName: 'test',
+        documentCount: 1,
+      });
+
+      expect(result.success).to.equal(true);
+      if (result.success) {
+        expect(result.script).to.contain('faker.number.int()');
+      }
+    });
+
+    it('should use default faker method for unrecognized date fields', () => {
+      const schema = {
+        unknownDate: {
+          mongoType: 'date',
+          fakerMethod: 'unrecognized',
+          fakerArgs: [],
+        },
+      };
+
+      const result = generateScript(schema, {
+        databaseName: 'testdb',
+        collectionName: 'test',
+        documentCount: 1,
+      });
+
+      expect(result.success).to.equal(true);
+      if (result.success) {
+        expect(result.script).to.contain('faker.date.recent()');
+      }
+    });
+
+    it('should use default faker method for unrecognized boolean fields', () => {
+      const schema = {
+        unknownBool: {
+          mongoType: 'boolean',
+          fakerMethod: 'unrecognized',
+          fakerArgs: [],
+        },
+      };
+
+      const result = generateScript(schema, {
+        databaseName: 'testdb',
+        collectionName: 'test',
+        documentCount: 1,
+      });
+
+      expect(result.success).to.equal(true);
+      if (result.success) {
+        expect(result.script).to.contain('faker.datatype.boolean()');
+      }
+    });
+
+    it('should use default faker method for unrecognized ObjectId fields', () => {
+      const schema = {
+        unknownId: {
+          mongoType: 'objectid',
+          fakerMethod: 'unrecognized',
+          fakerArgs: [],
+        },
+      };
+
+      const result = generateScript(schema, {
+        databaseName: 'testdb',
+        collectionName: 'test',
+        documentCount: 1,
+      });
+
+      expect(result.success).to.equal(true);
+      if (result.success) {
+        expect(result.script).to.contain('faker.database.mongodbObjectId()');
+      }
+    });
+
+    it('should use default faker method for unrecognized double fields', () => {
+      const schema = {
+        unknownDouble: {
+          mongoType: 'double',
+          fakerMethod: 'unrecognized',
+          fakerArgs: [],
+        },
+      };
+
+      const result = generateScript(schema, {
+        databaseName: 'testdb',
+        collectionName: 'test',
+        documentCount: 1,
+      });
+
+      expect(result.success).to.equal(true);
+      if (result.success) {
+        expect(result.script).to.contain('faker.number.float()');
+      }
+    });
+
+    it('should fall back to lorem.word for unknown MongoDB types', () => {
+      const schema = {
+        unknownType: {
+          mongoType: 'unknownType',
+          fakerMethod: 'unrecognized',
+          fakerArgs: [],
+        },
+      };
+
+      const result = generateScript(schema, {
+        databaseName: 'testdb',
+        collectionName: 'test',
+        documentCount: 1,
+      });
+
+      expect(result.success).to.equal(true);
+      if (result.success) {
+        expect(result.script).to.contain('faker.lorem.word()');
+      }
+    });
+  });
 });

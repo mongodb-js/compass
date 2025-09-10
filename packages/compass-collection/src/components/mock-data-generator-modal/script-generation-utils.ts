@@ -389,6 +389,38 @@ function generateArrayCode(
  * Generate faker.js call from field mapping
  */
 function generateFakerCall(mapping: FieldMapping): string {
+  const method =
+    mapping.fakerMethod === 'unrecognized'
+      ? getDefaultFakerMethod(mapping.mongoType)
+      : mapping.fakerMethod;
+
   // TODO: Handle arguments properly
-  return `faker.${mapping.fakerMethod}()`;
+  return `faker.${method}()`;
+}
+
+/**
+ * Gets default faker method for unrecognized fields based on MongoDB type
+ */
+export function getDefaultFakerMethod(mongoType: string): string {
+  switch (mongoType.toLowerCase()) {
+    case 'string':
+      return 'lorem.word';
+    case 'number':
+    case 'int32':
+    case 'int64':
+      return 'number.int';
+    case 'double':
+    case 'decimal128':
+      return 'number.float';
+    case 'date':
+      return 'date.recent';
+    case 'objectid':
+      return 'database.mongodbObjectId';
+    case 'boolean':
+      return 'datatype.boolean';
+    case 'binary':
+      return 'string.hexadecimal';
+    default:
+      return 'lorem.word';
+  }
 }
