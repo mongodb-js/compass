@@ -26,7 +26,7 @@ const interactionTypeTags = {
   'General network error': 'general-network-error',
   OIDC: 'oidc',
   TLS: 'tls-ssl',
-  SSL: 'tsl-ssl',
+  SSL: 'tls-ssl',
 };
 
 function escapeString(str: string): string {
@@ -146,15 +146,13 @@ async function convertCSVToEvalCases() {
         .filter((link) => link && link.startsWith('http'));
     }
 
-    const tags: SimpleEvalCase['tags'][] = [];
+    const tags: SimpleEvalCase['tags'] = [];
 
     if (interactionType) {
       for (const tag of Object.keys(interactionTypeTags)) {
         if (interactionType.includes(tag)) {
           tags.push(
-            interactionTypeTags[
-              tag as keyof typeof interactionTypeTags
-            ] as unknown as SimpleEvalCase['tags']
+            interactionTypeTags[tag as keyof typeof interactionTypeTags] as any
           );
         }
       }
@@ -163,8 +161,8 @@ async function convertCSVToEvalCases() {
     const evalCase: SimpleEvalCase = {
       input,
       expected,
+      tags,
       ...(expectedSources.length > 0 && { expectedSources }),
-      ...(tags.length > 0 && { tags }),
     };
 
     allCases.push(evalCase);
