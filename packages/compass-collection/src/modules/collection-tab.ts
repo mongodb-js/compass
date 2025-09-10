@@ -40,8 +40,8 @@ import type {
   MockDataGeneratorState,
 } from '../components/mock-data-generator-modal/types';
 
-/* eslint-disable @typescript-eslint/no-require-imports */
-const { faker } = require('@faker-js/faker/locale/en');
+// @ts-expect-error TypeScript warns us about importing ESM module from CommonJS module, but we can ignore since this code will be consumed by webpack.
+import { faker } from '@faker-js/faker/locale/en';
 
 const DEFAULT_SAMPLE_SIZE = 100;
 
@@ -694,56 +694,23 @@ const validateFakerSchema = (
   logger: Logger
 ) => {
   return fakerSchema.content.fields.map((field) => {
-    const { fakerMethod, fakerArgs } = field;
+    const { fakerMethod } = field;
 
-    const [first, second] = fakerMethod.split('.');
-    try {
-      // Try with arguments first
-      const method = (faker as any)?.[first]?.[second];
-      if (typeof method !== 'function') {
-        throw new Error(`Faker method ${fakerMethod} is not a function`);
-      }
-      method(...fakerArgs);
-      return field;
-    } catch (error) {
-      // If that fails and there are arguments, try without arguments
-      if (fakerArgs.length > 0) {
-        try {
-          const method = (faker as any)?.[first]?.[second];
-          if (typeof method !== 'function') {
-            throw new Error(`Faker method ${fakerMethod} is not a function`);
-          }
-          method();
-          return field;
-        } catch (error) {
-          logger.debug(
-            mongoLogId(1_001_000_371),
-            'Collection',
-            'Failed to validate faker schema with arguments',
-            {
-              error: error instanceof Error ? error.message : String(error),
-              fakerMethod,
-              fakerArgs,
-            }
-          );
-        }
-      }
-      logger.debug(
-        mongoLogId(1_001_000_372),
+    const [firstLevel, secondLevel] = fakerMethod.split('.');
+    if (typeof (faker as any)[firstLevel]?.[secondLevel] !== 'function') {
+      logger.log.warn(
+        mongoLogId(1_001_000_365),
         'Collection',
-        'Failed to validate faker schema',
-        {
-          error: error instanceof Error ? error.message : String(error),
-          fakerMethod,
-          fakerArgs,
-        }
+        'Invalid faker method',
+        { fakerMethod }
       );
       return {
         ...field,
         fakerMethod: UNRECOGNIZED_FAKER_METHOD,
-        fakerArgs: [],
       };
     }
+
+    return field;
   });
 };
 
