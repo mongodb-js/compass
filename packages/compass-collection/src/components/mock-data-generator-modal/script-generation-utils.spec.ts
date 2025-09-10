@@ -232,4 +232,118 @@ describe('Script Generation', () => {
       }
     });
   });
+
+  describe('Configurable Array Lengths', () => {
+    it('should use default array length when no map provided', () => {
+      const schema = {
+        'tags[]': createFieldMapping('lorem.word'),
+      };
+
+      const result = generateScript(schema, {
+        databaseName: 'testdb',
+        collectionName: 'posts',
+        documentCount: 1,
+      });
+
+      expect(result.success).to.equal(true);
+      if (result.success) {
+        expect(result.script).to.contain('Array.from({length: 3}');
+      }
+    });
+
+    it('should use custom array length from map', () => {
+      const schema = {
+        'tags[]': createFieldMapping('lorem.word'),
+      };
+
+      const result = generateScript(schema, {
+        databaseName: 'testdb',
+        collectionName: 'posts',
+        documentCount: 1,
+        arrayLengthMap: {
+          tags: 5,
+        },
+      });
+
+      expect(result.success).to.equal(true);
+      if (result.success) {
+        expect(result.script).to.contain('Array.from({length: 5}');
+      }
+    });
+
+    it('should handle nested array length configuration', () => {
+      const schema = {
+        'users[].tags[]': createFieldMapping('lorem.word'),
+      };
+
+      const result = generateScript(schema, {
+        databaseName: 'testdb',
+        collectionName: 'groups',
+        documentCount: 1,
+        arrayLengthMap: {
+          users: {
+            tags: 4,
+          },
+        },
+      });
+
+      expect(result.success).to.equal(true);
+      if (result.success) {
+        // Should have tags array with length 4
+        expect(result.script).to.contain('Array.from({length: 4}');
+      }
+    });
+
+    it('should handle hierarchical array length map', () => {
+      const schema = {
+        'departments[].employees[].skills[]': createFieldMapping('lorem.word'),
+      };
+
+      const result = generateScript(schema, {
+        databaseName: 'testdb',
+        collectionName: 'company',
+        documentCount: 1,
+        arrayLengthMap: {
+          departments: {
+            employees: {
+              skills: 3,
+            },
+          },
+        },
+      });
+
+      expect(result.success).to.equal(true);
+      if (result.success) {
+        expect(result.script).to.contain('Array.from({length: 3}');
+      }
+    });
+
+    it('should handle zero-length arrays', () => {
+      const schema = {
+        'tags[]': createFieldMapping('lorem.word'),
+        'categories[]': createFieldMapping('lorem.word'),
+      };
+
+      const result = generateScript(schema, {
+        databaseName: 'testdb',
+        collectionName: 'posts',
+        documentCount: 1,
+        arrayLengthMap: {
+          tags: 0,
+          categories: 2,
+        },
+      });
+
+      expect(result.success).to.equal(true);
+      if (result.success) {
+        // Should have tags array with length 0 (empty array)
+        expect(result.script).to.contain('Array.from({length: 0}');
+        // Should have categories array with length 2
+        expect(result.script).to.contain('Array.from({length: 2}');
+        // Verify both arrays are present
+        expect(result.script).to.contain('tags:');
+        expect(result.script).to.contain('categories:');
+      }
+    });
+  });
 });

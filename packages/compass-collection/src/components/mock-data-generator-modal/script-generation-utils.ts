@@ -4,11 +4,16 @@ export interface FieldMapping {
   fakerArgs: any[]; // TODO: type this properly later
 }
 
+// Hierarchical array length map that mirrors document structure
+export type ArrayLengthMap = {
+  [fieldName: string]: number | ArrayLengthMap;
+};
+
 export interface ScriptOptions {
   documentCount: number;
   databaseName: string;
   collectionName: string;
-  // TODO: array lengths - for now use fixed length
+  arrayLengthMap?: ArrayLengthMap;
 }
 
 export interface ScriptResult {
@@ -220,7 +225,11 @@ export function generateScript(
   try {
     const structure = buildDocumentStructure(schema);
 
-    const documentCode = generateDocumentCode(structure);
+    const documentCode = generateDocumentCode(
+      structure,
+      2,
+      options.arrayLengthMap || {}
+    );
 
     // Escape ' and ` in database/collection names for template literals
     const escapedDbName = options.databaseName
@@ -233,7 +242,7 @@ export function generateScript(
     // Validate document count
     const documentCount = Math.max(
       1,
-      Math.min(10000, Math.floor(options.documentCount))
+      Math.min(10000, Math.floor(options.documentCount)) // TODO
     );
 
     const script = `// Mock Data Generator Script
@@ -279,7 +288,8 @@ console.log(\`Successfully inserted \${documents.length} documents into ${escape
  */
 function generateDocumentCode(
   structure: DocumentStructure,
-  indent: number = 2
+  indent: number = 2,
+  arrayLengthMap: ArrayLengthMap = {}
 ): string {
   // For each field in structure:
   //   - If FieldMapping: generate faker call
@@ -297,13 +307,28 @@ function generateDocumentCode(
       rootLevelFields.push(`${fieldIndent}${fieldName}: ${fakerCall}`);
     } else if ('type' in value && value.type === 'array') {
       // It's an array
-      const arrayCode = generateArrayCode(value as ArrayStructure, indent + 2);
+      const nestedArrayLengthMap =
+        typeof arrayLengthMap[fieldName] === 'object'
+          ? arrayLengthMap[fieldName]
+          : {};
+      const arrayCode = generateArrayCode(
+        value as ArrayStructure,
+        indent + 2,
+        fieldName,
+        arrayLengthMap,
+        nestedArrayLengthMap
+      );
       rootLevelFields.push(`${fieldIndent}${fieldName}: ${arrayCode}`);
     } else {
       // It's a nested object: recursive call
+      const nestedArrayLengthMap =
+        typeof arrayLengthMap[fieldName] === 'object'
+          ? arrayLengthMap[fieldName]
+          : arrayLengthMap;
       const nestedCode = generateDocumentCode(
         value as DocumentStructure,
-        indent + 2
+        indent + 2,
+        nestedArrayLengthMap
       );
       rootLevelFields.push(`${fieldIndent}${fieldName}: ${nestedCode}`);
     }
@@ -322,12 +347,18 @@ function generateDocumentCode(
  */
 function generateArrayCode(
   arrayStructure: ArrayStructure,
-  indent: number = 2
+  indent: number = 2,
+  fieldName: string = '',
+  parentArrayLengthMap: ArrayLengthMap = {},
+  nestedArrayLengthMap: ArrayLengthMap = {}
 ): string {
   const elementType = arrayStructure.elementType;
 
-  // Fixed length for now - TODO: make configurable
-  const arrayLength = 3;
+  // Get array length from map or use default
+  const arrayLength =
+    typeof parentArrayLengthMap[fieldName] === 'number'
+      ? parentArrayLengthMap[fieldName]
+      : 3;
 
   if ('mongoType' in elementType) {
     // Array of primitives
@@ -337,14 +368,18 @@ function generateArrayCode(
     // Nested array (e.g., matrix[][])
     const nestedArrayCode = generateArrayCode(
       elementType as ArrayStructure,
-      indent
+      indent,
+      '', // No specific field name for nested arrays
+      nestedArrayLengthMap,
+      {}
     );
     return `Array.from({length: ${arrayLength}}, () => ${nestedArrayCode})`;
   } else {
     // Array of objects
     const objectCode = generateDocumentCode(
       elementType as DocumentStructure,
-      indent
+      indent,
+      nestedArrayLengthMap
     );
     return `Array.from({length: ${arrayLength}}, () => ${objectCode})`;
   }
