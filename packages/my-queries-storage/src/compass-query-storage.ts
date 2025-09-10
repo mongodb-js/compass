@@ -1,7 +1,10 @@
-import { UUID, EJSON } from 'bson';
-import { type z } from '@mongodb-js/compass-user-data';
-import { type IUserData, FileUserData } from '@mongodb-js/compass-user-data';
-import { RecentQuerySchema, FavoriteQuerySchema } from './query-storage-schema';
+import { EJSON, UUID } from 'bson';
+import {
+  FileUserData,
+  type IUserData,
+  type z,
+} from '@mongodb-js/compass-user-data';
+import { FavoriteQuerySchema, RecentQuerySchema } from './query-storage-schema';
 import type { FavoriteQueryStorage, RecentQueryStorage } from './query-storage';
 
 export type QueryStorageOptions = {
@@ -10,12 +13,14 @@ export type QueryStorageOptions = {
 
 export abstract class CompassQueryStorage<TSchema extends z.Schema> {
   protected readonly userData: IUserData<TSchema>;
+
   constructor(
     schemaValidator: TSchema,
     protected readonly folder: string,
     protected readonly options: QueryStorageOptions
   ) {
-    // TODO: logic for whether we're in compass web or compass desktop
+    // Simple implementation - use FileUserData for now
+    // TODO(COMPASS-9565): The use-atlas-user-data branch will add proper Atlas integration
     this.userData = new FileUserData(schemaValidator, folder, {
       basePath: options.basepath,
       serialize: (content) => EJSON.stringify(content, undefined, 2),
