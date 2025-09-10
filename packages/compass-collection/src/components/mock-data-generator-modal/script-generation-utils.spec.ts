@@ -495,4 +495,180 @@ describe('Script Generation', () => {
       }
     });
   });
+
+  describe('Faker Arguments', () => {
+    it('should handle string arguments', () => {
+      const schema = {
+        name: {
+          mongoType: 'string',
+          fakerMethod: 'person.firstName',
+          fakerArgs: ['male'],
+        },
+      };
+
+      const result = generateScript(schema, {
+        databaseName: 'testdb',
+        collectionName: 'users',
+        documentCount: 1,
+      });
+
+      expect(result.success).to.equal(true);
+      if (result.success) {
+        expect(result.script).to.contain("faker.person.firstName('male')");
+      }
+    });
+
+    it('should handle number arguments', () => {
+      const schema = {
+        age: {
+          mongoType: 'number',
+          fakerMethod: 'number.int',
+          fakerArgs: [18, 65],
+        },
+      };
+
+      const result = generateScript(schema, {
+        databaseName: 'testdb',
+        collectionName: 'users',
+        documentCount: 1,
+      });
+
+      expect(result.success).to.equal(true);
+      if (result.success) {
+        expect(result.script).to.contain('faker.number.int(18, 65)');
+      }
+    });
+
+    it('should handle boolean arguments', () => {
+      const schema = {
+        active: {
+          mongoType: 'boolean',
+          fakerMethod: 'datatype.boolean',
+          fakerArgs: [0.8],
+        },
+      };
+
+      const result = generateScript(schema, {
+        databaseName: 'testdb',
+        collectionName: 'users',
+        documentCount: 1,
+      });
+
+      expect(result.success).to.equal(true);
+      if (result.success) {
+        expect(result.script).to.contain('faker.datatype.boolean(0.8)');
+      }
+    });
+
+    it('should handle JSON object arguments', () => {
+      const schema = {
+        score: {
+          mongoType: 'number',
+          fakerMethod: 'number.int',
+          fakerArgs: [{ json: '{"min":0,"max":100}' }],
+        },
+      };
+
+      const result = generateScript(schema, {
+        databaseName: 'testdb',
+        collectionName: 'tests',
+        documentCount: 1,
+      });
+
+      expect(result.success).to.equal(true);
+      if (result.success) {
+        expect(result.script).to.contain(
+          'faker.number.int({"min":0,"max":100})'
+        );
+      }
+    });
+
+    it('should handle JSON arguments', () => {
+      const schema = {
+        color: {
+          mongoType: 'string',
+          fakerMethod: 'helpers.arrayElement',
+          fakerArgs: [{ json: "['red', 'blue', 'green']" }],
+        },
+      };
+
+      const result = generateScript(schema, {
+        databaseName: 'testdb',
+        collectionName: 'items',
+        documentCount: 1,
+      });
+
+      expect(result.success).to.equal(true);
+      if (result.success) {
+        expect(result.script).to.contain(
+          "faker.helpers.arrayElement(['red', 'blue', 'green'])"
+        );
+      }
+    });
+
+    it('should handle mixed argument types', () => {
+      const schema = {
+        description: {
+          mongoType: 'string',
+          fakerMethod: 'lorem.words',
+          fakerArgs: [5, true],
+        },
+      };
+
+      const result = generateScript(schema, {
+        databaseName: 'testdb',
+        collectionName: 'posts',
+        documentCount: 1,
+      });
+
+      expect(result.success).to.equal(true);
+      if (result.success) {
+        expect(result.script).to.contain('faker.lorem.words(5, true)');
+      }
+    });
+
+    it('should escape quotes in string arguments', () => {
+      const schema = {
+        quote: {
+          mongoType: 'string',
+          fakerMethod: 'lorem.sentence',
+          fakerArgs: ["It's a 'test' string"],
+        },
+      };
+
+      const result = generateScript(schema, {
+        databaseName: 'testdb',
+        collectionName: 'quotes',
+        documentCount: 1,
+      });
+
+      expect(result.success).to.equal(true);
+      if (result.success) {
+        expect(result.script).to.contain(
+          "faker.lorem.sentence('It\\'s a \\'test\\' string')"
+        );
+      }
+    });
+
+    it('should handle empty arguments array', () => {
+      const schema = {
+        id: {
+          mongoType: 'string',
+          fakerMethod: 'string.uuid',
+          fakerArgs: [],
+        },
+      };
+
+      const result = generateScript(schema, {
+        databaseName: 'testdb',
+        collectionName: 'items',
+        documentCount: 1,
+      });
+
+      expect(result.success).to.equal(true);
+      if (result.success) {
+        expect(result.script).to.contain('faker.string.uuid()');
+      }
+    });
+  });
 });

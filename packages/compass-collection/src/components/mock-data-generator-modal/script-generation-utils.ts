@@ -1,7 +1,9 @@
+export type FakerArg = string | number | boolean | { json: string };
+
 export interface FieldMapping {
   mongoType: string;
   fakerMethod: string;
-  fakerArgs: any[]; // TODO: type this properly later
+  fakerArgs: FakerArg[];
 }
 
 // Hierarchical array length map that mirrors document structure
@@ -239,15 +241,9 @@ export function generateScript(
       .replace(/'/g, "\\'")
       .replace(/`/g, '\\`');
 
-    // Validate document count
-    const documentCount = Math.max(
-      1,
-      Math.min(10000, Math.floor(options.documentCount)) // TODO
-    );
-
     const script = `// Mock Data Generator Script
 // Generated for collection: ${escapedDbName}.${escapedCollectionName}
-// Document count: ${documentCount}
+// Document count: ${options.documentCount}
 
 const { faker } = require('@faker-js/faker');
 
@@ -261,7 +257,7 @@ function generateDocument() {
 
 // Generate and insert documents
 const documents = [];
-for (let i = 0; i < ${documentCount}; i++) {
+for (let i = 0; i < ${options.documentCount}; i++) {
   documents.push(generateDocument());
 }
 
@@ -394,8 +390,8 @@ function generateFakerCall(mapping: FieldMapping): string {
       ? getDefaultFakerMethod(mapping.mongoType)
       : mapping.fakerMethod;
 
-  // TODO: Handle arguments properly
-  return `faker.${method}()`;
+  const args = formatFakerArgs(mapping.fakerArgs);
+  return `faker.${method}(${args})`;
 }
 
 /**
@@ -423,4 +419,27 @@ export function getDefaultFakerMethod(mongoType: string): string {
     default:
       return 'lorem.word';
   }
+}
+
+/**
+ * Converts faker arguments to JavaScript code
+ */
+export function formatFakerArgs(fakerArgs: FakerArg[]): string {
+  const stringifiedArgs: string[] = [];
+
+  for (const arg of fakerArgs) {
+    if (typeof arg === 'string') {
+      // Escape single quotes for JS strings (and backticks for security)
+      const escapedArg = arg.replace(/[`']/g, '\\$&');
+      stringifiedArgs.push(`'${escapedArg}'`);
+    } else if (typeof arg === 'number' || typeof arg === 'boolean') {
+      stringifiedArgs.push(`${arg}`);
+    } else if (typeof arg === 'object' && arg !== null && 'json' in arg) {
+      // Pre-serialized JSON objects
+      const jsonArg = arg as { json: string };
+      stringifiedArgs.push(jsonArg.json);
+    }
+  }
+
+  return stringifiedArgs.join(', ');
 }
