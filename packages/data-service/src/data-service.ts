@@ -1046,17 +1046,19 @@ class DataServiceImpl extends WithLogContext implements DataService {
     options?: { readPreference?: ReadPreferenceLike },
     executionOptions?: { fallbackReadPreference?: ReadPreferenceMode }
   ) {
-    if (!options || !executionOptions) {
+    const readPreferencesOverride = isReadPreferenceSet(
+      this._connectionOptions.connectionString
+    )
+      ? undefined
+      : executionOptions?.fallbackReadPreference;
+
+    if (!readPreferencesOverride) {
       return options;
     }
-    const maybeReadPreference =
-      options.readPreference ??
-      isReadPreferenceSet(this._connectionOptions.connectionString)
-        ? undefined
-        : executionOptions.fallbackReadPreference;
+
     return {
       ...options,
-      ...(maybeReadPreference && { readPreference: maybeReadPreference }),
+      readPreference: readPreferencesOverride,
     };
   }
 
