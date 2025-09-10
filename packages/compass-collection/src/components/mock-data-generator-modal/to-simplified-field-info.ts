@@ -4,7 +4,7 @@ import type { FieldInfo } from '../../schema-analysis-types';
 type UserFriendlyFieldInfoNode =
   | { [field: string]: UserFriendlyFieldInfoNode }
   | FieldInfo['type'];
-export type UserFriendlyFieldInfoTree = {
+export type SimplifiedFieldInfoTree = {
   [field: string]: UserFriendlyFieldInfoNode;
 };
 
@@ -14,13 +14,13 @@ export type UserFriendlyFieldInfoTree = {
  */
 export default function toSimplifiedFieldInfo(
   input: ReturnType<typeof processSchema>
-): UserFriendlyFieldInfoTree {
+): SimplifiedFieldInfoTree {
   // ensure parent nodes are created before their children
   const sortedFieldPaths = Object.keys(input).sort(
     (f1, f2) => countSeparators(f1) - countSeparators(f2)
   );
 
-  const result: UserFriendlyFieldInfoTree = {};
+  const result: SimplifiedFieldInfoTree = {};
   for (const path of sortedFieldPaths) {
     const fieldParts = path.split('.');
 

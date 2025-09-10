@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import toSimplifiedFieldInfo from './to-simplified-field-info';
-import type { UserFriendlyFieldInfoTree } from './to-simplified-field-info';
+import type { SimplifiedFieldInfoTree } from './to-simplified-field-info';
 
 describe('toSimplifiedFieldInfo', function () {
   it('simple case with minimal nesting and no arrays', function () {
@@ -39,7 +39,7 @@ describe('toSimplifiedFieldInfo', function () {
 
     const result = toSimplifiedFieldInfo(input);
 
-    const expected: UserFriendlyFieldInfoTree = {
+    const expected: SimplifiedFieldInfoTree = {
       user: {
         name: 'String',
         age: 'Number',
@@ -93,7 +93,7 @@ describe('toSimplifiedFieldInfo', function () {
 
     const result = toSimplifiedFieldInfo(input);
 
-    const expected: UserFriendlyFieldInfoTree = {
+    const expected: SimplifiedFieldInfoTree = {
       'tags[]': 'String',
       'scores[]': 'Number',
       'matrix[][]': 'Number',
@@ -141,7 +141,7 @@ describe('toSimplifiedFieldInfo', function () {
 
     const result = toSimplifiedFieldInfo(input);
 
-    const expected: UserFriendlyFieldInfoTree = {
+    const expected: SimplifiedFieldInfoTree = {
       'items[]': {
         id: 'Number',
         name: 'String',
@@ -224,7 +224,7 @@ describe('toSimplifiedFieldInfo', function () {
 
     const result = toSimplifiedFieldInfo(input);
 
-    const expected: UserFriendlyFieldInfoTree = {
+    const expected: SimplifiedFieldInfoTree = {
       'cube[][][]': 'Number',
       'matrix[][]': {
         x: 'Number',
