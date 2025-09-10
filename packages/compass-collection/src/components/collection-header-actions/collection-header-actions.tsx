@@ -95,13 +95,11 @@ const CollectionHeaderActions: React.FunctionComponent<
     mockDataGeneratorAssignment?.assignment?.assignmentData?.variant ===
     ExperimentTestGroup.mockDataGeneratorVariant;
 
-  let shouldShowMockDataButton =
+  const shouldShowMockDataButton =
     isInMockDataTreatmentVariant &&
     atlasMetadata && // Only show in Atlas
     !isReadonly && // Don't show for readonly collections (views)
     !sourceName; // sourceName indicates it's a view
-
-  // shouldShowMockDataButton = true;
 
   const exceedsMaxNestingDepth =
     analyzedSchemaDepth > MAX_COLLECTION_NESTING_DEPTH;

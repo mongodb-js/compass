@@ -44,11 +44,9 @@ const RawSchemaConfirmationScreen = ({
   schemaAnalysis,
   fakerSchemaGenerationStatus,
 }: RawSchemaConfirmationScreenProps) => {
-  let enableSampleDocumentPassing = usePreference(
+  const enableSampleDocumentPassing = usePreference(
     'enableGenAISampleDocumentPassing'
   );
-
-  // enableSampleDocumentPassing = false;
 
   const subtitleText = enableSampleDocumentPassing
     ? 'Sample Documents Collected'
