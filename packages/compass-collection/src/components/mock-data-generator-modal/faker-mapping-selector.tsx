@@ -7,7 +7,6 @@ import {
   palette,
   Select,
   spacing,
-  TextInput,
 } from '@mongodb-js/compass-components';
 import React from 'react';
 import { UNRECOGNIZED_FAKER_METHOD } from '../../modules/collection-tab';
@@ -27,7 +26,6 @@ const labelStyles = css({
 interface Props {
   activeJsonType: string;
   activeFakerFunction: string;
-  activeFakerArgs: Array<string | number | boolean | { json: string }>;
   onJsonTypeSelect: (jsonType: string) => void;
   onFakerFunctionSelect: (fakerFunction: string) => void;
 }
@@ -35,18 +33,13 @@ interface Props {
 const FakerMappingSelector = ({
   activeJsonType,
   activeFakerFunction,
-  activeFakerArgs,
   onJsonTypeSelect,
   onFakerFunctionSelect,
 }: Props) => {
   return (
-    <div
-      className={fieldMappingSelectorsStyles}
-      data-testid="field-mapping-selectors"
-    >
+    <div className={fieldMappingSelectorsStyles}>
       <Body className={labelStyles}>Mapping</Body>
       <Select
-        data-testid="document-field-type-select"
         label="JSON Type"
         value={activeJsonType}
         onChange={onJsonTypeSelect}
@@ -58,7 +51,6 @@ const FakerMappingSelector = ({
         ))}
       </Select>
       <Select
-        data-testid="faker-function-select"
         label="Faker Function"
         value={activeFakerFunction}
         onChange={onFakerFunctionSelect}
@@ -72,49 +64,11 @@ const FakerMappingSelector = ({
       {activeFakerFunction === UNRECOGNIZED_FAKER_METHOD && (
         <Banner variant={BannerVariant.Warning}>
           Please select a function or we will default fill this field with the
-          string “PLACEHOLDER”
+          string &quot;Unrecognized&quot;
         </Banner>
       )}
-      {activeFakerArgs.map((arg, idx) => {
-        if (typeof arg === 'string') {
-          return (
-            <TextInput
-              key={idx}
-              label={`Faker Function Parameter ${typeof arg}`}
-              readOnly
-              value={arg}
-            />
-          );
-        }
-        if (typeof arg === 'number') {
-          return (
-            <TextInput
-              key={idx}
-              label={`Faker Function Parameter ${typeof arg}`}
-              readOnly
-              value={arg.toString()}
-            />
-          );
-        }
-        if (typeof arg === 'boolean') {
-          return (
-            <TextInput
-              key={idx}
-              label={`Faker Function Parameter ${typeof arg}`}
-              readOnly
-              value={arg.toString()}
-            />
-          );
-        }
-        return (
-          <TextInput
-            key={idx}
-            label={`Faker Function Parameter ${typeof arg}`}
-            readOnly
-            value={arg.json}
-          />
-        );
-      })}
+
+      {/* TODO: CLOUDP-344400: Render faker function parameters once we have a way to validate them. */}
     </div>
   );
 };
