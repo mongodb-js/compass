@@ -122,7 +122,6 @@ const WorkspacesWithSidebar: React.FunctionComponent<
   renderModals,
   savedWorkspacesPromise,
 }) => {
-  console.log('Loadaweswsf');
   const darkMode = useDarkMode();
   const onChange = useRef(onActiveWorkspaceTabChange);
   onChange.current = onActiveWorkspaceTabChange;
@@ -130,18 +129,16 @@ const WorkspacesWithSidebar: React.FunctionComponent<
     onChange.current(activeTab, activeTabCollectionInfo);
   }, [activeTab, activeTabCollectionInfo]);
 
-  console.log('Loadawef');
+  // const {
+  //   data: savedTabs,
+  //   loading,
+  //   error,
+  // } = usePromise(savedWorkspacesPromise);
+  // // TODO: test these
+  // if (loading) return <div>Loading...</div>;
+  // if (error) return <div>Error: {error.message}</div>;
 
-  const {
-    data: savedTabs,
-    loading,
-    error,
-  } = usePromise(savedWorkspacesPromise);
-  // TODO: test these
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error.message}</div>;
-
-  console.log('Loaded saved tabs in workspace with sidebar', savedTabs);
+  // console.log('Loaded saved tabs in workspace with sidebar', savedTabs);
 
   return (
     <WorkspacesServiceProvider>

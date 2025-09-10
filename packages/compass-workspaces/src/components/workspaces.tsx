@@ -10,6 +10,7 @@ import {
   useDarkMode,
   type WorkspaceTabCoreProps,
 } from '@mongodb-js/compass-components';
+import { useConnectionActions } from '@mongodb-js/compass-connections/provider';
 import type {
   CollectionTabInfo,
   DatabaseTabInfo,
@@ -36,6 +37,7 @@ import { connect } from '../stores/context';
 import { WorkspaceTabContextProvider } from './workspace-tab-context-provider';
 import type { WorkspaceTab } from '../types';
 import { convertSavedStateToInitialTabs } from '../stores/workspaces-middleware';
+import { useConnectionStorageContext } from '../../../connection-storage/dist/provider';
 
 const emptyWorkspaceStyles = css({
   margin: '0 auto',
@@ -118,49 +120,60 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
     onCreateTab(openOnEmptyWorkspace);
   }, [onCreateTab, openOnEmptyWorkspace]);
 
-  useEffect(() => {
-    savedTabsPromise
-      .then((res) => {
-        if (res !== null) {
-          console.log('Showing confirmation');
-          showConfirmation({
-            title: 'Reopen closed tabs?',
-            description:
-              'Your connection and tabs were closed, this action will reopen your previous session',
-            buttonText: 'Reopen tabs',
-          })
-            .then((confirm) => {
-              if (confirm) {
-                // TODO: figure out all the connections that need to be reconnected
-                // dispatch action to reconnect them all
-                // after all connections are reconnected,
-                // dispatch action to restore tabs
+  const connectionActions = useConnectionActions();
+  const connectionStorage = useConnectionStorageContext();
 
-                // What happens if I try to dispatch open on a nonexistent tab?
-                //       openWorkspaceAction(
-                //   {
-                //     type: 'Collection',
-                //     connectionId,
-                //     namespace,
-                //     ...collectionOptions,
-                //   },
-                //   { newTab }
-                // )
-                console.log('Restoring tabs');
-                onRestoreTabs(convertSavedStateToInitialTabs(res));
-              }
+  useEffect(() => {
+    if (savedTabsPromise) {
+      savedTabsPromise
+        .then((res) => {
+          if (res !== null) {
+            console.log('Showing confirmation');
+            showConfirmation({
+              title: 'Reopen closed tabs?',
+              description:
+                'Your connection and tabs were closed, this action will reopen your previous session',
+              buttonText: 'Reopen tabs',
             })
-            .catch((err) => {
-              // TODO
-              console.error(err);
-            });
-        }
-      })
-      .catch((err) => {
-        // TODO
-        console.error(err);
-      });
-  }, [savedTabsPromise, onRestoreTabs]);
+              .then((confirm) => {
+                if (confirm) {
+                  // TODO: figure out all the connections that need to be reconnected
+                  // dispatch action to reconnect them all
+                  // after all connections are reconnected,
+                  // dispatch action to restore tabs
+
+                  // What happens if I try to dispatch open on a nonexistent tab?
+                  //       openWorkspaceAction(
+                  //   {
+                  //     type: 'Collection',
+                  //     connectionId,
+                  //     namespace,
+                  //     ...collectionOptions,
+                  //   },
+                  //   { newTab }
+                  // )
+                  // const initialSavedTabs = convertSavedStateToInitialTabs(res);
+                  // initialSavedTabs.forEach((tab) => {
+                  // })
+                  // console.log('Restoring tabs');
+                  // connectionStorage.
+                  // connectionActions.connect({connectionOptions})
+
+                  onRestoreTabs(convertSavedStateToInitialTabs(res));
+                }
+              })
+              .catch((err) => {
+                // TODO
+                console.error(err);
+              });
+          }
+        })
+        .catch((err) => {
+          // TODO
+          console.error(err);
+        });
+    }
+  }, [savedTabsPromise, onRestoreTabs, connectionActions]);
 
   const workspaceTabs = useMemo(() => {
     return tabs.map((tab) => {

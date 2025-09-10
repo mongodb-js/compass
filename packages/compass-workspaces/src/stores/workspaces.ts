@@ -359,11 +359,11 @@ const reducer: Reducer<WorkspacesState, Action> = (
 
     // Also if the tab is welcome tab, do we wanna just replace it? That's the default behavior right now.
     // However, handle the case where the initial tab opens *after* the restored tabs. Is this even possible?
-    // Since tabs just remain hidden, this probably isn't actually possible.
-    console.log(
-      'Restoring tabs to state',
-      ...action.tabs.map(getInitialTabState)
-    );
+    // This isn't possible since the initial tabs are literally used to configure the store.
+
+    // Lastly, figure out which tab should be the active tab in the end.
+
+    // console.log('Restoring tabs to state', ...(action.tabs.map(getInitialTabState)));
     return {
       ...state,
       tabs: [...state.tabs, ...action.tabs.map(getInitialTabState)],
