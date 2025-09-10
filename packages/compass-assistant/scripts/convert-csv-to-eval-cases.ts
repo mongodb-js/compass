@@ -5,6 +5,7 @@ import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'fs';
 // eslint-disable-next-line @typescript-eslint/no-restricted-imports
 import { join, resolve } from 'path';
 import { parse } from '@fast-csv/parse';
+import type { SimpleEvalCase } from '../test/assistant.eval';
 
 /** This is copied from the Compass Assistant PD Eval Cases */
 type CSVRow = {
@@ -14,14 +15,6 @@ type CSVRow = {
   'Expected Output\n(target 100-200 words, okay to go over if needed)': string;
   'Expected Links\n(comma separated please)': string;
   Notes: string;
-};
-
-type SimpleEvalCase = {
-  name?: string;
-  input: string;
-  expected: string;
-  expectedSources?: string[];
-  tags?: string[];
 };
 
 const interactionTypeTags = {
@@ -153,13 +146,15 @@ async function convertCSVToEvalCases() {
         .filter((link) => link && link.startsWith('http'));
     }
 
-    const tags: string[] = [];
+    const tags: SimpleEvalCase['tags'][] = [];
 
     if (interactionType) {
       for (const tag of Object.keys(interactionTypeTags)) {
         if (interactionType.includes(tag)) {
           tags.push(
-            interactionTypeTags[tag as keyof typeof interactionTypeTags]
+            interactionTypeTags[
+              tag as keyof typeof interactionTypeTags
+            ] as unknown as SimpleEvalCase['tags']
           );
         }
       }
