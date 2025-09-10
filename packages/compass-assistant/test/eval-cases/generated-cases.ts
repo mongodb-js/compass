@@ -13,6 +13,7 @@ export const generatedEvalCases: SimpleEvalCase[] = [
       'https://www.mongodb.com/docs/compass/current/connect',
       'https://www.mongodb.com/docs/compass/current/troubleshooting/logs https://www.mongodb.com/docs/compass/current/troubleshooting/logs/',
     ],
+    tags: ['connection-error'],
   },
   {
     input: `Compass hardcoded prompt: \nGiven the error message below and connection string, please provide clear instructions to guide the user to debug their connection attempt from MongoDB Compass. If no auth mechanism is specified in the connection string, the default (username/password) is being used. \n\n\nConnection string (password redacted): \nmongodb+srv://betsy:*****@cluster0.pndqllj.mongodb.net/\n\nError message:\nquerySrv ENOTFOUND _mongodb._tcp.cluster0.pndollj.mongodb.net\n\nThere was a problem connecting to cluster0.pndollj.mongodb.net`,
@@ -24,6 +25,7 @@ export const generatedEvalCases: SimpleEvalCase[] = [
       'https://www.mongodb.com/docs/compass/current/connect',
       'https://www.mongodb.com/docs/compass/current/troubleshooting/logs',
     ],
+    tags: ['connection-error'],
   },
   {
     input: `Compass hardcoded prompt: \nGiven the error message below and connection string, please provide clear instructions to guide the user to debug their connection attempt from MongoDB Compass. If no auth mechanism is specified in the connection string, the default (username/password) is being used. \n\n\nConnection string (password redacted): \nmongodb+srv://betsy:*****@cluster0.pndqllj.mongodb.net/\n\nError message:\nconnect ENETUNREACH 89.193.144.189:27017\n\nThere was a problem connecting to App`,
@@ -31,6 +33,7 @@ export const generatedEvalCases: SimpleEvalCase[] = [
     expectedSources: [
       'https://www.mongodb.com/docs/compass/current/troubleshooting/logs/',
     ],
+    tags: ['connection-error', 'general-network-error'],
   },
   {
     input: `Compass hardcoded prompt: \nGiven the error message below and connection string, please provide clear instructions to guide the user to debug their connection attempt from MongoDB Compass. If no auth mechanism is specified in the connection string, the default (username/password) is being used. \n\n\nConnection string (password redacted): \nmongodb+srv://betsy:*****@cluster0.pndqllj.mongodb.net/\n\nError message:\nquerySrv ECONNREFUSED`,
@@ -42,6 +45,7 @@ export const generatedEvalCases: SimpleEvalCase[] = [
       'https://www.mongodb.com/docs/compass/current/connect',
       'https://www.mongodb.com/docs/compass/current/troubleshooting/logs',
     ],
+    tags: ['connection-error'],
   },
   {
     input: `Compass hardcoded prompt: \nGiven the error message below and connection string, please provide clear instructions to guide the user to debug their connection attempt from MongoDB Compass. If no auth mechanism is specified in the connection string, the default (username/password) is being used. \n\n\nAuth mechanism: \n\nError message:\nconnect ECONNREFUSED`,
@@ -49,34 +53,42 @@ export const generatedEvalCases: SimpleEvalCase[] = [
     expectedSources: [
       'https://www.mongodb.com/docs/compass/current/troubleshooting/logs/',
     ],
+    tags: ['connection-error'],
   },
   {
     input: `Compass hardcoded prompt: \nGiven the error message below and connection string, please provide clear instructions to guide the user to debug their connection attempt from MongoDB Compass. If no auth mechanism is specified in the connection string, the default (username/password) is being used. \n\n\nAuth mechanism: \n\nError message:`,
     expected: `Cannot connect in an Atlas multi-region deployment setup\nCheck the Compass log\n\nConfirm that the connection string is correct (username, password, hostname, port, connection options including TLS/SSL certificates, etc).\n\nMake sure the number of connections are not at the maximum number for the tier.\n\nMake sure the Cloud provider on the customer side has peering VPCs set up. These settings are made outside of Atlas and may need the help of the customer's IT team.\n\nNetwork packet inspection and traceroute may be needed.`,
+    tags: ['connection-error'],
   },
   {
     input: `Compass hardcoded prompt: \nGiven the error message below and connection string, please provide clear instructions to guide the user to debug their connection attempt from MongoDB Compass. If no auth mechanism is specified in the connection string, the default (username/password) is being used. \n \n\nAuth mechanism: \n\nError message:`,
     expected: `Cannot connect to an individual Atlas host when using Private Endpoint.\nCheck the Compass log\n\nConfirm that the connection string is correct (username, password, hostname, port, connection options including TLS/SSL certificates, etc). Atlas Private Endpoint connections use ports starting at 1024.\n\nVerify VPN and firewalls are not preventing a connection from the IP address and ports.\n\nMake sure the number of connections on the Server are less than the maximum number for the tier; otherwise, connections will not be successful.\n\nEnsure DNS SRV and DNS TXT records are successful and fast, say, 0.1 seconds.`,
+    tags: ['connection-error'],
   },
   {
     input: `Compass hardcoded prompt: \nGiven the error message below and connection string, please provide clear instructions to guide the user to debug their connection attempt from MongoDB Compass. If no auth mechanism is specified in the connection string, the default (username/password) is being used. \n\nAuth mechanism: \n\nError message:`,
     expected: `Cannot connect to Atlas using VPC connections.\nCheck the Compass log\n\nConfirm that the connection string is correct (username, password, hostname, port, connection options including TLS/SSL certificates, etc). Atlas Private Endpoint connections use ports starting at 1024.\n\nVerify VPN and firewalls are not preventing a connection from the IP address and ports.\n\nMake sure the number of connections on the Server are less than the maximum number for the tier; otherwise, connections will not be successful.\n\nEnsure DNS SRV and DNS TXT records are successful and fast, say, 0.1 seconds.`,
+    tags: ['connection-error'],
   },
   {
     input: `Compass hardcoded prompt: \nGiven the error message below and connection string, please provide clear instructions to guide the user to debug their connection attempt from MongoDB Compass. If no auth mechanism is specified in the connection string, the default (username/password) is being used. \n\n\nAuth mechanism: \n\nError message:`,
     expected: `Cannot connect with an AWS Lambda application.\nCheck the Compass log\n\nUse the Reachability Analyzer for troubleshooting\n\n[FH: I think the KB article should be AI ingested. The other troubleshooting steps are extensive]`,
+    tags: ['connection-error'],
   },
   {
     input: `Compass hardcoded prompt: \nGiven the error message below and connection string, please provide clear instructions to guide the user to debug their connection attempt from MongoDB Compass. If no auth mechanism is specified in the connection string, the default (username/password) is being used. \n\nAuth mechanism: \nUsername/password\n\nError message:\nserverSelectionTimeout\n\nThere was a problem connecting to cluster0.pndollj.mongodb.net`,
     expected: `Check the Compass log\n\nConfirm that the connection string is correct (username, password, hostname, port, connection options including TLS/SSL or X.509 certificates, etc).\n\nOpen a terminal or command prompt and run “nslookup” on the DNS SRV record for your cluster. If this fails, your DNS server may be blocking or unable to resolve the address. Also ensure DNS TXT results are allowed to be returned.\n\nConfirm the correct authentication method is being used (TLS/SSL, LDAP, X.509, Kerberos, OIDC)\n\nConfirm the authentication server on the customer side has been set up properly for the user (LDAP server, Kerberos server, etc).\n\nFor Atlas connections using the Standard Connection, ensure the IP address is added to the Network Access list.\n\n\nThis error is generic and not specific enough to identify the connection issue. Further explanation here:\nHow to Troubleshoot and Resolve the 'MongoServerSelectionError' in MongoDB`,
+    tags: ['connection-error'],
   },
   {
     input: `Compass hardcoded prompt: \nGiven the error message below and connection string, please provide clear instructions to guide the user to debug their connection attempt from MongoDB Compass. If no auth mechanism is specified in the connection string, the default (username/password) is being used. \n\nAuth mechanism: \nOIDC\n\nError message:\n\nAuthentication failed. There was a problem connecting to <host>`,
     expected: `It sounds like you successfully authenticated with your identity provider, but the MongoDB server is misconfigured and did not accept your authentication request. To resolve this issue:\nCheck the Compass log\n\nCheck whether you are able to connect to the cluster using the MongoDB Shell\n\nGather information using mongosh --oidcDumpTokens <connection string> \n\nReach out to the cluster administrator with the Compass log, output from mongosh, and the time at which you connected, and the versions of Compass and mongosh you used`,
+    tags: ['connection-error', 'oidc'],
   },
   {
     input: `Compass hardcoded prompt: \nGiven the error message below and connection string, please provide clear instructions to guide the user to debug their connection attempt from MongoDB Compass. If no auth mechanism is specified in the connection string, the default (username/password) is being used. \n\nAuth mechanism: \nOIDC\n\nError message:\n\nCompass hangs and opens a browser windows that says “400 Bad Request”.`,
     expected: `It sounds like your MongoDB server or identity provider is not configured correctly. To resolve this issue:\nCheck the Compass log\n\nCheck whether you are able to connect to the cluster using the MongoDB Shell\n\nReach out to the cluster administrator with the Compass log, output from mongosh, and the time at which you connected, and the versions of Compass and mongosh you used`,
+    tags: ['connection-error', 'oidc'],
   },
   {
     input: `Compass hardcoded prompt: \nGiven the MongoDB explain plan output below, provide a concise human readable explanation that explains the query execution plan and highlights aspects of the plan that might impact query performance. Respond with as much concision and clarity as possible. \n\nIf a clear optimization should be made, please suggest the optimization and describe how it can be accomplished in MongoDB Compass. Do not advise users to create indexes without weighing the pros and cons. \n\nExplain output: \n{"explainVersion":"1","stages":[{"$cursor":{"queryPlanner":{"namespace":"restaurants.nyc","indexFilterSet":false,"parsedQuery":{"cuisine":{"$eq":"Italian"}},"queryHash":"0D9A721D","planCacheKey":"0BC4F8A9","optimizationTimeMillis":0,"maxIndexedOrSolutionsReached":false,"maxIndexedAndSolutionsReached":false,"maxScansToExplodeReached":false,"winningPlan":{"stage":"PROJECTION_SIMPLE","transformBy":{"borough":1,"_id":0},"inputStage":{"stage":"FETCH","inputStage":{"stage":"IXSCAN","keyPattern":{"cuisine":-1},"indexName":"cuisine_-1","isMultiKey":false,"multiKeyPaths":{"cuisine":[]},"isUnique":false,"isSparse":false,"isPartial":false,"indexVersion":2,"direction":"forward","indexBounds":{"cuisine":["[\\"Italian\\", \\"Italian\\"]"]}}}},"rejectedPlans":[]},"executionStats":{"executionSuccess":true,"nReturned":43207,"executionTimeMillis":1028,"totalKeysExamined":43207,"totalDocsExamined":43207,"executionStages":{"stage":"PROJECTION_SIMPLE","nReturned":43207,"executionTimeMillisEstimate":888,"works":43208,"advanced":43207,"needTime":0,"needYield":0,"saveState":80,"restoreState":80,"isEOF":1,"transformBy":{"borough":1,"_id":0},"inputStage":{"stage":"FETCH","nReturned":43207,"executionTimeMillisEstimate":885,"works":43208,"advanced":43207,"needTime":0,"needYield":0,"saveState":80,"restoreState":80,"isEOF":1,"docsExamined":43207,"alreadyHasObj":0,"inputStage":{"stage":"IXSCAN","nReturned":43207,"executionTimeMillisEstimate":48,"works":43208,"advanced":43207,"needTime":0,"needYield":0,"saveState":80,"restoreState":80,"isEOF":1,"keyPattern":{"cuisine":-1},"indexName":"cuisine_-1","isMultiKey":false,"multiKeyPaths":{"cuisine":[]},"isUnique":false,"isSparse":false,"isPartial":false,"indexVersion":2,"direction":"forward","indexBounds":{"cuisine":["[\\"Italian\\", \\"Italian\\"]"]},"keysExamined":43207,"seeks":1,"dupsTested":0,"dupsDropped":0}}}}}}, "nReturned":43207,"executionTimeMillisEstimate":1004},{"$group":{"_id":"$borough","count":{"$sum":{"$const":1}}},"maxAccumulatorMemoryUsageBytes":{"count":480},"totalOutputDataSizeBytes":1254,"usedDisk":false,"spills":0,"spilledDataStorageSize":0,"numBytesSpilledEstimate":0,"spilledRecords":0,"nReturned":5,"executionTimeMillisEstimate":1019}],"serverInfo":{"host":"atlas-mk8saw-shard-00-01.pndqllj.mongodb.net","port":27017,"version":"7.0.21","gitVersion":"a47b62aff2bae1914085c3ef1d90fc099acf000c"},"serverParameters":{"internalQueryFacetBufferSizeBytes":104857600,"internalQueryFacetMaxOutputDocSizeBytes":104857600,"internalLookupStageIntermediateDocumentMaxSizeBytes":104857600,"internalDocumentSourceGroupMaxMemoryBytes":104857600,"internalQueryMaxBlockingSortMemoryUsageBytes":104857600,"internalQueryProhibitBlockingMergeOnMongoS":0,"internalQueryMaxAddToSetBytes":104857600,"internalDocumentSourceSetWindowFieldsMaxMemoryBytes":104857600,"internalQueryFrameworkControl":"forceClassicEngine"},"command":{"aggregate":"nyc","pipeline":[{"$match":{"cuisine":"Italian"}},{"$group":{"_id":"$borough","count":{"$sum":1}}}],"cursor":{},"maxTimeMS":60000,"$db":"restaurants"},"ok":1,"$clusterTime":{"clusterTime":{"$timestamp":"7522966816189054977"},"signature":{"hash":"dhZ8X27p5jRJo1x/U9ZpF8L4eSc=","keyId":{"low":1,"high":1737746411,"unsigned":false}}},"operationTime":{"$timestamp":"7522966816189054977"}}`,
@@ -88,6 +100,7 @@ export const generatedEvalCases: SimpleEvalCase[] = [
       'https://www.mongodb.com/docs/manual/tutorial/equality-sort-range-guideline/#std-label-esr-indexing-guideline',
       'https://www.mongodb.com/docs/manual/core/indexes/index-types/index-compound/#index-prefixes',
     ],
+    tags: ['explain-plan'],
   },
   {
     input: `Compass hardcoded prompt: \nGiven the MongoDB explain plan output below, provide a concise human readable explanation that explains the query execution plan and highlights aspects of the plan that might impact query performance. Respond with as much concision and clarity as possible. \n\nIf a clear optimization should be made, please suggest the optimization and describe how it can be accomplished in MongoDB Compass. Do not advise users to create indexes without weighing the pros and cons. \n\nExplain output: \n{"explainVersion":"1","queryPlanner":{"namespace":"restaurants.nyc","indexFilterSet":false,"parsedQuery":{"category":{"$eq":"low_rated"}},"queryHash":"2EBC9A51","planCacheKey":"2EBC9A51","optimizationTimeMillis":0,"maxIndexedOrSolutionsReached":false,"maxIndexedAndSolutionsReached":false,"maxScansToExplodeReached":false,"winningPlan":{"stage":"COLLSCAN","filter":{"category":{"$eq":"low_rated"}},"direction":"forward"},"rejectedPlans":[]},"executionStats":{"executionSuccess":true,"nReturned":759349,"executionTimeMillis":1233,"totalKeysExamined":0,"totalDocsExamined":998014,"executionStages":{"stage":"COLLSCAN","filter":{"category":{"$eq":"low_rated"}},"nReturned":759349,"executionTimeMillisEstimate":232,"works":998015,"advanced":759349,"needTime":238665,"needYield":0,"saveState":998,"restoreState":998,"isEOF":1,"direction":"forward","docsExamined":998014}},"command":{"find":"nyc","filter":{"category":"low_rated"},"skip":0,"limit":0,"maxTimeMS":60000,"$db":"restaurants"},"serverInfo":{"host":"atlas-mk8saw-shard-00-01.pndqllj.mongodb.net","port":27017,"version":"7.0.22","gitVersion":"6660d93e97cdb0dc35d8ceb699c511f5850278a5"},"serverParameters":{"internalQueryFacetBufferSizeBytes":104857600,"internalQueryFacetMaxOutputDocSizeBytes":104857600,"internalLookupStageIntermediateDocumentMaxSizeBytes":104857600,"internalDocumentSourceGroupMaxMemoryBytes":104857600,"internalQueryMaxBlockingSortMemoryUsageBytes":104857600,"internalQueryProhibitBlockingMergeOnMongoS":0,"internalQueryMaxAddToSetBytes":104857600,"internalDocumentSourceSetWindowFieldsMaxMemoryBytes":104857600,"internalQueryFrameworkControl":"forceClassicEngine"},"ok":1,"$clusterTime":{"clusterTime":{"$timestamp":"7537442131581861889"},"signature":{"hash":"vkFwzpNfNq+HU/KcFnxAhplnBzA=","keyId":{"low":1,"high":1745504880,"unsigned":false}}},"operationTime":{"$timestamp":"7537442131581861889"}}`,
@@ -97,6 +110,7 @@ export const generatedEvalCases: SimpleEvalCase[] = [
       'https://www.mongodb.com/docs/manual/reference/explain-results',
       'https://www.mongodb.com/docs/manual/faq/indexes',
     ],
+    tags: ['explain-plan'],
   },
   {
     input: `How can I filter docs before running a $search query?`,
@@ -104,6 +118,7 @@ export const generatedEvalCases: SimpleEvalCase[] = [
     expectedSources: [
       'https://www.mongodb.com/docs/atlas/atlas-search/compound/#options https://www.mongodb.com/docs/atlas/atlas-search/transform-documents-collections/#example--filter-documents',
     ],
+    tags: ['end-user-input'],
   },
   {
     input: `What is the $search stage?`,
@@ -111,6 +126,7 @@ export const generatedEvalCases: SimpleEvalCase[] = [
     expectedSources: [
       'https://www.mongodb.com/docs/atlas/atlas-search/#what-is-fts-',
     ],
+    tags: ['end-user-input'],
   },
   {
     input: `Can $search work with regular MongoDB indexes?`,
@@ -118,6 +134,7 @@ export const generatedEvalCases: SimpleEvalCase[] = [
     expectedSources: [
       'https://www.mongodb.com/docs/atlas/atlas-search/index-definitions/#index-reference',
     ],
+    tags: ['end-user-input'],
   },
   {
     input: `How do I sort query results using $search?`,
@@ -125,6 +142,7 @@ export const generatedEvalCases: SimpleEvalCase[] = [
     expectedSources: [
       'https://www.mongodb.com/docs/atlas/atlas-search/sort/#sort-fts-results',
     ],
+    tags: ['end-user-input'],
   },
   {
     input: `What is token type mapping in Atlas Search?`,
@@ -132,6 +150,7 @@ export const generatedEvalCases: SimpleEvalCase[] = [
     expectedSources: [
       'https://www.mongodb.com/docs/atlas/atlas-search/field-types/token-type/#how-to-index-string-fields-for-efficient-sorting-and-faceting',
     ],
+    tags: ['end-user-input'],
   },
   {
     input: `Why doesn’t $search return expected results for substrings of a token?`,
@@ -139,6 +158,7 @@ export const generatedEvalCases: SimpleEvalCase[] = [
     expectedSources: [
       'https://www.mongodb.com/docs/atlas/atlas-search/field-types/token-type/#how-to-index-string-fields-for-efficient-sorting-and-faceting',
     ],
+    tags: ['end-user-input'],
   },
   {
     input: `How can I use $search for simple keyword search across multiple fields?`,
@@ -146,6 +166,7 @@ export const generatedEvalCases: SimpleEvalCase[] = [
     expectedSources: [
       'https://www.mongodb.com/docs/atlas/atlas-search/text/#text-operator https://www.mongodb.com/docs/atlas/atlas-search/compound/#compound-operator',
     ],
+    tags: ['end-user-input'],
   },
   {
     input: `Can I apply fuzzy matching with $search?`,
@@ -153,10 +174,12 @@ export const generatedEvalCases: SimpleEvalCase[] = [
     expectedSources: [
       'https://www.mongodb.com/docs/atlas/atlas-search/text/#text-operator',
     ],
+    tags: ['end-user-input'],
   },
   {
     input: `How do I debug $search queries that return no results?`,
     expected: `If $search queries return no results, first ensure that your Atlas Search Index is active and has finished building. Confirm your query targets a field that is correctly mapped in the index definition. Check the query syntax, field types, and analyzer settings.`,
+    tags: ['end-user-input'],
   },
   {
     input: `How can I combine multiple conditions in a single $search query?`,
@@ -164,6 +187,7 @@ export const generatedEvalCases: SimpleEvalCase[] = [
     expectedSources: [
       'https://www.mongodb.com/docs/atlas/atlas-search/compound/#compound-operator',
     ],
+    tags: ['end-user-input'],
   },
   {
     input: `Can $search support wildcard or regex queries?`,
@@ -171,6 +195,7 @@ export const generatedEvalCases: SimpleEvalCase[] = [
     expectedSources: [
       'https://www.mongodb.com/docs/atlas/atlas-search/wildcard/#wildcard-operator',
     ],
+    tags: ['end-user-input'],
   },
   {
     input: `How do I analyze why certain documents have a higher search score than others?`,
@@ -178,6 +203,7 @@ export const generatedEvalCases: SimpleEvalCase[] = [
     expectedSources: [
       'https://www.mongodb.com/docs/atlas/atlas-search/scoring/#score-the-documents-in-the-results',
     ],
+    tags: ['end-user-input'],
   },
   {
     input: `Can I use $search to return facets for query results?`,
@@ -185,10 +211,12 @@ export const generatedEvalCases: SimpleEvalCase[] = [
     expectedSources: [
       'https://www.mongodb.com/docs/atlas/atlas-search/facet/#facet-collector',
     ],
+    tags: ['end-user-input'],
   },
   {
     input: `Why does $search fail when querying on a field without an Atlas Search Index?`,
     expected: `$search queries will fail or return no results if the queried field is not included in the Atlas Search Index definition. Unlike standard MongoDB queries which can perform collection scans, $search relies exclusively on its pre-built search index for all operations.`,
+    tags: ['end-user-input'],
   },
   {
     input: `What is the difference between $search and $searchMeta?`,
@@ -196,6 +224,7 @@ export const generatedEvalCases: SimpleEvalCase[] = [
     expectedSources: [
       'https://www.mongodb.com/docs/atlas/atlas-search/query-syntax/#choose-the-aggregation-pipeline-stage',
     ],
+    tags: ['end-user-input'],
   },
   {
     input: `How can I highlight terms in $search results?`,
@@ -203,6 +232,7 @@ export const generatedEvalCases: SimpleEvalCase[] = [
     expectedSources: [
       'https://www.mongodb.com/docs/atlas/atlas-search/highlighting/#highlight-search-terms-in-results',
     ],
+    tags: ['end-user-input'],
   },
   {
     input: `Can $search handle multi-language text queries?`,
@@ -210,6 +240,7 @@ export const generatedEvalCases: SimpleEvalCase[] = [
     expectedSources: [
       'https://www.mongodb.com/docs/atlas/atlas-search/analyzers/language/#language-analyzers',
     ],
+    tags: ['end-user-input'],
   },
   {
     input: `What is an aggregation pipeline?`,
@@ -218,6 +249,7 @@ export const generatedEvalCases: SimpleEvalCase[] = [
       'https://www.mongodb.com/docs/manual/core/aggregation-pipeline/',
       'https://www.mongodb.com/docs/compass/create-agg-pipeline/',
     ],
+    tags: ['end-user-input'],
   },
   {
     input: `How do I model data with MongoDB?`,
@@ -226,6 +258,7 @@ export const generatedEvalCases: SimpleEvalCase[] = [
       'https://www.mongodb.com/docs/manual/data-modeling/#plan-your-schema',
       'https://www.mongodb.com/docs/manual/data-modeling/schema-design-process/#designing-your-schema',
     ],
+    tags: ['end-user-input'],
   },
   {
     input: `How is MongoDB data modeling different from data modeling with a relational database?`,
@@ -233,6 +266,7 @@ export const generatedEvalCases: SimpleEvalCase[] = [
     expectedSources: [
       'https://www.mongodb.com/docs/manual/data-modeling/#schema-design--differences-between-relational-and-document-databases',
     ],
+    tags: ['end-user-input'],
   },
   {
     input: `Is MongoDB schemaless?`,
@@ -240,10 +274,12 @@ export const generatedEvalCases: SimpleEvalCase[] = [
     expectedSources: [
       'https://www.mongodb.com/docs/manual/data-modeling/#data-modeling',
     ],
+    tags: ['end-user-input'],
   },
   {
     input: `Should I embed my data in an existing collection or put it in a new collection?`,
     expected: `Consider embedding data when it: \nSimplifies your code \n\nPieces of information have a “has-a,” “contains,” or similar relationship \n\nPieces of information are queried together \n\nPieces of information are updated together \n\nPieces of information are archived at the same time`,
+    tags: ['end-user-input'],
   },
   {
     input: `Does MongoDB have foreign keys?`,
@@ -251,6 +287,7 @@ export const generatedEvalCases: SimpleEvalCase[] = [
     expectedSources: [
       'https://www.mongodb.com/docs/manual/reference/operator/aggregation/lookup/#-lookup--aggregation-',
     ],
+    tags: ['end-user-input'],
   },
   {
     input: `How can I set schema validation rules in MongoDB?`,
@@ -259,6 +296,7 @@ export const generatedEvalCases: SimpleEvalCase[] = [
       'https://www.mongodb.com/docs/manual/core/schema-validation/specify-validation-level/',
       'https://www.mongodb.com/docs/compass/validation/',
     ],
+    tags: ['end-user-input'],
   },
   {
     input: `How can I reduce the size of my documents? \n\n[in response to “bloated documents” insight]`,
@@ -267,6 +305,7 @@ export const generatedEvalCases: SimpleEvalCase[] = [
       'https://www.mongodb.com/docs/manual/data-modeling/design-antipatterns/bloated-documents/',
       'https://www.mongodb.com/docs/manual/data-modeling/concepts/embedding-vs-references/#std-label-data-modeling-referencing',
     ],
+    tags: ['proactive-performance-insights'],
   },
   {
     input: `What is the best index for this query?\n\nQuery or agg written, indexes on the collection \n\n[in response to “query executed without index” insight]`,
@@ -275,6 +314,7 @@ export const generatedEvalCases: SimpleEvalCase[] = [
       'https://www.mongodb.com/docs/manual/core/data-model-operations/',
       'https://www.mongodb.com/docs/manual/data-modeling/schema-design-process/create-indexes/',
     ],
+    tags: ['proactive-performance-insights'],
   },
   {
     input: `When should I index a query? \n\n[in response to “query executed without index” insight]`,
@@ -284,6 +324,7 @@ export const generatedEvalCases: SimpleEvalCase[] = [
       'https://www.mongodb.com/docs/manual/data-modeling/schema-design-process/create-indexes/',
       'https://www.mongodb.com/docs/manual/indexes/',
     ],
+    tags: ['proactive-performance-insights'],
   },
   {
     input: `How can I reduce the number of indexes on my collection? \n\nIndexes on the collection \n\n[in response to “high number of indexes on collection” insight]`,
@@ -292,6 +333,7 @@ export const generatedEvalCases: SimpleEvalCase[] = [
       'https://www.mongodb.com/docs/manual/data-modeling/design-antipatterns/unnecessary-indexes/#std-label-unnecessary-indexes-antipattern',
       'https://www.mongodb.com/docs/atlas/performance-advisor/drop-indexes/',
     ],
+    tags: ['proactive-performance-insights'],
   },
   {
     input: `How do I avoid using $lookup? \n\n$lookup stage in agg builder \n\n[in response to “$lookup usage” insight]`,
@@ -299,5 +341,6 @@ export const generatedEvalCases: SimpleEvalCase[] = [
     expectedSources: [
       'https://www.mongodb.com/docs/manual/data-modeling/concepts/embedding-vs-references/',
     ],
+    tags: ['proactive-performance-insights'],
   },
 ];

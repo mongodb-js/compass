@@ -14,5 +14,6 @@ Create indexes: Create indexes to support common query patterns.
       'https://www.mongodb.com/docs/manual/data-modeling/#plan-your-schema',
       'https://www.mongodb.com/docs/manual/data-modeling/schema-design-process/#designing-your-schema',
     ],
+    tags: ['model-data'],
   },
 ];

@@ -9,5 +9,6 @@ export const atlasSearchEvalCases: SimpleEvalCase[] = [
       'https://www.mongodb.com/docs/atlas/atlas-search/compound/#options',
       'https://www.mongodb.com/docs/atlas/atlas-search/transform-documents-collections/#example--filter-documents',
     ],
+    tags: ['atlas-search'],
   },
 ];

@@ -21,6 +21,19 @@ type SimpleEvalCase = {
   input: string;
   expected: string;
   expectedSources?: string[];
+  tags?: string[];
+};
+
+const interactionTypeTags = {
+  'End-User Input Only': 'end-user-input',
+  'Connection Error': 'connection-error',
+  'DNS Error': 'dns-error',
+  'Explain Plan': 'explain-plan',
+  'Proactive Perf': 'proactive-performance-insights',
+  'General network error': 'general-network-error',
+  OIDC: 'oidc',
+  TSL: 'tsl-ssl',
+  SSL: 'tsl-ssl',
 };
 
 function escapeString(str: string): string {
@@ -45,11 +58,18 @@ function generateEvalCaseFile(cases: SimpleEvalCase[]): string {
               .join(',\n      ')},\n    ],`
           : '';
 
+      const tagsPart =
+        evalCase.tags && evalCase.tags.length > 0
+          ? `    tags: [\n      ${evalCase.tags
+              .map((tag) => `'${escapeString(tag)}'`)
+              .join(',\n      ')},\n    ],`
+          : '';
+
       return `  {
     input: \`${escapeString(evalCase.input)}\`,
     expected: \`${escapeString(evalCase.expected)}\`,${
         sourcesPart ? '\n' + sourcesPart : ''
-      }
+      }${tagsPart ? '\n' + tagsPart : ''}
   }`;
     })
     .join(',\n');
@@ -133,10 +153,23 @@ async function convertCSVToEvalCases() {
         .filter((link) => link && link.startsWith('http'));
     }
 
+    const tags: string[] = [];
+
+    if (interactionType) {
+      for (const tag of Object.keys(interactionTypeTags)) {
+        if (interactionType.includes(tag)) {
+          tags.push(
+            interactionTypeTags[tag as keyof typeof interactionTypeTags]
+          );
+        }
+      }
+    }
+
     const evalCase: SimpleEvalCase = {
       input,
       expected,
       ...(expectedSources.length > 0 && { expectedSources }),
+      ...(tags.length > 0 && { tags }),
     };
 
     allCases.push(evalCase);

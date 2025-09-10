@@ -35,5 +35,6 @@ db.orders.aggregate([
       'https://www.mongodb.com/docs/manual/core/aggregation-pipeline/',
       'https://www.mongodb.com/docs/compass/create-agg-pipeline/',
     ],
+    tags: ['aggregation-pipeline'],
   },
 ];
