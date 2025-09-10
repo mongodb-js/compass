@@ -142,6 +142,8 @@ export async function inferForeignToLocalRelationshipsForCollection(
   const indexes = await dataService
     .indexes(foreignNamespace, { full: false })
     .catch(() => {
+      // If this fails for any reason, assume there are no indexes. DataService
+      // will log the error, so we are not logging it here
       return [];
     });
   const hasIdIndex = indexes.some((definition) => {
@@ -187,7 +189,7 @@ export async function inferForeignToLocalRelationshipsForCollection(
               foreignNamespace,
               {
                 _id: {
-                  $in: sampleDocs as any[], // driver wants this to be an ObjectId?
+                  $in: sampleDocs as any[], // driver wants this to be an ObjectId unless a generic type for the filter is provided, we don't currently support passing this generic value on data service level
                 },
               },
               { hint: { _id: 1 }, maxTimeMS: 10_000 },
