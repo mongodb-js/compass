@@ -111,8 +111,7 @@ const MockDataGeneratorModal = ({
 
   const isNextButtonDisabled =
     currentStep === MockDataGeneratorStep.SCHEMA_EDITOR &&
-    !isSchemaConfirmed &&
-    fakerSchemaGenerationState.status === 'in-progress';
+    (!isSchemaConfirmed || fakerSchemaGenerationState.status === 'in-progress');
 
   const handleNextClick = () => {
     if (currentStep === MockDataGeneratorStep.GENERATE_DATA) {

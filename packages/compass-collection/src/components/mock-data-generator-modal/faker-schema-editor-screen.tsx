@@ -62,10 +62,6 @@ const FakerSchemaEditor = ({
     (mapping) => mapping.fieldPath === activeField
   )?.fakerMethod;
 
-  const activeFakerArgs = fakerSchemaFormValues.find(
-    (mapping) => mapping.fieldPath === activeField
-  )?.fakerArgs;
-
   const onJsonTypeSelect = (newJsonType: string) => {
     const updatedFakerFieldMapping = fakerSchemaFormValues.find(
       (mapping) => mapping.fieldPath === activeField
@@ -123,7 +119,6 @@ const FakerSchemaEditorScreen = () => {
           <FakerMappingSelector
             activeJsonType={activeJsonType}
             activeFakerFunction={activeFakerFunction}
-            activeFakerArgs={activeFakerArgs || []}
             onJsonTypeSelect={onJsonTypeSelect}
             onFakerFunctionSelect={onFakerFunctionSelect}
           />

@@ -44,7 +44,7 @@ import type {
 } from '../components/mock-data-generator-modal/types';
 
 /* eslint-disable @typescript-eslint/no-require-imports */
-const faker = require('@faker-js/faker/locale/en');
+const { faker } = require('@faker-js/faker/locale/en');
 
 const DEFAULT_SAMPLE_SIZE = 100;
 

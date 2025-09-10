@@ -16,8 +16,23 @@ import type { CollectionState } from '../../modules/collection-tab';
 import { default as collectionTabReducer } from '../../modules/collection-tab';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import type { MockDataSchemaResponse } from '@mongodb-js/compass-generative-ai';
+import type { SinonSandbox } from 'sinon';
+import sinon from 'sinon';
+
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const { faker } = require('@faker-js/faker/locale/en');
 
 describe('MockDataGeneratorModal', () => {
+  let sandbox: SinonSandbox;
+
+  beforeEach(() => {
+    sandbox = sinon.createSandbox();
+  });
+
+  afterEach(() => {
+    sandbox.restore();
+  });
+
   async function renderModal({
     isOpen = true,
     currentStep = MockDataGeneratorStep.SCHEMA_CONFIRMATION,
@@ -284,8 +299,8 @@ describe('MockDataGeneratorModal', () => {
   });
 
   describe('on the schema editor step', () => {
-    const mockServicesWithAiResponse = createMockServices();
-    mockServicesWithAiResponse.atlasAiService.getMockDataSchema = () =>
+    const mockServicesWithMockDataResponse = createMockServices();
+    mockServicesWithMockDataResponse.atlasAiService.getMockDataSchema = () =>
       Promise.resolve({
         content: {
           fields: [
@@ -340,7 +355,7 @@ describe('MockDataGeneratorModal', () => {
     });
 
     it('shows the faker schema editor when the faker schema generation is completed', async () => {
-      await renderModal({ mockServices: mockServicesWithAiResponse });
+      await renderModal({ mockServices: mockServicesWithMockDataResponse });
 
       // advance to the schema editor step
       userEvent.click(screen.getByText('Confirm'));
@@ -350,13 +365,56 @@ describe('MockDataGeneratorModal', () => {
       expect(screen.getByText('age')).to.exist;
     });
 
+    it('shows correct values for the faker schema editor', async () => {
+      sandbox.stub(faker, 'person').returns('Jane');
+      sandbox.stub(faker, 'number').returns(30);
+      sandbox.stub(faker, 'internet').throws(new Error('Invalid faker method'));
+      await renderModal({ mockServices: mockServicesWithMockDataResponse });
+
+      // advance to the schema editor step
+      userEvent.click(screen.getByText('Confirm'));
+      await waitFor(() => {
+        expect(screen.getByTestId('faker-schema-editor')).to.exist;
+      });
+      // the "name" field should be selected by default
+      expect(screen.getByText('name')).to.exist;
+      expect(screen.getByLabelText('JSON Type')).to.have.value('string');
+      expect(screen.getByLabelText('Faker Function')).to.have.value(
+        'person.firstName'
+      );
+      // select the "age" field
+      userEvent.click(screen.getByText('age'));
+      expect(screen.getByText('age')).to.exist;
+      expect(screen.getByLabelText('JSON Type')).to.have.value('int');
+      expect(screen.getByLabelText('Faker Function')).to.have.value(
+        'number.int'
+      );
+      // select the "email" field
+      userEvent.click(screen.getByText('email'));
+      expect(screen.getByText('email')).to.exist;
+      expect(screen.getByLabelText('JSON Type')).to.have.value('string');
+      // the "email" field should have a warning banner since the faker method is invalid
+      expect(screen.getByLabelText('Faker Function')).to.have.value(
+        'Unrecognized'
+      );
+      expect(
+        screen.getByText(
+          'Please select a function or we will default fill this field with the string "Unrecognized"'
+        )
+      ).to.exist;
+    });
+
     it('disables the Next button when the faker schema mapping is not confirmed', async () => {
       await renderModal({
-        mockServices: mockServicesWithAiResponse,
+        mockServices: mockServicesWithMockDataResponse,
       });
 
       // advance to the schema editor step
       userEvent.click(screen.getByText('Confirm'));
+      await waitFor(() => {
+        expect(screen.getByTestId('faker-schema-editor')).to.exist;
+      });
+
       expect(
         screen.getByTestId('next-step-button').getAttribute('aria-disabled')
       ).to.equal('true');
