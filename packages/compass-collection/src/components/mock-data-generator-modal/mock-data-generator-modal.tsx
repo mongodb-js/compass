@@ -107,7 +107,7 @@ const MockDataGeneratorModal = ({
       case MockDataGeneratorStep.GENERATE_DATA:
         return <ScriptScreen />;
     }
-  }, [currentStep, fakerSchemaGenerationState.status]);
+  }, [currentStep, fakerSchemaGenerationState]);
 
   const isNextButtonDisabled =
     currentStep === MockDataGeneratorStep.SCHEMA_EDITOR &&
