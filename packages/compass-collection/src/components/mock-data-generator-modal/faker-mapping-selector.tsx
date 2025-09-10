@@ -58,7 +58,7 @@ const FakerMappingSelector = ({
         ))}
       </Select>
       <Select
-        data-testid="faker-funtion-select"
+        data-testid="faker-function-select"
         label="Faker Function"
         value={activeFakerFunction}
         onChange={onFakerFunctionSelect}
@@ -111,7 +111,7 @@ const FakerMappingSelector = ({
             key={idx}
             label={`Faker Function Parameter ${typeof arg}`}
             readOnly
-            value={JSON.stringify(arg.json)}
+            value={arg.json}
           />
         );
       })}
