@@ -1,6 +1,6 @@
 import type { SimpleEvalCase } from '../assistant.eval';
 
-const evalCases: SimpleEvalCase[] = [
+export const modelDataEvalCases: SimpleEvalCase[] = [
   {
     input: 'How do I model data with MongoDB?',
     expected: `Data modeling in MongoDB is highly dependent on how you access your data. To ensure that your data model has a logical structure and achieves optimal performance, plan your schema prior to using your database at a production scale. To determine your data model, use the following schema design process:
@@ -16,5 +16,3 @@ Create indexes: Create indexes to support common query patterns.
     ],
   },
 ];
-
-export default evalCases;

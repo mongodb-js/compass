@@ -1,6 +1,6 @@
 import type { SimpleEvalCase } from '../assistant.eval';
 
-const evalCases: SimpleEvalCase[] = [
+export const aggregationPipelineEvalCases: SimpleEvalCase[] = [
   {
     input: 'What is an aggregation pipeline?',
     expected: `The aggregation pipeline in MongoDB is a framework for data processing and transformation. It consists of a sequence of stages, where each stage performs an operation on the input documents and passes the results to the next stage. Common operations include filtering, grouping, projecting, joining, and calculating values. Aggregation pipelines are powerful for data analysis, reporting, and transformation tasks in MongoDB.
@@ -37,5 +37,3 @@ db.orders.aggregate([
     ],
   },
 ];
-
-export default evalCases;

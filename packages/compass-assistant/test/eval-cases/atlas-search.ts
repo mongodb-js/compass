@@ -1,6 +1,6 @@
 import type { SimpleEvalCase } from '../assistant.eval';
 
-const evalCases: SimpleEvalCase[] = [
+export const atlasSearchEvalCases: SimpleEvalCase[] = [
   {
     input: 'How can I filter docs before running a $search query?',
     expected:
@@ -11,5 +11,3 @@ const evalCases: SimpleEvalCase[] = [
     ],
   },
 ];
-
-export default evalCases;

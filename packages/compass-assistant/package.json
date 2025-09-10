@@ -48,7 +48,8 @@
     "test-watch": "npm run test -- --watch",
     "test-ci": "npm run test-cov",
     "test-ci-electron": "npm run test-electron",
-    "reformat": "npm run eslint . -- --fix && npm run prettier -- --write ."
+    "reformat": "npm run eslint . -- --fix && npm run prettier -- --write .",
+    "convert-eval-cases": "ts-node scripts/convert-csv-to-eval-cases.ts"
   },
   "dependencies": {
     "@ai-sdk/openai": "^2.0.4",
@@ -67,6 +68,7 @@
     "use-sync-external-store": "^1.5.0"
   },
   "devDependencies": {
+    "@fast-csv/parse": "^5.0.5",
     "@mongodb-js/eslint-config-compass": "^1.4.8",
     "@mongodb-js/mocha-config-compass": "^1.7.1",
     "@mongodb-js/prettier-config-compass": "^1.2.8",
