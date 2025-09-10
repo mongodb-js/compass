@@ -180,7 +180,7 @@ function processNamedField(
 
   if (field.name.includes(FIELD_NAME_SEPARATOR)) {
     throw new ProcessSchemaUnsupportedStateError(
-      `no support for field names that contain a '.' ; field name: '${field.name}'`
+      `no support for field names that contain a '${FIELD_NAME_SEPARATOR}' ; field name: '${field.name}'`
     );
   }
 
@@ -255,7 +255,7 @@ function getMostFrequentType(types: SchemaType[]): SchemaType | null {
  * inputs are required to simulate these unlikely errors.
  */
 function validateFieldPath(fieldPath: string) {
-  const parts = fieldPath.split('.');
+  const parts = fieldPath.split(FIELD_NAME_SEPARATOR);
 
   for (const part of parts) {
     if (part === '') {

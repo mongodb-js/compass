@@ -44,5 +44,5 @@ export default function toSimplifiedFieldInfo(
 }
 
 function countSeparators(input: string): number {
-  return input.split('.').length - 1;
+  return input.split(FIELD_NAME_SEPARATOR).length - 1;
 }
