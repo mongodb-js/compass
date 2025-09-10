@@ -1,6 +1,6 @@
 {
   "name": "@mongodb-js/eslint-config-compass",
-  "version": "1.4.8",
+  "version": "1.4.9",
   "description": "Shared Compass eslint configuration",
   "license": "SSPL",
   "main": "index.js",
