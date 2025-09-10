@@ -2,10 +2,14 @@ import { expect } from 'chai';
 import { generateScript, type FieldMapping } from './script-generation-utils';
 
 describe('Script Generation', () => {
-  const createFieldMapping = (fakerMethod: string): FieldMapping => ({
+  const createFieldMapping = (
+    fakerMethod: string,
+    probability?: number
+  ): FieldMapping => ({
     mongoType: 'String',
     fakerMethod,
     fakerArgs: [],
+    ...(probability !== undefined && { probability }),
   });
 
   describe('Basic field generation', () => {
@@ -668,6 +672,170 @@ describe('Script Generation', () => {
       expect(result.success).to.equal(true);
       if (result.success) {
         expect(result.script).to.contain('faker.string.uuid()');
+      }
+    });
+  });
+
+  describe('Probability Handling', () => {
+    it('should generate normal faker call for probability 1.0', () => {
+      const schema = {
+        name: createFieldMapping('person.fullName', 1.0),
+      };
+
+      const result = generateScript(schema, {
+        databaseName: 'testdb',
+        collectionName: 'users',
+        documentCount: 1,
+      });
+
+      expect(result.success).to.equal(true);
+      if (result.success) {
+        expect(result.script).to.contain('faker.person.fullName()');
+        expect(result.script).not.to.contain('Math.random()');
+      }
+    });
+
+    it('should generate normal faker call when probability is undefined', () => {
+      const schema = {
+        name: createFieldMapping('person.fullName'), // No probability specified
+      };
+
+      const result = generateScript(schema, {
+        databaseName: 'testdb',
+        collectionName: 'users',
+        documentCount: 1,
+      });
+
+      expect(result.success).to.equal(true);
+      if (result.success) {
+        expect(result.script).to.contain('faker.person.fullName()');
+        expect(result.script).not.to.contain('Math.random()');
+      }
+    });
+
+    it('should use probabilistic rendering when probability < 1.0', () => {
+      const schema = {
+        optionalField: createFieldMapping('lorem.word', 0.7),
+      };
+
+      const result = generateScript(schema, {
+        databaseName: 'testdb',
+        collectionName: 'posts',
+        documentCount: 1,
+      });
+
+      expect(result.success).to.equal(true);
+      if (result.success) {
+        expect(result.script).to.contain(
+          '...(Math.random() < 0.7 ? { optionalField: faker.lorem.word() } : {})'
+        );
+      }
+    });
+
+    it('should handle zero probability', () => {
+      const schema = {
+        rareField: createFieldMapping('lorem.word', 0),
+      };
+
+      const result = generateScript(schema, {
+        databaseName: 'testdb',
+        collectionName: 'posts',
+        documentCount: 1,
+      });
+
+      expect(result.success).to.equal(true);
+      if (result.success) {
+        expect(result.script).to.contain(
+          '...(Math.random() < 0 ? { rareField: faker.lorem.word() } : {})'
+        );
+      }
+    });
+
+    it('should handle mixed probability fields', () => {
+      const schema = {
+        alwaysPresent: createFieldMapping('person.fullName', 1.0),
+        sometimesPresent: createFieldMapping('internet.email', 0.8),
+        rarelyPresent: createFieldMapping('phone.number', 0.2),
+        defaultProbability: createFieldMapping('lorem.word'), // undefined = 1.0
+      };
+
+      const result = generateScript(schema, {
+        databaseName: 'testdb',
+        collectionName: 'users',
+        documentCount: 1,
+      });
+
+      expect(result.success).to.equal(true);
+      if (result.success) {
+        // Always present (probability 1.0)
+        expect(result.script).to.contain('faker.person.fullName()');
+        expect(result.script).not.to.contain(
+          'Math.random() < 1 ? { alwaysPresent:'
+        );
+
+        // Sometimes present (probability 0.8)
+        expect(result.script).to.contain(
+          '...(Math.random() < 0.8 ? { sometimesPresent: faker.internet.email() } : {})'
+        );
+
+        // Rarely present (probability 0.2)
+        expect(result.script).to.contain(
+          '...(Math.random() < 0.2 ? { rarelyPresent: faker.phone.number() } : {})'
+        );
+
+        // Default probability (undefined = 1.0)
+        expect(result.script).to.contain('faker.lorem.word()');
+        expect(result.script).not.to.contain(
+          'Math.random() < 1 ? { defaultProbability:'
+        );
+      }
+    });
+
+    it('should handle probability with faker arguments', () => {
+      const schema = {
+        conditionalAge: {
+          mongoType: 'number',
+          fakerMethod: 'number.int',
+          fakerArgs: [18, 65],
+          probability: 0.9,
+        },
+      };
+
+      const result = generateScript(schema, {
+        databaseName: 'testdb',
+        collectionName: 'users',
+        documentCount: 1,
+      });
+
+      expect(result.success).to.equal(true);
+      if (result.success) {
+        expect(result.script).to.contain(
+          '...(Math.random() < 0.9 ? { conditionalAge: faker.number.int(18, 65) } : {})'
+        );
+      }
+    });
+
+    it('should handle probability with unrecognized fields', () => {
+      const schema = {
+        unknownField: {
+          mongoType: 'string',
+          fakerMethod: 'unrecognized',
+          fakerArgs: [],
+          probability: 0.5,
+        },
+      };
+
+      const result = generateScript(schema, {
+        databaseName: 'testdb',
+        collectionName: 'test',
+        documentCount: 1,
+      });
+
+      expect(result.success).to.equal(true);
+      if (result.success) {
+        expect(result.script).to.contain(
+          '...(Math.random() < 0.5 ? { unknownField: faker.lorem.word() } : {})'
+        );
       }
     });
   });

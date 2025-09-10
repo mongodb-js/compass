@@ -4,6 +4,7 @@ export interface FieldMapping {
   mongoType: string;
   fakerMethod: string;
   fakerArgs: FakerArg[];
+  probability?: number; // 0.0 - 1.0 frequency of field (defaults to 1.0)
 }
 
 // Hierarchical array length map that mirrors document structure
@@ -299,8 +300,19 @@ function generateDocumentCode(
   for (const [fieldName, value] of Object.entries(structure)) {
     if ('mongoType' in value) {
       // It's a field mapping
-      const fakerCall = generateFakerCall(value as FieldMapping);
-      rootLevelFields.push(`${fieldIndent}${fieldName}: ${fakerCall}`);
+      const mapping = value as FieldMapping;
+      const fakerCall = generateFakerCall(mapping);
+      const probability = mapping.probability ?? 1.0;
+
+      if (probability < 1.0) {
+        // Use Math.random for conditional field inclusion
+        rootLevelFields.push(
+          `${fieldIndent}...(Math.random() < ${probability} ? { ${fieldName}: ${fakerCall} } : {})`
+        );
+      } else {
+        // Normal field inclusion
+        rootLevelFields.push(`${fieldIndent}${fieldName}: ${fakerCall}`);
+      }
     } else if ('type' in value && value.type === 'array') {
       // It's an array
       const nestedArrayLengthMap =
