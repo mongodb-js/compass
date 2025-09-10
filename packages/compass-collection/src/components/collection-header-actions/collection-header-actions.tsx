@@ -95,11 +95,13 @@ const CollectionHeaderActions: React.FunctionComponent<
     mockDataGeneratorAssignment?.assignment?.assignmentData?.variant ===
     ExperimentTestGroup.mockDataGeneratorVariant;
 
-  const shouldShowMockDataButton =
+  let shouldShowMockDataButton =
     isInMockDataTreatmentVariant &&
     atlasMetadata && // Only show in Atlas
     !isReadonly && // Don't show for readonly collections (views)
     !sourceName; // sourceName indicates it's a view
+
+  // shouldShowMockDataButton = true;
 
   const exceedsMaxNestingDepth =
     analyzedSchemaDepth > MAX_COLLECTION_NESTING_DEPTH;
@@ -145,7 +147,7 @@ const CollectionHeaderActions: React.FunctionComponent<
             </div>
           }
         >
-          {/* todo within (CLOUDP-333853): update disabled open-modal button
+          {/* TODO(CLOUDP-333853): update disabled open-modal button
           tooltip to communicate if schema analysis is incomplete */}
           {exceedsMaxNestingDepth &&
             'At this time we are unable to generate mock data for collections that have deeply nested documents'}

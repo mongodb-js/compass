@@ -7,7 +7,6 @@ import {
   spacing,
   Banner,
   BannerVariant,
-  Code,
   Body,
 } from '@mongodb-js/compass-components';
 
@@ -16,24 +15,21 @@ import toSimplifiedFieldInfo from './to-simplified-field-info';
 import type { CollectionState } from '../../modules/collection-tab';
 import type { SchemaAnalysisState } from '../../schema-analysis-types';
 import type { MockDataGeneratorState } from './types';
+import { Document } from '@mongodb-js/compass-crud';
 
 interface RawSchemaConfirmationScreenProps {
   schemaAnalysis: SchemaAnalysisState;
-  namespace: string;
   fakerSchemaGenerationStatus: MockDataGeneratorState['status'];
 }
 
-const namespaceStyles = css({
-  marginTop: spacing[200],
-  marginBottom: spacing[400],
+const documentContainerStyles = css({
+  backgroundColor: palette.gray.light3,
+  border: `1px solid ${palette.gray.light2}`,
+  borderRadius: spacing[400],
 });
 
 const descriptionStyles = css({
   marginBottom: spacing[200],
-});
-
-const codeStyles = css({
-  maxHeight: '30vh',
 });
 
 const errorBannerStyles = css({
@@ -46,39 +42,40 @@ const errorBannerTextStyles = css({
 
 const RawSchemaConfirmationScreen = ({
   schemaAnalysis,
-  namespace,
   fakerSchemaGenerationStatus,
 }: RawSchemaConfirmationScreenProps) => {
-  const enableSampleDocumentPassing = usePreference(
+  let enableSampleDocumentPassing = usePreference(
     'enableGenAISampleDocumentPassing'
   );
+
+  // enableSampleDocumentPassing = false;
 
   const subtitleText = enableSampleDocumentPassing
     ? 'Sample Documents Collected'
     : 'Document Schema Identified';
 
   const descriptionText = enableSampleDocumentPassing
-    ? 'A sample of document values from your collection will be sent to an LLM for processing.'
+    ? 'A sample of documents from your collection will be sent to an LLM for processing.'
     : 'We have identified the following schema from your documents. This schema will be sent to an LLM for processing.';
 
   return (
     <div data-testid="raw-schema-confirmation">
       {schemaAnalysis.status === 'complete' ? (
         <>
-          <Body className={namespaceStyles}>{namespace}</Body>
           <Body as="h2" baseFontSize={16} weight="medium">
             {subtitleText}
           </Body>
           <Body className={descriptionStyles}>{descriptionText}</Body>
-          <Code language="javascript" copyable={false} className={codeStyles}>
-            {enableSampleDocumentPassing
-              ? JSON.stringify(schemaAnalysis.sampleDocument, null, 4)
-              : JSON.stringify(
-                  toSimplifiedFieldInfo(schemaAnalysis.processedSchema),
-                  null,
-                  4
-                )}
-          </Code>
+          <div className={documentContainerStyles}>
+            <Document
+              editable={false}
+              doc={
+                enableSampleDocumentPassing
+                  ? schemaAnalysis.sampleDocument
+                  : toSimplifiedFieldInfo(schemaAnalysis.processedSchema)
+              }
+            />
+          </div>
           {fakerSchemaGenerationStatus === 'error' && (
             <Banner
               variant={BannerVariant.Danger}
@@ -104,7 +101,6 @@ const mapStateToProps = (state: CollectionState) => {
 
   return {
     schemaAnalysis,
-    namespace: state.namespace,
     fakerSchemaGenerationStatus,
   };
 };

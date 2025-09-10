@@ -239,12 +239,14 @@ function validateFieldPath(fieldPath: string) {
   for (const part of parts) {
     if (part === '') {
       throw new Error(
-        `invalid fieldPath "${fieldPath}": field parts cannot be empty`
+        `invalid fieldPath '${fieldPath}': field parts cannot be empty`
       );
     }
 
     if (part.replaceAll('[]', '') === '') {
-      throw Error("expected fieldPath to have a non-empty part before '[]'");
+      throw new Error(
+        `invalid fieldPath '${fieldPath}': field parts must have characters other than '[]'`
+      );
     }
 
     // Check that [] only appears as complete pairs and only at the end of the part
@@ -256,7 +258,7 @@ function validateFieldPath(fieldPath: string) {
     const remaining = part.replace(/(\[\])+$/, '');
     if (remaining.includes('[') || remaining.includes(']')) {
       throw new Error(
-        `invalid fieldPath "${fieldPath}": "[]" can only appear at the end of field parts`
+        `invalid fieldPath '${fieldPath}': '[]' can only appear at the end of field parts`
       );
     }
   }

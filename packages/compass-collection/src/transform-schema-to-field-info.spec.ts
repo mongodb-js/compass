@@ -1137,7 +1137,7 @@ describe('processSchema', function () {
       };
 
       expect(() => processSchema(schema)).to.throw(
-        'invalid fieldPath "field[invalid": "[]" can only appear at the end of field parts'
+        "invalid fieldPath 'field[invalid': '[]' can only appear at the end of field parts"
       );
     });
 
@@ -1167,7 +1167,7 @@ describe('processSchema', function () {
       };
 
       expect(() => processSchema(schema)).to.throw(
-        'invalid fieldPath "field[]invalid": "[]" can only appear at the end of field parts'
+        "invalid fieldPath 'field[]invalid': '[]' can only appear at the end of field parts"
       );
     });
 
@@ -1216,11 +1216,11 @@ describe('processSchema', function () {
       };
 
       expect(() => processSchema(schema)).to.throw(
-        'invalid fieldPath "parent.": field parts cannot be empty'
+        "invalid fieldPath 'parent.': field parts cannot be empty"
       );
     });
 
-    it('throws error for field part that is only "[]"', function () {
+    it('throws error for a field part that only contains "[]"', function () {
       const schema: Schema = {
         fields: [
           {
@@ -1246,7 +1246,7 @@ describe('processSchema', function () {
       };
 
       expect(() => processSchema(schema)).to.throw(
-        "expected fieldPath to have a non-empty part before '[]'"
+        "invalid fieldPath '[]': field parts must have characters other than '[]'"
       );
     });
   });

@@ -213,32 +213,32 @@ describe('MockDataGeneratorModal', () => {
 
     it('displays the namespace', async () => {
       await renderModal();
-      expect(screen.queryByText('test.collection')).to.exist;
+      expect(screen.getByText('test.collection')).to.exist;
     });
 
     it('uses the appropriate copy when Generative AI sample document passing is enabled', async () => {
       await renderModal({ enableGenAISampleDocumentPassing: true });
-      expect(screen.queryByText('Sample Documents Collected')).to.exist;
+      expect(screen.getByText('Sample Documents Collected')).to.exist;
       expect(
-        screen.queryByText(
-          'A sample of document values from your collection will be sent to an LLM for processing.'
+        screen.getByText(
+          'A sample of documents from your collection will be sent to an LLM for processing.'
         )
       ).to.exist;
       // fragment from { "name": "John" }
-      expect(screen.queryByText('"John"')).to.exist;
+      expect(screen.getByText('"John"')).to.exist;
       expect(screen.queryByText('"String"')).to.not.exist;
     });
 
     it('uses the appropriate copy when Generative AI sample document passing is disabled', async () => {
       await renderModal();
-      expect(screen.queryByText('Document Schema Identified')).to.exist;
+      expect(screen.getByText('Document Schema Identified')).to.exist;
       expect(
         screen.queryByText(
           'We have identified the following schema from your documents. This schema will be sent to an LLM for processing.'
         )
       ).to.exist;
       // fragment from { "name": "String" }
-      expect(screen.queryByText('"String"')).to.exist;
+      expect(screen.getByText('"String"')).to.exist;
       expect(screen.queryByText('"John"')).to.not.exist;
     });
 
