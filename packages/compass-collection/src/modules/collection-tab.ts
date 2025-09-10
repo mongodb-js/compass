@@ -40,6 +40,9 @@ import type {
   MockDataGeneratorState,
 } from '../components/mock-data-generator-modal/types';
 
+/* eslint-disable @typescript-eslint/no-require-imports */
+const faker = require('@faker-js/faker/locale/en');
+
 const DEFAULT_SAMPLE_SIZE = 100;
 
 const NO_DOCUMENTS_ERROR = 'No documents found in the collection to analyze.';
@@ -686,33 +689,34 @@ export const cancelSchemaAnalysis = (): CollectionThunkAction<void> => {
   };
 };
 
-const validateFakerSchema = async (
+const validateFakerSchema = (
   fakerSchema: MockDataSchemaResponse,
   logger: Logger
 ) => {
-  const { faker } = await import('@faker-js/faker');
   return fakerSchema.content.fields.map((field) => {
     const { fakerMethod, fakerArgs } = field;
 
     const [first, second] = fakerMethod.split('.');
     try {
       // Try with arguments first
-      const fakerMethodWithArgs = eval(
-        `(faker, ...fakerArgs) => faker["${first}"]["${second}"](...fakerArgs)`
-      );
-      fakerMethodWithArgs(faker, ...fakerArgs);
+      const method = (faker as any)?.[first]?.[second];
+      if (typeof method !== 'function') {
+        throw new Error(`Faker method ${fakerMethod} is not a function`);
+      }
+      method(...fakerArgs);
       return field;
     } catch (error) {
       // If that fails and there are arguments, try without arguments
       if (fakerArgs.length > 0) {
         try {
-          const fakerMethodWithoutArgs = eval(
-            `(faker) => faker["${first}"]["${second}"]()`
-          );
-          fakerMethodWithoutArgs(faker);
+          const method = (faker as any)?.[first]?.[second];
+          if (typeof method !== 'function') {
+            throw new Error(`Faker method ${fakerMethod} is not a function`);
+          }
+          method();
           return field;
         } catch (error) {
-          logger.log.debug(
+          logger.debug(
             mongoLogId(1_001_000_371),
             'Collection',
             'Failed to validate faker schema with arguments',
@@ -724,7 +728,7 @@ const validateFakerSchema = async (
           );
         }
       }
-      logger.log.debug(
+      logger.debug(
         mongoLogId(1_001_000_372),
         'Collection',
         'Failed to validate faker schema',
@@ -809,7 +813,7 @@ export const generateFakerMappings = (): CollectionThunkAction<
         connectionInfoRef.current
       );
 
-      const validatedFakerSchema = await validateFakerSchema(response, logger);
+      const validatedFakerSchema = validateFakerSchema(response, logger);
 
       fakerSchemaGenerationAbortControllerRef.current = undefined;
       dispatch({
