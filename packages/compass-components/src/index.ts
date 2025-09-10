@@ -1,5 +1,5 @@
+import './force-emotion-speedy';
 export * from './components/leafygreen';
-
 export {
   default as emotion,
   flush,
