@@ -269,18 +269,5 @@ function validateFieldPath(fieldPath: string) {
         `invalid fieldPath '${fieldPath}': field parts must have characters other than '[]'`
       );
     }
-
-    // Check that [] only appears as complete pairs and only at the end of the part
-    // Remove all trailing [] pairs and check if any [] remains in the middle
-    // Regex breakdown: (\[\])+$
-    //   (\[\]) - matches exactly the characters "[]" (brackets are escaped)
-    //   +      - one or more times
-    //   $      - at the end of the string
-    const remaining = part.replace(/(\[\])+$/, '');
-    if (remaining.includes('[') || remaining.includes(']')) {
-      throw new ProcessSchemaValidationError(
-        `invalid fieldPath '${fieldPath}': '[]' can only appear at the end of field parts`
-      );
-    }
   }
 }

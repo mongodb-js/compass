@@ -1111,66 +1111,6 @@ describe('processSchema', function () {
    * These are unlikely to occur with valid `Schema` inputs to `processSchema`.
    */
   describe('validateFieldPath error conditions', function () {
-    it('throws error for incomplete brackets in middle of field part', function () {
-      const schema: Schema = {
-        fields: [
-          {
-            name: 'field[invalid', // Incomplete bracket
-            path: ['field[invalid'],
-            count: 1,
-            type: ['String'],
-            probability: 1.0,
-            hasDuplicates: false,
-            types: [
-              {
-                name: 'String',
-                bsonType: 'String',
-                path: ['field[invalid'],
-                count: 1,
-                probability: 1.0,
-                values: ['test'],
-              },
-            ],
-          },
-        ],
-        count: 1,
-      };
-
-      expect(() => processSchema(schema)).to.throw(
-        "invalid fieldPath 'field[invalid': '[]' can only appear at the end of field parts"
-      );
-    });
-
-    it('throws error for brackets in middle of field part', function () {
-      const schema: Schema = {
-        fields: [
-          {
-            name: 'field[]invalid', // Brackets in middle
-            path: ['field[]invalid'],
-            count: 1,
-            type: ['String'],
-            probability: 1.0,
-            hasDuplicates: false,
-            types: [
-              {
-                name: 'String',
-                bsonType: 'String',
-                path: ['field[]invalid'],
-                count: 1,
-                probability: 1.0,
-                values: ['test'],
-              },
-            ],
-          },
-        ],
-        count: 1,
-      };
-
-      expect(() => processSchema(schema)).to.throw(
-        "invalid fieldPath 'field[]invalid': '[]' can only appear at the end of field parts"
-      );
-    });
-
     it('throws error for empty field parts', function () {
       const schema: Schema = {
         fields: [
