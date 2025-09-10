@@ -222,23 +222,44 @@ export function generateScript(
 
     const documentCode = generateDocumentCode(structure);
 
-    const script = `
-// Generated Mock Data Script
+    // Escape ' and ` in database/collection names for template literals
+    const escapedDbName = options.databaseName
+      .replace(/'/g, "\\'")
+      .replace(/`/g, '\\`');
+    const escapedCollectionName = options.collectionName
+      .replace(/'/g, "\\'")
+      .replace(/`/g, '\\`');
+
+    // Validate document count
+    const documentCount = Math.max(
+      1,
+      Math.min(10000, Math.floor(options.documentCount))
+    );
+
+    const script = `// Mock Data Generator Script
+// Generated for collection: ${escapedDbName}.${escapedCollectionName}
+// Document count: ${documentCount}
+
 const { faker } = require('@faker-js/faker');
 
+// Connect to database
+use('${escapedDbName}');
+
+// Document generation function
 function generateDocument() {
   return ${documentCode};
 }
 
-// Generate documents
+// Generate and insert documents
 const documents = [];
-for (let i = 0; i < ${options.documentCount}; i++) {
+for (let i = 0; i < ${documentCount}; i++) {
   documents.push(generateDocument());
 }
 
-// TODO: Add database connection and insertion
-console.log('Generated', documents.length, 'documents');
-`;
+// Insert documents into collection
+db.getCollection('${escapedCollectionName}').insertMany(documents);
+
+console.log(\`Successfully inserted \${documents.length} documents into ${escapedDbName}.${escapedCollectionName}\`);`;
 
     return {
       script,
