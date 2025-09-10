@@ -32,7 +32,7 @@ const interactionTypeTags = {
   'Proactive Perf': 'proactive-performance-insights',
   'General network error': 'general-network-error',
   OIDC: 'oidc',
-  TSL: 'tsl-ssl',
+  TLS: 'tls-ssl',
   SSL: 'tsl-ssl',
 };
 
