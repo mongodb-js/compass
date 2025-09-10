@@ -235,7 +235,7 @@ export function startAnalysis(
                       logger.log.warn(
                         mongoLogId(1_001_000_371),
                         'DataModeling',
-                        'Failed when identifying relationship for the collection',
+                        'Failed to identify relationship for collection',
                         { ns, error: err.message }
                       );
                     }
