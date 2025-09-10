@@ -43,6 +43,21 @@ import {
  * Maximum number of sample values to include for each field
  */
 const MAX_SAMPLE_VALUES = 10;
+export const FIELD_NAME_SEPARATOR = '.';
+
+export class ProcessSchemaUnsupportedStateError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'ProcessSchemaUnsupportedStateError';
+  }
+}
+
+export class ProcessSchemaValidationError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'ProcessSchemaValidationError';
+  }
+}
 
 /**
  * Converts a BSON value to its primitive JavaScript equivalent
@@ -163,6 +178,12 @@ function processNamedField(
     return;
   }
 
+  if (field.name.includes(FIELD_NAME_SEPARATOR)) {
+    throw new ProcessSchemaUnsupportedStateError(
+      `no support for field names that contain a '.' ; field name: '${field.name}'`
+    );
+  }
+
   const currentPath = pathPrefix ? `${pathPrefix}.${field.name}` : field.name;
 
   // Process based on the type
@@ -238,13 +259,13 @@ function validateFieldPath(fieldPath: string) {
 
   for (const part of parts) {
     if (part === '') {
-      throw new Error(
+      throw new ProcessSchemaValidationError(
         `invalid fieldPath '${fieldPath}': field parts cannot be empty`
       );
     }
 
     if (part.replaceAll('[]', '') === '') {
-      throw new Error(
+      throw new ProcessSchemaValidationError(
         `invalid fieldPath '${fieldPath}': field parts must have characters other than '[]'`
       );
     }
@@ -257,7 +278,7 @@ function validateFieldPath(fieldPath: string) {
     //   $      - at the end of the string
     const remaining = part.replace(/(\[\])+$/, '');
     if (remaining.includes('[') || remaining.includes(']')) {
-      throw new Error(
+      throw new ProcessSchemaValidationError(
         `invalid fieldPath '${fieldPath}': '[]' can only appear at the end of field parts`
       );
     }

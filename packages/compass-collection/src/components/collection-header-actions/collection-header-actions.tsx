@@ -21,6 +21,7 @@ import {
 import {
   SCHEMA_ANALYSIS_STATE_ANALYZING,
   type SchemaAnalysisStatus,
+  type SchemaAnalysisError,
 } from '../../schema-analysis-types';
 
 /**
@@ -57,6 +58,7 @@ type CollectionHeaderActionsProps = {
   sourcePipeline?: unknown[];
   onOpenMockDataModal: () => void;
   hasSchemaAnalysisData: boolean;
+  schemaAnalysisError: SchemaAnalysisError | null;
   analyzedSchemaDepth: number;
   schemaAnalysisStatus: SchemaAnalysisStatus | null;
 };
@@ -73,6 +75,7 @@ const CollectionHeaderActions: React.FunctionComponent<
   hasSchemaAnalysisData,
   analyzedSchemaDepth,
   schemaAnalysisStatus,
+  schemaAnalysisError,
 }: CollectionHeaderActionsProps) => {
   const connectionInfo = useConnectionInfo();
   const { id: connectionId, atlasMetadata } = connectionInfo;
@@ -151,6 +154,9 @@ const CollectionHeaderActions: React.FunctionComponent<
             'At this time we are unable to generate mock data for collections that have deeply nested documents'}
           {isCollectionEmpty &&
             'Please add data to your collection to generate similar mock documents'}
+          {schemaAnalysisError &&
+            schemaAnalysisError.errorType === 'unsupportedState' &&
+            'This collection has a field with a name that contains a ".", which mock data generation does not support at this time.'}
         </Tooltip>
       )}
       {atlasMetadata && (

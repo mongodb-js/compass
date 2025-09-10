@@ -1,3 +1,4 @@
+import { FIELD_NAME_SEPARATOR } from '../../transform-schema-to-field-info';
 import type { processSchema } from '../../transform-schema-to-field-info';
 import type { FieldInfo } from '../../schema-analysis-types';
 
@@ -22,7 +23,7 @@ export default function toSimplifiedFieldInfo(
 
   const result: SimplifiedFieldInfoTree = {};
   for (const path of sortedFieldPaths) {
-    const fieldParts = path.split('.');
+    const fieldParts = path.split(FIELD_NAME_SEPARATOR);
 
     let node = result;
     for (let i = 0; i < fieldParts.length; i++) {
