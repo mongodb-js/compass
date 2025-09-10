@@ -16,44 +16,43 @@ import type { Relationship } from '../services/data-model-storage';
  *
  * @internal exported only for testing purposes
  */
-export function traverseMongoDBJSONSchema(
+export function* traverseMongoDBJSONSchema(
   schema: MongoDBJSONSchema,
-  visitor: (
-    schema: MongoDBJSONSchema,
-    path: string[],
-    isArrayItem: boolean
-  ) => void,
   path: string[] = [],
   isArrayItem = false
-) {
+): Iterable<{
+  schema: MongoDBJSONSchema;
+  path: string[];
+  isArrayItem: boolean;
+}> {
   if (schema.anyOf) {
     for (const s of schema.anyOf) {
-      traverseMongoDBJSONSchema(s, visitor, path);
+      yield* traverseMongoDBJSONSchema(s, path);
     }
     return;
   }
 
   if (Array.isArray(schema.bsonType)) {
     for (const t of schema.bsonType) {
-      traverseMongoDBJSONSchema({ ...schema, bsonType: t }, visitor, path);
+      yield* traverseMongoDBJSONSchema({ ...schema, bsonType: t }, path);
     }
     return;
   }
 
-  visitor(schema, path, isArrayItem);
+  yield { schema, path, isArrayItem };
 
   if (schema.items) {
     for (const s of Array.isArray(schema.items)
       ? schema.items
       : [schema.items]) {
-      traverseMongoDBJSONSchema(s, visitor, path, true);
+      yield* traverseMongoDBJSONSchema(s, path, true);
     }
     return;
   }
 
   if (schema.properties) {
     for (const [key, s] of Object.entries(schema.properties)) {
-      traverseMongoDBJSONSchema(s, visitor, [...path, key]);
+      yield* traverseMongoDBJSONSchema(s, [...path, key]);
     }
   }
 }
@@ -66,11 +65,11 @@ export function findPropertyPathsMatchingSchema(
   schemaToMatch: MongoDBJSONSchema
 ): string[][] {
   const properties: string[][] = [];
-  traverseMongoDBJSONSchema(schema, (s, path) => {
+  for (const { schema: s, path } of traverseMongoDBJSONSchema(schema)) {
     if (s.bsonType === schemaToMatch.bsonType && isEqual(s, schemaToMatch)) {
       properties.push(path);
     }
-  });
+  }
   return properties;
 }
 

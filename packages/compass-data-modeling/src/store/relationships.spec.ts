@@ -12,37 +12,37 @@ import {
 describe('relationships', function () {
   describe('traverseMongoDBJSONSchema', function () {
     it('should traverse the full schema, calling visitor function for every encountered type variant including root', function () {
-      const visitedTypes = new Map<string, string[]>();
-      traverseMongoDBJSONSchema(
-        {
-          anyOf: [
-            { bsonType: 'int' },
-            {
-              bsonType: 'object',
-              properties: {
-                foo: {
-                  bsonType: 'array',
-                  items: [
-                    { bsonType: 'string' },
-                    {
-                      bsonType: 'object',
-                      properties: { bar: { bsonType: 'int' } },
-                    },
-                  ],
-                },
-                buz: { bsonType: ['int', 'bool'] },
+      const documentSchema = {
+        anyOf: [
+          { bsonType: 'int' },
+          {
+            bsonType: 'object',
+            properties: {
+              foo: {
+                bsonType: 'array',
+                items: [
+                  { bsonType: 'string' },
+                  {
+                    bsonType: 'object',
+                    properties: { bar: { bsonType: 'int' } },
+                  },
+                ],
               },
+              buz: { bsonType: ['int', 'bool'] },
             },
-          ],
-        },
-        (schema, path) => {
-          const pathStr = path.join('.');
-          const pathTypes =
-            visitedTypes.get(pathStr) ??
-            visitedTypes.set(pathStr, []).get(pathStr);
-          pathTypes?.push(schema.bsonType as string);
-        }
-      );
+          },
+        ],
+      };
+      const visitedTypes = new Map<string, string[]>();
+      for (const { schema, path } of traverseMongoDBJSONSchema(
+        documentSchema
+      )) {
+        const pathStr = path.join('.');
+        const pathTypes =
+          visitedTypes.get(pathStr) ??
+          visitedTypes.set(pathStr, []).get(pathStr);
+        pathTypes?.push(schema.bsonType as string);
+      }
       expect(Array.from(visitedTypes.entries())).to.deep.eq([
         ['', ['int', 'object']],
         ['foo', ['array', 'string', 'object']],
