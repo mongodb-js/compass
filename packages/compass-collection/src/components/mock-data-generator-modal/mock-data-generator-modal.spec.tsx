@@ -15,6 +15,7 @@ import { StepButtonLabelMap } from './constants';
 import type { CollectionState } from '../../modules/collection-tab';
 import { default as collectionTabReducer } from '../../modules/collection-tab';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
+import type { MockDataSchemaResponse } from '@mongodb-js/compass-generative-ai';
 
 describe('MockDataGeneratorModal', () => {
   async function renderModal({
@@ -80,10 +81,10 @@ describe('MockDataGeneratorModal', () => {
       atlasAiService: {
         getMockDataSchema: () => {
           return Promise.resolve({
-            contents: {
+            content: {
               fields: [],
             },
-          });
+          } as MockDataSchemaResponse);
         },
       },
       workspaces: {},
@@ -175,7 +176,7 @@ describe('MockDataGeneratorModal', () => {
       userEvent.click(screen.getByText('Confirm'));
 
       await waitFor(() => {
-        expect(screen.getByTestId('schema-editor-loading')).to.exist;
+        expect(screen.getByTestId('faker-schema-editor-loader')).to.exist;
       });
 
       userEvent.click(screen.getByText('Cancel'));
@@ -191,7 +192,7 @@ describe('MockDataGeneratorModal', () => {
       userEvent.click(screen.getByText('Confirm'));
 
       await waitFor(() => {
-        expect(screen.getByTestId('schema-editor-loading')).to.exist;
+        expect(screen.getByTestId('faker-schema-editor-loader')).to.exist;
       });
 
       userEvent.click(screen.getByText('Back'));
@@ -246,11 +247,11 @@ describe('MockDataGeneratorModal', () => {
       await renderModal();
 
       expect(screen.getByTestId('raw-schema-confirmation')).to.exist;
-      expect(screen.queryByTestId('faker-schema-editor')).to.not.exist;
+      expect(screen.queryByTestId('faker-schema-editor-loader')).to.not.exist;
       userEvent.click(screen.getByText('Confirm'));
       await waitFor(() => {
         expect(screen.queryByTestId('raw-schema-confirmation')).to.not.exist;
-        expect(screen.getByTestId('faker-schema-editor')).to.exist;
+        expect(screen.getByTestId('faker-schema-editor-loader')).to.exist;
       });
     });
 
@@ -270,6 +271,72 @@ describe('MockDataGeneratorModal', () => {
 
       expect(screen.getByText('LLM Request failed. Please confirm again.')).to
         .exist;
+    });
+  });
+
+  describe('on the schema editor step', () => {
+    const mockServicesWithAiResponse = createMockServices();
+    mockServicesWithAiResponse.atlasAiService.getMockDataSchema = () =>
+      Promise.resolve({
+        content: {
+          fields: [
+            {
+              fieldPath: 'name',
+              mongoType: 'string',
+              fakerMethod: 'person.firstName',
+              fakerArgs: [],
+              isArray: false,
+              probability: 1.0,
+            },
+            {
+              fieldPath: 'age',
+              mongoType: 'int',
+              fakerMethod: 'number.int',
+              fakerArgs: [],
+              isArray: false,
+              probability: 1.0,
+            },
+            {
+              fieldPath: 'email',
+              mongoType: 'string',
+              fakerMethod: 'internet.emailAddress',
+              fakerArgs: [],
+              isArray: false,
+              probability: 1.0,
+            },
+          ],
+        },
+      });
+
+    it('shows a loading spinner when the faker schema generation is in progress', async () => {
+      await renderModal();
+
+      // advance to the schema editor step
+      userEvent.click(screen.getByText('Confirm'));
+      expect(screen.getByTestId('faker-schema-editor-loader')).to.exist;
+    });
+
+    it('shows the faker schema editor when the faker schema generation is completed', async () => {
+      await renderModal({ mockServices: mockServicesWithAiResponse });
+
+      // advance to the schema editor step
+      userEvent.click(screen.getByText('Confirm'));
+
+      expect(await screen.findByTestId('faker-schema-editor')).to.exist;
+      expect(screen.getByText('name')).to.exist;
+      expect(screen.getByText('age')).to.exist;
+    });
+
+    it('disables the Next button when the faker schema mapping is not confirmed', async () => {
+      await renderModal({
+        mockServices: mockServicesWithAiResponse,
+      });
+
+      // advance to the schema editor step
+      userEvent.click(screen.getByText('Confirm'));
+      expect(
+        screen.getByTestId('next-step-button').getAttribute('aria-disabled')
+      ).to.equal('true');
     });
   });
 

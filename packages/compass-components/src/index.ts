@@ -228,4 +228,3 @@ export { ParagraphSkeleton } from '@leafygreen-ui/skeleton-loader';
 export { InsightsChip } from './components/insights-chip';
 export * from './components/drawer-portal';
 export { FileSelector } from './components/file-selector';
-export { transitionDuration } from '@leafygreen-ui/tokens';

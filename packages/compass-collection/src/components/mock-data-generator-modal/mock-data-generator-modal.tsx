@@ -14,7 +14,7 @@ import {
   SpinLoaderWithLabel,
 } from '@mongodb-js/compass-components';
 
-import { type FakerSchemaMapping, MockDataGeneratorStep } from './types';
+import { type MockDataGeneratorState, MockDataGeneratorStep } from './types';
 import { StepButtonLabelMap } from './constants';
 import type { CollectionState } from '../../modules/collection-tab';
 import {
@@ -57,7 +57,7 @@ interface Props {
   onConfirmSchema: () => Promise<void>;
   onPreviousStep: () => void;
   namespace: string;
-  fakerSchema?: Array<FakerSchemaMapping>;
+  fakerSchemaGenerationState: MockDataGeneratorState;
 }
 
 const MockDataGeneratorModal = ({
@@ -68,25 +68,38 @@ const MockDataGeneratorModal = ({
   onConfirmSchema,
   onPreviousStep,
   namespace,
-  fakerSchema,
+  fakerSchemaGenerationState,
 }: Props) => {
+  const [isSchemaConfirmed, setIsSchemaConfirmed] =
+    React.useState<boolean>(false);
+
   const modalBodyContent = useMemo(() => {
     switch (currentStep) {
       case MockDataGeneratorStep.SCHEMA_CONFIRMATION:
         return <RawSchemaConfirmationScreen />;
       case MockDataGeneratorStep.SCHEMA_EDITOR:
-        return fakerSchema === undefined ? (
-          <SpinLoaderWithLabel
-            className={schemaEditorLoaderStyles}
-            progressText="Processing Documents..."
-          />
-        ) : (
-          <FakerSchemaEditorScreen
-            isSchemaConfirmed={isSchemaConfirmed}
-            onSchemaConfirmed={() => setIsSchemaConfirmed(true)}
-            fakerMappings={fakerSchema}
-          />
-        );
+        {
+          if (fakerSchemaGenerationState.status === 'in-progress') {
+            return (
+              <div
+                data-testid="faker-schema-editor-loader"
+                className={schemaEditorLoaderStyles}
+              >
+                <SpinLoaderWithLabel progressText="Processing Documents..." />
+              </div>
+            );
+          }
+          if (fakerSchemaGenerationState.status === 'completed') {
+            return (
+              <FakerSchemaEditorScreen
+                isSchemaConfirmed={isSchemaConfirmed}
+                onSchemaConfirmed={() => setIsSchemaConfirmed(true)}
+                fakerMappings={fakerSchemaGenerationState.fakerSchema}
+              />
+            );
+          }
+        }
+        break;
       case MockDataGeneratorStep.DOCUMENT_COUNT:
         return <></>; // TODO: CLOUDP-333856
       case MockDataGeneratorStep.PREVIEW_DATA:
@@ -94,14 +107,12 @@ const MockDataGeneratorModal = ({
       case MockDataGeneratorStep.GENERATE_DATA:
         return <ScriptScreen />;
     }
-  }, [currentStep]);
-  const [isSchemaConfirmed, setIsSchemaConfirmed] =
-    React.useState<boolean>(false);
+  }, [currentStep, fakerSchemaGenerationState.status]);
 
   const isNextButtonDisabled =
     currentStep === MockDataGeneratorStep.SCHEMA_EDITOR &&
     !isSchemaConfirmed &&
-    fakerSchema === undefined;
+    fakerSchemaGenerationState.status === 'in-progress';
 
   const handleNextClick = () => {
     if (currentStep === MockDataGeneratorStep.GENERATE_DATA) {
@@ -163,10 +174,7 @@ const mapStateToProps = (state: CollectionState) => ({
   isOpen: state.mockDataGenerator.isModalOpen,
   currentStep: state.mockDataGenerator.currentStep,
   namespace: state.namespace,
-  fakerSchema:
-    state.fakerSchemaGeneration.status === 'completed'
-      ? state.fakerSchemaGeneration.fakerSchema
-      : undefined,
+  fakerSchemaGenerationState: state.fakerSchemaGeneration,
 });
 
 const ConnectedMockDataGeneratorModal = connect(mapStateToProps, {
