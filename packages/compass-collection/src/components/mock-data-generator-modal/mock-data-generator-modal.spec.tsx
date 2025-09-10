@@ -82,7 +82,16 @@ describe('MockDataGeneratorModal', () => {
         getMockDataSchema: () => {
           return Promise.resolve({
             content: {
-              fields: [],
+              fields: [
+                {
+                  fieldPath: 'name',
+                  mongoType: 'string',
+                  fakerMethod: 'person.firstName',
+                  fakerArgs: [],
+                  isArray: false,
+                  probability: 1.0,
+                },
+              ],
             },
           } as MockDataSchemaResponse);
         },
@@ -247,11 +256,11 @@ describe('MockDataGeneratorModal', () => {
       await renderModal();
 
       expect(screen.getByTestId('raw-schema-confirmation')).to.exist;
-      expect(screen.queryByTestId('faker-schema-editor-loader')).to.not.exist;
+      expect(screen.queryByTestId('faker-schema-editor')).to.not.exist;
       userEvent.click(screen.getByText('Confirm'));
       await waitFor(() => {
         expect(screen.queryByTestId('raw-schema-confirmation')).to.not.exist;
-        expect(screen.getByTestId('faker-schema-editor-loader')).to.exist;
+        expect(screen.getByTestId('faker-schema-editor')).to.exist;
       });
     });
 
@@ -309,6 +318,20 @@ describe('MockDataGeneratorModal', () => {
       });
 
     it('shows a loading spinner when the faker schema generation is in progress', async () => {
+      const mockServices = createMockServices();
+      mockServices.atlasAiService.getMockDataSchema = () =>
+        new Promise((resolve) =>
+          setTimeout(
+            () =>
+              resolve({
+                content: {
+                  fields: [],
+                },
+              }),
+            1000
+          )
+        );
+
       await renderModal();
 
       // advance to the schema editor step
