@@ -16,23 +16,8 @@ import type { CollectionState } from '../../modules/collection-tab';
 import { default as collectionTabReducer } from '../../modules/collection-tab';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import type { MockDataSchemaResponse } from '@mongodb-js/compass-generative-ai';
-import type { SinonSandbox } from 'sinon';
-import sinon from 'sinon';
-
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const { faker } = require('@faker-js/faker/locale/en');
 
 describe('MockDataGeneratorModal', () => {
-  let sandbox: SinonSandbox;
-
-  beforeEach(() => {
-    sandbox = sinon.createSandbox();
-  });
-
-  afterEach(() => {
-    sandbox.restore();
-  });
-
   async function renderModal({
     isOpen = true,
     currentStep = MockDataGeneratorStep.SCHEMA_CONFIRMATION,
@@ -286,7 +271,15 @@ describe('MockDataGeneratorModal', () => {
             {
               fieldPath: 'email',
               mongoType: 'string',
-              fakerMethod: 'internet.emailAddress',
+              fakerMethod: 'internet',
+              fakerArgs: [],
+              isArray: false,
+              probability: 1.0,
+            },
+            {
+              fieldPath: 'username',
+              mongoType: 'string',
+              fakerMethod: 'noSuchMethod',
               fakerArgs: [],
               isArray: false,
               probability: 1.0,
@@ -329,9 +322,6 @@ describe('MockDataGeneratorModal', () => {
     });
 
     it('shows correct values for the faker schema editor', async () => {
-      sandbox.stub(faker, 'person').returns('Jane');
-      sandbox.stub(faker, 'number').returns(30);
-      sandbox.stub(faker, 'internet').throws(new Error('Invalid faker method'));
       await renderModal({ mockServices: mockServicesWithMockDataResponse });
 
       // advance to the schema editor step
@@ -365,6 +355,14 @@ describe('MockDataGeneratorModal', () => {
           'Please select a function or we will default fill this field with the string "Unrecognized"'
         )
       ).to.exist;
+
+      // select the "username" field
+      userEvent.click(screen.getByText('username'));
+      expect(screen.getByText('username')).to.exist;
+      expect(screen.getByLabelText('JSON Type')).to.have.value('string');
+      expect(screen.getByLabelText('Faker Function')).to.have.value(
+        'Unrecognized'
+      );
     });
 
     it('disables the Next button when the faker schema mapping is not confirmed', async () => {
