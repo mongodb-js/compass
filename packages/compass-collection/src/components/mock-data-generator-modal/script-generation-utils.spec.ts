@@ -23,7 +23,7 @@ describe('Script Generation', () => {
 
       expect(result.success).to.equal(true);
       if (result.success) {
-        expect(result.script).to.contain('use("testdb")');
+        expect(result.script).to.contain("use('testdb')");
         expect(result.script).to.contain('faker.person.fullName()');
         expect(result.script).to.contain('faker.internet.email()');
         expect(result.script).to.contain('insertMany');
@@ -180,7 +180,7 @@ describe('Script Generation', () => {
 
       expect(result.success).to.equal(true);
       if (result.success) {
-        expect(result.script).to.contain('use("testdb")');
+        expect(result.script).to.contain("use('testdb')");
         expect(result.script).to.contain('insertMany');
         // Should generate empty objects
         expect(result.script).to.contain('{}');

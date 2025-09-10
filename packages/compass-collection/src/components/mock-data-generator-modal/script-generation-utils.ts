@@ -277,37 +277,53 @@ console.log(\`Successfully inserted \${documents.length} documents into ${escape
 /**
  * Generate JavaScript object code from document structure
  */
-function generateDocumentCode(structure: DocumentStructure): string {
+function generateDocumentCode(
+  structure: DocumentStructure,
+  indent: number = 2
+): string {
   // For each field in structure:
   //   - If FieldMapping: generate faker call
   //   - If DocumentStructure: generate nested object
   //   - If ArrayStructure: generate array
 
-  const parts: string[] = [];
+  const fieldIndent = ' '.repeat(indent);
+  const closingBraceIndent = ' '.repeat(indent - 2);
+  const rootLevelFields: string[] = [];
 
   for (const [fieldName, value] of Object.entries(structure)) {
     if ('mongoType' in value) {
       // It's a field mapping
       const fakerCall = generateFakerCall(value as FieldMapping);
-      parts.push(`  ${fieldName}: ${fakerCall}`);
+      rootLevelFields.push(`${fieldIndent}${fieldName}: ${fakerCall}`);
     } else if ('type' in value && value.type === 'array') {
       // It's an array
-      const arrayCode = generateArrayCode(value as ArrayStructure);
-      parts.push(`  ${fieldName}: ${arrayCode}`);
+      const arrayCode = generateArrayCode(value as ArrayStructure, indent + 2);
+      rootLevelFields.push(`${fieldIndent}${fieldName}: ${arrayCode}`);
     } else {
       // It's a nested object: recursive call
-      const nestedCode = generateDocumentCode(value as DocumentStructure);
-      parts.push(`  ${fieldName}: ${nestedCode}`);
+      const nestedCode = generateDocumentCode(
+        value as DocumentStructure,
+        indent + 2
+      );
+      rootLevelFields.push(`${fieldIndent}${fieldName}: ${nestedCode}`);
     }
   }
 
-  return `{\n${parts.join(',\n')}\n}`;
+  // Handle empty objects
+  if (rootLevelFields.length === 0) {
+    return '{}';
+  }
+
+  return `{\n${rootLevelFields.join(',\n')}\n${closingBraceIndent}}`;
 }
 
 /**
  * Generate array code
  */
-function generateArrayCode(arrayStructure: ArrayStructure): string {
+function generateArrayCode(
+  arrayStructure: ArrayStructure,
+  indent: number = 2
+): string {
   const elementType = arrayStructure.elementType;
 
   // Fixed length for now - TODO: make configurable
@@ -319,11 +335,17 @@ function generateArrayCode(arrayStructure: ArrayStructure): string {
     return `Array.from({length: ${arrayLength}}, () => ${fakerCall})`;
   } else if ('type' in elementType && elementType.type === 'array') {
     // Nested array (e.g., matrix[][])
-    const nestedArrayCode = generateArrayCode(elementType as ArrayStructure);
+    const nestedArrayCode = generateArrayCode(
+      elementType as ArrayStructure,
+      indent
+    );
     return `Array.from({length: ${arrayLength}}, () => ${nestedArrayCode})`;
   } else {
     // Array of objects
-    const objectCode = generateDocumentCode(elementType as DocumentStructure);
+    const objectCode = generateDocumentCode(
+      elementType as DocumentStructure,
+      indent
+    );
     return `Array.from({length: ${arrayLength}}, () => ${objectCode})`;
   }
 }
