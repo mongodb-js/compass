@@ -659,7 +659,7 @@ export const analyzeCollectionSchema = (): CollectionThunkAction<
       }
 
       if (err instanceof ProcessSchemaUnsupportedStateError) {
-        logger.log.error(
+        logger.log.info(
           mongoLogId(1_001_000_365),
           'Collection',
           'Schema analysis failed due to unsupported state',
