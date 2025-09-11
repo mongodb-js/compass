@@ -4,7 +4,7 @@ const rule = require('./no-inline-emotion-css');
 
 const ruleTester = new RuleTester();
 
-ruleTester.run('no-leafygreen-outside-compass-components', rule, {
+ruleTester.run('no-inline-emotion-css', rule, {
   valid: [
     {
       code: "const staticSet = css({ background: 'orange' });",
