@@ -162,12 +162,7 @@ export async function inferForeignToLocalRelationshipsForCollection(
       const schemaPaths = findPropertyPathsMatchingSchema(
         localColl.schema,
         idSchema
-      ).filter((value) => {
-        // They will be matching in a lot of cases, but the chances of both
-        // local and foreign field in a relationship being _id are very slim, so
-        // skipping
-        return value[0] !== '_id';
-      });
+      );
       return schemaPaths.map(
         async (propPath): Promise<Relationship['relationship'] | null> => {
           try {
