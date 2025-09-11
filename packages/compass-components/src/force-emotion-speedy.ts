@@ -17,7 +17,7 @@ import { sheet } from '@leafygreen-ui/emotion';
  * Historically "speedy" mode was only active in production because editing
  * styles in the browser devtools didn't work otherwise, nowadays there is no
  * reason to not use it always, so there should be no downsides to doing this.
- * 
+ *
  * See also https://github.com/10gen/compass-data-explorer/pull/11 where we
  * already ran into a similar issue.
  */
