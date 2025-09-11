@@ -252,7 +252,7 @@
     "cross-spawn": "^7.0.5",
     "debug": "^4.3.4",
     "depcheck": "^1.4.1",
-    "electron": "^38.1.0",
+    "electron": "^37.4.0",
     "electron-devtools-installer": "^3.2.0",
     "electron-dl": "^3.5.0",
     "electron-mocha": "^12.2.0",
