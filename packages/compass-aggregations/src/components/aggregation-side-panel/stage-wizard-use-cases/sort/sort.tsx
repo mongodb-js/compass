@@ -55,14 +55,14 @@ const mapSortFormDataToStageValue = (
 
 const SortFormGroup = ({
   index,
-  comboboxClassName,
+  comboboxStyle,
   fields,
   sortField,
   sortDirection,
   onChange,
 }: {
   index: number;
-  comboboxClassName: string;
+  comboboxStyle: React.CSSProperties;
   fields: WizardComponentProps['fields'];
   sortField: string;
   sortDirection: SortDirection;
@@ -78,7 +78,7 @@ const SortFormGroup = ({
       </Body>
       <div data-testid={`sort-form-${index}-field`}>
         <FieldCombobox
-          className={comboboxClassName}
+          style={comboboxStyle}
           value={sortField}
           onChange={(value: string | null) => {
             if (value) {
@@ -159,12 +159,12 @@ export const SortForm = ({ fields, onChange }: WizardComponentProps) => {
     onSetFormData(newData);
   };
 
-  const comboboxClassName = useMemo(() => {
-    return css({
+  const comboboxStyles = useMemo(() => {
+    return {
       width: `calc(${String(
         Math.max(...fields.map(({ name }) => name.length), 10)
       )}ch)`,
-    });
+    };
   }, [fields]);
 
   return (
@@ -178,7 +178,7 @@ export const SortForm = ({ fields, onChange }: WizardComponentProps) => {
         renderItem={(item, index) => {
           return (
             <SortFormGroup
-              comboboxClassName={comboboxClassName}
+              comboboxStyle={comboboxStyles}
               index={index}
               sortField={item.field}
               sortDirection={item.direction}
