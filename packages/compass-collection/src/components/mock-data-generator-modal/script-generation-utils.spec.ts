@@ -839,4 +839,117 @@ describe('Script Generation', () => {
       }
     });
   });
+
+  describe('Graceful Handling', () => {
+    it('should default invalid probability to 1.0', () => {
+      const schema = {
+        field1: {
+          mongoType: 'string',
+          fakerMethod: 'lorem.word',
+          fakerArgs: [],
+          probability: 1.5, // Invalid - should default to 1.0
+        },
+        field2: {
+          mongoType: 'string',
+          fakerMethod: 'lorem.word',
+          fakerArgs: [],
+          probability: -0.5, // Invalid - should default to 1.0
+        },
+        field3: {
+          mongoType: 'string',
+          fakerMethod: 'lorem.word',
+          fakerArgs: [],
+          probability: 'invalid' as any, // Invalid - should default to 1.0
+        },
+      };
+
+      const result = generateScript(schema, {
+        databaseName: 'test',
+        collectionName: 'test',
+        documentCount: 1,
+      });
+
+      expect(result.success).to.equal(true);
+      if (result.success) {
+        // All fields should be treated as probability 1.0 (always present)
+        expect(result.script).to.contain('field1: faker.lorem.word()');
+        expect(result.script).to.contain('field2: faker.lorem.word()');
+        expect(result.script).to.contain('field3: faker.lorem.word()');
+        expect(result.script).not.to.contain('Math.random()');
+      }
+    });
+
+    it('should handle field names with brackets (non-array)', () => {
+      const schema = {
+        'settings[theme]': createFieldMapping('lorem.word'),
+        'data[0]': createFieldMapping('lorem.word'),
+        'bracket]field': createFieldMapping('lorem.word'),
+        '[metadata': createFieldMapping('lorem.word'),
+      };
+
+      const result = generateScript(schema, {
+        databaseName: 'test',
+        collectionName: 'test',
+        documentCount: 1,
+      });
+
+      expect(result.success).to.equal(true);
+      if (result.success) {
+        // All fields should be treated as regular field names, not arrays
+        expect(result.script).to.contain('settings[theme]: faker.lorem.word()');
+        expect(result.script).to.contain('data[0]: faker.lorem.word()');
+        expect(result.script).to.contain('bracket]field: faker.lorem.word()');
+        expect(result.script).to.contain('[metadata: faker.lorem.word()');
+        expect(result.script).not.to.contain('Array.from');
+      }
+    });
+
+    it('should handle field names with [] in middle (not array notation)', () => {
+      const schema = {
+        'squareBrackets[]InMiddle': createFieldMapping('lorem.word'),
+        'field[]WithMore': createFieldMapping('lorem.word'),
+        'start[]middle[]end': createFieldMapping('lorem.word'),
+      };
+
+      const result = generateScript(schema, {
+        databaseName: 'test',
+        collectionName: 'test',
+        documentCount: 1,
+      });
+
+      expect(result.success).to.equal(true);
+      if (result.success) {
+        // These should be treated as regular field names, not arrays
+        expect(result.script).to.contain(
+          'squareBrackets[]InMiddle: faker.lorem.word()'
+        );
+        expect(result.script).to.contain('field[]WithMore: faker.lorem.word()');
+        expect(result.script).to.contain(
+          'start[]middle[]end: faker.lorem.word()'
+        );
+        expect(result.script).not.to.contain('Array.from');
+      }
+    });
+
+    it('should still handle real array notation correctly', () => {
+      const schema = {
+        'realArray[]': createFieldMapping('lorem.word'),
+        'nestedArray[].field': createFieldMapping('lorem.word'),
+      };
+
+      const result = generateScript(schema, {
+        databaseName: 'test',
+        collectionName: 'test',
+        documentCount: 1,
+      });
+
+      expect(result.success).to.equal(true);
+      if (result.success) {
+        // These should be treated as arrays
+        expect(result.script).to.contain('Array.from');
+        expect(result.script).to.contain('realArray: Array.from');
+        expect(result.script).to.contain('nestedArray: Array.from');
+      }
+    });
+  });
 });

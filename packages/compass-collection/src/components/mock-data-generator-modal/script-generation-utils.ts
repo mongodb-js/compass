@@ -58,14 +58,34 @@ function parseFieldPath(fieldPath: string): string[] {
       if (current) {
         parts.push(current);
         current = '';
+      } else if (parts.length > 0 && parts[parts.length - 1] === '[]') {
+        // This is valid: "users[].name" - dot after array notation
+        // Continue parsing
+      } else {
+        throw new Error(
+          `Invalid field path "${fieldPath}": empty field name before dot`
+        );
       }
     } else if (char === '[' && fieldPath[i + 1] === ']') {
-      if (current) {
-        parts.push(current);
-        current = '';
+      // Only treat [] as array notation if it's at the end, followed by a dot, or followed by another [
+      const isAtEnd = i + 2 >= fieldPath.length;
+      const isFollowedByDot =
+        i + 2 < fieldPath.length && fieldPath[i + 2] === '.';
+      const isFollowedByBracket =
+        i + 2 < fieldPath.length && fieldPath[i + 2] === '[';
+
+      if (isAtEnd || isFollowedByDot || isFollowedByBracket) {
+        // This is array notation
+        if (current) {
+          parts.push(current);
+          current = '';
+        }
+        parts.push('[]');
+        i++; // Skip the ]
+      } else {
+        // This is just part of the field name
+        current += char;
       }
-      parts.push('[]');
-      i++; // Skip the ]
     } else {
       current += char;
     }
@@ -73,6 +93,12 @@ function parseFieldPath(fieldPath: string): string[] {
 
   if (current) {
     parts.push(current);
+  }
+
+  if (parts.length === 0) {
+    throw new Error(
+      `Invalid field path "${fieldPath}": no valid field names found`
+    );
   }
 
   return parts;
@@ -103,18 +129,16 @@ function insertIntoStructure(
   mapping: FieldMapping
 ): void {
   if (pathParts.length === 0) {
-    // This shouldn't happen
-    // TODO: log error
-    return;
+    throw new Error('Cannot insert field mapping: empty path parts array');
   }
 
   // Base case: insert root-level field mapping
   if (pathParts.length === 1) {
     const part = pathParts[0];
     if (part === '[]') {
-      // This shouldn't happen - array without field name
-      // TODO: log error
-      return;
+      throw new Error(
+        'Invalid field path: array notation "[]" cannot be used without a field name'
+      );
     }
     structure[part] = mapping;
     return;
@@ -302,7 +326,16 @@ function generateDocumentCode(
       // It's a field mapping
       const mapping = value as FieldMapping;
       const fakerCall = generateFakerCall(mapping);
-      const probability = mapping.probability ?? 1.0;
+      // Default to 1.0 for invalid probability values
+      let probability = 1.0;
+      if (
+        mapping.probability !== undefined &&
+        typeof mapping.probability === 'number' &&
+        mapping.probability >= 0 &&
+        mapping.probability <= 1
+      ) {
+        probability = mapping.probability;
+      }
 
       if (probability < 1.0) {
         // Use Math.random for conditional field inclusion
@@ -439,17 +472,30 @@ export function getDefaultFakerMethod(mongoType: string): string {
 export function formatFakerArgs(fakerArgs: FakerArg[]): string {
   const stringifiedArgs: string[] = [];
 
-  for (const arg of fakerArgs) {
+  for (let i = 0; i < fakerArgs.length; i++) {
+    const arg = fakerArgs[i];
+
     if (typeof arg === 'string') {
       // Escape single quotes for JS strings (and backticks for security)
       const escapedArg = arg.replace(/[`']/g, '\\$&');
       stringifiedArgs.push(`'${escapedArg}'`);
-    } else if (typeof arg === 'number' || typeof arg === 'boolean') {
+    } else if (typeof arg === 'number') {
+      if (!Number.isFinite(arg)) {
+        throw new Error(
+          `Invalid number argument at index ${i}: must be a finite number`
+        );
+      }
+      stringifiedArgs.push(`${arg}`);
+    } else if (typeof arg === 'boolean') {
       stringifiedArgs.push(`${arg}`);
     } else if (typeof arg === 'object' && arg !== null && 'json' in arg) {
       // Pre-serialized JSON objects
       const jsonArg = arg as { json: string };
       stringifiedArgs.push(jsonArg.json);
+    } else {
+      throw new Error(
+        `Invalid argument type at index ${i}: expected string, number, boolean, or {json: string}`
+      );
     }
   }
 
