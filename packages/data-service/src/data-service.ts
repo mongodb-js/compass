@@ -1042,10 +1042,12 @@ class DataServiceImpl extends WithLogContext implements DataService {
    */
   private _unboundLogger?: UnboundDataServiceImplLogger;
 
-  private _getOptionsWithFallbackReadPreference(
-    options?: { readPreference?: ReadPreferenceLike },
+  private _getOptionsWithFallbackReadPreference<
+    T extends { readPreference?: ReadPreferenceLike } | undefined
+  >(
+    options: T,
     executionOptions?: { fallbackReadPreference?: ReadPreferenceMode }
-  ) {
+  ): T {
     const readPreferencesOverride = isReadPreferenceSet(
       this._connectionOptions.connectionString
     )
