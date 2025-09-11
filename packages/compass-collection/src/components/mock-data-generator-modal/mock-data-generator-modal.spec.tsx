@@ -380,6 +380,46 @@ describe('MockDataGeneratorModal', () => {
         screen.getByTestId('next-step-button').getAttribute('aria-disabled')
       ).to.equal('true');
     });
+
+    it('validates faker arguments and handles invalid arguments gracefully', async () => {
+      const mockServicesWithInvalidArgs = createMockServices();
+      mockServicesWithInvalidArgs.atlasAiService.getMockDataSchema = () =>
+        Promise.resolve({
+          content: {
+            fields: [
+              {
+                fieldPath: 'validField',
+                mongoType: 'string',
+                fakerMethod: 'person.firstName',
+                fakerArgs: [],
+                isArray: false,
+                probability: 1.0,
+              },
+              {
+                fieldPath: 'invalidArgsField',
+                mongoType: 'string',
+                fakerMethod: 'string.alpha',
+                fakerArgs: [Number.MAX_SAFE_INTEGER], // This should cause validation error
+                isArray: false,
+                probability: 1.0,
+              },
+            ],
+          },
+        });
+
+      await renderModal({ mockServices: mockServicesWithInvalidArgs });
+
+      // advance to the schema editor step
+      userEvent.click(screen.getByText('Confirm'));
+      await waitFor(() => {
+        expect(screen.getByTestId('faker-schema-editor')).to.exist;
+      });
+
+      // The component should handle invalid arguments gracefully
+      // and still render the schema editor
+      expect(screen.getByText('validField')).to.exist;
+      expect(screen.getByText('invalidArgsField')).to.exist;
+    });
   });
 
   describe('on the generate data step', () => {

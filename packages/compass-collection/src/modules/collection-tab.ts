@@ -39,6 +39,7 @@ import type {
   FakerSchemaMapping,
   MockDataGeneratorState,
 } from '../components/mock-data-generator-modal/types';
+import { validateFakerArguments } from '../components/mock-data-generator-modal/faker-argument-validator';
 
 // @ts-expect-error TypeScript warns us about importing ESM module from CommonJS module, but we can ignore since this code will be consumed by webpack.
 import { faker } from '@faker-js/faker/locale/en';
@@ -694,8 +695,9 @@ const validateFakerSchema = (
   logger: Logger
 ) => {
   return fakerSchema.content.fields.map((field) => {
-    const { fakerMethod } = field;
+    const { fakerMethod, fakerArgs } = field;
 
+    // First validate that the faker method exists
     const [firstLevel, secondLevel] = fakerMethod.split('.');
     if (typeof (faker as any)[firstLevel]?.[secondLevel] !== 'function') {
       logger.log.warn(
@@ -707,6 +709,45 @@ const validateFakerSchema = (
       return {
         ...field,
         fakerMethod: UNRECOGNIZED_FAKER_METHOD,
+      };
+    }
+
+    // Then validate the arguments if they exist
+    if (fakerArgs && fakerArgs.length > 0) {
+      const argumentValidation = validateFakerArguments(
+        fakerMethod,
+        fakerArgs,
+        {
+          timeoutMs: 200, // Allow a bit more time in production
+          logPerformance: false, // Don't log performance in production
+          logger: logger, // Pass the logger for potential debug logging
+        }
+      );
+
+      if (!argumentValidation.isValid) {
+        logger.log.warn(
+          mongoLogId(1_001_000_366),
+          'Collection',
+          'Invalid faker method arguments',
+          {
+            fakerMethod,
+            fakerArgs,
+            error: argumentValidation.error,
+            executionTimeMs: argumentValidation.executionTimeMs,
+          }
+        );
+
+        // Keep the method but clear the invalid arguments
+        return {
+          ...field,
+          fakerArgs: [],
+        };
+      }
+
+      // Use sanitized arguments if validation provided them
+      return {
+        ...field,
+        fakerArgs: argumentValidation.sanitizedArgs || fakerArgs,
       };
     }
 
