@@ -1730,14 +1730,6 @@ const connectWithOptions = (
             void dataService.disconnect();
           }
         );
-        
-        // We're trying to optimise the initial Compass loading times here: to
-        // make sure that the driver connection pool doesn't immediately get
-        // overwhelmed with requests, we fetch instance info only once and then
-        // pass it down to telemetry and instance model. This is a relatively
-        // expensive dataService operation so we're trying to keep the usage
-        // very limited
-        const instanceInfo = await dataService.instance();
 
         dataService.on('oidcAuthFailed', (error) => {
           openToast('oidc-auth-failed', {
@@ -1780,6 +1772,14 @@ const connectWithOptions = (
         });
 
         DataServiceForConnection.set(connectionInfo.id, dataService);
+
+        // We're trying to optimise the initial Compass loading times here: to
+        // make sure that the driver connection pool doesn't immediately get
+        // overwhelmed with requests, we fetch instance info only once and then
+        // pass it down to telemetry and instance model. This is a relatively
+        // expensive dataService operation so we're trying to keep the usage
+        // very limited
+        const instanceInfo = await dataService.instance();
 
         try {
           await dispatch(
