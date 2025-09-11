@@ -36,6 +36,14 @@ const collectionHeaderActionsStyles = css({
   gap: spacing[200],
 });
 
+const tooltipMessageStyles = css({
+  display: 'block',
+  marginBottom: spacing[100],
+  '&:last-child': {
+    marginBottom: 0,
+  },
+});
+
 function buildChartsUrl(
   groupId: string,
   clusterName: string,
@@ -150,13 +158,28 @@ const CollectionHeaderActions: React.FunctionComponent<
         >
           {/* TODO(CLOUDP-333853): update disabled open-modal button
           tooltip to communicate if schema analysis is incomplete */}
-          {exceedsMaxNestingDepth &&
-            'At this time we are unable to generate mock data for collections that have deeply nested documents'}
-          {isCollectionEmpty &&
-            'Please add data to your collection to generate similar mock documents'}
-          {schemaAnalysisError &&
-            schemaAnalysisError.errorType === 'unsupportedState' &&
-            'This collection has a field with a name that contains a ".", which mock data generation does not support at this time.'}
+          <>
+            {exceedsMaxNestingDepth && (
+              <span className={tooltipMessageStyles}>
+                At this time we are unable to generate mock data for collections
+                that have deeply nested documents.
+              </span>
+            )}
+            {isCollectionEmpty && (
+              <span className={tooltipMessageStyles}>
+                Please add data to your collection to generate similar mock
+                documents.
+              </span>
+            )}
+            {schemaAnalysisError &&
+              schemaAnalysisError.errorType === 'unsupportedState' && (
+                <span className={tooltipMessageStyles}>
+                  This collection has a field with a name that contains a
+                  &quot.&quot, which mock data generation does not support at
+                  this time.
+                </span>
+              )}
+          </>
         </Tooltip>
       )}
       {atlasMetadata && (
