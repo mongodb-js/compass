@@ -1,10 +1,4 @@
 import type { SimpleEvalCase } from '../assistant.eval';
-import atlasSearch from './atlas-search';
-import aggregationPipeline from './aggregation-pipeline';
-import modelData from './model-data';
+import { generatedEvalCases } from './generated-cases';
 
-export const evalCases: SimpleEvalCase[] = [
-  ...atlasSearch,
-  ...aggregationPipeline,
-  ...modelData,
-];
+export const evalCases: SimpleEvalCase[] = generatedEvalCases;

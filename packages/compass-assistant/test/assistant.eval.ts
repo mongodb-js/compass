@@ -23,6 +23,20 @@ export type SimpleEvalCase = {
   input: string;
   expected: string;
   expectedSources?: string[];
+  tags: (
+    | 'end-user-input'
+    | 'connection-error'
+    | 'dns-error'
+    | 'explain-plan'
+    | 'proactive-performance-insights'
+    | 'general-network-error'
+    | 'oidc'
+    | 'tsl-ssl'
+    | 'ssl'
+    | 'model-data'
+    | 'aggregation-pipeline'
+    | 'atlas-search'
+  )[];
 };
 
 type Message = {
@@ -96,6 +110,7 @@ function makeEvalCases(): ConversationEvalCase[] {
         expected: {
           messages: [{ text: c.expected, sources: c.expectedSources || [] }],
         },
+        tags: c.tags || [],
         metadata: {},
       };
     }
@@ -111,6 +126,7 @@ function makeEvalCases(): ConversationEvalCase[] {
       expected: {
         messages: [{ text: c.expected, sources: c.expectedSources || [] }],
       },
+      tags: c.tags || [],
       metadata: {},
     };
   });

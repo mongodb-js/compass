@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **Mongodb Compass**.
-This document was automatically generated on Sun Sep 07 2025.
+This document was automatically generated on Thu Sep 11 2025.
 
 ## List of dependencies
 
@@ -570,7 +570,6 @@ This document was automatically generated on Sun Sep 07 2025.
 | **[yallist](#63b110ffd18712146937e9f182800c6f2b5783e76d1659a0bd4b457789b0df07)**                                            | 3.1.1        | ISC                                 |
 | **[yargs-parser](#617a7401008b7639df8cebae61c9c009bf04ca762c652da0975da4533bf33690)**                                       | 21.1.1       | ISC                                 |
 | **[zod-to-json-schema](#f1f33dedb4553ce06f16c5e2edee10cb18b747b6a1e519fc8e286937d4d06126)**                                 | 3.24.6       | ISC                                 |
-| **[zod](#47d4f8aea57c756d184be32bcd9df03f490606057a940cf6ab006cce6cf81731)**                                                | 3.25.17      | MIT                                 |
 | **[zod](#01aaa7ce197e0507c530a672d2a29df0cdd4139c3d75c9a8adc800f68c167b27)**                                                | 3.25.76      | MIT                                 |
 
 ## Package details
@@ -40870,38 +40869,6 @@ License files:
       WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
       ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
       OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
-
-<a id="47d4f8aea57c756d184be32bcd9df03f490606057a940cf6ab006cce6cf81731"></a>
-
-### [zod](https://www.npmjs.com/package/zod) (version 3.25.17)
-
-License tags: MIT
-
-License files:
-
-- LICENSE:
-
-      MIT License
-
-      Copyright (c) 2025 Colin McDonnell
-
-      Permission is hereby granted, free of charge, to any person obtaining a copy
-      of this software and associated documentation files (the "Software"), to deal
-      in the Software without restriction, including without limitation the rights
-      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-      copies of the Software, and to permit persons to whom the Software is
-      furnished to do so, subject to the following conditions:
-
-      The above copyright notice and this permission notice shall be included in all
-      copies or substantial portions of the Software.
-
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-      SOFTWARE.
 
 <a id="01aaa7ce197e0507c530a672d2a29df0cdd4139c3d75c9a8adc800f68c167b27"></a>
 
