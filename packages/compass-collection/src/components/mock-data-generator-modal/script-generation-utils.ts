@@ -1,5 +1,8 @@
 export type FakerArg = string | number | boolean | { json: string };
 
+const DEFAULT_ARRAY_LENGTH = 3;
+const INDENT_SIZE = 2;
+
 export interface FieldMapping {
   mongoType: string;
   fakerMethod: string;
@@ -254,7 +257,7 @@ export function generateScript(
 
     const documentCode = generateDocumentCode(
       structure,
-      2,
+      INDENT_SIZE,
       options.arrayLengthMap || {}
     );
 
@@ -309,7 +312,7 @@ console.log(\`Successfully inserted \${documents.length} documents into ${escape
  */
 function generateDocumentCode(
   structure: DocumentStructure,
-  indent: number = 2,
+  indent: number = INDENT_SIZE,
   arrayLengthMap: ArrayLengthMap = {}
 ): string {
   // For each field in structure:
@@ -318,7 +321,7 @@ function generateDocumentCode(
   //   - If ArrayStructure: generate array
 
   const fieldIndent = ' '.repeat(indent);
-  const closingBraceIndent = ' '.repeat(indent - 2);
+  const closingBraceIndent = ' '.repeat(indent - INDENT_SIZE);
   const rootLevelFields: string[] = [];
 
   for (const [fieldName, value] of Object.entries(structure)) {
@@ -354,7 +357,7 @@ function generateDocumentCode(
           : {};
       const arrayCode = generateArrayCode(
         value as ArrayStructure,
-        indent + 2,
+        indent + INDENT_SIZE,
         fieldName,
         arrayLengthMap,
         nestedArrayLengthMap
@@ -368,7 +371,7 @@ function generateDocumentCode(
           : arrayLengthMap;
       const nestedCode = generateDocumentCode(
         value as DocumentStructure,
-        indent + 2,
+        indent + INDENT_SIZE,
         nestedArrayLengthMap
       );
       rootLevelFields.push(`${fieldIndent}${fieldName}: ${nestedCode}`);
@@ -388,7 +391,7 @@ function generateDocumentCode(
  */
 function generateArrayCode(
   arrayStructure: ArrayStructure,
-  indent: number = 2,
+  indent: number = INDENT_SIZE,
   fieldName: string = '',
   parentArrayLengthMap: ArrayLengthMap = {},
   nestedArrayLengthMap: ArrayLengthMap = {}
@@ -399,7 +402,7 @@ function generateArrayCode(
   const arrayLength =
     typeof parentArrayLengthMap[fieldName] === 'number'
       ? parentArrayLengthMap[fieldName]
-      : 3;
+      : DEFAULT_ARRAY_LENGTH;
 
   if ('mongoType' in elementType) {
     // Array of primitives
