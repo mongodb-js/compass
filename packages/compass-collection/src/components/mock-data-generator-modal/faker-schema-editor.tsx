@@ -46,7 +46,7 @@ const FakerSchemaEditor = ({
   fakerMappings,
 }: {
   isSchemaConfirmed: boolean;
-  onSchemaConfirmed: () => void;
+  onSchemaConfirmed: (isConfirmed: boolean) => void;
   fakerMappings: Array<FakerSchemaMapping>;
 }) => {
   const [fakerSchemaFormValues, setFakerSchemaFormValues] =
@@ -62,6 +62,10 @@ const FakerSchemaEditor = ({
     (mapping) => mapping.fieldPath === activeField
   )?.fakerMethod;
 
+  const resetIsSchemaConfirmed = () => {
+    onSchemaConfirmed(false);
+  };
+
   const onJsonTypeSelect = (newJsonType: string) => {
     const updatedFakerFieldMapping = fakerSchemaFormValues.find(
       (mapping) => mapping.fieldPath === activeField
@@ -73,6 +77,7 @@ const FakerSchemaEditor = ({
           mapping.fieldPath === activeField ? updatedFakerFieldMapping : mapping
         )
       );
+      resetIsSchemaConfirmed();
     }
   };
 
@@ -87,11 +92,8 @@ const FakerSchemaEditor = ({
           mapping.fieldPath === activeField ? updatedFakerFieldMapping : mapping
         )
       );
+      resetIsSchemaConfirmed();
     }
-  };
-
-  const onConfirmMappings = () => {
-    onSchemaConfirmed();
   };
 
   return (
@@ -127,7 +129,7 @@ const FakerSchemaEditor = ({
         size={ButtonSize.Small}
         className={confirmMappingsButtonStyles}
         variant={ButtonVariant.Primary}
-        onClick={onConfirmMappings}
+        onClick={() => onSchemaConfirmed(true)}
       >
         Confirm mappings
       </Button>
