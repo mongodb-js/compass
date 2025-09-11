@@ -6,7 +6,7 @@ import {
   css,
   ListEditor,
 } from '@mongodb-js/compass-components';
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import {
   SORT_DIRECTION_OPTIONS,
   getNextId,
@@ -47,6 +47,10 @@ const sortDirectionStyles = css({
   width: '150px',
 });
 
+const comboboxStyles = css({
+  minWidth: '200px',
+});
+
 const mapSortFormDataToStageValue = (
   formData: SortFieldState[]
 ): Record<string, number> => {
@@ -55,14 +59,14 @@ const mapSortFormDataToStageValue = (
 
 const SortFormGroup = ({
   index,
-  comboboxStyle,
+  comboboxClassName,
   fields,
   sortField,
   sortDirection,
   onChange,
 }: {
   index: number;
-  comboboxStyle: React.CSSProperties;
+  comboboxClassName: string;
   fields: WizardComponentProps['fields'];
   sortField: string;
   sortDirection: SortDirection;
@@ -78,7 +82,7 @@ const SortFormGroup = ({
       </Body>
       <div data-testid={`sort-form-${index}-field`}>
         <FieldCombobox
-          style={comboboxStyle}
+          className={comboboxClassName}
           value={sortField}
           onChange={(value: string | null) => {
             if (value) {
@@ -159,14 +163,6 @@ export const SortForm = ({ fields, onChange }: WizardComponentProps) => {
     onSetFormData(newData);
   };
 
-  const comboboxStyles = useMemo(() => {
-    return {
-      width: `calc(${String(
-        Math.max(...fields.map(({ name }) => name.length), 10)
-      )}ch)`,
-    };
-  }, [fields]);
-
   return (
     <div className={containerStyles}>
       <ListEditor
@@ -178,7 +174,7 @@ export const SortForm = ({ fields, onChange }: WizardComponentProps) => {
         renderItem={(item, index) => {
           return (
             <SortFormGroup
-              comboboxStyle={comboboxStyles}
+              comboboxClassName={comboboxStyles}
               index={index}
               sortField={item.field}
               sortDirection={item.direction}
