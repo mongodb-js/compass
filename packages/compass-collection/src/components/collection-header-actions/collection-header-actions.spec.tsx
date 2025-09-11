@@ -13,26 +13,16 @@ import {
 import type { PreferencesAccess } from 'compass-preferences-model';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 import { PreferencesProvider } from 'compass-preferences-model/provider';
-import { ExperimentTestName } from '@mongodb-js/compass-telemetry/provider';
-import { CompassExperimentationProvider } from '@mongodb-js/compass-telemetry';
+
 import type { ConnectionInfo } from '@mongodb-js/compass-connections/provider';
 
 import CollectionHeaderActions from '../collection-header-actions';
 
 describe('CollectionHeaderActions [Component]', function () {
   let preferences: PreferencesAccess;
-  let mockUseAssignment: sinon.SinonStub;
 
   beforeEach(async function () {
     preferences = await createSandboxFromDefaultPreferences();
-    mockUseAssignment = sinon.stub();
-    mockUseAssignment.returns({
-      assignment: {
-        assignmentData: {
-          variant: 'mockDataGeneratorControl',
-        },
-      },
-    });
   });
 
   afterEach(function () {
@@ -45,27 +35,19 @@ describe('CollectionHeaderActions [Component]', function () {
     connectionInfo?: ConnectionInfo
   ) => {
     return renderWithActiveConnection(
-      <CompassExperimentationProvider
-        useAssignment={mockUseAssignment}
-        assignExperiment={sinon.stub()}
-        getAssignment={sinon.stub().resolves(null)}
-      >
-        <WorkspacesServiceProvider
-          value={workspaceService as WorkspacesService}
-        >
-          <PreferencesProvider value={preferences}>
-            <CollectionHeaderActions
-              namespace="test.test"
-              isReadonly={false}
-              onOpenMockDataModal={sinon.stub()}
-              hasSchemaAnalysisData={true}
-              analyzedSchemaDepth={2}
-              schemaAnalysisStatus="complete"
-              {...props}
-            />
-          </PreferencesProvider>
-        </WorkspacesServiceProvider>
-      </CompassExperimentationProvider>,
+      <WorkspacesServiceProvider value={workspaceService as WorkspacesService}>
+        <PreferencesProvider value={preferences}>
+          <CollectionHeaderActions
+            namespace="test.test"
+            isReadonly={false}
+            onOpenMockDataModal={sinon.stub()}
+            hasSchemaAnalysisData={true}
+            analyzedSchemaDepth={2}
+            schemaAnalysisStatus="complete"
+            {...props}
+          />
+        </PreferencesProvider>
+      </WorkspacesServiceProvider>,
       connectionInfo
     );
   };
@@ -225,34 +207,15 @@ describe('CollectionHeaderActions [Component]', function () {
       },
     };
 
-    it('should call useAssignment with correct parameters', async function () {
-      await renderCollectionHeaderActions({
-        namespace: 'test.collection',
-        isReadonly: false,
-      });
-
-      expect(mockUseAssignment).to.have.been.calledWith(
-        ExperimentTestName.mockDataGenerator,
-        true // trackIsInSample - Experiment viewed analytics event
-      );
-    });
-
     it('should call onOpenMockDataModal when CTA button is clicked', async function () {
       const onOpenMockDataModal = sinon.stub();
-
-      mockUseAssignment.returns({
-        assignment: {
-          assignmentData: {
-            variant: 'mockDataGeneratorVariant',
-          },
-        },
-      });
 
       await renderCollectionHeaderActions(
         {
           namespace: 'test.collection',
           isReadonly: false,
           onOpenMockDataModal,
+          schemaAnalysisStatus: 'complete',
         },
         {},
         atlasConnectionInfo
@@ -267,14 +230,6 @@ describe('CollectionHeaderActions [Component]', function () {
     });
 
     it('should disable button for deeply nested collections', async function () {
-      mockUseAssignment.returns({
-        assignment: {
-          assignmentData: {
-            variant: 'mockDataGeneratorVariant', // Treatment variant
-          },
-        },
-      });
-
       await renderCollectionHeaderActions(
         {
           namespace: 'test.collection',

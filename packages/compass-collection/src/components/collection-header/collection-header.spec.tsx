@@ -17,8 +17,10 @@ import {
   type WorkspacesService,
 } from '@mongodb-js/compass-workspaces/provider';
 import { MockDataGeneratorStep } from '../mock-data-generator-modal/types';
-import { SCHEMA_ANALYSIS_STATE_COMPLETE } from '../../schema-analysis-types';
-import { CompassExperimentationProvider } from '@mongodb-js/compass-telemetry';
+import {
+  SCHEMA_ANALYSIS_STATE_COMPLETE,
+  SCHEMA_ANALYSIS_STATE_INITIAL,
+} from '../../schema-analysis-types';
 import type { ConnectionInfo } from '@mongodb-js/compass-connections/provider';
 
 import Sinon from 'sinon';
@@ -26,7 +28,8 @@ import Sinon from 'sinon';
 function renderCollectionHeader(
   props: Partial<ComponentProps<typeof CollectionHeader>> = {},
   workspaceService: Partial<WorkspacesService> = {},
-  stateOverrides: any = {}
+  stateOverrides: Record<string, unknown> = {},
+  connectionInfo?: ConnectionInfo
 ) {
   const defaultState = {
     mockDataGenerator: {
@@ -38,7 +41,7 @@ function renderCollectionHeader(
 
   const mockStore = createStore(() => defaultState);
 
-  return renderWithConnections(
+  return renderWithActiveConnection(
     <Provider store={mockStore}>
       <WorkspacesServiceProvider value={workspaceService as WorkspacesService}>
         <CollectionHeader
@@ -51,7 +54,8 @@ function renderCollectionHeader(
           {...props}
         />
       </WorkspacesServiceProvider>
-    </Provider>
+    </Provider>,
+    connectionInfo
   );
 }
 
@@ -59,8 +63,8 @@ describe('CollectionHeader [Component]', function () {
   afterEach(cleanup);
 
   context('when the collection is not readonly', function () {
-    beforeEach(function () {
-      renderCollectionHeader();
+    beforeEach(async function () {
+      await renderCollectionHeader();
     });
 
     it('renders the correct root classname', function () {
@@ -89,8 +93,11 @@ describe('CollectionHeader [Component]', function () {
   });
 
   context('when the collection is readonly', function () {
-    beforeEach(function () {
-      renderCollectionHeader({ isReadonly: true, sourceName: 'orig.coll' });
+    beforeEach(async function () {
+      await renderCollectionHeader({
+        isReadonly: true,
+        sourceName: 'orig.coll',
+      });
     });
 
     afterEach(cleanup);
@@ -113,8 +120,8 @@ describe('CollectionHeader [Component]', function () {
   });
 
   context('when the collection is readonly but not a view', function () {
-    beforeEach(function () {
-      renderCollectionHeader({ isReadonly: true, sourceName: undefined });
+    beforeEach(async function () {
+      await renderCollectionHeader({ isReadonly: true, sourceName: undefined });
     });
 
     it('renders the readonly badge', function () {
@@ -127,8 +134,8 @@ describe('CollectionHeader [Component]', function () {
   });
 
   context('when the collection is a time-series collection', function () {
-    beforeEach(function () {
-      renderCollectionHeader({ isTimeSeries: true });
+    beforeEach(async function () {
+      await renderCollectionHeader({ isTimeSeries: true });
     });
 
     it('does not render the readonly badge', function () {
@@ -141,8 +148,8 @@ describe('CollectionHeader [Component]', function () {
   });
 
   context('when the collection is a clustered collection', function () {
-    beforeEach(function () {
-      renderCollectionHeader({ isClustered: true });
+    beforeEach(async function () {
+      await renderCollectionHeader({ isClustered: true });
     });
 
     it('does not render the readonly badge', function () {
@@ -159,8 +166,8 @@ describe('CollectionHeader [Component]', function () {
   });
 
   context('when the collection is a fle collection', function () {
-    beforeEach(function () {
-      renderCollectionHeader({ isFLE: true });
+    beforeEach(async function () {
+      await renderCollectionHeader({ isFLE: true });
     });
 
     it('renders the fle badge', function () {
@@ -169,8 +176,8 @@ describe('CollectionHeader [Component]', function () {
   });
 
   describe('insights', function () {
-    it('should show an insight when $text is used in the pipeline source', function () {
-      renderCollectionHeader({
+    it('should show an insight when $text is used in the pipeline source', async function () {
+      await renderCollectionHeader({
         sourcePipeline: [{ $match: { $text: {} } }],
       });
       expect(screen.getByTestId('insight-badge-button')).to.exist;
@@ -179,8 +186,8 @@ describe('CollectionHeader [Component]', function () {
         .exist;
     });
 
-    it('should show an insight when $regex is used in the pipeline source', function () {
-      renderCollectionHeader({
+    it('should show an insight when $regex is used in the pipeline source', async function () {
+      await renderCollectionHeader({
         sourcePipeline: [{ $match: { $regex: {} } }],
       });
       expect(screen.getByTestId('insight-badge-button')).to.exist;
@@ -189,8 +196,8 @@ describe('CollectionHeader [Component]', function () {
         .exist;
     });
 
-    it('should show an insight when $lookup is used in the pipeline source', function () {
-      renderCollectionHeader({
+    it('should show an insight when $lookup is used in the pipeline source', async function () {
+      await renderCollectionHeader({
         sourcePipeline: [{ $lookup: {} }],
       });
       expect(screen.getByTestId('insight-badge-button')).to.exist;
@@ -209,7 +216,7 @@ describe('CollectionHeader [Component]', function () {
     });
 
     function assertBreadcrumbText(items: string[]) {
-      const crumbs: any[] = [];
+      const crumbs: (string | null)[] = [];
       screen.getByTestId('breadcrumbs').childNodes.forEach((item) => {
         crumbs.push(item.textContent);
       });
@@ -230,13 +237,13 @@ describe('CollectionHeader [Component]', function () {
     }
 
     context('renders correclty', function () {
-      it('for a collection', function () {
-        renderCollectionHeader({ namespace: 'db.coll1' });
+      it('for a collection', async function () {
+        await renderCollectionHeader({ namespace: 'db.coll1' });
         assertBreadcrumbText(['db', 'coll1']);
       });
 
-      it('for a view', function () {
-        renderCollectionHeader({
+      it('for a view', async function () {
+        await renderCollectionHeader({
           namespace: 'db.coll1',
           sourceName: 'db.coll2',
         });
@@ -244,8 +251,8 @@ describe('CollectionHeader [Component]', function () {
         assertBreadcrumbText(['db', 'coll2', 'coll1']);
       });
 
-      it('for a view when its being edited', function () {
-        renderCollectionHeader({
+      it('for a view when its being edited', async function () {
+        await renderCollectionHeader({
           namespace: 'db.coll3',
           editViewName: 'db.coll1',
         });
@@ -255,10 +262,10 @@ describe('CollectionHeader [Component]', function () {
     });
 
     context('calls onClick correclty', function () {
-      it('for a collection', function () {
+      it('for a collection', async function () {
         const openCollectionsWorkspaceStub = sandbox.stub();
         const openCollectionWorkspaceStub = sandbox.stub();
-        renderCollectionHeader(
+        await renderCollectionHeader(
           { namespace: 'db.coll1' },
           {
             openCollectionsWorkspace: openCollectionsWorkspaceStub,
@@ -279,9 +286,9 @@ describe('CollectionHeader [Component]', function () {
         ]);
       });
 
-      it('for a view, opens source collection', function () {
+      it('for a view, opens source collection', async function () {
         const openCollectionWorkspaceStub = sandbox.stub();
-        renderCollectionHeader(
+        await renderCollectionHeader(
           { namespace: 'db.coll1', sourceName: 'db.coll2' },
           {
             openCollectionWorkspace: openCollectionWorkspaceStub,
@@ -335,23 +342,6 @@ describe('CollectionHeader [Component]', function () {
   });
 
   describe('Mock Data Generator integration', function () {
-    let mockUseAssignment: Sinon.SinonStub;
-
-    beforeEach(function () {
-      // Mock the useAssignment hook from compass-experimentation
-      mockUseAssignment = Sinon.stub().returns({
-        assignment: {
-          assignmentData: {
-            variant: 'mockDataGeneratorVariant',
-          },
-        },
-      });
-    });
-
-    afterEach(function () {
-      Sinon.restore();
-    });
-
     const atlasConnectionInfo: ConnectionInfo = {
       id: 'test-atlas-connection',
       connectionOptions: {
@@ -375,50 +365,8 @@ describe('CollectionHeader [Component]', function () {
       },
     };
 
-    function renderCollectionHeaderWithExperimentation(
-      props: Partial<ComponentProps<typeof CollectionHeader>> = {},
-      workspaceService: Partial<WorkspacesService> = {},
-      stateOverrides: any = {},
-      connectionInfo?: ConnectionInfo
-    ) {
-      const defaultState = {
-        mockDataGenerator: {
-          isModalOpen: false,
-          currentStep: MockDataGeneratorStep.SCHEMA_CONFIRMATION,
-        },
-        ...stateOverrides,
-      };
-
-      const mockStore = createStore(() => defaultState);
-
-      return renderWithActiveConnection(
-        <CompassExperimentationProvider
-          useAssignment={mockUseAssignment}
-          assignExperiment={Sinon.stub()}
-          getAssignment={Sinon.stub().resolves(null)}
-        >
-          <Provider store={mockStore}>
-            <WorkspacesServiceProvider
-              value={workspaceService as WorkspacesService}
-            >
-              <CollectionHeader
-                isAtlas={false}
-                isReadonly={false}
-                isTimeSeries={false}
-                isClustered={false}
-                isFLE={false}
-                namespace="test.test"
-                {...props}
-              />
-            </WorkspacesServiceProvider>
-          </Provider>
-        </CompassExperimentationProvider>,
-        connectionInfo
-      );
-    }
-
     it('should show Mock Data Generator button when all conditions are met', async function () {
-      await renderCollectionHeaderWithExperimentation(
+      await renderCollectionHeader(
         {
           isAtlas: true, // Atlas environment
           isReadonly: false, // Not readonly
@@ -447,7 +395,7 @@ describe('CollectionHeader [Component]', function () {
     });
 
     it('should disable Mock Data Generator button when collection has no schema analysis data', async function () {
-      await renderCollectionHeaderWithExperimentation(
+      await renderCollectionHeader(
         {
           isAtlas: true,
           isReadonly: false,
@@ -474,7 +422,7 @@ describe('CollectionHeader [Component]', function () {
     });
 
     it('should disable Mock Data Generator button for collections with excessive nesting depth', async function () {
-      await renderCollectionHeaderWithExperimentation(
+      await renderCollectionHeader(
         {
           isAtlas: true,
           isReadonly: false,
@@ -503,7 +451,7 @@ describe('CollectionHeader [Component]', function () {
     });
 
     it('should not show Mock Data Generator button for readonly collections (views)', async function () {
-      await renderCollectionHeaderWithExperimentation(
+      await renderCollectionHeader(
         {
           isAtlas: true,
           isReadonly: true, // Readonly (view)
@@ -530,7 +478,7 @@ describe('CollectionHeader [Component]', function () {
     });
 
     it('should not show Mock Data Generator button in non-Atlas environments', async function () {
-      await renderCollectionHeaderWithExperimentation(
+      await renderCollectionHeader(
         {
           isAtlas: false, // Not Atlas
           isReadonly: false,
@@ -556,16 +504,8 @@ describe('CollectionHeader [Component]', function () {
       ).to.not.exist;
     });
 
-    it('should not show Mock Data Generator button when not in treatment variant', async function () {
-      mockUseAssignment.returns({
-        assignment: {
-          assignmentData: {
-            variant: 'control',
-          },
-        },
-      });
-
-      await renderCollectionHeaderWithExperimentation(
+    it('should not show Mock Data Generator button when schema analysis has not run', async function () {
+      await renderCollectionHeader(
         {
           isAtlas: true,
           isReadonly: false,
@@ -574,13 +514,7 @@ describe('CollectionHeader [Component]', function () {
         {},
         {
           schemaAnalysis: {
-            status: SCHEMA_ANALYSIS_STATE_COMPLETE,
-            processedSchema: {
-              field1: { type: 'String', sample_values: ['value1'] },
-            },
-            schemaMetadata: {
-              maxNestingDepth: 2,
-            },
+            status: SCHEMA_ANALYSIS_STATE_INITIAL, // No schema analysis has run
           },
         },
         atlasConnectionInfo

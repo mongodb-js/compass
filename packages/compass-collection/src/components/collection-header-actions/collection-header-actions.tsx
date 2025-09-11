@@ -12,14 +12,10 @@ import React from 'react';
 import { usePreferences } from 'compass-preferences-model/provider';
 import toNS from 'mongodb-ns';
 import { wrapField } from '@mongodb-js/mongodb-constants';
-import {
-  useTelemetry,
-  useAssignment,
-  ExperimentTestName,
-  ExperimentTestGroup,
-} from '@mongodb-js/compass-telemetry/provider';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import {
   SCHEMA_ANALYSIS_STATE_ANALYZING,
+  SCHEMA_ANALYSIS_STATE_COMPLETE,
   type SchemaAnalysisStatus,
 } from '../../schema-analysis-types';
 
@@ -82,21 +78,13 @@ const CollectionHeaderActions: React.FunctionComponent<
     usePreferences(['readOnly', 'enableShell']);
   const track = useTelemetry();
 
-  // Get experiment assignment for Mock Data Generator
-  const mockDataGeneratorAssignment = useAssignment(
-    ExperimentTestName.mockDataGenerator,
-    true // trackIsInSample - this will fire the "Experiment Viewed" event
-  );
-
   const { database, collection } = toNS(namespace);
 
-  // Check if user is in treatment group for Mock Data Generator experiment
-  const isInMockDataTreatmentVariant =
-    mockDataGeneratorAssignment?.assignment?.assignmentData?.variant ===
-    ExperimentTestGroup.mockDataGeneratorVariant;
-
+  // Show Mock Data Generator button if schema analysis has been initiated (indicating user is in treatment variant)
+  // Schema analysis only runs for users in the treatment variant
   const shouldShowMockDataButton =
-    isInMockDataTreatmentVariant &&
+    (schemaAnalysisStatus === SCHEMA_ANALYSIS_STATE_ANALYZING ||
+      schemaAnalysisStatus === SCHEMA_ANALYSIS_STATE_COMPLETE) &&
     atlasMetadata && // Only show in Atlas
     !isReadonly && // Don't show for readonly collections (views)
     !sourceName; // sourceName indicates it's a view
