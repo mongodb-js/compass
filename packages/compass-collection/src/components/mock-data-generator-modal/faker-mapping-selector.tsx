@@ -41,9 +41,11 @@ const FakerMappingSelector = ({
       <Body className={labelStyles}>Mapping</Body>
       <Select
         label="JSON Type"
+        allowDeselect={false}
         value={activeJsonType}
         onChange={onJsonTypeSelect}
       >
+        {/* TODO(CLOUDP-344400) : Make the select input editable and render other options depending on the JSON type selected */}
         {[activeJsonType].map((type) => (
           <Option key={type} value={type}>
             {type}
@@ -52,9 +54,11 @@ const FakerMappingSelector = ({
       </Select>
       <Select
         label="Faker Function"
+        allowDeselect={false}
         value={activeFakerFunction}
         onChange={onFakerFunctionSelect}
       >
+        {/* TODO(CLOUDP-344400): Make the select input editable and render other JSON types */}
         {[activeFakerFunction].map((field) => (
           <Option key={field} value={field}>
             {field}
@@ -67,8 +71,7 @@ const FakerMappingSelector = ({
           string &quot;Unrecognized&quot;
         </Banner>
       )}
-
-      {/* TODO: CLOUDP-344400: Render faker function parameters once we have a way to validate them. */}
+      {/* TODO(CLOUDP-344400): Render faker function parameters once we have a way to validate them. */}
     </div>
   );
 };

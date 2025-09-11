@@ -417,6 +417,78 @@ describe('MockDataGeneratorModal', () => {
         screen.getByTestId('next-step-button').getAttribute('aria-disabled')
       ).to.equal('true');
     });
+
+    it('resets the confirm schema mapping state when the user clicks the back button then goes back to the schema editor step', async () => {
+      await renderModal({
+        mockServices: mockServicesWithMockDataResponse,
+      });
+
+      // advance to the schema editor step
+      userEvent.click(screen.getByText('Confirm'));
+      await waitFor(() => {
+        expect(screen.getByTestId('faker-schema-editor')).to.exist;
+      });
+      expect(
+        screen.getByTestId('next-step-button').getAttribute('aria-disabled')
+      ).to.equal('true');
+      // click confirm mappings button
+      userEvent.click(screen.getByText('Confirm mappings'));
+      expect(
+        screen.getByTestId('next-step-button').getAttribute('aria-disabled')
+      ).to.equal('false');
+
+      // click back button
+      userEvent.click(screen.getByText('Back'));
+      await waitFor(() => {
+        expect(screen.getByTestId('raw-schema-confirmation')).to.exist;
+      });
+
+      // click next button to advance to the schema editor step again
+      userEvent.click(screen.getByTestId('next-step-button'));
+      await waitFor(() => {
+        expect(screen.getByTestId('faker-schema-editor')).to.exist;
+      });
+      // the next button should be disabled again
+      expect(
+        screen.getByTestId('next-step-button').getAttribute('aria-disabled')
+      ).to.equal('true');
+    });
+
+    it('preserves the confirm schema mapping state when the user clicks the next button then goes back to the schema editor step', async () => {
+      await renderModal({
+        mockServices: mockServicesWithMockDataResponse,
+      });
+
+      // advance to the schema editor step
+      userEvent.click(screen.getByText('Confirm'));
+      await waitFor(() => {
+        expect(screen.getByTestId('faker-schema-editor')).to.exist;
+      });
+      expect(
+        screen.getByTestId('next-step-button').getAttribute('aria-disabled')
+      ).to.equal('true');
+      // click confirm mappings button
+      userEvent.click(screen.getByText('Confirm mappings'));
+      expect(
+        screen.getByTestId('next-step-button').getAttribute('aria-disabled')
+      ).to.equal('false');
+
+      // click next button
+      userEvent.click(screen.getByTestId('next-step-button'));
+      await waitFor(() => {
+        expect(screen.queryByTestId('faker-schema-editor')).to.not.exist;
+      });
+
+      // click back button to go back to the schema editor step
+      userEvent.click(screen.getByText('Back'));
+      await waitFor(() => {
+        expect(screen.getByTestId('faker-schema-editor')).to.exist;
+      });
+      // the next button should not be disabled
+      expect(
+        screen.getByTestId('next-step-button').getAttribute('aria-disabled')
+      ).to.equal('false');
+    });
   });
 
   describe('on the generate data step', () => {

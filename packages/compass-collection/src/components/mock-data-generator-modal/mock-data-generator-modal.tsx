@@ -93,7 +93,7 @@ const MockDataGeneratorModal = ({
             return (
               <FakerSchemaEditorScreen
                 isSchemaConfirmed={isSchemaConfirmed}
-                onSchemaConfirmed={() => setIsSchemaConfirmed(true)}
+                onSchemaConfirmed={setIsSchemaConfirmed}
                 fakerMappings={fakerSchemaGenerationState.fakerSchema}
               />
             );
@@ -107,7 +107,7 @@ const MockDataGeneratorModal = ({
       case MockDataGeneratorStep.GENERATE_DATA:
         return <ScriptScreen />;
     }
-  }, [currentStep, fakerSchemaGenerationState]);
+  }, [currentStep, fakerSchemaGenerationState, isSchemaConfirmed]);
 
   const isNextButtonDisabled =
     currentStep === MockDataGeneratorStep.SCHEMA_EDITOR &&
@@ -125,6 +125,14 @@ const MockDataGeneratorModal = ({
 
   const shouldShowNamespace =
     currentStep !== MockDataGeneratorStep.GENERATE_DATA;
+
+  const handlePreviousClick = () => {
+    if (currentStep === MockDataGeneratorStep.SCHEMA_EDITOR) {
+      // reset isSchemaConfirmed state when previous step is clicked
+      setIsSchemaConfirmed(false);
+    }
+    onPreviousStep();
+  };
 
   return (
     <Modal
@@ -148,7 +156,7 @@ const MockDataGeneratorModal = ({
       </ModalBody>
       <ModalFooter className={footerStyles}>
         <Button
-          onClick={onPreviousStep}
+          onClick={handlePreviousClick}
           disabled={currentStep === MockDataGeneratorStep.SCHEMA_CONFIRMATION}
         >
           Back

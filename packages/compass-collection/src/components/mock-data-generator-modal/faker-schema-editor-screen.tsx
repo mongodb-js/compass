@@ -41,12 +41,12 @@ const confirmMappingsButtonStyles = css({
   width: '200px',
 });
 
-const FakerSchemaEditor = ({
+const FakerSchemaEditorScreen = ({
   onSchemaConfirmed,
   fakerMappings,
 }: {
   isSchemaConfirmed: boolean;
-  onSchemaConfirmed: () => void;
+  onSchemaConfirmed: (isConfirmed: boolean) => void;
   fakerMappings: Array<FakerSchemaMapping>;
 }) => {
   const [fakerSchemaFormValues, setFakerSchemaFormValues] =
@@ -62,6 +62,10 @@ const FakerSchemaEditor = ({
     (mapping) => mapping.fieldPath === activeField
   )?.fakerMethod;
 
+  const resetIsSchemaConfirmed = () => {
+    onSchemaConfirmed(false);
+  };
+
   const onJsonTypeSelect = (newJsonType: string) => {
     const updatedFakerFieldMapping = fakerSchemaFormValues.find(
       (mapping) => mapping.fieldPath === activeField
@@ -73,6 +77,7 @@ const FakerSchemaEditor = ({
           mapping.fieldPath === activeField ? updatedFakerFieldMapping : mapping
         )
       );
+      resetIsSchemaConfirmed();
     }
   };
 
@@ -87,14 +92,10 @@ const FakerSchemaEditor = ({
           mapping.fieldPath === activeField ? updatedFakerFieldMapping : mapping
         )
       );
+      resetIsSchemaConfirmed();
     }
   };
 
-  const onConfirmMappings = () => {
-    onSchemaConfirmed();
-  };
-
-const FakerSchemaEditorScreen = () => {
   return (
     <div data-testid="faker-schema-editor" className={containerStyles}>
       <div>
@@ -128,7 +129,7 @@ const FakerSchemaEditorScreen = () => {
         size={ButtonSize.Small}
         className={confirmMappingsButtonStyles}
         variant={ButtonVariant.Primary}
-        onClick={onConfirmMappings}
+        onClick={() => onSchemaConfirmed(true)}
       >
         Confirm mappings
       </Button>
