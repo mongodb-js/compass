@@ -30,12 +30,7 @@ const validateMixedType = async (
 function withoutObjectReactType(fields: NodeProps['fields']) {
   return fields.map((f) => ({
     ...f,
-    type:
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      typeof f.type === 'object' &&
-      (f?.type as any)?.$$typeof === Symbol.for('react.element')
-        ? 'object'
-        : f.type,
+    type: React.isValidElement(f.type) ? 'object' : f.type,
   }));
 }
 

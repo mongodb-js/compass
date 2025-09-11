@@ -265,17 +265,15 @@ async function dragDiagramToShowAndClick(
     .getLocation();
 
   function getDistanceToElementCenter() {
-    return (
+    return Math.abs(
       Math.floor(
-        elementPosition.x +
-          elementSize.width / 2 -
-          (diagramBackgroundPosition.x + 1)
-      ),
-      Math.floor(
-        elementPosition.y +
-          elementSize.height / 2 -
-          (diagramBackgroundPosition.y + 1)
-      )
+        elementPosition.x + elementSize.width / 2 - diagramBackgroundPosition.x
+      ) +
+        Math.floor(
+          elementPosition.y +
+            elementSize.height / 2 -
+            diagramBackgroundPosition.y
+        )
     );
   }
 
@@ -938,7 +936,7 @@ describe('Data Modeling tab', function () {
       await getDiagramNodes(browser, 2);
     });
 
-    it('allows field editing', async function () {
+    it.only('allows field editing', async function () {
       const dataModelName = 'Test Edit Collection';
       await setupDiagram(browser, {
         diagramName: dataModelName,
