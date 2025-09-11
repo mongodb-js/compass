@@ -8,6 +8,7 @@ import {
   Banner,
   BannerVariant,
   Body,
+  DocumentList,
 } from '@mongodb-js/compass-components';
 
 import { usePreference } from 'compass-preferences-model/provider';
@@ -15,18 +16,23 @@ import toSimplifiedFieldInfo from './to-simplified-field-info';
 import type { CollectionState } from '../../modules/collection-tab';
 import type { SchemaAnalysisState } from '../../schema-analysis-types';
 import type { MockDataGeneratorState } from './types';
-import { Document } from '@mongodb-js/compass-crud';
+import HadronDocument from 'hadron-document';
 
 interface RawSchemaConfirmationScreenProps {
   schemaAnalysis: SchemaAnalysisState;
   fakerSchemaGenerationStatus: MockDataGeneratorState['status'];
 }
 
-const documentContainerStyles = css({
-  backgroundColor: palette.gray.light3,
-  border: `1px solid ${palette.gray.light2}`,
-  borderRadius: spacing[400],
-});
+// note: the "> div" selector works around the lack of a className prop on HadronDocument
+const documentContainerStyles = css`
+  background-color: ${palette.gray.light3};
+  border: 1px solid ${palette.gray.light2};
+  border-radius: ${spacing[400]}px;
+
+  > div {
+    padding: ${spacing[400]}px ${spacing[900]}px;
+  }
+`;
 
 const descriptionStyles = css({
   marginBottom: spacing[200],
@@ -65,12 +71,14 @@ const RawSchemaConfirmationScreen = ({
           </Body>
           <Body className={descriptionStyles}>{descriptionText}</Body>
           <div className={documentContainerStyles}>
-            <Document
+            <DocumentList.Document
               editable={false}
-              doc={
-                enableSampleDocumentPassing
-                  ? schemaAnalysis.sampleDocument
-                  : toSimplifiedFieldInfo(schemaAnalysis.processedSchema)
+              value={
+                new HadronDocument(
+                  enableSampleDocumentPassing
+                    ? schemaAnalysis.sampleDocument
+                    : toSimplifiedFieldInfo(schemaAnalysis.processedSchema)
+                )
               }
             />
           </div>
