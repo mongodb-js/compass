@@ -262,11 +262,15 @@ const DatabaseCollection = AmpersandCollection.extend(
       });
 
       this.set(
-        dbs.map(({ _id, name, inferred_from_privileges }) => ({
-          _id,
-          name,
-          inferred_from_privileges,
-        }))
+        dbs
+          .filter((db) => {
+            return toNs(db.name).internal === false;
+          })
+          .map(({ _id, name, inferred_from_privileges }) => ({
+            _id,
+            name,
+            inferred_from_privileges,
+          }))
       );
     },
 
