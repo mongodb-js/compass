@@ -936,7 +936,7 @@ describe('Data Modeling tab', function () {
       await getDiagramNodes(browser, 2);
     });
 
-    it.only('allows field editing', async function () {
+    it('allows field editing', async function () {
       const dataModelName = 'Test Edit Collection';
       await setupDiagram(browser, {
         diagramName: dataModelName,
