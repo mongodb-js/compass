@@ -10,7 +10,8 @@ import ConfirmationModal from '../components/modals/confirmation-modal';
 import { css } from '@leafygreen-ui/emotion';
 import type { ButtonProps } from '@leafygreen-ui/button';
 import FormFieldContainer from '../components/form-field-container';
-import { TextInput } from '../components/leafygreen';
+import { Banner, TextInput } from '../components/leafygreen';
+import { spacing } from '@leafygreen-ui/tokens';
 
 export { ConfirmationModalVariant };
 
@@ -24,6 +25,7 @@ type ConfirmationProperties = Partial<
   hideConfirmButton?: boolean;
   hideCancelButton?: boolean;
   description?: React.ReactNode;
+  warning?: React.ReactNode;
   signal?: AbortSignal;
   'data-testid'?: string;
 };
@@ -93,12 +95,17 @@ const confirmationModalState = new GlobalConfirmationModalState();
  *
  * @param props ConfirmationModal rendering properties
  */
+
 export const showConfirmation = confirmationModalState.showConfirmation.bind(
   confirmationModalState
 );
 
 const hideButtonStyles = css({
   display: 'none !important',
+});
+
+const warningBannerStyles = css({
+  marginTop: spacing[400],
 });
 
 const ConfirmationModalStateHandler: React.FunctionComponent = ({
@@ -191,6 +198,11 @@ const ConfirmationModalStateHandler: React.FunctionComponent = ({
         requiredInputText={confirmationProps.requiredInputText ?? undefined}
       >
         {confirmationProps.description}
+        {confirmationProps.warning && (
+          <Banner variant="warning" className={warningBannerStyles}>
+            {confirmationProps.warning}
+          </Banner>
+        )}
       </ConfirmationModal>
     </>
   );
