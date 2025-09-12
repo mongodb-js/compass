@@ -10,7 +10,6 @@ import {
   Modal,
   ModalFooter,
   spacing,
-  SpinLoaderWithLabel,
 } from '@mongodb-js/compass-components';
 
 import { type MockDataGeneratorState, MockDataGeneratorStep } from './types';
@@ -36,12 +35,6 @@ const rightButtonsStyles = css`
   gap: ${spacing[200]}px;
   flex-direction: row;
 `;
-
-const schemaEditorLoaderStyles = css({
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-});
 
 interface Props {
   isOpen: boolean;
@@ -70,28 +63,13 @@ const MockDataGeneratorModal = ({
       case MockDataGeneratorStep.SCHEMA_CONFIRMATION:
         return <SchemaConfirmationScreen />;
       case MockDataGeneratorStep.SCHEMA_EDITOR:
-        {
-          if (fakerSchemaGenerationState.status === 'in-progress') {
-            return (
-              <div
-                data-testid="faker-schema-editor-loader"
-                className={schemaEditorLoaderStyles}
-              >
-                <SpinLoaderWithLabel progressText="Processing Documents..." />
-              </div>
-            );
-          }
-          if (fakerSchemaGenerationState.status === 'completed') {
-            return (
-              <FakerSchemaEditor
-                isSchemaConfirmed={isSchemaConfirmed}
-                onSchemaConfirmed={setIsSchemaConfirmed}
-                fakerMappings={fakerSchemaGenerationState.fakerSchema}
-              />
-            );
-          }
-        }
-        break;
+        return (
+          <FakerSchemaEditor
+            isSchemaConfirmed={isSchemaConfirmed}
+            onSchemaConfirmed={setIsSchemaConfirmed}
+            fakerSchemaGenerationState={fakerSchemaGenerationState}
+          />
+        );
       case MockDataGeneratorStep.DOCUMENT_COUNT:
         return <></>; // TODO: CLOUDP-333856
       case MockDataGeneratorStep.PREVIEW_DATA:
@@ -102,8 +80,7 @@ const MockDataGeneratorModal = ({
   }, [currentStep, fakerSchemaGenerationState, isSchemaConfirmed]);
 
   const isNextButtonDisabled =
-    currentStep === MockDataGeneratorStep.SCHEMA_EDITOR &&
-    (!isSchemaConfirmed || fakerSchemaGenerationState.status === 'in-progress');
+    currentStep === MockDataGeneratorStep.SCHEMA_EDITOR && !isSchemaConfirmed;
 
   const handleNextClick = () => {
     if (currentStep === MockDataGeneratorStep.GENERATE_DATA) {
