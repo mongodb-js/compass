@@ -325,6 +325,8 @@ module.exports = (env, args) => {
     // bson is not that big, but is a shared dependency of compass-web,
     // compass-components and bson-transpilers, so splitting it out
     'bson',
+    // dependency of compass-collection
+    '@faker-js/faker',
   ]);
 
   return bundles;
