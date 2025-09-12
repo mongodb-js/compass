@@ -24,7 +24,9 @@ import { openMockDataGeneratorModal } from '../../modules/collection-tab';
 import type { CollectionState } from '../../modules/collection-tab';
 import {
   SCHEMA_ANALYSIS_STATE_COMPLETE,
+  SCHEMA_ANALYSIS_STATE_ERROR,
   type SchemaAnalysisStatus,
+  type SchemaAnalysisError,
 } from '../../schema-analysis-types';
 
 const collectionHeaderStyles = css({
@@ -70,6 +72,7 @@ type CollectionHeaderProps = {
   hasSchemaAnalysisData: boolean;
   analyzedSchemaDepth: number;
   schemaAnalysisStatus: SchemaAnalysisStatus | null;
+  schemaAnalysisError: SchemaAnalysisError | null;
 };
 
 const getInsightsForPipeline = (pipeline: any[], isAtlas: boolean) => {
@@ -108,6 +111,7 @@ const CollectionHeader: React.FunctionComponent<CollectionHeaderProps> = ({
   hasSchemaAnalysisData,
   analyzedSchemaDepth,
   schemaAnalysisStatus,
+  schemaAnalysisError,
 }) => {
   const darkMode = useDarkMode();
   const showInsights = usePreference('showInsights');
@@ -188,6 +192,7 @@ const CollectionHeader: React.FunctionComponent<CollectionHeaderProps> = ({
           hasSchemaAnalysisData={hasSchemaAnalysisData}
           analyzedSchemaDepth={analyzedSchemaDepth}
           schemaAnalysisStatus={schemaAnalysisStatus}
+          schemaAnalysisError={schemaAnalysisError}
         />
       </div>
       <MockDataGeneratorModal />
@@ -199,6 +204,10 @@ const mapStateToProps = (state: CollectionState) => {
   const { schemaAnalysis } = state;
 
   return {
+    schemaAnalysisError:
+      schemaAnalysis && schemaAnalysis.status === SCHEMA_ANALYSIS_STATE_ERROR
+        ? schemaAnalysis.error
+        : null,
     hasSchemaAnalysisData:
       schemaAnalysis &&
       schemaAnalysis.status === SCHEMA_ANALYSIS_STATE_COMPLETE &&

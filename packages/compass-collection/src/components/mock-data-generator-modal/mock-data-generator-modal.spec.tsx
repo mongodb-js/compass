@@ -20,10 +20,12 @@ describe('MockDataGeneratorModal', () => {
   async function renderModal({
     isOpen = true,
     currentStep = MockDataGeneratorStep.SCHEMA_CONFIRMATION,
+    enableGenAISampleDocumentPassing = false,
     mockServices = createMockServices(),
     connectionInfo,
   }: {
     isOpen?: boolean;
+    enableGenAISampleDocumentPassing?: boolean;
     currentStep?: MockDataGeneratorStep;
     mockServices?: any;
     connectionInfo?: ConnectionInfo;
@@ -63,7 +65,12 @@ describe('MockDataGeneratorModal', () => {
       <Provider store={store}>
         <MockDataGeneratorModal />
       </Provider>,
-      connectionInfo
+      connectionInfo,
+      {
+        preferences: {
+          enableGenAISampleDocumentPassing,
+        },
+      }
     );
   }
 
@@ -204,6 +211,37 @@ describe('MockDataGeneratorModal', () => {
       ).to.equal('true');
     });
 
+    it('displays the namespace', async () => {
+      await renderModal();
+      expect(screen.getByText('test.collection')).to.exist;
+    });
+
+    it('uses the appropriate copy when Generative AI sample document passing is enabled', async () => {
+      await renderModal({ enableGenAISampleDocumentPassing: true });
+      expect(screen.getByText('Sample Documents Collected')).to.exist;
+      expect(
+        screen.getByText(
+          'A sample of documents from your collection will be sent to an LLM for processing.'
+        )
+      ).to.exist;
+      // fragment from { "name": "John" }
+      expect(screen.getByText('"John"')).to.exist;
+      expect(screen.queryByText('"String"')).to.not.exist;
+    });
+
+    it('uses the appropriate copy when Generative AI sample document passing is disabled', async () => {
+      await renderModal();
+      expect(screen.getByText('Document Schema Identified')).to.exist;
+      expect(
+        screen.queryByText(
+          'We have identified the following schema from your documents. This schema will be sent to an LLM for processing.'
+        )
+      ).to.exist;
+      // fragment from { "name": "String" }
+      expect(screen.getByText('"String"')).to.exist;
+      expect(screen.queryByText('"John"')).to.not.exist;
+    });
+
     it('renders the faker schema editor when the confirm button is clicked', async () => {
       await renderModal();
 
@@ -230,10 +268,9 @@ describe('MockDataGeneratorModal', () => {
         expect(screen.queryByTestId('faker-schema-editor')).to.not.exist;
       });
 
-      // todo: assert a user-friendly error is displayed (CLOUDP-333852)
+      expect(screen.getByText('LLM Request failed. Please confirm again.')).to
+        .exist;
     });
-
-    // todo: assert that closing then re-opening the modal after an LLM err removes the err message
   });
 
   describe('on the generate data step', () => {

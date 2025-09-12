@@ -61,6 +61,7 @@ describe('CollectionHeaderActions [Component]', function () {
               hasSchemaAnalysisData={true}
               analyzedSchemaDepth={2}
               schemaAnalysisStatus="complete"
+              schemaAnalysisError={null}
               {...props}
             />
           </PreferencesProvider>
@@ -282,6 +283,38 @@ describe('CollectionHeaderActions [Component]', function () {
           hasSchemaAnalysisData: true,
           analyzedSchemaDepth: 5, // Exceeds MAX_COLLECTION_NESTING_DEPTH (3)
           schemaAnalysisStatus: 'complete',
+          onOpenMockDataModal: sinon.stub(),
+        },
+        {},
+        atlasConnectionInfo
+      );
+
+      const button = screen.getByTestId(
+        'collection-header-generate-mock-data-button'
+      );
+      expect(button).to.exist;
+      expect(button).to.have.attribute('aria-disabled', 'true');
+    });
+
+    it('should show an error banner when the schema is in an unsupported state', async function () {
+      mockUseAssignment.returns({
+        assignment: {
+          assignmentData: {
+            variant: 'mockDataGeneratorVariant',
+          },
+        },
+      });
+
+      await renderCollectionHeaderActions(
+        {
+          namespace: 'test.collection',
+          isReadonly: false,
+          hasSchemaAnalysisData: false,
+          schemaAnalysisStatus: 'error',
+          schemaAnalysisError: {
+            errorType: 'unsupportedState',
+            errorMessage: 'Unsupported state',
+          },
           onOpenMockDataModal: sinon.stub(),
         },
         {},
