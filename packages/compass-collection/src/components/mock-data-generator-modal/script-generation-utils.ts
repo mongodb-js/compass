@@ -55,7 +55,7 @@ export function generateScript(
   try {
     const structure = buildDocumentStructure(schema);
 
-    const documentCode = generateDocumentCode(
+    const documentCode = renderDocumentCode(
       structure,
       INDENT_SIZE * 2, // 4 spaces: 2 for function body + 2 for inside return statement
       options.arrayLengthMap
@@ -315,7 +315,7 @@ function insertIntoStructure(
 /**
  * Generate JavaScript object code from document structure
  */
-function generateDocumentCode(
+function renderDocumentCode(
   structure: DocumentStructure,
   indent: number = INDENT_SIZE,
   arrayLengthMap: ArrayLengthMap = {}
@@ -356,7 +356,7 @@ function generateDocumentCode(
       }
     } else if ('type' in value && value.type === 'array') {
       // It's an array
-      const arrayCode = generateArrayCode(
+      const arrayCode = renderArrayCode(
         value as ArrayStructure,
         indent + INDENT_SIZE,
         fieldName,
@@ -375,7 +375,7 @@ function generateDocumentCode(
           ? arrayInfo.elements
           : {};
 
-      const nestedCode = generateDocumentCode(
+      const nestedCode = renderDocumentCode(
         value as DocumentStructure,
         indent + INDENT_SIZE,
         nestedArrayLengthMap
@@ -395,7 +395,7 @@ function generateDocumentCode(
 /**
  * Generate array code
  */
-function generateArrayCode(
+function renderArrayCode(
   arrayStructure: ArrayStructure,
   indent: number = INDENT_SIZE,
   fieldName: string = '',
@@ -422,7 +422,7 @@ function generateArrayCode(
     return `Array.from({length: ${arrayLength}}, () => ${fakerCall})`;
   } else if ('type' in elementType && elementType.type === 'array') {
     // Nested array (e.g., matrix[][]) - keep same fieldName, increment dimension
-    const nestedArrayCode = generateArrayCode(
+    const nestedArrayCode = renderArrayCode(
       elementType as ArrayStructure,
       indent,
       fieldName,
@@ -436,7 +436,7 @@ function generateArrayCode(
       arrayInfo && !Array.isArray(arrayInfo) && 'elements' in arrayInfo
         ? arrayInfo.elements
         : {}; // Fallback to empty map for malformed array map
-    const objectCode = generateDocumentCode(
+    const objectCode = renderDocumentCode(
       elementType as DocumentStructure,
       indent,
       nestedArrayLengthMap
