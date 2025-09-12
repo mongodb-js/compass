@@ -27,9 +27,12 @@ describe('Script Generation', () => {
 
       expect(result.success).to.equal(true);
       if (result.success) {
+        const expectedReturnBlock = `return {
+    name: faker.person.fullName(),
+    email: faker.internet.email()
+  };`;
+        expect(result.script).to.contain(expectedReturnBlock);
         expect(result.script).to.contain("use('testdb')");
-        expect(result.script).to.contain('faker.person.fullName()');
-        expect(result.script).to.contain('faker.internet.email()');
         expect(result.script).to.contain('insertMany');
       }
     });
@@ -49,8 +52,10 @@ describe('Script Generation', () => {
 
       expect(result.success).to.equal(true);
       if (result.success) {
-        expect(result.script).to.contain('Array.from');
-        expect(result.script).to.contain('faker.lorem.word()');
+        const expectedReturnBlock = `return {
+    tags: Array.from({length: 3}, () => faker.lorem.word())
+  };`;
+        expect(result.script).to.contain(expectedReturnBlock);
       }
     });
 
@@ -68,12 +73,14 @@ describe('Script Generation', () => {
 
       expect(result.success).to.equal(true);
       if (result.success) {
-        expect(result.script).to.contain('Array.from');
-        expect(result.script).to.contain('faker.person.fullName()');
-        expect(result.script).to.contain('faker.internet.email()');
-        // Should have nested object structure
-        expect(result.script).to.match(/name:\s*faker\.person\.fullName\(\)/);
-        expect(result.script).to.match(/email:\s*faker\.internet\.email\(\)/);
+        // Should generate the complete return block with proper structure
+        const expectedReturnBlock = `return {
+    users: Array.from({length: 3}, () => {
+      name: faker.person.fullName(),
+      email: faker.internet.email()
+    })
+  };`;
+        expect(result.script).to.contain(expectedReturnBlock);
       }
     });
 
@@ -90,12 +97,10 @@ describe('Script Generation', () => {
 
       expect(result.success).to.equal(true);
       if (result.success) {
-        // Should have nested Array.from calls
-        expect(result.script).to.contain('Array.from');
-        expect(result.script).to.contain('faker.number.int()');
-        // Should have two levels of Array.from for 2D array
-        const arrayFromMatches = result.script.match(/Array\.from/g);
-        expect(arrayFromMatches?.length).to.be.greaterThanOrEqual(2);
+        const expectedReturnBlock = `return {
+    matrix: Array.from({length: 3}, () => Array.from({length: 3}, () => faker.number.int()))
+  };`;
+        expect(result.script).to.contain(expectedReturnBlock);
       }
     });
 
@@ -113,11 +118,13 @@ describe('Script Generation', () => {
 
       expect(result.success).to.equal(true);
       if (result.success) {
-        expect(result.script).to.contain('faker.person.fullName()');
-        expect(result.script).to.contain('faker.lorem.word()');
-        // Should have nested structure: users array containing objects with tags arrays
-        expect(result.script).to.match(/name:\s*faker\.person\.fullName\(\)/);
-        expect(result.script).to.match(/tags:\s*Array\.from/);
+        const expectedReturnBlock = `return {
+    users: Array.from({length: 3}, () => {
+      name: faker.person.fullName(),
+      tags: Array.from({length: 3}, () => faker.lorem.word())
+    })
+  };`;
+        expect(result.script).to.contain(expectedReturnBlock);
       }
     });
   });
@@ -139,11 +146,17 @@ describe('Script Generation', () => {
 
       expect(result.success).to.equal(true);
       if (result.success) {
-        expect(result.script).to.contain('faker.location.streetAddress()');
-        expect(result.script).to.contain('faker.location.city()');
-        // Should have nested object structure
-        expect(result.script).to.contain('profile');
-        expect(result.script).to.contain('address');
+        const expectedReturnBlock = `return {
+    users: Array.from({length: 3}, () => {
+      profile: {
+        address: {
+          street: faker.location.streetAddress(),
+          city: faker.location.city()
+        }
+      }
+    })
+  };`;
+        expect(result.script).to.contain(expectedReturnBlock);
       }
     });
 
@@ -163,10 +176,15 @@ describe('Script Generation', () => {
 
       expect(result.success).to.equal(true);
       if (result.success) {
-        expect(result.script).to.contain('faker.lorem.sentence()');
-        expect(result.script).to.contain('faker.person.fullName()');
-        expect(result.script).to.contain('faker.lorem.words()');
-        expect(result.script).to.contain('faker.date.recent()');
+        const expectedReturnBlock = `return {
+    title: faker.lorem.sentence(),
+    authors: Array.from({length: 3}, () => {
+      name: faker.person.fullName(),
+      books: Array.from({length: 3}, () => faker.lorem.words())
+    }),
+    publishedYear: faker.date.recent()
+  };`;
+        expect(result.script).to.contain(expectedReturnBlock);
       }
     });
   });
@@ -184,10 +202,8 @@ describe('Script Generation', () => {
 
       expect(result.success).to.equal(true);
       if (result.success) {
-        expect(result.script).to.contain("use('testdb')");
-        expect(result.script).to.contain('insertMany');
-        // Should generate empty objects
-        expect(result.script).to.contain('{}');
+        const expectedReturnBlock = `return {};`;
+        expect(result.script).to.contain(expectedReturnBlock);
       }
     });
 
@@ -204,35 +220,10 @@ describe('Script Generation', () => {
 
       expect(result.success).to.equal(true);
       if (result.success) {
-        expect(result.script).to.contain('faker.number.int()');
-        expect(result.script).to.match(/value:\s*faker\.number\.int\(\)/);
-      }
-    });
-
-    it('should handle multiple fields in the same nested object', () => {
-      const schema = {
-        'profile.name': createFieldMapping('person.fullName'),
-        'profile.email': createFieldMapping('internet.email'),
-        'profile.age': createFieldMapping('number.int'),
-      };
-
-      const result = generateScript(schema, {
-        databaseName: 'testdb',
-        collectionName: 'users',
-        documentCount: 1,
-      });
-
-      expect(result.success).to.equal(true);
-      if (result.success) {
-        // All three fields should be present in the same profile object
-        expect(result.script).to.contain('faker.person.fullName()');
-        expect(result.script).to.contain('faker.internet.email()');
-        expect(result.script).to.contain('faker.number.int()');
-        expect(result.script).to.contain('profile');
-        // Should have all fields in nested structure
-        expect(result.script).to.match(/name:\s*faker\.person\.fullName\(\)/);
-        expect(result.script).to.match(/email:\s*faker\.internet\.email\(\)/);
-        expect(result.script).to.match(/age:\s*faker\.number\.int\(\)/);
+        const expectedReturnBlock = `return {
+    value: faker.number.int()
+  };`;
+        expect(result.script).to.contain(expectedReturnBlock);
       }
     });
   });

@@ -257,7 +257,7 @@ export function generateScript(
 
     const documentCode = generateDocumentCode(
       structure,
-      INDENT_SIZE,
+      INDENT_SIZE * 2, // 4 spaces: 2 for function body + 2 for inside return statement
       options.arrayLengthMap || {}
     );
 
