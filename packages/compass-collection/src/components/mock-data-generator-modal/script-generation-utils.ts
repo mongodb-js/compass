@@ -482,7 +482,21 @@ export function getDefaultFakerMethod(mongoType: string): string {
 }
 
 /**
- * Converts faker arguments to JavaScript code
+ * Converts array of faker arguments to comma separated string for function calls.
+ *
+ * Serializes various argument types into valid JavaScript syntax:
+ * - Strings: Uses JSON.stringify() to handle quotes, newlines, and special characters
+ * - Numbers: Validates finite numbers and converts to string representation
+ * - Booleans: Converts to 'true' or 'false' literals
+ * - Objects with 'json' property: Parses and re-stringifies JSON for validation
+ *
+ * @param fakerArgs - Array of arguments to convert to JavaScript code
+ * @returns Comma-separated string of JavaScript arguments, or empty string if no args
+ * @throws Error if arguments contain invalid values (non-finite numbers, malformed JSON)
+ *
+ * @example
+ * formatFakerArgs(['male', 25, true]) // Returns: '"male", 25, true'
+ * formatFakerArgs([{json: '{"min": 1}'}]) // Returns: '{"min": 1}'
  */
 export function formatFakerArgs(fakerArgs: FakerArg[]): string {
   const stringifiedArgs: string[] = [];
