@@ -23,16 +23,15 @@ interface RawSchemaConfirmationScreenProps {
   fakerSchemaGenerationStatus: MockDataGeneratorState['status'];
 }
 
-// note: the "> div" selector works around the lack of a className prop on HadronDocument
-const documentContainerStyles = css`
-  background-color: ${palette.gray.light3};
-  border: 1px solid ${palette.gray.light2};
-  border-radius: ${spacing[400]}px;
+const documentContainerStyles = css({
+  backgroundColor: palette.gray.light3,
+  border: `1px solid ${palette.gray.light2}`,
+  borderRadius: spacing[400],
+});
 
-  > div {
-    padding: ${spacing[400]}px ${spacing[900]}px;
-  }
-`;
+const documentStyles = css({
+  padding: `${spacing[400]}px ${spacing[900]}px`,
+});
 
 const descriptionStyles = css({
   marginBottom: spacing[200],
@@ -72,6 +71,7 @@ const RawSchemaConfirmationScreen = ({
           <Body className={descriptionStyles}>{descriptionText}</Body>
           <div className={documentContainerStyles}>
             <DocumentList.Document
+              className={documentStyles}
               editable={false}
               value={
                 new HadronDocument(
