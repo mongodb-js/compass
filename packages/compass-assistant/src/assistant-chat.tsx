@@ -112,7 +112,7 @@ const messageFeedFixesStyles = css({
   gap: spacing[400],
 
   // TODO(COMPASS-9751): We're setting the font weight to 600 here as the LG styling for the Assistant header isn't set
-  '& > div > div:has(svg[aria-label="Sparkle Icon"]) p': {
+  '& > div > div > div:has(svg[aria-label="Sparkle Icon"]) p': {
     fontWeight: 600,
   },
 });
@@ -174,20 +174,17 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
     }
   }, [hasNonGenuineConnections, chat, setMessages]);
 
-  // Transform AI SDK messages to LeafyGreen chat format and reverse the order of the messages
-  // for displaying it correctly with flex-direction: column-reverse.
-  const lgMessages = messages
-    .map((message) => ({
-      id: message.id,
-      messageBody:
-        message.metadata?.displayText ||
-        message.parts
-          ?.filter((part) => part.type === 'text')
-          .map((part) => part.text)
-          .join(''),
-      isSender: message.role === 'user',
-    }))
-    .reverse();
+  // Transform AI SDK messages to LeafyGreen chat format
+  const lgMessages = messages.map((message) => ({
+    id: message.id,
+    messageBody:
+      message.metadata?.displayText ||
+      message.parts
+        ?.filter((part) => part.type === 'text')
+        .map((part) => part.text)
+        .join(''),
+    isSender: message.role === 'user',
+  }));
 
   const handleMessageSend = useCallback(
     (messageBody: string) => {
@@ -249,21 +246,23 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
             data-testid="assistant-chat-messages"
             className={messageFeedFixesStyles}
           >
-            {lgMessages.map((messageFields) => (
-              <Message
-                key={messageFields.id}
-                sourceType="markdown"
-                {...messageFields}
-                data-testid={`assistant-message-${messageFields.id}`}
-              >
-                {messageFields.isSender === false && (
-                  <MessageActions
-                    onRatingChange={handleFeedback}
-                    onSubmitFeedback={handleFeedback}
-                  />
-                )}
-              </Message>
-            ))}
+            <div>
+              {lgMessages.map((messageFields) => (
+                <Message
+                  key={messageFields.id}
+                  sourceType="markdown"
+                  {...messageFields}
+                  data-testid={`assistant-message-${messageFields.id}`}
+                >
+                  {messageFields.isSender === false && (
+                    <MessageActions
+                      onRatingChange={handleFeedback}
+                      onSubmitFeedback={handleFeedback}
+                    />
+                  )}
+                </Message>
+              ))}
+            </div>
             <DisclaimerText className={disclaimerTextStyles}>
               This feature is powered by generative AI. See our{' '}
               <Link
