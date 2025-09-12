@@ -10,10 +10,17 @@ export interface FieldMapping {
   probability?: number; // 0.0 - 1.0 frequency of field (defaults to 1.0)
 }
 
-// Hierarchical array length map that mirrors document structure
+// Array length configuration for different array types
 export type ArrayLengthMap = {
-  [fieldName: string]: number[] | ArrayLengthMap;
+  [fieldName: string]:
+    | number[] // Multi-dimensional: [2, 3, 4]
+    | ArrayObjectConfig; // Array of objects
 };
+
+export interface ArrayObjectConfig {
+  length?: number; // Length of the parent array (optional for nested object containers)
+  elements: ArrayLengthMap; // Configuration for nested arrays
+}
 
 export interface ScriptOptions {
   documentCount: number;
@@ -362,11 +369,12 @@ function generateDocumentCode(
     } else {
       // It's a nested object: recursive call
 
-      // Type Validation/ Fallback for misconfigured array length map
-      const arrayDimensions = arrayLengthMap[fieldName];
+      // Get nested array length map for this field,
+      // including type validation and fallback for malformed maps
+      const arrayInfo = arrayLengthMap[fieldName];
       const nestedArrayLengthMap =
-        typeof arrayDimensions === 'object' && !Array.isArray(arrayDimensions)
-          ? arrayDimensions
+        arrayInfo && !Array.isArray(arrayInfo) && 'elements' in arrayInfo
+          ? arrayInfo.elements
           : {};
 
       const nestedCode = generateDocumentCode(
@@ -399,10 +407,16 @@ function generateArrayCode(
   const elementType = arrayStructure.elementType;
 
   // Get array length for this dimension
-  const arrayDimensions = arrayLengthMap[fieldName];
-  const arrayLength = Array.isArray(arrayDimensions)
-    ? arrayDimensions[dimensionIndex] ?? DEFAULT_ARRAY_LENGTH
-    : DEFAULT_ARRAY_LENGTH; // Fallback for misconfigured array length map
+  const arrayInfo = arrayLengthMap[fieldName];
+  let arrayLength = DEFAULT_ARRAY_LENGTH;
+
+  if (Array.isArray(arrayInfo)) {
+    // single or multi-dimensional array: eg. [2, 3, 4] or [6]
+    arrayLength = arrayInfo[dimensionIndex] ?? DEFAULT_ARRAY_LENGTH; // Fallback for malformed array map
+  } else if (arrayInfo && 'length' in arrayInfo) {
+    // Array of objects/documents
+    arrayLength = arrayInfo.length ?? DEFAULT_ARRAY_LENGTH;
+  }
 
   if ('mongoType' in elementType) {
     // Array of primitives
@@ -421,9 +435,9 @@ function generateArrayCode(
   } else {
     // Array of objects
     const nestedArrayLengthMap =
-      typeof arrayDimensions === 'object' && !Array.isArray(arrayDimensions)
-        ? arrayDimensions
-        : {}; // Fallback for misconfigured array length map
+      arrayInfo && !Array.isArray(arrayInfo) && 'elements' in arrayInfo
+        ? arrayInfo.elements
+        : {}; // Fallback to empty map for malformed array map
     const objectCode = generateDocumentCode(
       elementType as DocumentStructure,
       indent,
