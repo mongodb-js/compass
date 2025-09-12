@@ -31,7 +31,7 @@ describe('Script Generation', () => {
     email: faker.internet.email()
   };`;
       expect(result.script).to.contain(expectedReturnBlock);
-      expect(result.script).to.contain("use('testdb')");
+      expect(result.script).to.contain('use("testdb")');
       expect(result.script).to.contain('insertMany');
     }
   });
@@ -240,6 +240,30 @@ describe('Script Generation', () => {
           'start[]middle[]end: faker.lorem.word()'
         );
         expect(result.script).not.to.contain('Array.from');
+      }
+    });
+
+    it('should safely handle special characters in database and collection names', () => {
+      const schema = {
+        name: createFieldMapping('person.fullName'),
+      };
+
+      const result = generateScript(schema, {
+        databaseName: 'test\'db`with"quotes',
+        collectionName: 'coll\nwith\ttabs',
+        documentCount: 1,
+      });
+
+      expect(result.success).to.equal(true);
+      if (result.success) {
+        // Should use JSON.stringify for safe string insertion
+        expect(result.script).to.contain('use("test\'db`with\\"quotes")');
+        expect(result.script).to.contain(
+          'db.getCollection("coll\\nwith\\ttabs")'
+        );
+        // Should not contain unescaped special characters that could break JS
+        expect(result.script).not.to.contain("use('test'db");
+        expect(result.script).not.to.contain("getCollection('coll\nwith");
       }
     });
   });

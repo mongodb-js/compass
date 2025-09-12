@@ -61,22 +61,14 @@ export function generateScript(
       options.arrayLengthMap
     );
 
-    // Escape ' and ` in database/collection names for template literals
-    const escapedDbName = options.databaseName
-      .replace(/'/g, "\\'")
-      .replace(/`/g, '\\`');
-    const escapedCollectionName = options.collectionName
-      .replace(/'/g, "\\'")
-      .replace(/`/g, '\\`');
-
     const script = `// Mock Data Generator Script
-// Generated for collection: ${escapedDbName}.${escapedCollectionName}
+// Generated for collection: ${options.databaseName}.${options.collectionName}
 // Document count: ${options.documentCount}
 
 const { faker } = require('@faker-js/faker');
 
 // Connect to database
-use('${escapedDbName}');
+use(${JSON.stringify(options.databaseName)});
 
 // Document generation function
 function generateDocument() {
@@ -90,9 +82,13 @@ for (let i = 0; i < ${options.documentCount}; i++) {
 }
 
 // Insert documents into collection
-db.getCollection('${escapedCollectionName}').insertMany(documents);
+db.getCollection(${JSON.stringify(
+      options.collectionName
+    )}).insertMany(documents);
 
-console.log(\`Successfully inserted \${documents.length} documents into ${escapedDbName}.${escapedCollectionName}\`);`;
+console.log(\`Successfully inserted \${documents.length} documents into ${
+      options.databaseName
+    }.${options.collectionName}\`);`;
 
     return {
       script,
