@@ -251,7 +251,7 @@ function getMostFrequentType(types: SchemaType[]): SchemaType | null {
 }
 
 /**
- * Note: This validation is takes an extra defensive stance. As illustrated by the unit tests, malformed
+ * Note: This validation takes a defensive stance. As illustrated by the unit tests, malformed
  * inputs are required to simulate these unlikely errors.
  */
 function validateFieldPath(fieldPath: string) {
