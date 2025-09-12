@@ -605,7 +605,7 @@ describe('Script Generation', () => {
 
       expect(result.success).to.equal(true);
       if (result.success) {
-        expect(result.script).to.contain("faker.person.firstName('male')");
+        expect(result.script).to.contain('faker.person.firstName("male")');
       }
     });
 
@@ -718,7 +718,7 @@ describe('Script Generation', () => {
       }
     });
 
-    it('should escape quotes in string arguments', () => {
+    it('should safely handle quotes and special characters in string arguments', () => {
       const schema = {
         quote: {
           mongoType: 'string',
@@ -736,7 +736,7 @@ describe('Script Generation', () => {
       expect(result.success).to.equal(true);
       if (result.success) {
         expect(result.script).to.contain(
-          "faker.lorem.sentence('It\\'s a \\'test\\' string')"
+          "faker.lorem.sentence(\"It's a 'test' string\")"
         );
       }
     });
@@ -759,6 +759,34 @@ describe('Script Generation', () => {
       expect(result.success).to.equal(true);
       if (result.success) {
         expect(result.script).to.contain('faker.string.uuid()');
+      }
+    });
+
+    it('should safely handle complex string arguments with newlines and special characters', () => {
+      const schema = {
+        complexString: {
+          mongoType: 'string',
+          fakerMethod: 'lorem.sentence',
+          fakerArgs: [
+            'Line 1\nLine 2\tTabbed\r\nWith "quotes" and \'apostrophes\'',
+          ],
+        },
+      };
+
+      const result = generateScript(schema, {
+        databaseName: 'testdb',
+        collectionName: 'test',
+        documentCount: 1,
+      });
+
+      expect(result.success).to.equal(true);
+      if (result.success) {
+        // Should use JSON.stringify for safe string serialization
+        expect(result.script).to.contain(
+          'faker.lorem.sentence("Line 1\\nLine 2\\tTabbed\\r\\nWith \\"quotes\\" and \'apostrophes\'")'
+        );
+        // Should not contain unescaped newlines that would break JS
+        expect(result.script).not.to.contain('Line 1\nLine 2');
       }
     });
   });

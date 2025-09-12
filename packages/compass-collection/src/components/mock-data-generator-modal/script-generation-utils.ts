@@ -491,9 +491,7 @@ export function formatFakerArgs(fakerArgs: FakerArg[]): string {
     const arg = fakerArgs[i];
 
     if (typeof arg === 'string') {
-      // Escape single quotes for JS strings (and backticks for security)
-      const escapedArg = arg.replace(/[`']/g, '\\$&');
-      stringifiedArgs.push(`'${escapedArg}'`);
+      stringifiedArgs.push(JSON.stringify(arg));
     } else if (typeof arg === 'number') {
       if (!Number.isFinite(arg)) {
         throw new Error(
