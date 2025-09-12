@@ -1451,6 +1451,15 @@ export const DataModelPreviewCollection = (collectionId: string) =>
   `${DataModelPreview} [data-id="${collectionId}"]`; // TODO(COMPASS-9719): add once we upgrade reactflow again in diagramming: [aria-roleDescription="node"]
 export const DataModelPreviewRelationship = (relationshipId: string) =>
   `${DataModelPreview} [data-id="${relationshipId}"]`; // TODO(COMPASS-9719): add once we upgrade reactflow again in diagramming: [aria-roleDescription="edge"]
+export const DataModelCollectionAddFieldBtn = (collectionId: string) =>
+  `${DataModelPreview} [data-id="${collectionId}"] [data-testid="data-model-collection-add-field"]`; // TODO(COMPASS-9719): add once we upgrade reactflow again in diagramming: [aria-roleDescription="node"]
+export const DataModelAddNestedFieldBtn = (
+  collectionId: string,
+  fieldPath: string[]
+) =>
+  `${DataModelPreview} [data-id="${collectionId}"] [data-testid="data-model-field-type-${fieldPath.join(
+    '-'
+  )}"]`;
 export const DataModelApplyEditor = `${DataModelEditor} [data-testid="apply-editor"]`;
 export const DataModelEditorApplyButton = `${DataModelApplyEditor} [data-testid="apply-button"]`;
 export const DataModelUndoButton = 'button[aria-label="Undo"]';
@@ -1478,6 +1487,9 @@ export const DataModelsListItemActions = (diagramName: string) =>
 export const DataModelsListItemDeleteButton = `[data-action="delete"]`;
 export const DataModelAddRelationshipBtn = 'aria/Add Relationship';
 export const DataModelAddCollectionBtn = 'aria/Add Collection';
+export const DataModelFieldTypeCombobox = '[data-testid="field-type-combobox"]';
+export const DataModelFieldTypeComboboxInput =
+  '[data-testid="field-type-combobox"] [role="combobox"] input';
 export const DataModelNameInputLabel = '//label[text()="Name"]';
 export const DataModelNameInput =
   'input[data-testid="data-model-collection-drawer-name-input"]';

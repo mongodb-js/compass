@@ -9,6 +9,7 @@ import { connect } from 'react-redux';
 import type { DataModelingState } from '../store/reducer';
 import {
   addNewFieldToCollection,
+  onAddNestedField,
   moveCollection,
   selectCollection,
   selectRelationship,
@@ -113,6 +114,7 @@ const DiagramContent: React.FunctionComponent<{
   editErrors?: string[];
   newCollection?: string;
   onAddNewFieldToCollection: (ns: string) => void;
+  onAddNestedField: (ns: string, parentFieldPath: string[]) => void;
   onMoveCollection: (ns: string, newPosition: [number, number]) => void;
   onCollectionSelect: (namespace: string) => void;
   onRelationshipSelect: (rId: string) => void;
@@ -133,6 +135,7 @@ const DiagramContent: React.FunctionComponent<{
   isInRelationshipDrawingMode,
   newCollection,
   onAddNewFieldToCollection,
+  onAddNestedField,
   onMoveCollection,
   onCollectionSelect,
   onRelationshipSelect,
@@ -183,6 +186,8 @@ const DiagramContent: React.FunctionComponent<{
             : undefined,
         onClickAddNewFieldToCollection: () =>
           onAddNewFieldToCollection(coll.ns),
+        onClickAddNestedField: (parentFieldPath: string[]) =>
+          onAddNestedField(coll.ns, parentFieldPath),
         selected,
         isInRelationshipDrawingMode,
       });
@@ -193,6 +198,7 @@ const DiagramContent: React.FunctionComponent<{
     model?.relationships,
     selectedItems,
     isInRelationshipDrawingMode,
+    onAddNestedField,
   ]);
 
   // Fit to view on initial mount
@@ -309,6 +315,7 @@ const ConnectedDiagramContent = connect(
   },
   {
     onAddNewFieldToCollection: addNewFieldToCollection,
+    onAddNestedField: onAddNestedField,
     onMoveCollection: moveCollection,
     onCollectionSelect: selectCollection,
     onRelationshipSelect: selectRelationship,
