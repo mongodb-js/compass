@@ -48,6 +48,68 @@ interface ArrayStructure {
 }
 
 /**
+ * Entry point method: Generate the final script
+ */
+export function generateScript(
+  schema: Record<string, FieldMapping>,
+  options: ScriptOptions
+): ScriptResult {
+  try {
+    const structure = buildDocumentStructure(schema);
+
+    const documentCode = generateDocumentCode(
+      structure,
+      INDENT_SIZE * 2, // 4 spaces: 2 for function body + 2 for inside return statement
+      options.arrayLengthMap
+    );
+
+    // Escape ' and ` in database/collection names for template literals
+    const escapedDbName = options.databaseName
+      .replace(/'/g, "\\'")
+      .replace(/`/g, '\\`');
+    const escapedCollectionName = options.collectionName
+      .replace(/'/g, "\\'")
+      .replace(/`/g, '\\`');
+
+    const script = `// Mock Data Generator Script
+// Generated for collection: ${escapedDbName}.${escapedCollectionName}
+// Document count: ${options.documentCount}
+
+const { faker } = require('@faker-js/faker');
+
+// Connect to database
+use('${escapedDbName}');
+
+// Document generation function
+function generateDocument() {
+  return ${documentCode};
+}
+
+// Generate and insert documents
+const documents = [];
+for (let i = 0; i < ${options.documentCount}; i++) {
+  documents.push(generateDocument());
+}
+
+// Insert documents into collection
+db.getCollection('${escapedCollectionName}').insertMany(documents);
+
+console.log(\`Successfully inserted \${documents.length} documents into ${escapedDbName}.${escapedCollectionName}\`);`;
+
+    return {
+      script,
+      success: true,
+    };
+  } catch (error) {
+    return {
+      script: '',
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    };
+  }
+}
+
+/**
  * Parse a field path into simple parts
  *
  * Examples:
@@ -113,6 +175,7 @@ function parseFieldPath(fieldPath: string): string[] {
 
   return parts;
 }
+
 /**
  * Build the document structure from all field paths
  */
@@ -249,68 +312,6 @@ function insertIntoStructure(
       [secondPart, ...remainingParts],
       mapping
     );
-  }
-}
-
-/**
- * Generate the final script
- */
-export function generateScript(
-  schema: Record<string, FieldMapping>,
-  options: ScriptOptions
-): ScriptResult {
-  try {
-    const structure = buildDocumentStructure(schema);
-
-    const documentCode = generateDocumentCode(
-      structure,
-      INDENT_SIZE * 2, // 4 spaces: 2 for function body + 2 for inside return statement
-      options.arrayLengthMap || {}
-    );
-
-    // Escape ' and ` in database/collection names for template literals
-    const escapedDbName = options.databaseName
-      .replace(/'/g, "\\'")
-      .replace(/`/g, '\\`');
-    const escapedCollectionName = options.collectionName
-      .replace(/'/g, "\\'")
-      .replace(/`/g, '\\`');
-
-    const script = `// Mock Data Generator Script
-// Generated for collection: ${escapedDbName}.${escapedCollectionName}
-// Document count: ${options.documentCount}
-
-const { faker } = require('@faker-js/faker');
-
-// Connect to database
-use('${escapedDbName}');
-
-// Document generation function
-function generateDocument() {
-  return ${documentCode};
-}
-
-// Generate and insert documents
-const documents = [];
-for (let i = 0; i < ${options.documentCount}; i++) {
-  documents.push(generateDocument());
-}
-
-// Insert documents into collection
-db.getCollection('${escapedCollectionName}').insertMany(documents);
-
-console.log(\`Successfully inserted \${documents.length} documents into ${escapedDbName}.${escapedCollectionName}\`);`;
-
-    return {
-      script,
-      success: true,
-    };
-  } catch (error) {
-    return {
-      script: '',
-      success: false,
-      error: error instanceof Error ? error.message : 'Unknown error',
-    };
   }
 }
 
