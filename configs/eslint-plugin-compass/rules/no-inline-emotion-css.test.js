@@ -19,20 +19,28 @@ function pineapple() { return pineappleStyles; };`,
     {
       code: `
 const pineappleStyles = css({ background: 'purple' });
-function pineapple() { return (<div className={pineappleStyles}>pineapples</div>); }`,
+function Pineapple() { return (<div className={pineappleStyles}>pineapples</div>); }`,
       parserOptions: { ecmaVersion: 2021, ecmaFeatures: { jsx: true } },
+    },
+    {
+      code: "function pineapple() { const dynamicSet = css({ background: 'orange' }); }",
+      parserOptions: { ecmaVersion: 2021 },
     },
   ],
   invalid: [
     {
-      code: "function pineapple() { const dynamicSet = css({ background: 'orange' }); }",
-      parserOptions: { ecmaVersion: 2021 },
+      code: `
+function Pineapple() {
+  const pineappleStyles = css({ background: 'purple' });
+  return (<div className={pineappleStyles}>pineapples</div>);
+}`,
+      parserOptions: { ecmaVersion: 2021, ecmaFeatures: { jsx: true } },
       errors: [
         "Don't use a dynamic css() call in the render method, this creates a new class name every time component updates and is not performant. Static styles can be defined with css outside of render, dynamic should be passed through the style prop.",
       ],
     },
     {
-      code: "function pineapple() { return (<div className={css({ background: 'purple' })}>pineapples</div>); }",
+      code: "function Pineapple() { return (<div className={css({ background: 'purple' })}>pineapples</div>); }",
       parserOptions: { ecmaVersion: 2021, ecmaFeatures: { jsx: true } },
 
       errors: [

@@ -16,19 +16,39 @@ function isCssCall(node) {
 }
 
 /**
- * Checks if a call is inside a function.
+ * Checks if a call is inside a react function.
+ * This only checks for JSXExpressionContainers or an uppercase function name,
+ * so it may miss some cases.
  * @param {Object} context - ESLint context.
  * @returns {boolean} - Whether we're inside a function.
  */
-function isInsideFunction(context) {
+function isInsideReactFunction(context) {
   const ancestors = context.getAncestors();
 
-  return ancestors.some(
+  const hasJSXAncestor = ancestors.some(
+    (ancestor) => ancestor.type === 'JSXExpressionContainer'
+  );
+
+  if (hasJSXAncestor) {
+    return true;
+  }
+
+  const currentFunction = ancestors.find(
     (ancestor) =>
       ancestor.type === 'FunctionDeclaration' ||
       ancestor.type === 'FunctionExpression' ||
       ancestor.type === 'ArrowFunctionExpression'
   );
+  if (currentFunction) {
+    // If the function name starts with an uppercase letter maybe it's a React component.
+    if (
+      currentFunction.type === 'FunctionDeclaration' &&
+      currentFunction.id &&
+      /^[A-Z]/.test(currentFunction.id.name)
+    ) {
+      return true;
+    }
+  }
 }
 
 /** @type {import('eslint').Rule.RuleModule} */
@@ -46,13 +66,13 @@ module.exports = {
 
   create(context) {
     return {
-      // Check for css() calls in functions.
+      // Check for dynamic css() calls in react rendering.
       CallExpression(node) {
         if (!isCssCall(node)) {
           return;
         }
 
-        if (isInsideFunction(context)) {
+        if (isInsideReactFunction(context)) {
           context.report({
             node,
             messageId: 'noInlineCSS',
