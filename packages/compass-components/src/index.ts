@@ -1,5 +1,10 @@
-export * from './components/leafygreen';
+// IMPORTANT: this import should always be the first one in compass-component
+// main entrypoint to ensure that emotion is reconfigured before any component
+// modules generate their stylesheets
+import './force-emotion-speedy';
+// -------------------------------
 
+export * from './components/leafygreen';
 export {
   default as emotion,
   flush,
