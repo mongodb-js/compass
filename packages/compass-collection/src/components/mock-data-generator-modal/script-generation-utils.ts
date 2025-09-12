@@ -29,11 +29,9 @@ export interface ScriptOptions {
   arrayLengthMap?: ArrayLengthMap;
 }
 
-export interface ScriptResult {
-  script: string;
-  success: boolean;
-  error?: string;
-}
+export type ScriptResult =
+  | { script: string; success: true }
+  | { error: string; success: false };
 
 type DocumentStructure = {
   [fieldName: string]:
@@ -102,7 +100,6 @@ console.log(\`Successfully inserted \${documents.length} documents into ${escape
     };
   } catch (error) {
     return {
-      script: '',
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error',
     };
