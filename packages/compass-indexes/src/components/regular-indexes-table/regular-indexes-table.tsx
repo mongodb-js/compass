@@ -16,8 +16,7 @@ import SizeField from './size-field';
 import UsageField from './usage-field';
 import PropertyField from './property-field';
 import StatusField from './status-field';
-import RegularIndexActions from './regular-index-actions';
-import InProgressIndexActions from './in-progress-index-actions';
+import IndexActions from './index-actions';
 import { IndexesTable } from '../indexes-table';
 
 import {
@@ -122,7 +121,7 @@ function mergedIndexFieldValue(
   }
 
   if (field === 'status') {
-    return 'ready';
+    return determineRegularIndexStatus(index);
   }
 
   return index[field];
@@ -282,6 +281,21 @@ function mergeIndexes(
 
 type CommonIndexInfo = Omit<IndexInfo, 'renderExpandedContent'>;
 
+/**
+ * Determines the display status for a regular index based on its build progress
+ */
+function determineRegularIndexStatus(
+  index: RegularIndex
+): 'inprogress' | 'ready' {
+  // Build progress determines building vs ready
+  if (index.buildProgress > 0 && index.buildProgress < 1) {
+    return 'inprogress';
+  }
+
+  // Default to ready for completed indexes (buildProgress = 0 or 1)
+  return 'ready';
+}
+
 function getInProgressIndexInfo(
   index: MappedInProgressIndex,
   {
@@ -301,10 +315,10 @@ function getInProgressIndexInfo(
     properties: null,
     status: <StatusField status={index.status} error={index.error} />,
     actions: (
-      <InProgressIndexActions
+      <IndexActions
         index={index}
         onDeleteFailedIndexClick={onDeleteFailedIndexClick}
-      ></InProgressIndexActions>
+      />
     ),
   };
 }
@@ -321,7 +335,7 @@ function getRollingIndexInfo(index: MappedRollingIndex): CommonIndexInfo {
     // TODO(COMPASS-7589): add properties for rolling indexes
     properties: null,
     status: <StatusField status="building" />,
-    actions: null,
+    actions: null, // Rolling indexes don't have actions
   };
 }
 
@@ -339,6 +353,8 @@ function getRegularIndexInfo(
     onDeleteIndexClick: (indexName: string) => void;
   }
 ): CommonIndexInfo {
+  const status = determineRegularIndexStatus(index);
+
   return {
     id: index.name,
     name: index.name,
@@ -355,23 +371,15 @@ function getRegularIndexInfo(
         properties={index.properties}
       />
     ),
-    status: (
-      <StatusField
-        status={
-          index.buildProgress > 0 && index.buildProgress < 1
-            ? 'inprogress'
-            : 'ready'
-        }
-      />
-    ),
+    status: <StatusField status={status} />,
     actions: index.name !== '_id_' && (
-      <RegularIndexActions
+      <IndexActions
         index={index}
         serverVersion={serverVersion}
         onDeleteIndexClick={onDeleteIndexClick}
         onHideIndexClick={onHideIndexClick}
         onUnhideIndexClick={onUnhideIndexClick}
-      ></RegularIndexActions>
+      />
     ),
   };
 }
