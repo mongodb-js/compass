@@ -706,10 +706,10 @@ const validateFakerSchema = (
   return fakerSchema.content.fields.map((field) => {
     const { fakerMethod } = field;
 
-    const [firstLevel, secondLevel] = fakerMethod.split('.');
-    if (typeof (faker as any)[firstLevel]?.[secondLevel] !== 'function') {
+    const [moduleName, methodName] = fakerMethod.split('.');
+    if (typeof (faker as any)[moduleName]?.[methodName] !== 'function') {
       logger.log.warn(
-        mongoLogId(1_001_000_365),
+        mongoLogId(1_001_000_372),
         'Collection',
         'Invalid faker method',
         { fakerMethod }

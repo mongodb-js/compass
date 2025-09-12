@@ -7,11 +7,12 @@ import {
   Link,
   palette,
   spacing,
+  SpinLoaderWithLabel,
 } from '@mongodb-js/compass-components';
 import React from 'react';
 import FieldSelector from './schema-field-selector';
 import FakerMappingSelector from './faker-mapping-selector';
-import type { FakerSchemaMapping } from './types';
+import type { FakerSchemaMapping, MockDataGeneratorState } from './types';
 
 const containerStyles = css({
   display: 'flex',
@@ -41,16 +42,21 @@ const confirmMappingsButtonStyles = css({
   width: '200px',
 });
 
-const FakerSchemaEditorScreen = ({
+const schemaEditorLoaderStyles = css({
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+});
+
+const FakerSchemaEditorContent = ({
+  fakerSchemaMappings,
   onSchemaConfirmed,
-  fakerMappings,
 }: {
-  isSchemaConfirmed: boolean;
+  fakerSchemaMappings: Array<FakerSchemaMapping>;
   onSchemaConfirmed: (isConfirmed: boolean) => void;
-  fakerMappings: Array<FakerSchemaMapping>;
 }) => {
   const [fakerSchemaFormValues, setFakerSchemaFormValues] =
-    React.useState<Array<FakerSchemaMapping>>(fakerMappings);
+    React.useState<Array<FakerSchemaMapping>>(fakerSchemaMappings);
   const [activeField, setActiveField] = React.useState<string>(
     fakerSchemaFormValues[0].fieldPath
   );
@@ -97,19 +103,7 @@ const FakerSchemaEditorScreen = ({
   };
 
   return (
-    <div data-testid="faker-schema-editor" className={containerStyles}>
-      <div>
-        <h3 className={titleStyles}>
-          Confirm Field to Faker Function Mappings
-        </h3>
-        <Body className={bodyStyles}>
-          We have sampled your collection and created a schema based on your
-          documents. That schema has been sent to an LLM and it has returned the
-          following mapping between your schema fields and{' '}
-          <Link href="https://fakerjs.dev/api/faker.html">faker functions</Link>
-          .
-        </Body>
-      </div>
+    <>
       <div className={innerEditorStyles}>
         <FieldSelector
           activeField={activeField}
@@ -133,6 +127,46 @@ const FakerSchemaEditorScreen = ({
       >
         Confirm mappings
       </Button>
+    </>
+  );
+};
+
+const FakerSchemaEditorScreen = ({
+  onSchemaConfirmed,
+  fakerSchemaGenerationState,
+}: {
+  isSchemaConfirmed: boolean;
+  onSchemaConfirmed: (isConfirmed: boolean) => void;
+  fakerSchemaGenerationState: MockDataGeneratorState;
+}) => {
+  return (
+    <div data-testid="faker-schema-editor" className={containerStyles}>
+      <div>
+        <h3 className={titleStyles}>
+          Confirm Field to Faker Function Mappings
+        </h3>
+        <Body className={bodyStyles}>
+          We have sampled your collection and created a schema based on your
+          documents. That schema has been sent to an LLM and it has returned the
+          following mapping between your schema fields and{' '}
+          <Link href="https://fakerjs.dev/api/faker.html">faker functions</Link>
+          .
+        </Body>
+      </div>
+      {fakerSchemaGenerationState.status === 'in-progress' && (
+        <div
+          data-testid="faker-schema-editor-loader"
+          className={schemaEditorLoaderStyles}
+        >
+          <SpinLoaderWithLabel progressText="Processing Documents..." />
+        </div>
+      )}
+      {fakerSchemaGenerationState.status === 'completed' && (
+        <FakerSchemaEditorContent
+          fakerSchemaMappings={fakerSchemaGenerationState.fakerSchema}
+          onSchemaConfirmed={onSchemaConfirmed}
+        />
+      )}
     </div>
   );
 };
