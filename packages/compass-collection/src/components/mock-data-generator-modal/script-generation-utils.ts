@@ -12,7 +12,7 @@ export interface FieldMapping {
 
 // Hierarchical array length map that mirrors document structure
 export type ArrayLengthMap = {
-  [fieldName: string]: number | ArrayLengthMap;
+  [fieldName: string]: number[] | ArrayLengthMap;
 };
 
 export interface ScriptOptions {
@@ -351,24 +351,24 @@ function generateDocumentCode(
       }
     } else if ('type' in value && value.type === 'array') {
       // It's an array
-      const nestedArrayLengthMap =
-        typeof arrayLengthMap[fieldName] === 'object'
-          ? arrayLengthMap[fieldName]
-          : {};
       const arrayCode = generateArrayCode(
         value as ArrayStructure,
         indent + INDENT_SIZE,
         fieldName,
         arrayLengthMap,
-        nestedArrayLengthMap
+        0 // Start at dimension 0
       );
       rootLevelFields.push(`${fieldIndent}${fieldName}: ${arrayCode}`);
     } else {
       // It's a nested object: recursive call
+
+      // Type Validation/ Fallback for misconfigured array length map
+      const arrayDimensions = arrayLengthMap[fieldName];
       const nestedArrayLengthMap =
-        typeof arrayLengthMap[fieldName] === 'object'
-          ? arrayLengthMap[fieldName]
-          : arrayLengthMap;
+        typeof arrayDimensions === 'object' && !Array.isArray(arrayDimensions)
+          ? arrayDimensions
+          : {};
+
       const nestedCode = generateDocumentCode(
         value as DocumentStructure,
         indent + INDENT_SIZE,
@@ -393,33 +393,37 @@ function generateArrayCode(
   arrayStructure: ArrayStructure,
   indent: number = INDENT_SIZE,
   fieldName: string = '',
-  parentArrayLengthMap: ArrayLengthMap = {},
-  nestedArrayLengthMap: ArrayLengthMap = {}
+  arrayLengthMap: ArrayLengthMap = {},
+  dimensionIndex: number = 0
 ): string {
   const elementType = arrayStructure.elementType;
 
-  // Get array length from map or use default
-  const arrayLength =
-    typeof parentArrayLengthMap[fieldName] === 'number'
-      ? parentArrayLengthMap[fieldName]
-      : DEFAULT_ARRAY_LENGTH;
+  // Get array length for this dimension
+  const arrayDimensions = arrayLengthMap[fieldName];
+  const arrayLength = Array.isArray(arrayDimensions)
+    ? arrayDimensions[dimensionIndex] ?? DEFAULT_ARRAY_LENGTH
+    : DEFAULT_ARRAY_LENGTH; // Fallback for misconfigured array length map
 
   if ('mongoType' in elementType) {
     // Array of primitives
     const fakerCall = generateFakerCall(elementType as FieldMapping);
     return `Array.from({length: ${arrayLength}}, () => ${fakerCall})`;
   } else if ('type' in elementType && elementType.type === 'array') {
-    // Nested array (e.g., matrix[][])
+    // Nested array (e.g., matrix[][]) - keep same fieldName, increment dimension
     const nestedArrayCode = generateArrayCode(
       elementType as ArrayStructure,
       indent,
-      '', // No specific field name for nested arrays
-      nestedArrayLengthMap,
-      {}
+      fieldName,
+      arrayLengthMap,
+      dimensionIndex + 1 // Next dimension
     );
     return `Array.from({length: ${arrayLength}}, () => ${nestedArrayCode})`;
   } else {
     // Array of objects
+    const nestedArrayLengthMap =
+      typeof arrayDimensions === 'object' && !Array.isArray(arrayDimensions)
+        ? arrayDimensions
+        : {}; // Fallback for misconfigured array length map
     const objectCode = generateDocumentCode(
       elementType as DocumentStructure,
       indent,

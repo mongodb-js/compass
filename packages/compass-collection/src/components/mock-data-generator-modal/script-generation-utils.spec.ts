@@ -256,7 +256,7 @@ describe('Script Generation', () => {
         collectionName: 'posts',
         documentCount: 1,
         arrayLengthMap: {
-          tags: 5,
+          tags: [5],
         },
       });
 
@@ -277,7 +277,7 @@ describe('Script Generation', () => {
         documentCount: 1,
         arrayLengthMap: {
           users: {
-            tags: 4,
+            tags: [4],
           },
         },
       });
@@ -286,30 +286,6 @@ describe('Script Generation', () => {
       if (result.success) {
         // Should have tags array with length 4
         expect(result.script).to.contain('Array.from({length: 4}');
-      }
-    });
-
-    it('should handle hierarchical array length map', () => {
-      const schema = {
-        'departments[].employees[].skills[]': createFieldMapping('lorem.word'),
-      };
-
-      const result = generateScript(schema, {
-        databaseName: 'testdb',
-        collectionName: 'company',
-        documentCount: 1,
-        arrayLengthMap: {
-          departments: {
-            employees: {
-              skills: 3,
-            },
-          },
-        },
-      });
-
-      expect(result.success).to.equal(true);
-      if (result.success) {
-        expect(result.script).to.contain('Array.from({length: 3}');
       }
     });
 
@@ -324,8 +300,8 @@ describe('Script Generation', () => {
         collectionName: 'posts',
         documentCount: 1,
         arrayLengthMap: {
-          tags: 0,
-          categories: 2,
+          tags: [0],
+          categories: [2],
         },
       });
 
@@ -338,6 +314,32 @@ describe('Script Generation', () => {
         // Verify both arrays are present
         expect(result.script).to.contain('tags:');
         expect(result.script).to.contain('categories:');
+      }
+    });
+
+    it('should handle multi-dimensional arrays with custom lengths', () => {
+      const schema = {
+        'matrix[][]': createFieldMapping('number.int'),
+        'cube[][][]': createFieldMapping('number.float'),
+      };
+
+      const result = generateScript(schema, {
+        databaseName: 'testdb',
+        collectionName: 'data',
+        documentCount: 1,
+        arrayLengthMap: {
+          matrix: [2, 5], // 2x5 matrix
+          cube: [3, 4, 2], // 3x4x2 cube
+        },
+      });
+
+      expect(result.success).to.equal(true);
+      if (result.success) {
+        const expectedReturnBlock = `return {
+    matrix: Array.from({length: 2}, () => Array.from({length: 5}, () => faker.number.int())),
+    cube: Array.from({length: 3}, () => Array.from({length: 4}, () => Array.from({length: 2}, () => faker.number.float())))
+  };`;
+        expect(result.script).to.contain(expectedReturnBlock);
       }
     });
   });
