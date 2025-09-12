@@ -327,7 +327,7 @@ function renderDocumentCode(
 
   const fieldIndent = ' '.repeat(indent);
   const closingBraceIndent = ' '.repeat(indent - INDENT_SIZE);
-  const rootLevelFields: string[] = [];
+  const documentFields: string[] = [];
 
   for (const [fieldName, value] of Object.entries(structure)) {
     if ('mongoType' in value) {
@@ -347,12 +347,12 @@ function renderDocumentCode(
 
       if (probability < 1.0) {
         // Use Math.random for conditional field inclusion
-        rootLevelFields.push(
+        documentFields.push(
           `${fieldIndent}...(Math.random() < ${probability} ? { ${fieldName}: ${fakerCall} } : {})`
         );
       } else {
         // Normal field inclusion
-        rootLevelFields.push(`${fieldIndent}${fieldName}: ${fakerCall}`);
+        documentFields.push(`${fieldIndent}${fieldName}: ${fakerCall}`);
       }
     } else if ('type' in value && value.type === 'array') {
       // It's an array
@@ -363,7 +363,7 @@ function renderDocumentCode(
         arrayLengthMap,
         0 // Start at dimension 0
       );
-      rootLevelFields.push(`${fieldIndent}${fieldName}: ${arrayCode}`);
+      documentFields.push(`${fieldIndent}${fieldName}: ${arrayCode}`);
     } else {
       // It's a nested object: recursive call
 
@@ -380,16 +380,16 @@ function renderDocumentCode(
         indent + INDENT_SIZE,
         nestedArrayLengthMap
       );
-      rootLevelFields.push(`${fieldIndent}${fieldName}: ${nestedCode}`);
+      documentFields.push(`${fieldIndent}${fieldName}: ${nestedCode}`);
     }
   }
 
   // Handle empty objects
-  if (rootLevelFields.length === 0) {
+  if (documentFields.length === 0) {
     return '{}';
   }
 
-  return `{\n${rootLevelFields.join(',\n')}\n${closingBraceIndent}}`;
+  return `{\n${documentFields.join(',\n')}\n${closingBraceIndent}}`;
 }
 
 /**
