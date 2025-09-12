@@ -437,7 +437,7 @@ function renderArrayCode(
       indent,
       nestedArrayLengthMap
     );
-    return `Array.from({length: ${arrayLength}}, () => ${objectCode})`;
+    return `Array.from({length: ${arrayLength}}, () => (${objectCode}))`;
   }
 }
 
