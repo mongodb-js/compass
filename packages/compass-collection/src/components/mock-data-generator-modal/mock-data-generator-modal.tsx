@@ -1,27 +1,29 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { connect } from 'react-redux';
 
 import {
   css,
+  Button,
+  ButtonVariant,
   ModalBody,
   ModalHeader,
+  Modal,
+  ModalFooter,
   spacing,
 } from '@mongodb-js/compass-components';
 
-import {
-  Button,
-  Modal,
-  ModalFooter,
-  ButtonVariant,
-} from '@mongodb-js/compass-components';
 import { MockDataGeneratorStep } from './types';
 import { StepButtonLabelMap } from './constants';
 import type { CollectionState } from '../../modules/collection-tab';
 import {
   mockDataGeneratorModalClosed,
   mockDataGeneratorNextButtonClicked,
+  generateFakerMappings,
   mockDataGeneratorPreviousButtonClicked,
 } from '../../modules/collection-tab';
+import { default as SchemaConfirmationScreen } from './raw-schema-confirmation';
+import FakerSchemaEditor from './faker-schema-editor';
+import ScriptScreen from './script-screen';
 
 const footerStyles = css`
   flex-direction: row;
@@ -39,6 +41,7 @@ interface Props {
   onClose: () => void;
   currentStep: MockDataGeneratorStep;
   onNextStep: () => void;
+  onConfirmSchema: () => Promise<void>;
   onPreviousStep: () => void;
 }
 
@@ -47,13 +50,37 @@ const MockDataGeneratorModal = ({
   onClose,
   currentStep,
   onNextStep,
+  onConfirmSchema,
   onPreviousStep,
 }: Props) => {
-  const handleNextClick =
-    currentStep === MockDataGeneratorStep.GENERATE_DATA ? onClose : onNextStep;
+  const modalBodyContent = useMemo(() => {
+    switch (currentStep) {
+      case MockDataGeneratorStep.SCHEMA_CONFIRMATION:
+        return <SchemaConfirmationScreen />;
+      case MockDataGeneratorStep.SCHEMA_EDITOR:
+        return <FakerSchemaEditor />;
+      case MockDataGeneratorStep.DOCUMENT_COUNT:
+        return <></>; // TODO: CLOUDP-333856
+      case MockDataGeneratorStep.PREVIEW_DATA:
+        return <></>; // TODO: CLOUDP-333857
+      case MockDataGeneratorStep.GENERATE_DATA:
+        return <ScriptScreen />;
+    }
+  }, [currentStep]);
+
+  const handleNextClick = () => {
+    if (currentStep === MockDataGeneratorStep.GENERATE_DATA) {
+      onClose();
+    } else if (currentStep === MockDataGeneratorStep.SCHEMA_CONFIRMATION) {
+      void onConfirmSchema();
+    } else {
+      onNextStep();
+    }
+  };
 
   return (
     <Modal
+      size="large"
       open={isOpen}
       setOpen={(open) => {
         if (!open) {
@@ -64,8 +91,9 @@ const MockDataGeneratorModal = ({
     >
       <ModalHeader title="Generate Mock Data" />
       <ModalBody>
-        {/* TODO: Render actual step content here based on currentStep. (CLOUDP-333851) */}
-        <div data-testid={`generate-mock-data-step-${currentStep}`} />
+        <div data-testid={`generate-mock-data-step-${currentStep}`}>
+          {modalBodyContent}
+        </div>
       </ModalBody>
       <ModalFooter className={footerStyles}>
         <Button
@@ -97,8 +125,8 @@ const mapStateToProps = (state: CollectionState) => ({
 const ConnectedMockDataGeneratorModal = connect(mapStateToProps, {
   onClose: mockDataGeneratorModalClosed,
   onNextStep: mockDataGeneratorNextButtonClicked,
+  onConfirmSchema: generateFakerMappings,
   onPreviousStep: mockDataGeneratorPreviousButtonClicked,
 })(MockDataGeneratorModal);
 
 export default ConnectedMockDataGeneratorModal;
-export { MockDataGeneratorModal as UnconnectedMockDataGeneratorModal };

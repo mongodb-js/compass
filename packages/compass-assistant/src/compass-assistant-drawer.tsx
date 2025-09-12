@@ -14,7 +14,10 @@ import {
   AssistantActionsContext,
   AssistantContext,
 } from './compass-assistant-provider';
-import { usePreference } from 'compass-preferences-model/provider';
+import {
+  useIsAIFeatureEnabled,
+  usePreference,
+} from 'compass-preferences-model/provider';
 
 const assistantTitleStyles = css({
   display: 'flex',
@@ -33,11 +36,13 @@ const assistantTitleTextStyles = css({
  */
 export const CompassAssistantDrawer: React.FunctionComponent<{
   autoOpen?: boolean;
-}> = ({ autoOpen }) => {
+  hasNonGenuineConnections?: boolean;
+}> = ({ autoOpen, hasNonGenuineConnections = false }) => {
   const chat = useContext(AssistantContext);
   const { clearChat } = useContext(AssistantActionsContext);
 
   const enableAIAssistant = usePreference('enableAIAssistant');
+  const isAiFeatureEnabled = useIsAIFeatureEnabled();
 
   const handleClearChat = useCallback(async () => {
     const confirmed = await showConfirmation({
@@ -53,7 +58,7 @@ export const CompassAssistantDrawer: React.FunctionComponent<{
     }
   }, [clearChat]);
 
-  if (!enableAIAssistant) {
+  if (!enableAIAssistant || !isAiFeatureEnabled) {
     return null;
   }
 
@@ -88,7 +93,10 @@ export const CompassAssistantDrawer: React.FunctionComponent<{
       glyph="Sparkle"
       autoOpen={autoOpen}
     >
-      <AssistantChat chat={chat} />
+      <AssistantChat
+        chat={chat}
+        hasNonGenuineConnections={hasNonGenuineConnections}
+      />
     </DrawerSection>
   );
 };

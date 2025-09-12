@@ -106,7 +106,7 @@ const ViewNotSearchCompatibleBanner = ({
         </>
       )}
       This view is incompatible with search indexes. Only views containing
-      $addFields, $set or $match stages with the $expr operator are compatible
+      $match stages with the $expr operator, $addFields, or $set are compatible
       with search indexes.{' '}
       {!hasNoSearchIndexes && 'Edit the view to rebuild search indexes.'}{' '}
       <Link

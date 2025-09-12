@@ -1,17 +1,25 @@
 import type { Reducer, AnyAction, Action } from 'redux';
 import { analyzeDocuments } from 'mongodb-schema';
+import { UUID } from 'bson';
+import { isCancelError } from '@mongodb-js/compass-utils';
 
 import type { CollectionMetadata } from 'mongodb-collection-model';
 import type { ThunkAction } from 'redux-thunk';
 import type AppRegistry from '@mongodb-js/compass-app-registry';
 import type { workspacesServiceLocator } from '@mongodb-js/compass-workspaces/provider';
+import type {
+  ConnectionInfoRef,
+  DataService,
+} from '@mongodb-js/compass-connections/provider';
 import type { CollectionSubtab } from '@mongodb-js/compass-workspaces';
-import type { DataService } from '@mongodb-js/compass-connections/provider';
+import type { AtlasAiService } from '@mongodb-js/compass-generative-ai/provider';
 import type { experimentationServiceLocator } from '@mongodb-js/compass-telemetry/provider';
 import { type Logger, mongoLogId } from '@mongodb-js/compass-logging/provider';
 import { type PreferencesAccess } from 'compass-preferences-model/provider';
-import type { AtlasAiService } from '@mongodb-js/compass-generative-ai/provider';
-
+import type {
+  MockDataSchemaRequest,
+  MockDataSchemaResponse,
+} from '@mongodb-js/compass-generative-ai';
 import { isInternalFieldPath } from 'hadron-document';
 import toNS from 'mongodb-ns';
 import {
@@ -27,6 +35,7 @@ import { calculateSchemaDepth } from '../calculate-schema-depth';
 import { processSchema } from '../transform-schema-to-field-info';
 import type { Document, MongoError } from 'mongodb';
 import { MockDataGeneratorStep } from '../components/mock-data-generator-modal/types';
+import type { MockDataGeneratorState } from '../components/mock-data-generator-modal/types';
 
 const DEFAULT_SAMPLE_SIZE = 100;
 
@@ -63,11 +72,14 @@ type CollectionThunkAction<R, A extends AnyAction = AnyAction> = ThunkAction<
   {
     localAppRegistry: AppRegistry;
     dataService: DataService;
+    atlasAiService: AtlasAiService;
     workspaces: ReturnType<typeof workspacesServiceLocator>;
     experimentationServices: ReturnType<typeof experimentationServiceLocator>;
     logger: Logger;
     preferences: PreferencesAccess;
-    atlasAiService: AtlasAiService;
+    connectionInfoRef: ConnectionInfoRef;
+    fakerSchemaGenerationAbortControllerRef: { current?: AbortController };
+    schemaAnalysisAbortControllerRef: { current?: AbortController };
   },
   A
 >;
@@ -82,18 +94,23 @@ export type CollectionState = {
     isModalOpen: boolean;
     currentStep: MockDataGeneratorStep;
   };
+  fakerSchemaGeneration: MockDataGeneratorState;
 };
 
-enum CollectionActions {
+export enum CollectionActions {
   CollectionMetadataFetched = 'compass-collection/CollectionMetadataFetched',
   SchemaAnalysisStarted = 'compass-collection/SchemaAnalysisStarted',
   SchemaAnalysisFinished = 'compass-collection/SchemaAnalysisFinished',
   SchemaAnalysisFailed = 'compass-collection/SchemaAnalysisFailed',
+  SchemaAnalysisCanceled = 'compass-collection/SchemaAnalysisCanceled',
   SchemaAnalysisReset = 'compass-collection/SchemaAnalysisReset',
   MockDataGeneratorModalOpened = 'compass-collection/MockDataGeneratorModalOpened',
   MockDataGeneratorModalClosed = 'compass-collection/MockDataGeneratorModalClosed',
   MockDataGeneratorNextButtonClicked = 'compass-collection/MockDataGeneratorNextButtonClicked',
   MockDataGeneratorPreviousButtonClicked = 'compass-collection/MockDataGeneratorPreviousButtonClicked',
+  FakerMappingGenerationStarted = 'compass-collection/FakerMappingGenerationStarted',
+  FakerMappingGenerationCompleted = 'compass-collection/FakerMappingGenerationCompleted',
+  FakerMappingGenerationFailed = 'compass-collection/FakerMappingGenerationFailed',
 }
 
 interface CollectionMetadataFetchedAction {
@@ -124,6 +141,10 @@ interface SchemaAnalysisFailedAction {
   error: Error;
 }
 
+interface SchemaAnalysisCanceledAction {
+  type: CollectionActions.SchemaAnalysisCanceled;
+}
+
 interface MockDataGeneratorModalOpenedAction {
   type: CollectionActions.MockDataGeneratorModalOpened;
 }
@@ -140,6 +161,23 @@ interface MockDataGeneratorPreviousButtonClickedAction {
   type: CollectionActions.MockDataGeneratorPreviousButtonClicked;
 }
 
+export interface FakerMappingGenerationStartedAction {
+  type: CollectionActions.FakerMappingGenerationStarted;
+  requestId: string;
+}
+
+export interface FakerMappingGenerationCompletedAction {
+  type: CollectionActions.FakerMappingGenerationCompleted;
+  fakerSchema: MockDataSchemaResponse;
+  requestId: string;
+}
+
+export interface FakerMappingGenerationFailedAction {
+  type: CollectionActions.FakerMappingGenerationFailed;
+  error: string;
+  requestId: string;
+}
+
 const reducer: Reducer<CollectionState, Action> = (
   state = {
     // TODO(COMPASS-7782): use hook to get the workspace tab id instead
@@ -152,6 +190,9 @@ const reducer: Reducer<CollectionState, Action> = (
     mockDataGenerator: {
       isModalOpen: false,
       currentStep: MockDataGeneratorStep.SCHEMA_CONFIRMATION,
+    },
+    fakerSchemaGeneration: {
+      status: 'idle',
     },
   },
   action
@@ -229,6 +270,20 @@ const reducer: Reducer<CollectionState, Action> = (
   }
 
   if (
+    isAction<SchemaAnalysisCanceledAction>(
+      action,
+      CollectionActions.SchemaAnalysisCanceled
+    )
+  ) {
+    return {
+      ...state,
+      schemaAnalysis: {
+        status: SCHEMA_ANALYSIS_STATE_INITIAL,
+      },
+    };
+  }
+
+  if (
     isAction<MockDataGeneratorModalOpenedAction>(
       action,
       CollectionActions.MockDataGeneratorModalOpened
@@ -256,6 +311,9 @@ const reducer: Reducer<CollectionState, Action> = (
         ...state.mockDataGenerator,
         isModalOpen: false,
       },
+      fakerSchemaGeneration: {
+        status: 'idle',
+      },
     };
   }
 
@@ -269,9 +327,6 @@ const reducer: Reducer<CollectionState, Action> = (
     let nextStep: MockDataGeneratorStep;
 
     switch (currentStep) {
-      case MockDataGeneratorStep.SCHEMA_CONFIRMATION:
-        nextStep = MockDataGeneratorStep.SCHEMA_EDITOR;
-        break;
       case MockDataGeneratorStep.SCHEMA_EDITOR:
         nextStep = MockDataGeneratorStep.DOCUMENT_COUNT;
         break;
@@ -309,8 +364,16 @@ const reducer: Reducer<CollectionState, Action> = (
         previousStep = MockDataGeneratorStep.SCHEMA_CONFIRMATION;
         break;
       case MockDataGeneratorStep.SCHEMA_EDITOR:
-        previousStep = MockDataGeneratorStep.SCHEMA_CONFIRMATION;
-        break;
+        return {
+          ...state,
+          fakerSchemaGeneration: {
+            status: 'idle',
+          },
+          mockDataGenerator: {
+            ...state.mockDataGenerator,
+            currentStep: MockDataGeneratorStep.SCHEMA_CONFIRMATION,
+          },
+        };
       case MockDataGeneratorStep.DOCUMENT_COUNT:
         previousStep = MockDataGeneratorStep.SCHEMA_EDITOR;
         break;
@@ -333,6 +396,78 @@ const reducer: Reducer<CollectionState, Action> = (
     };
   }
 
+  if (
+    isAction<FakerMappingGenerationStartedAction>(
+      action,
+      CollectionActions.FakerMappingGenerationStarted
+    )
+  ) {
+    if (
+      state.mockDataGenerator.currentStep !==
+        MockDataGeneratorStep.SCHEMA_CONFIRMATION ||
+      state.fakerSchemaGeneration.status === 'in-progress' ||
+      state.fakerSchemaGeneration.status === 'completed'
+    ) {
+      return state;
+    }
+
+    return {
+      ...state,
+      mockDataGenerator: {
+        ...state.mockDataGenerator,
+        currentStep: MockDataGeneratorStep.SCHEMA_EDITOR,
+      },
+      fakerSchemaGeneration: {
+        status: 'in-progress',
+        requestId: action.requestId,
+      },
+    };
+  }
+
+  if (
+    isAction<FakerMappingGenerationCompletedAction>(
+      action,
+      CollectionActions.FakerMappingGenerationCompleted
+    )
+  ) {
+    if (state.fakerSchemaGeneration.status !== 'in-progress') {
+      return state;
+    }
+
+    return {
+      ...state,
+      fakerSchemaGeneration: {
+        status: 'completed',
+        fakerSchema: action.fakerSchema,
+        requestId: action.requestId,
+      },
+    };
+  }
+
+  if (
+    isAction<FakerMappingGenerationFailedAction>(
+      action,
+      CollectionActions.FakerMappingGenerationFailed
+    )
+  ) {
+    if (state.fakerSchemaGeneration.status !== 'in-progress') {
+      return state;
+    }
+
+    return {
+      ...state,
+      fakerSchemaGeneration: {
+        status: 'error',
+        error: action.error,
+        requestId: action.requestId,
+      },
+      mockDataGenerator: {
+        ...state.mockDataGenerator,
+        currentStep: MockDataGeneratorStep.SCHEMA_CONFIRMATION,
+      },
+    };
+  }
+
   return state;
 };
 
@@ -347,20 +482,32 @@ export const mockDataGeneratorModalOpened =
     return { type: CollectionActions.MockDataGeneratorModalOpened };
   };
 
-export const mockDataGeneratorModalClosed =
-  (): MockDataGeneratorModalClosedAction => {
-    return { type: CollectionActions.MockDataGeneratorModalClosed };
+export const mockDataGeneratorModalClosed = (): CollectionThunkAction<
+  void,
+  MockDataGeneratorModalClosedAction
+> => {
+  return (dispatch, _getState, { fakerSchemaGenerationAbortControllerRef }) => {
+    fakerSchemaGenerationAbortControllerRef.current?.abort();
+    dispatch({ type: CollectionActions.MockDataGeneratorModalClosed });
   };
+};
 
 export const mockDataGeneratorNextButtonClicked =
   (): MockDataGeneratorNextButtonClickedAction => {
     return { type: CollectionActions.MockDataGeneratorNextButtonClicked };
   };
 
-export const mockDataGeneratorPreviousButtonClicked =
-  (): MockDataGeneratorPreviousButtonClickedAction => {
-    return { type: CollectionActions.MockDataGeneratorPreviousButtonClicked };
+export const mockDataGeneratorPreviousButtonClicked = (): CollectionThunkAction<
+  void,
+  MockDataGeneratorPreviousButtonClickedAction
+> => {
+  return (dispatch, _getState, { fakerSchemaGenerationAbortControllerRef }) => {
+    fakerSchemaGenerationAbortControllerRef.current?.abort();
+    dispatch({
+      type: CollectionActions.MockDataGeneratorPreviousButtonClicked,
+    });
   };
+};
 
 export const selectTab = (
   tabName: CollectionSubtab
@@ -397,7 +544,11 @@ export const openMockDataGeneratorModal = (): CollectionThunkAction<
 export const analyzeCollectionSchema = (): CollectionThunkAction<
   Promise<void>
 > => {
-  return async (dispatch, getState, { dataService, preferences, logger }) => {
+  return async (
+    dispatch,
+    getState,
+    { dataService, preferences, logger, schemaAnalysisAbortControllerRef }
+  ) => {
     const { schemaAnalysis, namespace } = getState();
     const analysisStatus = schemaAnalysis.status;
     if (analysisStatus === SCHEMA_ANALYSIS_STATE_ANALYZING) {
@@ -406,6 +557,10 @@ export const analyzeCollectionSchema = (): CollectionThunkAction<
       );
       return;
     }
+
+    // Create abort controller for this analysis
+    const abortController = new AbortController();
+    schemaAnalysisAbortControllerRef.current = abortController;
 
     try {
       logger.debug('Schema analysis started.');
@@ -425,8 +580,15 @@ export const analyzeCollectionSchema = (): CollectionThunkAction<
         driverOptions,
         {
           fallbackReadPreference: 'secondaryPreferred',
+          abortSignal: abortController.signal,
         }
       );
+
+      // Check if analysis was aborted after sampling
+      if (abortController.signal.aborted) {
+        logger.debug('Schema analysis was aborted during sampling');
+        return;
+      }
       if (sampleDocuments.length === 0) {
         logger.debug(NO_DOCUMENTS_ERROR);
         dispatch({
@@ -438,6 +600,13 @@ export const analyzeCollectionSchema = (): CollectionThunkAction<
 
       // Analyze sampled documents
       const schemaAccessor = await analyzeDocuments(sampleDocuments);
+
+      // Check if analysis was aborted after document analysis
+      if (abortController.signal.aborted) {
+        logger.debug('Schema analysis was aborted during document analysis');
+        return;
+      }
+
       const schema = await schemaAccessor.getInternalSchema();
 
       // Filter out internal fields from the schema
@@ -456,6 +625,13 @@ export const analyzeCollectionSchema = (): CollectionThunkAction<
         maxNestingDepth,
         validationRules,
       };
+
+      // Final check before dispatching results
+      if (abortController.signal.aborted) {
+        logger.debug('Schema analysis was aborted before completion');
+        return;
+      }
+
       dispatch({
         type: CollectionActions.SchemaAnalysisFinished,
         processedSchema,
@@ -463,6 +639,15 @@ export const analyzeCollectionSchema = (): CollectionThunkAction<
         schemaMetadata,
       });
     } catch (err: any) {
+      // Check if the error is due to cancellation
+      if (isCancelError(err) || abortController.signal.aborted) {
+        logger.debug('Schema analysis was aborted');
+        dispatch({
+          type: CollectionActions.SchemaAnalysisCanceled,
+        });
+        return;
+      }
+
       logger.log.error(
         mongoLogId(1_001_000_363),
         'Collection',
@@ -475,6 +660,121 @@ export const analyzeCollectionSchema = (): CollectionThunkAction<
       dispatch({
         type: CollectionActions.SchemaAnalysisFailed,
         error: err as Error,
+      });
+    } finally {
+      // Clean up abort controller
+      schemaAnalysisAbortControllerRef.current = undefined;
+    }
+  };
+};
+
+export const cancelSchemaAnalysis = (): CollectionThunkAction<void> => {
+  return (
+    _dispatch,
+    _getState,
+    { schemaAnalysisAbortControllerRef, logger }
+  ) => {
+    if (schemaAnalysisAbortControllerRef.current) {
+      logger.debug('Canceling schema analysis');
+      schemaAnalysisAbortControllerRef.current.abort();
+      schemaAnalysisAbortControllerRef.current = undefined;
+    }
+  };
+};
+
+export const generateFakerMappings = (): CollectionThunkAction<
+  Promise<void>
+> => {
+  return async (
+    dispatch,
+    getState,
+    {
+      logger,
+      atlasAiService,
+      preferences,
+      connectionInfoRef,
+      fakerSchemaGenerationAbortControllerRef,
+    }
+  ) => {
+    const { schemaAnalysis, fakerSchemaGeneration, namespace } = getState();
+    if (schemaAnalysis.status !== SCHEMA_ANALYSIS_STATE_COMPLETE) {
+      logger.log.warn(
+        mongoLogId(1_001_000_305),
+        'Collection',
+        'Cannot call `generateFakeMappings` unless schema analysis is complete'
+      );
+      return;
+    }
+
+    if (fakerSchemaGeneration.status === 'in-progress') {
+      logger.debug(
+        'Faker mapping generation is already in progress, skipping new generation.'
+      );
+      return;
+    }
+
+    const requestId = new UUID().toString();
+
+    const includeSampleValues =
+      preferences.getPreferences().enableGenAISampleDocumentPassing;
+
+    try {
+      logger.debug('Generating faker mappings');
+
+      const { database, collection } = toNS(namespace);
+
+      dispatch({
+        type: CollectionActions.FakerMappingGenerationStarted,
+        requestId: requestId,
+      });
+
+      fakerSchemaGenerationAbortControllerRef.current?.abort();
+      fakerSchemaGenerationAbortControllerRef.current = new AbortController();
+      const abortSignal =
+        fakerSchemaGenerationAbortControllerRef.current.signal;
+
+      const mockDataSchemaRequest: MockDataSchemaRequest = {
+        databaseName: database,
+        collectionName: collection,
+        schema: schemaAnalysis.processedSchema,
+        validationRules: schemaAnalysis.schemaMetadata.validationRules,
+        includeSampleValues,
+        requestId,
+        signal: abortSignal,
+      };
+
+      const response = await atlasAiService.getMockDataSchema(
+        mockDataSchemaRequest,
+        connectionInfoRef.current
+      );
+
+      fakerSchemaGenerationAbortControllerRef.current = undefined;
+      dispatch({
+        type: CollectionActions.FakerMappingGenerationCompleted,
+        fakerSchema: response,
+        requestId: requestId,
+      });
+    } catch (e) {
+      if (isCancelError(e)) {
+        // abort errors should not produce error logs
+        return;
+      }
+
+      const errorMessage = e instanceof Error ? e.stack : String(e);
+
+      logger.log.error(
+        mongoLogId(1_001_000_312),
+        'Collection',
+        'Failed to generate faker.js mappings',
+        {
+          message: errorMessage,
+          namespace,
+        }
+      );
+      dispatch({
+        type: CollectionActions.FakerMappingGenerationFailed,
+        error: 'faker mapping request failed',
+        requestId,
       });
     }
   };

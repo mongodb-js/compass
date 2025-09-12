@@ -1,6 +1,41 @@
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import { redactConnectionString } from 'mongodb-connection-string-url';
 
+export const APP_NAMES_FOR_PROMPT = {
+  Compass: 'MongoDB Compass',
+  DataExplorer: 'MongoDB Atlas Data Explorer',
+};
+
+export const buildConversationInstructionsPrompt = ({
+  target,
+}: {
+  target: string;
+}) => {
+  return `
+You are an assistant running in a side-panel inside ${target}.
+
+<instructions>
+You should:
+1. Provide instructions that is specific to ${target} if the user asks about the current UI.
+2. Answer general questions about MongoDB and its products. Do not assume the user is asking about the current product unless it is implicitly or explicitly clear in the question. 
+</instructions>
+
+<abilities>
+You are able to:
+
+1. Answer technical questions
+</abilities>
+
+<inabilities>
+You CANNOT:
+
+1. Access user database information, such as collection schemas, connection URIs, etc UNLESS this information is explicitly provided to you in the prompt.
+2. Query MongoDB directly or execute code.
+3. Access the current state of the UI
+</inabilities>
+`;
+};
+
 export type EntryPointMessage = {
   prompt: string;
   displayText?: string;
@@ -78,7 +113,7 @@ Tell the user if indexes need to be created or modified to enable any recommenda
 </guidelines>
 <input>
 ${explainPlan}
-</explain-plan>`,
+</input>`,
     displayText: 'Interpret this explain plan output for me.',
   };
 };

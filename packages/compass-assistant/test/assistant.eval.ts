@@ -9,6 +9,7 @@ import { evalCases } from './eval-cases';
 import { fuzzyLinkMatch } from './fuzzylinkmatch';
 import { binaryNdcgAtK } from './binaryndcgatk';
 import { makeEntrypointCases } from './entrypoints';
+import { buildConversationInstructionsPrompt } from '../src/prompts';
 
 const client = new OpenAI({
   baseURL: 'https://api.braintrust.dev/v1/proxy',
@@ -22,6 +23,20 @@ export type SimpleEvalCase = {
   input: string;
   expected: string;
   expectedSources?: string[];
+  tags: (
+    | 'end-user-input'
+    | 'connection-error'
+    | 'dns-error'
+    | 'explain-plan'
+    | 'proactive-performance-insights'
+    | 'general-network-error'
+    | 'oidc'
+    | 'tsl-ssl'
+    | 'ssl'
+    | 'model-data'
+    | 'aggregation-pipeline'
+    | 'atlas-search'
+  )[];
 };
 
 type Message = {
@@ -33,6 +48,7 @@ type ExpectedMessage = OutputMessage;
 
 type ConversationEvalCaseInput = {
   messages: InputMessage[];
+  instructions: Message;
 };
 
 type ConversationEvalCaseExpected = {
@@ -79,17 +95,38 @@ function getScorerTemperature(): number | undefined {
 }
 
 function makeEvalCases(): ConversationEvalCase[] {
-  const entrypointCases: ConversationEvalCase[] = makeEntrypointCases();
+  const instructions = buildConversationInstructionsPrompt({
+    target: 'MongoDB Compass',
+  });
+
+  const entrypointCases: ConversationEvalCase[] = makeEntrypointCases().map(
+    (c) => {
+      return {
+        name: c.name ?? c.input,
+        input: {
+          messages: [{ text: c.input }],
+          instructions: { text: instructions },
+        },
+        expected: {
+          messages: [{ text: c.expected, sources: c.expectedSources || [] }],
+        },
+        tags: c.tags || [],
+        metadata: {},
+      };
+    }
+  );
 
   const userCases: ConversationEvalCase[] = evalCases.map((c) => {
     return {
       name: c.name ?? c.input,
       input: {
         messages: [{ text: c.input }],
+        instructions: { text: instructions },
       },
       expected: {
         messages: [{ text: c.expected, sources: c.expectedSources || [] }],
       },
+      tags: c.tags || [],
       metadata: {},
     };
   });
@@ -103,7 +140,7 @@ async function makeAssistantCall(
   const openai = createOpenAI({
     baseURL:
       process.env.COMPASS_ASSISTANT_BASE_URL_OVERRIDE ??
-      'https://knowledge.staging.corp.mongodb.com/api/v1',
+      'https://knowledge.mongodb.com/api/v1',
     apiKey: '',
     headers: {
       'User-Agent': 'mongodb-compass/x.x.x',
@@ -115,6 +152,11 @@ async function makeAssistantCall(
     model: openai.responses('mongodb-chat-latest'),
     temperature: getChatTemperature(),
     prompt,
+    providerOptions: {
+      openai: {
+        instructions: input.instructions.text,
+      },
+    },
   });
 
   const chunks: string[] = [];

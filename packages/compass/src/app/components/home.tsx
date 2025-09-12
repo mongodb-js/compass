@@ -35,6 +35,7 @@ import { ConnectionImportExportProvider } from '@mongodb-js/compass-connection-i
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import { usePreference } from 'compass-preferences-model/provider';
 import { CompassAssistantProvider } from '@mongodb-js/compass-assistant';
+import { APP_NAMES_FOR_PROMPT } from '@mongodb-js/compass-assistant';
 
 resetGlobalCSS();
 
@@ -149,7 +150,9 @@ function HomeWithConnections({
   return (
     <ConnectionStorageProvider value={connectionStorage}>
       <FileInputBackendProvider createFileInputBackend={createFileInputBackend}>
-        <CompassAssistantProvider>
+        <CompassAssistantProvider
+          appNameForPrompt={APP_NAMES_FOR_PROMPT.Compass}
+        >
           <CompassConnections
             appName={props.appName}
             onExtraConnectionDataRequest={getExtraConnectionData}

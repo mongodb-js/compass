@@ -1,21 +1,9 @@
-import * as explainPlan from './explain-plan';
+import type { SimpleEvalCase } from '../assistant.eval';
+import { evalCases } from './explain-plan';
 
-export function makeEntrypointCases() {
+export function makeEntrypointCases(): SimpleEvalCase[] {
   return [
-    {
-      name: 'Explain plan',
-      input: {
-        messages: [{ text: explainPlan.buildPrompt() }],
-      },
-      expected: {
-        messages: [
-          {
-            text: explainPlan.buildExpected(),
-            sources: explainPlan.buildExpectedSources(),
-          },
-        ],
-      },
-      metadata: {},
-    },
+    ...evalCases,
+    // TODO: add connection error entry point and performance insight entry points
   ];
 }
