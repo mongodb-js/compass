@@ -61,9 +61,10 @@ const headerStyleLightModeFixes = css({
 // TODO(COMPASS-9751): These are temporary patches to make the Assistant chat take the entire
 // width and height of the drawer since Leafygreen doesn't support this yet.
 const assistantChatFixesStyles = css({
-  // Negative margin to patch the padding of the drawer.
+  // Remove extra padding
   '> div, > div > div, > div > div > div, > div > div > div': {
     height: '100%',
+    padding: 0,
   },
   // This is currently set to 'pre-wrap' which causes list items to be on a different line than the list markers.
   'li, ol': {
