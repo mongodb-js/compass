@@ -37,7 +37,7 @@ async function navigateToCollection(
   await browser.clickVisible(Selectors.SidebarFilterInput);
   await browser.setValueVisible(
     Selectors.SidebarFilterInput,
-    `^(${dbName}|${collectionName})$`
+    `${dbName}.${collectionName}`
   );
   const collectionElement = browser.$(collectionSelector);
 
