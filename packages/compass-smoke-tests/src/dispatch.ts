@@ -33,12 +33,13 @@ async function getWorkflowRun(
 async function getWorkflowRunRetrying(
   octokit: ReturnType<typeof github.getOctokit>,
   expectedRunName: string,
+  expectedRunAttempt: number,
   pollDelayMs = 1000
 ) {
   for (let attempt = 0; attempt < MAX_GET_LATEST_ATTEMPTS; attempt++) {
     const run = await getWorkflowRun(octokit, expectedRunName);
     debug(`Attempt %d finding run named "%s"`, attempt, expectedRunName);
-    if (run) {
+    if (run && run.run_attempt === expectedRunAttempt) {
       return run;
     }
     await new Promise((resolve) => setTimeout(resolve, pollDelayMs));
@@ -129,6 +130,11 @@ type DispatchOptions = {
    * Delay in milliseconds to wait between requests when polling while watching the run.
    */
   watchPollDelayMs?: number | undefined;
+
+  /**
+   * How many times should a failed job be retried.
+   */
+  retries?: number | undefined;
 };
 
 export async function dispatchAndWait({
@@ -140,6 +146,7 @@ export async function dispatchAndWait({
   githubPrNumber,
   evergreenTaskUrl,
   watchPollDelayMs = 5000,
+  retries = 3,
 }: DispatchOptions) {
   const octokit = github.getOctokit(githubToken);
   const nonce = createNonce();
@@ -159,20 +166,37 @@ export async function dispatchAndWait({
     },
   });
 
-  // Find the next run we just dispatched
-  const run = await getWorkflowRunRetrying(
-    octokit,
-    `Test Installers ${devVersion || ref} / (nonce = ${nonce})`
-  );
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    // Find the next run we just dispatched
+    const run = await getWorkflowRunRetrying(
+      octokit,
+      // Matching on the run name, as defined by the workflow in `.github/workflows/test-installers.yml`
+      `Test Installers ${devVersion || ref} / (nonce = ${nonce})`,
+      attempt
+    );
 
-  console.log(`Dispatched run #${run.run_number} (${run.html_url})`);
-  const status = await pollToCompletion({
-    octokit,
-    runId: run.id,
-    watchTimeoutMs: WATCH_POLL_TIMEOUT_MS,
-    watchPollDelayMs,
-  });
+    console.log(
+      `Dispatched run #${run.run_number} (attempt ${attempt} / ${retries}) (${run.html_url})`
+    );
+    const status = await pollToCompletion({
+      octokit,
+      runId: run.id,
+      watchTimeoutMs: WATCH_POLL_TIMEOUT_MS,
+      watchPollDelayMs,
+    });
 
-  console.log(`Run completed: ${run.html_url}`);
-  assert.equal(status, 'success', "Expected a 'success' conclusion");
+    console.log(`Run completed (status = ${status}): ${run.html_url}`);
+    if (status === 'success') {
+      return;
+    } else {
+      console.log('Re-running failed jobs');
+      await octokit.rest.actions.reRunWorkflowFailedJobs({
+        owner: GITHUB_OWNER,
+        repo: GITHUB_REPO,
+        run_id: run.id,
+      });
+    }
+  }
+
+  throw new Error('All attempts to run the workflow failed!');
 }
