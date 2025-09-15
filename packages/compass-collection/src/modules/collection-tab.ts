@@ -32,7 +32,10 @@ import {
   type FieldInfo,
 } from '../schema-analysis-types';
 import { calculateSchemaDepth } from '../calculate-schema-depth';
-import { processSchema } from '../transform-schema-to-field-info';
+import {
+  processSchema,
+  ProcessSchemaUnsupportedStateError,
+} from '../transform-schema-to-field-info';
 import type { Document, MongoError } from 'mongodb';
 import { MockDataGeneratorStep } from '../components/mock-data-generator-modal/types';
 import type { MockDataGeneratorState } from '../components/mock-data-generator-modal/types';
@@ -51,6 +54,13 @@ function isAction<A extends AnyAction>(
 const ERROR_CODE_MAX_TIME_MS_EXPIRED = 50;
 
 function getErrorDetails(error: Error): SchemaAnalysisError {
+  if (error instanceof ProcessSchemaUnsupportedStateError) {
+    return {
+      errorType: 'unsupportedState',
+      errorMessage: error.message,
+    };
+  }
+
   const errorCode = (error as MongoError).code;
   const errorMessage = error.message || 'Unknown error';
   let errorType: SchemaAnalysisError['errorType'] = 'general';

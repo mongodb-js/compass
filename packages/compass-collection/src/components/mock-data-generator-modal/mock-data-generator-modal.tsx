@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 
 import {
   css,
+  Body,
   Button,
   ButtonVariant,
   ModalBody,
@@ -21,8 +22,8 @@ import {
   generateFakerMappings,
   mockDataGeneratorPreviousButtonClicked,
 } from '../../modules/collection-tab';
-import { default as SchemaConfirmationScreen } from './raw-schema-confirmation';
-import FakerSchemaEditor from './faker-schema-editor';
+import RawSchemaConfirmationScreen from './raw-schema-confirmation-screen';
+import FakerSchemaEditorScreen from './faker-schema-editor-screen';
 import ScriptScreen from './script-screen';
 
 const footerStyles = css`
@@ -36,6 +37,11 @@ const rightButtonsStyles = css`
   flex-direction: row;
 `;
 
+const namespaceStyles = css({
+  marginTop: spacing[200],
+  marginBottom: spacing[400],
+});
+
 interface Props {
   isOpen: boolean;
   onClose: () => void;
@@ -43,6 +49,7 @@ interface Props {
   onNextStep: () => void;
   onConfirmSchema: () => Promise<void>;
   onPreviousStep: () => void;
+  namespace: string;
 }
 
 const MockDataGeneratorModal = ({
@@ -52,13 +59,14 @@ const MockDataGeneratorModal = ({
   onNextStep,
   onConfirmSchema,
   onPreviousStep,
+  namespace,
 }: Props) => {
   const modalBodyContent = useMemo(() => {
     switch (currentStep) {
       case MockDataGeneratorStep.SCHEMA_CONFIRMATION:
-        return <SchemaConfirmationScreen />;
+        return <RawSchemaConfirmationScreen />;
       case MockDataGeneratorStep.SCHEMA_EDITOR:
-        return <FakerSchemaEditor />;
+        return <FakerSchemaEditorScreen />;
       case MockDataGeneratorStep.DOCUMENT_COUNT:
         return <></>; // TODO: CLOUDP-333856
       case MockDataGeneratorStep.PREVIEW_DATA:
@@ -78,6 +86,9 @@ const MockDataGeneratorModal = ({
     }
   };
 
+  const shouldShowNamespace =
+    currentStep !== MockDataGeneratorStep.GENERATE_DATA;
+
   return (
     <Modal
       size="large"
@@ -91,6 +102,9 @@ const MockDataGeneratorModal = ({
     >
       <ModalHeader title="Generate Mock Data" />
       <ModalBody>
+        {shouldShowNamespace && (
+          <Body className={namespaceStyles}>{namespace}</Body>
+        )}
         <div data-testid={`generate-mock-data-step-${currentStep}`}>
           {modalBodyContent}
         </div>
@@ -120,6 +134,7 @@ const MockDataGeneratorModal = ({
 const mapStateToProps = (state: CollectionState) => ({
   isOpen: state.mockDataGenerator.isModalOpen,
   currentStep: state.mockDataGenerator.currentStep,
+  namespace: state.namespace,
 });
 
 const ConnectedMockDataGeneratorModal = connect(mapStateToProps, {
