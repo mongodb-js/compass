@@ -658,23 +658,6 @@ export const analyzeCollectionSchema = (): CollectionThunkAction<
         return;
       }
 
-      if (err instanceof ProcessSchemaUnsupportedStateError) {
-        logger.log.info(
-          mongoLogId(1_001_000_365),
-          'Collection',
-          'Schema analysis failed due to unsupported state',
-          {
-            namespace,
-            error: err.message,
-          }
-        );
-        dispatch({
-          type: CollectionActions.SchemaAnalysisFailed,
-          error: err,
-        });
-        return;
-      }
-
       logger.log.error(
         mongoLogId(1_001_000_363),
         'Collection',
