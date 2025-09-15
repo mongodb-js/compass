@@ -185,7 +185,7 @@ export interface FakerMappingGenerationStartedAction {
 
 export interface FakerMappingGenerationCompletedAction {
   type: CollectionActions.FakerMappingGenerationCompleted;
-  fakerSchema: Array<FakerSchemaMapping>;
+  fakerSchema: FakerSchemaMapping[];
   requestId: string;
 }
 
@@ -706,8 +706,11 @@ const validateFakerSchema = (
   return fakerSchema.content.fields.map((field) => {
     const { fakerMethod } = field;
 
-    const [moduleName, methodName] = fakerMethod.split('.');
-    if (typeof (faker as any)[moduleName]?.[methodName] !== 'function') {
+    const [moduleName, methodName, ...rest] = fakerMethod.split('.');
+    if (
+      rest.length > 0 ||
+      typeof (faker as any)[moduleName]?.[methodName] !== 'function'
+    ) {
       logger.log.warn(
         mongoLogId(1_001_000_372),
         'Collection',

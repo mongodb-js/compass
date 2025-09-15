@@ -52,7 +52,7 @@ const FakerSchemaEditorContent = ({
   fakerSchemaMappings,
   onSchemaConfirmed,
 }: {
-  fakerSchemaMappings: Array<FakerSchemaMapping>;
+  fakerSchemaMappings: FakerSchemaMapping[];
   onSchemaConfirmed: (isConfirmed: boolean) => void;
 }) => {
   const [fakerSchemaFormValues, setFakerSchemaFormValues] =
