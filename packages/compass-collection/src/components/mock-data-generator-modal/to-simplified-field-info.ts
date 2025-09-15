@@ -11,7 +11,7 @@ export type SimplifiedFieldInfoTree = {
 
 /**
  * Usage is for display purposes only. The result is derived from the work of `processSchema`,
- * ensuring that what is a simplification of what the LLM processes.
+ * ensuring that the user sees a simplification of what the LLM processes.
  */
 export default function toSimplifiedFieldInfo(
   input: ReturnType<typeof processSchema>
