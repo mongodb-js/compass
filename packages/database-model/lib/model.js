@@ -1,6 +1,7 @@
 'use strict';
 const AmpersandModel = require('ampersand-model');
 const AmpersandCollection = require('ampersand-collection');
+const toNs = require('mongodb-ns');
 const {
   Collection: MongoDbCollectionCollection,
 } = require('mongodb-collection-model');
@@ -264,7 +265,7 @@ const DatabaseCollection = AmpersandCollection.extend(
       this.set(
         dbs
           .filter((db) => {
-            return toNs(db.name).internal === false;
+            return toNs(db.name).special === false;
           })
           .map(({ _id, name, inferred_from_privileges }) => ({
             _id,
