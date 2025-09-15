@@ -469,6 +469,12 @@ function renderArrayCode(
  * Generate faker.js call from field mapping
  */
 function generateFakerCall(mapping: FieldMapping): string {
+  if (mapping.mongoType === 'null') {
+    return 'null';
+  }
+  if (mapping.mongoType === 'undefined') {
+    return 'undefined';
+  }
   const method =
     mapping.fakerMethod === 'unrecognized'
       ? getDefaultFakerMethod(mapping.mongoType)
@@ -483,23 +489,73 @@ function generateFakerCall(mapping: FieldMapping): string {
  */
 export function getDefaultFakerMethod(mongoType: string): string {
   switch (mongoType.toLowerCase()) {
+    // String types
     case 'string':
       return 'lorem.word';
+
+    // Numeric types
     case 'number':
     case 'int32':
     case 'int64':
+    case 'long':
       return 'number.int';
     case 'double':
     case 'decimal128':
       return 'number.float';
+
+    // Date and time types
     case 'date':
+    case 'timestamp':
       return 'date.recent';
+
+    // Object identifier
     case 'objectid':
       return 'database.mongodbObjectId';
+
+    // Boolean
     case 'boolean':
+    case 'bool':
       return 'datatype.boolean';
+
+    // Binary
     case 'binary':
+    case 'bindata':
       return 'string.hexadecimal';
+
+    // Array
+    case 'array':
+      return 'lorem.word';
+
+    // Object/Document type
+    case 'object':
+    case 'document':
+      return 'lorem.word';
+
+    // Regular expression
+    case 'regex':
+    case 'regexp':
+      return 'lorem.word';
+
+    // JavaScript code
+    case 'javascript':
+    case 'code':
+      return 'lorem.sentence';
+
+    // MinKey and MaxKey
+    case 'minkey':
+      return 'number.int';
+    case 'maxkey':
+      return 'number.int';
+
+    // Symbol (deprecated)
+    case 'symbol':
+      return 'lorem.word';
+
+    // DBPointer (deprecated)
+    case 'dbpointer':
+      return 'database.mongodbObjectId';
+
+    // Default fallback
     default:
       return 'lorem.word';
   }

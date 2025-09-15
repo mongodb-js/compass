@@ -779,6 +779,156 @@ describe('Script Generation', () => {
         testDocumentCodeExecution(result.script);
       }
     });
+
+    it('should use default faker method for timestamp fields', () => {
+      const schema = {
+        timestampField: {
+          mongoType: 'timestamp',
+          fakerMethod: 'unrecognized',
+          fakerArgs: [],
+        },
+      };
+
+      const result = generateScript(schema, {
+        databaseName: 'testdb',
+        collectionName: 'test',
+        documentCount: 1,
+      });
+
+      expect(result.success).to.equal(true);
+      if (result.success) {
+        expect(result.script).to.contain('faker.date.recent()');
+
+        // Test that the generated document code is executable
+        testDocumentCodeExecution(result.script);
+      }
+    });
+
+    it('should use default faker method for array fields', () => {
+      const schema = {
+        arrayField: {
+          mongoType: 'array',
+          fakerMethod: 'unrecognized',
+          fakerArgs: [],
+        },
+      };
+
+      const result = generateScript(schema, {
+        databaseName: 'testdb',
+        collectionName: 'test',
+        documentCount: 1,
+      });
+
+      expect(result.success).to.equal(true);
+      if (result.success) {
+        expect(result.script).to.contain('faker.lorem.word()');
+
+        // Test that the generated document code is executable
+        testDocumentCodeExecution(result.script);
+      }
+    });
+
+    it('should use default faker method for regex fields', () => {
+      const schema = {
+        regexField: {
+          mongoType: 'regex',
+          fakerMethod: 'unrecognized',
+          fakerArgs: [],
+        },
+      };
+
+      const result = generateScript(schema, {
+        databaseName: 'testdb',
+        collectionName: 'test',
+        documentCount: 1,
+      });
+
+      expect(result.success).to.equal(true);
+      if (result.success) {
+        expect(result.script).to.contain('faker.lorem.word()');
+
+        // Test that the generated document code is executable
+        testDocumentCodeExecution(result.script);
+      }
+    });
+
+    it('should use default faker method for javascript fields', () => {
+      const schema = {
+        jsField: {
+          mongoType: 'javascript',
+          fakerMethod: 'unrecognized',
+          fakerArgs: [],
+        },
+      };
+
+      const result = generateScript(schema, {
+        databaseName: 'testdb',
+        collectionName: 'test',
+        documentCount: 1,
+      });
+
+      expect(result.success).to.equal(true);
+      if (result.success) {
+        expect(result.script).to.contain('faker.lorem.sentence()');
+
+        // Test that the generated document code is executable
+        testDocumentCodeExecution(result.script);
+      }
+    });
+
+    it('should handle null fields by returning literal null', () => {
+      const schema = {
+        nullField: {
+          mongoType: 'null',
+          fakerMethod: 'unrecognized',
+          fakerArgs: [],
+        },
+      };
+
+      const result = generateScript(schema, {
+        databaseName: 'testdb',
+        collectionName: 'test',
+        documentCount: 1,
+      });
+
+      expect(result.success).to.equal(true);
+      if (result.success) {
+        expect(result.script).to.contain('nullField: null');
+
+        // Test that the generated document code is executable
+        const document = testDocumentCodeExecution(result.script);
+        expect(document).to.be.an('object');
+        expect(document).to.have.property('nullField');
+        expect(document.nullField).to.be.null;
+      }
+    });
+
+    it('should handle undefined fields by returning literal undefined', () => {
+      const schema = {
+        undefinedField: {
+          mongoType: 'undefined',
+          fakerMethod: 'unrecognized',
+          fakerArgs: [],
+        },
+      };
+
+      const result = generateScript(schema, {
+        databaseName: 'testdb',
+        collectionName: 'test',
+        documentCount: 1,
+      });
+
+      expect(result.success).to.equal(true);
+      if (result.success) {
+        expect(result.script).to.contain('undefinedField: undefined');
+
+        // Test that the generated document code is executable
+        const document = testDocumentCodeExecution(result.script);
+        expect(document).to.be.an('object');
+        expect(document).to.have.property('undefinedField');
+        expect(document.undefinedField).to.be.undefined;
+      }
+    });
   });
 
   describe('Faker Arguments', () => {
