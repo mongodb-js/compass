@@ -495,6 +495,7 @@ export function getDefaultFakerMethod(mongoType: string): string {
 
     // Numeric types
     case 'number':
+    case 'int':
     case 'int32':
     case 'int64':
     case 'long':

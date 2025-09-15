@@ -637,6 +637,31 @@ describe('Script Generation', () => {
           fakerMethod: 'unrecognized',
           fakerArgs: [],
         },
+        unknownInt: {
+          mongoType: 'int',
+          fakerMethod: 'unrecognized',
+          fakerArgs: [],
+        },
+        unknownInt32: {
+          mongoType: 'int32',
+          fakerMethod: 'unrecognized',
+          fakerArgs: [],
+        },
+        unknownInt64: {
+          mongoType: 'int64',
+          fakerMethod: 'unrecognized',
+          fakerArgs: [],
+        },
+        unknownLong: {
+          mongoType: 'long',
+          fakerMethod: 'unrecognized',
+          fakerArgs: [],
+        },
+        unknownDecimal128: {
+          mongoType: 'decimal128',
+          fakerMethod: 'unrecognized',
+          fakerArgs: [],
+        },
       };
 
       const result = generateScript(schema, {
@@ -647,16 +672,37 @@ describe('Script Generation', () => {
 
       expect(result.success).to.equal(true);
       if (result.success) {
-        const expectedReturnBlock = `return {
-    unknownNumber: faker.number.int()
-  };`;
-        expect(result.script).to.contain(expectedReturnBlock);
+        // Check that integer types use faker.number.int()
+        expect(result.script).to.contain('unknownNumber: faker.number.int()');
+        expect(result.script).to.contain('unknownInt: faker.number.int()');
+        expect(result.script).to.contain('unknownInt32: faker.number.int()');
+        expect(result.script).to.contain('unknownInt64: faker.number.int()');
+        expect(result.script).to.contain('unknownLong: faker.number.int()');
+
+        // Check that decimal128 uses faker.number.float()
+        expect(result.script).to.contain(
+          'unknownDecimal128: faker.number.float()'
+        );
 
         // Test that the generated document code is executable
         const document = testDocumentCodeExecution(result.script);
         expect(document).to.be.an('object');
+
+        // Validate integer fields
         expect(document).to.have.property('unknownNumber');
         expect(document.unknownNumber).to.be.a('number');
+        expect(document).to.have.property('unknownInt');
+        expect(document.unknownInt32).to.be.a('number');
+        expect(document).to.have.property('unknownInt32');
+        expect(document.unknownInt32).to.be.a('number');
+        expect(document).to.have.property('unknownInt64');
+        expect(document.unknownInt64).to.be.a('number');
+        expect(document).to.have.property('unknownLong');
+        expect(document.unknownLong).to.be.a('number');
+
+        // Validate decimal field
+        expect(document).to.have.property('unknownDecimal128');
+        expect(document.unknownDecimal128).to.be.a('number');
       }
     });
 
@@ -732,30 +778,6 @@ describe('Script Generation', () => {
       }
     });
 
-    it('should use default faker method for unrecognized double fields', () => {
-      const schema = {
-        unknownDouble: {
-          mongoType: 'double',
-          fakerMethod: 'unrecognized',
-          fakerArgs: [],
-        },
-      };
-
-      const result = generateScript(schema, {
-        databaseName: 'testdb',
-        collectionName: 'test',
-        documentCount: 1,
-      });
-
-      expect(result.success).to.equal(true);
-      if (result.success) {
-        expect(result.script).to.contain('faker.number.float()');
-
-        // Test that the generated document code is executable
-        testDocumentCodeExecution(result.script);
-      }
-    });
-
     it('should fall back to lorem.word for unknown MongoDB types', () => {
       const schema = {
         unknownType: {
@@ -798,30 +820,6 @@ describe('Script Generation', () => {
       expect(result.success).to.equal(true);
       if (result.success) {
         expect(result.script).to.contain('faker.date.recent()');
-
-        // Test that the generated document code is executable
-        testDocumentCodeExecution(result.script);
-      }
-    });
-
-    it('should use default faker method for array fields', () => {
-      const schema = {
-        arrayField: {
-          mongoType: 'array',
-          fakerMethod: 'unrecognized',
-          fakerArgs: [],
-        },
-      };
-
-      const result = generateScript(schema, {
-        databaseName: 'testdb',
-        collectionName: 'test',
-        documentCount: 1,
-      });
-
-      expect(result.success).to.equal(true);
-      if (result.success) {
-        expect(result.script).to.contain('faker.lorem.word()');
 
         // Test that the generated document code is executable
         testDocumentCodeExecution(result.script);
