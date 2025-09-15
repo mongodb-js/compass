@@ -15,6 +15,7 @@ import { StepButtonLabelMap } from './constants';
 import type { CollectionState } from '../../modules/collection-tab';
 import { default as collectionTabReducer } from '../../modules/collection-tab';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
+import type { MockDataSchemaResponse } from '@mongodb-js/compass-generative-ai';
 
 describe('MockDataGeneratorModal', () => {
   async function renderModal({
@@ -80,10 +81,19 @@ describe('MockDataGeneratorModal', () => {
       atlasAiService: {
         getMockDataSchema: () => {
           return Promise.resolve({
-            contents: {
-              fields: [],
+            content: {
+              fields: [
+                {
+                  fieldPath: 'name',
+                  mongoType: 'string',
+                  fakerMethod: 'person.firstName',
+                  fakerArgs: [],
+                  isArray: false,
+                  probability: 1.0,
+                },
+              ],
             },
-          });
+          } as MockDataSchemaResponse);
         },
       },
       workspaces: {},
@@ -175,7 +185,7 @@ describe('MockDataGeneratorModal', () => {
       userEvent.click(screen.getByText('Confirm'));
 
       await waitFor(() => {
-        expect(screen.getByTestId('faker-schema-editor')).to.exist;
+        expect(screen.getByTestId('faker-schema-editor-loader')).to.exist;
       });
 
       userEvent.click(screen.getByText('Cancel'));
@@ -191,7 +201,7 @@ describe('MockDataGeneratorModal', () => {
       userEvent.click(screen.getByText('Confirm'));
 
       await waitFor(() => {
-        expect(screen.getByTestId('faker-schema-editor')).to.exist;
+        expect(screen.getByTestId('faker-schema-editor-loader')).to.exist;
       });
 
       userEvent.click(screen.getByText('Back'));
@@ -270,6 +280,214 @@ describe('MockDataGeneratorModal', () => {
 
       expect(screen.getByText('LLM Request failed. Please confirm again.')).to
         .exist;
+    });
+  });
+
+  describe('on the schema editor step', () => {
+    const mockServicesWithMockDataResponse = createMockServices();
+    mockServicesWithMockDataResponse.atlasAiService.getMockDataSchema = () =>
+      Promise.resolve({
+        content: {
+          fields: [
+            {
+              fieldPath: 'name',
+              mongoType: 'string',
+              fakerMethod: 'person.firstName',
+              fakerArgs: [],
+              isArray: false,
+              probability: 1.0,
+            },
+            {
+              fieldPath: 'age',
+              mongoType: 'int',
+              fakerMethod: 'number.int',
+              fakerArgs: [],
+              isArray: false,
+              probability: 1.0,
+            },
+            {
+              fieldPath: 'email',
+              mongoType: 'string',
+              fakerMethod: 'internet',
+              fakerArgs: [],
+              isArray: false,
+              probability: 1.0,
+            },
+            {
+              fieldPath: 'username',
+              mongoType: 'string',
+              fakerMethod: 'noSuchMethod',
+              fakerArgs: [],
+              isArray: false,
+              probability: 1.0,
+            },
+          ],
+        },
+      });
+
+    it('shows a loading spinner when the faker schema generation is in progress', async () => {
+      const mockServices = createMockServices();
+      mockServices.atlasAiService.getMockDataSchema = () =>
+        new Promise((resolve) =>
+          setTimeout(
+            () =>
+              resolve({
+                content: {
+                  fields: [],
+                },
+              }),
+            1000
+          )
+        );
+
+      await renderModal();
+
+      // advance to the schema editor step
+      userEvent.click(screen.getByText('Confirm'));
+      expect(screen.getByTestId('faker-schema-editor-loader')).to.exist;
+    });
+
+    it('shows the faker schema editor when the faker schema generation is completed', async () => {
+      await renderModal({ mockServices: mockServicesWithMockDataResponse });
+
+      // advance to the schema editor step
+      userEvent.click(screen.getByText('Confirm'));
+
+      expect(await screen.findByTestId('faker-schema-editor')).to.exist;
+      expect(screen.getByText('name')).to.exist;
+      expect(screen.getByText('age')).to.exist;
+    });
+
+    it('shows correct values for the faker schema editor', async () => {
+      await renderModal({ mockServices: mockServicesWithMockDataResponse });
+
+      // advance to the schema editor step
+      userEvent.click(screen.getByText('Confirm'));
+      await waitFor(() => {
+        expect(screen.getByTestId('faker-schema-editor')).to.exist;
+      });
+      // the "name" field should be selected by default
+      expect(screen.getByText('name')).to.exist;
+      expect(screen.getByLabelText('JSON Type')).to.have.value('string');
+      expect(screen.getByLabelText('Faker Function')).to.have.value(
+        'person.firstName'
+      );
+      // select the "age" field
+      userEvent.click(screen.getByText('age'));
+      expect(screen.getByText('age')).to.exist;
+      expect(screen.getByLabelText('JSON Type')).to.have.value('int');
+      expect(screen.getByLabelText('Faker Function')).to.have.value(
+        'number.int'
+      );
+      // select the "email" field
+      userEvent.click(screen.getByText('email'));
+      expect(screen.getByText('email')).to.exist;
+      expect(screen.getByLabelText('JSON Type')).to.have.value('string');
+      // the "email" field should have a warning banner since the faker method is invalid
+      expect(screen.getByLabelText('Faker Function')).to.have.value(
+        'Unrecognized'
+      );
+      expect(
+        screen.getByText(
+          'Please select a function or we will default fill this field with the string "Unrecognized"'
+        )
+      ).to.exist;
+
+      // select the "username" field
+      userEvent.click(screen.getByText('username'));
+      expect(screen.getByText('username')).to.exist;
+      expect(screen.getByLabelText('JSON Type')).to.have.value('string');
+      expect(screen.getByLabelText('Faker Function')).to.have.value(
+        'Unrecognized'
+      );
+    });
+
+    it('disables the Next button when the faker schema mapping is not confirmed', async () => {
+      await renderModal({
+        mockServices: mockServicesWithMockDataResponse,
+      });
+
+      // advance to the schema editor step
+      userEvent.click(screen.getByText('Confirm'));
+      await waitFor(() => {
+        expect(screen.getByTestId('faker-schema-editor')).to.exist;
+      });
+
+      expect(
+        screen.getByTestId('next-step-button').getAttribute('aria-disabled')
+      ).to.equal('true');
+    });
+
+    it('resets the confirm schema mapping state when the user clicks the back button then goes back to the schema editor step', async () => {
+      await renderModal({
+        mockServices: mockServicesWithMockDataResponse,
+      });
+
+      // advance to the schema editor step
+      userEvent.click(screen.getByText('Confirm'));
+      await waitFor(() => {
+        expect(screen.getByTestId('faker-schema-editor')).to.exist;
+      });
+      expect(
+        screen.getByTestId('next-step-button').getAttribute('aria-disabled')
+      ).to.equal('true');
+      // click confirm mappings button
+      userEvent.click(screen.getByText('Confirm mappings'));
+      expect(
+        screen.getByTestId('next-step-button').getAttribute('aria-disabled')
+      ).to.equal('false');
+
+      // click back button
+      userEvent.click(screen.getByText('Back'));
+      await waitFor(() => {
+        expect(screen.getByTestId('raw-schema-confirmation')).to.exist;
+      });
+
+      // click next button to advance to the schema editor step again
+      userEvent.click(screen.getByTestId('next-step-button'));
+      await waitFor(() => {
+        expect(screen.getByTestId('faker-schema-editor')).to.exist;
+      });
+      // the next button should be disabled again
+      expect(
+        screen.getByTestId('next-step-button').getAttribute('aria-disabled')
+      ).to.equal('true');
+    });
+
+    it('preserves the confirm schema mapping state when the user clicks the next button then goes back to the schema editor step', async () => {
+      await renderModal({
+        mockServices: mockServicesWithMockDataResponse,
+      });
+
+      // advance to the schema editor step
+      userEvent.click(screen.getByText('Confirm'));
+      await waitFor(() => {
+        expect(screen.getByTestId('faker-schema-editor')).to.exist;
+      });
+      expect(
+        screen.getByTestId('next-step-button').getAttribute('aria-disabled')
+      ).to.equal('true');
+      // click confirm mappings button
+      userEvent.click(screen.getByText('Confirm mappings'));
+      expect(
+        screen.getByTestId('next-step-button').getAttribute('aria-disabled')
+      ).to.equal('false');
+
+      // click next button
+      userEvent.click(screen.getByTestId('next-step-button'));
+      await waitFor(() => {
+        expect(screen.queryByTestId('faker-schema-editor')).to.not.exist;
+      });
+
+      // click back button to go back to the schema editor step
+      userEvent.click(screen.getByText('Back'));
+      await waitFor(() => {
+        expect(screen.getByTestId('faker-schema-editor')).to.exist;
+      });
+      // the next button should not be disabled
+      expect(
+        screen.getByTestId('next-step-button').getAttribute('aria-disabled')
+      ).to.equal('false');
     });
   });
 

@@ -38,7 +38,13 @@ import {
 } from '../transform-schema-to-field-info';
 import type { Document, MongoError } from 'mongodb';
 import { MockDataGeneratorStep } from '../components/mock-data-generator-modal/types';
-import type { MockDataGeneratorState } from '../components/mock-data-generator-modal/types';
+import type {
+  FakerSchemaMapping,
+  MockDataGeneratorState,
+} from '../components/mock-data-generator-modal/types';
+
+// @ts-expect-error TypeScript warns us about importing ESM module from CommonJS module, but we can ignore since this code will be consumed by webpack.
+import { faker } from '@faker-js/faker/locale/en';
 
 const DEFAULT_SAMPLE_SIZE = 100;
 
@@ -52,6 +58,7 @@ function isAction<A extends AnyAction>(
 }
 
 const ERROR_CODE_MAX_TIME_MS_EXPIRED = 50;
+export const UNRECOGNIZED_FAKER_METHOD = 'Unrecognized';
 
 function getErrorDetails(error: Error): SchemaAnalysisError {
   if (error instanceof ProcessSchemaUnsupportedStateError) {
@@ -178,7 +185,7 @@ export interface FakerMappingGenerationStartedAction {
 
 export interface FakerMappingGenerationCompletedAction {
   type: CollectionActions.FakerMappingGenerationCompleted;
-  fakerSchema: MockDataSchemaResponse;
+  fakerSchema: FakerSchemaMapping[];
   requestId: string;
 }
 
@@ -692,6 +699,34 @@ export const cancelSchemaAnalysis = (): CollectionThunkAction<void> => {
   };
 };
 
+const validateFakerSchema = (
+  fakerSchema: MockDataSchemaResponse,
+  logger: Logger
+) => {
+  return fakerSchema.content.fields.map((field) => {
+    const { fakerMethod } = field;
+
+    const [moduleName, methodName, ...rest] = fakerMethod.split('.');
+    if (
+      rest.length > 0 ||
+      typeof (faker as any)[moduleName]?.[methodName] !== 'function'
+    ) {
+      logger.log.warn(
+        mongoLogId(1_001_000_372),
+        'Collection',
+        'Invalid faker method',
+        { fakerMethod }
+      );
+      return {
+        ...field,
+        fakerMethod: UNRECOGNIZED_FAKER_METHOD,
+      };
+    }
+
+    return field;
+  });
+};
+
 export const generateFakerMappings = (): CollectionThunkAction<
   Promise<void>
 > => {
@@ -758,10 +793,12 @@ export const generateFakerMappings = (): CollectionThunkAction<
         connectionInfoRef.current
       );
 
+      const validatedFakerSchema = validateFakerSchema(response, logger);
+
       fakerSchemaGenerationAbortControllerRef.current = undefined;
       dispatch({
         type: CollectionActions.FakerMappingGenerationCompleted,
-        fakerSchema: response,
+        fakerSchema: validatedFakerSchema,
         requestId: requestId,
       });
     } catch (e) {
