@@ -344,11 +344,15 @@ function renderDocumentCode(
       if (probability < 1.0) {
         // Use Math.random for conditional field inclusion
         documentFields.push(
-          `${fieldIndent}...(Math.random() < ${probability} ? { ${fieldName}: ${fakerCall} } : {})`
+          `${fieldIndent}...(Math.random() < ${probability} ? { ${formatFieldName(
+            fieldName
+          )}: ${fakerCall} } : {})`
         );
       } else {
         // Normal field inclusion
-        documentFields.push(`${fieldIndent}${fieldName}: ${fakerCall}`);
+        documentFields.push(
+          `${fieldIndent}${formatFieldName(fieldName)}: ${fakerCall}`
+        );
       }
     } else if ('type' in value && value.type === 'array') {
       // It's an array
@@ -359,7 +363,9 @@ function renderDocumentCode(
         arrayLengthMap,
         0 // Start at dimension 0
       );
-      documentFields.push(`${fieldIndent}${fieldName}: ${arrayCode}`);
+      documentFields.push(
+        `${fieldIndent}${formatFieldName(fieldName)}: ${arrayCode}`
+      );
     } else {
       // It's a nested object: recursive call
 
@@ -376,7 +382,9 @@ function renderDocumentCode(
         indent + INDENT_SIZE,
         nestedArrayLengthMap
       );
-      documentFields.push(`${fieldIndent}${fieldName}: ${nestedCode}`);
+      documentFields.push(
+        `${fieldIndent}${formatFieldName(fieldName)}: ${nestedCode}`
+      );
     }
   }
 
@@ -386,6 +394,22 @@ function renderDocumentCode(
   }
 
   return `{\n${documentFields.join(',\n')}\n${closingBraceIndent}}`;
+}
+
+/**
+ * Formats a field name for use in JavaScript object literal syntax.
+ * Only quotes field names that need it, using JSON.stringify for proper escaping.
+ */
+function formatFieldName(fieldName: string): string {
+  // If it's a valid JavaScript identifier, don't quote it
+  const isValidIdentifier = /^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(fieldName);
+
+  if (isValidIdentifier) {
+    return fieldName;
+  } else {
+    // Use JSON.stringify for proper escaping of special characters
+    return JSON.stringify(fieldName);
+  }
 }
 
 /**

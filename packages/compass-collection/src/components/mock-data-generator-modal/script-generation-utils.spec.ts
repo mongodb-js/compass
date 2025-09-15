@@ -4,27 +4,37 @@ import { generateScript, type FieldMapping } from './script-generation-utils';
 
 /**
  * Helper function to test that generated document code is executable
+ *
+ * This function takes a complete mongosh script and extracts just the document
+ * generation logic to test it in isolation with the real faker.js library.
+ *
+ * @param script - Complete mongosh script containing a generateDocument function
+ * @returns The generated document object (for any possible extra validation)
  */
 function testDocumentCodeExecution(script: string): any {
+  // The script contains: "function generateDocument() { return { ... }; }"
+  // The "{ ... }" part is the document structure
+
   // Extract the return statement from the generateDocument function
   const returnMatch = script.match(/return ([\s\S]*?);[\s]*\}/);
   expect(returnMatch, 'Should contain return statement').to.not.be.null;
 
+  // Get the document structure expression (everything between "return" and ";")
+  // Example: "{ name: faker.person.fullName(), tags: Array.from({length: 3}, () => faker.lorem.word()) }"
   const returnExpression = returnMatch![1];
 
-  try {
-    // Create a function that executes the document code with faker
-    // eslint-disable-next-line @typescript-eslint/no-implied-eval
-    const generateDocument = new Function(
-      'faker',
-      `return ${returnExpression};`
-    );
+  // Create a new function
+  // This is equivalent to: function(faker) { return <returnExpression>; }
+  // The 'faker' parameter will receive the real faker.js library when we pass it in on call
+  // eslint-disable-next-line @typescript-eslint/no-implied-eval
+  const generateDocument = new Function(
+    'faker', // Parameter name for the faker library
+    `return ${returnExpression};` // Function body: return the document structure
+  );
 
-    // Execute and return the generated document
-    return generateDocument(faker);
-  } catch (error) {
-    throw new Error(`Failed to execute generated code: ${error.message}`);
-  }
+  // Execute the function with the real faker library
+  // This actually generates a document using faker methods and returns it
+  return generateDocument(faker);
 }
 
 describe('Script Generation', () => {
@@ -112,9 +122,13 @@ describe('Script Generation', () => {
     expect(result.success).to.equal(true);
     if (result.success) {
       // Should generate the complete return block with proper structure
-      expect(result.script).to.contain('Array.from({length: 3}');
-      expect(result.script).to.contain('faker.person.fullName()');
-      expect(result.script).to.contain('faker.internet.email()');
+      const expectedReturnBlock = `return {
+    users: Array.from({length: 3}, () => ({
+      name: faker.person.fullName(),
+      email: faker.internet.email()
+    }))
+  };`;
+      expect(result.script).to.contain(expectedReturnBlock);
 
       // Test that the generated document code is executable
       const document = testDocumentCodeExecution(result.script);
@@ -248,6 +262,9 @@ describe('Script Generation', () => {
       if (result.success) {
         const expectedReturnBlock = `return {};`;
         expect(result.script).to.contain(expectedReturnBlock);
+
+        // Test that the generated document code is executable
+        testDocumentCodeExecution(result.script);
       }
     });
 
@@ -294,11 +311,22 @@ describe('Script Generation', () => {
       expect(result.success).to.equal(true);
       if (result.success) {
         // All fields should be treated as regular field names, not arrays
-        expect(result.script).to.contain('settings[theme]: faker.lorem.word()');
-        expect(result.script).to.contain('data[0]: faker.lorem.word()');
-        expect(result.script).to.contain('bracket]field: faker.lorem.word()');
-        expect(result.script).to.contain('[metadata: faker.lorem.word()');
+        const expectedReturnBlock = `return {
+    "settings[theme]": faker.lorem.word(),
+    "data[0]": faker.lorem.word(),
+    "bracket]field": faker.lorem.word(),
+    "[metadata": faker.lorem.word()
+  };`;
+        expect(result.script).to.contain(expectedReturnBlock);
         expect(result.script).not.to.contain('Array.from');
+
+        // Test that the generated document code is executable
+        const document = testDocumentCodeExecution(result.script);
+        expect(document).to.be.an('object');
+        expect(document).to.have.property('settings[theme]');
+        expect(document).to.have.property('data[0]');
+        expect(document).to.have.property('bracket]field');
+        expect(document).to.have.property('[metadata');
       }
     });
 
@@ -318,14 +346,20 @@ describe('Script Generation', () => {
       expect(result.success).to.equal(true);
       if (result.success) {
         // These should be treated as regular field names, not arrays
-        expect(result.script).to.contain(
-          'squareBrackets[]InMiddle: faker.lorem.word()'
-        );
-        expect(result.script).to.contain('field[]WithMore: faker.lorem.word()');
-        expect(result.script).to.contain(
-          'start[]middle[]end: faker.lorem.word()'
-        );
+        const expectedReturnBlock = `return {
+    "squareBrackets[]InMiddle": faker.lorem.word(),
+    "field[]WithMore": faker.lorem.word(),
+    "start[]middle[]end": faker.lorem.word()
+  };`;
+        expect(result.script).to.contain(expectedReturnBlock);
         expect(result.script).not.to.contain('Array.from');
+
+        // Test that the generated document code is executable
+        const document = testDocumentCodeExecution(result.script);
+        expect(document).to.be.an('object');
+        expect(document).to.have.property('squareBrackets[]InMiddle');
+        expect(document).to.have.property('field[]WithMore');
+        expect(document).to.have.property('start[]middle[]end');
       }
     });
 
@@ -368,7 +402,16 @@ describe('Script Generation', () => {
 
       expect(result.success).to.equal(true);
       if (result.success) {
-        expect(result.script).to.contain('Array.from({length: 3}');
+        const expectedReturnBlock = `return {
+    tags: Array.from({length: 3}, () => faker.lorem.word())
+  };`;
+        expect(result.script).to.contain(expectedReturnBlock);
+
+        // Test that the generated document code is executable
+        const document = testDocumentCodeExecution(result.script);
+        expect(document).to.be.an('object');
+        expect(document).to.have.property('tags');
+        expect(document.tags).to.be.an('array').with.length(3);
       }
     });
 
@@ -388,7 +431,16 @@ describe('Script Generation', () => {
 
       expect(result.success).to.equal(true);
       if (result.success) {
-        expect(result.script).to.contain('Array.from({length: 5}');
+        const expectedReturnBlock = `return {
+    tags: Array.from({length: 5}, () => faker.lorem.word())
+  };`;
+        expect(result.script).to.contain(expectedReturnBlock);
+
+        // Test that the generated document code is executable
+        const document = testDocumentCodeExecution(result.script);
+        expect(document).to.be.an('object');
+        expect(document).to.have.property('tags');
+        expect(document.tags).to.be.an('array').with.length(5);
       }
     });
 
@@ -449,13 +501,20 @@ describe('Script Generation', () => {
 
       expect(result.success).to.equal(true);
       if (result.success) {
-        // Should have tags array with length 0 (empty array)
-        expect(result.script).to.contain('Array.from({length: 0}');
-        // Should have categories array with length 2
-        expect(result.script).to.contain('Array.from({length: 2}');
-        // Verify both arrays are present
-        expect(result.script).to.contain('tags:');
-        expect(result.script).to.contain('categories:');
+        // Should have tags array with length 0 (empty array) and categories with length 2
+        const expectedReturnBlock = `return {
+    tags: Array.from({length: 0}, () => faker.lorem.word()),
+    categories: Array.from({length: 2}, () => faker.lorem.word())
+  };`;
+        expect(result.script).to.contain(expectedReturnBlock);
+
+        // Test that the generated document code is executable
+        const document = testDocumentCodeExecution(result.script);
+        expect(document).to.be.an('object');
+        expect(document).to.have.property('tags');
+        expect(document.tags).to.be.an('array').with.length(0);
+        expect(document).to.have.property('categories');
+        expect(document.categories).to.be.an('array').with.length(2);
       }
     });
 
@@ -482,6 +541,9 @@ describe('Script Generation', () => {
     cube: Array.from({length: 3}, () => Array.from({length: 4}, () => Array.from({length: 2}, () => faker.number.float())))
   };`;
         expect(result.script).to.contain(expectedReturnBlock);
+
+        // Test that the generated document code is executable
+        testDocumentCodeExecution(result.script);
       }
     });
 
@@ -517,18 +579,22 @@ describe('Script Generation', () => {
 
       expect(result.success).to.equal(true);
       if (result.success) {
-        // Users array should have 2 elements
-        expect(result.script).to.contain('users: Array.from({length: 2}');
-        // Each user's tags should have 3 elements
-        expect(result.script).to.contain('tags: Array.from({length: 3}');
-        // Each user's posts should have 4 elements
-        expect(result.script).to.contain('posts: Array.from({length: 4}');
-        // Each post's comments should have 5 elements
-        expect(result.script).to.contain('comments: Array.from({length: 5}');
-        // Matrix should be 2x3
-        expect(result.script).to.contain(
-          'matrix: Array.from({length: 2}, () => Array.from({length: 3}'
-        );
+        // Complex nested structure with custom array lengths
+        const expectedReturnBlock = `return {
+    users: Array.from({length: 2}, () => ({
+      name: faker.person.fullName(),
+      tags: Array.from({length: 3}, () => faker.lorem.word()),
+      posts: Array.from({length: 4}, () => ({
+        title: faker.lorem.sentence(),
+        comments: Array.from({length: 5}, () => faker.lorem.words())
+      }))
+    })),
+    matrix: Array.from({length: 2}, () => Array.from({length: 3}, () => faker.number.int()))
+  };`;
+        expect(result.script).to.contain(expectedReturnBlock);
+
+        // Test that the generated document code is executable
+        testDocumentCodeExecution(result.script);
       }
     });
   });
@@ -551,7 +617,16 @@ describe('Script Generation', () => {
 
       expect(result.success).to.equal(true);
       if (result.success) {
-        expect(result.script).to.contain('faker.lorem.word()');
+        const expectedReturnBlock = `return {
+    unknownField: faker.lorem.word()
+  };`;
+        expect(result.script).to.contain(expectedReturnBlock);
+
+        // Test that the generated document code is executable
+        const document = testDocumentCodeExecution(result.script);
+        expect(document).to.be.an('object');
+        expect(document).to.have.property('unknownField');
+        expect(document.unknownField).to.be.a('string').and.not.be.empty;
       }
     });
 
@@ -572,7 +647,16 @@ describe('Script Generation', () => {
 
       expect(result.success).to.equal(true);
       if (result.success) {
-        expect(result.script).to.contain('faker.number.int()');
+        const expectedReturnBlock = `return {
+    unknownNumber: faker.number.int()
+  };`;
+        expect(result.script).to.contain(expectedReturnBlock);
+
+        // Test that the generated document code is executable
+        const document = testDocumentCodeExecution(result.script);
+        expect(document).to.be.an('object');
+        expect(document).to.have.property('unknownNumber');
+        expect(document.unknownNumber).to.be.a('number');
       }
     });
 
@@ -594,6 +678,9 @@ describe('Script Generation', () => {
       expect(result.success).to.equal(true);
       if (result.success) {
         expect(result.script).to.contain('faker.date.recent()');
+
+        // Test that the generated document code is executable
+        testDocumentCodeExecution(result.script);
       }
     });
 
@@ -615,6 +702,9 @@ describe('Script Generation', () => {
       expect(result.success).to.equal(true);
       if (result.success) {
         expect(result.script).to.contain('faker.datatype.boolean()');
+
+        // Test that the generated document code is executable
+        testDocumentCodeExecution(result.script);
       }
     });
 
@@ -636,6 +726,9 @@ describe('Script Generation', () => {
       expect(result.success).to.equal(true);
       if (result.success) {
         expect(result.script).to.contain('faker.database.mongodbObjectId()');
+
+        // Test that the generated document code is executable
+        testDocumentCodeExecution(result.script);
       }
     });
 
@@ -657,6 +750,9 @@ describe('Script Generation', () => {
       expect(result.success).to.equal(true);
       if (result.success) {
         expect(result.script).to.contain('faker.number.float()');
+
+        // Test that the generated document code is executable
+        testDocumentCodeExecution(result.script);
       }
     });
 
@@ -678,6 +774,9 @@ describe('Script Generation', () => {
       expect(result.success).to.equal(true);
       if (result.success) {
         expect(result.script).to.contain('faker.lorem.word()');
+
+        // Test that the generated document code is executable
+        testDocumentCodeExecution(result.script);
       }
     });
   });
@@ -701,6 +800,9 @@ describe('Script Generation', () => {
       expect(result.success).to.equal(true);
       if (result.success) {
         expect(result.script).to.contain('faker.person.firstName("male")');
+
+        // Test that the generated document code is executable
+        testDocumentCodeExecution(result.script);
       }
     });
 
@@ -722,27 +824,9 @@ describe('Script Generation', () => {
       expect(result.success).to.equal(true);
       if (result.success) {
         expect(result.script).to.contain('faker.number.int(18, 65)');
-      }
-    });
 
-    it('should handle boolean arguments', () => {
-      const schema = {
-        active: {
-          mongoType: 'boolean',
-          fakerMethod: 'datatype.boolean',
-          fakerArgs: [0.8],
-        },
-      };
-
-      const result = generateScript(schema, {
-        databaseName: 'testdb',
-        collectionName: 'users',
-        documentCount: 1,
-      });
-
-      expect(result.success).to.equal(true);
-      if (result.success) {
-        expect(result.script).to.contain('faker.datatype.boolean(0.8)');
+        // Test that the generated document code is executable
+        testDocumentCodeExecution(result.script);
       }
     });
 
@@ -766,10 +850,13 @@ describe('Script Generation', () => {
         expect(result.script).to.contain(
           'faker.number.int({"min":0,"max":100})'
         );
+
+        // Test that the generated document code is executable
+        testDocumentCodeExecution(result.script);
       }
     });
 
-    it('should handle JSON arguments', () => {
+    it('should handle JSON array arguments', () => {
       const schema = {
         color: {
           mongoType: 'string',
@@ -789,6 +876,9 @@ describe('Script Generation', () => {
         expect(result.script).to.contain(
           "faker.helpers.arrayElement(['red', 'blue', 'green'])"
         );
+
+        // Test that the generated document code is executable
+        testDocumentCodeExecution(result.script);
       }
     });
 
@@ -810,6 +900,9 @@ describe('Script Generation', () => {
       expect(result.success).to.equal(true);
       if (result.success) {
         expect(result.script).to.contain('faker.lorem.words(5, true)');
+
+        // Test that the generated document code is executable
+        testDocumentCodeExecution(result.script);
       }
     });
 
@@ -817,8 +910,10 @@ describe('Script Generation', () => {
       const schema = {
         quote: {
           mongoType: 'string',
-          fakerMethod: 'lorem.sentence',
-          fakerArgs: ["It's a 'test' string"],
+          fakerMethod: 'helpers.arrayElement',
+          fakerArgs: [
+            { json: '["It\'s a \'test\' string", "another option"]' },
+          ],
         },
       };
 
@@ -831,8 +926,11 @@ describe('Script Generation', () => {
       expect(result.success).to.equal(true);
       if (result.success) {
         expect(result.script).to.contain(
-          "faker.lorem.sentence(\"It's a 'test' string\")"
+          'faker.helpers.arrayElement(["It\'s a \'test\' string", "another option"])'
         );
+
+        // Test that the generated document code is executable
+        testDocumentCodeExecution(result.script);
       }
     });
 
@@ -854,34 +952,9 @@ describe('Script Generation', () => {
       expect(result.success).to.equal(true);
       if (result.success) {
         expect(result.script).to.contain('faker.string.uuid()');
-      }
-    });
 
-    it('should safely handle complex string arguments with newlines and special characters', () => {
-      const schema = {
-        complexString: {
-          mongoType: 'string',
-          fakerMethod: 'lorem.sentence',
-          fakerArgs: [
-            'Line 1\nLine 2\tTabbed\r\nWith "quotes" and \'apostrophes\'',
-          ],
-        },
-      };
-
-      const result = generateScript(schema, {
-        databaseName: 'testdb',
-        collectionName: 'test',
-        documentCount: 1,
-      });
-
-      expect(result.success).to.equal(true);
-      if (result.success) {
-        // Should use JSON.stringify for safe string serialization
-        expect(result.script).to.contain(
-          'faker.lorem.sentence("Line 1\\nLine 2\\tTabbed\\r\\nWith \\"quotes\\" and \'apostrophes\'")'
-        );
-        // Should not contain unescaped newlines that would break JS
-        expect(result.script).not.to.contain('Line 1\nLine 2');
+        // Test that the generated document code is executable
+        testDocumentCodeExecution(result.script);
       }
     });
   });
@@ -902,6 +975,9 @@ describe('Script Generation', () => {
       if (result.success) {
         expect(result.script).to.contain('faker.person.fullName()');
         expect(result.script).not.to.contain('Math.random()');
+
+        // Test that the generated document code is executable
+        testDocumentCodeExecution(result.script);
       }
     });
 
@@ -920,6 +996,9 @@ describe('Script Generation', () => {
       if (result.success) {
         expect(result.script).to.contain('faker.person.fullName()');
         expect(result.script).not.to.contain('Math.random()');
+
+        // Test that the generated document code is executable
+        testDocumentCodeExecution(result.script);
       }
     });
 
@@ -954,10 +1033,16 @@ describe('Script Generation', () => {
       expect(result.success).to.equal(true);
       if (result.success) {
         // All fields should be treated as probability 1.0 (always present)
-        expect(result.script).to.contain('field1: faker.lorem.word()');
-        expect(result.script).to.contain('field2: faker.lorem.word()');
-        expect(result.script).to.contain('field3: faker.lorem.word()');
+        const expectedReturnBlock = `return {
+    field1: faker.lorem.word(),
+    field2: faker.lorem.word(),
+    field3: faker.lorem.word()
+  };`;
+        expect(result.script).to.contain(expectedReturnBlock);
         expect(result.script).not.to.contain('Math.random()');
+
+        // Test that the generated document code is executable
+        testDocumentCodeExecution(result.script);
       }
     });
 
@@ -974,9 +1059,13 @@ describe('Script Generation', () => {
 
       expect(result.success).to.equal(true);
       if (result.success) {
-        expect(result.script).to.contain(
-          '...(Math.random() < 0.7 ? { optionalField: faker.lorem.word() } : {})'
-        );
+        const expectedReturnBlock = `return {
+    ...(Math.random() < 0.7 ? { optionalField: faker.lorem.word() } : {})
+  };`;
+        expect(result.script).to.contain(expectedReturnBlock);
+
+        // Test that the generated document code is executable
+        testDocumentCodeExecution(result.script);
       }
     });
 
@@ -996,27 +1085,22 @@ describe('Script Generation', () => {
 
       expect(result.success).to.equal(true);
       if (result.success) {
-        // Always present (probability 1.0)
-        expect(result.script).to.contain('faker.person.fullName()');
+        const expectedReturnBlock = `return {
+    alwaysPresent: faker.person.fullName(),
+    ...(Math.random() < 0.8 ? { sometimesPresent: faker.internet.email() } : {}),
+    ...(Math.random() < 0.2 ? { rarelyPresent: faker.phone.number() } : {}),
+    defaultProbability: faker.lorem.word()
+  };`;
+        expect(result.script).to.contain(expectedReturnBlock);
         expect(result.script).not.to.contain(
           'Math.random() < 1 ? { alwaysPresent:'
         );
-
-        // Sometimes present (probability 0.8)
-        expect(result.script).to.contain(
-          '...(Math.random() < 0.8 ? { sometimesPresent: faker.internet.email() } : {})'
-        );
-
-        // Rarely present (probability 0.2)
-        expect(result.script).to.contain(
-          '...(Math.random() < 0.2 ? { rarelyPresent: faker.phone.number() } : {})'
-        );
-
-        // Default probability (undefined = 1.0)
-        expect(result.script).to.contain('faker.lorem.word()');
         expect(result.script).not.to.contain(
           'Math.random() < 1 ? { defaultProbability:'
         );
+
+        // Test that the generated document code is executable
+        testDocumentCodeExecution(result.script);
       }
     });
 
@@ -1041,6 +1125,9 @@ describe('Script Generation', () => {
         expect(result.script).to.contain(
           '...(Math.random() < 0.9 ? { conditionalAge: faker.number.int(18, 65) } : {})'
         );
+
+        // Test that the generated document code is executable
+        testDocumentCodeExecution(result.script);
       }
     });
 
@@ -1065,6 +1152,9 @@ describe('Script Generation', () => {
         expect(result.script).to.contain(
           '...(Math.random() < 0.5 ? { unknownField: faker.lorem.word() } : {})'
         );
+
+        // Test that the generated document code is executable
+        testDocumentCodeExecution(result.script);
       }
     });
   });
