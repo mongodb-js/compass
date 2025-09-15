@@ -3949,6 +3949,7 @@ function buildPrompt(explainCase: ExplainCase): SimpleEvalCase {
     }).prompt,
     expected: explainCase.expected,
     expectedSources: explainCase.expectedsources,
+    tags: ['explain-plan'],
   };
 }
 

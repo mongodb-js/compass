@@ -294,13 +294,6 @@ module.exports = (env, args) => {
       tls: 'commonjs2 tls',
     },
     plugins: [
-      // Always package dist with NODE_ENV set to production, otherwise @emotion
-      // dev mode behavior completely hangs code in the browser when applying
-      // dev build to locally running mms
-      new webpack.DefinePlugin({
-        'process.env.NODE_ENV': JSON.stringify('production'),
-      }),
-
       // Only applied when running webpack in --watch mode. In this mode we want
       // to constantly rebuild d.ts files when source changes, we also don't
       // want to fail and stop compilation if we failed to generate definitions
