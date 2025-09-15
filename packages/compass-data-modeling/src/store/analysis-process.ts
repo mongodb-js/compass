@@ -3,11 +3,12 @@ import { isAction } from './util';
 import type { DataModelingThunkAction } from './reducer';
 import { analyzeDocuments, type MongoDBJSONSchema } from 'mongodb-schema';
 import { getCurrentDiagramFromState } from './diagram';
-import type { Document } from 'bson';
-import type { AggregationCursor } from 'mongodb';
+import { UUID } from 'bson';
 import type { Relationship } from '../services/data-model-storage';
 import { applyLayout } from '@mongodb-js/diagramming';
 import { collectionToBaseNodeForLayout } from '../utils/nodes-and-edges';
+import { inferForeignToLocalRelationshipsForCollection } from './relationships';
+import { mongoLogId } from '@mongodb-js/compass-logging/provider';
 
 export type AnalysisProcessState = {
   currentAnalysisOptions:
@@ -18,9 +19,10 @@ export type AnalysisProcessState = {
         collections: string[];
       } & AnalysisOptions)
     | null;
+  analysisProcessStatus: 'idle' | 'in-progress';
   samplesFetched: number;
   schemasAnalyzed: number;
-  relationsInferred: boolean;
+  relationsInferred: number;
 };
 
 export enum AnalysisProcessActionTypes {
@@ -58,6 +60,8 @@ export type NamespaceSchemaAnalyzedAction = {
 
 export type NamespacesRelationsInferredAction = {
   type: AnalysisProcessActionTypes.NAMESPACES_RELATIONS_INFERRED;
+  namespace: string;
+  count: number;
 };
 
 export type AnalysisFinishedAction = {
@@ -92,9 +96,10 @@ export type AnalysisProgressActions =
 
 const INITIAL_STATE = {
   currentAnalysisOptions: null,
+  analysisProcessStatus: 'idle' as const,
   samplesFetched: 0,
   schemasAnalyzed: 0,
-  relationsInferred: false,
+  relationsInferred: 0,
 };
 
 export const analysisProcessReducer: Reducer<AnalysisProcessState> = (
@@ -106,6 +111,7 @@ export const analysisProcessReducer: Reducer<AnalysisProcessState> = (
   ) {
     return {
       ...INITIAL_STATE,
+      analysisProcessStatus: 'in-progress',
       currentAnalysisOptions: {
         name: action.name,
         connectionId: action.connectionId,
@@ -127,6 +133,16 @@ export const analysisProcessReducer: Reducer<AnalysisProcessState> = (
       schemasAnalyzed: state.schemasAnalyzed + 1,
     };
   }
+  if (
+    isAction(action, AnalysisProcessActionTypes.ANALYSIS_CANCELED) ||
+    isAction(action, AnalysisProcessActionTypes.ANALYSIS_FAILED) ||
+    isAction(action, AnalysisProcessActionTypes.ANALYSIS_FINISHED)
+  ) {
+    return {
+      ...state,
+      analysisProcessStatus: 'idle',
+    };
+  }
   return state;
 };
 
@@ -146,11 +162,26 @@ export function startAnalysis(
   | AnalysisCanceledAction
   | AnalysisFailedAction
 > {
-  return async (dispatch, getState, services) => {
+  return async (
+    dispatch,
+    getState,
+    {
+      connections,
+      cancelAnalysisControllerRef,
+      logger,
+      track,
+      dataModelStorage,
+      preferences,
+    }
+  ) => {
+    // Analysis is in progress, don't start a new one unless user canceled it
+    if (cancelAnalysisControllerRef.current) {
+      return;
+    }
     const namespaces = collections.map((collName) => {
       return `${database}.${collName}`;
     });
-    const cancelController = (services.cancelAnalysisControllerRef.current =
+    const cancelController = (cancelAnalysisControllerRef.current =
       new AbortController());
     dispatch({
       type: AnalysisProcessActionTypes.ANALYZING_COLLECTIONS_START,
@@ -161,18 +192,17 @@ export function startAnalysis(
       options,
     });
     try {
-      const dataService =
-        services.connections.getDataServiceForConnection(connectionId);
+      let relations: Relationship[] = [];
+      const dataService = connections.getDataServiceForConnection(connectionId);
+
       const collections = await Promise.all(
         namespaces.map(async (ns) => {
-          const sample: AggregationCursor<Document> = dataService.sampleCursor(
+          const sample = await dataService.sample(
             ns,
             { size: 100 },
+            { promoteValues: false },
             {
-              signal: cancelController.signal,
-              promoteValues: false,
-            },
-            {
+              abortSignal: cancelController.signal,
               fallbackReadPreference: 'secondaryPreferred',
             }
           );
@@ -194,12 +224,57 @@ export function startAnalysis(
             type: AnalysisProcessActionTypes.NAMESPACE_SCHEMA_ANALYZED,
             namespace: ns,
           });
-          return { ns, schema };
+          return { ns, schema, sample };
         })
       );
 
-      if (options.automaticallyInferRelations) {
-        // TODO
+      if (
+        preferences.getPreferences().enableAutomaticRelationshipInference &&
+        options.automaticallyInferRelations
+      ) {
+        relations = (
+          await Promise.all(
+            collections.map(
+              async ({
+                ns,
+                schema,
+                sample,
+              }): Promise<Relationship['relationship'][]> => {
+                const relationships =
+                  await inferForeignToLocalRelationshipsForCollection(
+                    ns,
+                    schema,
+                    sample,
+                    collections,
+                    dataService,
+                    cancelController.signal,
+                    (err) => {
+                      logger.log.warn(
+                        mongoLogId(1_001_000_371),
+                        'DataModeling',
+                        'Failed to identify relationship for collection',
+                        { ns, error: err.message }
+                      );
+                    }
+                  );
+                dispatch({
+                  type: AnalysisProcessActionTypes.NAMESPACES_RELATIONS_INFERRED,
+                  namespace: ns,
+                  count: relationships.length,
+                });
+                return relationships;
+              }
+            )
+          )
+        ).flatMap((relationships) => {
+          return relationships.map((relationship) => {
+            return {
+              id: new UUID().toHexString(),
+              relationship,
+              isInferred: true,
+            };
+          });
+        });
       }
 
       if (cancelController.signal.aborted) {
@@ -207,13 +282,13 @@ export function startAnalysis(
       }
 
       const positioned = await applyLayout(
-        collections.map((coll) =>
-          collectionToBaseNodeForLayout({
+        collections.map((coll) => {
+          return collectionToBaseNodeForLayout({
             ns: coll.ns,
             jsonSchema: coll.schema,
             displayPosition: [0, 0],
-          })
-        ),
+          });
+        }),
         [],
         'LEFT_RIGHT'
       );
@@ -229,22 +304,20 @@ export function startAnalysis(
           const position = node ? node.position : { x: 0, y: 0 };
           return { ...coll, position };
         }),
-        relations: [],
+        relations,
       });
 
-      services.track('Data Modeling Diagram Created', {
+      track('Data Modeling Diagram Created', {
         num_collections: collections.length,
       });
 
-      void services.dataModelStorage.save(
-        getCurrentDiagramFromState(getState())
-      );
+      void dataModelStorage.save(getCurrentDiagramFromState(getState()));
     } catch (err) {
       if (cancelController.signal.aborted) {
         dispatch({ type: AnalysisProcessActionTypes.ANALYSIS_CANCELED });
       } else {
-        services.logger.log.error(
-          services.logger.mongoLogId(1_001_000_350),
+        logger.log.error(
+          mongoLogId(1_001_000_350),
           'DataModeling',
           'Failed to analyze schema',
           { err }
@@ -255,7 +328,7 @@ export function startAnalysis(
         });
       }
     } finally {
-      services.cancelAnalysisControllerRef.current = null;
+      cancelAnalysisControllerRef.current = null;
     }
   };
 }

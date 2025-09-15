@@ -36,6 +36,10 @@ export type SimpleEvalCase = {
     | 'model-data'
     | 'aggregation-pipeline'
     | 'atlas-search'
+    | 'competitor'
+    | 'mongodb-features'
+    | 'compass-features'
+    | 'unsupported'
   )[];
 };
 
