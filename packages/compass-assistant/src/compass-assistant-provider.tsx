@@ -40,6 +40,11 @@ export type AssistantMessage = UIMessage & {
      *  Used for warning messages in cases like using non-genuine MongoDB.
      */
     isPermanent?: boolean;
+    /** Information for confirmation messages. */
+    confirmation?: {
+      description: string;
+      state: 'confirmed' | 'rejected' | 'pending';
+    };
   };
 };
 
@@ -174,7 +179,17 @@ export const AssistantProvider: React.FunctionComponent<
 
       const { prompt, displayText } = builder(props);
       void assistantActionsContext.current.ensureOptInAndSend(
-        { text: prompt, metadata: { displayText } },
+        {
+          text: prompt,
+          metadata: {
+            displayText,
+            confirmation: {
+              description:
+                'Explain plan metadata, including the original query, may be used to process your request',
+              state: 'pending',
+            },
+          },
+        },
         {},
         () => {
           openDrawer(ASSISTANT_DRAWER_ID);
@@ -185,17 +200,17 @@ export const AssistantProvider: React.FunctionComponent<
         }
       );
     };
-  });
+  }).current;
   const assistantActionsContext = useRef<AssistantActionsContextType>({
-    interpretExplainPlan: createEntryPointHandler.current(
+    interpretExplainPlan: createEntryPointHandler(
       'explain plan',
       buildExplainPlanPrompt
     ),
-    interpretConnectionError: createEntryPointHandler.current(
+    interpretConnectionError: createEntryPointHandler(
       'connection error',
       buildConnectionErrorPrompt
     ),
-    tellMoreAboutInsight: createEntryPointHandler.current(
+    tellMoreAboutInsight: createEntryPointHandler(
       'performance insights',
       buildProactiveInsightsPrompt
     ),
@@ -219,6 +234,10 @@ export const AssistantProvider: React.FunctionComponent<
       // Call the callback to indicate that the opt-in was successful. A good
       // place to do tracking.
       callback();
+
+      if (chat.status === 'streaming') {
+        await chat.stop();
+      }
 
       await chat.sendMessage(message, options);
     },
