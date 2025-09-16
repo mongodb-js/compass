@@ -537,6 +537,12 @@ describe('AssistantChat', function () {
     it('displays related resources links for assistant messages that include them', async function () {
       renderWithChat(mockMessages);
       userEvent.click(screen.getByLabelText('Expand Related Resources'));
+
+      // TODO(COMPASS-9860) can't find the links in test-electron on RHEL and Ubuntu.
+      if ((process as any).type === 'renderer') {
+        return this.skip();
+      }
+
       await waitFor(() => {
         expect(screen.getByRole('link', { name: 'MongoDB' })).to.have.attribute(
           'href',
