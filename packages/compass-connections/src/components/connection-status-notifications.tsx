@@ -207,10 +207,14 @@ const openConnectionFailedToast = ({
               }
             : undefined
         }
-        onDebug={() => {
-          closeToast(`connection-status--${failedToastId}`);
-          onDebugClick?.();
-        }}
+        onDebug={
+          onDebugClick
+            ? () => {
+                closeToast(`connection-status--${failedToastId}`);
+                onDebugClick();
+              }
+            : undefined
+        }
       />
     ),
     variant: 'warning',
