@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **Mongodb Compass**.
-This document was automatically generated on Mon Sep 15 2025.
+This document was automatically generated on Tue Sep 16 2025.
 
 ## List of dependencies
 
@@ -88,6 +88,7 @@ This document was automatically generated on Mon Sep 15 2025.
 | **[@emotion/use-insertion-effect-with-fallbacks](#a7662316f90ed8cb032ced23bee64ce0574a0b8eb63d56ee8eedb8c56cfc2812)**       | 1.2.0        | MIT                                 |
 | **[@emotion/utils](#e99b2a20e001e7734cc4f71b8fa6de4d5578c101b034e4571c7b51f86704f663)**                                     | 1.4.2        | MIT                                 |
 | **[@emotion/weak-memoize](#87ba3696f63d7274d407f7e4e93881675689944435b0d8af05b1f5bac283250d)**                              | 0.4.0        | MIT                                 |
+| **[@faker-js/faker](#b2b97f3ed423451fa9a0223133b913e814020e54ef9248af059cc4e1075cc5d3)**                                    | 9.0.0        | MIT                                 |
 | **[@floating-ui/core](#8d656c6cba1d5d97a1954754b2715d577514d11465f4f662d49f322577471ccc)**                                  | 1.6.9        | MIT                                 |
 | **[@floating-ui/dom](#f58701a5fdc51e843e37875cb1dddf57f36fb0b6d458be6c14d30c3227ac6ec0)**                                   | 1.6.13       | MIT                                 |
 | **[@floating-ui/react-dom](#5e7f2bf76bf44f75d4a340db3bd81de2907a36d2fc8bc997ba4d1f27eec70324)**                             | 2.1.2        | MIT                                 |
@@ -6766,6 +6767,78 @@ License files:
       LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
       SOFTWARE.
+
+<a id="b2b97f3ed423451fa9a0223133b913e814020e54ef9248af059cc4e1075cc5d3"></a>
+
+### [@faker-js/faker](https://www.npmjs.com/package/@faker-js/faker) (version 9.0.0)
+
+License tags: MIT
+
+License files:
+
+- LICENSE:
+
+      Faker - Copyright (c) 2022-2024
+
+      This software consists of voluntary contributions made by many individuals.
+      For exact contribution history, see the revision history
+      available at https://github.com/faker-js/faker
+
+      Permission is hereby granted, free of charge, to any person obtaining
+      a copy of this software and associated documentation files (the
+      "Software"), to deal in the Software without restriction, including
+      without limitation the rights to use, copy, modify, merge, publish,
+      distribute, sublicense, and/or sell copies of the Software, and to
+      permit persons to whom the Software is furnished to do so, subject to
+      the following conditions:
+
+      The above copyright notice and this permission notice shall be
+      included in all copies or substantial portions of the Software.
+
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+      EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+      MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+      NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+      LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+      OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+      WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+      ===
+
+      From: https://github.com/faker-js/faker/commit/a9f98046c7d5eeaabe12fc587024c06d683800b8
+      To: https://github.com/faker-js/faker/commit/29234378807c4141588861f69421bf20b5ac635e
+
+      Based on faker.js, copyright Marak Squires and contributor, what follows below is the original license.
+
+      ===
+
+      faker.js - Copyright (c) 2020
+      Marak Squires
+      http://github.com/marak/faker.js/
+
+      faker.js was inspired by and has used data definitions from:
+
+       * https://github.com/stympy/faker/ - Copyright (c) 2007-2010 Benjamin Curtis
+       * http://search.cpan.org/~jasonk/Data-Faker-0.07/ - Copyright 2004-2005 by Jason Kohles
+
+      Permission is hereby granted, free of charge, to any person obtaining
+      a copy of this software and associated documentation files (the
+      "Software"), to deal in the Software without restriction, including
+      without limitation the rights to use, copy, modify, merge, publish,
+      distribute, sublicense, and/or sell copies of the Software, and to
+      permit persons to whom the Software is furnished to do so, subject to
+      the following conditions:
+
+      The above copyright notice and this permission notice shall be
+      included in all copies or substantial portions of the Software.
+
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+      EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+      MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+      NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+      LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+      OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+      WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 <a id="8d656c6cba1d5d97a1954754b2715d577514d11465f4f662d49f322577471ccc"></a>
 
