@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo, useSelector } from 'react';
 import {
   DrawerAnchor,
   ErrorBoundary,
@@ -10,7 +10,6 @@ import {
   useDarkMode,
   type WorkspaceTabCoreProps,
 } from '@mongodb-js/compass-components';
-import { useConnectionActions } from '@mongodb-js/compass-connections/provider';
 import type {
   CollectionTabInfo,
   DatabaseTabInfo,
@@ -31,13 +30,17 @@ import {
   restoreTabs,
 } from '../stores/workspaces';
 import { useWorkspacePlugins } from './workspaces-provider';
+import {
+  ConnectionInfo,
+  useConnectionActions,
+  useConnectionsListRef,
+} from '@mongodb-js/compass-connections/provider';
 import toNS from 'mongodb-ns';
 import { useLogger } from '@mongodb-js/compass-logging/provider';
 import { connect } from '../stores/context';
 import { WorkspaceTabContextProvider } from './workspace-tab-context-provider';
 import type { WorkspaceTab } from '../types';
 import { convertSavedStateToInitialTabs } from '../stores/workspaces-middleware';
-import { useConnectionStorageContext } from '../../../connection-storage/dist/provider';
 
 const emptyWorkspaceStyles = css({
   margin: '0 auto',
@@ -121,14 +124,13 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
   }, [onCreateTab, openOnEmptyWorkspace]);
 
   const connectionActions = useConnectionActions();
-  const connectionStorage = useConnectionStorageContext();
+  const { getConnectionById } = useConnectionsListRef();
 
   useEffect(() => {
     if (savedTabsPromise) {
       savedTabsPromise
         .then((res) => {
           if (res !== null) {
-            console.log('Showing confirmation');
             showConfirmation({
               title: 'Reopen closed tabs?',
               description:
@@ -137,29 +139,32 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
             })
               .then((confirm) => {
                 if (confirm) {
-                  // TODO: figure out all the connections that need to be reconnected
-                  // dispatch action to reconnect them all
-                  // after all connections are reconnected,
-                  // dispatch action to restore tabs
+                  const workspacesToRestore: OpenWorkspaceOptions[] = [];
+                  const connectionsToRestore: Map<string, ConnectionInfo> =
+                    new Map();
+                  convertSavedStateToInitialTabs(res).forEach((tab) => {
+                    if ('connectionId' in tab) {
+                      const connectionInfo = getConnectionById(
+                        tab.connectionId
+                      )?.info;
 
-                  // What happens if I try to dispatch open on a nonexistent tab?
-                  //       openWorkspaceAction(
-                  //   {
-                  //     type: 'Collection',
-                  //     connectionId,
-                  //     namespace,
-                  //     ...collectionOptions,
-                  //   },
-                  //   { newTab }
-                  // )
-                  // const initialSavedTabs = convertSavedStateToInitialTabs(res);
-                  // initialSavedTabs.forEach((tab) => {
-                  // })
-                  // console.log('Restoring tabs');
-                  // connectionStorage.
-                  // connectionActions.connect({connectionOptions})
+                      if (!connectionInfo) {
+                        return;
+                      }
 
-                  onRestoreTabs(convertSavedStateToInitialTabs(res));
+                      connectionsToRestore.set(
+                        tab.connectionId,
+                        connectionInfo
+                      );
+                    }
+                    workspacesToRestore.push(tab);
+                  });
+
+                  connectionsToRestore.forEach((connectionInfo) => {
+                    void connectionActions.connect(connectionInfo);
+                  });
+
+                  onRestoreTabs(workspacesToRestore);
                 }
               })
               .catch((err) => {
@@ -173,7 +178,7 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
           console.error(err);
         });
     }
-  }, [savedTabsPromise, onRestoreTabs, connectionActions]);
+  }, [savedTabsPromise, onRestoreTabs, connectionActions, getConnectionById]);
 
   const workspaceTabs = useMemo(() => {
     return tabs.map((tab) => {
