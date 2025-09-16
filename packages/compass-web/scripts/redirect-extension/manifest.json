@@ -1,0 +1,17 @@
+{
+  "manifest_version": 3,
+  "name": "Redirect MMS",
+  "description": "Redirect MMS assets requests to the locally running dev server",
+  "version": "0.2",
+  "permissions": ["declarativeNetRequestWithHostAccess"],
+  "host_permissions": ["*://*/*"],
+  "declarative_net_request": {
+    "rule_resources": [
+      {
+        "id": "ruleset",
+        "enabled": true,
+        "path": "redirect-rules.json"
+      }
+    ]
+  }
+}

@@ -1,0 +1,15 @@
+[
+  {
+    "id": 1,
+    "condition": {
+      "regexFilter": "^https:\\/\\/assets(?:-\\w+?)?\\.mongodb-cdn\\.com\\/mms(.+?)(?:\\.[\\w\\d]+(\\.min)?)?\\.js$",
+      "resourceTypes": ["script"]
+    },
+    "action": {
+      "type": "redirect",
+      "redirect": {
+        "regexSubstitution": "http://localhost:8081\\1\\2.js"
+      }
+    }
+  }
+]
