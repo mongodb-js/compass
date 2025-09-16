@@ -20,7 +20,7 @@ import type { CompassBrowser } from './compass-browser';
 import type { LogEntry } from './telemetry';
 import Debug from 'debug';
 import semver from 'semver';
-import { CHROME_STARTUP_FLAGS } from './chrome-startup-flags';
+import { CHROME_STARTUP_FLAGS, COMPASS_FLAGS } from './chrome-startup-flags';
 import {
   DEFAULT_CONNECTION_STRINGS,
   DEFAULT_CONNECTION_NAMES,
@@ -503,6 +503,7 @@ export async function runCompassOnce(args: string[], timeout = 30_000) {
       // When running binary without webdriver, we need to pass the same flags
       // as we pass when running with webdriverio to have similar behaviour.
       ...CHROME_STARTUP_FLAGS,
+      ...COMPASS_FLAGS,
       `--user-data-dir=${String(defaultUserDataDir)}`,
       ...args,
     ],
@@ -606,6 +607,8 @@ async function startCompassElectron(
 
   const { needsCloseWelcomeModal, webdriverOptions, wdioOptions, chromeArgs } =
     await processCommonOpts(opts);
+
+  chromeArgs.push(...COMPASS_FLAGS);
 
   if (!testPackagedApp) {
     // https://www.electronjs.org/docs/latest/tutorial/automated-testing#with-webdriverio
@@ -776,7 +779,8 @@ export async function startBrowser(
   assertTestingWeb(context);
 
   runCounter++;
-  const { webdriverOptions, wdioOptions } = await processCommonOpts();
+  const { webdriverOptions, wdioOptions, chromeArgs } =
+    await processCommonOpts();
 
   const browserCapabilities: Record<string, Record<string, unknown>> = {
     chrome: {
@@ -784,6 +788,7 @@ export async function startBrowser(
         prefs: {
           'download.default_directory': downloadPath,
         },
+        args: chromeArgs,
       },
     },
     firefox: {
