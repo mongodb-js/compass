@@ -19,7 +19,7 @@ import {
   RecentQueryStorageProvider,
   type FavoriteQueryStorageAccess,
   type RecentQueryStorageAccess,
-  PipelineStorageAccess,
+  type PipelineStorageAccess,
 } from '@mongodb-js/my-queries-storage/provider';
 import { createLogger } from '@mongodb-js/compass-logging';
 import { LoggerProvider } from '@mongodb-js/compass-logging/provider';

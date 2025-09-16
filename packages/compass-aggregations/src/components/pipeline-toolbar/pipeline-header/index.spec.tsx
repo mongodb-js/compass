@@ -23,7 +23,7 @@ describe('PipelineHeader', function () {
       />,
       undefined,
       undefined,
-      { pipelineStorage: new CompassPipelineStorage() }
+      { pipelineStorage: { getStorage: () => new CompassPipelineStorage() } }
     );
     container = screen.getByTestId('pipeline-header');
   });

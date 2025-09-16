@@ -23,7 +23,7 @@ describe('PipelineToolbar', function () {
         />,
         { pipeline: [{ $match: { _id: 1 } }] },
         undefined,
-        { pipelineStorage: new CompassPipelineStorage() }
+        { pipelineStorage: { getStorage: () => new CompassPipelineStorage() } }
       );
       toolbar = screen.getByTestId('pipeline-toolbar');
     });

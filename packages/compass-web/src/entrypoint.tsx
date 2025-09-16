@@ -75,6 +75,7 @@ import {
   RecentQueryStorageProvider,
   type FavoriteQueryStorageAccess,
   type RecentQueryStorageAccess,
+  type PipelineStorageAccess,
 } from '@mongodb-js/my-queries-storage/provider';
 import { CompassAssistantProvider } from '@mongodb-js/compass-assistant';
 import { CompassAssistantDrawerWithConnections } from './compass-assistant-drawer';
@@ -113,14 +114,26 @@ const WithStorageProviders: React.FC<{
     const url = atlasService.userDataEndpoint(`/${path || ''}`);
     return url;
   };
-  const pipelineStorage = useRef(
-    new CompassPipelineStorage({
-      orgId,
-      projectId,
-      getResourceUrl,
-      authenticatedFetch,
-    })
-  );
+  const pipelineStorage = useRef<PipelineStorageAccess>({
+    getStorage(options?: {
+      basePath?: string;
+      orgId?: string;
+      projectId?: string;
+      getResourceUrl?: (path?: string) => string;
+      authenticatedFetch?: (
+        url: RequestInfo | URL,
+        options?: RequestInit
+      ) => Promise<Response>;
+    }) {
+      return new CompassPipelineStorage({
+        ...options,
+        orgId,
+        projectId,
+        getResourceUrl,
+        authenticatedFetch,
+      });
+    },
+  });
   const favoriteQueryStorage = useRef<FavoriteQueryStorageAccess>({
     getStorage(options) {
       return new CompassFavoriteQueryStorage({

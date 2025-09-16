@@ -3,7 +3,7 @@ import type { QueryStorageOptions } from './compass-query-storage';
 import type { PipelineStorage } from './pipeline-storage';
 import type { FavoriteQueryStorage, RecentQueryStorage } from './query-storage';
 import { createServiceLocator } from '@mongodb-js/compass-app-registry';
-import { PipelineStorageOptions } from './compass-pipeline-storage';
+import type { PipelineStorageOptions } from './compass-pipeline-storage';
 
 export type { PipelineStorage, FavoriteQueryStorage, RecentQueryStorage };
 

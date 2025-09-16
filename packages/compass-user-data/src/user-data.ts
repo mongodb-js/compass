@@ -299,7 +299,6 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
   }
 
   async write(id: string, content: z.input<T>): Promise<boolean> {
-    console.log('CALLING WRITES');
     try {
       this.validator.parse(content);
       const response = await this.authenticatedFetch(
@@ -378,7 +377,6 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
       data: [],
       errors: [],
     };
-    // debugger;
     try {
       const response = await this.authenticatedFetch(
         this.getResourceUrl(`${this.dataType}/${this.orgId}/${this.projectId}`),
