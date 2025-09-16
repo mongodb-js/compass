@@ -62,7 +62,9 @@ export function generateScript(
     );
 
     const script = `// Mock Data Generator Script
-// Generated for collection: ${options.databaseName}.${options.collectionName}
+// Generated for collection: ${JSON.stringify(
+      options.databaseName
+    )}.${JSON.stringify(options.collectionName)}
 // Document count: ${options.documentCount}
 
 const { faker } = require('@faker-js/faker');
@@ -86,9 +88,9 @@ db.getCollection(${JSON.stringify(
       options.collectionName
     )}).insertMany(documents);
 
-console.log(\`Successfully inserted \${documents.length} documents into ${
+console.log(\`Successfully inserted \${documents.length} documents into ${JSON.stringify(
       options.databaseName
-    }.${options.collectionName}\`);`;
+    )}.${JSON.stringify(options.collectionName)}\`);`;
 
     return {
       script,
