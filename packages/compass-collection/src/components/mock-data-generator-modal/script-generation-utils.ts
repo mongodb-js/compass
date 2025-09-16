@@ -3,7 +3,7 @@ export type FakerArg = string | number | boolean | { json: string };
 const DEFAULT_ARRAY_LENGTH = 3;
 const INDENT_SIZE = 2;
 
-export interface FieldMapping {
+export interface FakerFieldMapping {
   mongoType: string;
   fakerMethod: string;
   fakerArgs: FakerArg[];
@@ -35,21 +35,21 @@ export type ScriptResult =
 
 type DocumentStructure = {
   [fieldName: string]:
-    | FieldMapping // Leaf: actual data field
+    | FakerFieldMapping // Leaf: actual data field
     | DocumentStructure // Object: nested fields
     | ArrayStructure; // Array: repeated elements
 };
 
 interface ArrayStructure {
   type: 'array';
-  elementType: FieldMapping | DocumentStructure | ArrayStructure;
+  elementType: FakerFieldMapping | DocumentStructure | ArrayStructure;
 }
 
 /**
  * Entry point method: Generate the final script
  */
 export function generateScript(
-  schema: Record<string, FieldMapping>,
+  schema: Record<string, FakerFieldMapping>,
   options: ScriptOptions
 ): ScriptResult {
   try {
@@ -173,7 +173,7 @@ function parseFieldPath(fieldPath: string): string[] {
  * Build the document structure from all field paths
  */
 function buildDocumentStructure(
-  schema: Record<string, FieldMapping>
+  schema: Record<string, FakerFieldMapping>
 ): DocumentStructure {
   const result: DocumentStructure = {};
 
@@ -192,7 +192,7 @@ function buildDocumentStructure(
 function insertIntoStructure(
   structure: DocumentStructure,
   pathParts: string[],
-  mapping: FieldMapping
+  mapping: FakerFieldMapping
 ): void {
   if (pathParts.length === 0) {
     throw new Error('Cannot insert field mapping: empty path parts array');
@@ -317,7 +317,7 @@ function renderDocumentCode(
   arrayLengthMap: ArrayLengthMap = {}
 ): string {
   // For each field in structure:
-  //   - If FieldMapping: generate faker call
+  //   - If FakerFieldMapping: generate faker call
   //   - If DocumentStructure: generate nested object
   //   - If ArrayStructure: generate array
 
@@ -328,7 +328,7 @@ function renderDocumentCode(
   for (const [fieldName, value] of Object.entries(structure)) {
     if ('mongoType' in value) {
       // It's a field mapping
-      const mapping = value as FieldMapping;
+      const mapping = value as FakerFieldMapping;
       const fakerCall = generateFakerCall(mapping);
       // Default to 1.0 for invalid probability values
       let probability = 1.0;
@@ -438,7 +438,7 @@ function renderArrayCode(
 
   if ('mongoType' in elementType) {
     // Array of primitives
-    const fakerCall = generateFakerCall(elementType as FieldMapping);
+    const fakerCall = generateFakerCall(elementType as FakerFieldMapping);
     return `Array.from({length: ${arrayLength}}, () => ${fakerCall})`;
   } else if ('type' in elementType && elementType.type === 'array') {
     // Nested array (e.g., matrix[][]) - keep same fieldName, increment dimension
@@ -468,7 +468,7 @@ function renderArrayCode(
 /**
  * Generate faker.js call from field mapping
  */
-function generateFakerCall(mapping: FieldMapping): string {
+function generateFakerCall(mapping: FakerFieldMapping): string {
   if (mapping.mongoType === 'null') {
     return 'null';
   }

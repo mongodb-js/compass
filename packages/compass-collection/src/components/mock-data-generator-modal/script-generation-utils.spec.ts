@@ -1,6 +1,9 @@
 import { expect } from 'chai';
 import { faker } from '@faker-js/faker/locale/en';
-import { generateScript, type FieldMapping } from './script-generation-utils';
+import {
+  generateScript,
+  type FakerFieldMapping,
+} from './script-generation-utils';
 
 /**
  * Helper function to test that generated document code is executable
@@ -41,7 +44,7 @@ describe('Script Generation', () => {
   const createFieldMapping = (
     fakerMethod: string,
     probability?: number
-  ): FieldMapping => ({
+  ): FakerFieldMapping => ({
     mongoType: 'String',
     fakerMethod,
     fakerArgs: [],
