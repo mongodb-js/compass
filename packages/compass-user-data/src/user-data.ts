@@ -299,12 +299,12 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
   }
 
   async write(id: string, content: z.input<T>): Promise<boolean> {
+    console.log('CALLING WRITES');
     try {
       this.validator.parse(content);
-
       const response = await this.authenticatedFetch(
         this.getResourceUrl(
-          `userData/${this.dataType}/${this.orgId}/${this.projectId}/${id}`
+          `${this.dataType}/${this.orgId}/${this.projectId}/${id}`
         ),
         {
           method: 'POST',
@@ -315,7 +315,6 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
             data: this.serialize(content),
             createdAt: new Date(),
           }),
-          credentials: 'include',
         }
       );
 
@@ -333,7 +332,7 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
         'Error writing data',
         {
           url: this.getResourceUrl(
-            `userData/${this.dataType}/${this.orgId}/${this.projectId}`
+            `${this.dataType}/${this.orgId}/${this.projectId}`
           ),
           error: (error as Error).message,
         }
@@ -346,11 +345,10 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
     try {
       const response = await this.authenticatedFetch(
         this.getResourceUrl(
-          `userData/${this.dataType}/${this.orgId}/${this.projectId}/${id}`
+          `${this.dataType}/${this.orgId}/${this.projectId}/${id}`
         ),
         {
           method: 'DELETE',
-          credentials: 'include',
         }
       );
       if (!response.ok) {
@@ -366,7 +364,7 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
         'Error deleting data',
         {
           url: this.getResourceUrl(
-            `userData/${this.dataType}/${this.orgId}/${this.projectId}/${id}`
+            `${this.dataType}/${this.orgId}/${this.projectId}/${id}`
           ),
           error: (error as Error).message,
         }
@@ -383,12 +381,9 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
     // debugger;
     try {
       const response = await this.authenticatedFetch(
-        this.getResourceUrl(
-          `userData/${this.dataType}/${this.orgId}/${this.projectId}`
-        ),
+        this.getResourceUrl(`${this.dataType}/${this.orgId}/${this.projectId}`),
         {
           method: 'GET',
-          credentials: 'include',
         }
       );
       if (!response.ok) {
@@ -425,7 +420,7 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
 
       const response = await this.authenticatedFetch(
         this.getResourceUrl(
-          `userData/${this.dataType}/${this.orgId}/${this.projectId}/${id}`
+          `${this.dataType}/${this.orgId}/${this.projectId}/${id}`
         ),
         {
           method: 'PUT',
@@ -436,7 +431,6 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
             data: this.serialize(newData),
             createdAt: new Date(),
           }),
-          credentials: 'include',
         }
       );
       if (!response.ok) {
@@ -452,7 +446,7 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
         'Error updating data',
         {
           url: this.getResourceUrl(
-            `userData/${this.dataType}/${this.orgId}/${this.projectId}/${id}`
+            `${this.dataType}/${this.orgId}/${this.projectId}/${id}`
           ),
           error: (error as Error).message,
         }
@@ -466,11 +460,10 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
     try {
       const getResponse = await this.authenticatedFetch(
         this.getResourceUrl(
-          `userData/${this.dataType}/${this.orgId}/${this.projectId}/${id}`
+          `${this.dataType}/${this.orgId}/${this.projectId}/${id}`
         ),
         {
           method: 'GET',
-          credentials: 'include',
         }
       );
       if (!getResponse.ok) {
@@ -488,7 +481,7 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
         'Error reading data',
         {
           url: this.getResourceUrl(
-            `userData/${this.dataType}/${this.orgId}/${this.projectId}/${id}`
+            `${this.dataType}/${this.orgId}/${this.projectId}/${id}`
           ),
           error: (error as Error).message,
         }

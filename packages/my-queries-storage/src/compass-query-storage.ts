@@ -1,4 +1,4 @@
-import { ObjectId, EJSON } from 'bson';
+import { ObjectId, EJSON, UUID } from 'bson';
 import { type z } from '@mongodb-js/compass-user-data';
 import {
   type IUserData,
@@ -98,14 +98,11 @@ export class CompassRecentQueryStorage
     data: Omit<z.input<typeof RecentQuerySchema>, '_id' | '_lastExecuted'>
   ): Promise<void> {
     const recentQueries = await this.loadAll();
-
     if (recentQueries.length >= this.maxAllowedQueries) {
       const lastRecent = recentQueries[recentQueries.length - 1];
       await this.delete(lastRecent._id);
     }
-    // TODO: verify that this doesn't break anything in compass
-    const _id = new ObjectId().toHexString();
-    // this creates a recent query that we will write to system/db
+    const _id = new UUID().toString();
     const recentQuery = {
       ...data,
       _id,

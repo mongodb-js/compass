@@ -19,6 +19,7 @@ import {
   RecentQueryStorageProvider,
   type FavoriteQueryStorageAccess,
   type RecentQueryStorageAccess,
+  PipelineStorageAccess,
 } from '@mongodb-js/my-queries-storage/provider';
 import { createLogger } from '@mongodb-js/compass-logging';
 import { LoggerProvider } from '@mongodb-js/compass-logging/provider';
@@ -71,7 +72,11 @@ export const WithAtlasProviders: React.FC = ({ children }) => {
 };
 
 export const WithStorageProviders: React.FC = ({ children }) => {
-  const pipelineStorage = useRef(new CompassPipelineStorage());
+  const pipelineStorage = useRef<PipelineStorageAccess>({
+    getStorage(options) {
+      return new CompassPipelineStorage(options);
+    },
+  });
   const favoriteQueryStorage = useRef<FavoriteQueryStorageAccess>({
     getStorage(options) {
       return new CompassFavoriteQueryStorage(options);
