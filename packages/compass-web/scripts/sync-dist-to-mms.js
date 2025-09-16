@@ -3,6 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const child_process = require('child_process');
 const os = require('os');
+const util = require('util');
 const { debounce } = require('lodash');
 
 if (!process.env.MMS_HOME) {
@@ -58,11 +59,42 @@ const webpackWatchProcess = child_process.spawn('npm', ['run', 'watch'], {
   stdio: 'inherit',
 });
 
+const failProofRunner = () =>
+  new (class FailProofRunner extends Array {
+    append(...fns) {
+      this.push(...fns);
+      return this;
+    }
+
+    run() {
+      const errors = this.map((f) => {
+        try {
+          f();
+        } catch (e) {
+          return e;
+        }
+      }).filter((e) => e);
+
+      if (errors.length) {
+        fs.writeSync(
+          process.stdout.fd,
+          util.inspect(errors, { depth: 20 }) + '\n'
+        );
+      }
+
+      return errors.length;
+    }
+  })();
+
 function cleanup(signalName) {
-  distWatcher.close();
-  webpackWatchProcess.kill(signalName);
-  fs.cpSync(tmpDir, destDir, { recursive: true });
-  fs.rmSync(tmpDir, { recursive: true, force: true });
+  const errorCount = failProofRunner()
+    .append(() => distWatcher.close())
+    .append(() => webpackWatchProcess.kill(signalName))
+    .append(() => fs.cpSync(tmpDir, destDir, { recursive: true }))
+    .append(() => fs.rmSync(tmpDir, { recursive: true, force: true }))
+    .run();
+  fs.writeSync(process.stdout.fd, 'Exit compass-web sync...\n');
+  process.exit(errorCount);
 }
 
 for (const evt of ['SIGINT', 'SIGTERM']) {

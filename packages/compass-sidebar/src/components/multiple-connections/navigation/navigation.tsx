@@ -11,7 +11,7 @@ import {
   useOpenWorkspace,
   useWorkspacePlugins,
 } from '@mongodb-js/compass-workspaces/provider';
-import { usePreference, useMyQueriesFeature } from 'compass-preferences-model/provider';
+import { usePreference } from 'compass-preferences-model/provider';
 import React from 'react';
 
 const navigationItem = css({
@@ -102,7 +102,7 @@ export function Navigation({
   const { openMyQueriesWorkspace, openDataModelingWorkspace } =
     useOpenWorkspace();
   const isDataModelingEnabled = usePreference('enableDataModeling');
-  const isMyQueriesEnabled = useMyQueriesFeature();
+  const isMyQueriesEnabled = usePreference('enableMyQueries');
   return (
     <div>
       {hasWorkspacePlugin('My Queries') && isMyQueriesEnabled && (

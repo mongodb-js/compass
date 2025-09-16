@@ -15,17 +15,20 @@ import WorkspacesPlugin, {
   WorkspacesProvider,
 } from '@mongodb-js/compass-workspaces';
 import {
-  DatabasesWorkspaceTab,
   CollectionsWorkspaceTab,
+  CreateNamespacePlugin,
+  DatabasesWorkspaceTab,
+  DropNamespacePlugin,
+  RenameCollectionPlugin,
 } from '@mongodb-js/compass-databases-collections';
 import { CompassComponentsProvider, css } from '@mongodb-js/compass-components';
 import {
-  WorkspaceTab as CollectionWorkspace,
   CollectionTabsProvider,
+  WorkspaceTab as CollectionWorkspace,
 } from '@mongodb-js/compass-collection';
 import {
-  CompassSidebarPlugin,
   AtlasClusterConnectionsOnlyProvider,
+  CompassSidebarPlugin,
 } from '@mongodb-js/compass-sidebar';
 import CompassQueryBarPlugin from '@mongodb-js/compass-query-bar';
 import { CompassDocumentsPlugin } from '@mongodb-js/compass-crud';
@@ -40,13 +43,8 @@ import { CompassGlobalWritesPlugin } from '@mongodb-js/compass-global-writes';
 import { CompassGenerativeAIPlugin } from '@mongodb-js/compass-generative-ai';
 import ExplainPlanCollectionTabModal from '@mongodb-js/compass-explain-plan';
 import ExportToLanguageCollectionTabModal from '@mongodb-js/compass-export-to-language';
-import {
-  CreateNamespacePlugin,
-  DropNamespacePlugin,
-  RenameCollectionPlugin,
-} from '@mongodb-js/compass-databases-collections';
-import { PreferencesProvider } from 'compass-preferences-model/provider';
 import type { AllPreferences } from 'compass-preferences-model/provider';
+import { PreferencesProvider } from 'compass-preferences-model/provider';
 import FieldStorePlugin from '@mongodb-js/compass-field-store';
 import {
   AtlasServiceProvider,
@@ -58,7 +56,7 @@ import { TelemetryProvider } from '@mongodb-js/compass-telemetry/provider';
 import CompassConnections from '@mongodb-js/compass-connections';
 import { AtlasCloudConnectionStorageProvider } from './connection-storage';
 import { AtlasCloudAuthServiceProvider } from './atlas-auth-service';
-import type { LogFunction, DebugFunction } from './logger';
+import type { DebugFunction, LogFunction } from './logger';
 import { useCompassWebLogger } from './logger';
 import { type TelemetryServiceOptions } from '@mongodb-js/compass-telemetry';
 import { WebWorkspaceTab as WelcomeWorkspaceTab } from '@mongodb-js/compass-welcome';
@@ -78,7 +76,9 @@ import {
   type FavoriteQueryStorageAccess,
   type RecentQueryStorageAccess,
 } from '@mongodb-js/my-queries-storage/provider';
+import { CompassAssistantProvider } from '@mongodb-js/compass-assistant';
 import { CompassAssistantDrawerWithConnections } from './compass-assistant-drawer';
+import { APP_NAMES_FOR_PROMPT } from '@mongodb-js/compass-assistant';
 
 /** @public */
 export type TrackFunction = (
@@ -86,7 +86,9 @@ export type TrackFunction = (
   properties: Record<string, any>
 ) => void;
 
-const WithAtlasProviders: React.FC = ({ children }) => {
+const WithAtlasProviders: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   return (
     <AtlasCloudAuthServiceProvider>
       <AtlasClusterConnectionsOnlyProvider value={true}>
@@ -100,11 +102,11 @@ const WithAtlasProviders: React.FC = ({ children }) => {
   );
 };
 
-const WithStorageProviders: React.FC<{ orgId: string; projectId: string }> = ({
-  children,
-  orgId,
-  projectId,
-}) => {
+const WithStorageProviders: React.FC<{
+  orgId: string;
+  projectId: string;
+  children: React.ReactNode;
+}> = ({ children, orgId, projectId }) => {
   const atlasService = useAtlasServiceContext();
   const authenticatedFetch = atlasService.authenticatedFetch.bind(atlasService);
   const getResourceUrl = (path?: string) => {
@@ -354,6 +356,7 @@ const CompassWeb = ({
     onDebug,
   });
   const preferencesAccess = useCompassWebPreferences(initialPreferences);
+  // TODO (COMPASS-9565): My Queries feature flag will be used to conditionally provide storage providers
   const initialWorkspaceRef = useRef(initialWorkspace);
   const initialWorkspaceTabsRef = useRef(
     initialWorkspaceRef.current ? [initialWorkspaceRef.current] : []
@@ -490,23 +493,31 @@ const CompassWeb = ({
                           }}
                         >
                           <CompassInstanceStorePlugin>
-                            <FieldStorePlugin>
-                              <WithConnectionsStore>
-                                <CompassWorkspace
-                                  initialWorkspaceTabs={
-                                    initialWorkspaceTabsRef.current
-                                  }
-                                  onActiveWorkspaceTabChange={
-                                    onActiveWorkspaceTabChange
-                                  }
-                                  onOpenConnectViaModal={onOpenConnectViaModal}
-                                ></CompassWorkspace>
-                              </WithConnectionsStore>
-                            </FieldStorePlugin>
-                            <CompassGenerativeAIPlugin
-                              projectId={projectId}
-                              isCloudOptIn={true}
-                            />
+                            <CompassAssistantProvider
+                              appNameForPrompt={
+                                APP_NAMES_FOR_PROMPT.DataExplorer
+                              }
+                            >
+                              <FieldStorePlugin>
+                                <WithConnectionsStore>
+                                  <CompassWorkspace
+                                    initialWorkspaceTabs={
+                                      initialWorkspaceTabsRef.current
+                                    }
+                                    onActiveWorkspaceTabChange={
+                                      onActiveWorkspaceTabChange
+                                    }
+                                    onOpenConnectViaModal={
+                                      onOpenConnectViaModal
+                                    }
+                                  ></CompassWorkspace>
+                                </WithConnectionsStore>
+                              </FieldStorePlugin>
+                              <CompassGenerativeAIPlugin
+                                projectId={projectId}
+                                isCloudOptIn={true}
+                              />
+                            </CompassAssistantProvider>
                           </CompassInstanceStorePlugin>
                         </CompassConnections>
                       </AtlasCloudConnectionStorageProvider>

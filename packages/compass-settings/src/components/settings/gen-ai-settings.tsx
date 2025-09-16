@@ -9,11 +9,7 @@ export const GenAISettings: React.FunctionComponent<{
 }> = ({ isAIFeatureEnabled }) => {
   return (
     <div data-testid="gen-ai-settings">
-      <div>
-        Compass users with MongoDB Atlas accounts enjoy access to an extended
-        set of generative AI functionality, starting with natural language
-        processing for quicker query and aggregation authoring.
-      </div>
+      <div>Provides access to advanced generative AI capabilities.</div>
       <SettingsList fields={['enableGenAIFeatures']} />
 
       {isAIFeatureEnabled && (

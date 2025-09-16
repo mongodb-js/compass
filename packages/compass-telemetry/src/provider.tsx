@@ -54,13 +54,20 @@ export interface ExperimentationServices {
     experimentName: ExperimentTestName,
     options?: types.AssignOptions<string>
   ) => Promise<types.AsyncStatus | null>;
+  getAssignment: (
+    experimentName: ExperimentTestName,
+    trackIsInSample: boolean,
+    options?: types.GetAssignmentOptions<types.TypeData>
+  ) => Promise<types.SDKAssignment<ExperimentTestName, string> | null>;
 }
 
 // Service locator for experimentation services (non-component access)
 export const experimentationServiceLocator = createServiceLocator(
   function useExperimentationServices(): ExperimentationServices {
-    const { assignExperiment } = useContext(ExperimentationContext);
-    return { assignExperiment };
+    const { assignExperiment, getAssignment } = useContext(
+      ExperimentationContext
+    );
+    return { assignExperiment, getAssignment };
   },
   'experimentationServiceLocator'
 );

@@ -1955,6 +1955,8 @@ class CrudStoreImpl
       description: `This action can not be undone. This will permanently delete ${
         affected ?? 'an unknown number of'
       } document${affected !== 1 ? 's' : ''}.`,
+      warning:
+        'The document list and count may not always reflect the latest updates in real time. This action will apply to all relevant documents, including those not currently visible, so please ensure they are handled safely.',
       variant: 'danger',
     });
 

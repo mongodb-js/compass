@@ -21,6 +21,7 @@ export type QueryStorageOptions = {
 
 export abstract class CompassQueryStorage<TSchema extends z.Schema> {
   protected readonly userData: IUserData<TSchema>;
+
   constructor(
     schemaValidator: TSchema,
     protected readonly dataType: string,

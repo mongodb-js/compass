@@ -43,6 +43,21 @@ import {
  * Maximum number of sample values to include for each field
  */
 const MAX_SAMPLE_VALUES = 10;
+export const FIELD_NAME_SEPARATOR = '.';
+
+export class ProcessSchemaUnsupportedStateError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'ProcessSchemaUnsupportedStateError';
+  }
+}
+
+export class ProcessSchemaValidationError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'ProcessSchemaValidationError';
+  }
+}
 
 /**
  * Converts a BSON value to its primitive JavaScript equivalent
@@ -122,6 +137,8 @@ function isPrimitiveSchemaType(type: SchemaType): type is PrimitiveSchemaType {
 /**
  * Transforms a raw mongodb-schema Schema into a flat Record<string, FieldInfo>
  * using dot notation for nested fields and bracket notation for arrays.
+ *
+ * The result is used for the Mock Data Generator LLM call.
  */
 export function processSchema(schema: Schema): Record<string, FieldInfo> {
   const result: Record<string, FieldInfo> = {};
@@ -133,6 +150,11 @@ export function processSchema(schema: Schema): Record<string, FieldInfo> {
   // Process each top-level field
   for (const field of schema.fields) {
     processNamedField(field, '', result);
+  }
+
+  // post-processing validation
+  for (const fieldPath of Object.keys(result)) {
+    validateFieldPath(fieldPath);
   }
 
   return result;
@@ -154,6 +176,12 @@ function processNamedField(
   const primaryType = getMostFrequentType(field.types);
   if (!primaryType) {
     return;
+  }
+
+  if (field.name.includes(FIELD_NAME_SEPARATOR)) {
+    throw new ProcessSchemaUnsupportedStateError(
+      `no support for field names that contain a '${FIELD_NAME_SEPARATOR}' ; field name: '${field.name}'`
+    );
   }
 
   const currentPath = pathPrefix ? `${pathPrefix}.${field.name}` : field.name;
@@ -220,4 +248,26 @@ function getMostFrequentType(types: SchemaType[]): SchemaType | null {
     .sort((a, b) => (b.probability || 0) - (a.probability || 0));
 
   return validTypes[0] || null;
+}
+
+/**
+ * Note: This validation takes a defensive stance. As illustrated by the unit tests, malformed
+ * inputs are required to simulate these unlikely errors.
+ */
+function validateFieldPath(fieldPath: string) {
+  const parts = fieldPath.split(FIELD_NAME_SEPARATOR);
+
+  for (const part of parts) {
+    if (part === '') {
+      throw new ProcessSchemaValidationError(
+        `invalid fieldPath '${fieldPath}': field parts cannot be empty`
+      );
+    }
+
+    if (part.replaceAll('[]', '') === '') {
+      throw new ProcessSchemaValidationError(
+        `invalid fieldPath '${fieldPath}': field parts must have characters other than '[]'`
+      );
+    }
+  }
 }

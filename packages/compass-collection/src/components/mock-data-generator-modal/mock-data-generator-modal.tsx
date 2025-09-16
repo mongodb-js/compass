@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { connect } from 'react-redux';
 
 import {
   css,
+  Body,
   Button,
   ButtonVariant,
   ModalBody,
@@ -12,7 +13,7 @@ import {
   spacing,
 } from '@mongodb-js/compass-components';
 
-import { MockDataGeneratorStep } from './types';
+import { type MockDataGeneratorState, MockDataGeneratorStep } from './types';
 import { StepButtonLabelMap } from './constants';
 import type { CollectionState } from '../../modules/collection-tab';
 import {
@@ -21,8 +22,9 @@ import {
   generateFakerMappings,
   mockDataGeneratorPreviousButtonClicked,
 } from '../../modules/collection-tab';
-import { default as SchemaConfirmationScreen } from './raw-schema-confirmation';
-import FakerSchemaEditor from './faker-schema-editor';
+import RawSchemaConfirmationScreen from './raw-schema-confirmation-screen';
+import FakerSchemaEditorScreen from './faker-schema-editor-screen';
+import ScriptScreen from './script-screen';
 
 const footerStyles = css`
   flex-direction: row;
@@ -35,6 +37,11 @@ const rightButtonsStyles = css`
   flex-direction: row;
 `;
 
+const namespaceStyles = css({
+  marginTop: spacing[200],
+  marginBottom: spacing[400],
+});
+
 interface Props {
   isOpen: boolean;
   onClose: () => void;
@@ -42,6 +49,8 @@ interface Props {
   onNextStep: () => void;
   onConfirmSchema: () => Promise<void>;
   onPreviousStep: () => void;
+  namespace: string;
+  fakerSchemaGenerationState: MockDataGeneratorState;
 }
 
 const MockDataGeneratorModal = ({
@@ -51,7 +60,36 @@ const MockDataGeneratorModal = ({
   onNextStep,
   onConfirmSchema,
   onPreviousStep,
+  namespace,
+  fakerSchemaGenerationState,
 }: Props) => {
+  const [isSchemaConfirmed, setIsSchemaConfirmed] =
+    React.useState<boolean>(false);
+
+  const modalBodyContent = useMemo(() => {
+    switch (currentStep) {
+      case MockDataGeneratorStep.SCHEMA_CONFIRMATION:
+        return <RawSchemaConfirmationScreen />;
+      case MockDataGeneratorStep.SCHEMA_EDITOR:
+        return (
+          <FakerSchemaEditorScreen
+            isSchemaConfirmed={isSchemaConfirmed}
+            onSchemaConfirmed={setIsSchemaConfirmed}
+            fakerSchemaGenerationState={fakerSchemaGenerationState}
+          />
+        );
+      case MockDataGeneratorStep.DOCUMENT_COUNT:
+        return <></>; // TODO: CLOUDP-333856
+      case MockDataGeneratorStep.PREVIEW_DATA:
+        return <></>; // TODO: CLOUDP-333857
+      case MockDataGeneratorStep.GENERATE_DATA:
+        return <ScriptScreen />;
+    }
+  }, [currentStep, fakerSchemaGenerationState, isSchemaConfirmed]);
+
+  const isNextButtonDisabled =
+    currentStep === MockDataGeneratorStep.SCHEMA_EDITOR && !isSchemaConfirmed;
+
   const handleNextClick = () => {
     if (currentStep === MockDataGeneratorStep.GENERATE_DATA) {
       onClose();
@@ -62,18 +100,20 @@ const MockDataGeneratorModal = ({
     }
   };
 
-  let stepContent: React.ReactNode;
+  const shouldShowNamespace =
+    currentStep !== MockDataGeneratorStep.GENERATE_DATA;
 
-  if (currentStep === MockDataGeneratorStep.SCHEMA_CONFIRMATION) {
-    stepContent = <SchemaConfirmationScreen />;
-  }
-
-  if (currentStep === MockDataGeneratorStep.SCHEMA_EDITOR) {
-    stepContent = <FakerSchemaEditor />;
-  }
+  const handlePreviousClick = () => {
+    if (currentStep === MockDataGeneratorStep.SCHEMA_EDITOR) {
+      // reset isSchemaConfirmed state when previous step is clicked
+      setIsSchemaConfirmed(false);
+    }
+    onPreviousStep();
+  };
 
   return (
     <Modal
+      size="large"
       open={isOpen}
       setOpen={(open) => {
         if (!open) {
@@ -84,12 +124,16 @@ const MockDataGeneratorModal = ({
     >
       <ModalHeader title="Generate Mock Data" />
       <ModalBody>
-        {stepContent}
-        <div data-testid={`generate-mock-data-step-${currentStep}`} />
+        {shouldShowNamespace && (
+          <Body className={namespaceStyles}>{namespace}</Body>
+        )}
+        <div data-testid={`generate-mock-data-step-${currentStep}`}>
+          {modalBodyContent}
+        </div>
       </ModalBody>
       <ModalFooter className={footerStyles}>
         <Button
-          onClick={onPreviousStep}
+          onClick={handlePreviousClick}
           disabled={currentStep === MockDataGeneratorStep.SCHEMA_CONFIRMATION}
         >
           Back
@@ -100,6 +144,7 @@ const MockDataGeneratorModal = ({
             variant={ButtonVariant.Primary}
             onClick={handleNextClick}
             data-testid="next-step-button"
+            disabled={isNextButtonDisabled}
           >
             {StepButtonLabelMap[currentStep]}
           </Button>
@@ -112,6 +157,8 @@ const MockDataGeneratorModal = ({
 const mapStateToProps = (state: CollectionState) => ({
   isOpen: state.mockDataGenerator.isModalOpen,
   currentStep: state.mockDataGenerator.currentStep,
+  namespace: state.namespace,
+  fakerSchemaGenerationState: state.fakerSchemaGeneration,
 });
 
 const ConnectedMockDataGeneratorModal = connect(mapStateToProps, {
