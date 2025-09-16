@@ -534,13 +534,15 @@ describe('AssistantChat', function () {
   });
 
   describe('related sources', function () {
-    it('displays related resources links for assistant messages that include them', function () {
+    it('displays related resources links for assistant messages that include them', async function () {
       renderWithChat(mockMessages);
       userEvent.click(screen.getByLabelText('Expand Related Resources'));
-      expect(screen.getByRole('link', { name: 'MongoDB' })).to.have.attribute(
-        'href',
-        'https://en.wikipedia.org/wiki/MongoDB'
-      );
+      await waitFor(() => {
+        expect(screen.getByRole('link', { name: 'MongoDB' })).to.have.attribute(
+          'href',
+          'https://en.wikipedia.org/wiki/MongoDB'
+        );
+      });
     });
 
     it('does not display related resources section when there are no source-url parts', function () {

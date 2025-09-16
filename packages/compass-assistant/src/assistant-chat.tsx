@@ -192,7 +192,7 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
     sources: message.parts
       .filter((part) => part.type === 'source-url')
       .map((part) => ({
-        children: part.title || part.url,
+        children: part.title || 'Documentation Link',
         href: part.url,
         variant: 'Docs',
       })),
