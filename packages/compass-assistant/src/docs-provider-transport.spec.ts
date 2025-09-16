@@ -9,7 +9,7 @@ import { MockLanguageModelV2 } from 'ai/test';
 import type { UIMessageChunk } from 'ai';
 import { waitFor } from '@mongodb-js/testing-library-compass';
 
-describe.only('DocsProviderTransport', function () {
+describe('DocsProviderTransport', function () {
   describe('shouldExcludeMessage', function () {
     it('returns false for messages without confirmation metadata', function () {
       const message: AssistantMessage = {
