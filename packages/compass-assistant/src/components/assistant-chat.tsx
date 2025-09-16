@@ -231,7 +231,16 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
             message.id === confirmedMessage.id &&
             message.metadata?.confirmation
           ) {
-            message.metadata.confirmation.state = newState;
+            return {
+              ...message,
+              metadata: {
+                ...message.metadata,
+                confirmation: {
+                  ...message.metadata.confirmation,
+                  state: newState,
+                },
+              },
+            };
           }
           return message;
         });
