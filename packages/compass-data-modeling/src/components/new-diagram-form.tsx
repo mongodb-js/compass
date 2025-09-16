@@ -16,6 +16,7 @@ import {
   selectCollections,
   selectConnection,
   selectDatabase,
+  toggleInferRelationships,
 } from '../store/generate-diagram-wizard';
 import {
   Banner,
@@ -35,7 +36,9 @@ import {
   SearchInput,
   Combobox,
   ComboboxOption,
+  Checkbox,
 } from '@mongodb-js/compass-components';
+import { usePreference } from 'compass-preferences-model/provider';
 
 const footerStyles = css({
   flexDirection: 'row',
@@ -45,12 +48,6 @@ const footerStyles = css({
 const footerTextStyles = css({ marginRight: 'auto' });
 
 const footerActionsStyles = css({ display: 'flex', gap: spacing[200] });
-
-const formContainerStyles = css({
-  display: 'flex',
-  flexDirection: 'column',
-  gap: spacing[400],
-});
 
 const FormStepContainer: React.FunctionComponent<{
   title: string;
@@ -112,20 +109,27 @@ const FormStepContainer: React.FunctionComponent<{
   );
 };
 
-const SelectListStyles = css({
-  height: 300,
+const selectListStyles = css({
+  maxHeight: 200,
   overflow: 'scroll',
 });
 
 function SelectCollectionsStep({
   collections,
   selectedCollections,
+  automaticallyInferRelationships,
   onCollectionsSelect,
+  onAutomaticallyInferRelationshipsToggle,
 }: {
   collections: string[];
   selectedCollections: string[];
+  automaticallyInferRelationships: boolean;
   onCollectionsSelect: (colls: string[]) => void;
+  onAutomaticallyInferRelationshipsToggle: (newVal: boolean) => void;
 }) {
+  const showAutoInferOption = usePreference(
+    'enableAutomaticRelationshipInference'
+  );
   const [searchTerm, setSearchTerm] = useState('');
   const filteredCollections = useMemo(() => {
     try {
@@ -136,50 +140,79 @@ function SelectCollectionsStep({
     }
   }, [collections, searchTerm]);
   return (
-    <FormFieldContainer className={formContainerStyles}>
-      <SearchInput
-        aria-label="Search collections"
-        value={searchTerm}
-        data-testid="new-diagram-search-collections"
-        onChange={(e) => {
-          setSearchTerm(e.target.value);
-        }}
-      />
-      <SelectList
-        className={SelectListStyles}
-        items={filteredCollections.map((collName) => {
-          return {
-            id: collName,
-            selected: selectedCollections.includes(collName),
-            'data-testid': `new-diagram-collection-checkbox-${collName}`,
-          };
-        })}
-        label={{ displayLabelKey: 'id', name: 'Collection Name' }}
-        onChange={(items: { id: string; selected: boolean }[]) => {
-          // When a user is searching, less collections are shown to the user
-          // and we need to keep existing selected collections selected.
-          const currentSelectedItems = selectedCollections.filter(
-            (collName) => {
-              const item = items.find((x) => x.id === collName);
-              // The already selected item was not shown to the user (using search),
-              // and we have to keep it selected.
-              return item ? item.selected : true;
-            }
-          );
+    <>
+      <FormFieldContainer>
+        <SearchInput
+          aria-label="Search collections"
+          value={searchTerm}
+          data-testid="new-diagram-search-collections"
+          onChange={(e) => {
+            setSearchTerm(e.target.value);
+          }}
+        />
+      </FormFieldContainer>
+      <FormFieldContainer>
+        <SelectList
+          className={selectListStyles}
+          items={filteredCollections.map((collName) => {
+            return {
+              id: collName,
+              selected: selectedCollections.includes(collName),
+              'data-testid': `new-diagram-collection-checkbox-${collName}`,
+            };
+          })}
+          label={{ displayLabelKey: 'id', name: 'Collection Name' }}
+          onChange={(items) => {
+            // When a user is searching, less collections are shown to the user
+            // and we need to keep existing selected collections selected.
+            const currentSelectedItems = selectedCollections.filter(
+              (collName) => {
+                const item = items.find((x) => x.id === collName);
+                // The already selected item was not shown to the user (using search),
+                // and we have to keep it selected.
+                return item ? item.selected : true;
+              }
+            );
 
-          const newSelectedItems = items
-            .filter((item) => {
-              return item.selected;
-            })
-            .map((item) => {
-              return item.id;
-            });
-          onCollectionsSelect(
-            Array.from(new Set([...newSelectedItems, ...currentSelectedItems]))
-          );
-        }}
-      ></SelectList>
-    </FormFieldContainer>
+            const newSelectedItems = items
+              .filter((item) => {
+                return item.selected;
+              })
+              .map((item) => {
+                return item.id;
+              });
+            onCollectionsSelect(
+              Array.from(
+                new Set([...newSelectedItems, ...currentSelectedItems])
+              )
+            );
+          }}
+        ></SelectList>
+      </FormFieldContainer>
+      {showAutoInferOption && (
+        <FormFieldContainer>
+          <Checkbox
+            checked={automaticallyInferRelationships}
+            onChange={(evt) => {
+              onAutomaticallyInferRelationshipsToggle(
+                evt.currentTarget.checked
+              );
+            }}
+            label="Automatically infer relationships"
+            // @ts-expect-error Element is accepted, but not typed correctly
+            description={
+              <>
+                Using a special algorithm, Compass will try to automatically
+                discover relationships in selected collections. This operation
+                will run multiple find requests against{' '}
+                <strong>indexed fields</strong> of the collections and might
+                take some extra time.
+              </>
+            }
+          ></Checkbox>
+        </FormFieldContainer>
+      )}
+    </>
   );
 }
 
@@ -199,6 +232,7 @@ type NewDiagramFormProps = {
   selectedCollections: string[];
   error: Error | null;
   analysisInProgress: boolean;
+  automaticallyInferRelationships: boolean;
 
   onCancel: () => void;
   onNameChange: (name: string) => void;
@@ -212,6 +246,7 @@ type NewDiagramFormProps = {
   onDatabaseConfirmSelection: () => void;
   onCollectionsSelect: (collections: string[]) => void;
   onCollectionsSelectionConfirm: () => void;
+  onAutomaticallyInferRelationshipsToggle: (newVal: boolean) => void;
 };
 
 const NewDiagramForm: React.FunctionComponent<NewDiagramFormProps> = ({
@@ -226,6 +261,7 @@ const NewDiagramForm: React.FunctionComponent<NewDiagramFormProps> = ({
   selectedCollections,
   error,
   analysisInProgress,
+  automaticallyInferRelationships,
   onCancel,
   onNameChange,
   onNameConfirm,
@@ -238,6 +274,7 @@ const NewDiagramForm: React.FunctionComponent<NewDiagramFormProps> = ({
   onDatabaseConfirmSelection,
   onCollectionsSelect,
   onCollectionsSelectionConfirm,
+  onAutomaticallyInferRelationshipsToggle,
 }) => {
   const connections = useConnectionsList();
   const [activeConnections, otherConnections] = useMemo(() => {
@@ -349,7 +386,7 @@ const NewDiagramForm: React.FunctionComponent<NewDiagramFormProps> = ({
         );
       case 'select-connection':
         return (
-          <FormFieldContainer className={formContainerStyles}>
+          <FormFieldContainer>
             <Combobox
               label=""
               aria-label="Select connection"
@@ -419,16 +456,22 @@ const NewDiagramForm: React.FunctionComponent<NewDiagramFormProps> = ({
             collections={collections}
             onCollectionsSelect={onCollectionsSelect}
             selectedCollections={selectedCollections}
+            automaticallyInferRelationships={automaticallyInferRelationships}
+            onAutomaticallyInferRelationshipsToggle={
+              onAutomaticallyInferRelationshipsToggle
+            }
           />
         );
     }
   }, [
     activeConnections,
+    automaticallyInferRelationships,
     collections,
     connections.length,
     currentStep,
     databases,
     diagramName,
+    onAutomaticallyInferRelationshipsToggle,
     onCollectionsSelect,
     onConnectionSelect,
     onDatabaseSelect,
@@ -516,6 +559,8 @@ export default connect(
       error,
       analysisInProgress:
         state.analysisProgress.analysisProcessStatus === 'in-progress',
+      automaticallyInferRelationships:
+        state.generateDiagramWizard.automaticallyInferRelations,
     };
   },
   {
@@ -531,5 +576,6 @@ export default connect(
     onDatabaseConfirmSelection: confirmSelectDatabase,
     onCollectionsSelect: selectCollections,
     onCollectionsSelectionConfirm: confirmSelectedCollections,
+    onAutomaticallyInferRelationshipsToggle: toggleInferRelationships,
   }
 )(NewDiagramForm);
