@@ -33,22 +33,30 @@ export class DocsProviderTransport implements ChatTransport<AssistantMessage> {
     this.instructions = instructions;
   }
 
+  static emptyStream = new ReadableStream<UIMessageChunk>({
+    start(controller) {
+      controller.close();
+    },
+  });
+
   sendMessages({
     messages,
     abortSignal,
   }: Parameters<ChatTransport<AssistantMessage>['sendMessages']>[0]) {
+    // If the most recent message is a message that is meant to be excluded
+    // then we do not need to send this request to the assistant API as it's likely
+    // redundant otherwise.
+    if (shouldExcludeMessage(messages[messages.length - 1])) {
+      return Promise.resolve(DocsProviderTransport.emptyStream);
+    }
+
     const filteredMessages = messages.filter(
       (message) => !shouldExcludeMessage(message)
     );
 
     // If no messages remain after filtering, return an empty stream
     if (filteredMessages.length === 0) {
-      const emptyStream = new ReadableStream<UIMessageChunk>({
-        start(controller) {
-          controller.close();
-        },
-      });
-      return Promise.resolve(emptyStream);
+      return Promise.resolve(DocsProviderTransport.emptyStream);
     }
 
     const result = streamText({
