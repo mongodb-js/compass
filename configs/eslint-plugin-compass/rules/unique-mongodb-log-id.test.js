@@ -17,7 +17,7 @@ const testOptions = {
   ],
 };
 
-ruleTester.run('no-leafygreen-outside-compass-components', rule, {
+ruleTester.run('unique-mongodb-log-id', rule, {
   valid: [
     {
       code: 'mongoLogId(10);',
