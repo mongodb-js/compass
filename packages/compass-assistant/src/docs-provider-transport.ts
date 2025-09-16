@@ -40,7 +40,7 @@ export class DocsProviderTransport implements ChatTransport<UIMessage> {
       },
     });
 
-    return Promise.resolve(result.toUIMessageStream());
+    return Promise.resolve(result.toUIMessageStream({ sendSources: true }));
   }
 
   reconnectToStream(): Promise<ReadableStream<UIMessageChunk> | null> {

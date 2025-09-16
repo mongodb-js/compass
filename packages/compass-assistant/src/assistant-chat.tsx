@@ -7,7 +7,6 @@ import {
   LgChatChatWindow,
   LgChatLeafygreenChatProvider,
   LgChatMessage,
-  LgChatMessageActions,
   LgChatInputBar,
   spacing,
   css,
@@ -26,7 +25,6 @@ const { DisclaimerText } = LgChatChatDisclaimer;
 const { ChatWindow } = LgChatChatWindow;
 const { LeafyGreenChatProvider, Variant } = LgChatLeafygreenChatProvider;
 const { Message } = LgChatMessage;
-const { MessageActions } = LgChatMessageActions;
 const { InputBar } = LgChatInputBar;
 
 const GEN_AI_FAQ_LINK = 'https://www.mongodb.com/docs/generative-ai-faq/';
@@ -141,6 +139,12 @@ const errorBannerWrapperStyles = css({
   margin: spacing[400],
 });
 
+const messagesWrapStyles = css({
+  display: 'flex',
+  flexDirection: 'column',
+  gap: spacing[400],
+});
+
 export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
   chat,
   hasNonGenuineConnections,
@@ -185,6 +189,13 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
         .map((part) => part.text)
         .join(''),
     isSender: message.role === 'user',
+    sources: message.parts
+      .filter((part) => part.type === 'source-url')
+      .map((part) => ({
+        children: part.title || 'Documentation Link',
+        href: part.url,
+        variant: 'Docs',
+      })),
   }));
 
   const handleMessageSend = useCallback(
@@ -247,7 +258,7 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
             data-testid="assistant-chat-messages"
             className={messageFeedFixesStyles}
           >
-            <div>
+            <div className={messagesWrapStyles}>
               {lgMessages.map((messageFields) => (
                 <Message
                   key={messageFields.id}
@@ -256,10 +267,13 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
                   data-testid={`assistant-message-${messageFields.id}`}
                 >
                   {messageFields.isSender === false && (
-                    <MessageActions
+                    <Message.Actions
                       onRatingChange={handleFeedback}
                       onSubmitFeedback={handleFeedback}
                     />
+                  )}
+                  {messageFields.sources.length > 0 && (
+                    <Message.Links links={messageFields.sources} />
                   )}
                 </Message>
               ))}
