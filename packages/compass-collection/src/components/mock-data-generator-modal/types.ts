@@ -35,7 +35,4 @@ export type MockDataGeneratorState =
   | MockDataGeneratorCompletedState
   | MockDataGeneratorErrorState;
 
-export type FakerSchemaMapping = Omit<
-  MockDataSchemaResponse['content']['fields'][number],
-  'isArray'
->;
+export type FakerSchemaMapping = MockDataSchemaResponse['fields'][number];

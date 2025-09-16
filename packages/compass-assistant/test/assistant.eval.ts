@@ -178,7 +178,6 @@ async function makeAssistantCall(
 
   const sources = resolvedSources
     .map((source) => {
-      console.log(source);
       return source.url;
     })
     .filter((url) => !!url);

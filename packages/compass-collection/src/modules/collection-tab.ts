@@ -703,7 +703,7 @@ const validateFakerSchema = (
   fakerSchema: MockDataSchemaResponse,
   logger: Logger
 ) => {
-  return fakerSchema.content.fields.map((field) => {
+  return fakerSchema.fields.map((field) => {
     const { fakerMethod } = field;
 
     const [moduleName, methodName, ...rest] = fakerMethod.split('.');
