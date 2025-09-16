@@ -1,36 +1,33 @@
 import {
   type ChatTransport,
+  type LanguageModel,
   type UIMessageChunk,
   convertToModelMessages,
   streamText,
 } from 'ai';
-import { createOpenAI } from '@ai-sdk/openai';
 import type { AssistantMessage } from './compass-assistant-provider';
 
 /** Returns true if the message should be excluded from being sent to the assistant API. */
 export function shouldExcludeMessage({ metadata }: AssistantMessage) {
   if (metadata?.confirmation) {
-    return metadata.confirmation.state !== 'confirmed';
+    return true;
   }
   return false;
 }
 
 export class DocsProviderTransport implements ChatTransport<AssistantMessage> {
-  private openai: ReturnType<typeof createOpenAI>;
+  private model: LanguageModel;
   private instructions: string;
 
   constructor({
-    baseUrl,
     instructions,
+    model,
   }: {
-    baseUrl: string;
     instructions: string;
+    model: LanguageModel;
   }) {
-    this.openai = createOpenAI({
-      baseURL: baseUrl,
-      apiKey: '',
-    });
     this.instructions = instructions;
+    this.model = model;
   }
 
   static emptyStream = new ReadableStream<UIMessageChunk>({
@@ -60,7 +57,7 @@ export class DocsProviderTransport implements ChatTransport<AssistantMessage> {
     }
 
     const result = streamText({
-      model: this.openai.responses('mongodb-chat-latest'),
+      model: this.model,
       messages: convertToModelMessages(filteredMessages),
       abortSignal: abortSignal,
       providerOptions: {

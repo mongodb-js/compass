@@ -97,7 +97,7 @@ describe('ConfirmationMessage', function () {
       render(<ConfirmationMessage {...defaultProps} state="confirmed" />);
 
       expect(screen.getByText('Request confirmed')).to.exist;
-      // This is sic from the icon library
+      // sic from the icon library
       expect(screen.getByLabelText('Checkmark With Circle Icon')).to.exist;
 
       expect(screen.queryByText('Confirm')).to.not.exist;
@@ -108,7 +108,8 @@ describe('ConfirmationMessage', function () {
       render(<ConfirmationMessage {...defaultProps} state="rejected" />);
 
       expect(screen.getByText('Request cancelled')).to.exist;
-      expect(screen.getByLabelText('X With Circle Icon')).to.exist;
+      // sic from the icon library
+      expect(screen.getByLabelText('XWith Circle Icon')).to.exist;
 
       expect(screen.queryByText('Confirm')).to.not.exist;
       expect(screen.queryByText('Cancel')).to.not.exist;
