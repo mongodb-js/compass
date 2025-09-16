@@ -43,7 +43,6 @@ import type {
   MockDataGeneratorState,
 } from '../components/mock-data-generator-modal/types';
 
-// @ts-expect-error TypeScript warns us about importing ESM module from CommonJS module, but we can ignore since this code will be consumed by webpack.
 import { faker } from '@faker-js/faker/locale/en';
 
 const DEFAULT_SAMPLE_SIZE = 100;
@@ -346,6 +345,8 @@ const reducer: Reducer<CollectionState, Action> = (
     switch (currentStep) {
       case MockDataGeneratorStep.SCHEMA_EDITOR:
         nextStep = MockDataGeneratorStep.DOCUMENT_COUNT;
+        // uncomment this to simulate Preview step while document count is not implemented
+        nextStep = MockDataGeneratorStep.PREVIEW_DATA;
         break;
       case MockDataGeneratorStep.DOCUMENT_COUNT:
         nextStep = MockDataGeneratorStep.PREVIEW_DATA;

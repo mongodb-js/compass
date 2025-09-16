@@ -36,3 +36,12 @@ export type MockDataGeneratorState =
   | MockDataGeneratorErrorState;
 
 export type FakerSchemaMapping = MockDataSchemaResponse['fields'][number];
+
+/**
+ * The faker schema mapping is validated if it has been (1) confirmed by the user and
+ * (2) TODO(CLOUDP-333855): pre-processed to prevent harmful calls like those that
+ * block the main thread or cause out of memory errors
+ */
+export type ValidatedFakerSchemaMapping = FakerSchemaMapping & {
+  readonly __brand: unique symbol;
+};
