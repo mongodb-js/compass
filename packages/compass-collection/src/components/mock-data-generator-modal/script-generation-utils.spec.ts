@@ -19,7 +19,7 @@ function testDocumentCodeExecution(script: string): any {
   // The "{ ... }" part is the document structure
 
   // Extract the return statement from the generateDocument function
-  const returnMatch = script.match(/return ([\s\S]*?);[\s]*\}/);
+  const returnMatch = script.match(/return (.*?);\s*\}/s);
   expect(returnMatch, 'Should contain return statement').to.not.be.null;
 
   // Get the document structure expression (everything between "return" and ";")
