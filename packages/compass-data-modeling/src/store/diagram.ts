@@ -696,30 +696,48 @@ export function deleteRelationship(
 
 export function deleteCollection(
   ns: string
-): DataModelingThunkAction<boolean, ApplyEditAction | ApplyEditFailedAction> {
-  return applyEdit({ type: 'RemoveCollection', ns });
+): DataModelingThunkAction<void, ApplyEditAction | ApplyEditFailedAction> {
+  return (dispatch, getState, { track }) => {
+    track('Data Modeling Collection Removed', {
+      source: 'side_panel',
+    });
+
+    dispatch(applyEdit({ type: 'RemoveCollection', ns }));
+  };
 }
 
 export function updateCollectionNote(
   ns: string,
   note: string
-): DataModelingThunkAction<boolean, ApplyEditAction | ApplyEditFailedAction> {
+): DataModelingThunkAction<void, ApplyEditAction | ApplyEditFailedAction> {
   return applyEdit({ type: 'UpdateCollectionNote', ns, note });
 }
 
 export function removeField(
   ns: string,
   field: FieldPath
-): DataModelingThunkAction<boolean, ApplyEditAction | ApplyEditFailedAction> {
-  return applyEdit({ type: 'RemoveField', ns, field });
+): DataModelingThunkAction<void, ApplyEditAction | ApplyEditFailedAction> {
+  return (dispatch, getState, { track }) => {
+    track('Data Modeling Field Removed', {
+      source: 'side_panel',
+    });
+
+    dispatch(applyEdit({ type: 'RemoveField', ns, field }));
+  };
 }
 
 export function renameField(
   ns: string,
   field: FieldPath,
   newName: string
-): DataModelingThunkAction<boolean, ApplyEditAction | ApplyEditFailedAction> {
-  return applyEdit({ type: 'RenameField', ns, field, newName });
+): DataModelingThunkAction<void, ApplyEditAction | ApplyEditFailedAction> {
+  return (dispatch, getState, { track }) => {
+    track('Data Modeling Field Renamed', {
+      source: 'side_panel',
+    });
+
+    dispatch(applyEdit({ type: 'RenameField', ns, field, newName }));
+  };
 }
 
 export function changeFieldType(
@@ -727,7 +745,7 @@ export function changeFieldType(
   fieldPath: FieldPath,
   newTypes: string[]
 ): DataModelingThunkAction<void, ApplyEditAction | ApplyEditFailedAction> {
-  return (dispatch, getState) => {
+  return (dispatch, getState, { track }) => {
     const collectionSchema = selectCurrentModelFromState(
       getState()
     ).collections.find((collection) => collection.ns === ns)?.jsonSchema;
@@ -738,6 +756,26 @@ export function changeFieldType(
     });
     if (!field) throw new Error('Field not found in schema');
     const to = getSchemaWithNewTypes(field.jsonSchema, newTypes);
+
+    track('Data Modeling Field Type Changed', {
+      source: 'side_panel',
+      // If the field had a single type, we report that, otherwise 'mixed'.
+      from: field.jsonSchema.bsonType
+        ? Array.isArray(field.jsonSchema.bsonType)
+          ? field.jsonSchema.bsonType.length === 1
+            ? field.jsonSchema.bsonType[0]
+            : 'mixed'
+          : field.jsonSchema.bsonType
+        : undefined,
+      to: to.bsonType
+        ? Array.isArray(to.bsonType)
+          ? to.bsonType.length === 1
+            ? to.bsonType[0]
+            : 'mixed'
+          : to.bsonType
+        : undefined,
+    });
+
     dispatch(
       applyEdit({
         type: 'ChangeFieldType',
@@ -786,10 +824,10 @@ export function addCollection(
   ns?: string,
   position?: [number, number]
 ): DataModelingThunkAction<
-  boolean,
+  void,
   ApplyEditAction | ApplyEditFailedAction | CollectionSelectedAction
 > {
-  return (dispatch, getState) => {
+  return (dispatch, getState, { track }) => {
     const existingCollections = selectCurrentModelFromState(
       getState()
     ).collections;
@@ -801,6 +839,10 @@ export function addCollection(
         indexes: [],
       });
     }
+
+    track('Data Modeling Collection Added', {
+      source: 'toolbar',
+    });
 
     const edit: Omit<
       Extract<Edit, { type: 'AddCollection' }>,
@@ -820,7 +862,6 @@ export function addCollection(
       position,
     };
     dispatch(applyEdit(edit));
-    return true;
   };
 }
 

@@ -2920,6 +2920,42 @@ type CreateIndexStrategiesDocumentationClicked = CommonEvent<{
 }>;
 
 /**
+ * This event is fired when user adds a collection in a data modeling diagram.
+ *
+ * @category Data Modeling
+ */
+type DataModelingDiagramCollectionAdded = CommonEvent<{
+  name: 'Data Modeling Collection Added';
+  payload: {
+    source: 'toolbar';
+  };
+}>;
+
+/**
+ * This event is fired when user removes a collection in a data modeling diagram.
+ *
+ * @category Data Modeling
+ */
+type DataModelingDiagramCollectionRemoved = CommonEvent<{
+  name: 'Data Modeling Collection Removed';
+  payload: {
+    source: 'side_panel';
+  };
+}>;
+
+/**
+ * This event is fired when user renames a collection in a data modeling diagram.
+ *
+ * @category Data Modeling
+ */
+type DataModelingDiagramCollectionRenamed = CommonEvent<{
+  name: 'Data Modeling Collection Renamed';
+  payload: {
+    source: 'side_panel';
+  };
+}>;
+
+/**
  * This event is fired when a new data modeling diagram is created
  *
  * @category Data Modeling
@@ -2940,6 +2976,44 @@ type DataModelingDiagramExported = CommonEvent<{
   name: 'Data Modeling Diagram Exported';
   payload: {
     format: 'png' | 'json' | 'diagram';
+  };
+}>;
+
+/**
+ * This event is fired when user removes a field in a data modeling diagram.
+ *
+ * @category Data Modeling
+ */
+type DataModelingDiagramFieldRemoved = CommonEvent<{
+  name: 'Data Modeling Field Removed';
+  payload: {
+    source: 'side_panel';
+  };
+}>;
+
+/**
+ * This event is fired when user renames a field in a data modeling diagram.
+ *
+ * @category Data Modeling
+ */
+type DataModelingDiagramFieldRenamed = CommonEvent<{
+  name: 'Data Modeling Field Renamed';
+  payload: {
+    source: 'side_panel';
+  };
+}>;
+
+/**
+ * This event is fired when user changes a field type in a data modeling diagram.
+ *
+ * @category Data Modeling
+ */
+type DataModelingDiagramFieldTypeChanged = CommonEvent<{
+  name: 'Data Modeling Field Type Changed';
+  payload: {
+    source: 'side_panel';
+    from?: string;
+    to?: string;
   };
 }>;
 
@@ -3064,7 +3138,18 @@ export type TelemetryEvent =
   | ConnectionRemovedEvent
   | CurrentOpShowOperationDetailsEvent
   | DatabaseCreatedEvent
+  | DataModelingDiagramCollectionAdded
+  | DataModelingDiagramCollectionRemoved
+  | DataModelingDiagramCollectionRenamed
   | DataModelingDiagramCreated
+  | DataModelingDiagramExported
+  | DataModelingDiagramFieldRemoved
+  | DataModelingDiagramFieldRenamed
+  | DataModelingDiagramFieldTypeChanged
+  | DataModelingDiagramImported
+  | DataModelingDiagramRelationshipAdded
+  | DataModelingDiagramRelationshipEdited
+  | DataModelingDiagramRelationshipDeleted
   | DeleteExportedEvent
   | DeleteExportOpenedEvent
   | DetailViewHideOperationDetailsEvent
@@ -3161,10 +3246,5 @@ export type TelemetryEvent =
   | CreateIndexIndexSuggestionsCopied
   | CreateIndexStrategiesDocumentationClicked
   | UUIDEncounteredEvent
-  | DataModelingDiagramExported
-  | DataModelingDiagramImported
-  | DataModelingDiagramRelationshipAdded
-  | DataModelingDiagramRelationshipEdited
-  | DataModelingDiagramRelationshipDeleted
   | ContextMenuOpened
   | ContextMenuItemClicked;
