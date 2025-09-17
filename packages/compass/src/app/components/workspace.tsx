@@ -42,7 +42,7 @@ import { getConnectionTitle } from '@mongodb-js/connection-info';
 import { useConnectionsListRef } from '@mongodb-js/compass-connections/provider';
 import { DataModelingWorkspaceTab } from '@mongodb-js/compass-data-modeling';
 import { CompassAssistantDrawer } from '@mongodb-js/compass-assistant';
-import { FileUserData } from '../../../../compass-user-data/dist/user-data';
+import { FileUserData } from '@mongodb-js/compass-user-data';
 import { WorkspacesStateSchema } from '@mongodb-js/compass-workspaces';
 import { EJSON } from 'bson';
 

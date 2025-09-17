@@ -10,7 +10,7 @@ import type { WorkspaceTab } from '../types';
 import Workspaces from './workspaces';
 import { connect } from '../stores/context';
 import { WorkspacesServiceProvider } from '../provider';
-import type { IUserData } from '../../../compass-user-data/dist/user-data';
+import type { IUserData } from '@mongodb-js/compass-user-data';
 import type { WorkspacesStateSchema } from '../stores/workspaces-storage';
 
 type WorkspacesWithSidebarProps = {

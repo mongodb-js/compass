@@ -39,7 +39,7 @@ import {
 } from '@mongodb-js/compass-app-stores/provider';
 import type { PreferencesAccess } from 'compass-preferences-model/provider';
 import { preferencesLocator } from 'compass-preferences-model/provider';
-import type { IUserData } from '../../compass-user-data/dist/user-data';
+import type { IUserData } from '@mongodb-js/compass-user-data';
 import type { WorkspacesStateSchema } from './stores/workspaces-storage';
 
 export type WorkspacesServices = {

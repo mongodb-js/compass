@@ -64,10 +64,7 @@ import {
   CompassAssistantDrawer,
   CompassAssistantProvider,
 } from '@mongodb-js/compass-assistant';
-import {
-  AtlasUserData,
-  type IUserData,
-} from '../../compass-user-data/dist/user-data';
+import { AtlasUserData, type IUserData } from '@mongodb-js/compass-user-data';
 import { WorkspacesStateSchema } from '@mongodb-js/compass-workspaces';
 
 export type TrackFunction = (

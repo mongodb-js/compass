@@ -41,7 +41,7 @@ import { connect } from '../stores/context';
 import { WorkspaceTabContextProvider } from './workspace-tab-context-provider';
 import type { WorkspaceTab } from '../types';
 import { loadWorkspaceStateFromUserData } from '@mongodb-js/compass-workspaces';
-import type { IUserData } from '../../../compass-user-data/dist/user-data';
+import type { IUserData } from '@mongodb-js/compass-user-data';
 import type { WorkspacesStateSchema } from '@mongodb-js/compass-workspaces';
 
 const emptyWorkspaceStyles = css({
