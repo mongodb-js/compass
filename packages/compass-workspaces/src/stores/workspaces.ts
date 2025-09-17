@@ -55,7 +55,7 @@ export enum WorkspacesActions {
   SelectNextTab = 'compass-workspaces/SelectNextTab',
   MoveTab = 'compass-workspaces/MoveTab',
   OpenTabFromCurrentActive = 'compass-workspaces/OpenTabFromCurrentActive',
-  RestoreTabs = 'compass-workspaces/RestoreTabs',
+  RestoreWorkspaces = 'compass-workspaces/RestoreWorkspaces',
   DuplicateTab = 'compass-workspaces/DuplicateTab',
   CloseTabs = 'compass-workspaces/CloseTabs',
   CollectionRenamed = 'compass-workspaces/CollectionRenamed',
@@ -279,7 +279,6 @@ const reducer: Reducer<WorkspacesState, Action> = (
   state = getInitialState(),
   action
 ) => {
-  // TODO: basically just add code here to make sure userData is updated
   if (isAction<OpenWorkspaceAction>(action, WorkspacesActions.OpenWorkspace)) {
     const currentActiveTab = getActiveTab(state);
     const newTab = getInitialTabState(action.workspace);
@@ -349,21 +348,9 @@ const reducer: Reducer<WorkspacesState, Action> = (
     };
   }
 
-  if (isAction<RestoreTabs>(action, WorkspacesActions.RestoreTabs)) {
-    // TODO: catch exceptions here? e.g. what if the tab doesn't exist?
-    // Currently, the tabs just aren't visible until the connections are connected, and then
-    // all of a sudden they show up.
-    // So, invalid tabs likely just remain invisible. Is this okay? Do we want to
-    // filter for only the ones that will be visible?
-    // e.g. if the connection no longer exists, we can probably get rid of it.
-
-    // Also if the tab is welcome tab, do we wanna just replace it? That's the default behavior right now.
-    // However, handle the case where the initial tab opens *after* the restored tabs. Is this even possible?
-    // This isn't possible since the initial tabs are literally used to configure the store.
-
-    // Lastly, figure out which tab should be the active tab in the end.
-
-    // console.log('Restoring tabs to state', ...(action.tabs.map(getInitialTabState)));
+  if (
+    isAction<RestoreWorkspaces>(action, WorkspacesActions.RestoreWorkspaces)
+  ) {
     return {
       ...state,
       tabs: [...state.tabs, ...action.tabs.map(getInitialTabState)],
@@ -876,9 +863,8 @@ type OpenTabFromCurrentActiveAction = {
   defaultTab: OpenWorkspaceOptions;
 };
 
-// TODO
-type RestoreTabs = {
-  type: WorkspacesActions.RestoreTabs;
+type RestoreWorkspaces = {
+  type: WorkspacesActions.RestoreWorkspaces;
   tabs: OpenWorkspaceOptions[];
 };
 
@@ -1002,14 +988,12 @@ type DatabaseRemovedAction = {
   namespace: string;
 };
 
-export const restoreTabs = (
+export const restoreWorkspaces = (
   tabs: OpenWorkspaceOptions[]
-): WorkspacesThunkAction<void, RestoreTabs> => {
+): WorkspacesThunkAction<void, RestoreWorkspaces> => {
   return (dispatch) => {
-    // TODO: maybe I dispatch connecting to connections first here?
-    console.log('Dispatching restore tabs with tabs:', tabs);
     dispatch({
-      type: WorkspacesActions.RestoreTabs,
+      type: WorkspacesActions.RestoreWorkspaces,
       tabs,
     });
   };

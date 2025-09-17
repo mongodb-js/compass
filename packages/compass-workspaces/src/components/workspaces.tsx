@@ -27,7 +27,7 @@ import {
   selectNextTab,
   selectPrevTab,
   selectTab,
-  restoreTabs,
+  restoreWorkspaces,
 } from '../stores/workspaces';
 import { useWorkspacePlugins } from './workspaces-provider';
 import type { ConnectionInfo } from '@mongodb-js/compass-connections/provider';
@@ -335,6 +335,6 @@ export default connect(
     onCloseTab: closeTab,
     onCloseAllOtherTabs: closeAllOtherTabs,
     onNamespaceNotFound: openFallbackWorkspace,
-    onRestoreTabs: restoreTabs,
+    onRestoreTabs: restoreWorkspaces,
   }
 )(CompassWorkspaces);
