@@ -294,13 +294,6 @@ module.exports = (env, args) => {
       tls: 'commonjs2 tls',
     },
     plugins: [
-      // Always package dist with NODE_ENV set to production, otherwise @emotion
-      // dev mode behavior completely hangs code in the browser when applying
-      // dev build to locally running mms
-      new webpack.DefinePlugin({
-        'process.env.NODE_ENV': JSON.stringify('production'),
-      }),
-
       // Only applied when running webpack in --watch mode. In this mode we want
       // to constantly rebuild d.ts files when source changes, we also don't
       // want to fail and stop compilation if we failed to generate definitions
@@ -332,6 +325,8 @@ module.exports = (env, args) => {
     // bson is not that big, but is a shared dependency of compass-web,
     // compass-components and bson-transpilers, so splitting it out
     'bson',
+    // dependency of compass-collection
+    '@faker-js/faker',
   ]);
 
   return bundles;

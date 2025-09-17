@@ -198,6 +198,7 @@ type NewDiagramFormProps = {
   collections: string[];
   selectedCollections: string[];
   error: Error | null;
+  analysisInProgress: boolean;
 
   onCancel: () => void;
   onNameChange: (name: string) => void;
@@ -224,6 +225,7 @@ const NewDiagramForm: React.FunctionComponent<NewDiagramFormProps> = ({
   collections,
   selectedCollections,
   error,
+  analysisInProgress,
   onCancel,
   onNameChange,
   onNameConfirm,
@@ -297,7 +299,9 @@ const NewDiagramForm: React.FunctionComponent<NewDiagramFormProps> = ({
           onConfirmAction: onCollectionsSelectionConfirm,
           confirmActionLabel: 'Generate',
           isConfirmDisabled:
-            !selectedCollections || selectedCollections.length === 0,
+            !selectedCollections ||
+            selectedCollections.length === 0 ||
+            analysisInProgress,
           onCancelAction: onDatabaseSelectCancel,
           cancelLabel: 'Back',
           footerText: (
@@ -312,19 +316,20 @@ const NewDiagramForm: React.FunctionComponent<NewDiagramFormProps> = ({
     }
   }, [
     currentStep,
+    onNameConfirm,
     diagramName,
     onCancel,
-    onCollectionsSelectionConfirm,
     onConnectionConfirmSelection,
-    onConnectionSelectCancel,
-    onDatabaseConfirmSelection,
-    onDatabaseSelectCancel,
-    onNameConfirm,
-    onNameConfirmCancel,
-    selectedCollections,
     selectedConnectionId,
+    onNameConfirmCancel,
+    onDatabaseConfirmSelection,
     selectedDatabase,
-    collections,
+    onConnectionSelectCancel,
+    collections.length,
+    onCollectionsSelectionConfirm,
+    selectedCollections,
+    analysisInProgress,
+    onDatabaseSelectCancel,
   ]);
 
   const formContent = useMemo(() => {
@@ -509,6 +514,8 @@ export default connect(
       collections: databaseCollections ?? [],
       selectedCollections: selectedCollections ?? [],
       error,
+      analysisInProgress:
+        state.analysisProgress.analysisProcessStatus === 'in-progress',
     };
   },
   {

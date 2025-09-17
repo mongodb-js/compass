@@ -88,6 +88,7 @@ const HadronDocument: React.FunctionComponent<{
   extraGutterWidth?: number;
   onUpdateQuery?: (field: string, value: unknown) => void;
   query?: Record<string, unknown>;
+  className?: string;
 }> = ({
   value: document,
   editable = false,
@@ -96,6 +97,7 @@ const HadronDocument: React.FunctionComponent<{
   extraGutterWidth,
   onUpdateQuery,
   query,
+  className = '',
 }) => {
   const { elements, visibleElements } = useHadronDocument(document);
   const [autoFocus, setAutoFocus] = useState<{
@@ -130,7 +132,7 @@ const HadronDocument: React.FunctionComponent<{
   );
 
   return (
-    <div>
+    <div className={className}>
       <div
         className={hadronDocument}
         data-testid="hadron-document"
