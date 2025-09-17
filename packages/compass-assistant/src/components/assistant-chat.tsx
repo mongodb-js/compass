@@ -1,13 +1,12 @@
 import React, { useCallback, useEffect, useContext } from 'react';
-import type { AssistantMessage } from './compass-assistant-provider';
-import { AssistantActionsContext } from './compass-assistant-provider';
-import type { Chat } from './@ai-sdk/react/chat-react';
-import { useChat } from './@ai-sdk/react/use-chat';
+import type { AssistantMessage } from '../compass-assistant-provider';
+import { AssistantActionsContext } from '../compass-assistant-provider';
+import type { Chat } from '../@ai-sdk/react/chat-react';
+import { useChat } from '../@ai-sdk/react/use-chat';
 import {
   LgChatChatWindow,
   LgChatLeafygreenChatProvider,
   LgChatMessage,
-  LgChatMessageActions,
   LgChatInputBar,
   spacing,
   css,
@@ -19,14 +18,14 @@ import {
   LgChatChatDisclaimer,
   Link,
 } from '@mongodb-js/compass-components';
+import { ConfirmationMessage } from './confirmation-message';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
-import { NON_GENUINE_WARNING_MESSAGE } from './preset-messages';
+import { NON_GENUINE_WARNING_MESSAGE } from '../preset-messages';
 
 const { DisclaimerText } = LgChatChatDisclaimer;
 const { ChatWindow } = LgChatChatWindow;
 const { LeafyGreenChatProvider, Variant } = LgChatLeafygreenChatProvider;
 const { Message } = LgChatMessage;
-const { MessageActions } = LgChatMessageActions;
 const { InputBar } = LgChatInputBar;
 
 const GEN_AI_FAQ_LINK = 'https://www.mongodb.com/docs/generative-ai-faq/';
@@ -141,6 +140,12 @@ const errorBannerWrapperStyles = css({
   margin: spacing[400],
 });
 
+const messagesWrapStyles = css({
+  display: 'flex',
+  flexDirection: 'column',
+  gap: spacing[400],
+});
+
 export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
   chat,
   hasNonGenuineConnections,
@@ -174,18 +179,6 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
       });
     }
   }, [hasNonGenuineConnections, chat, setMessages]);
-
-  // Transform AI SDK messages to LeafyGreen chat format
-  const lgMessages = messages.map((message) => ({
-    id: message.id,
-    messageBody:
-      message.metadata?.displayText ||
-      message.parts
-        ?.filter((part) => part.type === 'text')
-        .map((part) => part.text)
-        .join(''),
-    isSender: message.role === 'user',
-  }));
 
   const handleMessageSend = useCallback(
     (messageBody: string) => {
@@ -231,6 +224,52 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
     [track]
   );
 
+  const handleConfirmation = useCallback(
+    (
+      confirmedMessage: AssistantMessage,
+      newState: 'confirmed' | 'rejected'
+    ) => {
+      setMessages((messages) => {
+        const newMessages: AssistantMessage[] = messages.map((message) => {
+          if (
+            message.id === confirmedMessage.id &&
+            message.metadata?.confirmation
+          ) {
+            return {
+              ...message,
+              metadata: {
+                ...message.metadata,
+                confirmation: {
+                  ...message.metadata.confirmation,
+                  state: newState,
+                },
+              },
+            };
+          }
+          return message;
+        });
+
+        // If confirmed, add a new message with the same content but without confirmation metadata
+        if (newState === 'confirmed') {
+          newMessages.push({
+            ...confirmedMessage,
+            id: `${confirmedMessage.id}-confirmed`,
+            metadata: {
+              ...confirmedMessage.metadata,
+              confirmation: undefined,
+            },
+          });
+        }
+        return newMessages;
+      });
+      if (newState === 'confirmed') {
+        // Force the new message request to be sent
+        void ensureOptInAndSend?.(undefined, {}, () => {});
+      }
+    },
+    [ensureOptInAndSend, setMessages]
+  );
+
   return (
     <div
       data-testid="assistant-chat"
@@ -247,22 +286,64 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
             data-testid="assistant-chat-messages"
             className={messageFeedFixesStyles}
           >
-            <div>
-              {lgMessages.map((messageFields) => (
-                <Message
-                  key={messageFields.id}
-                  sourceType="markdown"
-                  {...messageFields}
-                  data-testid={`assistant-message-${messageFields.id}`}
-                >
-                  {messageFields.isSender === false && (
-                    <MessageActions
-                      onRatingChange={handleFeedback}
-                      onSubmitFeedback={handleFeedback}
+            <div className={messagesWrapStyles}>
+              {messages.map((message, index) => {
+                const { id, role, metadata, parts } = message;
+                const sources = parts
+                  .filter((part) => part.type === 'source-url')
+                  .map((part) => ({
+                    children: part.title || 'Documentation Link',
+                    href: part.url,
+                    variant: 'Docs',
+                  }));
+                if (metadata?.confirmation) {
+                  const { description, state } = metadata.confirmation;
+                  const isLastMessage = index === messages.length - 1;
+
+                  return (
+                    <ConfirmationMessage
+                      key={id}
+                      // Show as rejected if it's not the last message
+                      state={
+                        !isLastMessage && state === 'pending'
+                          ? 'rejected'
+                          : state
+                      }
+                      title="Please confirm your request"
+                      description={description}
+                      onConfirm={() => handleConfirmation(message, 'confirmed')}
+                      onReject={() => handleConfirmation(message, 'rejected')}
                     />
-                  )}
-                </Message>
-              ))}
+                  );
+                }
+
+                const displayText =
+                  message.metadata?.displayText ||
+                  message.parts
+                    ?.filter((part) => part.type === 'text')
+                    .map((part) => part.text)
+                    .join('');
+
+                const isSender = role === 'user';
+
+                return (
+                  <Message
+                    key={id}
+                    sourceType="markdown"
+                    isSender={isSender}
+                    messageBody={displayText}
+                    data-testid={`assistant-message-${id}`}
+                  >
+                    {isSender === false && (
+                      <Message.Actions
+                        onRatingChange={handleFeedback}
+                        onSubmitFeedback={handleFeedback}
+                      />
+                    )}
+                    {sources.length > 0 && <Message.Links links={sources} />}
+                  </Message>
+                );
+              })}
             </div>
             <DisclaimerText className={disclaimerTextStyles}>
               This feature is powered by generative AI. See our{' '}
@@ -283,7 +364,7 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
               </Banner>
             </div>
           )}
-          {lgMessages.length === 0 && (
+          {messages.length === 0 && (
             <div className={welcomeMessageStyles}>
               <h4>Welcome to your MongoDB Assistant.</h4>
               Ask any question about MongoDB to receive expert guidance and

@@ -4,16 +4,18 @@ import {
   screen,
   userEvent,
   waitFor,
+  within,
 } from '@mongodb-js/testing-library-compass';
 import { AssistantChat } from './assistant-chat';
 import { expect } from 'chai';
-import { createMockChat } from '../test/utils';
+import { createMockChat } from '../../test/utils';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import {
   AssistantActionsContext,
   type AssistantMessage,
-} from './compass-assistant-provider';
+} from '../compass-assistant-provider';
 import sinon from 'sinon';
+import type { TextPart } from 'ai';
 
 describe('AssistantChat', function () {
   const mockMessages: AssistantMessage[] = [
@@ -29,6 +31,12 @@ describe('AssistantChat', function () {
         {
           type: 'text',
           text: 'Hello! How can I help you with MongoDB today?',
+        },
+        {
+          type: 'source-url',
+          title: 'MongoDB',
+          url: 'https://en.wikipedia.org/wiki/MongoDB',
+          sourceId: '1',
         },
       ],
     },
@@ -471,16 +479,14 @@ describe('AssistantChat', function () {
       );
 
       // First click thumbs down to potentially open feedback form
-      const thumbsDownButton = assistantMessage.querySelector(
-        '[aria-label="Thumbs Down Icon"]'
-      ) as HTMLElement;
+      const thumbsDownButton = within(assistantMessage).getByLabelText(
+        'Dislike this message'
+      );
 
       userEvent.click(thumbsDownButton);
 
       // Look for feedback text area (the exact implementation depends on LeafyGreen)
-      const feedbackTextArea = screen.getByTestId(
-        'lg-chat-message_actions-feedback_textarea'
-      );
+      const feedbackTextArea = within(assistantMessage).getByRole('textbox');
 
       userEvent.type(feedbackTextArea, 'This response was not helpful');
 
@@ -525,6 +531,266 @@ describe('AssistantChat', function () {
       // Should not find any feedback buttons in the entire component
       expect(screen.queryByLabelText('Thumbs Up Icon')).to.not.exist;
       expect(screen.queryByLabelText('Thumbs Down Icon')).to.not.exist;
+    });
+  });
+
+  describe('messages with confirmation', function () {
+    let mockConfirmationMessage: AssistantMessage;
+
+    beforeEach(function () {
+      mockConfirmationMessage = {
+        id: 'confirmation-test',
+        role: 'assistant',
+        parts: [{ type: 'text', text: 'This is a confirmation message.' }],
+        metadata: {
+          confirmation: {
+            state: 'pending',
+            description: 'Are you sure you want to proceed with this action?',
+          },
+        },
+      };
+    });
+
+    it('renders confirmation message when message has confirmation metadata', function () {
+      renderWithChat([mockConfirmationMessage]);
+
+      expect(screen.getByText('Please confirm your request')).to.exist;
+      expect(
+        screen.getByText('Are you sure you want to proceed with this action?')
+      ).to.exist;
+      expect(screen.getByText('Confirm')).to.exist;
+      expect(screen.getByText('Cancel')).to.exist;
+    });
+
+    it('does not render regular message content when confirmation metadata exists', function () {
+      renderWithChat([mockConfirmationMessage]);
+
+      // Should not show the message text content when confirmation is present
+      expect(screen.queryByText('This is a confirmation message.')).to.not
+        .exist;
+    });
+
+    it('shows confirmation as pending when it is the last message', function () {
+      renderWithChat([mockConfirmationMessage]);
+
+      expect(screen.getByText('Confirm')).to.exist;
+      expect(screen.getByText('Cancel')).to.exist;
+      expect(screen.queryByText('Request confirmed')).to.not.exist;
+      expect(screen.queryByText('Request cancelled')).to.not.exist;
+    });
+
+    it('shows confirmation as rejected when it is not the last message', function () {
+      const messages: AssistantMessage[] = [
+        mockConfirmationMessage,
+        {
+          id: 'newer-message',
+          role: 'user' as const,
+          parts: [{ type: 'text', text: 'Another message' }],
+        },
+      ];
+
+      renderWithChat(messages);
+
+      // The confirmation message (first one) should show as rejected since it's not the last
+      expect(screen.queryByText('Confirm')).to.not.exist;
+      expect(screen.queryByText('Cancel')).to.not.exist;
+      expect(screen.getByText('Request cancelled')).to.exist;
+    });
+
+    it('adds new confirmed message when confirmation is confirmed', function () {
+      const { chat, ensureOptInAndSendStub } = renderWithChat([
+        mockConfirmationMessage,
+      ]);
+
+      const confirmButton = screen.getByText('Confirm');
+      userEvent.click(confirmButton);
+
+      // Should add a new message without confirmation metadata
+      expect(chat.messages).to.have.length(2);
+      const newMessage = chat.messages[1];
+      expect(newMessage.id).to.equal('confirmation-test-confirmed');
+      expect(newMessage.metadata?.confirmation).to.be.undefined;
+      expect(newMessage.parts).to.deep.equal(mockConfirmationMessage.parts);
+
+      // Should call ensureOptInAndSend to send the new message
+      expect(ensureOptInAndSendStub.calledOnce).to.be.true;
+    });
+
+    it('updates confirmation state to confirmed and adds a new message when confirm button is clicked', function () {
+      const { chat } = renderWithChat([mockConfirmationMessage]);
+
+      const confirmButton = screen.getByText('Confirm');
+      userEvent.click(confirmButton);
+
+      // Original message should have updated confirmation state
+      const originalMessage = chat.messages[0];
+      expect(originalMessage.metadata?.confirmation?.state).to.equal(
+        'confirmed'
+      );
+
+      expect(chat.messages).to.have.length(2);
+
+      expect(
+        screen.getByText((mockConfirmationMessage.parts[0] as TextPart).text)
+      ).to.exist;
+    });
+
+    it('updates confirmation state to rejected and does not add a new message when cancel button is clicked', function () {
+      const { chat, ensureOptInAndSendStub } = renderWithChat([
+        mockConfirmationMessage,
+      ]);
+
+      const cancelButton = screen.getByText('Cancel');
+      userEvent.click(cancelButton);
+
+      // Original message should have updated confirmation state
+      const originalMessage = chat.messages[0];
+      expect(originalMessage.metadata?.confirmation?.state).to.equal(
+        'rejected'
+      );
+
+      // Should not add a new message
+      expect(chat.messages).to.have.length(1);
+
+      // Should not call ensureOptInAndSend
+      expect(ensureOptInAndSendStub.notCalled).to.be.true;
+    });
+
+    it('shows confirmed status after confirmation is confirmed', function () {
+      const { chat } = renderWithChat([mockConfirmationMessage]);
+
+      // Verify buttons are initially present
+      expect(screen.getByText('Confirm')).to.exist;
+      expect(screen.getByText('Cancel')).to.exist;
+
+      const confirmButton = screen.getByText('Confirm');
+      userEvent.click(confirmButton);
+
+      // The state update should be immediate - check the chat messages
+      const updatedMessage = chat.messages[0];
+      expect(updatedMessage.metadata?.confirmation?.state).to.equal(
+        'confirmed'
+      );
+    });
+
+    it('shows cancelled status after confirmation is rejected', function () {
+      const { chat } = renderWithChat([mockConfirmationMessage]);
+
+      // Verify buttons are initially present
+      expect(screen.getByText('Confirm')).to.exist;
+      expect(screen.getByText('Cancel')).to.exist;
+
+      const cancelButton = screen.getByText('Cancel');
+      userEvent.click(cancelButton);
+
+      // The state update should be immediate - check the chat messages
+      const updatedMessage = chat.messages[0];
+      expect(updatedMessage.metadata?.confirmation?.state).to.equal('rejected');
+    });
+
+    it('handles multiple confirmation messages correctly', function () {
+      const confirmationMessage1: AssistantMessage = {
+        id: 'confirmation-1',
+        role: 'assistant',
+        parts: [{ type: 'text', text: 'First confirmation' }],
+        metadata: {
+          confirmation: {
+            state: 'pending',
+            description: 'First confirmation description',
+          },
+        },
+      };
+
+      const confirmationMessage2: AssistantMessage = {
+        id: 'confirmation-2',
+        role: 'assistant',
+        parts: [{ type: 'text', text: 'Second confirmation' }],
+        metadata: {
+          confirmation: {
+            state: 'pending',
+            description: 'Second confirmation description',
+          },
+        },
+      };
+
+      renderWithChat([confirmationMessage1, confirmationMessage2]);
+
+      expect(screen.getAllByText('Request cancelled')).to.have.length(1);
+
+      expect(screen.getAllByText('Confirm')).to.have.length(1);
+      expect(screen.getAllByText('Cancel')).to.have.length(1);
+      expect(screen.getByText('Second confirmation description')).to.exist;
+    });
+
+    it('preserves other metadata when creating confirmed message', function () {
+      const messageWithExtraMetadata: AssistantMessage = {
+        id: 'confirmation-with-metadata',
+        role: 'assistant',
+        parts: [{ type: 'text', text: 'Message with extra metadata' }],
+        metadata: {
+          confirmation: {
+            state: 'pending',
+            description: 'Confirmation description',
+          },
+          displayText: 'Custom display text',
+          isPermanent: true,
+        },
+      };
+
+      const { chat } = renderWithChat([messageWithExtraMetadata]);
+
+      const confirmButton = screen.getByText('Confirm');
+      userEvent.click(confirmButton);
+
+      // New confirmed message should preserve other metadata
+      const newMessage = chat.messages[1];
+      expect(newMessage.metadata?.displayText).to.equal('Custom display text');
+      expect(newMessage.metadata?.isPermanent).to.equal(true);
+      expect(newMessage.metadata?.confirmation).to.be.undefined;
+    });
+
+    it('does not render confirmation component for regular messages', function () {
+      const regularMessage: AssistantMessage = {
+        id: 'regular',
+        role: 'assistant',
+        parts: [{ type: 'text', text: 'This is a regular message' }],
+      };
+
+      renderWithChat([regularMessage]);
+
+      expect(screen.queryByText('Please confirm your request')).to.not.exist;
+      expect(screen.queryByText('Confirm')).to.not.exist;
+      expect(screen.queryByText('Cancel')).to.not.exist;
+      expect(screen.getByText('This is a regular message')).to.exist;
+    });
+  });
+
+  describe('related sources', function () {
+    it('displays related resources links for assistant messages that include them', async function () {
+      renderWithChat(mockMessages);
+      userEvent.click(screen.getByLabelText('Expand Related Resources'));
+
+      // TODO(COMPASS-9860) can't find the links in test-electron on RHEL and Ubuntu.
+      if ((process as any).type === 'renderer') {
+        return this.skip();
+      }
+
+      await waitFor(() => {
+        expect(screen.getByRole('link', { name: 'MongoDB' })).to.have.attribute(
+          'href',
+          'https://en.wikipedia.org/wiki/MongoDB'
+        );
+      });
+    });
+
+    it('does not display related resources section when there are no source-url parts', function () {
+      const messages = mockMessages.map((message) => ({
+        ...message,
+        parts: message.parts.filter((part) => part.type !== 'source-url'),
+      }));
+      renderWithChat(messages);
+
+      expect(screen.queryByLabelText('Expand Related Resources')).to.not.exist;
     });
   });
 });

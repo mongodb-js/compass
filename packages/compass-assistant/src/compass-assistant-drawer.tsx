@@ -8,7 +8,7 @@ import {
   showConfirmation,
   spacing,
 } from '@mongodb-js/compass-components';
-import { AssistantChat } from './assistant-chat';
+import { AssistantChat } from './components/assistant-chat';
 import {
   ASSISTANT_DRAWER_ID,
   AssistantActionsContext,
