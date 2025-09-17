@@ -65,6 +65,7 @@ export abstract class IUserData<T extends z.Schema> {
   abstract write(id: string, content: z.input<T>): Promise<boolean>;
   abstract delete(id: string): Promise<boolean>;
   abstract readAll(options?: ReadOptions): Promise<ReadAllResult<T>>;
+  abstract readOne(id: string, options: ReadOptions): Promise<z.output<T>>;
   abstract updateAttributes(
     id: string,
     data: Partial<z.input<T>>

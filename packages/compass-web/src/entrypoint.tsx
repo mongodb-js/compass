@@ -14,6 +14,8 @@ import {
   DatabasesWorkspaceTab,
   CollectionsWorkspaceTab,
 } from '@mongodb-js/compass-databases-collections';
+import { EJSON } from 'bson';
+import { atlasServiceLocator } from '@mongodb-js/atlas-service/provider';
 import { CompassComponentsProvider, css } from '@mongodb-js/compass-components';
 import {
   WorkspaceTab as CollectionWorkspace,
@@ -62,6 +64,11 @@ import {
   CompassAssistantDrawer,
   CompassAssistantProvider,
 } from '@mongodb-js/compass-assistant';
+import {
+  AtlasUserData,
+  type IUserData,
+} from '../../compass-user-data/dist/user-data';
+import { WorkspacesStateSchema } from '@mongodb-js/compass-workspaces';
 
 export type TrackFunction = (
   event: string,
@@ -84,14 +91,15 @@ const WithAtlasProviders: React.FC = ({ children }) => {
 
 type CompassWorkspaceProps = Pick<
   React.ComponentProps<typeof WorkspacesPlugin>,
-  | 'initialWorkspaceTabs'
-  | 'onActiveWorkspaceTabChange'
-  | 'savedWorkspacesPromise'
+  'initialWorkspaceTabs' | 'onActiveWorkspaceTabChange'
 > &
   Pick<
     React.ComponentProps<typeof CompassSidebarPlugin>,
     'onOpenConnectViaModal'
-  >;
+  > & {
+    orgId: string;
+    projectId: string;
+  };
 
 type CompassWebProps = {
   /**
@@ -143,11 +151,9 @@ type CompassWebProps = {
   initialPreferences?: Partial<AllPreferences>;
 
   /**
-   * Optional promise that resolves with saved workspaces state from a
-   * previous session. If provided, compass-web will restore tabs from that
-   * state on first render.
+   * UserData instance to use for persisting workspace state
    */
-  savedWorkspacesPromise?: Promise<OpenWorkspaceOptions[] | null>;
+  userData: IUserData<typeof WorkspacesStateSchema>;
 
   /**
    * Callback prop called every time any code inside Compass logs something
@@ -182,8 +188,23 @@ function CompassWorkspace({
   initialWorkspaceTabs,
   onActiveWorkspaceTabChange,
   onOpenConnectViaModal,
-  savedWorkspacesPromise,
+  orgId,
+  projectId,
 }: CompassWorkspaceProps) {
+  const atlasService = atlasServiceLocator();
+  const workspacesUserData = useRef(
+    new AtlasUserData(WorkspacesStateSchema, 'savedWorkspaces', {
+      orgId,
+      projectId,
+      getResourceUrl: (path?: string) => {
+        const url = atlasService.userDataEndpoint(`/${path || ''}`);
+        return url;
+      },
+      authenticatedFetch: atlasService.authenticatedFetch.bind(atlasService),
+      serialize: (content) => EJSON.stringify(content),
+      deserialize: (content: string) => EJSON.parse(content),
+    })
+  );
   return (
     <WorkspacesProvider
       value={[
@@ -214,7 +235,7 @@ function CompassWorkspace({
           className={connectedContainerStyles}
         >
           <WorkspacesPlugin
-            savedWorkspacesPromise={savedWorkspacesPromise}
+            userData={workspacesUserData}
             initialWorkspaceTabs={initialWorkspaceTabs}
             openOnEmptyWorkspace={{ type: 'Welcome' }}
             onActiveWorkspaceTabChange={onActiveWorkspaceTabChange}
@@ -277,7 +298,6 @@ const CompassWeb = ({
   darkMode,
   initialAutoconnectId,
   initialWorkspace,
-  savedWorkspacesPromise,
   onActiveWorkspaceTabChange,
   initialPreferences,
   onLog,
@@ -431,11 +451,10 @@ const CompassWeb = ({
                             <FieldStorePlugin>
                               <WithConnectionsStore>
                                 <CompassWorkspace
+                                  orgId={orgId}
+                                  projectId={projectId}
                                   initialWorkspaceTabs={
                                     initialWorkspaceTabsRef.current
-                                  }
-                                  savedWorkspacesPromise={
-                                    savedWorkspacesPromise
                                   }
                                   onActiveWorkspaceTabChange={
                                     onActiveWorkspaceTabChange

@@ -1,50 +1,46 @@
 import type { Middleware, AnyAction } from 'redux';
 import type { OpenWorkspaceOptions, WorkspacesState } from './workspaces';
-import { FileUserData } from '@mongodb-js/compass-user-data';
-import { EJSON } from 'bson';
-import {
+import type { IUserData } from '@mongodb-js/compass-user-data';
+import type {
   WorkspacesStateSchema,
-  type WorkspacesStateData,
+  WorkspacesStateData,
 } from './workspaces-storage';
 
-// Create a UserData instance for storing workspace state
-const workspacesUserData = new FileUserData(
-  WorkspacesStateSchema,
-  'WorkspacesState',
-  {
-    serialize: (content) => EJSON.stringify(content, undefined, 2),
-    deserialize: (content: string) => EJSON.parse(content),
+/**
+ * Loads the workspace state from persistent storage
+ */
+export async function loadWorkspaceStateFromUserData(
+  userData: IUserData<typeof WorkspacesStateSchema>
+): Promise<OpenWorkspaceOptions[] | null> {
+  const savedState = await userData.readOne('current-workspace', {
+    ignoreErrors: true,
+  });
+  if (!savedState) {
+    return null;
   }
-);
+  return convertSavedStateToOpenWorkspaceOptions(savedState);
+}
 
 /**
  * Middleware that runs a callback whenever the workspaces state changes.
  * This allows you to perform side effects when the state is updated.
  */
-export const workspacesStateChangeMiddleware: Middleware<
-  Record<string, never>,
-  WorkspacesState
-> = (store) => (next) => (action: AnyAction) => {
-  console.log('WOKRSPEF');
-  const prevState = store.getState();
-  const result = next(action);
-  const nextState = store.getState();
+export function workspacesStateChangeMiddleware(
+  userData: IUserData<typeof WorkspacesStateSchema>
+): Middleware<Record<string, never>, WorkspacesState> {
+  return (store) => (next) => (action: AnyAction) => {
+    const prevState = store.getState();
+    const result = next(action);
+    const nextState = store.getState();
 
-  // Only call the callback if the workspaces state actually changed
-  if (prevState !== nextState) {
-    // Fire and forget - don't await to avoid blocking the action
-    void onWorkspacesStateChange(nextState, action);
-  }
+    // Only call the callback if the workspaces state actually changed
+    if (prevState !== nextState) {
+      // Fire and forget - don't await to avoid blocking the action
+      void saveWorkspaceStateToUserData(nextState, action, userData);
+    }
 
-  return result;
-};
-
-/**
- * Called whenever the workspaces state changes
- */
-function onWorkspacesStateChange(newState: WorkspacesState, action: AnyAction) {
-  // Save the workspace state to UserData (async, fire and forget)
-  void saveWorkspaceStateToUserData(newState, action);
+    return result;
+  };
 }
 
 /**
@@ -52,7 +48,8 @@ function onWorkspacesStateChange(newState: WorkspacesState, action: AnyAction) {
  */
 async function saveWorkspaceStateToUserData(
   state: WorkspacesState,
-  action: AnyAction
+  action: AnyAction,
+  userData: IUserData<typeof WorkspacesStateSchema>
 ) {
   try {
     // Transform the state to the format we want to save
@@ -127,7 +124,7 @@ async function saveWorkspaceStateToUserData(
     };
 
     // Save to UserData with a fixed ID
-    await workspacesUserData.write('current-workspace', stateToSave);
+    await userData.write('current-workspace', stateToSave);
 
     // Optional: Log for debugging in development
     if (process.env.NODE_ENV === 'development') {
@@ -144,21 +141,6 @@ async function saveWorkspaceStateToUserData(
     // eslint-disable-next-line no-console
     console.error('Failed to save workspace state to UserData:', error);
   }
-}
-
-/**
- * Loads the workspace state from persistent storage
- */
-export async function loadWorkspaceStateFromUserData(): Promise<
-  OpenWorkspaceOptions[] | null
-> {
-  const savedState = await workspacesUserData.readOne('current-workspace', {
-    ignoreErrors: true,
-  });
-  if (!savedState) {
-    return null;
-  }
-  return convertSavedStateToOpenWorkspaceOptions(savedState);
 }
 
 /**

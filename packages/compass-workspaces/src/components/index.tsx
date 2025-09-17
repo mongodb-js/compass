@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { css, cx, palette, useDarkMode } from '@mongodb-js/compass-components';
 import type { CollectionTabInfo } from '../stores/workspaces';
 import {
@@ -10,7 +10,8 @@ import type { WorkspaceTab } from '../types';
 import Workspaces from './workspaces';
 import { connect } from '../stores/context';
 import { WorkspacesServiceProvider } from '../provider';
-import { convertSavedStateToInitialTabs } from '../stores/workspaces-middleware';
+import type { IUserData } from '../../../compass-user-data/dist/user-data';
+import type { WorkspacesStateSchema } from '../stores/workspaces-storage';
 
 type WorkspacesWithSidebarProps = {
   /**
@@ -38,6 +39,11 @@ type WorkspacesWithSidebarProps = {
    * Initial workspace tab to show (by default no tabs will be shown initially)
    */
   initialWorkspaceTabs?: OpenWorkspaceOptions[] | null;
+
+  /**
+   * UserData instance to use for persisting workspace state
+   */
+  userData: IUserData<typeof WorkspacesStateSchema>;
   /**
    * Workspace configuration to be opened when all tabs are closed (defaults to
    * "My Queries")
@@ -55,8 +61,6 @@ type WorkspacesWithSidebarProps = {
    * actions from service locator context
    */
   renderModals?: () => React.ReactElement | null;
-
-  savedWorkspacesPromise?: Promise<any>;
 };
 
 const containerLightThemeStyles = css({
@@ -87,30 +91,6 @@ const sidebarStyles = css({
   minHeight: 0,
 });
 
-function usePromise(promise) {
-  const [state, setState] = useState({
-    data: null,
-    error: null,
-    loading: true,
-  });
-
-  useEffect(() => {
-    if (!promise) return;
-
-    setState({ data: null, error: null, loading: true });
-
-    promise
-      .then((data) => {
-        setState({ data, error: null, loading: false });
-      })
-      .catch((error) => {
-        setState({ data: null, error, loading: false });
-      });
-  }, [promise]);
-
-  return state;
-}
-
 const WorkspacesWithSidebar: React.FunctionComponent<
   WorkspacesWithSidebarProps
 > = ({
@@ -120,7 +100,7 @@ const WorkspacesWithSidebar: React.FunctionComponent<
   onActiveWorkspaceTabChange,
   renderSidebar,
   renderModals,
-  savedWorkspacesPromise,
+  userData,
 }) => {
   const darkMode = useDarkMode();
   const onChange = useRef(onActiveWorkspaceTabChange);
@@ -128,17 +108,6 @@ const WorkspacesWithSidebar: React.FunctionComponent<
   useEffect(() => {
     onChange.current(activeTab, activeTabCollectionInfo);
   }, [activeTab, activeTabCollectionInfo]);
-
-  // const {
-  //   data: savedTabs,
-  //   loading,
-  //   error,
-  // } = usePromise(savedWorkspacesPromise);
-  // // TODO: test these
-  // if (loading) return <div>Loading...</div>;
-  // if (error) return <div>Error: {error.message}</div>;
-
-  // console.log('Loaded saved tabs in workspace with sidebar', savedTabs);
 
   return (
     <WorkspacesServiceProvider>
@@ -152,7 +121,7 @@ const WorkspacesWithSidebar: React.FunctionComponent<
         <div className={workspacesStyles}>
           <Workspaces
             openOnEmptyWorkspace={openOnEmptyWorkspace}
-            savedWorkspacesPromise={savedWorkspacesPromise}
+            userData={userData}
           ></Workspaces>
         </div>
       </div>

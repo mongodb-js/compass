@@ -39,6 +39,8 @@ import {
 } from '@mongodb-js/compass-app-stores/provider';
 import type { PreferencesAccess } from 'compass-preferences-model/provider';
 import { preferencesLocator } from 'compass-preferences-model/provider';
+import type { IUserData } from '../../compass-user-data/dist/user-data';
+import type { WorkspacesStateSchema } from './stores/workspaces-storage';
 
 export type WorkspacesServices = {
   globalAppRegistry: AppRegistry;
@@ -50,6 +52,7 @@ export type WorkspacesServices = {
 
 export function configureStore(
   initialWorkspaceTabs: OpenWorkspaceOptions[] | undefined | null,
+  userData: IUserData<typeof WorkspacesStateSchema>,
   services: WorkspacesServices
 ) {
   const initialTabs =
@@ -69,7 +72,7 @@ export function configureStore(
     },
     applyMiddleware(
       thunk.withExtraArgument(services),
-      workspacesStateChangeMiddleware
+      workspacesStateChangeMiddleware(userData)
     )
   );
 
@@ -78,8 +81,12 @@ export function configureStore(
 
 export function activateWorkspacePlugin(
   {
+    userData,
     initialWorkspaceTabs,
-  }: { initialWorkspaceTabs?: OpenWorkspaceOptions[] | null },
+  }: {
+    userData: IUserData<typeof WorkspacesStateSchema>;
+    initialWorkspaceTabs?: OpenWorkspaceOptions[] | null;
+  },
   {
     globalAppRegistry,
     instancesManager,
@@ -89,7 +96,7 @@ export function activateWorkspacePlugin(
   }: WorkspacesServices,
   { on, cleanup, addCleanup }: ActivateHelpers
 ) {
-  const store = configureStore(initialWorkspaceTabs, {
+  const store = configureStore(initialWorkspaceTabs, userData, {
     globalAppRegistry,
     instancesManager,
     connections,
@@ -243,9 +250,10 @@ const WorkspacesPlugin = registerCompassPlugin(
   }
 );
 
+export { loadWorkspaceStateFromUserData } from './stores/workspaces-middleware';
+export type { WorkspacesStateSchema } from './stores/workspaces-storage';
 export default WorkspacesPlugin;
 export { WorkspacesProvider } from './components/workspaces-provider';
-export { loadWorkspaceStateFromUserData } from './stores/workspaces-middleware';
 export type { OpenWorkspaceOptions, CollectionTabInfo };
 export type {
   WelcomeWorkspace,

@@ -40,6 +40,9 @@ import { useLogger } from '@mongodb-js/compass-logging/provider';
 import { connect } from '../stores/context';
 import { WorkspaceTabContextProvider } from './workspace-tab-context-provider';
 import type { WorkspaceTab } from '../types';
+import { loadWorkspaceStateFromUserData } from '@mongodb-js/compass-workspaces';
+import type { IUserData } from '../../../compass-user-data/dist/user-data';
+import type { WorkspacesStateSchema } from '@mongodb-js/compass-workspaces';
 
 const emptyWorkspaceStyles = css({
   margin: '0 auto',
@@ -78,7 +81,7 @@ type CompassWorkspacesProps = {
   collectionInfo: Record<string, CollectionTabInfo>;
   databaseInfo: Record<string, DatabaseTabInfo>;
   openOnEmptyWorkspace?: OpenWorkspaceOptions | null;
-  savedWorkspacesPromise?: Promise<OpenWorkspaceOptions[] | null>;
+  userData: IUserData<typeof WorkspacesStateSchema>;
 
   onSelectTab(at: number): void;
   onSelectNextTab(): void;
@@ -101,7 +104,7 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
   collectionInfo,
   databaseInfo,
   openOnEmptyWorkspace,
-  savedWorkspacesPromise,
+  userData,
   onSelectTab,
   onSelectNextTab,
   onSelectPrevTab,
@@ -124,68 +127,68 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
 
   const connectionActions = useConnectionActions();
   const { getConnectionById } = useConnectionsListRef();
-  const savedWorkspacesPromiseRef = useRef(savedWorkspacesPromise);
+  const savedWorkspacesPromiseRef = useRef(
+    loadWorkspaceStateFromUserData(userData)
+  );
 
   useEffect(() => {
-    if (savedWorkspacesPromiseRef.current) {
-      savedWorkspacesPromiseRef.current.then(
-        (res) => {
-          if (res !== null) {
-            showConfirmation({
-              title: 'Reopen closed tabs?',
-              description:
-                'Your connection and tabs were closed, this action will reopen your previous session',
-              buttonText: 'Reopen tabs',
-            }).then(
-              (confirm) => {
-                if (confirm) {
-                  const workspacesToRestore: OpenWorkspaceOptions[] = [];
-                  const connectionsToRestore: Map<string, ConnectionInfo> =
-                    new Map();
-                  res.forEach((workspace) => {
-                    // If the workspace is tied to a connection, check if the connection exists
-                    // and add it to the list of connections to restore if so.
-                    if ('connectionId' in workspace) {
-                      const connectionInfo = getConnectionById(
-                        workspace.connectionId
-                      )?.info;
+    savedWorkspacesPromiseRef.current.then(
+      (res) => {
+        if (res !== null) {
+          showConfirmation({
+            title: 'Reopen closed tabs?',
+            description:
+              'Your connection and tabs were closed, this action will reopen your previous session',
+            buttonText: 'Reopen tabs',
+          }).then(
+            (confirm) => {
+              if (confirm) {
+                const workspacesToRestore: OpenWorkspaceOptions[] = [];
+                const connectionsToRestore: Map<string, ConnectionInfo> =
+                  new Map();
+                res.forEach((workspace) => {
+                  // If the workspace is tied to a connection, check if the connection exists
+                  // and add it to the list of connections to restore if so.
+                  if ('connectionId' in workspace) {
+                    const connectionInfo = getConnectionById(
+                      workspace.connectionId
+                    )?.info;
 
-                      if (!connectionInfo) {
-                        return;
-                      }
-
-                      connectionsToRestore.set(
-                        workspace.connectionId,
-                        connectionInfo
-                      );
+                    if (!connectionInfo) {
+                      return;
                     }
 
-                    workspacesToRestore.push(workspace);
-                  });
+                    connectionsToRestore.set(
+                      workspace.connectionId,
+                      connectionInfo
+                    );
+                  }
 
-                  connectionsToRestore.forEach((connectionInfo) => {
-                    void connectionActions.connect(connectionInfo);
-                  });
+                  workspacesToRestore.push(workspace);
+                });
 
-                  onRestoreTabs(workspacesToRestore);
-                }
-              },
-              (err) => {
-                throw err;
+                connectionsToRestore.forEach((connectionInfo) => {
+                  void connectionActions.connect(connectionInfo);
+                });
+
+                onRestoreTabs(workspacesToRestore);
               }
-            );
-          }
-        },
-        (err) => {
-          log.error(
-            mongoLogId(1_001_000_361),
-            'Workspaces',
-            'Failed to load saved workspaces from previous session',
-            { error: err }
+            },
+            (err) => {
+              throw err;
+            }
           );
         }
-      );
-    }
+      },
+      (err) => {
+        log.error(
+          mongoLogId(1_001_000_361),
+          'Workspaces',
+          'Failed to load saved workspaces from previous session',
+          { error: err }
+        );
+      }
+    );
   }, [
     savedWorkspacesPromiseRef,
     onRestoreTabs,

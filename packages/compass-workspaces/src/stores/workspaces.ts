@@ -1005,7 +1005,7 @@ type DatabaseRemovedAction = {
 export const restoreTabs = (
   tabs: OpenWorkspaceOptions[]
 ): WorkspacesThunkAction<void, RestoreTabs> => {
-  return (dispatch, getState) => {
+  return (dispatch) => {
     // TODO: maybe I dispatch connecting to connections first here?
     console.log('Dispatching restore tabs with tabs:', tabs);
     dispatch({

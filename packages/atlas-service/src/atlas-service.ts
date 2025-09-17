@@ -78,6 +78,11 @@ export class AtlasService {
     // https://github.com/10gen/mms/blob/9f858bb987aac6aa80acfb86492dd74c89cbb862/client/packages/project/common/ajaxPrefilter.ts#L34-L49
     return this.cloudEndpoint(path);
   }
+  userDataEndpoint(path?: string): string {
+    return `https://cluster-connection.cloud-dev.mongodb.com/userData${normalizePath(
+      path
+    )}`;
+  }
   driverProxyEndpoint(path?: string): string {
     return `${this.config.ccsBaseUrl}${normalizePath(path)}`;
   }
