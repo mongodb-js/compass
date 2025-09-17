@@ -740,6 +740,28 @@ export function renameField(
   };
 }
 
+/**
+ * @internal Exported for testing purposes only.
+ * If the field had a single type, we return that, otherwise 'mixed'.
+ */
+export function getTypeNameForTelemetry(
+  bsonType: string | string[] | undefined
+): string | undefined {
+  if (!bsonType) {
+    return;
+  }
+  if (Array.isArray(bsonType)) {
+    if (bsonType.length === 0) {
+      return undefined;
+    }
+    if (bsonType.length === 1) {
+      return bsonType[0];
+    }
+    return 'mixed';
+  }
+  return bsonType;
+}
+
 export function changeFieldType(
   ns: string,
   fieldPath: FieldPath,
@@ -759,21 +781,8 @@ export function changeFieldType(
 
     track('Data Modeling Field Type Changed', {
       source: 'side_panel',
-      // If the field had a single type, we report that, otherwise 'mixed'.
-      from: field.jsonSchema.bsonType
-        ? Array.isArray(field.jsonSchema.bsonType)
-          ? field.jsonSchema.bsonType.length === 1
-            ? field.jsonSchema.bsonType[0]
-            : 'mixed'
-          : field.jsonSchema.bsonType
-        : undefined,
-      to: to.bsonType
-        ? Array.isArray(to.bsonType)
-          ? to.bsonType.length === 1
-            ? to.bsonType[0]
-            : 'mixed'
-          : to.bsonType
-        : undefined,
+      from: getTypeNameForTelemetry(field.jsonSchema.bsonType),
+      to: getTypeNameForTelemetry(to.bsonType),
     });
 
     dispatch(
