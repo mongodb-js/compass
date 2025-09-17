@@ -317,12 +317,6 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
         }
       );
 
-      if (!response.ok) {
-        throw new Error(
-          `Failed to post data: ${response.status} ${response.statusText}`
-        );
-      }
-
       return true;
     } catch (error) {
       log.error(
@@ -350,11 +344,6 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
           method: 'DELETE',
         }
       );
-      if (!response.ok) {
-        throw new Error(
-          `Failed to delete data: ${response.status} ${response.statusText}`
-        );
-      }
       return true;
     } catch (error) {
       log.error(
@@ -384,11 +373,6 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
           method: 'GET',
         }
       );
-      if (!response.ok) {
-        throw new Error(
-          `Failed to get data: ${response.status} ${response.statusText}`
-        );
-      }
       const json = await response.json();
       for (const item of json) {
         try {
@@ -431,11 +415,6 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
           }),
         }
       );
-      if (!response.ok) {
-        throw new Error(
-          `Failed to update data: ${response.status} ${response.statusText}`
-        );
-      }
       return true;
     } catch (error) {
       log.error(
@@ -464,11 +443,6 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
           method: 'GET',
         }
       );
-      if (!getResponse.ok) {
-        throw new Error(
-          `Failed to fetch data: ${getResponse.status} ${getResponse.statusText}`
-        );
-      }
       const json = await getResponse.json();
       const data = this.validator.parse(this.deserialize(json.data as string));
       return data;
