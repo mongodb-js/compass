@@ -1,10 +1,12 @@
+import type { MongoDBFieldType } from '../../schema-analysis-types';
+
 export type FakerArg = string | number | boolean | { json: string };
 
 const DEFAULT_ARRAY_LENGTH = 3;
 const INDENT_SIZE = 2;
 
-export interface FieldMapping {
-  mongoType: string;
+export interface FakerFieldMapping {
+  mongoType: MongoDBFieldType;
   fakerMethod: string;
   fakerArgs: FakerArg[];
   probability?: number; // 0.0 - 1.0 frequency of field (defaults to 1.0)
@@ -35,21 +37,21 @@ export type ScriptResult =
 
 type DocumentStructure = {
   [fieldName: string]:
-    | FieldMapping // Leaf: actual data field
+    | FakerFieldMapping // Leaf: actual data field
     | DocumentStructure // Object: nested fields
     | ArrayStructure; // Array: repeated elements
 };
 
 interface ArrayStructure {
   type: 'array';
-  elementType: FieldMapping | DocumentStructure | ArrayStructure;
+  elementType: FakerFieldMapping | DocumentStructure | ArrayStructure;
 }
 
 /**
  * Entry point method: Generate the final script
  */
 export function generateScript(
-  schema: Record<string, FieldMapping>,
+  schema: Record<string, FakerFieldMapping>,
   options: ScriptOptions
 ): ScriptResult {
   try {
@@ -62,7 +64,9 @@ export function generateScript(
     );
 
     const script = `// Mock Data Generator Script
-// Generated for collection: ${options.databaseName}.${options.collectionName}
+// Generated for collection: ${JSON.stringify(
+      options.databaseName
+    )}.${JSON.stringify(options.collectionName)}
 // Document count: ${options.documentCount}
 
 const { faker } = require('@faker-js/faker');
@@ -86,9 +90,9 @@ db.getCollection(${JSON.stringify(
       options.collectionName
     )}).insertMany(documents);
 
-console.log(\`Successfully inserted \${documents.length} documents into ${
+console.log(\`Successfully inserted \${documents.length} documents into ${JSON.stringify(
       options.databaseName
-    }.${options.collectionName}\`);`;
+    )}.${JSON.stringify(options.collectionName)}\`);`;
 
     return {
       script,
@@ -173,7 +177,7 @@ function parseFieldPath(fieldPath: string): string[] {
  * Build the document structure from all field paths
  */
 function buildDocumentStructure(
-  schema: Record<string, FieldMapping>
+  schema: Record<string, FakerFieldMapping>
 ): DocumentStructure {
   const result: DocumentStructure = {};
 
@@ -192,7 +196,7 @@ function buildDocumentStructure(
 function insertIntoStructure(
   structure: DocumentStructure,
   pathParts: string[],
-  mapping: FieldMapping
+  mapping: FakerFieldMapping
 ): void {
   if (pathParts.length === 0) {
     throw new Error('Cannot insert field mapping: empty path parts array');
@@ -317,7 +321,7 @@ function renderDocumentCode(
   arrayLengthMap: ArrayLengthMap = {}
 ): string {
   // For each field in structure:
-  //   - If FieldMapping: generate faker call
+  //   - If FakerFieldMapping: generate faker call
   //   - If DocumentStructure: generate nested object
   //   - If ArrayStructure: generate array
 
@@ -328,7 +332,7 @@ function renderDocumentCode(
   for (const [fieldName, value] of Object.entries(structure)) {
     if ('mongoType' in value) {
       // It's a field mapping
-      const mapping = value as FieldMapping;
+      const mapping = value as FakerFieldMapping;
       const fakerCall = generateFakerCall(mapping);
       // Default to 1.0 for invalid probability values
       let probability = 1.0;
@@ -438,7 +442,7 @@ function renderArrayCode(
 
   if ('mongoType' in elementType) {
     // Array of primitives
-    const fakerCall = generateFakerCall(elementType as FieldMapping);
+    const fakerCall = generateFakerCall(elementType as FakerFieldMapping);
     return `Array.from({length: ${arrayLength}}, () => ${fakerCall})`;
   } else if ('type' in elementType && elementType.type === 'array') {
     // Nested array (e.g., matrix[][]) - keep same fieldName, increment dimension
@@ -468,13 +472,7 @@ function renderArrayCode(
 /**
  * Generate faker.js call from field mapping
  */
-function generateFakerCall(mapping: FieldMapping): string {
-  if (mapping.mongoType === 'null') {
-    return 'null';
-  }
-  if (mapping.mongoType === 'undefined') {
-    return 'undefined';
-  }
+function generateFakerCall(mapping: FakerFieldMapping): string {
   const method =
     mapping.fakerMethod === 'unrecognized'
       ? getDefaultFakerMethod(mapping.mongoType)
@@ -487,73 +485,57 @@ function generateFakerCall(mapping: FieldMapping): string {
 /**
  * Gets default faker method for unrecognized fields based on MongoDB type
  */
-export function getDefaultFakerMethod(mongoType: string): string {
-  switch (mongoType.toLowerCase()) {
+export function getDefaultFakerMethod(mongoType: MongoDBFieldType): string {
+  switch (mongoType) {
     // String types
-    case 'string':
+    case 'String':
       return 'lorem.word';
 
     // Numeric types
-    case 'number':
-    case 'int':
-    case 'int32':
-    case 'int64':
-    case 'long':
+    case 'Number':
+    case 'Int32':
+    case 'Long':
       return 'number.int';
-    case 'double':
-    case 'decimal128':
+    case 'Decimal128':
       return 'number.float';
 
     // Date and time types
-    case 'date':
-    case 'timestamp':
+    case 'Date':
+    case 'Timestamp':
       return 'date.recent';
 
     // Object identifier
-    case 'objectid':
+    case 'ObjectId':
       return 'database.mongodbObjectId';
 
     // Boolean
-    case 'boolean':
-    case 'bool':
+    case 'Boolean':
       return 'datatype.boolean';
 
     // Binary
-    case 'binary':
-    case 'bindata':
+    case 'Binary':
       return 'string.hexadecimal';
 
-    // Array
-    case 'array':
-      return 'lorem.word';
-
-    // Object/Document type
-    case 'object':
-    case 'document':
-      return 'lorem.word';
-
     // Regular expression
-    case 'regex':
-    case 'regexp':
+    case 'RegExp':
       return 'lorem.word';
 
     // JavaScript code
-    case 'javascript':
-    case 'code':
+    case 'Code':
       return 'lorem.sentence';
 
     // MinKey and MaxKey
-    case 'minkey':
+    case 'MinKey':
       return 'number.int';
-    case 'maxkey':
+    case 'MaxKey':
       return 'number.int';
 
     // Symbol (deprecated)
-    case 'symbol':
+    case 'Symbol':
       return 'lorem.word';
 
-    // DBPointer (deprecated)
-    case 'dbpointer':
+    // DBRef
+    case 'DBRef':
       return 'database.mongodbObjectId';
 
     // Default fallback

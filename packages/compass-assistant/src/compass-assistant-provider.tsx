@@ -29,6 +29,7 @@ import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import type { AtlasAiService } from '@mongodb-js/compass-generative-ai/provider';
 import { atlasAiServiceLocator } from '@mongodb-js/compass-generative-ai/provider';
 import { buildConversationInstructionsPrompt } from './prompts';
+import { createOpenAI } from '@ai-sdk/openai';
 
 export const ASSISTANT_DRAWER_ID = 'compass-assistant-drawer';
 
@@ -40,6 +41,11 @@ export type AssistantMessage = UIMessage & {
      *  Used for warning messages in cases like using non-genuine MongoDB.
      */
     isPermanent?: boolean;
+    /** Information for confirmation messages. */
+    confirmation?: {
+      description: string;
+      state: 'confirmed' | 'rejected' | 'pending';
+    };
   };
 };
 
@@ -172,9 +178,12 @@ export const AssistantProvider: React.FunctionComponent<
         return;
       }
 
-      const { prompt, displayText } = builder(props);
+      const { prompt, metadata } = builder(props);
       void assistantActionsContext.current.ensureOptInAndSend(
-        { text: prompt, metadata: { displayText } },
+        {
+          text: prompt,
+          metadata,
+        },
         {},
         () => {
           openDrawer(ASSISTANT_DRAWER_ID);
@@ -185,17 +194,17 @@ export const AssistantProvider: React.FunctionComponent<
         }
       );
     };
-  });
+  }).current;
   const assistantActionsContext = useRef<AssistantActionsContextType>({
-    interpretExplainPlan: createEntryPointHandler.current(
+    interpretExplainPlan: createEntryPointHandler(
       'explain plan',
       buildExplainPlanPrompt
     ),
-    interpretConnectionError: createEntryPointHandler.current(
+    interpretConnectionError: createEntryPointHandler(
       'connection error',
       buildConnectionErrorPrompt
     ),
-    tellMoreAboutInsight: createEntryPointHandler.current(
+    tellMoreAboutInsight: createEntryPointHandler(
       'performance insights',
       buildProactiveInsightsPrompt
     ),
@@ -219,6 +228,10 @@ export const AssistantProvider: React.FunctionComponent<
       // Call the callback to indicate that the opt-in was successful. A good
       // place to do tracking.
       callback();
+
+      if (chat.status === 'streaming') {
+        await chat.stop();
+      }
 
       await chat.sendMessage(message, options);
     },
@@ -267,10 +280,13 @@ export const CompassAssistantProvider = registerCompassPlugin(
         initialProps.chat ??
         new Chat({
           transport: new DocsProviderTransport({
-            baseUrl: atlasService.assistantApiEndpoint(),
             instructions: buildConversationInstructionsPrompt({
               target: initialProps.appNameForPrompt,
             }),
+            model: createOpenAI({
+              baseURL: atlasService.assistantApiEndpoint(),
+              apiKey: '',
+            }).responses('mongodb-chat-latest'),
           }),
           onError: (err: Error) => {
             logger.log.error(
