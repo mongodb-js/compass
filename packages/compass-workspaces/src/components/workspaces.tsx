@@ -40,9 +40,9 @@ import { useLogger } from '@mongodb-js/compass-logging/provider';
 import { connect } from '../stores/context';
 import { WorkspaceTabContextProvider } from './workspace-tab-context-provider';
 import type { WorkspaceTab } from '../types';
-import { loadWorkspaceStateFromUserData } from '@mongodb-js/compass-workspaces';
+import { loadWorkspaceStateFromUserData } from '../stores/workspaces-middleware';
 import type { IUserData } from '@mongodb-js/compass-user-data';
-import type { WorkspacesStateSchema } from '@mongodb-js/compass-workspaces';
+import type { WorkspacesStateSchema } from '../stores/workspaces-storage';
 
 const emptyWorkspaceStyles = css({
   margin: '0 auto',
