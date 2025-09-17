@@ -46,7 +46,6 @@ interface ConfirmationMessageProps {
   state: 'confirmed' | 'rejected' | 'pending';
   title: string;
   description: string;
-  messageBody?: string;
   onConfirm: () => void;
   onReject: () => void;
 }

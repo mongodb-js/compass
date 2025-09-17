@@ -21,7 +21,7 @@ describe('ConfirmationMessage', function () {
   });
 
   describe('pending state', function () {
-    it('shows confirm and cancel buttons when both handlers are provided', function () {
+    it('shows confirm and cancel buttons', function () {
       const onConfirm = sinon.stub();
       const onReject = sinon.stub();
 
