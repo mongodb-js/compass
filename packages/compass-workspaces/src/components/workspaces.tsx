@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useSelector } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import {
   DrawerAnchor,
   ErrorBoundary,
@@ -124,10 +124,11 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
 
   const connectionActions = useConnectionActions();
   const { getConnectionById } = useConnectionsListRef();
+  const savedWorkspacesPromiseRef = useRef(savedWorkspacesPromise);
 
   useEffect(() => {
-    if (savedWorkspacesPromise) {
-      savedWorkspacesPromise.then(
+    if (savedWorkspacesPromiseRef.current) {
+      savedWorkspacesPromiseRef.current.then(
         (res) => {
           if (res !== null) {
             showConfirmation({
@@ -179,17 +180,19 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
           log.error(
             mongoLogId(1_001_000_361),
             'Workspaces',
-            'Failed to restore tabs from previous session',
+            'Failed to load saved workspaces from previous session',
             { error: err }
           );
         }
       );
     }
   }, [
-    savedWorkspacesPromise,
+    savedWorkspacesPromiseRef,
     onRestoreTabs,
     connectionActions,
     getConnectionById,
+    log,
+    mongoLogId,
   ]);
 
   const workspaceTabs = useMemo(() => {

@@ -84,7 +84,9 @@ const WithAtlasProviders: React.FC = ({ children }) => {
 
 type CompassWorkspaceProps = Pick<
   React.ComponentProps<typeof WorkspacesPlugin>,
-  'initialWorkspaceTabs' | 'onActiveWorkspaceTabChange'
+  | 'initialWorkspaceTabs'
+  | 'onActiveWorkspaceTabChange'
+  | 'savedWorkspacesPromise'
 > &
   Pick<
     React.ComponentProps<typeof CompassSidebarPlugin>,
@@ -141,6 +143,13 @@ type CompassWebProps = {
   initialPreferences?: Partial<AllPreferences>;
 
   /**
+   * Optional promise that resolves with saved workspaces state from a
+   * previous session. If provided, compass-web will restore tabs from that
+   * state on first render.
+   */
+  savedWorkspacesPromise?: Promise<OpenWorkspaceOptions[] | null>;
+
+  /**
    * Callback prop called every time any code inside Compass logs something
    */
   onLog?: LogFunction;
@@ -173,6 +182,7 @@ function CompassWorkspace({
   initialWorkspaceTabs,
   onActiveWorkspaceTabChange,
   onOpenConnectViaModal,
+  savedWorkspacesPromise,
 }: CompassWorkspaceProps) {
   return (
     <WorkspacesProvider
@@ -203,10 +213,8 @@ function CompassWorkspace({
           data-testid="compass-web-connected"
           className={connectedContainerStyles}
         >
-          {/* TODO: only show this after user confirms the confirmation screen*/}
           <WorkspacesPlugin
-            //TODO:
-            // savedWorkspacesPromise={savedTabs}
+            savedWorkspacesPromise={savedWorkspacesPromise}
             initialWorkspaceTabs={initialWorkspaceTabs}
             openOnEmptyWorkspace={{ type: 'Welcome' }}
             onActiveWorkspaceTabChange={onActiveWorkspaceTabChange}
@@ -269,6 +277,7 @@ const CompassWeb = ({
   darkMode,
   initialAutoconnectId,
   initialWorkspace,
+  savedWorkspacesPromise,
   onActiveWorkspaceTabChange,
   initialPreferences,
   onLog,
@@ -424,6 +433,9 @@ const CompassWeb = ({
                                 <CompassWorkspace
                                   initialWorkspaceTabs={
                                     initialWorkspaceTabsRef.current
+                                  }
+                                  savedWorkspacesPromise={
+                                    savedWorkspacesPromise
                                   }
                                   onActiveWorkspaceTabChange={
                                     onActiveWorkspaceTabChange
