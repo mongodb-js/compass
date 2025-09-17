@@ -43,8 +43,8 @@
     "test-electron": "xvfb-maybe electron-mocha --no-sandbox",
     "test-cov": "nyc --compact=false --produce-source-map=false -x \"**/*.spec.*\" --reporter=lcov --reporter=text --reporter=html npm run test",
     "test-watch": "npm run test -- --watch",
-    "test-ci": "DEBUG= npm run test-cov",
-    "test-ci-electron": "DEBUG= npm run test-electron",
+    "test-ci": "env DEBUG='' npm run test-cov",
+    "test-ci-electron": "env DEBUG='' npm run test-electron",
     "reformat": "npm run eslint . -- --fix && npm run prettier -- --write ."
   },
   "dependencies": {
