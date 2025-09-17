@@ -7,7 +7,6 @@ import {
   LgChatChatWindow,
   LgChatLeafygreenChatProvider,
   LgChatMessage,
-  LgChatMessageActions,
   LgChatInputBar,
   spacing,
   css,
@@ -26,7 +25,6 @@ const { DisclaimerText } = LgChatChatDisclaimer;
 const { ChatWindow } = LgChatChatWindow;
 const { LeafyGreenChatProvider, Variant } = LgChatLeafygreenChatProvider;
 const { Message } = LgChatMessage;
-const { MessageActions } = LgChatMessageActions;
 const { InputBar } = LgChatInputBar;
 
 const GEN_AI_FAQ_LINK = 'https://www.mongodb.com/docs/generative-ai-faq/';
@@ -61,9 +59,10 @@ const headerStyleLightModeFixes = css({
 // TODO(COMPASS-9751): These are temporary patches to make the Assistant chat take the entire
 // width and height of the drawer since Leafygreen doesn't support this yet.
 const assistantChatFixesStyles = css({
-  // Negative margin to patch the padding of the drawer.
+  // Remove extra padding
   '> div, > div > div, > div > div > div, > div > div > div': {
     height: '100%',
+    padding: 0,
   },
   // This is currently set to 'pre-wrap' which causes list items to be on a different line than the list markers.
   'li, ol': {
@@ -140,6 +139,12 @@ const errorBannerWrapperStyles = css({
   margin: spacing[400],
 });
 
+const messagesWrapStyles = css({
+  display: 'flex',
+  flexDirection: 'column',
+  gap: spacing[400],
+});
+
 export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
   chat,
   hasNonGenuineConnections,
@@ -184,6 +189,13 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
         .map((part) => part.text)
         .join(''),
     isSender: message.role === 'user',
+    sources: message.parts
+      .filter((part) => part.type === 'source-url')
+      .map((part) => ({
+        children: part.title || 'Documentation Link',
+        href: part.url,
+        variant: 'Docs',
+      })),
   }));
 
   const handleMessageSend = useCallback(
@@ -246,7 +258,7 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
             data-testid="assistant-chat-messages"
             className={messageFeedFixesStyles}
           >
-            <div>
+            <div className={messagesWrapStyles}>
               {lgMessages.map((messageFields) => (
                 <Message
                   key={messageFields.id}
@@ -255,10 +267,13 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
                   data-testid={`assistant-message-${messageFields.id}`}
                 >
                   {messageFields.isSender === false && (
-                    <MessageActions
+                    <Message.Actions
                       onRatingChange={handleFeedback}
                       onSubmitFeedback={handleFeedback}
                     />
+                  )}
+                  {messageFields.sources.length > 0 && (
+                    <Message.Links links={messageFields.sources} />
                   )}
                 </Message>
               ))}
