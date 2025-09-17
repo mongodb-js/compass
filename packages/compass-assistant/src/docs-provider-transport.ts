@@ -67,7 +67,7 @@ export class DocsProviderTransport implements ChatTransport<AssistantMessage> {
       },
     });
 
-    return Promise.resolve(result.toUIMessageStream());
+    return Promise.resolve(result.toUIMessageStream({ sendSources: true }));
   }
 
   reconnectToStream(): Promise<ReadableStream<UIMessageChunk> | null> {

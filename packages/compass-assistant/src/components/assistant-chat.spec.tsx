@@ -4,6 +4,7 @@ import {
   screen,
   userEvent,
   waitFor,
+  within,
 } from '@mongodb-js/testing-library-compass';
 import { AssistantChat } from './assistant-chat';
 import { expect } from 'chai';
@@ -30,6 +31,12 @@ describe('AssistantChat', function () {
         {
           type: 'text',
           text: 'Hello! How can I help you with MongoDB today?',
+        },
+        {
+          type: 'source-url',
+          title: 'MongoDB',
+          url: 'https://en.wikipedia.org/wiki/MongoDB',
+          sourceId: '1',
         },
       ],
     },
@@ -472,16 +479,14 @@ describe('AssistantChat', function () {
       );
 
       // First click thumbs down to potentially open feedback form
-      const thumbsDownButton = assistantMessage.querySelector(
-        '[aria-label="Thumbs Down Icon"]'
-      ) as HTMLElement;
+      const thumbsDownButton = within(assistantMessage).getByLabelText(
+        'Dislike this message'
+      );
 
       userEvent.click(thumbsDownButton);
 
       // Look for feedback text area (the exact implementation depends on LeafyGreen)
-      const feedbackTextArea = screen.getByTestId(
-        'lg-chat-message_actions-feedback_textarea'
-      );
+      const feedbackTextArea = within(assistantMessage).getByRole('textbox');
 
       userEvent.type(feedbackTextArea, 'This response was not helpful');
 
@@ -757,6 +762,35 @@ describe('AssistantChat', function () {
       expect(screen.queryByText('Confirm')).to.not.exist;
       expect(screen.queryByText('Cancel')).to.not.exist;
       expect(screen.getByText('This is a regular message')).to.exist;
+    });
+  });
+
+  describe('related sources', function () {
+    it('displays related resources links for assistant messages that include them', async function () {
+      renderWithChat(mockMessages);
+      userEvent.click(screen.getByLabelText('Expand Related Resources'));
+
+      // TODO(COMPASS-9860) can't find the links in test-electron on RHEL and Ubuntu.
+      if ((process as any).type === 'renderer') {
+        return this.skip();
+      }
+
+      await waitFor(() => {
+        expect(screen.getByRole('link', { name: 'MongoDB' })).to.have.attribute(
+          'href',
+          'https://en.wikipedia.org/wiki/MongoDB'
+        );
+      });
+    });
+
+    it('does not display related resources section when there are no source-url parts', function () {
+      const messages = mockMessages.map((message) => ({
+        ...message,
+        parts: message.parts.filter((part) => part.type !== 'source-url'),
+      }));
+      renderWithChat(messages);
+
+      expect(screen.queryByLabelText('Expand Related Resources')).to.not.exist;
     });
   });
 });

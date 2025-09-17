@@ -39,6 +39,8 @@ You CANNOT:
 2. Query MongoDB directly or execute code.
 3. Access the current state of the UI
 </inabilities>
+
+Always call the 'search_content' tool when asked a technical question that would benefit from getting relevant info from the documentation.
 `;
 };
 

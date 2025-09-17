@@ -7,7 +7,6 @@ import {
   LgChatChatWindow,
   LgChatLeafygreenChatProvider,
   LgChatMessage,
-  LgChatMessageActions,
   LgChatInputBar,
   spacing,
   css,
@@ -27,7 +26,6 @@ const { DisclaimerText } = LgChatChatDisclaimer;
 const { ChatWindow } = LgChatChatWindow;
 const { LeafyGreenChatProvider, Variant } = LgChatLeafygreenChatProvider;
 const { Message } = LgChatMessage;
-const { MessageActions } = LgChatMessageActions;
 const { InputBar } = LgChatInputBar;
 
 const GEN_AI_FAQ_LINK = 'https://www.mongodb.com/docs/generative-ai-faq/';
@@ -140,6 +138,12 @@ function makeErrorMessage(message: string) {
 
 const errorBannerWrapperStyles = css({
   margin: spacing[400],
+});
+
+const messagesWrapStyles = css({
+  display: 'flex',
+  flexDirection: 'column',
+  gap: spacing[400],
 });
 
 export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
@@ -282,9 +286,16 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
             data-testid="assistant-chat-messages"
             className={messageFeedFixesStyles}
           >
-            <div>
+            <div className={messagesWrapStyles}>
               {messages.map((message, index) => {
-                const { id, role, metadata } = message;
+                const { id, role, metadata, parts } = message;
+                const sources = parts
+                  .filter((part) => part.type === 'source-url')
+                  .map((part) => ({
+                    children: part.title || 'Documentation Link',
+                    href: part.url,
+                    variant: 'Docs',
+                  }));
                 if (metadata?.confirmation) {
                   const { description, state } = metadata.confirmation;
                   const isLastMessage = index === messages.length - 1;
@@ -315,7 +326,6 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
 
                 const isSender = role === 'user';
 
-                // Regular message rendering
                 return (
                   <Message
                     key={id}
@@ -324,12 +334,13 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
                     messageBody={displayText}
                     data-testid={`assistant-message-${id}`}
                   >
-                    {!isSender && (
-                      <MessageActions
+                    {isSender === false && (
+                      <Message.Actions
                         onRatingChange={handleFeedback}
                         onSubmitFeedback={handleFeedback}
                       />
                     )}
+                    {sources.length > 0 && <Message.Links links={sources} />}
                   </Message>
                 );
               })}
