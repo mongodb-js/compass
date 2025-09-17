@@ -379,7 +379,7 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
             />
           </div>
           <DisclaimerText className={disclaimerTextStyles}>
-            AI can make mistakes. Review for accuracy. See our{' '}
+            AI can make mistakes. Review for accuracy.{' '}
             <Link
               hideExternalIcon={false}
               href={GEN_AI_FAQ_LINK}
