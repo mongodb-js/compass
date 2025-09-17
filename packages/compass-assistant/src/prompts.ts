@@ -1,5 +1,11 @@
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import { redactConnectionString } from 'mongodb-connection-string-url';
+import type { AssistantMessage } from './compass-assistant-provider';
+
+export type EntryPointMessage = {
+  prompt: string;
+  metadata: AssistantMessage['metadata'];
+};
 
 export const APP_NAMES_FOR_PROMPT = {
   Compass: 'MongoDB Compass',
@@ -36,11 +42,6 @@ You CANNOT:
 
 Always call the 'search_content' tool when asked a technical question that would benefit from getting relevant info from the documentation.
 `;
-};
-
-export type EntryPointMessage = {
-  prompt: string;
-  displayText?: string;
 };
 
 export type ExplainPlanContext = {
@@ -116,7 +117,14 @@ Tell the user if indexes need to be created or modified to enable any recommenda
 <input>
 ${explainPlan}
 </input>`,
-    displayText: 'Interpret this explain plan output for me.',
+    metadata: {
+      displayText: 'Interpret this explain plan output for me.',
+      confirmation: {
+        description:
+          'Explain plan metadata, including the original query, may be used to process your request',
+        state: 'pending',
+      },
+    },
   };
 };
 
@@ -136,8 +144,6 @@ export const buildProactiveInsightsPrompt = (
   switch (context.id) {
     case 'aggregation-executed-without-index': {
       return {
-        displayText:
-          'Help me understand the performance impact of running aggregations without an index.',
         prompt: `The given MongoDB aggregation was executed without an index. Provide a concise human readable explanation that explains why it might degrade performance to not use an index. 
 
 Please suggest whether an existing index can be used to improve the performance of this query, or if a new index must be created, and describe how it can be accomplished in MongoDB Compass. Do not advise users to create indexes without weighing the pros and cons. 
@@ -147,12 +153,14 @@ Respond with as much concision and clarity as possible.
 <input>
 ${context.stages.join('\n')}
 </input>`,
+        metadata: {
+          displayText:
+            'Help me understand the performance impact of running aggregations without an index.',
+        },
       };
     }
     case 'query-executed-without-index':
       return {
-        displayText:
-          'Help me understand the performance impact of running queries without an index.',
         prompt: `The given MongoDB query was executed without an index. Provide a concise human readable explanation that explains why it might degrade performance to not use an index. 
 
 Please suggest whether an existing index can be used to improve the performance of this query, or if a new index must be created, and describe how it can be accomplished in MongoDB Compass. Do not advise users to create indexes without weighing the pros and cons. 
@@ -162,6 +170,10 @@ Respond with as much concision and clarity as possible.
 <input>
 ${context.query}
 </input>`,
+        metadata: {
+          displayText:
+            'Help me understand the performance impact of running queries without an index.',
+        },
       };
   }
 };
@@ -190,7 +202,9 @@ ${connectionString}
 
 Error message:
 ${connectionError}`,
-    displayText:
-      'Diagnose why my Compass connection is failing and help me debug it.',
+    metadata: {
+      displayText:
+        'Diagnose why my Compass connection is failing and help me debug it.',
+    },
   };
 };
