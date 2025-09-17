@@ -47,6 +47,7 @@ import {
   getHighlightedFields,
   relationshipToDiagramEdge,
 } from '../utils/nodes-and-edges';
+import toNS from 'mongodb-ns';
 
 const loadingContainerStyles = css({
   width: '100%',
@@ -57,11 +58,22 @@ const loaderStyles = css({
   margin: '0 auto',
 });
 
-const bannerStyles = css({
+const errorBannerStyles = css({
   margin: spacing[200],
   '& > div': {
     display: 'flex',
     alignItems: 'center',
+  },
+});
+
+const dataInfoBannerStyles = css({
+  margin: spacing[400],
+  position: 'absolute',
+  zIndex: 100,
+
+  h4: {
+    marginTop: 0,
+    marginBottom: 0,
   },
 });
 
@@ -73,7 +85,7 @@ const ErrorBannerWithRetry: React.FunctionComponent<{
   onRetryClick: () => void;
 }> = ({ children, onRetryClick }) => {
   return (
-    <Banner variant="danger" className={bannerStyles}>
+    <Banner variant="danger" className={errorBannerStyles}>
       <div>{children}</div>
       <Button
         className={bannerButtonStyles}
@@ -113,6 +125,8 @@ type SelectedItems = NonNullable<DiagramState>['selectedItems'];
 
 const DiagramContent: React.FunctionComponent<{
   diagramLabel: string;
+  database: string | null;
+  isNewlyCreatedDiagram?: boolean;
   model: StaticModel | null;
   isInRelationshipDrawingMode: boolean;
   editErrors?: string[];
@@ -134,6 +148,8 @@ const DiagramContent: React.FunctionComponent<{
   onRelationshipDrawn: () => void;
 }> = ({
   diagramLabel,
+  database,
+  isNewlyCreatedDiagram,
   model,
   isInRelationshipDrawingMode,
   newCollection,
@@ -151,6 +167,9 @@ const DiagramContent: React.FunctionComponent<{
   const diagram = useRef(useDiagram());
   const { openDrawer } = useDrawerActions();
   const { isDrawerOpen } = useDrawerState();
+  const [showDataInfoBanner, setshowDataInfoBanner] = useState(
+    isNewlyCreatedDiagram ?? false
+  );
 
   const setDiagramContainerRef = useCallback((ref: HTMLDivElement | null) => {
     if (ref) {
@@ -307,6 +326,20 @@ const DiagramContent: React.FunctionComponent<{
       data-testid="diagram-editor-container"
     >
       <div className={modelPreviewStyles} data-testid="model-preview">
+        {showDataInfoBanner && (
+          <Banner
+            variant="info"
+            dismissible
+            onClose={() => setshowDataInfoBanner(false)}
+            className={dataInfoBannerStyles}
+          >
+            <h4>Worried about your data?</h4>
+            This diagram was generated based on a sample of documents from{' '}
+            {database ?? 'a database'}. Changes made to the model here persist
+            in the diagram for planning purposes only and will not impact your
+            data.
+          </Banner>
+        )}
         <Diagram
           isDarkMode={isDarkMode}
           title={diagramLabel}
@@ -331,11 +364,16 @@ const DiagramContent: React.FunctionComponent<{
 const ConnectedDiagramContent = connect(
   (state: DataModelingState) => {
     const { diagram } = state;
+    const model = diagram ? selectCurrentModelFromState(state) : null;
     return {
-      model: diagram ? selectCurrentModelFromState(state) : null,
+      model,
       diagramLabel: diagram?.name || 'Schema Preview',
       selectedItems: state.diagram?.selectedItems ?? null,
       newCollection: diagram?.draftCollection,
+      isNewlyCreatedDiagram: diagram?.isNewlyCreated,
+      database: model?.collections[0]?.ns
+        ? toNS(model.collections[0].ns).database
+        : null, // TODO(COMPASS-9718): use diagram.database
     };
   },
   {
