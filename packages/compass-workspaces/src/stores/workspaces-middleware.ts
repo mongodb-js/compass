@@ -149,25 +149,23 @@ async function saveWorkspaceStateToUserData(
 /**
  * Loads the workspace state from persistent storage
  */
-export async function loadWorkspaceStateFromUserData(): Promise<WorkspacesStateData | null> {
-  try {
-    const savedState = await workspacesUserData.readOne('current-workspace', {
-      ignoreErrors: true,
-    });
-    console.log('Loaded saved state', savedState);
-    return savedState || null;
-  } catch (error) {
-    // eslint-disable-next-line no-console
-    console.error('Failed to load workspace state from UserData:', error);
+export async function loadWorkspaceStateFromUserData(): Promise<
+  OpenWorkspaceOptions[] | null
+> {
+  const savedState = await workspacesUserData.readOne('current-workspace', {
+    ignoreErrors: true,
+  });
+  if (!savedState) {
     return null;
   }
+  return convertSavedStateToOpenWorkspaceOptions(savedState);
 }
 
 /**
  * Converts saved workspace state data back to OpenWorkspaceOptions format
  * for initializing the store
  */
-export function convertSavedStateToInitialTabs(
+function convertSavedStateToOpenWorkspaceOptions(
   savedState: WorkspacesStateData
 ): OpenWorkspaceOptions[] {
   return savedState.tabs.map((tab) => {

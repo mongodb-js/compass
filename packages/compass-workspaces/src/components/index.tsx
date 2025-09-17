@@ -152,7 +152,7 @@ const WorkspacesWithSidebar: React.FunctionComponent<
         <div className={workspacesStyles}>
           <Workspaces
             openOnEmptyWorkspace={openOnEmptyWorkspace}
-            savedTabsPromise={savedWorkspacesPromise}
+            savedWorkspacesPromise={savedWorkspacesPromise}
           ></Workspaces>
         </div>
       </div>
