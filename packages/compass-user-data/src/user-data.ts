@@ -10,7 +10,7 @@ const { log, mongoLogId } = createLogger('COMPASS-USER-STORAGE');
 
 type SerializeContent<I> = (content: I) => string;
 type DeserializeContent = (content: string) => unknown;
-type GetResourceUrl = (path?: string) => Promise<string>;
+type GetResourceUrl = (path?: string) => string;
 type AuthenticatedFetch = (
   url: RequestInfo | URL,
   options?: RequestInit
@@ -296,7 +296,7 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
   }
 
   async write(id: string, content: z.input<T>): Promise<boolean> {
-    const url = await this.getResourceUrl(
+    const url = this.getResourceUrl(
       `${this.dataType}/${this.orgId}/${this.projectId}`
     );
 
@@ -332,7 +332,7 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
   }
 
   async delete(id: string): Promise<boolean> {
-    const url = await this.getResourceUrl(
+    const url = this.getResourceUrl(
       `${this.dataType}/${this.orgId}/${this.projectId}/${id}`
     );
 
@@ -362,9 +362,7 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
     };
     try {
       const response = await this.authenticatedFetch(
-        await this.getResourceUrl(
-          `${this.dataType}/${this.orgId}/${this.projectId}`
-        ),
+        this.getResourceUrl(`${this.dataType}/${this.orgId}/${this.projectId}`),
         {
           method: 'GET',
         }
@@ -397,7 +395,7 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
       };
 
       await this.authenticatedFetch(
-        await this.getResourceUrl(
+        this.getResourceUrl(
           `${this.dataType}/${this.orgId}/${this.projectId}/${id}`
         ),
         {
@@ -415,7 +413,7 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
         'Atlas Backend',
         'Error updating data',
         {
-          url: await this.getResourceUrl(
+          url: this.getResourceUrl(
             `${this.dataType}/${this.orgId}/${this.projectId}/${id}`
           ),
           error: (error as Error).message,
@@ -427,7 +425,7 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
 
   // TODO: change this depending on whether or not updateAttributes can provide all current data
   async readOne(id: string): Promise<z.output<T>> {
-    const url = await this.getResourceUrl(
+    const url = this.getResourceUrl(
       `${this.dataType}/${this.orgId}/${this.projectId}/${id}`
     );
 
