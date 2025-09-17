@@ -47,8 +47,8 @@ import type { AllPreferences } from 'compass-preferences-model/provider';
 import { PreferencesProvider } from 'compass-preferences-model/provider';
 import FieldStorePlugin from '@mongodb-js/compass-field-store';
 import {
+  atlasServiceLocator,
   AtlasServiceProvider,
-  useAtlasServiceContext,
 } from '@mongodb-js/atlas-service/provider';
 import { AtlasAiServiceProvider } from '@mongodb-js/compass-generative-ai/provider';
 import { LoggerProvider } from '@mongodb-js/compass-logging/provider';
@@ -64,6 +64,7 @@ import { WorkspaceTab as MyQueriesWorkspace } from '@mongodb-js/compass-saved-ag
 import { useCompassWebPreferences } from './preferences';
 import { DataModelingWorkspaceTab as DataModelingWorkspace } from '@mongodb-js/compass-data-modeling';
 import { DataModelStorageServiceProviderInMemory } from '@mongodb-js/compass-data-modeling/web';
+// My Queries storage (web variant uses Atlas user data backend)
 import {
   CompassFavoriteQueryStorage,
   CompassPipelineStorage,
@@ -77,6 +78,7 @@ import {
   type RecentQueryStorageAccess,
   type PipelineStorageAccess,
 } from '@mongodb-js/my-queries-storage/provider';
+import { createServiceProvider } from '@mongodb-js/compass-app-registry';
 import { CompassAssistantProvider } from '@mongodb-js/compass-assistant';
 import { CompassAssistantDrawerWithConnections } from './compass-assistant-drawer';
 import { APP_NAMES_FOR_PROMPT } from '@mongodb-js/compass-assistant';
@@ -103,69 +105,66 @@ const WithAtlasProviders: React.FC<{ children: React.ReactNode }> = ({
   );
 };
 
-const WithStorageProviders: React.FC<{
-  orgId: string;
-  projectId: string;
-  children: React.ReactNode;
-}> = ({ children, orgId, projectId }) => {
-  const atlasService = useAtlasServiceContext();
-  const authenticatedFetch = atlasService.authenticatedFetch.bind(atlasService);
-  const getResourceUrl = (path?: string) => {
-    const url = atlasService.userDataEndpoint(`/${path || ''}`);
-    return url;
-  };
-  const pipelineStorage = useRef<PipelineStorageAccess>({
-    getStorage(options?: {
-      basePath?: string;
-      orgId?: string;
-      projectId?: string;
-      getResourceUrl?: (path?: string) => string;
-      authenticatedFetch?: (
-        url: RequestInfo | URL,
-        options?: RequestInit
-      ) => Promise<Response>;
-    }) {
-      return new CompassPipelineStorage({
-        ...options,
-        orgId,
-        projectId,
-        getResourceUrl,
-        authenticatedFetch,
-      });
-    },
-  });
-  const favoriteQueryStorage = useRef<FavoriteQueryStorageAccess>({
-    getStorage(options) {
-      return new CompassFavoriteQueryStorage({
-        ...options,
-        orgId,
-        projectId,
-        getResourceUrl,
-        authenticatedFetch,
-      });
-    },
-  });
-  const recentQueryStorage = useRef<RecentQueryStorageAccess>({
-    getStorage(options) {
-      return new CompassRecentQueryStorage({
-        ...options,
-        orgId,
-        projectId,
-        getResourceUrl,
-        authenticatedFetch,
-      });
-    },
-  });
-  return (
-    <PipelineStorageProvider value={pipelineStorage.current}>
-      <FavoriteQueryStorageProvider value={favoriteQueryStorage.current}>
-        <RecentQueryStorageProvider value={recentQueryStorage.current}>
-          {children}
-        </RecentQueryStorageProvider>
-      </FavoriteQueryStorageProvider>
-    </PipelineStorageProvider>
-  );
-};
+const WithStorageProviders = createServiceProvider(
+  function WithStorageProviders({
+    orgId,
+    projectId,
+    children,
+  }: {
+    orgId: string;
+    projectId: string;
+    children: React.ReactNode;
+  }) {
+    const atlasService = atlasServiceLocator();
+    const authenticatedFetch =
+      atlasService.authenticatedFetch.bind(atlasService);
+    const getResourceUrl = (path?: string) =>
+      atlasService.userDataEndpoint(`/${path || ''}`);
+
+    const pipelineStorage = useRef<PipelineStorageAccess>({
+      getStorage(options) {
+        return new CompassPipelineStorage({
+          ...options,
+          orgId,
+          projectId,
+          getResourceUrl,
+          authenticatedFetch,
+        });
+      },
+    });
+    const favoriteQueryStorage = useRef<FavoriteQueryStorageAccess>({
+      getStorage(options) {
+        return new CompassFavoriteQueryStorage({
+          ...options,
+          orgId,
+          projectId,
+          getResourceUrl,
+          authenticatedFetch,
+        });
+      },
+    });
+    const recentQueryStorage = useRef<RecentQueryStorageAccess>({
+      getStorage(options) {
+        return new CompassRecentQueryStorage({
+          ...options,
+          orgId,
+          projectId,
+          getResourceUrl,
+          authenticatedFetch,
+        });
+      },
+    });
+    return (
+      <PipelineStorageProvider value={pipelineStorage.current}>
+        <FavoriteQueryStorageProvider value={favoriteQueryStorage.current}>
+          <RecentQueryStorageProvider value={recentQueryStorage.current}>
+            {children}
+          </RecentQueryStorageProvider>
+        </FavoriteQueryStorageProvider>
+      </PipelineStorageProvider>
+    );
+  }
+);
 
 type CompassWorkspaceProps = Pick<
   React.ComponentProps<typeof WorkspacesPlugin>,

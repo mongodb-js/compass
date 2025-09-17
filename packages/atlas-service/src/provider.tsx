@@ -48,7 +48,7 @@ export const AtlasServiceProvider: React.FC<{
   );
 });
 
-export function useAtlasServiceContext(): AtlasService {
+function useAtlasServiceContext(): AtlasService {
   const service = useContext(AtlasServiceContext);
   if (!service) {
     throw new Error('No AtlasService available in this context');
