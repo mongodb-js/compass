@@ -234,9 +234,10 @@ async function dragNode(
       y: Math.round(startPosition.y + 15), // we're aiming for the header area (top of the node)
     })
     .down({ button: 0 }) // Left mouse button
-    .move({ duration: 250, origin: 'pointer', ...pointerActionMoveParams })
     .pause(250)
     .move({ duration: 250, origin: 'pointer', ...pointerActionMoveParams })
+    .pause(250)
+    // .move({ duration: 250, origin: 'pointer', ...pointerActionMoveParams })
     .up({ button: 0 }) // Release the left mouse button
     .perform();
   await browser.waitForAnimations(node);
@@ -258,12 +259,13 @@ async function dragDiagramToShowAndClick(
   let elementPosition = await targetElement.getLocation();
   let elementSize = await targetElement.getSize();
 
-  const DRAG_INCREMENT = 50;
+  const DRAG_INCREMENT = 100;
 
   let diagramBackgroundPosition = await browser
     .$(Selectors.DataModelPreview)
     .getLocation();
 
+  // Distance from the origin of the diagram to the center of the element.
   function getDistanceToElementCenter() {
     return Math.abs(
       Math.floor(
@@ -289,6 +291,7 @@ async function dragDiagramToShowAndClick(
     return true;
   }
 
+  // Drag in increments as the diagram can be large, and we can't drag off of the page in one go.
   while (
     !(await attemptClick()) &&
     getDistanceToElementCenter() > DRAG_INCREMENT * 4

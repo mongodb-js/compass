@@ -6,7 +6,12 @@ import {
   InlineDefinition,
   css,
 } from '@mongodb-js/compass-components';
-import type { NodeProps, EdgeProps, BaseNode } from '@mongodb-js/diagramming';
+import type {
+  NodeField,
+  NodeProps,
+  EdgeProps,
+  BaseNode,
+} from '@mongodb-js/diagramming';
 import type { MongoDBJSONSchema } from 'mongodb-schema';
 import type { SelectedItems } from '../store/diagram';
 import type {
@@ -103,6 +108,14 @@ export const getHighlightedFields = (
   return selection;
 };
 
+const getBaseNodeField = (fieldPath: string[]): NodeField => {
+  return {
+    name: fieldPath[fieldPath.length - 1],
+    id: fieldPath,
+    depth: fieldPath.length - 1,
+  };
+};
+
 export const getFieldsFromSchema = ({
   jsonSchema,
   highlightedFields = [],
@@ -113,24 +126,22 @@ export const getFieldsFromSchema = ({
   highlightedFields?: FieldPath[];
   selectedField?: FieldPath;
   onClickAddNestedField: (parentFieldPath: string[]) => void;
-}): NodeProps['fields'] => {
+}): NodeField[] => {
   if (!jsonSchema || !jsonSchema.properties) {
     return [];
   }
-  const fields: NodeProps['fields'] = [];
+  const fields: NodeField[] = [];
 
   traverseSchema({
     jsonSchema,
     visitor: ({ fieldPath, fieldTypes }) => {
       fields.push({
-        name: fieldPath[fieldPath.length - 1],
-        id: fieldPath,
+        ...getBaseNodeField(fieldPath),
         type: getFieldTypeDisplay({
           bsonTypes: fieldTypes,
           typeDisplayTestId: `data-model-field-type-${fieldPath.join('-')}`, // Could have duplications, that's okay for test ids.
           onClickAddNestedField: () => onClickAddNestedField(fieldPath),
         }),
-        depth: fieldPath.length - 1,
         glyphs:
           fieldTypes.length === 1 && fieldTypes[0] === 'objectId'
             ? ['key']
@@ -160,20 +171,16 @@ export const getBaseFieldsFromSchema = ({
   jsonSchema,
 }: {
   jsonSchema: MongoDBJSONSchema;
-}): NodeProps['fields'] => {
+}): NodeField[] => {
   if (!jsonSchema || !jsonSchema.properties) {
     return [];
   }
-  const fields: NodeProps['fields'] = [];
+  const fields: NodeField[] = [];
 
   traverseSchema({
     jsonSchema,
     visitor: ({ fieldPath }) => {
-      fields.push({
-        name: fieldPath[fieldPath.length - 1],
-        id: fieldPath,
-        depth: fieldPath.length - 1,
-      });
+      fields.push(getBaseNodeField(fieldPath));
     },
   });
 
