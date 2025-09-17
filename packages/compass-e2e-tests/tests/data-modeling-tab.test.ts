@@ -257,27 +257,12 @@ async function dragDiagramToShowAndClick(
   const targetElement = browser.$(selector);
 
   let elementPosition = await targetElement.getLocation();
-  let elementSize = await targetElement.getSize();
 
   const DRAG_INCREMENT = 100;
 
   let diagramBackgroundPosition = await browser
     .$(Selectors.DataModelPreview)
     .getLocation();
-
-  // Distance from the origin of the diagram to the center of the element.
-  function getDistanceToElementCenter() {
-    return Math.abs(
-      Math.floor(
-        elementPosition.x + elementSize.width / 2 - diagramBackgroundPosition.x
-      ) +
-        Math.floor(
-          elementPosition.y +
-            elementSize.height / 2 -
-            diagramBackgroundPosition.y
-        )
-    );
-  }
 
   async function attemptClick() {
     try {
@@ -291,13 +276,11 @@ async function dragDiagramToShowAndClick(
     return true;
   }
 
+  let dragAndClickAttempts = 0;
+
   // Drag in increments as the diagram can be large, and we can't drag off of the page in one go.
-  while (
-    !(await attemptClick()) &&
-    getDistanceToElementCenter() > DRAG_INCREMENT * 4
-  ) {
+  while (!(await attemptClick())) {
     elementPosition = await targetElement.getLocation();
-    elementSize = await targetElement.getSize();
 
     diagramBackgroundPosition = await browser
       .$(Selectors.DataModelPreview)
@@ -342,6 +325,13 @@ async function dragDiagramToShowAndClick(
       .perform();
 
     await browser.waitForAnimations(Selectors.DataModelPreview);
+
+    dragAndClickAttempts--;
+    if (dragAndClickAttempts > 20) {
+      throw new Error(
+        `Could not drag the diagram to show and click the element with selector ${selector}. Attempted to reposition and click ${dragAndClickAttempts} times.`
+      );
+    }
   }
 
   return elementPosition;
@@ -962,7 +952,8 @@ describe('Data Modeling tab', function () {
       );
 
       // Add two fields to the collection.
-      await browser.clickVisible(
+      await dragDiagramToShowAndClick(
+        browser,
         Selectors.DataModelCollectionAddFieldBtn('test.testCollection-one')
       );
 
