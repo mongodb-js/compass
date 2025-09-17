@@ -345,8 +345,6 @@ const reducer: Reducer<CollectionState, Action> = (
     switch (currentStep) {
       case MockDataGeneratorStep.SCHEMA_EDITOR:
         nextStep = MockDataGeneratorStep.DOCUMENT_COUNT;
-        // uncomment this to simulate Preview step while document count is not implemented
-        nextStep = MockDataGeneratorStep.PREVIEW_DATA;
         break;
       case MockDataGeneratorStep.DOCUMENT_COUNT:
         nextStep = MockDataGeneratorStep.PREVIEW_DATA;

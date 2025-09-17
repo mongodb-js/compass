@@ -2,8 +2,10 @@ import { expect } from 'chai';
 import { faker } from '@faker-js/faker/locale/en';
 import {
   generateScript,
+  generateDocument,
   type FakerFieldMapping,
 } from './script-generation-utils';
+import type { ValidatedFakerSchemaMapping } from './types';
 
 /**
  * Helper function to test that generated document code is executable
@@ -1253,6 +1255,137 @@ describe('Script Generation', () => {
         // Test that the generated document code is executable
         testDocumentCodeExecution(result.script);
       }
+    });
+  });
+
+  describe('generateDocument', () => {
+    const createValidatedSchemaMapping = (
+      fieldPath: string,
+      fakerMethod: string,
+      mongoType: string = 'String',
+      fakerArgs: any[] = []
+    ) =>
+      ({
+        fieldPath,
+        fakerMethod,
+        mongoType,
+        fakerArgs,
+      } as ValidatedFakerSchemaMapping);
+
+    it('should generate document with simple flat fields of mixed types', () => {
+      const schema: ValidatedFakerSchemaMapping[] = [
+        createValidatedSchemaMapping('name', 'person.fullName'),
+        createValidatedSchemaMapping('age', 'number.int', 'Number'),
+        createValidatedSchemaMapping('isActive', 'datatype.boolean', 'Boolean'),
+        createValidatedSchemaMapping('createdAt', 'date.recent', 'Date'),
+        createValidatedSchemaMapping(
+          '_id',
+          'database.mongodbObjectId',
+          'ObjectId'
+        ),
+      ];
+
+      const document = generateDocument(schema);
+
+      expect(document).to.be.an('object');
+      expect(document).to.have.property('name');
+      expect(document.name).to.be.a('string').and.not.be.empty;
+      expect(document).to.have.property('age');
+      expect(document.age).to.be.a('number');
+      expect(document).to.have.property('isActive');
+      expect(document.isActive).to.be.a('boolean');
+      expect(document).to.have.property('createdAt');
+      expect(document.createdAt).to.be.a('date');
+      expect(document).to.have.property('_id');
+      expect(document._id).to.be.a('string');
+    });
+
+    it('should generate document with multi-dimensional arrays of mixed types', () => {
+      const schema: ValidatedFakerSchemaMapping[] = [
+        createValidatedSchemaMapping(
+          'numberMatrix[][]',
+          'number.int',
+          'Number'
+        ),
+        createValidatedSchemaMapping('stringMatrix[][]', 'lorem.word'),
+        createValidatedSchemaMapping(
+          'booleanGrid[][]',
+          'datatype.boolean',
+          'Boolean'
+        ),
+      ];
+
+      const arrayLengthMap = {
+        numberMatrix: [2, 3],
+        stringMatrix: [2, 2],
+        booleanGrid: [3, 2],
+      };
+
+      const document = generateDocument(schema, arrayLengthMap);
+
+      expect(document).to.be.an('object');
+      expect(document).to.have.property('numberMatrix');
+      expect(document.numberMatrix).to.be.an('array').with.length(2);
+      expect(document.numberMatrix[0]).to.be.an('array').with.length(3);
+      expect(document.numberMatrix[0][0]).to.be.a('number');
+
+      expect(document).to.have.property('stringMatrix');
+      expect(document.stringMatrix).to.be.an('array').with.length(2);
+      expect(document.stringMatrix[0]).to.be.an('array').with.length(2);
+      expect(document.stringMatrix[0][0]).to.be.a('string').and.not.be.empty;
+
+      expect(document).to.have.property('booleanGrid');
+      expect(document.booleanGrid).to.be.an('array').with.length(3);
+      expect(document.booleanGrid[0]).to.be.an('array').with.length(2);
+      expect(document.booleanGrid[0][0]).to.be.a('boolean');
+    });
+
+    it('should handle complex nested structures with arrays and objects', () => {
+      const schema: ValidatedFakerSchemaMapping[] = [
+        createValidatedSchemaMapping('company.name', 'company.name'),
+        createValidatedSchemaMapping(
+          'company.employees[].name',
+          'person.fullName'
+        ),
+        createValidatedSchemaMapping(
+          'company.employees[].email',
+          'internet.email'
+        ),
+        createValidatedSchemaMapping(
+          'company.employees[].skills[]',
+          'lorem.word'
+        ),
+        createValidatedSchemaMapping('company.founded', 'date.past', 'Date'),
+        createValidatedSchemaMapping(
+          'company.isActive',
+          'datatype.boolean',
+          'Boolean'
+        ),
+      ];
+
+      const document = generateDocument(schema);
+
+      expect(document).to.be.an('object');
+      expect(document).to.have.property('company');
+      expect(document.company).to.be.an('object');
+      expect(document.company).to.have.property('name');
+      expect(document.company.name).to.be.a('string').and.not.be.empty;
+      expect(document.company).to.have.property('founded');
+      expect(document.company.founded).to.be.a('date');
+      expect(document.company).to.have.property('isActive');
+      expect(document.company.isActive).to.be.a('boolean');
+      expect(document.company).to.have.property('employees');
+      expect(document.company.employees).to.be.an('array').with.length(3);
+
+      const firstEmployee = document.company.employees[0];
+      expect(firstEmployee).to.be.an('object');
+      expect(firstEmployee).to.have.property('name');
+      expect(firstEmployee.name).to.be.a('string').and.not.be.empty;
+      expect(firstEmployee).to.have.property('email');
+      expect(firstEmployee.email).to.be.a('string').and.include('@');
+      expect(firstEmployee).to.have.property('skills');
+      expect(firstEmployee.skills).to.be.an('array').with.length(3);
+      expect(firstEmployee.skills[0]).to.be.a('string').and.not.be.empty;
     });
   });
 });

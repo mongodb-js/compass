@@ -1,4 +1,7 @@
+import type { Document } from 'mongodb';
 import type { MongoDBFieldType } from '../../schema-analysis-types';
+import type { ValidatedFakerSchemaMapping } from './types';
+import { faker } from '@faker-js/faker/locale/en';
 
 export type FakerArg = string | number | boolean | { json: string };
 
@@ -590,4 +593,159 @@ export function formatFakerArgs(fakerArgs: FakerArg[]): string {
   }
 
   return stringifiedArgs.join(', ');
+}
+
+/**
+ * Generates documents for the PreviewScreen component.
+ */
+export function generateDocument(
+  fakerSchema: ValidatedFakerSchemaMapping[],
+  arrayLengthMap: ArrayLengthMap = {}
+): Document {
+  const documentSchema = convertSchemaArrayToRecord(fakerSchema);
+  const structure = buildDocumentStructure(documentSchema);
+  return constructDocumentValues(structure, arrayLengthMap);
+}
+
+/**
+ * Helper that bridges the data structure the PreviewScreen receives to the format
+ * expected by buildDocumentStructure
+ */
+function convertSchemaArrayToRecord(
+  fakerSchema: ValidatedFakerSchemaMapping[]
+): Record<string, FakerFieldMapping> {
+  const schema: Record<string, FakerFieldMapping> = {};
+
+  for (const field of fakerSchema) {
+    schema[field.fieldPath] = {
+      mongoType: field.mongoType as MongoDBFieldType,
+      fakerMethod: field.fakerMethod,
+      fakerArgs: field.fakerArgs,
+    };
+  }
+
+  return schema;
+}
+
+function generateFakerValue(
+  mapping: FakerFieldMapping
+): string | number | boolean | null | undefined {
+  const method =
+    mapping.fakerMethod === 'unrecognized'
+      ? getDefaultFakerMethod(mapping.mongoType)
+      : mapping.fakerMethod;
+
+  try {
+    // e.g., "person.firstName" -> ["person", "firstName"])
+    const [moduleName, methodName] = method.split('.');
+
+    // This check should not fail if fakerSchema is validated properly
+    if (typeof (faker as any)[moduleName]?.[methodName] !== 'function') {
+      return null;
+    }
+
+    const processedArgs = mapping.fakerArgs.map((arg) => {
+      if (typeof arg === 'object' && arg !== null && 'json' in arg) {
+        return JSON.parse(arg.json);
+      }
+      return arg;
+    });
+
+    // Call the faker method with processed arguments
+    const fakerModule = (faker as any)[moduleName];
+    return fakerModule[methodName](...processedArgs);
+  } catch {
+    return null;
+  }
+}
+
+function constructDocumentValues(
+  structure: DocumentStructure,
+  arrayLengthMap: ArrayLengthMap = {}
+): Document {
+  const result: Document = {};
+
+  for (const [fieldName, value] of Object.entries(structure)) {
+    if ('mongoType' in value) {
+      // It's a field mapping - generate the actual value
+      const mapping = value as FakerFieldMapping;
+      result[fieldName] = generateFakerValue(mapping);
+    } else if ('type' in value && value.type === 'array') {
+      // It's an array - generate array of values
+      const arrayStructure = value as ArrayStructure;
+      result[fieldName] = constructArrayValues(
+        arrayStructure,
+        fieldName,
+        arrayLengthMap,
+        0 // Start at dimension 0
+      );
+    } else {
+      // It's a nested object - recursively generate
+      const arrayInfo = arrayLengthMap[fieldName];
+      const nestedArrayLengthMap =
+        arrayInfo && !Array.isArray(arrayInfo) && 'elements' in arrayInfo
+          ? arrayInfo.elements
+          : {};
+
+      result[fieldName] = constructDocumentValues(
+        value as DocumentStructure,
+        nestedArrayLengthMap
+      );
+    }
+  }
+
+  return result;
+}
+
+function constructArrayValues(
+  arrayStructure: ArrayStructure,
+  fieldName: string = '',
+  arrayLengthMap: ArrayLengthMap = {},
+  dimensionIndex: number = 0
+): Document[] {
+  const elementType = arrayStructure.elementType;
+
+  // Get array length for this dimension (same logic as renderArrayCode)
+  const arrayInfo = arrayLengthMap[fieldName];
+  let arrayLength = DEFAULT_ARRAY_LENGTH;
+
+  if (Array.isArray(arrayInfo)) {
+    // single or multi-dimensional array: eg. [2, 3, 4] or [6]
+    arrayLength = arrayInfo[dimensionIndex] ?? DEFAULT_ARRAY_LENGTH;
+  } else if (arrayInfo && 'length' in arrayInfo) {
+    // Array of objects/documents
+    arrayLength = arrayInfo.length ?? DEFAULT_ARRAY_LENGTH;
+  }
+
+  const result: any[] = [];
+  for (let i = 0; i < arrayLength; i++) {
+    if ('mongoType' in elementType) {
+      // Array of primitives
+      result.push(generateFakerValue(elementType as FakerFieldMapping));
+    } else if ('type' in elementType && elementType.type === 'array') {
+      // Nested array (e.g., matrix[][]) - keep same fieldName, increment dimension
+      result.push(
+        constructArrayValues(
+          elementType as ArrayStructure,
+          fieldName,
+          arrayLengthMap,
+          dimensionIndex + 1 // Next dimension
+        )
+      );
+    } else {
+      // Array of objects
+      const nestedArrayLengthMap =
+        arrayInfo && !Array.isArray(arrayInfo) && 'elements' in arrayInfo
+          ? arrayInfo.elements
+          : {};
+      result.push(
+        constructDocumentValues(
+          elementType as DocumentStructure,
+          nestedArrayLengthMap
+        )
+      );
+    }
+  }
+
+  return result;
 }

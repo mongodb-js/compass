@@ -13,11 +13,8 @@ import {
   spacing,
 } from '@mongodb-js/compass-components';
 
-import {
-  type MockDataGeneratorState,
-  MockDataGeneratorStep,
-  ValidatedFakerSchemaMapping,
-} from './types';
+import type { ValidatedFakerSchemaMapping } from './types';
+import { type MockDataGeneratorState, MockDataGeneratorStep } from './types';
 import { StepButtonLabelMap } from './constants';
 import type { CollectionState } from '../../modules/collection-tab';
 import {
@@ -91,12 +88,15 @@ const MockDataGeneratorModal = ({
         // function validateFakerSchema(input: FakerSchemaMapping): asserts input is ValidatedFakerSchemaMapping {
         //     ...
         // }
-        const confirmedFakerSchema = (
-          fakerSchemaGenerationState.status === 'completed'
-            ? fakerSchemaGenerationState.fakerSchema
-            : []
-        ) as ValidatedFakerSchemaMapping[];
-        return <PreviewScreen confirmedFakerSchema={confirmedFakerSchema} />;
+        return (
+          <PreviewScreen
+            confirmedFakerSchema={
+              (fakerSchemaGenerationState.status === 'completed'
+                ? fakerSchemaGenerationState.fakerSchema
+                : []) as ValidatedFakerSchemaMapping[]
+            }
+          />
+        );
       case MockDataGeneratorStep.GENERATE_DATA:
         return <ScriptScreen />;
     }
