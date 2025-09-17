@@ -45,7 +45,7 @@ describe('Script Generation', () => {
     fakerMethod: string,
     probability?: number
   ): FakerFieldMapping => ({
-    mongoType: 'String',
+    mongoType: 'String' as const,
     fakerMethod,
     fakerArgs: [],
     ...(probability !== undefined && { probability }),
@@ -606,7 +606,7 @@ describe('Script Generation', () => {
     it('should use default faker method for unrecognized string fields', () => {
       const schema = {
         unknownField: {
-          mongoType: 'string',
+          mongoType: 'String' as const,
           fakerMethod: 'unrecognized',
           fakerArgs: [],
         },
@@ -636,32 +636,32 @@ describe('Script Generation', () => {
     it('should use default faker method for unrecognized number fields', () => {
       const schema = {
         unknownNumber: {
-          mongoType: 'number',
+          mongoType: 'Number' as const,
           fakerMethod: 'unrecognized',
           fakerArgs: [],
         },
         unknownInt: {
-          mongoType: 'int',
+          mongoType: 'Int32' as const,
           fakerMethod: 'unrecognized',
           fakerArgs: [],
         },
         unknownInt32: {
-          mongoType: 'int32',
+          mongoType: 'Int32' as const,
           fakerMethod: 'unrecognized',
           fakerArgs: [],
         },
         unknownInt64: {
-          mongoType: 'int64',
+          mongoType: 'Long' as const,
           fakerMethod: 'unrecognized',
           fakerArgs: [],
         },
         unknownLong: {
-          mongoType: 'long',
+          mongoType: 'Long' as const,
           fakerMethod: 'unrecognized',
           fakerArgs: [],
         },
         unknownDecimal128: {
-          mongoType: 'decimal128',
+          mongoType: 'Decimal128' as const,
           fakerMethod: 'unrecognized',
           fakerArgs: [],
         },
@@ -712,7 +712,7 @@ describe('Script Generation', () => {
     it('should use default faker method for unrecognized date fields', () => {
       const schema = {
         unknownDate: {
-          mongoType: 'date',
+          mongoType: 'Date' as const,
           fakerMethod: 'unrecognized',
           fakerArgs: [],
         },
@@ -736,7 +736,7 @@ describe('Script Generation', () => {
     it('should use default faker method for unrecognized boolean fields', () => {
       const schema = {
         unknownBool: {
-          mongoType: 'boolean',
+          mongoType: 'Boolean' as const,
           fakerMethod: 'unrecognized',
           fakerArgs: [],
         },
@@ -760,7 +760,7 @@ describe('Script Generation', () => {
     it('should use default faker method for unrecognized ObjectId fields', () => {
       const schema = {
         unknownId: {
-          mongoType: 'objectid',
+          mongoType: 'ObjectId' as const,
           fakerMethod: 'unrecognized',
           fakerArgs: [],
         },
@@ -784,7 +784,7 @@ describe('Script Generation', () => {
     it('should fall back to lorem.word for unknown MongoDB types', () => {
       const schema = {
         unknownType: {
-          mongoType: 'unknownType',
+          mongoType: 'String' as const,
           fakerMethod: 'unrecognized',
           fakerArgs: [],
         },
@@ -808,7 +808,7 @@ describe('Script Generation', () => {
     it('should use default faker method for timestamp fields', () => {
       const schema = {
         timestampField: {
-          mongoType: 'timestamp',
+          mongoType: 'Timestamp' as const,
           fakerMethod: 'unrecognized',
           fakerArgs: [],
         },
@@ -832,7 +832,7 @@ describe('Script Generation', () => {
     it('should use default faker method for regex fields', () => {
       const schema = {
         regexField: {
-          mongoType: 'regex',
+          mongoType: 'RegExp' as const,
           fakerMethod: 'unrecognized',
           fakerArgs: [],
         },
@@ -856,7 +856,7 @@ describe('Script Generation', () => {
     it('should use default faker method for javascript fields', () => {
       const schema = {
         jsField: {
-          mongoType: 'javascript',
+          mongoType: 'Code' as const,
           fakerMethod: 'unrecognized',
           fakerArgs: [],
         },
@@ -876,67 +876,13 @@ describe('Script Generation', () => {
         testDocumentCodeExecution(result.script);
       }
     });
-
-    it('should handle null fields by returning literal null', () => {
-      const schema = {
-        nullField: {
-          mongoType: 'null',
-          fakerMethod: 'unrecognized',
-          fakerArgs: [],
-        },
-      };
-
-      const result = generateScript(schema, {
-        databaseName: 'testdb',
-        collectionName: 'test',
-        documentCount: 1,
-      });
-
-      expect(result.success).to.equal(true);
-      if (result.success) {
-        expect(result.script).to.contain('nullField: null');
-
-        // Test that the generated document code is executable
-        const document = testDocumentCodeExecution(result.script);
-        expect(document).to.be.an('object');
-        expect(document).to.have.property('nullField');
-        expect(document.nullField).to.be.null;
-      }
-    });
-
-    it('should handle undefined fields by returning literal undefined', () => {
-      const schema = {
-        undefinedField: {
-          mongoType: 'undefined',
-          fakerMethod: 'unrecognized',
-          fakerArgs: [],
-        },
-      };
-
-      const result = generateScript(schema, {
-        databaseName: 'testdb',
-        collectionName: 'test',
-        documentCount: 1,
-      });
-
-      expect(result.success).to.equal(true);
-      if (result.success) {
-        expect(result.script).to.contain('undefinedField: undefined');
-
-        // Test that the generated document code is executable
-        const document = testDocumentCodeExecution(result.script);
-        expect(document).to.be.an('object');
-        expect(document).to.have.property('undefinedField');
-        expect(document.undefinedField).to.be.undefined;
-      }
-    });
   });
 
   describe('Faker Arguments', () => {
     it('should handle string arguments', () => {
       const schema = {
         name: {
-          mongoType: 'string',
+          mongoType: 'String' as const,
           fakerMethod: 'person.firstName',
           fakerArgs: ['male'],
         },
@@ -960,7 +906,7 @@ describe('Script Generation', () => {
     it('should handle number arguments', () => {
       const schema = {
         age: {
-          mongoType: 'number',
+          mongoType: 'Number' as const,
           fakerMethod: 'number.int',
           fakerArgs: [18, 65],
         },
@@ -984,7 +930,7 @@ describe('Script Generation', () => {
     it('should handle JSON object arguments', () => {
       const schema = {
         score: {
-          mongoType: 'number',
+          mongoType: 'Number' as const,
           fakerMethod: 'number.int',
           fakerArgs: [{ json: '{"min":0,"max":100}' }],
         },
@@ -1010,7 +956,7 @@ describe('Script Generation', () => {
     it('should handle JSON array arguments', () => {
       const schema = {
         color: {
-          mongoType: 'string',
+          mongoType: 'String' as const,
           fakerMethod: 'helpers.arrayElement',
           fakerArgs: [{ json: "['red', 'blue', 'green']" }],
         },
@@ -1036,7 +982,7 @@ describe('Script Generation', () => {
     it('should handle mixed argument types', () => {
       const schema = {
         description: {
-          mongoType: 'string',
+          mongoType: 'String' as const,
           fakerMethod: 'lorem.words',
           fakerArgs: [5, true],
         },
@@ -1060,7 +1006,7 @@ describe('Script Generation', () => {
     it('should safely handle quotes and special characters in string arguments', () => {
       const schema = {
         quote: {
-          mongoType: 'string',
+          mongoType: 'String' as const,
           fakerMethod: 'helpers.arrayElement',
           fakerArgs: [
             { json: '["It\'s a \'test\' string", "another option"]' },
@@ -1088,7 +1034,7 @@ describe('Script Generation', () => {
     it('should handle empty arguments array', () => {
       const schema = {
         id: {
-          mongoType: 'string',
+          mongoType: 'String' as const,
           fakerMethod: 'string.uuid',
           fakerArgs: [],
         },
@@ -1156,19 +1102,19 @@ describe('Script Generation', () => {
     it('should default invalid probability to 1.0', () => {
       const schema = {
         field1: {
-          mongoType: 'string',
+          mongoType: 'String' as const,
           fakerMethod: 'lorem.word',
           fakerArgs: [],
           probability: 1.5, // Invalid - should default to 1.0
         },
         field2: {
-          mongoType: 'string',
+          mongoType: 'String' as const,
           fakerMethod: 'lorem.word',
           fakerArgs: [],
           probability: -0.5, // Invalid - should default to 1.0
         },
         field3: {
-          mongoType: 'string',
+          mongoType: 'String' as const,
           fakerMethod: 'lorem.word',
           fakerArgs: [],
           probability: 'invalid' as any, // Invalid - should default to 1.0
@@ -1258,7 +1204,7 @@ describe('Script Generation', () => {
     it('should handle probability with faker arguments', () => {
       const schema = {
         conditionalAge: {
-          mongoType: 'number',
+          mongoType: 'Number' as const,
           fakerMethod: 'number.int',
           fakerArgs: [18, 65],
           probability: 0.9,
@@ -1285,7 +1231,7 @@ describe('Script Generation', () => {
     it('should handle probability with unrecognized fields', () => {
       const schema = {
         unknownField: {
-          mongoType: 'string',
+          mongoType: 'String' as const,
           fakerMethod: 'unrecognized',
           fakerArgs: [],
           probability: 0.5,

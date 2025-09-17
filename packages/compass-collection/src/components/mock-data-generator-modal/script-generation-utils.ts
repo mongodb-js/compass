@@ -1,10 +1,12 @@
+import type { MongoDBFieldType } from '../../schema-analysis-types';
+
 export type FakerArg = string | number | boolean | { json: string };
 
 const DEFAULT_ARRAY_LENGTH = 3;
 const INDENT_SIZE = 2;
 
 export interface FakerFieldMapping {
-  mongoType: string;
+  mongoType: MongoDBFieldType;
   fakerMethod: string;
   fakerArgs: FakerArg[];
   probability?: number; // 0.0 - 1.0 frequency of field (defaults to 1.0)
@@ -471,12 +473,6 @@ function renderArrayCode(
  * Generate faker.js call from field mapping
  */
 function generateFakerCall(mapping: FakerFieldMapping): string {
-  if (mapping.mongoType === 'null') {
-    return 'null';
-  }
-  if (mapping.mongoType === 'undefined') {
-    return 'undefined';
-  }
   const method =
     mapping.fakerMethod === 'unrecognized'
       ? getDefaultFakerMethod(mapping.mongoType)
@@ -489,73 +485,57 @@ function generateFakerCall(mapping: FakerFieldMapping): string {
 /**
  * Gets default faker method for unrecognized fields based on MongoDB type
  */
-export function getDefaultFakerMethod(mongoType: string): string {
-  switch (mongoType.toLowerCase()) {
+export function getDefaultFakerMethod(mongoType: MongoDBFieldType): string {
+  switch (mongoType) {
     // String types
-    case 'string':
+    case 'String':
       return 'lorem.word';
 
     // Numeric types
-    case 'number':
-    case 'int':
-    case 'int32':
-    case 'int64':
-    case 'long':
+    case 'Number':
+    case 'Int32':
+    case 'Long':
       return 'number.int';
-    case 'double':
-    case 'decimal128':
+    case 'Decimal128':
       return 'number.float';
 
     // Date and time types
-    case 'date':
-    case 'timestamp':
+    case 'Date':
+    case 'Timestamp':
       return 'date.recent';
 
     // Object identifier
-    case 'objectid':
+    case 'ObjectId':
       return 'database.mongodbObjectId';
 
     // Boolean
-    case 'boolean':
-    case 'bool':
+    case 'Boolean':
       return 'datatype.boolean';
 
     // Binary
-    case 'binary':
-    case 'bindata':
+    case 'Binary':
       return 'string.hexadecimal';
 
-    // Array
-    case 'array':
-      return 'lorem.word';
-
-    // Object/Document type
-    case 'object':
-    case 'document':
-      return 'lorem.word';
-
     // Regular expression
-    case 'regex':
-    case 'regexp':
+    case 'RegExp':
       return 'lorem.word';
 
     // JavaScript code
-    case 'javascript':
-    case 'code':
+    case 'Code':
       return 'lorem.sentence';
 
     // MinKey and MaxKey
-    case 'minkey':
+    case 'MinKey':
       return 'number.int';
-    case 'maxkey':
+    case 'MaxKey':
       return 'number.int';
 
     // Symbol (deprecated)
-    case 'symbol':
+    case 'Symbol':
       return 'lorem.word';
 
-    // DBPointer (deprecated)
-    case 'dbpointer':
+    // DBRef
+    case 'DBRef':
       return 'database.mongodbObjectId';
 
     // Default fallback
