@@ -251,7 +251,7 @@ const WorkspacesPlugin = registerCompassPlugin(
 );
 
 export { loadWorkspaceStateFromUserData } from './stores/workspaces-middleware';
-export type { WorkspacesStateSchema } from './stores/workspaces-storage';
+export { WorkspacesStateSchema } from './stores/workspaces-storage';
 export default WorkspacesPlugin;
 export { WorkspacesProvider } from './components/workspaces-provider';
 export type { OpenWorkspaceOptions, CollectionTabInfo };
