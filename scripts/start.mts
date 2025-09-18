@@ -54,6 +54,10 @@ if (
   targets.desktop.enabled = true;
 }
 
+// Check if we need prefixing (more than one target enabled)
+const enabledTargets = Object.values(targets).filter((t) => t.enabled);
+const needsPrefixing = enabledTargets.length > 1;
+
 const subProcesses: child_process.ChildProcess[] = [];
 async function cleanup(signal: NodeJS.Signals) {
   for (const p of subProcesses) p.kill(signal);
@@ -98,7 +102,8 @@ function spawnTarget(
   command: string,
   workspace: string,
   args: string[],
-  targetName: string
+  targetName: string,
+  usePrefixing: boolean
 ) {
   // Only set color-forcing env vars if user hasn't set color preferences
   const colorEnv: Record<string, string> = {};
@@ -132,23 +137,35 @@ function spawnTarget(
   // Set up stdout pipeline with error handling
   if (subProcess.stdout) {
     subProcess.stdout.setEncoding('utf-8');
-    pipeline(
-      subProcess.stdout,
-      createPrefixTransform(paddedName),
-      process.stdout,
-      { end: false } // Don't end process.stdout when subprocess ends
-    ).catch((err) => console.error(`start    | stdout pipeline error:`, err));
+    if (usePrefixing) {
+      pipeline(
+        subProcess.stdout,
+        createPrefixTransform(paddedName),
+        process.stdout,
+        { end: false }
+      ).catch((err) => console.error(`start    | stdout pipeline error:`, err));
+    } else {
+      pipeline(subProcess.stdout, process.stdout, { end: false }).catch((err) =>
+        console.error(`start    | stdout pipeline error:`, err)
+      );
+    }
   }
 
   // Set up stderr pipeline with error handling
   if (subProcess.stderr) {
     subProcess.stderr.setEncoding('utf-8');
-    pipeline(
-      subProcess.stderr,
-      createPrefixTransform(paddedName),
-      process.stderr,
-      { end: false } // Don't end process.stderr when subprocess ends
-    ).catch((err) => console.error(`start    | stderr pipeline error:`, err));
+    if (usePrefixing) {
+      pipeline(
+        subProcess.stderr,
+        createPrefixTransform(paddedName),
+        process.stderr,
+        { end: false }
+      ).catch((err) => console.error(`start    | stderr pipeline error:`, err));
+    } else {
+      pipeline(subProcess.stderr, process.stderr, { end: false }).catch((err) =>
+        console.error(`start    | stderr pipeline error:`, err)
+      );
+    }
   }
 
   return subProcess;
@@ -156,13 +173,25 @@ function spawnTarget(
 
 if (targets.desktop.enabled) {
   subProcesses.push(
-    spawnTarget('start', 'mongodb-compass', targets.desktop.args, 'desktop')
+    spawnTarget(
+      'start',
+      'mongodb-compass',
+      targets.desktop.args,
+      'desktop',
+      needsPrefixing
+    )
   );
 }
 
 if (targets.sync.enabled) {
   subProcesses.push(
-    spawnTarget('sync', '@mongodb-js/compass-web', targets.sync.args, 'sync')
+    spawnTarget(
+      'sync',
+      '@mongodb-js/compass-web',
+      targets.sync.args,
+      'sync',
+      needsPrefixing
+    )
   );
 }
 
@@ -172,7 +201,8 @@ if (targets.sandbox.enabled) {
       'start',
       '@mongodb-js/compass-web',
       targets.sandbox.args,
-      'sandbox'
+      'sandbox',
+      needsPrefixing
     )
   );
 }
