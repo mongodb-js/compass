@@ -720,21 +720,11 @@ const validateFakerSchema = (
       const { fakerMethod } = field;
 
       // validate faker method
-      const methodSegments = fakerMethod.split('.');
-      let methodRef: any = faker;
-      for (const segment of methodSegments) {
-        if (
-          methodRef &&
-          typeof methodRef === 'object' &&
-          segment in methodRef
-        ) {
-          methodRef = methodRef[segment];
-        } else {
-          methodRef = undefined;
-          break;
-        }
-      }
-      if (typeof methodRef !== 'function') {
+      const [moduleName, methodName, ...rest] = fakerMethod.split('.');
+      if (
+        rest.length > 0 ||
+        typeof (faker as any)[moduleName]?.[methodName] !== 'function'
+      ) {
         logger.log.warn(
           mongoLogId(1_001_000_372),
           'Collection',
