@@ -5,6 +5,7 @@ import {
   IconButton,
   InlineDefinition,
   css,
+  spacing,
 } from '@mongodb-js/compass-components';
 import type {
   NodeField,
@@ -35,6 +36,7 @@ function getBsonTypeName(bsonType: string) {
 
 const addNewFieldStyles = css({
   marginLeft: 'auto',
+  marginRight: spacing[100],
 });
 
 const mixedTypeTooltipContentStyles = css({

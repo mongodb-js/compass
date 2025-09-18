@@ -1460,6 +1460,13 @@ export const DataModelAddNestedFieldBtn = (
   `${DataModelPreview} [data-id="${collectionId}"] [data-testid="data-model-field-type-${fieldPath.join(
     '-'
   )}"]`;
+export const DataModelCollectionField = (
+  collectionId: string,
+  fieldPath: string[]
+) =>
+  `${DataModelPreview} [data-id="${collectionId}"] [data-testid="selectable-field-${collectionId}-${fieldPath.join(
+    '.'
+  )}"]`; // selectable-field-test.testCollection-one-renamedField.field-2
 export const DataModelApplyEditor = `${DataModelEditor} [data-testid="apply-editor"]`;
 export const DataModelEditorApplyButton = `${DataModelApplyEditor} [data-testid="apply-button"]`;
 export const DataModelUndoButton = 'button[aria-label="Undo"]';

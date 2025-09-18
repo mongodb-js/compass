@@ -1008,16 +1008,15 @@ describe('Data Modeling tab', function () {
       );
 
       // Ensure the new fields are in the diagram.
-      await browser.waitUntil(async () => {
-        collectionText = await browser
-          .$(Selectors.DataModelPreviewCollection('test.testCollection-one'))
-          .getText();
-
-        return (
-          collectionText.split('field-1').length === 3 &&
-          collectionText.includes('field-2')
-        );
-      });
+      const newFieldText = await browser
+        .$(
+          Selectors.DataModelCollectionField('test.testCollection-one', [
+            'renamedField',
+            'field-2',
+          ])
+        )
+        .getText();
+      expect(newFieldText).to.include('field-2');
     });
   });
 });
