@@ -89,7 +89,7 @@ Tell the user if indexes need to be created or modified to enable any recommenda
 
 [If you do not have any recommendations skip this part and go down to #Follow-Up Questions] Below is the recommended ${actionName}. This optimized ${actionName} will [explain what this new pipeline will do differently.]
 \`\`\`
-[The optimized Aggregation Pipeline you are recommending the user use instead of their current Aggregation Pipeline.]
+[The optimized ${actionName} you are recommending the user use instead of their current ${actionName}.]
 \`\`\`
 
 ### Follow-Up Questions
