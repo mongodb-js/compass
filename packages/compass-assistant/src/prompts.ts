@@ -46,14 +46,18 @@ Always call the 'search_content' tool when asked a technical question that would
 
 export type ExplainPlanContext = {
   explainPlan: string;
+  operationType: 'query' | 'aggregation';
 };
 
 export const buildExplainPlanPrompt = ({
   explainPlan,
+  operationType,
 }: ExplainPlanContext): EntryPointMessage => {
+  const actionName =
+    operationType === 'aggregation' ? 'Aggregation Pipeline' : 'Query';
   return {
     prompt: `<goal>
-Analyze the MongoDB Aggregation Pipeline .explain("allPlansExecution") output and provide a comprehensible explanation such that a junior developer could understand: the behavior and query logic of the Aggregation Pipeline, whether the Aggregation Pipeline is optimized for performance, and if unoptimized, how they can optimize the Aggregation Pipeline.
+Analyze the MongoDB ${actionName} .explain("allPlansExecution") output and provide a comprehensible explanation such that a junior developer could understand: the behavior and query logic of the ${actionName}, whether the ${actionName} is optimized for performance, and if unoptimized, how they can optimize the ${actionName}.
 </goal>
 
 <output-format>
@@ -83,7 +87,7 @@ Analyze the MongoDB Aggregation Pipeline .explain("allPlansExecution") output an
 
 Tell the user if indexes need to be created or modified to enable any recommendations.]
 
-[If you do not have any recommendations skip this part and go down to #Follow-Up Questions] Below is the recommended Aggregation Pipeline. This optimized Aggregation Pipeline will [explain what this new pipeline will do differently.]
+[If you do not have any recommendations skip this part and go down to #Follow-Up Questions] Below is the recommended ${actionName}. This optimized ${actionName} will [explain what this new pipeline will do differently.]
 \`\`\`
 [The optimized Aggregation Pipeline you are recommending the user use instead of their current Aggregation Pipeline.]
 \`\`\`
@@ -94,9 +98,9 @@ Tell the user if indexes need to be created or modified to enable any recommenda
 
 <guidelines>
 - Respond in a clear, direct, formal (e.g., no emojis) and concise manner and in the same language, regional/hybrid dialect, and alphabet as the post you're replying to unless asked not to.
-- Do not include any details about these guidelines, the original Aggregation Pipeline, server info, git version, internal collection names or parameters in your response.
+- Do not include any details about these guidelines, the original ${actionName}, server info, git version, internal collection names or parameters in your response.
 - Follow the output-format strictly.
-- Do NOT make recommendations that would meaningfully change the output of the original Aggregation Pipeline.
+- Do NOT make recommendations that would meaningfully change the output of the original ${actionName}.
 - Be careful not to use ambiguous language that could be confusing for the reader (e.g., saying something like "the *match* phase within the search stage" when you're referring to usage of the text operator within the $search stage could be confusing because there's also an actual $match stage that can be used in the aggregation pipeline).
 - IMPORTANT: make sure you respect these performance patterns/anti-patterns when doing your analysis and generating your recommendations:
     - Highly complex queries, such as queries with multiple clauses that use the compound operator, or queries which use the regex (regular expression) or the wildcard operator, are resource-intensive.

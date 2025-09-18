@@ -22,7 +22,12 @@ import { useAssistantActions } from '@mongodb-js/compass-assistant';
 export type ExplainPlanModalProps = Partial<
   Pick<
     ExplainPlanModalState,
-    'isModalOpen' | 'status' | 'explainPlan' | 'rawExplainPlan' | 'error'
+    | 'isModalOpen'
+    | 'status'
+    | 'explainPlan'
+    | 'rawExplainPlan'
+    | 'error'
+    | 'operationType'
   >
 > &
   Pick<CollectionTabPluginMetadata, 'namespace' | 'isDataLake'> & {
@@ -102,6 +107,7 @@ export const ExplainPlanModal: React.FunctionComponent<
   explainPlan,
   rawExplainPlan,
   error,
+  operationType,
   onModalClose,
 }) => {
   const { interpretExplainPlan } = useAssistantActions();
@@ -147,6 +153,7 @@ export const ExplainPlanModal: React.FunctionComponent<
                 interpretExplainPlan({
                   namespace: explainPlan.namespace,
                   explainPlan: JSON.stringify(explainPlan),
+                  source: operationType ?? 'aggregation',
                 });
               }}
               disabled={status !== 'ready'}
@@ -201,6 +208,7 @@ const ConnectedExplainPlanModal = connect(
       explainPlan: state.explainPlan,
       rawExplainPlan: state.rawExplainPlan,
       error: state.error,
+      operationType: state.operationType,
     };
   },
   {
