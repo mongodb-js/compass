@@ -153,7 +153,7 @@ export const ExplainPlanModal: React.FunctionComponent<
                 interpretExplainPlan({
                   namespace: explainPlan.namespace,
                   explainPlan: JSON.stringify(explainPlan),
-                  source: operationType ?? 'aggregation',
+                  operationType: operationType ?? 'aggregation',
                 });
               }}
               disabled={status !== 'ready'}
