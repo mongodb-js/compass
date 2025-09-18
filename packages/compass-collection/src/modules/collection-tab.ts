@@ -37,6 +37,7 @@ import type { Document, MongoError } from 'mongodb';
 import { MockDataGeneratorStep } from '../components/mock-data-generator-modal/types';
 import type {
   FakerSchemaMapping,
+  FakerSchema,
   MockDataGeneratorState,
 } from '../components/mock-data-generator-modal/types';
 
@@ -181,7 +182,7 @@ export interface FakerMappingGenerationStartedAction {
 
 export interface FakerMappingGenerationCompletedAction {
   type: CollectionActions.FakerMappingGenerationCompleted;
-  fakerSchema: FakerSchemaMapping[];
+  fakerSchema: FakerSchema;
   requestId: string;
 }
 
@@ -696,63 +697,106 @@ export const cancelSchemaAnalysis = (): CollectionThunkAction<void> => {
 };
 
 /**
+ * Transforms LLM array format to keyed object structure.
+ * Moves fieldPath from object property to object key.
+ */
+function transformFakerSchemaToObject(
+  fakerSchema: FakerSchemaMapping[]
+): FakerSchema {
+  const result: FakerSchema = {};
+
+  for (const field of fakerSchema) {
+    const { fieldPath, ...fieldMapping } = field;
+    result[fieldPath] = fieldMapping;
+  }
+
+  return result;
+}
+
+/**
+ * Checks if the method exists and is callable on the faker object.
+ */
+function isValidFakerMethod(fakerMethod: string): boolean {
+  const parts = fakerMethod.split('.');
+
+  // Validate format: exactly module.method
+  if (parts.length !== 2) {
+    return false;
+  }
+
+  const [moduleName, methodName] = parts;
+
+  try {
+    const fakerModule = (faker as unknown as Record<string, unknown>)[
+      moduleName
+    ];
+    return (
+      fakerModule !== null &&
+      fakerModule !== undefined &&
+      typeof fakerModule === 'object' &&
+      typeof (fakerModule as Record<string, unknown>)[methodName] === 'function'
+    );
+  } catch {
+    return false;
+  }
+}
+
+/**
  * Validates a given faker schema against an input schema.
  *
- * - Filters out fields from the faker schema that do not exist in the input schema.
- * - Validates the `fakerMethod` for each field, marking it as unrecognized if invalid.
- * - Adds any unmapped input schema fields to the result with an unrecognized faker method.
+ * - Transforms LLM array format to keyed object structure
+ * - Validates the `fakerMethod` for each field, marking it as unrecognized if invalid
+ * - Adds any unmapped input schema fields to the result with an unrecognized faker method
  *
  * @param inputSchema - The schema definition for the input, mapping field names to their metadata.
- * @param fakerSchema - The array of faker schema mappings to validate and map.
+ * @param fakerSchemaArray - The array of faker schema mappings from LLM to validate and map.
  * @param logger - Logger instance used to log warnings for invalid faker methods.
- * @returns An array of validated faker schema mappings, including all input schema fields.
+ * @returns A keyed object of validated faker schema mappings, with one-to-one fields with input schema.
  */
 const validateFakerSchema = (
   inputSchema: Record<string, FieldInfo>,
-  fakerSchema: FakerSchemaMapping[],
+  fakerSchemaArray: FakerSchemaMapping[],
   logger: Logger
-): FakerSchemaMapping[] => {
-  const inputSchemaFields = Object.keys(inputSchema);
-  const validatedFakerSchema = fakerSchema
-    // Drop fields that don't match the input schema structure
-    .filter((field) => inputSchema[field.fieldPath])
-    .map((field) => {
-      const { fakerMethod } = field;
+): FakerSchema => {
+  // Transform to keyed object structure
+  const fakerSchemaRaw = transformFakerSchemaToObject(fakerSchemaArray);
 
-      // validate faker method
-      const [moduleName, methodName, ...rest] = fakerMethod.split('.');
-      if (
-        rest.length > 0 ||
-        typeof (faker as any)[moduleName]?.[methodName] !== 'function'
-      ) {
+  const result: FakerSchema = {};
+
+  // Process all input schema fields in a single O(n) pass
+  for (const fieldPath of Object.keys(inputSchema)) {
+    const fakerMapping = fakerSchemaRaw[fieldPath];
+
+    if (fakerMapping) {
+      // Validate the faker method
+      if (isValidFakerMethod(fakerMapping.fakerMethod)) {
+        result[fieldPath] = fakerMapping;
+      } else {
         logger.log.warn(
           mongoLogId(1_001_000_372),
           'Collection',
           'Invalid faker method',
-          { fakerMethod }
+          { fakerMethod: fakerMapping.fakerMethod }
         );
-        return {
-          ...field,
+        result[fieldPath] = {
+          mongoType: fakerMapping.mongoType,
           fakerMethod: UNRECOGNIZED_FAKER_METHOD,
+          fakerArgs: fakerMapping.fakerArgs,
+          probability: fakerMapping.probability,
         };
       }
+    } else {
+      // Field not mapped by LLM - add default
+      result[fieldPath] = {
+        mongoType: inputSchema[fieldPath].type,
+        fakerMethod: UNRECOGNIZED_FAKER_METHOD,
+        fakerArgs: [],
+        probability: 1,
+      };
+    }
+  }
 
-      return field;
-    });
-  const unmappedInputFields = inputSchemaFields.filter(
-    (field) =>
-      !validatedFakerSchema.find(({ fieldPath }) => fieldPath === field)
-  );
-  // Default unmapped input fields to "Unrecognized" faker method
-  const unmappedFields = unmappedInputFields.map((field) => ({
-    fieldPath: field,
-    fakerMethod: UNRECOGNIZED_FAKER_METHOD,
-    mongoType: inputSchema[field].type,
-    fakerArgs: [],
-    probability: 1,
-  }));
-
-  return [...validatedFakerSchema, ...unmappedFields];
+  return result;
 };
 
 export const generateFakerMappings = (): CollectionThunkAction<
