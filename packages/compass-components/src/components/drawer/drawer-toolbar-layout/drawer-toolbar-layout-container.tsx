@@ -81,9 +81,9 @@ export const DrawerToolbarLayoutContainer = forwardRef<
           isDrawerOpen={isDrawerOpen}
         >
           <Toolbar data-lgid={lgIds.toolbar} data-testid={lgIds.toolbar}>
-            {toolbarData?.map((toolbarItem) => (
+            {toolbarData?.map((toolbarItem, index) => (
               <ToolbarIconButton
-                key={toolbarItem.glyph}
+                key={index}
                 glyph={toolbarItem.glyph}
                 label={toolbarItem.label}
                 onClick={(event: React.MouseEvent<HTMLButtonElement>) => {

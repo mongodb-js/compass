@@ -1,4 +1,4 @@
-import React, { type ComponentPropsWithoutRef, useEffect } from 'react';
+import React, { useEffect } from 'react';
 
 import { useDescendant } from '@leafygreen-ui/descendants';
 import Icon from '@leafygreen-ui/icon';
@@ -13,7 +13,19 @@ import {
   getIconButtonStyles,
   triggerStyles,
 } from './toolbar-icon-button.styles';
-import { type ToolbarIconButtonProps } from './toolbar-icon-button.types';
+import {
+  type IconButtonPropsWithoutChildren,
+  type ToolbarIconButtonProps,
+} from './toolbar-icon-button.types';
+
+type IconButtonProps = Omit<
+  React.ComponentProps<typeof IconButton>,
+  'children'
+> & {
+  'data-testid': string;
+  'data-lgid': string;
+  'data-active': boolean;
+};
 
 export const ToolbarIconButton = React.forwardRef<
   HTMLButtonElement,
@@ -60,6 +72,15 @@ export const ToolbarIconButton = React.forwardRef<
       if (isFocusable && shouldFocus) ref.current?.focus();
     }, [isFocusable, ref, shouldFocus]);
 
+    const renderButton =
+      typeof glyph === 'function'
+        ? glyph
+        : ({ buttonProps }: { buttonProps: IconButtonProps }) => (
+            <IconButton {...(buttonProps as IconButtonPropsWithoutChildren)}>
+              <Icon glyph={glyph} />
+            </IconButton>
+          );
+
     return (
       <Tooltip
         data-testid={`${lgIds.iconButtonTooltip}-${index}`}
@@ -67,28 +88,27 @@ export const ToolbarIconButton = React.forwardRef<
         align={Align.Left}
         trigger={
           <div className={triggerStyles}>
-            <IconButton
-              aria-label={ariaLabel || getNodeTextContent(label)}
-              active={active}
-              className={getIconButtonStyles({
-                theme,
-                active,
-                disabled,
-                className,
-              })}
-              tabIndex={isFocusable ? 0 : -1}
-              onClick={(event: React.MouseEvent<HTMLButtonElement>) =>
-                handleOnIconButtonClick(event, index, onClick)
-              }
-              disabled={disabled}
-              data-testid={`${lgIds.iconButton}-${index}`}
-              data-lgid={`${lgIds.iconButton}-${index}`}
-              data-active={active}
-              ref={ref}
-              {...(rest as ComponentPropsWithoutRef<'button'>)}
-            >
-              <Icon glyph={glyph} />
-            </IconButton>
+            {renderButton({
+              buttonProps: {
+                'aria-label': ariaLabel || getNodeTextContent(label),
+                active: active,
+                className: getIconButtonStyles({
+                  theme,
+                  active,
+                  disabled,
+                  className,
+                }),
+                tabIndex: isFocusable ? 0 : -1,
+                onClick: (event: React.MouseEvent<HTMLButtonElement>) =>
+                  handleOnIconButtonClick(event, index, onClick),
+                disabled: disabled,
+                'data-testid': `${lgIds.iconButton}-${index}`,
+                'data-lgid': `${lgIds.iconButton}-${index}`,
+                'data-active': active,
+                ref: ref,
+                ...rest,
+              } as IconButtonPropsWithoutChildren,
+            })}
           </div>
         }
       >

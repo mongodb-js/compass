@@ -1,5 +1,6 @@
 import type { GlyphName } from '@leafygreen-ui/icon';
 import type { BaseIconButtonProps as IconButtonProps } from '@leafygreen-ui/icon-button';
+import type IconButton from '@leafygreen-ui/icon-button';
 
 type ButtonProps = Omit<
   IconButtonProps,
@@ -13,11 +14,27 @@ type ButtonProps = Omit<
   | 'onClick'
 >;
 
+export type IconButtonPropsWithoutChildren = Omit<
+  React.ComponentProps<typeof IconButton>,
+  'children'
+> & {
+  'data-testid': string;
+  'data-lgid': string;
+  'data-active': boolean;
+  'aria-labelledby': string;
+};
+
 export interface ToolbarIconButtonProps extends ButtonProps {
   /**
    * The LG Icon that will render in the button
    */
-  glyph: GlyphName;
+  glyph:
+    | GlyphName
+    | (({
+        buttonProps,
+      }: {
+        buttonProps: IconButtonPropsWithoutChildren;
+      }) => React.ReactNode);
 
   /**
    * The text that will render in the tooltip on hover

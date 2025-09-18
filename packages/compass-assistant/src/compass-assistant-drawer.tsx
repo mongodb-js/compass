@@ -3,11 +3,13 @@ import {
   Badge,
   css,
   DrawerSection,
+  GuideCue,
   Icon,
   IconButton,
   showConfirmation,
   spacing,
 } from '@mongodb-js/compass-components';
+import { type IconButtonPropsWithoutChildren } from '@mongodb-js/compass-components/src/components/toolbar';
 import { AssistantChat } from './components/assistant-chat';
 import {
   ASSISTANT_DRAWER_ID,
@@ -35,9 +37,10 @@ const assistantTitleTextStyles = css({
  * it's within an AssistantProvider.
  */
 export const CompassAssistantDrawer: React.FunctionComponent<{
+  appName: string;
   autoOpen?: boolean;
   hasNonGenuineConnections?: boolean;
-}> = ({ autoOpen, hasNonGenuineConnections = false }) => {
+}> = ({ appName, autoOpen, hasNonGenuineConnections = false }) => {
   const chat = useContext(AssistantContext);
   const { clearChat } = useContext(AssistantActionsContext);
 
@@ -90,7 +93,28 @@ export const CompassAssistantDrawer: React.FunctionComponent<{
         </div>
       }
       label="MongoDB Assistant"
-      glyph="Sparkle"
+      glyph={({
+        buttonProps,
+      }: {
+        buttonProps: IconButtonPropsWithoutChildren;
+      }) => (
+        <GuideCue<HTMLButtonElement>
+          cueId="assistant-drawer"
+          title="Introducing MongoDB Assistant"
+          description={`AI-powered assistant to intelligently guide you through your database tasks. Get expert MongoDB help and streamline your workflow directly within ${appName}`}
+          buttonText="Got it"
+          onPrimaryButtonClick={() => {}}
+          tooltipAlign="left"
+          tooltipJustify="start"
+          trigger={({ ref: guideCueRef }) => {
+            return (
+              <IconButton {...buttonProps} ref={guideCueRef}>
+                <Icon glyph="Sparkle" />
+              </IconButton>
+            );
+          }}
+        />
+      )}
       autoOpen={autoOpen}
     >
       <AssistantChat
