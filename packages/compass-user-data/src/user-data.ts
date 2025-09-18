@@ -301,7 +301,7 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
   async write(id: string, content: z.input<T>): Promise<boolean> {
     try {
       this.validator.parse(content);
-      const response = await this.authenticatedFetch(
+      await this.authenticatedFetch(
         this.getResourceUrl(
           `${this.dataType}/${this.orgId}/${this.projectId}/${id}`
         ),
@@ -337,7 +337,7 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
 
   async delete(id: string): Promise<boolean> {
     try {
-      const response = await this.authenticatedFetch(
+      await this.authenticatedFetch(
         this.getResourceUrl(
           `${this.dataType}/${this.orgId}/${this.projectId}/${id}`
         ),
@@ -403,7 +403,7 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
         ...data,
       };
 
-      const response = await this.authenticatedFetch(
+      await this.authenticatedFetch(
         this.getResourceUrl(
           `${this.dataType}/${this.orgId}/${this.projectId}/${id}`
         ),

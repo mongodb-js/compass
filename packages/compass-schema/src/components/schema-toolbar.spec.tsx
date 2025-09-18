@@ -7,9 +7,9 @@ import type { AllPreferences } from 'compass-preferences-model';
 import { SchemaToolbar } from './schema-toolbar';
 import QueryBarPlugin from '@mongodb-js/compass-query-bar';
 import {
-  compassFavoriteQueryStorageAccess,
-  compassRecentQueryStorageAccess,
-} from '@mongodb-js/my-queries-storage';
+  createElectronFavoriteQueryStorage,
+  createElectronRecentQueryStorage,
+} from '@mongodb-js/my-queries-storage/electron';
 
 const MockQueryBarPlugin = QueryBarPlugin.withMockServices({
   dataService: {
@@ -21,8 +21,14 @@ const MockQueryBarPlugin = QueryBarPlugin.withMockServices({
     },
   },
   instance: { on() {}, removeListener() {} } as any,
-  favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
-  recentQueryStorageAccess: compassRecentQueryStorageAccess,
+  favoriteQueryStorageAccess: {
+    getStorage: () =>
+      createElectronFavoriteQueryStorage({ basepath: '/tmp/test' }),
+  },
+  recentQueryStorageAccess: {
+    getStorage: () =>
+      createElectronRecentQueryStorage({ basepath: '/tmp/test' }),
+  },
   atlasAiService: {} as any,
 });
 

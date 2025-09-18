@@ -121,7 +121,7 @@ const WithStorageProviders = createServiceProvider(
       atlasService.userDataEndpoint(`/${path || ''}`);
 
     const pipelineStorage = useRef<PipelineStorageAccess>({
-      getStorage(options) {
+      getStorage() {
         return createWebPipelineStorage({
           orgId,
           projectId,
@@ -131,7 +131,7 @@ const WithStorageProviders = createServiceProvider(
       },
     });
     const favoriteQueryStorage = useRef<FavoriteQueryStorageAccess>({
-      getStorage(options) {
+      getStorage() {
         return createWebFavoriteQueryStorage({
           orgId,
           projectId,
@@ -141,7 +141,7 @@ const WithStorageProviders = createServiceProvider(
       },
     });
     const recentQueryStorage = useRef<RecentQueryStorageAccess>({
-      getStorage(options) {
+      getStorage() {
         return createWebRecentQueryStorage({
           orgId,
           projectId,

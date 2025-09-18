@@ -5,7 +5,7 @@ import { spy } from 'sinon';
 import type { SinonSpy } from 'sinon';
 import { renderWithStore } from '../../../../test/configure-store';
 import { PipelineHeader } from '.';
-import { CompassPipelineStorage } from '@mongodb-js/my-queries-storage';
+import { createElectronPipelineStorage } from '@mongodb-js/my-queries-storage/electron';
 
 describe('PipelineHeader', function () {
   let container: HTMLElement;
@@ -23,7 +23,12 @@ describe('PipelineHeader', function () {
       />,
       undefined,
       undefined,
-      { pipelineStorage: { getStorage: () => new CompassPipelineStorage() } }
+      {
+        pipelineStorage: {
+          getStorage: () =>
+            createElectronPipelineStorage({ basepath: '/tmp/test' }),
+        },
+      }
     );
     container = screen.getByTestId('pipeline-header');
   });

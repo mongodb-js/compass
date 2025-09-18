@@ -14,8 +14,12 @@ import os from 'os';
 import path from 'path';
 import QueryHistory from '.';
 import {
-  CompassFavoriteQueryStorage,
-  CompassRecentQueryStorage,
+  createElectronFavoriteQueryStorage,
+  createElectronRecentQueryStorage,
+} from '@mongodb-js/my-queries-storage/electron';
+import {
+  FavoriteQueryStorageProvider,
+  RecentQueryStorageProvider,
 } from '@mongodb-js/my-queries-storage';
 import { fetchRecents, fetchFavorites } from '../../stores/query-bar-reducer';
 import { configureStore } from '../../stores/query-bar-store';
@@ -47,8 +51,8 @@ const FAVORITE_QUERY = {
 };
 
 function createStore(basepath: string) {
-  const favoriteQueryStorage = new CompassFavoriteQueryStorage({ basepath });
-  const recentQueryStorage = new CompassRecentQueryStorage({ basepath });
+  const favoriteQueryStorage = createElectronFavoriteQueryStorage({ basepath });
+  const recentQueryStorage = createElectronRecentQueryStorage({ basepath });
 
   const store = configureStore(
     {
@@ -79,13 +83,25 @@ function createStore(basepath: string) {
 
 const renderQueryHistory = (basepath: string) => {
   const data = createStore(basepath);
+
+  const favoriteQueryStorage = {
+    getStorage: () => data.favoriteQueryStorage,
+  };
+  const recentQueryStorage = {
+    getStorage: () => data.recentQueryStorage,
+  };
+
   render(
-    <Provider store={data.store}>
-      <QueryHistory
-        onUpdateRecentChoosen={() => {}}
-        onUpdateFavoriteChoosen={() => {}}
-      />
-    </Provider>
+    <FavoriteQueryStorageProvider value={favoriteQueryStorage}>
+      <RecentQueryStorageProvider value={recentQueryStorage}>
+        <Provider store={data.store}>
+          <QueryHistory
+            onUpdateRecentChoosen={() => {}}
+            onUpdateFavoriteChoosen={() => {}}
+          />
+        </Provider>
+      </RecentQueryStorageProvider>
+    </FavoriteQueryStorageProvider>
   );
   return data;
 };

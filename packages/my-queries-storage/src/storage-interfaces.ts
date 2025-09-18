@@ -13,17 +13,39 @@ export interface QueryStorageInterface<TSchema extends z.Schema> {
   ): Promise<boolean>;
 }
 
-export interface RecentQueryStorageInterface
-  extends QueryStorageInterface<
-    typeof import('./query-storage-schema').RecentQuerySchema
-  > {
+export interface RecentQueryStorageInterface {
+  loadAll(namespace?: string): Promise<RecentQuery[]>;
+  write(
+    id: string,
+    content: Omit<RecentQuery, '_id' | '_lastExecuted'>
+  ): Promise<boolean>;
+  delete(id: string): Promise<boolean>;
+  updateAttributes(
+    id: string,
+    data: Partial<Omit<RecentQuery, '_id' | '_lastExecuted'>>
+  ): Promise<boolean>;
   saveQuery(data: Omit<RecentQuery, '_id' | '_lastExecuted'>): Promise<void>;
 }
 
-export interface FavoriteQueryStorageInterface
-  extends QueryStorageInterface<
-    typeof import('./query-storage-schema').FavoriteQuerySchema
-  > {
+export interface FavoriteQueryStorageInterface {
+  loadAll(namespace?: string): Promise<FavoriteQuery[]>;
+  write(
+    id: string,
+    content: Omit<
+      FavoriteQuery,
+      '_id' | '_lastExecuted' | '_dateModified' | '_dateSaved'
+    >
+  ): Promise<boolean>;
+  delete(id: string): Promise<boolean>;
+  updateAttributes(
+    id: string,
+    data: Partial<
+      Omit<
+        FavoriteQuery,
+        '_id' | '_lastExecuted' | '_dateModified' | '_dateSaved'
+      >
+    >
+  ): Promise<boolean>;
   saveQuery(
     data: Omit<
       FavoriteQuery,

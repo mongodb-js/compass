@@ -1,10 +1,10 @@
-import { ObjectId, EJSON, UUID } from 'bson';
+import { ObjectId, UUID } from 'bson';
 import { type z } from '@mongodb-js/compass-user-data';
 import { type IUserData } from '@mongodb-js/compass-user-data';
 import { RecentQuerySchema, FavoriteQuerySchema } from './query-storage-schema';
-import type { 
-  RecentQueryStorageInterface, 
-  FavoriteQueryStorageInterface 
+import type {
+  RecentQueryStorageInterface,
+  FavoriteQueryStorageInterface,
 } from './storage-interfaces';
 
 // Generic storage options that can be extended by platform-specific implementations
@@ -100,7 +100,7 @@ export class BaseCompassFavoriteQueryStorage
     >,
     _id?: string
   ): Promise<void> {
-    _id ??= new ObjectId().toHexString();
+    _id ??= new UUID().toString();
     const favoriteQuery = {
       ...data,
       _id,

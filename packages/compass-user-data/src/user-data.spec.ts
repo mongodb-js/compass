@@ -702,12 +702,16 @@ describe('AtlasUserData', function () {
       expect(putOptions.headers['Content-Type']).to.equal('application/json');
     });
 
-    it('returns false when authenticatedFetch does not return 200', async function () {
+    it('returns false when authenticatedFetch throws an error', async function () {
       const getResponse = {
         data: JSON.stringify({ name: 'Original Name', hasDarkMode: true }),
       };
 
-      authenticatedFetchStub.resolves(mockResponse(getResponse, false, 400));
+      authenticatedFetchStub
+        .onFirstCall()
+        .resolves(mockResponse(getResponse))
+        .onSecondCall()
+        .rejects(new Error('HTTP 400: Bad Request'));
 
       getResourceUrlStub.returns(
         'cluster-connection.cloud.mongodb.com/favoriteQueries/test-org/test-proj/test-id'

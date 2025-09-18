@@ -30,3 +30,10 @@ export type {
   RecentQueryStorageAccess,
   PipelineStorageAccess,
 } from './provider';
+
+// Re-export provider components
+export {
+  PipelineStorageProvider,
+  FavoriteQueryStorageProvider,
+  RecentQueryStorageProvider,
+} from './provider';

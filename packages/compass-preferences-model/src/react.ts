@@ -126,17 +126,3 @@ export function withPreferences<
     return createElement(component, { ...prefs, ...props });
   };
 }
-
-/**
- * Hook to check if the My Queries Data Explorer feature is enabled.
- * This controls access to:
- * - Saved queries and aggregations
- * - Recent queries autocomplete
- * - Favorite queries/aggregations
- */
-export function useMyQueriesFeature(): boolean {
-  const enableMyQueries = usePreference('enableMyQueries');
-
-  // Default to true to match the preference schema default
-  return enableMyQueries ?? true;
-}
