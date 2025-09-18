@@ -64,12 +64,11 @@ import { WorkspaceTab as MyQueriesWorkspace } from '@mongodb-js/compass-saved-ag
 import { useCompassWebPreferences } from './preferences';
 import { DataModelingWorkspaceTab as DataModelingWorkspace } from '@mongodb-js/compass-data-modeling';
 import { DataModelStorageServiceProviderInMemory } from '@mongodb-js/compass-data-modeling/web';
-// My Queries storage (web variant uses Atlas user data backend)
 import {
-  CompassFavoriteQueryStorage,
-  CompassPipelineStorage,
-  CompassRecentQueryStorage,
-} from '@mongodb-js/my-queries-storage';
+  WebCompassFavoriteQueryStorage,
+  WebCompassPipelineStorage,
+  WebCompassRecentQueryStorage,
+} from '@mongodb-js/my-queries-storage/web';
 import {
   PipelineStorageProvider,
   FavoriteQueryStorageProvider,
@@ -123,8 +122,7 @@ const WithStorageProviders = createServiceProvider(
 
     const pipelineStorage = useRef<PipelineStorageAccess>({
       getStorage(options) {
-        return new CompassPipelineStorage({
-          ...options,
+        return new WebCompassPipelineStorage({
           orgId,
           projectId,
           getResourceUrl,
@@ -134,8 +132,7 @@ const WithStorageProviders = createServiceProvider(
     });
     const favoriteQueryStorage = useRef<FavoriteQueryStorageAccess>({
       getStorage(options) {
-        return new CompassFavoriteQueryStorage({
-          ...options,
+        return new WebCompassFavoriteQueryStorage({
           orgId,
           projectId,
           getResourceUrl,
@@ -145,8 +142,7 @@ const WithStorageProviders = createServiceProvider(
     });
     const recentQueryStorage = useRef<RecentQueryStorageAccess>({
       getStorage(options) {
-        return new CompassRecentQueryStorage({
-          ...options,
+        return new WebCompassRecentQueryStorage({
           orgId,
           projectId,
           getResourceUrl,
