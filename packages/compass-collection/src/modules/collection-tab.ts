@@ -16,10 +16,7 @@ import type { AtlasAiService } from '@mongodb-js/compass-generative-ai/provider'
 import type { experimentationServiceLocator } from '@mongodb-js/compass-telemetry/provider';
 import { type Logger, mongoLogId } from '@mongodb-js/compass-logging/provider';
 import { type PreferencesAccess } from 'compass-preferences-model/provider';
-import type {
-  MockDataSchemaRequest,
-  MockDataSchemaResponse,
-} from '@mongodb-js/compass-generative-ai';
+import type { MockDataSchemaRequest } from '@mongodb-js/compass-generative-ai';
 import { isInternalFieldPath } from 'hadron-document';
 import toNS from 'mongodb-ns';
 import {
@@ -698,32 +695,74 @@ export const cancelSchemaAnalysis = (): CollectionThunkAction<void> => {
   };
 };
 
+/**
+ * Validates a given faker schema against an input schema.
+ *
+ * - Filters out fields from the faker schema that do not exist in the input schema.
+ * - Validates the `fakerMethod` for each field, marking it as unrecognized if invalid.
+ * - Adds any unmapped input schema fields to the result with an unrecognized faker method.
+ *
+ * @param inputSchema - The schema definition for the input, mapping field names to their metadata.
+ * @param fakerSchema - The array of faker schema mappings to validate and map.
+ * @param logger - Logger instance used to log warnings for invalid faker methods.
+ * @returns An array of validated faker schema mappings, including all input schema fields.
+ */
 const validateFakerSchema = (
-  fakerSchema: MockDataSchemaResponse,
+  inputSchema: Record<string, FieldInfo>,
+  fakerSchema: FakerSchemaMapping[],
   logger: Logger
-) => {
-  return fakerSchema.fields.map((field) => {
-    const { fakerMethod } = field;
+): FakerSchemaMapping[] => {
+  const inputSchemaFields = Object.keys(inputSchema);
+  const validatedFakerSchema = fakerSchema
+    // Drop fields that don't match the input schema structure
+    .filter((field) => inputSchema[field.fieldPath])
+    .map((field) => {
+      const { fakerMethod } = field;
 
-    const [moduleName, methodName, ...rest] = fakerMethod.split('.');
-    if (
-      rest.length > 0 ||
-      typeof (faker as any)[moduleName]?.[methodName] !== 'function'
-    ) {
-      logger.log.warn(
-        mongoLogId(1_001_000_372),
-        'Collection',
-        'Invalid faker method',
-        { fakerMethod }
-      );
-      return {
-        ...field,
-        fakerMethod: UNRECOGNIZED_FAKER_METHOD,
-      };
-    }
+      // validate faker method
+      const methodSegments = fakerMethod.split('.');
+      let methodRef: any = faker;
+      for (const segment of methodSegments) {
+        if (
+          methodRef &&
+          typeof methodRef === 'object' &&
+          segment in methodRef
+        ) {
+          methodRef = methodRef[segment];
+        } else {
+          methodRef = undefined;
+          break;
+        }
+      }
+      if (typeof methodRef !== 'function') {
+        logger.log.warn(
+          mongoLogId(1_001_000_372),
+          'Collection',
+          'Invalid faker method',
+          { fakerMethod }
+        );
+        return {
+          ...field,
+          fakerMethod: UNRECOGNIZED_FAKER_METHOD,
+        };
+      }
 
-    return field;
-  });
+      return field;
+    });
+  const unmappedInputFields = inputSchemaFields.filter(
+    (field) =>
+      !validatedFakerSchema.find(({ fieldPath }) => fieldPath === field)
+  );
+  // Default unmapped input fields to "Unrecognized" faker method
+  const unmappedFields = unmappedInputFields.map((field) => ({
+    fieldPath: field,
+    fakerMethod: UNRECOGNIZED_FAKER_METHOD,
+    mongoType: inputSchema[field].type,
+    fakerArgs: [],
+    probability: 1,
+  }));
+
+  return [...validatedFakerSchema, ...unmappedFields];
 };
 
 export const generateFakerMappings = (): CollectionThunkAction<
@@ -792,7 +831,11 @@ export const generateFakerMappings = (): CollectionThunkAction<
         connectionInfoRef.current
       );
 
-      const validatedFakerSchema = validateFakerSchema(response, logger);
+      const validatedFakerSchema = validateFakerSchema(
+        schemaAnalysis.processedSchema,
+        response.content.fields,
+        logger
+      );
 
       fakerSchemaGenerationAbortControllerRef.current = undefined;
       dispatch({

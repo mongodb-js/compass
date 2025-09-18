@@ -16,6 +16,20 @@ import type { CollectionState } from '../../modules/collection-tab';
 import { default as collectionTabReducer } from '../../modules/collection-tab';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import type { MockDataSchemaResponse } from '@mongodb-js/compass-generative-ai';
+import type { SchemaAnalysisState } from '../../schema-analysis-types';
+
+const defaultSchemaAnalysisState: SchemaAnalysisState = {
+  status: 'complete',
+  processedSchema: {
+    name: {
+      type: 'String',
+      probability: 1.0,
+      sample_values: ['John', 'Jane'],
+    },
+  },
+  sampleDocument: { name: 'John' },
+  schemaMetadata: { maxNestingDepth: 1, validationRules: null },
+};
 
 describe('MockDataGeneratorModal', () => {
   async function renderModal({
@@ -23,6 +37,7 @@ describe('MockDataGeneratorModal', () => {
     currentStep = MockDataGeneratorStep.SCHEMA_CONFIRMATION,
     enableGenAISampleDocumentPassing = false,
     mockServices = createMockServices(),
+    schemaAnalysis = defaultSchemaAnalysisState,
     connectionInfo,
   }: {
     isOpen?: boolean;
@@ -30,23 +45,13 @@ describe('MockDataGeneratorModal', () => {
     currentStep?: MockDataGeneratorStep;
     mockServices?: any;
     connectionInfo?: ConnectionInfo;
+    schemaAnalysis?: SchemaAnalysisState;
   } = {}) {
     const initialState: CollectionState = {
       workspaceTabId: 'test-workspace-tab-id',
       namespace: 'test.collection',
       metadata: null,
-      schemaAnalysis: {
-        status: 'complete',
-        processedSchema: {
-          name: {
-            type: 'String',
-            probability: 1.0,
-            sample_values: ['John', 'Jane'],
-          },
-        },
-        sampleDocument: { name: 'John' },
-        schemaMetadata: { maxNestingDepth: 1, validationRules: null },
-      },
+      schemaAnalysis,
       fakerSchemaGeneration: {
         status: 'idle',
       },
@@ -280,6 +285,33 @@ describe('MockDataGeneratorModal', () => {
   });
 
   describe('on the schema editor step', () => {
+    const mockSchemaAnalysis: SchemaAnalysisState = {
+      ...defaultSchemaAnalysisState,
+      processedSchema: {
+        name: {
+          type: 'String',
+          probability: 1.0,
+        },
+        age: {
+          type: 'Int32',
+          probability: 1.0,
+        },
+        email: {
+          type: 'String',
+          probability: 1.0,
+        },
+        username: {
+          type: 'String',
+          probability: 1.0,
+        },
+      },
+      sampleDocument: {
+        name: 'Jane',
+        age: 99,
+        email: 'Jane@email.com',
+        username: 'JaneDoe123',
+      },
+    };
     const mockServicesWithMockDataResponse = createMockServices();
     mockServicesWithMockDataResponse.atlasAiService.getMockDataSchema = () =>
       Promise.resolve({
@@ -320,11 +352,11 @@ describe('MockDataGeneratorModal', () => {
               resolve({
                 fields: [],
               }),
-            1000
+            1
           )
         );
 
-      await renderModal();
+      await renderModal({ mockServices });
 
       // advance to the schema editor step
       userEvent.click(screen.getByText('Confirm'));
@@ -332,7 +364,10 @@ describe('MockDataGeneratorModal', () => {
     });
 
     it('shows the faker schema editor when the faker schema generation is completed', async () => {
-      await renderModal({ mockServices: mockServicesWithMockDataResponse });
+      await renderModal({
+        mockServices: mockServicesWithMockDataResponse,
+        schemaAnalysis: mockSchemaAnalysis,
+      });
 
       // advance to the schema editor step
       userEvent.click(screen.getByText('Confirm'));
@@ -343,7 +378,10 @@ describe('MockDataGeneratorModal', () => {
     });
 
     it('shows correct values for the faker schema editor', async () => {
-      await renderModal({ mockServices: mockServicesWithMockDataResponse });
+      await renderModal({
+        mockServices: mockServicesWithMockDataResponse,
+        schemaAnalysis: mockSchemaAnalysis,
+      });
 
       // advance to the schema editor step
       userEvent.click(screen.getByText('Confirm'));
@@ -381,6 +419,124 @@ describe('MockDataGeneratorModal', () => {
       userEvent.click(screen.getByText('username'));
       expect(screen.getByText('username')).to.exist;
       expect(screen.getByLabelText('JSON Type')).to.have.value('string');
+      expect(screen.getByLabelText('Faker Function')).to.have.value(
+        'Unrecognized'
+      );
+    });
+
+    it('does not show any fields that are not in the input schema', async () => {
+      const mockServices = createMockServices();
+      mockServices.atlasAiService.getMockDataSchema = () =>
+        Promise.resolve({
+          content: {
+            fields: [
+              {
+                fieldPath: 'name',
+                mongoType: 'string',
+                fakerMethod: 'person.firstName',
+                fakerArgs: [],
+                isArray: false,
+                probability: 1.0,
+              },
+              {
+                fieldPath: 'email',
+                mongoType: 'string',
+                fakerMethod: 'internet.email',
+                fakerArgs: [],
+                isArray: false,
+                probability: 1.0,
+              },
+            ],
+          },
+        });
+      await renderModal({
+        mockServices,
+      });
+
+      // advance to the schema editor step
+      userEvent.click(screen.getByText('Confirm'));
+
+      await waitFor(() => {
+        expect(screen.getByTestId('faker-schema-editor')).to.exist;
+      });
+
+      expect(screen.getByText('name')).to.exist;
+      expect(screen.queryByText('email')).to.not.exist;
+    });
+
+    it('shows unmapped fields as "Unrecognized"', async () => {
+      const mockServices = createMockServices();
+      mockServices.atlasAiService.getMockDataSchema = () =>
+        Promise.resolve({
+          content: {
+            fields: [
+              {
+                fieldPath: 'name',
+                mongoType: 'String',
+                fakerMethod: 'person.firstName',
+                fakerArgs: [],
+                isArray: false,
+                probability: 1.0,
+              },
+              {
+                fieldPath: 'age',
+                mongoType: 'Int32',
+                fakerMethod: 'number.int',
+                fakerArgs: [],
+                isArray: false,
+                probability: 1.0,
+              },
+            ],
+          },
+        });
+
+      await renderModal({
+        mockServices,
+        schemaAnalysis: {
+          ...defaultSchemaAnalysisState,
+          processedSchema: {
+            name: {
+              type: 'String',
+              probability: 1.0,
+            },
+            age: {
+              type: 'Int32',
+              probability: 1.0,
+            },
+            type: {
+              type: 'String',
+              probability: 1.0,
+              sample_values: ['cat', 'dog'],
+            },
+          },
+          sampleDocument: { name: 'Peaches', age: 10, type: 'cat' },
+        },
+      });
+
+      // advance to the schema editor step
+      userEvent.click(screen.getByText('Confirm'));
+
+      await waitFor(() => {
+        expect(screen.getByTestId('faker-schema-editor')).to.exist;
+      });
+
+      // select the "name" field
+      userEvent.click(screen.getByText('name'));
+      expect(screen.getByLabelText('JSON Type')).to.have.value('String');
+      expect(screen.getByLabelText('Faker Function')).to.have.value(
+        'person.firstName'
+      );
+
+      // select the "age" field
+      userEvent.click(screen.getByText('age'));
+      expect(screen.getByLabelText('JSON Type')).to.have.value('Int32');
+      expect(screen.getByLabelText('Faker Function')).to.have.value(
+        'number.int'
+      );
+
+      // select the "type" field
+      userEvent.click(screen.getByText('type'));
+      expect(screen.getByLabelText('JSON Type')).to.have.value('String');
       expect(screen.getByLabelText('Faker Function')).to.have.value(
         'Unrecognized'
       );
