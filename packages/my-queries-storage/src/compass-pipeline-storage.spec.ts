@@ -10,7 +10,10 @@ const getEnsuredFilePath = async (tmpDir: string, fileId: string) => {
   return path.join(tmpDir, 'SavedPipelines', `${fileId}.json`);
 };
 
-const createPipeline = async (tmpDir: string, data: any) => {
+const createPipeline = async (
+  tmpDir: string,
+  data: { id: string; name: string; namespace: string }
+) => {
   const filePath = await getEnsuredFilePath(tmpDir, data.id);
   await fs.writeFile(filePath, JSON.stringify(data));
 };
@@ -84,7 +87,7 @@ describe('CompassPipelineStorage', function () {
       await fs.access(await getEnsuredFilePath(tmpDir, data.id));
       expect.fail('Expected file to not exist');
     } catch (e) {
-      expect((e as any).code).to.equal('ENOENT');
+      expect((e as NodeJS.ErrnoException).code).to.equal('ENOENT');
     }
 
     const result = await pipelineStorage.createOrUpdate(data.id, data);

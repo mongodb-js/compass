@@ -52,7 +52,7 @@ export function createWebPipelineStorage(options: WebStorageOptions) {
     serialize: (content) => EJSON.stringify(content),
     deserialize: (content: string) => EJSON.parse(content),
   });
-  return new BaseCompassPipelineStorage(userData);
+  return new BaseCompassPipelineStorage<typeof PipelineSchema>(userData);
 }
 
 // Electron-specific factory functions
@@ -88,5 +88,5 @@ export function createElectronPipelineStorage(
   const userData = new FileUserData(PipelineSchema, 'SavedPipelines', {
     basePath: options.basepath,
   });
-  return new BaseCompassPipelineStorage(userData);
+  return new BaseCompassPipelineStorage<typeof PipelineSchema>(userData);
 }

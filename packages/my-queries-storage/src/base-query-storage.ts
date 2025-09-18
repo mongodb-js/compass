@@ -1,4 +1,4 @@
-import { ObjectId, UUID } from 'bson';
+import { UUID } from 'bson';
 import { type z } from '@mongodb-js/compass-user-data';
 import { type IUserData } from '@mongodb-js/compass-user-data';
 import { RecentQuerySchema, FavoriteQuerySchema } from './query-storage-schema';
@@ -9,8 +9,8 @@ import type {
 
 // Generic storage options that can be extended by platform-specific implementations
 export type BaseStorageOptions = {
-  serialize?: (content: any) => string;
-  deserialize?: (content: string) => any;
+  serialize?: (content: unknown) => string;
+  deserialize?: (content: string) => unknown;
 };
 
 // Generic base class that works with any IUserData implementation
