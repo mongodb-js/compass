@@ -192,7 +192,7 @@ export const featureFlags: Required<{
   },
 
   enableAutomaticRelationshipInference: {
-    stage: 'development',
+    stage: 'released',
     description: {
       short:
         'Enable automatic relationship inference during data model generation',

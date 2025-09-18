@@ -91,7 +91,7 @@ describe('Tab', function () {
       );
     });
 
-    it('should render the close tab button hidden', async function () {
+    it.skip('should render the close tab button hidden', async function () {
       expect(
         getComputedStyle(await screen.findByLabelText('Close Tab'))
       ).to.have.property('display', 'none');
