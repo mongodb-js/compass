@@ -14,7 +14,7 @@ export async function selectCollectionMenuItem(
   await browser.clickVisible(Selectors.SidebarFilterInput);
   await browser.setValueVisible(
     Selectors.SidebarFilterInput,
-    `^(${databaseName}|${collectionName})$`
+    `${databaseName}.${collectionName}`
   );
 
   const collectionSelector = Selectors.sidebarCollection(
