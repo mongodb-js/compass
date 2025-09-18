@@ -14,18 +14,20 @@ import os from 'os';
 import path from 'path';
 import QueryHistory from '.';
 import {
+  FavoriteQueryStorageProvider,
+  RecentQueryStorageProvider,
+} from '@mongodb-js/my-queries-storage/provider';
+import {
   createElectronFavoriteQueryStorage,
   createElectronRecentQueryStorage,
 } from '@mongodb-js/my-queries-storage/electron';
-import {
-  FavoriteQueryStorageProvider,
-  RecentQueryStorageProvider,
-} from '@mongodb-js/my-queries-storage';
 import { fetchRecents, fetchFavorites } from '../../stores/query-bar-reducer';
 import { configureStore } from '../../stores/query-bar-store';
 import { UUID } from 'bson';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
+import type { PreferencesAccess } from 'compass-preferences-model';
+import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 
 const BASE_QUERY = {
   filter: { name: 'hello' },
@@ -50,9 +52,10 @@ const FAVORITE_QUERY = {
   ...BASE_QUERY,
 };
 
-function createStore(basepath: string) {
+async function createStore(basepath: string) {
   const favoriteQueryStorage = createElectronFavoriteQueryStorage({ basepath });
   const recentQueryStorage = createElectronRecentQueryStorage({ basepath });
+  const preferences = await createSandboxFromDefaultPreferences();
 
   const store = configureStore(
     {
@@ -61,6 +64,7 @@ function createStore(basepath: string) {
     {
       favoriteQueryStorage,
       recentQueryStorage,
+      preferences,
       dataService: {
         sample() {
           return Promise.resolve([]);
@@ -78,11 +82,12 @@ function createStore(basepath: string) {
     store,
     favoriteQueryStorage,
     recentQueryStorage,
+    preferences,
   };
 }
 
-const renderQueryHistory = (basepath: string) => {
-  const data = createStore(basepath);
+const renderQueryHistory = async (basepath: string) => {
+  const data = await createStore(basepath);
 
   const favoriteQueryStorage = {
     getStorage: () => data.favoriteQueryStorage,
@@ -117,16 +122,16 @@ describe('query-history', function () {
   });
 
   context('zero state', function () {
-    it('in recents', function () {
-      renderQueryHistory(tmpDir);
+    it('in recents', async function () {
+      await renderQueryHistory(tmpDir);
       userEvent.click(screen.getByText(/recents/i));
       expect(
         screen.getByText(/your recent queries will appear here\./i)
       ).to.exist;
     });
 
-    it('in favorites', function () {
-      renderQueryHistory(tmpDir);
+    it('in favorites', async function () {
+      await renderQueryHistory(tmpDir);
       userEvent.click(screen.getByText(/favorites/i));
       expect(
         screen.getByText(/your favorite queries will appear here\./i)
@@ -136,9 +141,9 @@ describe('query-history', function () {
 
   context('renders list of queries', function () {
     it('recent', async function () {
-      const { store, recentQueryStorage } = renderQueryHistory(tmpDir);
-      Sinon.stub(recentQueryStorage, 'loadAll').returns(
-        Promise.resolve([RECENT_QUERY] as any)
+      const { store, recentQueryStorage } = await renderQueryHistory(tmpDir);
+      Sinon.stub(recentQueryStorage, 'loadAll').callsFake(
+        (namespace?: string) => Promise.resolve([RECENT_QUERY] as any)
       );
 
       await store.dispatch(fetchRecents());
@@ -153,9 +158,9 @@ describe('query-history', function () {
     });
 
     it('favorite', async function () {
-      const { store, favoriteQueryStorage } = renderQueryHistory(tmpDir);
-      Sinon.stub(favoriteQueryStorage, 'loadAll').returns(
-        Promise.resolve([FAVORITE_QUERY] as any)
+      const { store, favoriteQueryStorage } = await renderQueryHistory(tmpDir);
+      Sinon.stub(favoriteQueryStorage, 'loadAll').callsFake(
+        (namespace?: string) => Promise.resolve([FAVORITE_QUERY] as any)
       );
 
       await store.dispatch(fetchFavorites());
@@ -173,12 +178,13 @@ describe('query-history', function () {
 
   context('deletes a query', function () {
     it('recent', async function () {
-      const { store, recentQueryStorage } = renderQueryHistory(tmpDir);
-      Sinon.stub(recentQueryStorage, 'loadAll').returns(
-        Promise.resolve([RECENT_QUERY] as any)
+      const { store, recentQueryStorage } = await renderQueryHistory(tmpDir);
+      Sinon.stub(recentQueryStorage, 'loadAll').callsFake(
+        (namespace?: string) => Promise.resolve([RECENT_QUERY] as any)
       );
 
       await store.dispatch(fetchRecents());
+      userEvent.click(screen.getByText(/recents/i));
 
       const spy = Sinon.spy(recentQueryStorage, 'delete');
 
@@ -195,9 +201,9 @@ describe('query-history', function () {
     });
 
     it('favorite', async function () {
-      const { store, favoriteQueryStorage } = renderQueryHistory(tmpDir);
-      Sinon.stub(favoriteQueryStorage, 'loadAll').returns(
-        Promise.resolve([FAVORITE_QUERY] as any)
+      const { store, favoriteQueryStorage } = await renderQueryHistory(tmpDir);
+      Sinon.stub(favoriteQueryStorage, 'loadAll').callsFake(
+        (namespace?: string) => Promise.resolve([FAVORITE_QUERY] as any)
       );
 
       await store.dispatch(fetchFavorites());
@@ -220,16 +226,13 @@ describe('query-history', function () {
 
   it('saves recent query as favorite', async function () {
     const { store, recentQueryStorage, favoriteQueryStorage } =
-      renderQueryHistory(tmpDir);
-    Sinon.stub(recentQueryStorage, 'loadAll').returns(
+      await renderQueryHistory(tmpDir);
+    Sinon.stub(recentQueryStorage, 'loadAll').callsFake((namespace?: string) =>
       Promise.resolve([RECENT_QUERY] as any)
     );
 
     const recentQueryDeleteSpy = Sinon.spy(recentQueryStorage, 'delete');
-    const favoriteQueryUpdateSpy = Sinon.spy(
-      favoriteQueryStorage,
-      'updateAttributes'
-    );
+    const favoriteQuerySaveSpy = Sinon.spy(favoriteQueryStorage, 'saveQuery');
 
     await store.dispatch(fetchRecents());
     userEvent.click(screen.getByText(/recents/i));
@@ -260,12 +263,8 @@ describe('query-history', function () {
     expect(recentQueryDeleteSpy.calledOnce).to.be.true;
     expect(recentQueryDeleteSpy.firstCall.firstArg).to.equal(RECENT_QUERY._id);
 
-    expect(favoriteQueryUpdateSpy.calledOnce).to.be.true;
-    expect(favoriteQueryUpdateSpy.firstCall.firstArg).to.equal(
-      RECENT_QUERY._id
-    );
-
-    const favorite = favoriteQueryUpdateSpy.firstCall.lastArg;
-    expect(favorite._name).to.equal('compass');
+    expect(favoriteQuerySaveSpy.calledOnce).to.be.true;
+    const savedQuery = favoriteQuerySaveSpy.firstCall.firstArg;
+    expect(savedQuery._name).to.equal('compass');
   });
 });
