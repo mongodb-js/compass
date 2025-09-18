@@ -1,12 +1,11 @@
 // Electron-specific exports for Compass Electron
 export {
-  ElectronCompassRecentQueryStorage,
-  ElectronCompassFavoriteQueryStorage,
-} from './compass-query-storage-electron';
-export { ElectronCompassPipelineStorage } from './compass-pipeline-storage-electron';
+  createElectronRecentQueryStorage,
+  createElectronFavoriteQueryStorage,
+  createElectronPipelineStorage,
+} from './storage-factories';
 
-export type { ElectronQueryStorageOptions } from './compass-query-storage-electron';
-export type { ElectronPipelineStorageOptions } from './compass-pipeline-storage-electron';
+export type { ElectronStorageOptions } from './storage-factories';
 
 // Re-export shared interfaces
 export type {

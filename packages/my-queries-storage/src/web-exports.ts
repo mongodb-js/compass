@@ -1,12 +1,11 @@
 // Web-specific exports for Compass Web
 export {
-  WebCompassRecentQueryStorage,
-  WebCompassFavoriteQueryStorage,
-} from './compass-query-storage-web';
-export { WebCompassPipelineStorage } from './compass-pipeline-storage-web';
+  createWebRecentQueryStorage,
+  createWebFavoriteQueryStorage,
+  createWebPipelineStorage,
+} from './storage-factories';
 
-export type { WebQueryStorageOptions } from './compass-query-storage-web';
-export type { WebPipelineStorageOptions } from './compass-pipeline-storage-web';
+export type { WebStorageOptions } from './storage-factories';
 
 // Re-export shared interfaces
 export type {

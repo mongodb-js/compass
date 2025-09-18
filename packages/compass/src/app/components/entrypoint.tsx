@@ -9,9 +9,9 @@ import {
 } from '@mongodb-js/atlas-service/provider';
 import { AtlasAiServiceProvider } from '@mongodb-js/compass-generative-ai/provider';
 import {
-  ElectronCompassFavoriteQueryStorage,
-  ElectronCompassPipelineStorage,
-  ElectronCompassRecentQueryStorage,
+  createElectronRecentQueryStorage,
+  createElectronFavoriteQueryStorage,
+  createElectronPipelineStorage,
 } from '@mongodb-js/my-queries-storage/electron';
 import {
   PipelineStorageProvider,
@@ -74,17 +74,19 @@ export const WithAtlasProviders: React.FC = ({ children }) => {
 export const WithStorageProviders: React.FC = ({ children }) => {
   const pipelineStorage = useRef<PipelineStorageAccess>({
     getStorage(options) {
-      return new ElectronCompassPipelineStorage(options);
+      return createElectronPipelineStorage({ basepath: options?.basePath });
     },
   });
   const favoriteQueryStorage = useRef<FavoriteQueryStorageAccess>({
     getStorage(options) {
-      return new ElectronCompassFavoriteQueryStorage(options);
+      return createElectronFavoriteQueryStorage({
+        basepath: options?.basepath,
+      });
     },
   });
   const recentQueryStorage = useRef<RecentQueryStorageAccess>({
     getStorage(options) {
-      return new ElectronCompassRecentQueryStorage(options);
+      return createElectronRecentQueryStorage({ basepath: options?.basepath });
     },
   });
   return (

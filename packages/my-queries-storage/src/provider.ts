@@ -1,9 +1,30 @@
 import { createContext, useContext } from 'react';
-import type { QueryStorageOptions } from './compass-query-storage';
 import type { PipelineStorage } from './pipeline-storage';
 import type { FavoriteQueryStorage, RecentQueryStorage } from './query-storage';
 import { createServiceLocator } from '@mongodb-js/compass-app-registry';
-import type { PipelineStorageOptions } from './compass-pipeline-storage';
+
+// Define the options types locally since we deleted the original files
+export type QueryStorageOptions = {
+  basepath?: string;
+  orgId?: string;
+  projectId?: string;
+  getResourceUrl?: (path?: string) => string;
+  authenticatedFetch?: (
+    url: RequestInfo | URL,
+    options?: RequestInit
+  ) => Promise<Response>;
+};
+
+export type PipelineStorageOptions = {
+  basePath?: string;
+  orgId?: string;
+  projectId?: string;
+  getResourceUrl?: (path?: string) => string;
+  authenticatedFetch?: (
+    url: RequestInfo | URL,
+    options?: RequestInit
+  ) => Promise<Response>;
+};
 
 export type { PipelineStorage, FavoriteQueryStorage, RecentQueryStorage };
 

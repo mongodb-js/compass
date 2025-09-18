@@ -1,50 +1,14 @@
-import { EJSON } from 'bson';
-import {
-  type IUserData,
-  FileUserData,
-  AtlasUserData,
-} from '@mongodb-js/compass-user-data';
+import { type IUserData } from '@mongodb-js/compass-user-data';
 import { PipelineSchema } from './pipeline-storage-schema';
 import type { SavedPipeline } from './pipeline-storage-schema';
-import type { PipelineStorage } from './pipeline-storage';
+import type { PipelineStorageInterface } from './storage-interfaces';
 
-export type PipelineStorageOptions = {
-  basePath?: string;
-  orgId?: string;
-  projectId?: string;
-  getResourceUrl?: (path?: string) => string;
-  authenticatedFetch?: (
-    url: RequestInfo | URL,
-    options?: RequestInit
-  ) => Promise<Response>;
-};
-
-export class CompassPipelineStorage implements PipelineStorage {
+// Generic base class for pipeline storage that works with any IUserData implementation
+export class BaseCompassPipelineStorage implements PipelineStorageInterface {
   private readonly userData: IUserData<typeof PipelineSchema>;
-  constructor(options: PipelineStorageOptions = {}) {
-    if (
-      options.orgId &&
-      options.projectId &&
-      options.getResourceUrl &&
-      options.authenticatedFetch
-    ) {
-      this.userData = new AtlasUserData(
-        PipelineSchema,
-        'favoriteAggregations',
-        {
-          orgId: options.orgId,
-          projectId: options.projectId,
-          getResourceUrl: options.getResourceUrl,
-          authenticatedFetch: options.authenticatedFetch,
-          serialize: (content) => EJSON.stringify(content),
-          deserialize: (content: string) => EJSON.parse(content),
-        }
-      );
-    } else {
-      this.userData = new FileUserData(PipelineSchema, 'SavedPipelines', {
-        basePath: options.basePath,
-      });
-    }
+  
+  constructor(userData: IUserData<typeof PipelineSchema>) {
+    this.userData = userData;
   }
 
   async loadAll(): Promise<SavedPipeline[]> {
@@ -66,7 +30,7 @@ export class CompassPipelineStorage implements PipelineStorage {
   async createOrUpdate(
     id: string,
     attributes: Omit<SavedPipeline, 'lastModified'>
-  ) {
+  ): Promise<boolean> {
     const pipelineExists = Boolean(await this.userData.readOne(id));
     return await (pipelineExists
       ? this.updateAttributes(id, attributes)
@@ -101,7 +65,7 @@ export class CompassPipelineStorage implements PipelineStorage {
     }
   }
 
-  async delete(id: string) {
+  async delete(id: string): Promise<void> {
     await this.userData.delete(id);
   }
 }

@@ -1,40 +1,28 @@
 import { ObjectId, EJSON, UUID } from 'bson';
 import { type z } from '@mongodb-js/compass-user-data';
-import { AtlasUserData } from '@mongodb-js/compass-user-data';
+import { type IUserData } from '@mongodb-js/compass-user-data';
 import { RecentQuerySchema, FavoriteQuerySchema } from './query-storage-schema';
-import type {
-  RecentQueryStorageInterface,
-  FavoriteQueryStorageInterface,
+import type { 
+  RecentQueryStorageInterface, 
+  FavoriteQueryStorageInterface 
 } from './storage-interfaces';
 
-export type WebQueryStorageOptions = {
-  orgId: string;
-  projectId: string;
-  getResourceUrl: (path?: string) => string;
-  authenticatedFetch: (
-    url: RequestInfo | URL,
-    options?: RequestInit
-  ) => Promise<Response>;
+// Generic storage options that can be extended by platform-specific implementations
+export type BaseStorageOptions = {
+  serialize?: (content: any) => string;
+  deserialize?: (content: string) => any;
 };
 
-export abstract class WebCompassQueryStorage<TSchema extends z.Schema> {
-  protected readonly userData: AtlasUserData<TSchema>;
+// Generic base class that works with any IUserData implementation
+export abstract class BaseCompassQueryStorage<TSchema extends z.Schema> {
+  protected readonly userData: IUserData<TSchema>;
 
   constructor(
     schemaValidator: TSchema,
     protected readonly dataType: string,
-    protected readonly options: WebQueryStorageOptions
+    userData: IUserData<TSchema>
   ) {
-    const type =
-      dataType === 'RecentQueries' ? 'recentQueries' : 'favoriteQueries';
-    this.userData = new AtlasUserData(schemaValidator, type, {
-      orgId: options.orgId,
-      projectId: options.projectId,
-      getResourceUrl: options.getResourceUrl,
-      authenticatedFetch: options.authenticatedFetch,
-      serialize: (content) => EJSON.stringify(content),
-      deserialize: (content: string) => EJSON.parse(content),
-    });
+    this.userData = userData;
   }
 
   async loadAll(namespace?: string): Promise<z.output<TSchema>[]> {
@@ -69,14 +57,14 @@ export abstract class WebCompassQueryStorage<TSchema extends z.Schema> {
   abstract saveQuery(data: Partial<z.input<TSchema>>): Promise<void>;
 }
 
-export class WebCompassRecentQueryStorage
-  extends WebCompassQueryStorage<typeof RecentQuerySchema>
+export class BaseCompassRecentQueryStorage
+  extends BaseCompassQueryStorage<typeof RecentQuerySchema>
   implements RecentQueryStorageInterface
 {
   private readonly maxAllowedQueries = 30;
 
-  constructor(options: WebQueryStorageOptions) {
-    super(RecentQuerySchema, 'RecentQueries', options);
+  constructor(userData: IUserData<typeof RecentQuerySchema>) {
+    super(RecentQuerySchema, 'RecentQueries', userData);
   }
 
   async saveQuery(
@@ -97,12 +85,12 @@ export class WebCompassRecentQueryStorage
   }
 }
 
-export class WebCompassFavoriteQueryStorage
-  extends WebCompassQueryStorage<typeof FavoriteQuerySchema>
+export class BaseCompassFavoriteQueryStorage
+  extends BaseCompassQueryStorage<typeof FavoriteQuerySchema>
   implements FavoriteQueryStorageInterface
 {
-  constructor(options: WebQueryStorageOptions) {
-    super(FavoriteQuerySchema, 'FavoriteQueries', options);
+  constructor(userData: IUserData<typeof FavoriteQuerySchema>) {
+    super(FavoriteQuerySchema, 'FavoriteQueries', userData);
   }
 
   async saveQuery(

@@ -65,9 +65,9 @@ import { useCompassWebPreferences } from './preferences';
 import { DataModelingWorkspaceTab as DataModelingWorkspace } from '@mongodb-js/compass-data-modeling';
 import { DataModelStorageServiceProviderInMemory } from '@mongodb-js/compass-data-modeling/web';
 import {
-  WebCompassFavoriteQueryStorage,
-  WebCompassPipelineStorage,
-  WebCompassRecentQueryStorage,
+  createWebRecentQueryStorage,
+  createWebFavoriteQueryStorage,
+  createWebPipelineStorage,
 } from '@mongodb-js/my-queries-storage/web';
 import {
   PipelineStorageProvider,
@@ -122,7 +122,7 @@ const WithStorageProviders = createServiceProvider(
 
     const pipelineStorage = useRef<PipelineStorageAccess>({
       getStorage(options) {
-        return new WebCompassPipelineStorage({
+        return createWebPipelineStorage({
           orgId,
           projectId,
           getResourceUrl,
@@ -132,7 +132,7 @@ const WithStorageProviders = createServiceProvider(
     });
     const favoriteQueryStorage = useRef<FavoriteQueryStorageAccess>({
       getStorage(options) {
-        return new WebCompassFavoriteQueryStorage({
+        return createWebFavoriteQueryStorage({
           orgId,
           projectId,
           getResourceUrl,
@@ -142,7 +142,7 @@ const WithStorageProviders = createServiceProvider(
     });
     const recentQueryStorage = useRef<RecentQueryStorageAccess>({
       getStorage(options) {
-        return new WebCompassRecentQueryStorage({
+        return createWebRecentQueryStorage({
           orgId,
           projectId,
           getResourceUrl,
