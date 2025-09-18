@@ -78,6 +78,7 @@ export class AtlasService {
     // https://github.com/10gen/mms/blob/9f858bb987aac6aa80acfb86492dd74c89cbb862/client/packages/project/common/ajaxPrefilter.ts#L34-L49
     return this.cloudEndpoint(path);
   }
+  // TODO (COMPASS-9663): these should come from the config property per environment
   userDataEndpoint(path?: string): string {
     return `https://cluster-connection.cloud-dev.mongodb.com/userData${normalizePath(
       path
@@ -138,6 +139,7 @@ export class AtlasService {
         ...init?.headers,
         ...authHeaders,
       },
+      credentials: 'include',
     });
   }
   async automationAgentRequest(
