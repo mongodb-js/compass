@@ -39,10 +39,6 @@ if (!(await isDevServerRunning(8081))) {
     cwd: process.env.MMS_HOME,
     stdio: 'inherit',
   });
-  child_process.execFileSync('pnpm', ['run', 'init'], {
-    cwd: process.env.MMS_HOME,
-    stdio: 'inherit',
-  });
   const halfRamMb = Math.min(
     Math.floor(os.totalmem() / 2 / 1024 / 1024),
     16384
