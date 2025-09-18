@@ -27,6 +27,7 @@ import {
   type SchemaAnalysisError,
   type SchemaAnalysisState,
   type FieldInfo,
+  MongoDBFieldType,
 } from '../schema-analysis-types';
 import { calculateSchemaDepth } from '../calculate-schema-depth';
 import {
@@ -708,7 +709,10 @@ function transformFakerSchemaToObject(
 
   for (const field of fakerSchema) {
     const { fieldPath, ...fieldMapping } = field;
-    result[fieldPath] = fieldMapping;
+    result[fieldPath] = {
+      ...fieldMapping,
+      mongoType: fieldMapping.mongoType as MongoDBFieldType,
+    };
   }
 
   return result;

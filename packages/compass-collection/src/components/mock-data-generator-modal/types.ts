@@ -1,4 +1,6 @@
 import type { MockDataSchemaResponse } from '@mongodb-js/compass-generative-ai';
+import type { MongoDBFieldType } from '../../schema-analysis-types';
+import type { FakerArg } from './script-generation-utils';
 
 export enum MockDataGeneratorStep {
   SCHEMA_CONFIRMATION = 'SCHEMA_CONFIRMATION',
@@ -37,11 +39,11 @@ export type MockDataGeneratorState =
 
 export type FakerSchemaMapping = MockDataSchemaResponse['fields'][number];
 
-export type FakerFieldMapping = {
-  mongoType: string;
+export interface FakerFieldMapping {
+  mongoType: MongoDBFieldType;
   fakerMethod: string;
-  fakerArgs: any[];
-  probability: number;
-};
+  fakerArgs: FakerArg[];
+  probability?: number; // 0.0 - 1.0 frequency of field (defaults to 1.0)
+}
 
 export type FakerSchema = Record<string, FakerFieldMapping>;

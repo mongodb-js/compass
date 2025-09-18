@@ -1,16 +1,10 @@
 import type { MongoDBFieldType } from '../../schema-analysis-types';
+import type { FakerFieldMapping } from './types';
 
 export type FakerArg = string | number | boolean | { json: string };
 
 const DEFAULT_ARRAY_LENGTH = 3;
 const INDENT_SIZE = 2;
-
-export interface FakerFieldMapping {
-  mongoType: MongoDBFieldType;
-  fakerMethod: string;
-  fakerArgs: FakerArg[];
-  probability?: number; // 0.0 - 1.0 frequency of field (defaults to 1.0)
-}
 
 // Array length configuration for different array types
 export type ArrayLengthMap = {
