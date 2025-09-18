@@ -26,8 +26,10 @@ import { configureStore } from '../../stores/query-bar-store';
 import { UUID } from 'bson';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
-import type { PreferencesAccess } from 'compass-preferences-model';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
+import type AppRegistry from '@mongodb-js/compass-app-registry';
+import type { ConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
+import type { AtlasAiService } from '@mongodb-js/compass-generative-ai/provider';
 
 const BASE_QUERY = {
   filter: { name: 'hello' },
@@ -57,6 +59,16 @@ async function createStore(basepath: string) {
   const recentQueryStorage = createElectronRecentQueryStorage({ basepath });
   const preferences = await createSandboxFromDefaultPreferences();
 
+  // Create mock objects for required services
+  const mockAppRegistry = {} as AppRegistry;
+  const mockConnectionInfoRef = {
+    current: {
+      id: 'TEST',
+      title: 'Test Connection',
+    },
+  } as ConnectionInfoRef;
+  const mockAtlasAiService = {} as AtlasAiService;
+
   const store = configureStore(
     {
       namespace: 'airbnb.listings',
@@ -69,13 +81,14 @@ async function createStore(basepath: string) {
         sample() {
           return Promise.resolve([]);
         },
-        getConnectionString() {
-          return { hosts: [] } as any;
-        },
       },
+      globalAppRegistry: mockAppRegistry,
+      localAppRegistry: mockAppRegistry,
       logger: createNoopLogger(),
       track: createNoopTrack(),
-    } as any
+      connectionInfoRef: mockConnectionInfoRef,
+      atlasAiService: mockAtlasAiService,
+    }
   );
 
   return {
@@ -142,8 +155,8 @@ describe('query-history', function () {
   context('renders list of queries', function () {
     it('recent', async function () {
       const { store, recentQueryStorage } = await renderQueryHistory(tmpDir);
-      Sinon.stub(recentQueryStorage, 'loadAll').callsFake(
-        (namespace?: string) => Promise.resolve([RECENT_QUERY] as any)
+      Sinon.stub(recentQueryStorage, 'loadAll').callsFake(() =>
+        Promise.resolve([RECENT_QUERY] as any)
       );
 
       await store.dispatch(fetchRecents());
@@ -159,8 +172,8 @@ describe('query-history', function () {
 
     it('favorite', async function () {
       const { store, favoriteQueryStorage } = await renderQueryHistory(tmpDir);
-      Sinon.stub(favoriteQueryStorage, 'loadAll').callsFake(
-        (namespace?: string) => Promise.resolve([FAVORITE_QUERY] as any)
+      Sinon.stub(favoriteQueryStorage, 'loadAll').callsFake(() =>
+        Promise.resolve([FAVORITE_QUERY] as any)
       );
 
       await store.dispatch(fetchFavorites());
@@ -179,8 +192,8 @@ describe('query-history', function () {
   context('deletes a query', function () {
     it('recent', async function () {
       const { store, recentQueryStorage } = await renderQueryHistory(tmpDir);
-      Sinon.stub(recentQueryStorage, 'loadAll').callsFake(
-        (namespace?: string) => Promise.resolve([RECENT_QUERY] as any)
+      Sinon.stub(recentQueryStorage, 'loadAll').callsFake(() =>
+        Promise.resolve([RECENT_QUERY] as any)
       );
 
       await store.dispatch(fetchRecents());
@@ -202,8 +215,8 @@ describe('query-history', function () {
 
     it('favorite', async function () {
       const { store, favoriteQueryStorage } = await renderQueryHistory(tmpDir);
-      Sinon.stub(favoriteQueryStorage, 'loadAll').callsFake(
-        (namespace?: string) => Promise.resolve([FAVORITE_QUERY] as any)
+      Sinon.stub(favoriteQueryStorage, 'loadAll').callsFake(() =>
+        Promise.resolve([FAVORITE_QUERY] as any)
       );
 
       await store.dispatch(fetchFavorites());
@@ -227,7 +240,7 @@ describe('query-history', function () {
   it('saves recent query as favorite', async function () {
     const { store, recentQueryStorage, favoriteQueryStorage } =
       await renderQueryHistory(tmpDir);
-    Sinon.stub(recentQueryStorage, 'loadAll').callsFake((namespace?: string) =>
+    Sinon.stub(recentQueryStorage, 'loadAll').callsFake(() =>
       Promise.resolve([RECENT_QUERY] as any)
     );
 
