@@ -428,26 +428,20 @@ describe('AtlasAiService', function () {
         if (apiURLPreset === 'cloud') {
           it('makes a post request to the correct endpoint', async function () {
             const mockResponse = {
-              content: {
-                fields: [
-                  {
-                    fieldPath: 'name',
-                    mongoType: 'string',
-                    fakerMethod: 'person.fullName',
-                    fakerArgs: [],
-                    isArray: false,
-                    probability: 1.0,
-                  },
-                  {
-                    fieldPath: 'age',
-                    mongoType: 'int',
-                    fakerMethod: 'number.int',
-                    fakerArgs: [{ json: '{"min": 18, "max": 65}' }],
-                    isArray: false,
-                    probability: 0.8,
-                  },
-                ],
-              },
+              fields: [
+                {
+                  fieldPath: 'name',
+                  mongoType: 'string',
+                  fakerMethod: 'person.fullName',
+                  fakerArgs: [],
+                },
+                {
+                  fieldPath: 'age',
+                  mongoType: 'int',
+                  fakerMethod: 'number.int',
+                  fakerArgs: [{ json: '{"min": 18, "max": 65}' }],
+                },
+              ],
             };
             const fetchStub = sandbox
               .stub()
@@ -469,26 +463,20 @@ describe('AtlasAiService', function () {
 
           it('includes sample values by default (includeSampleValues=true)', async function () {
             const mockResponse = {
-              content: {
-                fields: [
-                  {
-                    fieldPath: 'name',
-                    mongoType: 'string',
-                    fakerMethod: 'person.fullName',
-                    fakerArgs: [],
-                    isArray: false,
-                    probability: 1.0,
-                  },
-                  {
-                    fieldPath: 'age',
-                    mongoType: 'int',
-                    fakerMethod: 'number.int',
-                    fakerArgs: [{ json: '{"min": 18, "max": 122}' }],
-                    isArray: false,
-                    probability: 0.8,
-                  },
-                ],
-              },
+              fields: [
+                {
+                  fieldPath: 'name',
+                  mongoType: 'string',
+                  fakerMethod: 'person.fullName',
+                  fakerArgs: [],
+                },
+                {
+                  fieldPath: 'age',
+                  mongoType: 'int',
+                  fakerMethod: 'number.int',
+                  fakerArgs: [{ json: '{"min": 18, "max": 122}' }],
+                },
+              ],
             };
             const fetchStub = sandbox
               .stub()
@@ -515,26 +503,20 @@ describe('AtlasAiService', function () {
 
           it('excludes sample values when includeSampleValues=false', async function () {
             const mockResponse = {
-              content: {
-                fields: [
-                  {
-                    fieldPath: 'name',
-                    mongoType: 'string',
-                    fakerMethod: 'person.fullName',
-                    fakerArgs: [],
-                    isArray: false,
-                    probability: 1.0,
-                  },
-                  {
-                    fieldPath: 'age',
-                    mongoType: 'int',
-                    fakerMethod: 'number.int',
-                    fakerArgs: [{ json: '{"min": 18, "max": 65}' }],
-                    isArray: false,
-                    probability: 0.8,
-                  },
-                ],
-              },
+              fields: [
+                {
+                  fieldPath: 'name',
+                  mongoType: 'string',
+                  fakerMethod: 'person.fullName',
+                  fakerArgs: [],
+                },
+                {
+                  fieldPath: 'age',
+                  mongoType: 'int',
+                  fakerMethod: 'number.int',
+                  fakerArgs: [{ json: '{"min": 18, "max": 65}' }],
+                },
+              ],
             };
             const fetchStub = sandbox
               .stub()
@@ -559,26 +541,20 @@ describe('AtlasAiService', function () {
 
           it('makes POST request with correct headers and body structure', async function () {
             const mockResponse = {
-              content: {
-                fields: [
-                  {
-                    fieldPath: 'name',
-                    mongoType: 'string',
-                    fakerMethod: 'person.fullName',
-                    fakerArgs: [],
-                    isArray: false,
-                    probability: 1.0,
-                  },
-                  {
-                    fieldPath: 'age',
-                    mongoType: 'int',
-                    fakerMethod: 'number.int',
-                    fakerArgs: [{ json: '{"min": 18, "max": 65}' }],
-                    isArray: false,
-                    probability: 0.8,
-                  },
-                ],
-              },
+              fields: [
+                {
+                  fieldPath: 'name',
+                  mongoType: 'string',
+                  fakerMethod: 'person.fullName',
+                  fakerArgs: [],
+                },
+                {
+                  fieldPath: 'age',
+                  mongoType: 'int',
+                  fakerMethod: 'number.int',
+                  fakerArgs: [{ json: '{"min": 18, "max": 65}' }],
+                },
+              ],
             };
             const fetchStub = sandbox
               .stub()

@@ -81,18 +81,14 @@ describe('MockDataGeneratorModal', () => {
       atlasAiService: {
         getMockDataSchema: () => {
           return Promise.resolve({
-            content: {
-              fields: [
-                {
-                  fieldPath: 'name',
-                  mongoType: 'string',
-                  fakerMethod: 'person.firstName',
-                  fakerArgs: [],
-                  isArray: false,
-                  probability: 1.0,
-                },
-              ],
-            },
+            fields: [
+              {
+                fieldPath: 'name',
+                mongoType: 'string',
+                fakerMethod: 'person.firstName',
+                fakerArgs: [],
+              },
+            ],
           } as MockDataSchemaResponse);
         },
       },
@@ -287,42 +283,32 @@ describe('MockDataGeneratorModal', () => {
     const mockServicesWithMockDataResponse = createMockServices();
     mockServicesWithMockDataResponse.atlasAiService.getMockDataSchema = () =>
       Promise.resolve({
-        content: {
-          fields: [
-            {
-              fieldPath: 'name',
-              mongoType: 'string',
-              fakerMethod: 'person.firstName',
-              fakerArgs: [],
-              isArray: false,
-              probability: 1.0,
-            },
-            {
-              fieldPath: 'age',
-              mongoType: 'int',
-              fakerMethod: 'number.int',
-              fakerArgs: [],
-              isArray: false,
-              probability: 1.0,
-            },
-            {
-              fieldPath: 'email',
-              mongoType: 'string',
-              fakerMethod: 'internet',
-              fakerArgs: [],
-              isArray: false,
-              probability: 1.0,
-            },
-            {
-              fieldPath: 'username',
-              mongoType: 'string',
-              fakerMethod: 'noSuchMethod',
-              fakerArgs: [],
-              isArray: false,
-              probability: 1.0,
-            },
-          ],
-        },
+        fields: [
+          {
+            fieldPath: 'name',
+            mongoType: 'string',
+            fakerMethod: 'person.firstName',
+            fakerArgs: [],
+          },
+          {
+            fieldPath: 'age',
+            mongoType: 'int',
+            fakerMethod: 'number.int',
+            fakerArgs: [],
+          },
+          {
+            fieldPath: 'email',
+            mongoType: 'string',
+            fakerMethod: 'internet',
+            fakerArgs: [],
+          },
+          {
+            fieldPath: 'username',
+            mongoType: 'string',
+            fakerMethod: 'noSuchMethod',
+            fakerArgs: [],
+          },
+        ],
       });
 
     it('shows a loading spinner when the faker schema generation is in progress', async () => {
@@ -332,9 +318,7 @@ describe('MockDataGeneratorModal', () => {
           setTimeout(
             () =>
               resolve({
-                content: {
-                  fields: [],
-                },
+                fields: [],
               }),
             1000
           )

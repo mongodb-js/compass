@@ -232,27 +232,23 @@ export interface MockDataSchemaRequest {
 }
 
 export const MockDataSchemaResponseShape = z.object({
-  content: z.object({
-    fields: z.array(
-      z.object({
-        fieldPath: z.string(),
-        mongoType: z.string(),
-        fakerMethod: z.string(),
-        fakerArgs: z.array(
-          z.union([
-            z.object({
-              json: z.string(),
-            }),
-            z.string(),
-            z.number(),
-            z.boolean(),
-          ])
-        ),
-        isArray: z.boolean(),
-        probability: z.number(),
-      })
-    ),
-  }),
+  fields: z.array(
+    z.object({
+      fieldPath: z.string(),
+      mongoType: z.string(),
+      fakerMethod: z.string(),
+      fakerArgs: z.array(
+        z.union([
+          z.object({
+            json: z.string(),
+          }),
+          z.string(),
+          z.number(),
+          z.boolean(),
+        ])
+      ),
+    })
+  ),
 });
 
 export type MockDataSchemaResponse = z.infer<
