@@ -314,7 +314,6 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
             data: this.serialize(content),
             createdAt: new Date(),
           }),
-          credentials: 'include',
         }
       );
 
@@ -343,7 +342,6 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
         ),
         {
           method: 'DELETE',
-          credentials: 'include',
         }
       );
       return true;
@@ -373,7 +371,6 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
         this.getResourceUrl(`${this.dataType}/${this.orgId}/${this.projectId}`),
         {
           method: 'GET',
-          credentials: 'include',
         }
       );
       const json = await response.json();
@@ -416,7 +413,6 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
             data: this.serialize(newData),
             createdAt: new Date(),
           }),
-          credentials: 'include',
         }
       );
       return true;
@@ -445,7 +441,6 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
         ),
         {
           method: 'GET',
-          credentials: 'include',
         }
       );
       const json = await getResponse.json();
