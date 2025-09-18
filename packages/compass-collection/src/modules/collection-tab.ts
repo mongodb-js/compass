@@ -27,7 +27,7 @@ import {
   type SchemaAnalysisError,
   type SchemaAnalysisState,
   type FieldInfo,
-  MongoDBFieldType,
+  type MongoDBFieldType,
 } from '../schema-analysis-types';
 import { calculateSchemaDepth } from '../calculate-schema-depth';
 import {
@@ -42,7 +42,6 @@ import type {
   MockDataGeneratorState,
 } from '../components/mock-data-generator-modal/types';
 
-// @ts-expect-error TypeScript warns us about importing ESM module from CommonJS module, but we can ignore since this code will be consumed by webpack.
 import { faker } from '@faker-js/faker/locale/en';
 
 const DEFAULT_SAMPLE_SIZE = 100;
