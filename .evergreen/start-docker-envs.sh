@@ -39,7 +39,7 @@ if [ "$HAS_DOCKER" = true ]; then
   LOGS_DIR="$SCRIPT_DIR/logs"
   mkdir -p "$LOGS_DIR"
 
-  git clone -b v1.3.2 --single-branch https://github.com/mongodb-js/devtools-docker-test-envs.git test-envs
+  git clone -b v1.3.4 --single-branch https://github.com/mongodb-js/devtools-docker-test-envs.git test-envs
   $DOCKER_COMPOSE -f test-envs/docker/enterprise/docker-compose.yaml up -d
   $DOCKER_COMPOSE -f test-envs/docker/ldap/docker-compose.yaml up -d
   $DOCKER_COMPOSE -f test-envs/docker/scram/docker-compose.yaml up -d
