@@ -944,13 +944,18 @@ describe('Data Modeling tab', function () {
         .getText();
       expect(collectionText).to.not.include('field-1');
 
-      // Drag the node into view to ensure the add nested field button is visible.
+      // Drag the node to show add new field buttons and new fields.
+      await dragNode(
+        browser,
+        Selectors.DataModelPreviewCollection('test.testCollection-one'),
+        { x: -100, y: -100 }
+      );
+
+      // Add two fields to the collection.
       await dragDiagramToShowAndClick(
         browser,
         Selectors.DataModelCollectionAddFieldBtn('test.testCollection-one')
       );
-
-      // Add two fields to the collection.
       await dragDiagramToShowAndClick(
         browser,
         Selectors.DataModelCollectionAddFieldBtn('test.testCollection-one')
@@ -992,13 +997,6 @@ describe('Data Modeling tab', function () {
         ['object']
       );
       await browser.$(Selectors.SideDrawer).click(); // Unfocus the input.
-
-      // Drag the node to show add new field buttons and new fields.
-      await dragNode(
-        browser,
-        Selectors.DataModelPreviewCollection('test.testCollection-one'),
-        { x: -100, y: -200 }
-      );
 
       await dragDiagramToShowAndClick(
         browser,
