@@ -76,7 +76,7 @@ async function cleanup(signal: NodeJS.Signals) {
   console.log('\nstart    | requested termination.');
   await timers.setTimeout(10_000);
   const stillRunning = subProcesses.filter((p) => p.exitCode === null);
-  for (const p of stillRunning) p.kill('SIGKILL');
+  for (const p of stillRunning) p.kill('SIGTERM');
   console.log('\nstart    | done.');
   process.exit(0);
 }
