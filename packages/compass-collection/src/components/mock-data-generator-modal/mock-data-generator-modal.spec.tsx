@@ -428,26 +428,24 @@ describe('MockDataGeneratorModal', () => {
       const mockServices = createMockServices();
       mockServices.atlasAiService.getMockDataSchema = () =>
         Promise.resolve({
-          content: {
-            fields: [
-              {
-                fieldPath: 'name',
-                mongoType: 'String',
-                fakerMethod: 'person.firstName',
-                fakerArgs: [],
-                isArray: false,
-                probability: 1.0,
-              },
-              {
-                fieldPath: 'email',
-                mongoType: 'String',
-                fakerMethod: 'internet.email',
-                fakerArgs: [],
-                isArray: false,
-                probability: 1.0,
-              },
-            ],
-          },
+          fields: [
+            {
+              fieldPath: 'name',
+              mongoType: 'String',
+              fakerMethod: 'person.firstName',
+              fakerArgs: [],
+              isArray: false,
+              probability: 1.0,
+            },
+            {
+              fieldPath: 'email',
+              mongoType: 'String',
+              fakerMethod: 'internet.email',
+              fakerArgs: [],
+              isArray: false,
+              probability: 1.0,
+            },
+          ],
         });
       await renderModal({
         mockServices,
@@ -468,26 +466,24 @@ describe('MockDataGeneratorModal', () => {
       const mockServices = createMockServices();
       mockServices.atlasAiService.getMockDataSchema = () =>
         Promise.resolve({
-          content: {
-            fields: [
-              {
-                fieldPath: 'name',
-                mongoType: 'String',
-                fakerMethod: 'person.firstName',
-                fakerArgs: [],
-                isArray: false,
-                probability: 1.0,
-              },
-              {
-                fieldPath: 'age',
-                mongoType: 'Int32',
-                fakerMethod: 'number.int',
-                fakerArgs: [],
-                isArray: false,
-                probability: 1.0,
-              },
-            ],
-          },
+          fields: [
+            {
+              fieldPath: 'name',
+              mongoType: 'String',
+              fakerMethod: 'person.firstName',
+              fakerArgs: [],
+              isArray: false,
+              probability: 1.0,
+            },
+            {
+              fieldPath: 'age',
+              mongoType: 'Int32',
+              fakerMethod: 'number.int',
+              fakerArgs: [],
+              isArray: false,
+              probability: 1.0,
+            },
+          ],
         });
 
       await renderModal({

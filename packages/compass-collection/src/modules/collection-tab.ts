@@ -874,7 +874,7 @@ export const generateFakerMappings = (): CollectionThunkAction<
 
       const validatedFakerSchema = validateFakerSchema(
         schemaAnalysis.processedSchema,
-        response.content.fields,
+        response.fields,
         logger
       );
 
