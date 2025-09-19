@@ -11,7 +11,7 @@ import Workspaces from './workspaces';
 import { connect } from '../stores/context';
 import { WorkspacesServiceProvider } from '../provider';
 import type { IUserData } from '@mongodb-js/compass-user-data';
-import type { WorkspacesStateSchema } from '../stores/workspaces-storage';
+import type { WorkspacesStateSchema } from '../services/workspaces-storage';
 
 type WorkspacesWithSidebarProps = {
   /**

@@ -42,7 +42,7 @@ import { WorkspaceTabContextProvider } from './workspace-tab-context-provider';
 import type { WorkspaceTab } from '../types';
 import { loadWorkspaceStateFromUserData } from '../stores/workspaces-middleware';
 import type { IUserData } from '@mongodb-js/compass-user-data';
-import type { WorkspacesStateSchema } from '../stores/workspaces-storage';
+import type { WorkspacesStateSchema } from '../services/workspaces-storage';
 
 const emptyWorkspaceStyles = css({
   margin: '0 auto',

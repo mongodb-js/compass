@@ -4,7 +4,7 @@ import type { IUserData } from '@mongodb-js/compass-user-data';
 import type {
   WorkspacesStateSchema,
   WorkspacesStateData,
-} from './workspaces-storage';
+} from '../services/workspaces-storage';
 
 /**
  * Loads the workspace state from persistent storage
