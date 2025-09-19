@@ -234,10 +234,9 @@ async function dragNode(
       y: Math.round(startPosition.y + 15), // we're aiming for the header area (top of the node)
     })
     .down({ button: 0 }) // Left mouse button
-    .pause(250)
-    .move({ duration: 250, origin: 'pointer', ...pointerActionMoveParams })
-    .pause(250)
-    // .move({ duration: 250, origin: 'pointer', ...pointerActionMoveParams })
+    .move({ duration: 500, origin: 'pointer', ...pointerActionMoveParams })
+    .pause(500)
+    .move({ duration: 500, origin: 'pointer', ...pointerActionMoveParams })
     .up({ button: 0 }) // Release the left mouse button
     .perform();
   await browser.waitForAnimations(node);
@@ -314,6 +313,12 @@ async function dragDiagramToShowAndClick(
         y: baseY,
       })
       .down({ button: 0 }) // Left mouse button.
+      .move({
+        duration: 250,
+        origin: 'pointer',
+        x: moveX,
+        y: moveY,
+      })
       .pause(250)
       .move({
         duration: 250,
@@ -1005,6 +1010,13 @@ describe('Data Modeling tab', function () {
         Selectors.DataModelAddNestedFieldBtn('test.testCollection-one', [
           'renamedField',
         ])
+      );
+
+      // Drag the node to show the new fields.
+      await dragNode(
+        browser,
+        Selectors.DataModelPreviewCollection('test.testCollection-one'),
+        { x: -100, y: -200 }
       );
 
       // Ensure the new fields are in the diagram.
