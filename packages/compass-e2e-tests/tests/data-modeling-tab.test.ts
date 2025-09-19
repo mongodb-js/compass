@@ -948,7 +948,7 @@ describe('Data Modeling tab', function () {
       await dragNode(
         browser,
         Selectors.DataModelPreviewCollection('test.testCollection-one'),
-        { x: -100, y: -100 }
+        { x: -100, y: 0 }
       );
 
       // Add two fields to the collection.
