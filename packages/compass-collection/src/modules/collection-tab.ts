@@ -32,10 +32,18 @@ import {
   type FieldInfo,
 } from '../schema-analysis-types';
 import { calculateSchemaDepth } from '../calculate-schema-depth';
-import { processSchema } from '../transform-schema-to-field-info';
+import {
+  processSchema,
+  ProcessSchemaUnsupportedStateError,
+} from '../transform-schema-to-field-info';
 import type { Document, MongoError } from 'mongodb';
 import { MockDataGeneratorStep } from '../components/mock-data-generator-modal/types';
-import type { MockDataGeneratorState } from '../components/mock-data-generator-modal/types';
+import type {
+  FakerSchemaMapping,
+  MockDataGeneratorState,
+} from '../components/mock-data-generator-modal/types';
+
+import { faker } from '@faker-js/faker/locale/en';
 
 const DEFAULT_SAMPLE_SIZE = 100;
 
@@ -49,8 +57,16 @@ function isAction<A extends AnyAction>(
 }
 
 const ERROR_CODE_MAX_TIME_MS_EXPIRED = 50;
+export const UNRECOGNIZED_FAKER_METHOD = 'Unrecognized';
 
 function getErrorDetails(error: Error): SchemaAnalysisError {
+  if (error instanceof ProcessSchemaUnsupportedStateError) {
+    return {
+      errorType: 'unsupportedState',
+      errorMessage: error.message,
+    };
+  }
+
   const errorCode = (error as MongoError).code;
   const errorMessage = error.message || 'Unknown error';
   let errorType: SchemaAnalysisError['errorType'] = 'general';
@@ -79,6 +95,7 @@ type CollectionThunkAction<R, A extends AnyAction = AnyAction> = ThunkAction<
     preferences: PreferencesAccess;
     connectionInfoRef: ConnectionInfoRef;
     fakerSchemaGenerationAbortControllerRef: { current?: AbortController };
+    schemaAnalysisAbortControllerRef: { current?: AbortController };
   },
   A
 >;
@@ -101,6 +118,7 @@ export enum CollectionActions {
   SchemaAnalysisStarted = 'compass-collection/SchemaAnalysisStarted',
   SchemaAnalysisFinished = 'compass-collection/SchemaAnalysisFinished',
   SchemaAnalysisFailed = 'compass-collection/SchemaAnalysisFailed',
+  SchemaAnalysisCanceled = 'compass-collection/SchemaAnalysisCanceled',
   SchemaAnalysisReset = 'compass-collection/SchemaAnalysisReset',
   MockDataGeneratorModalOpened = 'compass-collection/MockDataGeneratorModalOpened',
   MockDataGeneratorModalClosed = 'compass-collection/MockDataGeneratorModalClosed',
@@ -139,6 +157,10 @@ interface SchemaAnalysisFailedAction {
   error: Error;
 }
 
+interface SchemaAnalysisCanceledAction {
+  type: CollectionActions.SchemaAnalysisCanceled;
+}
+
 interface MockDataGeneratorModalOpenedAction {
   type: CollectionActions.MockDataGeneratorModalOpened;
 }
@@ -162,7 +184,7 @@ export interface FakerMappingGenerationStartedAction {
 
 export interface FakerMappingGenerationCompletedAction {
   type: CollectionActions.FakerMappingGenerationCompleted;
-  fakerSchema: MockDataSchemaResponse;
+  fakerSchema: FakerSchemaMapping[];
   requestId: string;
 }
 
@@ -259,6 +281,20 @@ const reducer: Reducer<CollectionState, Action> = (
       schemaAnalysis: {
         status: SCHEMA_ANALYSIS_STATE_ERROR,
         error: getErrorDetails(action.error),
+      },
+    };
+  }
+
+  if (
+    isAction<SchemaAnalysisCanceledAction>(
+      action,
+      CollectionActions.SchemaAnalysisCanceled
+    )
+  ) {
+    return {
+      ...state,
+      schemaAnalysis: {
+        status: SCHEMA_ANALYSIS_STATE_INITIAL,
       },
     };
   }
@@ -524,7 +560,11 @@ export const openMockDataGeneratorModal = (): CollectionThunkAction<
 export const analyzeCollectionSchema = (): CollectionThunkAction<
   Promise<void>
 > => {
-  return async (dispatch, getState, { dataService, preferences, logger }) => {
+  return async (
+    dispatch,
+    getState,
+    { dataService, preferences, logger, schemaAnalysisAbortControllerRef }
+  ) => {
     const { schemaAnalysis, namespace } = getState();
     const analysisStatus = schemaAnalysis.status;
     if (analysisStatus === SCHEMA_ANALYSIS_STATE_ANALYZING) {
@@ -533,6 +573,10 @@ export const analyzeCollectionSchema = (): CollectionThunkAction<
       );
       return;
     }
+
+    // Create abort controller for this analysis
+    const abortController = new AbortController();
+    schemaAnalysisAbortControllerRef.current = abortController;
 
     try {
       logger.debug('Schema analysis started.');
@@ -552,8 +596,15 @@ export const analyzeCollectionSchema = (): CollectionThunkAction<
         driverOptions,
         {
           fallbackReadPreference: 'secondaryPreferred',
+          abortSignal: abortController.signal,
         }
       );
+
+      // Check if analysis was aborted after sampling
+      if (abortController.signal.aborted) {
+        logger.debug('Schema analysis was aborted during sampling');
+        return;
+      }
       if (sampleDocuments.length === 0) {
         logger.debug(NO_DOCUMENTS_ERROR);
         dispatch({
@@ -565,6 +616,13 @@ export const analyzeCollectionSchema = (): CollectionThunkAction<
 
       // Analyze sampled documents
       const schemaAccessor = await analyzeDocuments(sampleDocuments);
+
+      // Check if analysis was aborted after document analysis
+      if (abortController.signal.aborted) {
+        logger.debug('Schema analysis was aborted during document analysis');
+        return;
+      }
+
       const schema = await schemaAccessor.getInternalSchema();
 
       // Filter out internal fields from the schema
@@ -583,6 +641,13 @@ export const analyzeCollectionSchema = (): CollectionThunkAction<
         maxNestingDepth,
         validationRules,
       };
+
+      // Final check before dispatching results
+      if (abortController.signal.aborted) {
+        logger.debug('Schema analysis was aborted before completion');
+        return;
+      }
+
       dispatch({
         type: CollectionActions.SchemaAnalysisFinished,
         processedSchema,
@@ -590,6 +655,15 @@ export const analyzeCollectionSchema = (): CollectionThunkAction<
         schemaMetadata,
       });
     } catch (err: any) {
+      // Check if the error is due to cancellation
+      if (isCancelError(err) || abortController.signal.aborted) {
+        logger.debug('Schema analysis was aborted');
+        dispatch({
+          type: CollectionActions.SchemaAnalysisCanceled,
+        });
+        return;
+      }
+
       logger.log.error(
         mongoLogId(1_001_000_363),
         'Collection',
@@ -603,8 +677,53 @@ export const analyzeCollectionSchema = (): CollectionThunkAction<
         type: CollectionActions.SchemaAnalysisFailed,
         error: err as Error,
       });
+    } finally {
+      // Clean up abort controller
+      schemaAnalysisAbortControllerRef.current = undefined;
     }
   };
+};
+
+export const cancelSchemaAnalysis = (): CollectionThunkAction<void> => {
+  return (
+    _dispatch,
+    _getState,
+    { schemaAnalysisAbortControllerRef, logger }
+  ) => {
+    if (schemaAnalysisAbortControllerRef.current) {
+      logger.debug('Canceling schema analysis');
+      schemaAnalysisAbortControllerRef.current.abort();
+      schemaAnalysisAbortControllerRef.current = undefined;
+    }
+  };
+};
+
+const validateFakerSchema = (
+  fakerSchema: MockDataSchemaResponse,
+  logger: Logger
+) => {
+  return fakerSchema.fields.map((field) => {
+    const { fakerMethod } = field;
+
+    const [moduleName, methodName, ...rest] = fakerMethod.split('.');
+    if (
+      rest.length > 0 ||
+      typeof (faker as any)[moduleName]?.[methodName] !== 'function'
+    ) {
+      logger.log.warn(
+        mongoLogId(1_001_000_372),
+        'Collection',
+        'Invalid faker method',
+        { fakerMethod }
+      );
+      return {
+        ...field,
+        fakerMethod: UNRECOGNIZED_FAKER_METHOD,
+      };
+    }
+
+    return field;
+  });
 };
 
 export const generateFakerMappings = (): CollectionThunkAction<
@@ -673,10 +792,12 @@ export const generateFakerMappings = (): CollectionThunkAction<
         connectionInfoRef.current
       );
 
+      const validatedFakerSchema = validateFakerSchema(response, logger);
+
       fakerSchemaGenerationAbortControllerRef.current = undefined;
       dispatch({
         type: CollectionActions.FakerMappingGenerationCompleted,
-        fakerSchema: response,
+        fakerSchema: validatedFakerSchema,
         requestId: requestId,
       });
     } catch (e) {

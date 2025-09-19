@@ -19,7 +19,7 @@ type MockDataGeneratorInProgressState = {
 
 type MockDataGeneratorCompletedState = {
   status: 'completed';
-  fakerSchema: MockDataSchemaResponse;
+  fakerSchema: FakerSchemaMapping[];
   requestId: string;
 };
 
@@ -34,3 +34,5 @@ export type MockDataGeneratorState =
   | MockDataGeneratorInProgressState
   | MockDataGeneratorCompletedState
   | MockDataGeneratorErrorState;
+
+export type FakerSchemaMapping = MockDataSchemaResponse['fields'][number];

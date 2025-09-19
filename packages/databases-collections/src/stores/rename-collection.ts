@@ -5,7 +5,7 @@ import type { ConnectionsService } from '@mongodb-js/compass-connections/provide
 import reducer, { open } from '../modules/rename-collection/rename-collection';
 import type {
   FavoriteQueryStorageAccess,
-  PipelineStorage,
+  PipelineStorageAccess,
 } from '@mongodb-js/my-queries-storage/provider';
 import { type MongoDBInstancesManager } from '@mongodb-js/compass-app-stores/provider';
 import type { ActivateHelpers } from '@mongodb-js/compass-app-registry';
@@ -15,7 +15,7 @@ export type RenameCollectionPluginServices = {
   connections: ConnectionsService;
   instancesManager: MongoDBInstancesManager;
   queryStorage?: FavoriteQueryStorageAccess;
-  pipelineStorage?: PipelineStorage;
+  pipelineStorage?: PipelineStorageAccess;
 };
 
 export function activateRenameCollectionPlugin(
@@ -33,7 +33,8 @@ export function activateRenameCollectionPlugin(
     oldNamespace: string
   ): Promise<boolean> {
     const pipelineExists = await pipelineStorage
-      ?.loadAll()
+      ?.getStorage()
+      .loadAll()
       .then((pipelines) =>
         pipelines.some(({ namespace }) => namespace === oldNamespace)
       )

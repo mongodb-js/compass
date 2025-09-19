@@ -92,6 +92,7 @@ export type UserConfigurablePreferences = PermanentFeatureFlags &
     enableExplainPlan: boolean;
     enableAtlasSearchIndexes: boolean;
     enableImportExport: boolean;
+    enableMyQueries: boolean;
     enableAggregationBuilderRunPipeline: boolean;
     enableAggregationBuilderExtraOptions: boolean;
     enableGenAISampleDocumentPassing: boolean;
@@ -1015,6 +1016,17 @@ export const storedUserPreferencesProps: Required<{
     global: true,
     description: {
       short: 'Enable Gen AI Features on Atlas Org Level',
+    },
+    validator: z.boolean().default(true),
+    type: 'boolean',
+  },
+  enableMyQueries: {
+    ui: true,
+    cli: true,
+    global: true,
+    description: {
+      short:
+        'Enable My Queries feature to save and manage favorite queries and aggregations',
     },
     validator: z.boolean().default(true),
     type: 'boolean',

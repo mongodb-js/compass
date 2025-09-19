@@ -390,9 +390,7 @@ describe('CompassAssistantProvider', function () {
 
       await renderOpenAssistantDrawer({ chat: mockChat });
 
-      const input = screen.getByPlaceholderText(
-        'Ask MongoDB Assistant a question'
-      );
+      const input = screen.getByPlaceholderText('Ask a question');
       const sendButton = screen.getByLabelText('Send message');
 
       userEvent.type(input, 'Hello assistant');
@@ -430,7 +428,7 @@ describe('CompassAssistantProvider', function () {
       await renderOpenAssistantDrawer({ chat: mockChat });
 
       userEvent.type(
-        screen.getByPlaceholderText('Ask MongoDB Assistant a question'),
+        screen.getByPlaceholderText('Ask a question'),
         'Hello assistant!'
       );
       userEvent.click(screen.getByLabelText('Send message'));
@@ -473,7 +471,7 @@ describe('CompassAssistantProvider', function () {
       await renderOpenAssistantDrawer({ chat, atlastAiService });
 
       userEvent.type(
-        screen.getByPlaceholderText('Ask MongoDB Assistant a question'),
+        screen.getByPlaceholderText('Ask a question'),
         'Hello assistant!'
       );
       userEvent.click(screen.getByLabelText('Send message'));

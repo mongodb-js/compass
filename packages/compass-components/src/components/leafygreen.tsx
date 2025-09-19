@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 // This file exports `@leafygreen-ui` components and wraps some of them.
 
 // 1. Import the components we use from leafygreen.
+import { default as Copyable } from '@leafygreen-ui/copyable';
 import { default as Badge } from '@leafygreen-ui/badge';
 import { default as Banner } from '@leafygreen-ui/banner';
 import Checkbox from '@leafygreen-ui/checkbox';
@@ -92,8 +93,6 @@ import {
   ComboboxGroup,
 } from '@leafygreen-ui/combobox';
 
-export { getLgIds as getDrawerIds } from './drawer';
-
 // 2. Wrap and make any changes/workaround to leafygreen components.
 const Icon = ({
   size,
@@ -146,6 +145,7 @@ export {
   Chip,
   Code,
   ConfirmationModal,
+  Copyable,
   ExpandedContent,
   HeaderCell,
   HeaderRow,

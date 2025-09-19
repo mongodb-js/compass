@@ -92,7 +92,7 @@ function updateDependencies(packageJson, newVersions) {
     if (packageJson[depType]) {
       for (const packageName of Object.keys(packageJson[depType])) {
         if (packageJson[depType][packageName] && newVersions[packageName]) {
-          packageJson[depType][packageName] = `^${newVersions[packageName]}`;
+          packageJson[depType][packageName] = newVersions[packageName];
         }
       }
     }
@@ -122,9 +122,9 @@ function updateDependencies(packageJson, newVersions) {
 function updateOverrides(overrides, newVersions, parent) {
   for (const name of Object.keys(overrides ?? {})) {
     if (typeof overrides[name] === 'string' && newVersions[name]) {
-      overrides[name] = `^${newVersions[name]}`;
+      overrides[name] = newVersions[name];
     } else if (name === '.' && parent && newVersions[parent]) {
-      overrides[name] = `^${newVersions[name]}`;
+      overrides[name] = newVersions[name];
     } else if (typeof overrides[name] === 'object') {
       updateOverrides(overrides[name], newVersions, name);
     }
@@ -205,7 +205,7 @@ async function main() {
     return depToUpdate;
   });
 
-  const newVersions = await withProgress(
+  let newVersions = await withProgress(
     `Collecting version information for packages...`,
     () => {
       return Promise.all(
@@ -226,6 +226,13 @@ async function main() {
       .join('\n * ')
   );
   console.log();
+
+  newVersions = newVersions.map(([name, version]) => {
+    // When updating we always want to use version with a caret, this allows
+    // some flexibility for third parties that depend on compass deps to have
+    // some flexibility in transitive dependencies versions
+    return [name, `^${version}`];
+  });
 
   const newVersionsObj = Object.fromEntries(newVersions);
   let hasChanged;

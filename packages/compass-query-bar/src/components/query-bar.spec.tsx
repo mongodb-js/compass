@@ -27,9 +27,9 @@ import {
   RecentQueryStorageProvider,
 } from '@mongodb-js/my-queries-storage/provider';
 import {
-  compassFavoriteQueryStorageAccess,
-  compassRecentQueryStorageAccess,
-} from '@mongodb-js/my-queries-storage';
+  createElectronFavoriteQueryStorage,
+  createElectronRecentQueryStorage,
+} from '@mongodb-js/my-queries-storage/electron';
 import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
 
 const noop = () => {
@@ -67,10 +67,19 @@ describe('QueryBar Component', function () {
     } as QueryBarExtraArgs);
     store.dispatch(toggleQueryOptions(expanded));
 
+    const favoriteQueryStorage = {
+      getStorage: () =>
+        createElectronFavoriteQueryStorage({ basepath: '/tmp/test' }),
+    };
+    const recentQueryStorage = {
+      getStorage: () =>
+        createElectronRecentQueryStorage({ basepath: '/tmp/test' }),
+    };
+
     const component = (
       <PreferencesProvider value={preferences}>
-        <FavoriteQueryStorageProvider value={compassFavoriteQueryStorageAccess}>
-          <RecentQueryStorageProvider value={compassRecentQueryStorageAccess}>
+        <FavoriteQueryStorageProvider value={favoriteQueryStorage}>
+          <RecentQueryStorageProvider value={recentQueryStorage}>
             <Provider store={store}>
               <QueryBar
                 source="test"

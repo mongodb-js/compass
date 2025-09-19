@@ -3946,9 +3946,11 @@ function buildPrompt(explainCase: ExplainCase): SimpleEvalCase {
       //aggregation: explainCase.aggregation?.trim(),
       //schema: explainCase.schema?.trim(),
       explainPlan: explainCase.explainPlan?.trim(),
+      operationType: 'aggregation',
     }).prompt,
     expected: explainCase.expected,
     expectedSources: explainCase.expectedsources,
+    tags: ['explain-plan'],
   };
 }
 

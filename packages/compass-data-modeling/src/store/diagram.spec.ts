@@ -4,6 +4,7 @@ import {
   applyEdit,
   getCurrentDiagramFromState,
   getCurrentModel,
+  getTypeNameForTelemetry,
   openDiagram,
   redoEdit,
   undoEdit,
@@ -572,5 +573,32 @@ describe('Data Modeling store', function () {
         'prop5B',
       ]);
     });
+  });
+});
+
+describe('getTypeNameForTelemetry', () => {
+  it('should return undefined when bsonType is undefined', () => {
+    const result = getTypeNameForTelemetry(undefined);
+    expect(result).to.be.undefined;
+  });
+
+  it('should return undefined when bsonType is an empty array', () => {
+    const result = getTypeNameForTelemetry([]);
+    expect(result).to.be.undefined;
+  });
+
+  it('should return the string when bsonType is a string', () => {
+    const result = getTypeNameForTelemetry('string');
+    expect(result).to.equal('string');
+  });
+
+  it('should return the single element when bsonType is an array with one element', () => {
+    const result = getTypeNameForTelemetry(['string']);
+    expect(result).to.equal('string');
+  });
+
+  it('should return "mixed" when bsonType is an array with multiple elements', () => {
+    const result = getTypeNameForTelemetry(['string', 'number']);
+    expect(result).to.equal('mixed');
   });
 });
