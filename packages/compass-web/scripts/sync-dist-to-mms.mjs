@@ -16,24 +16,28 @@ if (!process.env.MMS_HOME) {
 function isDevServerRunning(port, host = '127.0.0.1') {
   return new Promise((resolve) => {
     const socket = new net.Socket();
-    socket.setTimeout(1000);
-    socket.once('connect', () => {
-      socket.destroy();
-      resolve(true);
-    });
-    socket.once('timeout', () => {
-      socket.destroy();
-      resolve(false);
-    });
-    socket.once('error', () => {
-      resolve(false);
-    });
-    socket.connect(port, host);
+    socket
+      .setTimeout(1000)
+      .on('connect', () => {
+        socket.destroy();
+        resolve(true);
+      })
+      .on('error', () => {
+        socket.destroy();
+        resolve(false);
+      })
+      .on('timeout', () => {
+        socket.destroy();
+        resolve(false);
+      })
+      .connect(port, host);
   });
 }
 
+const okToRunMMS = !process.argv.includes('--no-mms');
+
 let devServer;
-if (!(await isDevServerRunning(8081))) {
+if (okToRunMMS || !(await isDevServerRunning(8081))) {
   console.log('mms dev server is not running... launching!');
   child_process.execFileSync('pnpm', ['install'], {
     cwd: process.env.MMS_HOME,
@@ -74,6 +78,8 @@ if (!(await isDevServerRunning(8081))) {
   } else {
     console.log('Dev server is ready!');
   }
+} else {
+  console.log('Skipping running MMS dev server...');
 }
 
 const srcDir = path.resolve(import.meta.dirname, '..', 'dist');

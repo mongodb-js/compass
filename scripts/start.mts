@@ -45,6 +45,18 @@ for (const arg of args) {
   // If arg is not a valid target and no current target, ignore it
 }
 
+// Check for mutually exclusive targets
+if (
+  targets.sandbox.enabled &&
+  (targets.desktop.enabled || targets.sync.enabled)
+) {
+  console.error('Error: sandbox target must be run alone.');
+  console.error(
+    'Please run sandbox by itself, not combined with other targets.'
+  );
+  process.exit(1);
+}
+
 // If no targets specified, default to desktop
 if (
   !targets.desktop.enabled &&
@@ -62,14 +74,14 @@ const subProcesses: child_process.ChildProcess[] = [];
 async function cleanup(signal: NodeJS.Signals) {
   for (const p of subProcesses) p.kill(signal);
   console.log('\nstart    | requested termination.');
-  await timers.setTimeout(5000);
+  await timers.setTimeout(10_000);
   const stillRunning = subProcesses.filter((p) => p.exitCode === null);
   for (const p of stillRunning) p.kill('SIGKILL');
   console.log('\nstart    | done.');
   process.exit(0);
 }
 
-process.on('SIGINT', cleanup).on('SIGTERM', cleanup);
+process.once('SIGINT', cleanup).once('SIGTERM', cleanup);
 
 // Helper function to create a transform stream that prefixes lines
 function createPrefixTransform(prefix: string) {
@@ -125,7 +137,7 @@ function spawnTarget(
       ...(args.length ? ['--', ...args] : []),
     ],
     {
-      stdio: 'pipe',
+      stdio: ['pipe', 'pipe', 'pipe'], // stdin, stdout, stderr all piped
       env: { ...process.env, ...colorEnv },
     },
   ];
@@ -205,4 +217,13 @@ if (targets.sandbox.enabled) {
       needsPrefixing
     )
   );
+}
+
+// Forward stdin to all subprocesses using pipeline
+for (const subProcess of subProcesses) {
+  if (subProcess.stdin)
+    pipeline(process.stdin, subProcess.stdin, { end: false }).catch((err) => {
+      if (err.code !== 'EPIPE' && err.code !== 'ERR_STREAM_PREMATURE_CLOSE')
+        console.error(`start    | stdin pipeline error:`, err);
+    });
 }
