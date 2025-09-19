@@ -35,9 +35,10 @@ const assistantTitleTextStyles = css({
  * it's within an AssistantProvider.
  */
 export const CompassAssistantDrawer: React.FunctionComponent<{
+  appName: string;
   autoOpen?: boolean;
   hasNonGenuineConnections?: boolean;
-}> = ({ autoOpen, hasNonGenuineConnections = false }) => {
+}> = ({ appName, autoOpen, hasNonGenuineConnections = false }) => {
   const chat = useContext(AssistantContext);
   const { clearChat } = useContext(AssistantActionsContext);
 
@@ -68,8 +69,6 @@ export const CompassAssistantDrawer: React.FunctionComponent<{
     );
   }
 
-  const appName = 'Compass'; // TODO
-
   return (
     <DrawerSection
       id={ASSISTANT_DRAWER_ID}
@@ -97,7 +96,7 @@ export const CompassAssistantDrawer: React.FunctionComponent<{
       guideCue={{
         cueId: 'assistant-drawer',
         title: 'Introducing MongoDB Assistant',
-        description: `AI-powered assistant to intelligently guide you through your database tasks. Get expert MongoDB help and streamline your workflow directly within ${appName}`,
+        description: `AI-powered assistant to intelligently guide you through your database tasks. Get expert MongoDB help and streamline your workflow directly within ${appName}.`,
         buttonText: 'Got it',
         tooltipAlign: 'left',
         tooltipJustify: 'start',
