@@ -85,9 +85,7 @@ describe('AssistantChat', function () {
   it('renders input field and send button', function () {
     renderWithChat([]);
 
-    const inputField = screen.getByPlaceholderText(
-      'Ask MongoDB Assistant a question'
-    );
+    const inputField = screen.getByPlaceholderText('Ask a question');
     const sendButton = screen.getByLabelText('Send message');
 
     expect(inputField).to.exist;
@@ -99,7 +97,7 @@ describe('AssistantChat', function () {
 
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
     const inputField = screen.getByPlaceholderText(
-      'Ask MongoDB Assistant a question'
+      'Ask a question'
     ) as HTMLTextAreaElement;
 
     userEvent.type(inputField, 'What is MongoDB?');
@@ -109,9 +107,8 @@ describe('AssistantChat', function () {
 
   it('displays the disclaimer and welcome text', function () {
     renderWithChat([]);
-    expect(screen.getByText(/This feature is powered by generative AI/)).to
+    expect(screen.getByText(/AI can make mistakes. Review for accuracy./)).to
       .exist;
-    expect(screen.getByText(/Please review the outputs carefully/)).to.exist;
   });
 
   it('displays the welcome text when there are no messages', function () {
@@ -149,9 +146,7 @@ describe('AssistantChat', function () {
   it('send button is enabled when input has text', function () {
     renderWithChat([]);
 
-    const inputField = screen.getByPlaceholderText(
-      'Ask MongoDB Assistant a question'
-    );
+    const inputField = screen.getByPlaceholderText('Ask a question');
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
     const sendButton = screen.getByLabelText(
       'Send message'
@@ -165,9 +160,7 @@ describe('AssistantChat', function () {
   it('send button is disabled for whitespace-only input', async function () {
     renderWithChat([]);
 
-    const inputField = screen.getByPlaceholderText(
-      'Ask MongoDB Assistant a question'
-    );
+    const inputField = screen.getByPlaceholderText('Ask a question');
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
     const sendButton = screen.getByLabelText(
       'Send message'
@@ -246,9 +239,7 @@ describe('AssistantChat', function () {
   it('calls sendMessage when form is submitted', async function () {
     const { result, ensureOptInAndSendStub } = renderWithChat([]);
     const { track } = result;
-    const inputField = screen.getByPlaceholderText(
-      'Ask MongoDB Assistant a question'
-    );
+    const inputField = screen.getByPlaceholderText('Ask a question');
     const sendButton = screen.getByLabelText('Send message');
 
     userEvent.type(inputField, 'What is aggregation?');
@@ -268,7 +259,7 @@ describe('AssistantChat', function () {
 
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
     const inputField = screen.getByPlaceholderText(
-      'Ask MongoDB Assistant a question'
+      'Ask a question'
     ) as HTMLTextAreaElement;
 
     userEvent.type(inputField, 'Test message');
@@ -282,9 +273,7 @@ describe('AssistantChat', function () {
     const { ensureOptInAndSendStub, result } = renderWithChat([]);
     const { track } = result;
 
-    const inputField = screen.getByPlaceholderText(
-      'Ask MongoDB Assistant a question'
-    );
+    const inputField = screen.getByPlaceholderText('Ask a question');
 
     userEvent.type(inputField, '  What is sharding?  ');
     userEvent.click(screen.getByLabelText('Send message'));
@@ -301,9 +290,7 @@ describe('AssistantChat', function () {
   it('does not call ensureOptInAndSend when input is empty or whitespace-only', function () {
     const { ensureOptInAndSendStub } = renderWithChat([]);
 
-    const inputField = screen.getByPlaceholderText(
-      'Ask MongoDB Assistant a question'
-    );
+    const inputField = screen.getByPlaceholderText('Ask a question');
     const chatForm = screen.getByTestId('assistant-chat-input');
 
     // Test empty input
