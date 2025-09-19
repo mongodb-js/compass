@@ -37,7 +37,7 @@ export type MockDataGeneratorState =
   | MockDataGeneratorCompletedState
   | MockDataGeneratorErrorState;
 
-export type FakerSchemaMapping = MockDataSchemaResponse['fields'][number];
+export type LlmFakerMapping = MockDataSchemaResponse['fields'][number];
 
 export interface FakerFieldMapping {
   mongoType: MongoDBFieldType;

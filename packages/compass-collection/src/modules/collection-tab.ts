@@ -36,7 +36,7 @@ import {
 import type { Document, MongoError } from 'mongodb';
 import { MockDataGeneratorStep } from '../components/mock-data-generator-modal/types';
 import type {
-  FakerSchemaMapping,
+  LlmFakerMapping,
   FakerSchema,
   MockDataGeneratorState,
 } from '../components/mock-data-generator-modal/types';
@@ -701,7 +701,7 @@ export const cancelSchemaAnalysis = (): CollectionThunkAction<void> => {
  * Moves fieldPath from object property to object key.
  */
 function transformFakerSchemaToObject(
-  fakerSchema: FakerSchemaMapping[]
+  fakerSchema: LlmFakerMapping[]
 ): FakerSchema {
   const result: FakerSchema = {};
 
@@ -762,7 +762,7 @@ function isValidFakerMethod(fakerMethod: string): boolean {
  */
 const validateFakerSchema = (
   inputSchema: Record<string, FieldInfo>,
-  fakerSchemaArray: FakerSchemaMapping[],
+  fakerSchemaArray: LlmFakerMapping[],
   logger: Logger
 ): FakerSchema => {
   // Transform to keyed object structure
