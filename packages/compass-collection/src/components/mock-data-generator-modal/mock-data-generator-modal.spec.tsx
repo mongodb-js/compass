@@ -5,6 +5,7 @@ import {
   renderWithActiveConnection,
   waitFor,
   userEvent,
+  waitForElementToBeRemoved,
 } from '@mongodb-js/testing-library-compass';
 import { Provider } from 'react-redux';
 import { createStore, applyMiddleware } from 'redux';
@@ -511,10 +512,9 @@ describe('MockDataGeneratorModal', () => {
 
       // advance to the schema editor step
       userEvent.click(screen.getByText('Confirm'));
-
-      await waitFor(() => {
-        expect(screen.getByTestId('faker-schema-editor')).to.exist;
-      });
+      await waitForElementToBeRemoved(() =>
+        screen.queryByTestId('faker-schema-editor-loader')
+      );
 
       // select the "name" field
       userEvent.click(screen.getByText('name'));

@@ -218,7 +218,6 @@ const aiURLConfig = {
 export interface MockDataSchemaRawField {
   type: string;
   sampleValues?: unknown[];
-  probability?: number;
 }
 
 export interface MockDataSchemaRequest {
@@ -475,7 +474,7 @@ export class AtlasAiService {
         Omit<MockDataSchemaRawField, 'sampleValues'>
       > = {};
       for (const [k, v] of Object.entries(schema)) {
-        newSchema[k] = { type: v.type, probability: v.probability };
+        newSchema[k] = { type: v.type };
       }
       schema = newSchema;
     }

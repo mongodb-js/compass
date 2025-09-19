@@ -772,9 +772,12 @@ const validateFakerSchema = (
 
   // Process all input schema fields in a single O(n) pass
   for (const fieldPath of Object.keys(inputSchema)) {
-    const fakerMapping = fakerSchemaRaw[fieldPath];
-
-    if (fakerMapping) {
+    if (fakerSchemaRaw[fieldPath]) {
+      // input schema field exists in faker schema
+      const fakerMapping = {
+        ...fakerSchemaRaw[fieldPath],
+        probability: inputSchema[fieldPath].probability,
+      };
       // Validate the faker method
       if (isValidFakerMethod(fakerMapping.fakerMethod)) {
         result[fieldPath] = fakerMapping;
@@ -789,7 +792,7 @@ const validateFakerSchema = (
           mongoType: fakerMapping.mongoType,
           fakerMethod: UNRECOGNIZED_FAKER_METHOD,
           fakerArgs: [],
-          probability: inputSchema[fieldPath].probability,
+          probability: fakerMapping.probability,
         };
       }
     } else {
