@@ -788,8 +788,8 @@ const validateFakerSchema = (
         result[fieldPath] = {
           mongoType: fakerMapping.mongoType,
           fakerMethod: UNRECOGNIZED_FAKER_METHOD,
-          fakerArgs: fakerMapping.fakerArgs,
-          probability: fakerMapping.probability,
+          fakerArgs: [],
+          probability: inputSchema[fieldPath].probability,
         };
       }
     } else {
@@ -798,7 +798,7 @@ const validateFakerSchema = (
         mongoType: inputSchema[fieldPath].type,
         fakerMethod: UNRECOGNIZED_FAKER_METHOD,
         fakerArgs: [],
-        probability: 1,
+        probability: inputSchema[fieldPath].probability,
       };
     }
   }
