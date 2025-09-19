@@ -82,7 +82,7 @@
     "@mongodb-js/devtools-proxy-support": "^0.5.2",
     "@mongodb-js/oidc-plugin": "^2.0.4",
     "compass-preferences-model": "^2.54.1",
-    "electron": "^37.4.0",
+    "electron": "^37.5.1",
     "hadron-ipc": "^3.5.14",
     "lodash": "^4.17.21",
     "react": "^17.0.2",
