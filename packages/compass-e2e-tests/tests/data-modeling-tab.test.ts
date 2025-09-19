@@ -333,6 +333,8 @@ async function dragDiagramToShowAndClick(
     }
   }
 
+  await browser.waitForAnimations(Selectors.DataModelPreview);
+
   return elementPosition;
 }
 
