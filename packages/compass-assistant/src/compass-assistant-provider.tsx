@@ -62,9 +62,11 @@ type AssistantActionsContextType = {
   interpretExplainPlan?: ({
     namespace,
     explainPlan,
+    operationType,
   }: {
     namespace: string;
     explainPlan: string;
+    operationType: 'query' | 'aggregation';
   }) => void;
   interpretConnectionError?: ({
     connectionInfo,
