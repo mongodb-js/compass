@@ -282,11 +282,11 @@ export const DrawerAnchor: React.FunctionComponent = ({ children }) => {
     function () {
       const nodes: Record<string, HTMLButtonElement | undefined> = {};
       for (const [index, item] of toolbarData.entries()) {
-        const button = document.querySelector(
+        const button = document.querySelector<HTMLButtonElement>(
           `[data-testid="lg-drawer-toolbar-icon_button-${index}"]`
         );
         if (button) {
-          nodes[item.id] = button as HTMLButtonElement;
+          nodes[item.id] = button;
         }
       }
 
