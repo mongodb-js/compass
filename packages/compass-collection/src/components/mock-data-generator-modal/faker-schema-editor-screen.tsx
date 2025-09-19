@@ -13,7 +13,7 @@ import React from 'react';
 import FieldSelector from './schema-field-selector';
 import FakerMappingSelector from './faker-mapping-selector';
 import type { FakerSchema, MockDataGeneratorState } from './types';
-import type { MongoDBFieldType } from '../../schema-analysis-types';
+import type { MongoDBFieldType } from '@mongodb-js/compass-generative-ai';
 
 const containerStyles = css({
   display: 'flex',
@@ -69,14 +69,14 @@ const FakerSchemaEditorContent = ({
     onSchemaConfirmed(false);
   };
 
-  const onJsonTypeSelect = (newJsonType: string) => {
+  const onJsonTypeSelect = (newJsonType: MongoDBFieldType) => {
     const currentMapping = fakerSchemaFormValues[activeField];
     if (currentMapping) {
       setFakerSchemaFormValues({
         ...fakerSchemaFormValues,
         [activeField]: {
           ...currentMapping,
-          mongoType: newJsonType as MongoDBFieldType,
+          mongoType: newJsonType,
         },
       });
       resetIsSchemaConfirmed();

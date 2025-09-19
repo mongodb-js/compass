@@ -1,4 +1,4 @@
-import type { SimplifiedSchema } from 'mongodb-schema';
+import type { PrimitiveSchemaType, SimplifiedSchema } from 'mongodb-schema';
 import {
   type PreferencesAccess,
   isAIFeatureEnabled,
@@ -231,11 +231,16 @@ export interface MockDataSchemaRequest {
   signal: AbortSignal;
 }
 
+/**
+ * MongoDB schema type
+ */
+export type MongoDBFieldType = PrimitiveSchemaType['name'];
+
 export const MockDataSchemaResponseShape = z.object({
   fields: z.array(
     z.object({
       fieldPath: z.string(),
-      mongoType: z.string(),
+      mongoType: z.string() as z.ZodType<MongoDBFieldType>,
       fakerMethod: z.string(),
       fakerArgs: z.array(
         z.union([

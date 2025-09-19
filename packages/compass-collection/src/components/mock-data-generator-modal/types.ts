@@ -1,5 +1,5 @@
 import type { MockDataSchemaResponse } from '@mongodb-js/compass-generative-ai';
-import type { MongoDBFieldType } from '../../schema-analysis-types';
+import type { MongoDBFieldType } from '@mongodb-js/compass-generative-ai';
 import type { FakerArg } from './script-generation-utils';
 
 export enum MockDataGeneratorStep {

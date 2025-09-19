@@ -89,7 +89,7 @@ describe('MockDataGeneratorModal', () => {
             fields: [
               {
                 fieldPath: 'name',
-                mongoType: 'string',
+                mongoType: 'String',
                 fakerMethod: 'person.firstName',
                 fakerArgs: [],
               },
@@ -318,25 +318,25 @@ describe('MockDataGeneratorModal', () => {
         fields: [
           {
             fieldPath: 'name',
-            mongoType: 'string',
+            mongoType: 'String',
             fakerMethod: 'person.firstName',
             fakerArgs: [],
           },
           {
             fieldPath: 'age',
-            mongoType: 'int',
+            mongoType: 'Int32',
             fakerMethod: 'number.int',
             fakerArgs: [],
           },
           {
             fieldPath: 'email',
-            mongoType: 'string',
+            mongoType: 'String',
             fakerMethod: 'internet',
             fakerArgs: [],
           },
           {
             fieldPath: 'username',
-            mongoType: 'string',
+            mongoType: 'String',
             fakerMethod: 'noSuchMethod',
             fakerArgs: [],
           },
@@ -390,21 +390,21 @@ describe('MockDataGeneratorModal', () => {
       });
       // the "name" field should be selected by default
       expect(screen.getByText('name')).to.exist;
-      expect(screen.getByLabelText('JSON Type')).to.have.value('string');
+      expect(screen.getByLabelText('JSON Type')).to.have.value('String');
       expect(screen.getByLabelText('Faker Function')).to.have.value(
         'person.firstName'
       );
       // select the "age" field
       userEvent.click(screen.getByText('age'));
       expect(screen.getByText('age')).to.exist;
-      expect(screen.getByLabelText('JSON Type')).to.have.value('int');
+      expect(screen.getByLabelText('JSON Type')).to.have.value('Int32');
       expect(screen.getByLabelText('Faker Function')).to.have.value(
         'number.int'
       );
       // select the "email" field
       userEvent.click(screen.getByText('email'));
       expect(screen.getByText('email')).to.exist;
-      expect(screen.getByLabelText('JSON Type')).to.have.value('string');
+      expect(screen.getByLabelText('JSON Type')).to.have.value('String');
       // the "email" field should have a warning banner since the faker method is invalid
       expect(screen.getByLabelText('Faker Function')).to.have.value(
         'Unrecognized'
@@ -418,7 +418,7 @@ describe('MockDataGeneratorModal', () => {
       // select the "username" field
       userEvent.click(screen.getByText('username'));
       expect(screen.getByText('username')).to.exist;
-      expect(screen.getByLabelText('JSON Type')).to.have.value('string');
+      expect(screen.getByLabelText('JSON Type')).to.have.value('String');
       expect(screen.getByLabelText('Faker Function')).to.have.value(
         'Unrecognized'
       );
@@ -432,7 +432,7 @@ describe('MockDataGeneratorModal', () => {
             fields: [
               {
                 fieldPath: 'name',
-                mongoType: 'string',
+                mongoType: 'String',
                 fakerMethod: 'person.firstName',
                 fakerArgs: [],
                 isArray: false,
@@ -440,7 +440,7 @@ describe('MockDataGeneratorModal', () => {
               },
               {
                 fieldPath: 'email',
-                mongoType: 'string',
+                mongoType: 'String',
                 fakerMethod: 'internet.email',
                 fakerArgs: [],
                 isArray: false,
