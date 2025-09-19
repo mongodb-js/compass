@@ -8,7 +8,7 @@ import {
 import { expect } from 'chai';
 import { renderWithStore } from '../../../test/configure-store';
 import { PipelineToolbar } from './index';
-import { CompassPipelineStorage } from '@mongodb-js/my-queries-storage';
+import { createElectronPipelineStorage } from '@mongodb-js/my-queries-storage/electron';
 
 describe('PipelineToolbar', function () {
   describe('renders with setting row - visible', function () {
@@ -23,7 +23,12 @@ describe('PipelineToolbar', function () {
         />,
         { pipeline: [{ $match: { _id: 1 } }] },
         undefined,
-        { pipelineStorage: new CompassPipelineStorage() }
+        {
+          pipelineStorage: {
+            getStorage: () =>
+              createElectronPipelineStorage({ basepath: '/tmp/test' }),
+          },
+        }
       );
       toolbar = screen.getByTestId('pipeline-toolbar');
     });

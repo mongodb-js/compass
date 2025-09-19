@@ -380,15 +380,15 @@ export const createNamespace = (
     dispatch(clearError());
 
     if (dbName && dbName.includes('.')) {
-      dispatch(handleError(new Error(NO_DOT)));
+      return dispatch(handleError(new Error(NO_DOT)));
     }
 
     if (dbName && toNS(dbName).special) {
-      dispatch(handleError(new Error(INTERNAL_DATABASE)));
+      return dispatch(handleError(new Error(INTERNAL_DATABASE)));
     }
 
     if (toNS(namespace).special) {
-      dispatch(handleError(new Error(INTERNAL_COLLECTION)));
+      return dispatch(handleError(new Error(INTERNAL_COLLECTION)));
     }
 
     try {

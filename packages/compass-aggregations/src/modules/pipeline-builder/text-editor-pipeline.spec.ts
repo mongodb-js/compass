@@ -10,7 +10,7 @@ import type { PipelineBuilderThunkDispatch } from '..';
 import reducer from '..';
 import Sinon from 'sinon';
 import { toggleAutoPreview } from '../auto-preview';
-import { CompassPipelineStorage } from '@mongodb-js/my-queries-storage';
+import { createElectronPipelineStorage } from '@mongodb-js/my-queries-storage/electron';
 import { mockDataService } from '../../../test/mocks/data-service';
 
 function createStore(
@@ -46,7 +46,9 @@ function createStore(
       thunk.withExtraArgument({
         atlasAiService: {} as any,
         pipelineBuilder,
-        pipelineStorage: new CompassPipelineStorage(),
+        pipelineStorage: createElectronPipelineStorage({
+          basepath: '/tmp/test',
+        }),
         instance: {} as any,
         workspaces: {} as any,
         preferences: {

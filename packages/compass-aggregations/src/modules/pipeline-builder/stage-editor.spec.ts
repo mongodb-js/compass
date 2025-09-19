@@ -21,7 +21,7 @@ import {
 } from './stage-editor';
 import type { StageEditorState, StoreStage, Wizard } from './stage-editor';
 import reducer from '../';
-import { CompassPipelineStorage } from '@mongodb-js/my-queries-storage';
+import { createElectronPipelineStorage } from '@mongodb-js/my-queries-storage/electron';
 import Sinon from 'sinon';
 import type Stage from './stage';
 import { mockDataService } from '../../../test/mocks/data-service';
@@ -130,7 +130,9 @@ function createStore({
         localAppRegistry: new AppRegistry(),
         atlasAiService: {} as any,
         pipelineBuilder,
-        pipelineStorage: new CompassPipelineStorage(),
+        pipelineStorage: createElectronPipelineStorage({
+          basepath: '/tmp/test',
+        }),
         instance: {} as any,
         workspaces: {} as any,
         preferences,

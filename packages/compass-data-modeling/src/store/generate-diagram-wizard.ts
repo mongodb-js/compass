@@ -138,6 +138,7 @@ export type SelectCollectionsAction = {
 
 export type ToggleInferRelationsAction = {
   type: GenerateDiagramWizardActionTypes.TOGGLE_INFER_RELATIONS;
+  newVal: boolean;
 };
 
 export type ConfirmSelectedCollectionsAction = {
@@ -328,6 +329,14 @@ export const generateDiagramWizardReducer: Reducer<
     return {
       ...state,
       step: 'LOADING_COLLECTIONS',
+    };
+  }
+  if (
+    isAction(action, GenerateDiagramWizardActionTypes.TOGGLE_INFER_RELATIONS)
+  ) {
+    return {
+      ...state,
+      automaticallyInferRelations: action.newVal,
     };
   }
   return state;
@@ -545,4 +554,13 @@ export function cancelSelectedConnection(): CancelSelectedConnectionAction {
 
 export function cancelSelectedDatabase(): CancelSelectedDatabaseAction {
   return { type: GenerateDiagramWizardActionTypes.CANCEL_SELECTED_DATABASE };
+}
+
+export function toggleInferRelationships(
+  newVal: boolean
+): ToggleInferRelationsAction {
+  return {
+    type: GenerateDiagramWizardActionTypes.TOGGLE_INFER_RELATIONS,
+    newVal,
+  };
 }

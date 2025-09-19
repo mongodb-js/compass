@@ -7,20 +7,27 @@ import React, {
   useRef,
   useState,
 } from 'react';
-
 import {
   DrawerLayout,
   DisplayMode as DrawerDisplayMode,
   useDrawerToolbarContext,
   type DrawerLayoutProps,
-} from './drawer';
+} from '@leafygreen-ui/drawer';
 import { css, cx } from '@leafygreen-ui/emotion';
 import { isEqual } from 'lodash';
 import { rafraf } from '../utils/rafraf';
+import { BaseFontSize, fontWeights } from '@leafygreen-ui/tokens';
 
-type SectionData = Required<DrawerLayoutProps>['toolbarData'][number];
+type ToolbarData = Required<DrawerLayoutProps>['toolbarData'];
+
+type SectionData = ToolbarData[number];
 
 type DrawerSectionProps = Omit<SectionData, 'content' | 'onClick'> & {
+  // Title exists in DrawerLayoutProps, but is optional, whereas for us it needs
+  // to be required (also due to merging of types inside leafygreen, we can't
+  // convince typescript that our toolbarData is compatible with lg toolbarData
+  // if that is not explicit)
+  title: React.ReactNode;
   /**
    * If `true` will automatically open the section when first mounted. Default: `false`
    */
@@ -163,22 +170,19 @@ const drawerLayoutFixesStyles = css({
   },
 
   // drawer section
-  '& > div:nth-child(2)': {
-    marginTop: -1, // hiding the top border as we already have one in the place where the Anchor is currently rendered
+  '& > div:nth-child(2) > div': {
+    // hiding the border border as we already have one in the place where the
+    // Anchor is currently rendered
+    borderTop: 'none',
+    borderBottom: 'none',
   },
 
-  // We're stretching the title container to all available width so that we can
-  // layout the controls there better. Doing our best to target the section
-  // title here, leafygreen really doesn't give us anything else to try.
-  //
-  // TODO(ticket): This is obviously a horrible selector and we should make sure
-  // that LG team provides a better one for us to achieve this behavior when
-  // we're removing the vendored version of the drawer
-  '& > div:nth-child(2) > div:nth-child(2) > div:first-child > div:first-child > div:first-child > div:first-child':
+  // drawer content > title content
+  '& > div:nth-child(2) > div:nth-child(2) > div:nth-child(2) > div:first-child > div:first-child > div:first-child':
     {
-      flex: 'none',
-      width: 'calc(100% - 28px)', // disallow going over the title size (100 - close button width)
-      overflow: 'hidden',
+      // fix for the flex parent not allowing flex children to collapse if they
+      // are overflowing the container
+      minWidth: 0,
     },
 });
 
@@ -210,13 +214,21 @@ const drawerSectionPortalStyles = css({
   height: '100%',
 });
 
+// Leafygreen dynamically changes styles of the title group based on whether or
+// not title is a `string` or a `ReactNode`, we want it to consistently have
+// bold title styles no matter what title you provided, so we wrap it in our own
+// container
+const drawerTitleGroupStyles = css({
+  width: '100%',
+  fontSize: BaseFontSize.Body2,
+  fontWeight: fontWeights.bold,
+});
+
 /**
  * DrawerAnchor component will render the drawer in any place it is rendered.
  * This component has to wrap any content that Drawer will be shown near
  */
-export const DrawerAnchor: React.FunctionComponent<{
-  displayMode?: DrawerDisplayMode;
-}> = ({ displayMode, children }) => {
+export const DrawerAnchor: React.FunctionComponent = ({ children }) => {
   const actions = useContext(DrawerActionsContext);
   const drawerSectionItems = useContext(DrawerStateContext);
   const prevDrawerSectionItems = useRef<DrawerSectionProps[]>([]);
@@ -239,7 +251,13 @@ export const DrawerAnchor: React.FunctionComponent<{
     return drawerSectionItems
       .map((data) => {
         return {
+          hasPadding: false,
           ...data,
+          title: (
+            <div key={data.id} className={drawerTitleGroupStyles}>
+              {data.title}
+            </div>
+          ),
           content: (
             <div
               key={data.id}
@@ -255,7 +273,8 @@ export const DrawerAnchor: React.FunctionComponent<{
   }, [drawerSectionItems]);
   return (
     <DrawerLayout
-      displayMode={displayMode ?? DrawerDisplayMode.Embedded}
+      displayMode={DrawerDisplayMode.Embedded}
+      resizable
       toolbarData={toolbarData}
       className={cx(
         drawerLayoutFixesStyles,
@@ -270,6 +289,15 @@ export const DrawerAnchor: React.FunctionComponent<{
   );
 };
 
+function querySectionPortal(
+  parent: Document | Element | null,
+  id?: string
+): HTMLElement | null {
+  return (
+    parent?.querySelector(`[data-drawer-section${id ? `=${id}` : ''}]`) ?? null
+  );
+}
+
 /**
  * DrawerSection allows to declaratively render sections inside the drawer
  * independantly from the Drawer itself
@@ -278,7 +306,9 @@ export const DrawerSection: React.FunctionComponent<DrawerSectionProps> = ({
   children,
   ...props
 }) => {
-  const [portalNode, setPortalNode] = useState<Element | null>(null);
+  const [portalNode, setPortalNode] = useState<Element | null>(() => {
+    return querySectionPortal(document, props.id);
+  });
   const actions = useContext(DrawerActionsContext);
   const prevProps = useRef<DrawerSectionProps>();
   useEffect(() => {
@@ -296,14 +326,24 @@ export const DrawerSection: React.FunctionComponent<DrawerSectionProps> = ({
         'Can not use DrawerSection without DrawerAnchor being mounted on the page'
       );
     }
-    setPortalNode(
-      document.querySelector(`[data-drawer-section="${props.id}"]`)
-    );
+    setPortalNode(querySectionPortal(drawerEl, props.id));
     const mutationObserver = new MutationObserver((mutations) => {
       for (const mutation of mutations) {
-        for (const node of Array.from(mutation.addedNodes) as HTMLElement[]) {
-          if (node.dataset && node.dataset.drawerSection === props.id) {
-            setPortalNode(node);
+        if (mutation.type === 'childList') {
+          for (const node of Array.from(mutation.addedNodes)) {
+            // Added node can be either the drawer section portal itself, a
+            // parent node containing the section (in that case we won't get an
+            // explicit mutation for the section itself), or something
+            // completely unrelated, like a text node insert. By searching for
+            // the section portal from added node parent element we cover all
+            // these cases in one go
+            const drawerSectionNode = querySectionPortal(
+              node.parentElement,
+              props.id
+            );
+            if (drawerSectionNode) {
+              setPortalNode(drawerSectionNode);
+            }
           }
         }
       }
@@ -315,7 +355,7 @@ export const DrawerSection: React.FunctionComponent<DrawerSectionProps> = ({
     return () => {
       mutationObserver.disconnect();
     };
-  }, [actions, props.id]);
+  }, [props.id]);
   useEffect(() => {
     return () => {
       actions.current.removeToolbarData(props.id);
@@ -333,7 +373,9 @@ export function useDrawerActions() {
   const actions = useContext(DrawerActionsContext);
   const stableActions = useRef({
     openDrawer: (id: string) => {
-      actions.current.openDrawer(id);
+      rafraf(() => {
+        actions.current.openDrawer(id);
+      });
     },
     closeDrawer: () => {
       actions.current.closeDrawer();
@@ -352,3 +394,5 @@ export const useDrawerState = () => {
       drawerState.length > 0,
   };
 };
+
+export { getLgIds as getDrawerIds } from '@leafygreen-ui/drawer';
