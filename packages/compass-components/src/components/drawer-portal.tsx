@@ -278,16 +278,29 @@ export const DrawerAnchor: React.FunctionComponent = ({ children }) => {
     Record<string, HTMLButtonElement | undefined>
   >({});
 
-  useEffect(function () {
-    const nodes: Record<string, HTMLButtonElement | undefined> = {};
-    for (const [index, item] of toolbarData.entries()) {
-      const button = document.querySelector(
-        `[data-testid="lg-drawer-toolbar-icon_button-${index}"]`
-      );
-      nodes[item.id] = button ? (button as HTMLButtonElement) : undefined;
-    }
-    setAssistantNodes(nodes);
-  });
+  useEffect(
+    function () {
+      const nodes: Record<string, HTMLButtonElement | undefined> = {};
+      for (const [index, item] of toolbarData.entries()) {
+        const button = document.querySelector(
+          `[data-testid="lg-drawer-toolbar-icon_button-${index}"]`
+        );
+        if (button) {
+          nodes[item.id] = button as HTMLButtonElement;
+        }
+      }
+
+      setAssistantNodes((oldNodes) => {
+        for (const id of Object.keys(nodes)) {
+          if (nodes[id] !== oldNodes[id]) {
+            return nodes;
+          }
+        }
+        return oldNodes;
+      });
+    },
+    [toolbarData, assistantNodes]
+  );
 
   return (
     <>
