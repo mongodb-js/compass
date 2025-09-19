@@ -2,5 +2,8 @@ ignores: [
     '@mongodb-js/prettier-config-compass',
     '@mongodb-js/tsconfig-compass',
     '@types/chai-dom',
+    # making sure all of the leafygreen is using the same version of these core
+    # dependencies
     '@emotion/css',
+    "@leafygreen-ui/lib",
   ]
