@@ -41,6 +41,8 @@ export type AssistantMessage = UIMessage & {
      *  Used for warning messages in cases like using non-genuine MongoDB.
      */
     isPermanent?: boolean;
+    /** The source of the message (i.e. the entry point used) */
+    source?: 'explain plan' | 'performance insights' | 'connection error';
     /** Information for confirmation messages. */
     confirmation?: {
       description: string;
@@ -184,7 +186,10 @@ export const AssistantProvider: React.FunctionComponent<
       void assistantActionsContext.current.ensureOptInAndSend(
         {
           text: prompt,
-          metadata,
+          metadata: {
+            ...metadata,
+            source: entryPointName,
+          },
         },
         {},
         () => {

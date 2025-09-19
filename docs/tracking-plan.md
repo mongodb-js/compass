@@ -131,6 +131,7 @@ Generated on Fri, Sep 19, 2025
 - [Assistant Prompt Submitted](#event--AssistantPromptSubmittedEvent)
 - [Assistant Response Failed](#event--AssistantResponseFailedEvent)
 - [Assistant Entry Point Used](#event--AssistantEntryPointUsedEvent)
+- [Assistant Confirmation Submitted](#event--AssistantConfirmationSubmittedEvent)
 - [AI Opt In Modal Shown](#event--AiOptInModalShownEvent)
 - [AI Opt In Modal Dismissed](#event--AiOptInModalDismissedEvent)
 - [AI Generate Query Clicked](#event--AiGenerateQueryClickedEvent)
@@ -631,6 +632,7 @@ This event is fired when a user submits feedback for the assistant.
 - **feedback** (required): `"positive" | "negative"`
 - **text** (optional): `string | undefined`
 - **request_id** (required): `string | null`
+- **source** (required): `"explain plan" | "performance insights" | "connection error" | "chat response"`
 - **is_compass_web** (optional): `true | undefined`
 
 ## Atlas
@@ -1467,6 +1469,18 @@ This event is fired when a user uses an assistant entry point.
 **Properties**:
 
 - **source** (required): `"explain plan" | "performance insights" | "connection error"`
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--AssistantConfirmationSubmittedEvent"></a>
+
+### Assistant Confirmation Submitted
+
+This event is fired when a user confirms a confirmation message in the assistant chat.
+
+**Properties**:
+
+- **status** (required): `"confirmed" | "rejected"`
+- **source** (required): `"explain plan" | "performance insights" | "connection error" | "chat response"`
 - **is_compass_web** (optional): `true | undefined`
 
 <a name="event--AiOptInModalShownEvent"></a>

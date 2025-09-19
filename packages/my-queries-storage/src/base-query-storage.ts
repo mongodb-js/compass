@@ -1,31 +1,28 @@
-import { EJSON, UUID } from 'bson';
-import {
-  FileUserData,
-  type IUserData,
-  type z,
-} from '@mongodb-js/compass-user-data';
-import { FavoriteQuerySchema, RecentQuerySchema } from './query-storage-schema';
-import type { FavoriteQueryStorage, RecentQueryStorage } from './query-storage';
+import { UUID } from 'bson';
+import { type z } from '@mongodb-js/compass-user-data';
+import { type IUserData } from '@mongodb-js/compass-user-data';
+import { RecentQuerySchema, FavoriteQuerySchema } from './query-storage-schema';
+import type {
+  RecentQueryStorageInterface,
+  FavoriteQueryStorageInterface,
+} from './storage-interfaces';
 
-export type QueryStorageOptions = {
-  basepath?: string;
+// Generic storage options that can be extended by platform-specific implementations
+export type BaseStorageOptions = {
+  serialize?: (content: unknown) => string;
+  deserialize?: (content: string) => unknown;
 };
 
-export abstract class CompassQueryStorage<TSchema extends z.Schema> {
+// Generic base class that works with any IUserData implementation
+export abstract class BaseCompassQueryStorage<TSchema extends z.Schema> {
   protected readonly userData: IUserData<TSchema>;
 
   constructor(
     schemaValidator: TSchema,
-    protected readonly folder: string,
-    protected readonly options: QueryStorageOptions
+    protected readonly dataType: string,
+    userData: IUserData<TSchema>
   ) {
-    // Simple implementation - use FileUserData for now
-    // TODO(COMPASS-9565): The use-atlas-user-data branch will add proper Atlas integration
-    this.userData = new FileUserData(schemaValidator, folder, {
-      basePath: options.basepath,
-      serialize: (content) => EJSON.stringify(content, undefined, 2),
-      deserialize: (content: string) => EJSON.parse(content),
-    });
+    this.userData = userData;
   }
 
   async loadAll(namespace?: string): Promise<z.output<TSchema>[]> {
@@ -46,7 +43,7 @@ export abstract class CompassQueryStorage<TSchema extends z.Schema> {
     return await this.userData.write(id, content);
   }
 
-  async delete(id: string) {
+  async delete(id: string): Promise<boolean> {
     return await this.userData.delete(id);
   }
 
@@ -60,28 +57,25 @@ export abstract class CompassQueryStorage<TSchema extends z.Schema> {
   abstract saveQuery(data: Partial<z.input<TSchema>>): Promise<void>;
 }
 
-export class CompassRecentQueryStorage
-  extends CompassQueryStorage<typeof RecentQuerySchema>
-  implements RecentQueryStorage
+export class BaseCompassRecentQueryStorage
+  extends BaseCompassQueryStorage<typeof RecentQuerySchema>
+  implements RecentQueryStorageInterface
 {
   private readonly maxAllowedQueries = 30;
 
-  constructor(options: QueryStorageOptions = {}) {
-    super(RecentQuerySchema, 'RecentQueries', options);
+  constructor(userData: IUserData<typeof RecentQuerySchema>) {
+    super(RecentQuerySchema, 'RecentQueries', userData);
   }
 
   async saveQuery(
     data: Omit<z.input<typeof RecentQuerySchema>, '_id' | '_lastExecuted'>
   ): Promise<void> {
     const recentQueries = await this.loadAll();
-
     if (recentQueries.length >= this.maxAllowedQueries) {
       const lastRecent = recentQueries[recentQueries.length - 1];
       await this.delete(lastRecent._id);
     }
-
     const _id = new UUID().toString();
-    // this creates a recent query that we will write to system/db
     const recentQuery = {
       ...data,
       _id,
@@ -91,22 +85,22 @@ export class CompassRecentQueryStorage
   }
 }
 
-export class CompassFavoriteQueryStorage
-  extends CompassQueryStorage<typeof FavoriteQuerySchema>
-  implements FavoriteQueryStorage
+export class BaseCompassFavoriteQueryStorage
+  extends BaseCompassQueryStorage<typeof FavoriteQuerySchema>
+  implements FavoriteQueryStorageInterface
 {
-  constructor(options: QueryStorageOptions = {}) {
-    super(FavoriteQuerySchema, 'FavoriteQueries', options);
+  constructor(userData: IUserData<typeof FavoriteQuerySchema>) {
+    super(FavoriteQuerySchema, 'FavoriteQueries', userData);
   }
 
   async saveQuery(
     data: Omit<
       z.input<typeof FavoriteQuerySchema>,
       '_id' | '_lastExecuted' | '_dateModified' | '_dateSaved'
-    >
+    >,
+    _id?: string
   ): Promise<void> {
-    const _id = new UUID().toString();
-    // this creates a favorite query that we will write to system/db
+    _id ??= new UUID().toString();
     const favoriteQuery = {
       ...data,
       _id,

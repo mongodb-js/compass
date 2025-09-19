@@ -39,6 +39,9 @@ describe('AssistantChat', function () {
           sourceId: '1',
         },
       ],
+      metadata: {
+        source: 'performance insights',
+      },
     },
   ];
 
@@ -427,6 +430,7 @@ describe('AssistantChat', function () {
           feedback: 'positive',
           text: undefined,
           request_id: null,
+          source: 'performance insights',
         });
       });
     });
@@ -453,6 +457,7 @@ describe('AssistantChat', function () {
           feedback: 'negative',
           text: undefined,
           request_id: null,
+          source: 'performance insights',
         });
       });
     });
@@ -489,12 +494,42 @@ describe('AssistantChat', function () {
           feedback: 'negative',
           text: undefined,
           request_id: null,
+          source: 'performance insights',
         });
 
         expect(track).to.have.been.calledWith('Assistant Feedback Submitted', {
           feedback: 'negative',
           text: 'This response was not helpful',
           request_id: null,
+          source: 'performance insights',
+        });
+      });
+    });
+
+    it('tracks it as "chat response" when source is not present', async function () {
+      const { result } = renderWithChat([
+        {
+          ...mockMessages[1],
+          metadata: {
+            ...mockMessages[1].metadata,
+            source: undefined,
+          },
+        },
+      ]);
+      const { track } = result;
+
+      const thumbsDownButton = within(
+        screen.getByTestId('assistant-message-assistant')
+      ).getByLabelText('Dislike this message');
+
+      userEvent.click(thumbsDownButton);
+
+      await waitFor(() => {
+        expect(track).to.have.been.calledWith('Assistant Feedback Submitted', {
+          feedback: 'negative',
+          text: undefined,
+          request_id: null,
+          source: 'chat response',
         });
       });
     });
@@ -534,6 +569,7 @@ describe('AssistantChat', function () {
             state: 'pending',
             description: 'Are you sure you want to proceed with this action?',
           },
+          source: 'performance insights',
         },
       };
     });
@@ -749,6 +785,65 @@ describe('AssistantChat', function () {
       expect(screen.queryByText('Confirm')).to.not.exist;
       expect(screen.queryByText('Cancel')).to.not.exist;
       expect(screen.getByText('This is a regular message')).to.exist;
+    });
+
+    it('tracks confirmation submitted when confirm button is clicked', async function () {
+      const { result } = renderWithChat([mockConfirmationMessage]);
+      const { track } = result;
+
+      const confirmButton = screen.getByText('Confirm');
+      userEvent.click(confirmButton);
+
+      await waitFor(() => {
+        expect(track).to.have.been.calledWith(
+          'Assistant Confirmation Submitted',
+          {
+            status: 'confirmed',
+            source: 'performance insights',
+          }
+        );
+      });
+    });
+
+    it('tracks confirmation submitted when cancel button is clicked', async function () {
+      const { result } = renderWithChat([mockConfirmationMessage]);
+      const { track } = result;
+
+      const cancelButton = screen.getByText('Cancel');
+      userEvent.click(cancelButton);
+
+      await waitFor(() => {
+        expect(track).to.have.been.calledWith(
+          'Assistant Confirmation Submitted',
+          {
+            status: 'rejected',
+            source: 'performance insights',
+          }
+        );
+      });
+    });
+
+    it('tracks it as "chat response" when source is not present', async function () {
+      const { result } = renderWithChat([
+        {
+          ...mockConfirmationMessage,
+          metadata: {
+            ...mockConfirmationMessage.metadata,
+            source: undefined,
+          },
+        },
+      ]);
+      const { track } = result;
+
+      const confirmButton = screen.getByText('Confirm');
+      userEvent.click(confirmButton);
+
+      await waitFor(() => {
+        expect(track).to.have.been.calledWith(
+          'Assistant Confirmation Submitted',
+          { status: 'confirmed', source: 'chat response' }
+        );
+      });
     });
   });
 
