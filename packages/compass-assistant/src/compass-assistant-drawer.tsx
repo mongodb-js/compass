@@ -99,7 +99,6 @@ export const CompassAssistantDrawer: React.FunctionComponent<{
         title: 'Introducing MongoDB Assistant',
         description: `AI-powered assistant to intelligently guide you through your database tasks. Get expert MongoDB help and streamline your workflow directly within ${appName}`,
         buttonText: 'Got it',
-        onPrimaryButtonClick: () => {},
         tooltipAlign: 'left',
         tooltipJustify: 'start',
       }}
