@@ -195,8 +195,11 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
   );
 
   const handleFeedback = useCallback(
-    (
-      event,
+    ({
+      state,
+      message,
+    }: {
+      message: AssistantMessage;
       state:
         | {
             feedback: string;
@@ -205,8 +208,8 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
         | {
             rating: string;
           }
-        | undefined
-    ) => {
+        | undefined;
+    }) => {
       if (!state) {
         return;
       }
@@ -219,6 +222,7 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
         feedback,
         text: textFeedback,
         request_id: null,
+        source: message.metadata?.source,
       });
     },
     [track]
@@ -261,6 +265,10 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
           });
         }
         return newMessages;
+      });
+      track('Assistant Confirmation Submitted', {
+        status: newState,
+        source: confirmedMessage.metadata?.source,
       });
       if (newState === 'confirmed') {
         // Force the new message request to be sent
@@ -336,8 +344,12 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
                   >
                     {isSender === false && (
                       <Message.Actions
-                        onRatingChange={handleFeedback}
-                        onSubmitFeedback={handleFeedback}
+                        onRatingChange={(event, state) =>
+                          handleFeedback({ message, state })
+                        }
+                        onSubmitFeedback={(event, state) =>
+                          handleFeedback({ message, state })
+                        }
                       />
                     )}
                     {sources.length > 0 && <Message.Links links={sources} />}

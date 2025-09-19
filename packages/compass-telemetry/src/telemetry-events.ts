@@ -1472,6 +1472,18 @@ type AssistantPromptSubmittedEvent = CommonEvent<{
 }>;
 
 /**
+ * This event is fired when a user uses an assistant entry point.
+ *
+ * @category Gen AI
+ */
+type AssistantEntryPointUsedEvent = CommonEvent<{
+  name: 'Assistant Entry Point Used';
+  payload: {
+    source: 'explain plan' | 'performance insights' | 'connection error';
+  };
+}>;
+
+/**
  * This event is fired when a user submits feedback for the assistant.
  *
  * @category Assistant
@@ -1482,18 +1494,20 @@ type AssistantFeedbackSubmittedEvent = CommonEvent<{
     feedback: 'positive' | 'negative';
     text: string | undefined;
     request_id: string | null;
+    source: AssistantEntryPointUsedEvent['payload']['source'] | undefined;
   };
 }>;
 
 /**
- * This event is fired when a user uses an assistant entry point.
+ * This event is fired when a user confirms a confirmation message in the assistant chat.
  *
  * @category Gen AI
  */
-type AssistantEntryPointUsedEvent = CommonEvent<{
-  name: 'Assistant Entry Point Used';
+type AssistantConfirmationSubmittedEvent = CommonEvent<{
+  name: 'Assistant Confirmation Submitted';
   payload: {
-    source: 'explain plan' | 'performance insights' | 'connection error';
+    status: 'confirmed' | 'rejected';
+    source: AssistantEntryPointUsedEvent['payload']['source'] | undefined;
   };
 }>;
 
@@ -3032,6 +3046,7 @@ export type TelemetryEvent =
   | AssistantResponseFailedEvent
   | AssistantFeedbackSubmittedEvent
   | AssistantEntryPointUsedEvent
+  | AssistantConfirmationSubmittedEvent
   | AiOptInModalShownEvent
   | AiOptInModalDismissedEvent
   | AiGenerateQueryClickedEvent
