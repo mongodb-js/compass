@@ -1010,6 +1010,13 @@ describe('Data Modeling tab', function () {
         ])
       );
 
+      // Drag the node to show add new field buttons and new fields.
+      await dragNode(
+        browser,
+        Selectors.DataModelPreviewCollection('test.testCollection-one'),
+        { x: 0, y: -100 }
+      );
+
       // Ensure the new fields are in the diagram.
       const newFieldText = await browser
         .$(
