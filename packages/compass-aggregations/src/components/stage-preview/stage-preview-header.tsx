@@ -56,7 +56,7 @@ function StagePreviewHeader({
       ) : (
         <>
           <span>
-            Output after{' '}
+            Output preview after{' '}
             <OperatorLink
               stageOperator={stageOperator}
               description={description}
