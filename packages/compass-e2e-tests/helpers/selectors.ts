@@ -1501,6 +1501,7 @@ export const DataModelCollectionRelationshipItemEdit = `[aria-label="Edit relati
 export const DataModelCollectionRelationshipItemDelete = `[aria-label="Delete relationship"]`;
 export const DataModelCollectionSidebarItemDelete = `[aria-label="Delete collection"]`;
 export const DataModelCollectionSidebarItemDeleteButton = `[data-action="delete"]`;
+export const DataModelInfoBannerCloseBtn = `[data-testid="data-info-banner"] [aria-label="Close Message"]`;
 
 // Side drawer
 export const SideDrawer = `[data-testid="${getDrawerIds().root}"]`;
