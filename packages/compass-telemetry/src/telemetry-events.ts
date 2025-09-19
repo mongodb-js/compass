@@ -1494,7 +1494,7 @@ type AssistantFeedbackSubmittedEvent = CommonEvent<{
     feedback: 'positive' | 'negative';
     text: string | undefined;
     request_id: string | null;
-    source: AssistantEntryPointUsedEvent['payload']['source'] | undefined;
+    source: AssistantEntryPointUsedEvent['payload']['source'] | 'chat response';
   };
 }>;
 
@@ -1507,7 +1507,7 @@ type AssistantConfirmationSubmittedEvent = CommonEvent<{
   name: 'Assistant Confirmation Submitted';
   payload: {
     status: 'confirmed' | 'rejected';
-    source: AssistantEntryPointUsedEvent['payload']['source'] | undefined;
+    source: AssistantEntryPointUsedEvent['payload']['source'] | 'chat response';
   };
 }>;
 

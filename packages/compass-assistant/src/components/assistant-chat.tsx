@@ -222,7 +222,7 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
         feedback,
         text: textFeedback,
         request_id: null,
-        source: message.metadata?.source,
+        source: message.metadata?.source ?? 'chat response',
       });
     },
     [track]
@@ -268,7 +268,7 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
       });
       track('Assistant Confirmation Submitted', {
         status: newState,
-        source: confirmedMessage.metadata?.source,
+        source: confirmedMessage.metadata?.source ?? 'chat response',
       });
       if (newState === 'confirmed') {
         // Force the new message request to be sent

@@ -519,6 +519,34 @@ describe('AssistantChat', function () {
       });
     });
 
+    it('tracks it as "chat response" when source is not present', async function () {
+      const { result } = renderWithChat([
+        {
+          ...mockMessages[1],
+          metadata: {
+            ...mockMessages[1].metadata,
+            source: undefined,
+          },
+        },
+      ]);
+      const { track } = result;
+
+      const thumbsDownButton = within(
+        screen.getByTestId('assistant-message-assistant')
+      ).getByLabelText('Dislike this message');
+
+      userEvent.click(thumbsDownButton);
+
+      await waitFor(() => {
+        expect(track).to.have.been.calledWith('Assistant Feedback Submitted', {
+          feedback: 'negative',
+          text: undefined,
+          request_id: null,
+          source: 'chat response',
+        });
+      });
+    });
+
     it('does not show feedback buttons when there are no assistant messages', function () {
       const userOnlyMessages: AssistantMessage[] = [
         {
@@ -804,6 +832,29 @@ describe('AssistantChat', function () {
             status: 'rejected',
             source: 'performance insights',
           }
+        );
+      });
+    });
+
+    it('tracks it as "chat response" when source is not present', async function () {
+      const { result } = renderWithChat([
+        {
+          ...mockConfirmationMessage,
+          metadata: {
+            ...mockConfirmationMessage.metadata,
+            source: undefined,
+          },
+        },
+      ]);
+      const { track } = result;
+
+      const confirmButton = screen.getByText('Confirm');
+      userEvent.click(confirmButton);
+
+      await waitFor(() => {
+        expect(track).to.have.been.calledWith(
+          'Assistant Confirmation Submitted',
+          { status: 'confirmed', source: 'chat response' }
         );
       });
     });
