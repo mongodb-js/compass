@@ -332,6 +332,7 @@ const DiagramContent: React.FunctionComponent<{
             dismissible
             onClose={() => setshowDataInfoBanner(false)}
             className={dataInfoBannerStyles}
+            data-testid="data-info-banner"
           >
             <h4>Worried about your data?</h4>
             This diagram was generated based on a sample of documents from{' '}
