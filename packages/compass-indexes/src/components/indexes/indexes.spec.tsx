@@ -203,7 +203,7 @@ describe('Indexes Component', function () {
                   value: 1,
                 },
               ],
-              status: 'inprogress',
+              status: 'creating',
               buildProgress: 0,
             },
           ],
@@ -217,7 +217,7 @@ describe('Indexes Component', function () {
       const indexStatusField = within(indexesList).getAllByTestId(
         'indexes-status-field'
       )[1];
-      expect(indexStatusField).to.contain.text('In Progress');
+      expect(indexStatusField).to.contain.text('Creating');
 
       const dropIndexButton = within(indexesList).queryByTestId(
         'index-actions-delete-action'

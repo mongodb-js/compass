@@ -41,7 +41,7 @@ export type RegularIndex = Partial<IndexDefinition> &
 
 export type InProgressIndex = Pick<IndexDefinition, 'name' | 'fields'> & {
   id: string;
-  status: 'inprogress' | 'failed';
+  status: 'creating' | 'failed';
   error?: string;
   buildProgress: number;
 };
@@ -82,7 +82,7 @@ export const prepareInProgressIndex = (
     id,
     // TODO(COMPASS-8335): we need the type because it shows in the table
     // TODO(COMPASS-8335): the table can also use cardinality
-    status: 'inprogress',
+    status: 'creating',
     fields: inProgressIndexFields,
     name: inProgressIndexName,
     buildProgress: 0,
