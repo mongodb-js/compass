@@ -127,8 +127,16 @@ const welcomeMessageStyles = css({
   paddingRight: spacing[400],
 });
 const disclaimerTextStyles = css({
-  marginTop: spacing[400],
-  marginBottom: spacing[400],
+  paddingBottom: spacing[400],
+  paddingLeft: spacing[400],
+  paddingRight: spacing[400],
+});
+/** TODO(COMPASS-9751): This should be handled by Leafygreen's disclaimers update */
+const inputBarStyleFixes = css({
+  width: '100%',
+  paddingLeft: spacing[400],
+  paddingRight: spacing[400],
+  paddingBottom: spacing[400],
 });
 
 function makeErrorMessage(message: string) {
@@ -345,17 +353,6 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
                 );
               })}
             </div>
-            <DisclaimerText className={disclaimerTextStyles}>
-              This feature is powered by generative AI. See our{' '}
-              <Link
-                hideExternalIcon={false}
-                href={GEN_AI_FAQ_LINK}
-                target="_blank"
-              >
-                FAQ
-              </Link>{' '}
-              for more information. Please review the outputs carefully.
-            </DisclaimerText>
           </div>
           {error && (
             <div className={errorBannerWrapperStyles}>
@@ -371,14 +368,26 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
               documentation right in your window.
             </div>
           )}
-          <InputBar
-            data-testid="assistant-chat-input"
-            onMessageSend={handleMessageSend}
-            state={status === 'submitted' ? 'loading' : undefined}
-            textareaProps={{
-              placeholder: 'Ask MongoDB Assistant a question',
-            }}
-          />
+          <div className={inputBarStyleFixes}>
+            <InputBar
+              data-testid="assistant-chat-input"
+              onMessageSend={handleMessageSend}
+              state={status === 'submitted' ? 'loading' : undefined}
+              textareaProps={{
+                placeholder: 'Ask a question',
+              }}
+            />
+          </div>
+          <DisclaimerText className={disclaimerTextStyles}>
+            AI can make mistakes. Review for accuracy.{' '}
+            <Link
+              hideExternalIcon={false}
+              href={GEN_AI_FAQ_LINK}
+              target="_blank"
+            >
+              Learn more
+            </Link>
+          </DisclaimerText>
         </ChatWindow>
       </LeafyGreenChatProvider>
     </div>

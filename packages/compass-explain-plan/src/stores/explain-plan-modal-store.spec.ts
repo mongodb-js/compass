@@ -182,4 +182,24 @@ describe('explain plan modal store', function () {
       { $match: { bar: 2 } },
     ]);
   });
+
+  it('should set operationType to "query" when query is passed', async function () {
+    const store = configureStore();
+    await store.dispatch(
+      openExplainPlanModal({
+        query: { filter: { foo: 1 } },
+      })
+    );
+    expect(store.getState()).to.have.property('operationType', 'query');
+  });
+
+  it('should set operationType to "aggregation" when aggregation is passed', async function () {
+    const store = configureStore();
+    await store.dispatch(
+      openExplainPlanModal({
+        aggregation: { pipeline: [{ $match: { foo: 1 } }] },
+      })
+    );
+    expect(store.getState()).to.have.property('operationType', 'aggregation');
+  });
 });
