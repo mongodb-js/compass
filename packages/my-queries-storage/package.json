@@ -30,11 +30,15 @@
       "import": "./dist/.esm-wrapper.mjs",
       "require": "./dist/index.js"
     },
-    "./provider": "./dist/provider.js"
+    "./provider": "./dist/provider.js",
+    "./web": "./dist/web-exports.js",
+    "./electron": "./dist/electron-exports.js"
   },
   "compass:exports": {
     ".": "./src/index.ts",
-    "./provider": "./src/provider.ts"
+    "./provider": "./src/provider.ts",
+    "./web": "./src/web-exports.ts",
+    "./electron": "./src/electron-exports.ts"
   },
   "types": "./dist/index.d.ts",
   "scripts": {

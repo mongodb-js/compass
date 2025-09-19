@@ -1,20 +1,21 @@
-import { FileUserData } from '@mongodb-js/compass-user-data';
-import { PipelineSchema } from './pipeline-storage-schema';
+import type { IUserData, z } from '@mongodb-js/compass-user-data';
 import type { SavedPipeline } from './pipeline-storage-schema';
-import type { PipelineStorage } from './pipeline-storage';
+import type { PipelineStorageInterface } from './storage-interfaces';
 
-export class CompassPipelineStorage implements PipelineStorage {
-  private readonly userData: FileUserData<typeof PipelineSchema>;
-  constructor(basePath?: string) {
-    this.userData = new FileUserData(PipelineSchema, 'SavedPipelines', {
-      basePath,
-    });
+// Generic base class for pipeline storage that works with any IUserData implementation
+export class BaseCompassPipelineStorage<TSchema extends z.Schema>
+  implements PipelineStorageInterface
+{
+  private readonly userData: IUserData<TSchema>;
+
+  constructor(userData: IUserData<TSchema>) {
+    this.userData = userData;
   }
 
   async loadAll(): Promise<SavedPipeline[]> {
     try {
       const { data } = await this.userData.readAll();
-      return data;
+      return data as SavedPipeline[];
     } catch {
       return [];
     }
@@ -27,14 +28,10 @@ export class CompassPipelineStorage implements PipelineStorage {
     return this.loadAll().then((pipelines) => pipelines.filter(predicate));
   }
 
-  private async loadOne(id: string): Promise<SavedPipeline> {
-    return await this.userData.readOne(id);
-  }
-
   async createOrUpdate(
     id: string,
     attributes: Omit<SavedPipeline, 'lastModified'>
-  ) {
+  ): Promise<boolean> {
     const pipelineExists = Boolean(await this.userData.readOne(id));
     return await (pipelineExists
       ? this.updateAttributes(id, attributes)
@@ -69,7 +66,7 @@ export class CompassPipelineStorage implements PipelineStorage {
     }
   }
 
-  async delete(id: string) {
+  async delete(id: string): Promise<void> {
     await this.userData.delete(id);
   }
 }
