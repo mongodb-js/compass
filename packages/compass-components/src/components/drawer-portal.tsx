@@ -17,6 +17,7 @@ import {
 import { css, cx } from '@leafygreen-ui/emotion';
 import { isEqual } from 'lodash';
 import { rafraf } from '../utils/rafraf';
+import { GuideCue, type GuideCueProps } from './guide-cue/guide-cue';
 
 type SectionData = Required<DrawerLayoutProps>['toolbarData'][number];
 
@@ -30,6 +31,7 @@ type DrawerSectionProps = Omit<SectionData, 'content' | 'onClick'> & {
    * provided will stay unordered at the bottom of the list
    */
   order?: number;
+  guideCue?: GuideCueProps<HTMLButtonElement>;
 };
 
 type DrawerOpenStateContextValue = boolean;
@@ -253,20 +255,50 @@ export const DrawerAnchor: React.FunctionComponent<{
         return orderB < orderA ? 1 : orderB > orderA ? -1 : 0;
       });
   }, [drawerSectionItems]);
+
+  const [assistantNodes, setAssistantNodes] = useState<
+    Record<string, HTMLButtonElement | undefined>
+  >({});
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(function () {
+    const nodes: Record<string, HTMLButtonElement | undefined> = {};
+    for (const [index, item] of toolbarData.entries()) {
+      const button = document.querySelector(
+        `[data-testid="lg-drawer-toolbar-icon_button-${index}"]`
+      );
+      nodes[item.id] = button ? (button as HTMLButtonElement) : undefined;
+    }
+    setAssistantNodes(nodes);
+  });
+
   return (
-    <DrawerLayout
-      displayMode={displayMode ?? DrawerDisplayMode.Embedded}
-      toolbarData={toolbarData}
-      className={cx(
-        drawerLayoutFixesStyles,
-        toolbarData.length === 0 && emptyDrawerLayoutFixesStyles,
-        // classname is the only property leafygreen passes over to the drawer
-        // wrapper component that would allow us to target it
-        'compass-drawer-anchor'
-      )}
-    >
-      <DrawerContextGrabber>{children}</DrawerContextGrabber>
-    </DrawerLayout>
+    <>
+      {toolbarData.map((item) => {
+        return (
+          assistantNodes[item.id] &&
+          item.guideCue && (
+            <GuideCue<HTMLButtonElement>
+              {...item.guideCue}
+              triggerNode={assistantNodes[item.id]}
+            />
+          )
+        );
+      })}
+      <DrawerLayout
+        displayMode={displayMode ?? DrawerDisplayMode.Embedded}
+        toolbarData={toolbarData}
+        className={cx(
+          drawerLayoutFixesStyles,
+          toolbarData.length === 0 && emptyDrawerLayoutFixesStyles,
+          // classname is the only property leafygreen passes over to the drawer
+          // wrapper component that would allow us to target it
+          'compass-drawer-anchor'
+        )}
+      >
+        <DrawerContextGrabber>{children}</DrawerContextGrabber>
+      </DrawerLayout>
+    </>
   );
 };
 

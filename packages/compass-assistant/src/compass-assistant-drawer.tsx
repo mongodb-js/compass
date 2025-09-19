@@ -68,6 +68,8 @@ export const CompassAssistantDrawer: React.FunctionComponent<{
     );
   }
 
+  const appName = 'Compass'; // TODO
+
   return (
     <DrawerSection
       id={ASSISTANT_DRAWER_ID}
@@ -92,6 +94,15 @@ export const CompassAssistantDrawer: React.FunctionComponent<{
       label="MongoDB Assistant"
       glyph="Sparkle"
       autoOpen={autoOpen}
+      guideCue={{
+        cueId: 'assistant-drawer',
+        title: 'Introducing MongoDB Assistant',
+        description: `AI-powered assistant to intelligently guide you through your database tasks. Get expert MongoDB help and streamline your workflow directly within ${appName}`,
+        buttonText: 'Got it',
+        onPrimaryButtonClick: () => {},
+        tooltipAlign: 'left',
+        tooltipJustify: 'start',
+      }}
     >
       <AssistantChat
         chat={chat}
