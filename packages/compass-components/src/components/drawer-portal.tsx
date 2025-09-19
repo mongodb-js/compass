@@ -291,7 +291,7 @@ export const DrawerAnchor: React.FunctionComponent = ({ children }) => {
       }
 
       setAssistantNodes((oldNodes) => {
-        for (const id of Object.keys(nodes)) {
+        for (const id of Object.keys({ ...nodes, oldNodes })) {
           if (nodes[id] !== oldNodes[id]) {
             return nodes;
           }
@@ -299,7 +299,7 @@ export const DrawerAnchor: React.FunctionComponent = ({ children }) => {
         return oldNodes;
       });
     },
-    [toolbarData, assistantNodes]
+    [toolbarData]
   );
 
   return (
