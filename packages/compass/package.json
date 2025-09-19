@@ -204,7 +204,7 @@
     "@mongodb-js/compass-connections": "^1.76.0",
     "@mongodb-js/compass-crud": "^13.76.0",
     "@mongodb-js/compass-assistant": "^1.7.0",
-    "@mongodb-js/compass-data-modeling": "^1.27.0",
+    "@mongodb-js/compass-data-modeling": "^1.27.1",
     "@mongodb-js/compass-databases-collections": "^1.75.0",
     "@mongodb-js/compass-explain-plan": "^6.76.0",
     "@mongodb-js/compass-export-to-language": "^9.52.0",
