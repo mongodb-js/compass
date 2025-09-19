@@ -178,7 +178,7 @@ const drawerLayoutFixesStyles = css({
   },
 
   // drawer content > title content
-  '& > div:nth-child(2) > div:nth-child(2) > div:first-child > div:first-child > div:first-child > div:first-child':
+  '& > div:nth-child(2) > div:nth-child(2) > div:nth-child(2) > div:first-child > div:first-child > div:first-child':
     {
       // fix for the flex parent not allowing flex children to collapse if they
       // are overflowing the container
