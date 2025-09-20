@@ -50,7 +50,7 @@ const RawSchemaConfirmationScreen = ({
   fakerSchemaGenerationStatus,
 }: RawSchemaConfirmationScreenProps) => {
   const enableSampleDocumentPassing = usePreference(
-    'enableGenAISampleDocumentPassing'
+    'enableGenAISampleDocumentPassingOnAtlasProject'
   );
 
   const subtitleText = enableSampleDocumentPassing

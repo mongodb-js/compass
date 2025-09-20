@@ -21,12 +21,12 @@ describe('MockDataGeneratorModal', () => {
   async function renderModal({
     isOpen = true,
     currentStep = MockDataGeneratorStep.SCHEMA_CONFIRMATION,
-    enableGenAISampleDocumentPassing = false,
+    enableGenAISampleDocumentPassingOnAtlasProject = false,
     mockServices = createMockServices(),
     connectionInfo,
   }: {
     isOpen?: boolean;
-    enableGenAISampleDocumentPassing?: boolean;
+    enableGenAISampleDocumentPassingOnAtlasProject?: boolean;
     currentStep?: MockDataGeneratorStep;
     mockServices?: any;
     connectionInfo?: ConnectionInfo;
@@ -69,7 +69,7 @@ describe('MockDataGeneratorModal', () => {
       connectionInfo,
       {
         preferences: {
-          enableGenAISampleDocumentPassing,
+          enableGenAISampleDocumentPassingOnAtlasProject,
         },
       }
     );
@@ -223,7 +223,9 @@ describe('MockDataGeneratorModal', () => {
     });
 
     it('uses the appropriate copy when Generative AI sample document passing is enabled', async () => {
-      await renderModal({ enableGenAISampleDocumentPassing: true });
+      await renderModal({
+        enableGenAISampleDocumentPassingOnAtlasProject: true,
+      });
       expect(screen.getByText('Sample Documents Collected')).to.exist;
       expect(
         screen.getByText(
