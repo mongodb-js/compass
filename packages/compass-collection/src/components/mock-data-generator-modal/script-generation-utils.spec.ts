@@ -1,9 +1,7 @@
 import { expect } from 'chai';
 import { faker } from '@faker-js/faker/locale/en';
-import {
-  generateScript,
-  type FakerFieldMapping,
-} from './script-generation-utils';
+import { generateScript } from './script-generation-utils';
+import type { FakerFieldMapping } from './types';
 
 /**
  * Helper function to test that generated document code is executable

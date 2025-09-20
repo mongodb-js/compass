@@ -1,5 +1,5 @@
+import type { MongoDBFieldType } from '@mongodb-js/compass-generative-ai';
 import type { Document } from 'mongodb';
-import type { PrimitiveSchemaType } from 'mongodb-schema';
 
 export const SCHEMA_ANALYSIS_STATE_INITIAL = 'initial';
 export const SCHEMA_ANALYSIS_STATE_ANALYZING = 'analyzing';
@@ -29,11 +29,6 @@ export type SchemaAnalysisErrorState = {
   status: typeof SCHEMA_ANALYSIS_STATE_ERROR;
   error: SchemaAnalysisError;
 };
-
-/**
- * MongoDB schema type
- */
-export type MongoDBFieldType = PrimitiveSchemaType['name'];
 
 /**
  * Primitive values that can appear in sample_values after BSON-to-primitive conversion.
