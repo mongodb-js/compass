@@ -6,7 +6,11 @@ import { CompassAssistantDrawer } from '@mongodb-js/compass-assistant';
 // TODO(COMPASS-7830): This is a temporary solution to pass the
 // hasNonGenuineConnections prop to the CompassAssistantDrawer as otherwise
 // we end up with a circular dependency.
-export function CompassAssistantDrawerWithConnections() {
+export function CompassAssistantDrawerWithConnections({
+  appName,
+}: {
+  appName: string;
+}) {
   // Check for non-genuine connections
   const activeConnectionIds = useConnectionIds(
     (conn) =>
@@ -15,6 +19,7 @@ export function CompassAssistantDrawerWithConnections() {
   );
   return (
     <CompassAssistantDrawer
+      appName={appName}
       hasNonGenuineConnections={activeConnectionIds.length > 0}
     />
   );

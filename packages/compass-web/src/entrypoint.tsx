@@ -305,7 +305,7 @@ function CompassWorkspace({
                   <CreateNamespacePlugin></CreateNamespacePlugin>
                   <DropNamespacePlugin></DropNamespacePlugin>
                   <RenameCollectionPlugin></RenameCollectionPlugin>
-                  <CompassAssistantDrawerWithConnections />
+                  <CompassAssistantDrawerWithConnections appName="Data Explorer" />
                 </>
               );
             }}
