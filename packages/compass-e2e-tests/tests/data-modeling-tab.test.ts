@@ -1006,7 +1006,8 @@ describe('Data Modeling tab', function () {
           'renamedField',
         ])
       );
-      await browser.clickVisible(
+      await dragDiagramToShowAndClick(
+        browser,
         Selectors.DataModelAddNestedFieldBtn('test.testCollection-one', [
           'renamedField',
         ])
