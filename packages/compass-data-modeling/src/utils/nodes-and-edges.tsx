@@ -5,8 +5,14 @@ import {
   IconButton,
   InlineDefinition,
   css,
+  spacing,
 } from '@mongodb-js/compass-components';
-import type { NodeProps, EdgeProps, BaseNode } from '@mongodb-js/diagramming';
+import type {
+  NodeField,
+  NodeProps,
+  EdgeProps,
+  BaseNode,
+} from '@mongodb-js/diagramming';
 import type { MongoDBJSONSchema } from 'mongodb-schema';
 import type { SelectedItems } from '../store/diagram';
 import type {
@@ -17,6 +23,7 @@ import type {
 import { traverseSchema } from './schema-traversal';
 import { areFieldPathsEqual } from './utils';
 import PlusWithSquare from '../components/icons/plus-with-square';
+import { ObjectFieldType } from '../components/diagram/object-field-type';
 
 function getBsonTypeName(bsonType: string) {
   switch (bsonType) {
@@ -29,6 +36,7 @@ function getBsonTypeName(bsonType: string) {
 
 const addNewFieldStyles = css({
   marginLeft: 'auto',
+  marginRight: spacing[100],
 });
 
 const mixedTypeTooltipContentStyles = css({
@@ -37,12 +45,30 @@ const mixedTypeTooltipContentStyles = css({
   textAlign: 'left',
 });
 
-function getFieldTypeDisplay(bsonTypes: string[]) {
+function getFieldTypeDisplay({
+  bsonTypes,
+  onClickAddNestedField,
+  typeDisplayTestId,
+}: {
+  bsonTypes: string[];
+  onClickAddNestedField: () => void;
+  typeDisplayTestId: string;
+}) {
   if (bsonTypes.length === 0) {
     return 'unknown';
   }
 
   if (bsonTypes.length === 1) {
+    if (bsonTypes[0] === 'object') {
+      // Custom renderer for object types to include the "add field" button.
+      return (
+        <ObjectFieldType
+          data-testid={typeDisplayTestId}
+          onClickAddNestedField={onClickAddNestedField}
+        />
+      );
+    }
+
     return getBsonTypeName(bsonTypes[0]);
   }
 
@@ -84,34 +110,48 @@ export const getHighlightedFields = (
   return selection;
 };
 
+const getBaseNodeField = (fieldPath: string[]): NodeField => {
+  return {
+    name: fieldPath[fieldPath.length - 1],
+    id: fieldPath,
+    depth: fieldPath.length - 1,
+  };
+};
+
 export const getFieldsFromSchema = ({
   jsonSchema,
   highlightedFields = [],
   selectedField,
+  onClickAddNestedField,
 }: {
   jsonSchema: MongoDBJSONSchema;
   highlightedFields?: FieldPath[];
   selectedField?: FieldPath;
-}): NodeProps['fields'] => {
+  onClickAddNestedField: (parentFieldPath: string[]) => void;
+}): NodeField[] => {
   if (!jsonSchema || !jsonSchema.properties) {
     return [];
   }
-  const fields: NodeProps['fields'] = [];
+  const fields: NodeField[] = [];
 
   traverseSchema({
     jsonSchema,
     visitor: ({ fieldPath, fieldTypes }) => {
       fields.push({
-        name: fieldPath[fieldPath.length - 1],
-        id: fieldPath,
-        type: getFieldTypeDisplay(fieldTypes),
-        depth: fieldPath.length - 1,
+        ...getBaseNodeField(fieldPath),
+        type: getFieldTypeDisplay({
+          bsonTypes: fieldTypes,
+          typeDisplayTestId: `data-model-field-type-${fieldPath.join('-')}`, // Could have duplications, that's okay for test ids.
+          onClickAddNestedField: () => onClickAddNestedField(fieldPath),
+        }),
         glyphs:
           fieldTypes.length === 1 && fieldTypes[0] === 'objectId'
             ? ['key']
             : [],
         selectable: true,
-        selected: areFieldPathsEqual(fieldPath, selectedField ?? []),
+        selected:
+          !!selectedField?.length &&
+          areFieldPathsEqual(fieldPath, selectedField),
         variant:
           highlightedFields.length &&
           highlightedFields.some((highlightedField) =>
@@ -120,6 +160,29 @@ export const getFieldsFromSchema = ({
             ? 'preview'
             : undefined,
       });
+    },
+  });
+
+  return fields;
+};
+
+/**
+ * Create the base field list to be used for positioning and measuring in node layouts.
+ */
+export const getBaseFieldsFromSchema = ({
+  jsonSchema,
+}: {
+  jsonSchema: MongoDBJSONSchema;
+}): NodeField[] => {
+  if (!jsonSchema || !jsonSchema.properties) {
+    return [];
+  }
+  const fields: NodeField[] = [];
+
+  traverseSchema({
+    jsonSchema,
+    visitor: ({ fieldPath }) => {
+      fields.push(getBaseNodeField(fieldPath));
     },
   });
 
@@ -143,7 +206,7 @@ export function collectionToBaseNodeForLayout({
       x: displayPosition[0],
       y: displayPosition[1],
     },
-    fields: getFieldsFromSchema({ jsonSchema }),
+    fields: getBaseFieldsFromSchema({ jsonSchema }),
   };
 }
 
@@ -156,6 +219,7 @@ type CollectionWithRenderOptions = Pick<
   selected: boolean;
   isInRelationshipDrawingMode: boolean;
   onClickAddNewFieldToCollection: () => void;
+  onClickAddNestedField: (parentFieldPath: string[]) => void;
 };
 
 export function collectionToDiagramNode({
@@ -167,6 +231,7 @@ export function collectionToDiagramNode({
   selected,
   isInRelationshipDrawingMode,
   onClickAddNewFieldToCollection,
+  onClickAddNestedField,
 }: CollectionWithRenderOptions): NodeProps {
   return {
     id: ns,
@@ -177,9 +242,10 @@ export function collectionToDiagramNode({
     },
     title: toNS(ns).collection,
     fields: getFieldsFromSchema({
-      jsonSchema: jsonSchema,
-      highlightedFields: highlightedFields[ns] ?? undefined,
+      jsonSchema,
+      highlightedFields: highlightedFields[ns],
       selectedField,
+      onClickAddNestedField,
     }),
     selected,
     connectable: isInRelationshipDrawingMode,
@@ -188,6 +254,7 @@ export function collectionToDiagramNode({
       <IconButton
         aria-label="Add Field"
         className={addNewFieldStyles}
+        data-testid="data-model-collection-add-field"
         onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
           event.stopPropagation();
           onClickAddNewFieldToCollection();

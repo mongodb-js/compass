@@ -234,13 +234,108 @@ async function dragNode(
       y: Math.round(startPosition.y + 15), // we're aiming for the header area (top of the node)
     })
     .down({ button: 0 }) // Left mouse button
-    .move({ duration: 1000, origin: 'pointer', ...pointerActionMoveParams })
-    .pause(1000)
-    .move({ duration: 1000, origin: 'pointer', ...pointerActionMoveParams })
+    .move({ duration: 500, origin: 'pointer', ...pointerActionMoveParams })
+    .pause(500)
+    .move({ duration: 500, origin: 'pointer', ...pointerActionMoveParams })
     .up({ button: 0 }) // Release the left mouse button
     .perform();
   await browser.waitForAnimations(node);
   return startPosition;
+}
+
+/**
+ * Drags the diagram view to show the specified element until it's clickable and clicks.
+ * This is useful when we're trying to interact with an element that may be partially outside
+ * of the view. Note that there isn't any check that a node is covering the space that will be
+ * dragged, so it can end up dragging nodes unintentionally.
+ **/
+async function dragDiagramToShowAndClick(
+  browser: CompassBrowser,
+  selector: string
+) {
+  const targetElement = browser.$(selector);
+
+  let elementPosition = await targetElement.getLocation();
+
+  const DRAG_INCREMENT = 100;
+
+  let diagramBackgroundPosition = await browser
+    .$(Selectors.DataModelPreview)
+    .getLocation();
+
+  async function attemptClick() {
+    try {
+      // In the diagram the buttons on nodes will return true for `isClickable` and `isDisplayed`
+      // withinViewport even when it errors on click. So we have to attempt a click to be sure.
+      await targetElement.click();
+    } catch {
+      return false;
+    }
+
+    return true;
+  }
+
+  let dragAndClickAttempts = 0;
+
+  // Drag in increments as the diagram can be large, and we can't drag off of the page in one go.
+  while (!(await attemptClick())) {
+    elementPosition = await targetElement.getLocation();
+
+    diagramBackgroundPosition = await browser
+      .$(Selectors.DataModelPreview)
+      .getLocation();
+
+    // Start a bit away from the origin 5 to give space for the drag to happen.
+    const baseX = Math.round(diagramBackgroundPosition.x + DRAG_INCREMENT + 5);
+    const baseY = Math.round(diagramBackgroundPosition.y + DRAG_INCREMENT + 5);
+
+    const moveX =
+      Math.abs(diagramBackgroundPosition.x - elementPosition.x) >
+      DRAG_INCREMENT * 2
+        ? Math.round(
+            DRAG_INCREMENT *
+              (diagramBackgroundPosition.x > elementPosition.x ? 1 : -1)
+          )
+        : 0;
+    const moveY =
+      Math.abs(diagramBackgroundPosition.y - elementPosition.y) >
+      DRAG_INCREMENT * 2
+        ? Math.round(
+            DRAG_INCREMENT *
+              (diagramBackgroundPosition.y > elementPosition.y ? 1 : -1)
+          )
+        : 0;
+
+    await browser
+      .action('pointer')
+      .move({
+        x: baseX,
+        y: baseY,
+      })
+      .down({ button: 0 }) // Left mouse button.
+      .pause(250)
+      .move({
+        duration: 250,
+        origin: 'pointer',
+        x: moveX,
+        y: moveY,
+      })
+      .up({ button: 0 }) // Release the left mouse button.
+      .perform();
+
+    await browser.waitForAnimations(Selectors.DataModelPreview);
+
+    dragAndClickAttempts--;
+    if (dragAndClickAttempts > 20) {
+      throw new Error(
+        `Could not drag the diagram to show and click the element with selector ${selector}. Attempted to reposition and click ${dragAndClickAttempts} times.`
+      );
+    }
+  }
+
+  await browser.waitForAnimations(Selectors.DataModelPreview);
+
+  return elementPosition;
 }
 
 describe('Data Modeling tab', function () {
@@ -833,6 +928,108 @@ describe('Data Modeling tab', function () {
       // This is to ensure that the initial edit of the collection name wasn't a separate edit
       await browser.clickVisible(Selectors.DataModelUndoButton);
       await getDiagramNodes(browser, 2);
+    });
+
+    it('allows field editing', async function () {
+      const dataModelName = 'Test Edit Collection';
+      await setupDiagram(browser, {
+        diagramName: dataModelName,
+        connectionName: DEFAULT_CONNECTION_NAME_1,
+        databaseName: 'test',
+      });
+
+      const dataModelEditor = browser.$(Selectors.DataModelEditor);
+      await dataModelEditor.waitForDisplayed();
+
+      let collectionText = await browser
+        .$(Selectors.DataModelPreviewCollection('test.testCollection-one'))
+        .getText();
+      expect(collectionText).to.not.include('field-1');
+
+      // Drag the node to show add new field buttons and new fields.
+      await dragNode(
+        browser,
+        Selectors.DataModelPreviewCollection('test.testCollection-one'),
+        { x: -100, y: 0 }
+      );
+
+      // Add two fields to the collection.
+      await dragDiagramToShowAndClick(
+        browser,
+        Selectors.DataModelCollectionAddFieldBtn('test.testCollection-one')
+      );
+      await dragDiagramToShowAndClick(
+        browser,
+        Selectors.DataModelCollectionAddFieldBtn('test.testCollection-one')
+      );
+
+      // Verify they both exist.
+      await browser.waitUntil(async () => {
+        collectionText = await browser
+          .$(Selectors.DataModelPreviewCollection('test.testCollection-one'))
+          .getText();
+        return (
+          collectionText.includes('field-1') &&
+          collectionText.includes('field-2')
+        );
+      });
+
+      // Rename the field (field-2 is selected).
+      await browser.setValueVisible(
+        browser.$(Selectors.DataModelNameInput),
+        'renamedField'
+      );
+      await browser.$(Selectors.SideDrawer).click(); // Unfocus the input.
+
+      // Ensure the name is updated in the diagram.
+      await browser.waitUntil(async () => {
+        collectionText = await browser
+          .$(Selectors.DataModelPreviewCollection('test.testCollection-one'))
+          .getText();
+        const previousNameExists = collectionText.includes('field-2');
+        const renamedFieldExists = collectionText.includes('renamedField');
+
+        return !previousNameExists && renamedFieldExists;
+      });
+
+      // Change the field type to object.
+      await browser.setMultiComboBoxValue(
+        Selectors.DataModelFieldTypeCombobox,
+        Selectors.DataModelFieldTypeComboboxInput,
+        ['object']
+      );
+      await browser.$(Selectors.SideDrawer).click(); // Unfocus the input.
+
+      await dragDiagramToShowAndClick(
+        browser,
+        Selectors.DataModelAddNestedFieldBtn('test.testCollection-one', [
+          'renamedField',
+        ])
+      );
+      await dragDiagramToShowAndClick(
+        browser,
+        Selectors.DataModelAddNestedFieldBtn('test.testCollection-one', [
+          'renamedField',
+        ])
+      );
+
+      // Drag the node to show add new field buttons and new fields.
+      await dragNode(
+        browser,
+        Selectors.DataModelPreviewCollection('test.testCollection-one'),
+        { x: 0, y: -100 }
+      );
+
+      // Ensure the new fields are in the diagram.
+      const newFieldText = await browser
+        .$(
+          Selectors.DataModelCollectionField('test.testCollection-one', [
+            'renamedField',
+            'field-2',
+          ])
+        )
+        .getText();
+      expect(newFieldText).to.include('field-2');
     });
   });
 });
