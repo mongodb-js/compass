@@ -1,9 +1,12 @@
 import React from 'react';
 import { expect } from 'chai';
 import {
+  createDefaultConnectionInfo,
   createPluginTestHelpers,
   screen,
+  userEvent,
   waitFor,
+  within,
 } from '@mongodb-js/testing-library-compass';
 import DiagramEditor from './diagram-editor';
 import type { DataModelingStore } from '../../test/setup-store';
@@ -17,6 +20,13 @@ import { DiagramProvider } from '@mongodb-js/diagramming';
 import { DataModelingWorkspaceTab } from '..';
 import { openDiagram } from '../store/diagram';
 import { DrawerAnchor } from '@mongodb-js/compass-components';
+import { type AnalysisOptions, startAnalysis } from '../store/analysis-process';
+import type { DataService } from '@mongodb-js/compass-connections/provider';
+
+const mockConnections = [
+  { ...createDefaultConnectionInfo(), id: 'connection1' },
+  { ...createDefaultConnectionInfo(), id: 'connection2' },
+];
 
 const storageItems: MongoDBDataModelDescription[] = [
   {
@@ -108,30 +118,41 @@ const mockDiagramming = {
   },
 };
 
-const renderDiagramEditor = ({
-  items = storageItems,
-  renderedItem = items[0],
-}: {
-  items?: MongoDBDataModelDescription[];
-  renderedItem?: MongoDBDataModelDescription;
-} = {}) => {
+const renderDiagramEditor = async ({
+  existingDiagram,
+  newDiagram,
+}:
+  | {
+      existingDiagram: MongoDBDataModelDescription;
+      newDiagram?: never;
+    }
+  | {
+      newDiagram: {
+        name: string;
+        database: string;
+        connectionId: string;
+        collections: string[];
+        analysisOptions: AnalysisOptions;
+      };
+      existingDiagram?: never;
+    }) => {
   const mockDataModelStorage = {
     status: 'READY',
     error: null,
-    items,
+    items: storageItems,
     save: () => {
       return Promise.resolve(false);
     },
     delete: () => {
       return Promise.resolve(false);
     },
-    loadAll: () => Promise.resolve(items),
+    loadAll: () => Promise.resolve(storageItems),
     load: (id: string) => {
-      return Promise.resolve(items.find((x) => x.id === id) ?? null);
+      return Promise.resolve(storageItems.find((x) => x.id === id) ?? null);
     },
   };
 
-  const { renderWithConnections } = createPluginTestHelpers(
+  const { renderWithActiveConnection } = createPluginTestHelpers(
     DataModelingWorkspaceTab.provider.withMockServices({
       services: {
         dataModelStorage: mockDataModelStorage,
@@ -139,18 +160,45 @@ const renderDiagramEditor = ({
     }),
     {
       namespace: 'foo.bar',
-    } as any
+    }
   );
   const {
     plugin: { store },
-  } = renderWithConnections(
+  } = await renderWithActiveConnection(
     <DrawerAnchor>
       <DiagramProvider fitView>
         <DiagramEditor />
       </DiagramProvider>
-    </DrawerAnchor>
+    </DrawerAnchor>,
+    mockConnections[0],
+    {
+      connections: mockConnections,
+      connectFn: () => {
+        return {
+          sample: () =>
+            Promise.resolve([
+              {
+                _id: 'doc1',
+              },
+              {
+                _id: 'doc2',
+              },
+            ]),
+        } as unknown as DataService;
+      },
+    }
   );
-  store.dispatch(openDiagram(renderedItem));
+  if (existingDiagram) store.dispatch(openDiagram(existingDiagram));
+  if (newDiagram)
+    store.dispatch(
+      startAnalysis(
+        newDiagram.name,
+        newDiagram.connectionId,
+        newDiagram.database,
+        newDiagram.collections,
+        newDiagram.analysisOptions
+      )
+    );
 
   return { store };
 };
@@ -168,8 +216,8 @@ describe('DiagramEditor', function () {
 
   context('with existing diagram', function () {
     beforeEach(async function () {
-      const result = renderDiagramEditor({
-        renderedItem: storageItems[0],
+      const result = await renderDiagramEditor({
+        existingDiagram: storageItems[0],
       });
       store = result.store;
 
@@ -177,6 +225,10 @@ describe('DiagramEditor', function () {
       await waitFor(() => {
         expect(screen.getByTestId('model-preview')).to.be.visible;
       });
+    });
+
+    it('does not show the banner', function () {
+      expect(screen.queryByText('Worried about your data?')).not.to.exist;
     });
 
     it('does not change the position of the nodes', function () {
@@ -198,6 +250,42 @@ describe('DiagramEditor', function () {
       expect(initialEdit.model?.collections[1].displayPosition).to.deep.equal(
         storedEdit.model.collections[1].displayPosition
       );
+    });
+  });
+
+  context('with a new diagram', function () {
+    beforeEach(async function () {
+      const result = await renderDiagramEditor({
+        newDiagram: {
+          name: 'New Diagram',
+          database: 'test',
+          connectionId: 'connection1',
+          collections: ['collection1', 'collection2'],
+          analysisOptions: {
+            automaticallyInferRelations: false,
+          },
+        },
+      });
+      store = result.store;
+
+      // wait till the editor is loaded
+      await waitFor(() => {
+        expect(screen.getByTestId('model-preview')).to.be.visible;
+      });
+    });
+
+    it('shows the banner', function () {
+      expect(screen.getByText('Worried about your data?')).to.be.visible;
+    });
+
+    it('banner can be closed', function () {
+      const closeBtn = within(screen.getByTestId('data-info-banner')).getByRole(
+        'button',
+        { name: 'Close Message' }
+      );
+      expect(closeBtn).to.be.visible;
+      userEvent.click(closeBtn);
+      expect(screen.queryByText('Worried about your data?')).not.to.exist;
     });
   });
 });
