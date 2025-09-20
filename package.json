@@ -32,7 +32,7 @@
     "package-compass": "npm run package-compass --workspace=mongodb-compass --",
     "package-compass-debug": "npm run package-compass-debug --workspace=mongodb-compass --",
     "package-compass-nocompile": "npm run package-compass-nocompile --workspace=mongodb-compass --",
-    "start": "npm run start --workspace=mongodb-compass",
+    "start": "node --experimental-strip-types --disable-warning=ExperimentalWarning scripts/start.mts",
     "start-web": "npm run start --workspace=@mongodb-js/compass-web",
     "test": "lerna run test --concurrency 1 --stream",
     "test-changed": "lerna run test --stream --concurrency 1 --since origin/HEAD",

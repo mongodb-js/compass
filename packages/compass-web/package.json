@@ -49,7 +49,7 @@
     "start": "electron ./scripts/electron-proxy.js",
     "analyze": "npm run webpack -- --mode production --analyze",
     "watch": "npm run webpack -- --mode development --watch",
-    "sync": "node scripts/sync-dist-to-mms.js",
+    "sync": "node scripts/sync-dist-to-mms.mjs",
     "typecheck": "tsc -p tsconfig-lint.json --noEmit",
     "eslint": "eslint-compass",
     "prettier": "prettier-compass",
