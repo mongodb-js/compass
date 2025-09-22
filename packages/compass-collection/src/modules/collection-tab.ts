@@ -751,7 +751,6 @@ function isValidFakerMethod(fakerMethod: string): boolean {
 /**
  * Validates a given faker schema against an input schema.
  *
- * - Transforms LLM array format to keyed object structure
  * - Validates the `fakerMethod` for each field, marking it as unrecognized if invalid
  * - Adds any unmapped input schema fields to the result with an unrecognized faker method
  *
@@ -762,12 +761,9 @@ function isValidFakerMethod(fakerMethod: string): boolean {
  */
 const validateFakerSchema = (
   inputSchema: Record<string, FieldInfo>,
-  fakerSchemaArray: LlmFakerMapping[],
+  fakerSchemaRaw: FakerSchema,
   logger: Logger
 ): FakerSchema => {
-  // Transform to keyed object structure
-  const fakerSchemaRaw = transformFakerSchemaToObject(fakerSchemaArray);
-
   const result: FakerSchema = {};
 
   // Process all input schema fields in a single O(n) pass
@@ -875,9 +871,14 @@ export const generateFakerMappings = (): CollectionThunkAction<
         connectionInfoRef.current
       );
 
+      // Transform to keyed object structure
+      const transformedFakerSchema = transformFakerSchemaToObject(
+        response.fields
+      );
+
       const validatedFakerSchema = validateFakerSchema(
         schemaAnalysis.processedSchema,
-        response.fields,
+        transformedFakerSchema,
         logger
       );
 
