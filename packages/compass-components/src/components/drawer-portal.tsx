@@ -278,41 +278,57 @@ export const DrawerAnchor: React.FunctionComponent = ({ children }) => {
     Record<string, HTMLButtonElement | undefined>
   >({});
 
-  const [failedLookupCount, setFailedLookupCount] = useState(0);
-
-  useEffect(
+  useLayoutEffect(
     function () {
-      const nodes: Record<string, HTMLButtonElement | undefined> = {};
-      for (const [index, item] of toolbarData.entries()) {
-        if (!item.guideCue) {
-          continue;
-        }
-
-        const button = document.querySelector<HTMLButtonElement>(
-          `[data-testid="lg-drawer-toolbar-icon_button-${index}"]`
+      const drawerEl = document.querySelector('.compass-drawer-anchor');
+      if (!drawerEl) {
+        throw new Error(
+          'Can not use DrawerSection without DrawerAnchor being mounted on the page'
         );
-        if (button) {
-          nodes[item.id] = button;
-        } else {
-          // we don't re-render enough times for unit tests to pass and this
-          // forces it to keep re-trying until the node is found
-          if (failedLookupCount < 10) {
-            setFailedLookupCount((c) => c + 1);
-          }
-        }
       }
 
-      setAssistantNodes((oldNodes) => {
-        // account for removed nodes by checking all keys of both old and new
-        for (const id of Object.keys({ ...oldNodes, ...nodes })) {
-          if (nodes[id] !== oldNodes[id]) {
-            return nodes;
+      function check() {
+        const nodes: Record<string, HTMLButtonElement | undefined> = {};
+        for (const [index, item] of toolbarData.entries()) {
+          if (!item.guideCue) {
+            continue;
+          }
+
+          const button = document.querySelector<HTMLButtonElement>(
+            `[data-testid="lg-drawer-toolbar-icon_button-${index}"]`
+          );
+          if (button) {
+            nodes[item.id] = button;
           }
         }
-        return oldNodes;
+
+        setAssistantNodes((oldNodes) => {
+          // account for removed nodes by checking all keys of both old and new
+          for (const id of Object.keys({ ...oldNodes, ...nodes })) {
+            if (nodes[id] !== oldNodes[id]) {
+              return nodes;
+            }
+          }
+          return oldNodes;
+        });
+      }
+      check();
+
+      const mutationObserver = new MutationObserver(() => {
+        check();
       });
+
+      // use a mutation observer because at least in unit tests the button
+      // elements don't exist immediately
+      mutationObserver.observe(drawerEl, {
+        subtree: true,
+        childList: true,
+      });
+      return () => {
+        mutationObserver.disconnect();
+      };
     },
-    [toolbarData, failedLookupCount]
+    [toolbarData]
   );
 
   return (

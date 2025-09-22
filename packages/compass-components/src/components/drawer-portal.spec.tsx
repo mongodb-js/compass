@@ -16,7 +16,7 @@ import { expect } from 'chai';
 
 describe('DrawerSection', function () {
   it('renders DrawerSection in the portal and updates the content when it updates', async function () {
-    let setCount;
+    let setCount: React.Dispatch<React.SetStateAction<number>> = () => {};
 
     function TestDrawer() {
       const [count, _setCount] = useState(0);
