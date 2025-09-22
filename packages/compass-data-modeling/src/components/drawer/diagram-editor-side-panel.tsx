@@ -53,84 +53,93 @@ function DiagramEditorSidePanel({
   onDeleteRelationship,
   onDeleteField,
 }: DiagramEditorSidePanelProps) {
-  const { content, label, actions, handleAction } = useMemo(() => {
-    if (selectedItems?.type === 'collection') {
-      return {
-        label: selectedItems.label,
-        content: (
-          <CollectionDrawerContent
-            key={selectedItems.id}
-            namespace={selectedItems.id}
-          ></CollectionDrawerContent>
-        ),
-        actions: [
-          {
-            action: 'delete',
-            label: 'Delete Collection',
-            icon: 'Trash' as const,
+  const { content, drawerIconLabel, label, actions, handleAction } =
+    useMemo(() => {
+      if (selectedItems?.type === 'collection') {
+        return {
+          label: selectedItems.label,
+          drawerIconLabel: 'Collection Configuration',
+          content: (
+            <CollectionDrawerContent
+              key={selectedItems.id}
+              namespace={selectedItems.id}
+            ></CollectionDrawerContent>
+          ),
+          actions: [
+            {
+              action: 'delete',
+              label: 'Delete Collection',
+              icon: 'Trash' as const,
+            },
+          ],
+          handleAction: (actionName: string) => {
+            if (actionName === 'delete') {
+              onDeleteCollection(selectedItems.id);
+            }
           },
-        ],
-        handleAction: (actionName: string) => {
-          if (actionName === 'delete') {
-            onDeleteCollection(selectedItems.id);
-          }
-        },
-      };
-    }
+        };
+      }
 
-    if (selectedItems?.type === 'relationship') {
-      return {
-        label: selectedItems.label,
-        content: (
-          <RelationshipDrawerContent
-            key={selectedItems.id}
-            relationshipId={selectedItems.id}
-          ></RelationshipDrawerContent>
-        ),
-        actions: [
-          { action: 'delete', label: 'Delete', icon: 'Trash' as const },
-        ],
-        handleAction: (actionName: string) => {
-          if (actionName === 'delete') {
-            onDeleteRelationship(selectedItems.id);
-          }
-        },
-      };
-    }
+      if (selectedItems?.type === 'relationship') {
+        return {
+          label: selectedItems.label,
+          drawerIconLabel: 'Relationship Configuration',
+          content: (
+            <RelationshipDrawerContent
+              key={selectedItems.id}
+              relationshipId={selectedItems.id}
+            ></RelationshipDrawerContent>
+          ),
+          actions: [
+            { action: 'delete', label: 'Delete', icon: 'Trash' as const },
+          ],
+          handleAction: (actionName: string) => {
+            if (actionName === 'delete') {
+              onDeleteRelationship(selectedItems.id);
+            }
+          },
+        };
+      }
 
-    if (selectedItems?.type === 'field') {
-      return {
-        label: selectedItems.label,
-        content: (
-          <FieldDrawerContent
-            key={`${selectedItems.namespace}.${JSON.stringify(
-              selectedItems.fieldPath
-            )}`}
-            namespace={selectedItems.namespace}
-            fieldPath={selectedItems.fieldPath}
-          ></FieldDrawerContent>
-        ),
-        actions: [
-          ...(!isIdField(selectedItems.fieldPath)
-            ? [
-                {
-                  action: 'delete',
-                  label: 'Delete Field',
-                  icon: 'Trash' as const,
-                },
-              ]
-            : []),
-        ],
-        handleAction: (actionName: string) => {
-          if (actionName === 'delete') {
-            onDeleteField(selectedItems.namespace, selectedItems.fieldPath);
-          }
-        },
-      };
-    }
+      if (selectedItems?.type === 'field') {
+        return {
+          label: selectedItems.label,
+          drawerIconLabel: 'Field Configuration',
+          content: (
+            <FieldDrawerContent
+              key={`${selectedItems.namespace}.${JSON.stringify(
+                selectedItems.fieldPath
+              )}`}
+              namespace={selectedItems.namespace}
+              fieldPath={selectedItems.fieldPath}
+            ></FieldDrawerContent>
+          ),
+          actions: [
+            ...(!isIdField(selectedItems.fieldPath)
+              ? [
+                  {
+                    action: 'delete',
+                    label: 'Delete Field',
+                    icon: 'Trash' as const,
+                  },
+                ]
+              : []),
+          ],
+          handleAction: (actionName: string) => {
+            if (actionName === 'delete') {
+              onDeleteField(selectedItems.namespace, selectedItems.fieldPath);
+            }
+          },
+        };
+      }
 
-    return { content: null };
-  }, [selectedItems, onDeleteCollection, onDeleteRelationship, onDeleteField]);
+      return { content: null };
+    }, [
+      selectedItems,
+      onDeleteCollection,
+      onDeleteRelationship,
+      onDeleteField,
+    ]);
 
   if (!content) {
     return null;
@@ -160,7 +169,7 @@ function DiagramEditorSidePanel({
           ></ItemActionControls>
         </div>
       }
-      label={label}
+      label={drawerIconLabel}
       glyph="Wrench"
       autoOpen
     >
