@@ -417,13 +417,11 @@ const CollectionCollection = AmpersandCollection.extend(
 
       this.set(
         collections
-          .filter((coll) => {
-            // TODO: This is not the best place to do this kind of
-            // filtering, but for now this preserves the current behavior
-            // and changing it right away will expand the scope of the
-            // refactor significantly. We can address this in COMPASS-5211
-            return getNamespaceInfo(coll._id).system === false;
-          })
+          // TODO: This is not the best place to do this kind of
+          // filtering, but for now this preserves the current behavior
+          // and changing it right away will expand the scope of the
+          // refactor significantly. We can address this in COMPASS-5211
+          .filter((coll) => getNamespaceInfo(coll._id).system === false)
           .map(({ _id, ...rest }) => {
             return {
               _id,
