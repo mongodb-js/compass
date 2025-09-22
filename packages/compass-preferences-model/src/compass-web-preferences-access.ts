@@ -14,7 +14,7 @@ const editablePreferences: (keyof UserPreferences)[] = [
   'showIndexesGuidanceVariant',
 
   // Exposed for testing purposes.
-  'enableGenAISampleDocumentPassingOnAtlasProject',
+  'enableGenAISampleDocumentPassing',
   'enableGenAIFeaturesAtlasOrg',
   'enableGenAIFeaturesAtlasProject',
   'enableDataModeling',
