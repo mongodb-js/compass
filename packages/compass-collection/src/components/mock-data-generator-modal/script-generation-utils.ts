@@ -6,17 +6,7 @@ export type FakerArg = string | number | boolean | { json: string };
 const DEFAULT_ARRAY_LENGTH = 3;
 const INDENT_SIZE = 2;
 
-// Array length configuration for different array types
-export type ArrayLengthMap = {
-  [fieldName: string]:
-    | number[] // Multi-dimensional: [2, 3, 4]
-    | ArrayObjectConfig; // Array of objects
-};
-
-export interface ArrayObjectConfig {
-  length?: number; // Length of the parent array (optional for nested object containers)
-  elements: ArrayLengthMap; // Configuration for nested arrays
-}
+export type ArrayLengthMap = Record<string, number>;
 
 export interface ScriptOptions {
   documentCount: number;
@@ -54,7 +44,7 @@ export function generateScript(
     const documentCode = renderDocumentCode(
       structure,
       INDENT_SIZE * 2, // 4 spaces: 2 for function body + 2 for inside return statement
-      options.arrayLengthMap
+      options.arrayLengthMap || {}
     );
 
     const script = `// Mock Data Generator Script
@@ -312,7 +302,8 @@ function insertIntoStructure(
 function renderDocumentCode(
   structure: DocumentStructure,
   indent: number = INDENT_SIZE,
-  arrayLengthMap: ArrayLengthMap = {}
+  arrayLengthMap: ArrayLengthMap = {},
+  currentPath: string = ''
 ): string {
   // For each field in structure:
   //   - If FakerFieldMapping: generate faker call
@@ -354,12 +345,15 @@ function renderDocumentCode(
       }
     } else if ('type' in value && value.type === 'array') {
       // It's an array
+      const fieldPath = currentPath
+        ? `${currentPath}.${fieldName}[]`
+        : `${fieldName}[]`;
       const arrayCode = renderArrayCode(
         value as ArrayStructure,
         indent + INDENT_SIZE,
         fieldName,
         arrayLengthMap,
-        0 // Start at dimension 0
+        fieldPath
       );
       documentFields.push(
         `${fieldIndent}${formatFieldName(fieldName)}: ${arrayCode}`
@@ -367,18 +361,15 @@ function renderDocumentCode(
     } else {
       // It's a nested object: recursive call
 
-      // Get nested array length map for this field,
-      // including type validation and fallback for malformed maps
-      const arrayInfo = arrayLengthMap[fieldName];
-      const nestedArrayLengthMap =
-        arrayInfo && !Array.isArray(arrayInfo) && 'elements' in arrayInfo
-          ? arrayInfo.elements
-          : {};
+      const nestedPath = currentPath
+        ? `${currentPath}.${fieldName}`
+        : fieldName;
 
       const nestedCode = renderDocumentCode(
         value as DocumentStructure,
         indent + INDENT_SIZE,
-        nestedArrayLengthMap
+        arrayLengthMap,
+        nestedPath
       );
       documentFields.push(
         `${fieldIndent}${formatFieldName(fieldName)}: ${nestedCode}`
@@ -418,20 +409,14 @@ function renderArrayCode(
   indent: number = INDENT_SIZE,
   fieldName: string = '',
   arrayLengthMap: ArrayLengthMap = {},
-  dimensionIndex: number = 0
+  currentFieldPath: string = ''
 ): string {
   const elementType = arrayStructure.elementType;
 
   // Get array length for this dimension
-  const arrayInfo = arrayLengthMap[fieldName];
   let arrayLength = DEFAULT_ARRAY_LENGTH;
-
-  if (Array.isArray(arrayInfo)) {
-    // single or multi-dimensional array: eg. [2, 3, 4] or [6]
-    arrayLength = arrayInfo[dimensionIndex] ?? DEFAULT_ARRAY_LENGTH; // Fallback for malformed array map
-  } else if (arrayInfo && 'length' in arrayInfo) {
-    // Array of objects/documents
-    arrayLength = arrayInfo.length ?? DEFAULT_ARRAY_LENGTH;
+  if (currentFieldPath && arrayLengthMap[currentFieldPath] !== undefined) {
+    arrayLength = arrayLengthMap[currentFieldPath];
   }
 
   if ('mongoType' in elementType) {
@@ -439,25 +424,22 @@ function renderArrayCode(
     const fakerCall = generateFakerCall(elementType as FakerFieldMapping);
     return `Array.from({length: ${arrayLength}}, () => ${fakerCall})`;
   } else if ('type' in elementType && elementType.type === 'array') {
-    // Nested array (e.g., matrix[][]) - keep same fieldName, increment dimension
+    // Nested array (e.g., matrix[][]) - append another [] to the path
+    const fieldPath = currentFieldPath + '[]';
     const nestedArrayCode = renderArrayCode(
       elementType as ArrayStructure,
       indent,
       fieldName,
       arrayLengthMap,
-      dimensionIndex + 1 // Next dimension
+      fieldPath
     );
     return `Array.from({length: ${arrayLength}}, () => ${nestedArrayCode})`;
   } else {
-    // Array of objects
-    const nestedArrayLengthMap =
-      arrayInfo && !Array.isArray(arrayInfo) && 'elements' in arrayInfo
-        ? arrayInfo.elements
-        : {}; // Fallback to empty map for malformed array map
     const objectCode = renderDocumentCode(
       elementType as DocumentStructure,
       indent,
-      nestedArrayLengthMap
+      arrayLengthMap,
+      currentFieldPath
     );
     return `Array.from({length: ${arrayLength}}, () => (${objectCode}))`;
   }

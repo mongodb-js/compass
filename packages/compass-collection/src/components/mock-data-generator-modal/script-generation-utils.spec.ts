@@ -426,7 +426,7 @@ describe('Script Generation', () => {
         collectionName: 'posts',
         documentCount: 1,
         arrayLengthMap: {
-          tags: [5],
+          'tags[]': 5,
         },
       });
 
@@ -455,12 +455,8 @@ describe('Script Generation', () => {
         collectionName: 'groups',
         documentCount: 1,
         arrayLengthMap: {
-          users: {
-            length: 5,
-            elements: {
-              tags: [4],
-            },
-          },
+          'users[]': 5,
+          'users[].tags[]': 4,
         },
       });
 
@@ -495,8 +491,8 @@ describe('Script Generation', () => {
         collectionName: 'posts',
         documentCount: 1,
         arrayLengthMap: {
-          tags: [0],
-          categories: [2],
+          'tags[]': 0,
+          'categories[]': 2,
         },
       });
 
@@ -530,8 +526,11 @@ describe('Script Generation', () => {
         collectionName: 'data',
         documentCount: 1,
         arrayLengthMap: {
-          matrix: [2, 5], // 2x5 matrix
-          cube: [3, 4, 2], // 3x4x2 cube
+          'matrix[]': 2,
+          'matrix[][]': 5,
+          'cube[]': 3,
+          'cube[][]': 4,
+          'cube[][][]': 2,
         },
       });
 
@@ -562,19 +561,12 @@ describe('Script Generation', () => {
         collectionName: 'complex',
         documentCount: 1,
         arrayLengthMap: {
-          users: {
-            length: 2,
-            elements: {
-              tags: [3],
-              posts: {
-                length: 4,
-                elements: {
-                  comments: [5],
-                },
-              },
-            },
-          },
-          matrix: [2, 3],
+          'users[]': 2,
+          'users[].tags[]': 3,
+          'users[].posts[]': 4,
+          'users[].posts[].comments[]': 5,
+          'matrix[]': 2,
+          'matrix[][]': 3,
         },
       });
 
