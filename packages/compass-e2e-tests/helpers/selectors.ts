@@ -659,7 +659,7 @@ export const ImportSkipAnalyze = '[data-testid="skip-csv-analyze-button"]';
 export const ImportAnalyzeError =
   '[data-testid="import-modal"] [data-testid="analyze-error"]';
 export const ImportConfirm =
-  '[data-testid="import-modal"] [data-testid="import-button"]';
+  '[data-testid="import-modal"] [data-testid="import-button"][aria-disabled="false"]';
 export const ImportToast = '[data-testid="toast-import-toast"]';
 export const ImportToastErrorDetailsBtn =
   '[data-testid="toast-import-toast"] [data-testid="import-error-details-button"]';
