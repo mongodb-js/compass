@@ -590,6 +590,69 @@ describe('Script Generation', () => {
         testDocumentCodeExecution(result.script);
       }
     });
+
+    it('should handle field names with [] in middle (not array notation)', () => {
+      const schema = {
+        'brackets[]InMiddle': createFieldMapping('lorem.word'),
+        'items[].nested[]ArrayFieldWithBrackets[]':
+          createFieldMapping('lorem.sentence'),
+        'matrix[]WithBrackets[][]': createFieldMapping('number.int'),
+      };
+
+      const result = generateScript(schema, {
+        databaseName: 'testdb',
+        collectionName: 'edgecases',
+        documentCount: 1,
+        arrayLengthMap: {
+          'items[]': 2,
+          'items[].nested[]ArrayFieldWithBrackets[]': 3,
+          'matrix[]WithBrackets[]': 2,
+          'matrix[]WithBrackets[][]': 4,
+        },
+      });
+
+      expect(result.success).to.equal(true);
+      if (result.success) {
+        // Verify field names with [] in middle are treated as regular field names
+        expect(result.script).to.contain(
+          '"brackets[]InMiddle": faker.lorem.word()'
+        );
+
+        // Verify array of objects with bracket field names containing arrays
+        expect(result.script).to.contain(
+          'items: Array.from({length: 2}, () => ({\n      "nested[]ArrayFieldWithBrackets": Array.from({length: 3}, () => faker.lorem.sentence())'
+        );
+
+        // Verify multi-dimensional arrays with bracket field names
+        expect(result.script).to.contain(
+          '"matrix[]WithBrackets": Array.from({length: 2}, () => Array.from({length: 4}, () => faker.number.int()))'
+        );
+
+        // Test that the generated document code is executable
+        const document = testDocumentCodeExecution(result.script);
+        expect(document).to.be.an('object');
+
+        // Verify the three specific edge cases
+        expect(document).to.have.property('brackets[]InMiddle');
+
+        expect(document).to.have.property('items');
+        expect(document.items).to.be.an('array').with.length(2);
+        expect(document.items[0]).to.have.property(
+          'nested[]ArrayFieldWithBrackets'
+        );
+        expect(document.items[0]['nested[]ArrayFieldWithBrackets'])
+          .to.be.an('array')
+          .with.length(3);
+
+        expect(document).to.have.property('matrix[]WithBrackets');
+        expect(document['matrix[]WithBrackets'])
+          .to.be.an('array')
+          .with.length(2);
+        expect(document['matrix[]WithBrackets'][0])
+          .to.be.an('array')
+          .with.length(4);
+      }
+    });
   });
 
   describe('Unrecognized Field Defaults', () => {
