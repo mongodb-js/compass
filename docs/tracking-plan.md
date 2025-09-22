@@ -6,7 +6,7 @@
 > the tracking plan for the specific Compass version you can use the following
 > URL: `https://github.com/mongodb-js/compass/blob/<compass version>/docs/tracking-plan.md`
 
-Generated on Tue, Sep 16, 2025
+Generated on Sun, Sep 21, 2025
 
 ## Table of Contents
 
@@ -84,8 +84,14 @@ Generated on Tue, Sep 16, 2025
 
 ### Data Modeling
 
+- [Data Modeling Collection Added](#event--DataModelingDiagramCollectionAdded)
+- [Data Modeling Collection Removed](#event--DataModelingDiagramCollectionRemoved)
+- [Data Modeling Collection Renamed](#event--DataModelingDiagramCollectionRenamed)
 - [Data Modeling Diagram Created](#event--DataModelingDiagramCreated)
 - [Data Modeling Diagram Exported](#event--DataModelingDiagramExported)
+- [Data Modeling Field Removed](#event--DataModelingDiagramFieldRemoved)
+- [Data Modeling Field Renamed](#event--DataModelingDiagramFieldRenamed)
+- [Data Modeling Field Type Changed](#event--DataModelingDiagramFieldTypeChanged)
 - [Data Modeling Diagram Imported](#event--DataModelingDiagramImported)
 - [Data Modeling Relationship Added](#event--DataModelingDiagramRelationshipAdded)
 - [Data Modeling Relationship Form Opened](#event--DataModelingDiagramRelationshipEdited)
@@ -131,6 +137,7 @@ Generated on Tue, Sep 16, 2025
 - [Assistant Prompt Submitted](#event--AssistantPromptSubmittedEvent)
 - [Assistant Response Failed](#event--AssistantResponseFailedEvent)
 - [Assistant Entry Point Used](#event--AssistantEntryPointUsedEvent)
+- [Assistant Confirmation Submitted](#event--AssistantConfirmationSubmittedEvent)
 - [AI Opt In Modal Shown](#event--AiOptInModalShownEvent)
 - [AI Opt In Modal Dismissed](#event--AiOptInModalDismissedEvent)
 - [AI Generate Query Clicked](#event--AiGenerateQueryClickedEvent)
@@ -631,6 +638,7 @@ This event is fired when a user submits feedback for the assistant.
 - **feedback** (required): `"positive" | "negative"`
 - **text** (optional): `string | undefined`
 - **request_id** (required): `string | null`
+- **source** (required): `"explain plan" | "performance insights" | "connection error" | "chat response"`
 - **is_compass_web** (optional): `true | undefined`
 
 ## Atlas
@@ -1041,6 +1049,39 @@ This event is fired when a context menu item is clicked.
 
 ## Data Modeling
 
+<a name="event--DataModelingDiagramCollectionAdded"></a>
+
+### Data Modeling Collection Added
+
+This event is fired when user adds a collection in a data modeling diagram.
+
+**Properties**:
+
+- **source** (required): `"toolbar"`
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--DataModelingDiagramCollectionRemoved"></a>
+
+### Data Modeling Collection Removed
+
+This event is fired when user removes a collection in a data modeling diagram.
+
+**Properties**:
+
+- **source** (required): `"side_panel"`
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--DataModelingDiagramCollectionRenamed"></a>
+
+### Data Modeling Collection Renamed
+
+This event is fired when user renames a collection in a data modeling diagram.
+
+**Properties**:
+
+- **source** (required): `"side_panel"`
+- **is_compass_web** (optional): `true | undefined`
+
 <a name="event--DataModelingDiagramCreated"></a>
 
 ### Data Modeling Diagram Created
@@ -1060,7 +1101,42 @@ This event is fired when user exports data modeling diagram.
 
 **Properties**:
 
-- **format** (required): `"json" | "png" | "diagram"`
+- **format** (required): `"png" | "json" | "diagram"`
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--DataModelingDiagramFieldRemoved"></a>
+
+### Data Modeling Field Removed
+
+This event is fired when user removes a field in a data modeling diagram.
+
+**Properties**:
+
+- **source** (required): `"side_panel"`
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--DataModelingDiagramFieldRenamed"></a>
+
+### Data Modeling Field Renamed
+
+This event is fired when user renames a field in a data modeling diagram.
+
+**Properties**:
+
+- **source** (required): `"side_panel"`
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--DataModelingDiagramFieldTypeChanged"></a>
+
+### Data Modeling Field Type Changed
+
+This event is fired when user changes a field type in a data modeling diagram.
+
+**Properties**:
+
+- **source** (required): `"side_panel"`
+- **from** (optional): `string | undefined`
+- **to** (optional): `string | undefined`
 - **is_compass_web** (optional): `true | undefined`
 
 <a name="event--DataModelingDiagramImported"></a>
@@ -1169,7 +1245,7 @@ This event is fired when user clones a document.
 
 **Properties**:
 
-- **mode** (required): `"list" | "json" | "table"`
+- **mode** (required): `"json" | "list" | "table"`
   - The view used to clone the document.
 - **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
@@ -1183,7 +1259,7 @@ This event is fired when user copies a document to the clipboard.
 
 **Properties**:
 
-- **mode** (required): `"list" | "json" | "table"`
+- **mode** (required): `"json" | "list" | "table"`
   - The view used to copy the document.
 - **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
@@ -1197,7 +1273,7 @@ This event is fired when user deletes a document.
 
 **Properties**:
 
-- **mode** (required): `"list" | "json" | "table"`
+- **mode** (required): `"json" | "list" | "table"`
   - The view used to delete the document.
 - **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
@@ -1227,7 +1303,7 @@ This event is fired when user updates a document
 
 **Properties**:
 
-- **mode** (required): `"list" | "json" | "table"`
+- **mode** (required): `"json" | "list" | "table"`
   - The view used to delete the document.
 - **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
@@ -1293,7 +1369,7 @@ This event is fired when user executes a query
   - The type of the collection on which the query was executed.
 - **used_regex** (required): `boolean`
   - Indicates whether the query used a regular expression.
-- **mode** (required): `"list" | "json" | "table"`
+- **mode** (required): `"json" | "list" | "table"`
   - The view used to run the query.
 - **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
@@ -1467,6 +1543,18 @@ This event is fired when a user uses an assistant entry point.
 **Properties**:
 
 - **source** (required): `"explain plan" | "performance insights" | "connection error"`
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--AssistantConfirmationSubmittedEvent"></a>
+
+### Assistant Confirmation Submitted
+
+This event is fired when a user confirms a confirmation message in the assistant chat.
+
+**Properties**:
+
+- **status** (required): `"confirmed" | "rejected"`
+- **source** (required): `"explain plan" | "performance insights" | "connection error" | "chat response"`
 - **is_compass_web** (optional): `true | undefined`
 
 <a name="event--AiOptInModalShownEvent"></a>

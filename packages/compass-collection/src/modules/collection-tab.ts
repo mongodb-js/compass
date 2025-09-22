@@ -43,7 +43,6 @@ import type {
   MockDataGeneratorState,
 } from '../components/mock-data-generator-modal/types';
 
-// @ts-expect-error TypeScript warns us about importing ESM module from CommonJS module, but we can ignore since this code will be consumed by webpack.
 import { faker } from '@faker-js/faker/locale/en';
 
 const DEFAULT_SAMPLE_SIZE = 100;
@@ -703,7 +702,7 @@ const validateFakerSchema = (
   fakerSchema: MockDataSchemaResponse,
   logger: Logger
 ) => {
-  return fakerSchema.content.fields.map((field) => {
+  return fakerSchema.fields.map((field) => {
     const { fakerMethod } = field;
 
     const [moduleName, methodName, ...rest] = fakerMethod.split('.');

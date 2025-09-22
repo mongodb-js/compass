@@ -1,4 +1,4 @@
-import { ObjectId } from 'bson';
+import { UUID } from 'bson';
 import type { ClonePipelineAction } from './clone-pipeline';
 import { CLONE_PIPELINE } from './clone-pipeline';
 import type { NewPipelineConfirmedAction } from './is-new-pipeline-confirm';
@@ -51,7 +51,7 @@ export default function reducer(
       ConfirmNewPipelineActions.NewPipelineConfirmed
     )
   ) {
-    return new ObjectId().toHexString();
+    return new UUID().toString();
   }
   if (isAction<RestorePipelineAction>(action, RESTORE_PIPELINE)) {
     return action.storedOptions.id;

@@ -16,9 +16,9 @@ import { BSON, Decimal128 } from 'bson';
 import Field, { shouldShowUnboundArrayInsight } from './field';
 import QueryBarPlugin from '@mongodb-js/compass-query-bar';
 import {
-  compassFavoriteQueryStorageAccess,
-  compassRecentQueryStorageAccess,
-} from '@mongodb-js/my-queries-storage';
+  createElectronFavoriteQueryStorage,
+  createElectronRecentQueryStorage,
+} from '@mongodb-js/my-queries-storage/electron';
 
 const MockQueryBarPlugin = QueryBarPlugin.withMockServices({
   dataService: {
@@ -30,8 +30,14 @@ const MockQueryBarPlugin = QueryBarPlugin.withMockServices({
     },
   },
   instance: { on() {}, removeListener() {} } as any,
-  favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
-  recentQueryStorageAccess: compassRecentQueryStorageAccess,
+  favoriteQueryStorageAccess: {
+    getStorage: () =>
+      createElectronFavoriteQueryStorage({ basepath: '/tmp/test' }),
+  },
+  recentQueryStorageAccess: {
+    getStorage: () =>
+      createElectronRecentQueryStorage({ basepath: '/tmp/test' }),
+  },
   atlasAiService: {} as any,
 });
 
