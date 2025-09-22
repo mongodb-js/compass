@@ -28,6 +28,7 @@ const defaultSchemaAnalysisState: SchemaAnalysisState = {
       sample_values: ['John', 'Jane'],
     },
   },
+  arrayLengthMap: {},
   sampleDocument: { name: 'John' },
   schemaMetadata: { maxNestingDepth: 1, validationRules: null },
 };
@@ -39,6 +40,7 @@ describe('MockDataGeneratorModal', () => {
     enableGenAISampleDocumentPassing = false,
     mockServices = createMockServices(),
     schemaAnalysis = defaultSchemaAnalysisState,
+    fakerSchemaGeneration = { status: 'idle' },
     connectionInfo,
   }: {
     isOpen?: boolean;
@@ -47,15 +49,14 @@ describe('MockDataGeneratorModal', () => {
     mockServices?: any;
     connectionInfo?: ConnectionInfo;
     schemaAnalysis?: SchemaAnalysisState;
+    fakerSchemaGeneration?: CollectionState['fakerSchemaGeneration'];
   } = {}) {
     const initialState: CollectionState = {
       workspaceTabId: 'test-workspace-tab-id',
       namespace: 'test.collection',
       metadata: null,
       schemaAnalysis,
-      fakerSchemaGeneration: {
-        status: 'idle',
-      },
+      fakerSchemaGeneration,
       mockDataGenerator: {
         isModalOpen: isOpen,
         currentStep: currentStep,
@@ -629,7 +630,21 @@ describe('MockDataGeneratorModal', () => {
 
   describe('on the generate data step', () => {
     it('enables the Back button', async () => {
-      await renderModal({ currentStep: MockDataGeneratorStep.GENERATE_DATA });
+      await renderModal({
+        currentStep: MockDataGeneratorStep.GENERATE_DATA,
+        fakerSchemaGeneration: {
+          status: 'completed',
+          fakerSchema: {
+            name: {
+              fakerMethod: 'person.firstName',
+              fakerArgs: [],
+              probability: 1.0,
+              mongoType: 'String',
+            },
+          },
+          requestId: 'test-request-id',
+        },
+      });
 
       expect(
         screen
@@ -639,7 +654,21 @@ describe('MockDataGeneratorModal', () => {
     });
 
     it('renders the main sections: Prerequisites, steps, and Resources', async () => {
-      await renderModal({ currentStep: MockDataGeneratorStep.GENERATE_DATA });
+      await renderModal({
+        currentStep: MockDataGeneratorStep.GENERATE_DATA,
+        fakerSchemaGeneration: {
+          status: 'completed',
+          fakerSchema: {
+            name: {
+              fakerMethod: 'person.firstName',
+              fakerArgs: [],
+              probability: 1.0,
+              mongoType: 'String',
+            },
+          },
+          requestId: 'test-request-id',
+        },
+      });
 
       expect(screen.getByText('Prerequisites')).to.exist;
       expect(screen.getByText('1. Create a .js file with the following script'))
@@ -649,7 +678,21 @@ describe('MockDataGeneratorModal', () => {
     });
 
     it('closes the modal when the Done button is clicked', async () => {
-      await renderModal({ currentStep: MockDataGeneratorStep.GENERATE_DATA });
+      await renderModal({
+        currentStep: MockDataGeneratorStep.GENERATE_DATA,
+        fakerSchemaGeneration: {
+          status: 'completed',
+          fakerSchema: {
+            name: {
+              fakerMethod: 'person.firstName',
+              fakerArgs: [],
+              probability: 1.0,
+              mongoType: 'String',
+            },
+          },
+          requestId: 'test-request-id',
+        },
+      });
 
       expect(screen.getByTestId('generate-mock-data-modal')).to.exist;
       userEvent.click(screen.getByText('Done'));
@@ -684,6 +727,18 @@ describe('MockDataGeneratorModal', () => {
       await renderModal({
         currentStep: MockDataGeneratorStep.GENERATE_DATA,
         connectionInfo: atlasConnectionInfo,
+        fakerSchemaGeneration: {
+          status: 'completed',
+          fakerSchema: {
+            name: {
+              fakerMethod: 'person.firstName',
+              fakerArgs: [],
+              probability: 1.0,
+              mongoType: 'String',
+            },
+          },
+          requestId: 'test-request-id',
+        },
       });
 
       const databaseUsersLink = screen.getByRole('link', {

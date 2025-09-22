@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   Body,
   Code,
@@ -14,6 +14,9 @@ import {
   useDarkMode,
 } from '@mongodb-js/compass-components';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
+import { generateScript } from './script-generation-utils';
+import type { FakerSchema } from './types';
+import type { ArrayLengthMap } from './script-generation-utils';
 
 const RUN_SCRIPT_COMMAND = `
 mongosh "mongodb+srv://<your-cluster>.mongodb.net/<your-database>" \\
@@ -63,9 +66,40 @@ const resourceSectionHeader = css({
   marginBottom: spacing[300],
 });
 
-const ScriptScreen = () => {
+interface ScriptScreenProps {
+  fakerSchema: FakerSchema;
+  namespace: string;
+  arrayLengthMap?: ArrayLengthMap;
+  documentCount?: number;
+}
+
+const ScriptScreen = ({
+  fakerSchema,
+  namespace,
+  arrayLengthMap = {},
+  documentCount = 100,
+}: ScriptScreenProps) => {
   const isDarkMode = useDarkMode();
   const connectionInfo = useConnectionInfo();
+
+  // Parse namespace to get database and collection names
+  const [databaseName, collectionName] = namespace.split('.');
+
+  // Generate the script using the faker schema
+  const scriptResult = useMemo(() => {
+    return generateScript(fakerSchema, {
+      documentCount,
+      databaseName,
+      collectionName,
+      arrayLengthMap,
+    });
+  }, [
+    fakerSchema,
+    documentCount,
+    databaseName,
+    collectionName,
+    arrayLengthMap,
+  ]);
 
   return (
     <section className={outerSectionStyles}>
@@ -100,9 +134,10 @@ const ScriptScreen = () => {
           In the directory that you created, create a file named
           mockdatascript.js (or any name you&apos;d like).
         </Body>
-        {/* TODO: CLOUDP-333860: Hook up to the code generated as part script generation */}
         <Code copyable language={Language.JavaScript}>
-          TK
+          {scriptResult.success
+            ? scriptResult.script
+            : `// Error generating script: ${scriptResult.error}`}
         </Code>
       </section>
       <section>
@@ -157,3 +192,4 @@ const ScriptScreen = () => {
 };
 
 export default ScriptScreen;
+export type { ScriptScreenProps };

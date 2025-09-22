@@ -22,6 +22,7 @@ import {
   generateFakerMappings,
   mockDataGeneratorPreviousButtonClicked,
 } from '../../modules/collection-tab';
+import { SCHEMA_ANALYSIS_STATE_COMPLETE } from '../../schema-analysis-types';
 import RawSchemaConfirmationScreen from './raw-schema-confirmation-screen';
 import FakerSchemaEditorScreen from './faker-schema-editor-screen';
 import ScriptScreen from './script-screen';
@@ -51,6 +52,7 @@ interface Props {
   onPreviousStep: () => void;
   namespace: string;
   fakerSchemaGenerationState: MockDataGeneratorState;
+  schemaAnalysis: CollectionState['schemaAnalysis'];
 }
 
 const MockDataGeneratorModal = ({
@@ -62,9 +64,17 @@ const MockDataGeneratorModal = ({
   onPreviousStep,
   namespace,
   fakerSchemaGenerationState,
+  schemaAnalysis,
 }: Props) => {
   const [isSchemaConfirmed, setIsSchemaConfirmed] =
     React.useState<boolean>(false);
+
+  // Extract array length map for dependency array
+  const arrayLengthMap = useMemo(() => {
+    return schemaAnalysis?.status === SCHEMA_ANALYSIS_STATE_COMPLETE
+      ? schemaAnalysis.arrayLengthMap
+      : {};
+  }, [schemaAnalysis]);
 
   const modalBodyContent = useMemo(() => {
     switch (currentStep) {
@@ -83,9 +93,30 @@ const MockDataGeneratorModal = ({
       case MockDataGeneratorStep.PREVIEW_DATA:
         return <></>; // TODO: CLOUDP-333857
       case MockDataGeneratorStep.GENERATE_DATA:
-        return <ScriptScreen />;
+        // Only render ScriptScreen if we have completed faker schema and schema analysis
+        if (
+          fakerSchemaGenerationState.status === 'completed' &&
+          schemaAnalysis?.status === SCHEMA_ANALYSIS_STATE_COMPLETE
+        ) {
+          return (
+            <ScriptScreen
+              fakerSchema={fakerSchemaGenerationState.fakerSchema}
+              namespace={namespace}
+              arrayLengthMap={arrayLengthMap}
+              documentCount={100} // TODO: Get from document count step
+            />
+          );
+        }
+        return <div>Loading script...</div>;
     }
-  }, [currentStep, fakerSchemaGenerationState, isSchemaConfirmed]);
+  }, [
+    currentStep,
+    fakerSchemaGenerationState,
+    isSchemaConfirmed,
+    namespace,
+    schemaAnalysis?.status,
+    arrayLengthMap,
+  ]);
 
   const isNextButtonDisabled =
     currentStep === MockDataGeneratorStep.SCHEMA_EDITOR && !isSchemaConfirmed;
@@ -159,6 +190,7 @@ const mapStateToProps = (state: CollectionState) => ({
   currentStep: state.mockDataGenerator.currentStep,
   namespace: state.namespace,
   fakerSchemaGenerationState: state.fakerSchemaGeneration,
+  schemaAnalysis: state.schemaAnalysis,
 });
 
 const ConnectedMockDataGeneratorModal = connect(mapStateToProps, {
