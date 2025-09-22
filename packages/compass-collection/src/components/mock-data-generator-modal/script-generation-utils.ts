@@ -1,5 +1,7 @@
 import type { MongoDBFieldType } from '@mongodb-js/compass-generative-ai';
 import type { FakerFieldMapping } from './types';
+import type { MongoDBFieldType } from '@mongodb-js/compass-generative-ai';
+import type { FakerFieldMapping } from './types';
 
 export type FakerArg = string | number | boolean | { json: string };
 

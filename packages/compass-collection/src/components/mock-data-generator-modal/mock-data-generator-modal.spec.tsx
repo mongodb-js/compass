@@ -6,6 +6,7 @@ import {
   waitFor,
   userEvent,
   waitForElementToBeRemoved,
+  waitForElementToBeRemoved,
 } from '@mongodb-js/testing-library-compass';
 import { Provider } from 'react-redux';
 import { createStore, applyMiddleware } from 'redux';
