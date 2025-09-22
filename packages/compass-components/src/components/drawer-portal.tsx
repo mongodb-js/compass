@@ -296,12 +296,15 @@ export const DrawerAnchor: React.FunctionComponent = ({ children }) => {
         } else {
           // we don't re-render enough times for unit tests to pass and this
           // forces it to keep re-trying until the node is found
-          setFailedLookupCount((c) => c + 1);
+          if (failedLookupCount < 10) {
+            setFailedLookupCount((c) => c + 1);
+          }
         }
       }
 
       setAssistantNodes((oldNodes) => {
-        for (const id of Object.keys({ ...nodes, oldNodes })) {
+        // account for removed nodes by checking all keys of both old and new
+        for (const id of Object.keys({ ...oldNodes, ...nodes })) {
           if (nodes[id] !== oldNodes[id]) {
             return nodes;
           }

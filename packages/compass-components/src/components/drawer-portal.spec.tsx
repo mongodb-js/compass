@@ -230,6 +230,7 @@ describe('DrawerSection', function () {
   });
 
   it('renders guide cue when passed in props', async function () {
+    localStorage.compass_guide_cues = '[]';
     function TestDrawer() {
       return (
         <DrawerContentProvider>
