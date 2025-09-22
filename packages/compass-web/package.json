@@ -127,7 +127,6 @@
     "express": "^4.21.1",
     "express-http-proxy": "^2.0.0",
     "is-ip": "^5.0.1",
-    "lodash": "^4.17.21",
     "mocha": "^10.2.0",
     "mongodb": "^6.19.0",
     "mongodb-build-info": "^1.7.2",
