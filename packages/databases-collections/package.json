@@ -73,7 +73,7 @@
     "mongodb-collection-model": "^5.34.2",
     "mongodb-database-model": "^2.34.2",
     "mongodb-instance-model": "^12.47.0",
-    "mongodb-ns": "^2.4.3",
+    "mongodb-ns": "^3.0.1",
     "mongodb-query-parser": "^4.3.0",
     "prop-types": "^15.7.2",
     "react": "^17.0.2",

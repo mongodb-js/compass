@@ -32,7 +32,7 @@
     "ampersand-model": "^8.0.1",
     "mongodb-collection-model": "^5.34.2",
     "mongodb-data-service": "^22.33.2",
-    "mongodb-ns": "^2.4.3"
+    "mongodb-ns": "^3.0.1"
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-compass": "^1.4.10",

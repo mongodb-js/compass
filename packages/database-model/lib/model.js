@@ -265,7 +265,7 @@ const DatabaseCollection = AmpersandCollection.extend(
       this.set(
         dbs
           .filter((db) => {
-            return toNs(db.name).special === false;
+            return toNs(db._id).special === false;
           })
           .map(({ _id, name, inferred_from_privileges }) => ({
             _id,
