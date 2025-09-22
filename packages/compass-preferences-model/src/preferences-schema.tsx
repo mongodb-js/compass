@@ -61,6 +61,7 @@ export type UserConfigurablePreferences = PermanentFeatureFlags &
     enableFeedbackPanel: boolean;
     networkTraffic: boolean;
     readOnly: boolean;
+    readWrite: boolean;
     enableShell: boolean;
     enableDbAndCollStats: boolean;
     protectConnectionStrings?: boolean;
@@ -503,6 +504,23 @@ export const storedUserPreferencesProps: Required<{
       short: 'Set Read-Only Mode',
       long: 'Limit Compass strictly to read operations, with all write and delete capabilities removed.',
     },
+    validator: z.boolean().default(false),
+    type: 'boolean',
+  },
+  /**
+   * Removes "admin" features like editing indexes or dropping / renaming
+   * databases. Somewhat matches Atlas "Project Data Access Read Write" user
+   * role
+   */
+  readWrite: {
+    ui: true,
+    cli: false,
+    global: false,
+    description: {
+      short: 'Set Read-Write Mode',
+      long: 'Limit Compass to data read write operations only, with cababilities like renaming / dropping namespaces or editing indexes removed.',
+    },
+    deriveValue: deriveReadOnlyOptionState('readWrite'),
     validator: z.boolean().default(false),
     type: 'boolean',
   },

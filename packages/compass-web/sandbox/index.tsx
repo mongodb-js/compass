@@ -49,6 +49,7 @@ const App = () => {
     enableGenAISampleDocumentPassingOnAtlasProject,
     enableGenAIFeaturesAtlasOrg,
     optInGenAIFeatures,
+    userRoles,
   } = projectParams ?? {};
 
   const atlasServiceSandboxBackendVariant =
@@ -106,6 +107,19 @@ const App = () => {
 
   const isAtlas = status === 'signed-in';
 
+  const groupRolePreferences = (() => {
+    if (!isAtlas) {
+      return {};
+    }
+    if (userRoles?.isDataAccessAdmin) {
+      return {};
+    }
+    if (userRoles?.isDataAccessWrite) {
+      return { readWrite: true };
+    }
+    return { readOnly: true };
+  })();
+
   return (
     <SandboxConnectionStorageProvider
       value={isAtlas ? null : sandboxConnectionStorage}
@@ -138,6 +152,7 @@ const App = () => {
               optInGenAIFeatures: isAtlas && !!optInGenAIFeatures,
               enableDataModeling: true,
               enableMyQueries: false,
+              ...groupRolePreferences,
             }}
             onTrack={sandboxTelemetry.track}
             onDebug={sandboxLogger.debug}

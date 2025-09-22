@@ -164,32 +164,38 @@ export const notConnectedConnectionItemActions = ({
 
 export const databaseItemActions = ({
   hasWriteActionsDisabled,
+  canDeleteDatabase,
 }: {
   hasWriteActionsDisabled: boolean;
+  canDeleteDatabase: boolean;
 }): NavigationItemActions => {
   if (hasWriteActionsDisabled) {
     return [];
   }
-  return [
+  return stripNullActions([
     {
       action: 'create-collection',
       icon: 'Plus',
       label: 'Create collection',
     },
-    {
-      action: 'drop-database',
-      icon: 'Trash',
-      label: 'Drop database',
-    },
-  ];
+    canDeleteDatabase
+      ? {
+          action: 'drop-database',
+          icon: 'Trash',
+          label: 'Drop database',
+        }
+      : null,
+  ]);
 };
 
 export const collectionItemActions = ({
   hasWriteActionsDisabled,
+  canEditCollection,
   type,
   isRenameCollectionEnabled,
 }: {
   hasWriteActionsDisabled: boolean;
+  canEditCollection: boolean;
   type: 'collection' | 'view' | 'timeseries';
   isRenameCollectionEnabled: boolean;
 }): NavigationItemActions => {
@@ -205,7 +211,7 @@ export const collectionItemActions = ({
     return actions;
   }
 
-  if (type === 'view') {
+  if (canEditCollection && type === 'view') {
     actions.push({ separator: true });
     actions.push(
       {
@@ -228,7 +234,7 @@ export const collectionItemActions = ({
     return actions;
   }
 
-  if (type !== 'timeseries' && isRenameCollectionEnabled) {
+  if (type !== 'timeseries' && canEditCollection && isRenameCollectionEnabled) {
     actions.push({ separator: true });
     actions.push({
       action: 'rename-collection',
@@ -237,11 +243,13 @@ export const collectionItemActions = ({
     });
   }
 
-  actions.push({
-    action: 'drop-collection',
-    label: 'Drop collection',
-    icon: 'Trash',
-  });
+  if (canEditCollection) {
+    actions.push({
+      action: 'drop-collection',
+      label: 'Drop collection',
+      icon: 'Trash',
+    });
+  }
 
   return actions;
 };
@@ -308,12 +316,14 @@ export const connectionContextMenuActions = ({
 
 export const databaseContextMenuActions = ({
   hasWriteActionsDisabled,
+  canDeleteDatabase,
   isShellEnabled,
   isPerformanceTabAvailable,
   isPerformanceTabSupported,
   isAtlas,
 }: {
   hasWriteActionsDisabled: boolean;
+  canDeleteDatabase: boolean;
   isShellEnabled: boolean;
   isPerformanceTabAvailable: boolean;
   isPerformanceTabSupported: boolean;
@@ -336,7 +346,7 @@ export const databaseContextMenuActions = ({
           icon: 'Plus',
           label: 'Create database',
         },
-    hasWriteActionsDisabled
+    hasWriteActionsDisabled && canDeleteDatabase
       ? null
       : {
           action: 'drop-database',
@@ -358,6 +368,7 @@ export const databaseContextMenuActions = ({
 
 export const collectionContextMenuActions = ({
   hasWriteActionsDisabled,
+  canEditCollection,
   type,
   isRenameCollectionEnabled,
   isPerformanceTabAvailable,
@@ -366,6 +377,7 @@ export const collectionContextMenuActions = ({
   isShellEnabled,
 }: {
   hasWriteActionsDisabled: boolean;
+  canEditCollection: boolean;
   type: 'collection' | 'view' | 'timeseries';
   isRenameCollectionEnabled: boolean;
   isShellEnabled: boolean;
@@ -385,7 +397,7 @@ export const collectionContextMenuActions = ({
   let writeActions: NavigationItemActions = [];
 
   if (!hasWriteActionsDisabled) {
-    if (type === 'view') {
+    if (type === 'view' && canEditCollection) {
       writeActions = [
         { separator: true },
         {
@@ -407,7 +419,7 @@ export const collectionContextMenuActions = ({
     } else {
       writeActions = stripNullActions([
         { separator: true },
-        type !== 'timeseries' && isRenameCollectionEnabled
+        type !== 'timeseries' && canEditCollection && isRenameCollectionEnabled
           ? {
               action: 'rename-collection',
               label: 'Rename collection',
@@ -419,11 +431,13 @@ export const collectionContextMenuActions = ({
           icon: 'Plus',
           label: 'Create collection',
         },
-        {
-          action: 'drop-collection',
-          label: 'Drop collection',
-          icon: 'Trash',
-        },
+        canEditCollection
+          ? {
+              action: 'drop-collection',
+              label: 'Drop collection',
+              icon: 'Trash',
+            }
+          : null,
       ]);
     }
   }
