@@ -104,6 +104,11 @@ const modelPreviewStyles = css({
   },
 });
 
+const ZOOM_OPTIONS = {
+  maxZoom: 1,
+  minZoom: 0.25,
+};
+
 type SelectedItems = NonNullable<DiagramState>['selectedItems'];
 
 const DiagramContent: React.FunctionComponent<{
@@ -248,6 +253,53 @@ const DiagramContent: React.FunctionComponent<{
     [onRelationshipDrawn, onCreateNewRelationship]
   );
 
+  const onNodeClick = useCallback(
+    (_evt: React.MouseEvent, node: NodeProps) => {
+      if (node.type !== 'collection') {
+        return;
+      }
+      onCollectionSelect(node.id);
+      openDrawer(DATA_MODELING_DRAWER_ID);
+    },
+    [onCollectionSelect, openDrawer]
+  );
+
+  const onEdgeClick = useCallback(
+    (_evt: React.MouseEvent, edge: EdgeProps) => {
+      onRelationshipSelect(edge.id);
+      openDrawer(DATA_MODELING_DRAWER_ID);
+    },
+    [onRelationshipSelect, openDrawer]
+  );
+
+  const onFieldClick = useCallback(
+    (_evt: React.MouseEvent, { id: fieldPath, nodeId: namespace }) => {
+      _evt.stopPropagation(); // TODO(COMPASS-9659): should this be handled by the diagramming package?
+      if (!Array.isArray(fieldPath)) return; // TODO(COMPASS-9659): could be avoided with generics in the diagramming package
+      onFieldSelect(namespace, fieldPath);
+      openDrawer(DATA_MODELING_DRAWER_ID);
+    },
+    [onFieldSelect, openDrawer]
+  );
+
+  const onNodeDragStop = useCallback(
+    (evt: React.MouseEvent, node: NodeProps) => {
+      onMoveCollection(node.id, [node.position.x, node.position.y]);
+    },
+    [onMoveCollection]
+  );
+
+  const onPaneClick = useCallback(() => {
+    onDiagramBackgroundClicked();
+  }, [onDiagramBackgroundClicked]);
+
+  const onConnect = useCallback(
+    ({ source, target }: { source: string; target: string }) => {
+      handleNodesConnect(source, target);
+    },
+    [handleNodesConnect]
+  );
+
   return (
     <div
       ref={setDiagramContainerRef}
@@ -263,34 +315,13 @@ const DiagramContent: React.FunctionComponent<{
           // With threshold too low clicking sometimes gets confused with
           // dragging
           nodeDragThreshold={5}
-          onNodeClick={(_evt, node) => {
-            if (node.type !== 'collection') {
-              return;
-            }
-            onCollectionSelect(node.id);
-            openDrawer(DATA_MODELING_DRAWER_ID);
-          }}
-          onPaneClick={onDiagramBackgroundClicked}
-          onEdgeClick={(_evt, edge) => {
-            onRelationshipSelect(edge.id);
-            openDrawer(DATA_MODELING_DRAWER_ID);
-          }}
-          onFieldClick={(_evt, { id: fieldPath, nodeId: namespace }) => {
-            _evt.stopPropagation(); // TODO(COMPASS-9659): should this be handled by the diagramming package?
-            if (!Array.isArray(fieldPath)) return; // TODO(COMPASS-9659): could be avoided with generics in the diagramming package
-            onFieldSelect(namespace, fieldPath);
-            openDrawer(DATA_MODELING_DRAWER_ID);
-          }}
-          fitViewOptions={{
-            maxZoom: 1,
-            minZoom: 0.25,
-          }}
-          onNodeDragStop={(evt, node) => {
-            onMoveCollection(node.id, [node.position.x, node.position.y]);
-          }}
-          onConnect={({ source, target }) => {
-            handleNodesConnect(source, target);
-          }}
+          onNodeClick={onNodeClick}
+          onPaneClick={onPaneClick}
+          onEdgeClick={onEdgeClick}
+          onFieldClick={onFieldClick}
+          fitViewOptions={ZOOM_OPTIONS}
+          onNodeDragStop={onNodeDragStop}
+          onConnect={onConnect}
         />
       </div>
     </div>

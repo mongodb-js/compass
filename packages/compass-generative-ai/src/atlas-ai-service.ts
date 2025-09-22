@@ -1,4 +1,4 @@
-import type { SimplifiedSchema } from 'mongodb-schema';
+import type { PrimitiveSchemaType, SimplifiedSchema } from 'mongodb-schema';
 import {
   type PreferencesAccess,
   isAIFeatureEnabled,
@@ -218,7 +218,6 @@ const aiURLConfig = {
 export interface MockDataSchemaRawField {
   type: string;
   sampleValues?: unknown[];
-  probability?: number;
 }
 
 export interface MockDataSchemaRequest {
@@ -231,11 +230,38 @@ export interface MockDataSchemaRequest {
   signal: AbortSignal;
 }
 
+/**
+ * MongoDB schema type
+ */
+export type MongoDBFieldType = PrimitiveSchemaType['name'];
+
+// TODO(CLOUDP-346699): Export this from mongodb-schema
+enum MongoDBFieldTypeValues {
+  String = 'String',
+  Number = 'Number',
+  Boolean = 'Boolean',
+  Date = 'Date',
+  Int32 = 'Int32',
+  Decimal128 = 'Decimal128',
+  Long = 'Long',
+  ObjectId = 'ObjectId',
+  RegExp = 'RegExp',
+  Symbol = 'Symbol',
+  MaxKey = 'MaxKey',
+  MinKey = 'MinKey',
+  Binary = 'Binary',
+  Code = 'Code',
+  Timestamp = 'Timestamp',
+  DBRef = 'DBRef',
+}
+
 export const MockDataSchemaResponseShape = z.object({
   fields: z.array(
     z.object({
       fieldPath: z.string(),
-      mongoType: z.string(),
+      mongoType: z.custom<MongoDBFieldType>((val) =>
+        Object.values(MongoDBFieldTypeValues).includes(val)
+      ),
       fakerMethod: z.string(),
       fakerArgs: z.array(
         z.union([
@@ -470,7 +496,7 @@ export class AtlasAiService {
         Omit<MockDataSchemaRawField, 'sampleValues'>
       > = {};
       for (const [k, v] of Object.entries(schema)) {
-        newSchema[k] = { type: v.type, probability: v.probability };
+        newSchema[k] = { type: v.type };
       }
       schema = newSchema;
     }
