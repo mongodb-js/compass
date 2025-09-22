@@ -1219,4 +1219,125 @@ describe('processSchema', function () {
       );
     });
   });
+
+  describe('Array Length Map', function () {
+    it('should handle array length bounds (min 1, max 50)', function () {
+      const schema: Schema = {
+        fields: [
+          {
+            name: 'smallArray',
+            path: ['smallArray'],
+            count: 1,
+            type: ['Array'],
+            probability: 1.0,
+            hasDuplicates: false,
+            types: [
+              {
+                name: 'Array',
+                bsonType: 'Array',
+                path: ['smallArray'],
+                count: 1,
+                probability: 1.0,
+                lengths: [0.3], // Very small average
+                averageLength: 0.3,
+                totalCount: 1,
+                types: [
+                  {
+                    name: 'String',
+                    bsonType: 'String',
+                    path: ['smallArray'],
+                    count: 1,
+                    probability: 1.0,
+                    values: ['test'],
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            name: 'largeArray',
+            path: ['largeArray'],
+            count: 1,
+            type: ['Array'],
+            probability: 1.0,
+            hasDuplicates: false,
+            types: [
+              {
+                name: 'Array',
+                bsonType: 'Array',
+                path: ['largeArray'],
+                count: 1,
+                probability: 1.0,
+                lengths: [100], // Very large average
+                averageLength: 100,
+                totalCount: 100,
+                types: [
+                  {
+                    name: 'Number',
+                    bsonType: 'Number',
+                    path: ['largeArray'],
+                    count: 100,
+                    probability: 1.0,
+                    values: [new Int32(1)],
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+        count: 1,
+      };
+
+      const result = processSchema(schema);
+
+      expect(result.arrayLengthMap).to.deep.equal({
+        'smallArray[]': 1, // Min 1
+        'largeArray[]': 50, // Max 50
+      });
+    });
+
+    it('should handle missing averageLength with default', function () {
+      const schema: Schema = {
+        fields: [
+          {
+            name: 'defaultArray',
+            path: ['defaultArray'],
+            count: 1,
+            type: ['Array'],
+            probability: 1.0,
+            hasDuplicates: false,
+            types: [
+              {
+                name: 'Array',
+                bsonType: 'Array',
+                path: ['defaultArray'],
+                count: 1,
+                probability: 1.0,
+                lengths: [2],
+                // averageLength is undefined
+                totalCount: 2,
+                types: [
+                  {
+                    name: 'String',
+                    bsonType: 'String',
+                    path: ['defaultArray'],
+                    count: 2,
+                    probability: 1.0,
+                    values: ['a', 'b'],
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+        count: 1,
+      };
+
+      const result = processSchema(schema);
+
+      expect(result.arrayLengthMap).to.deep.equal({
+        'defaultArray[]': 3, // DEFAULT_ARRAY_LENGTH = 3
+      });
+    });
+  });
 });

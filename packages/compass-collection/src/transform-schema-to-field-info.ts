@@ -52,11 +52,24 @@ export const FIELD_NAME_SEPARATOR = '.';
 const DEFAULT_ARRAY_LENGTH = 3;
 
 /**
+ * Minimum allowed array length
+ */
+const MIN_ARRAY_LENGTH = 1;
+
+/**
+ * Maximum allowed array length
+ */
+const MAX_ARRAY_LENGTH = 50;
+
+/**
  * Calculate array length from ArraySchemaType, using averageLength with bounds
  */
 function calculateArrayLength(arrayType: ArraySchemaType): number {
-  const avgLength = arrayType.averageLength || DEFAULT_ARRAY_LENGTH;
-  return Math.max(1, Math.min(50, Math.round(avgLength)));
+  const avgLength = arrayType.averageLength ?? DEFAULT_ARRAY_LENGTH;
+  return Math.max(
+    MIN_ARRAY_LENGTH,
+    Math.min(MAX_ARRAY_LENGTH, Math.round(avgLength))
+  );
 }
 
 /**
@@ -182,15 +195,6 @@ export function processSchema(schema: Schema): ProcessSchemaResult {
   }
 
   return { fieldInfo, arrayLengthMap };
-}
-
-/**
- * Legacy function for backward compatibility - returns only the field info
- * @deprecated Use processSchema() instead which returns both fieldInfo and arrayLengthMap
- */
-export function processSchemaLegacy(schema: Schema): Record<string, FieldInfo> {
-  const result = processSchema(schema);
-  return result.fieldInfo;
 }
 
 /**
