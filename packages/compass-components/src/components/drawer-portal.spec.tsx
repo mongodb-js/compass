@@ -228,4 +228,39 @@ describe('DrawerSection', function () {
       expect(screen.queryByText('This is the controlled section')).not.to.exist;
     });
   });
+
+  it('renders guide cue when passed in props', async function () {
+    function TestDrawer() {
+      return (
+        <DrawerContentProvider>
+          <DrawerAnchor>
+            <DrawerSection
+              id="test-section"
+              label="Test section"
+              title={`Test section`}
+              glyph="Trash"
+              guideCue={{
+                cueId: 'test-drawer',
+                title: 'Introducing this new test drawer',
+                description: 'Does all the things',
+                buttonText: 'ok',
+                tooltipAlign: 'bottom',
+                tooltipJustify: 'end',
+              }}
+              autoOpen
+            >
+              This is a test section
+            </DrawerSection>
+          </DrawerAnchor>
+        </DrawerContentProvider>
+      );
+    }
+
+    render(<TestDrawer></TestDrawer>);
+
+    await waitFor(() => {
+      expect(screen.getByText('Introducing this new test drawer')).to.be
+        .visible;
+    });
+  });
 });

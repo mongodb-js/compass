@@ -278,15 +278,25 @@ export const DrawerAnchor: React.FunctionComponent = ({ children }) => {
     Record<string, HTMLButtonElement | undefined>
   >({});
 
+  const [failedLookupCount, setFailedLookupCount] = useState(0);
+
   useEffect(
     function () {
       const nodes: Record<string, HTMLButtonElement | undefined> = {};
       for (const [index, item] of toolbarData.entries()) {
+        if (!item.guideCue) {
+          continue;
+        }
+
         const button = document.querySelector<HTMLButtonElement>(
           `[data-testid="lg-drawer-toolbar-icon_button-${index}"]`
         );
         if (button) {
           nodes[item.id] = button;
+        } else {
+          // we don't re-render enough times for unit tests to pass and this
+          // forces it to keep re-trying until the node is found
+          setFailedLookupCount((c) => c + 1);
         }
       }
 
@@ -299,7 +309,7 @@ export const DrawerAnchor: React.FunctionComponent = ({ children }) => {
         return oldNodes;
       });
     },
-    [toolbarData]
+    [toolbarData, failedLookupCount]
   );
 
   return (
@@ -309,6 +319,7 @@ export const DrawerAnchor: React.FunctionComponent = ({ children }) => {
           assistantNodes[item.id] &&
           item.guideCue && (
             <GuideCue<HTMLButtonElement>
+              key={item.id}
               {...item.guideCue}
               triggerNode={assistantNodes[item.id]}
             />
