@@ -236,7 +236,7 @@ export interface MockDataSchemaRequest {
 export type MongoDBFieldType = PrimitiveSchemaType['name'];
 
 // TODO(CLOUDP-346699): Export this from mongodb-schema
-enum PrimitiveSchemaTypeValues {
+enum MongoDBFieldTypeValues {
   String = 'String',
   Number = 'Number',
   Boolean = 'Boolean',
@@ -260,7 +260,7 @@ export const MockDataSchemaResponseShape = z.object({
     z.object({
       fieldPath: z.string(),
       mongoType: z.custom<MongoDBFieldType>((val) =>
-        Object.values(PrimitiveSchemaTypeValues).includes(val)
+        Object.values(MongoDBFieldTypeValues).includes(val)
       ),
       fakerMethod: z.string(),
       fakerArgs: z.array(
