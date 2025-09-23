@@ -23,6 +23,8 @@ import {
   registerConnectionIdForBrowserWindow,
 } from './auto-connect';
 
+import { screen, type Display } from 'electron';
+
 const { debug } = createLogger('COMPASS-WINDOW-MANAGER');
 
 const earlyOpenUrls: string[] = [];
@@ -83,6 +85,95 @@ async function showWindowWhenReady(bw: BrowserWindow) {
 }
 
 /**
+ * Save window bounds to preferences
+ */
+async function saveWindowBounds(
+  window: BrowserWindow,
+  compassApp: typeof CompassApplication
+) {
+  try {
+    const bounds = window.getBounds();
+    const isMaximized = window.isMaximized();
+
+    await compassApp.preferences.savePreferences({
+      windowBounds: {
+        x: bounds.x,
+        y: bounds.y,
+        width: bounds.width,
+        height: bounds.height,
+        isMaximized,
+      },
+    });
+  } catch (error) {
+    debug('Failed to save window bounds:', error);
+  }
+}
+
+/**
+ * Get saved window bounds from preferences
+ */
+function getSavedWindowBounds(compassApp: typeof CompassApplication) {
+  try {
+    const preferences = compassApp.preferences.getPreferences();
+    return preferences.windowBounds;
+  } catch (error) {
+    debug('Failed to get saved window bounds:', error);
+    return undefined;
+  }
+}
+
+/**
+ * Validate and adjust window bounds to ensure they're visible on screen
+ */
+function validateWindowBounds(bounds: {
+  x?: number;
+  y?: number;
+  width?: number;
+  height?: number;
+}) {
+  if (!bounds.width || !bounds.height) {
+    return {
+      width: Number(DEFAULT_WIDTH),
+      height: Number(DEFAULT_HEIGHT),
+    };
+  }
+
+  // Ensure minimum size
+  const width = Math.max(bounds.width, Number(MIN_WIDTH));
+  const height = Math.max(bounds.height, Number(MIN_HEIGHT));
+
+  // If no position specified, let Electron handle it
+  if (!bounds.x || !bounds.y) {
+    return { width, height };
+  }
+
+  // Check if window would be visible on any display
+  const windowRect = {
+    x: bounds.x,
+    y: bounds.y,
+    width,
+    height,
+  };
+
+  const displays = screen.getAllDisplays();
+  const isVisible = displays.some((display: Display) => {
+    const { bounds: displayBounds } = display;
+    return (
+      windowRect.x < displayBounds.x + displayBounds.width &&
+      windowRect.x + windowRect.width > displayBounds.x &&
+      windowRect.y < displayBounds.y + displayBounds.height &&
+      windowRect.y + windowRect.height > displayBounds.y
+    );
+  });
+
+  if (isVisible) {
+    return { ...windowRect };
+  }
+
+  return { width, height };
+}
+
+/**
  * Call me instead of using `new BrowserWindow()` directly because i'll:
  *
  * 1. Make sure the window is the right size
@@ -109,9 +200,12 @@ function showConnectWindow(
     }
   > = {}
 ): BrowserWindow {
+  // Get saved window bounds
+  const savedBounds = getSavedWindowBounds(compassApp);
+  const validatedBounds = validateWindowBounds(savedBounds);
+
   const windowOpts = {
-    width: Number(DEFAULT_WIDTH),
-    height: Number(DEFAULT_HEIGHT),
+    ...validatedBounds,
     minWidth: Number(MIN_WIDTH),
     minHeight: Number(MIN_HEIGHT),
     /**
@@ -156,8 +250,35 @@ function showConnectWindow(
 
   compassApp.emit('new-window', window);
 
+  // Set up window state persistence
+  let saveTimeout: NodeJS.Timeout | null = null;
+  const debouncedSaveWindowBounds = () => {
+    if (saveTimeout) {
+      clearTimeout(saveTimeout);
+    }
+    saveTimeout = setTimeout(() => {
+      if (window && !window.isDestroyed()) {
+        void saveWindowBounds(window, compassApp);
+      }
+    }, 500); // Debounce to avoid too frequent saves
+  };
+
+  // Save window bounds when moved or resized
+  window.on('moved', debouncedSaveWindowBounds);
+  window.on('resized', debouncedSaveWindowBounds);
+  window.on('maximize', debouncedSaveWindowBounds);
+  window.on('unmaximize', debouncedSaveWindowBounds);
+
+  // Restore maximized state if it was saved
+  if (savedBounds?.isMaximized) {
+    window.maximize();
+  }
+
   const onWindowClosed = () => {
     debug('Window closed. Dereferencing.');
+    if (saveTimeout) {
+      clearTimeout(saveTimeout);
+    }
     window = null;
     void unsubscribeProxyListenerPromise.then((unsubscribe) => unsubscribe());
   };
@@ -243,6 +364,8 @@ class CompassWindowManager {
       if (first) {
         debug('sending `app:quit` msg');
         first.webContents.send('app:quit');
+        // Save window bounds before quitting
+        void saveWindowBounds(first, compassApp);
       }
     });
 
@@ -284,6 +407,8 @@ class CompassWindowManager {
     ipcMain?.handle('compass:maximize', () => {
       const first = BrowserWindow.getAllWindows()[0];
       first.maximize();
+      // Save the maximized state
+      void saveWindowBounds(first, compassApp);
     });
 
     await electronApp.whenReady();
