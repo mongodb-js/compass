@@ -1,8 +1,10 @@
+import { type Logger, mongoLogId } from '@mongodb-js/compass-logging/provider';
 import type { FakerArg } from './script-generation-utils';
 import { faker } from '@faker-js/faker/locale/en';
 
 const MAX_FAKER_ARGS_LENGTH = 10;
 const MAX_FAKER_STRING_LENGTH = 1000;
+const MAX_FAKER_ARGS_DEPTH = 3;
 
 /**
  * Checks if the provided faker arguments are valid.
@@ -11,7 +13,13 @@ const MAX_FAKER_STRING_LENGTH = 1000;
  * - Arrays must not exceed max length and all elements must be valid
  * - Objects must have a 'json' property that is a valid JSON string and all values must be valid
  */
-export function areFakerArgsValid(fakerArgs: FakerArg[]): boolean {
+export function areFakerArgsValid(
+  fakerArgs: FakerArg[],
+  depth: number = 0
+): boolean {
+  if (depth > MAX_FAKER_ARGS_DEPTH) {
+    return false;
+  }
   if (fakerArgs.length === 0) {
     return true;
   }
@@ -33,13 +41,13 @@ export function areFakerArgsValid(fakerArgs: FakerArg[]): boolean {
     } else if (typeof arg === 'boolean') {
       // booleans are always valid, continue
     } else if (Array.isArray(arg)) {
-      if (!areFakerArgsValid(arg)) {
+      if (!areFakerArgsValid(arg, depth + 1)) {
         return false;
       }
     } else if (typeof arg === 'object' && typeof arg.json === 'string') {
       try {
         const parsedJson = JSON.parse(arg.json);
-        if (!areFakerArgsValid(Object.values(parsedJson))) {
+        if (!areFakerArgsValid(Object.values(parsedJson), depth + 1)) {
           return false;
         }
       } catch {
@@ -65,7 +73,8 @@ export function areFakerArgsValid(fakerArgs: FakerArg[]): boolean {
  */
 export function isValidFakerMethod(
   fakerMethod: string,
-  fakerArgs: FakerArg[]
+  fakerArgs: FakerArg[],
+  logger: Logger
 ): {
   isValid: boolean;
   fakerArgs: FakerArg[];
@@ -80,10 +89,15 @@ export function isValidFakerMethod(
     isAllowedHelper(moduleName, methodName) &&
     canInvokeFakerMethod(fakerModule, methodName)
   ) {
-    const callableFakerMethod = (fakerModule as Record<string, any>)[
-      methodName
-    ];
-    return tryInvokeFakerMethod(callableFakerMethod, fakerArgs);
+    const callableFakerMethod = (
+      fakerModule as Record<string, (...args: any[]) => any>
+    )[methodName];
+    return tryInvokeFakerMethod(
+      callableFakerMethod,
+      fakerMethod,
+      fakerArgs,
+      logger
+    );
   } else {
     return { isValid: false, fakerArgs: [] };
   }
@@ -103,38 +117,43 @@ function isAllowedHelper(moduleName: string, methodName: string) {
   return moduleName !== 'helpers' || methodName === 'arrayElement';
 }
 
-function canInvokeFakerMethod(fakerModule: any, methodName: string) {
+function canInvokeFakerMethod(fakerModule: unknown, methodName: string) {
   return (
     fakerModule !== null &&
     fakerModule !== undefined &&
     typeof fakerModule === 'object' &&
-    typeof fakerModule[methodName] === 'function'
+    typeof (fakerModule as Record<string, unknown>)[methodName] === 'function'
   );
 }
 
 function tryInvokeFakerMethod(
-  callable: (...args: any[]) => any,
-  args: FakerArg[]
+  callable: (...args: readonly unknown[]) => unknown,
+  fakerMethod: string,
+  args: FakerArg[],
+  logger: Logger
 ) {
-  try {
-    if (areFakerArgsValid(args)) {
+  // If args are present and safe, try calling with args
+  if (args.length > 0 && areFakerArgsValid(args)) {
+    try {
       callable(...args);
       return { isValid: true, fakerArgs: args };
-    } else {
-      callable();
-      return { isValid: true, fakerArgs: [] };
-    }
-  } catch {
-    // Intentionally ignored: error may be due to invalid arguments, will retry without args.
-    if (args.length > 0) {
-      try {
-        callable();
-        return { isValid: true, fakerArgs: [] };
-      } catch {
-        // Intentionally ignored: method is invalid without arguments as well.
-        return { isValid: false, fakerArgs: [] };
-      }
+    } catch {
+      // Call with args failed. Fall through to trying without args
     }
   }
-  return { isValid: false, fakerArgs: [] };
+
+  // Try without args (either because args were invalid or args failed)
+  try {
+    callable();
+    return { isValid: true, fakerArgs: [] };
+  } catch (error) {
+    // Calling the method without arguments failed.
+    logger.log.warn(
+      mongoLogId(1_001_000_377),
+      'Collection',
+      'Invalid faker method',
+      { error, fakerMethod, fakerArgs: args }
+    );
+    return { isValid: false, fakerArgs: [] };
+  }
 }

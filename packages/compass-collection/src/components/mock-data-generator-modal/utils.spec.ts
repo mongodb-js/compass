@@ -1,7 +1,18 @@
 import { expect } from 'chai';
 import { areFakerArgsValid, isValidFakerMethod } from './utils';
 
-describe('Mock Data Generator Utils', function () {
+import Sinon from 'sinon';
+import { faker } from '@faker-js/faker/locale/en';
+import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
+
+describe('Mock Data Generator Utils', () => {
+  const sandbox = Sinon.createSandbox();
+  const logger = createNoopLogger();
+
+  afterEach(() => {
+    sandbox.restore();
+  });
+
   describe('areFakerArgsValid', () => {
     it('returns true for empty array', () => {
       expect(areFakerArgsValid([])).to.be.true;
@@ -79,93 +90,141 @@ describe('Mock Data Generator Utils', function () {
       expect(areFakerArgsValid([obj])).to.be.false;
     });
 
-    describe('isValidFakerMethod', () => {
-      it('returns false for invalid method format', () => {
-        expect(isValidFakerMethod('invalidMethod', [])).to.deep.equal({
-          isValid: false,
-          fakerArgs: [],
-        });
-        expect(isValidFakerMethod('internet.email.extra', [])).to.deep.equal({
-          isValid: false,
-          fakerArgs: [],
-        });
-      });
+    it('returns false for deeply nested invalid structures with max depth', () => {
+      const obj = {
+        json: JSON.stringify({
+          a: [
+            1,
+            {
+              json: JSON.stringify({
+                b: 2,
+                c: {
+                  json: JSON.stringify({
+                    d: 3,
+                  }),
+                },
+              }),
+            },
+          ],
+        }),
+      };
+      expect(areFakerArgsValid([obj])).to.be.false;
+    });
+  });
 
-      it('returns false for non-existent faker module', () => {
-        expect(isValidFakerMethod('notamodule.email', [])).to.deep.equal({
-          isValid: false,
-          fakerArgs: [],
-        });
-      });
+  describe('isValidFakerMethod', () => {
+    it('returns false for invalid method format', () => {
+      sandbox.stub(faker.internet, 'email');
 
-      it('returns false for non-existent faker method', () => {
-        expect(isValidFakerMethod('internet.notamethod', [])).to.deep.equal({
-          isValid: false,
-          fakerArgs: [],
-        });
+      expect(isValidFakerMethod('invalidMethod', [], logger)).to.deep.equal({
+        isValid: false,
+        fakerArgs: [],
       });
+      expect(
+        isValidFakerMethod('internet.email.extra', [], logger)
+      ).to.deep.equal({
+        isValid: false,
+        fakerArgs: [],
+      });
+    });
 
-      it('returns true for valid method without arguments', () => {
-        const result = isValidFakerMethod('internet.email', []);
-        expect(result.isValid).to.be.true;
-        expect(result.fakerArgs).to.deep.equal([]);
+    it('returns false for non-existent faker module', () => {
+      expect(isValidFakerMethod('notamodule.email', [], logger)).to.deep.equal({
+        isValid: false,
+        fakerArgs: [],
       });
+    });
 
-      it('returns true for valid method with valid arguments', () => {
-        // name.firstName takes optional gender argument
-        const result = isValidFakerMethod('name.firstName', ['female']);
-        expect(result.isValid).to.be.true;
-        expect(result.fakerArgs).to.deep.equal(['female']);
+    it('returns false for non-existent faker method', () => {
+      expect(
+        isValidFakerMethod('internet.notamethod', [], logger)
+      ).to.deep.equal({
+        isValid: false,
+        fakerArgs: [],
       });
+    });
 
-      it('returns true for valid method with no args if args are invalid but fallback works', () => {
-        // internet.email does not take arguments, so passing one should fallback to []
-        const result = isValidFakerMethod('internet.email', []);
-        expect(result.isValid).to.be.true;
-        expect(result.fakerArgs).to.deep.equal([]);
-      });
+    it('returns true for valid method without arguments', () => {
+      sandbox.stub(faker.internet, 'email').returns('test@test.com');
 
-      it('returns false for valid method with invalid arguments and fallback fails', () => {
-        // date.month expects at most one argument, passing an object will fail both attempts
-        const result = isValidFakerMethod('date.month', [
-          { foo: 'bar' } as any,
-        ]);
-        expect(result.isValid).to.be.false;
-        expect(result.fakerArgs).to.deep.equal([]);
-      });
+      const result = isValidFakerMethod('internet.email', [], logger);
+      expect(result.isValid).to.be.true;
+      expect(result.fakerArgs).to.deep.equal([]);
+    });
 
-      it('returns false for helpers methods except arrayElement', () => {
-        expect(isValidFakerMethod('helpers.fake', [])).to.deep.equal({
-          isValid: false,
-          fakerArgs: [],
-        });
-        expect(isValidFakerMethod('helpers.slugify', [])).to.deep.equal({
-          isValid: false,
-          fakerArgs: [],
-        });
-      });
+    it('returns true for valid method with valid arguments', () => {
+      sandbox.stub(faker.person, 'firstName');
 
-      it('returns true for helpers.arrayElement with valid arguments', () => {
-        const arr = ['a', 'b', 'c'];
-        const result = isValidFakerMethod('helpers.arrayElement', [arr]);
-        expect(result.isValid).to.be.true;
-        expect(result.fakerArgs).to.deep.equal([arr]);
-      });
+      const result = isValidFakerMethod('person.firstName', ['female'], logger);
+      expect(result.isValid).to.be.true;
+      expect(result.fakerArgs).to.deep.equal(['female']);
+    });
 
-      it('returns false for helpers.arrayElement with invalid arguments', () => {
-        // Exceeding max args length
-        const arr = Array(11).fill('x');
-        const result = isValidFakerMethod('helpers.arrayElement', [arr]);
-        expect(result.isValid).to.be.false;
-        expect(result.fakerArgs).to.deep.equal([]);
-      });
+    it('returns true for valid method with no args if args are invalid but fallback works', () => {
+      sandbox.stub(faker.internet, 'email').returns('test@test.com');
 
-      it('returns false for method with invalid fakerArgs', () => {
-        // Passing Infinity as argument
-        const result = isValidFakerMethod('name.firstName', [Infinity]);
-        expect(result.isValid).to.be.false;
-        expect(result.fakerArgs).to.deep.equal([]);
+      const result = isValidFakerMethod('internet.email', [], logger);
+      expect(result.isValid).to.be.true;
+      expect(result.fakerArgs).to.deep.equal([]);
+    });
+
+    it('returns true valid method with invalid arguments and strips args', () => {
+      sandbox.stub(faker.date, 'month').returns('February');
+
+      const result = isValidFakerMethod(
+        'date.month',
+        [{ foo: 'bar' } as any],
+        logger
+      );
+      expect(result.isValid).to.be.true;
+      expect(result.fakerArgs).to.deep.equal([]);
+    });
+
+    it('returns false for helpers methods except arrayElement', () => {
+      expect(isValidFakerMethod('helpers.fake', [], logger)).to.deep.equal({
+        isValid: false,
+        fakerArgs: [],
       });
+      expect(isValidFakerMethod('helpers.slugify', [], logger)).to.deep.equal({
+        isValid: false,
+        fakerArgs: [],
+      });
+    });
+
+    it('returns true for helpers.arrayElement with valid arguments', () => {
+      sandbox.stub(faker.helpers, 'arrayElement').returns('a');
+
+      const arr = ['a', 'b', 'c'];
+      const result = isValidFakerMethod('helpers.arrayElement', [arr], logger);
+      expect(result.isValid).to.be.true;
+      expect(result.fakerArgs).to.deep.equal([arr]);
+    });
+
+    it('returns false for helpers.arrayElement with invalid arguments', () => {
+      // Exceeding max args length
+      const arr = Array(11).fill('x');
+      const result = isValidFakerMethod('helpers.arrayElement', [arr], logger);
+      expect(result.isValid).to.be.false;
+      expect(result.fakerArgs).to.deep.equal([]);
+    });
+
+    it('returns true for valid method with invalid fakerArgs and strips args', () => {
+      sandbox.stub(faker.person, 'firstName').returns('a');
+
+      // Passing Infinity as argument
+      const result = isValidFakerMethod('person.firstName', [Infinity], logger);
+      expect(result.isValid).to.be.true;
+      expect(result.fakerArgs).to.deep.equal([]);
+    });
+
+    it('returns false when calling a faker method fails', () => {
+      sandbox
+        .stub(faker.person, 'firstName')
+        .throws(new Error('Invalid faker method'));
+
+      const result = isValidFakerMethod('person.firstName', [], logger);
+      expect(result.isValid).to.be.false;
+      expect(result.fakerArgs).to.deep.equal([]);
     });
   });
 });

@@ -745,7 +745,8 @@ const validateFakerSchema = (
       // Validate the faker method
       const { isValid: isValidMethod, fakerArgs } = isValidFakerMethod(
         fakerMapping.fakerMethod,
-        fakerMapping.fakerArgs
+        fakerMapping.fakerArgs,
+        logger
       );
       if (isValidMethod) {
         result[fieldPath] = {

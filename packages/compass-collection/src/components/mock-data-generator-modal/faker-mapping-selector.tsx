@@ -84,7 +84,7 @@ const getFakerArgsInput = (fakerArgs: FakerArg[]) => {
           key={`faker-arg-${idx}`}
           type="text"
           label="Faker Arg"
-          required
+          readOnly
           value={arg.toString()}
         />
       );
