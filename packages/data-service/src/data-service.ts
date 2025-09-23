@@ -2817,7 +2817,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
         ),
       }
     );
-    const normalized = adaptDatabaseInfo(stats as unknown as DbStats);
+    const normalized = adaptDatabaseInfo(stats);
     return { name, ...normalized };
   }
 

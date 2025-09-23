@@ -139,7 +139,7 @@ interface RunDiagnosticsCommand {
   ): Promise<BuildInfo>;
   (
     db: Db,
-    spec: { dbStats: 1; scale?: number },
+    spec: { dbStats: 1; scale?: number; freeStorage?: 1 },
     options?: RunCommandOptions
   ): Promise<DbStats>;
   (
