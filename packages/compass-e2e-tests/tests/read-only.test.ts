@@ -23,11 +23,24 @@ async function setReadOnlyFeatureViaSettingsModal(
   await browser.openSettingsModal();
   const settingsModal = browser.$(Selectors.SettingsModal);
   await settingsModal.waitForDisplayed();
-  await browser.clickVisible(Selectors.GeneralSettingsButton);
 
-  const currentValue = null; // TODO: get the value
+  await browser.waitUntil(async () => {
+    await browser.clickVisible(Selectors.GeneralSettingsButton);
+
+    const featuresSettingsContent = browser.$(Selectors.GeneralSettingsContent);
+    const isFeaturesSettingsContentExisting =
+      await featuresSettingsContent.isExisting();
+
+    return isFeaturesSettingsContentExisting;
+  });
+
+  const currentValue =
+    (await browser
+      .$(Selectors.SettingsInputElement('readOnly'))
+      .getAttribute('aria-checked')) === 'true';
 
   if (currentValue === newValue) {
+    // Trying to set to the same value, just close the modal
     await browser.clickVisible(Selectors.CloseSettingsModalButton);
   } else {
     await browser.clickParent(Selectors.SettingsInputElement('readOnly'));
@@ -75,7 +88,10 @@ describe('readOnly: true / Read-Only Edition', function () {
         Selectors.CreateDatabaseButton,
         false
       )
-    ).to.be.equal(false);
+    ).to.be.equal(
+      false,
+      `Expected connection ${DEFAULT_CONNECTION_NAME_1} to NOT have "Create Database" button`
+    );
 
     await setReadOnlyFeatureViaSettingsModal(browser, false);
 
@@ -90,7 +106,10 @@ describe('readOnly: true / Read-Only Edition', function () {
         Selectors.CreateDatabaseButton,
         false
       )
-    ).to.be.equal(true);
+    ).to.be.equal(
+      true,
+      `Expected connection ${DEFAULT_CONNECTION_NAME_1} to have "Create Database" button`
+    );
   });
 
   it('shows and hides the plus icon on the siderbar to create a collection', async function () {
@@ -115,12 +134,20 @@ describe('readOnly: true / Read-Only Edition', function () {
     );
     let isSidebarCreateCollectionButtonExisting =
       await sidebarCreateCollectionButton.isExisting();
-    expect(isSidebarCreateCollectionButtonExisting).to.be.equal(true);
+    expect(isSidebarCreateCollectionButtonExisting).to.be.equal(
+      true,
+      'Expected sidebar "Create Collection" button to exist'
+    );
+
+    await setReadOnlyFeatureViaSettingsModal(browser, true);
 
     sidebarCreateCollectionButton = browser.$(Selectors.CreateCollectionButton);
     isSidebarCreateCollectionButtonExisting =
       await sidebarCreateCollectionButton.isExisting();
-    expect(isSidebarCreateCollectionButtonExisting).to.be.equal(false);
+    expect(isSidebarCreateCollectionButtonExisting).to.be.equal(
+      false,
+      'Expected sidebar "Create Collection" button to NOT exist'
+    );
   });
 
   it('shows and hides the create database button on the instance tab', async function () {
@@ -136,16 +163,22 @@ describe('readOnly: true / Read-Only Edition', function () {
     );
     let isInstanceCreateDatabaseButtonExisting =
       await instanceCreateDatabaseButton.isExisting();
-    expect(isInstanceCreateDatabaseButtonExisting).to.be.equal(true);
+    expect(isInstanceCreateDatabaseButtonExisting).to.be.equal(
+      true,
+      'Expected "Create Database" button in the MongoDB instance view to exist'
+    );
 
-    await setReadOnlyFeatureViaSettingsModal(browser, false);
+    await setReadOnlyFeatureViaSettingsModal(browser, true);
 
     instanceCreateDatabaseButton = browser.$(
       Selectors.InstanceCreateDatabaseButton
     );
     isInstanceCreateDatabaseButtonExisting =
       await instanceCreateDatabaseButton.isExisting();
-    expect(isInstanceCreateDatabaseButtonExisting).to.be.equal(false);
+    expect(isInstanceCreateDatabaseButtonExisting).to.be.equal(
+      false,
+      'Expected "Create Database" button in the MongoDB instance view to NOT exist'
+    );
   });
 
   it('shows and hides the create collection button on the instance tab', async function () {
@@ -162,16 +195,22 @@ describe('readOnly: true / Read-Only Edition', function () {
     );
     let isDatabaseCreateCollectionButtonExisting =
       await databaseCreateCollectionButton.isExisting();
-    expect(isDatabaseCreateCollectionButtonExisting).to.be.equal(true);
+    expect(isDatabaseCreateCollectionButtonExisting).to.be.equal(
+      true,
+      'Expected "Create Collection" button in the MongoDB instance view to exist'
+    );
 
-    await setReadOnlyFeatureViaSettingsModal(browser, false);
+    await setReadOnlyFeatureViaSettingsModal(browser, true);
 
     databaseCreateCollectionButton = browser.$(
       Selectors.DatabaseCreateCollectionButton
     );
     isDatabaseCreateCollectionButtonExisting =
       await databaseCreateCollectionButton.isExisting();
-    expect(isDatabaseCreateCollectionButtonExisting).to.be.equal(false);
+    expect(isDatabaseCreateCollectionButtonExisting).to.be.equal(
+      false,
+      'Expected "Create Collection" button in the MongoDB instance view to NOT exist'
+    );
   });
 
   it('shows and hides the add data button on the documents tab', async function () {
@@ -187,13 +226,19 @@ describe('readOnly: true / Read-Only Edition', function () {
 
     let addDataButton = browser.$(Selectors.AddDataButton);
     let isAddDataButtonExisting = await addDataButton.isExisting();
-    expect(isAddDataButtonExisting).to.be.equal(true);
+    expect(isAddDataButtonExisting).to.be.equal(
+      true,
+      'Expected "Add Data" button in the Documents view to exist'
+    );
 
-    await setReadOnlyFeatureViaSettingsModal(browser, false);
+    await setReadOnlyFeatureViaSettingsModal(browser, true);
 
     addDataButton = browser.$(Selectors.AddDataButton);
     isAddDataButtonExisting = await addDataButton.isExisting();
-    expect(isAddDataButtonExisting).to.be.equal(false);
+    expect(isAddDataButtonExisting).to.be.equal(
+      false,
+      'Expected "Add Data" button in the Documents view to NOT exist'
+    );
   });
 
   it('shows and hides the $out aggregation stage', async function () {
@@ -220,7 +265,7 @@ describe('readOnly: true / Read-Only Edition', function () {
     expect(options).to.include('$match');
     expect(options).to.include('$out');
 
-    await setReadOnlyFeatureViaSettingsModal(browser, false);
+    await setReadOnlyFeatureViaSettingsModal(browser, true);
 
     await browser.focusStageOperator(0);
 
@@ -243,13 +288,19 @@ describe('readOnly: true / Read-Only Edition', function () {
 
     let createIndexButton = browser.$(Selectors.CreateIndexButton);
     let isCreateIndexButtonExisting = await createIndexButton.isExisting();
-    expect(isCreateIndexButtonExisting).to.be.equal(true);
+    expect(isCreateIndexButtonExisting).to.be.equal(
+      true,
+      'Expected "Create Index" button in the Indexes view to exist'
+    );
 
-    await setReadOnlyFeatureViaSettingsModal(browser, false);
+    await setReadOnlyFeatureViaSettingsModal(browser, true);
 
     createIndexButton = browser.$(Selectors.CreateIndexButton);
     isCreateIndexButtonExisting = await createIndexButton.isExisting();
-    expect(isCreateIndexButtonExisting).to.be.equal(false);
+    expect(isCreateIndexButtonExisting).to.be.equal(
+      false,
+      'Expected "Create Index" button in the Indexes view to NOT exist'
+    );
 
     const indexList = browser.$(Selectors.IndexList);
     const isIndexListExisting = await indexList.isExisting();
@@ -277,7 +328,10 @@ describe('readOnly: true / Read-Only Edition', function () {
 
     expect(
       await browser.$(Selectors.UpdateValidationButton).isExisting()
-    ).to.be.equal(true);
+    ).to.be.equal(
+      true,
+      'Expected "Update Validation" button in the Validation view to exist'
+    );
     expect(
       await browser
         .$(Selectors.ValidationActionSelector)
@@ -289,20 +343,23 @@ describe('readOnly: true / Read-Only Edition', function () {
         .getAttribute('aria-disabled')
     ).to.equal('false');
 
-    await setReadOnlyFeatureViaSettingsModal(browser, false);
+    await setReadOnlyFeatureViaSettingsModal(browser, true);
 
-    expect(
-      await browser
-        .$(Selectors.ValidationActionSelector)
-        .getAttribute('aria-disabled')
-    ).to.equal('true');
-    expect(
-      await browser
-        .$(Selectors.ValidationLevelSelector)
-        .getAttribute('aria-disabled')
-    ).to.equal('true');
     expect(
       await browser.$(Selectors.UpdateValidationButton).isExisting()
-    ).to.be.equal(false);
+    ).to.be.equal(
+      false,
+      'Expected "Update Validation" button in the Validation view to NOT exist'
+    );
+    expect(
+      await browser
+        .$(Selectors.ValidationActionSelector)
+        .getAttribute('aria-disabled')
+    ).to.equal('true');
+    expect(
+      await browser
+        .$(Selectors.ValidationLevelSelector)
+        .getAttribute('aria-disabled')
+    ).to.equal('true');
   });
 });
