@@ -89,6 +89,7 @@ const TestComponent: React.FunctionComponent<{
         <DrawerAnchor>
           <div data-testid="provider-children">Provider children</div>
           <CompassAssistantDrawer
+            appName="Compass"
             autoOpen={autoOpen}
             hasNonGenuineConnections={hasNonGenuineConnections}
           />
