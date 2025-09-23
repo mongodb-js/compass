@@ -364,7 +364,7 @@ export async function handleFLE2Options(
 
 export const createNamespace = (
   data: CreateNamespaceOptions
-): CreateNamespaceThunkAction<Promise<void>> => {
+): CreateNamespaceThunkAction<Promise<HandleErrorAction | undefined>> => {
   return async (
     dispatch,
     getState,
