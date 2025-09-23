@@ -93,7 +93,7 @@ import {
   createClonedClient,
 } from './connect-mongo-client';
 import type { CollectionStats } from './types';
-import type { ConnectionStatusWithPrivileges, DbStats } from './run-command';
+import type { ConnectionStatusWithPrivileges } from './run-command';
 import { runCommand } from './run-command';
 import type { CSFLECollectionTracker } from './csfle-collection-tracker';
 import { CSFLECollectionTrackerImpl } from './csfle-collection-tracker';
