@@ -399,8 +399,6 @@ class Application {
             ? savedZoomLevel
             : ZOOM_DEFAULT;
 
-        console.log('Restoring zoom level to', zoomLevel);
-
         webFrame.setZoomLevel(zoomLevel);
       } catch {
         // noop
