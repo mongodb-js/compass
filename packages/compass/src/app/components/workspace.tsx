@@ -112,7 +112,7 @@ export default function Workspace({
               <CreateNamespacePlugin></CreateNamespacePlugin>
               <DropNamespacePlugin></DropNamespacePlugin>
               <RenameCollectionPlugin></RenameCollectionPlugin>
-              <CompassAssistantDrawerWithConnections />
+              <CompassAssistantDrawerWithConnections appName="Compass" />
             </>
           )}
         ></WorkspacesPlugin>
