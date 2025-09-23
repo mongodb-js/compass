@@ -17,6 +17,7 @@ import {
   useDarkMode,
   LgChatChatDisclaimer,
   Link,
+  Icon,
 } from '@mongodb-js/compass-components';
 import { ConfirmationMessage } from './confirmation-message';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
@@ -79,6 +80,8 @@ const assistantChatFixesStyles = css({
     fontSize: '13px',
     lineHeight: '15px',
     marginTop: '4px',
+    // DE has reset css that sets all font weights to 400
+    fontWeight: 700,
   },
   /** h1 -> h3 styling */
   h1: {
@@ -130,13 +133,16 @@ const disclaimerTextStyles = css({
   paddingBottom: spacing[400],
   paddingLeft: spacing[400],
   paddingRight: spacing[400],
+  a: {
+    fontSize: 'inherit',
+  },
 });
 /** TODO(COMPASS-9751): This should be handled by Leafygreen's disclaimers update */
 const inputBarStyleFixes = css({
   width: '100%',
   paddingLeft: spacing[400],
   paddingRight: spacing[400],
-  paddingBottom: spacing[400],
+  paddingBottom: spacing[100],
 });
 
 function makeErrorMessage(message: string) {
@@ -152,6 +158,19 @@ const messagesWrapStyles = css({
   display: 'flex',
   flexDirection: 'column',
   gap: spacing[400],
+});
+
+const welcomeHeadingStyles = css({
+  display: 'flex',
+  alignItems: 'center',
+  gap: '6px',
+  span: {
+    fontWeight: 600,
+    lineHeight: '20px',
+  },
+});
+const welcomeTextStyles = css({
+  margin: `${spacing[100]}px 0 0 0`,
 });
 
 export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
@@ -375,9 +394,20 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
           )}
           {messages.length === 0 && (
             <div className={welcomeMessageStyles}>
-              <h4>Welcome to your MongoDB Assistant.</h4>
-              Ask any question about MongoDB to receive expert guidance and
-              documentation right in your window.
+              <h4 className={welcomeHeadingStyles}>
+                <Icon
+                  glyph="Sparkle"
+                  size="large"
+                  style={{ color: palette.green.dark1 }}
+                />
+                <span>MongoDB Assistant.</span>
+              </h4>
+              <p className={welcomeTextStyles}>
+                Welcome to the MongoDB Assistant!
+                <br />
+                Ask any question about MongoDB to receive expert guidance and
+                documentation.
+              </p>
             </div>
           )}
           <div className={inputBarStyleFixes}>
