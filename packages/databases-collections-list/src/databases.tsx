@@ -74,15 +74,24 @@ const DatabasesList: React.FunctionComponent<{
             inferredFromPrivileges={db.inferred_from_privileges}
             data={[
               {
-                label: 'Storage size',
+                label: 'Storage',
                 value:
                   enableDbAndCollStats && db.storage_size !== undefined
                     ? compactBytes(db.storage_size)
                     : 'N/A',
                 hint:
                   enableDbAndCollStats &&
-                  db.data_size !== undefined &&
-                  `Uncompressed data size: ${compactBytes(db.data_size)}`,
+                  'Storage Data: Sum of the disk space allocated to all collections in the database for document storage.',
+              },
+              {
+                label: 'Uncompressed data',
+                value:
+                  enableDbAndCollStats && db.data_size !== undefined
+                    ? compactBytes(db.data_size)
+                    : 'N/A',
+                hint:
+                  enableDbAndCollStats &&
+                  'Uncompressed Data Size: Total size of the uncompressed data held in the database.',
               },
               {
                 label: 'Collections',

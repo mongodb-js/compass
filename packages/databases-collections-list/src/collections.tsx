@@ -126,30 +126,46 @@ const CollectionsList: React.FunctionComponent<{
               : coll.type === 'timeseries'
               ? [
                   {
-                    label: 'Storage size',
+                    label: 'Storage',
                     value:
                       coll.calculated_storage_size !== undefined
                         ? compactBytes(coll.calculated_storage_size)
                         : 'N/A',
                     hint:
+                      coll.calculated_storage_size !== undefined &&
+                      'Storage Data: Sum of the disk space allocated to all collections in the database for document storage.',
+                  },
+                  {
+                    label: 'Uncompressed data',
+                    value:
+                      coll.document_size !== undefined
+                        ? compactBytes(coll.document_size)
+                        : 'N/A',
+                    hint:
                       coll.document_size !== undefined &&
-                      `Uncompressed data size: ${compactBytes(
-                        coll.document_size
-                      )}`,
+                      'Uncompressed Data Size: Total size of the uncompressed data held in the database.',
                   },
                 ]
               : [
                   {
-                    label: 'Storage size',
+                    label: 'Storage',
                     value:
                       coll.calculated_storage_size !== undefined
                         ? compactBytes(coll.calculated_storage_size)
                         : 'N/A',
                     hint:
+                      coll.calculated_storage_size !== undefined &&
+                      'Storage Data: Sum of the disk space allocated to all collections in the database for document storage.',
+                  },
+                  {
+                    label: 'Uncompressed data',
+                    value:
+                      coll.document_size !== undefined
+                        ? compactBytes(coll.document_size)
+                        : 'N/A',
+                    hint:
                       coll.document_size !== undefined &&
-                      `Uncompressed data size: ${compactBytes(
-                        coll.document_size
-                      )}`,
+                      'Uncompressed Data Size: Total size of the uncompressed data held in the database.',
                   },
                   {
                     label: 'Documents',
