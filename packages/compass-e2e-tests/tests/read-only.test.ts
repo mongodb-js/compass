@@ -2,7 +2,6 @@ import {
   init,
   cleanup,
   screenshotIfFailed,
-  skipForWeb,
   DEFAULT_CONNECTION_NAME_1,
 } from '../helpers/compass';
 import { expect } from 'chai';
@@ -10,14 +9,38 @@ import * as Selectors from '../helpers/selectors';
 import { createNumbersCollection } from '../helpers/insert-data';
 import type { Compass } from '../helpers/compass';
 import type { CompassBrowser } from '../helpers/compass-browser';
+import { isTestingWeb } from '../helpers/test-runner-context';
+
+async function setReadOnlyFeatureViaSettingsModal(
+  browser: CompassBrowser,
+  newValue: boolean
+) {
+  if (isTestingWeb()) {
+    // No settings modal in web
+    return browser.setFeature('readOnly', newValue);
+  }
+
+  await browser.openSettingsModal();
+  const settingsModal = browser.$(Selectors.SettingsModal);
+  await settingsModal.waitForDisplayed();
+  await browser.clickVisible(Selectors.GeneralSettingsButton);
+
+  const currentValue = null; // TODO: get the value
+
+  if (currentValue === newValue) {
+    await browser.clickVisible(Selectors.CloseSettingsModalButton);
+  } else {
+    await browser.clickParent(Selectors.SettingsInputElement('readOnly'));
+    await browser.clickVisible(Selectors.SaveSettingsButton);
+  }
+
+  // wait for the modal to go away
+  await settingsModal.waitForDisplayed({ reverse: true });
+}
 
 describe('readOnly: true / Read-Only Edition', function () {
   let compass: Compass;
   let browser: CompassBrowser;
-
-  before(function () {
-    skipForWeb(this, 'settings modal not available on compass-web');
-  });
 
   beforeEach(async function () {
     compass = await init(this.test?.fullTitle());
@@ -53,16 +76,8 @@ describe('readOnly: true / Read-Only Edition', function () {
         false
       )
     ).to.be.equal(false);
-    await browser.openSettingsModal();
-    const settingsModal = browser.$(Selectors.SettingsModal);
-    await settingsModal.waitForDisplayed();
-    await browser.clickVisible(Selectors.GeneralSettingsButton);
 
-    await browser.clickParent(Selectors.SettingsInputElement('readOnly'));
-    await browser.clickVisible(Selectors.SaveSettingsButton);
-
-    // wait for the modal to go away
-    await settingsModal.waitForDisplayed({ reverse: true });
+    await setReadOnlyFeatureViaSettingsModal(browser, false);
 
     await browser.navigateToConnectionTab(
       DEFAULT_CONNECTION_NAME_1,
@@ -102,17 +117,6 @@ describe('readOnly: true / Read-Only Edition', function () {
       await sidebarCreateCollectionButton.isExisting();
     expect(isSidebarCreateCollectionButtonExisting).to.be.equal(true);
 
-    await browser.openSettingsModal();
-    const settingsModal = browser.$(Selectors.SettingsModal);
-    await settingsModal.waitForDisplayed();
-    await browser.clickVisible(Selectors.GeneralSettingsButton);
-
-    await browser.clickParent(Selectors.SettingsInputElement('readOnly'));
-    await browser.clickVisible(Selectors.SaveSettingsButton);
-
-    // wait for the modal to go away
-    await settingsModal.waitForDisplayed({ reverse: true });
-
     sidebarCreateCollectionButton = browser.$(Selectors.CreateCollectionButton);
     isSidebarCreateCollectionButtonExisting =
       await sidebarCreateCollectionButton.isExisting();
@@ -134,16 +138,7 @@ describe('readOnly: true / Read-Only Edition', function () {
       await instanceCreateDatabaseButton.isExisting();
     expect(isInstanceCreateDatabaseButtonExisting).to.be.equal(true);
 
-    await browser.openSettingsModal();
-    const settingsModal = browser.$(Selectors.SettingsModal);
-    await settingsModal.waitForDisplayed();
-    await browser.clickVisible(Selectors.GeneralSettingsButton);
-
-    await browser.clickParent(Selectors.SettingsInputElement('readOnly'));
-    await browser.clickVisible(Selectors.SaveSettingsButton);
-
-    // wait for the modal to go away
-    await settingsModal.waitForDisplayed({ reverse: true });
+    await setReadOnlyFeatureViaSettingsModal(browser, false);
 
     instanceCreateDatabaseButton = browser.$(
       Selectors.InstanceCreateDatabaseButton
@@ -169,16 +164,7 @@ describe('readOnly: true / Read-Only Edition', function () {
       await databaseCreateCollectionButton.isExisting();
     expect(isDatabaseCreateCollectionButtonExisting).to.be.equal(true);
 
-    await browser.openSettingsModal();
-    const settingsModal = browser.$(Selectors.SettingsModal);
-    await settingsModal.waitForDisplayed();
-    await browser.clickVisible(Selectors.GeneralSettingsButton);
-
-    await browser.clickParent(Selectors.SettingsInputElement('readOnly'));
-    await browser.clickVisible(Selectors.SaveSettingsButton);
-
-    // wait for the modal to go away
-    await settingsModal.waitForDisplayed({ reverse: true });
+    await setReadOnlyFeatureViaSettingsModal(browser, false);
 
     databaseCreateCollectionButton = browser.$(
       Selectors.DatabaseCreateCollectionButton
@@ -203,16 +189,7 @@ describe('readOnly: true / Read-Only Edition', function () {
     let isAddDataButtonExisting = await addDataButton.isExisting();
     expect(isAddDataButtonExisting).to.be.equal(true);
 
-    await browser.openSettingsModal();
-    const settingsModal = browser.$(Selectors.SettingsModal);
-    await settingsModal.waitForDisplayed();
-    await browser.clickVisible(Selectors.GeneralSettingsButton);
-
-    await browser.clickParent(Selectors.SettingsInputElement('readOnly'));
-    await browser.clickVisible(Selectors.SaveSettingsButton);
-
-    // wait for the modal to go away
-    await settingsModal.waitForDisplayed({ reverse: true });
+    await setReadOnlyFeatureViaSettingsModal(browser, false);
 
     addDataButton = browser.$(Selectors.AddDataButton);
     isAddDataButtonExisting = await addDataButton.isExisting();
@@ -243,27 +220,7 @@ describe('readOnly: true / Read-Only Edition', function () {
     expect(options).to.include('$match');
     expect(options).to.include('$out');
 
-    await browser.openSettingsModal();
-    const settingsModal = browser.$(Selectors.SettingsModal);
-    await settingsModal.waitForDisplayed();
-
-    await browser.waitUntil(async () => {
-      await browser.clickVisible(Selectors.GeneralSettingsButton);
-
-      const featuresSettingsContent = browser.$(
-        Selectors.GeneralSettingsContent
-      );
-      const isFeaturesSettingsContentExisting =
-        await featuresSettingsContent.isExisting();
-
-      return isFeaturesSettingsContentExisting;
-    });
-
-    await browser.clickParent(Selectors.SettingsInputElement('readOnly'));
-    await browser.clickVisible(Selectors.SaveSettingsButton);
-
-    // wait for the modal to go away
-    await settingsModal.waitForDisplayed({ reverse: true });
+    await setReadOnlyFeatureViaSettingsModal(browser, false);
 
     await browser.focusStageOperator(0);
 
@@ -288,16 +245,7 @@ describe('readOnly: true / Read-Only Edition', function () {
     let isCreateIndexButtonExisting = await createIndexButton.isExisting();
     expect(isCreateIndexButtonExisting).to.be.equal(true);
 
-    await browser.openSettingsModal();
-    const settingsModal = browser.$(Selectors.SettingsModal);
-    await settingsModal.waitForDisplayed();
-    await browser.clickVisible(Selectors.GeneralSettingsButton);
-
-    await browser.clickParent(Selectors.SettingsInputElement('readOnly'));
-    await browser.clickVisible(Selectors.SaveSettingsButton);
-
-    // wait for the modal to go away
-    await settingsModal.waitForDisplayed({ reverse: true });
+    await setReadOnlyFeatureViaSettingsModal(browser, false);
 
     createIndexButton = browser.$(Selectors.CreateIndexButton);
     isCreateIndexButtonExisting = await createIndexButton.isExisting();
@@ -341,16 +289,7 @@ describe('readOnly: true / Read-Only Edition', function () {
         .getAttribute('aria-disabled')
     ).to.equal('false');
 
-    await browser.openSettingsModal();
-    const settingsModal = browser.$(Selectors.SettingsModal);
-    await settingsModal.waitForDisplayed();
-    await browser.clickVisible(Selectors.GeneralSettingsButton);
-
-    await browser.clickParent(Selectors.SettingsInputElement('readOnly'));
-    await browser.clickVisible(Selectors.SaveSettingsButton);
-
-    // wait for the modal to go away
-    await settingsModal.waitForDisplayed({ reverse: true });
+    await setReadOnlyFeatureViaSettingsModal(browser, false);
 
     expect(
       await browser
