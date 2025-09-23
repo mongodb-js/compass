@@ -120,6 +120,9 @@ function tryInvokeFakerMethod(
     if (areFakerArgsValid(args)) {
       callable(...args);
       return { isValid: true, fakerArgs: args };
+    } else {
+      callable();
+      return { isValid: true, fakerArgs: [] };
     }
   } catch {
     // Intentionally ignored: error may be due to invalid arguments, will retry without args.
