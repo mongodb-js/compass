@@ -408,8 +408,8 @@ class Application {
     };
 
     const zoomReset = () => {
+      webFrame.setZoomLevel(ZOOM_DEFAULT);
       debouncedSaveZoomLevel(ZOOM_DEFAULT);
-      return webFrame.setZoomLevel(ZOOM_DEFAULT);
     };
 
     const zoomIn = () => {
@@ -418,8 +418,8 @@ class Application {
         currentZoomLevel + ZOOM_INCREMENT,
         ZOOM_MAX
       );
+      webFrame.setZoomLevel(newZoomLevel);
       debouncedSaveZoomLevel(newZoomLevel);
-      return webFrame.setZoomLevel(newZoomLevel);
     };
 
     const zoomOut = () => {
@@ -428,8 +428,8 @@ class Application {
         currentZoomLevel - ZOOM_INCREMENT,
         ZOOM_MIN
       );
+      webFrame.setZoomLevel(newZoomLevel);
       debouncedSaveZoomLevel(newZoomLevel);
-      return webFrame.setZoomLevel(newZoomLevel);
     };
 
     // Restore zoom level on startup
