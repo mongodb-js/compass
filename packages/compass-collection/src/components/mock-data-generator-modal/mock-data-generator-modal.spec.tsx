@@ -62,10 +62,9 @@ describe('MockDataGeneratorModal', () => {
       },
     };
 
-    // @ts-expect-error // TODO: fix ts error
     const store = createStore(
       collectionTabReducer,
-      initialState,
+      initialState as any,
       applyMiddleware(thunk.withExtraArgument(mockServices))
     );
 
