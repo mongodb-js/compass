@@ -61,6 +61,14 @@ export const Breadcrumbs = ({
   className?: string;
 }) => {
   const darkMode = useDarkMode();
+  if (items.length === 0) {
+    return (
+      <div
+        className={cx(breadcrumbStyles, className)}
+        data-testid="breadcrumbs"
+      />
+    );
+  }
   const lastItem = items[items.length - 1];
   const clickableItems = items.slice(0, -1) as BreadcrumbItem[];
   return (
