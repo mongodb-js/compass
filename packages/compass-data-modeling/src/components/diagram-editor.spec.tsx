@@ -275,7 +275,7 @@ describe('DiagramEditor', function () {
     });
 
     it('shows the banner', function () {
-      expect(screen.getByText('Worried about your data?')).to.be.visible;
+      expect(screen.getByText('Questions about your data?')).to.be.visible;
     });
 
     it('banner can be closed', function () {
@@ -285,7 +285,7 @@ describe('DiagramEditor', function () {
       );
       expect(closeBtn).to.be.visible;
       userEvent.click(closeBtn);
-      expect(screen.queryByText('Worried about your data?')).not.to.exist;
+      expect(screen.queryByText('Questions about your data?')).not.to.exist;
     });
   });
 });
