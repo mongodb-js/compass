@@ -39,6 +39,9 @@ describe('AssistantChat', function () {
           sourceId: '1',
         },
       ],
+      metadata: {
+        source: 'performance insights',
+      },
     },
   ];
 
@@ -85,9 +88,7 @@ describe('AssistantChat', function () {
   it('renders input field and send button', function () {
     renderWithChat([]);
 
-    const inputField = screen.getByPlaceholderText(
-      'Ask MongoDB Assistant a question'
-    );
+    const inputField = screen.getByPlaceholderText('Ask a question');
     const sendButton = screen.getByLabelText('Send message');
 
     expect(inputField).to.exist;
@@ -99,7 +100,7 @@ describe('AssistantChat', function () {
 
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
     const inputField = screen.getByPlaceholderText(
-      'Ask MongoDB Assistant a question'
+      'Ask a question'
     ) as HTMLTextAreaElement;
 
     userEvent.type(inputField, 'What is MongoDB?');
@@ -109,9 +110,8 @@ describe('AssistantChat', function () {
 
   it('displays the disclaimer and welcome text', function () {
     renderWithChat([]);
-    expect(screen.getByText(/This feature is powered by generative AI/)).to
+    expect(screen.getByText(/AI can make mistakes. Review for accuracy./)).to
       .exist;
-    expect(screen.getByText(/Please review the outputs carefully/)).to.exist;
   });
 
   it('displays the welcome text when there are no messages', function () {
@@ -149,9 +149,7 @@ describe('AssistantChat', function () {
   it('send button is enabled when input has text', function () {
     renderWithChat([]);
 
-    const inputField = screen.getByPlaceholderText(
-      'Ask MongoDB Assistant a question'
-    );
+    const inputField = screen.getByPlaceholderText('Ask a question');
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
     const sendButton = screen.getByLabelText(
       'Send message'
@@ -165,9 +163,7 @@ describe('AssistantChat', function () {
   it('send button is disabled for whitespace-only input', async function () {
     renderWithChat([]);
 
-    const inputField = screen.getByPlaceholderText(
-      'Ask MongoDB Assistant a question'
-    );
+    const inputField = screen.getByPlaceholderText('Ask a question');
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
     const sendButton = screen.getByLabelText(
       'Send message'
@@ -246,9 +242,7 @@ describe('AssistantChat', function () {
   it('calls sendMessage when form is submitted', async function () {
     const { result, ensureOptInAndSendStub } = renderWithChat([]);
     const { track } = result;
-    const inputField = screen.getByPlaceholderText(
-      'Ask MongoDB Assistant a question'
-    );
+    const inputField = screen.getByPlaceholderText('Ask a question');
     const sendButton = screen.getByLabelText('Send message');
 
     userEvent.type(inputField, 'What is aggregation?');
@@ -268,7 +262,7 @@ describe('AssistantChat', function () {
 
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
     const inputField = screen.getByPlaceholderText(
-      'Ask MongoDB Assistant a question'
+      'Ask a question'
     ) as HTMLTextAreaElement;
 
     userEvent.type(inputField, 'Test message');
@@ -282,9 +276,7 @@ describe('AssistantChat', function () {
     const { ensureOptInAndSendStub, result } = renderWithChat([]);
     const { track } = result;
 
-    const inputField = screen.getByPlaceholderText(
-      'Ask MongoDB Assistant a question'
-    );
+    const inputField = screen.getByPlaceholderText('Ask a question');
 
     userEvent.type(inputField, '  What is sharding?  ');
     userEvent.click(screen.getByLabelText('Send message'));
@@ -301,9 +293,7 @@ describe('AssistantChat', function () {
   it('does not call ensureOptInAndSend when input is empty or whitespace-only', function () {
     const { ensureOptInAndSendStub } = renderWithChat([]);
 
-    const inputField = screen.getByPlaceholderText(
-      'Ask MongoDB Assistant a question'
-    );
+    const inputField = screen.getByPlaceholderText('Ask a question');
     const chatForm = screen.getByTestId('assistant-chat-input');
 
     // Test empty input
@@ -440,6 +430,7 @@ describe('AssistantChat', function () {
           feedback: 'positive',
           text: undefined,
           request_id: null,
+          source: 'performance insights',
         });
       });
     });
@@ -466,6 +457,7 @@ describe('AssistantChat', function () {
           feedback: 'negative',
           text: undefined,
           request_id: null,
+          source: 'performance insights',
         });
       });
     });
@@ -502,12 +494,42 @@ describe('AssistantChat', function () {
           feedback: 'negative',
           text: undefined,
           request_id: null,
+          source: 'performance insights',
         });
 
         expect(track).to.have.been.calledWith('Assistant Feedback Submitted', {
           feedback: 'negative',
           text: 'This response was not helpful',
           request_id: null,
+          source: 'performance insights',
+        });
+      });
+    });
+
+    it('tracks it as "chat response" when source is not present', async function () {
+      const { result } = renderWithChat([
+        {
+          ...mockMessages[1],
+          metadata: {
+            ...mockMessages[1].metadata,
+            source: undefined,
+          },
+        },
+      ]);
+      const { track } = result;
+
+      const thumbsDownButton = within(
+        screen.getByTestId('assistant-message-assistant')
+      ).getByLabelText('Dislike this message');
+
+      userEvent.click(thumbsDownButton);
+
+      await waitFor(() => {
+        expect(track).to.have.been.calledWith('Assistant Feedback Submitted', {
+          feedback: 'negative',
+          text: undefined,
+          request_id: null,
+          source: 'chat response',
         });
       });
     });
@@ -547,6 +569,7 @@ describe('AssistantChat', function () {
             state: 'pending',
             description: 'Are you sure you want to proceed with this action?',
           },
+          source: 'performance insights',
         },
       };
     });
@@ -762,6 +785,65 @@ describe('AssistantChat', function () {
       expect(screen.queryByText('Confirm')).to.not.exist;
       expect(screen.queryByText('Cancel')).to.not.exist;
       expect(screen.getByText('This is a regular message')).to.exist;
+    });
+
+    it('tracks confirmation submitted when confirm button is clicked', async function () {
+      const { result } = renderWithChat([mockConfirmationMessage]);
+      const { track } = result;
+
+      const confirmButton = screen.getByText('Confirm');
+      userEvent.click(confirmButton);
+
+      await waitFor(() => {
+        expect(track).to.have.been.calledWith(
+          'Assistant Confirmation Submitted',
+          {
+            status: 'confirmed',
+            source: 'performance insights',
+          }
+        );
+      });
+    });
+
+    it('tracks confirmation submitted when cancel button is clicked', async function () {
+      const { result } = renderWithChat([mockConfirmationMessage]);
+      const { track } = result;
+
+      const cancelButton = screen.getByText('Cancel');
+      userEvent.click(cancelButton);
+
+      await waitFor(() => {
+        expect(track).to.have.been.calledWith(
+          'Assistant Confirmation Submitted',
+          {
+            status: 'rejected',
+            source: 'performance insights',
+          }
+        );
+      });
+    });
+
+    it('tracks it as "chat response" when source is not present', async function () {
+      const { result } = renderWithChat([
+        {
+          ...mockConfirmationMessage,
+          metadata: {
+            ...mockConfirmationMessage.metadata,
+            source: undefined,
+          },
+        },
+      ]);
+      const { track } = result;
+
+      const confirmButton = screen.getByText('Confirm');
+      userEvent.click(confirmButton);
+
+      await waitFor(() => {
+        expect(track).to.have.been.calledWith(
+          'Assistant Confirmation Submitted',
+          { status: 'confirmed', source: 'chat response' }
+        );
+      });
     });
   });
 

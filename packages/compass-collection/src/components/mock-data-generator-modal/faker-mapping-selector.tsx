@@ -10,6 +10,7 @@ import {
 } from '@mongodb-js/compass-components';
 import React from 'react';
 import { UNRECOGNIZED_FAKER_METHOD } from '../../modules/collection-tab';
+import type { MongoDBFieldType } from '@mongodb-js/compass-generative-ai';
 
 const fieldMappingSelectorsStyles = css({
   width: '50%',
@@ -26,7 +27,7 @@ const labelStyles = css({
 interface Props {
   activeJsonType: string;
   activeFakerFunction: string;
-  onJsonTypeSelect: (jsonType: string) => void;
+  onJsonTypeSelect: (jsonType: MongoDBFieldType) => void;
   onFakerFunctionSelect: (fakerFunction: string) => void;
 }
 
@@ -43,7 +44,7 @@ const FakerMappingSelector = ({
         label="JSON Type"
         allowDeselect={false}
         value={activeJsonType}
-        onChange={onJsonTypeSelect}
+        onChange={(value) => onJsonTypeSelect(value as MongoDBFieldType)}
       >
         {/* TODO(CLOUDP-344400) : Make the select input editable and render other options depending on the JSON type selected */}
         {[activeJsonType].map((type) => (

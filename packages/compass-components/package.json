@@ -1,6 +1,6 @@
 {
   "name": "@mongodb-js/compass-components",
-  "version": "1.52.1",
+  "version": "1.52.2",
   "description": "React Components used in Compass",
   "license": "SSPL",
   "main": "lib/index.js",
@@ -46,7 +46,7 @@
     "@leafygreen-ui/combobox": "^11.0.2",
     "@leafygreen-ui/confirmation-modal": "^6.0.2",
     "@leafygreen-ui/copyable": "^10.0.14",
-    "@leafygreen-ui/descendants": "^2.1.0",
+    "@leafygreen-ui/drawer": "^5.0.3",
     "@leafygreen-ui/emotion": "^4.0.9",
     "@leafygreen-ui/guide-cue": "^7.0.2",
     "@leafygreen-ui/hooks": "^8.3.4",
@@ -55,7 +55,6 @@
     "@leafygreen-ui/info-sprinkle": "^4.0.2",
     "@leafygreen-ui/input-option": "^3.0.12",
     "@leafygreen-ui/leafygreen-provider": "^4.0.2",
-    "@leafygreen-ui/lib": "^15.3.0",
     "@leafygreen-ui/logo": "^10.0.2",
     "@leafygreen-ui/marketing-modal": "^5.0.2",
     "@leafygreen-ui/menu": "^29.0.5",
@@ -119,6 +118,7 @@
   },
   "devDependencies": {
     "@emotion/css": "^11.11.2",
+    "@leafygreen-ui/lib": "^15.3.0",
     "@mongodb-js/eslint-config-compass": "^1.4.10",
     "@mongodb-js/mocha-config-compass": "^1.7.1",
     "@mongodb-js/prettier-config-compass": "^1.2.8",

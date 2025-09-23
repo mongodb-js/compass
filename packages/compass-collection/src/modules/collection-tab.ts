@@ -16,10 +16,7 @@ import type { AtlasAiService } from '@mongodb-js/compass-generative-ai/provider'
 import type { experimentationServiceLocator } from '@mongodb-js/compass-telemetry/provider';
 import { type Logger, mongoLogId } from '@mongodb-js/compass-logging/provider';
 import { type PreferencesAccess } from 'compass-preferences-model/provider';
-import type {
-  MockDataSchemaRequest,
-  MockDataSchemaResponse,
-} from '@mongodb-js/compass-generative-ai';
+import type { MockDataSchemaRequest } from '@mongodb-js/compass-generative-ai';
 import { isInternalFieldPath } from 'hadron-document';
 import toNS from 'mongodb-ns';
 import {
@@ -39,7 +36,8 @@ import {
 import type { Document, MongoError } from 'mongodb';
 import { MockDataGeneratorStep } from '../components/mock-data-generator-modal/types';
 import type {
-  FakerSchemaMapping,
+  LlmFakerMapping,
+  FakerSchema,
   MockDataGeneratorState,
 } from '../components/mock-data-generator-modal/types';
 
@@ -184,7 +182,7 @@ export interface FakerMappingGenerationStartedAction {
 
 export interface FakerMappingGenerationCompletedAction {
   type: CollectionActions.FakerMappingGenerationCompleted;
-  fakerSchema: FakerSchemaMapping[];
+  fakerSchema: FakerSchema;
   requestId: string;
 }
 
@@ -698,32 +696,113 @@ export const cancelSchemaAnalysis = (): CollectionThunkAction<void> => {
   };
 };
 
-const validateFakerSchema = (
-  fakerSchema: MockDataSchemaResponse,
-  logger: Logger
-) => {
-  return fakerSchema.fields.map((field) => {
-    const { fakerMethod } = field;
+/**
+ * Transforms LLM array format to keyed object structure.
+ * Moves fieldPath from object property to object key.
+ */
+function transformFakerSchemaToObject(
+  fakerSchema: LlmFakerMapping[]
+): FakerSchema {
+  const result: FakerSchema = {};
 
-    const [moduleName, methodName, ...rest] = fakerMethod.split('.');
-    if (
-      rest.length > 0 ||
-      typeof (faker as any)[moduleName]?.[methodName] !== 'function'
-    ) {
-      logger.log.warn(
-        mongoLogId(1_001_000_372),
-        'Collection',
-        'Invalid faker method',
-        { fakerMethod }
-      );
-      return {
-        ...field,
+  for (const field of fakerSchema) {
+    const { fieldPath, ...fieldMapping } = field;
+    result[fieldPath] = {
+      ...fieldMapping,
+      mongoType: fieldMapping.mongoType,
+    };
+  }
+
+  return result;
+}
+
+/**
+ * Checks if the method exists and is callable on the faker object.
+ *
+ * Note: Only supports the format `module.method` (e.g., `internet.email`).
+ * Nested modules or other formats are not supported.
+ * @see {@link https://fakerjs.dev/api/}
+ */
+function isValidFakerMethod(fakerMethod: string): boolean {
+  const parts = fakerMethod.split('.');
+
+  // Validate format: exactly module.method
+  if (parts.length !== 2) {
+    return false;
+  }
+
+  const [moduleName, methodName] = parts;
+
+  try {
+    const fakerModule = (faker as unknown as Record<string, unknown>)[
+      moduleName
+    ];
+    return (
+      fakerModule !== null &&
+      fakerModule !== undefined &&
+      typeof fakerModule === 'object' &&
+      typeof (fakerModule as Record<string, unknown>)[methodName] === 'function'
+    );
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Validates a given faker schema against an input schema.
+ *
+ * - Validates the `fakerMethod` for each field, marking it as unrecognized if invalid
+ * - Adds any unmapped input schema fields to the result with an unrecognized faker method
+ *
+ * @param inputSchema - The schema definition for the input, mapping field names to their metadata.
+ * @param fakerSchemaArray - The array of faker schema mappings from LLM to validate and map.
+ * @param logger - Logger instance used to log warnings for invalid faker methods.
+ * @returns A keyed object of validated faker schema mappings, with one-to-one fields with input schema.
+ */
+const validateFakerSchema = (
+  inputSchema: Record<string, FieldInfo>,
+  fakerSchemaRaw: FakerSchema,
+  logger: Logger
+): FakerSchema => {
+  const result: FakerSchema = {};
+
+  // Process all input schema fields in a single O(n) pass
+  for (const fieldPath of Object.keys(inputSchema)) {
+    if (fakerSchemaRaw[fieldPath]) {
+      // input schema field exists in faker schema
+      const fakerMapping = {
+        ...fakerSchemaRaw[fieldPath],
+        probability: inputSchema[fieldPath].probability,
+      };
+      // Validate the faker method
+      if (isValidFakerMethod(fakerMapping.fakerMethod)) {
+        result[fieldPath] = fakerMapping;
+      } else {
+        logger.log.warn(
+          mongoLogId(1_001_000_372),
+          'Collection',
+          'Invalid faker method',
+          { fakerMethod: fakerMapping.fakerMethod }
+        );
+        result[fieldPath] = {
+          mongoType: fakerMapping.mongoType,
+          fakerMethod: UNRECOGNIZED_FAKER_METHOD,
+          fakerArgs: [],
+          probability: fakerMapping.probability,
+        };
+      }
+    } else {
+      // Field not mapped by LLM - add default
+      result[fieldPath] = {
+        mongoType: inputSchema[fieldPath].type,
         fakerMethod: UNRECOGNIZED_FAKER_METHOD,
+        fakerArgs: [],
+        probability: inputSchema[fieldPath].probability,
       };
     }
+  }
 
-    return field;
-  });
+  return result;
 };
 
 export const generateFakerMappings = (): CollectionThunkAction<
@@ -792,7 +871,16 @@ export const generateFakerMappings = (): CollectionThunkAction<
         connectionInfoRef.current
       );
 
-      const validatedFakerSchema = validateFakerSchema(response, logger);
+      // Transform to keyed object structure
+      const transformedFakerSchema = transformFakerSchemaToObject(
+        response.fields
+      );
+
+      const validatedFakerSchema = validateFakerSchema(
+        schemaAnalysis.processedSchema,
+        transformedFakerSchema,
+        logger
+      );
 
       fakerSchemaGenerationAbortControllerRef.current = undefined;
       dispatch({

@@ -1,4 +1,7 @@
 import type { MockDataSchemaResponse } from '@mongodb-js/compass-generative-ai';
+import type { MongoDBFieldType } from '@mongodb-js/compass-generative-ai';
+
+export type FakerArg = string | number | boolean | { json: string };
 
 export enum MockDataGeneratorStep {
   SCHEMA_CONFIRMATION = 'SCHEMA_CONFIRMATION',
@@ -19,7 +22,7 @@ type MockDataGeneratorInProgressState = {
 
 type MockDataGeneratorCompletedState = {
   status: 'completed';
-  fakerSchema: FakerSchemaMapping[];
+  fakerSchema: FakerSchema;
   requestId: string;
 };
 
@@ -35,13 +38,25 @@ export type MockDataGeneratorState =
   | MockDataGeneratorCompletedState
   | MockDataGeneratorErrorState;
 
-export type FakerSchemaMapping = MockDataSchemaResponse['fields'][number];
+// LLM output format (array with fieldPath as property)
+export type LlmFakerMapping = MockDataSchemaResponse['fields'][number];
+
+// Processed format (object value without fieldPath)
+export interface FakerFieldMapping {
+  mongoType: MongoDBFieldType;
+  fakerMethod: string;
+  fakerArgs: FakerArg[];
+  probability?: number; // 0.0 - 1.0 frequency of field (defaults to 1.0)
+}
+
+// Optimized object format (fieldPath as key, FakerFieldMapping as value)
+export type FakerSchema = Record<string, FakerFieldMapping>;
 
 /**
- * The faker schema mapping is validated if it has been (1) confirmed by the user and
+ * The faker schema is validated if it has been (1) confirmed by the user and
  * (2) TODO(CLOUDP-333855): pre-processed to prevent harmful calls like those that
  * block the main thread or cause out of memory errors
  */
-export type ValidatedFakerSchemaMapping = FakerSchemaMapping & {
+export type ValidatedFakerSchema = FakerSchema & {
   readonly __brand: unique symbol;
 };

@@ -1,19 +1,11 @@
 import type { Document } from 'mongodb';
-import type { MongoDBFieldType } from '../../schema-analysis-types';
-import type { ValidatedFakerSchemaMapping } from './types';
-import { faker } from '@faker-js/faker/locale/en';
+import type { MongoDBFieldType } from '@mongodb-js/compass-generative-ai';
+import type { FakerFieldMapping, FakerArg } from './types';
 
-export type FakerArg = string | number | boolean | { json: string };
+import { faker } from '@faker-js/faker/locale/en';
 
 const DEFAULT_ARRAY_LENGTH = 3;
 const INDENT_SIZE = 2;
-
-export interface FakerFieldMapping {
-  mongoType: MongoDBFieldType;
-  fakerMethod: string;
-  fakerArgs: FakerArg[];
-  probability?: number; // 0.0 - 1.0 frequency of field (defaults to 1.0)
-}
 
 // Array length configuration for different array types
 export type ArrayLengthMap = {
@@ -597,34 +589,14 @@ export function formatFakerArgs(fakerArgs: FakerArg[]): string {
 
 /**
  * Generates documents for the PreviewScreen component.
+ * Now works directly with the optimized object format.
  */
 export function generateDocument(
-  fakerSchema: ValidatedFakerSchemaMapping[],
+  fakerSchema: Record<string, FakerFieldMapping>,
   arrayLengthMap: ArrayLengthMap = {}
 ): Document {
-  const documentSchema = convertSchemaArrayToRecord(fakerSchema);
-  const structure = buildDocumentStructure(documentSchema);
+  const structure = buildDocumentStructure(fakerSchema);
   return constructDocumentValues(structure, arrayLengthMap);
-}
-
-/**
- * Helper that bridges the data structure the PreviewScreen receives to the format
- * expected by buildDocumentStructure
- */
-function convertSchemaArrayToRecord(
-  fakerSchema: ValidatedFakerSchemaMapping[]
-): Record<string, FakerFieldMapping> {
-  const schema: Record<string, FakerFieldMapping> = {};
-
-  for (const field of fakerSchema) {
-    schema[field.fieldPath] = {
-      mongoType: field.mongoType as MongoDBFieldType,
-      fakerMethod: field.fakerMethod,
-      fakerArgs: field.fakerArgs,
-    };
-  }
-
-  return schema;
 }
 
 function generateFakerValue(

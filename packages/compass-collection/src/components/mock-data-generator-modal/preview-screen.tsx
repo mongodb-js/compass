@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { css, spacing, Body, Code } from '@mongodb-js/compass-components';
-import type { ValidatedFakerSchemaMapping } from './types';
+import type { FakerSchema } from './types';
 import { generateDocument } from './script-generation-utils';
 
 const descriptionStyles = css({
@@ -8,7 +8,7 @@ const descriptionStyles = css({
 });
 
 interface PreviewScreenProps {
-  confirmedFakerSchema: ValidatedFakerSchemaMapping[];
+  confirmedFakerSchema: FakerSchema;
 }
 
 const NUM_SAMPLE_DOCUMENTS = 5;

@@ -11,7 +11,15 @@ import {
 import BulkUpdateModal from './bulk-update-modal';
 
 import { FavoriteQueryStorageProvider } from '@mongodb-js/my-queries-storage/provider';
-import { compassFavoriteQueryStorageAccess } from '@mongodb-js/my-queries-storage';
+import { createElectronFavoriteQueryStorage } from '@mongodb-js/my-queries-storage';
+
+// Create mock storage access object for testing
+const mockFavoriteQueryStorage = createElectronFavoriteQueryStorage({
+  basepath: '/tmp/test',
+});
+const compassFavoriteQueryStorageAccess = {
+  getStorage: () => mockFavoriteQueryStorage,
+};
 
 function renderBulkUpdateModal(
   props?: Partial<React.ComponentProps<typeof BulkUpdateModal>>
