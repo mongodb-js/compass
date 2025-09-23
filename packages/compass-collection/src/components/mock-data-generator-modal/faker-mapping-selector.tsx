@@ -7,10 +7,12 @@ import {
   palette,
   Select,
   spacing,
+  TextInput,
 } from '@mongodb-js/compass-components';
 import React from 'react';
 import { UNRECOGNIZED_FAKER_METHOD } from '../../modules/collection-tab';
 import type { MongoDBFieldType } from '@mongodb-js/compass-generative-ai';
+import type { FakerArg } from './script-generation-utils';
 
 const fieldMappingSelectorsStyles = css({
   width: '50%',
@@ -24,16 +26,106 @@ const labelStyles = css({
   fontWeight: 600,
 });
 
+/**
+ * Renders read-only TextInput components for each key-value pair in a faker arguments object.
+ */
+const getFakerArgsInputFromObject = (fakerArgsObject: Record<string, any>) => {
+  return Object.entries(fakerArgsObject).map(([key, item]: [string, any]) => {
+    if (typeof item === 'string' || typeof item === 'boolean') {
+      return (
+        <TextInput
+          key={`faker-arg-${key}`}
+          type="text"
+          label={key}
+          aria-label={`Faker Arg ${key}`}
+          readOnly
+          value={item.toString()}
+        />
+      );
+    } else if (typeof item === 'number') {
+      return (
+        <TextInput
+          key={`faker-arg-${key}`}
+          type="number"
+          label={key}
+          aria-label={`Faker Arg ${key}`}
+          readOnly
+          value={item.toString()}
+        />
+      );
+    } else if (
+      Array.isArray(item) &&
+      item.length > 0 &&
+      typeof item[0] === 'string'
+    ) {
+      return (
+        <TextInput
+          key={`faker-arg-${key}`}
+          type="text"
+          label={key}
+          aria-label={`Faker Arg ${key}`}
+          readOnly
+          value={item.join(', ')}
+        />
+      );
+    }
+    return null;
+  });
+};
+
+/**
+ * Renders TextInput components for each faker argument based on its type.
+ */
+const getFakerArgsInput = (fakerArgs: FakerArg[]) => {
+  return fakerArgs.map((arg, idx) => {
+    if (typeof arg === 'string' || typeof arg === 'boolean') {
+      return (
+        <TextInput
+          key={`faker-arg-${idx}`}
+          type="text"
+          label="Faker Arg"
+          required
+          value={arg.toString()}
+        />
+      );
+    } else if (typeof arg === 'number') {
+      return (
+        <TextInput
+          key={`faker-arg-${idx}`}
+          type="number"
+          label="Faker Arg"
+          readOnly
+          value={arg.toString()}
+        />
+      );
+    } else if (typeof arg === 'object' && 'json' in arg) {
+      // parse the object
+      let parsedArg;
+      try {
+        parsedArg = JSON.parse(arg.json);
+      } catch {
+        // If parsing fails, skip rendering this arg
+        return null;
+      }
+      if (typeof parsedArg === 'object') {
+        return getFakerArgsInputFromObject(parsedArg);
+      }
+    }
+  });
+};
+
 interface Props {
   activeJsonType: string;
   activeFakerFunction: string;
   onJsonTypeSelect: (jsonType: MongoDBFieldType) => void;
+  activeFakerArgs: FakerArg[];
   onFakerFunctionSelect: (fakerFunction: string) => void;
 }
 
 const FakerMappingSelector = ({
   activeJsonType,
   activeFakerFunction,
+  activeFakerArgs,
   onJsonTypeSelect,
   onFakerFunctionSelect,
 }: Props) => {
@@ -72,7 +164,7 @@ const FakerMappingSelector = ({
           string &quot;Unrecognized&quot;
         </Banner>
       )}
-      {/* TODO(CLOUDP-344400): Render faker function parameters once we have a way to validate them. */}
+      {getFakerArgsInput(activeFakerArgs)}
     </div>
   );
 };

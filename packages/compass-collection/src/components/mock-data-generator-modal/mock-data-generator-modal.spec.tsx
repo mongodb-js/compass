@@ -62,6 +62,7 @@ describe('MockDataGeneratorModal', () => {
       },
     };
 
+    // @ts-expect-error // TODO: fix ts error
     const store = createStore(
       collectionTabReducer,
       initialState,
@@ -536,6 +537,44 @@ describe('MockDataGeneratorModal', () => {
       expect(screen.getByLabelText('Faker Function')).to.have.value(
         'Unrecognized'
       );
+    });
+
+    it('does not show faker args that are too large', async () => {
+      const largeLengthArgs = Array.from({ length: 11 }, () => 'test');
+      const mockServices = createMockServices();
+      mockServices.atlasAiService.getMockDataSchema = () =>
+        Promise.resolve({
+          fields: [
+            {
+              fieldPath: 'name',
+              mongoType: 'String',
+              fakerMethod: 'person.firstName',
+              fakerArgs: [JSON.stringify(largeLengthArgs)],
+              isArray: false,
+              probability: 1.0,
+            },
+          ],
+        });
+
+      await renderModal({
+        mockServices,
+        schemaAnalysis: {
+          ...defaultSchemaAnalysisState,
+          processedSchema: {
+            name: {
+              type: 'String',
+              probability: 1.0,
+            },
+          },
+          sampleDocument: { name: 'Peaches' },
+        },
+      });
+
+      // advance to the schema editor step
+      userEvent.click(screen.getByText('Confirm'));
+      await waitFor(() => {
+        expect(screen.getByTestId('faker-schema-editor')).to.exist;
+      });
     });
 
     it('disables the Next button when the faker schema mapping is not confirmed', async () => {

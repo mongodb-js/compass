@@ -41,7 +41,7 @@ import type {
   MockDataGeneratorState,
 } from '../components/mock-data-generator-modal/types';
 
-import { faker } from '@faker-js/faker/locale/en';
+import { isValidFakerMethod } from '../components/mock-data-generator-modal/utils';
 
 const DEFAULT_SAMPLE_SIZE = 100;
 
@@ -717,38 +717,6 @@ function transformFakerSchemaToObject(
 }
 
 /**
- * Checks if the method exists and is callable on the faker object.
- *
- * Note: Only supports the format `module.method` (e.g., `internet.email`).
- * Nested modules or other formats are not supported.
- * @see {@link https://fakerjs.dev/api/}
- */
-function isValidFakerMethod(fakerMethod: string): boolean {
-  const parts = fakerMethod.split('.');
-
-  // Validate format: exactly module.method
-  if (parts.length !== 2) {
-    return false;
-  }
-
-  const [moduleName, methodName] = parts;
-
-  try {
-    const fakerModule = (faker as unknown as Record<string, unknown>)[
-      moduleName
-    ];
-    return (
-      fakerModule !== null &&
-      fakerModule !== undefined &&
-      typeof fakerModule === 'object' &&
-      typeof (fakerModule as Record<string, unknown>)[methodName] === 'function'
-    );
-  } catch {
-    return false;
-  }
-}
-
-/**
  * Validates a given faker schema against an input schema.
  *
  * - Validates the `fakerMethod` for each field, marking it as unrecognized if invalid
@@ -775,8 +743,15 @@ const validateFakerSchema = (
         probability: inputSchema[fieldPath].probability,
       };
       // Validate the faker method
-      if (isValidFakerMethod(fakerMapping.fakerMethod)) {
-        result[fieldPath] = fakerMapping;
+      const { isValid: isValidMethod, fakerArgs } = isValidFakerMethod(
+        fakerMapping.fakerMethod,
+        fakerMapping.fakerArgs
+      );
+      if (isValidMethod) {
+        result[fieldPath] = {
+          ...fakerMapping,
+          fakerArgs,
+        };
       } else {
         logger.log.warn(
           mongoLogId(1_001_000_372),
