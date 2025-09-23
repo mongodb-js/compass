@@ -520,7 +520,7 @@ export const storedUserPreferencesProps: Required<{
       short: 'Set Read-Write Mode',
       long: 'Limit Compass to data read write operations only, with cababilities like renaming / dropping namespaces or editing indexes removed.',
     },
-    deriveValue: deriveReadOnlyOptionState('readWrite'),
+    deriveValue: deriveReadOnlyOptionState('readWrite', true),
     validator: z.boolean().default(false),
     type: 'boolean',
   },
@@ -1259,12 +1259,26 @@ function deriveFeatureRestrictingOptionsState<K extends keyof AllPreferences>(
   });
 }
 
-/** Helper for defining how to derive value/state for readOnly-affected preferences */
+/**
+ * Helper for defining how to derive value/state for readOnly-affected
+ * preferences. By default if `readOnly` is set to `true` will always return
+ * `false`. If `matchReadOnlyProperty` is `true` will return `true` if
+ * `readOnly` is `true`
+ *
+ * @param property original property name
+ * @param matchReadOnlyProperty whether to match readOnly or not
+ * @returns derived value
+ */
 function deriveReadOnlyOptionState<K extends keyof AllPreferences>(
-  property: K
+  property: K,
+  matchReadOnlyProperty = false
 ): DeriveValueFunction<boolean> {
   return (v, s) => ({
-    value: v(property) && !v('readOnly'),
+    value: Boolean(
+      matchReadOnlyProperty
+        ? v(property) || v('readOnly')
+        : v(property) && !v('readOnly')
+    ),
     state:
       s(property) ?? (v('readOnly') ? s('readOnly') ?? 'derived' : undefined),
   });
