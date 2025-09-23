@@ -1,6 +1,6 @@
 {
   "name": "compass-e2e-tests",
-  "version": "1.43.5",
+  "version": "1.43.6",
   "private": true,
   "description": "E2E test suite for Compass app that follows smoke tests / feature testing matrix",
   "scripts": {
@@ -32,7 +32,7 @@
   },
   "devDependencies": {
     "@electron/rebuild": "^4.0.1",
-    "@mongodb-js/compass-components": "^1.52.2",
+    "@mongodb-js/compass-components": "^1.53.0",
     "@mongodb-js/compass-test-server": "^0.3.21",
     "@mongodb-js/connection-info": "^0.20.2",
     "@mongodb-js/eslint-config-compass": "^1.4.10",
@@ -47,7 +47,7 @@
     "chai": "^4.3.4",
     "chai-as-promised": "^7.1.1",
     "clipboardy": "^2.3.0",
-    "compass-preferences-model": "^2.55.0",
+    "compass-preferences-model": "^2.56.0",
     "cross-spawn": "^7.0.5",
     "debug": "^4.3.4",
     "depcheck": "^1.4.1",
