@@ -79,6 +79,8 @@ const assistantChatFixesStyles = css({
     fontSize: '13px',
     lineHeight: '15px',
     marginTop: '4px',
+    // DE has reset css that sets all font weights to 400
+    fontWeight: 700,
   },
   /** h1 -> h3 styling */
   h1: {
