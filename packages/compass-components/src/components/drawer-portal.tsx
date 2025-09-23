@@ -274,7 +274,7 @@ export const DrawerAnchor: React.FunctionComponent = ({ children }) => {
       });
   }, [drawerSectionItems]);
 
-  const [assistantNodes, setAssistantNodes] = useState<
+  const [toolbarIconNodes, setToolbarIconNodes] = useState<
     Record<string, HTMLButtonElement | undefined>
   >({});
 
@@ -302,7 +302,7 @@ export const DrawerAnchor: React.FunctionComponent = ({ children }) => {
           }
         }
 
-        setAssistantNodes((oldNodes) => {
+        setToolbarIconNodes((oldNodes) => {
           // account for removed nodes by checking all keys of both old and new
           for (const id of Object.keys({ ...oldNodes, ...nodes })) {
             if (nodes[id] !== oldNodes[id]) {
@@ -335,12 +335,12 @@ export const DrawerAnchor: React.FunctionComponent = ({ children }) => {
     <>
       {toolbarData.map((item) => {
         return (
-          assistantNodes[item.id] &&
+          toolbarIconNodes[item.id] &&
           item.guideCue && (
             <GuideCue<HTMLButtonElement>
               key={item.id}
               {...item.guideCue}
-              triggerNode={assistantNodes[item.id]}
+              triggerNode={toolbarIconNodes[item.id]}
             />
           )
         );
