@@ -124,6 +124,14 @@ export type InternalUserPreferences = {
   // TODO: Remove this as part of COMPASS-8970.
   enableConnectInNewWindow: boolean;
   showEndOfLifeConnectionModal: boolean;
+  // Window state persistence
+  windowBounds?: {
+    x?: number;
+    y?: number;
+    width?: number;
+    height?: number;
+    isMaximized?: boolean;
+  };
 };
 
 // UserPreferences contains all preferences stored to disk.
@@ -458,6 +466,25 @@ export const storedUserPreferencesProps: Required<{
         process.env.COMPASS_DISABLE_END_OF_LIFE_CONNECTION_MODAL !== 'true'
       ),
     type: 'boolean',
+  },
+  /**
+   * Window bounds for restoring window size and position.
+   */
+  windowBounds: {
+    ui: false,
+    cli: false,
+    global: false,
+    description: null,
+    validator: z
+      .object({
+        x: z.number().optional(),
+        y: z.number().optional(),
+        width: z.number().optional(),
+        height: z.number().optional(),
+        isMaximized: z.boolean().optional(),
+      })
+      .optional(),
+    type: 'object',
   },
   /**
    * Enable/disable the AI services. This is currently set
