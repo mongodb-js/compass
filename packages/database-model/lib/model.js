@@ -4,7 +4,6 @@ const AmpersandCollection = require('ampersand-collection');
 const {
   Collection: MongoDbCollectionCollection,
 } = require('mongodb-collection-model');
-const toNs = require('mongodb-ns');
 
 function mergeInit(...init) {
   return {
