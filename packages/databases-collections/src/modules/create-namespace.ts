@@ -9,6 +9,10 @@ import toNS from 'mongodb-ns';
  * No dots in DB name error message.
  */
 export const NO_DOT = 'Database names may not contain a "."';
+export const INTERNAL_COLLECTION =
+  'The collection provided is reserved for use by MongoDB. Please choose a different name.';
+export const INTERNAL_DATABASE =
+  'The database provided is reserved for use by MongoDB. Please choose a different name.';
 
 type CreateNamespaceState = {
   isRunning: boolean;
@@ -360,7 +364,7 @@ export async function handleFLE2Options(
 
 export const createNamespace = (
   data: CreateNamespaceOptions
-): CreateNamespaceThunkAction<Promise<void>> => {
+): CreateNamespaceThunkAction<Promise<HandleErrorAction | undefined>> => {
   return async (
     dispatch,
     getState,
@@ -376,7 +380,15 @@ export const createNamespace = (
     dispatch(clearError());
 
     if (dbName && dbName.includes('.')) {
-      dispatch(handleError(new Error(NO_DOT)));
+      return dispatch(handleError(new Error(NO_DOT)));
+    }
+
+    if (dbName && toNS(dbName).special) {
+      return dispatch(handleError(new Error(INTERNAL_DATABASE)));
+    }
+
+    if (toNS(namespace).special) {
+      return dispatch(handleError(new Error(INTERNAL_COLLECTION)));
     }
 
     try {
@@ -403,15 +415,11 @@ export const createNamespace = (
         connectionId,
       });
 
-      // For special namespaces (admin, local, config), we do not want
-      // to navigate user to the global-writes tab if it's supported.
-      const isSpecialNS = toNS(namespace).isSpecial;
       const isGlobalWritesSupported =
         connectionInfo && connectionSupports(connectionInfo, 'globalWrites');
       workspaces.openCollectionWorkspace(connectionId, namespace, {
         newTab: true,
-        initialSubtab:
-          !isSpecialNS && isGlobalWritesSupported ? 'GlobalWrites' : undefined,
+        initialSubtab: isGlobalWritesSupported ? 'GlobalWrites' : undefined,
       });
       dispatch(reset());
     } catch (e) {

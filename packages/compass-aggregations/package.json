@@ -86,7 +86,7 @@
     "mongodb-data-service": "^22.33.2",
     "mongodb-database-model": "^2.34.2",
     "mongodb-instance-model": "^12.47.0",
-    "mongodb-ns": "^2.4.2",
+    "mongodb-ns": "^3.0.1",
     "mongodb-query-parser": "^4.3.0",
     "mongodb-schema": "^12.6.2",
     "re-resizable": "^6.9.0",

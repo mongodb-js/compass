@@ -15,7 +15,7 @@ import {
   createNumbersCollection,
 } from '../helpers/insert-data';
 
-const INITIAL_DATABASE_NAMES = ['admin', 'config', 'local', 'test'];
+const INITIAL_DATABASE_NAMES = ['admin', 'local', 'test'];
 
 describe('Instance databases tab', function () {
   let compass: Compass;
