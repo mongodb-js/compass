@@ -65,9 +65,9 @@ export const Breadcrumbs = ({
   const clickableItems = items.slice(0, -1) as BreadcrumbItem[];
   return (
     <div className={cx(breadcrumbStyles, className)} data-testid="breadcrumbs">
-      {clickableItems.map((item) => {
+      {clickableItems.map((item, index) => {
         return (
-          <Fragment key={item.name}>
+          <Fragment key={`${index}-${item.name}`}>
             <Link
               as="button"
               hideExternalIcon={true}
