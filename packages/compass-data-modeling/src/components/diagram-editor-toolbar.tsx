@@ -15,7 +15,7 @@ import {
   transparentize,
   Tooltip,
   Breadcrumbs,
-  BreadcrumbItem,
+  type BreadcrumbItem,
 } from '@mongodb-js/compass-components';
 import AddCollection from './icons/add-collection';
 import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
@@ -81,7 +81,7 @@ export const DiagramEditorToolbar: React.FunctionComponent<{
   ] = useMemo(
     () => [
       { name: 'diagrams', onClick: () => openDataModelingWorkspace() },
-      { name: diagramName || 'untitled', onClick: () => {} },
+      { name: diagramName || 'untitled' },
     ],
     [diagramName, openDataModelingWorkspace]
   );
