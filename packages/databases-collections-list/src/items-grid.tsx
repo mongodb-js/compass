@@ -27,8 +27,8 @@ type Item = { _id: string } & Record<string, any>;
 const rowStyles = css({
   paddingLeft: spacing[400],
   paddingRight: spacing[400],
-  paddingBottom: spacing[200],
-  // paddingTop: spacing[100],
+  paddingBottom: spacing[100],
+  paddingTop: spacing[100],
   columnGap: spacing[200],
 });
 
