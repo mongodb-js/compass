@@ -13,7 +13,6 @@ import {
   spacing,
 } from '@mongodb-js/compass-components';
 
-import type { ValidatedFakerSchema } from './types';
 import { type MockDataGeneratorState, MockDataGeneratorStep } from './types';
 import { StepButtonLabelMap } from './constants';
 import type { CollectionState } from '../../modules/collection-tab';

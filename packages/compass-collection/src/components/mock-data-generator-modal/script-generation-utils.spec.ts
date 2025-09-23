@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { faker } from '@faker-js/faker/locale/en';
 import { generateScript, generateDocument } from './script-generation-utils';
-import type { ValidatedFakerSchemaMapping, FakerFieldMapping } from './types';
+import type { FakerFieldMapping } from './types';
 
 /**
  * Helper function to test that generated document code is executable
@@ -1255,31 +1255,39 @@ describe('Script Generation', () => {
   });
 
   describe('generateDocument', () => {
-    const createValidatedSchemaMapping = (
-      fieldPath: string,
-      fakerMethod: string,
-      mongoType: string = 'String',
-      fakerArgs: any[] = []
-    ) =>
-      ({
-        fieldPath,
-        fakerMethod,
-        mongoType,
-        fakerArgs,
-      } as ValidatedFakerSchemaMapping);
-
     it('should generate document with simple flat fields of mixed types', () => {
-      const schema: ValidatedFakerSchemaMapping[] = [
-        createValidatedSchemaMapping('name', 'person.fullName'),
-        createValidatedSchemaMapping('age', 'number.int', 'Number'),
-        createValidatedSchemaMapping('isActive', 'datatype.boolean', 'Boolean'),
-        createValidatedSchemaMapping('createdAt', 'date.recent', 'Date'),
-        createValidatedSchemaMapping(
-          '_id',
-          'database.mongodbObjectId',
-          'ObjectId'
-        ),
-      ];
+      const schema = {
+        name: {
+          mongoType: 'String' as const,
+          fakerMethod: 'person.fullName',
+          fakerArgs: [],
+          probability: 1.0,
+        },
+        age: {
+          mongoType: 'Number' as const,
+          fakerMethod: 'number.int',
+          fakerArgs: [],
+          probability: 1.0,
+        },
+        isActive: {
+          mongoType: 'Boolean' as const,
+          fakerMethod: 'datatype.boolean',
+          fakerArgs: [],
+          probability: 1.0,
+        },
+        createdAt: {
+          mongoType: 'Date' as const,
+          fakerMethod: 'date.recent',
+          fakerArgs: [],
+          probability: 1.0,
+        },
+        _id: {
+          mongoType: 'ObjectId' as const,
+          fakerMethod: 'database.mongodbObjectId',
+          fakerArgs: [],
+          probability: 1.0,
+        },
+      };
 
       const document = generateDocument(schema);
 
@@ -1297,19 +1305,26 @@ describe('Script Generation', () => {
     });
 
     it('should generate document with multi-dimensional arrays of mixed types', () => {
-      const schema: ValidatedFakerSchemaMapping[] = [
-        createValidatedSchemaMapping(
-          'numberMatrix[][]',
-          'number.int',
-          'Number'
-        ),
-        createValidatedSchemaMapping('stringMatrix[][]', 'lorem.word'),
-        createValidatedSchemaMapping(
-          'booleanGrid[][]',
-          'datatype.boolean',
-          'Boolean'
-        ),
-      ];
+      const schema = {
+        'numberMatrix[][]': {
+          mongoType: 'Number' as const,
+          fakerMethod: 'number.int',
+          fakerArgs: [],
+          probability: 1.0,
+        },
+        'stringMatrix[][]': {
+          mongoType: 'String' as const,
+          fakerMethod: 'lorem.word',
+          fakerArgs: [],
+          probability: 1.0,
+        },
+        'booleanGrid[][]': {
+          mongoType: 'Boolean' as const,
+          fakerMethod: 'datatype.boolean',
+          fakerArgs: [],
+          probability: 1.0,
+        },
+      };
 
       const arrayLengthMap = {
         numberMatrix: [2, 3],
@@ -1337,27 +1352,44 @@ describe('Script Generation', () => {
     });
 
     it('should handle complex nested structures with arrays and objects', () => {
-      const schema: ValidatedFakerSchemaMapping[] = [
-        createValidatedSchemaMapping('company.name', 'company.name'),
-        createValidatedSchemaMapping(
-          'company.employees[].name',
-          'person.fullName'
-        ),
-        createValidatedSchemaMapping(
-          'company.employees[].email',
-          'internet.email'
-        ),
-        createValidatedSchemaMapping(
-          'company.employees[].skills[]',
-          'lorem.word'
-        ),
-        createValidatedSchemaMapping('company.founded', 'date.past', 'Date'),
-        createValidatedSchemaMapping(
-          'company.isActive',
-          'datatype.boolean',
-          'Boolean'
-        ),
-      ];
+      const schema = {
+        'company.name': {
+          mongoType: 'String' as const,
+          fakerMethod: 'company.name',
+          fakerArgs: [],
+          probability: 1.0,
+        },
+        'company.employees[].name': {
+          mongoType: 'String' as const,
+          fakerMethod: 'person.fullName',
+          fakerArgs: [],
+          probability: 1.0,
+        },
+        'company.employees[].email': {
+          mongoType: 'String' as const,
+          fakerMethod: 'internet.email',
+          fakerArgs: [],
+          probability: 1.0,
+        },
+        'company.employees[].skills[]': {
+          mongoType: 'String' as const,
+          fakerMethod: 'lorem.word',
+          fakerArgs: [],
+          probability: 1.0,
+        },
+        'company.founded': {
+          mongoType: 'Date' as const,
+          fakerMethod: 'date.past',
+          fakerArgs: [],
+          probability: 1.0,
+        },
+        'company.isActive': {
+          mongoType: 'Boolean' as const,
+          fakerMethod: 'datatype.boolean',
+          fakerArgs: [],
+          probability: 1.0,
+        },
+      };
 
       const document = generateDocument(schema);
 
