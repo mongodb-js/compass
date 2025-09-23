@@ -13,9 +13,10 @@ import {
   PreferencesProvider,
 } from 'compass-preferences-model/provider';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
+import type { DatabaseProps } from 'mongodb-database-model';
 
 function createDatabase(name) {
-  return {
+  const db: Partial<DatabaseProps> = {
     _id: name,
     name: name,
     status: 'ready' as const,
@@ -28,13 +29,18 @@ function createDatabase(name) {
     inferred_from_privileges: false,
     // dbStats
     document_count: 10,
-    storage_size: 1500,
-    free_storage_size: 0,
-    calculated_storage_size: 1500,
+    storage_size: 2500,
+    free_storage_size: 1000,
     data_size: 1000,
     index_count: 25,
     index_size: 100,
   };
+
+  if (db.storage_size !== undefined && db.free_storage_size !== undefined) {
+    db.calculated_storage_size = db.storage_size - db.free_storage_size;
+  }
+
+  return db;
 }
 
 function createCollection(name, props: any = {}) {
