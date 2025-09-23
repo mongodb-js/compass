@@ -389,16 +389,14 @@ class Application {
       }, SAVE_DEBOUNCE_DELAY);
     };
 
+    // Restore saved zoom level
     const restoreZoomLevel = () => {
       try {
         const preferences = defaultPreferencesInstance.getPreferences();
         const savedZoomLevel = preferences.zoomLevel ?? ZOOM_DEFAULT;
 
-        // Clamp zoom level to allowed range
-        const zoomLevel = Math.min(
-          Math.max(savedZoomLevel, ZOOM_MIN),
-          ZOOM_MAX
-        );
+        // Use saved zoom level only if it's within valid range
+        const zoomLevel = Math.min(Math.max(savedZoomLevel, ZOOM_MIN), ZOOM_MAX);
 
         webFrame.setZoomLevel(zoomLevel);
       } catch {
