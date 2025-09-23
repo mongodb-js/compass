@@ -65,7 +65,7 @@
     "hadron-document": "^8.10.2",
     "mongodb": "^6.19.0",
     "mongodb-collection-model": "^5.34.2",
-    "mongodb-ns": "^2.4.2",
+    "mongodb-ns": "^3.0.1",
     "mongodb-schema": "^12.6.2",
     "react": "^17.0.2",
     "react-redux": "^8.1.3",
