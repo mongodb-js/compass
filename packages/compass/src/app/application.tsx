@@ -367,7 +367,7 @@ class Application {
     const ZOOM_INCREMENT = 0.5;
     const ZOOM_MAX = 5;
     const ZOOM_MIN = -3;
-    const SAVE_DEBOUNCE_DELAY = 500; // 300ms delay for save operations
+    const SAVE_DEBOUNCE_DELAY = 500; // 500ms delay for save operations
 
     // Debounced save zoom level to preferences
     let saveTimeout: NodeJS.Timeout | null = null;
