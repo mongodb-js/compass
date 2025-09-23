@@ -1,11 +1,20 @@
 import type { Document } from 'mongodb';
 import type { MongoDBFieldType } from '@mongodb-js/compass-generative-ai';
 import type { FakerFieldMapping, FakerArg } from './types';
+import type { SampleValue } from '../../schema-analysis-types';
 
 import { faker } from '@faker-js/faker/locale/en';
 
 const DEFAULT_ARRAY_LENGTH = 3;
 const INDENT_SIZE = 2;
+
+/**
+ * Type representing the possible values that can be stored in a generated array. This includes:
+ * - Primitive values
+ * - MongoDB documents (objects)
+ * - Nested arrays (for multi-dimensional arrays)
+ */
+type ArrayElementValue = SampleValue | Document | ArrayElementValue[];
 
 // Array length configuration for different array types
 export type ArrayLengthMap = {
@@ -674,7 +683,7 @@ function constructArrayValues(
   fieldName: string = '',
   arrayLengthMap: ArrayLengthMap = {},
   dimensionIndex: number = 0
-): Document[] {
+): ArrayElementValue[] {
   const elementType = arrayStructure.elementType;
 
   // Get array length for this dimension (same logic as renderArrayCode)
@@ -689,7 +698,7 @@ function constructArrayValues(
     arrayLength = arrayInfo.length ?? DEFAULT_ARRAY_LENGTH;
   }
 
-  const result: any[] = [];
+  const result: ArrayElementValue[] = [];
   for (let i = 0; i < arrayLength; i++) {
     if ('mongoType' in elementType) {
       // Array of primitives
