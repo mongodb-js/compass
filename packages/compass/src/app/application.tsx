@@ -392,13 +392,7 @@ class Application {
       try {
         const preferences = defaultPreferencesInstance.getPreferences();
         const zoomLevel = preferences.zoomLevel ?? ZOOM_DEFAULT;
-        if (typeof zoomLevel === 'number') {
-          const validZoomLevel = Math.min(
-            Math.max(zoomLevel, ZOOM_MIN),
-            ZOOM_MAX
-          );
-          webFrame.setZoomLevel(validZoomLevel);
-        }
+        webFrame.setZoomLevel(zoomLevel);
       } catch {
         // noop
       }
