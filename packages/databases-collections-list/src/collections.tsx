@@ -133,7 +133,11 @@ const CollectionsList: React.FunctionComponent<{
                         : 'N/A',
                     hint:
                       coll.calculated_storage_size !== undefined &&
-                      'Storage Data: Disk space allocated to this collection for document storage.',
+                      coll.storage_size !== undefined &&
+                      coll.free_storage_size !== undefined &&
+                      'Storage Data: Disk space allocated to this collection for document storage.\n' +
+                        `Total storage: ${compactBytes(coll.storage_size)}\n` +
+                        `Free storage: ${compactBytes(coll.free_storage_size)}`,
                   },
                   {
                     label: 'Uncompressed data',
