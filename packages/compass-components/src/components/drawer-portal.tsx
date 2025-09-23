@@ -288,14 +288,17 @@ export const DrawerAnchor: React.FunctionComponent = ({ children }) => {
       }
 
       function check() {
+        if (!drawerEl) {
+          return;
+        }
         const nodes: Record<string, HTMLButtonElement | undefined> = {};
-        for (const [index, item] of toolbarData.entries()) {
+        for (const item of toolbarData) {
           if (!item.guideCue) {
             continue;
           }
 
-          const button = document.querySelector<HTMLButtonElement>(
-            `[data-testid="lg-drawer-toolbar-icon_button-${index}"]`
+          const button = drawerEl.querySelector<HTMLButtonElement>(
+            `button[aria-label="${item.label}"]`
           );
           if (button) {
             nodes[item.id] = button;
