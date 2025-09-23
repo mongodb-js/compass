@@ -76,12 +76,17 @@ const DatabasesList: React.FunctionComponent<{
               {
                 label: 'Storage',
                 value:
-                  enableDbAndCollStats && db.storage_size !== undefined
-                    ? compactBytes(db.storage_size)
+                  enableDbAndCollStats &&
+                  db.calculated_storage_size !== undefined
+                    ? compactBytes(db.calculated_storage_size)
                     : 'N/A',
                 hint:
                   enableDbAndCollStats &&
-                  'Storage Data: Sum of the disk space allocated to all collections in the database for document storage.',
+                  db.storage_size !== undefined &&
+                  db.free_storage_size !== undefined &&
+                  'Storage Data: Disk space allocated to all collections in the database for document storage.\n' +
+                    `Total storage: ${compactBytes(db.storage_size)}\n` +
+                    `Free storage: ${compactBytes(db.free_storage_size)}`,
               },
               {
                 label: 'Uncompressed data',

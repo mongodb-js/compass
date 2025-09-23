@@ -29,6 +29,8 @@ function createDatabase(name) {
     // dbStats
     document_count: 10,
     storage_size: 1500,
+    free_storage_size: 0,
+    calculated_storage_size: 1500,
     data_size: 1000,
     index_count: 25,
     index_size: 100,

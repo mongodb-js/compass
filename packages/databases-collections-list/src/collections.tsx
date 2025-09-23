@@ -133,7 +133,7 @@ const CollectionsList: React.FunctionComponent<{
                         : 'N/A',
                     hint:
                       coll.calculated_storage_size !== undefined &&
-                      'Storage Data: Sum of the disk space allocated to all collections in the database for document storage.',
+                      'Storage Data: Disk space allocated to this collection for document storage.',
                   },
                   {
                     label: 'Uncompressed data',
@@ -143,7 +143,7 @@ const CollectionsList: React.FunctionComponent<{
                         : 'N/A',
                     hint:
                       coll.document_size !== undefined &&
-                      'Uncompressed Data Size: Total size of the uncompressed data held in the database.',
+                      'Uncompressed Data Size: Total size of the uncompressed data held in this collection.',
                   },
                 ]
               : [
@@ -155,7 +155,7 @@ const CollectionsList: React.FunctionComponent<{
                         : 'N/A',
                     hint:
                       coll.calculated_storage_size !== undefined &&
-                      'Storage Data: Sum of the disk space allocated to all collections in the database for document storage.',
+                      'Storage Data: Disk space allocated to this collection for document storage.',
                   },
                   {
                     label: 'Uncompressed data',
@@ -165,7 +165,7 @@ const CollectionsList: React.FunctionComponent<{
                         : 'N/A',
                     hint:
                       coll.document_size !== undefined &&
-                      'Uncompressed Data Size: Total size of the uncompressed data held in the database.',
+                      'Uncompressed Data Size: Total size of the uncompressed data held in this collection.',
                   },
                   {
                     label: 'Documents',

@@ -96,9 +96,13 @@ export type DbStats = {
   avgObjSize: number;
   dataSize: number;
   storageSize: number;
+  freeStorageSize?: number;
   numExtents: number;
   indexes: number;
   indexSize: number;
+  indexFreeStorageSize?: number;
+  totalSize?: number;
+  totalFreeStorageSize?: number;
   scaleFactor: number;
   fsUsedSize: number;
   fsTotalSize: number;

@@ -93,7 +93,7 @@ import {
   createClonedClient,
 } from './connect-mongo-client';
 import type { CollectionStats } from './types';
-import type { ConnectionStatusWithPrivileges } from './run-command';
+import type { ConnectionStatusWithPrivileges, DbStats } from './run-command';
 import { runCommand } from './run-command';
 import type { CSFLECollectionTracker } from './csfle-collection-tracker';
 import { CSFLECollectionTrackerImpl } from './csfle-collection-tracker';
@@ -2808,7 +2808,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
     const db = this._database(name, 'META');
     const stats = await runCommand(
       db,
-      { dbStats: 1 },
+      { dbStats: 1, freeStorage: 1 },
       {
         enableUtf8Validation: false,
         ...maybeOverrideReadPreference(
@@ -2817,7 +2817,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
         ),
       }
     );
-    const normalized = adaptDatabaseInfo(stats);
+    const normalized = adaptDatabaseInfo(stats as unknown as DbStats);
     return { name, ...normalized };
   }
 
