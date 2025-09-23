@@ -391,7 +391,16 @@ class Application {
     const restoreZoomLevel = () => {
       try {
         const preferences = defaultPreferencesInstance.getPreferences();
-        const zoomLevel = preferences.zoomLevel ?? ZOOM_DEFAULT;
+        const savedZoomLevel = preferences.zoomLevel ?? ZOOM_DEFAULT;
+
+        // Use saved zoom level only if it's within valid range
+        const zoomLevel =
+          savedZoomLevel >= ZOOM_MIN && savedZoomLevel <= ZOOM_MAX
+            ? savedZoomLevel
+            : ZOOM_DEFAULT;
+
+        console.log('Restoring zoom level to', zoomLevel);
+
         webFrame.setZoomLevel(zoomLevel);
       } catch {
         // noop
