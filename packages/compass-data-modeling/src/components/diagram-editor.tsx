@@ -334,11 +334,10 @@ const DiagramContent: React.FunctionComponent<{
             className={dataInfoBannerStyles}
             data-testid="data-info-banner"
           >
-            <h4>Worried about your data?</h4>
+            <h4>Questions about your data?</h4>
             This diagram was generated based on a sample of documents from{' '}
-            {database ?? 'a database'}. Changes made to the model here persist
-            in the diagram for planning purposes only and will not impact your
-            data.
+            {database ?? 'a database'}. Changes made to the diagram will not
+            impact your data
           </Banner>
         )}
         <Diagram
