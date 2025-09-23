@@ -55,27 +55,17 @@ export const Breadcrumbs = ({
   items,
   className,
 }: {
-  items: Array<BreadcrumbItem>;
+  items:
+    | BreadcrumbItem[]
+    | [...BreadcrumbItem[], Omit<BreadcrumbItem, 'onClick'>];
   className?: string;
 }) => {
   const darkMode = useDarkMode();
+  const lastItem = items[items.length - 1];
+  const clickableItems = items.slice(0, -1) as BreadcrumbItem[];
   return (
     <div className={cx(breadcrumbStyles, className)} data-testid="breadcrumbs">
-      {items.map((item, index) => {
-        const isLast = index === items.length - 1;
-        if (isLast) {
-          return (
-            <Body
-              key={[index, item.name].join('')}
-              className={cx(
-                textStyles,
-                darkMode ? lastItemStylesDark : lastItemStylesLight
-              )}
-            >
-              {item.name}
-            </Body>
-          );
-        }
+      {clickableItems.map((item) => {
         return (
           <Fragment key={item.name}>
             <Link
@@ -103,6 +93,15 @@ export const Breadcrumbs = ({
           </Fragment>
         );
       })}
+      <Body
+        key={[items.length - 1, lastItem.name].join('')}
+        className={cx(
+          textStyles,
+          darkMode ? lastItemStylesDark : lastItemStylesLight
+        )}
+      >
+        {lastItem.name}
+      </Body>
     </div>
   );
 };
