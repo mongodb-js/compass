@@ -370,19 +370,21 @@ class Application {
     const SAVE_DEBOUNCE_DELAY = 500; // 500ms delay for save operations
 
     // Debounced save zoom level to preferences
-    let saveTimeout: NodeJS.Timeout | null = null;
+    let saveTimeoutId: NodeJS.Timeout | null = null;
     const debouncedSaveZoomLevel = (zoomLevel: number) => {
-      if (saveTimeout) {
-        clearTimeout(saveTimeout);
+      if (saveTimeoutId) {
+        clearTimeout(saveTimeoutId);
       }
 
-      saveTimeout = setTimeout(async () => {
+      saveTimeoutId = setTimeout(async () => {
         try {
           await defaultPreferencesInstance.savePreferences({
             zoomLevel,
           });
         } catch {
           // noop
+        } finally {
+          saveTimeoutId = null;
         }
       }, SAVE_DEBOUNCE_DELAY);
     };
