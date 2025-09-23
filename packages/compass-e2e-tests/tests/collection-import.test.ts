@@ -1320,8 +1320,14 @@ describe('Collection import', function () {
 
   describe('aborting an import', function () {
     it('aborts an in progress CSV import', async function () {
-      // 16116 documents.
-      const csvPath = path.resolve(__dirname, '..', 'fixtures', 'listings.csv');
+      // 279712 documents, so this should take a while to import, giving us lots
+      // of time to disconnect in time.
+      const csvPath = path.resolve(
+        __dirname,
+        '..',
+        'fixtures',
+        'listings-large.csv'
+      );
 
       await browser.navigateToCollectionTab(
         DEFAULT_CONNECTION_NAME_1,
@@ -1389,12 +1395,13 @@ describe('Collection import', function () {
     });
 
     it('aborts an in progress JSON import', async function () {
-      // 16116 documents.
+      // 279712 documents, so this should take a while to import, giving us lots
+      // of time to disconnect in time.
       const jsonPath = path.resolve(
         __dirname,
         '..',
         'fixtures',
-        'listings.json'
+        'listings-large.json'
       );
 
       await browser.navigateToCollectionTab(
@@ -1459,8 +1466,14 @@ describe('Collection import', function () {
     });
 
     it('aborts when disconnected', async function () {
-      // 16116 documents.
-      const csvPath = path.resolve(__dirname, '..', 'fixtures', 'listings.csv');
+      // 279712 documents, so this should take a while to import, giving us lots
+      // of time to disconnect in time.
+      const csvPath = path.resolve(
+        __dirname,
+        '..',
+        'fixtures',
+        'listings-large.csv'
+      );
 
       await browser.navigateToCollectionTab(
         DEFAULT_CONNECTION_NAME_1,

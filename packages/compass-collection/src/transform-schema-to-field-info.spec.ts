@@ -1105,4 +1105,89 @@ describe('processSchema', function () {
       },
     });
   });
+
+  /**
+   * Verifies malformed field paths can be caught by bugs in the construction logic.
+   * These are unlikely to occur with valid `Schema` inputs to `processSchema`.
+   */
+  describe('validateFieldPath error conditions', function () {
+    it('throws error for empty field parts', function () {
+      const schema: Schema = {
+        fields: [
+          {
+            name: 'parent',
+            path: ['parent'],
+            count: 1,
+            type: ['Document'],
+            probability: 1.0,
+            hasDuplicates: false,
+            types: [
+              {
+                name: 'Document',
+                bsonType: 'Document',
+                path: ['parent'],
+                count: 1,
+                probability: 1.0,
+                fields: [
+                  {
+                    name: '', // Empty field name
+                    path: ['parent', ''],
+                    count: 1,
+                    type: ['String'],
+                    probability: 1.0,
+                    hasDuplicates: false,
+                    types: [
+                      {
+                        name: 'String',
+                        bsonType: 'String',
+                        path: ['parent', ''],
+                        count: 1,
+                        probability: 1.0,
+                        values: ['test'],
+                      },
+                    ],
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+        count: 1,
+      };
+
+      expect(() => processSchema(schema)).to.throw(
+        "invalid fieldPath 'parent.': field parts cannot be empty"
+      );
+    });
+
+    it('throws error for a field part that only contains "[]"', function () {
+      const schema: Schema = {
+        fields: [
+          {
+            name: '[]', // Field name is just "[]"
+            path: ['[]'],
+            count: 1,
+            type: ['String'],
+            probability: 1.0,
+            hasDuplicates: false,
+            types: [
+              {
+                name: 'String',
+                bsonType: 'String',
+                path: ['[]'],
+                count: 1,
+                probability: 1.0,
+                values: ['test'],
+              },
+            ],
+          },
+        ],
+        count: 1,
+      };
+
+      expect(() => processSchema(schema)).to.throw(
+        "invalid fieldPath '[]': field parts must have characters other than '[]'"
+      );
+    });
+  });
 });

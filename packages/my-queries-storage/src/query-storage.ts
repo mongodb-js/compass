@@ -23,6 +23,7 @@ export interface FavoriteQueryStorage
     data: Omit<
       z.input<typeof FavoriteQuerySchema>,
       '_id' | '_lastExecuted' | '_dateModified' | '_dateSaved'
-    >
+    >,
+    id?: string
   ): Promise<void>;
 }

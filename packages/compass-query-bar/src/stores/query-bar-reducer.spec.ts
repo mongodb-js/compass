@@ -216,7 +216,7 @@ describe('queryBarReducer', function () {
         .deep.eq(appliedQuery);
 
       // updateAttributes is called in saveRecentAsFavorite and updateFavoriteQuery
-      expect(updateAttributesStub).to.have.been.calledTwice;
+      expect(updateAttributesStub).to.have.been.calledOnce;
       expect(saveQueriesStub).not.to.have.been.calledTwice;
     });
   });

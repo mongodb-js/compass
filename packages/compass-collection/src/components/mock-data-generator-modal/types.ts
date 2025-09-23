@@ -1,4 +1,6 @@
 import type { MockDataSchemaResponse } from '@mongodb-js/compass-generative-ai';
+import type { MongoDBFieldType } from '@mongodb-js/compass-generative-ai';
+import type { FakerArg } from './script-generation-utils';
 
 export enum MockDataGeneratorStep {
   SCHEMA_CONFIRMATION = 'SCHEMA_CONFIRMATION',
@@ -19,7 +21,7 @@ type MockDataGeneratorInProgressState = {
 
 type MockDataGeneratorCompletedState = {
   status: 'completed';
-  fakerSchema: MockDataSchemaResponse;
+  fakerSchema: FakerSchema;
   requestId: string;
 };
 
@@ -34,3 +36,14 @@ export type MockDataGeneratorState =
   | MockDataGeneratorInProgressState
   | MockDataGeneratorCompletedState
   | MockDataGeneratorErrorState;
+
+export type LlmFakerMapping = MockDataSchemaResponse['fields'][number];
+
+export interface FakerFieldMapping {
+  mongoType: MongoDBFieldType;
+  fakerMethod: string;
+  fakerArgs: FakerArg[];
+  probability?: number; // 0.0 - 1.0 frequency of field (defaults to 1.0)
+}
+
+export type FakerSchema = Record<string, FakerFieldMapping>;
