@@ -17,9 +17,9 @@ function renderPopover(
       hideCloseButton={props?.hideCloseButton}
       customFocusTrapFallback={`#${innerContentTestId}`}
       setOpen={() => {}}
-      trigger={({ onClick, ref, children }) => (
+      trigger={({ onClick, children }) => (
         <>
-          <button type="button" onClick={onClick} ref={ref}>
+          <button type="button" onClick={onClick}>
             Trigger Button Text
           </button>
           {children}
