@@ -396,10 +396,7 @@ class Application {
         const savedZoomLevel = preferences.zoomLevel ?? ZOOM_DEFAULT;
 
         // Use saved zoom level only if it's within valid range
-        const zoomLevel =
-          savedZoomLevel >= ZOOM_MIN && savedZoomLevel <= ZOOM_MAX
-            ? savedZoomLevel
-            : ZOOM_DEFAULT;
+        const zoomLevel = Math.min(Math.max(savedZoomLevel, ZOOM_MIN), ZOOM_MAX);
 
         webFrame.setZoomLevel(zoomLevel);
       } catch {
