@@ -2808,7 +2808,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
     const db = this._database(name, 'META');
     const stats = await runCommand(
       db,
-      { dbStats: 1 },
+      { dbStats: 1, freeStorage: 1 },
       {
         enableUtf8Validation: false,
         ...maybeOverrideReadPreference(

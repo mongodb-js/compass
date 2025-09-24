@@ -13,9 +13,10 @@ import {
   PreferencesProvider,
 } from 'compass-preferences-model/provider';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
+import type { DatabaseProps } from 'mongodb-database-model';
 
 function createDatabase(name) {
-  return {
+  const db: Partial<DatabaseProps> = {
     _id: name,
     name: name,
     status: 'ready' as const,
@@ -28,11 +29,18 @@ function createDatabase(name) {
     inferred_from_privileges: false,
     // dbStats
     document_count: 10,
-    storage_size: 1500,
+    storage_size: 2500,
+    free_storage_size: 1000,
     data_size: 1000,
     index_count: 25,
     index_size: 100,
   };
+
+  if (db.storage_size !== undefined && db.free_storage_size !== undefined) {
+    db.calculated_storage_size = db.storage_size - db.free_storage_size;
+  }
+
+  return db;
 }
 
 function createCollection(name, props: any = {}) {
@@ -151,8 +159,10 @@ describe('databases and collections list', function () {
       expect(screen.getAllByTestId('database-grid-item')).to.have.lengthOf(1);
       expect(screen.getByText('foo')).to.exist;
 
-      expect(screen.getByText(/Storage size/)).to.exist;
+      expect(screen.getByText(/Storage/)).to.exist;
       expect(screen.getByText('1.50 kB')).to.exist;
+      expect(screen.getByText(/Uncompressed data/)).to.exist;
+      expect(screen.getByText('1.00 kB')).to.exist;
       expect(screen.getByText(/Collections/)).to.exist;
       expect(screen.getByText('35')).to.exist;
       expect(screen.getByText(/Indexes/)).to.exist;
@@ -249,7 +259,7 @@ describe('databases and collections list', function () {
       ]);
     });
 
-    it('should not display statistics (except storage size) on timeseries collection card', function () {
+    it('should not display statistics (except storage and uncompressed data size) on timeseries collection card', function () {
       renderCollectionsList({
         namespace: 'db',
         collections: colls,
@@ -260,7 +270,8 @@ describe('databases and collections list', function () {
         .getByText('bat.bat')
         .closest('[data-testid="collection-grid-item"]');
       expect(timeseriesCard).to.exist;
-      expect(timeseriesCard).to.contain.text('Storage size:');
+      expect(timeseriesCard).to.contain.text('Storage:');
+      expect(timeseriesCard).to.contain.text('Uncompressed data:');
       expect(timeseriesCard).to.not.contain.text('Documents:');
       expect(timeseriesCard).to.not.contain.text('Avg. document size::');
       expect(timeseriesCard).to.not.contain.text('Indexes:');
@@ -278,8 +289,10 @@ describe('databases and collections list', function () {
         onCollectionClick: () => {},
       });
 
-      expect(screen.getByText(/Storage size/)).to.exist;
+      expect(screen.getByText(/Storage/)).to.exist;
       expect(screen.getByText('1.50 kB')).to.exist;
+      expect(screen.getByText(/Uncompressed data/)).to.exist;
+      expect(screen.getByText('11.00 B')).to.exist;
       expect(screen.getByText(/Documents/)).to.exist;
       expect(screen.getByText('10')).to.exist;
       expect(screen.getByText(/Avg. document size/)).to.exist;
