@@ -69,7 +69,6 @@ const MockDataGeneratorModal = ({
   const [isSchemaConfirmed, setIsSchemaConfirmed] =
     React.useState<boolean>(false);
 
-  // Extract array length map for dependency array
   const arrayLengthMap = useMemo(() => {
     return schemaAnalysis?.status === SCHEMA_ANALYSIS_STATE_COMPLETE
       ? schemaAnalysis.arrayLengthMap
@@ -93,20 +92,18 @@ const MockDataGeneratorModal = ({
       case MockDataGeneratorStep.PREVIEW_DATA:
         return <></>; // TODO: CLOUDP-333857
       case MockDataGeneratorStep.GENERATE_DATA:
-        // Only render ScriptScreen if we have completed faker schema and schema analysis
-        if (
-          fakerSchemaGenerationState.status === 'completed' &&
-          schemaAnalysis?.status === SCHEMA_ANALYSIS_STATE_COMPLETE
-        ) {
+        // UX flow ensures faker schema is completed, but TypeScript needs the guard
+        if (fakerSchemaGenerationState.status === 'completed') {
           return (
             <ScriptScreen
               fakerSchema={fakerSchemaGenerationState.fakerSchema}
               namespace={namespace}
               arrayLengthMap={arrayLengthMap}
-              documentCount={100} // TODO: Get from document count step
+              documentCount={100} // TODO(CLOUDP-333856): Get from document count step
             />
           );
         }
+        // Should never happen, but needed for TypeScript guard
         return <div>Loading script...</div>;
     }
   }, [
@@ -114,7 +111,6 @@ const MockDataGeneratorModal = ({
     fakerSchemaGenerationState,
     isSchemaConfirmed,
     namespace,
-    schemaAnalysis?.status,
     arrayLengthMap,
   ]);
 
