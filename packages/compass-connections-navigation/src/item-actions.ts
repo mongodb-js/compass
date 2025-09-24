@@ -199,7 +199,7 @@ export const collectionItemActions = ({
   type: 'collection' | 'view' | 'timeseries';
   isRenameCollectionEnabled: boolean;
 }): NavigationItemActions => {
-  const actions: NavigationItemActions = [
+  const actions: NullableNavigationItemActions = [
     {
       action: 'open-in-new-tab',
       label: 'Open in new tab',
@@ -208,30 +208,34 @@ export const collectionItemActions = ({
   ];
 
   if (hasWriteActionsDisabled) {
-    return actions;
+    return stripNullActions(actions);
   }
 
-  if (canEditCollection && type === 'view') {
+  if (type === 'view') {
     actions.push({ separator: true });
     actions.push(
-      {
-        action: 'drop-collection',
-        label: 'Drop view',
-        icon: 'Trash',
-      },
+      canEditCollection
+        ? {
+            action: 'drop-collection',
+            label: 'Drop view',
+            icon: 'Trash',
+          }
+        : null,
       {
         action: 'duplicate-view',
         label: 'Duplicate view',
         icon: 'Copy',
       },
-      {
-        action: 'modify-view',
-        label: 'Modify view',
-        icon: 'Edit',
-      }
+      canEditCollection
+        ? {
+            action: 'modify-view',
+            label: 'Modify view',
+            icon: 'Edit',
+          }
+        : null
     );
 
-    return actions;
+    return stripNullActions(actions);
   }
 
   if (type !== 'timeseries' && canEditCollection && isRenameCollectionEnabled) {
@@ -251,7 +255,7 @@ export const collectionItemActions = ({
     });
   }
 
-  return actions;
+  return stripNullActions(actions);
 };
 
 export const connectionContextMenuActions = ({
