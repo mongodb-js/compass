@@ -139,7 +139,11 @@ const ScriptScreen = ({
             schema.
           </Banner>
         )}
-        <Code copyable={scriptResult.success} language={Language.JavaScript}>
+        <Code
+          copyable={scriptResult.success}
+          language={Language.JavaScript}
+          style={{ maxHeight: '230px', overflowY: 'auto' }}
+        >
           {scriptResult.success
             ? scriptResult.script
             : '// Script generation failed.'}
