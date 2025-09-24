@@ -134,6 +134,8 @@ const messageFeedFixesStyles = css({
   display: 'flex',
   flexDirection: 'column-reverse',
   overflowY: 'auto',
+  width: '100%',
+  wordBreak: 'break-word',
   flex: 1,
   padding: spacing[400],
   gap: spacing[400],
