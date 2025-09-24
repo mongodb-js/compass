@@ -205,9 +205,8 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
   const darkMode = useDarkMode();
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const previousLastMessageId = useRef<string | undefined>(undefined);
-  const lastMessageId = chat.messages[chat.messages.length - 1]?.id;
-  const lastMessageIsUser =
-    chat.messages[chat.messages.length - 1]?.role === 'user';
+  const { id: lastMessageId, role: lastMessageIsUser } =
+    chat.messages[chat.messages.length - 1];
 
   const { ensureOptInAndSend } = useContext(AssistantActionsContext);
   const { messages, status, error, clearError, setMessages } = useChat({
