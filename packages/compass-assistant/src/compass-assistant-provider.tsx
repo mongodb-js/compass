@@ -217,6 +217,7 @@ export const AssistantProvider: React.FunctionComponent<
     ),
     clearChat: async () => {
       await chat.stop();
+      chat.clearError();
       chat.messages = chat.messages.filter(
         (message) => message.metadata?.isPermanent
       );
