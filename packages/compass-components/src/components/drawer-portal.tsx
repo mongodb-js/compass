@@ -177,6 +177,9 @@ const drawerLayoutFixesStyles = css({
     // Anchor is currently rendered
     borderTop: 'none',
     borderBottom: 'none',
+
+    // Settings inline-size allows us to use @container queries inside the drawer section.
+    containerType: 'inline-size',
   },
 
   // drawer content > title content

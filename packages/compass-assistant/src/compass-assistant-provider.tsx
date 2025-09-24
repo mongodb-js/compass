@@ -77,7 +77,7 @@ type AssistantActionsContextType = {
     connectionInfo: ConnectionInfo;
     error: Error;
   }) => void;
-  clearChat?: () => void;
+  clearChat?: () => Promise<void>;
   tellMoreAboutInsight?: (context: ProactiveInsightsContext) => void;
   ensureOptInAndSend?: (
     message: SendMessage,
@@ -98,7 +98,7 @@ export const AssistantActionsContext =
     interpretExplainPlan: () => {},
     interpretConnectionError: () => {},
     tellMoreAboutInsight: () => {},
-    clearChat: () => {},
+    clearChat: async () => {},
     ensureOptInAndSend: async () => {},
   });
 
@@ -215,7 +215,8 @@ export const AssistantProvider: React.FunctionComponent<
       'performance insights',
       buildProactiveInsightsPrompt
     ),
-    clearChat: () => {
+    clearChat: async () => {
+      await chat.stop();
       chat.messages = chat.messages.filter(
         (message) => message.metadata?.isPermanent
       );

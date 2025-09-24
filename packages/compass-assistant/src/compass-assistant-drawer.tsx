@@ -25,6 +25,20 @@ const assistantTitleStyles = css({
   justifyContent: 'space-between',
 });
 
+const assistantTitleTextWrapperStyles = css({
+  display: 'flex',
+  alignItems: 'center',
+  flexWrap: 'wrap',
+  transition: 'transform 0.16s ease-in',
+
+  // Shrink the title text and badge when the drawer is narrow
+  '@container (width < 320px)': {
+    '&': {
+      transform: 'scale(0.8) translateX(-10%)',
+    },
+  },
+});
+
 const assistantTitleTextStyles = css({
   marginRight: spacing[200],
 });
@@ -55,7 +69,7 @@ export const CompassAssistantDrawer: React.FunctionComponent<{
       'data-testid': 'assistant-confirm-clear-chat-modal',
     });
     if (confirmed) {
-      clearChat?.();
+      await clearChat?.();
     }
   }, [clearChat]);
 
@@ -74,7 +88,7 @@ export const CompassAssistantDrawer: React.FunctionComponent<{
       id={ASSISTANT_DRAWER_ID}
       title={
         <div className={assistantTitleStyles}>
-          <div>
+          <div className={assistantTitleTextWrapperStyles}>
             <span className={assistantTitleTextStyles}>MongoDB Assistant</span>
             <Badge variant="blue">Preview</Badge>
           </div>
