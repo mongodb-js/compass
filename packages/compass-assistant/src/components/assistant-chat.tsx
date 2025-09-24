@@ -92,7 +92,8 @@ const assistantChatFixesStyles = css({
     marginTop: '4px',
   },
   blockquote: {
-    'line-height': 0,
+    // remove the 3x line height that these take up by default
+    lineHeight: 0,
     margin: 0,
     borderLeftWidth: spacing[100],
     borderLeftStyle: 'solid',
