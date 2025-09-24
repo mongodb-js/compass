@@ -423,7 +423,7 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
                   size="large"
                   style={{ color: palette.green.dark1 }}
                 />
-                <span>MongoDB Assistant.</span>
+                <span>MongoDB Assistant</span>
               </h4>
               <p className={welcomeTextStyles}>
                 Welcome to the MongoDB Assistant!
