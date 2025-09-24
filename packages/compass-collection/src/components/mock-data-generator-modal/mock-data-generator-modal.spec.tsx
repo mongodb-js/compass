@@ -1,4 +1,5 @@
 import { expect } from 'chai';
+import sinon from 'sinon';
 import React from 'react';
 import {
   screen,
@@ -18,6 +19,7 @@ import { default as collectionTabReducer } from '../../modules/collection-tab';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import type { MockDataSchemaResponse } from '@mongodb-js/compass-generative-ai';
 import type { SchemaAnalysisState } from '../../schema-analysis-types';
+import * as scriptGenerationUtils from './script-generation-utils';
 
 const defaultSchemaAnalysisState: SchemaAnalysisState = {
   status: 'complete',
@@ -765,7 +767,76 @@ describe('MockDataGeneratorModal', () => {
         .to.not.exist;
     });
 
-    // todo: assert that the generated script is displayed in the code block (CLOUDP-333860)
+    it('shows error banner when script generation fails', async () => {
+      // Mock the generateScript function to return an error
+      const generateScriptStub = sinon.stub(
+        scriptGenerationUtils,
+        'generateScript'
+      );
+      generateScriptStub.returns({
+        success: false,
+        error: 'Test error: Invalid faker schema format',
+      });
+
+      try {
+        await renderModal({
+          currentStep: MockDataGeneratorStep.GENERATE_DATA,
+          fakerSchemaGeneration: {
+            status: 'completed',
+            fakerSchema: {
+              name: {
+                fakerMethod: 'person.firstName',
+                fakerArgs: [],
+                probability: 1.0,
+                mongoType: 'String',
+              },
+            },
+            requestId: 'test-request-id',
+          },
+        });
+
+        expect(screen.getByRole('alert')).to.exist;
+        expect(screen.getByText(/Script Generation Failed:/)).to.exist;
+        expect(screen.getByText(/Test error: Invalid faker schema format/)).to
+          .exist;
+        expect(screen.getByText(/Please go back to the start screen/)).to.exist;
+
+        const codeBlock = screen.getByText('// Script generation failed.');
+        expect(codeBlock).to.exist;
+      } finally {
+        generateScriptStub.restore();
+      }
+    });
+
+    it('displays the script when generation succeeds', async () => {
+      await renderModal({
+        currentStep: MockDataGeneratorStep.GENERATE_DATA,
+        fakerSchemaGeneration: {
+          status: 'completed',
+          fakerSchema: {
+            name: {
+              fakerMethod: 'person.firstName',
+              fakerArgs: [],
+              probability: 1.0,
+              mongoType: 'String',
+            },
+            email: {
+              fakerMethod: 'internet.email',
+              fakerArgs: [],
+              probability: 1.0,
+              mongoType: 'String',
+            },
+          },
+          requestId: 'test-request-id',
+        },
+      });
+
+      // Check that no error banner is displayed
+      expect(screen.queryByRole('alert')).to.not.exist;
+      expect(screen.queryByText('Script generation failed')).to.not.exist;
+      expect(screen.getByText('firstName')).to.exist; // faker method
+      expect(screen.getByText('insertMany')).to.exist;
+    });
   });
 
   describe('when rendering the modal in a specific step', () => {
