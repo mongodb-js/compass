@@ -248,9 +248,8 @@ describe('AssistantChat', function () {
     userEvent.type(inputField, 'What is aggregation?');
     userEvent.click(sendButton);
 
-    expect(ensureOptInAndSendStub.called).to.be.true;
-
     await waitFor(() => {
+      expect(ensureOptInAndSendStub.called).to.be.true;
       expect(track).to.have.been.calledWith('Assistant Prompt Submitted', {
         user_input_length: 'What is aggregation?'.length,
       });
@@ -281,9 +280,8 @@ describe('AssistantChat', function () {
     userEvent.type(inputField, '  What is sharding?  ');
     userEvent.click(screen.getByLabelText('Send message'));
 
-    expect(ensureOptInAndSendStub.called).to.be.true;
-
     await waitFor(() => {
+      expect(ensureOptInAndSendStub.called).to.be.true;
       expect(track).to.have.been.calledWith('Assistant Prompt Submitted', {
         user_input_length: 'What is sharding?'.length,
       });
@@ -318,6 +316,48 @@ describe('AssistantChat', function () {
 
     // Check that they have different class names (indicating different styling)
     expect(userMessage.className).to.not.equal(assistantMessage.className);
+  });
+
+  it('scrolls to bottom when new message is added', async function () {
+    const { chat } = renderWithChat(mockMessages);
+
+    // Get the messages container element
+    const messagesContainer = screen.getByTestId('assistant-chat-messages');
+
+    // Add a message to trigger auto scroll
+    const newMessage: AssistantMessage = {
+      id: 'new-message',
+      role: 'user',
+      parts: [{ type: 'text', text: 'New message' }],
+    };
+
+    messagesContainer.scrollTop = 100;
+
+    chat.messages = [...chat.messages, newMessage];
+
+    await waitFor(() => {
+      expect(screen.getByTestId('assistant-message-new-message')).to.exist;
+    });
+
+    expect(messagesContainer.scrollTop).to.equal(0);
+  });
+
+  it('does not scroll to bottom when new message is added by assistant', async function () {
+    const { chat } = renderWithChat(mockMessages);
+
+    const messagesContainer = screen.getByTestId('assistant-chat-messages');
+    messagesContainer.scrollTop = 100;
+
+    chat.messages = [
+      ...chat.messages,
+      {
+        id: 'new-message',
+        role: 'assistant',
+        parts: [{ type: 'text', text: 'New message' }],
+      },
+    ];
+
+    expect(messagesContainer.scrollTop).to.equal(100);
   });
 
   it('handles messages with multiple text parts', function () {
