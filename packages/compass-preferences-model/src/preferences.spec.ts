@@ -236,6 +236,7 @@ describe('Preferences class', function () {
       },
       {
         readOnly: true,
+        readWrite: true,
         enableShell: false,
       },
     ]);
