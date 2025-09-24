@@ -17,6 +17,7 @@ import {
   useDarkMode,
   LgChatChatDisclaimer,
   Link,
+  Icon,
 } from '@mongodb-js/compass-components';
 import { ConfirmationMessage } from './confirmation-message';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
@@ -35,7 +36,9 @@ interface AssistantChatProps {
   hasNonGenuineConnections: boolean;
 }
 
-const assistantChatStyles = css({
+// TODO(COMPASS-9751): These are temporary patches to make the Assistant chat take the entire
+// width and height of the drawer since Leafygreen doesn't support this yet.
+const assistantChatFixesStyles = css({
   // Compass has a global bullet point override but we clear this for the chat.
   ul: {
     listStyleType: 'disc',
@@ -43,23 +46,7 @@ const assistantChatStyles = css({
   ol: {
     listStyleType: 'decimal',
   },
-});
 
-const headerStyleDarkModeFixes = css({
-  'h1, h2, h3, h4, h5, h6': {
-    color: palette.gray.light2,
-  },
-});
-
-const headerStyleLightModeFixes = css({
-  'h1, h2, h3, h4, h5, h6': {
-    color: palette.black,
-  },
-});
-
-// TODO(COMPASS-9751): These are temporary patches to make the Assistant chat take the entire
-// width and height of the drawer since Leafygreen doesn't support this yet.
-const assistantChatFixesStyles = css({
   // Remove extra padding
   '> div, > div > div, > div > div > div, > div > div > div': {
     height: '100%',
@@ -79,6 +66,8 @@ const assistantChatFixesStyles = css({
     fontSize: '13px',
     lineHeight: '15px',
     marginTop: '4px',
+    // DE has reset css that sets all font weights to 400
+    fontWeight: 700,
   },
   /** h1 -> h3 styling */
   h1: {
@@ -102,7 +91,45 @@ const assistantChatFixesStyles = css({
     lineHeight: '18px',
     marginTop: '4px',
   },
+  blockquote: {
+    // remove the 3x line height that these take up by default
+    lineHeight: 0,
+    margin: 0,
+    borderLeftWidth: spacing[100],
+    borderLeftStyle: 'solid',
+    padding: `0 0 0 ${spacing[200]}px`,
+
+    '> * + *': {
+      margin: `${spacing[400]}px 0 0`,
+    },
+  },
+  hr: {
+    // hr tags have no width when it is alone in a chat message because of the
+    // overall layout in chat where the chat bubble sizes to fit the content.
+    // The minimum width of the drawer sized down to the smallest size leaves
+    // 200px.
+    minWidth: '200px',
+  },
 });
+
+const assistantChatFixesDarkStyles = css({
+  'h1, h2, h3, h4, h5, h6': {
+    color: palette.gray.light2,
+  },
+  blockquote: {
+    borderLeftColor: palette.gray.light1,
+  },
+});
+
+const assistantChatFixesLightStyles = css({
+  'h1, h2, h3, h4, h5, h6': {
+    color: palette.black,
+  },
+  blockquote: {
+    borderLeftColor: palette.gray.dark1,
+  },
+});
+
 const messageFeedFixesStyles = css({
   display: 'flex',
   flexDirection: 'column-reverse',
@@ -130,13 +157,16 @@ const disclaimerTextStyles = css({
   paddingBottom: spacing[400],
   paddingLeft: spacing[400],
   paddingRight: spacing[400],
+  a: {
+    fontSize: 'inherit',
+  },
 });
 /** TODO(COMPASS-9751): This should be handled by Leafygreen's disclaimers update */
 const inputBarStyleFixes = css({
   width: '100%',
   paddingLeft: spacing[400],
   paddingRight: spacing[400],
-  paddingBottom: spacing[400],
+  paddingBottom: spacing[100],
 });
 
 function makeErrorMessage(message: string) {
@@ -152,6 +182,19 @@ const messagesWrapStyles = css({
   display: 'flex',
   flexDirection: 'column',
   gap: spacing[400],
+});
+
+const welcomeHeadingStyles = css({
+  display: 'flex',
+  alignItems: 'center',
+  gap: '6px',
+  span: {
+    fontWeight: 600,
+    lineHeight: '20px',
+  },
+});
+const welcomeTextStyles = css({
+  margin: `${spacing[100]}px 0 0 0`,
 });
 
 export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
@@ -291,8 +334,7 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
       data-testid="assistant-chat"
       className={cx(
         assistantChatFixesStyles,
-        assistantChatStyles,
-        darkMode ? headerStyleDarkModeFixes : headerStyleLightModeFixes
+        darkMode ? assistantChatFixesDarkStyles : assistantChatFixesLightStyles
       )}
       style={{ height: '100%', width: '100%' }}
     >
@@ -375,9 +417,20 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
           )}
           {messages.length === 0 && (
             <div className={welcomeMessageStyles}>
-              <h4>Welcome to your MongoDB Assistant.</h4>
-              Ask any question about MongoDB to receive expert guidance and
-              documentation right in your window.
+              <h4 className={welcomeHeadingStyles}>
+                <Icon
+                  glyph="Sparkle"
+                  size="large"
+                  style={{ color: palette.green.dark1 }}
+                />
+                <span>MongoDB Assistant.</span>
+              </h4>
+              <p className={welcomeTextStyles}>
+                Welcome to the MongoDB Assistant!
+                <br />
+                Ask any question about MongoDB to receive expert guidance and
+                documentation.
+              </p>
             </div>
           )}
           <div className={inputBarStyleFixes}>
