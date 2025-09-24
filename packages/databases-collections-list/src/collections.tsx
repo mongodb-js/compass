@@ -126,30 +126,50 @@ const CollectionsList: React.FunctionComponent<{
               : coll.type === 'timeseries'
               ? [
                   {
-                    label: 'Storage size',
+                    label: 'Storage',
                     value:
                       coll.calculated_storage_size !== undefined
                         ? compactBytes(coll.calculated_storage_size)
                         : 'N/A',
                     hint:
+                      coll.calculated_storage_size !== undefined &&
+                      coll.storage_size !== undefined &&
+                      coll.free_storage_size !== undefined &&
+                      'Storage Data: Disk space allocated to this collection for document storage.\n' +
+                        `Total storage: ${compactBytes(coll.storage_size)}\n` +
+                        `Free storage: ${compactBytes(coll.free_storage_size)}`,
+                  },
+                  {
+                    label: 'Uncompressed data',
+                    value:
+                      coll.document_size !== undefined
+                        ? compactBytes(coll.document_size)
+                        : 'N/A',
+                    hint:
                       coll.document_size !== undefined &&
-                      `Uncompressed data size: ${compactBytes(
-                        coll.document_size
-                      )}`,
+                      'Uncompressed Data Size: Total size of the uncompressed data held in this collection.',
                   },
                 ]
               : [
                   {
-                    label: 'Storage size',
+                    label: 'Storage',
                     value:
                       coll.calculated_storage_size !== undefined
                         ? compactBytes(coll.calculated_storage_size)
                         : 'N/A',
                     hint:
+                      coll.calculated_storage_size !== undefined &&
+                      'Storage Data: Disk space allocated to this collection for document storage.',
+                  },
+                  {
+                    label: 'Uncompressed data',
+                    value:
+                      coll.document_size !== undefined
+                        ? compactBytes(coll.document_size)
+                        : 'N/A',
+                    hint:
                       coll.document_size !== undefined &&
-                      `Uncompressed data size: ${compactBytes(
-                        coll.document_size
-                      )}`,
+                      'Uncompressed Data Size: Total size of the uncompressed data held in this collection.',
                   },
                   {
                     label: 'Documents',
