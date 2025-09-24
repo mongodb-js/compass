@@ -36,7 +36,9 @@ interface AssistantChatProps {
   hasNonGenuineConnections: boolean;
 }
 
-const assistantChatStyles = css({
+// TODO(COMPASS-9751): These are temporary patches to make the Assistant chat take the entire
+// width and height of the drawer since Leafygreen doesn't support this yet.
+const assistantChatFixesStyles = css({
   // Compass has a global bullet point override but we clear this for the chat.
   ul: {
     listStyleType: 'disc',
@@ -44,23 +46,7 @@ const assistantChatStyles = css({
   ol: {
     listStyleType: 'decimal',
   },
-});
 
-const headerStyleDarkModeFixes = css({
-  'h1, h2, h3, h4, h5, h6': {
-    color: palette.gray.light2,
-  },
-});
-
-const headerStyleLightModeFixes = css({
-  'h1, h2, h3, h4, h5, h6': {
-    color: palette.black,
-  },
-});
-
-// TODO(COMPASS-9751): These are temporary patches to make the Assistant chat take the entire
-// width and height of the drawer since Leafygreen doesn't support this yet.
-const assistantChatFixesStyles = css({
   // Remove extra padding
   '> div, > div > div, > div > div > div, > div > div > div': {
     height: '100%',
@@ -105,7 +91,45 @@ const assistantChatFixesStyles = css({
     lineHeight: '18px',
     marginTop: '4px',
   },
+  blockquote: {
+    // remove the 3x line height that these take up by default
+    lineHeight: 0,
+    margin: 0,
+    borderLeftWidth: spacing[100],
+    borderLeftStyle: 'solid',
+    padding: `0 0 0 ${spacing[200]}px`,
+
+    '> * + *': {
+      margin: `${spacing[400]}px 0 0`,
+    },
+  },
+  hr: {
+    // hr tags have no width when it is alone in a chat message because of the
+    // overall layout in chat where the chat bubble sizes to fit the content.
+    // The minimum width of the drawer sized down to the smallest size leaves
+    // 200px.
+    minWidth: '200px',
+  },
 });
+
+const assistantChatFixesDarkStyles = css({
+  'h1, h2, h3, h4, h5, h6': {
+    color: palette.gray.light2,
+  },
+  blockquote: {
+    borderLeftColor: palette.gray.light1,
+  },
+});
+
+const assistantChatFixesLightStyles = css({
+  'h1, h2, h3, h4, h5, h6': {
+    color: palette.black,
+  },
+  blockquote: {
+    borderLeftColor: palette.gray.dark1,
+  },
+});
+
 const messageFeedFixesStyles = css({
   display: 'flex',
   flexDirection: 'column-reverse',
@@ -310,8 +334,7 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
       data-testid="assistant-chat"
       className={cx(
         assistantChatFixesStyles,
-        assistantChatStyles,
-        darkMode ? headerStyleDarkModeFixes : headerStyleLightModeFixes
+        darkMode ? assistantChatFixesDarkStyles : assistantChatFixesLightStyles
       )}
       style={{ height: '100%', width: '100%' }}
     >
