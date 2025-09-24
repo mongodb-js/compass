@@ -70,6 +70,7 @@ const DEFAULT_HEIGHT = (() => {
 // change significantly at widths of 1024 and less.
 const MIN_WIDTH = process.env.COMPASS_MIN_WIDTH ?? 1025;
 const MIN_HEIGHT = process.env.COMPASS_MIN_HEIGHT ?? 640;
+const SAVE_DEBOUNCE_DELAY = 500; // 500ms delay for save operations
 
 /**
  * The app's HTML shell which is the output of `./src/index.html`
@@ -260,7 +261,7 @@ function showConnectWindow(
       if (window && !window.isDestroyed()) {
         void saveWindowBounds(window, compassApp);
       }
-    }, 500); // Debounce to avoid too frequent saves
+    }, SAVE_DEBOUNCE_DELAY); // Debounce to avoid too frequent saves
   };
 
   // Save window bounds when moved or resized
