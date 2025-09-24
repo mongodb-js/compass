@@ -83,7 +83,6 @@ const ScriptScreen = ({
   const isDarkMode = useDarkMode();
   const connectionInfo = useConnectionInfo();
 
-  // Parse namespace to get database and collection names using robust toNS utility
   const { database, collection } = toNS(namespace);
 
   // Generate the script using the faker schema
