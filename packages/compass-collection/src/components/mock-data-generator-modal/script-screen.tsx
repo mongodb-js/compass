@@ -14,6 +14,7 @@ import {
   useDarkMode,
 } from '@mongodb-js/compass-components';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
+import toNS from 'mongodb-ns';
 import { generateScript } from './script-generation-utils';
 import type { FakerSchema } from './types';
 import type { ArrayLengthMap } from './script-generation-utils';
@@ -82,24 +83,18 @@ const ScriptScreen = ({
   const isDarkMode = useDarkMode();
   const connectionInfo = useConnectionInfo();
 
-  // Parse namespace to get database and collection names
-  const [databaseName, collectionName] = namespace.split('.');
+  // Parse namespace to get database and collection names using robust toNS utility
+  const { database, collection } = toNS(namespace);
 
   // Generate the script using the faker schema
   const scriptResult = useMemo(() => {
     return generateScript(fakerSchema, {
       documentCount,
-      databaseName,
-      collectionName,
+      databaseName: database,
+      collectionName: collection,
       arrayLengthMap,
     });
-  }, [
-    fakerSchema,
-    documentCount,
-    databaseName,
-    collectionName,
-    arrayLengthMap,
-  ]);
+  }, [fakerSchema, documentCount, database, collection, arrayLengthMap]);
 
   return (
     <section className={outerSectionStyles}>
