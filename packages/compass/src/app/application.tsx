@@ -376,16 +376,9 @@ class Application {
         clearTimeout(saveTimeoutId);
       }
 
-      saveTimeoutId = setTimeout(async () => {
-        try {
-          await defaultPreferencesInstance.savePreferences({
-            zoomLevel,
-          });
-        } catch {
-          // noop
-        } finally {
-          saveTimeoutId = null;
-        }
+      saveTimeoutId = setTimeout(() => {
+        void defaultPreferencesInstance.savePreferences({ zoomLevel });
+        saveTimeoutId = null;
       }, SAVE_DEBOUNCE_DELAY);
     };
 
