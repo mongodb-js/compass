@@ -252,12 +252,12 @@ function showConnectWindow(
   compassApp.emit('new-window', window);
 
   // Set up window state persistence
-  let saveTimeout: NodeJS.Timeout | null = null;
+  let saveTimeoutId: NodeJS.Timeout | null = null;
   const debouncedSaveWindowBounds = () => {
-    if (saveTimeout) {
-      clearTimeout(saveTimeout);
+    if (saveTimeoutId) {
+      clearTimeout(saveTimeoutId);
     }
-    saveTimeout = setTimeout(() => {
+    saveTimeoutId = setTimeout(() => {
       if (window && !window.isDestroyed()) {
         void saveWindowBounds(window, compassApp);
       }
@@ -277,8 +277,8 @@ function showConnectWindow(
 
   const onWindowClosed = () => {
     debug('Window closed. Dereferencing.');
-    if (saveTimeout) {
-      clearTimeout(saveTimeout);
+    if (saveTimeoutId) {
+      clearTimeout(saveTimeoutId);
     }
     window = null;
     void unsubscribeProxyListenerPromise.then((unsubscribe) => unsubscribe());
