@@ -3,27 +3,45 @@ import { expect } from 'chai';
 import { render, screen, userEvent } from '@mongodb-js/testing-library-compass';
 import { DiagramEditorToolbar } from './diagram-editor-toolbar';
 import sinon from 'sinon';
+import {
+  type WorkspacesService,
+  WorkspacesServiceProvider,
+} from '@mongodb-js/compass-workspaces/provider';
+
+const workspacesService = {
+  openDataModelingWorkspace: () => {},
+} as WorkspacesService;
 
 function renderDiagramEditorToolbar(
   props: Partial<React.ComponentProps<typeof DiagramEditorToolbar>> = {}
 ) {
   render(
-    <DiagramEditorToolbar
-      step="EDITING"
-      hasUndo={true}
-      hasRedo={true}
-      isInRelationshipDrawingMode={false}
-      onUndoClick={() => {}}
-      onRedoClick={() => {}}
-      onExportClick={() => {}}
-      onRelationshipDrawingToggle={() => {}}
-      onAddCollectionClick={() => {}}
-      {...props}
-    />
+    <WorkspacesServiceProvider value={workspacesService}>
+      <DiagramEditorToolbar
+        step="EDITING"
+        hasUndo={true}
+        hasRedo={true}
+        isInRelationshipDrawingMode={false}
+        onUndoClick={() => {}}
+        onRedoClick={() => {}}
+        onExportClick={() => {}}
+        onRelationshipDrawingToggle={() => {}}
+        onAddCollectionClick={() => {}}
+        {...props}
+      />
+    </WorkspacesServiceProvider>
   );
 }
 
 describe('DiagramEditorToolbar', function () {
+  beforeEach(function () {
+    workspacesService.openDataModelingWorkspace = sinon.spy();
+  });
+
+  afterEach(function () {
+    sinon.reset();
+  });
+
   it('renders nothing if step is NO_DIAGRAM_SELECTED', function () {
     renderDiagramEditorToolbar({ step: 'NO_DIAGRAM_SELECTED' });
     expect(() => screen.getByTestId('diagram-editor-toolbar')).to.throw();
@@ -32,6 +50,23 @@ describe('DiagramEditorToolbar', function () {
   it('renders nothing if step is not EDITING', function () {
     renderDiagramEditorToolbar({ step: 'ANALYSIS_CANCELED' });
     expect(() => screen.getByTestId('diagram-editor-toolbar')).to.throw();
+  });
+
+  context('breadcrumbs', function () {
+    it('includes "diagrams" breadcrumb', function () {
+      renderDiagramEditorToolbar();
+      const diagrams = screen.getByRole('button', { name: 'diagrams' });
+      expect(diagrams).to.be.visible;
+      userEvent.click(diagrams);
+      expect(
+        workspacesService.openDataModelingWorkspace
+      ).to.have.been.calledOnce;
+    });
+
+    it('includes diagram name breadcrumb', function () {
+      renderDiagramEditorToolbar({ diagramName: 'My Diagram' });
+      expect(screen.getByText('My Diagram')).to.be.visible;
+    });
   });
 
   context('undo button', function () {

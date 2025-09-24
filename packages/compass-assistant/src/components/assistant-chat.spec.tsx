@@ -116,12 +116,12 @@ describe('AssistantChat', function () {
 
   it('displays the welcome text when there are no messages', function () {
     renderWithChat([]);
-    expect(screen.getByText(/Welcome to your MongoDB Assistant./)).to.exist;
+    expect(screen.getByText(/Welcome to the MongoDB Assistant!/)).to.exist;
   });
 
   it('does not display the welcome text when there are messages', function () {
     renderWithChat(mockMessages);
-    expect(screen.queryByText(/Welcome to your MongoDB Assistant./)).to.not
+    expect(screen.queryByText(/Welcome to the MongoDB Assistant!/)).to.not
       .exist;
   });
 
