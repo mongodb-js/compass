@@ -18,10 +18,12 @@ import {
   LgChatChatDisclaimer,
   Link,
   Icon,
+  useDrawerState,
 } from '@mongodb-js/compass-components';
 import { ConfirmationMessage } from './confirmation-message';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import { NON_GENUINE_WARNING_MESSAGE } from '../preset-messages';
+import { ASSISTANT_DRAWER_ID } from '../compass-assistant-provider';
 
 const { DisclaimerText } = LgChatChatDisclaimer;
 const { ChatWindow } = LgChatChatWindow;
@@ -204,6 +206,7 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
   const track = useTelemetry();
   const darkMode = useDarkMode();
 
+  const { currentDrawerTab } = useDrawerState();
   const { ensureOptInAndSend } = useContext(AssistantActionsContext);
   const { messages, status, error, clearError, setMessages } = useChat({
     chat,
@@ -326,8 +329,30 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
         void ensureOptInAndSend?.(undefined, {}, () => {});
       }
     },
-    [ensureOptInAndSend, setMessages]
+    [ensureOptInAndSend, setMessages, track]
   );
+
+  const prevCurrentDrawerTabRef = React.useRef<string | null>(null);
+
+  useEffect(() => {
+    if (currentDrawerTab === prevCurrentDrawerTabRef.current) {
+      // ignore unless it changed
+      return;
+    }
+
+    if (currentDrawerTab === ASSISTANT_DRAWER_ID) {
+      track('Assistant Opened', {});
+    }
+
+    if (
+      currentDrawerTab !== ASSISTANT_DRAWER_ID &&
+      prevCurrentDrawerTabRef.current === ASSISTANT_DRAWER_ID
+    ) {
+      track('Assistant Closed', {});
+    }
+
+    prevCurrentDrawerTabRef.current = currentDrawerTab;
+  }, [currentDrawerTab, track]);
 
   return (
     <div

@@ -62,6 +62,16 @@ const DrawerOpenStateContext =
 const DrawerSetOpenStateContext =
   React.createContext<DrawerSetOpenStateContextValue>(() => {});
 
+type DrawerCurrentTabStateContextValue = string | null;
+
+type DrawerSetCurrentTabContextValue = (currentTab: string | null) => void;
+
+const DrawerCurrentTabStateContext =
+  React.createContext<DrawerCurrentTabStateContextValue>(null);
+
+const DrawerSetCurrentTabContext =
+  React.createContext<DrawerSetCurrentTabContextValue>(() => {});
+
 const DrawerActionsContext = React.createContext<DrawerActionsContextValue>({
   current: {
     openDrawer: () => undefined,
@@ -110,6 +120,8 @@ export const DrawerContentProvider: React.FunctionComponent = ({
   const [drawerState, setDrawerState] = useState<DrawerSectionProps[]>([]);
   const [drawerOpenState, setDrawerOpenState] =
     useState<DrawerOpenStateContextValue>(false);
+  const [drawerCurrentTab, setDrawerCurrentTab] =
+    useState<DrawerCurrentTabStateContextValue>(null);
   const drawerActions = useRef({
     openDrawer: () => undefined,
     closeDrawer: () => undefined,
@@ -139,9 +151,13 @@ export const DrawerContentProvider: React.FunctionComponent = ({
     <DrawerStateContext.Provider value={drawerState}>
       <DrawerOpenStateContext.Provider value={drawerOpenState}>
         <DrawerSetOpenStateContext.Provider value={setDrawerOpenState}>
-          <DrawerActionsContext.Provider value={drawerActions}>
-            {children}
-          </DrawerActionsContext.Provider>
+          <DrawerCurrentTabStateContext.Provider value={drawerCurrentTab}>
+            <DrawerSetCurrentTabContext.Provider value={setDrawerCurrentTab}>
+              <DrawerActionsContext.Provider value={drawerActions}>
+                {children}
+              </DrawerActionsContext.Provider>
+            </DrawerSetCurrentTabContext.Provider>
+          </DrawerCurrentTabStateContext.Provider>
         </DrawerSetOpenStateContext.Provider>
       </DrawerOpenStateContext.Provider>
     </DrawerStateContext.Provider>
@@ -152,11 +168,20 @@ const DrawerContextGrabber: React.FunctionComponent = ({ children }) => {
   const drawerToolbarContext = useDrawerToolbarContext();
   const actions = useContext(DrawerActionsContext);
   const openStateSetter = useContext(DrawerSetOpenStateContext);
+  const currentTabSetter = useContext(DrawerSetCurrentTabContext);
   actions.current.openDrawer = drawerToolbarContext.openDrawer;
   actions.current.closeDrawer = drawerToolbarContext.closeDrawer;
+
   useEffect(() => {
     openStateSetter(drawerToolbarContext.isDrawerOpen);
   }, [drawerToolbarContext.isDrawerOpen, openStateSetter]);
+
+  useEffect(() => {
+    const currentTab =
+      drawerToolbarContext.getActiveDrawerContent()?.id ?? null;
+    currentTabSetter(currentTab);
+  }, [drawerToolbarContext, currentTabSetter]);
+
   return <>{children}</>;
 };
 
@@ -463,12 +488,19 @@ export function useDrawerActions() {
 
 export const useDrawerState = () => {
   const drawerOpenStateContext = useContext(DrawerOpenStateContext);
+  const drawerCurrentTabStateContext = useContext(DrawerCurrentTabStateContext);
   const drawerState = useContext(DrawerStateContext);
+
+  const isDrawerOpen =
+    drawerOpenStateContext &&
+    // the second check is a workaround, because LG doesn't set isDrawerOpen to false when it's empty
+    drawerState.length > 0;
+
+  const currentDrawerTab = isDrawerOpen ? drawerCurrentTabStateContext : null;
+
   return {
-    isDrawerOpen:
-      drawerOpenStateContext &&
-      // the second check is a workaround, because LG doesn't set isDrawerOpen to false when it's empty
-      drawerState.length > 0,
+    isDrawerOpen,
+    currentDrawerTab,
   };
 };
 

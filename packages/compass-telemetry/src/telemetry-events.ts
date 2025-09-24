@@ -1459,6 +1459,30 @@ type IndexDroppedEvent = ConnectionScopedEvent<{
 }>;
 
 /**
+ * This event is fired when user opens the assistant chat. Either by switching
+ * to it via the drawer toolbar or by opening the drawer and the first tab is
+ * the assistant.
+ *
+ * @category Gen AI
+ */
+type AssistantOpenedEvent = CommonEvent<{
+  name: 'Assistant Opened';
+  payload: Record<string, never>;
+}>;
+
+/**
+ * This event is fired when user closes the assistant chat. Either by switching
+ * to another tab via the drawer toolbar or by closing the drawer when the
+ * active tab is the assistant.
+ *
+ * @category Gen AI
+ */
+type AssistantClosedEvent = CommonEvent<{
+  name: 'Assistant Closed';
+  payload: Record<string, never>;
+}>;
+
+/**
  * This event is fired when user enters a prompt in the assistant chat
  * and hits "enter".
  *
@@ -3116,6 +3140,8 @@ export type TelemetryEvent =
   | AggregationTimedOutEvent
   | AggregationUseCaseAddedEvent
   | AggregationUseCaseSavedEvent
+  | AssistantOpenedEvent
+  | AssistantClosedEvent
   | AssistantPromptSubmittedEvent
   | AssistantResponseFailedEvent
   | AssistantFeedbackSubmittedEvent
