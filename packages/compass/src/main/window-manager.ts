@@ -131,7 +131,7 @@ function validateWindowBounds(bounds: {
   width?: number;
   height?: number;
 }) {
-  if (!bounds.width || !bounds.height) {
+  if (!bounds?.width || !bounds?.height) {
     return {
       width: Number(DEFAULT_WIDTH),
       height: Number(DEFAULT_HEIGHT),
@@ -143,7 +143,7 @@ function validateWindowBounds(bounds: {
   const height = Math.max(bounds.height, Number(MIN_HEIGHT));
 
   // If no position specified, let Electron handle it
-  if (!bounds.x || !bounds.y) {
+  if (!bounds?.x || !bounds?.y) {
     return { width, height };
   }
 
