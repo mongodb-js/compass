@@ -147,4 +147,59 @@ describe('readWrite: true', function () {
       });
     });
   });
+
+  describe('when "no index" insight is displayed', function () {
+    it('should not show the Create Index button on Documents page', async function () {
+      await browser.navigateToCollectionTab(
+        DEFAULT_CONNECTION_NAME_1,
+        'test',
+        'numbers',
+        'Documents'
+      );
+      await browser.runFindOperation('Documents', '{ i: 1 }', {
+        waitForResult: true,
+      });
+
+      await browser.$(Selectors.InsightIconButton).waitForDisplayed();
+      await browser.clickVisible(Selectors.InsightIconButton);
+      await browser.$('aria/Create index').waitForDisplayed({
+        timeoutMsg: 'Expected "Create index" action button to exist',
+      });
+
+      void browser.setFeature('readWrite', true);
+
+      await browser.$('aria/Create index').waitForDisplayed({
+        reverse: true,
+        timeoutMsg: 'Expected "Create index" action button to NOT exist',
+      });
+    });
+
+    it('should not show the Create Index button on Aggregations page', async function () {
+      await browser.navigateToCollectionTab(
+        DEFAULT_CONNECTION_NAME_1,
+        'test',
+        'numbers',
+        'Aggregations'
+      );
+      await browser.clickVisible(Selectors.AddStageButton);
+      await browser.selectStageOperator(0, '$match');
+      await browser.setCodemirrorEditorValue(
+        Selectors.stageEditor(0),
+        '{ i: 1 }'
+      );
+
+      await browser.$(Selectors.InsightIconButton).waitForDisplayed();
+      await browser.clickVisible(Selectors.InsightIconButton);
+      await browser.$('aria/Create index').waitForDisplayed({
+        timeoutMsg: 'Expected "Create index" action button to exist',
+      });
+
+      void browser.setFeature('readWrite', true);
+
+      await browser.$('aria/Create index').waitForDisplayed({
+        reverse: true,
+        timeoutMsg: 'Expected "Create index" action button to NOT exist',
+      });
+    });
+  });
 });
