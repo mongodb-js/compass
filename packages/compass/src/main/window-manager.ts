@@ -261,6 +261,7 @@ function showConnectWindow(
       if (window && !window.isDestroyed()) {
         void saveWindowBounds(window, compassApp);
       }
+      saveTimeoutId = null;
     }, SAVE_DEBOUNCE_DELAY); // Debounce to avoid too frequent saves
   };
 
