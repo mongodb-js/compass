@@ -44,7 +44,7 @@ export function useCompassWebPreferences(
       enableImportExport: false,
       enableGenAIFeatures: true,
       enableGenAIFeaturesAtlasProject: false,
-      enableGenAISampleDocumentPassingOnAtlasProject: false,
+      enableGenAISampleDocumentPassing: false,
       enableGenAIFeaturesAtlasOrg: false,
       enablePerformanceAdvisorBanner: true,
       enableMyQueries: false,
