@@ -26,6 +26,8 @@ mongosh "mongodb+srv://<your-cluster>.mongodb.net/<your-database>" \\
   mockdatascript.js
 `;
 
+const DEFAULT_DOCUMENT_COUNT = 100;
+
 const outerSectionStyles = css({
   display: 'flex',
   flexDirection: 'column',
@@ -78,7 +80,7 @@ const ScriptScreen = ({
   fakerSchema,
   namespace,
   arrayLengthMap = {},
-  documentCount = 100,
+  documentCount = DEFAULT_DOCUMENT_COUNT,
 }: ScriptScreenProps) => {
   const isDarkMode = useDarkMode();
   const connectionInfo = useConnectionInfo();

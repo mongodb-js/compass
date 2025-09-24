@@ -6,6 +6,11 @@ export type FakerArg = string | number | boolean | { json: string };
 const DEFAULT_ARRAY_LENGTH = 3;
 const INDENT_SIZE = 2;
 
+// Stores the average array length of each array.
+// Examples:
+//   "users[]": 5 - users array has 5 elements
+//   "users[].posts[]": 3 - each user has 3 posts
+//   "matrix[]": 3, "matrix[][]": 4 - matrix has 3 rows, each row has 4 columns
 export type ArrayLengthMap = Record<string, number>;
 
 export interface ScriptOptions {
