@@ -382,7 +382,10 @@ const CompassWeb = ({
     onLog,
     onDebug,
   });
-  const preferencesAccess = useCompassWebPreferences(initialPreferences);
+  const preferencesAccess = useCompassWebPreferences({
+    ...initialPreferences,
+    showMaxTimeMSWarning: true,
+  });
   // TODO (COMPASS-9565): My Queries feature flag will be used to conditionally provide storage providers
   const initialWorkspaceRef = useRef(initialWorkspace);
   const initialWorkspaceTabsRef = useRef(

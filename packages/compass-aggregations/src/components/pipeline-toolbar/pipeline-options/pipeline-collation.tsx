@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { connect } from 'react-redux';
 import type { ConnectedProps } from 'react-redux';
 import {
@@ -8,6 +8,7 @@ import {
   spacing,
   TextInput,
   palette,
+  Tooltip,
 } from '@mongodb-js/compass-components';
 
 import type { RootState } from '../../../modules';
@@ -51,6 +52,9 @@ const collationInputId = 'aggregations-collation-toolbar-input';
 const maxTimeMSLabelId = 'aggregations-max-time-ms-toolbar-input-label';
 const maxTimeMSInputId = 'aggregations-max-time-ms-toolbar-input';
 
+// Data Explorer limits (5 minutes = 300,000ms)
+const WEB_MAX_TIME_MS_LIMIT = 300_000; // 5 minutes
+
 const PipelineCollation: React.FunctionComponent<PipelineCollationProps> = ({
   collationValue,
   collationHasError,
@@ -58,15 +62,47 @@ const PipelineCollation: React.FunctionComponent<PipelineCollationProps> = ({
   maxTimeMSValue,
   maxTimeMSChanged,
 }) => {
+  const showMaxTimeMSWarning = Boolean(usePreference('showMaxTimeMSWarning'));
+
   const onMaxTimeMSChanged = useCallback(
     (evt: React.ChangeEvent<HTMLInputElement>) => {
       if (maxTimeMSChanged) {
-        maxTimeMSChanged(parseInt(evt.currentTarget.value, 10));
+        const parsed = Number(evt.currentTarget.value);
+        const newValue = Number.isNaN(parsed) ? 0 : parsed;
+
+        // When warning is enabled, enforce the hard limit
+        if (showMaxTimeMSWarning && newValue > WEB_MAX_TIME_MS_LIMIT) {
+          maxTimeMSChanged(WEB_MAX_TIME_MS_LIMIT);
+        } else {
+          maxTimeMSChanged(newValue);
+        }
       }
     },
-    [maxTimeMSChanged]
+    [maxTimeMSChanged, showMaxTimeMSWarning]
   );
+
   const maxTimeMSLimit = usePreference('maxTimeMS');
+
+  // Determine the effective max limit when warning is enabled
+  const effectiveMaxLimit = useMemo(() => {
+    if (showMaxTimeMSWarning) {
+      return maxTimeMSLimit
+        ? Math.min(maxTimeMSLimit, WEB_MAX_TIME_MS_LIMIT)
+        : WEB_MAX_TIME_MS_LIMIT;
+    }
+    return maxTimeMSLimit;
+  }, [showMaxTimeMSWarning, maxTimeMSLimit]);
+
+  // Check if value exceeds the limit when warning is enabled
+  const exceedsLimit = Boolean(
+    useMemo(() => {
+      return (
+        showMaxTimeMSWarning &&
+        maxTimeMSValue &&
+        maxTimeMSValue >= WEB_MAX_TIME_MS_LIMIT
+      );
+    }, [showMaxTimeMSWarning, maxTimeMSValue])
+  );
 
   return (
     <div
@@ -107,27 +143,45 @@ const PipelineCollation: React.FunctionComponent<PipelineCollationProps> = ({
       >
         Max Time MS
       </Label>
-      <TextInput
-        aria-labelledby={maxTimeMSLabelId}
-        id={maxTimeMSInputId}
-        data-testid="max-time-ms"
-        className={inputStyles}
-        placeholder={`${Math.min(
-          DEFAULT_MAX_TIME_MS,
-          maxTimeMSLimit || Infinity
-        )}`}
-        type="number"
-        min="0"
-        max={maxTimeMSLimit}
-        sizeVariant="small"
-        value={`${maxTimeMSValue ?? ''}`}
-        state={
-          maxTimeMSValue && maxTimeMSLimit && maxTimeMSValue > maxTimeMSLimit
-            ? 'error'
-            : 'none'
-        }
-        onChange={onMaxTimeMSChanged}
-      />
+      <Tooltip
+        enabled={exceedsLimit}
+        open={exceedsLimit}
+        trigger={({
+          children,
+          ...triggerProps
+        }: React.HTMLProps<HTMLDivElement>) => (
+          <div {...triggerProps}>
+            <TextInput
+              aria-labelledby={maxTimeMSLabelId}
+              id={maxTimeMSInputId}
+              data-testid="max-time-ms"
+              className={inputStyles}
+              placeholder={`${Math.min(
+                DEFAULT_MAX_TIME_MS,
+                effectiveMaxLimit || Infinity
+              )}`}
+              type="number"
+              min="0"
+              max={effectiveMaxLimit}
+              sizeVariant="small"
+              value={`${maxTimeMSValue ?? ''}`}
+              state={
+                (maxTimeMSValue &&
+                  effectiveMaxLimit &&
+                  maxTimeMSValue > effectiveMaxLimit) ||
+                exceedsLimit
+                  ? 'error'
+                  : 'none'
+              }
+              onChange={onMaxTimeMSChanged}
+            />
+            {children}
+          </div>
+        )}
+      >
+        Operations longer than 5 minutes are not supported in the web
+        environment
+      </Tooltip>
     </div>
   );
 };

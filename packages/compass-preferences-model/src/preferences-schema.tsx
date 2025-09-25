@@ -105,6 +105,8 @@ export type UserConfigurablePreferences = PermanentFeatureFlags &
     enableProxySupport: boolean;
     proxy: string;
     inferNamespacesFromPrivileges?: boolean;
+    // Features that are enabled by default in Date Explorer, but are disabled in Compass
+    showMaxTimeMSWarning?: boolean;
   };
 
 /**
@@ -1060,6 +1062,16 @@ export const storedUserPreferencesProps: Required<{
       long: "Show databases and collections implied by your roles and privileges, in addition to those returned by listDatabases and listCollections. This may include namespaces that don't exist yet.",
     },
     validator: z.boolean().default(true),
+    type: 'boolean',
+  },
+  showMaxTimeMSWarning: {
+    ui: true,
+    cli: true,
+    global: true,
+    description: {
+      short: 'Show Max Time MS over 5min Warning for Data Explorer',
+    },
+    validator: z.boolean().default(false),
     type: 'boolean',
   },
 

@@ -103,6 +103,8 @@ export const changeField = (
   return (dispatch, getState, { preferences }) => {
     const parsedValue = validateField(name, stringValue, {
       maxTimeMS: preferences.getPreferences().maxTimeMS ?? undefined,
+      showMaxTimeMSWarning:
+        Boolean(preferences.getPreferences().showMaxTimeMSWarning) ?? false,
     });
     const isValid = parsedValue !== false;
     dispatch({
@@ -162,7 +164,12 @@ export const resetQuery = (
       return false;
     }
     const fields = mapQueryToFormFields(
-      { maxTimeMS: preferences.getPreferences().maxTimeMS },
+      {
+        maxTimeMS: preferences.getPreferences().maxTimeMS,
+        showMaxTimeMSWarning: Boolean(
+          preferences.getPreferences().showMaxTimeMSWarning
+        ),
+      },
       DEFAULT_FIELD_VALUES
     );
     dispatch({ type: QueryBarActions.ResetQuery, fields, source });

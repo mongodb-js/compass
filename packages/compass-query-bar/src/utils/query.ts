@@ -15,6 +15,9 @@ import type {
 } from '../constants/query-properties';
 import { QUERY_PROPERTIES } from '../constants/query-properties';
 
+// Data Explorer limits (5 minutes = 300,000ms)
+const WEB_MAX_TIME_MS_LIMIT = 300_000; // 5 minutes
+
 export function mapFormFieldsToQuery(fields: QueryFormFields): BaseQuery {
   // We always want filter field to be in the query, even if the field
   // is empty. Probably would be better to handle where the query is
@@ -56,7 +59,7 @@ export function doesQueryHaveExtraOptionsSet(fields?: QueryFormFields) {
 
 export function parseQueryAttributesToFormFields(
   query: Record<string, unknown>,
-  preferences: Pick<UserPreferences, 'maxTimeMS'>
+  preferences: Pick<UserPreferences, 'maxTimeMS' | 'showMaxTimeMSWarning'>
 ): QueryFormFields {
   return Object.fromEntries(
     Object.entries(query)
@@ -81,7 +84,7 @@ export function parseQueryAttributesToFormFields(
  * Map query document to the query fields state only preserving valid values
  */
 export function mapQueryToFormFields(
-  preferences: Pick<UserPreferences, 'maxTimeMS'>,
+  preferences: Pick<UserPreferences, 'maxTimeMS' | 'showMaxTimeMSWarning'>,
   query?: BaseQuery,
   onlyValid = true
 ): QueryFormFields {
@@ -125,7 +128,10 @@ function isQueryProperty(field: string): field is QueryProperty {
 export function validateField(
   field: string,
   value: string,
-  { maxTimeMS: preferencesMaxTimeMS }: Pick<UserPreferences, 'maxTimeMS'>
+  {
+    maxTimeMS: preferencesMaxTimeMS,
+    showMaxTimeMSWarning,
+  }: Pick<UserPreferences, 'maxTimeMS' | 'showMaxTimeMSWarning'>
 ) {
   const validated = validate(field, value);
   if (field === 'filter' && validated === '') {
@@ -137,13 +143,24 @@ export function validateField(
   }
 
   // Additional validation for maxTimeMS to make sure that we are not over the
-  // upper bound set in preferences
+  // upper bound set in preferences or Data Explorer limits
   if (field === 'maxTimeMS') {
+    const maxTimeMS = Number(value);
+
+    // When warning is enabled, enforce hard limit
+    if (
+      showMaxTimeMSWarning &&
+      !Number.isNaN(maxTimeMS) &&
+      maxTimeMS > WEB_MAX_TIME_MS_LIMIT
+    ) {
+      return false;
+    }
+
+    // Standard preference validation
     if (
       typeof preferencesMaxTimeMS !== 'undefined' &&
       value &&
-      Number(value) >
-        (preferencesMaxTimeMS ?? DEFAULT_FIELD_VALUES['maxTimeMS'])
+      maxTimeMS > (preferencesMaxTimeMS ?? DEFAULT_FIELD_VALUES['maxTimeMS'])
     ) {
       return false;
     }
@@ -160,7 +177,7 @@ export function validateField(
 
 export function isQueryFieldsValid(
   fields: QueryFormFields,
-  preferences: Pick<UserPreferences, 'maxTimeMS'>
+  preferences: Pick<UserPreferences, 'maxTimeMS' | 'showMaxTimeMSWarning'>
 ) {
   return Object.entries(fields).every(
     ([key, value]) => validateField(key, value.string, preferences) !== false

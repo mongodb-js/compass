@@ -9,6 +9,9 @@ export type QueryOptionOfTypeDocument = Exclude<
   'maxTimeMS' | 'limit' | 'skip'
 >;
 
+// Data Explorer limits (5 minutes = 300,000ms)
+const WEB_MAX_TIME_MS_LIMIT = 300_000; // 5 minutes
+
 export const OPTION_DEFINITION: {
   [optionName in QueryOption]: {
     name: optionName;
@@ -70,12 +73,27 @@ export const OPTION_DEFINITION: {
     link: 'https://docs.mongodb.com/manual/reference/method/cursor.maxTimeMS/',
     extraTextInputProps() {
       const preferenceMaxTimeMS = usePreference('maxTimeMS');
-      const props: { max?: number; placeholder?: string } = {
-        max: preferenceMaxTimeMS,
+      const showMaxTimeMSWarning =
+        usePreference('showMaxTimeMSWarning') ?? false;
+
+      // Determine the effective max limit when warning is enabled
+      const effectiveMaxLimit = showMaxTimeMSWarning
+        ? preferenceMaxTimeMS
+          ? Math.min(preferenceMaxTimeMS, WEB_MAX_TIME_MS_LIMIT)
+          : WEB_MAX_TIME_MS_LIMIT
+        : preferenceMaxTimeMS;
+
+      const props: {
+        max?: number;
+        placeholder?: string;
+      } = {
+        max: effectiveMaxLimit,
       };
-      if (preferenceMaxTimeMS !== undefined && preferenceMaxTimeMS < 60000) {
-        props.placeholder = String(preferenceMaxTimeMS);
+
+      if (effectiveMaxLimit !== undefined && effectiveMaxLimit < 60000) {
+        props.placeholder = String(effectiveMaxLimit);
       }
+
       return props;
     },
   },

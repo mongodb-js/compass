@@ -1,7 +1,8 @@
-import React, { useCallback, useRef } from 'react';
+import React, { useCallback, useRef, useMemo } from 'react';
 import {
   Label,
   TextInput,
+  Tooltip,
   css,
   cx,
   spacing,
@@ -20,6 +21,7 @@ import type { QueryProperty } from '../constants/query-properties';
 import type { RootState } from '../stores/query-bar-store';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
+import { usePreference } from 'compass-preferences-model/provider';
 
 const queryOptionStyles = css({
   display: 'flex',
@@ -78,6 +80,9 @@ export const documentEditorLabelContainerStyles = css(
     minWidth: spacing[800] * 2,
   }
 );
+
+// Data Explorer limits for maxTimeMS (5 minutes = 300,000ms)
+const WEB_MAX_TIME_MS_LIMIT = 300_000; // 5 minutes
 
 type QueryBarProperty = Exclude<QueryProperty, 'update'>;
 
@@ -153,6 +158,24 @@ const QueryOption: React.FunctionComponent<QueryOptionProps> = ({
     }
   }, [track, name, connectionInfoRef]);
 
+  // MaxTimeMS warning tooltip logic
+  const showMaxTimeMSWarning = Boolean(usePreference('showMaxTimeMSWarning'));
+  const numericValue = useMemo(() => {
+    if (!value) return 0;
+    const parsed = Number(value);
+    return Number.isNaN(parsed) ? 0 : parsed;
+  }, [value]);
+
+  const exceedsMaxTimeMSLimit = Boolean(
+    useMemo(() => {
+      return (
+        name === 'maxTimeMS' &&
+        showMaxTimeMSWarning &&
+        numericValue >= WEB_MAX_TIME_MS_LIMIT
+      );
+    }, [name, showMaxTimeMSWarning, numericValue])
+  );
+
   return (
     <div
       className={cx(
@@ -200,30 +223,56 @@ const QueryOption: React.FunctionComponent<QueryOptionProps> = ({
           />
         ) : (
           <WithOptionDefinitionTextInputProps definition={optionDefinition}>
-            {({ props }) => (
-              <TextInput
-                aria-labelledby={`query-bar-option-input-${name}-label`}
-                id={id}
-                data-testid={`query-bar-option-${name}-input`}
-                className={cx(
-                  darkMode
-                    ? numericTextInputDarkStyles
-                    : numericTextInputLightStyles,
-                  hasError && optionInputWithErrorStyles
-                )}
-                type="text"
-                sizeVariant="small"
-                state={hasError ? 'error' : 'none'}
-                value={value}
-                onChange={(evt: React.ChangeEvent<HTMLInputElement>) =>
-                  onValueChange(evt.currentTarget.value)
-                }
-                onBlur={onBlurEditor}
-                placeholder={placeholder as string}
-                disabled={disabled}
-                {...props}
-              />
-            )}
+            {({ props }) => {
+              const textInput = (
+                <TextInput
+                  aria-labelledby={`query-bar-option-input-${name}-label`}
+                  id={id}
+                  data-testid={`query-bar-option-${name}-input`}
+                  className={cx(
+                    darkMode
+                      ? numericTextInputDarkStyles
+                      : numericTextInputLightStyles,
+                    hasError && optionInputWithErrorStyles
+                  )}
+                  type="text"
+                  sizeVariant="small"
+                  state={hasError ? 'error' : 'none'}
+                  value={value}
+                  onChange={(evt: React.ChangeEvent<HTMLInputElement>) =>
+                    onValueChange(evt.currentTarget.value)
+                  }
+                  onBlur={onBlurEditor}
+                  placeholder={placeholder as string}
+                  disabled={disabled}
+                  {...props}
+                />
+              );
+
+              // Wrap maxTimeMS field with tooltip in web environment when exceeding limit
+              if (exceedsMaxTimeMSLimit) {
+                return (
+                  <Tooltip
+                    enabled={true}
+                    open={true}
+                    trigger={({
+                      children,
+                      ...triggerProps
+                    }: React.HTMLProps<HTMLDivElement>) => (
+                      <div {...triggerProps}>
+                        {textInput}
+                        {children}
+                      </div>
+                    )}
+                  >
+                    Operations longer than 5 minutes are not supported in the
+                    web environment
+                  </Tooltip>
+                );
+              }
+
+              return textInput;
+            }}
           </WithOptionDefinitionTextInputProps>
         )}
       </div>
