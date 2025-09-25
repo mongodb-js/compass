@@ -342,7 +342,7 @@ describe('AssistantChat', function () {
     expect(messagesContainer.scrollTop).to.equal(0);
   });
 
-  it('does not scroll to bottom when new message is added by assistant', async function () {
+  it('does not scroll to bottom when new message is added by assistant', function () {
     const { chat } = renderWithChat(mockMessages);
 
     const messagesContainer = screen.getByTestId('assistant-chat-messages');

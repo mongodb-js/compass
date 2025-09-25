@@ -205,8 +205,8 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
   const darkMode = useDarkMode();
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const previousLastMessageId = useRef<string | undefined>(undefined);
-  const { id: lastMessageId, role: lastMessageIsUser } =
-    chat.messages[chat.messages.length - 1];
+  const { id: lastMessageId, role: lastMessageRole } =
+    chat.messages[chat.messages.length - 1] ?? {};
 
   const { ensureOptInAndSend } = useContext(AssistantActionsContext);
   const { messages, status, error, clearError, setMessages } = useChat({
@@ -231,12 +231,12 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
       lastMessageId &&
       previousLastMessageId.current !== undefined &&
       lastMessageId !== previousLastMessageId.current &&
-      lastMessageIsUser
+      lastMessageRole === 'user'
     ) {
       scrollToBottom();
     }
     previousLastMessageId.current = lastMessageId;
-  }, [lastMessageId, lastMessageIsUser, scrollToBottom]);
+  }, [lastMessageId, lastMessageRole, scrollToBottom]);
 
   useEffect(() => {
     const hasExistingNonGenuineWarning = chat.messages.some(
