@@ -174,7 +174,7 @@ export const AIOptInModal: React.FunctionComponent<OptInModalProps> = ({
 }) => {
   const isProjectAIEnabled = usePreference('enableGenAIFeaturesAtlasProject');
   const isSampleDocumentPassingEnabled = usePreference(
-    'enableGenAISampleDocumentPassingOnAtlasProject'
+    'enableGenAISampleDocumentPassing'
   );
   const track = useTelemetry();
   const darkMode = useDarkMode();

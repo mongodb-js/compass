@@ -42,7 +42,7 @@ const App = () => {
     csrfToken,
     csrfTime,
     enableGenAIFeaturesAtlasProject,
-    enableGenAISampleDocumentPassingOnAtlasProject,
+    enableGenAISampleDocumentPassing,
     enableGenAIFeaturesAtlasOrg,
     optInGenAIFeatures,
     userRoles,
@@ -112,8 +112,8 @@ const App = () => {
               showDisabledConnections: true,
               enableGenAIFeaturesAtlasProject:
                 isAtlas && !!enableGenAIFeaturesAtlasProject,
-              enableGenAISampleDocumentPassingOnAtlasProject:
-                isAtlas && !!enableGenAISampleDocumentPassingOnAtlasProject,
+              enableGenAISampleDocumentPassing:
+                isAtlas && !!enableGenAISampleDocumentPassing,
               enableGenAIFeaturesAtlasOrg:
                 isAtlas && !!enableGenAIFeaturesAtlasOrg,
               optInGenAIFeatures: isAtlas && !!optInGenAIFeatures,
