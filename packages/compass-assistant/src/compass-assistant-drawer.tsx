@@ -138,11 +138,12 @@ export const ClearChatButton: React.FunctionComponent<{
     <Tooltip
       trigger={
         <IconButton
-          aria-label="Clear chat"
           onClick={() => {
             void handleClearChat();
           }}
           title="Clear chat"
+          aria-label="Clear chat"
+          aria-hidden={true}
           data-testid="assistant-clear-chat"
         >
           <Icon glyph="Eraser" />
