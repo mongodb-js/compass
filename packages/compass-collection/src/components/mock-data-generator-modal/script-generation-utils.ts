@@ -1,10 +1,10 @@
 import type { MongoDBFieldType } from '@mongodb-js/compass-generative-ai';
 import type { FakerFieldMapping } from './types';
+import { prettify } from '@mongodb-js/compass-editor';
 
 export type FakerArg = string | number | boolean | { json: string };
 
 const DEFAULT_ARRAY_LENGTH = 3;
-const INDENT_SIZE = 2;
 
 // Stores the average array length of each array.
 // Examples:
@@ -48,11 +48,11 @@ export function generateScript(
 
     const documentCode = renderDocumentCode(
       structure,
-      INDENT_SIZE * 2, // 4 spaces: 2 for function body + 2 for inside return statement
       options.arrayLengthMap || {}
     );
 
-    const script = `// Mock Data Generator Script
+    // Generate unformatted script
+    const unformattedScript = `// Mock Data Generator Script
 // Generated for collection: ${JSON.stringify(
       options.databaseName
     )}.${JSON.stringify(options.collectionName)}
@@ -65,13 +65,13 @@ use(${JSON.stringify(options.databaseName)});
 
 // Document generation function
 function generateDocument() {
-  return ${documentCode};
+return ${documentCode};
 }
 
 // Generate and insert documents
 const documents = [];
 for (let i = 0; i < ${options.documentCount}; i++) {
-  documents.push(generateDocument());
+documents.push(generateDocument());
 }
 
 // Insert documents into collection
@@ -79,9 +79,12 @@ db.getCollection(${JSON.stringify(
       options.collectionName
     )}).insertMany(documents);
 
-console.log(\`Successfully inserted \${documents.length} documents into ${JSON.stringify(
+console.log("Successfully inserted " + documents.length + " documents into " + ${JSON.stringify(
       options.databaseName
-    )}.${JSON.stringify(options.collectionName)}\`);`;
+    )} + "." + ${JSON.stringify(options.collectionName)});`;
+
+    // Format the script using prettier
+    const script = prettify(unformattedScript, 'javascript');
 
     return {
       script,
@@ -306,7 +309,6 @@ function insertIntoStructure(
  */
 function renderDocumentCode(
   structure: DocumentStructure,
-  indent: number = INDENT_SIZE,
   arrayLengthMap: ArrayLengthMap = {},
   currentPath: string = ''
 ): string {
@@ -315,8 +317,6 @@ function renderDocumentCode(
   //   - If DocumentStructure: generate nested object
   //   - If ArrayStructure: generate array
 
-  const fieldIndent = ' '.repeat(indent);
-  const closingBraceIndent = ' '.repeat(indent - INDENT_SIZE);
   const documentFields: string[] = [];
 
   for (const [fieldName, value] of Object.entries(structure)) {
@@ -338,15 +338,13 @@ function renderDocumentCode(
       if (probability < 1.0) {
         // Use Math.random for conditional field inclusion
         documentFields.push(
-          `${fieldIndent}...(Math.random() < ${probability} ? { ${formatFieldName(
+          `...(Math.random() < ${probability} ? { ${formatFieldName(
             fieldName
           )}: ${fakerCall} } : {})`
         );
       } else {
         // Normal field inclusion
-        documentFields.push(
-          `${fieldIndent}${formatFieldName(fieldName)}: ${fakerCall}`
-        );
+        documentFields.push(`${formatFieldName(fieldName)}: ${fakerCall}`);
       }
     } else if ('type' in value && value.type === 'array') {
       // It's an array
@@ -355,14 +353,11 @@ function renderDocumentCode(
         : `${fieldName}[]`;
       const arrayCode = renderArrayCode(
         value as ArrayStructure,
-        indent + INDENT_SIZE,
         fieldName,
         arrayLengthMap,
         fieldPath
       );
-      documentFields.push(
-        `${fieldIndent}${formatFieldName(fieldName)}: ${arrayCode}`
-      );
+      documentFields.push(`${formatFieldName(fieldName)}: ${arrayCode}`);
     } else {
       // It's a nested object: recursive call
 
@@ -372,13 +367,10 @@ function renderDocumentCode(
 
       const nestedCode = renderDocumentCode(
         value as DocumentStructure,
-        indent + INDENT_SIZE,
         arrayLengthMap,
         nestedPath
       );
-      documentFields.push(
-        `${fieldIndent}${formatFieldName(fieldName)}: ${nestedCode}`
-      );
+      documentFields.push(`${formatFieldName(fieldName)}: ${nestedCode}`);
     }
   }
 
@@ -387,7 +379,7 @@ function renderDocumentCode(
     return '{}';
   }
 
-  return `{\n${documentFields.join(',\n')}\n${closingBraceIndent}}`;
+  return `{${documentFields.join(',')}}`;
 }
 
 /**
@@ -411,7 +403,6 @@ function formatFieldName(fieldName: string): string {
  */
 function renderArrayCode(
   arrayStructure: ArrayStructure,
-  indent: number = INDENT_SIZE,
   fieldName: string = '',
   arrayLengthMap: ArrayLengthMap = {},
   currentFieldPath: string = ''
@@ -433,7 +424,6 @@ function renderArrayCode(
     const fieldPath = currentFieldPath + '[]';
     const nestedArrayCode = renderArrayCode(
       elementType as ArrayStructure,
-      indent,
       fieldName,
       arrayLengthMap,
       fieldPath
@@ -442,7 +432,6 @@ function renderArrayCode(
   } else {
     const objectCode = renderDocumentCode(
       elementType as DocumentStructure,
-      indent,
       arrayLengthMap,
       currentFieldPath
     );
