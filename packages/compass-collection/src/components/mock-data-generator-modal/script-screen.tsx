@@ -71,6 +71,11 @@ const resourceSectionHeader = css({
   marginBottom: spacing[300],
 });
 
+const scriptCodeBlockStyles = css({
+  maxHeight: '230px',
+  overflowY: 'auto',
+});
+
 interface ScriptScreenProps {
   fakerSchema: FakerSchema | null;
   namespace: string;
@@ -151,7 +156,7 @@ const ScriptScreen = ({
         <Code
           copyable={scriptResult.success}
           language={Language.JavaScript}
-          style={{ maxHeight: '230px', overflowY: 'auto' }}
+          className={scriptCodeBlockStyles}
         >
           {scriptResult.success
             ? scriptResult.script
