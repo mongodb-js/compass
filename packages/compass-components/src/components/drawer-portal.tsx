@@ -114,9 +114,11 @@ const DrawerActionsContext = React.createContext<DrawerActionsContextValue>({
  *   )
  * }
  */
-export const DrawerContentProvider: React.FunctionComponent = ({
-  children,
-}) => {
+export const DrawerContentProvider: React.FunctionComponent<{
+  onDrawerSectionOpen?: (drawerSectionId: string) => void;
+  onDrawerSectionHide?: (drawerSectionId: string) => void;
+  children?: React.ReactNode;
+}> = ({ onDrawerSectionOpen, onDrawerSectionHide, children }) => {
   const [drawerState, setDrawerState] = useState<DrawerSectionProps[]>([]);
   const [drawerOpenState, setDrawerOpenState] =
     useState<DrawerOpenStateContextValue>(false);
@@ -146,6 +148,31 @@ export const DrawerContentProvider: React.FunctionComponent = ({
       });
     },
   });
+
+  const prevDrawerCurrentTabRef = React.useRef<string | null>(null);
+
+  useEffect(() => {
+    if (drawerCurrentTab === prevDrawerCurrentTabRef.current) {
+      // ignore unless it changed
+      return;
+    }
+
+    if (
+      drawerCurrentTab &&
+      drawerCurrentTab !== prevDrawerCurrentTabRef.current
+    ) {
+      onDrawerSectionOpen?.(drawerCurrentTab);
+    }
+
+    if (
+      prevDrawerCurrentTabRef.current &&
+      drawerCurrentTab !== prevDrawerCurrentTabRef.current
+    ) {
+      onDrawerSectionHide?.(prevDrawerCurrentTabRef.current);
+    }
+
+    prevDrawerCurrentTabRef.current = drawerCurrentTab;
+  }, [drawerCurrentTab, onDrawerSectionHide, onDrawerSectionOpen]);
 
   return (
     <DrawerStateContext.Provider value={drawerState}>
@@ -179,6 +206,7 @@ const DrawerContextGrabber: React.FunctionComponent = ({ children }) => {
   useEffect(() => {
     const currentTab =
       drawerToolbarContext.getActiveDrawerContent()?.id ?? null;
+
     currentTabSetter(currentTab);
   }, [drawerToolbarContext, currentTabSetter]);
 
@@ -488,19 +516,12 @@ export function useDrawerActions() {
 
 export const useDrawerState = () => {
   const drawerOpenStateContext = useContext(DrawerOpenStateContext);
-  const drawerCurrentTabStateContext = useContext(DrawerCurrentTabStateContext);
   const drawerState = useContext(DrawerStateContext);
-
-  const isDrawerOpen =
-    drawerOpenStateContext &&
-    // the second check is a workaround, because LG doesn't set isDrawerOpen to false when it's empty
-    drawerState.length > 0;
-
-  const currentDrawerTab = isDrawerOpen ? drawerCurrentTabStateContext : null;
-
   return {
-    isDrawerOpen,
-    currentDrawerTab,
+    isDrawerOpen:
+      drawerOpenStateContext &&
+      // the second check is a workaround, because LG doesn't set isDrawerOpen to false when it's empty
+      drawerState.length > 0,
   };
 };
 

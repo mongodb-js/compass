@@ -61,6 +61,9 @@ type CompassComponentsProviderProps = {
     itemGroup: ContextMenuItemGroup,
     item: ContextMenuItem
   ) => void;
+} & {
+  onDrawerSectionOpen?: (drawerSectionId: string) => void;
+  onDrawerSectionHide?: (drawerSectionId: string) => void;
 } & React.ComponentProps<typeof SignalHooksProvider>;
 
 const darkModeMediaQuery = (() => {
@@ -119,6 +122,8 @@ export const CompassComponentsProvider = ({
   onNextGuideCueGroup,
   onContextMenuOpen,
   onContextMenuItemClick,
+  onDrawerSectionOpen,
+  onDrawerSectionHide,
   utmSource,
   utmMedium,
   stackedElementsZIndex,
@@ -149,7 +154,10 @@ export const CompassComponentsProvider = ({
       darkMode={darkMode}
       popoverPortalContainer={popoverPortalContainer}
     >
-      <DrawerContentProvider>
+      <DrawerContentProvider
+        onDrawerSectionOpen={onDrawerSectionOpen}
+        onDrawerSectionHide={onDrawerSectionHide}
+      >
         <StackedComponentProvider zIndex={stackedElementsZIndex}>
           <RequiredURLSearchParamsProvider
             utmSource={utmSource}

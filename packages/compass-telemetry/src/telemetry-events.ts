@@ -1459,27 +1459,31 @@ type IndexDroppedEvent = ConnectionScopedEvent<{
 }>;
 
 /**
- * This event is fired when user opens the assistant chat. Either by switching
+ * This event is fired when user opens a drawer section. Either by switching
  * to it via the drawer toolbar or by opening the drawer and the first tab is
- * the assistant.
+ * this drawer section.
  *
  * @category Gen AI
  */
-type AssistantOpenedEvent = CommonEvent<{
-  name: 'Assistant Opened';
-  payload: Record<string, never>;
+type DrawerSectionOpenedEvent = CommonEvent<{
+  name: 'Drawer Section Opened';
+  payload: {
+    sectionId: string;
+  };
 }>;
 
 /**
- * This event is fired when user closes the assistant chat. Either by switching
+ * This event is fired when user closes a drawer section. Either by switching
  * to another tab via the drawer toolbar or by closing the drawer when the
- * active tab is the assistant.
+ * active tab is this drawer section.
  *
  * @category Gen AI
  */
-type AssistantClosedEvent = CommonEvent<{
-  name: 'Assistant Closed';
-  payload: Record<string, never>;
+type DrawerSectionClosedEvent = CommonEvent<{
+  name: 'Drawer Section Closed';
+  payload: {
+    sectionId: string;
+  };
 }>;
 
 /**
@@ -3140,8 +3144,6 @@ export type TelemetryEvent =
   | AggregationTimedOutEvent
   | AggregationUseCaseAddedEvent
   | AggregationUseCaseSavedEvent
-  | AssistantOpenedEvent
-  | AssistantClosedEvent
   | AssistantPromptSubmittedEvent
   | AssistantResponseFailedEvent
   | AssistantFeedbackSubmittedEvent
@@ -3200,6 +3202,8 @@ export type TelemetryEvent =
   | DocumentDeletedEvent
   | DocumentInsertedEvent
   | DocumentUpdatedEvent
+  | DrawerSectionOpenedEvent
+  | DrawerSectionClosedEvent
   | EditorTypeChangedEvent
   | ErrorFetchingAttributesEvent
   | ExplainPlanExecutedEvent
