@@ -89,13 +89,15 @@ export type GuideCueProps<T> = Omit<
   GroupAndStep & {
     cueId: string;
     description: React.ReactChild;
-    trigger: ({ ref }: { ref: React.Ref<T> }) => React.ReactElement;
+    triggerNode?: T;
+    trigger?: ({ ref }: { ref: React.Ref<T> }) => React.ReactElement;
     onOpenChange?: (isOpen: boolean) => void;
   };
 
 export const GuideCue = <T extends HTMLElement>({
   description,
   trigger,
+  triggerNode,
   cueId,
   groupId,
   step,
@@ -106,7 +108,7 @@ export const GuideCue = <T extends HTMLElement>({
 }: GuideCueProps<T>) => {
   const [isCueOpen, setIsCueOpen] = useState(false);
   const [isIntersecting, setIsIntersecting] = useState(true);
-  const refEl = useRef<T>(null);
+  const refEl = useRef<T>(triggerNode ?? null);
   const [readyToRender, setReadyToRender] = useState(false);
   const context = useContext(GuideCueContext);
 
@@ -276,7 +278,7 @@ export const GuideCue = <T extends HTMLElement>({
           {description}
         </LGGuideCue>
       )}
-      {trigger({ ref: refEl })}
+      {trigger?.({ ref: refEl })}
     </>
   );
 };

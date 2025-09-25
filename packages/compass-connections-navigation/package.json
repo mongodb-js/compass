@@ -13,7 +13,7 @@
     "email": "compass@mongodb.com"
   },
   "homepage": "https://github.com/mongodb-js/compass",
-  "version": "1.74.0",
+  "version": "1.76.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/compass.git"
@@ -36,11 +36,12 @@
     "bootstrap": "npm run compile",
     "prepublishOnly": "npm run compile && compass-scripts check-exports-exist",
     "compile": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig-lint.json --noEmit",
     "eslint": "eslint-compass",
     "prettier": "prettier-compass",
     "lint": "npm run eslint . && npm run prettier -- --check .",
     "depcheck": "compass-scripts check-peer-deps && depcheck",
-    "check": "npm run lint && npm run depcheck",
+    "check": "npm run typecheck && npm run lint && npm run depcheck",
     "check-ci": "npm run check",
     "test": "mocha",
     "test-cov": "nyc --compact=false --produce-source-map=false -x \"**/*.spec.*\" --reporter=lcov --reporter=text --reporter=html npm run test",
@@ -49,13 +50,13 @@
     "reformat": "npm run eslint . -- --fix && npm run prettier -- --write ."
   },
   "dependencies": {
-    "@mongodb-js/compass-components": "^1.52.1",
-    "@mongodb-js/compass-connections": "^1.75.0",
+    "@mongodb-js/compass-components": "^1.53.0",
+    "@mongodb-js/compass-connections": "^1.77.0",
     "@mongodb-js/compass-context-menu": "^0.2.10",
-    "@mongodb-js/compass-workspaces": "^0.56.0",
-    "@mongodb-js/connection-form": "^1.66.1",
-    "@mongodb-js/connection-info": "^0.20.1",
-    "compass-preferences-model": "^2.54.1",
+    "@mongodb-js/compass-workspaces": "^0.58.0",
+    "@mongodb-js/connection-form": "^1.67.0",
+    "@mongodb-js/connection-info": "^0.20.2",
+    "compass-preferences-model": "^2.56.0",
     "mongodb-build-info": "^1.7.2",
     "react": "^17.0.2",
     "react-virtualized-auto-sizer": "^1.0.6",

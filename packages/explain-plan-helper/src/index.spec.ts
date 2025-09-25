@@ -227,13 +227,13 @@ describe('explain-plan-plan', function () {
 
     it('should find a stage by name from the root stage', function () {
       const ixscan = plan.findStageByName('IXSCAN');
-      expect(ixscan.indexName).to.equal('age_1');
+      expect(ixscan?.indexName).to.equal('age_1');
     });
 
     it('should iterate over shards in a sharded explain plan', async function () {
       plan = await loadExplainFixture('sharded_geo_query_3.2.json');
       const ixscan = plan.findStageByName('IXSCAN');
-      expect(ixscan.indexName).to.equal('last_login_-1');
+      expect(ixscan?.indexName).to.equal('last_login_-1');
     });
 
     it('should return all matching stages with findAllStagesByName', async function () {
@@ -244,21 +244,21 @@ describe('explain-plan-plan', function () {
 
     it('should find a stage by name from a provided stage', function () {
       const fetch = plan.findStageByName('FETCH');
-      expect(fetch.stage).to.equal('FETCH');
-      const ixscan = plan.findStageByName('IXSCAN', fetch);
-      expect(ixscan.indexName).to.equal('age_1');
+      expect(fetch?.stage).to.equal('FETCH');
+      const ixscan = plan.findStageByName('IXSCAN', fetch!);
+      expect(ixscan?.indexName).to.equal('age_1');
     });
 
     it('should find a stage if it is the provided root stage', function () {
       const fetch = plan.findStageByName('FETCH');
-      expect(fetch.stage).to.equal('FETCH');
-      const fetch2 = plan.findStageByName('FETCH', fetch);
+      expect(fetch?.stage).to.equal('FETCH');
+      const fetch2 = plan.findStageByName('FETCH', fetch!);
       expect(fetch).to.equal(fetch2);
     });
 
     it('should iterate over stages', function () {
-      const it = plan._getStageIterator();
-      expect(it.next().value).to.equal(plan.executionStats.executionStages);
+      const it = plan._getStageIterator()[Symbol.iterator]();
+      expect(it.next().value).to.equal(plan.executionStats?.executionStages);
       expect(it.next().value.stage).to.equal('IXSCAN');
       expect(it.next().done).to.equal(true);
     });
@@ -354,7 +354,7 @@ describe('explain-plan-plan', function () {
 
         it('should have usedIndexes in executionStats object', function () {
           const expectedIndexes = [{ fields: {}, index: '_id_', shard: null }];
-          expect(plan.executionStats.stageIndexes).to.deep.equal(
+          expect(plan.executionStats?.stageIndexes).to.deep.equal(
             expectedIndexes
           );
           expect(plan.usedIndexes).to.deep.equal(expectedIndexes);
@@ -367,7 +367,7 @@ describe('explain-plan-plan', function () {
         });
 
         it('should sum estimate time correctly', function () {
-          expect(plan.executionStats.executionTimeMillis).to.equal(21317);
+          expect(plan.executionStats?.executionTimeMillis).to.equal(21317);
         });
       });
     });
@@ -417,17 +417,18 @@ describe('explain-plan-plan', function () {
         });
         it('should have a SINGLE_SHARD stage', function () {
           const stage = plan.findStageByName('SINGLE_SHARD');
-          expect(stage.shards).to.have.lengthOf(1);
+          expect(stage?.shards).to.have.lengthOf(1);
         });
         it('should have correct execution metrics', function () {
-          expect(plan.executionStats.nReturned).to.equal(422); // nReturned is from the last stage
-          expect(plan.executionStats.executionTimeMillis).to.equal(12);
-          expect(plan.executionStats.totalKeysExamined).to.equal(719);
-          expect(plan.executionStats.totalDocsExamined).to.equal(490);
+          expect(plan.executionStats?.nReturned).to.equal(422); // nReturned is from the last stage
+          expect(plan.executionStats?.executionTimeMillis).to.equal(12);
+          expect(plan.executionStats?.totalKeysExamined).to.equal(719);
+          expect(plan.executionStats?.totalDocsExamined).to.equal(490);
         });
         it('should find a stage if it is the provided root stage', function () {
           const stage1 = plan.findStageByName('SINGLE_SHARD');
-          const stage2 = plan.findStageByName('SINGLE_SHARD', stage1);
+          expect(stage1).to.not.be.null;
+          const stage2 = plan.findStageByName('SINGLE_SHARD', stage1!);
           expect(stage1).to.equal(stage2);
         });
       });
@@ -468,17 +469,18 @@ describe('explain-plan-plan', function () {
         });
         it('should have a SINGLE_SHARD stage', function () {
           const stage = plan.findStageByName('SINGLE_SHARD');
-          expect(stage.shards).to.have.lengthOf(1);
+          expect(stage?.shards).to.have.lengthOf(1);
         });
         it('should have correct execution metrics', function () {
-          expect(plan.executionStats.nReturned).to.equal(20);
-          expect(plan.executionStats.executionTimeMillis).to.equal(0);
-          expect(plan.executionStats.totalKeysExamined).to.equal(0);
-          expect(plan.executionStats.totalDocsExamined).to.equal(581);
+          expect(plan.executionStats?.nReturned).to.equal(20);
+          expect(plan.executionStats?.executionTimeMillis).to.equal(0);
+          expect(plan.executionStats?.totalKeysExamined).to.equal(0);
+          expect(plan.executionStats?.totalDocsExamined).to.equal(581);
         });
         it('should find a stage if it is the provided root stage', function () {
           const stage1 = plan.findStageByName('SINGLE_SHARD');
-          const stage2 = plan.findStageByName('SINGLE_SHARD', stage1);
+          expect(stage1).to.not.be.null;
+          const stage2 = plan.findStageByName('SINGLE_SHARD', stage1!);
           expect(stage1).to.equal(stage2);
         });
       });
@@ -530,18 +532,19 @@ describe('explain-plan-plan', function () {
         });
         it('should have a SHARD_MERGE stage', function () {
           const stage = plan.findStageByName('SHARD_MERGE');
-          expect(stage.shards).to.have.lengthOf(2);
+          expect(stage?.shards).to.have.lengthOf(2);
         });
         it('should have correct execution metrics', function () {
-          expect(plan.executionStats.nReturned).to.equal(485); // sum of nReturned from the last stage of each shard
+          expect(plan.executionStats?.nReturned).to.equal(485); // sum of nReturned from the last stage of each shard
           // executionTimeMillis from each stage (except $cursor) + executionTimeMillis of $cursor stage for each shard
-          expect(plan.executionStats.executionTimeMillis).to.equal(28);
-          expect(plan.executionStats.totalKeysExamined).to.equal(719);
-          expect(plan.executionStats.totalDocsExamined).to.equal(490);
+          expect(plan.executionStats?.executionTimeMillis).to.equal(28);
+          expect(plan.executionStats?.totalKeysExamined).to.equal(719);
+          expect(plan.executionStats?.totalDocsExamined).to.equal(490);
         });
         it('should find a stage if it is the provided root stage', function () {
-          const stage1 = plan.findStageByName('SINGLE_SHARD');
-          const stage2 = plan.findStageByName('SINGLE_SHARD', stage1);
+          const stage1 = plan.findStageByName('SHARD_MERGE');
+          expect(stage1).to.not.be.null;
+          const stage2 = plan.findStageByName('SHARD_MERGE', stage1!);
           expect(stage1).to.equal(stage2);
         });
       });
@@ -576,17 +579,18 @@ describe('explain-plan-plan', function () {
         });
         it('should have a SHARD_MERGE stage', function () {
           const stage = plan.findStageByName('SHARD_MERGE');
-          expect(stage.shards).to.have.lengthOf(2);
+          expect(stage?.shards).to.have.lengthOf(2);
         });
         it('should have correct execution metrics', function () {
-          expect(plan.executionStats.nReturned).to.equal(1);
-          expect(plan.executionStats.executionTimeMillis).to.equal(50);
-          expect(plan.executionStats.totalKeysExamined).to.equal(0);
-          expect(plan.executionStats.totalDocsExamined).to.equal(5555);
+          expect(plan.executionStats?.nReturned).to.equal(1);
+          expect(plan.executionStats?.executionTimeMillis).to.equal(50);
+          expect(plan.executionStats?.totalKeysExamined).to.equal(0);
+          expect(plan.executionStats?.totalDocsExamined).to.equal(5555);
         });
         it('should find a stage if it is the provided root stage', function () {
           const stage1 = plan.findStageByName('SHARD_MERGE');
-          const stage2 = plan.findStageByName('SHARD_MERGE', stage1);
+          expect(stage1).to.not.be.null;
+          const stage2 = plan.findStageByName('SHARD_MERGE', stage1!);
           expect(stage1).to.equal(stage2);
         });
       });
@@ -599,7 +603,7 @@ describe('explain-plan-plan', function () {
         });
 
         it('should have usedIndexes in executionStats object', function () {
-          expect(plan.executionStats.stageIndexes).to.deep.equal([
+          expect(plan.executionStats?.stageIndexes).to.deep.equal([
             { fields: {}, index: '_id_', shard: 'shard2' },
           ]);
         });

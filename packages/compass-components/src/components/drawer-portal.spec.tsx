@@ -16,7 +16,7 @@ import { expect } from 'chai';
 
 describe('DrawerSection', function () {
   it('renders DrawerSection in the portal and updates the content when it updates', async function () {
-    let setCount;
+    let setCount: React.Dispatch<React.SetStateAction<number>> = () => {};
 
     function TestDrawer() {
       const [count, _setCount] = useState(0);
@@ -226,6 +226,42 @@ describe('DrawerSection', function () {
     await waitFor(() => {
       expect(screen.getByTestId('drawer-state')).to.have.text('closed');
       expect(screen.queryByText('This is the controlled section')).not.to.exist;
+    });
+  });
+
+  it('renders guide cue when passed in props', async function () {
+    localStorage.compass_guide_cues = '[]';
+    function TestDrawer() {
+      return (
+        <DrawerContentProvider>
+          <DrawerAnchor>
+            <DrawerSection
+              id="test-section"
+              label="Test section"
+              title={`Test section`}
+              glyph="Trash"
+              guideCue={{
+                cueId: 'test-drawer',
+                title: 'Introducing this new test drawer',
+                description: 'Does all the things',
+                buttonText: 'ok',
+                tooltipAlign: 'bottom',
+                tooltipJustify: 'end',
+              }}
+              autoOpen
+            >
+              This is a test section
+            </DrawerSection>
+          </DrawerAnchor>
+        </DrawerContentProvider>
+      );
+    }
+
+    render(<TestDrawer></TestDrawer>);
+
+    await waitFor(() => {
+      expect(screen.getByText('Introducing this new test drawer')).to.be
+        .visible;
     });
   });
 });

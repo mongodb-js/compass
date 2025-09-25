@@ -88,7 +88,9 @@ describe('use-sort', function () {
 
     const {
       result: { current: sortedItems },
-    } = renderHook(() => useSortedItems(items, result.current[1]));
+    } = renderHook(() =>
+      useSortedItems(items as Record<string, unknown>[], result.current[1])
+    );
     expect(sortedItems).to.deep.equal([items[0], items[1]]);
   });
 
@@ -100,7 +102,9 @@ describe('use-sort', function () {
 
     const {
       result: { current: sortedItems },
-    } = renderHook(() => useSortedItems(items, result.current[1]));
+    } = renderHook(() =>
+      useSortedItems(items as Record<string, unknown>[], result.current[1])
+    );
     expect(sortedItems).to.deep.equal([items[1], items[0]]);
   });
 
@@ -130,7 +134,9 @@ describe('use-sort', function () {
 
     const {
       result: { current: sortedItems },
-    } = renderHook(() => useSortedItems(items, result.current[1]));
+    } = renderHook(() =>
+      useSortedItems(items as Record<string, unknown>[], result.current[1])
+    );
     expect(sortedItems).to.deep.equal([items[1], items[0]]);
   });
 
@@ -162,7 +168,9 @@ describe('use-sort', function () {
 
     const {
       result: { current: sortedItems },
-    } = renderHook(() => useSortedItems(items, result.current[1]));
+    } = renderHook(() =>
+      useSortedItems(items as Record<string, unknown>[], result.current[1])
+    );
     expect(sortedItems).to.deep.equal([items[0], items[1]]);
   });
 
@@ -174,7 +182,9 @@ describe('use-sort', function () {
 
     const {
       result: { current: sortedItems },
-    } = renderHook(() => useSortedItems(items, result.current[1]));
+    } = renderHook(() =>
+      useSortedItems(items as Record<string, unknown>[], result.current[1])
+    );
     expect(sortedItems).to.deep.equal(items);
   });
 });

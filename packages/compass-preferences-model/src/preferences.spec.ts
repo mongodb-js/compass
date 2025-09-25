@@ -167,6 +167,7 @@ describe('Preferences class', function () {
       enableMaps: 'set-cli',
       enableShell: 'set-cli',
       readOnly: 'set-global',
+      readWrite: 'set-global',
       ...expectedReleasedFeatureFlagsStates,
     });
   });
@@ -235,6 +236,7 @@ describe('Preferences class', function () {
       },
       {
         readOnly: true,
+        readWrite: true,
         enableShell: false,
       },
     ]);
@@ -305,6 +307,7 @@ describe('Preferences class', function () {
       trackUsageStatistics: 'set-global',
       enableMaps: 'set-cli',
       enableShell: 'derived',
+      readWrite: 'derived',
       ...expectedReleasedFeatureFlagsStates,
     });
   });

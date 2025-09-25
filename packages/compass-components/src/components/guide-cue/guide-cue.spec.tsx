@@ -25,6 +25,8 @@ const renderGuideCue = (props: Partial<ComponentProps<typeof GuideCue>>) => {
       </Button>
       <GuideCue
         cueId=""
+        groupId=""
+        step={0}
         title=""
         description=""
         trigger={({ ref }) => (

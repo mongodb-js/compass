@@ -7,6 +7,7 @@ export const getToolbarSignal = ({
   query,
   isCollectionScan,
   isSearchIndexesSupported,
+  canCreateIndexes,
   onCreateIndex,
   onCreateSearchIndex,
   onAssistantButtonClick,
@@ -14,6 +15,7 @@ export const getToolbarSignal = ({
   query: string;
   isCollectionScan: boolean;
   isSearchIndexesSupported: boolean;
+  canCreateIndexes: boolean;
   onCreateIndex: () => void;
   onCreateSearchIndex: () => void;
   onAssistantButtonClick?: () => void;
@@ -24,12 +26,16 @@ export const getToolbarSignal = ({
   if (/\$(text|regex)\b/.test(query) && isSearchIndexesSupported) {
     return {
       ...PerformanceSignals.get('atlas-text-regex-usage-in-query'),
-      onPrimaryActionButtonClick: onCreateSearchIndex,
+      ...(canCreateIndexes
+        ? { onPrimaryActionButtonClick: onCreateSearchIndex }
+        : { primaryActionButtonLabel: undefined }),
     };
   }
   return {
     ...PerformanceSignals.get('query-executed-without-index'),
-    onPrimaryActionButtonClick: onCreateIndex,
+    ...(canCreateIndexes
+      ? { onPrimaryActionButtonClick: onCreateIndex }
+      : { primaryActionButtonLabel: undefined }),
     onAssistantButtonClick,
   };
 };

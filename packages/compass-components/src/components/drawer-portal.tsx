@@ -16,6 +16,7 @@ import {
 import { css, cx } from '@leafygreen-ui/emotion';
 import { isEqual } from 'lodash';
 import { rafraf } from '../utils/rafraf';
+import { GuideCue, type GuideCueProps } from './guide-cue/guide-cue';
 import { BaseFontSize, fontWeights } from '@leafygreen-ui/tokens';
 
 type ToolbarData = Required<DrawerLayoutProps>['toolbarData'];
@@ -37,6 +38,7 @@ type DrawerSectionProps = Omit<SectionData, 'content' | 'onClick'> & {
    * provided will stay unordered at the bottom of the list
    */
   order?: number;
+  guideCue?: GuideCueProps<HTMLButtonElement>;
 };
 
 type DrawerOpenStateContextValue = boolean;
@@ -175,6 +177,9 @@ const drawerLayoutFixesStyles = css({
     // Anchor is currently rendered
     borderTop: 'none',
     borderBottom: 'none',
+
+    // Settings inline-size allows us to use @container queries inside the drawer section.
+    containerType: 'inline-size',
   },
 
   // drawer content > title content
@@ -271,21 +276,96 @@ export const DrawerAnchor: React.FunctionComponent = ({ children }) => {
         return orderB < orderA ? 1 : orderB > orderA ? -1 : 0;
       });
   }, [drawerSectionItems]);
+
+  const [toolbarIconNodes, setToolbarIconNodes] = useState<
+    Record<string, HTMLButtonElement | undefined>
+  >({});
+
+  useLayoutEffect(
+    function () {
+      const drawerEl = document.querySelector('.compass-drawer-anchor');
+      if (!drawerEl) {
+        throw new Error(
+          'Can not use DrawerSection without DrawerAnchor being mounted on the page'
+        );
+      }
+
+      function check() {
+        if (!drawerEl) {
+          return;
+        }
+        const nodes: Record<string, HTMLButtonElement | undefined> = {};
+        for (const item of toolbarData) {
+          if (!item.guideCue) {
+            continue;
+          }
+
+          const button = drawerEl.querySelector<HTMLButtonElement>(
+            `button[aria-label="${item.label}"]`
+          );
+          if (button) {
+            nodes[item.id] = button;
+          }
+        }
+
+        setToolbarIconNodes((oldNodes) => {
+          // account for removed nodes by checking all keys of both old and new
+          for (const id of Object.keys({ ...oldNodes, ...nodes })) {
+            if (nodes[id] !== oldNodes[id]) {
+              return nodes;
+            }
+          }
+          return oldNodes;
+        });
+      }
+      check();
+
+      const mutationObserver = new MutationObserver(() => {
+        check();
+      });
+
+      // use a mutation observer because at least in unit tests the button
+      // elements don't exist immediately
+      mutationObserver.observe(drawerEl, {
+        subtree: true,
+        childList: true,
+      });
+      return () => {
+        mutationObserver.disconnect();
+      };
+    },
+    [toolbarData]
+  );
+
   return (
-    <DrawerLayout
-      displayMode={DrawerDisplayMode.Embedded}
-      resizable
-      toolbarData={toolbarData}
-      className={cx(
-        drawerLayoutFixesStyles,
-        toolbarData.length === 0 && emptyDrawerLayoutFixesStyles,
-        // classname is the only property leafygreen passes over to the drawer
-        // wrapper component that would allow us to target it
-        'compass-drawer-anchor'
-      )}
-    >
-      <DrawerContextGrabber>{children}</DrawerContextGrabber>
-    </DrawerLayout>
+    <>
+      {toolbarData.map((item) => {
+        return (
+          toolbarIconNodes[item.id] &&
+          item.guideCue && (
+            <GuideCue<HTMLButtonElement>
+              key={item.id}
+              {...item.guideCue}
+              triggerNode={toolbarIconNodes[item.id]}
+            />
+          )
+        );
+      })}
+      <DrawerLayout
+        displayMode={DrawerDisplayMode.Embedded}
+        resizable
+        toolbarData={toolbarData}
+        className={cx(
+          drawerLayoutFixesStyles,
+          toolbarData.length === 0 && emptyDrawerLayoutFixesStyles,
+          // classname is the only property leafygreen passes over to the drawer
+          // wrapper component that would allow us to target it
+          'compass-drawer-anchor'
+        )}
+      >
+        <DrawerContextGrabber>{children}</DrawerContextGrabber>
+      </DrawerLayout>
+    </>
   );
 };
 

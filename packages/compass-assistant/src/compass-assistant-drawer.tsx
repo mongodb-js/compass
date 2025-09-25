@@ -25,6 +25,20 @@ const assistantTitleStyles = css({
   justifyContent: 'space-between',
 });
 
+const assistantTitleTextWrapperStyles = css({
+  display: 'flex',
+  alignItems: 'center',
+  flexWrap: 'wrap',
+  transition: 'transform 0.16s ease-in',
+
+  // Shrink the title text and badge when the drawer is narrow
+  '@container (width < 320px)': {
+    '&': {
+      transform: 'scale(0.8) translateX(-10%)',
+    },
+  },
+});
+
 const assistantTitleTextStyles = css({
   marginRight: spacing[200],
 });
@@ -35,9 +49,10 @@ const assistantTitleTextStyles = css({
  * it's within an AssistantProvider.
  */
 export const CompassAssistantDrawer: React.FunctionComponent<{
+  appName: string;
   autoOpen?: boolean;
   hasNonGenuineConnections?: boolean;
-}> = ({ autoOpen, hasNonGenuineConnections = false }) => {
+}> = ({ appName, autoOpen, hasNonGenuineConnections = false }) => {
   const chat = useContext(AssistantContext);
   const { clearChat } = useContext(AssistantActionsContext);
 
@@ -54,7 +69,7 @@ export const CompassAssistantDrawer: React.FunctionComponent<{
       'data-testid': 'assistant-confirm-clear-chat-modal',
     });
     if (confirmed) {
-      clearChat?.();
+      await clearChat?.();
     }
   }, [clearChat]);
 
@@ -73,7 +88,7 @@ export const CompassAssistantDrawer: React.FunctionComponent<{
       id={ASSISTANT_DRAWER_ID}
       title={
         <div className={assistantTitleStyles}>
-          <div>
+          <div className={assistantTitleTextWrapperStyles}>
             <span className={assistantTitleTextStyles}>MongoDB Assistant</span>
             <Badge variant="blue">Preview</Badge>
           </div>
@@ -92,6 +107,14 @@ export const CompassAssistantDrawer: React.FunctionComponent<{
       label="MongoDB Assistant"
       glyph="Sparkle"
       autoOpen={autoOpen}
+      guideCue={{
+        cueId: 'assistant-drawer',
+        title: 'Introducing MongoDB Assistant',
+        description: `AI-powered assistant to intelligently guide you through your database tasks. Get expert MongoDB help and streamline your workflow directly within ${appName}.`,
+        buttonText: 'Got it',
+        tooltipAlign: 'left',
+        tooltipJustify: 'start',
+      }}
     >
       <AssistantChat
         chat={chat}

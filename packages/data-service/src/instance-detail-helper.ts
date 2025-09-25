@@ -85,6 +85,7 @@ export type DatabaseDetails = {
   collection_count: number;
   document_count: number;
   storage_size: number;
+  free_storage_size: number;
   data_size: number;
   index_count: number;
   index_size: number;
@@ -373,6 +374,7 @@ export function adaptDatabaseInfo(
     storage_size: databaseStats.storageSize ?? 0,
     data_size: databaseStats.dataSize ?? 0,
     index_size: databaseStats.indexSize ?? 0,
+    free_storage_size: databaseStats.freeStorageSize ?? 0,
   };
 }
 
