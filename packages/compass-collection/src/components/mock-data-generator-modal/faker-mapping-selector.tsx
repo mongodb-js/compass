@@ -27,11 +27,23 @@ const labelStyles = css({
   fontWeight: 600,
 });
 
+const parseFakerArg = (arg: FakerArg): string => {
+  if (typeof arg === 'object' && arg !== null && 'json' in arg) {
+    try {
+      return JSON.stringify(JSON.parse(arg.json));
+    } catch {
+      return '';
+    }
+  }
+  return arg.toString();
+};
+
 const formatFakerFunctionCallWithArgs = (
   fakerFunction: string,
   fakerArgs: FakerArg[]
 ) => {
-  return `faker.${fakerFunction}(${fakerArgs.join(', ')})`;
+  const parsedFakerArgs = fakerArgs.map(parseFakerArg);
+  return `faker.${fakerFunction}(${parsedFakerArgs.join(', ')})`;
 };
 
 interface Props {
@@ -85,11 +97,11 @@ const FakerMappingSelector = ({
         </Banner>
       ) : (
         <>
-          <Label htmlFor="sample-faker-function-call">
-            Sample Faker Function Call
+          <Label htmlFor="preview-faker-function-call">
+            Preview Faker Function Call
           </Label>
           <Code
-            id="sample-faker-function-call"
+            id="preview-faker-function-call"
             language="javascript"
             copyable={false}
           >

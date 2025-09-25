@@ -38,14 +38,14 @@ describe('Mock Data Generator Utils', () => {
     });
 
     it('returns false for numbers that are too large', () => {
-      expect(areFakerArgsValid([1001])).to.be.false;
-      expect(areFakerArgsValid([-1001])).to.be.false;
-      expect(areFakerArgsValid([{ json: { length: 1001 } } as any])).to.be
+      expect(areFakerArgsValid([10001])).to.be.false;
+      expect(areFakerArgsValid([-10001])).to.be.false;
+      expect(areFakerArgsValid([{ json: { length: 10001 } } as any])).to.be
         .false;
-      expect(areFakerArgsValid([{ json: { length: -1001 } } as any])).to.be
+      expect(areFakerArgsValid([{ json: { length: -10001 } } as any])).to.be
         .false;
       expect(
-        areFakerArgsValid([{ json: { width: 1001, height: 1001 } } as any])
+        areFakerArgsValid([{ json: { width: 10001, height: 10001 } } as any])
       ).to.be.false;
     });
 

@@ -5,7 +5,7 @@ import { faker } from '@faker-js/faker/locale/en';
 const MAX_FAKER_ARGS_LENGTH = 10;
 const MAX_FAKER_STRING_LENGTH = 1000;
 const MAX_FAKER_ARGS_DEPTH = 3;
-const MAX_FAKER_NUMBER_SIZE = 1000;
+const MAX_FAKER_NUMBER_SIZE = 10000;
 
 /**
  * Checks if the provided faker arguments are valid.
@@ -30,8 +30,7 @@ export function areFakerArgsValid(
   for (const arg of fakerArgs) {
     if (arg === null || arg === undefined) {
       return false;
-    }
-    if (typeof arg === 'boolean') {
+    } else if (typeof arg === 'boolean') {
       // booleans are always valid, continue
       continue;
     } else if (typeof arg === 'number') {
@@ -120,7 +119,11 @@ function getFakerModuleAndMethod(method: string) {
 }
 
 function isAllowedHelper(moduleName: string, methodName: string) {
-  return moduleName !== 'helpers' || methodName === 'arrayElement';
+  return (
+    moduleName !== 'helpers' ||
+    methodName === 'arrayElement' ||
+    methodName === 'arrayElements'
+  );
 }
 
 function canInvokeFakerMethod(fakerModule: unknown, methodName: string) {
@@ -141,7 +144,8 @@ function tryInvokeFakerMethod(
   // If args are present and safe, try calling with args
   if (args.length > 0 && areFakerArgsValid(args)) {
     try {
-      callable(...args);
+      const parsedArgs = parseFakerArgs(args);
+      callable(...parsedArgs);
       return { isValid: true, fakerArgs: args };
     } catch {
       // Call with args failed. Fall through to trying without args
@@ -162,4 +166,14 @@ function tryInvokeFakerMethod(
     );
     return { isValid: false, fakerArgs: [] };
   }
+}
+
+// Parse the faker args to ensure we can call the method with the args
+function parseFakerArgs(args: FakerArg[]): FakerArg[] {
+  return args.map((arg) => {
+    if (typeof arg === 'object' && arg !== null && 'json' in arg) {
+      return JSON.parse((arg as { json: string }).json);
+    }
+    return arg;
+  });
 }
