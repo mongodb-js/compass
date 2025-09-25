@@ -53,6 +53,7 @@
     "@mongodb-js/compass-app-stores": "^7.63.0",
     "@mongodb-js/compass-components": "^1.53.0",
     "@mongodb-js/compass-connections": "^1.77.0",
+    "@mongodb-js/compass-editor": "^0.55.0",
     "@mongodb-js/compass-generative-ai": "^0.56.0",
     "@mongodb-js/compass-logging": "^1.7.17",
     "@mongodb-js/compass-telemetry": "^1.15.3",
