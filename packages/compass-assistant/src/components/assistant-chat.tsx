@@ -163,6 +163,15 @@ const disclaimerTextStyles = css({
     fontSize: 'inherit',
   },
 });
+// We do not want the "Learn More (Icon)" to end up split up across multiple lines.
+const disclaimerLinkFixesStyles = css({
+  whiteSpace: 'nowrap',
+});
+// Submit button text should not wrap.
+const messageActionsFixesStyles = css({
+  whiteSpace: 'nowrap',
+});
+
 /** TODO(COMPASS-9751): This should be handled by Leafygreen's disclaimers update */
 const inputBarStyleFixes = css({
   width: '100%',
@@ -402,6 +411,7 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
                         onSubmitFeedback={(event, state) =>
                           handleFeedback({ message, state })
                         }
+                        className={messageActionsFixesStyles}
                       />
                     )}
                     {sources.length > 0 && <Message.Links links={sources} />}
@@ -448,6 +458,7 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
           <DisclaimerText className={disclaimerTextStyles}>
             AI can make mistakes. Review for accuracy.{' '}
             <Link
+              className={disclaimerLinkFixesStyles}
               hideExternalIcon={false}
               href={GEN_AI_FAQ_LINK}
               target="_blank"
