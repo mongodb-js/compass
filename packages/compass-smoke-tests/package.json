@@ -11,7 +11,7 @@
     "email": "compass@mongodb.com"
   },
   "homepage": "https://github.com/mongodb-js/compass",
-  "version": "1.1.37",
+  "version": "1.1.38",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/compass.git"
@@ -35,7 +35,7 @@
     "@mongodb-js/prettier-config-compass": "^1.2.8",
     "@mongodb-js/tsconfig-compass": "^1.2.10",
     "@types/node": "^20",
-    "compass-e2e-tests": "^1.43.5",
+    "compass-e2e-tests": "^1.43.6",
     "depcheck": "^1.4.1",
     "debug": "^4.3.4",
     "hadron-build": "^25.8.15",

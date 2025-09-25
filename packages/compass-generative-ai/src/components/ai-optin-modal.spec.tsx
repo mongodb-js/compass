@@ -127,7 +127,6 @@ describe('AIOptInModal Component', function () {
     it('should show warning banner when AI features are disabled', async function () {
       await mockPreferences.savePreferences({
         enableGenAIFeaturesAtlasProject: false,
-        enableGenAISampleDocumentPassingOnAtlasProject: false,
       });
       render(
         <PreferencesProvider value={mockPreferences}>
@@ -147,7 +146,7 @@ describe('AIOptInModal Component', function () {
     it('should show info banner with correct copy when only the "Sending Sample Field Values in DE Gen AI Features" setting is disabled', async function () {
       await mockPreferences.savePreferences({
         enableGenAIFeaturesAtlasProject: true,
-        enableGenAISampleDocumentPassingOnAtlasProject: false,
+        enableGenAISampleDocumentPassing: false,
       });
       render(
         <PreferencesProvider value={mockPreferences}>
@@ -169,7 +168,7 @@ describe('AIOptInModal Component', function () {
     it('should show info banner with correct copy when both project settings are enabled', async function () {
       await mockPreferences.savePreferences({
         enableGenAIFeaturesAtlasProject: true,
-        enableGenAISampleDocumentPassingOnAtlasProject: true,
+        enableGenAISampleDocumentPassing: true,
       });
       render(
         <PreferencesProvider value={mockPreferences}>

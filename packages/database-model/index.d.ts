@@ -10,7 +10,9 @@ interface DatabaseProps {
   collectionsStatusError: string | null;
   collection_count: number | undefined;
   document_count: number | undefined;
+  calculated_storage_size: number | undefined;
   storage_size: number | undefined;
+  free_storage_size: number | undefined;
   data_size: number | undefined;
   index_count: number | undefined;
   index_size: number | undefined;

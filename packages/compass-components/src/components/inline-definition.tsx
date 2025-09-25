@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 import React from 'react';
-import { css } from '@leafygreen-ui/emotion';
+import { css, cx } from '@leafygreen-ui/emotion';
 import { Body, Tooltip } from './leafygreen';
 
 const underline = css({
@@ -13,6 +13,10 @@ const underline = css({
 
 const maxWidth = css({
   maxWidth: '360px',
+});
+
+const breakSpaces = css({
+  whiteSpace: 'break-spaces',
 });
 
 const InlineDefinition: React.FunctionComponent<
@@ -34,7 +38,7 @@ const InlineDefinition: React.FunctionComponent<
       }
       {...tooltipProps}
     >
-      <Body className={maxWidth}>{definition}</Body>
+      <Body className={cx(maxWidth, breakSpaces)}>{definition}</Body>
     </Tooltip>
   );
 };

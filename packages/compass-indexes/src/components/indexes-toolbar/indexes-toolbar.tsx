@@ -1,9 +1,6 @@
 import React, { useCallback } from 'react';
 import { connect } from 'react-redux';
-import {
-  usePreference,
-  withPreferences,
-} from 'compass-preferences-model/provider';
+import { usePreferences } from 'compass-preferences-model/provider';
 import {
   Button,
   css,
@@ -107,18 +104,21 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
   onRefreshIndexes,
   onIndexViewChanged,
   serverVersion,
-  readOnly, // preferences readOnly.
   collectionStats,
 }) => {
-  const isSearchManagementActive = usePreference('enableAtlasSearchIndexes');
+  const {
+    readWrite: preferencesReadWrite,
+    enableAtlasSearchIndexes: isSearchManagementActive,
+    showInsights: preferencesShowInsights,
+  } = usePreferences(['readWrite', 'enableAtlasSearchIndexes', 'showInsights']);
   const { atlasMetadata } = useConnectionInfo();
-  const showInsights = usePreference('showInsights') && !errorMessage;
+  const showInsights = preferencesShowInsights && !errorMessage;
   const showCreateIndexButton =
     (!isReadonlyView ||
       VIEW_PIPELINE_UTILS.isVersionSearchCompatibleForViewsCompass(
         serverVersion
       )) &&
-    !readOnly &&
+    !preferencesReadWrite &&
     !errorMessage;
   const refreshButtonIcon = isRefreshing ? (
     <div className={spinnerStyles}>
@@ -411,7 +411,4 @@ const mapDispatch = {
   onIndexViewChanged: indexViewChanged,
 };
 
-export default connect(
-  mapState,
-  mapDispatch
-)(withPreferences(IndexesToolbar, ['readOnly']));
+export default connect(mapState, mapDispatch)(IndexesToolbar);

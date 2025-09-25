@@ -192,7 +192,7 @@ export type NamespaceItemCardProps = {
   data: DataProp[];
   badges?: BadgeProp[] | null;
   inferredFromPrivileges: boolean;
-  onItemClick(id: string): void;
+  onItemClick: (id: string) => void;
   onItemDeleteClick?: (id: string) => void;
 };
 

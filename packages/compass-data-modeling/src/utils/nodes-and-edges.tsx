@@ -60,7 +60,7 @@ function getFieldTypeDisplay(bsonTypes: string[]) {
         </Body>
       }
     >
-      <div>(mixed)</div>
+      <i>(mixed)</i>
     </InlineDefinition>
   );
 }
