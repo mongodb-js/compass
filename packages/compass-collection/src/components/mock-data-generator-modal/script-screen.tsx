@@ -114,6 +114,13 @@ const ScriptScreen = ({
 
   return (
     <section className={outerSectionStyles}>
+      {true && (
+        <Banner variant="danger">
+          <strong>Script Generation Failed:</strong> ERROR
+          <br />
+          Please go back to the start screen to re-submit the collection schema.
+        </Banner>
+      )}
       <section>
         <Body as="h2" baseFontSize={16} weight="medium">
           Prerequisites
@@ -145,14 +152,6 @@ const ScriptScreen = ({
           In the directory that you created, create a file named
           mockdatascript.js (or any name you&apos;d like).
         </Body>
-        {!scriptResult.success && (
-          <Banner variant="danger">
-            <strong>Script Generation Failed:</strong> {scriptResult.error}
-            <br />
-            Please go back to the start screen to re-submit the collection
-            schema.
-          </Banner>
-        )}
         <Code
           copyable={scriptResult.success}
           language={Language.JavaScript}
