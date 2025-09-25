@@ -50,8 +50,8 @@ describe('ListEditor', function () {
   });
 
   describe('when rendered with multiple items', function () {
-    let onAddItemSpy;
-    let onRemoveItemSpy;
+    let onAddItemSpy: sinon.SinonSpy;
+    let onRemoveItemSpy: sinon.SinonSpy;
 
     beforeEach(function () {
       onAddItemSpy = sinon.spy();

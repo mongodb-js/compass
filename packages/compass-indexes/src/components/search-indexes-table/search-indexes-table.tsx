@@ -2,7 +2,7 @@ import React, { useMemo, useEffect } from 'react';
 import { connect } from 'react-redux';
 import type { Document } from 'mongodb';
 import type { SearchIndex, SearchIndexStatus } from 'mongodb-data-service';
-import { withPreferences } from 'compass-preferences-model/provider';
+import { usePreference } from 'compass-preferences-model/provider';
 import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
 import {
   Badge,
@@ -301,7 +301,6 @@ export const SearchIndexesTable: React.FunctionComponent<
   indexes,
   isWritable,
   collectionStats,
-  readOnly,
   status,
   onOpenCreateModalClick,
   onEditIndexClick,
@@ -310,6 +309,7 @@ export const SearchIndexesTable: React.FunctionComponent<
   onSearchIndexesClosed,
   isReadonlyView,
 }) => {
+  const preferencesReadWrite = usePreference('readWrite');
   const { openCollectionWorkspace } = useOpenWorkspace();
   const { id: connectionId } = useConnectionInfo();
 
@@ -417,7 +417,7 @@ export const SearchIndexesTable: React.FunctionComponent<
     );
   }
 
-  const canModifyIndex = isWritable && !readOnly;
+  const canModifyIndex = isWritable && !preferencesReadWrite;
 
   return (
     <IndexesTable
@@ -452,7 +452,4 @@ const mapDispatch = {
   onSearchIndexesClosed: stopPollingSearchIndexes,
 };
 
-export default connect(
-  mapState,
-  mapDispatch
-)(withPreferences(SearchIndexesTable, ['readOnly']));
+export default connect(mapState, mapDispatch)(SearchIndexesTable);
