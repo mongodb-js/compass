@@ -137,7 +137,8 @@ export async function createNestedDocumentsCollection(
 
 export async function createNumbersCollection(
   name = 'numbers',
-  numberOfRecords = 1000
+  numberOfRecords = 1000,
+  createView = false
 ): Promise<void> {
   await Promise.all(
     test_dbs.map(async (db) => {
@@ -146,6 +147,12 @@ export async function createNumbersCollection(
         .insertMany(
           [...Array(numberOfRecords).keys()].map((i) => ({ i, j: 0 }))
         );
+      if (createView) {
+        await db.createCollection(`${name}_view`, {
+          viewOn: name,
+          pipeline: [{ $match: { _id: { $exists: true } } }],
+        });
+      }
     })
   );
 }

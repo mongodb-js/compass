@@ -1,32 +1,50 @@
-import React, { useContext, useEffect, useRef } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import type { AllPreferences } from 'compass-preferences-model/provider';
 import { CompassWebPreferencesAccess } from 'compass-preferences-model/provider';
 
 export type SandboxPreferencesUpdateTrigger = (
-  updatePreference: (preferences: Partial<AllPreferences>) => Promise<void>
+  updatePreference: (
+    preferences: Partial<AllPreferences>
+  ) => Promise<AllPreferences>
 ) => () => void;
 
 const SandboxPreferencesUpdateTriggerContext =
   React.createContext<SandboxPreferencesUpdateTrigger | null>(null);
 
-function useSandboxPreferencesUpdateTrigger() {
-  const updateTrigger = useContext(SandboxPreferencesUpdateTriggerContext);
-  return updateTrigger;
-}
+const kSandboxUpdateFn = Symbol.for('@compass-web-sandbox-update-preferences');
 
 /**
  * Only used in the sandbox to provide a way to update preferences.
  * @internal
  */
 export const SandboxPreferencesUpdateProvider = ({
-  value,
   children,
 }: {
-  value: SandboxPreferencesUpdateTrigger | null;
   children: React.ReactNode;
 }) => {
+  const [updateTrigger] = useState<SandboxPreferencesUpdateTrigger>(() => {
+    return (
+      updatePreferencesFn: (
+        preferences: Partial<AllPreferences>
+      ) => Promise<AllPreferences>
+    ) => {
+      // eslint-disable-next-line no-console
+      console.info(
+        `[compass-web sandbox] call window[Symbol.for('@compass-web-sandbox-update-preferences')]({}) to dynamically update preferences`
+      );
+      (globalThis as any)[kSandboxUpdateFn] = (
+        preferences: Partial<AllPreferences>
+      ) => {
+        return updatePreferencesFn(preferences);
+      };
+      return () => {
+        delete (globalThis as any)[kSandboxUpdateFn];
+      };
+    };
+  });
+
   return (
-    <SandboxPreferencesUpdateTriggerContext.Provider value={value}>
+    <SandboxPreferencesUpdateTriggerContext.Provider value={updateTrigger}>
       {children}
     </SandboxPreferencesUpdateTriggerContext.Provider>
   );
@@ -62,13 +80,15 @@ export function useCompassWebPreferences(
     })
   );
 
-  const onPreferencesUpdateTriggered = useSandboxPreferencesUpdateTrigger();
+  const onPreferencesUpdateTriggered = useContext(
+    SandboxPreferencesUpdateTriggerContext
+  );
 
   useEffect(() => {
-    // This is used by our e2e tests so that we can call a global function in the browser
-    // from the testing runtime to update preferences.
+    // This is used by our sandbox so that we can call a global function in the
+    // browser from the sandbox / testing runtime to update preferences.
     return onPreferencesUpdateTriggered?.(async (preferences) => {
-      await preferencesAccess.current.savePreferences(preferences);
+      return await preferencesAccess.current.savePreferences(preferences);
     });
   }, [onPreferencesUpdateTriggered]);
 

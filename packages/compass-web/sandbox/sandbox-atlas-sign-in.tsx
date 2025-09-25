@@ -20,6 +20,7 @@ type ProjectParams = {
   enableGenAISampleDocumentPassing: boolean;
   enableGenAIFeaturesAtlasOrg: boolean;
   optInGenAIFeatures: boolean;
+  userRoles: Record<string, boolean>;
 };
 
 type AtlasLoginReturnValue =
@@ -114,17 +115,19 @@ export function useAtlasProxySignIn(): AtlasLoginReturnValue {
           if (!projectId) {
             throw new Error('failed to get projectId');
           }
+          const params = await fetch(
+            `/cloud-mongodb-com/v2/${projectId}/params`
+          ).then((res) => {
+            return res.json();
+          });
           const {
             csrfToken,
             csrfTime,
             appUser: { isOptedIntoDataExplorerGenAIFeatures },
             currentOrganization: { genAIFeaturesEnabled },
             featureFlags: { groupEnabledFeatureFlags },
-          } = await fetch(`/cloud-mongodb-com/v2/${projectId}/params`).then(
-            (res) => {
-              return res.json();
-            }
-          );
+            userRoles,
+          } = params;
           setProjectParams({
             projectId,
             csrfToken,
@@ -138,6 +141,7 @@ export function useAtlasProxySignIn(): AtlasLoginReturnValue {
             enableGenAIFeaturesAtlasProject: groupEnabledFeatureFlags.includes(
               'ENABLE_DATA_EXPLORER_GEN_AI_FEATURES'
             ),
+            userRoles,
           });
           setStatus('signed-in');
           if (IS_CI) {
