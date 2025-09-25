@@ -4,6 +4,6 @@
     "outDir": "dist",
     "skipLibCheck": true
   },
-  "include": ["src/**/*"],
-  "exclude": ["./src/**/*.spec.*"]
+  "include": ["**/*"],
+  "exclude": ["node_modules", "dist"]
 }

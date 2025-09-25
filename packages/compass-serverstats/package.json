@@ -13,10 +13,10 @@
   },
   "types": "./dist/index.d.ts",
   "scripts": {
-    "compile": "tsc -p tsconfig.json",
+    "compile": "tsc -p tsconfig-build.json",
     "test": "mocha",
     "test-electron": "xvfb-maybe electron-mocha --no-sandbox",
-    "typecheck": "tsc -p tsconfig-lint.json --noEmit",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
     "check": "npm run typecheck && npm run lint && npm run depcheck",
     "check-ci": "npm run check",
     "eslint": "eslint-compass",
