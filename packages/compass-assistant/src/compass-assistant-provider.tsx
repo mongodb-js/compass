@@ -280,6 +280,7 @@ export const CompassAssistantProvider = registerCompassPlugin(
         initialProps.chat ??
         new Chat({
           transport: new DocsProviderTransport({
+            appName: initialProps.appNameForPrompt,
             instructions: buildConversationInstructionsPrompt({
               target: initialProps.appNameForPrompt,
             }),
