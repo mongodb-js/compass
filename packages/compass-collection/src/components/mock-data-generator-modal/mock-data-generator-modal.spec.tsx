@@ -538,8 +538,8 @@ describe('MockDataGeneratorModal', () => {
       );
     });
 
-    it('does not show faker args that are too large', async () => {
-      const largeLengthArgs = Array.from({ length: 11 }, () => 'test');
+    it('displays preview of the faker call without args when the args are invalid', async () => {
+      const largeLengthArgs = Array.from({ length: 11 }, () => 'testArg');
       const mockServices = createMockServices();
       mockServices.atlasAiService.getMockDataSchema = () =>
         Promise.resolve({
@@ -548,7 +548,45 @@ describe('MockDataGeneratorModal', () => {
               fieldPath: 'name',
               mongoType: 'String',
               fakerMethod: 'person.firstName',
-              fakerArgs: [JSON.stringify(largeLengthArgs)],
+              fakerArgs: largeLengthArgs,
+              isArray: false,
+              probability: 1.0,
+            },
+            {
+              fieldPath: 'age',
+              mongoType: 'Int32',
+              fakerMethod: 'number.int',
+              fakerArgs: [
+                {
+                  json: JSON.stringify({
+                    a: largeLengthArgs,
+                  }),
+                },
+              ],
+              isArray: false,
+              probability: 1.0,
+            },
+            {
+              fieldPath: 'username',
+              mongoType: 'String',
+              fakerMethod: 'string.alpha',
+              // large string
+              fakerArgs: ['a'.repeat(1001)],
+              isArray: false,
+              probability: 1.0,
+            },
+            {
+              fieldPath: 'avatar',
+              mongoType: 'String',
+              fakerMethod: 'image.url',
+              fakerArgs: [
+                {
+                  json: JSON.stringify({
+                    width: 100_000,
+                    height: 100_000,
+                  }),
+                },
+              ],
               isArray: false,
               probability: 1.0,
             },
@@ -564,8 +602,19 @@ describe('MockDataGeneratorModal', () => {
               type: 'String',
               probability: 1.0,
             },
+            age: {
+              type: 'Int32',
+              probability: 1.0,
+            },
+            username: {
+              type: 'String',
+              probability: 1.0,
+            },
+            avatar: {
+              type: 'String',
+              probability: 1.0,
+            },
           },
-          sampleDocument: { name: 'Peaches' },
         },
       });
 
@@ -574,6 +623,24 @@ describe('MockDataGeneratorModal', () => {
       await waitFor(() => {
         expect(screen.getByTestId('faker-schema-editor')).to.exist;
       });
+
+      userEvent.click(screen.getByText('name'));
+      expect(screen.getByTestId('faker-function-call-preview')).to.exist;
+      expect(screen.queryByText(/testArg/)).to.not.exist;
+
+      userEvent.click(screen.getByText('age'));
+      expect(screen.getByTestId('faker-function-call-preview')).to.exist;
+      expect(screen.queryByText(/testArg/)).to.not.exist;
+
+      userEvent.click(screen.getByText('username'));
+      expect(screen.queryByText(/aaaaaaa/)).to.not.exist;
+      expect(screen.getByTestId('faker-function-call-preview')).to.exist;
+
+      userEvent.click(screen.getByText('avatar'));
+      expect(screen.getByTestId('faker-function-call-preview')).to.exist;
+      expect(screen.queryByText(/width/)).to.not.exist;
+      expect(screen.queryByText(/height/)).to.not.exist;
+      expect(screen.queryByText(/100000/)).to.not.exist;
     });
 
     it('disables the Next button when the faker schema mapping is not confirmed', async () => {

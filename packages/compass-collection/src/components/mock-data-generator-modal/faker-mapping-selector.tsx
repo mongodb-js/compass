@@ -97,11 +97,12 @@ const FakerMappingSelector = ({
         </Banner>
       ) : (
         <>
-          <Label htmlFor="preview-faker-function-call">
+          <Label htmlFor="faker-function-call-preview">
             Preview Faker Function Call
           </Label>
           <Code
-            id="preview-faker-function-call"
+            id="faker-function-call-preview"
+            data-testid="faker-function-call-preview"
             language="javascript"
             copyable={false}
           >
