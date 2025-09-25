@@ -116,7 +116,7 @@ const ScriptScreen = ({
     <section className={outerSectionStyles}>
       {!scriptResult.success && (
         <Banner variant="danger">
-          <strong>Script Generation Failed:</strong> ERROR
+          <strong>Script Generation Failed:</strong> {scriptResult.error}
           <br />
           Please go back to the start screen to re-submit the collection schema.
         </Banner>
