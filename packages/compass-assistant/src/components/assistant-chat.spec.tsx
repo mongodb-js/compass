@@ -248,9 +248,8 @@ describe('AssistantChat', function () {
     userEvent.type(inputField, 'What is aggregation?');
     userEvent.click(sendButton);
 
-    expect(ensureOptInAndSendStub.called).to.be.true;
-
     await waitFor(() => {
+      expect(ensureOptInAndSendStub.called).to.be.true;
       expect(track).to.have.been.calledWith('Assistant Prompt Submitted', {
         user_input_length: 'What is aggregation?'.length,
       });
@@ -281,9 +280,8 @@ describe('AssistantChat', function () {
     userEvent.type(inputField, '  What is sharding?  ');
     userEvent.click(screen.getByLabelText('Send message'));
 
-    expect(ensureOptInAndSendStub.called).to.be.true;
-
     await waitFor(() => {
+      expect(ensureOptInAndSendStub.called).to.be.true;
       expect(track).to.have.been.calledWith('Assistant Prompt Submitted', {
         user_input_length: 'What is sharding?'.length,
       });

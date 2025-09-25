@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useContext } from 'react';
+import React, { useCallback, useEffect, useContext, useRef } from 'react';
 import type { AssistantMessage } from '../compass-assistant-provider';
 import { AssistantActionsContext } from '../compass-assistant-provider';
 import type { Chat } from '../@ai-sdk/react/chat-react';
@@ -211,6 +211,10 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
 }) => {
   const track = useTelemetry();
   const darkMode = useDarkMode();
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
+  const previousLastMessageId = useRef<string | undefined>(undefined);
+  const { id: lastMessageId, role: lastMessageRole } =
+    chat.messages[chat.messages.length - 1] ?? {};
 
   const { ensureOptInAndSend } = useContext(AssistantActionsContext);
   const { messages, status, error, clearError, setMessages } = useChat({
@@ -221,6 +225,26 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
       }));
     },
   });
+
+  const scrollToBottom = useCallback(() => {
+    if (messagesContainerRef.current) {
+      // Since the container uses flexDirection: 'column-reverse',
+      // scrolling to the bottom means setting scrollTop to 0
+      messagesContainerRef.current.scrollTop = 0;
+    }
+  }, []);
+
+  useEffect(() => {
+    if (
+      lastMessageId &&
+      previousLastMessageId.current !== undefined &&
+      lastMessageId !== previousLastMessageId.current &&
+      lastMessageRole === 'user'
+    ) {
+      scrollToBottom();
+    }
+    previousLastMessageId.current = lastMessageId;
+  }, [lastMessageId, lastMessageRole, scrollToBottom]);
 
   useEffect(() => {
     const hasExistingNonGenuineWarning = chat.messages.some(
@@ -240,9 +264,10 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
   }, [hasNonGenuineConnections, chat, setMessages]);
 
   const handleMessageSend = useCallback(
-    (messageBody: string) => {
+    async (messageBody: string) => {
       const trimmedMessageBody = messageBody.trim();
       if (trimmedMessageBody) {
+        await chat.stop();
         void ensureOptInAndSend?.({ text: trimmedMessageBody }, {}, () => {
           track('Assistant Prompt Submitted', {
             user_input_length: trimmedMessageBody.length,
@@ -250,7 +275,7 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
         });
       }
     },
-    [track, ensureOptInAndSend]
+    [track, ensureOptInAndSend, chat]
   );
 
   const handleFeedback = useCallback(
@@ -351,6 +376,7 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
           <div
             data-testid="assistant-chat-messages"
             className={messageFeedFixesStyles}
+            ref={messagesContainerRef}
           >
             <div className={messagesWrapStyles}>
               {messages.map((message, index) => {
@@ -450,7 +476,9 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
           <div className={inputBarStyleFixes}>
             <InputBar
               data-testid="assistant-chat-input"
-              onMessageSend={handleMessageSend}
+              onMessageSend={(messageBody) =>
+                void handleMessageSend(messageBody)
+              }
               state={status === 'submitted' ? 'loading' : undefined}
               textareaProps={{
                 placeholder: 'Ask a question',
