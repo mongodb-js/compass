@@ -163,12 +163,9 @@ const disclaimerTextStyles = css({
     fontSize: 'inherit',
   },
 });
-// We do not want the "Learn More (Icon)" to end up split up across multiple lines.
-const disclaimerLinkFixesStyles = css({
-  whiteSpace: 'nowrap',
-});
-// Submit button text should not wrap.
-const messageActionsFixesStyles = css({
+// On small screens, many components end up breaking words which we don't want.
+// This is a general temporary fix for all components that we want to prevent from wrapping.
+const noWrapFixesStyles = css({
   whiteSpace: 'nowrap',
 });
 
@@ -411,10 +408,15 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
                         onSubmitFeedback={(event, state) =>
                           handleFeedback({ message, state })
                         }
-                        className={messageActionsFixesStyles}
+                        className={noWrapFixesStyles}
                       />
                     )}
-                    {sources.length > 0 && <Message.Links links={sources} />}
+                    {sources.length > 0 && (
+                      <Message.Links
+                        className={noWrapFixesStyles}
+                        links={sources}
+                      />
+                    )}
                   </Message>
                 );
               })}
@@ -458,7 +460,7 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
           <DisclaimerText className={disclaimerTextStyles}>
             AI can make mistakes. Review for accuracy.{' '}
             <Link
-              className={disclaimerLinkFixesStyles}
+              className={noWrapFixesStyles}
               hideExternalIcon={false}
               href={GEN_AI_FAQ_LINK}
               target="_blank"
