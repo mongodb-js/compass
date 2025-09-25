@@ -157,17 +157,11 @@ export const DrawerContentProvider: React.FunctionComponent<{
       return;
     }
 
-    if (
-      drawerCurrentTab &&
-      drawerCurrentTab !== prevDrawerCurrentTabRef.current
-    ) {
+    if (drawerCurrentTab) {
       onDrawerSectionOpen?.(drawerCurrentTab);
     }
 
-    if (
-      prevDrawerCurrentTabRef.current &&
-      drawerCurrentTab !== prevDrawerCurrentTabRef.current
-    ) {
+    if (prevDrawerCurrentTabRef.current) {
       onDrawerSectionHide?.(prevDrawerCurrentTabRef.current);
     }
 
