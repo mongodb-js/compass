@@ -7,17 +7,20 @@ import {
   IconButton,
   showConfirmation,
   spacing,
+  Tooltip,
 } from '@mongodb-js/compass-components';
 import { AssistantChat } from './components/assistant-chat';
 import {
   ASSISTANT_DRAWER_ID,
-  AssistantActionsContext,
   AssistantContext,
+  type AssistantMessage,
 } from './compass-assistant-provider';
 import {
   useIsAIFeatureEnabled,
   usePreference,
 } from 'compass-preferences-model/provider';
+import { useChat } from './@ai-sdk/react/use-chat';
+import type { Chat } from './@ai-sdk/react/chat-react';
 
 const assistantTitleStyles = css({
   display: 'flex',
@@ -54,24 +57,9 @@ export const CompassAssistantDrawer: React.FunctionComponent<{
   hasNonGenuineConnections?: boolean;
 }> = ({ appName, autoOpen, hasNonGenuineConnections = false }) => {
   const chat = useContext(AssistantContext);
-  const { clearChat } = useContext(AssistantActionsContext);
 
   const enableAIAssistant = usePreference('enableAIAssistant');
   const isAiFeatureEnabled = useIsAIFeatureEnabled();
-
-  const handleClearChat = useCallback(async () => {
-    const confirmed = await showConfirmation({
-      title: 'Clear this chat?',
-      description:
-        'The current chat will be cleared, and chat history will not be retrievable.',
-      buttonText: 'Clear chat',
-      variant: 'danger',
-      'data-testid': 'assistant-confirm-clear-chat-modal',
-    });
-    if (confirmed) {
-      await clearChat?.();
-    }
-  }, [clearChat]);
 
   if (!enableAIAssistant || !isAiFeatureEnabled) {
     return null;
@@ -92,16 +80,7 @@ export const CompassAssistantDrawer: React.FunctionComponent<{
             <span className={assistantTitleTextStyles}>MongoDB Assistant</span>
             <Badge variant="blue">Preview</Badge>
           </div>
-          <IconButton
-            aria-label="Clear chat"
-            onClick={() => {
-              void handleClearChat();
-            }}
-            title="Clear chat"
-            data-testid="assistant-clear-chat"
-          >
-            <Icon glyph="Eraser" />
-          </IconButton>
+          <ClearChatButton chat={chat} />
         </div>
       }
       label="MongoDB Assistant"
@@ -121,5 +100,56 @@ export const CompassAssistantDrawer: React.FunctionComponent<{
         hasNonGenuineConnections={hasNonGenuineConnections}
       />
     </DrawerSection>
+  );
+};
+
+export const ClearChatButton: React.FunctionComponent<{
+  chat: Chat<AssistantMessage>;
+}> = ({ chat }) => {
+  const { clearError, stop } = useChat({ chat });
+
+  const handleClearChat = useCallback(async () => {
+    const confirmed = await showConfirmation({
+      title: 'Clear this chat?',
+      description:
+        'The current chat will be cleared, and chat history will not be retrievable.',
+      buttonText: 'Clear chat',
+      variant: 'danger',
+      'data-testid': 'assistant-confirm-clear-chat-modal',
+    });
+    if (confirmed) {
+      await stop();
+      clearError();
+      chat.messages = chat.messages.filter(
+        (message) => message.metadata?.isPermanent
+      );
+    }
+  }, [stop, clearError, chat]);
+
+  const isChatEmpty =
+    chat.messages.filter((message) => !message.metadata?.isPermanent).length ===
+    0;
+
+  if (isChatEmpty) {
+    return null;
+  }
+
+  return (
+    <Tooltip
+      trigger={
+        <IconButton
+          aria-label="Clear chat"
+          onClick={() => {
+            void handleClearChat();
+          }}
+          title="Clear chat"
+          data-testid="assistant-clear-chat"
+        >
+          <Icon glyph="Eraser" />
+        </IconButton>
+      }
+    >
+      Clear chat
+    </Tooltip>
   );
 };
