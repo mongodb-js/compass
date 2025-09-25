@@ -134,6 +134,8 @@ const messageFeedFixesStyles = css({
   display: 'flex',
   flexDirection: 'column-reverse',
   overflowY: 'auto',
+  width: '100%',
+  wordBreak: 'break-word',
   flex: 1,
   padding: spacing[400],
   gap: spacing[400],
@@ -161,6 +163,12 @@ const disclaimerTextStyles = css({
     fontSize: 'inherit',
   },
 });
+// On small screens, many components end up breaking words which we don't want.
+// This is a general temporary fix for all components that we want to prevent from wrapping.
+const noWrapFixesStyles = css({
+  whiteSpace: 'nowrap',
+});
+
 /** TODO(COMPASS-9751): This should be handled by Leafygreen's disclaimers update */
 const inputBarStyleFixes = css({
   width: '100%',
@@ -400,9 +408,15 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
                         onSubmitFeedback={(event, state) =>
                           handleFeedback({ message, state })
                         }
+                        className={noWrapFixesStyles}
                       />
                     )}
-                    {sources.length > 0 && <Message.Links links={sources} />}
+                    {sources.length > 0 && (
+                      <Message.Links
+                        className={noWrapFixesStyles}
+                        links={sources}
+                      />
+                    )}
                   </Message>
                 );
               })}
@@ -423,7 +437,7 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
                   size="large"
                   style={{ color: palette.green.dark1 }}
                 />
-                <span>MongoDB Assistant.</span>
+                <span>MongoDB Assistant</span>
               </h4>
               <p className={welcomeTextStyles}>
                 Welcome to the MongoDB Assistant!
@@ -446,6 +460,7 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
           <DisclaimerText className={disclaimerTextStyles}>
             AI can make mistakes. Review for accuracy.{' '}
             <Link
+              className={noWrapFixesStyles}
               hideExternalIcon={false}
               href={GEN_AI_FAQ_LINK}
               target="_blank"
