@@ -53,9 +53,10 @@ export function generateScript(
 
     // Generate unformatted script
     const unformattedScript = `// Mock Data Generator Script
-// Generated for collection: ${JSON.stringify(
-      options.databaseName
-    )}.${JSON.stringify(options.collectionName)}
+// Generated for collection: ${options.databaseName.replace(
+      /[\r\n]/g, // Prevent newlines in names that could break the comment
+      ' '
+    )}.${options.collectionName.replace(/[\r\n]/g, ' ')}
 // Document count: ${options.documentCount}
 
 const { faker } = require('@faker-js/faker');
@@ -79,9 +80,10 @@ db.getCollection(${JSON.stringify(
       options.collectionName
     )}).insertMany(documents);
 
-console.log("Successfully inserted " + documents.length + " documents into " + ${JSON.stringify(
-      options.databaseName
-    )} + "." + ${JSON.stringify(options.collectionName)});`;
+console.log(\`Successfully inserted \${documents.length} documents into ${options.databaseName.replace(
+      /[`$]/g, // Escape backticks and dollar signs
+      '\\$&'
+    )}.${options.collectionName.replace(/[`$]/g, '\\$&')}\`);`;
 
     // Format the script using prettier
     const script = prettify(unformattedScript, 'javascript');

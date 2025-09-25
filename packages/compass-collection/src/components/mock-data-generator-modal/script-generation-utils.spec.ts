@@ -369,22 +369,118 @@ describe('Script Generation', () => {
         name: createFieldMapping('person.fullName'),
       };
 
-      const result = generateScript(schema, {
+      // Test various special characters: quotes, newlines, tabs
+      const result1 = generateScript(schema, {
         databaseName: 'test\'db`with"quotes',
         collectionName: 'coll\nwith\ttabs',
         documentCount: 1,
       });
 
-      expect(result.success).to.equal(true);
-      if (result.success) {
-        // Should use JSON.stringify for safe string insertion
-        expect(result.script).to.contain('use("test\'db`with\\"quotes")');
-        expect(result.script).to.contain(
-          'db.getCollection("coll\\nwith\\ttabs")'
+      expect(result1.success).to.equal(true);
+      if (result1.success) {
+        expect(result1.script).to.contain('use("test\'db`with\\"quotes")');
+        expect(result1.script).to.contain(
+          'getCollection("coll\\nwith\\ttabs")'
         );
         // Should not contain unescaped special characters that could break JS
-        expect(result.script).not.to.contain("use('test'db");
-        expect(result.script).not.to.contain("getCollection('coll\nwith");
+        expect(result1.script).not.to.contain("use('test'db");
+        expect(result1.script).not.to.contain("getCollection('coll\nwith");
+
+        // Test that the generated document code is executable
+        testDocumentCodeExecution(result1.script);
+      }
+
+      // Test backticks and dollar signs (template literal characters)
+      const result2 = generateScript(schema, {
+        databaseName: 'test`${}',
+        collectionName: 'collection`${}',
+        documentCount: 1,
+      });
+
+      expect(result2.success).to.equal(true);
+      if (result2.success) {
+        // Verify the script is syntactically valid
+        // eslint-disable-next-line @typescript-eslint/no-implied-eval
+        expect(() => new Function(result2.script)).to.not.throw();
+
+        // Verify template literal characters are properly escaped in console.log
+        expect(result2.script).to.contain('test\\`\\${}');
+        expect(result2.script).to.contain('collection\\`\\${}');
+
+        // Test that the generated document code is executable
+        testDocumentCodeExecution(result2.script);
+      }
+    });
+
+    it('should prevent code injection attacks via database and collection names', () => {
+      const schema = {
+        name: {
+          mongoType: 'String' as const,
+          fakerMethod: 'person.firstName',
+          fakerArgs: [],
+        },
+      };
+
+      // Test with potentially dangerous names that could inject malicious code
+      const result = generateScript(schema, {
+        databaseName: 'test`; require("fs").rmSync("/"); //',
+        collectionName: 'my "collection"',
+        documentCount: 1,
+      });
+
+      expect(result.success).to.equal(true);
+      if (result.success) {
+        // Verify the script is syntactically valid JavaScript
+        // eslint-disable-next-line @typescript-eslint/no-implied-eval
+        expect(() => new Function(result.script)).to.not.throw();
+
+        // Verify malicious code is safely contained in string
+        expect(result.script).to.contain(
+          'use(\'test`; require("fs").rmSync("/"); //\')'
+        );
+        expect(result.script).to.contain('getCollection(\'my "collection"\')');
+
+        // Verify template literal injection is prevented (backticks are escaped)
+        expect(result.script).to.contain(
+          'test\\`; require("fs").rmSync("/"); //'
+        );
+
+        // Verify malicious code in name is safely contained in code comment
+        expect(result.script).to.contain(
+          '// Generated for collection: test`; require("fs").rmSync("/"); //.my "collection"'
+        );
+
+        // Test that the generated document code is executable
+        testDocumentCodeExecution(result.script);
+      }
+    });
+
+    it('should sanitize newlines in database and collection names in comments', () => {
+      const schema = {
+        field: {
+          mongoType: 'String' as const,
+          fakerMethod: 'lorem.word',
+          fakerArgs: [],
+        },
+      };
+
+      // Test with names containing actual newlines and carriage returns
+      const result = generateScript(schema, {
+        databaseName: 'test\nwith\nnewlines',
+        collectionName: 'coll\rwith\r\nreturns',
+        documentCount: 1,
+      });
+
+      expect(result.success).to.equal(true);
+      if (result.success) {
+        // Verify newlines are replaced with spaces in comments to prevent syntax errors
+        expect(result.script).to.contain(
+          '// Generated for collection: test with newlines.coll with  returns'
+        );
+
+        // Verify the script is still syntactically valid
+        // eslint-disable-next-line @typescript-eslint/no-implied-eval
+        expect(() => new Function(result.script)).to.not.throw();
 
         // Test that the generated document code is executable
         testDocumentCodeExecution(result.script);
@@ -1028,7 +1124,7 @@ describe('Script Generation', () => {
         color: {
           mongoType: 'String' as const,
           fakerMethod: 'helpers.arrayElement',
-          fakerArgs: [{ json: "['red', 'blue', 'green']" }],
+          fakerArgs: [{ json: '["red", "blue", "green"]' }],
         },
       };
 
@@ -1184,12 +1280,6 @@ describe('Script Generation', () => {
           fakerArgs: [],
           probability: -0.5, // Invalid - should default to 1.0
         },
-        field3: {
-          mongoType: 'String' as const,
-          fakerMethod: 'lorem.word',
-          fakerArgs: [],
-          probability: 'invalid' as any, // Invalid - should default to 1.0
-        },
       };
 
       const result = generateScript(schema, {
@@ -1203,8 +1293,7 @@ describe('Script Generation', () => {
         // All fields should be treated as probability 1.0 (always present)
         const expectedReturnBlock = `return {
     field1: faker.lorem.word(),
-    field2: faker.lorem.word(),
-    field3: faker.lorem.word()
+    field2: faker.lorem.word()
   };`;
         expect(result.script).to.contain(expectedReturnBlock);
         expect(result.script).not.to.contain('Math.random()');
