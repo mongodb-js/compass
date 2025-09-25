@@ -2,12 +2,13 @@ import {
   Banner,
   BannerVariant,
   Body,
+  Code,
   css,
+  Label,
   Option,
   palette,
   Select,
   spacing,
-  TextInput,
 } from '@mongodb-js/compass-components';
 import React from 'react';
 import { UNRECOGNIZED_FAKER_METHOD } from '../../modules/collection-tab';
@@ -26,92 +27,11 @@ const labelStyles = css({
   fontWeight: 600,
 });
 
-/**
- * Renders read-only TextInput components for each key-value pair in a faker arguments object.
- */
-const getFakerArgsInputFromObject = (fakerArgsObject: Record<string, any>) => {
-  return Object.entries(fakerArgsObject).map(([key, item]: [string, any]) => {
-    if (typeof item === 'string' || typeof item === 'boolean') {
-      return (
-        <TextInput
-          key={`faker-arg-${key}`}
-          type="text"
-          label={key}
-          aria-label={`Faker Arg ${key}`}
-          readOnly
-          value={item.toString()}
-        />
-      );
-    } else if (typeof item === 'number') {
-      return (
-        <TextInput
-          key={`faker-arg-${key}`}
-          type="number"
-          label={key}
-          aria-label={`Faker Arg ${key}`}
-          readOnly
-          value={item.toString()}
-        />
-      );
-    } else if (
-      Array.isArray(item) &&
-      item.length > 0 &&
-      typeof item[0] === 'string'
-    ) {
-      return (
-        <TextInput
-          key={`faker-arg-${key}`}
-          type="text"
-          label={key}
-          aria-label={`Faker Arg ${key}`}
-          readOnly
-          value={item.join(', ')}
-        />
-      );
-    }
-    return null;
-  });
-};
-
-/**
- * Renders TextInput components for each faker argument based on its type.
- */
-const getFakerArgsInput = (fakerArgs: FakerArg[]) => {
-  return fakerArgs.map((arg, idx) => {
-    if (typeof arg === 'string' || typeof arg === 'boolean') {
-      return (
-        <TextInput
-          key={`faker-arg-${idx}`}
-          type="text"
-          label="Faker Arg"
-          readOnly
-          value={arg.toString()}
-        />
-      );
-    } else if (typeof arg === 'number') {
-      return (
-        <TextInput
-          key={`faker-arg-${idx}`}
-          type="number"
-          label="Faker Arg"
-          readOnly
-          value={arg.toString()}
-        />
-      );
-    } else if (typeof arg === 'object' && 'json' in arg) {
-      // parse the object
-      let parsedArg;
-      try {
-        parsedArg = JSON.parse(arg.json);
-      } catch {
-        // If parsing fails, skip rendering this arg
-        return null;
-      }
-      if (typeof parsedArg === 'object') {
-        return getFakerArgsInputFromObject(parsedArg);
-      }
-    }
-  });
+const formatFakerFunctionCallWithArgs = (
+  fakerFunction: string,
+  fakerArgs: FakerArg[]
+) => {
+  return `faker.${fakerFunction}(${fakerArgs.join(', ')})`;
 };
 
 interface Props {
@@ -158,13 +78,28 @@ const FakerMappingSelector = ({
           </Option>
         ))}
       </Select>
-      {activeFakerFunction === UNRECOGNIZED_FAKER_METHOD && (
+      {activeFakerFunction === UNRECOGNIZED_FAKER_METHOD ? (
         <Banner variant={BannerVariant.Warning}>
           Please select a function or we will default fill this field with the
           string &quot;Unrecognized&quot;
         </Banner>
+      ) : (
+        <>
+          <Label htmlFor="sample-faker-function-call">
+            Sample Faker Function Call
+          </Label>
+          <Code
+            id="sample-faker-function-call"
+            language="javascript"
+            copyable={false}
+          >
+            {formatFakerFunctionCallWithArgs(
+              activeFakerFunction,
+              activeFakerArgs
+            )}
+          </Code>
+        </>
       )}
-      {getFakerArgsInput(activeFakerArgs)}
     </div>
   );
 };

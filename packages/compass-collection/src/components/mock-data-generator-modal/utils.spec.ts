@@ -37,6 +37,18 @@ describe('Mock Data Generator Utils', () => {
       expect(areFakerArgsValid([longStr])).to.be.false;
     });
 
+    it('returns false for numbers that are too large', () => {
+      expect(areFakerArgsValid([1001])).to.be.false;
+      expect(areFakerArgsValid([-1001])).to.be.false;
+      expect(areFakerArgsValid([{ json: { length: 1001 } } as any])).to.be
+        .false;
+      expect(areFakerArgsValid([{ json: { length: -1001 } } as any])).to.be
+        .false;
+      expect(
+        areFakerArgsValid([{ json: { width: 1001, height: 1001 } } as any])
+      ).to.be.false;
+    });
+
     it('returns true for nested valid arrays', () => {
       expect(
         areFakerArgsValid([

@@ -5,6 +5,7 @@ import { faker } from '@faker-js/faker/locale/en';
 const MAX_FAKER_ARGS_LENGTH = 10;
 const MAX_FAKER_STRING_LENGTH = 1000;
 const MAX_FAKER_ARGS_DEPTH = 3;
+const MAX_FAKER_NUMBER_SIZE = 1000;
 
 /**
  * Checks if the provided faker arguments are valid.
@@ -30,23 +31,28 @@ export function areFakerArgsValid(
     if (arg === null || arg === undefined) {
       return false;
     }
-    if (typeof arg === 'number') {
-      if (!Number.isFinite(arg)) {
+    if (typeof arg === 'boolean') {
+      // booleans are always valid, continue
+      continue;
+    } else if (typeof arg === 'number') {
+      if (!Number.isFinite(arg) || Math.abs(arg) > MAX_FAKER_NUMBER_SIZE) {
         return false;
       }
     } else if (typeof arg === 'string') {
       if (arg.length > MAX_FAKER_STRING_LENGTH) {
         return false;
       }
-    } else if (typeof arg === 'boolean') {
-      // booleans are always valid, continue
     } else if (Array.isArray(arg)) {
       if (!areFakerArgsValid(arg, depth + 1)) {
         return false;
       }
-    } else if (typeof arg === 'object' && typeof arg.json === 'string') {
+    } else if (
+      typeof arg === 'object' &&
+      arg !== null &&
+      typeof (arg as { json?: unknown }).json === 'string'
+    ) {
       try {
-        const parsedJson = JSON.parse(arg.json);
+        const parsedJson = JSON.parse((arg as { json: string }).json);
         if (!areFakerArgsValid(Object.values(parsedJson), depth + 1)) {
           return false;
         }
