@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, cleanup } from '@mongodb-js/testing-library-compass';
+import { render, screen, userEvent } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
@@ -17,9 +17,22 @@ function renderPopover(
       hideCloseButton={props?.hideCloseButton}
       customFocusTrapFallback={`#${innerContentTestId}`}
       setOpen={() => {}}
-      trigger={({ onClick, ref, children }) => (
+      trigger={({
+        onClick,
+        ref,
+        children,
+      }: {
+        onClick: React.MouseEventHandler<HTMLButtonElement>;
+        ref: React.Ref<HTMLButtonElement>;
+        children?: React.ReactNode;
+      }) => (
         <>
-          <button type="button" onClick={onClick} ref={ref}>
+          <button
+            data-testid="trigger-button"
+            type="button"
+            ref={ref}
+            onClick={onClick}
+          >
             Trigger Button Text
           </button>
           {children}
@@ -43,8 +56,15 @@ function renderPopover(
 }
 
 describe('InteractivePopover Component', function () {
+  let addedElement: HTMLDivElement | undefined;
   afterEach(function () {
-    cleanup();
+    if (addedElement) {
+      try {
+        document.body.removeChild(addedElement);
+      } finally {
+        addedElement = undefined;
+      }
+    }
   });
 
   it('when open it should show the popover content', function () {
@@ -123,5 +143,85 @@ describe('InteractivePopover Component', function () {
 
     expect(screen.queryByTestId('interactive-popover-close-button')).to.not
       .exist;
+  });
+
+  it('should close when escape key is pressed', function () {
+    const openSpy = sinon.fake();
+
+    renderPopover({
+      open: true,
+      setOpen: openSpy,
+    });
+
+    expect(openSpy.calledOnce).to.be.false;
+    userEvent.keyboard('{Escape}');
+    expect(openSpy.calledOnce).to.be.true;
+    expect(openSpy.firstCall.firstArg).to.equal(false);
+  });
+
+  it('should close when clicking outside the popover', function () {
+    const openSpy = sinon.fake();
+
+    renderPopover({
+      open: true,
+      setOpen: openSpy,
+    });
+
+    addedElement = document.createElement('div');
+    document.body.appendChild(addedElement);
+
+    expect(openSpy.calledOnce).to.be.false;
+    userEvent.click(addedElement);
+
+    expect(openSpy.calledOnce).to.be.true;
+    expect(openSpy.firstCall.firstArg).to.equal(false);
+  });
+
+  it('should not close when clicking on contained elements', function () {
+    const openSpy = sinon.fake();
+
+    addedElement = document.createElement('div');
+    addedElement.className = 'contained-element';
+    document.body.appendChild(addedElement);
+
+    renderPopover({
+      open: true,
+      setOpen: openSpy,
+      containedElements: ['.contained-element'],
+    });
+
+    userEvent.click(addedElement);
+    expect(openSpy.called).to.be.false;
+  });
+
+  it('should not close when clicking inside the popover content', function () {
+    const openSpy = sinon.fake();
+
+    renderPopover({
+      open: true,
+      setOpen: openSpy,
+    });
+
+    const innerButton = screen.getByTestId(innerContentTestId);
+    userEvent.click(innerButton);
+
+    expect(openSpy.called).to.be.false;
+  });
+
+  it('should focus the trigger after closing the popover', function (done) {
+    const openSpy = sinon.fake();
+
+    renderPopover({
+      open: true,
+      setOpen: openSpy,
+    });
+
+    const triggerButton = screen.getByTestId('trigger-button');
+    triggerButton.addEventListener('focus', () => {
+      done();
+    });
+
+    const closeButton = screen.getByTestId('interactive-popover-close-button');
+    closeButton.click();
   });
 });

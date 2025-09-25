@@ -397,26 +397,31 @@ describe('GuideCueService', function () {
 
   context('marks group as visited', function () {
     context('when all the cues of group are added', function () {
-      const cue1 = {
-        cueId: 'one',
-        step: 1,
-        groupId: 'group-two',
-        isIntersecting: true,
-      } as unknown as Cue;
-      const cue2 = {
-        cueId: 'two',
-        step: 2,
-        groupId: 'group-two',
-        isIntersecting: true,
-      };
+      let cue1: Cue;
+      let cue2: Cue;
 
       let markCueAsVisited: Sinon.SinonSpy;
 
       beforeEach(function () {
+        cue1 = {
+          cueId: 'one',
+          step: 1,
+          groupId: 'group-two',
+          isVisited: false,
+          isIntersecting: true,
+        };
+        cue2 = {
+          cueId: 'two',
+          step: 2,
+          groupId: 'group-two',
+          isVisited: false,
+          isIntersecting: true,
+        };
+
         markCueAsVisited = Sinon.spy(guideCueStorage, 'markCueAsVisited');
-        guideCueService.addCue(cue1 as any);
-        guideCueService.addCue(cue2 as any);
-        guideCueService.markGroupAsVisited(cue1.groupId);
+        guideCueService.addCue(cue1);
+        guideCueService.addCue(cue2);
+        guideCueService.markGroupAsVisited(cue1.groupId!);
       });
 
       it('updates isVisited property for all group cues', function () {
@@ -444,19 +449,21 @@ describe('GuideCueService', function () {
     });
 
     context('when all the cues of group are not added', function () {
-      const cue1 = {
-        cueId: 'one',
-        step: 1,
-        groupId: 'group-two',
-        isIntersecting: true,
-      } as unknown as Cue;
+      let cue1: Cue;
 
       let markCueAsVisited: Sinon.SinonSpy;
 
       beforeEach(function () {
+        cue1 = {
+          cueId: 'one',
+          step: 1,
+          groupId: 'group-two',
+          isIntersecting: true,
+          isVisited: false,
+        };
         markCueAsVisited = Sinon.spy(guideCueStorage, 'markCueAsVisited');
-        guideCueService.addCue(cue1 as any);
-        guideCueService.markGroupAsVisited(cue1.groupId);
+        guideCueService.addCue(cue1);
+        guideCueService.markGroupAsVisited(cue1.groupId!);
       });
 
       it('does not update isVisited property for group cues', function () {
