@@ -114,7 +114,7 @@ const ScriptScreen = ({
 
   return (
     <section className={outerSectionStyles}>
-      {true && (
+      {!scriptResult.success && (
         <Banner variant="danger">
           <strong>Script Generation Failed:</strong> ERROR
           <br />
