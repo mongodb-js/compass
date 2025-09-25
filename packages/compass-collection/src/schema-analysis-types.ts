@@ -58,6 +58,7 @@ export type SchemaAnalysisCompletedState = {
   schemaMetadata: {
     maxNestingDepth: number;
     validationRules: Document | null;
+    avgDocumentSize: number | undefined;
   };
 };
 

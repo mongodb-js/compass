@@ -7,8 +7,8 @@ import {
 } from '@mongodb-js/compass-components';
 import React, { useMemo } from 'react';
 import { connect } from 'react-redux';
-import { CollectionState } from '../../modules/collection-tab';
-import { SchemaAnalysisState } from '../../schema-analysis-types';
+import type { CollectionState } from '../../modules/collection-tab';
+import type { SchemaAnalysisState } from '../../schema-analysis-types';
 import numeral from 'numeral';
 import { DEFAULT_DOCUMENT_COUNT, MAX_DOCUMENT_COUNT } from './constants';
 
@@ -42,6 +42,15 @@ const formatBytes = (bytes: number) => {
   return numeral(bytes).format(precision + 'b');
 };
 
+type ErrorState =
+  | {
+      state: 'error';
+      message: string;
+    }
+  | {
+      state: 'none';
+    };
+
 interface OwnProps {
   documentCount: number;
   onDocumentCountChange: (documentCount: number) => void;
@@ -56,23 +65,30 @@ const DocumentCountScreen = ({
   onDocumentCountChange,
   schemaAnalysisState,
 }: Props) => {
-  const estimatedDiskSize = useMemo(() => {
-    return schemaAnalysisState.status === 'complete'
-      ? schemaAnalysisState.schemaMetadata.avgDocumentSize * documentCount
-      : 0;
-  }, [schemaAnalysisState, documentCount]);
+  const estimatedDiskSize = useMemo(
+    () =>
+      schemaAnalysisState.status === 'complete' &&
+      schemaAnalysisState.schemaMetadata.avgDocumentSize
+        ? formatBytes(
+            schemaAnalysisState.schemaMetadata.avgDocumentSize * documentCount
+          )
+        : 'Not available',
+    [schemaAnalysisState, documentCount]
+  );
 
-  const errorState = useMemo(() => {
-    return documentCount < 1 || documentCount > MAX_DOCUMENT_COUNT
-      ? 'error'
-      : 'none';
-  }, [documentCount]);
+  const isOutOfRange = documentCount < 1 || documentCount > MAX_DOCUMENT_COUNT;
 
-  const errorMessage = useMemo(() => {
-    return documentCount < 1 || documentCount > MAX_DOCUMENT_COUNT
-      ? 'Document count must be between 1 and 100000'
-      : undefined;
-  }, [documentCount]);
+  const errorState: ErrorState = useMemo(() => {
+    if (isOutOfRange) {
+      return {
+        state: 'error',
+        message: `Document count must be between 1 and ${MAX_DOCUMENT_COUNT}`,
+      };
+    }
+    return {
+      state: 'none',
+    };
+  }, [isOutOfRange]);
 
   return schemaAnalysisState.status === 'complete' ? (
     <div>
@@ -92,14 +108,14 @@ const DocumentCountScreen = ({
           onChange={(e) => onDocumentCountChange(Number(e.target.value))}
           min={1}
           max={MAX_DOCUMENT_COUNT}
-          state={errorState}
-          errorMessage={errorMessage}
+          state={errorState.state}
+          errorMessage={
+            errorState.state === 'error' ? errorState.message : undefined
+          }
         />
         <div>
           <Body className={boldStyles}>Estimated Disk Size</Body>
-          <Body className={estimatedDiskSizeStyles}>
-            {formatBytes(estimatedDiskSize)}
-          </Body>
+          <Body className={estimatedDiskSizeStyles}>{estimatedDiskSize}</Body>
         </div>
       </div>
     </div>
@@ -109,13 +125,9 @@ const DocumentCountScreen = ({
   );
 };
 
-const mapStateToProps = (state: CollectionState, _ownProps: OwnProps) => {
-  const schemaAnalysisState = state.schemaAnalysis;
-
-  return {
-    schemaAnalysisState,
-  };
-};
+const mapStateToProps = (state: CollectionState) => ({
+  schemaAnalysisState: state.schemaAnalysis,
+});
 
 const ConnectedDocumentCountScreen = connect(
   mapStateToProps,

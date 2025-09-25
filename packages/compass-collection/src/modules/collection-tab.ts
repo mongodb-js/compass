@@ -33,6 +33,7 @@ import {
   processSchema,
   ProcessSchemaUnsupportedStateError,
 } from '../transform-schema-to-field-info';
+import type { Collection } from '@mongodb-js/compass-app-stores/provider';
 import type { Document, MongoError } from 'mongodb';
 import { MockDataGeneratorStep } from '../components/mock-data-generator-modal/types';
 import type {
@@ -94,6 +95,7 @@ type CollectionThunkAction<R, A extends AnyAction = AnyAction> = ThunkAction<
     connectionInfoRef: ConnectionInfoRef;
     fakerSchemaGenerationAbortControllerRef: { current?: AbortController };
     schemaAnalysisAbortControllerRef: { current?: AbortController };
+    collection: Collection;
   },
   A
 >;
@@ -147,6 +149,7 @@ interface SchemaAnalysisFinishedAction {
   schemaMetadata: {
     maxNestingDepth: number;
     validationRules: Document | null;
+    avgDocumentSize: number | undefined;
   };
 }
 
@@ -561,7 +564,13 @@ export const analyzeCollectionSchema = (): CollectionThunkAction<
   return async (
     dispatch,
     getState,
-    { dataService, preferences, logger, schemaAnalysisAbortControllerRef }
+    {
+      dataService,
+      preferences,
+      logger,
+      schemaAnalysisAbortControllerRef,
+      collection: collectionModel,
+    }
   ) => {
     const { schemaAnalysis, namespace } = getState();
     const analysisStatus = schemaAnalysis.status;
@@ -638,6 +647,7 @@ export const analyzeCollectionSchema = (): CollectionThunkAction<
       const schemaMetadata = {
         maxNestingDepth,
         validationRules,
+        avgDocumentSize: collectionModel.avg_document_size,
       };
 
       // Final check before dispatching results
