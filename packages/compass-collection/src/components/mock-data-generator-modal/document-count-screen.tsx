@@ -12,6 +12,8 @@ import type { SchemaAnalysisState } from '../../schema-analysis-types';
 import numeral from 'numeral';
 import { DEFAULT_DOCUMENT_COUNT, MAX_DOCUMENT_COUNT } from './constants';
 
+const BYTE_PRECISION_THRESHOLD = 1000;
+
 const titleStyles = css({
   fontWeight: 600,
 });
@@ -38,7 +40,7 @@ const boldStyles = css({
 });
 
 const formatBytes = (bytes: number) => {
-  const precision = bytes <= 1000 ? '0' : '0.0';
+  const precision = bytes <= BYTE_PRECISION_THRESHOLD ? '0' : '0.0';
   return numeral(bytes).format(precision + 'b');
 };
 
@@ -90,6 +92,15 @@ const DocumentCountScreen = ({
     };
   }, [isOutOfRange]);
 
+  const handleDocumentCountChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const value = parseInt(event.target.value, 10);
+    if (!isNaN(value)) {
+      onDocumentCountChange(value);
+    }
+  };
+
   return schemaAnalysisState.status === 'complete' ? (
     <div>
       <Body className={titleStyles}>
@@ -105,7 +116,7 @@ const DocumentCountScreen = ({
           label="Documents to generate in current collection"
           type="number"
           value={documentCount.toString()}
-          onChange={(e) => onDocumentCountChange(Number(e.target.value))}
+          onChange={handleDocumentCountChange}
           min={1}
           max={MAX_DOCUMENT_COUNT}
           state={errorState.state}
