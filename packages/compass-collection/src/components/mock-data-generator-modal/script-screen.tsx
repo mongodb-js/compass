@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react';
+import { connect } from 'react-redux';
 import {
   Banner,
   Body,
@@ -19,6 +20,8 @@ import toNS from 'mongodb-ns';
 import { generateScript } from './script-generation-utils';
 import type { FakerSchema } from './types';
 import type { ArrayLengthMap } from './script-generation-utils';
+import type { CollectionState } from '../../modules/collection-tab';
+import { SCHEMA_ANALYSIS_STATE_COMPLETE } from '../../schema-analysis-types';
 
 const RUN_SCRIPT_COMMAND = `
 mongosh "mongodb+srv://<your-cluster>.mongodb.net/<your-database>" \\
@@ -26,8 +29,6 @@ mongosh "mongodb+srv://<your-cluster>.mongodb.net/<your-database>" \\
   --password "<your-password>" \\
   mockdatascript.js
 `;
-
-const DEFAULT_DOCUMENT_COUNT = 100;
 
 const outerSectionStyles = css({
   display: 'flex',
@@ -71,17 +72,17 @@ const resourceSectionHeader = css({
 });
 
 interface ScriptScreenProps {
-  fakerSchema: FakerSchema;
+  fakerSchema: FakerSchema | null;
   namespace: string;
-  arrayLengthMap?: ArrayLengthMap;
-  documentCount?: number;
+  arrayLengthMap: ArrayLengthMap;
+  documentCount: number;
 }
 
 const ScriptScreen = ({
   fakerSchema,
   namespace,
-  arrayLengthMap = {},
-  documentCount = DEFAULT_DOCUMENT_COUNT,
+  arrayLengthMap,
+  documentCount,
 }: ScriptScreenProps) => {
   const isDarkMode = useDarkMode();
   const connectionInfo = useConnectionInfo();
@@ -90,6 +91,14 @@ const ScriptScreen = ({
 
   // Generate the script using the faker schema
   const scriptResult = useMemo(() => {
+    // Handle case where fakerSchema is not yet available
+    if (!fakerSchema) {
+      return {
+        success: false as const,
+        error: 'Faker schema not available',
+      };
+    }
+
     return generateScript(fakerSchema, {
       documentCount,
       databaseName: database,
@@ -200,5 +209,25 @@ const ScriptScreen = ({
   );
 };
 
-export default ScriptScreen;
+const mapStateToProps = (state: CollectionState) => {
+  const { fakerSchemaGeneration, namespace, schemaAnalysis } = state;
+
+  return {
+    fakerSchema:
+      fakerSchemaGeneration.status === 'completed'
+        ? fakerSchemaGeneration.fakerSchema
+        : null,
+    namespace,
+    arrayLengthMap:
+      schemaAnalysis?.status === SCHEMA_ANALYSIS_STATE_COMPLETE
+        ? schemaAnalysis.arrayLengthMap
+        : {},
+    // TODO(CLOUDP-333856): When document count step is implemented, get documentCount from state
+    documentCount: 100,
+  };
+};
+
+const ConnectedScriptScreen = connect(mapStateToProps)(ScriptScreen);
+
+export default ConnectedScriptScreen;
 export type { ScriptScreenProps };
