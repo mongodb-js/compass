@@ -1,13 +1,11 @@
 {
   "name": "@mongodb-js/atlas-service",
-  "description": "Service to handle Atlas sign in and API requests",
+  "description": "Service to handle Atlas API requests",
   "author": {
     "name": "MongoDB Inc",
     "email": "compass@mongodb.com"
   },
-  "publishConfig": {
-    "access": "public"
-  },
+  "private": true,
   "bugs": {
     "url": "https://jira.mongodb.org/projects/COMPASS/issues",
     "email": "compass@mongodb.com"

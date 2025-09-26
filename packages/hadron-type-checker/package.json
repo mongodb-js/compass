@@ -35,5 +35,8 @@
     "chai": "^4.2.0",
     "depcheck": "^1.4.1",
     "mocha": "^10.2.0"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
