@@ -76,8 +76,8 @@ const docsPerPageOptionStyles = css({
 });
 
 const loaderContainerStyles = css({
-  paddingLeft: 8,
-  paddingRight: 8,
+  paddingLeft: spacing[200],
+  paddingRight: spacing[200],
 });
 
 type ExportDataOption = 'export-query' | 'export-full-collection';
