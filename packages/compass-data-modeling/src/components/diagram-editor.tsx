@@ -205,14 +205,11 @@ const DiagramContent: React.FunctionComponent<{
           selectedItems?.type === 'field' && selectedItems.namespace === coll.ns
             ? selectedItems.fieldPath
             : undefined,
-        onClickAddNewFieldToCollection: () =>
-          onAddNewFieldToCollection(coll.ns),
         selected,
         isInRelationshipDrawingMode,
       });
     });
   }, [
-    onAddNewFieldToCollection,
     model?.collections,
     model?.relationships,
     selectedItems,
@@ -319,6 +316,14 @@ const DiagramContent: React.FunctionComponent<{
     [handleNodesConnect]
   );
 
+  const onClickAddFieldToCollection = useCallback(
+    (event: React.MouseEvent<Element>, ns: string) => {
+      event.stopPropagation();
+      onAddNewFieldToCollection(ns);
+    },
+    [onAddNewFieldToCollection]
+  );
+
   return (
     <div
       ref={setDiagramContainerRef}
@@ -355,6 +360,7 @@ const DiagramContent: React.FunctionComponent<{
           fitViewOptions={ZOOM_OPTIONS}
           onNodeDragStop={onNodeDragStop}
           onConnect={onConnect}
+          onAddFieldToNodeClick={onClickAddFieldToCollection}
         />
       </div>
     </div>
