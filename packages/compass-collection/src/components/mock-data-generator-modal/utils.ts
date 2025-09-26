@@ -144,8 +144,8 @@ function tryInvokeFakerMethod(
   // If args are present and safe, try calling with args
   if (args.length > 0 && areFakerArgsValid(args)) {
     try {
-      const parsedArgs = parseFakerArgs(args);
-      callable(...parsedArgs);
+      const usableArgs = prepareFakerArgs(args);
+      callable(...usableArgs);
       return { isValid: true, fakerArgs: args };
     } catch {
       // Call with args failed. Fall through to trying without args
@@ -168,8 +168,18 @@ function tryInvokeFakerMethod(
   }
 }
 
-// Parse the faker args to ensure we can call the method with the args
-function parseFakerArgs(args: FakerArg[]): FakerArg[] {
+/**
+ * Prepares the faker args to ensure we can call the method with the args.
+ * Objects with a 'json' property are parsed into a JSON object.
+ * @example
+ * [
+ *   { json: '{"a": 1}' },
+ *   { json: '{"b": 2}' },
+ * ]
+ * becomes
+ * [ { a: 1 }, { b: 2 } ]
+ */
+function prepareFakerArgs(args: FakerArg[]) {
   return args.map((arg) => {
     if (typeof arg === 'object' && arg !== null && 'json' in arg) {
       return JSON.parse((arg as { json: string }).json);
