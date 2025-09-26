@@ -13,7 +13,7 @@
     "email": "compass@mongodb.com"
   },
   "homepage": "https://github.com/mongodb-js/compass",
-  "version": "1.76.0",
+  "version": "1.77.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/compass.git"
@@ -34,13 +34,13 @@
   "scripts": {
     "bootstrap": "npm run compile",
     "prepublishOnly": "npm run compile && compass-scripts check-exports-exist",
-    "compile": "tsc -p tsconfig.json",
+    "compile": "tsc -p tsconfig-build.json",
     "precompile": "node -e \"fs.rmSync('dist', { recursive: true, force: true })\" || true",
     "eslint": "eslint-compass",
     "prettier": "prettier-compass",
     "lint": "npm run eslint . && npm run prettier -- --check .",
     "depcheck": "compass-scripts check-peer-deps && depcheck",
-    "check": "npm run lint && npm run depcheck",
+    "check": "npm run typecheck && npm run lint && npm run depcheck",
     "check-ci": "npm run check",
     "test": "mocha",
     "test-electron": "xvfb-maybe electron-mocha --no-sandbox",
@@ -48,20 +48,21 @@
     "test-watch": "npm run test -- --watch",
     "test-ci": "npm run test-cov",
     "test-ci-electron": "npm run test-electron",
-    "reformat": "npm run eslint . -- --fix && npm run prettier -- --write ."
+    "reformat": "npm run eslint . -- --fix && npm run prettier -- --write .",
+    "typecheck": "echo \"TODO(COMPASS-9897): typecheck is failing in test files\" && tsc -p tsconfig-build.json --noEmit"
   },
   "dependencies": {
     "@mongodb-js/compass-app-registry": "^9.4.24",
-    "@mongodb-js/compass-assistant": "^1.7.0",
-    "@mongodb-js/compass-components": "^1.52.2",
+    "@mongodb-js/compass-assistant": "^1.8.0",
+    "@mongodb-js/compass-components": "^1.53.0",
     "@mongodb-js/compass-logging": "^1.7.17",
     "@mongodb-js/compass-telemetry": "^1.15.3",
     "@mongodb-js/compass-utils": "^0.9.15",
-    "@mongodb-js/connection-form": "^1.66.2",
+    "@mongodb-js/connection-form": "^1.67.0",
     "@mongodb-js/connection-info": "^0.20.2",
-    "@mongodb-js/connection-storage": "^0.50.0",
+    "@mongodb-js/connection-storage": "^0.51.0",
     "bson": "^6.10.4",
-    "compass-preferences-model": "^2.55.0",
+    "compass-preferences-model": "^2.56.0",
     "lodash": "^4.17.21",
     "mongodb": "^6.19.0",
     "mongodb-build-info": "^1.7.2",

@@ -116,12 +116,12 @@ describe('AssistantChat', function () {
 
   it('displays the welcome text when there are no messages', function () {
     renderWithChat([]);
-    expect(screen.getByText(/Welcome to your MongoDB Assistant./)).to.exist;
+    expect(screen.getByText(/Welcome to the MongoDB Assistant!/)).to.exist;
   });
 
   it('does not display the welcome text when there are messages', function () {
     renderWithChat(mockMessages);
-    expect(screen.queryByText(/Welcome to your MongoDB Assistant./)).to.not
+    expect(screen.queryByText(/Welcome to the MongoDB Assistant!/)).to.not
       .exist;
   });
 
@@ -248,9 +248,8 @@ describe('AssistantChat', function () {
     userEvent.type(inputField, 'What is aggregation?');
     userEvent.click(sendButton);
 
-    expect(ensureOptInAndSendStub.called).to.be.true;
-
     await waitFor(() => {
+      expect(ensureOptInAndSendStub.called).to.be.true;
       expect(track).to.have.been.calledWith('Assistant Prompt Submitted', {
         user_input_length: 'What is aggregation?'.length,
       });
@@ -281,9 +280,8 @@ describe('AssistantChat', function () {
     userEvent.type(inputField, '  What is sharding?  ');
     userEvent.click(screen.getByLabelText('Send message'));
 
-    expect(ensureOptInAndSendStub.called).to.be.true;
-
     await waitFor(() => {
+      expect(ensureOptInAndSendStub.called).to.be.true;
       expect(track).to.have.been.calledWith('Assistant Prompt Submitted', {
         user_input_length: 'What is sharding?'.length,
       });

@@ -15,6 +15,9 @@ import { getDefaultRelationshipName } from '../../utils';
 const titleBtnStyles = css({
   marginLeft: 'auto',
   maxHeight: 20, // To match accordion line height
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
+  whiteSpace: 'nowrap',
 });
 
 const emptyRelationshipMessageStyles = css({

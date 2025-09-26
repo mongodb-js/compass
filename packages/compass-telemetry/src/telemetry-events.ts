@@ -1459,6 +1459,34 @@ type IndexDroppedEvent = ConnectionScopedEvent<{
 }>;
 
 /**
+ * This event is fired when user opens a drawer section. Either by switching
+ * to it via the drawer toolbar or by opening the drawer and the first tab is
+ * this drawer section.
+ *
+ * @category Gen AI
+ */
+type DrawerSectionOpenedEvent = CommonEvent<{
+  name: 'Drawer Section Opened';
+  payload: {
+    sectionId: string;
+  };
+}>;
+
+/**
+ * This event is fired when user closes a drawer section. Either by switching
+ * to another tab via the drawer toolbar or by closing the drawer when the
+ * active tab is this drawer section.
+ *
+ * @category Gen AI
+ */
+type DrawerSectionClosedEvent = CommonEvent<{
+  name: 'Drawer Section Closed';
+  payload: {
+    sectionId: string;
+  };
+}>;
+
+/**
  * This event is fired when user enters a prompt in the assistant chat
  * and hits "enter".
  *
@@ -3174,6 +3202,8 @@ export type TelemetryEvent =
   | DocumentDeletedEvent
   | DocumentInsertedEvent
   | DocumentUpdatedEvent
+  | DrawerSectionOpenedEvent
+  | DrawerSectionClosedEvent
   | EditorTypeChangedEvent
   | ErrorFetchingAttributesEvent
   | ExplainPlanExecutedEvent

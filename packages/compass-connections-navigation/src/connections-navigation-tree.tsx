@@ -21,7 +21,7 @@ import {
 } from '@mongodb-js/compass-components';
 import { useConnectable } from '@mongodb-js/compass-connections/provider';
 import type { WorkspaceTab } from '@mongodb-js/compass-workspaces';
-import { usePreference } from 'compass-preferences-model/provider';
+import { usePreferences } from 'compass-preferences-model/provider';
 import type { NavigationItemActions } from './item-actions';
 import {
   collectionItemActions,
@@ -56,12 +56,21 @@ const ConnectionsNavigationTree: React.FunctionComponent<
   onItemExpand,
   onItemAction,
 }) => {
-  const preferencesShellEnabled = usePreference('enableShell');
-  const preferencesReadOnly = usePreference('readOnly');
-  const isRenameCollectionEnabled = usePreference(
-    'enableRenameCollectionModal'
-  );
-  const showDisabledConnections = !!usePreference('showDisabledConnections');
+  const {
+    enableRenameCollectionModal,
+    enableShell: preferencesShellEnabled,
+    readOnly: preferencesReadOnly,
+    readWrite: preferencesReadWrite,
+    showDisabledConnections,
+  } = usePreferences([
+    'enableShell',
+    'readOnly',
+    'readWrite',
+    'enableRenameCollectionModal',
+    'showDisabledConnections',
+  ]);
+  const isRenameCollectionEnabled =
+    enableRenameCollectionModal && !preferencesReadWrite;
 
   const id = useId();
   const getConnectable = useConnectable();
@@ -71,9 +80,16 @@ const ConnectionsNavigationTree: React.FunctionComponent<
       connections,
       expandedItems: expanded,
       preferencesReadOnly,
+      preferencesReadWrite,
       preferencesShellEnabled,
     });
-  }, [connections, expanded, preferencesReadOnly, preferencesShellEnabled]);
+  }, [
+    connections,
+    expanded,
+    preferencesReadOnly,
+    preferencesReadWrite,
+    preferencesShellEnabled,
+  ]);
 
   const onDefaultAction: OnDefaultAction<SidebarActionableItem> = useCallback(
     (item, evt) => {
@@ -204,6 +220,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<
           return {
             actions: databaseItemActions({
               hasWriteActionsDisabled: item.hasWriteActionsDisabled,
+              canDeleteDatabase: item.canDeleteDatabase,
             }),
           };
         default:
@@ -212,6 +229,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<
               hasWriteActionsDisabled: item.hasWriteActionsDisabled,
               type: item.type,
               isRenameCollectionEnabled,
+              canEditCollection: item.canEditCollection,
             }),
           };
       }
@@ -268,6 +286,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<
               isPerformanceTabAvailable,
               isPerformanceTabSupported,
               isAtlas: !!connectionInfo.atlasMetadata,
+              canDeleteDatabase: item.canDeleteDatabase,
             })
           );
         }
@@ -291,6 +310,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<
               isPerformanceTabAvailable,
               isPerformanceTabSupported,
               isAtlas: !!connectionInfo.atlasMetadata,
+              canEditCollection: item.canEditCollection,
             })
           );
         }

@@ -1,6 +1,5 @@
 import React from 'react';
 import {
-  cleanup,
   render,
   screen,
   within,
@@ -10,57 +9,42 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 
 import { IndexesToolbar } from './indexes-toolbar';
-import type { PreferencesAccess } from 'compass-preferences-model';
-import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
-import { PreferencesProvider } from 'compass-preferences-model/provider';
 import type { Document } from 'mongodb';
 
 describe('IndexesToolbar Component', function () {
-  before(cleanup);
-  afterEach(cleanup);
-
-  let preferences: PreferencesAccess;
-  beforeEach(async function () {
-    preferences = await createSandboxFromDefaultPreferences();
-  });
-
   const renderIndexesToolbar = (
-    props: Partial<React.ComponentProps<typeof IndexesToolbar>> = {}
+    props: Partial<React.ComponentProps<typeof IndexesToolbar>> = {},
+    preferences = {}
   ) => {
     render(
-      <PreferencesProvider value={preferences}>
-        <IndexesToolbar
-          indexView="regular-indexes"
-          hasTooManyIndexes={false}
-          errorMessage={null}
-          isReadonlyView={false}
-          readOnly={false}
-          isWritable={true}
-          writeStateDescription={undefined}
-          onRefreshIndexes={() => {}}
-          isSearchIndexesSupported={false}
-          isRefreshing={false}
-          collectionStats={{ index_count: 0, index_size: 0, pipeline: [] }}
-          onIndexViewChanged={() => {}}
-          onCreateRegularIndexClick={() => {}}
-          onCreateSearchIndexClick={() => {}}
-          namespace=""
-          showAtlasSearchLink={false}
-          serverVersion={'8.0.11'}
-          {...props}
-        />
-      </PreferencesProvider>
+      <IndexesToolbar
+        indexView="regular-indexes"
+        hasTooManyIndexes={false}
+        errorMessage={null}
+        isReadonlyView={false}
+        readOnly={false}
+        isWritable={true}
+        writeStateDescription={undefined}
+        onRefreshIndexes={() => {}}
+        isSearchIndexesSupported={false}
+        isRefreshing={false}
+        collectionStats={{ index_count: 0, index_size: 0, pipeline: [] }}
+        onIndexViewChanged={() => {}}
+        onCreateRegularIndexClick={() => {}}
+        onCreateSearchIndexClick={() => {}}
+        namespace=""
+        showAtlasSearchLink={false}
+        serverVersion={'8.0.11'}
+        {...props}
+      />,
+      { preferences }
     );
   };
 
   describe('when rendered', function () {
     describe('with atlas search index management is disabled', function () {
-      beforeEach(async function () {
-        await preferences.savePreferences({
-          showInsights: true,
-        });
-
-        renderIndexesToolbar({});
+      beforeEach(function () {
+        renderIndexesToolbar({}, { showInsights: true });
       });
 
       it('should render the create index button enabled', function () {
@@ -75,12 +59,13 @@ describe('IndexesToolbar Component', function () {
 
     describe('with atlas search index management is enabled', function () {
       describe('when cluster has Atlas Search available', function () {
-        beforeEach(async function () {
-          await preferences.savePreferences({
-            showInsights: true,
-          });
-
-          renderIndexesToolbar({ isSearchIndexesSupported: true });
+        beforeEach(function () {
+          renderIndexesToolbar(
+            { isSearchIndexesSupported: true },
+            {
+              showInsights: true,
+            }
+          );
         });
 
         it('should render the create index dropdown button enabled', async function () {
@@ -100,12 +85,11 @@ describe('IndexesToolbar Component', function () {
       });
 
       describe('when cluster does not support Atlas Search', function () {
-        beforeEach(async function () {
-          await preferences.savePreferences({
-            showInsights: true,
-          });
-
-          renderIndexesToolbar({ isSearchIndexesSupported: false });
+        beforeEach(function () {
+          renderIndexesToolbar(
+            { isSearchIndexesSupported: false },
+            { showInsights: true }
+          );
         });
 
         it('should render the create index button only', function () {
@@ -189,11 +173,9 @@ describe('IndexesToolbar Component', function () {
     });
   });
 
-  describe('when it is preferences ReadOnly', function () {
+  describe('when it is preferences ReadWrite', function () {
     beforeEach(function () {
-      renderIndexesToolbar({
-        readOnly: true,
-      });
+      renderIndexesToolbar(undefined, { readWrite: true });
     });
 
     it('should not render the create index button', function () {
@@ -353,19 +335,18 @@ describe('IndexesToolbar Component', function () {
   describe('segment control', function () {
     let onChangeViewCallback: sinon.SinonSpy;
 
-    beforeEach(async function () {
-      await preferences.savePreferences({
-        showInsights: true,
-      });
-
+    beforeEach(function () {
       onChangeViewCallback = sinon.spy();
     });
 
     it('when it supports search management, it changes tab view', function () {
-      renderIndexesToolbar({
-        isSearchIndexesSupported: true,
-        onIndexViewChanged: onChangeViewCallback,
-      });
+      renderIndexesToolbar(
+        {
+          isSearchIndexesSupported: true,
+          onIndexViewChanged: onChangeViewCallback,
+        },
+        { showInsights: true }
+      );
       const segmentControl = screen.getByText('Search Indexes');
       userEvent.click(segmentControl);
 
@@ -374,10 +355,13 @@ describe('IndexesToolbar Component', function () {
     });
 
     it('when it does not support search management, it renders tab as disabled', function () {
-      renderIndexesToolbar({
-        isSearchIndexesSupported: false,
-        onIndexViewChanged: onChangeViewCallback,
-      });
+      renderIndexesToolbar(
+        {
+          isSearchIndexesSupported: false,
+          onIndexViewChanged: onChangeViewCallback,
+        },
+        { showInsights: true }
+      );
       const segmentControl = screen.getByText('Search Indexes');
       userEvent.click(segmentControl);
 

@@ -23,8 +23,8 @@ import {
 import { isOutputStage } from '../../../utils/stage';
 import { openCreateIndexModal } from '../../../modules/insights';
 import {
-  usePreference,
   useIsAIFeatureEnabled,
+  usePreferences,
 } from 'compass-preferences-model/provider';
 import { showInput as showAIInput } from '../../../modules/pipeline-builder/pipeline-ai';
 import { useAssistantActions } from '@mongodb-js/compass-assistant';
@@ -85,10 +85,15 @@ export const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
   onCollectionScanInsightActionButtonClick,
   stages,
 }) => {
-  const enableAggregationBuilderExtraOptions = usePreference(
-    'enableAggregationBuilderExtraOptions'
-  );
-  const showInsights = usePreference('showInsights');
+  const {
+    readWrite: preferencesReadWrite,
+    enableAggregationBuilderExtraOptions,
+    showInsights,
+  } = usePreferences([
+    'readWrite',
+    'enableAggregationBuilderExtraOptions',
+    'showInsights',
+  ]);
   const isAIFeatureEnabled = useIsAIFeatureEnabled();
   const { tellMoreAboutInsight } = useAssistantActions();
 
@@ -102,8 +107,15 @@ export const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
           <SignalPopover
             signals={{
               ...PerformanceSignals.get('aggregation-executed-without-index'),
-              onPrimaryActionButtonClick:
-                onCollectionScanInsightActionButtonClick,
+              ...(preferencesReadWrite
+                ? {
+                    // Disable insight primary action if can't create indexes
+                    primaryActionButtonLabel: undefined,
+                  }
+                : {
+                    onPrimaryActionButtonClick:
+                      onCollectionScanInsightActionButtonClick,
+                  }),
               onAssistantButtonClick:
                 tellMoreAboutInsight &&
                 (() => {

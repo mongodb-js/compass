@@ -61,6 +61,7 @@ export type DiagramState =
       };
       editErrors?: string[];
       selectedItems: SelectedItems | null;
+      isNewlyCreated: boolean;
       draftCollection?: string;
     })
   | null; // null when no diagram is currently open
@@ -159,6 +160,7 @@ export const diagramReducer: Reducer<DiagramState> = (
     prev.shift(); // Remove the first item, which is initial SetModel and there's no previous edit for it.
     return {
       ...action.diagram,
+      isNewlyCreated: false,
       edits: {
         prev,
         current,
@@ -171,6 +173,7 @@ export const diagramReducer: Reducer<DiagramState> = (
   if (isAction(action, AnalysisProcessActionTypes.ANALYSIS_FINISHED)) {
     return {
       id: new UUID().toString(),
+      isNewlyCreated: true,
       name: action.name,
       connectionId: action.connectionId,
       createdAt: new Date().toISOString(),

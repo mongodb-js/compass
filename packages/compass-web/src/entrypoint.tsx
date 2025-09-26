@@ -305,7 +305,7 @@ function CompassWorkspace({
                   <CreateNamespacePlugin></CreateNamespacePlugin>
                   <DropNamespacePlugin></DropNamespacePlugin>
                   <RenameCollectionPlugin></RenameCollectionPlugin>
-                  <CompassAssistantDrawerWithConnections />
+                  <CompassAssistantDrawerWithConnections appName="Data Explorer" />
                 </>
               );
             }}
@@ -438,6 +438,16 @@ const CompassWeb = ({
             onTrackRef.current?.('Context Menu Item Clicked', {
               item_group: itemGroup.telemetryLabel,
               item_label: item.label,
+            });
+          }}
+          onDrawerSectionOpen={(drawerSectionId) => {
+            onTrackRef.current?.('Drawer Section Opened', {
+              sectionId: drawerSectionId,
+            });
+          }}
+          onDrawerSectionHide={(drawerSectionId) => {
+            onTrackRef.current?.('Drawer Section Closed', {
+              sectionId: drawerSectionId,
             });
           }}
           onSignalMount={(id) => {
