@@ -19,9 +19,7 @@
     "url": "https://github.com/mongodb-js/compass.git"
   },
   "homepage": "https://github.com/mongodb-js/compass",
-  "publishConfig": {
-    "access": "public"
-  },
+  "private": true,
   "dependencies": {
     "@electron/remote": "^2.1.3",
     "@mongodb-js/mocha-config-devtools": "^1.0.4",

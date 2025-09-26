@@ -26,7 +26,5 @@
     "url": "https://github.com/mongodb-js/compass.git"
   },
   "homepage": "https://github.com/mongodb-js/compass",
-  "publishConfig": {
-    "access": "public"
-  }
+  "private": true
 }
