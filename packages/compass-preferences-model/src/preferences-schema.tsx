@@ -125,6 +125,7 @@ export type InternalUserPreferences = {
   // TODO: Remove this as part of COMPASS-8970.
   enableConnectInNewWindow: boolean;
   showEndOfLifeConnectionModal: boolean;
+  zoomLevel?: number;
 };
 
 // UserPreferences contains all preferences stored to disk.
@@ -458,6 +459,17 @@ export const storedUserPreferencesProps: Required<{
         process.env.COMPASS_DISABLE_END_OF_LIFE_CONNECTION_MODAL !== 'true'
       ),
     type: 'boolean',
+  },
+  /**
+   * Zoom level for restoring browser zoom state.
+   */
+  zoomLevel: {
+    ui: false,
+    cli: false,
+    global: false,
+    description: null,
+    validator: z.number().optional(),
+    type: 'number',
   },
   /**
    * Enable/disable the AI services. This is currently set

@@ -367,26 +367,65 @@ class Application {
     const ZOOM_INCREMENT = 0.5;
     const ZOOM_MAX = 5;
     const ZOOM_MIN = -3;
+    const SAVE_DEBOUNCE_DELAY = 500; // 500ms delay for save operations
+
+    // Debounced save zoom level to preferences
+    let saveTimeoutId: NodeJS.Timeout | null = null;
+    const debouncedSaveZoomLevel = (zoomLevel: number) => {
+      if (saveTimeoutId) {
+        clearTimeout(saveTimeoutId);
+      }
+
+      saveTimeoutId = setTimeout(() => {
+        void defaultPreferencesInstance.savePreferences({ zoomLevel });
+        saveTimeoutId = null;
+      }, SAVE_DEBOUNCE_DELAY);
+    };
+
+    const restoreZoomLevel = () => {
+      try {
+        const preferences = defaultPreferencesInstance.getPreferences();
+        const savedZoomLevel = preferences.zoomLevel ?? ZOOM_DEFAULT;
+
+        // Clamp zoom level to allowed range
+        const zoomLevel = Math.min(
+          Math.max(savedZoomLevel, ZOOM_MIN),
+          ZOOM_MAX
+        );
+
+        webFrame.setZoomLevel(zoomLevel);
+      } catch {
+        // noop
+      }
+    };
 
     const zoomReset = () => {
-      return webFrame.setZoomLevel(ZOOM_DEFAULT);
+      webFrame.setZoomLevel(ZOOM_DEFAULT);
+      debouncedSaveZoomLevel(ZOOM_DEFAULT);
     };
+
     const zoomIn = () => {
       const currentZoomLevel = webFrame.getZoomLevel();
       const newZoomLevel = Math.min(
         currentZoomLevel + ZOOM_INCREMENT,
         ZOOM_MAX
       );
-      return webFrame.setZoomLevel(newZoomLevel);
+      webFrame.setZoomLevel(newZoomLevel);
+      debouncedSaveZoomLevel(newZoomLevel);
     };
+
     const zoomOut = () => {
       const currentZoomLevel = webFrame.getZoomLevel();
       const newZoomLevel = Math.max(
         currentZoomLevel - ZOOM_INCREMENT,
         ZOOM_MIN
       );
-      return webFrame.setZoomLevel(newZoomLevel);
+      webFrame.setZoomLevel(newZoomLevel);
+      debouncedSaveZoomLevel(newZoomLevel);
     };
+
+    // Restore zoom level on startup
+    restoreZoomLevel();
 
     ipcRenderer?.on('window:zoom-reset', zoomReset);
     ipcRenderer?.on('window:zoom-in', zoomIn);
