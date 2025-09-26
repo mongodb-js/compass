@@ -85,7 +85,11 @@ const TestComponent: React.FunctionComponent<{
 
   return (
     <DrawerContentProvider>
-      <MockedProvider appNameForPrompt="MongoDB Compass" chat={chat}>
+      <MockedProvider
+        originForPrompt="mongodb-compass"
+        appNameForPrompt="MongoDB Compass"
+        chat={chat}
+      >
         <DrawerAnchor>
           <div data-testid="provider-children">Provider children</div>
           <CompassAssistantDrawer
@@ -106,7 +110,11 @@ describe('useAssistantActions', function () {
 
       return (
         <DrawerContentProvider>
-          <MockedProvider appNameForPrompt="MongoDB Compass" chat={chat}>
+          <MockedProvider
+            originForPrompt="mongodb-compass"
+            appNameForPrompt="MongoDB Compass"
+            chat={chat}
+          >
             {children}
           </MockedProvider>
         </DrawerContentProvider>
@@ -485,6 +493,56 @@ describe('CompassAssistantProvider', function () {
     });
 
     describe('clear chat button', function () {
+      it('is hidden when the chat is empty', async function () {
+        const mockChat = createMockChat({ messages: [] });
+        await renderOpenAssistantDrawer({ chat: mockChat });
+        expect(screen.queryByTestId('assistant-clear-chat')).to.not.exist;
+      });
+
+      it('is hidden when the chat has only permanent messages', async function () {
+        const mockChat = createMockChat({
+          messages: mockMessages.map((message) => ({
+            ...message,
+            metadata: { isPermanent: true },
+          })),
+        });
+        await renderOpenAssistantDrawer({ chat: mockChat });
+        expect(screen.queryByTestId('assistant-clear-chat')).to.not.exist;
+      });
+
+      it('is visible when the chat has messages', async function () {
+        const mockChat = createMockChat({ messages: mockMessages });
+        await renderOpenAssistantDrawer({ chat: mockChat });
+        expect(screen.getByTestId('assistant-clear-chat')).to.exist;
+      });
+
+      it('appears after a message is sent', async function () {
+        const mockChat = new Chat<AssistantMessage>({
+          messages: [],
+          transport: {
+            sendMessages: sinon.stub().returns(
+              new Promise(() => {
+                return new ReadableStream({});
+              })
+            ),
+            reconnectToStream: sinon.stub(),
+          },
+        });
+        await renderOpenAssistantDrawer({ chat: mockChat });
+
+        expect(screen.queryByTestId('assistant-clear-chat')).to.not.exist;
+
+        userEvent.type(
+          screen.getByPlaceholderText('Ask a question'),
+          'Hello assistant'
+        );
+        userEvent.click(screen.getByLabelText('Send message'));
+
+        await waitFor(() => {
+          expect(screen.getByTestId('assistant-clear-chat')).to.exist;
+        });
+      });
+
       it('clears the chat when the user clicks and confirms', async function () {
         const mockChat = createMockChat({ messages: mockMessages });
 
@@ -609,7 +667,10 @@ describe('CompassAssistantProvider', function () {
       render(
         <DrawerContentProvider>
           <DrawerAnchor />
-          <MockedProvider appNameForPrompt="MongoDB Compass" />
+          <MockedProvider
+            originForPrompt="mongodb-compass"
+            appNameForPrompt="MongoDB Compass"
+          />
         </DrawerContentProvider>,
         {
           preferences: {

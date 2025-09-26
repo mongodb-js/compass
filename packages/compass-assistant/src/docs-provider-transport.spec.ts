@@ -62,6 +62,7 @@ describe('DocsProviderTransport', function () {
       });
       abortController = new AbortController();
       transport = new DocsProviderTransport({
+        origin: 'mongodb-compass',
         instructions: 'Test instructions for MongoDB assistance',
         model: mockModel,
       });

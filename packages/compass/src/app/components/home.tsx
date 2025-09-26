@@ -151,6 +151,7 @@ function HomeWithConnections({
     <ConnectionStorageProvider value={connectionStorage}>
       <FileInputBackendProvider createFileInputBackend={createFileInputBackend}>
         <CompassAssistantProvider
+          originForPrompt="mongodb-compass"
           appNameForPrompt={APP_NAMES_FOR_PROMPT.Compass}
         >
           <CompassConnections
