@@ -59,7 +59,7 @@
     "@mongodb-js/compass-telemetry": "^1.16.0",
     "@mongodb-js/compass-workspaces": "^0.59.0",
     "@mongodb-js/connection-info": "^0.21.0",
-    "@mongodb-js/mongodb-constants": "^0.14.0",
+    "@mongodb-js/mongodb-constants": "^0.16.0",
     "compass-preferences-model": "^2.57.0",
     "lodash": "^4.17.21",
     "mongodb": "^6.19.0",
