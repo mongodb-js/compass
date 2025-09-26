@@ -62,6 +62,16 @@ const DrawerOpenStateContext =
 const DrawerSetOpenStateContext =
   React.createContext<DrawerSetOpenStateContextValue>(() => {});
 
+type DrawerCurrentTabStateContextValue = string | null;
+
+type DrawerSetCurrentTabContextValue = (currentTab: string | null) => void;
+
+const DrawerCurrentTabStateContext =
+  React.createContext<DrawerCurrentTabStateContextValue>(null);
+
+const DrawerSetCurrentTabContext =
+  React.createContext<DrawerSetCurrentTabContextValue>(() => {});
+
 const DrawerActionsContext = React.createContext<DrawerActionsContextValue>({
   current: {
     openDrawer: () => undefined,
@@ -104,12 +114,16 @@ const DrawerActionsContext = React.createContext<DrawerActionsContextValue>({
  *   )
  * }
  */
-export const DrawerContentProvider: React.FunctionComponent = ({
-  children,
-}) => {
+export const DrawerContentProvider: React.FunctionComponent<{
+  onDrawerSectionOpen?: (drawerSectionId: string) => void;
+  onDrawerSectionHide?: (drawerSectionId: string) => void;
+  children?: React.ReactNode;
+}> = ({ onDrawerSectionOpen, onDrawerSectionHide, children }) => {
   const [drawerState, setDrawerState] = useState<DrawerSectionProps[]>([]);
   const [drawerOpenState, setDrawerOpenState] =
     useState<DrawerOpenStateContextValue>(false);
+  const [drawerCurrentTab, setDrawerCurrentTab] =
+    useState<DrawerCurrentTabStateContextValue>(null);
   const drawerActions = useRef({
     openDrawer: () => undefined,
     closeDrawer: () => undefined,
@@ -135,13 +149,36 @@ export const DrawerContentProvider: React.FunctionComponent = ({
     },
   });
 
+  const prevDrawerCurrentTabRef = React.useRef<string | null>(null);
+
+  useEffect(() => {
+    if (drawerCurrentTab === prevDrawerCurrentTabRef.current) {
+      // ignore unless it changed
+      return;
+    }
+
+    if (drawerCurrentTab) {
+      onDrawerSectionOpen?.(drawerCurrentTab);
+    }
+
+    if (prevDrawerCurrentTabRef.current) {
+      onDrawerSectionHide?.(prevDrawerCurrentTabRef.current);
+    }
+
+    prevDrawerCurrentTabRef.current = drawerCurrentTab;
+  }, [drawerCurrentTab, onDrawerSectionHide, onDrawerSectionOpen]);
+
   return (
     <DrawerStateContext.Provider value={drawerState}>
       <DrawerOpenStateContext.Provider value={drawerOpenState}>
         <DrawerSetOpenStateContext.Provider value={setDrawerOpenState}>
-          <DrawerActionsContext.Provider value={drawerActions}>
-            {children}
-          </DrawerActionsContext.Provider>
+          <DrawerCurrentTabStateContext.Provider value={drawerCurrentTab}>
+            <DrawerSetCurrentTabContext.Provider value={setDrawerCurrentTab}>
+              <DrawerActionsContext.Provider value={drawerActions}>
+                {children}
+              </DrawerActionsContext.Provider>
+            </DrawerSetCurrentTabContext.Provider>
+          </DrawerCurrentTabStateContext.Provider>
         </DrawerSetOpenStateContext.Provider>
       </DrawerOpenStateContext.Provider>
     </DrawerStateContext.Provider>
@@ -152,11 +189,21 @@ const DrawerContextGrabber: React.FunctionComponent = ({ children }) => {
   const drawerToolbarContext = useDrawerToolbarContext();
   const actions = useContext(DrawerActionsContext);
   const openStateSetter = useContext(DrawerSetOpenStateContext);
+  const currentTabSetter = useContext(DrawerSetCurrentTabContext);
   actions.current.openDrawer = drawerToolbarContext.openDrawer;
   actions.current.closeDrawer = drawerToolbarContext.closeDrawer;
+
   useEffect(() => {
     openStateSetter(drawerToolbarContext.isDrawerOpen);
   }, [drawerToolbarContext.isDrawerOpen, openStateSetter]);
+
+  useEffect(() => {
+    const currentTab =
+      drawerToolbarContext.getActiveDrawerContent()?.id ?? null;
+
+    currentTabSetter(currentTab);
+  }, [drawerToolbarContext, currentTabSetter]);
+
   return <>{children}</>;
 };
 

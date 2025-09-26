@@ -211,6 +211,12 @@ export default function ThemedHome(
           item_label: item.label,
         });
       }}
+      onDrawerSectionOpen={(drawerSectionId) => {
+        track('Drawer Section Opened', { sectionId: drawerSectionId });
+      }}
+      onDrawerSectionHide={(drawerSectionId) => {
+        track('Drawer Section Closed', { sectionId: drawerSectionId });
+      }}
       utmSource="compass"
       utmMedium="product"
       onSignalMount={(id) => {

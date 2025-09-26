@@ -14,8 +14,8 @@
   },
   "scripts": {
     "bootstrap": "npm run compile",
-    "compile": "tsc -p tsconfig.json",
-    "typecheck": "tsc -p tsconfig-lint.json --noEmit",
+    "compile": "tsc -p tsconfig-build.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
     "depcheck": "compass-scripts check-peer-deps && depcheck",
     "eslint": "eslint-compass",
     "lint": "npm run eslint . && npm run prettier -- --check .",

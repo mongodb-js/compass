@@ -31,9 +31,9 @@
   "types": "./dist/index.d.ts",
   "scripts": {
     "bootstrap": "npm run compile",
-    "compile": "tsc -p tsconfig.json",
+    "compile": "tsc -p tsconfig-build.json",
     "start": "npm run webpack serve -- --mode development",
-    "typecheck": "tsc -p tsconfig-lint.json --noEmit",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
     "eslint": "eslint-compass",
     "prettier": "prettier-compass",
     "lint": "npm run eslint . && npm run prettier -- --check .",
