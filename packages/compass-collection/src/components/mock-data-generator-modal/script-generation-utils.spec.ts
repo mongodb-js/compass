@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { faker } from '@faker-js/faker/locale/en';
-import { generateScript } from './script-generation-utils';
+import { generateScript, generateDocument } from './script-generation-utils';
 import type { FakerFieldMapping } from './types';
 
 /**
@@ -1251,6 +1251,169 @@ describe('Script Generation', () => {
         // Test that the generated document code is executable
         testDocumentCodeExecution(result.script);
       }
+    });
+  });
+
+  describe('generateDocument', () => {
+    it('should generate document with simple flat fields of mixed types', () => {
+      const schema = {
+        name: {
+          mongoType: 'String' as const,
+          fakerMethod: 'person.fullName',
+          fakerArgs: [],
+          probability: 1.0,
+        },
+        age: {
+          mongoType: 'Number' as const,
+          fakerMethod: 'number.int',
+          fakerArgs: [],
+          probability: 1.0,
+        },
+        isActive: {
+          mongoType: 'Boolean' as const,
+          fakerMethod: 'datatype.boolean',
+          fakerArgs: [],
+          probability: 1.0,
+        },
+        createdAt: {
+          mongoType: 'Date' as const,
+          fakerMethod: 'date.recent',
+          fakerArgs: [],
+          probability: 1.0,
+        },
+        _id: {
+          mongoType: 'ObjectId' as const,
+          fakerMethod: 'database.mongodbObjectId',
+          fakerArgs: [],
+          probability: 1.0,
+        },
+      };
+
+      const document = generateDocument(schema);
+
+      expect(document).to.be.an('object');
+      expect(document).to.have.property('name');
+      expect(document.name).to.be.a('string').and.not.be.empty;
+      expect(document).to.have.property('age');
+      expect(document.age).to.be.a('number');
+      expect(document).to.have.property('isActive');
+      expect(document.isActive).to.be.a('boolean');
+      expect(document).to.have.property('createdAt');
+      expect(document.createdAt).to.be.a('date');
+      expect(document).to.have.property('_id');
+      expect(document._id).to.be.a('string');
+    });
+
+    it('should generate document with multi-dimensional arrays of mixed types', () => {
+      const schema = {
+        'numberMatrix[][]': {
+          mongoType: 'Number' as const,
+          fakerMethod: 'number.int',
+          fakerArgs: [],
+          probability: 1.0,
+        },
+        'stringMatrix[][]': {
+          mongoType: 'String' as const,
+          fakerMethod: 'lorem.word',
+          fakerArgs: [],
+          probability: 1.0,
+        },
+        'booleanGrid[][]': {
+          mongoType: 'Boolean' as const,
+          fakerMethod: 'datatype.boolean',
+          fakerArgs: [],
+          probability: 1.0,
+        },
+      };
+
+      const arrayLengthMap = {
+        numberMatrix: [2, 3],
+        stringMatrix: [2, 2],
+        booleanGrid: [3, 2],
+      };
+
+      const document = generateDocument(schema, arrayLengthMap);
+
+      expect(document).to.be.an('object');
+      expect(document).to.have.property('numberMatrix');
+      expect(document.numberMatrix).to.be.an('array').with.length(2);
+      expect(document.numberMatrix[0]).to.be.an('array').with.length(3);
+      expect(document.numberMatrix[0][0]).to.be.a('number');
+
+      expect(document).to.have.property('stringMatrix');
+      expect(document.stringMatrix).to.be.an('array').with.length(2);
+      expect(document.stringMatrix[0]).to.be.an('array').with.length(2);
+      expect(document.stringMatrix[0][0]).to.be.a('string').and.not.be.empty;
+
+      expect(document).to.have.property('booleanGrid');
+      expect(document.booleanGrid).to.be.an('array').with.length(3);
+      expect(document.booleanGrid[0]).to.be.an('array').with.length(2);
+      expect(document.booleanGrid[0][0]).to.be.a('boolean');
+    });
+
+    it('should handle complex nested structures with arrays and objects', () => {
+      const schema = {
+        'company.name': {
+          mongoType: 'String' as const,
+          fakerMethod: 'company.name',
+          fakerArgs: [],
+          probability: 1.0,
+        },
+        'company.employees[].name': {
+          mongoType: 'String' as const,
+          fakerMethod: 'person.fullName',
+          fakerArgs: [],
+          probability: 1.0,
+        },
+        'company.employees[].email': {
+          mongoType: 'String' as const,
+          fakerMethod: 'internet.email',
+          fakerArgs: [],
+          probability: 1.0,
+        },
+        'company.employees[].skills[]': {
+          mongoType: 'String' as const,
+          fakerMethod: 'lorem.word',
+          fakerArgs: [],
+          probability: 1.0,
+        },
+        'company.founded': {
+          mongoType: 'Date' as const,
+          fakerMethod: 'date.past',
+          fakerArgs: [],
+          probability: 1.0,
+        },
+        'company.isActive': {
+          mongoType: 'Boolean' as const,
+          fakerMethod: 'datatype.boolean',
+          fakerArgs: [],
+          probability: 1.0,
+        },
+      };
+
+      const document = generateDocument(schema);
+
+      expect(document).to.be.an('object');
+      expect(document).to.have.property('company');
+      expect(document.company).to.be.an('object');
+      expect(document.company).to.have.property('name');
+      expect(document.company.name).to.be.a('string').and.not.be.empty;
+      expect(document.company).to.have.property('founded');
+      expect(document.company.founded).to.be.a('date');
+      expect(document.company).to.have.property('isActive');
+      expect(document.company.isActive).to.be.a('boolean');
+      expect(document.company).to.have.property('employees');
+      expect(document.company.employees).to.be.an('array').with.length(3);
+
+      const firstEmployee = document.company.employees[0];
+      expect(firstEmployee).to.be.an('object');
+      expect(firstEmployee).to.have.property('name');
+      expect(firstEmployee.name).to.be.a('string').and.not.be.empty;
+      expect(firstEmployee).to.have.property('email');
+      expect(firstEmployee.email).to.be.a('string').and.include('@');
+      expect(firstEmployee).to.have.property('skills');
+      expect(firstEmployee.skills).to.be.an('array').with.length(3);
+      expect(firstEmployee.skills[0]).to.be.a('string').and.not.be.empty;
     });
   });
 });
