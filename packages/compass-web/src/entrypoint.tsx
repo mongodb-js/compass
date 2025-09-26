@@ -440,6 +440,16 @@ const CompassWeb = ({
               item_label: item.label,
             });
           }}
+          onDrawerSectionOpen={(drawerSectionId) => {
+            onTrackRef.current?.('Drawer Section Opened', {
+              sectionId: drawerSectionId,
+            });
+          }}
+          onDrawerSectionHide={(drawerSectionId) => {
+            onTrackRef.current?.('Drawer Section Closed', {
+              sectionId: drawerSectionId,
+            });
+          }}
           onSignalMount={(id) => {
             onTrackRef.current?.('Signal Shown', { id });
           }}

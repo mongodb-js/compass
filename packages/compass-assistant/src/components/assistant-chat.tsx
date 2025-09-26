@@ -359,7 +359,7 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
         void ensureOptInAndSend?.(undefined, {}, () => {});
       }
     },
-    [ensureOptInAndSend, setMessages]
+    [ensureOptInAndSend, setMessages, track]
   );
 
   return (
