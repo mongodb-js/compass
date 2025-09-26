@@ -85,7 +85,11 @@ const TestComponent: React.FunctionComponent<{
 
   return (
     <DrawerContentProvider>
-      <MockedProvider appNameForPrompt="MongoDB Compass" chat={chat}>
+      <MockedProvider
+        originForPrompt="mongodb-compass"
+        appNameForPrompt="MongoDB Compass"
+        chat={chat}
+      >
         <DrawerAnchor>
           <div data-testid="provider-children">Provider children</div>
           <CompassAssistantDrawer
@@ -106,7 +110,11 @@ describe('useAssistantActions', function () {
 
       return (
         <DrawerContentProvider>
-          <MockedProvider appNameForPrompt="MongoDB Compass" chat={chat}>
+          <MockedProvider
+            originForPrompt="mongodb-compass"
+            appNameForPrompt="MongoDB Compass"
+            chat={chat}
+          >
             {children}
           </MockedProvider>
         </DrawerContentProvider>
@@ -659,7 +667,10 @@ describe('CompassAssistantProvider', function () {
       render(
         <DrawerContentProvider>
           <DrawerAnchor />
-          <MockedProvider appNameForPrompt="MongoDB Compass" />
+          <MockedProvider
+            originForPrompt="mongodb-compass"
+            appNameForPrompt="MongoDB Compass"
+          />
         </DrawerContentProvider>,
         {
           preferences: {

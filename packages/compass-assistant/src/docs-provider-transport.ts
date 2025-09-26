@@ -17,21 +17,21 @@ export function shouldExcludeMessage({ metadata }: AssistantMessage) {
 
 export class DocsProviderTransport implements ChatTransport<AssistantMessage> {
   private model: LanguageModel;
-  private appName: string;
+  private origin: string;
   private instructions: string;
 
   constructor({
     instructions,
     model,
-    appName,
+    origin,
   }: {
     instructions: string;
     model: LanguageModel;
-    appName: string;
+    origin: string;
   }) {
     this.instructions = instructions;
     this.model = model;
-    this.appName = appName;
+    this.origin = origin;
   }
 
   static emptyStream = new ReadableStream<UIMessageChunk>({
@@ -65,7 +65,7 @@ export class DocsProviderTransport implements ChatTransport<AssistantMessage> {
       messages: convertToModelMessages(filteredMessages),
       abortSignal: abortSignal,
       headers: {
-        'X-Request-Origin': this.appName,
+        'X-Request-Origin': this.origin,
       },
       providerOptions: {
         openai: {

@@ -256,6 +256,7 @@ export const CompassAssistantProvider = registerCompassPlugin(
       children,
     }: PropsWithChildren<{
       appNameForPrompt: string;
+      originForPrompt: string;
       chat?: Chat<AssistantMessage>;
       atlasAiService?: AtlasAiService;
     }>) => {
@@ -280,7 +281,7 @@ export const CompassAssistantProvider = registerCompassPlugin(
         initialProps.chat ??
         new Chat({
           transport: new DocsProviderTransport({
-            appName: initialProps.appNameForPrompt,
+            origin: initialProps.originForPrompt,
             instructions: buildConversationInstructionsPrompt({
               target: initialProps.appNameForPrompt,
             }),

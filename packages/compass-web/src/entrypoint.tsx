@@ -502,6 +502,7 @@ const CompassWeb = ({
                         >
                           <CompassInstanceStorePlugin>
                             <CompassAssistantProvider
+                              originForPrompt="atlas-data-explorer"
                               appNameForPrompt={
                                 APP_NAMES_FOR_PROMPT.DataExplorer
                               }
