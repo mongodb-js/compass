@@ -29,7 +29,11 @@ const defaultSchemaAnalysisState: SchemaAnalysisState = {
     },
   },
   sampleDocument: { name: 'John' },
-  schemaMetadata: { maxNestingDepth: 1, validationRules: null },
+  schemaMetadata: {
+    maxNestingDepth: 1,
+    validationRules: null,
+    avgDocumentSize: undefined,
+  },
 };
 
 describe('MockDataGeneratorModal', () => {
@@ -624,6 +628,85 @@ describe('MockDataGeneratorModal', () => {
       expect(
         screen.getByTestId('next-step-button').getAttribute('aria-disabled')
       ).to.equal('false');
+    });
+  });
+
+  describe('on the document count step', () => {
+    it('displays the correct step title and description', async () => {
+      await renderModal({ currentStep: MockDataGeneratorStep.DOCUMENT_COUNT });
+
+      expect(screen.getByText('Specify Number of Documents to Generate')).to
+        .exist;
+
+      expect(
+        screen.getByText(
+          /Indicate the amount of documents you want to generate below./
+        )
+      ).to.exist;
+      expect(screen.getByText(/Note: We have defaulted to 1000./)).to.exist;
+    });
+
+    it('displays the default document count when the user does not enter a document count', async () => {
+      await renderModal({ currentStep: MockDataGeneratorStep.DOCUMENT_COUNT });
+
+      expect(
+        screen.getByLabelText('Documents to generate in current collection')
+      ).to.have.value('1000');
+    });
+
+    it('disables the Next button and shows an error message when the document count is greater than 100000', async () => {
+      await renderModal({ currentStep: MockDataGeneratorStep.DOCUMENT_COUNT });
+
+      userEvent.type(
+        screen.getByLabelText('Documents to generate in current collection'),
+        '100001'
+      );
+
+      expect(screen.getByText('Document count must be between 1 and 100000')).to
+        .exist;
+      expect(
+        screen.getByTestId('next-step-button').getAttribute('aria-disabled')
+      ).to.equal('true');
+    });
+
+    it('displays "Not available" when the avgDocumentSize is undefined', async () => {
+      await renderModal({
+        currentStep: MockDataGeneratorStep.DOCUMENT_COUNT,
+        schemaAnalysis: {
+          ...defaultSchemaAnalysisState,
+          schemaMetadata: {
+            ...defaultSchemaAnalysisState.schemaMetadata,
+            avgDocumentSize: undefined,
+          },
+        },
+      });
+
+      expect(screen.getByText('Estimated Disk Size')).to.exist;
+      expect(screen.getByText('Not available')).to.exist;
+    });
+
+    it('displays the correct estimated disk size when a valid document count is entered', async () => {
+      await renderModal({
+        currentStep: MockDataGeneratorStep.DOCUMENT_COUNT,
+        schemaAnalysis: {
+          ...defaultSchemaAnalysisState,
+          schemaMetadata: {
+            ...defaultSchemaAnalysisState.schemaMetadata,
+            avgDocumentSize: 100, // 100 bytes
+          },
+        },
+      });
+
+      expect(screen.getByText('Estimated Disk Size')).to.exist;
+      const documentCountInput = screen.getByLabelText(
+        'Documents to generate in current collection'
+      );
+      userEvent.clear(documentCountInput);
+      userEvent.type(documentCountInput, '1000');
+      expect(screen.getByText('100.0KB')).to.exist;
+      userEvent.clear(documentCountInput);
+      userEvent.type(documentCountInput, '2000');
+      expect(screen.getByText('200.0KB')).to.exist;
     });
   });
 
