@@ -8,6 +8,7 @@ import type {
   ConstantSchemaType,
 } from 'mongodb-schema';
 import type { FieldInfo, SampleValue } from './schema-analysis-types';
+import type { ArrayLengthMap } from './components/mock-data-generator-modal/script-generation-utils';
 import {
   ObjectId,
   Binary,
@@ -44,6 +45,40 @@ import {
  */
 const MAX_SAMPLE_VALUES = 10;
 export const FIELD_NAME_SEPARATOR = '.';
+
+/**
+ * Default array length to use when no specific length information is available
+ */
+const DEFAULT_ARRAY_LENGTH = 3;
+
+/**
+ * Minimum allowed array length
+ */
+const MIN_ARRAY_LENGTH = 1;
+
+/**
+ * Maximum allowed array length
+ */
+const MAX_ARRAY_LENGTH = 50;
+
+/**
+ * Calculate array length from ArraySchemaType, using averageLength with bounds
+ */
+function calculateArrayLength(arrayType: ArraySchemaType): number {
+  const avgLength = arrayType.averageLength ?? DEFAULT_ARRAY_LENGTH;
+  return Math.max(
+    MIN_ARRAY_LENGTH,
+    Math.min(MAX_ARRAY_LENGTH, Math.round(avgLength))
+  );
+}
+
+/**
+ * Result of processing a schema, including both field information and array length configuration
+ */
+export interface ProcessSchemaResult {
+  fieldInfo: Record<string, FieldInfo>;
+  arrayLengthMap: ArrayLengthMap;
+}
 
 export class ProcessSchemaUnsupportedStateError extends Error {
   constructor(message: string) {
@@ -137,27 +172,29 @@ function isPrimitiveSchemaType(type: SchemaType): type is PrimitiveSchemaType {
 /**
  * Transforms a raw mongodb-schema Schema into a flat Record<string, FieldInfo>
  * using dot notation for nested fields and bracket notation for arrays.
+ * Also extracts array length information for script generation.
  *
- * The result is used for the Mock Data Generator LLM call.
+ * The result is used for the Mock Data Generator LLM call and script generation.
  */
-export function processSchema(schema: Schema): Record<string, FieldInfo> {
-  const result: Record<string, FieldInfo> = {};
+export function processSchema(schema: Schema): ProcessSchemaResult {
+  const fieldInfo: Record<string, FieldInfo> = {};
+  const arrayLengthMap: ArrayLengthMap = {};
 
   if (!schema.fields) {
-    return result;
+    return { fieldInfo, arrayLengthMap };
   }
 
   // Process each top-level field
   for (const field of schema.fields) {
-    processNamedField(field, '', result);
+    processNamedField(field, '', fieldInfo, arrayLengthMap);
   }
 
   // post-processing validation
-  for (const fieldPath of Object.keys(result)) {
+  for (const fieldPath of Object.keys(fieldInfo)) {
     validateFieldPath(fieldPath);
   }
 
-  return result;
+  return { fieldInfo, arrayLengthMap };
 }
 
 /**
@@ -166,7 +203,8 @@ export function processSchema(schema: Schema): Record<string, FieldInfo> {
 function processNamedField(
   field: SchemaField,
   pathPrefix: string,
-  result: Record<string, FieldInfo>
+  result: Record<string, FieldInfo>,
+  arrayLengthMap: ArrayLengthMap
 ): void {
   if (!field.types || field.types.length === 0) {
     return;
@@ -187,7 +225,13 @@ function processNamedField(
   const currentPath = pathPrefix ? `${pathPrefix}.${field.name}` : field.name;
 
   // Process based on the type
-  processType(primaryType, currentPath, result, field.probability);
+  processType(
+    primaryType,
+    currentPath,
+    result,
+    field.probability,
+    arrayLengthMap
+  );
 }
 
 /**
@@ -197,14 +241,15 @@ function processType(
   type: SchemaType,
   currentPath: string,
   result: Record<string, FieldInfo>,
-  fieldProbability: number
+  fieldProbability: number,
+  arrayLengthMap: ArrayLengthMap
 ): void {
   if (isConstantSchemaType(type)) {
     return;
   }
 
   if (isArraySchemaType(type)) {
-    // Array: add [] to path and recurse into element type
+    // Array: add [] to path and collect array length information
     const elementType = getMostFrequentType(type.types || []);
 
     if (!elementType) {
@@ -212,12 +257,24 @@ function processType(
     }
 
     const arrayPath = `${currentPath}[]`;
-    processType(elementType, arrayPath, result, fieldProbability);
+
+    // Collect array length information
+    const arrayLength = calculateArrayLength(type);
+    arrayLengthMap[arrayPath] = arrayLength;
+
+    // Recurse into element type
+    processType(
+      elementType,
+      arrayPath,
+      result,
+      fieldProbability,
+      arrayLengthMap
+    );
   } else if (isDocumentSchemaType(type)) {
     // Document: Process nested document fields
     if (type.fields) {
       for (const nestedField of type.fields) {
-        processNamedField(nestedField, currentPath, result);
+        processNamedField(nestedField, currentPath, result, arrayLengthMap);
       }
     }
   } else if (isPrimitiveSchemaType(type)) {

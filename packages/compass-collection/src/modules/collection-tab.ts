@@ -143,6 +143,7 @@ interface SchemaAnalysisStartedAction {
 interface SchemaAnalysisFinishedAction {
   type: CollectionActions.SchemaAnalysisFinished;
   processedSchema: Record<string, FieldInfo>;
+  arrayLengthMap: Record<string, number>;
   sampleDocument: Document;
   schemaMetadata: {
     maxNestingDepth: number;
@@ -262,6 +263,7 @@ const reducer: Reducer<CollectionState, Action> = (
       schemaAnalysis: {
         status: SCHEMA_ANALYSIS_STATE_COMPLETE,
         processedSchema: action.processedSchema,
+        arrayLengthMap: action.arrayLengthMap,
         sampleDocument: action.sampleDocument,
         schemaMetadata: action.schemaMetadata,
       },
@@ -629,7 +631,7 @@ export const analyzeCollectionSchema = (): CollectionThunkAction<
       );
 
       // Transform schema to structure that will be used by the LLM
-      const processedSchema = processSchema(schema);
+      const processSchemaResult = processSchema(schema);
 
       const maxNestingDepth = await calculateSchemaDepth(schema);
       const { database, collection } = toNS(namespace);
@@ -648,7 +650,8 @@ export const analyzeCollectionSchema = (): CollectionThunkAction<
 
       dispatch({
         type: CollectionActions.SchemaAnalysisFinished,
-        processedSchema,
+        processedSchema: processSchemaResult.fieldInfo,
+        arrayLengthMap: processSchemaResult.arrayLengthMap,
         sampleDocument: sampleDocuments[0],
         schemaMetadata,
       });

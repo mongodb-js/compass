@@ -22,6 +22,7 @@ import {
   generateFakerMappings,
   mockDataGeneratorPreviousButtonClicked,
 } from '../../modules/collection-tab';
+
 import RawSchemaConfirmationScreen from './raw-schema-confirmation-screen';
 import FakerSchemaEditorScreen from './faker-schema-editor-screen';
 import ScriptScreen from './script-screen';
