@@ -113,8 +113,9 @@ async function saveWindowBounds(
         isMaximized,
       },
     });
-  } catch (error) {
-    debug('Failed to save window bounds:', error);
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.error(err);
   }
 }
 
