@@ -23,8 +23,6 @@ import {
   registerConnectionIdForBrowserWindow,
 } from './auto-connect';
 
-import { screen, type Display } from 'electron';
-
 const { debug } = createLogger('COMPASS-WINDOW-MANAGER');
 
 const earlyOpenUrls: string[] = [];
