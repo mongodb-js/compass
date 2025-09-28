@@ -162,7 +162,6 @@ function showConnectWindow(
   const { isMaximized, ...bounds } = getSavedWindowBounds(compassApp);
   const windowOpts = {
     ...bounds,
-
     minWidth: Number(MIN_WIDTH),
     minHeight: Number(MIN_HEIGHT),
     /**
