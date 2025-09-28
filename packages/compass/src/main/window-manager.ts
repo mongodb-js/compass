@@ -80,8 +80,16 @@ const DEFAULT_URL =
   process.env.COMPASS_INDEX_RENDERER_URL ||
   pathToFileURL(path.join(__dirname, 'index.html')).toString();
 
-async function showWindowWhenReady(bw: BrowserWindow) {
+async function showWindowWhenReady(bw: BrowserWindow, isMaximized?: boolean) {
   await once(bw, 'ready-to-show');
+  if (isMaximized) {
+    // win.maximize() maximizes the window.
+    // This will also show (but not focus) the window if it isn't being displayed already.
+    bw.maximize();
+    bw.focus();
+    return;
+  }
+
   bw.show();
 }
 
@@ -201,11 +209,9 @@ function showConnectWindow(
   > = {}
 ): BrowserWindow {
   // Get saved window bounds
-  const savedBounds = getSavedWindowBounds(compassApp);
-  const validatedBounds = validateWindowBounds(savedBounds);
-
+  const { isMaximized, ...bounds } = getSavedWindowBounds(compassApp);
   const windowOpts = {
-    ...validatedBounds,
+    ...bounds,
     minWidth: Number(MIN_WIDTH),
     minHeight: Number(MIN_HEIGHT),
     /**
@@ -270,11 +276,6 @@ function showConnectWindow(
   window.on('maximize', debouncedSaveWindowBounds);
   window.on('unmaximize', debouncedSaveWindowBounds);
 
-  // Restore maximized state if it was saved
-  if (savedBounds?.isMaximized) {
-    window.maximize();
-  }
-
   const onWindowClosed = () => {
     debug('Window closed. Dereferencing.');
     if (saveTimeoutId) {
@@ -288,7 +289,7 @@ function showConnectWindow(
 
   debug(`Loading page ${rendererUrl} in main window`);
 
-  void showWindowWhenReady(window);
+  void showWindowWhenReady(window, isMaximized);
 
   void window.loadURL(rendererUrl);
 
