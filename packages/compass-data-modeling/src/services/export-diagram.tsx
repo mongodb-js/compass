@@ -115,6 +115,9 @@ export function getExportPngDataUri(diagram: DiagramInstance): Promise<string> {
                 height: `${bounds.height}px`,
                 transform: `translate(${transform.x}px, ${transform.y}px) scale(${transform.zoom})`,
               },
+              filter: (node) => {
+                return !node.classList?.contains('node-add-field-button');
+              },
             })
               .then(resolve)
               .catch(reject)

@@ -13,10 +13,11 @@ import {
   PreferencesProvider,
 } from 'compass-preferences-model/provider';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
+import type { CollectionProps } from 'mongodb-collection-model';
 import type { DatabaseProps } from 'mongodb-database-model';
 
-function createDatabase(name) {
-  const db: Partial<DatabaseProps> = {
+function createDatabase(name: string): DatabaseProps {
+  const db: DatabaseProps = {
     _id: name,
     name: name,
     status: 'ready' as const,
@@ -34,6 +35,7 @@ function createDatabase(name) {
     data_size: 1000,
     index_count: 25,
     index_size: 100,
+    calculated_storage_size: undefined,
   };
 
   if (db.storage_size !== undefined && db.free_storage_size !== undefined) {
@@ -43,7 +45,10 @@ function createDatabase(name) {
   return db;
 }
 
-function createCollection(name, props: any = {}) {
+function createCollection(
+  name: string,
+  props: Partial<CollectionProps> = {}
+): CollectionProps {
   const col = {
     _id: name,
     name: name,
@@ -79,6 +84,7 @@ function createCollection(name, props: any = {}) {
     free_storage_size: 1000,
     index_count: 15,
     index_size: 16,
+    calculated_storage_size: undefined,
     ...props,
   };
 
@@ -89,21 +95,24 @@ function createCollection(name, props: any = {}) {
   return col;
 }
 
-function createTimeSeries(name, props: any = {}) {
+function createTimeSeries(
+  name: string,
+  props: Partial<CollectionProps> = {}
+): CollectionProps {
   return {
     ...createCollection(name, props),
     type: 'timeseries' as const,
   };
 }
 
-const dbs = [
+const dbs: DatabaseProps[] = [
   createDatabase('foo'),
   createDatabase('bar'),
   createDatabase('buz'),
   createDatabase('bat'),
 ];
 
-const colls = [
+const colls: CollectionProps[] = [
   createCollection('foo.foo', { storage_size: 1000, free_storage_size: 1000 }), // 1000
   createCollection('bar.bar', { storage_size: 2000, free_storage_size: 500 }), // 1500
   createCollection('buz.buz', { storage_size: 3000, free_storage_size: 2000 }), // 1000
@@ -120,10 +129,16 @@ describe('databases and collections list', function () {
 
     afterEach(cleanup);
 
-    const renderDatabasesList = (props) => {
+    const renderDatabasesList = (
+      props: Partial<React.ComponentProps<typeof DatabasesList>>
+    ) => {
       render(
         <PreferencesProvider value={preferences}>
-          <DatabasesList {...props}></DatabasesList>
+          <DatabasesList
+            databases={[]}
+            onDatabaseClick={() => {}}
+            {...props}
+          ></DatabasesList>
         </PreferencesProvider>
       );
     };
@@ -200,10 +215,17 @@ describe('databases and collections list', function () {
 
     afterEach(cleanup);
 
-    const renderCollectionsList = (props) => {
+    const renderCollectionsList = (
+      props: Partial<React.ComponentProps<typeof CollectionsList>>
+    ) => {
       render(
         <PreferencesProvider value={preferences}>
-          <CollectionsList {...props}></CollectionsList>
+          <CollectionsList
+            onCollectionClick={() => {}}
+            namespace="db"
+            collections={[]}
+            {...props}
+          ></CollectionsList>
         </PreferencesProvider>
       );
     };

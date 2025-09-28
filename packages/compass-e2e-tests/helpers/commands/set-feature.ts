@@ -15,13 +15,14 @@ export async function setFeature<K extends keyof UserPreferences>(
     // preferences so we use a global function.
     await browser.execute(
       async (_name, _value) => {
+        const kSandboxUpdateFn = Symbol.for(
+          '@compass-web-sandbox-update-preferences'
+        );
         const attributes: Partial<AllPreferences> = {
           [_name]: _value === null ? undefined : _value,
         };
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        await (globalThis as any).__compassWebE2ETestSavePreferences(
-          attributes
-        );
+        await (globalThis as any)[kSandboxUpdateFn]?.(attributes);
       },
       name,
       value

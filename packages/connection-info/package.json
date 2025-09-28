@@ -13,7 +13,7 @@
     "email": "compass@mongodb.com"
   },
   "homepage": "https://github.com/mongodb-js/compass",
-  "version": "0.20.2",
+  "version": "0.21.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/compass.git"
@@ -36,8 +36,8 @@
   "scripts": {
     "bootstrap": "npm run compile",
     "prepublishOnly": "npm run compile && compass-scripts check-exports-exist",
-    "compile": "tsc -p tsconfig.json && gen-esm-wrapper . ./dist/.esm-wrapper.mjs",
-    "typecheck": "tsc -p tsconfig-lint.json --noEmit",
+    "compile": "tsc -p tsconfig-build.json && gen-esm-wrapper . ./dist/.esm-wrapper.mjs",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
     "eslint": "eslint-compass",
     "prettier": "prettier-compass",
     "lint": "npm run eslint . && npm run prettier -- --check .",
@@ -54,7 +54,7 @@
     "lodash": "^4.17.21",
     "mongodb": "^6.19.0",
     "mongodb-connection-string-url": "^3.0.1",
-    "mongodb-data-service": "^22.33.2"
+    "mongodb-data-service": "^22.34.0"
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-compass": "^1.4.10",

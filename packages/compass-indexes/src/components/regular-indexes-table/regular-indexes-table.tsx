@@ -1,6 +1,6 @@
 import React, { useMemo, useEffect } from 'react';
 import { connect } from 'react-redux';
-import { withPreferences } from 'compass-preferences-model/provider';
+import { usePreference } from 'compass-preferences-model/provider';
 import { useWorkspaceTabId } from '@mongodb-js/compass-workspaces/provider';
 import { IndexKeysBadge } from '@mongodb-js/compass-components';
 import type {
@@ -380,7 +380,6 @@ export const RegularIndexesTable: React.FunctionComponent<
   RegularIndexesTableProps
 > = ({
   isWritable,
-  readOnly,
   indexes,
   inProgressIndexes,
   rollingIndexes,
@@ -394,6 +393,7 @@ export const RegularIndexesTable: React.FunctionComponent<
   error,
 }) => {
   const tabId = useWorkspaceTabId();
+  const preferencesReadWrite = usePreference('readWrite');
 
   useEffect(() => {
     onRegularIndexesOpened(tabId);
@@ -455,7 +455,7 @@ export const RegularIndexesTable: React.FunctionComponent<
     return null;
   }
 
-  const canModifyIndex = isWritable && !readOnly;
+  const canModifyIndex = isWritable && !preferencesReadWrite;
 
   return (
     <IndexesTable
@@ -489,7 +489,4 @@ const mapDispatch = {
   onRegularIndexesClosed: stopPollingRegularIndexes,
 };
 
-export default connect(
-  mapState,
-  mapDispatch
-)(withPreferences(RegularIndexesTable, ['readOnly']));
+export default connect(mapState, mapDispatch)(RegularIndexesTable);

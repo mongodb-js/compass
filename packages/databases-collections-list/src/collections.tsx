@@ -72,7 +72,7 @@ const pageContainerStyles = css({
 const CollectionsList: React.FunctionComponent<{
   namespace: string;
   collections: CollectionProps[];
-  onCollectionClick(id: string): void;
+  onCollectionClick: (id: string) => void;
   onDeleteCollectionClick?: (id: string) => void;
   onCreateCollectionClick?: () => void;
   onRefreshClick?: () => void;

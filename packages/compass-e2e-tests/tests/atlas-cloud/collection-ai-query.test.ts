@@ -44,10 +44,7 @@ describe('Collection ai query', function () {
       );
 
       await browser.setFeature('enableGenAIFeaturesAtlasProject', true);
-      await browser.setFeature(
-        'enableGenAISampleDocumentPassingOnAtlasProject',
-        true
-      );
+      await browser.setFeature('enableGenAISampleDocumentPassing', true);
       await browser.setFeature('enableGenAIFeaturesAtlasOrg', true);
       await browser.setFeature('optInGenAIFeatures', true);
     });
@@ -165,10 +162,7 @@ describe('Collection ai query', function () {
       );
 
       await browser.setFeature('enableGenAIFeaturesAtlasProject', true);
-      await browser.setFeature(
-        'enableGenAISampleDocumentPassingOnAtlasProject',
-        true
-      );
+      await browser.setFeature('enableGenAISampleDocumentPassing', true);
       await browser.setFeature('enableGenAIFeaturesAtlasOrg', false);
       await browser.setFeature('optInGenAIFeatures', true);
     });

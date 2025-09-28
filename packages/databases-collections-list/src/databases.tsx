@@ -17,7 +17,7 @@ const DATABASE_CARD_LIST_WITHOUT_STATS_HEIGHT = DATABASE_CARD_LIST_HEIGHT - 50;
 
 const DatabasesList: React.FunctionComponent<{
   databases: DatabaseProps[];
-  onDatabaseClick(id: string): void;
+  onDatabaseClick: (id: string) => void;
   onDeleteDatabaseClick?: (id: string) => void;
   onCreateDatabaseClick?: () => void;
   onRefreshClick?: () => void;
