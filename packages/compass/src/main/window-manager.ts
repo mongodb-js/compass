@@ -132,56 +132,6 @@ function getSavedWindowBounds(compassApp: typeof CompassApplication) {
 }
 
 /**
- * Validate and adjust window bounds to ensure they're visible on screen
- */
-function validateWindowBounds(bounds: {
-  x?: number;
-  y?: number;
-  width?: number;
-  height?: number;
-}) {
-  if (
-    bounds?.width == null ||
-    bounds?.height == null ||
-    bounds?.x == null ||
-    bounds?.y == null
-  ) {
-    return {
-      width: Number(DEFAULT_WIDTH),
-      height: Number(DEFAULT_HEIGHT),
-    };
-  }
-
-  // Check if window would be visible on any display
-  const windowRect = {
-    x: bounds.x,
-    y: bounds.y,
-    width: bounds.width,
-    height: bounds.height,
-  };
-
-  const displays = screen.getAllDisplays();
-  const isVisible = displays.some((display: Display) => {
-    const { bounds: displayBounds } = display;
-    return (
-      windowRect.x < displayBounds.x + displayBounds.width &&
-      windowRect.x + windowRect.width > displayBounds.x &&
-      windowRect.y < displayBounds.y + displayBounds.height &&
-      windowRect.y + windowRect.height > displayBounds.y
-    );
-  });
-
-  if (isVisible) {
-    return { ...windowRect };
-  }
-
-  return {
-    width: Number(DEFAULT_WIDTH),
-    height: Number(DEFAULT_HEIGHT),
-  };
-}
-
-/**
  * Call me instead of using `new BrowserWindow()` directly because i'll:
  *
  * 1. Make sure the window is the right size
