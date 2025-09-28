@@ -132,28 +132,24 @@ function validateWindowBounds(bounds: {
   width?: number;
   height?: number;
 }) {
-  if (bounds?.width == null || bounds?.height == null) {
+  if (
+    bounds?.width == null ||
+    bounds?.height == null ||
+    bounds?.x == null ||
+    bounds?.y == null
+  ) {
     return {
       width: Number(DEFAULT_WIDTH),
       height: Number(DEFAULT_HEIGHT),
     };
   }
 
-  // Ensure minimum size
-  const width = Math.max(bounds.width, Number(MIN_WIDTH));
-  const height = Math.max(bounds.height, Number(MIN_HEIGHT));
-
-  // If no position specified, let Electron handle it
-  if (bounds?.x == null || bounds?.y == null) {
-    return { width, height };
-  }
-
   // Check if window would be visible on any display
   const windowRect = {
     x: bounds.x,
     y: bounds.y,
-    width,
-    height,
+    width: bounds.width,
+    height: bounds.height,
   };
 
   const displays = screen.getAllDisplays();
@@ -171,7 +167,10 @@ function validateWindowBounds(bounds: {
     return { ...windowRect };
   }
 
-  return { width, height };
+  return {
+    width: Number(DEFAULT_WIDTH),
+    height: Number(DEFAULT_HEIGHT),
+  };
 }
 
 /**
