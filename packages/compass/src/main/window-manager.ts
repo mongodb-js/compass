@@ -119,19 +119,6 @@ async function saveWindowBounds(
 }
 
 /**
- * Get saved window bounds from preferences
- */
-function getSavedWindowBounds(compassApp: typeof CompassApplication) {
-  try {
-    const preferences = compassApp.preferences.getPreferences();
-    return preferences.windowBounds;
-  } catch (error) {
-    debug('Failed to get saved window bounds:', error);
-    return undefined;
-  }
-}
-
-/**
  * Call me instead of using `new BrowserWindow()` directly because i'll:
  *
  * 1. Make sure the window is the right size
@@ -159,7 +146,9 @@ function showConnectWindow(
   > = {}
 ): BrowserWindow {
   // Get saved window bounds
-  const { isMaximized, ...bounds } = getSavedWindowBounds(compassApp);
+  const windowBounds =
+    compassApp.preferences.getPreferences().windowBounds ?? {};
+  const { isMaximized, ...bounds } = windowBounds;
   const windowOpts = {
     ...bounds,
     minWidth: Number(MIN_WIDTH),
