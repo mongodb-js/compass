@@ -2591,7 +2591,7 @@ describe('store', function () {
           'SyntaxError'
         );
         expect(store.state.bulkUpdate.syntaxError?.message).to.equal(
-          'Unexpected token (2:25)'
+          'Unexpected token (2:25) in (\n{ $set: { anotherField:  } }\n)'
         );
 
         await store.updateBulkUpdatePreview('{ $set: { anotherField: 2 } }');
