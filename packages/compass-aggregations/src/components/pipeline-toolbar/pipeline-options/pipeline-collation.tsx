@@ -14,7 +14,7 @@ import {
 import type { RootState } from '../../../modules';
 import { collationStringChanged } from '../../../modules/collation-string';
 import { maxTimeMSChanged } from '../../../modules/max-time-ms';
-import { DEFAULT_MAX_TIME_MS } from '../../../constants';
+import { DEFAULT_MAX_TIME_MS, WEB_MAX_TIME_MS_LIMIT } from '../../../constants';
 import { usePreference } from 'compass-preferences-model/provider';
 
 const pipelineOptionsContainerStyles = css({
@@ -51,9 +51,6 @@ const collationInputId = 'aggregations-collation-toolbar-input';
 
 const maxTimeMSLabelId = 'aggregations-max-time-ms-toolbar-input-label';
 const maxTimeMSInputId = 'aggregations-max-time-ms-toolbar-input';
-
-// Data Explorer limits (5 minutes = 300,000ms)
-const WEB_MAX_TIME_MS_LIMIT = 300_000; // 5 minutes
 
 const PipelineCollation: React.FunctionComponent<PipelineCollationProps> = ({
   collationValue,

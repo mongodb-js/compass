@@ -11,7 +11,10 @@ import {
 } from '@mongodb-js/compass-components';
 import { connect } from '../stores/context';
 import OptionEditor from './option-editor';
-import { OPTION_DEFINITION } from '../constants/query-option-definition';
+import {
+  OPTION_DEFINITION,
+  WEB_MAX_TIME_MS_LIMIT,
+} from '../constants/query-option-definition';
 import type {
   QueryOptionOfTypeDocument,
   QueryOption as QueryOptionType,
@@ -80,9 +83,6 @@ export const documentEditorLabelContainerStyles = css(
     minWidth: spacing[800] * 2,
   }
 );
-
-// Data Explorer limits for maxTimeMS (5 minutes = 300,000ms)
-const WEB_MAX_TIME_MS_LIMIT = 300_000; // 5 minutes
 
 type QueryBarProperty = Exclude<QueryProperty, 'update'>;
 
