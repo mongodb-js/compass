@@ -10,6 +10,7 @@ import type { DataModelingState } from '../store/reducer';
 import {
   addNewFieldToCollection,
   moveCollection,
+  onAddNestedField,
   selectCollection,
   selectRelationship,
   selectBackground,
@@ -131,6 +132,7 @@ const DiagramContent: React.FunctionComponent<{
   isInRelationshipDrawingMode: boolean;
   editErrors?: string[];
   newCollection?: string;
+  onAddFieldToObjectField: (ns: string, parentPath: string[]) => void;
   onAddNewFieldToCollection: (ns: string) => void;
   onMoveCollection: (ns: string, newPosition: [number, number]) => void;
   onCollectionSelect: (namespace: string) => void;
@@ -153,6 +155,7 @@ const DiagramContent: React.FunctionComponent<{
   model,
   isInRelationshipDrawingMode,
   newCollection,
+  onAddFieldToObjectField,
   onAddNewFieldToCollection,
   onMoveCollection,
   onCollectionSelect,
@@ -324,6 +327,13 @@ const DiagramContent: React.FunctionComponent<{
     [onAddNewFieldToCollection]
   );
 
+  const onClickAddFieldToObjectField = useCallback(
+    (event: React.MouseEvent, nodeId: string, parentPath: string[]) => {
+      onAddFieldToObjectField(nodeId, parentPath);
+    },
+    [onAddFieldToObjectField]
+  );
+
   return (
     <div
       ref={setDiagramContainerRef}
@@ -361,6 +371,7 @@ const DiagramContent: React.FunctionComponent<{
           onNodeDragStop={onNodeDragStop}
           onConnect={onConnect}
           onAddFieldToNodeClick={onClickAddFieldToCollection}
+          onAddFieldToObjectFieldClick={onClickAddFieldToObjectField}
         />
       </div>
     </div>
@@ -384,6 +395,7 @@ const ConnectedDiagramContent = connect(
   },
   {
     onAddNewFieldToCollection: addNewFieldToCollection,
+    onAddFieldToObjectField: onAddNestedField,
     onMoveCollection: moveCollection,
     onCollectionSelect: selectCollection,
     onRelationshipSelect: selectRelationship,

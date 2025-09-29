@@ -1,5 +1,10 @@
 import toNS from 'mongodb-ns';
-import type { NodeProps, EdgeProps, NodeGlyph } from '@mongodb-js/diagramming';
+import type {
+  NodeProps,
+  EdgeProps,
+  NodeGlyph,
+  NodeField,
+} from '@mongodb-js/diagramming';
 import type { MongoDBJSONSchema } from 'mongodb-schema';
 import type { SelectedItems } from '../store/diagram';
 import type {
@@ -33,6 +38,37 @@ export const getHighlightedFields = (
   return selection;
 };
 
+const getBaseNodeField = (fieldPath: string[]): NodeField => {
+  return {
+    name: fieldPath[fieldPath.length - 1],
+    id: fieldPath,
+    depth: fieldPath.length - 1,
+  };
+};
+
+/**
+ * Create the base field list to be used for positioning and measuring in node layouts.
+ */
+export const getBaseFieldsFromSchema = ({
+  jsonSchema,
+}: {
+  jsonSchema: MongoDBJSONSchema;
+}): NodeField[] => {
+  if (!jsonSchema || !jsonSchema.properties) {
+    return [];
+  }
+  const fields: NodeField[] = [];
+
+  traverseSchema({
+    jsonSchema,
+    visitor: ({ fieldPath }) => {
+      fields.push(getBaseNodeField(fieldPath));
+    },
+  });
+
+  return fields;
+};
+
 const KEY_GLYPH: NodeGlyph[] = ['key'];
 const NO_GLYPH: NodeGlyph[] = [];
 
@@ -54,9 +90,9 @@ export const getFieldsFromSchema = ({
     jsonSchema,
     visitor: ({ fieldPath, fieldTypes }) => {
       fields.push({
-        name: fieldPath[fieldPath.length - 1],
-        id: fieldPath,
+        ...getBaseNodeField(fieldPath),
         type: fieldTypes.length === 1 ? fieldTypes[0] : fieldTypes,
+        id: fieldPath,
         depth: fieldPath.length - 1,
         glyphs:
           fieldTypes.length === 1 && fieldTypes[0] === 'objectId'
@@ -64,7 +100,8 @@ export const getFieldsFromSchema = ({
             : NO_GLYPH,
         selectable: true,
         selected:
-          !!selectedField && areFieldPathsEqual(fieldPath, selectedField),
+          !!selectedField?.length &&
+          areFieldPathsEqual(fieldPath, selectedField),
         variant:
           highlightedFields.length &&
           highlightedFields.some((highlightedField) =>
@@ -96,7 +133,7 @@ export function collectionToBaseNodeForLayout({
       x: displayPosition[0],
       y: displayPosition[1],
     },
-    fields: getFieldsFromSchema({ jsonSchema }),
+    fields: getBaseFieldsFromSchema({ jsonSchema }),
   };
 }
 
