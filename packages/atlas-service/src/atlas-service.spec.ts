@@ -16,6 +16,7 @@ const ATLAS_CONFIG = {
   },
   authPortalUrl: 'http://example.com/account/login',
   assistantApiBaseUrl: 'http://example.com/assistant',
+  userDataBaseUrl: 'http://example.com/ui/userData',
 };
 
 function getAtlasService(
