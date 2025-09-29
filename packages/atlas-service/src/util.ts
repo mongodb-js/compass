@@ -148,7 +148,7 @@ const config = {
     },
     authPortalUrl: 'https://account-dev.mongodb.com/account/login',
     assistantApiBaseUrl: 'https://knowledge-dev.mongodb.com/api/v1',
-    userDataBaseUrl: 'http://cloud-dev.mongodb.com/ui/userData',
+    userDataBaseUrl: 'https://cloud-dev.mongodb.com/ui/userData',
   },
   'atlas-dev': {
     ccsBaseUrl: '',
@@ -196,7 +196,7 @@ const config = {
     },
     authPortalUrl: 'https://account-dev.mongodb.com/account/login',
     assistantApiBaseUrl: 'https://knowledge-dev.mongodb.com/api/v1',
-    userDataBaseUrl: '/cloud-mongodb-com/ui/userData',
+    userDataBaseUrl: 'https://cloud-dev.mongodb.com/ui/userData',
   },
   'web-sandbox-atlas-dev': {
     ccsBaseUrl: '/ccs',
