@@ -166,15 +166,13 @@ const QueryOption: React.FunctionComponent<QueryOptionProps> = ({
     return Number.isNaN(parsed) ? 0 : parsed;
   }, [value]);
 
-  const exceedsMaxTimeMSLimit = Boolean(
-    useMemo(() => {
-      return (
-        name === 'maxTimeMS' &&
-        showMaxTimeMSWarning &&
-        numericValue >= WEB_MAX_TIME_MS_LIMIT
-      );
-    }, [name, showMaxTimeMSWarning, numericValue])
-  );
+  const exceedsMaxTimeMSLimit = useMemo(() => {
+    return (
+      name === 'maxTimeMS' &&
+      showMaxTimeMSWarning &&
+      numericValue >= WEB_MAX_TIME_MS_LIMIT
+    );
+  }, [name, showMaxTimeMSWarning, numericValue]);
 
   return (
     <div

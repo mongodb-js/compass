@@ -94,15 +94,13 @@ const PipelineCollation: React.FunctionComponent<PipelineCollationProps> = ({
   }, [showMaxTimeMSWarning, maxTimeMSLimit]);
 
   // Check if value exceeds the limit when warning is enabled
-  const exceedsLimit = Boolean(
-    useMemo(() => {
-      return (
-        showMaxTimeMSWarning &&
-        maxTimeMSValue &&
-        maxTimeMSValue >= WEB_MAX_TIME_MS_LIMIT
-      );
-    }, [showMaxTimeMSWarning, maxTimeMSValue])
-  );
+  const exceedsLimit = useMemo(() => {
+    return (
+      showMaxTimeMSWarning &&
+      maxTimeMSValue &&
+      maxTimeMSValue >= WEB_MAX_TIME_MS_LIMIT
+    );
+  }, [showMaxTimeMSWarning, maxTimeMSValue]);
 
   return (
     <div

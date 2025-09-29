@@ -104,7 +104,7 @@ export const changeField = (
     const parsedValue = validateField(name, stringValue, {
       maxTimeMS: preferences.getPreferences().maxTimeMS ?? undefined,
       showMaxTimeMSWarning:
-        Boolean(preferences.getPreferences().showMaxTimeMSWarning) ?? false,
+        Boolean(preferences.getPreferences().showMaxTimeMSWarning),
     });
     const isValid = parsedValue !== false;
     dispatch({
@@ -166,9 +166,8 @@ export const resetQuery = (
     const fields = mapQueryToFormFields(
       {
         maxTimeMS: preferences.getPreferences().maxTimeMS,
-        showMaxTimeMSWarning: Boolean(
-          preferences.getPreferences().showMaxTimeMSWarning
-        ),
+        showMaxTimeMSWarning:
+          preferences.getPreferences().showMaxTimeMSWarning ?? false,
       },
       DEFAULT_FIELD_VALUES
     );
