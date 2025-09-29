@@ -1,5 +1,6 @@
 import { EJSON } from 'bson';
 import { AtlasUserData, FileUserData } from '@mongodb-js/compass-user-data';
+import { UserDataType } from '@mongodb-js/atlas-service/provider';
 import { RecentQuerySchema, FavoriteQuerySchema } from './query-storage-schema';
 import { PipelineSchema } from './pipeline-storage-schema';
 import {
@@ -7,12 +8,6 @@ import {
   BaseCompassFavoriteQueryStorage,
 } from './base-query-storage';
 import { BaseCompassPipelineStorage } from './base-pipeline-storage';
-
-export enum UserDataType {
-  FAVORITE_QUERIES = 'favoriteQueries',
-  RECENT_QUERIES = 'recentQueries',
-  FAVORITE_AGGREGATIONS = 'favoriteAggregations',
-}
 
 // Web-specific factory functions
 export type WebStorageOptions = {
