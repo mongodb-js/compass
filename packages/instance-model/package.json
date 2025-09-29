@@ -40,5 +40,6 @@
     "chai": "^4.3.4",
     "depcheck": "^1.4.1",
     "mocha": "^10.2.0"
-  }
+  },
+  "private": true
 }

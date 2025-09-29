@@ -38,5 +38,6 @@
     "@mongodb-js/prettier-config-compass": "^1.2.8",
     "depcheck": "^1.4.1",
     "mocha": "^10.2.0"
-  }
+  },
+  "private": true
 }
