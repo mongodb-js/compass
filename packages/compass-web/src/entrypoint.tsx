@@ -50,6 +50,12 @@ import {
   atlasServiceLocator,
   AtlasServiceProvider,
 } from '@mongodb-js/atlas-service/provider';
+// Define UserDataType enum locally to avoid dependency issues
+enum UserDataType {
+  FAVORITE_QUERIES = 'favoriteQueries',
+  RECENT_QUERIES = 'recentQueries',
+  FAVORITE_AGGREGATIONS = 'favoriteAggregations',
+}
 import { AtlasAiServiceProvider } from '@mongodb-js/compass-generative-ai/provider';
 import { LoggerProvider } from '@mongodb-js/compass-logging/provider';
 import { TelemetryProvider } from '@mongodb-js/compass-telemetry/provider';
@@ -117,8 +123,24 @@ const WithStorageProviders = createServiceProvider(
     const atlasService = atlasServiceLocator();
     const authenticatedFetch =
       atlasService.authenticatedFetch.bind(atlasService);
-    const getResourceUrl = (path?: string) =>
-      atlasService.userDataEndpoint(`/${path || ''}`);
+    const getResourceUrl = (path?: string) => {
+      const pathParts = path?.split('/').filter(Boolean) || [];
+      const type = pathParts[0] as UserDataType;
+      const pathOrgId = pathParts[1];
+      const pathProjectId = pathParts[2];
+      const id = pathParts[3];
+
+      // Use the path's orgId and projectId if provided, otherwise fall back to the context values
+      const finalOrgId = pathOrgId || orgId;
+      const finalProjectId = pathProjectId || projectId;
+
+      return atlasService.userDataEndpoint(
+        finalOrgId,
+        finalProjectId,
+        type,
+        id
+      );
+    };
 
     const pipelineStorage = useRef<PipelineStorageAccess>({
       getStorage() {
