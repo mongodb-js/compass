@@ -1,5 +1,5 @@
 import process from 'node:process';
-import fs from 'node:fs';
+import fs, { promises as asyncFs } from 'node:fs';
 import path from 'node:path';
 import child_process from 'node:child_process';
 import os from 'node:os';
@@ -39,7 +39,10 @@ if (!(await isDevServerRunning(8081))) {
   console.log('mms dev server is not running... launching!');
 
   const { engines } = JSON.parse(
-    await fs.readFile(path.join(process.env.MMS_HOME, 'package.json'), 'utf8')
+    await asyncFs.readFile(
+      path.join(process.env.MMS_HOME, 'package.json'),
+      'utf8'
+    )
   );
   const pnpmVersion = engines.pnpm ?? 'latest';
 
