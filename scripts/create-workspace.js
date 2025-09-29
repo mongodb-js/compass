@@ -253,9 +253,9 @@ async function createWorkspace({
           'npm run compile && compass-scripts check-exports-exist',
       }),
       compile: isPublic
-        ? 'tsc -p tsconfig.json && gen-esm-wrapper . ./dist/.esm-wrapper.mjs'
-        : 'tsc -p tsconfig.json',
-      typecheck: 'tsc -p tsconfig-lint.json --noEmit',
+        ? 'tsc -p tsconfig-build.json && gen-esm-wrapper . ./dist/.esm-wrapper.mjs'
+        : 'tsc -p tsconfig-build.json',
+      typecheck: 'tsc -p tsconfig.json --noEmit',
       eslint: 'eslint-compass',
       prettier: 'prettier-compass',
       lint: 'npm run eslint . && npm run prettier -- --check .',
@@ -342,19 +342,19 @@ async function createWorkspace({
         outDir: 'dist',
         allowJs: allowJs === true ? true : undefined,
       },
-      include: ['src/**/*'],
-      exclude: ['./src/**/*.spec.*'],
+      include: ['**/*'],
+      exclude: ['node_modules', 'dist'],
     },
     null,
     2
   );
 
-  const tsconfigLintPath = path.join(packagePath, 'tsconfig-lint.json');
-  const tsconfigLintContent = JSON.stringify(
+  const tsconfigBuildPath = path.join(packagePath, 'tsconfig-build.json');
+  const tsconfigBuildContent = JSON.stringify(
     {
       extends: './tsconfig.json',
-      include: ['**/*'],
-      exclude: ['node_modules', 'dist'],
+      include: ['src/**/*'],
+      exclude: ['./src/**/*.spec.*'],
     },
     null,
     2
@@ -367,7 +367,7 @@ module.exports = {
   extends: ['@mongodb-js/eslint-config-compass${isPlugin ? '/plugin' : ''}'],
   parserOptions: {
     tsconfigRootDir: __dirname,
-    project: ['./tsconfig-lint.json'],
+    project: ['./tsconfig.json'],
   },
 };`;
 
@@ -425,7 +425,7 @@ describe('Compass Plugin', function() {
     await fs.writeFile(packageJsonPath, packageJsonContent);
     await fs.writeFile(depcheckrcPath, depcheckrcContent);
     await fs.writeFile(tsconfigPath, tsconfigContent);
-    await fs.writeFile(tsconfigLintPath, tsconfigLintContent);
+    await fs.writeFile(tsconfigBuildPath, tsconfigBuildContent);
     await fs.writeFile(eslintrcPath, eslintrcContent);
     await fs.writeFile(eslintIgnorePath, eslintIgnoreContent);
     await fs.writeFile(mocharcPath, mocharcContent);

@@ -5,6 +5,7 @@ import {
   IconButton,
   InlineDefinition,
   css,
+  cx,
 } from '@mongodb-js/compass-components';
 import type { NodeProps, EdgeProps, BaseNode } from '@mongodb-js/diagramming';
 import type { MongoDBJSONSchema } from 'mongodb-schema';
@@ -59,7 +60,7 @@ function getFieldTypeDisplay(bsonTypes: string[]) {
         </Body>
       }
     >
-      <div>(mixed)</div>
+      <i>(mixed)</i>
     </InlineDefinition>
   );
 }
@@ -187,7 +188,7 @@ export function collectionToDiagramNode({
     actions: onClickAddNewFieldToCollection ? (
       <IconButton
         aria-label="Add Field"
-        className={addNewFieldStyles}
+        className={cx(addNewFieldStyles, 'node-add-field-button')}
         onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
           event.stopPropagation();
           onClickAddNewFieldToCollection();

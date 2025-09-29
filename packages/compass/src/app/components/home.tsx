@@ -151,6 +151,7 @@ function HomeWithConnections({
     <ConnectionStorageProvider value={connectionStorage}>
       <FileInputBackendProvider createFileInputBackend={createFileInputBackend}>
         <CompassAssistantProvider
+          originForPrompt="mongodb-compass"
           appNameForPrompt={APP_NAMES_FOR_PROMPT.Compass}
         >
           <CompassConnections
@@ -209,6 +210,12 @@ export default function ThemedHome(
           item_group: itemGroup.telemetryLabel,
           item_label: item.label,
         });
+      }}
+      onDrawerSectionOpen={(drawerSectionId) => {
+        track('Drawer Section Opened', { sectionId: drawerSectionId });
+      }}
+      onDrawerSectionHide={(drawerSectionId) => {
+        track('Drawer Section Closed', { sectionId: drawerSectionId });
       }}
       utmSource="compass"
       utmMedium="product"

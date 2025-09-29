@@ -1,4 +1,4 @@
-import React, { useCallback, useLayoutEffect, useRef } from 'react';
+import React, { useCallback, useLayoutEffect } from 'react';
 import ReactDOM from 'react-dom';
 import {
   Body,
@@ -6,7 +6,6 @@ import {
   openToast,
   resetGlobalCSS,
 } from '@mongodb-js/compass-components';
-import type { AllPreferences } from 'compass-preferences-model';
 import { CompassWeb } from '../src/index';
 import { SandboxConnectionStorageProvider } from '../src/connection-storage';
 import { sandboxLogger } from './sandbox-logger';
@@ -14,10 +13,7 @@ import { sandboxTelemetry } from './sandbox-telemetry';
 import { useAtlasProxySignIn } from './sandbox-atlas-sign-in';
 import { sandboxConnectionStorage } from './sandbox-connection-storage';
 import { useWorkspaceTabRouter } from './sandbox-workspace-tab-router';
-import {
-  SandboxPreferencesUpdateProvider,
-  type SandboxPreferencesUpdateTrigger,
-} from '../src/preferences';
+import { SandboxPreferencesUpdateProvider } from '../src/preferences';
 
 const sandboxContainerStyles = css({
   width: '100%',
@@ -46,9 +42,10 @@ const App = () => {
     csrfToken,
     csrfTime,
     enableGenAIFeaturesAtlasProject,
-    enableGenAISampleDocumentPassingOnAtlasProject,
+    enableGenAISampleDocumentPassing,
     enableGenAIFeaturesAtlasOrg,
     optInGenAIFeatures,
+    userRoles,
   } = projectParams ?? {};
 
   const atlasServiceSandboxBackendVariant =
@@ -59,33 +56,6 @@ const App = () => {
       : process.env.COMPASS_WEB_HTTP_PROXY_CLOUD_CONFIG === 'qa'
       ? 'web-sandbox-atlas-qa'
       : 'web-sandbox-atlas';
-
-  const sandboxPreferencesUpdateTrigger =
-    useRef<null | SandboxPreferencesUpdateTrigger>(null);
-
-  const enablePreferencesUpdateTrigger =
-    process.env.E2E_TEST_CLOUD_WEB_ENABLE_PREFERENCE_SAVING === 'true';
-  if (
-    enablePreferencesUpdateTrigger &&
-    sandboxPreferencesUpdateTrigger.current === null
-  ) {
-    sandboxPreferencesUpdateTrigger.current = (
-      updatePreference: (preferences: Partial<AllPreferences>) => Promise<void>
-    ) => {
-      // Useful for e2e test to override preferences.
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (globalThis as any).__compassWebE2ETestSavePreferences = async (
-        attributes: Partial<AllPreferences>
-      ) => {
-        await updatePreference(attributes);
-      };
-
-      return () => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        delete (globalThis as any).__compassWebE2ETestSavePreferences;
-      };
-    };
-  }
 
   useLayoutEffect(() => {
     getMetaEl('csrf-token').setAttribute('content', csrfToken ?? '');
@@ -106,13 +76,24 @@ const App = () => {
 
   const isAtlas = status === 'signed-in';
 
+  const groupRolePreferences = (() => {
+    if (!isAtlas) {
+      return {};
+    }
+    if (userRoles?.isDataAccessAdmin) {
+      return {};
+    }
+    if (userRoles?.isDataAccessWrite) {
+      return { readWrite: true };
+    }
+    return { readOnly: true };
+  })();
+
   return (
     <SandboxConnectionStorageProvider
       value={isAtlas ? null : sandboxConnectionStorage}
     >
-      <SandboxPreferencesUpdateProvider
-        value={sandboxPreferencesUpdateTrigger.current}
-      >
+      <SandboxPreferencesUpdateProvider>
         <Body as="div" className={sandboxContainerStyles}>
           <CompassWeb
             orgId={''}
@@ -131,13 +112,14 @@ const App = () => {
               showDisabledConnections: true,
               enableGenAIFeaturesAtlasProject:
                 isAtlas && !!enableGenAIFeaturesAtlasProject,
-              enableGenAISampleDocumentPassingOnAtlasProject:
-                isAtlas && !!enableGenAISampleDocumentPassingOnAtlasProject,
+              enableGenAISampleDocumentPassing:
+                isAtlas && !!enableGenAISampleDocumentPassing,
               enableGenAIFeaturesAtlasOrg:
                 isAtlas && !!enableGenAIFeaturesAtlasOrg,
               optInGenAIFeatures: isAtlas && !!optInGenAIFeatures,
               enableDataModeling: true,
               enableMyQueries: false,
+              ...groupRolePreferences,
             }}
             onTrack={sandboxTelemetry.track}
             onDebug={sandboxLogger.debug}

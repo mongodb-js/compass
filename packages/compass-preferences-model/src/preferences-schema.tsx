@@ -61,6 +61,7 @@ export type UserConfigurablePreferences = PermanentFeatureFlags &
     enableFeedbackPanel: boolean;
     networkTraffic: boolean;
     readOnly: boolean;
+    readWrite: boolean;
     enableShell: boolean;
     enableDbAndCollStats: boolean;
     protectConnectionStrings?: boolean;
@@ -154,7 +155,6 @@ export type NonUserPreferences = {
 
 export type AtlasProjectPreferences = {
   enableGenAIFeaturesAtlasProject: boolean;
-  enableGenAISampleDocumentPassingOnAtlasProject: boolean;
 };
 
 export type AtlasOrgPreferences = {
@@ -515,6 +515,23 @@ export const storedUserPreferencesProps: Required<{
       short: 'Set Read-Only Mode',
       long: 'Limit Compass strictly to read operations, with all write and delete capabilities removed.',
     },
+    validator: z.boolean().default(false),
+    type: 'boolean',
+  },
+  /**
+   * Removes "admin" features like editing indexes or dropping / renaming
+   * databases. Somewhat matches Atlas "Project Data Access Read Write" user
+   * role
+   */
+  readWrite: {
+    ui: true,
+    cli: false,
+    global: false,
+    description: {
+      short: 'Set Read-Write Mode',
+      long: 'Limit Compass to data read write operations only, with cababilities like renaming / dropping namespaces or editing indexes removed.',
+    },
+    deriveValue: deriveReadOnlyOptionState('readWrite', true),
     validator: z.boolean().default(false),
     type: 'boolean',
   },
@@ -1012,16 +1029,6 @@ export const storedUserPreferencesProps: Required<{
     validator: z.boolean().default(true),
     type: 'boolean',
   },
-  enableGenAISampleDocumentPassingOnAtlasProject: {
-    ui: false,
-    cli: true,
-    global: true,
-    description: {
-      short: 'Enable Gen AI Sample Document Passing on Atlas Project Level',
-    },
-    validator: z.boolean().default(true),
-    type: 'boolean',
-  },
   enableGenAIFeaturesAtlasOrg: {
     ui: false,
     cli: true,
@@ -1253,12 +1260,26 @@ function deriveFeatureRestrictingOptionsState<K extends keyof AllPreferences>(
   });
 }
 
-/** Helper for defining how to derive value/state for readOnly-affected preferences */
+/**
+ * Helper for defining how to derive value/state for readOnly-affected
+ * preferences. By default if `readOnly` is set to `true` will always return
+ * `false`. If `matchReadOnlyProperty` is `true` will return `true` if
+ * `readOnly` is `true`
+ *
+ * @param property original property name
+ * @param matchReadOnlyProperty whether to match readOnly or not
+ * @returns derived value
+ */
 function deriveReadOnlyOptionState<K extends keyof AllPreferences>(
-  property: K
+  property: K,
+  matchReadOnlyProperty = false
 ): DeriveValueFunction<boolean> {
   return (v, s) => ({
-    value: v(property) && !v('readOnly'),
+    value: Boolean(
+      matchReadOnlyProperty
+        ? v(property) || v('readOnly')
+        : v(property) && !v('readOnly')
+    ),
     state:
       s(property) ?? (v('readOnly') ? s('readOnly') ?? 'derived' : undefined),
   });

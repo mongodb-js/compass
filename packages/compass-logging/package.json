@@ -13,7 +13,7 @@
     "email": "compass@mongodb.com"
   },
   "homepage": "https://github.com/mongodb-js/compass",
-  "version": "1.7.17",
+  "version": "1.7.18",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/compass.git"
@@ -37,12 +37,13 @@
   "scripts": {
     "bootstrap": "npm run compile",
     "prepublishOnly": "npm run compile && compass-scripts check-exports-exist",
-    "compile": "tsc -p tsconfig.json",
+    "compile": "tsc -p tsconfig-build.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
     "eslint": "eslint-compass",
     "prettier": "prettier-compass",
     "lint": "npm run eslint . && npm run prettier -- --check .",
     "depcheck": "compass-scripts check-peer-deps && depcheck",
-    "check": "npm run lint && npm run depcheck",
+    "check": "npm run typecheck && npm run lint && npm run depcheck",
     "check-ci": "npm run check",
     "test": "mocha",
     "test-cov": "nyc --compact=false --produce-source-map=false -x \"**/*.spec.*\" --reporter=lcov --reporter=text --reporter=html npm run test",
@@ -52,8 +53,8 @@
   },
   "dependencies": {
     "debug": "^4.3.4",
-    "@mongodb-js/compass-app-registry": "^9.4.24",
-    "hadron-ipc": "^3.5.15",
+    "@mongodb-js/compass-app-registry": "^9.4.25",
+    "hadron-ipc": "^3.5.16",
     "is-electron-renderer": "^2.0.1",
     "mongodb-log-writer": "^2.3.4",
     "react": "^17.0.2"

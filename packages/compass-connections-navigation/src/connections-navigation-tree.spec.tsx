@@ -286,7 +286,7 @@ describe('ConnectionsNavigationTree', function () {
         {
           ...connections[0],
           csfleMode: 'enabled',
-        },
+        } as Connection,
         connections[1],
         connections[2],
       ];
@@ -312,7 +312,7 @@ describe('ConnectionsNavigationTree', function () {
         {
           ...connections[0],
           csfleMode: 'disabled',
-        },
+        } as Connection,
         connections[1],
         connections[2],
       ];
@@ -326,7 +326,7 @@ describe('ConnectionsNavigationTree', function () {
         {
           ...connections[0],
           csfleMode: 'unavailable',
-        },
+        } as Connection,
         connections[1],
         connections[2],
       ];

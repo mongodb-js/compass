@@ -77,7 +77,6 @@ type AssistantActionsContextType = {
     connectionInfo: ConnectionInfo;
     error: Error;
   }) => void;
-  clearChat?: () => void;
   tellMoreAboutInsight?: (context: ProactiveInsightsContext) => void;
   ensureOptInAndSend?: (
     message: SendMessage,
@@ -88,7 +87,7 @@ type AssistantActionsContextType = {
 
 type AssistantActionsType = Omit<
   AssistantActionsContextType,
-  'ensureOptInAndSend' | 'clearChat'
+  'ensureOptInAndSend'
 > & {
   getIsAssistantEnabled: () => boolean;
 };
@@ -98,7 +97,6 @@ export const AssistantActionsContext =
     interpretExplainPlan: () => {},
     interpretConnectionError: () => {},
     tellMoreAboutInsight: () => {},
-    clearChat: () => {},
     ensureOptInAndSend: async () => {},
   });
 
@@ -215,11 +213,6 @@ export const AssistantProvider: React.FunctionComponent<
       'performance insights',
       buildProactiveInsightsPrompt
     ),
-    clearChat: () => {
-      chat.messages = chat.messages.filter(
-        (message) => message.metadata?.isPermanent
-      );
-    },
     ensureOptInAndSend: async (
       message: SendMessage,
       options: SendOptions,
@@ -263,6 +256,7 @@ export const CompassAssistantProvider = registerCompassPlugin(
       children,
     }: PropsWithChildren<{
       appNameForPrompt: string;
+      originForPrompt: string;
       chat?: Chat<AssistantMessage>;
       atlasAiService?: AtlasAiService;
     }>) => {
@@ -287,6 +281,7 @@ export const CompassAssistantProvider = registerCompassPlugin(
         initialProps.chat ??
         new Chat({
           transport: new DocsProviderTransport({
+            origin: initialProps.originForPrompt,
             instructions: buildConversationInstructionsPrompt({
               target: initialProps.appNameForPrompt,
             }),
