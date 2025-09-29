@@ -34,15 +34,15 @@ function isDevServerRunning(port, host = '127.0.0.1') {
   });
 }
 
-const okToRunMMS = !process.argv.includes('--no-mms');
-
 let devServer;
-if (okToRunMMS || !(await isDevServerRunning(8081))) {
+if (!(await isDevServerRunning(8081))) {
   console.log('mms dev server is not running... launching!');
-  child_process.execFileSync('pnpm', ['install'], {
-    cwd: process.env.MMS_HOME,
-    stdio: 'inherit',
-  });
+
+  const { engines } = JSON.parse(
+    await fs.readFile(path.join(process.env.MMS_HOME, 'package.json'), 'utf8')
+  );
+  const pnpmVersion = engines.pnpm ?? 'latest';
+
   const halfRamMb = Math.min(
     Math.floor(os.totalmem() / 2 / 1024 / 1024),
     16384
@@ -56,14 +56,18 @@ if (okToRunMMS || !(await isDevServerRunning(8081))) {
     .filter(Boolean)
     .join(' ');
 
-  devServer = child_process.spawn('pnpm', ['run', 'start'], {
-    cwd: process.env.MMS_HOME,
-    env: {
-      ...process.env,
-      NODE_OPTIONS: mergedNodeOptions,
-    },
-    stdio: 'inherit',
-  });
+  devServer = child_process.spawn(
+    'npx',
+    [`pnpm@${pnpmVersion}`, 'run', 'start'],
+    {
+      cwd: process.env.MMS_HOME,
+      env: {
+        ...process.env,
+        NODE_OPTIONS: mergedNodeOptions,
+      },
+      stdio: 'inherit',
+    }
+  );
 
   // Wait for dev server to be ready before proceeding
   console.log('Waiting for dev server to start...');
