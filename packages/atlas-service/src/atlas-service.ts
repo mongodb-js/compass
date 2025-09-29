@@ -90,6 +90,7 @@ export class AtlasService {
     type: UserDataType,
     id?: string
   ): string {
+    [orgId, groupId, type, id] = [orgId, groupId, type, id || ''].map(encodeURIComponent);
     const baseUrl = this.config.userDataBaseUrl;
     const path = id
       ? `/${orgId}/${groupId}/${type}/${id}`
