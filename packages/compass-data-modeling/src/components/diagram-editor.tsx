@@ -121,6 +121,8 @@ const ZOOM_OPTIONS = {
   minZoom: 0.25,
 };
 
+const REFRESH_DIAGRAM_RATE_MS = 250;
+
 type SelectedItems = NonNullable<DiagramState>['selectedItems'];
 
 const DiagramContent: React.FunctionComponent<{
@@ -319,6 +321,96 @@ const DiagramContent: React.FunctionComponent<{
     [handleNodesConnect]
   );
 
+  // Throttling mechanism for diagram content updates
+  const lastDiagramUpdateMS = useRef(0);
+  const pendingUpdate = useRef<NodeJS.Timeout | null>(null);
+  const [throttledDiagramProps, setThrottledDiagramProps] = useState({
+    isDarkMode,
+    diagramLabel,
+    edges,
+    nodes,
+    onNodeClick,
+    onPaneClick,
+    onEdgeClick,
+    onFieldClick,
+    onNodeDragStop,
+    onConnect,
+  });
+
+  // Throttle diagram props updating. This ensures we don't run
+  // into broken state bugs with ReactFlow like COMPASS-9738.
+  useEffect(() => {
+    const now = Date.now();
+    const timeSinceLastUpdate = now - lastDiagramUpdateMS.current;
+
+    const updateProps = () => {
+      lastDiagramUpdateMS.current = Date.now();
+      setThrottledDiagramProps({
+        isDarkMode,
+        diagramLabel,
+        edges,
+        nodes,
+        onNodeClick,
+        onPaneClick,
+        onEdgeClick,
+        onFieldClick,
+        onNodeDragStop,
+        onConnect,
+      });
+    };
+
+    if (timeSinceLastUpdate >= REFRESH_DIAGRAM_RATE_MS) {
+      updateProps();
+    } else {
+      if (pendingUpdate.current) {
+        clearTimeout(pendingUpdate.current);
+      }
+
+      // Schedule update for the remaining time.
+      const remainingTime = REFRESH_DIAGRAM_RATE_MS - timeSinceLastUpdate;
+      pendingUpdate.current = setTimeout(updateProps, remainingTime);
+    }
+
+    return () => {
+      if (pendingUpdate.current) {
+        clearTimeout(pendingUpdate.current);
+        pendingUpdate.current = null;
+      }
+    };
+  }, [
+    isDarkMode,
+    diagramLabel,
+    edges,
+    nodes,
+    onNodeClick,
+    onPaneClick,
+    onEdgeClick,
+    onFieldClick,
+    onNodeDragStop,
+    onConnect,
+  ]);
+
+  const diagramContent = useMemo(() => {
+    return (
+      <Diagram
+        isDarkMode={throttledDiagramProps.isDarkMode}
+        title={throttledDiagramProps.diagramLabel}
+        edges={throttledDiagramProps.edges}
+        nodes={throttledDiagramProps.nodes}
+        // With threshold too low clicking sometimes gets confused with
+        // dragging
+        nodeDragThreshold={5}
+        onNodeClick={throttledDiagramProps.onNodeClick}
+        onPaneClick={throttledDiagramProps.onPaneClick}
+        onEdgeClick={throttledDiagramProps.onEdgeClick}
+        onFieldClick={throttledDiagramProps.onFieldClick}
+        fitViewOptions={ZOOM_OPTIONS}
+        onNodeDragStop={throttledDiagramProps.onNodeDragStop}
+        onConnect={throttledDiagramProps.onConnect}
+      />
+    );
+  }, [throttledDiagramProps]);
+
   return (
     <div
       ref={setDiagramContainerRef}
@@ -340,22 +432,7 @@ const DiagramContent: React.FunctionComponent<{
             impact your data
           </Banner>
         )}
-        <Diagram
-          isDarkMode={isDarkMode}
-          title={diagramLabel}
-          edges={edges}
-          nodes={nodes}
-          // With threshold too low clicking sometimes gets confused with
-          // dragging
-          nodeDragThreshold={5}
-          onNodeClick={onNodeClick}
-          onPaneClick={onPaneClick}
-          onEdgeClick={onEdgeClick}
-          onFieldClick={onFieldClick}
-          fitViewOptions={ZOOM_OPTIONS}
-          onNodeDragStop={onNodeDragStop}
-          onConnect={onConnect}
-        />
+        {diagramContent}
       </div>
     </div>
   );
