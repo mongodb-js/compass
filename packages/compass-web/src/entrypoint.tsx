@@ -50,12 +50,6 @@ import {
   atlasServiceLocator,
   AtlasServiceProvider,
 } from '@mongodb-js/atlas-service/provider';
-// Define UserDataType enum locally to avoid dependency issues
-enum UserDataType {
-  FAVORITE_QUERIES = 'favoriteQueries',
-  RECENT_QUERIES = 'recentQueries',
-  FAVORITE_AGGREGATIONS = 'favoriteAggregations',
-}
 import { AtlasAiServiceProvider } from '@mongodb-js/compass-generative-ai/provider';
 import { LoggerProvider } from '@mongodb-js/compass-logging/provider';
 import { TelemetryProvider } from '@mongodb-js/compass-telemetry/provider';
@@ -125,7 +119,10 @@ const WithStorageProviders = createServiceProvider(
       atlasService.authenticatedFetch.bind(atlasService);
     const getResourceUrl = (path?: string) => {
       const pathParts = path?.split('/').filter(Boolean) || [];
-      const type = pathParts[0] as UserDataType;
+      const type = pathParts[0] as
+        | 'favoriteQueries'
+        | 'recentQueries'
+        | 'favoriteAggregations';
       const pathOrgId = pathParts[1];
       const pathProjectId = pathParts[2];
       const id = pathParts[3];

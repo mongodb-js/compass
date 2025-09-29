@@ -1,6 +1,5 @@
 import { EJSON } from 'bson';
 import { AtlasUserData, FileUserData } from '@mongodb-js/compass-user-data';
-import { UserDataType } from '@mongodb-js/atlas-service/provider';
 import { RecentQuerySchema, FavoriteQuerySchema } from './query-storage-schema';
 import { PipelineSchema } from './pipeline-storage-schema';
 import {
@@ -21,50 +20,38 @@ export type WebStorageOptions = {
 };
 
 export function createWebRecentQueryStorage(options: WebStorageOptions) {
-  const userData = new AtlasUserData(
-    RecentQuerySchema,
-    UserDataType.RECENT_QUERIES,
-    {
-      orgId: options.orgId,
-      projectId: options.projectId,
-      getResourceUrl: options.getResourceUrl,
-      authenticatedFetch: options.authenticatedFetch,
-      serialize: (content) => EJSON.stringify(content),
-      deserialize: (content: string) => EJSON.parse(content),
-    }
-  );
+  const userData = new AtlasUserData(RecentQuerySchema, 'recentQueries', {
+    orgId: options.orgId,
+    projectId: options.projectId,
+    getResourceUrl: options.getResourceUrl,
+    authenticatedFetch: options.authenticatedFetch,
+    serialize: (content) => EJSON.stringify(content),
+    deserialize: (content: string) => EJSON.parse(content),
+  });
   return new BaseCompassRecentQueryStorage(userData);
 }
 
 export function createWebFavoriteQueryStorage(options: WebStorageOptions) {
-  const userData = new AtlasUserData(
-    FavoriteQuerySchema,
-    UserDataType.FAVORITE_QUERIES,
-    {
-      orgId: options.orgId,
-      projectId: options.projectId,
-      getResourceUrl: options.getResourceUrl,
-      authenticatedFetch: options.authenticatedFetch,
-      serialize: (content) => EJSON.stringify(content),
-      deserialize: (content: string) => EJSON.parse(content),
-    }
-  );
+  const userData = new AtlasUserData(FavoriteQuerySchema, 'favoriteQueries', {
+    orgId: options.orgId,
+    projectId: options.projectId,
+    getResourceUrl: options.getResourceUrl,
+    authenticatedFetch: options.authenticatedFetch,
+    serialize: (content) => EJSON.stringify(content),
+    deserialize: (content: string) => EJSON.parse(content),
+  });
   return new BaseCompassFavoriteQueryStorage(userData);
 }
 
 export function createWebPipelineStorage(options: WebStorageOptions) {
-  const userData = new AtlasUserData(
-    PipelineSchema,
-    UserDataType.FAVORITE_AGGREGATIONS,
-    {
-      orgId: options.orgId,
-      projectId: options.projectId,
-      getResourceUrl: options.getResourceUrl,
-      authenticatedFetch: options.authenticatedFetch,
-      serialize: (content) => EJSON.stringify(content),
-      deserialize: (content: string) => EJSON.parse(content),
-    }
-  );
+  const userData = new AtlasUserData(PipelineSchema, 'favoriteAggregations', {
+    orgId: options.orgId,
+    projectId: options.projectId,
+    getResourceUrl: options.getResourceUrl,
+    authenticatedFetch: options.authenticatedFetch,
+    serialize: (content) => EJSON.stringify(content),
+    deserialize: (content: string) => EJSON.parse(content),
+  });
   return new BaseCompassPipelineStorage<typeof PipelineSchema>(userData);
 }
 

@@ -10,12 +10,6 @@ import type { Logger } from '@mongodb-js/compass-logging';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import type { AtlasClusterMetadata } from '@mongodb-js/connection-info';
 
-export enum UserDataType {
-  FAVORITE_QUERIES = 'favoriteQueries',
-  RECENT_QUERIES = 'recentQueries',
-  FAVORITE_AGGREGATIONS = 'favoriteAggregations',
-}
-
 export type AtlasServiceOptions = {
   defaultHeaders?: Record<string, string>;
 };
@@ -87,14 +81,17 @@ export class AtlasService {
   userDataEndpoint(
     orgId: string,
     groupId: string,
-    type: UserDataType,
+    type: 'favoriteQueries' | 'recentQueries' | 'favoriteAggregations',
     id?: string
   ): string {
-    [orgId, groupId, type, id] = [orgId, groupId, type, id || ''].map(encodeURIComponent);
+    const encodedOrgId = encodeURIComponent(orgId);
+    const encodedGroupId = encodeURIComponent(groupId);
+    const encodedType = encodeURIComponent(type);
+    const encodedId = id ? encodeURIComponent(id) : '';
     const baseUrl = this.config.userDataBaseUrl;
-    const path = id
-      ? `/${orgId}/${groupId}/${type}/${id}`
-      : `/${orgId}/${groupId}/${type}`;
+    const path = encodedId
+      ? `/${encodedOrgId}/${encodedGroupId}/${encodedType}/${encodedId}`
+      : `/${encodedOrgId}/${encodedGroupId}/${encodedType}`;
     return `${baseUrl}${path}`;
   }
   driverProxyEndpoint(path?: string): string {
