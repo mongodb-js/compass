@@ -14,9 +14,7 @@ import type {
   QueryProperty,
 } from '../constants/query-properties';
 import { QUERY_PROPERTIES } from '../constants/query-properties';
-
-// Data Explorer limits (5 minutes = 300,000ms)
-const WEB_MAX_TIME_MS_LIMIT = 300_000; // 5 minutes
+import { WEB_MAX_TIME_MS_LIMIT } from '../constants/query-option-definition';
 
 export function mapFormFieldsToQuery(fields: QueryFormFields): BaseQuery {
   // We always want filter field to be in the query, even if the field

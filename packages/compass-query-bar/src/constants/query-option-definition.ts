@@ -9,8 +9,12 @@ export type QueryOptionOfTypeDocument = Exclude<
   'maxTimeMS' | 'limit' | 'skip'
 >;
 
-// Data Explorer limits (5 minutes = 300,000ms)
-const WEB_MAX_TIME_MS_LIMIT = 300_000; // 5 minutes
+/**
+ * Data Explorer limits (5 minutes = 300,000ms)
+ * This limit is artificial but necessary for the backend that powers DE.
+ * https://github.com/10gen/mms/blob/dea184f4a40db0a64ed0d6665d36265f62ae4f65/server/src/main/com/xgen/cloud/services/clusterconnection/runtime/ws/ClusterConnectionServerProvider.java#L50-L51
+ */
+export const WEB_MAX_TIME_MS_LIMIT = 300_000;
 
 export const OPTION_DEFINITION: {
   [optionName in QueryOption]: {
