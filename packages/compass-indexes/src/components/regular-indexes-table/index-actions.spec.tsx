@@ -69,7 +69,7 @@ describe('IndexActions Component', function () {
 
         // Should show building UI even for tiny progress
         expect(screen.getByTestId('index-building-spinner')).to.exist;
-        expect(screen.getByText('Building... 0%')).to.exist; // Math.trunc rounds down
+        expect(screen.getByText('Building… 0%')).to.exist; // Math.trunc rounds down
         expect(screen.getByLabelText('Cancel Index barely_building')).to.exist;
       });
 
@@ -220,7 +220,7 @@ describe('IndexActions Component', function () {
         expect(buildingSpinner).to.exist;
 
         // Should show progress percentage
-        expect(screen.getByText(`Building... ${expectedPercent}%`)).to.exist;
+        expect(screen.getByText(`Building… ${expectedPercent}%`)).to.exist;
 
         // Should show cancel button (destructive)
         const cancelButton = screen.getByLabelText(
