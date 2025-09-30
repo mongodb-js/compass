@@ -48,8 +48,8 @@ export default function ConnectionFormModal({
       open={isOpen}
       setOpen={setOpen}
       data-testid="connection-form-modal"
-      className={modalStyles}
-      contentClassName={cx(
+      backdropClassName={modalStyles}
+      className={cx(
         modalContentStyles,
         advancedOpen && modalContentFullHeightStyles
       )}
