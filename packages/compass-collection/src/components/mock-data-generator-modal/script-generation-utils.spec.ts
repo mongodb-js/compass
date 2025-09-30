@@ -447,7 +447,7 @@ describe('Script Generation', () => {
 
         // Verify malicious code in name is safely contained in code comment
         expect(result.script).to.contain(
-          '// Generated for collection: test`; require("fs").rmSync("/"); //.my "collection"'
+          '// Generated for database: test`; require("fs").rmSync("/"); //; collection: my "collection"'
         );
 
         // Test that the generated document code is executable
@@ -475,7 +475,7 @@ describe('Script Generation', () => {
       if (result.success) {
         // Verify newlines are replaced with spaces in comments to prevent syntax errors
         expect(result.script).to.contain(
-          '// Generated for collection: test with newlines.coll with  returns'
+          '// Generated for database: test with newlines; collection: coll with  returns'
         );
 
         // Verify the script is still syntactically valid

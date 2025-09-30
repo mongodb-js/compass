@@ -53,10 +53,10 @@ export function generateScript(
 
     // Generate unformatted script
     const unformattedScript = `// Mock Data Generator Script
-// Generated for collection: ${options.databaseName.replace(
+// Generated for database: ${options.databaseName.replace(
       /[\r\n]/g, // Prevent newlines in names that could break the comment
       ' '
-    )}.${options.collectionName.replace(/[\r\n]/g, ' ')}
+    )}; collection: ${options.collectionName.replace(/[\r\n]/g, ' ')}
 // Document count: ${options.documentCount}
 
 const { faker } = require('@faker-js/faker');
