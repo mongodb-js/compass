@@ -27,13 +27,8 @@ import {
   selectNextTab,
   selectPrevTab,
   selectTab,
-  restoreWorkspaces,
 } from '../stores/workspaces';
 import { useWorkspacePlugins } from './workspaces-provider';
-import {
-  useConnectionActions,
-  useConnectionsListRef,
-} from '@mongodb-js/compass-connections/provider';
 import toNS from 'mongodb-ns';
 import { useLogger } from '@mongodb-js/compass-logging/provider';
 import { connect } from '../stores/context';
@@ -91,7 +86,6 @@ type CompassWorkspacesProps = {
     tab: Extract<WorkspaceTab, { namespace: string }>,
     fallbackNamespace: string | null
   ): void;
-  onRestoreTabs(tabs: OpenWorkspaceOptions[]): void;
 };
 
 const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
@@ -109,7 +103,6 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
   onCloseTab,
   onCloseAllOtherTabs,
   onNamespaceNotFound,
-  onRestoreTabs,
 }) => {
   const { log, mongoLogId } = useLogger('COMPASS-WORKSPACES');
   const { getWorkspacePluginByName } = useWorkspacePlugins();
@@ -119,12 +112,6 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
   const onCreateNewTab = useCallback(() => {
     onCreateTab(openOnEmptyWorkspace);
   }, [onCreateTab, openOnEmptyWorkspace]);
-
-  // TODO: move these
-  // the actions / dispatches should go into store
-  // we need to do something like useWorkspacesService here
-  const connectionActions = useConnectionActions();
-  const { getConnectionById } = useConnectionsListRef();
 
   const loadWorkspacesRef = useLoadWorkspacesRef();
   const restoreSavedWorkspaces = useRestoreSavedWorkspaces();
@@ -159,15 +146,7 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
         );
       }
     );
-  }, [
-    loadWorkspacesRef,
-    onRestoreTabs,
-    connectionActions,
-    getConnectionById,
-    restoreSavedWorkspaces,
-    log,
-    mongoLogId,
-  ]);
+  }, [loadWorkspacesRef, restoreSavedWorkspaces, log, mongoLogId]);
 
   const workspaceTabs = useMemo(() => {
     return tabs.map((tab) => {
@@ -306,6 +285,5 @@ export default connect(
     onCloseTab: closeTab,
     onCloseAllOtherTabs: closeAllOtherTabs,
     onNamespaceNotFound: openFallbackWorkspace,
-    onRestoreTabs: restoreWorkspaces,
   }
 )(CompassWorkspaces);
