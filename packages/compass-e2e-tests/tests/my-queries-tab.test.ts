@@ -1,22 +1,22 @@
 import { expect } from 'chai';
 import clipboard from 'clipboardy';
-import type { CompassBrowser } from '../helpers/compass-browser';
+import type { CompassBrowser } from '../../helpers/compass-browser';
 import {
   init,
   cleanup,
   screenshotIfFailed,
-  skipForWeb,
   DEFAULT_CONNECTION_NAME_1,
   DEFAULT_CONNECTION_STRING_1,
   DEFAULT_CONNECTION_STRING_2,
   DEFAULT_CONNECTION_NAME_2,
-} from '../helpers/compass';
-import type { QueryOptions } from '../helpers/commands';
-import type { Compass } from '../helpers/compass';
-import * as Selectors from '../helpers/selectors';
-import { createNumbersCollection } from '../helpers/insert-data';
+} from '../../helpers/compass';
+import type { QueryOptions } from '../../helpers/commands';
+import type { Compass } from '../../helpers/compass';
+import * as Selectors from '../../helpers/selectors';
+import { createNumbersCollection } from '../../helpers/insert-data';
 import { MongoClient } from 'mongodb';
-import { context as runnerContext } from '../helpers/test-runner-context';
+import { context as runnerContext } from '../../helpers/test-runner-context';
+import { isTestingAtlasCloudSandbox } from '../../helpers/test-runner-context';
 
 async function openMenuForQueryItem(
   browser: CompassBrowser,
@@ -156,6 +156,12 @@ describe('My Queries tab', function () {
   let client_1: MongoClient;
   let client_2: MongoClient;
 
+  before(function () {
+    if (!isTestingAtlasCloudSandbox()) {
+      this.skip();
+    }
+  });
+
   before(async function () {
     compass = await init(this.test?.fullTitle());
     browser = compass.browser;
@@ -178,12 +184,10 @@ describe('My Queries tab', function () {
     if (client_2) {
       await client_2.close();
     }
-    if (compass) {
-      await cleanup(compass);
-    }
   });
   afterEach(async function () {
     await screenshotIfFailed(compass, this.currentTest);
+    await cleanup(compass);
   });
 
   context(
