@@ -82,6 +82,7 @@ export { Variant as BannerVariant } from '@leafygreen-ui/banner';
 export {
   Size as ButtonSize,
   Variant as ButtonVariant,
+  type ButtonProps,
 } from '@leafygreen-ui/button';
 export { SplitButton } from '@leafygreen-ui/split-button';
 
