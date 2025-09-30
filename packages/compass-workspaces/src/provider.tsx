@@ -1,6 +1,10 @@
 import React, { useContext, useRef } from 'react';
 import { useSelector, useStore } from './stores/context';
-import type { OpenWorkspaceOptions, TabOptions } from './stores/workspaces';
+import type {
+  OpenWorkspaceOptions,
+  TabOptions,
+  WorkspacesState,
+} from './stores/workspaces';
 import {
   collectionSubtabSelected,
   getActiveTab,
@@ -10,6 +14,7 @@ import { createServiceLocator } from '@mongodb-js/compass-app-registry';
 import type { CollectionSubtab, WorkspaceTab } from './types';
 import type { WorkspaceDestroyHandler } from './components/workspace-close-handler';
 import { useRegisterTabDestroyHandler } from './components/workspace-close-handler';
+import type { WorkspacesStateData } from './services/workspaces-storage';
 
 function useWorkspacesStore() {
   try {
@@ -179,6 +184,10 @@ export type WorkspacesService = {
    * }
    */
   onTabReplace?: (handler: WorkspaceDestroyHandler) => () => void;
+
+  saveWorkspaces(): Promise<boolean>;
+
+  loadSavedWorkspaces(): Promise<OpenWorkspaceOptions[] | null>;
 };
 
 // Separate type to avoid exposing internal prop in exported types
@@ -216,6 +225,14 @@ const noopWorkspacesService = {
   [kSelector]() {
     throwIfNotTestEnv();
     return null;
+  },
+  saveWorkspaces: async () => {
+    throwIfNotTestEnv();
+    return Promise.reject();
+  },
+  loadSavedWorkspaces: async () => {
+    throwIfNotTestEnv();
+    return Promise.reject();
   },
 };
 
@@ -315,6 +332,23 @@ export const WorkspacesServiceProvider: React.FunctionComponent<{
           )
         );
       },
+      async saveWorkspaces() {
+        const state = store.getState();
+        return await saveWorkspaceStateToUserData(state);
+      },
+      async loadSavedWorkspaces() {
+        const state = store.getState();
+        if (!state.userData) {
+          throw new Error('UserData is not initialized in the store');
+        }
+        const savedState = await state.userData.readOne('current-workspace', {
+          ignoreErrors: true,
+        });
+        if (!savedState) {
+          return null;
+        }
+        return convertSavedStateToOpenWorkspaceOptions(savedState);
+      },
       [kSelector]: useActiveWorkspaceSelector,
     });
     return service.current;
@@ -327,6 +361,162 @@ export const WorkspacesServiceProvider: React.FunctionComponent<{
     </WorkspacesServiceContext.Provider>
   );
 };
+
+/**
+ * Converts saved workspace state data back to OpenWorkspaceOptions format
+ * for initializing the store
+ */
+function convertSavedStateToOpenWorkspaceOptions(
+  savedState: WorkspacesStateData
+): OpenWorkspaceOptions[] {
+  return savedState.tabs.map((tab) => {
+    const baseTab: Record<string, unknown> = { type: tab.type };
+
+    // Add connection-related fields
+    if (tab.connectionId) {
+      baseTab.connectionId = tab.connectionId;
+    }
+    if (tab.namespace) {
+      baseTab.namespace = tab.namespace;
+    }
+
+    // Add optional fields based on workspace type
+    if (tab.initialQuery) {
+      baseTab.initialQuery = tab.initialQuery;
+    }
+    if (tab.initialAggregation) {
+      baseTab.initialAggregation = tab.initialAggregation;
+    }
+    if (tab.initialPipeline) {
+      baseTab.initialPipeline = tab.initialPipeline;
+    }
+    if (tab.initialPipelineText) {
+      baseTab.initialPipelineText = tab.initialPipelineText;
+    }
+    if (tab.editViewName) {
+      baseTab.editViewName = tab.editViewName;
+    }
+    if (tab.initialEvaluate) {
+      baseTab.initialEvaluate = tab.initialEvaluate;
+    }
+    if (tab.initialInput) {
+      baseTab.initialInput = tab.initialInput;
+    }
+    if (tab.subTab) {
+      baseTab.initialSubtab = tab.subTab;
+    }
+
+    return baseTab as OpenWorkspaceOptions;
+  });
+}
+
+async function saveWorkspaceStateToUserData(state: WorkspacesState) {
+  const userData = state.userData;
+  if (!userData) {
+    throw new Error('UserData is not initialized in the store');
+  }
+  try {
+    // Transform the state to the format we want to save
+    const stateToSave: WorkspacesStateData = {
+      tabs: state.tabs.map((tab) => {
+        const baseTab = {
+          id: tab.id,
+          type: tab.type,
+        };
+
+        // Add optional fields conditionally
+        const result: WorkspacesStateData['tabs'][0] = { ...baseTab };
+
+        if ('connectionId' in tab && tab.connectionId) {
+          result.connectionId = tab.connectionId;
+        }
+        if ('namespace' in tab && tab.namespace) {
+          result.namespace = tab.namespace;
+        }
+        if ('initialQuery' in tab && tab.initialQuery) {
+          // Store as record, accepting unknown format
+          result.initialQuery = tab.initialQuery as Record<string, unknown>;
+        }
+        if ('initialAggregation' in tab && tab.initialAggregation) {
+          result.initialAggregation = tab.initialAggregation as Record<
+            string,
+            unknown
+          >;
+        }
+        if ('initialPipeline' in tab && tab.initialPipeline) {
+          result.initialPipeline = tab.initialPipeline as Array<
+            Record<string, unknown>
+          >;
+        }
+        if ('initialPipelineText' in tab && tab.initialPipelineText) {
+          result.initialPipelineText = tab.initialPipelineText;
+        }
+        if ('editViewName' in tab && tab.editViewName) {
+          result.editViewName = tab.editViewName;
+        }
+        if ('initialEvaluate' in tab && tab.initialEvaluate) {
+          result.initialEvaluate = tab.initialEvaluate;
+        }
+        if ('initialInput' in tab && tab.initialInput) {
+          result.initialInput = tab.initialInput;
+        }
+        if ('subTab' in tab && tab.subTab) {
+          // Validate that subTab is one of the allowed values
+          const validSubTabs = [
+            'Documents',
+            'Aggregations',
+            'Schema',
+            'Indexes',
+            'Validation',
+            'GlobalWrites',
+          ];
+          if (validSubTabs.includes(tab.subTab as string)) {
+            result.subTab = tab.subTab as
+              | 'Documents'
+              | 'Aggregations'
+              | 'Schema'
+              | 'Indexes'
+              | 'Validation'
+              | 'GlobalWrites';
+          }
+        }
+
+        return result;
+      }),
+      activeTabId: state.activeTabId,
+      timestamp: Date.now(),
+    };
+
+    // Save to UserData with a fixed ID
+    return await userData.write('current-workspace', stateToSave);
+
+    // Optional: Log for debugging in development
+    // if (process.env.NODE_ENV === 'development') {
+    // eslint-disable-next-line no-console
+    // console.log('Workspace state saved to UserData:', {
+    //   actionType: action.type,
+    //   tabCount: state.tabs.length,
+    //   activeTabId: state.activeTabId,
+    //   timestamp: new Date().toISOString(),
+    // });
+    // }
+  } catch (error) {
+    // Don't throw errors from the middleware to avoid breaking the app
+    // eslint-disable-next-line no-console
+    console.error('Failed to save workspace state to UserData:', error);
+
+    throw error;
+  }
+}
+
+export function useLoadWorkspacesRef() {
+  const service = useContext(WorkspacesServiceContext);
+
+  // TODO: do we need to bind this to service?
+  const loadWorkspaces = useRef(service.loadSavedWorkspaces());
+
+  return loadWorkspaces;
+}
 
 function useWorkspacesService() {
   const service = useContext(WorkspacesServiceContext);

@@ -3,7 +3,12 @@ import type { ThunkAction } from 'redux-thunk';
 import { ObjectId } from 'bson';
 import AppRegistry from '@mongodb-js/compass-app-registry';
 import toNS from 'mongodb-ns';
-import type { Workspace, WorkspacesServices, CollectionSubtab } from '..';
+import type {
+  Workspace,
+  WorkspacesServices,
+  CollectionSubtab,
+  WorkspacesStateSchema,
+} from '..';
 import type { WorkspaceTab, WorkspaceTabProps } from '../types';
 import { isEqual } from 'lodash';
 import { cleanupTabState } from '../components/workspace-tab-state-provider';
@@ -14,6 +19,7 @@ import {
 } from '../components/workspace-close-handler';
 import { type ConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { showConfirmation } from '@mongodb-js/compass-components';
+import type { IUserData } from '../../../compass-user-data/dist/user-data';
 
 const LocalAppRegistryMap = new Map<string, AppRegistry>();
 
@@ -104,6 +110,8 @@ export type WorkspacesState = {
    * of a database)
    */
   databaseInfo: Record<string, DatabaseTabInfo>;
+
+  userData: IUserData<typeof WorkspacesStateSchema> | null;
 };
 
 const getTabId = () => {
@@ -225,6 +233,7 @@ const getInitialState = () => {
     activeTabId: null,
     collectionInfo: {},
     databaseInfo: {},
+    userData: null,
   };
 };
 

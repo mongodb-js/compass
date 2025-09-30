@@ -42,19 +42,6 @@ import { getConnectionTitle } from '@mongodb-js/connection-info';
 import { useConnectionsListRef } from '@mongodb-js/compass-connections/provider';
 import { DataModelingWorkspaceTab } from '@mongodb-js/compass-data-modeling';
 import { CompassAssistantDrawer } from '@mongodb-js/compass-assistant';
-import { FileUserData } from '@mongodb-js/compass-user-data';
-import { WorkspacesStateSchema } from '@mongodb-js/compass-workspaces';
-import { EJSON } from 'bson';
-
-// Create a UserData instance for storing workspace state
-const workspacesFileUserData = new FileUserData(
-  WorkspacesStateSchema,
-  'WorkspacesState',
-  {
-    serialize: (content) => EJSON.stringify(content, undefined, 2),
-    deserialize: (content: string) => EJSON.parse(content),
-  }
-);
 
 export default function Workspace({
   appName,
@@ -129,7 +116,6 @@ export default function Workspace({
               <CompassAssistantDrawer />
             </>
           )}
-          userData={workspacesFileUserData}
         ></WorkspacesPlugin>
       </CollectionTabsProvider>
     </WorkspacesProvider>

@@ -36,7 +36,7 @@ export function workspacesStateChangeMiddleware(
     // Only call the callback if the workspaces state actually changed
     if (prevState !== nextState) {
       // Fire and forget - don't await to avoid blocking the action
-      void saveWorkspaceStateToUserData(nextState, action, userData);
+      void saveWorkspaceStateToUserData(nextState, userData);
     }
 
     return result;
@@ -48,7 +48,6 @@ export function workspacesStateChangeMiddleware(
  */
 async function saveWorkspaceStateToUserData(
   state: WorkspacesState,
-  action: AnyAction,
   userData: IUserData<typeof WorkspacesStateSchema>
 ) {
   try {
@@ -127,15 +126,15 @@ async function saveWorkspaceStateToUserData(
     await userData.write('current-workspace', stateToSave);
 
     // Optional: Log for debugging in development
-    if (process.env.NODE_ENV === 'development') {
-      // eslint-disable-next-line no-console
-      console.log('Workspace state saved to UserData:', {
-        actionType: action.type,
-        tabCount: state.tabs.length,
-        activeTabId: state.activeTabId,
-        timestamp: new Date().toISOString(),
-      });
-    }
+    // if (process.env.NODE_ENV === 'development') {
+    // eslint-disable-next-line no-console
+    // console.log('Workspace state saved to UserData:', {
+    //   actionType: action.type,
+    //   tabCount: state.tabs.length,
+    //   activeTabId: state.activeTabId,
+    //   timestamp: new Date().toISOString(),
+    // });
+    // }
   } catch (error) {
     // Don't throw errors from the middleware to avoid breaking the app
     // eslint-disable-next-line no-console

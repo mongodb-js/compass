@@ -10,8 +10,7 @@ import type { WorkspaceTab } from '../types';
 import Workspaces from './workspaces';
 import { connect } from '../stores/context';
 import { WorkspacesServiceProvider } from '../provider';
-import type { IUserData } from '@mongodb-js/compass-user-data';
-import type { WorkspacesStateSchema } from '../services/workspaces-storage';
+import type { AtlasService } from '../../../atlas-service/dist/atlas-service';
 
 type WorkspacesWithSidebarProps = {
   /**
@@ -39,11 +38,6 @@ type WorkspacesWithSidebarProps = {
    * Initial workspace tab to show (by default no tabs will be shown initially)
    */
   initialWorkspaceTabs?: OpenWorkspaceOptions[] | null;
-
-  /**
-   * UserData instance to use for persisting workspace state
-   */
-  userData: IUserData<typeof WorkspacesStateSchema>;
   /**
    * Workspace configuration to be opened when all tabs are closed (defaults to
    * "My Queries")
@@ -61,6 +55,12 @@ type WorkspacesWithSidebarProps = {
    * actions from service locator context
    */
   renderModals?: () => React.ReactElement | null;
+};
+
+type WorkspacesWithSidebarWebProps = WorkspacesWithSidebarProps & {
+  atlasService: AtlasService;
+  orgId: string;
+  projectId: string;
 };
 
 const containerLightThemeStyles = css({
@@ -100,7 +100,6 @@ const WorkspacesWithSidebar: React.FunctionComponent<
   onActiveWorkspaceTabChange,
   renderSidebar,
   renderModals,
-  userData,
 }) => {
   const darkMode = useDarkMode();
   const onChange = useRef(onActiveWorkspaceTabChange);
@@ -119,15 +118,59 @@ const WorkspacesWithSidebar: React.FunctionComponent<
       >
         <div className={sidebarStyles}>{renderSidebar?.()}</div>
         <div className={workspacesStyles}>
-          <Workspaces
-            openOnEmptyWorkspace={openOnEmptyWorkspace}
-            userData={userData}
-          ></Workspaces>
+          <Workspaces openOnEmptyWorkspace={openOnEmptyWorkspace}></Workspaces>
         </div>
       </div>
       {renderModals?.()}
     </WorkspacesServiceProvider>
   );
+};
+
+const WorkspacesWithSidebarWeb: React.FunctionComponent<
+  WorkspacesWithSidebarWebProps
+> = ({
+  activeTab,
+  activeTabCollectionInfo,
+  openOnEmptyWorkspace,
+  onActiveWorkspaceTabChange,
+  renderSidebar,
+  renderModals,
+}) => {
+  return (
+    <WorkspacesWithSidebar
+      activeTab={activeTab}
+      activeTabCollectionInfo={activeTabCollectionInfo}
+      openOnEmptyWorkspace={openOnEmptyWorkspace}
+      onActiveWorkspaceTabChange={onActiveWorkspaceTabChange}
+      renderSidebar={renderSidebar}
+      renderModals={renderModals}
+    ></WorkspacesWithSidebar>
+  );
+  // const darkMode = useDarkMode();
+  // const onChange = useRef(onActiveWorkspaceTabChange);
+  // onChange.current = onActiveWorkspaceTabChange;
+  // useEffect(() => {
+  //   onChange.current(activeTab, activeTabCollectionInfo);
+  // }, [activeTab, activeTabCollectionInfo]);
+
+  // return (
+  //   <WorkspacesServiceProvider>
+  //     <div
+  //       className={cx(
+  //         horizontalSplitStyles,
+  //         darkMode ? containerDarkThemeStyles : containerLightThemeStyles
+  //       )}
+  //     >
+  //       <div className={sidebarStyles}>{renderSidebar?.()}</div>
+  //       <div className={workspacesStyles}>
+  //         <Workspaces
+  //           openOnEmptyWorkspace={openOnEmptyWorkspace}
+  //         ></Workspaces>
+  //       </div>
+  //     </div>
+  //     {renderModals?.()}
+  //   </WorkspacesServiceProvider>
+  // );
 };
 
 export default connect((state: WorkspacesState) => {
@@ -140,3 +183,14 @@ export default connect((state: WorkspacesState) => {
         : null,
   };
 })(WorkspacesWithSidebar);
+
+export const WorkspacesWeb = connect((state: WorkspacesState) => {
+  const activeTab = getActiveTab(state);
+  return {
+    activeTab,
+    activeTabCollectionInfo:
+      activeTab?.type === 'Collection'
+        ? state.collectionInfo[activeTab.namespace]
+        : null,
+  };
+})(WorkspacesWithSidebarWeb);

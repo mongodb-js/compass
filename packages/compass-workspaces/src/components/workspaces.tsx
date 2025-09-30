@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import {
   DrawerAnchor,
   ErrorBoundary,
@@ -40,9 +40,7 @@ import { useLogger } from '@mongodb-js/compass-logging/provider';
 import { connect } from '../stores/context';
 import { WorkspaceTabContextProvider } from './workspace-tab-context-provider';
 import type { WorkspaceTab } from '../types';
-import { loadWorkspaceStateFromUserData } from '../stores/workspaces-middleware';
-import type { IUserData } from '@mongodb-js/compass-user-data';
-import type { WorkspacesStateSchema } from '../services/workspaces-storage';
+import { useLoadWorkspacesRef } from '../provider';
 
 const emptyWorkspaceStyles = css({
   margin: '0 auto',
@@ -81,7 +79,6 @@ type CompassWorkspacesProps = {
   collectionInfo: Record<string, CollectionTabInfo>;
   databaseInfo: Record<string, DatabaseTabInfo>;
   openOnEmptyWorkspace?: OpenWorkspaceOptions | null;
-  userData: IUserData<typeof WorkspacesStateSchema>;
 
   onSelectTab(at: number): void;
   onSelectNextTab(): void;
@@ -104,7 +101,6 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
   collectionInfo,
   databaseInfo,
   openOnEmptyWorkspace,
-  userData,
   onSelectTab,
   onSelectNextTab,
   onSelectPrevTab,
@@ -125,14 +121,16 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
     onCreateTab(openOnEmptyWorkspace);
   }, [onCreateTab, openOnEmptyWorkspace]);
 
+  // TODO: move these
+  // the actions / dispatches should go into store
+  // we need to do something like useWorkspacesService here
   const connectionActions = useConnectionActions();
   const { getConnectionById } = useConnectionsListRef();
-  const savedWorkspacesPromiseRef = useRef(
-    loadWorkspaceStateFromUserData(userData)
-  );
+
+  const loadWorkspacesRef = useLoadWorkspacesRef();
 
   useEffect(() => {
-    savedWorkspacesPromiseRef.current.then(
+    loadWorkspacesRef.current.then(
       (res) => {
         if (res !== null) {
           showConfirmation({
@@ -190,7 +188,7 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
       }
     );
   }, [
-    savedWorkspacesPromiseRef,
+    loadWorkspacesRef,
     onRestoreTabs,
     connectionActions,
     getConnectionById,
