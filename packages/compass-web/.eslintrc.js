@@ -6,17 +6,4 @@ module.exports = {
     tsconfigRootDir: __dirname,
     project: ['./tsconfig.json'],
   },
-  overrides: [
-    {
-      files: ['**/*.mjs'],
-      parserOptions: {
-        ecmaVersion: 2023,
-        sourceType: 'module',
-      },
-      env: {
-        es2023: true,
-        node: true,
-      },
-    },
-  ],
 };
