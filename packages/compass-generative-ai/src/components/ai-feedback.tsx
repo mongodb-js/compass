@@ -80,8 +80,8 @@ type AIFeedbackProps = {
 function AIFeedback({ onSubmitFeedback }: AIFeedbackProps) {
   const darkMode = useDarkMode();
 
-  const feedbackPositiveButtonRef = useRef<HTMLInputElement>(null);
-  const feedbackNegativeButtonRef = useRef<HTMLInputElement>(null);
+  const feedbackPositiveButtonRef = useRef<HTMLButtonElement>(null);
+  const feedbackNegativeButtonRef = useRef<HTMLButtonElement>(null);
 
   const [chosenFeedbackOption, setChosenFeedbackOption] = useState<
     'none' | 'positive' | 'negative'
