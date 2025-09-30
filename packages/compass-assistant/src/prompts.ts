@@ -128,7 +128,7 @@ ${explainPlan}
       displayText: 'Interpret this explain plan output for me.',
       confirmation: {
         description:
-          'Explain plan metadata, including the original query, may be used to process your request',
+          'Explain plan metadata, including the original query, may be used to process your request.',
         state: 'pending',
       },
     },
