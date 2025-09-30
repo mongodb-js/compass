@@ -1,28 +1,7 @@
-import React from 'react';
 import { expect } from 'chai';
-import {
-  screen,
-  waitFor,
-  render,
-  userEvent,
-} from '@mongodb-js/testing-library-compass';
 import { getFieldsFromSchema } from './nodes-and-edges';
 
 describe('getFieldsFromSchema', function () {
-  const validateMixedType = async (
-    type: React.ReactNode,
-    expectedTooltip: RegExp
-  ) => {
-    render(<>{type}</>);
-    const mixed = screen.getByText('(mixed)');
-    expect(mixed).to.be.visible;
-    expect(screen.queryByText(expectedTooltip)).to.not.exist;
-    userEvent.hover(mixed);
-    await waitFor(() => {
-      expect(screen.getByText(expectedTooltip)).to.be.visible;
-    });
-  };
-
   describe('flat schema', function () {
     it('return empty array for empty schema', function () {
       const result = getFieldsFromSchema({ jsonSchema: {} });
@@ -63,7 +42,7 @@ describe('getFieldsFromSchema', function () {
       ]);
     });
 
-    it('returns mixed fields with tooltip on hover', async function () {
+    it('returns mixed fields', function () {
       const result = getFieldsFromSchema({
         jsonSchema: {
           bsonType: 'object',
@@ -72,16 +51,16 @@ describe('getFieldsFromSchema', function () {
           },
         },
       });
-      expect(result[0]).to.deep.include({
+      expect(result[0]).to.deep.equal({
         name: 'age',
         id: ['age'],
         depth: 0,
         glyphs: [],
         selectable: true,
         selected: false,
+        type: ['int', 'string'],
         variant: undefined,
       });
-      await validateMixedType(result[0].type, /int, string/);
     });
 
     it('highlights the correct field', function () {
@@ -445,32 +424,6 @@ describe('getFieldsFromSchema', function () {
       ]);
     });
 
-    it('returns [] for array', function () {
-      const result = getFieldsFromSchema({
-        jsonSchema: {
-          bsonType: 'object',
-          properties: {
-            tags: {
-              bsonType: 'array',
-              items: { bsonType: 'string' },
-            },
-          },
-        },
-      });
-      expect(result).to.deep.equal([
-        {
-          name: 'tags',
-          id: ['tags'],
-          type: '[]',
-          depth: 0,
-          glyphs: [],
-          selectable: true,
-          selected: false,
-          variant: undefined,
-        },
-      ]);
-    });
-
     it('returns fields for an array of objects', function () {
       const result = getFieldsFromSchema({
         jsonSchema: {
@@ -493,7 +446,7 @@ describe('getFieldsFromSchema', function () {
         {
           name: 'todos',
           id: ['todos'],
-          type: '[]',
+          type: 'array',
           depth: 0,
           glyphs: [],
           selectable: true,
@@ -523,7 +476,7 @@ describe('getFieldsFromSchema', function () {
       ]);
     });
 
-    it('returns fields for a mixed schema with objects', async function () {
+    it('returns fields for a mixed schema with objects', function () {
       const result = getFieldsFromSchema({
         jsonSchema: {
           bsonType: 'object',
@@ -544,16 +497,16 @@ describe('getFieldsFromSchema', function () {
         },
       });
       expect(result).to.have.lengthOf(3);
-      expect(result[0]).to.deep.include({
+      expect(result[0]).to.deep.equal({
         name: 'name',
         id: ['name'],
         depth: 0,
+        type: ['string', 'object'],
         glyphs: [],
         selectable: true,
         selected: false,
         variant: undefined,
       });
-      await validateMixedType(result[0].type, /string, object/);
       expect(result[1]).to.deep.equal({
         name: 'first',
         id: ['name', 'first'],
@@ -603,7 +556,7 @@ describe('getFieldsFromSchema', function () {
         {
           name: 'todos',
           id: ['todos'],
-          type: '[]',
+          type: 'array',
           depth: 0,
           glyphs: [],
           selectable: true,
