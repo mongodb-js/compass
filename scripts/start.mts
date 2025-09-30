@@ -128,6 +128,12 @@ function spawnTarget(
     colorEnv.CLICOLOR_FORCE = '1';
   }
 
+  // Desktop needs full terminal control for shortcuts, others need piped output for prefixing
+  const stdio: child_process.StdioOptions =
+    targetName === 'desktop' && !usePrefixing
+      ? 'inherit'
+      : ['inherit', 'pipe', 'pipe'];
+
   const spawnArgs: Parameters<typeof child_process.spawn> = [
     'npm',
     [
@@ -137,7 +143,7 @@ function spawnTarget(
       ...(args.length ? ['--', ...args] : []),
     ],
     {
-      stdio: ['inherit', 'pipe', 'pipe'],
+      stdio,
       env: { ...process.env, ...colorEnv },
     },
   ];
@@ -146,39 +152,44 @@ function spawnTarget(
   console.log(`${startPrefix}${spawnArgs[0]} ${spawnArgs[1].join(' ')}`);
   const subProcess = child_process.spawn(...spawnArgs);
 
-  // Set up stdout pipeline with error handling
-  if (subProcess.stdout) {
-    subProcess.stdout.setEncoding('utf-8');
-    if (usePrefixing) {
-      pipeline(
-        subProcess.stdout,
-        createPrefixTransform(paddedName),
-        process.stdout,
-        { end: false }
-      ).catch((err) => console.error(`start    | stdout pipeline error:`, err));
-    } else {
-      pipeline(subProcess.stdout, process.stdout, { end: false }).catch((err) =>
-        console.error(`start    | stdout pipeline error:`, err)
-      );
+  // Only set up output piping if we're not using full inheritance
+  if (stdio !== 'inherit') {
+    // Set up stdout pipeline with error handling
+    if (subProcess.stdout) {
+      subProcess.stdout.setEncoding('utf-8');
+      if (usePrefixing) {
+        pipeline(
+          subProcess.stdout,
+          createPrefixTransform(paddedName),
+          process.stdout,
+          { end: false }
+        ).catch((err) =>
+          console.error(`start    | stdout pipeline error:`, err)
+        );
+      } else {
+        pipeline(subProcess.stdout, process.stdout, { end: false }).catch(
+          (err) => console.error(`start    | stdout pipeline error:`, err)
+        );
+      }
     }
-  }
 
-  // Set up stderr pipeline with error handling
-  if (subProcess.stderr) {
-    subProcess.stderr.setEncoding('utf-8');
-    if (usePrefixing) {
-      pipeline(
-        subProcess.stderr,
-        createPrefixTransform(paddedName),
-        process.stderr,
-        { end: false }
-      ).catch((err) =>
-        console.error(`${startPrefix}stderr pipeline error:`, err)
-      );
-    } else {
-      pipeline(subProcess.stderr, process.stderr, { end: false }).catch((err) =>
-        console.error(`${startPrefix}stderr pipeline error:`, err)
-      );
+    // Set up stderr pipeline with error handling
+    if (subProcess.stderr) {
+      subProcess.stderr.setEncoding('utf-8');
+      if (usePrefixing) {
+        pipeline(
+          subProcess.stderr,
+          createPrefixTransform(paddedName),
+          process.stderr,
+          { end: false }
+        ).catch((err) =>
+          console.error(`${startPrefix}stderr pipeline error:`, err)
+        );
+      } else {
+        pipeline(subProcess.stderr, process.stderr, { end: false }).catch(
+          (err) => console.error(`${startPrefix}stderr pipeline error:`, err)
+        );
+      }
     }
   }
 
@@ -206,13 +217,4 @@ if (targets.sandbox.enabled) {
       'sandbox'
     )
   );
-}
-
-// Forward stdin to all subprocesses using pipeline
-for (const subProcess of subProcesses) {
-  if (subProcess.stdin)
-    pipeline(process.stdin, subProcess.stdin, { end: false }).catch((err) => {
-      if (err.code !== 'EPIPE' && err.code !== 'ERR_STREAM_PREMATURE_CLOSE')
-        console.error(`${startPrefix}stdin pipeline error:`, err);
-    });
 }
