@@ -78,6 +78,8 @@ function ExportCodeView({
         data-testid="export-collection-code-preview-wrapper"
         id={codeElementId}
         language="javascript"
+        // eslint-disable-next-line jsx-a11y/no-autofocus
+        autoFocus={true}
       >
         {code}
       </Code>
