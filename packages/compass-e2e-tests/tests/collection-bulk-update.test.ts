@@ -9,7 +9,6 @@ import {
   init,
   cleanup,
   screenshotIfFailed,
-  skipForWeb,
   DEFAULT_CONNECTION_NAME_1,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
@@ -141,8 +140,6 @@ describe('Bulk Update', () => {
   });
 
   it('can save an update query as a favourite and return to it', async function () {
-    skipForWeb(this, "can't use saved queries in compass-web yet");
-
     const telemetryEntry = await browser.listenForTelemetryEvents(telemetry);
 
     // Set a query that we'll use.

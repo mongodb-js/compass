@@ -1266,10 +1266,6 @@ describe('Collection aggregations tab', function () {
   });
 
   describe('saving pipelines', function () {
-    before(function () {
-      skipForWeb(this, 'saved pipelines not yet available in compass-web');
-    });
-
     const name = 'test agg 1';
     beforeEach(async function () {
       await saveAggregationPipeline(browser, name, [
