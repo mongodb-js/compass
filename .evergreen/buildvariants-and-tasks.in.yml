@@ -27,11 +27,7 @@ const PACKAGE_BUILD_VARIANTS = [
   {
     name: 'package-ubuntu',
     display_name: 'Package Ubuntu',
-
-    // # NOTE: We are packaging on Ubuntu 18.04 in order to use glibc 2.27
-    // # when compiling/re-building addons. This ensures compatibility with other
-    // # debian platforms that have glibc 2.27 or newer.
-    run_on: 'ubuntu1804-large',
+    run_on: 'ubuntu2004-large',
     target_platform: 'ubuntu',
   },
   {
