@@ -4,7 +4,6 @@ import path from 'node:path';
 import child_process from 'node:child_process';
 import os from 'node:os';
 import util from 'node:util';
-import net from 'node:net';
 import timers from 'node:timers/promises';
 
 if (!process.env.MMS_HOME) {
@@ -13,25 +12,17 @@ if (!process.env.MMS_HOME) {
   );
 }
 
-function isDevServerRunning(port, host = '127.0.0.1') {
-  return new Promise((resolve) => {
-    const socket = new net.Socket();
-    socket
-      .setTimeout(1000)
-      .on('connect', () => {
-        socket.destroy();
-        resolve(true);
+async function isDevServerRunning(port, host = '127.0.0.1') {
+  try {
+    return (
+      await fetch(`http://${host}:${port}`, {
+        method: 'HEAD',
+        signal: AbortSignal.timeout(3000),
       })
-      .on('error', () => {
-        socket.destroy();
-        resolve(false);
-      })
-      .on('timeout', () => {
-        socket.destroy();
-        resolve(false);
-      })
-      .connect(port, host);
-  });
+    ).ok;
+  } catch (error) {
+    return false;
+  }
 }
 
 let devServer;
@@ -112,6 +103,7 @@ fs.mkdirSync(tmpDir, { recursive: true });
 fs.cpSync(destDir, tmpDir, { recursive: true });
 
 let oneSec = null;
+let queued = false;
 async function copyDist() {
   // If a copy is already in progress, return early (debounce)
   if (oneSec) return;
