@@ -1,24 +1,62 @@
 /* eslint-disable react/prop-types */
 import React from 'react';
-import { PerformanceSignals, spacing } from '@mongodb-js/compass-components';
+// TODO: don't forget about performance insights?
+//import { PerformanceSignals, spacing } from '@mongodb-js/compass-components';
 import { compactBytes, compactNumber } from './format';
-import { NamespaceItemCard } from './namespace-card';
-import { ItemsGrid } from './items-grid';
+import { ItemsTable } from './items-table';
 import type { DatabaseProps } from 'mongodb-database-model';
 import { usePreference } from 'compass-preferences-model/provider';
+import type { LGColumnDef } from '@mongodb-js/compass-components';
 
-const DATABASE_CARD_WIDTH = spacing[1600] * 4;
+function databaseColumns(
+  enableDbAndCollStats: boolean
+): LGColumnDef<DatabaseProps>[] {
+  return [
+    {
+      accessorKey: 'name',
+      header: 'Database name',
+      enableSorting: true,
+    },
+    {
+      accessorKey: 'calculated_storage_size',
+      header: 'Storage size',
+      enableSorting: true,
+      cell: (info) => {
+        // TODO: shouldn't this just have the right type rather than unknown?
+        const size = info.getValue() as number | undefined;
+        return enableDbAndCollStats && size !== undefined
+          ? compactBytes(size)
+          : '-';
+      },
+    },
+    {
+      accessorKey: 'collectionsLength',
+      header: 'Collections',
+      enableSorting: true,
+      cell: (info) => {
+        return enableDbAndCollStats
+          ? compactNumber(info.getValue() as number)
+          : '-';
+      },
+    },
+    {
+      accessorKey: 'index_count',
+      header: 'Indexes',
+      enableSorting: true,
+      cell: (info) => {
+        const index_count = info.getValue() as number | undefined;
+        return enableDbAndCollStats && index_count !== undefined
+          ? compactNumber(index_count)
+          : '-';
+      },
+    },
+  ];
+}
 
-const DATABASE_CARD_HEIGHT = 154;
-const DATABASE_CARD_WITHOUT_STATS_HEIGHT = DATABASE_CARD_HEIGHT - 85;
-
-const DATABASE_CARD_LIST_HEIGHT = 118;
-const DATABASE_CARD_LIST_WITHOUT_STATS_HEIGHT = DATABASE_CARD_LIST_HEIGHT - 50;
-
+// TODO: we removed delete click functionality, we removed the header hint functionality
 const DatabasesList: React.FunctionComponent<{
   databases: DatabaseProps[];
   onDatabaseClick: (id: string) => void;
-  onDeleteDatabaseClick?: (id: string) => void;
   onCreateDatabaseClick?: () => void;
   onRefreshClick?: () => void;
   renderLoadSampleDataBanner?: () => React.ReactNode;
@@ -26,104 +64,24 @@ const DatabasesList: React.FunctionComponent<{
   databases,
   onDatabaseClick,
   onCreateDatabaseClick,
-  onDeleteDatabaseClick,
   onRefreshClick,
   renderLoadSampleDataBanner,
 }) => {
   const enableDbAndCollStats = usePreference('enableDbAndCollStats');
+  const columns = React.useMemo(
+    () => databaseColumns(enableDbAndCollStats),
+    [enableDbAndCollStats]
+  );
   return (
-    <ItemsGrid
+    <ItemsTable
+      columns={columns}
       items={databases}
       itemType="database"
-      itemGridWidth={DATABASE_CARD_WIDTH}
-      itemGridHeight={
-        enableDbAndCollStats
-          ? DATABASE_CARD_HEIGHT
-          : DATABASE_CARD_WITHOUT_STATS_HEIGHT
-      }
-      itemListHeight={
-        enableDbAndCollStats
-          ? DATABASE_CARD_LIST_HEIGHT
-          : DATABASE_CARD_LIST_WITHOUT_STATS_HEIGHT
-      }
-      sortBy={[
-        { name: 'name', label: 'Database Name' },
-        { name: 'storage_size', label: 'Storage size' },
-        { name: 'collectionsLength', label: 'Collections' },
-        { name: 'index_count', label: 'Indexes' },
-      ]}
       onItemClick={onDatabaseClick}
-      onDeleteItemClick={onDeleteDatabaseClick}
       onCreateItemClick={onCreateDatabaseClick}
       onRefreshClick={onRefreshClick}
-      renderItem={({
-        item: db,
-        onItemClick,
-        onDeleteItemClick,
-        viewType,
-        ...props
-      }) => {
-        return (
-          <NamespaceItemCard
-            id={db._id}
-            key={db._id}
-            name={db.name}
-            type="database"
-            viewType={viewType}
-            status={db.status}
-            inferredFromPrivileges={db.inferred_from_privileges}
-            data={[
-              {
-                label: 'Storage',
-                value:
-                  enableDbAndCollStats &&
-                  db.calculated_storage_size !== undefined
-                    ? compactBytes(db.calculated_storage_size)
-                    : 'N/A',
-                hint:
-                  enableDbAndCollStats &&
-                  db.storage_size !== undefined &&
-                  db.free_storage_size !== undefined &&
-                  'Storage Data: Disk space allocated to all collections in the database for document storage.\n' +
-                    `Total storage: ${compactBytes(db.storage_size)}\n` +
-                    `Free storage: ${compactBytes(db.free_storage_size)}`,
-              },
-              {
-                label: 'Uncompressed data',
-                value:
-                  enableDbAndCollStats && db.data_size !== undefined
-                    ? compactBytes(db.data_size)
-                    : 'N/A',
-                hint:
-                  enableDbAndCollStats &&
-                  'Uncompressed Data Size: Total size of the uncompressed data held in the database.',
-              },
-              {
-                label: 'Collections',
-                value: enableDbAndCollStats
-                  ? compactNumber(db.collectionsLength)
-                  : 'N/A',
-                insights:
-                  db.collectionsLength >= 10_000
-                    ? PerformanceSignals.get('too-many-collections')
-                    : undefined,
-              },
-              {
-                label: 'Indexes',
-                value:
-                  enableDbAndCollStats && db.index_count !== undefined
-                    ? compactNumber(db.index_count)
-                    : 'N/A',
-              },
-            ]}
-            onItemClick={onItemClick}
-            onItemDeleteClick={onDeleteItemClick}
-            {...props}
-          ></NamespaceItemCard>
-        );
-      }}
       renderLoadSampleDataBanner={renderLoadSampleDataBanner}
-    ></ItemsGrid>
+    ></ItemsTable>
   );
 };
 
