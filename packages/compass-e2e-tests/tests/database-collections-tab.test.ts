@@ -212,10 +212,6 @@ describe('Database collections tab', function () {
   });
 
   it('can create a time series collection', async function () {
-    if (serverSatisfies('< 5.0.0')) {
-      return this.skip();
-    }
-
     const collectionName = 'my-timeseries-collection';
 
     // open the create collection modal from the button at the top
@@ -285,10 +281,6 @@ describe('Database collections tab', function () {
   });
 
   it('can create a clustered collection', async function () {
-    if (serverSatisfies('< 5.3.0')) {
-      return this.skip();
-    }
-
     const collectionName = 'my-clustered-collection';
     const indexName = 'my-clustered-index';
 
