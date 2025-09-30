@@ -39,8 +39,8 @@ const contentFullScreenStyles = css({
 });
 
 function UnwrappedModal({
+  backdropClassName,
   className,
-  contentClassName,
   children,
   fullScreen = false,
   ...props
@@ -56,15 +56,15 @@ function UnwrappedModal({
 
   return (
     <LeafyGreenModal
-      className={cx(
+      backdropClassName={cx(
         scrollbarStyles,
         fullScreen && modalFullScreenStyles,
-        className
+        backdropClassName
       )}
-      contentClassName={cx(
+      className={cx(
         contentStyles,
         fullScreen && contentFullScreenStyles,
-        contentClassName
+        className
       )}
       {...props}
     >
