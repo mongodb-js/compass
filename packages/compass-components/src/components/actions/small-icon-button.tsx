@@ -1,7 +1,7 @@
 import React, { forwardRef } from 'react';
 import { css, cx } from '@leafygreen-ui/emotion';
 import { spacing } from '@leafygreen-ui/tokens';
-import type { IconButtonProps } from '@leafygreen-ui/icon-button';
+import type { AccessibleIconButtonProps } from '@leafygreen-ui/icon-button';
 
 import { IconButton } from '../leafygreen';
 
@@ -36,14 +36,15 @@ export type SmallIconButtonProps = {
   glyph: React.ReactChild;
   label: string;
   size: ItemActionButtonSize;
-} & Omit<IconButtonProps, 'size'>;
+  onClick?: React.MouseEventHandler<HTMLButtonElement>;
+} & Omit<
+  AccessibleIconButtonProps & React.ButtonHTMLAttributes<HTMLButtonElement>,
+  'size' | 'onClick'
+>;
 
-export const SmallIconButton = forwardRef<
-  HTMLButtonElement,
-  SmallIconButtonProps
->(function SmallIconButton(
-  { glyph, size, label, children, className, ...rest },
-  ref
+export const SmallIconButton = forwardRef(function SmallIconButton(
+  { glyph, size, label, children, className, ...rest }: SmallIconButtonProps,
+  ref: React.Ref<HTMLButtonElement>
 ) {
   return (
     <IconButton
