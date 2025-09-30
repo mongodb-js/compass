@@ -16,8 +16,25 @@ if (!process.env.MMS_HOME) {
 let devServer: child_process.ChildProcess | undefined;
 let distWatcher: fs.FSWatcher | undefined;
 let webpackWatchProcess: child_process.ChildProcess | undefined;
-let tmpDir: string | undefined;
-let destDir: string | undefined;
+
+const tmpDir = path.join(
+  os.tmpdir(),
+  `mongodb-js--compass-web-${Date.now().toString(36)}`
+);
+const srcDir = path.resolve(import.meta.dirname, '..', 'dist');
+const destDir = path.dirname(
+  child_process.execFileSync(
+    'node',
+    ['-e', "console.log(require.resolve('@mongodb-js/compass-web'))"],
+    { cwd: process.env.MMS_HOME, encoding: 'utf-8' }
+  )
+);
+
+fs.mkdirSync(srcDir, { recursive: true });
+// Create a copy of current dist that will be overridden by link, we'll restore
+// it when we are done
+fs.mkdirSync(tmpDir, { recursive: true });
+fs.cpSync(destDir, tmpDir, { recursive: true });
 
 const failProofRunner = () =>
   new (class FailProofRunner extends Array {
@@ -52,8 +69,8 @@ function cleanup(signalName: NodeJS.Signals): void {
     .append(() => distWatcher?.close())
     .append(() => webpackWatchProcess?.kill(signalName))
     .append(() => devServer?.kill(signalName))
-    .append(() => tmpDir && destDir && fs.cpSync(tmpDir, destDir, { recursive: true }))
-    .append(() => tmpDir && fs.rmSync(tmpDir, { recursive: true, force: true }))
+    .append(() => fs.cpSync(tmpDir, destDir, { recursive: true }))
+    .append(() => fs.rmSync(tmpDir, { recursive: true, force: true }))
     .run();
   fs.writeSync(process.stdout.fd, 'Exit compass-web sync...\n');
   process.exit(errorCount);
@@ -63,7 +80,10 @@ function cleanup(signalName: NodeJS.Signals): void {
 process.on('SIGINT', () => cleanup('SIGINT'));
 process.on('SIGTERM', () => cleanup('SIGTERM'));
 
-async function isDevServerRunning(port: number, host: string = '127.0.0.1'): Promise<boolean> {
+async function isDevServerRunning(
+  port: number,
+  host: string = '127.0.0.1'
+): Promise<boolean> {
   try {
     return (
       await fetch(`http://${host}:${port}`, {
@@ -130,36 +150,23 @@ if (!(await isDevServerRunning(8081))) {
   console.log('Skipping running MMS dev server...');
 }
 
-const srcDir = path.resolve(import.meta.dirname, '..', 'dist');
-
-destDir = path.dirname(
-  child_process.execFileSync(
-    'node',
-    ['-e', "console.log(require.resolve('@mongodb-js/compass-web'))"],
-    { cwd: process.env.MMS_HOME, encoding: 'utf-8' }
-  )
-);
-
-tmpDir = path.join(
-  os.tmpdir(),
-  `mongodb-js--compass-web-${Date.now().toString(36)}`
-);
-
-fs.mkdirSync(srcDir, { recursive: true });
-
-// Create a copy of current dist that will be overridden by link, we'll restore
-// it when we are done
-fs.mkdirSync(tmpDir, { recursive: true });
-fs.cpSync(destDir, tmpDir, { recursive: true });
-
 let oneSec: Promise<void> | null = null;
+let pendingCopy = false;
+
 async function copyDist(): Promise<void> {
-  // If a copy is already in progress, return early (debounce)
-  if (oneSec) return;
-  if (!destDir) throw new Error('destDir not initialized');
-  fs.cpSync(srcDir, destDir, { recursive: true });
-  oneSec = timers.setTimeout(1000);
-  await oneSec;
+  // If a copy is already in progress, mark that we need another copy
+  if (oneSec) {
+    pendingCopy = true;
+    return;
+  }
+  // Keep copying until there are no more pending requests
+  do {
+    pendingCopy = false;
+    fs.cpSync(srcDir, destDir, { recursive: true });
+    oneSec = timers.setTimeout(1000);
+    await oneSec;
+  } while (pendingCopy);
+
   oneSec = null;
 }
 
