@@ -146,31 +146,6 @@ const WorkspacesWithSidebarWeb: React.FunctionComponent<
       renderModals={renderModals}
     ></WorkspacesWithSidebar>
   );
-  // const darkMode = useDarkMode();
-  // const onChange = useRef(onActiveWorkspaceTabChange);
-  // onChange.current = onActiveWorkspaceTabChange;
-  // useEffect(() => {
-  //   onChange.current(activeTab, activeTabCollectionInfo);
-  // }, [activeTab, activeTabCollectionInfo]);
-
-  // return (
-  //   <WorkspacesServiceProvider>
-  //     <div
-  //       className={cx(
-  //         horizontalSplitStyles,
-  //         darkMode ? containerDarkThemeStyles : containerLightThemeStyles
-  //       )}
-  //     >
-  //       <div className={sidebarStyles}>{renderSidebar?.()}</div>
-  //       <div className={workspacesStyles}>
-  //         <Workspaces
-  //           openOnEmptyWorkspace={openOnEmptyWorkspace}
-  //         ></Workspaces>
-  //       </div>
-  //     </div>
-  //     {renderModals?.()}
-  //   </WorkspacesServiceProvider>
-  // );
 };
 
 export default connect((state: WorkspacesState) => {

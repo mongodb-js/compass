@@ -1,10 +1,6 @@
 import React, { useContext, useRef } from 'react';
 import { useSelector, useStore } from './stores/context';
-import type {
-  OpenWorkspaceOptions,
-  TabOptions,
-  WorkspacesState,
-} from './stores/workspaces';
+import type { OpenWorkspaceOptions, TabOptions } from './stores/workspaces';
 import {
   collectionSubtabSelected,
   getActiveTab,
@@ -17,7 +13,7 @@ import type { WorkspaceDestroyHandler } from './components/workspace-close-handl
 import { useRegisterTabDestroyHandler } from './components/workspace-close-handler';
 import type { WorkspacesStateData } from './services/workspaces-storage';
 import {
-  ConnectionInfo,
+  type ConnectionInfo,
   useConnectionActions,
   useConnectionsListRef,
 } from '@mongodb-js/compass-connections/provider';
