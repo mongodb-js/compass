@@ -81,9 +81,9 @@ db.getCollection(${JSON.stringify(
     )}).insertMany(documents);
 
 console.log(\`Successfully inserted \${documents.length} documents into ${options.databaseName.replace(
-      /[`$]/g, // Escape backticks and dollar signs
+      /[\\`$]/g, // Escape backslashes, backticks and dollar signs
       '\\$&'
-    )}.${options.collectionName.replace(/[`$]/g, '\\$&')}\`);`;
+    )}.${options.collectionName.replace(/[\\`$]/g, '\\$&')}\`);`;
 
     // Format the script using prettier
     const script = prettify(unformattedScript, 'javascript');
