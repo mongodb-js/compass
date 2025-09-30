@@ -72,17 +72,63 @@ const usePrefixing = enabledTargets.length > 1;
 const startPrefix = usePrefixing ? `start    | ` : ``;
 
 const subProcesses: child_process.ChildProcess[] = [];
+let isCleaningUp = false;
+
 async function cleanup(signal: NodeJS.Signals) {
-  for (const p of subProcesses) p.kill(signal);
-  console.log(`\n${startPrefix}requested termination.`);
-  await timers.setTimeout(10_000);
+  if (isCleaningUp) return; // Prevent multiple cleanup calls
+  isCleaningUp = true;
+
+  console.log(`\n${startPrefix}received ${signal}, terminating processes...`);
+
+  // Kill all processes immediately with the received signal
+  for (const p of subProcesses) {
+    if (p.pid && p.exitCode === null) {
+      try {
+        process.kill(-p.pid, signal); // Kill entire process group
+      } catch {
+        p.kill(signal); // Fallback to killing just the process
+      }
+    }
+  }
+
+  // Wait a shorter time for graceful shutdown
+  await timers.setTimeout(3000);
+
+  // Force kill any remaining processes
   const stillRunning = subProcesses.filter((p) => p.exitCode === null);
-  for (const p of stillRunning) p.kill('SIGTERM');
-  console.log(`\n${startPrefix}done.`);
-  process.exit(0);
+  if (stillRunning.length > 0) {
+    console.log(
+      `${startPrefix}force killing ${stillRunning.length} remaining processes...`
+    );
+    for (const p of stillRunning) {
+      if (p.pid) {
+        try {
+          process.kill(-p.pid, 'SIGKILL'); // Kill entire process group
+        } catch {
+          p.kill('SIGKILL'); // Fallback
+        }
+      }
+    }
+  }
+
+  console.log(`${startPrefix}done.`);
+  process.exit(signal === 'SIGTERM' ? 0 : 1);
 }
 
-process.once('SIGINT', cleanup).once('SIGTERM', cleanup);
+// Handle signals properly even when child processes inherit stdio
+process.on('SIGINT', () => cleanup('SIGINT'));
+process.on('SIGTERM', () => cleanup('SIGTERM'));
+
+// Ensure we exit cleanly on uncaught exceptions
+process.on('uncaughtException', (err) => {
+  console.error('Uncaught exception:', err);
+  cleanup('SIGTERM');
+});
+
+process.on('unhandledRejection', (err) => {
+  console.error('Unhandled rejection:', err);
+  cleanup('SIGTERM');
+});
 
 // Helper function to create a transform stream that prefixes lines
 function createPrefixTransform(prefix: string) {
@@ -145,6 +191,8 @@ function spawnTarget(
     {
       stdio,
       env: { ...process.env, ...colorEnv },
+      // Create a new process group so we can kill the entire tree
+      detached: true,
     },
   ];
 

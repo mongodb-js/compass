@@ -12,7 +12,58 @@ if (!process.env.MMS_HOME) {
   );
 }
 
-async function isDevServerRunning(port, host = '127.0.0.1') {
+// Set up early signal handling and cleanup
+let devServer: child_process.ChildProcess | undefined;
+let distWatcher: fs.FSWatcher | undefined;
+let webpackWatchProcess: child_process.ChildProcess | undefined;
+let tmpDir: string | undefined;
+let destDir: string | undefined;
+
+const failProofRunner = () =>
+  new (class FailProofRunner extends Array {
+    append(...fns: any[]) {
+      this.push(...fns);
+      return this;
+    }
+
+    run() {
+      const errors = this.map((f) => {
+        try {
+          f();
+        } catch (e) {
+          return e;
+        }
+      }).filter((e) => e);
+
+      if (errors.length) {
+        fs.writeSync(
+          process.stdout.fd,
+          util.inspect(errors, { depth: 20 }) + '\n'
+        );
+      }
+
+      return errors.length;
+    }
+  })();
+
+function cleanup(signalName: NodeJS.Signals): void {
+  console.log(`\nReceived ${signalName}, cleaning up...`);
+  const errorCount = failProofRunner()
+    .append(() => distWatcher?.close())
+    .append(() => webpackWatchProcess?.kill(signalName))
+    .append(() => devServer?.kill(signalName))
+    .append(() => tmpDir && destDir && fs.cpSync(tmpDir, destDir, { recursive: true }))
+    .append(() => tmpDir && fs.rmSync(tmpDir, { recursive: true, force: true }))
+    .run();
+  fs.writeSync(process.stdout.fd, 'Exit compass-web sync...\n');
+  process.exit(errorCount);
+}
+
+// Set up signal handlers immediately
+process.on('SIGINT', () => cleanup('SIGINT'));
+process.on('SIGTERM', () => cleanup('SIGTERM'));
+
+async function isDevServerRunning(port: number, host: string = '127.0.0.1'): Promise<boolean> {
   try {
     return (
       await fetch(`http://${host}:${port}`, {
@@ -25,7 +76,6 @@ async function isDevServerRunning(port, host = '127.0.0.1') {
   }
 }
 
-let devServer;
 if (!(await isDevServerRunning(8081))) {
   console.log('mms dev server is not running... launching!');
 
@@ -82,7 +132,7 @@ if (!(await isDevServerRunning(8081))) {
 
 const srcDir = path.resolve(import.meta.dirname, '..', 'dist');
 
-const destDir = path.dirname(
+destDir = path.dirname(
   child_process.execFileSync(
     'node',
     ['-e', "console.log(require.resolve('@mongodb-js/compass-web'))"],
@@ -90,23 +140,23 @@ const destDir = path.dirname(
   )
 );
 
-const tmpDir = path.join(
+tmpDir = path.join(
   os.tmpdir(),
   `mongodb-js--compass-web-${Date.now().toString(36)}`
 );
 
 fs.mkdirSync(srcDir, { recursive: true });
 
-// Create a copy of current dist that will be overriden by link, we'll restore
+// Create a copy of current dist that will be overridden by link, we'll restore
 // it when we are done
 fs.mkdirSync(tmpDir, { recursive: true });
 fs.cpSync(destDir, tmpDir, { recursive: true });
 
-let oneSec = null;
-let queued = false;
-async function copyDist() {
+let oneSec: Promise<void> | null = null;
+async function copyDist(): Promise<void> {
   // If a copy is already in progress, return early (debounce)
   if (oneSec) return;
+  if (!destDir) throw new Error('destDir not initialized');
   fs.cpSync(srcDir, destDir, { recursive: true });
   oneSec = timers.setTimeout(1000);
   await oneSec;
@@ -119,49 +169,8 @@ async function copyDist() {
 // monorepo instead of mms one. To work around that we are just watching for any
 // file changes in the dist folder and copying them as-is to whatever place
 // compass-web was installed in mms node_modules
-const distWatcher = fs.watch(srcDir, () => void copyDist());
+distWatcher = fs.watch(srcDir, () => void copyDist());
 
-const webpackWatchProcess = child_process.spawn('npm', ['run', 'watch'], {
+webpackWatchProcess = child_process.spawn('npm', ['run', 'watch'], {
   stdio: 'inherit',
 });
-
-const failProofRunner = () =>
-  new (class FailProofRunner extends Array {
-    append(...fns) {
-      this.push(...fns);
-      return this;
-    }
-
-    run() {
-      const errors = this.map((f) => {
-        try {
-          f();
-        } catch (e) {
-          return e;
-        }
-      }).filter((e) => e);
-
-      if (errors.length) {
-        fs.writeSync(
-          process.stdout.fd,
-          util.inspect(errors, { depth: 20 }) + '\n'
-        );
-      }
-
-      return errors.length;
-    }
-  })();
-
-function cleanup(signalName) {
-  const errorCount = failProofRunner()
-    .append(() => distWatcher.close())
-    .append(() => webpackWatchProcess.kill(signalName))
-    .append(() => devServer?.kill(signalName))
-    .append(() => fs.cpSync(tmpDir, destDir, { recursive: true }))
-    .append(() => fs.rmSync(tmpDir, { recursive: true, force: true }))
-    .run();
-  fs.writeSync(process.stdout.fd, 'Exit compass-web sync...\n');
-  process.exit(errorCount);
-}
-
-process.on('SIGINT', cleanup).on('SIGTERM', cleanup);
