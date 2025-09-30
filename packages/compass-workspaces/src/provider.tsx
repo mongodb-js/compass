@@ -9,12 +9,18 @@ import {
   collectionSubtabSelected,
   getActiveTab,
   openWorkspace as openWorkspaceAction,
+  restoreWorkspaces,
 } from './stores/workspaces';
 import { createServiceLocator } from '@mongodb-js/compass-app-registry';
 import type { CollectionSubtab, WorkspaceTab } from './types';
 import type { WorkspaceDestroyHandler } from './components/workspace-close-handler';
 import { useRegisterTabDestroyHandler } from './components/workspace-close-handler';
 import type { WorkspacesStateData } from './services/workspaces-storage';
+import {
+  ConnectionInfo,
+  useConnectionActions,
+  useConnectionsListRef,
+} from '@mongodb-js/compass-connections/provider';
 
 function useWorkspacesStore() {
   try {
@@ -185,9 +191,9 @@ export type WorkspacesService = {
    */
   onTabReplace?: (handler: WorkspaceDestroyHandler) => () => void;
 
-  saveWorkspaces(): Promise<boolean>;
-
   loadSavedWorkspaces(): Promise<OpenWorkspaceOptions[] | null>;
+
+  restoreSavedWorkspaces(res: OpenWorkspaceOptions[]): void;
 };
 
 // Separate type to avoid exposing internal prop in exported types
@@ -226,14 +232,11 @@ const noopWorkspacesService = {
     throwIfNotTestEnv();
     return null;
   },
-  saveWorkspaces: async () => {
-    throwIfNotTestEnv();
-    return Promise.reject();
-  },
   loadSavedWorkspaces: async () => {
     throwIfNotTestEnv();
     return Promise.reject();
   },
+  restoreSavedWorkspaces: () => throwIfNotTestEnv,
 };
 
 const WorkspacesServiceContext = React.createContext<WorkspacesServiceImpl>(
@@ -251,6 +254,8 @@ export const WorkspacesServiceProvider: React.FunctionComponent<{
   /* eslint-disable react-hooks/rules-of-hooks */
   value ??= (() => {
     const store = useWorkspacesStore();
+    const connectionActions = useConnectionActions();
+    const { getConnectionById } = useConnectionsListRef();
     const service = useRef<WorkspacesServiceImpl>({
       getActiveWorkspace: () => {
         return getActiveTab(store.getState());
@@ -332,9 +337,32 @@ export const WorkspacesServiceProvider: React.FunctionComponent<{
           )
         );
       },
-      async saveWorkspaces() {
-        const state = store.getState();
-        return await saveWorkspaceStateToUserData(state);
+      restoreSavedWorkspaces(res: OpenWorkspaceOptions[]) {
+        const workspacesToRestore: OpenWorkspaceOptions[] = [];
+        const connectionsToRestore: Map<string, ConnectionInfo> = new Map();
+        res.forEach((workspace) => {
+          // If the workspace is tied to a connection, check if the connection exists
+          // and add it to the list of connections to restore if so.
+          if ('connectionId' in workspace) {
+            const connectionInfo = getConnectionById(
+              workspace.connectionId
+            )?.info;
+
+            if (!connectionInfo) {
+              return;
+            }
+
+            connectionsToRestore.set(workspace.connectionId, connectionInfo);
+          }
+
+          workspacesToRestore.push(workspace);
+        });
+
+        connectionsToRestore.forEach((connectionInfo) => {
+          void connectionActions.connect(connectionInfo);
+        });
+
+        store.dispatch(restoreWorkspaces(workspacesToRestore));
       },
       async loadSavedWorkspaces() {
         const state = store.getState();
@@ -410,112 +438,17 @@ function convertSavedStateToOpenWorkspaceOptions(
   });
 }
 
-async function saveWorkspaceStateToUserData(state: WorkspacesState) {
-  const userData = state.userData;
-  if (!userData) {
-    throw new Error('UserData is not initialized in the store');
-  }
-  try {
-    // Transform the state to the format we want to save
-    const stateToSave: WorkspacesStateData = {
-      tabs: state.tabs.map((tab) => {
-        const baseTab = {
-          id: tab.id,
-          type: tab.type,
-        };
-
-        // Add optional fields conditionally
-        const result: WorkspacesStateData['tabs'][0] = { ...baseTab };
-
-        if ('connectionId' in tab && tab.connectionId) {
-          result.connectionId = tab.connectionId;
-        }
-        if ('namespace' in tab && tab.namespace) {
-          result.namespace = tab.namespace;
-        }
-        if ('initialQuery' in tab && tab.initialQuery) {
-          // Store as record, accepting unknown format
-          result.initialQuery = tab.initialQuery as Record<string, unknown>;
-        }
-        if ('initialAggregation' in tab && tab.initialAggregation) {
-          result.initialAggregation = tab.initialAggregation as Record<
-            string,
-            unknown
-          >;
-        }
-        if ('initialPipeline' in tab && tab.initialPipeline) {
-          result.initialPipeline = tab.initialPipeline as Array<
-            Record<string, unknown>
-          >;
-        }
-        if ('initialPipelineText' in tab && tab.initialPipelineText) {
-          result.initialPipelineText = tab.initialPipelineText;
-        }
-        if ('editViewName' in tab && tab.editViewName) {
-          result.editViewName = tab.editViewName;
-        }
-        if ('initialEvaluate' in tab && tab.initialEvaluate) {
-          result.initialEvaluate = tab.initialEvaluate;
-        }
-        if ('initialInput' in tab && tab.initialInput) {
-          result.initialInput = tab.initialInput;
-        }
-        if ('subTab' in tab && tab.subTab) {
-          // Validate that subTab is one of the allowed values
-          const validSubTabs = [
-            'Documents',
-            'Aggregations',
-            'Schema',
-            'Indexes',
-            'Validation',
-            'GlobalWrites',
-          ];
-          if (validSubTabs.includes(tab.subTab as string)) {
-            result.subTab = tab.subTab as
-              | 'Documents'
-              | 'Aggregations'
-              | 'Schema'
-              | 'Indexes'
-              | 'Validation'
-              | 'GlobalWrites';
-          }
-        }
-
-        return result;
-      }),
-      activeTabId: state.activeTabId,
-      timestamp: Date.now(),
-    };
-
-    // Save to UserData with a fixed ID
-    return await userData.write('current-workspace', stateToSave);
-
-    // Optional: Log for debugging in development
-    // if (process.env.NODE_ENV === 'development') {
-    // eslint-disable-next-line no-console
-    // console.log('Workspace state saved to UserData:', {
-    //   actionType: action.type,
-    //   tabCount: state.tabs.length,
-    //   activeTabId: state.activeTabId,
-    //   timestamp: new Date().toISOString(),
-    // });
-    // }
-  } catch (error) {
-    // Don't throw errors from the middleware to avoid breaking the app
-    // eslint-disable-next-line no-console
-    console.error('Failed to save workspace state to UserData:', error);
-
-    throw error;
-  }
-}
-
 export function useLoadWorkspacesRef() {
   const service = useContext(WorkspacesServiceContext);
 
-  // TODO: do we need to bind this to service?
   const loadWorkspaces = useRef(service.loadSavedWorkspaces());
 
   return loadWorkspaces;
+}
+
+export function useRestoreSavedWorkspaces() {
+  const service = useContext(WorkspacesServiceContext);
+  return useRef(service.restoreSavedWorkspaces.bind(service)).current;
 }
 
 function useWorkspacesService() {

@@ -40,12 +40,12 @@ import {
 } from '@mongodb-js/compass-app-stores/provider';
 import type { PreferencesAccess } from 'compass-preferences-model/provider';
 import { preferencesLocator } from 'compass-preferences-model/provider';
-import { AtlasService } from '../../atlas-service/dist/atlas-service';
+import type { AtlasService } from '../../atlas-service/dist/atlas-service';
 import { WorkspacesStateSchema } from './services/workspaces-storage';
 import {
   AtlasUserData,
   FileUserData,
-  IUserData,
+  type IUserData,
 } from '../../compass-user-data/dist/user-data';
 import { EJSON } from 'bson';
 
@@ -324,7 +324,6 @@ export const WorkspacesWebPlugin = registerCompassPlugin(
   }
 );
 
-export { loadWorkspaceStateFromUserData } from './stores/workspaces-middleware';
 export { WorkspacesStateSchema } from './services/workspaces-storage';
 export default WorkspacesPlugin;
 export { WorkspacesProvider } from './components/workspaces-provider';

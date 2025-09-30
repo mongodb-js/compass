@@ -30,7 +30,6 @@ import {
   restoreWorkspaces,
 } from '../stores/workspaces';
 import { useWorkspacePlugins } from './workspaces-provider';
-import type { ConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import {
   useConnectionActions,
   useConnectionsListRef,
@@ -40,7 +39,7 @@ import { useLogger } from '@mongodb-js/compass-logging/provider';
 import { connect } from '../stores/context';
 import { WorkspaceTabContextProvider } from './workspace-tab-context-provider';
 import type { WorkspaceTab } from '../types';
-import { useLoadWorkspacesRef } from '../provider';
+import { useLoadWorkspacesRef, useRestoreSavedWorkspaces } from '../provider';
 
 const emptyWorkspaceStyles = css({
   margin: '0 auto',
@@ -128,6 +127,7 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
   const { getConnectionById } = useConnectionsListRef();
 
   const loadWorkspacesRef = useLoadWorkspacesRef();
+  const restoreSavedWorkspaces = useRestoreSavedWorkspaces();
 
   useEffect(() => {
     loadWorkspacesRef.current.then(
@@ -141,35 +141,7 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
           }).then(
             (confirm) => {
               if (confirm) {
-                const workspacesToRestore: OpenWorkspaceOptions[] = [];
-                const connectionsToRestore: Map<string, ConnectionInfo> =
-                  new Map();
-                res.forEach((workspace) => {
-                  // If the workspace is tied to a connection, check if the connection exists
-                  // and add it to the list of connections to restore if so.
-                  if ('connectionId' in workspace) {
-                    const connectionInfo = getConnectionById(
-                      workspace.connectionId
-                    )?.info;
-
-                    if (!connectionInfo) {
-                      return;
-                    }
-
-                    connectionsToRestore.set(
-                      workspace.connectionId,
-                      connectionInfo
-                    );
-                  }
-
-                  workspacesToRestore.push(workspace);
-                });
-
-                connectionsToRestore.forEach((connectionInfo) => {
-                  void connectionActions.connect(connectionInfo);
-                });
-
-                onRestoreTabs(workspacesToRestore);
+                restoreSavedWorkspaces(res);
               }
             },
             (err) => {
@@ -192,6 +164,7 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
     onRestoreTabs,
     connectionActions,
     getConnectionById,
+    restoreSavedWorkspaces,
     log,
     mongoLogId,
   ]);

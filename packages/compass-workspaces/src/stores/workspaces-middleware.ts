@@ -1,25 +1,10 @@
 import type { Middleware, AnyAction } from 'redux';
-import type { OpenWorkspaceOptions, WorkspacesState } from './workspaces';
+import type { WorkspacesState } from './workspaces';
 import type { IUserData } from '@mongodb-js/compass-user-data';
 import type {
   WorkspacesStateSchema,
   WorkspacesStateData,
 } from '../services/workspaces-storage';
-
-/**
- * Loads the workspace state from persistent storage
- */
-export async function loadWorkspaceStateFromUserData(
-  userData: IUserData<typeof WorkspacesStateSchema>
-): Promise<OpenWorkspaceOptions[] | null> {
-  const savedState = await userData.readOne('current-workspace', {
-    ignoreErrors: true,
-  });
-  if (!savedState) {
-    return null;
-  }
-  return convertSavedStateToOpenWorkspaceOptions(savedState);
-}
 
 /**
  * Middleware that runs a callback whenever the workspaces state changes.
@@ -140,52 +125,4 @@ async function saveWorkspaceStateToUserData(
     // eslint-disable-next-line no-console
     console.error('Failed to save workspace state to UserData:', error);
   }
-}
-
-/**
- * Converts saved workspace state data back to OpenWorkspaceOptions format
- * for initializing the store
- */
-function convertSavedStateToOpenWorkspaceOptions(
-  savedState: WorkspacesStateData
-): OpenWorkspaceOptions[] {
-  return savedState.tabs.map((tab) => {
-    const baseTab: Record<string, unknown> = { type: tab.type };
-
-    // Add connection-related fields
-    if (tab.connectionId) {
-      baseTab.connectionId = tab.connectionId;
-    }
-    if (tab.namespace) {
-      baseTab.namespace = tab.namespace;
-    }
-
-    // Add optional fields based on workspace type
-    if (tab.initialQuery) {
-      baseTab.initialQuery = tab.initialQuery;
-    }
-    if (tab.initialAggregation) {
-      baseTab.initialAggregation = tab.initialAggregation;
-    }
-    if (tab.initialPipeline) {
-      baseTab.initialPipeline = tab.initialPipeline;
-    }
-    if (tab.initialPipelineText) {
-      baseTab.initialPipelineText = tab.initialPipelineText;
-    }
-    if (tab.editViewName) {
-      baseTab.editViewName = tab.editViewName;
-    }
-    if (tab.initialEvaluate) {
-      baseTab.initialEvaluate = tab.initialEvaluate;
-    }
-    if (tab.initialInput) {
-      baseTab.initialInput = tab.initialInput;
-    }
-    if (tab.subTab) {
-      baseTab.initialSubtab = tab.subTab;
-    }
-
-    return baseTab as OpenWorkspaceOptions;
-  });
 }
