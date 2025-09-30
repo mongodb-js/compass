@@ -141,6 +141,7 @@ const AtlasIndexesBanner = ({
       {atlasMetadata ? (
         <Link
           target="_blank"
+          rel="noopener"
           href={getAtlasSearchIndexesLink({
             clusterName: atlasMetadata.clusterName,
             namespace,
