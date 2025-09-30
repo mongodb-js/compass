@@ -68,16 +68,17 @@ if (
 
 // Check if we need prefixing (more than one target enabled)
 const enabledTargets = Object.values(targets).filter((t) => t.enabled);
-const needsPrefixing = enabledTargets.length > 1;
+const usePrefixing = enabledTargets.length > 1;
+const startPrefix = usePrefixing ? `start    | ` : ``;
 
 const subProcesses: child_process.ChildProcess[] = [];
 async function cleanup(signal: NodeJS.Signals) {
   for (const p of subProcesses) p.kill(signal);
-  console.log('\nstart    | requested termination.');
+  console.log(`\n${startPrefix}requested termination.`);
   await timers.setTimeout(10_000);
   const stillRunning = subProcesses.filter((p) => p.exitCode === null);
   for (const p of stillRunning) p.kill('SIGTERM');
-  console.log('\nstart    | done.');
+  console.log(`\n${startPrefix}done.`);
   process.exit(0);
 }
 
@@ -114,8 +115,7 @@ function spawnTarget(
   command: string,
   workspace: string,
   args: string[],
-  targetName: string,
-  usePrefixing: boolean
+  targetName: string
 ) {
   // Only set color-forcing env vars if user hasn't set color preferences
   const colorEnv: Record<string, string> = {};
@@ -137,13 +137,13 @@ function spawnTarget(
       ...(args.length ? ['--', ...args] : []),
     ],
     {
-      stdio: ['pipe', 'pipe', 'pipe'], // stdin, stdout, stderr all piped
+      stdio: ['inherit', 'pipe', 'pipe'],
       env: { ...process.env, ...colorEnv },
     },
   ];
 
   const paddedName = targetName.padEnd(8);
-  console.log(`start    | ${spawnArgs[0]} ${spawnArgs[1].join(' ')}`);
+  console.log(`${startPrefix}${spawnArgs[0]} ${spawnArgs[1].join(' ')}`);
   const subProcess = child_process.spawn(...spawnArgs);
 
   // Set up stdout pipeline with error handling
@@ -172,10 +172,12 @@ function spawnTarget(
         createPrefixTransform(paddedName),
         process.stderr,
         { end: false }
-      ).catch((err) => console.error(`start    | stderr pipeline error:`, err));
+      ).catch((err) =>
+        console.error(`${startPrefix}stderr pipeline error:`, err)
+      );
     } else {
       pipeline(subProcess.stderr, process.stderr, { end: false }).catch((err) =>
-        console.error(`start    | stderr pipeline error:`, err)
+        console.error(`${startPrefix}stderr pipeline error:`, err)
       );
     }
   }
@@ -185,25 +187,13 @@ function spawnTarget(
 
 if (targets.desktop.enabled) {
   subProcesses.push(
-    spawnTarget(
-      'start',
-      'mongodb-compass',
-      targets.desktop.args,
-      'desktop',
-      needsPrefixing
-    )
+    spawnTarget('start', 'mongodb-compass', targets.desktop.args, 'desktop')
   );
 }
 
 if (targets.sync.enabled) {
   subProcesses.push(
-    spawnTarget(
-      'sync',
-      '@mongodb-js/compass-web',
-      targets.sync.args,
-      'sync',
-      needsPrefixing
-    )
+    spawnTarget('sync', '@mongodb-js/compass-web', targets.sync.args, 'sync')
   );
 }
 
@@ -213,8 +203,7 @@ if (targets.sandbox.enabled) {
       'start',
       '@mongodb-js/compass-web',
       targets.sandbox.args,
-      'sandbox',
-      needsPrefixing
+      'sandbox'
     )
   );
 }
@@ -224,6 +213,6 @@ for (const subProcess of subProcesses) {
   if (subProcess.stdin)
     pipeline(process.stdin, subProcess.stdin, { end: false }).catch((err) => {
       if (err.code !== 'EPIPE' && err.code !== 'ERR_STREAM_PREMATURE_CLOSE')
-        console.error(`start    | stdin pipeline error:`, err);
+        console.error(`${startPrefix}stdin pipeline error:`, err);
     });
 }
