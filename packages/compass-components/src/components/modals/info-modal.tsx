@@ -31,7 +31,7 @@ function InfoModal({
   return (
     <Modal
       setOpen={onClose}
-      contentClassName={cx(!showCloseButton && paddingBottomStyles)}
+      className={cx(!showCloseButton && paddingBottomStyles)}
       {...modalProps}
     >
       <ModalHeader title={title} subtitle={subtitle} />
