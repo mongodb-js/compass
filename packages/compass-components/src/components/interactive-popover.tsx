@@ -200,6 +200,7 @@ function InteractivePopover<TriggerElement extends HTMLElement>({
 
             {!hideCloseButton && (
               <IconButton
+                as="button"
                 className={cx(closeButtonStyles, closeButtonClassName)}
                 data-testid="interactive-popover-close-button"
                 onClick={(evt) => {
