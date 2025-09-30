@@ -126,6 +126,7 @@ const CollectionDrawerContent: React.FunctionComponent<
       <DMDrawerSection label="Collection properties">
         <DMFormFieldContainer>
           <TextInput
+            // @ts-expect-error see https://jira.mongodb.org/browse/LG-5587
             ref={nameInputRef}
             label="Name"
             data-testid="data-model-collection-drawer-name-input"
