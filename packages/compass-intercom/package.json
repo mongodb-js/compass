@@ -11,7 +11,7 @@
     "email": "compass@mongodb.com"
   },
   "homepage": "https://github.com/mongodb-js/compass",
-  "version": "0.41.1",
+  "version": "0.42.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/compass.git"
@@ -63,7 +63,7 @@
     "typescript": "^5.9.2"
   },
   "dependencies": {
-    "compass-preferences-model": "^2.57.1",
-    "@mongodb-js/compass-logging": "^1.7.19"
+    "compass-preferences-model": "^2.58.0",
+    "@mongodb-js/compass-logging": "^1.7.20"
   }
 }
