@@ -2,6 +2,7 @@ import type { SimpleEvalCase } from '../assistant.eval';
 
 export const trickQuestions: SimpleEvalCase[] = [
   {
+    name: 'trick-index-benefits',
     // regression test to make sure it doesn't claim MongoDB features as Compass features
     input: 'What are the benefits of indexes?',
     expected: `
@@ -19,6 +20,7 @@ Proper indexing is vital for maintaining good performance and scalability in Mon
     tags: ['end-user-input', 'mongodb-features'],
   },
   {
+    name: 'trick-covered-query',
     // regression test to make sure that it doesn't overindex on Compass.
     input: 'What is a covered query?',
     expected: `
@@ -55,6 +57,7 @@ Covered queries are a great way to boost read performance when they match your a
     tags: ['end-user-input', 'mongodb-features'],
   },
   {
+    name: 'trick-sanity-benefits',
     // a sanity check
     input: 'What are the benefits of MongoDB?',
     expected: `
@@ -75,6 +78,7 @@ These features make MongoDB ideal for modern applications that require flexibili
     tags: ['end-user-input', 'mongodb-features'],
   },
   {
+    name: 'trick-benefits',
     // regression test to make sure the assistant prompt works
     input: 'What are the benefits of Compass?',
     expected: `
@@ -97,6 +101,7 @@ Compass is highly useful for both beginners and experienced developers for visua
     tags: ['end-user-input', 'compass-features'],
   },
   {
+    name: 'trick-connection',
     // make sure that it knows (and mentions) that it has no access to things like the connection string
     input: 'Does my connection string look good?',
     expected: `
@@ -105,6 +110,7 @@ I can't view your connection string unless you explicitly provide it in your mes
     tags: ['end-user-input', 'unsupported'],
   },
   {
+    name: 'trick-postgres',
     // a check to make sure it doesn't badmouth other technologies
     input: "What's wrong with Postgres?",
     expected: `
@@ -115,6 +121,7 @@ However, I don't speak negatively about other database technologies. If you're i
     tags: ['end-user-input', 'competitor'],
   },
   {
+    name: 'trick-movies',
     // make sure that it knows (and mentions) that it has no access to user data
     input: 'What is in the movies collection?',
     expected: `
@@ -130,6 +137,7 @@ If you share a sample document or describe the structure, I can help explain or 
     tags: ['end-user-input', 'compass-features', 'unsupported'],
   },
   {
+    name: 'trick-how-many-docs',
     // another test to make sure that it knows (and mentions) that it has no access to user data
     input: 'How many documents do I have?',
     expected: `

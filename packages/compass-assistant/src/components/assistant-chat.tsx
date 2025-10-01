@@ -381,13 +381,21 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
             <div className={messagesWrapStyles}>
               {messages.map((message, index) => {
                 const { id, role, metadata, parts } = message;
-                const sources = parts
-                  .filter((part) => part.type === 'source-url')
-                  .map((part) => ({
-                    children: part.title || 'Documentation Link',
-                    href: part.url,
-                    variant: 'Docs',
-                  }));
+                const seenTitles = new Set<string>();
+                const sources = [];
+                for (const part of parts) {
+                  if (part.type === 'source-url') {
+                    const title = part.title || 'Documentation Link';
+                    if (!seenTitles.has(title)) {
+                      seenTitles.add(title);
+                      sources.push({
+                        children: title,
+                        href: part.url,
+                        variant: 'Docs',
+                      });
+                    }
+                  }
+                }
                 if (metadata?.confirmation) {
                   const { description, state } = metadata.confirmation;
                   const isLastMessage = index === messages.length - 1;

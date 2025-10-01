@@ -48,6 +48,10 @@ export type AssistantMessage = UIMessage & {
       description: string;
       state: 'confirmed' | 'rejected' | 'pending';
     };
+    /** Overrides the default sent instructions for the assistant for this message. */
+    instructions?: string;
+    /** Excludes history if this message is the last message being sent */
+    sendWithoutHistory?: boolean;
   };
 };
 

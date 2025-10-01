@@ -125,7 +125,7 @@ export type InternalUserPreferences = {
   // TODO: Remove this as part of COMPASS-8970.
   enableConnectInNewWindow: boolean;
   showEndOfLifeConnectionModal: boolean;
-  // Window state persistence
+  zoomLevel?: number;
   windowBounds?: {
     x?: number;
     y?: number;
@@ -467,6 +467,18 @@ export const storedUserPreferencesProps: Required<{
       ),
     type: 'boolean',
   },
+  /**
+   * Zoom level for restoring browser zoom state.
+   */
+  zoomLevel: {
+    ui: false,
+    cli: false,
+    global: false,
+    description: null,
+    validator: z.number().optional(),
+    type: 'number',
+  },
+
   /**
    * Window bounds for restoring window size and position.
    */
