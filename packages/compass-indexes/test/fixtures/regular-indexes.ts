@@ -254,7 +254,7 @@ export const inProgressIndexes: InProgressIndex[] = [
     name: 'AAAA',
     //version: 2,
     fields: [],
-    status: 'inprogress',
+    status: 'creating',
     buildProgress: 0,
   },
   {
@@ -266,7 +266,7 @@ export const inProgressIndexes: InProgressIndex[] = [
         value: 1,
       },
     ],
-    status: 'inprogress',
+    status: 'creating',
     buildProgress: 0,
   },
 ];

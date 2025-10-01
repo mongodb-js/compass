@@ -19,13 +19,17 @@ describe('prompts', function () {
         operationType: 'aggregation',
       });
 
-      expect(queryPrompt.prompt).to.include('MongoDB Query');
-      expect(queryPrompt.prompt).to.not.include('MongoDB Aggregation Pipeline');
-
-      expect(aggregationPrompt.prompt).to.include(
+      expect(queryPrompt.metadata?.instructions).to.include('MongoDB Query');
+      expect(queryPrompt.metadata?.instructions).to.not.include(
         'MongoDB Aggregation Pipeline'
       );
-      expect(aggregationPrompt.prompt).to.not.include('MongoDB Query');
+
+      expect(aggregationPrompt.metadata?.instructions).to.include(
+        'MongoDB Aggregation Pipeline'
+      );
+      expect(aggregationPrompt.metadata?.instructions).to.not.include(
+        'MongoDB Query'
+      );
     });
   });
 });
