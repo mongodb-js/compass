@@ -78,11 +78,21 @@ export class AtlasService {
     // https://github.com/10gen/mms/blob/9f858bb987aac6aa80acfb86492dd74c89cbb862/client/packages/project/common/ajaxPrefilter.ts#L34-L49
     return this.cloudEndpoint(path);
   }
-  // TODO (COMPASS-9663): these should come from the config property per environment
-  userDataEndpoint(path?: string): string {
-    return `https://cluster-connection.cloud-dev.mongodb.com/userData${normalizePath(
-      path
-    )}`;
+  userDataEndpoint(
+    orgId: string,
+    groupId: string,
+    type: 'favoriteQueries' | 'recentQueries' | 'favoriteAggregations',
+    id?: string
+  ): string {
+    const encodedOrgId = encodeURIComponent(orgId);
+    const encodedGroupId = encodeURIComponent(groupId);
+    const encodedType = encodeURIComponent(type);
+    const encodedId = id ? encodeURIComponent(id) : '';
+    const baseUrl = this.config.userDataBaseUrl;
+    const path = encodedId
+      ? `/${encodedOrgId}/${encodedGroupId}/${encodedType}/${encodedId}`
+      : `/${encodedOrgId}/${encodedGroupId}/${encodedType}`;
+    return `${baseUrl}${path}`;
   }
   driverProxyEndpoint(path?: string): string {
     return `${this.config.ccsBaseUrl}${normalizePath(path)}`;

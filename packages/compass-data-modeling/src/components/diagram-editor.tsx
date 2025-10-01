@@ -206,14 +206,11 @@ const DiagramContent: React.FunctionComponent<{
           selectedItems?.type === 'field' && selectedItems.namespace === coll.ns
             ? selectedItems.fieldPath
             : undefined,
-        onClickAddNewFieldToCollection: () =>
-          onAddNewFieldToCollection(coll.ns),
         selected,
         isInRelationshipDrawingMode,
       });
     });
   }, [
-    onAddNewFieldToCollection,
     model?.collections,
     model?.relationships,
     selectedItems,
@@ -320,12 +317,21 @@ const DiagramContent: React.FunctionComponent<{
     [handleNodesConnect]
   );
 
+  const onClickAddFieldToCollection = useCallback(
+    (event: React.MouseEvent<Element>, ns: string) => {
+      event.stopPropagation();
+      onAddNewFieldToCollection(ns);
+    },
+    [onAddNewFieldToCollection]
+  );
+
   const diagramProps = useMemo(
     () => ({
       isDarkMode,
       title: diagramLabel,
       edges,
       nodes,
+      onAddFieldToNodeClick: onClickAddFieldToCollection,
       onNodeClick,
       onPaneClick,
       onEdgeClick,
@@ -338,6 +344,7 @@ const DiagramContent: React.FunctionComponent<{
       diagramLabel,
       edges,
       nodes,
+      onClickAddFieldToCollection,
       onNodeClick,
       onPaneClick,
       onEdgeClick,
