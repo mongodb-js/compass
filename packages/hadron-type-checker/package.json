@@ -27,6 +27,7 @@
   "compass:exports": {
     ".": "./src/index.ts"
   },
+  "types": "./dist/index.d.ts",
   "scripts": {
     "bootstrap": "npm run compile",
     "prepublishOnly": "npm run compile && compass-scripts check-exports-exist",
