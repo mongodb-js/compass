@@ -14,7 +14,11 @@ import {
 } from '@mongodb-js/compass-components';
 
 import { type MockDataGeneratorState, MockDataGeneratorStep } from './types';
-import { StepButtonLabelMap } from './constants';
+import {
+  DEFAULT_DOCUMENT_COUNT,
+  MAX_DOCUMENT_COUNT,
+  StepButtonLabelMap,
+} from './constants';
 import type { CollectionState } from '../../modules/collection-tab';
 import {
   mockDataGeneratorModalClosed,
@@ -26,6 +30,7 @@ import {
 import RawSchemaConfirmationScreen from './raw-schema-confirmation-screen';
 import FakerSchemaEditorScreen from './faker-schema-editor-screen';
 import ScriptScreen from './script-screen';
+import DocumentCountScreen from './document-count-screen';
 
 const footerStyles = css`
   flex-direction: row;
@@ -66,6 +71,9 @@ const MockDataGeneratorModal = ({
 }: Props) => {
   const [isSchemaConfirmed, setIsSchemaConfirmed] =
     React.useState<boolean>(false);
+  const [documentCount, setDocumentCount] = React.useState<number>(
+    DEFAULT_DOCUMENT_COUNT
+  );
 
   const modalBodyContent = useMemo(() => {
     switch (currentStep) {
@@ -80,16 +88,32 @@ const MockDataGeneratorModal = ({
           />
         );
       case MockDataGeneratorStep.DOCUMENT_COUNT:
-        return <></>; // TODO: CLOUDP-333856
+        return (
+          <DocumentCountScreen
+            documentCount={documentCount}
+            onDocumentCountChange={setDocumentCount}
+          />
+        );
       case MockDataGeneratorStep.PREVIEW_DATA:
         return <></>; // TODO: CLOUDP-333857
       case MockDataGeneratorStep.GENERATE_DATA:
         return <ScriptScreen />;
     }
-  }, [currentStep, fakerSchemaGenerationState, isSchemaConfirmed]);
+  }, [
+    currentStep,
+    fakerSchemaGenerationState,
+    isSchemaConfirmed,
+    documentCount,
+    setDocumentCount,
+  ]);
 
   const isNextButtonDisabled =
-    currentStep === MockDataGeneratorStep.SCHEMA_EDITOR && !isSchemaConfirmed;
+    (currentStep === MockDataGeneratorStep.SCHEMA_EDITOR &&
+      !isSchemaConfirmed) ||
+    (currentStep === MockDataGeneratorStep.DOCUMENT_COUNT &&
+      documentCount < 1) ||
+    (currentStep === MockDataGeneratorStep.DOCUMENT_COUNT &&
+      documentCount > MAX_DOCUMENT_COUNT);
 
   const handleNextClick = () => {
     if (currentStep === MockDataGeneratorStep.GENERATE_DATA) {
