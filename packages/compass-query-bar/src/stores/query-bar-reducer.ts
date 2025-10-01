@@ -103,8 +103,9 @@ export const changeField = (
   return (dispatch, getState, { preferences }) => {
     const parsedValue = validateField(name, stringValue, {
       maxTimeMS: preferences.getPreferences().maxTimeMS ?? undefined,
-      showMaxTimeMSWarning:
-        Boolean(preferences.getPreferences().showMaxTimeMSWarning),
+      showMaxTimeMSWarning: Boolean(
+        preferences.getPreferences().showMaxTimeMSWarning
+      ),
     });
     const isValid = parsedValue !== false;
     dispatch({
