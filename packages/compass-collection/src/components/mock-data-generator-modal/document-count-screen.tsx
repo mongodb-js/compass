@@ -101,7 +101,7 @@ const DocumentCountScreen = ({
     }
   };
 
-  return schemaAnalysisState.status === 'complete' ? (
+  return (
     <div>
       <Body className={titleStyles}>
         Specify Number of Documents to Generate
@@ -130,9 +130,6 @@ const DocumentCountScreen = ({
         </div>
       </div>
     </div>
-  ) : (
-    // Not reachable since schema analysis must be finished before the modal can be opened
-    <div>We are analyzing your collection.</div>
   );
 };
 
