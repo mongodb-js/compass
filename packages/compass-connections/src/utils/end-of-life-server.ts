@@ -5,7 +5,7 @@ import { createLogger } from '@mongodb-js/compass-logging';
 
 const { mongoLogId, log, debug } = createLogger('END-OF-LIFE-SERVER');
 
-const FALLBACK_END_OF_LIFE_SERVER_VERSION = '4.4';
+const FALLBACK_END_OF_LIFE_SERVER_VERSION = '6.x';
 const {
   HADRON_AUTO_UPDATE_ENDPOINT = process.env
     .HADRON_AUTO_UPDATE_ENDPOINT_OVERRIDE,

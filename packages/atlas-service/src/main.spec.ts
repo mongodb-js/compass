@@ -57,6 +57,7 @@ describe('CompassAuthServiceMain', function () {
     },
     authPortalUrl: 'http://example.com',
     assistantApiBaseUrl: 'http://example.com/assistant',
+    userDataBaseUrl: 'http://example.com/ui/userData',
   };
 
   const fetch = CompassAuthService['fetch'];
