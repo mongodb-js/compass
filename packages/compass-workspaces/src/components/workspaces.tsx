@@ -35,6 +35,7 @@ import { connect } from '../stores/context';
 import { WorkspaceTabContextProvider } from './workspace-tab-context-provider';
 import type { WorkspaceTab } from '../types';
 import { useLoadWorkspacesRef, useRestoreSavedWorkspaces } from '../provider';
+import { rest } from 'lodash';
 
 const emptyWorkspaceStyles = css({
   margin: '0 auto',
@@ -129,6 +130,10 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
             (confirm) => {
               if (confirm) {
                 restoreSavedWorkspaces(res);
+              } else {
+                // User declined to restore previous session, save the current
+                // state to override the previous session
+                restoreSavedWorkspaces([]);
               }
             },
             (err) => {
