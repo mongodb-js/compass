@@ -45,9 +45,8 @@ export const WelcomeModal: React.FunctionComponent<WelcomeModalProps> = ({
       data-testid="welcome-modal"
       open={isOpen}
       onClose={close}
-      onButtonClick={close}
+      buttonProps={{ onClick: close, children: 'Start' }}
       title="Welcome to Compass"
-      buttonText="Start"
       showBlob
       blobPosition="top right"
       disclaimer={
