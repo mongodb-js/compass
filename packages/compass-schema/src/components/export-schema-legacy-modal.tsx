@@ -500,7 +500,7 @@ const ExportSchemaLegacyModal: React.FunctionComponent<{
     setShowLegacyExportTooltip,
   ]);
   return (
-    <Modal open={isOpen} setOpen={onClose} contentClassName={containerStyles}>
+    <Modal open={isOpen} setOpen={onClose} className={containerStyles}>
       <ModalHeader
         title={
           <>
