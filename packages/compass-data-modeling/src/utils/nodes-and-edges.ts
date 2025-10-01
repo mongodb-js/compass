@@ -91,9 +91,7 @@ export const getFieldsFromSchema = ({
     visitor: ({ fieldPath, fieldTypes }) => {
       fields.push({
         ...getBaseNodeField(fieldPath),
-        id: fieldPath,
         type: fieldTypes.length === 1 ? fieldTypes[0] : fieldTypes,
-        depth: fieldPath.length - 1,
         glyphs:
           fieldTypes.length === 1 && fieldTypes[0] === 'objectId'
             ? KEY_GLYPH
