@@ -1,17 +1,18 @@
 import { expect } from 'chai';
-import bson from 'bson';
+import {
+  ObjectId,
+  MinKey,
+  MaxKey,
+  Binary,
+  BSONRegExp,
+  Code,
+  Timestamp,
+  Long,
+  Double,
+  Int32,
+  Decimal128,
+} from 'bson';
 import TypeChecker from '../src';
-const ObjectId = bson.ObjectId;
-const MinKey = bson.MinKey;
-const MaxKey = bson.MaxKey;
-const Binary = bson.Binary;
-const BSONRegExp = bson.BSONRegExp;
-const Code = bson.Code;
-const Timestamp = bson.Timestamp;
-const Long = bson.Long;
-const Double = bson.Double;
-const Int32 = bson.Int32;
-const Decimal128 = bson.Decimal128;
 
 describe('TypeChecker', function () {
   describe('#cast', function () {
@@ -42,7 +43,7 @@ describe('TypeChecker', function () {
 
           it('returns a new ObjectId()', function () {
             expect(TypeChecker.cast(value, 'ObjectId')).to.be.an.instanceof(
-              bson.ObjectId
+              ObjectId
             );
           });
         });
@@ -338,7 +339,7 @@ describe('TypeChecker', function () {
       context('when casting to an object id', function () {
         it('returns a new ObjectId()', function () {
           expect(TypeChecker.cast(2.45, 'ObjectId')).to.be.an.instanceof(
-            bson.ObjectId
+            ObjectId
           );
         });
       });

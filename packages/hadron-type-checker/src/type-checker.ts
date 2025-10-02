@@ -337,11 +337,11 @@ const INT64_CHECK = new Int64Check();
 const numberToBsonType = (number: number): TypeCastTypes => {
   const string = toString(number);
   if (INT32_CHECK.test(string)) {
-    return INT_32 as TypeCastTypes;
+    return INT_32;
   } else if (INT64_CHECK.test(string)) {
-    return INT_64 as TypeCastTypes;
+    return INT_64;
   }
-  return DOUBLE as TypeCastTypes;
+  return DOUBLE;
 };
 
 /**
@@ -372,7 +372,7 @@ class TypeChecker {
     if (hasIn(object, BSON_TYPE)) {
       const bsonObj = object as { _bsontype: string };
       if (bsonObj._bsontype === LONG) {
-        return INT_64 as TypeCastTypes;
+        return INT_64;
       }
       if (bsonObj._bsontype === OBJECT_ID) {
         return 'ObjectId';
@@ -386,10 +386,10 @@ class TypeChecker {
       return numberToBsonType(object);
     }
     if (isPlainObject(object)) {
-      return OBJECT as TypeCastTypes;
+      return OBJECT;
     }
     if (isArray(object)) {
-      return ARRAY as TypeCastTypes;
+      return ARRAY;
     }
     return Object.prototype.toString
       .call(object)
