@@ -35,6 +35,25 @@ Object.assign(tabbable, {
     origTabbable.isTabbable(node, { ...options, displayCheck: 'none' }),
 });
 
+// Workaround for missing HTMLDialogElement in jsdom
+// See https://github.com/jsdom/jsdom/issues/3294
+
+Object.assign(HTMLDialogElement.prototype, {
+  show() {
+    this.open = true;
+    this.style.display = '';
+  },
+  showModal() {
+    this.open = true;
+    this.style.display = '';
+  },
+  close(returnValue) {
+    this.open = false;
+    this.returnValue = returnValue;
+    this.style.display = 'none';
+  },
+});
+
 // leafygreen (through `clipboard` library) uses deprecated API check that is
 // not working in jsdom if copy / paste APIs are supported
 if (!window.document.queryCommandSupported) {
