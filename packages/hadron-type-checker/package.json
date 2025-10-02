@@ -1,7 +1,10 @@
 {
   "name": "hadron-type-checker",
   "description": "Hadron Type Checker",
-  "author": "Durran Jordan <durran@gmail.com>",
+  "author": {
+    "name": "MongoDB Inc",
+    "email": "compass@mongodb.com"
+  },
   "bugs": {
     "url": "https://jira.mongodb.org/projects/COMPASS/issues",
     "email": "compass@mongodb.com"
@@ -12,19 +15,35 @@
     "type": "git",
     "url": "https://github.com/mongodb-js/compass.git"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "license": "SSPL",
   "keywords": [
     "mongodb-js"
   ],
-  "main": "index.js",
-  "compass:main": "index.js",
+  "main": "dist/index.js",
+  "compass:main": "src/index.ts",
+  "compass:exports": {
+    ".": "./src/index.ts"
+  },
+  "types": "./dist/index.d.ts",
   "scripts": {
-    "test-check-ci": "npm test",
-    "test": "mocha",
-    "check": "npm run lint && npm run depcheck",
-    "lint": "eslint-compass \"./{src,lib,test,bin}/**/*.{js,jsx,ts,tsx}\" \"./*.js\" --no-error-on-unmatched-pattern",
+    "bootstrap": "npm run compile",
+    "prepublishOnly": "npm run compile && compass-scripts check-exports-exist",
+    "compile": "tsc -p tsconfig-build.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "eslint": "eslint-compass",
+    "prettier": "prettier-compass",
+    "lint": "npm run eslint . && npm run prettier -- --check .",
     "depcheck": "compass-scripts check-peer-deps && depcheck",
-    "test-ci": "npm run test"
+    "check": "npm run typecheck && npm run lint && npm run depcheck",
+    "check-ci": "npm run check",
+    "test": "mocha",
+    "test-cov": "nyc --compact=false --produce-source-map=false -x \"**/*.spec.*\" --reporter=lcov --reporter=text --reporter=html npm run test",
+    "test-watch": "npm run test -- --watch",
+    "test-ci": "npm run test-cov",
+    "reformat": "npm run eslint . -- --fix && npm run prettier -- --write ."
   },
   "dependencies": {
     "bson": "^6.10.4",
@@ -32,11 +51,15 @@
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-compass": "^1.4.11",
+    "@mongodb-js/mocha-config-compass": "^1.7.2",
+    "@mongodb-js/prettier-config-compass": "^1.2.9",
+    "@mongodb-js/tsconfig-compass": "^1.2.11",
+    "@types/chai": "^4.2.21",
+    "@types/mocha": "^9.0.0",
     "chai": "^4.2.0",
     "depcheck": "^1.4.1",
-    "mocha": "^10.2.0"
-  },
-  "publishConfig": {
-    "access": "public"
+    "mocha": "^10.2.0",
+    "nyc": "^15.1.0",
+    "typescript": "^5.9.2"
   }
 }
