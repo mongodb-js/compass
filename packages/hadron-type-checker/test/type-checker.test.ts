@@ -1,26 +1,25 @@
-'use strict';
-
-const expect = require('chai').expect;
-const bson = require('bson');
-const ObjectId = bson.ObjectId;
-const MinKey = bson.MinKey;
-const MaxKey = bson.MaxKey;
-const Binary = bson.Binary;
-const BSONRegExp = bson.BSONRegExp;
-const Code = bson.Code;
-const Timestamp = bson.Timestamp;
-const Long = bson.Long;
-const Double = bson.Double;
-const Int32 = bson.Int32;
-const Decimal128 = bson.Decimal128;
-const TypeChecker = require('../');
+import { expect } from 'chai';
+import {
+  ObjectId,
+  MinKey,
+  MaxKey,
+  Binary,
+  BSONRegExp,
+  Code,
+  Timestamp,
+  Long,
+  Double,
+  Int32,
+  Decimal128,
+} from 'bson';
+import TypeChecker from '../src';
 
 describe('TypeChecker', function () {
   describe('#cast', function () {
     context('when the object is a string', function () {
       context('when the string is empty', function () {
         context('when casting to min key', function () {
-          var value = '';
+          const value = '';
 
           it('returns the min key', function () {
             expect(TypeChecker.cast(value, 'MinKey')).to.deep.equal(
@@ -30,7 +29,7 @@ describe('TypeChecker', function () {
         });
 
         context('when casting to max key', function () {
-          var value = '';
+          const value = '';
 
           it('returns the max key', function () {
             expect(TypeChecker.cast(value, 'MaxKey')).to.deep.equal(
@@ -40,11 +39,11 @@ describe('TypeChecker', function () {
         });
 
         context('when casting to ObjectId', function () {
-          var value = '';
+          const value = '';
 
           it('returns a new ObjectId()', function () {
             expect(TypeChecker.cast(value, 'ObjectId')).to.be.an.instanceof(
-              bson.ObjectId
+              ObjectId
             );
           });
         });
@@ -66,7 +65,7 @@ describe('TypeChecker', function () {
       context('when the string is an integer', function () {
         context('when the integer is 32 bits', function () {
           context('when casting to an int32', function () {
-            var value = '23';
+            const value = '23';
 
             it('returns the number', function () {
               expect(TypeChecker.cast(value, 'Int32')).to.deep.equal(
@@ -103,7 +102,7 @@ describe('TypeChecker', function () {
 
           context('when the int is partially valid', function () {
             context('when the int is a -', function () {
-              var value = '-';
+              const value = '-';
 
               it('raises an error', function () {
                 expect(function () {
@@ -113,7 +112,7 @@ describe('TypeChecker', function () {
             });
 
             context('when the int is a ""', function () {
-              var value = '';
+              const value = '';
 
               it('raises an error', function () {
                 expect(function () {
@@ -126,7 +125,7 @@ describe('TypeChecker', function () {
           context('when the int64 is very large', function () {
             context('when the int is larger than max js number', function () {
               // js max safe integer is 9007199254740991
-              var value = '9007199254740991238';
+              const value = '9007199254740991238';
 
               it('returns int64', function () {
                 expect(TypeChecker.cast(value, 'Int64')).to.deep.equal(
@@ -139,7 +138,7 @@ describe('TypeChecker', function () {
               'when the int is larger than max int64 number',
               function () {
                 // max int64 number is 9223372036854775807
-                var value = '10223372036854775810';
+                const value = '10223372036854775810';
 
                 it('raises an error', function () {
                   expect(function () {
@@ -154,7 +153,7 @@ describe('TypeChecker', function () {
 
           context('when the int64 is partially valid', function () {
             context('when the int is a -', function () {
-              var value = '-';
+              const value = '-';
 
               it('raises an error', function () {
                 expect(function () {
@@ -164,7 +163,7 @@ describe('TypeChecker', function () {
             });
 
             context('when the int is a ""', function () {
-              var value = '';
+              const value = '';
 
               it('raises an error', function () {
                 expect(function () {
@@ -177,7 +176,7 @@ describe('TypeChecker', function () {
 
         context('when the integer is 64 bit', function () {
           context('when casting to an int64', function () {
-            var value = '42000000000000';
+            const value = '42000000000000';
 
             it('returns the int64', function () {
               expect(TypeChecker.cast(value, 'Int64')).to.deep.equal(
@@ -188,7 +187,7 @@ describe('TypeChecker', function () {
         });
 
         context('when casting to a decimal 128', function () {
-          var value = '9223372036854775808';
+          const value = '9223372036854775808';
           it('returns the number', function () {
             expect(TypeChecker.cast(value, 'Decimal128').toString()).to.equal(
               value
@@ -200,7 +199,7 @@ describe('TypeChecker', function () {
       context('when the string is a double', function () {
         context('when casting to a double', function () {
           context('when the double is valid', function () {
-            var value = '23.45';
+            const value = '23.45';
 
             it('returns the number', function () {
               expect(TypeChecker.cast(value, 'Double')).to.deep.equal(
@@ -211,7 +210,7 @@ describe('TypeChecker', function () {
 
           context('when the doule is partially valid', function () {
             context('when the double is a -', function () {
-              var value = '-';
+              const value = '-';
 
               it('raises an error', function () {
                 expect(function () {
@@ -221,7 +220,7 @@ describe('TypeChecker', function () {
             });
 
             context('when the double is a ""', function () {
-              var value = '';
+              const value = '';
 
               it('raises an error', function () {
                 expect(function () {
@@ -231,7 +230,7 @@ describe('TypeChecker', function () {
             });
 
             context('when the double ends with decimal', function () {
-              var value = '12.';
+              const value = '12.';
 
               it('raises an error', function () {
                 expect(function () {
@@ -247,7 +246,7 @@ describe('TypeChecker', function () {
 
       context('when the string is a decimal 128', function () {
         context('when casting to a decimal 128', function () {
-          var value = '23.45';
+          const value = '23.45';
 
           it('returns the number', function () {
             expect(TypeChecker.cast(value, 'Decimal128').toString()).to.equal(
@@ -259,7 +258,7 @@ describe('TypeChecker', function () {
 
       context('when the string is a plain string', function () {
         context('when casting to a string', function () {
-          var value = 'test';
+          const value = 'test';
 
           it('returns the string', function () {
             expect(TypeChecker.cast(value, 'String')).to.equal(value);
@@ -267,7 +266,7 @@ describe('TypeChecker', function () {
         });
 
         context('when casting to a boolean', function () {
-          var value = 'fal';
+          const value = 'fal';
 
           it('raises an exception', function () {
             expect(TypeChecker.cast.bind(null, value, 'Boolean')).to.throw(
@@ -277,7 +276,7 @@ describe('TypeChecker', function () {
         });
 
         context('when casting to an object', function () {
-          var value = 'test';
+          const value = 'test';
 
           it('returns an empty object', function () {
             expect(TypeChecker.cast(value, 'Object')).to.deep.equal({});
@@ -286,7 +285,7 @@ describe('TypeChecker', function () {
 
         context('when casting to an array', function () {
           context('when the value is a string', function () {
-            var value = 'test';
+            const value = 'test';
 
             it('returns the string wrapped in an array', function () {
               expect(TypeChecker.cast(value, 'Array')).to.deep.equal([value]);
@@ -301,8 +300,8 @@ describe('TypeChecker', function () {
         });
 
         context('when casting to a date', function () {
-          var value = '2016-10-10';
-          var date = new Date(value);
+          const value = '2016-10-10';
+          const date = new Date(value);
 
           it('returns the date', function () {
             expect(TypeChecker.cast(value, 'Date')).to.deep.equal(date);
@@ -312,8 +311,8 @@ describe('TypeChecker', function () {
 
       context('when the string is a 12-byte hex string', function () {
         context('when casting to an ObjectId', function () {
-          var value = '58cbf2318ecfb65b8cee6556';
-          var oid = new ObjectId(value);
+          const value = '58cbf2318ecfb65b8cee6556';
+          const oid = new ObjectId(value);
 
           it('returns a new ObjectId', function () {
             expect(TypeChecker.cast(value, 'ObjectId')).to.deep.equal(oid);
@@ -321,7 +320,7 @@ describe('TypeChecker', function () {
         });
 
         context('when casting to a string', function () {
-          var value = '58cbf2318ecfb65b8cee6556';
+          const value = '58cbf2318ecfb65b8cee6556';
 
           it('returns a string', function () {
             expect(TypeChecker.cast(value, 'String')).to.deep.equal(value);
@@ -340,7 +339,7 @@ describe('TypeChecker', function () {
       context('when casting to an object id', function () {
         it('returns a new ObjectId()', function () {
           expect(TypeChecker.cast(2.45, 'ObjectId')).to.be.an.instanceof(
-            bson.ObjectId
+            ObjectId
           );
         });
       });
@@ -415,7 +414,7 @@ describe('TypeChecker', function () {
         });
 
         it('returns the number as an int64 from double', function () {
-          expect(TypeChecker.cast(new Double('245'), 'Int64')).to.deep.equal(
+          expect(TypeChecker.cast(new Double(245), 'Int64')).to.deep.equal(
             new Long(245)
           );
         });
@@ -472,7 +471,7 @@ describe('TypeChecker', function () {
 
     context('when the object is a binary', function () {
       context('when casting to a string', function () {
-        var binary = new Binary(Buffer.from('test'), 0);
+        const binary = new Binary(Buffer.from('test'), 0);
 
         it('returns the binary as a string', function () {
           expect(TypeChecker.cast(binary, 'String')).to.equal('test');
@@ -490,7 +489,7 @@ describe('TypeChecker', function () {
 
     context('when the object is an object id', function () {
       context('when casting to a string', function () {
-        var objectId = new ObjectId();
+        const objectId = new ObjectId();
 
         it('returns the string id', function () {
           expect(TypeChecker.cast(objectId, 'String').length).to.equal(24);
@@ -516,7 +515,7 @@ describe('TypeChecker', function () {
 
     context('when the object is a utc date time', function () {
       context('when casting to a string', function () {
-        var date = new Date(2016, 1, 1);
+        const date = new Date(2016, 1, 1);
 
         it('returns the date as a string', function () {
           expect(TypeChecker.cast(date, 'String')).to.not.equal('');
@@ -534,7 +533,7 @@ describe('TypeChecker', function () {
 
     context('when the object is a regex', function () {
       context('when casting to a string', function () {
-        var regex = new BSONRegExp('+w', 'i');
+        const regex = new BSONRegExp('+w', 'i');
 
         it('returns the string regex', function () {
           expect(TypeChecker.cast(regex, 'String')).to.equal('');
@@ -544,7 +543,7 @@ describe('TypeChecker', function () {
 
     context('when the object is a min key', function () {
       context('when casting to a string', function () {
-        var minKey = new MinKey();
+        const minKey = new MinKey();
 
         it('returns an empty string', function () {
           expect(TypeChecker.cast(minKey, 'String')).to.equal('');
@@ -554,7 +553,7 @@ describe('TypeChecker', function () {
 
     context('when the object is a max key', function () {
       context('when casting to a string', function () {
-        var maxKey = new MaxKey();
+        const maxKey = new MaxKey();
 
         it('returns an empty string', function () {
           expect(TypeChecker.cast(maxKey, 'String')).to.equal('');
@@ -621,7 +620,7 @@ describe('TypeChecker', function () {
 
     context('when the object is an Array', function () {
       context('when casting to a string', function () {
-        var value = ['test', 'test2'];
+        const value = ['test', 'test2'];
         it('returns Array', function () {
           expect(TypeChecker.cast(value, 'String')).to.deep.equal('test,test2');
         });
@@ -651,7 +650,7 @@ describe('TypeChecker', function () {
     });
 
     context('when the object is a binary', function () {
-      var binary = new Binary(Buffer.from('test'), 0);
+      const binary = new Binary(Buffer.from('test'), 0);
 
       it('returns Binary', function () {
         expect(TypeChecker.type(binary)).to.equal('Binary');
@@ -665,7 +664,7 @@ describe('TypeChecker', function () {
     });
 
     context('when the object is an object id', function () {
-      var objectId = new ObjectId();
+      const objectId = new ObjectId();
 
       it('returns ObjectId', function () {
         expect(TypeChecker.type(objectId)).to.equal('ObjectId');
@@ -685,7 +684,7 @@ describe('TypeChecker', function () {
     });
 
     context('when the object is a utc date time', function () {
-      var date = new Date();
+      const date = new Date();
 
       it('returns Date', function () {
         expect(TypeChecker.type(date)).to.equal('Date');
@@ -699,7 +698,7 @@ describe('TypeChecker', function () {
     });
 
     context('when the object is a regex', function () {
-      var regex = new BSONRegExp('+w', 'i');
+      const regex = new BSONRegExp('+w', 'i');
 
       it('returns BSONRegExp', function () {
         expect(TypeChecker.type(regex)).to.equal('BSONRegExp');
@@ -719,7 +718,7 @@ describe('TypeChecker', function () {
     });
 
     context('when the object is a code', function () {
-      var code = new Code('where blah');
+      const code = new Code('where blah');
 
       it('returns Code', function () {
         expect(TypeChecker.type(code)).to.equal('Code');
@@ -727,7 +726,7 @@ describe('TypeChecker', function () {
     });
 
     context('when the object is a code with scope', function () {
-      var code = new Code('where blah', {});
+      const code = new Code('where blah', {});
 
       it('returns Code', function () {
         expect(TypeChecker.type(code)).to.equal('Code');
@@ -741,7 +740,7 @@ describe('TypeChecker', function () {
     });
 
     context('when the object is a timestamp', function () {
-      var timestamp = new Timestamp({ t: 0, i: 100 });
+      const timestamp = new Timestamp({ t: 0, i: 100 });
 
       it('returns Timestamp', function () {
         expect(TypeChecker.type(timestamp)).to.equal('Timestamp');
@@ -763,7 +762,7 @@ describe('TypeChecker', function () {
     });
 
     context('when the object is a min key', function () {
-      var minKey = new MinKey();
+      const minKey = new MinKey();
 
       it('returns ObjectId', function () {
         expect(TypeChecker.type(minKey)).to.equal('MinKey');
@@ -771,7 +770,7 @@ describe('TypeChecker', function () {
     });
 
     context('when the object is a max key', function () {
-      var maxKey = new MaxKey();
+      const maxKey = new MaxKey();
 
       it('returns ObjectId', function () {
         expect(TypeChecker.type(maxKey)).to.equal('MaxKey');
