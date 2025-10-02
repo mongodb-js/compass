@@ -109,6 +109,7 @@ export function activatePlugin(
     applyMiddleware(
       thunk.withExtraArgument({
         dataService,
+        collection: collectionModel,
         atlasAiService,
         workspaces,
         localAppRegistry,
