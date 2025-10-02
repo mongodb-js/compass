@@ -33,6 +33,7 @@ import {
   processSchema,
   ProcessSchemaUnsupportedStateError,
 } from '../transform-schema-to-field-info';
+import type { Collection } from '@mongodb-js/compass-app-stores/provider';
 import type { Document, MongoError } from 'mongodb';
 import { MockDataGeneratorStep } from '../components/mock-data-generator-modal/types';
 import type {
@@ -94,6 +95,7 @@ type CollectionThunkAction<R, A extends AnyAction = AnyAction> = ThunkAction<
     connectionInfoRef: ConnectionInfoRef;
     fakerSchemaGenerationAbortControllerRef: { current?: AbortController };
     schemaAnalysisAbortControllerRef: { current?: AbortController };
+    collection: Collection;
   },
   A
 >;
@@ -143,10 +145,12 @@ interface SchemaAnalysisStartedAction {
 interface SchemaAnalysisFinishedAction {
   type: CollectionActions.SchemaAnalysisFinished;
   processedSchema: Record<string, FieldInfo>;
+  arrayLengthMap: Record<string, number>;
   sampleDocument: Document;
   schemaMetadata: {
     maxNestingDepth: number;
     validationRules: Document | null;
+    avgDocumentSize: number | undefined;
   };
 }
 
@@ -262,6 +266,7 @@ const reducer: Reducer<CollectionState, Action> = (
       schemaAnalysis: {
         status: SCHEMA_ANALYSIS_STATE_COMPLETE,
         processedSchema: action.processedSchema,
+        arrayLengthMap: action.arrayLengthMap,
         sampleDocument: action.sampleDocument,
         schemaMetadata: action.schemaMetadata,
       },
@@ -561,7 +566,13 @@ export const analyzeCollectionSchema = (): CollectionThunkAction<
   return async (
     dispatch,
     getState,
-    { dataService, preferences, logger, schemaAnalysisAbortControllerRef }
+    {
+      dataService,
+      preferences,
+      logger,
+      schemaAnalysisAbortControllerRef,
+      collection: collectionModel,
+    }
   ) => {
     const { schemaAnalysis, namespace } = getState();
     const analysisStatus = schemaAnalysis.status;
@@ -629,7 +640,7 @@ export const analyzeCollectionSchema = (): CollectionThunkAction<
       );
 
       // Transform schema to structure that will be used by the LLM
-      const processedSchema = processSchema(schema);
+      const processSchemaResult = processSchema(schema);
 
       const maxNestingDepth = await calculateSchemaDepth(schema);
       const { database, collection } = toNS(namespace);
@@ -638,6 +649,7 @@ export const analyzeCollectionSchema = (): CollectionThunkAction<
       const schemaMetadata = {
         maxNestingDepth,
         validationRules,
+        avgDocumentSize: collectionModel.avg_document_size,
       };
 
       // Final check before dispatching results
@@ -648,7 +660,8 @@ export const analyzeCollectionSchema = (): CollectionThunkAction<
 
       dispatch({
         type: CollectionActions.SchemaAnalysisFinished,
-        processedSchema,
+        processedSchema: processSchemaResult.fieldInfo,
+        arrayLengthMap: processSchemaResult.arrayLengthMap,
         sampleDocument: sampleDocuments[0],
         schemaMetadata,
       });

@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import { isEndOfLifeVersion } from './end-of-life-server';
 
 describe('isEndOfLifeVersion', function () {
-  const LATEST_END_OF_LIFE_VERSION = '4.4.x';
+  const LATEST_END_OF_LIFE_VERSION = '6.x';
 
   function expectVersions(versions: string[], expected: boolean) {
     for (const version of versions) {
@@ -15,17 +15,25 @@ describe('isEndOfLifeVersion', function () {
     }
   }
 
-  it('returns true for v4.4 and below', () => {
+  it('returns true for versions below v7.0', () => {
     expectVersions(
-      ['4.4.0', '4.3.0', '4.0', '4.0-beta.0', '1.0.0', '0.0.1', '3.999.0'],
+      [
+        '6.2',
+        '6.0.2',
+        '6.0.0',
+        '4.4.0',
+        '4.3.0',
+        '4.0',
+        '4.0-beta.0',
+        '1.0.0',
+        '0.0.1',
+        '3.999.0',
+      ],
       true
     );
   });
 
-  it('returns true for v4.5 and above', () => {
-    expectVersions(
-      ['4.5.0', '5.0.0', '5.0.25', '6.0.0', '7.0.0', '8.0.0'],
-      false
-    );
+  it('returns false for v7.0 and above', () => {
+    expectVersions(['7.0.0', '8.0.0'], false);
   });
 });

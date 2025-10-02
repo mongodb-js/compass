@@ -54,10 +54,12 @@ export interface FieldInfo {
 export type SchemaAnalysisCompletedState = {
   status: typeof SCHEMA_ANALYSIS_STATE_COMPLETE;
   processedSchema: Record<string, FieldInfo>;
+  arrayLengthMap: Record<string, number>;
   sampleDocument: Document;
   schemaMetadata: {
     maxNestingDepth: number;
     validationRules: Document | null;
+    avgDocumentSize: number | undefined;
   };
 };
 

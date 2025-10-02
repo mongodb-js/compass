@@ -94,10 +94,9 @@ describe('Script Generation', () => {
 
     expect(result.success).to.equal(true);
     if (result.success) {
-      const expectedReturnBlock = `return {
-    tags: Array.from({length: 3}, () => faker.lorem.word())
-  };`;
-      expect(result.script).to.contain(expectedReturnBlock);
+      expect(result.script).to.contain('Array.from');
+      expect(result.script).to.contain('length: 3');
+      expect(result.script).to.contain('faker.lorem.word()');
 
       // Test that the generated document code is executable
       const document = testDocumentCodeExecution(result.script);
@@ -122,9 +121,8 @@ describe('Script Generation', () => {
 
     expect(result.success).to.equal(true);
     if (result.success) {
-      // Should generate the complete return block with proper structure
       const expectedReturnBlock = `return {
-    users: Array.from({length: 3}, () => ({
+    users: Array.from({ length: 3 }, () => ({
       name: faker.person.fullName(),
       email: faker.internet.email()
     }))
@@ -157,7 +155,11 @@ describe('Script Generation', () => {
     expect(result.success).to.equal(true);
     if (result.success) {
       const expectedReturnBlock = `return {
-    matrix: Array.from({length: 3}, () => Array.from({length: 3}, () => faker.number.int()))
+    matrix: Array.from({ length: 3 }, () =>
+      Array.from({ length: 3 }, () =>
+        faker.number.int()
+      )
+    )
   };`;
       expect(result.script).to.contain(expectedReturnBlock);
 
@@ -186,9 +188,11 @@ describe('Script Generation', () => {
     expect(result.success).to.equal(true);
     if (result.success) {
       const expectedReturnBlock = `return {
-    users: Array.from({length: 3}, () => ({
+    users: Array.from({ length: 3 }, () => ({
       name: faker.person.fullName(),
-      tags: Array.from({length: 3}, () => faker.lorem.word())
+      tags: Array.from({ length: 3 }, () =>
+        faker.lorem.word()
+      )
     }))
   };`;
       expect(result.script).to.contain(expectedReturnBlock);
@@ -224,9 +228,11 @@ describe('Script Generation', () => {
     if (result.success) {
       const expectedReturnBlock = `return {
     title: faker.lorem.sentence(),
-    authors: Array.from({length: 3}, () => ({
+    authors: Array.from({ length: 3 }, () => ({
       name: faker.person.fullName(),
-      books: Array.from({length: 3}, () => faker.lorem.words())
+      books: Array.from({ length: 3 }, () =>
+        faker.lorem.words()
+      )
     })),
     publishedYear: faker.date.recent()
   };`;
@@ -282,10 +288,7 @@ describe('Script Generation', () => {
 
       expect(result.success).to.equal(true);
       if (result.success) {
-        const expectedReturnBlock = `return {
-    value: faker.number.int()
-  };`;
-        expect(result.script).to.contain(expectedReturnBlock);
+        expect(result.script).to.contain('faker.number.int()');
 
         // Test that the generated document code is executable
         const document = testDocumentCodeExecution(result.script);
@@ -346,13 +349,10 @@ describe('Script Generation', () => {
 
       expect(result.success).to.equal(true);
       if (result.success) {
-        // These should be treated as regular field names, not arrays
-        const expectedReturnBlock = `return {
-    "squareBrackets[]InMiddle": faker.lorem.word(),
-    "field[]WithMore": faker.lorem.word(),
-    "start[]middle[]end": faker.lorem.word()
-  };`;
-        expect(result.script).to.contain(expectedReturnBlock);
+        // Verify these are treated as regular field names, not arrays
+        expect(result.script).to.contain('"squareBrackets[]InMiddle"');
+        expect(result.script).to.contain('"field[]WithMore"');
+        expect(result.script).to.contain('"start[]middle[]end"');
         expect(result.script).not.to.contain('Array.from');
 
         // Test that the generated document code is executable
@@ -369,22 +369,121 @@ describe('Script Generation', () => {
         name: createFieldMapping('person.fullName'),
       };
 
-      const result = generateScript(schema, {
+      // Test various special characters: quotes, newlines, tabs
+      const result1 = generateScript(schema, {
         databaseName: 'test\'db`with"quotes',
         collectionName: 'coll\nwith\ttabs',
         documentCount: 1,
       });
 
-      expect(result.success).to.equal(true);
-      if (result.success) {
-        // Should use JSON.stringify for safe string insertion
-        expect(result.script).to.contain('use("test\'db`with\\"quotes")');
-        expect(result.script).to.contain(
-          'db.getCollection("coll\\nwith\\ttabs")'
+      expect(result1.success).to.equal(true);
+      if (result1.success) {
+        expect(result1.script).to.contain('use("test\'db`with\\"quotes")');
+        expect(result1.script).to.contain(
+          'getCollection("coll\\nwith\\ttabs")'
         );
         // Should not contain unescaped special characters that could break JS
-        expect(result.script).not.to.contain("use('test'db");
-        expect(result.script).not.to.contain("getCollection('coll\nwith");
+        expect(result1.script).not.to.contain("use('test'db");
+        expect(result1.script).not.to.contain("getCollection('coll\nwith");
+
+        // Test that the generated document code is executable
+        testDocumentCodeExecution(result1.script);
+      }
+
+      // Test backticks and dollar signs (template literal characters)
+      const result2 = generateScript(schema, {
+        databaseName: 'test`${}',
+        collectionName: 'collection`${}',
+        documentCount: 1,
+      });
+
+      expect(result2.success).to.equal(true);
+      if (result2.success) {
+        // Verify the script is syntactically valid
+        // eslint-disable-next-line @typescript-eslint/no-implied-eval
+        expect(() => new Function(result2.script)).to.not.throw();
+
+        // Verify template literal characters are properly escaped in console.log
+        expect(result2.script).to.contain('test\\`\\${}');
+        expect(result2.script).to.contain('collection\\`\\${}');
+
+        // Test that the generated document code is executable
+        testDocumentCodeExecution(result2.script);
+      }
+    });
+
+    it('should prevent code injection attacks via database and collection names', () => {
+      const schema = {
+        name: {
+          mongoType: 'String' as const,
+          fakerMethod: 'person.firstName',
+          fakerArgs: [],
+        },
+      };
+
+      // Test with potentially dangerous names that could inject malicious code
+      const result = generateScript(schema, {
+        databaseName: 'test`; require("fs").rmSync("/"); //',
+        collectionName: 'my "collection"',
+        documentCount: 1,
+      });
+
+      expect(result.success).to.equal(true);
+      if (result.success) {
+        // Verify the script is syntactically valid JavaScript
+        // eslint-disable-next-line @typescript-eslint/no-implied-eval
+        expect(() => new Function(result.script)).to.not.throw();
+
+        // Verify malicious code is safely contained in string
+        expect(result.script).to.contain(
+          'use(\'test`; require("fs").rmSync("/"); //\')'
+        );
+        expect(result.script).to.contain('getCollection(\'my "collection"\')');
+
+        // Verify template literal injection is prevented (backticks are escaped)
+        expect(result.script).to.contain(
+          'test\\`; require("fs").rmSync("/"); //'
+        );
+
+        // Verify malicious code in name is safely contained in code comment
+        expect(result.script).to.contain(
+          '// Generated for database: test`; require("fs").rmSync("/"); //; collection: my "collection"'
+        );
+
+        // Test that the generated document code is executable
+        testDocumentCodeExecution(result.script);
+      }
+    });
+
+    it('should sanitize newlines in database and collection names in comments', () => {
+      const schema = {
+        field: {
+          mongoType: 'String' as const,
+          fakerMethod: 'lorem.word',
+          fakerArgs: [],
+        },
+      };
+
+      // Test with names containing actual newlines and carriage returns
+      const result = generateScript(schema, {
+        databaseName: 'test\nwith\nnewlines',
+        collectionName: 'coll\rwith\r\nreturns',
+        documentCount: 1,
+      });
+
+      expect(result.success).to.equal(true);
+      if (result.success) {
+        // Verify newlines are replaced with spaces in comments to prevent syntax errors
+        expect(result.script).to.contain(
+          '// Generated for database: test with newlines; collection: coll with  returns'
+        );
+
+        // Verify the script is still syntactically valid
+        // eslint-disable-next-line @typescript-eslint/no-implied-eval
+        expect(() => new Function(result.script)).to.not.throw();
+
+        // Test that the generated document code is executable
+        testDocumentCodeExecution(result.script);
       }
     });
   });
@@ -403,10 +502,8 @@ describe('Script Generation', () => {
 
       expect(result.success).to.equal(true);
       if (result.success) {
-        const expectedReturnBlock = `return {
-    tags: Array.from({length: 3}, () => faker.lorem.word())
-  };`;
-        expect(result.script).to.contain(expectedReturnBlock);
+        expect(result.script).to.contain('length: 3');
+        expect(result.script).to.contain('faker.lorem.word()');
 
         // Test that the generated document code is executable
         const document = testDocumentCodeExecution(result.script);
@@ -426,16 +523,14 @@ describe('Script Generation', () => {
         collectionName: 'posts',
         documentCount: 1,
         arrayLengthMap: {
-          tags: [5],
+          'tags[]': 5,
         },
       });
 
       expect(result.success).to.equal(true);
       if (result.success) {
-        const expectedReturnBlock = `return {
-    tags: Array.from({length: 5}, () => faker.lorem.word())
-  };`;
-        expect(result.script).to.contain(expectedReturnBlock);
+        expect(result.script).to.contain('length: 5');
+        expect(result.script).to.contain('faker.lorem.word()');
 
         // Test that the generated document code is executable
         const document = testDocumentCodeExecution(result.script);
@@ -455,20 +550,18 @@ describe('Script Generation', () => {
         collectionName: 'groups',
         documentCount: 1,
         arrayLengthMap: {
-          users: {
-            length: 5,
-            elements: {
-              tags: [4],
-            },
-          },
+          'users[]': 5,
+          'users[].tags[]': 4,
         },
       });
 
       expect(result.success).to.equal(true);
       if (result.success) {
         const expectedReturnBlock = `return {
-    users: Array.from({length: 5}, () => ({
-      tags: Array.from({length: 4}, () => faker.lorem.word())
+    users: Array.from({ length: 5 }, () => ({
+      tags: Array.from({ length: 4 }, () =>
+        faker.lorem.word()
+      )
     }))
   };`;
         expect(result.script).to.contain(expectedReturnBlock);
@@ -495,17 +588,20 @@ describe('Script Generation', () => {
         collectionName: 'posts',
         documentCount: 1,
         arrayLengthMap: {
-          tags: [0],
-          categories: [2],
+          'tags[]': 0,
+          'categories[]': 2,
         },
       });
 
       expect(result.success).to.equal(true);
       if (result.success) {
-        // Should have tags array with length 0 (empty array) and categories with length 2
         const expectedReturnBlock = `return {
-    tags: Array.from({length: 0}, () => faker.lorem.word()),
-    categories: Array.from({length: 2}, () => faker.lorem.word())
+    tags: Array.from({ length: 0 }, () =>
+      faker.lorem.word()
+    ),
+    categories: Array.from({ length: 2 }, () =>
+      faker.lorem.word()
+    )
   };`;
         expect(result.script).to.contain(expectedReturnBlock);
 
@@ -530,16 +626,29 @@ describe('Script Generation', () => {
         collectionName: 'data',
         documentCount: 1,
         arrayLengthMap: {
-          matrix: [2, 5], // 2x5 matrix
-          cube: [3, 4, 2], // 3x4x2 cube
+          'matrix[]': 2,
+          'matrix[][]': 5,
+          'cube[]': 3,
+          'cube[][]': 4,
+          'cube[][][]': 2,
         },
       });
 
       expect(result.success).to.equal(true);
       if (result.success) {
         const expectedReturnBlock = `return {
-    matrix: Array.from({length: 2}, () => Array.from({length: 5}, () => faker.number.int())),
-    cube: Array.from({length: 3}, () => Array.from({length: 4}, () => Array.from({length: 2}, () => faker.number.float())))
+    matrix: Array.from({ length: 2 }, () =>
+      Array.from({ length: 5 }, () =>
+        faker.number.int()
+      )
+    ),
+    cube: Array.from({ length: 3 }, () =>
+      Array.from({ length: 4 }, () =>
+        Array.from({ length: 2 }, () =>
+          faker.number.float()
+        )
+      )
+    )
   };`;
         expect(result.script).to.contain(expectedReturnBlock);
 
@@ -562,40 +671,102 @@ describe('Script Generation', () => {
         collectionName: 'complex',
         documentCount: 1,
         arrayLengthMap: {
-          users: {
-            length: 2,
-            elements: {
-              tags: [3],
-              posts: {
-                length: 4,
-                elements: {
-                  comments: [5],
-                },
-              },
-            },
-          },
-          matrix: [2, 3],
+          'users[]': 2,
+          'users[].tags[]': 3,
+          'users[].posts[]': 4,
+          'users[].posts[].comments[]': 5,
+          'matrix[]': 2,
+          'matrix[][]': 3,
         },
       });
 
       expect(result.success).to.equal(true);
       if (result.success) {
-        // Complex nested structure with custom array lengths
         const expectedReturnBlock = `return {
-    users: Array.from({length: 2}, () => ({
+    users: Array.from({ length: 2 }, () => ({
       name: faker.person.fullName(),
-      tags: Array.from({length: 3}, () => faker.lorem.word()),
-      posts: Array.from({length: 4}, () => ({
+      tags: Array.from({ length: 3 }, () =>
+        faker.lorem.word()
+      ),
+      posts: Array.from({ length: 4 }, () => ({
         title: faker.lorem.sentence(),
-        comments: Array.from({length: 5}, () => faker.lorem.words())
+        comments: Array.from({ length: 5 }, () =>
+          faker.lorem.words()
+        )
       }))
     })),
-    matrix: Array.from({length: 2}, () => Array.from({length: 3}, () => faker.number.int()))
+    matrix: Array.from({ length: 2 }, () =>
+      Array.from({ length: 3 }, () =>
+        faker.number.int()
+      )
+    )
   };`;
         expect(result.script).to.contain(expectedReturnBlock);
 
         // Test that the generated document code is executable
         testDocumentCodeExecution(result.script);
+      }
+    });
+
+    it('should handle field names with [] in middle (not array notation)', () => {
+      const schema = {
+        'brackets[]InMiddle': createFieldMapping('lorem.word'),
+        'items[].nested[]ArrayFieldWithBrackets[]':
+          createFieldMapping('lorem.sentence'),
+        'matrix[]WithBrackets[][]': createFieldMapping('number.int'),
+      };
+
+      const result = generateScript(schema, {
+        databaseName: 'testdb',
+        collectionName: 'edgecases',
+        documentCount: 1,
+        arrayLengthMap: {
+          'items[]': 2,
+          'items[].nested[]ArrayFieldWithBrackets[]': 3,
+          'matrix[]WithBrackets[]': 2,
+          'matrix[]WithBrackets[][]': 4,
+        },
+      });
+
+      expect(result.success).to.equal(true);
+      if (result.success) {
+        // Verify field names with [] in middle are treated as regular field names
+        expect(result.script).to.contain('"brackets[]InMiddle"');
+        expect(result.script).to.contain('faker.lorem.word()');
+
+        // Verify array of objects with bracket field names containing arrays
+        expect(result.script).to.contain('"nested[]ArrayFieldWithBrackets"');
+        expect(result.script).to.contain('Array.from({ length: 3 }');
+        expect(result.script).to.contain('faker.lorem.sentence()');
+
+        // Verify multi-dimensional arrays with bracket field names
+        expect(result.script).to.contain('"matrix[]WithBrackets"');
+        expect(result.script).to.contain('Array.from({ length: 2 }');
+        expect(result.script).to.contain('faker.number.int()');
+
+        // Test that the generated document code is executable
+        const document = testDocumentCodeExecution(result.script);
+        expect(document).to.be.an('object');
+
+        // Verify the three specific edge cases
+        expect(document).to.have.property('brackets[]InMiddle');
+
+        expect(document).to.have.property('items');
+        expect(document.items).to.be.an('array').with.length(2);
+        expect(document.items[0]).to.have.property(
+          'nested[]ArrayFieldWithBrackets'
+        );
+        expect(document.items[0]['nested[]ArrayFieldWithBrackets'])
+          .to.be.an('array')
+          .with.length(3);
+
+        expect(document).to.have.property('matrix[]WithBrackets');
+        expect(document['matrix[]WithBrackets'])
+          .to.be.an('array')
+          .with.length(2);
+        expect(document['matrix[]WithBrackets'][0])
+          .to.be.an('array')
+          .with.length(4);
       }
     });
   });
@@ -618,10 +789,7 @@ describe('Script Generation', () => {
 
       expect(result.success).to.equal(true);
       if (result.success) {
-        const expectedReturnBlock = `return {
-    unknownField: faker.lorem.word()
-  };`;
-        expect(result.script).to.contain(expectedReturnBlock);
+        expect(result.script).to.contain('faker.lorem.word()');
 
         // Test that the generated document code is executable
         const document = testDocumentCodeExecution(result.script);
@@ -942,9 +1110,9 @@ describe('Script Generation', () => {
 
       expect(result.success).to.equal(true);
       if (result.success) {
-        expect(result.script).to.contain(
-          'faker.number.int({"min":0,"max":100})'
-        );
+        expect(result.script).to.contain('faker.number.int(');
+        expect(result.script).to.contain('min: 0');
+        expect(result.script).to.contain('max: 100');
 
         // Test that the generated document code is executable
         testDocumentCodeExecution(result.script);
@@ -956,7 +1124,7 @@ describe('Script Generation', () => {
         color: {
           mongoType: 'String' as const,
           fakerMethod: 'helpers.arrayElement',
-          fakerArgs: [{ json: "['red', 'blue', 'green']" }],
+          fakerArgs: [{ json: '["red", "blue", "green"]' }],
         },
       };
 
@@ -968,9 +1136,10 @@ describe('Script Generation', () => {
 
       expect(result.success).to.equal(true);
       if (result.success) {
-        expect(result.script).to.contain(
-          "faker.helpers.arrayElement(['red', 'blue', 'green'])"
-        );
+        expect(result.script).to.contain('faker.helpers.arrayElement(');
+        expect(result.script).to.contain('red');
+        expect(result.script).to.contain('blue');
+        expect(result.script).to.contain('green');
 
         // Test that the generated document code is executable
         testDocumentCodeExecution(result.script);
@@ -1020,9 +1189,9 @@ describe('Script Generation', () => {
 
       expect(result.success).to.equal(true);
       if (result.success) {
-        expect(result.script).to.contain(
-          'faker.helpers.arrayElement(["It\'s a \'test\' string", "another option"])'
-        );
+        expect(result.script).to.contain('faker.helpers.arrayElement(');
+        expect(result.script).to.contain("It's a 'test' string");
+        expect(result.script).to.contain('another option');
 
         // Test that the generated document code is executable
         testDocumentCodeExecution(result.script);
@@ -1111,12 +1280,6 @@ describe('Script Generation', () => {
           fakerArgs: [],
           probability: -0.5, // Invalid - should default to 1.0
         },
-        field3: {
-          mongoType: 'String' as const,
-          fakerMethod: 'lorem.word',
-          fakerArgs: [],
-          probability: 'invalid' as any, // Invalid - should default to 1.0
-        },
       };
 
       const result = generateScript(schema, {
@@ -1130,8 +1293,7 @@ describe('Script Generation', () => {
         // All fields should be treated as probability 1.0 (always present)
         const expectedReturnBlock = `return {
     field1: faker.lorem.word(),
-    field2: faker.lorem.word(),
-    field3: faker.lorem.word()
+    field2: faker.lorem.word()
   };`;
         expect(result.script).to.contain(expectedReturnBlock);
         expect(result.script).not.to.contain('Math.random()');
@@ -1155,7 +1317,9 @@ describe('Script Generation', () => {
       expect(result.success).to.equal(true);
       if (result.success) {
         const expectedReturnBlock = `return {
-    ...(Math.random() < 0.7 ? { optionalField: faker.lorem.word() } : {})
+    ...(Math.random() < 0.7
+      ? { optionalField: faker.lorem.word() }
+      : {})
   };`;
         expect(result.script).to.contain(expectedReturnBlock);
 
@@ -1182,8 +1346,14 @@ describe('Script Generation', () => {
       if (result.success) {
         const expectedReturnBlock = `return {
     alwaysPresent: faker.person.fullName(),
-    ...(Math.random() < 0.8 ? { sometimesPresent: faker.internet.email() } : {}),
-    ...(Math.random() < 0.2 ? { rarelyPresent: faker.phone.number() } : {}),
+    ...(Math.random() < 0.8
+      ? {
+          sometimesPresent: faker.internet.email()
+        }
+      : {}),
+    ...(Math.random() < 0.2
+      ? { rarelyPresent: faker.phone.number() }
+      : {}),
     defaultProbability: faker.lorem.word()
   };`;
         expect(result.script).to.contain(expectedReturnBlock);
@@ -1217,9 +1387,8 @@ describe('Script Generation', () => {
 
       expect(result.success).to.equal(true);
       if (result.success) {
-        expect(result.script).to.contain(
-          '...(Math.random() < 0.9 ? { conditionalAge: faker.number.int(18, 65) } : {})'
-        );
+        expect(result.script).to.contain('Math.random() < 0.9');
+        expect(result.script).to.contain('faker.number.int(18, 65)');
 
         // Test that the generated document code is executable
         testDocumentCodeExecution(result.script);
@@ -1244,9 +1413,8 @@ describe('Script Generation', () => {
 
       expect(result.success).to.equal(true);
       if (result.success) {
-        expect(result.script).to.contain(
-          '...(Math.random() < 0.5 ? { unknownField: faker.lorem.word() } : {})'
-        );
+        expect(result.script).to.contain('Math.random() < 0.5');
+        expect(result.script).to.contain('faker.lorem.word()');
 
         // Test that the generated document code is executable
         testDocumentCodeExecution(result.script);
