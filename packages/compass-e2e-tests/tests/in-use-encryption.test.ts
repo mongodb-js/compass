@@ -642,7 +642,7 @@ describe('CSFLE / QE', function () {
             ['prefixPreview', 'suffixPreview', 'substringPreview'].includes(
               mode as string
             ) &&
-            !serverSatisfies('>= 8.2.0-rc4', true)
+            !serverSatisfies('>= 8.2.0', true)
           ) {
             // QE Prefix/Suffix/Substring Support only available on 8.2+
             return this.skip();
