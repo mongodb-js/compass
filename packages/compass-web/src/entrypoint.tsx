@@ -277,7 +277,7 @@ export type CompassWebProps = {
    * would return back true or false depending on whether or not tabs can be
    * safely closed without losing any important unsaved changes
    */
-  onBeforeUnloadCallbackRequest: (canCloseCallback: () => boolean) => void;
+  onBeforeUnloadCallbackRequest?: (canCloseCallback: () => boolean) => void;
 };
 
 function CompassWorkspace({
