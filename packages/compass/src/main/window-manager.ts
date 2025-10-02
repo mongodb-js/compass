@@ -14,7 +14,7 @@ import type {
 import { app as electronApp, shell, BrowserWindow } from 'electron';
 import { enable } from '@electron/remote/main';
 
-import { createLogger } from '@mongodb-js/compass-logging';
+import { createLogger, mongoLogId } from '@mongodb-js/compass-logging';
 import COMPASS_ICON from './icon';
 import type { CompassApplication } from './application';
 import {
@@ -23,7 +23,7 @@ import {
   registerConnectionIdForBrowserWindow,
 } from './auto-connect';
 
-const { debug } = createLogger('COMPASS-WINDOW-MANAGER');
+const { debug, log } = createLogger('COMPASS-WINDOW-MANAGER');
 
 const earlyOpenUrls: string[] = [];
 function earlyOpenUrlListener(
@@ -113,13 +113,11 @@ async function saveWindowBounds(
     });
   } catch (err) {
     log.warn(
-      mongoLogId(1_001_000_TODO), // The next available `mongoLogId` can be found with `npm run check-logids`.
+      mongoLogId(1_001_000_377),
       'Window Manager',
       'Failed to save window bounds',
-      {
-        message: (err as Error).message,
-      }
-    );```
+      { message: (err as Error).message }
+    );
   }
 }
 
