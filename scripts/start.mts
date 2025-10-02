@@ -92,7 +92,7 @@ async function cleanup(signal: NodeJS.Signals) {
   }
 
   // Wait a shorter time for graceful shutdown
-  await timers.setTimeout(3000);
+  await timers.setTimeout(10_000);
 
   // Force kill any remaining processes
   const stillRunning = subProcesses.filter((p) => p.exitCode === null);

@@ -128,6 +128,7 @@ if (!(await isDevServerRunning(8081))) {
       env: {
         ...process.env,
         NODE_OPTIONS: mergedNodeOptions,
+        npm_config_engine_strict: `${false}`,
       },
       stdio: 'inherit',
     }
