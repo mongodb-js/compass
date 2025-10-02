@@ -112,8 +112,14 @@ async function saveWindowBounds(
       },
     });
   } catch (err) {
-    // eslint-disable-next-line no-console
-    console.error(err);
+    log.warn(
+      mongoLogId(1_001_000_TODO), // The next available `mongoLogId` can be found with `npm run check-logids`.
+      'Window Manager',
+      'Failed to save window bounds',
+      {
+        message: (err as Error).message,
+      }
+    );```
   }
 }
 
