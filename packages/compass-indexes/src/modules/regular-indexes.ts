@@ -1,10 +1,11 @@
 import { isEqual, pick } from 'lodash';
-import type { IndexDefinition } from 'mongodb-data-service';
+import type { IndexDefinition, DataService } from 'mongodb-data-service';
 import type { AnyAction } from 'redux';
 import {
   openToast,
   showConfirmation as showConfirmationModal,
 } from '@mongodb-js/compass-components';
+import { fetchShardingKeys } from '@mongodb-js/compass-crud';
 
 import { FetchStatuses, NOT_FETCHABLE_STATUSES } from '../utils/fetch-status';
 import type { FetchStatus } from '../utils/fetch-status';
@@ -37,7 +38,9 @@ export type RegularIndex = Partial<IndexDefinition> &
     | 'relativeSize'
     | 'usageCount'
     | 'buildProgress'
-  >;
+  > & {
+    isShardKeyIndex?: boolean;
+  };
 
 export type InProgressIndex = Pick<IndexDefinition, 'name' | 'fields'> & {
   id: string;
@@ -379,6 +382,28 @@ function pickCollectionStatFields(state: RootState) {
   );
 }
 
+/**
+ * Determines if an index is built on shard key fields by comparing
+ * the index fields with the shard key fields.
+ */
+function isIndexOnShardKey(
+  indexFields: IndexDefinition['fields'],
+  shardKey: Record<string, unknown>
+): boolean {
+  if (!shardKey || Object.keys(shardKey).length === 0) {
+    return false;
+  }
+
+  const shardKeyFields = Object.keys(shardKey);
+  const indexFieldNames = indexFields.map((field) => field.field);
+
+  // Check if index starts with shard key fields (prefix match)
+  // This covers both exact shard key indexes and compound indexes that include the shard key
+  return shardKeyFields.every(
+    (field, index) => indexFieldNames[index] === field
+  );
+}
+
 const fetchIndexes = (
   reason: FetchReason
 ): IndexesThunkAction<Promise<void>, FetchIndexesActions> => {
@@ -426,10 +451,25 @@ const fetchIndexes = (
         shouldFetchRollingIndexes
           ? rollingIndexesService.listRollingIndexes(namespace)
           : undefined,
-      ] as [Promise<IndexDefinition[]>, Promise<AtlasIndexStats[]> | undefined];
-      const [indexes, rollingIndexes] = await Promise.all(promises);
+        // Fetch shard key information to identify shard key indexes
+        fetchShardingKeys(dataService as DataService, namespace, {
+          signal: new AbortController().signal,
+        }).catch(() => ({})),
+      ] as [
+        Promise<IndexDefinition[]>,
+        Promise<AtlasIndexStats[]> | undefined,
+        Promise<Record<string, unknown>>
+      ];
+      const [indexes, rollingIndexes, shardKey] = await Promise.all(promises);
+
+      // Mark indexes that are built on shard key fields
+      const indexesWithShardKeyInfo = indexes.map((index) => ({
+        ...index,
+        isShardKeyIndex: isIndexOnShardKey(index.fields, shardKey),
+      }));
+
       const indexesBefore = pickCollectionStatFields(getState());
-      dispatch(fetchIndexesSucceeded(indexes, rollingIndexes));
+      dispatch(fetchIndexesSucceeded(indexesWithShardKeyInfo, rollingIndexes));
       const indexesAfter = pickCollectionStatFields(getState());
       if (
         reason !== FetchReasons.INITIAL_FETCH &&

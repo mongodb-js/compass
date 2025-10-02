@@ -22,6 +22,7 @@ const HELP_URLS = {
     'https://docs.mongodb.com/master/reference/bson-type-comparison-order/#collation',
   COLLATION_REF: 'https://docs.mongodb.com/master/reference/collation',
   HIDDEN: 'https://www.mongodb.com/docs/manual/core/index-hidden/',
+  'SHARD-KEY': 'https://www.mongodb.com/docs/manual/core/sharding-shard-key/',
   UNKNOWN: null,
 };
 

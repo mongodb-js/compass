@@ -50,7 +50,10 @@ export type IndexesDataServiceProps =
   | 'collectionStats'
   | 'collectionInfo'
   | 'listCollections'
-  | 'isListSearchIndexesSupported';
+  | 'isListSearchIndexesSupported'
+  // Required for shard key detection
+  | 'find'
+  | 'isCancelError';
 export type IndexesDataService = Pick<DataService, IndexesDataServiceProps>;
 
 export type IndexesPluginServices = {

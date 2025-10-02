@@ -63,14 +63,17 @@ type PropertyFieldProps = {
   cardinality?: RegularIndex['cardinality'];
   extra?: RegularIndex['extra'];
   properties: RegularIndex['properties'];
+  isShardKeyIndex?: boolean;
 };
 
 const HIDDEN_INDEX_TEXT = 'HIDDEN';
+const SHARD_KEY_INDEX_TEXT = 'SHARD KEY';
 
 const PropertyField: React.FunctionComponent<PropertyFieldProps> = ({
   extra,
   properties,
   cardinality,
+  isShardKeyIndex,
 }) => {
   return (
     <div className={containerStyles}>
@@ -85,6 +88,12 @@ const PropertyField: React.FunctionComponent<PropertyFieldProps> = ({
             />
           );
         })}
+      {isShardKeyIndex && (
+        <PropertyBadgeWithTooltip
+          text={SHARD_KEY_INDEX_TEXT}
+          link={getIndexHelpLink('shard-key') ?? '#'}
+        />
+      )}
       {cardinality === 'compound' && (
         <PropertyBadgeWithTooltip
           text={cardinality}

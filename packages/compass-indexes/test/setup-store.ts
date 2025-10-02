@@ -90,6 +90,15 @@ const NOOP_DATA_PROVIDER: IndexesDataService = {
   sample(namespace: string) {
     return Promise.resolve([]);
   },
+  // Required for shard key detection
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  find(ns: string, filter: unknown, options: unknown) {
+    return Promise.resolve([]);
+  },
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  isCancelError(error: unknown) {
+    return false;
+  },
 };
 
 class FakeInstance extends EventEmitter {

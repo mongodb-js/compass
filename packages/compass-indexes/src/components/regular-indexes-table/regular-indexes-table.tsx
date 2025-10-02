@@ -369,6 +369,7 @@ function getRegularIndexInfo(
         cardinality={index.cardinality}
         extra={index.extra}
         properties={index.properties}
+        isShardKeyIndex={index.isShardKeyIndex}
       />
     ),
     status: <StatusField status={status} />,
