@@ -24,7 +24,7 @@ const tmpDir = path.join(
 const srcDir = path.resolve(import.meta.dirname, '..', 'dist');
 const destDir = path.dirname(
   child_process.execFileSync(
-    'node',
+    process.execPath,
     ['-e', "console.log(require.resolve('@mongodb-js/compass-web'))"],
     { cwd: process.env.MMS_HOME, encoding: 'utf-8' }
   )
