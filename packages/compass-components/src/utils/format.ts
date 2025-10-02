@@ -14,7 +14,10 @@ export function compactBytes(bytes: number, si = true, decimals = 2): string {
   const units = si
     ? ['B', 'kB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB']
     : ['B', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB', 'ZiB', 'YiB'];
-  const i = Math.floor(Math.log(bytes) / Math.log(threshold));
+  let i = Math.floor(Math.log(bytes) / Math.log(threshold));
+  if (i >= units.length) {
+    i = units.length - 1;
+  }
   const num = bytes / Math.pow(threshold, i);
   return `${num.toFixed(decimals)} ${units[i]}`;
 }
