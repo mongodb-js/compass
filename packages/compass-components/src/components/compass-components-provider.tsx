@@ -12,6 +12,7 @@ import {
   ContextMenuProvider,
 } from './context-menu';
 import { DrawerContentProvider } from './drawer-portal';
+import { CopyPasteContextMenu } from '../hooks/use-copy-paste-context-menu';
 
 type GuideCueProviderProps = React.ComponentProps<typeof GuideCueProvider>;
 
@@ -174,15 +175,17 @@ export const CompassComponentsProvider = ({
                     onContextMenuOpen={onContextMenuOpen}
                     onContextMenuItemClick={onContextMenuItemClick}
                   >
-                    <ToastArea>
-                      {typeof children === 'function'
-                        ? children({
-                            darkMode,
-                            portalContainerRef: setPortalContainer,
-                            scrollContainerRef: setScrollContainer,
-                          })
-                        : children}
-                    </ToastArea>
+                    <CopyPasteContextMenu>
+                      <ToastArea>
+                        {typeof children === 'function'
+                          ? children({
+                              darkMode,
+                              portalContainerRef: setPortalContainer,
+                              scrollContainerRef: setScrollContainer,
+                            })
+                          : children}
+                      </ToastArea>
+                    </CopyPasteContextMenu>
                   </ContextMenuProvider>
                 </ConfirmationModalArea>
               </SignalHooksProvider>
