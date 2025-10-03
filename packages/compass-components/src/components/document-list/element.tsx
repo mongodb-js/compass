@@ -550,30 +550,37 @@ export const HadronElement: React.FunctionComponent<{
     }
   };
 
-  const lineNumberMinWidth = useMemo(() => {
+  const lineNumberMinWidthStyle = useMemo(() => {
     // Only account for ~ line count length if we are in editing mode
     if (editingEnabled) {
       const charCount = String(lineNumberSize).length;
-      return charCount > 2 ? `${charCount}.5ch` : spacing[400];
+      return {
+        minWidth: charCount > 2 ? `${charCount}.5ch` : spacing[400],
+      };
     }
-    return spacing[400];
+    return {
+      minWidth: spacing[400],
+    };
   }, [lineNumberSize, editingEnabled]);
 
-  const elementSpacerWidth = useMemo(
-    () => calculateElementSpacerWidth(editable, level, extraGutterWidth),
+  const elementSpacerWidthStyle = useMemo(
+    () => ({
+      width: calculateElementSpacerWidth(editable, level, extraGutterWidth),
+    }),
     [editable, level, extraGutterWidth]
   );
 
   // To render the "Show more" toggle for the nested expandable elements we need
   // to calculate a proper offset so that it aligns with the nesting level
-  const nestedElementsVisibilityToggleOffset = useMemo(
-    () =>
-      calculateShowMoreToggleOffset({
+  const nestedElementsVisibilityToggleOffsetStyle = useMemo(
+    () => ({
+      paddingLeft: calculateShowMoreToggleOffset({
         editable,
         level,
         alignWithNestedExpandIcon: true,
         extraGutterWidth,
       }),
+    }),
     [editable, level, extraGutterWidth]
   );
 
@@ -649,7 +656,7 @@ export const HadronElement: React.FunctionComponent<{
                 ? lineNumberRemoved
                 : editingEnabled && !isValid && lineNumberInvalid
             )}
-            style={{ minWidth: lineNumberMinWidth }}
+            style={lineNumberMinWidthStyle}
           >
             <div
               className={cx(
@@ -684,7 +691,7 @@ export const HadronElement: React.FunctionComponent<{
             </div>
           </div>
         )}
-        <div className={elementSpacer} style={{ width: elementSpacerWidth }}>
+        <div className={elementSpacer} style={elementSpacerWidthStyle}>
           {/* spacer for nested documents */}
         </div>
         <div className={elementExpand}>
@@ -849,9 +856,7 @@ export const HadronElement: React.FunctionComponent<{
             // this for "performance" reasons
             step={editingEnabled ? DEFAULT_VISIBLE_ELEMENTS : 1000}
             onSizeChange={handleVisibleElementsChanged}
-            style={{
-              paddingLeft: nestedElementsVisibilityToggleOffset,
-            }}
+            style={nestedElementsVisibilityToggleOffsetStyle}
           ></VisibleFieldsToggle>
         </>
       )}

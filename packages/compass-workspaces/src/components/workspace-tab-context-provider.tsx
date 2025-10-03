@@ -6,7 +6,7 @@ import {
   ConnectionInfoProvider,
   ConnectionThemeProvider,
 } from '@mongodb-js/compass-connections/provider';
-import { rafraf } from '@mongodb-js/compass-components';
+import { css, rafraf } from '@mongodb-js/compass-components';
 import { useOnTabReplace } from './workspace-close-handler';
 import {
   useTabState,
@@ -14,6 +14,10 @@ import {
 } from './workspace-tab-state-provider';
 import { AppRegistryProvider } from '@mongodb-js/compass-app-registry';
 import { useWorkspacePlugins } from './workspaces-provider';
+
+const workspaceTabCloseHandlerStyles = css({
+  display: 'contents',
+});
 
 function getInitialPropsForWorkspace(tab: WorkspaceTab) {
   switch (tab.type) {
@@ -74,7 +78,7 @@ const TabCloseHandler: React.FunctionComponent = ({ children }) => {
     // interacted state
     // eslint-disable-next-line jsx-a11y/no-static-element-interactions
     <div
-      style={{ display: 'contents' }}
+      className={workspaceTabCloseHandlerStyles}
       onKeyDown={markAsInteracted}
       onClickCapture={markAsInteracted}
     >
