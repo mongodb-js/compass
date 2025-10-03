@@ -152,11 +152,7 @@ const ScriptScreen = ({
           In the directory that you created, create a file named
           mockdatascript.js (or any name you&apos;d like).
         </Body>
-        <Code
-          copyable={scriptResult.success}
-          language={Language.JavaScript}
-          className={scriptCodeBlockStyles}
-        >
+        <Code language={Language.JavaScript} className={scriptCodeBlockStyles}>
           {scriptResult.success
             ? scriptResult.script
             : '// Script generation failed.'}
@@ -175,9 +171,7 @@ const ScriptScreen = ({
             reversible.
           </em>
         </Body>
-        <Code copyable language={Language.Bash}>
-          {RUN_SCRIPT_COMMAND}
-        </Code>
+        <Code language={Language.Bash}>{RUN_SCRIPT_COMMAND}</Code>
       </section>
       <section
         className={cx(
