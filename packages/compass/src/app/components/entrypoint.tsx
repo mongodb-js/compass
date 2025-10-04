@@ -95,11 +95,11 @@ export const WithStorageProviders: React.FC = ({ children }) => {
     <PipelineStorageProvider value={pipelineStorage.current}>
       <FavoriteQueryStorageProvider value={favoriteQueryStorage.current}>
         <RecentQueryStorageProvider value={recentQueryStorage.current}>
-          <DataModelStorageServiceProviderElectron>
-            <WorkspacesStorageServiceProviderDesktop>
+          <WorkspacesStorageServiceProviderDesktop>
+            <DataModelStorageServiceProviderElectron>
               {children}
-            </WorkspacesStorageServiceProviderDesktop>
-          </DataModelStorageServiceProviderElectron>
+            </DataModelStorageServiceProviderElectron>
+          </WorkspacesStorageServiceProviderDesktop>
         </RecentQueryStorageProvider>
       </FavoriteQueryStorageProvider>
     </PipelineStorageProvider>

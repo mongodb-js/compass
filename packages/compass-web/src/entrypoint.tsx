@@ -123,7 +123,8 @@ const WithStorageProviders = createServiceProvider(
       const type = pathParts[0] as
         | 'favoriteQueries'
         | 'recentQueries'
-        | 'favoriteAggregations';
+        | 'favoriteAggregations'
+        | 'savedWorkspaces';
       const pathOrgId = pathParts[1];
       const pathProjectId = pathParts[2];
       const id = pathParts[3];
@@ -174,7 +175,14 @@ const WithStorageProviders = createServiceProvider(
       <PipelineStorageProvider value={pipelineStorage.current}>
         <FavoriteQueryStorageProvider value={favoriteQueryStorage.current}>
           <RecentQueryStorageProvider value={recentQueryStorage.current}>
-            {children}
+            <WorkspacesStorageServiceProviderWeb
+              orgId={orgId}
+              projectId={projectId}
+              getResourceUrl={getResourceUrl}
+              authenticatedFetch={authenticatedFetch}
+            >
+              {children}
+            </WorkspacesStorageServiceProviderWeb>
           </RecentQueryStorageProvider>
         </FavoriteQueryStorageProvider>
       </PipelineStorageProvider>
@@ -496,76 +504,71 @@ const CompassWeb = ({
                 <WithAtlasProviders>
                   <WithStorageProviders orgId={orgId} projectId={projectId}>
                     <DataModelStorageServiceProviderInMemory>
-                      <WorkspacesStorageServiceProviderWeb
+                      <AtlasCloudConnectionStorageProvider
                         orgId={orgId}
                         projectId={projectId}
                       >
-                        <AtlasCloudConnectionStorageProvider
-                          orgId={orgId}
-                          projectId={projectId}
+                        <CompassAssistantProvider
+                          originForPrompt="atlas-data-explorer"
+                          appNameForPrompt={APP_NAMES_FOR_PROMPT.DataExplorer}
                         >
-                          <CompassAssistantProvider
-                            originForPrompt="atlas-data-explorer"
-                            appNameForPrompt={APP_NAMES_FOR_PROMPT.DataExplorer}
+                          <CompassConnections
+                            appName={appName ?? 'Compass Web'}
+                            onFailToLoadConnections={onFailToLoadConnections}
+                            onExtraConnectionDataRequest={() => {
+                              return Promise.resolve([{}, null] as [
+                                Record<string, unknown>,
+                                null
+                              ]);
+                            }}
+                            onAutoconnectInfoRequest={(connectionStore) => {
+                              if (autoconnectId) {
+                                return connectionStore.loadAll().then(
+                                  (connections) => {
+                                    return connections.find(
+                                      (connectionInfo) =>
+                                        connectionInfo.id === autoconnectId
+                                    );
+                                  },
+                                  (err) => {
+                                    const { log, mongoLogId } = logger;
+                                    log.warn(
+                                      mongoLogId(1_001_000_329),
+                                      'Compass Web',
+                                      'Could not load connections when trying to autoconnect',
+                                      { err: err.message }
+                                    );
+                                    return undefined;
+                                  }
+                                );
+                              }
+                              return Promise.resolve(undefined);
+                            }}
                           >
-                            <CompassConnections
-                              appName={appName ?? 'Compass Web'}
-                              onFailToLoadConnections={onFailToLoadConnections}
-                              onExtraConnectionDataRequest={() => {
-                                return Promise.resolve([{}, null] as [
-                                  Record<string, unknown>,
-                                  null
-                                ]);
-                              }}
-                              onAutoconnectInfoRequest={(connectionStore) => {
-                                if (autoconnectId) {
-                                  return connectionStore.loadAll().then(
-                                    (connections) => {
-                                      return connections.find(
-                                        (connectionInfo) =>
-                                          connectionInfo.id === autoconnectId
-                                      );
-                                    },
-                                    (err) => {
-                                      const { log, mongoLogId } = logger;
-                                      log.warn(
-                                        mongoLogId(1_001_000_329),
-                                        'Compass Web',
-                                        'Could not load connections when trying to autoconnect',
-                                        { err: err.message }
-                                      );
-                                      return undefined;
+                            <CompassInstanceStorePlugin>
+                              <FieldStorePlugin>
+                                <WithConnectionsStore>
+                                  <CompassWorkspace
+                                    initialWorkspaceTabs={
+                                      initialWorkspaceTabsRef.current
                                     }
-                                  );
-                                }
-                                return Promise.resolve(undefined);
-                              }}
-                            >
-                              <CompassInstanceStorePlugin>
-                                <FieldStorePlugin>
-                                  <WithConnectionsStore>
-                                    <CompassWorkspace
-                                      initialWorkspaceTabs={
-                                        initialWorkspaceTabsRef.current
-                                      }
-                                      onActiveWorkspaceTabChange={
-                                        onActiveWorkspaceTabChange
-                                      }
-                                      onOpenConnectViaModal={
-                                        onOpenConnectViaModal
-                                      }
-                                    ></CompassWorkspace>
-                                  </WithConnectionsStore>
-                                </FieldStorePlugin>
-                                <CompassGenerativeAIPlugin
-                                  projectId={projectId}
-                                  isCloudOptIn={true}
-                                />
-                              </CompassInstanceStorePlugin>
-                            </CompassConnections>
-                          </CompassAssistantProvider>
-                        </AtlasCloudConnectionStorageProvider>
-                      </WorkspacesStorageServiceProviderWeb>
+                                    onActiveWorkspaceTabChange={
+                                      onActiveWorkspaceTabChange
+                                    }
+                                    onOpenConnectViaModal={
+                                      onOpenConnectViaModal
+                                    }
+                                  ></CompassWorkspace>
+                                </WithConnectionsStore>
+                              </FieldStorePlugin>
+                              <CompassGenerativeAIPlugin
+                                projectId={projectId}
+                                isCloudOptIn={true}
+                              />
+                            </CompassInstanceStorePlugin>
+                          </CompassConnections>
+                        </CompassAssistantProvider>
+                      </AtlasCloudConnectionStorageProvider>
                     </DataModelStorageServiceProviderInMemory>
                   </WithStorageProviders>
                 </WithAtlasProviders>

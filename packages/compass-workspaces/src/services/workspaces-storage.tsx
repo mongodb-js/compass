@@ -92,20 +92,9 @@ export const noopWorkspacesStorageService: IUserData<
   typeof WorkspacesStateSchema
 > = new noopUserData(WorkspacesStateSchema, 'WorkspacesState');
 
-const WorkspacesStorageServiceContext = React.createContext<
+export const WorkspacesStorageServiceContext = React.createContext<
   IUserData<typeof WorkspacesStateSchema>
 >(noopWorkspacesStorageService);
-
-export const WorkspacesStorageServiceProvider: React.FunctionComponent<{
-  storage: IUserData<typeof WorkspacesStateSchema>;
-}> = ({ storage, children }) => {
-  const storageRef = useRef(storage);
-  return (
-    <WorkspacesStorageServiceContext.Provider value={storageRef.current}>
-      {children}
-    </WorkspacesStorageServiceContext.Provider>
-  );
-};
 
 export const workspacesStorageServiceLocator = createServiceLocator(() => {
   const service = useContext(WorkspacesStorageServiceContext);

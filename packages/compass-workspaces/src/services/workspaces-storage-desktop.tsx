@@ -1,21 +1,22 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { FileUserData, type IUserData } from '@mongodb-js/compass-user-data';
 import {
   WorkspacesStateSchema,
-  WorkspacesStorageServiceProvider,
+  WorkspacesStorageServiceContext,
 } from './workspaces-storage';
 import { EJSON } from 'bson';
 
-const storage = new FileUserData(WorkspacesStateSchema, 'WorkspacesState', {
-  serialize: (content) => EJSON.stringify(content, undefined, 2),
-  deserialize: (content: string) => EJSON.parse(content),
-}) as IUserData<typeof WorkspacesStateSchema>;
-
 export const WorkspacesStorageServiceProviderDesktop: React.FunctionComponent =
   ({ children }) => {
+    const storageRef = useRef<IUserData<typeof WorkspacesStateSchema>>(
+      new FileUserData(WorkspacesStateSchema, 'WorkspacesState', {
+        serialize: (content) => EJSON.stringify(content, undefined, 2),
+        deserialize: (content: string) => EJSON.parse(content),
+      }) as IUserData<typeof WorkspacesStateSchema>
+    );
     return (
-      <WorkspacesStorageServiceProvider storage={storage}>
+      <WorkspacesStorageServiceContext.Provider value={storageRef.current}>
         {children}
-      </WorkspacesStorageServiceProvider>
+      </WorkspacesStorageServiceContext.Provider>
     );
   };
