@@ -4,6 +4,7 @@ import { isAction } from './util';
 import type {
   DataModelCollection,
   EditAction,
+  FieldPath,
   Relationship,
 } from '../services/data-model-storage';
 import {
@@ -26,17 +27,30 @@ import {
 } from '../services/open-and-download-diagram';
 import type { MongoDBJSONSchema } from 'mongodb-schema';
 import { getCoordinatesForNewNode } from '@mongodb-js/diagramming';
-import { collectionToDiagramNode } from '../utils/nodes-and-edges';
+import { collectionToBaseNodeForLayout } from '../utils/nodes-and-edges';
 import toNS from 'mongodb-ns';
+import {
+  getFieldFromSchema,
+  getSchemaWithNewTypes,
+  traverseSchema,
+} from '../utils/schema-traversal';
+import { applyEdit as _applyEdit } from './apply-edit';
+import { getNewUnusedFieldName } from '../utils/schema';
 
 function isNonEmptyArray<T>(arr: T[]): arr is [T, ...T[]] {
   return Array.isArray(arr) && arr.length > 0;
 }
 
-export type SelectedItems = {
-  type: 'collection' | 'relationship';
-  id: string;
-};
+export type SelectedItems =
+  | {
+      type: 'collection' | 'relationship';
+      id: string;
+    }
+  | {
+      type: 'field';
+      namespace: string;
+      fieldPath: FieldPath;
+    };
 
 export type DiagramState =
   | (Omit<MongoDBDataModelDescription, 'edits'> & {
@@ -47,6 +61,7 @@ export type DiagramState =
       };
       editErrors?: string[];
       selectedItems: SelectedItems | null;
+      isNewlyCreated: boolean;
       draftCollection?: string;
     })
   | null; // null when no diagram is currently open
@@ -62,6 +77,7 @@ export enum DiagramActionTypes {
   REDO_EDIT = 'data-modeling/diagram/REDO_EDIT',
   COLLECTION_SELECTED = 'data-modeling/diagram/COLLECTION_SELECTED',
   RELATIONSHIP_SELECTED = 'data-modeling/diagram/RELATIONSHIP_SELECTED',
+  FIELD_SELECTED = 'data-modeling/diagram/FIELD_SELECTED',
   DIAGRAM_BACKGROUND_SELECTED = 'data-modeling/diagram/DIAGRAM_BACKGROUND_SELECTED',
 }
 
@@ -109,6 +125,12 @@ export type RelationSelectedAction = {
   relationshipId: string;
 };
 
+export type FieldSelectedAction = {
+  type: DiagramActionTypes.FIELD_SELECTED;
+  namespace: string;
+  fieldPath: FieldPath;
+};
+
 export type DiagramBackgroundSelectedAction = {
   type: DiagramActionTypes.DIAGRAM_BACKGROUND_SELECTED;
 };
@@ -123,6 +145,7 @@ export type DiagramActions =
   | RedoEditAction
   | CollectionSelectedAction
   | RelationSelectedAction
+  | FieldSelectedAction
   | DiagramBackgroundSelectedAction;
 
 const INITIAL_STATE: DiagramState = null;
@@ -137,6 +160,7 @@ export const diagramReducer: Reducer<DiagramState> = (
     prev.shift(); // Remove the first item, which is initial SetModel and there's no previous edit for it.
     return {
       ...action.diagram,
+      isNewlyCreated: false,
       edits: {
         prev,
         current,
@@ -149,6 +173,7 @@ export const diagramReducer: Reducer<DiagramState> = (
   if (isAction(action, AnalysisProcessActionTypes.ANALYSIS_FINISHED)) {
     return {
       id: new UUID().toString(),
+      isNewlyCreated: true,
       name: action.name,
       connectionId: action.connectionId,
       createdAt: new Date().toISOString(),
@@ -280,6 +305,16 @@ export const diagramReducer: Reducer<DiagramState> = (
       },
     };
   }
+  if (isAction(action, DiagramActionTypes.FIELD_SELECTED)) {
+    return {
+      ...state,
+      selectedItems: {
+        type: 'field',
+        namespace: action.namespace,
+        fieldPath: action.fieldPath,
+      },
+    };
+  }
   if (isAction(action, DiagramActionTypes.DIAGRAM_BACKGROUND_SELECTED)) {
     return {
       ...state,
@@ -357,6 +392,23 @@ const updateSelectedItemsFromAppliedEdit = (
         id: edit.ns,
       };
     }
+    case 'RenameField': {
+      return {
+        type: 'field',
+        namespace: edit.ns,
+        fieldPath: [
+          ...edit.field.slice(0, edit.field.length - 1),
+          edit.newName,
+        ],
+      };
+    }
+    case 'AddField': {
+      return {
+        type: 'field',
+        namespace: edit.ns,
+        fieldPath: edit.field,
+      };
+    }
   }
 
   return currentSelection;
@@ -378,16 +430,34 @@ export function selectRelationship(
   };
 }
 
+export function selectField(
+  namespace: string,
+  fieldPath: FieldPath
+): FieldSelectedAction {
+  return {
+    type: DiagramActionTypes.FIELD_SELECTED,
+    namespace,
+    fieldPath,
+  };
+}
+
 export function selectBackground(): DiagramBackgroundSelectedAction {
   return {
     type: DiagramActionTypes.DIAGRAM_BACKGROUND_SELECTED,
   };
 }
 
-export function createNewRelationship(
-  localNamespace: string,
-  foreignNamespace: string | null = null
-): DataModelingThunkAction<void, RelationSelectedAction> {
+export function createNewRelationship({
+  localNamespace,
+  foreignNamespace = null,
+  localFields = null,
+  foreignFields = null,
+}: {
+  localNamespace: string;
+  foreignNamespace?: string | null;
+  localFields?: FieldPath | null;
+  foreignFields?: FieldPath | null;
+}): DataModelingThunkAction<void, RelationSelectedAction> {
   return (dispatch, getState, { track }) => {
     const relationshipId = new UUID().toString();
     const currentNumberOfRelationships = getCurrentNumberOfRelationships(
@@ -399,8 +469,8 @@ export function createNewRelationship(
         relationship: {
           id: relationshipId,
           relationship: [
-            { ns: localNamespace, cardinality: 1, fields: null },
-            { ns: foreignNamespace, cardinality: 1, fields: null },
+            { ns: localNamespace, cardinality: 1, fields: localFields },
+            { ns: foreignNamespace, cardinality: 1, fields: foreignFields },
           ],
           isInferred: false,
         },
@@ -430,6 +500,34 @@ export function redoEdit(): DataModelingThunkAction<void, RedoEditAction> {
   };
 }
 
+export function addNewFieldToCollection(
+  ns: string
+): DataModelingThunkAction<void, ApplyEditAction | ApplyEditFailedAction> {
+  return (dispatch, getState) => {
+    const modelState = selectCurrentModelFromState(getState());
+
+    const collection = modelState.collections.find((c) => c.ns === ns);
+    if (!collection) {
+      throw new Error('Collection to add field to not found');
+    }
+
+    const edit: Omit<
+      Extract<Edit, { type: 'AddField' }>,
+      'id' | 'timestamp'
+    > = {
+      type: 'AddField',
+      ns,
+      // Use the first unique field name we can use.
+      field: [getNewUnusedFieldName(collection.jsonSchema)],
+      jsonSchema: {
+        bsonType: 'string',
+      },
+    };
+
+    return dispatch(applyEdit(edit));
+  };
+}
+
 export function moveCollection(
   ns: string,
   newPosition: [number, number]
@@ -452,18 +550,16 @@ export function renameCollection(
   void,
   ApplyEditAction | ApplyEditFailedAction | CollectionSelectedAction
 > {
-  return (dispatch) => {
-    const edit: Omit<
-      Extract<Edit, { type: 'RenameCollection' }>,
-      'id' | 'timestamp'
-    > = {
-      type: 'RenameCollection',
-      fromNS,
-      toNS,
-    };
-
-    dispatch(applyEdit(edit));
+  const edit: Omit<
+    Extract<Edit, { type: 'RenameCollection' }>,
+    'id' | 'timestamp'
+  > = {
+    type: 'RenameCollection',
+    fromNS,
+    toNS,
   };
+
+  return applyEdit(edit);
 }
 
 export function applyEdit(
@@ -603,15 +699,105 @@ export function deleteRelationship(
 
 export function deleteCollection(
   ns: string
-): DataModelingThunkAction<boolean, ApplyEditAction | ApplyEditFailedAction> {
-  return applyEdit({ type: 'RemoveCollection', ns });
+): DataModelingThunkAction<void, ApplyEditAction | ApplyEditFailedAction> {
+  return (dispatch, getState, { track }) => {
+    track('Data Modeling Collection Removed', {
+      source: 'side_panel',
+    });
+
+    dispatch(applyEdit({ type: 'RemoveCollection', ns }));
+  };
 }
 
 export function updateCollectionNote(
   ns: string,
   note: string
-): DataModelingThunkAction<boolean, ApplyEditAction | ApplyEditFailedAction> {
+): DataModelingThunkAction<void, ApplyEditAction | ApplyEditFailedAction> {
   return applyEdit({ type: 'UpdateCollectionNote', ns, note });
+}
+
+export function removeField(
+  ns: string,
+  field: FieldPath
+): DataModelingThunkAction<void, ApplyEditAction | ApplyEditFailedAction> {
+  return (dispatch, getState, { track }) => {
+    track('Data Modeling Field Removed', {
+      source: 'side_panel',
+    });
+
+    dispatch(applyEdit({ type: 'RemoveField', ns, field }));
+  };
+}
+
+export function renameField(
+  ns: string,
+  field: FieldPath,
+  newName: string
+): DataModelingThunkAction<void, ApplyEditAction | ApplyEditFailedAction> {
+  return (dispatch, getState, { track }) => {
+    track('Data Modeling Field Renamed', {
+      source: 'side_panel',
+    });
+
+    dispatch(applyEdit({ type: 'RenameField', ns, field, newName }));
+  };
+}
+
+/**
+ * @internal Exported for testing purposes only.
+ * If the field had a single type, we return that, otherwise 'mixed'.
+ */
+export function getTypeNameForTelemetry(
+  bsonType: string | string[] | undefined
+): string | undefined {
+  if (!bsonType) {
+    return;
+  }
+  if (Array.isArray(bsonType)) {
+    if (bsonType.length === 0) {
+      return undefined;
+    }
+    if (bsonType.length === 1) {
+      return bsonType[0];
+    }
+    return 'mixed';
+  }
+  return bsonType;
+}
+
+export function changeFieldType(
+  ns: string,
+  fieldPath: FieldPath,
+  newTypes: string[]
+): DataModelingThunkAction<void, ApplyEditAction | ApplyEditFailedAction> {
+  return (dispatch, getState, { track }) => {
+    const collectionSchema = selectCurrentModelFromState(
+      getState()
+    ).collections.find((collection) => collection.ns === ns)?.jsonSchema;
+    if (!collectionSchema) throw new Error('Collection not found in model');
+    const field = getFieldFromSchema({
+      jsonSchema: collectionSchema,
+      fieldPath: fieldPath,
+    });
+    if (!field) throw new Error('Field not found in schema');
+    const to = getSchemaWithNewTypes(field.jsonSchema, newTypes);
+
+    track('Data Modeling Field Type Changed', {
+      source: 'side_panel',
+      from: getTypeNameForTelemetry(field.jsonSchema.bsonType),
+      to: getTypeNameForTelemetry(to.bsonType),
+    });
+
+    dispatch(
+      applyEdit({
+        type: 'ChangeFieldType',
+        ns,
+        field: fieldPath,
+        from: field.jsonSchema,
+        to,
+      })
+    );
+  };
 }
 
 function getPositionForNewCollection(
@@ -619,9 +805,9 @@ function getPositionForNewCollection(
   newCollection: Omit<DataModelCollection, 'displayPosition'>
 ): [number, number] {
   const existingNodes = existingCollections.map((collection) =>
-    collectionToDiagramNode(collection)
+    collectionToBaseNodeForLayout(collection)
   );
-  const newNode = collectionToDiagramNode({
+  const newNode = collectionToBaseNodeForLayout({
     ns: newCollection.ns,
     jsonSchema: newCollection.jsonSchema,
     displayPosition: [0, 0],
@@ -650,10 +836,10 @@ export function addCollection(
   ns?: string,
   position?: [number, number]
 ): DataModelingThunkAction<
-  boolean,
+  void,
   ApplyEditAction | ApplyEditFailedAction | CollectionSelectedAction
 > {
-  return (dispatch, getState) => {
+  return (dispatch, getState, { track }) => {
     const existingCollections = selectCurrentModelFromState(
       getState()
     ).collections;
@@ -665,6 +851,10 @@ export function addCollection(
         indexes: [],
       });
     }
+
+    track('Data Modeling Collection Added', {
+      source: 'toolbar',
+    });
 
     const edit: Omit<
       Extract<Edit, { type: 'AddCollection' }>,
@@ -684,132 +874,7 @@ export function addCollection(
       position,
     };
     dispatch(applyEdit(edit));
-    return true;
   };
-}
-
-function _applyEdit(edit: Edit, model?: StaticModel): StaticModel {
-  if (edit.type === 'SetModel') {
-    return edit.model;
-  }
-  if (!model) {
-    throw new Error('Editing a model that has not been initialized');
-  }
-  switch (edit.type) {
-    case 'AddCollection': {
-      const newCollection: DataModelCollection = {
-        ns: edit.ns,
-        jsonSchema: edit.initialSchema,
-        displayPosition: edit.position,
-        indexes: [],
-      };
-      return {
-        ...model,
-        collections: [...model.collections, newCollection],
-      };
-    }
-    case 'AddRelationship': {
-      return {
-        ...model,
-        relationships: [...model.relationships, edit.relationship],
-      };
-    }
-    case 'RemoveRelationship': {
-      return {
-        ...model,
-        relationships: model.relationships.filter(
-          (relationship) => relationship.id !== edit.relationshipId
-        ),
-      };
-    }
-    case 'UpdateRelationship': {
-      const existingRelationship = model.relationships.find((r) => {
-        return r.id === edit.relationship.id;
-      });
-      if (!existingRelationship) {
-        throw new Error('Can not update non-existent relationship');
-      }
-      return {
-        ...model,
-        relationships: model.relationships.map((r) => {
-          return r === existingRelationship ? edit.relationship : r;
-        }),
-      };
-    }
-    case 'MoveCollection': {
-      return {
-        ...model,
-        collections: model.collections.map((collection) => {
-          if (collection.ns === edit.ns) {
-            return {
-              ...collection,
-              displayPosition: edit.newPosition,
-            };
-          }
-          return collection;
-        }),
-      };
-    }
-    case 'RemoveCollection': {
-      return {
-        ...model,
-        // Remove any relationships involving the collection being removed.
-        relationships: model.relationships.filter((r) => {
-          return !(
-            r.relationship[0].ns === edit.ns || r.relationship[1].ns === edit.ns
-          );
-        }),
-        collections: model.collections.filter(
-          (collection) => collection.ns !== edit.ns
-        ),
-      };
-    }
-    case 'RenameCollection': {
-      return {
-        ...model,
-        // Update relationships to point to the renamed namespace.
-        relationships: model.relationships.map((relationship) => {
-          const [local, foreign] = relationship.relationship;
-
-          return {
-            ...relationship,
-            relationship: [
-              {
-                ...local,
-                ns: local.ns === edit.fromNS ? edit.toNS : local.ns,
-              },
-              {
-                ...foreign,
-                ns: foreign.ns === edit.fromNS ? edit.toNS : foreign.ns,
-              },
-            ],
-          };
-        }),
-        collections: model.collections.map((collection) => ({
-          ...collection,
-          // Rename the collection.
-          ns: collection.ns === edit.fromNS ? edit.toNS : collection.ns,
-        })),
-      };
-    }
-    case 'UpdateCollectionNote': {
-      return {
-        ...model,
-        collections: model.collections.map((collection) => {
-          if (collection.ns === edit.ns) {
-            return {
-              ...collection,
-              note: edit.note,
-            };
-          }
-          return collection;
-        }),
-      };
-    }
-    default: {
-      return model;
-    }
-  }
 }
 
 /**
@@ -876,31 +941,14 @@ export const selectCurrentModelFromState = (state: DataModelingState) => {
   return selectCurrentModel(selectCurrentDiagramFromState(state).edits);
 };
 
-function extractFields(
-  parentSchema: MongoDBJSONSchema,
-  parentKey?: string[],
-  fields: string[][] = []
-) {
-  if ('anyOf' in parentSchema && parentSchema.anyOf) {
-    for (const schema of parentSchema.anyOf) {
-      extractFields(schema, parentKey, fields);
-    }
-  }
-  if ('items' in parentSchema && parentSchema.items) {
-    const items = Array.isArray(parentSchema.items)
-      ? parentSchema.items
-      : [parentSchema.items];
-    for (const schema of items) {
-      extractFields(schema, parentKey, fields);
-    }
-  }
-  if ('properties' in parentSchema && parentSchema.properties) {
-    for (const [key, value] of Object.entries(parentSchema.properties)) {
-      const fullKey = parentKey ? [...parentKey, key] : [key];
-      fields.push(fullKey);
-      extractFields(value, fullKey, fields);
-    }
-  }
+function extractFieldsFromSchema(parentSchema: MongoDBJSONSchema): FieldPath[] {
+  const fields: FieldPath[] = [];
+  traverseSchema({
+    jsonSchema: parentSchema,
+    visitor: ({ fieldPath }) => {
+      fields.push(fieldPath);
+    },
+  });
   return fields;
 }
 
@@ -910,7 +958,7 @@ function getFieldsForCurrentModel(
   const model = selectCurrentModel(edits);
   const fields = Object.fromEntries(
     model.collections.map((collection) => {
-      return [collection.ns, extractFields(collection.jsonSchema)];
+      return [collection.ns, extractFieldsFromSchema(collection.jsonSchema)];
     })
   );
   return fields;

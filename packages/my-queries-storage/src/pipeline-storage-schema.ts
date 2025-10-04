@@ -44,11 +44,19 @@ function savedPipelineToText(pipeline?: StoredLegacyPipelineStage[]): string {
 }
 
 export const PipelineSchema = z.preprocess(
-  (val: any) => {
-    const { pipeline: legacyPipelineArray, pipelineText, ...rest } = val;
+  (val: unknown) => {
+    const {
+      pipeline: legacyPipelineArray,
+      pipelineText,
+      ...rest
+    } = val as Record<string, unknown>;
     return {
       ...rest,
-      pipelineText: pipelineText ?? savedPipelineToText(legacyPipelineArray),
+      pipelineText:
+        pipelineText ??
+        savedPipelineToText(
+          legacyPipelineArray as StoredLegacyPipelineStage[] | undefined
+        ),
     };
   },
   z.object({

@@ -237,11 +237,15 @@ export const ConnectionModalSaveButton = '[data-testid="save-button"]';
 export const connectionToastById = (connectionId: string) => {
   return `[data-testid="toast-connection-status--${connectionId}"]`;
 };
+export const ConnectionToastTitleText =
+  '[data-testid="connection-error-title"]';
 export const ConnectionToastErrorText = '[data-testid="connection-error-text"]';
 export const ConnectionToastErrorReviewButton =
   '[data-testid="connection-error-review"]';
 export const ConenctionToastCancelConnectionButton =
   '[data-testid="cancel-connection-button"]';
+export const ConnectionToastErrorDebugButton =
+  '[data-testid="connection-error-debug"]';
 
 // Connections sidebar
 export const ConnectionsTitle = '[data-testid="connections-header"]';
@@ -655,7 +659,7 @@ export const ImportSkipAnalyze = '[data-testid="skip-csv-analyze-button"]';
 export const ImportAnalyzeError =
   '[data-testid="import-modal"] [data-testid="analyze-error"]';
 export const ImportConfirm =
-  '[data-testid="import-modal"] [data-testid="import-button"]';
+  '[data-testid="import-modal"] [data-testid="import-button"][aria-disabled="false"]';
 export const ImportToast = '[data-testid="toast-import-toast"]';
 export const ImportToastErrorDetailsBtn =
   '[data-testid="toast-import-toast"] [data-testid="import-error-details-button"]';
@@ -1388,14 +1392,6 @@ export const ModifySourceBanner = '[data-testid="modify-source-banner"]';
 export const InsightIconButton = '[data-testid="insight-badge-button"]';
 export const InsightPopoverCard = '[data-testid="insight-signal-card"]';
 
-// Atlas login
-export const LogInWithAtlasButton = 'button=Log in with Atlas';
-export const LogInWithAtlasModalButton = 'button*=Log in to Atlas';
-export const DisconnectAtlasAccountButton = 'button=Log Out';
-export const AtlasLoginStatus = '[data-testid="atlas-login-status"]';
-export const AtlasLoginErrorToast = '#atlas-sign-in-error';
-export const AgreeAndContinueButton = 'button=Agree and continue';
-
 // Proxy settings
 export const ProxyUrl =
   '[data-testid="proxy-settings"] [data-testid="proxy-url"]';
@@ -1505,9 +1501,17 @@ export const DataModelCollectionRelationshipItemEdit = `[aria-label="Edit relati
 export const DataModelCollectionRelationshipItemDelete = `[aria-label="Delete relationship"]`;
 export const DataModelCollectionSidebarItemDelete = `[aria-label="Delete collection"]`;
 export const DataModelCollectionSidebarItemDeleteButton = `[data-action="delete"]`;
+export const DataModelInfoBannerCloseBtn = `[data-testid="data-info-banner"] [aria-label="Close Message"]`;
 
 // Side drawer
 export const SideDrawer = `[data-testid="${getDrawerIds().root}"]`;
 export const SideDrawerCloseButton = `[data-testid="${
   getDrawerIds().closeButton
 }"]`;
+
+// Assistant
+export const AssistantChatMessages = '[data-testid="assistant-chat-messages"]';
+export const AssistantClearChatButton = '[data-testid="assistant-clear-chat"]';
+export const ConfirmClearChatModal =
+  '[data-testid="assistant-confirm-clear-chat-modal"]';
+export const ConfirmClearChatModalConfirmButton = `${ConfirmClearChatModal} [data-testid="lg-confirmation_modal-footer-confirm_button"]`;

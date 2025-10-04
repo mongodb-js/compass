@@ -1,6 +1,14 @@
 import { z } from '@mongodb-js/compass-user-data';
 import type { MongoDBJSONSchema } from 'mongodb-schema';
 
+export const FieldPathSchema = z.array(z.string());
+
+export type FieldPath = z.output<typeof FieldPathSchema>;
+
+export const FieldSchema = z.custom<MongoDBJSONSchema>();
+
+export type FieldSchema = z.output<typeof FieldSchema>;
+
 export const RelationshipSideSchema = z.object({
   ns: z.string().nullable(),
   cardinality: z.number(),
@@ -85,6 +93,44 @@ const EditSchemaVariants = z.discriminatedUnion('type', [
     ns: z.string(),
     position: z.tuple([z.number(), z.number()]),
     initialSchema: z.custom<MongoDBJSONSchema>(),
+  }),
+  // Field operations
+  z.object({
+    type: z.literal('RenameField'),
+    ns: z.string(),
+    field: FieldPathSchema,
+    newName: z.string(),
+  }),
+  z.object({
+    type: z.literal('RemoveField'),
+    ns: z.string(),
+    field: FieldPathSchema,
+  }),
+  z.object({
+    type: z.literal('ChangeFieldType'),
+    ns: z.string(),
+    field: FieldPathSchema,
+    from: FieldSchema,
+    to: FieldSchema,
+  }),
+  z.object({
+    type: z.literal('AddField'),
+    ns: z.string(),
+    field: FieldPathSchema,
+    jsonSchema: FieldSchema,
+  }),
+  z.object({
+    type: z.literal('DuplicateField'),
+    ns: z.string(),
+    field: FieldPathSchema,
+  }),
+  z.object({
+    type: z.literal('MoveField'),
+    sourceNS: z.string(),
+    targetNS: z.string(),
+    targetField: FieldPathSchema,
+    field: FieldPathSchema,
+    jsonSchema: z.custom<MongoDBJSONSchema>(),
   }),
 ]);
 

@@ -7,12 +7,38 @@ import Sinon from 'sinon';
 import AppRegistry from '@mongodb-js/compass-app-registry';
 import { expect } from 'chai';
 import type { workspacesServiceLocator } from '@mongodb-js/compass-workspaces/provider';
-import type { experimentationServiceLocator } from '@mongodb-js/compass-telemetry/provider';
+import type { ExperimentationServices } from '@mongodb-js/compass-telemetry/provider';
 import type { connectionInfoRefLocator } from '@mongodb-js/compass-connections/provider';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import { ReadOnlyPreferenceAccess } from 'compass-preferences-model/provider';
-import { ExperimentTestName } from '@mongodb-js/compass-telemetry/provider';
+import {
+  ExperimentTestName,
+  ExperimentTestGroup,
+} from '@mongodb-js/compass-telemetry/provider';
 import { type CollectionMetadata } from 'mongodb-collection-model';
+import type { types } from '@mongodb-js/mdb-experiment-js';
+
+// Helper function to create proper mock assignment objects for testing
+const createMockAssignment = (
+  variant: ExperimentTestGroup
+): types.SDKAssignment<ExperimentTestName, string> => ({
+  assignmentData: {
+    variant,
+    isInSample: true,
+  },
+  experimentData: {
+    assignmentDate: '2024-01-01T00:00:00Z',
+    entityType: 'USER' as types.EntityType,
+    id: 'test-assignment-id',
+    tag: 'test-tag',
+    testGroupId: 'test-group-id',
+    entityId: 'test-user-id',
+    testId: 'test-id',
+    testName: ExperimentTestName.mockDataGenerator,
+    testGroupDatabaseId: 'test-group-db-id',
+    meta: { isLaunchedExperiment: true },
+  },
+});
 
 const defaultMetadata = {
   namespace: 'test.foo',
@@ -62,16 +88,16 @@ describe('Collection Tab Content store', function () {
   const analyzeCollectionSchemaStub = sandbox
     .stub(collectionTabModule, 'analyzeCollectionSchema')
     .returns(async () => {});
+
   const dataService = {} as any;
+  const atlasAiService = {} as any;
   let store: ReturnType<typeof activatePlugin>['store'];
   let deactivate: ReturnType<typeof activatePlugin>['deactivate'];
 
   const configureStore = async (
     options: Partial<CollectionTabOptions> = {},
     workspaces: Partial<ReturnType<typeof workspacesServiceLocator>> = {},
-    experimentationServices: Partial<
-      ReturnType<typeof experimentationServiceLocator>
-    > = {},
+    experimentationServices: Partial<ExperimentationServices> = {},
     connectionInfoRef: Partial<
       ReturnType<typeof connectionInfoRefLocator>
     > = {},
@@ -99,6 +125,7 @@ describe('Collection Tab Content store', function () {
       },
       {
         dataService,
+        atlasAiService,
         localAppRegistry,
         collection: mockCollection as any,
         workspaces: workspaces as any,
@@ -107,7 +134,7 @@ describe('Collection Tab Content store', function () {
         logger,
         preferences,
       },
-      { on() {}, cleanup() {} } as any
+      { on() {}, cleanup() {}, addCleanup() {} } as any
     ));
     await waitFor(() => {
       expect(store.getState())
@@ -239,9 +266,21 @@ describe('Collection Tab Content store', function () {
 
   describe('schema analysis on collection load', function () {
     it('should start schema analysis if collection is not read-only and not time-series', async function () {
-      await configureStore();
+      const getAssignment = sandbox.spy(() =>
+        Promise.resolve(
+          createMockAssignment(ExperimentTestGroup.mockDataGeneratorVariant)
+        )
+      );
+      const assignExperiment = sandbox.spy(() => Promise.resolve(null));
 
-      expect(analyzeCollectionSchemaStub).to.have.been.calledOnce;
+      await configureStore(undefined, undefined, {
+        getAssignment,
+        assignExperiment,
+      });
+
+      await waitFor(() => {
+        expect(analyzeCollectionSchemaStub).to.have.been.calledOnce;
+      });
     });
 
     it('should not start schema analysis if collection is read-only', async function () {
@@ -270,6 +309,136 @@ describe('Collection Tab Content store', function () {
       );
 
       expect(analyzeCollectionSchemaStub).to.not.have.been.called;
+    });
+
+    it('should not start schema analysis in non-Atlas environments', async function () {
+      const getAssignment = sandbox.spy(() => Promise.resolve(null));
+      const assignExperiment = sandbox.spy(() => Promise.resolve(null));
+      const mockConnectionInfoRef = {
+        current: {
+          id: 'test-connection',
+          title: 'Test Connection',
+          connectionOptions: {
+            connectionString: 'mongodb://localhost:27017',
+          },
+          // No atlasMetadata (non-Atlas environment)
+        },
+      };
+
+      await configureStore(
+        undefined,
+        undefined,
+        { getAssignment, assignExperiment },
+        mockConnectionInfoRef
+      );
+
+      await waitFor(() => {
+        expect(getAssignment).to.have.been.calledOnceWith(
+          ExperimentTestName.mockDataGenerator,
+          false
+        );
+      });
+
+      // Wait a bit to ensure schema analysis would not have been called
+      await new Promise((resolve) => setTimeout(resolve, 50));
+      expect(analyzeCollectionSchemaStub).to.not.have.been.called;
+    });
+
+    it('should start schema analysis in Atlas when user is in treatment variant', async function () {
+      const getAssignment = sandbox.spy(() =>
+        Promise.resolve(
+          createMockAssignment(ExperimentTestGroup.mockDataGeneratorVariant)
+        )
+      );
+      const assignExperiment = sandbox.spy(() => Promise.resolve(null));
+
+      await configureStore(
+        undefined,
+        undefined,
+        { getAssignment, assignExperiment },
+        mockAtlasConnectionInfo
+      );
+
+      await waitFor(() => {
+        expect(getAssignment).to.have.been.calledOnceWith(
+          ExperimentTestName.mockDataGenerator,
+          false // Don't track "Experiment Viewed" event
+        );
+        expect(analyzeCollectionSchemaStub).to.have.been.calledOnce;
+      });
+    });
+
+    it('should not start schema analysis in Atlas when user is in control variant', async function () {
+      const getAssignment = sandbox.spy(() =>
+        Promise.resolve(
+          createMockAssignment(ExperimentTestGroup.mockDataGeneratorControl)
+        )
+      );
+      const assignExperiment = sandbox.spy(() => Promise.resolve(null));
+
+      await configureStore(
+        undefined,
+        undefined,
+        { getAssignment, assignExperiment },
+        mockAtlasConnectionInfo
+      );
+
+      await waitFor(() => {
+        expect(getAssignment).to.have.been.calledOnceWith(
+          ExperimentTestName.mockDataGenerator,
+          false
+        );
+      });
+
+      // Wait a bit to ensure schema analysis would not have been called
+      await new Promise((resolve) => setTimeout(resolve, 50));
+      expect(analyzeCollectionSchemaStub).to.not.have.been.called;
+    });
+
+    it('should not start schema analysis when getAssignment fails', async function () {
+      const getAssignment = sandbox.spy(() =>
+        Promise.reject(new Error('Assignment failed'))
+      );
+      const assignExperiment = sandbox.spy(() => Promise.resolve(null));
+
+      await configureStore(
+        undefined,
+        undefined,
+        { getAssignment, assignExperiment },
+        mockAtlasConnectionInfo
+      );
+
+      await waitFor(() => {
+        expect(getAssignment).to.have.been.calledOnce;
+      });
+
+      // Wait a bit to ensure schema analysis would not have been called
+      await new Promise((resolve) => setTimeout(resolve, 50));
+      expect(analyzeCollectionSchemaStub).to.not.have.been.called;
+    });
+  });
+
+  describe('schema analysis cancellation', function () {
+    it('should cancel schema analysis when cancelSchemaAnalysis is dispatched', async function () {
+      const getAssignment = sandbox.spy(() =>
+        Promise.resolve(
+          createMockAssignment(ExperimentTestGroup.mockDataGeneratorVariant)
+        )
+      );
+      const assignExperiment = sandbox.spy(() => Promise.resolve(null));
+
+      const store = await configureStore(undefined, undefined, {
+        getAssignment,
+        assignExperiment,
+      });
+
+      // Dispatch cancel action
+      store.dispatch(collectionTabModule.cancelSchemaAnalysis() as any);
+
+      // Verify the state is reset to initial
+      expect((store.getState() as any).schemaAnalysis.status).to.equal(
+        'initial'
+      );
     });
   });
 });

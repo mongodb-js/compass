@@ -58,8 +58,11 @@ describe('ContentWithFallback', function () {
       { container }
     );
 
-    expect(container.children.length).to.equal(1);
-    const [contextMenuContainer] = container.children;
+    expect(container.children.length).to.equal(2);
+    const [contentContainer, contextMenuContainer] = Array.from(
+      container.children
+    );
+    expect(contentContainer.children.length).to.equal(0);
     expect(contextMenuContainer.getAttribute('data-testid')).to.equal(
       'context-menu-container'
     );

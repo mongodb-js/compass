@@ -41,6 +41,7 @@ import {
 } from '../utils/end-of-life-server';
 import type { ImportConnectionOptions } from '@mongodb-js/connection-storage/provider';
 import { getErrorCodeCauseChain } from '../utils/telemetry';
+import type { CompassAssistantService } from '@mongodb-js/compass-assistant';
 
 export type ConnectionsEventMap = {
   connected: (
@@ -212,6 +213,7 @@ type ThunkExtraArg = {
   connectFn?: typeof devtoolsConnect;
   globalAppRegistry: Pick<AppRegistry, 'on' | 'emit' | 'removeListener'>;
   onFailToLoadConnections: (error: Error) => void;
+  compassAssistant: CompassAssistantService;
 };
 
 export type ConnectionsThunkAction<
@@ -1263,15 +1265,33 @@ const connectionAttemptError = (
   connectionInfo: ConnectionInfo | null,
   err: any
 ): ConnectionsThunkAction<void, ConnectionAttemptErrorAction> => {
-  return (dispatch, _getState, { track, getExtraConnectionData }) => {
+  return (
+    dispatch,
+    _getState,
+    { track, getExtraConnectionData, compassAssistant }
+  ) => {
     const { openConnectionFailedToast } = getNotificationTriggers();
 
     const showReviewButton = !!connectionInfo && !connectionInfo.atlasMetadata;
-
-    openConnectionFailedToast(connectionInfo, err, showReviewButton, () => {
-      if (connectionInfo) {
-        dispatch(editConnection(connectionInfo.id));
-      }
+    openConnectionFailedToast({
+      connectionInfo,
+      error: err,
+      onReviewClick: showReviewButton
+        ? () => {
+            if (connectionInfo) {
+              dispatch(editConnection(connectionInfo.id));
+            }
+          }
+        : undefined,
+      onDebugClick:
+        compassAssistant.getIsAssistantEnabled() && connectionInfo
+          ? () => {
+              compassAssistant.interpretConnectionError({
+                connectionInfo,
+                error: err,
+              });
+            }
+          : undefined,
     });
 
     track(

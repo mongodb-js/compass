@@ -2,6 +2,7 @@
 const fs = require('fs');
 const path = require('path');
 const { isEqual, cloneDeep } = require('lodash');
+const prompts = require('prompts');
 const {
   listAllPackages,
   runInDir,
@@ -11,6 +12,8 @@ const {
 } = require('@mongodb-js/monorepo-tools');
 
 const UPDATE_CONFIGS = require('./update-dependencies-config');
+
+const unsafeForce = process.argv.includes('--unsafe-force-install');
 
 async function hoistSharedDependencies(root, newVersions) {
   try {
@@ -22,7 +25,12 @@ async function hoistSharedDependencies(root, newVersions) {
     const packageJsonBkp = await withProgress(
       'Updating package-lock to apply package.json changes',
       async () => {
-        await runInDir('npm i --package-lock-only --ignore-scripts', root);
+        await runInDir(
+          `npm i --package-lock-only --ignore-scripts${
+            unsafeForce ? ' --force' : ''
+          }`,
+          root
+        );
         return await fs.promises.readFile(path.resolve(root, 'package.json'));
       }
     );
@@ -36,7 +44,9 @@ async function hoistSharedDependencies(root, newVersions) {
           })
           .join(' ');
         await runInDir(
-          `npm i ${versionsToInstall} --package-lock-only --ignore-scripts`,
+          `npm i ${versionsToInstall} --package-lock-only --ignore-scripts${
+            unsafeForce ? ' --force' : ''
+          }`,
           root
         );
       }
@@ -53,7 +63,8 @@ async function hoistSharedDependencies(root, newVersions) {
       }
     );
   } catch (error) {
-    console.error(`Error running command: ${error}`);
+    console.error(`\n${error.message}`);
+    process.exit(1);
   }
 }
 
@@ -69,17 +80,19 @@ async function getVersion(depSpec) {
   return [name, version.trim()];
 }
 
+const DEP_TYPES = [
+  'dependencies',
+  'devDependencies',
+  'peerDependencies',
+  'optionalDependencies',
+];
+
 function updateDependencies(packageJson, newVersions) {
-  for (const depType of [
-    'dependencies',
-    'devDependencies',
-    'peerDependencies',
-    'optionalDependencies',
-  ]) {
+  for (const depType of DEP_TYPES) {
     if (packageJson[depType]) {
       for (const packageName of Object.keys(packageJson[depType])) {
         if (packageJson[depType][packageName] && newVersions[packageName]) {
-          packageJson[depType][packageName] = `^${newVersions[packageName]}`;
+          packageJson[depType][packageName] = newVersions[packageName];
         }
       }
     }
@@ -109,9 +122,9 @@ function updateDependencies(packageJson, newVersions) {
 function updateOverrides(overrides, newVersions, parent) {
   for (const name of Object.keys(overrides ?? {})) {
     if (typeof overrides[name] === 'string' && newVersions[name]) {
-      overrides[name] = `^${newVersions[name]}`;
+      overrides[name] = newVersions[name];
     } else if (name === '.' && parent && newVersions[parent]) {
-      overrides[name] = `^${newVersions[name]}`;
+      overrides[name] = newVersions[name];
     } else if (typeof overrides[name] === 'object') {
       updateOverrides(overrides[name], newVersions, name);
     }
@@ -121,7 +134,23 @@ function updateOverrides(overrides, newVersions, parent) {
 async function main() {
   let dependencies;
 
-  const args = process.argv.slice(3);
+  const args = process.argv.slice(3).filter((arg) => !arg.startsWith('-'));
+
+  if (unsafeForce) {
+    const { confirmed } = await prompts({
+      type: 'confirm',
+      name: 'confirmed',
+      initial: false,
+      message:
+        'Using force install is potentially harmful and should be used only ' +
+        'if you are absolutely sure what you are doing. If in doubt, reach ' +
+        'out to the team for advice.\n\nDo you want to proceed?',
+    });
+    if (!confirmed) {
+      console.log('Exiting...');
+      return;
+    }
+  }
 
   if (args.length === 0) {
     throw new Error(
@@ -146,8 +175,38 @@ async function main() {
     dependencies = args;
   }
 
-  const newVersions = await withProgress(
-    `Collection version information for packages...`,
+  const monorepoRoot = await findMonorepoRoot();
+  const workspaces = [monorepoRoot].concat(
+    await Array.fromAsync(listAllPackages(), (workspace) => workspace.location)
+  );
+  const allMonorepoDependencies = Array.from(
+    new Set(
+      workspaces.flatMap((location) => {
+        try {
+          const deps = {};
+          const packageJson = require(path.join(location, 'package.json'));
+          for (const depType of DEP_TYPES) {
+            Object.assign(deps, packageJson[depType] ?? {});
+          }
+          return Object.keys(deps);
+        } catch {
+          return [];
+        }
+      })
+    )
+  );
+
+  dependencies = dependencies.flatMap((depToUpdate) => {
+    if (/\*/.test(depToUpdate)) {
+      return allMonorepoDependencies.filter((dep) => {
+        return dep.startsWith(depToUpdate.replace('*', ''));
+      });
+    }
+    return depToUpdate;
+  });
+
+  let newVersions = await withProgress(
+    `Collecting version information for packages...`,
     () => {
       return Promise.all(
         dependencies.map((depSpec) => {
@@ -159,7 +218,7 @@ async function main() {
 
   console.log();
   console.log(
-    'Updating following packages:\n\n * %s\n',
+    'Updating following packages:\n\n * %s',
     newVersions
       .map((spec) => {
         return spec.join('@');
@@ -168,13 +227,15 @@ async function main() {
   );
   console.log();
 
+  newVersions = newVersions.map(([name, version]) => {
+    // When updating we always want to use version with a caret, this allows
+    // some flexibility for third parties that depend on compass deps to have
+    // some flexibility in transitive dependencies versions
+    return [name, `^${version}`];
+  });
+
   const newVersionsObj = Object.fromEntries(newVersions);
   let hasChanged;
-
-  const monorepoRoot = await findMonorepoRoot();
-  const workspaces = [monorepoRoot].concat(
-    await Array.fromAsync(listAllPackages(), (workspace) => workspace.location)
-  );
 
   await withProgress('Updating package.json in workspaces', async () => {
     for (const workspacePath of workspaces) {

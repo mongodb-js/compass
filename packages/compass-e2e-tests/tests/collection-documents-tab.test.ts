@@ -13,7 +13,6 @@ import {
   TEST_COMPASS_WEB,
   skipForWeb,
   DEFAULT_CONNECTION_NAME_1,
-  serverSatisfies,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
@@ -181,6 +180,7 @@ describe('Collection documents tab', function () {
       has_projection: false,
       has_skip: false,
       has_sort: false,
+      default_sort: 'none',
       mode: 'list',
       used_regex: false,
     });
@@ -219,6 +219,7 @@ describe('Collection documents tab', function () {
       has_limit: true,
       has_projection: true,
       has_sort: true,
+      default_sort: 'none',
       has_skip: true,
       mode: 'list',
       used_regex: false,
@@ -695,10 +696,6 @@ FindIterable<Document> result = collection.find(filter);`);
     const REQUIRE_PHONE_VALIDATOR =
       '{ $jsonSchema: { bsonType: "object", required: [ "phone" ] } }';
     beforeEach(async function () {
-      if (serverSatisfies('< 5.0.0')) {
-        return this.skip();
-      }
-
       await browser.setValidation({
         connectionName: DEFAULT_CONNECTION_NAME_1,
         database: 'test',

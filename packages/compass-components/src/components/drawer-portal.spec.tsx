@@ -13,10 +13,11 @@ import {
   useDrawerActions,
 } from './drawer-portal';
 import { expect } from 'chai';
+import sinon from 'sinon';
 
 describe('DrawerSection', function () {
   it('renders DrawerSection in the portal and updates the content when it updates', async function () {
-    let setCount;
+    let setCount: React.Dispatch<React.SetStateAction<number>> = () => {};
 
     function TestDrawer() {
       const [count, _setCount] = useState(0);
@@ -60,8 +61,14 @@ describe('DrawerSection', function () {
   const icons = ['ArrowDown', 'CaretDown', 'ChevronDown'] as const;
 
   it('switches drawer content when selecting a different section in the toolbar', async function () {
+    const onDrawerSectionOpenSpy = sinon.spy();
+    const onDrawerSectionHideSpy = sinon.spy();
+
     render(
-      <DrawerContentProvider>
+      <DrawerContentProvider
+        onDrawerSectionOpen={onDrawerSectionOpenSpy}
+        onDrawerSectionHide={onDrawerSectionHideSpy}
+      >
         <DrawerAnchor>
           {[1, 2, 3].map((n, idx) => {
             return (
@@ -85,20 +92,38 @@ describe('DrawerSection', function () {
       expect(screen.getByText('This is section 1')).to.be.visible;
     });
 
+    expect(onDrawerSectionOpenSpy).to.have.been.calledOnceWith('section-1');
+    onDrawerSectionOpenSpy.resetHistory();
+
     userEvent.click(screen.getByRole('button', { name: 'Section 2' }));
     await waitFor(() => {
       expect(screen.getByText('This is section 2')).to.be.visible;
     });
+
+    expect(onDrawerSectionHideSpy).to.have.been.calledOnceWith('section-1');
+    expect(onDrawerSectionOpenSpy).to.have.been.calledOnceWith('section-2');
+    onDrawerSectionOpenSpy.resetHistory();
+    onDrawerSectionHideSpy.resetHistory();
 
     userEvent.click(screen.getByRole('button', { name: 'Section 3' }));
     await waitFor(() => {
       expect(screen.getByText('This is section 3')).to.be.visible;
     });
 
+    expect(onDrawerSectionHideSpy).to.have.been.calledOnceWith('section-2');
+    expect(onDrawerSectionOpenSpy).to.have.been.calledOnceWith('section-3');
+    onDrawerSectionOpenSpy.resetHistory();
+    onDrawerSectionHideSpy.resetHistory();
+
     userEvent.click(screen.getByRole('button', { name: 'Section 1' }));
     await waitFor(() => {
       expect(screen.getByText('This is section 1')).to.be.visible;
     });
+
+    expect(onDrawerSectionHideSpy).to.have.been.calledOnceWith('section-3');
+    expect(onDrawerSectionOpenSpy).to.have.been.calledOnceWith('section-1');
+    onDrawerSectionOpenSpy.resetHistory();
+    onDrawerSectionHideSpy.resetHistory();
 
     userEvent.click(screen.getByRole('button', { name: 'Close drawer' }));
     await waitFor(() => {
@@ -106,12 +131,23 @@ describe('DrawerSection', function () {
       expect(screen.queryByText('This is section 2')).not.to.exist;
       expect(screen.queryByText('This is section 3')).not.to.exist;
     });
+
+    expect(onDrawerSectionHideSpy).to.have.been.calledOnceWith('section-1');
+    expect(onDrawerSectionOpenSpy).to.not.have.been.called;
+    onDrawerSectionOpenSpy.resetHistory();
+    onDrawerSectionHideSpy.resetHistory();
   });
 
   it('closes drawer when opened section is removed from toolbar data', async function () {
+    const onDrawerSectionOpenSpy = sinon.spy();
+    const onDrawerSectionHideSpy = sinon.spy();
+
     // Render two sections, auto-open first one
     const { rerender } = render(
-      <DrawerContentProvider>
+      <DrawerContentProvider
+        onDrawerSectionOpen={onDrawerSectionOpenSpy}
+        onDrawerSectionHide={onDrawerSectionHideSpy}
+      >
         <DrawerAnchor>
           <DrawerSection
             id="test-section-1"
@@ -138,9 +174,19 @@ describe('DrawerSection', function () {
       expect(screen.getByText('This is a test section')).to.be.visible;
     });
 
+    expect(onDrawerSectionHideSpy).to.not.have.been.called;
+    expect(onDrawerSectionOpenSpy).to.have.been.calledOnceWith(
+      'test-section-1'
+    );
+    onDrawerSectionOpenSpy.resetHistory();
+    onDrawerSectionHideSpy.resetHistory();
+
     // Now render without opened section
     rerender(
-      <DrawerContentProvider>
+      <DrawerContentProvider
+        onDrawerSectionOpen={onDrawerSectionOpenSpy}
+        onDrawerSectionHide={onDrawerSectionHideSpy}
+      >
         <DrawerAnchor>
           <DrawerSection
             id="test-section-2"
@@ -163,9 +209,17 @@ describe('DrawerSection', function () {
       // drawer with toolbar
       screen.getByTestId('lg-drawer')
     ).to.have.attribute('aria-hidden', 'true');
+
+    expect(onDrawerSectionHideSpy).to.have.been.calledOnceWith(
+      'test-section-1'
+    );
+    expect(onDrawerSectionOpenSpy).to.not.have.been.called;
   });
 
   it('can control drawer state via the hooks', async function () {
+    const onDrawerSectionOpenSpy = sinon.spy();
+    const onDrawerSectionHideSpy = sinon.spy();
+
     const ControlElement = () => {
       const { isDrawerOpen } = useDrawerState();
       const { openDrawer, closeDrawer } = useDrawerActions();
@@ -188,7 +242,10 @@ describe('DrawerSection', function () {
       );
     };
     render(
-      <DrawerContentProvider>
+      <DrawerContentProvider
+        onDrawerSectionOpen={onDrawerSectionOpenSpy}
+        onDrawerSectionHide={onDrawerSectionHideSpy}
+      >
         <ControlElement />
         <DrawerAnchor>
           <DrawerSection
@@ -214,6 +271,11 @@ describe('DrawerSection', function () {
     // Drawer is closed by default
     expect(screen.getByTestId('drawer-state')).to.have.text('closed');
 
+    expect(onDrawerSectionHideSpy).to.not.have.been.called;
+    expect(onDrawerSectionOpenSpy).to.not.have.been.called;
+    onDrawerSectionOpenSpy.resetHistory();
+    onDrawerSectionHideSpy.resetHistory();
+
     // Open the drawer
     userEvent.click(screen.getByRole('button', { name: 'Hook Open drawer' }));
     await waitFor(() => {
@@ -221,11 +283,59 @@ describe('DrawerSection', function () {
       expect(screen.getByText('This is the controlled section')).to.be.visible;
     });
 
+    expect(onDrawerSectionHideSpy).to.not.have.been.called;
+    expect(onDrawerSectionOpenSpy).to.have.been.calledOnceWith(
+      'controlled-section'
+    );
+    onDrawerSectionOpenSpy.resetHistory();
+    onDrawerSectionHideSpy.resetHistory();
+
     // Close the drawer
     userEvent.click(screen.getByRole('button', { name: 'Hook Close drawer' }));
     await waitFor(() => {
       expect(screen.getByTestId('drawer-state')).to.have.text('closed');
       expect(screen.queryByText('This is the controlled section')).not.to.exist;
+    });
+
+    expect(onDrawerSectionHideSpy).to.have.been.calledOnceWith(
+      'controlled-section'
+    );
+    expect(onDrawerSectionOpenSpy).to.not.have.been.called;
+  });
+
+  it('renders guide cue when passed in props', async function () {
+    localStorage.compass_guide_cues = '[]';
+    function TestDrawer() {
+      return (
+        <DrawerContentProvider>
+          <DrawerAnchor>
+            <DrawerSection
+              id="test-section"
+              label="Test section"
+              title={`Test section`}
+              glyph="Trash"
+              guideCue={{
+                cueId: 'test-drawer',
+                title: 'Introducing this new test drawer',
+                description: 'Does all the things',
+                buttonText: 'ok',
+                tooltipAlign: 'bottom',
+                tooltipJustify: 'end',
+              }}
+              autoOpen
+            >
+              This is a test section
+            </DrawerSection>
+          </DrawerAnchor>
+        </DrawerContentProvider>
+      );
+    }
+
+    render(<TestDrawer></TestDrawer>);
+
+    await waitFor(() => {
+      expect(screen.getByText('Introducing this new test drawer')).to.be
+        .visible;
     });
   });
 });

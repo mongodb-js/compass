@@ -8,6 +8,8 @@ import {
   spacing,
   openToast,
   closeToast,
+  Icon,
+  Button,
 } from '@mongodb-js/compass-components';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
@@ -38,9 +40,21 @@ export function getConnectingStatusText(connectionInfo: ConnectionInfo) {
 
 type ConnectionErrorToastBodyProps = {
   info?: ConnectionInfo | null;
-  showReviewButton: boolean;
-  onReview: () => void;
+  error: Error;
+  onReview?: () => void;
+  onDebug?: () => void;
 };
+
+const connectionErrorToastStyles = css({
+  // the gap on the right after the buttons takes up a lot of space from the
+  // description, so we remove it and add a little bit of margin elsewhere
+  gap: 0,
+  '[data-testid="lg-toast-content"] > div, [data-testid="lg-toast-content"] > div > p + p':
+    {
+      // don't cut off the glow of the button
+      overflow: 'visible',
+    },
+});
 
 const connectionErrorToastBodyStyles = css({
   display: 'grid',
@@ -48,37 +62,76 @@ const connectionErrorToastBodyStyles = css({
   gap: spacing[200],
 });
 
-const connectionErrorToastActionMessageStyles = css({});
+const connectionErrorActionsStyles = css({
+  display: 'flex',
+  flexDirection: 'column',
+  textAlign: 'right',
+  // replacing the gap with a margin so the button glow does not get cut off
+  marginRight: spacing[100],
+  gap: spacing[100],
+  justifyContent: 'center',
+});
 
-const connectionErrorTextStyles = css({
-  overflow: 'hidden',
-  textOverflow: 'ellipsis',
+const connectionErrorStyles = css({
+  display: 'flex',
+  flexDirection: 'column',
+  wordBreak: 'break-word',
+});
+
+const connectionErrorTitleStyles = css({
+  fontWeight: 'bold',
+});
+
+const debugActionStyles = css({
+  display: 'flex',
+  alignItems: 'center',
+  gap: spacing[100],
+  justifyContent: 'right',
+  textWrap: 'nowrap',
 });
 
 function ConnectionErrorToastBody({
   info,
-  showReviewButton,
+  error,
   onReview,
+  onDebug,
 }: ConnectionErrorToastBodyProps): React.ReactElement {
   return (
     <span className={connectionErrorToastBodyStyles}>
-      <span
-        data-testid="connection-error-text"
-        className={connectionErrorTextStyles}
-      >
-        There was a problem connecting{' '}
-        {info ? `to ${getConnectionTitle(info)}` : ''}
-      </span>
-      {info && showReviewButton && (
-        <Link
-          className={connectionErrorToastActionMessageStyles}
-          hideExternalIcon={true}
-          onClick={onReview}
-          data-testid="connection-error-review"
+      <span className={connectionErrorStyles}>
+        <span
+          data-testid="connection-error-title"
+          className={connectionErrorTitleStyles}
         >
-          REVIEW
-        </Link>
-      )}
+          {info ? getConnectionTitle(info) : 'Connection failed'}
+        </span>
+        <span data-testid="connection-error-text">{error.message}</span>
+      </span>
+      <span className={connectionErrorActionsStyles}>
+        {info && onReview && (
+          <span>
+            <Button
+              onClick={onReview}
+              data-testid="connection-error-review"
+              size="small"
+            >
+              Review
+            </Button>
+          </span>
+        )}
+        {info && onDebug && (
+          <span className={debugActionStyles}>
+            <Icon glyph="Sparkle" size="small"></Icon>
+            <Link
+              hideExternalIcon={true}
+              onClick={onDebug}
+              data-testid="connection-error-debug"
+            >
+              Debug for me
+            </Link>
+          </span>
+        )}
+      </span>
     </span>
   );
 }
@@ -123,30 +176,49 @@ const openConnectionSucceededToast = (connectionInfo: ConnectionInfo) => {
   });
 };
 
-const openConnectionFailedToast = (
+const openConnectionFailedToast = ({
+  connectionInfo,
+  error,
+  onReviewClick,
+  onDebugClick,
+}: {
   // Connection info might be missing if we failed connecting before we
   // could even resolve connection info. Currently the only case where this
   // can happen is autoconnect flow
-  connectionInfo: ConnectionInfo | null | undefined,
-  error: Error,
-  showReviewButton: boolean,
-  onReviewClick: () => void
-) => {
+  connectionInfo: ConnectionInfo | null | undefined;
+  error: Error;
+  onReviewClick?: () => void;
+  onDebugClick?: () => void;
+}) => {
   const failedToastId = connectionInfo?.id ?? 'failed';
 
   openToast(`connection-status--${failedToastId}`, {
-    title: error.message,
+    // we place the title inside the description to get the layout we need
+    title: '',
     description: (
       <ConnectionErrorToastBody
         info={connectionInfo}
-        showReviewButton={showReviewButton}
-        onReview={() => {
-          closeToast(`connection-status--${failedToastId}`);
-          onReviewClick();
-        }}
+        error={error}
+        onReview={
+          onReviewClick
+            ? () => {
+                closeToast(`connection-status--${failedToastId}`);
+                onReviewClick();
+              }
+            : undefined
+        }
+        onDebug={
+          onDebugClick
+            ? () => {
+                closeToast(`connection-status--${failedToastId}`);
+                onDebugClick();
+              }
+            : undefined
+        }
       />
     ),
     variant: 'warning',
+    className: connectionErrorToastStyles,
   });
 };
 

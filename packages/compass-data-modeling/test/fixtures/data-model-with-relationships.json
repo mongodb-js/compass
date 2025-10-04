@@ -199,10 +199,15 @@
                   "bsonType": "objectId"
                 },
                 "airline": {
-                  "bsonType": "string"
-                },
-                "airline_id": {
-                  "bsonType": "string"
+                  "bsonType": "object",
+                  "properties": {
+                    "name": {
+                      "bsonType": "string"
+                    },
+                    "_id": {
+                      "bsonType": "string"
+                    }
+                  }
                 },
                 "codeshare": {
                   "bsonType": "string"

@@ -8,7 +8,9 @@ module.exports = {
     // breaking changes, but those rarely affect us. If it becomes a problem, we
     // can always change this code to lock it to whatever major version of
     // electron compass is currently at
-    'electron',
+    // TODO(COMPASS-9852): have to keep it on 37 for now so that the app can
+    // work on macos 11
+    'electron@37',
     'electron-to-chromium',
     'node-abi',
   ],
@@ -21,10 +23,16 @@ module.exports = {
     'eslint-plugin-react',
     'eslint-plugin-react-hooks',
   ],
-  typescript: ['typescript', 'ts-node'],
+  typescript: ['@microsoft/api-extractor', 'typescript', 'ts-node'],
+  leafygreen: [
+    '@emotion/*',
+    '@leafygreen-ui/*',
+    '@lg-code/*',
+    '@mongodb-js/diagramming',
+  ],
+  mongosh: ['@mongosh/*'],
   // TODO(COMPASS-9443): Update update-* github actions to handle all groups as
   // a matrix inside one action instead of having separate action for every
   // group and add more groups following the ones in _dependabot
-  // mongosh: [],
   // 'devtools-shared-prod': [],
 };

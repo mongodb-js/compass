@@ -88,7 +88,11 @@ describe('AggregationsAndQueriesAndUpdatemanyList', function () {
           return queryStorage;
         },
       },
-      pipelineStorage: pipelineStorage,
+      pipelineStorage: {
+        getStorage() {
+          return pipelineStorage;
+        },
+      },
       workspaces,
     });
     const result = renderWithConnections(

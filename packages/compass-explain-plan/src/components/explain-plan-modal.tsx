@@ -22,7 +22,12 @@ import { useAssistantActions } from '@mongodb-js/compass-assistant';
 export type ExplainPlanModalProps = Partial<
   Pick<
     ExplainPlanModalState,
-    'isModalOpen' | 'status' | 'explainPlan' | 'rawExplainPlan' | 'error'
+    | 'isModalOpen'
+    | 'status'
+    | 'explainPlan'
+    | 'rawExplainPlan'
+    | 'error'
+    | 'operationType'
   >
 > &
   Pick<CollectionTabPluginMetadata, 'namespace' | 'isDataLake'> & {
@@ -102,9 +107,10 @@ export const ExplainPlanModal: React.FunctionComponent<
   explainPlan,
   rawExplainPlan,
   error,
+  operationType,
   onModalClose,
 }) => {
-  const { interpretExplainPlan, isAssistantEnabled } = useAssistantActions();
+  const { interpretExplainPlan } = useAssistantActions();
 
   return (
     <Modal
@@ -132,13 +138,13 @@ export const ExplainPlanModal: React.FunctionComponent<
             }
           />
         </div>
-        {isAssistantEnabled && explainPlan && (
+        {explainPlan && interpretExplainPlan && (
           <div className={headerButtonSectionStyles}>
             <Button
               size="small"
               variant="default"
               leftGlyph={
-                // TODO(COMPASS-9384): Will be replaced with Sparkle gradient icon once Leafygreen components are updated.
+                // TODO(COMPASS-9751): Will be replaced with Sparkle gradient icon once Leafygreen components are updated.
                 <Icon glyph="Sparkle" style={{ color: palette.green.dark1 }} />
               }
               data-testid="interpret-for-me-button"
@@ -147,6 +153,7 @@ export const ExplainPlanModal: React.FunctionComponent<
                 interpretExplainPlan({
                   namespace: explainPlan.namespace,
                   explainPlan: JSON.stringify(explainPlan),
+                  operationType: operationType ?? 'aggregation',
                 });
               }}
               disabled={status !== 'ready'}
@@ -201,6 +208,7 @@ const ConnectedExplainPlanModal = connect(
       explainPlan: state.explainPlan,
       rawExplainPlan: state.rawExplainPlan,
       error: state.error,
+      operationType: state.operationType,
     };
   },
   {

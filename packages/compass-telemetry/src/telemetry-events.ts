@@ -1459,6 +1459,99 @@ type IndexDroppedEvent = ConnectionScopedEvent<{
 }>;
 
 /**
+ * This event is fired when user opens a drawer section. Either by switching
+ * to it via the drawer toolbar or by opening the drawer and the first tab is
+ * this drawer section.
+ *
+ * @category Gen AI
+ */
+type DrawerSectionOpenedEvent = CommonEvent<{
+  name: 'Drawer Section Opened';
+  payload: {
+    sectionId: string;
+  };
+}>;
+
+/**
+ * This event is fired when user closes a drawer section. Either by switching
+ * to another tab via the drawer toolbar or by closing the drawer when the
+ * active tab is this drawer section.
+ *
+ * @category Gen AI
+ */
+type DrawerSectionClosedEvent = CommonEvent<{
+  name: 'Drawer Section Closed';
+  payload: {
+    sectionId: string;
+  };
+}>;
+
+/**
+ * This event is fired when user enters a prompt in the assistant chat
+ * and hits "enter".
+ *
+ * @category Gen AI
+ */
+type AssistantPromptSubmittedEvent = CommonEvent<{
+  name: 'Assistant Prompt Submitted';
+  payload: {
+    user_input_length?: number;
+  };
+}>;
+
+/**
+ * This event is fired when a user uses an assistant entry point.
+ *
+ * @category Gen AI
+ */
+type AssistantEntryPointUsedEvent = CommonEvent<{
+  name: 'Assistant Entry Point Used';
+  payload: {
+    source: 'explain plan' | 'performance insights' | 'connection error';
+  };
+}>;
+
+/**
+ * This event is fired when a user submits feedback for the assistant.
+ *
+ * @category Assistant
+ */
+type AssistantFeedbackSubmittedEvent = CommonEvent<{
+  name: 'Assistant Feedback Submitted';
+  payload: {
+    feedback: 'positive' | 'negative';
+    text: string | undefined;
+    request_id: string | null;
+    source: AssistantEntryPointUsedEvent['payload']['source'] | 'chat response';
+  };
+}>;
+
+/**
+ * This event is fired when a user confirms a confirmation message in the assistant chat.
+ *
+ * @category Gen AI
+ */
+type AssistantConfirmationSubmittedEvent = CommonEvent<{
+  name: 'Assistant Confirmation Submitted';
+  payload: {
+    status: 'confirmed' | 'rejected';
+    source: AssistantEntryPointUsedEvent['payload']['source'] | 'chat response';
+  };
+}>;
+
+/**
+ * This event is fired when the AI response encounters an error.
+ *
+ * @category Gen AI
+ */
+type AssistantResponseFailedEvent = CommonEvent<{
+  name: 'Assistant Response Failed';
+  payload: {
+    error_name?: string;
+  };
+}>;
+
+/**
  * This event is fired when a user submits feedback for a query generation.
  *
  * @category Gen AI
@@ -1546,26 +1639,6 @@ type AiOptInModalShownEvent = CommonEvent<{
  */
 type AiOptInModalDismissedEvent = CommonEvent<{
   name: 'AI Opt In Modal Dismissed';
-  payload: Record<string, never>;
-}>;
-
-/**
- * This event is fired when the AI Sign-In Modal is shown to the user.
- *
- * @category Gen AI
- */
-type AiSignInModalShownEvent = CommonEvent<{
-  name: 'AI Sign In Modal Shown';
-  payload: Record<string, never>;
-}>;
-
-/**
- * This event is fired when the AI Sign-In Modal is dismissed by the user.
- *
- * @category Gen AI
- */
-type AiSignInModalDismissedEvent = CommonEvent<{
-  name: 'AI Sign In Modal Dismissed';
   payload: Record<string, never>;
 }>;
 
@@ -1734,6 +1807,11 @@ type QueryExecutedEvent = ConnectionScopedEvent<{
      * Indicates whether the query includes a sort operation.
      */
     has_sort: boolean;
+
+    /**
+     * Indicates which default sort was set in settings
+     */
+    default_sort: 'natural' | '_id' | 'none';
 
     /**
      * Indicates whether the query includes a limit operation.
@@ -2884,6 +2962,42 @@ type CreateIndexStrategiesDocumentationClicked = CommonEvent<{
 }>;
 
 /**
+ * This event is fired when user adds a collection in a data modeling diagram.
+ *
+ * @category Data Modeling
+ */
+type DataModelingDiagramCollectionAdded = CommonEvent<{
+  name: 'Data Modeling Collection Added';
+  payload: {
+    source: 'toolbar';
+  };
+}>;
+
+/**
+ * This event is fired when user removes a collection in a data modeling diagram.
+ *
+ * @category Data Modeling
+ */
+type DataModelingDiagramCollectionRemoved = CommonEvent<{
+  name: 'Data Modeling Collection Removed';
+  payload: {
+    source: 'side_panel';
+  };
+}>;
+
+/**
+ * This event is fired when user renames a collection in a data modeling diagram.
+ *
+ * @category Data Modeling
+ */
+type DataModelingDiagramCollectionRenamed = CommonEvent<{
+  name: 'Data Modeling Collection Renamed';
+  payload: {
+    source: 'side_panel';
+  };
+}>;
+
+/**
  * This event is fired when a new data modeling diagram is created
  *
  * @category Data Modeling
@@ -2904,6 +3018,44 @@ type DataModelingDiagramExported = CommonEvent<{
   name: 'Data Modeling Diagram Exported';
   payload: {
     format: 'png' | 'json' | 'diagram';
+  };
+}>;
+
+/**
+ * This event is fired when user removes a field in a data modeling diagram.
+ *
+ * @category Data Modeling
+ */
+type DataModelingDiagramFieldRemoved = CommonEvent<{
+  name: 'Data Modeling Field Removed';
+  payload: {
+    source: 'side_panel';
+  };
+}>;
+
+/**
+ * This event is fired when user renames a field in a data modeling diagram.
+ *
+ * @category Data Modeling
+ */
+type DataModelingDiagramFieldRenamed = CommonEvent<{
+  name: 'Data Modeling Field Renamed';
+  payload: {
+    source: 'side_panel';
+  };
+}>;
+
+/**
+ * This event is fired when user changes a field type in a data modeling diagram.
+ *
+ * @category Data Modeling
+ */
+type DataModelingDiagramFieldTypeChanged = CommonEvent<{
+  name: 'Data Modeling Field Type Changed';
+  payload: {
+    source: 'side_panel';
+    from?: string;
+    to?: string;
   };
 }>;
 
@@ -2992,10 +3144,13 @@ export type TelemetryEvent =
   | AggregationTimedOutEvent
   | AggregationUseCaseAddedEvent
   | AggregationUseCaseSavedEvent
+  | AssistantPromptSubmittedEvent
+  | AssistantResponseFailedEvent
+  | AssistantFeedbackSubmittedEvent
+  | AssistantEntryPointUsedEvent
+  | AssistantConfirmationSubmittedEvent
   | AiOptInModalShownEvent
   | AiOptInModalDismissedEvent
-  | AiSignInModalShownEvent
-  | AiSignInModalDismissedEvent
   | AiGenerateQueryClickedEvent
   | AiPromptSubmittedEvent
   | AiQueryFeedbackEvent
@@ -3026,7 +3181,18 @@ export type TelemetryEvent =
   | ConnectionRemovedEvent
   | CurrentOpShowOperationDetailsEvent
   | DatabaseCreatedEvent
+  | DataModelingDiagramCollectionAdded
+  | DataModelingDiagramCollectionRemoved
+  | DataModelingDiagramCollectionRenamed
   | DataModelingDiagramCreated
+  | DataModelingDiagramExported
+  | DataModelingDiagramFieldRemoved
+  | DataModelingDiagramFieldRenamed
+  | DataModelingDiagramFieldTypeChanged
+  | DataModelingDiagramImported
+  | DataModelingDiagramRelationshipAdded
+  | DataModelingDiagramRelationshipEdited
+  | DataModelingDiagramRelationshipDeleted
   | DeleteExportedEvent
   | DeleteExportOpenedEvent
   | DetailViewHideOperationDetailsEvent
@@ -3036,6 +3202,8 @@ export type TelemetryEvent =
   | DocumentDeletedEvent
   | DocumentInsertedEvent
   | DocumentUpdatedEvent
+  | DrawerSectionOpenedEvent
+  | DrawerSectionClosedEvent
   | EditorTypeChangedEvent
   | ErrorFetchingAttributesEvent
   | ExplainPlanExecutedEvent
@@ -3123,10 +3291,5 @@ export type TelemetryEvent =
   | CreateIndexIndexSuggestionsCopied
   | CreateIndexStrategiesDocumentationClicked
   | UUIDEncounteredEvent
-  | DataModelingDiagramExported
-  | DataModelingDiagramImported
-  | DataModelingDiagramRelationshipAdded
-  | DataModelingDiagramRelationshipEdited
-  | DataModelingDiagramRelationshipDeleted
   | ContextMenuOpened
   | ContextMenuItemClicked;

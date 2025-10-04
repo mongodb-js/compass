@@ -28,6 +28,7 @@ type CloseExplainPlanModalAction = {
 type FetchExplainPlanModalLoadingAction = {
   type: ExplainPlanModalActionTypes.FetchExplainPlanModalLoading;
   id: number;
+  operationType: 'query' | 'aggregation';
 };
 
 type FetchExplainPlanModalSuccessAction = {
@@ -51,6 +52,7 @@ export type ExplainPlanModalState = {
   explainPlan: SerializedExplainPlan | null;
   rawExplainPlan: unknown;
   explainPlanFetchId: number;
+  operationType: 'query' | 'aggregation' | null;
 };
 
 type ExplainPlanModalThunkAction<R, A extends Action = AnyAction> = ThunkAction<
@@ -69,6 +71,7 @@ export const INITIAL_STATE: ExplainPlanModalState = {
   explainPlan: null,
   rawExplainPlan: null,
   explainPlanFetchId: -1,
+  operationType: null,
 };
 
 export const reducer: Reducer<ExplainPlanModalState, Action> = (
@@ -89,6 +92,7 @@ export const reducer: Reducer<ExplainPlanModalState, Action> = (
       explainPlan: null,
       rawExplainPlan: null,
       explainPlanFetchId: action.id,
+      operationType: action.operationType,
     };
   }
 
@@ -190,10 +194,12 @@ export const openExplainPlanModal = (
 
     let rawExplainPlan = null;
     let explainPlan = null;
+    const operationType = event.query ? 'query' : 'aggregation';
 
     dispatch({
       type: ExplainPlanModalActionTypes.FetchExplainPlanModalLoading,
       id: fetchId,
+      operationType,
     });
 
     const { isDataLake, namespace } = getState();

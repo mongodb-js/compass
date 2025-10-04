@@ -3,16 +3,12 @@ import React, { type ComponentProps } from 'react';
 import {
   renderWithActiveConnection,
   screen,
-  cleanup,
 } from '@mongodb-js/testing-library-compass';
 import sinon from 'sinon';
 import {
   WorkspacesServiceProvider,
   type WorkspacesService,
 } from '@mongodb-js/compass-workspaces/provider';
-import type { PreferencesAccess } from 'compass-preferences-model';
-import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
-import { PreferencesProvider } from 'compass-preferences-model/provider';
 import { ExperimentTestName } from '@mongodb-js/compass-telemetry/provider';
 import { CompassExperimentationProvider } from '@mongodb-js/compass-telemetry';
 import type { ConnectionInfo } from '@mongodb-js/compass-connections/provider';
@@ -20,11 +16,9 @@ import type { ConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import CollectionHeaderActions from '../collection-header-actions';
 
 describe('CollectionHeaderActions [Component]', function () {
-  let preferences: PreferencesAccess;
   let mockUseAssignment: sinon.SinonStub;
 
-  beforeEach(async function () {
-    preferences = await createSandboxFromDefaultPreferences();
+  beforeEach(function () {
     mockUseAssignment = sinon.stub();
     mockUseAssignment.returns({
       assignment: {
@@ -42,27 +36,32 @@ describe('CollectionHeaderActions [Component]', function () {
   const renderCollectionHeaderActions = (
     props: Partial<ComponentProps<typeof CollectionHeaderActions>> = {},
     workspaceService: Partial<WorkspacesService> = {},
-    connectionInfo?: ConnectionInfo
+    connectionInfo?: ConnectionInfo,
+    preferences?: Record<string, boolean>
   ) => {
     return renderWithActiveConnection(
       <CompassExperimentationProvider
         useAssignment={mockUseAssignment}
         assignExperiment={sinon.stub()}
+        getAssignment={sinon.stub().resolves(null)}
       >
         <WorkspacesServiceProvider
           value={workspaceService as WorkspacesService}
         >
-          <PreferencesProvider value={preferences}>
-            <CollectionHeaderActions
-              namespace="test.test"
-              isReadonly={false}
-              onOpenMockDataModal={sinon.stub()}
-              {...props}
-            />
-          </PreferencesProvider>
+          <CollectionHeaderActions
+            namespace="test.test"
+            isReadonly={false}
+            onOpenMockDataModal={sinon.stub()}
+            hasSchemaAnalysisData={true}
+            analyzedSchemaDepth={2}
+            schemaAnalysisStatus="complete"
+            schemaAnalysisError={null}
+            {...props}
+          />
         </WorkspacesServiceProvider>
       </CompassExperimentationProvider>,
-      connectionInfo
+      connectionInfo,
+      { preferences }
     );
   };
 
@@ -75,8 +74,6 @@ describe('CollectionHeaderActions [Component]', function () {
       });
     });
 
-    afterEach(cleanup);
-
     it('does not render any buttons', function () {
       expect(
         screen.queryByTestId('collection-header-actions-edit-button')
@@ -88,15 +85,18 @@ describe('CollectionHeaderActions [Component]', function () {
   });
 
   context('Compass readonly mode', function () {
-    it('does not render edit view buttons when in readonly mode', async function () {
-      await preferences.savePreferences({ readOnly: true });
-
-      await renderCollectionHeaderActions({
-        isReadonly: true,
-        namespace: 'db.coll2',
-        sourceName: 'db.someSource',
-        sourcePipeline: [{ $match: { a: 1 } }],
-      });
+    it('does not render edit view buttons when in ReadWrite mode', async function () {
+      await renderCollectionHeaderActions(
+        {
+          isReadonly: true,
+          namespace: 'db.coll2',
+          sourceName: 'db.someSource',
+          sourcePipeline: [{ $match: { a: 1 } }],
+        },
+        undefined,
+        undefined,
+        { readWrite: true }
+      );
 
       expect(
         screen.queryByTestId('collection-header-actions-edit-button')
@@ -137,8 +137,6 @@ describe('CollectionHeaderActions [Component]', function () {
       );
     });
 
-    afterEach(cleanup);
-
     it('shows a button to edit the view pipeline', function () {
       expect(
         screen.getByTestId('collection-header-actions-edit-button')
@@ -176,9 +174,6 @@ describe('CollectionHeaderActions [Component]', function () {
         }
       );
     });
-
-    afterEach(cleanup);
-
     it('shows a button to return to the view', function () {
       expect(
         screen.getByTestId('collection-header-actions-return-to-view-button')
@@ -221,119 +216,6 @@ describe('CollectionHeaderActions [Component]', function () {
       },
     };
 
-    it('should not show Mock Data Generator button when user is in control group', async function () {
-      mockUseAssignment.returns({
-        assignment: {
-          assignmentData: {
-            variant: 'mockDataGeneratorControl',
-          },
-        },
-      });
-
-      await renderCollectionHeaderActions(
-        {
-          namespace: 'test.collection',
-          isReadonly: false,
-        },
-        {},
-        atlasConnectionInfo
-      );
-
-      expect(
-        screen.queryByTestId('collection-header-generate-mock-data-button')
-      ).to.not.exist;
-    });
-
-    it('should not show Mock Data Generator button when not in Atlas', async function () {
-      mockUseAssignment.returns({
-        assignment: {
-          assignmentData: {
-            variant: 'treatment',
-          },
-        },
-      });
-
-      await renderCollectionHeaderActions({
-        namespace: 'test.collection',
-        isReadonly: false,
-        // Don't pass atlasConnectionInfo, to simulate not being in Atlas
-      });
-
-      expect(
-        screen.queryByTestId('collection-header-generate-mock-data-button')
-      ).to.not.exist;
-    });
-
-    it('should not show Mock Data Generator button for readonly collections', async function () {
-      mockUseAssignment.returns({
-        assignment: {
-          assignmentData: {
-            variant: 'treatment',
-          },
-        },
-      });
-
-      await renderCollectionHeaderActions(
-        {
-          namespace: 'test.collection',
-          isReadonly: true,
-        },
-        {},
-        atlasConnectionInfo
-      );
-
-      expect(
-        screen.queryByTestId('collection-header-generate-mock-data-button')
-      ).to.not.exist;
-    });
-
-    it('should not show Mock Data Generator button for views (sourceName present)', async function () {
-      mockUseAssignment.returns({
-        assignment: {
-          assignmentData: {
-            variant: 'treatment',
-          },
-        },
-      });
-
-      await renderCollectionHeaderActions(
-        {
-          namespace: 'test.collection',
-          isReadonly: false,
-          sourceName: 'source-collection',
-        },
-        {},
-        atlasConnectionInfo
-      );
-
-      expect(
-        screen.queryByTestId('collection-header-generate-mock-data-button')
-      ).to.not.exist;
-    });
-
-    it('should show Mock Data Generator button when user is in treatment group and in Atlas', async function () {
-      mockUseAssignment.returns({
-        assignment: {
-          assignmentData: {
-            variant: 'mockDataGeneratorVariant',
-          },
-        },
-      });
-
-      await renderCollectionHeaderActions(
-        {
-          namespace: 'test.collection',
-          isReadonly: false,
-        },
-        {},
-        atlasConnectionInfo
-      );
-
-      expect(
-        screen.getByTestId('collection-header-generate-mock-data-button')
-      ).to.exist;
-    });
-
     it('should call useAssignment with correct parameters', async function () {
       await renderCollectionHeaderActions({
         namespace: 'test.collection',
@@ -373,6 +255,67 @@ describe('CollectionHeaderActions [Component]', function () {
       button.click();
 
       expect(onOpenMockDataModal).to.have.been.calledOnce;
+    });
+
+    it('should disable button for deeply nested collections', async function () {
+      mockUseAssignment.returns({
+        assignment: {
+          assignmentData: {
+            variant: 'mockDataGeneratorVariant', // Treatment variant
+          },
+        },
+      });
+
+      await renderCollectionHeaderActions(
+        {
+          namespace: 'test.collection',
+          isReadonly: false,
+          hasSchemaAnalysisData: true,
+          analyzedSchemaDepth: 5, // Exceeds MAX_COLLECTION_NESTING_DEPTH (3)
+          schemaAnalysisStatus: 'complete',
+          onOpenMockDataModal: sinon.stub(),
+        },
+        {},
+        atlasConnectionInfo
+      );
+
+      const button = screen.getByTestId(
+        'collection-header-generate-mock-data-button'
+      );
+      expect(button).to.exist;
+      expect(button).to.have.attribute('aria-disabled', 'true');
+    });
+
+    it('should show an error banner when the schema is in an unsupported state', async function () {
+      mockUseAssignment.returns({
+        assignment: {
+          assignmentData: {
+            variant: 'mockDataGeneratorVariant',
+          },
+        },
+      });
+
+      await renderCollectionHeaderActions(
+        {
+          namespace: 'test.collection',
+          isReadonly: false,
+          hasSchemaAnalysisData: false,
+          schemaAnalysisStatus: 'error',
+          schemaAnalysisError: {
+            errorType: 'unsupportedState',
+            errorMessage: 'Unsupported state',
+          },
+          onOpenMockDataModal: sinon.stub(),
+        },
+        {},
+        atlasConnectionInfo
+      );
+
+      const button = screen.getByTestId(
+        'collection-header-generate-mock-data-button'
+      );
+      expect(button).to.exist;
+      expect(button).to.have.attribute('aria-disabled', 'true');
     });
   });
 });

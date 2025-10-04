@@ -32,7 +32,9 @@ describe('RenameCollectionPlugin', function () {
     }),
   };
   const pipelineStorage = {
-    loadAll: sandbox.stub().resolves([]),
+    getStorage: () => ({
+      loadAll: sandbox.stub().resolves([]),
+    }),
   };
   beforeEach(function () {
     const Plugin = RenameCollectionPlugin.withMockServices({

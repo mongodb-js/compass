@@ -1,7 +1,7 @@
 import React from 'react';
 import {
   cleanup,
-  render,
+  renderWithConnections,
   screen,
   within,
   userEvent,
@@ -33,6 +33,7 @@ const indexes: RegularIndex[] = [
       },
     ],
     usageCount: 10,
+    buildProgress: 0,
   },
   {
     ns: 'db.coll',
@@ -56,6 +57,7 @@ const indexes: RegularIndex[] = [
       },
     ],
     usageCount: 15,
+    buildProgress: 0,
   },
   {
     ns: 'db.coll',
@@ -78,6 +80,7 @@ const indexes: RegularIndex[] = [
       },
     ],
     usageCount: 20,
+    buildProgress: 0,
   },
   {
     ns: 'db.coll',
@@ -100,6 +103,7 @@ const indexes: RegularIndex[] = [
       },
     ],
     usageCount: 25,
+    buildProgress: 0,
   },
 ];
 
@@ -117,7 +121,8 @@ const inProgressIndexes: InProgressIndex[] = [
         value: -1,
       },
     ],
-    status: 'inprogress',
+    status: 'creating',
+    buildProgress: 0,
   },
   {
     id: 'in-progress-2',
@@ -128,8 +133,9 @@ const inProgressIndexes: InProgressIndex[] = [
         value: 'text',
       },
     ],
-    status: 'inprogress',
+    status: 'creating',
     error: 'this is an error',
+    buildProgress: 0,
   },
 ];
 
@@ -151,7 +157,7 @@ const rollingIndexes: RollingIndex[] = [
 const renderIndexList = (
   props: Partial<React.ComponentProps<typeof RegularIndexesTable>> = {}
 ) => {
-  return render(
+  return renderWithConnections(
     <RegularIndexesTable
       indexes={[]}
       inProgressIndexes={[]}
@@ -268,7 +274,7 @@ describe('RegularIndexesTable Component', function () {
 
       expect(() => within(indexRow).getByTestId('index-actions-hide-action')).to
         .throw;
-      if (index.status === 'inprogress') {
+      if (index.status === 'creating') {
         expect(() =>
           within(indexRow).getByTestId('index-actions-delete-action')
         ).to.throw;
@@ -328,6 +334,7 @@ describe('RegularIndexesTable Component', function () {
         extra: {},
         size: 11111,
         relativeSize: 0,
+        buildProgress: 0,
       },
     ];
 
@@ -411,7 +418,7 @@ describe('RegularIndexesTable Component', function () {
   describe('sorting', function () {
     function getIndexNames() {
       return screen.getAllByTestId('indexes-name-field').map((el) => {
-        return (el.textContent as string).trim();
+        return el.textContent.trim();
       });
     }
 

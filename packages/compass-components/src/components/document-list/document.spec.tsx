@@ -11,7 +11,7 @@ import {
 import HadronDocument from 'hadron-document';
 import Document from './document';
 
-const EditableDoc = ({ doc }) => {
+const EditableDoc = ({ doc }: { doc: HadronDocument }) => {
   const [editing, setEditing] = useState(false);
 
   return (
@@ -61,8 +61,11 @@ describe('Document', function () {
       render(<Document value={doc} editable editing></Document>);
 
       const el = document.querySelector<HTMLElement>(
-        `[data-id="${doc.get('str').uuid}"]`
+        `[data-id="${doc.get('str')?.uuid}"]`
       );
+      if (!el) {
+        throw new Error('Could not find element');
+      }
       const keyEditor = within(el).getByTestId('hadron-document-key-editor');
 
       userEvent.clear(keyEditor);
@@ -71,16 +74,19 @@ describe('Document', function () {
 
       expect(screen.getByDisplayValue('new_name')).to.exist;
 
-      expect(doc.get('new_name').key).to.eq('str');
-      expect(doc.get('new_name').currentKey).to.eq('new_name');
+      expect(doc.get('new_name')?.key).to.eq('str');
+      expect(doc.get('new_name')?.currentKey).to.eq('new_name');
     });
 
     it('should change element string value on edit', function () {
       render(<Document value={doc} editable editing></Document>);
 
       const el = document.querySelector<HTMLElement>(
-        `[data-id="${doc.get('str').uuid}"]`
+        `[data-id="${doc.get('str')?.uuid}"]`
       );
+      if (!el) {
+        throw new Error('Could not find element');
+      }
 
       const valueEditor = within(el).getByTestId(
         'hadron-document-value-editor'
@@ -90,16 +96,19 @@ describe('Document', function () {
       userEvent.keyboard('bla');
       userEvent.tab();
 
-      expect(doc.get('str').currentValue).to.eq('bla');
-      expect(doc.get('str').currentType).to.eq('String');
+      expect(doc.get('str')?.currentValue).to.eq('bla');
+      expect(doc.get('str')?.currentType).to.eq('String');
     });
 
     it('should change element number value on edit', function () {
       render(<Document value={doc} editable editing></Document>);
 
       const el = document.querySelector<HTMLElement>(
-        `[data-id="${doc.get('num').uuid}"]`
+        `[data-id="${doc.get('num')?.uuid}"]`
       );
+      if (!el) {
+        throw new Error('Could not find element');
+      }
 
       const valueEditor = within(el).getByTestId(
         'hadron-document-value-editor'
@@ -109,16 +118,19 @@ describe('Document', function () {
       userEvent.keyboard('321');
       userEvent.tab();
 
-      expect(doc.get('num').currentValue.valueOf()).to.eq(321);
-      expect(doc.get('num').currentType).to.eq('Int32');
+      expect(doc.get('num')?.currentValue?.valueOf()).to.eq(321);
+      expect(doc.get('num')?.currentType).to.eq('Int32');
     });
 
     it('should change element date value on edit', function () {
       render(<Document value={doc} editable editing></Document>);
 
       const el = document.querySelector<HTMLElement>(
-        `[data-id="${doc.get('date').uuid}"]`
+        `[data-id="${doc.get('date')?.uuid}"]`
       );
+      if (!el) {
+        throw new Error('Could not find element');
+      }
 
       const valueEditor = within(el).getByTestId(
         'hadron-document-value-editor'
@@ -128,26 +140,29 @@ describe('Document', function () {
       userEvent.keyboard('2000-01-01');
       userEvent.tab();
 
-      expect((doc.get('date').currentValue as Date).toISOString()).to.eq(
+      expect((doc.get('date')?.currentValue as Date).toISOString()).to.eq(
         '2000-01-01T00:00:00.000Z'
       );
-      expect(doc.get('date').currentType).to.eq('Date');
+      expect(doc.get('date')?.currentType).to.eq('Date');
     });
 
     it('should change element type on edit', function () {
       render(<Document value={doc} editable editing></Document>);
 
       const el = document.querySelector<HTMLElement>(
-        `[data-id="${doc.get('num').uuid}"]`
+        `[data-id="${doc.get('num')?.uuid}"]`
       );
+      if (!el) {
+        throw new Error('Could not find element');
+      }
 
       const typeEditor = within(el).getByTestId('hadron-document-type-editor');
 
       userEvent.selectOptions(typeEditor, 'String');
       userEvent.tab();
 
-      expect(doc.get('num').currentValue.valueOf()).to.eq('123');
-      expect(doc.get('num').currentType).to.eq('String');
+      expect(doc.get('num')?.currentValue?.valueOf()).to.eq('123');
+      expect(doc.get('num')?.currentType).to.eq('String');
     });
   });
 
@@ -168,8 +183,11 @@ describe('Document', function () {
     render(<Document value={doc} editable editing></Document>);
 
     const el = document.querySelector<HTMLElement>(
-      `[data-id="${doc.get('null_value').uuid}"]`
+      `[data-id="${doc.get('null_value')?.uuid}"]`
     );
+    if (!el) {
+      throw new Error('Could not find element');
+    }
 
     const typeEditor = within(el).getByTestId('hadron-document-type-editor');
 
@@ -182,16 +200,19 @@ describe('Document', function () {
     userEvent.keyboard('foo bar');
     userEvent.tab();
 
-    expect(doc.get('null_value').currentValue.valueOf()).to.eq('foo bar');
-    expect(doc.get('null_value').currentType).to.eq('String');
+    expect(doc.get('null_value')?.currentValue?.valueOf()).to.eq('foo bar');
+    expect(doc.get('null_value')?.currentType).to.eq('String');
   });
 
   it('should autofocus key editor when double-clicking key', function () {
     render(<EditableDoc doc={doc}></EditableDoc>);
 
     const el = document.querySelector<HTMLElement>(
-      `[data-id="${doc.get('str').uuid}"]`
+      `[data-id="${doc.get('str')?.uuid}"]`
     );
+    if (!el) {
+      throw new Error('Could not find element');
+    }
 
     userEvent.dblClick(within(el).getByTestId('hadron-document-clickable-key'));
 
@@ -204,8 +225,11 @@ describe('Document', function () {
     render(<EditableDoc doc={doc}></EditableDoc>);
 
     const el = document.querySelector<HTMLElement>(
-      `[data-id="${doc.get('str').uuid}"]`
+      `[data-id="${doc.get('str')?.uuid}"]`
     );
+    if (!el) {
+      throw new Error('Could not find element');
+    }
 
     userEvent.dblClick(
       within(el).getByTestId('hadron-document-clickable-value')
@@ -220,8 +244,11 @@ describe('Document', function () {
     render(<EditableDoc doc={doc}></EditableDoc>);
 
     const el = document.querySelector<HTMLElement>(
-      `[data-id="${doc.get('null_value').uuid}"]`
+      `[data-id="${doc.get('null_value')?.uuid}"]`
     );
+    if (!el) {
+      throw new Error('Could not find element');
+    }
 
     userEvent.dblClick(
       within(el).getByTestId('hadron-document-clickable-value')

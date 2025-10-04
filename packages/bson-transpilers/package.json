@@ -1,6 +1,6 @@
 {
   "name": "bson-transpilers",
-  "version": "3.2.18",
+  "version": "3.2.22",
   "apiVersion": "0.0.1",
   "description": "Source to source compilers using ANTLR",
   "contributors": [
@@ -32,7 +32,7 @@
   },
   "license": "SSPL",
   "devDependencies": {
-    "@mongodb-js/eslint-config-compass": "^1.4.7",
+    "@mongodb-js/eslint-config-compass": "^1.4.11",
     "chai": "^4.3.4",
     "depcheck": "^1.4.1",
     "mocha": "^10.2.0"
@@ -45,5 +45,8 @@
   "bugs": {
     "url": "https://jira.mongodb.org/projects/COMPASS/issues",
     "email": "compass@mongodb.com"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

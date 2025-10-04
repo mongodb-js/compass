@@ -1,5 +1,10 @@
-export * from './components/leafygreen';
+// IMPORTANT: this import should always be the first one in compass-component
+// main entrypoint to ensure that emotion is reconfigured before any component
+// modules generate their stylesheets
+import './force-emotion-speedy';
+// -------------------------------
 
+export * from './components/leafygreen';
 export {
   default as emotion,
   flush,
@@ -14,6 +19,7 @@ export {
   cache,
 } from '@leafygreen-ui/emotion';
 import ConfirmationModal from './components/modals/confirmation-modal';
+import MarketingModal from './components/modals/marketing-modal';
 import type {
   ElectronFileDialogOptions,
   ElectronShowFileDialogProvider,
@@ -131,6 +137,7 @@ export {
   defaultSidebarWidth,
   createElectronFileInputBackend,
   createJSDomFileInputDummyBackend,
+  MarketingModal,
 };
 export {
   useFocusState,
@@ -145,6 +152,7 @@ export {
   Theme,
   ThemeProvider,
 } from './hooks/use-theme';
+export { useThrottledProps } from './hooks/use-throttled-props';
 export {
   ContentWithFallback,
   FadeInPlaceholder,

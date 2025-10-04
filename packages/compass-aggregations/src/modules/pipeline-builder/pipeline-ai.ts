@@ -449,7 +449,7 @@ export const resetIsAggregationGeneratedFromQuery =
 export const showInput = (): PipelineBuilderThunkAction<Promise<void>> => {
   return async (dispatch, _getState, { atlasAiService }) => {
     try {
-      if (process.env.COMPASS_E2E_SKIP_ATLAS_SIGNIN !== 'true') {
+      if (process.env.COMPASS_E2E_SKIP_AI_OPT_IN !== 'true') {
         await atlasAiService.ensureAiFeatureAccess();
       }
       dispatch({

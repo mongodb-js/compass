@@ -30,6 +30,57 @@ async function refresh(browser: CompassBrowser, connectionName: string) {
   );
 }
 
+function fieldOldNewByMode(mode: string) {
+  switch (mode) {
+    case 'indexed':
+    case 'unindexed':
+      return ['phoneNumber', '"30303030"', '"10101010"'];
+
+    case 'range':
+      return [
+        'date',
+        'new Date("1999-01-01T00:00:00.000Z")',
+        'new Date("2023-02-10T11:08:34.456Z")',
+      ];
+
+    case 'prefixPreview':
+      return ['encryptedText', '"prefixFoo"', '"prefixBar"'];
+
+    case 'suffixPreview':
+      return ['encryptedText', '"fooSuffix"', '"barSuffix"'];
+
+    case 'substringPreview':
+      return ['encryptedText', '"fooSubstringFoo"', '"barSubstringBar"'];
+
+    default:
+      throw new Error(`Unknown mode ${mode}`);
+  }
+}
+
+function filterByMode(
+  mode: string,
+  { _id, field, newValue }: { _id: string; field: string; newValue: string }
+): string {
+  switch (mode) {
+    case 'unindexed':
+      // Querying on encrypted fields when they are unindexed is not
+      // supported, so we use document _id instead
+      return `{ _id: ${_id} }`;
+
+    case 'prefixPreview':
+      return `{ $expr: { $encStrStartsWith: { input: '$${field}', prefix: 'prefix' } } }`;
+
+    case 'suffixPreview':
+      return `{ $expr: { $encStrEndsWith: { input: '$${field}', suffix: 'Suffix' } } }`;
+
+    case 'substringPreview':
+      return `{ $expr: { $encStrContains: { input: '$${field}', substring: 'Substring' } } }`;
+
+    default:
+      return `{ ${field}: ${newValue} }`;
+  }
+}
+
 /**
  * @securityTest In-Use Encryption Testing
  *
@@ -56,6 +107,7 @@ describe('CSFLE / QE', function () {
   describe('server version gte 4.2.20 and not a linux platform', function () {
     const databaseName = 'fle-test';
     const collectionName = 'my-another-collection';
+
     let compass: Compass;
     let browser: CompassBrowser;
 
@@ -283,6 +335,10 @@ describe('CSFLE / QE', function () {
       const collectionName = 'my-another-collection';
       const collectionNameUnindexed = 'my-another-collection2';
       const collectionNameRange = 'my-range-collection';
+      const collectionNamePrefixPreview = 'my-prefix-collection';
+      const collectionNameSuffixPreview = 'my-suffix-collection';
+      const collectionNameSubstringPreview = 'my-substring-collection';
+
       let compass: Compass;
       let browser: CompassBrowser;
       let plainMongo: MongoClient;
@@ -332,7 +388,7 @@ describe('CSFLE / QE', function () {
                   keyId: UUID("28bbc608-524e-4717-9246-33633361788e"),
                   bsonType: 'date',
                   queries: [{
-                    queryType: "range",
+                    queryType: 'range',
                     contention: 4,
                     sparsity: 1,
                     min: new Date('1970'),
@@ -340,7 +396,65 @@ describe('CSFLE / QE', function () {
                   }]
                 }
               ]
-            }
+            },
+            '${databaseName}.${collectionNamePrefixPreview}': {
+              fields: [
+                {
+                  path: 'encryptedText',
+                  keyId: UUID("28bbc608-524e-4717-9246-33633361788e"),
+                  bsonType: 'string',
+                  queries: [
+                    {
+                      queryType: 'prefixPreview',
+                      contention: 0,
+                      strMinQueryLength: 3,
+                      strMaxQueryLength: 30,
+                      caseSensitive: true,
+                      diacriticSensitive: true,
+                    }
+                  ]
+                }
+              ]
+            },
+            '${databaseName}.${collectionNameSuffixPreview}': {
+              fields: [
+                {
+                  path: 'encryptedText',
+                  keyId: UUID("28bbc608-524e-4717-9246-33633361788e"),
+                  bsonType: 'string',
+                  queries: [
+                    {
+                      queryType: 'suffixPreview',
+                      contention: 0,
+                      strMinQueryLength: 3,
+                      strMaxQueryLength: 30,
+                      caseSensitive: true,
+                      diacriticSensitive: true,
+                    }
+                  ]
+                }
+              ]
+            },
+            '${databaseName}.${collectionNameSubstringPreview}': {
+              fields: [
+                {
+                  path: 'encryptedText',
+                  keyId: UUID("28bbc608-524e-4717-9246-33633361788e"),
+                  bsonType: 'string',
+                  queries: [
+                    {
+                      queryType: 'substringPreview',
+                      contention: 0,
+                      strMinQueryLength: 3,
+                      strMaxQueryLength: 10,
+                      strMaxLength: 20,
+                      caseSensitive: true,
+                      diacriticSensitive: true
+                    }
+                  ]
+                }
+              ]
+            },
           }`,
           connectionName,
         });
@@ -513,6 +627,9 @@ describe('CSFLE / QE', function () {
         ['indexed', collectionName],
         ['unindexed', collectionNameUnindexed],
         ['range', collectionNameRange],
+        ['prefixPreview', collectionNamePrefixPreview],
+        ['suffixPreview', collectionNameSuffixPreview],
+        ['substringPreview', collectionNameSubstringPreview],
       ] as const) {
         it(`can edit and query the ${mode} encrypted field in the CRUD view`, async function () {
           if (mode === 'range' && serverSatisfies('< 7.99.99', true)) {
@@ -520,14 +637,18 @@ describe('CSFLE / QE', function () {
             console.log('Skipping range test for server version < 7.99.99');
             return this.skip();
           }
-          const [field, oldValue, newValue] =
-            mode !== 'range'
-              ? ['phoneNumber', '"30303030"', '"10101010"']
-              : [
-                  'date',
-                  'new Date("1999-01-01T00:00:00.000Z")',
-                  'new Date("2023-02-10T11:08:34.456Z")',
-                ];
+
+          if (
+            ['prefixPreview', 'suffixPreview', 'substringPreview'].includes(
+              mode as string
+            ) &&
+            !serverSatisfies('>= 8.2.0', true)
+          ) {
+            // QE Prefix/Suffix/Substring Support only available on 8.2+
+            return this.skip();
+          }
+
+          const [field, oldValue, newValue] = fieldOldNewByMode(mode);
           const oldValueJS = eval(oldValue);
           const newValueJS = eval(newValue);
           const toString = (v: any) =>
@@ -587,14 +708,12 @@ describe('CSFLE / QE', function () {
           }
           await footer.waitForDisplayed({ reverse: true });
 
-          await browser.runFindOperation(
-            'Documents',
-            // Querying on encrypted fields when they are unindexed is not
-            // supported, so we use document _id instead
-            mode === 'unindexed'
-              ? `{ _id: ${result._id} }`
-              : `{ ${field}: ${newValue} }`
-          );
+          const filter = filterByMode(mode, {
+            _id: result._id,
+            field,
+            newValue,
+          });
+          await browser.runFindOperation('Documents', filter);
 
           const modifiedResult = await browser.getFirstListDocument();
           expect(modifiedResult[field]).to.be.equal(toString(newValueJS));

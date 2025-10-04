@@ -27,7 +27,8 @@ type Item = { _id: string } & Record<string, any>;
 const rowStyles = css({
   paddingLeft: spacing[400],
   paddingRight: spacing[400],
-  paddingBottom: spacing[200],
+  paddingBottom: spacing[100],
+  paddingTop: spacing[100],
   columnGap: spacing[200],
 });
 
@@ -44,12 +45,17 @@ const containerStyles = css({
   outline: 'none',
 });
 
+const gridStyles = {
+  container: containerStyles,
+  row: rowStyles,
+};
+
 export const createButtonStyles = css({
   whiteSpace: 'nowrap',
 });
 
 type CallbackProps = {
-  onItemClick(id: string): void;
+  onItemClick: (id: string) => void;
   onCreateItemClick?: () => void;
   onDeleteItemClick?: (id: string) => void;
 };
@@ -76,7 +82,7 @@ type ItemsGridProps<T> = {
   itemListHeight?: number;
   items: T[];
   sortBy?: { name: Extract<keyof T, string>; label: string }[];
-  onItemClick(id: string): void;
+  onItemClick: (id: string) => void;
   onDeleteItemClick?: (id: string) => void;
   onCreateItemClick?: () => void;
   onRefreshClick?: () => void;
@@ -369,7 +375,7 @@ export const ItemsGrid = <T extends Item>({
               }}
               headerHeight={0}
               itemKey={(index: number) => sortedItems[index]._id}
-              classNames={{ container: containerStyles, row: rowStyles }}
+              classNames={gridStyles}
               resetActiveItemOnBlur={false}
               data-testid={`${itemType}-grid`}
             ></VirtualGrid>

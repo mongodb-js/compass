@@ -29,8 +29,8 @@ import {
 import { Int32 } from 'bson';
 import { mochaTestServer } from '@mongodb-js/compass-test-server';
 import {
-  compassFavoriteQueryStorageAccess,
-  compassRecentQueryStorageAccess,
+  createElectronRecentQueryStorage,
+  createElectronFavoriteQueryStorage,
 } from '@mongodb-js/my-queries-storage';
 import { satisfies } from 'semver';
 import type { PreferencesAccess } from 'compass-preferences-model';
@@ -47,6 +47,22 @@ import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
 import { createDefaultConnectionInfo } from '@mongodb-js/testing-library-compass';
 
 const TEST_CONNECTION_INFO = createDefaultConnectionInfo();
+
+// Create mock storage access objects for testing
+const mockFavoriteQueryStorage = createElectronFavoriteQueryStorage({
+  basepath: '/tmp/test',
+});
+const mockRecentQueryStorage = createElectronRecentQueryStorage({
+  basepath: '/tmp/test',
+});
+
+const compassFavoriteQueryStorageAccess = {
+  getStorage: () => mockFavoriteQueryStorage,
+};
+
+const compassRecentQueryStorageAccess = {
+  getStorage: () => mockRecentQueryStorage,
+};
 
 chai.use(chaiAsPromised);
 
@@ -2481,13 +2497,12 @@ describe('store', function () {
   });
 
   describe('saveUpdateQuery', function () {
-    const favoriteQueriesStorage =
-      compassFavoriteQueryStorageAccess.getStorage();
-
+    let favoriteQueriesStorage;
     let saveQueryStub;
     let store: CrudStore;
 
     beforeEach(function () {
+      favoriteQueriesStorage = compassFavoriteQueryStorageAccess.getStorage();
       saveQueryStub = sinon.stub().resolves();
       favoriteQueriesStorage.saveQuery = saveQueryStub;
       const plugin = activatePlugin(
@@ -2576,7 +2591,7 @@ describe('store', function () {
           'SyntaxError'
         );
         expect(store.state.bulkUpdate.syntaxError?.message).to.equal(
-          'Unexpected token (2:25)'
+          'Unexpected token (2:25) in (\n{ $set: { anotherField:  } }\n)'
         );
 
         await store.updateBulkUpdatePreview('{ $set: { anotherField: 2 } }');
@@ -2644,12 +2659,12 @@ describe('store', function () {
   });
 
   describe('saveRecentQueryQuery', function () {
-    const recentQueriesStorage = compassRecentQueryStorageAccess.getStorage();
-
+    let recentQueriesStorage;
     let saveQueryStub;
     let store: CrudStore;
 
     beforeEach(function () {
+      recentQueriesStorage = compassRecentQueryStorageAccess.getStorage();
       saveQueryStub = sinon.stub().resolves();
       recentQueriesStorage.saveQuery = saveQueryStub;
 

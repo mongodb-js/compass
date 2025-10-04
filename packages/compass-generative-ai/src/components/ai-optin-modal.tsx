@@ -4,12 +4,13 @@ import {
   Banner,
   Body,
   Link,
-  ConfirmationModal,
-  SpinLoader,
   css,
   spacing,
-  H3,
   palette,
+  Theme,
+  useDarkMode,
+  MarketingModal,
+  cx,
 } from '@mongodb-js/compass-components';
 import { AiImageBanner } from './ai-image-banner';
 import { closeOptInModal, optIn } from '../store/atlas-optin-reducer';
@@ -22,21 +23,13 @@ const GEN_AI_FAQ_LINK = 'https://www.mongodb.com/docs/generative-ai-faq/';
 type OptInModalProps = {
   isOptInModalVisible: boolean;
   isOptInInProgress: boolean;
+  isCloudOptIn: boolean;
   onOptInModalClose: () => void;
   onOptInClick: () => void;
   projectId?: string;
 };
 
-const titleStyles = css({
-  marginBottom: spacing[400],
-  marginTop: spacing[400],
-  marginLeft: spacing[500],
-  marginRight: spacing[500],
-  textAlign: 'center',
-});
-
 const bodyStyles = css({
-  marginBottom: spacing[400],
   marginTop: spacing[400],
   marginLeft: spacing[300],
   marginRight: spacing[300],
@@ -46,28 +39,127 @@ const bodyStyles = css({
   textAlign: 'center',
 });
 
-const disclaimerStyles = css({
+const bodyLightThemeStyles = css({
   color: palette.gray.dark1,
+});
+
+const bodyDarkThemeStyles = css({
+  color: palette.gray.light2,
+});
+
+const disclaimerStylesCommon = {
   marginTop: spacing[400],
   marginLeft: spacing[800],
   marginRight: spacing[800],
-});
+  textAlign: 'center',
+};
+
+const disclaimerStyles = {
+  [Theme.Light]: css({
+    color: palette.gray.dark1,
+    ...disclaimerStylesCommon,
+  }),
+  [Theme.Dark]: css({
+    color: palette.gray.light2,
+    ...disclaimerStylesCommon,
+  }),
+};
 
 const bannerStyles = css({
+  width: '480px',
   padding: spacing[400],
   marginTop: spacing[400],
   textAlign: 'left',
 });
-const getButtonText = (isOptInInProgress: boolean) => {
+
+// TODO: The LG MarketingModal does not provide a way to disable the button
+// so this is a temporary workaround to make the button look disabled.
+const leafyGreenButtonSelector =
+  'button[data-lgid="lg-button"]:not([aria-label="Close modal"])';
+const focusSelector = `&:focus-visible, &[data-focus="true"]`;
+const hoverSelector = `&:hover, &[data-hover="true"]`;
+const activeSelector = `&:active, &[data-active="true"]`;
+const focusBoxShadow = (color: string) => `
+    0 0 0 2px ${color}, 
+    0 0 0 4px ${palette.blue.light1};
+`;
+const disabledButtonStyles: Record<Theme, string> = {
+  [Theme.Light]: css({
+    [leafyGreenButtonSelector]: {
+      [`&, ${hoverSelector}, ${activeSelector}`]: {
+        backgroundColor: palette.gray.light2,
+        borderColor: palette.gray.light1,
+        color: palette.gray.base,
+        boxShadow: 'none',
+        cursor: 'not-allowed',
+      },
+
+      [focusSelector]: {
+        color: palette.gray.base,
+        boxShadow: focusBoxShadow(palette.white),
+      },
+    },
+  }),
+
+  [Theme.Dark]: css({
+    [leafyGreenButtonSelector]: {
+      [`&, ${hoverSelector}, ${activeSelector}`]: {
+        backgroundColor: palette.gray.dark3,
+        borderColor: palette.gray.dark2,
+        color: palette.gray.dark1,
+        boxShadow: 'none',
+        cursor: 'not-allowed',
+      },
+
+      [focusSelector]: {
+        color: palette.gray.dark1,
+        boxShadow: focusBoxShadow(palette.black),
+      },
+    },
+  }),
+};
+
+const CloudAIOptInBannerContent: React.FunctionComponent<{
+  isProjectAIEnabled: boolean;
+  isSampleDocumentPassingEnabled: boolean;
+  projectId?: string;
+}> = ({ isProjectAIEnabled, isSampleDocumentPassingEnabled, projectId }) => {
+  const projectSettingsLink = projectId ? (
+    <Link
+      href={
+        window.location.origin + '/v2/' + projectId + '#/settings/groupSettings'
+      }
+      target="_blank"
+      hideExternalIcon
+    >
+      Project Settings
+    </Link>
+  ) : (
+    'Project Settings'
+  );
+  if (!isProjectAIEnabled) {
+    // Both disabled case (main AI features disabled)
+    return (
+      <>
+        AI features are disabled for project users with data access. Project
+        Owners can enable Data Explorer AI features in {projectSettingsLink}.
+      </>
+    );
+  } else if (!isSampleDocumentPassingEnabled) {
+    // Only sample values disabled case
+    return (
+      <>
+        AI features are enabled for project users with data access. Project
+        Owners can disable these features or enable sending sample field values
+        in Data Explorer AI features to improve their accuracy in{' '}
+        {projectSettingsLink}.
+      </>
+    );
+  }
   return (
     <>
-      &nbsp;Use Natural Language
-      {isOptInInProgress && (
-        <>
-          &nbsp;
-          <SpinLoader darkMode={true}></SpinLoader>
-        </>
-      )}
+      AI features are enabled for project users with data access. Project Owners
+      can disable Data Explorer AI features in {projectSettingsLink}.
     </>
   );
 };
@@ -75,15 +167,19 @@ const getButtonText = (isOptInInProgress: boolean) => {
 export const AIOptInModal: React.FunctionComponent<OptInModalProps> = ({
   isOptInModalVisible,
   isOptInInProgress,
+  isCloudOptIn,
   onOptInModalClose,
   onOptInClick,
   projectId,
 }) => {
   const isProjectAIEnabled = usePreference('enableGenAIFeaturesAtlasProject');
+  const isSampleDocumentPassingEnabled = usePreference(
+    'enableGenAISampleDocumentPassing'
+  );
   const track = useTelemetry();
-  const PROJECT_SETTINGS_LINK = projectId
-    ? window.location.origin + '/v2/' + projectId + '#/settings/groupSettings'
-    : null;
+  const darkMode = useDarkMode();
+  const currentDisabledButtonStyles =
+    disabledButtonStyles[darkMode ? Theme.Dark : Theme.Light];
 
   useEffect(() => {
     if (isOptInModalVisible) {
@@ -92,7 +188,7 @@ export const AIOptInModal: React.FunctionComponent<OptInModalProps> = ({
   }, [isOptInModalVisible, track]);
 
   const onConfirmClick = () => {
-    if (isOptInInProgress) {
+    if (isOptInInProgress || !isProjectAIEnabled) {
       return;
     }
     onOptInClick();
@@ -104,53 +200,55 @@ export const AIOptInModal: React.FunctionComponent<OptInModalProps> = ({
   }, [track, onOptInModalClose]);
 
   return (
-    <ConfirmationModal
+    <MarketingModal
+      showBlob
+      blobPosition="top right"
+      title={`Use AI Features in ${isCloudOptIn ? 'Data Explorer' : 'Compass'}`}
       open={isOptInModalVisible}
-      title=""
-      confirmButtonProps={{
-        children: getButtonText(isOptInInProgress),
-        disabled: !isProjectAIEnabled,
-        onClick: onConfirmClick,
-      }}
-      cancelButtonProps={{
-        onClick: handleModalClose,
-      }}
-    >
-      <Body className={bodyStyles}>
-        <AiImageBanner></AiImageBanner>
-        <H3 className={titleStyles}>
-          Use natural language to generate queries and pipelines
-        </H3>
-        Atlas users can now quickly create queries and aggregations with
-        MongoDB&apos;s&nbsp; intelligent AI-powered feature, available today.
-        <Banner
-          variant={isProjectAIEnabled ? 'info' : 'warning'}
-          className={bannerStyles}
-        >
-          {isProjectAIEnabled
-            ? 'AI features are enabled for project users with data access.'
-            : 'AI features are disabled for project users.'}{' '}
-          Project Owners can {isProjectAIEnabled ? 'disable' : 'enable'} Data
-          Explorer AI features in the{' '}
-          {PROJECT_SETTINGS_LINK !== null ? (
-            <Link href={PROJECT_SETTINGS_LINK} target="_blank">
-              Project Settings
-            </Link>
-          ) : (
-            'Project Settings'
-          )}
-          .
-        </Banner>
-        <div className={disclaimerStyles}>
-          This is a feature powered by generative AI, and may give inaccurate
-          responses. Please see our{' '}
+      onClose={handleModalClose}
+      // TODO Button Disabling
+      className={!isProjectAIEnabled ? currentDisabledButtonStyles : undefined}
+      buttonText="Use AI Features"
+      onButtonClick={onConfirmClick}
+      linkText="Not now"
+      onLinkClick={onOptInModalClose}
+      graphic={<AiImageBanner />}
+      disclaimer={
+        <div className={disclaimerStyles[darkMode ? Theme.Dark : Theme.Light]}>
+          Features in {isCloudOptIn ? 'Data Explorer' : 'Compass'} powered by
+          generative AI may produce inaccurate responses. Please see our{' '}
           <Link hideExternalIcon={false} href={GEN_AI_FAQ_LINK} target="_blank">
             FAQ
           </Link>{' '}
-          for more information.
+          for more information. Continue to opt into all AI-powered features
+          within {isCloudOptIn ? 'Data Explorer' : 'Compass'}.
         </div>
+      }
+    >
+      <Body
+        className={cx(
+          bodyStyles,
+          darkMode ? bodyDarkThemeStyles : bodyLightThemeStyles
+        )}
+      >
+        AI-powered features in {isCloudOptIn ? 'Data Explorer' : 'Compass'}{' '}
+        supply users with an intelligent toolset to build faster and smarter
+        with MongoDB.
+        {isCloudOptIn && (
+          <Banner
+            data-testid="ai-optin-cloud-banner"
+            variant={isProjectAIEnabled ? 'info' : 'warning'}
+            className={bannerStyles}
+          >
+            <CloudAIOptInBannerContent
+              isProjectAIEnabled={isProjectAIEnabled}
+              isSampleDocumentPassingEnabled={isSampleDocumentPassingEnabled}
+              projectId={projectId}
+            />
+          </Banner>
+        )}
       </Body>
-    </ConfirmationModal>
+    </MarketingModal>
   );
 };
 

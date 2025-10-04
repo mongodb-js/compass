@@ -120,6 +120,10 @@ export type AtlasServiceConfig = {
    * Assistant API base url
    */
   assistantApiBaseUrl: string;
+  /**
+   * User data API base url
+   */
+  userDataBaseUrl: string;
 };
 
 /**
@@ -143,7 +147,8 @@ const config = {
       issuer: 'https://auth-qa.mongodb.com/oauth2/default',
     },
     authPortalUrl: 'https://account-dev.mongodb.com/account/login',
-    assistantApiBaseUrl: 'https://knowledge.staging.corp.mongodb.com/api/v1',
+    assistantApiBaseUrl: 'https://knowledge-dev.mongodb.com/api/v1',
+    userDataBaseUrl: 'https://cloud-dev.mongodb.com/ui/userData',
   },
   'atlas-dev': {
     ccsBaseUrl: '',
@@ -154,7 +159,8 @@ const config = {
       issuer: 'https://auth-qa.mongodb.com/oauth2/default',
     },
     authPortalUrl: 'https://account-dev.mongodb.com/account/login',
-    assistantApiBaseUrl: 'https://knowledge.staging.corp.mongodb.com/api/v1',
+    assistantApiBaseUrl: 'https://knowledge-dev.mongodb.com/api/v1',
+    userDataBaseUrl: 'https://cloud-dev.mongodb.com/ui/userData',
   },
   'atlas-qa': {
     ccsBaseUrl: '',
@@ -165,7 +171,8 @@ const config = {
       issuer: 'https://auth-qa.mongodb.com/oauth2/default',
     },
     authPortalUrl: 'https://account-qa.mongodb.com/account/login',
-    assistantApiBaseUrl: 'https://knowledge.staging.corp.mongodb.com/api/v1',
+    assistantApiBaseUrl: 'https://knowledge-dev.mongodb.com/api/v1',
+    userDataBaseUrl: 'https://cloud-qa.mongodb.com/ui/userData',
   },
   atlas: {
     ccsBaseUrl: '',
@@ -176,7 +183,8 @@ const config = {
       issuer: 'https://auth.mongodb.com/oauth2/default',
     },
     authPortalUrl: 'https://account.mongodb.com/account/login',
-    assistantApiBaseUrl: 'https://knowledge.staging.corp.mongodb.com/api/v1',
+    assistantApiBaseUrl: 'https://knowledge.mongodb.com/api/v1',
+    userDataBaseUrl: 'https://cloud.mongodb.com/ui/userData',
   },
   'web-sandbox-atlas-local': {
     ccsBaseUrl: '/ccs',
@@ -187,7 +195,8 @@ const config = {
       issuer: 'https://auth-qa.mongodb.com/oauth2/default',
     },
     authPortalUrl: 'https://account-dev.mongodb.com/account/login',
-    assistantApiBaseUrl: 'https://knowledge.staging.corp.mongodb.com/api/v1',
+    assistantApiBaseUrl: 'https://knowledge-dev.mongodb.com/api/v1',
+    userDataBaseUrl: 'https://cloud-dev.mongodb.com/ui/userData',
   },
   'web-sandbox-atlas-dev': {
     ccsBaseUrl: '/ccs',
@@ -198,7 +207,8 @@ const config = {
       issuer: 'https://auth-qa.mongodb.com/oauth2/default',
     },
     authPortalUrl: 'https://account-dev.mongodb.com/account/login',
-    assistantApiBaseUrl: 'https://knowledge.staging.corp.mongodb.com/api/v1',
+    assistantApiBaseUrl: 'https://knowledge-dev.mongodb.com/api/v1',
+    userDataBaseUrl: '/cloud-mongodb-com/ui/userData',
   },
   'web-sandbox-atlas-qa': {
     ccsBaseUrl: '/ccs',
@@ -209,7 +219,8 @@ const config = {
       issuer: 'https://auth-qa.mongodb.com/oauth2/default',
     },
     authPortalUrl: 'https://account-dev.mongodb.com/account/login',
-    assistantApiBaseUrl: 'https://knowledge.staging.corp.mongodb.com/api/v1',
+    assistantApiBaseUrl: 'https://knowledge-dev.mongodb.com/api/v1',
+    userDataBaseUrl: '/cloud-mongodb-com/ui/userData',
   },
   'web-sandbox-atlas': {
     ccsBaseUrl: '/ccs',
@@ -220,7 +231,8 @@ const config = {
       issuer: 'https://auth.mongodb.com/oauth2/default',
     },
     authPortalUrl: 'https://account.mongodb.com/account/login',
-    assistantApiBaseUrl: 'https://knowledge.staging.corp.mongodb.com/api/v1',
+    assistantApiBaseUrl: 'https://knowledge.mongodb.com/api/v1',
+    userDataBaseUrl: '/cloud-mongodb-com/ui/userData',
   },
 } as const;
 
@@ -236,6 +248,7 @@ export function getAtlasConfig(
     },
     authPortalUrl: process.env.COMPASS_ATLAS_AUTH_PORTAL_URL_OVERRIDE,
     assistantApiBaseUrl: process.env.COMPASS_ASSISTANT_BASE_URL_OVERRIDE,
+    userDataBaseUrl: process.env.COMPASS_USER_DATA_BASE_URL_OVERRIDE,
   };
   return defaultsDeep(
     envConfig,

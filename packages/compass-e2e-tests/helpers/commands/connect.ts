@@ -170,7 +170,7 @@ export async function waitForConnectionResult(
     await browser
       .$(Selectors.ConnectionToastErrorText)
       .waitForDisplayed(waitOptions);
-    return browser.$(Selectors.LGToastTitle).getText();
+    return browser.$(Selectors.ConnectionToastErrorText).getText();
   } else {
     const exhaustiveCheck: never = connectionStatus;
     throw new Error(`Unhandled connectionStatus case: ${exhaustiveCheck}`);
@@ -187,8 +187,21 @@ export async function connectByName(
   connectionName: string,
   options: ConnectionResultOptions = {}
 ) {
+  // make sure the connection shows up before we try and hover over it
+  await browser
+    .$(Selectors.sidebarConnection(connectionName))
+    .waitForDisplayed();
+
+  // focus the filter input so that we can be sure the window is focused and the
+  // mouse pointer is away from the connection itself
+  await browser.clickVisible(Selectors.SidebarFilterInput);
+
+  // hover over the connection and hope the connect button shows up
   await browser.hover(Selectors.sidebarConnection(connectionName));
+
+  // hopefully the connect button showed up on hover and we can click it
   await browser.clickVisible(Selectors.sidebarConnectionButton(connectionName));
+
   await browser.waitForConnectionResult(connectionName, options);
 }
 

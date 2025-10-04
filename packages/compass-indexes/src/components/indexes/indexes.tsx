@@ -106,7 +106,7 @@ const ViewNotSearchCompatibleBanner = ({
         </>
       )}
       This view is incompatible with search indexes. Only views containing
-      $addFields, $set or $match stages with the $expr operator are compatible
+      $match stages with the $expr operator, $addFields, or $set are compatible
       with search indexes.{' '}
       {!hasNoSearchIndexes && 'Edit the view to rebuild search indexes.'}{' '}
       <Link
@@ -140,6 +140,8 @@ const AtlasIndexesBanner = ({
       These indexes can be created and viewed under{' '}
       {atlasMetadata ? (
         <Link
+          target="_blank"
+          rel="noopener"
           href={getAtlasSearchIndexesLink({
             clusterName: atlasMetadata.clusterName,
             namespace,

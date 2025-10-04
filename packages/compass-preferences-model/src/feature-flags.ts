@@ -30,6 +30,8 @@ export type FeatureFlags = {
   enableSearchActivationProgramP1: boolean;
   enableUnauthenticatedGenAI: boolean;
   enableAIAssistant: boolean;
+  enablePerformanceInsightsEntrypoints: boolean;
+  enableAutomaticRelationshipInference: boolean;
 };
 
 export const featureFlags: Required<{
@@ -153,7 +155,7 @@ export const featureFlags: Required<{
   },
 
   enableUnauthenticatedGenAI: {
-    stage: 'development',
+    stage: 'released',
     description: {
       short: 'Enable GenAI for unauthenticated users',
     },
@@ -173,9 +175,27 @@ export const featureFlags: Required<{
    * Feature flag for AI Assistant.
    */
   enableAIAssistant: {
-    stage: 'development',
+    stage: 'released',
     description: {
       short: 'Enable AI Assistant',
+    },
+  },
+
+  /*
+   * Feature flag for AI Assistant's performance insight entrypoints.
+   */
+  enablePerformanceInsightsEntrypoints: {
+    stage: 'development',
+    description: {
+      short: 'Enable the performance insights AI Assistant entrypoints',
+    },
+  },
+
+  enableAutomaticRelationshipInference: {
+    stage: 'released',
+    description: {
+      short:
+        'Enable automatic relationship inference during data model generation',
     },
   },
 };
