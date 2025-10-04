@@ -1057,11 +1057,12 @@ export const loadSavedWorkspaces = (): WorkspacesThunkAction<
         buttonText: 'Reopen tabs',
       });
 
-      const workspacesToRestore: OpenWorkspaceOptions[] = confirm
-        ? convertSavedStateToOpenWorkspaceOptions(savedState)
-        : [];
+      const workspacesToRestore: OpenWorkspaceOptions[] = [];
       const connectionsToRestore: Map<string, ConnectionInfo> = new Map();
-      workspacesToRestore.forEach((workspace) => {
+      (confirm
+        ? convertSavedStateToOpenWorkspaceOptions(savedState)
+        : []
+      ).forEach((workspace) => {
         // If the workspace is tied to a connection, check if the connection exists
         // and add it to the list of connections to restore if so.
         if ('connectionId' in workspace) {
