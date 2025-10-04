@@ -188,4 +188,8 @@ describe('WorkspacesPlugin', function () {
       namespace: 'db.coll1',
     });
   });
+
+  // it('should save and restore tabs', async function () {
+  //   await renderPlugin();
+  // });
 });

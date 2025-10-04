@@ -1046,7 +1046,7 @@ export const loadSavedWorkspaces = (): WorkspacesThunkAction<
   RestoreWorkspacesAction
 > => {
   return async (dispatch, getState, { connections, userData }) => {
-    const savedState = await userData.readOne('current-workspace', {
+    const savedState = await userData.readOne('saved-workspaces', {
       ignoreErrors: true,
     });
     if (savedState) {

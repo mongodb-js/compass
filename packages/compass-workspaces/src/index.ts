@@ -76,7 +76,7 @@ export function configureStore(
     },
     applyMiddleware(
       thunk.withExtraArgument(services),
-      workspacesStateChangeMiddleware(services.userData)
+      workspacesStateChangeMiddleware(services)
     )
   );
 
