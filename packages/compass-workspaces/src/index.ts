@@ -16,9 +16,9 @@ import workspacesReducer, {
   connectionDisconnected,
   updateDatabaseInfo,
   updateCollectionInfo,
+  loadSavedWorkspaces,
 } from './stores/workspaces';
 import Workspaces from './components';
-import { WorkspacesWeb } from './components';
 import { applyMiddleware, createStore } from 'redux';
 import thunk from 'redux-thunk';
 import { workspacesStateChangeMiddleware } from './stores/workspaces-middleware';
@@ -40,14 +40,11 @@ import {
 } from '@mongodb-js/compass-app-stores/provider';
 import type { PreferencesAccess } from 'compass-preferences-model/provider';
 import { preferencesLocator } from 'compass-preferences-model/provider';
-import type { AtlasService } from '../../atlas-service/dist/atlas-service';
-import { WorkspacesStateSchema } from './services/workspaces-storage';
 import {
-  AtlasUserData,
-  FileUserData,
-  type IUserData,
-} from '../../compass-user-data/dist/user-data';
-import { EJSON } from 'bson';
+  type WorkspacesStateSchema,
+  workspacesStorageServiceLocator,
+} from './services/workspaces-storage';
+import { type IUserData } from '../../compass-user-data/dist/user-data';
 
 export type WorkspacesServices = {
   globalAppRegistry: AppRegistry;
@@ -55,11 +52,11 @@ export type WorkspacesServices = {
   connections: ConnectionsService;
   logger: Logger;
   preferences: PreferencesAccess;
+  userData: IUserData<typeof WorkspacesStateSchema>;
 };
 
 export function configureStore(
   initialWorkspaceTabs: OpenWorkspaceOptions[] | undefined | null,
-  userData: IUserData<typeof WorkspacesStateSchema>,
   services: WorkspacesServices
 ) {
   const initialTabs =
@@ -76,36 +73,42 @@ export function configureStore(
       activeTabId: initialTabs[initialTabs.length - 1]?.id ?? null,
       collectionInfo: {},
       databaseInfo: {},
-      userData,
     },
     applyMiddleware(
       thunk.withExtraArgument(services),
-      workspacesStateChangeMiddleware(userData)
+      workspacesStateChangeMiddleware(services.userData)
     )
   );
 
   return store;
 }
 
-function activateWorkspacePluginHelper(
-  userData: IUserData<typeof WorkspacesStateSchema>,
+function activateWorkspacePlugin(
+  {
+    initialWorkspaceTabs,
+  }: {
+    initialWorkspaceTabs?: OpenWorkspaceOptions[] | null;
+  },
   {
     globalAppRegistry,
     instancesManager,
     connections,
     logger,
     preferences,
+    userData,
   }: WorkspacesServices,
-  { on, cleanup, addCleanup }: ActivateHelpers,
-  initialWorkspaceTabs?: OpenWorkspaceOptions[] | null
+  { on, cleanup, addCleanup }: ActivateHelpers
 ) {
-  const store = configureStore(initialWorkspaceTabs, userData, {
+  const store = configureStore(initialWorkspaceTabs, {
     globalAppRegistry,
     instancesManager,
     connections,
     logger,
     preferences,
+    userData,
   });
+
+  void store.dispatch(loadSavedWorkspaces());
 
   addCleanup(cleanupLocalAppRegistries);
 
@@ -239,63 +242,6 @@ function activateWorkspacePluginHelper(
   };
 }
 
-export function activateWorkspacePlugin(
-  {
-    initialWorkspaceTabs,
-  }: {
-    initialWorkspaceTabs?: OpenWorkspaceOptions[] | null;
-  },
-  workspacesServices: WorkspacesServices,
-  activateHelpers: ActivateHelpers
-) {
-  const userData = new FileUserData(WorkspacesStateSchema, 'WorkspacesState', {
-    serialize: (content) => EJSON.stringify(content, undefined, 2),
-    deserialize: (content: string) => EJSON.parse(content),
-  }) as IUserData<typeof WorkspacesStateSchema>;
-
-  return activateWorkspacePluginHelper(
-    userData,
-    workspacesServices,
-    activateHelpers,
-    initialWorkspaceTabs
-  );
-}
-
-export function activateWorkspacePluginWeb(
-  {
-    initialWorkspaceTabs,
-    projectId,
-    orgId,
-    atlasService,
-  }: {
-    initialWorkspaceTabs?: OpenWorkspaceOptions[] | null;
-    projectId: string;
-    orgId: string;
-    atlasService: AtlasService;
-  },
-  workspacesServices: WorkspacesServices,
-  activateHelpers: ActivateHelpers
-) {
-  const userData = new AtlasUserData(WorkspacesStateSchema, 'WorkspacesState', {
-    orgId,
-    projectId,
-    getResourceUrl: (path?: string) => {
-      const url = atlasService.userDataEndpoint(`/${path || ''}`);
-      return url;
-    },
-    authenticatedFetch: atlasService.authenticatedFetch.bind(atlasService),
-    serialize: (content) => EJSON.stringify(content),
-    deserialize: (content: string) => EJSON.parse(content),
-  });
-
-  return activateWorkspacePluginHelper(
-    userData,
-    workspacesServices,
-    activateHelpers,
-    initialWorkspaceTabs
-  );
-}
-
 const WorkspacesPlugin = registerCompassPlugin(
   {
     name: 'Workspaces',
@@ -307,20 +253,7 @@ const WorkspacesPlugin = registerCompassPlugin(
     connections: connectionsLocator,
     logger: createLoggerLocator('COMPASS-WORKSPACES-UI'),
     preferences: preferencesLocator,
-  }
-);
-
-export const WorkspacesWebPlugin = registerCompassPlugin(
-  {
-    name: 'Workspaces',
-    component: WorkspacesWeb,
-    activate: activateWorkspacePluginWeb,
-  },
-  {
-    instancesManager: mongoDBInstancesManagerLocator,
-    connections: connectionsLocator,
-    logger: createLoggerLocator('COMPASS-WORKSPACES-UI'),
-    preferences: preferencesLocator,
+    userData: workspacesStorageServiceLocator,
   }
 );
 

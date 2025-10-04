@@ -5,18 +5,11 @@ import {
   collectionSubtabSelected,
   getActiveTab,
   openWorkspace as openWorkspaceAction,
-  restoreWorkspaces,
 } from './stores/workspaces';
 import { createServiceLocator } from '@mongodb-js/compass-app-registry';
 import type { CollectionSubtab, WorkspaceTab } from './types';
 import type { WorkspaceDestroyHandler } from './components/workspace-close-handler';
 import { useRegisterTabDestroyHandler } from './components/workspace-close-handler';
-import type { WorkspacesStateData } from './services/workspaces-storage';
-import {
-  type ConnectionInfo,
-  useConnectionActions,
-  useConnectionsListRef,
-} from '@mongodb-js/compass-connections/provider';
 
 function useWorkspacesStore() {
   try {
@@ -186,10 +179,6 @@ export type WorkspacesService = {
    * }
    */
   onTabReplace?: (handler: WorkspaceDestroyHandler) => () => void;
-
-  loadSavedWorkspaces(): Promise<OpenWorkspaceOptions[] | null>;
-
-  restoreSavedWorkspaces(res: OpenWorkspaceOptions[]): void;
 };
 
 // Separate type to avoid exposing internal prop in exported types
@@ -228,11 +217,6 @@ const noopWorkspacesService = {
     throwIfNotTestEnv();
     return null;
   },
-  loadSavedWorkspaces: async () => {
-    throwIfNotTestEnv();
-    return Promise.reject();
-  },
-  restoreSavedWorkspaces: () => throwIfNotTestEnv,
 };
 
 const WorkspacesServiceContext = React.createContext<WorkspacesServiceImpl>(
@@ -250,8 +234,6 @@ export const WorkspacesServiceProvider: React.FunctionComponent<{
   /* eslint-disable react-hooks/rules-of-hooks */
   value ??= (() => {
     const store = useWorkspacesStore();
-    const connectionActions = useConnectionActions();
-    const { getConnectionById } = useConnectionsListRef();
     const service = useRef<WorkspacesServiceImpl>({
       getActiveWorkspace: () => {
         return getActiveTab(store.getState());
@@ -333,46 +315,6 @@ export const WorkspacesServiceProvider: React.FunctionComponent<{
           )
         );
       },
-      restoreSavedWorkspaces(res: OpenWorkspaceOptions[]) {
-        const workspacesToRestore: OpenWorkspaceOptions[] = [];
-        const connectionsToRestore: Map<string, ConnectionInfo> = new Map();
-        res.forEach((workspace) => {
-          // If the workspace is tied to a connection, check if the connection exists
-          // and add it to the list of connections to restore if so.
-          if ('connectionId' in workspace) {
-            const connectionInfo = getConnectionById(
-              workspace.connectionId
-            )?.info;
-
-            if (!connectionInfo) {
-              return;
-            }
-
-            connectionsToRestore.set(workspace.connectionId, connectionInfo);
-          }
-
-          workspacesToRestore.push(workspace);
-        });
-
-        connectionsToRestore.forEach((connectionInfo) => {
-          void connectionActions.connect(connectionInfo);
-        });
-
-        store.dispatch(restoreWorkspaces(workspacesToRestore));
-      },
-      async loadSavedWorkspaces() {
-        const state = store.getState();
-        if (!state.userData) {
-          throw new Error('UserData is not initialized in the store');
-        }
-        const savedState = await state.userData.readOne('current-workspace', {
-          ignoreErrors: true,
-        });
-        if (!savedState) {
-          return null;
-        }
-        return convertSavedStateToOpenWorkspaceOptions(savedState);
-      },
       [kSelector]: useActiveWorkspaceSelector,
     });
     return service.current;
@@ -385,67 +327,6 @@ export const WorkspacesServiceProvider: React.FunctionComponent<{
     </WorkspacesServiceContext.Provider>
   );
 };
-
-/**
- * Converts saved workspace state data back to OpenWorkspaceOptions format
- * for initializing the store
- */
-function convertSavedStateToOpenWorkspaceOptions(
-  savedState: WorkspacesStateData
-): OpenWorkspaceOptions[] {
-  return savedState.tabs.map((tab) => {
-    const baseTab: Record<string, unknown> = { type: tab.type };
-
-    // Add connection-related fields
-    if (tab.connectionId) {
-      baseTab.connectionId = tab.connectionId;
-    }
-    if (tab.namespace) {
-      baseTab.namespace = tab.namespace;
-    }
-
-    // Add optional fields based on workspace type
-    if (tab.initialQuery) {
-      baseTab.initialQuery = tab.initialQuery;
-    }
-    if (tab.initialAggregation) {
-      baseTab.initialAggregation = tab.initialAggregation;
-    }
-    if (tab.initialPipeline) {
-      baseTab.initialPipeline = tab.initialPipeline;
-    }
-    if (tab.initialPipelineText) {
-      baseTab.initialPipelineText = tab.initialPipelineText;
-    }
-    if (tab.editViewName) {
-      baseTab.editViewName = tab.editViewName;
-    }
-    if (tab.initialEvaluate) {
-      baseTab.initialEvaluate = tab.initialEvaluate;
-    }
-    if (tab.initialInput) {
-      baseTab.initialInput = tab.initialInput;
-    }
-    if (tab.subTab) {
-      baseTab.initialSubtab = tab.subTab;
-    }
-
-    return baseTab as OpenWorkspaceOptions;
-  });
-}
-
-export function useLoadWorkspacesRef() {
-  const service = useContext(WorkspacesServiceContext);
-
-  const loadWorkspaces = useRef(service.loadSavedWorkspaces());
-
-  return loadWorkspaces;
-}
-
-export function useRestoreSavedWorkspaces() {
-  const service = useContext(WorkspacesServiceContext);
-  return useRef(service.restoreSavedWorkspaces.bind(service)).current;
-}
 
 function useWorkspacesService() {
   const service = useContext(WorkspacesServiceContext);

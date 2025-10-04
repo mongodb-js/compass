@@ -5,7 +5,6 @@ import {
   MongoDBLogoMark,
   WorkspaceTabs,
   css,
-  showConfirmation,
   spacing,
   useDarkMode,
   type WorkspaceTabCoreProps,
@@ -34,8 +33,6 @@ import { useLogger } from '@mongodb-js/compass-logging/provider';
 import { connect } from '../stores/context';
 import { WorkspaceTabContextProvider } from './workspace-tab-context-provider';
 import type { WorkspaceTab } from '../types';
-import { useLoadWorkspacesRef, useRestoreSavedWorkspaces } from '../provider';
-import { rest } from 'lodash';
 
 const emptyWorkspaceStyles = css({
   margin: '0 auto',
@@ -114,44 +111,44 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
     onCreateTab(openOnEmptyWorkspace);
   }, [onCreateTab, openOnEmptyWorkspace]);
 
-  const loadWorkspacesRef = useLoadWorkspacesRef();
-  const restoreSavedWorkspaces = useRestoreSavedWorkspaces();
-
-  useEffect(() => {
-    loadWorkspacesRef.current.then(
-      (res) => {
-        if (res !== null) {
-          showConfirmation({
-            title: 'Reopen closed tabs?',
-            description:
-              'Your connection and tabs were closed, this action will reopen your previous session',
-            buttonText: 'Reopen tabs',
-          }).then(
-            (confirm) => {
-              if (confirm) {
-                restoreSavedWorkspaces(res);
-              } else {
-                // User declined to restore previous session, save the current
-                // state to override the previous session
-                restoreSavedWorkspaces([]);
-              }
-            },
-            (err) => {
-              throw err;
-            }
-          );
-        }
-      },
-      (err) => {
-        log.error(
-          mongoLogId(1_001_000_361),
-          'Workspaces',
-          'Failed to load saved workspaces from previous session',
-          { error: err }
-        );
-      }
-    );
-  }, [loadWorkspacesRef, restoreSavedWorkspaces, log, mongoLogId]);
+  // TODO: fix / remove
+  // const loadWorkspacesRef = useLoadWorkspacesRef();
+  // const restoreSavedWorkspaces = useRestoreSavedWorkspaces();
+  // useEffect(() => {
+  //   loadWorkspacesRef.current.then(
+  //     (res) => {
+  //       if (res !== null) {
+  //         showConfirmation({
+  //           title: 'Reopen closed tabs?',
+  //           description:
+  //             'Your connection and tabs were closed, this action will reopen your previous session',
+  //           buttonText: 'Reopen tabs',
+  //         }).then(
+  //           (confirm) => {
+  //             if (confirm) {
+  //               restoreSavedWorkspaces(res);
+  //             } else {
+  //               // User declined to restore previous session, save the current
+  //               // state to override the previous session
+  //               restoreSavedWorkspaces([]);
+  //             }
+  //           },
+  //           (err) => {
+  //             throw err;
+  //           }
+  //         );
+  //       }
+  //     },
+  //     (err) => {
+  //       log.error(
+  //         mongoLogId(1_001_000_361),
+  //         'Workspaces',
+  //         'Failed to load saved workspaces from previous session',
+  //         { error: err }
+  //       );
+  //     }
+  //   );
+  // }, [loadWorkspacesRef, restoreSavedWorkspaces, log, mongoLogId]);
 
   const workspaceTabs = useMemo(() => {
     return tabs.map((tab) => {

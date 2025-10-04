@@ -3,12 +3,7 @@ import type { ThunkAction } from 'redux-thunk';
 import { ObjectId } from 'bson';
 import AppRegistry from '@mongodb-js/compass-app-registry';
 import toNS from 'mongodb-ns';
-import type {
-  Workspace,
-  WorkspacesServices,
-  CollectionSubtab,
-  WorkspacesStateSchema,
-} from '..';
+import type { Workspace, WorkspacesServices, CollectionSubtab } from '..';
 import type { WorkspaceTab, WorkspaceTabProps } from '../types';
 import { isEqual } from 'lodash';
 import { cleanupTabState } from '../components/workspace-tab-state-provider';
@@ -19,7 +14,7 @@ import {
 } from '../components/workspace-close-handler';
 import { type ConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { showConfirmation } from '@mongodb-js/compass-components';
-import type { IUserData } from '../../../compass-user-data/dist/user-data';
+import type { WorkspacesStateData } from '../services/workspaces-storage';
 
 const LocalAppRegistryMap = new Map<string, AppRegistry>();
 
@@ -110,8 +105,6 @@ export type WorkspacesState = {
    * of a database)
    */
   databaseInfo: Record<string, DatabaseTabInfo>;
-
-  userData: IUserData<typeof WorkspacesStateSchema> | null;
 };
 
 const getTabId = () => {
@@ -358,7 +351,10 @@ const reducer: Reducer<WorkspacesState, Action> = (
   }
 
   if (
-    isAction<RestoreWorkspaces>(action, WorkspacesActions.RestoreWorkspaces)
+    isAction<RestoreWorkspacesAction>(
+      action,
+      WorkspacesActions.RestoreWorkspaces
+    )
   ) {
     return {
       ...state,
@@ -872,7 +868,7 @@ type OpenTabFromCurrentActiveAction = {
   defaultTab: OpenWorkspaceOptions;
 };
 
-type RestoreWorkspaces = {
+type RestoreWorkspacesAction = {
   type: WorkspacesActions.RestoreWorkspaces;
   tabs: OpenWorkspaceOptions[];
 };
@@ -997,14 +993,101 @@ type DatabaseRemovedAction = {
   namespace: string;
 };
 
-export const restoreWorkspaces = (
-  tabs: OpenWorkspaceOptions[]
-): WorkspacesThunkAction<void, RestoreWorkspaces> => {
-  return (dispatch) => {
-    dispatch({
-      type: WorkspacesActions.RestoreWorkspaces,
-      tabs,
+/**
+ * Converts saved workspace state data back to OpenWorkspaceOptions format
+ * for initializing the store
+ */
+function convertSavedStateToOpenWorkspaceOptions(
+  savedState: WorkspacesStateData
+): OpenWorkspaceOptions[] {
+  return savedState.tabs.map((tab) => {
+    const baseTab: Record<string, unknown> = { type: tab.type };
+
+    // Add connection-related fields
+    if (tab.connectionId) {
+      baseTab.connectionId = tab.connectionId;
+    }
+    if (tab.namespace) {
+      baseTab.namespace = tab.namespace;
+    }
+
+    // Add optional fields based on workspace type
+    if (tab.initialQuery) {
+      baseTab.initialQuery = tab.initialQuery;
+    }
+    if (tab.initialAggregation) {
+      baseTab.initialAggregation = tab.initialAggregation;
+    }
+    if (tab.initialPipeline) {
+      baseTab.initialPipeline = tab.initialPipeline;
+    }
+    if (tab.initialPipelineText) {
+      baseTab.initialPipelineText = tab.initialPipelineText;
+    }
+    if (tab.editViewName) {
+      baseTab.editViewName = tab.editViewName;
+    }
+    if (tab.initialEvaluate) {
+      baseTab.initialEvaluate = tab.initialEvaluate;
+    }
+    if (tab.initialInput) {
+      baseTab.initialInput = tab.initialInput;
+    }
+    if (tab.subTab) {
+      baseTab.initialSubtab = tab.subTab;
+    }
+
+    return baseTab as OpenWorkspaceOptions;
+  });
+}
+
+export const loadSavedWorkspaces = (): WorkspacesThunkAction<
+  Promise<void>,
+  RestoreWorkspacesAction
+> => {
+  return async (dispatch, getState, { connections, userData }) => {
+    const savedState = await userData.readOne('current-workspace', {
+      ignoreErrors: true,
     });
+    if (savedState) {
+      const confirm = await showConfirmation({
+        title: 'Reopen closed tabs?',
+        description:
+          'Your connection and tabs were closed, this action will reopen your previous session',
+        buttonText: 'Reopen tabs',
+      });
+
+      const workspacesToRestore: OpenWorkspaceOptions[] = confirm
+        ? convertSavedStateToOpenWorkspaceOptions(savedState)
+        : [];
+      const connectionsToRestore: Map<string, ConnectionInfo> = new Map();
+      workspacesToRestore.forEach((workspace) => {
+        // If the workspace is tied to a connection, check if the connection exists
+        // and add it to the list of connections to restore if so.
+        if ('connectionId' in workspace) {
+          const connectionInfo = connections.getConnectionById(
+            workspace.connectionId
+          )?.info;
+
+          if (!connectionInfo) {
+            return;
+          }
+
+          connectionsToRestore.set(workspace.connectionId, connectionInfo);
+        }
+
+        workspacesToRestore.push(workspace);
+      });
+
+      connectionsToRestore.forEach((connectionInfo) => {
+        void connections.connect(connectionInfo);
+      });
+
+      dispatch({
+        type: WorkspacesActions.RestoreWorkspaces,
+        tabs: workspacesToRestore,
+      });
+    }
   };
 };
 
