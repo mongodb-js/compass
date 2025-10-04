@@ -10,7 +10,6 @@ import type { WorkspaceTab } from '../types';
 import Workspaces from './workspaces';
 import { connect } from '../stores/context';
 import { WorkspacesServiceProvider } from '../provider';
-import type { AtlasService } from '../../../atlas-service/dist/atlas-service';
 
 type WorkspacesWithSidebarProps = {
   /**
@@ -55,12 +54,6 @@ type WorkspacesWithSidebarProps = {
    * actions from service locator context
    */
   renderModals?: () => React.ReactElement | null;
-};
-
-type WorkspacesWithSidebarWebProps = WorkspacesWithSidebarProps & {
-  atlasService: AtlasService;
-  orgId: string;
-  projectId: string;
 };
 
 const containerLightThemeStyles = css({
@@ -126,28 +119,6 @@ const WorkspacesWithSidebar: React.FunctionComponent<
   );
 };
 
-const WorkspacesWithSidebarWeb: React.FunctionComponent<
-  WorkspacesWithSidebarWebProps
-> = ({
-  activeTab,
-  activeTabCollectionInfo,
-  openOnEmptyWorkspace,
-  onActiveWorkspaceTabChange,
-  renderSidebar,
-  renderModals,
-}) => {
-  return (
-    <WorkspacesWithSidebar
-      activeTab={activeTab}
-      activeTabCollectionInfo={activeTabCollectionInfo}
-      openOnEmptyWorkspace={openOnEmptyWorkspace}
-      onActiveWorkspaceTabChange={onActiveWorkspaceTabChange}
-      renderSidebar={renderSidebar}
-      renderModals={renderModals}
-    ></WorkspacesWithSidebar>
-  );
-};
-
 export default connect((state: WorkspacesState) => {
   const activeTab = getActiveTab(state);
   return {
@@ -158,14 +129,3 @@ export default connect((state: WorkspacesState) => {
         : null,
   };
 })(WorkspacesWithSidebar);
-
-export const WorkspacesWeb = connect((state: WorkspacesState) => {
-  const activeTab = getActiveTab(state);
-  return {
-    activeTab,
-    activeTabCollectionInfo:
-      activeTab?.type === 'Collection'
-        ? state.collectionInfo[activeTab.namespace]
-        : null,
-  };
-})(WorkspacesWithSidebarWeb);

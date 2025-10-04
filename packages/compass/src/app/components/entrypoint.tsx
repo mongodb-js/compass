@@ -30,6 +30,7 @@ import {
   createIpcSendTrack,
 } from '@mongodb-js/compass-telemetry';
 import { DataModelStorageServiceProviderElectron } from '@mongodb-js/compass-data-modeling/renderer';
+import { WorkspacesStorageServiceProviderDesktop } from '@mongodb-js/compass-workspaces';
 
 const WithPreferencesAndLoggerProviders: React.FC = ({ children }) => {
   const loggerProviderValue = useRef({
@@ -82,12 +83,15 @@ export const WithStorageProviders: React.FC = ({ children }) => {
       return new CompassRecentQueryStorage(options);
     },
   });
+
   return (
     <PipelineStorageProvider value={pipelineStorage.current}>
       <FavoriteQueryStorageProvider value={favoriteQueryStorage.current}>
         <RecentQueryStorageProvider value={recentQueryStorage.current}>
           <DataModelStorageServiceProviderElectron>
-            {children}
+            <WorkspacesStorageServiceProviderDesktop>
+              {children}
+            </WorkspacesStorageServiceProviderDesktop>
           </DataModelStorageServiceProviderElectron>
         </RecentQueryStorageProvider>
       </FavoriteQueryStorageProvider>

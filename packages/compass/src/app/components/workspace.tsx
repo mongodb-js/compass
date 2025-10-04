@@ -7,7 +7,6 @@ import {
 import type {
   WorkspaceTab,
   CollectionTabInfo,
-  OpenWorkspaceOptions,
 } from '@mongodb-js/compass-workspaces';
 
 import WorkspacesPlugin, {

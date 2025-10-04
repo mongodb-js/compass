@@ -277,3 +277,6 @@ export type {
   CollectionSubtab,
   WorkspacePluginProps,
 } from './types';
+
+export { WorkspacesStorageServiceProviderDesktop } from './services/workspaces-storage-desktop';
+export { WorkspacesStorageServiceProviderWeb } from './services/workspaces-storage-web';
