@@ -45,7 +45,6 @@ import {
   workspacesStorageServiceLocator,
 } from './services/workspaces-storage';
 import { type IUserData } from '../../compass-user-data/dist/user-data';
-import { useEffect } from 'react';
 
 export type WorkspacesServices = {
   globalAppRegistry: AppRegistry;
@@ -109,8 +108,6 @@ export function activateWorkspacePlugin(
     userData,
   });
 
-  // TODO: do we need to do this only once?
-  console.log('DISPATCHINGg');
   void store.dispatch(loadSavedWorkspaces());
 
   addCleanup(cleanupLocalAppRegistries);
