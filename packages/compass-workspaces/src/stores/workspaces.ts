@@ -226,7 +226,6 @@ const getInitialState = () => {
     activeTabId: null,
     collectionInfo: {},
     databaseInfo: {},
-    userData: null,
   };
 };
 

@@ -4,4 +4,4 @@ export const SUPPORTED_TESTS = [
   'auto-update-to',
 ] as const;
 
-export type TestName = typeof SUPPORTED_TESTS[number];
+export type TestName = (typeof SUPPORTED_TESTS)[number];

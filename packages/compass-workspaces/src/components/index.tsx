@@ -101,7 +101,6 @@ const WorkspacesWithSidebar: React.FunctionComponent<
   useEffect(() => {
     onChange.current(activeTab, activeTabCollectionInfo);
   }, [activeTab, activeTabCollectionInfo]);
-
   return (
     <WorkspacesServiceProvider>
       <div

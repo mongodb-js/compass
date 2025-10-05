@@ -92,7 +92,7 @@ async function loadGlobalPreferences(
 const cliProps = Object.entries(allPreferencesProps).filter(
   ([, definition]) => definition.cli
 );
-type CliPropType = typeof cliProps[number][1]['type'];
+type CliPropType = (typeof cliProps)[number][1]['type'];
 function getCliPropNamesByType(type: CliPropType): string[] {
   return [
     ...new Set(
