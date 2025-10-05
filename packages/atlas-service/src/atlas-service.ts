@@ -78,11 +78,14 @@ export class AtlasService {
     // https://github.com/10gen/mms/blob/9f858bb987aac6aa80acfb86492dd74c89cbb862/client/packages/project/common/ajaxPrefilter.ts#L34-L49
     return this.cloudEndpoint(path);
   }
-
   userDataEndpoint(
     orgId: string,
     groupId: string,
-    type: 'favoriteQueries' | 'recentQueries' | 'favoriteAggregations',
+    type:
+      | 'favoriteQueries'
+      | 'recentQueries'
+      | 'favoriteAggregations'
+      | 'savedWorkspaces',
     id?: string
   ): string {
     const encodedOrgId = encodeURIComponent(orgId);

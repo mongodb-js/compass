@@ -197,10 +197,7 @@ type CompassWorkspaceProps = Pick<
   Pick<
     React.ComponentProps<typeof CompassSidebarPlugin>,
     'onOpenConnectViaModal'
-  > & {
-    orgId: string;
-    projectId: string;
-  };
+  >;
 
 /** @public */
 export type CompassWebProps = {
