@@ -1,4 +1,5 @@
 import { expect } from 'chai';
+import sinon from 'sinon';
 import React from 'react';
 import {
   screen,
@@ -18,6 +19,7 @@ import { default as collectionTabReducer } from '../../modules/collection-tab';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import type { MockDataSchemaResponse } from '@mongodb-js/compass-generative-ai';
 import type { SchemaAnalysisState } from '../../schema-analysis-types';
+import * as scriptGenerationUtils from './script-generation-utils';
 
 const defaultSchemaAnalysisState: SchemaAnalysisState = {
   status: 'complete',
@@ -28,8 +30,13 @@ const defaultSchemaAnalysisState: SchemaAnalysisState = {
       sample_values: ['John', 'Jane'],
     },
   },
+  arrayLengthMap: {},
   sampleDocument: { name: 'John' },
-  schemaMetadata: { maxNestingDepth: 1, validationRules: null },
+  schemaMetadata: {
+    maxNestingDepth: 1,
+    validationRules: null,
+    avgDocumentSize: undefined,
+  },
 };
 
 describe('MockDataGeneratorModal', () => {
@@ -39,6 +46,7 @@ describe('MockDataGeneratorModal', () => {
     enableGenAISampleDocumentPassing = false,
     mockServices = createMockServices(),
     schemaAnalysis = defaultSchemaAnalysisState,
+    fakerSchemaGeneration = { status: 'idle' },
     connectionInfo,
   }: {
     isOpen?: boolean;
@@ -47,15 +55,14 @@ describe('MockDataGeneratorModal', () => {
     mockServices?: any;
     connectionInfo?: ConnectionInfo;
     schemaAnalysis?: SchemaAnalysisState;
+    fakerSchemaGeneration?: CollectionState['fakerSchemaGeneration'];
   } = {}) {
     const initialState: CollectionState = {
       workspaceTabId: 'test-workspace-tab-id',
       namespace: 'test.collection',
       metadata: null,
       schemaAnalysis,
-      fakerSchemaGeneration: {
-        status: 'idle',
-      },
+      fakerSchemaGeneration,
       mockDataGenerator: {
         isModalOpen: isOpen,
         currentStep: currentStep,
@@ -627,9 +634,102 @@ describe('MockDataGeneratorModal', () => {
     });
   });
 
+  describe('on the document count step', () => {
+    it('displays the correct step title and description', async () => {
+      await renderModal({ currentStep: MockDataGeneratorStep.DOCUMENT_COUNT });
+
+      expect(screen.getByText('Specify Number of Documents to Generate')).to
+        .exist;
+
+      expect(
+        screen.getByText(
+          /Indicate the amount of documents you want to generate below./
+        )
+      ).to.exist;
+      expect(screen.getByText(/Note: We have defaulted to 1000./)).to.exist;
+    });
+
+    it('displays the default document count when the user does not enter a document count', async () => {
+      await renderModal({ currentStep: MockDataGeneratorStep.DOCUMENT_COUNT });
+
+      expect(
+        screen.getByLabelText('Documents to generate in current collection')
+      ).to.have.value('1000');
+    });
+
+    it('disables the Next button and shows an error message when the document count is greater than 100000', async () => {
+      await renderModal({ currentStep: MockDataGeneratorStep.DOCUMENT_COUNT });
+
+      userEvent.type(
+        screen.getByLabelText('Documents to generate in current collection'),
+        '100001'
+      );
+
+      expect(screen.getByText('Document count must be between 1 and 100000')).to
+        .exist;
+      expect(
+        screen.getByTestId('next-step-button').getAttribute('aria-disabled')
+      ).to.equal('true');
+    });
+
+    it('displays "Not available" when the avgDocumentSize is undefined', async () => {
+      await renderModal({
+        currentStep: MockDataGeneratorStep.DOCUMENT_COUNT,
+        schemaAnalysis: {
+          ...defaultSchemaAnalysisState,
+          schemaMetadata: {
+            ...defaultSchemaAnalysisState.schemaMetadata,
+            avgDocumentSize: undefined,
+          },
+        },
+      });
+
+      expect(screen.getByText('Estimated Disk Size')).to.exist;
+      expect(screen.getByText('Not available')).to.exist;
+    });
+
+    it('displays the correct estimated disk size when a valid document count is entered', async () => {
+      await renderModal({
+        currentStep: MockDataGeneratorStep.DOCUMENT_COUNT,
+        schemaAnalysis: {
+          ...defaultSchemaAnalysisState,
+          schemaMetadata: {
+            ...defaultSchemaAnalysisState.schemaMetadata,
+            avgDocumentSize: 100, // 100 bytes
+          },
+        },
+      });
+
+      expect(screen.getByText('Estimated Disk Size')).to.exist;
+      const documentCountInput = screen.getByLabelText(
+        'Documents to generate in current collection'
+      );
+      userEvent.clear(documentCountInput);
+      userEvent.type(documentCountInput, '1000');
+      expect(screen.getByText('100.0KB')).to.exist;
+      userEvent.clear(documentCountInput);
+      userEvent.type(documentCountInput, '2000');
+      expect(screen.getByText('200.0KB')).to.exist;
+    });
+  });
+
   describe('on the generate data step', () => {
     it('enables the Back button', async () => {
-      await renderModal({ currentStep: MockDataGeneratorStep.GENERATE_DATA });
+      await renderModal({
+        currentStep: MockDataGeneratorStep.GENERATE_DATA,
+        fakerSchemaGeneration: {
+          status: 'completed',
+          fakerSchema: {
+            name: {
+              fakerMethod: 'person.firstName',
+              fakerArgs: [],
+              probability: 1.0,
+              mongoType: 'String',
+            },
+          },
+          requestId: 'test-request-id',
+        },
+      });
 
       expect(
         screen
@@ -639,7 +739,21 @@ describe('MockDataGeneratorModal', () => {
     });
 
     it('renders the main sections: Prerequisites, steps, and Resources', async () => {
-      await renderModal({ currentStep: MockDataGeneratorStep.GENERATE_DATA });
+      await renderModal({
+        currentStep: MockDataGeneratorStep.GENERATE_DATA,
+        fakerSchemaGeneration: {
+          status: 'completed',
+          fakerSchema: {
+            name: {
+              fakerMethod: 'person.firstName',
+              fakerArgs: [],
+              probability: 1.0,
+              mongoType: 'String',
+            },
+          },
+          requestId: 'test-request-id',
+        },
+      });
 
       expect(screen.getByText('Prerequisites')).to.exist;
       expect(screen.getByText('1. Create a .js file with the following script'))
@@ -649,7 +763,21 @@ describe('MockDataGeneratorModal', () => {
     });
 
     it('closes the modal when the Done button is clicked', async () => {
-      await renderModal({ currentStep: MockDataGeneratorStep.GENERATE_DATA });
+      await renderModal({
+        currentStep: MockDataGeneratorStep.GENERATE_DATA,
+        fakerSchemaGeneration: {
+          status: 'completed',
+          fakerSchema: {
+            name: {
+              fakerMethod: 'person.firstName',
+              fakerArgs: [],
+              probability: 1.0,
+              mongoType: 'String',
+            },
+          },
+          requestId: 'test-request-id',
+        },
+      });
 
       expect(screen.getByTestId('generate-mock-data-modal')).to.exist;
       userEvent.click(screen.getByText('Done'));
@@ -684,6 +812,18 @@ describe('MockDataGeneratorModal', () => {
       await renderModal({
         currentStep: MockDataGeneratorStep.GENERATE_DATA,
         connectionInfo: atlasConnectionInfo,
+        fakerSchemaGeneration: {
+          status: 'completed',
+          fakerSchema: {
+            name: {
+              fakerMethod: 'person.firstName',
+              fakerArgs: [],
+              probability: 1.0,
+              mongoType: 'String',
+            },
+          },
+          requestId: 'test-request-id',
+        },
       });
 
       const databaseUsersLink = screen.getByRole('link', {
@@ -710,7 +850,76 @@ describe('MockDataGeneratorModal', () => {
         .to.not.exist;
     });
 
-    // todo: assert that the generated script is displayed in the code block (CLOUDP-333860)
+    it('shows error banner when script generation fails', async () => {
+      // Mock the generateScript function to return an error
+      const generateScriptStub = sinon.stub(
+        scriptGenerationUtils,
+        'generateScript'
+      );
+      generateScriptStub.returns({
+        success: false,
+        error: 'Test error: Invalid faker schema format',
+      });
+
+      try {
+        await renderModal({
+          currentStep: MockDataGeneratorStep.GENERATE_DATA,
+          fakerSchemaGeneration: {
+            status: 'completed',
+            fakerSchema: {
+              name: {
+                fakerMethod: 'person.firstName',
+                fakerArgs: [],
+                probability: 1.0,
+                mongoType: 'String',
+              },
+            },
+            requestId: 'test-request-id',
+          },
+        });
+
+        expect(screen.getByRole('alert')).to.exist;
+        expect(screen.getByText(/Script Generation Failed:/)).to.exist;
+        expect(screen.getByText(/Test error: Invalid faker schema format/)).to
+          .exist;
+        expect(screen.getByText(/Please go back to the start screen/)).to.exist;
+
+        const codeBlock = screen.getByText('// Script generation failed.');
+        expect(codeBlock).to.exist;
+      } finally {
+        generateScriptStub.restore();
+      }
+    });
+
+    it('displays the script when generation succeeds', async () => {
+      await renderModal({
+        currentStep: MockDataGeneratorStep.GENERATE_DATA,
+        fakerSchemaGeneration: {
+          status: 'completed',
+          fakerSchema: {
+            name: {
+              fakerMethod: 'person.firstName',
+              fakerArgs: [],
+              probability: 1.0,
+              mongoType: 'String',
+            },
+            email: {
+              fakerMethod: 'internet.email',
+              fakerArgs: [],
+              probability: 1.0,
+              mongoType: 'String',
+            },
+          },
+          requestId: 'test-request-id',
+        },
+      });
+
+      // Check that no error banner is displayed
+      expect(screen.queryByRole('alert')).to.not.exist;
+      expect(screen.queryByText('Script generation failed')).to.not.exist;
+      expect(screen.getByText('firstName')).to.exist; // faker method
+      expect(screen.getByText('insertMany')).to.exist;
+    });
   });
 
   describe('when rendering the modal in a specific step', () => {

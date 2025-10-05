@@ -1,7 +1,10 @@
 {
   "name": "hadron-document",
   "description": "Hadron Document",
-  "author": "Durran Jordan <durran@gmail.com>",
+  "author": {
+    "name": "MongoDB Inc",
+    "email": "compass@mongodb.com"
+  },
   "bugs": {
     "url": "https://jira.mongodb.org/projects/COMPASS/issues",
     "email": "compass@mongodb.com"

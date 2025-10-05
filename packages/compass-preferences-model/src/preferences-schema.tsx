@@ -1322,6 +1322,8 @@ function featureFlagToPreferenceDefinition(
     global: true,
     ui: true,
     description: featureFlag.description,
+    // Only show feature flags in 'preview' stage in --help output
+    omitFromHelp: featureFlag.stage !== 'preview',
     // if a feature flag is 'released' it will always return true
     // regardless of any persisted value.
     deriveValue:

@@ -166,20 +166,6 @@ describe('useAssistantActions', function () {
     expect(result.current).to.have.keys(['getIsAssistantEnabled']);
   });
 
-  it('returns mostly empty object when enableAIAssistant preference is disabled', function () {
-    const { result } = renderHook(() => useAssistantActions(), {
-      wrapper: createWrapper(createMockChat({ messages: [] })),
-      preferences: {
-        enableAIAssistant: false,
-        enableGenAIFeatures: true,
-        enableGenAIFeaturesAtlasOrg: true,
-        cloudFeatureRolloutAccess: { GEN_AI_COMPASS: true },
-      },
-    });
-
-    expect(result.current).to.have.keys(['getIsAssistantEnabled']);
-  });
-
   it('returns actions when both AI features and assistant flag are enabled', function () {
     const { result } = renderHook(() => useAssistantActions(), {
       wrapper: createWrapper(createMockChat({ messages: [] })),
@@ -244,21 +230,6 @@ describe('CompassAssistantProvider', function () {
   });
 
   describe('disabling the Assistant', function () {
-    it('does not render assistant drawer when AI assistant is disabled', function () {
-      render(<TestComponent chat={createMockChat({ messages: [] })} />, {
-        preferences: {
-          enableAIAssistant: false,
-          enableGenAIFeatures: true,
-          enableGenAIFeaturesAtlasOrg: true,
-          cloudFeatureRolloutAccess: { GEN_AI_COMPASS: true },
-        },
-      });
-
-      expect(screen.getByTestId('provider-children')).to.exist;
-      // The drawer toolbar button should not exist when disabled
-      expect(screen.queryByLabelText('MongoDB Assistant')).to.not.exist;
-    });
-
     it('does not render assistant drawer when AI features are disabled via isAIFeatureEnabled', function () {
       render(<TestComponent chat={createMockChat({ messages: [] })} />, {
         preferences: {
