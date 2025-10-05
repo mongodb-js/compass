@@ -11,10 +11,7 @@ import {
 } from '@mongodb-js/compass-components';
 import { connect } from '../stores/context';
 import OptionEditor from './option-editor';
-import {
-  OPTION_DEFINITION,
-  WEB_MAX_TIME_MS_LIMIT,
-} from '../constants/query-option-definition';
+import { OPTION_DEFINITION } from '../constants/query-option-definition';
 import type {
   QueryOptionOfTypeDocument,
   QueryOption as QueryOptionType,
@@ -159,7 +156,7 @@ const QueryOption: React.FunctionComponent<QueryOptionProps> = ({
   }, [track, name, connectionInfoRef]);
 
   // MaxTimeMS warning tooltip logic
-  const showMaxTimeMSWarning = Boolean(usePreference('showMaxTimeMSWarning'));
+  const maxTimeMSEnvLimit = usePreference('maxTimeMSEnvLimit');
   const numericValue = useMemo(() => {
     if (!value) return 0;
     const parsed = Number(value);
@@ -169,10 +166,10 @@ const QueryOption: React.FunctionComponent<QueryOptionProps> = ({
   const exceedsMaxTimeMSLimit = useMemo(() => {
     return (
       name === 'maxTimeMS' &&
-      showMaxTimeMSWarning &&
-      numericValue >= WEB_MAX_TIME_MS_LIMIT
+      maxTimeMSEnvLimit && // 0 is falsy, so no limit when 0
+      numericValue >= maxTimeMSEnvLimit
     );
-  }, [name, showMaxTimeMSWarning, numericValue]);
+  }, [name, maxTimeMSEnvLimit, numericValue]);
 
   return (
     <div

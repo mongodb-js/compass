@@ -106,7 +106,7 @@ export type UserConfigurablePreferences = PermanentFeatureFlags &
     proxy: string;
     inferNamespacesFromPrivileges?: boolean;
     // Features that are enabled by default in Date Explorer, but are disabled in Compass
-    showMaxTimeMSWarning?: boolean;
+    maxTimeMSEnvLimit?: number;
   };
 
 /**
@@ -1064,15 +1064,16 @@ export const storedUserPreferencesProps: Required<{
     validator: z.boolean().default(true),
     type: 'boolean',
   },
-  showMaxTimeMSWarning: {
+  maxTimeMSEnvLimit: {
     ui: true,
     cli: true,
     global: true,
     description: {
-      short: 'Show Max Time MS over 5min Warning for Data Explorer',
+      short:
+        'Maximum time limit for operations in environment (milliseconds). Set to 0 for no limit.',
     },
-    validator: z.boolean().default(false),
-    type: 'boolean',
+    validator: z.number().min(0).default(0),
+    type: 'number',
   },
 
   ...allFeatureFlagsProps,

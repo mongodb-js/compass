@@ -384,7 +384,7 @@ const CompassWeb = ({
   });
   const preferencesAccess = useCompassWebPreferences({
     ...initialPreferences,
-    showMaxTimeMSWarning: true,
+    maxTimeMSEnvLimit: 300_000, // 5 minutes limit for Data Explorer
   });
   // TODO (COMPASS-9565): My Queries feature flag will be used to conditionally provide storage providers
   const initialWorkspaceRef = useRef(initialWorkspace);

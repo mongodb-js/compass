@@ -14,7 +14,7 @@ import {
 import type { RootState } from '../../../modules';
 import { collationStringChanged } from '../../../modules/collation-string';
 import { maxTimeMSChanged } from '../../../modules/max-time-ms';
-import { DEFAULT_MAX_TIME_MS, WEB_MAX_TIME_MS_LIMIT } from '../../../constants';
+import { DEFAULT_MAX_TIME_MS } from '../../../constants';
 import { usePreference } from 'compass-preferences-model/provider';
 
 const pipelineOptionsContainerStyles = css({
@@ -59,7 +59,7 @@ const PipelineCollation: React.FunctionComponent<PipelineCollationProps> = ({
   maxTimeMSValue,
   maxTimeMSChanged,
 }) => {
-  const showMaxTimeMSWarning = Boolean(usePreference('showMaxTimeMSWarning'));
+  const maxTimeMSEnvLimit = usePreference('maxTimeMSEnvLimit');
 
   const onMaxTimeMSChanged = useCallback(
     (evt: React.ChangeEvent<HTMLInputElement>) => {
@@ -67,38 +67,38 @@ const PipelineCollation: React.FunctionComponent<PipelineCollationProps> = ({
         const parsed = Number(evt.currentTarget.value);
         const newValue = Number.isNaN(parsed) ? 0 : parsed;
 
-        // When warning is enabled, enforce the hard limit
-        if (showMaxTimeMSWarning && newValue > WEB_MAX_TIME_MS_LIMIT) {
-          maxTimeMSChanged(WEB_MAX_TIME_MS_LIMIT);
+        // When environment limit is set (> 0), enforce it
+        if (maxTimeMSEnvLimit && newValue > maxTimeMSEnvLimit) {
+          maxTimeMSChanged(maxTimeMSEnvLimit);
         } else {
           maxTimeMSChanged(newValue);
         }
       }
     },
-    [maxTimeMSChanged, showMaxTimeMSWarning]
+    [maxTimeMSChanged, maxTimeMSEnvLimit]
   );
 
   const maxTimeMSLimit = usePreference('maxTimeMS');
 
-  // Determine the effective max limit when warning is enabled
+  // Determine the effective max limit when environment limit is set (> 0)
   const effectiveMaxLimit = useMemo(() => {
-    if (showMaxTimeMSWarning) {
+    if (maxTimeMSEnvLimit) {
       return maxTimeMSLimit
-        ? Math.min(maxTimeMSLimit, WEB_MAX_TIME_MS_LIMIT)
-        : WEB_MAX_TIME_MS_LIMIT;
+        ? Math.min(maxTimeMSLimit, maxTimeMSEnvLimit)
+        : maxTimeMSEnvLimit;
     }
     return maxTimeMSLimit;
-  }, [showMaxTimeMSWarning, maxTimeMSLimit]);
+  }, [maxTimeMSEnvLimit, maxTimeMSLimit]);
 
-  // Check if value exceeds the limit when warning is enabled
+  // Check if value exceeds the environment limit (when limit > 0)
   const exceedsLimit = Boolean(
     useMemo(() => {
       return (
-        showMaxTimeMSWarning &&
+        maxTimeMSEnvLimit &&
         maxTimeMSValue &&
-        maxTimeMSValue >= WEB_MAX_TIME_MS_LIMIT
+        maxTimeMSValue >= maxTimeMSEnvLimit
       );
-    }, [showMaxTimeMSWarning, maxTimeMSValue])
+    }, [maxTimeMSEnvLimit, maxTimeMSValue])
   );
 
   return (

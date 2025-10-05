@@ -14,7 +14,6 @@ import type {
   QueryProperty,
 } from '../constants/query-properties';
 import { QUERY_PROPERTIES } from '../constants/query-properties';
-import { WEB_MAX_TIME_MS_LIMIT } from '../constants/query-option-definition';
 
 export function mapFormFieldsToQuery(fields: QueryFormFields): BaseQuery {
   // We always want filter field to be in the query, even if the field
@@ -57,7 +56,7 @@ export function doesQueryHaveExtraOptionsSet(fields?: QueryFormFields) {
 
 export function parseQueryAttributesToFormFields(
   query: Record<string, unknown>,
-  preferences: Pick<UserPreferences, 'maxTimeMS' | 'showMaxTimeMSWarning'>
+  preferences: Pick<UserPreferences, 'maxTimeMS' | 'maxTimeMSEnvLimit'>
 ): QueryFormFields {
   return Object.fromEntries(
     Object.entries(query)
@@ -82,7 +81,7 @@ export function parseQueryAttributesToFormFields(
  * Map query document to the query fields state only preserving valid values
  */
 export function mapQueryToFormFields(
-  preferences: Pick<UserPreferences, 'maxTimeMS' | 'showMaxTimeMSWarning'>,
+  preferences: Pick<UserPreferences, 'maxTimeMS' | 'maxTimeMSEnvLimit'>,
   query?: BaseQuery,
   onlyValid = true
 ): QueryFormFields {
@@ -128,8 +127,8 @@ export function validateField(
   value: string,
   {
     maxTimeMS: preferencesMaxTimeMS,
-    showMaxTimeMSWarning,
-  }: Pick<UserPreferences, 'maxTimeMS' | 'showMaxTimeMSWarning'>
+    maxTimeMSEnvLimit,
+  }: Pick<UserPreferences, 'maxTimeMS' | 'maxTimeMSEnvLimit'>
 ) {
   const validated = validate(field, value);
   if (field === 'filter' && validated === '') {
@@ -141,15 +140,15 @@ export function validateField(
   }
 
   // Additional validation for maxTimeMS to make sure that we are not over the
-  // upper bound set in preferences or Data Explorer limits
+  // upper bound set in preferences or environment limits
   if (field === 'maxTimeMS') {
     const maxTimeMS = Number(value);
 
-    // When warning is enabled, enforce hard limit
+    // When environment limit is set (> 0), enforce it
     if (
-      showMaxTimeMSWarning &&
+      maxTimeMSEnvLimit &&
       !Number.isNaN(maxTimeMS) &&
-      maxTimeMS > WEB_MAX_TIME_MS_LIMIT
+      maxTimeMS > maxTimeMSEnvLimit
     ) {
       return false;
     }
@@ -175,7 +174,7 @@ export function validateField(
 
 export function isQueryFieldsValid(
   fields: QueryFormFields,
-  preferences: Pick<UserPreferences, 'maxTimeMS' | 'showMaxTimeMSWarning'>
+  preferences: Pick<UserPreferences, 'maxTimeMS' | 'maxTimeMSEnvLimit'>
 ) {
   return Object.entries(fields).every(
     ([key, value]) => validateField(key, value.string, preferences) !== false
