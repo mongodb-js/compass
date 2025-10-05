@@ -16,7 +16,7 @@ import {
 import type { WizardComponentProps } from '..';
 import { FieldCombobox } from '../field-combobox';
 
-type SortDirection = typeof SORT_DIRECTION_OPTIONS[number]['value'];
+type SortDirection = (typeof SORT_DIRECTION_OPTIONS)[number]['value'];
 type SortFieldState = {
   id: number;
   field: string;
