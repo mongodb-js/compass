@@ -3,16 +3,12 @@ import React, { type ComponentProps } from 'react';
 import {
   renderWithActiveConnection,
   screen,
-  cleanup,
 } from '@mongodb-js/testing-library-compass';
 import sinon from 'sinon';
 import {
   WorkspacesServiceProvider,
   type WorkspacesService,
 } from '@mongodb-js/compass-workspaces/provider';
-import type { PreferencesAccess } from 'compass-preferences-model';
-import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
-import { PreferencesProvider } from 'compass-preferences-model/provider';
 import { ExperimentTestName } from '@mongodb-js/compass-telemetry/provider';
 import { CompassExperimentationProvider } from '@mongodb-js/compass-telemetry';
 import type { ConnectionInfo } from '@mongodb-js/compass-connections/provider';
@@ -20,11 +16,9 @@ import type { ConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import CollectionHeaderActions from '../collection-header-actions';
 
 describe('CollectionHeaderActions [Component]', function () {
-  let preferences: PreferencesAccess;
   let mockUseAssignment: sinon.SinonStub;
 
-  beforeEach(async function () {
-    preferences = await createSandboxFromDefaultPreferences();
+  beforeEach(function () {
     mockUseAssignment = sinon.stub();
     mockUseAssignment.returns({
       assignment: {
@@ -42,7 +36,8 @@ describe('CollectionHeaderActions [Component]', function () {
   const renderCollectionHeaderActions = (
     props: Partial<ComponentProps<typeof CollectionHeaderActions>> = {},
     workspaceService: Partial<WorkspacesService> = {},
-    connectionInfo?: ConnectionInfo
+    connectionInfo?: ConnectionInfo,
+    preferences?: Record<string, boolean>
   ) => {
     return renderWithActiveConnection(
       <CompassExperimentationProvider
@@ -53,21 +48,20 @@ describe('CollectionHeaderActions [Component]', function () {
         <WorkspacesServiceProvider
           value={workspaceService as WorkspacesService}
         >
-          <PreferencesProvider value={preferences}>
-            <CollectionHeaderActions
-              namespace="test.test"
-              isReadonly={false}
-              onOpenMockDataModal={sinon.stub()}
-              hasSchemaAnalysisData={true}
-              analyzedSchemaDepth={2}
-              schemaAnalysisStatus="complete"
-              schemaAnalysisError={null}
-              {...props}
-            />
-          </PreferencesProvider>
+          <CollectionHeaderActions
+            namespace="test.test"
+            isReadonly={false}
+            onOpenMockDataModal={sinon.stub()}
+            hasSchemaAnalysisData={true}
+            analyzedSchemaDepth={2}
+            schemaAnalysisStatus="complete"
+            schemaAnalysisError={null}
+            {...props}
+          />
         </WorkspacesServiceProvider>
       </CompassExperimentationProvider>,
-      connectionInfo
+      connectionInfo,
+      { preferences }
     );
   };
 
@@ -80,8 +74,6 @@ describe('CollectionHeaderActions [Component]', function () {
       });
     });
 
-    afterEach(cleanup);
-
     it('does not render any buttons', function () {
       expect(
         screen.queryByTestId('collection-header-actions-edit-button')
@@ -93,15 +85,18 @@ describe('CollectionHeaderActions [Component]', function () {
   });
 
   context('Compass readonly mode', function () {
-    it('does not render edit view buttons when in readonly mode', async function () {
-      await preferences.savePreferences({ readOnly: true });
-
-      await renderCollectionHeaderActions({
-        isReadonly: true,
-        namespace: 'db.coll2',
-        sourceName: 'db.someSource',
-        sourcePipeline: [{ $match: { a: 1 } }],
-      });
+    it('does not render edit view buttons when in ReadWrite mode', async function () {
+      await renderCollectionHeaderActions(
+        {
+          isReadonly: true,
+          namespace: 'db.coll2',
+          sourceName: 'db.someSource',
+          sourcePipeline: [{ $match: { a: 1 } }],
+        },
+        undefined,
+        undefined,
+        { readWrite: true }
+      );
 
       expect(
         screen.queryByTestId('collection-header-actions-edit-button')
@@ -142,8 +137,6 @@ describe('CollectionHeaderActions [Component]', function () {
       );
     });
 
-    afterEach(cleanup);
-
     it('shows a button to edit the view pipeline', function () {
       expect(
         screen.getByTestId('collection-header-actions-edit-button')
@@ -181,9 +174,6 @@ describe('CollectionHeaderActions [Component]', function () {
         }
       );
     });
-
-    afterEach(cleanup);
-
     it('shows a button to return to the view', function () {
       expect(
         screen.getByTestId('collection-header-actions-return-to-view-button')

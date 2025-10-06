@@ -78,6 +78,22 @@ export class AtlasService {
     // https://github.com/10gen/mms/blob/9f858bb987aac6aa80acfb86492dd74c89cbb862/client/packages/project/common/ajaxPrefilter.ts#L34-L49
     return this.cloudEndpoint(path);
   }
+  userDataEndpoint(
+    orgId: string,
+    groupId: string,
+    type: 'favoriteQueries' | 'recentQueries' | 'favoriteAggregations',
+    id?: string
+  ): string {
+    const encodedOrgId = encodeURIComponent(orgId);
+    const encodedGroupId = encodeURIComponent(groupId);
+    const encodedType = encodeURIComponent(type);
+    const encodedId = id ? encodeURIComponent(id) : '';
+    const baseUrl = this.config.userDataBaseUrl;
+    const path = encodedId
+      ? `/${encodedOrgId}/${encodedGroupId}/${encodedType}/${encodedId}`
+      : `/${encodedOrgId}/${encodedGroupId}/${encodedType}`;
+    return `${baseUrl}${path}`;
+  }
   driverProxyEndpoint(path?: string): string {
     return `${this.config.ccsBaseUrl}${normalizePath(path)}`;
   }
@@ -91,13 +107,14 @@ export class AtlasService {
       { url }
     );
     try {
+      const headers = {
+        ...this.options?.defaultHeaders,
+        ...(shouldAddCSRFHeaders(init?.method) && getCSRFHeaders()),
+        ...init?.headers,
+      };
       const res = await fetch(url, {
         ...init,
-        headers: {
-          ...this.options?.defaultHeaders,
-          ...(shouldAddCSRFHeaders(init?.method) && getCSRFHeaders()),
-          ...init?.headers,
-        },
+        headers,
       });
       this.logger.log.info(
         this.logger.mongoLogId(1_001_000_309),
@@ -132,6 +149,7 @@ export class AtlasService {
         ...init?.headers,
         ...authHeaders,
       },
+      credentials: 'include',
     });
   }
   async automationAgentRequest(

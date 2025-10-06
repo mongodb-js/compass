@@ -12,7 +12,7 @@ import sinon from 'sinon';
 describe('Breadcrumbs Component', function () {
   afterEach(cleanup);
 
-  it('renders nothing when list is empty', function () {
+  it('renders empty when list is empty', function () {
     render(<Breadcrumbs items={[]} />);
     expect(screen.getByTestId('breadcrumbs').children.length).to.equal(0);
   });

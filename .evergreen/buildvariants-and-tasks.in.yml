@@ -108,15 +108,11 @@ const TEST_PACKAGED_APP_BUILD_VARIANTS = [
 ];
 
 const EOL_SERVER_VERSIONS = [
-  { name: '44x-community', version: '4.4.x' },
-  { name: '44x-enterprise', version: '4.4.x-enterprise' },
-  { name: '5x-community', version: '5.x.x' },
-  { name: '5x-enterprise', version: '5.x.x-enterprise' }
+  { name: '60x-community', version: '6.0.x' },
+  { name: '60x-enterprise', version: '6.0.x-enterprise' },
 ];
 
 const MAINTAINED_SERVER_VERSIONS = [
-  { name: '60x-community', version: '6.0.x' },
-  { name: '60x-enterprise', version: '6.0.x-enterprise' },
   { name: '70x-community', version: '7.0.x' },
   { name: '70x-enterprise', version: '7.0.x-enterprise' },
   { name: '80x-community', version: '8.0.x' },
@@ -258,6 +254,11 @@ buildvariants:
     tasks:
       - name: publish
       - name: publish-dev-release-info
+
+  - name: static-analysis
+    display_name: Create Static Analysis Report
+    run_on: ubuntu2004-large
+    tasks:
       - name: create_static_analysis_report
 
   - name: connectivity-tests

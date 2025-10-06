@@ -9,16 +9,17 @@ import {
 } from '@mongodb-js/atlas-service/provider';
 import { AtlasAiServiceProvider } from '@mongodb-js/compass-generative-ai/provider';
 import {
-  CompassFavoriteQueryStorage,
-  CompassPipelineStorage,
-  CompassRecentQueryStorage,
-} from '@mongodb-js/my-queries-storage';
+  createElectronRecentQueryStorage,
+  createElectronFavoriteQueryStorage,
+  createElectronPipelineStorage,
+} from '@mongodb-js/my-queries-storage/electron';
 import {
   PipelineStorageProvider,
   FavoriteQueryStorageProvider,
   RecentQueryStorageProvider,
   type FavoriteQueryStorageAccess,
   type RecentQueryStorageAccess,
+  type PipelineStorageAccess,
 } from '@mongodb-js/my-queries-storage/provider';
 import { createLogger } from '@mongodb-js/compass-logging';
 import { LoggerProvider } from '@mongodb-js/compass-logging/provider';
@@ -71,15 +72,21 @@ export const WithAtlasProviders: React.FC = ({ children }) => {
 };
 
 export const WithStorageProviders: React.FC = ({ children }) => {
-  const pipelineStorage = useRef(new CompassPipelineStorage());
+  const pipelineStorage = useRef<PipelineStorageAccess>({
+    getStorage(options) {
+      return createElectronPipelineStorage({ basepath: options?.basePath });
+    },
+  });
   const favoriteQueryStorage = useRef<FavoriteQueryStorageAccess>({
     getStorage(options) {
-      return new CompassFavoriteQueryStorage(options);
+      return createElectronFavoriteQueryStorage({
+        basepath: options?.basepath,
+      });
     },
   });
   const recentQueryStorage = useRef<RecentQueryStorageAccess>({
     getStorage(options) {
-      return new CompassRecentQueryStorage(options);
+      return createElectronRecentQueryStorage({ basepath: options?.basepath });
     },
   });
   return (

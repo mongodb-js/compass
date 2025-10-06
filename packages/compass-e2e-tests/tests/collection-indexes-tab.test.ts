@@ -75,47 +75,35 @@ describe('Collection indexes tab', function () {
     await browser.dropIndex(createdIndexName, 'drop-index-modal-basic.png');
   });
 
-  describe('server version 4.2.0', function () {
-    it('supports creating a wildcard index', async function () {
-      if (serverSatisfies('< 4.2.0')) {
-        return this.skip();
-      }
+  it('supports creating a wildcard index', async function () {
+    const indexName = await browser.createIndex(
+      {
+        fieldName: '$**',
+        indexType: '1',
+      },
+      {
+        wildcardProjection: '{ "fieldA": 1, "fieldB.fieldC": 1 }',
+      },
+      'create-index-modal-wildcard.png'
+    );
 
-      const indexName = await browser.createIndex(
-        {
-          fieldName: '$**',
-          indexType: '1',
-        },
-        {
-          wildcardProjection: '{ "fieldA": 1, "fieldB.fieldC": 1 }',
-        },
-        'create-index-modal-wildcard.png'
-      );
+    const indexFieldTypeSelector = `${Selectors.indexComponent(indexName)} ${
+      Selectors.IndexFieldType
+    }`;
+    const indexFieldTypeElement = browser.$(indexFieldTypeSelector);
+    expect(await indexFieldTypeElement.getText()).to.equal('WILDCARD');
 
-      const indexFieldTypeSelector = `${Selectors.indexComponent(indexName)} ${
-        Selectors.IndexFieldType
-      }`;
-      const indexFieldTypeElement = browser.$(indexFieldTypeSelector);
-      expect(await indexFieldTypeElement.getText()).to.equal('WILDCARD');
-
-      await browser.dropIndex(indexName, 'drop-index-modal-wildcard.png');
-    });
+    await browser.dropIndex(indexName, 'drop-index-modal-wildcard.png');
   });
 
-  describe('server version 4.4.0', function () {
-    it('supports hiding and unhiding indexes', async function () {
-      if (serverSatisfies('< 4.4.0')) {
-        return this.skip();
-      }
-
-      const indexName = await browser.createIndex({
-        fieldName: 'i',
-        indexType: 'text',
-      });
-
-      await browser.hideIndex(indexName, 'hide-index-modal.png');
-      await browser.unhideIndex(indexName, 'unhide-index-modal.png');
+  it('supports hiding and unhiding indexes', async function () {
+    const indexName = await browser.createIndex({
+      fieldName: 'i',
+      indexType: 'text',
     });
+
+    await browser.hideIndex(indexName, 'hide-index-modal.png');
+    await browser.unhideIndex(indexName, 'unhide-index-modal.png');
   });
 
   describe('server version 20.0.0', function () {

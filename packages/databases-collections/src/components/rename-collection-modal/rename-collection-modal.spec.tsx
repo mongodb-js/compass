@@ -35,8 +35,20 @@ describe('RenameCollectionModal [Component]', function () {
 
   context('when the modal is visible', function () {
     beforeEach(async function () {
+      const favoriteQueries = {
+        getStorage: () => ({
+          loadAll: sandbox.stub().resolves([]),
+        }),
+      };
+      const pipelineStorage = {
+        getStorage: () => ({
+          loadAll: sandbox.stub().resolves([]),
+        }),
+      };
       const Plugin = RenameCollectionPlugin.withMockServices({
         instancesManager: instancesManager as any,
+        queryStorage: favoriteQueries as any,
+        pipelineStorage: pipelineStorage as any,
       });
       const {
         globalAppRegistry,
@@ -220,7 +232,9 @@ describe('RenameCollectionModal [Component]', function () {
           }),
         };
         const pipelineStorage = {
-          loadAll: sandbox.stub().resolves([{ namespace: 'foo.bar' }]),
+          getStorage: () => ({
+            loadAll: sandbox.stub().resolves([{ namespace: 'foo.bar' }]),
+          }),
         };
         const Plugin = RenameCollectionPlugin.withMockServices({
           instancesManager: instancesManager as any,

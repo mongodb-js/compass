@@ -4,6 +4,6 @@
     "allowJs": true,
     "outDir": "dist"
   },
-  "include": ["src/**/*"],
-  "exclude": ["./src/**/*.spec.*"]
+  "include": ["**/*"],
+  "exclude": ["node_modules", "dist"]
 }

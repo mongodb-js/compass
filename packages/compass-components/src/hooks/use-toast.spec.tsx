@@ -10,6 +10,8 @@ import React from 'react';
 import { ToastArea, openToast, closeToast } from './use-toast';
 import type { ToastProperties } from './use-toast';
 
+const toastId = (namespace: string, id: string) => `${namespace}--${id}`;
+
 const OpenToastButton = ({
   namespace,
   id,
@@ -22,7 +24,7 @@ const OpenToastButton = ({
     <button
       type="button"
       onClick={() => {
-        openToast(`${namespace}--${id}`, toastProps);
+        openToast(toastId(namespace, id), toastProps);
       }}
     >
       Open Toast
@@ -41,7 +43,7 @@ const CloseToastButton = ({
     <button
       type="button"
       onClick={() => {
-        closeToast(`${namespace}--${id}`, id);
+        closeToast(toastId(namespace, id));
       }}
     >
       Close Toast

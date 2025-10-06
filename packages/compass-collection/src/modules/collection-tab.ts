@@ -16,10 +16,7 @@ import type { AtlasAiService } from '@mongodb-js/compass-generative-ai/provider'
 import type { experimentationServiceLocator } from '@mongodb-js/compass-telemetry/provider';
 import { type Logger, mongoLogId } from '@mongodb-js/compass-logging/provider';
 import { type PreferencesAccess } from 'compass-preferences-model/provider';
-import type {
-  MockDataSchemaRequest,
-  MockDataSchemaResponse,
-} from '@mongodb-js/compass-generative-ai';
+import type { MockDataSchemaRequest } from '@mongodb-js/compass-generative-ai';
 import { isInternalFieldPath } from 'hadron-document';
 import toNS from 'mongodb-ns';
 import {
@@ -36,14 +33,15 @@ import {
   processSchema,
   ProcessSchemaUnsupportedStateError,
 } from '../transform-schema-to-field-info';
+import type { Collection } from '@mongodb-js/compass-app-stores/provider';
 import type { Document, MongoError } from 'mongodb';
 import { MockDataGeneratorStep } from '../components/mock-data-generator-modal/types';
 import type {
-  FakerSchemaMapping,
+  LlmFakerMapping,
+  FakerSchema,
   MockDataGeneratorState,
 } from '../components/mock-data-generator-modal/types';
 
-// @ts-expect-error TypeScript warns us about importing ESM module from CommonJS module, but we can ignore since this code will be consumed by webpack.
 import { faker } from '@faker-js/faker/locale/en';
 
 const DEFAULT_SAMPLE_SIZE = 100;
@@ -97,6 +95,7 @@ type CollectionThunkAction<R, A extends AnyAction = AnyAction> = ThunkAction<
     connectionInfoRef: ConnectionInfoRef;
     fakerSchemaGenerationAbortControllerRef: { current?: AbortController };
     schemaAnalysisAbortControllerRef: { current?: AbortController };
+    collection: Collection;
   },
   A
 >;
@@ -146,10 +145,12 @@ interface SchemaAnalysisStartedAction {
 interface SchemaAnalysisFinishedAction {
   type: CollectionActions.SchemaAnalysisFinished;
   processedSchema: Record<string, FieldInfo>;
+  arrayLengthMap: Record<string, number>;
   sampleDocument: Document;
   schemaMetadata: {
     maxNestingDepth: number;
     validationRules: Document | null;
+    avgDocumentSize: number | undefined;
   };
 }
 
@@ -185,7 +186,7 @@ export interface FakerMappingGenerationStartedAction {
 
 export interface FakerMappingGenerationCompletedAction {
   type: CollectionActions.FakerMappingGenerationCompleted;
-  fakerSchema: FakerSchemaMapping[];
+  fakerSchema: FakerSchema;
   requestId: string;
 }
 
@@ -265,6 +266,7 @@ const reducer: Reducer<CollectionState, Action> = (
       schemaAnalysis: {
         status: SCHEMA_ANALYSIS_STATE_COMPLETE,
         processedSchema: action.processedSchema,
+        arrayLengthMap: action.arrayLengthMap,
         sampleDocument: action.sampleDocument,
         schemaMetadata: action.schemaMetadata,
       },
@@ -564,7 +566,13 @@ export const analyzeCollectionSchema = (): CollectionThunkAction<
   return async (
     dispatch,
     getState,
-    { dataService, preferences, logger, schemaAnalysisAbortControllerRef }
+    {
+      dataService,
+      preferences,
+      logger,
+      schemaAnalysisAbortControllerRef,
+      collection: collectionModel,
+    }
   ) => {
     const { schemaAnalysis, namespace } = getState();
     const analysisStatus = schemaAnalysis.status;
@@ -632,7 +640,7 @@ export const analyzeCollectionSchema = (): CollectionThunkAction<
       );
 
       // Transform schema to structure that will be used by the LLM
-      const processedSchema = processSchema(schema);
+      const processSchemaResult = processSchema(schema);
 
       const maxNestingDepth = await calculateSchemaDepth(schema);
       const { database, collection } = toNS(namespace);
@@ -641,6 +649,7 @@ export const analyzeCollectionSchema = (): CollectionThunkAction<
       const schemaMetadata = {
         maxNestingDepth,
         validationRules,
+        avgDocumentSize: collectionModel.avg_document_size,
       };
 
       // Final check before dispatching results
@@ -651,7 +660,8 @@ export const analyzeCollectionSchema = (): CollectionThunkAction<
 
       dispatch({
         type: CollectionActions.SchemaAnalysisFinished,
-        processedSchema,
+        processedSchema: processSchemaResult.fieldInfo,
+        arrayLengthMap: processSchemaResult.arrayLengthMap,
         sampleDocument: sampleDocuments[0],
         schemaMetadata,
       });
@@ -699,32 +709,113 @@ export const cancelSchemaAnalysis = (): CollectionThunkAction<void> => {
   };
 };
 
-const validateFakerSchema = (
-  fakerSchema: MockDataSchemaResponse,
-  logger: Logger
-) => {
-  return fakerSchema.content.fields.map((field) => {
-    const { fakerMethod } = field;
+/**
+ * Transforms LLM array format to keyed object structure.
+ * Moves fieldPath from object property to object key.
+ */
+function transformFakerSchemaToObject(
+  fakerSchema: LlmFakerMapping[]
+): FakerSchema {
+  const result: FakerSchema = {};
 
-    const [moduleName, methodName, ...rest] = fakerMethod.split('.');
-    if (
-      rest.length > 0 ||
-      typeof (faker as any)[moduleName]?.[methodName] !== 'function'
-    ) {
-      logger.log.warn(
-        mongoLogId(1_001_000_372),
-        'Collection',
-        'Invalid faker method',
-        { fakerMethod }
-      );
-      return {
-        ...field,
+  for (const field of fakerSchema) {
+    const { fieldPath, ...fieldMapping } = field;
+    result[fieldPath] = {
+      ...fieldMapping,
+      mongoType: fieldMapping.mongoType,
+    };
+  }
+
+  return result;
+}
+
+/**
+ * Checks if the method exists and is callable on the faker object.
+ *
+ * Note: Only supports the format `module.method` (e.g., `internet.email`).
+ * Nested modules or other formats are not supported.
+ * @see {@link https://fakerjs.dev/api/}
+ */
+function isValidFakerMethod(fakerMethod: string): boolean {
+  const parts = fakerMethod.split('.');
+
+  // Validate format: exactly module.method
+  if (parts.length !== 2) {
+    return false;
+  }
+
+  const [moduleName, methodName] = parts;
+
+  try {
+    const fakerModule = (faker as unknown as Record<string, unknown>)[
+      moduleName
+    ];
+    return (
+      fakerModule !== null &&
+      fakerModule !== undefined &&
+      typeof fakerModule === 'object' &&
+      typeof (fakerModule as Record<string, unknown>)[methodName] === 'function'
+    );
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Validates a given faker schema against an input schema.
+ *
+ * - Validates the `fakerMethod` for each field, marking it as unrecognized if invalid
+ * - Adds any unmapped input schema fields to the result with an unrecognized faker method
+ *
+ * @param inputSchema - The schema definition for the input, mapping field names to their metadata.
+ * @param fakerSchemaArray - The array of faker schema mappings from LLM to validate and map.
+ * @param logger - Logger instance used to log warnings for invalid faker methods.
+ * @returns A keyed object of validated faker schema mappings, with one-to-one fields with input schema.
+ */
+const validateFakerSchema = (
+  inputSchema: Record<string, FieldInfo>,
+  fakerSchemaRaw: FakerSchema,
+  logger: Logger
+): FakerSchema => {
+  const result: FakerSchema = {};
+
+  // Process all input schema fields in a single O(n) pass
+  for (const fieldPath of Object.keys(inputSchema)) {
+    if (fakerSchemaRaw[fieldPath]) {
+      // input schema field exists in faker schema
+      const fakerMapping = {
+        ...fakerSchemaRaw[fieldPath],
+        probability: inputSchema[fieldPath].probability,
+      };
+      // Validate the faker method
+      if (isValidFakerMethod(fakerMapping.fakerMethod)) {
+        result[fieldPath] = fakerMapping;
+      } else {
+        logger.log.warn(
+          mongoLogId(1_001_000_372),
+          'Collection',
+          'Invalid faker method',
+          { fakerMethod: fakerMapping.fakerMethod }
+        );
+        result[fieldPath] = {
+          mongoType: fakerMapping.mongoType,
+          fakerMethod: UNRECOGNIZED_FAKER_METHOD,
+          fakerArgs: [],
+          probability: fakerMapping.probability,
+        };
+      }
+    } else {
+      // Field not mapped by LLM - add default
+      result[fieldPath] = {
+        mongoType: inputSchema[fieldPath].type,
         fakerMethod: UNRECOGNIZED_FAKER_METHOD,
+        fakerArgs: [],
+        probability: inputSchema[fieldPath].probability,
       };
     }
+  }
 
-    return field;
-  });
+  return result;
 };
 
 export const generateFakerMappings = (): CollectionThunkAction<
@@ -793,7 +884,16 @@ export const generateFakerMappings = (): CollectionThunkAction<
         connectionInfoRef.current
       );
 
-      const validatedFakerSchema = validateFakerSchema(response, logger);
+      // Transform to keyed object structure
+      const transformedFakerSchema = transformFakerSchemaToObject(
+        response.fields
+      );
+
+      const validatedFakerSchema = validateFakerSchema(
+        schemaAnalysis.processedSchema,
+        transformedFakerSchema,
+        logger
+      );
 
       fakerSchemaGenerationAbortControllerRef.current = undefined;
       dispatch({

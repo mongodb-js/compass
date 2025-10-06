@@ -1,5 +1,5 @@
+import type { MongoDBFieldType } from '@mongodb-js/compass-generative-ai';
 import type { Document } from 'mongodb';
-import type { PrimitiveSchemaType } from 'mongodb-schema';
 
 export const SCHEMA_ANALYSIS_STATE_INITIAL = 'initial';
 export const SCHEMA_ANALYSIS_STATE_ANALYZING = 'analyzing';
@@ -31,11 +31,6 @@ export type SchemaAnalysisErrorState = {
 };
 
 /**
- * MongoDB schema type
- */
-export type MongoDBFieldType = PrimitiveSchemaType['name'];
-
-/**
  * Primitive values that can appear in sample_values after BSON-to-primitive conversion.
  * These are the JavaScript primitive equivalents of BSON values.
  */
@@ -59,10 +54,12 @@ export interface FieldInfo {
 export type SchemaAnalysisCompletedState = {
   status: typeof SCHEMA_ANALYSIS_STATE_COMPLETE;
   processedSchema: Record<string, FieldInfo>;
+  arrayLengthMap: Record<string, number>;
   sampleDocument: Document;
   schemaMetadata: {
     maxNestingDepth: number;
     validationRules: Document | null;
+    avgDocumentSize: number | undefined;
   };
 };
 

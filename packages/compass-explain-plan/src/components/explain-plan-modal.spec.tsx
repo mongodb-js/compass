@@ -93,27 +93,6 @@ describe('ExplainPlanModal', function () {
     );
   });
 
-  it('should not show "Interpret for me" button when AI assistant is disabled', function () {
-    render(
-      {
-        status: 'ready',
-        explainPlan: {
-          namespace: 'test',
-          usedIndexes: [],
-        } as any,
-      },
-      {
-        preferences: {
-          enableAIAssistant: false,
-          enableGenAIFeatures: true,
-          enableGenAIFeaturesAtlasOrg: true,
-          cloudFeatureRolloutAccess: { GEN_AI_COMPASS: true },
-        },
-      }
-    );
-    expect(screen.queryByTestId('interpret-for-me-button')).to.not.exist;
-  });
-
   it('should disable the "Interpret for me" button when the status is not ready', function () {
     render(
       {

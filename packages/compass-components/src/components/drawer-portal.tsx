@@ -7,20 +7,28 @@ import React, {
   useRef,
   useState,
 } from 'react';
-
 import {
   DrawerLayout,
   DisplayMode as DrawerDisplayMode,
   useDrawerToolbarContext,
   type DrawerLayoutProps,
-} from './drawer';
+} from '@leafygreen-ui/drawer';
 import { css, cx } from '@leafygreen-ui/emotion';
 import { isEqual } from 'lodash';
 import { rafraf } from '../utils/rafraf';
+import { GuideCue, type GuideCueProps } from './guide-cue/guide-cue';
+import { BaseFontSize, fontWeights } from '@leafygreen-ui/tokens';
 
-type SectionData = Required<DrawerLayoutProps>['toolbarData'][number];
+type ToolbarData = Required<DrawerLayoutProps>['toolbarData'];
+
+type SectionData = ToolbarData[number];
 
 type DrawerSectionProps = Omit<SectionData, 'content' | 'onClick'> & {
+  // Title exists in DrawerLayoutProps, but is optional, whereas for us it needs
+  // to be required (also due to merging of types inside leafygreen, we can't
+  // convince typescript that our toolbarData is compatible with lg toolbarData
+  // if that is not explicit)
+  title: React.ReactNode;
   /**
    * If `true` will automatically open the section when first mounted. Default: `false`
    */
@@ -30,6 +38,7 @@ type DrawerSectionProps = Omit<SectionData, 'content' | 'onClick'> & {
    * provided will stay unordered at the bottom of the list
    */
   order?: number;
+  guideCue?: GuideCueProps<HTMLButtonElement>;
 };
 
 type DrawerOpenStateContextValue = boolean;
@@ -52,6 +61,16 @@ const DrawerOpenStateContext =
 
 const DrawerSetOpenStateContext =
   React.createContext<DrawerSetOpenStateContextValue>(() => {});
+
+type DrawerCurrentTabStateContextValue = string | null;
+
+type DrawerSetCurrentTabContextValue = (currentTab: string | null) => void;
+
+const DrawerCurrentTabStateContext =
+  React.createContext<DrawerCurrentTabStateContextValue>(null);
+
+const DrawerSetCurrentTabContext =
+  React.createContext<DrawerSetCurrentTabContextValue>(() => {});
 
 const DrawerActionsContext = React.createContext<DrawerActionsContextValue>({
   current: {
@@ -95,12 +114,16 @@ const DrawerActionsContext = React.createContext<DrawerActionsContextValue>({
  *   )
  * }
  */
-export const DrawerContentProvider: React.FunctionComponent = ({
-  children,
-}) => {
+export const DrawerContentProvider: React.FunctionComponent<{
+  onDrawerSectionOpen?: (drawerSectionId: string) => void;
+  onDrawerSectionHide?: (drawerSectionId: string) => void;
+  children?: React.ReactNode;
+}> = ({ onDrawerSectionOpen, onDrawerSectionHide, children }) => {
   const [drawerState, setDrawerState] = useState<DrawerSectionProps[]>([]);
   const [drawerOpenState, setDrawerOpenState] =
     useState<DrawerOpenStateContextValue>(false);
+  const [drawerCurrentTab, setDrawerCurrentTab] =
+    useState<DrawerCurrentTabStateContextValue>(null);
   const drawerActions = useRef({
     openDrawer: () => undefined,
     closeDrawer: () => undefined,
@@ -126,13 +149,36 @@ export const DrawerContentProvider: React.FunctionComponent = ({
     },
   });
 
+  const prevDrawerCurrentTabRef = React.useRef<string | null>(null);
+
+  useEffect(() => {
+    if (drawerCurrentTab === prevDrawerCurrentTabRef.current) {
+      // ignore unless it changed
+      return;
+    }
+
+    if (drawerCurrentTab) {
+      onDrawerSectionOpen?.(drawerCurrentTab);
+    }
+
+    if (prevDrawerCurrentTabRef.current) {
+      onDrawerSectionHide?.(prevDrawerCurrentTabRef.current);
+    }
+
+    prevDrawerCurrentTabRef.current = drawerCurrentTab;
+  }, [drawerCurrentTab, onDrawerSectionHide, onDrawerSectionOpen]);
+
   return (
     <DrawerStateContext.Provider value={drawerState}>
       <DrawerOpenStateContext.Provider value={drawerOpenState}>
         <DrawerSetOpenStateContext.Provider value={setDrawerOpenState}>
-          <DrawerActionsContext.Provider value={drawerActions}>
-            {children}
-          </DrawerActionsContext.Provider>
+          <DrawerCurrentTabStateContext.Provider value={drawerCurrentTab}>
+            <DrawerSetCurrentTabContext.Provider value={setDrawerCurrentTab}>
+              <DrawerActionsContext.Provider value={drawerActions}>
+                {children}
+              </DrawerActionsContext.Provider>
+            </DrawerSetCurrentTabContext.Provider>
+          </DrawerCurrentTabStateContext.Provider>
         </DrawerSetOpenStateContext.Provider>
       </DrawerOpenStateContext.Provider>
     </DrawerStateContext.Provider>
@@ -143,11 +189,21 @@ const DrawerContextGrabber: React.FunctionComponent = ({ children }) => {
   const drawerToolbarContext = useDrawerToolbarContext();
   const actions = useContext(DrawerActionsContext);
   const openStateSetter = useContext(DrawerSetOpenStateContext);
+  const currentTabSetter = useContext(DrawerSetCurrentTabContext);
   actions.current.openDrawer = drawerToolbarContext.openDrawer;
   actions.current.closeDrawer = drawerToolbarContext.closeDrawer;
+
   useEffect(() => {
     openStateSetter(drawerToolbarContext.isDrawerOpen);
   }, [drawerToolbarContext.isDrawerOpen, openStateSetter]);
+
+  useEffect(() => {
+    const currentTab =
+      drawerToolbarContext.getActiveDrawerContent()?.id ?? null;
+
+    currentTabSetter(currentTab);
+  }, [drawerToolbarContext, currentTabSetter]);
+
   return <>{children}</>;
 };
 
@@ -163,22 +219,22 @@ const drawerLayoutFixesStyles = css({
   },
 
   // drawer section
-  '& > div:nth-child(2)': {
-    marginTop: -1, // hiding the top border as we already have one in the place where the Anchor is currently rendered
+  '& > div:nth-child(2) > div': {
+    // hiding the border border as we already have one in the place where the
+    // Anchor is currently rendered
+    borderTop: 'none',
+    borderBottom: 'none',
+
+    // Settings inline-size allows us to use @container queries inside the drawer section.
+    containerType: 'inline-size',
   },
 
-  // We're stretching the title container to all available width so that we can
-  // layout the controls there better. Doing our best to target the section
-  // title here, leafygreen really doesn't give us anything else to try.
-  //
-  // TODO(ticket): This is obviously a horrible selector and we should make sure
-  // that LG team provides a better one for us to achieve this behavior when
-  // we're removing the vendored version of the drawer
-  '& > div:nth-child(2) > div:nth-child(2) > div:first-child > div:first-child > div:first-child > div:first-child':
+  // drawer content > title content
+  '& > div:nth-child(2) > div:nth-child(2) > div:nth-child(2) > div:first-child > div:first-child > div:first-child':
     {
-      flex: 'none',
-      width: 'calc(100% - 28px)', // disallow going over the title size (100 - close button width)
-      overflow: 'hidden',
+      // fix for the flex parent not allowing flex children to collapse if they
+      // are overflowing the container
+      minWidth: 0,
     },
 });
 
@@ -210,13 +266,21 @@ const drawerSectionPortalStyles = css({
   height: '100%',
 });
 
+// Leafygreen dynamically changes styles of the title group based on whether or
+// not title is a `string` or a `ReactNode`, we want it to consistently have
+// bold title styles no matter what title you provided, so we wrap it in our own
+// container
+const drawerTitleGroupStyles = css({
+  width: '100%',
+  fontSize: BaseFontSize.Body2,
+  fontWeight: fontWeights.bold,
+});
+
 /**
  * DrawerAnchor component will render the drawer in any place it is rendered.
  * This component has to wrap any content that Drawer will be shown near
  */
-export const DrawerAnchor: React.FunctionComponent<{
-  displayMode?: DrawerDisplayMode;
-}> = ({ displayMode, children }) => {
+export const DrawerAnchor: React.FunctionComponent = ({ children }) => {
   const actions = useContext(DrawerActionsContext);
   const drawerSectionItems = useContext(DrawerStateContext);
   const prevDrawerSectionItems = useRef<DrawerSectionProps[]>([]);
@@ -239,7 +303,13 @@ export const DrawerAnchor: React.FunctionComponent<{
     return drawerSectionItems
       .map((data) => {
         return {
+          hasPadding: false,
           ...data,
+          title: (
+            <div key={data.id} className={drawerTitleGroupStyles}>
+              {data.title}
+            </div>
+          ),
           content: (
             <div
               key={data.id}
@@ -253,22 +323,107 @@ export const DrawerAnchor: React.FunctionComponent<{
         return orderB < orderA ? 1 : orderB > orderA ? -1 : 0;
       });
   }, [drawerSectionItems]);
+
+  const [toolbarIconNodes, setToolbarIconNodes] = useState<
+    Record<string, HTMLButtonElement | undefined>
+  >({});
+
+  useLayoutEffect(
+    function () {
+      const drawerEl = document.querySelector('.compass-drawer-anchor');
+      if (!drawerEl) {
+        throw new Error(
+          'Can not use DrawerSection without DrawerAnchor being mounted on the page'
+        );
+      }
+
+      function check() {
+        if (!drawerEl) {
+          return;
+        }
+        const nodes: Record<string, HTMLButtonElement | undefined> = {};
+        for (const item of toolbarData) {
+          if (!item.guideCue) {
+            continue;
+          }
+
+          const button = drawerEl.querySelector<HTMLButtonElement>(
+            `button[aria-label="${item.label}"]`
+          );
+          if (button) {
+            nodes[item.id] = button;
+          }
+        }
+
+        setToolbarIconNodes((oldNodes) => {
+          // account for removed nodes by checking all keys of both old and new
+          for (const id of Object.keys({ ...oldNodes, ...nodes })) {
+            if (nodes[id] !== oldNodes[id]) {
+              return nodes;
+            }
+          }
+          return oldNodes;
+        });
+      }
+      check();
+
+      const mutationObserver = new MutationObserver(() => {
+        check();
+      });
+
+      // use a mutation observer because at least in unit tests the button
+      // elements don't exist immediately
+      mutationObserver.observe(drawerEl, {
+        subtree: true,
+        childList: true,
+      });
+      return () => {
+        mutationObserver.disconnect();
+      };
+    },
+    [toolbarData]
+  );
+
   return (
-    <DrawerLayout
-      displayMode={displayMode ?? DrawerDisplayMode.Embedded}
-      toolbarData={toolbarData}
-      className={cx(
-        drawerLayoutFixesStyles,
-        toolbarData.length === 0 && emptyDrawerLayoutFixesStyles,
-        // classname is the only property leafygreen passes over to the drawer
-        // wrapper component that would allow us to target it
-        'compass-drawer-anchor'
-      )}
-    >
-      <DrawerContextGrabber>{children}</DrawerContextGrabber>
-    </DrawerLayout>
+    <>
+      {toolbarData.map((item) => {
+        return (
+          toolbarIconNodes[item.id] &&
+          item.guideCue && (
+            <GuideCue<HTMLButtonElement>
+              key={item.id}
+              {...item.guideCue}
+              triggerNode={toolbarIconNodes[item.id]}
+            />
+          )
+        );
+      })}
+      <DrawerLayout
+        displayMode={DrawerDisplayMode.Embedded}
+        resizable
+        toolbarData={toolbarData}
+        className={cx(
+          drawerLayoutFixesStyles,
+          toolbarData.length === 0 && emptyDrawerLayoutFixesStyles,
+          // classname is the only property leafygreen passes over to the drawer
+          // wrapper component that would allow us to target it
+          'compass-drawer-anchor'
+        )}
+      >
+        <DrawerContextGrabber>{children}</DrawerContextGrabber>
+      </DrawerLayout>
+    </>
   );
 };
+
+function querySectionPortal(
+  parent: Document | Element | null,
+  id?: string
+): HTMLElement | null {
+  return (
+    parent?.querySelector(`[data-drawer-section${id ? `=${id}` : ''}]`) ?? null
+  );
+}
 
 /**
  * DrawerSection allows to declaratively render sections inside the drawer
@@ -278,7 +433,9 @@ export const DrawerSection: React.FunctionComponent<DrawerSectionProps> = ({
   children,
   ...props
 }) => {
-  const [portalNode, setPortalNode] = useState<Element | null>(null);
+  const [portalNode, setPortalNode] = useState<Element | null>(() => {
+    return querySectionPortal(document, props.id);
+  });
   const actions = useContext(DrawerActionsContext);
   const prevProps = useRef<DrawerSectionProps>();
   useEffect(() => {
@@ -296,14 +453,24 @@ export const DrawerSection: React.FunctionComponent<DrawerSectionProps> = ({
         'Can not use DrawerSection without DrawerAnchor being mounted on the page'
       );
     }
-    setPortalNode(
-      document.querySelector(`[data-drawer-section="${props.id}"]`)
-    );
+    setPortalNode(querySectionPortal(drawerEl, props.id));
     const mutationObserver = new MutationObserver((mutations) => {
       for (const mutation of mutations) {
-        for (const node of Array.from(mutation.addedNodes) as HTMLElement[]) {
-          if (node.dataset && node.dataset.drawerSection === props.id) {
-            setPortalNode(node);
+        if (mutation.type === 'childList') {
+          for (const node of Array.from(mutation.addedNodes)) {
+            // Added node can be either the drawer section portal itself, a
+            // parent node containing the section (in that case we won't get an
+            // explicit mutation for the section itself), or something
+            // completely unrelated, like a text node insert. By searching for
+            // the section portal from added node parent element we cover all
+            // these cases in one go
+            const drawerSectionNode = querySectionPortal(
+              node.parentElement,
+              props.id
+            );
+            if (drawerSectionNode) {
+              setPortalNode(drawerSectionNode);
+            }
           }
         }
       }
@@ -315,7 +482,7 @@ export const DrawerSection: React.FunctionComponent<DrawerSectionProps> = ({
     return () => {
       mutationObserver.disconnect();
     };
-  }, [actions, props.id]);
+  }, [props.id]);
   useEffect(() => {
     return () => {
       actions.current.removeToolbarData(props.id);
@@ -333,7 +500,9 @@ export function useDrawerActions() {
   const actions = useContext(DrawerActionsContext);
   const stableActions = useRef({
     openDrawer: (id: string) => {
-      actions.current.openDrawer(id);
+      rafraf(() => {
+        actions.current.openDrawer(id);
+      });
     },
     closeDrawer: () => {
       actions.current.closeDrawer();
@@ -352,3 +521,5 @@ export const useDrawerState = () => {
       drawerState.length > 0,
   };
 };
+
+export { getLgIds as getDrawerIds } from '@leafygreen-ui/drawer';
