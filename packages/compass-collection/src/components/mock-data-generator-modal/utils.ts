@@ -91,7 +91,7 @@ export function isValidFakerMethod(
   const { moduleName, methodName, fakerModule } = moduleAndMethod;
 
   if (
-    isAllowedHelper(moduleName, methodName) &&
+    isAllowedFakerFn(moduleName, methodName) &&
     canInvokeFakerMethod(fakerModule, methodName)
   ) {
     const callableFakerMethod = (
@@ -118,12 +118,14 @@ function getFakerModuleAndMethod(method: string) {
   return { moduleName, methodName, fakerModule };
 }
 
-function isAllowedHelper(moduleName: string, methodName: string) {
-  return (
-    moduleName !== 'helpers' ||
-    methodName === 'arrayElement' ||
-    methodName === 'arrayElements'
-  );
+function isAllowedFakerFn(moduleName: string, methodName: string) {
+  if (moduleName !== 'helpers') {
+    // Non-helper modules are allowed
+    return true;
+  } else {
+    // If helpers module, only array helpers are allowed
+    return methodName === 'arrayElement' || methodName === 'arrayElements';
+  }
 }
 
 function canInvokeFakerMethod(fakerModule: unknown, methodName: string) {
