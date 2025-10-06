@@ -2,7 +2,8 @@ import { type Logger, mongoLogId } from '@mongodb-js/compass-logging/provider';
 import type { FakerArg } from './script-generation-utils';
 import { faker } from '@faker-js/faker/locale/en';
 
-const MAX_FAKER_ARGS_LENGTH = 10;
+const MAX_FAKER_ARGS_COUNT = 2;
+const MAX_ARRAY_LENGTH = 10;
 const MAX_FAKER_STRING_LENGTH = 1000;
 const MAX_FAKER_ARGS_DEPTH = 3;
 const MAX_FAKER_NUMBER_SIZE = 10000;
@@ -24,7 +25,12 @@ export function areFakerArgsValid(
   if (fakerArgs.length === 0) {
     return true;
   }
-  if (fakerArgs.length > MAX_FAKER_ARGS_LENGTH) {
+  // Check top-level argument count (max 2 for faker functions)
+  if (depth === 0 && fakerArgs.length > MAX_FAKER_ARGS_COUNT) {
+    return false;
+  }
+  // Check array length for nested arrays
+  if (depth > 0 && fakerArgs.length > MAX_ARRAY_LENGTH) {
     return false;
   }
   for (const arg of fakerArgs) {

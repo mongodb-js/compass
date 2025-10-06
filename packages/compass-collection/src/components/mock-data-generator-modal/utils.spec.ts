@@ -18,13 +18,13 @@ describe('Mock Data Generator Utils', () => {
       expect(areFakerArgsValid([])).to.be.true;
     });
 
-    it('returns false if array length exceeds max faker args length', () => {
-      const arr = Array(11).fill(1);
-      expect(areFakerArgsValid(arr)).to.be.false;
+    it('returns false if top-level args count exceeds max faker args count', () => {
+      expect(areFakerArgsValid([1, 2, 3])).to.be.false;
     });
 
     it('returns true for valid numbers, strings, booleans', () => {
-      expect(areFakerArgsValid([1, 'foo', true, false, 0])).to.be.true;
+      expect(areFakerArgsValid([1, 'foo'])).to.be.true;
+      expect(areFakerArgsValid([true, false])).to.be.true;
     });
 
     it('returns false for non-finite numbers', () => {
@@ -58,9 +58,18 @@ describe('Mock Data Generator Utils', () => {
       ).to.be.true;
     });
 
-    it('returns false for nested arrays exceeding max faker args length', () => {
-      const nested = [Array(11).fill(1)];
+    it('returns false for nested arrays exceeding max array length', () => {
+      const nested = [Array(11).fill(1)]; // nested array has 11 elements > MAX_ARRAY_LENGTH (10)
       expect(areFakerArgsValid(nested)).to.be.false;
+    });
+
+    it('returns true for exactly 2 top-level arguments', () => {
+      expect(areFakerArgsValid(['arg1', 'arg2'])).to.be.true;
+    });
+
+    it('returns true for nested arrays within the limit', () => {
+      const nested = [Array(10).fill(1)];
+      expect(areFakerArgsValid(nested)).to.be.true;
     });
 
     it('returns true for valid object with json property', () => {
