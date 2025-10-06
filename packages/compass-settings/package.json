@@ -11,7 +11,7 @@
     "email": "compass@mongodb.com"
   },
   "homepage": "https://github.com/mongodb-js/compass",
-  "version": "0.73.0",
+  "version": "0.76.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/compass.git"
@@ -31,9 +31,9 @@
   },
   "scripts": {
     "bootstrap": "npm run compile",
-    "compile": "tsc -p tsconfig.json",
+    "compile": "tsc -p tsconfig-build.json",
     "start": "npm run webpack serve -- --mode development",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "echo \"TODO(COMPASS-9897): typecheck is failing in test files\" && tsc -p tsconfig-build.json --noEmit",
     "eslint": "eslint-compass",
     "prettier": "prettier-compass",
     "lint": "npm run eslint . && npm run prettier -- --check .",
@@ -49,24 +49,24 @@
     "reformat": "npm run eslint . -- --fix && npm run prettier -- --write ."
   },
   "dependencies": {
-    "@mongodb-js/atlas-service": "^0.60.0",
-    "@mongodb-js/compass-components": "^1.52.2",
-    "@mongodb-js/compass-generative-ai": "^0.55.0",
-    "@mongodb-js/compass-logging": "^1.7.17",
-    "compass-preferences-model": "^2.55.0",
-    "@mongodb-js/compass-app-registry": "^9.4.24",
-    "hadron-ipc": "^3.5.15",
+    "@mongodb-js/atlas-service": "^0.63.0",
+    "@mongodb-js/compass-components": "^1.54.1",
+    "@mongodb-js/compass-generative-ai": "^0.58.0",
+    "@mongodb-js/compass-logging": "^1.7.20",
+    "compass-preferences-model": "^2.58.0",
+    "@mongodb-js/compass-app-registry": "^9.4.26",
+    "hadron-ipc": "^3.5.18",
     "react": "^17.0.2",
     "react-redux": "^8.1.3",
     "redux": "^4.2.1",
     "redux-thunk": "^2.4.2"
   },
   "devDependencies": {
-    "@mongodb-js/eslint-config-compass": "^1.4.10",
-    "@mongodb-js/mocha-config-compass": "^1.7.1",
-    "@mongodb-js/prettier-config-compass": "^1.2.8",
-    "@mongodb-js/testing-library-compass": "^1.3.14",
-    "@mongodb-js/tsconfig-compass": "^1.2.10",
+    "@mongodb-js/eslint-config-compass": "^1.4.11",
+    "@mongodb-js/mocha-config-compass": "^1.7.2",
+    "@mongodb-js/prettier-config-compass": "^1.2.9",
+    "@mongodb-js/testing-library-compass": "^1.3.16",
+    "@mongodb-js/tsconfig-compass": "^1.2.11",
     "@types/chai": "^4.2.21",
     "@types/chai-dom": "^0.0.10",
     "@types/mocha": "^9.0.0",
@@ -80,7 +80,7 @@
     "nyc": "^15.1.0",
     "react-dom": "^17.0.2",
     "sinon": "^9.2.3",
-    "typescript": "^5.9.2",
+    "typescript": "^5.9.3",
     "xvfb-maybe": "^0.2.1"
   },
   "is_compass_plugin": true

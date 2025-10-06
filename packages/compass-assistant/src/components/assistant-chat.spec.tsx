@@ -116,12 +116,12 @@ describe('AssistantChat', function () {
 
   it('displays the welcome text when there are no messages', function () {
     renderWithChat([]);
-    expect(screen.getByText(/Welcome to your MongoDB Assistant./)).to.exist;
+    expect(screen.getByText(/Welcome to the MongoDB Assistant!/)).to.exist;
   });
 
   it('does not display the welcome text when there are messages', function () {
     renderWithChat(mockMessages);
-    expect(screen.queryByText(/Welcome to your MongoDB Assistant./)).to.not
+    expect(screen.queryByText(/Welcome to the MongoDB Assistant!/)).to.not
       .exist;
   });
 
@@ -248,9 +248,8 @@ describe('AssistantChat', function () {
     userEvent.type(inputField, 'What is aggregation?');
     userEvent.click(sendButton);
 
-    expect(ensureOptInAndSendStub.called).to.be.true;
-
     await waitFor(() => {
+      expect(ensureOptInAndSendStub.called).to.be.true;
       expect(track).to.have.been.calledWith('Assistant Prompt Submitted', {
         user_input_length: 'What is aggregation?'.length,
       });
@@ -281,9 +280,8 @@ describe('AssistantChat', function () {
     userEvent.type(inputField, '  What is sharding?  ');
     userEvent.click(screen.getByLabelText('Send message'));
 
-    expect(ensureOptInAndSendStub.called).to.be.true;
-
     await waitFor(() => {
+      expect(ensureOptInAndSendStub.called).to.be.true;
       expect(track).to.have.been.calledWith('Assistant Prompt Submitted', {
         user_input_length: 'What is sharding?'.length,
       });
@@ -873,6 +871,65 @@ describe('AssistantChat', function () {
       renderWithChat(messages);
 
       expect(screen.queryByLabelText('Expand Related Resources')).to.not.exist;
+    });
+
+    it('displays identical source titles only once', async function () {
+      // TODO(COMPASS-9860) can't find the links in test-electron on RHEL and Ubuntu.
+      if ((process as any).type === 'renderer') {
+        return this.skip();
+      }
+
+      const messagesWithDuplicateSources: AssistantMessage[] = [
+        {
+          id: 'assistant-with-duplicate-sources',
+          role: 'assistant',
+          parts: [
+            {
+              type: 'text',
+              text: 'Here is information about MongoDB with multiple sources.',
+            },
+            {
+              type: 'source-url',
+              title: 'MongoDB Documentation',
+              url: 'https://docs.mongodb.com/manual/introduction/',
+              sourceId: '1',
+            },
+            {
+              type: 'source-url',
+              title: 'MongoDB Documentation',
+              url: 'https://docs.mongodb.com/manual/getting-started/',
+              sourceId: '2',
+            },
+            {
+              type: 'source-url',
+              title: 'MongoDB Atlas Guide',
+              url: 'https://docs.atlas.mongodb.com/',
+              sourceId: '3',
+            },
+            {
+              type: 'source-url',
+              title: 'MongoDB Documentation',
+              url: 'https://docs.mongodb.com/manual/tutorial/',
+              sourceId: '4',
+            },
+          ],
+        },
+      ];
+
+      renderWithChat(messagesWithDuplicateSources);
+      userEvent.click(screen.getByLabelText('Expand Related Resources'));
+
+      await waitFor(() => {
+        const mongoDbDocLinks = screen.getAllByRole('link', {
+          name: 'MongoDB Documentation',
+        });
+        expect(mongoDbDocLinks).to.have.length(1);
+
+        const atlasGuideLinks = screen.getAllByRole('link', {
+          name: 'MongoDB Atlas Guide',
+        });
+        expect(atlasGuideLinks).to.have.length(1);
+      });
     });
   });
 });

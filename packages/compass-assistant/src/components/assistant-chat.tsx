@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useContext } from 'react';
+import React, { useCallback, useEffect, useContext, useRef } from 'react';
 import type { AssistantMessage } from '../compass-assistant-provider';
 import { AssistantActionsContext } from '../compass-assistant-provider';
 import type { Chat } from '../@ai-sdk/react/chat-react';
@@ -17,6 +17,7 @@ import {
   useDarkMode,
   LgChatChatDisclaimer,
   Link,
+  Icon,
 } from '@mongodb-js/compass-components';
 import { ConfirmationMessage } from './confirmation-message';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
@@ -35,7 +36,9 @@ interface AssistantChatProps {
   hasNonGenuineConnections: boolean;
 }
 
-const assistantChatStyles = css({
+// TODO(COMPASS-9751): These are temporary patches to make the Assistant chat take the entire
+// width and height of the drawer since Leafygreen doesn't support this yet.
+const assistantChatFixesStyles = css({
   // Compass has a global bullet point override but we clear this for the chat.
   ul: {
     listStyleType: 'disc',
@@ -43,23 +46,7 @@ const assistantChatStyles = css({
   ol: {
     listStyleType: 'decimal',
   },
-});
 
-const headerStyleDarkModeFixes = css({
-  'h1, h2, h3, h4, h5, h6': {
-    color: palette.gray.light2,
-  },
-});
-
-const headerStyleLightModeFixes = css({
-  'h1, h2, h3, h4, h5, h6': {
-    color: palette.black,
-  },
-});
-
-// TODO(COMPASS-9751): These are temporary patches to make the Assistant chat take the entire
-// width and height of the drawer since Leafygreen doesn't support this yet.
-const assistantChatFixesStyles = css({
   // Remove extra padding
   '> div, > div > div, > div > div > div, > div > div > div': {
     height: '100%',
@@ -79,6 +66,8 @@ const assistantChatFixesStyles = css({
     fontSize: '13px',
     lineHeight: '15px',
     marginTop: '4px',
+    // DE has reset css that sets all font weights to 400
+    fontWeight: 700,
   },
   /** h1 -> h3 styling */
   h1: {
@@ -102,11 +91,56 @@ const assistantChatFixesStyles = css({
     lineHeight: '18px',
     marginTop: '4px',
   },
+  blockquote: {
+    // remove the 3x line height that these take up by default
+    lineHeight: 0,
+    margin: 0,
+    borderLeftWidth: spacing[100],
+    borderLeftStyle: 'solid',
+    padding: `0 0 0 ${spacing[200]}px`,
+
+    '> * + *': {
+      margin: `${spacing[400]}px 0 0`,
+    },
+  },
+  hr: {
+    // hr tags have no width when it is alone in a chat message because of the
+    // overall layout in chat where the chat bubble sizes to fit the content.
+    // The minimum width of the drawer sized down to the smallest size leaves
+    // 200px.
+    minWidth: '200px',
+  },
 });
+
+const assistantChatFixesDarkStyles = css({
+  'h1, h2, h3, h4, h5, h6': {
+    color: palette.gray.light2,
+  },
+  blockquote: {
+    borderLeftColor: palette.gray.light1,
+  },
+});
+
+const assistantChatFixesLightStyles = css({
+  'h1, h2, h3, h4, h5, h6': {
+    color: palette.black,
+  },
+  blockquote: {
+    borderLeftColor: palette.gray.dark1,
+  },
+});
+
+const chatContainerOverrideStyle = {
+  height: '100%',
+  width: '100%',
+};
+
 const messageFeedFixesStyles = css({
   display: 'flex',
   flexDirection: 'column-reverse',
   overflowY: 'auto',
+  width: '100%',
+  wordBreak: 'break-word',
   flex: 1,
   padding: spacing[400],
   gap: spacing[400],
@@ -130,13 +164,22 @@ const disclaimerTextStyles = css({
   paddingBottom: spacing[400],
   paddingLeft: spacing[400],
   paddingRight: spacing[400],
+  a: {
+    fontSize: 'inherit',
+  },
 });
+// On small screens, many components end up breaking words which we don't want.
+// This is a general temporary fix for all components that we want to prevent from wrapping.
+const noWrapFixesStyles = css({
+  whiteSpace: 'nowrap',
+});
+
 /** TODO(COMPASS-9751): This should be handled by Leafygreen's disclaimers update */
 const inputBarStyleFixes = css({
   width: '100%',
   paddingLeft: spacing[400],
   paddingRight: spacing[400],
-  paddingBottom: spacing[400],
+  paddingBottom: spacing[100],
 });
 
 function makeErrorMessage(message: string) {
@@ -154,12 +197,37 @@ const messagesWrapStyles = css({
   gap: spacing[400],
 });
 
+const welcomeHeadingStyles = css({
+  display: 'flex',
+  alignItems: 'center',
+  gap: '6px',
+  span: {
+    fontWeight: 600,
+    lineHeight: '20px',
+  },
+});
+const welcomeTextStyles = css({
+  margin: `${spacing[100]}px 0 0 0`,
+});
+
+const sparkleIconOverrideStyle = {
+  color: palette.green.dark1,
+};
+
+const inputBarTextareaProps = {
+  placeholder: 'Ask a question',
+};
+
 export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
   chat,
   hasNonGenuineConnections,
 }) => {
   const track = useTelemetry();
   const darkMode = useDarkMode();
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
+  const previousLastMessageId = useRef<string | undefined>(undefined);
+  const { id: lastMessageId, role: lastMessageRole } =
+    chat.messages[chat.messages.length - 1] ?? {};
 
   const { ensureOptInAndSend } = useContext(AssistantActionsContext);
   const { messages, status, error, clearError, setMessages } = useChat({
@@ -170,6 +238,26 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
       }));
     },
   });
+
+  const scrollToBottom = useCallback(() => {
+    if (messagesContainerRef.current) {
+      // Since the container uses flexDirection: 'column-reverse',
+      // scrolling to the bottom means setting scrollTop to 0
+      messagesContainerRef.current.scrollTop = 0;
+    }
+  }, []);
+
+  useEffect(() => {
+    if (
+      lastMessageId &&
+      previousLastMessageId.current !== undefined &&
+      lastMessageId !== previousLastMessageId.current &&
+      lastMessageRole === 'user'
+    ) {
+      scrollToBottom();
+    }
+    previousLastMessageId.current = lastMessageId;
+  }, [lastMessageId, lastMessageRole, scrollToBottom]);
 
   useEffect(() => {
     const hasExistingNonGenuineWarning = chat.messages.some(
@@ -189,9 +277,10 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
   }, [hasNonGenuineConnections, chat, setMessages]);
 
   const handleMessageSend = useCallback(
-    (messageBody: string) => {
+    async (messageBody: string) => {
       const trimmedMessageBody = messageBody.trim();
       if (trimmedMessageBody) {
+        await chat.stop();
         void ensureOptInAndSend?.({ text: trimmedMessageBody }, {}, () => {
           track('Assistant Prompt Submitted', {
             user_input_length: trimmedMessageBody.length,
@@ -199,7 +288,7 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
         });
       }
     },
-    [track, ensureOptInAndSend]
+    [track, ensureOptInAndSend, chat]
   );
 
   const handleFeedback = useCallback(
@@ -283,7 +372,7 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
         void ensureOptInAndSend?.(undefined, {}, () => {});
       }
     },
-    [ensureOptInAndSend, setMessages]
+    [ensureOptInAndSend, setMessages, track]
   );
 
   return (
@@ -291,27 +380,35 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
       data-testid="assistant-chat"
       className={cx(
         assistantChatFixesStyles,
-        assistantChatStyles,
-        darkMode ? headerStyleDarkModeFixes : headerStyleLightModeFixes
+        darkMode ? assistantChatFixesDarkStyles : assistantChatFixesLightStyles
       )}
-      style={{ height: '100%', width: '100%' }}
+      style={chatContainerOverrideStyle}
     >
       <LeafyGreenChatProvider variant={Variant.Compact}>
         <ChatWindow title="MongoDB Assistant" className={chatWindowFixesStyles}>
           <div
             data-testid="assistant-chat-messages"
             className={messageFeedFixesStyles}
+            ref={messagesContainerRef}
           >
             <div className={messagesWrapStyles}>
               {messages.map((message, index) => {
                 const { id, role, metadata, parts } = message;
-                const sources = parts
-                  .filter((part) => part.type === 'source-url')
-                  .map((part) => ({
-                    children: part.title || 'Documentation Link',
-                    href: part.url,
-                    variant: 'Docs',
-                  }));
+                const seenTitles = new Set<string>();
+                const sources = [];
+                for (const part of parts) {
+                  if (part.type === 'source-url') {
+                    const title = part.title || 'Documentation Link';
+                    if (!seenTitles.has(title)) {
+                      seenTitles.add(title);
+                      sources.push({
+                        children: title,
+                        href: part.url,
+                        variant: 'Docs',
+                      });
+                    }
+                  }
+                }
                 if (metadata?.confirmation) {
                   const { description, state } = metadata.confirmation;
                   const isLastMessage = index === messages.length - 1;
@@ -358,9 +455,15 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
                         onSubmitFeedback={(event, state) =>
                           handleFeedback({ message, state })
                         }
+                        className={noWrapFixesStyles}
                       />
                     )}
-                    {sources.length > 0 && <Message.Links links={sources} />}
+                    {sources.length > 0 && (
+                      <Message.Links
+                        className={noWrapFixesStyles}
+                        links={sources}
+                      />
+                    )}
                   </Message>
                 );
               })}
@@ -375,24 +478,36 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
           )}
           {messages.length === 0 && (
             <div className={welcomeMessageStyles}>
-              <h4>Welcome to your MongoDB Assistant.</h4>
-              Ask any question about MongoDB to receive expert guidance and
-              documentation right in your window.
+              <h4 className={welcomeHeadingStyles}>
+                <Icon
+                  glyph="Sparkle"
+                  size="large"
+                  style={sparkleIconOverrideStyle}
+                />
+                <span>MongoDB Assistant</span>
+              </h4>
+              <p className={welcomeTextStyles}>
+                Welcome to the MongoDB Assistant!
+                <br />
+                Ask any question about MongoDB to receive expert guidance and
+                documentation.
+              </p>
             </div>
           )}
           <div className={inputBarStyleFixes}>
             <InputBar
               data-testid="assistant-chat-input"
-              onMessageSend={handleMessageSend}
+              onMessageSend={(messageBody) =>
+                void handleMessageSend(messageBody)
+              }
               state={status === 'submitted' ? 'loading' : undefined}
-              textareaProps={{
-                placeholder: 'Ask a question',
-              }}
+              textareaProps={inputBarTextareaProps}
             />
           </div>
           <DisclaimerText className={disclaimerTextStyles}>
             AI can make mistakes. Review for accuracy.{' '}
             <Link
+              className={noWrapFixesStyles}
               hideExternalIcon={false}
               href={GEN_AI_FAQ_LINK}
               target="_blank"

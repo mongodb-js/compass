@@ -6,7 +6,7 @@
 > the tracking plan for the specific Compass version you can use the following
 > URL: `https://github.com/mongodb-js/compass/blob/<compass version>/docs/tracking-plan.md`
 
-Generated on Tue, Sep 23, 2025
+Generated on Mon, Oct 6, 2025
 
 ## Table of Contents
 
@@ -145,6 +145,8 @@ Generated on Tue, Sep 23, 2025
 - [AI Query Feedback](#event--AiQueryFeedbackEvent)
 - [AI Response Failed](#event--AiResponseFailedEvent)
 - [AI Response Generated](#event--AiResponseGeneratedEvent)
+- [Drawer Section Opened](#event--DrawerSectionOpenedEvent)
+- [Drawer Section Closed](#event--DrawerSectionClosedEvent)
 - [PipelineAI Feedback](#event--PipelineAiFeedbackEvent)
 
 ### Guide Cues
@@ -1649,6 +1651,32 @@ rendered in the UI.
 - **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
+
+<a name="event--DrawerSectionOpenedEvent"></a>
+
+### Drawer Section Opened
+
+This event is fired when user opens a drawer section. Either by switching
+to it via the drawer toolbar or by opening the drawer and the first tab is
+this drawer section.
+
+**Properties**:
+
+- **sectionId** (required): `string`
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--DrawerSectionClosedEvent"></a>
+
+### Drawer Section Closed
+
+This event is fired when user closes a drawer section. Either by switching
+to another tab via the drawer toolbar or by closing the drawer when the
+active tab is this drawer section.
+
+**Properties**:
+
+- **sectionId** (required): `string`
+- **is_compass_web** (optional): `true | undefined`
 
 <a name="event--PipelineAiFeedbackEvent"></a>
 

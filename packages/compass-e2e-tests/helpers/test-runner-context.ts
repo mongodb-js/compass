@@ -344,10 +344,6 @@ process.env.HADRON_DISTRIBUTION ??= context.hadronDistribution;
 process.env.COMPASS_WEB_HTTP_PROXY_CLOUD_CONFIG ??=
   context.atlasCloudSandboxCloudConfig ?? 'dev';
 
-if (isTestingWeb()) {
-  process.env.E2E_TEST_CLOUD_WEB_ENABLE_PREFERENCE_SAVING ??= 'true';
-}
-
 const testServerVersion =
   process.env.MONGODB_VERSION ?? process.env.MONGODB_RUNNER_VERSION;
 

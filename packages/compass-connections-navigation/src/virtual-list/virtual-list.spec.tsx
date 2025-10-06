@@ -98,7 +98,8 @@ function NavigationTree({
       onDefaultAction={() => {}}
       onItemExpand={onExpandedChange}
       onItemAction={() => {}}
-      getItemActions={() => []}
+      getItemActions={() => ({ actions: [] })}
+      getContextMenuGroups={() => []}
       width={100}
       renderItem={({ item }) => item.name}
       __TEST_OVER_SCAN_COUNT={Infinity}

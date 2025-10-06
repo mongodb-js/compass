@@ -89,8 +89,8 @@ const CollectionHeaderActions: React.FunctionComponent<
   const { id: connectionId, atlasMetadata } = connectionInfo;
   const { openCollectionWorkspace, openEditViewWorkspace, openShellWorkspace } =
     useOpenWorkspace();
-  const { readOnly: preferencesReadOnly, enableShell: showOpenShellButton } =
-    usePreferences(['readOnly', 'enableShell']);
+  const { readWrite: preferencesReadWrite, enableShell: showOpenShellButton } =
+    usePreferences(['readWrite', 'enableShell']);
   const track = useTelemetry();
 
   // Get experiment assignment for Mock Data Generator
@@ -118,6 +118,10 @@ const CollectionHeaderActions: React.FunctionComponent<
   const isCollectionEmpty =
     !hasSchemaAnalysisData &&
     schemaAnalysisStatus !== SCHEMA_ANALYSIS_STATE_ANALYZING;
+
+  const isView = isReadonly && sourceName && !editViewName;
+
+  const showViewEdit = isView && !preferencesReadWrite;
 
   return (
     <div
@@ -198,7 +202,7 @@ const CollectionHeaderActions: React.FunctionComponent<
           Visualize Your Data
         </Button>
       )}
-      {isReadonly && sourceName && !editViewName && !preferencesReadOnly && (
+      {showViewEdit && (
         <Button
           data-testid="collection-header-actions-edit-button"
           size={ButtonSize.Small}

@@ -17,17 +17,21 @@ export function shouldExcludeMessage({ metadata }: AssistantMessage) {
 
 export class DocsProviderTransport implements ChatTransport<AssistantMessage> {
   private model: LanguageModel;
+  private origin: string;
   private instructions: string;
 
   constructor({
     instructions,
     model,
+    origin,
   }: {
     instructions: string;
     model: LanguageModel;
+    origin: string;
   }) {
     this.instructions = instructions;
     this.model = model;
+    this.origin = origin;
   }
 
   static emptyStream = new ReadableStream<UIMessageChunk>({
@@ -56,13 +60,21 @@ export class DocsProviderTransport implements ChatTransport<AssistantMessage> {
       return Promise.resolve(DocsProviderTransport.emptyStream);
     }
 
+    const lastMessage = filteredMessages[filteredMessages.length - 1];
+
     const result = streamText({
       model: this.model,
-      messages: convertToModelMessages(filteredMessages),
+      messages: lastMessage.metadata?.sendWithoutHistory
+        ? convertToModelMessages([lastMessage])
+        : convertToModelMessages(filteredMessages),
       abortSignal: abortSignal,
+      headers: {
+        'X-Request-Origin': this.origin,
+      },
       providerOptions: {
         openai: {
-          instructions: this.instructions,
+          // If the last message has custom instructions, use them instead of the default
+          instructions: lastMessage.metadata?.instructions ?? this.instructions,
         },
       },
     });

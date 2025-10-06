@@ -29,6 +29,7 @@ import {
   useDarkMode,
   useDrawerActions,
   useDrawerState,
+  useThrottledProps,
   rafraf,
 } from '@mongodb-js/compass-components';
 import { cancelAnalysis, retryAnalysis } from '../store/analysis-process';
@@ -47,6 +48,7 @@ import {
   getHighlightedFields,
   relationshipToDiagramEdge,
 } from '../utils/nodes-and-edges';
+import toNS from 'mongodb-ns';
 
 const loadingContainerStyles = css({
   width: '100%',
@@ -57,11 +59,22 @@ const loaderStyles = css({
   margin: '0 auto',
 });
 
-const bannerStyles = css({
+const errorBannerStyles = css({
   margin: spacing[200],
   '& > div': {
     display: 'flex',
     alignItems: 'center',
+  },
+});
+
+const dataInfoBannerStyles = css({
+  margin: spacing[400],
+  position: 'absolute',
+  zIndex: 100,
+
+  h4: {
+    marginTop: 0,
+    marginBottom: 0,
   },
 });
 
@@ -73,7 +86,7 @@ const ErrorBannerWithRetry: React.FunctionComponent<{
   onRetryClick: () => void;
 }> = ({ children, onRetryClick }) => {
   return (
-    <Banner variant="danger" className={bannerStyles}>
+    <Banner variant="danger" className={errorBannerStyles}>
       <div>{children}</div>
       <Button
         className={bannerButtonStyles}
@@ -113,6 +126,8 @@ type SelectedItems = NonNullable<DiagramState>['selectedItems'];
 
 const DiagramContent: React.FunctionComponent<{
   diagramLabel: string;
+  database: string | null;
+  isNewlyCreatedDiagram?: boolean;
   model: StaticModel | null;
   isInRelationshipDrawingMode: boolean;
   editErrors?: string[];
@@ -134,6 +149,8 @@ const DiagramContent: React.FunctionComponent<{
   onRelationshipDrawn: () => void;
 }> = ({
   diagramLabel,
+  database,
+  isNewlyCreatedDiagram,
   model,
   isInRelationshipDrawingMode,
   newCollection,
@@ -151,6 +168,9 @@ const DiagramContent: React.FunctionComponent<{
   const diagram = useRef(useDiagram());
   const { openDrawer } = useDrawerActions();
   const { isDrawerOpen } = useDrawerState();
+  const [showDataInfoBanner, setshowDataInfoBanner] = useState(
+    isNewlyCreatedDiagram ?? false
+  );
 
   const setDiagramContainerRef = useCallback((ref: HTMLDivElement | null) => {
     if (ref) {
@@ -186,14 +206,11 @@ const DiagramContent: React.FunctionComponent<{
           selectedItems?.type === 'field' && selectedItems.namespace === coll.ns
             ? selectedItems.fieldPath
             : undefined,
-        onClickAddNewFieldToCollection: () =>
-          onAddNewFieldToCollection(coll.ns),
         selected,
         isInRelationshipDrawingMode,
       });
     });
   }, [
-    onAddNewFieldToCollection,
     model?.collections,
     model?.relationships,
     selectedItems,
@@ -300,6 +317,45 @@ const DiagramContent: React.FunctionComponent<{
     [handleNodesConnect]
   );
 
+  const onClickAddFieldToCollection = useCallback(
+    (event: React.MouseEvent<Element>, ns: string) => {
+      event.stopPropagation();
+      onAddNewFieldToCollection(ns);
+    },
+    [onAddNewFieldToCollection]
+  );
+
+  const diagramProps = useMemo(
+    () => ({
+      isDarkMode,
+      title: diagramLabel,
+      edges,
+      nodes,
+      onAddFieldToNodeClick: onClickAddFieldToCollection,
+      onNodeClick,
+      onPaneClick,
+      onEdgeClick,
+      onFieldClick,
+      onNodeDragStop,
+      onConnect,
+    }),
+    [
+      isDarkMode,
+      diagramLabel,
+      edges,
+      nodes,
+      onClickAddFieldToCollection,
+      onNodeClick,
+      onPaneClick,
+      onEdgeClick,
+      onFieldClick,
+      onNodeDragStop,
+      onConnect,
+    ]
+  );
+
+  const throttledDiagramProps = useThrottledProps(diagramProps);
+
   return (
     <div
       ref={setDiagramContainerRef}
@@ -307,21 +363,26 @@ const DiagramContent: React.FunctionComponent<{
       data-testid="diagram-editor-container"
     >
       <div className={modelPreviewStyles} data-testid="model-preview">
+        {showDataInfoBanner && (
+          <Banner
+            variant="info"
+            dismissible
+            onClose={() => setshowDataInfoBanner(false)}
+            className={dataInfoBannerStyles}
+            data-testid="data-info-banner"
+          >
+            <h4>Questions about your data?</h4>
+            This diagram was generated based on a sample of documents from{' '}
+            {database ?? 'a database'}. Changes made to the diagram will not
+            impact your data
+          </Banner>
+        )}
         <Diagram
-          isDarkMode={isDarkMode}
-          title={diagramLabel}
-          edges={edges}
-          nodes={nodes}
+          {...throttledDiagramProps}
           // With threshold too low clicking sometimes gets confused with
-          // dragging
+          // dragging.
           nodeDragThreshold={5}
-          onNodeClick={onNodeClick}
-          onPaneClick={onPaneClick}
-          onEdgeClick={onEdgeClick}
-          onFieldClick={onFieldClick}
           fitViewOptions={ZOOM_OPTIONS}
-          onNodeDragStop={onNodeDragStop}
-          onConnect={onConnect}
         />
       </div>
     </div>
@@ -331,11 +392,16 @@ const DiagramContent: React.FunctionComponent<{
 const ConnectedDiagramContent = connect(
   (state: DataModelingState) => {
     const { diagram } = state;
+    const model = diagram ? selectCurrentModelFromState(state) : null;
     return {
-      model: diagram ? selectCurrentModelFromState(state) : null,
+      model,
       diagramLabel: diagram?.name || 'Schema Preview',
       selectedItems: state.diagram?.selectedItems ?? null,
       newCollection: diagram?.draftCollection,
+      isNewlyCreatedDiagram: diagram?.isNewlyCreated,
+      database: model?.collections[0]?.ns
+        ? toNS(model.collections[0].ns).database
+        : null, // TODO(COMPASS-9718): use diagram.database
     };
   },
   {
