@@ -1,4 +1,9 @@
 import React, { type InputHTMLAttributes, useRef } from 'react';
+import { css } from '@leafygreen-ui/emotion';
+
+const displayNoneStyles = css({
+  display: 'none',
+});
 
 type FileSelectorTriggerProps = {
   onClick: () => void;
@@ -33,7 +38,7 @@ export function FileSelector({
         ref={inputRef}
         type="file"
         onChange={onFilesChanged}
-        style={{ display: 'none' }}
+        className={displayNoneStyles}
       />
       {trigger({
         onClick: () => inputRef.current?.click(),
