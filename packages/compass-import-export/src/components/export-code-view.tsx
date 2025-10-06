@@ -78,7 +78,6 @@ function ExportCodeView({
         data-testid="export-collection-code-preview-wrapper"
         id={codeElementId}
         language="javascript"
-        copyable
       >
         {code}
       </Code>
