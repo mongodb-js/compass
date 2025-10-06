@@ -496,46 +496,44 @@ const CompassWeb = ({
                         orgId={orgId}
                         projectId={projectId}
                       >
-                        <CompassConnections
-                          appName={appName ?? 'Compass Web'}
-                          onFailToLoadConnections={onFailToLoadConnections}
-                          onExtraConnectionDataRequest={() => {
-                            return Promise.resolve([{}, null] as [
-                              Record<string, unknown>,
-                              null
-                            ]);
-                          }}
-                          onAutoconnectInfoRequest={(connectionStore) => {
-                            if (autoconnectId) {
-                              return connectionStore.loadAll().then(
-                                (connections) => {
-                                  return connections.find(
-                                    (connectionInfo) =>
-                                      connectionInfo.id === autoconnectId
-                                  );
-                                },
-                                (err) => {
-                                  const { log, mongoLogId } = logger;
-                                  log.warn(
-                                    mongoLogId(1_001_000_329),
-                                    'Compass Web',
-                                    'Could not load connections when trying to autoconnect',
-                                    { err: err.message }
-                                  );
-                                  return undefined;
-                                }
-                              );
-                            }
-                            return Promise.resolve(undefined);
-                          }}
+                        <CompassAssistantProvider
+                          originForPrompt="atlas-data-explorer"
+                          appNameForPrompt={APP_NAMES_FOR_PROMPT.DataExplorer}
                         >
-                          <CompassInstanceStorePlugin>
-                            <CompassAssistantProvider
-                              originForPrompt="atlas-data-explorer"
-                              appNameForPrompt={
-                                APP_NAMES_FOR_PROMPT.DataExplorer
+                          <CompassConnections
+                            appName={appName ?? 'Compass Web'}
+                            onFailToLoadConnections={onFailToLoadConnections}
+                            onExtraConnectionDataRequest={() => {
+                              return Promise.resolve([{}, null] as [
+                                Record<string, unknown>,
+                                null
+                              ]);
+                            }}
+                            onAutoconnectInfoRequest={(connectionStore) => {
+                              if (autoconnectId) {
+                                return connectionStore.loadAll().then(
+                                  (connections) => {
+                                    return connections.find(
+                                      (connectionInfo) =>
+                                        connectionInfo.id === autoconnectId
+                                    );
+                                  },
+                                  (err) => {
+                                    const { log, mongoLogId } = logger;
+                                    log.warn(
+                                      mongoLogId(1_001_000_329),
+                                      'Compass Web',
+                                      'Could not load connections when trying to autoconnect',
+                                      { err: err.message }
+                                    );
+                                    return undefined;
+                                  }
+                                );
                               }
-                            >
+                              return Promise.resolve(undefined);
+                            }}
+                          >
+                            <CompassInstanceStorePlugin>
                               <FieldStorePlugin>
                                 <WithConnectionsStore>
                                   <CompassWorkspace
@@ -555,9 +553,9 @@ const CompassWeb = ({
                                 projectId={projectId}
                                 isCloudOptIn={true}
                               />
-                            </CompassAssistantProvider>
-                          </CompassInstanceStorePlugin>
-                        </CompassConnections>
+                            </CompassInstanceStorePlugin>
+                          </CompassConnections>
+                        </CompassAssistantProvider>
                       </AtlasCloudConnectionStorageProvider>
                     </DataModelStorageServiceProviderInMemory>
                   </WithStorageProviders>
