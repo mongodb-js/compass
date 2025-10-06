@@ -8,7 +8,7 @@
     "tsconfig.react.json"
   ],
   "peerDependencies": {
-    "typescript": "^5.9.2"
+    "typescript": "^5.9.3"
   },
   "devDependencies": {
     "@mongodb-js/prettier-config-compass": "^1.2.9"

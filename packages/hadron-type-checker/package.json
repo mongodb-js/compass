@@ -60,6 +60,6 @@
     "depcheck": "^1.4.1",
     "mocha": "^10.2.0",
     "nyc": "^15.1.0",
-    "typescript": "^5.9.2"
+    "typescript": "^5.9.3"
   }
 }
