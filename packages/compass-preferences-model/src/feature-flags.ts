@@ -175,7 +175,7 @@ export const featureFlags: Required<{
    * Feature flag for AI Assistant.
    */
   enableAIAssistant: {
-    stage: 'development',
+    stage: 'released',
     description: {
       short: 'Enable AI Assistant',
     },

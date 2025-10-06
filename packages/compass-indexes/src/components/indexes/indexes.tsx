@@ -140,6 +140,8 @@ const AtlasIndexesBanner = ({
       These indexes can be created and viewed under{' '}
       {atlasMetadata ? (
         <Link
+          target="_blank"
+          rel="noopener"
           href={getAtlasSearchIndexesLink({
             clusterName: atlasMetadata.clusterName,
             namespace,

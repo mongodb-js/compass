@@ -13,7 +13,6 @@ import {
   TEST_COMPASS_WEB,
   skipForWeb,
   DEFAULT_CONNECTION_NAME_1,
-  serverSatisfies,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
@@ -697,10 +696,6 @@ FindIterable<Document> result = collection.find(filter);`);
     const REQUIRE_PHONE_VALIDATOR =
       '{ $jsonSchema: { bsonType: "object", required: [ "phone" ] } }';
     beforeEach(async function () {
-      if (serverSatisfies('< 5.0.0')) {
-        return this.skip();
-      }
-
       await browser.setValidation({
         connectionName: DEFAULT_CONNECTION_NAME_1,
         database: 'test',
