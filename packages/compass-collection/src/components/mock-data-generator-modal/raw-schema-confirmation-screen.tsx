@@ -9,6 +9,7 @@ import {
   BannerVariant,
   Body,
   DocumentList,
+  useDarkMode,
 } from '@mongodb-js/compass-components';
 
 import { usePreference } from 'compass-preferences-model/provider';
@@ -23,11 +24,14 @@ interface RawSchemaConfirmationScreenProps {
   fakerSchemaGenerationStatus: MockDataGeneratorState['status'];
 }
 
-const documentContainerStyles = css({
-  backgroundColor: palette.gray.light3,
-  border: `1px solid ${palette.gray.light2}`,
-  borderRadius: spacing[400],
-});
+const getDocumentContainerStyles = (isDarkMode: boolean) =>
+  css({
+    backgroundColor: isDarkMode ? palette.gray.dark3 : palette.gray.light3,
+    border: `1px solid ${
+      isDarkMode ? palette.gray.dark2 : palette.gray.light2
+    }`,
+    borderRadius: spacing[400],
+  });
 
 const documentStyles = css({
   padding: `${spacing[400]}px ${spacing[900]}px`,
@@ -52,6 +56,7 @@ const RawSchemaConfirmationScreen = ({
   const enableSampleDocumentPassing = usePreference(
     'enableGenAISampleDocumentPassing'
   );
+  const isDarkMode = useDarkMode();
 
   const subtitleText = enableSampleDocumentPassing
     ? 'Sample Documents Collected'
@@ -69,7 +74,7 @@ const RawSchemaConfirmationScreen = ({
             {subtitleText}
           </Body>
           <Body className={descriptionStyles}>{descriptionText}</Body>
-          <div className={documentContainerStyles}>
+          <div className={getDocumentContainerStyles(!!isDarkMode)}>
             <DocumentList.Document
               className={documentStyles}
               editable={false}
