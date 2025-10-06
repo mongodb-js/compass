@@ -27,7 +27,7 @@ const labelStyles = css({
   fontWeight: 600,
 });
 
-const parseFakerArg = (arg: FakerArg): string => {
+const stringifyFakerArg = (arg: FakerArg): string => {
   if (typeof arg === 'object' && arg !== null && 'json' in arg) {
     try {
       return JSON.stringify(JSON.parse(arg.json));
@@ -35,14 +35,25 @@ const parseFakerArg = (arg: FakerArg): string => {
       return '';
     }
   }
-  return arg.toString();
+
+  // Handle arrays recursively
+  if (Array.isArray(arg)) {
+    return `[${arg.map(stringifyFakerArg).join(', ')}]`;
+  }
+
+  if (typeof arg === 'string') {
+    return JSON.stringify(arg);
+  }
+
+  // Numbers and booleans
+  return String(arg);
 };
 
 const formatFakerFunctionCallWithArgs = (
   fakerFunction: string,
   fakerArgs: FakerArg[]
 ) => {
-  const parsedFakerArgs = fakerArgs.map(parseFakerArg);
+  const parsedFakerArgs = fakerArgs.map(stringifyFakerArg);
   return `faker.${fakerFunction}(${parsedFakerArgs.join(', ')})`;
 };
 
