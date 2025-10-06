@@ -17,8 +17,8 @@ describe('SizeField', function () {
   describe('SizeField functions', function () {
     it('formats size', function () {
       expect(formatSize(908)).to.equal('908 B');
-      expect(formatSize(2020)).to.equal('2.0 KB');
-      expect(formatSize(202020)).to.equal('202.0 KB');
+      expect(formatSize(2020)).to.equal('2.0 kB');
+      expect(formatSize(202020)).to.equal('202.0 kB');
     });
 
     it('returns correct tooltip', function () {

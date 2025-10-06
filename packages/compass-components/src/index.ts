@@ -218,6 +218,7 @@ export {
 } from './components/links/link';
 export { ChevronCollapse } from './components/chevron-collapse-icon';
 export { formatDate } from './utils/format-date';
+export { compactBytes, compactNumber } from './utils/format';
 export {
   VirtualList,
   type VirtualListRef,
