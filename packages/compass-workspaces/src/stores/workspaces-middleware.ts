@@ -1,0 +1,118 @@
+import type { Middleware, AnyAction } from 'redux';
+import type { WorkspacesState } from './workspaces';
+import type { WorkspacesStateData } from '../services/workspaces-storage';
+import type { WorkspacesServices } from '..';
+import { mongoLogId } from '@mongodb-js/compass-logging/provider';
+
+/**
+ * Middleware that runs a callback whenever the workspaces state changes.
+ * This allows you to perform side effects when the state is updated.
+ */
+export function workspacesStateChangeMiddleware(
+  services: WorkspacesServices
+): Middleware<Record<string, never>, WorkspacesState> {
+  return (store) => (next) => (action: AnyAction) => {
+    const prevState = store.getState();
+    const result = next(action);
+    const nextState = store.getState();
+
+    // Only call the callback if the workspaces state actually changed
+    if (prevState !== nextState) {
+      // Fire and forget - don't await to avoid blocking the action
+      void saveWorkspaceStateToUserData(nextState, services);
+    }
+
+    return result;
+  };
+}
+
+/**
+ * Saves the workspace state to persistent storage using UserData
+ */
+async function saveWorkspaceStateToUserData(
+  state: WorkspacesState,
+  services: WorkspacesServices
+) {
+  try {
+    // Transform the state to the format we want to save
+    const stateToSave: WorkspacesStateData = {
+      tabs: state.tabs.map((tab) => {
+        const baseTab = {
+          id: tab.id,
+          type: tab.type,
+        };
+
+        // Add optional fields conditionally
+        const result: WorkspacesStateData['tabs'][0] = { ...baseTab };
+
+        if ('connectionId' in tab && tab.connectionId) {
+          result.connectionId = tab.connectionId;
+        }
+        if ('namespace' in tab && tab.namespace) {
+          result.namespace = tab.namespace;
+        }
+        if ('initialQuery' in tab && tab.initialQuery) {
+          // Store as record, accepting unknown format
+          result.initialQuery = tab.initialQuery as Record<string, unknown>;
+        }
+        if ('initialAggregation' in tab && tab.initialAggregation) {
+          result.initialAggregation = tab.initialAggregation as Record<
+            string,
+            unknown
+          >;
+        }
+        if ('initialPipeline' in tab && tab.initialPipeline) {
+          result.initialPipeline = tab.initialPipeline as Array<
+            Record<string, unknown>
+          >;
+        }
+        if ('initialPipelineText' in tab && tab.initialPipelineText) {
+          result.initialPipelineText = tab.initialPipelineText;
+        }
+        if ('editViewName' in tab && tab.editViewName) {
+          result.editViewName = tab.editViewName;
+        }
+        if ('initialEvaluate' in tab && tab.initialEvaluate) {
+          result.initialEvaluate = tab.initialEvaluate;
+        }
+        if ('initialInput' in tab && tab.initialInput) {
+          result.initialInput = tab.initialInput;
+        }
+        if ('subTab' in tab && tab.subTab) {
+          // Validate that subTab is one of the allowed values
+          const validSubTabs = [
+            'Documents',
+            'Aggregations',
+            'Schema',
+            'Indexes',
+            'Validation',
+            'GlobalWrites',
+          ];
+          if (validSubTabs.includes(tab.subTab as string)) {
+            result.subTab = tab.subTab as
+              | 'Documents'
+              | 'Aggregations'
+              | 'Schema'
+              | 'Indexes'
+              | 'Validation'
+              | 'GlobalWrites';
+          }
+        }
+
+        return result;
+      }),
+      activeTabId: state.activeTabId,
+      timestamp: Date.now(),
+    };
+
+    // Save to UserData with a fixed ID
+    await services.userData.write('saved-workspaces', stateToSave);
+  } catch (error) {
+    services.logger.log.error(
+      mongoLogId(1_001_000_229),
+      'Workspaces middleware',
+      'Failed to save workspace state to UserData',
+      { error }
+    );
+  }
+}
