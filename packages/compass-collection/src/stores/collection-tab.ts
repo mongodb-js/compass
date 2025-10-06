@@ -170,9 +170,10 @@ export function activatePlugin(
             ExperimentTestName.mockDataGenerator,
             false // Don't track "Experiment Viewed" event here
           );
-          return true; // EDITBACK
-          // assignment?.assignmentData?.variant ===
-          // ExperimentTestGroup.mockDataGeneratorVariant
+          return (
+            assignment?.assignmentData?.variant ===
+            ExperimentTestGroup.mockDataGeneratorVariant
+          );
         } catch (error) {
           // On error, default to not running schema analysis
           logger.debug(

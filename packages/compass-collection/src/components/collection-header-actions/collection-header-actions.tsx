@@ -102,9 +102,9 @@ const CollectionHeaderActions: React.FunctionComponent<
   const { database, collection } = toNS(namespace);
 
   // Check if user is in treatment group for Mock Data Generator experiment
-  const isInMockDataTreatmentVariant = true; // EDITBACK
-  // mockDataGeneratorAssignment?.assignment?.assignmentData?.variant ===
-  // ExperimentTestGroup.mockDataGeneratorVariant;
+  const isInMockDataTreatmentVariant =
+    mockDataGeneratorAssignment?.assignment?.assignmentData?.variant ===
+    ExperimentTestGroup.mockDataGeneratorVariant;
 
   const shouldShowMockDataButton =
     isInMockDataTreatmentVariant &&
