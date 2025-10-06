@@ -54,10 +54,11 @@ export function areFakerArgsValid(
     } else if (
       typeof arg === 'object' &&
       arg !== null &&
-      typeof (arg as { json?: unknown }).json === 'string'
+      'json' in arg &&
+      typeof arg.json === 'string'
     ) {
       try {
-        const parsedJson = JSON.parse((arg as { json: string }).json);
+        const parsedJson = JSON.parse(arg.json);
         if (!areFakerArgsValid(Object.values(parsedJson), depth + 1)) {
           return false;
         }
@@ -190,7 +191,7 @@ function tryInvokeFakerMethod(
 function prepareFakerArgs(args: FakerArg[]) {
   return args.map((arg) => {
     if (typeof arg === 'object' && arg !== null && 'json' in arg) {
-      return JSON.parse((arg as { json: string }).json);
+      return JSON.parse(arg.json);
     }
     return arg;
   });
