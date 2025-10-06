@@ -9,12 +9,7 @@ export const bsonEqual = (value: any, other: any): boolean | undefined => {
     return undefined;
   }
 
-  if (
-    other === null ||
-    other === undefined ||
-    !other._bsontype ||
-    typeof other._bsontype !== 'string'
-  ) {
+  if (typeof other?._bsontype !== 'string') {
     return undefined;
   }
 
