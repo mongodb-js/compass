@@ -236,7 +236,9 @@ function showConnectWindow(
   };
 
   // Save window bounds when moved or resized
+  window.on('move', debouncedSaveWindowBounds);
   window.on('moved', debouncedSaveWindowBounds);
+  window.on('resize', debouncedSaveWindowBounds);
   window.on('resized', debouncedSaveWindowBounds);
   window.on('maximize', debouncedSaveWindowBounds);
   window.on('unmaximize', debouncedSaveWindowBounds);
@@ -376,6 +378,7 @@ class CompassWindowManager {
     ipcMain?.handle('compass:maximize', () => {
       const first = BrowserWindow.getAllWindows()[0];
       first.maximize();
+      void saveWindowBounds(first, compassApp);
     });
 
     await electronApp.whenReady();
