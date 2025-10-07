@@ -131,6 +131,10 @@ const groupHeaderStyles = css({
   gap: spacing[400],
 });
 
+const nestedGroupButtonContainerStyles = css({
+  display: 'inherit',
+});
+
 const MatchGroupForm = ({
   fields,
   group,
@@ -259,7 +263,7 @@ const MatchGroupForm = ({
           justify="middle"
           enabled={disableAddNestedGroupBtn}
           trigger={
-            <div style={{ display: 'inherit' }}>
+            <div className={nestedGroupButtonContainerStyles}>
               <Button
                 size="xsmall"
                 disabled={disableAddNestedGroupBtn}
