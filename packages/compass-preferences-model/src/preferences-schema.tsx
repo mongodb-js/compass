@@ -132,6 +132,7 @@ export type InternalUserPreferences = {
     width?: number;
     height?: number;
     isMaximized?: boolean;
+    isFullScreen?: boolean;
   };
 };
 
@@ -493,6 +494,7 @@ export const storedUserPreferencesProps: Required<{
         width: z.number().optional(),
         height: z.number().optional(),
         isMaximized: z.boolean().optional(),
+        isFullScreen: z.boolean().optional(),
       })
       .optional(),
     type: 'object',

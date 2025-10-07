@@ -78,7 +78,11 @@ const DEFAULT_URL =
   process.env.COMPASS_INDEX_RENDERER_URL ||
   pathToFileURL(path.join(__dirname, 'index.html')).toString();
 
-async function showWindowWhenReady(bw: BrowserWindow, isMaximized?: boolean) {
+async function showWindowWhenReady(
+  bw: BrowserWindow,
+  isMaximized?: boolean,
+  isFullScreen?: boolean
+) {
   await once(bw, 'ready-to-show');
   if (isMaximized) {
     // win.maximize() maximizes the window.
@@ -86,6 +90,10 @@ async function showWindowWhenReady(bw: BrowserWindow, isMaximized?: boolean) {
     bw.maximize();
     bw.focus();
     return;
+  }
+
+  if (isFullScreen) {
+    bw.setFullScreen(true);
   }
 
   bw.show();
@@ -101,6 +109,7 @@ async function saveWindowBounds(
   try {
     const bounds = window.getBounds();
     const isMaximized = window.isMaximized();
+    const isFullScreen = window.isFullScreen();
 
     await compassApp.preferences.savePreferences({
       windowBounds: {
@@ -109,6 +118,7 @@ async function saveWindowBounds(
         width: bounds.width,
         height: bounds.height,
         isMaximized,
+        isFullScreen,
       },
     });
   } catch (err) {
@@ -163,7 +173,8 @@ function showConnectWindow(
   > = {}
 ): BrowserWindow {
   // Get saved window bounds
-  const { isMaximized, ...bounds } = getSavedWindowBounds(compassApp);
+  const { isMaximized, isFullScreen, ...bounds } =
+    getSavedWindowBounds(compassApp);
   const windowOpts = {
     ...bounds,
     minWidth: Number(MIN_WIDTH),
@@ -229,6 +240,8 @@ function showConnectWindow(
   window.on('resized', debouncedSaveWindowBounds);
   window.on('maximize', debouncedSaveWindowBounds);
   window.on('unmaximize', debouncedSaveWindowBounds);
+  window.on('enter-full-screen', debouncedSaveWindowBounds);
+  window.on('leave-full-screen', debouncedSaveWindowBounds);
 
   const onWindowClosed = () => {
     debug('Window closed. Dereferencing.');
@@ -243,7 +256,7 @@ function showConnectWindow(
 
   debug(`Loading page ${rendererUrl} in main window`);
 
-  void showWindowWhenReady(window, isMaximized);
+  void showWindowWhenReady(window, isMaximized, isFullScreen);
 
   void window.loadURL(rendererUrl);
 
