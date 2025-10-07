@@ -385,12 +385,19 @@ describe('In-Use Encryption', function () {
         );
       }
 
-      const selector = within(card).getByTestId('csfle-kms-card-name');
+      const selector = within(card).getByTestId<HTMLInputElement>(
+        'csfle-kms-card-name'
+      );
       userEvent.clear(selector);
       if (value !== '') {
         userEvent.type(selector, value);
       }
       userEvent.keyboard('{enter}');
+
+      expect(selector.value).equals(
+        value,
+        'Expected the input to have the updated value'
+      );
     }
 
     it('allows to have multiple KMS providers from same type', async function () {
