@@ -18,7 +18,13 @@ import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 /**
  * Current allowed types for indexes.
  */
-const INDEX_TYPES = ['1 (asc)', '-1 (desc)', '2dsphere', 'text', 'columnstore'];
+const INDEX_TYPES = [
+  '1 (asc)',
+  '-1 (desc)',
+  '2dsphere',
+  'text (full text search)',
+  'columnstore',
+];
 
 /**
  * Default values for field name and type as presented in the UI.
@@ -96,7 +102,7 @@ function CreateIndexFields({
     track('New Index Field Added', {
       context: 'Create Index Modal',
     });
-  }, [onAddFieldClick]);
+  }, [onAddFieldClick, track]);
 
   const comboboxOptions = schemaFields.map((value) => ({ value }));
 
