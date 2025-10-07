@@ -8,9 +8,11 @@ import {
   Select,
   spacing,
 } from '@mongodb-js/compass-components';
-import React from 'react';
+import React, { useMemo } from 'react';
 import { UNRECOGNIZED_FAKER_METHOD } from '../../modules/collection-tab';
 import type { MongoDBFieldType } from '@mongodb-js/compass-generative-ai';
+import { MongoDBFieldTypeValues } from '@mongodb-js/compass-generative-ai';
+import { MONGO_TYPE_TO_FAKER_METHODS } from './constants';
 
 const fieldMappingSelectorsStyles = css({
   width: '50%',
@@ -37,6 +39,17 @@ const FakerMappingSelector = ({
   onJsonTypeSelect,
   onFakerFunctionSelect,
 }: Props) => {
+  const fakerMethodOptions = useMemo(() => {
+    const methods =
+      MONGO_TYPE_TO_FAKER_METHODS[activeJsonType as MongoDBFieldType] || [];
+
+    if (methods.includes(activeFakerFunction)) {
+      return methods;
+    }
+
+    return [activeFakerFunction, ...methods];
+  }, [activeJsonType, activeFakerFunction]);
+
   return (
     <div className={fieldMappingSelectorsStyles}>
       <Body className={labelStyles}>Mapping</Body>
@@ -46,8 +59,7 @@ const FakerMappingSelector = ({
         value={activeJsonType}
         onChange={(value) => onJsonTypeSelect(value as MongoDBFieldType)}
       >
-        {/* TODO(CLOUDP-344400) : Make the select input editable and render other options depending on the JSON type selected */}
-        {[activeJsonType].map((type) => (
+        {Object.values(MongoDBFieldTypeValues).map((type) => (
           <Option key={type} value={type}>
             {type}
           </Option>
@@ -59,10 +71,9 @@ const FakerMappingSelector = ({
         value={activeFakerFunction}
         onChange={onFakerFunctionSelect}
       >
-        {/* TODO(CLOUDP-344400): Make the select input editable and render other JSON types */}
-        {[activeFakerFunction].map((field) => (
-          <Option key={field} value={field}>
-            {field}
+        {fakerMethodOptions.map((method) => (
+          <Option key={method} value={method}>
+            {method}
           </Option>
         ))}
       </Select>

@@ -14,6 +14,7 @@ import FieldSelector from './schema-field-selector';
 import FakerMappingSelector from './faker-mapping-selector';
 import type { FakerSchema, MockDataGeneratorState } from './types';
 import type { MongoDBFieldType } from '@mongodb-js/compass-generative-ai';
+import { getDefaultFakerMethod } from './script-generation-utils';
 
 const containerStyles = css({
   display: 'flex',
@@ -72,11 +73,15 @@ const FakerSchemaEditorContent = ({
   const onJsonTypeSelect = (newJsonType: MongoDBFieldType) => {
     const currentMapping = fakerSchemaFormValues[activeField];
     if (currentMapping) {
+      // When MongoDB type changes, update the faker method to a default for that type
+      const defaultFakerMethod = getDefaultFakerMethod(newJsonType);
       setFakerSchemaFormValues({
         ...fakerSchemaFormValues,
         [activeField]: {
           ...currentMapping,
           mongoType: newJsonType,
+          fakerMethod: defaultFakerMethod,
+          fakerArgs: [], // Reset args when changing type
         },
       });
       resetIsSchemaConfirmed();

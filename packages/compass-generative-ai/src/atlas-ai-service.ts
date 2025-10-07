@@ -235,8 +235,7 @@ export interface MockDataSchemaRequest {
  */
 export type MongoDBFieldType = PrimitiveSchemaType['name'];
 
-// TODO(CLOUDP-346699): Export this from mongodb-schema
-enum MongoDBFieldTypeValues {
+export enum MongoDBFieldTypeValues {
   String = 'String',
   Number = 'Number',
   Boolean = 'Boolean',
