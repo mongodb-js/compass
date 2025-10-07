@@ -16,10 +16,9 @@ import * as Selectors from '../helpers/selectors';
 import { startMockAtlasServiceServer } from '../helpers/atlas-service';
 import { startMockAssistantServer } from '../helpers/assistant-service';
 import type { MockAssistantResponse } from '../helpers/assistant-service';
-import { openSettingsModal } from '../helpers/commands';
 
 async function setAIFeatures(browser: CompassBrowser, newValue: boolean) {
-  await openSettingsModal(browser, 'ai');
+  await browser.openSettingsModal('ai');
 
   // Wait for AI settings content to be visible
   const aiSettingsContent = browser.$(

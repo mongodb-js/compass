@@ -1,11 +1,10 @@
-import type { ChainablePromiseElement } from 'webdriverio';
 import type { CompassBrowser } from '../compass-browser';
 import * as Selectors from '../selectors';
 
 export async function openSettingsModal(
   browser: CompassBrowser,
   tab?: string
-): Promise<ChainablePromiseElement> {
+): Promise<void> {
   await browser.execute(() => {
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     require('electron').ipcRenderer.emit('window:show-settings');
@@ -16,5 +15,4 @@ export async function openSettingsModal(
   if (tab) {
     await browser.clickVisible(Selectors.SettingsModalTabSelector(tab));
   }
-  return settingsModalElement;
 }
