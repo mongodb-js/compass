@@ -478,7 +478,6 @@ export const storedUserPreferencesProps: Required<{
     validator: z.number().optional(),
     type: 'number',
   },
-
   /**
    * Window bounds for restoring window size and position.
    */
