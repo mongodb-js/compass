@@ -82,7 +82,7 @@
     "nyc": "^15.1.0",
     "sinon": "^9.2.3",
     "socks": "^2.7.3",
-    "typescript": "^5.9.2"
+    "typescript": "^5.9.3"
   },
   "optionalDependencies": {
     "mongodb-client-encryption": "^6.5.0"

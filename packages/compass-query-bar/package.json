@@ -61,7 +61,7 @@
     "nyc": "^15.1.0",
     "react-dom": "^17.0.2",
     "sinon": "^9.2.3",
-    "typescript": "^5.9.2",
+    "typescript": "^5.9.3",
     "xvfb-maybe": "^0.2.1"
   },
   "dependencies": {
@@ -76,7 +76,7 @@
     "@mongodb-js/compass-generative-ai": "^0.58.0",
     "@mongodb-js/compass-logging": "^1.7.20",
     "@mongodb-js/compass-telemetry": "^1.16.2",
-    "@mongodb-js/mongodb-constants": "^0.14.0",
+    "@mongodb-js/mongodb-constants": "^0.16.0",
     "@mongodb-js/my-queries-storage": "^0.44.2",
     "bson": "^6.10.4",
     "compass-preferences-model": "^2.58.0",
