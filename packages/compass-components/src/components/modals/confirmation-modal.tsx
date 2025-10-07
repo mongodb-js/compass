@@ -14,7 +14,7 @@ function ConfirmationModal({
 >): React.ReactElement {
   return (
     <LeafyGreenConfirmationModal {...props}>
-      <Body as="div">{children}</Body>
+      {props.open && <Body as="div">{children}</Body>}
     </LeafyGreenConfirmationModal>
   );
 }

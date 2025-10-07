@@ -11,7 +11,7 @@ function MarketingModal({
 }: React.ComponentProps<typeof LeafyGreenMarketingModal>): React.ReactElement {
   return (
     <LeafyGreenMarketingModal {...props}>
-      <Body as="div">{children}</Body>
+      {props.open && <Body as="div">{children}</Body>}
     </LeafyGreenMarketingModal>
   );
 }

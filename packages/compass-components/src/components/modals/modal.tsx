@@ -68,7 +68,8 @@ function UnwrappedModal({
       )}
       {...props}
     >
-      <Body as="div">{children}</Body>
+      {/* Rendering conditionally on `open` as a workaround for LG-5601 */}
+      {props.open && <Body as="div">{children}</Body>}
     </LeafyGreenModal>
   );
 }
