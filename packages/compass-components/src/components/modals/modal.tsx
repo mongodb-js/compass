@@ -1,7 +1,6 @@
 import React from 'react';
 import { css, cx } from '@leafygreen-ui/emotion';
 import { Body, Modal as LeafyGreenModal } from '../leafygreen';
-import { useScrollbars } from '../../hooks/use-scrollbars';
 import { withStackedComponentStyles } from '../../hooks/use-stacked-component';
 
 const styles = css({
@@ -25,24 +24,15 @@ const fullScreenStyles = css({
 });
 
 function UnwrappedModal({
-  backdropClassName,
   className,
   children,
   fullScreen = false,
   ...props
-}: React.ComponentProps<typeof LeafyGreenModal> & {
+}: Omit<React.ComponentProps<typeof LeafyGreenModal>, 'backdropClassName'> & {
   fullScreen?: boolean;
 }): React.ReactElement {
-  // NOTE: We supply scrollbar styles to the `Modal` content as
-  // there is currently a bug in `LeafyGreen` with the portal providers
-  // where our top level `portalContainer` we supply to the `LeafyGreenProvider`
-  // in home.tsx is not used by Modals.
-  // Once this issue is fixed we can remove these styles here.
-  const { className: scrollbarStyles } = useScrollbars();
-
   return (
     <LeafyGreenModal
-      backdropClassName={cx(scrollbarStyles, backdropClassName)}
       className={cx(styles, className, {
         [fullScreenStyles]: fullScreen,
       })}
