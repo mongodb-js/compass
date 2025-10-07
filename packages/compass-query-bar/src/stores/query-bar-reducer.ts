@@ -52,7 +52,7 @@ type QueryBarState = {
 
 export const INITIAL_STATE: QueryBarState = {
   isReadonlyConnection: false,
-  fields: mapQueryToFormFields({}, DEFAULT_FIELD_VALUES),
+  fields: mapQueryToFormFields({ maxTimeMSEnvLimit: 0 }, DEFAULT_FIELD_VALUES),
   expanded: false,
   serverVersion: '3.6.0',
   lastAppliedQuery: { source: null, query: {} },
@@ -103,6 +103,7 @@ export const changeField = (
   return (dispatch, getState, { preferences }) => {
     const parsedValue = validateField(name, stringValue, {
       maxTimeMS: preferences.getPreferences().maxTimeMS ?? undefined,
+      maxTimeMSEnvLimit: preferences.getPreferences().maxTimeMSEnvLimit,
     });
     const isValid = parsedValue !== false;
     dispatch({
@@ -162,7 +163,7 @@ export const resetQuery = (
       return false;
     }
     const fields = mapQueryToFormFields(
-      { maxTimeMS: preferences.getPreferences().maxTimeMS },
+      preferences.getPreferences(),
       DEFAULT_FIELD_VALUES
     );
     dispatch({ type: QueryBarActions.ResetQuery, fields, source });
@@ -179,10 +180,7 @@ export const setQuery = (
   query: BaseQuery
 ): QueryBarThunkAction<void, SetQueryAction> => {
   return (dispatch, getState, { preferences }) => {
-    const fields = mapQueryToFormFields(
-      { maxTimeMS: preferences.getPreferences().maxTimeMS },
-      query
-    );
+    const fields = mapQueryToFormFields(preferences.getPreferences(), query);
     dispatch({ type: QueryBarActions.SetQuery, fields });
   };
 };
@@ -238,14 +236,11 @@ export const applyFromHistory = (
       }
       return acc;
     }, {});
-    const fields = mapQueryToFormFields(
-      { maxTimeMS: preferences.getPreferences().maxTimeMS },
-      {
-        ...DEFAULT_FIELD_VALUES,
-        ...query,
-        ...currentQuery,
-      }
-    );
+    const fields = mapQueryToFormFields(preferences.getPreferences(), {
+      ...DEFAULT_FIELD_VALUES,
+      ...query,
+      ...currentQuery,
+    });
     dispatch({
       type: QueryBarActions.ApplyFromHistory,
       fields,
