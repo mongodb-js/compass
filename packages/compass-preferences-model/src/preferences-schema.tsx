@@ -21,7 +21,7 @@ export type THEMES = (typeof THEMES_VALUES)[number];
 
 const enableDbAndCollStatsDescription: React.ReactNode = (
   <>
-    The{' '}
+    When enabled, Compass occasionally calls the{' '}
     <Link href="https://www.mongodb.com/docs/manual/reference/command/dbStats/#mongodb-dbcommand-dbcmd.dbStats">
       dbStats
     </Link>
@@ -29,7 +29,7 @@ const enableDbAndCollStatsDescription: React.ReactNode = (
     <Link href="https://www.mongodb.com/docs/manual/reference/command/collStats/">
       collStats
     </Link>{' '}
-    command return storage statistics for a given database or collection.
+    commands to access storage statistics for a given database or collection.
     Disabling this setting can help reduce Compass&apos; overhead on your
     MongoDB deployments.
   </>

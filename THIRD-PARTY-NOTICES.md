@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **Mongodb Compass**.
-This document was automatically generated on Sun Oct 05 2025.
+This document was automatically generated on Tue Oct 07 2025.
 
 ## List of dependencies
 
@@ -535,7 +535,7 @@ This document was automatically generated on Sun Oct 05 2025.
 | **[tunnel-agent](#09f746d17a1777efda5a12a6072da10c6820d7f56ea8aa0af202a2c83d6ccb67)**                                       | 0.6.0        | Apache-2.0                          |
 | **[tweetnacl](#496caef692284d7a5d6acd31283b785ebca47d82b2d85c9af7ea1913bb4b49a8)**                                          | 0.14.5       | Unlicense                           |
 | **[type-is](#4826b8bc816d5627e521607ab8df332add6d9dd0634bdf34c73473d2bb15900e)**                                            | 2.0.1        | MIT                                 |
-| **[typescript](#0d7c73afc2d40aadc1fe27e650c887e6552f535cb6cd76912b3290cf78eecb4e)**                                         | 5.9.2        | Apache-2.0                          |
+| **[typescript](#44bd9e04e2c25408450ce177acdc7deba1762976cc26b3635ba3003d10f91589)**                                         | 5.9.3        | Apache-2.0                          |
 | **[unified](#1057cb75b5de167b6a4f09619b14f32f3249236942408e06d520f9f60d44def7)**                                            | 10.1.2       | MIT                                 |
 | **[unist-util-generated](#384eae97d41fb95170618763917d7bf8404e7cfafa59c4b02b21166f31cac86c)**                               | 2.0.1        | MIT                                 |
 | **[unist-util-is](#d4d7a620dba27154bcfa90fe9ce5abd1d5707149899214b5f3e5d8c65f3b7f2d)**                                      | 5.2.1        | MIT                                 |
@@ -39794,9 +39794,9 @@ License files:
       TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
       SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-<a id="0d7c73afc2d40aadc1fe27e650c887e6552f535cb6cd76912b3290cf78eecb4e"></a>
+<a id="44bd9e04e2c25408450ce177acdc7deba1762976cc26b3635ba3003d10f91589"></a>
 
-### [typescript](https://www.npmjs.com/package/typescript) (version 5.9.2)
+### [typescript](https://www.npmjs.com/package/typescript) (version 5.9.3)
 
 License tags: Apache-2.0
 

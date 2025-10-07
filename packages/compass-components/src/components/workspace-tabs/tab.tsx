@@ -236,6 +236,7 @@ function Tab({
       return darkMode ? tabDarkThemeStyles : tabLightThemeStyles;
     }
 
+    // eslint-disable-next-line @mongodb-js/compass/no-inline-emotion-css
     return css(tabTheme);
   }, [tabTheme, darkMode]);
 
