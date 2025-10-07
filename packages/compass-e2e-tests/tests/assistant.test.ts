@@ -9,6 +9,7 @@ import {
   screenshotIfFailed,
   skipForWeb,
   TEST_COMPASS_WEB,
+  DEFAULT_CONNECTION_NAME_1,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
@@ -393,6 +394,182 @@ describe('MongoDB Assistant', function () {
       expect(await thumbsDownButtonAfter.getAttribute('aria-checked')).to.equal(
         'true'
       );
+    });
+  });
+
+  describe('entry points', function () {
+    const dbName = 'test';
+    const collectionName = 'entryPoints';
+    before(async function () {
+      await browser.setupDefaultConnections();
+      await browser.connectToDefaults();
+      await browser.selectConnectionMenuItem(
+        DEFAULT_CONNECTION_NAME_1,
+        Selectors.CreateDatabaseButton,
+        false
+      );
+      await browser.addDatabase(dbName, collectionName);
+    });
+
+    describe('explain plan entry point', function () {
+      let useExplainPlanEntryPoint: () => Promise<void>;
+
+      before(async function () {
+        await browser.navigateToCollectionTab(
+          DEFAULT_CONNECTION_NAME_1,
+          dbName,
+          collectionName,
+          'Aggregations'
+        );
+        await setAIOptIn(browser, true);
+        await setAIFeatures(browser, true);
+
+        mockAssistantServer.setResponse({
+          status: 200,
+          body: 'You should create an index.',
+        });
+      });
+
+      beforeEach(function () {
+        useExplainPlanEntryPoint = async () => {
+          // Open explain plan modal by clicking the explain button
+          const explainButton = browser.$(Selectors.AggregationExplainButton);
+          await explainButton.waitForDisplayed();
+          await explainButton.click();
+
+          // Wait for the explain plan modal to open and finish loading
+          const explainModal = browser.$(Selectors.AggregationExplainModal);
+          await explainModal.waitForDisplayed();
+
+          // Wait for the explain plan to be ready (loader should disappear)
+          const explainLoader = browser.$(Selectors.ExplainLoader);
+          await explainLoader.waitForDisplayed({
+            reverse: true,
+            timeout: 10000,
+          });
+
+          // Click the "Interpret for me" button
+          const interpretButton = browser.$(
+            Selectors.ExplainPlanInterpretButton
+          );
+          await interpretButton.waitForDisplayed();
+          await interpretButton.click();
+
+          // The modal should close
+          await explainModal.waitForDisplayed({ reverse: true });
+
+          // The assistant drawer should open
+          const assistantDrawer = browser.$(Selectors.SideDrawer);
+          await assistantDrawer.waitForDisplayed();
+        };
+      });
+
+      it('opens assistant with explain plan prompt when clicking "Interpret for me"', async function () {
+        await useExplainPlanEntryPoint();
+
+        const confirmButton = browser.$('button*=Confirm');
+        await confirmButton.waitForDisplayed();
+        await confirmButton.click();
+
+        await browser.pause(100);
+
+        const messages = await getDisplayedMessages();
+        expect(messages).deep.equal([
+          { text: 'Interpret this explain plan output for me.', role: 'user' },
+          { text: 'You should create an index.', role: 'assistant' },
+        ]);
+
+        expect(mockAssistantServer.getRequests()).to.have.lengthOf(1);
+      });
+
+      it('does not send request when user cancels confirmation', async function () {
+        // Navigate to collection Aggregations tab
+        await browser.navigateToCollectionTab(
+          DEFAULT_CONNECTION_NAME_1,
+          dbName,
+          collectionName,
+          'Aggregations'
+        );
+
+        await useExplainPlanEntryPoint();
+
+        const chatMessages = browser.$(Selectors.AssistantChatMessages);
+        await chatMessages.waitForDisplayed();
+        expect(await chatMessages.getText()).to.include(
+          'Please confirm your request'
+        );
+
+        // Click Cancel button
+        const cancelButton = browser.$('button*=Cancel');
+        await cancelButton.waitForDisplayed();
+        await cancelButton.click();
+
+        // Wait a bit to ensure no request is sent
+        await browser.pause(300);
+
+        const finalMessages = await getDisplayedMessages();
+        expect(finalMessages.length).to.equal(0);
+
+        expect(await chatMessages.getText()).to.include(
+          'Please confirm your request'
+        );
+        expect(await chatMessages.getText()).to.include('Request cancelled');
+
+        // Verify no assistant request was made
+        expect(mockAssistantServer.getRequests()).to.be.empty;
+      });
+    });
+
+    describe('error message view entry point', function () {
+      let useErrorViewEntryPoint: () => Promise<void>;
+      before(async function () {
+        await setAIOptIn(browser, true);
+
+        mockAssistantServer.setResponse({
+          status: 200,
+          body: 'You should review the connection string.',
+        });
+        useErrorViewEntryPoint = async () => {
+          const connectionToastErrorDebugButton = browser.$(
+            Selectors.ConnectionToastErrorDebugButton
+          );
+          await connectionToastErrorDebugButton.waitForDisplayed();
+          await connectionToastErrorDebugButton.click();
+        };
+      });
+
+      it('opens assistant with error message view prompt when clicking "Debug for me"', async function () {
+        void (await browser.connectWithConnectionString(
+          'mongodb-invalid://localhost:27017'
+        ));
+        await useErrorViewEntryPoint();
+
+        const messages = await getDisplayedMessages();
+        expect(messages).deep.equal([
+          {
+            text: 'Diagnose why my Compass connection is failing and help me debug it.',
+            role: 'user',
+          },
+          {
+            text: 'You should review the connection string.',
+            role: 'assistant',
+          },
+        ]);
+
+        expect(mockAssistantServer.getRequests()).to.have.lengthOf(1);
+      });
+
+      it('should display opt-in modal when clicking "Debug for me" without opt-in ', async function () {
+        await setAIOptIn(browser, false);
+        void (await browser.connectWithConnectionString(
+          'mongodb-invalid://localhost:27017'
+        ));
+        await useErrorViewEntryPoint();
+
+        const optInModal = browser.$(Selectors.AIOptInModal);
+        await optInModal.waitForDisplayed();
+        expect(await optInModal.isDisplayed()).to.be.true;
+      });
     });
   });
 });
