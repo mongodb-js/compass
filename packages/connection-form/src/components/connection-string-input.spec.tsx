@@ -236,7 +236,11 @@ describe('ConnectionStringInput Component', function () {
         );
 
         // Wait for the modal to close.
-        await waitFor(() => expect(screen.queryByText('Confirm')).to.not.exist);
+        await waitFor(
+          () =>
+            expect(screen.getByText('Confirm').closest('dialog')).to.not.be
+              .displayed
+        );
       });
 
       it('should call setEnableEditingConnectionString', function () {
