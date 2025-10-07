@@ -58,18 +58,24 @@ describe('ContentWithFallback', function () {
       { container }
     );
 
-    expect(container.children.length).to.equal(2);
-    const [contentContainer, contextMenuContainer] = Array.from(
-      container.children
-    );
+    expect(container.children.length).to.equal(3);
+    const [contentContainer, contextMenuContainer, confirmationModal] =
+      Array.from(container.children);
+
     expect(contentContainer.children.length).to.equal(1);
     expect(contextMenuContainer.getAttribute('data-testid')).to.equal(
       'context-menu-container'
     );
+
     const copyPasteContextMenu = contentContainer.children[0];
     expect(copyPasteContextMenu.children.length).to.equal(0);
     expect(copyPasteContextMenu.getAttribute('data-testid')).to.equal(
       'copy-paste-context-menu-container'
+    );
+
+    expect(confirmationModal.getAttribute('data-testid')).to.equal(
+      // TODO: Change to 'confirmation-modal' when https://github.com/mongodb/leafygreen-ui/pull/3183 gets released
+      'lg-confirmation_modal'
     );
   });
 
