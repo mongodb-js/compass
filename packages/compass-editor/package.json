@@ -60,7 +60,7 @@
     "mocha": "^10.2.0",
     "nyc": "^15.1.0",
     "sinon": "^9.2.3",
-    "typescript": "^5.9.2"
+    "typescript": "^5.9.3"
   },
   "dependencies": {
     "@codemirror/autocomplete": "^6.18.6",
@@ -73,7 +73,7 @@
     "@codemirror/view": "^6.38.0",
     "@lezer/highlight": "^1.2.1",
     "@mongodb-js/compass-components": "^1.54.1",
-    "@mongodb-js/mongodb-constants": "^0.14.0",
+    "@mongodb-js/mongodb-constants": "^0.16.0",
     "mongodb-query-parser": "^4.3.0",
     "polished": "^4.2.2",
     "prettier": "^2.7.1",

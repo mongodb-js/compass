@@ -9,6 +9,8 @@ const checkboxStyles = css({
   padding: spacing[100],
 });
 
+const checkboxSelectAllStyles = css({ paddingRight: 0 });
+
 const containerStyles = css({
   display: 'flex',
   flexDirection: 'column',
@@ -87,7 +89,7 @@ export function SelectList<T extends SelectItem>(
     <div className={cx(props.className, containerStyles)}>
       <div className={listHeaderStyles}>
         <Checkbox
-          className={cx(checkboxStyles, css({ paddingRight: 0 }))}
+          className={cx(checkboxStyles, checkboxSelectAllStyles)}
           data-testid="select-list-all-checkbox"
           aria-label="Select all"
           onChange={handleSelectAllChange}

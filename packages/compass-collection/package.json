@@ -60,7 +60,7 @@
     "@mongodb-js/compass-utils": "^0.9.18",
     "@mongodb-js/compass-workspaces": "^0.60.0",
     "@mongodb-js/connection-info": "^0.21.2",
-    "@mongodb-js/mongodb-constants": "^0.14.0",
+    "@mongodb-js/mongodb-constants": "^0.16.0",
     "bson": "^6.10.4",
     "compass-preferences-model": "^2.58.0",
     "hadron-document": "^8.10.4",
@@ -94,7 +94,7 @@
     "nyc": "^15.1.0",
     "react-dom": "^17.0.2",
     "sinon": "^9.2.3",
-    "typescript": "^5.9.2",
+    "typescript": "^5.9.3",
     "xvfb-maybe": "^0.2.1"
   },
   "is_compass_plugin": true
