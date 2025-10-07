@@ -208,7 +208,9 @@ export const AIOptInModal: React.FunctionComponent<OptInModalProps> = ({
       onClose={handleModalClose}
       data-testid="ai-optin-modal"
       // TODO Button Disabling
-      className={!isProjectAIEnabled ? currentDisabledButtonStyles : undefined}
+      backdropClassName={
+        !isProjectAIEnabled ? currentDisabledButtonStyles : undefined
+      }
       buttonProps={{
         children: 'Use AI Features',
         onClick: onConfirmClick,
