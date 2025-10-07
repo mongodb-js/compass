@@ -376,8 +376,6 @@ class CompassWindowManager {
     ipcMain?.handle('compass:maximize', () => {
       const first = BrowserWindow.getAllWindows()[0];
       first.maximize();
-      // Save the maximized state
-      void saveWindowBounds(first, compassApp);
     });
 
     await electronApp.whenReady();
