@@ -7,7 +7,6 @@ import {
   init,
   cleanup,
   screenshotIfFailed,
-  skipForWeb,
   TEST_COMPASS_WEB,
   DEFAULT_CONNECTION_NAME_1,
 } from '../helpers/compass';
@@ -146,15 +145,12 @@ describe('MongoDB Assistant', function () {
 
       const drawerButton = browser.$(Selectors.AssistantDrawerButton);
       await drawerButton.waitForDisplayed({ reverse: true });
-      expect(await drawerButton.isDisplayed()).to.be.false;
 
       await setAIFeatures(browser, true);
     });
 
     it('can close and open the assistant drawer', async function () {
       await openAssistantDrawer(browser);
-
-      await browser.$(Selectors.AssistantDrawerCloseButton).waitForDisplayed();
 
       await browser.clickVisible(Selectors.AssistantDrawerCloseButton);
 
