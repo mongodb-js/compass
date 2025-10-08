@@ -7,7 +7,6 @@ import {
   init,
   cleanup,
   screenshotIfFailed,
-  TEST_COMPASS_WEB,
   DEFAULT_CONNECTION_NAME_1,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
@@ -40,10 +39,7 @@ describe('MongoDB Assistant', function () {
   before(async function () {
     process.env.COMPASS_E2E_SKIP_ATLAS_SIGNIN = 'true';
 
-    // Start a mock Atlas service for feature flag checks
     mockAtlasServer = await startMockAtlasServiceServer();
-
-    // Start a mock Assistant server for AI chat responses
     mockAssistantServer = await startMockAssistantServer();
 
     process.env.COMPASS_ATLAS_SERVICE_UNAUTH_BASE_URL_OVERRIDE =
@@ -82,10 +78,14 @@ describe('MongoDB Assistant', function () {
             const newMessages = await getDisplayedMessages(browser);
             return (
               newMessages.length > existingMessages.length &&
-              newMessages.includes({
-                text: response?.body,
-                role: 'user',
-              })
+              newMessages.some(
+                (message) =>
+                  message.text === response?.body &&
+                  message.role === 'assistant'
+              ) &&
+              newMessages.some(
+                (message) => message.text === text && message.role === 'user'
+              )
             );
           });
           break;
@@ -256,7 +256,7 @@ describe('MongoDB Assistant', function () {
     });
 
     it('sends the message if the user opts in', async function () {
-      await sendMessage(testMessage);
+      await sendMessage(testMessage, { expectedResult: 'opt-in' });
 
       const optInModal = browser.$(Selectors.AIOptInModal);
       await optInModal.waitForDisplayed();
@@ -291,9 +291,9 @@ describe('MongoDB Assistant', function () {
       });
 
       it('should clear the chat when the user clicks the clear chat button', async function () {
-        await openAssistantDrawer(browser);
         await sendMessage(testMessage);
         await sendMessage(testMessage);
+
         expect(await getDisplayedMessages(browser)).to.deep.equal([
           { text: testMessage, role: 'user' },
           { text: testResponse, role: 'assistant' },
