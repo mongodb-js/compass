@@ -30,6 +30,7 @@ describe('MongoDB Assistant', function () {
     }
   ) => Promise<void>;
   let setAIOptIn: (newValue: boolean) => Promise<void>;
+  let setAIFeatures: (newValue: boolean) => Promise<void>;
 
   const testMessage = 'What is MongoDB?';
   const testResponse = 'MongoDB is a database.';
@@ -115,6 +116,23 @@ describe('MongoDB Assistant', function () {
       );
     };
 
+    setAIFeatures = async (newValue: boolean) => {
+      const currentValue = await browser.getFeature('enableGenAIFeatures');
+      if (currentValue === newValue) {
+        return;
+      }
+
+      await browser.setFeature('enableGenAIFeatures', newValue);
+
+      if (newValue) {
+        await browser.$(Selectors.AssistantDrawerButton).waitForDisplayed();
+      } else {
+        await browser.$(Selectors.AssistantDrawerButton).waitForDisplayed({
+          reverse: true,
+        });
+      }
+    };
+
     setAIOptIn = async (newValue: boolean) => {
       if (
         (await browser.getFeature('optInGenAIFeatures')) === true &&
@@ -154,7 +172,7 @@ describe('MongoDB Assistant', function () {
 
   describe('drawer visibility', function () {
     it('shows the assistant drawer button when AI features are enabled', async function () {
-      await setAIFeatures(browser, true);
+      await setAIFeatures(true);
 
       const drawerButton = browser.$(Selectors.AssistantDrawerButton);
       await drawerButton.waitForDisplayed();
@@ -162,12 +180,12 @@ describe('MongoDB Assistant', function () {
     });
 
     it('does not show the assistant drawer button when AI features are disabled', async function () {
-      await setAIFeatures(browser, false);
+      await setAIFeatures(false);
 
       const drawerButton = browser.$(Selectors.AssistantDrawerButton);
       await drawerButton.waitForDisplayed({ reverse: true });
 
-      await setAIFeatures(browser, true);
+      await setAIFeatures(true);
     });
 
     it('can close and open the assistant drawer', async function () {
@@ -385,7 +403,7 @@ describe('MongoDB Assistant', function () {
       describe('explain plan entry point', function () {
         before(async function () {
           await setAIOptIn(true);
-          await setAIFeatures(browser, true);
+          await setAIFeatures(true);
 
           mockAssistantServer.setResponse({
             status: 200,
@@ -480,33 +498,6 @@ describe('MongoDB Assistant', function () {
     });
   });
 });
-
-async function setAIFeatures(browser: CompassBrowser, newValue: boolean) {
-  await browser.openSettingsModal('ai');
-
-  await browser
-    .$(Selectors.ArtificialIntelligenceSettingsContent)
-    .waitForDisplayed();
-
-  const currentValue =
-    (await browser
-      .$(Selectors.SettingsInputElement('enableGenAIFeatures'))
-      .getAttribute('aria-checked')) === 'true';
-
-  if (currentValue !== newValue) {
-    await browser.clickParent(
-      Selectors.SettingsInputElement('enableGenAIFeatures')
-    );
-    await browser.clickVisible(Selectors.SaveSettingsButton);
-  }
-
-  const closeButton = browser.$(Selectors.CloseSettingsModalButton);
-  await closeButton.waitForClickable();
-  await closeButton.click();
-  await closeButton.waitForDisplayed({
-    reverse: true,
-  });
-}
 
 async function openAssistantDrawer(browser: CompassBrowser) {
   await browser.clickVisible(Selectors.AssistantDrawerButton);
