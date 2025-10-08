@@ -127,6 +127,14 @@ describe('MongoDB Assistant', function () {
 
       await browser.setFeature('enableGenAIFeatures', newValue);
 
+      // On compass-web, we need to set additional settings for the assistant to work
+      if (isTestingWeb()) {
+        await browser.setFeature('enableGenAIFeaturesAtlasOrg', newValue);
+        await browser.setFeature('cloudFeatureRolloutAccess', {
+          GEN_AI_COMPASS: newValue,
+        });
+      }
+
       if (newValue) {
         await browser.$(Selectors.AssistantDrawerButton).waitForDisplayed();
       } else {
