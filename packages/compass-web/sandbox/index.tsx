@@ -37,6 +37,9 @@ function getMetaEl(name: string) {
 const App = () => {
   const [currentTab, updateCurrentTab] = useWorkspaceTabRouter();
   const { status, projectParams } = useAtlasProxySignIn();
+
+  const forceEnableAI = process.env.COMPASS_WEB_FORCE_ENABLE_AI === 'true';
+
   const {
     projectId,
     csrfToken,
@@ -111,12 +114,17 @@ const App = () => {
               enableRollingIndexes: isAtlas,
               showDisabledConnections: true,
               enableGenAIFeaturesAtlasProject:
-                isAtlas && !!enableGenAIFeaturesAtlasProject,
+                forceEnableAI || (isAtlas && !!enableGenAIFeaturesAtlasProject),
               enableGenAISampleDocumentPassing:
-                isAtlas && !!enableGenAISampleDocumentPassing,
+                forceEnableAI ||
+                (isAtlas && !!enableGenAISampleDocumentPassing),
               enableGenAIFeaturesAtlasOrg:
-                isAtlas && !!enableGenAIFeaturesAtlasOrg,
-              optInGenAIFeatures: isAtlas && !!optInGenAIFeatures,
+                forceEnableAI || (isAtlas && !!enableGenAIFeaturesAtlasOrg),
+              optInGenAIFeatures:
+                forceEnableAI || (isAtlas && !!optInGenAIFeatures),
+              cloudFeatureRolloutAccess: forceEnableAI
+                ? { GEN_AI_COMPASS: true }
+                : undefined,
               enableDataModeling: true,
               enableMyQueries: false,
               ...groupRolePreferences,

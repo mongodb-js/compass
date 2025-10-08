@@ -128,19 +128,25 @@ export function useAtlasProxySignIn(): AtlasLoginReturnValue {
             featureFlags: { groupEnabledFeatureFlags },
             userRoles,
           } = params;
+          const forceEnableAI =
+            process.env.COMPASS_WEB_FORCE_ENABLE_AI === 'true';
           setProjectParams({
             projectId,
             csrfToken,
             csrfTime,
-            optInGenAIFeatures: isOptedIntoDataExplorerGenAIFeatures,
-            enableGenAIFeaturesAtlasOrg: genAIFeaturesEnabled,
+            optInGenAIFeatures:
+              forceEnableAI || isOptedIntoDataExplorerGenAIFeatures,
+            enableGenAIFeaturesAtlasOrg: forceEnableAI || genAIFeaturesEnabled,
             enableGenAISampleDocumentPassing:
+              forceEnableAI ||
               !groupEnabledFeatureFlags.includes(
                 'DISABLE_DATA_EXPLORER_GEN_AI_SAMPLE_DOCUMENT_PASSING'
               ),
-            enableGenAIFeaturesAtlasProject: groupEnabledFeatureFlags.includes(
-              'ENABLE_DATA_EXPLORER_GEN_AI_FEATURES'
-            ),
+            enableGenAIFeaturesAtlasProject:
+              forceEnableAI ||
+              groupEnabledFeatureFlags.includes(
+                'ENABLE_DATA_EXPLORER_GEN_AI_FEATURES'
+              ),
             userRoles,
           });
           setStatus('signed-in');

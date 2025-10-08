@@ -140,6 +140,7 @@ function sendStreamingResponse(res: http.ServerResponse, content: string) {
   sendChunk();
 }
 
+export const MOCK_ASSISTANT_SERVER_PORT = 27097;
 export async function startMockAssistantServer(
   {
     response: _response,
@@ -170,6 +171,20 @@ export async function startMockAssistantServer(
   let response = _response;
   const server = http
     .createServer((req, res) => {
+      res.setHeader('Access-Control-Allow-Origin', '*');
+      res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+      res.setHeader(
+        'Access-Control-Allow-Headers',
+        'Content-Type, Authorization, X-Request-Origin, User-Agent'
+      );
+
+      // Handle preflight requests
+      if (req.method === 'OPTIONS') {
+        res.writeHead(200);
+        res.end();
+        return;
+      }
+
       // Only handle POST requests for chat completions
       if (req.method !== 'POST') {
         res.writeHead(404);
@@ -207,7 +222,7 @@ export async function startMockAssistantServer(
           return sendStreamingResponse(res, response.body);
         });
     })
-    .listen(0);
+    .listen(MOCK_ASSISTANT_SERVER_PORT);
   await once(server, 'listening');
 
   // address() returns either a string or AddressInfo.

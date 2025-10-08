@@ -8,13 +8,22 @@ import {
   cleanup,
   screenshotIfFailed,
   DEFAULT_CONNECTION_NAME_1,
+  skipForWeb,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
 import { startMockAtlasServiceServer } from '../helpers/atlas-service';
-import { startMockAssistantServer } from '../helpers/assistant-service';
+import {
+  MOCK_ASSISTANT_SERVER_PORT,
+  startMockAssistantServer,
+} from '../helpers/assistant-service';
 import type { MockAssistantResponse } from '../helpers/assistant-service';
 import { isTestingWeb } from '../helpers/test-runner-context';
+
+if (isTestingWeb()) {
+  process.env.COMPASS_WEB_FORCE_ENABLE_AI = 'true';
+  process.env.COMPASS_ASSISTANT_BASE_URL_OVERRIDE = `http://localhost:${MOCK_ASSISTANT_SERVER_PORT}`;
+}
 
 describe('MongoDB Assistant', function () {
   let compass: Compass;
@@ -39,15 +48,11 @@ describe('MongoDB Assistant', function () {
   const collectionName = 'entryPoints';
 
   before(async function () {
-    process.env.COMPASS_E2E_SKIP_ATLAS_SIGNIN = 'true';
-
     mockAtlasServer = await startMockAtlasServiceServer();
     mockAssistantServer = await startMockAssistantServer();
 
     process.env.COMPASS_ATLAS_SERVICE_UNAUTH_BASE_URL_OVERRIDE =
       mockAtlasServer.endpoint;
-    process.env.COMPASS_ASSISTANT_BASE_URL_OVERRIDE =
-      mockAssistantServer.endpoint;
 
     telemetry = await startTelemetryServer();
     compass = await init(this.test?.fullTitle());
@@ -127,14 +132,6 @@ describe('MongoDB Assistant', function () {
 
       await browser.setFeature('enableGenAIFeatures', newValue);
 
-      // On compass-web, we need to set additional settings for the assistant to work
-      if (isTestingWeb()) {
-        await browser.setFeature('enableGenAIFeaturesAtlasOrg', newValue);
-        await browser.setFeature('cloudFeatureRolloutAccess', {
-          GEN_AI_COMPASS: newValue,
-        });
-      }
-
       if (newValue) {
         await browser.$(Selectors.AssistantDrawerButton).waitForDisplayed();
       } else {
@@ -152,7 +149,7 @@ describe('MongoDB Assistant', function () {
       ) {
         await cleanup(compass);
         // Reseting the opt-in to false can be tricky so it's best to start over in this case.
-        compass = await init(this.test?.fullTitle(), { firstRun: false });
+        compass = await init(this.test?.fullTitle(), { firstRun: true });
         await setup();
         return;
       }
@@ -167,9 +164,7 @@ describe('MongoDB Assistant', function () {
     await mockAtlasServer.stop();
     await mockAssistantServer.stop();
 
-    delete process.env.COMPASS_E2E_SKIP_ATLAS_SIGNIN;
     delete process.env.COMPASS_ATLAS_SERVICE_UNAUTH_BASE_URL_OVERRIDE;
-    delete process.env.COMPASS_ASSISTANT_BASE_URL_OVERRIDE;
 
     await cleanup(compass);
     await telemetry.stop();
@@ -217,6 +212,10 @@ describe('MongoDB Assistant', function () {
 
   describe('before opt-in', function () {
     before(async function () {
+      skipForWeb(
+        this,
+        'E2E testing for opt-in on compass-web is not yet implemented'
+      );
       await setAIOptIn(false);
     });
 
@@ -281,6 +280,10 @@ describe('MongoDB Assistant', function () {
 
   describe('opting in', function () {
     before(async function () {
+      skipForWeb(
+        this,
+        'E2E testing for opt-in on compass-web is not yet implemented'
+      );
       await setAIOptIn(false);
       await openAssistantDrawer(browser);
     });
