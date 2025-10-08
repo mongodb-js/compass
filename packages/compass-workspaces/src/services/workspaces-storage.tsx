@@ -4,51 +4,61 @@ import {
   type ReadAllResult,
   z,
 } from '@mongodb-js/compass-user-data';
-import React, { useContext, useRef } from 'react';
+import React, { useContext } from 'react';
+import { collectionSubtabValues } from '../types';
 
-/**
- * Schema for saving workspace tab state to user data
- */
+const CollectionSubtabSchema = z.enum(collectionSubtabValues);
 
-// Define schema for collection subtab
-const CollectionSubtabSchema = z.enum([
-  'Documents',
-  'Aggregations',
-  'Schema',
-  'Indexes',
-  'Validation',
-  'GlobalWrites',
-]);
+export const WorkspaceTabSchema = z
+  .discriminatedUnion('type', [
+    z.object({
+      type: z.literal('Welcome'),
+    }),
+    z.object({
+      type: z.literal('My Queries'),
+    }),
+    z.object({
+      type: z.literal('Data Modeling'),
+    }),
+    z.object({
+      type: z.literal('Databases'),
+      connectionId: z.string(),
+    }),
+    z.object({
+      type: z.literal('Performance'),
+      connectionId: z.string(),
+    }),
+    z.object({
+      type: z.literal('Shell'),
+      connectionId: z.string(),
+      initialEvaluate: z.union([z.string(), z.array(z.string())]).optional(),
+      initialInput: z.string().optional(),
+    }),
+    z.object({
+      type: z.literal('Collections'),
+      connectionId: z.string(),
+      namespace: z.string(),
+      inferredFromPrivileges: z.boolean().optional(),
+    }),
+    z.object({
+      type: z.literal('Collection'),
+      subTab: CollectionSubtabSchema,
+      initialQuery: z.record(z.any()).optional(),
+      initialPipeline: z.array(z.record(z.any())).optional(),
+      initialPipelineText: z.string().optional(),
+      initialAggregation: z.record(z.any()).optional(),
+      editViewName: z.string().optional(),
+      connectionId: z.string(),
+      namespace: z.string(),
+      inferredFromPrivileges: z.boolean().optional(),
+    }),
+  ])
+  .and(
+    z.object({
+      id: z.string(),
+    })
+  );
 
-// Define schema for workspace tab type
-const WorkspaceTabTypeSchema = z.enum([
-  'Welcome',
-  'My Queries',
-  'Data Modeling',
-  'Shell',
-  'Databases',
-  'Performance',
-  'Collections',
-  'Collection',
-]);
-
-// Define schema for a workspace tab
-export const WorkspaceTabSchema = z.object({
-  id: z.string(),
-  type: WorkspaceTabTypeSchema,
-  connectionId: z.string().optional(),
-  namespace: z.string().optional(),
-  initialQuery: z.record(z.any()).optional(),
-  initialAggregation: z.record(z.any()).optional(),
-  initialPipeline: z.array(z.record(z.any())).optional(),
-  initialPipelineText: z.string().optional(),
-  editViewName: z.string().optional(),
-  initialEvaluate: z.union([z.string(), z.array(z.string())]).optional(),
-  initialInput: z.string().optional(),
-  subTab: CollectionSubtabSchema.optional(),
-});
-
-// Define schema for the complete workspaces state
 export const WorkspacesStateSchema = z.object({
   tabs: z.array(WorkspaceTabSchema),
   activeTabId: z.string().nullable(),

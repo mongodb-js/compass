@@ -1,6 +1,9 @@
 import type { Middleware, AnyAction } from 'redux';
 import type { WorkspacesState } from './workspaces';
-import type { WorkspacesStateData } from '../services/workspaces-storage';
+import type {
+  WorkspacesStateData,
+  WorkspaceTabData,
+} from '../services/workspaces-storage';
 import type { WorkspacesServices } from '..';
 import { mongoLogId } from '@mongodb-js/compass-logging/provider';
 
@@ -50,69 +53,72 @@ async function saveWorkspaceStateToUserData(
     // Transform the state to the format we want to save
     const stateToSave: WorkspacesStateData = {
       tabs: state.tabs.map((tab) => {
-        const baseTab = {
-          id: tab.id,
-          type: tab.type,
-        };
+        const { type, id } = tab;
 
-        // Add optional fields conditionally
-        const result: WorkspacesStateData['tabs'][0] = { ...baseTab };
-
-        if ('connectionId' in tab && tab.connectionId) {
-          result.connectionId = tab.connectionId;
-        }
-        if ('namespace' in tab && tab.namespace) {
-          result.namespace = tab.namespace;
-        }
-        if ('initialQuery' in tab && tab.initialQuery) {
-          // Store as record, accepting unknown format
-          result.initialQuery = tab.initialQuery as Record<string, unknown>;
-        }
-        if ('initialAggregation' in tab && tab.initialAggregation) {
-          result.initialAggregation = tab.initialAggregation as Record<
-            string,
-            unknown
-          >;
-        }
-        if ('initialPipeline' in tab && tab.initialPipeline) {
-          result.initialPipeline = tab.initialPipeline as Array<
-            Record<string, unknown>
-          >;
-        }
-        if ('initialPipelineText' in tab && tab.initialPipelineText) {
-          result.initialPipelineText = tab.initialPipelineText;
-        }
-        if ('editViewName' in tab && tab.editViewName) {
-          result.editViewName = tab.editViewName;
-        }
-        if ('initialEvaluate' in tab && tab.initialEvaluate) {
-          result.initialEvaluate = tab.initialEvaluate;
-        }
-        if ('initialInput' in tab && tab.initialInput) {
-          result.initialInput = tab.initialInput;
-        }
-        if ('subTab' in tab && tab.subTab) {
-          // Validate that subTab is one of the allowed values
-          const validSubTabs = [
-            'Documents',
-            'Aggregations',
-            'Schema',
-            'Indexes',
-            'Validation',
-            'GlobalWrites',
-          ];
-          if (validSubTabs.includes(tab.subTab as string)) {
-            result.subTab = tab.subTab as
-              | 'Documents'
-              | 'Aggregations'
-              | 'Schema'
-              | 'Indexes'
-              | 'Validation'
-              | 'GlobalWrites';
+        switch (type) {
+          case 'Welcome':
+          case 'My Queries':
+          case 'Data Modeling':
+            return { id, type };
+          case 'Databases':
+          case 'Performance':
+            return {
+              id,
+              type,
+              connectionId: tab.connectionId,
+            };
+          case 'Collections':
+            return {
+              id,
+              type,
+              connectionId: tab.connectionId,
+              namespace: tab.namespace,
+            };
+          case 'Shell': {
+            const result: WorkspaceTabData = {
+              id,
+              type,
+              connectionId: tab.connectionId,
+            };
+            if ('initialEvaluate' in tab) {
+              result.initialEvaluate = tab.initialEvaluate;
+            }
+            if ('initialInput' in tab) {
+              result.initialInput = tab.initialInput;
+            }
+            return result;
+          }
+          case 'Collection': {
+            const result: WorkspaceTabData = {
+              id,
+              type,
+              connectionId: tab.connectionId,
+              namespace: tab.namespace,
+              subTab: tab.subTab,
+            };
+            if ('initialQuery' in tab) {
+              result.initialQuery = tab.initialQuery as Record<string, unknown>;
+            }
+            if ('initialAggregation' in tab) {
+              result.initialAggregation = tab.initialAggregation as Record<
+                string,
+                unknown
+              >;
+            }
+            if ('editViewName' in tab) {
+              result.editViewName = tab.editViewName;
+            }
+            if ('initialPipeline' in tab) {
+              result.initialPipeline = tab.initialPipeline as Array<
+                Record<string, unknown>
+              >;
+            }
+            if ('initialPipelineText' in tab) {
+              result.initialPipelineText = tab.initialPipelineText;
+            }
+            return result;
           }
         }
-
-        return result;
       }),
       activeTabId: state.activeTabId,
       timestamp: Date.now(),
