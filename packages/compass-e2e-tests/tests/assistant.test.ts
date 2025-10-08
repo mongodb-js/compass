@@ -134,10 +134,6 @@ describe('MongoDB Assistant', function () {
   });
 
   after(async function () {
-    if (TEST_COMPASS_WEB) {
-      return;
-    }
-
     await mockAtlasServer.stop();
     await mockAssistantServer.stop();
 
