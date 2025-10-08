@@ -23,10 +23,10 @@
     "dist"
   ],
   "license": "SSPL",
-  "main": "dist/index.js",
+  "main": "dist/compass-web.mjs",
   "compass:main": "src/index.tsx",
   "exports": {
-    ".": "./dist/index.js",
+    ".": "./dist/compass-web.mjs",
     "./package.json": "./package.json"
   },
   "compass:exports": {
