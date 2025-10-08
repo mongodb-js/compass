@@ -281,7 +281,7 @@ function processType(
     // Primitive: Create entry
     const fieldInfo: FieldInfo = {
       type: type.name,
-      sample_values: type.values
+      sampleValues: type.values
         .slice(0, MAX_SAMPLE_VALUES)
         .map(convertBSONToPrimitive),
       probability: fieldProbability,
