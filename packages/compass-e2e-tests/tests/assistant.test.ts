@@ -38,8 +38,6 @@ describe('MongoDB Assistant', function () {
   const collectionName = 'entryPoints';
 
   before(async function () {
-    skipForWeb(this, 'ai assistant not yet available in compass-web');
-
     process.env.COMPASS_E2E_SKIP_ATLAS_SIGNIN = 'true';
 
     // Start a mock Atlas service for feature flag checks
@@ -55,7 +53,6 @@ describe('MongoDB Assistant', function () {
 
     telemetry = await startTelemetryServer();
     compass = await init(this.test?.fullTitle());
-    browser = compass.browser;
 
     sendMessage = async (
       text: string,
@@ -75,34 +72,41 @@ describe('MongoDB Assistant', function () {
       await submitButton.click();
     };
 
+    const setup = async () => {
+      browser = compass.browser;
+      await browser.setupDefaultConnections();
+      await browser.connectToDefaults();
+      await browser.selectConnectionMenuItem(
+        DEFAULT_CONNECTION_NAME_1,
+        Selectors.CreateDatabaseButton,
+        false
+      );
+      await browser.addDatabase(dbName, collectionName);
+
+      await browser.navigateToCollectionTab(
+        DEFAULT_CONNECTION_NAME_1,
+        dbName,
+        collectionName,
+        'Aggregations'
+      );
+    };
+
     setAIOptIn = async (newValue: boolean) => {
       if (
         (await browser.getFeature('optInGenAIFeatures')) === true &&
         newValue === false
       ) {
+        await cleanup(compass);
         // Reseting the opt-in to false can be tricky so it's best to start over in this case.
-        compass = await init(this.test?.fullTitle(), { firstRun: false });
+        compass = await init(this.test?.fullTitle(), { firstRun: true });
+        await setup();
         return;
       }
 
       await browser.setFeature('optInGenAIFeatures', newValue);
     };
 
-    await browser.setupDefaultConnections();
-    await browser.connectToDefaults();
-    await browser.selectConnectionMenuItem(
-      DEFAULT_CONNECTION_NAME_1,
-      Selectors.CreateDatabaseButton,
-      false
-    );
-    await browser.addDatabase(dbName, collectionName);
-
-    await browser.navigateToCollectionTab(
-      DEFAULT_CONNECTION_NAME_1,
-      dbName,
-      collectionName,
-      'Aggregations'
-    );
+    await setup();
   });
 
   after(async function () {
