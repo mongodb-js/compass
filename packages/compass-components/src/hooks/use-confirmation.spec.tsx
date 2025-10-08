@@ -33,8 +33,7 @@ describe('use-confirmation', function () {
       );
       userEvent.click(screen.getByText('Open Modal'));
       await waitFor(() => {
-        // TODO: Change to 'confirmation-modal' when https://github.com/mongodb/leafygreen-ui/pull/3183 gets released
-        modal = screen.getByTestId('lg-confirmation_modal');
+        modal = screen.getByTestId('confirmation-modal');
       });
     });
 
