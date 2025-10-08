@@ -193,6 +193,10 @@ describe('Collection aggregations tab', function () {
       expectedAggregations.push('$rankFusion');
     }
 
+    if (serverSatisfies('>=8.3.0-alpha0')) {
+      expectedAggregations.push('$scoreFusion');
+    }
+
     expectedAggregations.sort();
 
     expect(options).to.deep.equal(expectedAggregations);
