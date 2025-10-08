@@ -5,6 +5,20 @@ import type { WorkspacesServices } from '..';
 import { mongoLogId } from '@mongodb-js/compass-logging/provider';
 
 /**
+ * Debounced handler to save the workspaces state.
+ */
+const handleWorkspacesStateChange = (() => {
+  let timeoutId: NodeJS.Timeout;
+  return (state: WorkspacesState, services: WorkspacesServices) => {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => {
+      // Fire and forget - don't await to avoid blocking the action
+      void saveWorkspaceStateToUserData(state, services);
+    }, 250);
+  };
+})();
+
+/**
  * Middleware that runs a callback whenever the workspaces state changes.
  * This allows you to perform side effects when the state is updated.
  */
@@ -18,8 +32,7 @@ export function workspacesStateChangeMiddleware(
 
     // Only call the callback if the workspaces state actually changed
     if (prevState !== nextState) {
-      // Fire and forget - don't await to avoid blocking the action
-      void saveWorkspaceStateToUserData(nextState, services);
+      handleWorkspacesStateChange(nextState, services);
     }
 
     return result;

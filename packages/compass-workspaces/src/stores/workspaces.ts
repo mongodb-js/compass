@@ -1057,7 +1057,6 @@ export const loadSavedWorkspaces = (): WorkspacesThunkAction<
       });
 
       const workspacesToRestore: OpenWorkspaceOptions[] = [];
-      const connectionsToRestore: Map<string, ConnectionInfo> = new Map();
       (confirm
         ? convertSavedStateToOpenWorkspaceOptions(savedState)
         : []
@@ -1073,14 +1072,10 @@ export const loadSavedWorkspaces = (): WorkspacesThunkAction<
             return;
           }
 
-          connectionsToRestore.set(workspace.connectionId, connectionInfo);
+          void connections.connect(connectionInfo);
         }
 
         workspacesToRestore.push(workspace);
-      });
-
-      connectionsToRestore.forEach((connectionInfo) => {
-        void connections.connect(connectionInfo);
       });
 
       dispatch({
