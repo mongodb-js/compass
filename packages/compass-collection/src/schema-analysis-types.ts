@@ -31,11 +31,11 @@ export type SchemaAnalysisErrorState = {
 };
 
 /**
- * Primitive values that can appear in sample_values after BSON-to-primitive conversion.
+ * Primitive values that can appear in sampleValues after BSON-to-primitive conversion.
  * These are the JavaScript primitive equivalents of BSON values.
  */
 export type SampleValue =
-  | string // String, Symbol, ObjectId, Binary, RegExp, Code, etc. (converted to string)
+  | string // String, Symbol, Binary, RegExp, Code, etc. (converted to string)
   | number // Number, Int32, Long, Double, Decimal128, Timestamp (converted via valueOf())
   | boolean
   | Date
@@ -47,7 +47,7 @@ export type SampleValue =
  */
 export interface FieldInfo {
   type: MongoDBFieldType; // MongoDB primitive type
-  sample_values?: SampleValue[]; // Primitive sample values (limited to 10)
+  sampleValues?: SampleValue[]; // Primitive sample values (limited to 10)
   probability?: number; // 0.0 - 1.0 field frequency
 }
 

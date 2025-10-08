@@ -27,7 +27,7 @@ const defaultSchemaAnalysisState: SchemaAnalysisState = {
     name: {
       type: 'String',
       probability: 1.0,
-      sample_values: ['John', 'Jane'],
+      sampleValues: ['John', 'Jane'],
     },
   },
   arrayLengthMap: {},
@@ -510,7 +510,7 @@ describe('MockDataGeneratorModal', () => {
             type: {
               type: 'String',
               probability: 1.0,
-              sample_values: ['cat', 'dog'],
+              sampleValues: ['cat', 'dog'],
             },
           },
           sampleDocument: { name: 'Peaches', age: 10, type: 'cat' },
