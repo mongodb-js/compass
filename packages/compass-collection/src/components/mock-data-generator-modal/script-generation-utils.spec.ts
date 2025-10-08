@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { faker } from '@faker-js/faker/locale/en';
-import { generateScript } from './script-generation-utils';
+import { generateScript, generateDocument } from './script-generation-utils';
 import type { FakerFieldMapping } from './types';
 
 /**
@@ -1419,6 +1419,53 @@ describe('Script Generation', () => {
         // Test that the generated document code is executable
         testDocumentCodeExecution(result.script);
       }
+    });
+  });
+
+  describe('generateDocument', () => {
+    it('should generate document with simple flat fields', () => {
+      const schema = {
+        name: {
+          mongoType: 'String' as const,
+          fakerMethod: 'person.fullName',
+          fakerArgs: [],
+          probability: 1.0,
+        },
+        age: {
+          mongoType: 'Number' as const,
+          fakerMethod: 'number.int',
+          fakerArgs: [{ json: '{"min": 18, "max": 65}' }],
+          probability: 1.0,
+        },
+      };
+
+      const document = generateDocument(schema);
+
+      expect(document).to.be.an('object');
+      expect(document).to.have.property('name');
+      expect(document.name).to.be.a('string').and.not.be.empty;
+      expect(document).to.have.property('age');
+      expect(document.age).to.be.a('number');
+      expect(document.age).to.be.at.least(18).and.at.most(65);
+    });
+
+    it('should generate document with arrays', () => {
+      const schema = {
+        'tags[]': {
+          mongoType: 'String' as const,
+          fakerMethod: 'lorem.word',
+          fakerArgs: [],
+          probability: 1.0,
+        },
+      };
+
+      const document = generateDocument(schema, { 'tags[]': 2 });
+
+      expect(document).to.be.an('object');
+      expect(document).to.have.property('tags');
+      expect(document.tags).to.be.an('array').with.length(2);
+      expect(document.tags[0]).to.be.a('string').and.not.be.empty;
+      expect(document.tags[1]).to.be.a('string').and.not.be.empty;
     });
   });
 });

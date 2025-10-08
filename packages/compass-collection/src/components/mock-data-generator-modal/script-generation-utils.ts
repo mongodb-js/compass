@@ -1,6 +1,7 @@
 import type { MongoDBFieldType } from '@mongodb-js/compass-generative-ai';
 import type { FakerFieldMapping } from './types';
 import { prettify } from '@mongodb-js/compass-editor';
+import { faker } from '@faker-js/faker/locale/en';
 
 export type FakerArg =
   | string
@@ -567,4 +568,189 @@ export function formatFakerArgs(fakerArgs: FakerArg[]): string {
   }
 
   return stringifiedArgs.join(', ');
+}
+
+type Document = Record<string, unknown>;
+
+/**
+ * Generates documents for the PreviewScreen component.
+ * Executes faker methods to create actual document objects.
+ */
+export function generateDocument(
+  fakerSchema: Record<string, FakerFieldMapping>,
+  arrayLengthMap: ArrayLengthMap = {}
+): Document {
+  const structure = buildDocumentStructure(fakerSchema);
+  return constructDocumentValues(structure, arrayLengthMap);
+}
+
+/**
+ * Construct actual document values from document structure.
+ * Mirrors renderDocumentCode but executes faker calls instead of generating code.
+ */
+function constructDocumentValues(
+  structure: DocumentStructure,
+  arrayLengthMap: ArrayLengthMap = {},
+  currentPath: string = ''
+): Document {
+  const result: Document = {};
+
+  for (const [fieldName, value] of Object.entries(structure)) {
+    try {
+      if ('mongoType' in value) {
+        // It's a field mapping - execute faker call
+        const mapping = value as FakerFieldMapping;
+        const fakerValue = generateFakerValue(mapping);
+        if (fakerValue !== undefined) {
+          result[fieldName] = fakerValue;
+        }
+      } else if ('elementType' in value) {
+        // It's an array structure
+        const arrayStructure = value as ArrayStructure;
+        const fieldPath = currentPath
+          ? `${currentPath}.${fieldName}[]`
+          : `${fieldName}[]`;
+        const arrayValue = constructArrayValues(
+          arrayStructure,
+          arrayLengthMap,
+          fieldPath
+        );
+        result[fieldName] = arrayValue;
+      } else {
+        // It's a nested object structure
+        const nestedPath = currentPath
+          ? `${currentPath}.${fieldName}`
+          : fieldName;
+        const nestedValue = constructDocumentValues(
+          value,
+          arrayLengthMap,
+          nestedPath
+        );
+        result[fieldName] = nestedValue;
+      }
+    } catch {
+      continue;
+    }
+  }
+
+  return result;
+}
+
+/**
+ * Construct array values from array structure.
+ * Mirrors renderArrayCode but executes faker calls instead of generating code.
+ */
+function constructArrayValues(
+  arrayStructure: ArrayStructure,
+  arrayLengthMap: ArrayLengthMap,
+  fieldPath: string
+): unknown[] {
+  const { elementType } = arrayStructure;
+
+  let arrayLength = DEFAULT_ARRAY_LENGTH;
+  if (fieldPath && arrayLengthMap[fieldPath] !== undefined) {
+    arrayLength = arrayLengthMap[fieldPath];
+  }
+
+  const result: unknown[] = [];
+
+  for (let i = 0; i < arrayLength; i++) {
+    try {
+      if ('mongoType' in elementType) {
+        // Array of field mappings
+        const mapping = elementType as FakerFieldMapping;
+        const value = generateFakerValue(mapping);
+        if (value !== undefined) {
+          result.push(value);
+        }
+      } else if ('elementType' in elementType) {
+        // Nested array
+        const nestedArrayValue = constructArrayValues(
+          elementType as ArrayStructure,
+          arrayLengthMap,
+          `${fieldPath}[]`
+        );
+        result.push(nestedArrayValue);
+      } else {
+        // Array of objects
+        const objectValue = constructDocumentValues(
+          elementType,
+          arrayLengthMap,
+          `${fieldPath}[]`
+        );
+        result.push(objectValue);
+      }
+    } catch {
+      continue;
+    }
+  }
+
+  return result;
+}
+
+/**
+ * Prepare faker arguments for execution.
+ * Converts FakerArg[] to actual values that can be passed to faker methods.
+ */
+function prepareFakerArgs(fakerArgs: FakerArg[]): unknown[] {
+  const preparedArgs: unknown[] = [];
+
+  for (const arg of fakerArgs) {
+    if (
+      typeof arg === 'string' ||
+      typeof arg === 'number' ||
+      typeof arg === 'boolean'
+    ) {
+      preparedArgs.push(arg);
+    } else if (typeof arg === 'object' && arg !== null && 'json' in arg) {
+      // Parse JSON objects
+      try {
+        const jsonArg = arg as { json: string };
+        preparedArgs.push(JSON.parse(jsonArg.json));
+      } catch {
+        // Skip invalid JSON
+        continue;
+      }
+    }
+  }
+
+  return preparedArgs;
+}
+
+/**
+ * Execute faker method to generate actual values.
+ * Mirrors generateFakerCall but executes the call instead of generating code.
+ */
+function generateFakerValue(
+  mapping: FakerFieldMapping
+): string | number | boolean | Date | null | undefined {
+  const method =
+    mapping.fakerMethod === 'unrecognized'
+      ? getDefaultFakerMethod(mapping.mongoType)
+      : mapping.fakerMethod;
+
+  try {
+    // Navigate to the faker method
+    const methodParts = method.split('.');
+    let fakerMethod: unknown = faker;
+    for (const part of methodParts) {
+      fakerMethod = (fakerMethod as Record<string, unknown>)[part];
+      if (!fakerMethod) {
+        throw new Error(`Faker method not found: ${method}`);
+      }
+    }
+
+    // Prepare arguments
+    const args = prepareFakerArgs(mapping.fakerArgs);
+
+    // Call the faker method
+    const result = (fakerMethod as (...args: unknown[]) => unknown).apply(
+      faker,
+      args
+    );
+
+    return result as string | number | boolean | Date | null | undefined;
+  } catch {
+    return undefined;
+  }
 }
