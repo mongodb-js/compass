@@ -14,6 +14,7 @@ import * as Selectors from '../helpers/selectors';
 import { startMockAtlasServiceServer } from '../helpers/atlas-service';
 import { startMockAssistantServer } from '../helpers/assistant-service';
 import type { MockAssistantResponse } from '../helpers/assistant-service';
+import { isTestingWeb } from '../helpers/test-runner-context';
 
 describe('MongoDB Assistant', function () {
   let compass: Compass;
@@ -117,9 +118,11 @@ describe('MongoDB Assistant', function () {
     };
 
     setAIFeatures = async (newValue: boolean) => {
-      const currentValue = await browser.getFeature('enableGenAIFeatures');
-      if (currentValue === newValue) {
-        return;
+      if (!isTestingWeb()) {
+        const currentValue = await browser.getFeature('enableGenAIFeatures');
+        if (currentValue === newValue) {
+          return;
+        }
       }
 
       await browser.setFeature('enableGenAIFeatures', newValue);
@@ -135,12 +138,13 @@ describe('MongoDB Assistant', function () {
 
     setAIOptIn = async (newValue: boolean) => {
       if (
-        (await browser.getFeature('optInGenAIFeatures')) === true &&
-        newValue === false
+        isTestingWeb() ||
+        ((await browser.getFeature('optInGenAIFeatures')) === true &&
+          newValue === false)
       ) {
         await cleanup(compass);
         // Reseting the opt-in to false can be tricky so it's best to start over in this case.
-        compass = await init(this.test?.fullTitle(), { firstRun: true });
+        compass = await init(this.test?.fullTitle(), { firstRun: false });
         await setup();
         return;
       }
