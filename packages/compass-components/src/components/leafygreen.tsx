@@ -46,7 +46,7 @@ import {
   Cell,
   HeaderCell,
   HeaderRow,
-  ExpandedContent as LGExpandedContent,
+  ExpandedContent,
   Row,
   Table,
   TableHead,
@@ -57,15 +57,8 @@ import {
   type LeafyGreenVirtualItem,
   getExpandedRowModel,
   getFilteredRowModel,
-  type ExpandedContentProps,
   type TableProps,
 } from '@leafygreen-ui/table';
-
-// TODO: Delete once LG-5589 is resolved
-interface ExpandedContentComponentType {
-  <T>(props: ExpandedContentProps<T>): React.JSX.Element | null;
-}
-const ExpandedContent = LGExpandedContent as ExpandedContentComponentType;
 
 export type {
   LGColumnDef,
