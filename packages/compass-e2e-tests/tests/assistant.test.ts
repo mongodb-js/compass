@@ -27,6 +27,7 @@ describe('MongoDB Assistant', function () {
     text: string,
     options?: {
       response?: MockAssistantResponse;
+      expectedResult?: 'success' | 'opt-in';
     }
   ) => Promise<void>;
   let setAIOptIn: (newValue: boolean) => Promise<void>;
@@ -60,27 +61,39 @@ describe('MongoDB Assistant', function () {
           status: 200,
           body: testResponse,
         },
-      }: { response?: MockAssistantResponse } = {}
+        expectedResult = 'success',
+      }: {
+        response?: MockAssistantResponse;
+        expectedResult?: 'success' | 'opt-in';
+      } = {}
     ) => {
       const existingMessages = await getDisplayedMessages(browser);
-      mockAssistantServer.setResponse(response);
 
+      mockAssistantServer.setResponse(response);
       const chatInput = browser.$(Selectors.AssistantChatInputTextArea);
       await chatInput.waitForDisplayed();
       await chatInput.setValue(text);
       const submitButton = browser.$(Selectors.AssistantChatSubmitButton);
       await submitButton.click();
 
-      await browser.waitUntil(async () => {
-        const newMessages = await getDisplayedMessages(browser);
-        return (
-          newMessages.length > existingMessages.length &&
-          newMessages.includes({
-            text: response?.body,
-            role: 'user',
-          })
-        );
-      });
+      switch (expectedResult) {
+        case 'success':
+          await browser.waitUntil(async () => {
+            const newMessages = await getDisplayedMessages(browser);
+            return (
+              newMessages.length > existingMessages.length &&
+              newMessages.includes({
+                text: response?.body,
+                role: 'user',
+              })
+            );
+          });
+          break;
+        case 'opt-in':
+          await browser
+            .$(Selectors.AIOptInModalAcceptButton)
+            .waitForDisplayed();
+      }
     };
 
     const setup = async () => {
@@ -184,11 +197,9 @@ describe('MongoDB Assistant', function () {
     it('does not send the message if the user declines the opt-in', async function () {
       await openAssistantDrawer(browser);
 
-      await sendMessage(testMessage);
+      await sendMessage(testMessage, { expectedResult: 'opt-in' });
 
-      const declineLink = browser.$(Selectors.AIOptInModalDeclineLink);
-      await declineLink.waitForDisplayed();
-      await declineLink.click();
+      await browser.clickVisible(Selectors.AIOptInModalDeclineLink);
 
       const optInModal = browser.$(Selectors.AIOptInModal);
       await optInModal.waitForDisplayed({ reverse: true });
@@ -394,15 +405,16 @@ describe('MongoDB Assistant', function () {
           await confirmButton.click();
 
           await browser.waitUntil(async () => {
-            expect(await getDisplayedMessages(browser)).deep.equal([
-              {
-                text: 'Interpret this explain plan output for me.',
-                role: 'user',
-              },
-              { text: 'You should create an index.', role: 'assistant' },
-            ]);
-            return true;
+            return (await getDisplayedMessages(browser)).length === 2;
           });
+
+          expect(await getDisplayedMessages(browser)).deep.equal([
+            {
+              text: 'Interpret this explain plan output for me.',
+              role: 'user',
+            },
+            { text: 'You should create an index.', role: 'assistant' },
+          ]);
 
           expect(mockAssistantServer.getRequests()).to.have.lengthOf(1);
         });
