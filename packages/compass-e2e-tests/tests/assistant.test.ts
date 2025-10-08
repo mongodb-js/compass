@@ -69,6 +69,13 @@ describe('MongoDB Assistant', function () {
       await chatInput.setValue(text);
       const submitButton = browser.$(Selectors.AssistantChatSubmitButton);
       await submitButton.click();
+
+      await browser.waitUntil(async () => {
+        return (await getDisplayedMessages(browser)).includes({
+          text: response?.body,
+          role: 'user',
+        });
+      });
     };
 
     const setup = async () => {
@@ -314,8 +321,6 @@ describe('MongoDB Assistant', function () {
     it('can copy assistant message to clipboard', async function () {
       await sendMessage(testMessage);
 
-      await browser.pause(100);
-
       const messageElements = await browser
         .$$(Selectors.AssistantChatMessage)
         .getElements();
@@ -326,8 +331,6 @@ describe('MongoDB Assistant', function () {
       await copyButton.waitForDisplayed();
       await copyButton.click();
 
-      await browser.pause(100);
-
       const clipboardText = await browser.execute(() => {
         return navigator.clipboard.readText();
       });
@@ -337,8 +340,6 @@ describe('MongoDB Assistant', function () {
 
     it('can submit feedback with text', async function () {
       await sendMessage(testMessage);
-
-      await browser.pause(100);
 
       // Get all message elements
       const messageElements = await browser
@@ -387,16 +388,16 @@ describe('MongoDB Assistant', function () {
           await confirmButton.waitForDisplayed();
           await confirmButton.click();
 
-          await browser.pause(100);
-
-          const messages = await getDisplayedMessages(browser);
-          expect(messages).deep.equal([
-            {
-              text: 'Interpret this explain plan output for me.',
-              role: 'user',
-            },
-            { text: 'You should create an index.', role: 'assistant' },
-          ]);
+          await browser.waitUntil(async () => {
+            expect(await getDisplayedMessages(browser)).deep.equal([
+              {
+                text: 'Interpret this explain plan output for me.',
+                role: 'user',
+              },
+              { text: 'You should create an index.', role: 'assistant' },
+            ]);
+            return true;
+          });
 
           expect(mockAssistantServer.getRequests()).to.have.lengthOf(1);
         });
