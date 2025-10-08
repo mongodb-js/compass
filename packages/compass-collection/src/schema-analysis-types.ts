@@ -35,7 +35,7 @@ export type SchemaAnalysisErrorState = {
  * These are the JavaScript primitive equivalents of BSON values.
  */
 export type SampleValue =
-  | string // String, Symbol, Binary, RegExp, Code, etc. (converted to string)
+  | string // String, Symbol, ObjectId, Binary, RegExp, Code, etc. (converted to string)
   | number // Number, Int32, Long, Double, Decimal128, Timestamp (converted via valueOf())
   | boolean
   | Date
