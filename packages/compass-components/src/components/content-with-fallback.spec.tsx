@@ -74,8 +74,7 @@ describe('ContentWithFallback', function () {
     );
 
     expect(confirmationModal.getAttribute('data-testid')).to.equal(
-      // TODO: Change to 'confirmation-modal' when https://github.com/mongodb/leafygreen-ui/pull/3183 gets released
-      'lg-confirmation_modal'
+      'confirmation-modal'
     );
   });
 
