@@ -1464,8 +1464,108 @@ describe('Script Generation', () => {
       expect(document).to.be.an('object');
       expect(document).to.have.property('tags');
       expect(document.tags).to.be.an('array').with.length(2);
-      expect(document.tags[0]).to.be.a('string').and.not.be.empty;
-      expect(document.tags[1]).to.be.a('string').and.not.be.empty;
+      (document.tags as string[]).forEach((tag: string) => {
+        expect(tag).to.be.a('string').and.not.be.empty;
+      });
+    });
+
+    it('should generate document with complex nested arrays and custom lengths', () => {
+      const schema = {
+        'users[].posts[].tags[]': {
+          mongoType: 'String' as const,
+          fakerMethod: 'lorem.word',
+          fakerArgs: [],
+          probability: 1.0,
+        },
+        'matrix[][]': {
+          mongoType: 'Number' as const,
+          fakerMethod: 'number.int',
+          fakerArgs: [{ json: '{"min": 1, "max": 10}' }],
+          probability: 1.0,
+        },
+      };
+
+      const arrayLengthMap = {
+        'users[]': 2,
+        'users[].posts[]': 3,
+        'users[].posts[].tags[]': 4,
+        'matrix[]': 2,
+        'matrix[][]': 3,
+      };
+
+      const document = generateDocument(schema, arrayLengthMap);
+
+      expect(document).to.be.an('object');
+
+      // Check users array structure
+      expect(document).to.have.property('users');
+      expect(document.users).to.be.an('array').with.length(2);
+
+      // Check nested structure with proper types
+      const users = document.users as Array<{
+        posts: Array<{ tags: string[] }>;
+      }>;
+
+      users.forEach((user) => {
+        expect(user).to.be.an('object');
+        expect(user).to.have.property('posts');
+        expect(user.posts).to.be.an('array').with.length(3);
+
+        user.posts.forEach((post) => {
+          expect(post).to.be.an('object');
+          expect(post).to.have.property('tags');
+          expect(post.tags).to.be.an('array').with.length(4);
+
+          post.tags.forEach((tag) => {
+            expect(tag).to.be.a('string').and.not.be.empty;
+          });
+        });
+      });
+
+      // Check matrix (2D array)
+      expect(document).to.have.property('matrix');
+      expect(document.matrix).to.be.an('array').with.length(2);
+
+      const matrix = document.matrix as number[][];
+      matrix.forEach((row) => {
+        expect(row).to.be.an('array').with.length(3);
+        row.forEach((cell) => {
+          expect(cell).to.be.a('number').and.be.at.least(1).and.at.most(10);
+        });
+      });
+    });
+
+    it('should handle probability fields correctly', () => {
+      const schema = {
+        name: {
+          mongoType: 'String' as const,
+          fakerMethod: 'person.fullName',
+          fakerArgs: [],
+          probability: 1.0,
+        },
+        optionalField: {
+          mongoType: 'String' as const,
+          fakerMethod: 'lorem.word',
+          fakerArgs: [],
+          probability: 0.0, // Should never appear
+        },
+        alwaysPresent: {
+          mongoType: 'Number' as const,
+          fakerMethod: 'number.int',
+          fakerArgs: [],
+          probability: 1.0,
+        },
+      };
+
+      const document = generateDocument(schema);
+
+      expect(document).to.be.an('object');
+      expect(document).to.have.property('name');
+      expect(document.name).to.be.a('string').and.not.be.empty;
+      expect(document).to.have.property('alwaysPresent');
+      expect(document.alwaysPresent).to.be.a('number');
+      // optionalField should not be present due to 0.0 probability
+      expect(document).to.not.have.property('optionalField');
     });
   });
 });

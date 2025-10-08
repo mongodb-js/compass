@@ -598,31 +598,54 @@ function constructDocumentValues(
   for (const [fieldName, value] of Object.entries(structure)) {
     try {
       if ('mongoType' in value) {
-        // It's a field mapping - execute faker call
+        // It's a field mapping
         const mapping = value as FakerFieldMapping;
-        const fakerValue = generateFakerValue(mapping);
-        if (fakerValue !== undefined) {
-          result[fieldName] = fakerValue;
+
+        // Default to 1.0 for invalid probability values
+        let probability = 1.0;
+        if (
+          mapping.probability !== undefined &&
+          typeof mapping.probability === 'number' &&
+          mapping.probability >= 0 &&
+          mapping.probability <= 1
+        ) {
+          probability = mapping.probability;
         }
-      } else if ('elementType' in value) {
-        // It's an array structure
-        const arrayStructure = value as ArrayStructure;
+
+        if (probability < 1.0) {
+          // Use Math.random for conditional field inclusion
+          if (Math.random() < probability) {
+            const fakerValue = generateFakerValue(mapping);
+            if (fakerValue !== undefined) {
+              result[fieldName] = fakerValue;
+            }
+          }
+        } else {
+          // Normal field inclusion
+          const fakerValue = generateFakerValue(mapping);
+          if (fakerValue !== undefined) {
+            result[fieldName] = fakerValue;
+          }
+        }
+      } else if ('type' in value && value.type === 'array') {
+        // It's an array
         const fieldPath = currentPath
           ? `${currentPath}.${fieldName}[]`
           : `${fieldName}[]`;
         const arrayValue = constructArrayValues(
-          arrayStructure,
+          value as ArrayStructure,
+          fieldName,
           arrayLengthMap,
           fieldPath
         );
         result[fieldName] = arrayValue;
       } else {
-        // It's a nested object structure
+        // It's a nested object: recursive call
         const nestedPath = currentPath
           ? `${currentPath}.${fieldName}`
           : fieldName;
         const nestedValue = constructDocumentValues(
-          value,
+          value as DocumentStructure,
           arrayLengthMap,
           nestedPath
         );
@@ -642,14 +665,16 @@ function constructDocumentValues(
  */
 function constructArrayValues(
   arrayStructure: ArrayStructure,
-  arrayLengthMap: ArrayLengthMap,
-  fieldPath: string
+  fieldName: string = '',
+  arrayLengthMap: ArrayLengthMap = {},
+  currentFieldPath: string = ''
 ): unknown[] {
-  const { elementType } = arrayStructure;
+  const elementType = arrayStructure.elementType;
 
+  // Get array length for this dimension
   let arrayLength = DEFAULT_ARRAY_LENGTH;
-  if (fieldPath && arrayLengthMap[fieldPath] !== undefined) {
-    arrayLength = arrayLengthMap[fieldPath];
+  if (currentFieldPath && arrayLengthMap[currentFieldPath] !== undefined) {
+    arrayLength = arrayLengthMap[currentFieldPath];
   }
 
   const result: unknown[] = [];
@@ -657,26 +682,28 @@ function constructArrayValues(
   for (let i = 0; i < arrayLength; i++) {
     try {
       if ('mongoType' in elementType) {
-        // Array of field mappings
+        // Array of primitives
         const mapping = elementType as FakerFieldMapping;
         const value = generateFakerValue(mapping);
         if (value !== undefined) {
           result.push(value);
         }
-      } else if ('elementType' in elementType) {
-        // Nested array
+      } else if ('type' in elementType && elementType.type === 'array') {
+        // Nested array (e.g., matrix[][]) - append another [] to the path
+        const fieldPath = currentFieldPath + '[]';
         const nestedArrayValue = constructArrayValues(
           elementType as ArrayStructure,
+          fieldName,
           arrayLengthMap,
-          `${fieldPath}[]`
+          fieldPath
         );
         result.push(nestedArrayValue);
       } else {
         // Array of objects
         const objectValue = constructDocumentValues(
-          elementType,
+          elementType as DocumentStructure,
           arrayLengthMap,
-          `${fieldPath}[]`
+          currentFieldPath
         );
         result.push(objectValue);
       }
