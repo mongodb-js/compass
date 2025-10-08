@@ -62,6 +62,7 @@ describe('MongoDB Assistant', function () {
         },
       }: { response?: MockAssistantResponse } = {}
     ) => {
+      const existingMessages = await getDisplayedMessages(browser);
       mockAssistantServer.setResponse(response);
 
       const chatInput = browser.$(Selectors.AssistantChatInputTextArea);
@@ -71,10 +72,14 @@ describe('MongoDB Assistant', function () {
       await submitButton.click();
 
       await browser.waitUntil(async () => {
-        return (await getDisplayedMessages(browser)).includes({
-          text: response?.body,
-          role: 'user',
-        });
+        const newMessages = await getDisplayedMessages(browser);
+        return (
+          newMessages.length > existingMessages.length &&
+          newMessages.includes({
+            text: response?.body,
+            role: 'user',
+          })
+        );
       });
     };
 
