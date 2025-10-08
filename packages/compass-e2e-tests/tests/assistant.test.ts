@@ -47,7 +47,6 @@ describe('MongoDB Assistant', function () {
     // Start a mock Assistant server for AI chat responses
     mockAssistantServer = await startMockAssistantServer();
 
-    // Set env vars: one for feature flag checks, one for assistant API
     process.env.COMPASS_ATLAS_SERVICE_UNAUTH_BASE_URL_OVERRIDE =
       mockAtlasServer.endpoint;
     process.env.COMPASS_ASSISTANT_BASE_URL_OVERRIDE =
@@ -119,7 +118,6 @@ describe('MongoDB Assistant', function () {
     it('shows the assistant drawer button when AI features are enabled', async function () {
       await setAIFeatures(browser, true);
 
-      // AI Features are enabled by default so the drawer button should be visible.
       const drawerButton = browser.$(Selectors.AssistantDrawerButton);
       await drawerButton.waitForDisplayed();
       expect(await drawerButton.isDisplayed()).to.be.true;
@@ -128,7 +126,6 @@ describe('MongoDB Assistant', function () {
     it('does not show the assistant drawer button when AI features are disabled', async function () {
       await setAIFeatures(browser, false);
 
-      // Assistant drawer button should not be visible
       const drawerButton = browser.$(Selectors.AssistantDrawerButton);
       await drawerButton.waitForDisplayed({ reverse: true });
       expect(await drawerButton.isDisplayed()).to.be.false;
@@ -163,22 +160,17 @@ describe('MongoDB Assistant', function () {
 
       await sendMessage(testMessage);
 
-      // Wait for opt-in modal and decline it
       const declineLink = browser.$(Selectors.AIOptInModalDeclineLink);
       await declineLink.waitForDisplayed();
       await declineLink.click();
 
-      // Wait for the modal to close
       const optInModal = browser.$(Selectors.AIOptInModal);
       await optInModal.waitForDisplayed({ reverse: true });
 
-      // Verify the input was not cleared after sending
       const chatInput = browser.$(Selectors.AssistantChatInputTextArea);
       expect(await chatInput.getValue()).not.to.equal(testMessage);
 
-      // Verify the message is not displayed in the chat
-      const chatMessages = browser.$(Selectors.AssistantChatMessages);
-      expect(await chatMessages.getText()).to.not.include(testMessage);
+      expect(await getDisplayedMessages(browser)).to.deep.equal([]);
 
       expect(mockAssistantServer.getRequests()).to.be.empty;
     });
@@ -205,8 +197,6 @@ describe('MongoDB Assistant', function () {
 
         await optInModal.waitForDisplayed({ reverse: true });
 
-        expect(await optInModal.isDisplayed()).to.be.false;
-
         expect(await getDisplayedMessages(browser)).to.deep.equal([]);
       });
 
@@ -222,8 +212,6 @@ describe('MongoDB Assistant', function () {
         await declineLink.click();
 
         await optInModal.waitForDisplayed({ reverse: true });
-
-        expect(await optInModal.isDisplayed()).to.be.false;
 
         expect(await getDisplayedMessages(browser)).to.deep.equal([]);
       });
