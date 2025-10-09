@@ -13,16 +13,9 @@ import {
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
 import { startMockAtlasServiceServer } from '../helpers/atlas-service';
-import {
-  MOCK_ASSISTANT_SERVER_PORT,
-  startMockAssistantServer,
-} from '../helpers/assistant-service';
+import { startMockAssistantServer } from '../helpers/assistant-service';
 import type { MockAssistantResponse } from '../helpers/assistant-service';
 import { isTestingWeb } from '../helpers/test-runner-context';
-
-if (isTestingWeb()) {
-  process.env.COMPASS_ASSISTANT_BASE_URL_OVERRIDE = `http://localhost:${MOCK_ASSISTANT_SERVER_PORT}`;
-}
 
 describe('MongoDB Assistant', function () {
   let compass: Compass;

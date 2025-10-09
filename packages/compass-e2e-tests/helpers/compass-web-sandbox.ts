@@ -11,6 +11,7 @@ import {
 } from './test-runner-paths';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import ConnectionString from 'mongodb-connection-string-url';
+import { MOCK_ASSISTANT_SERVER_PORT } from './assistant-service';
 
 const debug = Debug('compass-e2e-tests:compass-web-sandbox');
 
@@ -21,6 +22,8 @@ const debug = Debug('compass-e2e-tests:compass-web-sandbox');
 process.env.OPEN_BROWSER = 'false'; // tell webpack dev server not to open the default browser
 process.env.DISABLE_DEVSERVER_OVERLAY = 'true';
 process.env.APP_ENV = 'webdriverio';
+// Set the assistant base URL override for tests so we can mock the assistant server
+process.env.COMPASS_ASSISTANT_BASE_URL_OVERRIDE = `http://localhost:${MOCK_ASSISTANT_SERVER_PORT}`;
 
 const wait = (ms: number) => {
   return new Promise((resolve) => {
