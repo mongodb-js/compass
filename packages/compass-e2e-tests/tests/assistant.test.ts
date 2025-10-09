@@ -8,6 +8,7 @@ import {
   cleanup,
   screenshotIfFailed,
   DEFAULT_CONNECTION_NAME_1,
+  skipForWeb,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
@@ -219,6 +220,10 @@ describe('MongoDB Assistant', function () {
 
   describe('before opt-in', function () {
     before(async function () {
+      skipForWeb(
+        this,
+        'E2E testing for opt-in on compass-web is not yet implemented'
+      );
       await setAIOptIn(false);
     });
 
@@ -283,6 +288,10 @@ describe('MongoDB Assistant', function () {
 
   describe('opting in', function () {
     before(async function () {
+      skipForWeb(
+        this,
+        'E2E testing for opt-in on compass-web is not yet implemented'
+      );
       await setAIOptIn(false);
       await openAssistantDrawer(browser);
     });
