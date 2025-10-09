@@ -117,7 +117,7 @@ export const AttemptStateMap = new Map<number, AttemptState>();
 
 export let attemptId = 0;
 
-export function getAttempt(id?: number | null): AttemptState {
+function getAttempt(id?: number | null): AttemptState {
   if (!id) {
     id = ++attemptId;
     const controller = new AbortController();
@@ -360,6 +360,7 @@ export const signIn = (): AtlasSignInThunkAction<Promise<void>> => {
       });
       dispatch({ type: AtlasSignInActions.Success, userInfo });
       atlasAuthService.emit('signed-in');
+      AttemptStateMap.clear();
       resolve(userInfo);
     } catch (err) {
       // Only handle error if sign in wasn't aborted by the user, otherwise it
