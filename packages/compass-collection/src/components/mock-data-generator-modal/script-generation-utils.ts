@@ -604,7 +604,6 @@ function constructDocumentValues(
         // Default to 1.0 for invalid probability values
         let probability = 1.0;
         if (
-          mapping.probability !== undefined &&
           typeof mapping.probability === 'number' &&
           mapping.probability >= 0 &&
           mapping.probability <= 1
