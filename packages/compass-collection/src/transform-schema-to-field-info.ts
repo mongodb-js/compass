@@ -115,6 +115,7 @@ function convertBSONToPrimitive(value: unknown): SampleValue {
   if (value instanceof Binary) {
     // For Binary data, provide a descriptive placeholder instead of the actual data
     // to avoid massive base64 strings that can break LLM requests
+    // (Defensive check: should never be called, since sample values for binary are skipped)
     const sizeInBytes = value.buffer?.length || 0;
     return `<Binary data: ${sizeInBytes} bytes>`;
   }
