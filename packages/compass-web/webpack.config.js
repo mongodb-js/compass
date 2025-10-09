@@ -164,17 +164,18 @@ module.exports = (env, args) => {
       // want to fail and stop compilation if we failed to generate definitions
       // for whatever reason, we only print the error
       function (compiler) {
-        // TODO: seems like after webpack update this is not running when expected anymore
-        compiler.hooks.watchRun.tapPromise('compile-ts', async function () {
-          const logger = compiler.getInfrastructureLogger('compile-ts');
-          try {
-            await execFileAsync('npm', ['run', 'typescript']);
-            logger.log('Compiled TypeScript definitions successfully');
-          } catch (err) {
-            logger.error('Failed to complie TypeScript definitions:');
-            logger.error();
-            logger.error(err.stdout);
-          }
+        compiler.hooks.watchRun.tap('compile-ts', function () {
+          compiler.hooks.done.tapPromise('compile-ts', async function () {
+            const logger = compiler.getInfrastructureLogger('compile-ts');
+            try {
+              await execFileAsync('npm', ['run', 'typescript']);
+              logger.log('Compiled TypeScript definitions successfully');
+            } catch (err) {
+              logger.error('Failed to complie TypeScript definitions:');
+              logger.error();
+              logger.error(err.stdout);
+            }
+          });
         });
       },
     ],
