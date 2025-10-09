@@ -113,7 +113,10 @@ function convertBSONToPrimitive(value: unknown): SampleValue {
     return value.toString();
   }
   if (value instanceof Binary) {
-    return value.toString('base64');
+    // For Binary data, provide a descriptive placeholder instead of the actual data
+    // to avoid massive base64 strings that can break LLM requests
+    const sizeInBytes = value.buffer?.length || 0;
+    return `<Binary data: ${sizeInBytes} bytes>`;
   }
   if (value instanceof BSONRegExp) {
     return value.pattern;
@@ -281,9 +284,11 @@ function processType(
     // Primitive: Create entry
     const fieldInfo: FieldInfo = {
       type: type.name,
-      sampleValues: type.values
-        .slice(0, MAX_SAMPLE_VALUES)
-        .map(convertBSONToPrimitive),
+      // Skip sample values for Binary fields to avoid massive payloads (e.g. embeddings)
+      sampleValues:
+        type.name === 'Binary'
+          ? undefined
+          : type.values.slice(0, MAX_SAMPLE_VALUES).map(convertBSONToPrimitive),
       probability: fieldProbability,
     };
 

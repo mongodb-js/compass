@@ -486,7 +486,7 @@ describe('processSchema', function () {
       },
       binary: {
         type: 'Binary',
-        sampleValues: ['dGVzdA=='],
+        sampleValues: undefined, // Binary fields exclude sample values to avoid massive payloads
         probability: 1.0,
       },
       regex: {
@@ -527,6 +527,67 @@ describe('processSchema', function () {
       symbol: {
         type: 'Symbol',
         sampleValues: ['symbol'],
+        probability: 1.0,
+      },
+    });
+    expect(result.arrayLengthMap).to.deep.equal({});
+  });
+
+  it('excludes sample values for Binary fields to avoid massive payloads', function () {
+    const embedding = new Binary(Buffer.from([1, 2, 3, 4])); // Test Binary field logic
+    const schema: Schema = {
+      fields: [
+        {
+          name: 'plot_embedding',
+          path: ['plot_embedding'],
+          count: 1,
+          type: ['Binary'],
+          probability: 1.0,
+          hasDuplicates: false,
+          types: [
+            {
+              name: 'Binary',
+              bsonType: 'Binary',
+              path: ['plot_embedding'],
+              count: 1,
+              probability: 1.0,
+              values: [embedding],
+            },
+          ],
+        },
+        {
+          name: 'regular_field',
+          path: ['regular_field'],
+          count: 1,
+          type: ['String'],
+          probability: 1.0,
+          hasDuplicates: false,
+          types: [
+            {
+              name: 'String',
+              bsonType: 'String',
+              path: ['regular_field'],
+              count: 1,
+              probability: 1.0,
+              values: ['test'],
+            },
+          ],
+        },
+      ],
+      count: 1,
+    };
+
+    const result = processSchema(schema);
+
+    expect(result.fieldInfo).to.deep.equal({
+      plot_embedding: {
+        type: 'Binary',
+        sampleValues: undefined, // Should be undefined for Binary fields
+        probability: 1.0,
+      },
+      regular_field: {
+        type: 'String',
+        sampleValues: ['test'], // Should still have sample values for non-Binary fields
         probability: 1.0,
       },
     });
