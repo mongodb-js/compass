@@ -129,7 +129,7 @@ export function useAtlasProxySignIn(): AtlasLoginReturnValue {
             userRoles,
           } = params;
           const overrideGenAIFeatures =
-            process.env.COMPASS_WEB_FORCE_ENABLE_AI === 'true';
+            process.env.COMPASS_OVERRIDE_ENABLE_AI_FEATURES === 'true';
           setProjectParams({
             projectId,
             csrfToken,
