@@ -731,8 +731,13 @@ FindIterable<Document> result = collection.find(filter);`);
       await errorDetailsJson.waitForDisplayed();
 
       // exit details
+      // leafygreen autofocus triggers a tooltip on the error code element,
+      // "Tab" to remove the focus
+      await browser.keys('Tab');
+      // now click the close button
       await browser.clickVisible(Selectors.confirmationModalConfirmButton());
-      await errorElement.waitForDisplayed();
+      // wait for the modal to go away
+      await errorDetailsJson.waitForDisplayed({ reverse: true });
     });
 
     describe('Editing', function () {
