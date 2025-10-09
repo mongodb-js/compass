@@ -10,10 +10,21 @@ import {
   SpinLoaderWithLabel,
 } from '@mongodb-js/compass-components';
 import React from 'react';
+import { connect } from 'react-redux';
 import FieldSelector from './schema-field-selector';
 import FakerMappingSelector from './faker-mapping-selector';
 import type { FakerSchema, MockDataGeneratorState } from './types';
 import type { MongoDBFieldType } from '@mongodb-js/compass-generative-ai';
+import {
+  fakerFieldTypeChanged,
+  fakerFieldMethodChanged,
+  type FakerFieldTypeChangedAction,
+  type FakerFieldMethodChangedAction,
+} from '../../modules/collection-tab';
+
+type FakerSchemaDispatch = (
+  action: FakerFieldTypeChangedAction | FakerFieldMethodChangedAction
+) => void;
 
 const containerStyles = css({
   display: 'flex',
@@ -52,48 +63,35 @@ const schemaEditorLoaderStyles = css({
 const FakerSchemaEditorContent = ({
   fakerSchema,
   onSchemaConfirmed,
+  dispatch,
 }: {
   fakerSchema: FakerSchema;
   onSchemaConfirmed: (isConfirmed: boolean) => void;
+  dispatch: FakerSchemaDispatch;
 }) => {
-  const [fakerSchemaFormValues, setFakerSchemaFormValues] =
-    React.useState<FakerSchema>(fakerSchema);
-
-  const fieldPaths = Object.keys(fakerSchemaFormValues);
+  const fieldPaths = Object.keys(fakerSchema);
   const [activeField, setActiveField] = React.useState<string>(fieldPaths[0]);
 
-  const activeJsonType = fakerSchemaFormValues[activeField]?.mongoType;
-  const activeFakerFunction = fakerSchemaFormValues[activeField]?.fakerMethod;
-  const activeFakerArgs = fakerSchemaFormValues[activeField]?.fakerArgs;
+  const activeJsonType = fakerSchema[activeField]?.mongoType;
+  const activeFakerFunction = fakerSchema[activeField]?.fakerMethod;
+  const activeFakerArgs = fakerSchema[activeField]?.fakerArgs;
 
   const resetIsSchemaConfirmed = () => {
     onSchemaConfirmed(false);
   };
 
   const onJsonTypeSelect = (newJsonType: MongoDBFieldType) => {
-    const currentMapping = fakerSchemaFormValues[activeField];
+    const currentMapping = fakerSchema[activeField];
     if (currentMapping) {
-      setFakerSchemaFormValues({
-        ...fakerSchemaFormValues,
-        [activeField]: {
-          ...currentMapping,
-          mongoType: newJsonType,
-        },
-      });
+      dispatch(fakerFieldTypeChanged(activeField, newJsonType));
       resetIsSchemaConfirmed();
     }
   };
 
   const onFakerFunctionSelect = (newFakerFunction: string) => {
-    const currentMapping = fakerSchemaFormValues[activeField];
+    const currentMapping = fakerSchema[activeField];
     if (currentMapping) {
-      setFakerSchemaFormValues({
-        ...fakerSchemaFormValues,
-        [activeField]: {
-          ...currentMapping,
-          fakerMethod: newFakerFunction,
-        },
-      });
+      dispatch(fakerFieldMethodChanged(activeField, newFakerFunction));
       resetIsSchemaConfirmed();
     }
   };
@@ -131,10 +129,11 @@ const FakerSchemaEditorContent = ({
 const FakerSchemaEditorScreen = ({
   onSchemaConfirmed,
   fakerSchemaGenerationState,
+  dispatch,
 }: {
-  isSchemaConfirmed: boolean;
   onSchemaConfirmed: (isConfirmed: boolean) => void;
   fakerSchemaGenerationState: MockDataGeneratorState;
+  dispatch: FakerSchemaDispatch;
 }) => {
   return (
     <div data-testid="faker-schema-editor" className={containerStyles}>
@@ -160,12 +159,13 @@ const FakerSchemaEditorScreen = ({
       )}
       {fakerSchemaGenerationState.status === 'completed' && (
         <FakerSchemaEditorContent
-          fakerSchema={fakerSchemaGenerationState.fakerSchema}
+          fakerSchema={fakerSchemaGenerationState.editedFakerSchema}
           onSchemaConfirmed={onSchemaConfirmed}
+          dispatch={dispatch}
         />
       )}
     </div>
   );
 };
 
-export default FakerSchemaEditorScreen;
+export default connect()(FakerSchemaEditorScreen);
