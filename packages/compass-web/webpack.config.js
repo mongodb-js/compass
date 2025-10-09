@@ -202,6 +202,7 @@ module.exports = (env, args) => {
       path: config.output.path,
       filename: config.output.filename,
       assetModuleFilename: config.output.assetModuleFilename,
+      publicPath: '/',
     };
 
     return merge(config, {
