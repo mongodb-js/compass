@@ -1464,9 +1464,9 @@ describe('Script Generation', () => {
       expect(document).to.be.an('object');
       expect(document).to.have.property('tags');
       expect(document.tags).to.be.an('array').with.length(2);
-      (document.tags as string[]).forEach((tag: string) => {
+      for (const tag of document.tags as string[]) {
         expect(tag).to.be.a('string').and.not.be.empty;
-      });
+      }
     });
 
     it('should generate document with complex nested arrays and custom lengths', () => {
@@ -1506,33 +1506,33 @@ describe('Script Generation', () => {
         posts: Array<{ tags: string[] }>;
       }>;
 
-      users.forEach((user) => {
+      for (const user of users) {
         expect(user).to.be.an('object');
         expect(user).to.have.property('posts');
         expect(user.posts).to.be.an('array').with.length(3);
 
-        user.posts.forEach((post) => {
+        for (const post of user.posts) {
           expect(post).to.be.an('object');
           expect(post).to.have.property('tags');
           expect(post.tags).to.be.an('array').with.length(4);
 
-          post.tags.forEach((tag) => {
+          for (const tag of post.tags) {
             expect(tag).to.be.a('string').and.not.be.empty;
-          });
-        });
-      });
+          }
+        }
+      }
 
       // Check matrix (2D array)
       expect(document).to.have.property('matrix');
       expect(document.matrix).to.be.an('array').with.length(2);
 
       const matrix = document.matrix as number[][];
-      matrix.forEach((row) => {
+      for (const row of matrix) {
         expect(row).to.be.an('array').with.length(3);
-        row.forEach((cell) => {
+        for (const cell of row) {
           expect(cell).to.be.a('number').and.be.at.least(1).and.at.most(10);
-        });
-      });
+        }
+      }
     });
 
     it('should handle probability fields correctly', () => {
