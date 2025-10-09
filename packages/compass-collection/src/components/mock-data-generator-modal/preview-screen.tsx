@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import { css, spacing, Body, Code } from '@mongodb-js/compass-components';
+import { EJSON } from 'bson';
 import type { FakerSchema } from './types';
 import { generateDocument } from './script-generation-utils';
 
@@ -33,7 +34,7 @@ function PreviewScreen({ confirmedFakerSchema }: PreviewScreenProps) {
         script
       </Body>
       <Code language="javascript" copyable={false}>
-        {JSON.stringify(sampleDocuments, null, 2)}
+        {EJSON.stringify(sampleDocuments, undefined, 2)}
       </Code>
     </div>
   );
