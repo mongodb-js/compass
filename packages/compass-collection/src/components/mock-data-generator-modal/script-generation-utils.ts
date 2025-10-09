@@ -611,20 +611,11 @@ function constructDocumentValues(
           probability = mapping.probability;
         }
 
-        if (probability < 1.0) {
-          // Use Math.random for conditional field inclusion
-          if (Math.random() < probability) {
-            const fakerValue = generateFakerValue(mapping);
-            if (fakerValue !== undefined) {
-              result[fieldName] = fakerValue;
-            }
-          }
-        } else {
-          // Normal field inclusion
-          const fakerValue = generateFakerValue(mapping);
-          if (fakerValue !== undefined) {
-            result[fieldName] = fakerValue;
-          }
+        const shouldIncludeField =
+          probability >= 1.0 || Math.random() < probability;
+        const fakerValue = generateFakerValue(mapping);
+        if (fakerValue !== undefined && shouldIncludeField) {
+          result[fieldName] = fakerValue;
         }
       } else if ('type' in value && value.type === 'array') {
         // It's an array
