@@ -94,8 +94,6 @@ import {
 } from '@leafygreen-ui/combobox';
 import { withStackedComponentStyles } from '../hooks/use-stacked-component';
 
-
-
 // 2. Wrap and make any changes/workaround to leafygreen components.
 const Tooltip = withStackedComponentStyles(LGTooltip);
 const Icon = ({
