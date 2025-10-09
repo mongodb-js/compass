@@ -5,12 +5,15 @@ import type { AssistantMessage } from '../src/compass-assistant-provider';
 export const createMockChat = ({
   messages,
   status,
+  transport,
 }: {
   messages: AssistantMessage[];
   status?: 'submitted' | 'streaming';
+  transport?: Chat<AssistantMessage>['transport'];
 }) => {
   const newChat = new Chat<AssistantMessage>({
     messages,
+    transport,
   });
   sinon.replace(newChat, 'sendMessage', sinon.stub());
   if (status) {
@@ -20,3 +23,21 @@ export const createMockChat = ({
     sendMessage: sinon.SinonStub;
   };
 };
+
+export function createBrokenTransport() {
+  const testError = new Error('Test connection error');
+  testError.name = 'ConnectionError';
+  const transport = {
+    sendMessages: sinon.stub().rejects(testError),
+    reconnectToStream: sinon.stub().resolves(null),
+  };
+  return transport;
+}
+
+export function createBrokenChat() {
+  const chat = new Chat<AssistantMessage>({
+    messages: [],
+    transport: createBrokenTransport(),
+  });
+  return chat;
+}
