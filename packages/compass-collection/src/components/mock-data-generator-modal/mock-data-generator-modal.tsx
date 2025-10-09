@@ -82,7 +82,6 @@ const MockDataGeneratorModal = ({
       case MockDataGeneratorStep.SCHEMA_EDITOR:
         return (
           <FakerSchemaEditorScreen
-            isSchemaConfirmed={isSchemaConfirmed}
             onSchemaConfirmed={setIsSchemaConfirmed}
             fakerSchemaGenerationState={fakerSchemaGenerationState}
           />
@@ -102,7 +101,6 @@ const MockDataGeneratorModal = ({
   }, [
     currentStep,
     fakerSchemaGenerationState,
-    isSchemaConfirmed,
     documentCount,
     setDocumentCount,
   ]);

@@ -69,51 +69,28 @@ const FakerSchemaEditorContent = ({
   onSchemaConfirmed: (isConfirmed: boolean) => void;
   dispatch: FakerSchemaDispatch;
 }) => {
-  const [fakerSchemaFormValues, setFakerSchemaFormValues] =
-    React.useState<FakerSchema>(fakerSchema);
-
-  const fieldPaths = Object.keys(fakerSchemaFormValues);
+  const fieldPaths = Object.keys(fakerSchema);
   const [activeField, setActiveField] = React.useState<string>(fieldPaths[0]);
 
-  const activeJsonType = fakerSchemaFormValues[activeField]?.mongoType;
-  const activeFakerFunction = fakerSchemaFormValues[activeField]?.fakerMethod;
-  const activeFakerArgs = fakerSchemaFormValues[activeField]?.fakerArgs;
+  const activeJsonType = fakerSchema[activeField]?.mongoType;
+  const activeFakerFunction = fakerSchema[activeField]?.fakerMethod;
+  const activeFakerArgs = fakerSchema[activeField]?.fakerArgs;
 
   const resetIsSchemaConfirmed = () => {
     onSchemaConfirmed(false);
   };
 
   const onJsonTypeSelect = (newJsonType: MongoDBFieldType) => {
-    const currentMapping = fakerSchemaFormValues[activeField];
+    const currentMapping = fakerSchema[activeField];
     if (currentMapping) {
-      // Update local form state
-      setFakerSchemaFormValues({
-        ...fakerSchemaFormValues,
-        [activeField]: {
-          ...currentMapping,
-          mongoType: newJsonType,
-        },
-      });
-
-      // Dispatch event to Redux
       dispatch(fakerFieldTypeChanged(activeField, newJsonType));
       resetIsSchemaConfirmed();
     }
   };
 
   const onFakerFunctionSelect = (newFakerFunction: string) => {
-    const currentMapping = fakerSchemaFormValues[activeField];
+    const currentMapping = fakerSchema[activeField];
     if (currentMapping) {
-      // Update local form state
-      setFakerSchemaFormValues({
-        ...fakerSchemaFormValues,
-        [activeField]: {
-          ...currentMapping,
-          fakerMethod: newFakerFunction,
-        },
-      });
-
-      // Dispatch event to Redux
       dispatch(fakerFieldMethodChanged(activeField, newFakerFunction));
       resetIsSchemaConfirmed();
     }
@@ -154,7 +131,6 @@ const FakerSchemaEditorScreen = ({
   fakerSchemaGenerationState,
   dispatch,
 }: {
-  isSchemaConfirmed: boolean;
   onSchemaConfirmed: (isConfirmed: boolean) => void;
   fakerSchemaGenerationState: MockDataGeneratorState;
   dispatch: FakerSchemaDispatch;
