@@ -8,7 +8,6 @@ import {
   cleanup,
   screenshotIfFailed,
   DEFAULT_CONNECTION_NAME_1,
-  skipForWeb,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
@@ -21,7 +20,6 @@ import type { MockAssistantResponse } from '../helpers/assistant-service';
 import { isTestingWeb } from '../helpers/test-runner-context';
 
 if (isTestingWeb()) {
-  process.env.COMPASS_WEB_FORCE_ENABLE_AI = 'true';
   process.env.COMPASS_ASSISTANT_BASE_URL_OVERRIDE = `http://localhost:${MOCK_ASSISTANT_SERVER_PORT}`;
 }
 
@@ -105,6 +103,8 @@ describe('MongoDB Assistant', function () {
 
     const setup = async () => {
       browser = compass.browser;
+      await setAIFeatures(true);
+
       await browser.setupDefaultConnections();
       await browser.connectToDefaults();
       await browser.selectConnectionMenuItem(
@@ -123,13 +123,12 @@ describe('MongoDB Assistant', function () {
     };
 
     setAIFeatures = async (newValue: boolean) => {
-      if (!isTestingWeb()) {
-        const currentValue = await browser.getFeature('enableGenAIFeatures');
-        if (currentValue === newValue) {
-          return;
-        }
+      if (isTestingWeb()) {
+        await browser.setEnv(
+          'COMPASS_OVERRIDE_ENABLE_AI_FEATURES',
+          newValue ? 'true' : 'false'
+        );
       }
-
       await browser.setFeature('enableGenAIFeatures', newValue);
 
       if (newValue) {
@@ -151,6 +150,14 @@ describe('MongoDB Assistant', function () {
         // Reseting the opt-in to false can be tricky so it's best to start over in this case.
         compass = await init(this.test?.fullTitle(), { firstRun: true });
         await setup();
+
+        if (isTestingWeb()) {
+          await setAIFeatures(true);
+        }
+        await browser.setFeature(
+          'optInGenAIFeatures',
+          newValue ? 'true' : 'false'
+        );
         return;
       }
 
@@ -212,10 +219,6 @@ describe('MongoDB Assistant', function () {
 
   describe('before opt-in', function () {
     before(async function () {
-      skipForWeb(
-        this,
-        'E2E testing for opt-in on compass-web is not yet implemented'
-      );
       await setAIOptIn(false);
     });
 
@@ -280,10 +283,6 @@ describe('MongoDB Assistant', function () {
 
   describe('opting in', function () {
     before(async function () {
-      skipForWeb(
-        this,
-        'E2E testing for opt-in on compass-web is not yet implemented'
-      );
       await setAIOptIn(false);
       await openAssistantDrawer(browser);
     });

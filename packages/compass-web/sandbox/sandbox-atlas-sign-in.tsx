@@ -128,22 +128,21 @@ export function useAtlasProxySignIn(): AtlasLoginReturnValue {
             featureFlags: { groupEnabledFeatureFlags },
             userRoles,
           } = params;
-          const forceEnableAI =
+          const overrideGenAIFeatures =
             process.env.COMPASS_WEB_FORCE_ENABLE_AI === 'true';
           setProjectParams({
             projectId,
             csrfToken,
             csrfTime,
-            optInGenAIFeatures:
-              forceEnableAI || isOptedIntoDataExplorerGenAIFeatures,
-            enableGenAIFeaturesAtlasOrg: forceEnableAI || genAIFeaturesEnabled,
+            optInGenAIFeatures: isOptedIntoDataExplorerGenAIFeatures,
+            enableGenAIFeaturesAtlasOrg:
+              overrideGenAIFeatures || genAIFeaturesEnabled,
             enableGenAISampleDocumentPassing:
-              forceEnableAI ||
               !groupEnabledFeatureFlags.includes(
                 'DISABLE_DATA_EXPLORER_GEN_AI_SAMPLE_DOCUMENT_PASSING'
               ),
             enableGenAIFeaturesAtlasProject:
-              forceEnableAI ||
+              overrideGenAIFeatures ||
               groupEnabledFeatureFlags.includes(
                 'ENABLE_DATA_EXPLORER_GEN_AI_FEATURES'
               ),

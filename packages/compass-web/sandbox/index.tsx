@@ -37,9 +37,6 @@ function getMetaEl(name: string) {
 const App = () => {
   const [currentTab, updateCurrentTab] = useWorkspaceTabRouter();
   const { status, projectParams } = useAtlasProxySignIn();
-
-  const forceEnableAI = process.env.COMPASS_WEB_FORCE_ENABLE_AI === 'true';
-
   const {
     projectId,
     csrfToken,
@@ -92,6 +89,9 @@ const App = () => {
     return { readOnly: true };
   })();
 
+  const overrideGenAIFeatures =
+    process.env.COMPASS_OVERRIDE_ENABLE_AI_FEATURES === 'true';
+
   return (
     <SandboxConnectionStorageProvider
       value={isAtlas ? null : sandboxConnectionStorage}
@@ -114,17 +114,16 @@ const App = () => {
               enableRollingIndexes: isAtlas,
               showDisabledConnections: true,
               enableGenAIFeaturesAtlasProject:
-                forceEnableAI || (isAtlas && !!enableGenAIFeaturesAtlasProject),
+                overrideGenAIFeatures ||
+                (isAtlas && !!enableGenAIFeaturesAtlasProject),
               enableGenAISampleDocumentPassing:
-                forceEnableAI ||
+                overrideGenAIFeatures ||
                 (isAtlas && !!enableGenAISampleDocumentPassing),
               enableGenAIFeaturesAtlasOrg:
-                forceEnableAI || (isAtlas && !!enableGenAIFeaturesAtlasOrg),
+                overrideGenAIFeatures ||
+                (isAtlas && !!enableGenAIFeaturesAtlasOrg),
               optInGenAIFeatures:
-                forceEnableAI || (isAtlas && !!optInGenAIFeatures),
-              cloudFeatureRolloutAccess: forceEnableAI
-                ? { GEN_AI_COMPASS: true }
-                : undefined,
+                overrideGenAIFeatures || (isAtlas && !!optInGenAIFeatures),
               enableDataModeling: true,
               enableMyQueries: false,
               ...groupRolePreferences,
