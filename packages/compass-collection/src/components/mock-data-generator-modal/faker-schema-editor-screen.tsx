@@ -10,10 +10,12 @@ import {
   SpinLoaderWithLabel,
 } from '@mongodb-js/compass-components';
 import React from 'react';
+import { connect } from 'react-redux';
 import FieldSelector from './schema-field-selector';
 import FakerMappingSelector from './faker-mapping-selector';
 import type { FakerSchema, MockDataGeneratorState } from './types';
 import type { MongoDBFieldType } from '@mongodb-js/compass-generative-ai';
+import { updateEditedFakerSchema } from '../../modules/collection-tab';
 
 const containerStyles = css({
   display: 'flex',
@@ -52,9 +54,11 @@ const schemaEditorLoaderStyles = css({
 const FakerSchemaEditorContent = ({
   fakerSchema,
   onSchemaConfirmed,
+  onSchemaChange,
 }: {
   fakerSchema: FakerSchema;
   onSchemaConfirmed: (isConfirmed: boolean) => void;
+  onSchemaChange: (updatedSchema: FakerSchema) => void;
 }) => {
   const [fakerSchemaFormValues, setFakerSchemaFormValues] =
     React.useState<FakerSchema>(fakerSchema);
@@ -73,13 +77,15 @@ const FakerSchemaEditorContent = ({
   const onJsonTypeSelect = (newJsonType: MongoDBFieldType) => {
     const currentMapping = fakerSchemaFormValues[activeField];
     if (currentMapping) {
-      setFakerSchemaFormValues({
+      const updatedSchema = {
         ...fakerSchemaFormValues,
         [activeField]: {
           ...currentMapping,
           mongoType: newJsonType,
         },
-      });
+      };
+      setFakerSchemaFormValues(updatedSchema);
+      onSchemaChange(updatedSchema);
       resetIsSchemaConfirmed();
     }
   };
@@ -87,13 +93,15 @@ const FakerSchemaEditorContent = ({
   const onFakerFunctionSelect = (newFakerFunction: string) => {
     const currentMapping = fakerSchemaFormValues[activeField];
     if (currentMapping) {
-      setFakerSchemaFormValues({
+      const updatedSchema = {
         ...fakerSchemaFormValues,
         [activeField]: {
           ...currentMapping,
           fakerMethod: newFakerFunction,
         },
-      });
+      };
+      setFakerSchemaFormValues(updatedSchema);
+      onSchemaChange(updatedSchema);
       resetIsSchemaConfirmed();
     }
   };
@@ -131,10 +139,12 @@ const FakerSchemaEditorContent = ({
 const FakerSchemaEditorScreen = ({
   onSchemaConfirmed,
   fakerSchemaGenerationState,
+  dispatch,
 }: {
   isSchemaConfirmed: boolean;
   onSchemaConfirmed: (isConfirmed: boolean) => void;
   fakerSchemaGenerationState: MockDataGeneratorState;
+  dispatch: (action: any) => void;
 }) => {
   return (
     <div data-testid="faker-schema-editor" className={containerStyles}>
@@ -160,12 +170,15 @@ const FakerSchemaEditorScreen = ({
       )}
       {fakerSchemaGenerationState.status === 'completed' && (
         <FakerSchemaEditorContent
-          fakerSchema={fakerSchemaGenerationState.fakerSchema}
+          fakerSchema={fakerSchemaGenerationState.editedFakerSchema}
           onSchemaConfirmed={onSchemaConfirmed}
+          onSchemaChange={(updatedSchema) =>
+            dispatch(updateEditedFakerSchema(updatedSchema))
+          }
         />
       )}
     </div>
   );
 };
 
-export default FakerSchemaEditorScreen;
+export default connect()(FakerSchemaEditorScreen);

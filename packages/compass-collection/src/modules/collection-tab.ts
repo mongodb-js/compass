@@ -127,6 +127,7 @@ export enum CollectionActions {
   FakerMappingGenerationStarted = 'compass-collection/FakerMappingGenerationStarted',
   FakerMappingGenerationCompleted = 'compass-collection/FakerMappingGenerationCompleted',
   FakerMappingGenerationFailed = 'compass-collection/FakerMappingGenerationFailed',
+  FakerSchemaEdited = 'compass-collection/FakerSchemaEdited',
 }
 
 interface CollectionMetadataFetchedAction {
@@ -194,6 +195,11 @@ export interface FakerMappingGenerationFailedAction {
   type: CollectionActions.FakerMappingGenerationFailed;
   error: string;
   requestId: string;
+}
+
+export interface FakerSchemaEditedAction {
+  type: CollectionActions.FakerSchemaEdited;
+  editedFakerSchema: FakerSchema;
 }
 
 const reducer: Reducer<CollectionState, Action> = (
@@ -457,7 +463,8 @@ const reducer: Reducer<CollectionState, Action> = (
       ...state,
       fakerSchemaGeneration: {
         status: 'completed',
-        fakerSchema: action.fakerSchema,
+        originalLlmResponse: action.fakerSchema,
+        editedFakerSchema: action.fakerSchema, // Initially same as LLM response
         requestId: action.requestId,
       },
     };
@@ -483,6 +490,25 @@ const reducer: Reducer<CollectionState, Action> = (
       mockDataGenerator: {
         ...state.mockDataGenerator,
         currentStep: MockDataGeneratorStep.SCHEMA_CONFIRMATION,
+      },
+    };
+  }
+
+  if (
+    isAction<FakerSchemaEditedAction>(
+      action,
+      CollectionActions.FakerSchemaEdited
+    )
+  ) {
+    if (state.fakerSchemaGeneration.status !== 'completed') {
+      return state;
+    }
+
+    return {
+      ...state,
+      fakerSchemaGeneration: {
+        ...state.fakerSchemaGeneration,
+        editedFakerSchema: action.editedFakerSchema,
       },
     };
   }
@@ -526,6 +552,12 @@ export const mockDataGeneratorPreviousButtonClicked = (): CollectionThunkAction<
       type: CollectionActions.MockDataGeneratorPreviousButtonClicked,
     });
   };
+};
+
+export const updateEditedFakerSchema = (
+  editedFakerSchema: FakerSchema
+): FakerSchemaEditedAction => {
+  return { type: CollectionActions.FakerSchemaEdited, editedFakerSchema };
 };
 
 export const selectTab = (
