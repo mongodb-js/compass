@@ -16,7 +16,10 @@ import type { AtlasAiService } from '@mongodb-js/compass-generative-ai/provider'
 import type { experimentationServiceLocator } from '@mongodb-js/compass-telemetry/provider';
 import { type Logger, mongoLogId } from '@mongodb-js/compass-logging/provider';
 import { type PreferencesAccess } from 'compass-preferences-model/provider';
-import type { MockDataSchemaRequest } from '@mongodb-js/compass-generative-ai';
+import type {
+  MockDataSchemaRequest,
+  MongoDBFieldType,
+} from '@mongodb-js/compass-generative-ai';
 import { isInternalFieldPath } from 'hadron-document';
 import toNS from 'mongodb-ns';
 import {
@@ -127,7 +130,8 @@ export enum CollectionActions {
   FakerMappingGenerationStarted = 'compass-collection/FakerMappingGenerationStarted',
   FakerMappingGenerationCompleted = 'compass-collection/FakerMappingGenerationCompleted',
   FakerMappingGenerationFailed = 'compass-collection/FakerMappingGenerationFailed',
-  FakerSchemaEdited = 'compass-collection/FakerSchemaEdited',
+  FakerFieldTypeChanged = 'compass-collection/FakerFieldTypeChanged',
+  FakerFieldMethodChanged = 'compass-collection/FakerFieldMethodChanged',
 }
 
 interface CollectionMetadataFetchedAction {
@@ -197,9 +201,16 @@ export interface FakerMappingGenerationFailedAction {
   requestId: string;
 }
 
-export interface FakerSchemaEditedAction {
-  type: CollectionActions.FakerSchemaEdited;
-  editedFakerSchema: FakerSchema;
+export interface FakerFieldTypeChangedAction {
+  type: CollectionActions.FakerFieldTypeChanged;
+  fieldPath: string;
+  mongoType: MongoDBFieldType;
+}
+
+export interface FakerFieldMethodChangedAction {
+  type: CollectionActions.FakerFieldMethodChanged;
+  fieldPath: string;
+  fakerMethod: string;
 }
 
 const reducer: Reducer<CollectionState, Action> = (
@@ -495,12 +506,20 @@ const reducer: Reducer<CollectionState, Action> = (
   }
 
   if (
-    isAction<FakerSchemaEditedAction>(
+    isAction<FakerFieldTypeChangedAction>(
       action,
-      CollectionActions.FakerSchemaEdited
+      CollectionActions.FakerFieldTypeChanged
     )
   ) {
     if (state.fakerSchemaGeneration.status !== 'completed') {
+      return state;
+    }
+
+    const { fieldPath, mongoType } = action;
+    const currentMapping =
+      state.fakerSchemaGeneration.editedFakerSchema[fieldPath];
+
+    if (!currentMapping) {
       return state;
     }
 
@@ -508,7 +527,46 @@ const reducer: Reducer<CollectionState, Action> = (
       ...state,
       fakerSchemaGeneration: {
         ...state.fakerSchemaGeneration,
-        editedFakerSchema: action.editedFakerSchema,
+        editedFakerSchema: {
+          ...state.fakerSchemaGeneration.editedFakerSchema,
+          [fieldPath]: {
+            ...currentMapping,
+            mongoType,
+          },
+        },
+      },
+    };
+  }
+
+  if (
+    isAction<FakerFieldMethodChangedAction>(
+      action,
+      CollectionActions.FakerFieldMethodChanged
+    )
+  ) {
+    if (state.fakerSchemaGeneration.status !== 'completed') {
+      return state;
+    }
+
+    const { fieldPath, fakerMethod } = action;
+    const currentMapping =
+      state.fakerSchemaGeneration.editedFakerSchema[fieldPath];
+
+    if (!currentMapping) {
+      return state;
+    }
+
+    return {
+      ...state,
+      fakerSchemaGeneration: {
+        ...state.fakerSchemaGeneration,
+        editedFakerSchema: {
+          ...state.fakerSchemaGeneration.editedFakerSchema,
+          [fieldPath]: {
+            ...currentMapping,
+            fakerMethod,
+          },
+        },
       },
     };
   }
@@ -554,10 +612,26 @@ export const mockDataGeneratorPreviousButtonClicked = (): CollectionThunkAction<
   };
 };
 
-export const updateEditedFakerSchema = (
-  editedFakerSchema: FakerSchema
-): FakerSchemaEditedAction => {
-  return { type: CollectionActions.FakerSchemaEdited, editedFakerSchema };
+export const fakerFieldTypeChanged = (
+  fieldPath: string,
+  mongoType: MongoDBFieldType
+): FakerFieldTypeChangedAction => {
+  return {
+    type: CollectionActions.FakerFieldTypeChanged,
+    fieldPath,
+    mongoType,
+  };
+};
+
+export const fakerFieldMethodChanged = (
+  fieldPath: string,
+  fakerMethod: string
+): FakerFieldMethodChangedAction => {
+  return {
+    type: CollectionActions.FakerFieldMethodChanged,
+    fieldPath,
+    fakerMethod,
+  };
 };
 
 export const selectTab = (

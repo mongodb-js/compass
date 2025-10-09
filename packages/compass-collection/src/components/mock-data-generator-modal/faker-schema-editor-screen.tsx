@@ -15,7 +15,16 @@ import FieldSelector from './schema-field-selector';
 import FakerMappingSelector from './faker-mapping-selector';
 import type { FakerSchema, MockDataGeneratorState } from './types';
 import type { MongoDBFieldType } from '@mongodb-js/compass-generative-ai';
-import { updateEditedFakerSchema } from '../../modules/collection-tab';
+import {
+  fakerFieldTypeChanged,
+  fakerFieldMethodChanged,
+  type FakerFieldTypeChangedAction,
+  type FakerFieldMethodChangedAction,
+} from '../../modules/collection-tab';
+
+type FakerSchemaDispatch = (
+  action: FakerFieldTypeChangedAction | FakerFieldMethodChangedAction
+) => void;
 
 const containerStyles = css({
   display: 'flex',
@@ -54,11 +63,11 @@ const schemaEditorLoaderStyles = css({
 const FakerSchemaEditorContent = ({
   fakerSchema,
   onSchemaConfirmed,
-  onSchemaChange,
+  dispatch,
 }: {
   fakerSchema: FakerSchema;
   onSchemaConfirmed: (isConfirmed: boolean) => void;
-  onSchemaChange: (updatedSchema: FakerSchema) => void;
+  dispatch: FakerSchemaDispatch;
 }) => {
   const [fakerSchemaFormValues, setFakerSchemaFormValues] =
     React.useState<FakerSchema>(fakerSchema);
@@ -77,15 +86,17 @@ const FakerSchemaEditorContent = ({
   const onJsonTypeSelect = (newJsonType: MongoDBFieldType) => {
     const currentMapping = fakerSchemaFormValues[activeField];
     if (currentMapping) {
-      const updatedSchema = {
+      // Update local form state
+      setFakerSchemaFormValues({
         ...fakerSchemaFormValues,
         [activeField]: {
           ...currentMapping,
           mongoType: newJsonType,
         },
-      };
-      setFakerSchemaFormValues(updatedSchema);
-      onSchemaChange(updatedSchema);
+      });
+
+      // Dispatch event to Redux
+      dispatch(fakerFieldTypeChanged(activeField, newJsonType));
       resetIsSchemaConfirmed();
     }
   };
@@ -93,15 +104,17 @@ const FakerSchemaEditorContent = ({
   const onFakerFunctionSelect = (newFakerFunction: string) => {
     const currentMapping = fakerSchemaFormValues[activeField];
     if (currentMapping) {
-      const updatedSchema = {
+      // Update local form state
+      setFakerSchemaFormValues({
         ...fakerSchemaFormValues,
         [activeField]: {
           ...currentMapping,
           fakerMethod: newFakerFunction,
         },
-      };
-      setFakerSchemaFormValues(updatedSchema);
-      onSchemaChange(updatedSchema);
+      });
+
+      // Dispatch event to Redux
+      dispatch(fakerFieldMethodChanged(activeField, newFakerFunction));
       resetIsSchemaConfirmed();
     }
   };
@@ -144,7 +157,7 @@ const FakerSchemaEditorScreen = ({
   isSchemaConfirmed: boolean;
   onSchemaConfirmed: (isConfirmed: boolean) => void;
   fakerSchemaGenerationState: MockDataGeneratorState;
-  dispatch: (action: any) => void;
+  dispatch: FakerSchemaDispatch;
 }) => {
   return (
     <div data-testid="faker-schema-editor" className={containerStyles}>
@@ -172,9 +185,7 @@ const FakerSchemaEditorScreen = ({
         <FakerSchemaEditorContent
           fakerSchema={fakerSchemaGenerationState.editedFakerSchema}
           onSchemaConfirmed={onSchemaConfirmed}
-          onSchemaChange={(updatedSchema) =>
-            dispatch(updateEditedFakerSchema(updatedSchema))
-          }
+          dispatch={dispatch}
         />
       )}
     </div>
