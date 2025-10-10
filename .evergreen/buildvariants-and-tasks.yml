@@ -114,7 +114,7 @@ buildvariants:
       - name: smoketest-packaged-app
   - name: test-eol-servers
     display_name: Test EoL Servers
-    run_on: ubuntu1804-large
+    run_on: ubuntu2004-large
     patchable: false
     depends_on:
       - name: package-compass
