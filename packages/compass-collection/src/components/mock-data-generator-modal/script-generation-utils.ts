@@ -2,7 +2,12 @@ import type { MongoDBFieldType } from '@mongodb-js/compass-generative-ai';
 import type { FakerFieldMapping } from './types';
 import { prettify } from '@mongodb-js/compass-editor';
 
-export type FakerArg = string | number | boolean | { json: string };
+export type FakerArg =
+  | string
+  | number
+  | boolean
+  | { json: string }
+  | FakerArg[];
 
 const DEFAULT_ARRAY_LENGTH = 3;
 

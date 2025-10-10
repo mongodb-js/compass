@@ -16,6 +16,7 @@ import workspacesReducer, {
   connectionDisconnected,
   updateDatabaseInfo,
   updateCollectionInfo,
+  beforeUnloading,
 } from './stores/workspaces';
 import Workspaces from './components';
 import { applyMiddleware, createStore } from 'redux';
@@ -75,7 +76,11 @@ export function configureStore(
 export function activateWorkspacePlugin(
   {
     initialWorkspaceTabs,
-  }: { initialWorkspaceTabs?: OpenWorkspaceOptions[] | null },
+    onBeforeUnloadCallbackRequest,
+  }: {
+    initialWorkspaceTabs?: OpenWorkspaceOptions[] | null;
+    onBeforeUnloadCallbackRequest?: (canCloseCallback: () => boolean) => void;
+  },
   {
     globalAppRegistry,
     instancesManager,
@@ -203,20 +208,9 @@ export function activateWorkspacePlugin(
     }
   });
 
-  // TODO(COMPASS-8033): activate this code and account for it in e2e tests and
-  // electron environment
-  // function onBeforeUnload(evt: BeforeUnloadEvent) {
-  //   const canUnload = store.getState().tabs.every((tab) => {
-  //     return canCloseTab(tab);
-  //   });
-  //   if (!canUnload) {
-  //     evt.preventDefault();
-  //   }
-  // }
-  // window.addEventListener('beforeunload', onBeforeUnload);
-  // addCleanup(() => {
-  //   window.removeEventListener('beforeunload', onBeforeUnload);
-  // });
+  onBeforeUnloadCallbackRequest?.(() => {
+    return store.dispatch(beforeUnloading());
+  });
 
   return {
     store,
