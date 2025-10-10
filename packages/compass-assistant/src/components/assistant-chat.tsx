@@ -232,11 +232,6 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
   const { ensureOptInAndSend } = useContext(AssistantActionsContext);
   const { messages, status, error, clearError, setMessages } = useChat({
     chat,
-    onError: (error) => {
-      track('Assistant Response Failed', () => ({
-        error_name: error.name,
-      }));
-    },
   });
 
   const scrollToBottom = useCallback(() => {
