@@ -43,7 +43,14 @@ import {
 /**
  * Maximum number of sample values to include for each field
  */
-const MAX_SAMPLE_VALUES = 10;
+const MAX_SAMPLE_VALUES = 5;
+
+/**
+ * Maximum length for individual sample values (to prevent massive payloads)
+ * 300 chars allows for meaningful text samples while keeping payloads manageable
+ */
+const MAX_STRING_SAMPLE_VALUE_LENGTH = 300;
+
 export const FIELD_NAME_SEPARATOR = '.';
 
 /**
@@ -113,7 +120,11 @@ function convertBSONToPrimitive(value: unknown): SampleValue {
     return value.toString();
   }
   if (value instanceof Binary) {
-    return value.toString('base64');
+    // For Binary data, provide a descriptive placeholder instead of the actual data
+    // to avoid massive base64 strings that can break LLM requests
+    // (Defensive check: should never be called, since sample values for binary are skipped)
+    const sizeInBytes = value.buffer?.length || 0;
+    return `<Binary data: ${sizeInBytes} bytes>`;
   }
   if (value instanceof BSONRegExp) {
     return value.pattern;
@@ -144,6 +155,14 @@ function convertBSONToPrimitive(value: unknown): SampleValue {
   if (value && typeof value === 'object' && 'valueOf' in value) {
     const result = (value as { valueOf(): unknown }).valueOf();
     return result as SampleValue;
+  }
+
+  // Truncate very long strings to prevent massive payloads
+  if (
+    typeof value === 'string' &&
+    value.length > MAX_STRING_SAMPLE_VALUE_LENGTH
+  ) {
+    return value.substring(0, MAX_STRING_SAMPLE_VALUE_LENGTH) + '...';
   }
 
   return value as SampleValue;
@@ -229,7 +248,7 @@ function processNamedField(
     primaryType,
     currentPath,
     result,
-    field.probability,
+    Math.round(field.probability * 100) / 100, // Round to 2 decimal places
     arrayLengthMap
   );
 }
@@ -281,11 +300,15 @@ function processType(
     // Primitive: Create entry
     const fieldInfo: FieldInfo = {
       type: type.name,
-      sampleValues: type.values
-        .slice(0, MAX_SAMPLE_VALUES)
-        .map(convertBSONToPrimitive),
       probability: fieldProbability,
     };
+
+    // Only add sampleValues if not Binary (to avoid massive payloads from embeddings)
+    if (type.name !== 'Binary') {
+      fieldInfo.sampleValues = type.values
+        .slice(0, MAX_SAMPLE_VALUES)
+        .map(convertBSONToPrimitive);
+    }
 
     result[currentPath] = fieldInfo;
   }

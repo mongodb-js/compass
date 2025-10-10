@@ -148,7 +148,7 @@ describe('processSchema', function () {
     expect(result.arrayLengthMap).to.deep.equal({});
   });
 
-  it('limits sample values to 10', function () {
+  it('limits sample values to 5', function () {
     const manyValues = Array.from({ length: 20 }, (_, i) => `value${i}`);
 
     const schema: Schema = {
@@ -177,9 +177,9 @@ describe('processSchema', function () {
 
     const result = processSchema(schema);
 
-    expect(result.fieldInfo.field.sampleValues).to.have.length(10);
+    expect(result.fieldInfo.field.sampleValues).to.have.length(5);
     expect(result.fieldInfo.field.sampleValues).to.deep.equal(
-      manyValues.slice(0, 10)
+      manyValues.slice(0, 5)
     );
   });
 
@@ -486,7 +486,7 @@ describe('processSchema', function () {
       },
       binary: {
         type: 'Binary',
-        sampleValues: ['dGVzdA=='],
+        // sampleValues property should be absent for Binary fields
         probability: 1.0,
       },
       regex: {
@@ -531,6 +531,132 @@ describe('processSchema', function () {
       },
     });
     expect(result.arrayLengthMap).to.deep.equal({});
+  });
+
+  it('excludes sample values for Binary fields to avoid massive payloads', function () {
+    const embedding = new Binary(Buffer.from([1, 2, 3, 4])); // Test Binary field logic
+    const schema: Schema = {
+      fields: [
+        {
+          name: 'plot_embedding',
+          path: ['plot_embedding'],
+          count: 1,
+          type: ['Binary'],
+          probability: 1.0,
+          hasDuplicates: false,
+          types: [
+            {
+              name: 'Binary',
+              bsonType: 'Binary',
+              path: ['plot_embedding'],
+              count: 1,
+              probability: 1.0,
+              values: [embedding],
+            },
+          ],
+        },
+        {
+          name: 'regular_field',
+          path: ['regular_field'],
+          count: 1,
+          type: ['String'],
+          probability: 1.0,
+          hasDuplicates: false,
+          types: [
+            {
+              name: 'String',
+              bsonType: 'String',
+              path: ['regular_field'],
+              count: 1,
+              probability: 1.0,
+              values: ['test'],
+            },
+          ],
+        },
+      ],
+      count: 1,
+    };
+
+    const result = processSchema(schema);
+
+    expect(result.fieldInfo).to.deep.equal({
+      plot_embedding: {
+        type: 'Binary',
+        // sampleValues property should be absent for Binary fields
+        probability: 1.0,
+      },
+      regular_field: {
+        type: 'String',
+        sampleValues: ['test'], // Should still have sample values for non-Binary fields
+        probability: 1.0,
+      },
+    });
+    expect(result.arrayLengthMap).to.deep.equal({});
+  });
+
+  it('truncates very long sample values to prevent massive payloads', function () {
+    const longText = 'A'.repeat(1000);
+    const schema: Schema = {
+      fields: [
+        {
+          name: 'longField',
+          path: ['longField'],
+          count: 1,
+          type: ['String'],
+          probability: 1.0,
+          hasDuplicates: false,
+          types: [
+            {
+              name: 'String',
+              bsonType: 'String',
+              path: ['longField'],
+              count: 1,
+              probability: 1.0,
+              values: [longText, 'short'],
+            },
+          ],
+        },
+      ],
+      count: 1,
+    };
+
+    const result = processSchema(schema);
+
+    expect(result.fieldInfo.longField.sampleValues).to.have.length(2);
+    expect(result.fieldInfo.longField.sampleValues![0]).to.equal(
+      'A'.repeat(300) + '...'
+    );
+    expect(result.fieldInfo.longField.sampleValues![1]).to.equal('short');
+  });
+
+  it('rounds probability to 2 decimal places', function () {
+    const schema: Schema = {
+      fields: [
+        {
+          name: 'field',
+          path: ['field'],
+          count: 1,
+          type: ['String'],
+          probability: 0.23076923076923078, // Very precise decimal
+          hasDuplicates: false,
+          types: [
+            {
+              name: 'String',
+              bsonType: 'String',
+              path: ['field'],
+              count: 1,
+              probability: 1.0,
+              values: ['test'],
+            },
+          ],
+        },
+      ],
+      count: 1,
+    };
+
+    const result = processSchema(schema);
+
+    expect(result.fieldInfo.field.probability).to.equal(0.23); // Rounded to 2 decimal places
   });
 
   it('transforms nested document field', function () {
@@ -908,7 +1034,7 @@ describe('processSchema', function () {
     expect(result.fieldInfo).to.deep.equal({
       'cube[][][]': {
         type: 'Number',
-        sampleValues: [1, 2, 3, 4, 5, 6, 7, 8],
+        sampleValues: [1, 2, 3, 4, 5],
         probability: 1.0,
       },
     });
