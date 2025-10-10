@@ -245,3 +245,5 @@ export type {
   NodeField,
   NodeGlyph,
 } from '@mongodb-js/diagramming';
+// @experiment Skills in Atlas  | Jira Epic: CLOUDP-346311
+export { AtlasSkillsBanner } from './components/atlas-skills-banner';
