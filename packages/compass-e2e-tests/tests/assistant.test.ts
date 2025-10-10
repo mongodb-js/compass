@@ -365,6 +365,10 @@ describe('MongoDB Assistant', function () {
     });
 
     it('can copy assistant message to clipboard', async function () {
+      skipForWeb(
+        this,
+        'Accessing the clipboard text is not available in compass-web so this test is not meaningful'
+      );
       await sendMessage(testMessage);
 
       const messageElements = await browser
@@ -377,11 +381,13 @@ describe('MongoDB Assistant', function () {
       await copyButton.waitForDisplayed();
       await copyButton.click();
 
-      const clipboardText = await browser.execute(() => {
-        return navigator.clipboard.readText();
+      await browser.waitUntil(async () => {
+        return (
+          (await browser.execute(() => {
+            return navigator.clipboard.readText();
+          })) === testResponse
+        );
       });
-
-      expect(clipboardText).to.equal(testResponse);
     });
 
     it('can submit feedback with text', async function () {
