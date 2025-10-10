@@ -27,7 +27,7 @@ const labelStyles = css({
 });
 
 interface Props {
-  activeJsonType: string;
+  activeJsonType: MongoDBFieldType;
   activeFakerFunction: string;
   onJsonTypeSelect: (jsonType: MongoDBFieldType) => void;
   onFakerFunctionSelect: (fakerFunction: string) => void;
@@ -40,8 +40,7 @@ const FakerMappingSelector = ({
   onFakerFunctionSelect,
 }: Props) => {
   const fakerMethodOptions = useMemo(() => {
-    const methods =
-      MONGO_TYPE_TO_FAKER_METHODS[activeJsonType as MongoDBFieldType] || [];
+    const methods = MONGO_TYPE_TO_FAKER_METHODS[activeJsonType] || [];
 
     if (methods.includes(activeFakerFunction)) {
       return methods;

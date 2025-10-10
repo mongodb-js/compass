@@ -47,31 +47,31 @@ describe('FakerMappingSelector', () => {
   });
 
   describe('should display faker methods for each MongoDB type', () => {
-    Object.entries(MONGO_TYPE_TO_FAKER_METHODS).forEach(
-      ([mongoType, methods]) => {
-        it(`should display faker methods for ${mongoType}`, () => {
-          const firstMethod = methods[0];
+    for (const [mongoType, methods] of Object.entries(
+      MONGO_TYPE_TO_FAKER_METHODS
+    )) {
+      it(`should display faker methods for ${mongoType}`, () => {
+        const firstMethod = methods[0];
 
-          render(
-            <FakerMappingSelector
-              activeJsonType={
-                mongoType as keyof typeof MONGO_TYPE_TO_FAKER_METHODS
-              }
-              activeFakerFunction={firstMethod}
-              onJsonTypeSelect={onJsonTypeSelectStub}
-              onFakerFunctionSelect={onFakerFunctionSelectStub}
-            />
-          );
+        render(
+          <FakerMappingSelector
+            activeJsonType={
+              mongoType as keyof typeof MONGO_TYPE_TO_FAKER_METHODS
+            }
+            activeFakerFunction={firstMethod}
+            onJsonTypeSelect={onJsonTypeSelectStub}
+            onFakerFunctionSelect={onFakerFunctionSelectStub}
+          />
+        );
 
-          const fakerFunctionSelect = screen.getByLabelText('Faker Function');
-          userEvent.click(fakerFunctionSelect);
+        const fakerFunctionSelect = screen.getByLabelText('Faker Function');
+        userEvent.click(fakerFunctionSelect);
 
-          methods.forEach((method) => {
-            expect(screen.getByRole('option', { name: method })).to.exist;
-          });
+        methods.forEach((method) => {
+          expect(screen.getByRole('option', { name: method })).to.exist;
         });
-      }
-    );
+      });
+    }
   });
 
   it('should call onJsonTypeSelect when MongoDB type changes', async () => {

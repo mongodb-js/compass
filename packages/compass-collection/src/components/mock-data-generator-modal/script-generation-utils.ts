@@ -1,6 +1,7 @@
 import type { MongoDBFieldType } from '@mongodb-js/compass-generative-ai';
 import type { FakerFieldMapping } from './types';
 import { prettify } from '@mongodb-js/compass-editor';
+import { UNRECOGNIZED_FAKER_METHOD } from '../../modules/collection-tab';
 
 export type FakerArg = string | number | boolean | { json: string };
 
@@ -446,7 +447,7 @@ function renderArrayCode(
  */
 function generateFakerCall(mapping: FakerFieldMapping): string {
   const method =
-    mapping.fakerMethod === 'unrecognized'
+    mapping.fakerMethod === UNRECOGNIZED_FAKER_METHOD
       ? getDefaultFakerMethod(mapping.mongoType)
       : mapping.fakerMethod;
 

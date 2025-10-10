@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { connect } from 'react-redux';
 
 import {
@@ -58,6 +58,11 @@ const RawSchemaConfirmationScreen = ({
   );
   const isDarkMode = useDarkMode();
 
+  const documentContainerStyles = useMemo(
+    () => getDocumentContainerStyles(!!isDarkMode),
+    [isDarkMode]
+  );
+
   const subtitleText = enableSampleDocumentPassing
     ? 'Sample Documents Collected'
     : 'Document Schema Identified';
@@ -74,7 +79,7 @@ const RawSchemaConfirmationScreen = ({
             {subtitleText}
           </Body>
           <Body className={descriptionStyles}>{descriptionText}</Body>
-          <div className={getDocumentContainerStyles(!!isDarkMode)}>
+          <div className={documentContainerStyles}>
             <DocumentList.Document
               className={documentStyles}
               editable={false}
