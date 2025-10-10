@@ -3,7 +3,7 @@ const UNIT_TESTS_BUILD_VARIANTS = [
   {
     name: 'unit-tests-ubuntu',
     display_name: 'Unit Tests Ubuntu',
-    run_on: 'ubuntu2004-large',
+    run_on: 'ubuntu2204-large',
   },
   {
     name: 'unit-tests-windows',
@@ -64,7 +64,7 @@ const TEST_PACKAGED_APP_BUILD_VARIANTS = [
   {
     name: 'test-packaged-app-ubuntu',
     display_name: 'Ubuntu 20.04',
-    run_on: 'ubuntu2004-large',
+    run_on: 'ubuntu2204-large',
     depends_on: 'package-ubuntu',
   },
   {
@@ -144,7 +144,7 @@ const E2E_TEST_GROUPS = Array.from({ length: E2E_TEST_GROUPS_NUMBER }).map((_, i
 buildvariants:
   - name: check
     display_name: Check
-    run_on: ubuntu2004-large
+    run_on: ubuntu2204-large
     tasks:
       - name: check
 
@@ -177,7 +177,7 @@ buildvariants:
 
   - name: smoketest-packaged-app
     display_name: Smoke Test via GitHub Actions
-    run_on: ubuntu2004-large
+    run_on: ubuntu2204-large
     depends_on:
     <% for (const distribution of COMPASS_DISTRIBUTIONS) { %>
     <% for (const buildVariant of PACKAGE_BUILD_VARIANTS) { %>
@@ -204,7 +204,7 @@ buildvariants:
 
   - name: test-maintained-servers
     display_name: Test Maintained Servers
-    run_on: ubuntu2004-large
+    run_on: ubuntu2204-large
     patchable: true
     depends_on:
       - name: package-compass
@@ -218,7 +218,7 @@ buildvariants:
 
   - name: test-latest-alpha
     display_name: Test Latest Alpha Server
-    run_on: ubuntu2004-large
+    run_on: ubuntu2204-large
     patchable: false
     depends_on:
       - name: package-compass
@@ -250,7 +250,7 @@ buildvariants:
 
   - name: publish
     display_name: Publish Artifacts
-    run_on: ubuntu2004-large
+    run_on: ubuntu2204-large
     tasks:
       - name: publish
       - name: publish-dev-release-info
@@ -258,13 +258,13 @@ buildvariants:
 
   - name: connectivity-tests
     display_name: Connectivity Tests
-    run_on: ubuntu2004-large
+    run_on: ubuntu2204-large
     tasks:
       - name: test-connectivity
 
   - name: e2e-coverage
     display_name: E2E Coverage
-    run_on: ubuntu2004-large
+    run_on: ubuntu2204-large
     tasks:
     <% for(const group of E2E_TEST_GROUPS) { %>
     - name: e2e-coverage-<%= group.number %>
@@ -272,13 +272,15 @@ buildvariants:
 
   - name: csfle-tests
     display_name: CSFLE Tests
-    run_on: ubuntu2004-large
+    run_on: ubuntu2204-large
     tasks:
       - name: test-csfle
 
   - name: test-web-sandbox
     display_name: Test Web Sandbox
-    run_on: ubuntu2004-large
+    # In web tests, we start electron proxy which is blocked by AppArmor on Ubuntu24.
+    # In order to switch, DEVPROD-22850 will address the AppArmor issue.
+    run_on: ubuntu2204-large
     tasks:
     <% for (const browser of BROWSERS) { %>
     <% for(const group of E2E_TEST_GROUPS) { %>
@@ -288,19 +290,19 @@ buildvariants:
 
   - name: test-can-bundle-compass-web
     display_name: Test Can Bundle Compass Web
-    run_on: ubuntu2004-large
+    run_on: ubuntu2204-large
     tasks:
       - name: test-can-bundle-compass-web
 
   - name: test-web-sandbox-atlas-cloud
     display_name: Test Web Sandbox (w/ Atlas Cloud login)
-    run_on: ubuntu2004-large
+    run_on: ubuntu2204-large
     tasks:
       - name: test-web-sandbox-atlas-cloud
 
   - name: generate-vulnerability-report
     display_name: Vulnerability Report
-    run_on: ubuntu2004-large
+    run_on: ubuntu2204-large
     tasks:
       - name: generate-vulnerability-report
 
