@@ -10,6 +10,7 @@ import type { DataModelingState } from '../store/reducer';
 import {
   addNewFieldToCollection,
   moveCollection,
+  onAddNestedField,
   selectCollection,
   selectRelationship,
   selectBackground,
@@ -29,6 +30,7 @@ import {
   useDarkMode,
   useDrawerActions,
   useDrawerState,
+  useThrottledProps,
   rafraf,
 } from '@mongodb-js/compass-components';
 import { cancelAnalysis, retryAnalysis } from '../store/analysis-process';
@@ -131,6 +133,7 @@ const DiagramContent: React.FunctionComponent<{
   isInRelationshipDrawingMode: boolean;
   editErrors?: string[];
   newCollection?: string;
+  onAddFieldToObjectField: (ns: string, parentPath: string[]) => void;
   onAddNewFieldToCollection: (ns: string) => void;
   onMoveCollection: (ns: string, newPosition: [number, number]) => void;
   onCollectionSelect: (namespace: string) => void;
@@ -153,6 +156,7 @@ const DiagramContent: React.FunctionComponent<{
   model,
   isInRelationshipDrawingMode,
   newCollection,
+  onAddFieldToObjectField,
   onAddNewFieldToCollection,
   onMoveCollection,
   onCollectionSelect,
@@ -324,6 +328,46 @@ const DiagramContent: React.FunctionComponent<{
     [onAddNewFieldToCollection]
   );
 
+  const onClickAddFieldToObjectField = useCallback(
+    (event: React.MouseEvent, nodeId: string, parentPath: string[]) => {
+      onAddFieldToObjectField(nodeId, parentPath);
+    },
+    [onAddFieldToObjectField]
+  );
+
+  const diagramProps = useMemo(
+    () => ({
+      isDarkMode,
+      title: diagramLabel,
+      edges,
+      nodes,
+      onAddFieldToNodeClick: onClickAddFieldToCollection,
+      onAddFieldToObjectFieldClick: onClickAddFieldToObjectField,
+      onNodeClick,
+      onPaneClick,
+      onEdgeClick,
+      onFieldClick,
+      onNodeDragStop,
+      onConnect,
+    }),
+    [
+      isDarkMode,
+      diagramLabel,
+      edges,
+      nodes,
+      onClickAddFieldToCollection,
+      onClickAddFieldToObjectField,
+      onNodeClick,
+      onPaneClick,
+      onEdgeClick,
+      onFieldClick,
+      onNodeDragStop,
+      onConnect,
+    ]
+  );
+
+  const throttledDiagramProps = useThrottledProps(diagramProps);
+
   return (
     <div
       ref={setDiagramContainerRef}
@@ -346,21 +390,11 @@ const DiagramContent: React.FunctionComponent<{
           </Banner>
         )}
         <Diagram
-          isDarkMode={isDarkMode}
-          title={diagramLabel}
-          edges={edges}
-          nodes={nodes}
+          {...throttledDiagramProps}
           // With threshold too low clicking sometimes gets confused with
-          // dragging
+          // dragging.
           nodeDragThreshold={5}
-          onNodeClick={onNodeClick}
-          onPaneClick={onPaneClick}
-          onEdgeClick={onEdgeClick}
-          onFieldClick={onFieldClick}
           fitViewOptions={ZOOM_OPTIONS}
-          onNodeDragStop={onNodeDragStop}
-          onConnect={onConnect}
-          onAddFieldToNodeClick={onClickAddFieldToCollection}
         />
       </div>
     </div>
@@ -384,6 +418,7 @@ const ConnectedDiagramContent = connect(
   },
   {
     onAddNewFieldToCollection: addNewFieldToCollection,
+    onAddFieldToObjectField: onAddNestedField,
     onMoveCollection: moveCollection,
     onCollectionSelect: selectCollection,
     onRelationshipSelect: selectRelationship,

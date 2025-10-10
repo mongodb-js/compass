@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **Mongodb Compass**.
-This document was automatically generated on Tue Sep 30 2025.
+This document was automatically generated on Fri Oct 10 2025.
 
 ## List of dependencies
 
@@ -174,7 +174,7 @@ This document was automatically generated on Tue Sep 30 2025.
 | **[@tanstack/virtual-core](#52022b961bfc614fb06b15d3f77e2bd15922d69d8283acb6696a8c60c6bae490)**                             | 3.11.2       | MIT                                 |
 | **[@tootallnate/quickjs-emscripten](#dda6dbabe98503ac1af20979be1778d7a1c8f355b85377124a909567193c2cd3)**                    | 0.23.0       | MIT                                 |
 | **[accepts](#f95b7a83c78ce214a33c8f8ef681fb76acf619e685469f394034d5d5ea1cfb23)**                                            | 2.0.0        | MIT                                 |
-| **[acorn](#4aa96f656a11c11b0e17ee35cc26cad7c13dcf4afdff6431e6d074261b59f47d)**                                              | 8.8.2        | MIT                                 |
+| **[acorn](#a6b193ff0df9277b68079a40cc83b679dbe8b4f36152551d07396926812174ac)**                                              | 8.15.0       | MIT                                 |
 | **[ag-grid-community](#f3a0879bf804a8156c501942869cb2b3f5c2770fe5ae768eacebf9c4856a3e6e)**                                  | 20.2.0       | MIT                                 |
 | **[ag-grid-react](#266b3ad41f62fe9d8b3388c7e3e56532f1081dfc35c8b513d746105d0f7ef2d5)**                                      | 20.2.0       | MIT                                 |
 | **[agent-base](#10202012ce77e7c6013605c6e813d5020905b1ae895084d48ca047fcfc47cdcb)**                                         | 7.1.3        | MIT                                 |
@@ -254,7 +254,7 @@ This document was automatically generated on Tue Sep 30 2025.
 | **[dunder-proto](#390fd69f2035b583e461890d5b0a3230f4adb33b042e6f0d1472dd911bc1de98)**                                       | 1.0.1        | MIT                                 |
 | **[ee-first](#e2746902c758ae8a6f91ffb9618cd53717f936cb33c6323e65b6b7b24f7ebefe)**                                           | 1.1.1        | MIT                                 |
 | **[electron-dl](#e97e034c7b93c63e7a433d75f6f1de3e0668764225ebbd61dbde8d1b55d6f3b7)**                                        | 3.5.0        | MIT                                 |
-| **[electron](#d0a4d7a3dc26c5d723b73a6db08bcb6815c1d6d8e77b523fbffeaf99ce9469bd)**                                           | 37.6.0       | MIT                                 |
+| **[electron](#5ab6953bd8e5e74dfba0c41f7ec9f0b72edcac6d6e4752979f75db6e19cc6741)**                                           | 37.6.1       | MIT                                 |
 | **[encodeurl](#177948a319ae0aeebbd65742c53c62b37c75ec1d021afa5a188d10a7ceae6623)**                                          | 2.0.0        | MIT                                 |
 | **[end-of-stream](#fadc10994f5fa767d06fb25cfff35fb17a895daf3bc3477c782907668ed16563)**                                      | 1.4.4        | MIT                                 |
 | **[ensure-error](#3b1eba5276d89414cef21a1007e85c4f1d6749bf57b300e082ab23975a41dbc9)**                                       | 3.0.1        | MIT                                 |
@@ -535,7 +535,7 @@ This document was automatically generated on Tue Sep 30 2025.
 | **[tunnel-agent](#09f746d17a1777efda5a12a6072da10c6820d7f56ea8aa0af202a2c83d6ccb67)**                                       | 0.6.0        | Apache-2.0                          |
 | **[tweetnacl](#496caef692284d7a5d6acd31283b785ebca47d82b2d85c9af7ea1913bb4b49a8)**                                          | 0.14.5       | Unlicense                           |
 | **[type-is](#4826b8bc816d5627e521607ab8df332add6d9dd0634bdf34c73473d2bb15900e)**                                            | 2.0.1        | MIT                                 |
-| **[typescript](#0d7c73afc2d40aadc1fe27e650c887e6552f535cb6cd76912b3290cf78eecb4e)**                                         | 5.9.2        | Apache-2.0                          |
+| **[typescript](#44bd9e04e2c25408450ce177acdc7deba1762976cc26b3635ba3003d10f91589)**                                         | 5.9.3        | Apache-2.0                          |
 | **[unified](#1057cb75b5de167b6a4f09619b14f32f3249236942408e06d520f9f60d44def7)**                                            | 10.1.2       | MIT                                 |
 | **[unist-util-generated](#384eae97d41fb95170618763917d7bf8404e7cfafa59c4b02b21166f31cac86c)**                               | 2.0.1        | MIT                                 |
 | **[unist-util-is](#d4d7a620dba27154bcfa90fe9ce5abd1d5707149899214b5f3e5d8c65f3b7f2d)**                                      | 5.2.1        | MIT                                 |
@@ -19621,9 +19621,9 @@ License files:
       TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
       SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-<a id="4aa96f656a11c11b0e17ee35cc26cad7c13dcf4afdff6431e6d074261b59f47d"></a>
+<a id="a6b193ff0df9277b68079a40cc83b679dbe8b4f36152551d07396926812174ac"></a>
 
-### [acorn](https://www.npmjs.com/package/acorn) (version 8.8.2)
+### [acorn](https://www.npmjs.com/package/acorn) (version 8.15.0)
 
 License tags: MIT
 
@@ -22412,9 +22412,9 @@ License files:
 
       THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-<a id="d0a4d7a3dc26c5d723b73a6db08bcb6815c1d6d8e77b523fbffeaf99ce9469bd"></a>
+<a id="5ab6953bd8e5e74dfba0c41f7ec9f0b72edcac6d6e4752979f75db6e19cc6741"></a>
 
-### [electron](https://www.npmjs.com/package/electron) (version 37.6.0)
+### [electron](https://www.npmjs.com/package/electron) (version 37.6.1)
 
 License tags: MIT
 
@@ -39794,9 +39794,9 @@ License files:
       TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
       SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-<a id="0d7c73afc2d40aadc1fe27e650c887e6552f535cb6cd76912b3290cf78eecb4e"></a>
+<a id="44bd9e04e2c25408450ce177acdc7deba1762976cc26b3635ba3003d10f91589"></a>
 
-### [typescript](https://www.npmjs.com/package/typescript) (version 5.9.2)
+### [typescript](https://www.npmjs.com/package/typescript) (version 5.9.3)
 
 License tags: Apache-2.0
 

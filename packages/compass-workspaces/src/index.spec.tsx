@@ -103,7 +103,6 @@ describe('WorkspacesPlugin', function () {
                   document_count: 0,
                   index_count: 0,
                   storage_size: 0,
-                  free_storage_size: 0,
                   data_size: 0,
                   index_size: 0,
                 },

@@ -19,7 +19,7 @@ const client = new OpenAI({
 init({ client });
 
 export type SimpleEvalCase = {
-  name?: string;
+  name: string;
   input: string;
   expected: string;
   expectedSources?: string[];
@@ -147,6 +147,7 @@ async function makeAssistantCall(
       'https://knowledge.mongodb.com/api/v1',
     apiKey: '',
     headers: {
+      'X-Request-Origin': 'compass-assistant-braintrust',
       'User-Agent': 'mongodb-compass/x.x.x',
     },
   });
