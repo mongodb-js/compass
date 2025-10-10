@@ -152,6 +152,7 @@ export {
   Theme,
   ThemeProvider,
 } from './hooks/use-theme';
+export { useThrottledProps } from './hooks/use-throttled-props';
 export {
   ContentWithFallback,
   FadeInPlaceholder,

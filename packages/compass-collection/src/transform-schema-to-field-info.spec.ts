@@ -53,13 +53,14 @@ describe('processSchema', function () {
 
     const result = processSchema(schema);
 
-    expect(result).to.deep.equal({
+    expect(result.fieldInfo).to.deep.equal({
       mixed: {
         type: 'String', // Should pick the most probable type
-        sample_values: ['text'],
+        sampleValues: ['text'],
         probability: 1.0,
       },
     });
+    expect(result.arrayLengthMap).to.deep.equal({});
   });
 
   it('filters out undefined and null types', function () {
@@ -103,13 +104,14 @@ describe('processSchema', function () {
 
     const result = processSchema(schema);
 
-    expect(result).to.deep.equal({
+    expect(result.fieldInfo).to.deep.equal({
       optional: {
         type: 'String',
-        sample_values: ['value'],
+        sampleValues: ['value'],
         probability: 0.67,
       },
     });
+    expect(result.arrayLengthMap).to.deep.equal({});
   });
 
   it('handles fields with no types', function () {
@@ -130,7 +132,8 @@ describe('processSchema', function () {
 
     const result = processSchema(schema);
 
-    expect(result).to.deep.equal({});
+    expect(result.fieldInfo).to.deep.equal({});
+    expect(result.arrayLengthMap).to.deep.equal({});
   });
 
   it('handles empty schema', function () {
@@ -141,7 +144,8 @@ describe('processSchema', function () {
 
     const result = processSchema(schema);
 
-    expect(result).to.deep.equal({});
+    expect(result.fieldInfo).to.deep.equal({});
+    expect(result.arrayLengthMap).to.deep.equal({});
   });
 
   it('limits sample values to 10', function () {
@@ -173,8 +177,10 @@ describe('processSchema', function () {
 
     const result = processSchema(schema);
 
-    expect(result.field.sample_values).to.have.length(10);
-    expect(result.field.sample_values).to.deep.equal(manyValues.slice(0, 10));
+    expect(result.fieldInfo.field.sampleValues).to.have.length(10);
+    expect(result.fieldInfo.field.sampleValues).to.deep.equal(
+      manyValues.slice(0, 10)
+    );
   });
 
   it('transforms simple primitive fields', function () {
@@ -258,28 +264,29 @@ describe('processSchema', function () {
 
     const result = processSchema(schema);
 
-    expect(result).to.deep.equal({
+    expect(result.fieldInfo).to.deep.equal({
       name: {
         type: 'String',
-        sample_values: ['John', 'Jane', 'Bob'],
+        sampleValues: ['John', 'Jane', 'Bob'],
         probability: 1.0,
       },
       age: {
         type: 'Number',
-        sample_values: [25, 30, 35],
+        sampleValues: [25, 30, 35],
         probability: 0.9,
       },
       isActive: {
         type: 'Boolean',
-        sample_values: [true, false, true],
+        sampleValues: [true, false, true],
         probability: 0.8,
       },
       createdAt: {
         type: 'Date',
-        sample_values: [new Date('2023-01-01'), new Date('2023-06-15')],
+        sampleValues: [new Date('2023-01-01'), new Date('2023-06-15')],
         probability: 0.7,
       },
     });
+    expect(result.arrayLengthMap).to.deep.equal({});
   });
 
   it('handles various BSON types', function () {
@@ -471,58 +478,59 @@ describe('processSchema', function () {
 
     const result = processSchema(schema);
 
-    expect(result).to.deep.equal({
+    expect(result.fieldInfo).to.deep.equal({
       objectId: {
         type: 'ObjectId',
-        sample_values: ['642d766b7300158b1f22e972'],
+        sampleValues: ['642d766b7300158b1f22e972'],
         probability: 1.0,
       },
       binary: {
         type: 'Binary',
-        sample_values: ['dGVzdA=='],
+        sampleValues: ['dGVzdA=='],
         probability: 1.0,
       },
       regex: {
         type: 'RegExp',
-        sample_values: ['pattern'],
+        sampleValues: ['pattern'],
         probability: 1.0,
       },
       code: {
         type: 'Code',
-        sample_values: ['function() {}'],
+        sampleValues: ['function() {}'],
         probability: 1.0,
       },
       long: {
         type: 'Long',
-        sample_values: [123456789],
+        sampleValues: [123456789],
         probability: 1.0,
       },
       decimal: {
         type: 'Decimal128',
-        sample_values: [123.456],
+        sampleValues: [123.456],
         probability: 1.0,
       },
       timestamp: {
         type: 'Timestamp',
-        sample_values: [4294967297],
+        sampleValues: [4294967297],
         probability: 1.0,
       },
       maxKey: {
         type: 'MaxKey',
-        sample_values: ['MaxKey'],
+        sampleValues: ['MaxKey'],
         probability: 1.0,
       },
       minKey: {
         type: 'MinKey',
-        sample_values: ['MinKey'],
+        sampleValues: ['MinKey'],
         probability: 1.0,
       },
       symbol: {
         type: 'Symbol',
-        sample_values: ['symbol'],
+        sampleValues: ['symbol'],
         probability: 1.0,
       },
     });
+    expect(result.arrayLengthMap).to.deep.equal({});
   });
 
   it('transforms nested document field', function () {
@@ -589,18 +597,19 @@ describe('processSchema', function () {
 
     const result = processSchema(schema);
 
-    expect(result).to.deep.equal({
+    expect(result.fieldInfo).to.deep.equal({
       'user.name': {
         type: 'String',
-        sample_values: ['John'],
+        sampleValues: ['John'],
         probability: 1.0,
       },
       'user.age': {
         type: 'Number',
-        sample_values: [25, 30],
+        sampleValues: [25, 30],
         probability: 0.8,
       },
     });
+    expect(result.arrayLengthMap).to.deep.equal({});
   });
 
   it('transforms array field', function () {
@@ -643,12 +652,15 @@ describe('processSchema', function () {
 
     const result = processSchema(schema);
 
-    expect(result).to.deep.equal({
+    expect(result.fieldInfo).to.deep.equal({
       'tags[]': {
         type: 'String',
-        sample_values: ['red', 'blue', 'green'],
+        sampleValues: ['red', 'blue', 'green'],
         probability: 1.0,
       },
+    });
+    expect(result.arrayLengthMap).to.deep.equal({
+      'tags[]': 2, // Math.round(1.5) = 2
     });
   });
 
@@ -717,13 +729,14 @@ describe('processSchema', function () {
 
     const result = processSchema(schema);
 
-    expect(result).to.deep.equal({
+    expect(result.fieldInfo).to.deep.equal({
       'level1.level2.value': {
         type: 'String',
-        sample_values: ['deep'],
+        sampleValues: ['deep'],
         probability: 1.0,
       },
     });
+    expect(result.arrayLengthMap).to.deep.equal({});
   });
 
   it('handles arrays of documents', function () {
@@ -802,17 +815,20 @@ describe('processSchema', function () {
 
     const result = processSchema(schema);
 
-    expect(result).to.deep.equal({
+    expect(result.fieldInfo).to.deep.equal({
       'items[].id': {
         type: 'Number',
-        sample_values: [1, 2],
+        sampleValues: [1, 2],
         probability: 1.0,
       },
       'items[].cost': {
         type: 'Number',
-        sample_values: [10.5, 25.0],
+        sampleValues: [10.5, 25.0],
         probability: 1.0,
       },
+    });
+    expect(result.arrayLengthMap).to.deep.equal({
+      'items[]': 2, // averageLength: 2
     });
   });
 
@@ -889,12 +905,17 @@ describe('processSchema', function () {
 
     const result = processSchema(schema);
 
-    expect(result).to.deep.equal({
+    expect(result.fieldInfo).to.deep.equal({
       'cube[][][]': {
         type: 'Number',
-        sample_values: [1, 2, 3, 4, 5, 6, 7, 8],
+        sampleValues: [1, 2, 3, 4, 5, 6, 7, 8],
         probability: 1.0,
       },
+    });
+    expect(result.arrayLengthMap).to.deep.equal({
+      'cube[]': 2,
+      'cube[][]': 2,
+      'cube[][][]': 2,
     });
   });
 
@@ -988,17 +1009,21 @@ describe('processSchema', function () {
 
     const result = processSchema(schema);
 
-    expect(result).to.deep.equal({
+    expect(result.fieldInfo).to.deep.equal({
       'matrix[][].x': {
         type: 'Number',
-        sample_values: [1, 3],
+        sampleValues: [1, 3],
         probability: 1.0,
       },
       'matrix[][].y': {
         type: 'Number',
-        sample_values: [2, 4],
+        sampleValues: [2, 4],
         probability: 1.0,
       },
+    });
+    expect(result.arrayLengthMap).to.deep.equal({
+      'matrix[]': 2,
+      'matrix[][]': 1,
     });
   });
 
@@ -1092,17 +1117,21 @@ describe('processSchema', function () {
 
     const result = processSchema(schema);
 
-    expect(result).to.deep.equal({
+    expect(result.fieldInfo).to.deep.equal({
       'teams[].name': {
         type: 'String',
-        sample_values: ['Team A', 'Team B'],
+        sampleValues: ['Team A', 'Team B'],
         probability: 1.0,
       },
       'teams[].members[]': {
         type: 'String',
-        sample_values: ['Alice', 'Bob', 'Charlie'],
+        sampleValues: ['Alice', 'Bob', 'Charlie'],
         probability: 1.0,
       },
+    });
+    expect(result.arrayLengthMap).to.deep.equal({
+      'teams[]': 2,
+      'teams[].members[]': 2, // Math.round(1.5) = 2
     });
   });
 
@@ -1188,6 +1217,127 @@ describe('processSchema', function () {
       expect(() => processSchema(schema)).to.throw(
         "invalid fieldPath '[]': field parts must have characters other than '[]'"
       );
+    });
+  });
+
+  describe('Array Length Map', function () {
+    it('should handle array length bounds (min 1, max 50)', function () {
+      const schema: Schema = {
+        fields: [
+          {
+            name: 'smallArray',
+            path: ['smallArray'],
+            count: 1,
+            type: ['Array'],
+            probability: 1.0,
+            hasDuplicates: false,
+            types: [
+              {
+                name: 'Array',
+                bsonType: 'Array',
+                path: ['smallArray'],
+                count: 1,
+                probability: 1.0,
+                lengths: [0.3], // Very small average
+                averageLength: 0.3,
+                totalCount: 1,
+                types: [
+                  {
+                    name: 'String',
+                    bsonType: 'String',
+                    path: ['smallArray'],
+                    count: 1,
+                    probability: 1.0,
+                    values: ['test'],
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            name: 'largeArray',
+            path: ['largeArray'],
+            count: 1,
+            type: ['Array'],
+            probability: 1.0,
+            hasDuplicates: false,
+            types: [
+              {
+                name: 'Array',
+                bsonType: 'Array',
+                path: ['largeArray'],
+                count: 1,
+                probability: 1.0,
+                lengths: [100], // Very large average
+                averageLength: 100,
+                totalCount: 100,
+                types: [
+                  {
+                    name: 'Number',
+                    bsonType: 'Number',
+                    path: ['largeArray'],
+                    count: 100,
+                    probability: 1.0,
+                    values: [new Int32(1)],
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+        count: 1,
+      };
+
+      const result = processSchema(schema);
+
+      expect(result.arrayLengthMap).to.deep.equal({
+        'smallArray[]': 1, // Min 1
+        'largeArray[]': 50, // Max 50
+      });
+    });
+
+    it('should handle missing averageLength with default', function () {
+      const schema: Schema = {
+        fields: [
+          {
+            name: 'defaultArray',
+            path: ['defaultArray'],
+            count: 1,
+            type: ['Array'],
+            probability: 1.0,
+            hasDuplicates: false,
+            types: [
+              {
+                name: 'Array',
+                bsonType: 'Array',
+                path: ['defaultArray'],
+                count: 1,
+                probability: 1.0,
+                lengths: [2],
+                // averageLength is undefined
+                totalCount: 2,
+                types: [
+                  {
+                    name: 'String',
+                    bsonType: 'String',
+                    path: ['defaultArray'],
+                    count: 2,
+                    probability: 1.0,
+                    values: ['a', 'b'],
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+        count: 1,
+      };
+
+      const result = processSchema(schema);
+
+      expect(result.arrayLengthMap).to.deep.equal({
+        'defaultArray[]': 3, // DEFAULT_ARRAY_LENGTH = 3
+      });
     });
   });
 });

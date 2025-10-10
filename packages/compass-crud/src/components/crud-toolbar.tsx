@@ -75,6 +75,11 @@ const docsPerPageOptionStyles = css({
   width: spacing[1600] + spacing[300],
 });
 
+const loaderContainerStyles = css({
+  paddingLeft: spacing[200],
+  paddingRight: spacing[200],
+});
+
 type ExportDataOption = 'export-query' | 'export-full-collection';
 const exportDataActions: MenuAction<ExportDataOption>[] = [
   { action: 'export-query', label: 'Export query results' },
@@ -380,7 +385,9 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
             {displayedDocumentCount && `of ${displayedDocumentCount}`}
           </Body>
           {loadingCount && (
-            <SpinLoader size="12px" title="Fetching document count…" />
+            <div className={loaderContainerStyles}>
+              <SpinLoader size="12px" title="Fetching document count…" />
+            </div>
           )}
           {!loadingCount && !isFetching && (
             <IconButton

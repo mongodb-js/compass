@@ -1,5 +1,4 @@
-'use strict';
-const {
+import {
   isPlainObject,
   isArray,
   isString,
@@ -9,9 +8,9 @@ const {
   without,
   toNumber,
   toString,
-} = require('lodash');
+} from 'lodash';
 
-const {
+import {
   ObjectId,
   MinKey,
   MaxKey,
@@ -24,7 +23,31 @@ const {
   Code,
   BSONSymbol,
   Timestamp,
-} = require('bson');
+} from 'bson';
+
+export type TypeCastMap = {
+  Array: unknown[];
+  Binary: Binary;
+  Boolean: boolean;
+  Code: Code;
+  Date: Date;
+  Decimal128: Decimal128;
+  Double: Double;
+  Int32: Int32;
+  Int64: Long;
+  MaxKey: MaxKey;
+  MinKey: MinKey;
+  Null: null;
+  Object: Record<string, unknown>;
+  ObjectId: ObjectId;
+  BSONRegExp: BSONRegExp;
+  String: string;
+  BSONSymbol: BSONSymbol;
+  Timestamp: Timestamp;
+  Undefined: undefined;
+};
+
+export type TypeCastTypes = keyof TypeCastMap;
 /**
  * The object string.
  */
@@ -90,29 +113,29 @@ const NUMBER_REGEX = /^-?\d+$/;
 /**
  * All bson types that are numbers.
  */
-const NUMBER_TYPES = ['Long', 'Int32', 'Double', 'Decimal128'];
+const NUMBER_TYPES = ['Long', 'Int32', 'Double', 'Decimal128'] as const;
 
-const toDate = (object) => {
-  return new Date(object);
+const toDate = (object: unknown): Date => {
+  return new Date(object as string | number | Date);
 };
 
-const toMinKey = () => {
+const toMinKey = (): MinKey => {
   return new MinKey();
 };
 
-const toMaxKey = () => {
+const toMaxKey = (): MaxKey => {
   return new MaxKey();
 };
 
-const toUndefined = () => {
+const toUndefined = (): undefined => {
   return undefined;
 };
 
-const toNull = () => {
+const toNull = (): null => {
   return null;
 };
 
-const toBoolean = (object) => {
+const toBoolean = (object: unknown): boolean => {
   if (isString(object)) {
     if (object.toLowerCase() === TRUE) {
       return true;
@@ -127,14 +150,14 @@ const toBoolean = (object) => {
   return false;
 };
 
-const toObject = (object) => {
+const toObject = (object: unknown): Record<string, unknown> => {
   if (isPlainObject(object)) {
-    return object;
+    return object as Record<string, unknown>;
   }
   return {};
 };
 
-const toArray = (object) => {
+const toArray = (object: unknown): unknown[] => {
   if (isArray(object)) {
     return object;
   }
@@ -144,7 +167,7 @@ const toArray = (object) => {
   return [object];
 };
 
-const toInt32 = (object) => {
+const toInt32 = (object: unknown): Int32 => {
   if (object === '-' || object === '') {
     throw new Error(`Value '${object}' is not a valid Int32 value`);
   }
@@ -155,7 +178,7 @@ const toInt32 = (object) => {
   throw new Error(`Value ${number} is outside the valid Int32 range`);
 };
 
-const toInt64 = (object) => {
+const toInt64 = (object: unknown): Long => {
   if (object === '-' || object === '') {
     throw new Error(`Value '${object}' is not a valid Int64 value`);
   }
@@ -166,22 +189,24 @@ const toInt64 = (object) => {
     // when casting from int32 object(this will have object.value) or literal
     // (it will a typeof number) we can safely create object fromNumber, as it
     // will not be greater than JS's max value
-    if (object.value || typeof object === 'number') {
+    if ((object as { value?: number })?.value || typeof object === 'number') {
       return Long.fromNumber(number);
-    } else if (typeof object === 'object') {
+    } else if (
+      typeof object === 'object' &&
+      object !== null &&
+      'toString' in object
+    ) {
       // to make sure we are still displaying Very Large numbers properly, convert
       // the current 'object' to a string
-      return Long.fromString(object.toString());
+      return Long.fromString((object as { toString(): string }).toString());
     }
 
-    return Long.fromString(object);
+    return Long.fromString(toString(object));
   }
-  throw new Error(
-    `Value ${object.toString()} is outside the valid Int64 range`
-  );
+  throw new Error(`Value ${toString(object)} is outside the valid Int64 range`);
 };
 
-const toDouble = (object) => {
+const toDouble = (object: unknown): Double => {
   if (object === '-' || object === '') {
     throw new Error(`Value '${object}' is not a valid Double value`);
   }
@@ -192,43 +217,56 @@ const toDouble = (object) => {
   return new Double(number);
 };
 
-const toDecimal128 = (object) => {
+type BSONObject = {
+  _bsontype: string;
+  toString(): string;
+  valueOf(): number | string;
+};
+
+const toDecimal128 = (object: unknown): Decimal128 => {
   /*
    If converting a BSON Object, extract the value before converting to a string.
    */
-  if (hasIn(object, BSON_TYPE) && NUMBER_TYPES.includes(object._bsontype)) {
-    object = object._bsontype === LONG ? object.toString() : object.valueOf();
+  if (
+    hasIn(object, BSON_TYPE) &&
+    NUMBER_TYPES.includes(
+      (object as BSONObject)._bsontype as (typeof NUMBER_TYPES)[number]
+    )
+  ) {
+    const bsonObj = object as BSONObject;
+    object =
+      bsonObj._bsontype === LONG ? bsonObj.toString() : bsonObj.valueOf();
   }
-  return Decimal128.fromString('' + object);
+  return Decimal128.fromString(toString(object));
 };
 
-const toObjectID = (object) => {
+const toObjectID = (object: unknown): ObjectId => {
   if (!isString(object) || object === '') {
     return new ObjectId();
   }
   return ObjectId.createFromHexString(object);
 };
 
-const toBinary = (object) => {
+const toBinary = (object: unknown): Binary => {
   const buffer = ArrayBuffer.isView(object)
-    ? Buffer.from(object)
+    ? Buffer.from(object as Uint8Array)
     : Buffer.from(toString(object), 'utf8');
   return new Binary(buffer, Binary.SUBTYPE_DEFAULT);
 };
 
-const toRegex = (object) => {
-  return new BSONRegExp('' + object);
+const toRegex = (object: unknown): BSONRegExp => {
+  return new BSONRegExp(toString(object));
 };
 
-const toCode = (object) => {
-  return new Code('' + object);
+const toCode = (object: unknown): Code => {
+  return new Code(toString(object));
 };
 
-const toSymbol = (object) => {
-  return new BSONSymbol('' + object);
+const toSymbol = (object: unknown): BSONSymbol => {
+  return new BSONSymbol(toString(object));
 };
 
-const toTimestamp = (object) => {
+const toTimestamp = (object: unknown): Timestamp => {
   const number = toNumber(object);
   return Timestamp.fromNumber(number);
 };
@@ -236,7 +274,9 @@ const toTimestamp = (object) => {
 /**
  * The functions to cast to a type.
  */
-const CASTERS = {
+const CASTERS: {
+  [K in TypeCastTypes]: (object: unknown) => TypeCastMap[K];
+} = {
   Array: toArray,
   Binary: toBinary,
   Boolean: toBoolean,
@@ -267,9 +307,9 @@ const TYPES = keys(CASTERS);
  * Checks if a string is an int32.
  */
 class Int32Check {
-  test(string) {
+  test(string: string): boolean {
     if (NUMBER_REGEX.test(string)) {
-      var value = toNumber(string);
+      const value = toNumber(string);
       return value >= BSON_INT32_MIN && value <= BSON_INT32_MAX;
     }
     return false;
@@ -280,7 +320,7 @@ class Int32Check {
  * Checks if a string is an int64.
  */
 class Int64Check {
-  test(string) {
+  test(string: string): boolean {
     if (NUMBER_REGEX.test(string)) {
       return Number.isSafeInteger(toNumber(string));
     }
@@ -293,13 +333,9 @@ const INT64_CHECK = new Int64Check();
 
 /**
  * Gets the BSON type for a JS number.
- *
- * @param {Number} number - The number.
- *
- * @returns {String} The BSON type.
  */
-const numberToBsonType = (number) => {
-  var string = toString(number);
+const numberToBsonType = (number: number): TypeCastTypes => {
+  const string = toString(number);
   if (INT32_CHECK.test(string)) {
     return INT_32;
   } else if (INT64_CHECK.test(string)) {
@@ -314,40 +350,37 @@ const numberToBsonType = (number) => {
 class TypeChecker {
   /**
    * Cast the provided object to the desired type.
-   *
-   * @param {Object} object - The object to cast.
-   * @param {String} type - The type.
-   *
-   * @returns {Object} The cast object.
    */
-  cast(object, type) {
-    var caster = CASTERS[type];
-    var result = object;
+  cast<O = unknown, T extends string = string>(
+    object: O,
+    type: T
+  ): T extends TypeCastTypes ? TypeCastMap[T] : O {
+    const caster = CASTERS[type as keyof typeof CASTERS];
+    let result: unknown = object;
     if (caster) {
       result = caster(object);
     }
-    return result === OBJECT_TYPE && result !== object ? EMPTY : result;
+    return (
+      result === OBJECT_TYPE && result !== object ? EMPTY : result
+    ) as T extends TypeCastTypes ? TypeCastMap[T] : O;
   }
 
   /**
    * Get the type for the object.
-   *
-   * @param {Object} object - The object.
-   *
-   * @returns {String} The object type.
    */
-  type(object) {
+  type(object: unknown): TypeCastTypes {
     if (hasIn(object, BSON_TYPE)) {
-      if (object._bsontype === LONG) {
+      const bsonObj = object as { _bsontype: string };
+      if (bsonObj._bsontype === LONG) {
         return INT_64;
       }
-      if (object._bsontype === OBJECT_ID) {
+      if (bsonObj._bsontype === OBJECT_ID) {
         return 'ObjectId';
       }
-      if (object._bsontype === SYMBOL) {
+      if (bsonObj._bsontype === SYMBOL) {
         return 'BSONSymbol';
       }
-      return object._bsontype;
+      return bsonObj._bsontype as TypeCastTypes;
     }
     if (isNumber(object)) {
       return numberToBsonType(object);
@@ -358,22 +391,20 @@ class TypeChecker {
     if (isArray(object)) {
       return ARRAY;
     }
-    return Object.prototype.toString.call(object).replace(MATCH, '$1');
+    return Object.prototype.toString
+      .call(object)
+      .replace(MATCH, '$1') as TypeCastTypes;
   }
 
   /**
    * Get a list of types the object can be cast to.
-   *
-   * @param {Boolean} highPrecisionSupport - If Decimal128 is supported or not.
-   *
-   * @returns {Array} The available types.
    */
-  castableTypes(highPrecisionSupport = false) {
+  castableTypes(highPrecisionSupport = false): TypeCastTypes[] {
     if (highPrecisionSupport === true) {
-      return TYPES;
+      return TYPES as TypeCastTypes[];
     }
-    return without(TYPES, DECIMAL_128);
+    return without(TYPES, DECIMAL_128) as TypeCastTypes[];
   }
 }
 
-module.exports = new TypeChecker();
+export default new TypeChecker();

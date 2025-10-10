@@ -33,6 +33,7 @@ import {
   processSchema,
   ProcessSchemaUnsupportedStateError,
 } from '../transform-schema-to-field-info';
+import type { Collection } from '@mongodb-js/compass-app-stores/provider';
 import type { Document, MongoError } from 'mongodb';
 import { MockDataGeneratorStep } from '../components/mock-data-generator-modal/types';
 import type {
@@ -41,7 +42,7 @@ import type {
   MockDataGeneratorState,
 } from '../components/mock-data-generator-modal/types';
 
-import { faker } from '@faker-js/faker/locale/en';
+import { isValidFakerMethod } from '../components/mock-data-generator-modal/utils';
 
 const DEFAULT_SAMPLE_SIZE = 100;
 
@@ -94,6 +95,7 @@ type CollectionThunkAction<R, A extends AnyAction = AnyAction> = ThunkAction<
     connectionInfoRef: ConnectionInfoRef;
     fakerSchemaGenerationAbortControllerRef: { current?: AbortController };
     schemaAnalysisAbortControllerRef: { current?: AbortController };
+    collection: Collection;
   },
   A
 >;
@@ -143,10 +145,12 @@ interface SchemaAnalysisStartedAction {
 interface SchemaAnalysisFinishedAction {
   type: CollectionActions.SchemaAnalysisFinished;
   processedSchema: Record<string, FieldInfo>;
+  arrayLengthMap: Record<string, number>;
   sampleDocument: Document;
   schemaMetadata: {
     maxNestingDepth: number;
     validationRules: Document | null;
+    avgDocumentSize: number | undefined;
   };
 }
 
@@ -262,6 +266,7 @@ const reducer: Reducer<CollectionState, Action> = (
       schemaAnalysis: {
         status: SCHEMA_ANALYSIS_STATE_COMPLETE,
         processedSchema: action.processedSchema,
+        arrayLengthMap: action.arrayLengthMap,
         sampleDocument: action.sampleDocument,
         schemaMetadata: action.schemaMetadata,
       },
@@ -561,7 +566,13 @@ export const analyzeCollectionSchema = (): CollectionThunkAction<
   return async (
     dispatch,
     getState,
-    { dataService, preferences, logger, schemaAnalysisAbortControllerRef }
+    {
+      dataService,
+      preferences,
+      logger,
+      schemaAnalysisAbortControllerRef,
+      collection: collectionModel,
+    }
   ) => {
     const { schemaAnalysis, namespace } = getState();
     const analysisStatus = schemaAnalysis.status;
@@ -629,7 +640,7 @@ export const analyzeCollectionSchema = (): CollectionThunkAction<
       );
 
       // Transform schema to structure that will be used by the LLM
-      const processedSchema = processSchema(schema);
+      const processSchemaResult = processSchema(schema);
 
       const maxNestingDepth = await calculateSchemaDepth(schema);
       const { database, collection } = toNS(namespace);
@@ -638,6 +649,7 @@ export const analyzeCollectionSchema = (): CollectionThunkAction<
       const schemaMetadata = {
         maxNestingDepth,
         validationRules,
+        avgDocumentSize: collectionModel.avg_document_size,
       };
 
       // Final check before dispatching results
@@ -648,7 +660,8 @@ export const analyzeCollectionSchema = (): CollectionThunkAction<
 
       dispatch({
         type: CollectionActions.SchemaAnalysisFinished,
-        processedSchema,
+        processedSchema: processSchemaResult.fieldInfo,
+        arrayLengthMap: processSchemaResult.arrayLengthMap,
         sampleDocument: sampleDocuments[0],
         schemaMetadata,
       });
@@ -717,38 +730,6 @@ function transformFakerSchemaToObject(
 }
 
 /**
- * Checks if the method exists and is callable on the faker object.
- *
- * Note: Only supports the format `module.method` (e.g., `internet.email`).
- * Nested modules or other formats are not supported.
- * @see {@link https://fakerjs.dev/api/}
- */
-function isValidFakerMethod(fakerMethod: string): boolean {
-  const parts = fakerMethod.split('.');
-
-  // Validate format: exactly module.method
-  if (parts.length !== 2) {
-    return false;
-  }
-
-  const [moduleName, methodName] = parts;
-
-  try {
-    const fakerModule = (faker as unknown as Record<string, unknown>)[
-      moduleName
-    ];
-    return (
-      fakerModule !== null &&
-      fakerModule !== undefined &&
-      typeof fakerModule === 'object' &&
-      typeof (fakerModule as Record<string, unknown>)[methodName] === 'function'
-    );
-  } catch {
-    return false;
-  }
-}
-
-/**
  * Validates a given faker schema against an input schema.
  *
  * - Validates the `fakerMethod` for each field, marking it as unrecognized if invalid
@@ -775,8 +756,16 @@ const validateFakerSchema = (
         probability: inputSchema[fieldPath].probability,
       };
       // Validate the faker method
-      if (isValidFakerMethod(fakerMapping.fakerMethod)) {
-        result[fieldPath] = fakerMapping;
+      const { isValid: isValidMethod, fakerArgs } = isValidFakerMethod(
+        fakerMapping.fakerMethod,
+        fakerMapping.fakerArgs,
+        logger
+      );
+      if (isValidMethod) {
+        result[fieldPath] = {
+          ...fakerMapping,
+          fakerArgs,
+        };
       } else {
         logger.log.warn(
           mongoLogId(1_001_000_372),

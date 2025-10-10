@@ -48,6 +48,8 @@ const sharedIgnoreWarnings: NonNullable<Configuration['ignoreWarnings']> = [
   // Optional, comes from emotion trying to (safely) use react apis that we
   // don't have in React 17
   /export 'useInsertionEffect'/,
+  // Source map format that webpack can't resolve
+  /Failed to parse source map: 'umd:/,
 ];
 
 const sharedResolveOptions = (
