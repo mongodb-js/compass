@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import { connect } from 'react-redux';
 
 import {
@@ -10,6 +10,7 @@ import {
   Body,
   DocumentList,
   useDarkMode,
+  cx,
 } from '@mongodb-js/compass-components';
 
 import { usePreference } from 'compass-preferences-model/provider';
@@ -24,14 +25,16 @@ interface RawSchemaConfirmationScreenProps {
   fakerSchemaGenerationStatus: MockDataGeneratorState['status'];
 }
 
-const getDocumentContainerStyles = (isDarkMode: boolean) =>
-  css({
-    backgroundColor: isDarkMode ? palette.gray.dark3 : palette.gray.light3,
-    border: `1px solid ${
-      isDarkMode ? palette.gray.dark2 : palette.gray.light2
-    }`,
-    borderRadius: spacing[400],
-  });
+const documentContainerStyles = css({
+  backgroundColor: palette.gray.light3,
+  border: `1px solid ${palette.gray.light2}`,
+  borderRadius: spacing[400],
+});
+const documentContainerDarkStyles = css({
+  backgroundColor: palette.gray.dark3,
+  border: `1px solid ${palette.gray.dark2}`,
+  borderRadius: spacing[400],
+});
 
 const documentStyles = css({
   padding: `${spacing[400]}px ${spacing[900]}px`,
@@ -58,11 +61,6 @@ const RawSchemaConfirmationScreen = ({
   );
   const isDarkMode = useDarkMode();
 
-  const documentContainerStyles = useMemo(
-    () => getDocumentContainerStyles(!!isDarkMode),
-    [isDarkMode]
-  );
-
   const subtitleText = enableSampleDocumentPassing
     ? 'Sample Documents Collected'
     : 'Document Schema Identified';
@@ -79,7 +77,12 @@ const RawSchemaConfirmationScreen = ({
             {subtitleText}
           </Body>
           <Body className={descriptionStyles}>{descriptionText}</Body>
-          <div className={documentContainerStyles}>
+          <div
+            className={cx(
+              documentContainerStyles,
+              isDarkMode && documentContainerDarkStyles
+            )}
+          >
             <DocumentList.Document
               className={documentStyles}
               editable={false}
