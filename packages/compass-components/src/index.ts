@@ -229,3 +229,5 @@ export { ParagraphSkeleton } from '@leafygreen-ui/skeleton-loader';
 export { InsightsChip } from './components/insights-chip';
 export * from './components/drawer-portal';
 export { FileSelector } from './components/file-selector';
+// @experiment Skills in Atlas  | Jira Epic: CLOUDP-346311
+export { AtlasSkillsBanner } from './components/atlas-skills-banner';
