@@ -6,7 +6,11 @@ import { compactBytes, compactNumber } from './format';
 import { ItemsTable } from './items-table';
 import type { DatabaseProps } from 'mongodb-database-model';
 import { usePreference } from 'compass-preferences-model/provider';
-import type { LGColumnDef } from '@mongodb-js/compass-components';
+import { css, type LGColumnDef } from '@mongodb-js/compass-components';
+
+const databaseNameStyles = css({
+  wordBreak: 'break-word',
+});
 
 function databaseColumns(
   enableDbAndCollStats: boolean
@@ -16,6 +20,10 @@ function databaseColumns(
       accessorKey: 'name',
       header: 'Database name',
       enableSorting: true,
+      cell: (info) => {
+        const name = info.getValue() as string;
+        return <span className={databaseNameStyles}>{name}</span>;
+      },
     },
     {
       accessorKey: 'calculated_storage_size',

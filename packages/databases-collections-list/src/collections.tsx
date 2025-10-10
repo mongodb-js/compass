@@ -9,6 +9,8 @@ import {
   spacing,
   type LGColumnDef,
   Tooltip,
+  palette,
+  useDarkMode,
 } from '@mongodb-js/compass-components';
 import { compactBytes, compactNumber } from './format';
 import { ItemsTable } from './items-table';
@@ -23,7 +25,7 @@ type BadgeProp = {
   hint?: React.ReactNode;
 };
 
-const cardBadgesStyles = css({
+const collectionBadgesStyles = css({
   display: 'flex',
   gap: spacing[200],
   // Preserving space for when cards with and without badges are mixed in a
@@ -31,15 +33,27 @@ const cardBadgesStyles = css({
   minHeight: 20,
 });
 
-const CardBadges: React.FunctionComponent = ({ children }) => {
-  return <div className={cardBadgesStyles}>{children}</div>;
+const CollectionBadges: React.FunctionComponent = ({ children }) => {
+  return <div className={collectionBadgesStyles}>{children}</div>;
 };
 
-const cardBadgeStyles = css({
+const collectionBadgeStyles = css({
   gap: spacing[100],
 });
 
-const CardBadge: React.FunctionComponent<BadgeProp> = ({
+const viewOnStyles = css({
+  fontWeight: 'bold',
+});
+
+const viewOnLightStyles = css({
+  color: palette.white,
+});
+
+const viewOnDarkStyles = css({
+  color: palette.black,
+});
+
+const CollectionBadge: React.FunctionComponent<BadgeProp> = ({
   id,
   name,
   icon,
@@ -51,7 +65,7 @@ const CardBadge: React.FunctionComponent<BadgeProp> = ({
       return (
         <Badge
           data-testid={`collection-badge-${id}`}
-          className={cx(cardBadgeStyles, className)}
+          className={cx(collectionBadgeStyles, className)}
           variant={variant}
           {...props}
         >
@@ -72,13 +86,17 @@ const CardBadge: React.FunctionComponent<BadgeProp> = ({
   return badge();
 };
 
-function collectionPropertyToBadge({
-  id,
-  options,
-}: {
-  id: string;
-  options?: Record<string, unknown>;
-}): BadgeProp {
+function collectionPropertyToBadge(
+  collection: CollectionProps,
+  darkMode: boolean | undefined,
+  {
+    id,
+    options,
+  }: {
+    id: string;
+    options?: Record<string, unknown>;
+  }
+): BadgeProp {
   switch (id) {
     case 'collation':
       return {
@@ -99,7 +117,25 @@ function collectionPropertyToBadge({
         ),
       };
     case 'view':
-      return { id, name: id, variant: 'darkgray', icon: 'Visibility' };
+      return {
+        id,
+        name: id,
+        variant: 'darkgray',
+        icon: 'Visibility',
+        hint: (
+          <>
+            Derived from{' '}
+            <span
+              className={cx(
+                viewOnStyles,
+                darkMode ? viewOnDarkStyles : viewOnLightStyles
+              )}
+            >
+              {collection.view_on}
+            </span>
+          </>
+        ),
+      };
     case 'capped':
       return { id, name: id, variant: 'darkgray' };
     case 'timeseries':
@@ -123,9 +159,11 @@ const collectionNameStyles = css({
   gap: spacing[100],
   flexWrap: 'wrap',
   alignItems: 'anchor-center',
+  wordBreak: 'break-word',
 });
 
 function collectionColumns(
+  darkMode: boolean | undefined,
   enableDbAndCollStats: boolean
 ): LGColumnDef<CollectionProps>[] {
   return [
@@ -140,17 +178,19 @@ function collectionColumns(
         const badges = info.row.original.properties
           .filter((prop) => prop.id !== 'read-only')
           .map((prop) => {
-            return collectionPropertyToBadge(prop);
+            return collectionPropertyToBadge(info.row.original, darkMode, prop);
           });
 
         return (
           <div className={collectionNameStyles}>
             <span>{name}</span>
-            <CardBadges>
+            <CollectionBadges>
               {badges.map((badge) => {
-                return <CardBadge key={badge.id} {...badge}></CardBadge>;
+                return (
+                  <CollectionBadge key={badge.id} {...badge}></CollectionBadge>
+                );
               })}
-            </CardBadges>
+            </CollectionBadges>
           </div>
         );
       },
@@ -236,9 +276,10 @@ const CollectionsList: React.FunctionComponent<{
   onRefreshClick,
 }) => {
   const enableDbAndCollStats = usePreference('enableDbAndCollStats');
+  const darkMode = useDarkMode();
   const columns = React.useMemo(
-    () => collectionColumns(enableDbAndCollStats),
-    [enableDbAndCollStats]
+    () => collectionColumns(darkMode, enableDbAndCollStats),
+    [darkMode, enableDbAndCollStats]
   );
   return (
     <ItemsTable
