@@ -278,8 +278,7 @@ buildvariants:
 
   - name: test-web-sandbox
     display_name: Test Web Sandbox
-    # In web tests, we start electron proxy which is blocked by AppArmor on Ubuntu24.
-    # In order to switch, DEVPROD-22850 will address the AppArmor issue.
+    # DEVPROD-22850: On ubuntu24.02, AppArmor blocks eletron proxy used in web tests.
     run_on: ubuntu2204-large
     tasks:
     <% for (const browser of BROWSERS) { %>
