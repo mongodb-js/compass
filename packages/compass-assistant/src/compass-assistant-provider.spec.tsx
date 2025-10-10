@@ -467,7 +467,7 @@ describe('CompassAssistantProvider', function () {
     });
 
     describe('error handling with default chat', function () {
-      it('fires a telemetry event and displays error banner an when error occurs', async function () {
+      it('fires a telemetry event and displays error banner when error occurs', async function () {
         const track = sinon.stub();
         const chat = createDefaultChat({
           options: {
