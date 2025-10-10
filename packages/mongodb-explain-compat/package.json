@@ -1,6 +1,6 @@
 {
   "name": "mongodb-explain-compat",
-  "version": "3.3.21",
+  "version": "3.3.22",
   "description": "Convert mongodb SBE explain output to 4.4 explain output",
   "keywords": [
     "mongodb",
@@ -47,9 +47,12 @@
   },
   "license": "SSPL",
   "devDependencies": {
-    "@mongodb-js/eslint-config-compass": "^1.4.10",
+    "@mongodb-js/eslint-config-compass": "^1.4.11",
     "gen-esm-wrapper": "^1.1.0",
     "mocha": "^10.2.0",
     "nyc": "^15.1.0"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

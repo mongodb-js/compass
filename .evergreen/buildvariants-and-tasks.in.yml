@@ -250,6 +250,11 @@ buildvariants:
     tasks:
       - name: publish
       - name: publish-dev-release-info
+
+  - name: static-analysis
+    display_name: Create Static Analysis Report
+    run_on: ubuntu2004-large
+    tasks:
       - name: create_static_analysis_report
 
   - name: connectivity-tests

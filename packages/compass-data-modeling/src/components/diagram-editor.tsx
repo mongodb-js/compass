@@ -29,6 +29,7 @@ import {
   useDarkMode,
   useDrawerActions,
   useDrawerState,
+  useThrottledProps,
   rafraf,
 } from '@mongodb-js/compass-components';
 import { cancelAnalysis, retryAnalysis } from '../store/analysis-process';
@@ -205,14 +206,11 @@ const DiagramContent: React.FunctionComponent<{
           selectedItems?.type === 'field' && selectedItems.namespace === coll.ns
             ? selectedItems.fieldPath
             : undefined,
-        onClickAddNewFieldToCollection: () =>
-          onAddNewFieldToCollection(coll.ns),
         selected,
         isInRelationshipDrawingMode,
       });
     });
   }, [
-    onAddNewFieldToCollection,
     model?.collections,
     model?.relationships,
     selectedItems,
@@ -319,6 +317,45 @@ const DiagramContent: React.FunctionComponent<{
     [handleNodesConnect]
   );
 
+  const onClickAddFieldToCollection = useCallback(
+    (event: React.MouseEvent<Element>, ns: string) => {
+      event.stopPropagation();
+      onAddNewFieldToCollection(ns);
+    },
+    [onAddNewFieldToCollection]
+  );
+
+  const diagramProps = useMemo(
+    () => ({
+      isDarkMode,
+      title: diagramLabel,
+      edges,
+      nodes,
+      onAddFieldToNodeClick: onClickAddFieldToCollection,
+      onNodeClick,
+      onPaneClick,
+      onEdgeClick,
+      onFieldClick,
+      onNodeDragStop,
+      onConnect,
+    }),
+    [
+      isDarkMode,
+      diagramLabel,
+      edges,
+      nodes,
+      onClickAddFieldToCollection,
+      onNodeClick,
+      onPaneClick,
+      onEdgeClick,
+      onFieldClick,
+      onNodeDragStop,
+      onConnect,
+    ]
+  );
+
+  const throttledDiagramProps = useThrottledProps(diagramProps);
+
   return (
     <div
       ref={setDiagramContainerRef}
@@ -341,20 +378,11 @@ const DiagramContent: React.FunctionComponent<{
           </Banner>
         )}
         <Diagram
-          isDarkMode={isDarkMode}
-          title={diagramLabel}
-          edges={edges}
-          nodes={nodes}
+          {...throttledDiagramProps}
           // With threshold too low clicking sometimes gets confused with
-          // dragging
+          // dragging.
           nodeDragThreshold={5}
-          onNodeClick={onNodeClick}
-          onPaneClick={onPaneClick}
-          onEdgeClick={onEdgeClick}
-          onFieldClick={onFieldClick}
           fitViewOptions={ZOOM_OPTIONS}
-          onNodeDragStop={onNodeDragStop}
-          onConnect={onConnect}
         />
       </div>
     </div>

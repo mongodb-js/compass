@@ -117,8 +117,27 @@ const WithStorageProviders = createServiceProvider(
     const atlasService = atlasServiceLocator();
     const authenticatedFetch =
       atlasService.authenticatedFetch.bind(atlasService);
-    const getResourceUrl = (path?: string) =>
-      atlasService.userDataEndpoint(`/${path || ''}`);
+    const getResourceUrl = (path?: string) => {
+      const pathParts = path?.split('/').filter(Boolean) || [];
+      const type = pathParts[0] as
+        | 'favoriteQueries'
+        | 'recentQueries'
+        | 'favoriteAggregations';
+      const pathOrgId = pathParts[1];
+      const pathProjectId = pathParts[2];
+      const id = pathParts[3];
+
+      // Use the path's orgId and projectId if provided, otherwise fall back to the context values
+      const finalOrgId = pathOrgId || orgId;
+      const finalProjectId = pathProjectId || projectId;
+
+      return atlasService.userDataEndpoint(
+        finalOrgId,
+        finalProjectId,
+        type,
+        id
+      );
+    };
 
     const pipelineStorage = useRef<PipelineStorageAccess>({
       getStorage() {
@@ -477,46 +496,44 @@ const CompassWeb = ({
                         orgId={orgId}
                         projectId={projectId}
                       >
-                        <CompassConnections
-                          appName={appName ?? 'Compass Web'}
-                          onFailToLoadConnections={onFailToLoadConnections}
-                          onExtraConnectionDataRequest={() => {
-                            return Promise.resolve([{}, null] as [
-                              Record<string, unknown>,
-                              null
-                            ]);
-                          }}
-                          onAutoconnectInfoRequest={(connectionStore) => {
-                            if (autoconnectId) {
-                              return connectionStore.loadAll().then(
-                                (connections) => {
-                                  return connections.find(
-                                    (connectionInfo) =>
-                                      connectionInfo.id === autoconnectId
-                                  );
-                                },
-                                (err) => {
-                                  const { log, mongoLogId } = logger;
-                                  log.warn(
-                                    mongoLogId(1_001_000_329),
-                                    'Compass Web',
-                                    'Could not load connections when trying to autoconnect',
-                                    { err: err.message }
-                                  );
-                                  return undefined;
-                                }
-                              );
-                            }
-                            return Promise.resolve(undefined);
-                          }}
+                        <CompassAssistantProvider
+                          originForPrompt="atlas-data-explorer"
+                          appNameForPrompt={APP_NAMES_FOR_PROMPT.DataExplorer}
                         >
-                          <CompassInstanceStorePlugin>
-                            <CompassAssistantProvider
-                              originForPrompt="atlas-data-explorer"
-                              appNameForPrompt={
-                                APP_NAMES_FOR_PROMPT.DataExplorer
+                          <CompassConnections
+                            appName={appName ?? 'Compass Web'}
+                            onFailToLoadConnections={onFailToLoadConnections}
+                            onExtraConnectionDataRequest={() => {
+                              return Promise.resolve([{}, null] as [
+                                Record<string, unknown>,
+                                null
+                              ]);
+                            }}
+                            onAutoconnectInfoRequest={(connectionStore) => {
+                              if (autoconnectId) {
+                                return connectionStore.loadAll().then(
+                                  (connections) => {
+                                    return connections.find(
+                                      (connectionInfo) =>
+                                        connectionInfo.id === autoconnectId
+                                    );
+                                  },
+                                  (err) => {
+                                    const { log, mongoLogId } = logger;
+                                    log.warn(
+                                      mongoLogId(1_001_000_329),
+                                      'Compass Web',
+                                      'Could not load connections when trying to autoconnect',
+                                      { err: err.message }
+                                    );
+                                    return undefined;
+                                  }
+                                );
                               }
-                            >
+                              return Promise.resolve(undefined);
+                            }}
+                          >
+                            <CompassInstanceStorePlugin>
                               <FieldStorePlugin>
                                 <WithConnectionsStore>
                                   <CompassWorkspace
@@ -536,9 +553,9 @@ const CompassWeb = ({
                                 projectId={projectId}
                                 isCloudOptIn={true}
                               />
-                            </CompassAssistantProvider>
-                          </CompassInstanceStorePlugin>
-                        </CompassConnections>
+                            </CompassInstanceStorePlugin>
+                          </CompassConnections>
+                        </CompassAssistantProvider>
                       </AtlasCloudConnectionStorageProvider>
                     </DataModelStorageServiceProviderInMemory>
                   </WithStorageProviders>
