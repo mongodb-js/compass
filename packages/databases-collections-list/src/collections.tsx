@@ -1,28 +1,102 @@
-import React from 'react';
-import { css, spacing } from '@mongodb-js/compass-components';
+import React, { useCallback } from 'react';
+import {
+  Badge,
+  type BadgeVariant,
+  cx,
+  css,
+  type GlyphName,
+  Icon,
+  spacing,
+  type LGColumnDef,
+  Tooltip,
+  palette,
+  useDarkMode,
+} from '@mongodb-js/compass-components';
 import { compactBytes, compactNumber } from './format';
-import type { BadgeProp } from './namespace-card';
-import { NamespaceItemCard } from './namespace-card';
-import { ItemsGrid } from './items-grid';
+import { ItemsTable } from './items-table';
 import type { CollectionProps } from 'mongodb-collection-model';
 import { usePreference } from 'compass-preferences-model/provider';
 
-const COLLECTION_CARD_WIDTH = spacing[1600] * 4;
-
-const COLLECTION_CARD_HEIGHT = 238;
-const COLLECTION_CARD_WITHOUT_STATS_HEIGHT = COLLECTION_CARD_HEIGHT - 150;
-
-const COLLECTION_CARD_LIST_HEIGHT = 118;
-const COLLECTION_CARD_LIST_WITHOUT_STATS_HEIGHT =
-  COLLECTION_CARD_LIST_HEIGHT - 50;
-
-function collectionPropertyToBadge({
-  id,
-  options,
-}: {
+type BadgeProp = {
   id: string;
-  options?: Record<string, unknown>;
-}): BadgeProp {
+  name: string;
+  variant?: BadgeVariant;
+  icon?: GlyphName;
+  hint?: React.ReactNode;
+};
+
+const collectionBadgesStyles = css({
+  display: 'flex',
+  gap: spacing[200],
+  // Preserving space for when cards with and without badges are mixed in a
+  // single row
+  minHeight: 20,
+});
+
+const CollectionBadges: React.FunctionComponent = ({ children }) => {
+  return <div className={collectionBadgesStyles}>{children}</div>;
+};
+
+const collectionBadgeStyles = css({
+  gap: spacing[100],
+});
+
+const viewOnStyles = css({
+  fontWeight: 'bold',
+});
+
+const viewOnLightStyles = css({
+  color: palette.white,
+});
+
+const viewOnDarkStyles = css({
+  color: palette.black,
+});
+
+const CollectionBadge: React.FunctionComponent<BadgeProp> = ({
+  id,
+  name,
+  icon,
+  variant,
+  hint,
+}) => {
+  const badge = useCallback(
+    ({ className, children, ...props } = {}) => {
+      return (
+        <Badge
+          data-testid={`collection-badge-${id}`}
+          className={cx(collectionBadgeStyles, className)}
+          variant={variant}
+          {...props}
+        >
+          {icon && <Icon size="small" glyph={icon}></Icon>}
+          <span>{name}</span>
+          {/* Tooltip will be rendered here */}
+          {children}
+        </Badge>
+      );
+    },
+    [id, icon, name, variant]
+  );
+
+  if (hint) {
+    return <Tooltip trigger={badge}>{hint}</Tooltip>;
+  }
+
+  return badge();
+};
+
+function collectionPropertyToBadge(
+  collection: CollectionProps,
+  darkMode: boolean | undefined,
+  {
+    id,
+    options,
+  }: {
+    id: string;
+    options?: Record<string, unknown>;
+  }
+): BadgeProp {
   switch (id) {
     case 'collation':
       return {
@@ -43,7 +117,25 @@ function collectionPropertyToBadge({
         ),
       };
     case 'view':
-      return { id, name: id, variant: 'darkgray', icon: 'Visibility' };
+      return {
+        id,
+        name: id,
+        variant: 'darkgray',
+        icon: 'Visibility',
+        hint: (
+          <>
+            Derived from{' '}
+            <span
+              className={cx(
+                viewOnStyles,
+                darkMode ? viewOnDarkStyles : viewOnLightStyles
+              )}
+            >
+              {collection.view_on}
+            </span>
+          </>
+        ),
+      };
     case 'capped':
       return { id, name: id, variant: 'darkgray' };
     case 'timeseries':
@@ -62,18 +154,118 @@ function collectionPropertyToBadge({
   }
 }
 
-const pageContainerStyles = css({
-  height: 'auto',
-  width: '100%',
+const collectionNameStyles = css({
   display: 'flex',
-  flexDirection: 'column',
+  gap: spacing[100],
+  flexWrap: 'wrap',
+  alignItems: 'anchor-center',
+  wordBreak: 'break-word',
 });
 
+function collectionColumns(
+  darkMode: boolean | undefined,
+  enableDbAndCollStats: boolean
+): LGColumnDef<CollectionProps>[] {
+  return [
+    {
+      accessorKey: 'name',
+      header: 'Collection name',
+      enableSorting: true,
+      size: 300,
+      cell: (info) => {
+        const name = info.getValue() as string;
+
+        const badges = info.row.original.properties
+          .filter((prop) => prop.id !== 'read-only')
+          .map((prop) => {
+            return collectionPropertyToBadge(info.row.original, darkMode, prop);
+          });
+
+        return (
+          <div className={collectionNameStyles}>
+            <span>{name}</span>
+            <CollectionBadges>
+              {badges.map((badge) => {
+                return (
+                  <CollectionBadge key={badge.id} {...badge}></CollectionBadge>
+                );
+              })}
+            </CollectionBadges>
+          </div>
+        );
+      },
+    },
+    {
+      accessorKey: 'calculated_storage_size',
+      header: 'Storage size',
+      enableSorting: true,
+      cell: (info) => {
+        const type = info.row.original.type as string;
+        if (type === 'view') {
+          return '-';
+        }
+        const size = info.getValue() as number | undefined;
+        return enableDbAndCollStats && size !== undefined
+          ? compactBytes(size)
+          : '-';
+      },
+    },
+    {
+      accessorKey: 'avg_document_size',
+      header: 'Avg. document size',
+      enableSorting: true,
+      cell: (info) => {
+        const type = info.row.original.type as string;
+        if (type === 'view' || type === 'timeseries') {
+          return '-';
+        }
+
+        const size = info.getValue() as number | undefined;
+        return enableDbAndCollStats && size !== undefined
+          ? compactBytes(size)
+          : '-';
+      },
+    },
+    {
+      accessorKey: 'Indexes',
+      header: 'Indexes',
+      enableSorting: true,
+      cell: (info) => {
+        const type = info.row.original.type as string;
+        if (type === 'view' || type === 'timeseries') {
+          return '-';
+        }
+
+        const index_count = info.getValue() as number | undefined;
+        return enableDbAndCollStats && index_count !== undefined
+          ? compactNumber(index_count)
+          : '-';
+      },
+    },
+    {
+      accessorKey: 'index_size',
+      header: 'Total index size',
+      enableSorting: true,
+      cell: (info) => {
+        const type = info.row.original.type as string;
+        if (type === 'view' || type === 'timeseries') {
+          return '-';
+        }
+
+        const size = info.getValue() as number | undefined;
+        return enableDbAndCollStats && size !== undefined
+          ? compactBytes(size)
+          : '-';
+      },
+    },
+  ];
+}
+
+// TODO: we removed delete click functionality, we removed the header hint functionality
 const CollectionsList: React.FunctionComponent<{
   namespace: string;
   collections: CollectionProps[];
   onCollectionClick: (id: string) => void;
-  onDeleteCollectionClick?: (id: string) => void;
   onCreateCollectionClick?: () => void;
   onRefreshClick?: () => void;
 }> = ({
@@ -81,128 +273,24 @@ const CollectionsList: React.FunctionComponent<{
   collections,
   onCollectionClick,
   onCreateCollectionClick,
-  onDeleteCollectionClick,
   onRefreshClick,
 }) => {
   const enableDbAndCollStats = usePreference('enableDbAndCollStats');
+  const darkMode = useDarkMode();
+  const columns = React.useMemo(
+    () => collectionColumns(darkMode, enableDbAndCollStats),
+    [darkMode, enableDbAndCollStats]
+  );
   return (
-    <div className={pageContainerStyles}>
-      <ItemsGrid
-        namespace={namespace}
-        items={collections}
-        itemType="collection"
-        itemGridWidth={COLLECTION_CARD_WIDTH}
-        itemGridHeight={
-          enableDbAndCollStats
-            ? COLLECTION_CARD_HEIGHT
-            : COLLECTION_CARD_WITHOUT_STATS_HEIGHT
-        }
-        itemListHeight={
-          enableDbAndCollStats
-            ? COLLECTION_CARD_LIST_HEIGHT
-            : COLLECTION_CARD_LIST_WITHOUT_STATS_HEIGHT
-        }
-        sortBy={[
-          { name: 'name', label: 'Collection Name' },
-          { name: 'document_count', label: 'Documents' },
-          { name: 'avg_document_size', label: 'Avg. document size' },
-          { name: 'calculated_storage_size', label: 'Storage size' },
-          { name: 'index_count', label: 'Indexes' },
-          { name: 'index_size', label: 'Total index size' },
-        ]}
-        onItemClick={onCollectionClick}
-        onDeleteItemClick={onDeleteCollectionClick}
-        onCreateItemClick={onCreateCollectionClick}
-        onRefreshClick={onRefreshClick}
-        renderItem={({
-          item: coll,
-          onItemClick,
-          onDeleteItemClick,
-          ...props
-        }) => {
-          const data =
-            coll.type === 'view'
-              ? [{ label: 'View on', value: coll.source?.name }]
-              : coll.type === 'timeseries'
-              ? [
-                  {
-                    label: 'Storage size',
-                    value:
-                      coll.calculated_storage_size !== undefined
-                        ? compactBytes(coll.calculated_storage_size)
-                        : 'N/A',
-                    hint:
-                      coll.document_size !== undefined &&
-                      `Uncompressed data size: ${compactBytes(
-                        coll.document_size
-                      )}`,
-                  },
-                ]
-              : [
-                  {
-                    label: 'Storage size',
-                    value:
-                      coll.calculated_storage_size !== undefined
-                        ? compactBytes(coll.calculated_storage_size)
-                        : 'N/A',
-                    hint:
-                      coll.document_size !== undefined &&
-                      `Uncompressed data size: ${compactBytes(
-                        coll.document_size
-                      )}`,
-                  },
-                  {
-                    label: 'Documents',
-                    value:
-                      coll.document_count !== undefined
-                        ? compactNumber(coll.document_count)
-                        : 'N/A',
-                  },
-                  {
-                    label: 'Avg. document size',
-                    value:
-                      coll.avg_document_size !== undefined
-                        ? compactBytes(coll.avg_document_size)
-                        : 'N/A',
-                  },
-                  {
-                    label: 'Indexes',
-                    value:
-                      coll.index_count !== undefined
-                        ? compactNumber(coll.index_count)
-                        : 'N/A',
-                  },
-                  {
-                    label: 'Total index size',
-                    value:
-                      coll.index_size !== undefined
-                        ? compactBytes(coll.index_size)
-                        : 'N/A',
-                  },
-                ];
-
-          const badges = coll.properties.map((prop) => {
-            return collectionPropertyToBadge(prop);
-          });
-
-          return (
-            <NamespaceItemCard
-              id={coll._id}
-              key={coll._id}
-              name={coll.name}
-              type="collection"
-              status={coll.status}
-              inferredFromPrivileges={coll.inferred_from_privileges}
-              data={data}
-              badges={badges}
-              onItemClick={onItemClick}
-              onItemDeleteClick={onDeleteItemClick}
-              {...props}
-            ></NamespaceItemCard>
-          );
-        }}
-      ></ItemsGrid>
-    </div>
+    <ItemsTable
+      namespace={namespace}
+      columns={columns}
+      items={collections}
+      itemType="collection"
+      onItemClick={onCollectionClick}
+      onCreateItemClick={onCreateCollectionClick}
+      onRefreshClick={onRefreshClick}
+    ></ItemsTable>
   );
 };
 

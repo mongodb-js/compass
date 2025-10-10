@@ -1,92 +1,48 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { Fragment, useMemo } from 'react';
 import {
   css,
   cx,
   spacing,
-  VirtualGrid,
-  useSortControls,
-  useSortedItems,
   WorkspaceContainer,
   Button,
   Icon,
   Breadcrumbs,
+  Table,
+  TableHead,
+  TableBody,
+  useLeafyGreenVirtualTable,
+  type LGColumnDef,
+  type HeaderGroup,
+  HeaderRow,
+  HeaderCell,
+  flexRender,
+  ExpandedContent,
+  Row,
+  Cell,
+  //type LeafyGreenTableRow,
+  type LeafyGreenVirtualItem,
 } from '@mongodb-js/compass-components';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
-import type { NamespaceItemCardProps } from './namespace-card';
-import { useViewTypeControls } from './use-view-type';
-import type { ViewType } from './use-view-type';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import toNS from 'mongodb-ns';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
 import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
-import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
 import { usePreferences } from 'compass-preferences-model/provider';
 
 type Item = { _id: string } & Record<string, any>;
-
-const rowStyles = css({
-  paddingLeft: spacing[400],
-  paddingRight: spacing[400],
-  paddingBottom: spacing[100],
-  paddingTop: spacing[100],
-  columnGap: spacing[200],
-});
-
-const containerStyles = css({
-  width: '100%',
-  height: '100%',
-  overflow: 'hidden',
-  display: 'grid',
-  gridTemplateRows: 'auto 1fr',
-  gridTemplateColumns: '100%',
-  // This element is focusable only to handle virtual list and will immediately
-  // pass focus to its children. This can take a frame though so to avoid
-  // outline on the container showing up, we are completely disabling it
-  outline: 'none',
-});
-
-const gridStyles = {
-  container: containerStyles,
-  row: rowStyles,
-};
 
 export const createButtonStyles = css({
   whiteSpace: 'nowrap',
 });
 
-type CallbackProps = {
-  onItemClick: (id: string) => void;
-  onCreateItemClick?: () => void;
-  onDeleteItemClick?: (id: string) => void;
-};
-
-interface RenderItem<T> {
-  (
-    props: {
-      item: T;
-      viewType: ViewType;
-    } & Omit<CallbackProps, 'onCreateItemClick'> &
-      Omit<
-        React.HTMLProps<HTMLDivElement>,
-        Extract<keyof NamespaceItemCardProps, string>
-      >
-  ): React.ReactElement;
-}
-
 type ItemsGridProps<T> = {
   namespace?: string;
   itemType: 'collection' | 'database';
-  itemGridWidth: number;
-  itemGridHeight: number;
-  itemListWidth?: number;
-  itemListHeight?: number;
+  columns: LGColumnDef<T>[];
   items: T[];
-  sortBy?: { name: Extract<keyof T, string>; label: string }[];
   onItemClick: (id: string) => void;
-  onDeleteItemClick?: (id: string) => void;
   onCreateItemClick?: () => void;
   onRefreshClick?: () => void;
-  renderItem: RenderItem<T>;
   renderLoadSampleDataBanner?: () => React.ReactNode;
 };
 
@@ -141,19 +97,15 @@ function buildChartsUrl(
   return url.toString();
 }
 
-const GridControls: React.FunctionComponent<{
+const TableControls: React.FunctionComponent<{
   namespace?: string;
   itemType: string;
-  sortControls?: React.ReactNode;
-  viewTypeControls?: React.ReactNode;
   onCreateItemClick?: () => void;
   onRefreshClick?: () => void;
   renderLoadSampleDataBanner?: () => React.ReactNode;
 }> = ({
   namespace,
   itemType,
-  sortControls,
-  viewTypeControls,
   onCreateItemClick,
   onRefreshClick,
   renderLoadSampleDataBanner,
@@ -274,14 +226,6 @@ const GridControls: React.FunctionComponent<{
           )}
         </div>
       </div>
-      {sortControls && viewTypeControls && (
-        <div className={controlRowStyles}>
-          <div className={controlStyles}>{sortControls}</div>
-          <div className={cx(controlStyles, pushRightStyles)}>
-            {viewTypeControls}
-          </div>
-        </div>
-      )}
       {banner && <div className={bannerRowStyles}>{banner}</div>}
     </div>
   );
@@ -292,95 +236,106 @@ const itemsGridContainerStyles = css({
   height: '100%',
 });
 
-export const ItemsGrid = <T extends Item>({
+const virtualScrollingContainerHeight = css({
+  height: 'calc(100vh - 100px)',
+  padding: `0 ${spacing[400]}px`,
+});
+
+export const ItemsTable = <T extends Item>({
   namespace,
   itemType,
-  itemGridWidth,
-  itemGridHeight,
-  itemListWidth = itemGridWidth,
-  itemListHeight = itemGridHeight,
+  columns,
   items,
-  sortBy = [],
   onItemClick,
-  onDeleteItemClick,
   onCreateItemClick,
   onRefreshClick,
-  renderItem: _renderItem,
   renderLoadSampleDataBanner,
 }: ItemsGridProps<T>): React.ReactElement => {
-  const track = useTelemetry();
-  const connectionInfoRef = useConnectionInfoRef();
-  const onViewTypeChange = useCallback(
-    (newType: ViewType) => {
-      track(
-        'Switch View Type',
-        { view_type: newType, item_type: itemType },
-        connectionInfoRef.current
-      );
+  const tableContainerRef = React.useRef<HTMLDivElement>(null);
+
+  const table = useLeafyGreenVirtualTable<T>({
+    containerRef: tableContainerRef,
+    data: items,
+    columns,
+    virtualizerOptions: {
+      estimateSize: () => 50,
+      overscan: 10,
     },
-    [itemType, track, connectionInfoRef]
-  );
-
-  const [sortControls, sortState] = useSortControls(sortBy);
-  const [viewTypeControls, viewType] = useViewTypeControls({
-    onChange: onViewTypeChange,
   });
-  const sortedItems = useSortedItems(items, sortState);
-
-  const itemWidth = viewType === 'grid' ? itemGridWidth : itemListWidth;
-  const itemHeight = viewType === 'grid' ? itemGridHeight : itemListHeight;
-
-  const shouldShowControls = items.length > 0;
-
-  const renderItem: React.ComponentProps<typeof VirtualGrid>['renderItem'] =
-    useCallback(
-      ({ index, ...props }) => {
-        const item = sortedItems[index];
-        return _renderItem({
-          item,
-          viewType,
-          onItemClick,
-          onDeleteItemClick,
-          ...props,
-        });
-      },
-      [_renderItem, onDeleteItemClick, onItemClick, sortedItems, viewType]
-    );
 
   return (
     <div className={itemsGridContainerStyles}>
       <WorkspaceContainer
         toolbar={
-          <GridControls
+          <TableControls
             itemType={itemType}
             namespace={namespace}
-            sortControls={shouldShowControls ? sortControls : undefined}
-            viewTypeControls={shouldShowControls ? viewTypeControls : undefined}
             onCreateItemClick={onCreateItemClick}
             onRefreshClick={onRefreshClick}
             renderLoadSampleDataBanner={renderLoadSampleDataBanner}
-          ></GridControls>
+          ></TableControls>
         }
       >
-        {(scrollTriggerRef) => {
-          return (
-            <VirtualGrid
-              itemMinWidth={itemWidth}
-              itemHeight={itemHeight + (spacing[200] as number)}
-              itemsCount={sortedItems.length}
-              colCount={viewType === 'list' ? 1 : undefined}
-              renderItem={renderItem}
-              renderHeader={() => {
-                return <div ref={scrollTriggerRef}></div>;
-              }}
-              headerHeight={0}
-              itemKey={(index: number) => sortedItems[index]._id}
-              classNames={gridStyles}
-              resetActiveItemOnBlur={false}
-              data-testid={`${itemType}-grid`}
-            ></VirtualGrid>
-          );
-        }}
+        <Table
+          table={table}
+          shouldAlternateRowColor
+          ref={tableContainerRef}
+          className={virtualScrollingContainerHeight}
+          shouldTruncate={false}
+        >
+          <TableHead isSticky>
+            {table.getHeaderGroups().map((headerGroup: HeaderGroup<T>) => (
+              <HeaderRow key={headerGroup.id}>
+                {headerGroup.headers.map((header) => {
+                  return (
+                    <HeaderCell key={header.id} header={header}>
+                      {flexRender(
+                        header.column.columnDef.header,
+                        header.getContext()
+                      )}
+                    </HeaderCell>
+                  );
+                })}
+              </HeaderRow>
+            ))}
+          </TableHead>
+          <TableBody>
+            {table.virtual.getVirtualItems() &&
+              table.virtual
+                .getVirtualItems()
+                .map((virtualRow: LeafyGreenVirtualItem<T>) => {
+                  const row = virtualRow.row;
+                  const isExpandedContent = row.isExpandedContent ?? false;
+
+                  return (
+                    <Fragment key={row.id}>
+                      {!isExpandedContent && (
+                        // row is required
+                        <Row
+                          row={row}
+                          onClick={() =>
+                            onItemClick(row.original._id as string)
+                          }
+                        >
+                          {row.getVisibleCells().map((cell: any) => {
+                            return (
+                              // cell is required
+                              <Cell key={cell.id} id={cell.id} cell={cell}>
+                                {flexRender(
+                                  cell.column.columnDef.cell,
+                                  cell.getContext()
+                                )}
+                              </Cell>
+                            );
+                          })}
+                        </Row>
+                      )}
+                      {isExpandedContent && <ExpandedContent row={row} />}
+                    </Fragment>
+                  );
+                })}
+          </TableBody>
+        </Table>
       </WorkspaceContainer>
     </div>
   );
