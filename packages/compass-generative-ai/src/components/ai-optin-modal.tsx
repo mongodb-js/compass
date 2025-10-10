@@ -206,6 +206,7 @@ export const AIOptInModal: React.FunctionComponent<OptInModalProps> = ({
       title={`Use AI Features in ${isCloudOptIn ? 'Data Explorer' : 'Compass'}`}
       open={isOptInModalVisible}
       onClose={handleModalClose}
+      data-testid="ai-optin-modal"
       // TODO Button Disabling
       className={!isProjectAIEnabled ? currentDisabledButtonStyles : undefined}
       buttonText="Use AI Features"
