@@ -179,6 +179,13 @@ describe('MongoDB Assistant', function () {
   });
 
   describe('drawer visibility', function () {
+    before(function () {
+      skipForWeb(
+        this,
+        'E2E testing for assistant drawer visibility on compass-web is not yet implemented'
+      );
+    });
+
     it('shows the assistant drawer button when AI features are enabled', async function () {
       await setAIFeatures(true);
 

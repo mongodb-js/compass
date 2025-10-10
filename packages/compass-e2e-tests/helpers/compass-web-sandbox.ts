@@ -24,6 +24,7 @@ process.env.DISABLE_DEVSERVER_OVERLAY = 'true';
 process.env.APP_ENV = 'webdriverio';
 // Set the assistant base URL override for tests so we can mock the assistant server
 process.env.COMPASS_ASSISTANT_BASE_URL_OVERRIDE = `http://localhost:${MOCK_ASSISTANT_SERVER_PORT}`;
+process.env.COMPASS_OVERRIDE_ENABLE_AI_FEATURES = 'true';
 
 const wait = (ms: number) => {
   return new Promise((resolve) => {

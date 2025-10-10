@@ -219,8 +219,13 @@ module.exports = (env, args) => {
               ),
             }
           : {}),
-        'process.env.COMPASS_OVERRIDE_ENABLE_AI_FEATURES':
-          'process.env.COMPASS_OVERRIDE_ENABLE_AI_FEATURES',
+        ...(process.env.COMPASS_OVERRIDE_ENABLE_AI_FEATURES
+          ? {
+              'process.env.COMPASS_OVERRIDE_ENABLE_AI_FEATURES': JSON.stringify(
+                process.env.COMPASS_OVERRIDE_ENABLE_AI_FEATURES
+              ),
+            }
+          : {}),
       }),
 
       new webpack.ProvidePlugin({
