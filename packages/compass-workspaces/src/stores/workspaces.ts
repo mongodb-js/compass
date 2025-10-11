@@ -1181,4 +1181,12 @@ export const openFallbackWorkspace = (
   };
 };
 
+export const beforeUnloading = (): WorkspacesThunkAction<boolean> => {
+  return (_dispatch, getState) => {
+    return getState().tabs.every((tab) => {
+      return canCloseTab(tab);
+    });
+  };
+};
+
 export default reducer;

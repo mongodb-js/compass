@@ -89,6 +89,9 @@ const App = () => {
     return { readOnly: true };
   })();
 
+  const overrideGenAIFeatures =
+    process.env.COMPASS_OVERRIDE_ENABLE_AI_FEATURES === 'true';
+
   return (
     <SandboxConnectionStorageProvider
       value={isAtlas ? null : sandboxConnectionStorage}
@@ -111,12 +114,16 @@ const App = () => {
               enableRollingIndexes: isAtlas,
               showDisabledConnections: true,
               enableGenAIFeaturesAtlasProject:
-                isAtlas && !!enableGenAIFeaturesAtlasProject,
+                overrideGenAIFeatures ||
+                (isAtlas && !!enableGenAIFeaturesAtlasProject),
               enableGenAISampleDocumentPassing:
-                isAtlas && !!enableGenAISampleDocumentPassing,
+                overrideGenAIFeatures ||
+                (isAtlas && !!enableGenAISampleDocumentPassing),
               enableGenAIFeaturesAtlasOrg:
-                isAtlas && !!enableGenAIFeaturesAtlasOrg,
-              optInGenAIFeatures: isAtlas && !!optInGenAIFeatures,
+                overrideGenAIFeatures ||
+                (isAtlas && !!enableGenAIFeaturesAtlasOrg),
+              optInGenAIFeatures:
+                overrideGenAIFeatures || (isAtlas && !!optInGenAIFeatures),
               enableDataModeling: true,
               enableMyQueries: false,
               ...groupRolePreferences,

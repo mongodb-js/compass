@@ -21,7 +21,7 @@ export type THEMES = (typeof THEMES_VALUES)[number];
 
 const enableDbAndCollStatsDescription: React.ReactNode = (
   <>
-    The{' '}
+    When enabled, Compass occasionally calls the{' '}
     <Link href="https://www.mongodb.com/docs/manual/reference/command/dbStats/#mongodb-dbcommand-dbcmd.dbStats">
       dbStats
     </Link>
@@ -29,7 +29,7 @@ const enableDbAndCollStatsDescription: React.ReactNode = (
     <Link href="https://www.mongodb.com/docs/manual/reference/command/collStats/">
       collStats
     </Link>{' '}
-    command return storage statistics for a given database or collection.
+    commands to access storage statistics for a given database or collection.
     Disabling this setting can help reduce Compass&apos; overhead on your
     MongoDB deployments.
   </>
@@ -105,6 +105,8 @@ export type UserConfigurablePreferences = PermanentFeatureFlags &
     enableProxySupport: boolean;
     proxy: string;
     inferNamespacesFromPrivileges?: boolean;
+    // Features that are enabled by default in Date Explorer, but are disabled in Compass
+    maxTimeMSEnvLimit?: number;
   };
 
 /**
@@ -1061,6 +1063,17 @@ export const storedUserPreferencesProps: Required<{
     },
     validator: z.boolean().default(true),
     type: 'boolean',
+  },
+  maxTimeMSEnvLimit: {
+    ui: true,
+    cli: true,
+    global: true,
+    description: {
+      short:
+        'Maximum time limit for operations in environment (milliseconds). Set to 0 for no limit.',
+    },
+    validator: z.number().min(0).default(0),
+    type: 'number',
   },
 
   ...allFeatureFlagsProps,
