@@ -1067,7 +1067,10 @@ export const loadSavedWorkspaces = (): WorkspacesThunkAction<
   Promise<void>,
   RestoreWorkspacesAction
 > => {
-  return async (dispatch, getState, { connections, userData }) => {
+  return async (dispatch, getState, { connections, userData, preferences }) => {
+    if (!preferences.getPreferences().enableRestoreWorkspaces) {
+      return;
+    }
     const savedState = await userData.readOne('saved-workspaces', {
       ignoreErrors: true,
     });

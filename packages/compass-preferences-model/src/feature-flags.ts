@@ -32,6 +32,7 @@ export type FeatureFlags = {
   enableAIAssistant: boolean;
   enablePerformanceInsightsEntrypoints: boolean;
   enableAutomaticRelationshipInference: boolean;
+  enableRestoreWorkspaces: boolean;
 };
 
 export const featureFlags: Required<{
@@ -196,6 +197,13 @@ export const featureFlags: Required<{
     description: {
       short:
         'Enable automatic relationship inference during data model generation',
+    },
+  },
+
+  enableRestoreWorkspaces: {
+    stage: 'development',
+    description: {
+      short: 'Enable restoring previous workspace tabs on startup',
     },
   },
 };
