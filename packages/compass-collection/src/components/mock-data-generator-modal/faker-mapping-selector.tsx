@@ -115,7 +115,7 @@ const FakerMappingSelector = ({
             id="faker-function-call-preview"
             data-testid="faker-function-call-preview"
             language="javascript"
-            copyable={false}
+            copyButtonAppearance="none"
           >
             {formatFakerFunctionCallWithArgs(
               activeFakerFunction,

@@ -14,7 +14,12 @@ import * as GuideCueGroups from './guide-cue-groups';
 import { GuideCue } from './guide-cue';
 import Sinon from 'sinon';
 
-const renderGuideCue = (props: Partial<ComponentProps<typeof GuideCue>>) => {
+const renderGuideCue = (
+  props: Omit<
+    Partial<ComponentProps<typeof GuideCue<HTMLElement>>>,
+    'triggerNode' | 'trigger'
+  >
+) => {
   const containerRef = React.createRef<any>();
   // Wrapping GuideCue component in this way as it is easier to test for
   // outside clicks.
@@ -23,7 +28,7 @@ const renderGuideCue = (props: Partial<ComponentProps<typeof GuideCue>>) => {
       <Button data-testid="outside-component">
         Outside Guide Cue Component
       </Button>
-      <GuideCue
+      <GuideCue<HTMLButtonElement>
         cueId=""
         groupId=""
         step={0}

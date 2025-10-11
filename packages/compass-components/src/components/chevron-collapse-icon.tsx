@@ -1,6 +1,9 @@
 import React from 'react';
 import { createGlyphComponent, palette, useDarkMode } from '..';
 
+import type { LGGlyph } from '@leafygreen-ui/icon';
+export type { LGGlyph };
+
 export const ChevronCollapse = createGlyphComponent(
   'ChevronCollapse',
   (props) => {

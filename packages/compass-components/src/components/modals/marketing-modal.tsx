@@ -5,13 +5,18 @@ import {
 } from '../leafygreen';
 import { withStackedComponentStyles } from '../../hooks/use-stacked-component';
 
+export type MarketingModalProps = Omit<
+  React.ComponentProps<typeof LeafyGreenMarketingModal>,
+  'backdropClassName'
+>;
+
 function MarketingModal({
   children,
   ...props
-}: React.ComponentProps<typeof LeafyGreenMarketingModal>): React.ReactElement {
+}: MarketingModalProps): React.ReactElement {
   return (
     <LeafyGreenMarketingModal {...props}>
-      <Body as="div">{children}</Body>
+      {props.open && <Body as="div">{children}</Body>}
     </LeafyGreenMarketingModal>
   );
 }
