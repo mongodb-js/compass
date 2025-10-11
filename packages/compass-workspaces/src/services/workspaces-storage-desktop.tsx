@@ -10,7 +10,10 @@ export const WorkspacesStorageServiceProviderDesktop: React.FunctionComponent =
   ({ children }) => {
     const storageRef = useRef<IUserData<typeof WorkspacesStateSchema>>(
       new FileUserData(WorkspacesStateSchema, 'WorkspacesState', {
-        serialize: (content) => EJSON.stringify(content, undefined, 2),
+        serialize: (content) =>
+          EJSON.stringify(content, {
+            relaxed: false,
+          }),
         deserialize: (content: string) => EJSON.parse(content),
       }) as IUserData<typeof WorkspacesStateSchema>
     );

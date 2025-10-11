@@ -11,7 +11,7 @@ import { mongoLogId } from '@mongodb-js/compass-logging/provider';
  * Debounced handler to save the workspaces state.
  */
 const handleWorkspacesStateChange = (() => {
-  let timeoutId: NodeJS.Timeout;
+  let timeoutId: ReturnType<typeof setTimeout>;
   return (state: WorkspacesState, services: WorkspacesServices) => {
     clearTimeout(timeoutId);
     timeoutId = setTimeout(() => {

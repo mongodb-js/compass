@@ -21,7 +21,10 @@ export const WorkspacesStorageServiceProviderWeb: React.FunctionComponent<{
       projectId,
       getResourceUrl,
       authenticatedFetch,
-      serialize: (content) => EJSON.stringify(content),
+      serialize: (content) =>
+        EJSON.stringify(content, {
+          relaxed: false,
+        }),
       deserialize: (content: string) => EJSON.parse(content),
     })
   );
