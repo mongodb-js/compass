@@ -35,7 +35,9 @@ export function workspacesStateChangeMiddleware(
 
     // Only call the callback if the workspaces state actually changed
     if (prevState !== nextState) {
-      handleWorkspacesStateChange(nextState, services);
+      if (services.preferences.getPreferences().enableRestoreWorkspaces) {
+        handleWorkspacesStateChange(nextState, services);
+      }
     }
 
     return result;
