@@ -174,10 +174,13 @@ const inferredFromPrivilegesDarkStyles = css({
   color: palette.gray.base,
 });
 
-function collectionColumns(
-  darkMode: boolean | undefined,
-  enableDbAndCollStats: boolean
-): LGColumnDef<CollectionProps>[] {
+function collectionColumns({
+  darkMode,
+  enableDbAndCollStats,
+}: {
+  darkMode: boolean | undefined;
+  enableDbAndCollStats: boolean;
+}): LGColumnDef<CollectionProps>[] {
   return [
     {
       accessorKey: 'name',
@@ -316,7 +319,7 @@ const CollectionsList: React.FunctionComponent<{
   const enableDbAndCollStats = usePreference('enableDbAndCollStats');
   const darkMode = useDarkMode();
   const columns = React.useMemo(
-    () => collectionColumns(darkMode, enableDbAndCollStats),
+    () => collectionColumns({ darkMode, enableDbAndCollStats }),
     [darkMode, enableDbAndCollStats]
   );
   return (

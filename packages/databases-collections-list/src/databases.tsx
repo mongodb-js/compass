@@ -11,6 +11,8 @@ import {
   cx,
   Icon,
   palette,
+  PerformanceSignals,
+  SignalPopover,
   spacing,
   Tooltip,
   useDarkMode,
@@ -37,10 +39,24 @@ const inferredFromPrivilegesDarkStyles = css({
   color: palette.gray.base,
 });
 
-function databaseColumns(
-  darkMode: boolean | undefined,
-  enableDbAndCollStats: boolean
-): LGColumnDef<DatabaseProps>[] {
+const collectionsLengthWrapStyles = css({
+  display: 'flex',
+  gap: spacing[100],
+  flexWrap: 'wrap',
+  alignItems: 'anchor-center',
+});
+
+const collectionsLengthStyles = css({});
+
+function databaseColumns({
+  darkMode,
+  enableDbAndCollStats,
+  showInsights,
+}: {
+  darkMode: boolean | undefined;
+  enableDbAndCollStats: boolean;
+  showInsights?: boolean;
+}): LGColumnDef<DatabaseProps>[] {
   return [
     {
       accessorKey: 'name',
@@ -99,9 +115,22 @@ function databaseColumns(
       header: 'Collections',
       enableSorting: true,
       cell: (info) => {
-        return enableDbAndCollStats
+        const text = enableDbAndCollStats
           ? compactNumber(info.getValue() as number)
           : '-';
+
+        return (
+          <span className={collectionsLengthWrapStyles}>
+            <span className={collectionsLengthStyles}>{text}</span>
+            {showInsights &&
+              enableDbAndCollStats &&
+              (info.getValue() as number) > 10_000 && (
+                <SignalPopover
+                  signals={PerformanceSignals.get('too-many-collections')}
+                ></SignalPopover>
+              )}
+          </span>
+        );
       },
     },
     {
@@ -132,11 +161,12 @@ const DatabasesList: React.FunctionComponent<{
   onRefreshClick,
   renderLoadSampleDataBanner,
 }) => {
+  const showInsights = usePreference('showInsights');
   const enableDbAndCollStats = usePreference('enableDbAndCollStats');
   const darkMode = useDarkMode();
   const columns = React.useMemo(
-    () => databaseColumns(darkMode, enableDbAndCollStats),
-    [darkMode, enableDbAndCollStats]
+    () => databaseColumns({ darkMode, enableDbAndCollStats, showInsights }),
+    [darkMode, enableDbAndCollStats, showInsights]
   );
   return (
     <ItemsTable
