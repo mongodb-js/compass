@@ -20,6 +20,7 @@ import {
   addCollection,
   selectField,
 } from '../store/diagram';
+import type { EdgeProps, NodeProps } from '@mongodb-js/compass-components';
 import {
   Banner,
   CancelLoader,
@@ -32,7 +33,8 @@ import {
   useDrawerState,
   useThrottledProps,
   rafraf,
-  Diagramming,
+  Diagram,
+  useDiagram,
 } from '@mongodb-js/compass-components';
 import { cancelAnalysis, retryAnalysis } from '../store/analysis-process';
 import type { FieldPath, StaticModel } from '../services/data-model-storage';
@@ -144,7 +146,7 @@ const DiagramContent: React.FunctionComponent<{
     foreignNamespace: string;
   }) => void;
   onRelationshipDrawn: () => void;
-  DiagramComponent?: typeof Diagramming.Diagram;
+  DiagramComponent?: typeof Diagram;
 }> = ({
   diagramLabel,
   database,
@@ -162,10 +164,10 @@ const DiagramContent: React.FunctionComponent<{
   onCreateNewRelationship,
   onRelationshipDrawn,
   selectedItems,
-  DiagramComponent = Diagramming.Diagram,
+  DiagramComponent = Diagram,
 }) => {
   const isDarkMode = useDarkMode();
-  const diagram = useRef(Diagramming.useDiagram());
+  const diagram = useRef(useDiagram());
   const { openDrawer } = useDrawerActions();
   const { isDrawerOpen } = useDrawerState();
   const [showDataInfoBanner, setshowDataInfoBanner] = useState(
@@ -179,7 +181,7 @@ const DiagramContent: React.FunctionComponent<{
     }
   }, []);
 
-  const edges = useMemo<Diagramming.EdgeProps[]>(() => {
+  const edges = useMemo<EdgeProps[]>(() => {
     return (model?.relationships ?? []).map((relationship) => {
       const selected =
         !!selectedItems &&
@@ -189,7 +191,7 @@ const DiagramContent: React.FunctionComponent<{
     });
   }, [model?.relationships, selectedItems]);
 
-  const nodes = useMemo<Diagramming.NodeProps[]>(() => {
+  const nodes = useMemo<NodeProps[]>(() => {
     const highlightedFields = getHighlightedFields(
       selectedItems,
       model?.relationships
@@ -271,7 +273,7 @@ const DiagramContent: React.FunctionComponent<{
   );
 
   const onNodeClick = useCallback(
-    (_evt: React.MouseEvent, node: Diagramming.NodeProps) => {
+    (_evt: React.MouseEvent, node: NodeProps) => {
       if (node.type !== 'collection') {
         return;
       }
@@ -282,7 +284,7 @@ const DiagramContent: React.FunctionComponent<{
   );
 
   const onEdgeClick = useCallback(
-    (_evt: React.MouseEvent, edge: Diagramming.EdgeProps) => {
+    (_evt: React.MouseEvent, edge: EdgeProps) => {
       onRelationshipSelect(edge.id);
       openDrawer(DATA_MODELING_DRAWER_ID);
     },
@@ -300,7 +302,7 @@ const DiagramContent: React.FunctionComponent<{
   );
 
   const onNodeDragStop = useCallback(
-    (evt: React.MouseEvent, node: Diagramming.NodeProps) => {
+    (evt: React.MouseEvent, node: NodeProps) => {
       onMoveCollection(node.id, [node.position.x, node.position.y]);
     },
     [onMoveCollection]
@@ -431,14 +433,14 @@ const DiagramEditor: React.FunctionComponent<{
   onRetryClick: () => void;
   onCancelClick: () => void;
   onAddCollectionClick: () => void;
-  DiagramComponent?: typeof Diagramming.Diagram;
+  DiagramComponent?: typeof Diagram;
 }> = ({
   step,
   diagramId,
   onRetryClick,
   onCancelClick,
   onAddCollectionClick,
-  DiagramComponent = Diagramming.Diagram,
+  DiagramComponent = Diagram,
 }) => {
   const { openDrawer } = useDrawerActions();
   let content;

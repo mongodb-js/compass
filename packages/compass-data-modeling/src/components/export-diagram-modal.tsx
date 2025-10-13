@@ -1,4 +1,5 @@
 import React from 'react';
+import type { DiagramInstance } from '@mongodb-js/compass-components';
 import {
   Button,
   css,
@@ -13,7 +14,7 @@ import {
   spacing,
   SpinLoader,
   PngIcon,
-  Diagramming,
+  useDiagram,
 } from '@mongodb-js/compass-components';
 import type { ExportDiagramFormat } from '../store/export-diagram';
 import {
@@ -51,7 +52,7 @@ type ExportDiagramModalProps = {
   isModalOpen: boolean;
   isExporting: boolean;
   exportFormat?: ExportDiagramFormat;
-  onExportDiagram: (diagramInstance: Diagramming.DiagramInstance) => void;
+  onExportDiagram: (diagramInstance: DiagramInstance) => void;
   onSelectFormat: (format: ExportDiagramFormat) => void;
   onCloseClick: () => void;
 };
@@ -64,7 +65,7 @@ const ExportDiagramModal = ({
   onSelectFormat,
   onCloseClick,
 }: ExportDiagramModalProps) => {
-  const diagram = Diagramming.useDiagram();
+  const diagram = useDiagram();
 
   return (
     <Modal

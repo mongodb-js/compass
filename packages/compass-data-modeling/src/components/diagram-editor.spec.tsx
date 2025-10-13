@@ -16,7 +16,7 @@ import type {
 } from '../services/data-model-storage';
 import { DataModelingWorkspaceTab } from '..';
 import { openDiagram } from '../store/diagram';
-import { DrawerAnchor, Diagramming } from '@mongodb-js/compass-components';
+import { DrawerAnchor, DiagramProvider } from '@mongodb-js/compass-components';
 import { type AnalysisOptions, startAnalysis } from '../store/analysis-process';
 import type { DataService } from '@mongodb-js/compass-connections/provider';
 
@@ -163,13 +163,13 @@ const renderDiagramEditor = async ({
     plugin: { store },
   } = await renderWithActiveConnection(
     <DrawerAnchor>
-      <Diagramming.DiagramProvider fitView>
+      <DiagramProvider fitView>
         <DiagramEditor
           // We need to stub the Diagram component because the imported one is
           // not bundled for CJS correctly and will throw on render
           DiagramComponent={mockDiagramming.Diagram}
         />
-      </Diagramming.DiagramProvider>
+      </DiagramProvider>
     </DrawerAnchor>,
     mockConnections[0],
     {

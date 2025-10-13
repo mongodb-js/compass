@@ -17,10 +17,10 @@ import { AnalysisProcessActionTypes } from './analysis-process';
 import { memoize } from 'lodash';
 import type { DataModelingState, DataModelingThunkAction } from './reducer';
 import {
+  getCoordinatesForNewNode,
   openToast,
   showConfirmation,
   showPrompt,
-  Diagramming,
 } from '@mongodb-js/compass-components';
 import {
   getDiagramContentsFromFile,
@@ -844,10 +844,7 @@ function getPositionForNewCollection(
     jsonSchema: newCollection.jsonSchema,
     displayPosition: [0, 0],
   });
-  const xyposition = Diagramming.getCoordinatesForNewNode(
-    existingNodes,
-    newNode
-  );
+  const xyposition = getCoordinatesForNewNode(existingNodes, newNode);
   return [xyposition.x, xyposition.y];
 }
 

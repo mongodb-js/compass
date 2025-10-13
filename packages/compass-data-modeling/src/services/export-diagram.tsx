@@ -2,7 +2,15 @@ import React from 'react';
 import type { StaticModel } from './data-model-storage';
 import ReactDOM from 'react-dom';
 import { toPng } from 'html-to-image';
-import { rafraf, spacing, Diagramming } from '@mongodb-js/compass-components';
+import type { DiagramInstance } from '@mongodb-js/compass-components';
+import {
+  rafraf,
+  spacing,
+  Diagram,
+  DiagramProvider,
+  getNodesBounds,
+  getViewportForBounds,
+} from '@mongodb-js/compass-components';
 import { raceWithAbort } from '@mongodb-js/compass-utils';
 
 function moveSvgDefsToViewportElement(
@@ -28,7 +36,7 @@ function moveSvgDefsToViewportElement(
 
 export async function exportToPng(
   fileName: string,
-  diagram: Diagramming.DiagramInstance,
+  diagram: DiagramInstance,
   signal?: AbortSignal
 ) {
   const dataUri = await raceWithAbort(
@@ -38,11 +46,9 @@ export async function exportToPng(
   downloadFile(dataUri, fileName);
 }
 
-export function getExportPngDataUri(
-  diagram: Diagramming.DiagramInstance
-): Promise<string> {
+export function getExportPngDataUri(diagram: DiagramInstance): Promise<string> {
   return new Promise<string>((resolve, reject) => {
-    const bounds = Diagramming.getNodesBounds(diagram.getNodes());
+    const bounds = getNodesBounds(diagram.getNodes());
 
     const container = document.createElement('div');
     container.setAttribute('data-testid', 'export-diagram-container');
@@ -61,13 +67,13 @@ export function getExportPngDataUri(
     }));
 
     ReactDOM.render(
-      <Diagramming.DiagramProvider>
-        <Diagramming.Diagram
+      <DiagramProvider>
+        <Diagram
           edges={edges}
           nodes={nodes}
           onlyRenderVisibleElements={false}
         />
-      </Diagramming.DiagramProvider>,
+      </DiagramProvider>,
       container,
       () => {
         // We skip some frames here to ensure that the DOM has fully rendered and React has
@@ -88,7 +94,7 @@ export function getExportPngDataUri(
             return reject(new Error('Diagram element not found'));
           }
 
-          const transform = Diagramming.getViewportForBounds(
+          const transform = getViewportForBounds(
             bounds,
             bounds.width,
             bounds.height,

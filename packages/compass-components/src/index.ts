@@ -230,3 +230,19 @@ export { InsightsChip } from './components/insights-chip';
 export * from './components/drawer-portal';
 export { FileSelector } from './components/file-selector';
 export * as Diagramming from '@mongodb-js/diagramming';
+export {
+  DiagramProvider,
+  Diagram,
+  useDiagram,
+  getNodesBounds,
+  getViewportForBounds,
+  applyLayout,
+  getCoordinatesForNewNode,
+} from '@mongodb-js/diagramming';
+export type {
+  EdgeProps,
+  NodeProps,
+  DiagramInstance,
+  NodeField,
+  NodeGlyph,
+} from '@mongodb-js/diagramming';

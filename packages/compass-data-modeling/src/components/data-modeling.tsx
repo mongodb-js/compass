@@ -4,7 +4,7 @@ import DiagramEditor from './diagram-editor';
 import SavedDiagramsList from './saved-diagrams-list';
 import NewDiagramFormModal from './new-diagram-form';
 import type { DataModelingState } from '../store/reducer';
-import { Diagramming } from '@mongodb-js/compass-components';
+import { DiagramProvider } from '@mongodb-js/compass-components';
 import DiagramEditorSidePanel from './drawer/diagram-editor-side-panel';
 
 type DataModelingProps = {
@@ -19,10 +19,10 @@ const DataModeling: React.FunctionComponent<DataModelingProps> = ({
       {showList ? (
         <SavedDiagramsList></SavedDiagramsList>
       ) : (
-        <Diagramming.DiagramProvider fitView>
+        <DiagramProvider fitView>
           <DiagramEditor />
           <DiagramEditorSidePanel />
-        </Diagramming.DiagramProvider>
+        </DiagramProvider>
       )}
       <NewDiagramFormModal></NewDiagramFormModal>
     </>
