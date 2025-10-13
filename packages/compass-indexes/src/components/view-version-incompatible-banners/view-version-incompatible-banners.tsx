@@ -68,6 +68,7 @@ export const ViewVersionIncompatibleBanner = ({
               clusterName: atlasMetadata.clusterName,
             })}
             target="_blank"
+            style={{ textDecoration: 'none' }}
           >
             Upgrade Cluster
           </Button>

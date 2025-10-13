@@ -230,10 +230,17 @@ export function Indexes({
 
   const getBanner = () => {
     if (isReadonlyView) {
-      if (
+      const viewVersionIncompatibleCompass =
         !VIEW_PIPELINE_UTILS.isVersionSearchCompatibleForViewsCompass(
           serverVersion
-        )
+        ) && enableAtlasSearchIndexes;
+      const viewVersionIncompatibleDataExplorer =
+        !VIEW_PIPELINE_UTILS.isVersionSearchCompatibleForViewsDataExplorer(
+          serverVersion
+        ) && !enableAtlasSearchIndexes;
+      if (
+        viewVersionIncompatibleCompass ||
+        viewVersionIncompatibleDataExplorer
       ) {
         return (
           <ViewVersionIncompatibleBanner
@@ -243,6 +250,7 @@ export function Indexes({
           />
         );
       }
+
       if (!isViewPipelineSearchQueryable) {
         return (
           <ViewNotSearchCompatibleBanner
