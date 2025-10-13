@@ -382,7 +382,7 @@ describe('MongoDB Assistant', function () {
       const assistantMessage = messageElements[1];
 
       // sanity check
-      expect(assistantMessage.getText()).to.equal(testResponse);
+      expect(await assistantMessage.getText()).to.equal(testResponse);
 
       await browser.clickVisible(
         assistantMessage.$('[aria-label="Copy message"]')
