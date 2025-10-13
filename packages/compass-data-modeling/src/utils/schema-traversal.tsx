@@ -170,11 +170,31 @@ export const getFieldFromSchema = ({
   });
 };
 
-type UpdateOperationParameters = {
-  update: 'removeField' | 'renameField' | 'changeFieldSchema';
-  newFieldName?: string;
-  newFieldSchema?: MongoDBJSONSchema;
-};
+type UpdateOperationParameters =
+  | {
+      update: 'removeField';
+      fieldName: string;
+      newFieldName?: never;
+      newFieldSchema?: never;
+    }
+  | {
+      update: 'renameField';
+      fieldName: string;
+      newFieldName: string;
+      newFieldSchema?: never;
+    }
+  | {
+      update: 'addField';
+      fieldName?: never;
+      newFieldName: string;
+      newFieldSchema: MongoDBJSONSchema;
+    }
+  | {
+      update: 'changeFieldSchema';
+      fieldName: string;
+      newFieldName?: never;
+      newFieldSchema: MongoDBJSONSchema;
+    };
 
 const applySchemaUpdate = ({
   schema,
@@ -184,7 +204,6 @@ const applySchemaUpdate = ({
   update,
 }: {
   schema: MongoDBJSONSchema;
-  fieldName: string;
 } & UpdateOperationParameters): MongoDBJSONSchema => {
   switch (update) {
     case 'removeField': {
@@ -240,6 +259,21 @@ const applySchemaUpdate = ({
         },
       };
     }
+    case 'addField': {
+      if (!newFieldSchema)
+        throw new Error('New field schema is required for the add operation');
+      if (!newFieldName)
+        throw new Error('New field name is required for the add operation');
+      const newSchema = {
+        ...schema,
+        properties: {
+          ...schema.properties,
+          [newFieldName]: newFieldSchema,
+        },
+      };
+      console.log('Added field, new schema:', schema, newSchema);
+      return newSchema;
+    }
     default:
       return schema;
   }
@@ -255,21 +289,29 @@ export const updateSchema = ({
 }: {
   jsonSchema: MongoDBJSONSchema;
   fieldPath: FieldPath;
-  updateParameters: UpdateOperationParameters;
+  updateParameters: Omit<UpdateOperationParameters, 'fieldName'>;
 }): MongoDBJSONSchema => {
+  console.log('UpdateSchema', fieldPath, updateParameters, jsonSchema);
   const newSchema = {
     ...jsonSchema,
   };
+  if (fieldPath.length === 0 && updateParameters.update === 'addField') {
+    return applySchemaUpdate({
+      schema: newSchema,
+      ...updateParameters,
+      update: 'addField',
+    });
+  }
   const nextInPath = fieldPath[0];
   const remainingFieldPath = fieldPath.slice(1);
   const targetReached = remainingFieldPath.length === 0;
   if (newSchema.properties && newSchema.properties[nextInPath]) {
-    if (targetReached) {
+    if (targetReached && updateParameters.update !== 'addField') {
       // reached the field to remove
       return applySchemaUpdate({
         schema: newSchema,
-        fieldName: nextInPath,
         ...updateParameters,
+        fieldName: nextInPath,
       });
     }
     newSchema.properties = {
@@ -308,6 +350,7 @@ export const updateSchema = ({
     }
   }
 
+  console.log('Done', updateParameters, fieldPath, jsonSchema, newSchema);
   return newSchema;
 };
 
