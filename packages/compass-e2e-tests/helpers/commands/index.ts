@@ -34,6 +34,7 @@ export * from './scroll-to-virtual-item';
 export * from './set-export-filename';
 export * from './get-feature';
 export * from './set-feature';
+export * from './set-env';
 export * from './save-favorite';
 export * from './save-connection-string-as-favorite';
 export * from './sidebar-connection';

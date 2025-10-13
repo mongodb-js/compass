@@ -500,6 +500,38 @@ export function redoEdit(): DataModelingThunkAction<void, RedoEditAction> {
   };
 }
 
+export function onAddNestedField(
+  ns: string,
+  parentFieldPath: string[]
+): DataModelingThunkAction<void, ApplyEditAction | ApplyEditFailedAction> {
+  return (dispatch, getState) => {
+    const modelState = selectCurrentModelFromState(getState());
+
+    const collection = modelState.collections.find((c) => c.ns === ns);
+    if (!collection) {
+      throw new Error('Collection to add field to not found');
+    }
+
+    const edit: Omit<
+      Extract<Edit, { type: 'AddField' }>,
+      'id' | 'timestamp'
+    > = {
+      type: 'AddField',
+      ns,
+      // Use the first unique field name we can use.
+      field: [
+        ...parentFieldPath,
+        getNewUnusedFieldName(collection.jsonSchema, parentFieldPath),
+      ],
+      jsonSchema: {
+        bsonType: 'string',
+      },
+    };
+
+    return dispatch(applyEdit(edit));
+  };
+}
+
 export function addNewFieldToCollection(
   ns: string
 ): DataModelingThunkAction<void, ApplyEditAction | ApplyEditFailedAction> {
