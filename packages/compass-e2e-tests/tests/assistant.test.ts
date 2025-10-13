@@ -375,14 +375,17 @@ describe('MongoDB Assistant', function () {
 
       await sendMessage(testMessage);
 
+      // sanity check
+      await browser.waitUntil(async () => {
+        const messages = await getDisplayedMessages(browser);
+        return messages[1].text === testResponse;
+      });
+
       const messageElements = await browser
         .$$(Selectors.AssistantChatMessage)
         .getElements();
 
       const assistantMessage = messageElements[1];
-
-      // sanity check
-      expect(await assistantMessage.getText()).to.equal(testResponse);
 
       await browser.clickVisible(
         assistantMessage.$('[aria-label="Copy message"]')
