@@ -11,7 +11,7 @@ import {
   ExperimentTestGroup,
   ExperimentTestName,
   useAssignment,
-  useFireExperimentViewed,
+  useTrackInSample,
 } from './provider';
 
 const skillsCTAContent = css({
@@ -62,10 +62,8 @@ export const useAtlasSkillsBanner = (context: SkillsBannerContextEnum) => {
     ExperimentTestGroup.atlasSkillsVariant;
 
   // Track experiment viewed when user is in experiment and banner would be shown
-  useFireExperimentViewed({
-    testName: ExperimentTestName.atlasSkills,
-    shouldFire: !!atlasSkillsAssignment,
-    additionalProperties: { screen: context },
+  useTrackInSample(ExperimentTestName.atlasSkills, !!atlasSkillsAssignment, {
+    screen: context,
   });
 
   return {
