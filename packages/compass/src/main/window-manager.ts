@@ -123,7 +123,7 @@ async function saveWindowBounds(
     });
   } catch (err) {
     log.warn(
-      mongoLogId(1_001_000_377),
+      mongoLogId(1_001_000_378),
       'Window Manager',
       'Failed to save window bounds',
       { message: (err as Error).message }
