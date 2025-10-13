@@ -132,19 +132,29 @@ export function useTrackOnChange(
  *
  * @param testName - The name of the experiment to track.
  * @param shouldFire - A boolean indicating whether to fire the event. Defaults to true.
+ * @param additionalProperties - Optional additional properties to include in the track call.
  *
  * @example
  * useFireExperimentViewed({
  *   testName: ExperimentTestName.earlyJourneyIndexesGuidance,
  *   shouldFire: enableInIndexesGuidanceExp ,
  * });
+ *
+ * @example
+ * useFireExperimentViewed({
+ *   testName: ExperimentTestName.atlasSkills,
+ *   shouldFire: showBanner,
+ *   additionalProperties: { screen: 'aggregations' },
+ * });
  */
 export const useFireExperimentViewed = ({
   testName,
   shouldFire = true,
+  additionalProperties,
 }: {
   testName: ExperimentTestName;
   shouldFire?: boolean;
+  additionalProperties?: Record<string, unknown>;
 }) => {
   useTrackOnChange(
     (track: TrackFunction) => {
@@ -153,9 +163,10 @@ export const useFireExperimentViewed = ({
       }
       track('Experiment Viewed', {
         test_name: testName,
-      });
+        ...additionalProperties,
+      } as any);
     },
-    [shouldFire, testName],
+    [shouldFire, testName, additionalProperties],
     undefined
   );
 };
