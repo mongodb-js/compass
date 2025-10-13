@@ -154,12 +154,24 @@ function collectionPropertyToBadge(
   }
 }
 
-const collectionNameStyles = css({
+const collectionNameWrapStyles = css({
   display: 'flex',
   gap: spacing[100],
   flexWrap: 'wrap',
   alignItems: 'anchor-center',
   wordBreak: 'break-word',
+});
+
+const tooltipTriggerStyles = css({
+  display: 'flex',
+});
+
+const inferredFromPrivilegesLightStyles = css({
+  color: palette.gray.dark1,
+});
+
+const inferredFromPrivilegesDarkStyles = css({
+  color: palette.gray.base,
 });
 
 function collectionColumns(
@@ -173,17 +185,43 @@ function collectionColumns(
       enableSorting: true,
       size: 300,
       cell: (info) => {
+        const collection = info.row.original;
         const name = info.getValue() as string;
 
-        const badges = info.row.original.properties
+        const badges = collection.properties
           .filter((prop) => prop.id !== 'read-only')
           .map((prop) => {
-            return collectionPropertyToBadge(info.row.original, darkMode, prop);
+            return collectionPropertyToBadge(collection, darkMode, prop);
           });
 
         return (
-          <div className={collectionNameStyles}>
-            <span>{name}</span>
+          <div className={collectionNameWrapStyles}>
+            <span
+              className={cx(
+                collection.inferred_from_privileges &&
+                  !darkMode &&
+                  inferredFromPrivilegesLightStyles,
+                collection.inferred_from_privileges &&
+                  darkMode &&
+                  inferredFromPrivilegesDarkStyles
+              )}
+            >
+              {name}
+            </span>
+            {collection.inferred_from_privileges && (
+              <Tooltip
+                align="bottom"
+                justify="start"
+                trigger={
+                  <div className={tooltipTriggerStyles}>
+                    <Icon glyph={'InfoWithCircle'} />
+                  </div>
+                }
+              >
+                Your privileges grant you access to this namespace, but it might
+                not currently exist
+              </Tooltip>
+            )}
             <CollectionBadges>
               {badges.map((badge) => {
                 return (

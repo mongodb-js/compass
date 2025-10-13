@@ -6,13 +6,39 @@ import { compactBytes, compactNumber } from './format';
 import { ItemsTable } from './items-table';
 import type { DatabaseProps } from 'mongodb-database-model';
 import { usePreference } from 'compass-preferences-model/provider';
-import { css, type LGColumnDef } from '@mongodb-js/compass-components';
+import {
+  css,
+  cx,
+  Icon,
+  palette,
+  spacing,
+  Tooltip,
+  useDarkMode,
+  type LGColumnDef,
+} from '@mongodb-js/compass-components';
 
-const databaseNameStyles = css({
+const databaseNameWrapStyles = css({
+  display: 'flex',
+  gap: spacing[100],
+  flexWrap: 'wrap',
+  alignItems: 'anchor-center',
   wordBreak: 'break-word',
 });
 
+const tooltipTriggerStyles = css({
+  display: 'flex',
+});
+
+const inferredFromPrivilegesLightStyles = css({
+  color: palette.gray.dark1,
+});
+
+const inferredFromPrivilegesDarkStyles = css({
+  color: palette.gray.base,
+});
+
 function databaseColumns(
+  darkMode: boolean | undefined,
   enableDbAndCollStats: boolean
 ): LGColumnDef<DatabaseProps>[] {
   return [
@@ -21,8 +47,39 @@ function databaseColumns(
       header: 'Database name',
       enableSorting: true,
       cell: (info) => {
+        const database = info.row.original;
         const name = info.getValue() as string;
-        return <span className={databaseNameStyles}>{name}</span>;
+        return (
+          <span className={databaseNameWrapStyles}>
+            <span
+              className={cx(
+                database.inferred_from_privileges &&
+                  !darkMode &&
+                  inferredFromPrivilegesLightStyles,
+                database.inferred_from_privileges &&
+                  darkMode &&
+                  inferredFromPrivilegesDarkStyles
+              )}
+            >
+              {name}
+            </span>
+
+            {database.inferred_from_privileges && (
+              <Tooltip
+                align="bottom"
+                justify="start"
+                trigger={
+                  <div className={tooltipTriggerStyles}>
+                    <Icon glyph={'InfoWithCircle'} />
+                  </div>
+                }
+              >
+                Your privileges grant you access to this namespace, but it might
+                not currently exist
+              </Tooltip>
+            )}
+          </span>
+        );
       },
     },
     {
@@ -76,9 +133,10 @@ const DatabasesList: React.FunctionComponent<{
   renderLoadSampleDataBanner,
 }) => {
   const enableDbAndCollStats = usePreference('enableDbAndCollStats');
+  const darkMode = useDarkMode();
   const columns = React.useMemo(
-    () => databaseColumns(enableDbAndCollStats),
-    [enableDbAndCollStats]
+    () => databaseColumns(darkMode, enableDbAndCollStats),
+    [darkMode, enableDbAndCollStats]
   );
   return (
     <ItemsTable
