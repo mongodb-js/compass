@@ -1,5 +1,6 @@
 import { expect } from 'chai';
 
+import clipboard from 'clipboardy';
 import type { CompassBrowser } from '../helpers/compass-browser';
 import { startTelemetryServer } from '../helpers/telemetry';
 import type { Telemetry } from '../helpers/telemetry';
@@ -16,6 +17,8 @@ import { startMockAtlasServiceServer } from '../helpers/atlas-service';
 import { startMockAssistantServer } from '../helpers/assistant-service';
 import type { MockAssistantResponse } from '../helpers/assistant-service';
 import { isTestingWeb } from '../helpers/test-runner-context';
+
+import { context } from '../helpers/test-runner-context';
 
 describe('MongoDB Assistant', function () {
   let compass: Compass;
@@ -179,13 +182,6 @@ describe('MongoDB Assistant', function () {
   });
 
   describe('drawer visibility', function () {
-    before(function () {
-      skipForWeb(
-        this,
-        'E2E testing for assistant drawer visibility on compass-web is not yet implemented'
-      );
-    });
-
     it('shows the assistant drawer button when AI features are enabled', async function () {
       await setAIFeatures(true);
 
@@ -195,6 +191,12 @@ describe('MongoDB Assistant', function () {
     });
 
     it('does not show the assistant drawer button when AI features are disabled', async function () {
+      // we cannot opt back out on web because it is stored server-side
+      skipForWeb(
+        this,
+        'E2E testing for assistant drawer visibility on compass-web is not yet implemented'
+      );
+
       await setAIFeatures(false);
 
       const drawerButton = browser.$(Selectors.AssistantDrawerButton);
@@ -219,6 +221,7 @@ describe('MongoDB Assistant', function () {
   });
 
   describe('before opt-in', function () {
+    // we cannot opt back out on web because it is stored server-side
     before(async function () {
       skipForWeb(
         this,
@@ -288,6 +291,7 @@ describe('MongoDB Assistant', function () {
 
   describe('opting in', function () {
     before(async function () {
+      // we cannot opt back out on web because it is stored server-side
       skipForWeb(
         this,
         'E2E testing for opt-in on compass-web is not yet implemented'
@@ -372,10 +376,10 @@ describe('MongoDB Assistant', function () {
     });
 
     it('can copy assistant message to clipboard', async function () {
-      skipForWeb(
-        this,
-        'Accessing the clipboard text is not available in compass-web so this test is not meaningful'
-      );
+      if (context.disableClipboardUsage) {
+        this.skip();
+      }
+
       await sendMessage(testMessage);
 
       const messageElements = await browser
@@ -384,16 +388,22 @@ describe('MongoDB Assistant', function () {
 
       const assistantMessage = messageElements[1];
 
-      const copyButton = assistantMessage.$('[aria-label="Copy message"]');
-      await copyButton.waitForDisplayed();
-      await copyButton.click();
+      // sanity check
+      expect(assistantMessage.getText()).to.equal(testResponse);
+
+      await browser.clickVisible(
+        assistantMessage.$('[aria-label="Copy message"]')
+      );
 
       await browser.waitUntil(async () => {
-        return (
-          (await browser.execute(() => {
-            return navigator.clipboard.readText();
-          })) === testResponse
-        );
+        const text = await clipboard.read();
+
+        const isValid = text === testResponse;
+        if (!isValid) {
+          console.log(text);
+        }
+
+        return isValid;
       });
     });
 
