@@ -73,7 +73,7 @@ import LeafyGreenTextInput from '@leafygreen-ui/text-input';
 import { SearchInput } from '@leafygreen-ui/search-input';
 export { usePrevious, useMergeRefs } from '@leafygreen-ui/hooks';
 import Toggle from '@leafygreen-ui/toggle';
-import Tooltip from '@leafygreen-ui/tooltip';
+import LGTooltip from '@leafygreen-ui/tooltip';
 import {
   H1,
   H2,
@@ -92,8 +92,10 @@ import {
   ComboboxOption,
   ComboboxGroup,
 } from '@leafygreen-ui/combobox';
+import { withStackedComponentStyles } from '../hooks/use-stacked-component';
 
 // 2. Wrap and make any changes/workaround to leafygreen components.
+const Tooltip = withStackedComponentStyles(LGTooltip);
 const Icon = ({
   size,
   ...rest
