@@ -1,15 +1,8 @@
 import React from 'react';
-import {
-  getNodesBounds,
-  getViewportForBounds,
-  DiagramProvider,
-  Diagram,
-} from '@mongodb-js/diagramming';
-import type { DiagramInstance } from '@mongodb-js/diagramming';
 import type { StaticModel } from './data-model-storage';
 import ReactDOM from 'react-dom';
 import { toPng } from 'html-to-image';
-import { rafraf, spacing } from '@mongodb-js/compass-components';
+import { rafraf, spacing, Diagramming } from '@mongodb-js/compass-components';
 import { raceWithAbort } from '@mongodb-js/compass-utils';
 
 function moveSvgDefsToViewportElement(
@@ -35,7 +28,7 @@ function moveSvgDefsToViewportElement(
 
 export async function exportToPng(
   fileName: string,
-  diagram: DiagramInstance,
+  diagram: Diagramming.DiagramInstance,
   signal?: AbortSignal
 ) {
   const dataUri = await raceWithAbort(
@@ -45,9 +38,11 @@ export async function exportToPng(
   downloadFile(dataUri, fileName);
 }
 
-export function getExportPngDataUri(diagram: DiagramInstance): Promise<string> {
+export function getExportPngDataUri(
+  diagram: Diagramming.DiagramInstance
+): Promise<string> {
   return new Promise<string>((resolve, reject) => {
-    const bounds = getNodesBounds(diagram.getNodes());
+    const bounds = Diagramming.getNodesBounds(diagram.getNodes());
 
     const container = document.createElement('div');
     container.setAttribute('data-testid', 'export-diagram-container');
@@ -66,13 +61,13 @@ export function getExportPngDataUri(diagram: DiagramInstance): Promise<string> {
     }));
 
     ReactDOM.render(
-      <DiagramProvider>
-        <Diagram
+      <Diagramming.DiagramProvider>
+        <Diagramming.Diagram
           edges={edges}
           nodes={nodes}
           onlyRenderVisibleElements={false}
         />
-      </DiagramProvider>,
+      </Diagramming.DiagramProvider>,
       container,
       () => {
         // We skip some frames here to ensure that the DOM has fully rendered and React has
@@ -93,7 +88,7 @@ export function getExportPngDataUri(diagram: DiagramInstance): Promise<string> {
             return reject(new Error('Diagram element not found'));
           }
 
-          const transform = getViewportForBounds(
+          const transform = Diagramming.getViewportForBounds(
             bounds,
             bounds.width,
             bounds.height,

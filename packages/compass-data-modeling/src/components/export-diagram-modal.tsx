@@ -13,6 +13,7 @@ import {
   spacing,
   SpinLoader,
   PngIcon,
+  Diagramming,
 } from '@mongodb-js/compass-components';
 import type { ExportDiagramFormat } from '../store/export-diagram';
 import {
@@ -22,8 +23,6 @@ import {
 } from '../store/export-diagram';
 import { connect } from 'react-redux';
 import type { DataModelingState } from '../store/reducer';
-import { useDiagram } from '@mongodb-js/diagramming';
-import type { DiagramInstance } from '@mongodb-js/diagramming';
 
 const modelBodyStyles = css({
   paddingTop: spacing[600],
@@ -52,7 +51,7 @@ type ExportDiagramModalProps = {
   isModalOpen: boolean;
   isExporting: boolean;
   exportFormat?: ExportDiagramFormat;
-  onExportDiagram: (diagramInstance: DiagramInstance) => void;
+  onExportDiagram: (diagramInstance: Diagramming.DiagramInstance) => void;
   onSelectFormat: (format: ExportDiagramFormat) => void;
   onCloseClick: () => void;
 };
@@ -65,7 +64,7 @@ const ExportDiagramModal = ({
   onSelectFormat,
   onCloseClick,
 }: ExportDiagramModalProps) => {
-  const diagram = useDiagram();
+  const diagram = Diagramming.useDiagram();
 
   return (
     <Modal

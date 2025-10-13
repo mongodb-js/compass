@@ -229,3 +229,4 @@ export { ParagraphSkeleton } from '@leafygreen-ui/skeleton-loader';
 export { InsightsChip } from './components/insights-chip';
 export * from './components/drawer-portal';
 export { FileSelector } from './components/file-selector';
+export * as Diagramming from '@mongodb-js/diagramming';

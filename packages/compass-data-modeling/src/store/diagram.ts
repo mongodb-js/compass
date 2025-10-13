@@ -20,13 +20,13 @@ import {
   openToast,
   showConfirmation,
   showPrompt,
+  Diagramming,
 } from '@mongodb-js/compass-components';
 import {
   getDiagramContentsFromFile,
   getDiagramName,
 } from '../services/open-and-download-diagram';
 import type { MongoDBJSONSchema } from 'mongodb-schema';
-import { getCoordinatesForNewNode } from '@mongodb-js/diagramming';
 import { collectionToBaseNodeForLayout } from '../utils/nodes-and-edges';
 import toNS from 'mongodb-ns';
 import {
@@ -844,7 +844,10 @@ function getPositionForNewCollection(
     jsonSchema: newCollection.jsonSchema,
     displayPosition: [0, 0],
   });
-  const xyposition = getCoordinatesForNewNode(existingNodes, newNode);
+  const xyposition = Diagramming.getCoordinatesForNewNode(
+    existingNodes,
+    newNode
+  );
   return [xyposition.x, xyposition.y];
 }
 

@@ -1,10 +1,5 @@
 import toNS from 'mongodb-ns';
-import type {
-  NodeProps,
-  EdgeProps,
-  NodeGlyph,
-  NodeField,
-} from '@mongodb-js/diagramming';
+import type { Diagramming } from '@mongodb-js/compass-components';
 import type { MongoDBJSONSchema } from 'mongodb-schema';
 import type { SelectedItems } from '../store/diagram';
 import type {
@@ -16,6 +11,11 @@ import { traverseSchema } from './schema-traversal';
 import { areFieldPathsEqual } from './utils';
 
 const NO_HIGHLIGHTED_FIELDS = {};
+
+type NodeField = Diagramming.NodeField;
+type NodeGlyph = Diagramming.NodeGlyph;
+type NodeProps = Diagramming.NodeProps;
+type EdgeProps = Diagramming.EdgeProps;
 
 export const getHighlightedFields = (
   selectedItems: SelectedItems | null,
