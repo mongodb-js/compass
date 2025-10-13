@@ -71,8 +71,7 @@ describe('MongoDB Assistant', function () {
       const chatInput = browser.$(Selectors.AssistantChatInputTextArea);
       await chatInput.waitForDisplayed();
       await chatInput.setValue(text);
-      const submitButton = browser.$(Selectors.AssistantChatSubmitButton);
-      await submitButton.click();
+      await browser.clickVisible(Selectors.AssistantChatSubmitButton);
 
       switch (expectedResult) {
         case 'success':
@@ -262,9 +261,7 @@ describe('MongoDB Assistant', function () {
         await optInModal.waitForDisplayed();
         expect(await optInModal.isDisplayed()).to.be.true;
 
-        const declineLink = browser.$(Selectors.AIOptInModalDeclineLink);
-        await declineLink.waitForDisplayed();
-        await declineLink.click();
+        await browser.clickVisible(Selectors.AIOptInModalDeclineLink);
 
         await optInModal.waitForDisplayed({ reverse: true });
 
@@ -278,9 +275,7 @@ describe('MongoDB Assistant', function () {
         await optInModal.waitForDisplayed();
         expect(await optInModal.isDisplayed()).to.be.true;
 
-        const declineLink = browser.$(Selectors.AIOptInModalDeclineLink);
-        await declineLink.waitForDisplayed();
-        await declineLink.click();
+        await browser.clickVisible(Selectors.AIOptInModalDeclineLink);
 
         await optInModal.waitForDisplayed({ reverse: true });
 
@@ -307,9 +302,7 @@ describe('MongoDB Assistant', function () {
       await optInModal.waitForDisplayed();
       expect(await optInModal.isDisplayed()).to.be.true;
 
-      const acceptButton = browser.$(Selectors.AIOptInModalAcceptButton);
-      await acceptButton.waitForClickable();
-      await acceptButton.click();
+      await browser.clickVisible(Selectors.AIOptInModalAcceptButton);
 
       await optInModal.waitForDisplayed({ reverse: true });
 
@@ -453,9 +446,7 @@ describe('MongoDB Assistant', function () {
         it('opens assistant with explain plan prompt when clicking "Interpret for me"', async function () {
           await useExplainPlanEntryPoint(browser);
 
-          const confirmButton = browser.$('button*=Confirm');
-          await confirmButton.waitForDisplayed();
-          await confirmButton.click();
+          await browser.clickVisible('button*=Confirm');
 
           await browser.waitUntil(async () => {
             return (await getDisplayedMessages(browser)).length === 2;
@@ -482,9 +473,7 @@ describe('MongoDB Assistant', function () {
           );
 
           // Click Cancel button
-          const cancelButton = browser.$('button*=Cancel');
-          await cancelButton.waitForDisplayed();
-          await cancelButton.click();
+          await browser.clickVisible('button*=Cancel');
 
           // Wait a bit to ensure no request is sent
           await browser.pause(300);
@@ -545,12 +534,10 @@ async function openAssistantDrawer(browser: CompassBrowser) {
 async function clearChat(browser: CompassBrowser) {
   const clearChatButton = browser.$(Selectors.AssistantClearChatButton);
   if (await clearChatButton.isDisplayed()) {
-    await clearChatButton.click();
-    const confirmButton = browser.$(
+    await browser.clickVisible(clearChatButton);
+    await browser.clickVisible(
       Selectors.AssistantConfirmClearChatModalConfirmButton
     );
-    await confirmButton.waitForClickable();
-    await confirmButton.click();
   }
 }
 
