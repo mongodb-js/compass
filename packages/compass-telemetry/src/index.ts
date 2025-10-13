@@ -10,8 +10,4 @@ export { CompassExperimentationProvider } from './experimentation-provider';
 export { ExperimentTestName, ExperimentTestGroup } from './growth-experiments';
 
 // @experiment Skills in Atlas  | Jira Epic: CLOUDP-346311
-export {
-  AtlasSkillsBanner,
-  SkillsBannerContextEnum,
-  useAtlasSkillsBanner,
-} from './atlas-skills-banner';
+export { SkillsBannerContextEnum, useAtlasSkillsBanner } from './atlas-skills';
