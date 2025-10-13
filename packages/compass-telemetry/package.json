@@ -26,12 +26,12 @@
   "exports": {
     ".": "./dist/index.js",
     "./provider": "./dist/provider.js",
-    "./atlas-skills-banner": "./dist/atlas-skills-banner.js"
+    "./atlas-skills": "./dist/atlas-skills.js"
   },
   "compass:exports": {
     ".": "./src/index.ts",
     "./provider": "./src/provider.tsx",
-    "./atlas-skills-banner": "./src/atlas-skills-banner.tsx"
+    "./atlas-skills": "./src/atlas-skills.ts"
   },
   "types": "./dist/index.d.ts",
   "scripts": {
