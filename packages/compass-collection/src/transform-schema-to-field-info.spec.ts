@@ -14,7 +14,10 @@ import {
   Long,
   Decimal128,
 } from 'bson';
-import { processSchema } from './transform-schema-to-field-info';
+import {
+  processSchema,
+  ProcessSchemaUnsupportedStateError,
+} from './transform-schema-to-field-info';
 import type { Schema } from 'mongodb-schema';
 
 describe('processSchema', function () {
@@ -1465,5 +1468,39 @@ describe('processSchema', function () {
         'defaultArray[]': 3, // DEFAULT_ARRAY_LENGTH = 3
       });
     });
+  });
+
+  it('throws ProcessSchemaUnsupportedStateError when Binary data is encountered', function () {
+    const binaryData = { _bsontype: 'Binary', buffer: Buffer.from('test') };
+
+    // Simulate a bug or edge case where Binary data somehow gets through
+    const schema: Schema = {
+      fields: [
+        {
+          name: 'testField',
+          path: ['testField'],
+          count: 1,
+          type: ['String'], // Pretend it's a String type to bypass Binary filtering
+          probability: 1.0,
+          hasDuplicates: false,
+          types: [
+            {
+              name: 'String', // Pretend it's a String type to bypass Binary filtering
+              bsonType: 'String',
+              path: ['testField'],
+              count: 1,
+              probability: 1.0,
+              values: [binaryData], // But include Binary data in values
+            },
+          ],
+        },
+      ],
+      count: 1,
+    };
+
+    expect(() => processSchema(schema)).to.throw(
+      ProcessSchemaUnsupportedStateError,
+      'Binary data encountered in sample value conversion. Binary fields should be excluded from sample value processing.'
+    );
   });
 });

@@ -9,14 +9,11 @@ import type {
 } from 'mongodb-schema';
 import type { FieldInfo, SampleValue } from './schema-analysis-types';
 import type { ArrayLengthMap } from './components/mock-data-generator-modal/script-generation-utils';
-import {
+import type {
   ObjectId,
-  Binary,
   BSONRegExp,
   Code,
   Timestamp,
-  MaxKey,
-  MinKey,
   BSONSymbol,
   Long,
   Decimal128,
@@ -102,6 +99,26 @@ export class ProcessSchemaValidationError extends Error {
 }
 
 /**
+ * Type for BSON objects that have a _bsontype property
+ */
+type BSONObject = {
+  _bsontype: string;
+  [key: string]: unknown;
+};
+
+/**
+ * Type guard to check if a value is a BSON object
+ */
+function isBSONObject(value: unknown): value is BSONObject {
+  return (
+    value !== null &&
+    value !== undefined &&
+    typeof value === 'object' &&
+    '_bsontype' in value
+  );
+}
+
+/**
  * Converts a BSON value to its primitive JavaScript equivalent
  */
 function convertBSONToPrimitive(value: unknown): SampleValue {
@@ -115,39 +132,32 @@ function convertBSONToPrimitive(value: unknown): SampleValue {
     return value;
   }
 
-  // Convert BSON objects to primitives
-  if (value instanceof ObjectId) {
-    return value.toString();
-  }
-  if (value instanceof Binary) {
-    // Binary data should never be processed as sample values are skipped for binary fields
-    throw new ProcessSchemaUnsupportedStateError(
-      'Binary data encountered in sample value conversion. Binary fields should be excluded from sample value processing.'
-    );
-  }
-  if (value instanceof BSONRegExp) {
-    return value.pattern;
-  }
-  if (value instanceof Code) {
-    return value.code;
-  }
-  if (value instanceof Timestamp) {
-    return value.toNumber();
-  }
-  if (value instanceof MaxKey) {
-    return 'MaxKey';
-  }
-  if (value instanceof MinKey) {
-    return 'MinKey';
-  }
-  if (value instanceof BSONSymbol) {
-    return value.toString();
-  }
-  if (value instanceof Long) {
-    return value.toNumber();
-  }
-  if (value instanceof Decimal128) {
-    return parseFloat(value.toString());
+  // Convert BSON objects to primitives using _bsontype
+  if (isBSONObject(value)) {
+    switch (value._bsontype) {
+      case 'ObjectId':
+        return (value as unknown as ObjectId).toString();
+      case 'Binary':
+        // Binary data should never be processed because sample values are skipped for binary fields
+        throw new ProcessSchemaUnsupportedStateError(
+          'Binary data encountered in sample value conversion. Binary fields should be excluded from sample value processing.'
+        );
+      case 'BSONRegExp':
+        return (value as unknown as BSONRegExp).pattern;
+      case 'Code':
+        return (value as unknown as Code).code;
+      case 'Timestamp':
+        return (value as unknown as Timestamp).toNumber();
+      case 'BSONSymbol':
+        return (value as unknown as BSONSymbol).toString();
+      case 'Long':
+        return (value as unknown as Long).toNumber();
+      case 'Decimal128':
+        return parseFloat((value as unknown as Decimal128).toString());
+      default:
+        // Unknown BSON type, fall through to other checks
+        break;
+    }
   }
 
   // Handle objects with valueOf method (numeric types)
