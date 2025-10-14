@@ -8,7 +8,7 @@ import { default as Badge } from '@leafygreen-ui/badge';
 import { default as Banner } from '@leafygreen-ui/banner';
 import Checkbox from '@leafygreen-ui/checkbox';
 import Card from '@leafygreen-ui/card';
-import Code, { Language } from '@leafygreen-ui/code';
+import Code, { Language, Panel } from '@leafygreen-ui/code';
 import ConfirmationModal from '@leafygreen-ui/confirmation-modal';
 import { default as LeafyGreenIcon } from '@leafygreen-ui/icon';
 import type { Size as LeafyGreenIconSize } from '@leafygreen-ui/icon';
@@ -76,7 +76,7 @@ import LeafyGreenTextInput from '@leafygreen-ui/text-input';
 import { SearchInput } from '@leafygreen-ui/search-input';
 export { usePrevious, useMergeRefs } from '@leafygreen-ui/hooks';
 import Toggle from '@leafygreen-ui/toggle';
-import Tooltip from '@leafygreen-ui/tooltip';
+import LGTooltip from '@leafygreen-ui/tooltip';
 import {
   H1,
   H2,
@@ -95,8 +95,10 @@ import {
   ComboboxOption,
   ComboboxGroup,
 } from '@leafygreen-ui/combobox';
+import { withStackedComponentStyles } from '../hooks/use-stacked-component';
 
 // 2. Wrap and make any changes/workaround to leafygreen components.
+const Tooltip = withStackedComponentStyles(LGTooltip);
 const Icon = ({
   size,
   ...rest
@@ -147,6 +149,7 @@ export {
   Checkbox,
   Chip,
   Code,
+  Panel,
   ConfirmationModal,
   Copyable,
   ExpandedContent,
