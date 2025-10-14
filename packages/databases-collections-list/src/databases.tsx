@@ -110,6 +110,7 @@ function databaseColumns({
           : '-';
       },
     },
+    /*
     {
       accessorKey: 'data_size',
       header: 'Data size',
@@ -122,6 +123,7 @@ function databaseColumns({
           : '-';
       },
     },
+    */
     {
       accessorKey: 'collectionsLength',
       header: 'Collections',
