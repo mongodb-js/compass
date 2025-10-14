@@ -13,7 +13,7 @@ const CONNECTION_ITEM = {
 };
 
 const renderWebWelcomeTab = (connections: ConnectionInfo[] = []) => {
-  renderWithConnections(<WebWelcomeTab />, {
+  return renderWithConnections(<WebWelcomeTab />, {
     connections,
   });
 };
@@ -57,6 +57,18 @@ describe('WebWelcomeTab', function () {
       } catch {
         // noop
       }
+    });
+    it('does not render the connection plug SVG', function () {
+      renderWebWelcomeTab([CONNECTION_ITEM]);
+      expect(screen.queryByTestId('connection-plug-svg')).to.not.exist;
+    });
+  });
+
+  context('with at least one active connection', function () {
+    it('renders the connection plug SVG', async function () {
+      const renderResult = renderWebWelcomeTab([CONNECTION_ITEM]);
+      await renderResult.connectionsStore.actions.connect(CONNECTION_ITEM);
+      expect(screen.getByTestId('connection-plug-svg')).to.be.visible;
     });
   });
 });
