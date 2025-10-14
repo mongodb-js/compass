@@ -20,6 +20,11 @@ import { isTestingWeb } from '../helpers/test-runner-context';
 
 import { context } from '../helpers/test-runner-context';
 
+type Message = {
+  text: string;
+  role: 'assistant' | 'user';
+};
+
 describe('MongoDB Assistant', function () {
   let compass: Compass;
   let browser: CompassBrowser;
@@ -309,7 +314,7 @@ describe('MongoDB Assistant', function () {
       const chatInput = browser.$(Selectors.AssistantChatInputTextArea);
       expect(await chatInput.getValue()).to.equal('');
 
-      expect(await getDisplayedMessages(browser)).to.deep.equal([
+      await waitForMessages(browser, [
         { text: testMessage, role: 'user' },
         { text: testResponse, role: 'assistant' },
       ]);
@@ -332,7 +337,7 @@ describe('MongoDB Assistant', function () {
         await sendMessage(testMessage);
         await sendMessage(testMessage);
 
-        expect(await getDisplayedMessages(browser)).to.deep.equal([
+        await waitForMessages(browser, [
           { text: testMessage, role: 'user' },
           { text: testResponse, role: 'assistant' },
           { text: testMessage, role: 'user' },
@@ -341,7 +346,7 @@ describe('MongoDB Assistant', function () {
 
         await clearChat(browser);
 
-        expect(await getDisplayedMessages(browser)).to.deep.equal([]);
+        await waitForMessages(browser, []);
       });
     });
 
@@ -360,7 +365,7 @@ describe('MongoDB Assistant', function () {
         },
       });
 
-      expect(await getDisplayedMessages(browser)).to.deep.equal([
+      await waitForMessages(browser, [
         { text: testMessage, role: 'user' },
         { text: testResponse, role: 'assistant' },
         { text: 'This is a different message', role: 'user' },
@@ -451,11 +456,7 @@ describe('MongoDB Assistant', function () {
 
           await browser.clickVisible('button*=Confirm');
 
-          await browser.waitUntil(async () => {
-            return (await getDisplayedMessages(browser)).length === 2;
-          });
-
-          expect(await getDisplayedMessages(browser)).deep.equal([
+          await waitForMessages(browser, [
             {
               text: 'Interpret this explain plan output for me.',
               role: 'user',
@@ -487,6 +488,7 @@ describe('MongoDB Assistant', function () {
           expect(await chatMessages.getText()).to.include(
             'Please confirm your request'
           );
+
           expect(await chatMessages.getText()).to.include('Request cancelled');
 
           // Verify no assistant request was made
@@ -511,8 +513,7 @@ describe('MongoDB Assistant', function () {
             browser.$(Selectors.ConnectionToastErrorDebugButton)
           );
 
-          const messages = await getDisplayedMessages(browser);
-          expect(messages).deep.equal([
+          await waitForMessages(browser, [
             {
               text: 'Diagnose why my Compass connection is failing and help me debug it.',
               role: 'user',
@@ -544,14 +545,17 @@ async function clearChat(browser: CompassBrowser) {
   }
 }
 
-async function getDisplayedMessages(browser: CompassBrowser) {
+async function getDisplayedMessages(
+  browser: CompassBrowser
+): Promise<Message[]> {
   await browser.$(Selectors.AssistantChatMessages).waitForDisplayed();
 
   const messageElements = await browser
     .$$(Selectors.AssistantChatMessage)
     .getElements();
 
-  const displayedMessages = [];
+  const displayedMessages: Message[] = [];
+
   for (const messageElement of messageElements) {
     const textElements = await messageElement.$$('p').getElements();
     const isAssistantMessage =
@@ -570,6 +574,32 @@ async function getDisplayedMessages(browser: CompassBrowser) {
   }
 
   return displayedMessages;
+}
+
+async function waitForMessages(
+  browser: CompassBrowser,
+  expectedMessages: Message[]
+) {
+  let lastDisplayedMessages: Message[] = [];
+
+  try {
+    await browser.waitUntil(async () => {
+      // the text streams so the message may not be complete immediately
+      try {
+        lastDisplayedMessages = await getDisplayedMessages(browser);
+        expect(lastDisplayedMessages).deep.equal(expectedMessages);
+      } catch {
+        return false;
+      }
+      return true;
+    });
+  } catch {
+    console.log(
+      'Last displayed messages:',
+      JSON.stringify(lastDisplayedMessages)
+    );
+    throw new Error('Expected messages not found');
+  }
 }
 
 async function useExplainPlanEntryPoint(browser: CompassBrowser) {
