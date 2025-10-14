@@ -13,7 +13,7 @@ import type {
   Relationship,
 } from '../services/data-model-storage';
 import { traverseSchema } from './schema-traversal';
-import { areFieldPathsEqual } from './utils';
+import { areFieldPathsEqual, isIdField } from './utils';
 
 const NO_HIGHLIGHTED_FIELDS = {};
 
@@ -100,6 +100,7 @@ export const getFieldsFromSchema = ({
         selected:
           !!selectedField?.length &&
           areFieldPathsEqual(fieldPath, selectedField),
+        editable: !isIdField(fieldPath),
         variant:
           highlightedFields.length &&
           highlightedFields.some((highlightedField) =>

@@ -8,17 +8,29 @@ describe('getFieldsFromSchema', function () {
       expect(result).to.deep.equal([]);
     });
 
-    it('returns fields for a simple schema', function () {
+    it('returns fields for a simple schema, with non editable _id', function () {
       const result = getFieldsFromSchema({
         jsonSchema: {
           bsonType: 'object',
           properties: {
+            _id: { bsonType: 'objectId' },
             name: { bsonType: 'string' },
             age: { bsonType: 'int' },
           },
         },
       });
       expect(result).to.deep.equal([
+        {
+          name: '_id',
+          id: ['_id'],
+          type: 'objectId',
+          depth: 0,
+          glyphs: ['key'],
+          selectable: true,
+          selected: false,
+          variant: undefined,
+          editable: false,
+        },
         {
           name: 'name',
           id: ['name'],
@@ -28,6 +40,7 @@ describe('getFieldsFromSchema', function () {
           selectable: true,
           selected: false,
           variant: undefined,
+          editable: true,
         },
         {
           name: 'age',
@@ -38,6 +51,7 @@ describe('getFieldsFromSchema', function () {
           selectable: true,
           selected: false,
           variant: undefined,
+          editable: true,
         },
       ]);
     });
@@ -60,6 +74,7 @@ describe('getFieldsFromSchema', function () {
         selected: false,
         type: ['int', 'string'],
         variant: undefined,
+        editable: true,
       });
     });
 
@@ -85,6 +100,7 @@ describe('getFieldsFromSchema', function () {
           selectable: true,
           selected: false,
           variant: undefined,
+          editable: true,
         },
         {
           name: 'age',
@@ -95,6 +111,7 @@ describe('getFieldsFromSchema', function () {
           selectable: true,
           selected: false,
           variant: 'preview',
+          editable: true,
         },
         {
           name: 'profession',
@@ -105,6 +122,7 @@ describe('getFieldsFromSchema', function () {
           selectable: true,
           selected: false,
           variant: undefined,
+          editable: true,
         },
       ]);
     });
@@ -131,6 +149,7 @@ describe('getFieldsFromSchema', function () {
           selectable: true,
           selected: false,
           variant: undefined,
+          editable: true,
         },
         {
           name: 'age',
@@ -141,6 +160,7 @@ describe('getFieldsFromSchema', function () {
           selectable: true,
           selected: false,
           variant: 'preview',
+          editable: true,
         },
         {
           name: 'profession',
@@ -151,6 +171,7 @@ describe('getFieldsFromSchema', function () {
           selectable: true,
           selected: false,
           variant: 'preview',
+          editable: true,
         },
       ]);
     });
@@ -188,6 +209,7 @@ describe('getFieldsFromSchema', function () {
           selectable: true,
           selected: false,
           variant: undefined,
+          editable: true,
         },
         {
           name: 'name',
@@ -198,6 +220,7 @@ describe('getFieldsFromSchema', function () {
           selectable: true,
           selected: false,
           variant: undefined,
+          editable: true,
         },
         {
           name: 'address',
@@ -208,6 +231,7 @@ describe('getFieldsFromSchema', function () {
           selectable: true,
           selected: false,
           variant: undefined,
+          editable: true,
         },
         {
           name: 'street',
@@ -218,6 +242,7 @@ describe('getFieldsFromSchema', function () {
           selectable: true,
           selected: false,
           variant: undefined,
+          editable: true,
         },
         {
           name: 'city',
@@ -228,6 +253,7 @@ describe('getFieldsFromSchema', function () {
           selectable: true,
           selected: false,
           variant: undefined,
+          editable: true,
         },
       ]);
     });
@@ -264,6 +290,7 @@ describe('getFieldsFromSchema', function () {
           selectable: true,
           selected: false,
           variant: undefined,
+          editable: true,
         },
         {
           name: 'name',
@@ -274,6 +301,7 @@ describe('getFieldsFromSchema', function () {
           selectable: true,
           selected: false,
           variant: undefined,
+          editable: true,
         },
         {
           name: 'address',
@@ -284,6 +312,7 @@ describe('getFieldsFromSchema', function () {
           selectable: true,
           selected: false,
           variant: undefined,
+          editable: true,
         },
         {
           name: 'street',
@@ -294,6 +323,7 @@ describe('getFieldsFromSchema', function () {
           selectable: true,
           selected: false,
           variant: 'preview',
+          editable: true,
         },
         {
           name: 'city',
@@ -304,6 +334,7 @@ describe('getFieldsFromSchema', function () {
           selectable: true,
           selected: false,
           variant: undefined,
+          editable: true,
         },
       ]);
     });
@@ -350,6 +381,7 @@ describe('getFieldsFromSchema', function () {
           selectable: true,
           selected: false,
           variant: undefined,
+          editable: true,
         },
         {
           name: 'name',
@@ -360,6 +392,7 @@ describe('getFieldsFromSchema', function () {
           selectable: true,
           selected: false,
           variant: undefined,
+          editable: true,
         },
         {
           name: 'address',
@@ -370,6 +403,7 @@ describe('getFieldsFromSchema', function () {
           selectable: true,
           selected: false,
           variant: undefined,
+          editable: true,
         },
         {
           name: 'street',
@@ -380,6 +414,7 @@ describe('getFieldsFromSchema', function () {
           selectable: true,
           selected: false,
           variant: 'preview',
+          editable: true,
         },
         {
           name: 'city',
@@ -390,6 +425,7 @@ describe('getFieldsFromSchema', function () {
           selectable: true,
           selected: false,
           variant: undefined,
+          editable: true,
         },
         {
           name: 'billingAddress',
@@ -400,6 +436,7 @@ describe('getFieldsFromSchema', function () {
           selectable: true,
           selected: false,
           variant: undefined,
+          editable: true,
         },
         {
           name: 'street',
@@ -410,6 +447,7 @@ describe('getFieldsFromSchema', function () {
           selectable: true,
           selected: false,
           variant: undefined,
+          editable: true,
         },
         {
           name: 'city',
@@ -420,6 +458,7 @@ describe('getFieldsFromSchema', function () {
           selectable: true,
           selected: false,
           variant: 'preview',
+          editable: true,
         },
       ]);
     });
@@ -452,6 +491,7 @@ describe('getFieldsFromSchema', function () {
           selectable: true,
           selected: false,
           variant: undefined,
+          editable: true,
         },
         {
           name: 'title',
@@ -462,6 +502,7 @@ describe('getFieldsFromSchema', function () {
           selectable: true,
           selected: false,
           variant: undefined,
+          editable: true,
         },
         {
           name: 'completed',
@@ -472,6 +513,7 @@ describe('getFieldsFromSchema', function () {
           selectable: true,
           selected: false,
           variant: undefined,
+          editable: true,
         },
       ]);
     });
@@ -506,6 +548,7 @@ describe('getFieldsFromSchema', function () {
         selectable: true,
         selected: false,
         variant: undefined,
+        editable: true,
       });
       expect(result[1]).to.deep.equal({
         name: 'first',
@@ -516,6 +559,7 @@ describe('getFieldsFromSchema', function () {
         selectable: true,
         selected: false,
         variant: undefined,
+        editable: true,
       });
       expect(result[2]).to.deep.equal({
         name: 'last',
@@ -526,6 +570,7 @@ describe('getFieldsFromSchema', function () {
         selectable: true,
         selected: false,
         variant: undefined,
+        editable: true,
       });
     });
 
@@ -562,6 +607,7 @@ describe('getFieldsFromSchema', function () {
           selectable: true,
           selected: false,
           variant: undefined,
+          editable: true,
         },
         {
           name: 'title',
@@ -572,6 +618,7 @@ describe('getFieldsFromSchema', function () {
           selectable: true,
           selected: false,
           variant: undefined,
+          editable: true,
         },
         {
           name: 'completed',
@@ -582,6 +629,7 @@ describe('getFieldsFromSchema', function () {
           selectable: true,
           selected: false,
           variant: undefined,
+          editable: true,
         },
       ]);
     });
