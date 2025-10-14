@@ -132,6 +132,7 @@
     "@leafygreen-ui/code": "^20.1.1",
     "@leafygreen-ui/text-area": "^12.1.0",
     "@leafygreen-ui/card": "^13.1.0",
-    "@leafygreen-ui/logo": "^11.1.0"
+    "@leafygreen-ui/logo": "^11.1.0",
+    "nwsapi": "2.2.12"
   }
 }
