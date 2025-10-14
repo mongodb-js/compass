@@ -148,6 +148,10 @@ function convertBSONToPrimitive(value: unknown): SampleValue {
         return (value as unknown as Code).code;
       case 'Timestamp':
         return (value as unknown as Timestamp).toNumber();
+      case 'MaxKey':
+        return 'MaxKey';
+      case 'MinKey':
+        return 'MinKey';
       case 'BSONSymbol':
         return (value as unknown as BSONSymbol).toString();
       case 'Long':
