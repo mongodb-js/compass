@@ -47,19 +47,7 @@ export const AtlasSkillsBanner: React.FunctionComponent<{
   return showBanner ? (
     <div className={skillsCTAContent}>
       <Badge variant={BadgeVariant.Green} className={badgeStyles}>
-        {/* Custom SVG for award icon */}
-        <svg
-          width="16"
-          height="16"
-          viewBox="0 0 16 16"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            d="M8 0L9.79 2.21L12.5 1.5L12 4.5L15 5.5L13.5 8L15 10.5L12 11.5L12.5 14.5L9.79 13.79L8 16L6.21 13.79L3.5 14.5L4 11.5L1 10.5L2.5 8L1 5.5L4 4.5L3.5 1.5L6.21 2.21L8 0Z"
-            fill="currentColor"
-          />
-        </svg>
+        <Icon glyph="Award" />
       </Badge>
       <div className={skillsCTAText}>{ctaText}</div>
 
