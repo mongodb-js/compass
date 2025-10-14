@@ -31,6 +31,7 @@ import RawSchemaConfirmationScreen from './raw-schema-confirmation-screen';
 import FakerSchemaEditorScreen from './faker-schema-editor-screen';
 import ScriptScreen from './script-screen';
 import DocumentCountScreen from './document-count-screen';
+import PreviewScreen from './preview-screen';
 
 const footerStyles = css`
   flex-direction: row;
@@ -95,7 +96,15 @@ const MockDataGeneratorModal = ({
           />
         );
       case MockDataGeneratorStep.PREVIEW_DATA:
-        return <></>; // TODO: CLOUDP-333857
+        return (
+          <PreviewScreen
+            confirmedFakerSchema={
+              fakerSchemaGenerationState.status === 'completed'
+                ? fakerSchemaGenerationState.fakerSchema
+                : {}
+            }
+          />
+        );
       case MockDataGeneratorStep.GENERATE_DATA:
         return <ScriptScreen />;
     }

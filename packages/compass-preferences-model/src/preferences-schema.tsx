@@ -128,6 +128,14 @@ export type InternalUserPreferences = {
   enableConnectInNewWindow: boolean;
   showEndOfLifeConnectionModal: boolean;
   zoomLevel?: number;
+  windowBounds?: {
+    x?: number;
+    y?: number;
+    width?: number;
+    height?: number;
+    isMaximized?: boolean;
+    isFullScreen?: boolean;
+  };
 };
 
 // UserPreferences contains all preferences stored to disk.
@@ -472,6 +480,26 @@ export const storedUserPreferencesProps: Required<{
     description: null,
     validator: z.number().optional(),
     type: 'number',
+  },
+  /**
+   * Window bounds for restoring window size and position.
+   */
+  windowBounds: {
+    ui: false,
+    cli: false,
+    global: false,
+    description: null,
+    validator: z
+      .object({
+        x: z.number().optional(),
+        y: z.number().optional(),
+        width: z.number().optional(),
+        height: z.number().optional(),
+        isMaximized: z.boolean().optional(),
+        isFullScreen: z.boolean().optional(),
+      })
+      .optional(),
+    type: 'object',
   },
   /**
    * Enable/disable the AI services. This is currently set

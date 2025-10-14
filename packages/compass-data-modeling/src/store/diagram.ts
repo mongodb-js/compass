@@ -17,6 +17,7 @@ import { AnalysisProcessActionTypes } from './analysis-process';
 import { memoize } from 'lodash';
 import type { DataModelingState, DataModelingThunkAction } from './reducer';
 import {
+  getCoordinatesForNewNode,
   openToast,
   showConfirmation,
   showPrompt,
@@ -26,7 +27,6 @@ import {
   getDiagramName,
 } from '../services/open-and-download-diagram';
 import type { MongoDBJSONSchema } from 'mongodb-schema';
-import { getCoordinatesForNewNode } from '@mongodb-js/diagramming';
 import { collectionToBaseNodeForLayout } from '../utils/nodes-and-edges';
 import toNS from 'mongodb-ns';
 import {
