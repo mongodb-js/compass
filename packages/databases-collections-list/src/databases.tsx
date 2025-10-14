@@ -1,7 +1,5 @@
 /* eslint-disable react/prop-types */
 import React from 'react';
-// TODO: don't forget about performance insights?
-//import { PerformanceSignals, spacing } from '@mongodb-js/compass-components';
 import { compactBytes, compactNumber } from './format';
 import { ItemsTable } from './items-table';
 import type { DatabaseProps } from 'mongodb-database-model';
