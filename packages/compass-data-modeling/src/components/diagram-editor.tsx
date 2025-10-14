@@ -296,9 +296,16 @@ const DiagramContent: React.FunctionComponent<{
   );
 
   const onFieldClick = useCallback(
-    (_evt: React.MouseEvent, { id: fieldPath, nodeId: namespace }) => {
+    (_evt: React.MouseEvent, { id, nodeId: namespace }) => {
+      const fieldPath = Array.isArray(id)
+        ? id
+        : typeof id === 'string'
+        ? [id]
+        : undefined;
+      if (!fieldPath) {
+        return;
+      }
       _evt.stopPropagation(); // TODO(COMPASS-9659): should this be handled by the diagramming package?
-      if (!Array.isArray(fieldPath)) return; // TODO(COMPASS-9659): could be avoided with generics in the diagramming package
       onFieldSelect(namespace, fieldPath);
       openDrawer(DATA_MODELING_DRAWER_ID);
     },
