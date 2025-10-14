@@ -9,6 +9,10 @@ export const bsonEqual = (value: any, other: any): boolean | undefined => {
     return undefined;
   }
 
+  if (typeof other?._bsontype !== 'string') {
+    return undefined;
+  }
+
   if (bsontype === 'ObjectId') {
     return (value as ObjectId).equals(other);
   }

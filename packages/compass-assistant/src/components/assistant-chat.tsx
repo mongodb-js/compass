@@ -130,6 +130,11 @@ const assistantChatFixesLightStyles = css({
   },
 });
 
+const chatContainerOverrideStyle = {
+  height: '100%',
+  width: '100%',
+};
+
 const messageFeedFixesStyles = css({
   display: 'flex',
   flexDirection: 'column-reverse',
@@ -205,6 +210,14 @@ const welcomeTextStyles = css({
   margin: `${spacing[100]}px 0 0 0`,
 });
 
+const sparkleIconOverrideStyle = {
+  color: palette.green.dark1,
+};
+
+const inputBarTextareaProps = {
+  placeholder: 'Ask a question',
+};
+
 export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
   chat,
   hasNonGenuineConnections,
@@ -219,11 +232,6 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
   const { ensureOptInAndSend } = useContext(AssistantActionsContext);
   const { messages, status, error, clearError, setMessages } = useChat({
     chat,
-    onError: (error) => {
-      track('Assistant Response Failed', () => ({
-        error_name: error.name,
-      }));
-    },
   });
 
   const scrollToBottom = useCallback(() => {
@@ -369,7 +377,7 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
         assistantChatFixesStyles,
         darkMode ? assistantChatFixesDarkStyles : assistantChatFixesLightStyles
       )}
-      style={{ height: '100%', width: '100%' }}
+      style={chatContainerOverrideStyle}
     >
       <LeafyGreenChatProvider variant={Variant.Compact}>
         <ChatWindow title="MongoDB Assistant" className={chatWindowFixesStyles}>
@@ -469,7 +477,7 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
                 <Icon
                   glyph="Sparkle"
                   size="large"
-                  style={{ color: palette.green.dark1 }}
+                  style={sparkleIconOverrideStyle}
                 />
                 <span>MongoDB Assistant</span>
               </h4>
@@ -488,9 +496,7 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
                 void handleMessageSend(messageBody)
               }
               state={status === 'submitted' ? 'loading' : undefined}
-              textareaProps={{
-                placeholder: 'Ask a question',
-              }}
+              textareaProps={inputBarTextareaProps}
             />
           </div>
           <DisclaimerText className={disclaimerTextStyles}>

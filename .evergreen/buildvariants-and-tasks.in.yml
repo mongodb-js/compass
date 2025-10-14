@@ -27,11 +27,7 @@ const PACKAGE_BUILD_VARIANTS = [
   {
     name: 'package-ubuntu',
     display_name: 'Package Ubuntu',
-
-    // # NOTE: We are packaging on Ubuntu 18.04 in order to use glibc 2.27
-    // # when compiling/re-building addons. This ensures compatibility with other
-    // # debian platforms that have glibc 2.27 or newer.
-    run_on: 'ubuntu1804-large',
+    run_on: 'ubuntu2004-large',
     target_platform: 'ubuntu',
   },
   {
@@ -49,13 +45,13 @@ const PACKAGE_BUILD_VARIANTS = [
   {
     name: 'package-macos-x64',
     display_name: 'Package MacOS Intel',
-    run_on: 'macos-14',
+    run_on: 'macos-13',
     target_platform: 'macos',
   },
   {
     name: 'package-macos-arm',
     display_name: 'Package MacOS Arm64',
-    run_on: 'macos-14-arm64',
+    run_on: 'macos-13-arm64',
     target_platform: 'macos-arm',
   }
 ];
@@ -190,7 +186,7 @@ buildvariants:
 
   - name: test-eol-servers
     display_name: Test EoL Servers
-    run_on: ubuntu1804-large
+    run_on: ubuntu2004-large
     patchable: false
     depends_on:
       - name: package-compass

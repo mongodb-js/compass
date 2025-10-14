@@ -2,7 +2,9 @@ import {
   Banner,
   BannerVariant,
   Body,
+  Code,
   css,
+  Label,
   Option,
   palette,
   Select,
@@ -13,6 +15,7 @@ import { UNRECOGNIZED_FAKER_METHOD } from '../../modules/collection-tab';
 import type { MongoDBFieldType } from '@mongodb-js/compass-generative-ai';
 import { MongoDBFieldTypeValues } from '@mongodb-js/compass-generative-ai';
 import { MONGO_TYPE_TO_FAKER_METHODS } from './constants';
+import type { FakerArg } from './script-generation-utils';
 
 const fieldMappingSelectorsStyles = css({
   width: '50%',
@@ -26,16 +29,48 @@ const labelStyles = css({
   fontWeight: 600,
 });
 
+const stringifyFakerArg = (arg: FakerArg): string => {
+  if (typeof arg === 'object' && arg !== null && 'json' in arg) {
+    try {
+      return JSON.stringify(JSON.parse(arg.json));
+    } catch {
+      return '';
+    }
+  }
+
+  // Handle arrays recursively
+  if (Array.isArray(arg)) {
+    return `[${arg.map(stringifyFakerArg).join(', ')}]`;
+  }
+
+  if (typeof arg === 'string') {
+    return JSON.stringify(arg);
+  }
+
+  // Numbers and booleans
+  return String(arg);
+};
+
+const formatFakerFunctionCallWithArgs = (
+  fakerFunction: string,
+  fakerArgs: FakerArg[]
+) => {
+  const parsedFakerArgs = fakerArgs.map(stringifyFakerArg);
+  return `faker.${fakerFunction}(${parsedFakerArgs.join(', ')})`;
+};
+
 interface Props {
   activeJsonType: MongoDBFieldType;
   activeFakerFunction: string;
   onJsonTypeSelect: (jsonType: MongoDBFieldType) => void;
+  activeFakerArgs: FakerArg[];
   onFakerFunctionSelect: (fakerFunction: string) => void;
 }
 
 const FakerMappingSelector = ({
   activeJsonType,
   activeFakerFunction,
+  activeFakerArgs,
   onJsonTypeSelect,
   onFakerFunctionSelect,
 }: Props) => {
@@ -76,13 +111,29 @@ const FakerMappingSelector = ({
           </Option>
         ))}
       </Select>
-      {activeFakerFunction === UNRECOGNIZED_FAKER_METHOD && (
+      {activeFakerFunction === UNRECOGNIZED_FAKER_METHOD ? (
         <Banner variant={BannerVariant.Warning}>
           Please select a function or we will default fill this field with the
           string &quot;Unrecognized&quot;
         </Banner>
+      ) : (
+        <>
+          <Label htmlFor="faker-function-call-preview">
+            Preview Faker Function Call
+          </Label>
+          <Code
+            id="faker-function-call-preview"
+            data-testid="faker-function-call-preview"
+            language="javascript"
+            copyButtonAppearance="none"
+          >
+            {formatFakerFunctionCallWithArgs(
+              activeFakerFunction,
+              activeFakerArgs
+            )}
+          </Code>
+        </>
       )}
-      {/* TODO(CLOUDP-344400): Render faker function parameters once we have a way to validate them. */}
     </div>
   );
 };

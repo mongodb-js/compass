@@ -70,12 +70,26 @@ export const OPTION_DEFINITION: {
     link: 'https://docs.mongodb.com/manual/reference/method/cursor.maxTimeMS/',
     extraTextInputProps() {
       const preferenceMaxTimeMS = usePreference('maxTimeMS');
-      const props: { max?: number; placeholder?: string } = {
-        max: preferenceMaxTimeMS,
+      const maxTimeMSEnvLimit = usePreference('maxTimeMSEnvLimit');
+
+      // Determine the effective max limit when environment limit is set (> 0)
+      const effectiveMaxLimit = maxTimeMSEnvLimit
+        ? preferenceMaxTimeMS
+          ? Math.min(preferenceMaxTimeMS, maxTimeMSEnvLimit)
+          : maxTimeMSEnvLimit
+        : preferenceMaxTimeMS;
+
+      const props: {
+        max?: number;
+        placeholder?: string;
+      } = {
+        max: effectiveMaxLimit,
       };
-      if (preferenceMaxTimeMS !== undefined && preferenceMaxTimeMS < 60000) {
-        props.placeholder = String(preferenceMaxTimeMS);
+
+      if (effectiveMaxLimit && effectiveMaxLimit < 60000) {
+        props.placeholder = `${+effectiveMaxLimit}`;
       }
+
       return props;
     },
   },

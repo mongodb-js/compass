@@ -98,26 +98,44 @@ export const DiagramEditorToolbar: React.FunctionComponent<{
         data-testid="diagram-editor-toolbar"
       >
         <div className={toolbarGroupStyles}>
-          <IconButton
-            aria-label="Undo"
-            disabled={!hasUndo}
-            onClick={onUndoClick}
+          <Tooltip
+            trigger={
+              <IconButton
+                aria-label="Undo"
+                disabled={!hasUndo}
+                onClick={onUndoClick}
+              >
+                <Icon glyph="Undo"></Icon>
+              </IconButton>
+            }
           >
-            <Icon glyph="Undo"></Icon>
-          </IconButton>
-          <IconButton
-            aria-label="Redo"
-            disabled={!hasRedo}
-            onClick={onRedoClick}
+            Undo
+          </Tooltip>
+          <Tooltip
+            trigger={
+              <IconButton
+                aria-label="Redo"
+                disabled={!hasRedo}
+                onClick={onRedoClick}
+              >
+                <Icon glyph="Redo"></Icon>
+              </IconButton>
+            }
           >
-            <Icon glyph="Redo"></Icon>
-          </IconButton>
-          <IconButton
-            aria-label="Add Collection"
-            onClick={onAddCollectionClick}
+            Redo
+          </Tooltip>
+          <Tooltip
+            trigger={
+              <IconButton
+                aria-label="Add Collection"
+                onClick={onAddCollectionClick}
+              >
+                <AddCollection />
+              </IconButton>
+            }
           >
-            <AddCollection />
-          </IconButton>
+            Add a new collection
+          </Tooltip>
           <Tooltip
             trigger={
               <IconButton
@@ -134,13 +152,19 @@ export const DiagramEditorToolbar: React.FunctionComponent<{
               </IconButton>
             }
           >
-            Drag from one collection to another to create a relationship.
+            Add a relationship by dragging from one collection to another
           </Tooltip>
         </div>
         <div className={toolbarGroupStyles}>
-          <Button size="xsmall" aria-label="Export" onClick={onExportClick}>
-            <Icon glyph="Export"></Icon>
-          </Button>
+          <Tooltip
+            trigger={
+              <Button size="xsmall" aria-label="Export" onClick={onExportClick}>
+                <Icon glyph="Export"></Icon>
+              </Button>
+            }
+          >
+            Export data model
+          </Tooltip>
         </div>
       </div>
     </div>

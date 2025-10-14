@@ -8,6 +8,7 @@ import {
 } from '@mongodb-js/compass-app-registry';
 import {
   atlasAuthServiceLocator,
+  type AtlasService,
   atlasServiceLocator,
 } from '@mongodb-js/atlas-service/provider';
 import { DocsProviderTransport } from './docs-provider-transport';
@@ -23,9 +24,16 @@ import {
   useIsAIFeatureEnabled,
   usePreference,
 } from 'compass-preferences-model/provider';
-import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
+import {
+  createLoggerLocator,
+  type Logger,
+} from '@mongodb-js/compass-logging/provider';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
-import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
+import {
+  telemetryLocator,
+  type TrackFunction,
+  useTelemetry,
+} from '@mongodb-js/compass-telemetry/provider';
 import type { AtlasAiService } from '@mongodb-js/compass-generative-ai/provider';
 import { atlasAiServiceLocator } from '@mongodb-js/compass-generative-ai/provider';
 import { buildConversationInstructionsPrompt } from './prompts';
@@ -280,29 +288,20 @@ export const CompassAssistantProvider = registerCompassPlugin(
         </AssistantProvider>
       );
     },
-    activate: (initialProps, { atlasService, atlasAiService, logger }) => {
+    activate: (
+      { chat: initialChat, originForPrompt, appNameForPrompt },
+      { atlasService, atlasAiService, logger, track }
+    ) => {
       const chat =
-        initialProps.chat ??
-        new Chat({
-          transport: new DocsProviderTransport({
-            origin: initialProps.originForPrompt,
-            instructions: buildConversationInstructionsPrompt({
-              target: initialProps.appNameForPrompt,
-            }),
-            model: createOpenAI({
-              baseURL: atlasService.assistantApiEndpoint(),
-              apiKey: '',
-            }).responses('mongodb-chat-latest'),
-          }),
-          onError: (err: Error) => {
-            logger.log.error(
-              logger.mongoLogId(1_001_000_370),
-              'Assistant',
-              'Failed to send a message',
-              { err }
-            );
-          },
+        initialChat ??
+        createDefaultChat({
+          originForPrompt,
+          appNameForPrompt,
+          atlasService,
+          logger,
+          track,
         });
+
       return {
         store: { state: { chat, atlasAiService } },
         deactivate: () => {},
@@ -313,6 +312,51 @@ export const CompassAssistantProvider = registerCompassPlugin(
     atlasService: atlasServiceLocator,
     atlasAiService: atlasAiServiceLocator,
     atlasAuthService: atlasAuthServiceLocator,
+    track: telemetryLocator,
     logger: createLoggerLocator('COMPASS-ASSISTANT'),
   }
 );
+
+export function createDefaultChat({
+  originForPrompt,
+  appNameForPrompt,
+  atlasService,
+  logger,
+  track,
+  options,
+}: {
+  originForPrompt: string;
+  appNameForPrompt: string;
+  atlasService: AtlasService;
+  logger: Logger;
+  track: TrackFunction;
+  options?: {
+    transport: Chat<AssistantMessage>['transport'];
+  };
+}): Chat<AssistantMessage> {
+  return new Chat({
+    transport:
+      options?.transport ??
+      new DocsProviderTransport({
+        origin: originForPrompt,
+        instructions: buildConversationInstructionsPrompt({
+          target: appNameForPrompt,
+        }),
+        model: createOpenAI({
+          baseURL: atlasService.assistantApiEndpoint(),
+          apiKey: '',
+        }).responses('mongodb-chat-latest'),
+      }),
+    onError: (err: Error) => {
+      logger.log.error(
+        logger.mongoLogId(1_001_000_370),
+        'Assistant',
+        'Failed to send a message',
+        { err }
+      );
+      track('Assistant Response Failed', {
+        error_name: err.name,
+      });
+    },
+  });
+}

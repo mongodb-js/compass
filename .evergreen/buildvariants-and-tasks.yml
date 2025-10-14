@@ -35,7 +35,7 @@ buildvariants:
     expansions:
       target_platform: ubuntu
     display_name: Package Ubuntu
-    run_on: ubuntu1804-large
+    run_on: ubuntu2004-large
     tasks:
       - name: package-compass
       - name: package-compass-isolated
@@ -62,7 +62,7 @@ buildvariants:
     expansions:
       target_platform: macos
     display_name: Package MacOS Intel
-    run_on: macos-14
+    run_on: macos-13
     tasks:
       - name: package-compass
       - name: package-compass-isolated
@@ -71,7 +71,7 @@ buildvariants:
     expansions:
       target_platform: macos-arm
     display_name: Package MacOS Arm64
-    run_on: macos-14-arm64
+    run_on: macos-13-arm64
     tasks:
       - name: package-compass
       - name: package-compass-isolated
@@ -114,7 +114,7 @@ buildvariants:
       - name: smoketest-packaged-app
   - name: test-eol-servers
     display_name: Test EoL Servers
-    run_on: ubuntu1804-large
+    run_on: ubuntu2004-large
     patchable: false
     depends_on:
       - name: package-compass

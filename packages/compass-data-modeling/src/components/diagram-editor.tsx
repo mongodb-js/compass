@@ -10,6 +10,7 @@ import type { DataModelingState } from '../store/reducer';
 import {
   addNewFieldToCollection,
   moveCollection,
+  onAddNestedField,
   selectCollection,
   selectRelationship,
   selectBackground,
@@ -19,6 +20,7 @@ import {
   addCollection,
   selectField,
 } from '../store/diagram';
+import type { EdgeProps, NodeProps } from '@mongodb-js/compass-components';
 import {
   Banner,
   CancelLoader,
@@ -31,14 +33,10 @@ import {
   useDrawerState,
   useThrottledProps,
   rafraf,
+  Diagram,
+  useDiagram,
 } from '@mongodb-js/compass-components';
 import { cancelAnalysis, retryAnalysis } from '../store/analysis-process';
-import {
-  Diagram,
-  type NodeProps,
-  type EdgeProps,
-  useDiagram,
-} from '@mongodb-js/diagramming';
 import type { FieldPath, StaticModel } from '../services/data-model-storage';
 import DiagramEditorToolbar from './diagram-editor-toolbar';
 import ExportDiagramModal from './export-diagram-modal';
@@ -132,6 +130,7 @@ const DiagramContent: React.FunctionComponent<{
   isInRelationshipDrawingMode: boolean;
   editErrors?: string[];
   newCollection?: string;
+  onAddFieldToObjectField: (ns: string, parentPath: string[]) => void;
   onAddNewFieldToCollection: (ns: string) => void;
   onMoveCollection: (ns: string, newPosition: [number, number]) => void;
   onCollectionSelect: (namespace: string) => void;
@@ -147,6 +146,7 @@ const DiagramContent: React.FunctionComponent<{
     foreignNamespace: string;
   }) => void;
   onRelationshipDrawn: () => void;
+  DiagramComponent?: typeof Diagram;
 }> = ({
   diagramLabel,
   database,
@@ -154,6 +154,7 @@ const DiagramContent: React.FunctionComponent<{
   model,
   isInRelationshipDrawingMode,
   newCollection,
+  onAddFieldToObjectField,
   onAddNewFieldToCollection,
   onMoveCollection,
   onCollectionSelect,
@@ -163,6 +164,7 @@ const DiagramContent: React.FunctionComponent<{
   onCreateNewRelationship,
   onRelationshipDrawn,
   selectedItems,
+  DiagramComponent = Diagram,
 }) => {
   const isDarkMode = useDarkMode();
   const diagram = useRef(useDiagram());
@@ -325,6 +327,13 @@ const DiagramContent: React.FunctionComponent<{
     [onAddNewFieldToCollection]
   );
 
+  const onClickAddFieldToObjectField = useCallback(
+    (event: React.MouseEvent, nodeId: string, parentPath: string[]) => {
+      onAddFieldToObjectField(nodeId, parentPath);
+    },
+    [onAddFieldToObjectField]
+  );
+
   const diagramProps = useMemo(
     () => ({
       isDarkMode,
@@ -332,6 +341,7 @@ const DiagramContent: React.FunctionComponent<{
       edges,
       nodes,
       onAddFieldToNodeClick: onClickAddFieldToCollection,
+      onAddFieldToObjectFieldClick: onClickAddFieldToObjectField,
       onNodeClick,
       onPaneClick,
       onEdgeClick,
@@ -345,6 +355,7 @@ const DiagramContent: React.FunctionComponent<{
       edges,
       nodes,
       onClickAddFieldToCollection,
+      onClickAddFieldToObjectField,
       onNodeClick,
       onPaneClick,
       onEdgeClick,
@@ -377,7 +388,7 @@ const DiagramContent: React.FunctionComponent<{
             impact your data
           </Banner>
         )}
-        <Diagram
+        <DiagramComponent
           {...throttledDiagramProps}
           // With threshold too low clicking sometimes gets confused with
           // dragging.
@@ -406,6 +417,7 @@ const ConnectedDiagramContent = connect(
   },
   {
     onAddNewFieldToCollection: addNewFieldToCollection,
+    onAddFieldToObjectField: onAddNestedField,
     onMoveCollection: moveCollection,
     onCollectionSelect: selectCollection,
     onRelationshipSelect: selectRelationship,
@@ -421,12 +433,14 @@ const DiagramEditor: React.FunctionComponent<{
   onRetryClick: () => void;
   onCancelClick: () => void;
   onAddCollectionClick: () => void;
+  DiagramComponent?: typeof Diagram;
 }> = ({
   step,
   diagramId,
   onRetryClick,
   onCancelClick,
   onAddCollectionClick,
+  DiagramComponent = Diagram,
 }) => {
   const { openDrawer } = useDrawerActions();
   let content;
@@ -486,6 +500,7 @@ const DiagramEditor: React.FunctionComponent<{
         key={diagramId}
         isInRelationshipDrawingMode={isInRelationshipDrawingMode}
         onRelationshipDrawn={onRelationshipDrawn}
+        DiagramComponent={DiagramComponent}
       ></ConnectedDiagramContent>
     );
   }

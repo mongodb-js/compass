@@ -81,6 +81,7 @@ const FakerSchemaEditorContent = ({
 
   const activeJsonType = fakerSchemaFormValues[activeField]?.mongoType;
   const activeFakerFunction = fakerSchemaFormValues[activeField]?.fakerMethod;
+  const activeFakerArgs = fakerSchemaFormValues[activeField]?.fakerArgs;
 
   const resetIsSchemaConfirmed = () => {
     onSchemaConfirmed(false);
@@ -149,6 +150,7 @@ const FakerSchemaEditorContent = ({
           <FakerMappingSelector
             activeJsonType={activeJsonType}
             activeFakerFunction={activeFakerFunction}
+            activeFakerArgs={activeFakerArgs}
             onJsonTypeSelect={onJsonTypeSelect}
             onFakerFunctionSelect={onFakerFunctionSelect}
           />

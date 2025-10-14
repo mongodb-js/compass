@@ -16,6 +16,9 @@ export const SettingsModalTabSelector = (name: string) =>
   `${SettingsModal} [data-testid="sidebar-${name}-item"]`;
 export const GeneralSettingsButton = SettingsModalTabSelector('general');
 export const GeneralSettingsContent = `${SettingsModal} [data-testid="general-settings"]`;
+export const ArtificialIntelligenceSettingsButton =
+  SettingsModalTabSelector('ai');
+export const ArtificialIntelligenceSettingsContent = `${SettingsModal} [data-testid="gen-ai-settings"]`;
 
 export const SettingsInputElement = (settingName: string): string => {
   return `${SettingsModal} [data-testid="${settingName}"]`;
@@ -894,6 +897,9 @@ export const AggregationSavedPipelineCardDeleteButton = (
 export const AggregationExplainButton =
   '[data-testid="pipeline-toolbar-explain-aggregation-button"]';
 export const AggregationExplainModal = '[data-testid="explain-plan-modal"]';
+export const ExplainPlanInterpretButton =
+  '[data-testid="interpret-for-me-button"]';
+export const ExplainPlanCloseButton = '[data-testid="explain-close-button"]';
 export const AggregationExplainModalCloseButton = `${AggregationExplainModal} [aria-label*="Close"]`;
 
 // Create view from pipeline modal
@@ -1510,8 +1516,19 @@ export const SideDrawerCloseButton = `[data-testid="${
 }"]`;
 
 // Assistant
+export const AssistantDrawerButton = 'button[aria-label="MongoDB Assistant"]';
+export const AssistantDrawerCloseButton = `[data-testid="lg-drawer-close_button"]`;
 export const AssistantChatMessages = '[data-testid="assistant-chat-messages"]';
+export const AssistantChatMessage = '[data-testid^="assistant-message-"]';
+export const AssistantChatInput = '[data-testid="assistant-chat-input"]';
+export const AssistantChatInputTextArea = `${AssistantChatInput} textarea`;
+export const AssistantChatSubmitButton = `${AssistantChatInput} button[aria-label="Send message"]`;
 export const AssistantClearChatButton = '[data-testid="assistant-clear-chat"]';
-export const ConfirmClearChatModal =
+export const AssistantConfirmClearChatModal =
   '[data-testid="assistant-confirm-clear-chat-modal"]';
-export const ConfirmClearChatModalConfirmButton = `${ConfirmClearChatModal} [data-testid="lg-confirmation_modal-footer-confirm_button"]`;
+export const AssistantConfirmClearChatModalConfirmButton = `${AssistantConfirmClearChatModal} [data-testid="lg-confirmation_modal-footer-confirm_button"]`;
+
+// AI Opt-in Modal
+export const AIOptInModal = '[data-testid="ai-optin-modal"]';
+export const AIOptInModalAcceptButton = 'button=Use AI Features';
+export const AIOptInModalDeclineLink = 'span=Not now';
