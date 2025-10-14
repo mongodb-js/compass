@@ -19,7 +19,7 @@ export const useAtlasSkillsBanner = (context: SkillsBannerContextEnum) => {
     atlasSkillsAssignment?.assignment?.assignmentData?.variant ===
     ExperimentTestGroup.atlasSkillsVariant;
 
-  // Track experiment viewed when user is in experiment and banner would be shown
+  // Track users who are assigned to the skills experiment (variant or control)
   useTrackInSample(ExperimentTestName.atlasSkills, !!atlasSkillsAssignment, {
     screen: context,
   });
