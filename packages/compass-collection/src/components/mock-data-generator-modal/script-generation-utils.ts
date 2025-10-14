@@ -584,6 +584,49 @@ export function generateDocument(
   return constructDocumentValues(structure, arrayLengthMap);
 }
 
+function computeValue(
+  elementType: ArrayStructure | FakerFieldMapping | DocumentStructure,
+  arrayLengthMap: ArrayLengthMap,
+  currentPath: string
+) {
+  try {
+    if ('mongoType' in elementType) {
+      // It's a field mapping
+      const mapping = elementType as FakerFieldMapping;
+
+      // Default to 1.0 for invalid probability values
+      let probability = 1.0;
+      if (
+        typeof mapping.probability === 'number' &&
+        mapping.probability >= 0 &&
+        mapping.probability <= 1
+      ) {
+        probability = mapping.probability;
+      }
+
+      const shouldIncludeField =
+        probability >= 1.0 || Math.random() < probability;
+      if (shouldIncludeField) {
+        return generateFakerValue(mapping);
+      }
+    } else if ('type' in elementType && elementType.type === 'array') {
+      return constructArrayValues(
+        elementType as ArrayStructure,
+        arrayLengthMap,
+        `${currentPath}[]`
+      );
+    } else {
+      return constructDocumentValues(
+        elementType as DocumentStructure,
+        arrayLengthMap,
+        currentPath
+      );
+    }
+  } catch {
+    // Skip invalid faker methods
+  }
+}
+
 /**
  * Construct actual document values from document structure.
  * Mirrors renderDocumentCode but executes faker calls instead of generating code.
@@ -592,60 +635,15 @@ function constructDocumentValues(
   structure: DocumentStructure,
   arrayLengthMap: ArrayLengthMap = {},
   currentPath: string = ''
-): Document {
+) {
   const result: Document = {};
-
   for (const [fieldName, value] of Object.entries(structure)) {
-    try {
-      if ('mongoType' in value) {
-        // It's a field mapping
-        const mapping = value as FakerFieldMapping;
-
-        // Default to 1.0 for invalid probability values
-        let probability = 1.0;
-        if (
-          typeof mapping.probability === 'number' &&
-          mapping.probability >= 0 &&
-          mapping.probability <= 1
-        ) {
-          probability = mapping.probability;
-        }
-
-        const shouldIncludeField =
-          probability >= 1.0 || Math.random() < probability;
-        const fakerValue = generateFakerValue(mapping);
-        if (fakerValue !== undefined && shouldIncludeField) {
-          result[fieldName] = fakerValue;
-        }
-      } else if ('type' in value && value.type === 'array') {
-        // It's an array
-        const fieldPath = currentPath
-          ? `${currentPath}.${fieldName}[]`
-          : `${fieldName}[]`;
-        const arrayValue = constructArrayValues(
-          value as ArrayStructure,
-          fieldName,
-          arrayLengthMap,
-          fieldPath
-        );
-        result[fieldName] = arrayValue;
-      } else {
-        // It's a nested object: recursive call
-        const nestedPath = currentPath
-          ? `${currentPath}.${fieldName}`
-          : fieldName;
-        const nestedValue = constructDocumentValues(
-          value as DocumentStructure,
-          arrayLengthMap,
-          nestedPath
-        );
-        result[fieldName] = nestedValue;
-      }
-    } catch {
-      continue;
+    const newPath = currentPath ? `${currentPath}.${fieldName}` : fieldName;
+    const val = computeValue(value, arrayLengthMap, newPath);
+    if (val !== undefined) {
+      result[fieldName] = val;
     }
   }
-
   return result;
 }
 
@@ -655,53 +653,20 @@ function constructDocumentValues(
  */
 function constructArrayValues(
   arrayStructure: ArrayStructure,
-  fieldName: string = '',
-  arrayLengthMap: ArrayLengthMap = {},
-  currentFieldPath: string = ''
-): unknown[] {
+  arrayLengthMap: ArrayLengthMap,
+  currentPath: string
+) {
   const elementType = arrayStructure.elementType;
 
   // Get array length for this dimension
   let arrayLength = DEFAULT_ARRAY_LENGTH;
-  if (currentFieldPath && arrayLengthMap[currentFieldPath] !== undefined) {
-    arrayLength = arrayLengthMap[currentFieldPath];
+  if (arrayLengthMap[currentPath] !== undefined) {
+    arrayLength = arrayLengthMap[currentPath];
   }
-
   const result: unknown[] = [];
-
   for (let i = 0; i < arrayLength; i++) {
-    try {
-      if ('mongoType' in elementType) {
-        // Array of primitives
-        const mapping = elementType as FakerFieldMapping;
-        const value = generateFakerValue(mapping);
-        if (value !== undefined) {
-          result.push(value);
-        }
-      } else if ('type' in elementType && elementType.type === 'array') {
-        // Nested array (e.g., matrix[][]) - append another [] to the path
-        const fieldPath = currentFieldPath + '[]';
-        const nestedArrayValue = constructArrayValues(
-          elementType as ArrayStructure,
-          fieldName,
-          arrayLengthMap,
-          fieldPath
-        );
-        result.push(nestedArrayValue);
-      } else {
-        // Array of objects
-        const objectValue = constructDocumentValues(
-          elementType as DocumentStructure,
-          arrayLengthMap,
-          currentFieldPath
-        );
-        result.push(objectValue);
-      }
-    } catch {
-      continue;
-    }
+    result.push(computeValue(elementType, arrayLengthMap, currentPath));
   }
-
   return result;
 }
 
