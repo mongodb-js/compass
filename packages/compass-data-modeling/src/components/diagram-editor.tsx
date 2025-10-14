@@ -19,6 +19,7 @@ import {
   createNewRelationship,
   addCollection,
   selectField,
+  toggleCollectionExpanded,
 } from '../store/diagram';
 import type { EdgeProps, NodeProps } from '@mongodb-js/compass-components';
 import {
@@ -147,6 +148,7 @@ const DiagramContent: React.FunctionComponent<{
   }) => void;
   onRelationshipDrawn: () => void;
   DiagramComponent?: typeof Diagram;
+  onToggleCollectionExpanded: (namespace: string) => void;
 }> = ({
   diagramLabel,
   database,
@@ -165,6 +167,7 @@ const DiagramContent: React.FunctionComponent<{
   onRelationshipDrawn,
   selectedItems,
   DiagramComponent = Diagram,
+  onToggleCollectionExpanded,
 }) => {
   const isDarkMode = useDarkMode();
   const diagram = useRef(useDiagram());
@@ -210,6 +213,7 @@ const DiagramContent: React.FunctionComponent<{
             : undefined,
         selected,
         isInRelationshipDrawingMode,
+        isExpanded: coll.isExpanded,
       });
     });
   }, [
@@ -334,6 +338,15 @@ const DiagramContent: React.FunctionComponent<{
     [onAddFieldToObjectField]
   );
 
+  const handleNodeExpandedToggle = useCallback(
+    (evt: React.MouseEvent, nodeId: string) => {
+      evt.preventDefault();
+      evt.stopPropagation();
+      onToggleCollectionExpanded(nodeId);
+    },
+    [onToggleCollectionExpanded]
+  );
+
   const diagramProps = useMemo(
     () => ({
       isDarkMode,
@@ -348,6 +361,7 @@ const DiagramContent: React.FunctionComponent<{
       onFieldClick,
       onNodeDragStop,
       onConnect,
+      onNodeExpandToggle: handleNodeExpandedToggle,
     }),
     [
       isDarkMode,
@@ -362,6 +376,7 @@ const DiagramContent: React.FunctionComponent<{
       onFieldClick,
       onNodeDragStop,
       onConnect,
+      handleNodeExpandedToggle,
     ]
   );
 
@@ -424,6 +439,7 @@ const ConnectedDiagramContent = connect(
     onFieldSelect: selectField,
     onDiagramBackgroundClicked: selectBackground,
     onCreateNewRelationship: createNewRelationship,
+    onToggleCollectionExpanded: toggleCollectionExpanded,
   }
 )(DiagramContent);
 

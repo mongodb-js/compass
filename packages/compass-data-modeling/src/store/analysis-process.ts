@@ -287,6 +287,7 @@ export function startAnalysis(
             ns: coll.ns,
             jsonSchema: coll.schema,
             displayPosition: [0, 0],
+            isExpanded: false,
           });
         }),
         [],
