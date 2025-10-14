@@ -120,11 +120,10 @@ function convertBSONToPrimitive(value: unknown): SampleValue {
     return value.toString();
   }
   if (value instanceof Binary) {
-    // For Binary data, provide a descriptive placeholder instead of the actual data
-    // to avoid massive base64 strings that can break LLM requests
-    // (Defensive check: should never be called, since sample values for binary are skipped)
-    const sizeInBytes = value.buffer?.length || 0;
-    return `<Binary data: ${sizeInBytes} bytes>`;
+    // Binary data should never be processed as sample values are skipped for binary fields
+    throw new ProcessSchemaUnsupportedStateError(
+      'Binary data encountered in sample value conversion. Binary fields should be excluded from sample value processing.'
+    );
   }
   if (value instanceof BSONRegExp) {
     return value.pattern;
