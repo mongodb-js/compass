@@ -186,7 +186,7 @@ function collectionColumns({
       accessorKey: 'name',
       header: 'Collection name',
       enableSorting: true,
-      minSize: 300,
+      minSize: 250,
       cell: (info) => {
         const collection = info.row.original;
         const name = info.getValue() as string;
@@ -237,7 +237,7 @@ function collectionColumns({
       },
     },
     {
-      accessorKey: 'calculated_storage_size',
+      accessorKey: 'storage_size',
       header: 'Storage size',
       enableSorting: true,
       maxSize: 80,
@@ -252,11 +252,44 @@ function collectionColumns({
           : '-';
       },
     },
+    /*
+    {
+      accessorKey: 'free_storage_size',
+      header: 'Free storage size',
+      enableSorting: true,
+      maxSize: 100,
+      cell: (info) => {
+        const type = info.row.original.type as string;
+        if (type === 'view') {
+          return '-';
+        }
+        const size = info.getValue() as number | undefined;
+        return enableDbAndCollStats && size !== undefined
+          ? compactBytes(size)
+          : '-';
+      },
+    },
+    */
+    {
+      accessorKey: 'document_count',
+      header: 'Documents',
+      enableSorting: true,
+      maxSize: 80,
+      cell: (info) => {
+        const type = info.row.original.type as string;
+        if (type === 'view' || type === 'timeseries') {
+          return '-';
+        }
+
+        const count = info.getValue() as number | undefined;
+        return count !== undefined ? compactNumber(count) : '-';
+      },
+    },
     {
       accessorKey: 'avg_document_size',
       header: 'Avg. document size',
       enableSorting: true,
-      maxSize: 100,
+      maxSize: 110,
       cell: (info) => {
         const type = info.row.original.type as string;
         if (type === 'view' || type === 'timeseries') {

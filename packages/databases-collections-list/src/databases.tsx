@@ -111,6 +111,18 @@ function databaseColumns({
       },
     },
     {
+      accessorKey: 'data_size',
+      header: 'Data size',
+      enableSorting: true,
+      maxSize: 80,
+      cell: (info) => {
+        const size = info.getValue() as number | undefined;
+        return enableDbAndCollStats && size !== undefined
+          ? compactBytes(size)
+          : '-';
+      },
+    },
+    {
       accessorKey: 'collectionsLength',
       header: 'Collections',
       enableSorting: true,
