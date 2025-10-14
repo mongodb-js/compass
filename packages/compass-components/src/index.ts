@@ -158,7 +158,7 @@ export {
   FadeInPlaceholder,
 } from './components/content-with-fallback';
 export { InlineDefinition } from './components/inline-definition';
-export type { GlyphName } from '@leafygreen-ui/icon';
+export type { GlyphName, LGGlyph } from '@leafygreen-ui/icon';
 export { createGlyphComponent, createIconComponent } from '@leafygreen-ui/icon';
 export {
   SignalPopover,
