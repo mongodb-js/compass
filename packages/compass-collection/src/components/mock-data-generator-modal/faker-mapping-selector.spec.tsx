@@ -12,9 +12,11 @@ import FakerMappingSelector from './faker-mapping-selector';
 import { UNRECOGNIZED_FAKER_METHOD } from '../../modules/collection-tab';
 import { MONGO_TYPE_TO_FAKER_METHODS } from './constants';
 import { MongoDBFieldTypeValues } from '@mongodb-js/compass-generative-ai';
+import { FakerArg } from './script-generation-utils';
 
 const mockActiveJsonType = MongoDBFieldTypeValues.String;
 const mockActiveFakerFunction = 'lorem.word';
+const mockActiveFakerArgs: Array<FakerArg> = [];
 const onJsonTypeSelectStub = sinon.stub();
 const onFakerFunctionSelectStub = sinon.stub();
 
@@ -31,6 +33,7 @@ describe('FakerMappingSelector', () => {
       <FakerMappingSelector
         activeJsonType={mockActiveJsonType}
         activeFakerFunction="lorem.word"
+        activeFakerArgs={mockActiveFakerArgs}
         onJsonTypeSelect={onJsonTypeSelectStub}
         onFakerFunctionSelect={onFakerFunctionSelectStub}
       />
@@ -59,6 +62,7 @@ describe('FakerMappingSelector', () => {
               mongoType as keyof typeof MONGO_TYPE_TO_FAKER_METHODS
             }
             activeFakerFunction={firstMethod}
+            activeFakerArgs={mockActiveFakerArgs}
             onJsonTypeSelect={onJsonTypeSelectStub}
             onFakerFunctionSelect={onFakerFunctionSelectStub}
           />
@@ -79,6 +83,7 @@ describe('FakerMappingSelector', () => {
       <FakerMappingSelector
         activeJsonType={mockActiveJsonType}
         activeFakerFunction={mockActiveFakerFunction}
+        activeFakerArgs={mockActiveFakerArgs}
         onJsonTypeSelect={onJsonTypeSelectStub}
         onFakerFunctionSelect={onFakerFunctionSelectStub}
       />
@@ -98,6 +103,7 @@ describe('FakerMappingSelector', () => {
       <FakerMappingSelector
         activeJsonType={mockActiveJsonType}
         activeFakerFunction={mockActiveFakerFunction}
+        activeFakerArgs={mockActiveFakerArgs}
         onJsonTypeSelect={onJsonTypeSelectStub}
         onFakerFunctionSelect={onFakerFunctionSelectStub}
       />
@@ -121,6 +127,7 @@ describe('FakerMappingSelector', () => {
       <FakerMappingSelector
         activeJsonType={mockActiveJsonType}
         activeFakerFunction={UNRECOGNIZED_FAKER_METHOD}
+        activeFakerArgs={mockActiveFakerArgs}
         onJsonTypeSelect={onJsonTypeSelectStub}
         onFakerFunctionSelect={onFakerFunctionSelectStub}
       />
@@ -138,6 +145,7 @@ describe('FakerMappingSelector', () => {
       <FakerMappingSelector
         activeJsonType={mockActiveJsonType}
         activeFakerFunction={mockActiveFakerFunction}
+        activeFakerArgs={mockActiveFakerArgs}
         onJsonTypeSelect={onJsonTypeSelectStub}
         onFakerFunctionSelect={onFakerFunctionSelectStub}
       />
