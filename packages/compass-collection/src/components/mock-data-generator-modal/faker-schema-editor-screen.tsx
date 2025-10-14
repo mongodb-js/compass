@@ -70,9 +70,7 @@ const FakerSchemaEditorContent = ({
       Object.entries(fakerSchema).map(([field, mapping]) => [
         field,
         {
-          mongoType: mapping.mongoType,
-          fakerMethod: mapping.fakerMethod,
-          fakerArgs: mapping.fakerArgs,
+          ...mapping,
         },
       ])
     )
@@ -96,15 +94,14 @@ const FakerSchemaEditorContent = ({
       const isSwitchingToOriginalType =
         originalLlmMapping && newJsonType === originalLlmMapping.mongoType;
 
-      const newMapping =
-        isSwitchingToOriginalType && originalLlmMapping
-          ? { ...originalLlmMapping }
-          : {
-              ...currentMapping,
-              mongoType: newJsonType,
-              fakerMethod: getDefaultFakerMethod(newJsonType),
-              fakerArgs: [],
-            };
+      const newMapping = isSwitchingToOriginalType
+        ? { ...originalLlmMapping }
+        : {
+            ...currentMapping,
+            mongoType: newJsonType,
+            fakerMethod: getDefaultFakerMethod(newJsonType),
+            fakerArgs: [],
+          };
 
       setFakerSchemaFormValues({
         ...fakerSchemaFormValues,
@@ -124,14 +121,13 @@ const FakerSchemaEditorContent = ({
         currentMapping.mongoType === originalLlmMapping.mongoType &&
         newFakerFunction === originalLlmMapping.fakerMethod;
 
-      const newMapping =
-        isSwitchingToLlmSuggestion && originalLlmMapping
-          ? { ...originalLlmMapping }
-          : {
-              ...currentMapping,
-              fakerMethod: newFakerFunction,
-              fakerArgs: [],
-            };
+      const newMapping = isSwitchingToLlmSuggestion
+        ? { ...originalLlmMapping }
+        : {
+            ...currentMapping,
+            fakerMethod: newFakerFunction,
+            fakerArgs: [],
+          };
 
       setFakerSchemaFormValues({
         ...fakerSchemaFormValues,

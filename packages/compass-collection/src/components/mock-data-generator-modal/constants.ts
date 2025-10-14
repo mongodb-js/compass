@@ -13,9 +13,9 @@ export const DEFAULT_DOCUMENT_COUNT = 1000;
 export const MAX_DOCUMENT_COUNT = 100000;
 
 /**
- * Map of MongoDB types to available Faker methods.
+ * Map of MongoDB types to available Faker v9 methods.
  * Not all Faker methods are included here.
- * More can be found in the Faker.js API: https://fakerjs.dev/api/
+ * More can be found in the Faker.js API: https://v9.fakerjs.dev/api/
  */
 export const MONGO_TYPE_TO_FAKER_METHODS: Record<
   MongoDBFieldType,
@@ -30,7 +30,10 @@ export const MONGO_TYPE_TO_FAKER_METHODS: Record<
     'person.lastName',
     'person.fullName',
     'person.jobTitle',
+    'internet.displayName',
     'internet.email',
+    'internet.emoji',
+    'internet.password',
     'internet.url',
     'internet.domainName',
     'internet.userName',
@@ -51,8 +54,24 @@ export const MONGO_TYPE_TO_FAKER_METHODS: Record<
     'string.uuid',
     'string.alpha',
     'string.alphanumeric',
+    'system.fileName',
+    'system.filePath',
+    'system.mimeType',
+    'book.title',
+    'music.songName',
+    'food.dish',
+    'animal.type',
+    'vehicle.model',
+    'hacker.phrase',
+    'science.chemicalElement',
   ],
   Number: [
+    'number.binary',
+    'number.octal',
+    'number.hex',
+    'commerce.price',
+    'date.weekday',
+    'internet.port',
     'number.int',
     'number.float',
     'finance.amount',
