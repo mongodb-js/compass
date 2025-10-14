@@ -1,9 +1,5 @@
-import {
-  ExperimentTestGroup,
-  ExperimentTestName,
-  useAssignment,
-} from './provider';
-import { useTrackInSample } from './experimentation-provider';
+import { ExperimentTestGroup, ExperimentTestName } from './growth-experiments';
+import { useAssignment, useTrackInSample } from './experimentation-provider';
 
 export enum SkillsBannerContextEnum {
   Documents = 'documents',

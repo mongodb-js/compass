@@ -25,13 +25,11 @@
   "compass:main": "src/index.ts",
   "exports": {
     ".": "./dist/index.js",
-    "./provider": "./dist/provider.js",
-    "./atlas-skills": "./dist/atlas-skills.js"
+    "./provider": "./dist/provider.js"
   },
   "compass:exports": {
     ".": "./src/index.ts",
-    "./provider": "./src/provider.tsx",
-    "./atlas-skills": "./src/atlas-skills.ts"
+    "./provider": "./src/provider.tsx"
   },
   "types": "./dist/index.d.ts",
   "scripts": {

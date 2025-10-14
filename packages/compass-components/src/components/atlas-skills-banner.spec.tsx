@@ -27,9 +27,9 @@ describe('AtlasSkillsBanner Component', function () {
   it('should render the badge with award icon', function () {
     render(<AtlasSkillsBanner {...defaultProps} />);
 
-    // Check for the SVG award icon
-    const svgIcon = screen.getByRole('img', { hidden: true });
-    expect(svgIcon).to.be.visible;
+    // Check for the badge containing the award icon
+    const badge = screen.getByRole('status');
+    expect(badge).to.be.visible;
   });
 
   it('should render the "Go to Skills" button with correct href', function () {
@@ -87,7 +87,7 @@ describe('AtlasSkillsBanner Component', function () {
         'New to MongoDB? Document modeling skills will accelerate your progress.'
       )
     ).to.not.exist;
-    expect(screen.queryByRole('img', { hidden: true })).to.not.exist;
+    expect(screen.queryByRole('status')).to.not.exist;
     expect(screen.queryByRole('link', { name: /go to skills/i })).to.not.exist;
   });
 });

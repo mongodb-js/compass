@@ -163,3 +163,6 @@ export const useFireExperimentViewed = ({
 export type { TrackFunction };
 export { ExperimentTestName, ExperimentTestGroup } from './growth-experiments';
 export { useAssignment, useTrackInSample } from './experimentation-provider';
+
+// @experiment Skills in Atlas  | Jira Epic: CLOUDP-346311
+export { SkillsBannerContextEnum, useAtlasSkillsBanner } from './atlas-skills';
