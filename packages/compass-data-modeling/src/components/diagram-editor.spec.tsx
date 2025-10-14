@@ -14,12 +14,9 @@ import type {
   Edit,
   MongoDBDataModelDescription,
 } from '../services/data-model-storage';
-import diagramming from '@mongodb-js/diagramming';
-import sinon from 'sinon';
-import { DiagramProvider } from '@mongodb-js/diagramming';
 import { DataModelingWorkspaceTab } from '..';
 import { openDiagram } from '../store/diagram';
-import { DrawerAnchor } from '@mongodb-js/compass-components';
+import { DrawerAnchor, DiagramProvider } from '@mongodb-js/compass-components';
 import { type AnalysisOptions, startAnalysis } from '../store/analysis-process';
 import type { DataService } from '@mongodb-js/compass-connections/provider';
 
@@ -167,7 +164,11 @@ const renderDiagramEditor = async ({
   } = await renderWithActiveConnection(
     <DrawerAnchor>
       <DiagramProvider fitView>
-        <DiagramEditor />
+        <DiagramEditor
+          // We need to stub the Diagram component because the imported one is
+          // not bundled for CJS correctly and will throw on render
+          DiagramComponent={mockDiagramming.Diagram}
+        />
       </DiagramProvider>
     </DrawerAnchor>,
     mockConnections[0],
@@ -205,14 +206,6 @@ const renderDiagramEditor = async ({
 
 describe('DiagramEditor', function () {
   let store: DataModelingStore;
-
-  before(function () {
-    // We need to tub the Diagram import because it has problems with ESM/CJS interop
-    sinon.stub(diagramming, 'Diagram').callsFake(mockDiagramming.Diagram);
-    sinon
-      .stub(diagramming, 'applyLayout')
-      .callsFake(mockDiagramming.applyLayout as any);
-  });
 
   context('with existing diagram', function () {
     beforeEach(async function () {

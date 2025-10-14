@@ -158,7 +158,7 @@ export {
   FadeInPlaceholder,
 } from './components/content-with-fallback';
 export { InlineDefinition } from './components/inline-definition';
-export type { GlyphName } from '@leafygreen-ui/icon';
+export type { GlyphName, LGGlyph } from '@leafygreen-ui/icon';
 export { createGlyphComponent, createIconComponent } from '@leafygreen-ui/icon';
 export {
   SignalPopover,
@@ -230,3 +230,19 @@ export { ParagraphSkeleton } from '@leafygreen-ui/skeleton-loader';
 export { InsightsChip } from './components/insights-chip';
 export * from './components/drawer-portal';
 export { FileSelector } from './components/file-selector';
+export {
+  DiagramProvider,
+  Diagram,
+  useDiagram,
+  getNodesBounds,
+  getViewportForBounds,
+  applyLayout,
+  getCoordinatesForNewNode,
+} from '@mongodb-js/diagramming';
+export type {
+  EdgeProps,
+  NodeProps,
+  DiagramInstance,
+  NodeField,
+  NodeGlyph,
+} from '@mongodb-js/diagramming';

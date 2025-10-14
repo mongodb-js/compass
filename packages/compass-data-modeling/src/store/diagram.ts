@@ -17,6 +17,7 @@ import { AnalysisProcessActionTypes } from './analysis-process';
 import { memoize } from 'lodash';
 import type { DataModelingState, DataModelingThunkAction } from './reducer';
 import {
+  getCoordinatesForNewNode,
   openToast,
   showConfirmation,
   showPrompt,
@@ -26,7 +27,6 @@ import {
   getDiagramName,
 } from '../services/open-and-download-diagram';
 import type { MongoDBJSONSchema } from 'mongodb-schema';
-import { getCoordinatesForNewNode } from '@mongodb-js/diagramming';
 import { collectionToBaseNodeForLayout } from '../utils/nodes-and-edges';
 import toNS from 'mongodb-ns';
 import {
@@ -497,6 +497,38 @@ export function redoEdit(): DataModelingThunkAction<void, RedoEditAction> {
   return (dispatch, getState, { dataModelStorage }) => {
     dispatch({ type: DiagramActionTypes.REDO_EDIT });
     void dataModelStorage.save(getCurrentDiagramFromState(getState()));
+  };
+}
+
+export function onAddNestedField(
+  ns: string,
+  parentFieldPath: string[]
+): DataModelingThunkAction<void, ApplyEditAction | ApplyEditFailedAction> {
+  return (dispatch, getState) => {
+    const modelState = selectCurrentModelFromState(getState());
+
+    const collection = modelState.collections.find((c) => c.ns === ns);
+    if (!collection) {
+      throw new Error('Collection to add field to not found');
+    }
+
+    const edit: Omit<
+      Extract<Edit, { type: 'AddField' }>,
+      'id' | 'timestamp'
+    > = {
+      type: 'AddField',
+      ns,
+      // Use the first unique field name we can use.
+      field: [
+        ...parentFieldPath,
+        getNewUnusedFieldName(collection.jsonSchema, parentFieldPath),
+      ],
+      jsonSchema: {
+        bsonType: 'string',
+      },
+    };
+
+    return dispatch(applyEdit(edit));
   };
 }
 

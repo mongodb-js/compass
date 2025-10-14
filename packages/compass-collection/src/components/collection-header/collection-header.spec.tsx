@@ -429,7 +429,7 @@ describe('CollectionHeader [Component]', function () {
           schemaAnalysis: {
             status: SCHEMA_ANALYSIS_STATE_COMPLETE,
             processedSchema: {
-              field1: { type: 'String', sample_values: ['value1'] },
+              field1: { type: 'String', sampleValues: ['value1'] },
             },
             schemaMetadata: {
               maxNestingDepth: 2, // Below the limit of 4
@@ -485,7 +485,7 @@ describe('CollectionHeader [Component]', function () {
           schemaAnalysis: {
             status: SCHEMA_ANALYSIS_STATE_COMPLETE,
             processedSchema: {
-              field1: { type: 'String', sample_values: ['value1'] },
+              field1: { type: 'String', sampleValues: ['value1'] },
             },
             schemaMetadata: {
               maxNestingDepth: 4, // Exceeds the limit
@@ -514,7 +514,7 @@ describe('CollectionHeader [Component]', function () {
           schemaAnalysis: {
             status: SCHEMA_ANALYSIS_STATE_COMPLETE,
             processedSchema: {
-              field1: { type: 'String', sample_values: ['value1'] },
+              field1: { type: 'String', sampleValues: ['value1'] },
             },
             schemaMetadata: {
               maxNestingDepth: 2,
@@ -541,7 +541,7 @@ describe('CollectionHeader [Component]', function () {
           schemaAnalysis: {
             status: SCHEMA_ANALYSIS_STATE_COMPLETE,
             processedSchema: {
-              field1: { type: 'String', sample_values: ['value1'] },
+              field1: { type: 'String', sampleValues: ['value1'] },
             },
             schemaMetadata: {
               maxNestingDepth: 2,
@@ -576,7 +576,7 @@ describe('CollectionHeader [Component]', function () {
           schemaAnalysis: {
             status: SCHEMA_ANALYSIS_STATE_COMPLETE,
             processedSchema: {
-              field1: { type: 'String', sample_values: ['value1'] },
+              field1: { type: 'String', sampleValues: ['value1'] },
             },
             schemaMetadata: {
               maxNestingDepth: 2,
