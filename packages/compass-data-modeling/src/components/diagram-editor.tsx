@@ -22,6 +22,7 @@ import {
   deleteCollection,
   deleteRelationship,
   removeField,
+  renameField,
 } from '../store/diagram';
 import type {
   EdgeProps,
@@ -143,6 +144,11 @@ const DiagramContent: React.FunctionComponent<{
   onCollectionSelect: (namespace: string) => void;
   onRelationshipSelect: (rId: string) => void;
   onFieldSelect: (namespace: string, fieldPath: FieldPath) => void;
+  onRenameField: (
+    namespace: string,
+    fieldPath: FieldPath,
+    newName: string
+  ) => void;
   onDiagramBackgroundClicked: () => void;
   onDeleteCollection: (ns: string) => void;
   onDeleteRelationship: (rId: string) => void;
@@ -170,6 +176,7 @@ const DiagramContent: React.FunctionComponent<{
   onCollectionSelect,
   onRelationshipSelect,
   onFieldSelect,
+  onRenameField,
   onDiagramBackgroundClicked,
   onCreateNewRelationship,
   onRelationshipDrawn,
@@ -385,6 +392,7 @@ const DiagramContent: React.FunctionComponent<{
         onPaneClick,
         onEdgeClick,
         onFieldClick,
+        onFieldNameChange: onRenameField,
         onNodeDragStop,
         onConnect,
       } satisfies DiagramProps),
@@ -399,6 +407,7 @@ const DiagramContent: React.FunctionComponent<{
       onPaneClick,
       onEdgeClick,
       onFieldClick,
+      onRenameField,
       onNodeDragStop,
       onConnect,
     ]
@@ -461,6 +470,7 @@ const ConnectedDiagramContent = connect(
     onCollectionSelect: selectCollection,
     onRelationshipSelect: selectRelationship,
     onFieldSelect: selectField,
+    onRenameField: renameField,
     onDiagramBackgroundClicked: selectBackground,
     onCreateNewRelationship: createNewRelationship,
     onDeleteCollection: deleteCollection,
