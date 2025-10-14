@@ -21,7 +21,11 @@ import {
   selectField,
   toggleCollectionExpanded,
 } from '../store/diagram';
-import type { EdgeProps, NodeProps } from '@mongodb-js/compass-components';
+import type {
+  EdgeProps,
+  NodeProps,
+  FieldId,
+} from '@mongodb-js/compass-components';
 import {
   Banner,
   CancelLoader,
@@ -296,7 +300,15 @@ const DiagramContent: React.FunctionComponent<{
   );
 
   const onFieldClick = useCallback(
-    (_evt: React.MouseEvent, { id, nodeId: namespace }) => {
+    (
+      _evt: React.MouseEvent,
+      { id, nodeId: namespace }: { id: FieldId; nodeId: string }
+    ) => {
+      // Diagramming package accepts both string ids and array of string ids for
+      // fields (to represent the field path better). While all current code in
+      // compass always uses array of strings as field id, some older saved
+      // diagrams might not. Also handling this explicitly is sort of needed
+      // anyway to convinve typescript that we're doing the right thing
       const fieldPath = Array.isArray(id)
         ? id
         : typeof id === 'string'
