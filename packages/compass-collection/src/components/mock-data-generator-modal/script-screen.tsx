@@ -153,7 +153,7 @@ const ScriptScreen = ({
           mockdatascript.js (or any name you&apos;d like).
         </Body>
         <Code
-          copyable={scriptResult.success}
+          copyButtonAppearance={scriptResult.success ? 'hover' : 'persist'}
           language={Language.JavaScript}
           className={scriptCodeBlockStyles}
         >
@@ -175,9 +175,7 @@ const ScriptScreen = ({
             reversible.
           </em>
         </Body>
-        <Code copyable language={Language.Bash}>
-          {RUN_SCRIPT_COMMAND}
-        </Code>
+        <Code language={Language.Bash}>{RUN_SCRIPT_COMMAND}</Code>
       </section>
       <section
         className={cx(

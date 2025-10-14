@@ -1,10 +1,10 @@
 import toNS from 'mongodb-ns';
 import type {
-  NodeProps,
   EdgeProps,
-  NodeGlyph,
   NodeField,
-} from '@mongodb-js/diagramming';
+  NodeGlyph,
+  NodeProps,
+} from '@mongodb-js/compass-components';
 import type { MongoDBJSONSchema } from 'mongodb-schema';
 import type { SelectedItems } from '../store/diagram';
 import type {
