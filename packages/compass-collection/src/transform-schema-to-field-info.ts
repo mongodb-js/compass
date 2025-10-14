@@ -119,6 +119,13 @@ function isBSONObject(value: unknown): value is BSONObject {
 }
 
 /**
+ * Helper to cast BSON objects to their specific types
+ */
+function castBSONValue<T>(value: unknown): T {
+  return value as T;
+}
+
+/**
  * Converts a BSON value to its primitive JavaScript equivalent
  */
 function convertBSONToPrimitive(value: unknown): SampleValue {
@@ -136,31 +143,30 @@ function convertBSONToPrimitive(value: unknown): SampleValue {
   if (isBSONObject(value)) {
     switch (value._bsontype) {
       case 'ObjectId':
-        return (value as unknown as ObjectId).toString();
+        return castBSONValue<ObjectId>(value).toString();
       case 'Binary':
         // Binary data should never be processed because sample values are skipped for binary fields
         throw new ProcessSchemaUnsupportedStateError(
           'Binary data encountered in sample value conversion. Binary fields should be excluded from sample value processing.'
         );
       case 'BSONRegExp':
-        return (value as unknown as BSONRegExp).pattern;
+        return castBSONValue<BSONRegExp>(value).pattern;
       case 'Code':
-        return (value as unknown as Code).code;
+        return castBSONValue<Code>(value).code;
       case 'Timestamp':
-        return (value as unknown as Timestamp).toNumber();
+        return castBSONValue<Timestamp>(value).toNumber();
       case 'MaxKey':
         return 'MaxKey';
       case 'MinKey':
         return 'MinKey';
       case 'BSONSymbol':
-        return (value as unknown as BSONSymbol).toString();
+        return castBSONValue<BSONSymbol>(value).toString();
       case 'Long':
-        return (value as unknown as Long).toNumber();
+        return castBSONValue<Long>(value).toNumber();
       case 'Decimal128':
-        return parseFloat((value as unknown as Decimal128).toString());
+        return parseFloat(castBSONValue<Decimal128>(value).toString());
       default:
-        // Unknown BSON type, fall through to other checks
-        break;
+      // Unknown BSON type, continue to other checks
     }
   }
 
