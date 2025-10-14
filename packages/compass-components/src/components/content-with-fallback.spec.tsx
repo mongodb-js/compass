@@ -58,13 +58,15 @@ describe('ContentWithFallback', function () {
       { container }
     );
 
-    expect(container.children.length).to.equal(2);
-    const [contentContainer, contextMenuContainer] = Array.from(
-      container.children
-    );
+    expect(container.children.length).to.equal(3);
+    const [contentContainer, contextMenuContainer, confirmationModal] =
+      Array.from(container.children);
     expect(contentContainer.children.length).to.equal(0);
     expect(contextMenuContainer.getAttribute('data-testid')).to.equal(
       'context-menu-container'
+    );
+    expect(confirmationModal.getAttribute('data-testid')).to.equal(
+      'confirmation-modal'
     );
   });
 

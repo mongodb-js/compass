@@ -6,6 +6,7 @@ const { withProgress } = require('@mongodb-js/monorepo-tools');
 
 async function runCommandForPackages(command, packages) {
   packages = [...packages];
+  const totalPackages = packages.length;
 
   const passed = [];
   const failed = [];
@@ -14,6 +15,10 @@ async function runCommandForPackages(command, packages) {
     console.log();
 
     const pkg = packages[0];
+    const currentIndex = totalPackages - packages.length + 1;
+    console.log(
+      `[${currentIndex}/${totalPackages}] Running command in ${pkg.name} ...`
+    );
     const { status, signal } = spawnSync(
       'npx',
       ['lerna', 'run', command, '--scope', pkg.name, '--stream'],

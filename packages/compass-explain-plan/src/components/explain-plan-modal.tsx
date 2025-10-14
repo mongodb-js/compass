@@ -115,7 +115,7 @@ export const ExplainPlanModal: React.FunctionComponent<
   return (
     <Modal
       data-testid="explain-plan-modal"
-      contentClassName={explainPlanModalContentStyles}
+      className={explainPlanModalContentStyles}
       open={isModalOpen}
       setOpen={onModalClose}
       fullScreen={true}

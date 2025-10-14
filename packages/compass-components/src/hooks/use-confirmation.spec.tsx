@@ -2,7 +2,6 @@ import {
   render,
   screen,
   waitFor,
-  waitForElementToBeRemoved,
   within,
   userEvent,
 } from '@mongodb-js/testing-library-compass';
@@ -49,18 +48,14 @@ describe('use-confirmation', function () {
 
     it('handles cancel action', async function () {
       userEvent.click(within(modal).getByText('Cancel'));
-      await waitForElementToBeRemoved(() =>
-        screen.getByTestId('confirmation-modal')
-      );
+      await waitFor(() => expect(modal).to.not.be.displayed);
       const confirmed = await response;
       expect(confirmed).to.be.false;
     });
 
     it('handles confirm action', async function () {
       userEvent.click(within(modal).getByText('Yes'));
-      await waitForElementToBeRemoved(() =>
-        screen.getByTestId('confirmation-modal')
-      );
+      await waitFor(() => expect(modal).to.not.be.displayed);
       const confirmed = await response;
       expect(confirmed).to.be.true;
     });
