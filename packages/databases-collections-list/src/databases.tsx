@@ -60,6 +60,7 @@ function databaseColumns({
       accessorKey: 'name',
       header: 'Database name',
       enableSorting: true,
+      minSize: 300,
       cell: (info) => {
         const database = info.row.original;
         const name = info.getValue() as string;
@@ -97,9 +98,10 @@ function databaseColumns({
       },
     },
     {
-      accessorKey: 'calculated_storage_size',
+      accessorKey: 'storage_size',
       header: 'Storage size',
       enableSorting: true,
+      maxSize: 80,
       cell: (info) => {
         // TODO: shouldn't this just have the right type rather than unknown?
         const size = info.getValue() as number | undefined;
@@ -112,6 +114,7 @@ function databaseColumns({
       accessorKey: 'collectionsLength',
       header: 'Collections',
       enableSorting: true,
+      maxSize: 80,
       cell: (info) => {
         const text = enableDbAndCollStats
           ? compactNumber(info.getValue() as number)
@@ -135,6 +138,7 @@ function databaseColumns({
       accessorKey: 'index_count',
       header: 'Indexes',
       enableSorting: true,
+      maxSize: 80,
       cell: (info) => {
         const index_count = info.getValue() as number | undefined;
         return enableDbAndCollStats && index_count !== undefined
