@@ -12,7 +12,7 @@ import FakerMappingSelector from './faker-mapping-selector';
 import { UNRECOGNIZED_FAKER_METHOD } from '../../modules/collection-tab';
 import { MONGO_TYPE_TO_FAKER_METHODS } from './constants';
 import { MongoDBFieldTypeValues } from '@mongodb-js/compass-generative-ai';
-import { FakerArg } from './script-generation-utils';
+import type { FakerArg } from './script-generation-utils';
 
 const mockActiveJsonType = MongoDBFieldTypeValues.String;
 const mockActiveFakerFunction = 'lorem.word';
