@@ -92,7 +92,7 @@
     "compass-preferences-model": "^2.59.0",
     "hadron-document": "^8.10.5",
     "hadron-type-checker": "^7.4.23",
-    "jsondiffpatch": "^0.5.0",
+    "jsondiffpatch": "^0.7.3",
     "lodash": "^4.17.21",
     "mongodb": "^6.19.0",
     "mongodb-data-service": "^22.34.3",

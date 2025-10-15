@@ -1,15 +1,15 @@
 import { expect } from 'chai';
-import { getFieldsFromSchema } from './nodes-and-edges';
+import { getExtendedFieldsFromSchema } from './nodes-and-edges';
 
 describe('getFieldsFromSchema', function () {
   describe('flat schema', function () {
     it('return empty array for empty schema', function () {
-      const result = getFieldsFromSchema({ jsonSchema: {} });
+      const result = getExtendedFieldsFromSchema({ jsonSchema: {} });
       expect(result).to.deep.equal([]);
     });
 
     it('returns fields for a simple schema', function () {
-      const result = getFieldsFromSchema({
+      const result = getExtendedFieldsFromSchema({
         jsonSchema: {
           bsonType: 'object',
           properties: {
@@ -22,6 +22,7 @@ describe('getFieldsFromSchema', function () {
         {
           name: 'name',
           id: ['name'],
+          path: ['name'],
           type: 'string',
           depth: 0,
           glyphs: [],
@@ -32,6 +33,7 @@ describe('getFieldsFromSchema', function () {
         {
           name: 'age',
           id: ['age'],
+          path: ['age'],
           type: 'int',
           depth: 0,
           glyphs: [],
@@ -43,7 +45,7 @@ describe('getFieldsFromSchema', function () {
     });
 
     it('returns mixed fields', function () {
-      const result = getFieldsFromSchema({
+      const result = getExtendedFieldsFromSchema({
         jsonSchema: {
           bsonType: 'object',
           properties: {
@@ -54,6 +56,7 @@ describe('getFieldsFromSchema', function () {
       expect(result[0]).to.deep.equal({
         name: 'age',
         id: ['age'],
+        path: ['age'],
         depth: 0,
         glyphs: [],
         selectable: true,
@@ -64,7 +67,7 @@ describe('getFieldsFromSchema', function () {
     });
 
     it('highlights the correct field', function () {
-      const result = getFieldsFromSchema({
+      const result = getExtendedFieldsFromSchema({
         jsonSchema: {
           bsonType: 'object',
           properties: {
@@ -79,6 +82,7 @@ describe('getFieldsFromSchema', function () {
         {
           name: 'name',
           id: ['name'],
+          path: ['name'],
           type: 'string',
           depth: 0,
           glyphs: [],
@@ -89,6 +93,7 @@ describe('getFieldsFromSchema', function () {
         {
           name: 'age',
           id: ['age'],
+          path: ['age'],
           type: 'int',
           depth: 0,
           glyphs: [],
@@ -99,6 +104,7 @@ describe('getFieldsFromSchema', function () {
         {
           name: 'profession',
           id: ['profession'],
+          path: ['profession'],
           type: 'string',
           depth: 0,
           glyphs: [],
@@ -110,7 +116,7 @@ describe('getFieldsFromSchema', function () {
     });
 
     it('highlights multiple fields', function () {
-      const result = getFieldsFromSchema({
+      const result = getExtendedFieldsFromSchema({
         jsonSchema: {
           bsonType: 'object',
           properties: {
@@ -125,6 +131,7 @@ describe('getFieldsFromSchema', function () {
         {
           name: 'name',
           id: ['name'],
+          path: ['name'],
           type: 'string',
           depth: 0,
           glyphs: [],
@@ -135,6 +142,7 @@ describe('getFieldsFromSchema', function () {
         {
           name: 'age',
           id: ['age'],
+          path: ['age'],
           type: 'int',
           depth: 0,
           glyphs: [],
@@ -145,6 +153,7 @@ describe('getFieldsFromSchema', function () {
         {
           name: 'profession',
           id: ['profession'],
+          path: ['profession'],
           type: 'string',
           depth: 0,
           glyphs: [],
@@ -158,7 +167,7 @@ describe('getFieldsFromSchema', function () {
 
   describe('nested schema', function () {
     it('returns fields for a nested schema', function () {
-      const result = getFieldsFromSchema({
+      const result = getExtendedFieldsFromSchema({
         jsonSchema: {
           bsonType: 'object',
           properties: {
@@ -182,6 +191,7 @@ describe('getFieldsFromSchema', function () {
         {
           name: 'person',
           id: ['person'],
+          path: ['person'],
           type: 'object',
           depth: 0,
           glyphs: [],
@@ -192,6 +202,7 @@ describe('getFieldsFromSchema', function () {
         {
           name: 'name',
           id: ['person', 'name'],
+          path: ['person', 'name'],
           type: 'string',
           depth: 1,
           glyphs: [],
@@ -202,6 +213,7 @@ describe('getFieldsFromSchema', function () {
         {
           name: 'address',
           id: ['person', 'address'],
+          path: ['person', 'address'],
           type: 'object',
           depth: 1,
           glyphs: [],
@@ -212,6 +224,7 @@ describe('getFieldsFromSchema', function () {
         {
           name: 'street',
           id: ['person', 'address', 'street'],
+          path: ['person', 'address', 'street'],
           type: 'string',
           depth: 2,
           glyphs: [],
@@ -222,6 +235,7 @@ describe('getFieldsFromSchema', function () {
         {
           name: 'city',
           id: ['person', 'address', 'city'],
+          path: ['person', 'address', 'city'],
           type: 'string',
           depth: 2,
           glyphs: [],
@@ -233,7 +247,7 @@ describe('getFieldsFromSchema', function () {
     });
 
     it('highlights a field for a nested schema', function () {
-      const result = getFieldsFromSchema({
+      const result = getExtendedFieldsFromSchema({
         jsonSchema: {
           bsonType: 'object',
           properties: {
@@ -258,6 +272,7 @@ describe('getFieldsFromSchema', function () {
         {
           name: 'person',
           id: ['person'],
+          path: ['person'],
           type: 'object',
           depth: 0,
           glyphs: [],
@@ -268,6 +283,7 @@ describe('getFieldsFromSchema', function () {
         {
           name: 'name',
           id: ['person', 'name'],
+          path: ['person', 'name'],
           type: 'string',
           depth: 1,
           glyphs: [],
@@ -278,6 +294,7 @@ describe('getFieldsFromSchema', function () {
         {
           name: 'address',
           id: ['person', 'address'],
+          path: ['person', 'address'],
           type: 'object',
           depth: 1,
           glyphs: [],
@@ -288,6 +305,7 @@ describe('getFieldsFromSchema', function () {
         {
           name: 'street',
           id: ['person', 'address', 'street'],
+          path: ['person', 'address', 'street'],
           type: 'string',
           depth: 2,
           glyphs: [],
@@ -298,6 +316,7 @@ describe('getFieldsFromSchema', function () {
         {
           name: 'city',
           id: ['person', 'address', 'city'],
+          path: ['person', 'address', 'city'],
           type: 'string',
           depth: 2,
           glyphs: [],
@@ -309,7 +328,7 @@ describe('getFieldsFromSchema', function () {
     });
 
     it('highlights multiple fields for a nested schema', function () {
-      const result = getFieldsFromSchema({
+      const result = getExtendedFieldsFromSchema({
         jsonSchema: {
           bsonType: 'object',
           properties: {
@@ -344,6 +363,7 @@ describe('getFieldsFromSchema', function () {
         {
           name: 'person',
           id: ['person'],
+          path: ['person'],
           type: 'object',
           depth: 0,
           glyphs: [],
@@ -354,6 +374,7 @@ describe('getFieldsFromSchema', function () {
         {
           name: 'name',
           id: ['person', 'name'],
+          path: ['person', 'name'],
           type: 'string',
           depth: 1,
           glyphs: [],
@@ -364,6 +385,7 @@ describe('getFieldsFromSchema', function () {
         {
           name: 'address',
           id: ['person', 'address'],
+          path: ['person', 'address'],
           type: 'object',
           depth: 1,
           glyphs: [],
@@ -374,6 +396,7 @@ describe('getFieldsFromSchema', function () {
         {
           name: 'street',
           id: ['person', 'address', 'street'],
+          path: ['person', 'address', 'street'],
           type: 'string',
           depth: 2,
           glyphs: [],
@@ -384,6 +407,7 @@ describe('getFieldsFromSchema', function () {
         {
           name: 'city',
           id: ['person', 'address', 'city'],
+          path: ['person', 'address', 'city'],
           type: 'string',
           depth: 2,
           glyphs: [],
@@ -394,6 +418,7 @@ describe('getFieldsFromSchema', function () {
         {
           name: 'billingAddress',
           id: ['person', 'billingAddress'],
+          path: ['person', 'billingAddress'],
           type: 'object',
           depth: 1,
           glyphs: [],
@@ -404,6 +429,7 @@ describe('getFieldsFromSchema', function () {
         {
           name: 'street',
           id: ['person', 'billingAddress', 'street'],
+          path: ['person', 'billingAddress', 'street'],
           type: 'string',
           depth: 2,
           glyphs: [],
@@ -414,6 +440,7 @@ describe('getFieldsFromSchema', function () {
         {
           name: 'city',
           id: ['person', 'billingAddress', 'city'],
+          path: ['person', 'billingAddress', 'city'],
           type: 'string',
           depth: 2,
           glyphs: [],
@@ -425,7 +452,7 @@ describe('getFieldsFromSchema', function () {
     });
 
     it('returns fields for an array of objects', function () {
-      const result = getFieldsFromSchema({
+      const result = getExtendedFieldsFromSchema({
         jsonSchema: {
           bsonType: 'object',
           properties: {
@@ -446,6 +473,7 @@ describe('getFieldsFromSchema', function () {
         {
           name: 'todos',
           id: ['todos'],
+          path: ['todos'],
           type: 'array',
           depth: 0,
           glyphs: [],
@@ -456,6 +484,7 @@ describe('getFieldsFromSchema', function () {
         {
           name: 'title',
           id: ['todos', 'title'],
+          path: ['todos', 'title'],
           type: 'string',
           depth: 1,
           glyphs: [],
@@ -466,6 +495,7 @@ describe('getFieldsFromSchema', function () {
         {
           name: 'completed',
           id: ['todos', 'completed'],
+          path: ['todos', 'completed'],
           type: 'boolean',
           depth: 1,
           glyphs: [],
@@ -477,7 +507,7 @@ describe('getFieldsFromSchema', function () {
     });
 
     it('returns fields for a mixed schema with objects', function () {
-      const result = getFieldsFromSchema({
+      const result = getExtendedFieldsFromSchema({
         jsonSchema: {
           bsonType: 'object',
           properties: {
@@ -500,6 +530,7 @@ describe('getFieldsFromSchema', function () {
       expect(result[0]).to.deep.equal({
         name: 'name',
         id: ['name'],
+        path: ['name'],
         depth: 0,
         type: ['string', 'object'],
         glyphs: [],
@@ -510,6 +541,7 @@ describe('getFieldsFromSchema', function () {
       expect(result[1]).to.deep.equal({
         name: 'first',
         id: ['name', 'first'],
+        path: ['name', 'first'],
         type: 'string',
         depth: 1,
         glyphs: [],
@@ -520,6 +552,7 @@ describe('getFieldsFromSchema', function () {
       expect(result[2]).to.deep.equal({
         name: 'last',
         id: ['name', 'last'],
+        path: ['name', 'last'],
         type: 'string',
         depth: 1,
         glyphs: [],
@@ -530,7 +563,7 @@ describe('getFieldsFromSchema', function () {
     });
 
     it('returns fields for an array of mixed (including objects)', function () {
-      const result = getFieldsFromSchema({
+      const result = getExtendedFieldsFromSchema({
         jsonSchema: {
           bsonType: 'object',
           properties: {
@@ -556,6 +589,7 @@ describe('getFieldsFromSchema', function () {
         {
           name: 'todos',
           id: ['todos'],
+          path: ['todos'],
           type: 'array',
           depth: 0,
           glyphs: [],
@@ -566,6 +600,7 @@ describe('getFieldsFromSchema', function () {
         {
           name: 'title',
           id: ['todos', 'title'],
+          path: ['todos', 'title'],
           type: 'string',
           depth: 1,
           glyphs: [],
@@ -576,6 +611,7 @@ describe('getFieldsFromSchema', function () {
         {
           name: 'completed',
           id: ['todos', 'completed'],
+          path: ['todos', 'completed'],
           type: 'boolean',
           depth: 1,
           glyphs: [],
