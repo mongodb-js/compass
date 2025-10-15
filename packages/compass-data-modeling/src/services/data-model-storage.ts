@@ -36,6 +36,7 @@ const CollectionSchema = z.object({
   shardKey: z.record(z.unknown()).optional(),
   displayPosition: z.tuple([z.number(), z.number()]),
   note: z.string().optional(),
+  isExpanded: z.boolean().default(false),
 });
 
 export type DataModelCollection = z.output<typeof CollectionSchema>;
@@ -131,6 +132,10 @@ const EditSchemaVariants = z.discriminatedUnion('type', [
     targetField: FieldPathSchema,
     field: FieldPathSchema,
     jsonSchema: z.custom<MongoDBJSONSchema>(),
+  }),
+  z.object({
+    type: z.literal('ToggleExpandCollection'),
+    ns: z.string(),
   }),
 ]);
 

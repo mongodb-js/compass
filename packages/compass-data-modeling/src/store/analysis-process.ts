@@ -281,17 +281,18 @@ export function startAnalysis(
         throw cancelController.signal.reason;
       }
 
-      const positioned = await applyLayout(
-        collections.map((coll) => {
+      const positioned = await applyLayout({
+        nodes: collections.map((coll) => {
           return collectionToBaseNodeForLayout({
             ns: coll.ns,
             jsonSchema: coll.schema,
             displayPosition: [0, 0],
+            isExpanded: false,
           });
         }),
-        [],
-        'LEFT_RIGHT'
-      );
+        edges: [],
+        direction: 'LEFT_RIGHT',
+      });
 
       dispatch({
         type: AnalysisProcessActionTypes.ANALYSIS_FINISHED,
