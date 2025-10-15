@@ -290,8 +290,6 @@ export function startAnalysis(
             isExpanded: false,
           });
         }),
-        edges: [],
-        direction: 'LEFT_RIGHT',
       });
 
       dispatch({
