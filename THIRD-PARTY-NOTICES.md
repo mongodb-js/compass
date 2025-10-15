@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **Mongodb Compass**.
-This document was automatically generated on Thu Oct 09 2025.
+This document was automatically generated on Tue Oct 14 2025.
 
 ## List of dependencies
 
@@ -254,7 +254,7 @@ This document was automatically generated on Thu Oct 09 2025.
 | **[dunder-proto](#390fd69f2035b583e461890d5b0a3230f4adb33b042e6f0d1472dd911bc1de98)**                                       | 1.0.1        | MIT                                 |
 | **[ee-first](#e2746902c758ae8a6f91ffb9618cd53717f936cb33c6323e65b6b7b24f7ebefe)**                                           | 1.1.1        | MIT                                 |
 | **[electron-dl](#e97e034c7b93c63e7a433d75f6f1de3e0668764225ebbd61dbde8d1b55d6f3b7)**                                        | 3.5.0        | MIT                                 |
-| **[electron](#d0a4d7a3dc26c5d723b73a6db08bcb6815c1d6d8e77b523fbffeaf99ce9469bd)**                                           | 37.6.0       | MIT                                 |
+| **[electron](#5ab6953bd8e5e74dfba0c41f7ec9f0b72edcac6d6e4752979f75db6e19cc6741)**                                           | 37.6.1       | MIT                                 |
 | **[encodeurl](#177948a319ae0aeebbd65742c53c62b37c75ec1d021afa5a188d10a7ceae6623)**                                          | 2.0.0        | MIT                                 |
 | **[end-of-stream](#fadc10994f5fa767d06fb25cfff35fb17a895daf3bc3477c782907668ed16563)**                                      | 1.4.4        | MIT                                 |
 | **[ensure-error](#3b1eba5276d89414cef21a1007e85c4f1d6749bf57b300e082ab23975a41dbc9)**                                       | 3.0.1        | MIT                                 |
@@ -22412,9 +22412,9 @@ License files:
 
       THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-<a id="d0a4d7a3dc26c5d723b73a6db08bcb6815c1d6d8e77b523fbffeaf99ce9469bd"></a>
+<a id="5ab6953bd8e5e74dfba0c41f7ec9f0b72edcac6d6e4752979f75db6e19cc6741"></a>
 
-### [electron](https://www.npmjs.com/package/electron) (version 37.6.0)
+### [electron](https://www.npmjs.com/package/electron) (version 37.6.1)
 
 License tags: MIT
 

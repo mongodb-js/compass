@@ -151,6 +151,20 @@ module.exports = (env, args) => {
         // Can be either `web` or `webdriverio`, helpful if we need special
         // behavior for tests in sandbox
         'process.env.APP_ENV': JSON.stringify(process.env.APP_ENV ?? 'web'),
+        ...(process.env.COMPASS_ASSISTANT_BASE_URL_OVERRIDE
+          ? {
+              'process.env.COMPASS_ASSISTANT_BASE_URL_OVERRIDE': JSON.stringify(
+                process.env.COMPASS_ASSISTANT_BASE_URL_OVERRIDE
+              ),
+            }
+          : {}),
+        ...(process.env.COMPASS_OVERRIDE_ENABLE_AI_FEATURES
+          ? {
+              'process.env.COMPASS_OVERRIDE_ENABLE_AI_FEATURES': JSON.stringify(
+                process.env.COMPASS_OVERRIDE_ENABLE_AI_FEATURES
+              ),
+            }
+          : {}),
       }),
 
       new webpack.ProvidePlugin({

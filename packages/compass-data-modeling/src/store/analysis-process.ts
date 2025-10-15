@@ -5,7 +5,7 @@ import { analyzeDocuments, type MongoDBJSONSchema } from 'mongodb-schema';
 import { getCurrentDiagramFromState } from './diagram';
 import { UUID } from 'bson';
 import type { Relationship } from '../services/data-model-storage';
-import { applyLayout } from '@mongodb-js/diagramming';
+import { applyLayout } from '@mongodb-js/compass-components';
 import { collectionToBaseNodeForLayout } from '../utils/nodes-and-edges';
 import { inferForeignToLocalRelationshipsForCollection } from './relationships';
 import { mongoLogId } from '@mongodb-js/compass-logging/provider';
