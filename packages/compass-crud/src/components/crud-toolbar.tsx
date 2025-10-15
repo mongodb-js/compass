@@ -1,5 +1,10 @@
 import React, { useCallback, useMemo } from 'react';
-import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
+import {
+  useTelemetry,
+  SkillsBannerContextEnum,
+  useAtlasSkillsBanner,
+} from '@mongodb-js/compass-telemetry/provider';
+
 import {
   Body,
   DropdownMenuButton,
@@ -14,6 +19,8 @@ import {
   Option,
   SignalPopover,
   useContextMenuGroups,
+  usePersistedState,
+  AtlasSkillsBanner,
 } from '@mongodb-js/compass-components';
 import type { MenuAction, Signal } from '@mongodb-js/compass-components';
 import { ViewSwitcher } from './view-switcher';
@@ -115,6 +122,9 @@ function isOperationTimedOutError(err: ErrorWithPossibleCode) {
   );
 }
 
+const DISMISSED_ATLAS_DOC_SKILL_BANNER_LOCAL_STORAGE_KEY =
+  'mongodb_compass_dismissedAtlasDocSkillBanner' as const;
+
 export type CrudToolbarProps = {
   activeDocumentView: DocumentView;
   count?: number;
@@ -181,6 +191,15 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
   const track = useTelemetry();
   const connectionInfoRef = useConnectionInfoRef();
   const isImportExportEnabled = usePreference('enableImportExport');
+  const [dismissed, setDismissed] = usePersistedState(
+    DISMISSED_ATLAS_DOC_SKILL_BANNER_LOCAL_STORAGE_KEY,
+    false
+  );
+
+  // @experiment Skills in Atlas  | Jira Epic: CLOUDP-346311
+  const { shouldShowAtlasSkillsBanner } = useAtlasSkillsBanner(
+    SkillsBannerContextEnum.Documents
+  );
 
   const displayedDocumentCount = useMemo(
     () => (loadingCount ? '' : `${count ?? 'N/A'}`),
@@ -309,6 +328,24 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
           showExplainButton={enableExplainPlan}
         />
       </div>
+
+      <AtlasSkillsBanner
+        ctaText="Practice creating, reading, updating, and deleting documents efficiently."
+        skillsUrl="https://learn.mongodb.com/courses/crud-operations-in-mongodb?team=growth"
+        onCloseSkillsBanner={() => {
+          setDismissed(true);
+          track('Documents Skill CTA Dismissed', {
+            context: 'Atlas Skills',
+          });
+        }}
+        showBanner={shouldShowAtlasSkillsBanner && !dismissed}
+        onCtaClick={() => {
+          track('Documents Skill CTA Clicked', {
+            context: 'Atlas Skills',
+          });
+        }}
+      />
+
       <div className={crudBarStyles}>
         <div className={toolbarLeftActionStyles}>
           {!readonly && (
