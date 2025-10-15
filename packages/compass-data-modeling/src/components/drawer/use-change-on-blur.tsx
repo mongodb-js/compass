@@ -7,6 +7,7 @@ export function useChangeOnBlur(
   value: string;
   onChange: React.ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement>;
   onBlur: React.FocusEventHandler;
+  onKeyDown: React.KeyboardEventHandler;
 } {
   const [_value, setValue] = useState(value);
   useLayoutEffect(() => {
@@ -21,6 +22,11 @@ export function useChangeOnBlur(
     },
     onBlur: () => {
       onChange(_value);
+    },
+    onKeyDown: (evt) => {
+      if (evt.key === 'Enter' && !evt.shiftKey) {
+        (evt.target as HTMLInputElement | HTMLTextAreaElement).blur?.();
+      }
     },
   };
 }

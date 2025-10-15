@@ -19,8 +19,17 @@ import {
   createNewRelationship,
   addCollection,
   selectField,
+  deleteCollection,
+  deleteRelationship,
+  removeField,
+  undoEdit,
+  redoEdit,
 } from '../store/diagram';
-import type { EdgeProps, NodeProps } from '@mongodb-js/compass-components';
+import type {
+  EdgeProps,
+  NodeProps,
+  DiagramProps,
+} from '@mongodb-js/compass-components';
 import {
   Banner,
   CancelLoader,
@@ -120,6 +129,20 @@ const ZOOM_OPTIONS = {
   minZoom: 0.25,
 };
 
+function anyParentNodeIsDataModelingDiagramOrDiagramToolbar(
+  element: HTMLElement | null
+): boolean {
+  while (element) {
+    if (
+      (element as any)._isDataModelingDiagram ||
+      (element as any)._isDiagramToolbar
+    )
+      return true;
+    element = element.parentElement;
+  }
+  return false;
+}
+
 type SelectedItems = NonNullable<DiagramState>['selectedItems'];
 
 const DiagramContent: React.FunctionComponent<{
@@ -135,7 +158,12 @@ const DiagramContent: React.FunctionComponent<{
   onCollectionSelect: (namespace: string) => void;
   onRelationshipSelect: (rId: string) => void;
   onFieldSelect: (namespace: string, fieldPath: FieldPath) => void;
-  onDiagramBackgroundClicked: () => void;
+  onDiagramBackgroundClicked: (keepFieldSelection?: boolean) => void;
+  onDeleteCollection: (ns: string) => void;
+  onDeleteRelationship: (rId: string) => void;
+  onDeleteField: (ns: string, fieldPath: FieldPath) => void;
+  onUndoClick: () => void;
+  onRedoClick: () => void;
   selectedItems: SelectedItems;
   onCreateNewRelationship: ({
     localNamespace,
@@ -162,6 +190,11 @@ const DiagramContent: React.FunctionComponent<{
   onDiagramBackgroundClicked,
   onCreateNewRelationship,
   onRelationshipDrawn,
+  onDeleteCollection,
+  onDeleteRelationship,
+  onDeleteField,
+  onUndoClick,
+  onRedoClick,
   selectedItems,
   DiagramComponent = Diagram,
 }) => {
@@ -177,6 +210,7 @@ const DiagramContent: React.FunctionComponent<{
     if (ref) {
       // For debugging purposes, we attach the diagram to the ref.
       (ref as any)._diagram = diagram.current;
+      (ref as any)._isDataModelingDiagram = true;
     }
   }, []);
 
@@ -272,7 +306,7 @@ const DiagramContent: React.FunctionComponent<{
   );
 
   const onNodeClick = useCallback(
-    (_evt: React.MouseEvent, node: NodeProps) => {
+    (_evt: React.MouseEvent | null, node: NodeProps) => {
       if (node.type !== 'collection') {
         return;
       }
@@ -283,7 +317,7 @@ const DiagramContent: React.FunctionComponent<{
   );
 
   const onEdgeClick = useCallback(
-    (_evt: React.MouseEvent, edge: EdgeProps) => {
+    (_evt: React.MouseEvent | null, edge: EdgeProps) => {
       onRelationshipSelect(edge.id);
       openDrawer(DATA_MODELING_DRAWER_ID);
     },
@@ -333,21 +367,119 @@ const DiagramContent: React.FunctionComponent<{
     [onAddFieldToObjectField]
   );
 
-  const diagramProps = useMemo(
-    () => ({
-      isDarkMode,
-      title: diagramLabel,
-      edges,
-      nodes,
-      onAddFieldToNodeClick: onClickAddFieldToCollection,
-      onAddFieldToObjectFieldClick: onClickAddFieldToObjectField,
-      onNodeClick,
-      onPaneClick,
-      onEdgeClick,
-      onFieldClick,
-      onNodeDragStop,
-      onConnect,
-    }),
+  const onSelectionChange = useCallback(
+    ({ nodes, edges }: { nodes: NodeProps[]; edges: EdgeProps[] }) => {
+      // Select the first selected item (if any) in the diagram
+      // since unlike react-flow, we only support single item selections
+      if (nodes.length > 0) {
+        onNodeClick(null, nodes[0]);
+        return;
+      }
+      if (edges.length > 0) {
+        onEdgeClick(null, edges[0]);
+        return;
+      }
+      // If nothing is selected, clear the selection
+      onDiagramBackgroundClicked(true);
+    },
+    [onDiagramBackgroundClicked, onNodeClick, onEdgeClick]
+  );
+
+  const onKeyDown = useCallback(
+    (event: React.KeyboardEvent | KeyboardEvent) => {
+      // If no element is focused, some inputs should still be treated as targeting the diagram
+      // (e.g. undo/redo)
+      const isUnfocusedEvent =
+        event.target === document.body ||
+        event.target === document.documentElement;
+      if (
+        !isUnfocusedEvent &&
+        !anyParentNodeIsDataModelingDiagramOrDiagramToolbar(
+          event.target as HTMLElement
+        )
+      ) {
+        return;
+      }
+      const markHandled = () => {
+        event.preventDefault();
+        event.stopPropagation();
+      };
+
+      // Backspace and Delete keys delete selected item
+      if (
+        !isUnfocusedEvent &&
+        (event.key === 'Backspace' || event.key === 'Delete')
+      ) {
+        markHandled();
+        switch (selectedItems?.type) {
+          case 'collection':
+            onDeleteCollection(selectedItems.id);
+            break;
+          case 'relationship':
+            onDeleteRelationship(selectedItems.id);
+            break;
+          case 'field':
+            onDeleteField(selectedItems.namespace, selectedItems.fieldPath);
+            break;
+          default:
+            break;
+        }
+      }
+
+      // Escape key clears selection
+      else if (!isUnfocusedEvent && event.key === 'Escape') {
+        markHandled();
+        onDiagramBackgroundClicked(true);
+        // Undo/Redo should also trigger if there is no currently focused element
+        // macOS: Cmd+Shift+Z = Redo, Cmd+Z = Undo
+      } else if (event.metaKey && event.key.toLowerCase() === 'z') {
+        markHandled();
+        if (event.shiftKey) {
+          onRedoClick();
+        } else {
+          onUndoClick();
+        }
+        // Windows/Linux: Ctrl+Z = Undo, Ctrl+Y = Redo
+      } else if (event.ctrlKey && event.key.toLowerCase() === 'z') {
+        markHandled();
+        onUndoClick();
+      } else if (event.ctrlKey && event.key.toLowerCase() === 'y') {
+        markHandled();
+        onRedoClick();
+      }
+    },
+    [
+      onDiagramBackgroundClicked,
+      onDeleteCollection,
+      onDeleteRelationship,
+      onDeleteField,
+      selectedItems,
+    ]
+  );
+
+  // Not sure why eslint is confused by `DiagramProps` here
+  // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
+  type ThrottledDiagramProps = DiagramProps & {
+    onKeyDown: (event: React.KeyboardEvent | KeyboardEvent) => void;
+  };
+  const diagramProps: ThrottledDiagramProps = useMemo(
+    () =>
+      ({
+        isDarkMode,
+        title: diagramLabel,
+        edges,
+        nodes,
+        onAddFieldToNodeClick: onClickAddFieldToCollection,
+        onAddFieldToObjectFieldClick: onClickAddFieldToObjectField,
+        onNodeClick,
+        onPaneClick,
+        onEdgeClick,
+        onFieldClick,
+        onNodeDragStop,
+        onConnect,
+        onSelectionChange,
+        onKeyDown,
+      } satisfies ThrottledDiagramProps),
     [
       isDarkMode,
       diagramLabel,
@@ -361,10 +493,18 @@ const DiagramContent: React.FunctionComponent<{
       onFieldClick,
       onNodeDragStop,
       onConnect,
+      onSelectionChange,
+      onKeyDown,
     ]
   );
 
-  const throttledDiagramProps = useThrottledProps(diagramProps);
+  const { onKeyDown: diagramOnKeyDown, ...throttledDiagramProps } =
+    useThrottledProps(diagramProps);
+
+  useEffect(() => {
+    document.body.addEventListener('keydown', diagramOnKeyDown);
+    return () => document.body.removeEventListener('keydown', diagramOnKeyDown);
+  }, [diagramOnKeyDown]);
 
   return (
     <div
@@ -372,7 +512,12 @@ const DiagramContent: React.FunctionComponent<{
       className={modelPreviewContainerStyles}
       data-testid="diagram-editor-container"
     >
-      <div className={modelPreviewStyles} data-testid="model-preview">
+      {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions */}
+      <div
+        className={modelPreviewStyles}
+        data-testid="model-preview"
+        onKeyDown={diagramOnKeyDown}
+      >
         {showDataInfoBanner && (
           <Banner
             variant="info"
@@ -423,6 +568,11 @@ const ConnectedDiagramContent = connect(
     onFieldSelect: selectField,
     onDiagramBackgroundClicked: selectBackground,
     onCreateNewRelationship: createNewRelationship,
+    onDeleteCollection: deleteCollection,
+    onDeleteRelationship: deleteRelationship,
+    onDeleteField: removeField,
+    onUndoClick: undoEdit,
+    onRedoClick: redoEdit,
   }
 )(DiagramContent);
 
@@ -459,6 +609,16 @@ const DiagramEditor: React.FunctionComponent<{
     onAddCollectionClick();
     openDrawer(DATA_MODELING_DRAWER_ID);
   }, [openDrawer, onAddCollectionClick]);
+
+  const setDiagramEditorToolbarContainerRef = useCallback(
+    (ref: HTMLDivElement | null) => {
+      if (ref) {
+        // For debugging purposes, we attach the diagram to the ref.
+        (ref as any)._isDiagramToolbar = true;
+      }
+    },
+    []
+  );
 
   if (step === 'NO_DIAGRAM_SELECTED') {
     return null;
@@ -507,11 +667,13 @@ const DiagramEditor: React.FunctionComponent<{
   return (
     <WorkspaceContainer
       toolbar={
-        <DiagramEditorToolbar
-          onRelationshipDrawingToggle={handleRelationshipDrawingToggle}
-          isInRelationshipDrawingMode={isInRelationshipDrawingMode}
-          onAddCollectionClick={handleAddCollectionClick}
-        />
+        <div ref={setDiagramEditorToolbarContainerRef}>
+          <DiagramEditorToolbar
+            onRelationshipDrawingToggle={handleRelationshipDrawingToggle}
+            isInRelationshipDrawingMode={isInRelationshipDrawingMode}
+            onAddCollectionClick={handleAddCollectionClick}
+          />
+        </div>
       }
     >
       {content}
