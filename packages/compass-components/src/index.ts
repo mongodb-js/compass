@@ -241,6 +241,7 @@ export {
 export type {
   EdgeProps,
   NodeProps,
+  FieldId,
   DiagramInstance,
   NodeField,
   NodeGlyph,
