@@ -167,12 +167,14 @@ function databaseColumns({
 const DatabasesList: React.FunctionComponent<{
   databases: DatabaseProps[];
   onDatabaseClick: (id: string) => void;
+  onDeleteDatabaseClick?: (id: string) => void;
   onCreateDatabaseClick?: () => void;
   onRefreshClick?: () => void;
   renderLoadSampleDataBanner?: () => React.ReactNode;
 }> = ({
   databases,
   onDatabaseClick,
+  onDeleteDatabaseClick,
   onCreateDatabaseClick,
   onRefreshClick,
   renderLoadSampleDataBanner,
@@ -186,10 +188,12 @@ const DatabasesList: React.FunctionComponent<{
   );
   return (
     <ItemsTable
+      data-testid="databases-list"
       columns={columns}
       items={databases}
       itemType="database"
       onItemClick={onDatabaseClick}
+      onDeleteItemClick={onDeleteDatabaseClick}
       onCreateItemClick={onCreateDatabaseClick}
       onRefreshClick={onRefreshClick}
       renderLoadSampleDataBanner={renderLoadSampleDataBanner}

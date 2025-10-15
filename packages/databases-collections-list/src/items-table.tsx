@@ -1,4 +1,11 @@
-import React, { Fragment, useMemo } from 'react';
+import React, { Fragment, useCallback, useMemo } from 'react';
+import type {
+  LeafyGreenTableCell,
+  LGColumnDef,
+  HeaderGroup,
+  LeafyGreenVirtualItem,
+  GroupedItemAction,
+} from '@mongodb-js/compass-components';
 import {
   css,
   cx,
@@ -11,16 +18,13 @@ import {
   TableHead,
   TableBody,
   useLeafyGreenVirtualTable,
-  type LGColumnDef,
-  type HeaderGroup,
   HeaderRow,
   HeaderCell,
   flexRender,
   ExpandedContent,
   Row,
   Cell,
-  //type LeafyGreenTableRow,
-  type LeafyGreenVirtualItem,
+  ItemActionGroup,
 } from '@mongodb-js/compass-components';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
@@ -29,18 +33,24 @@ import { getConnectionTitle } from '@mongodb-js/connection-info';
 import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
 import { usePreferences } from 'compass-preferences-model/provider';
 
-type Item = { _id: string } & Record<string, any>;
+type Item = {
+  _id: string;
+  name: string;
+  inferred_from_privileges?: boolean;
+} & Record<string, any>;
 
 export const createButtonStyles = css({
   whiteSpace: 'nowrap',
 });
 
-type ItemsGridProps<T> = {
+type ItemsTableProps<T> = {
+  'data-testid'?: string;
   namespace?: string;
   itemType: 'collection' | 'database';
   columns: LGColumnDef<T>[];
   items: T[];
   onItemClick: (id: string) => void;
+  onDeleteItemClick?: (id: string) => void;
   onCreateItemClick?: () => void;
   onRefreshClick?: () => void;
   renderLoadSampleDataBanner?: () => React.ReactNode;
@@ -231,40 +241,149 @@ const TableControls: React.FunctionComponent<{
   );
 };
 
-const itemsGridContainerStyles = css({
+const itemsTableContainerStyles = css({
   width: '100%',
   height: '100%',
 });
 
 const virtualScrollingContainerHeight = css({
+  width: '100%',
   height: 'calc(100vh - 100px)',
   padding: `0 ${spacing[400]}px`,
 });
 
+const actionsCellClassName = 'item-actions-cell';
+
+// When row is hovered, we show the delete button
+const rowStyles = css({
+  ':hover': {
+    [`.${actionsCellClassName}`]: {
+      button: {
+        opacity: 1,
+      },
+    },
+  },
+});
+
+// When row is not hovered, we hide the delete button
+const actionsCellStyles = css({
+  button: {
+    opacity: 0,
+    '&:focus': {
+      opacity: 1,
+    },
+  },
+  minWidth: spacing[800],
+});
+
+type ItemAction = 'delete';
+
+// Helper: Build actions array based on item state
+const buildItemActions = (
+  item: Item,
+  {
+    readOnly,
+    hasDeleteHandler,
+  }: { readOnly: boolean; hasDeleteHandler: boolean }
+): GroupedItemAction<ItemAction>[] => {
+  const actions: GroupedItemAction<ItemAction>[] = [];
+  if (!readOnly && hasDeleteHandler && !item.inferred_from_privileges) {
+    actions.push({
+      action: 'delete',
+      label: `Delete ${item.name}`,
+      tooltip: `Delete ${item.name}`,
+      icon: 'Trash',
+    });
+  }
+
+  return actions;
+};
+
+type ItemActionsProps = {
+  item: Item;
+  onDeleteItemClick?: (name: string) => void;
+};
+
+const ItemActions: React.FunctionComponent<ItemActionsProps> = ({
+  item,
+  onDeleteItemClick,
+}) => {
+  const { readOnly } = usePreferences(['readOnly']);
+  const itemActions = useMemo(
+    () =>
+      buildItemActions(item, {
+        readOnly,
+        hasDeleteHandler: !!onDeleteItemClick,
+      }),
+    [item, onDeleteItemClick, readOnly]
+  );
+
+  const onAction = useCallback(
+    (action: ItemAction) => {
+      if (action === 'delete') {
+        onDeleteItemClick?.(item._id);
+      }
+    },
+    [item, onDeleteItemClick]
+  );
+
+  return (
+    <ItemActionGroup<ItemAction>
+      data-testid="item-actions"
+      actions={itemActions}
+      onAction={onAction}
+    />
+  );
+};
+
 export const ItemsTable = <T extends Item>({
+  'data-testid': dataTestId,
   namespace,
   itemType,
   columns,
   items,
   onItemClick,
+  onDeleteItemClick,
   onCreateItemClick,
   onRefreshClick,
   renderLoadSampleDataBanner,
-}: ItemsGridProps<T>): React.ReactElement => {
+}: ItemsTableProps<T>): React.ReactElement => {
   const tableContainerRef = React.useRef<HTMLDivElement>(null);
+
+  const columnsWithActions = useMemo(() => {
+    if (onDeleteItemClick) {
+      return [
+        ...columns,
+        {
+          id: 'actions',
+          header: '',
+          maxSize: 40,
+          cell: (info) => {
+            return (
+              <ItemActions
+                item={info.row.original}
+                onDeleteItemClick={onDeleteItemClick}
+              />
+            );
+          },
+        },
+      ];
+    }
+    return columns;
+  }, [columns, onDeleteItemClick]);
 
   const table = useLeafyGreenVirtualTable<T>({
     containerRef: tableContainerRef,
     data: items,
-    columns,
+    columns: columnsWithActions,
     virtualizerOptions: {
-      estimateSize: () => 50,
+      estimateSize: () => 40,
       overscan: 10,
     },
   });
 
   return (
-    <div className={itemsGridContainerStyles}>
+    <div className={itemsTableContainerStyles} data-testid={dataTestId}>
       <WorkspaceContainer
         toolbar={
           <TableControls
@@ -299,7 +418,7 @@ export const ItemsTable = <T extends Item>({
               </HeaderRow>
             ))}
           </TableHead>
-          <TableBody>
+          <TableBody data-testid={`${dataTestId}-body`}>
             {table.virtual.getVirtualItems() &&
               table.virtual
                 .getVirtualItems()
@@ -310,24 +429,38 @@ export const ItemsTable = <T extends Item>({
                   return (
                     <Fragment key={row.id}>
                       {!isExpandedContent && (
-                        // row is required
                         <Row
+                          className={rowStyles}
+                          data-testid={`${dataTestId}-row-${
+                            (row.original as { name?: string }).name ?? row.id
+                          }`}
                           row={row}
-                          onClick={() =>
-                            onItemClick(row.original._id as string)
-                          }
+                          onClick={() => onItemClick(row.original._id)}
                         >
-                          {row.getVisibleCells().map((cell: any) => {
-                            return (
-                              // cell is required
-                              <Cell key={cell.id} id={cell.id} cell={cell}>
-                                {flexRender(
-                                  cell.column.columnDef.cell,
-                                  cell.getContext()
-                                )}
-                              </Cell>
-                            );
-                          })}
+                          {row
+                            .getVisibleCells()
+                            .map((cell: LeafyGreenTableCell<T>) => {
+                              const isActionsCell =
+                                cell.column.id === 'actions';
+
+                              return (
+                                // cell is required
+                                <Cell
+                                  key={cell.id}
+                                  id={cell.id}
+                                  cell={cell}
+                                  className={cx({
+                                    [actionsCellClassName]: isActionsCell,
+                                    [actionsCellStyles]: isActionsCell,
+                                  })}
+                                >
+                                  {flexRender(
+                                    cell.column.columnDef.cell,
+                                    cell.getContext()
+                                  )}
+                                </Cell>
+                              );
+                            })}
                         </Row>
                       )}
                       {isExpandedContent && <ExpandedContent row={row} />}

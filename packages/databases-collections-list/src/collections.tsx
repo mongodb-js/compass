@@ -344,12 +344,14 @@ const CollectionsList: React.FunctionComponent<{
   namespace: string;
   collections: CollectionProps[];
   onCollectionClick: (id: string) => void;
+  onDeleteCollectionClick: (id: string) => void;
   onCreateCollectionClick?: () => void;
   onRefreshClick?: () => void;
 }> = ({
   namespace,
   collections,
   onCollectionClick,
+  onDeleteCollectionClick,
   onCreateCollectionClick,
   onRefreshClick,
 }) => {
@@ -361,11 +363,13 @@ const CollectionsList: React.FunctionComponent<{
   );
   return (
     <ItemsTable
+      data-testid="collections-list"
       namespace={namespace}
       columns={columns}
       items={collections}
       itemType="collection"
       onItemClick={onCollectionClick}
+      onDeleteItemClick={onDeleteCollectionClick}
       onCreateItemClick={onCreateCollectionClick}
       onRefreshClick={onRefreshClick}
     ></ItemsTable>
