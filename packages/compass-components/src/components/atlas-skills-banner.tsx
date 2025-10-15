@@ -61,7 +61,7 @@ export const AtlasSkillsBanner: React.FunctionComponent<{
         title="Go to Skills"
         className={learnMoreBtnStyles}
       >
-        <span>Go to Skills</span>
+        Go to Skills
       </Button>
       <IconButton
         className={closeButtonStyles}
