@@ -248,7 +248,7 @@ const itemsTableContainerStyles = css({
 
 const virtualScrollingContainerHeight = css({
   width: '100%',
-  height: 'calc(100vh - 100px)',
+  height: '100%',
   padding: `0 ${spacing[400]}px`,
 });
 
