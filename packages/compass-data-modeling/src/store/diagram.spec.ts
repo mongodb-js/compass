@@ -27,6 +27,7 @@ const model: StaticModel = {
       displayPosition: [0, 0],
       shardKey: {},
       jsonSchema: { bsonType: 'object' },
+      isExpanded: true,
     },
     {
       ns: 'db.collection2',
@@ -34,6 +35,7 @@ const model: StaticModel = {
       displayPosition: [1, 1],
       shardKey: {},
       jsonSchema: { bsonType: 'object' },
+      isExpanded: true,
     },
   ],
   relationships: [
@@ -148,6 +150,7 @@ describe('Data Modeling store', function () {
               displayPosition: [0, 0],
               shardKey: {},
               jsonSchema: { bsonType: 'object' },
+              isExpanded: true,
             },
           ] as StaticModel['collections'],
           relationships: [] as StaticModel['relationships'],
@@ -434,6 +437,7 @@ describe('Data Modeling store', function () {
                     field3: { bsonType: 'int' },
                   },
                 },
+                isExpanded: true,
               },
             ],
             relationships: [],
@@ -460,6 +464,7 @@ describe('Data Modeling store', function () {
                 indexes: [],
                 displayPosition: [0, 0],
                 shardKey: {},
+                isExpanded: true,
                 jsonSchema: {
                   bsonType: 'object',
                   properties: {
