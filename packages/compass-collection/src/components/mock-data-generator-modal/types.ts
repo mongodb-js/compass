@@ -21,7 +21,7 @@ type MockDataGeneratorInProgressState = {
 
 type MockDataGeneratorCompletedState = {
   status: 'completed';
-  originalLlmResponse: FakerSchema; // Immutable LLM response
+  originalLlmResponse: Readonly<FakerSchema>; // Immutable LLM response
   editedFakerSchema: FakerSchema; // User-modified version
   requestId: string;
 };
