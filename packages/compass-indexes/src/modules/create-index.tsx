@@ -540,7 +540,10 @@ function fieldTypeToIndexDirection(type: string): IndexDirection {
   if (type === '-1 (desc)') {
     return -1;
   }
-  if (type === 'text' || type === '2dsphere') {
+  if (type === 'text (full text search)') {
+    return 'text';
+  }
+  if (type === '2dsphere') {
     return type;
   }
   throw new Error(`Unsupported field type: ${type}`);
