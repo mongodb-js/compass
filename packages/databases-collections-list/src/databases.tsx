@@ -10,6 +10,7 @@ import {
   Icon,
   palette,
   PerformanceSignals,
+  Placeholder,
   SignalPopover,
   spacing,
   Tooltip,
@@ -45,6 +46,23 @@ const collectionsLengthWrapStyles = css({
 });
 
 const collectionsLengthStyles = css({});
+
+function isReady(
+  status: 'initial' | 'fetching' | 'refreshing' | 'ready' | 'error'
+) {
+  /*
+  yes:
+  * refreshing
+  * ready
+  * error
+
+  no:
+  * initial
+  * fetching
+  */
+
+  return status !== 'initial' && status !== 'fetching';
+}
 
 function databaseColumns({
   darkMode,
@@ -103,6 +121,11 @@ function databaseColumns({
       enableSorting: true,
       maxSize: 80,
       cell: (info) => {
+        const database = info.row.original;
+        if (!isReady(database.status)) {
+          return <Placeholder maxChar={10}></Placeholder>;
+        }
+
         // TODO: shouldn't this just have the right type rather than unknown?
         const size = info.getValue() as number | undefined;
         return enableDbAndCollStats && size !== undefined
@@ -117,6 +140,11 @@ function databaseColumns({
       enableSorting: true,
       maxSize: 80,
       cell: (info) => {
+        const database = info.row.original;
+        if (!isReady(database.status)) {
+          return <Placeholder maxChar={10}></Placeholder>;
+        }
+
         const size = info.getValue() as number | undefined;
         return enableDbAndCollStats && size !== undefined
           ? compactBytes(size)
@@ -130,6 +158,11 @@ function databaseColumns({
       enableSorting: true,
       maxSize: 80,
       cell: (info) => {
+        const database = info.row.original;
+        if (!isReady(database.status)) {
+          return <Placeholder maxChar={10}></Placeholder>;
+        }
+
         const text = enableDbAndCollStats
           ? compactNumber(info.getValue() as number)
           : '-';
@@ -154,6 +187,11 @@ function databaseColumns({
       enableSorting: true,
       maxSize: 80,
       cell: (info) => {
+        const database = info.row.original;
+        if (!isReady(database.status)) {
+          return <Placeholder maxChar={10}></Placeholder>;
+        }
+
         const index_count = info.getValue() as number | undefined;
         return enableDbAndCollStats && index_count !== undefined
           ? compactNumber(index_count)

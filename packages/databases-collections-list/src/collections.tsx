@@ -11,6 +11,7 @@ import {
   Tooltip,
   palette,
   useDarkMode,
+  Placeholder,
 } from '@mongodb-js/compass-components';
 import { compactBytes, compactNumber } from './format';
 import { ItemsTable } from './items-table';
@@ -174,6 +175,23 @@ const inferredFromPrivilegesDarkStyles = css({
   color: palette.gray.base,
 });
 
+function isReady(
+  status: 'initial' | 'fetching' | 'refreshing' | 'ready' | 'error'
+) {
+  /*
+  yes:
+  * refreshing
+  * ready
+  * error
+
+  no:
+  * initial
+  * fetching
+  */
+
+  return status !== 'initial' && status !== 'fetching';
+}
+
 function collectionColumns({
   darkMode,
   enableDbAndCollStats,
@@ -242,7 +260,12 @@ function collectionColumns({
       enableSorting: true,
       maxSize: 80,
       cell: (info) => {
-        const type = info.row.original.type as string;
+        const collection = info.row.original;
+        if (!isReady(collection.status)) {
+          return <Placeholder maxChar={10}></Placeholder>;
+        }
+
+        const type = collection.type as string;
         if (type === 'view') {
           return '-';
         }
@@ -259,7 +282,12 @@ function collectionColumns({
       enableSorting: true,
       maxSize: 100,
       cell: (info) => {
-        const type = info.row.original.type as string;
+        const collection = info.row.original;
+        if (!isReady(collection.status)) {
+          return <Placeholder maxChar={10}></Placeholder>;
+        }
+
+        const type = collection.type as string;
         if (type === 'view') {
           return '-';
         }
@@ -276,7 +304,12 @@ function collectionColumns({
       enableSorting: true,
       maxSize: 80,
       cell: (info) => {
-        const type = info.row.original.type as string;
+        const collection = info.row.original;
+        if (!isReady(collection.status)) {
+          return <Placeholder maxChar={10}></Placeholder>;
+        }
+
+        const type = collection.type as string;
         if (type === 'view' || type === 'timeseries') {
           return '-';
         }
@@ -291,7 +324,12 @@ function collectionColumns({
       enableSorting: true,
       maxSize: 110,
       cell: (info) => {
-        const type = info.row.original.type as string;
+        const collection = info.row.original;
+        if (!isReady(collection.status)) {
+          return <Placeholder maxChar={10}></Placeholder>;
+        }
+
+        const type = collection.type as string;
         if (type === 'view' || type === 'timeseries') {
           return '-';
         }
@@ -308,7 +346,12 @@ function collectionColumns({
       enableSorting: true,
       maxSize: 60,
       cell: (info) => {
-        const type = info.row.original.type as string;
+        const collection = info.row.original;
+        if (!isReady(collection.status)) {
+          return <Placeholder maxChar={10}></Placeholder>;
+        }
+
+        const type = collection.type as string;
         if (type === 'view' || type === 'timeseries') {
           return '-';
         }
@@ -325,7 +368,12 @@ function collectionColumns({
       enableSorting: true,
       maxSize: 100,
       cell: (info) => {
-        const type = info.row.original.type as string;
+        const collection = info.row.original;
+        if (!isReady(collection.status)) {
+          return <Placeholder maxChar={10}></Placeholder>;
+        }
+
+        const type = collection.type as string;
         if (type === 'view' || type === 'timeseries') {
           return '-';
         }
