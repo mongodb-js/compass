@@ -99,7 +99,7 @@ const MockDataGeneratorModal = ({
           <PreviewScreen
             confirmedFakerSchema={
               fakerSchemaGenerationState.status === 'completed'
-                ? fakerSchemaGenerationState.fakerSchema
+                ? fakerSchemaGenerationState.editedFakerSchema
                 : {}
             }
           />
