@@ -30,7 +30,7 @@ export function compactBytes(bytes: number, si = true, decimals = 2): string {
  * Format a number into a compact notation with appropriate suffix.
  *
  * @param number - The number to format
- * @returns Formatted string with compact notation (e.g., "1.5 K", "2 M")
+ * @returns Formatted string with compact notation (e.g., "1.5K", "2M")
  */
 export function compactNumber(number: number): string {
   return new Intl.NumberFormat('en', {
@@ -38,9 +38,6 @@ export function compactNumber(number: number): string {
   })
     .formatToParts(number)
     .reduce((acc, part) => {
-      if (part.type === 'compact') {
-        return `${acc} ${part.value}`;
-      }
       return `${acc}${part.value}`;
     }, '');
 }

@@ -1,6 +1,10 @@
 import React from 'react';
-import { css, spacing } from '@mongodb-js/compass-components';
-import { compactBytes, compactNumber } from './format';
+import {
+  css,
+  spacing,
+  compactBytes,
+  compactNumber,
+} from '@mongodb-js/compass-components';
 import type { BadgeProp } from './namespace-card';
 import { NamespaceItemCard } from './namespace-card';
 import { ItemsGrid } from './items-grid';
