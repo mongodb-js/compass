@@ -98,7 +98,6 @@
     "mongodb-data-service": "^22.34.3",
     "mongodb-ns": "^3.0.1",
     "mongodb-query-parser": "^4.3.0",
-    "numeral": "^2.0.6",
     "react": "^17.0.2",
     "reflux": "^0.4.1",
     "semver": "^7.6.3"
