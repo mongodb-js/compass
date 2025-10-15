@@ -9,6 +9,8 @@ import {
   BannerVariant,
   Body,
   DocumentList,
+  useDarkMode,
+  cx,
 } from '@mongodb-js/compass-components';
 
 import { usePreference } from 'compass-preferences-model/provider';
@@ -26,6 +28,11 @@ interface RawSchemaConfirmationScreenProps {
 const documentContainerStyles = css({
   backgroundColor: palette.gray.light3,
   border: `1px solid ${palette.gray.light2}`,
+  borderRadius: spacing[400],
+});
+const documentContainerDarkStyles = css({
+  backgroundColor: palette.gray.dark3,
+  border: `1px solid ${palette.gray.dark2}`,
   borderRadius: spacing[400],
 });
 
@@ -52,6 +59,7 @@ const RawSchemaConfirmationScreen = ({
   const enableSampleDocumentPassing = usePreference(
     'enableGenAISampleDocumentPassing'
   );
+  const isDarkMode = useDarkMode();
 
   const subtitleText = enableSampleDocumentPassing
     ? 'Sample Documents Collected'
@@ -69,7 +77,12 @@ const RawSchemaConfirmationScreen = ({
             {subtitleText}
           </Body>
           <Body className={descriptionStyles}>{descriptionText}</Body>
-          <div className={documentContainerStyles}>
+          <div
+            className={cx(
+              documentContainerStyles,
+              isDarkMode && documentContainerDarkStyles
+            )}
+          >
             <DocumentList.Document
               className={documentStyles}
               editable={false}

@@ -158,7 +158,7 @@ export {
   FadeInPlaceholder,
 } from './components/content-with-fallback';
 export { InlineDefinition } from './components/inline-definition';
-export type { GlyphName } from '@leafygreen-ui/icon';
+export type { GlyphName, LGGlyph } from '@leafygreen-ui/icon';
 export { createGlyphComponent, createIconComponent } from '@leafygreen-ui/icon';
 export {
   SignalPopover,
@@ -218,6 +218,7 @@ export {
 } from './components/links/link';
 export { ChevronCollapse } from './components/chevron-collapse-icon';
 export { formatDate } from './utils/format-date';
+export { compactBytes, compactNumber } from './utils/format';
 export {
   VirtualList,
   type VirtualListRef,
@@ -241,6 +242,7 @@ export {
 export type {
   EdgeProps,
   NodeProps,
+  FieldId,
   DiagramInstance,
   NodeField,
   NodeGlyph,

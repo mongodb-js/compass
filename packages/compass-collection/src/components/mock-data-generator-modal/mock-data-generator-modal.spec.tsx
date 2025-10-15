@@ -811,10 +811,10 @@ describe('MockDataGeneratorModal', () => {
       );
       userEvent.clear(documentCountInput);
       userEvent.type(documentCountInput, '1000');
-      expect(screen.getByText('100.0KB')).to.exist;
+      expect(screen.getByText('100.0 kB')).to.exist;
       userEvent.clear(documentCountInput);
       userEvent.type(documentCountInput, '2000');
-      expect(screen.getByText('200.0KB')).to.exist;
+      expect(screen.getByText('200.0 kB')).to.exist;
     });
   });
 
