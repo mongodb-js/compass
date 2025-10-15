@@ -1,7 +1,11 @@
 /* eslint-disable react/prop-types */
 import React from 'react';
-import { PerformanceSignals, spacing } from '@mongodb-js/compass-components';
-import { compactBytes, compactNumber } from './format';
+import {
+  PerformanceSignals,
+  spacing,
+  compactBytes,
+  compactNumber,
+} from '@mongodb-js/compass-components';
 import { NamespaceItemCard } from './namespace-card';
 import { ItemsGrid } from './items-grid';
 import type { DatabaseProps } from 'mongodb-database-model';
