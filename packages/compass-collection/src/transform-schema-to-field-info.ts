@@ -17,6 +17,7 @@ import type {
   BSONSymbol,
   Long,
   Decimal128,
+  BSONValue,
 } from 'bson';
 
 /**
@@ -99,30 +100,16 @@ export class ProcessSchemaValidationError extends Error {
 }
 
 /**
- * Type for BSON objects that have a _bsontype property
+ * Type guard to check if a value is a BSON object using _bsontype property
  */
-type BSONObject = {
-  _bsontype: string;
-  [key: string]: unknown;
-};
-
-/**
- * Type guard to check if a value is a BSON object
- */
-function isBSONObject(value: unknown): value is BSONObject {
+function isBSONValue(value: unknown): value is BSONValue {
   return (
     value !== null &&
     value !== undefined &&
     typeof value === 'object' &&
-    '_bsontype' in value
+    '_bsontype' in value &&
+    typeof (value as { _bsontype: unknown })._bsontype === 'string'
   );
-}
-
-/**
- * Helper to cast BSON objects to their specific types
- */
-function castBSONValue<T>(value: unknown): T {
-  return value as T;
 }
 
 /**
@@ -140,33 +127,34 @@ function convertBSONToPrimitive(value: unknown): SampleValue {
   }
 
   // Convert BSON objects to primitives using _bsontype
-  if (isBSONObject(value)) {
+  if (isBSONValue(value)) {
     switch (value._bsontype) {
       case 'ObjectId':
-        return castBSONValue<ObjectId>(value).toString();
+        return (value as ObjectId).toString();
       case 'Binary':
         // Binary data should never be processed because sample values are skipped for binary fields
         throw new ProcessSchemaUnsupportedStateError(
           'Binary data encountered in sample value conversion. Binary fields should be excluded from sample value processing.'
         );
       case 'BSONRegExp':
-        return castBSONValue<BSONRegExp>(value).pattern;
+        return (value as BSONRegExp).pattern;
       case 'Code':
-        return castBSONValue<Code>(value).code;
+        return (value as Code).code;
       case 'Timestamp':
-        return castBSONValue<Timestamp>(value).toNumber();
+        return (value as Timestamp).toNumber();
       case 'MaxKey':
         return 'MaxKey';
       case 'MinKey':
         return 'MinKey';
       case 'BSONSymbol':
-        return castBSONValue<BSONSymbol>(value).toString();
+        return (value as BSONSymbol).toString();
       case 'Long':
-        return castBSONValue<Long>(value).toNumber();
+        return (value as Long).toNumber();
       case 'Decimal128':
-        return parseFloat(castBSONValue<Decimal128>(value).toString());
+        return parseFloat((value as Decimal128).toString());
       default:
-      // Unknown BSON type, continue to other checks
+        // Unknown BSON type, continue to other checks
+        break;
     }
   }
 

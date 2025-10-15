@@ -1471,7 +1471,7 @@ describe('processSchema', function () {
   });
 
   it('throws ProcessSchemaUnsupportedStateError when Binary data is encountered', function () {
-    const binaryData = { _bsontype: 'Binary', buffer: Buffer.from('test') };
+    const binaryData = new Binary(Buffer.from('test'));
 
     // Simulate a bug or edge case where Binary data somehow gets through
     const schema: Schema = {
