@@ -282,12 +282,15 @@ export function createElectronRendererConfig(
                 process.env.DISABLE_DEVSERVER_OVERLAY === 'true'
                   ? false
                   : {
-                      runtimeErrors: (error) => {
+                      runtimeErrors: (error: unknown) => {
                         // ResizeObserver errors are harmless and expected in some cases.
                         // We currently get them when opening the Assistant drawer.
                         if (
-                          error?.message ===
-                          'ResizeObserver loop completed with undelivered notifications.'
+                          error &&
+                          typeof error === 'object' &&
+                          'message' in error &&
+                          error.message ===
+                            'ResizeObserver loop completed with undelivered notifications.'
                         ) {
                           // eslint-disable-next-line no-console
                           console.warn(error);
