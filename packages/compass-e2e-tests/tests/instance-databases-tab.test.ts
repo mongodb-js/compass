@@ -50,7 +50,7 @@ describe('Instance databases tab', function () {
     const dbTable = browser.$(Selectors.DatabasesTable);
     await dbTable.waitForDisplayed();
 
-    const dbSelectors = INITIAL_DATABASE_NAMES.map(Selectors.databaseCard);
+    const dbSelectors = INITIAL_DATABASE_NAMES.map(Selectors.databaseRow);
 
     for (const dbSelector of dbSelectors) {
       const found = await browser.scrollToVirtualItem(
@@ -65,25 +65,25 @@ describe('Instance databases tab', function () {
   it('links database cards to the database collections tab', async function () {
     await browser.scrollToVirtualItem(
       Selectors.DatabasesTable,
-      Selectors.databaseCard('test'),
+      Selectors.databaseRow('test'),
       'grid'
     );
     // Click on the db name text inside the card specifically to try and have
     // tighter control over where it clicks, because clicking in the center of
     // the last card if all cards don't fit on screen can silently do nothing
     // even after scrolling it into view.
-    await browser.clickVisible(Selectors.databaseCardClickable('test'), {
+    await browser.clickVisible(Selectors.databaseRow('test'), {
       scroll: true,
       screenshot: 'database-card.png',
     });
 
     const collectionSelectors = ['json-array', 'json-file', 'numbers'].map(
-      (collectionName) => Selectors.collectionCard('test', collectionName)
+      (collectionName) => Selectors.collectionRow('test', collectionName)
     );
 
     for (const collectionSelector of collectionSelectors) {
       const found = await browser.scrollToVirtualItem(
-        Selectors.CollectionsGrid,
+        Selectors.CollectionsTable,
         collectionSelector,
         'grid'
       );
@@ -110,7 +110,7 @@ describe('Instance databases tab', function () {
       'Databases'
     );
 
-    const selector = Selectors.databaseCard(dbName);
+    const selector = Selectors.databaseRow(dbName);
     await browser.scrollToVirtualItem(
       Selectors.DatabasesTable,
       selector,
@@ -123,8 +123,8 @@ describe('Instance databases tab', function () {
 
     await browser.waitUntil(async () => {
       // open the drop database modal from the database card
-      await browser.hover(`${selector} [title="${dbName}"]`);
-      const el = browser.$(Selectors.DatabaseCardDrop);
+      await browser.hover(`${selector}`);
+      const el = browser.$(Selectors.databaseRowDrop(dbName));
       if (await el.isDisplayed()) {
         return true;
       }
@@ -134,7 +134,7 @@ describe('Instance databases tab', function () {
       return false;
     });
 
-    await browser.clickVisible(Selectors.DatabaseCardDrop);
+    await browser.clickVisible(Selectors.databaseRowDrop(dbName));
 
     await browser.dropNamespace(dbName);
 
@@ -151,7 +151,7 @@ describe('Instance databases tab', function () {
 
   it('can refresh the list of databases using refresh controls', async function () {
     const db = 'test'; // added by beforeEach
-    const dbSelector = Selectors.databaseCard(db);
+    const dbSelector = Selectors.databaseRow(db);
 
     // Browse to the databases tab
     await browser.navigateToConnectionTab(

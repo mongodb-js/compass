@@ -503,15 +503,15 @@ describe('CSFLE / QE', function () {
           databaseName
         );
 
-        const selector = Selectors.collectionCard(databaseName, collectionName);
+        const selector = Selectors.collectionRow(databaseName, collectionName);
         await browser.scrollToVirtualItem(
-          Selectors.CollectionsGrid,
+          Selectors.CollectionsTable,
           selector,
           'grid'
         );
 
-        const collectionCard = browser.$(selector);
-        await collectionCard.waitForDisplayed();
+        const collectionRow = browser.$(selector);
+        await collectionRow.waitForDisplayed();
 
         const collectionListFLE2BadgeElement = browser.$(
           Selectors.CollectionListFLE2Badge

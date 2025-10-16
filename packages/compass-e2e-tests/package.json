@@ -23,10 +23,10 @@
     "stop-server-2": "mongodb-runner stop --id=e2e-2",
     "start-servers": "npm run start-server-1 && npm run start-server-2",
     "stop-servers": "npm run stop-server-1 && npm run stop-server-2",
-    "test-noserver": "env DEBUG=hadron*,mongo*,compass*,xvfb-maybe* npm run test -- --disable-start-stop --bail",
-    "test-noserver-nocompile": "env DEBUG=hadron*,mongo*,compass*,xvfb-maybe* npm run test -- --no-native-modules --no-compile --disable-start-stop --bail",
+    "test-noserver": "env DEBUG=hadron*,mongo*,compass*,xvfb-maybe* npm run test -- --disable-start-stop --mocha-bail",
+    "test-noserver-nocompile": "env DEBUG=hadron*,mongo*,compass*,xvfb-maybe* npm run test -- --no-native-modules --no-compile --disable-start-stop --mocha-bail",
     "test-web": "env DEBUG=hadron*,mongo*,compass*,xvfb-maybe* npm run test web",
-    "test-web-noserver": "env DEBUG=hadron*,mongo*,compass*,xvfb-maybe* npm run test web -- --disable-start-stop --bail",
+    "test-web-noserver": "env DEBUG=hadron*,mongo*,compass*,xvfb-maybe* npm run test web -- --disable-start-stop --mocha-bail",
     "coverage-merge": "nyc merge .log/coverage .nyc_output/coverage.json",
     "coverage-report": "npm run coverage-merge && nyc report"
   },

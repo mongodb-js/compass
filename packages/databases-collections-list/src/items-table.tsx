@@ -401,6 +401,7 @@ export const ItemsTable = <T extends Item>({
           ref={tableContainerRef}
           className={virtualScrollingContainerHeight}
           shouldTruncate={false}
+          aria-rowcount={items.length}
         >
           <TableHead isSticky>
             {table.getHeaderGroups().map((headerGroup: HeaderGroup<T>) => (

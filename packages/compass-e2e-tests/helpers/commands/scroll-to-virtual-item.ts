@@ -11,17 +11,19 @@ type ItemConfig = {
   getScrollContainer: (parent: Element | null) => ChildNode | null | undefined;
 };
 
-const gridConfig: ItemConfig = {
-  firstItemSelector: '[data-vlist-item-idx="0"]',
-  firstChildSelector: '[role="row"]:first-child [role="gridcell"]:first-child',
+// TODO
+const tableConfig: ItemConfig = {
+  firstItemSelector: '#lg-table-row-0',
+  firstChildSelector: 'tbody tr:first-child',
   waitUntilElementAppears: async (
     browser: CompassBrowser,
     selector: string
   ) => {
     const rowCount = await browser
-      .$(`${selector} [role="grid"]`)
+      .$(`${selector} table`)
       .getAttribute('aria-rowcount');
-    const length = await browser.$$(`${selector} [role="row"]`).length;
+    const length = await browser.$$(`${selector} tbody tr`).length;
+    console.log({ selector, rowCount, length });
     return !!(rowCount && length);
   },
   // eslint-disable-next-line no-restricted-globals
@@ -51,7 +53,7 @@ export async function scrollToVirtualItem(
   targetSelector: string,
   role: 'grid' | 'tree'
 ): Promise<boolean> {
-  const config = role === 'tree' ? treeConfig : gridConfig;
+  const config = role === 'tree' ? treeConfig : tableConfig;
 
   let found = false;
 

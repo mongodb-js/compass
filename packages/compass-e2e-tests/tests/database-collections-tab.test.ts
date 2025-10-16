@@ -22,9 +22,9 @@ async function waitForCollectionAndBadge(
   collectionName: string,
   badgeSelector: string
 ) {
-  const cardSelector = Selectors.collectionCard(dbName, collectionName);
+  const cardSelector = Selectors.collectionRow(dbName, collectionName);
   await browser.scrollToVirtualItem(
-    Selectors.CollectionsGrid,
+    Selectors.CollectionsTable,
     cardSelector,
     'grid'
   );
@@ -34,7 +34,7 @@ async function waitForCollectionAndBadge(
   await browser.clickVisible(Selectors.DatabaseRefreshCollectionButton);
 
   await browser.scrollToVirtualItem(
-    Selectors.CollectionsGrid,
+    Selectors.CollectionsTable,
     cardSelector,
     'grid'
   );
@@ -71,7 +71,7 @@ describe('Database collections tab', function () {
   });
 
   it('contains a list of collections', async function () {
-    const collectionsGrid = browser.$(Selectors.CollectionsGrid);
+    const collectionsGrid = browser.$(Selectors.CollectionsTable);
     await collectionsGrid.waitForDisplayed();
 
     for (const collectionName of [
@@ -80,12 +80,12 @@ describe('Database collections tab', function () {
       'json-file',
       'numbers',
     ]) {
-      const collectionSelector = Selectors.collectionCard(
+      const collectionSelector = Selectors.collectionRow(
         'test',
         collectionName
       );
       const found = await browser.scrollToVirtualItem(
-        Selectors.CollectionsGrid,
+        Selectors.CollectionsTable,
         collectionSelector,
         'grid'
       );
@@ -95,15 +95,14 @@ describe('Database collections tab', function () {
 
   it('links collection cards to the collection documents tab', async function () {
     await browser.scrollToVirtualItem(
-      Selectors.CollectionsGrid,
-      Selectors.collectionCard('test', 'json-array'),
+      Selectors.CollectionsTable,
+      Selectors.collectionRow('test', 'json-array'),
       'grid'
     );
 
-    await browser.clickVisible(
-      Selectors.collectionCardClickable('test', 'json-array'),
-      { scroll: true }
-    );
+    await browser.clickVisible(Selectors.collectionRow('test', 'json-array'), {
+      scroll: true,
+    });
 
     // lands on the collection screen with all its tabs
     const tabSelectors = [
@@ -137,22 +136,22 @@ describe('Database collections tab', function () {
       'test'
     );
 
-    const selector = Selectors.collectionCard('test', collectionName);
+    const selector = Selectors.collectionRow('test', collectionName);
     await browser.scrollToVirtualItem(
-      Selectors.CollectionsGrid,
+      Selectors.CollectionsTable,
       selector,
       'grid'
     );
 
-    const collectionCard = browser.$(selector);
-    await collectionCard.waitForDisplayed();
+    const collectionRow = browser.$(selector);
+    await collectionRow.waitForDisplayed();
 
-    await collectionCard.scrollIntoView(false);
+    await collectionRow.scrollIntoView(false);
 
     await browser.waitUntil(async () => {
       // open the drop collection modal from the collection card
-      await browser.hover(`${selector} [title="${collectionName}"]`);
-      const el = browser.$(Selectors.CollectionCardDrop);
+      await browser.hover(`${selector}`);
+      const el = browser.$(Selectors.collectionRowDrop('test', collectionName));
       if (await el.isDisplayed()) {
         return true;
       }
@@ -162,12 +161,14 @@ describe('Database collections tab', function () {
       return false;
     });
 
-    await browser.clickVisible(Selectors.CollectionCardDrop);
+    await browser.clickVisible(
+      Selectors.collectionRowDrop('test', collectionName)
+    );
 
     await browser.dropNamespace(collectionName);
 
     // wait for it to be gone
-    await collectionCard.waitForExist({ reverse: true });
+    await collectionRow.waitForExist({ reverse: true });
 
     // the app should still be on the database Collections tab because there are
     // other collections in this database
@@ -345,9 +346,9 @@ describe('Database collections tab', function () {
     );
     await browser.clickVisible(Selectors.DatabaseRefreshCollectionButton);
 
-    const collSelector = Selectors.collectionCard(db, coll);
+    const collSelector = Selectors.collectionRow(db, coll);
     await browser.scrollToVirtualItem(
-      Selectors.CollectionsGrid,
+      Selectors.CollectionsTable,
       collSelector,
       'grid'
     );
