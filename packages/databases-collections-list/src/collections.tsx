@@ -1,10 +1,9 @@
 import React, { useCallback } from 'react';
+import type { BadgeVariant, GlyphName } from '@mongodb-js/compass-components';
 import {
   Badge,
-  type BadgeVariant,
   cx,
   css,
-  type GlyphName,
   Icon,
   spacing,
   type LGColumnDef,
@@ -12,8 +11,9 @@ import {
   palette,
   useDarkMode,
   Placeholder,
+  compactBytes,
+  compactNumber,
 } from '@mongodb-js/compass-components';
-import { compactBytes, compactNumber } from './format';
 import { ItemsTable } from './items-table';
 import type { CollectionProps } from 'mongodb-collection-model';
 import { usePreference } from 'compass-preferences-model/provider';

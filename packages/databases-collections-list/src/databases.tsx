@@ -1,9 +1,9 @@
 /* eslint-disable react/prop-types */
 import React from 'react';
-import { compactBytes, compactNumber } from './format';
 import { ItemsTable } from './items-table';
 import type { DatabaseProps } from 'mongodb-database-model';
 import { usePreference } from 'compass-preferences-model/provider';
+import type { LGColumnDef } from '@mongodb-js/compass-components';
 import {
   css,
   cx,
@@ -15,7 +15,8 @@ import {
   spacing,
   Tooltip,
   useDarkMode,
-  type LGColumnDef,
+  compactBytes,
+  compactNumber,
 } from '@mongodb-js/compass-components';
 
 const databaseNameWrapStyles = css({

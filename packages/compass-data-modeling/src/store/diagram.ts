@@ -189,9 +189,13 @@ export const diagramReducer: Reducer<DiagramState> = (
               collections: action.collections.map((collection) => ({
                 ns: collection.ns,
                 jsonSchema: collection.schema,
-                displayPosition: [collection.position.x, collection.position.y],
+                displayPosition: [
+                  collection.position.x,
+                  collection.position.y,
+                ] as const,
                 indexes: [],
                 shardKey: undefined,
+                isExpanded: false,
               })),
               relationships: action.relations,
             },
@@ -445,6 +449,10 @@ export function selectBackground(): DiagramBackgroundSelectedAction {
   return {
     type: DiagramActionTypes.DIAGRAM_BACKGROUND_SELECTED,
   };
+}
+
+export function toggleCollectionExpanded(namespace: string) {
+  return applyEdit({ type: 'ToggleExpandCollection', ns: namespace });
 }
 
 export function createNewRelationship({
@@ -843,6 +851,7 @@ function getPositionForNewCollection(
     ns: newCollection.ns,
     jsonSchema: newCollection.jsonSchema,
     displayPosition: [0, 0],
+    isExpanded: newCollection.isExpanded,
   });
   const xyposition = getCoordinatesForNewNode(existingNodes, newNode);
   return [xyposition.x, xyposition.y];
@@ -875,12 +884,17 @@ export function addCollection(
     const existingCollections = selectCurrentModelFromState(
       getState()
     ).collections;
-    if (!ns) ns = getNameForNewCollection(existingCollections);
+
+    if (!ns) {
+      ns = getNameForNewCollection(existingCollections);
+    }
+
     if (!position) {
       position = getPositionForNewCollection(existingCollections, {
         ns,
         jsonSchema: {} as MongoDBJSONSchema,
         indexes: [],
+        isExpanded: false,
       });
     }
 
