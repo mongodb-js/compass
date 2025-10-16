@@ -1,19 +1,19 @@
 import type { MongoDBJSONSchema } from 'mongodb-schema';
+import { getDirectChildren, getFieldFromSchema } from './schema-traversal';
 
 export function getNewUnusedFieldName(
   jsonSchema: MongoDBJSONSchema,
   parentFieldPath: string[] = []
 ): string {
-  let parentJSONSchema: MongoDBJSONSchema | undefined = jsonSchema;
-  for (const currentField of parentFieldPath) {
-    if (!currentField) {
-      throw new Error('Invalid field path to get new field name');
-    }
-    parentJSONSchema = parentJSONSchema?.properties?.[currentField];
-  }
+  const parentJSONSchema: MongoDBJSONSchema | undefined = getFieldFromSchema({
+    jsonSchema,
+    fieldPath: parentFieldPath,
+  })?.jsonSchema;
+
+  if (!parentJSONSchema) return 'field-1';
 
   const existingFieldNames = new Set(
-    Object.keys(parentJSONSchema?.properties || {})
+    getDirectChildren(parentJSONSchema).map(([name]) => name)
   );
 
   let i = 1;

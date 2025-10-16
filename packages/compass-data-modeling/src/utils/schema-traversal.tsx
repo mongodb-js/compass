@@ -276,7 +276,6 @@ const applySchemaUpdate = ({
           [newFieldName]: newFieldSchema,
         },
       };
-      console.log('Added field, new schema:', schema, newSchema);
       return newSchema;
     }
     default:
@@ -308,7 +307,6 @@ export const updateSchema = ({
   fieldPath: FieldPath;
   updateParameters: Omit<UpdateOperationParameters, 'fieldName'>;
 }): MongoDBJSONSchema => {
-  console.log('UpdateSchema', fieldPath, updateParameters, jsonSchema);
   const newSchema = {
     ...jsonSchema,
   };
@@ -366,7 +364,6 @@ export const updateSchema = ({
     }
   }
 
-  console.log('Done', updateParameters, fieldPath, jsonSchema, newSchema);
   return newSchema;
 };
 
@@ -470,3 +467,34 @@ export function getSchemaWithNewTypes(
   }
   return { anyOf: newVariants };
 }
+
+/**
+ * Gets the direct children of a MongoDB JSON schema.
+ * @param field - field to get direct children for
+ * @returns direct children of the field (if any)
+ */
+export const getDirectChildren = (
+  schema: MongoDBJSONSchema
+): [string, MongoDBJSONSchema][] => {
+  // children are either direct (properties), from anyOf, items or items.anyOf
+  const children: [string, MongoDBJSONSchema][] = [];
+  if (schema.properties) {
+    children.push(...Object.entries(schema.properties));
+  }
+  if (schema.items) {
+    if (!Array.isArray(schema.items)) {
+      children.push(...getDirectChildren(schema.items));
+    } else {
+      for (const item of schema.items) {
+        children.push(...getDirectChildren(item));
+      }
+    }
+  }
+  if (schema.anyOf) {
+    for (const variant of schema.anyOf) {
+      children.push(...getDirectChildren(variant));
+    }
+  }
+
+  return children;
+};
