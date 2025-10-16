@@ -10,11 +10,13 @@ import {
 import sinon from 'sinon';
 import FakerMappingSelector from './faker-mapping-selector';
 import { UNRECOGNIZED_FAKER_METHOD } from '../../modules/collection-tab';
-import { MONGO_TYPE_TO_FAKER_METHODS } from './constants';
-import { MongoDBFieldTypeValues } from '@mongodb-js/compass-generative-ai';
+import {
+  MONGO_TYPE_TO_FAKER_METHODS,
+  MongoDBFieldTypeValues,
+} from './constants';
 import type { FakerArg } from './script-generation-utils';
 
-const mockActiveJsonType = MongoDBFieldTypeValues.String;
+const mockActiveJsonType = 'String';
 const mockActiveFakerFunction = 'lorem.word';
 const mockActiveFakerArgs: Array<FakerArg> = [];
 const onJsonTypeSelectStub = sinon.stub();
@@ -26,9 +28,6 @@ describe('FakerMappingSelector', () => {
   });
 
   it('should display all MongoDB types in the dropdown', async () => {
-    // Check that all MongoDB types from the constant are present
-    const mongoTypes = Object.keys(MongoDBFieldTypeValues);
-
     render(
       <FakerMappingSelector
         activeJsonType={mockActiveJsonType}
@@ -42,7 +41,7 @@ describe('FakerMappingSelector', () => {
     const jsonTypeSelect = screen.getByLabelText('JSON Type');
     userEvent.click(jsonTypeSelect);
 
-    for (const type of mongoTypes) {
+    for (const type of MongoDBFieldTypeValues) {
       await waitFor(() => {
         expect(screen.getByRole('option', { name: type })).to.exist;
       });
