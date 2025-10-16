@@ -46,7 +46,6 @@ export function applyEdit(edit: Edit, model?: StaticModel): StaticModel {
         jsonSchema: edit.initialSchema,
         displayPosition: edit.position,
         indexes: [],
-        isExpanded: false,
       };
       return {
         ...model,
@@ -242,20 +241,6 @@ export function applyEdit(edit: Edit, model?: StaticModel): StaticModel {
                 newFieldSchema: edit.to,
               },
             }),
-          };
-        }),
-      };
-    }
-    case 'ToggleExpandCollection': {
-      return {
-        ...model,
-        collections: model.collections.map((collection) => {
-          if (collection.ns !== edit.ns) {
-            return collection;
-          }
-          return {
-            ...collection,
-            isExpanded: !collection.isExpanded,
           };
         }),
       };
