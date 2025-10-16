@@ -59,7 +59,6 @@ export type DiagramState =
         current: [Edit, ...Edit[]];
         next: Edit[][];
       };
-      editErrors?: string[];
       selectedItems: SelectedItems | null;
       isNewlyCreated: boolean;
       draftCollection?: string;
@@ -72,9 +71,9 @@ export enum DiagramActionTypes {
   RENAME_DIAGRAM = 'data-modeling/diagram/RENAME_DIAGRAM',
   APPLY_INITIAL_LAYOUT = 'data-modeling/diagram/APPLY_INITIAL_LAYOUT',
   APPLY_EDIT = 'data-modeling/diagram/APPLY_EDIT',
-  APPLY_EDIT_FAILED = 'data-modeling/diagram/APPLY_EDIT_FAILED',
   UNDO_EDIT = 'data-modeling/diagram/UNDO_EDIT',
   REDO_EDIT = 'data-modeling/diagram/REDO_EDIT',
+  REVERT_FAILED_EDIT = 'data-modeling/diagram/REVERT_FAILED_EDIT',
   COLLECTION_SELECTED = 'data-modeling/diagram/COLLECTION_SELECTED',
   RELATIONSHIP_SELECTED = 'data-modeling/diagram/RELATIONSHIP_SELECTED',
   FIELD_SELECTED = 'data-modeling/diagram/FIELD_SELECTED',
@@ -102,13 +101,12 @@ export type ApplyEditAction = {
   edit: Edit;
 };
 
-export type ApplyEditFailedAction = {
-  type: DiagramActionTypes.APPLY_EDIT_FAILED;
-  errors: string[];
-};
-
 export type UndoEditAction = {
   type: DiagramActionTypes.UNDO_EDIT;
+};
+
+export type RevertFailedEditAction = {
+  type: DiagramActionTypes.REVERT_FAILED_EDIT;
 };
 
 export type RedoEditAction = {
@@ -140,7 +138,7 @@ export type DiagramActions =
   | DeleteDiagramAction
   | RenameDiagramAction
   | ApplyEditAction
-  | ApplyEditFailedAction
+  | RevertFailedEditAction
   | UndoEditAction
   | RedoEditAction
   | CollectionSelectedAction
@@ -254,23 +252,23 @@ export const diagramReducer: Reducer<DiagramState> = (
         action.edit.type === 'AddCollection' ? action.edit.ns : undefined,
     };
   }
-  if (isAction(action, DiagramActionTypes.APPLY_EDIT_FAILED)) {
-    return {
-      ...state,
-      editErrors: action.errors,
-    };
-  }
-  if (isAction(action, DiagramActionTypes.UNDO_EDIT)) {
+  if (
+    isAction(action, DiagramActionTypes.UNDO_EDIT) ||
+    isAction(action, DiagramActionTypes.REVERT_FAILED_EDIT)
+  ) {
     const newCurrent = state.edits.prev.pop() || [];
     if (!isNonEmptyArray(newCurrent)) {
       return state;
     }
+    const next = isAction(action, DiagramActionTypes.REVERT_FAILED_EDIT)
+      ? [...state.edits.next]
+      : [...state.edits.next, state.edits.current];
     return {
       ...state,
       edits: {
         prev: [...state.edits.prev],
         current: newCurrent,
-        next: [...state.edits.next, state.edits.current],
+        next,
       },
       updatedAt: new Date().toISOString(),
     };
@@ -594,27 +592,46 @@ export function renameCollection(
   return applyEdit(edit);
 }
 
+function handleError(messages: string[]) {
+  openToast('data-modeling-error', {
+    variant: 'warning',
+    title: 'Error opening diagram',
+    description: messages.join(' '),
+  });
+}
+
 export function applyEdit(
   rawEdit: EditAction
-): DataModelingThunkAction<boolean, ApplyEditAction | ApplyEditFailedAction> {
+): DataModelingThunkAction<boolean, ApplyEditAction | RevertFailedEditAction> {
   return (dispatch, getState, { dataModelStorage }) => {
     const edit = {
       ...rawEdit,
       id: new UUID().toString(),
       timestamp: new Date().toISOString(),
     };
-    const { result: isValid, errors } = validateEdit(edit);
-    if (!isValid) {
-      dispatch({
-        type: DiagramActionTypes.APPLY_EDIT_FAILED,
-        errors,
-      });
+    const { result, errors } = validateEdit(edit);
+    let isValid = result;
+    if (!result) {
+      handleError(errors);
       return isValid;
     }
     dispatch({
       type: DiagramActionTypes.APPLY_EDIT,
       edit,
     });
+
+    // try to build the model with the latest edit
+    try {
+      selectCurrentModelFromState(getState());
+    } catch (e) {
+      handleError([
+        'Something went wrong when applying the changes.',
+        (e as Error).message,
+      ]);
+      dispatch({ type: DiagramActionTypes.REVERT_FAILED_EDIT });
+      isValid = false;
+    }
+
     void dataModelStorage.save(getCurrentDiagramFromState(getState()));
     return isValid;
   };
