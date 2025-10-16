@@ -9,8 +9,13 @@ import {
   usePersistedState,
   EmptyContent,
   Body,
+  AtlasSkillsBanner,
 } from '@mongodb-js/compass-components';
-
+import {
+  useTelemetry,
+  SkillsBannerContextEnum,
+  useAtlasSkillsBanner,
+} from '@mongodb-js/compass-telemetry/provider';
 import IndexesToolbar from '../indexes-toolbar/indexes-toolbar';
 import RegularIndexesTable from '../regular-indexes-table/regular-indexes-table';
 import SearchIndexesTable from '../search-indexes-table/search-indexes-table';
@@ -54,6 +59,9 @@ const linkTitle = 'Search and Vector Search.';
 
 const DISMISSED_SEARCH_INDEXES_BANNER_LOCAL_STORAGE_KEY =
   'mongodb_compass_dismissedSearchIndexesBanner' as const;
+
+const DISMISSED_ATLAS_INDEX_SKILL_BANNER_LOCAL_STORAGE_KEY =
+  'mongodb_compass_dismissedAtlasIndexSkillBanner' as const;
 
 const ViewVersionIncompatibleEmptyState = ({
   serverVersion,
@@ -195,9 +203,19 @@ export function Indexes({
   serverVersion,
   collectionStats,
 }: IndexesProps) {
+  const track = useTelemetry();
   const [atlasBannerDismissed, setDismissed] = usePersistedState(
     DISMISSED_SEARCH_INDEXES_BANNER_LOCAL_STORAGE_KEY,
     false
+  );
+
+  // @experiment Skills in Atlas  | Jira Epic: CLOUDP-346311
+  const [atlasSkillsBanner, setSkillDismissed] = usePersistedState(
+    DISMISSED_ATLAS_INDEX_SKILL_BANNER_LOCAL_STORAGE_KEY,
+    false
+  );
+  const { shouldShowAtlasSkillsBanner } = useAtlasSkillsBanner(
+    SkillsBannerContextEnum.Indexes
   );
 
   const errorMessage =
@@ -286,6 +304,23 @@ export function Indexes({
       >
         <div className={indexesContainersStyles}>
           {getBanner()}
+
+          <AtlasSkillsBanner
+            ctaText="Design and apply indexes that make queries run faster."
+            skillsUrl="https://learn.mongodb.com/courses/indexing-design-fundamentals?team=growth"
+            onCloseSkillsBanner={() => {
+              setSkillDismissed(true);
+              track('Indexes Skill CTA Dismissed', {
+                context: 'Atlas Skills',
+              });
+            }}
+            showBanner={shouldShowAtlasSkillsBanner && !atlasSkillsBanner}
+            onCtaClick={() => {
+              track('Indexes Skill CTA Clicked', {
+                context: 'Atlas Skills',
+              });
+            }}
+          />
           {!isReadonlyView && currentIndexesView === 'regular-indexes' && (
             <RegularIndexesTable />
           )}
