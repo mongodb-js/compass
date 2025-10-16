@@ -341,7 +341,7 @@ function collectionColumns({
       },
     },
     {
-      accessorKey: 'Indexes',
+      accessorKey: 'index_count',
       header: 'Indexes',
       enableSorting: true,
       maxSize: 60,
