@@ -44,7 +44,6 @@ const storageItems: MongoDBDataModelDescription[] = [
               displayPosition: [50, 50],
               shardKey: {},
               jsonSchema: { bsonType: 'object' },
-              isExpanded: true,
             },
             {
               ns: 'db1.collection2',
@@ -52,7 +51,6 @@ const storageItems: MongoDBDataModelDescription[] = [
               displayPosition: [150, 150],
               shardKey: {},
               jsonSchema: { bsonType: 'object' },
-              isExpanded: true,
             },
           ],
           relationships: [],
@@ -79,7 +77,6 @@ const storageItems: MongoDBDataModelDescription[] = [
               displayPosition: [0, 0],
               shardKey: {},
               jsonSchema: { bsonType: 'object' },
-              isExpanded: true,
             },
             {
               ns: 'db1.collection2',
@@ -87,7 +84,6 @@ const storageItems: MongoDBDataModelDescription[] = [
               displayPosition: [0, 0],
               shardKey: {},
               jsonSchema: { bsonType: 'object' },
-              isExpanded: true,
             },
           ],
           relationships: [],
