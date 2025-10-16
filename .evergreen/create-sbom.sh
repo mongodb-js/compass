@@ -14,10 +14,16 @@ trap_handler() {
 }
 trap trap_handler ERR EXIT
 
-scp -v -i "$SIGNING_SERVER_PRIVATE_KEY_CYGPATH" -P "$SIGNING_SERVER_PORT" .sbom/dependencies.json /tmp/artifactory_password "$SIGNING_SERVER_USERNAME"@"$SIGNING_SERVER_HOSTNAME":/tmp/
+# https://jira.mongodb.org/browse/MONGOSH-1856
+cp -v node_modules/@mongosh/node-runtime-worker-thread/dist/purls.txt node-runtime-worker-thread-purls.txt
+scp -v -i "$SIGNING_SERVER_PRIVATE_KEY_CYGPATH" -P "$SIGNING_SERVER_PORT" \
+  .sbom/dependencies.json /tmp/artifactory_password node-runtime-worker-thread-purls.txt \
+  "$SIGNING_SERVER_USERNAME"@"$SIGNING_SERVER_HOSTNAME":/tmp/
 ssh -v -i "$SIGNING_SERVER_PRIVATE_KEY_CYGPATH" -p "$SIGNING_SERVER_PORT" "$SIGNING_SERVER_USERNAME"@"$SIGNING_SERVER_HOSTNAME" \
-  "(cat /tmp/dependencies.json | jq -r '.[] | "'"pkg:npm/" + .name + "@" + .version'"' > /tmp/purls.txt) && \
+  "(cat /tmp/dependencies.json | jq -r '.[] | \"pkg:npm/\" + .name + \"@\" + .version' > /tmp/purls.txt) && \
+  cat /tmp/node-runtime-worker-thread-purls.txt >> /tmp/purls.txt && \
   echo "pkg:generic/mongo_crypt_shared@${CRYPT_SHARED_VERSION}" >> /tmp/purls.txt && \
+  cat /tmp/purls.txt | sort | uniq > /tmp/purls-deduped.txt && mv /tmp/purls-deduped.txt /tmp/purls.txt && \
   (cat /tmp/artifactory_password | docker login artifactory.corp.mongodb.com --username '${ARTIFACTORY_USERNAME}' --password-stdin ; rm -f /tmp/artifactory_password ) && \
   docker pull artifactory.corp.mongodb.com/release-tools-container-registry-public-local/silkbomb:2.0 && \
   docker run --rm -v /tmp:/tmp artifactory.corp.mongodb.com/release-tools-container-registry-public-local/silkbomb:2.0 update \
