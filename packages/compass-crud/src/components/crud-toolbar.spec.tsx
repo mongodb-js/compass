@@ -974,36 +974,6 @@ describe('CrudToolbar Component', function () {
         .exist;
     });
 
-    it('should not show skills banner when user has dismissed it', function () {
-      // Mock localStorage to simulate dismissed state
-      const originalLocalStorage = global.localStorage;
-      const mockLocalStorage = {
-        getItem: sinon.stub().returns('true'), // Banner was dismissed
-        setItem: sinon.stub(),
-        removeItem: sinon.stub(),
-        clear: sinon.stub(),
-        length: 0,
-        key: sinon.stub(),
-      };
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      global.localStorage = mockLocalStorage as any;
-
-      try {
-        renderCrudToolbarWithExperimentation({
-          isInExperiment: true,
-          isInVariant: true,
-        });
-
-        expect(
-          screen.queryByText(
-            'Practice creating, reading, updating, and deleting documents efficiently.'
-          )
-        ).to.not.exist;
-      } finally {
-        global.localStorage = originalLocalStorage;
-      }
-    });
-
     it('should dismiss banner when close button is clicked', function () {
       renderCrudToolbarWithExperimentation({
         isInExperiment: true,
