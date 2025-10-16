@@ -10,13 +10,14 @@ import {
 import sinon from 'sinon';
 import FakerMappingSelector from './faker-mapping-selector';
 import { UNRECOGNIZED_FAKER_METHOD } from '../../modules/collection-tab';
+import type { MongoDBFieldType } from '../../schema-analysis-types';
 import {
   MONGO_TYPE_TO_FAKER_METHODS,
   MongoDBFieldTypeValues,
 } from './constants';
 import type { FakerArg } from './script-generation-utils';
 
-const mockActiveJsonType = 'String';
+const mockActiveJsonType: MongoDBFieldType = 'String';
 const mockActiveFakerFunction = 'lorem.word';
 const mockActiveFakerArgs: Array<FakerArg> = [];
 const onJsonTypeSelectStub = sinon.stub();
