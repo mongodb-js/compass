@@ -59,7 +59,7 @@ const PACKAGE_BUILD_VARIANTS = [
 const TEST_PACKAGED_APP_BUILD_VARIANTS = [
   {
     name: 'test-packaged-app-ubuntu',
-    display_name: 'Ubuntu 20.04',
+    display_name: 'Ubuntu 22.04',
     run_on: 'ubuntu2204-large',
     depends_on: 'package-ubuntu',
   },

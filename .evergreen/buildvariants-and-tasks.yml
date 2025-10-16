@@ -158,7 +158,7 @@ buildvariants:
       - name: test-server-latest-alpha-2
       - name: test-server-latest-alpha-3
   - name: test-packaged-app-ubuntu
-    display_name: Test Packaged App Ubuntu 20.04
+    display_name: Test Packaged App Ubuntu 22.04
     run_on: ubuntu2204-large
     patchable: true
     depends_on:
