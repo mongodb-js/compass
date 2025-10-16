@@ -877,7 +877,6 @@ describe('CrudToolbar Component', function () {
       }
 
       mockUseTrackInSample.returns(commonAsyncStatus);
-
       mockAssignExperiment.returns(Promise.resolve(null));
       mockGetAssignment.returns(Promise.resolve(null));
 
@@ -934,15 +933,12 @@ describe('CrudToolbar Component', function () {
           'Practice creating, reading, updating, and deleting documents efficiently.'
         )
       ).to.be.visible;
-      expect(screen.getByRole('link', { name: /go to skills/i })).to.be.visible;
-      expect(screen.getByLabelText('Award Icon')).to.be.visible;
-
       const goToSkillsButton = screen.getByRole('link', {
         name: /go to skills/i,
       });
-
-      // Verify the button is clickable and has correct attributes
       expect(goToSkillsButton).to.be.visible;
+      expect(screen.getByLabelText('Award Icon')).to.be.visible;
+
       expect(goToSkillsButton.getAttribute('href')).to.equal(
         'https://learn.mongodb.com/courses/crud-operations-in-mongodb?team=growth'
       );
@@ -1015,7 +1011,7 @@ describe('CrudToolbar Component', function () {
       });
 
       const closeButton = screen.getByRole('button', {
-        name: 'Close Atlas Skills CTA',
+        name: 'Dismiss Skills Banner',
       });
 
       expect(closeButton).to.be.visible;
