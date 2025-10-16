@@ -18,7 +18,7 @@ const indexTypeToIndexSelectOption: Record<IndexType, string> = {
   '1': '1 (asc)',
   '-1': '-1 (desc)',
   '2dsphere': '2dsphere',
-  text: 'text',
+  text: 'text (full text search)',
 };
 
 export async function createIndex(

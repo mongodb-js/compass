@@ -19,7 +19,13 @@ import {
   createNewRelationship,
   addCollection,
   selectField,
+  toggleCollectionExpanded,
 } from '../store/diagram';
+import type {
+  EdgeProps,
+  NodeProps,
+  FieldId,
+} from '@mongodb-js/compass-components';
 import {
   Banner,
   CancelLoader,
@@ -32,14 +38,10 @@ import {
   useDrawerState,
   useThrottledProps,
   rafraf,
+  Diagram,
+  useDiagram,
 } from '@mongodb-js/compass-components';
 import { cancelAnalysis, retryAnalysis } from '../store/analysis-process';
-import {
-  Diagram,
-  type NodeProps,
-  type EdgeProps,
-  useDiagram,
-} from '@mongodb-js/diagramming';
 import type { FieldPath, StaticModel } from '../services/data-model-storage';
 import DiagramEditorToolbar from './diagram-editor-toolbar';
 import ExportDiagramModal from './export-diagram-modal';
@@ -149,6 +151,8 @@ const DiagramContent: React.FunctionComponent<{
     foreignNamespace: string;
   }) => void;
   onRelationshipDrawn: () => void;
+  DiagramComponent?: typeof Diagram;
+  onToggleCollectionExpanded: (namespace: string) => void;
 }> = ({
   diagramLabel,
   database,
@@ -166,6 +170,8 @@ const DiagramContent: React.FunctionComponent<{
   onCreateNewRelationship,
   onRelationshipDrawn,
   selectedItems,
+  DiagramComponent = Diagram,
+  onToggleCollectionExpanded,
 }) => {
   const isDarkMode = useDarkMode();
   const diagram = useRef(useDiagram());
@@ -211,6 +217,7 @@ const DiagramContent: React.FunctionComponent<{
             : undefined,
         selected,
         isInRelationshipDrawingMode,
+        isExpanded: coll.isExpanded,
       });
     });
   }, [
@@ -293,9 +300,24 @@ const DiagramContent: React.FunctionComponent<{
   );
 
   const onFieldClick = useCallback(
-    (_evt: React.MouseEvent, { id: fieldPath, nodeId: namespace }) => {
+    (
+      _evt: React.MouseEvent,
+      { id, nodeId: namespace }: { id: FieldId; nodeId: string }
+    ) => {
+      // Diagramming package accepts both string ids and array of string ids for
+      // fields (to represent the field path better). While all current code in
+      // compass always uses array of strings as field id, some older saved
+      // diagrams might not. Also handling this explicitly is sort of needed
+      // anyway to convinve typescript that we're doing the right thing
+      const fieldPath = Array.isArray(id)
+        ? id
+        : typeof id === 'string'
+        ? [id]
+        : undefined;
+      if (!fieldPath) {
+        return;
+      }
       _evt.stopPropagation(); // TODO(COMPASS-9659): should this be handled by the diagramming package?
-      if (!Array.isArray(fieldPath)) return; // TODO(COMPASS-9659): could be avoided with generics in the diagramming package
       onFieldSelect(namespace, fieldPath);
       openDrawer(DATA_MODELING_DRAWER_ID);
     },
@@ -335,6 +357,15 @@ const DiagramContent: React.FunctionComponent<{
     [onAddFieldToObjectField]
   );
 
+  const handleNodeExpandedToggle = useCallback(
+    (evt: React.MouseEvent, nodeId: string) => {
+      evt.preventDefault();
+      evt.stopPropagation();
+      onToggleCollectionExpanded(nodeId);
+    },
+    [onToggleCollectionExpanded]
+  );
+
   const diagramProps = useMemo(
     () => ({
       isDarkMode,
@@ -349,6 +380,7 @@ const DiagramContent: React.FunctionComponent<{
       onFieldClick,
       onNodeDragStop,
       onConnect,
+      onNodeExpandToggle: handleNodeExpandedToggle,
     }),
     [
       isDarkMode,
@@ -363,6 +395,7 @@ const DiagramContent: React.FunctionComponent<{
       onFieldClick,
       onNodeDragStop,
       onConnect,
+      handleNodeExpandedToggle,
     ]
   );
 
@@ -389,7 +422,7 @@ const DiagramContent: React.FunctionComponent<{
             impact your data
           </Banner>
         )}
-        <Diagram
+        <DiagramComponent
           {...throttledDiagramProps}
           // With threshold too low clicking sometimes gets confused with
           // dragging.
@@ -425,6 +458,7 @@ const ConnectedDiagramContent = connect(
     onFieldSelect: selectField,
     onDiagramBackgroundClicked: selectBackground,
     onCreateNewRelationship: createNewRelationship,
+    onToggleCollectionExpanded: toggleCollectionExpanded,
   }
 )(DiagramContent);
 
@@ -434,12 +468,14 @@ const DiagramEditor: React.FunctionComponent<{
   onRetryClick: () => void;
   onCancelClick: () => void;
   onAddCollectionClick: () => void;
+  DiagramComponent?: typeof Diagram;
 }> = ({
   step,
   diagramId,
   onRetryClick,
   onCancelClick,
   onAddCollectionClick,
+  DiagramComponent = Diagram,
 }) => {
   const { openDrawer } = useDrawerActions();
   let content;
@@ -499,6 +535,7 @@ const DiagramEditor: React.FunctionComponent<{
         key={diagramId}
         isInRelationshipDrawingMode={isInRelationshipDrawingMode}
         onRelationshipDrawn={onRelationshipDrawn}
+        DiagramComponent={DiagramComponent}
       ></ConnectedDiagramContent>
     );
   }

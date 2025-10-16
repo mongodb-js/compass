@@ -260,9 +260,7 @@ const openNotifyDeviceAuthModal = (
         <br></br>
         <Body>Enter the following code on that page:</Body>
         <Body as="div">
-          <Code language="none" copyable>
-            {userCode}
-          </Code>
+          <Code language="none">{userCode}</Code>
         </Body>
       </div>
     ),
