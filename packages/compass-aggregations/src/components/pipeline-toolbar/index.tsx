@@ -5,9 +5,17 @@ import {
   spacing,
   palette,
   useDarkMode,
+  usePersistedState,
+  AtlasSkillsBanner,
 } from '@mongodb-js/compass-components';
+
 import { connect } from 'react-redux';
 import { useIsAIFeatureEnabled } from 'compass-preferences-model/provider';
+import {
+  useTelemetry,
+  SkillsBannerContextEnum,
+  useAtlasSkillsBanner,
+} from '@mongodb-js/compass-telemetry/provider';
 
 import PipelineHeader from './pipeline-header';
 import PipelineOptions from './pipeline-options';
@@ -40,6 +48,9 @@ const optionsStyles = css({
   marginTop: spacing[200],
 });
 
+const DISMISSED_ATLAS_AGG_SKILL_BANNER_LOCAL_STORAGE_KEY =
+  'mongodb_compass_dismissedAtlasAggSkillBanner' as const;
+
 export type PipelineToolbarProps = {
   isAIInputVisible?: boolean;
   isAggregationGeneratedFromQuery?: boolean;
@@ -58,7 +69,18 @@ export const PipelineToolbar: React.FunctionComponent<PipelineToolbarProps> = ({
 }) => {
   const darkMode = useDarkMode();
   const isAIFeatureEnabled = useIsAIFeatureEnabled();
+  const track = useTelemetry();
   const [isOptionsVisible, setIsOptionsVisible] = useState(false);
+  // @experiment Skills in Atlas  | Jira Epic: CLOUDP-346311
+  const [dismissed, setDismissed] = usePersistedState(
+    DISMISSED_ATLAS_AGG_SKILL_BANNER_LOCAL_STORAGE_KEY,
+    false
+  );
+
+  const { shouldShowAtlasSkillsBanner } = useAtlasSkillsBanner(
+    SkillsBannerContextEnum.Aggregation
+  );
+
   return (
     <PipelineToolbarContainer>
       <div
@@ -81,6 +103,24 @@ export const PipelineToolbar: React.FunctionComponent<PipelineToolbarProps> = ({
           </div>
         )}
       </div>
+
+      <AtlasSkillsBanner
+        ctaText="Learn how to build aggregation pipelines to process, transform, and analyze data efficiently."
+        skillsUrl="https://learn.mongodb.com/courses/fundamentals-of-data-transformation?team=growth"
+        onCloseSkillsBanner={() => {
+          setDismissed(true);
+          track('Aggregation Skill CTA Dismissed', {
+            context: 'Atlas Skills',
+          });
+        }}
+        showBanner={shouldShowAtlasSkillsBanner && !dismissed}
+        onCtaClick={() => {
+          track('Aggregation Skill CTA Clicked', {
+            context: 'Atlas Skills',
+          });
+        }}
+      />
+
       {isBuilderView ? (
         <div className={settingsRowStyles}>
           <PipelineSettings />
