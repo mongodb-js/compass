@@ -67,12 +67,10 @@ describe('AtlasSkillsBanner Component', function () {
     );
 
     const closeButton = screen.getByRole('button', {
-      name: 'Close Atlas Skills CTA',
+      name: 'Dismiss Skills Banner',
     });
     expect(closeButton).to.be.visible;
-    expect(closeButton.getAttribute('title')).to.equal(
-      'Close Atlas Skills CTA'
-    );
+    expect(closeButton.getAttribute('title')).to.equal('Dismiss Skills Banner');
 
     userEvent.click(closeButton);
     expect(onCloseSkillsBanner).to.have.been.calledOnce;

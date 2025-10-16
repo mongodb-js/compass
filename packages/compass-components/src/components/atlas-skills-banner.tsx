@@ -65,8 +65,8 @@ export const AtlasSkillsBanner: React.FunctionComponent<{
       </Button>
       <IconButton
         className={closeButtonStyles}
-        title="Close Atlas Skills CTA"
-        aria-label="Close Atlas Skills CTA"
+        title="Dismiss Skills Banner"
+        aria-label="Dismiss Skills Banner"
         onClick={onCloseSkillsBanner}
       >
         <Icon glyph="X" />
