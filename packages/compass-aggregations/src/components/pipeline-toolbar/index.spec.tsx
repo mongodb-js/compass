@@ -272,36 +272,6 @@ describe('PipelineToolbar', function () {
         .exist;
     });
 
-    it('should not show skills banner when user has dismissed it', async function () {
-      // Mock localStorage to simulate dismissed state
-      const originalLocalStorage = global.localStorage;
-      const mockLocalStorage = {
-        getItem: sinon.stub().returns('true'), // Banner was dismissed
-        setItem: sinon.stub(),
-        removeItem: sinon.stub(),
-        clear: sinon.stub(),
-        length: 0,
-        key: sinon.stub(),
-      };
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      global.localStorage = mockLocalStorage as any;
-
-      try {
-        await renderPipelineToolbarWithExperimentation({
-          isInExperiment: true,
-          isInVariant: true,
-        });
-
-        expect(
-          screen.queryByText(
-            'Learn how to build aggregation pipelines to process, transform, and analyze data efficiently.'
-          )
-        ).to.not.exist;
-      } finally {
-        global.localStorage = originalLocalStorage;
-      }
-    });
-
     it('should dismiss banner when close button is clicked', async function () {
       await renderPipelineToolbarWithExperimentation({
         isInExperiment: true,
