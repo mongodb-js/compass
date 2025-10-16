@@ -1,6 +1,12 @@
 import React, { useMemo } from 'react';
-import numeral from 'numeral';
-import { css, Tooltip, Badge, spacing } from '@mongodb-js/compass-components';
+import {
+  css,
+  Tooltip,
+  Badge,
+  spacing,
+  compactBytes,
+  compactNumber,
+} from '@mongodb-js/compass-components';
 import type { CrudStore } from './stores/crud-store';
 import { usePreference } from 'compass-preferences-model/provider';
 
@@ -22,12 +28,14 @@ const isNumber = (val: any): val is number => {
   return typeof val === 'number' && !isNaN(val);
 };
 
-const format = (value: any, format = 'a') => {
+const format = (value: any, formatType: 'number' | 'bytes' = 'number') => {
   if (!isNumber(value)) {
     return INVALID;
   }
-  const precision = value <= 1000 ? '0' : '0.0';
-  return numeral(value).format(precision + format);
+  const decimals = value <= 1000 ? 0 : 1;
+  return formatType === 'bytes'
+    ? compactBytes(value, true, decimals)
+    : compactNumber(value);
 };
 
 type CollectionStatsProps = {
@@ -84,9 +92,9 @@ export const CrudTabTitle = ({
       avg_document_size = NaN,
     } = collectionStats ?? {};
     return {
-      documentCount: format(document_count),
-      storageSize: format(storage_size - free_storage_size, 'b'),
-      avgDocumentSize: format(avg_document_size, 'b'),
+      documentCount: format(document_count, 'number'),
+      storageSize: format(storage_size - free_storage_size, 'bytes'),
+      avgDocumentSize: format(avg_document_size, 'bytes'),
     };
   }, [collectionStats]);
   const enableDbAndCollStats = usePreference('enableDbAndCollStats');

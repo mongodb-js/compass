@@ -26,7 +26,7 @@ describe('create-index module', function () {
   describe('#createIndexFormSubmitted', function () {
     beforeEach(function () {
       store.dispatch(updateFieldName(0, 'foo'));
-      store.dispatch(fieldTypeUpdated(0, 'text'));
+      store.dispatch(fieldTypeUpdated(0, 'text (full text search)'));
     });
 
     it('validates collation', function () {

@@ -1,5 +1,6 @@
 import { expect } from 'chai';
 
+import clipboard from 'clipboardy';
 import type { CompassBrowser } from '../helpers/compass-browser';
 import { startTelemetryServer } from '../helpers/telemetry';
 import type { Telemetry } from '../helpers/telemetry';
@@ -16,6 +17,13 @@ import { startMockAtlasServiceServer } from '../helpers/atlas-service';
 import { startMockAssistantServer } from '../helpers/assistant-service';
 import type { MockAssistantResponse } from '../helpers/assistant-service';
 import { isTestingWeb } from '../helpers/test-runner-context';
+
+import { context } from '../helpers/test-runner-context';
+
+type Message = {
+  text: string;
+  role: 'assistant' | 'user';
+};
 
 describe('MongoDB Assistant', function () {
   let compass: Compass;
@@ -68,8 +76,7 @@ describe('MongoDB Assistant', function () {
       const chatInput = browser.$(Selectors.AssistantChatInputTextArea);
       await chatInput.waitForDisplayed();
       await chatInput.setValue(text);
-      const submitButton = browser.$(Selectors.AssistantChatSubmitButton);
-      await submitButton.click();
+      await browser.clickVisible(Selectors.AssistantChatSubmitButton);
 
       switch (expectedResult) {
         case 'success':
@@ -179,13 +186,6 @@ describe('MongoDB Assistant', function () {
   });
 
   describe('drawer visibility', function () {
-    before(function () {
-      skipForWeb(
-        this,
-        'E2E testing for assistant drawer visibility on compass-web is not yet implemented'
-      );
-    });
-
     it('shows the assistant drawer button when AI features are enabled', async function () {
       await setAIFeatures(true);
 
@@ -195,6 +195,12 @@ describe('MongoDB Assistant', function () {
     });
 
     it('does not show the assistant drawer button when AI features are disabled', async function () {
+      // we cannot opt back out on web because it is stored server-side
+      skipForWeb(
+        this,
+        'E2E testing for assistant drawer visibility on compass-web is not yet implemented'
+      );
+
       await setAIFeatures(false);
 
       const drawerButton = browser.$(Selectors.AssistantDrawerButton);
@@ -219,6 +225,7 @@ describe('MongoDB Assistant', function () {
   });
 
   describe('before opt-in', function () {
+    // we cannot opt back out on web because it is stored server-side
     before(async function () {
       skipForWeb(
         this,
@@ -259,9 +266,7 @@ describe('MongoDB Assistant', function () {
         await optInModal.waitForDisplayed();
         expect(await optInModal.isDisplayed()).to.be.true;
 
-        const declineLink = browser.$(Selectors.AIOptInModalDeclineLink);
-        await declineLink.waitForDisplayed();
-        await declineLink.click();
+        await browser.clickVisible(Selectors.AIOptInModalDeclineLink);
 
         await optInModal.waitForDisplayed({ reverse: true });
 
@@ -275,9 +280,7 @@ describe('MongoDB Assistant', function () {
         await optInModal.waitForDisplayed();
         expect(await optInModal.isDisplayed()).to.be.true;
 
-        const declineLink = browser.$(Selectors.AIOptInModalDeclineLink);
-        await declineLink.waitForDisplayed();
-        await declineLink.click();
+        await browser.clickVisible(Selectors.AIOptInModalDeclineLink);
 
         await optInModal.waitForDisplayed({ reverse: true });
 
@@ -288,6 +291,7 @@ describe('MongoDB Assistant', function () {
 
   describe('opting in', function () {
     before(async function () {
+      // we cannot opt back out on web because it is stored server-side
       skipForWeb(
         this,
         'E2E testing for opt-in on compass-web is not yet implemented'
@@ -303,16 +307,14 @@ describe('MongoDB Assistant', function () {
       await optInModal.waitForDisplayed();
       expect(await optInModal.isDisplayed()).to.be.true;
 
-      const acceptButton = browser.$(Selectors.AIOptInModalAcceptButton);
-      await acceptButton.waitForClickable();
-      await acceptButton.click();
+      await browser.clickVisible(Selectors.AIOptInModalAcceptButton);
 
       await optInModal.waitForDisplayed({ reverse: true });
 
       const chatInput = browser.$(Selectors.AssistantChatInputTextArea);
       expect(await chatInput.getValue()).to.equal('');
 
-      expect(await getDisplayedMessages(browser)).to.deep.equal([
+      await waitForMessages(browser, [
         { text: testMessage, role: 'user' },
         { text: testResponse, role: 'assistant' },
       ]);
@@ -335,7 +337,7 @@ describe('MongoDB Assistant', function () {
         await sendMessage(testMessage);
         await sendMessage(testMessage);
 
-        expect(await getDisplayedMessages(browser)).to.deep.equal([
+        await waitForMessages(browser, [
           { text: testMessage, role: 'user' },
           { text: testResponse, role: 'assistant' },
           { text: testMessage, role: 'user' },
@@ -344,7 +346,7 @@ describe('MongoDB Assistant', function () {
 
         await clearChat(browser);
 
-        expect(await getDisplayedMessages(browser)).to.deep.equal([]);
+        await waitForMessages(browser, []);
       });
     });
 
@@ -363,7 +365,7 @@ describe('MongoDB Assistant', function () {
         },
       });
 
-      expect(await getDisplayedMessages(browser)).to.deep.equal([
+      await waitForMessages(browser, [
         { text: testMessage, role: 'user' },
         { text: testResponse, role: 'assistant' },
         { text: 'This is a different message', role: 'user' },
@@ -372,11 +374,17 @@ describe('MongoDB Assistant', function () {
     });
 
     it('can copy assistant message to clipboard', async function () {
-      skipForWeb(
-        this,
-        'Accessing the clipboard text is not available in compass-web so this test is not meaningful'
-      );
+      if (context.disableClipboardUsage) {
+        this.skip();
+      }
+
       await sendMessage(testMessage);
+
+      // sanity check
+      await browser.waitUntil(async () => {
+        const messages = await getDisplayedMessages(browser);
+        return messages[1].text === testResponse;
+      });
 
       const messageElements = await browser
         .$$(Selectors.AssistantChatMessage)
@@ -384,16 +392,19 @@ describe('MongoDB Assistant', function () {
 
       const assistantMessage = messageElements[1];
 
-      const copyButton = assistantMessage.$('[aria-label="Copy message"]');
-      await copyButton.waitForDisplayed();
-      await copyButton.click();
+      await browser.clickVisible(
+        assistantMessage.$('[aria-label="Copy message"]')
+      );
 
       await browser.waitUntil(async () => {
-        return (
-          (await browser.execute(() => {
-            return navigator.clipboard.readText();
-          })) === testResponse
-        );
+        const text = await clipboard.read();
+
+        const isValid = text === testResponse;
+        if (!isValid) {
+          console.log(text);
+        }
+
+        return isValid;
       });
     });
 
@@ -443,15 +454,9 @@ describe('MongoDB Assistant', function () {
         it('opens assistant with explain plan prompt when clicking "Interpret for me"', async function () {
           await useExplainPlanEntryPoint(browser);
 
-          const confirmButton = browser.$('button*=Confirm');
-          await confirmButton.waitForDisplayed();
-          await confirmButton.click();
+          await browser.clickVisible('button*=Confirm');
 
-          await browser.waitUntil(async () => {
-            return (await getDisplayedMessages(browser)).length === 2;
-          });
-
-          expect(await getDisplayedMessages(browser)).deep.equal([
+          await waitForMessages(browser, [
             {
               text: 'Interpret this explain plan output for me.',
               role: 'user',
@@ -472,9 +477,7 @@ describe('MongoDB Assistant', function () {
           );
 
           // Click Cancel button
-          const cancelButton = browser.$('button*=Cancel');
-          await cancelButton.waitForDisplayed();
-          await cancelButton.click();
+          await browser.clickVisible('button*=Cancel');
 
           // Wait a bit to ensure no request is sent
           await browser.pause(300);
@@ -485,6 +488,7 @@ describe('MongoDB Assistant', function () {
           expect(await chatMessages.getText()).to.include(
             'Please confirm your request'
           );
+
           expect(await chatMessages.getText()).to.include('Request cancelled');
 
           // Verify no assistant request was made
@@ -509,8 +513,7 @@ describe('MongoDB Assistant', function () {
             browser.$(Selectors.ConnectionToastErrorDebugButton)
           );
 
-          const messages = await getDisplayedMessages(browser);
-          expect(messages).deep.equal([
+          await waitForMessages(browser, [
             {
               text: 'Diagnose why my Compass connection is failing and help me debug it.',
               role: 'user',
@@ -535,23 +538,24 @@ async function openAssistantDrawer(browser: CompassBrowser) {
 async function clearChat(browser: CompassBrowser) {
   const clearChatButton = browser.$(Selectors.AssistantClearChatButton);
   if (await clearChatButton.isDisplayed()) {
-    await clearChatButton.click();
-    const confirmButton = browser.$(
+    await browser.clickVisible(clearChatButton);
+    await browser.clickVisible(
       Selectors.AssistantConfirmClearChatModalConfirmButton
     );
-    await confirmButton.waitForClickable();
-    await confirmButton.click();
   }
 }
 
-async function getDisplayedMessages(browser: CompassBrowser) {
+async function getDisplayedMessages(
+  browser: CompassBrowser
+): Promise<Message[]> {
   await browser.$(Selectors.AssistantChatMessages).waitForDisplayed();
 
   const messageElements = await browser
     .$$(Selectors.AssistantChatMessage)
     .getElements();
 
-  const displayedMessages = [];
+  const displayedMessages: Message[] = [];
+
   for (const messageElement of messageElements) {
     const textElements = await messageElement.$$('p').getElements();
     const isAssistantMessage =
@@ -570,6 +574,32 @@ async function getDisplayedMessages(browser: CompassBrowser) {
   }
 
   return displayedMessages;
+}
+
+async function waitForMessages(
+  browser: CompassBrowser,
+  expectedMessages: Message[]
+) {
+  let lastDisplayedMessages: Message[] = [];
+
+  try {
+    await browser.waitUntil(async () => {
+      // the text streams so the message may not be complete immediately
+      try {
+        lastDisplayedMessages = await getDisplayedMessages(browser);
+        expect(lastDisplayedMessages).deep.equal(expectedMessages);
+      } catch {
+        return false;
+      }
+      return true;
+    });
+  } catch {
+    console.log(
+      'Last displayed messages:',
+      JSON.stringify(lastDisplayedMessages)
+    );
+    throw new Error('Expected messages not found');
+  }
 }
 
 async function useExplainPlanEntryPoint(browser: CompassBrowser) {
