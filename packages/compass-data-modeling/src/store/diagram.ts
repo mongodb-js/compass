@@ -259,7 +259,7 @@ export const diagramReducer: Reducer<DiagramState> = (
       return state;
     }
     const next = isAction(action, DiagramActionTypes.REVERT_FAILED_EDIT)
-      ? [...state.edits.next]
+      ? state.edits.next
       : [...state.edits.next, state.edits.current];
     return {
       ...state,
