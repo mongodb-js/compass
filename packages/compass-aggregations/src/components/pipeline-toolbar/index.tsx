@@ -5,9 +5,17 @@ import {
   spacing,
   palette,
   useDarkMode,
+  usePersistedState,
+  AtlasSkillsBanner,
 } from '@mongodb-js/compass-components';
+
 import { connect } from 'react-redux';
 import { useIsAIFeatureEnabled } from 'compass-preferences-model/provider';
+import {
+  useTelemetry,
+  SkillsBannerContextEnum,
+  useAtlasSkillsBanner,
+} from '@mongodb-js/compass-telemetry/provider';
 
 import PipelineHeader from './pipeline-header';
 import PipelineOptions from './pipeline-options';
@@ -58,7 +66,18 @@ export const PipelineToolbar: React.FunctionComponent<PipelineToolbarProps> = ({
 }) => {
   const darkMode = useDarkMode();
   const isAIFeatureEnabled = useIsAIFeatureEnabled();
+  const track = useTelemetry();
   const [isOptionsVisible, setIsOptionsVisible] = useState(false);
+  // @experiment Skills in Atlas  | Jira Epic: CLOUDP-346311
+  const [dismissed, setDismissed] = usePersistedState(
+    'mongodb_compass_dismissedAtlasAggSkillBanner',
+    false
+  );
+
+  const { shouldShowAtlasSkillsBanner } = useAtlasSkillsBanner(
+    SkillsBannerContextEnum.Aggregation
+  );
+
   return (
     <PipelineToolbarContainer>
       <div
@@ -81,6 +100,24 @@ export const PipelineToolbar: React.FunctionComponent<PipelineToolbarProps> = ({
           </div>
         )}
       </div>
+
+      <AtlasSkillsBanner
+        ctaText="Learn how to build aggregation pipelines to process, transform, and analyze data efficiently."
+        skillsUrl="https://learn.mongodb.com/courses/fundamentals-of-data-transformation?team=growth"
+        onCloseSkillsBanner={() => {
+          setDismissed(true);
+          track('Atlas Skills CTA Dismissed', {
+            context: 'Aggregation Tab',
+          });
+        }}
+        showBanner={shouldShowAtlasSkillsBanner && !dismissed}
+        onCtaClick={() => {
+          track('Atlas Skills CTA Clicked', {
+            context: 'Aggregation Tab',
+          });
+        }}
+      />
+
       {isBuilderView ? (
         <div className={settingsRowStyles}>
           <PipelineSettings />
