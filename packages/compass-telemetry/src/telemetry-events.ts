@@ -2660,12 +2660,12 @@ type AtlasLinkClickedEvent = CommonEvent<{
  * @category Other
  */
 type AtlasSkillsAggregationCtaClickedEvent = CommonEvent<{
-  name: 'Aggregation Skill CTA Clicked';
+  name: 'Atlas Skills CTA Clicked';
   payload: {
     /**
      * The context/screen from which the Atlas Skills CTA was clicked.
      */
-    context: 'Atlas Skills';
+    context: 'Aggregation Tab';
   };
 }>;
 
@@ -2675,12 +2675,12 @@ type AtlasSkillsAggregationCtaClickedEvent = CommonEvent<{
  * @category Other
  */
 type AtlasSkillsDocumentsCtaClickedEvent = CommonEvent<{
-  name: 'Documents Skill CTA Clicked';
+  name: 'Atlas Skills CTA Clicked';
   payload: {
     /**
      * The context/screen from which the Atlas Skills CTA was clicked.
      */
-    context: 'Atlas Skills';
+    context: 'Documents Tab';
   };
 }>;
 
@@ -2690,12 +2690,12 @@ type AtlasSkillsDocumentsCtaClickedEvent = CommonEvent<{
  * @category Other
  */
 type AtlasSkillsIndexesCtaClickedEvent = CommonEvent<{
-  name: 'Indexes Skill CTA Clicked';
+  name: 'Atlas Skills CTA Clicked';
   payload: {
     /**
      * The context/screen from which the Atlas Skills CTA was clicked.
      */
-    context: 'Atlas Skills';
+    context: 'Indexes Tab';
   };
 }>;
 
@@ -2705,12 +2705,12 @@ type AtlasSkillsIndexesCtaClickedEvent = CommonEvent<{
  * @category Other
  */
 type AtlasSkillsSchemaCtaClickedEvent = CommonEvent<{
-  name: 'Schema Skill CTA Clicked';
+  name: 'Atlas Skills CTA Clicked';
   payload: {
     /**
      * The context/screen from which the Atlas Skills CTA was clicked.
      */
-    context: 'Atlas Skills';
+    context: 'Schema Tab';
   };
 }>;
 
@@ -2720,12 +2720,12 @@ type AtlasSkillsSchemaCtaClickedEvent = CommonEvent<{
  * @category Other
  */
 type AtlasSkillsAggregationCtaDismissedEvent = CommonEvent<{
-  name: 'Aggregation Skill CTA Dismissed';
+  name: 'Atlas Skills CTA Dismissed';
   payload: {
     /**
      * The context/screen from which the Atlas Skills CTA was dismissed.
      */
-    context: 'Atlas Skills';
+    context: 'Aggregation Tab';
   };
 }>;
 
@@ -2735,12 +2735,12 @@ type AtlasSkillsAggregationCtaDismissedEvent = CommonEvent<{
  * @category Other
  */
 type AtlasSkillsDocumentsCtaDismissedEvent = CommonEvent<{
-  name: 'Documents Skill CTA Dismissed';
+  name: 'Atlas Skills CTA Dismissed';
   payload: {
     /**
      * The context/screen from which the Atlas Skills CTA was dismissed.
      */
-    context: 'Atlas Skills';
+    context: 'Documents Tab';
   };
 }>;
 
@@ -2750,12 +2750,12 @@ type AtlasSkillsDocumentsCtaDismissedEvent = CommonEvent<{
  * @category Other
  */
 type AtlasSkillsIndexesCtaDismissedEvent = CommonEvent<{
-  name: 'Indexes Skill CTA Dismissed';
+  name: 'Atlas Skills CTA Dismissed';
   payload: {
     /**
      * The context/screen from which the Atlas Skills CTA was dismissed.
      */
-    context: 'Atlas Skills';
+    context: 'Indexes Tab';
   };
 }>;
 
@@ -2765,12 +2765,12 @@ type AtlasSkillsIndexesCtaDismissedEvent = CommonEvent<{
  * @category Other
  */
 type AtlasSkillsSchemaCtaDismissedEvent = CommonEvent<{
-  name: 'Schema Skill CTA Dismissed';
+  name: 'Atlas Skills CTA Dismissed';
   payload: {
     /**
      * The context/screen from which the Atlas Skills CTA was dismissed.
      */
-    context: 'Atlas Skills';
+    context: 'Schema Tab';
   };
 }>;
 

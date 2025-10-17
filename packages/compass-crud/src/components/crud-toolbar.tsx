@@ -331,14 +331,14 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
         skillsUrl="https://learn.mongodb.com/courses/crud-operations-in-mongodb?team=growth"
         onCloseSkillsBanner={() => {
           setDismissed(true);
-          track('Documents Skill CTA Dismissed', {
-            context: 'Atlas Skills',
+          track('Atlas Skills CTA Dismissed', {
+            context: 'Documents Tab',
           });
         }}
         showBanner={shouldShowAtlasSkillsBanner && !dismissed}
         onCtaClick={() => {
-          track('Documents Skill CTA Clicked', {
-            context: 'Atlas Skills',
+          track('Atlas Skills CTA Clicked', {
+            context: 'Documents Tab',
           });
         }}
       />
