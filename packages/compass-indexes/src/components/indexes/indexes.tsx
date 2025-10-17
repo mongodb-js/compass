@@ -60,9 +60,6 @@ const linkTitle = 'Search and Vector Search.';
 const DISMISSED_SEARCH_INDEXES_BANNER_LOCAL_STORAGE_KEY =
   'mongodb_compass_dismissedSearchIndexesBanner' as const;
 
-const DISMISSED_ATLAS_INDEX_SKILL_BANNER_LOCAL_STORAGE_KEY =
-  'mongodb_compass_dismissedAtlasIndexSkillBanner' as const;
-
 const ViewVersionIncompatibleEmptyState = ({
   serverVersion,
   enableAtlasSearchIndexes,
@@ -211,7 +208,7 @@ export function Indexes({
 
   // @experiment Skills in Atlas  | Jira Epic: CLOUDP-346311
   const [atlasSkillsBanner, setSkillDismissed] = usePersistedState(
-    DISMISSED_ATLAS_INDEX_SKILL_BANNER_LOCAL_STORAGE_KEY,
+    'mongodb_compass_dismissedAtlasIndexSkillBanner',
     false
   );
   const { shouldShowAtlasSkillsBanner } = useAtlasSkillsBanner(
@@ -310,14 +307,14 @@ export function Indexes({
             skillsUrl="https://learn.mongodb.com/courses/indexing-design-fundamentals?team=growth"
             onCloseSkillsBanner={() => {
               setSkillDismissed(true);
-              track('Indexes Skill CTA Dismissed', {
-                context: 'Atlas Skills',
+              track('Atlas Skills CTA Dismissed', {
+                context: 'Indexes Tab',
               });
             }}
             showBanner={shouldShowAtlasSkillsBanner && !atlasSkillsBanner}
             onCtaClick={() => {
-              track('Indexes Skill CTA Clicked', {
-                context: 'Atlas Skills',
+              track('Atlas Skills CTA Clicked', {
+                context: 'Indexes Tab',
               });
             }}
           />

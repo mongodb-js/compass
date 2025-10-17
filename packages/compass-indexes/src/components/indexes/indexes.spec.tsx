@@ -566,7 +566,7 @@ describe('Indexes Component', function () {
       });
 
       const closeButton = screen.getByRole('button', {
-        name: 'Close Atlas Skills CTA',
+        name: 'Dismiss Skills Banner',
       });
 
       expect(closeButton).to.be.visible;
