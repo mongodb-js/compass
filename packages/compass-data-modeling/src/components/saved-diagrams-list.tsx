@@ -181,6 +181,18 @@ const DiagramListEmptyContent: React.FunctionComponent<{
   );
 };
 
+const getDatabase = (
+  modelDescription: MongoDBDataModelDescription
+): string[] => {
+  try {
+    return selectCurrentModel(modelDescription.edits).collections.map(
+      ({ ns }) => toNS(ns).database
+    );
+  } catch {
+    return [];
+  }
+};
+
 export const SavedDiagramsList: React.FunctionComponent<{
   onCreateDiagramClick: () => void;
   onOpenDiagramClick: (diagram: MongoDBDataModelDescription) => void;
@@ -201,11 +213,7 @@ export const SavedDiagramsList: React.FunctionComponent<{
     })[]
   >(() => {
     return items.map((item) => {
-      const databases = new Set(
-        selectCurrentModel(item.edits).collections.map(
-          ({ ns }) => toNS(ns).database
-        )
-      );
+      const databases = new Set(getDatabase(item));
       return {
         ...item,
         databases: Array.from(databases).join(', '),
