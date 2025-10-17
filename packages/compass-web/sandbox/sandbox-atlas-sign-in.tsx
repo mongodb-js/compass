@@ -13,6 +13,7 @@ console.info(
 type SignInStatus = 'checking' | 'signed-in' | 'signed-out';
 
 type ProjectParams = {
+  orgId: string;
   projectId: string;
   csrfToken: string;
   csrfTime: string;
@@ -127,10 +128,12 @@ export function useAtlasProxySignIn(): AtlasLoginReturnValue {
             currentOrganization: { genAIFeaturesEnabled },
             featureFlags: { groupEnabledFeatureFlags },
             userRoles,
+            currentOrganization,
           } = params;
           const overrideGenAIFeatures =
             process.env.COMPASS_OVERRIDE_ENABLE_AI_FEATURES === 'true';
           setProjectParams({
+            orgId: currentOrganization.id,
             projectId,
             csrfToken,
             csrfTime,

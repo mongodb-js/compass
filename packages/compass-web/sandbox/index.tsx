@@ -38,6 +38,7 @@ const App = () => {
   const [currentTab, updateCurrentTab] = useWorkspaceTabRouter();
   const { status, projectParams } = useAtlasProxySignIn();
   const {
+    orgId,
     projectId,
     csrfToken,
     csrfTime,
@@ -99,7 +100,7 @@ const App = () => {
       <SandboxPreferencesUpdateProvider>
         <Body as="div" className={sandboxContainerStyles}>
           <CompassWeb
-            orgId={''}
+            orgId={orgId ?? ''}
             projectId={projectId ?? ''}
             onActiveWorkspaceTabChange={updateCurrentTab}
             initialWorkspace={currentTab ?? undefined}
