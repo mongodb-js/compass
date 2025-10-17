@@ -76,13 +76,12 @@ function databaseColumns({
 }): LGColumnDef<DatabaseProps>[] {
   return [
     {
-      accessorKey: 'name',
       header: 'Database name',
       enableSorting: true,
       minSize: 300,
       cell: (info) => {
         const database = info.row.original;
-        const name = info.getValue() as string;
+        const name = database.name;
         return (
           <span className={databaseNameWrapStyles}>
             <span
@@ -117,7 +116,6 @@ function databaseColumns({
       },
     },
     {
-      accessorKey: 'storage_size',
       header: 'Storage size',
       enableSorting: true,
       maxSize: 80,
@@ -128,15 +126,13 @@ function databaseColumns({
         }
 
         // TODO: shouldn't this just have the right type rather than unknown?
-        const size = info.getValue() as number | undefined;
-        return enableDbAndCollStats && size !== undefined
-          ? compactBytes(size)
+        return enableDbAndCollStats && database.storage_size !== undefined
+          ? compactBytes(database.storage_size)
           : '-';
       },
     },
     /*
     {
-      accessorKey: 'data_size',
       header: 'Data size',
       enableSorting: true,
       maxSize: 80,
@@ -146,15 +142,13 @@ function databaseColumns({
           return <Placeholder maxChar={10}></Placeholder>;
         }
 
-        const size = info.getValue() as number | undefined;
-        return enableDbAndCollStats && size !== undefined
-          ? compactBytes(size)
+        return enableDbAndCollStats && database.data_size !== undefined
+          ? compactBytes(database.data_size)
           : '-';
       },
     },
     */
     {
-      accessorKey: 'collectionsLength',
       header: 'Collections',
       enableSorting: true,
       maxSize: 80,
@@ -165,7 +159,7 @@ function databaseColumns({
         }
 
         const text = enableDbAndCollStats
-          ? compactNumber(info.getValue() as number)
+          ? compactNumber(database.collectionsLength)
           : '-';
 
         return (
@@ -183,7 +177,6 @@ function databaseColumns({
       },
     },
     {
-      accessorKey: 'index_count',
       header: 'Indexes',
       enableSorting: true,
       maxSize: 80,
@@ -193,9 +186,8 @@ function databaseColumns({
           return <Placeholder maxChar={10}></Placeholder>;
         }
 
-        const index_count = info.getValue() as number | undefined;
-        return enableDbAndCollStats && index_count !== undefined
-          ? compactNumber(index_count)
+        return enableDbAndCollStats && database.index_count !== undefined
+          ? compactNumber(database.index_count)
           : '-';
       },
     },

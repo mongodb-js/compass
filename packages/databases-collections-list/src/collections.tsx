@@ -201,13 +201,12 @@ function collectionColumns({
 }): LGColumnDef<CollectionProps>[] {
   return [
     {
-      accessorKey: 'name',
       header: 'Collection name',
       enableSorting: true,
       minSize: 250,
       cell: (info) => {
         const collection = info.row.original;
-        const name = info.getValue() as string;
+        const name = collection.name;
 
         const badges = collection.properties
           .filter((prop) => prop.id !== 'read-only')
@@ -255,7 +254,6 @@ function collectionColumns({
       },
     },
     {
-      accessorKey: 'storage_size',
       header: 'Storage size',
       enableSorting: true,
       maxSize: 80,
@@ -269,15 +267,13 @@ function collectionColumns({
         if (type === 'view') {
           return '-';
         }
-        const size = info.getValue() as number | undefined;
-        return enableDbAndCollStats && size !== undefined
-          ? compactBytes(size)
+        return enableDbAndCollStats && collection.storage_size !== undefined
+          ? compactBytes(collection.storage_size)
           : '-';
       },
     },
     /*
     {
-      accessorKey: 'free_storage_size',
       header: 'Free storage size',
       enableSorting: true,
       maxSize: 100,
@@ -291,15 +287,13 @@ function collectionColumns({
         if (type === 'view') {
           return '-';
         }
-        const size = info.getValue() as number | undefined;
-        return enableDbAndCollStats && size !== undefined
-          ? compactBytes(size)
+        return enableDbAndCollStats && collection.free_storage_size !== undefined
+          ? compactBytes(collection.free_storage_size)
           : '-';
       },
     },
     */
     {
-      accessorKey: 'document_count',
       header: 'Documents',
       enableSorting: true,
       maxSize: 80,
@@ -314,12 +308,12 @@ function collectionColumns({
           return '-';
         }
 
-        const count = info.getValue() as number | undefined;
-        return count !== undefined ? compactNumber(count) : '-';
+        return collection.document_count !== undefined
+          ? compactNumber(collection.document_count)
+          : '-';
       },
     },
     {
-      accessorKey: 'avg_document_size',
       header: 'Avg. document size',
       enableSorting: true,
       maxSize: 110,
@@ -334,14 +328,13 @@ function collectionColumns({
           return '-';
         }
 
-        const size = info.getValue() as number | undefined;
-        return enableDbAndCollStats && size !== undefined
-          ? compactBytes(size)
+        return enableDbAndCollStats &&
+          collection.avg_document_size !== undefined
+          ? compactBytes(collection.avg_document_size)
           : '-';
       },
     },
     {
-      accessorKey: 'index_count',
       header: 'Indexes',
       enableSorting: true,
       maxSize: 60,
@@ -356,14 +349,12 @@ function collectionColumns({
           return '-';
         }
 
-        const index_count = info.getValue() as number | undefined;
-        return enableDbAndCollStats && index_count !== undefined
-          ? compactNumber(index_count)
+        return enableDbAndCollStats && collection.index_count !== undefined
+          ? compactNumber(collection.index_count)
           : '-';
       },
     },
     {
-      accessorKey: 'index_size',
       header: 'Total index size',
       enableSorting: true,
       maxSize: 100,
@@ -373,12 +364,11 @@ function collectionColumns({
           return <Placeholder maxChar={10}></Placeholder>;
         }
 
-        const type = collection.type as string;
-        if (type === 'view' || type === 'timeseries') {
+        if (collection.type === 'view' || collection.type === 'timeseries') {
           return '-';
         }
 
-        const size = info.getValue() as number | undefined;
+        const size = collection.index_size;
         return enableDbAndCollStats && size !== undefined
           ? compactBytes(size)
           : '-';
