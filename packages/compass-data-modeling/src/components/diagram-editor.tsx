@@ -180,16 +180,6 @@ const DiagramContent: React.FunctionComponent<{
     }
   }, []);
 
-  const edges = useMemo<EdgeProps[]>(() => {
-    return (model?.relationships ?? []).map((relationship) => {
-      const selected =
-        !!selectedItems &&
-        selectedItems.type === 'relationship' &&
-        selectedItems.id === relationship.id;
-      return relationshipToDiagramEdge(relationship, selected);
-    });
-  }, [model?.relationships, selectedItems]);
-
   const nodes = useMemo<NodeProps[]>(() => {
     const highlightedFields = getHighlightedFields(
       selectedItems,
@@ -217,6 +207,16 @@ const DiagramContent: React.FunctionComponent<{
     selectedItems,
     isInRelationshipDrawingMode,
   ]);
+
+  const edges = useMemo<EdgeProps[]>(() => {
+    return (model?.relationships ?? []).map((relationship) => {
+      const selected =
+        !!selectedItems &&
+        selectedItems.type === 'relationship' &&
+        selectedItems.id === relationship.id;
+      return relationshipToDiagramEdge(relationship, selected, nodes);
+    });
+  }, [model?.relationships, selectedItems, nodes]);
 
   // Fit to view on initial mount
   useEffect(() => {
