@@ -726,8 +726,8 @@ function transformFakerSchemaToObject(
     const { fieldPath, ...fieldMapping } = field;
     result[fieldPath] = {
       ...fieldMapping,
-      // Note: fallback to String would only occur if LLM response renames the input field path
-      mongoType: inputSchema[fieldPath]?.type ?? 'String',
+      // Note: `validateFakerSchema` already handles fields that are not present in `inputSchema`
+      mongoType: inputSchema[fieldPath]?.type,
     };
   }
 
