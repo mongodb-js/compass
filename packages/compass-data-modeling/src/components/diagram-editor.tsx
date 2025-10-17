@@ -128,7 +128,6 @@ const DiagramContent: React.FunctionComponent<{
   isNewlyCreatedDiagram?: boolean;
   model: StaticModel | null;
   isInRelationshipDrawingMode: boolean;
-  editErrors?: string[];
   newCollection?: string;
   onAddFieldToObjectField: (ns: string, parentPath: string[]) => void;
   onAddNewFieldToCollection: (ns: string) => void;
@@ -526,7 +525,6 @@ export default connect(
     const { diagram, step } = state;
     return {
       step: step,
-      editErrors: diagram?.editErrors,
       diagramId: diagram?.id,
     };
   },

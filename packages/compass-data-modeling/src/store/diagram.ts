@@ -18,7 +18,7 @@ import { memoize } from 'lodash';
 import type { DataModelingState, DataModelingThunkAction } from './reducer';
 import {
   getCoordinatesForNewNode,
-  openToast,
+  type openToast as _openToast,
   showConfirmation,
   showPrompt,
 } from '@mongodb-js/compass-components';
@@ -225,7 +225,6 @@ export const diagramReducer: Reducer<DiagramState> = (
         state.draftCollection,
         action.edit.toNS
       ),
-      editErrors: undefined,
       updatedAt: new Date().toISOString(),
       selectedItems: {
         type: 'collection',
@@ -242,7 +241,6 @@ export const diagramReducer: Reducer<DiagramState> = (
         current: [...state.edits.current, action.edit] as [Edit, ...Edit[]],
         next: [],
       },
-      editErrors: undefined,
       updatedAt: new Date().toISOString(),
       selectedItems: updateSelectedItemsFromAppliedEdit(
         state.selectedItems,
@@ -501,7 +499,7 @@ export function redoEdit(): DataModelingThunkAction<void, RedoEditAction> {
 export function onAddNestedField(
   ns: string,
   parentFieldPath: string[]
-): DataModelingThunkAction<void, ApplyEditAction | ApplyEditFailedAction> {
+): DataModelingThunkAction<void, ApplyEditAction | RevertFailedEditAction> {
   return (dispatch, getState) => {
     const modelState = selectCurrentModelFromState(getState());
 
@@ -532,7 +530,7 @@ export function onAddNestedField(
 
 export function addNewFieldToCollection(
   ns: string
-): DataModelingThunkAction<void, ApplyEditAction | ApplyEditFailedAction> {
+): DataModelingThunkAction<void, ApplyEditAction | RevertFailedEditAction> {
   return (dispatch, getState) => {
     const modelState = selectCurrentModelFromState(getState());
 
@@ -561,7 +559,7 @@ export function addNewFieldToCollection(
 export function moveCollection(
   ns: string,
   newPosition: [number, number]
-): DataModelingThunkAction<void, ApplyEditAction | ApplyEditFailedAction> {
+): DataModelingThunkAction<void, ApplyEditAction | RevertFailedEditAction> {
   const edit: Omit<
     Extract<Edit, { type: 'MoveCollection' }>,
     'id' | 'timestamp'
@@ -578,7 +576,7 @@ export function renameCollection(
   toNS: string
 ): DataModelingThunkAction<
   void,
-  ApplyEditAction | ApplyEditFailedAction | CollectionSelectedAction
+  ApplyEditAction | RevertFailedEditAction | CollectionSelectedAction
 > {
   const edit: Omit<
     Extract<Edit, { type: 'RenameCollection' }>,
@@ -592,7 +590,7 @@ export function renameCollection(
   return applyEdit(edit);
 }
 
-function handleError(messages: string[]) {
+function handleError(openToast: typeof _openToast, messages: string[]) {
   openToast('data-modeling-error', {
     variant: 'warning',
     title: 'Error opening diagram',
@@ -600,10 +598,13 @@ function handleError(messages: string[]) {
   });
 }
 
+/**
+ * Not intended to be called directly, only exported for testing.
+ */
 export function applyEdit(
   rawEdit: EditAction
 ): DataModelingThunkAction<boolean, ApplyEditAction | RevertFailedEditAction> {
-  return (dispatch, getState, { dataModelStorage }) => {
+  return (dispatch, getState, { dataModelStorage, openToast }) => {
     const edit = {
       ...rawEdit,
       id: new UUID().toString(),
@@ -612,7 +613,7 @@ export function applyEdit(
     const { result, errors } = validateEdit(edit);
     let isValid = result;
     if (!result) {
-      handleError(errors);
+      handleError(openToast, errors);
       return isValid;
     }
     dispatch({
@@ -624,7 +625,7 @@ export function applyEdit(
     try {
       selectCurrentModelFromState(getState());
     } catch (e) {
-      handleError([
+      handleError(openToast, [
         'Something went wrong when applying the changes.',
         (e as Error).message,
       ]);
@@ -689,7 +690,7 @@ export function renameDiagram(
 export function openDiagramFromFile(
   file: File
 ): DataModelingThunkAction<Promise<void>, OpenDiagramAction> {
-  return async (dispatch, getState, { dataModelStorage, track }) => {
+  return async (dispatch, getState, { dataModelStorage, track, openToast }) => {
     try {
       const { name, edits } = await getDiagramContentsFromFile(file);
 
@@ -720,7 +721,7 @@ export function openDiagramFromFile(
 
 export function updateRelationship(
   relationship: Relationship
-): DataModelingThunkAction<boolean, ApplyEditAction | ApplyEditFailedAction> {
+): DataModelingThunkAction<boolean, ApplyEditAction | RevertFailedEditAction> {
   return applyEdit({
     type: 'UpdateRelationship',
     relationship,
@@ -748,7 +749,7 @@ export function deleteRelationship(
 
 export function deleteCollection(
   ns: string
-): DataModelingThunkAction<void, ApplyEditAction | ApplyEditFailedAction> {
+): DataModelingThunkAction<void, ApplyEditAction | RevertFailedEditAction> {
   return (dispatch, getState, { track }) => {
     track('Data Modeling Collection Removed', {
       source: 'side_panel',
@@ -761,14 +762,14 @@ export function deleteCollection(
 export function updateCollectionNote(
   ns: string,
   note: string
-): DataModelingThunkAction<void, ApplyEditAction | ApplyEditFailedAction> {
+): DataModelingThunkAction<void, ApplyEditAction | RevertFailedEditAction> {
   return applyEdit({ type: 'UpdateCollectionNote', ns, note });
 }
 
 export function removeField(
   ns: string,
   field: FieldPath
-): DataModelingThunkAction<void, ApplyEditAction | ApplyEditFailedAction> {
+): DataModelingThunkAction<void, ApplyEditAction | RevertFailedEditAction> {
   return (dispatch, getState, { track }) => {
     track('Data Modeling Field Removed', {
       source: 'side_panel',
@@ -782,7 +783,7 @@ export function renameField(
   ns: string,
   field: FieldPath,
   newName: string
-): DataModelingThunkAction<void, ApplyEditAction | ApplyEditFailedAction> {
+): DataModelingThunkAction<void, ApplyEditAction | RevertFailedEditAction> {
   return (dispatch, getState, { track }) => {
     track('Data Modeling Field Renamed', {
       source: 'side_panel',
@@ -818,7 +819,7 @@ export function changeFieldType(
   ns: string,
   fieldPath: FieldPath,
   newTypes: string[]
-): DataModelingThunkAction<void, ApplyEditAction | ApplyEditFailedAction> {
+): DataModelingThunkAction<void, ApplyEditAction | RevertFailedEditAction> {
   return (dispatch, getState, { track }) => {
     const collectionSchema = selectCurrentModelFromState(
       getState()
@@ -886,7 +887,7 @@ export function addCollection(
   position?: [number, number]
 ): DataModelingThunkAction<
   void,
-  ApplyEditAction | ApplyEditFailedAction | CollectionSelectedAction
+  ApplyEditAction | RevertFailedEditAction | CollectionSelectedAction
 > {
   return (dispatch, getState, { track }) => {
     const existingCollections = selectCurrentModelFromState(
