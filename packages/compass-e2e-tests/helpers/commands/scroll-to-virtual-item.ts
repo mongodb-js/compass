@@ -5,7 +5,7 @@ const debug = Debug('compass-e2e-tests:scroll-to-virtual-item');
 type ItemConfig = {
   firstItemSelector: string;
   firstChildSelector: string;
-  waitUntilElementAppears: (
+  hasElementAppeared: (
     browser: CompassBrowser,
     selector: string
   ) => Promise<boolean>;
@@ -21,10 +21,7 @@ type ItemConfig = {
 const tableConfig: ItemConfig = {
   firstItemSelector: '#lg-table-row-0',
   firstChildSelector: 'tbody tr:first-child',
-  waitUntilElementAppears: async (
-    browser: CompassBrowser,
-    selector: string
-  ) => {
+  hasElementAppeared: async (browser: CompassBrowser, selector: string) => {
     const rowCount = await browser
       .$(`${selector} table`)
       .getAttribute('aria-rowcount');
@@ -39,21 +36,14 @@ const tableConfig: ItemConfig = {
     return parent?.querySelector('[tabindex="0"]');
   },
   calculateTotalHeight: async (browser: CompassBrowser, selector: string) => {
-    const headerHeight = await browser
-      .$(`${selector} > *:first-child`)
-      .getSize('height');
-    const tableHeight = await browser.$(`${selector} table`).getSize('height');
-    return headerHeight + tableHeight;
+    return await browser.$(`${selector} table`).getSize('height');
   },
 };
 
 const treeConfig: ItemConfig = {
   firstItemSelector: '[aria-posinset="1"]',
   firstChildSelector: '[role="treeitem"]:first-child',
-  waitUntilElementAppears: async (
-    browser: CompassBrowser,
-    selector: string
-  ) => {
+  hasElementAppeared: async (browser: CompassBrowser, selector: string) => {
     return (await browser.$$(`${selector} [role="treeitem"]`).length) > 0;
   },
   // eslint-disable-next-line no-restricted-globals
@@ -99,7 +89,7 @@ export async function scrollToVirtualItem(
 
   // it takes some time for the list to initialise
   await browser.waitUntil(async () => {
-    return await config.waitUntilElementAppears(browser, containerSelector);
+    return await config.hasElementAppeared(browser, containerSelector);
   });
 
   // scroll to the top
@@ -160,6 +150,8 @@ export async function scrollToVirtualItem(
     scrollTop += scrollHeight;
 
     if (scrollTop <= totalHeight) {
+      debug('scrolling to ', scrollTop);
+
       // scroll for another screen
       await browser.execute(
         (selector, nextScrollTop, getScrollContainerString) => {
