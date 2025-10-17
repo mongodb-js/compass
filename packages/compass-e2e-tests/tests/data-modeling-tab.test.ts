@@ -875,7 +875,7 @@ describe('Data Modeling tab', function () {
     });
 
     it('selecting, adding & editing fields via the diagram', async function () {
-      const dataModelName = 'Test Data Model';
+      const dataModelName = 'Test Data Model - Fields via Diagram';
       await setupDiagram(browser, {
         diagramName: dataModelName,
         connectionName: DEFAULT_CONNECTION_NAME_1,
@@ -920,7 +920,8 @@ describe('Data Modeling tab', function () {
 
       const fieldNameInput = browser.$(Selectors.DataModelDiagramFieldInput);
       await fieldNameInput.waitForDisplayed();
-      await browser.keys('Gandalf');
+      await fieldNameInput.addValue('Gandalf');
+      await browser.pause(1000); // wait for the value to be updated
       await browser.keys('Enter');
 
       // Verify that the name is updated in the drawer
