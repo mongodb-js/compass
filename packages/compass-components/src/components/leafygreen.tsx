@@ -53,8 +53,11 @@ import {
   TableBody,
   flexRender,
   useLeafyGreenTable,
+  useLeafyGreenVirtualTable,
+  type LeafyGreenVirtualItem,
   getExpandedRowModel,
   getFilteredRowModel,
+  type TableProps,
 } from '@leafygreen-ui/table';
 import type { Row as LgTableRowType } from '@tanstack/table-core'; // TODO(COMPASS-8437): import from LG
 
@@ -200,6 +203,9 @@ export {
   InfoSprinkle,
   flexRender,
   useLeafyGreenTable,
+  useLeafyGreenVirtualTable,
+  type LeafyGreenVirtualItem,
+  type TableProps,
   getExpandedRowModel,
   getFilteredRowModel,
   type LgTableRowType,
