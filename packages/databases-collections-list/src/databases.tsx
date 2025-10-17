@@ -125,7 +125,6 @@ function databaseColumns({
           return <Placeholder maxChar={10}></Placeholder>;
         }
 
-        // TODO: shouldn't this just have the right type rather than unknown?
         return enableDbAndCollStats && database.storage_size !== undefined
           ? compactBytes(database.storage_size)
           : '-';
@@ -194,7 +193,6 @@ function databaseColumns({
   ];
 }
 
-// TODO: we removed delete click functionality, we removed the header hint functionality
 const DatabasesList: React.FunctionComponent<{
   databases: DatabaseProps[];
   onDatabaseClick: (id: string) => void;

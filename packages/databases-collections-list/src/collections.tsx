@@ -396,7 +396,6 @@ function collectionColumns({
   ];
 }
 
-// TODO: we removed delete click functionality, we removed the header hint functionality
 const CollectionsList: React.FunctionComponent<{
   namespace: string;
   collections: CollectionProps[];
