@@ -307,9 +307,6 @@ const AnalyzingScreen: React.FunctionComponent<{
 const DISMISSED_SEARCH_INDEXES_BANNER_LOCAL_STORAGE_KEY =
   'mongodb_compass_dismissedSearchIndexesBanner' as const;
 
-const DISMISSED_ATLAS_SCHEMA_SKILL_BANNER_LOCAL_STORAGE_KEY =
-  'mongodb_compass_dismissedAtlasSchemaSkillBanner' as const;
-
 const FieldList: React.FunctionComponent<{
   schema: MongodbSchema | null;
   analysisState: AnalysisState;
@@ -419,7 +416,7 @@ const Schema: React.FunctionComponent<{
 
   // @experiment Skills in Atlas  | Jira Epic: CLOUDP-346311
   const [dismissed, setDismissed] = usePersistedState(
-    DISMISSED_ATLAS_SCHEMA_SKILL_BANNER_LOCAL_STORAGE_KEY,
+    'mongodb_compass_dismissedAtlasSchemaSkillBanner',
     false
   );
   const { shouldShowAtlasSkillsBanner } = useAtlasSkillsBanner(
@@ -451,14 +448,14 @@ const Schema: React.FunctionComponent<{
               skillsUrl="https://learn.mongodb.com/skills?team=growth&openTab=data+modeling"
               onCloseSkillsBanner={() => {
                 setDismissed(true);
-                track('Schema Skill CTA Dismissed', {
-                  context: 'Atlas Skills',
+                track('Atlas Skills CTA Dismissed', {
+                  context: 'Schema Tab',
                 });
               }}
               showBanner={shouldShowAtlasSkillsBanner && !dismissed}
               onCtaClick={() => {
-                track('Schema Skill CTA Clicked', {
-                  context: 'Atlas Skills',
+                track('Atlas Skills CTA Clicked', {
+                  context: 'Schema Tab',
                 });
               }}
             />
