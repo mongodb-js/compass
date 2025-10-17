@@ -99,3 +99,6 @@ export const MONGO_TYPE_TO_FAKER_METHODS: Record<
   Symbol: ['lorem.word', 'string.symbol'],
   DBRef: ['database.mongodbObjectId'],
 };
+
+export const DEFAULT_CONNECTION_STRING_FALLBACK =
+  'mongodb+srv://<your-cluster>.mongodb.net/<your-database>';

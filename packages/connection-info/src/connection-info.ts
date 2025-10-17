@@ -106,6 +106,12 @@ export interface AtlasClusterMetadata {
      */
     rollingIndexes: boolean;
   };
+
+  /**
+   * User-friendly connection string for the Atlas cluster, which uses the SRV address if available.
+   * Otherwise, will default to <your-cluster> as a placeholder.
+   */
+  userConnectionString: string;
 }
 
 export interface ConnectionInfo {
