@@ -818,9 +818,13 @@ export const cancelSchemaAnalysis = (): CollectionThunkAction<void> => {
 /**
  * Transforms LLM array format to keyed object structure.
  * Moves fieldPath from object property to object key.
+ *
+ * @param fakerSchema - The faker schema array from LLM response
+ * @param inputSchema - The schema definition for the LLM input used to carry over `mongoType` data
  */
 function transformFakerSchemaToObject(
-  fakerSchema: LlmFakerMapping[]
+  fakerSchema: LlmFakerMapping[],
+  inputSchema: Record<string, FieldInfo>
 ): FakerSchema {
   const result: FakerSchema = {};
 
@@ -828,7 +832,8 @@ function transformFakerSchemaToObject(
     const { fieldPath, ...fieldMapping } = field;
     result[fieldPath] = {
       ...fieldMapping,
-      mongoType: fieldMapping.mongoType,
+      // Note: `validateFakerSchema` already handles fields that are not present in `inputSchema`
+      mongoType: inputSchema[fieldPath]?.type,
     };
   }
 
@@ -968,7 +973,8 @@ export const generateFakerMappings = (): CollectionThunkAction<
 
       // Transform to keyed object structure
       const transformedFakerSchema = transformFakerSchemaToObject(
-        response.fields
+        response.fields,
+        schemaAnalysis.processedSchema
       );
 
       const validatedFakerSchema = validateFakerSchema(

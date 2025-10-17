@@ -13,13 +13,13 @@ import React from 'react';
 import { connect } from 'react-redux';
 import FieldSelector from './schema-field-selector';
 import FakerMappingSelector from './faker-mapping-selector';
+import { getDefaultFakerMethod } from './script-generation-utils';
 import type {
   FakerSchema,
   FakerFieldMapping,
   MockDataGeneratorState,
 } from './types';
-import type { MongoDBFieldType } from '@mongodb-js/compass-generative-ai';
-import { getDefaultFakerMethod } from './script-generation-utils';
+import type { MongoDBFieldType } from '../../schema-analysis-types';
 
 const containerStyles = css({
   display: 'flex',
