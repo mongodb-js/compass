@@ -106,14 +106,15 @@ function collectionPropertyToBadge(
         variant: 'darkgray',
         hint: (
           <>
-            {Object.entries(options ?? {}).map(
-              ([key, val]) =>
+            {Object.entries(options ?? {}).map(([key, val]) => {
+              return (
                 val && (
                   <div key={key}>
-                    <strong>{key}:</strong>&nbsp;{val}
+                    <strong>{key}:</strong>&nbsp;{val.toString()}
                   </div>
                 )
-            )}
+              );
+            })}
           </>
         ),
       };
@@ -208,12 +209,6 @@ function collectionColumns({
         const collection = info.row.original;
         const name = collection.name;
 
-        const badges = collection.properties
-          .filter((prop) => prop.id !== 'read-only')
-          .map((prop) => {
-            return collectionPropertyToBadge(collection, darkMode, prop);
-          });
-
         return (
           <div className={collectionNameWrapStyles}>
             <span
@@ -242,14 +237,38 @@ function collectionColumns({
                 not currently exist
               </Tooltip>
             )}
-            <CollectionBadges>
-              {badges.map((badge) => {
-                return (
-                  <CollectionBadge key={badge.id} {...badge}></CollectionBadge>
-                );
-              })}
-            </CollectionBadges>
           </div>
+        );
+      },
+    },
+    {
+      header: 'Properties',
+      enableSorting: true,
+      cell: (info) => {
+        const collection = info.row.original;
+
+        if (!isReady(collection.status)) {
+          return <Placeholder maxChar={10}></Placeholder>;
+        }
+
+        const badges = collection.properties
+          .filter((prop) => prop.id !== 'read-only')
+          .map((prop) => {
+            return collectionPropertyToBadge(collection, darkMode, prop);
+          });
+
+        if (badges.length === 0) {
+          return '-';
+        }
+
+        return (
+          <CollectionBadges>
+            {badges.map((badge) => {
+              return (
+                <CollectionBadge key={badge.id} {...badge}></CollectionBadge>
+              );
+            })}
+          </CollectionBadges>
         );
       },
     },
