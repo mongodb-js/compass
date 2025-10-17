@@ -214,6 +214,7 @@ describe('CollectionHeaderActions [Component]', function () {
           globalWrites: false,
           rollingIndexes: true,
         },
+        userConnectionString: 'mongodb+srv://localhost:27017',
       },
     };
 
