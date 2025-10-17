@@ -24,7 +24,7 @@ async function waitForCollectionAndBadge(
 ) {
   const cardSelector = Selectors.collectionRow(dbName, collectionName);
   await browser.scrollToVirtualItem(
-    Selectors.CollectionsWorkspaceContainer,
+    Selectors.CollectionsTable,
     cardSelector,
     'table'
   );
@@ -34,7 +34,7 @@ async function waitForCollectionAndBadge(
   await browser.clickVisible(Selectors.DatabaseRefreshCollectionButton);
 
   await browser.scrollToVirtualItem(
-    Selectors.CollectionsWorkspaceContainer,
+    Selectors.CollectionsTable,
     cardSelector,
     'table'
   );
@@ -85,7 +85,7 @@ describe('Database collections tab', function () {
         collectionName
       );
       const found = await browser.scrollToVirtualItem(
-        Selectors.CollectionsWorkspaceContainer,
+        Selectors.CollectionsTable,
         collectionSelector,
         'table'
       );
@@ -95,7 +95,7 @@ describe('Database collections tab', function () {
 
   it('links collection cards to the collection documents tab', async function () {
     await browser.scrollToVirtualItem(
-      Selectors.CollectionsWorkspaceContainer,
+      Selectors.CollectionsTable,
       Selectors.collectionRow('test', 'json-array'),
       'table'
     );
@@ -138,7 +138,7 @@ describe('Database collections tab', function () {
 
     const selector = Selectors.collectionRow('test', collectionName);
     await browser.scrollToVirtualItem(
-      Selectors.CollectionsWorkspaceContainer,
+      Selectors.CollectionsTable,
       selector,
       'table'
     );
@@ -348,7 +348,7 @@ describe('Database collections tab', function () {
 
     const collSelector = Selectors.collectionRow(db, coll);
     await browser.scrollToVirtualItem(
-      Selectors.CollectionsWorkspaceContainer,
+      Selectors.CollectionsTable,
       collSelector,
       'table'
     );

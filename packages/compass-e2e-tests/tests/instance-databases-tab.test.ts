@@ -54,7 +54,7 @@ describe('Instance databases tab', function () {
 
     for (const dbSelector of dbSelectors) {
       const found = await browser.scrollToVirtualItem(
-        Selectors.DatabasesWorkspaceContainer,
+        Selectors.DatabasesTable,
         dbSelector,
         'table'
       );
@@ -64,7 +64,7 @@ describe('Instance databases tab', function () {
 
   it('links database cards to the database collections tab', async function () {
     await browser.scrollToVirtualItem(
-      Selectors.DatabasesWorkspaceContainer,
+      Selectors.DatabasesTable,
       Selectors.databaseRow('test'),
       'table'
     );
@@ -83,7 +83,7 @@ describe('Instance databases tab', function () {
 
     for (const collectionSelector of collectionSelectors) {
       const found = await browser.scrollToVirtualItem(
-        Selectors.CollectionsWorkspaceContainer,
+        Selectors.CollectionsTable,
         collectionSelector,
         'table'
       );
@@ -112,7 +112,7 @@ describe('Instance databases tab', function () {
 
     const selector = Selectors.databaseRow(dbName);
     await browser.scrollToVirtualItem(
-      Selectors.DatabasesWorkspaceContainer,
+      Selectors.DatabasesTable,
       selector,
       'table'
     );
@@ -161,7 +161,7 @@ describe('Instance databases tab', function () {
 
     // Make sure the db card we're going to drop is in there.
     await browser.scrollToVirtualItem(
-      Selectors.DatabasesWorkspaceContainer,
+      Selectors.DatabasesTable,
       dbSelector,
       'table'
     );

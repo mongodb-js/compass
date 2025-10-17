@@ -1,4 +1,6 @@
+import Debug from 'debug';
 import type { CompassBrowser } from '../compass-browser';
+const debug = Debug('compass-e2e-tests:scroll-to-virtual-item');
 
 type ItemConfig = {
   firstItemSelector: string;
@@ -9,6 +11,11 @@ type ItemConfig = {
   ) => Promise<boolean>;
   // eslint-disable-next-line no-restricted-globals
   getScrollContainer: (parent: Element | null) => ChildNode | null | undefined;
+  calculateTotalHeight: (
+    browser: CompassBrowser,
+    selector: string,
+    getScrollContainerString: string
+  ) => Promise<number | null>;
 };
 
 const tableConfig: ItemConfig = {
@@ -22,11 +29,21 @@ const tableConfig: ItemConfig = {
       .$(`${selector} table`)
       .getAttribute('aria-rowcount');
     const length = await browser.$$(`${selector} tbody tr`).length;
+    debug({ rowCount, length });
     return !!(rowCount && length);
   },
   // eslint-disable-next-line no-restricted-globals
   getScrollContainer: (parent: Element | null) => {
-    return parent?.firstChild;
+    // This is the element inside the leafygreen table that actually scrolls.
+    // Unfortunately there is no better selector for it at the time of writing.
+    return parent?.querySelector('[tabindex="0"]');
+  },
+  calculateTotalHeight: async (browser: CompassBrowser, selector: string) => {
+    const headerHeight = await browser
+      .$(`${selector} > *:first-child`)
+      .getSize('height');
+    const tableHeight = await browser.$(`${selector} table`).getSize('height');
+    return headerHeight + tableHeight;
   },
 };
 
@@ -43,6 +60,27 @@ const treeConfig: ItemConfig = {
   getScrollContainer: (parent: Element | null) => {
     return parent?.firstChild?.firstChild;
   },
+  calculateTotalHeight: async (
+    browser: CompassBrowser,
+    selector: string,
+    getScrollContainerString: string
+  ) => {
+    return await browser.execute(
+      (selector, getScrollContainerString) => {
+        // eslint-disable-next-line no-restricted-globals
+        const container = document.querySelector(selector);
+        const scrollContainer = eval(getScrollContainerString)(container);
+        const heightContainer = scrollContainer?.firstChild;
+        if (!heightContainer) {
+          return null;
+        }
+
+        return heightContainer.offsetHeight;
+      },
+      selector,
+      getScrollContainerString
+    );
+  },
 };
 
 export async function scrollToVirtualItem(
@@ -57,48 +95,42 @@ export async function scrollToVirtualItem(
 
   await browser.$(containerSelector).waitForDisplayed();
 
+  debug(await browser.$(containerSelector).getSize());
+
   // it takes some time for the list to initialise
   await browser.waitUntil(async () => {
     return await config.waitUntilElementAppears(browser, containerSelector);
   });
 
-  // scroll to the top and return the height of the scrollbar area and the
-  // scroll content
-  const [scrollHeight, totalHeight] = await browser.execute(
+  // scroll to the top
+  await browser.execute(
     (selector, getScrollContainerString) => {
       // eslint-disable-next-line no-restricted-globals
       const container = document.querySelector(selector);
       const scrollContainer = eval(getScrollContainerString)(container);
-      const heightContainer = scrollContainer?.firstChild;
-      if (!heightContainer) {
-        return [null, null];
-      }
-
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
       scrollContainer.scrollTop = 0;
-
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      return [scrollContainer.clientHeight, heightContainer.offsetHeight];
     },
     containerSelector,
-    // Due to interprocess, we can not pass a function here.
-    // So, we stringify it here and then eval to execute it
     config.getScrollContainer.toString()
   );
 
-  console.log('scrollToVirtualItem', { scrollHeight, totalHeight });
+  const scrollHeight = parseInt(
+    await browser.$(containerSelector).getProperty('clientHeight'),
+    10
+  );
+  const totalHeight = await config.calculateTotalHeight(
+    browser,
+    containerSelector,
+    config.getScrollContainer.toString()
+  );
+
+  debug({ scrollHeight, totalHeight });
 
   if (scrollHeight === null || totalHeight === null) {
-    console.log(
-      'scrollToVirtualItem',
-      'scrollHeight === null || totalHeight === null',
-      {
-        scrollHeight,
-        totalHeight,
-      }
-    );
+    debug('scrollHeight === null || totalHeight === null', {
+      scrollHeight,
+      totalHeight,
+    });
     return false;
   }
 
@@ -117,7 +149,8 @@ export async function scrollToVirtualItem(
       await targetElement.scrollIntoView();
       // the item is now visible, so stop scrolling
       found = true;
-      console.log('scrollToVirtualItem', 'found the item');
+      debug('found the item');
+
       return true;
     }
 
@@ -134,12 +167,10 @@ export async function scrollToVirtualItem(
           const container = document.querySelector(selector);
           const scrollContainer = eval(getScrollContainerString)(container);
           if (!scrollContainer) {
-            console.log('scrollToVirtualItem', 'no scroll container');
+            debug('no scroll container');
             return;
           }
 
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-ignore
           scrollContainer.scrollTop = nextScrollTop;
         },
         containerSelector,
@@ -152,20 +183,11 @@ export async function scrollToVirtualItem(
       await browser.waitForAnimations(
         `${containerSelector} ${config.firstChildSelector}`
       );
-      console.log(
-        'scrollToVirtualItem',
-        'Scrolled to',
-        scrollTop,
-        'of',
-        totalHeight
-      );
+      debug('Scrolled to', scrollTop, 'of', totalHeight);
       return false;
     } else {
       // stop because we got to the end and never found it
-      console.log(
-        'scrollToVirtualItem',
-        'Reached the end of the list without finding the item'
-      );
+      debug('Reached the end of the list without finding the item');
       return true;
     }
   });
