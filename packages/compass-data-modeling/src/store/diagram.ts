@@ -590,10 +590,14 @@ export function renameCollection(
   return applyEdit(edit);
 }
 
-function handleError(openToast: typeof _openToast, messages: string[]) {
+function handleError(
+  openToast: typeof _openToast,
+  title: string,
+  messages: string[]
+) {
   openToast('data-modeling-error', {
     variant: 'warning',
-    title: 'Error opening diagram',
+    title,
     description: messages.join(' '),
   });
 }
@@ -613,7 +617,7 @@ export function applyEdit(
     const { result, errors } = validateEdit(edit);
     let isValid = result;
     if (!result) {
-      handleError(openToast, errors);
+      handleError(openToast, 'Could not apply changes', errors);
       return isValid;
     }
     dispatch({
@@ -625,7 +629,7 @@ export function applyEdit(
     try {
       selectCurrentModelFromState(getState());
     } catch (e) {
-      handleError(openToast, [
+      handleError(openToast, 'Could not apply changes', [
         'Something went wrong when applying the changes.',
         (e as Error).message,
       ]);
@@ -710,11 +714,9 @@ export function openDiagramFromFile(
       track('Data Modeling Diagram Imported', {});
       void dataModelStorage.save(diagram);
     } catch (error) {
-      openToast('data-modeling-file-read-error', {
-        variant: 'warning',
-        title: 'Error opening diagram',
-        description: (error as Error).message,
-      });
+      handleError(openToast, 'Error opening diagram', [
+        (error as Error).message,
+      ]);
     }
   };
 }
