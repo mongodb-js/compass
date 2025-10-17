@@ -122,9 +122,6 @@ function isOperationTimedOutError(err: ErrorWithPossibleCode) {
   );
 }
 
-const DISMISSED_ATLAS_DOC_SKILL_BANNER_LOCAL_STORAGE_KEY =
-  'mongodb_compass_dismissedAtlasDocSkillBanner' as const;
-
 export type CrudToolbarProps = {
   activeDocumentView: DocumentView;
   count?: number;
@@ -192,7 +189,7 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
   const connectionInfoRef = useConnectionInfoRef();
   const isImportExportEnabled = usePreference('enableImportExport');
   const [dismissed, setDismissed] = usePersistedState(
-    DISMISSED_ATLAS_DOC_SKILL_BANNER_LOCAL_STORAGE_KEY,
+    'mongodb_compass_dismissedAtlasDocSkillBanner',
     false
   );
 
