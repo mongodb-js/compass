@@ -128,7 +128,6 @@ const DiagramContent: React.FunctionComponent<{
   isNewlyCreatedDiagram?: boolean;
   model: StaticModel | null;
   isInRelationshipDrawingMode: boolean;
-  editErrors?: string[];
   newCollection?: string;
   onAddFieldToObjectField: (ns: string, parentPath: string[]) => void;
   onAddNewFieldToCollection: (ns: string) => void;
@@ -181,16 +180,6 @@ const DiagramContent: React.FunctionComponent<{
     }
   }, []);
 
-  const edges = useMemo<EdgeProps[]>(() => {
-    return (model?.relationships ?? []).map((relationship) => {
-      const selected =
-        !!selectedItems &&
-        selectedItems.type === 'relationship' &&
-        selectedItems.id === relationship.id;
-      return relationshipToDiagramEdge(relationship, selected);
-    });
-  }, [model?.relationships, selectedItems]);
-
   const nodes = useMemo<NodeProps[]>(() => {
     const highlightedFields = getHighlightedFields(
       selectedItems,
@@ -218,6 +207,16 @@ const DiagramContent: React.FunctionComponent<{
     selectedItems,
     isInRelationshipDrawingMode,
   ]);
+
+  const edges = useMemo<EdgeProps[]>(() => {
+    return (model?.relationships ?? []).map((relationship) => {
+      const selected =
+        !!selectedItems &&
+        selectedItems.type === 'relationship' &&
+        selectedItems.id === relationship.id;
+      return relationshipToDiagramEdge(relationship, selected, nodes);
+    });
+  }, [model?.relationships, selectedItems, nodes]);
 
   // Fit to view on initial mount
   useEffect(() => {
@@ -526,7 +525,6 @@ export default connect(
     const { diagram, step } = state;
     return {
       step: step,
-      editErrors: diagram?.editErrors,
       diagramId: diagram?.id,
     };
   },
