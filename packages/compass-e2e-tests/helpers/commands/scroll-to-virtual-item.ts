@@ -88,7 +88,17 @@ export async function scrollToVirtualItem(
     config.getScrollContainer.toString()
   );
 
+  console.log('scrollToVirtualItem', { scrollHeight, totalHeight });
+
   if (scrollHeight === null || totalHeight === null) {
+    console.log(
+      'scrollToVirtualItem',
+      'scrollHeight === null || totalHeight === null',
+      {
+        scrollHeight,
+        totalHeight,
+      }
+    );
     return false;
   }
 
@@ -107,6 +117,7 @@ export async function scrollToVirtualItem(
       await targetElement.scrollIntoView();
       // the item is now visible, so stop scrolling
       found = true;
+      console.log('scrollToVirtualItem', 'found the item');
       return true;
     }
 
@@ -123,6 +134,7 @@ export async function scrollToVirtualItem(
           const container = document.querySelector(selector);
           const scrollContainer = eval(getScrollContainerString)(container);
           if (!scrollContainer) {
+            console.log('scrollToVirtualItem', 'no scroll container');
             return;
           }
 
@@ -140,9 +152,20 @@ export async function scrollToVirtualItem(
       await browser.waitForAnimations(
         `${containerSelector} ${config.firstChildSelector}`
       );
+      console.log(
+        'scrollToVirtualItem',
+        'Scrolled to',
+        scrollTop,
+        'of',
+        totalHeight
+      );
       return false;
     } else {
       // stop because we got to the end and never found it
+      console.log(
+        'scrollToVirtualItem',
+        'Reached the end of the list without finding the item'
+      );
       return true;
     }
   });
