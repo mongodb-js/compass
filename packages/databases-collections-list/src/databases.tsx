@@ -76,8 +76,10 @@ function databaseColumns({
 }): LGColumnDef<DatabaseProps>[] {
   return [
     {
+      accessorKey: 'name',
       header: 'Database name',
       enableSorting: true,
+      sortUndefined: 'last',
       minSize: 300,
       cell: (info) => {
         const database = info.row.original;
@@ -116,8 +118,10 @@ function databaseColumns({
       },
     },
     {
+      accessorKey: 'storage_size',
       header: 'Storage size',
       enableSorting: true,
+      sortUndefined: 'last',
       maxSize: 80,
       cell: (info) => {
         const database = info.row.original;
@@ -132,8 +136,10 @@ function databaseColumns({
     },
     /*
     {
+      accessorKey: 'data_size',
       header: 'Data size',
       enableSorting: true,
+      sortUndefined: 'last',
       maxSize: 80,
       cell: (info) => {
         const database = info.row.original;
@@ -148,8 +154,10 @@ function databaseColumns({
     },
     */
     {
+      accessorKey: 'collectionsLength',
       header: 'Collections',
       enableSorting: true,
+      sortUndefined: 'last',
       maxSize: 80,
       cell: (info) => {
         const database = info.row.original;
@@ -176,8 +184,10 @@ function databaseColumns({
       },
     },
     {
+      accessorKey: 'index_count',
       header: 'Indexes',
       enableSorting: true,
+      sortUndefined: 'last',
       maxSize: 80,
       cell: (info) => {
         const database = info.row.original;

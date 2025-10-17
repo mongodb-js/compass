@@ -202,8 +202,10 @@ function collectionColumns({
 }): LGColumnDef<CollectionProps>[] {
   return [
     {
+      accessorKey: 'name',
       header: 'Collection name',
       enableSorting: true,
+      sortUndefined: 'last',
       minSize: 250,
       cell: (info) => {
         const collection = info.row.original;
@@ -244,6 +246,7 @@ function collectionColumns({
     {
       header: 'Properties',
       enableSorting: true,
+      sortUndefined: 'last',
       cell: (info) => {
         const collection = info.row.original;
 
@@ -273,8 +276,10 @@ function collectionColumns({
       },
     },
     {
+      accessorKey: 'storage_size',
       header: 'Storage size',
       enableSorting: true,
+      sortUndefined: 'last',
       maxSize: 80,
       cell: (info) => {
         const collection = info.row.original;
@@ -293,8 +298,10 @@ function collectionColumns({
     },
     /*
     {
+      accessorKey: 'free_storage_size',
       header: 'Free storage size',
       enableSorting: true,
+      sortUndefined: 'last',
       maxSize: 100,
       cell: (info) => {
         const collection = info.row.original;
@@ -313,8 +320,10 @@ function collectionColumns({
     },
     */
     {
+      accessorKey: 'document_count',
       header: 'Documents',
       enableSorting: true,
+      sortUndefined: 'last',
       maxSize: 80,
       cell: (info) => {
         const collection = info.row.original;
@@ -333,8 +342,10 @@ function collectionColumns({
       },
     },
     {
+      accessorKey: 'avg_document_size',
       header: 'Avg. document size',
       enableSorting: true,
+      sortUndefined: 'last',
       maxSize: 110,
       cell: (info) => {
         const collection = info.row.original;
@@ -354,8 +365,10 @@ function collectionColumns({
       },
     },
     {
+      accessorKey: 'index_count',
       header: 'Indexes',
       enableSorting: true,
+      sortUndefined: 'last',
       maxSize: 60,
       cell: (info) => {
         const collection = info.row.original;
@@ -374,8 +387,10 @@ function collectionColumns({
       },
     },
     {
+      accessorKey: 'index_size',
       header: 'Total index size',
       enableSorting: true,
+      sortUndefined: 'last',
       maxSize: 100,
       cell: (info) => {
         const collection = info.row.original;
