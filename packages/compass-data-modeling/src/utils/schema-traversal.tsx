@@ -170,11 +170,33 @@ export const getFieldFromSchema = ({
   });
 };
 
-type UpdateOperationParameters = {
-  update: 'removeField' | 'renameField' | 'changeFieldSchema';
-  newFieldName?: string;
-  newFieldSchema?: MongoDBJSONSchema;
+type NewFieldOperationParameters = {
+  update: 'addField';
+  fieldName?: never;
+  newFieldName: string;
+  newFieldSchema: MongoDBJSONSchema;
 };
+
+type ExistingFieldOperationParameters =
+  | {
+      update: 'removeField';
+      newFieldName?: never;
+      newFieldSchema?: never;
+    }
+  | {
+      update: 'renameField';
+      newFieldName: string;
+      newFieldSchema?: never;
+    }
+  | {
+      update: 'changeFieldSchema';
+      newFieldName?: never;
+      newFieldSchema: MongoDBJSONSchema;
+    };
+
+type UpdateOperationParameters =
+  | NewFieldOperationParameters
+  | ExistingFieldOperationParameters;
 
 const applySchemaUpdate = ({
   schema,
@@ -184,8 +206,10 @@ const applySchemaUpdate = ({
   update,
 }: {
   schema: MongoDBJSONSchema;
-  fieldName: string;
-} & UpdateOperationParameters): MongoDBJSONSchema => {
+} & (
+  | NewFieldOperationParameters
+  | (ExistingFieldOperationParameters & { fieldName: string })
+)): MongoDBJSONSchema => {
   switch (update) {
     case 'removeField': {
       if (!schema.properties || !schema.properties[fieldName])
@@ -240,10 +264,36 @@ const applySchemaUpdate = ({
         },
       };
     }
+    case 'addField': {
+      if (!newFieldSchema)
+        throw new Error('New field schema is required for the add operation');
+      if (!newFieldName)
+        throw new Error('New field name is required for the add operation');
+      const newSchema = {
+        ...schema,
+        properties: {
+          ...schema.properties,
+          [newFieldName]: newFieldSchema,
+        },
+      };
+      return newSchema;
+    }
     default:
       return schema;
   }
 };
+
+function isNewFieldOperation(
+  params: Omit<UpdateOperationParameters, 'fieldName'>
+): params is NewFieldOperationParameters {
+  return params.update === 'addField';
+}
+
+function isExistingFieldOperation(
+  params: Omit<UpdateOperationParameters, 'fieldName'>
+): params is ExistingFieldOperationParameters {
+  return params.update !== 'addField';
+}
 
 /**
  * Finds a single field in a MongoDB JSON schema and performs an update operation on it.
@@ -255,17 +305,23 @@ export const updateSchema = ({
 }: {
   jsonSchema: MongoDBJSONSchema;
   fieldPath: FieldPath;
-  updateParameters: UpdateOperationParameters;
+  updateParameters: Omit<UpdateOperationParameters, 'fieldName'>;
 }): MongoDBJSONSchema => {
   const newSchema = {
     ...jsonSchema,
   };
+  if (fieldPath.length === 0 && isNewFieldOperation(updateParameters)) {
+    return applySchemaUpdate({
+      schema: newSchema,
+      ...updateParameters,
+    });
+  }
   const nextInPath = fieldPath[0];
   const remainingFieldPath = fieldPath.slice(1);
   const targetReached = remainingFieldPath.length === 0;
   if (newSchema.properties && newSchema.properties[nextInPath]) {
-    if (targetReached) {
-      // reached the field to remove
+    if (targetReached && isExistingFieldOperation(updateParameters)) {
+      // reached the field to update
       return applySchemaUpdate({
         schema: newSchema,
         fieldName: nextInPath,
@@ -411,3 +467,34 @@ export function getSchemaWithNewTypes(
   }
   return { anyOf: newVariants };
 }
+
+/**
+ * Gets the direct children of a MongoDB JSON schema.
+ * @param field - field to get direct children for
+ * @returns direct children of the field (if any)
+ */
+export const getDirectChildren = (
+  schema: MongoDBJSONSchema
+): [string, MongoDBJSONSchema][] => {
+  // children are either direct (properties), from anyOf, items or items.anyOf
+  const children: [string, MongoDBJSONSchema][] = [];
+  if (schema.properties) {
+    children.push(...Object.entries(schema.properties));
+  }
+  if (schema.items) {
+    if (!Array.isArray(schema.items)) {
+      children.push(...getDirectChildren(schema.items));
+    } else {
+      for (const item of schema.items) {
+        children.push(...getDirectChildren(item));
+      }
+    }
+  }
+  if (schema.anyOf) {
+    for (const variant of schema.anyOf) {
+      children.push(...getDirectChildren(variant));
+    }
+  }
+
+  return children;
+};
