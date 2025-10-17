@@ -385,6 +385,7 @@ export const ItemsTable = <T extends Item>({
   return (
     <div className={itemsTableContainerStyles} data-testid={dataTestId}>
       <WorkspaceContainer
+        data-testid={`${dataTestId}-workspace-container`}
         toolbar={
           <TableControls
             itemType={itemType}

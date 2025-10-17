@@ -503,6 +503,8 @@ export const ShellInput = '[data-testid="shell-input"]';
 export const ShellOutput = '[data-testid="shell-output"]';
 
 // Instance screen
+export const DatabasesWorkspaceContainer =
+  '[data-testid="databases-list-workspace-container"]';
 export const DatabasesTable = '[data-testid="databases-list"]';
 export const InstanceCreateDatabaseButton =
   '[data-testid="create-controls"] button';
@@ -523,6 +525,8 @@ export const databaseRowDrop = (dbName: string): string => {
 export const ServerStats = '.serverstats';
 
 // Database screen
+export const CollectionsWorkspaceContainer =
+  '[data-testid="collections-list-workspace-container"]';
 export const CollectionsTable = '[data-testid="collections-list"]';
 export const DatabaseCreateCollectionButton =
   '[data-testid="create-controls"] button';

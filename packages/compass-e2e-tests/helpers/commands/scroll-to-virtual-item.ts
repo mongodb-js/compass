@@ -49,7 +49,7 @@ export async function scrollToVirtualItem(
   browser: CompassBrowser,
   containerSelector: string,
   targetSelector: string,
-  role: 'grid' | 'tree'
+  role: 'table' | 'tree'
 ): Promise<boolean> {
   const config = role === 'tree' ? treeConfig : tableConfig;
 
@@ -57,7 +57,7 @@ export async function scrollToVirtualItem(
 
   await browser.$(containerSelector).waitForDisplayed();
 
-  // it takes some time for the grid to initialise
+  // it takes some time for the list to initialise
   await browser.waitUntil(async () => {
     return await config.waitUntilElementAppears(browser, containerSelector);
   });

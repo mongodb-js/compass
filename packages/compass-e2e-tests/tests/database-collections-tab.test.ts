@@ -24,9 +24,9 @@ async function waitForCollectionAndBadge(
 ) {
   const cardSelector = Selectors.collectionRow(dbName, collectionName);
   await browser.scrollToVirtualItem(
-    Selectors.CollectionsTable,
+    Selectors.CollectionsWorkspaceContainer,
     cardSelector,
-    'grid'
+    'table'
   );
 
   // Hit refresh because depending on timing the card might appear without the
@@ -34,9 +34,9 @@ async function waitForCollectionAndBadge(
   await browser.clickVisible(Selectors.DatabaseRefreshCollectionButton);
 
   await browser.scrollToVirtualItem(
-    Selectors.CollectionsTable,
+    Selectors.CollectionsWorkspaceContainer,
     cardSelector,
-    'grid'
+    'table'
   );
   await browser.$(cardSelector).$(badgeSelector).waitForDisplayed();
 }
@@ -85,9 +85,9 @@ describe('Database collections tab', function () {
         collectionName
       );
       const found = await browser.scrollToVirtualItem(
-        Selectors.CollectionsTable,
+        Selectors.CollectionsWorkspaceContainer,
         collectionSelector,
-        'grid'
+        'table'
       );
       expect(found, collectionSelector).to.be.true;
     }
@@ -95,9 +95,9 @@ describe('Database collections tab', function () {
 
   it('links collection cards to the collection documents tab', async function () {
     await browser.scrollToVirtualItem(
-      Selectors.CollectionsTable,
+      Selectors.CollectionsWorkspaceContainer,
       Selectors.collectionRow('test', 'json-array'),
-      'grid'
+      'table'
     );
 
     await browser.clickVisible(Selectors.collectionRow('test', 'json-array'), {
@@ -138,9 +138,9 @@ describe('Database collections tab', function () {
 
     const selector = Selectors.collectionRow('test', collectionName);
     await browser.scrollToVirtualItem(
-      Selectors.CollectionsTable,
+      Selectors.CollectionsWorkspaceContainer,
       selector,
-      'grid'
+      'table'
     );
 
     const collectionRow = browser.$(selector);
@@ -348,9 +348,9 @@ describe('Database collections tab', function () {
 
     const collSelector = Selectors.collectionRow(db, coll);
     await browser.scrollToVirtualItem(
-      Selectors.CollectionsTable,
+      Selectors.CollectionsWorkspaceContainer,
       collSelector,
-      'grid'
+      'table'
     );
     const coll2Card = browser.$(collSelector);
     await coll2Card.waitForDisplayed();

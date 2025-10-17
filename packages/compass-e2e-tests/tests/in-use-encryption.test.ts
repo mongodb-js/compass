@@ -505,9 +505,9 @@ describe('CSFLE / QE', function () {
 
         const selector = Selectors.collectionRow(databaseName, collectionName);
         await browser.scrollToVirtualItem(
-          Selectors.CollectionsTable,
+          Selectors.CollectionsWorkspaceContainer,
           selector,
-          'grid'
+          'table'
         );
 
         const collectionRow = browser.$(selector);
