@@ -22,9 +22,10 @@ import type { FakerSchema } from './types';
 import type { ArrayLengthMap } from './script-generation-utils';
 import type { CollectionState } from '../../modules/collection-tab';
 import { SCHEMA_ANALYSIS_STATE_COMPLETE } from '../../schema-analysis-types';
+import { DEFAULT_CONNECTION_STRING_FALLBACK } from './constants';
 
-const RUN_SCRIPT_COMMAND = `
-mongosh "mongodb+srv://<your-cluster>.mongodb.net/<your-database>" \\
+const RUN_SCRIPT_COMMAND = (connectionString: string) => `
+mongosh "${connectionString}" \\
   --username <your-username> \\
   --password "<your-password>" \\
   mockdatascript.js
@@ -91,6 +92,10 @@ const ScriptScreen = ({
 }: ScriptScreenProps) => {
   const isDarkMode = useDarkMode();
   const connectionInfo = useConnectionInfo();
+
+  const connectionString =
+    connectionInfo?.atlasMetadata?.userConnectionString ??
+    DEFAULT_CONNECTION_STRING_FALLBACK;
 
   const { database, collection } = toNS(namespace);
 
@@ -175,7 +180,9 @@ const ScriptScreen = ({
             reversible.
           </em>
         </Body>
-        <Code language={Language.Bash}>{RUN_SCRIPT_COMMAND}</Code>
+        <Code language={Language.Bash}>
+          {RUN_SCRIPT_COMMAND(connectionString)}
+        </Code>
       </section>
       <section
         className={cx(
