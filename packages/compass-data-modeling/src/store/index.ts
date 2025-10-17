@@ -9,8 +9,11 @@ import reducer from './reducer';
 import type { DataModelingExtraArgs } from './reducer';
 import thunk from 'redux-thunk';
 import type { ActivateHelpers } from '@mongodb-js/compass-app-registry';
+import { openToast as _openToast } from '@mongodb-js/compass-components';
 
-export type DataModelingStoreOptions = Record<string, unknown>;
+export type DataModelingStoreOptions = {
+  openToast?: typeof _openToast;
+};
 
 export type DataModelingStoreServices = {
   preferences: PreferencesAccess;
@@ -22,7 +25,7 @@ export type DataModelingStoreServices = {
 };
 
 export function activateDataModelingStore(
-  _: DataModelingStoreOptions,
+  { openToast = _openToast }: DataModelingStoreOptions,
   services: DataModelingStoreServices,
   { cleanup }: ActivateHelpers
 ) {
@@ -35,6 +38,7 @@ export function activateDataModelingStore(
         ...services,
         cancelAnalysisControllerRef,
         cancelExportControllerRef,
+        openToast,
       })
     )
   );
