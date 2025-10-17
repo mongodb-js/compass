@@ -313,7 +313,7 @@ describe('Data Modeling tab', function () {
 
   context('Undo/Redo and Storage', function () {
     it('actions are undoable and persist after re-opening', async function () {
-      const dataModelName = 'Test Data Model';
+      const dataModelName = 'Test Data Model - Undo/Redo';
       await setupDiagram(browser, {
         diagramName: dataModelName,
         connectionName: DEFAULT_CONNECTION_NAME_1,
