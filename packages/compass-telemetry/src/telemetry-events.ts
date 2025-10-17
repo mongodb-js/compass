@@ -2655,122 +2655,32 @@ type AtlasLinkClickedEvent = CommonEvent<{
 }>;
 
 /**
- * This event is fired when a user clicks on the Atlas Skills Aggregation CTA banner.
+ * This event is fired when a user clicks the Atlas Skills CTA banner.
  *
  * @category Other
  */
-type AtlasSkillsAggregationCtaClickedEvent = CommonEvent<{
+type AtlasSkillsCtaClickedEvent = CommonEvent<{
   name: 'Atlas Skills CTA Clicked';
   payload: {
     /**
-     * The context/screen from which the Atlas Skills CTA was clicked.
+     * The context/screen from which the Atlas Skills CTA was dismissed.
      */
-    context: 'Aggregation Tab';
+    context: 'Documents Tab' | 'Aggregation Tab' | 'Indexes Tab' | 'Schema Tab';
   };
 }>;
 
 /**
- * This event is fired when a user clicks on the Atlas Skills Documents CTA banner.
+ * This event is fired when a user dismisses the Atlas Skills CTA banner.
  *
  * @category Other
  */
-type AtlasSkillsDocumentsCtaClickedEvent = CommonEvent<{
-  name: 'Atlas Skills CTA Clicked';
-  payload: {
-    /**
-     * The context/screen from which the Atlas Skills CTA was clicked.
-     */
-    context: 'Documents Tab';
-  };
-}>;
-
-/**
- * This event is fired when a user clicks on the Atlas Skills Indexes CTA banner.
- *
- * @category Other
- */
-type AtlasSkillsIndexesCtaClickedEvent = CommonEvent<{
-  name: 'Atlas Skills CTA Clicked';
-  payload: {
-    /**
-     * The context/screen from which the Atlas Skills CTA was clicked.
-     */
-    context: 'Indexes Tab';
-  };
-}>;
-
-/**
- * This event is fired when a user clicks on the Atlas Skills Schema CTA banner.
- *
- * @category Other
- */
-type AtlasSkillsSchemaCtaClickedEvent = CommonEvent<{
-  name: 'Atlas Skills CTA Clicked';
-  payload: {
-    /**
-     * The context/screen from which the Atlas Skills CTA was clicked.
-     */
-    context: 'Schema Tab';
-  };
-}>;
-
-/**
- * This event is fired when a user dismisses the Atlas Skills Aggregation CTA banner.
- *
- * @category Other
- */
-type AtlasSkillsAggregationCtaDismissedEvent = CommonEvent<{
+type AtlasSkillsCtaDismissedEvent = CommonEvent<{
   name: 'Atlas Skills CTA Dismissed';
   payload: {
     /**
      * The context/screen from which the Atlas Skills CTA was dismissed.
      */
-    context: 'Aggregation Tab';
-  };
-}>;
-
-/**
- * This event is fired when a user dismisses the Atlas Skills Documents CTA banner.
- *
- * @category Other
- */
-type AtlasSkillsDocumentsCtaDismissedEvent = CommonEvent<{
-  name: 'Atlas Skills CTA Dismissed';
-  payload: {
-    /**
-     * The context/screen from which the Atlas Skills CTA was dismissed.
-     */
-    context: 'Documents Tab';
-  };
-}>;
-
-/**
- * This event is fired when a user dismisses the Atlas Skills Indexes CTA banner.
- *
- * @category Other
- */
-type AtlasSkillsIndexesCtaDismissedEvent = CommonEvent<{
-  name: 'Atlas Skills CTA Dismissed';
-  payload: {
-    /**
-     * The context/screen from which the Atlas Skills CTA was dismissed.
-     */
-    context: 'Indexes Tab';
-  };
-}>;
-
-/**
- * This event is fired when a user dismisses the Atlas Skills Schema CTA banner.
- *
- * @category Other
- */
-type AtlasSkillsSchemaCtaDismissedEvent = CommonEvent<{
-  name: 'Atlas Skills CTA Dismissed';
-  payload: {
-    /**
-     * The context/screen from which the Atlas Skills CTA was dismissed.
-     */
-    context: 'Schema Tab';
+    context: 'Documents Tab' | 'Aggregation Tab' | 'Indexes Tab' | 'Schema Tab';
   };
 }>;
 
@@ -3278,14 +3188,8 @@ export type TelemetryEvent =
   | AiResponseGeneratedEvent
   | ApplicationLaunchedEvent
   | AtlasLinkClickedEvent
-  | AtlasSkillsAggregationCtaClickedEvent
-  | AtlasSkillsDocumentsCtaClickedEvent
-  | AtlasSkillsIndexesCtaClickedEvent
-  | AtlasSkillsSchemaCtaClickedEvent
-  | AtlasSkillsAggregationCtaDismissedEvent
-  | AtlasSkillsDocumentsCtaDismissedEvent
-  | AtlasSkillsIndexesCtaDismissedEvent
-  | AtlasSkillsSchemaCtaDismissedEvent
+  | AtlasSkillsCtaClickedEvent
+  | AtlasSkillsCtaDismissedEvent
   | AtlasSignInErrorEvent
   | AtlasSignInSuccessEvent
   | AtlasSignOutEvent
