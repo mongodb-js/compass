@@ -48,9 +48,6 @@ const optionsStyles = css({
   marginTop: spacing[200],
 });
 
-const DISMISSED_ATLAS_AGG_SKILL_BANNER_LOCAL_STORAGE_KEY =
-  'mongodb_compass_dismissedAtlasAggSkillBanner' as const;
-
 export type PipelineToolbarProps = {
   isAIInputVisible?: boolean;
   isAggregationGeneratedFromQuery?: boolean;
@@ -73,7 +70,7 @@ export const PipelineToolbar: React.FunctionComponent<PipelineToolbarProps> = ({
   const [isOptionsVisible, setIsOptionsVisible] = useState(false);
   // @experiment Skills in Atlas  | Jira Epic: CLOUDP-346311
   const [dismissed, setDismissed] = usePersistedState(
-    DISMISSED_ATLAS_AGG_SKILL_BANNER_LOCAL_STORAGE_KEY,
+    'mongodb_compass_dismissedAtlasAggSkillBanner',
     false
   );
 
@@ -109,14 +106,14 @@ export const PipelineToolbar: React.FunctionComponent<PipelineToolbarProps> = ({
         skillsUrl="https://learn.mongodb.com/courses/fundamentals-of-data-transformation?team=growth"
         onCloseSkillsBanner={() => {
           setDismissed(true);
-          track('Aggregation Skill CTA Dismissed', {
-            context: 'Atlas Skills',
+          track('Atlas Skills CTA Dismissed', {
+            context: 'Aggregation Tab',
           });
         }}
         showBanner={shouldShowAtlasSkillsBanner && !dismissed}
         onCtaClick={() => {
-          track('Aggregation Skill CTA Clicked', {
-            context: 'Atlas Skills',
+          track('Atlas Skills CTA Clicked', {
+            context: 'Aggregation Tab',
           });
         }}
       />
