@@ -19,6 +19,7 @@ import {
   createNewRelationship,
   addCollection,
   selectField,
+  renameField,
 } from '../store/diagram';
 import type { EdgeProps, NodeProps } from '@mongodb-js/compass-components';
 import {
@@ -135,6 +136,11 @@ const DiagramContent: React.FunctionComponent<{
   onCollectionSelect: (namespace: string) => void;
   onRelationshipSelect: (rId: string) => void;
   onFieldSelect: (namespace: string, fieldPath: FieldPath) => void;
+  onRenameField: (
+    namespace: string,
+    fieldPath: FieldPath,
+    newName: string
+  ) => void;
   onDiagramBackgroundClicked: () => void;
   selectedItems: SelectedItems;
   onCreateNewRelationship: ({
@@ -159,6 +165,7 @@ const DiagramContent: React.FunctionComponent<{
   onCollectionSelect,
   onRelationshipSelect,
   onFieldSelect,
+  onRenameField,
   onDiagramBackgroundClicked,
   onCreateNewRelationship,
   onRelationshipDrawn,
@@ -345,6 +352,7 @@ const DiagramContent: React.FunctionComponent<{
       onPaneClick,
       onEdgeClick,
       onFieldClick,
+      onFieldNameChange: onRenameField,
       onNodeDragStop,
       onConnect,
     }),
@@ -359,6 +367,7 @@ const DiagramContent: React.FunctionComponent<{
       onPaneClick,
       onEdgeClick,
       onFieldClick,
+      onRenameField,
       onNodeDragStop,
       onConnect,
     ]
@@ -421,6 +430,7 @@ const ConnectedDiagramContent = connect(
     onCollectionSelect: selectCollection,
     onRelationshipSelect: selectRelationship,
     onFieldSelect: selectField,
+    onRenameField: renameField,
     onDiagramBackgroundClicked: selectBackground,
     onCreateNewRelationship: createNewRelationship,
   }
