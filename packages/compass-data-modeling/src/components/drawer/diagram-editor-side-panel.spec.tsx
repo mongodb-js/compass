@@ -804,7 +804,7 @@ describe('DiagramEditorSidePanel', function () {
       userEvent.click(screen.getByRole('textbox', { name: 'Notes' }));
       userEvent.type(
         screen.getByRole('textbox', { name: 'Notes' }),
-        'Note about the relationship{shift>}{enter}{/shict}next line'
+        'Note about the relationship{shift>}{enter}{/shift}next line'
       );
 
       const collection = selectCurrentModelFromState(

@@ -454,6 +454,8 @@ const DiagramContent: React.FunctionComponent<{
       onDeleteRelationship,
       onDeleteField,
       selectedItems,
+      onUndoClick,
+      onRedoClick,
     ]
   );
 
