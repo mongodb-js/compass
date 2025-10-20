@@ -44,6 +44,7 @@ import {
   rafraf,
   Diagram,
   useDiagram,
+  useHotkeys,
 } from '@mongodb-js/compass-components';
 import { cancelAnalysis, retryAnalysis } from '../store/analysis-process';
 import type { FieldPath, StaticModel } from '../services/data-model-storage';
@@ -129,20 +130,6 @@ const ZOOM_OPTIONS = {
   minZoom: 0.25,
 };
 
-function anyParentNodeIsDataModelingDiagramOrDiagramToolbar(
-  element: HTMLElement | null
-): boolean {
-  while (element) {
-    if (
-      (element as any)._isDataModelingDiagram ||
-      (element as any)._isDiagramToolbar
-    )
-      return true;
-    element = element.parentElement;
-  }
-  return false;
-}
-
 type SelectedItems = NonNullable<DiagramState>['selectedItems'];
 
 const DiagramContent: React.FunctionComponent<{
@@ -210,7 +197,6 @@ const DiagramContent: React.FunctionComponent<{
     if (ref) {
       // For debugging purposes, we attach the diagram to the ref.
       (ref as any)._diagram = diagram.current;
-      (ref as any)._isDataModelingDiagram = true;
     }
   }, []);
 
@@ -385,86 +371,33 @@ const DiagramContent: React.FunctionComponent<{
     [onDiagramBackgroundClicked, onNodeClick, onEdgeClick]
   );
 
-  const onKeyDown = useCallback(
-    (event: React.KeyboardEvent | KeyboardEvent) => {
-      // If no element is focused, some inputs should still be treated as targeting the diagram
-      // (e.g. undo/redo)
-      const isUnfocusedEvent =
-        event.target === document.body ||
-        event.target === document.documentElement;
-      if (
-        !isUnfocusedEvent &&
-        !anyParentNodeIsDataModelingDiagramOrDiagramToolbar(
-          event.target as HTMLElement
-        )
-      ) {
-        return;
-      }
-      const markHandled = () => {
-        event.preventDefault();
-        event.stopPropagation();
-      };
+  const deleteItem = useCallback(() => {
+    switch (selectedItems?.type) {
+      case 'collection':
+        onDeleteCollection(selectedItems.id);
+        break;
+      case 'relationship':
+        onDeleteRelationship(selectedItems.id);
+        break;
+      case 'field':
+        onDeleteField(selectedItems.namespace, selectedItems.fieldPath);
+        break;
+      default:
+        break;
+    }
+  }, [selectedItems, onDeleteCollection, onDeleteRelationship, onDeleteField]);
+  useHotkeys('Backspace', deleteItem, [deleteItem]);
+  useHotkeys('Delete', deleteItem, [deleteItem]);
+  useHotkeys('Escape', () => {
+    onDiagramBackgroundClicked(true);
+  });
+  // macOS: Cmd+Shift+Z = Redo, Cmd+Z = Undo
+  // Windows/Linux: Ctrl+Z = Undo, Ctrl+Y = Redo
+  useHotkeys('mod+z', onUndoClick, [onUndoClick]);
+  useHotkeys('mod+shift+z', onRedoClick, [onRedoClick]);
+  useHotkeys('mod+y', onRedoClick, [onRedoClick]);
 
-      // Backspace and Delete keys delete selected item
-      if (
-        !isUnfocusedEvent &&
-        (event.key === 'Backspace' || event.key === 'Delete')
-      ) {
-        markHandled();
-        switch (selectedItems?.type) {
-          case 'collection':
-            onDeleteCollection(selectedItems.id);
-            break;
-          case 'relationship':
-            onDeleteRelationship(selectedItems.id);
-            break;
-          case 'field':
-            onDeleteField(selectedItems.namespace, selectedItems.fieldPath);
-            break;
-          default:
-            break;
-        }
-      }
-
-      // Escape key clears selection
-      else if (!isUnfocusedEvent && event.key === 'Escape') {
-        markHandled();
-        onDiagramBackgroundClicked(true);
-        // Undo/Redo should also trigger if there is no currently focused element
-        // macOS: Cmd+Shift+Z = Redo, Cmd+Z = Undo
-      } else if (event.metaKey && event.key.toLowerCase() === 'z') {
-        markHandled();
-        if (event.shiftKey) {
-          onRedoClick();
-        } else {
-          onUndoClick();
-        }
-        // Windows/Linux: Ctrl+Z = Undo, Ctrl+Y = Redo
-      } else if (event.ctrlKey && event.key.toLowerCase() === 'z') {
-        markHandled();
-        onUndoClick();
-      } else if (event.ctrlKey && event.key.toLowerCase() === 'y') {
-        markHandled();
-        onRedoClick();
-      }
-    },
-    [
-      onDiagramBackgroundClicked,
-      onDeleteCollection,
-      onDeleteRelationship,
-      onDeleteField,
-      selectedItems,
-      onUndoClick,
-      onRedoClick,
-    ]
-  );
-
-  // Not sure why eslint is confused by `DiagramProps` here
-  // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
-  type ThrottledDiagramProps = DiagramProps & {
-    onKeyDown: (event: React.KeyboardEvent | KeyboardEvent) => void;
-  };
-  const diagramProps: ThrottledDiagramProps = useMemo(
+  const diagramProps: DiagramProps = useMemo(
     () =>
       ({
         isDarkMode,
@@ -480,8 +413,7 @@ const DiagramContent: React.FunctionComponent<{
         onNodeDragStop,
         onConnect,
         onSelectionChange,
-        onKeyDown,
-      } satisfies ThrottledDiagramProps),
+      } satisfies DiagramProps),
     [
       isDarkMode,
       diagramLabel,
@@ -496,17 +428,10 @@ const DiagramContent: React.FunctionComponent<{
       onNodeDragStop,
       onConnect,
       onSelectionChange,
-      onKeyDown,
     ]
   );
 
-  const { onKeyDown: diagramOnKeyDown, ...throttledDiagramProps } =
-    useThrottledProps(diagramProps);
-
-  useEffect(() => {
-    document.body.addEventListener('keydown', diagramOnKeyDown);
-    return () => document.body.removeEventListener('keydown', diagramOnKeyDown);
-  }, [diagramOnKeyDown]);
+  const { ...throttledDiagramProps } = useThrottledProps(diagramProps);
 
   return (
     <div
@@ -515,11 +440,7 @@ const DiagramContent: React.FunctionComponent<{
       data-testid="diagram-editor-container"
     >
       {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions */}
-      <div
-        className={modelPreviewStyles}
-        data-testid="model-preview"
-        onKeyDown={diagramOnKeyDown}
-      >
+      <div className={modelPreviewStyles} data-testid="model-preview">
         {showDataInfoBanner && (
           <Banner
             variant="info"
@@ -612,16 +533,6 @@ const DiagramEditor: React.FunctionComponent<{
     openDrawer(DATA_MODELING_DRAWER_ID);
   }, [openDrawer, onAddCollectionClick]);
 
-  const setDiagramEditorToolbarContainerRef = useCallback(
-    (ref: HTMLDivElement | null) => {
-      if (ref) {
-        // For debugging purposes, we attach the diagram to the ref.
-        (ref as any)._isDiagramToolbar = true;
-      }
-    },
-    []
-  );
-
   if (step === 'NO_DIAGRAM_SELECTED') {
     return null;
   }
@@ -669,13 +580,11 @@ const DiagramEditor: React.FunctionComponent<{
   return (
     <WorkspaceContainer
       toolbar={
-        <div ref={setDiagramEditorToolbarContainerRef}>
-          <DiagramEditorToolbar
-            onRelationshipDrawingToggle={handleRelationshipDrawingToggle}
-            isInRelationshipDrawingMode={isInRelationshipDrawingMode}
-            onAddCollectionClick={handleAddCollectionClick}
-          />
-        </div>
+        <DiagramEditorToolbar
+          onRelationshipDrawingToggle={handleRelationshipDrawingToggle}
+          isInRelationshipDrawingMode={isInRelationshipDrawingMode}
+          onAddCollectionClick={handleAddCollectionClick}
+        />
       }
     >
       {content}
