@@ -281,6 +281,8 @@ module.exports = (env, args) => {
       ],
     },
     externalsType: 'window',
+    // MMS implementation defines these global variables in https://github.com/10gen/mms/blob/e188be1f58a46c7c4a0ab485f8c09096aaa6f3a8/client/packages/project/dataExplorerCompassWeb/hooks/useCompassWebModule.tsx#L6-L11
+    // if you're changing these value, make sure to update the mms part
     externals: {
       react: ['__compassWebSharedRuntime', 'React'],
       'react-dom': ['__compassWebSharedRuntime', 'ReactDOM'],
