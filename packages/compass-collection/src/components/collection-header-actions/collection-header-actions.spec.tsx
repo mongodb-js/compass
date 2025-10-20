@@ -272,7 +272,7 @@ describe('CollectionHeaderActions [Component]', function () {
           namespace: 'test.collection',
           isReadonly: false,
           hasSchemaAnalysisData: true,
-          analyzedSchemaDepth: 7, // Exceeds MAX_COLLECTION_NESTING_DEPTH (5)
+          analyzedSchemaDepth: 8, // Exceeds MAX_COLLECTION_NESTING_DEPTH (7)
           schemaAnalysisStatus: 'complete',
           onOpenMockDataModal: sinon.stub(),
         },

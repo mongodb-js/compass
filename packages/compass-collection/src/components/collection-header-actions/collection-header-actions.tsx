@@ -27,7 +27,7 @@ import {
 /**
  * Maximum allowed nesting depth for collections to show Mock Data Generator
  */
-const MAX_COLLECTION_NESTING_DEPTH = 5;
+const MAX_COLLECTION_NESTING_DEPTH = 7;
 
 const collectionHeaderActionsStyles = css({
   display: 'flex',
@@ -102,9 +102,7 @@ const CollectionHeaderActions: React.FunctionComponent<
   const { database, collection } = toNS(namespace);
 
   // Check if user is in treatment group for Mock Data Generator experiment
-  const isInMockDataTreatmentVariant =
-    mockDataGeneratorAssignment?.assignment?.assignmentData?.variant ===
-    ExperimentTestGroup.mockDataGeneratorVariant;
+  const isInMockDataTreatmentVariant = true;
 
   const shouldShowMockDataButton =
     isInMockDataTreatmentVariant &&
