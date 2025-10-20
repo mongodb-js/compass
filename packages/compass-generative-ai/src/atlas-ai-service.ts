@@ -506,6 +506,7 @@ export class AtlasAiService {
         collectionName,
         databaseName,
         schema,
+        validationRules: input.validationRules,
       }),
       headers: {
         'Content-Type': 'application/json',
