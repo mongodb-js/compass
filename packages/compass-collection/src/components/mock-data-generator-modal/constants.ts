@@ -100,5 +100,4 @@ export const MONGO_TYPE_TO_FAKER_METHODS: Record<
   DBRef: ['database.mongodbObjectId'],
 };
 
-export const DEFAULT_CONNECTION_STRING_FALLBACK =
-  'mongodb+srv://<your-cluster>.mongodb.net/<your-database>';
+export const DEFAULT_CONNECTION_STRING_FALLBACK = '<connection-string>';
