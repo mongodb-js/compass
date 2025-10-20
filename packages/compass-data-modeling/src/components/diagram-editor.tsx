@@ -420,7 +420,7 @@ const DiagramContent: React.FunctionComponent<{
     ]
   );
 
-  const { ...throttledDiagramProps } = useThrottledProps(diagramProps);
+  const throttledDiagramProps = useThrottledProps(diagramProps);
 
   return (
     <div
@@ -428,7 +428,6 @@ const DiagramContent: React.FunctionComponent<{
       className={modelPreviewContainerStyles}
       data-testid="diagram-editor-container"
     >
-      {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions */}
       <div className={modelPreviewStyles} data-testid="model-preview">
         {showDataInfoBanner && (
           <Banner
