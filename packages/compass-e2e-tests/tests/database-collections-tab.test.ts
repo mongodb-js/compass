@@ -144,8 +144,6 @@ describe('Database collections tab', function () {
     const collectionRow = browser.$(selector);
     await collectionRow.waitForDisplayed();
 
-    await collectionRow.scrollIntoView(false);
-
     await browser.waitUntil(async () => {
       // open the drop collection modal from the collection card
       await browser.hover(`${selector}`);

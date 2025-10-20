@@ -109,10 +109,8 @@ describe('Instance databases tab', function () {
       selector,
       'table'
     );
-    const databaseCard = browser.$(selector);
-    await databaseCard.waitForDisplayed();
-
-    await databaseCard.scrollIntoView(false);
+    const databaseRow = browser.$(selector);
+    await databaseRow.waitForDisplayed();
 
     await browser.waitUntil(async () => {
       // open the drop database modal from the database card
@@ -133,7 +131,7 @@ describe('Instance databases tab', function () {
 
     // wait for it to be gone (which it will be anyway because the app should
     // redirect back to the databases tab)
-    await databaseCard.waitForExist({ reverse: true });
+    await databaseRow.waitForExist({ reverse: true });
 
     // the app should stay on the instance Databases tab.
     await browser.waitUntilActiveConnectionTab(

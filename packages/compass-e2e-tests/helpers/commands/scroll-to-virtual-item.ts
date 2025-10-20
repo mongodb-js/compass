@@ -73,6 +73,34 @@ const treeConfig: ItemConfig = {
   },
 };
 
+async function scrollToPosition(
+  browser: CompassBrowser,
+  containerSelector: string,
+  role: 'table' | 'tree',
+  scrollPosition: number
+) {
+  const config = role === 'tree' ? treeConfig : tableConfig;
+
+  await browser.execute(
+    (selector, nextScrollTop, getScrollContainerString) => {
+      // eslint-disable-next-line no-restricted-globals
+      const container = document.querySelector(selector);
+      const scrollContainer = eval(getScrollContainerString)(container);
+      if (!scrollContainer) {
+        debug('no scroll container');
+        return;
+      }
+
+      scrollContainer.scrollTop = nextScrollTop;
+    },
+    containerSelector,
+    scrollPosition,
+    // Due to interprocess, we can not pass a function here.
+    // So, we stringify it here and then eval to execute it
+    config.getScrollContainer.toString()
+  );
+}
+
 export async function scrollToVirtualItem(
   browser: CompassBrowser,
   containerSelector: string,
@@ -93,21 +121,15 @@ export async function scrollToVirtualItem(
   });
 
   // scroll to the top
-  await browser.execute(
-    (selector, getScrollContainerString) => {
-      // eslint-disable-next-line no-restricted-globals
-      const container = document.querySelector(selector);
-      const scrollContainer = eval(getScrollContainerString)(container);
-      scrollContainer.scrollTop = 0;
-    },
-    containerSelector,
-    config.getScrollContainer.toString()
-  );
+  await scrollToPosition(browser, containerSelector, 'table', 0);
 
-  const scrollHeight = parseInt(
+  const visibleHeight = parseInt(
     await browser.$(containerSelector).getProperty('clientHeight'),
     10
   );
+  // scroll by a quarter of the visible height to give things a chance to appear
+  const scrollHeight = visibleHeight; // / 4;
+
   let totalHeight = await config.calculateTotalHeight(
     browser,
     containerSelector,
@@ -138,15 +160,42 @@ export async function scrollToVirtualItem(
 
   let scrollTop = 0;
 
+  await browser.screenshot(`scroll-${scrollTop}.png`);
+
   await browser.waitUntil(async () => {
     await browser.pause(100);
     const targetElement = browser.$(targetSelector);
     if (await targetElement.isExisting()) {
+      debug('found the item', targetSelector, 'at', scrollTop);
+
       await targetElement.waitForDisplayed();
-      await targetElement.scrollIntoView();
+      if (role === 'tree') {
+        await targetElement.scrollIntoView();
+      } else {
+        // element.scrollIntoView() seems to completely mess up the virtual
+        // table, but
+        const y = await targetElement.getLocation('y');
+        // if the element is off-screen, scroll one more screen. It is actually
+        // quite likely that the element will start to exist while it is still
+        // off screen due to overscan, so we do still have to scroll to have it
+        // visible.
+        if (y > scrollHeight) {
+          // TODO: maybe subtract the header height just in case so that we
+          // don't end up with the row under the sticky header?
+          const scrollAmount = scrollHeight;
+          debug('scrolling to y position', scrollTop + scrollAmount);
+          await scrollToPosition(
+            browser,
+            containerSelector,
+            role,
+            scrollTop + scrollAmount
+          );
+        }
+      }
       // the item is now visible, so stop scrolling
       found = true;
-      debug('found the item');
+
+      await browser.screenshot(`found.png`);
 
       return true;
     }
@@ -160,29 +209,17 @@ export async function scrollToVirtualItem(
       debug('scrolling to ', scrollTop);
 
       // scroll for another screen
-      await browser.execute(
-        (selector, nextScrollTop, getScrollContainerString) => {
-          // eslint-disable-next-line no-restricted-globals
-          const container = document.querySelector(selector);
-          const scrollContainer = eval(getScrollContainerString)(container);
-          if (!scrollContainer) {
-            debug('no scroll container');
-            return;
-          }
+      await scrollToPosition(browser, containerSelector, role, scrollTop);
 
-          scrollContainer.scrollTop = nextScrollTop;
-        },
-        containerSelector,
-        scrollTop,
-        // Due to interprocess, we can not pass a function here.
-        // So, we stringify it here and then eval to execute it
-        config.getScrollContainer.toString()
-      );
       // wait for dom to render
       await browser.waitForAnimations(
         `${containerSelector} ${config.firstChildSelector}`
       );
+
       debug('Scrolled to', scrollTop, 'of', totalHeight);
+
+      await browser.screenshot(`scroll-${scrollTop}.png`);
+
       return false;
     } else {
       // stop because we got to the end and never found it
