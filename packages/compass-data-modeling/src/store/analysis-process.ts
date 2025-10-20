@@ -6,7 +6,10 @@ import { getCurrentDiagramFromState } from './diagram';
 import { UUID } from 'bson';
 import type { Relationship } from '../services/data-model-storage';
 import { applyLayout } from '@mongodb-js/compass-components';
-import { collectionToBaseNodeForLayout } from '../utils/nodes-and-edges';
+import {
+  collectionToBaseNodeForLayout,
+  relationshipToDiagramEdge,
+} from '../utils/nodes-and-edges';
 import { inferForeignToLocalRelationshipsForCollection } from './relationships';
 import { mongoLogId } from '@mongodb-js/compass-logging/provider';
 
@@ -146,6 +149,28 @@ export const analysisProcessReducer: Reducer<AnalysisProcessState> = (
   return state;
 };
 
+async function getInitialLayout({
+  collections,
+  relations,
+}: {
+  collections: { ns: string; schema: MongoDBJSONSchema }[];
+  relations: Relationship[];
+}) {
+  const hasRelations = relations.length > 0;
+  const nodes = collections.map((coll) => {
+    return collectionToBaseNodeForLayout({
+      ns: coll.ns,
+      jsonSchema: coll.schema,
+      displayPosition: [0, 0],
+    });
+  });
+  return await applyLayout({
+    nodes,
+    edges: relations.map((rel) => relationshipToDiagramEdge(rel, false, [])), // nodes are not important here
+    direction: hasRelations ? 'STAR' : 'RECTANGLE',
+  });
+}
+
 export function startAnalysis(
   name: string,
   connectionId: string,
@@ -281,17 +306,10 @@ export function startAnalysis(
         throw cancelController.signal.reason;
       }
 
-      const positioned = await applyLayout(
-        collections.map((coll) => {
-          return collectionToBaseNodeForLayout({
-            ns: coll.ns,
-            jsonSchema: coll.schema,
-            displayPosition: [0, 0],
-          });
-        }),
-        [],
-        'LEFT_RIGHT'
-      );
+      const positioned = await getInitialLayout({
+        collections,
+        relations,
+      });
 
       dispatch({
         type: AnalysisProcessActionTypes.ANALYSIS_FINISHED,
