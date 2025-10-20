@@ -27,7 +27,7 @@ import {
 /**
  * Maximum allowed nesting depth for collections to show Mock Data Generator
  */
-const MAX_COLLECTION_NESTING_DEPTH = 3;
+const MAX_COLLECTION_NESTING_DEPTH = 5;
 
 const collectionHeaderActionsStyles = css({
   display: 'flex',
