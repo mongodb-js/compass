@@ -143,7 +143,7 @@ const DiagramContent: React.FunctionComponent<{
   onCollectionSelect: (namespace: string) => void;
   onRelationshipSelect: (rId: string) => void;
   onFieldSelect: (namespace: string, fieldPath: FieldPath) => void;
-  onDiagramBackgroundClicked: (keepFieldSelection?: boolean) => void;
+  onDiagramBackgroundClicked: () => void;
   onDeleteCollection: (ns: string) => void;
   onDeleteRelationship: (rId: string) => void;
   onDeleteField: (ns: string, fieldPath: FieldPath) => void;
@@ -347,24 +347,6 @@ const DiagramContent: React.FunctionComponent<{
     [onAddFieldToObjectField]
   );
 
-  const onSelectionChange = useCallback(
-    ({ nodes, edges }: { nodes: NodeProps[]; edges: EdgeProps[] }) => {
-      // Select the first selected item (if any) in the diagram
-      // since unlike react-flow, we only support single item selections
-      if (nodes.length > 0) {
-        onNodeClick(null, nodes[0]);
-        return;
-      }
-      if (edges.length > 0) {
-        onEdgeClick(null, edges[0]);
-        return;
-      }
-      // If nothing is selected, clear the selection
-      onDiagramBackgroundClicked(true);
-    },
-    [onDiagramBackgroundClicked, onNodeClick, onEdgeClick]
-  );
-
   const deleteItem = useCallback(() => {
     switch (selectedItems?.type) {
       case 'collection':
@@ -383,7 +365,7 @@ const DiagramContent: React.FunctionComponent<{
   useHotkeys('Backspace', deleteItem, [deleteItem]);
   useHotkeys('Delete', deleteItem, [deleteItem]);
   useHotkeys('Escape', () => {
-    onDiagramBackgroundClicked(true);
+    onDiagramBackgroundClicked();
   });
 
   const diagramProps: DiagramProps = useMemo(
@@ -401,7 +383,6 @@ const DiagramContent: React.FunctionComponent<{
         onFieldClick,
         onNodeDragStop,
         onConnect,
-        onSelectionChange,
       } satisfies DiagramProps),
     [
       isDarkMode,
@@ -416,7 +397,6 @@ const DiagramContent: React.FunctionComponent<{
       onFieldClick,
       onNodeDragStop,
       onConnect,
-      onSelectionChange,
     ]
   );
 

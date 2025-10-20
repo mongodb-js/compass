@@ -131,7 +131,6 @@ export type FieldSelectedAction = {
 
 export type DiagramBackgroundSelectedAction = {
   type: DiagramActionTypes.DIAGRAM_BACKGROUND_SELECTED;
-  keepFieldSelection: boolean;
 };
 
 export type DiagramActions =
@@ -313,9 +312,6 @@ export const diagramReducer: Reducer<DiagramState> = (
     };
   }
   if (isAction(action, DiagramActionTypes.DIAGRAM_BACKGROUND_SELECTED)) {
-    if (action.keepFieldSelection && state.selectedItems?.type === 'field') {
-      return state;
-    }
     return {
       ...state,
       selectedItems: null,
@@ -441,12 +437,9 @@ export function selectField(
   };
 }
 
-export function selectBackground(
-  keepFieldSelection = false
-): DiagramBackgroundSelectedAction {
+export function selectBackground(): DiagramBackgroundSelectedAction {
   return {
     type: DiagramActionTypes.DIAGRAM_BACKGROUND_SELECTED,
-    keepFieldSelection,
   };
 }
 
