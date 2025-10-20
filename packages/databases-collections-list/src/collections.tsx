@@ -419,6 +419,7 @@ const CollectionsList: React.FunctionComponent<{
   onDeleteCollectionClick?: (id: string) => void;
   onCreateCollectionClick?: () => void;
   onRefreshClick?: () => void;
+  virtual?: boolean;
 }> = ({
   namespace,
   collections,
@@ -426,6 +427,7 @@ const CollectionsList: React.FunctionComponent<{
   onDeleteCollectionClick,
   onCreateCollectionClick,
   onRefreshClick,
+  virtual,
 }) => {
   const enableDbAndCollStats = usePreference('enableDbAndCollStats');
   const darkMode = useDarkMode();
@@ -435,6 +437,7 @@ const CollectionsList: React.FunctionComponent<{
   );
   return (
     <ItemsTable
+      virtual={virtual}
       data-testid="collections-list"
       namespace={namespace}
       columns={columns}

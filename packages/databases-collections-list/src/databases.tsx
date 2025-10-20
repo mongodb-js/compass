@@ -210,6 +210,7 @@ const DatabasesList: React.FunctionComponent<{
   onCreateDatabaseClick?: () => void;
   onRefreshClick?: () => void;
   renderLoadSampleDataBanner?: () => React.ReactNode;
+  virtual?: boolean;
 }> = ({
   databases,
   onDatabaseClick,
@@ -217,6 +218,7 @@ const DatabasesList: React.FunctionComponent<{
   onCreateDatabaseClick,
   onRefreshClick,
   renderLoadSampleDataBanner,
+  virtual,
 }) => {
   const showInsights = usePreference('showInsights');
   const enableDbAndCollStats = usePreference('enableDbAndCollStats');
@@ -227,6 +229,7 @@ const DatabasesList: React.FunctionComponent<{
   );
   return (
     <ItemsTable
+      virtual={virtual}
       data-testid="databases-list"
       columns={columns}
       items={databases}

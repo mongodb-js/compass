@@ -218,7 +218,7 @@ const TableControls: React.FunctionComponent<{
                 className={createButtonStyles}
                 size="small"
               >
-                Create {itemType}
+                {`Create ${itemType}`}
               </Button>
             </div>
           )}
