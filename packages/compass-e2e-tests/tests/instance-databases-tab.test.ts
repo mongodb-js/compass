@@ -68,12 +68,7 @@ describe('Instance databases tab', function () {
       Selectors.databaseRow('test'),
       'table'
     );
-    // Click on the db name text inside the card specifically to try and have
-    // tighter control over where it clicks, because clicking in the center of
-    // the last card if all cards don't fit on screen can silently do nothing
-    // even after scrolling it into view.
     await browser.clickVisible(Selectors.databaseRow('test'), {
-      scroll: true,
       screenshot: 'database-card.png',
     });
 

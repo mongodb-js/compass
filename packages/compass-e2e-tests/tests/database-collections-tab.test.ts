@@ -100,9 +100,7 @@ describe('Database collections tab', function () {
       'table'
     );
 
-    await browser.clickVisible(Selectors.collectionRow('test', 'json-array'), {
-      scroll: true,
-    });
+    await browser.clickVisible(Selectors.collectionRow('test', 'json-array'));
 
     // lands on the collection screen with all its tabs
     const tabSelectors = [
