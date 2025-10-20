@@ -87,6 +87,7 @@ export const DiagramEditorToolbar: React.FunctionComponent<{
     [diagramName, openDataModelingWorkspace]
   );
 
+  // TODO(COMPASS-9976): Integrate with application menu
   // macOS: Cmd+Shift+Z = Redo, Cmd+Z = Undo
   // Windows/Linux: Ctrl+Z = Undo, Ctrl+Y = Redo
   useHotkeys('mod+z', onUndoClick, { enabled: step === 'EDITING' }, [
