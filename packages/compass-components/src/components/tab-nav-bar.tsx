@@ -67,7 +67,7 @@ function TabNavBar({
           darkMode ? tabsContainerDarkStyles : tabsContainerLightStyles
         )}
       >
-        <Tabs<number>
+        <Tabs
           data-testid={dataTestId}
           aria-label={ariaLabel}
           className="test-tab-nav-bar-tabs"
