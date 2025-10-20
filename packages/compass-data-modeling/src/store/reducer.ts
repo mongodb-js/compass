@@ -20,6 +20,7 @@ import type {
   ExportDiagramActions,
 } from './export-diagram';
 import { exportDiagramReducer } from './export-diagram';
+import { type openToast as _openToast } from '@mongodb-js/compass-components';
 
 const reducer = combineReducers({
   step: stepReducer,
@@ -46,6 +47,7 @@ export type DataModelingState = ReturnType<typeof reducer>;
 export type DataModelingExtraArgs = DataModelingStoreServices & {
   cancelAnalysisControllerRef: { current: AbortController | null };
   cancelExportControllerRef: { current: AbortController | null };
+  openToast: typeof _openToast;
 };
 
 export type DataModelingThunkAction<R, A extends AnyAction> = ThunkAction<

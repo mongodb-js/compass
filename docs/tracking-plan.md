@@ -6,7 +6,7 @@
 > the tracking plan for the specific Compass version you can use the following
 > URL: `https://github.com/mongodb-js/compass/blob/<compass version>/docs/tracking-plan.md`
 
-Generated on Thu, Oct 16, 2025
+Generated on Mon, Oct 20, 2025
 
 ## Table of Contents
 
@@ -180,6 +180,8 @@ Generated on Thu, Oct 16, 2025
 
 - [Application Launched](#event--ApplicationLaunchedEvent)
 - [Atlas Link Clicked](#event--AtlasLinkClickedEvent)
+- [Atlas Skills CTA Clicked](#event--AtlasSkillsCtaClickedEvent)
+- [Atlas Skills CTA Dismissed](#event--AtlasSkillsCtaDismissedEvent)
 - [Error Fetching Attributes](#event--ErrorFetchingAttributesEvent)
 - [Keytar Secrets Migration Failed](#event--KeytarSecretsMigrationFailedEvent)
 - [Performance Advisor Clicked](#event--PerformanceAdvisorClickedEvent)
@@ -2043,6 +2045,30 @@ This event is fired when a user clicks on the Atlas CTA.
 
 - **screen** (optional): `"agg_builder" | "connect" | undefined`
   - The screen from which the Atlas CTA was clicked.
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--AtlasSkillsCtaClickedEvent"></a>
+
+### Atlas Skills CTA Clicked
+
+This event is fired when a user clicks the Atlas Skills CTA banner.
+
+**Properties**:
+
+- **context** (required): `"Documents Tab" | "Aggregation Tab" | "Indexes Tab" | "Schema Tab"`
+  - The context/screen from which the Atlas Skills CTA was dismissed.
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--AtlasSkillsCtaDismissedEvent"></a>
+
+### Atlas Skills CTA Dismissed
+
+This event is fired when a user dismisses the Atlas Skills CTA banner.
+
+**Properties**:
+
+- **context** (required): `"Documents Tab" | "Aggregation Tab" | "Indexes Tab" | "Schema Tab"`
+  - The context/screen from which the Atlas Skills CTA was dismissed.
 - **is_compass_web** (optional): `true | undefined`
 
 <a name="event--ErrorFetchingAttributesEvent"></a>
