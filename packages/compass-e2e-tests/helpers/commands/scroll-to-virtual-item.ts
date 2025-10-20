@@ -108,7 +108,7 @@ export async function scrollToVirtualItem(
     await browser.$(containerSelector).getProperty('clientHeight'),
     10
   );
-  const totalHeight = await config.calculateTotalHeight(
+  let totalHeight = await config.calculateTotalHeight(
     browser,
     containerSelector,
     config.getScrollContainer.toString()
@@ -123,6 +123,13 @@ export async function scrollToVirtualItem(
     });
     return false;
   }
+
+  // Add one more scrollHeight to make sure we reach the end. Due to the sticky
+  // header in the table case we seem to lose a few rows at the end. There's no
+  // real harm in trying to scroll beyond the end - it will either have found
+  // the item already and exited the loop or worst case it will attempt to
+  // scroll one more time and then still not find the item.
+  totalHeight += scrollHeight;
 
   // wait for the first element to be visible to make sure this went into effect
   await browser
