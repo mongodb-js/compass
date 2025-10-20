@@ -16,6 +16,7 @@ import {
   Tooltip,
   Breadcrumbs,
   type BreadcrumbItem,
+  useHotkeys,
 } from '@mongodb-js/compass-components';
 import AddCollection from './icons/add-collection';
 import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
@@ -85,6 +86,18 @@ export const DiagramEditorToolbar: React.FunctionComponent<{
     ],
     [diagramName, openDataModelingWorkspace]
   );
+
+  // macOS: Cmd+Shift+Z = Redo, Cmd+Z = Undo
+  // Windows/Linux: Ctrl+Z = Undo, Ctrl+Y = Redo
+  useHotkeys('mod+z', onUndoClick, { enabled: step === 'EDITING' }, [
+    onUndoClick,
+  ]);
+  useHotkeys('mod+shift+z', onRedoClick, { enabled: step === 'EDITING' }, [
+    onRedoClick,
+  ]);
+  useHotkeys('mod+y', onRedoClick, { enabled: step === 'EDITING' }, [
+    onRedoClick,
+  ]);
 
   if (step !== 'EDITING') {
     return null;

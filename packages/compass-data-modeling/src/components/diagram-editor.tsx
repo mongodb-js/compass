@@ -22,8 +22,6 @@ import {
   deleteCollection,
   deleteRelationship,
   removeField,
-  undoEdit,
-  redoEdit,
 } from '../store/diagram';
 import type {
   EdgeProps,
@@ -149,8 +147,6 @@ const DiagramContent: React.FunctionComponent<{
   onDeleteCollection: (ns: string) => void;
   onDeleteRelationship: (rId: string) => void;
   onDeleteField: (ns: string, fieldPath: FieldPath) => void;
-  onUndoClick: () => void;
-  onRedoClick: () => void;
   selectedItems: SelectedItems;
   onCreateNewRelationship: ({
     localNamespace,
@@ -180,8 +176,6 @@ const DiagramContent: React.FunctionComponent<{
   onDeleteCollection,
   onDeleteRelationship,
   onDeleteField,
-  onUndoClick,
-  onRedoClick,
   selectedItems,
   DiagramComponent = Diagram,
 }) => {
@@ -391,11 +385,6 @@ const DiagramContent: React.FunctionComponent<{
   useHotkeys('Escape', () => {
     onDiagramBackgroundClicked(true);
   });
-  // macOS: Cmd+Shift+Z = Redo, Cmd+Z = Undo
-  // Windows/Linux: Ctrl+Z = Undo, Ctrl+Y = Redo
-  useHotkeys('mod+z', onUndoClick, [onUndoClick]);
-  useHotkeys('mod+shift+z', onRedoClick, [onRedoClick]);
-  useHotkeys('mod+y', onRedoClick, [onRedoClick]);
 
   const diagramProps: DiagramProps = useMemo(
     () =>
@@ -494,8 +483,6 @@ const ConnectedDiagramContent = connect(
     onDeleteCollection: deleteCollection,
     onDeleteRelationship: deleteRelationship,
     onDeleteField: removeField,
-    onUndoClick: undoEdit,
-    onRedoClick: redoEdit,
   }
 )(DiagramContent);
 
