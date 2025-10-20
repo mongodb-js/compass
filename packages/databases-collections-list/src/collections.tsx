@@ -337,7 +337,7 @@ function collectionColumns({
           return '-';
         }
 
-        return collection.document_count !== undefined
+        return enableDbAndCollStats && collection.document_count !== undefined
           ? compactNumber(collection.document_count)
           : '-';
       },

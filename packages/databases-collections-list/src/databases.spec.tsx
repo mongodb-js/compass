@@ -15,6 +15,7 @@ import {
 } from 'compass-preferences-model/provider';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 import type { DatabaseProps } from 'mongodb-database-model';
+import { inspectTable, testSortColumn } from '../test/utils';
 
 function createDatabase(name: string): DatabaseProps {
   const db: DatabaseProps = {
@@ -66,7 +67,7 @@ const dbs: DatabaseProps[] = [
   },
 ];
 
-describe('Databases', () => {
+describe('Databases', function () {
   let preferences: PreferencesAccess;
 
   beforeEach(async function () {
@@ -105,7 +106,7 @@ describe('Databases', () => {
     };
   };
 
-  it('should render the database list', () => {
+  it('should render the database list', function () {
     const { clickSpy, deleteSpy, createSpy, refreshSpy } = renderDatabasesList({
       databases: dbs,
     });
@@ -144,195 +145,55 @@ describe('Databases', () => {
     expect(deleteSpy.calledOnce).to.be.true;
   });
 
-  it('sorts by "Database name"', async () => {
+  it('sorts by "Database name"', async function () {
     renderDatabasesList({
       databases: dbs,
     });
 
-    let result = inspectTable(screen, 'databases-list');
-
-    // initial order
-    expect(result.getColumn('Database name')).to.deep.equal([
-      'foo',
-      'bar',
-      'buz',
-      'bat',
+    await testSortColumn(screen, 'databases-list', 'Database name', [
+      ['foo', 'bar', 'buz', 'bat'],
+      ['bar', 'bat', 'buz', 'foo'],
+      ['foo', 'buz', 'bat', 'bar'],
     ]);
-
-    // ascending
-    userEvent.click(screen.getByLabelText('Sort by Database name'));
-    await waitFor(() => {
-      result = inspectTable(screen, 'databases-list');
-      expect(result.getColumn('Database name')).to.deep.equal([
-        'bar',
-        'bat',
-        'buz',
-        'foo',
-      ]);
-    });
-
-    // descending
-    userEvent.click(screen.getByLabelText('Sort by Database name'));
-    await waitFor(() => {
-      result = inspectTable(screen, 'databases-list');
-      expect(result.getColumn('Database name')).to.deep.equal([
-        'foo',
-        'buz',
-        'bat',
-        'bar',
-      ]);
-    });
-
-    // back to initial order
-    userEvent.click(screen.getByLabelText('Sort by Database name'));
-    await waitFor(() => {
-      result = inspectTable(screen, 'databases-list');
-      expect(result.getColumn('Database name')).to.deep.equal([
-        'foo',
-        'bar',
-        'buz',
-        'bat',
-      ]);
-    });
   });
 
-  it('sorts by "Storage size"', async () => {
+  it('sorts by "Storage size"', async function () {
     renderDatabasesList({
       databases: dbs,
     });
 
-    let result = inspectTable(screen, 'databases-list');
-
-    // initial order
-    expect(result.getColumn('Storage size')).to.deep.equal([
-      '5.00 kB',
-      '0 B',
-      '10.00 kB',
-      '7.50 kB',
+    await testSortColumn(screen, 'databases-list', 'Storage size', [
+      ['5.00 kB', '0 B', '10.00 kB', '7.50 kB'],
+      ['10.00 kB', '7.50 kB', '5.00 kB', '0 B'],
+      ['0 B', '5.00 kB', '7.50 kB', '10.00 kB'],
     ]);
-
-    // descending
-    userEvent.click(screen.getByLabelText('Sort by Storage size'));
-    await waitFor(() => {
-      result = inspectTable(screen, 'databases-list');
-      expect(result.getColumn('Storage size')).to.deep.equal([
-        '10.00 kB',
-        '7.50 kB',
-        '5.00 kB',
-        '0 B',
-      ]);
-    });
-
-    // ascending
-    userEvent.click(screen.getByLabelText('Sort by Storage size'));
-    await waitFor(() => {
-      result = inspectTable(screen, 'databases-list');
-      expect(result.getColumn('Storage size')).to.deep.equal([
-        '0 B',
-        '5.00 kB',
-        '7.50 kB',
-        '10.00 kB',
-      ]);
-    });
-
-    // back to initial order
-    userEvent.click(screen.getByLabelText('Sort by Storage size'));
-    await waitFor(() => {
-      result = inspectTable(screen, 'databases-list');
-      expect(result.getColumn('Storage size')).to.deep.equal([
-        '5.00 kB',
-        '0 B',
-        '10.00 kB',
-        '7.50 kB',
-      ]);
-    });
   });
 
-  it('sorts by "Collections"', async () => {
+  it('sorts by "Collections"', async function () {
     renderDatabasesList({
       databases: dbs,
     });
 
-    let result = inspectTable(screen, 'databases-list');
-
-    // initial order
-    expect(result.getColumn('Collections')).to.deep.equal([
-      '5',
-      '1',
-      '10K insight',
-      '7',
+    await testSortColumn(screen, 'databases-list', 'Collections', [
+      ['5', '1', '10K insight', '7'],
+      ['10K insight', '7', '5', '1'],
+      ['1', '5', '7', '10K insight'],
     ]);
-
-    // descending
-    userEvent.click(screen.getByLabelText('Sort by Collections'));
-    await waitFor(() => {
-      result = inspectTable(screen, 'databases-list');
-      expect(result.getColumn('Collections')).to.deep.equal([
-        '10K insight',
-        '7',
-        '5',
-        '1',
-      ]);
-    });
-
-    // ascending
-    userEvent.click(screen.getByLabelText('Sort by Collections'));
-    await waitFor(() => {
-      result = inspectTable(screen, 'databases-list');
-      expect(result.getColumn('Collections')).to.deep.equal([
-        '1',
-        '5',
-        '7',
-        '10K insight',
-      ]);
-    });
-
-    // back to initial order
-    userEvent.click(screen.getByLabelText('Sort by Collections'));
-    await waitFor(() => {
-      result = inspectTable(screen, 'databases-list');
-      expect(result.getColumn('Collections')).to.deep.equal([
-        '5',
-        '1',
-        '10K insight',
-        '7',
-      ]);
-    });
   });
 
-  it('sorts by "Indexes"', async () => {
+  it('sorts by "Indexes"', async function () {
     renderDatabasesList({
       databases: dbs,
     });
 
-    let result = inspectTable(screen, 'databases-list');
-
-    // initial order
-    expect(result.getColumn('Indexes')).to.deep.equal(['5', '10', '12', '9']);
-
-    // descending
-    userEvent.click(screen.getByLabelText('Sort by Indexes'));
-    await waitFor(() => {
-      result = inspectTable(screen, 'databases-list');
-      expect(result.getColumn('Indexes')).to.deep.equal(['12', '10', '9', '5']);
-    });
-
-    // ascending
-    userEvent.click(screen.getByLabelText('Sort by Indexes'));
-    await waitFor(() => {
-      result = inspectTable(screen, 'databases-list');
-      expect(result.getColumn('Indexes')).to.deep.equal(['5', '9', '10', '12']);
-    });
-
-    // back to initial order
-    userEvent.click(screen.getByLabelText('Sort by Indexes'));
-    await waitFor(() => {
-      result = inspectTable(screen, 'databases-list');
-      expect(result.getColumn('Indexes')).to.deep.equal(['5', '10', '12', '9']);
-    });
+    await testSortColumn(screen, 'databases-list', 'Indexes', [
+      ['5', '10', '12', '9'],
+      ['12', '10', '9', '5'],
+      ['5', '9', '10', '12'],
+    ]);
   });
 
-  it('renders renderLoadSampleDataBanner() if provided', () => {
+  it('renders renderLoadSampleDataBanner() if provided', function () {
     renderDatabasesList({
       databases: dbs,
       renderLoadSampleDataBanner: () => <div>Sample Data Banner</div>,
@@ -341,14 +202,14 @@ describe('Databases', () => {
     expect(screen.getByText('Sample Data Banner')).to.exist;
   });
 
-  it('renders performance insights', () => {
+  it('renders performance insights', function () {
     renderDatabasesList({
       databases: dbs,
     });
     expect(screen.getByTestId('insight-badge-text')).to.exist;
   });
 
-  it('does not render stats with enableDbAndCollStats disabled', async () => {
+  it('does not render stats with enableDbAndCollStats disabled', async function () {
     await preferences.savePreferences({ enableDbAndCollStats: false });
 
     renderDatabasesList({
@@ -364,7 +225,7 @@ describe('Databases', () => {
     ]);
   });
 
-  it('renders loaders while still loading data', () => {
+  it('renders loaders while still loading data', function () {
     renderDatabasesList({
       databases: dbs.map((db) => {
         return { ...db, status: 'fetching' as const };
@@ -383,7 +244,7 @@ describe('Databases', () => {
     ).to.have.lengthOf(12);
   });
 
-  it('renders a tooltip when inferred_from_privileges is true', async () => {
+  it('renders a tooltip when inferred_from_privileges is true', async function () {
     renderDatabasesList({
       databases: dbs,
     });
@@ -396,7 +257,7 @@ describe('Databases', () => {
 
     userEvent.hover(icon as Element);
     await waitFor(
-      () => {
+      function () {
         expect(screen.getByRole('tooltip')).to.exist;
       },
       {
@@ -409,21 +270,3 @@ describe('Databases', () => {
     );
   });
 });
-
-function inspectTable(_screen: typeof screen, dataTestId: string) {
-  const list = _screen.getByTestId(dataTestId);
-  const ths = list.querySelectorAll('[data-lgid="lg-table-header"]');
-  const trs = list.querySelectorAll('[data-lgid="lg-table-row"]');
-  const table = Array.from(trs).map((tr) =>
-    Array.from(tr.querySelectorAll('td')).map((td) => td.textContent)
-  );
-
-  const columns = Array.from(ths).map((el) => el.textContent);
-
-  const getColumn = (columnName: string) => {
-    const columnIndex = columns.indexOf(columnName);
-    return table.map((row) => row[columnIndex]);
-  };
-
-  return { list, ths, trs, table, columns, getColumn };
-}
