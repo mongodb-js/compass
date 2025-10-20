@@ -23,9 +23,10 @@ import type { ArrayLengthMap } from './script-generation-utils';
 import type { CollectionState } from '../../modules/collection-tab';
 import { SCHEMA_ANALYSIS_STATE_COMPLETE } from '../../schema-analysis-types';
 import { DEFAULT_CONNECTION_STRING_FALLBACK } from './constants';
+import { redactConnectionString } from 'mongodb-connection-string-url';
 
 const RUN_SCRIPT_COMMAND = (connectionString: string) => `
-mongosh "${connectionString}" \\
+mongosh "${redactConnectionString(connectionString)}" \\
   --username <your-username> \\
   --password "<your-password>" \\
   mockdatascript.js
