@@ -20,7 +20,11 @@ import {
   addCollection,
   selectField,
 } from '../store/diagram';
-import type { EdgeProps, NodeProps } from '@mongodb-js/compass-components';
+import type {
+  EdgeProps,
+  FieldId,
+  NodeProps,
+} from '@mongodb-js/compass-components';
 import {
   Banner,
   CancelLoader,
@@ -291,9 +295,23 @@ const DiagramContent: React.FunctionComponent<{
   );
 
   const onFieldClick = useCallback(
-    (_evt: React.MouseEvent, { id: fieldPath, nodeId: namespace }) => {
-      _evt.stopPropagation(); // TODO(COMPASS-9659): should this be handled by the diagramming package?
-      if (!Array.isArray(fieldPath)) return; // TODO(COMPASS-9659): could be avoided with generics in the diagramming package
+    (
+      _evt: React.MouseEvent,
+      { id, nodeId: namespace }: { id: FieldId; nodeId: string }
+    ) => {
+      // Diagramming package accepts both string ids and array of string ids for
+      // fields (to represent the field path better). While all current code in
+      // compass always uses array of strings as field id, some older saved
+      // diagrams might not. Also handling this explicitly is sort of needed
+      // anyway to convinve typescript that we're doing the right thing
+      const fieldPath = Array.isArray(id)
+        ? id
+        : typeof id === 'string'
+        ? [id]
+        : undefined;
+      if (!fieldPath) {
+        return;
+      }
       onFieldSelect(namespace, fieldPath);
       openDrawer(DATA_MODELING_DRAWER_ID);
     },
