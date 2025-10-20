@@ -364,9 +364,13 @@ const DiagramContent: React.FunctionComponent<{
   }, [selectedItems, onDeleteCollection, onDeleteRelationship, onDeleteField]);
   useHotkeys('Backspace', deleteItem, [deleteItem]);
   useHotkeys('Delete', deleteItem, [deleteItem]);
-  useHotkeys('Escape', () => {
-    onDiagramBackgroundClicked();
-  });
+  useHotkeys(
+    'Escape',
+    () => {
+      onDiagramBackgroundClicked();
+    },
+    [onDiagramBackgroundClicked]
+  );
 
   const diagramProps: DiagramProps = useMemo(
     () =>
