@@ -3,8 +3,8 @@ import type {
   LeafyGreenTableCell,
   LGColumnDef,
   HeaderGroup,
-  LeafyGreenVirtualItem,
   GroupedItemAction,
+  LeafyGreenTableRow,
 } from '@mongodb-js/compass-components';
 import {
   css,
@@ -45,6 +45,7 @@ export const createButtonStyles = css({
 
 type ItemsTableProps<T> = {
   'data-testid'?: string;
+  virtual?: boolean;
   namespace?: string;
   itemType: 'collection' | 'database';
   columns: LGColumnDef<T>[];
@@ -338,6 +339,7 @@ const ItemActions: React.FunctionComponent<ItemActionsProps> = ({
 
 export const ItemsTable = <T extends Item>({
   'data-testid': dataTestId,
+  virtual = true,
   namespace,
   itemType,
   columns,
@@ -382,6 +384,10 @@ export const ItemsTable = <T extends Item>({
     },
   });
 
+  const rows = virtual
+    ? table.virtual?.getVirtualItems().map((item) => item.row)
+    : table.getRowModel().rows;
+
   return (
     <div className={itemsTableContainerStyles} data-testid={dataTestId}>
       <WorkspaceContainer
@@ -420,54 +426,49 @@ export const ItemsTable = <T extends Item>({
             ))}
           </TableHead>
           <TableBody data-testid={`${dataTestId}-body`}>
-            {table.virtual.getVirtualItems() &&
-              table.virtual
-                .getVirtualItems()
-                .map((virtualRow: LeafyGreenVirtualItem<T>) => {
-                  const row = virtualRow.row;
-                  const isExpandedContent = row.isExpandedContent ?? false;
+            {rows.map((row: LeafyGreenTableRow<T>) => {
+              const isExpandedContent = row.isExpandedContent ?? false;
 
-                  return (
-                    <Fragment key={row.id}>
-                      {!isExpandedContent && (
-                        <Row
-                          className={rowStyles}
-                          data-testid={`${dataTestId}-row-${
-                            (row.original as { name?: string }).name ?? row.id
-                          }`}
-                          row={row}
-                          onClick={() => onItemClick(row.original._id)}
-                        >
-                          {row
-                            .getVisibleCells()
-                            .map((cell: LeafyGreenTableCell<T>) => {
-                              const isActionsCell =
-                                cell.column.id === 'actions';
+              return (
+                <Fragment key={row.id}>
+                  {!isExpandedContent && (
+                    <Row
+                      className={rowStyles}
+                      data-testid={`${dataTestId}-row-${
+                        (row.original as { name?: string }).name ?? row.id
+                      }`}
+                      row={row}
+                      onClick={() => onItemClick(row.original._id)}
+                    >
+                      {row
+                        .getVisibleCells()
+                        .map((cell: LeafyGreenTableCell<T>) => {
+                          const isActionsCell = cell.column.id === 'actions';
 
-                              return (
-                                // cell is required
-                                <Cell
-                                  key={cell.id}
-                                  id={cell.id}
-                                  cell={cell}
-                                  className={cx({
-                                    [actionsCellClassName]: isActionsCell,
-                                    [actionsCellStyles]: isActionsCell,
-                                  })}
-                                >
-                                  {flexRender(
-                                    cell.column.columnDef.cell,
-                                    cell.getContext()
-                                  )}
-                                </Cell>
-                              );
-                            })}
-                        </Row>
-                      )}
-                      {isExpandedContent && <ExpandedContent row={row} />}
-                    </Fragment>
-                  );
-                })}
+                          return (
+                            // cell is required
+                            <Cell
+                              key={cell.id}
+                              id={cell.id}
+                              cell={cell}
+                              className={cx({
+                                [actionsCellClassName]: isActionsCell,
+                                [actionsCellStyles]: isActionsCell,
+                              })}
+                            >
+                              {flexRender(
+                                cell.column.columnDef.cell,
+                                cell.getContext()
+                              )}
+                            </Cell>
+                          );
+                        })}
+                    </Row>
+                  )}
+                  {isExpandedContent && <ExpandedContent row={row} />}
+                </Fragment>
+              );
+            })}
           </TableBody>
         </Table>
       </WorkspaceContainer>
