@@ -68,9 +68,7 @@ describe('Instance databases tab', function () {
       Selectors.databaseRow('test'),
       'table'
     );
-    await browser.clickVisible(Selectors.databaseRow('test'), {
-      screenshot: 'database-card.png',
-    });
+    await browser.clickVisible(Selectors.databaseRow('test'));
 
     const collectionSelectors = ['json-array', 'json-file', 'numbers'].map(
       (collectionName) => Selectors.collectionRow('test', collectionName)
