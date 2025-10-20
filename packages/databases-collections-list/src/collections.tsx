@@ -244,6 +244,7 @@ function collectionColumns({
       },
     },
     {
+      accessorKey: 'properties',
       header: 'Properties',
       enableSorting: true,
       sortUndefined: 'last',
