@@ -2,6 +2,7 @@ import { expect } from 'chai';
 import { faker } from '@faker-js/faker/locale/en';
 import { generateScript, generateDocument } from './script-generation-utils';
 import type { FakerFieldMapping } from './types';
+import { UNRECOGNIZED_FAKER_METHOD } from '../../modules/collection-tab';
 
 /**
  * Helper function to test that generated document code is executable
@@ -776,7 +777,7 @@ describe('Script Generation', () => {
       const schema = {
         unknownField: {
           mongoType: 'String' as const,
-          fakerMethod: 'unrecognized',
+          fakerMethod: UNRECOGNIZED_FAKER_METHOD,
           fakerArgs: [],
         },
       };
@@ -803,32 +804,32 @@ describe('Script Generation', () => {
       const schema = {
         unknownNumber: {
           mongoType: 'Number' as const,
-          fakerMethod: 'unrecognized',
+          fakerMethod: UNRECOGNIZED_FAKER_METHOD,
           fakerArgs: [],
         },
         unknownInt: {
           mongoType: 'Int32' as const,
-          fakerMethod: 'unrecognized',
+          fakerMethod: UNRECOGNIZED_FAKER_METHOD,
           fakerArgs: [],
         },
         unknownInt32: {
           mongoType: 'Int32' as const,
-          fakerMethod: 'unrecognized',
+          fakerMethod: UNRECOGNIZED_FAKER_METHOD,
           fakerArgs: [],
         },
         unknownInt64: {
           mongoType: 'Long' as const,
-          fakerMethod: 'unrecognized',
+          fakerMethod: UNRECOGNIZED_FAKER_METHOD,
           fakerArgs: [],
         },
         unknownLong: {
           mongoType: 'Long' as const,
-          fakerMethod: 'unrecognized',
+          fakerMethod: UNRECOGNIZED_FAKER_METHOD,
           fakerArgs: [],
         },
         unknownDecimal128: {
           mongoType: 'Decimal128' as const,
-          fakerMethod: 'unrecognized',
+          fakerMethod: UNRECOGNIZED_FAKER_METHOD,
           fakerArgs: [],
         },
       };
@@ -879,7 +880,7 @@ describe('Script Generation', () => {
       const schema = {
         unknownDate: {
           mongoType: 'Date' as const,
-          fakerMethod: 'unrecognized',
+          fakerMethod: UNRECOGNIZED_FAKER_METHOD,
           fakerArgs: [],
         },
       };
@@ -903,7 +904,7 @@ describe('Script Generation', () => {
       const schema = {
         unknownBool: {
           mongoType: 'Boolean' as const,
-          fakerMethod: 'unrecognized',
+          fakerMethod: UNRECOGNIZED_FAKER_METHOD,
           fakerArgs: [],
         },
       };
@@ -927,7 +928,7 @@ describe('Script Generation', () => {
       const schema = {
         unknownId: {
           mongoType: 'ObjectId' as const,
-          fakerMethod: 'unrecognized',
+          fakerMethod: UNRECOGNIZED_FAKER_METHOD,
           fakerArgs: [],
         },
       };
@@ -951,7 +952,7 @@ describe('Script Generation', () => {
       const schema = {
         unknownType: {
           mongoType: 'String' as const,
-          fakerMethod: 'unrecognized',
+          fakerMethod: UNRECOGNIZED_FAKER_METHOD,
           fakerArgs: [],
         },
       };
@@ -975,7 +976,7 @@ describe('Script Generation', () => {
       const schema = {
         timestampField: {
           mongoType: 'Timestamp' as const,
-          fakerMethod: 'unrecognized',
+          fakerMethod: UNRECOGNIZED_FAKER_METHOD,
           fakerArgs: [],
         },
       };
@@ -999,7 +1000,7 @@ describe('Script Generation', () => {
       const schema = {
         regexField: {
           mongoType: 'RegExp' as const,
-          fakerMethod: 'unrecognized',
+          fakerMethod: UNRECOGNIZED_FAKER_METHOD,
           fakerArgs: [],
         },
       };
@@ -1023,7 +1024,7 @@ describe('Script Generation', () => {
       const schema = {
         jsField: {
           mongoType: 'Code' as const,
-          fakerMethod: 'unrecognized',
+          fakerMethod: UNRECOGNIZED_FAKER_METHOD,
           fakerArgs: [],
         },
       };
@@ -1399,7 +1400,7 @@ describe('Script Generation', () => {
       const schema = {
         unknownField: {
           mongoType: 'String' as const,
-          fakerMethod: 'unrecognized',
+          fakerMethod: UNRECOGNIZED_FAKER_METHOD,
           fakerArgs: [],
           probability: 0.5,
         },

@@ -10,6 +10,7 @@ import { activateDataModelingStore } from '../src/store';
 import type { DataModelingStoreServices } from '../src/store';
 import { noopDataModelStorageService } from '../src/provider';
 import { Provider } from 'react-redux';
+import { openToast as _openToast } from '@mongodb-js/compass-components';
 
 type ConnectionInfoWithMockData = ConnectionInfo & {
   databases: Array<{
@@ -136,10 +137,13 @@ const testConnections = [
 
 export const setupStore = (
   services: Partial<DataModelingStoreServices> = {},
-  connections: ConnectionInfoWithMockData[] = testConnections
+  connections: ConnectionInfoWithMockData[] = testConnections,
+  openToast: typeof _openToast = _openToast
 ) => {
   return activateDataModelingStore(
-    {},
+    {
+      openToast,
+    },
     {
       logger: createNoopLogger('TEST'),
       track: createNoopTrack(),
