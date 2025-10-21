@@ -104,19 +104,23 @@ async function scrollToPosition(
   await browser.pause(1000);
 }
 
+let debugId = 0;
+
 export async function scrollToVirtualItem(
   browser: CompassBrowser,
   containerSelector: string,
   targetSelector: string,
   role: 'table' | 'tree'
 ): Promise<boolean> {
+  debugId += 1;
+
   const config = role === 'tree' ? treeConfig : tableConfig;
 
   let found = false;
 
   await browser.$(containerSelector).waitForDisplayed();
 
-  debug(await browser.$(containerSelector).getSize());
+  debug(debugId, await browser.$(containerSelector).getSize());
 
   // it takes some time for the list to initialise
   await browser.waitUntil(async () => {
@@ -139,10 +143,10 @@ export async function scrollToVirtualItem(
     config.getScrollContainer.toString()
   );
 
-  debug({ scrollHeight, totalHeight });
+  debug(debugId, { scrollHeight, totalHeight });
 
   if (scrollHeight === null || totalHeight === null) {
-    debug('scrollHeight === null || totalHeight === null', {
+    debug(debugId, 'scrollHeight === null || totalHeight === null', {
       scrollHeight,
       totalHeight,
     });
@@ -163,13 +167,13 @@ export async function scrollToVirtualItem(
 
   let scrollTop = 0;
 
-  await browser.screenshot(`scroll-${scrollTop}.png`);
+  await browser.screenshot(`scroll-${debugId}-0.png`);
 
   await browser.waitUntil(async () => {
     await browser.pause(100);
     const targetElement = browser.$(targetSelector);
     if (await targetElement.isExisting()) {
-      debug('found the item', targetSelector, 'at', scrollTop);
+      debug(debugId, 'found the item', targetSelector, 'at', scrollTop);
 
       await targetElement.waitForDisplayed();
       if (role === 'tree') {
@@ -186,7 +190,7 @@ export async function scrollToVirtualItem(
           // TODO: maybe subtract the header height just in case so that we
           // don't end up with the row under the sticky header?
           const scrollAmount = scrollHeight;
-          debug('scrolling to y position', scrollTop + scrollAmount);
+          debug(debugId, 'scrolling to y position', scrollTop + scrollAmount);
           await scrollToPosition(
             browser,
             containerSelector,
@@ -198,7 +202,7 @@ export async function scrollToVirtualItem(
       // the item is now visible, so stop scrolling
       found = true;
 
-      await browser.screenshot(`found.png`);
+      await browser.screenshot(`found-${debugId}.png`);
 
       return true;
     }
@@ -209,7 +213,7 @@ export async function scrollToVirtualItem(
     scrollTop += scrollHeight;
 
     if (scrollTop <= totalHeight) {
-      debug('scrolling to ', scrollTop);
+      debug(debugId, 'scrolling to ', scrollTop);
 
       // scroll for another screen
       await scrollToPosition(browser, containerSelector, role, scrollTop);
@@ -219,14 +223,14 @@ export async function scrollToVirtualItem(
         `${containerSelector} ${config.firstChildSelector}`
       );
 
-      debug('Scrolled to', scrollTop, 'of', totalHeight);
+      debug(debugId, 'Scrolled to', scrollTop, 'of', totalHeight);
 
-      await browser.screenshot(`scroll-${scrollTop}.png`);
+      await browser.screenshot(`scroll-${debugId}-${scrollTop}.png`);
 
       return false;
     } else {
       // stop because we got to the end and never found it
-      debug('Reached the end of the list without finding the item');
+      debug(debugId, 'Reached the end of the list without finding the item');
       return true;
     }
   });
