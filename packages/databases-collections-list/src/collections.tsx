@@ -441,7 +441,7 @@ const CollectionsList: React.FunctionComponent<{
 
   const TableComponent = virtual ? VirtualItemsTable : ItemsTable;
   return (
-    <TableComponent
+    <TableComponent<CollectionProps>
       data-testid="collections-list"
       namespace={namespace}
       columns={columns}

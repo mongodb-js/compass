@@ -233,7 +233,7 @@ const DatabasesList: React.FunctionComponent<{
 
   const TableComponent = virtual ? VirtualItemsTable : ItemsTable;
   return (
-    <TableComponent
+    <TableComponent<DatabaseProps>
       virtual={virtual}
       data-testid="databases-list"
       columns={columns}
