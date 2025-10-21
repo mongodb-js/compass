@@ -768,6 +768,256 @@ describe('removeField', function () {
   });
 });
 
+describe('addField', function () {
+  describe.only('flat schema', function () {
+    it('add top level field', function () {
+      const schema = {
+        bsonType: 'object',
+        properties: {
+          name: { bsonType: 'string' },
+        },
+      };
+      const result = updateSchema({
+        jsonSchema: schema,
+        fieldPath: [],
+        updateParameters: {
+          update: 'addField',
+          newFieldName: 'age',
+          newFieldSchema: { bsonType: ['string', 'int'] },
+        },
+      });
+      expect(result).to.deep.equal({
+        ...schema,
+        properties: {
+          ...schema.properties,
+          age: { bsonType: ['string', 'int'] },
+        },
+      });
+    });
+  });
+
+  describe('nested schema', function () {
+    it('remove a field from the middle level', function () {
+      const schema = {
+        bsonType: 'object',
+        properties: {
+          person: {
+            bsonType: 'object',
+            properties: {
+              name: { bsonType: 'string' },
+              address: {
+                bsonType: 'object',
+                properties: {
+                  street: { bsonType: 'string' },
+                  city: { bsonType: 'string' },
+                },
+              },
+            },
+          },
+        },
+      };
+      const result = updateSchema({
+        fieldPath: ['person', 'address'],
+        jsonSchema: schema,
+        updateParameters: {
+          update: 'removeField',
+        },
+      });
+      expect(result).to.deep.equal({
+        ...schema,
+        properties: {
+          person: {
+            ...schema.properties.person,
+            properties: {
+              name: schema.properties.person.properties.name,
+            },
+          },
+        },
+      });
+    });
+
+    it('remove a deeply nested field', function () {
+      const schema = {
+        bsonType: 'object',
+        properties: {
+          person: {
+            bsonType: 'object',
+            properties: {
+              name: { bsonType: 'string' },
+              address: {
+                bsonType: 'object',
+                properties: {
+                  street: { bsonType: 'string' },
+                  city: { bsonType: 'string' },
+                },
+              },
+            },
+          },
+        },
+      };
+      const result = updateSchema({
+        fieldPath: ['person', 'address', 'city'],
+        jsonSchema: schema,
+        updateParameters: {
+          update: 'removeField',
+        },
+      });
+      expect(result).to.deep.equal({
+        ...schema,
+        properties: {
+          person: {
+            ...schema.properties.person,
+            properties: {
+              name: schema.properties.person.properties.name,
+              address: {
+                ...schema.properties.person.properties.address,
+                properties: {
+                  street:
+                    schema.properties.person.properties.address.properties
+                      .street,
+                },
+              },
+            },
+          },
+        },
+      });
+    });
+
+    it('remove field nested in a mixed type', function () {
+      const schema = {
+        bsonType: 'object',
+        properties: {
+          names: {
+            anyOf: [
+              { bsonType: 'string' },
+              {
+                bsonType: 'object',
+                properties: {
+                  first: { bsonType: 'string' },
+                  last: { bsonType: 'string' },
+                },
+              },
+            ],
+          },
+        },
+      };
+      const result = updateSchema({
+        fieldPath: ['names', 'first'],
+        jsonSchema: schema,
+        updateParameters: {
+          update: 'removeField',
+        },
+      });
+      expect(result).to.deep.equal({
+        ...schema,
+        properties: {
+          names: {
+            anyOf: [
+              { bsonType: 'string' },
+              {
+                bsonType: 'object',
+                properties: {
+                  last: { bsonType: 'string' },
+                },
+              },
+            ],
+          },
+        },
+      });
+    });
+
+    it('nested in an array of objects', function () {
+      const schema = {
+        bsonType: 'object',
+        properties: {
+          addresses: {
+            bsonType: 'array',
+            items: {
+              bsonType: 'object',
+              properties: {
+                street: { bsonType: 'string' },
+                streetNumber: { bsonType: ['int', 'string'] },
+                city: { bsonType: 'string' },
+              },
+            },
+          },
+        },
+      };
+      const result = updateSchema({
+        fieldPath: ['addresses', 'streetNumber'],
+        jsonSchema: schema,
+        updateParameters: {
+          update: 'removeField',
+        },
+      });
+      expect(result).to.deep.equal({
+        ...schema,
+        properties: {
+          addresses: {
+            ...schema.properties.addresses,
+            items: {
+              ...schema.properties.addresses.items,
+              properties: {
+                street: { bsonType: 'string' },
+                city: { bsonType: 'string' },
+              },
+            },
+          },
+        },
+      });
+    });
+
+    it('nested in an array of mixed items (including objects)', function () {
+      const schema = {
+        bsonType: 'object',
+        properties: {
+          todos: {
+            bsonType: 'array',
+            items: {
+              anyOf: [
+                {
+                  bsonType: 'object',
+                  properties: {
+                    title: { bsonType: 'string' },
+                    completed: { bsonType: 'bool' },
+                  },
+                },
+                { bsonType: 'string' },
+              ],
+            },
+          },
+        },
+      };
+      const result = updateSchema({
+        fieldPath: ['todos', 'completed'],
+        jsonSchema: schema,
+        updateParameters: {
+          update: 'removeField',
+        },
+      });
+      expect(result).to.deep.equal({
+        ...schema,
+        properties: {
+          todos: {
+            bsonType: 'array',
+            items: {
+              anyOf: [
+                {
+                  bsonType: 'object',
+                  properties: {
+                    title: { bsonType: 'string' },
+                  },
+                },
+                { bsonType: 'string' },
+              ],
+            },
+          },
+        },
+      });
+    });
+  });
+});
+
 describe('renameField', function () {
   describe('field not found', function () {
     it('empty schema', function () {
@@ -1426,3 +1676,87 @@ describe('getSchemaWithNewTypes', function () {
     });
   });
 });
+
+// describe('#addFieldToJSONSchema', function () {
+//   it('should add a field to the root of the schema', function () {
+//     const jsonSchema = {
+//       bsonType: 'object',
+//       properties: {
+//         a: {
+//           bsonType: 'string',
+//         },
+//         b: {
+//           bsonType: 'string',
+//         },
+//       },
+//     };
+//     const newFieldSchema = {
+//       bsonType: 'string',
+//     };
+//     const newJsonSchema = addFieldToJSONSchema(
+//       jsonSchema,
+//       ['c'],
+//       newFieldSchema
+//     );
+//     expect(newJsonSchema).to.deep.equal({
+//       bsonType: 'object',
+//       properties: {
+//         a: {
+//           bsonType: 'string',
+//         },
+//         b: {
+//           bsonType: 'string',
+//         },
+//         c: {
+//           bsonType: 'string',
+//         },
+//       },
+//     });
+//   });
+
+//   it('should add a field to a nested object in the schema', function () {
+//     const jsonSchema = {
+//       bsonType: 'object',
+//       properties: {
+//         a: {
+//           bsonType: 'string',
+//         },
+//         b: {
+//           bsonType: 'object',
+//           properties: {
+//             c: {
+//               bsonType: 'string',
+//             },
+//           },
+//         },
+//       },
+//     };
+//     const newFieldSchema = {
+//       bsonType: 'string',
+//     };
+//     const newJsonSchema = addFieldToJSONSchema(
+//       jsonSchema,
+//       ['b', 'd'],
+//       newFieldSchema
+//     );
+//     expect(newJsonSchema).to.deep.equal({
+//       bsonType: 'object',
+//       properties: {
+//         a: {
+//           bsonType: 'string',
+//         },
+//         b: {
+//           bsonType: 'object',
+//           properties: {
+//             c: {
+//               bsonType: 'string',
+//             },
+//             d: {
+//               bsonType: 'string',
+//             },
+//           },
+//         },
+//       },
+//     });
+//   });
+// });
