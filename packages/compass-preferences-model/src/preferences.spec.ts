@@ -3,13 +3,13 @@ import path from 'path';
 import os from 'os';
 import { Preferences } from './preferences';
 import { expect } from 'chai';
-import { featureFlags } from './feature-flags';
+import { FEATURE_FLAG_DEFINITIONS } from './feature-flags';
 import { PersistentStorage } from './preferences-persistent-storage';
 import { createLogger } from '@mongodb-js/compass-logging';
 
-const releasedFeatureFlags = Object.entries(featureFlags)
-  .filter(([, v]) => v.stage === 'released')
-  .map(([k]) => k);
+const releasedFeatureFlags = FEATURE_FLAG_DEFINITIONS.filter(
+  (v) => v.stage === 'released'
+).map((v) => v.name);
 
 const expectedReleasedFeatureFlagsStates = Object.fromEntries(
   releasedFeatureFlags.map((ff) => [ff, 'hardcoded'])

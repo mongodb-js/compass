@@ -22,7 +22,7 @@ import toNS from 'mongodb-ns';
 import path from 'path';
 import os from 'os';
 import fs from 'fs/promises';
-import type { ChainablePromiseElement } from 'webdriverio';
+import { Key, type ChainablePromiseElement } from 'webdriverio';
 
 type Node = {
   id: string;
@@ -837,6 +837,16 @@ describe('Data Modeling tab', function () {
       // Undo once - verify that the collection is removed
       // This is to ensure that the initial edit of the collection name wasn't a separate edit
       await browser.clickVisible(Selectors.DataModelUndoButton);
+      await getDiagramNodes(browser, 2);
+
+      // Repeatedly Redo + Undo through keyboard shortcuts
+      await browser.keys([Key.Control, 'y']);
+      await getDiagramNodes(browser, 3);
+      await browser.keys([Key.Control, 'z']);
+      await getDiagramNodes(browser, 2);
+      await browser.keys([Key.Command, Key.Shift, 'z']);
+      await getDiagramNodes(browser, 3);
+      await browser.keys([Key.Command, 'z']);
       await getDiagramNodes(browser, 2);
     });
   });
