@@ -96,6 +96,7 @@ const colls: CollectionProps[] = [
     index_count: undefined,
     index_size: undefined,
     type: 'view',
+    view_on: 'foo',
     properties: [{ id: 'view' }],
   }),
   createTimeSeries('baz', {
@@ -499,7 +500,6 @@ describe('Collections', () => {
     ).to.have.lengthOf(60);
   });
 
-  // TODO
   it('renders a tooltip when inferred_from_privileges is true', async function () {
     renderCollectionsList({
       collections: colls,
@@ -523,6 +523,32 @@ describe('Collections', () => {
 
     expect(screen.getByRole('tooltip').textContent).to.equal(
       'Your privileges grant you access to this namespace, but it might not currently exist'
+    );
+  });
+
+  it('renders a tooltip for a view badge', async function () {
+    renderCollectionsList({
+      collections: colls,
+    });
+
+    const result = inspectTable(screen, 'collections-list');
+    const badge = result.trs[2].querySelector(
+      '[data-testid="collection-badge-view"]'
+    );
+    expect(badge).to.exist;
+
+    userEvent.hover(badge as Element);
+    await waitFor(
+      function () {
+        expect(screen.getByRole('tooltip')).to.exist;
+      },
+      {
+        timeout: 5000,
+      }
+    );
+
+    expect(screen.getByRole('tooltip').textContent).to.equal(
+      'Derived from foo'
     );
   });
 });
