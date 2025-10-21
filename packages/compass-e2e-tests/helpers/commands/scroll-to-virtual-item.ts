@@ -99,6 +99,9 @@ async function scrollToPosition(
     // So, we stringify it here and then eval to execute it
     config.getScrollContainer.toString()
   );
+
+  // TODO: find a better way to wait for the scroll to have taken effect
+  await browser.pause(1000);
 }
 
 export async function scrollToVirtualItem(
