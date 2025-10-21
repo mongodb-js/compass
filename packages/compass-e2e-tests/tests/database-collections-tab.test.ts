@@ -22,23 +22,23 @@ async function waitForCollectionAndBadge(
   collectionName: string,
   badgeSelector: string
 ) {
-  const cardSelector = Selectors.collectionRow(dbName, collectionName);
+  const rowSelector = Selectors.collectionRow(dbName, collectionName);
   await browser.scrollToVirtualItem(
     Selectors.CollectionsTable,
-    cardSelector,
+    rowSelector,
     'table'
   );
 
-  // Hit refresh because depending on timing the card might appear without the
+  // Hit refresh because depending on timing the row might appear without the
   // badge at first. Especially in Firefox for whatever reason.
   await browser.clickVisible(Selectors.DatabaseRefreshCollectionButton);
 
   await browser.scrollToVirtualItem(
     Selectors.CollectionsTable,
-    cardSelector,
+    rowSelector,
     'table'
   );
-  await browser.$(cardSelector).$(badgeSelector).waitForDisplayed();
+  await browser.$(rowSelector).$(badgeSelector).waitForDisplayed();
 }
 
 describe('Database collections tab', function () {
@@ -93,7 +93,7 @@ describe('Database collections tab', function () {
     }
   });
 
-  it('links collection cards to the collection documents tab', async function () {
+  it('links collection rows to the collection documents tab', async function () {
     await browser.scrollToVirtualItem(
       Selectors.CollectionsTable,
       Selectors.collectionRow('test', 'json-array'),
@@ -145,7 +145,7 @@ describe('Database collections tab', function () {
     await collectionRow.waitForDisplayed();
 
     await browser.waitUntil(async () => {
-      // open the drop collection modal from the collection card
+      // open the drop collection modal from the collection row
       await browser.hover(`${selector}`);
       const el = browser.$(Selectors.collectionRowDrop('test', collectionName));
       if (await el.isDisplayed()) {
@@ -348,7 +348,7 @@ describe('Database collections tab', function () {
       collSelector,
       'table'
     );
-    const coll2Card = browser.$(collSelector);
-    await coll2Card.waitForDisplayed();
+    const coll2Row = browser.$(collSelector);
+    await coll2Row.waitForDisplayed();
   });
 });

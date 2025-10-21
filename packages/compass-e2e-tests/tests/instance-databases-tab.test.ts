@@ -62,7 +62,7 @@ describe('Instance databases tab', function () {
     }
   });
 
-  it('links database cards to the database collections tab', async function () {
+  it('links database rows to the database collections tab', async function () {
     await browser.scrollToVirtualItem(
       Selectors.DatabasesTable,
       Selectors.databaseRow('test'),
@@ -113,7 +113,7 @@ describe('Instance databases tab', function () {
     await databaseRow.waitForDisplayed();
 
     await browser.waitUntil(async () => {
-      // open the drop database modal from the database card
+      // open the drop database modal from the database row
       await browser.hover(`${selector}`);
       const el = browser.$(Selectors.databaseRowDrop(dbName));
       if (await el.isDisplayed()) {
@@ -150,7 +150,7 @@ describe('Instance databases tab', function () {
       'Databases'
     );
 
-    // Make sure the db card we're going to drop is in there.
+    // Make sure the db row we're going to drop is in there.
     await browser.scrollToVirtualItem(
       Selectors.DatabasesTable,
       dbSelector,
@@ -185,7 +185,7 @@ describe('Instance databases tab', function () {
       await mongoClient.close();
     }
 
-    // Refresh again and the database card should disappear.
+    // Refresh again and the database row should disappear.
     await browser.clickVisible(Selectors.InstanceRefreshDatabaseButton, {
       scroll: true,
       screenshot: 'instance-refresh-database-button.png',
