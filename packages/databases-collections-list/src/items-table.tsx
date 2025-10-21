@@ -436,17 +436,7 @@ const ItemsTableInner = <T extends Item>({
             ))}
           </TableHead>
           <TableBody data-testid={`${dataTestId}-body`}>
-            {rowItems.map((rowItem, index) => {
-              // rowItem is either Row<LGTableDataType<T>> |
-              // LeafyGreenVirtualItem<T>. If it is a LeafyGreenVirtualItem, we
-              // need to get the row from it. If it is not then there is no
-              // corresponding virtualRow.
-              const row: LeafyGreenTableRow<T> =
-                (rowItem as any).row ?? rowItem;
-              const virtualRow = (rowItem as any).row
-                ? (rowItem as LeafyGreenVirtualItem<T>)
-                : undefined;
-
+            {rowItems.map(({ row, virtualRow }) => {
               const isExpandedContent = row.isExpandedContent ?? false;
 
               return (
@@ -459,7 +449,6 @@ const ItemsTableInner = <T extends Item>({
                       }`}
                       row={row}
                       virtualRow={virtualRow}
-                      data-index={index}
                       onClick={() => onItemClick(row.original._id)}
                     >
                       {row
