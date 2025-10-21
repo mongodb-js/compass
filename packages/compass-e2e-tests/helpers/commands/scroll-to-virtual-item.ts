@@ -49,8 +49,33 @@ export async function scrollToVirtualItem(
   browser: CompassBrowser,
   containerSelector: string,
   targetSelector: string,
-  role: 'grid' | 'tree'
+  role: 'grid' | 'tree' | 'table'
 ): Promise<boolean> {
+  if (role === 'table') {
+    // we disable virtual scrolling for tables for now
+    const expectedRowCount = parseInt(
+      await browser
+        .$(`${containerSelector} table`)
+        .getAttribute('aria-rowcount'),
+      10
+    );
+    const rowCount = await browser.$$('tbody tr').length;
+
+    if (rowCount !== expectedRowCount) {
+      throw new Error(
+        `${rowCount} rows found, but expected ${expectedRowCount}. Is virtual rendering of the table disabled as expected?`
+      );
+    }
+
+    const targetElement = browser.$(targetSelector);
+    await targetElement.waitForExist();
+    // align the bottom of the element to the bottom of the view so it doesn't
+    // sit under the sticky header
+    await targetElement.scrollIntoView(false);
+    await targetElement.waitForDisplayed();
+    return true;
+  }
+
   const config = role === 'tree' ? treeConfig : gridConfig;
 
   let found = false;

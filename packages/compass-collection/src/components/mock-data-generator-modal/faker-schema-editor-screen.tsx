@@ -10,6 +10,7 @@ import {
   SpinLoaderWithLabel,
 } from '@mongodb-js/compass-components';
 import React from 'react';
+import { connect } from 'react-redux';
 import FieldSelector from './schema-field-selector';
 import FakerMappingSelector from './faker-mapping-selector';
 import type {
@@ -172,7 +173,6 @@ const FakerSchemaEditorScreen = ({
   onSchemaConfirmed,
   fakerSchemaGenerationState,
 }: {
-  isSchemaConfirmed: boolean;
   onSchemaConfirmed: (isConfirmed: boolean) => void;
   fakerSchemaGenerationState: MockDataGeneratorState;
 }) => {
@@ -200,7 +200,7 @@ const FakerSchemaEditorScreen = ({
       )}
       {fakerSchemaGenerationState.status === 'completed' && (
         <FakerSchemaEditorContent
-          fakerSchema={fakerSchemaGenerationState.fakerSchema}
+          fakerSchema={fakerSchemaGenerationState.editedFakerSchema}
           onSchemaConfirmed={onSchemaConfirmed}
         />
       )}
@@ -208,4 +208,4 @@ const FakerSchemaEditorScreen = ({
   );
 };
 
-export default FakerSchemaEditorScreen;
+export default connect()(FakerSchemaEditorScreen);

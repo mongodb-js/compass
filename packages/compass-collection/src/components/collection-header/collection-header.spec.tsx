@@ -490,7 +490,7 @@ describe('CollectionHeader [Component]', function () {
               field1: { type: 'String', sampleValues: ['value1'] },
             },
             schemaMetadata: {
-              maxNestingDepth: 4, // Exceeds the limit
+              maxNestingDepth: 8, // Exceeds the limit
             },
           },
         },
