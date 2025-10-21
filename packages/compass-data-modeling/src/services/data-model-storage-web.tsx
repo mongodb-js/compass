@@ -78,15 +78,25 @@ class DataModelStorageAtlas implements DataModelStorage {
   }
 }
 
-export const DataModelStorageServiceProviderAtlas = createServiceProvider(
-  function DataModelStorageServiceProviderAtlas({
+export const DataModelStorageServiceProviderWeb = createServiceProvider(
+  function DataModelStorageServiceProviderWeb({
     children,
     orgId,
     projectId,
   }: {
-    children?: React.ReactNode;
+    /**
+     * Atlas organization id. Optional. If provided, data model storage will
+     * save the user data in Atlas Cloud, otherwise will fall back to in-memory
+     * storage
+     */
     orgId?: string;
+    /**
+     * Atlas project id. Optional. If provided, data model storage will
+     * save the user data in Atlas Cloud, otherwise will fall back to in-memory
+     * storage
+     */
     projectId?: string;
+    children?: React.ReactNode;
   }) {
     const storageRef = useRef<DataModelStorage>();
     const atlasService = atlasServiceLocator();
@@ -102,7 +112,7 @@ export const DataModelStorageServiceProviderAtlas = createServiceProvider(
       } else {
         logger.log.warn(
           mongoLogId(1_001_000_379),
-          'DataModelStorageServiceProviderAtlas',
+          'DataModelStorageServiceProviderWeb',
           'Falling back to in memory storage because orgId or projectId is missing'
         );
         // Fallback to in-memory if we're outside of Atlas Cloud
