@@ -15,6 +15,7 @@ import { CompassExperimentationProvider } from '@mongodb-js/compass-telemetry';
 import type { ConnectionInfo } from '@mongodb-js/compass-connections/provider';
 
 import CollectionHeaderActions from '../collection-header-actions';
+import { MAX_COLLECTION_NESTING_DEPTH } from '../mock-data-generator-modal/utils';
 
 describe('CollectionHeaderActions [Component]', function () {
   let mockUseAssignment: sinon.SinonStub;
@@ -318,7 +319,7 @@ describe('CollectionHeaderActions [Component]', function () {
             namespace: 'test.collection',
             isReadonly: false,
             hasSchemaAnalysisData: true,
-            analyzedSchemaDepth: 5, // Exceeds MAX_COLLECTION_NESTING_DEPTH (3)
+            analyzedSchemaDepth: MAX_COLLECTION_NESTING_DEPTH + 1,
             schemaAnalysisStatus: 'complete',
             onOpenMockDataModal: sinon.stub(),
           },

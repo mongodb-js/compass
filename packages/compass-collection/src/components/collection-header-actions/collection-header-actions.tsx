@@ -27,11 +27,7 @@ import {
   type SchemaAnalysisStatus,
   type SchemaAnalysisError,
 } from '../../schema-analysis-types';
-
-/**
- * Maximum allowed nesting depth for collections to show Mock Data Generator
- */
-const MAX_COLLECTION_NESTING_DEPTH = 7;
+import { MAX_COLLECTION_NESTING_DEPTH } from '../mock-data-generator-modal/utils';
 
 const collectionHeaderActionsStyles = css({
   display: 'flex',
