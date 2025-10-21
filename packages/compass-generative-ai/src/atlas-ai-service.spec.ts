@@ -430,13 +430,11 @@ describe('AtlasAiService', function () {
               fields: [
                 {
                   fieldPath: 'name',
-                  mongoType: 'String',
                   fakerMethod: 'person.fullName',
                   fakerArgs: [],
                 },
                 {
                   fieldPath: 'age',
-                  mongoType: 'Int32',
                   fakerMethod: 'number.int',
                   fakerArgs: [{ json: '{"min": 18, "max": 65}' }],
                 },
@@ -465,13 +463,11 @@ describe('AtlasAiService', function () {
               fields: [
                 {
                   fieldPath: 'name',
-                  mongoType: 'String',
                   fakerMethod: 'person.fullName',
                   fakerArgs: [],
                 },
                 {
                   fieldPath: 'age',
-                  mongoType: 'Int32',
                   fakerMethod: 'number.int',
                   fakerArgs: [{ json: '{"min": 18, "max": 122}' }],
                 },
@@ -505,13 +501,11 @@ describe('AtlasAiService', function () {
               fields: [
                 {
                   fieldPath: 'name',
-                  mongoType: 'String',
                   fakerMethod: 'person.fullName',
                   fakerArgs: [],
                 },
                 {
                   fieldPath: 'age',
-                  mongoType: 'Int32',
                   fakerMethod: 'number.int',
                   fakerArgs: [{ json: '{"min": 18, "max": 65}' }],
                 },
@@ -542,13 +536,11 @@ describe('AtlasAiService', function () {
               fields: [
                 {
                   fieldPath: 'name',
-                  mongoType: 'String',
                   fakerMethod: 'person.fullName',
                   fakerArgs: [],
                 },
                 {
                   fieldPath: 'age',
-                  mongoType: 'Int32',
                   fakerMethod: 'number.int',
                   fakerArgs: [{ json: '{"min": 18, "max": 65}' }],
                 },

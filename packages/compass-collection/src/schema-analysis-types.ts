@@ -1,5 +1,5 @@
-import type { MongoDBFieldType } from '@mongodb-js/compass-generative-ai';
 import type { Document } from 'mongodb';
+import type { PrimitiveSchemaType } from 'mongodb-schema';
 
 export const SCHEMA_ANALYSIS_STATE_INITIAL = 'initial';
 export const SCHEMA_ANALYSIS_STATE_ANALYZING = 'analyzing';
@@ -41,6 +41,8 @@ export type SampleValue =
   | Date
   | null
   | undefined;
+
+export type MongoDBFieldType = PrimitiveSchemaType['name'];
 
 /**
  * Schema field information (for LLM processing)

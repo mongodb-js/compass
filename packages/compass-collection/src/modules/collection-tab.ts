@@ -16,10 +16,7 @@ import type { AtlasAiService } from '@mongodb-js/compass-generative-ai/provider'
 import type { experimentationServiceLocator } from '@mongodb-js/compass-telemetry/provider';
 import { type Logger, mongoLogId } from '@mongodb-js/compass-logging/provider';
 import { type PreferencesAccess } from 'compass-preferences-model/provider';
-import type {
-  MockDataSchemaRequest,
-  MongoDBFieldType,
-} from '@mongodb-js/compass-generative-ai';
+import type { MockDataSchemaRequest } from '@mongodb-js/compass-generative-ai';
 import { isInternalFieldPath } from 'hadron-document';
 import toNS from 'mongodb-ns';
 import {
@@ -30,6 +27,7 @@ import {
   type SchemaAnalysisError,
   type SchemaAnalysisState,
   type FieldInfo,
+  type MongoDBFieldType,
 } from '../schema-analysis-types';
 import { calculateSchemaDepth } from '../calculate-schema-depth';
 import {
@@ -818,9 +816,13 @@ export const cancelSchemaAnalysis = (): CollectionThunkAction<void> => {
 /**
  * Transforms LLM array format to keyed object structure.
  * Moves fieldPath from object property to object key.
+ *
+ * @param fakerSchema - The faker schema array from LLM response
+ * @param inputSchema - The schema definition for the LLM input used to carry over `mongoType` data
  */
 function transformFakerSchemaToObject(
-  fakerSchema: LlmFakerMapping[]
+  fakerSchema: LlmFakerMapping[],
+  inputSchema: Record<string, FieldInfo>
 ): FakerSchema {
   const result: FakerSchema = {};
 
@@ -828,7 +830,8 @@ function transformFakerSchemaToObject(
     const { fieldPath, ...fieldMapping } = field;
     result[fieldPath] = {
       ...fieldMapping,
-      mongoType: fieldMapping.mongoType,
+      // Note: `validateFakerSchema` already handles fields that are not present in `inputSchema`
+      mongoType: inputSchema[fieldPath]?.type,
     };
   }
 
@@ -968,7 +971,8 @@ export const generateFakerMappings = (): CollectionThunkAction<
 
       // Transform to keyed object structure
       const transformedFakerSchema = transformFakerSchemaToObject(
-        response.fields
+        response.fields,
+        schemaAnalysis.processedSchema
       );
 
       const validatedFakerSchema = validateFakerSchema(
