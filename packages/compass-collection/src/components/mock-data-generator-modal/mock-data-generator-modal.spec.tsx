@@ -12,7 +12,7 @@ import { Provider } from 'react-redux';
 import { createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
 import MockDataGeneratorModal from './mock-data-generator-modal';
-import { MockDataGeneratorStep } from './types';
+import { DataGenerationStep, MockDataGeneratorStep } from './types';
 import {
   MOCK_DATA_GENERATOR_STEP_TO_NEXT_STEP_MAP,
   StepButtonLabelMap,
@@ -1255,7 +1255,7 @@ describe('MockDataGeneratorModal', () => {
         expect(result.track).to.have.been.calledWith(
           'Mock Data Script Copied',
           {
-            step: 'mongosh script',
+            step: DataGenerationStep.RUN_SCRIPT,
           }
         );
       });

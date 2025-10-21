@@ -18,7 +18,7 @@ import {
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import toNS from 'mongodb-ns';
 import { generateScript } from './script-generation-utils';
-import type { FakerSchema } from './types';
+import { DataGenerationStep, type FakerSchema } from './types';
 import type { ArrayLengthMap } from './script-generation-utils';
 import type { CollectionState } from '../../modules/collection-tab';
 import { SCHEMA_ANALYSIS_STATE_COMPLETE } from '../../schema-analysis-types';
@@ -114,7 +114,7 @@ const ScriptScreen = ({
     });
   }, [fakerSchema, documentCount, database, collection, arrayLengthMap]);
 
-  const onScriptCopy = ({ step }: { step: string }) => {
+  const onScriptCopy = ({ step }: { step: DataGenerationStep }) => {
     track('Mock Data Script Copied', {
       step: step,
     });
@@ -157,7 +157,9 @@ const ScriptScreen = ({
             <Link href="https://fakerjs.dev/guide/#installation">faker.js</Link>
             <Copyable
               className={copyableStyles}
-              onCopy={() => onScriptCopy({ step: 'install fakerjs' })}
+              onCopy={() =>
+                onScriptCopy({ step: DataGenerationStep.INSTALL_FAKERJS })
+              }
             >
               npm install @faker-js/faker
             </Copyable>
@@ -176,7 +178,9 @@ const ScriptScreen = ({
           copyButtonAppearance={scriptResult.success ? 'hover' : 'persist'}
           language={Language.JavaScript}
           className={scriptCodeBlockStyles}
-          onCopy={() => onScriptCopy({ step: 'create js file' })}
+          onCopy={() =>
+            onScriptCopy({ step: DataGenerationStep.CREATE_JS_FILE })
+          }
         >
           {scriptResult.success
             ? scriptResult.script
@@ -198,7 +202,7 @@ const ScriptScreen = ({
         </Body>
         <Code
           language={Language.Bash}
-          onCopy={() => onScriptCopy({ step: 'mongosh script' })}
+          onCopy={() => onScriptCopy({ step: DataGenerationStep.RUN_SCRIPT })}
         >
           {RUN_SCRIPT_COMMAND}
         </Code>
