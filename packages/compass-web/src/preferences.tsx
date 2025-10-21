@@ -1,5 +1,8 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
-import type { AllPreferences } from 'compass-preferences-model/provider';
+import type {
+  AllPreferences,
+  AtlasCloudFeatureFlags,
+} from 'compass-preferences-model/provider';
 import { CompassWebPreferencesAccess } from 'compass-preferences-model/provider';
 
 export type SandboxPreferencesUpdateTrigger = (
@@ -50,34 +53,43 @@ export const SandboxPreferencesUpdateProvider = ({
   );
 };
 
+const DEFAULT_COMPASS_WEB_PREFERENCES = {
+  enableExplainPlan: true,
+  enableAggregationBuilderRunPipeline: true,
+  enableAggregationBuilderExtraOptions: true,
+  enableAtlasSearchIndexes: false,
+  enableImportExport: false,
+  enableGenAIFeatures: true,
+  enableGenAIFeaturesAtlasProject: false,
+  enableGenAISampleDocumentPassing: false,
+  enableGenAIFeaturesAtlasOrg: false,
+  enablePerformanceAdvisorBanner: true,
+  enableMyQueries: false,
+  cloudFeatureRolloutAccess: {
+    GEN_AI_COMPASS: false,
+  },
+  maximumNumberOfActiveConnections: 10,
+  trackUsageStatistics: true,
+  enableShell: false,
+  enableCreatingNewConnections: false,
+  enableGlobalWrites: false,
+  optInGenAIFeatures: false,
+  enableConnectInNewWindow: false,
+  maxTimeMSEnvLimit: 300_000, // 5 minutes limit for Data Explorer}
+};
+
 export function useCompassWebPreferences(
-  initialPreferences?: Partial<AllPreferences>
+  initialPreferences: Partial<AllPreferences> = {},
+  atlasCloudFeatureFlags: Partial<AtlasCloudFeatureFlags> = {}
 ): React.MutableRefObject<CompassWebPreferencesAccess> {
   const preferencesAccess = useRef(
-    new CompassWebPreferencesAccess({
-      enableExplainPlan: true,
-      enableAggregationBuilderRunPipeline: true,
-      enableAggregationBuilderExtraOptions: true,
-      enableAtlasSearchIndexes: false,
-      enableImportExport: false,
-      enableGenAIFeatures: true,
-      enableGenAIFeaturesAtlasProject: false,
-      enableGenAISampleDocumentPassing: false,
-      enableGenAIFeaturesAtlasOrg: false,
-      enablePerformanceAdvisorBanner: true,
-      enableMyQueries: false,
-      cloudFeatureRolloutAccess: {
-        GEN_AI_COMPASS: false,
+    new CompassWebPreferencesAccess(
+      {
+        ...DEFAULT_COMPASS_WEB_PREFERENCES,
+        ...initialPreferences,
       },
-      maximumNumberOfActiveConnections: 10,
-      trackUsageStatistics: true,
-      enableShell: false,
-      enableCreatingNewConnections: false,
-      enableGlobalWrites: false,
-      optInGenAIFeatures: false,
-      enableConnectInNewWindow: false,
-      ...initialPreferences,
-    })
+      { atlasCloud: atlasCloudFeatureFlags }
+    )
   );
 
   const onPreferencesUpdateTriggered = useContext(

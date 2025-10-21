@@ -8,8 +8,9 @@ import { kebabCase } from 'lodash';
 import type { AllPreferences } from './preferences-schema';
 import { allPreferencesProps } from './preferences-schema';
 import type { z } from '@mongodb-js/compass-user-data';
-
 import { createLogger } from '@mongodb-js/compass-logging';
+import type { AtlasCloudFeatureFlags } from './feature-flags';
+
 const { log, mongoLogId } = createLogger('COMPASS-PREFERENCES');
 
 function getGlobalConfigPaths(): string[] {
@@ -192,6 +193,7 @@ export interface ParsedGlobalPreferencesResult {
   cli: Partial<AllPreferences>;
   global: Partial<AllPreferences>;
   hardcoded?: Partial<AllPreferences>;
+  atlasCloud?: Partial<AtlasCloudFeatureFlags>;
   preferenceParseErrors: string[];
 }
 

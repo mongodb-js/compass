@@ -4,13 +4,18 @@ import type { UserPreferences } from './preferences-schema';
 import { type AllPreferences } from './preferences-schema';
 import { InMemoryStorage } from './preferences-in-memory-storage';
 import { getActiveUser } from './utils';
+import type { ParsedGlobalPreferencesResult } from './global-config';
 
 export class CompassWebPreferencesAccess implements PreferencesAccess {
   private _preferences: Preferences;
-  constructor(preferencesOverrides?: Partial<AllPreferences>) {
+  constructor(
+    preferencesOverrides?: Partial<AllPreferences>,
+    globalPreferences?: Partial<ParsedGlobalPreferencesResult>
+  ) {
     this._preferences = new Preferences({
       logger: createNoopLogger(),
       preferencesStorage: new InMemoryStorage(preferencesOverrides),
+      globalPreferences,
     });
   }
 
