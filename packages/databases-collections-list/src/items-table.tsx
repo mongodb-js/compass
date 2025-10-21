@@ -453,6 +453,7 @@ export const ItemsTable = <T extends Item>({
                       }`}
                       row={row}
                       virtualRow={virtualRow}
+                      data-index={index}
                       onClick={() => onItemClick(row.original._id)}
                     >
                       {row
