@@ -662,7 +662,7 @@ async function startCompassElectron(
 
   // TODO(COMPASS-9977) Turn off virtual scrolling in e2e tests until we can fix
   // browser.scrollToVirtuaItem() to work with it
-  process.env.COMPASS_DISABLE_VIRTUAL_SCROLLING = 'true';
+  process.env.COMPASS_DISABLE_VIRTUAL_TABLE_RENDERING = 'true';
 
   const options = {
     automationProtocol: 'webdriver' as const,

@@ -31,7 +31,7 @@ describe('Databasees [Plugin]', function () {
 
   describe('with loaded databases', function () {
     before(() => {
-      process.env.COMPASS_DISABLE_VIRTUAL_SCROLLING = 'true';
+      process.env.COMPASS_DISABLE_VIRTUAL_TABLE_RENDERING = 'true';
     });
 
     beforeEach(async function () {

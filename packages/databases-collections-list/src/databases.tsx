@@ -219,7 +219,7 @@ const DatabasesList: React.FunctionComponent<{
   renderLoadSampleDataBanner,
 }) => {
   let virtual = true;
-  if (process.env.COMPASS_DISABLE_VIRTUAL_SCROLLING === 'true') {
+  if (process.env.COMPASS_DISABLE_VIRTUAL_TABLE_RENDERING === 'true') {
     virtual = false;
   }
 
