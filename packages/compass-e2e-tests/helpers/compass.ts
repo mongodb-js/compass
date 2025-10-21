@@ -660,6 +660,10 @@ async function startCompassElectron(
   // Making sure end-of-life connection modal is not shown, simplify any test connecting to such a server
   process.env.COMPASS_DISABLE_END_OF_LIFE_CONNECTION_MODAL = 'true';
 
+  // Turn off virtual scrolling in e2e tests until we can fix
+  // browser.scrollToVirtuaItem() to work with it
+  process.env.COMPASS_DISABLE_VIRTUAL_SCROLLING = 'true';
+
   const options = {
     automationProtocol: 'webdriver' as const,
     capabilities: {

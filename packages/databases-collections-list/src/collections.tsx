@@ -419,7 +419,6 @@ const CollectionsList: React.FunctionComponent<{
   onDeleteCollectionClick?: (id: string) => void;
   onCreateCollectionClick?: () => void;
   onRefreshClick?: () => void;
-  virtual?: boolean;
 }> = ({
   namespace,
   collections,
@@ -427,8 +426,12 @@ const CollectionsList: React.FunctionComponent<{
   onDeleteCollectionClick,
   onCreateCollectionClick,
   onRefreshClick,
-  virtual,
 }) => {
+  let virtual = true;
+  if (process.env.COMPASS_DISABLE_VIRTUAL_SCROLLING === 'true') {
+    virtual = false;
+  }
+
   const enableDbAndCollStats = usePreference('enableDbAndCollStats');
   const darkMode = useDarkMode();
   const columns = React.useMemo(

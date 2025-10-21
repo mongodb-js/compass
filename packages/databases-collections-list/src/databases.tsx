@@ -210,7 +210,6 @@ const DatabasesList: React.FunctionComponent<{
   onCreateDatabaseClick?: () => void;
   onRefreshClick?: () => void;
   renderLoadSampleDataBanner?: () => React.ReactNode;
-  virtual?: boolean;
 }> = ({
   databases,
   onDatabaseClick,
@@ -218,8 +217,12 @@ const DatabasesList: React.FunctionComponent<{
   onCreateDatabaseClick,
   onRefreshClick,
   renderLoadSampleDataBanner,
-  virtual,
 }) => {
+  let virtual = true;
+  if (process.env.COMPASS_DISABLE_VIRTUAL_SCROLLING === 'true') {
+    virtual = false;
+  }
+
   const showInsights = usePreference('showInsights');
   const enableDbAndCollStats = usePreference('enableDbAndCollStats');
   const darkMode = useDarkMode();

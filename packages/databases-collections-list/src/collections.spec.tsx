@@ -159,6 +159,10 @@ const colls: CollectionProps[] = [
 describe('Collections', () => {
   let preferences: PreferencesAccess;
 
+  before(() => {
+    process.env.COMPASS_DISABLE_VIRTUAL_SCROLLING = 'true';
+  });
+
   beforeEach(async function () {
     preferences = await createSandboxFromDefaultPreferences();
   });
@@ -179,7 +183,6 @@ describe('Collections', () => {
           onDeleteCollectionClick={deleteSpy}
           onCreateCollectionClick={createSpy}
           onRefreshClick={refreshSpy}
-          virtual={false}
           namespace="db"
           collections={[]}
           {...props}

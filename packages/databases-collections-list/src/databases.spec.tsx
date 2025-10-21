@@ -70,6 +70,10 @@ const dbs: DatabaseProps[] = [
 describe('Databases', function () {
   let preferences: PreferencesAccess;
 
+  before(() => {
+    process.env.COMPASS_DISABLE_VIRTUAL_SCROLLING = 'true';
+  });
+
   beforeEach(async function () {
     preferences = await createSandboxFromDefaultPreferences();
   });
@@ -92,7 +96,6 @@ describe('Databases', function () {
           onDeleteDatabaseClick={deleteSpy}
           onCreateDatabaseClick={createSpy}
           onRefreshClick={refreshSpy}
-          virtual={false}
           {...props}
         ></DatabasesList>
       </PreferencesProvider>
