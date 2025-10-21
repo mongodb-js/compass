@@ -122,6 +122,37 @@ describe('FakerMappingSelector', () => {
     );
   });
 
+  it('should fire a track event when faker function changes', async () => {
+    const newFakerMethod = 'internet.email';
+    const result = render(
+      <FakerMappingSelector
+        activeJsonType={mockActiveJsonType}
+        activeFakerFunction={mockActiveFakerFunction}
+        activeFakerArgs={mockActiveFakerArgs}
+        onJsonTypeSelect={onJsonTypeSelectStub}
+        onFakerFunctionSelect={onFakerFunctionSelectStub}
+      />
+    );
+
+    const fakerFunctionSelect = screen.getByLabelText('Faker Function');
+    userEvent.click(fakerFunctionSelect);
+
+    const emailOption = await screen.findByRole('option', {
+      name: newFakerMethod,
+    });
+    userEvent.click(emailOption);
+
+    await waitFor(() => {
+      expect(result.track).to.have.been.calledWith(
+        'Mock Data Faker Method Changed',
+        {
+          field_name: mockActiveJsonType,
+          new_method: newFakerMethod,
+        }
+      );
+    });
+  });
+
   it('should show warning banner when faker method is unrecognized', () => {
     render(
       <FakerMappingSelector

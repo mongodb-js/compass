@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { connect } from 'react-redux';
 import {
   Banner,
@@ -22,6 +22,7 @@ import type { FakerSchema } from './types';
 import type { ArrayLengthMap } from './script-generation-utils';
 import type { CollectionState } from '../../modules/collection-tab';
 import { SCHEMA_ANALYSIS_STATE_COMPLETE } from '../../schema-analysis-types';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 
 const RUN_SCRIPT_COMMAND = `
 mongosh "mongodb+srv://<your-cluster>.mongodb.net/<your-database>" \\
@@ -91,6 +92,7 @@ const ScriptScreen = ({
 }: ScriptScreenProps) => {
   const isDarkMode = useDarkMode();
   const connectionInfo = useConnectionInfo();
+  const track = useTelemetry();
 
   const { database, collection } = toNS(namespace);
 
@@ -111,6 +113,21 @@ const ScriptScreen = ({
       arrayLengthMap,
     });
   }, [fakerSchema, documentCount, database, collection, arrayLengthMap]);
+
+  const onScriptCopy = ({ step }: { step: string }) => {
+    track('Mock Data Script Copied', {
+      step: step,
+    });
+  };
+
+  useEffect(() => {
+    if (scriptResult.success && fakerSchema) {
+      track('Mock Data Script Generated', {
+        field_count: Object.keys(fakerSchema).length,
+        output_docs_count: documentCount,
+      });
+    }
+  });
 
   return (
     <section className={outerSectionStyles}>
@@ -138,7 +155,10 @@ const ScriptScreen = ({
           <li>
             Install{' '}
             <Link href="https://fakerjs.dev/guide/#installation">faker.js</Link>
-            <Copyable className={copyableStyles}>
+            <Copyable
+              className={copyableStyles}
+              onCopy={() => onScriptCopy({ step: 'install fakerjs' })}
+            >
               npm install @faker-js/faker
             </Copyable>
           </li>
@@ -156,6 +176,7 @@ const ScriptScreen = ({
           copyButtonAppearance={scriptResult.success ? 'hover' : 'persist'}
           language={Language.JavaScript}
           className={scriptCodeBlockStyles}
+          onCopy={() => onScriptCopy({ step: 'create js file' })}
         >
           {scriptResult.success
             ? scriptResult.script
@@ -175,7 +196,12 @@ const ScriptScreen = ({
             reversible.
           </em>
         </Body>
-        <Code language={Language.Bash}>{RUN_SCRIPT_COMMAND}</Code>
+        <Code
+          language={Language.Bash}
+          onCopy={() => onScriptCopy({ step: 'mongosh script' })}
+        >
+          {RUN_SCRIPT_COMMAND}
+        </Code>
       </section>
       <section
         className={cx(

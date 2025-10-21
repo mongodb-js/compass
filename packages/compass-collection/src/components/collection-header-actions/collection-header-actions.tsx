@@ -8,8 +8,12 @@ import {
 } from '@mongodb-js/compass-components';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
-import React from 'react';
-import { usePreferences } from 'compass-preferences-model/provider';
+import React, { useEffect } from 'react';
+import {
+  useIsAIFeatureEnabled,
+  usePreference,
+  usePreferences,
+} from 'compass-preferences-model/provider';
 import toNS from 'mongodb-ns';
 import { wrapField } from '@mongodb-js/mongodb-constants';
 import {
@@ -92,6 +96,10 @@ const CollectionHeaderActions: React.FunctionComponent<
   const { readWrite: preferencesReadWrite, enableShell: showOpenShellButton } =
     usePreferences(['readWrite', 'enableShell']);
   const track = useTelemetry();
+  const isAIFeatureEnabled = useIsAIFeatureEnabled();
+  const isSampleDocumentPassingEnabled = usePreference(
+    'enableGenAISampleDocumentPassing'
+  );
 
   // Get experiment assignment for Mock Data Generator
   const mockDataGeneratorAssignment = useAssignment(
@@ -122,6 +130,26 @@ const CollectionHeaderActions: React.FunctionComponent<
   const isView = isReadonly && sourceName && !editViewName;
 
   const showViewEdit = isView && !preferencesReadWrite;
+  const shouldDisableMockDataButton =
+    !hasSchemaAnalysisData || exceedsMaxNestingDepth;
+
+  const onMockDataGeneratorCtaButtonClicked = () => {
+    track('Mock Data Generator Opened', {
+      gen_ai_features_enabled: isAIFeatureEnabled,
+      send_sample_values_enabled: isSampleDocumentPassingEnabled,
+    });
+    onOpenMockDataModal();
+  };
+
+  useEffect(() => {
+    if (shouldShowMockDataButton) {
+      track('Mock Data Generator CTA Button Viewed', {
+        button_enabled: !shouldDisableMockDataButton,
+        gen_ai_features_enabled: isAIFeatureEnabled,
+        send_sample_values_enabled: isSampleDocumentPassingEnabled,
+      });
+    }
+  });
 
   return (
     <div
@@ -151,8 +179,8 @@ const CollectionHeaderActions: React.FunctionComponent<
               <Button
                 data-testid="collection-header-generate-mock-data-button"
                 size={ButtonSize.Small}
-                disabled={!hasSchemaAnalysisData || exceedsMaxNestingDepth}
-                onClick={onOpenMockDataModal}
+                disabled={shouldDisableMockDataButton}
+                onClick={onMockDataGeneratorCtaButtonClicked}
                 leftGlyph={<Icon glyph="Sparkle" />}
               >
                 Generate Mock Data

@@ -16,6 +16,7 @@ import type { MongoDBFieldType } from '@mongodb-js/compass-generative-ai';
 import { MongoDBFieldTypeValues } from '@mongodb-js/compass-generative-ai';
 import { MONGO_TYPE_TO_FAKER_METHODS } from './constants';
 import type { FakerArg } from './script-generation-utils';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 
 const fieldMappingSelectorsStyles = css({
   width: '50%',
@@ -74,6 +75,7 @@ const FakerMappingSelector = ({
   onJsonTypeSelect,
   onFakerFunctionSelect,
 }: Props) => {
+  const track = useTelemetry();
   const fakerMethodOptions = useMemo(() => {
     const methods = MONGO_TYPE_TO_FAKER_METHODS[activeJsonType] || [];
 
@@ -83,6 +85,14 @@ const FakerMappingSelector = ({
 
     return [activeFakerFunction, ...methods];
   }, [activeJsonType, activeFakerFunction]);
+
+  const onFakerMethodChange = (newMethod: string) => {
+    track('Mock Data Faker Method Changed', {
+      field_name: activeJsonType,
+      new_method: newMethod,
+    });
+    onFakerFunctionSelect(newMethod);
+  };
 
   return (
     <div className={fieldMappingSelectorsStyles}>
@@ -103,7 +113,7 @@ const FakerMappingSelector = ({
         label="Faker Function"
         allowDeselect={false}
         value={activeFakerFunction}
-        onChange={onFakerFunctionSelect}
+        onChange={(newMethod) => onFakerMethodChange(newMethod)}
       >
         {fakerMethodOptions.map((method) => (
           <Option key={method} value={method}>

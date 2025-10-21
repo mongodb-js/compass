@@ -13,7 +13,10 @@ import { createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
 import MockDataGeneratorModal from './mock-data-generator-modal';
 import { MockDataGeneratorStep } from './types';
-import { StepButtonLabelMap } from './constants';
+import {
+  MOCK_DATA_GENERATOR_STEP_TO_NEXT_STEP_MAP,
+  StepButtonLabelMap,
+} from './constants';
 import type { CollectionState } from '../../modules/collection-tab';
 import { default as collectionTabReducer } from '../../modules/collection-tab';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
@@ -146,6 +149,21 @@ describe('MockDataGeneratorModal', () => {
       );
     });
 
+    it('fires a track event when the close button is clicked', async () => {
+      const result = await renderModal();
+      userEvent.click(screen.getByLabelText('Close modal'));
+      await waitFor(() => {
+        expect(result.track).to.have.been.calledWith(
+          'Mock Data Generator Dismissed',
+          {
+            screen: MockDataGeneratorStep.SCHEMA_CONFIRMATION,
+            gen_ai_features_enabled: false,
+            send_sample_values_enabled: false,
+          }
+        );
+      });
+    });
+
     it('closes the modal when the cancel button is clicked', async () => {
       await renderModal();
 
@@ -155,6 +173,21 @@ describe('MockDataGeneratorModal', () => {
         () =>
           expect(screen.queryByTestId('generate-mock-data-modal')).to.not.exist
       );
+    });
+
+    it('fires a track event when the cancel button is clicked', async () => {
+      const result = await renderModal();
+      userEvent.click(screen.getByText('Cancel'));
+      await waitFor(() => {
+        expect(result.track).to.have.been.calledWith(
+          'Mock Data Generator Dismissed',
+          {
+            screen: MockDataGeneratorStep.SCHEMA_CONFIRMATION,
+            gen_ai_features_enabled: false,
+            send_sample_values_enabled: false,
+          }
+        );
+      });
     });
 
     function createMockServicesWithSlowAiRequest() {
@@ -737,6 +770,27 @@ describe('MockDataGeneratorModal', () => {
         screen.getByTestId('next-step-button').getAttribute('aria-disabled')
       ).to.equal('false');
     });
+
+    it('fires a track event when the user proceeds to the next step', async () => {
+      const result = await renderModal({
+        mockServices: mockServicesWithMockDataResponse,
+      });
+
+      userEvent.click(screen.getByText('Confirm'));
+
+      await waitFor(() => {
+        expect(result.track).to.have.been.calledWith(
+          'Mock Data Generator Screen Proceeded',
+          {
+            from_screen: MockDataGeneratorStep.SCHEMA_CONFIRMATION,
+            to_screen:
+              MOCK_DATA_GENERATOR_STEP_TO_NEXT_STEP_MAP[
+                MockDataGeneratorStep.SCHEMA_CONFIRMATION
+              ],
+          }
+        );
+      });
+    });
   });
 
   describe('on the document count step', () => {
@@ -815,6 +869,33 @@ describe('MockDataGeneratorModal', () => {
       userEvent.clear(documentCountInput);
       userEvent.type(documentCountInput, '2000');
       expect(screen.getByText('200.0 kB')).to.exist;
+    });
+
+    it('fires a track event when the document count is changed', async () => {
+      const result = await renderModal({
+        currentStep: MockDataGeneratorStep.DOCUMENT_COUNT,
+        schemaAnalysis: {
+          ...defaultSchemaAnalysisState,
+          schemaMetadata: {
+            ...defaultSchemaAnalysisState.schemaMetadata,
+            avgDocumentSize: 100, // 100 bytes
+          },
+        },
+      });
+
+      const documentCountInput = screen.getByLabelText(
+        'Documents to generate in current collection'
+      );
+      userEvent.clear(documentCountInput);
+      userEvent.type(documentCountInput, '2222');
+      await waitFor(() => {
+        expect(result.track).to.have.been.calledWith(
+          'Mock Data Document Count Changed',
+          {
+            document_count: 2222,
+          }
+        );
+      });
     });
   });
 
@@ -1079,6 +1160,106 @@ describe('MockDataGeneratorModal', () => {
       expect(screen.getByText('firstName')).to.exist; // faker method
       expect(screen.getByText('insertMany')).to.exist;
     });
+
+    it('fires a track event when the script is generated', async () => {
+      const result = await renderModal({
+        currentStep: MockDataGeneratorStep.GENERATE_DATA,
+        fakerSchemaGeneration: {
+          status: 'completed',
+          originalLlmResponse: {
+            name: {
+              fakerMethod: 'person.firstName',
+              fakerArgs: [],
+              probability: 1.0,
+              mongoType: 'String',
+            },
+            email: {
+              fakerMethod: 'internet.email',
+              fakerArgs: [],
+              probability: 1.0,
+              mongoType: 'String',
+            },
+          },
+          editedFakerSchema: {
+            name: {
+              fakerMethod: 'person.firstName',
+              fakerArgs: [],
+              probability: 1.0,
+              mongoType: 'String',
+            },
+            email: {
+              fakerMethod: 'internet.email',
+              fakerArgs: [],
+              probability: 1.0,
+              mongoType: 'String',
+            },
+          },
+          requestId: 'test-request-id',
+        },
+      });
+
+      await waitFor(() => {
+        expect(result.track).to.have.been.calledWith(
+          'Mock Data Script Generated',
+          {
+            field_count: 2,
+            output_docs_count: 100,
+          }
+        );
+      });
+    });
+
+    it('fires a track event when the mongosh script is copied', async () => {
+      const result = await renderModal({
+        currentStep: MockDataGeneratorStep.GENERATE_DATA,
+        fakerSchemaGeneration: {
+          status: 'completed',
+          originalLlmResponse: {
+            name: {
+              fakerMethod: 'person.firstName',
+              fakerArgs: [],
+              probability: 1.0,
+              mongoType: 'String',
+            },
+            email: {
+              fakerMethod: 'internet.email',
+              fakerArgs: [],
+              probability: 1.0,
+              mongoType: 'String',
+            },
+          },
+          editedFakerSchema: {
+            name: {
+              fakerMethod: 'person.firstName',
+              fakerArgs: [],
+              probability: 1.0,
+              mongoType: 'String',
+            },
+            email: {
+              fakerMethod: 'internet.email',
+              fakerArgs: [],
+              probability: 1.0,
+              mongoType: 'String',
+            },
+          },
+          requestId: 'test-request-id',
+        },
+      });
+
+      const codeCopyButtons = screen.getAllByTestId('lg-code-copy_button');
+      const mongoshCopyButton = codeCopyButtons[1];
+
+      expect(codeCopyButtons).to.have.length(2);
+      userEvent.click(mongoshCopyButton);
+      await waitFor(() => {
+        expect(result.track).to.have.been.calledWith(
+          'Mock Data Script Copied',
+          {
+            step: 'mongosh script',
+          }
+        );
+      });
+    });
   });
 
   describe('when rendering the modal in a specific step', () => {
@@ -1086,12 +1267,21 @@ describe('MockDataGeneratorModal', () => {
       StepButtonLabelMap
     ) as unknown as MockDataGeneratorStep[];
 
-    // note: these tests can be removed after every modal step is implemented
     steps.forEach((currentStep) => {
       it(`renders the button with the correct label when the user is in step "${currentStep}"`, async () => {
         await renderModal({ currentStep });
         expect(screen.getByTestId('next-step-button')).to.have.text(
           StepButtonLabelMap[currentStep]
+        );
+      });
+
+      it('fires a track event when the user is viewing a mock data generator step', async () => {
+        const result = await renderModal({ currentStep });
+        expect(result.track).to.have.been.calledWith(
+          'Mock Data Generator Screen Viewed',
+          {
+            screen: currentStep,
+          }
         );
       });
     });

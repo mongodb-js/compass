@@ -3158,6 +3158,159 @@ type ContextMenuItemClicked = CommonEvent<{
   };
 }>;
 
+/**
+ * This event is fired when the Mock Data Generator CTA button is viewed.
+ *
+ * @category Mock Data Generator
+ */
+type MockDataGeneratorCtaButtonViewedEvent = CommonEvent<{
+  name: 'Mock Data Generator CTA Button Viewed';
+  payload: {
+    button_enabled: boolean;
+    gen_ai_features_enabled: boolean;
+    send_sample_values_enabled: boolean;
+  };
+}>;
+
+/**
+ * This event is fired when the user clicks the enabled "Generate Mock Data" button in the collection tab header.
+ *
+ * @category Mock Data Generator
+ */
+type MockDataGeneratorOpenedEvent = CommonEvent<{
+  name: 'Mock Data Generator Opened';
+  payload: {
+    gen_ai_features_enabled: boolean;
+    send_sample_values_enabled: boolean;
+  };
+}>;
+
+/**
+ * This event is fired when the user views a screen in the Mock Data Generator modal.
+ *
+ * @category Mock Data Generator
+ */
+type MockDataGeneratorScreenViewedEvent = CommonEvent<{
+  name: 'Mock Data Generator Screen Viewed';
+  payload: {
+    screen:
+      | 'SCHEMA_CONFIRMATION'
+      | 'SCHEMA_EDITOR'
+      | 'DOCUMENT_COUNT'
+      | 'PREVIEW_DATA'
+      | 'GENERATE_DATA';
+  };
+}>;
+
+/**
+ * This event is fired when the user proceeds to the next screen or finishes the mock data generator modal.
+ *
+ * @category Mock Data Generator
+ */
+type MockDataGeneratorScreenProceededEvent = CommonEvent<{
+  name: 'Mock Data Generator Screen Proceeded';
+  payload: {
+    from_screen:
+      | 'SCHEMA_CONFIRMATION'
+      | 'SCHEMA_EDITOR'
+      | 'DOCUMENT_COUNT'
+      | 'PREVIEW_DATA'
+      | 'GENERATE_DATA';
+    to_screen:
+      | 'SCHEMA_CONFIRMATION'
+      | 'SCHEMA_EDITOR'
+      | 'DOCUMENT_COUNT'
+      | 'PREVIEW_DATA'
+      | 'GENERATE_DATA'
+      | 'finish';
+  };
+}>;
+
+/**
+ * This event is fired when the user closes the mock data generator modal.
+ *
+ * @category Mock Data Generator
+ */
+type MockDataGeneratorDismissedEvent = CommonEvent<{
+  name: 'Mock Data Generator Dismissed';
+  payload: {
+    screen:
+      | 'SCHEMA_CONFIRMATION'
+      | 'SCHEMA_EDITOR'
+      | 'DOCUMENT_COUNT'
+      | 'PREVIEW_DATA'
+      | 'GENERATE_DATA';
+    gen_ai_features_enabled: boolean;
+    send_sample_values_enabled: boolean;
+  };
+}>;
+
+/**
+ * This event is fired when the user changes the faker method for a MongoDB field type mapping.
+ *
+ * @category Mock Data Generator
+ */
+type MockDataFakerMethodChangedEvent = CommonEvent<{
+  name: 'Mock Data Faker Method Changed';
+  payload: {
+    field_name:
+      | 'String'
+      | 'Number'
+      | 'Int32'
+      | 'Boolean'
+      | 'Decimal128'
+      | 'Long'
+      | 'ObjectId'
+      | 'Date'
+      | 'RegExp'
+      | 'Symbol'
+      | 'MaxKey'
+      | 'MinKey'
+      | 'Binary'
+      | 'Code'
+      | 'Timestamp'
+      | 'DBRef';
+    new_method: string;
+  };
+}>;
+
+/**
+ * This event is fired when the user changes the document count for the mock data generator modal.
+ *
+ * @category Mock Data Generator
+ */
+type MockDataDocumentCountChangedEvent = CommonEvent<{
+  name: 'Mock Data Document Count Changed';
+  payload: {
+    document_count: number;
+  };
+}>;
+
+/**
+ * This event is fired when the user generates a script in the mock data generator modal.
+ *
+ * @category Mock Data Generator
+ */
+type MockDataScriptGeneratedEvent = CommonEvent<{
+  name: 'Mock Data Script Generated';
+  payload: {
+    field_count: number;
+    output_docs_count: number;
+  };
+}>;
+
+/**
+ * This event is fired when the user copies the mongosh script in the script screen of the mock data generator modal.
+ *
+ * @category Mock Data Generator
+ */
+type MockDataScriptCopiedEvent = CommonEvent<{
+  name: 'Mock Data Script Copied';
+  payload: {
+    step: 'install fakerjs' | 'create js file' | 'mongosh script';
+  };
+}>;
+
 export type TelemetryEvent =
   | AggregationCanceledEvent
   | AggregationCopiedEvent
@@ -3324,4 +3477,13 @@ export type TelemetryEvent =
   | CreateIndexStrategiesDocumentationClicked
   | UUIDEncounteredEvent
   | ContextMenuOpened
-  | ContextMenuItemClicked;
+  | ContextMenuItemClicked
+  | MockDataGeneratorCtaButtonViewedEvent
+  | MockDataGeneratorOpenedEvent
+  | MockDataGeneratorScreenViewedEvent
+  | MockDataGeneratorScreenProceededEvent
+  | MockDataGeneratorDismissedEvent
+  | MockDataFakerMethodChangedEvent
+  | MockDataDocumentCountChangedEvent
+  | MockDataScriptGeneratedEvent
+  | MockDataScriptCopiedEvent;
