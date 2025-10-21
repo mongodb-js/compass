@@ -65,6 +65,7 @@
     "compass-preferences-model": "^2.59.0",
     "hadron-document": "^8.10.5",
     "mongodb": "^6.19.0",
+    "mongodb-connection-string-url": "^3.0.2",
     "mongodb-collection-model": "^5.35.3",
     "mongodb-ns": "^3.0.1",
     "mongodb-schema": "^12.6.3",
