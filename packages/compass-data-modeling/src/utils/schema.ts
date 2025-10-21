@@ -5,10 +5,13 @@ export function getNewUnusedFieldName(
   jsonSchema: MongoDBJSONSchema,
   parentFieldPath: string[] = []
 ): string {
-  const parentJSONSchema: MongoDBJSONSchema | undefined = getFieldFromSchema({
-    jsonSchema,
-    fieldPath: parentFieldPath,
-  })?.jsonSchema;
+  const parentJSONSchema: MongoDBJSONSchema | undefined =
+    parentFieldPath.length > 0
+      ? getFieldFromSchema({
+          jsonSchema,
+          fieldPath: parentFieldPath,
+        })?.jsonSchema
+      : jsonSchema;
 
   if (!parentJSONSchema) return 'field-1';
 
