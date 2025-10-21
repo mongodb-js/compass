@@ -34,6 +34,10 @@ import ScriptScreen from './script-screen';
 import DocumentCountScreen from './document-count-screen';
 import PreviewScreen from './preview-screen';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
+import {
+  useIsAIFeatureEnabled,
+  usePreference,
+} from 'compass-preferences-model/provider';
 
 const footerStyles = css`
   flex-direction: row;
@@ -78,6 +82,10 @@ const MockDataGeneratorModal = ({
     DEFAULT_DOCUMENT_COUNT
   );
   const track = useTelemetry();
+  const isAIFeatureEnabled = useIsAIFeatureEnabled();
+  const isSampleDocumentPassingEnabled = usePreference(
+    'enableGenAISampleDocumentPassing'
+  );
 
   const modalBodyContent = useMemo(() => {
     switch (currentStep) {
@@ -161,11 +169,17 @@ const MockDataGeneratorModal = ({
   const onModalClose = useCallback(() => {
     track('Mock Data Generator Dismissed', {
       screen: currentStep,
-      gen_ai_features_enabled: false,
-      send_sample_values_enabled: false,
+      gen_ai_features_enabled: isAIFeatureEnabled,
+      send_sample_values_enabled: isSampleDocumentPassingEnabled,
     });
     onClose();
-  }, [currentStep, track, onClose]);
+  }, [
+    currentStep,
+    track,
+    onClose,
+    isAIFeatureEnabled,
+    isSampleDocumentPassingEnabled,
+  ]);
 
   return (
     <Modal

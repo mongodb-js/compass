@@ -3254,6 +3254,7 @@ type MockDataFakerMethodChangedEvent = CommonEvent<{
   name: 'Mock Data Faker Method Changed';
   payload: {
     field_name: string;
+    // json_type of type MongoDBFieldType from compass-generative-ai
     json_type:
       | 'String'
       | 'Number'
