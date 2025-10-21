@@ -394,6 +394,7 @@ describe('CollectionHeader [Component]', function () {
       return renderWithActiveConnection(
         <CompassExperimentationProvider
           useAssignment={mockUseAssignment}
+          useTrackInSample={Sinon.stub()}
           assignExperiment={Sinon.stub()}
           getAssignment={Sinon.stub().resolves(null)}
         >

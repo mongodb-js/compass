@@ -1,5 +1,6 @@
 import {
   Body,
+  compactBytes,
   css,
   palette,
   spacing,
@@ -9,7 +10,6 @@ import React, { useMemo } from 'react';
 import { connect } from 'react-redux';
 import type { CollectionState } from '../../modules/collection-tab';
 import type { SchemaAnalysisState } from '../../schema-analysis-types';
-import numeral from 'numeral';
 import { DEFAULT_DOCUMENT_COUNT, MAX_DOCUMENT_COUNT } from './constants';
 
 const BYTE_PRECISION_THRESHOLD = 1000;
@@ -40,8 +40,8 @@ const boldStyles = css({
 });
 
 const formatBytes = (bytes: number) => {
-  const precision = bytes <= BYTE_PRECISION_THRESHOLD ? '0' : '0.0';
-  return numeral(bytes).format(precision + 'b');
+  const decimals = bytes <= BYTE_PRECISION_THRESHOLD ? 0 : 1;
+  return compactBytes(bytes, true, decimals);
 };
 
 type ErrorState =
@@ -101,7 +101,7 @@ const DocumentCountScreen = ({
     }
   };
 
-  return schemaAnalysisState.status === 'complete' ? (
+  return (
     <div>
       <Body className={titleStyles}>
         Specify Number of Documents to Generate
@@ -130,9 +130,6 @@ const DocumentCountScreen = ({
         </div>
       </div>
     </div>
-  ) : (
-    // Not reachable since schema analysis must be finished before the modal can be opened
-    <div>We are analyzing your collection.</div>
   );
 };
 

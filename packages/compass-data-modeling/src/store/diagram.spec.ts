@@ -18,6 +18,7 @@ import type {
   StaticModel,
 } from '../services/data-model-storage';
 import { UUID } from 'bson';
+import Sinon from 'sinon';
 
 const model: StaticModel = {
   collections: [
@@ -27,7 +28,6 @@ const model: StaticModel = {
       displayPosition: [0, 0],
       shardKey: {},
       jsonSchema: { bsonType: 'object' },
-      isExpanded: true,
     },
     {
       ns: 'db.collection2',
@@ -35,7 +35,6 @@ const model: StaticModel = {
       displayPosition: [1, 1],
       shardKey: {},
       jsonSchema: { bsonType: 'object' },
-      isExpanded: true,
     },
   ],
   relationships: [
@@ -69,9 +68,11 @@ const loadedDiagram: MongoDBDataModelDescription = {
 
 describe('Data Modeling store', function () {
   let store: DataModelingStore;
+  let openToastSpy: Sinon.SinonSpy;
 
   beforeEach(function () {
-    store = setupStore();
+    openToastSpy = Sinon.spy();
+    store = setupStore({}, undefined, openToastSpy);
   });
 
   describe('New Diagram', function () {
@@ -150,7 +151,6 @@ describe('Data Modeling store', function () {
               displayPosition: [0, 0],
               shardKey: {},
               jsonSchema: { bsonType: 'object' },
-              isExpanded: true,
             },
           ] as StaticModel['collections'],
           relationships: [] as StaticModel['relationships'],
@@ -160,7 +160,7 @@ describe('Data Modeling store', function () {
 
       const state = store.getState();
       const diagram = getCurrentDiagramFromState(state);
-      expect(state.diagram?.editErrors).to.be.undefined;
+      expect(openToastSpy).not.to.have.been.called;
       expect(diagram.edits).to.have.length(2);
       expect(diagram.edits[0]).to.deep.equal(loadedDiagram.edits[0]);
       expect(diagram.edits[1]).to.deep.include(edit);
@@ -196,7 +196,7 @@ describe('Data Modeling store', function () {
 
       const state = store.getState();
       const diagram = getCurrentDiagramFromState(state);
-      expect(state.diagram?.editErrors).to.be.undefined;
+      expect(openToastSpy).not.to.have.been.called;
       expect(diagram.edits).to.have.length(2);
       expect(diagram.edits[0]).to.deep.equal(loadedDiagram.edits[0]);
       expect(diagram.edits[1]).to.deep.include({
@@ -220,9 +220,8 @@ describe('Data Modeling store', function () {
       } as unknown as Edit;
       store.dispatch(applyEdit(edit));
 
-      const editErrors = store.getState().diagram?.editErrors;
-      expect(editErrors).to.have.length(1);
-      expect(editErrors && editErrors[0]).to.equal(
+      expect(openToastSpy).to.have.been.calledOnce;
+      expect(openToastSpy.firstCall.args[1].description).to.include(
         "'relationship,relationship' is required"
       );
       const diagram = getCurrentDiagramFromState(store.getState());
@@ -356,7 +355,7 @@ describe('Data Modeling store', function () {
 
       const state = store.getState();
       const diagram = getCurrentDiagramFromState(state);
-      expect(state.diagram?.editErrors).to.be.undefined;
+      expect(openToastSpy).not.to.have.been.called;
       expect(diagram.edits).to.have.length(2);
       expect(diagram.edits[0]).to.deep.equal(loadedDiagram.edits[0]);
       expect(diagram.edits[1]).to.deep.include(edit);
@@ -376,11 +375,21 @@ describe('Data Modeling store', function () {
       } as unknown as Edit;
       store.dispatch(applyEdit(edit));
 
-      const editErrors = store.getState().diagram?.editErrors;
-      expect(editErrors).to.have.length(1);
-      expect(editErrors && editErrors[0]).to.equal("'newPosition' is required");
+      expect(openToastSpy).to.have.been.calledOnce;
+      expect(openToastSpy.firstCall.args[1].description).to.include(
+        "'newPosition' is required"
+      );
       const diagram = getCurrentDiagramFromState(store.getState());
       expect(diagram.edits).to.deep.equal(loadedDiagram.edits);
+    });
+
+    it('should handle an invalid RenameCollection edit', function () {
+      store.dispatch(openDiagram(loadedDiagram));
+      store.dispatch(renameCollection('nonExisting', 'newName'));
+      expect(openToastSpy).to.have.been.calledOnce;
+      expect(openToastSpy.firstCall.args[1].description).to.include(
+        "Collection 'nonExisting' not found"
+      );
     });
   });
 
@@ -437,7 +446,6 @@ describe('Data Modeling store', function () {
                     field3: { bsonType: 'int' },
                   },
                 },
-                isExpanded: true,
               },
             ],
             relationships: [],
@@ -464,7 +472,6 @@ describe('Data Modeling store', function () {
                 indexes: [],
                 displayPosition: [0, 0],
                 shardKey: {},
-                isExpanded: true,
                 jsonSchema: {
                   bsonType: 'object',
                   properties: {

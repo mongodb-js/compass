@@ -811,10 +811,10 @@ describe('MockDataGeneratorModal', () => {
       );
       userEvent.clear(documentCountInput);
       userEvent.type(documentCountInput, '1000');
-      expect(screen.getByText('100.0KB')).to.exist;
+      expect(screen.getByText('100.0 kB')).to.exist;
       userEvent.clear(documentCountInput);
       userEvent.type(documentCountInput, '2000');
-      expect(screen.getByText('200.0KB')).to.exist;
+      expect(screen.getByText('200.0 kB')).to.exist;
     });
   });
 
@@ -824,7 +824,15 @@ describe('MockDataGeneratorModal', () => {
         currentStep: MockDataGeneratorStep.GENERATE_DATA,
         fakerSchemaGeneration: {
           status: 'completed',
-          fakerSchema: {
+          originalLlmResponse: {
+            name: {
+              fakerMethod: 'person.firstName',
+              fakerArgs: [],
+              probability: 1.0,
+              mongoType: 'String',
+            },
+          },
+          editedFakerSchema: {
             name: {
               fakerMethod: 'person.firstName',
               fakerArgs: [],
@@ -848,7 +856,15 @@ describe('MockDataGeneratorModal', () => {
         currentStep: MockDataGeneratorStep.GENERATE_DATA,
         fakerSchemaGeneration: {
           status: 'completed',
-          fakerSchema: {
+          originalLlmResponse: {
+            name: {
+              fakerMethod: 'person.firstName',
+              fakerArgs: [],
+              probability: 1.0,
+              mongoType: 'String',
+            },
+          },
+          editedFakerSchema: {
             name: {
               fakerMethod: 'person.firstName',
               fakerArgs: [],
@@ -872,7 +888,15 @@ describe('MockDataGeneratorModal', () => {
         currentStep: MockDataGeneratorStep.GENERATE_DATA,
         fakerSchemaGeneration: {
           status: 'completed',
-          fakerSchema: {
+          originalLlmResponse: {
+            name: {
+              fakerMethod: 'person.firstName',
+              fakerArgs: [],
+              probability: 1.0,
+              mongoType: 'String',
+            },
+          },
+          editedFakerSchema: {
             name: {
               fakerMethod: 'person.firstName',
               fakerArgs: [],
@@ -919,7 +943,15 @@ describe('MockDataGeneratorModal', () => {
         connectionInfo: atlasConnectionInfo,
         fakerSchemaGeneration: {
           status: 'completed',
-          fakerSchema: {
+          originalLlmResponse: {
+            name: {
+              fakerMethod: 'person.firstName',
+              fakerArgs: [],
+              probability: 1.0,
+              mongoType: 'String',
+            },
+          },
+          editedFakerSchema: {
             name: {
               fakerMethod: 'person.firstName',
               fakerArgs: [],
@@ -971,7 +1003,15 @@ describe('MockDataGeneratorModal', () => {
           currentStep: MockDataGeneratorStep.GENERATE_DATA,
           fakerSchemaGeneration: {
             status: 'completed',
-            fakerSchema: {
+            originalLlmResponse: {
+              name: {
+                fakerMethod: 'person.firstName',
+                fakerArgs: [],
+                probability: 1.0,
+                mongoType: 'String',
+              },
+            },
+            editedFakerSchema: {
               name: {
                 fakerMethod: 'person.firstName',
                 fakerArgs: [],
@@ -1001,7 +1041,21 @@ describe('MockDataGeneratorModal', () => {
         currentStep: MockDataGeneratorStep.GENERATE_DATA,
         fakerSchemaGeneration: {
           status: 'completed',
-          fakerSchema: {
+          originalLlmResponse: {
+            name: {
+              fakerMethod: 'person.firstName',
+              fakerArgs: [],
+              probability: 1.0,
+              mongoType: 'String',
+            },
+            email: {
+              fakerMethod: 'internet.email',
+              fakerArgs: [],
+              probability: 1.0,
+              mongoType: 'String',
+            },
+          },
+          editedFakerSchema: {
             name: {
               fakerMethod: 'person.firstName',
               fakerArgs: [],
