@@ -529,19 +529,21 @@ export const VirtualItemsTable = <T extends Item>({
 
   const rowItems = mapVirtualRowItems(table);
 
-  return ItemsTableInner<T>({
-    'data-testid': dataTestId,
-    namespace,
-    itemType,
-    items,
-    onItemClick,
-    onCreateItemClick,
-    onRefreshClick,
-    renderLoadSampleDataBanner,
-    tableContainerRef,
-    table,
-    rowItems,
-  });
+  return (
+    <ItemsTableInner<T>
+      data-testid={dataTestId}
+      namespace={namespace}
+      itemType={itemType}
+      items={items}
+      onItemClick={onItemClick}
+      onCreateItemClick={onCreateItemClick}
+      onRefreshClick={onRefreshClick}
+      renderLoadSampleDataBanner={renderLoadSampleDataBanner}
+      tableContainerRef={tableContainerRef}
+      table={table}
+      rowItems={rowItems}
+    ></ItemsTableInner>
+  );
 };
 
 function mapRowItems<T extends Item>(table: LeafyGreenTable<T>): RowItem<T>[] {
@@ -577,16 +579,18 @@ export const ItemsTable = <T extends Item>({
 
   const rowItems = mapRowItems(table);
 
-  return ItemsTableInner<T>({
-    'data-testid': dataTestId,
-    namespace,
-    itemType,
-    items,
-    onItemClick,
-    onCreateItemClick,
-    onRefreshClick,
-    renderLoadSampleDataBanner,
-    table,
-    rowItems,
-  });
+  return (
+    <ItemsTableInner<T>
+      data-testid={dataTestId}
+      namespace={namespace}
+      itemType={itemType}
+      items={items}
+      onItemClick={onItemClick}
+      onCreateItemClick={onCreateItemClick}
+      onRefreshClick={onRefreshClick}
+      renderLoadSampleDataBanner={renderLoadSampleDataBanner}
+      table={table}
+      rowItems={rowItems}
+    ></ItemsTableInner>
+  );
 };
