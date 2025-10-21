@@ -66,12 +66,14 @@ interface Props {
   onJsonTypeSelect: (jsonType: MongoDBFieldType) => void;
   activeFakerArgs: FakerArg[];
   onFakerFunctionSelect: (fakerFunction: string) => void;
+  fieldName: string;
 }
 
 const FakerMappingSelector = ({
   activeJsonType,
   activeFakerFunction,
   activeFakerArgs,
+  fieldName,
   onJsonTypeSelect,
   onFakerFunctionSelect,
 }: Props) => {
@@ -89,7 +91,8 @@ const FakerMappingSelector = ({
   const onFakerMethodChange = useCallback(
     (newMethod: string) => {
       track('Mock Data Faker Method Changed', {
-        field_name: activeJsonType,
+        field_name: fieldName,
+        json_type: activeJsonType,
         new_method: newMethod,
       });
       onFakerFunctionSelect(newMethod);

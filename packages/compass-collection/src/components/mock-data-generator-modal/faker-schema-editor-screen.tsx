@@ -149,6 +149,7 @@ const FakerSchemaEditorContent = ({
         />
         {activeJsonType && activeFakerFunction && (
           <FakerMappingSelector
+            fieldName={activeField}
             activeJsonType={activeJsonType}
             activeFakerFunction={activeFakerFunction}
             activeFakerArgs={activeFakerArgs}

@@ -19,6 +19,7 @@ const mockActiveFakerFunction = 'lorem.word';
 const mockActiveFakerArgs: Array<FakerArg> = [];
 const onJsonTypeSelectStub = sinon.stub();
 const onFakerFunctionSelectStub = sinon.stub();
+const mockFieldName = 'mockFieldName';
 
 describe('FakerMappingSelector', () => {
   afterEach(() => {
@@ -36,6 +37,7 @@ describe('FakerMappingSelector', () => {
         activeFakerArgs={mockActiveFakerArgs}
         onJsonTypeSelect={onJsonTypeSelectStub}
         onFakerFunctionSelect={onFakerFunctionSelectStub}
+        fieldName={mockFieldName}
       />
     );
 
@@ -65,6 +67,7 @@ describe('FakerMappingSelector', () => {
             activeFakerArgs={mockActiveFakerArgs}
             onJsonTypeSelect={onJsonTypeSelectStub}
             onFakerFunctionSelect={onFakerFunctionSelectStub}
+            fieldName={mockFieldName}
           />
         );
 
@@ -86,6 +89,7 @@ describe('FakerMappingSelector', () => {
         activeFakerArgs={mockActiveFakerArgs}
         onJsonTypeSelect={onJsonTypeSelectStub}
         onFakerFunctionSelect={onFakerFunctionSelectStub}
+        fieldName={mockFieldName}
       />
     );
 
@@ -106,6 +110,7 @@ describe('FakerMappingSelector', () => {
         activeFakerArgs={mockActiveFakerArgs}
         onJsonTypeSelect={onJsonTypeSelectStub}
         onFakerFunctionSelect={onFakerFunctionSelectStub}
+        fieldName={mockFieldName}
       />
     );
 
@@ -131,6 +136,7 @@ describe('FakerMappingSelector', () => {
         activeFakerArgs={mockActiveFakerArgs}
         onJsonTypeSelect={onJsonTypeSelectStub}
         onFakerFunctionSelect={onFakerFunctionSelectStub}
+        fieldName={mockFieldName}
       />
     );
 
@@ -161,6 +167,7 @@ describe('FakerMappingSelector', () => {
         activeFakerArgs={mockActiveFakerArgs}
         onJsonTypeSelect={onJsonTypeSelectStub}
         onFakerFunctionSelect={onFakerFunctionSelectStub}
+        fieldName={mockFieldName}
       />
     );
 
@@ -179,6 +186,7 @@ describe('FakerMappingSelector', () => {
         activeFakerArgs={mockActiveFakerArgs}
         onJsonTypeSelect={onJsonTypeSelectStub}
         onFakerFunctionSelect={onFakerFunctionSelectStub}
+        fieldName={mockFieldName}
       />
     );
 

@@ -3253,7 +3253,8 @@ type MockDataGeneratorDismissedEvent = CommonEvent<{
 type MockDataFakerMethodChangedEvent = CommonEvent<{
   name: 'Mock Data Faker Method Changed';
   payload: {
-    field_name:
+    field_name: string;
+    json_type:
       | 'String'
       | 'Number'
       | 'Int32'
