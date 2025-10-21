@@ -212,7 +212,7 @@ export async function scrollToVirtualItem(
     // then we don't have to try and calculate that pixel value.
     scrollTop += scrollHeight;
 
-    if (scrollTop <= totalHeight + scrollTop) {
+    if (scrollTop <= totalHeight + scrollHeight) {
       debug(debugId, 'scrolling to ', scrollTop);
 
       // scroll for another screen
