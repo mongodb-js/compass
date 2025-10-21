@@ -52,10 +52,25 @@ export async function scrollToVirtualItem(
   role: 'grid' | 'tree' | 'table'
 ): Promise<boolean> {
   if (role === 'table') {
+    const expectedRowCount = parseInt(
+      await browser
+        .$(`${containerSelector} table`)
+        .getAttribute('aria-rowcount'),
+      10
+    );
+    const rowCount = await browser.$$('tbody tr').length;
+
+    if (rowCount !== expectedRowCount) {
+      throw new Error(
+        `${rowCount} rows found, but expected ${expectedRowCount}. Is virtual rendering of the table disabled as expected?`
+      );
+    }
+
     // we disable virtual scrolling for tables for now
     const targetElement = browser.$(targetSelector);
-    await targetElement.waitForDisplayed();
+    await targetElement.waitForExist();
     await targetElement.scrollIntoView();
+    await targetElement.waitForDisplayed();
     return true;
   }
 

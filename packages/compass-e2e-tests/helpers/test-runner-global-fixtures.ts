@@ -92,6 +92,11 @@ export async function mochaGlobalSetup(this: Mocha.Runner) {
 
       if (isTestingWeb(context) && !isTestingAtlasCloudExternal(context)) {
         debug('Starting Compass Web server ...');
+
+        // TODO(COMPASS-9977) Turn off virtual scrolling in e2e tests until we can fix
+        // browser.scrollToVirtualItem() to work with it
+        process.env.COMPASS_DISABLE_VIRTUAL_TABLE_RENDERING = 'true';
+
         if (isTestingAtlasCloudSandbox(context)) {
           const compassWeb = await spawnCompassWebSandboxAndSignInToAtlas(
             {
