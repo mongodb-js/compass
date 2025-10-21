@@ -399,6 +399,7 @@ describe('AtlasAiService', function () {
               sampleValues: [25, 30, 35],
             },
           },
+          validationRules: null,
           includeSampleValues: false,
           requestId: 'test-request-id',
           signal: new AbortController().signal,
@@ -626,6 +627,125 @@ describe('AtlasAiService', function () {
                 'Response does not match expected schema'
               );
             }
+          });
+
+          it('includes validation rules in request body when provided', async function () {
+            const mockResponse = {
+              fields: [
+                {
+                  fieldPath: 'email',
+                  mongoType: 'String',
+                  fakerMethod: 'internet.email',
+                  fakerArgs: [],
+                },
+                {
+                  fieldPath: 'age',
+                  mongoType: 'Int32',
+                  fakerMethod: 'number.int',
+                  fakerArgs: [{ json: '{"min": 18, "max": 120}' }],
+                },
+              ],
+            };
+            const fetchStub = sandbox
+              .stub()
+              .resolves(makeResponse(mockResponse));
+            global.fetch = fetchStub;
+
+            const validationRules = {
+              $jsonSchema: {
+                bsonType: 'object',
+                required: ['email', 'age'],
+                properties: {
+                  email: {
+                    bsonType: 'string',
+                    pattern:
+                      '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$',
+                  },
+                  age: {
+                    bsonType: 'int',
+                    minimum: 18,
+                    maximum: 120,
+                  },
+                },
+              },
+            };
+
+            const inputWithValidationRules = {
+              ...mockSchemaInput,
+              validationRules,
+            };
+
+            await atlasAiService.getMockDataSchema(
+              inputWithValidationRules,
+              mockConnectionInfo
+            );
+
+            const { args } = fetchStub.firstCall;
+            const requestBody = JSON.parse(args[1].body as string);
+
+            expect(requestBody).to.have.property('validationRules');
+            expect(requestBody.validationRules).to.deep.equal(validationRules);
+          });
+
+          it('includes null validation rules in request body when not provided', async function () {
+            const mockResponse = {
+              fields: [
+                {
+                  fieldPath: 'name',
+                  mongoType: 'String',
+                  fakerMethod: 'person.fullName',
+                  fakerArgs: [],
+                },
+              ],
+            };
+            const fetchStub = sandbox
+              .stub()
+              .resolves(makeResponse(mockResponse));
+            global.fetch = fetchStub;
+
+            await atlasAiService.getMockDataSchema(
+              mockSchemaInput,
+              mockConnectionInfo
+            );
+
+            const { args } = fetchStub.firstCall;
+            const requestBody = JSON.parse(args[1].body as string);
+
+            expect(requestBody).to.have.property('validationRules');
+            expect(requestBody.validationRules).to.be.null;
+          });
+
+          it('excludes validation rules from request body when explicitly undefined', async function () {
+            const mockResponse = {
+              fields: [
+                {
+                  fieldPath: 'name',
+                  mongoType: 'String',
+                  fakerMethod: 'person.fullName',
+                  fakerArgs: [],
+                },
+              ],
+            };
+            const fetchStub = sandbox
+              .stub()
+              .resolves(makeResponse(mockResponse));
+            global.fetch = fetchStub;
+
+            const inputWithUndefinedValidationRules = {
+              ...mockSchemaInput,
+              validationRules: undefined,
+            };
+
+            await atlasAiService.getMockDataSchema(
+              inputWithUndefinedValidationRules,
+              mockConnectionInfo
+            );
+
+            const { args } = fetchStub.firstCall;
+            const requestBody = JSON.parse(args[1].body as string);
+
+            // When validationRules is undefined, JSON.stringify excludes it from the output
+            expect(requestBody).to.not.have.property('validationRules');
           });
         }
       });
