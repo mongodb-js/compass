@@ -46,20 +46,21 @@ export type UseChatHelpers<UI_MESSAGE extends UIMessage> = {
   | 'clearError'
 >;
 
-export type UseChatOptions<UI_MESSAGE extends UIMessage> =
-  // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
-  ({ chat: Chat<UI_MESSAGE> } | ChatInit<UI_MESSAGE>) & {
-    /**
+export type UseChatOptions<UI_MESSAGE extends UIMessage> = (
+  | { chat: Chat<UI_MESSAGE> }
+  | ChatInit<UI_MESSAGE>
+) & {
+  /**
 Custom throttle wait in ms for the chat messages and data updates.
 Default is undefined, which disables throttling.
    */
-    experimental_throttle?: number;
+  experimental_throttle?: number;
 
-    /**
-     * Whether to resume an ongoing chat generation stream.
-     */
-    resume?: boolean;
-  };
+  /**
+   * Whether to resume an ongoing chat generation stream.
+   */
+  resume?: boolean;
+};
 
 export function useChat<UI_MESSAGE extends UIMessage = UIMessage>({
   experimental_throttle: throttleWaitMs,

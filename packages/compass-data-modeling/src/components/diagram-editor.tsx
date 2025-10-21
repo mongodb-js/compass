@@ -19,8 +19,15 @@ import {
   createNewRelationship,
   addCollection,
   selectField,
+  deleteCollection,
+  deleteRelationship,
+  removeField,
 } from '../store/diagram';
-import type { EdgeProps, NodeProps } from '@mongodb-js/compass-components';
+import type {
+  EdgeProps,
+  NodeProps,
+  DiagramProps,
+} from '@mongodb-js/compass-components';
 import {
   Banner,
   CancelLoader,
@@ -35,6 +42,7 @@ import {
   rafraf,
   Diagram,
   useDiagram,
+  useHotkeys,
 } from '@mongodb-js/compass-components';
 import { cancelAnalysis, retryAnalysis } from '../store/analysis-process';
 import type { FieldPath, StaticModel } from '../services/data-model-storage';
@@ -136,6 +144,9 @@ const DiagramContent: React.FunctionComponent<{
   onRelationshipSelect: (rId: string) => void;
   onFieldSelect: (namespace: string, fieldPath: FieldPath) => void;
   onDiagramBackgroundClicked: () => void;
+  onDeleteCollection: (ns: string) => void;
+  onDeleteRelationship: (rId: string) => void;
+  onDeleteField: (ns: string, fieldPath: FieldPath) => void;
   selectedItems: SelectedItems;
   onCreateNewRelationship: ({
     localNamespace,
@@ -162,6 +173,9 @@ const DiagramContent: React.FunctionComponent<{
   onDiagramBackgroundClicked,
   onCreateNewRelationship,
   onRelationshipDrawn,
+  onDeleteCollection,
+  onDeleteRelationship,
+  onDeleteField,
   selectedItems,
   DiagramComponent = Diagram,
 }) => {
@@ -272,7 +286,7 @@ const DiagramContent: React.FunctionComponent<{
   );
 
   const onNodeClick = useCallback(
-    (_evt: React.MouseEvent, node: NodeProps) => {
+    (_evt: React.MouseEvent | null, node: NodeProps) => {
       if (node.type !== 'collection') {
         return;
       }
@@ -283,7 +297,7 @@ const DiagramContent: React.FunctionComponent<{
   );
 
   const onEdgeClick = useCallback(
-    (_evt: React.MouseEvent, edge: EdgeProps) => {
+    (_evt: React.MouseEvent | null, edge: EdgeProps) => {
       onRelationshipSelect(edge.id);
       openDrawer(DATA_MODELING_DRAWER_ID);
     },
@@ -333,21 +347,47 @@ const DiagramContent: React.FunctionComponent<{
     [onAddFieldToObjectField]
   );
 
-  const diagramProps = useMemo(
-    () => ({
-      isDarkMode,
-      title: diagramLabel,
-      edges,
-      nodes,
-      onAddFieldToNodeClick: onClickAddFieldToCollection,
-      onAddFieldToObjectFieldClick: onClickAddFieldToObjectField,
-      onNodeClick,
-      onPaneClick,
-      onEdgeClick,
-      onFieldClick,
-      onNodeDragStop,
-      onConnect,
-    }),
+  const deleteItem = useCallback(() => {
+    switch (selectedItems?.type) {
+      case 'collection':
+        onDeleteCollection(selectedItems.id);
+        break;
+      case 'relationship':
+        onDeleteRelationship(selectedItems.id);
+        break;
+      case 'field':
+        onDeleteField(selectedItems.namespace, selectedItems.fieldPath);
+        break;
+      default:
+        break;
+    }
+  }, [selectedItems, onDeleteCollection, onDeleteRelationship, onDeleteField]);
+  useHotkeys('Backspace', deleteItem, [deleteItem]);
+  useHotkeys('Delete', deleteItem, [deleteItem]);
+  useHotkeys(
+    'Escape',
+    () => {
+      onDiagramBackgroundClicked();
+    },
+    [onDiagramBackgroundClicked]
+  );
+
+  const diagramProps: DiagramProps = useMemo(
+    () =>
+      ({
+        isDarkMode,
+        title: diagramLabel,
+        edges,
+        nodes,
+        onAddFieldToNodeClick: onClickAddFieldToCollection,
+        onAddFieldToObjectFieldClick: onClickAddFieldToObjectField,
+        onNodeClick,
+        onPaneClick,
+        onEdgeClick,
+        onFieldClick,
+        onNodeDragStop,
+        onConnect,
+      } satisfies DiagramProps),
     [
       isDarkMode,
       diagramLabel,
@@ -423,6 +463,9 @@ const ConnectedDiagramContent = connect(
     onFieldSelect: selectField,
     onDiagramBackgroundClicked: selectBackground,
     onCreateNewRelationship: createNewRelationship,
+    onDeleteCollection: deleteCollection,
+    onDeleteRelationship: deleteRelationship,
+    onDeleteField: removeField,
   }
 )(DiagramContent);
 

@@ -265,7 +265,6 @@ describe('CollectionHeaderActions [Component]', function () {
 
       it('should call onOpenMockDataModal when CTA button is clicked', async function () {
         const onOpenMockDataModal = sinon.stub();
-
         await renderCollectionHeaderActions(
           {
             namespace: 'test.collection',
