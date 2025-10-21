@@ -180,7 +180,7 @@ buildvariants:
       - name: test-packaged-app-2
       - name: test-packaged-app-3
   - name: test-packaged-app-rhel
-    display_name: Test Packaged App RHEL 9.0
+    display_name: Test Packaged App RHEL 9.3
     run_on: rhel93-large
     patchable: true
     depends_on:

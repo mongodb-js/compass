@@ -71,7 +71,7 @@ const TEST_PACKAGED_APP_BUILD_VARIANTS = [
   },
   {
     name: 'test-packaged-app-rhel',
-    display_name: 'RHEL 9.0',
+    display_name: 'RHEL 9.3',
     run_on: 'rhel93-large',
     depends_on: 'package-rhel',
   },
