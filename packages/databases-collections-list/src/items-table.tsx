@@ -43,7 +43,7 @@ type Item = {
   _id: string;
   name: string;
   inferred_from_privileges?: boolean;
-} & Record<string, unknown>;
+};
 
 export const createButtonStyles = css({
   whiteSpace: 'nowrap',
