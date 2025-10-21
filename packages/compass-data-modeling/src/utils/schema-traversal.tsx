@@ -198,6 +198,10 @@ type UpdateOperationParameters =
   | NewFieldOperationParameters
   | ExistingFieldOperationParameters;
 
+/**
+ * Adds a new field to a MongoDB JSON schema.
+ * @returns the updated schema
+ */
 function addFieldToSchema({
   schema,
   newFieldName,
@@ -229,6 +233,10 @@ function addFieldToSchema({
   return newSchema;
 }
 
+/**
+ * Adds a new field to the first object variant in an anyOf array, or creates a new object variant if none exist.
+ * @returns The updated anyOf array.
+ */
 function addFieldToAnyOf({
   anyOf,
   newFieldName,
@@ -253,7 +261,7 @@ function addFieldToAnyOf({
     return variant;
   });
   if (!objectFound) {
-    // no object variant found, we search for arrays
+    // no object variant found, we search for adding a new one
     newAnyOf.push({
       bsonType: 'object',
       properties: {
@@ -264,6 +272,11 @@ function addFieldToAnyOf({
   return newAnyOf;
 }
 
+/**
+ * For a tuple, adds a new field to the first object variant in items, or creates a new object variant if none exist.
+ * For a single items schema (mixed or not), adds the new field to it.
+ * @returns The updated items array.
+ */
 function addFieldToItems({
   items,
   newFieldName,
@@ -307,6 +320,10 @@ function addFieldToItems({
   return newItems;
 }
 
+/**
+ * Performs a schema update operation on MongoDB JSON schema.
+ * @returns the updated schema
+ */
 const applySchemaUpdate = ({
   schema,
   fieldName,

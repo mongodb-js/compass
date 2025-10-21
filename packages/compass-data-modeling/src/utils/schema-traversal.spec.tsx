@@ -940,6 +940,51 @@ describe('addField', function () {
       });
     });
 
+    it('add a field to a touple containing object [items, properties]', function () {
+      const schema = {
+        type: 'object',
+        properties: {
+          tupleWithObject: {
+            bsonType: 'array',
+            items: [
+              {
+                type: 'int',
+              },
+              {
+                bsonType: 'object',
+                properties: {
+                  field1: {
+                    bsonType: 'string',
+                  },
+                },
+              },
+            ],
+          },
+        },
+      };
+      const result = updateSchema({
+        fieldPath: ['tupleWithObject'],
+        jsonSchema: schema,
+        updateParameters: {
+          update: 'addField',
+          newFieldName: 'field2',
+          newFieldSchema: { bsonType: 'string' },
+        },
+      });
+      const newFields: FieldPath[] = [];
+      traverseSchema({
+        jsonSchema: result,
+        visitor: ({ fieldPath }) => {
+          newFields.push(fieldPath);
+        },
+      });
+      expect(newFields).to.deep.equal([
+        ['tupleWithObject'],
+        ['tupleWithObject', 'field1'],
+        ['tupleWithObject', 'field2'],
+      ]);
+    });
+
     it('add a field to a mixed type with object [anyOf, properties]', function () {
       const schema = {
         type: 'object',
