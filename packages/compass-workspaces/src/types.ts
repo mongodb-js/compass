@@ -1,13 +1,16 @@
 import type { CompassPluginComponent } from '@mongodb-js/compass-app-registry';
 import type { WorkspaceTabCoreProps } from '@mongodb-js/compass-components';
 
-export type CollectionSubtab =
-  | 'Documents'
-  | 'Aggregations'
-  | 'Schema'
-  | 'Indexes'
-  | 'Validation'
-  | 'GlobalWrites';
+export const collectionSubtabValues = [
+  'Documents',
+  'Aggregations',
+  'Schema',
+  'Indexes',
+  'Validation',
+  'GlobalWrites',
+] as const;
+
+export type CollectionSubtab = (typeof collectionSubtabValues)[number];
 
 export type WelcomeWorkspace = {
   type: 'Welcome';

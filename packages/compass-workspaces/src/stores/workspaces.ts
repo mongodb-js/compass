@@ -14,6 +14,7 @@ import {
 } from '../components/workspace-close-handler';
 import { type ConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { showConfirmation } from '@mongodb-js/compass-components';
+import type { WorkspacesStateData } from '../services/workspaces-storage';
 
 const LocalAppRegistryMap = new Map<string, AppRegistry>();
 
@@ -55,6 +56,7 @@ export enum WorkspacesActions {
   SelectNextTab = 'compass-workspaces/SelectNextTab',
   MoveTab = 'compass-workspaces/MoveTab',
   OpenTabFromCurrentActive = 'compass-workspaces/OpenTabFromCurrentActive',
+  RestoreWorkspaces = 'compass-workspaces/RestoreWorkspaces',
   DuplicateTab = 'compass-workspaces/DuplicateTab',
   CloseTabs = 'compass-workspaces/CloseTabs',
   CollectionRenamed = 'compass-workspaces/CollectionRenamed',
@@ -344,6 +346,18 @@ const reducer: Reducer<WorkspacesState, Action> = (
       ...state,
       tabs: newTabs,
       activeTabId: newTab.id,
+    };
+  }
+
+  if (
+    isAction<RestoreWorkspacesAction>(
+      action,
+      WorkspacesActions.RestoreWorkspaces
+    )
+  ) {
+    return {
+      ...state,
+      tabs: [...state.tabs, ...action.tabs.map(getInitialTabState)],
     };
   }
 
@@ -853,6 +867,11 @@ type OpenTabFromCurrentActiveAction = {
   defaultTab: OpenWorkspaceOptions;
 };
 
+type RestoreWorkspacesAction = {
+  type: WorkspacesActions.RestoreWorkspaces;
+  tabs: OpenWorkspaceOptions[];
+};
+
 export const openTabFromCurrent = (
   defaultTab?: OpenWorkspaceOptions | null
 ): OpenTabFromCurrentActiveAction => {
@@ -971,6 +990,126 @@ export const collectionRemoved = (
 type DatabaseRemovedAction = {
   type: WorkspacesActions.DatabaseRemoved;
   namespace: string;
+};
+
+/**
+ * Converts saved workspace state data back to OpenWorkspaceOptions format
+ * for initializing the store
+ */
+function convertSavedStateToOpenWorkspaceOptions(
+  savedState: WorkspacesStateData
+): OpenWorkspaceOptions[] {
+  return savedState.tabs.map((tab) => {
+    const type = tab.type;
+
+    switch (type) {
+      case 'Welcome':
+      case 'My Queries':
+      case 'Data Modeling':
+        return { type };
+      case 'Databases':
+      case 'Performance':
+        return {
+          type,
+          connectionId: tab.connectionId,
+        };
+      case 'Collections':
+        return {
+          type,
+          connectionId: tab.connectionId,
+          namespace: tab.namespace,
+        };
+      case 'Shell': {
+        const result: OpenWorkspaceOptions = {
+          type,
+          connectionId: tab.connectionId,
+        };
+        if ('initialEvaluate' in tab) {
+          result.initialEvaluate = tab.initialEvaluate;
+        }
+        if ('initialInput' in tab) {
+          result.initialInput = tab.initialInput;
+        }
+        return result;
+      }
+      case 'Collection': {
+        const result: OpenWorkspaceOptions = {
+          type,
+          connectionId: tab.connectionId,
+          namespace: tab.namespace,
+        };
+        if ('subTab' in tab) {
+          result.initialSubtab = tab.subTab;
+        }
+        if ('initialQuery' in tab) {
+          result.initialQuery = tab.initialQuery;
+        }
+
+        if ('initialAggregation' in tab) {
+          result.initialAggregation = tab.initialAggregation;
+        }
+        if ('editViewName' in tab) {
+          result.editViewName = tab.editViewName;
+        }
+        if ('initialPipeline' in tab) {
+          result.initialPipeline = tab.initialPipeline;
+        }
+        if ('initialPipelineText' in tab) {
+          result.initialPipelineText = tab.initialPipelineText;
+        }
+        return result;
+      }
+    }
+  });
+}
+
+export const loadSavedWorkspaces = (): WorkspacesThunkAction<
+  Promise<void>,
+  RestoreWorkspacesAction
+> => {
+  return async (dispatch, getState, { connections, userData, preferences }) => {
+    if (!preferences.getPreferences().enableRestoreWorkspaces) {
+      return;
+    }
+    const savedState = await userData.readOne('saved-workspaces', {
+      ignoreErrors: true,
+    });
+    if (savedState) {
+      const confirm = await showConfirmation({
+        title: 'Reopen closed tabs?',
+        description:
+          'Your connection and tabs were closed, this action will reopen your previous session',
+        buttonText: 'Reopen tabs',
+      });
+
+      const workspacesToRestore: OpenWorkspaceOptions[] = [];
+      (confirm
+        ? convertSavedStateToOpenWorkspaceOptions(savedState)
+        : []
+      ).forEach((workspace) => {
+        // If the workspace is tied to a connection, check if the connection exists
+        // and add it to the list of connections to restore if so.
+        if ('connectionId' in workspace) {
+          const connectionInfo = connections.getConnectionById(
+            workspace.connectionId
+          )?.info;
+
+          if (!connectionInfo) {
+            return;
+          }
+
+          void connections.connect(connectionInfo);
+        }
+
+        workspacesToRestore.push(workspace);
+      });
+
+      dispatch({
+        type: WorkspacesActions.RestoreWorkspaces,
+        tabs: workspacesToRestore,
+      });
+    }
+  };
 };
 
 export const databaseRemoved = (
