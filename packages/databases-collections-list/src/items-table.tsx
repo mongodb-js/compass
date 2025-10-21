@@ -375,6 +375,9 @@ export const ItemsTable = <T extends Item>({
     return columns;
   }, [columns, onDeleteItemClick]);
 
+  // Ideally we'd use either useLeafyGreenVirtualTable if virtual is true or
+  // useLeafyGreenTable if it is false, but we have to avoid conditionally
+  // rendering a hook.
   const table = useLeafyGreenVirtualTable<T>({
     containerRef: tableContainerRef,
     data: items,
@@ -386,7 +389,7 @@ export const ItemsTable = <T extends Item>({
   });
 
   const rowItems = virtual
-    ? table.virtual?.getVirtualItems() //.map((item) => item.row)
+    ? table.virtual?.getVirtualItems()
     : table.getRowModel().rows;
 
   return (
