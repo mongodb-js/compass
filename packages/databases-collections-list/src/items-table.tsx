@@ -6,6 +6,10 @@ import type {
   GroupedItemAction,
   LeafyGreenTableRow,
   LeafyGreenVirtualItem,
+  LGTableDataType,
+  CellContext,
+  LeafyGreenVirtualTable,
+  LeafyGreenTable,
 } from '@mongodb-js/compass-components';
 import {
   css,
@@ -26,6 +30,7 @@ import {
   Row,
   Cell,
   ItemActionGroup,
+  useLeafyGreenTable,
 } from '@mongodb-js/compass-components';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
@@ -338,60 +343,62 @@ const ItemActions: React.FunctionComponent<ItemActionsProps> = ({
   );
 };
 
-export const ItemsTable = <T extends Item>({
+function calculateColumnsWithActions<T extends Item>(
+  columns: LGColumnDef<T>[],
+  onDeleteItemClick: ItemsTableProps<T>['onDeleteItemClick']
+) {
+  if (onDeleteItemClick) {
+    return [
+      ...columns,
+      {
+        id: 'actions',
+        header: '',
+        maxSize: 40,
+        cell: (info: CellContext<LGTableDataType<T>, unknown>) => {
+          return (
+            <ItemActions
+              item={info.row.original}
+              onDeleteItemClick={onDeleteItemClick}
+            />
+          );
+        },
+      },
+    ];
+  }
+  return columns;
+}
+
+type RowItem<T> = {
+  row: LeafyGreenTableRow<T>;
+  virtualRow?: LeafyGreenVirtualItem<T>;
+};
+
+const ItemsTableInner = <T extends Item>({
   'data-testid': dataTestId,
-  virtual = true,
   namespace,
   itemType,
-  columns,
   items,
   onItemClick,
-  onDeleteItemClick,
   onCreateItemClick,
   onRefreshClick,
   renderLoadSampleDataBanner,
-}: ItemsTableProps<T>): React.ReactElement => {
-  const tableContainerRef = React.useRef<HTMLDivElement>(null);
-
-  const columnsWithActions = useMemo(() => {
-    if (onDeleteItemClick) {
-      return [
-        ...columns,
-        {
-          id: 'actions',
-          header: '',
-          maxSize: 40,
-          cell: (info) => {
-            return (
-              <ItemActions
-                item={info.row.original}
-                onDeleteItemClick={onDeleteItemClick}
-              />
-            );
-          },
-        },
-      ];
-    }
-    return columns;
-  }, [columns, onDeleteItemClick]);
-
-  // Ideally we'd use either useLeafyGreenVirtualTable if virtual is true or
-  // useLeafyGreenTable if it is false, but we have to avoid conditionally
-  // rendering a hook.
-  const table = useLeafyGreenVirtualTable<T>({
-    containerRef: tableContainerRef,
-    data: items,
-    columns: columnsWithActions,
-    virtualizerOptions: {
-      estimateSize: () => 40,
-      overscan: 10,
-    },
-  });
-
-  const rowItems = virtual
-    ? table.virtual?.getVirtualItems()
-    : table.getRowModel().rows;
-
+  tableContainerRef,
+  table,
+  rowItems,
+}: {
+  'data-testid'?: string;
+  namespace?: string;
+  itemType: 'collection' | 'database';
+  items: T[];
+  onItemClick: (id: string) => void;
+  onCreateItemClick?: () => void;
+  onRefreshClick?: () => void;
+  renderLoadSampleDataBanner?: () => React.ReactNode;
+  tableContainerRef?: React.RefObject<HTMLDivElement>;
+  // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
+  table: LeafyGreenTable<T> | LeafyGreenVirtualTable<T>;
+  rowItems: RowItem<T>[];
+}): React.ReactElement => {
   return (
     <div className={itemsTableContainerStyles} data-testid={dataTestId}>
       <WorkspaceContainer
@@ -490,4 +497,108 @@ export const ItemsTable = <T extends Item>({
       </WorkspaceContainer>
     </div>
   );
+};
+
+function mapVirtualRowItems<T extends Item>(
+  table: LeafyGreenVirtualTable<T>
+): RowItem<T>[] {
+  const virtualItems = table.virtual.getVirtualItems();
+  return virtualItems.map((virtualItem) => {
+    return {
+      row: virtualItem.row,
+      virtualRow: virtualItem,
+    };
+  });
+}
+
+export const VirtualItemsTable = <T extends Item>({
+  'data-testid': dataTestId,
+  namespace,
+  itemType,
+  columns,
+  items,
+  onItemClick,
+  onDeleteItemClick,
+  onCreateItemClick,
+  onRefreshClick,
+  renderLoadSampleDataBanner,
+}: ItemsTableProps<T>): React.ReactElement => {
+  const tableContainerRef = React.useRef<HTMLDivElement>(null);
+
+  const columnsWithActions = useMemo(() => {
+    return calculateColumnsWithActions(columns, onDeleteItemClick);
+  }, [columns, onDeleteItemClick]);
+
+  const table = useLeafyGreenVirtualTable<T>({
+    containerRef: tableContainerRef,
+    data: items,
+    columns: columnsWithActions,
+    virtualizerOptions: {
+      estimateSize: () => 40,
+      overscan: 10,
+    },
+  });
+
+  const rowItems = mapVirtualRowItems(table);
+
+  return ItemsTableInner<T>({
+    'data-testid': dataTestId,
+    namespace,
+    itemType,
+    items,
+    onItemClick,
+    onCreateItemClick,
+    onRefreshClick,
+    renderLoadSampleDataBanner,
+    tableContainerRef,
+    table,
+    rowItems,
+  });
+};
+
+function mapRowItems<T extends Item>(table: LeafyGreenTable<T>): RowItem<T>[] {
+  const rows = table.getRowModel().rows;
+  return rows.map((row) => {
+    return {
+      row,
+      virtualRow: undefined,
+    };
+  });
+}
+
+export const ItemsTable = <T extends Item>({
+  'data-testid': dataTestId,
+  namespace,
+  itemType,
+  columns,
+  items,
+  onItemClick,
+  onDeleteItemClick,
+  onCreateItemClick,
+  onRefreshClick,
+  renderLoadSampleDataBanner,
+}: ItemsTableProps<T>): React.ReactElement => {
+  const columnsWithActions = useMemo(() => {
+    return calculateColumnsWithActions(columns, onDeleteItemClick);
+  }, [columns, onDeleteItemClick]);
+
+  const table = useLeafyGreenTable<T>({
+    data: items,
+    columns: columnsWithActions,
+  });
+
+  const rowItems = mapRowItems(table);
+
+  return ItemsTableInner<T>({
+    'data-testid': dataTestId,
+    namespace,
+    itemType,
+    items,
+    onItemClick,
+    onCreateItemClick,
+    onRefreshClick,
+    renderLoadSampleDataBanner,
+    table,
+    rowItems,
+  });
 };

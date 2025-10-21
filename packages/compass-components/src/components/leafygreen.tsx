@@ -64,11 +64,14 @@ import type { Row as LgTableRowType } from '@tanstack/table-core'; // TODO(COMPA
 export type {
   LGColumnDef,
   HeaderGroup,
+  LeafyGreenVirtualTable,
+  LeafyGreenTable,
   LeafyGreenTableCell,
   LeafyGreenTableRow,
   LGTableDataType,
   LGRowData,
   SortingState,
+  CellContext,
 } from '@leafygreen-ui/table';
 import { Tabs, Tab } from '@leafygreen-ui/tabs';
 import TextArea from '@leafygreen-ui/text-area';

@@ -14,7 +14,7 @@ import {
   compactBytes,
   compactNumber,
 } from '@mongodb-js/compass-components';
-import { ItemsTable } from './items-table';
+import { ItemsTable, VirtualItemsTable } from './items-table';
 import type { CollectionProps } from 'mongodb-collection-model';
 import { usePreference } from 'compass-preferences-model/provider';
 
@@ -438,9 +438,10 @@ const CollectionsList: React.FunctionComponent<{
     () => collectionColumns({ darkMode, enableDbAndCollStats }),
     [darkMode, enableDbAndCollStats]
   );
+
+  const TableComponent = virtual ? VirtualItemsTable : ItemsTable;
   return (
-    <ItemsTable
-      virtual={virtual}
+    <TableComponent
       data-testid="collections-list"
       namespace={namespace}
       columns={columns}
@@ -450,7 +451,7 @@ const CollectionsList: React.FunctionComponent<{
       onDeleteItemClick={onDeleteCollectionClick}
       onCreateItemClick={onCreateCollectionClick}
       onRefreshClick={onRefreshClick}
-    ></ItemsTable>
+    ></TableComponent>
   );
 };
 

@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 import React from 'react';
-import { ItemsTable } from './items-table';
+import { ItemsTable, VirtualItemsTable } from './items-table';
 import type { DatabaseProps } from 'mongodb-database-model';
 import { usePreference } from 'compass-preferences-model/provider';
 import type { LGColumnDef } from '@mongodb-js/compass-components';
@@ -230,8 +230,10 @@ const DatabasesList: React.FunctionComponent<{
     () => databaseColumns({ darkMode, enableDbAndCollStats, showInsights }),
     [darkMode, enableDbAndCollStats, showInsights]
   );
+
+  const TableComponent = virtual ? VirtualItemsTable : ItemsTable;
   return (
-    <ItemsTable
+    <TableComponent
       virtual={virtual}
       data-testid="databases-list"
       columns={columns}
@@ -242,7 +244,7 @@ const DatabasesList: React.FunctionComponent<{
       onCreateItemClick={onCreateDatabaseClick}
       onRefreshClick={onRefreshClick}
       renderLoadSampleDataBanner={renderLoadSampleDataBanner}
-    ></ItemsTable>
+    ></TableComponent>
   );
 };
 
