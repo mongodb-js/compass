@@ -1,6 +1,4 @@
 ignores:
- - "@mongodb-js/testing-library-compass"
- - "chai"
  - "@mongodb-js/prettier-config-compass"
  - "@mongodb-js/tsconfig-compass"
  - "@types/chai"
