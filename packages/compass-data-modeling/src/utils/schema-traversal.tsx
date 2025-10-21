@@ -198,6 +198,115 @@ type UpdateOperationParameters =
   | NewFieldOperationParameters
   | ExistingFieldOperationParameters;
 
+function addFieldToSchema({
+  schema,
+  newFieldName,
+  newFieldSchema,
+}: {
+  schema: MongoDBJSONSchema;
+  newFieldName: string;
+  newFieldSchema: MongoDBJSONSchema;
+}) {
+  const newSchema = { ...schema };
+  if (schema.properties) {
+    newSchema.properties = {
+      ...schema.properties,
+      [newFieldName]: newFieldSchema,
+    };
+  } else if (schema.anyOf) {
+    newSchema.anyOf = addFieldToAnyOf({
+      anyOf: schema.anyOf,
+      newFieldName,
+      newFieldSchema,
+    });
+  } else if (schema.items) {
+    newSchema.items = addFieldToItems({
+      items: schema.items,
+      newFieldName,
+      newFieldSchema,
+    });
+  }
+  return newSchema;
+}
+
+function addFieldToAnyOf({
+  anyOf,
+  newFieldName,
+  newFieldSchema,
+}: {
+  anyOf: NonNullable<MongoDBJSONSchema['anyOf']>;
+  newFieldName: string;
+  newFieldSchema: MongoDBJSONSchema;
+}) {
+  let objectFound = false;
+  const newAnyOf = anyOf.map((variant) => {
+    // we add the field to the first object variant we find
+    if (!objectFound && variant.bsonType === 'object') {
+      objectFound = true;
+      return applySchemaUpdate({
+        schema: variant,
+        newFieldName,
+        newFieldSchema,
+        update: 'addField',
+      });
+    }
+    return variant;
+  });
+  if (!objectFound) {
+    // no object variant found, we search for arrays
+    newAnyOf.push({
+      bsonType: 'object',
+      properties: {
+        [newFieldName]: newFieldSchema,
+      },
+    });
+  }
+  return newAnyOf;
+}
+
+function addFieldToItems({
+  items,
+  newFieldName,
+  newFieldSchema,
+}: {
+  items: NonNullable<MongoDBJSONSchema['items']>;
+  newFieldName: string;
+  newFieldSchema: MongoDBJSONSchema;
+}) {
+  if (!Array.isArray(items)) {
+    return addFieldToSchema({
+      schema: items,
+      newFieldName,
+      newFieldSchema,
+    });
+  }
+  let objectFound = false;
+  const newItems = items.map((item) => {
+    // we add the field to the first object variant we find
+    if (!objectFound && item.bsonType === 'object') {
+      objectFound = true;
+      return applySchemaUpdate({
+        schema: item,
+        newFieldName,
+        newFieldSchema,
+        update: 'addField',
+      });
+    }
+    return item;
+  });
+  if (!objectFound) {
+    // no object variant found, we add a new one
+    newItems.push({
+      bsonType: 'object',
+      properties: {
+        [newFieldName]: newFieldSchema,
+      },
+    });
+  }
+
+  return newItems;
+}
+
 const applySchemaUpdate = ({
   schema,
   fieldName,
@@ -269,14 +378,11 @@ const applySchemaUpdate = ({
         throw new Error('New field schema is required for the add operation');
       if (!newFieldName)
         throw new Error('New field name is required for the add operation');
-      const newSchema = {
-        ...schema,
-        properties: {
-          ...schema.properties,
-          [newFieldName]: newFieldSchema,
-        },
-      };
-      return newSchema;
+      return addFieldToSchema({
+        schema,
+        newFieldName,
+        newFieldSchema,
+      });
     }
     default:
       return schema;
