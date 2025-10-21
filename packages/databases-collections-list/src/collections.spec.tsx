@@ -4,6 +4,7 @@ import {
   screen,
   cleanup,
   userEvent,
+  waitFor,
 } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import { CollectionsList } from './index';
@@ -86,6 +87,7 @@ const colls: CollectionProps[] = [
     avg_document_size: 0,
     index_count: 0,
     index_size: 0,
+    inferred_from_privileges: true,
   }),
   createCollection('bar', {
     storage_size: undefined,
@@ -495,5 +497,32 @@ describe('Collections', () => {
     expect(
       result.list.querySelectorAll('[data-testid="placeholder"]')
     ).to.have.lengthOf(60);
+  });
+
+  // TODO
+  it('renders a tooltip when inferred_from_privileges is true', async function () {
+    renderCollectionsList({
+      collections: colls,
+    });
+
+    const result = inspectTable(screen, 'collections-list');
+    const icon = result.trs[1].querySelector(
+      '[aria-label="Info With Circle Icon"]'
+    );
+    expect(icon).to.exist;
+
+    userEvent.hover(icon as Element);
+    await waitFor(
+      function () {
+        expect(screen.getByRole('tooltip')).to.exist;
+      },
+      {
+        timeout: 5000,
+      }
+    );
+
+    expect(screen.getByRole('tooltip').textContent).to.equal(
+      'Your privileges grant you access to this namespace, but it might not currently exist'
+    );
   });
 });
