@@ -395,7 +395,6 @@ const ItemsTableInner = <T extends Item>({
   onRefreshClick?: () => void;
   renderLoadSampleDataBanner?: () => React.ReactNode;
   tableContainerRef?: React.RefObject<HTMLDivElement>;
-  // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
   table: LeafyGreenTable<T> | LeafyGreenVirtualTable<T>;
   rowItems: RowItem<T>[];
 }): React.ReactElement => {
