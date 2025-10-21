@@ -52,6 +52,7 @@ export async function scrollToVirtualItem(
   role: 'grid' | 'tree' | 'table'
 ): Promise<boolean> {
   if (role === 'table') {
+    // we disable virtual scrolling for tables for now
     const expectedRowCount = parseInt(
       await browser
         .$(`${containerSelector} table`)
@@ -66,10 +67,11 @@ export async function scrollToVirtualItem(
       );
     }
 
-    // we disable virtual scrolling for tables for now
     const targetElement = browser.$(targetSelector);
     await targetElement.waitForExist();
-    await targetElement.scrollIntoView();
+    // align the bottom of the element to the bottom of the view so it doesn't
+    // sit under the sticky header
+    await targetElement.scrollIntoView(false);
     await targetElement.waitForDisplayed();
     return true;
   }
