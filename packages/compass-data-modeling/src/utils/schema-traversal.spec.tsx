@@ -846,6 +846,62 @@ describe('addField', function () {
       });
     });
 
+    it('add a field to a nested array [properties, items]', function () {
+      const schema = {
+        type: 'object',
+        properties: {
+          parent: {
+            bsonType: 'object',
+            properties: {
+              arrayOfObjects: {
+                bsonType: 'array',
+                items: {
+                  bsonType: 'object',
+                  properties: {
+                    field1: {
+                      bsonType: 'string',
+                    },
+                  },
+                },
+              },
+              sibling: {
+                bsonType: 'object',
+                properties: {
+                  fieldA: {
+                    bsonType: 'int',
+                  },
+                },
+              },
+            },
+          },
+        },
+      };
+      const result = updateSchema({
+        fieldPath: ['parent', 'arrayOfObjects'],
+        jsonSchema: schema,
+        updateParameters: {
+          update: 'addField',
+          newFieldName: 'field2',
+          newFieldSchema: { bsonType: 'string' },
+        },
+      });
+      const newFields: FieldPath[] = [];
+      traverseSchema({
+        jsonSchema: result,
+        visitor: ({ fieldPath }) => {
+          newFields.push(fieldPath);
+        },
+      });
+      expect(newFields).to.deep.equal([
+        ['parent'],
+        ['parent', 'arrayOfObjects'],
+        ['parent', 'arrayOfObjects', 'field1'],
+        ['parent', 'arrayOfObjects', 'field2'],
+        ['parent', 'sibling'],
+        ['parent', 'sibling', 'fieldA'],
+      ]);
+    });
+
     it('add a field to an array of objects [items, properties]', function () {
       const schema = {
         type: 'object',
