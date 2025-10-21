@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 
 const DEFAULT_REFRESH_RATE_MS = 250;
 
-export const useThrottledProps = <T extends Record<string, unknown>>(
+export const useThrottledProps = <T extends object>(
   props: T,
   refreshRate: number = DEFAULT_REFRESH_RATE_MS
 ): T => {
