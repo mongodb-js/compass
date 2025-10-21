@@ -5,6 +5,7 @@ import type {
   HeaderGroup,
   GroupedItemAction,
   LeafyGreenTableRow,
+  LeafyGreenVirtualItem,
 } from '@mongodb-js/compass-components';
 import {
   css,
@@ -384,8 +385,8 @@ export const ItemsTable = <T extends Item>({
     },
   });
 
-  const rows = virtual
-    ? table.virtual?.getVirtualItems().map((item) => item.row)
+  const rowItems = virtual
+    ? table.virtual?.getVirtualItems() //.map((item) => item.row)
     : table.getRowModel().rows;
 
   return (
@@ -426,7 +427,17 @@ export const ItemsTable = <T extends Item>({
             ))}
           </TableHead>
           <TableBody data-testid={`${dataTestId}-body`}>
-            {rows.map((row: LeafyGreenTableRow<T>) => {
+            {rowItems.map((rowItem, index) => {
+              // rowItem is either Row<LGTableDataType<T>> |
+              // LeafyGreenVirtualItem<T>. If it is a LeafyGreenVirtualItem, we
+              // need to get the row from it. If it is not then there is no
+              // corresponding virtualRow.
+              const row: LeafyGreenTableRow<T> =
+                (rowItem as any).row ?? rowItem;
+              const virtualRow = (rowItem as any).row
+                ? (rowItem as LeafyGreenVirtualItem<T>)
+                : undefined;
+
               const isExpandedContent = row.isExpandedContent ?? false;
 
               return (
@@ -438,6 +449,8 @@ export const ItemsTable = <T extends Item>({
                         (row.original as { name?: string }).name ?? row.id
                       }`}
                       row={row}
+                      key={virtualRow ? virtualRow.key.toString() : index}
+                      virtualRow={virtualRow}
                       onClick={() => onItemClick(row.original._id)}
                     >
                       {row
