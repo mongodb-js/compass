@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import { connect } from 'react-redux';
 
 import {
@@ -131,7 +131,7 @@ const MockDataGeneratorModal = ({
     (currentStep === MockDataGeneratorStep.DOCUMENT_COUNT &&
       documentCount > MAX_DOCUMENT_COUNT);
 
-  const handleNextClick = () => {
+  const handleNextClick = useCallback(() => {
     const nextStep = MOCK_DATA_GENERATOR_STEP_TO_NEXT_STEP_MAP[currentStep];
     track('Mock Data Generator Screen Proceeded', {
       from_screen: currentStep,
@@ -145,7 +145,7 @@ const MockDataGeneratorModal = ({
     } else {
       onNextStep();
     }
-  };
+  }, [currentStep, onConfirmSchema, onNextStep, onClose, track]);
 
   const shouldShowNamespace =
     currentStep !== MockDataGeneratorStep.GENERATE_DATA;
@@ -158,14 +158,14 @@ const MockDataGeneratorModal = ({
     onPreviousStep();
   };
 
-  const onModalClose = () => {
+  const onModalClose = useCallback(() => {
     track('Mock Data Generator Dismissed', {
       screen: currentStep,
       gen_ai_features_enabled: false,
       send_sample_values_enabled: false,
     });
     onClose();
-  };
+  }, [currentStep, track, onClose]);
 
   return (
     <Modal

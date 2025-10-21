@@ -10,7 +10,7 @@ import {
   Select,
   spacing,
 } from '@mongodb-js/compass-components';
-import React, { useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { UNRECOGNIZED_FAKER_METHOD } from '../../modules/collection-tab';
 import type { MongoDBFieldType } from '@mongodb-js/compass-generative-ai';
 import { MongoDBFieldTypeValues } from '@mongodb-js/compass-generative-ai';
@@ -86,13 +86,16 @@ const FakerMappingSelector = ({
     return [activeFakerFunction, ...methods];
   }, [activeJsonType, activeFakerFunction]);
 
-  const onFakerMethodChange = (newMethod: string) => {
-    track('Mock Data Faker Method Changed', {
-      field_name: activeJsonType,
-      new_method: newMethod,
-    });
-    onFakerFunctionSelect(newMethod);
-  };
+  const onFakerMethodChange = useCallback(
+    (newMethod: string) => {
+      track('Mock Data Faker Method Changed', {
+        field_name: activeJsonType,
+        new_method: newMethod,
+      });
+      onFakerFunctionSelect(newMethod);
+    },
+    [activeJsonType, onFakerFunctionSelect, track]
+  );
 
   return (
     <div className={fieldMappingSelectorsStyles}>

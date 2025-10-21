@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import { connect } from 'react-redux';
 import {
   Banner,
@@ -114,11 +114,14 @@ const ScriptScreen = ({
     });
   }, [fakerSchema, documentCount, database, collection, arrayLengthMap]);
 
-  const onScriptCopy = ({ step }: { step: DataGenerationStep }) => {
-    track('Mock Data Script Copied', {
-      step: step,
-    });
-  };
+  const onScriptCopy = useCallback(
+    ({ step }: { step: DataGenerationStep }) => {
+      track('Mock Data Script Copied', {
+        step: step,
+      });
+    },
+    [track]
+  );
 
   useEffect(() => {
     if (scriptResult.success && fakerSchema) {

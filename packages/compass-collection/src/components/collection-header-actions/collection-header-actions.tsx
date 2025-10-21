@@ -8,7 +8,7 @@ import {
 } from '@mongodb-js/compass-components';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import {
   useIsAIFeatureEnabled,
   usePreference,
@@ -129,13 +129,18 @@ const CollectionHeaderActions: React.FunctionComponent<
   const shouldDisableMockDataButton =
     !hasSchemaAnalysisData || exceedsMaxNestingDepth;
 
-  const onMockDataGeneratorCtaButtonClicked = () => {
+  const onMockDataGeneratorCtaButtonClicked = useCallback(() => {
     track('Mock Data Generator Opened', {
       gen_ai_features_enabled: isAIFeatureEnabled,
       send_sample_values_enabled: isSampleDocumentPassingEnabled,
     });
     onOpenMockDataModal();
-  };
+  }, [
+    track,
+    isAIFeatureEnabled,
+    isSampleDocumentPassingEnabled,
+    onOpenMockDataModal,
+  ]);
 
   useEffect(() => {
     if (shouldShowMockDataButton) {
@@ -145,7 +150,13 @@ const CollectionHeaderActions: React.FunctionComponent<
         send_sample_values_enabled: isSampleDocumentPassingEnabled,
       });
     }
-  });
+  }, [
+    track,
+    isAIFeatureEnabled,
+    isSampleDocumentPassingEnabled,
+    shouldDisableMockDataButton,
+    shouldShowMockDataButton,
+  ]);
 
   return (
     <div
