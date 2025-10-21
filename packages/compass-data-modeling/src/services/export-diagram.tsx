@@ -60,10 +60,22 @@ export function getExportPngDataUri(diagram: DiagramInstance): Promise<string> {
     container.style.height = `${bounds.height}px`;
     document.body.appendChild(container);
 
-    const edges = diagram.getEdges();
+    const edges = diagram.getEdges().map((edge) => ({
+      ...edge,
+      // In export we dont want it to be highlighted.
+      selected: false,
+    }));
     const nodes = diagram.getNodes().map((node) => ({
       ...node,
-      selected: false, // Dont show selected state (blue border)
+      // In export we dont want it to be highlighted.
+      selected: false,
+      fields: node.fields.map((field) => ({
+        ...field,
+        // In export we dont want field to be highlighted
+        // either by individual selection or by relationship selection.
+        variant: undefined,
+        selected: false,
+      })),
     }));
 
     ReactDOM.render(
