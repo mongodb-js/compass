@@ -68,7 +68,9 @@ describe('Instance databases tab', function () {
       Selectors.databaseRow('test'),
       'table'
     );
-    await browser.clickVisible(Selectors.databaseRow('test'));
+    await browser.clickVisible(
+      `${Selectors.databaseRow('test')} td:first-child`
+    );
 
     const collectionSelectors = ['json-array', 'json-file', 'numbers'].map(
       (collectionName) => Selectors.collectionRow('test', collectionName)

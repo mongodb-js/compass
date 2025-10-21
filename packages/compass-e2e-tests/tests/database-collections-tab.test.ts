@@ -100,7 +100,9 @@ describe('Database collections tab', function () {
       'table'
     );
 
-    await browser.clickVisible(Selectors.collectionRow('test', 'json-array'));
+    await browser.clickVisible(
+      `${Selectors.collectionRow('test', 'json-array')} td:first-child`
+    );
 
     // lands on the collection screen with all its tabs
     const tabSelectors = [
