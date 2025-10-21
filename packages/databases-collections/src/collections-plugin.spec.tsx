@@ -59,8 +59,11 @@ describe('Collections [Plugin]', function () {
     cleanup();
   });
 
-  // TODO
-  describe.skip('with loaded collections', function () {
+  describe('with loaded collections', function () {
+    before(() => {
+      process.env.COMPASS_DISABLE_VIRTUAL_SCROLLING = 'true';
+    });
+
     beforeEach(async function () {
       const Plugin = CollectionsWorkspaceTab.provider.withMockServices({
         instance: mongodbInstance,
@@ -76,13 +79,16 @@ describe('Collections [Plugin]', function () {
       appRegistry = Sinon.spy(globalAppRegistry);
 
       await waitFor(() => {
-        expect(screen.getByRole('gridcell', { name: /bar/ })).to.exist;
-        expect(screen.getByRole('gridcell', { name: /buz/ })).to.exist;
+        expect(screen.getByTestId('collections-list-row-bar')).to.exist;
+        expect(screen.getByTestId('collections-list-row-buz')).to.exist;
       });
     });
 
     it('renders a list of collections', function () {
-      expect(screen.getAllByRole('gridcell')).to.have.lengthOf(2);
+      const list = screen.getByTestId('collections-list');
+      expect(
+        list.querySelectorAll('[data-lgid="lg-table-row"]')
+      ).to.have.lengthOf(2);
     });
 
     it('initiates action to create a collection', function () {
@@ -106,8 +112,11 @@ describe('Collections [Plugin]', function () {
     });
 
     it('initiates action to drop a collection', function () {
-      userEvent.hover(screen.getByRole('gridcell', { name: /bar/ }));
-      userEvent.click(screen.getByRole('button', { name: /Delete/ }));
+      const row = screen.getByTestId('collections-list-row-bar');
+      userEvent.hover(row);
+      userEvent.click(
+        row.querySelector('[aria-label="Delete bar"]') as Element
+      );
       expect(appRegistry.emit).to.have.been.calledWithMatch(
         'open-drop-collection',
         { ns: 'foo.bar' },
@@ -123,8 +132,8 @@ describe('Collections [Plugin]', function () {
       });
 
       await waitFor(() => {
-        expect(screen.queryByRole('gridcell', { name: /bar/ })).to.not.exist;
-        expect(screen.getByRole('gridcell', { name: /testdb/ })).to.exist;
+        expect(screen.queryByTestId('collections-list-row-bar')).to.not.exist;
+        expect(screen.getByTestId('collections-list-row-testdb')).to.exist;
       });
 
       expect(screen.getByRole('button', { name: /Create collection/ })).to

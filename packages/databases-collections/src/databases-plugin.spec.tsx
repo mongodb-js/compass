@@ -29,8 +29,11 @@ describe('Databasees [Plugin]', function () {
     cleanup();
   });
 
-  // TODO
-  describe.skip('with loaded databases', function () {
+  describe('with loaded databases', function () {
+    before(() => {
+      process.env.COMPASS_DISABLE_VIRTUAL_SCROLLING = 'true';
+    });
+
     beforeEach(async function () {
       preferences = await createSandboxFromDefaultPreferences();
       mongodbInstance = Sinon.spy(
@@ -64,13 +67,16 @@ describe('Databasees [Plugin]', function () {
       appRegistry = Sinon.spy(globalAppRegistry);
 
       await waitFor(() => {
-        expect(screen.getByRole('gridcell', { name: /foo/ })).to.exist;
-        expect(screen.getByRole('gridcell', { name: /bar/ })).to.exist;
+        expect(screen.getByTestId('databases-list-row-foo')).to.exist;
+        expect(screen.getByTestId('databases-list-row-bar')).to.exist;
       });
     });
 
     it('renders a list of databases', function () {
-      expect(screen.getAllByRole('gridcell')).to.have.lengthOf(2);
+      const list = screen.getByTestId('databases-list');
+      expect(
+        list.querySelectorAll('[data-lgid="lg-table-row"]')
+      ).to.have.lengthOf(2);
     });
 
     it('initiates action to create a database', function () {
@@ -91,8 +97,11 @@ describe('Databasees [Plugin]', function () {
     });
 
     it('initiates action to delete a database', function () {
-      userEvent.hover(screen.getByRole('gridcell', { name: /foo/ }));
-      userEvent.click(screen.getByRole('button', { name: /Delete/ }));
+      const row = screen.getByTestId('databases-list-row-foo');
+      userEvent.hover(row);
+      userEvent.click(
+        row.querySelector('[aria-label="Delete foo"]') as Element
+      );
       expect(appRegistry.emit).to.have.been.calledWith(
         'open-drop-database',
         'foo',
@@ -108,8 +117,8 @@ describe('Databasees [Plugin]', function () {
       });
 
       await waitFor(() => {
-        expect(screen.queryByRole('gridcell', { name: /foo/ })).to.not.exist;
-        expect(screen.getByRole('gridcell', { name: /testdb/ })).to.exist;
+        expect(screen.queryByTestId('databases-list-row-foo')).to.not.exist;
+        expect(screen.getByTestId('databases-list-row-testdb')).to.exist;
       });
 
       expect(screen.getByRole('button', { name: /Create database/ })).to.exist;
