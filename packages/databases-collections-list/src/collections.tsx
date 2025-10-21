@@ -40,6 +40,7 @@ const CollectionBadges: React.FunctionComponent = ({ children }) => {
 
 const collectionBadgeStyles = css({
   gap: spacing[100],
+  'white-space': 'nowrap',
 });
 
 const viewOnStyles = css({
@@ -255,11 +256,9 @@ function collectionColumns({
           return <Placeholder maxChar={10}></Placeholder>;
         }
 
-        const badges = collection.properties
-          .filter((prop) => prop.id !== 'read-only')
-          .map((prop) => {
-            return collectionPropertyToBadge(collection, darkMode, prop);
-          });
+        const badges = collection.properties.map((prop) => {
+          return collectionPropertyToBadge(collection, darkMode, prop);
+        });
 
         if (badges.length === 0) {
           return '-';
