@@ -452,7 +452,6 @@ export const ItemsTable = <T extends Item>({
                         (row.original as { name?: string }).name ?? row.id
                       }`}
                       row={row}
-                      key={virtualRow ? virtualRow.key.toString() : index}
                       virtualRow={virtualRow}
                       onClick={() => onItemClick(row.original._id)}
                     >
