@@ -212,7 +212,12 @@ const ScriptScreen = ({
 };
 
 const mapStateToProps = (state: CollectionState) => {
-  const { fakerSchemaGeneration, namespace, schemaAnalysis } = state;
+  const {
+    fakerSchemaGeneration,
+    namespace,
+    schemaAnalysis,
+    mockDataGenerator,
+  } = state;
 
   return {
     fakerSchema:
@@ -224,8 +229,7 @@ const mapStateToProps = (state: CollectionState) => {
       schemaAnalysis?.status === SCHEMA_ANALYSIS_STATE_COMPLETE
         ? schemaAnalysis.arrayLengthMap
         : {},
-    // TODO(CLOUDP-333856): When document count step is implemented, get documentCount from state
-    documentCount: 100,
+    documentCount: mockDataGenerator.documentCount,
   };
 };
 

@@ -14,17 +14,14 @@ import {
 } from '@mongodb-js/compass-components';
 
 import { type MockDataGeneratorState, MockDataGeneratorStep } from './types';
-import {
-  DEFAULT_DOCUMENT_COUNT,
-  MAX_DOCUMENT_COUNT,
-  StepButtonLabelMap,
-} from './constants';
+import { MAX_DOCUMENT_COUNT, StepButtonLabelMap } from './constants';
 import type { CollectionState } from '../../modules/collection-tab';
 import {
   mockDataGeneratorModalClosed,
   mockDataGeneratorNextButtonClicked,
   generateFakerMappings,
   mockDataGeneratorPreviousButtonClicked,
+  mockDataGeneratorDocumentCountChanged,
 } from '../../modules/collection-tab';
 
 import RawSchemaConfirmationScreen from './raw-schema-confirmation-screen';
@@ -58,6 +55,8 @@ interface Props {
   onPreviousStep: () => void;
   namespace: string;
   fakerSchemaGenerationState: MockDataGeneratorState;
+  documentCount: number;
+  onDocumentCountChange: (documentCount: number) => void;
 }
 
 const MockDataGeneratorModal = ({
@@ -69,12 +68,11 @@ const MockDataGeneratorModal = ({
   onPreviousStep,
   namespace,
   fakerSchemaGenerationState,
+  documentCount,
+  onDocumentCountChange,
 }: Props) => {
   const [isSchemaConfirmed, setIsSchemaConfirmed] =
     React.useState<boolean>(false);
-  const [documentCount, setDocumentCount] = React.useState<number>(
-    DEFAULT_DOCUMENT_COUNT
-  );
 
   const modalBodyContent = useMemo(() => {
     switch (currentStep) {
@@ -91,7 +89,7 @@ const MockDataGeneratorModal = ({
         return (
           <DocumentCountScreen
             documentCount={documentCount}
-            onDocumentCountChange={setDocumentCount}
+            onDocumentCountChange={onDocumentCountChange}
           />
         );
       case MockDataGeneratorStep.PREVIEW_DATA:
@@ -111,7 +109,7 @@ const MockDataGeneratorModal = ({
     currentStep,
     fakerSchemaGenerationState,
     documentCount,
-    setDocumentCount,
+    onDocumentCountChange,
   ]);
 
   const isNextButtonDisabled =
@@ -191,6 +189,7 @@ const mapStateToProps = (state: CollectionState) => ({
   currentStep: state.mockDataGenerator.currentStep,
   namespace: state.namespace,
   fakerSchemaGenerationState: state.fakerSchemaGeneration,
+  documentCount: state.mockDataGenerator.documentCount,
 });
 
 const ConnectedMockDataGeneratorModal = connect(mapStateToProps, {
@@ -198,6 +197,7 @@ const ConnectedMockDataGeneratorModal = connect(mapStateToProps, {
   onNextStep: mockDataGeneratorNextButtonClicked,
   onConfirmSchema: generateFakerMappings,
   onPreviousStep: mockDataGeneratorPreviousButtonClicked,
+  onDocumentCountChange: mockDataGeneratorDocumentCountChanged,
 })(MockDataGeneratorModal);
 
 export default ConnectedMockDataGeneratorModal;

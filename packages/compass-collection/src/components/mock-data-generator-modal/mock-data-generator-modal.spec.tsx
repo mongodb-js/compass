@@ -13,7 +13,7 @@ import { createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
 import MockDataGeneratorModal from './mock-data-generator-modal';
 import { MockDataGeneratorStep } from './types';
-import { StepButtonLabelMap } from './constants';
+import { StepButtonLabelMap, DEFAULT_DOCUMENT_COUNT } from './constants';
 import type { CollectionState } from '../../modules/collection-tab';
 import { default as collectionTabReducer } from '../../modules/collection-tab';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
@@ -66,6 +66,7 @@ describe('MockDataGeneratorModal', () => {
       mockDataGenerator: {
         isModalOpen: isOpen,
         currentStep: currentStep,
+        documentCount: DEFAULT_DOCUMENT_COUNT,
       },
     };
 

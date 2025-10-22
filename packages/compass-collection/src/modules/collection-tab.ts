@@ -42,6 +42,7 @@ import type {
   FakerSchema,
   MockDataGeneratorState,
 } from '../components/mock-data-generator-modal/types';
+import { DEFAULT_DOCUMENT_COUNT } from '../components/mock-data-generator-modal/constants';
 
 import { isValidFakerMethod } from '../components/mock-data-generator-modal/utils';
 
@@ -110,6 +111,7 @@ export type CollectionState = {
   mockDataGenerator: {
     isModalOpen: boolean;
     currentStep: MockDataGeneratorStep;
+    documentCount: number;
   };
   fakerSchemaGeneration: MockDataGeneratorState;
 };
@@ -125,6 +127,7 @@ export enum CollectionActions {
   MockDataGeneratorModalClosed = 'compass-collection/MockDataGeneratorModalClosed',
   MockDataGeneratorNextButtonClicked = 'compass-collection/MockDataGeneratorNextButtonClicked',
   MockDataGeneratorPreviousButtonClicked = 'compass-collection/MockDataGeneratorPreviousButtonClicked',
+  MockDataGeneratorDocumentCountChanged = 'compass-collection/MockDataGeneratorDocumentCountChanged',
   FakerMappingGenerationStarted = 'compass-collection/FakerMappingGenerationStarted',
   FakerMappingGenerationCompleted = 'compass-collection/FakerMappingGenerationCompleted',
   FakerMappingGenerationFailed = 'compass-collection/FakerMappingGenerationFailed',
@@ -182,6 +185,11 @@ interface MockDataGeneratorPreviousButtonClickedAction {
   type: CollectionActions.MockDataGeneratorPreviousButtonClicked;
 }
 
+interface MockDataGeneratorDocumentCountChangedAction {
+  type: CollectionActions.MockDataGeneratorDocumentCountChanged;
+  documentCount: number;
+}
+
 export interface FakerMappingGenerationStartedAction {
   type: CollectionActions.FakerMappingGenerationStarted;
   requestId: string;
@@ -223,6 +231,7 @@ const reducer: Reducer<CollectionState, Action> = (
     mockDataGenerator: {
       isModalOpen: false,
       currentStep: MockDataGeneratorStep.SCHEMA_CONFIRMATION,
+      documentCount: DEFAULT_DOCUMENT_COUNT,
     },
     fakerSchemaGeneration: {
       status: 'idle',
@@ -329,6 +338,7 @@ const reducer: Reducer<CollectionState, Action> = (
         ...state.mockDataGenerator,
         isModalOpen: true,
         currentStep: MockDataGeneratorStep.SCHEMA_CONFIRMATION,
+        documentCount: DEFAULT_DOCUMENT_COUNT,
       },
     };
   }
@@ -426,6 +436,21 @@ const reducer: Reducer<CollectionState, Action> = (
       mockDataGenerator: {
         ...state.mockDataGenerator,
         currentStep: previousStep,
+      },
+    };
+  }
+
+  if (
+    isAction<MockDataGeneratorDocumentCountChangedAction>(
+      action,
+      CollectionActions.MockDataGeneratorDocumentCountChanged
+    )
+  ) {
+    return {
+      ...state,
+      mockDataGenerator: {
+        ...state.mockDataGenerator,
+        documentCount: action.documentCount,
       },
     };
   }
@@ -607,6 +632,15 @@ export const mockDataGeneratorPreviousButtonClicked = (): CollectionThunkAction<
     dispatch({
       type: CollectionActions.MockDataGeneratorPreviousButtonClicked,
     });
+  };
+};
+
+export const mockDataGeneratorDocumentCountChanged = (
+  documentCount: number
+): MockDataGeneratorDocumentCountChangedAction => {
+  return {
+    type: CollectionActions.MockDataGeneratorDocumentCountChanged,
+    documentCount,
   };
 };
 
