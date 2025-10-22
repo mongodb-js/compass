@@ -48,7 +48,7 @@
     "reformat": "npm run eslint . -- --fix && npm run prettier -- --write ."
   },
   "dependencies": {
-    "mongodb-runner": "^5.8.0"
+    "mongodb-runner": "^5.11.0"
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-compass": "^1.4.12",

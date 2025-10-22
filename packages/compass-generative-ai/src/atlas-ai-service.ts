@@ -1,4 +1,4 @@
-import type { PrimitiveSchemaType, SimplifiedSchema } from 'mongodb-schema';
+import type { SimplifiedSchema } from 'mongodb-schema';
 import {
   type PreferencesAccess,
   isAIFeatureEnabled,
@@ -230,37 +230,10 @@ export interface MockDataSchemaRequest {
   signal: AbortSignal;
 }
 
-/**
- * MongoDB schema type
- */
-export type MongoDBFieldType = PrimitiveSchemaType['name'];
-
-export enum MongoDBFieldTypeValues {
-  String = 'String',
-  Number = 'Number',
-  Boolean = 'Boolean',
-  Date = 'Date',
-  Int32 = 'Int32',
-  Decimal128 = 'Decimal128',
-  Long = 'Long',
-  ObjectId = 'ObjectId',
-  RegExp = 'RegExp',
-  Symbol = 'Symbol',
-  MaxKey = 'MaxKey',
-  MinKey = 'MinKey',
-  Binary = 'Binary',
-  Code = 'Code',
-  Timestamp = 'Timestamp',
-  DBRef = 'DBRef',
-}
-
 export const MockDataSchemaResponseShape = z.object({
   fields: z.array(
     z.object({
       fieldPath: z.string(),
-      mongoType: z.custom<MongoDBFieldType>((val) =>
-        Object.values(MongoDBFieldTypeValues).includes(val)
-      ),
       fakerMethod: z.string(),
       fakerArgs: z.array(
         z.union([
@@ -506,6 +479,7 @@ export class AtlasAiService {
         collectionName,
         databaseName,
         schema,
+        validationRules: input.validationRules,
       }),
       headers: {
         'Content-Type': 'application/json',

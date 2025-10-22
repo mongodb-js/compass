@@ -1,5 +1,5 @@
-import type { MongoDBFieldType } from '@mongodb-js/compass-generative-ai';
 import { MockDataGeneratorStep } from './types';
+import type { MongoDBFieldType } from '../../schema-analysis-types';
 
 export const StepButtonLabelMap = {
   [MockDataGeneratorStep.SCHEMA_CONFIRMATION]: 'Confirm',
@@ -25,6 +25,25 @@ export const MOCK_DATA_GENERATOR_STEP_TO_NEXT_STEP_MAP: Record<
 
 export const DEFAULT_DOCUMENT_COUNT = 1000;
 export const MAX_DOCUMENT_COUNT = 100000;
+
+export const MongoDBFieldTypeValues: MongoDBFieldType[] = [
+  'String',
+  'Number',
+  'Boolean',
+  'Date',
+  'Int32',
+  'Decimal128',
+  'Long',
+  'ObjectId',
+  'RegExp',
+  'Symbol',
+  'MaxKey',
+  'MinKey',
+  'Binary',
+  'Code',
+  'Timestamp',
+  'DBRef',
+];
 
 /**
  * Map of MongoDB types to available Faker v9 methods.

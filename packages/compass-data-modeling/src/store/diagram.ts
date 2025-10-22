@@ -817,11 +817,17 @@ export function getTypeNameForTelemetry(
   return bsonType;
 }
 
-export function changeFieldType(
-  ns: string,
-  fieldPath: FieldPath,
-  newTypes: string[]
-): DataModelingThunkAction<void, ApplyEditAction | RevertFailedEditAction> {
+export function changeFieldType({
+  ns,
+  fieldPath,
+  oldTypes,
+  newTypes,
+}: {
+  ns: string;
+  fieldPath: FieldPath;
+  oldTypes: string[];
+  newTypes: string[];
+}): DataModelingThunkAction<void, ApplyEditAction | RevertFailedEditAction> {
   return (dispatch, getState, { track }) => {
     const collectionSchema = selectCurrentModelFromState(
       getState()
@@ -836,8 +842,8 @@ export function changeFieldType(
 
     track('Data Modeling Field Type Changed', {
       source: 'side_panel',
-      from: getTypeNameForTelemetry(field.jsonSchema.bsonType),
-      to: getTypeNameForTelemetry(to.bsonType),
+      from: getTypeNameForTelemetry(oldTypes),
+      to: getTypeNameForTelemetry(newTypes),
     });
 
     dispatch(

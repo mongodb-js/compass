@@ -239,7 +239,7 @@ export const ATLAS_CLOUD_FEATURE_FLAGS = FEATURE_FLAG_DEFINITIONS.map(
 
 export type AtlasCloudFeatureFlags = Record<
   (typeof ATLAS_CLOUD_FEATURE_FLAGS)[number],
-  boolean | undefined
+  boolean
 >;
 
 export type FeatureFlags = Record<
