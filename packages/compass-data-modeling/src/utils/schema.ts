@@ -16,7 +16,6 @@ export function getNewUnusedFieldName(
   if (!parentJSONSchema) return 'field-1';
 
   const existingFieldNames = new Set(
-    // @ts-expect-error Iterator.prototype.map()
     (function* () {
       for (const [name] of getDirectChildren(parentJSONSchema)) yield name;
     })()
