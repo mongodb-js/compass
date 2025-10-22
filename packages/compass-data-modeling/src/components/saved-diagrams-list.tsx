@@ -198,7 +198,7 @@ export const SavedDiagramsList: React.FunctionComponent<{
     try {
       const regex = new RegExp(search, 'i');
       return items.filter(
-        (x) => regex.test(x.name) || (x.database && regex.test(x.database))
+        (x) => regex.test(x.name) || regex.test(x.database)
       );
     } catch {
       return items;
