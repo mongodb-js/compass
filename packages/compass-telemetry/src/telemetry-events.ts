@@ -1,4 +1,3 @@
-import type { MongoDBFieldType } from '@mongodb-js/compass-generative-ai';
 /**
  * Traits sent along with the Segment identify call
  */
@@ -3255,8 +3254,40 @@ type MockDataJsonTypeChangedEvent = CommonEvent<{
   name: 'Mock Data JSON Type Changed';
   payload: {
     field_name: string;
-    previous_json_type: MongoDBFieldType;
-    new_json_type: MongoDBFieldType;
+    previous_json_type:
+      | 'String'
+      | 'Number'
+      | 'Boolean'
+      | 'Date'
+      | 'Int32'
+      | 'Decimal128'
+      | 'Long'
+      | 'ObjectId'
+      | 'RegExp'
+      | 'Symbol'
+      | 'MaxKey'
+      | 'MinKey'
+      | 'Binary'
+      | 'Code'
+      | 'Timestamp'
+      | 'DBRef';
+    new_json_type:
+      | 'String'
+      | 'Number'
+      | 'Boolean'
+      | 'Date'
+      | 'Int32'
+      | 'Decimal128'
+      | 'Long'
+      | 'ObjectId'
+      | 'RegExp'
+      | 'Symbol'
+      | 'MaxKey'
+      | 'MinKey'
+      | 'Binary'
+      | 'Code'
+      | 'Timestamp'
+      | 'DBRef';
     previous_faker_method: string;
     new_faker_method: string;
   };
@@ -3271,7 +3302,23 @@ type MockDataFakerMethodChangedEvent = CommonEvent<{
   name: 'Mock Data Faker Method Changed';
   payload: {
     field_name: string;
-    json_type: MongoDBFieldType;
+    json_type:
+      | 'String'
+      | 'Number'
+      | 'Boolean'
+      | 'Date'
+      | 'Int32'
+      | 'Decimal128'
+      | 'Long'
+      | 'ObjectId'
+      | 'RegExp'
+      | 'Symbol'
+      | 'MaxKey'
+      | 'MinKey'
+      | 'Binary'
+      | 'Code'
+      | 'Timestamp'
+      | 'DBRef';
     previous_faker_method: string;
     new_faker_method: string;
   };
