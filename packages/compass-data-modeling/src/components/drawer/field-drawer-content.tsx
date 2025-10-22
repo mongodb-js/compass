@@ -54,11 +54,17 @@ type FieldDrawerContentProps = {
     fromFieldPath: FieldPath,
     newName: string
   ) => void;
-  onChangeFieldType: (
-    namespace: string,
-    fieldPath: FieldPath,
-    newTypes: string[]
-  ) => void;
+  onChangeFieldType: ({
+    ns,
+    fieldPath,
+    oldTypes,
+    newTypes,
+  }: {
+    ns: string;
+    fieldPath: FieldPath;
+    oldTypes: string[];
+    newTypes: string[];
+  }) => void;
 };
 
 const BSON_TYPES = Object.keys(BSONType);
@@ -149,7 +155,12 @@ const FieldDrawerContent: React.FunctionComponent<FieldDrawerContentProps> = ({
       return;
     }
     setFieldTypeEditErrorMessage(undefined);
-    onChangeFieldType(namespace, fieldPath, newTypes);
+    onChangeFieldType({
+      ns: namespace,
+      fieldPath,
+      oldTypes: fieldTypes,
+      newTypes,
+    });
   };
 
   const isReadOnly = useMemo(() => isIdField(fieldPath), [fieldPath]);

@@ -12,9 +12,11 @@ import {
 } from '@mongodb-js/compass-components';
 import React, { useMemo } from 'react';
 import { UNRECOGNIZED_FAKER_METHOD } from '../../modules/collection-tab';
-import type { MongoDBFieldType } from '@mongodb-js/compass-generative-ai';
-import { MongoDBFieldTypeValues } from '@mongodb-js/compass-generative-ai';
-import { MONGO_TYPE_TO_FAKER_METHODS } from './constants';
+import {
+  MONGO_TYPE_TO_FAKER_METHODS,
+  MongoDBFieldTypeValues,
+} from './constants';
+import type { MongoDBFieldType } from '../../schema-analysis-types';
 import type { FakerArg } from './script-generation-utils';
 
 const fieldMappingSelectorsStyles = css({
@@ -93,7 +95,7 @@ const FakerMappingSelector = ({
         value={activeJsonType}
         onChange={(value) => onJsonTypeSelect(value as MongoDBFieldType)}
       >
-        {Object.values(MongoDBFieldTypeValues).map((type) => (
+        {MongoDBFieldTypeValues.map((type) => (
           <Option key={type} value={type}>
             {type}
           </Option>
