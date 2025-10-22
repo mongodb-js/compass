@@ -20,10 +20,7 @@ import {
 import type { CollectionState } from '../../modules/collection-tab';
 import { default as collectionTabReducer } from '../../modules/collection-tab';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
-import {
-  MongoDBFieldTypeValues,
-  type MockDataSchemaResponse,
-} from '@mongodb-js/compass-generative-ai';
+import { type MockDataSchemaResponse } from '@mongodb-js/compass-generative-ai';
 import type { SchemaAnalysisState } from '../../schema-analysis-types';
 import * as scriptGenerationUtils from './script-generation-utils';
 
@@ -103,7 +100,7 @@ describe('MockDataGeneratorModal', () => {
             fields: [
               {
                 fieldPath: 'name',
-                mongoType: MongoDBFieldTypeValues.String,
+                mongoType: 'String',
                 fakerMethod: 'person.firstName',
                 fakerArgs: [],
               },
@@ -362,25 +359,25 @@ describe('MockDataGeneratorModal', () => {
         fields: [
           {
             fieldPath: 'name',
-            mongoType: MongoDBFieldTypeValues.String,
+            mongoType: 'String',
             fakerMethod: 'person.firstName',
             fakerArgs: [],
           },
           {
             fieldPath: 'age',
-            mongoType: MongoDBFieldTypeValues.Int32,
+            mongoType: 'Int32',
             fakerMethod: 'number.int',
             fakerArgs: [],
           },
           {
             fieldPath: 'email',
-            mongoType: MongoDBFieldTypeValues.String,
+            mongoType: 'String',
             fakerMethod: 'internet',
             fakerArgs: [],
           },
           {
             fieldPath: 'username',
-            mongoType: MongoDBFieldTypeValues.String,
+            mongoType: 'String',
             fakerMethod: 'noSuchMethod',
             fakerArgs: [],
           },
@@ -434,27 +431,21 @@ describe('MockDataGeneratorModal', () => {
       });
       // the "name" field should be selected by default
       expect(screen.getByText('name')).to.exist;
-      expect(screen.getByLabelText('JSON Type')).to.have.value(
-        MongoDBFieldTypeValues.String
-      );
+      expect(screen.getByLabelText('JSON Type')).to.have.value('String');
       expect(screen.getByLabelText('Faker Function')).to.have.value(
         'person.firstName'
       );
       // select the "age" field
       userEvent.click(screen.getByText('age'));
       expect(screen.getByText('age')).to.exist;
-      expect(screen.getByLabelText('JSON Type')).to.have.value(
-        MongoDBFieldTypeValues.Int32
-      );
+      expect(screen.getByLabelText('JSON Type')).to.have.value('Int32');
       expect(screen.getByLabelText('Faker Function')).to.have.value(
         'number.int'
       );
       // select the "email" field
       userEvent.click(screen.getByText('email'));
       expect(screen.getByText('email')).to.exist;
-      expect(screen.getByLabelText('JSON Type')).to.have.value(
-        MongoDBFieldTypeValues.String
-      );
+      expect(screen.getByLabelText('JSON Type')).to.have.value('String');
       // the "email" field should have a warning banner since the faker method is invalid
       expect(screen.getByLabelText('Faker Function')).to.have.value(
         'Unrecognized'
@@ -468,9 +459,7 @@ describe('MockDataGeneratorModal', () => {
       // select the "username" field
       userEvent.click(screen.getByText('username'));
       expect(screen.getByText('username')).to.exist;
-      expect(screen.getByLabelText('JSON Type')).to.have.value(
-        MongoDBFieldTypeValues.String
-      );
+      expect(screen.getByLabelText('JSON Type')).to.have.value('String');
       expect(screen.getByLabelText('Faker Function')).to.have.value(
         'Unrecognized'
       );
@@ -483,7 +472,7 @@ describe('MockDataGeneratorModal', () => {
           fields: [
             {
               fieldPath: 'name',
-              mongoType: MongoDBFieldTypeValues.String,
+              mongoType: 'String',
               fakerMethod: 'person.firstName',
               fakerArgs: [],
               isArray: false,
@@ -491,7 +480,7 @@ describe('MockDataGeneratorModal', () => {
             },
             {
               fieldPath: 'email',
-              mongoType: MongoDBFieldTypeValues.String,
+              mongoType: 'String',
               fakerMethod: 'internet.email',
               fakerArgs: [],
               isArray: false,
@@ -521,7 +510,7 @@ describe('MockDataGeneratorModal', () => {
           fields: [
             {
               fieldPath: 'name',
-              mongoType: MongoDBFieldTypeValues.String,
+              mongoType: 'String',
               fakerMethod: 'person.firstName',
               fakerArgs: [],
               isArray: false,
@@ -529,7 +518,7 @@ describe('MockDataGeneratorModal', () => {
             },
             {
               fieldPath: 'age',
-              mongoType: MongoDBFieldTypeValues.Int32,
+              mongoType: 'Int32',
               fakerMethod: 'number.int',
               fakerArgs: [],
               isArray: false,
@@ -569,27 +558,21 @@ describe('MockDataGeneratorModal', () => {
 
       // select the "name" field
       userEvent.click(screen.getByText('name'));
-      expect(screen.getByLabelText('JSON Type')).to.have.value(
-        MongoDBFieldTypeValues.String
-      );
+      expect(screen.getByLabelText('JSON Type')).to.have.value('String');
       expect(screen.getByLabelText('Faker Function')).to.have.value(
         'person.firstName'
       );
 
       // select the "age" field
       userEvent.click(screen.getByText('age'));
-      expect(screen.getByLabelText('JSON Type')).to.have.value(
-        MongoDBFieldTypeValues.Int32
-      );
+      expect(screen.getByLabelText('JSON Type')).to.have.value('Int32');
       expect(screen.getByLabelText('Faker Function')).to.have.value(
         'number.int'
       );
 
       // select the "type" field
       userEvent.click(screen.getByText('type'));
-      expect(screen.getByLabelText('JSON Type')).to.have.value(
-        MongoDBFieldTypeValues.String
-      );
+      expect(screen.getByLabelText('JSON Type')).to.have.value('String');
       expect(screen.getByLabelText('Faker Function')).to.have.value(
         'Unrecognized'
       );
@@ -603,7 +586,7 @@ describe('MockDataGeneratorModal', () => {
           fields: [
             {
               fieldPath: 'name',
-              mongoType: MongoDBFieldTypeValues.String,
+              mongoType: 'String',
               fakerMethod: 'person.firstName',
               fakerArgs: largeLengthArgs,
               isArray: false,
@@ -611,7 +594,7 @@ describe('MockDataGeneratorModal', () => {
             },
             {
               fieldPath: 'age',
-              mongoType: MongoDBFieldTypeValues.Int32,
+              mongoType: 'Int32',
               fakerMethod: 'number.int',
               fakerArgs: [
                 {
@@ -625,7 +608,7 @@ describe('MockDataGeneratorModal', () => {
             },
             {
               fieldPath: 'username',
-              mongoType: MongoDBFieldTypeValues.String,
+              mongoType: 'String',
               fakerMethod: 'string.alpha',
               // large string
               fakerArgs: ['a'.repeat(1001)],
@@ -634,7 +617,7 @@ describe('MockDataGeneratorModal', () => {
             },
             {
               fieldPath: 'avatar',
-              mongoType: MongoDBFieldTypeValues.String,
+              mongoType: 'String',
               fakerMethod: 'image.url',
               fakerArgs: [
                 {
@@ -806,7 +789,7 @@ describe('MockDataGeneratorModal', () => {
       const jsonTypeSelect = screen.getByLabelText('JSON Type');
       userEvent.click(jsonTypeSelect);
       const numberOption = await screen.findByRole('option', {
-        name: MongoDBFieldTypeValues.Number,
+        name: 'Number',
       });
       userEvent.click(numberOption);
 
@@ -815,8 +798,8 @@ describe('MockDataGeneratorModal', () => {
           'Mock Data JSON Type Changed',
           {
             field_name: 'name',
-            previous_json_type: MongoDBFieldTypeValues.String,
-            new_json_type: MongoDBFieldTypeValues.Number,
+            previous_json_type: 'String',
+            new_json_type: 'Number',
             previous_faker_method: 'person.firstName',
             new_faker_method: 'number.int',
           }
@@ -848,7 +831,7 @@ describe('MockDataGeneratorModal', () => {
           'Mock Data Faker Method Changed',
           {
             field_name: 'name',
-            json_type: MongoDBFieldTypeValues.String,
+            json_type: 'String',
             previous_faker_method: 'person.firstName',
             new_faker_method: 'internet.email',
           }
