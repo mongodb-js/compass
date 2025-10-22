@@ -1103,7 +1103,15 @@ describe('MockDataGeneratorModal', () => {
         connectionInfo: atlasConnectionInfo,
         fakerSchemaGeneration: {
           status: 'completed',
-          fakerSchema: {
+          originalLlmResponse: {
+            name: {
+              fakerMethod: 'person.firstName',
+              fakerArgs: [],
+              probability: 1.0,
+              mongoType: 'String',
+            },
+          },
+          editedFakerSchema: {
             name: {
               fakerMethod: 'person.firstName',
               fakerArgs: [],
@@ -1130,7 +1138,15 @@ describe('MockDataGeneratorModal', () => {
         connectionInfo: atlasConnectionInfoWithoutAtlasMetadata,
         fakerSchemaGeneration: {
           status: 'completed',
-          fakerSchema: {
+          originalLlmResponse: {
+            name: {
+              fakerMethod: 'person.firstName',
+              fakerArgs: [],
+              probability: 1.0,
+              mongoType: 'String',
+            },
+          },
+          editedFakerSchema: {
             name: {
               fakerMethod: 'person.firstName',
               fakerArgs: [],
