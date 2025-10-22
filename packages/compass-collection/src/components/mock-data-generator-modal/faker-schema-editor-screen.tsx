@@ -19,7 +19,7 @@ import type {
   FakerFieldMapping,
   MockDataGeneratorState,
 } from './types';
-import type { MongoDBFieldType } from '@mongodb-js/compass-generative-ai';
+import type { MongoDBFieldType } from '../../schema-analysis-types';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 
 const containerStyles = css({
