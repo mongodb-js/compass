@@ -29,13 +29,14 @@ import { CompassInstanceStorePlugin } from '@mongodb-js/compass-app-stores';
 import FieldStorePlugin from '@mongodb-js/compass-field-store';
 import { AtlasAuthPlugin } from '@mongodb-js/atlas-service/renderer';
 import { CompassGenerativeAIPlugin } from '@mongodb-js/compass-generative-ai';
-import type { WorkspaceTab } from '@mongodb-js/compass-workspaces';
 import { ConnectionStorageProvider } from '@mongodb-js/connection-storage/provider';
 import { ConnectionImportExportProvider } from '@mongodb-js/compass-connection-import-export';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import { usePreference } from 'compass-preferences-model/provider';
 import { CompassAssistantProvider } from '@mongodb-js/compass-assistant';
 import { APP_NAMES_FOR_PROMPT } from '@mongodb-js/compass-assistant';
+import type { ApplicationMenuProvider } from '@mongodb-js/compass-workspaces/application-menu';
+import { ApplicationMenuContextProvider } from '@mongodb-js/compass-workspaces/application-menu';
 
 resetGlobalCSS();
 
@@ -62,8 +63,6 @@ const globalDarkThemeStyles = css({
 export type HomeProps = {
   appName: string;
   showWelcomeModal?: boolean;
-  showCollectionSubMenu: (args: { isReadOnly: boolean }) => void;
-  hideCollectionSubMenu: () => void;
   showSettings: (tab?: SettingsTabId) => void;
 };
 
@@ -76,24 +75,13 @@ const verticalSplitStyles = css({
   overflow: 'hidden',
 });
 
+function noop() {}
+
 function Home({
   appName,
   showWelcomeModal = false,
-  showCollectionSubMenu,
-  hideCollectionSubMenu,
   showSettings,
 }: HomeProps): React.ReactElement | null {
-  const onWorkspaceChange = useCallback(
-    (ws: WorkspaceTab | null, collectionInfo) => {
-      if (ws?.type === 'Collection') {
-        showCollectionSubMenu({ isReadOnly: !!collectionInfo?.isReadonly });
-      } else {
-        hideCollectionSubMenu();
-      }
-    },
-    [showCollectionSubMenu, hideCollectionSubMenu]
-  );
-
   const [isWelcomeOpen, setIsWelcomeOpen] = useState(showWelcomeModal);
 
   const closeWelcomeModal = useCallback(
@@ -112,10 +100,7 @@ function Home({
         <FieldStorePlugin>
           <div data-testid="home" className={verticalSplitStyles}>
             <AppRegistryProvider scopeName="Connections">
-              <Workspace
-                appName={appName}
-                onActiveWorkspaceTabChange={onWorkspaceChange}
-              />
+              <Workspace onActiveWorkspaceTabChange={noop} appName={appName} />
             </AppRegistryProvider>
           </div>
           <WelcomeModal isOpen={isWelcomeOpen} closeModal={closeWelcomeModal} />
@@ -139,12 +124,14 @@ type HomeWithConnectionsProps = HomeProps &
   > & {
     connectionStorage: ConnectionStorage;
     createFileInputBackend: () => FileInputBackend;
+    applicationMenuProvider: ApplicationMenuProvider;
   };
 
 function HomeWithConnections({
   onAutoconnectInfoRequest,
   connectionStorage,
   createFileInputBackend,
+  applicationMenuProvider,
   ...props
 }: HomeWithConnectionsProps) {
   return (
@@ -167,7 +154,9 @@ function HomeWithConnections({
               });
             }}
           >
-            <Home {...props}></Home>
+            <ApplicationMenuContextProvider provider={applicationMenuProvider}>
+              <Home {...props}></Home>
+            </ApplicationMenuContextProvider>
           </CompassConnections>
         </CompassAssistantProvider>
       </FileInputBackendProvider>

@@ -47,8 +47,8 @@ describe('CompassMenu', function () {
     App.emit('new-window', bw);
     expect(CompassMenu['windowState']).to.have.property('size', 1);
     expect(CompassMenu['windowState'].get(bw.id)).to.deep.eq({
-      showCollection: false,
-      isReadOnly: false,
+      additionalMenus: [],
+      roleListeners: [],
       updateManagerState: 'idle',
     });
   });
@@ -75,49 +75,18 @@ describe('CompassMenu', function () {
     expect(CompassMenu).to.have.property('currentWindowMenuLoaded', bw1.id);
   });
 
-  it('should change window state when window emits show-collection-submenu event', function () {
-    const bw = new BrowserWindow({ show: false });
-    App.emit('new-window', bw);
-    ipcMain.emit(
-      'window:show-collection-submenu',
-      { sender: bw.webContents },
-      { isReadOnly: false }
-    );
-    expect(CompassMenu['windowState'].get(bw.id)).to.deep.eq({
-      showCollection: true,
-      isReadOnly: false,
-      updateManagerState: 'idle',
-    });
-    ipcMain.emit('window:hide-collection-submenu', { sender: bw.webContents });
-    expect(CompassMenu['windowState'].get(bw.id)).to.deep.eq({
-      showCollection: false,
-      isReadOnly: false,
-      updateManagerState: 'idle',
-    });
-    ipcMain.emit(
-      'window:show-collection-submenu',
-      { sender: bw.webContents },
-      { isReadOnly: true }
-    );
-    expect(CompassMenu['windowState'].get(bw.id)).to.deep.eq({
-      showCollection: true,
-      isReadOnly: true,
-      updateManagerState: 'idle',
-    });
-  });
-
   it('should change window state when window emits update-manager:new-state event', function () {
     const bw = new BrowserWindow({ show: false });
     App.emit('new-window', bw);
     expect(CompassMenu['windowState'].get(bw.id)).to.deep.eq({
-      showCollection: false,
-      isReadOnly: false,
+      additionalMenus: [],
+      roleListeners: [],
       updateManagerState: 'idle',
     });
     App.emit('auto-updater:new-state', AutoUpdateManagerState.PromptForRestart);
     expect(CompassMenu['windowState'].get(bw.id)).to.deep.eq({
-      showCollection: false,
-      isReadOnly: false,
+      additionalMenus: [],
+      roleListeners: [],
       updateManagerState: 'ready to restart',
     });
     App.emit(
@@ -126,8 +95,8 @@ describe('CompassMenu', function () {
     );
 
     expect(CompassMenu['windowState'].get(bw.id)).to.deep.eq({
-      showCollection: false,
-      isReadOnly: false,
+      additionalMenus: [],
+      roleListeners: [],
       updateManagerState: 'installing updates',
     });
   });
@@ -388,72 +357,84 @@ describe('CompassMenu', function () {
       }
     });
 
-    it('should generate a menu template without collection submenu if `showCollection` is `false`', function () {
-      expect(
-        CompassMenu.getTemplate(0).find((item) => item.label === '&Collection')
-      ).to.be.undefined;
-    });
-
-    it('should generate a menu template with collection submenu if `showCollection` is `true`', function () {
+    it('should add menus requested from browser windows', function () {
       CompassMenu['windowState'].set(0, {
-        showCollection: true,
-        isReadOnly: false,
+        additionalMenus: [
+          {
+            id: 'menu0',
+            menu: {
+              label: '&MyMenu',
+              submenu: [{ label: 'Do Something', click: 'id2' }],
+            },
+          },
+        ],
+        roleListeners: [
+          ['undo', 'id0'],
+          ['redo', 'id1'],
+        ],
         updateManagerState: 'idle',
       });
       expect(
         // Contains functions, so we can't easily deep equal it without
         // converting to serializable format
         serializable(
-          CompassMenu.getTemplate(0).find(
-            (item) => item.label === '&Collection'
-          )
+          CompassMenu.getTemplate(0).find((item) => item.label === '&MyMenu')
         )
       ).to.deep.eq({
-        label: '&Collection',
+        label: '&MyMenu',
         submenu: [
           {
-            accelerator: 'Alt+CmdOrCtrl+S',
-            label: '&Share Schema as JSON (Legacy)',
-          },
-          {
-            type: 'separator',
-          },
-          {
-            label: '&Import Data',
-          },
-          {
-            label: '&Export Collection',
+            label: 'Do Something',
           },
         ],
       });
-    });
-
-    it('should generate a menu template with import collection action hidden if `isReadOnly` is `true`', function () {
-      CompassMenu['windowState'].set(0, {
-        showCollection: true,
-        isReadOnly: true,
-        updateManagerState: 'idle',
-      });
       expect(
         // Contains functions, so we can't easily deep equal it without
         // converting to serializable format
         serializable(
-          CompassMenu.getTemplate(0).find(
-            (item) => item.label === '&Collection'
-          )
+          CompassMenu.getTemplate(0).find((item) => item.label === 'Edit')
         )
       ).to.deep.eq({
-        label: '&Collection',
+        label: 'Edit',
         submenu: [
           {
-            accelerator: 'Alt+CmdOrCtrl+S',
-            label: '&Share Schema as JSON (Legacy)',
+            // note the missing 'role' property here
+            accelerator: 'Command+Z',
+            label: 'Undo',
+          },
+          {
+            accelerator: 'Shift+Command+Z',
+            label: 'Redo',
           },
           {
             type: 'separator',
           },
           {
-            label: '&Export Collection',
+            accelerator: 'Command+X',
+            label: 'Cut',
+            role: 'cut',
+          },
+          {
+            accelerator: 'Command+C',
+            label: 'Copy',
+            role: 'copy',
+          },
+          {
+            accelerator: 'Command+V',
+            label: 'Paste',
+            role: 'paste',
+          },
+          {
+            accelerator: 'Command+A',
+            label: 'Select All',
+            role: 'selectAll',
+          },
+          {
+            type: 'separator',
+          },
+          {
+            accelerator: 'CmdOrCtrl+F',
+            label: 'Find',
           },
         ],
       });

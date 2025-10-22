@@ -1,6 +1,6 @@
-import { ipcRenderer } from 'hadron-ipc';
+import { ipcRenderer, type HadronIpcRenderer } from 'hadron-ipc';
 import * as remote from '@electron/remote';
-import { webUtils, webFrame } from 'electron';
+import { webUtils, webFrame, type MenuItemConstructorOptions } from 'electron';
 import { globalAppRegistry } from '@mongodb-js/compass-app-registry';
 import { defaultPreferencesInstance } from 'compass-preferences-model';
 import semver from 'semver';
@@ -27,23 +27,99 @@ import {
   onAutoupdateStarted,
   onAutoupdateSuccess,
 } from './components/update-toasts';
+import { UUID } from 'bson';
 
 import { createElectronFileInputBackend } from '@mongodb-js/compass-components';
 import { CompassRendererConnectionStorage } from '@mongodb-js/connection-storage/renderer';
 import type { SettingsTabId } from '@mongodb-js/compass-settings';
 import type { AutoConnectPreferences } from '../main/auto-connect';
 
-const { log, mongoLogId } = createLogger('COMPASS-APP');
+const { log, mongoLogId, debug } = createLogger('COMPASS-APP');
 const track = createIpcTrack();
 
 import './index.less';
 import 'source-code-pro/source-code-pro.css';
+import {
+  transformAppMenu,
+  type ApplicationMenuProvider,
+  type CompassAppMenu,
+} from '@mongodb-js/compass-workspaces/application-menu';
 
 const DEFAULT_APP_VERSION = '0.0.0';
+
+function translateCallsToHandlerIds(
+  menu: CompassAppMenu
+): [CompassAppMenu<string>, Map<string, () => void>] {
+  const handlerIds = new Map<string, () => void>();
+  const transformedMenu = transformAppMenu(menu, (item) => {
+    if (!item.click) return { ...item, click: undefined };
+    const id = new UUID().toString();
+    handlerIds.set(id, item.click);
+    return { ...item, click: id };
+  });
+  return [transformedMenu, handlerIds];
+}
+
+class ApplicationMenu implements ApplicationMenuProvider {
+  handlers = new Map<string, () => void>();
+  ipcRenderer: HadronIpcRenderer | undefined;
+
+  constructor(ipcRenderer: HadronIpcRenderer | undefined) {
+    this.ipcRenderer = ipcRenderer;
+    this.ipcRenderer?.on(
+      'application-menu:invoke-handler',
+      (event, { id }: { id: string }) => {
+        const handler = this.handlers.get(id);
+        if (!handler) debug('No handler found for menu item id', id);
+        handler?.();
+      }
+    );
+  }
+
+  showApplicationMenu = (menu: CompassAppMenu): (() => void) => {
+    const id = new UUID().toString();
+    const [translatedMenu, handlers] = translateCallsToHandlerIds(menu);
+    for (const [handlerId, handler] of handlers.entries()) {
+      this.handlers.set(handlerId, handler);
+    }
+    void this.ipcRenderer?.call('application-menu:modify-application-menu', {
+      id,
+      menu: translatedMenu,
+    });
+    return () => {
+      void this.ipcRenderer?.call('application-menu:modify-application-menu', {
+        id,
+        menu: undefined,
+      });
+      for (const handlerId of handlers.keys()) {
+        this.handlers.delete(handlerId);
+      }
+    };
+  };
+
+  handleMenuRole = (
+    role: MenuItemConstructorOptions['role'],
+    handler: () => void
+  ): (() => void) => {
+    const id = new UUID().toString();
+    this.handlers.set(id, handler);
+    void this.ipcRenderer?.call('application-menu:modify-application-menu', {
+      id,
+      role,
+    });
+    return () => {
+      void this.ipcRenderer?.call('application-menu:modify-application-menu', {
+        id,
+      });
+      this.handlers.delete(id);
+    };
+  };
+}
 
 class Application {
   private static instance: Application | null = null;
 
+  private menuProvider: ApplicationMenuProvider;
   version: string;
   previousVersion: string;
   highestInstalledVersion: string;
@@ -52,6 +128,7 @@ class Application {
     this.version = remote.app.getVersion() || '';
     this.previousVersion = DEFAULT_APP_VERSION;
     this.highestInstalledVersion = this.version;
+    this.menuProvider = new ApplicationMenu(ipcRenderer);
   }
 
   public static getInstance(): Application {
@@ -180,8 +257,7 @@ class Application {
             remote,
             webUtils
           )}
-          showCollectionSubMenu={this.showCollectionSubMenu.bind(this)}
-          hideCollectionSubMenu={this.hideCollectionSubMenu.bind(this)}
+          applicationMenuProvider={this.menuProvider}
           showSettings={this.showSettingsModal.bind(this)}
           connectionStorage={connectionStorage}
           onAutoconnectInfoRequest={
@@ -216,21 +292,6 @@ class Application {
     );
   }
 
-  private setupSchemaSharingListener() {
-    ipcRenderer?.on('window:menu-share-schema-json', () => {
-      globalAppRegistry.emit('menu-share-schema-json');
-    });
-  }
-
-  private setupImportExportListeners() {
-    ipcRenderer?.on('compass:open-export', () => {
-      globalAppRegistry.emit('open-active-namespace-export');
-    });
-    ipcRenderer?.on('compass:open-import', () => {
-      globalAppRegistry.emit('open-active-namespace-import');
-    });
-  }
-
   private setupDownloadStatusListeners() {
     const fileDownloadCompleteToastId = 'file-download-complete';
     ipcRenderer?.on('download-finished', (event, { path }) => {
@@ -263,8 +324,6 @@ class Application {
 
   private setupIpcListeners() {
     this.setupDataRefreshListener();
-    this.setupSchemaSharingListener();
-    this.setupImportExportListeners();
     this.setupDownloadStatusListeners();
   }
 
@@ -455,16 +514,6 @@ class Application {
     // to avoid potential security issues
     document.addEventListener('dragover', (evt) => evt.preventDefault());
     document.addEventListener('drop', (evt) => evt.preventDefault());
-  }
-
-  private showCollectionSubMenu({ isReadOnly }: { isReadOnly: boolean }) {
-    void ipcRenderer?.call('window:show-collection-submenu', {
-      isReadOnly,
-    });
-  }
-
-  private hideCollectionSubMenu() {
-    void ipcRenderer?.call('window:hide-collection-submenu');
   }
 
   private showSettingsModal(tab?: SettingsTabId) {

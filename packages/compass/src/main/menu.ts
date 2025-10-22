@@ -1,4 +1,7 @@
-import type { MenuItemConstructorOptions } from 'electron';
+import {
+  transformAppMenu,
+  type CompassAppMenu,
+} from '@mongodb-js/compass-workspaces/application-menu';
 import {
   BrowserWindow,
   Menu,
@@ -19,11 +22,47 @@ import { createIpcTrack } from '@mongodb-js/compass-telemetry';
 
 const track = createIpcTrack();
 
-type MenuTemplate = MenuItemConstructorOptions | MenuItemConstructorOptions[];
+type MenuItemConstructorOptions = CompassAppMenu; // Alias to reduce diff complexity
+type MenuTemplate = CompassAppMenu | CompassAppMenu[];
 
 const debug = createDebug('mongodb-compass:menu');
 
 const COMPASS_HELP = 'https://docs.mongodb.com/compass/';
+
+function translateHandlerIdsToCalls(
+  menu: CompassAppMenu<string>
+): CompassAppMenu {
+  return transformAppMenu(menu, (item) => {
+    const id = item.click;
+    if (!id) return { ...item, click: undefined };
+    return {
+      ...item,
+      click: () =>
+        ipcMain?.broadcastFocused('application-menu:invoke-handler', { id }),
+    };
+  });
+}
+
+function translateRoles(
+  menu: CompassAppMenu,
+  state: WindowMenuState
+): CompassAppMenu {
+  return transformAppMenu(menu, (item) => {
+    if (!item.role) return item;
+
+    const listener = state.roleListeners.find(([role]) => role === item.role);
+    if (!listener) return item;
+    const id = listener[1];
+    return {
+      ...item,
+      role: undefined,
+      click: () =>
+        ipcMain?.broadcastFocused('application-menu:invoke-handler', {
+          id,
+        }),
+    };
+  });
+}
 
 function separator(): MenuItemConstructorOptions {
   return {
@@ -321,39 +360,6 @@ function helpSubMenu(
   };
 }
 
-function collectionSubMenu(
-  menuReadOnly: boolean,
-  app: typeof CompassApplication
-): MenuItemConstructorOptions {
-  const subMenu = [];
-  subMenu.push({
-    label: '&Share Schema as JSON (Legacy)',
-    accelerator: 'Alt+CmdOrCtrl+S',
-    click() {
-      ipcMain?.broadcastFocused('window:menu-share-schema-json');
-    },
-  });
-  subMenu.push(separator());
-  if (!app.preferences.getPreferences().readOnly && !menuReadOnly) {
-    subMenu.push({
-      label: '&Import Data',
-      click() {
-        ipcMain?.broadcastFocused('compass:open-import');
-      },
-    });
-  }
-  subMenu.push({
-    label: '&Export Collection',
-    click() {
-      ipcMain?.broadcastFocused('compass:open-export');
-    },
-  });
-  return {
-    label: '&Collection',
-    submenu: subMenu,
-  };
-}
-
 function viewSubMenu(
   app: typeof CompassApplication
 ): MenuItemConstructorOptions {
@@ -452,42 +458,39 @@ function darwinMenu(
   menuState: WindowMenuState,
   app: typeof CompassApplication
 ): MenuItemConstructorOptions[] {
-  const menu: MenuTemplate = [darwinCompassSubMenu(menuState, app)];
-
-  menu.push(connectSubMenu(false, app));
-  menu.push(editSubMenu());
-  menu.push(viewSubMenu(app));
-
-  if (menuState.showCollection) {
-    menu.push(collectionSubMenu(menuState.isReadOnly, app));
-  }
-
-  menu.push(windowSubMenu(app));
-  menu.push(helpSubMenu(menuState, app));
-
-  return menu;
+  return [
+    darwinCompassSubMenu(menuState, app),
+    connectSubMenu(false, app),
+    editSubMenu(),
+    viewSubMenu(app),
+    ...menuState.additionalMenus.map(({ menu }) =>
+      translateHandlerIdsToCalls(menu)
+    ),
+    windowSubMenu(app),
+    helpSubMenu(menuState, app),
+  ].map((menu) => translateRoles(menu, menuState));
 }
 
 function nonDarwinMenu(
   menuState: WindowMenuState,
   app: typeof CompassApplication
 ): MenuItemConstructorOptions[] {
-  const menu = [connectSubMenu(true, app), editSubMenu(), viewSubMenu(app)];
-
-  if (menuState.showCollection) {
-    menu.push(collectionSubMenu(menuState.isReadOnly, app));
-  }
-
-  menu.push(helpSubMenu(menuState, app));
-
-  return menu;
+  return [
+    connectSubMenu(true, app),
+    editSubMenu(),
+    viewSubMenu(app),
+    ...menuState.additionalMenus.map(({ menu }) =>
+      translateHandlerIdsToCalls(menu)
+    ),
+    helpSubMenu(menuState, app),
+  ].map((menu) => translateRoles(menu, menuState));
 }
 
 type UpdateManagerState = 'idle' | 'installing updates' | 'ready to restart';
 
 class WindowMenuState {
-  showCollection = false;
-  isReadOnly = false;
+  roleListeners: [MenuItemConstructorOptions['role'], string][] = [];
+  additionalMenus: { id: string; menu: CompassAppMenu<string> }[] = [];
   updateManagerState: UpdateManagerState = 'idle';
 }
 
@@ -527,12 +530,12 @@ class CompassMenu {
             return 'idle';
         }
       })();
-      this.updateMenu({ updateManagerState });
+      this.updateMenu(() => ({ updateManagerState }));
     });
 
     ipcMain?.respondTo({
-      'window:show-collection-submenu': this.showCollection.bind(this),
-      'window:hide-collection-submenu': this.hideCollection.bind(this),
+      'application-menu:modify-application-menu':
+        this.modifyApplicationMenuHandler.bind(this),
     });
 
     preferences.onPreferenceValueChanged('theme', (newTheme: THEMES) => {
@@ -674,19 +677,39 @@ class CompassMenu {
     Menu.setApplicationMenu(menu);
   };
 
-  private static showCollection(
+  private static modifyApplicationMenuHandler(
     evt: unknown,
-    { isReadOnly }: { isReadOnly: boolean }
+    {
+      id,
+      menu,
+      role,
+    }: {
+      id: string;
+      menu?: CompassAppMenu<string>;
+      role?: MenuItemConstructorOptions['role'];
+    }
   ) {
-    this.updateMenu({ showCollection: true, isReadOnly });
-  }
-
-  private static hideCollection() {
-    this.updateMenu({ showCollection: false });
+    this.updateMenu(({ ...state }) => {
+      if (menu) {
+        state.additionalMenus.push({ id, menu });
+      } else {
+        state.additionalMenus = state.additionalMenus.filter(
+          (m) => m.id !== id
+        );
+      }
+      if (role) {
+        state.roleListeners.push([role, id]);
+      } else {
+        state.roleListeners = state.roleListeners.filter(
+          ([, listenerId]) => listenerId !== id
+        );
+      }
+      return state;
+    });
   }
 
   private static updateMenu(
-    newValues: Partial<WindowMenuState>,
+    newValues: (state: WindowMenuState) => Partial<WindowMenuState>,
     bw: BrowserWindow | null = this.lastFocusedWindow
   ) {
     debug(`updateMenu() set menu state to ${JSON.stringify(newValues)}`);
@@ -699,7 +722,7 @@ class CompassMenu {
     const menuState = this.windowState.get(bw.id);
 
     if (menuState) {
-      Object.assign(menuState, newValues);
+      Object.assign(menuState, newValues(menuState));
       this.windowState.set(bw.id, menuState);
       this.setTemplate(bw.id);
     }
