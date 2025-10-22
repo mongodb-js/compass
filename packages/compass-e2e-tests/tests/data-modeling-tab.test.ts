@@ -43,20 +43,6 @@ type DiagramInstance = {
   getEdges: () => Array<Edge>;
 };
 
-async function doubleClickElement(
-  browser: CompassBrowser,
-  element: ChainablePromiseElement
-) {
-  await browser
-    .action('pointer')
-    .move({ origin: element })
-    .down({ button: 0 })
-    .up({ button: 0 })
-    .down({ button: 0 })
-    .up({ button: 0 })
-    .perform();
-}
-
 /**
  * Clicks on a specific element at the given coordinates.
  * element.click({ x: number, y: number }) doesn't work as expected,
