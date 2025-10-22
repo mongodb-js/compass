@@ -85,12 +85,13 @@ async function isDevServerRunning(
   host: string = '127.0.0.1'
 ): Promise<boolean> {
   try {
-    return (
-      await fetch(`http://${host}:${port}`, {
-        method: 'HEAD',
-        signal: AbortSignal.timeout(3000),
-      })
-    ).ok;
+    // Webpack dev server will keep the response hanging if build process is in
+    // progress, so don't fail this check with a timeout. If anything responded
+    // on expected port, we can assume that dev server is running. When response
+    // is finally returned, it means that the build was finished (even if
+    // response has a non-2xx code)
+    await fetch(`http://${host}:${port}`, { method: 'HEAD' });
+    return true;
   } catch (error) {
     return false;
   }
@@ -151,24 +152,34 @@ if (!(await isDevServerRunning(8081))) {
   console.log('Skipping running MMS dev server...');
 }
 
-let oneSec: Promise<void> | null = null;
-let pendingCopy = false;
+let timeout: NodeJS.Timeout | undefined;
+let copyFailedAttempts = 0;
 
-async function copyDist(): Promise<void> {
-  // If a copy is already in progress, mark that we need another copy
-  if (oneSec) {
-    pendingCopy = true;
-    return;
+function copyDist() {
+  if (timeout) {
+    clearTimeout(timeout);
   }
-  // Keep copying until there are no more pending requests
-  do {
-    pendingCopy = false;
-    fs.cpSync(srcDir, destDir, { recursive: true });
-    oneSec = timers.setTimeout(1000);
-    await oneSec;
-  } while (pendingCopy);
-
-  oneSec = null;
+  timeout = setTimeout(() => {
+    try {
+      console.log('Copying assets...');
+      fs.cpSync(srcDir, destDir, { recursive: true });
+      copyFailedAttempts = 0;
+    } catch (e) {
+      // Sometimes if webpack finished rebuilding right when copying was in
+      // progress, cpSync can fail. Rerunning it with a delay usually helps. To
+      // make sure we're not stuck in a loop, keep the counter and throw if this
+      // hapens repeatedly
+      if (copyFailedAttempts >= 3) {
+        throw e;
+      }
+      copyFailedAttempts++;
+      console.warn(
+        'Failed to copy assets (will try again with a delay): %s',
+        (e as Error).message
+      );
+      copyDist();
+    }
+  }, 1000);
 }
 
 // The existing approach of using `npm / pnpm link` commands doesn't play well
@@ -177,7 +188,9 @@ async function copyDist(): Promise<void> {
 // monorepo instead of mms one. To work around that we are just watching for any
 // file changes in the dist folder and copying them as-is to whatever place
 // compass-web was installed in mms node_modules
-distWatcher = fs.watch(srcDir, () => void copyDist());
+distWatcher = fs.watch(srcDir, () => {
+  copyDist();
+});
 
 webpackWatchProcess = child_process.spawn('npm', ['run', 'watch'], {
   stdio: 'inherit',
