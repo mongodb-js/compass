@@ -596,28 +596,25 @@ export function getSchemaWithNewTypes(
  * @param field - field to get direct children for
  * @returns direct children of the field (if any)
  */
-export const getDirectChildren = (
+export function* getDirectChildren(
   schema: MongoDBJSONSchema
-): [string, MongoDBJSONSchema][] => {
+): Iterable<[string, MongoDBJSONSchema]> {
   // children are either direct (properties), from anyOf, items or items.anyOf
-  const children: [string, MongoDBJSONSchema][] = [];
   if (schema.properties) {
-    children.push(...Object.entries(schema.properties));
+    yield* Object.entries(schema.properties);
   }
   if (schema.items) {
     if (!Array.isArray(schema.items)) {
-      children.push(...getDirectChildren(schema.items));
+      yield* getDirectChildren(schema.items);
     } else {
       for (const item of schema.items) {
-        children.push(...getDirectChildren(item));
+        yield* getDirectChildren(item);
       }
     }
   }
   if (schema.anyOf) {
     for (const variant of schema.anyOf) {
-      children.push(...getDirectChildren(variant));
+      yield* getDirectChildren(variant);
     }
   }
-
-  return children;
-};
+}
