@@ -100,7 +100,6 @@ describe('MockDataGeneratorModal', () => {
             fields: [
               {
                 fieldPath: 'name',
-                mongoType: 'String',
                 fakerMethod: 'person.firstName',
                 fakerArgs: [],
               },

@@ -95,10 +95,7 @@ describe('FakerMappingSelector', () => {
     const numberOption = await screen.findByRole('option', { name: 'Number' });
     userEvent.click(numberOption);
 
-    expect(onJsonTypeSelectStub).to.have.been.calledOnceWith(
-      'Number',
-      mockActiveJsonType
-    );
+    expect(onJsonTypeSelectStub).to.have.been.calledOnceWith('Number');
   });
 
   it('should call onFakerFunctionSelect when faker function changes', async () => {
