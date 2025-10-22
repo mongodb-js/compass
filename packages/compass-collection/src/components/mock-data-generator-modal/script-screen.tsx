@@ -130,7 +130,7 @@ const ScriptScreen = ({
         output_docs_count: documentCount,
       });
     }
-  });
+  }, [scriptResult.success, fakerSchema, documentCount, track]);
 
   return (
     <section className={outerSectionStyles}>

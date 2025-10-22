@@ -1,3 +1,4 @@
+import type { MongoDBFieldType } from '@mongodb-js/compass-generative-ai';
 /**
  * Traits sent along with the Segment identify call
  */
@@ -3246,6 +3247,22 @@ type MockDataGeneratorDismissedEvent = CommonEvent<{
 }>;
 
 /**
+ * This event is fired when the user changes the JSON type for a MongoDB field type mapping.
+ *
+ * @category Mock Data Generator
+ */
+type MockDataJsonTypeChangedEvent = CommonEvent<{
+  name: 'Mock Data JSON Type Changed';
+  payload: {
+    field_name: string;
+    previous_json_type: MongoDBFieldType;
+    new_json_type: MongoDBFieldType;
+    previous_faker_method: string;
+    new_faker_method: string;
+  };
+}>;
+
+/**
  * This event is fired when the user changes the faker method for a MongoDB field type mapping.
  *
  * @category Mock Data Generator
@@ -3254,25 +3271,9 @@ type MockDataFakerMethodChangedEvent = CommonEvent<{
   name: 'Mock Data Faker Method Changed';
   payload: {
     field_name: string;
-    // json_type of type MongoDBFieldType from compass-generative-ai
-    json_type:
-      | 'String'
-      | 'Number'
-      | 'Int32'
-      | 'Boolean'
-      | 'Decimal128'
-      | 'Long'
-      | 'ObjectId'
-      | 'Date'
-      | 'RegExp'
-      | 'Symbol'
-      | 'MaxKey'
-      | 'MinKey'
-      | 'Binary'
-      | 'Code'
-      | 'Timestamp'
-      | 'DBRef';
-    new_method: string;
+    json_type: MongoDBFieldType;
+    previous_faker_method: string;
+    new_faker_method: string;
   };
 }>;
 
@@ -3485,6 +3486,7 @@ export type TelemetryEvent =
   | MockDataGeneratorScreenViewedEvent
   | MockDataGeneratorScreenProceededEvent
   | MockDataGeneratorDismissedEvent
+  | MockDataJsonTypeChangedEvent
   | MockDataFakerMethodChangedEvent
   | MockDataDocumentCountChangedEvent
   | MockDataScriptGeneratedEvent

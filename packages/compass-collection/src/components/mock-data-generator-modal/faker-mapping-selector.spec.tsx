@@ -19,7 +19,6 @@ const mockActiveFakerFunction = 'lorem.word';
 const mockActiveFakerArgs: Array<FakerArg> = [];
 const onJsonTypeSelectStub = sinon.stub();
 const onFakerFunctionSelectStub = sinon.stub();
-const mockFieldName = 'mockFieldName';
 
 describe('FakerMappingSelector', () => {
   afterEach(() => {
@@ -37,7 +36,6 @@ describe('FakerMappingSelector', () => {
         activeFakerArgs={mockActiveFakerArgs}
         onJsonTypeSelect={onJsonTypeSelectStub}
         onFakerFunctionSelect={onFakerFunctionSelectStub}
-        fieldName={mockFieldName}
       />
     );
 
@@ -67,7 +65,6 @@ describe('FakerMappingSelector', () => {
             activeFakerArgs={mockActiveFakerArgs}
             onJsonTypeSelect={onJsonTypeSelectStub}
             onFakerFunctionSelect={onFakerFunctionSelectStub}
-            fieldName={mockFieldName}
           />
         );
 
@@ -89,7 +86,6 @@ describe('FakerMappingSelector', () => {
         activeFakerArgs={mockActiveFakerArgs}
         onJsonTypeSelect={onJsonTypeSelectStub}
         onFakerFunctionSelect={onFakerFunctionSelectStub}
-        fieldName={mockFieldName}
       />
     );
 
@@ -99,7 +95,10 @@ describe('FakerMappingSelector', () => {
     const numberOption = await screen.findByRole('option', { name: 'Number' });
     userEvent.click(numberOption);
 
-    expect(onJsonTypeSelectStub).to.have.been.calledOnceWith('Number');
+    expect(onJsonTypeSelectStub).to.have.been.calledOnceWith(
+      'Number',
+      mockActiveJsonType
+    );
   });
 
   it('should call onFakerFunctionSelect when faker function changes', async () => {
@@ -110,7 +109,6 @@ describe('FakerMappingSelector', () => {
         activeFakerArgs={mockActiveFakerArgs}
         onJsonTypeSelect={onJsonTypeSelectStub}
         onFakerFunctionSelect={onFakerFunctionSelectStub}
-        fieldName={mockFieldName}
       />
     );
 
@@ -127,38 +125,6 @@ describe('FakerMappingSelector', () => {
     );
   });
 
-  it('should fire a track event when faker function changes', async () => {
-    const newFakerMethod = 'internet.email';
-    const result = render(
-      <FakerMappingSelector
-        activeJsonType={mockActiveJsonType}
-        activeFakerFunction={mockActiveFakerFunction}
-        activeFakerArgs={mockActiveFakerArgs}
-        onJsonTypeSelect={onJsonTypeSelectStub}
-        onFakerFunctionSelect={onFakerFunctionSelectStub}
-        fieldName={mockFieldName}
-      />
-    );
-
-    const fakerFunctionSelect = screen.getByLabelText('Faker Function');
-    userEvent.click(fakerFunctionSelect);
-
-    const emailOption = await screen.findByRole('option', {
-      name: newFakerMethod,
-    });
-    userEvent.click(emailOption);
-
-    await waitFor(() => {
-      expect(result.track).to.have.been.calledWith(
-        'Mock Data Faker Method Changed',
-        {
-          field_name: mockActiveJsonType,
-          new_method: newFakerMethod,
-        }
-      );
-    });
-  });
-
   it('should show warning banner when faker method is unrecognized', () => {
     render(
       <FakerMappingSelector
@@ -167,7 +133,6 @@ describe('FakerMappingSelector', () => {
         activeFakerArgs={mockActiveFakerArgs}
         onJsonTypeSelect={onJsonTypeSelectStub}
         onFakerFunctionSelect={onFakerFunctionSelectStub}
-        fieldName={mockFieldName}
       />
     );
 
@@ -186,7 +151,6 @@ describe('FakerMappingSelector', () => {
         activeFakerArgs={mockActiveFakerArgs}
         onJsonTypeSelect={onJsonTypeSelectStub}
         onFakerFunctionSelect={onFakerFunctionSelectStub}
-        fieldName={mockFieldName}
       />
     );
 

@@ -10,13 +10,12 @@ import {
   Select,
   spacing,
 } from '@mongodb-js/compass-components';
-import React, { useCallback, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { UNRECOGNIZED_FAKER_METHOD } from '../../modules/collection-tab';
 import type { MongoDBFieldType } from '@mongodb-js/compass-generative-ai';
 import { MongoDBFieldTypeValues } from '@mongodb-js/compass-generative-ai';
 import { MONGO_TYPE_TO_FAKER_METHODS } from './constants';
 import type { FakerArg } from './script-generation-utils';
-import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 
 const fieldMappingSelectorsStyles = css({
   width: '50%',
@@ -66,18 +65,15 @@ interface Props {
   onJsonTypeSelect: (jsonType: MongoDBFieldType) => void;
   activeFakerArgs: FakerArg[];
   onFakerFunctionSelect: (fakerFunction: string) => void;
-  fieldName: string;
 }
 
 const FakerMappingSelector = ({
   activeJsonType,
   activeFakerFunction,
   activeFakerArgs,
-  fieldName,
   onJsonTypeSelect,
   onFakerFunctionSelect,
 }: Props) => {
-  const track = useTelemetry();
   const fakerMethodOptions = useMemo(() => {
     const methods = MONGO_TYPE_TO_FAKER_METHODS[activeJsonType] || [];
 
@@ -87,18 +83,6 @@ const FakerMappingSelector = ({
 
     return [activeFakerFunction, ...methods];
   }, [activeJsonType, activeFakerFunction]);
-
-  const onFakerMethodChange = useCallback(
-    (newMethod: string) => {
-      track('Mock Data Faker Method Changed', {
-        field_name: fieldName,
-        json_type: activeJsonType,
-        new_method: newMethod,
-      });
-      onFakerFunctionSelect(newMethod);
-    },
-    [activeJsonType, onFakerFunctionSelect, track]
-  );
 
   return (
     <div className={fieldMappingSelectorsStyles}>
@@ -119,7 +103,7 @@ const FakerMappingSelector = ({
         label="Faker Function"
         allowDeselect={false}
         value={activeFakerFunction}
-        onChange={(newMethod) => onFakerMethodChange(newMethod)}
+        onChange={onFakerFunctionSelect}
       >
         {fakerMethodOptions.map((method) => (
           <Option key={method} value={method}>

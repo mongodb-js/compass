@@ -52,6 +52,7 @@
   "dependencies": {
     "@mongodb-js/compass-logging": "^1.7.22",
     "@mongodb-js/compass-app-registry": "^9.4.27",
+    "@mongodb-js/compass-generative-ai": "^0.60.0",
     "hadron-ipc": "^3.5.20",
     "react": "^17.0.2",
     "@mongodb-js/mdb-experiment-js": "1.9.0"

@@ -21,6 +21,8 @@ import {
   useAssignment,
   ExperimentTestName,
   ExperimentTestGroup,
+  useTrackOnChange,
+  TrackFunction,
 } from '@mongodb-js/compass-telemetry/provider';
 import {
   SCHEMA_ANALYSIS_STATE_ANALYZING,
@@ -142,21 +144,23 @@ const CollectionHeaderActions: React.FunctionComponent<
     onOpenMockDataModal,
   ]);
 
-  useEffect(() => {
-    if (shouldShowMockDataButton) {
-      track('Mock Data Generator CTA Button Viewed', {
-        button_enabled: !shouldDisableMockDataButton,
-        gen_ai_features_enabled: isAIFeatureEnabled,
-        send_sample_values_enabled: isSampleDocumentPassingEnabled,
-      });
-    }
-  }, [
-    track,
-    isAIFeatureEnabled,
-    isSampleDocumentPassingEnabled,
-    shouldDisableMockDataButton,
-    shouldShowMockDataButton,
-  ]);
+  useTrackOnChange(
+    (track: TrackFunction) => {
+      if (shouldShowMockDataButton) {
+        track('Mock Data Generator CTA Button Viewed', {
+          button_enabled: !shouldDisableMockDataButton,
+          gen_ai_features_enabled: isAIFeatureEnabled,
+          send_sample_values_enabled: isSampleDocumentPassingEnabled,
+        });
+      }
+    },
+    [
+      shouldShowMockDataButton,
+      shouldDisableMockDataButton,
+      isAIFeatureEnabled,
+      isSampleDocumentPassingEnabled,
+    ]
+  );
 
   return (
     <div

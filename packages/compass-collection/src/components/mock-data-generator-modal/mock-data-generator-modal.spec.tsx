@@ -20,7 +20,10 @@ import {
 import type { CollectionState } from '../../modules/collection-tab';
 import { default as collectionTabReducer } from '../../modules/collection-tab';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
-import type { MockDataSchemaResponse } from '@mongodb-js/compass-generative-ai';
+import {
+  MongoDBFieldTypeValues,
+  type MockDataSchemaResponse,
+} from '@mongodb-js/compass-generative-ai';
 import type { SchemaAnalysisState } from '../../schema-analysis-types';
 import * as scriptGenerationUtils from './script-generation-utils';
 
@@ -431,21 +434,27 @@ describe('MockDataGeneratorModal', () => {
       });
       // the "name" field should be selected by default
       expect(screen.getByText('name')).to.exist;
-      expect(screen.getByLabelText('JSON Type')).to.have.value('String');
+      expect(screen.getByLabelText('JSON Type')).to.have.value(
+        MongoDBFieldTypeValues.String
+      );
       expect(screen.getByLabelText('Faker Function')).to.have.value(
         'person.firstName'
       );
       // select the "age" field
       userEvent.click(screen.getByText('age'));
       expect(screen.getByText('age')).to.exist;
-      expect(screen.getByLabelText('JSON Type')).to.have.value('Int32');
+      expect(screen.getByLabelText('JSON Type')).to.have.value(
+        MongoDBFieldTypeValues.Int32
+      );
       expect(screen.getByLabelText('Faker Function')).to.have.value(
         'number.int'
       );
       // select the "email" field
       userEvent.click(screen.getByText('email'));
       expect(screen.getByText('email')).to.exist;
-      expect(screen.getByLabelText('JSON Type')).to.have.value('String');
+      expect(screen.getByLabelText('JSON Type')).to.have.value(
+        MongoDBFieldTypeValues.String
+      );
       // the "email" field should have a warning banner since the faker method is invalid
       expect(screen.getByLabelText('Faker Function')).to.have.value(
         'Unrecognized'
@@ -459,7 +468,9 @@ describe('MockDataGeneratorModal', () => {
       // select the "username" field
       userEvent.click(screen.getByText('username'));
       expect(screen.getByText('username')).to.exist;
-      expect(screen.getByLabelText('JSON Type')).to.have.value('String');
+      expect(screen.getByLabelText('JSON Type')).to.have.value(
+        MongoDBFieldTypeValues.String
+      );
       expect(screen.getByLabelText('Faker Function')).to.have.value(
         'Unrecognized'
       );
@@ -558,21 +569,27 @@ describe('MockDataGeneratorModal', () => {
 
       // select the "name" field
       userEvent.click(screen.getByText('name'));
-      expect(screen.getByLabelText('JSON Type')).to.have.value('String');
+      expect(screen.getByLabelText('JSON Type')).to.have.value(
+        MongoDBFieldTypeValues.String
+      );
       expect(screen.getByLabelText('Faker Function')).to.have.value(
         'person.firstName'
       );
 
       // select the "age" field
       userEvent.click(screen.getByText('age'));
-      expect(screen.getByLabelText('JSON Type')).to.have.value('Int32');
+      expect(screen.getByLabelText('JSON Type')).to.have.value(
+        MongoDBFieldTypeValues.Int32
+      );
       expect(screen.getByLabelText('Faker Function')).to.have.value(
         'number.int'
       );
 
       // select the "type" field
       userEvent.click(screen.getByText('type'));
-      expect(screen.getByLabelText('JSON Type')).to.have.value('String');
+      expect(screen.getByLabelText('JSON Type')).to.have.value(
+        MongoDBFieldTypeValues.String
+      );
       expect(screen.getByLabelText('Faker Function')).to.have.value(
         'Unrecognized'
       );
@@ -769,6 +786,71 @@ describe('MockDataGeneratorModal', () => {
       expect(
         screen.getByTestId('next-step-button').getAttribute('aria-disabled')
       ).to.equal('false');
+    });
+
+    it('fires a track event when the user changes the JSON field type', async () => {
+      const result = await renderModal({
+        mockServices: mockServicesWithMockDataResponse,
+        schemaAnalysis: mockSchemaAnalysis,
+      });
+
+      // advance to the schema editor step
+      userEvent.click(screen.getByText('Confirm'));
+      await waitFor(() => {
+        expect(screen.getByTestId('faker-schema-editor')).to.exist;
+      });
+
+      const jsonTypeSelect = screen.getByLabelText('JSON Type');
+      userEvent.click(jsonTypeSelect);
+      const numberOption = await screen.findByRole('option', {
+        name: MongoDBFieldTypeValues.Number,
+      });
+      userEvent.click(numberOption);
+
+      await waitFor(() => {
+        expect(result.track).to.have.been.calledWith(
+          'Mock Data JSON Type Changed',
+          {
+            field_name: 'name',
+            previous_json_type: MongoDBFieldTypeValues.String,
+            new_json_type: MongoDBFieldTypeValues.Number,
+            previous_faker_method: 'person.firstName',
+            new_faker_method: 'number.int',
+          }
+        );
+      });
+    });
+
+    it('fires a track event when the user changes the faker method', async () => {
+      const result = await renderModal({
+        mockServices: mockServicesWithMockDataResponse,
+        schemaAnalysis: mockSchemaAnalysis,
+      });
+
+      // advance to the schema editor step
+      userEvent.click(screen.getByText('Confirm'));
+      await waitFor(() => {
+        expect(screen.getByTestId('faker-schema-editor')).to.exist;
+      });
+
+      const fakerMethodSelect = screen.getByLabelText('Faker Function');
+      userEvent.click(fakerMethodSelect);
+      const emailOption = await screen.findByRole('option', {
+        name: 'internet.email',
+      });
+      userEvent.click(emailOption);
+
+      await waitFor(() => {
+        expect(result.track).to.have.been.calledWith(
+          'Mock Data Faker Method Changed',
+          {
+            field_name: 'name',
+            json_type: MongoDBFieldTypeValues.String,
+            previous_faker_method: 'person.firstName',
+            new_faker_method: 'internet.email',
+          }
+        );
+      });
     });
 
     it('fires a track event when the user proceeds to the next step', async () => {
