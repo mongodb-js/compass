@@ -8,7 +8,7 @@ import {
 } from '@mongodb-js/compass-components';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback } from 'react';
 import {
   useIsAIFeatureEnabled,
   usePreference,
@@ -22,7 +22,7 @@ import {
   ExperimentTestName,
   ExperimentTestGroup,
   useTrackOnChange,
-  TrackFunction,
+  type TrackFunction,
 } from '@mongodb-js/compass-telemetry/provider';
 import {
   SCHEMA_ANALYSIS_STATE_ANALYZING,
