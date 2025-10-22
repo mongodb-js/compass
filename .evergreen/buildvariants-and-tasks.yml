@@ -20,7 +20,7 @@ buildvariants:
       - name: test-electron
   - name: unit-tests-rhel
     display_name: Unit Tests RHEL
-    run_on: rhel80-large
+    run_on: rhel93-large
     tasks:
       - name: test
       - name: test-electron
@@ -180,8 +180,8 @@ buildvariants:
       - name: test-packaged-app-2
       - name: test-packaged-app-3
   - name: test-packaged-app-rhel
-    display_name: Test Packaged App RHEL 8.0
-    run_on: rhel80-large
+    display_name: Test Packaged App RHEL 9.3
+    run_on: rhel93-large
     patchable: true
     depends_on:
       - name: package-compass
