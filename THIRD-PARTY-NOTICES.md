@@ -391,7 +391,7 @@ This document was automatically generated on Wed Oct 22 2025.
 | **[mime-db](#4f88fcddeb8de9fdedcbb3e2497dbf09ef2b2f4011c8737c093169df36869deb)**                                            | 1.54.0       | MIT                                 |
 | **[mime-types](#71d692842c033f4b66813932a2ef55ddfee7a5ef8b9cb38d7e581a7f23a924ed)**                                         | 3.0.1        | MIT                                 |
 | **[mimic-response](#0c868fd85c36cbce69ede58ff4693b89140b6a529a6794843f4985674d63642e)**                                     | 2.1.0        | MIT                                 |
-| **[minimist](#837db6b00930af97755b724568aecf8b139361dc2148c7db77673ba6ae44a44d)**                                           | 1.2.6        | MIT                                 |
+| **[minimist](#8162d302efd0533ce00fc8a52dd6703dbb4205435af84e72b7694c608a729de4)**                                           | 1.2.8        | MIT                                 |
 | **[mkdirp-classic](#e79cc875152b50c2eb57a97163d99f0155bf4e4af7ba4a7e01c12a17a4a3305c)**                                     | 0.5.3        | MIT                                 |
 | **[modify-filename](#7153be07939379ccf0072006c519fba2bdf5ab79ca8bb59bc5273f87a7bacbf6)**                                    | 1.1.0        | MIT                                 |
 | **[mongodb-build-info](#f0a98c22ae0766702726f79e058ac6dc4e4bead8557b67b816f40bd13fb54170)**                                 | 1.7.2        | Apache-2.0                          |
@@ -485,8 +485,8 @@ This document was automatically generated on Wed Oct 22 2025.
 | **[scheduler](#950b09ca6f4766ded0bdde81e2697b5e184ed63925d74a8f512c978cab5bda6f)**                                          | 0.20.2       | MIT                                 |
 | **[select](#12d30053a00882385c42a50004536696d477e8e694b047d6d39513947e5a39e9)**                                             | 1.1.2        | MIT                                 |
 | **[semver](#8b8f657069cf84b7ca932ab17eb24a0a55a8053ccd2a36c03185dadab64db3f8)**                                             | 6.3.1        | ISC                                 |
-| **[semver](#2c8b8c47dd7d24873eda4559b25851062c21d7584a396735b363f9bab626dd7b)**                                             | 7.6.3        | ISC                                 |
 | **[semver](#9820574a08f66349702b3a538cfb93136780250f98497b337bc415b68c8748d0)**                                             | 7.7.2        | ISC                                 |
+| **[semver](#861f32f827a4e6844082ca1ec7ddd5d22b3913d87af1640e745d7de96d6ad868)**                                             | 7.7.3        | ISC                                 |
 | **[send](#1b29954c091694853ad3454c280ae2131fc5527135a7551588bce2719b54cc70)**                                               | 1.2.0        | MIT                                 |
 | **[serve-static](#ae8c8c81ae13ef8d08a78c4e33b04ea28b5ed9f8ccb43ace3850b1c6549fe636)**                                       | 2.2.0        | MIT                                 |
 | **[setprototypeof](#7787a1d3bc2f39b65d75407d5d8d02d8ddb70f1cdb74897f15115e995fb64a56)**                                     | 1.2.0        | ISC                                 |
@@ -27460,9 +27460,9 @@ License files:
 
       THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-<a id="837db6b00930af97755b724568aecf8b139361dc2148c7db77673ba6ae44a44d"></a>
+<a id="8162d302efd0533ce00fc8a52dd6703dbb4205435af84e72b7694c608a729de4"></a>
 
-### [minimist](https://www.npmjs.com/package/minimist) (version 1.2.6)
+### [minimist](https://www.npmjs.com/package/minimist) (version 1.2.8)
 
 License tags: MIT
 
@@ -38731,9 +38731,9 @@ License files:
       ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
       IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-<a id="2c8b8c47dd7d24873eda4559b25851062c21d7584a396735b363f9bab626dd7b"></a>
+<a id="9820574a08f66349702b3a538cfb93136780250f98497b337bc415b68c8748d0"></a>
 
-### [semver](https://www.npmjs.com/package/semver) (version 7.6.3)
+### [semver](https://www.npmjs.com/package/semver) (version 7.7.2)
 
 License tags: ISC
 
@@ -38757,9 +38757,9 @@ License files:
       ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
       IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-<a id="9820574a08f66349702b3a538cfb93136780250f98497b337bc415b68c8748d0"></a>
+<a id="861f32f827a4e6844082ca1ec7ddd5d22b3913d87af1640e745d7de96d6ad868"></a>
 
-### [semver](https://www.npmjs.com/package/semver) (version 7.7.2)
+### [semver](https://www.npmjs.com/package/semver) (version 7.7.3)
 
 License tags: ISC
 
