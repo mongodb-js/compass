@@ -141,6 +141,7 @@ export {
 };
 export {
   useFocusState,
+  useFocusStateIncludingUnfocused,
   useHoverState,
   FocusState,
 } from './hooks/use-focus-hover';
