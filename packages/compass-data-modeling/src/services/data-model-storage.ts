@@ -180,6 +180,7 @@ export const MongoDBDataModelDescriptionSchema = z.object({
    * anything that would require re-fetching data associated with the diagram
    */
   connectionId: z.string().nullable(),
+  database: z.string(),
   edits: EditListSchema,
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime(),

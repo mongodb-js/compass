@@ -19,6 +19,10 @@ import type {
 } from '../services/data-model-storage';
 import { UUID } from 'bson';
 import Sinon from 'sinon';
+import {
+  type AnalysisFinishedAction,
+  AnalysisProcessActionTypes,
+} from './analysis-process';
 
 const model: StaticModel = {
   collections: [
@@ -61,6 +65,7 @@ const loadedDiagram: MongoDBDataModelDescription = {
   id: 'diagram-id',
   name: 'diagram-name',
   connectionId: 'connection-id',
+  database: 'db',
   createdAt: '2023-10-01T00:00:00.000Z',
   updatedAt: '2023-10-05T00:00:00.000Z',
   edits: [{ type: 'SetModel', model } as Edit],
@@ -81,6 +86,7 @@ describe('Data Modeling store', function () {
       const newDiagram = {
         name: 'New Diagram',
         connectionId: 'connection-id',
+        database: 'db',
         collections: [
           {
             ns: 'db.collection1',
@@ -95,14 +101,16 @@ describe('Data Modeling store', function () {
         ],
         relations: model.relationships,
       };
-      store.dispatch({
-        type: 'data-modeling/analysis-stats/ANALYSIS_FINISHED',
+      const analysisFinishedAction: AnalysisFinishedAction = {
+        type: AnalysisProcessActionTypes.ANALYSIS_FINISHED,
         ...newDiagram,
-      });
+      };
+      store.dispatch(analysisFinishedAction);
 
       const initialDiagram = getCurrentDiagramFromState(store.getState());
       expect(initialDiagram.name).to.equal(newDiagram.name);
       expect(initialDiagram.connectionId).to.equal(newDiagram.connectionId);
+      expect(initialDiagram.database).to.equal(newDiagram.database);
       expect(initialDiagram.edits).to.have.length(1);
       expect(initialDiagram.edits[0].type).to.equal('SetModel');
       const initialEdit = initialDiagram.edits[0] as Extract<
@@ -133,6 +141,7 @@ describe('Data Modeling store', function () {
       expect(diagram.id).to.equal(loadedDiagram.id);
       expect(diagram.name).to.equal(loadedDiagram.name);
       expect(diagram.connectionId).to.equal(loadedDiagram.connectionId);
+      expect(diagram.database).to.equal(loadedDiagram.database);
       expect(diagram.edits).to.deep.equal(loadedDiagram.edits);
     });
   });

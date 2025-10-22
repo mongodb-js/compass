@@ -71,6 +71,7 @@ export type AnalysisFinishedAction = {
   type: AnalysisProcessActionTypes.ANALYSIS_FINISHED;
   name: string;
   connectionId: string;
+  database: string;
   collections: {
     ns: string;
     schema: MongoDBJSONSchema;
@@ -315,6 +316,7 @@ export function startAnalysis(
         type: AnalysisProcessActionTypes.ANALYSIS_FINISHED,
         name,
         connectionId,
+        database,
         collections: collections.map((coll) => {
           const node = positioned.nodes.find((node) => {
             return node.id === coll.ns;
