@@ -72,11 +72,14 @@ export type SettingsListProps<PreferenceName extends SupportedPreferences> = {
 
 function SettingLabel({ name }: { name: SupportedPreferences }) {
   const { short, long, longReact } = getSettingDescription(name).description;
+  const featureFlagDefinition = featureFlags.find((definition) => {
+    return definition.name === name;
+  });
   return (
     <>
       <Label htmlFor={name} id={`${name}-label`}>
         {short}
-        {(featureFlags as any)[name]?.stage === 'development' && (
+        {featureFlagDefinition?.stage === 'development' && (
           <span>
             <Badge className={devBadgeStyles}>dev</Badge>
           </span>

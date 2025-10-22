@@ -45,6 +45,13 @@ const updateInputWithBlur = (label: string, text: string) => {
   userEvent.click(document.body);
 };
 
+const updateInputWithEnter = (label: string, text: string) => {
+  const input = screen.getByLabelText(label);
+  userEvent.clear(input);
+  if (text.length) userEvent.type(input, text);
+  userEvent.type(input, '{enter}');
+};
+
 async function comboboxSelectItem(
   label: string,
   value: string,
@@ -784,6 +791,29 @@ describe('DiagramEditorSidePanel', function () {
       });
 
       expect(notModifiedCollection).to.exist;
+    });
+
+    it('should handle collection name and notes editing using enter', async function () {
+      const result = renderDrawer();
+      result.plugin.store.dispatch(addCollection());
+
+      await waitForDrawerToOpen();
+
+      updateInputWithEnter('Name', 'pineapple');
+
+      userEvent.click(screen.getByRole('textbox', { name: 'Notes' }));
+      userEvent.type(
+        screen.getByRole('textbox', { name: 'Notes' }),
+        'Note about the relationship{shift>}{enter}{/shift}next line'
+      );
+
+      const collection = selectCurrentModelFromState(
+        result.plugin.store.getState()
+      ).collections.find((n) => n.ns === 'flights.pineapple');
+      expect(collection).to.exist;
+      expect(screen.getByRole('textbox', { name: 'Notes' })).to.have.value(
+        'Note about the relationship\nnext line'
+      );
     });
   });
 });

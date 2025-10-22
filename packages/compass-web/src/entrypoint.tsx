@@ -63,7 +63,7 @@ import { WebWorkspaceTab as WelcomeWorkspaceTab } from '@mongodb-js/compass-welc
 import { WorkspaceTab as MyQueriesWorkspace } from '@mongodb-js/compass-saved-aggregations-queries';
 import { useCompassWebPreferences } from './preferences';
 import { DataModelingWorkspaceTab as DataModelingWorkspace } from '@mongodb-js/compass-data-modeling';
-import { DataModelStorageServiceProviderInMemory } from '@mongodb-js/compass-data-modeling/web';
+import { DataModelStorageServiceProviderWeb } from '@mongodb-js/compass-data-modeling/web';
 import {
   createWebRecentQueryStorage,
   createWebFavoriteQueryStorage,
@@ -507,7 +507,10 @@ const CompassWeb = ({
               <TelemetryProvider options={telemetryOptions.current}>
                 <WithAtlasProviders>
                   <WithStorageProviders orgId={orgId} projectId={projectId}>
-                    <DataModelStorageServiceProviderInMemory>
+                    <DataModelStorageServiceProviderWeb
+                      orgId={orgId}
+                      projectId={projectId}
+                    >
                       <AtlasCloudConnectionStorageProvider
                         orgId={orgId}
                         projectId={projectId}
@@ -576,7 +579,7 @@ const CompassWeb = ({
                           </CompassConnections>
                         </CompassAssistantProvider>
                       </AtlasCloudConnectionStorageProvider>
-                    </DataModelStorageServiceProviderInMemory>
+                    </DataModelStorageServiceProviderWeb>
                   </WithStorageProviders>
                 </WithAtlasProviders>
               </TelemetryProvider>

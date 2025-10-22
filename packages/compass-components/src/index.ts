@@ -242,6 +242,7 @@ export {
 export type {
   EdgeProps,
   NodeProps,
+  DiagramProps,
   DiagramInstance,
   NodeField,
   NodeGlyph,
