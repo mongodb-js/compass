@@ -46,6 +46,33 @@ export async function exportToPng(
   downloadFile(dataUri, fileName);
 }
 
+/**
+ * @internal Exported for tests.
+ */
+export function getDiagramNodesAndEdges(
+  diagram: Pick<DiagramInstance, 'getEdges' | 'getNodes'>
+) {
+  const edges = diagram.getEdges().map((edge) => ({
+    ...edge,
+    // In export we dont want it to be highlighted.
+    selected: false,
+    animated: false,
+  }));
+  const nodes = diagram.getNodes().map((node) => ({
+    ...node,
+    // In export we dont want it to be highlighted.
+    selected: false,
+    fields: node.fields.map((field) => ({
+      ...field,
+      // In export we dont want field to be highlighted
+      // either by individual selection or by relationship selection.
+      variant: undefined,
+      selected: false,
+    })),
+  }));
+  return { nodes, edges };
+}
+
 export function getExportPngDataUri(diagram: DiagramInstance): Promise<string> {
   return new Promise<string>((resolve, reject) => {
     const bounds = getNodesBounds(diagram.getNodes());
@@ -60,23 +87,7 @@ export function getExportPngDataUri(diagram: DiagramInstance): Promise<string> {
     container.style.height = `${bounds.height}px`;
     document.body.appendChild(container);
 
-    const edges = diagram.getEdges().map((edge) => ({
-      ...edge,
-      // In export we dont want it to be highlighted.
-      selected: false,
-    }));
-    const nodes = diagram.getNodes().map((node) => ({
-      ...node,
-      // In export we dont want it to be highlighted.
-      selected: false,
-      fields: node.fields.map((field) => ({
-        ...field,
-        // In export we dont want field to be highlighted
-        // either by individual selection or by relationship selection.
-        variant: undefined,
-        selected: false,
-      })),
-    }));
+    const { nodes, edges } = getDiagramNodesAndEdges(diagram);
 
     ReactDOM.render(
       <DiagramProvider>
