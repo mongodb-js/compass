@@ -103,6 +103,7 @@ describe('MockDataGeneratorModal', () => {
             fields: [
               {
                 fieldPath: 'name',
+                mongoType: MongoDBFieldTypeValues.String,
                 fakerMethod: 'person.firstName',
                 fakerArgs: [],
               },
@@ -361,21 +362,25 @@ describe('MockDataGeneratorModal', () => {
         fields: [
           {
             fieldPath: 'name',
+            mongoType: MongoDBFieldTypeValues.String,
             fakerMethod: 'person.firstName',
             fakerArgs: [],
           },
           {
             fieldPath: 'age',
+            mongoType: MongoDBFieldTypeValues.Int32,
             fakerMethod: 'number.int',
             fakerArgs: [],
           },
           {
             fieldPath: 'email',
+            mongoType: MongoDBFieldTypeValues.String,
             fakerMethod: 'internet',
             fakerArgs: [],
           },
           {
             fieldPath: 'username',
+            mongoType: MongoDBFieldTypeValues.String,
             fakerMethod: 'noSuchMethod',
             fakerArgs: [],
           },
@@ -478,6 +483,7 @@ describe('MockDataGeneratorModal', () => {
           fields: [
             {
               fieldPath: 'name',
+              mongoType: MongoDBFieldTypeValues.String,
               fakerMethod: 'person.firstName',
               fakerArgs: [],
               isArray: false,
@@ -485,6 +491,7 @@ describe('MockDataGeneratorModal', () => {
             },
             {
               fieldPath: 'email',
+              mongoType: MongoDBFieldTypeValues.String,
               fakerMethod: 'internet.email',
               fakerArgs: [],
               isArray: false,
@@ -514,6 +521,7 @@ describe('MockDataGeneratorModal', () => {
           fields: [
             {
               fieldPath: 'name',
+              mongoType: MongoDBFieldTypeValues.String,
               fakerMethod: 'person.firstName',
               fakerArgs: [],
               isArray: false,
@@ -521,6 +529,7 @@ describe('MockDataGeneratorModal', () => {
             },
             {
               fieldPath: 'age',
+              mongoType: MongoDBFieldTypeValues.Int32,
               fakerMethod: 'number.int',
               fakerArgs: [],
               isArray: false,
@@ -594,6 +603,7 @@ describe('MockDataGeneratorModal', () => {
           fields: [
             {
               fieldPath: 'name',
+              mongoType: MongoDBFieldTypeValues.String,
               fakerMethod: 'person.firstName',
               fakerArgs: largeLengthArgs,
               isArray: false,
@@ -601,6 +611,7 @@ describe('MockDataGeneratorModal', () => {
             },
             {
               fieldPath: 'age',
+              mongoType: MongoDBFieldTypeValues.Int32,
               fakerMethod: 'number.int',
               fakerArgs: [
                 {
@@ -614,6 +625,7 @@ describe('MockDataGeneratorModal', () => {
             },
             {
               fieldPath: 'username',
+              mongoType: MongoDBFieldTypeValues.String,
               fakerMethod: 'string.alpha',
               // large string
               fakerArgs: ['a'.repeat(1001)],
@@ -622,6 +634,7 @@ describe('MockDataGeneratorModal', () => {
             },
             {
               fieldPath: 'avatar',
+              mongoType: MongoDBFieldTypeValues.String,
               fakerMethod: 'image.url',
               fakerArgs: [
                 {
