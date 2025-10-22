@@ -86,7 +86,7 @@ const ExportDiagramModal = ({
                 aria-label="Diagram File"
                 onClick={() => onSelectFormat('diagram')}
                 size="small"
-                description="Importable into Compass so teammates can collaborate."
+                description="Importable into Compass and Data Explorer so teammates can collaborate."
               >
                 Diagram File
               </Radio>
