@@ -43,6 +43,20 @@ type DiagramInstance = {
   getEdges: () => Array<Edge>;
 };
 
+async function doubleClickElement(
+  browser: CompassBrowser,
+  element: ChainablePromiseElement
+) {
+  await browser
+    .action('pointer')
+    .move({ origin: element })
+    .down({ button: 0 })
+    .up({ button: 0 })
+    .down({ button: 0 })
+    .up({ button: 0 })
+    .perform();
+}
+
 /**
  * Clicks on a specific element at the given coordinates.
  * element.click({ x: number, y: number }) doesn't work as expected,
@@ -912,11 +926,16 @@ describe('Data Modeling tab', function () {
 
       // Find the new field - 'field-1' and edit its name
       await closeDrawerIfOpen(browser);
+      console.log(
+        'DEBUG',
+        Selectors.DataModelDiagramField('field-1'),
+        Selectors.DataModelDiagramFieldInput
+      );
       const newField = testCollection1.$(
         Selectors.DataModelDiagramField('field-1')
       );
       await newField.waitForDisplayed();
-      await newField.doubleClick();
+      await doubleClickElement(browser, newField);
 
       const fieldNameInput = browser.$(Selectors.DataModelDiagramFieldInput);
       await fieldNameInput.waitForDisplayed();
