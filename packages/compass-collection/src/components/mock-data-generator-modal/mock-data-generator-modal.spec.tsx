@@ -101,7 +101,6 @@ describe('MockDataGeneratorModal', () => {
             fields: [
               {
                 fieldPath: 'name',
-                mongoType: 'String',
                 fakerMethod: 'person.firstName',
                 fakerArgs: [],
               },
@@ -330,25 +329,21 @@ describe('MockDataGeneratorModal', () => {
         fields: [
           {
             fieldPath: 'name',
-            mongoType: 'String',
             fakerMethod: 'person.firstName',
             fakerArgs: [],
           },
           {
             fieldPath: 'age',
-            mongoType: 'Int32',
             fakerMethod: 'number.int',
             fakerArgs: [],
           },
           {
             fieldPath: 'email',
-            mongoType: 'String',
             fakerMethod: 'internet',
             fakerArgs: [],
           },
           {
             fieldPath: 'username',
-            mongoType: 'String',
             fakerMethod: 'noSuchMethod',
             fakerArgs: [],
           },
@@ -443,7 +438,6 @@ describe('MockDataGeneratorModal', () => {
           fields: [
             {
               fieldPath: 'name',
-              mongoType: 'String',
               fakerMethod: 'person.firstName',
               fakerArgs: [],
               isArray: false,
@@ -451,7 +445,6 @@ describe('MockDataGeneratorModal', () => {
             },
             {
               fieldPath: 'email',
-              mongoType: 'String',
               fakerMethod: 'internet.email',
               fakerArgs: [],
               isArray: false,
@@ -481,7 +474,6 @@ describe('MockDataGeneratorModal', () => {
           fields: [
             {
               fieldPath: 'name',
-              mongoType: 'String',
               fakerMethod: 'person.firstName',
               fakerArgs: [],
               isArray: false,
@@ -489,7 +481,6 @@ describe('MockDataGeneratorModal', () => {
             },
             {
               fieldPath: 'age',
-              mongoType: 'Int32',
               fakerMethod: 'number.int',
               fakerArgs: [],
               isArray: false,
@@ -557,7 +548,6 @@ describe('MockDataGeneratorModal', () => {
           fields: [
             {
               fieldPath: 'name',
-              mongoType: 'String',
               fakerMethod: 'person.firstName',
               fakerArgs: largeLengthArgs,
               isArray: false,
@@ -565,7 +555,6 @@ describe('MockDataGeneratorModal', () => {
             },
             {
               fieldPath: 'age',
-              mongoType: 'Int32',
               fakerMethod: 'number.int',
               fakerArgs: [
                 {
@@ -579,7 +568,6 @@ describe('MockDataGeneratorModal', () => {
             },
             {
               fieldPath: 'username',
-              mongoType: 'String',
               fakerMethod: 'string.alpha',
               // large string
               fakerArgs: ['a'.repeat(1001)],
@@ -588,7 +576,6 @@ describe('MockDataGeneratorModal', () => {
             },
             {
               fieldPath: 'avatar',
-              mongoType: 'String',
               fakerMethod: 'image.url',
               fakerArgs: [
                 {
@@ -657,6 +644,7 @@ describe('MockDataGeneratorModal', () => {
     it('disables the Next button when the faker schema mapping is not confirmed', async () => {
       await renderModal({
         mockServices: mockServicesWithMockDataResponse,
+        schemaAnalysis: mockSchemaAnalysis,
       });
 
       // advance to the schema editor step
@@ -673,6 +661,7 @@ describe('MockDataGeneratorModal', () => {
     it('resets the confirm schema mapping state when the user clicks the back button then goes back to the schema editor step', async () => {
       await renderModal({
         mockServices: mockServicesWithMockDataResponse,
+        schemaAnalysis: mockSchemaAnalysis,
       });
 
       // advance to the schema editor step
@@ -709,6 +698,7 @@ describe('MockDataGeneratorModal', () => {
     it('preserves the confirm schema mapping state when the user clicks the next button then goes back to the schema editor step', async () => {
       await renderModal({
         mockServices: mockServicesWithMockDataResponse,
+        schemaAnalysis: mockSchemaAnalysis,
       });
 
       // advance to the schema editor step

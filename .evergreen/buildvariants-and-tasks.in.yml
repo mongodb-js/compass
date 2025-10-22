@@ -13,7 +13,7 @@ const UNIT_TESTS_BUILD_VARIANTS = [
   {
     name: 'unit-tests-rhel',
     display_name: 'Unit Tests RHEL',
-    run_on: 'rhel80-large',
+    run_on: 'rhel93-large',
   },
   {
     name: 'unit-tests-macos',
@@ -71,8 +71,8 @@ const TEST_PACKAGED_APP_BUILD_VARIANTS = [
   },
   {
     name: 'test-packaged-app-rhel',
-    display_name: 'RHEL 8.0',
-    run_on: 'rhel80-large',
+    display_name: 'RHEL 9.3',
+    run_on: 'rhel93-large',
     depends_on: 'package-rhel',
   },
   {
