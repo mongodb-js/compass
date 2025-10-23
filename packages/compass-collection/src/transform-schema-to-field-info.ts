@@ -248,6 +248,12 @@ function processNamedField(
     );
   }
 
+  if (field.name.endsWith('[]')) {
+    throw new ProcessSchemaUnsupportedStateError(
+      `no support for field names that end with '[]' ; field name: '${field.name}'`
+    );
+  }
+
   const currentPath = pathPrefix ? `${pathPrefix}.${field.name}` : field.name;
 
   // Process based on the type
