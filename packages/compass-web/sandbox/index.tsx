@@ -8,6 +8,7 @@ import {
 } from '@mongodb-js/compass-components';
 import { CompassWeb } from '../src/index';
 import { SandboxConnectionStorageProvider } from '../src/connection-storage';
+import './sandbox-process';
 import { sandboxLogger } from './sandbox-logger';
 import { sandboxTelemetry } from './sandbox-telemetry';
 import { useAtlasProxySignIn } from './sandbox-atlas-sign-in';
@@ -90,9 +91,6 @@ const App = () => {
     return { readOnly: true };
   })();
 
-  const overrideGenAIFeatures =
-    process.env.COMPASS_OVERRIDE_ENABLE_AI_FEATURES === 'true';
-
   return (
     <SandboxConnectionStorageProvider
       value={isAtlas ? null : sandboxConnectionStorage}
@@ -115,16 +113,12 @@ const App = () => {
               enableRollingIndexes: isAtlas,
               showDisabledConnections: true,
               enableGenAIFeaturesAtlasProject:
-                overrideGenAIFeatures ||
-                (isAtlas && !!enableGenAIFeaturesAtlasProject),
+                !isAtlas || !!enableGenAIFeaturesAtlasProject,
               enableGenAISampleDocumentPassing:
-                overrideGenAIFeatures ||
-                (isAtlas && !!enableGenAISampleDocumentPassing),
+                !isAtlas || !!enableGenAISampleDocumentPassing,
               enableGenAIFeaturesAtlasOrg:
-                overrideGenAIFeatures ||
-                (isAtlas && !!enableGenAIFeaturesAtlasOrg),
-              optInGenAIFeatures:
-                overrideGenAIFeatures || (isAtlas && !!optInGenAIFeatures),
+                !isAtlas || !!enableGenAIFeaturesAtlasOrg,
+              optInGenAIFeatures: isAtlas ? !!optInGenAIFeatures : false,
               enableDataModeling: true,
               enableMyQueries: false,
               ...groupRolePreferences,
