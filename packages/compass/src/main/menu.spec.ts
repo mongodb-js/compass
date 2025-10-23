@@ -9,6 +9,7 @@ import type { CompassApplication } from './application';
 import type { CompassMenu as _CompassMenu } from './menu';
 import { quitItem } from './menu';
 import { AutoUpdateManagerState } from './auto-update-manager';
+import { RendererDefinedMenuState } from '@mongodb-js/compass-electron-menu/ipc-provider-main';
 
 function serializable<T>(obj: T): T {
   try {
@@ -46,11 +47,12 @@ describe('CompassMenu', function () {
     const bw = new BrowserWindow({ show: false });
     App.emit('new-window', bw);
     expect(CompassMenu['windowState']).to.have.property('size', 1);
-    expect(CompassMenu['windowState'].get(bw.id)).to.deep.eq({
-      additionalMenus: [],
-      roleListeners: [],
-      updateManagerState: 'idle',
-    });
+    expect(serializable(CompassMenu['windowState'].get(bw.id))).to.deep.eq(
+      serializable({
+        rendererState: new RendererDefinedMenuState(ipcMain as any),
+        updateManagerState: 'idle',
+      })
+    );
   });
 
   it('should remove window from state when window is closed', function () {
@@ -78,27 +80,30 @@ describe('CompassMenu', function () {
   it('should change window state when window emits update-manager:new-state event', function () {
     const bw = new BrowserWindow({ show: false });
     App.emit('new-window', bw);
-    expect(CompassMenu['windowState'].get(bw.id)).to.deep.eq({
-      additionalMenus: [],
-      roleListeners: [],
-      updateManagerState: 'idle',
-    });
+    expect(serializable(CompassMenu['windowState'].get(bw.id))).to.deep.eq(
+      serializable({
+        rendererState: new RendererDefinedMenuState(ipcMain as any),
+        updateManagerState: 'idle',
+      })
+    );
     App.emit('auto-updater:new-state', AutoUpdateManagerState.PromptForRestart);
-    expect(CompassMenu['windowState'].get(bw.id)).to.deep.eq({
-      additionalMenus: [],
-      roleListeners: [],
-      updateManagerState: 'ready to restart',
-    });
+    expect(serializable(CompassMenu['windowState'].get(bw.id))).to.deep.eq(
+      serializable({
+        rendererState: new RendererDefinedMenuState(ipcMain as any),
+        updateManagerState: 'ready to restart',
+      })
+    );
     App.emit(
       'auto-updater:new-state',
       AutoUpdateManagerState.DownloadingUpdate
     );
 
-    expect(CompassMenu['windowState'].get(bw.id)).to.deep.eq({
-      additionalMenus: [],
-      roleListeners: [],
-      updateManagerState: 'installing updates',
-    });
+    expect(serializable(CompassMenu['windowState'].get(bw.id))).to.deep.eq(
+      serializable({
+        rendererState: new RendererDefinedMenuState(ipcMain as any),
+        updateManagerState: 'installing updates',
+      })
+    );
   });
 
   describe('getTemplate', function () {
@@ -358,7 +363,8 @@ describe('CompassMenu', function () {
     });
 
     it('should add menus requested from browser windows', function () {
-      CompassMenu['windowState'].set(0, {
+      const rendererState = new RendererDefinedMenuState({} as any);
+      Object.assign(rendererState, {
         additionalMenus: [
           {
             id: 'menu0',
@@ -372,6 +378,9 @@ describe('CompassMenu', function () {
           ['undo', 'id0'],
           ['redo', 'id1'],
         ],
+      });
+      CompassMenu['windowState'].set(0, {
+        rendererState,
         updateManagerState: 'idle',
       });
       expect(
@@ -436,19 +445,17 @@ describe('CompassMenu', function () {
             accelerator: 'CmdOrCtrl+F',
             label: 'Find',
           },
-          [
-            ...(process.platform === 'darwin'
-              ? []
-              : [
-                  {
-                    type: 'separator',
-                  },
-                  {
-                    accelerator: 'CmdOrCtrl+,',
-                    label: '&Settings',
-                  },
-                ]),
-          ],
+          ...(process.platform === 'darwin'
+            ? []
+            : [
+                {
+                  type: 'separator',
+                },
+                {
+                  accelerator: 'CmdOrCtrl+,',
+                  label: '&Settings',
+                },
+              ]),
         ],
       });
     });

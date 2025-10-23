@@ -1,7 +1,5 @@
-import {
-  transformAppMenu,
-  type CompassAppMenu,
-} from '@mongodb-js/compass-workspaces/application-menu';
+import { RendererDefinedMenuState } from '@mongodb-js/compass-electron-menu/ipc-provider-main';
+import { type CompassAppMenu } from '@mongodb-js/compass-electron-menu';
 import {
   BrowserWindow,
   Menu,
@@ -28,41 +26,6 @@ type MenuTemplate = CompassAppMenu | CompassAppMenu[];
 const debug = createDebug('mongodb-compass:menu');
 
 const COMPASS_HELP = 'https://docs.mongodb.com/compass/';
-
-function translateHandlerIdsToCalls(
-  menu: CompassAppMenu<string>
-): CompassAppMenu {
-  return transformAppMenu(menu, (item) => {
-    const id = item.click;
-    if (!id) return { ...item, click: undefined };
-    return {
-      ...item,
-      click: () =>
-        ipcMain?.broadcastFocused('application-menu:invoke-handler', { id }),
-    };
-  });
-}
-
-function translateRoles(
-  menu: CompassAppMenu,
-  state: WindowMenuState
-): CompassAppMenu {
-  return transformAppMenu(menu, (item) => {
-    if (!item.role) return item;
-
-    const listener = state.roleListeners.find(([role]) => role === item.role);
-    if (!listener) return item;
-    const id = listener[1];
-    return {
-      ...item,
-      role: undefined,
-      click: () =>
-        ipcMain?.broadcastFocused('application-menu:invoke-handler', {
-          id,
-        }),
-    };
-  });
-}
 
 function separator(): MenuItemConstructorOptions {
   return {
@@ -458,39 +421,36 @@ function darwinMenu(
   menuState: WindowMenuState,
   app: typeof CompassApplication
 ): MenuItemConstructorOptions[] {
-  return [
+  return menuState.rendererState.translateRoles([
     darwinCompassSubMenu(menuState, app),
     connectSubMenu(false, app),
     editSubMenu(),
     viewSubMenu(app),
-    ...menuState.additionalMenus.map(({ menu }) =>
-      translateHandlerIdsToCalls(menu)
-    ),
+    ...menuState.rendererState.menus(),
     windowSubMenu(app),
     helpSubMenu(menuState, app),
-  ].map((menu) => translateRoles(menu, menuState));
+  ]);
 }
 
 function nonDarwinMenu(
   menuState: WindowMenuState,
   app: typeof CompassApplication
 ): MenuItemConstructorOptions[] {
-  return [
+  return menuState.rendererState.translateRoles([
     connectSubMenu(true, app),
     editSubMenu(),
     viewSubMenu(app),
-    ...menuState.additionalMenus.map(({ menu }) =>
-      translateHandlerIdsToCalls(menu)
-    ),
+    ...menuState.rendererState.menus(),
     helpSubMenu(menuState, app),
-  ].map((menu) => translateRoles(menu, menuState));
+  ]);
 }
 
 type UpdateManagerState = 'idle' | 'installing updates' | 'ready to restart';
 
 class WindowMenuState {
-  roleListeners: [MenuItemConstructorOptions['role'], string][] = [];
-  additionalMenus: { id: string; menu: CompassAppMenu<string> }[] = [];
+  rendererState: RendererDefinedMenuState = new RendererDefinedMenuState(
+    ipcMain
+  );
   updateManagerState: UpdateManagerState = 'idle';
 }
 
@@ -534,8 +494,11 @@ class CompassMenu {
     });
 
     ipcMain?.respondTo({
-      'application-menu:modify-application-menu':
-        this.modifyApplicationMenuHandler.bind(this),
+      [RendererDefinedMenuState.modifyApplicationMenuIpcEvent]: (ev, params) =>
+        this.updateMenu((state) => ({
+          rendererState:
+            state.rendererState.modifyApplicationMenuHandler(params),
+        })),
     });
 
     preferences.onPreferenceValueChanged('theme', (newTheme: THEMES) => {
@@ -655,10 +618,11 @@ class CompassMenu {
       menuState = new WindowMenuState();
     }
 
-    if (process.platform === 'darwin') {
-      return darwinMenu(menuState, this.app);
-    }
-    return nonDarwinMenu(menuState, this.app);
+    const menu =
+      process.platform === 'darwin'
+        ? darwinMenu(menuState, this.app)
+        : nonDarwinMenu(menuState, this.app);
+    return menuState.rendererState.translateRoles(menu);
   }
 
   private static refreshMenu = () => {
@@ -676,37 +640,6 @@ class CompassMenu {
     const menu = Menu.buildFromTemplate(template);
     Menu.setApplicationMenu(menu);
   };
-
-  private static modifyApplicationMenuHandler(
-    evt: unknown,
-    {
-      id,
-      menu,
-      role,
-    }: {
-      id: string;
-      menu?: CompassAppMenu<string>;
-      role?: MenuItemConstructorOptions['role'];
-    }
-  ) {
-    this.updateMenu(({ ...state }) => {
-      if (menu) {
-        state.additionalMenus.push({ id, menu });
-      } else {
-        state.additionalMenus = state.additionalMenus.filter(
-          (m) => m.id !== id
-        );
-      }
-      if (role) {
-        state.roleListeners.push([role, id]);
-      } else {
-        state.roleListeners = state.roleListeners.filter(
-          ([, listenerId]) => listenerId !== id
-        );
-      }
-      return state;
-    });
-  }
 
   private static updateMenu(
     newValues: (state: WindowMenuState) => Partial<WindowMenuState>,

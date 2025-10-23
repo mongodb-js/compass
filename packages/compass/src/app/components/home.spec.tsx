@@ -49,6 +49,10 @@ const HOME_PROPS = {
   getAutoConnectInfo: () => Promise.resolve(undefined),
   showWelcomeModal: false,
   connectionStorage: new InMemoryConnectionStorage(),
+  applicationMenuProvider: {
+    showApplicationMenu: () => () => {},
+    handleMenuRole: () => () => {},
+  },
 } as const;
 
 describe('Home [Component]', function () {

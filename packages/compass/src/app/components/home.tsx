@@ -35,8 +35,8 @@ import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import { usePreference } from 'compass-preferences-model/provider';
 import { CompassAssistantProvider } from '@mongodb-js/compass-assistant';
 import { APP_NAMES_FOR_PROMPT } from '@mongodb-js/compass-assistant';
-import type { ApplicationMenuProvider } from '@mongodb-js/compass-workspaces/application-menu';
-import { ApplicationMenuContextProvider } from '@mongodb-js/compass-workspaces/application-menu';
+import type { ApplicationMenuProvider } from '@mongodb-js/compass-electron-menu';
+import { ApplicationMenuContextProvider } from '@mongodb-js/compass-electron-menu';
 
 resetGlobalCSS();
 

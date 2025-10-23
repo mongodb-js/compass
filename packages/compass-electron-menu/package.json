@@ -1,17 +1,19 @@
 {
-  "name": "@mongodb-js/compass-workspaces",
-  "description": "Compass plugin responsible for rendering and managing state of current namespace / workspace",
+  "name": "@mongodb-js/compass-electron-menu",
+  "description": "Provide access to the Electron application menu",
   "author": {
     "name": "MongoDB Inc",
     "email": "compass@mongodb.com"
   },
-  "private": true,
+  "publishConfig": {
+    "access": "public"
+  },
   "bugs": {
     "url": "https://jira.mongodb.org/projects/COMPASS/issues",
     "email": "compass@mongodb.com"
   },
   "homepage": "https://github.com/mongodb-js/compass",
-  "version": "0.64.0",
+  "version": "0.1.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/compass.git"
@@ -24,17 +26,19 @@
   "compass:main": "src/index.ts",
   "exports": {
     ".": "./dist/index.js",
-    "./provider": "./dist/provider.js"
+    "./ipc-provider-main": "./dist/ipc-provider-main.js",
+    "./ipc-provider-renderer": "./dist/ipc-provider-renderer.js"
   },
   "compass:exports": {
     ".": "./src/index.ts",
-    "./provider": "./src/provider.tsx"
+    "./ipc-provider-main": "./src/ipc-provider-main.ts",
+    "./ipc-provider-renderer": "./src/ipc-provider-renderer.ts"
   },
   "types": "./dist/index.d.ts",
   "scripts": {
     "bootstrap": "npm run compile",
-    "compile": "tsc -p tsconfig-build.json",
-    "start": "npm run webpack serve -- --mode development",
+    "prepublishOnly": "npm run compile && compass-scripts check-exports-exist",
+    "compile": "tsc -p tsconfig-build.json && gen-esm-wrapper . ./dist/.esm-wrapper.mjs",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "eslint": "eslint-compass",
     "prettier": "prettier-compass",
@@ -43,29 +47,15 @@
     "check": "npm run typecheck && npm run lint && npm run depcheck",
     "check-ci": "npm run check",
     "test": "mocha",
-    "test-electron": "xvfb-maybe electron-mocha --no-sandbox",
     "test-cov": "nyc --compact=false --produce-source-map=false -x \"**/*.spec.*\" --reporter=lcov --reporter=text --reporter=html npm run test",
     "test-watch": "npm run test -- --watch",
     "test-ci": "npm run test-cov",
-    "test-ci-electron": "npm run test-electron",
     "reformat": "npm run eslint . -- --fix && npm run prettier -- --write ."
   },
   "dependencies": {
-    "@mongodb-js/compass-app-registry": "^9.4.27",
-    "@mongodb-js/compass-app-stores": "^7.69.0",
-    "@mongodb-js/compass-components": "^1.56.0",
-    "@mongodb-js/compass-connections": "^1.83.0",
-    "@mongodb-js/compass-logging": "^1.7.22",
     "bson": "^6.10.4",
-    "compass-preferences-model": "^2.62.0",
-    "lodash": "^4.17.21",
-    "mongodb-collection-model": "^5.35.4",
-    "mongodb-database-model": "^2.35.4",
-    "mongodb-ns": "^3.0.1",
-    "react": "^17.0.2",
-    "react-redux": "^8.1.3",
-    "redux": "^4.2.1",
-    "redux-thunk": "^2.4.2"
+    "debug": "^4.3.4",
+    "react": "^17.0.2"
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-compass": "^1.4.12",
@@ -80,14 +70,12 @@
     "@types/react-dom": "^17.0.10",
     "@types/sinon-chai": "^3.2.5",
     "chai": "^4.3.6",
+    "electron": "^37.6.1",
     "depcheck": "^1.4.1",
-    "electron-mocha": "^12.2.0",
+    "gen-esm-wrapper": "^1.1.0",
     "mocha": "^10.2.0",
     "nyc": "^15.1.0",
-    "react-dom": "^17.0.2",
     "sinon": "^17.0.1",
-    "typescript": "^5.9.3",
-    "xvfb-maybe": "^0.2.1"
-  },
-  "is_compass_plugin": true
+    "typescript": "^5.9.3"
+  }
 }

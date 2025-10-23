@@ -19,7 +19,7 @@ import {
   useConnectionSupports,
 } from '@mongodb-js/compass-connections/provider';
 import { usePreference } from 'compass-preferences-model/provider';
-import { useApplicationMenu } from '@mongodb-js/compass-workspaces/application-menu';
+import { useApplicationMenu } from '@mongodb-js/compass-electron-menu';
 import {
   useGlobalAppRegistry,
   useLocalAppRegistry,

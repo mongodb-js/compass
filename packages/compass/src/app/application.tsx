@@ -1,6 +1,6 @@
-import { ipcRenderer, type HadronIpcRenderer } from 'hadron-ipc';
+import { ipcRenderer } from 'hadron-ipc';
 import * as remote from '@electron/remote';
-import { webUtils, webFrame, type MenuItemConstructorOptions } from 'electron';
+import { webUtils, webFrame } from 'electron';
 import { globalAppRegistry } from '@mongodb-js/compass-app-registry';
 import { defaultPreferencesInstance } from 'compass-preferences-model';
 import semver from 'semver';
@@ -27,94 +27,21 @@ import {
   onAutoupdateStarted,
   onAutoupdateSuccess,
 } from './components/update-toasts';
-import { UUID } from 'bson';
 
 import { createElectronFileInputBackend } from '@mongodb-js/compass-components';
 import { CompassRendererConnectionStorage } from '@mongodb-js/connection-storage/renderer';
 import type { SettingsTabId } from '@mongodb-js/compass-settings';
 import type { AutoConnectPreferences } from '../main/auto-connect';
 
-const { log, mongoLogId, debug } = createLogger('COMPASS-APP');
+const { log, mongoLogId } = createLogger('COMPASS-APP');
 const track = createIpcTrack();
 
 import './index.less';
 import 'source-code-pro/source-code-pro.css';
-import {
-  transformAppMenu,
-  type ApplicationMenuProvider,
-  type CompassAppMenu,
-} from '@mongodb-js/compass-workspaces/application-menu';
+import type { ApplicationMenuProvider } from '@mongodb-js/compass-electron-menu';
+import { ApplicationMenu } from '@mongodb-js/compass-electron-menu/ipc-provider-renderer';
 
 const DEFAULT_APP_VERSION = '0.0.0';
-
-function translateCallsToHandlerIds(
-  menu: CompassAppMenu
-): [CompassAppMenu<string>, Map<string, () => void>] {
-  const handlerIds = new Map<string, () => void>();
-  const transformedMenu = transformAppMenu(menu, (item) => {
-    if (!item.click) return { ...item, click: undefined };
-    const id = new UUID().toString();
-    handlerIds.set(id, item.click);
-    return { ...item, click: id };
-  });
-  return [transformedMenu, handlerIds];
-}
-
-class ApplicationMenu implements ApplicationMenuProvider {
-  handlers = new Map<string, () => void>();
-  ipcRenderer: HadronIpcRenderer | undefined;
-
-  constructor(ipcRenderer: HadronIpcRenderer | undefined) {
-    this.ipcRenderer = ipcRenderer;
-    this.ipcRenderer?.on(
-      'application-menu:invoke-handler',
-      (event, { id }: { id: string }) => {
-        const handler = this.handlers.get(id);
-        if (!handler) debug('No handler found for menu item id', id);
-        handler?.();
-      }
-    );
-  }
-
-  showApplicationMenu = (menu: CompassAppMenu): (() => void) => {
-    const id = new UUID().toString();
-    const [translatedMenu, handlers] = translateCallsToHandlerIds(menu);
-    for (const [handlerId, handler] of handlers.entries()) {
-      this.handlers.set(handlerId, handler);
-    }
-    void this.ipcRenderer?.call('application-menu:modify-application-menu', {
-      id,
-      menu: translatedMenu,
-    });
-    return () => {
-      void this.ipcRenderer?.call('application-menu:modify-application-menu', {
-        id,
-        menu: undefined,
-      });
-      for (const handlerId of handlers.keys()) {
-        this.handlers.delete(handlerId);
-      }
-    };
-  };
-
-  handleMenuRole = (
-    role: MenuItemConstructorOptions['role'],
-    handler: () => void
-  ): (() => void) => {
-    const id = new UUID().toString();
-    this.handlers.set(id, handler);
-    void this.ipcRenderer?.call('application-menu:modify-application-menu', {
-      id,
-      role,
-    });
-    return () => {
-      void this.ipcRenderer?.call('application-menu:modify-application-menu', {
-        id,
-      });
-      this.handlers.delete(id);
-    };
-  };
-}
 
 class Application {
   private static instance: Application | null = null;
