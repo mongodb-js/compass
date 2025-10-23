@@ -244,13 +244,13 @@ function processNamedField(
 
   if (field.name.includes(FIELD_NAME_SEPARATOR)) {
     throw new ProcessSchemaUnsupportedStateError(
-      `no support for field names that contain a '${FIELD_NAME_SEPARATOR}' ; field name: '${field.name}'`
+      `Feature is unsupported for field names that contain a '${FIELD_NAME_SEPARATOR}'; field name: '${field.name}'`
     );
   }
 
   if (field.name.endsWith('[]')) {
     throw new ProcessSchemaUnsupportedStateError(
-      `no support for field names that end with '[]'; field name: '${field.name}'`
+      `Feature is unsupported for field names that end with '[]'; field name: '${field.name}'`
     );
   }
 

@@ -1345,7 +1345,7 @@ describe('processSchema', function () {
 
       expect(() => processSchema(schema)).to.throw(
         ProcessSchemaUnsupportedStateError,
-        "no support for field names that end with '[]'; field name: '[]'"
+        "Feature is unsupported for field names that end with '[]'; field name: '[]'"
       );
     });
 
@@ -1376,7 +1376,7 @@ describe('processSchema', function () {
 
       expect(() => processSchema(schema)).to.throw(
         ProcessSchemaUnsupportedStateError,
-        "no support for field names that end with '[]'; field name: 'users[]'"
+        "Feature is unsupported for field names that end with '[]'; field name: 'users[]'"
       );
     });
 
@@ -1426,7 +1426,7 @@ describe('processSchema', function () {
 
       expect(() => processSchema(schema)).to.throw(
         ProcessSchemaUnsupportedStateError,
-        "no support for field names that end with '[]'; field name: 'child[]'"
+        "Feature is unsupported for field names that end with '[]'; field name: 'child[]'"
       );
     });
 
@@ -1457,7 +1457,7 @@ describe('processSchema', function () {
 
       expect(() => processSchema(schema)).to.throw(
         ProcessSchemaUnsupportedStateError,
-        "no support for field names that contain a '.' ; field name: 'user.name'"
+        "Feature is unsupported for field names that contain a '.'; field name: 'user.name'"
       );
     });
   });
