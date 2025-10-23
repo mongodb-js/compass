@@ -21,27 +21,29 @@ const ATLAS_USER = {
 
 const BASE_URL = 'http://example.com';
 
-const mockConnectionInfo: ConnectionInfo = {
-  id: 'TEST',
-  connectionOptions: {
-    connectionString: 'mongodb://localhost:27020',
-  },
-  atlasMetadata: {
-    orgId: 'testOrg',
-    projectId: 'testProject',
-    clusterName: 'pineapple',
-    regionalBaseUrl: null,
-    metricsId: 'metricsId',
-    metricsType: 'replicaSet',
-    instanceSize: 'M10',
-    clusterType: 'REPLICASET',
-    clusterUniqueId: 'clusterUniqueId',
-    clusterState: 'IDLE',
-    supports: {
-      globalWrites: false,
-      rollingIndexes: false,
+const getMockConnectionInfo = (): ConnectionInfo => {
+  return {
+    id: 'TEST',
+    connectionOptions: {
+      connectionString: 'mongodb://localhost:27020',
     },
-  },
+    atlasMetadata: {
+      orgId: 'testOrg',
+      projectId: 'testProject',
+      clusterName: 'pineapple',
+      regionalBaseUrl: null,
+      metricsId: 'metricsId',
+      metricsType: 'replicaSet',
+      instanceSize: 'M10',
+      clusterType: 'REPLICASET',
+      clusterUniqueId: 'clusterUniqueId',
+      clusterState: 'IDLE',
+      supports: {
+        globalWrites: false,
+        rollingIndexes: false,
+      },
+    },
+  };
 };
 
 class MockAtlasService {
@@ -103,8 +105,18 @@ describe('AtlasAiService', function () {
   ] as const;
 
   for (const { apiURLPreset, expectedEndpoints } of endpointBasepathTests) {
-    describe(`api URL Preset "${apiURLPreset}"`, function () {
+    const describeName =
+      apiURLPreset === 'admin-api'
+        ? 'connection WITHOUT atlas metadata'
+        : 'connection WITH atlas metadata';
+    describe(describeName, function () {
       let atlasAiService: AtlasAiService;
+
+      const mockConnectionInfo = getMockConnectionInfo();
+
+      if (apiURLPreset === 'admin-api') {
+        delete mockConnectionInfo.atlasMetadata;
+      }
 
       beforeEach(function () {
         const mockAtlasService = new MockAtlasService();
@@ -571,26 +583,6 @@ describe('AtlasAiService', function () {
             );
             expect(requestBody).to.have.property('databaseName', 'test-db');
             expect(requestBody).to.have.property('schema');
-          });
-
-          it('throws AtlasAiServiceInvalidInputError when connection info lacks atlas metadata', async function () {
-            const connectionInfoWithoutAtlas = {
-              ...mockConnectionInfo,
-              atlasMetadata: undefined,
-            };
-
-            try {
-              await atlasAiService.getMockDataSchema(
-                mockSchemaInput,
-                connectionInfoWithoutAtlas as any
-              );
-              expect.fail('Expected getMockDataSchema to throw');
-            } catch (err) {
-              expect(err).to.be.instanceOf(AtlasAiServiceInvalidInputError);
-              expect((err as Error).message).to.match(
-                /atlasMetadata is not available/i
-              );
-            }
           });
 
           it('throws AtlasAiServiceApiResponseParseError when API response has invalid format', async function () {
