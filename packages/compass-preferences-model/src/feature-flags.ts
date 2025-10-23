@@ -132,7 +132,7 @@ export const FEATURE_FLAG_DEFINITIONS = [
    */
   {
     name: 'enableDataModeling',
-    stage: 'development',
+    stage: 'released',
     atlasCloudFeatureFlagName: 'DATA_EXPLORER_COMPASS_WEB_ENABLE_DATA_MODELING',
     description: {
       short: 'Design, Visualize, and Evolve your Data Model',
