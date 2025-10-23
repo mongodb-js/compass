@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { connect } from 'react-redux';
 import {
   Banner,
@@ -22,7 +22,11 @@ import { DataGenerationStep, type FakerSchema } from './types';
 import type { ArrayLengthMap } from './script-generation-utils';
 import type { CollectionState } from '../../modules/collection-tab';
 import { SCHEMA_ANALYSIS_STATE_COMPLETE } from '../../schema-analysis-types';
-import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
+import {
+  type TrackFunction,
+  useTelemetry,
+  useTrackOnChange,
+} from '@mongodb-js/compass-telemetry/provider';
 
 const RUN_SCRIPT_COMMAND = `
 mongosh "mongodb+srv://<your-cluster>.mongodb.net/<your-database>" \\
@@ -123,14 +127,17 @@ const ScriptScreen = ({
     [track]
   );
 
-  useEffect(() => {
-    if (scriptResult.success && fakerSchema) {
-      track('Mock Data Script Generated', {
-        field_count: Object.keys(fakerSchema).length,
-        output_docs_count: documentCount,
-      });
-    }
-  }, [scriptResult.success, fakerSchema, documentCount, track]);
+  useTrackOnChange(
+    (track: TrackFunction) => {
+      if (scriptResult.success && fakerSchema) {
+        track('Mock Data Script Generated', {
+          field_count: Object.keys(fakerSchema).length,
+          output_docs_count: documentCount,
+        });
+      }
+    },
+    [scriptResult.success, fakerSchema, documentCount]
+  );
 
   return (
     <section className={outerSectionStyles}>

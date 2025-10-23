@@ -3158,6 +3158,35 @@ type ContextMenuItemClicked = CommonEvent<{
   };
 }>;
 
+// Types for the Mock Data Generator events
+type MockDataGeneratorScreen =
+  | 'SCHEMA_CONFIRMATION'
+  | 'SCHEMA_EDITOR'
+  | 'DOCUMENT_COUNT'
+  | 'PREVIEW_DATA'
+  | 'GENERATE_DATA';
+type MongoDBJsonFieldType =
+  | 'String'
+  | 'Number'
+  | 'Boolean'
+  | 'Date'
+  | 'Int32'
+  | 'Decimal128'
+  | 'Long'
+  | 'ObjectId'
+  | 'RegExp'
+  | 'Symbol'
+  | 'MaxKey'
+  | 'MinKey'
+  | 'Binary'
+  | 'Code'
+  | 'Timestamp'
+  | 'DBRef';
+type MockDataScriptStep =
+  | 'install fakerjs'
+  | 'create js file'
+  | 'mongosh script';
+
 /**
  * This event is fired when the Mock Data Generator CTA button is viewed.
  *
@@ -3193,12 +3222,7 @@ type MockDataGeneratorOpenedEvent = CommonEvent<{
 type MockDataGeneratorScreenViewedEvent = CommonEvent<{
   name: 'Mock Data Generator Screen Viewed';
   payload: {
-    screen:
-      | 'SCHEMA_CONFIRMATION'
-      | 'SCHEMA_EDITOR'
-      | 'DOCUMENT_COUNT'
-      | 'PREVIEW_DATA'
-      | 'GENERATE_DATA';
+    screen: MockDataGeneratorScreen;
   };
 }>;
 
@@ -3210,19 +3234,8 @@ type MockDataGeneratorScreenViewedEvent = CommonEvent<{
 type MockDataGeneratorScreenProceededEvent = CommonEvent<{
   name: 'Mock Data Generator Screen Proceeded';
   payload: {
-    from_screen:
-      | 'SCHEMA_CONFIRMATION'
-      | 'SCHEMA_EDITOR'
-      | 'DOCUMENT_COUNT'
-      | 'PREVIEW_DATA'
-      | 'GENERATE_DATA';
-    to_screen:
-      | 'SCHEMA_CONFIRMATION'
-      | 'SCHEMA_EDITOR'
-      | 'DOCUMENT_COUNT'
-      | 'PREVIEW_DATA'
-      | 'GENERATE_DATA'
-      | 'finish';
+    from_screen: MockDataGeneratorScreen;
+    to_screen: MockDataGeneratorScreen | 'finish';
   };
 }>;
 
@@ -3234,12 +3247,7 @@ type MockDataGeneratorScreenProceededEvent = CommonEvent<{
 type MockDataGeneratorDismissedEvent = CommonEvent<{
   name: 'Mock Data Generator Dismissed';
   payload: {
-    screen:
-      | 'SCHEMA_CONFIRMATION'
-      | 'SCHEMA_EDITOR'
-      | 'DOCUMENT_COUNT'
-      | 'PREVIEW_DATA'
-      | 'GENERATE_DATA';
+    screen: MockDataGeneratorScreen;
     gen_ai_features_enabled: boolean;
     send_sample_values_enabled: boolean;
   };
@@ -3254,40 +3262,8 @@ type MockDataJsonTypeChangedEvent = CommonEvent<{
   name: 'Mock Data JSON Type Changed';
   payload: {
     field_name: string;
-    previous_json_type:
-      | 'String'
-      | 'Number'
-      | 'Boolean'
-      | 'Date'
-      | 'Int32'
-      | 'Decimal128'
-      | 'Long'
-      | 'ObjectId'
-      | 'RegExp'
-      | 'Symbol'
-      | 'MaxKey'
-      | 'MinKey'
-      | 'Binary'
-      | 'Code'
-      | 'Timestamp'
-      | 'DBRef';
-    new_json_type:
-      | 'String'
-      | 'Number'
-      | 'Boolean'
-      | 'Date'
-      | 'Int32'
-      | 'Decimal128'
-      | 'Long'
-      | 'ObjectId'
-      | 'RegExp'
-      | 'Symbol'
-      | 'MaxKey'
-      | 'MinKey'
-      | 'Binary'
-      | 'Code'
-      | 'Timestamp'
-      | 'DBRef';
+    previous_json_type: MongoDBJsonFieldType;
+    new_json_type: MongoDBJsonFieldType;
     previous_faker_method: string;
     new_faker_method: string;
   };
@@ -3302,23 +3278,7 @@ type MockDataFakerMethodChangedEvent = CommonEvent<{
   name: 'Mock Data Faker Method Changed';
   payload: {
     field_name: string;
-    json_type:
-      | 'String'
-      | 'Number'
-      | 'Boolean'
-      | 'Date'
-      | 'Int32'
-      | 'Decimal128'
-      | 'Long'
-      | 'ObjectId'
-      | 'RegExp'
-      | 'Symbol'
-      | 'MaxKey'
-      | 'MinKey'
-      | 'Binary'
-      | 'Code'
-      | 'Timestamp'
-      | 'DBRef';
+    json_type: MongoDBJsonFieldType;
     previous_faker_method: string;
     new_faker_method: string;
   };
@@ -3357,7 +3317,7 @@ type MockDataScriptGeneratedEvent = CommonEvent<{
 type MockDataScriptCopiedEvent = CommonEvent<{
   name: 'Mock Data Script Copied';
   payload: {
-    step: 'install fakerjs' | 'create js file' | 'mongosh script';
+    step: MockDataScriptStep;
   };
 }>;
 
