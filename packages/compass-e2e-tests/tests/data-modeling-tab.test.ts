@@ -538,11 +538,12 @@ describe('Data Modeling tab', function () {
 
     it('exports the data model to compass format and imports it back', async function () {
       const dataModelName = 'Test Export Model - Save-Open';
+      const databaseName = 'test';
       exportFileName = `${dataModelName}.mdm`;
       await setupDiagram(browser, {
         diagramName: dataModelName,
         connectionName: DEFAULT_CONNECTION_NAME_1,
-        databaseName: 'test',
+        databaseName,
       });
 
       const dataModelEditor = browser.$(Selectors.DataModelEditor);
@@ -573,6 +574,7 @@ describe('Data Modeling tab', function () {
       const model = JSON.parse(content);
 
       expect(model.name).to.equal(dataModelName);
+      expect(model.database).to.equal(databaseName);
 
       const edits = JSON.parse(
         Buffer.from(model.edits, 'base64').toString('utf-8')

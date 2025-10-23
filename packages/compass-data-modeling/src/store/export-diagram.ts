@@ -129,7 +129,7 @@ export function exportDiagram(
           cancelController.signal
         );
       } else if (exportFormat === 'diagram') {
-        downloadDiagram(diagram.name, diagram.edits.current);
+        downloadDiagram(diagram.name, diagram.edits.current, diagram.database);
       } else {
         throw new Error(`Unsupported export format: ${exportFormat}`);
       }
