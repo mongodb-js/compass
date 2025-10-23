@@ -10,7 +10,7 @@ import React, { useMemo } from 'react';
 import { connect } from 'react-redux';
 import type { CollectionState } from '../../modules/collection-tab';
 import type { SchemaAnalysisState } from '../../schema-analysis-types';
-import { DEFAULT_DOCUMENT_COUNT, MAX_DOCUMENT_COUNT } from './constants';
+import { MAX_DOCUMENT_COUNT } from './constants';
 
 const BYTE_PRECISION_THRESHOLD = 1000;
 
@@ -108,8 +108,6 @@ const DocumentCountScreen = ({
       </Body>
       <Body className={descriptionStyles}>
         Indicate the amount of documents you want to generate below.
-        <br />
-        Note: We have defaulted to {DEFAULT_DOCUMENT_COUNT}.
       </Body>
       <div className={inputContainerStyles}>
         <TextInput

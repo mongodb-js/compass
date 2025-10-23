@@ -742,7 +742,6 @@ describe('MockDataGeneratorModal', () => {
           /Indicate the amount of documents you want to generate below./
         )
       ).to.exist;
-      expect(screen.getByText(/Note: We have defaulted to 1000./)).to.exist;
     });
 
     it('displays the default document count when the user does not enter a document count', async () => {
