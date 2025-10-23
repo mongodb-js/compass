@@ -83,10 +83,9 @@ const DocumentCountScreen = ({
   );
 
   const isInputEmpty = documentCount.trim() === '';
-  const isInputInvalid = isInputEmpty || isNaN(documentCountNumber);
+  const isInputInvalid = isNaN(documentCountNumber);
   const isOutOfRange =
-    !isInputInvalid &&
-    (documentCountNumber < 1 || documentCountNumber > MAX_DOCUMENT_COUNT);
+    documentCountNumber < 1 || documentCountNumber > MAX_DOCUMENT_COUNT;
 
   const errorState: ErrorState = useMemo(() => {
     if (isInputEmpty) {
