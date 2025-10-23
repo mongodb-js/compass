@@ -334,7 +334,7 @@ export function createDefaultChat({
     transport: Chat<AssistantMessage>['transport'];
   };
 }): Chat<AssistantMessage> {
-  const initialBaseUrl = atlasService.assistantApiEndpoint();
+  const initialBaseUrl = 'http://PLACEHOLDER_BASE_URL_TO_BE_REPLACED.invalid';
   return new Chat({
     transport:
       options?.transport ??
