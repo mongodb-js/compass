@@ -1345,7 +1345,7 @@ describe('processSchema', function () {
 
       expect(() => processSchema(schema)).to.throw(
         ProcessSchemaUnsupportedStateError,
-        "no support for field names that end with '[]' ; field name: '[]'"
+        "no support for field names that end with '[]'; field name: '[]'"
       );
     });
 
@@ -1376,7 +1376,7 @@ describe('processSchema', function () {
 
       expect(() => processSchema(schema)).to.throw(
         ProcessSchemaUnsupportedStateError,
-        "no support for field names that end with '[]' ; field name: 'users[]'"
+        "no support for field names that end with '[]'; field name: 'users[]'"
       );
     });
 
@@ -1426,7 +1426,7 @@ describe('processSchema', function () {
 
       expect(() => processSchema(schema)).to.throw(
         ProcessSchemaUnsupportedStateError,
-        "no support for field names that end with '[]' ; field name: 'child[]'"
+        "no support for field names that end with '[]'; field name: 'child[]'"
       );
     });
 

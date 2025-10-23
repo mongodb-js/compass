@@ -250,7 +250,7 @@ function processNamedField(
 
   if (field.name.endsWith('[]')) {
     throw new ProcessSchemaUnsupportedStateError(
-      `no support for field names that end with '[]' ; field name: '${field.name}'`
+      `no support for field names that end with '[]'; field name: '${field.name}'`
     );
   }
 
