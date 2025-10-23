@@ -77,6 +77,7 @@ const mockAtlasConnectionInfo = {
         globalWrites: false,
         rollingIndexes: true,
       },
+      userConnectionString: 'mongodb+srv://localhost:27017',
     },
   },
 };
