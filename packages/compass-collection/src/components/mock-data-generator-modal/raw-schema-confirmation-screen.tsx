@@ -46,6 +46,7 @@ const descriptionStyles = css({
 
 const errorBannerStyles = css({
   marginTop: spacing[400],
+  marginBottom: spacing[400],
 });
 
 const errorBannerTextStyles = css({
@@ -77,6 +78,16 @@ const RawSchemaConfirmationScreen = ({
             {subtitleText}
           </Body>
           <Body className={descriptionStyles}>{descriptionText}</Body>
+          {fakerSchemaGenerationStatus === 'error' && (
+            <Banner
+              variant={BannerVariant.Danger}
+              className={errorBannerStyles}
+            >
+              <Body className={errorBannerTextStyles}>
+                LLM Request failed. Please confirm again.
+              </Body>
+            </Banner>
+          )}
           <div
             className={cx(
               documentContainerStyles,
@@ -95,16 +106,6 @@ const RawSchemaConfirmationScreen = ({
               }
             />
           </div>
-          {fakerSchemaGenerationStatus === 'error' && (
-            <Banner
-              variant={BannerVariant.Danger}
-              className={errorBannerStyles}
-            >
-              <Body className={errorBannerTextStyles}>
-                LLM Request failed. Please confirm again.
-              </Body>
-            </Banner>
-          )}
         </>
       ) : (
         // Not reachable since schema analysis must be finished before the modal can be opened

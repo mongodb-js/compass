@@ -82,7 +82,7 @@ interface ScriptScreenProps {
   fakerSchema: FakerSchema | null;
   namespace: string;
   arrayLengthMap: ArrayLengthMap;
-  documentCount: number;
+  documentCount: string;
 }
 
 const ScriptScreen = ({
@@ -111,7 +111,7 @@ const ScriptScreen = ({
     }
 
     return generateScript(fakerSchema, {
-      documentCount,
+      documentCount: parseInt(documentCount, 10) || 1000,
       databaseName: database,
       collectionName: collection,
       arrayLengthMap,
@@ -220,7 +220,12 @@ const ScriptScreen = ({
 };
 
 const mapStateToProps = (state: CollectionState) => {
-  const { fakerSchemaGeneration, namespace, schemaAnalysis } = state;
+  const {
+    fakerSchemaGeneration,
+    namespace,
+    schemaAnalysis,
+    mockDataGenerator,
+  } = state;
 
   return {
     fakerSchema:
@@ -232,8 +237,7 @@ const mapStateToProps = (state: CollectionState) => {
       schemaAnalysis?.status === SCHEMA_ANALYSIS_STATE_COMPLETE
         ? schemaAnalysis.arrayLengthMap
         : {},
-    // TODO(CLOUDP-333856): When document count step is implemented, get documentCount from state
-    documentCount: 100,
+    documentCount: mockDataGenerator.documentCount,
   };
 };
 

@@ -10,7 +10,7 @@ import React, { useMemo } from 'react';
 import { connect } from 'react-redux';
 import type { CollectionState } from '../../modules/collection-tab';
 import type { SchemaAnalysisState } from '../../schema-analysis-types';
-import { DEFAULT_DOCUMENT_COUNT, MAX_DOCUMENT_COUNT } from './constants';
+import { MAX_DOCUMENT_COUNT } from './constants';
 
 const BYTE_PRECISION_THRESHOLD = 1000;
 
@@ -54,8 +54,8 @@ type ErrorState =
     };
 
 interface OwnProps {
-  documentCount: number;
-  onDocumentCountChange: (documentCount: number) => void;
+  documentCount: string;
+  onDocumentCountChange: (documentCount: string) => void;
 }
 
 interface Props extends OwnProps {
@@ -67,20 +67,39 @@ const DocumentCountScreen = ({
   onDocumentCountChange,
   schemaAnalysisState,
 }: Props) => {
+  const documentCountNumber = parseInt(documentCount, 10);
+
   const estimatedDiskSize = useMemo(
     () =>
       schemaAnalysisState.status === 'complete' &&
-      schemaAnalysisState.schemaMetadata.avgDocumentSize
+      schemaAnalysisState.schemaMetadata.avgDocumentSize &&
+      !isNaN(documentCountNumber)
         ? formatBytes(
-            schemaAnalysisState.schemaMetadata.avgDocumentSize * documentCount
+            schemaAnalysisState.schemaMetadata.avgDocumentSize *
+              documentCountNumber
           )
         : 'Not available',
-    [schemaAnalysisState, documentCount]
+    [schemaAnalysisState, documentCountNumber]
   );
 
-  const isOutOfRange = documentCount < 1 || documentCount > MAX_DOCUMENT_COUNT;
+  const isInputEmpty = documentCount.trim() === '';
+  const isInputInvalid = isNaN(documentCountNumber);
+  const isOutOfRange =
+    documentCountNumber < 1 || documentCountNumber > MAX_DOCUMENT_COUNT;
 
   const errorState: ErrorState = useMemo(() => {
+    if (isInputEmpty) {
+      return {
+        state: 'error',
+        message: 'Document count is required',
+      };
+    }
+    if (isInputInvalid) {
+      return {
+        state: 'error',
+        message: 'Please enter a valid number',
+      };
+    }
     if (isOutOfRange) {
       return {
         state: 'error',
@@ -90,15 +109,12 @@ const DocumentCountScreen = ({
     return {
       state: 'none',
     };
-  }, [isOutOfRange]);
+  }, [isInputEmpty, isInputInvalid, isOutOfRange]);
 
   const handleDocumentCountChange = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
-    const value = parseInt(event.target.value, 10);
-    if (!isNaN(value)) {
-      onDocumentCountChange(value);
-    }
+    onDocumentCountChange(event.target.value);
   };
 
   return (
@@ -108,14 +124,12 @@ const DocumentCountScreen = ({
       </Body>
       <Body className={descriptionStyles}>
         Indicate the amount of documents you want to generate below.
-        <br />
-        Note: We have defaulted to {DEFAULT_DOCUMENT_COUNT}.
       </Body>
       <div className={inputContainerStyles}>
         <TextInput
           label="Documents to generate in current collection"
           type="number"
-          value={documentCount.toString()}
+          value={documentCount}
           onChange={handleDocumentCountChange}
           min={1}
           max={MAX_DOCUMENT_COUNT}
