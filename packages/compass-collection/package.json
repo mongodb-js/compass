@@ -66,6 +66,7 @@
     "hadron-document": "^8.10.5",
     "mongodb": "^6.19.0",
     "mongodb-collection-model": "^5.35.5",
+    "mongodb-connection-string-url": "^3.0.2",
     "mongodb-ns": "^3.0.1",
     "mongodb-schema": "^12.6.3",
     "react": "^17.0.2",

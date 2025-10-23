@@ -13,7 +13,10 @@ import { createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
 import MockDataGeneratorModal from './mock-data-generator-modal';
 import { MockDataGeneratorStep } from './types';
-import { StepButtonLabelMap } from './constants';
+import {
+  DEFAULT_CONNECTION_STRING_FALLBACK,
+  StepButtonLabelMap,
+} from './constants';
 import type { CollectionState } from '../../modules/collection-tab';
 import { default as collectionTabReducer } from '../../modules/collection-tab';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
@@ -38,6 +41,7 @@ const defaultSchemaAnalysisState: SchemaAnalysisState = {
     avgDocumentSize: undefined,
   },
 };
+const mockUserConnectionString = 'mockUserConnectionString';
 
 describe('MockDataGeneratorModal', () => {
   async function renderModal({
@@ -925,6 +929,7 @@ describe('MockDataGeneratorModal', () => {
             globalWrites: false,
             rollingIndexes: true,
           },
+          userConnectionString: mockUserConnectionString,
         },
       };
 
@@ -1068,6 +1073,94 @@ describe('MockDataGeneratorModal', () => {
       expect(screen.queryByText('Script generation failed')).to.not.exist;
       expect(screen.getByText('firstName')).to.exist; // faker method
       expect(screen.getByText('insertMany')).to.exist;
+    });
+
+    it('shows userConnectionString in the mongosh command when available', async () => {
+      const atlasConnectionInfo: ConnectionInfo = {
+        id: 'test-atlas-connection',
+        connectionOptions: { connectionString: 'mongodb://localhost:27017' },
+        atlasMetadata: {
+          orgId: 'test-org',
+          projectId: 'test-project-123',
+          clusterName: 'test-cluster',
+          clusterUniqueId: 'test-cluster-unique-id',
+          clusterType: 'REPLICASET' as const,
+          clusterState: 'IDLE' as const,
+          metricsId: 'test-metrics-id',
+          metricsType: 'replicaSet' as const,
+          regionalBaseUrl: null,
+          instanceSize: 'M10',
+          supports: {
+            globalWrites: false,
+            rollingIndexes: true,
+          },
+          userConnectionString: mockUserConnectionString,
+        },
+      };
+
+      await renderModal({
+        currentStep: MockDataGeneratorStep.GENERATE_DATA,
+        connectionInfo: atlasConnectionInfo,
+        fakerSchemaGeneration: {
+          status: 'completed',
+          originalLlmResponse: {
+            name: {
+              fakerMethod: 'person.firstName',
+              fakerArgs: [],
+              probability: 1.0,
+              mongoType: 'String',
+            },
+          },
+          editedFakerSchema: {
+            name: {
+              fakerMethod: 'person.firstName',
+              fakerArgs: [],
+              probability: 1.0,
+              mongoType: 'String',
+            },
+          },
+          requestId: 'test-request-id',
+        },
+      });
+
+      expect(screen.getByText(mockUserConnectionString, { exact: false })).to
+        .exist;
+    });
+
+    it('shows fallback connection string when there is no Atlas metadata', async () => {
+      const atlasConnectionInfoWithoutAtlasMetadata: ConnectionInfo = {
+        id: 'test-atlas-connection',
+        connectionOptions: { connectionString: 'mongodb://localhost:27017' },
+      };
+
+      await renderModal({
+        currentStep: MockDataGeneratorStep.GENERATE_DATA,
+        connectionInfo: atlasConnectionInfoWithoutAtlasMetadata,
+        fakerSchemaGeneration: {
+          status: 'completed',
+          originalLlmResponse: {
+            name: {
+              fakerMethod: 'person.firstName',
+              fakerArgs: [],
+              probability: 1.0,
+              mongoType: 'String',
+            },
+          },
+          editedFakerSchema: {
+            name: {
+              fakerMethod: 'person.firstName',
+              fakerArgs: [],
+              probability: 1.0,
+              mongoType: 'String',
+            },
+          },
+          requestId: 'test-request-id',
+        },
+      });
+
+      expect(
+        screen.getByText(DEFAULT_CONNECTION_STRING_FALLBACK, { exact: false })
+      ).to.exist;
     });
   });
 
