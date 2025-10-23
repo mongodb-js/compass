@@ -6,9 +6,19 @@ import { z } from '@mongodb-js/compass-user-data';
 const kCurrentVersion = 1;
 const kFileTypeDescription = 'Compass Data Modeling Diagram';
 
-export function downloadDiagram(fileName: string, edits: Edit[]) {
+export function downloadDiagram(
+  fileName: string,
+  edits: Edit[],
+  database: string
+) {
   const blob = new Blob(
-    [JSON.stringify(getDownloadDiagramContent(fileName, edits), null, 2)],
+    [
+      JSON.stringify(
+        getDownloadDiagramContent(fileName, edits, database),
+        null,
+        2
+      ),
+    ],
     {
       type: 'application/json',
     }
@@ -19,18 +29,25 @@ export function downloadDiagram(fileName: string, edits: Edit[]) {
   });
 }
 
-export function getDownloadDiagramContent(name: string, edits: Edit[]) {
+export function getDownloadDiagramContent(
+  name: string,
+  edits: Edit[],
+  database: string
+) {
   return {
     type: kFileTypeDescription,
     version: kCurrentVersion,
     name,
+    database,
     edits: Buffer.from(JSON.stringify(edits)).toString('base64'),
   };
 }
 
-export async function getDiagramContentsFromFile(
-  file: File
-): Promise<{ name: string; edits: [SetModelEdit, ...Edit[]] }> {
+export async function getDiagramContentsFromFile(file: File): Promise<{
+  name: string;
+  edits: [SetModelEdit, ...Edit[]];
+  database: string;
+}> {
   const reader = new FileReader();
   return new Promise((resolve, reject) => {
     reader.onload = (event) => {
@@ -48,9 +65,9 @@ export async function getDiagramContentsFromFile(
           throw new Error('Unsupported diagram file format');
         }
 
-        const { name, edits } = parsedContent;
+        const { name, edits, database } = parsedContent;
 
-        if (!name || !edits || typeof edits !== 'string') {
+        if (!name || !edits || typeof edits !== 'string' || !database) {
           throw new Error('Diagram file is missing required fields');
         }
 
@@ -63,6 +80,7 @@ export async function getDiagramContentsFromFile(
         return resolve({
           name: parsedContent.name,
           edits: [validEdits[0] as SetModelEdit, ...validEdits.slice(1)],
+          database: parsedContent.database,
         });
       } catch (error) {
         const message =

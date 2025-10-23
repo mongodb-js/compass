@@ -27,9 +27,11 @@ import {
   useTelemetry,
   useTrackOnChange,
 } from '@mongodb-js/compass-telemetry/provider';
+import { DEFAULT_CONNECTION_STRING_FALLBACK } from './constants';
+import { redactConnectionString } from 'mongodb-connection-string-url';
 
-const RUN_SCRIPT_COMMAND = `
-mongosh "mongodb+srv://<your-cluster>.mongodb.net/<your-database>" \\
+const RUN_SCRIPT_COMMAND = (connectionString: string) => `
+mongosh "${redactConnectionString(connectionString)}" \\
   --username <your-username> \\
   --password "<your-password>" \\
   mockdatascript.js
@@ -97,6 +99,10 @@ const ScriptScreen = ({
   const isDarkMode = useDarkMode();
   const connectionInfo = useConnectionInfo();
   const track = useTelemetry();
+
+  const connectionString =
+    connectionInfo?.atlasMetadata?.userConnectionString ??
+    DEFAULT_CONNECTION_STRING_FALLBACK;
 
   const { database, collection } = toNS(namespace);
 
@@ -214,7 +220,7 @@ const ScriptScreen = ({
           language={Language.Bash}
           onCopy={() => onScriptCopy({ step: DataGenerationStep.RUN_SCRIPT })}
         >
-          {RUN_SCRIPT_COMMAND}
+          {RUN_SCRIPT_COMMAND(connectionString)}
         </Code>
       </section>
       <section

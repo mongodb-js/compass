@@ -58,6 +58,7 @@ const storageItems: MongoDBDataModelDescription[] = [
       },
     ],
     connectionId: null,
+    database: 'db1',
   },
   {
     id: 'new-diagram-id',
@@ -91,6 +92,7 @@ const storageItems: MongoDBDataModelDescription[] = [
       },
     ],
     connectionId: null,
+    database: 'db1',
   },
 ];
 

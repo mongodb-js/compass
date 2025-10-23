@@ -1,4 +1,5 @@
 import { z } from '@mongodb-js/compass-user-data';
+import toNS from 'mongodb-ns';
 import type { MongoDBJSONSchema } from 'mongodb-schema';
 
 export const FieldPathSchema = z.array(z.string());
@@ -170,20 +171,35 @@ export const validateEdit = (
   }
 };
 
-export const MongoDBDataModelDescriptionSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  /**
-   * Connection id associated with the data model at the moment of configuring
-   * and analyzing. No connection id means diagram was imported and not attached
-   * to a connection. Practically speaking it just means that we can't do
-   * anything that would require re-fetching data associated with the diagram
-   */
-  connectionId: z.string().nullable(),
-  edits: EditListSchema,
-  createdAt: z.string().datetime(),
-  updatedAt: z.string().datetime(),
-});
+export const MongoDBDataModelDescriptionSchema = z.preprocess(
+  (val) => {
+    const model = val as Record<string, unknown>;
+    if (
+      !model.database &&
+      Array.isArray(model.edits) &&
+      model.edits.length > 0
+    ) {
+      // Infer database from the first collection's namespace in the 'SetModel' edit
+      model.database = toNS(model.edits?.[0].model.collections[0].ns).database;
+    }
+    return model;
+  },
+  z.object({
+    id: z.string(),
+    name: z.string(),
+    /**
+     * Connection id associated with the data model at the moment of configuring
+     * and analyzing. No connection id means diagram was imported and not attached
+     * to a connection. Practically speaking it just means that we can't do
+     * anything that would require re-fetching data associated with the diagram
+     */
+    connectionId: z.string().nullable(),
+    database: z.string(),
+    edits: EditListSchema,
+    createdAt: z.string().datetime(),
+    updatedAt: z.string().datetime(),
+  })
+);
 
 export type MongoDBDataModelDescription = z.output<
   typeof MongoDBDataModelDescriptionSchema

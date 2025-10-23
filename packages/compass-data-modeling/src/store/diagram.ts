@@ -28,7 +28,6 @@ import {
 } from '../services/open-and-download-diagram';
 import type { MongoDBJSONSchema } from 'mongodb-schema';
 import { collectionToBaseNodeForLayout } from '../utils/nodes-and-edges';
-import toNS from 'mongodb-ns';
 import {
   getFieldFromSchema,
   getSchemaWithNewTypes,
@@ -174,6 +173,7 @@ export const diagramReducer: Reducer<DiagramState> = (
       isNewlyCreated: true,
       name: action.name,
       connectionId: action.connectionId,
+      database: action.database,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       edits: {
@@ -696,7 +696,7 @@ export function openDiagramFromFile(
 ): DataModelingThunkAction<Promise<void>, OpenDiagramAction> {
   return async (dispatch, getState, { dataModelStorage, track, openToast }) => {
     try {
-      const { name, edits } = await getDiagramContentsFromFile(file);
+      const { name, edits, database } = await getDiagramContentsFromFile(file);
 
       const existingDiagramNames = (await dataModelStorage.loadAll()).map(
         (diagram) => diagram.name
@@ -706,6 +706,7 @@ export function openDiagramFromFile(
         id: new UUID().toString(),
         name: getDiagramName(existingDiagramNames, name),
         connectionId: null,
+        database,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
         edits,
@@ -875,9 +876,9 @@ function getPositionForNewCollection(
 }
 
 function getNameForNewCollection(
+  database: string,
   existingCollections: DataModelCollection[]
 ): string {
-  const database = toNS(existingCollections[0]?.ns).database; // TODO: again, what if there just isn't anything
   const baseName = `${database}.new-collection`;
   let counter = 1;
   let newName = baseName;
@@ -898,10 +899,10 @@ export function addCollection(
   ApplyEditAction | RevertFailedEditAction | CollectionSelectedAction
 > {
   return (dispatch, getState, { track }) => {
-    const existingCollections = selectCurrentModelFromState(
-      getState()
-    ).collections;
-    if (!ns) ns = getNameForNewCollection(existingCollections);
+    const state = getState();
+    const database = getCurrentDiagramFromState(state).database;
+    const existingCollections = selectCurrentModelFromState(state).collections;
+    if (!ns) ns = getNameForNewCollection(database, existingCollections);
     if (!position) {
       position = getPositionForNewCollection(existingCollections, {
         ns,
@@ -979,13 +980,14 @@ export function getCurrentDiagramFromState(
   const {
     id,
     connectionId,
+    database,
     name,
     createdAt,
     updatedAt,
     edits: { current: edits },
   } = state.diagram;
 
-  return { id, connectionId, name, edits, createdAt, updatedAt };
+  return { id, connectionId, name, database, edits, createdAt, updatedAt };
 }
 
 const selectCurrentDiagramFromState = memoize(getCurrentDiagramFromState);
