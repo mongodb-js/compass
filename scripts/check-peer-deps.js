@@ -77,19 +77,27 @@ async function collectAllAbsoluteImports(entryPoints = []) {
         ],
       ],
     });
+    const shouldSkip = (path) =>
+      path.node.leadingComments?.some((comment) =>
+        comment.value?.includes('compass-peer-deps-ignore')
+      );
     traverse(program, {
       ImportDeclaration(path) {
+        if (shouldSkip(path)) return;
         queueImport(path.node.source.value);
       },
       ExportNamedDeclaration(path) {
+        if (shouldSkip(path)) return;
         if (path.node.source) {
           queueImport(path.node.source.value);
         }
       },
       ExportAllDeclaration(path) {
+        if (shouldSkip(path)) return;
         queueImport(path.node.source.value);
       },
       CallExpression(path) {
+        if (shouldSkip(path)) return;
         if (
           path.node.callee.type === 'Identifier' &&
           (path.node.callee.name === 'require' ||

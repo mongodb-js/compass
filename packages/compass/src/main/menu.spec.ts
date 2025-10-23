@@ -436,6 +436,19 @@ describe('CompassMenu', function () {
             accelerator: 'CmdOrCtrl+F',
             label: 'Find',
           },
+          [
+            ...(process.platform === 'darwin'
+              ? []
+              : [
+                  {
+                    type: 'separator',
+                  },
+                  {
+                    accelerator: 'CmdOrCtrl+,',
+                    label: '&Settings',
+                  },
+                ]),
+          ],
         ],
       });
     });

@@ -2,6 +2,7 @@ import React, { useContext, useEffect } from 'react';
 import { createServiceLocator } from '@mongodb-js/compass-app-registry';
 
 // Type-only import in a separate entry point, so this is fine
+// compass-peer-deps-ignore
 // eslint-disable-next-line @typescript-eslint/no-restricted-imports
 import type { MenuItemConstructorOptions } from 'electron';
 
