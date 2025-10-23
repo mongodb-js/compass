@@ -597,6 +597,25 @@ async function processCommonOpts({
   };
 }
 
+async function setCommonRendererEnv(browser: CompassBrowser) {
+  // Guide cues might affect too many tests in a way where the auto showing of the cue prevents
+  // clicks from working on elements. Dealing with this case-by-case is way too much work, so
+  // we disable the cues completely for the e2e tests
+  await browser.setEnv('DISABLE_GUIDE_CUES', 'true');
+
+  // TODO(COMPASS-9977) Turn off virtual scrolling in e2e tests until we can fix
+  // browser.scrollToVirtualItem() to work with it
+  await browser.setEnv('COMPASS_DISABLE_VIRTUAL_TABLE_RENDERING', 'true');
+}
+
+async function setCommonFeatures(browser: CompassBrowser) {
+  // Making sure end-of-life connection modal is not shown, simplify any test connecting to such a server
+  await browser.setFeature('showEndOfLifeConnectionModal', false);
+
+  // It's helpful to have devtools pre-enabled when running tests
+  await browser.setFeature('enableDevTools', true);
+}
+
 async function startCompassElectron(
   name: string,
   opts: StartCompassOptions = {}
@@ -651,18 +670,6 @@ async function startCompassElectron(
   if (!process.env.HADRON_AUTO_UPDATE_ENDPOINT_OVERRIDE) {
     process.env.HADRON_PRODUCT_NAME_OVERRIDE = 'MongoDB Compass WebdriverIO';
   }
-
-  // Guide cues might affect too many tests in a way where the auto showing of the cue prevents
-  // clicks from working on elements. Dealing with this case-by-case is way too much work, so
-  // we disable the cues completely for the e2e tests
-  process.env.DISABLE_GUIDE_CUES = 'true';
-
-  // Making sure end-of-life connection modal is not shown, simplify any test connecting to such a server
-  process.env.COMPASS_DISABLE_END_OF_LIFE_CONNECTION_MODAL = 'true';
-
-  // TODO(COMPASS-9977) Turn off virtual scrolling in e2e tests until we can fix
-  // browser.scrollToVirtualItem() to work with it
-  process.env.COMPASS_DISABLE_VIRTUAL_TABLE_RENDERING = 'true';
 
   const options = {
     automationProtocol: 'webdriver' as const,
@@ -758,6 +765,9 @@ async function startCompassElectron(
   });
 
   await compass.recordElectronLogs();
+
+  await setCommonRendererEnv(browser);
+  await setCommonFeatures(browser);
 
   return compass;
 }
@@ -885,6 +895,9 @@ export async function startBrowser(
     writeCoverage: false,
     needsCloseWelcomeModal: false,
   });
+
+  await setCommonRendererEnv(browser);
+  await setCommonFeatures(browser);
 
   return compass;
 }

@@ -449,11 +449,7 @@ export const storedUserPreferencesProps: Required<{
     cli: false,
     global: false,
     description: null,
-    validator: z
-      .boolean()
-      .default(
-        process.env.COMPASS_DISABLE_END_OF_LIFE_CONNECTION_MODAL !== 'true'
-      ),
+    validator: z.boolean().default(true),
     type: 'boolean',
   },
   /**
@@ -720,7 +716,7 @@ export const storedUserPreferencesProps: Required<{
       long: `Enable the Chromium Developer Tools that can be used to debug Electron's process.`,
     },
     deriveValue: deriveFeatureRestrictingOptionsState('enableDevTools'),
-    validator: z.boolean().default(process.env.APP_ENV === 'webdriverio'),
+    validator: z.boolean().default(false),
     type: 'boolean',
   },
   /**
