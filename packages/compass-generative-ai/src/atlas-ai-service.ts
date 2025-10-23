@@ -208,10 +208,11 @@ const aiURLConfig = {
     query: 'unauth/ai/api/v1/mql-query',
   },
   cloud: {
-    aggregation: (groupId: string) => `ai/v1/groups/${groupId}/mql-aggregation`,
-    query: (groupId: string) => `ai/v1/groups/${groupId}/mql-query`,
-    'mock-data-schema': (groupId: string) =>
-      `ai/v1/groups/${groupId}/mock-data-schema`,
+    aggregation: (projectId: string) =>
+      `ai/v1/groups/${projectId}/mql-aggregation`,
+    query: (projectId: string) => `ai/v1/groups/${projectId}/mql-query`,
+    'mock-data-schema': (projectId: string) =>
+      `ai/v1/groups/${projectId}/mock-data-schema`,
   },
 } as const;
 
@@ -290,18 +291,13 @@ export class AtlasAiService {
    */
   private getUrlForEndpoint(
     resourceType: AIResourceType,
-    connectionInfo?: ConnectionInfo
+    connectionInfo: ConnectionInfo
   ) {
-    if (this.apiURLPreset === 'cloud') {
-      const atlasMetadata = connectionInfo?.atlasMetadata;
-      if (!atlasMetadata) {
-        throw new AtlasAiServiceInvalidInputError(
-          "Can't perform generative ai request: atlasMetadata is not available"
-        );
-      }
+    const atlasMetadata = connectionInfo.atlasMetadata;
 
+    if (atlasMetadata) {
       return this.atlasService.cloudEndpoint(
-        aiURLConfig[this.apiURLPreset][resourceType](atlasMetadata.projectId)
+        aiURLConfig.cloud[resourceType](atlasMetadata.projectId)
       );
     }
 
@@ -311,7 +307,7 @@ export class AtlasAiService {
       );
     }
 
-    const urlPath = aiURLConfig[this.apiURLPreset][resourceType];
+    const urlPath = aiURLConfig['admin-api'][resourceType];
     return this.atlasService.adminApiEndpoint(urlPath);
   }
 
@@ -353,8 +349,7 @@ export class AtlasAiService {
     }: {
       urlId: 'query' | 'aggregation';
       input: GenerativeAiInput;
-
-      connectionInfo?: ConnectionInfo;
+      connectionInfo: ConnectionInfo;
     },
     validationFn: (res: any) => asserts res is T
   ): Promise<T> => {
