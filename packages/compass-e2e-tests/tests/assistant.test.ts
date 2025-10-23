@@ -9,14 +9,12 @@ import {
   cleanup,
   screenshotIfFailed,
   DEFAULT_CONNECTION_NAME_1,
-  skipForWeb,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
-import { startMockAtlasServiceServer } from '../helpers/atlas-service';
+import { startMockAtlasServiceServer } from '../helpers/mock-atlas-service';
 import { startMockAssistantServer } from '../helpers/assistant-service';
 import type { MockAssistantResponse } from '../helpers/assistant-service';
-import { isTestingWeb } from '../helpers/test-runner-context';
 
 import { context } from '../helpers/test-runner-context';
 
@@ -51,11 +49,21 @@ describe('MongoDB Assistant', function () {
     mockAtlasServer = await startMockAtlasServiceServer();
     mockAssistantServer = await startMockAssistantServer();
 
-    process.env.COMPASS_ATLAS_SERVICE_UNAUTH_BASE_URL_OVERRIDE =
-      mockAtlasServer.endpoint;
-
     telemetry = await startTelemetryServer();
     compass = await init(this.test?.fullTitle());
+
+    await compass.browser.setEnv(
+      'COMPASS_ATLAS_SERVICE_UNAUTH_BASE_URL_OVERRIDE',
+      mockAtlasServer.endpoint
+    );
+    await compass.browser.setEnv(
+      'COMPASS_CLOUD_BASE_URL_OVERRIDE',
+      mockAtlasServer.endpoint
+    );
+    await compass.browser.setEnv(
+      'COMPASS_ASSISTANT_BASE_URL_OVERRIDE',
+      mockAssistantServer.endpoint
+    );
 
     sendMessage = async (
       text: string,
@@ -124,13 +132,8 @@ describe('MongoDB Assistant', function () {
     };
 
     setAIFeatures = async (newValue: boolean) => {
-      if (isTestingWeb()) {
-        await browser.setEnv(
-          'COMPASS_OVERRIDE_ENABLE_AI_FEATURES',
-          newValue ? 'true' : 'false'
-        );
-      }
       await browser.setFeature('enableGenAIFeatures', newValue);
+      await browser.setFeature('enableGenAISampleDocumentPassing', newValue);
 
       if (newValue) {
         await browser.$(Selectors.AssistantDrawerButton).waitForDisplayed();
@@ -142,26 +145,6 @@ describe('MongoDB Assistant', function () {
     };
 
     setAIOptIn = async (newValue: boolean) => {
-      if (
-        isTestingWeb() ||
-        ((await browser.getFeature('optInGenAIFeatures')) === true &&
-          newValue === false)
-      ) {
-        await cleanup(compass);
-        // Reseting the opt-in to false can be tricky so it's best to start over in this case.
-        compass = await init(this.test?.fullTitle(), { firstRun: true });
-        await setup();
-
-        if (isTestingWeb()) {
-          await setAIFeatures(true);
-        }
-        await browser.setFeature(
-          'optInGenAIFeatures',
-          newValue ? 'true' : 'false'
-        );
-        return;
-      }
-
       await browser.setFeature('optInGenAIFeatures', newValue);
     };
 
@@ -171,9 +154,6 @@ describe('MongoDB Assistant', function () {
   after(async function () {
     await mockAtlasServer.stop();
     await mockAssistantServer.stop();
-
-    delete process.env.COMPASS_ATLAS_SERVICE_UNAUTH_BASE_URL_OVERRIDE;
-
     await cleanup(compass);
     await telemetry.stop();
   });
@@ -195,12 +175,7 @@ describe('MongoDB Assistant', function () {
     });
 
     it('does not show the assistant drawer button when AI features are disabled', async function () {
-      // we cannot opt back out on web because it is stored server-side
-      skipForWeb(
-        this,
-        'E2E testing for assistant drawer visibility on compass-web is not yet implemented'
-      );
-
+      await setAIOptIn(false);
       await setAIFeatures(false);
 
       const drawerButton = browser.$(Selectors.AssistantDrawerButton);
@@ -225,12 +200,7 @@ describe('MongoDB Assistant', function () {
   });
 
   describe('before opt-in', function () {
-    // we cannot opt back out on web because it is stored server-side
     before(async function () {
-      skipForWeb(
-        this,
-        'E2E testing for opt-in on compass-web is not yet implemented'
-      );
       await setAIOptIn(false);
     });
 
@@ -291,11 +261,6 @@ describe('MongoDB Assistant', function () {
 
   describe('opting in', function () {
     before(async function () {
-      // we cannot opt back out on web because it is stored server-side
-      skipForWeb(
-        this,
-        'E2E testing for opt-in on compass-web is not yet implemented'
-      );
       await setAIOptIn(false);
       await openAssistantDrawer(browser);
     });
