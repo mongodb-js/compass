@@ -1,5 +1,5 @@
-import type { MongoDBFieldType } from '@mongodb-js/compass-generative-ai';
 import type { FakerFieldMapping } from './types';
+import type { MongoDBFieldType } from '../../schema-analysis-types';
 import { prettify } from '@mongodb-js/compass-editor';
 import { UNRECOGNIZED_FAKER_METHOD } from '../../modules/collection-tab';
 import { faker } from '@faker-js/faker/locale/en';

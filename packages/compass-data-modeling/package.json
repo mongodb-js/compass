@@ -11,7 +11,7 @@
     "email": "compass@mongodb.com"
   },
   "homepage": "https://github.com/mongodb-js/compass",
-  "version": "1.32.0",
+  "version": "1.34.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/compass.git"
@@ -26,13 +26,13 @@
     ".": "./dist/index.js",
     "./provider": "./dist/provider/index.js",
     "./renderer": "./dist/services/data-model-storage-electron.js",
-    "./web": "./dist/services/data-model-storage-in-memory.js"
+    "./web": "./dist/services/data-model-storage-web.js"
   },
   "compass:exports": {
     ".": "./src/index.ts",
     "./provider": "./src/provider/index.tsx",
     "./renderer": "./src/services/data-model-storage-electron.tsx",
-    "./web": "./src/services/data-model-storage-in-memory.tsx"
+    "./web": "./src/services/data-model-storage-web.tsx"
   },
   "types": "./dist/index.d.ts",
   "scripts": {
@@ -54,17 +54,18 @@
     "reformat": "npm run eslint . -- --fix && npm run prettier -- --write ."
   },
   "dependencies": {
+    "@mongodb-js/atlas-service": "^0.67.0",
     "@mongodb-js/compass-app-registry": "^9.4.27",
-    "@mongodb-js/compass-app-stores": "^7.67.0",
-    "@mongodb-js/compass-components": "^1.55.0",
-    "@mongodb-js/compass-connections": "^1.81.0",
+    "@mongodb-js/compass-app-stores": "^7.69.0",
+    "@mongodb-js/compass-components": "^1.56.0",
+    "@mongodb-js/compass-connections": "^1.83.0",
     "@mongodb-js/compass-logging": "^1.7.22",
-    "@mongodb-js/compass-telemetry": "^1.17.0",
+    "@mongodb-js/compass-telemetry": "^1.18.0",
     "@mongodb-js/compass-user-data": "^0.10.5",
     "@mongodb-js/compass-utils": "^0.9.20",
-    "@mongodb-js/compass-workspaces": "^0.62.0",
+    "@mongodb-js/compass-workspaces": "^0.64.0",
     "bson": "^6.10.4",
-    "compass-preferences-model": "^2.60.0",
+    "compass-preferences-model": "^2.62.0",
     "html-to-image": "1.11.11",
     "lodash": "^4.17.21",
     "mongodb": "^6.19.0",

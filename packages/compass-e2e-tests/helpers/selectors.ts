@@ -503,56 +503,47 @@ export const ShellInput = '[data-testid="shell-input"]';
 export const ShellOutput = '[data-testid="shell-output"]';
 
 // Instance screen
-export const DatabasesTable = '[data-testid="database-grid"]';
+export const DatabasesTable = '[data-testid="databases-list"]';
 export const InstanceCreateDatabaseButton =
   '[data-testid="create-controls"] button';
 export const InstanceRefreshDatabaseButton =
   '[data-testid="refresh-controls"] button';
-export const DatabaseCard = '[data-testid="database-grid-item"]';
-// assume that there's only one hovered card at a time and that the first and only button is the drop button
-export const DatabaseCardDrop =
-  '[data-testid="database-grid"] [data-testid="namespace-card-actions"] button';
+export const DatabaseStatLoader =
+  '[data-testid="databases-list"] [data-testid="placeholder"]';
+
+export const databaseRow = (dbName: string): string => {
+  return `[data-testid="databases-list-row-${dbName}"]`;
+};
+
+export const databaseRowDrop = (dbName: string): string => {
+  return `${databaseRow(dbName)} button[data-action="delete"]`;
+};
+
+// Performance screen
 export const ServerStats = '.serverstats';
-export const DatabaseStatLoader = `${DatabaseCard} [data-testid="namespace-param-fallback"][data-ready=false]`;
-
-export const databaseCard = (dbName: string): string => {
-  return `${DatabaseCard}[data-id="${dbName}"]`;
-};
-
-export const databaseCardClickable = (dbName: string): string => {
-  // webdriver does not like clicking on the card even though the card has the
-  // click handler, so click on the title
-  return `${databaseCard(dbName)} [title="${dbName}"]`;
-};
 
 // Database screen
-export const CollectionsGrid = '[data-testid="collection-grid"]';
+export const CollectionsTable = '[data-testid="collections-list"]';
 export const DatabaseCreateCollectionButton =
   '[data-testid="create-controls"] button';
 export const DatabaseRefreshCollectionButton =
   '[data-testid="refresh-controls"] button';
-export const CollectionCard = '[data-testid="collection-grid-item"]';
-// assume that there's only one hovered card at a time and that the first and only button is the drop button
-export const CollectionCardDrop =
-  '[data-testid="collection-grid"] [data-testid="namespace-card-actions"] button';
 
-export const collectionCard = (
+export const collectionRow = (
   dbName: string,
   collectionName: string
 ): string => {
-  return `${CollectionCard}[data-id="${dbName}.${collectionName}"]`;
+  return `[data-testid="collections-list-row-${collectionName}"]`;
 };
 
-export const collectionCardClickable = (
+export const collectionRowDrop = (
   dbName: string,
   collectionName: string
 ): string => {
-  // webdriver does not like clicking on the card even though the card has the
-  // click handler, so click on the title
-  return `${collectionCard(
+  return `${collectionRow(
     dbName,
     collectionName
-  )} [title="${collectionName}"]`;
+  )} button[data-action="delete"]`;
 };
 
 // Collection screen
@@ -1485,6 +1476,7 @@ export const DataModelsListItemDeleteButton = `[data-action="delete"]`;
 export const DataModelAddRelationshipBtn = 'aria/Add Relationship';
 export const DataModelAddCollectionBtn = 'aria/Add Collection';
 export const DataModelNameInputLabel = '//label[text()="Name"]';
+export const DataModelFieldNameInputLabel = '//label[text()="Field name"]';
 export const DataModelNameInput =
   'input[data-testid="data-model-collection-drawer-name-input"]';
 export const DataModelRelationshipLocalCollectionSelect =
@@ -1508,6 +1500,10 @@ export const DataModelCollectionRelationshipItemDelete = `[aria-label="Delete re
 export const DataModelCollectionSidebarItemDelete = `[aria-label="Delete collection"]`;
 export const DataModelCollectionSidebarItemDeleteButton = `[data-action="delete"]`;
 export const DataModelInfoBannerCloseBtn = `[data-testid="data-info-banner"] [aria-label="Close Message"]`;
+export const DataModelAddFieldBtn = '[aria-label="Add Field"]';
+export const DataModelDiagramField = (fieldName: string) =>
+  `//*[text()="${fieldName}"]`;
+export const DataModelDiagramFieldInput = 'input[title="Edit field name"]';
 
 // Side drawer
 export const SideDrawer = `[data-testid="${getDrawerIds().root}"]`;
