@@ -55,8 +55,8 @@ interface Props {
   onPreviousStep: () => void;
   namespace: string;
   fakerSchemaGenerationState: MockDataGeneratorState;
-  documentCount: number;
-  onDocumentCountChange: (documentCount: number) => void;
+  documentCount: string;
+  onDocumentCountChange: (documentCount: string) => void;
 }
 
 const MockDataGeneratorModal = ({
@@ -112,13 +112,17 @@ const MockDataGeneratorModal = ({
     onDocumentCountChange,
   ]);
 
+  const documentCountNumber = parseInt(documentCount, 10);
+  const isDocumentCountInvalid =
+    isNaN(documentCountNumber) ||
+    documentCountNumber < 1 ||
+    documentCountNumber > MAX_DOCUMENT_COUNT;
+
   const isNextButtonDisabled =
     (currentStep === MockDataGeneratorStep.SCHEMA_EDITOR &&
       !isSchemaConfirmed) ||
     (currentStep === MockDataGeneratorStep.DOCUMENT_COUNT &&
-      documentCount < 1) ||
-    (currentStep === MockDataGeneratorStep.DOCUMENT_COUNT &&
-      documentCount > MAX_DOCUMENT_COUNT);
+      isDocumentCountInvalid);
 
   const handleNextClick = () => {
     if (currentStep === MockDataGeneratorStep.GENERATE_DATA) {

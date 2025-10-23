@@ -111,7 +111,7 @@ export type CollectionState = {
   mockDataGenerator: {
     isModalOpen: boolean;
     currentStep: MockDataGeneratorStep;
-    documentCount: number;
+    documentCount: string;
   };
   fakerSchemaGeneration: MockDataGeneratorState;
 };
@@ -187,7 +187,7 @@ interface MockDataGeneratorPreviousButtonClickedAction {
 
 interface MockDataGeneratorDocumentCountChangedAction {
   type: CollectionActions.MockDataGeneratorDocumentCountChanged;
-  documentCount: number;
+  documentCount: string;
 }
 
 export interface FakerMappingGenerationStartedAction {
@@ -231,7 +231,7 @@ const reducer: Reducer<CollectionState, Action> = (
     mockDataGenerator: {
       isModalOpen: false,
       currentStep: MockDataGeneratorStep.SCHEMA_CONFIRMATION,
-      documentCount: DEFAULT_DOCUMENT_COUNT,
+      documentCount: DEFAULT_DOCUMENT_COUNT.toString(),
     },
     fakerSchemaGeneration: {
       status: 'idle',
@@ -338,7 +338,7 @@ const reducer: Reducer<CollectionState, Action> = (
         ...state.mockDataGenerator,
         isModalOpen: true,
         currentStep: MockDataGeneratorStep.SCHEMA_CONFIRMATION,
-        documentCount: DEFAULT_DOCUMENT_COUNT,
+        documentCount: DEFAULT_DOCUMENT_COUNT.toString(),
       },
     };
   }
@@ -636,7 +636,7 @@ export const mockDataGeneratorPreviousButtonClicked = (): CollectionThunkAction<
 };
 
 export const mockDataGeneratorDocumentCountChanged = (
-  documentCount: number
+  documentCount: string
 ): MockDataGeneratorDocumentCountChangedAction => {
   return {
     type: CollectionActions.MockDataGeneratorDocumentCountChanged,

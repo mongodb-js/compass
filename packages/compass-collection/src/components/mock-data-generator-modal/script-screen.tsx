@@ -80,7 +80,7 @@ interface ScriptScreenProps {
   fakerSchema: FakerSchema | null;
   namespace: string;
   arrayLengthMap: ArrayLengthMap;
-  documentCount: number;
+  documentCount: string;
 }
 
 const ScriptScreen = ({
@@ -105,7 +105,7 @@ const ScriptScreen = ({
     }
 
     return generateScript(fakerSchema, {
-      documentCount,
+      documentCount: parseInt(documentCount, 10) || 1000,
       databaseName: database,
       collectionName: collection,
       arrayLengthMap,

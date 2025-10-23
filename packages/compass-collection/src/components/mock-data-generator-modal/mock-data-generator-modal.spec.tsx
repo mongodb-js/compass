@@ -66,7 +66,7 @@ describe('MockDataGeneratorModal', () => {
       mockDataGenerator: {
         isModalOpen: isOpen,
         currentStep: currentStep,
-        documentCount: DEFAULT_DOCUMENT_COUNT,
+        documentCount: DEFAULT_DOCUMENT_COUNT.toString(),
       },
     };
 
@@ -805,6 +805,53 @@ describe('MockDataGeneratorModal', () => {
       userEvent.clear(documentCountInput);
       userEvent.type(documentCountInput, '2000');
       expect(screen.getByText('200.0 kB')).to.exist;
+    });
+
+    it('allows the input to be cleared and shows appropriate error message', async () => {
+      await renderModal({ currentStep: MockDataGeneratorStep.DOCUMENT_COUNT });
+
+      const documentCountInput = screen.getByLabelText(
+        'Documents to generate in current collection'
+      );
+
+      // Clear the input
+      userEvent.clear(documentCountInput);
+
+      // Input should be empty
+      expect(documentCountInput).to.have.value('');
+
+      // Should show error message for empty input
+      expect(screen.getByText('Document count is required')).to.exist;
+
+      // Next button should be disabled for empty input
+      expect(
+        screen.getByTestId('next-step-button').getAttribute('aria-disabled')
+      ).to.equal('true');
+    });
+
+    it('handles typing and clearing naturally without reverting', async () => {
+      await renderModal({ currentStep: MockDataGeneratorStep.DOCUMENT_COUNT });
+
+      const documentCountInput = screen.getByLabelText(
+        'Documents to generate in current collection'
+      );
+
+      // Start with default value
+      expect(documentCountInput).to.have.value('1000');
+
+      // Clear and type a new value
+      userEvent.clear(documentCountInput);
+      expect(documentCountInput).to.have.value(''); // Should stay empty
+
+      userEvent.type(documentCountInput, '5');
+      expect(documentCountInput).to.have.value('5'); // Should show what we typed
+
+      userEvent.type(documentCountInput, '00');
+      expect(documentCountInput).to.have.value('500'); // Should accumulate
+
+      // Clear again
+      userEvent.clear(documentCountInput);
+      expect(documentCountInput).to.have.value(''); // Should stay empty, not revert
     });
   });
 

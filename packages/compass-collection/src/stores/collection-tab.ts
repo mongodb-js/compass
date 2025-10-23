@@ -102,7 +102,7 @@ export function activatePlugin(
       mockDataGenerator: {
         isModalOpen: false,
         currentStep: MockDataGeneratorStep.SCHEMA_CONFIRMATION,
-        documentCount: DEFAULT_DOCUMENT_COUNT,
+        documentCount: DEFAULT_DOCUMENT_COUNT.toString(),
       },
       fakerSchemaGeneration: {
         status: 'idle',
