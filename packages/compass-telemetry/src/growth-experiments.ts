@@ -7,6 +7,6 @@ export enum ExperimentTestName {
 export enum ExperimentTestGroup {
   mockDataGeneratorVariant = 'mockDataGeneratorVariant',
   mockDataGeneratorControl = 'mockDataGeneratorControl',
-  atlasSkillsVariant = 'atlasSkillsVariant',
-  atlasSkillsControl = 'atlasSkillsControl',
+  atlasSkillsVariant = 'atlasSkillsExperimentVariant',
+  atlasSkillsControl = 'atlasSkillsExperimentControl',
 }
