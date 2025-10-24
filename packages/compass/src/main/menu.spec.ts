@@ -9,6 +9,7 @@ import type { CompassApplication } from './application';
 import type { CompassMenu as _CompassMenu } from './menu';
 import { quitItem } from './menu';
 import { AutoUpdateManagerState } from './auto-update-manager';
+import { RendererDefinedMenuState } from '@mongodb-js/compass-electron-menu/ipc-provider-main';
 
 function serializable<T>(obj: T): T {
   try {
@@ -46,11 +47,12 @@ describe('CompassMenu', function () {
     const bw = new BrowserWindow({ show: false });
     App.emit('new-window', bw);
     expect(CompassMenu['windowState']).to.have.property('size', 1);
-    expect(CompassMenu['windowState'].get(bw.id)).to.deep.eq({
-      showCollection: false,
-      isReadOnly: false,
-      updateManagerState: 'idle',
-    });
+    expect(serializable(CompassMenu['windowState'].get(bw.id))).to.deep.eq(
+      serializable({
+        rendererState: new RendererDefinedMenuState(ipcMain as any),
+        updateManagerState: 'idle',
+      })
+    );
   });
 
   it('should remove window from state when window is closed', function () {
@@ -75,61 +77,33 @@ describe('CompassMenu', function () {
     expect(CompassMenu).to.have.property('currentWindowMenuLoaded', bw1.id);
   });
 
-  it('should change window state when window emits show-collection-submenu event', function () {
-    const bw = new BrowserWindow({ show: false });
-    App.emit('new-window', bw);
-    ipcMain.emit(
-      'window:show-collection-submenu',
-      { sender: bw.webContents },
-      { isReadOnly: false }
-    );
-    expect(CompassMenu['windowState'].get(bw.id)).to.deep.eq({
-      showCollection: true,
-      isReadOnly: false,
-      updateManagerState: 'idle',
-    });
-    ipcMain.emit('window:hide-collection-submenu', { sender: bw.webContents });
-    expect(CompassMenu['windowState'].get(bw.id)).to.deep.eq({
-      showCollection: false,
-      isReadOnly: false,
-      updateManagerState: 'idle',
-    });
-    ipcMain.emit(
-      'window:show-collection-submenu',
-      { sender: bw.webContents },
-      { isReadOnly: true }
-    );
-    expect(CompassMenu['windowState'].get(bw.id)).to.deep.eq({
-      showCollection: true,
-      isReadOnly: true,
-      updateManagerState: 'idle',
-    });
-  });
-
   it('should change window state when window emits update-manager:new-state event', function () {
     const bw = new BrowserWindow({ show: false });
     App.emit('new-window', bw);
-    expect(CompassMenu['windowState'].get(bw.id)).to.deep.eq({
-      showCollection: false,
-      isReadOnly: false,
-      updateManagerState: 'idle',
-    });
+    expect(serializable(CompassMenu['windowState'].get(bw.id))).to.deep.eq(
+      serializable({
+        rendererState: new RendererDefinedMenuState(ipcMain as any),
+        updateManagerState: 'idle',
+      })
+    );
     App.emit('auto-updater:new-state', AutoUpdateManagerState.PromptForRestart);
-    expect(CompassMenu['windowState'].get(bw.id)).to.deep.eq({
-      showCollection: false,
-      isReadOnly: false,
-      updateManagerState: 'ready to restart',
-    });
+    expect(serializable(CompassMenu['windowState'].get(bw.id))).to.deep.eq(
+      serializable({
+        rendererState: new RendererDefinedMenuState(ipcMain as any),
+        updateManagerState: 'ready to restart',
+      })
+    );
     App.emit(
       'auto-updater:new-state',
       AutoUpdateManagerState.DownloadingUpdate
     );
 
-    expect(CompassMenu['windowState'].get(bw.id)).to.deep.eq({
-      showCollection: false,
-      isReadOnly: false,
-      updateManagerState: 'installing updates',
-    });
+    expect(serializable(CompassMenu['windowState'].get(bw.id))).to.deep.eq(
+      serializable({
+        rendererState: new RendererDefinedMenuState(ipcMain as any),
+        updateManagerState: 'installing updates',
+      })
+    );
   });
 
   describe('getTemplate', function () {
@@ -388,73 +362,100 @@ describe('CompassMenu', function () {
       }
     });
 
-    it('should generate a menu template without collection submenu if `showCollection` is `false`', function () {
-      expect(
-        CompassMenu.getTemplate(0).find((item) => item.label === '&Collection')
-      ).to.be.undefined;
-    });
-
-    it('should generate a menu template with collection submenu if `showCollection` is `true`', function () {
+    it('should add menus requested from browser windows', function () {
+      const rendererState = new RendererDefinedMenuState({} as any);
+      Object.assign(rendererState, {
+        additionalMenus: [
+          {
+            id: 'menu0',
+            menu: {
+              label: '&MyMenu',
+              submenu: [{ label: 'Do Something', click: 'id2' }],
+            },
+          },
+        ],
+        roleListeners: [
+          ['undo', 'id0'],
+          ['redo', 'id1'],
+        ],
+      });
       CompassMenu['windowState'].set(0, {
-        showCollection: true,
-        isReadOnly: false,
+        rendererState,
         updateManagerState: 'idle',
       });
       expect(
         // Contains functions, so we can't easily deep equal it without
         // converting to serializable format
         serializable(
-          CompassMenu.getTemplate(0).find(
-            (item) => item.label === '&Collection'
-          )
+          CompassMenu.getTemplate(0).find((item) => item.label === '&MyMenu')
         )
       ).to.deep.eq({
-        label: '&Collection',
+        label: '&MyMenu',
         submenu: [
           {
-            accelerator: 'Alt+CmdOrCtrl+S',
-            label: '&Share Schema as JSON (Legacy)',
-          },
-          {
-            type: 'separator',
-          },
-          {
-            label: '&Import Data',
-          },
-          {
-            label: '&Export Collection',
+            label: 'Do Something',
           },
         ],
       });
-    });
-
-    it('should generate a menu template with import collection action hidden if `isReadOnly` is `true`', function () {
-      CompassMenu['windowState'].set(0, {
-        showCollection: true,
-        isReadOnly: true,
-        updateManagerState: 'idle',
-      });
       expect(
         // Contains functions, so we can't easily deep equal it without
         // converting to serializable format
         serializable(
-          CompassMenu.getTemplate(0).find(
-            (item) => item.label === '&Collection'
-          )
+          CompassMenu.getTemplate(0).find((item) => item.label === 'Edit')
         )
       ).to.deep.eq({
-        label: '&Collection',
+        label: 'Edit',
         submenu: [
           {
-            accelerator: 'Alt+CmdOrCtrl+S',
-            label: '&Share Schema as JSON (Legacy)',
+            // note the missing 'role' property here
+            accelerator: 'Command+Z',
+            label: 'Undo',
+          },
+          {
+            accelerator: 'Shift+Command+Z',
+            label: 'Redo',
           },
           {
             type: 'separator',
           },
           {
-            label: '&Export Collection',
+            accelerator: 'Command+X',
+            label: 'Cut',
+            role: 'cut',
           },
+          {
+            accelerator: 'Command+C',
+            label: 'Copy',
+            role: 'copy',
+          },
+          {
+            accelerator: 'Command+V',
+            label: 'Paste',
+            role: 'paste',
+          },
+          {
+            accelerator: 'Command+A',
+            label: 'Select All',
+            role: 'selectAll',
+          },
+          {
+            type: 'separator',
+          },
+          {
+            accelerator: 'CmdOrCtrl+F',
+            label: 'Find',
+          },
+          ...(process.platform === 'darwin'
+            ? []
+            : [
+                {
+                  type: 'separator',
+                },
+                {
+                  accelerator: 'CmdOrCtrl+,',
+                  label: '&Settings',
+                },
+              ]),
         ],
       });
     });

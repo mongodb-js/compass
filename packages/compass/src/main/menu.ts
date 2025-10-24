@@ -1,4 +1,5 @@
-import type { MenuItemConstructorOptions } from 'electron';
+import { RendererDefinedMenuState } from '@mongodb-js/compass-electron-menu/ipc-provider-main';
+import { type CompassAppMenu } from '@mongodb-js/compass-electron-menu';
 import {
   BrowserWindow,
   Menu,
@@ -19,7 +20,8 @@ import { createIpcTrack } from '@mongodb-js/compass-telemetry';
 
 const track = createIpcTrack();
 
-type MenuTemplate = MenuItemConstructorOptions | MenuItemConstructorOptions[];
+type MenuItemConstructorOptions = CompassAppMenu; // Alias to reduce diff complexity
+type MenuTemplate = CompassAppMenu | CompassAppMenu[];
 
 const debug = createDebug('mongodb-compass:menu');
 
@@ -321,39 +323,6 @@ function helpSubMenu(
   };
 }
 
-function collectionSubMenu(
-  menuReadOnly: boolean,
-  app: typeof CompassApplication
-): MenuItemConstructorOptions {
-  const subMenu = [];
-  subMenu.push({
-    label: '&Share Schema as JSON (Legacy)',
-    accelerator: 'Alt+CmdOrCtrl+S',
-    click() {
-      ipcMain?.broadcastFocused('window:menu-share-schema-json');
-    },
-  });
-  subMenu.push(separator());
-  if (!app.preferences.getPreferences().readOnly && !menuReadOnly) {
-    subMenu.push({
-      label: '&Import Data',
-      click() {
-        ipcMain?.broadcastFocused('compass:open-import');
-      },
-    });
-  }
-  subMenu.push({
-    label: '&Export Collection',
-    click() {
-      ipcMain?.broadcastFocused('compass:open-export');
-    },
-  });
-  return {
-    label: '&Collection',
-    submenu: subMenu,
-  };
-}
-
 function viewSubMenu(
   app: typeof CompassApplication
 ): MenuItemConstructorOptions {
@@ -452,42 +421,36 @@ function darwinMenu(
   menuState: WindowMenuState,
   app: typeof CompassApplication
 ): MenuItemConstructorOptions[] {
-  const menu: MenuTemplate = [darwinCompassSubMenu(menuState, app)];
-
-  menu.push(connectSubMenu(false, app));
-  menu.push(editSubMenu());
-  menu.push(viewSubMenu(app));
-
-  if (menuState.showCollection) {
-    menu.push(collectionSubMenu(menuState.isReadOnly, app));
-  }
-
-  menu.push(windowSubMenu(app));
-  menu.push(helpSubMenu(menuState, app));
-
-  return menu;
+  return menuState.rendererState.translateRoles([
+    darwinCompassSubMenu(menuState, app),
+    connectSubMenu(false, app),
+    editSubMenu(),
+    viewSubMenu(app),
+    ...menuState.rendererState.menus(),
+    windowSubMenu(app),
+    helpSubMenu(menuState, app),
+  ]);
 }
 
 function nonDarwinMenu(
   menuState: WindowMenuState,
   app: typeof CompassApplication
 ): MenuItemConstructorOptions[] {
-  const menu = [connectSubMenu(true, app), editSubMenu(), viewSubMenu(app)];
-
-  if (menuState.showCollection) {
-    menu.push(collectionSubMenu(menuState.isReadOnly, app));
-  }
-
-  menu.push(helpSubMenu(menuState, app));
-
-  return menu;
+  return menuState.rendererState.translateRoles([
+    connectSubMenu(true, app),
+    editSubMenu(),
+    viewSubMenu(app),
+    ...menuState.rendererState.menus(),
+    helpSubMenu(menuState, app),
+  ]);
 }
 
 type UpdateManagerState = 'idle' | 'installing updates' | 'ready to restart';
 
 class WindowMenuState {
-  showCollection = false;
-  isReadOnly = false;
+  rendererState: RendererDefinedMenuState = new RendererDefinedMenuState(
+    ipcMain
+  );
   updateManagerState: UpdateManagerState = 'idle';
 }
 
@@ -527,12 +490,15 @@ class CompassMenu {
             return 'idle';
         }
       })();
-      this.updateMenu({ updateManagerState });
+      this.updateMenu(() => ({ updateManagerState }));
     });
 
     ipcMain?.respondTo({
-      'window:show-collection-submenu': this.showCollection.bind(this),
-      'window:hide-collection-submenu': this.hideCollection.bind(this),
+      [RendererDefinedMenuState.modifyApplicationMenuIpcEvent]: (ev, params) =>
+        this.updateMenu((state) => ({
+          rendererState:
+            state.rendererState.modifyApplicationMenuHandler(params),
+        })),
     });
 
     preferences.onPreferenceValueChanged('theme', (newTheme: THEMES) => {
@@ -652,10 +618,11 @@ class CompassMenu {
       menuState = new WindowMenuState();
     }
 
-    if (process.platform === 'darwin') {
-      return darwinMenu(menuState, this.app);
-    }
-    return nonDarwinMenu(menuState, this.app);
+    const menu =
+      process.platform === 'darwin'
+        ? darwinMenu(menuState, this.app)
+        : nonDarwinMenu(menuState, this.app);
+    return menuState.rendererState.translateRoles(menu);
   }
 
   private static refreshMenu = () => {
@@ -674,19 +641,8 @@ class CompassMenu {
     Menu.setApplicationMenu(menu);
   };
 
-  private static showCollection(
-    evt: unknown,
-    { isReadOnly }: { isReadOnly: boolean }
-  ) {
-    this.updateMenu({ showCollection: true, isReadOnly });
-  }
-
-  private static hideCollection() {
-    this.updateMenu({ showCollection: false });
-  }
-
   private static updateMenu(
-    newValues: Partial<WindowMenuState>,
+    newValues: (state: WindowMenuState) => Partial<WindowMenuState>,
     bw: BrowserWindow | null = this.lastFocusedWindow
   ) {
     debug(`updateMenu() set menu state to ${JSON.stringify(newValues)}`);
@@ -699,7 +655,7 @@ class CompassMenu {
     const menuState = this.windowState.get(bw.id);
 
     if (menuState) {
-      Object.assign(menuState, newValues);
+      Object.assign(menuState, newValues(menuState));
       this.windowState.set(bw.id, menuState);
       this.setTemplate(bw.id);
     }
