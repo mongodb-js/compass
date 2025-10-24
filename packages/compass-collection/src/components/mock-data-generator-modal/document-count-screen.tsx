@@ -10,7 +10,8 @@ import React, { useMemo } from 'react';
 import { connect } from 'react-redux';
 import type { CollectionState } from '../../modules/collection-tab';
 import type { SchemaAnalysisState } from '../../schema-analysis-types';
-import { MAX_DOCUMENT_COUNT } from './constants';
+import { DEFAULT_DOCUMENT_COUNT, MAX_DOCUMENT_COUNT } from './constants';
+import { validateDocumentCount } from './utils';
 
 const BYTE_PRECISION_THRESHOLD = 1000;
 
@@ -44,15 +45,6 @@ const formatBytes = (bytes: number) => {
   return compactBytes(bytes, true, decimals);
 };
 
-type ErrorState =
-  | {
-      state: 'error';
-      message: string;
-    }
-  | {
-      state: 'none';
-    };
-
 interface OwnProps {
   documentCount: string;
   onDocumentCountChange: (documentCount: string) => void;
@@ -67,7 +59,10 @@ const DocumentCountScreen = ({
   onDocumentCountChange,
   schemaAnalysisState,
 }: Props) => {
-  const documentCountNumber = parseInt(documentCount, 10);
+  const validationState = validateDocumentCount(documentCount);
+  const documentCountNumber = validationState.isValid
+    ? validationState.parsedValue!
+    : DEFAULT_DOCUMENT_COUNT;
 
   const estimatedDiskSize = useMemo(
     () =>
@@ -82,40 +77,15 @@ const DocumentCountScreen = ({
     [schemaAnalysisState, documentCountNumber]
   );
 
-  const isInputEmpty = documentCount.trim() === '';
-  const hasDecimal = documentCount.includes('.');
-  const isOutOfRange =
-    documentCountNumber < 1 || documentCountNumber > MAX_DOCUMENT_COUNT;
-
-  const errorState: ErrorState = useMemo(() => {
-    if (isInputEmpty) {
-      return {
-        state: 'error',
-        message: 'Document count is required',
-      };
-    }
-    if (isNaN(documentCountNumber)) {
-      return {
-        state: 'error',
-        message: 'Please enter a valid number',
-      };
-    }
-    if (hasDecimal) {
-      return {
-        state: 'error',
-        message: 'Please enter a whole number',
-      };
-    }
-    if (isOutOfRange) {
-      return {
-        state: 'error',
-        message: `Document count must be between 1 and ${MAX_DOCUMENT_COUNT}`,
-      };
+  const errorState = useMemo(() => {
+    if (validationState.isValid) {
+      return { state: 'none' as const };
     }
     return {
-      state: 'none',
+      state: 'error' as const,
+      message: validationState.errorMessage,
     };
-  }, [isInputEmpty, documentCountNumber, hasDecimal, isOutOfRange]);
+  }, [validationState.isValid, validationState.errorMessage]);
 
   const handleDocumentCountChange = (
     event: React.ChangeEvent<HTMLInputElement>

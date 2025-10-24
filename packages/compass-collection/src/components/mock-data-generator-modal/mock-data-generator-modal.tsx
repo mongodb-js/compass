@@ -14,7 +14,8 @@ import {
 } from '@mongodb-js/compass-components';
 
 import { type MockDataGeneratorState, MockDataGeneratorStep } from './types';
-import { MAX_DOCUMENT_COUNT, StepButtonLabelMap } from './constants';
+import { StepButtonLabelMap } from './constants';
+import { validateDocumentCount } from './utils';
 import type { CollectionState } from '../../modules/collection-tab';
 import {
   mockDataGeneratorModalClosed,
@@ -112,11 +113,7 @@ const MockDataGeneratorModal = ({
     onDocumentCountChange,
   ]);
 
-  const documentCountNumber = parseInt(documentCount, 10);
-  const isDocumentCountInvalid =
-    isNaN(documentCountNumber) ||
-    documentCountNumber < 1 ||
-    documentCountNumber > MAX_DOCUMENT_COUNT;
+  const isDocumentCountInvalid = !validateDocumentCount(documentCount).isValid;
 
   const isNextButtonDisabled =
     (currentStep === MockDataGeneratorStep.SCHEMA_EDITOR &&
