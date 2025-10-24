@@ -1,5 +1,10 @@
 import toNS from 'mongodb-ns';
-import type { NodeProps, EdgeProps, NodeGlyph } from '@mongodb-js/diagramming';
+import type {
+  EdgeProps,
+  NodeField,
+  NodeGlyph,
+  NodeProps,
+} from '@mongodb-js/compass-components';
 import type { MongoDBJSONSchema } from 'mongodb-schema';
 import type { SelectedItems } from '../store/diagram';
 import type {
@@ -8,7 +13,7 @@ import type {
   Relationship,
 } from '../services/data-model-storage';
 import { traverseSchema } from './schema-traversal';
-import { areFieldPathsEqual } from './utils';
+import { areFieldPathsEqual, isIdField } from './utils';
 
 const NO_HIGHLIGHTED_FIELDS = {};
 
@@ -33,6 +38,37 @@ export const getHighlightedFields = (
   return selection;
 };
 
+const getBaseNodeField = (fieldPath: string[]): NodeField => {
+  return {
+    name: fieldPath[fieldPath.length - 1],
+    id: fieldPath,
+    depth: fieldPath.length - 1,
+  };
+};
+
+/**
+ * Create the base field list to be used for positioning and measuring in node layouts.
+ */
+export const getBaseFieldsFromSchema = ({
+  jsonSchema,
+}: {
+  jsonSchema: MongoDBJSONSchema;
+}): NodeField[] => {
+  if (!jsonSchema || !jsonSchema.properties) {
+    return [];
+  }
+  const fields: NodeField[] = [];
+
+  traverseSchema({
+    jsonSchema,
+    visitor: ({ fieldPath }) => {
+      fields.push(getBaseNodeField(fieldPath));
+    },
+  });
+
+  return fields;
+};
+
 const KEY_GLYPH: NodeGlyph[] = ['key'];
 const NO_GLYPH: NodeGlyph[] = [];
 
@@ -54,17 +90,17 @@ export const getFieldsFromSchema = ({
     jsonSchema,
     visitor: ({ fieldPath, fieldTypes }) => {
       fields.push({
-        name: fieldPath[fieldPath.length - 1],
-        id: fieldPath,
+        ...getBaseNodeField(fieldPath),
         type: fieldTypes.length === 1 ? fieldTypes[0] : fieldTypes,
-        depth: fieldPath.length - 1,
         glyphs:
           fieldTypes.length === 1 && fieldTypes[0] === 'objectId'
             ? KEY_GLYPH
             : NO_GLYPH,
         selectable: true,
         selected:
-          !!selectedField && areFieldPathsEqual(fieldPath, selectedField),
+          !!selectedField?.length &&
+          areFieldPathsEqual(fieldPath, selectedField),
+        editable: !isIdField(fieldPath),
         variant:
           highlightedFields.length &&
           highlightedFields.some((highlightedField) =>
@@ -96,7 +132,7 @@ export function collectionToBaseNodeForLayout({
       x: displayPosition[0],
       y: displayPosition[1],
     },
-    fields: getFieldsFromSchema({ jsonSchema }),
+    fields: getBaseFieldsFromSchema({ jsonSchema }),
   };
 }
 
@@ -138,15 +174,50 @@ export function collectionToDiagramNode({
   };
 }
 
+function findNodeByNS(ns: string, nodes: NodeProps[]): NodeProps | undefined {
+  return nodes.find((node) => node.id === ns);
+}
+
+function findFieldIndex({
+  fieldPath,
+  nodes,
+  ns,
+}: {
+  fieldPath: string[];
+  nodes: NodeProps[];
+  ns?: string;
+}): number | undefined {
+  if (!ns || !fieldPath.length) return undefined;
+  const node = findNodeByNS(ns, nodes);
+  if (!node) return undefined;
+
+  for (const [index, field] of node.fields.entries()) {
+    if (!field.id || !Array.isArray(field.id)) continue;
+    // TODO(COMPASS-9504 and COMPASS-9935): Accept partial paths for collapsed nodes and fields.
+    if (areFieldPathsEqual(field.id, fieldPath)) return index;
+  }
+}
+
 export function relationshipToDiagramEdge(
   relationship: Relationship,
-  selected = false
+  selected = false,
+  nodes: NodeProps[]
 ): EdgeProps {
   const [source, target] = relationship.relationship;
   return {
     id: relationship.id,
     source: source.ns ?? '',
     target: target.ns ?? '',
+    sourceFieldIndex: findFieldIndex({
+      fieldPath: source.fields ?? [],
+      nodes,
+      ns: source.ns ?? undefined,
+    }),
+    targetFieldIndex: findFieldIndex({
+      fieldPath: target.fields ?? [],
+      nodes,
+      ns: target.ns ?? undefined,
+    }),
     markerStart: source.cardinality === 1 ? 'one' : 'many',
     markerEnd: target.cardinality === 1 ? 'one' : 'many',
     selected,

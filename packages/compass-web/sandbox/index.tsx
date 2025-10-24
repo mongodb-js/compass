@@ -38,6 +38,7 @@ const App = () => {
   const [currentTab, updateCurrentTab] = useWorkspaceTabRouter();
   const { status, projectParams } = useAtlasProxySignIn();
   const {
+    orgId,
     projectId,
     csrfToken,
     csrfTime,
@@ -89,6 +90,9 @@ const App = () => {
     return { readOnly: true };
   })();
 
+  const overrideGenAIFeatures =
+    process.env.COMPASS_OVERRIDE_ENABLE_AI_FEATURES === 'true';
+
   return (
     <SandboxConnectionStorageProvider
       value={isAtlas ? null : sandboxConnectionStorage}
@@ -96,7 +100,7 @@ const App = () => {
       <SandboxPreferencesUpdateProvider>
         <Body as="div" className={sandboxContainerStyles}>
           <CompassWeb
-            orgId={''}
+            orgId={orgId ?? ''}
             projectId={projectId ?? ''}
             onActiveWorkspaceTabChange={updateCurrentTab}
             initialWorkspace={currentTab ?? undefined}
@@ -111,12 +115,16 @@ const App = () => {
               enableRollingIndexes: isAtlas,
               showDisabledConnections: true,
               enableGenAIFeaturesAtlasProject:
-                isAtlas && !!enableGenAIFeaturesAtlasProject,
+                overrideGenAIFeatures ||
+                (isAtlas && !!enableGenAIFeaturesAtlasProject),
               enableGenAISampleDocumentPassing:
-                isAtlas && !!enableGenAISampleDocumentPassing,
+                overrideGenAIFeatures ||
+                (isAtlas && !!enableGenAISampleDocumentPassing),
               enableGenAIFeaturesAtlasOrg:
-                isAtlas && !!enableGenAIFeaturesAtlasOrg,
-              optInGenAIFeatures: isAtlas && !!optInGenAIFeatures,
+                overrideGenAIFeatures ||
+                (isAtlas && !!enableGenAIFeaturesAtlasOrg),
+              optInGenAIFeatures:
+                overrideGenAIFeatures || (isAtlas && !!optInGenAIFeatures),
               enableDataModeling: true,
               enableMyQueries: false,
               ...groupRolePreferences,

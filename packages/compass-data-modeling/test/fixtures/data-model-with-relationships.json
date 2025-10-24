@@ -2,6 +2,7 @@
   "id": "26fea481-14a0-40de-aa8e-b3ef22afcf1b",
   "connectionId": "108acc00-4d7b-4f56-be19-05c7288da71a",
   "name": "Flights and countries",
+  "database": "flights",
   "edits": [
     {
       "id": "5e16572a-6978-4669-8103-e1f087b412cd",

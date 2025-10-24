@@ -35,5 +35,4 @@ export type {
   MockDataSchemaRequest,
   MockDataSchemaRawField,
   MockDataSchemaResponse,
-  MongoDBFieldType,
 } from './atlas-ai-service';

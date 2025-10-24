@@ -3,6 +3,7 @@ import React, { type ComponentProps } from 'react';
 import {
   renderWithActiveConnection,
   screen,
+  waitFor,
 } from '@mongodb-js/testing-library-compass';
 import sinon from 'sinon';
 import {
@@ -14,6 +15,7 @@ import { CompassExperimentationProvider } from '@mongodb-js/compass-telemetry';
 import type { ConnectionInfo } from '@mongodb-js/compass-connections/provider';
 
 import CollectionHeaderActions from '../collection-header-actions';
+import { MAX_COLLECTION_NESTING_DEPTH } from '../mock-data-generator-modal/utils';
 
 describe('CollectionHeaderActions [Component]', function () {
   let mockUseAssignment: sinon.SinonStub;
@@ -42,6 +44,7 @@ describe('CollectionHeaderActions [Component]', function () {
     return renderWithActiveConnection(
       <CompassExperimentationProvider
         useAssignment={mockUseAssignment}
+        useTrackInSample={sinon.stub()}
         assignExperiment={sinon.stub()}
         getAssignment={sinon.stub().resolves(null)}
       >
@@ -213,6 +216,7 @@ describe('CollectionHeaderActions [Component]', function () {
           globalWrites: false,
           rollingIndexes: true,
         },
+        userConnectionString: 'mongodb+srv://localhost:27017',
       },
     };
 
@@ -228,94 +232,132 @@ describe('CollectionHeaderActions [Component]', function () {
       );
     });
 
-    it('should call onOpenMockDataModal when CTA button is clicked', async function () {
-      const onOpenMockDataModal = sinon.stub();
-
-      mockUseAssignment.returns({
-        assignment: {
-          assignmentData: {
-            variant: 'mockDataGeneratorVariant',
+    context('when in the mock data generator treatment variant', function () {
+      beforeEach(function () {
+        mockUseAssignment.returns({
+          assignment: {
+            assignmentData: {
+              variant: 'mockDataGeneratorVariant',
+            },
           },
-        },
+        });
       });
 
-      await renderCollectionHeaderActions(
-        {
-          namespace: 'test.collection',
-          isReadonly: false,
-          onOpenMockDataModal,
-        },
-        {},
-        atlasConnectionInfo
-      );
-
-      const button = screen.getByTestId(
-        'collection-header-generate-mock-data-button'
-      );
-      button.click();
-
-      expect(onOpenMockDataModal).to.have.been.calledOnce;
-    });
-
-    it('should disable button for deeply nested collections', async function () {
-      mockUseAssignment.returns({
-        assignment: {
-          assignmentData: {
-            variant: 'mockDataGeneratorVariant', // Treatment variant
+      it('should send a track event when the button is viewed', async function () {
+        const result = await renderCollectionHeaderActions(
+          {
+            namespace: 'test.collection',
+            isReadonly: false,
           },
-        },
+          {},
+          atlasConnectionInfo
+        );
+
+        await waitFor(() => {
+          expect(result.track).to.have.been.calledWith(
+            'Mock Data Generator CTA Button Viewed',
+            {
+              button_enabled: true,
+              gen_ai_features_enabled: false,
+              send_sample_values_enabled: false,
+            }
+          );
+        });
       });
 
-      await renderCollectionHeaderActions(
-        {
-          namespace: 'test.collection',
-          isReadonly: false,
-          hasSchemaAnalysisData: true,
-          analyzedSchemaDepth: 5, // Exceeds MAX_COLLECTION_NESTING_DEPTH (3)
-          schemaAnalysisStatus: 'complete',
-          onOpenMockDataModal: sinon.stub(),
-        },
-        {},
-        atlasConnectionInfo
-      );
-
-      const button = screen.getByTestId(
-        'collection-header-generate-mock-data-button'
-      );
-      expect(button).to.exist;
-      expect(button).to.have.attribute('aria-disabled', 'true');
-    });
-
-    it('should show an error banner when the schema is in an unsupported state', async function () {
-      mockUseAssignment.returns({
-        assignment: {
-          assignmentData: {
-            variant: 'mockDataGeneratorVariant',
+      it('should call onOpenMockDataModal when CTA button is clicked', async function () {
+        const onOpenMockDataModal = sinon.stub();
+        await renderCollectionHeaderActions(
+          {
+            namespace: 'test.collection',
+            isReadonly: false,
+            onOpenMockDataModal,
           },
-        },
+          {},
+          atlasConnectionInfo
+        );
+
+        const button = screen.getByTestId(
+          'collection-header-generate-mock-data-button'
+        );
+        button.click();
+
+        expect(onOpenMockDataModal).to.have.been.calledOnce;
       });
 
-      await renderCollectionHeaderActions(
-        {
-          namespace: 'test.collection',
-          isReadonly: false,
-          hasSchemaAnalysisData: false,
-          schemaAnalysisStatus: 'error',
-          schemaAnalysisError: {
-            errorType: 'unsupportedState',
-            errorMessage: 'Unsupported state',
-          },
-          onOpenMockDataModal: sinon.stub(),
-        },
-        {},
-        atlasConnectionInfo
-      );
+      it('sends a track event when CTA button is clicked', async function () {
+        const onOpenMockDataModal = sinon.stub();
 
-      const button = screen.getByTestId(
-        'collection-header-generate-mock-data-button'
-      );
-      expect(button).to.exist;
-      expect(button).to.have.attribute('aria-disabled', 'true');
+        const result = await renderCollectionHeaderActions(
+          {
+            namespace: 'test.collection',
+            isReadonly: false,
+            onOpenMockDataModal,
+          },
+          {},
+          atlasConnectionInfo
+        );
+
+        const button = screen.getByTestId(
+          'collection-header-generate-mock-data-button'
+        );
+        button.click();
+
+        await waitFor(() => {
+          expect(result.track).to.have.been.calledWith(
+            'Mock Data Generator Opened',
+            {
+              gen_ai_features_enabled: false,
+              send_sample_values_enabled: false,
+            }
+          );
+        });
+      });
+
+      it('should disable button for deeply nested collections', async function () {
+        await renderCollectionHeaderActions(
+          {
+            namespace: 'test.collection',
+            isReadonly: false,
+            hasSchemaAnalysisData: true,
+            analyzedSchemaDepth: MAX_COLLECTION_NESTING_DEPTH + 1,
+            schemaAnalysisStatus: 'complete',
+            onOpenMockDataModal: sinon.stub(),
+          },
+          {},
+          atlasConnectionInfo
+        );
+
+        const button = screen.getByTestId(
+          'collection-header-generate-mock-data-button'
+        );
+        expect(button).to.exist;
+        expect(button).to.have.attribute('aria-disabled', 'true');
+      });
+
+      it('should show an error banner when the schema is in an unsupported state', async function () {
+        await renderCollectionHeaderActions(
+          {
+            namespace: 'test.collection',
+            isReadonly: false,
+            hasSchemaAnalysisData: false,
+            schemaAnalysisStatus: 'error',
+            schemaAnalysisError: {
+              errorType: 'unsupportedState',
+              errorMessage: 'Unsupported state',
+            },
+            onOpenMockDataModal: sinon.stub(),
+          },
+          {},
+          atlasConnectionInfo
+        );
+
+        const button = screen.getByTestId(
+          'collection-header-generate-mock-data-button'
+        );
+        expect(button).to.exist;
+        expect(button).to.have.attribute('aria-disabled', 'true');
+      });
     });
   });
 });

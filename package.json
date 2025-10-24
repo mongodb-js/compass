@@ -118,7 +118,7 @@
     "@leafygreen-ui/leafygreen-provider": "^4.0.2",
     "@leafygreen-ui/marketing-modal": "^5.0.2",
     "@leafygreen-ui/typography": "^20.0.2",
-    "@leafygreen-ui/icon": "^13.1.2",
+    "@leafygreen-ui/icon": "^14.6.0",
     "@leafygreen-ui/inline-definition": "^9.0.5",
     "@leafygreen-ui/popover": "^13.0.11",
     "@leafygreen-ui/badge": "^9.0.2",
@@ -129,9 +129,10 @@
     "@leafygreen-ui/input-option": "^3.0.4",
     "@leafygreen-ui/polymorphic": "^2.0.5",
     "@leafygreen-ui/search-input": "^5.0.2",
-    "@leafygreen-ui/code": "^16.0.2",
+    "@leafygreen-ui/code": "^20.1.1",
     "@leafygreen-ui/text-area": "^10.0.2",
     "@leafygreen-ui/card": "^12.0.2",
-    "@leafygreen-ui/logo": "^10.0.2"
+    "@leafygreen-ui/logo": "^10.0.2",
+    "@leafygreen-ui/tabs": "^17.0.4"
   }
 }

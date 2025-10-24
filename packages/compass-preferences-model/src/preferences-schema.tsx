@@ -1,10 +1,7 @@
 import React from 'react';
 import { z } from '@mongodb-js/compass-user-data';
-import {
-  type FeatureFlagDefinition,
-  type FeatureFlags,
-  featureFlags,
-} from './feature-flags';
+import type { AtlasCloudFeatureFlags, FeatureFlags } from './feature-flags';
+import { FEATURE_FLAG_PREFERENCES } from './feature-flags';
 import { parseRecord } from './parse-record';
 import {
   extractProxySecrets,
@@ -21,7 +18,7 @@ export type THEMES = (typeof THEMES_VALUES)[number];
 
 const enableDbAndCollStatsDescription: React.ReactNode = (
   <>
-    The{' '}
+    When enabled, Compass occasionally calls the{' '}
     <Link href="https://www.mongodb.com/docs/manual/reference/command/dbStats/#mongodb-dbcommand-dbcmd.dbStats">
       dbStats
     </Link>
@@ -29,7 +26,7 @@ const enableDbAndCollStatsDescription: React.ReactNode = (
     <Link href="https://www.mongodb.com/docs/manual/reference/command/collStats/">
       collStats
     </Link>{' '}
-    command return storage statistics for a given database or collection.
+    commands to access storage statistics for a given database or collection.
     Disabling this setting can help reduce Compass&apos; overhead on your
     MongoDB deployments.
   </>
@@ -105,6 +102,8 @@ export type UserConfigurablePreferences = PermanentFeatureFlags &
     enableProxySupport: boolean;
     proxy: string;
     inferNamespacesFromPrivileges?: boolean;
+    // Features that are enabled by default in Date Explorer, but are disabled in Compass
+    maxTimeMSEnvLimit?: number;
   };
 
 /**
@@ -126,6 +125,14 @@ export type InternalUserPreferences = {
   enableConnectInNewWindow: boolean;
   showEndOfLifeConnectionModal: boolean;
   zoomLevel?: number;
+  windowBounds?: {
+    x?: number;
+    y?: number;
+    width?: number;
+    height?: number;
+    isMaximized?: boolean;
+    isFullScreen?: boolean;
+  };
 };
 
 // UserPreferences contains all preferences stored to disk.
@@ -198,7 +205,8 @@ export type DeriveValueFunction<T> = (
   /** Get a preference's value from the current set of preferences */
   getValue: <K extends keyof AllPreferences>(key: K) => AllPreferences[K],
   /** Get a preference's state from the current set of preferences */
-  getState: <K extends keyof AllPreferences>(key: K) => PreferenceState
+  getState: <K extends keyof AllPreferences>(key: K) => PreferenceState,
+  atlasCloudFeatureFlags: Partial<AtlasCloudFeatureFlags>
 ) => { value: T; state: PreferenceState };
 
 type SecretsConfiguration<T> = {
@@ -206,7 +214,7 @@ type SecretsConfiguration<T> = {
   merge(extracted: { remainder: string; secrets: string }): T;
 };
 
-type PreferenceDefinition<K extends keyof AllPreferences> = {
+export type PreferenceDefinition<K extends keyof AllPreferences> = {
   /** Whether the preference can be modified through the Settings UI */
   ui: K extends keyof UserConfigurablePreferences ? true : false;
   /** Whether the preference can be set on the command line */
@@ -267,18 +275,6 @@ export type StoredPreferencesValidator = ReturnType<
 
 export type StoredPreferences = z.output<StoredPreferencesValidator>;
 
-// Preference definitions
-const featureFlagsProps: Required<{
-  [K in keyof FeatureFlags]: PreferenceDefinition<K>;
-}> = Object.fromEntries(
-  Object.entries(featureFlags).map(([key, value]) => [
-    key as keyof FeatureFlags,
-    featureFlagToPreferenceDefinition(key, value),
-  ])
-) as unknown as Required<{
-  [K in keyof FeatureFlags]: PreferenceDefinition<K>;
-}>;
-
 const allFeatureFlagsProps: Required<{
   [K in keyof AllFeatureFlags]: PreferenceDefinition<K>;
 }> = {
@@ -314,7 +310,7 @@ const allFeatureFlagsProps: Required<{
     type: 'boolean',
   },
 
-  ...featureFlagsProps,
+  ...FEATURE_FLAG_PREFERENCES,
 };
 
 export const storedUserPreferencesProps: Required<{
@@ -470,6 +466,26 @@ export const storedUserPreferencesProps: Required<{
     description: null,
     validator: z.number().optional(),
     type: 'number',
+  },
+  /**
+   * Window bounds for restoring window size and position.
+   */
+  windowBounds: {
+    ui: false,
+    cli: false,
+    global: false,
+    description: null,
+    validator: z
+      .object({
+        x: z.number().optional(),
+        y: z.number().optional(),
+        width: z.number().optional(),
+        height: z.number().optional(),
+        isMaximized: z.boolean().optional(),
+        isFullScreen: z.boolean().optional(),
+      })
+      .optional(),
+    type: 'object',
   },
   /**
    * Enable/disable the AI services. This is currently set
@@ -1062,6 +1078,17 @@ export const storedUserPreferencesProps: Required<{
     validator: z.boolean().default(true),
     type: 'boolean',
   },
+  maxTimeMSEnvLimit: {
+    ui: true,
+    cli: true,
+    global: true,
+    description: {
+      short:
+        'Maximum time limit for operations in environment (milliseconds). Set to 0 for no limit.',
+    },
+    validator: z.number().min(0).default(0),
+    type: 'number',
+  },
 
   ...allFeatureFlagsProps,
 };
@@ -1283,29 +1310,6 @@ function deriveReadOnlyOptionState<K extends keyof AllPreferences>(
     state:
       s(property) ?? (v('readOnly') ? s('readOnly') ?? 'derived' : undefined),
   });
-}
-
-// Helper to convert feature flag definitions to preference definitions
-function featureFlagToPreferenceDefinition(
-  key: string,
-  featureFlag: FeatureFlagDefinition
-): PreferenceDefinition<keyof FeatureFlags> {
-  return {
-    cli: true,
-    global: true,
-    ui: true,
-    description: featureFlag.description,
-    // Only show feature flags in 'preview' stage in --help output
-    omitFromHelp: featureFlag.stage !== 'preview',
-    // if a feature flag is 'released' it will always return true
-    // regardless of any persisted value.
-    deriveValue:
-      featureFlag.stage === 'released'
-        ? () => ({ value: true, state: 'hardcoded' })
-        : undefined,
-    validator: z.boolean().default(false),
-    type: 'boolean',
-  };
 }
 
 export function getPreferencesValidator() {

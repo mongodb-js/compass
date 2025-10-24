@@ -13,6 +13,7 @@ console.info(
 type SignInStatus = 'checking' | 'signed-in' | 'signed-out';
 
 type ProjectParams = {
+  orgId: string;
   projectId: string;
   csrfToken: string;
   csrfTime: string;
@@ -127,20 +128,27 @@ export function useAtlasProxySignIn(): AtlasLoginReturnValue {
             currentOrganization: { genAIFeaturesEnabled },
             featureFlags: { groupEnabledFeatureFlags },
             userRoles,
+            currentOrganization,
           } = params;
+          const overrideGenAIFeatures =
+            process.env.COMPASS_OVERRIDE_ENABLE_AI_FEATURES === 'true';
           setProjectParams({
+            orgId: currentOrganization.id,
             projectId,
             csrfToken,
             csrfTime,
             optInGenAIFeatures: isOptedIntoDataExplorerGenAIFeatures,
-            enableGenAIFeaturesAtlasOrg: genAIFeaturesEnabled,
+            enableGenAIFeaturesAtlasOrg:
+              overrideGenAIFeatures || genAIFeaturesEnabled,
             enableGenAISampleDocumentPassing:
               !groupEnabledFeatureFlags.includes(
                 'DISABLE_DATA_EXPLORER_GEN_AI_SAMPLE_DOCUMENT_PASSING'
               ),
-            enableGenAIFeaturesAtlasProject: groupEnabledFeatureFlags.includes(
-              'ENABLE_DATA_EXPLORER_GEN_AI_FEATURES'
-            ),
+            enableGenAIFeaturesAtlasProject:
+              overrideGenAIFeatures ||
+              groupEnabledFeatureFlags.includes(
+                'ENABLE_DATA_EXPLORER_GEN_AI_FEATURES'
+              ),
             userRoles,
           });
           setStatus('signed-in');

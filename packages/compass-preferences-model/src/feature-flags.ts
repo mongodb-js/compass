@@ -1,4 +1,11 @@
+import { z } from '@mongodb-js/compass-user-data';
+import type { PreferenceDefinition } from './preferences-schema';
+
 export type FeatureFlagDefinition = {
+  /**
+   * Resulting preference name to be used in Compass
+   */
+  name: string;
   /**
    * Defines the feature flag behavior depending on its stage.
    *
@@ -7,57 +14,47 @@ export type FeatureFlagDefinition = {
    * - 'released': the feature flag is always enabled, is not read from disk and cannot be disabled from settings.
    */
   stage: 'development' | 'preview' | 'released';
+  /**
+   * Defines the feature flag name to be picked up from Atlas Cloud. If set to a
+   * non-null value and Atlas Cloud feature flag exists and was passed to
+   * compass-web, it will take precedence over the "release stage"
+   * configuration, otherwise the `stage` logic will apply.
+   */
+  atlasCloudFeatureFlagName: string | null;
   description: {
     short: string;
     long?: string;
   };
 };
 
-export type FeatureFlags = {
-  enableOidc: boolean; // Not capitalized "OIDC" for spawn arg casing.
-  newExplainPlan: boolean;
-  showInsights: boolean;
-  enableExportSchema: boolean;
-  enableRenameCollectionModal: boolean;
-  enableProxySupport: boolean;
-  enableRollingIndexes: boolean;
-  showDisabledConnections: boolean;
-  enableGlobalWrites: boolean;
-  enableDataModeling: boolean;
-  enableIndexesGuidanceExp: boolean;
-  showIndexesGuidanceVariant: boolean;
-  enableContextMenus: boolean;
-  enableSearchActivationProgramP1: boolean;
-  enableUnauthenticatedGenAI: boolean;
-  enableAIAssistant: boolean;
-  enablePerformanceInsightsEntrypoints: boolean;
-  enableAutomaticRelationshipInference: boolean;
-};
-
-export const featureFlags: Required<{
-  [K in keyof FeatureFlags]: FeatureFlagDefinition;
-}> = {
+export const FEATURE_FLAG_DEFINITIONS = [
   /**
    * Feature flag for enabling OIDC authentication.
    * Epic: COMPASS-5955
    */
-  enableOidc: {
+  {
+    name: 'enableOidc', // Not capitalized "OIDC" for spawn arg casing.
     stage: 'released',
+    atlasCloudFeatureFlagName: null,
     description: {
       short: 'Enable OIDC Authentication',
     },
   },
 
-  newExplainPlan: {
+  {
+    name: 'newExplainPlan',
     stage: 'released',
+    atlasCloudFeatureFlagName: null,
     description: {
       short: 'Access explain plan from query bar',
       long: 'Explain plan is now accessible right from the query bar. To view a query’s execution plan, click “Explain” as you would on an aggregation pipeline.',
     },
   },
 
-  showInsights: {
+  {
+    name: 'showInsights',
     stage: 'released',
+    atlasCloudFeatureFlagName: null,
     description: {
       short: 'Show performance insights',
       long: 'Surface visual signals in the Compass interface to highlight potential performance issues and anti-patterns.',
@@ -67,8 +64,10 @@ export const featureFlags: Required<{
   /**
    * Feature flag for the rename collection modal.
    */
-  enableRenameCollectionModal: {
+  {
+    name: 'enableRenameCollectionModal',
     stage: 'released',
+    atlasCloudFeatureFlagName: null,
     description: {
       short: 'Enables renaming a collection',
       long: 'Allows users to rename a collection from the sidebar',
@@ -78,31 +77,39 @@ export const featureFlags: Required<{
   /**
    * Feature flag for explicit proxy configuration support.
    */
-  enableProxySupport: {
+  {
+    name: 'enableProxySupport',
     stage: 'released',
+    atlasCloudFeatureFlagName: null,
     description: {
       short: 'Enables support for explicit proxy configuration.',
       long: 'Allows users to specify proxy configuration for the entire Compass application.',
     },
   },
 
-  showDisabledConnections: {
+  {
+    name: 'showDisabledConnections',
     stage: 'released',
+    atlasCloudFeatureFlagName: null,
     description: {
       short:
         'Show clusters that are not in a "connectable" state in Atlas Cloud',
     },
   },
 
-  enableRollingIndexes: {
+  {
+    name: 'enableRollingIndexes',
     stage: 'released',
+    atlasCloudFeatureFlagName: null,
     description: {
       short: 'Enable creating indexes with the rolling build in Atlas Cloud',
     },
   },
 
-  enableGlobalWrites: {
+  {
+    name: 'enableGlobalWrites',
     stage: 'released',
+    atlasCloudFeatureFlagName: null,
     description: {
       short: 'Enable Global Writes tab in Atlas Cloud',
     },
@@ -111,8 +118,10 @@ export const featureFlags: Required<{
   /**
    * Feature flag for export schema. Epic: COMPASS-6862.
    */
-  enableExportSchema: {
+  {
+    name: 'enableExportSchema',
     stage: 'released',
+    atlasCloudFeatureFlagName: null,
     description: {
       short: 'Enable schema export',
     },
@@ -121,8 +130,10 @@ export const featureFlags: Required<{
   /**
    * https://jira.mongodb.org/browse/INIT-592
    */
-  enableDataModeling: {
-    stage: 'development',
+  {
+    name: 'enableDataModeling',
+    stage: 'released',
+    atlasCloudFeatureFlagName: 'DATA_EXPLORER_COMPASS_WEB_ENABLE_DATA_MODELING',
     description: {
       short: 'Design, Visualize, and Evolve your Data Model',
     },
@@ -132,30 +143,38 @@ export const featureFlags: Required<{
    * Feature flags for Early Journey Indexes Guidance & Awareness  | Jira Epic: CLOUDP-239367
    * These are passed from MMS and not editable by user
    */
-  enableIndexesGuidanceExp: {
+  {
+    name: 'enableIndexesGuidanceExp',
     stage: 'development',
+    atlasCloudFeatureFlagName: null,
     description: {
       short: 'Enable Indexes Guidance Experiment',
     },
   },
 
-  showIndexesGuidanceVariant: {
+  {
+    name: 'showIndexesGuidanceVariant',
     stage: 'development',
+    atlasCloudFeatureFlagName: null,
     description: {
       short:
         'Used to check if user is in the Indexes Guidance Experiment Variant',
     },
   },
 
-  enableContextMenus: {
+  {
+    name: 'enableContextMenus',
     stage: 'released',
+    atlasCloudFeatureFlagName: null,
     description: {
       short: 'Enable context (right-click) menus',
     },
   },
 
-  enableUnauthenticatedGenAI: {
+  {
+    name: 'enableUnauthenticatedGenAI',
     stage: 'released',
+    atlasCloudFeatureFlagName: null,
     description: {
       short: 'Enable GenAI for unauthenticated users',
     },
@@ -164,8 +183,10 @@ export const featureFlags: Required<{
   /**
    * Feature flag for CLOUDP-308952.
    */
-  enableSearchActivationProgramP1: {
+  {
+    name: 'enableSearchActivationProgramP1',
     stage: 'development',
+    atlasCloudFeatureFlagName: null,
     description: {
       short: 'Enable interface to view and modify search indexes',
     },
@@ -174,8 +195,10 @@ export const featureFlags: Required<{
   /**
    * Feature flag for AI Assistant.
    */
-  enableAIAssistant: {
+  {
+    name: 'enableAIAssistant',
     stage: 'released',
+    atlasCloudFeatureFlagName: null,
     description: {
       short: 'Enable AI Assistant',
     },
@@ -184,18 +207,87 @@ export const featureFlags: Required<{
   /*
    * Feature flag for AI Assistant's performance insight entrypoints.
    */
-  enablePerformanceInsightsEntrypoints: {
+  {
+    name: 'enablePerformanceInsightsEntrypoints',
     stage: 'development',
+    atlasCloudFeatureFlagName: null,
     description: {
       short: 'Enable the performance insights AI Assistant entrypoints',
     },
   },
 
-  enableAutomaticRelationshipInference: {
+  {
+    name: 'enableAutomaticRelationshipInference',
     stage: 'released',
+    atlasCloudFeatureFlagName: null,
     description: {
       short:
         'Enable automatic relationship inference during data model generation',
     },
   },
-};
+] as const satisfies ReadonlyArray<FeatureFlagDefinition>;
+
+type FeatureFlagDefinitions = typeof FEATURE_FLAG_DEFINITIONS;
+
+export const ATLAS_CLOUD_FEATURE_FLAGS = FEATURE_FLAG_DEFINITIONS.map(
+  (definition) => {
+    return definition.atlasCloudFeatureFlagName;
+  }
+).filter((name): name is NonNullable<typeof name> => {
+  return !!name;
+});
+
+export type AtlasCloudFeatureFlags = Record<
+  (typeof ATLAS_CLOUD_FEATURE_FLAGS)[number],
+  boolean
+>;
+
+export type FeatureFlags = Record<
+  FeatureFlagDefinitions[number]['name'],
+  boolean
+>;
+
+// Helper to convert feature flag definitions to preference definitions
+function featureFlagToPreferenceDefinition(
+  featureFlag: FeatureFlagDefinitions[number]
+): PreferenceDefinition<keyof FeatureFlags> {
+  return {
+    cli: true,
+    global: true,
+    ui: true,
+    description: featureFlag.description,
+    // Only show feature flags in 'preview' stage in --help output
+    omitFromHelp:
+      (featureFlag.stage as FeatureFlagDefinition['stage']) !== 'preview',
+    // if a feature flag is 'released' it will always return true
+    // regardless of any persisted value.
+    deriveValue: (getValue, getState, atlasCloudFeatureFlags) => {
+      if (featureFlag.atlasCloudFeatureFlagName) {
+        const atlasCloudFeatureFlagValue =
+          atlasCloudFeatureFlags[featureFlag.atlasCloudFeatureFlagName];
+        if (atlasCloudFeatureFlagValue !== undefined) {
+          return {
+            value: atlasCloudFeatureFlagValue,
+            state: 'derived',
+          };
+        }
+      }
+      if (featureFlag.stage === 'released') {
+        return { value: true, state: 'hardcoded' };
+      }
+      return {
+        value: getValue(featureFlag.name),
+        state: getState(featureFlag.name),
+      };
+    },
+    validator: z.boolean().default(false),
+    type: 'boolean',
+  };
+}
+
+// Preference definitions
+export const FEATURE_FLAG_PREFERENCES = Object.fromEntries(
+  FEATURE_FLAG_DEFINITIONS.map((definition) => {
+    return [definition.name, featureFlagToPreferenceDefinition(definition)];
+  })
+) as Record<keyof FeatureFlags, PreferenceDefinition<keyof FeatureFlags>>;

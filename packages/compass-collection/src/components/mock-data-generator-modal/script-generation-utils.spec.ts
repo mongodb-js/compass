@@ -1,7 +1,8 @@
 import { expect } from 'chai';
 import { faker } from '@faker-js/faker/locale/en';
-import { generateScript } from './script-generation-utils';
+import { generateScript, generateDocument } from './script-generation-utils';
 import type { FakerFieldMapping } from './types';
+import { UNRECOGNIZED_FAKER_METHOD } from '../../modules/collection-tab';
 
 /**
  * Helper function to test that generated document code is executable
@@ -776,7 +777,7 @@ describe('Script Generation', () => {
       const schema = {
         unknownField: {
           mongoType: 'String' as const,
-          fakerMethod: 'unrecognized',
+          fakerMethod: UNRECOGNIZED_FAKER_METHOD,
           fakerArgs: [],
         },
       };
@@ -803,32 +804,32 @@ describe('Script Generation', () => {
       const schema = {
         unknownNumber: {
           mongoType: 'Number' as const,
-          fakerMethod: 'unrecognized',
+          fakerMethod: UNRECOGNIZED_FAKER_METHOD,
           fakerArgs: [],
         },
         unknownInt: {
           mongoType: 'Int32' as const,
-          fakerMethod: 'unrecognized',
+          fakerMethod: UNRECOGNIZED_FAKER_METHOD,
           fakerArgs: [],
         },
         unknownInt32: {
           mongoType: 'Int32' as const,
-          fakerMethod: 'unrecognized',
+          fakerMethod: UNRECOGNIZED_FAKER_METHOD,
           fakerArgs: [],
         },
         unknownInt64: {
           mongoType: 'Long' as const,
-          fakerMethod: 'unrecognized',
+          fakerMethod: UNRECOGNIZED_FAKER_METHOD,
           fakerArgs: [],
         },
         unknownLong: {
           mongoType: 'Long' as const,
-          fakerMethod: 'unrecognized',
+          fakerMethod: UNRECOGNIZED_FAKER_METHOD,
           fakerArgs: [],
         },
         unknownDecimal128: {
           mongoType: 'Decimal128' as const,
-          fakerMethod: 'unrecognized',
+          fakerMethod: UNRECOGNIZED_FAKER_METHOD,
           fakerArgs: [],
         },
       };
@@ -879,7 +880,7 @@ describe('Script Generation', () => {
       const schema = {
         unknownDate: {
           mongoType: 'Date' as const,
-          fakerMethod: 'unrecognized',
+          fakerMethod: UNRECOGNIZED_FAKER_METHOD,
           fakerArgs: [],
         },
       };
@@ -903,7 +904,7 @@ describe('Script Generation', () => {
       const schema = {
         unknownBool: {
           mongoType: 'Boolean' as const,
-          fakerMethod: 'unrecognized',
+          fakerMethod: UNRECOGNIZED_FAKER_METHOD,
           fakerArgs: [],
         },
       };
@@ -927,7 +928,7 @@ describe('Script Generation', () => {
       const schema = {
         unknownId: {
           mongoType: 'ObjectId' as const,
-          fakerMethod: 'unrecognized',
+          fakerMethod: UNRECOGNIZED_FAKER_METHOD,
           fakerArgs: [],
         },
       };
@@ -951,7 +952,7 @@ describe('Script Generation', () => {
       const schema = {
         unknownType: {
           mongoType: 'String' as const,
-          fakerMethod: 'unrecognized',
+          fakerMethod: UNRECOGNIZED_FAKER_METHOD,
           fakerArgs: [],
         },
       };
@@ -975,7 +976,7 @@ describe('Script Generation', () => {
       const schema = {
         timestampField: {
           mongoType: 'Timestamp' as const,
-          fakerMethod: 'unrecognized',
+          fakerMethod: UNRECOGNIZED_FAKER_METHOD,
           fakerArgs: [],
         },
       };
@@ -999,7 +1000,7 @@ describe('Script Generation', () => {
       const schema = {
         regexField: {
           mongoType: 'RegExp' as const,
-          fakerMethod: 'unrecognized',
+          fakerMethod: UNRECOGNIZED_FAKER_METHOD,
           fakerArgs: [],
         },
       };
@@ -1023,7 +1024,7 @@ describe('Script Generation', () => {
       const schema = {
         jsField: {
           mongoType: 'Code' as const,
-          fakerMethod: 'unrecognized',
+          fakerMethod: UNRECOGNIZED_FAKER_METHOD,
           fakerArgs: [],
         },
       };
@@ -1399,7 +1400,7 @@ describe('Script Generation', () => {
       const schema = {
         unknownField: {
           mongoType: 'String' as const,
-          fakerMethod: 'unrecognized',
+          fakerMethod: UNRECOGNIZED_FAKER_METHOD,
           fakerArgs: [],
           probability: 0.5,
         },
@@ -1419,6 +1420,153 @@ describe('Script Generation', () => {
         // Test that the generated document code is executable
         testDocumentCodeExecution(result.script);
       }
+    });
+  });
+
+  describe('generateDocument', () => {
+    it('should generate document with simple flat fields', () => {
+      const schema = {
+        name: {
+          mongoType: 'String' as const,
+          fakerMethod: 'person.fullName',
+          fakerArgs: [],
+          probability: 1.0,
+        },
+        age: {
+          mongoType: 'Number' as const,
+          fakerMethod: 'number.int',
+          fakerArgs: [{ json: '{"min": 18, "max": 65}' }],
+          probability: 1.0,
+        },
+      };
+
+      const document = generateDocument(schema);
+
+      expect(document).to.be.an('object');
+      expect(document).to.have.property('name');
+      expect(document.name).to.be.a('string').and.not.be.empty;
+      expect(document).to.have.property('age');
+      expect(document.age).to.be.a('number');
+      expect(document.age).to.be.at.least(18).and.at.most(65);
+    });
+
+    it('should generate document with arrays', () => {
+      const schema = {
+        'tags[]': {
+          mongoType: 'String' as const,
+          fakerMethod: 'lorem.word',
+          fakerArgs: [],
+          probability: 1.0,
+        },
+      };
+
+      const document = generateDocument(schema, { 'tags[]': 2 });
+
+      expect(document).to.be.an('object');
+      expect(document).to.have.property('tags');
+      expect(document.tags).to.be.an('array').with.length(2);
+      for (const tag of document.tags as string[]) {
+        expect(tag).to.be.a('string').and.not.be.empty;
+      }
+    });
+
+    it('should generate document with complex nested arrays and custom lengths', () => {
+      const schema = {
+        'users[].posts[].tags[]': {
+          mongoType: 'String' as const,
+          fakerMethod: 'lorem.word',
+          fakerArgs: [],
+          probability: 1.0,
+        },
+        'matrix[][]': {
+          mongoType: 'Number' as const,
+          fakerMethod: 'number.int',
+          fakerArgs: [{ json: '{"min": 1, "max": 10}' }],
+          probability: 1.0,
+        },
+      };
+
+      const arrayLengthMap = {
+        'users[]': 2,
+        'users[].posts[]': 3,
+        'users[].posts[].tags[]': 4,
+        'matrix[]': 2,
+        'matrix[][]': 3,
+      };
+
+      const document = generateDocument(schema, arrayLengthMap);
+
+      expect(document).to.be.an('object');
+
+      // Check users array structure
+      expect(document).to.have.property('users');
+      expect(document.users).to.be.an('array').with.length(2);
+
+      // Check nested structure with proper types
+      const users = document.users as Array<{
+        posts: Array<{ tags: string[] }>;
+      }>;
+
+      for (const user of users) {
+        expect(user).to.be.an('object');
+        expect(user).to.have.property('posts');
+        expect(user.posts).to.be.an('array').with.length(3);
+
+        for (const post of user.posts) {
+          expect(post).to.be.an('object');
+          expect(post).to.have.property('tags');
+          expect(post.tags).to.be.an('array').with.length(4);
+
+          for (const tag of post.tags) {
+            expect(tag).to.be.a('string').and.not.be.empty;
+          }
+        }
+      }
+
+      // Check matrix (2D array)
+      expect(document).to.have.property('matrix');
+      expect(document.matrix).to.be.an('array').with.length(2);
+
+      const matrix = document.matrix as number[][];
+      for (const row of matrix) {
+        expect(row).to.be.an('array').with.length(3);
+        for (const cell of row) {
+          expect(cell).to.be.a('number').and.be.at.least(1).and.at.most(10);
+        }
+      }
+    });
+
+    it('should handle probability fields correctly', () => {
+      const schema = {
+        name: {
+          mongoType: 'String' as const,
+          fakerMethod: 'person.fullName',
+          fakerArgs: [],
+          probability: 1.0,
+        },
+        optionalField: {
+          mongoType: 'String' as const,
+          fakerMethod: 'lorem.word',
+          fakerArgs: [],
+          probability: 0.0, // Should never appear
+        },
+        alwaysPresent: {
+          mongoType: 'Number' as const,
+          fakerMethod: 'number.int',
+          fakerArgs: [],
+          probability: 1.0,
+        },
+      };
+
+      const document = generateDocument(schema);
+
+      expect(document).to.be.an('object');
+      expect(document).to.have.property('name');
+      expect(document.name).to.be.a('string').and.not.be.empty;
+      expect(document).to.have.property('alwaysPresent');
+      expect(document.alwaysPresent).to.be.a('number');
+      // optionalField should not be present due to 0.0 probability
+      expect(document).to.not.have.property('optionalField');
     });
   });
 });

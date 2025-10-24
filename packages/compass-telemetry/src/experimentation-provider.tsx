@@ -20,10 +20,18 @@ type GetAssignmentFn = (
   options?: types.GetAssignmentOptions<types.TypeData>
 ) => Promise<types.SDKAssignment<ExperimentTestName, string> | null>;
 
+type UseTrackInSampleHook = (
+  experimentName: ExperimentTestName,
+  shouldFireEvent?: boolean,
+  customProperties?: types.TypeData['experimentViewedProps'],
+  team?: types.TypeData['loggerTeam']
+) => typesReact.BasicHookResponse;
+
 interface CompassExperimentationProviderContextValue {
   useAssignment: UseAssignmentHook;
   assignExperiment: AssignExperimentFn;
   getAssignment: GetAssignmentFn;
+  useTrackInSample: UseTrackInSampleHook;
 }
 
 const initialContext: CompassExperimentationProviderContextValue = {
@@ -43,6 +51,15 @@ const initialContext: CompassExperimentationProviderContextValue = {
   getAssignment() {
     return Promise.resolve(null);
   },
+  useTrackInSample() {
+    return {
+      asyncStatus: null,
+      error: null,
+      isLoading: false,
+      isError: false,
+      isSuccess: true,
+    };
+  },
 };
 
 export const ExperimentationContext =
@@ -54,17 +71,26 @@ export const CompassExperimentationProvider: React.FC<{
   useAssignment: UseAssignmentHook;
   assignExperiment: AssignExperimentFn;
   getAssignment: GetAssignmentFn;
-}> = ({ children, useAssignment, assignExperiment, getAssignment }) => {
+  useTrackInSample: UseTrackInSampleHook;
+}> = ({
+  children,
+  useAssignment,
+  assignExperiment,
+  getAssignment,
+  useTrackInSample,
+}) => {
   // Use useRef to keep the functions up-to-date; Use mutation pattern to maintain the
   // same object reference to prevent unnecessary re-renders of consuming components
   const { current: contextValue } = useRef({
     useAssignment,
     assignExperiment,
     getAssignment,
+    useTrackInSample,
   });
   contextValue.useAssignment = useAssignment;
   contextValue.assignExperiment = assignExperiment;
   contextValue.getAssignment = getAssignment;
+  contextValue.useTrackInSample = useTrackInSample;
 
   return (
     <ExperimentationContext.Provider value={contextValue}>
@@ -76,4 +102,9 @@ export const CompassExperimentationProvider: React.FC<{
 // Hook for components to access experiment assignment
 export const useAssignment = (...args: Parameters<UseAssignmentHook>) => {
   return useContext(ExperimentationContext).useAssignment(...args);
+};
+
+// Hook for components to access experiment assignment
+export const useTrackInSample = (...args: Parameters<UseTrackInSampleHook>) => {
+  return useContext(ExperimentationContext).useTrackInSample(...args);
 };

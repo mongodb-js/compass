@@ -1,15 +1,16 @@
 import React from 'react';
-import {
-  getNodesBounds,
-  getViewportForBounds,
-  DiagramProvider,
-  Diagram,
-} from '@mongodb-js/diagramming';
-import type { DiagramInstance } from '@mongodb-js/diagramming';
 import type { StaticModel } from './data-model-storage';
 import ReactDOM from 'react-dom';
 import { toPng } from 'html-to-image';
-import { rafraf, spacing } from '@mongodb-js/compass-components';
+import type { DiagramInstance } from '@mongodb-js/compass-components';
+import {
+  rafraf,
+  spacing,
+  Diagram,
+  DiagramProvider,
+  getNodesBounds,
+  getViewportForBounds,
+} from '@mongodb-js/compass-components';
 import { raceWithAbort } from '@mongodb-js/compass-utils';
 
 function moveSvgDefsToViewportElement(
@@ -45,6 +46,33 @@ export async function exportToPng(
   downloadFile(dataUri, fileName);
 }
 
+/**
+ * @internal Exported for tests.
+ */
+export function getDiagramNodesAndEdges(
+  diagram: Pick<DiagramInstance, 'getEdges' | 'getNodes'>
+) {
+  const edges = diagram.getEdges().map((edge) => ({
+    ...edge,
+    // In export we dont want it to be highlighted.
+    selected: false,
+    animated: false,
+  }));
+  const nodes = diagram.getNodes().map((node) => ({
+    ...node,
+    // In export we dont want it to be highlighted.
+    selected: false,
+    fields: node.fields.map((field) => ({
+      ...field,
+      // In export we dont want field to be highlighted
+      // either by individual selection or by relationship selection.
+      variant: undefined,
+      selected: false,
+    })),
+  }));
+  return { nodes, edges };
+}
+
 export function getExportPngDataUri(diagram: DiagramInstance): Promise<string> {
   return new Promise<string>((resolve, reject) => {
     const bounds = getNodesBounds(diagram.getNodes());
@@ -59,11 +87,7 @@ export function getExportPngDataUri(diagram: DiagramInstance): Promise<string> {
     container.style.height = `${bounds.height}px`;
     document.body.appendChild(container);
 
-    const edges = diagram.getEdges();
-    const nodes = diagram.getNodes().map((node) => ({
-      ...node,
-      selected: false, // Dont show selected state (blue border)
-    }));
+    const { nodes, edges } = getDiagramNodesAndEdges(diagram);
 
     ReactDOM.render(
       <DiagramProvider>

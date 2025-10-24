@@ -30,7 +30,7 @@ export const QueryItemContent: React.FunctionComponent<{
             className={queryCodeStyles}
             data-testid="query-history-query-code"
             language="javascript"
-            copyable={false}
+            copyButtonAppearance="none"
           >
             {formatQuery(value)}
           </Code>

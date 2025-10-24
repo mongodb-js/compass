@@ -202,9 +202,10 @@ function SelectCollectionsStep({
             // @ts-expect-error Element is accepted, but not typed correctly
             description={
               <>
-                Compass will try to automatically discover relationships in
-                selected collections. This operation will run multiple find
-                requests against indexed fields of the collections and{' '}
+                Analysis process will try to automatically discover
+                relationships in selected collections. This operation will run
+                multiple find requests against indexed fields of the collections
+                and{' '}
                 <strong>
                   will take additional time per collection being analyzed.
                 </strong>
