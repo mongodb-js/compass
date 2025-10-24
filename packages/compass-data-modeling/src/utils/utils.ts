@@ -53,6 +53,8 @@ export function isRelationshipInvolvingField(
 // For example, Undo/Redo may be caught both by a HTML hotkey listener
 // and the Electron menu accelerator. This debounce function helps
 // to avoid invoking the handler multiple times in such cases.
+// 'count' specifies how many different source handlers are generated
+// in the returned array.
 export function dualSourceHandlerDebounce(
   handler: () => void,
   count = 2,
