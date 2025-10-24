@@ -28,7 +28,7 @@ import {
 import { getNotificationTriggers } from '../components/connection-status-notifications';
 import { openToast, showConfirmation } from '@mongodb-js/compass-components';
 import { adjustConnectionOptionsBeforeConnect } from '@mongodb-js/connection-form';
-import mongodbBuildInfo, { getGenuineMongoDB } from 'mongodb-build-info';
+import { isAtlasStream } from 'mongodb-build-info';
 import EventEmitter from 'events';
 import { showNonGenuineMongoDBWarningModal as _showNonGenuineMongoDBWarningModal } from '../components/non-genuine-connection-modal';
 import { showEndOfLifeMongoDBWarningModal as _showEndOfLifeMongoDBWarningModal } from '../components/end-of-life-connection-modal';
@@ -1416,13 +1416,13 @@ function isAtlasStreamsInstance(
   adjustedConnectionInfoForConnection: ConnectionInfo
 ) {
   try {
-    return mongodbBuildInfo.isAtlasStream(
+    return isAtlasStream(
       adjustedConnectionInfoForConnection.connectionOptions.connectionString
     );
   } catch {
     // This catch-all is not ideal, but it safe-guards regular connections
     // instead of making assumptions on the fact that the implementation
-    // of `mongodbBuildInfo.isAtlasStream` would never throw.
+    // of `isAtlasStream` would never throw.
     return false;
   }
 }
@@ -1888,10 +1888,7 @@ const connectWithOptions = (
           connectionId: connectionInfo.id,
         });
 
-        if (
-          getGenuineMongoDB(connectionInfo.connectionOptions.connectionString)
-            .isGenuine === false
-        ) {
+        if (!instanceInfo.genuineMongoDB.isGenuine) {
           dispatch(showNonGenuineMongoDBWarningModal(connectionInfo.id));
         } else if (
           await shouldShowEndOfLifeWarning(
