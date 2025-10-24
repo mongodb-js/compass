@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, cleanup } from '@mongodb-js/testing-library-compass';
+import { render } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import sinon from 'sinon';
 import {
@@ -9,11 +9,6 @@ import {
 import type { CompassAppMenu } from './types';
 
 describe('application-menu / useApplicationMenu', function () {
-  afterEach(() => {
-    cleanup();
-    sinon.restore();
-  });
-
   function createMockProvider() {
     const showUnsubscribes: sinon.SinonSpy[] = [];
     const roleUnsubscribes: sinon.SinonSpy[] = [];
