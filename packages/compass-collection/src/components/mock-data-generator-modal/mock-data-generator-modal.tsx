@@ -131,6 +131,8 @@ const MockDataGeneratorModal = ({
   }, [currentStep, track]);
 
   const isNextButtonDisabled =
+    (currentStep === MockDataGeneratorStep.SCHEMA_EDITOR &&
+      fakerSchemaGenerationState.status !== 'completed') ||
     (currentStep === MockDataGeneratorStep.DOCUMENT_COUNT &&
       documentCount < 1) ||
     (currentStep === MockDataGeneratorStep.DOCUMENT_COUNT &&

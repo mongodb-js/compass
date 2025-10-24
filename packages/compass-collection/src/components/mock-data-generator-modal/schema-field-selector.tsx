@@ -33,6 +33,9 @@ const buttonStyles = css({
   padding: spacing[200],
   textAlign: 'left',
   fontWeight: 500,
+  display: 'flex',
+  alignItems: 'center',
+  gap: '8px',
 });
 
 const activeStylesLight = css({
@@ -87,7 +90,7 @@ const FieldSelector: React.FunctionComponent<SidebarProps> = ({
 }) => {
   const darkMode = useDarkMode();
 
-  const shouldShowUnrecognized = (field: string): boolean => {
+  const shouldShowUnrecognizedIcon = (field: string): boolean => {
     return fakerSchema?.[field]?.fakerMethod === UNRECOGNIZED_FAKER_METHOD;
   };
 
@@ -118,7 +121,7 @@ const FieldSelector: React.FunctionComponent<SidebarProps> = ({
             onClick={() => onFieldSelect(field)}
           >
             {field}
-            {shouldShowUnrecognized(field) && <Icon glyph="Warning" />}
+            {shouldShowUnrecognizedIcon(field) && <Icon glyph="Warning" />}
           </button>
         ))}
       </div>
