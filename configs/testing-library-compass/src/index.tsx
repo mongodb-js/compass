@@ -190,7 +190,7 @@ export class MockDataService
       host: {},
       genuineMongoDB: {
         isGenuine: true,
-        dbType: 'mongodb',
+        serverName: 'mongodb',
       },
       dataLake: {
         isDataLake: false,

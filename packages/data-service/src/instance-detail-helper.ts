@@ -46,7 +46,7 @@ type HostInfoDetails = {
 
 type GenuineMongoDBDetails = {
   isGenuine: boolean;
-  dbType: string;
+  serverName: string;
 };
 
 type DataLakeDetails = {
@@ -200,8 +200,8 @@ function buildGenuineMongoDBInfo(uri: string): GenuineMongoDBDetails {
   const { isGenuine, serverName } = getGenuineMongoDB(uri);
 
   return {
-    isGenuine,
-    dbType: serverName,
+    isGenuine: serverName === 'mongodb',
+    serverName,
   };
 }
 
