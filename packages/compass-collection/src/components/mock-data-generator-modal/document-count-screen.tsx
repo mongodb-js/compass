@@ -11,6 +11,7 @@ import { connect } from 'react-redux';
 import type { CollectionState } from '../../modules/collection-tab';
 import type { SchemaAnalysisState } from '../../schema-analysis-types';
 import { DEFAULT_DOCUMENT_COUNT, MAX_DOCUMENT_COUNT } from './constants';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 
 const BYTE_PRECISION_THRESHOLD = 1000;
 
@@ -67,6 +68,7 @@ const DocumentCountScreen = ({
   onDocumentCountChange,
   schemaAnalysisState,
 }: Props) => {
+  const track = useTelemetry();
   const estimatedDiskSize = useMemo(
     () =>
       schemaAnalysisState.status === 'complete' &&
@@ -98,6 +100,9 @@ const DocumentCountScreen = ({
     const value = parseInt(event.target.value, 10);
     if (!isNaN(value)) {
       onDocumentCountChange(value);
+      track('Mock Data Document Count Changed', {
+        document_count: value,
+      });
     }
   };
 
