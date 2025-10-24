@@ -83,3 +83,6 @@ export type { DocumentListViewProps } from './components/document-list-view';
 export { default as DocumentListView } from './components/document-list-view';
 export type { DocumentJsonViewProps } from './components/document-json-view';
 export { default as DocumentJsonView } from './components/document-json-view';
+
+// Export utility functions for use by other packages
+export { fetchShardingKeys } from './utils';
