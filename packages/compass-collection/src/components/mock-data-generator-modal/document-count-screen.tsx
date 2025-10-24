@@ -83,7 +83,6 @@ const DocumentCountScreen = ({
   );
 
   const isInputEmpty = documentCount.trim() === '';
-  const isInputInvalid = isNaN(documentCountNumber);
   const isOutOfRange =
     documentCountNumber < 1 || documentCountNumber > MAX_DOCUMENT_COUNT;
 
@@ -94,7 +93,7 @@ const DocumentCountScreen = ({
         message: 'Document count is required',
       };
     }
-    if (isInputInvalid) {
+    if (isNaN(documentCountNumber)) {
       return {
         state: 'error',
         message: 'Please enter a valid number',
@@ -109,7 +108,7 @@ const DocumentCountScreen = ({
     return {
       state: 'none',
     };
-  }, [isInputEmpty, isInputInvalid, isOutOfRange]);
+  }, [isInputEmpty, documentCountNumber, isOutOfRange]);
 
   const handleDocumentCountChange = (
     event: React.ChangeEvent<HTMLInputElement>

@@ -22,7 +22,10 @@ import type { FakerSchema } from './types';
 import type { ArrayLengthMap } from './script-generation-utils';
 import type { CollectionState } from '../../modules/collection-tab';
 import { SCHEMA_ANALYSIS_STATE_COMPLETE } from '../../schema-analysis-types';
-import { DEFAULT_CONNECTION_STRING_FALLBACK } from './constants';
+import {
+  DEFAULT_CONNECTION_STRING_FALLBACK,
+  DEFAULT_DOCUMENT_COUNT,
+} from './constants';
 import { redactConnectionString } from 'mongodb-connection-string-url';
 
 const RUN_SCRIPT_COMMAND = (connectionString: string) => `
@@ -94,7 +97,7 @@ const ScriptScreen = ({
   const isDarkMode = useDarkMode();
   const connectionInfo = useConnectionInfo();
 
-  const connectionString =
+  const connectionString: string =
     connectionInfo?.atlasMetadata?.userConnectionString ??
     DEFAULT_CONNECTION_STRING_FALLBACK;
 
@@ -111,7 +114,7 @@ const ScriptScreen = ({
     }
 
     return generateScript(fakerSchema, {
-      documentCount: parseInt(documentCount, 10) || 1000,
+      documentCount: parseInt(documentCount, 10) || DEFAULT_DOCUMENT_COUNT,
       databaseName: database,
       collectionName: collection,
       arrayLengthMap,
