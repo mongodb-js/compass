@@ -38,7 +38,10 @@ const track = createIpcTrack();
 
 import './index.less';
 import 'source-code-pro/source-code-pro.css';
-import type { ApplicationMenuProvider } from '@mongodb-js/compass-electron-menu';
+import {
+  ApplicationMenuContextProvider,
+  type ApplicationMenuProvider,
+} from '@mongodb-js/compass-electron-menu';
 import { ApplicationMenu } from '@mongodb-js/compass-electron-menu/ipc-provider-renderer';
 
 const DEFAULT_APP_VERSION = '0.0.0';
@@ -177,26 +180,27 @@ class Application {
 
     ReactDOM.render(
       <React.StrictMode>
-        <CompassElectron
-          appName={remote.app.getName()}
-          showWelcomeModal={!wasNetworkOptInShown}
-          createFileInputBackend={createElectronFileInputBackend(
-            remote,
-            webUtils
-          )}
-          applicationMenuProvider={this.menuProvider}
-          showSettings={this.showSettingsModal.bind(this)}
-          connectionStorage={connectionStorage}
-          onAutoconnectInfoRequest={
-            initialAutoConnectPreferences.shouldAutoConnect
-              ? () => {
-                  return connectionStorage.getAutoConnectInfo(
-                    initialAutoConnectPreferences
-                  );
-                }
-              : undefined
-          }
-        />
+        <ApplicationMenuContextProvider provider={this.menuProvider}>
+          <CompassElectron
+            appName={remote.app.getName()}
+            showWelcomeModal={!wasNetworkOptInShown}
+            createFileInputBackend={createElectronFileInputBackend(
+              remote,
+              webUtils
+            )}
+            showSettings={this.showSettingsModal.bind(this)}
+            connectionStorage={connectionStorage}
+            onAutoconnectInfoRequest={
+              initialAutoConnectPreferences.shouldAutoConnect
+                ? () => {
+                    return connectionStorage.getAutoConnectInfo(
+                      initialAutoConnectPreferences
+                    );
+                  }
+                : undefined
+            }
+          />
+        </ApplicationMenuContextProvider>
       </React.StrictMode>,
       elem.querySelector('[data-hook="layout-container"]')
     );

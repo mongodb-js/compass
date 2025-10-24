@@ -35,8 +35,6 @@ import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import { usePreference } from 'compass-preferences-model/provider';
 import { CompassAssistantProvider } from '@mongodb-js/compass-assistant';
 import { APP_NAMES_FOR_PROMPT } from '@mongodb-js/compass-assistant';
-import type { ApplicationMenuProvider } from '@mongodb-js/compass-electron-menu';
-import { ApplicationMenuContextProvider } from '@mongodb-js/compass-electron-menu';
 
 resetGlobalCSS();
 
@@ -124,14 +122,12 @@ type HomeWithConnectionsProps = HomeProps &
   > & {
     connectionStorage: ConnectionStorage;
     createFileInputBackend: () => FileInputBackend;
-    applicationMenuProvider: ApplicationMenuProvider;
   };
 
 function HomeWithConnections({
   onAutoconnectInfoRequest,
   connectionStorage,
   createFileInputBackend,
-  applicationMenuProvider,
   ...props
 }: HomeWithConnectionsProps) {
   return (
@@ -154,9 +150,7 @@ function HomeWithConnections({
               });
             }}
           >
-            <ApplicationMenuContextProvider provider={applicationMenuProvider}>
-              <Home {...props}></Home>
-            </ApplicationMenuContextProvider>
+            <Home {...props}></Home>
           </CompassConnections>
         </CompassAssistantProvider>
       </FileInputBackendProvider>
