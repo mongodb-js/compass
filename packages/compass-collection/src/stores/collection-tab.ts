@@ -142,26 +142,27 @@ export function activatePlugin(
   void collectionModel.fetchMetadata({ dataService }).then((metadata) => {
     store.dispatch(collectionMetadataFetched(metadata));
 
-    // Assign experiment for Mock Data Generator
-    // Only assign when we're connected to Atlas and the org-level setting for AI features is enabled
-    if (
-      connectionInfoRef.current?.atlasMetadata?.clusterName && // Ensures we only assign in Atlas
-      isAIFeatureEnabled(preferences.getPreferences()) // Ensures org-level AI features setting is enabled
-    ) {
-      void experimentationServices
-        .assignExperiment(ExperimentTestName.mockDataGenerator, {
-          team: 'Atlas Growth',
-        })
-        .catch((error) => {
-          logger.debug('Mock Data Generator experiment assignment failed', {
-            experiment: ExperimentTestName.mockDataGenerator,
-            namespace: namespace,
-            error: error instanceof Error ? error.message : String(error),
-          });
-        });
-    }
-
     if (!metadata.isReadonly && !metadata.isTimeSeries) {
+      // Assign experiment for Mock Data Generator
+      // Only assign when we're connected to Atlas, the org-level setting for AI features is enabled,
+      // and the collection supports the Mock Data Generator feature (not readonly/timeseries)
+      if (
+        connectionInfoRef.current?.atlasMetadata?.clusterName && // Ensures we only assign in Atlas
+        isAIFeatureEnabled(preferences.getPreferences()) // Ensures org-level AI features setting is enabled
+      ) {
+        void experimentationServices
+          .assignExperiment(ExperimentTestName.mockDataGenerator, {
+            team: 'Atlas Growth',
+          })
+          .catch((error) => {
+            logger.debug('Mock Data Generator experiment assignment failed', {
+              experiment: ExperimentTestName.mockDataGenerator,
+              namespace: namespace,
+              error: error instanceof Error ? error.message : String(error),
+            });
+          });
+      }
+
       // Check experiment variant before running schema analysis
       // Only run schema analysis if user is in treatment variant
       const shouldRunSchemaAnalysis = async () => {

@@ -263,6 +263,42 @@ describe('Collection Tab Content store', function () {
           .deep.eq(defaultMetadata);
       });
     });
+
+    it('should not assign experiment for readonly collections', async function () {
+      const assignExperiment = sandbox.spy(() => Promise.resolve(null));
+
+      await configureStore(
+        undefined,
+        {},
+        { assignExperiment },
+        mockAtlasConnectionInfo,
+        undefined,
+        undefined,
+        { ...defaultMetadata, isReadonly: true }
+      );
+
+      // Wait a bit to ensure assignment would have happened if it was going to
+      await new Promise((resolve) => setTimeout(resolve, 50));
+      expect(assignExperiment).to.not.have.been.called;
+    });
+
+    it('should not assign experiment for time series collections', async function () {
+      const assignExperiment = sandbox.spy(() => Promise.resolve(null));
+
+      await configureStore(
+        undefined,
+        {},
+        { assignExperiment },
+        mockAtlasConnectionInfo,
+        undefined,
+        undefined,
+        { ...defaultMetadata, isTimeSeries: true }
+      );
+
+      // Wait a bit to ensure assignment would have happened if it was going to
+      await new Promise((resolve) => setTimeout(resolve, 50));
+      expect(assignExperiment).to.not.have.been.called;
+    });
   });
 
   describe('schema analysis on collection load', function () {
