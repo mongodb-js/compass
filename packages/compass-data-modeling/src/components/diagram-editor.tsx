@@ -44,6 +44,8 @@ import {
   Diagram,
   useDiagram,
   useHotkeys,
+  FocusState,
+  useFocusStateIncludingUnfocused,
 } from '@mongodb-js/compass-components';
 import { cancelAnalysis, retryAnalysis } from '../store/analysis-process';
 import type { FieldPath, StaticModel } from '../services/data-model-storage';
@@ -135,6 +137,10 @@ const modelPreviewStyles = css({
   ['.connectablestart']: {
     userSelect: 'none',
   },
+});
+
+const displayContentsStyles = css({
+  display: 'contents',
 });
 
 const ZOOM_OPTIONS = {
@@ -527,6 +533,8 @@ const DiagramEditor: React.FunctionComponent<{
     openDrawer(DATA_MODELING_DRAWER_ID);
   }, [openDrawer, onAddCollectionClick]);
 
+  const [focusProps, focusState] = useFocusStateIncludingUnfocused();
+
   if (step === 'NO_DIAGRAM_SELECTED') {
     return null;
   }
@@ -572,18 +580,21 @@ const DiagramEditor: React.FunctionComponent<{
   }
 
   return (
-    <WorkspaceContainer
-      toolbar={
-        <DiagramEditorToolbar
-          onRelationshipDrawingToggle={handleRelationshipDrawingToggle}
-          isInRelationshipDrawingMode={isInRelationshipDrawingMode}
-          onAddCollectionClick={handleAddCollectionClick}
-        />
-      }
-    >
-      {content}
-      <ExportDiagramModal />
-    </WorkspaceContainer>
+    <div className={displayContentsStyles} {...focusProps}>
+      <WorkspaceContainer
+        toolbar={
+          <DiagramEditorToolbar
+            diagramEditorHasFocus={focusState !== FocusState.NoFocus}
+            onRelationshipDrawingToggle={handleRelationshipDrawingToggle}
+            isInRelationshipDrawingMode={isInRelationshipDrawingMode}
+            onAddCollectionClick={handleAddCollectionClick}
+          />
+        }
+      >
+        {content}
+        <ExportDiagramModal />
+      </WorkspaceContainer>
+    </div>
   );
 };
 

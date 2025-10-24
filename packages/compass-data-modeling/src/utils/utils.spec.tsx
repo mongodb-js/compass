@@ -3,6 +3,7 @@ import {
   isRelationshipInvolvingField,
   isRelationshipOfAField,
   isSameFieldOrAncestor,
+  dualSourceHandlerDebounce,
 } from './utils';
 import type { Relationship } from '../services/data-model-storage';
 
@@ -107,5 +108,30 @@ describe('isRelationshipInvolvingAField', function () {
         ['c', 'd']
       )
     ).to.be.true;
+  });
+});
+
+describe('dualSourceHandlerDebounce', function () {
+  it('should invoke the original handler only once for dual invocations', function () {
+    const timestamps = [0, 0, 200, 400, 401];
+    let invocationCount = 0;
+    const handler = () => {
+      invocationCount++;
+    };
+    const [handler1, handler2] = dualSourceHandlerDebounce(
+      handler,
+      2,
+      () => timestamps.shift()!
+    );
+    handler1();
+    expect(invocationCount).to.equal(1);
+    handler2();
+    expect(invocationCount).to.equal(1);
+    handler1();
+    expect(invocationCount).to.equal(2);
+    handler2();
+    expect(invocationCount).to.equal(3);
+    handler1();
+    expect(invocationCount).to.equal(3);
   });
 });

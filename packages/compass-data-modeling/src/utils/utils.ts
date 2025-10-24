@@ -48,3 +48,39 @@ export function isRelationshipInvolvingField(
       isSameFieldOrAncestor(fieldPath, foreign.fields))
   );
 }
+
+// Sometimes, we may receive the same event through different sources.
+// For example, Undo/Redo may be caught both by a HTML hotkey listener
+// and the Electron menu accelerator. This debounce function helps
+// to avoid invoking the handler multiple times in such cases.
+// 'count' specifies how many different source handlers are generated
+// in the returned array.
+export function dualSourceHandlerDebounce(
+  handler: () => void,
+  count = 2,
+  now = Date.now
+): (() => void)[] {
+  let lastInvocationSource: number = -1;
+  let lastInvocationTime: number = -1;
+  const makeHandler = (index: number): (() => void) => {
+    return () => {
+      const priorInvocationTime = lastInvocationTime;
+      lastInvocationTime = now();
+
+      // Call the current handler if:
+      // - It was the last one to be invoked (i.e. it "owns" this callback), or
+      // - No handler was ever invoked yet, or
+      // - Enough time has passed that it's unlikely that we just received
+      //   the same event as in the last call.
+      if (
+        lastInvocationSource === index ||
+        lastInvocationSource === -1 ||
+        lastInvocationTime - priorInvocationTime > 100
+      ) {
+        lastInvocationSource = index;
+        handler();
+      }
+    };
+  };
+  return Array.from({ length: count }, (_, i) => makeHandler(i));
+}
