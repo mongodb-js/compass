@@ -131,6 +131,7 @@ export type AtlasServiceConfig = {
  *  - atlas-local:             local mms backend         (localhost)
  *  - atlas-dev:               dev mms backend           (cloud-dev.mongodb.com)
  *  - atlas-qa:                qa mms backend            (cloud-qa.mongodb.com)
+ *  - atlas-staging:           staging mms backend       (cloud-stage.mongodb.com)
  *  - atlas:                   mms backend               (cloud.mongodb.com)
  *  - web-sandbox-atlas-local: local mms backend + proxy (localhost / proxy prefix)
  *  - web-sandbox-atlas-dev:   dev mms backend + proxy   (cloud-dev.mongodb.com / proxy prefix)
