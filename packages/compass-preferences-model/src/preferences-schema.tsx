@@ -133,6 +133,7 @@ export type InternalUserPreferences = {
     isMaximized?: boolean;
     isFullScreen?: boolean;
   };
+  enableGuideCues: boolean;
 };
 
 // UserPreferences contains all preferences stored to disk.
@@ -1084,6 +1085,16 @@ export const storedUserPreferencesProps: Required<{
     },
     validator: z.number().min(0).default(0),
     type: 'number',
+  },
+
+  enableGuideCues: {
+    ui: false,
+    cli: false,
+    global: false,
+    omitFromHelp: true,
+    description: null,
+    validator: z.boolean().default(true),
+    type: 'boolean',
   },
 
   ...allFeatureFlagsProps,

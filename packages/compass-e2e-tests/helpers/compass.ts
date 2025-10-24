@@ -598,17 +598,17 @@ async function processCommonOpts({
 }
 
 async function setCommonRendererEnv(browser: CompassBrowser) {
-  // Guide cues might affect too many tests in a way where the auto showing of the cue prevents
-  // clicks from working on elements. Dealing with this case-by-case is way too much work, so
-  // we disable the cues completely for the e2e tests
-  await browser.setEnv('DISABLE_GUIDE_CUES', 'true');
-
   // TODO(COMPASS-9977) Turn off virtual scrolling in e2e tests until we can fix
   // browser.scrollToVirtualItem() to work with it
   await browser.setEnv('COMPASS_DISABLE_VIRTUAL_TABLE_RENDERING', 'true');
 }
 
 async function setCommonFeatures(browser: CompassBrowser) {
+  // Guide cues might affect too many tests in a way where the auto showing of the cue prevents
+  // clicks from working on elements. Dealing with this case-by-case is way too much work, so
+  // we disable the cues completely for the e2e tests
+  await browser.setFeature('enableGuideCues', false);
+
   // Making sure end-of-life connection modal is not shown, simplify any test connecting to such a server
   await browser.setFeature('showEndOfLifeConnectionModal', false);
 

@@ -180,8 +180,10 @@ export default function ThemedHome(
 ): ReturnType<typeof HomeWithConnections> {
   const track = useTelemetry();
   const disableContextMenus = !usePreference('enableContextMenus');
+  const disableGuideCues = !usePreference('enableGuideCues');
   return (
     <CompassComponentsProvider
+      disableGuideCues={disableGuideCues}
       onNextGuideGue={(cue) => {
         track('Guide Cue Dismissed', {
           groupId: cue.groupId,
