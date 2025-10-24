@@ -84,6 +84,15 @@ type SidebarProps = {
   fakerSchema?: FakerSchema;
 };
 
+const shouldShowUnrecognizedIcon = (
+  field: string,
+  fakerSchema?: FakerSchema
+): boolean => {
+  const mapping = fakerSchema?.[field];
+
+  return !!mapping && mapping.fakerMethod === UNRECOGNIZED_FAKER_METHOD;
+};
+
 const FieldSelector: React.FunctionComponent<SidebarProps> = ({
   activeField,
   fields,
@@ -91,12 +100,6 @@ const FieldSelector: React.FunctionComponent<SidebarProps> = ({
   fakerSchema,
 }) => {
   const darkMode = useDarkMode();
-
-  const shouldShowUnrecognizedIcon = (field: string): boolean => {
-    const mapping = fakerSchema?.[field];
-
-    return !!mapping && mapping.fakerMethod === UNRECOGNIZED_FAKER_METHOD;
-  };
 
   return (
     <div
@@ -125,7 +128,7 @@ const FieldSelector: React.FunctionComponent<SidebarProps> = ({
             onClick={() => onFieldSelect(field)}
           >
             {field}
-            {shouldShowUnrecognizedIcon(field) && (
+            {shouldShowUnrecognizedIcon(field, fakerSchema) && (
               <Icon glyph="ImportantWithCircle" />
             )}
           </button>
