@@ -10,6 +10,8 @@ import {
 } from '@mongodb-js/compass-components';
 import { UNRECOGNIZED_FAKER_METHOD } from '../../modules/collection-tab';
 import type { FakerSchema } from './types';
+import { isValidFakerMethod } from './utils';
+import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 
 const fieldsContainerStyles = css({
   width: '40%',
@@ -89,9 +91,17 @@ const FieldSelector: React.FunctionComponent<SidebarProps> = ({
   fakerSchema,
 }) => {
   const darkMode = useDarkMode();
+  const logger = createNoopLogger();
 
   const shouldShowUnrecognizedIcon = (field: string): boolean => {
-    return fakerSchema?.[field]?.fakerMethod === UNRECOGNIZED_FAKER_METHOD;
+    const mapping = fakerSchema?.[field];
+    if (!mapping) return false;
+
+    return (
+      mapping.fakerMethod === UNRECOGNIZED_FAKER_METHOD ||
+      !isValidFakerMethod(mapping.fakerMethod, mapping.fakerArgs, logger)
+        .isValid
+    );
   };
 
   return (
