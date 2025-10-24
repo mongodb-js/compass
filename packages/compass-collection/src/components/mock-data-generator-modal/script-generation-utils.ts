@@ -708,7 +708,7 @@ function generateFakerValue(
   mapping: FakerFieldMapping
 ): string | number | boolean | Date | null | undefined {
   const method =
-    mapping.fakerMethod === 'unrecognized'
+    mapping.fakerMethod === UNRECOGNIZED_FAKER_METHOD
       ? getDefaultFakerMethod(mapping.mongoType)
       : mapping.fakerMethod;
 

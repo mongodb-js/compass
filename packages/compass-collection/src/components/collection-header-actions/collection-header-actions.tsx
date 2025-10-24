@@ -218,7 +218,7 @@ const CollectionHeaderActions: React.FunctionComponent<
               schemaAnalysisError.errorType === 'unsupportedState' && (
                 <span className={tooltipMessageStyles}>
                   This collection has a field with a name that contains a
-                  &quot.&quot, which mock data generation does not support at
+                  &quot;.&quot;, which mock data generation does not support at
                   this time.
                 </span>
               )}

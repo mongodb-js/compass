@@ -61,7 +61,7 @@ const FakerSchemaEditorContent = ({
   onSchemaConfirmed,
 }: {
   fakerSchema: FakerSchema;
-  onSchemaConfirmed: (isConfirmed: boolean) => void;
+  onSchemaConfirmed: () => void;
 }) => {
   const track = useTelemetry();
   const [fakerSchemaFormValues, setFakerSchemaFormValues] =
@@ -85,10 +85,6 @@ const FakerSchemaEditorContent = ({
   const activeJsonType = fakerSchemaFormValues[activeField]?.mongoType;
   const activeFakerFunction = fakerSchemaFormValues[activeField]?.fakerMethod;
   const activeFakerArgs = fakerSchemaFormValues[activeField]?.fakerArgs;
-
-  const resetIsSchemaConfirmed = () => {
-    onSchemaConfirmed(false);
-  };
 
   const onJsonTypeSelect = (newJsonType: MongoDBFieldType) => {
     const currentMapping = fakerSchemaFormValues[activeField];
@@ -124,7 +120,6 @@ const FakerSchemaEditorContent = ({
         ...fakerSchemaFormValues,
         [activeField]: newMapping,
       });
-      resetIsSchemaConfirmed();
     }
   };
 
@@ -159,7 +154,6 @@ const FakerSchemaEditorContent = ({
         ...fakerSchemaFormValues,
         [activeField]: newMapping,
       });
-      resetIsSchemaConfirmed();
     }
   };
 
@@ -170,6 +164,7 @@ const FakerSchemaEditorContent = ({
           activeField={activeField}
           fields={fieldPaths}
           onFieldSelect={setActiveField}
+          fakerSchema={fakerSchemaFormValues}
         />
         {activeJsonType && activeFakerFunction && (
           <FakerMappingSelector
@@ -185,7 +180,7 @@ const FakerSchemaEditorContent = ({
         size={ButtonSize.Small}
         className={confirmMappingsButtonStyles}
         variant={ButtonVariant.Primary}
-        onClick={() => onSchemaConfirmed(true)}
+        onClick={onSchemaConfirmed}
       >
         Confirm mappings
       </Button>
@@ -197,7 +192,7 @@ const FakerSchemaEditorScreen = ({
   onSchemaConfirmed,
   fakerSchemaGenerationState,
 }: {
-  onSchemaConfirmed: (isConfirmed: boolean) => void;
+  onSchemaConfirmed: () => void;
   fakerSchemaGenerationState: MockDataGeneratorState;
 }) => {
   return (
