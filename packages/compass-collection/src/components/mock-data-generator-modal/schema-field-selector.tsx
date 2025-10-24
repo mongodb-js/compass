@@ -10,8 +10,6 @@ import {
 } from '@mongodb-js/compass-components';
 import { UNRECOGNIZED_FAKER_METHOD } from '../../modules/collection-tab';
 import type { FakerSchema } from './types';
-import { isValidFakerMethod } from './utils';
-import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 
 const fieldsContainerStyles = css({
   width: '40%',
