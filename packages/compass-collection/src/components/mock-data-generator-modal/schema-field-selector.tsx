@@ -91,17 +91,11 @@ const FieldSelector: React.FunctionComponent<SidebarProps> = ({
   fakerSchema,
 }) => {
   const darkMode = useDarkMode();
-  const logger = createNoopLogger();
 
   const shouldShowUnrecognizedIcon = (field: string): boolean => {
     const mapping = fakerSchema?.[field];
-    if (!mapping) return false;
 
-    return (
-      mapping.fakerMethod === UNRECOGNIZED_FAKER_METHOD ||
-      !isValidFakerMethod(mapping.fakerMethod, mapping.fakerArgs, logger)
-        .isValid
-    );
+    return !!mapping && mapping.fakerMethod === UNRECOGNIZED_FAKER_METHOD;
   };
 
   return (
