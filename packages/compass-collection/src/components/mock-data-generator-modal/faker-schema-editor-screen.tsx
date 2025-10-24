@@ -20,6 +20,7 @@ import type {
   MockDataGeneratorState,
 } from './types';
 import type { MongoDBFieldType } from '../../schema-analysis-types';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 
 const containerStyles = css({
   display: 'flex',
@@ -62,6 +63,7 @@ const FakerSchemaEditorContent = ({
   fakerSchema: FakerSchema;
   onSchemaConfirmed: (isConfirmed: boolean) => void;
 }) => {
+  const track = useTelemetry();
   const [fakerSchemaFormValues, setFakerSchemaFormValues] =
     React.useState<FakerSchema>(fakerSchema);
 
@@ -93,6 +95,9 @@ const FakerSchemaEditorContent = ({
     const originalLlmMapping = originalLlmMappings.current[activeField];
 
     if (currentMapping) {
+      const previousJsonType = currentMapping.mongoType;
+      const previousFakerMethod = currentMapping.fakerMethod;
+
       const isSwitchingToOriginalType =
         originalLlmMapping && newJsonType === originalLlmMapping.mongoType;
 
@@ -104,6 +109,16 @@ const FakerSchemaEditorContent = ({
             fakerMethod: getDefaultFakerMethod(newJsonType),
             fakerArgs: [],
           };
+
+      const newFakerMethod = newMapping.fakerMethod;
+
+      track('Mock Data JSON Type Changed', {
+        field_name: activeField,
+        previous_json_type: previousJsonType,
+        new_json_type: newJsonType,
+        previous_faker_method: previousFakerMethod,
+        new_faker_method: newFakerMethod,
+      });
 
       setFakerSchemaFormValues({
         ...fakerSchemaFormValues,
@@ -118,6 +133,8 @@ const FakerSchemaEditorContent = ({
     const originalLlmMapping = originalLlmMappings.current[activeField];
 
     if (currentMapping) {
+      const previousFakerMethod = currentMapping.fakerMethod;
+
       const isSwitchingToLlmSuggestion =
         originalLlmMapping &&
         currentMapping.mongoType === originalLlmMapping.mongoType &&
@@ -130,6 +147,13 @@ const FakerSchemaEditorContent = ({
             fakerMethod: newFakerFunction,
             fakerArgs: [],
           };
+
+      track('Mock Data Faker Method Changed', {
+        field_name: activeField,
+        json_type: currentMapping.mongoType,
+        previous_faker_method: previousFakerMethod,
+        new_faker_method: newFakerFunction,
+      });
 
       setFakerSchemaFormValues({
         ...fakerSchemaFormValues,
