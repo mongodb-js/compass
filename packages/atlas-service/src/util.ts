@@ -174,6 +174,18 @@ const config = {
     assistantApiBaseUrl: 'https://knowledge-dev.mongodb.com/api/v1',
     userDataBaseUrl: 'https://cloud-qa.mongodb.com/ui/userData',
   },
+  'atlas-staging': {
+    ccsBaseUrl: '',
+    cloudBaseUrl: '',
+    atlasApiBaseUrl: 'https://cloud-stage.mongodb.com/api/private',
+    atlasLogin: {
+      clientId: '0oaq1le5jlzxCuTbu357',
+      issuer: 'https://auth-qa.mongodb.com/oauth2/default',
+    },
+    authPortalUrl: 'https://account-stage.mongodb.com/account/login',
+    assistantApiBaseUrl: 'https://knowledge-staging.mongodb.com/api/v1',
+    userDataBaseUrl: 'https://cloud-stage.mongodb.com/ui/userData',
+  },
   atlas: {
     ccsBaseUrl: '',
     cloudBaseUrl: '',
