@@ -1074,7 +1074,7 @@ export const loadSavedWorkspaces = (): WorkspacesThunkAction<
     const savedState = await userData.readOne('saved-workspaces', {
       ignoreErrors: true,
     });
-    if (savedState) {
+    if (savedState && savedState.tabs.length > 0) {
       const confirm = await showConfirmation({
         title: 'Reopen closed tabs?',
         description:
@@ -1083,26 +1083,27 @@ export const loadSavedWorkspaces = (): WorkspacesThunkAction<
       });
 
       const workspacesToRestore: OpenWorkspaceOptions[] = [];
-      (confirm
-        ? convertSavedStateToOpenWorkspaceOptions(savedState)
-        : []
-      ).forEach((workspace) => {
-        // If the workspace is tied to a connection, check if the connection exists
-        // and add it to the list of connections to restore if so.
-        if ('connectionId' in workspace) {
-          const connectionInfo = connections.getConnectionById(
-            workspace.connectionId
-          )?.info;
+      if (confirm) {
+        for (const workspace of convertSavedStateToOpenWorkspaceOptions(
+          savedState
+        )) {
+          // If the workspace is tied to a connection, check if the connection exists
+          // and add it to the list of connections to restore if so.
+          if ('connectionId' in workspace) {
+            const connectionInfo = connections.getConnectionById(
+              workspace.connectionId
+            )?.info;
 
-          if (!connectionInfo) {
-            return;
+            if (!connectionInfo) {
+              return;
+            }
+
+            void connections.connect(connectionInfo);
           }
 
-          void connections.connect(connectionInfo);
+          workspacesToRestore.push(workspace);
         }
-
-        workspacesToRestore.push(workspace);
-      });
+      }
 
       dispatch({
         type: WorkspacesActions.RestoreWorkspaces,

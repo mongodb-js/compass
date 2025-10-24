@@ -45,7 +45,7 @@ import {
   type WorkspacesStateSchema,
   workspacesStorageServiceLocator,
 } from './services/workspaces-storage';
-import { type IUserData } from '../../compass-user-data/dist/user-data';
+import { type IUserData } from '@mongodb-js/compass-user-data';
 
 export type WorkspacesServices = {
   globalAppRegistry: AppRegistry;
