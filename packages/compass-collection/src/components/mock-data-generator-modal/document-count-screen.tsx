@@ -83,6 +83,7 @@ const DocumentCountScreen = ({
   );
 
   const isInputEmpty = documentCount.trim() === '';
+  const hasDecimal = documentCount.includes('.');
   const isOutOfRange =
     documentCountNumber < 1 || documentCountNumber > MAX_DOCUMENT_COUNT;
 
@@ -99,6 +100,12 @@ const DocumentCountScreen = ({
         message: 'Please enter a valid number',
       };
     }
+    if (hasDecimal) {
+      return {
+        state: 'error',
+        message: 'Please enter a whole number',
+      };
+    }
     if (isOutOfRange) {
       return {
         state: 'error',
@@ -108,7 +115,7 @@ const DocumentCountScreen = ({
     return {
       state: 'none',
     };
-  }, [isInputEmpty, documentCountNumber, isOutOfRange]);
+  }, [isInputEmpty, documentCountNumber, hasDecimal, isOutOfRange]);
 
   const handleDocumentCountChange = (
     event: React.ChangeEvent<HTMLInputElement>
