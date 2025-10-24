@@ -1,6 +1,7 @@
-// Type-only import in a separate entry point, so this is fine
-// compass-peer-deps-ignore
-// eslint-disable-next-line @typescript-eslint/no-restricted-imports
+// NB: We add `electron` as a production dependency because
+// of this type import. That's fine because we expect this
+// package to only be used in Compass, where we know elecron
+// is a dependency anyway.
 import type { MenuItemConstructorOptions } from 'electron';
 
 export type { MenuItemConstructorOptions };
