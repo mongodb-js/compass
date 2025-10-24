@@ -38,12 +38,14 @@ export class GuideCueService extends EventTarget {
   private _activeGroupId: GroupName | null = null;
   private _activeCue: Cue | null = null;
 
+  enabled = true;
+
   constructor(private readonly _storage: GuideCueStorage) {
     super();
   }
 
   addCue(cue: Omit<Cue, 'isVisited'>) {
-    if (process.env.DISABLE_GUIDE_CUES === 'true') {
+    if (!this.enabled) {
       return;
     }
     const cueIndex = this.getCueIndex(cue.cueId, cue.groupId);

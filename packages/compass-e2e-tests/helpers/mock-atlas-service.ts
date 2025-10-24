@@ -61,33 +61,62 @@ export async function startMockAtlasServiceServer(
   let response = _response;
   const server = http
     .createServer((req, res) => {
-      if (req.method === 'GET') {
-        requests.push({
-          req,
-          content: null,
-        });
-        return aiFeatureEnableResponse(req, res);
+      res.setHeader('Access-Control-Allow-Origin', req.headers.origin ?? '*');
+      res.setHeader('Access-Control-Allow-Credentials', 'true');
+      res.setHeader(
+        'Access-Control-Allow-Headers',
+        req.headers['access-control-request-headers'] ?? '*'
+      );
+
+      if (req.method === 'OPTIONS') {
+        res.statusCode = 200;
+        res.end();
+        return;
       }
 
-      let body = '';
-      req
-        .setEncoding('utf8')
-        .on('data', (chunk) => {
-          body += chunk;
-        })
-        .on('end', () => {
-          const jsonObject = JSON.parse(body);
+      if (req.url?.startsWith('/settings/optInDataExplorerGenAIFeatures')) {
+        res.statusCode = 200;
+        res.end();
+        return;
+      }
+
+      if (req.url?.startsWith('/unauth/ai/api/v1/mql-query')) {
+        if (req.method === 'GET') {
           requests.push({
             req,
-            content: jsonObject,
+            content: null,
+          });
+          return aiFeatureEnableResponse(req, res);
+        }
+
+        let body = '';
+
+        req
+          .setEncoding('utf8')
+          .on('data', (chunk) => {
+            body += chunk;
+          })
+          .on('end', () => {
+            const jsonObject = JSON.parse(body);
+            requests.push({
+              req,
+              content: jsonObject,
+            });
+
+            res.setHeader('Content-Type', 'application/json');
+            if (response.status !== 200) {
+              res.writeHead(response.status);
+            }
+            return res.end(JSON.stringify(response.body));
           });
 
-          res.setHeader('Content-Type', 'application/json');
-          if (response.status !== 200) {
-            res.writeHead(response.status);
-          }
-          return res.end(JSON.stringify(response.body));
-        });
+        return;
+      }
+
+      res.statusCode = 404;
+      res.statusMessage =
+        'Route not found in the mock Atlas backend. Did you forget to add a mock route support?';
+      res.end();
     })
     .listen(0);
   await once(server, 'listening');
