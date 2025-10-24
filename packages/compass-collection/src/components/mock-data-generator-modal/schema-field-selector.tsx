@@ -6,7 +6,10 @@ import {
   palette,
   useDarkMode,
   Body,
+  Icon,
 } from '@mongodb-js/compass-components';
+import { UNRECOGNIZED_FAKER_METHOD } from '../../modules/collection-tab';
+import type { FakerSchema } from './types';
 
 const fieldsContainerStyles = css({
   width: '40%',
@@ -73,14 +76,20 @@ type SidebarProps = {
   activeField: string;
   onFieldSelect: (field: string) => void;
   fields: Array<string>;
+  fakerSchema?: FakerSchema;
 };
 
 const FieldSelector: React.FunctionComponent<SidebarProps> = ({
   activeField,
   fields,
   onFieldSelect,
+  fakerSchema,
 }) => {
   const darkMode = useDarkMode();
+
+  const shouldShowUnrecognized = (field: string): boolean => {
+    return fakerSchema?.[field]?.fakerMethod === UNRECOGNIZED_FAKER_METHOD;
+  };
 
   return (
     <div
@@ -109,6 +118,7 @@ const FieldSelector: React.FunctionComponent<SidebarProps> = ({
             onClick={() => onFieldSelect(field)}
           >
             {field}
+            {shouldShowUnrecognized(field) && <Icon glyph="Warning" />}
           </button>
         ))}
       </div>
