@@ -42,6 +42,7 @@ const getMockConnectionInfo = (): ConnectionInfo => {
         globalWrites: false,
         rollingIndexes: false,
       },
+      userConnectionString: 'mongodb+srv://localhost:27020',
     },
   };
 };

@@ -37,6 +37,7 @@ const storageItems: MongoDBDataModelDescription[] = [
       },
     ],
     connectionId: null,
+    database: 'db1',
   },
   {
     id: '2',
@@ -63,6 +64,7 @@ const storageItems: MongoDBDataModelDescription[] = [
       },
     ],
     connectionId: null,
+    database: 'db2',
   },
   {
     id: '3',
@@ -89,6 +91,7 @@ const storageItems: MongoDBDataModelDescription[] = [
       },
     ],
     connectionId: null,
+    database: 'db3',
   },
 ];
 

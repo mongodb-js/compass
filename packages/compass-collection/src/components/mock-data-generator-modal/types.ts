@@ -48,3 +48,9 @@ export interface FakerFieldMapping {
 }
 
 export type FakerSchema = Record<string, FakerFieldMapping>;
+
+export enum DataGenerationStep {
+  INSTALL_FAKERJS = 'install fakerjs',
+  CREATE_JS_FILE = 'create js file',
+  RUN_SCRIPT = 'mongosh script',
+}

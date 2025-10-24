@@ -8,8 +8,12 @@ import {
 } from '@mongodb-js/compass-components';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
-import React from 'react';
-import { usePreferences } from 'compass-preferences-model/provider';
+import React, { useCallback } from 'react';
+import {
+  useIsAIFeatureEnabled,
+  usePreference,
+  usePreferences,
+} from 'compass-preferences-model/provider';
 import toNS from 'mongodb-ns';
 import { wrapField } from '@mongodb-js/mongodb-constants';
 import {
@@ -17,17 +21,15 @@ import {
   useAssignment,
   ExperimentTestName,
   ExperimentTestGroup,
+  useTrackOnChange,
+  type TrackFunction,
 } from '@mongodb-js/compass-telemetry/provider';
 import {
   SCHEMA_ANALYSIS_STATE_ANALYZING,
   type SchemaAnalysisStatus,
   type SchemaAnalysisError,
 } from '../../schema-analysis-types';
-
-/**
- * Maximum allowed nesting depth for collections to show Mock Data Generator
- */
-const MAX_COLLECTION_NESTING_DEPTH = 7;
+import { MAX_COLLECTION_NESTING_DEPTH } from '../mock-data-generator-modal/utils';
 
 const collectionHeaderActionsStyles = css({
   display: 'flex',
@@ -92,6 +94,10 @@ const CollectionHeaderActions: React.FunctionComponent<
   const { readWrite: preferencesReadWrite, enableShell: showOpenShellButton } =
     usePreferences(['readWrite', 'enableShell']);
   const track = useTelemetry();
+  const isAIFeatureEnabled = useIsAIFeatureEnabled();
+  const isSampleDocumentPassingEnabled = usePreference(
+    'enableGenAISampleDocumentPassing'
+  );
 
   // Get experiment assignment for Mock Data Generator
   const mockDataGeneratorAssignment = useAssignment(
@@ -122,6 +128,39 @@ const CollectionHeaderActions: React.FunctionComponent<
   const isView = isReadonly && sourceName && !editViewName;
 
   const showViewEdit = isView && !preferencesReadWrite;
+  const shouldDisableMockDataButton =
+    !hasSchemaAnalysisData || exceedsMaxNestingDepth;
+
+  const onMockDataGeneratorCtaButtonClicked = useCallback(() => {
+    track('Mock Data Generator Opened', {
+      gen_ai_features_enabled: isAIFeatureEnabled,
+      send_sample_values_enabled: isSampleDocumentPassingEnabled,
+    });
+    onOpenMockDataModal();
+  }, [
+    track,
+    isAIFeatureEnabled,
+    isSampleDocumentPassingEnabled,
+    onOpenMockDataModal,
+  ]);
+
+  useTrackOnChange(
+    (track: TrackFunction) => {
+      if (shouldShowMockDataButton) {
+        track('Mock Data Generator CTA Button Viewed', {
+          button_enabled: !shouldDisableMockDataButton,
+          gen_ai_features_enabled: isAIFeatureEnabled,
+          send_sample_values_enabled: isSampleDocumentPassingEnabled,
+        });
+      }
+    },
+    [
+      shouldShowMockDataButton,
+      shouldDisableMockDataButton,
+      isAIFeatureEnabled,
+      isSampleDocumentPassingEnabled,
+    ]
+  );
 
   return (
     <div
@@ -151,8 +190,8 @@ const CollectionHeaderActions: React.FunctionComponent<
               <Button
                 data-testid="collection-header-generate-mock-data-button"
                 size={ButtonSize.Small}
-                disabled={!hasSchemaAnalysisData || exceedsMaxNestingDepth}
-                onClick={onOpenMockDataModal}
+                disabled={shouldDisableMockDataButton}
+                onClick={onMockDataGeneratorCtaButtonClicked}
                 leftGlyph={<Icon glyph="Sparkle" />}
               >
                 Generate Mock Data
