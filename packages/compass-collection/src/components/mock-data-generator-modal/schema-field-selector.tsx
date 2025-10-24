@@ -131,7 +131,9 @@ const FieldSelector: React.FunctionComponent<SidebarProps> = ({
             onClick={() => onFieldSelect(field)}
           >
             {field}
-            {shouldShowUnrecognizedIcon(field) && <Icon glyph="Warning" />}
+            {shouldShowUnrecognizedIcon(field) && (
+              <Icon glyph="ImportantWithCircle" />
+            )}
           </button>
         ))}
       </div>
