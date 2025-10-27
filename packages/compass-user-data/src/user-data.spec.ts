@@ -400,7 +400,7 @@ describe('AtlasUserData', function () {
       expect(url).to.equal(
         'cluster-connection.cloud.mongodb.com/favoriteQueries/test-org/test-proj'
       );
-      expect(options.method).to.equal('POST');
+      expect(options.method).to.equal('PUT');
       expect(options.headers['Content-Type']).to.equal('application/json');
 
       const body = JSON.parse(options.body as string);

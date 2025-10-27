@@ -12,6 +12,7 @@ import type { CollectionState } from '../../modules/collection-tab';
 import type { SchemaAnalysisState } from '../../schema-analysis-types';
 import { DEFAULT_DOCUMENT_COUNT, MAX_DOCUMENT_COUNT } from './constants';
 import { validateDocumentCount } from './utils';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 
 const BYTE_PRECISION_THRESHOLD = 1000;
 
@@ -59,11 +60,11 @@ const DocumentCountScreen = ({
   onDocumentCountChange,
   schemaAnalysisState,
 }: Props) => {
+  const track = useTelemetry();
   const validationState = validateDocumentCount(documentCount);
   const documentCountNumber = validationState.isValid
     ? validationState.parsedValue!
     : DEFAULT_DOCUMENT_COUNT;
-
   const estimatedDiskSize = useMemo(
     () =>
       schemaAnalysisState.status === 'complete' &&
@@ -91,6 +92,14 @@ const DocumentCountScreen = ({
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     onDocumentCountChange(event.target.value);
+
+    // Track telemetry for valid numeric values
+    const value = parseInt(event.target.value, 10);
+    if (!isNaN(value)) {
+      track('Mock Data Document Count Changed', {
+        document_count: value,
+      });
+    }
   };
 
   return (

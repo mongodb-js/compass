@@ -18,7 +18,8 @@ import {
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import { useConnectionActions } from '@mongodb-js/compass-connections/provider';
 import { usePreference } from 'compass-preferences-model/provider';
-import { WelcomeTabImage, WelcomePlugImage } from './welcome-image';
+import { WelcomeTabImage } from './welcome-image';
+import { ConnectionPlug } from './connection-plug';
 import ConnectionList, { useActiveConnectionIds } from './connection-list';
 
 const sectionContainerStyles = css({
@@ -131,7 +132,7 @@ export default function DesktopWelcomeTab() {
 
   return (
     <div className={welcomeTabStyles}>
-      {activeConnectionIds.length ? <WelcomePlugImage /> : <WelcomeTabImage />}
+      {activeConnectionIds.length ? <ConnectionPlug /> : <WelcomeTabImage />}
       <div>
         <H3>Welcome to MongoDB Compass</H3>
         {!activeConnectionIds.length && enableCreatingNewConnections ? (

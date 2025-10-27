@@ -8,6 +8,10 @@ const MAX_ARRAY_LENGTH = 10;
 const MAX_FAKER_STRING_LENGTH = 1000;
 const MAX_FAKER_ARGS_DEPTH = 3;
 const MAX_FAKER_NUMBER_SIZE = 10000;
+/**
+ * Maximum allowed nesting depth for collections to show Mock Data Generator
+ */
+export const MAX_COLLECTION_NESTING_DEPTH = 7;
 
 /**
  * Checks if the provided faker arguments are valid.
