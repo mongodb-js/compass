@@ -54,6 +54,7 @@ describe('CollectionHeaderActions [Component]', function () {
           <CollectionHeaderActions
             namespace="test.test"
             isReadonly={false}
+            isTimeSeries={false}
             onOpenMockDataModal={sinon.stub()}
             hasSchemaAnalysisData={true}
             analyzedSchemaDepth={2}
@@ -357,6 +358,20 @@ describe('CollectionHeaderActions [Component]', function () {
         );
         expect(button).to.exist;
         expect(button).to.have.attribute('aria-disabled', 'true');
+      });
+
+      it('should not show button for time series collections', async function () {
+        await renderCollectionHeaderActions(
+          {
+            isTimeSeries: true,
+          },
+          {},
+          atlasConnectionInfo
+        );
+
+        expect(
+          screen.queryByTestId('collection-header-generate-mock-data-button')
+        ).to.not.exist;
       });
     });
   });

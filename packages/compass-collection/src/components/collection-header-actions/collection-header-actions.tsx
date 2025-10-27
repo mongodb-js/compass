@@ -63,6 +63,7 @@ function buildChartsUrl(
 type CollectionHeaderActionsProps = {
   namespace: string;
   isReadonly: boolean;
+  isTimeSeries: boolean;
   editViewName?: string;
   sourceName?: string;
   sourcePipeline?: unknown[];
@@ -78,6 +79,7 @@ const CollectionHeaderActions: React.FunctionComponent<
 > = ({
   namespace,
   isReadonly,
+  isTimeSeries,
   editViewName,
   sourceName,
   sourcePipeline,
@@ -116,6 +118,7 @@ const CollectionHeaderActions: React.FunctionComponent<
     isInMockDataTreatmentVariant &&
     atlasMetadata && // Only show in Atlas
     !isReadonly && // Don't show for readonly collections (views)
+    !isTimeSeries && // Don't show for time series collections
     !sourceName; // sourceName indicates it's a view
 
   const exceedsMaxNestingDepth =

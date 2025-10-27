@@ -185,6 +185,7 @@ const CollectionHeader: React.FunctionComponent<CollectionHeaderProps> = ({
         <CollectionHeaderActions
           editViewName={editViewName}
           isReadonly={isReadonly}
+          isTimeSeries={isTimeSeries}
           namespace={namespace}
           sourceName={sourceName}
           sourcePipeline={sourcePipeline}
