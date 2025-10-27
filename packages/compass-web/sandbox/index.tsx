@@ -126,7 +126,7 @@ const App = () => {
               optInGenAIFeatures:
                 overrideGenAIFeatures || (isAtlas && !!optInGenAIFeatures),
               enableDataModeling: true,
-              enableMyQueries: false,
+              enableMyQueries: isAtlas,
               ...groupRolePreferences,
             }}
             onTrack={sandboxTelemetry.track}
