@@ -23,6 +23,10 @@ export const ContextMenuContext = createContext<ContextMenuContextType | null>(
   null
 );
 
+const contextMenuContainerStyles = {
+  display: 'contents',
+};
+
 export function ContextMenuProvider({
   disabled = false,
   children,
@@ -131,7 +135,7 @@ export function ContextMenuProvider({
       <div
         ref={containerRef}
         data-testid="context-menu-children-container"
-        style={{ display: 'contents' }}
+        style={contextMenuContainerStyles}
       >
         {children}
       </div>

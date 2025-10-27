@@ -119,6 +119,11 @@ export function ContextMenu({
                         data-text={item.label}
                         data-testid={`menu-group-${groupIndex}-item-${itemIndex}`}
                         className={itemStyles}
+                        onMouseDown={(evt: React.MouseEvent) => {
+                          // Keep focus on the element that was right-clicked to open the menu.
+                          evt.preventDefault();
+                          evt.stopPropagation();
+                        }}
                         onClick={(evt: React.MouseEvent) => {
                           item.onAction?.(evt);
                           onContextMenuItemClick?.(itemGroup, item);
