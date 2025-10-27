@@ -89,6 +89,19 @@ const bannerButtonStyles = css({
   marginLeft: 'auto',
 });
 
+/**
+ * This is a hotfix for COMPASS-9738 where collection names spanning over
+ * multiple lines are not accounted for properly in the diagramming package.
+ * TODO(COMPASS-9738): Remove this hotfix once we have a proper solution in place.
+ */
+const diagramStyles = css({
+  '[data-nodeid] + div > div > div:first-child > div:nth-child(2)': {
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+  },
+});
+
 const ErrorBannerWithRetry: React.FunctionComponent<{
   onRetryClick: () => void;
 }> = ({ children, onRetryClick }) => {
@@ -442,6 +455,7 @@ const DiagramContent: React.FunctionComponent<{
           // dragging.
           nodeDragThreshold={5}
           fitViewOptions={ZOOM_OPTIONS}
+          className={diagramStyles}
         />
       </div>
     </div>
