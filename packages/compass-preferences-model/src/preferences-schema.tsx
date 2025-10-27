@@ -79,6 +79,7 @@ export type UserConfigurablePreferences = PermanentFeatureFlags &
       | 'atlas-local'
       | 'atlas-dev'
       | 'atlas-qa'
+      | 'atlas-staging'
       | 'atlas'
       | 'web-sandbox-atlas-local'
       | 'web-sandbox-atlas-dev'
@@ -836,10 +837,11 @@ export const storedUserPreferencesProps: Required<{
 
   /**
    * Chooses atlas service backend configuration from preset
-   *  - atlas-local: local mms backend (http://localhost:8080)
-   *  - atlas-dev:   dev mms backend (cloud-dev.mongodb.com)
-   *  - atlas-qa:    qa mms backend (cloud-qa.mongodb.com)
-   *  - atlas:       mms backend (cloud.mongodb.com)
+   *  - atlas-local:      local mms backend (http://localhost:8080)
+   *  - atlas-dev:        dev mms backend (cloud-dev.mongodb.com)
+   *  - atlas-qa:         qa mms backend (cloud-qa.mongodb.com)
+   *  - atlas-staging:    staging mms backend (cloud-stage.mongodb.com)
+   *  - atlas:            mms backend (cloud.mongodb.com)
    */
   atlasServiceBackendPreset: {
     ui: true,
@@ -853,6 +855,7 @@ export const storedUserPreferencesProps: Required<{
         'atlas-local',
         'atlas-dev',
         'atlas-qa',
+        'atlas-staging',
         'atlas',
         'web-sandbox-atlas-local',
         'web-sandbox-atlas-dev',
