@@ -1,4 +1,10 @@
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import type {
   AllPreferences,
   AtlasCloudFeatureFlags,
@@ -26,18 +32,16 @@ export const SandboxPreferencesGlobalAccessProvider = ({
 }: {
   children: React.ReactNode;
 }) => {
-  const [setPreferencesAccess] = useState<SandboxSetPreferencesGlobalAccess>(
-    (preferences) => {
-      (globalThis as any)[kSandboxPreferencesAccess] = preferences;
-      // eslint-disable-next-line no-console
-      console.info(
-        `[compass-web sandbox] call window[Symbol.for('@compass-web-sandbox-preferences-access')].savePreferences({}) to dynamically update preferences`
-      );
-      return () => {
-        delete (globalThis as any)[kSandboxPreferencesAccess];
-      };
-    }
-  );
+  const setPreferencesAccess = useCallback((preferences: PreferencesAccess) => {
+    (globalThis as any)[kSandboxPreferencesAccess] = preferences;
+    // eslint-disable-next-line no-console
+    console.info(
+      `[compass-web sandbox] call window[Symbol.for('@compass-web-sandbox-preferences-access')].savePreferences({}) to dynamically update preferences`
+    );
+    return () => {
+      delete (globalThis as any)[kSandboxPreferencesAccess];
+    };
+  }, []);
 
   return (
     <SandboxPreferencesGlobalAccessContext.Provider
