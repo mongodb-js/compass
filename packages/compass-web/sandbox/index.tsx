@@ -14,7 +14,7 @@ import { sandboxTelemetry } from './sandbox-telemetry';
 import { useAtlasProxySignIn } from './sandbox-atlas-sign-in';
 import { sandboxConnectionStorage } from './sandbox-connection-storage';
 import { useWorkspaceTabRouter } from './sandbox-workspace-tab-router';
-import { SandboxPreferencesUpdateProvider } from '../src/preferences';
+import { SandboxPreferencesGlobalAccessProvider } from '../src/preferences';
 
 const sandboxContainerStyles = css({
   width: '100%',
@@ -95,7 +95,7 @@ const App = () => {
     <SandboxConnectionStorageProvider
       value={isAtlas ? null : sandboxConnectionStorage}
     >
-      <SandboxPreferencesUpdateProvider>
+      <SandboxPreferencesGlobalAccessProvider>
         <Body as="div" className={sandboxContainerStyles}>
           <CompassWeb
             orgId={orgId ?? ''}
@@ -129,7 +129,7 @@ const App = () => {
             onFailToLoadConnections={onFailToLoadConnections}
           ></CompassWeb>
         </Body>
-      </SandboxPreferencesUpdateProvider>
+      </SandboxPreferencesGlobalAccessProvider>
     </SandboxConnectionStorageProvider>
   );
 };

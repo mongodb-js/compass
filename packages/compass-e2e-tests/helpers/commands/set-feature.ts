@@ -16,20 +16,20 @@ export async function setFeature<K extends keyof UserPreferences>(
     await browser.waitUntil(async () => {
       return await browser.execute(() => {
         return (
-          Symbol.for('@compass-web-sandbox-update-preferences') in globalThis
+          Symbol.for('@compass-web-sandbox-preferences-access') in globalThis
         );
       });
     });
     await browser.execute(
       async (_name, _value) => {
         const kSandboxUpdateFn = Symbol.for(
-          '@compass-web-sandbox-update-preferences'
+          '@compass-web-sandbox-preferences-access'
         );
         const attributes: Partial<AllPreferences> = {
           [_name]: _value === null ? undefined : _value,
         };
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        await (globalThis as any)[kSandboxUpdateFn](attributes);
+        await (globalThis as any)[kSandboxUpdateFn].savePreferences(attributes);
       },
       name,
       value

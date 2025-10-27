@@ -2,54 +2,49 @@ import React, { useContext, useEffect, useRef, useState } from 'react';
 import type {
   AllPreferences,
   AtlasCloudFeatureFlags,
+  PreferencesAccess,
 } from 'compass-preferences-model/provider';
 import { CompassWebPreferencesAccess } from 'compass-preferences-model/provider';
 
-export type SandboxPreferencesUpdateTrigger = (
-  updatePreference: (
-    preferences: Partial<AllPreferences>
-  ) => Promise<AllPreferences>
+type SandboxSetPreferencesGlobalAccess = (
+  preferences: PreferencesAccess
 ) => () => void;
 
-const SandboxPreferencesUpdateTriggerContext =
-  React.createContext<SandboxPreferencesUpdateTrigger | null>(null);
+const SandboxPreferencesGlobalAccessContext =
+  React.createContext<SandboxSetPreferencesGlobalAccess | null>(null);
 
-const kSandboxUpdateFn = Symbol.for('@compass-web-sandbox-update-preferences');
+const kSandboxPreferencesAccess = Symbol.for(
+  '@compass-web-sandbox-preferences-access'
+);
 
 /**
  * Only used in the sandbox to provide a way to update preferences.
  * @internal
  */
-export const SandboxPreferencesUpdateProvider = ({
+export const SandboxPreferencesGlobalAccessProvider = ({
   children,
 }: {
   children: React.ReactNode;
 }) => {
-  const [updateTrigger] = useState<SandboxPreferencesUpdateTrigger>(() => {
-    return (
-      updatePreferencesFn: (
-        preferences: Partial<AllPreferences>
-      ) => Promise<AllPreferences>
-    ) => {
+  const [setPreferencesAccess] = useState<SandboxSetPreferencesGlobalAccess>(
+    (preferences) => {
+      (globalThis as any)[kSandboxPreferencesAccess] = preferences;
       // eslint-disable-next-line no-console
       console.info(
-        `[compass-web sandbox] call window[Symbol.for('@compass-web-sandbox-update-preferences')]({}) to dynamically update preferences`
+        `[compass-web sandbox] call window[Symbol.for('@compass-web-sandbox-preferences-access')].savePreferences({}) to dynamically update preferences`
       );
-      (globalThis as any)[kSandboxUpdateFn] = (
-        preferences: Partial<AllPreferences>
-      ) => {
-        return updatePreferencesFn(preferences);
-      };
       return () => {
-        delete (globalThis as any)[kSandboxUpdateFn];
+        delete (globalThis as any)[kSandboxPreferencesAccess];
       };
-    };
-  });
+    }
+  );
 
   return (
-    <SandboxPreferencesUpdateTriggerContext.Provider value={updateTrigger}>
+    <SandboxPreferencesGlobalAccessContext.Provider
+      value={setPreferencesAccess}
+    >
       {children}
-    </SandboxPreferencesUpdateTriggerContext.Provider>
+    </SandboxPreferencesGlobalAccessContext.Provider>
   );
 };
 
@@ -92,17 +87,15 @@ export function useCompassWebPreferences(
     )
   );
 
-  const onPreferencesUpdateTriggered = useContext(
-    SandboxPreferencesUpdateTriggerContext
+  const setPreferencesAccess = useContext(
+    SandboxPreferencesGlobalAccessContext
   );
 
   useEffect(() => {
     // This is used by our sandbox so that we can call a global function in the
-    // browser from the sandbox / testing runtime to update preferences.
-    return onPreferencesUpdateTriggered?.(async (preferences) => {
-      return await preferencesAccess.current.savePreferences(preferences);
-    });
-  }, [onPreferencesUpdateTriggered]);
+    // browser from the sandbox / testing runtime to access preferences.
+    return setPreferencesAccess?.(preferencesAccess.current);
+  }, [setPreferencesAccess]);
 
   return preferencesAccess;
 }

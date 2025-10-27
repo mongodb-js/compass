@@ -614,6 +614,15 @@ async function setCommonFeatures(browser: CompassBrowser) {
 
   // It's helpful to have devtools pre-enabled when running tests
   await browser.setFeature('enableDevTools', true);
+
+  const { enableGuideCues, showEndOfLifeConnectionModal, enableDevTools } =
+    await browser.getFeatures();
+
+  debug('Updated common feature flags to new value', {
+    enableGuideCues,
+    showEndOfLifeConnectionModal,
+    enableDevTools,
+  });
 }
 
 async function startCompassElectron(
