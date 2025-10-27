@@ -521,7 +521,7 @@ describe('Indexes Component', function () {
 
       expect(
         screen.getByText(
-          'Design and apply indexes that make queries run faster.'
+          'Learn how to design efficient indexes to speed up queries.'
         )
       ).to.be.visible;
 
@@ -537,7 +537,7 @@ describe('Indexes Component', function () {
 
       expect(
         screen.queryByText(
-          'Design and apply indexes that make queries run faster.'
+          'Learn how to design efficient indexes to speed up queries.'
         )
       ).to.not.exist;
       expect(screen.queryByRole('link', { name: /go to skills/i })).to.not
@@ -552,7 +552,7 @@ describe('Indexes Component', function () {
 
       expect(
         screen.queryByText(
-          'Design and apply indexes that make queries run faster.'
+          'Learn how to design efficient indexes to speed up queries.'
         )
       ).to.not.exist;
       expect(screen.queryByRole('link', { name: /go to skills/i })).to.not
@@ -574,7 +574,7 @@ describe('Indexes Component', function () {
 
       expect(
         screen.queryByText(
-          'Design and apply indexes that make queries run faster.'
+          'Learn how to design efficient indexes to speed up queries.'
         )
       ).to.not.exist;
     });
