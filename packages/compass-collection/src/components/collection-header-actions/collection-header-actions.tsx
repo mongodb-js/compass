@@ -125,11 +125,17 @@ const CollectionHeaderActions: React.FunctionComponent<
     !hasSchemaAnalysisData &&
     schemaAnalysisStatus !== SCHEMA_ANALYSIS_STATE_ANALYZING;
 
+  const hasSchemaAnalysisUnsupportedStateError = Boolean(
+    schemaAnalysisError && schemaAnalysisError.errorType === 'unsupportedState'
+  );
+
   const isView = isReadonly && sourceName && !editViewName;
 
   const showViewEdit = isView && !preferencesReadWrite;
   const shouldDisableMockDataButton =
-    !hasSchemaAnalysisData || exceedsMaxNestingDepth;
+    !hasSchemaAnalysisData ||
+    exceedsMaxNestingDepth ||
+    hasSchemaAnalysisUnsupportedStateError;
 
   const onMockDataGeneratorCtaButtonClicked = useCallback(() => {
     track('Mock Data Generator Opened', {
@@ -184,7 +190,11 @@ const CollectionHeaderActions: React.FunctionComponent<
       )}
       {shouldShowMockDataButton && (
         <Tooltip
-          enabled={exceedsMaxNestingDepth || isCollectionEmpty}
+          enabled={
+            exceedsMaxNestingDepth ||
+            isCollectionEmpty ||
+            hasSchemaAnalysisUnsupportedStateError
+          }
           trigger={
             <div>
               <Button
@@ -199,29 +209,22 @@ const CollectionHeaderActions: React.FunctionComponent<
             </div>
           }
         >
-          {/* TODO(CLOUDP-333853): update disabled open-modal button
-          tooltip to communicate if schema analysis is incomplete */}
           <>
-            {exceedsMaxNestingDepth && (
+            {hasSchemaAnalysisUnsupportedStateError ? (
+              <span className={tooltipMessageStyles}>
+                {schemaAnalysisError?.errorMessage}
+              </span>
+            ) : exceedsMaxNestingDepth ? (
               <span className={tooltipMessageStyles}>
                 At this time we are unable to generate mock data for collections
                 that have deeply nested documents.
               </span>
-            )}
-            {isCollectionEmpty && (
+            ) : isCollectionEmpty ? (
               <span className={tooltipMessageStyles}>
                 Please add data to your collection to generate similar mock
                 documents.
               </span>
-            )}
-            {schemaAnalysisError &&
-              schemaAnalysisError.errorType === 'unsupportedState' && (
-                <span className={tooltipMessageStyles}>
-                  This collection has a field with a name that contains a
-                  &quot;.&quot;, which mock data generation does not support at
-                  this time.
-                </span>
-              )}
+            ) : null}
           </>
         </Tooltip>
       )}

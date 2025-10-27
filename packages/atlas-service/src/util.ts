@@ -131,6 +131,7 @@ export type AtlasServiceConfig = {
  *  - atlas-local:             local mms backend         (localhost)
  *  - atlas-dev:               dev mms backend           (cloud-dev.mongodb.com)
  *  - atlas-qa:                qa mms backend            (cloud-qa.mongodb.com)
+ *  - atlas-staging:           staging mms backend       (cloud-stage.mongodb.com)
  *  - atlas:                   mms backend               (cloud.mongodb.com)
  *  - web-sandbox-atlas-local: local mms backend + proxy (localhost / proxy prefix)
  *  - web-sandbox-atlas-dev:   dev mms backend + proxy   (cloud-dev.mongodb.com / proxy prefix)
@@ -173,6 +174,18 @@ const config = {
     authPortalUrl: 'https://account-qa.mongodb.com/account/login',
     assistantApiBaseUrl: 'https://knowledge-dev.mongodb.com/api/v1',
     userDataBaseUrl: 'https://cloud-qa.mongodb.com/ui/userData',
+  },
+  'atlas-staging': {
+    ccsBaseUrl: '',
+    cloudBaseUrl: '',
+    atlasApiBaseUrl: 'https://cloud-stage.mongodb.com/api/private',
+    atlasLogin: {
+      clientId: '0oaq1le5jlzxCuTbu357',
+      issuer: 'https://auth-qa.mongodb.com/oauth2/default',
+    },
+    authPortalUrl: 'https://account-stage.mongodb.com/account/login',
+    assistantApiBaseUrl: 'https://knowledge-staging.mongodb.com/api/v1',
+    userDataBaseUrl: 'https://cloud-stage.mongodb.com/ui/userData',
   },
   atlas: {
     ccsBaseUrl: '',

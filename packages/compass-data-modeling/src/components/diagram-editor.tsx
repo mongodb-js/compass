@@ -44,6 +44,8 @@ import {
   Diagram,
   useDiagram,
   useHotkeys,
+  FocusState,
+  useFocusStateIncludingUnfocused,
 } from '@mongodb-js/compass-components';
 import { cancelAnalysis, retryAnalysis } from '../store/analysis-process';
 import type { FieldPath, StaticModel } from '../services/data-model-storage';
@@ -89,6 +91,19 @@ const bannerButtonStyles = css({
   marginLeft: 'auto',
 });
 
+/**
+ * This is a hotfix for COMPASS-9738 where collection names spanning over
+ * multiple lines are not accounted for properly in the diagramming package.
+ * TODO(COMPASS-9738): Remove this hotfix once we have a proper solution in place.
+ */
+const diagramStyles = css({
+  '[data-nodeid] + div > div > div:first-child > div:nth-child(2)': {
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+  },
+});
+
 const ErrorBannerWithRetry: React.FunctionComponent<{
   onRetryClick: () => void;
 }> = ({ children, onRetryClick }) => {
@@ -122,6 +137,10 @@ const modelPreviewStyles = css({
   ['.connectablestart']: {
     userSelect: 'none',
   },
+});
+
+const displayContentsStyles = css({
+  display: 'contents',
 });
 
 const ZOOM_OPTIONS = {
@@ -442,6 +461,7 @@ const DiagramContent: React.FunctionComponent<{
           // dragging.
           nodeDragThreshold={5}
           fitViewOptions={ZOOM_OPTIONS}
+          className={diagramStyles}
         />
       </div>
     </div>
@@ -513,6 +533,8 @@ const DiagramEditor: React.FunctionComponent<{
     openDrawer(DATA_MODELING_DRAWER_ID);
   }, [openDrawer, onAddCollectionClick]);
 
+  const [focusProps, focusState] = useFocusStateIncludingUnfocused();
+
   if (step === 'NO_DIAGRAM_SELECTED') {
     return null;
   }
@@ -558,18 +580,21 @@ const DiagramEditor: React.FunctionComponent<{
   }
 
   return (
-    <WorkspaceContainer
-      toolbar={
-        <DiagramEditorToolbar
-          onRelationshipDrawingToggle={handleRelationshipDrawingToggle}
-          isInRelationshipDrawingMode={isInRelationshipDrawingMode}
-          onAddCollectionClick={handleAddCollectionClick}
-        />
-      }
-    >
-      {content}
-      <ExportDiagramModal />
-    </WorkspaceContainer>
+    <div className={displayContentsStyles} {...focusProps}>
+      <WorkspaceContainer
+        toolbar={
+          <DiagramEditorToolbar
+            diagramEditorHasFocus={focusState !== FocusState.NoFocus}
+            onRelationshipDrawingToggle={handleRelationshipDrawingToggle}
+            isInRelationshipDrawingMode={isInRelationshipDrawingMode}
+            onAddCollectionClick={handleAddCollectionClick}
+          />
+        }
+      >
+        {content}
+        <ExportDiagramModal />
+      </WorkspaceContainer>
+    </div>
   );
 };
 
