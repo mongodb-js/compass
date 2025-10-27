@@ -6,7 +6,7 @@
 > the tracking plan for the specific Compass version you can use the following
 > URL: `https://github.com/mongodb-js/compass/blob/<compass version>/docs/tracking-plan.md`
 
-Generated on Thu, Oct 23, 2025
+Generated on Mon, Oct 27, 2025
 
 ## Table of Contents
 
@@ -169,6 +169,19 @@ Generated on Thu, Oct 23, 2025
 - [Index Create Opened](#event--IndexCreateOpenedEvent)
 - [Index Dropped](#event--IndexDroppedEvent)
 - [Index Edited](#event--IndexEditedEvent)
+
+### Mock Data Generator
+
+- [Mock Data Generator CTA Button Viewed](#event--MockDataGeneratorCtaButtonViewedEvent)
+- [Mock Data Generator Opened](#event--MockDataGeneratorOpenedEvent)
+- [Mock Data Generator Screen Viewed](#event--MockDataGeneratorScreenViewedEvent)
+- [Mock Data Generator Screen Proceeded](#event--MockDataGeneratorScreenProceededEvent)
+- [Mock Data Generator Dismissed](#event--MockDataGeneratorDismissedEvent)
+- [Mock Data JSON Type Changed](#event--MockDataJsonTypeChangedEvent)
+- [Mock Data Faker Method Changed](#event--MockDataFakerMethodChangedEvent)
+- [Mock Data Document Count Changed](#event--MockDataDocumentCountChangedEvent)
+- [Mock Data Script Generated](#event--MockDataScriptGeneratedEvent)
+- [Mock Data Script Copied](#event--MockDataScriptCopiedEvent)
 
 ### My Queries
 
@@ -1964,6 +1977,132 @@ This event is fired when user updates an index.
 - **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
+
+## Mock Data Generator
+
+<a name="event--MockDataGeneratorCtaButtonViewedEvent"></a>
+
+### Mock Data Generator CTA Button Viewed
+
+This event is fired when the Mock Data Generator CTA button is viewed.
+
+**Properties**:
+
+- **button_enabled** (required): `boolean`
+- **gen_ai_features_enabled** (required): `boolean`
+- **send_sample_values_enabled** (required): `boolean`
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--MockDataGeneratorOpenedEvent"></a>
+
+### Mock Data Generator Opened
+
+This event is fired when the user clicks the enabled "Generate Mock Data" button in the collection tab header.
+
+**Properties**:
+
+- **gen_ai_features_enabled** (required): `boolean`
+- **send_sample_values_enabled** (required): `boolean`
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--MockDataGeneratorScreenViewedEvent"></a>
+
+### Mock Data Generator Screen Viewed
+
+This event is fired when the user views a screen in the Mock Data Generator modal.
+
+**Properties**:
+
+- **screen** (required): `MockDataGeneratorScreen`
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--MockDataGeneratorScreenProceededEvent"></a>
+
+### Mock Data Generator Screen Proceeded
+
+This event is fired when the user proceeds to the next screen or finishes the mock data generator modal.
+
+**Properties**:
+
+- **from_screen** (required): `MockDataGeneratorScreen`
+- **to_screen** (required): `MockDataGeneratorScreen | "finish"`
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--MockDataGeneratorDismissedEvent"></a>
+
+### Mock Data Generator Dismissed
+
+This event is fired when the user closes the mock data generator modal.
+
+**Properties**:
+
+- **screen** (required): `MockDataGeneratorScreen`
+- **gen_ai_features_enabled** (required): `boolean`
+- **send_sample_values_enabled** (required): `boolean`
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--MockDataJsonTypeChangedEvent"></a>
+
+### Mock Data JSON Type Changed
+
+This event is fired when the user changes the JSON type for a MongoDB field type mapping.
+
+**Properties**:
+
+- **field_name** (required): `string`
+- **previous_json_type** (required): `MongoDBJsonFieldType`
+- **new_json_type** (required): `MongoDBJsonFieldType`
+- **previous_faker_method** (required): `string`
+- **new_faker_method** (required): `string`
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--MockDataFakerMethodChangedEvent"></a>
+
+### Mock Data Faker Method Changed
+
+This event is fired when the user changes the faker method for a MongoDB field type mapping.
+
+**Properties**:
+
+- **field_name** (required): `string`
+- **json_type** (required): `MongoDBJsonFieldType`
+- **previous_faker_method** (required): `string`
+- **new_faker_method** (required): `string`
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--MockDataDocumentCountChangedEvent"></a>
+
+### Mock Data Document Count Changed
+
+This event is fired when the user changes the document count for the mock data generator modal.
+
+**Properties**:
+
+- **document_count** (required): `number`
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--MockDataScriptGeneratedEvent"></a>
+
+### Mock Data Script Generated
+
+This event is fired when the user generates a script in the mock data generator modal.
+
+**Properties**:
+
+- **field_count** (required): `number`
+- **output_docs_count** (required): `number`
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--MockDataScriptCopiedEvent"></a>
+
+### Mock Data Script Copied
+
+This event is fired when the user copies the mongosh script in the script screen of the mock data generator modal.
+
+**Properties**:
+
+- **step** (required): `MockDataScriptStep`
+- **is_compass_web** (optional): `true | undefined`
 
 ## My Queries
 
