@@ -766,9 +766,6 @@ async function startCompassElectron(
 
   await compass.recordElectronLogs();
 
-  await setCommonRendererEnv(browser);
-  await setCommonFeatures(browser);
-
   return compass;
 }
 
@@ -782,7 +779,7 @@ export type StoredAtlasCloudCookies = {
   expirationDate: number;
 }[];
 
-export async function startBrowser(
+async function startBrowser(
   name: string,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   opts: StartCompassOptions = {}
@@ -895,9 +892,6 @@ export async function startBrowser(
     writeCoverage: false,
     needsCloseWelcomeModal: false,
   });
-
-  await setCommonRendererEnv(browser);
-  await setCommonFeatures(browser);
 
   return compass;
 }
@@ -1137,6 +1131,9 @@ export async function init(
       void ipcRenderer.invoke('compass:maximize');
     });
   }
+
+  await setCommonRendererEnv(browser);
+  await setCommonFeatures(browser);
 
   if (compass.needsCloseWelcomeModal) {
     await browser.closeWelcomeModal();
