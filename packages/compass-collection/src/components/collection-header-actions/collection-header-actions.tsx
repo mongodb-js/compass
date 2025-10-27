@@ -63,6 +63,7 @@ function buildChartsUrl(
 type CollectionHeaderActionsProps = {
   namespace: string;
   isReadonly: boolean;
+  isTimeSeries: boolean;
   editViewName?: string;
   sourceName?: string;
   sourcePipeline?: unknown[];
@@ -78,6 +79,7 @@ const CollectionHeaderActions: React.FunctionComponent<
 > = ({
   namespace,
   isReadonly,
+  isTimeSeries,
   editViewName,
   sourceName,
   sourcePipeline,
@@ -99,13 +101,20 @@ const CollectionHeaderActions: React.FunctionComponent<
     'enableGenAISampleDocumentPassing'
   );
 
+  const { database, collection } = toNS(namespace);
+
+  const isMockDataGeneratorEligible = Boolean(
+    atlasMetadata && // Only show in Atlas
+      !isReadonly && // Don't show for readonly collections (views)
+      !isTimeSeries && // Don't show for time series collections
+      !sourceName // sourceName indicates it's a view
+  );
+
   // Get experiment assignment for Mock Data Generator
   const mockDataGeneratorAssignment = useAssignment(
     ExperimentTestName.mockDataGenerator,
-    true // trackIsInSample - this will fire the "Experiment Viewed" event
+    isMockDataGeneratorEligible // Only track eligible collections
   );
-
-  const { database, collection } = toNS(namespace);
 
   // Check if user is in treatment group for Mock Data Generator experiment
   const isInMockDataTreatmentVariant =
@@ -113,10 +122,7 @@ const CollectionHeaderActions: React.FunctionComponent<
     ExperimentTestGroup.mockDataGeneratorVariant;
 
   const shouldShowMockDataButton =
-    isInMockDataTreatmentVariant &&
-    atlasMetadata && // Only show in Atlas
-    !isReadonly && // Don't show for readonly collections (views)
-    !sourceName; // sourceName indicates it's a view
+    isMockDataGeneratorEligible && isInMockDataTreatmentVariant;
 
   const exceedsMaxNestingDepth =
     analyzedSchemaDepth > MAX_COLLECTION_NESTING_DEPTH;
