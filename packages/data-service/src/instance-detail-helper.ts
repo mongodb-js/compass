@@ -218,7 +218,9 @@ async function buildGenuineMongoDBInfo(
   });
 
   return {
-    isGenuine: serverName === 'mongodb',
+    // Actually, we can't say for sure that 'unknown' is genuine,
+    // but we cannot say that it's non-genuine either.
+    isGenuine: serverName === 'mongodb' || serverName === 'unknown',
     serverName,
   };
 }
