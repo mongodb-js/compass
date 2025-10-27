@@ -7,7 +7,7 @@
     "email": "compass@mongodb.com"
   },
   "homepage": "https://github.com/mongodb-js/compass",
-  "version": "22.34.5",
+  "version": "22.34.6",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/compass.git"
@@ -52,8 +52,8 @@
     "typecheck": "echo \"TODO(COMPASS-9897): typecheck is failing in test files\" && tsc -p tsconfig-build.json --noEmit"
   },
   "dependencies": {
-    "@mongodb-js/compass-logging": "^1.7.22",
-    "@mongodb-js/compass-utils": "^0.9.20",
+    "@mongodb-js/compass-logging": "^1.7.23",
+    "@mongodb-js/compass-utils": "^0.9.21",
     "@mongodb-js/devtools-connect": "^3.9.3",
     "@mongodb-js/devtools-proxy-support": "^0.5.2",
     "bson": "^6.10.4",
