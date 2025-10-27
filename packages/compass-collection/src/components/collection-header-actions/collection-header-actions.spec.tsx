@@ -222,6 +222,22 @@ describe('CollectionHeaderActions [Component]', function () {
     };
 
     it('should call useAssignment with correct parameters', async function () {
+      await renderCollectionHeaderActions(
+        {
+          namespace: 'test.collection',
+          isReadonly: false,
+        },
+        {},
+        atlasConnectionInfo
+      );
+
+      expect(mockUseAssignment).to.have.been.calledWith(
+        ExperimentTestName.mockDataGenerator,
+        true // trackIsInSample - Experiment viewed analytics event
+      );
+    });
+
+    it('should call useAssignment with trackIsInSample set to false in non-Atlas environments', async function () {
       await renderCollectionHeaderActions({
         namespace: 'test.collection',
         isReadonly: false,
@@ -229,7 +245,23 @@ describe('CollectionHeaderActions [Component]', function () {
 
       expect(mockUseAssignment).to.have.been.calledWith(
         ExperimentTestName.mockDataGenerator,
-        true // trackIsInSample - Experiment viewed analytics event
+        false // Not eligible - no Atlas metadata
+      );
+    });
+
+    it('should call useAssignment with trackIsInSample set to false for readonly collections', async function () {
+      await renderCollectionHeaderActions(
+        {
+          namespace: 'test.collection',
+          isReadonly: true,
+        },
+        {},
+        atlasConnectionInfo
+      );
+
+      expect(mockUseAssignment).to.have.been.calledWith(
+        ExperimentTestName.mockDataGenerator,
+        false // Not eligible - readonly collection
       );
     });
 
