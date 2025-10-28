@@ -280,47 +280,45 @@ describe('Collection documents tab', function () {
     }
   });
 
-  describe('maxTimeMS configuration', function () {
-    for (const maxTimeMSMode of ['ui', 'preference'] as const) {
-      it(`supports maxTimeMS (set via ${maxTimeMSMode})`, async function () {
-        if (maxTimeMSMode === 'preference') {
-          if (isTestingWeb()) {
-            await browser.setFeature('maxTimeMS', 1);
-          } else {
-            await browser.openSettingsModal();
-            const settingsModal = browser.$(Selectors.SettingsModal);
-            await settingsModal.waitForDisplayed();
-            await browser.clickVisible(Selectors.GeneralSettingsButton);
+  for (const maxTimeMSMode of ['ui', 'preference'] as const) {
+    it(`supports maxTimeMS (set via ${maxTimeMSMode})`, async function () {
+      if (maxTimeMSMode === 'preference') {
+        if (isTestingWeb()) {
+          await browser.setFeature('maxTimeMS', 1);
+        } else {
+          await browser.openSettingsModal();
+          const settingsModal = browser.$(Selectors.SettingsModal);
+          await settingsModal.waitForDisplayed();
+          await browser.clickVisible(Selectors.GeneralSettingsButton);
 
-            await browser.setValueVisible(
-              Selectors.SettingsInputElement('maxTimeMS'),
-              '1'
-            );
-            await browser.clickVisible(Selectors.SaveSettingsButton);
-            await settingsModal.waitForDisplayed({ reverse: true });
-          }
+          await browser.setValueVisible(
+            Selectors.SettingsInputElement('maxTimeMS'),
+            '1'
+          );
+          await browser.clickVisible(Selectors.SaveSettingsButton);
+          await settingsModal.waitForDisplayed({ reverse: true });
         }
+      }
 
-        // execute a query that will take a long time, but set a maxTimeMS shorter than that
-        await browser.runFindOperation(
-          'Documents',
-          '{ $where: function() { return sleep(10000) || true; } }',
-          {
-            ...(maxTimeMSMode === 'ui' ? { maxTimeMS: '1' } : {}),
-            waitForResult: false,
-          }
-        );
+      // execute a query that will take a long time, but set a maxTimeMS shorter than that
+      await browser.runFindOperation(
+        'Documents',
+        '{ $where: function() { return sleep(10000) || true; } }',
+        {
+          ...(maxTimeMSMode === 'ui' ? { maxTimeMS: '1' } : {}),
+          waitForResult: false,
+        }
+      );
 
-        const documentListErrorElement = browser.$(Selectors.DocumentListError);
-        await documentListErrorElement.waitForDisplayed();
+      const documentListErrorElement = browser.$(Selectors.DocumentListError);
+      await documentListErrorElement.waitForDisplayed();
 
-        const errorText = await documentListErrorElement.getText();
-        expect(errorText).to.include(
-          'Operation exceeded time limit. Please try increasing the maxTimeMS for the query in the expanded filter options.'
-        );
-      });
-    }
-  });
+      const errorText = await documentListErrorElement.getText();
+      expect(errorText).to.include(
+        'Operation exceeded time limit. Please try increasing the maxTimeMS for the query in the expanded filter options.'
+      );
+    });
+  }
 
   it('keeps the query when navigating to schema', async function () {
     await browser.runFindOperation('Documents', '{ i: 5 }');
