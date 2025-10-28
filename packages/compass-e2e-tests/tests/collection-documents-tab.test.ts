@@ -140,7 +140,6 @@ describe('Collection documents tab', function () {
     );
 
     maxTimeMSBefore = (await browser.getFeature('maxTimeMS')) as string;
-    console.log({ MAX_TIME_MS_BEFORE: maxTimeMSBefore });
   });
 
   after(async function () {
