@@ -202,7 +202,11 @@ function prepareFakerArgs(args: FakerArg[]) {
   });
 }
 
-export function validateDocumentCount(documentCount: string) {
+export function validateDocumentCount(documentCount?: string) {
+  if (!documentCount) {
+    return { isValid: false, errorMessage: 'Document count is required' };
+  }
+
   const trimmed = documentCount.trim();
   const num = parseInt(documentCount, 10);
 

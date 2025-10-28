@@ -54,6 +54,7 @@ describe('MockDataGeneratorModal', () => {
     schemaAnalysis = defaultSchemaAnalysisState,
     fakerSchemaGeneration = { status: 'idle' },
     connectionInfo,
+    documentCount = DEFAULT_DOCUMENT_COUNT.toString(),
   }: {
     isOpen?: boolean;
     enableGenAISampleDocumentPassing?: boolean;
@@ -62,6 +63,7 @@ describe('MockDataGeneratorModal', () => {
     connectionInfo?: ConnectionInfo;
     schemaAnalysis?: SchemaAnalysisState;
     fakerSchemaGeneration?: CollectionState['fakerSchemaGeneration'];
+    documentCount?: string;
   } = {}) {
     const initialState: CollectionState = {
       workspaceTabId: 'test-workspace-tab-id',
@@ -72,7 +74,7 @@ describe('MockDataGeneratorModal', () => {
       mockDataGenerator: {
         isModalOpen: isOpen,
         currentStep: currentStep,
-        documentCount: DEFAULT_DOCUMENT_COUNT.toString(),
+        documentCount: documentCount,
       },
     };
 
@@ -1236,6 +1238,7 @@ describe('MockDataGeneratorModal', () => {
     it('fires a track event when the script is generated', async () => {
       const result = await renderModal({
         currentStep: MockDataGeneratorStep.GENERATE_DATA,
+        documentCount: '100',
         fakerSchemaGeneration: {
           status: 'completed',
           originalLlmResponse: {
