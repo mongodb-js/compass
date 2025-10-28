@@ -14,7 +14,6 @@ import {
 } from '../components/workspace-close-handler';
 import { type ConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { showConfirmation } from '@mongodb-js/compass-components';
-import type { WorkspacesStateData } from '../types';
 
 const LocalAppRegistryMap = new Map<string, AppRegistry>();
 
