@@ -10,7 +10,7 @@ import React, { useMemo } from 'react';
 import { connect } from 'react-redux';
 import type { CollectionState } from '../../modules/collection-tab';
 import type { SchemaAnalysisState } from '../../schema-analysis-types';
-import { DEFAULT_DOCUMENT_COUNT, MAX_DOCUMENT_COUNT } from './constants';
+import { MAX_DOCUMENT_COUNT } from './constants';
 import { validateDocumentCount } from './utils';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 
@@ -62,20 +62,18 @@ const DocumentCountScreen = ({
 }: Props) => {
   const track = useTelemetry();
   const validationState = validateDocumentCount(documentCount);
-  const documentCountNumber = validationState.isValid
-    ? validationState.parsedValue!
-    : DEFAULT_DOCUMENT_COUNT;
+  const documentCountNumber = validationState.parsedValue;
   const estimatedDiskSize = useMemo(
     () =>
+      validationState.isValid &&
       schemaAnalysisState.status === 'complete' &&
-      schemaAnalysisState.schemaMetadata.avgDocumentSize &&
-      !isNaN(documentCountNumber)
+      schemaAnalysisState.schemaMetadata.avgDocumentSize
         ? formatBytes(
             schemaAnalysisState.schemaMetadata.avgDocumentSize *
-              documentCountNumber
+              documentCountNumber!
           )
         : 'Not available',
-    [schemaAnalysisState, documentCountNumber]
+    [validationState.isValid, schemaAnalysisState, documentCountNumber]
   );
 
   const errorState = useMemo(() => {
