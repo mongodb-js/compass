@@ -1010,8 +1010,8 @@ export const loadSavedWorkspaces = (): WorkspacesThunkAction<
         buttonText: 'Reopen tabs',
       });
 
-      const workspacesToRestore: OpenWorkspaceOptions[] = [];
       if (confirm) {
+        const workspacesToRestore: OpenWorkspaceOptions[] = [];
         for (const workspace of savedState.tabs) {
           // If the workspace is tied to a connection, check if the connection exists
           // and add it to the list of connections to restore if so.
@@ -1021,7 +1021,7 @@ export const loadSavedWorkspaces = (): WorkspacesThunkAction<
             )?.info;
 
             if (!connectionInfo) {
-              return;
+              continue;
             }
 
             void connections.connect(connectionInfo);
@@ -1029,12 +1029,14 @@ export const loadSavedWorkspaces = (): WorkspacesThunkAction<
 
           workspacesToRestore.push(workspace);
         }
-      }
 
-      dispatch({
-        type: WorkspacesActions.RestoreWorkspaces,
-        tabs: workspacesToRestore,
-      });
+        if (workspacesToRestore.length > 0) {
+          dispatch({
+            type: WorkspacesActions.RestoreWorkspaces,
+            tabs: workspacesToRestore,
+          });
+        }
+      }
     }
   };
 };
