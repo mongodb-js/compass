@@ -53,19 +53,25 @@ import {
   TableBody,
   flexRender,
   useLeafyGreenTable,
+  useLeafyGreenVirtualTable,
+  type LeafyGreenVirtualItem,
   getExpandedRowModel,
   getFilteredRowModel,
+  type TableProps,
 } from '@leafygreen-ui/table';
 import type { Row as LgTableRowType } from '@tanstack/table-core'; // TODO(COMPASS-8437): import from LG
 
 export type {
   LGColumnDef,
   HeaderGroup,
+  LeafyGreenVirtualTable,
+  LeafyGreenTable,
   LeafyGreenTableCell,
   LeafyGreenTableRow,
   LGTableDataType,
   LGRowData,
   SortingState,
+  CellContext,
 } from '@leafygreen-ui/table';
 import { Tabs, Tab } from '@leafygreen-ui/tabs';
 import TextArea from '@leafygreen-ui/text-area';
@@ -200,6 +206,9 @@ export {
   InfoSprinkle,
   flexRender,
   useLeafyGreenTable,
+  useLeafyGreenVirtualTable,
+  type LeafyGreenVirtualItem,
+  type TableProps,
   getExpandedRowModel,
   getFilteredRowModel,
   type LgTableRowType,

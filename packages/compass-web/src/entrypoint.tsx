@@ -44,7 +44,10 @@ import { CompassGlobalWritesPlugin } from '@mongodb-js/compass-global-writes';
 import { CompassGenerativeAIPlugin } from '@mongodb-js/compass-generative-ai';
 import ExplainPlanCollectionTabModal from '@mongodb-js/compass-explain-plan';
 import ExportToLanguageCollectionTabModal from '@mongodb-js/compass-export-to-language';
-import type { AllPreferences } from 'compass-preferences-model/provider';
+import type {
+  AllPreferences,
+  AtlasCloudFeatureFlags,
+} from 'compass-preferences-model/provider';
 import { PreferencesProvider } from 'compass-preferences-model/provider';
 import FieldStorePlugin from '@mongodb-js/compass-field-store';
 import {
@@ -64,7 +67,7 @@ import { WebWorkspaceTab as WelcomeWorkspaceTab } from '@mongodb-js/compass-welc
 import { WorkspaceTab as MyQueriesWorkspace } from '@mongodb-js/compass-saved-aggregations-queries';
 import { useCompassWebPreferences } from './preferences';
 import { DataModelingWorkspaceTab as DataModelingWorkspace } from '@mongodb-js/compass-data-modeling';
-import { DataModelStorageServiceProviderInMemory } from '@mongodb-js/compass-data-modeling/web';
+import { DataModelStorageServiceProviderWeb } from '@mongodb-js/compass-data-modeling/web';
 import {
   createWebRecentQueryStorage,
   createWebFavoriteQueryStorage,
@@ -256,6 +259,13 @@ export type CompassWebProps = {
   initialPreferences?: Partial<AllPreferences>;
 
   /**
+   * A subset of Atlas Cloud feature flags that maps to Compass feature flag
+   * preferences. These flags have any effect ONLY if they were defined as
+   * mapped for some Compass preferences feature flags
+   */
+  atlasCloudFeatureFlags?: Partial<AtlasCloudFeatureFlags>;
+
+  /**
    * Callback prop called every time any code inside Compass logs something
    */
   onLog?: LogFunction;
@@ -392,6 +402,7 @@ const CompassWeb = ({
   initialWorkspace,
   onActiveWorkspaceTabChange,
   initialPreferences,
+  atlasCloudFeatureFlags,
   onLog,
   onDebug,
   onTrack,
@@ -404,10 +415,10 @@ const CompassWeb = ({
     onLog,
     onDebug,
   });
-  const preferencesAccess = useCompassWebPreferences({
-    ...initialPreferences,
-    maxTimeMSEnvLimit: 300_000, // 5 minutes limit for Data Explorer
-  });
+  const preferencesAccess = useCompassWebPreferences(
+    initialPreferences,
+    atlasCloudFeatureFlags
+  );
   // TODO (COMPASS-9565): My Queries feature flag will be used to conditionally provide storage providers
   const initialWorkspaceRef = useRef(initialWorkspace);
   const initialWorkspaceTabsRef = useRef(
@@ -516,7 +527,10 @@ const CompassWeb = ({
               <TelemetryProvider options={telemetryOptions.current}>
                 <WithAtlasProviders>
                   <WithStorageProviders orgId={orgId} projectId={projectId}>
-                    <DataModelStorageServiceProviderInMemory>
+                    <DataModelStorageServiceProviderWeb
+                      orgId={orgId}
+                      projectId={projectId}
+                    >
                       <AtlasCloudConnectionStorageProvider
                         orgId={orgId}
                         projectId={projectId}
@@ -585,7 +599,7 @@ const CompassWeb = ({
                           </CompassConnections>
                         </CompassAssistantProvider>
                       </AtlasCloudConnectionStorageProvider>
-                    </DataModelStorageServiceProviderInMemory>
+                    </DataModelStorageServiceProviderWeb>
                   </WithStorageProviders>
                 </WithAtlasProviders>
               </TelemetryProvider>

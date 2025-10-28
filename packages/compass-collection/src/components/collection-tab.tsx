@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { connect } from 'react-redux';
 import { type CollectionState, selectTab } from '../modules/collection-tab';
 import { css, ErrorBoundary, TabNavBar } from '@mongodb-js/compass-components';
@@ -19,6 +19,11 @@ import {
   useConnectionSupports,
 } from '@mongodb-js/compass-connections/provider';
 import { usePreference } from 'compass-preferences-model/provider';
+import { useApplicationMenu } from '@mongodb-js/compass-electron-menu';
+import {
+  useGlobalAppRegistry,
+  useLocalAppRegistry,
+} from '@mongodb-js/compass-app-registry';
 
 type CollectionSubtabTrackingId = Lowercase<CollectionSubtab> extends infer U
   ? U extends string
@@ -228,6 +233,80 @@ const CollectionTabWithMetadata: React.FunctionComponent<
   );
 };
 
+// Setup the Electron application menu for the collection tab
+function useCollectionTabApplicationMenu(
+  collectionMetadata: CollectionMetadata | null
+) {
+  const localAppRegistry = useLocalAppRegistry();
+  const globalAppRegistry = useGlobalAppRegistry();
+  const connectionInfoRef = useConnectionInfoRef();
+  const preferencesReadOnly = usePreference('readOnly');
+
+  const shareSchemaClick = useCallback(() => {
+    localAppRegistry.emit('menu-share-schema-json');
+  }, [localAppRegistry]);
+
+  const importClick = useCallback(() => {
+    if (!collectionMetadata) return;
+    globalAppRegistry.emit(
+      'open-import',
+      {
+        namespace: collectionMetadata.namespace,
+        origin: 'menu',
+      },
+      {
+        connectionId: connectionInfoRef.current.id,
+      },
+      {}
+    );
+  }, [collectionMetadata, globalAppRegistry, connectionInfoRef]);
+
+  const exportClick = useCallback(() => {
+    if (!collectionMetadata) return;
+    globalAppRegistry.emit(
+      'open-export',
+      {
+        exportFullCollection: true,
+        namespace: collectionMetadata.namespace,
+        origin: 'menu',
+      },
+      {
+        connectionId: connectionInfoRef.current.id,
+      }
+    );
+  }, [collectionMetadata, globalAppRegistry, connectionInfoRef]);
+
+  useApplicationMenu({
+    menu: collectionMetadata
+      ? {
+          label: '&Collection',
+          submenu: [
+            {
+              label: '&Share Schema as JSON (Legacy)',
+              accelerator: 'Alt+CmdOrCtrl+S',
+              click: shareSchemaClick,
+            },
+            {
+              type: 'separator',
+            },
+            ...(preferencesReadOnly || collectionMetadata?.isReadonly
+              ? []
+              : [
+                  {
+                    label: '&Import Data',
+                    click: importClick,
+                  },
+                ]),
+            {
+              label: '&Export Collection',
+              click: exportClick,
+            },
+          ],
+        }
+      : undefined,
+  });
+}
+
 const CollectionTab = ({
   collectionMetadata,
   ...props
@@ -235,6 +314,7 @@ const CollectionTab = ({
   collectionMetadata: CollectionMetadata | null;
 }) => {
   const QueryBarPlugin = useCollectionQueryBar();
+  useCollectionTabApplicationMenu(collectionMetadata);
 
   if (!collectionMetadata) {
     return null;

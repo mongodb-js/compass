@@ -141,6 +141,7 @@ export {
 };
 export {
   useFocusState,
+  useFocusStateIncludingUnfocused,
   useHoverState,
   FocusState,
 } from './hooks/use-focus-hover';
@@ -218,6 +219,7 @@ export {
 } from './components/links/link';
 export { ChevronCollapse } from './components/chevron-collapse-icon';
 export { formatDate } from './utils/format-date';
+export { compactBytes, compactNumber } from './utils/format';
 export {
   VirtualList,
   type VirtualListRef,
@@ -241,7 +243,10 @@ export {
 export type {
   EdgeProps,
   NodeProps,
+  DiagramProps,
   DiagramInstance,
   NodeField,
   NodeGlyph,
 } from '@mongodb-js/diagramming';
+// @experiment Skills in Atlas  | Jira Epic: CLOUDP-346311
+export { AtlasSkillsBanner } from './components/atlas-skills-banner';

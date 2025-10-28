@@ -9,17 +9,15 @@ import type {
 } from 'mongodb-schema';
 import type { FieldInfo, SampleValue } from './schema-analysis-types';
 import type { ArrayLengthMap } from './components/mock-data-generator-modal/script-generation-utils';
-import {
+import type {
   ObjectId,
-  Binary,
   BSONRegExp,
   Code,
   Timestamp,
-  MaxKey,
-  MinKey,
   BSONSymbol,
   Long,
   Decimal128,
+  BSONValue,
 } from 'bson';
 
 /**
@@ -102,6 +100,19 @@ export class ProcessSchemaValidationError extends Error {
 }
 
 /**
+ * Type guard to check if a value is a BSON object using _bsontype property
+ */
+function isBSONValue(value: unknown): value is BSONValue {
+  return (
+    value !== null &&
+    value !== undefined &&
+    typeof value === 'object' &&
+    '_bsontype' in value &&
+    typeof (value as { _bsontype: unknown })._bsontype === 'string'
+  );
+}
+
+/**
  * Converts a BSON value to its primitive JavaScript equivalent
  */
 function convertBSONToPrimitive(value: unknown): SampleValue {
@@ -115,40 +126,36 @@ function convertBSONToPrimitive(value: unknown): SampleValue {
     return value;
   }
 
-  // Convert BSON objects to primitives
-  if (value instanceof ObjectId) {
-    return value.toString();
-  }
-  if (value instanceof Binary) {
-    // For Binary data, provide a descriptive placeholder instead of the actual data
-    // to avoid massive base64 strings that can break LLM requests
-    // (Defensive check: should never be called, since sample values for binary are skipped)
-    const sizeInBytes = value.buffer?.length || 0;
-    return `<Binary data: ${sizeInBytes} bytes>`;
-  }
-  if (value instanceof BSONRegExp) {
-    return value.pattern;
-  }
-  if (value instanceof Code) {
-    return value.code;
-  }
-  if (value instanceof Timestamp) {
-    return value.toNumber();
-  }
-  if (value instanceof MaxKey) {
-    return 'MaxKey';
-  }
-  if (value instanceof MinKey) {
-    return 'MinKey';
-  }
-  if (value instanceof BSONSymbol) {
-    return value.toString();
-  }
-  if (value instanceof Long) {
-    return value.toNumber();
-  }
-  if (value instanceof Decimal128) {
-    return parseFloat(value.toString());
+  // Convert BSON objects to primitives using _bsontype
+  if (isBSONValue(value)) {
+    switch (value._bsontype) {
+      case 'ObjectId':
+        return (value as ObjectId).toString();
+      case 'Binary':
+        // Binary data should never be processed because sample values are skipped for binary fields
+        throw new ProcessSchemaUnsupportedStateError(
+          'Binary data encountered in sample value conversion. Binary fields should be excluded from sample value processing.'
+        );
+      case 'BSONRegExp':
+        return (value as BSONRegExp).pattern;
+      case 'Code':
+        return (value as Code).code;
+      case 'Timestamp':
+        return (value as Timestamp).toNumber();
+      case 'MaxKey':
+        return 'MaxKey';
+      case 'MinKey':
+        return 'MinKey';
+      case 'BSONSymbol':
+        return (value as BSONSymbol).toString();
+      case 'Long':
+        return (value as Long).toNumber();
+      case 'Decimal128':
+        return parseFloat((value as Decimal128).toString());
+      default:
+        // Unknown BSON type, continue to other checks
+        break;
+    }
   }
 
   // Handle objects with valueOf method (numeric types)
@@ -237,7 +244,13 @@ function processNamedField(
 
   if (field.name.includes(FIELD_NAME_SEPARATOR)) {
     throw new ProcessSchemaUnsupportedStateError(
-      `no support for field names that contain a '${FIELD_NAME_SEPARATOR}' ; field name: '${field.name}'`
+      `Feature is unsupported for field names that contain a '${FIELD_NAME_SEPARATOR}'; field name: '${field.name}'`
+    );
+  }
+
+  if (field.name.endsWith('[]')) {
+    throw new ProcessSchemaUnsupportedStateError(
+      `Feature is unsupported for field names that end with '[]'; field name: '${field.name}'`
     );
   }
 

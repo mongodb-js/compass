@@ -85,7 +85,8 @@ export class AtlasService {
       | 'favoriteQueries'
       | 'recentQueries'
       | 'favoriteAggregations'
-      | 'savedWorkspaces',
+      | 'savedWorkspaces'
+      | 'dataModelDescriptions',
     id?: string
   ): string {
     const encodedOrgId = encodeURIComponent(orgId);

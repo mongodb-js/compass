@@ -1,5 +1,10 @@
 import { expect } from 'chai';
-import { getFieldsFromSchema } from './nodes-and-edges';
+import {
+  getFieldsFromSchema,
+  relationshipToDiagramEdge,
+} from './nodes-and-edges';
+import { type Relationship } from '../services/data-model-storage';
+import { type NodeProps } from '@mongodb-js/compass-components';
 
 describe('getFieldsFromSchema', function () {
   describe('flat schema', function () {
@@ -8,17 +13,29 @@ describe('getFieldsFromSchema', function () {
       expect(result).to.deep.equal([]);
     });
 
-    it('returns fields for a simple schema', function () {
+    it('returns fields for a simple schema, with non editable _id', function () {
       const result = getFieldsFromSchema({
         jsonSchema: {
           bsonType: 'object',
           properties: {
+            _id: { bsonType: 'objectId' },
             name: { bsonType: 'string' },
             age: { bsonType: 'int' },
           },
         },
       });
       expect(result).to.deep.equal([
+        {
+          name: '_id',
+          id: ['_id'],
+          type: 'objectId',
+          depth: 0,
+          glyphs: ['key'],
+          selectable: true,
+          selected: false,
+          variant: undefined,
+          editable: false,
+        },
         {
           name: 'name',
           id: ['name'],
@@ -28,6 +45,7 @@ describe('getFieldsFromSchema', function () {
           selectable: true,
           selected: false,
           variant: undefined,
+          editable: true,
         },
         {
           name: 'age',
@@ -38,6 +56,7 @@ describe('getFieldsFromSchema', function () {
           selectable: true,
           selected: false,
           variant: undefined,
+          editable: true,
         },
       ]);
     });
@@ -60,6 +79,7 @@ describe('getFieldsFromSchema', function () {
         selected: false,
         type: ['int', 'string'],
         variant: undefined,
+        editable: true,
       });
     });
 
@@ -85,6 +105,7 @@ describe('getFieldsFromSchema', function () {
           selectable: true,
           selected: false,
           variant: undefined,
+          editable: true,
         },
         {
           name: 'age',
@@ -95,6 +116,7 @@ describe('getFieldsFromSchema', function () {
           selectable: true,
           selected: false,
           variant: 'preview',
+          editable: true,
         },
         {
           name: 'profession',
@@ -105,6 +127,7 @@ describe('getFieldsFromSchema', function () {
           selectable: true,
           selected: false,
           variant: undefined,
+          editable: true,
         },
       ]);
     });
@@ -131,6 +154,7 @@ describe('getFieldsFromSchema', function () {
           selectable: true,
           selected: false,
           variant: undefined,
+          editable: true,
         },
         {
           name: 'age',
@@ -141,6 +165,7 @@ describe('getFieldsFromSchema', function () {
           selectable: true,
           selected: false,
           variant: 'preview',
+          editable: true,
         },
         {
           name: 'profession',
@@ -151,6 +176,7 @@ describe('getFieldsFromSchema', function () {
           selectable: true,
           selected: false,
           variant: 'preview',
+          editable: true,
         },
       ]);
     });
@@ -188,6 +214,7 @@ describe('getFieldsFromSchema', function () {
           selectable: true,
           selected: false,
           variant: undefined,
+          editable: true,
         },
         {
           name: 'name',
@@ -198,6 +225,7 @@ describe('getFieldsFromSchema', function () {
           selectable: true,
           selected: false,
           variant: undefined,
+          editable: true,
         },
         {
           name: 'address',
@@ -208,6 +236,7 @@ describe('getFieldsFromSchema', function () {
           selectable: true,
           selected: false,
           variant: undefined,
+          editable: true,
         },
         {
           name: 'street',
@@ -218,6 +247,7 @@ describe('getFieldsFromSchema', function () {
           selectable: true,
           selected: false,
           variant: undefined,
+          editable: true,
         },
         {
           name: 'city',
@@ -228,6 +258,7 @@ describe('getFieldsFromSchema', function () {
           selectable: true,
           selected: false,
           variant: undefined,
+          editable: true,
         },
       ]);
     });
@@ -264,6 +295,7 @@ describe('getFieldsFromSchema', function () {
           selectable: true,
           selected: false,
           variant: undefined,
+          editable: true,
         },
         {
           name: 'name',
@@ -274,6 +306,7 @@ describe('getFieldsFromSchema', function () {
           selectable: true,
           selected: false,
           variant: undefined,
+          editable: true,
         },
         {
           name: 'address',
@@ -284,6 +317,7 @@ describe('getFieldsFromSchema', function () {
           selectable: true,
           selected: false,
           variant: undefined,
+          editable: true,
         },
         {
           name: 'street',
@@ -294,6 +328,7 @@ describe('getFieldsFromSchema', function () {
           selectable: true,
           selected: false,
           variant: 'preview',
+          editable: true,
         },
         {
           name: 'city',
@@ -304,6 +339,7 @@ describe('getFieldsFromSchema', function () {
           selectable: true,
           selected: false,
           variant: undefined,
+          editable: true,
         },
       ]);
     });
@@ -350,6 +386,7 @@ describe('getFieldsFromSchema', function () {
           selectable: true,
           selected: false,
           variant: undefined,
+          editable: true,
         },
         {
           name: 'name',
@@ -360,6 +397,7 @@ describe('getFieldsFromSchema', function () {
           selectable: true,
           selected: false,
           variant: undefined,
+          editable: true,
         },
         {
           name: 'address',
@@ -370,6 +408,7 @@ describe('getFieldsFromSchema', function () {
           selectable: true,
           selected: false,
           variant: undefined,
+          editable: true,
         },
         {
           name: 'street',
@@ -380,6 +419,7 @@ describe('getFieldsFromSchema', function () {
           selectable: true,
           selected: false,
           variant: 'preview',
+          editable: true,
         },
         {
           name: 'city',
@@ -390,6 +430,7 @@ describe('getFieldsFromSchema', function () {
           selectable: true,
           selected: false,
           variant: undefined,
+          editable: true,
         },
         {
           name: 'billingAddress',
@@ -400,6 +441,7 @@ describe('getFieldsFromSchema', function () {
           selectable: true,
           selected: false,
           variant: undefined,
+          editable: true,
         },
         {
           name: 'street',
@@ -410,6 +452,7 @@ describe('getFieldsFromSchema', function () {
           selectable: true,
           selected: false,
           variant: undefined,
+          editable: true,
         },
         {
           name: 'city',
@@ -420,6 +463,7 @@ describe('getFieldsFromSchema', function () {
           selectable: true,
           selected: false,
           variant: 'preview',
+          editable: true,
         },
       ]);
     });
@@ -452,6 +496,7 @@ describe('getFieldsFromSchema', function () {
           selectable: true,
           selected: false,
           variant: undefined,
+          editable: true,
         },
         {
           name: 'title',
@@ -462,6 +507,7 @@ describe('getFieldsFromSchema', function () {
           selectable: true,
           selected: false,
           variant: undefined,
+          editable: true,
         },
         {
           name: 'completed',
@@ -472,6 +518,7 @@ describe('getFieldsFromSchema', function () {
           selectable: true,
           selected: false,
           variant: undefined,
+          editable: true,
         },
       ]);
     });
@@ -506,6 +553,7 @@ describe('getFieldsFromSchema', function () {
         selectable: true,
         selected: false,
         variant: undefined,
+        editable: true,
       });
       expect(result[1]).to.deep.equal({
         name: 'first',
@@ -516,6 +564,7 @@ describe('getFieldsFromSchema', function () {
         selectable: true,
         selected: false,
         variant: undefined,
+        editable: true,
       });
       expect(result[2]).to.deep.equal({
         name: 'last',
@@ -526,6 +575,7 @@ describe('getFieldsFromSchema', function () {
         selectable: true,
         selected: false,
         variant: undefined,
+        editable: true,
       });
     });
 
@@ -562,6 +612,7 @@ describe('getFieldsFromSchema', function () {
           selectable: true,
           selected: false,
           variant: undefined,
+          editable: true,
         },
         {
           name: 'title',
@@ -572,6 +623,7 @@ describe('getFieldsFromSchema', function () {
           selectable: true,
           selected: false,
           variant: undefined,
+          editable: true,
         },
         {
           name: 'completed',
@@ -582,8 +634,105 @@ describe('getFieldsFromSchema', function () {
           selectable: true,
           selected: false,
           variant: undefined,
+          editable: true,
         },
       ]);
     });
+  });
+});
+
+describe('relationshipToDiagramEdge', function () {
+  const sourceFieldName = 'fieldA';
+  const targetFieldName = 'fieldB';
+  const relationship: Relationship = {
+    id: 'relationship1',
+    relationship: [
+      {
+        ns: 'db.collectionA',
+        cardinality: 1,
+        fields: ['parent', sourceFieldName],
+      },
+      {
+        ns: 'db.collectionB',
+        cardinality: 100,
+        fields: ['otherParent', targetFieldName],
+      },
+    ],
+    isInferred: false,
+    note: 'Test relationship',
+  };
+
+  const node: NodeProps = {
+    id: relationship.relationship[0].ns!,
+    title: 'Collection A',
+    type: 'collection',
+    position: { x: 0, y: 0 },
+    fields: [],
+  };
+
+  it('should forward basic properties', function () {
+    const isSelected = true;
+    const edge = relationshipToDiagramEdge(relationship, isSelected, []);
+    expect(edge.id).to.equal(relationship.id);
+    expect(edge.source).to.equal(relationship.relationship[0].ns);
+    expect(edge.target).to.equal(relationship.relationship[1].ns);
+    expect(edge.selected).to.equal(isSelected);
+  });
+
+  it('should map cardinality to markers', function () {
+    const edge = relationshipToDiagramEdge(relationship, false, []);
+    expect(edge.markerStart).to.equal('one');
+    expect(edge.markerEnd).to.equal('many');
+  });
+
+  it('should find field indices', function () {
+    const nodes: NodeProps[] = [
+      {
+        ...node,
+        id: relationship.relationship[0].ns!,
+        fields: [
+          {
+            id: ['otherPath'],
+            name: 'fieldA', // same name but different path
+            type: 'string',
+          },
+          {
+            id: ['parent', 'otherField'], // same parent but different field
+            name: 'otherField',
+            type: 'string',
+          },
+          {
+            id: relationship.relationship[0].fields as string[],
+            name: 'fieldA',
+            type: 'string',
+          },
+        ],
+      },
+      {
+        ...node,
+        id: relationship.relationship[1].ns!,
+        fields: [
+          {
+            id: ['otherPath'],
+            name: 'fieldB', // same name but different path
+            type: 'string',
+          },
+          {
+            id: relationship.relationship[1].fields as string[],
+            name: 'fieldB',
+            type: 'string',
+          },
+          {
+            id: ['otherParent', 'otherField'], // same parent but different field
+            name: 'otherField',
+            type: 'string',
+          },
+        ],
+      },
+    ];
+
+    const edge = relationshipToDiagramEdge(relationship, false, nodes);
+    expect(edge.sourceFieldIndex).to.equal(2);
+    expect(edge.targetFieldIndex).to.equal(1);
   });
 });

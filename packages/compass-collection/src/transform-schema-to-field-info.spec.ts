@@ -14,7 +14,10 @@ import {
   Long,
   Decimal128,
 } from 'bson';
-import { processSchema } from './transform-schema-to-field-info';
+import {
+  processSchema,
+  ProcessSchemaUnsupportedStateError,
+} from './transform-schema-to-field-info';
 import type { Schema } from 'mongodb-schema';
 
 describe('processSchema', function () {
@@ -1341,7 +1344,120 @@ describe('processSchema', function () {
       };
 
       expect(() => processSchema(schema)).to.throw(
-        "invalid fieldPath '[]': field parts must have characters other than '[]'"
+        ProcessSchemaUnsupportedStateError,
+        "Feature is unsupported for field names that end with '[]'; field name: '[]'"
+      );
+    });
+
+    it('throws error for field names ending with []', function () {
+      const schema: Schema = {
+        fields: [
+          {
+            name: 'users[]',
+            path: ['users[]'],
+            count: 1,
+            type: ['String'],
+            probability: 1.0,
+            hasDuplicates: false,
+            types: [
+              {
+                name: 'String',
+                bsonType: 'String',
+                path: ['users[]'],
+                count: 1,
+                probability: 1.0,
+                values: ['test'],
+              },
+            ],
+          },
+        ],
+        count: 1,
+      };
+
+      expect(() => processSchema(schema)).to.throw(
+        ProcessSchemaUnsupportedStateError,
+        "Feature is unsupported for field names that end with '[]'; field name: 'users[]'"
+      );
+    });
+
+    it('throws error for nested field names ending with []', function () {
+      const schema: Schema = {
+        fields: [
+          {
+            name: 'parent',
+            path: ['parent'],
+            count: 1,
+            type: ['Document'],
+            probability: 1.0,
+            hasDuplicates: false,
+            types: [
+              {
+                name: 'Document',
+                bsonType: 'Document',
+                path: ['parent'],
+                count: 1,
+                probability: 1.0,
+                fields: [
+                  {
+                    name: 'child[]',
+                    path: ['parent', 'child[]'],
+                    count: 1,
+                    type: ['String'],
+                    probability: 1.0,
+                    hasDuplicates: false,
+                    types: [
+                      {
+                        name: 'String',
+                        bsonType: 'String',
+                        path: ['parent', 'child[]'],
+                        count: 1,
+                        probability: 1.0,
+                        values: ['test'],
+                      },
+                    ],
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+        count: 1,
+      };
+
+      expect(() => processSchema(schema)).to.throw(
+        ProcessSchemaUnsupportedStateError,
+        "Feature is unsupported for field names that end with '[]'; field name: 'child[]'"
+      );
+    });
+
+    it('throws error for field names containing dots', function () {
+      const schema: Schema = {
+        fields: [
+          {
+            name: 'user.name',
+            path: ['user.name'],
+            count: 1,
+            type: ['String'],
+            probability: 1.0,
+            hasDuplicates: false,
+            types: [
+              {
+                name: 'String',
+                bsonType: 'String',
+                path: ['user.name'],
+                count: 1,
+                probability: 1.0,
+                values: ['test'],
+              },
+            ],
+          },
+        ],
+        count: 1,
+      };
+
+      expect(() => processSchema(schema)).to.throw(
+        ProcessSchemaUnsupportedStateError,
+        "Feature is unsupported for field names that contain a '.'; field name: 'user.name'"
       );
     });
   });
@@ -1465,5 +1581,39 @@ describe('processSchema', function () {
         'defaultArray[]': 3, // DEFAULT_ARRAY_LENGTH = 3
       });
     });
+  });
+
+  it('throws ProcessSchemaUnsupportedStateError when Binary data is encountered', function () {
+    const binaryData = new Binary(Buffer.from('test'));
+
+    // Simulate a bug or edge case where Binary data somehow gets through
+    const schema: Schema = {
+      fields: [
+        {
+          name: 'testField',
+          path: ['testField'],
+          count: 1,
+          type: ['String'], // Pretend it's a String type to bypass Binary filtering
+          probability: 1.0,
+          hasDuplicates: false,
+          types: [
+            {
+              name: 'String', // Pretend it's a String type to bypass Binary filtering
+              bsonType: 'String',
+              path: ['testField'],
+              count: 1,
+              probability: 1.0,
+              values: [binaryData], // But include Binary data in values
+            },
+          ],
+        },
+      ],
+      count: 1,
+    };
+
+    expect(() => processSchema(schema)).to.throw(
+      ProcessSchemaUnsupportedStateError,
+      'Binary data encountered in sample value conversion. Binary fields should be excluded from sample value processing.'
+    );
   });
 });

@@ -1,11 +1,18 @@
 import React from 'react';
 import { expect } from 'chai';
 import sinon from 'sinon';
-import { screen, within, userEvent } from '@mongodb-js/testing-library-compass';
+import {
+  screen,
+  within,
+  userEvent,
+  renderWithConnections,
+} from '@mongodb-js/testing-library-compass';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 import { CrudToolbar } from './crud-toolbar';
 import { renderWithQueryBar } from '../../test/render-with-query-bar';
+import { CompassExperimentationProvider } from '@mongodb-js/compass-telemetry';
+import { ExperimentTestGroup } from '@mongodb-js/compass-telemetry/provider';
 
 const noop = () => {
   /* noop */
@@ -819,6 +826,172 @@ describe('CrudToolbar Component', function () {
       renderCrudToolbar();
 
       expect(() => screen.getByTestId('insight-badge-button')).to.throw();
+    });
+  });
+
+  // @experiment Skills in Atlas  | Jira Epic: CLOUDP-346311
+  describe('Atlas Skills Banner', function () {
+    function renderCrudToolbarWithExperimentation(experimentationOptions?: {
+      isInExperiment?: boolean;
+      isInVariant?: boolean;
+    }) {
+      const mockUseAssignment = sinon.stub();
+      const mockUseTrackInSample = sinon.stub();
+      const mockAssignExperiment = sinon.stub();
+      const mockGetAssignment = sinon.stub();
+
+      const commonAsyncStatus = {
+        asyncStatus: null,
+        error: null,
+        isLoading: false,
+        isError: false,
+        isSuccess: true,
+      };
+
+      // Configure the mock based on experiment options
+      if (experimentationOptions?.isInExperiment) {
+        if (experimentationOptions?.isInVariant) {
+          mockUseAssignment.returns({
+            assignment: {
+              assignmentData: {
+                variant: ExperimentTestGroup.atlasSkillsVariant,
+              },
+            },
+            ...commonAsyncStatus,
+          });
+        } else {
+          mockUseAssignment.returns({
+            assignment: {
+              assignmentData: {
+                variant: ExperimentTestGroup.atlasSkillsControl,
+              },
+            },
+            ...commonAsyncStatus,
+          });
+        }
+      } else {
+        mockUseAssignment.returns({
+          assignment: null,
+          ...commonAsyncStatus,
+        });
+      }
+
+      mockUseTrackInSample.returns(commonAsyncStatus);
+      mockAssignExperiment.returns(Promise.resolve(null));
+      mockGetAssignment.returns(Promise.resolve(null));
+
+      const renderResult = renderWithConnections(
+        <CompassExperimentationProvider
+          useAssignment={mockUseAssignment}
+          useTrackInSample={mockUseTrackInSample}
+          assignExperiment={mockAssignExperiment}
+          getAssignment={mockGetAssignment}
+        >
+          <CrudToolbar
+            activeDocumentView="List"
+            count={55}
+            end={20}
+            getPage={noop}
+            insertDataHandler={noop}
+            loadingCount={false}
+            isFetching={false}
+            docsPerPage={25}
+            isWritable
+            instanceDescription=""
+            onApplyClicked={noop}
+            onResetClicked={noop}
+            onUpdateButtonClicked={noop}
+            onDeleteButtonClicked={noop}
+            onExpandAllClicked={noop}
+            onCollapseAllClicked={noop}
+            openExportFileDialog={noop}
+            outdated={false}
+            page={0}
+            readonly={false}
+            refreshDocuments={noop}
+            resultId="123"
+            start={0}
+            viewSwitchHandler={noop}
+            updateMaxDocumentsPerPage={noop}
+            queryLimit={0}
+            querySkip={0}
+          />
+        </CompassExperimentationProvider>,
+        { preferences: preferences.getPreferences() }
+      );
+      return renderResult;
+    }
+
+    it('should show skills banner when user is in experiment and in variant', function () {
+      renderCrudToolbarWithExperimentation({
+        isInExperiment: true,
+        isInVariant: true,
+      });
+
+      expect(
+        screen.getByText(
+          'Practice creating, reading, updating, and deleting documents efficiently.'
+        )
+      ).to.be.visible;
+      const goToSkillsButton = screen.getByRole('link', {
+        name: /go to skills/i,
+      });
+      expect(goToSkillsButton).to.be.visible;
+      expect(screen.getByLabelText('Award Icon')).to.be.visible;
+
+      expect(goToSkillsButton.getAttribute('href')).to.equal(
+        'https://learn.mongodb.com/courses/crud-operations-in-mongodb?team=growth'
+      );
+    });
+
+    it('should not show skills banner when user is in experiment but not in variant', function () {
+      renderCrudToolbarWithExperimentation({
+        isInExperiment: true,
+        isInVariant: false,
+      });
+
+      expect(
+        screen.queryByText(
+          'Practice creating, reading, updating, and deleting documents efficiently.'
+        )
+      ).to.not.exist;
+      expect(screen.queryByRole('link', { name: /go to skills/i })).to.not
+        .exist;
+    });
+
+    it('should not show skills banner by default when user is not in experiment', function () {
+      renderCrudToolbarWithExperimentation({
+        isInExperiment: false,
+        isInVariant: false,
+      });
+
+      expect(
+        screen.queryByText(
+          'Practice creating, reading, updating, and deleting documents efficiently.'
+        )
+      ).to.not.exist;
+      expect(screen.queryByRole('link', { name: /go to skills/i })).to.not
+        .exist;
+    });
+
+    it('should dismiss banner when close button is clicked', function () {
+      renderCrudToolbarWithExperimentation({
+        isInExperiment: true,
+        isInVariant: true,
+      });
+
+      const closeButton = screen.getByRole('button', {
+        name: 'Dismiss Skills Banner',
+      });
+
+      expect(closeButton).to.be.visible;
+      userEvent.click(closeButton);
+
+      expect(
+        screen.queryByText(
+          'Practice creating, reading, updating, and deleting documents efficiently.'
+        )
+      ).to.not.exist;
     });
   });
 });

@@ -372,6 +372,7 @@ describe('CollectionHeader [Component]', function () {
           globalWrites: false,
           rollingIndexes: true,
         },
+        userConnectionString: 'mongodb+srv://localhost:27017',
       },
     };
 
@@ -394,6 +395,7 @@ describe('CollectionHeader [Component]', function () {
       return renderWithActiveConnection(
         <CompassExperimentationProvider
           useAssignment={mockUseAssignment}
+          useTrackInSample={Sinon.stub()}
           assignExperiment={Sinon.stub()}
           getAssignment={Sinon.stub().resolves(null)}
         >
@@ -488,7 +490,7 @@ describe('CollectionHeader [Component]', function () {
               field1: { type: 'String', sampleValues: ['value1'] },
             },
             schemaMetadata: {
-              maxNestingDepth: 4, // Exceeds the limit
+              maxNestingDepth: 8, // Exceeds the limit
             },
           },
         },

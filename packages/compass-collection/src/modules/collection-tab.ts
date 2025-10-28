@@ -27,6 +27,7 @@ import {
   type SchemaAnalysisError,
   type SchemaAnalysisState,
   type FieldInfo,
+  type MongoDBFieldType,
 } from '../schema-analysis-types';
 import { calculateSchemaDepth } from '../calculate-schema-depth';
 import {
@@ -127,6 +128,8 @@ export enum CollectionActions {
   FakerMappingGenerationStarted = 'compass-collection/FakerMappingGenerationStarted',
   FakerMappingGenerationCompleted = 'compass-collection/FakerMappingGenerationCompleted',
   FakerMappingGenerationFailed = 'compass-collection/FakerMappingGenerationFailed',
+  FakerFieldTypeChanged = 'compass-collection/FakerFieldTypeChanged',
+  FakerFieldMethodChanged = 'compass-collection/FakerFieldMethodChanged',
 }
 
 interface CollectionMetadataFetchedAction {
@@ -194,6 +197,18 @@ export interface FakerMappingGenerationFailedAction {
   type: CollectionActions.FakerMappingGenerationFailed;
   error: string;
   requestId: string;
+}
+
+export interface FakerFieldTypeChangedAction {
+  type: CollectionActions.FakerFieldTypeChanged;
+  fieldPath: string;
+  mongoType: MongoDBFieldType;
+}
+
+export interface FakerFieldMethodChangedAction {
+  type: CollectionActions.FakerFieldMethodChanged;
+  fieldPath: string;
+  fakerMethod: string;
 }
 
 const reducer: Reducer<CollectionState, Action> = (
@@ -457,7 +472,8 @@ const reducer: Reducer<CollectionState, Action> = (
       ...state,
       fakerSchemaGeneration: {
         status: 'completed',
-        fakerSchema: action.fakerSchema,
+        originalLlmResponse: action.fakerSchema,
+        editedFakerSchema: action.fakerSchema, // Initially same as LLM response
         requestId: action.requestId,
       },
     };
@@ -483,6 +499,72 @@ const reducer: Reducer<CollectionState, Action> = (
       mockDataGenerator: {
         ...state.mockDataGenerator,
         currentStep: MockDataGeneratorStep.SCHEMA_CONFIRMATION,
+      },
+    };
+  }
+
+  if (
+    isAction<FakerFieldTypeChangedAction>(
+      action,
+      CollectionActions.FakerFieldTypeChanged
+    )
+  ) {
+    if (state.fakerSchemaGeneration.status !== 'completed') {
+      return state;
+    }
+
+    const { fieldPath, mongoType } = action;
+    const currentMapping =
+      state.fakerSchemaGeneration.editedFakerSchema[fieldPath];
+
+    if (!currentMapping) {
+      return state;
+    }
+
+    return {
+      ...state,
+      fakerSchemaGeneration: {
+        ...state.fakerSchemaGeneration,
+        editedFakerSchema: {
+          ...state.fakerSchemaGeneration.editedFakerSchema,
+          [fieldPath]: {
+            ...currentMapping,
+            mongoType,
+          },
+        },
+      },
+    };
+  }
+
+  if (
+    isAction<FakerFieldMethodChangedAction>(
+      action,
+      CollectionActions.FakerFieldMethodChanged
+    )
+  ) {
+    if (state.fakerSchemaGeneration.status !== 'completed') {
+      return state;
+    }
+
+    const { fieldPath, fakerMethod } = action;
+    const currentMapping =
+      state.fakerSchemaGeneration.editedFakerSchema[fieldPath];
+
+    if (!currentMapping) {
+      return state;
+    }
+
+    return {
+      ...state,
+      fakerSchemaGeneration: {
+        ...state.fakerSchemaGeneration,
+        editedFakerSchema: {
+          ...state.fakerSchemaGeneration.editedFakerSchema,
+          [fieldPath]: {
+            ...currentMapping,
+            fakerMethod,
+          },
+        },
       },
     };
   }
@@ -525,6 +607,28 @@ export const mockDataGeneratorPreviousButtonClicked = (): CollectionThunkAction<
     dispatch({
       type: CollectionActions.MockDataGeneratorPreviousButtonClicked,
     });
+  };
+};
+
+export const fakerFieldTypeChanged = (
+  fieldPath: string,
+  mongoType: MongoDBFieldType
+): FakerFieldTypeChangedAction => {
+  return {
+    type: CollectionActions.FakerFieldTypeChanged,
+    fieldPath,
+    mongoType,
+  };
+};
+
+export const fakerFieldMethodChanged = (
+  fieldPath: string,
+  fakerMethod: string
+): FakerFieldMethodChangedAction => {
+  return {
+    type: CollectionActions.FakerFieldMethodChanged,
+    fieldPath,
+    fakerMethod,
   };
 };
 
@@ -712,9 +816,13 @@ export const cancelSchemaAnalysis = (): CollectionThunkAction<void> => {
 /**
  * Transforms LLM array format to keyed object structure.
  * Moves fieldPath from object property to object key.
+ *
+ * @param fakerSchema - The faker schema array from LLM response
+ * @param inputSchema - The schema definition for the LLM input used to carry over `mongoType` data
  */
 function transformFakerSchemaToObject(
-  fakerSchema: LlmFakerMapping[]
+  fakerSchema: LlmFakerMapping[],
+  inputSchema: Record<string, FieldInfo>
 ): FakerSchema {
   const result: FakerSchema = {};
 
@@ -722,7 +830,8 @@ function transformFakerSchemaToObject(
     const { fieldPath, ...fieldMapping } = field;
     result[fieldPath] = {
       ...fieldMapping,
-      mongoType: fieldMapping.mongoType,
+      // Note: `validateFakerSchema` already handles fields that are not present in `inputSchema`
+      mongoType: inputSchema[fieldPath]?.type,
     };
   }
 
@@ -862,7 +971,8 @@ export const generateFakerMappings = (): CollectionThunkAction<
 
       // Transform to keyed object structure
       const transformedFakerSchema = transformFakerSchemaToObject(
-        response.fields
+        response.fields,
+        schemaAnalysis.processedSchema
       );
 
       const validatedFakerSchema = validateFakerSchema(

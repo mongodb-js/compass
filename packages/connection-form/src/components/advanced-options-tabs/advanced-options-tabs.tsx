@@ -109,8 +109,8 @@ function AdvancedOptionsTabs({
   return (
     <Tabs
       className={tabsStyles}
-      setSelected={setActiveTab}
-      selected={activeTab}
+      onValueChange={setActiveTab}
+      value={activeTab}
       aria-label="Advanced Options Tabs"
     >
       {tabs.map((tabObject: TabObject, idx: number) => {
