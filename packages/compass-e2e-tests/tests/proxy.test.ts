@@ -53,7 +53,11 @@ describe('Proxy support', function () {
 
     if (compass) {
       await screenshotIfFailed(compass, this.currentTest);
-      await browser.setFeature('proxy', '');
+      await browser.setFeature(
+        'proxy',
+        '',
+        false // do not validate that preference was actually changed, this can fail if preference was set with cli
+      );
       await cleanup(compass);
     }
   });

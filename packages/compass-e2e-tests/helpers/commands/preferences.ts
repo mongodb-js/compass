@@ -4,6 +4,7 @@ import type {
   UserPreferences,
 } from 'compass-preferences-model';
 import { isTestingWeb } from '../test-runner-context';
+import { inspect } from 'util';
 
 function _waitUntilPreferencesAccessAvailable(
   browser: CompassBrowser
@@ -77,7 +78,8 @@ function _setFeatureDesktop<K extends keyof UserPreferences>(
 export async function setFeature<K extends keyof UserPreferences>(
   browser: CompassBrowser,
   name: K,
-  value: UserPreferences[K]
+  value: UserPreferences[K],
+  validateChange = true
 ): Promise<void> {
   let latestValue;
   try {
@@ -88,13 +90,23 @@ export async function setFeature<K extends keyof UserPreferences>(
           ? _setFeatureWeb
           : _setFeatureDesktop)(browser, name, value);
         latestValue = newPreferences[name];
-        return latestValue === value;
+        return (
+          !validateChange ||
+          // `null` and `undefined` should be treated the same way to account
+          // for JSON transformation when passing values through
+          // `browser.execute`, we don't really care in e2e if those are coming
+          // back different
+          // eslint-disable-next-line eqeqeq
+          latestValue == value
+        );
       },
       { interval: 500 }
     );
   } catch (err) {
+    const expected = inspect(value);
+    const got = inspect(latestValue);
     throw new Error(
-      `Failed to set preference "${name}": expected new value to be \`${value}\`, got \`${latestValue}\`. Original error:\n\n${
+      `Failed to set preference "${name}": expected new value to be ${expected}, got ${got}. Original error:\n\n${
         (err as Error).message
       }`
     );
