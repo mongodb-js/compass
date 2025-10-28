@@ -79,9 +79,19 @@ export async function setFeature<K extends keyof UserPreferences>(
   browser: CompassBrowser,
   name: K,
   value: UserPreferences[K],
-  validateChange = true
+  isEqual: (a: UserPreferences[K], b: UserPreferences[K]) => boolean = (
+    a,
+    b
+  ) => {
+    // `null` and `undefined` should be treated the same way to account
+    // for JSON transformation when passing values through
+    // `browser.execute`, we don't really care in e2e if those are coming
+    // back different
+    // eslint-disable-next-line eqeqeq
+    return a == b;
+  }
 ): Promise<void> {
-  let latestValue;
+  let latestValue: UserPreferences[K];
   try {
     await _waitUntilPreferencesAccessAvailable(browser);
     await browser.waitUntil(
@@ -90,15 +100,7 @@ export async function setFeature<K extends keyof UserPreferences>(
           ? _setFeatureWeb
           : _setFeatureDesktop)(browser, name, value);
         latestValue = newPreferences[name];
-        return (
-          !validateChange ||
-          // `null` and `undefined` should be treated the same way to account
-          // for JSON transformation when passing values through
-          // `browser.execute`, we don't really care in e2e if those are coming
-          // back different
-          // eslint-disable-next-line eqeqeq
-          latestValue == value
-        );
+        return isEqual(latestValue, value);
       },
       { interval: 500 }
     );
