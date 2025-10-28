@@ -80,8 +80,6 @@ const MockDataGeneratorModal = ({
   documentCount,
   onDocumentCountChange,
 }: Props) => {
-  const [isSchemaConfirmed, setIsSchemaConfirmed] =
-    React.useState<boolean>(false);
   const track = useTelemetry();
   const isAIFeatureEnabled = useIsAIFeatureEnabled();
   const isSampleDocumentPassingEnabled = usePreference(
@@ -95,7 +93,7 @@ const MockDataGeneratorModal = ({
       case MockDataGeneratorStep.SCHEMA_EDITOR:
         return (
           <FakerSchemaEditorScreen
-            onSchemaConfirmed={setIsSchemaConfirmed}
+            onSchemaConfirmed={onNextStep}
             fakerSchemaGenerationState={fakerSchemaGenerationState}
           />
         );
@@ -124,6 +122,7 @@ const MockDataGeneratorModal = ({
     fakerSchemaGenerationState,
     documentCount,
     onDocumentCountChange,
+    onNextStep,
   ]);
 
   useEffect(() => {
@@ -136,7 +135,7 @@ const MockDataGeneratorModal = ({
 
   const isNextButtonDisabled =
     (currentStep === MockDataGeneratorStep.SCHEMA_EDITOR &&
-      !isSchemaConfirmed) ||
+      fakerSchemaGenerationState.status !== 'completed') ||
     (currentStep === MockDataGeneratorStep.DOCUMENT_COUNT &&
       isDocumentCountInvalid);
 
@@ -158,14 +157,6 @@ const MockDataGeneratorModal = ({
 
   const shouldShowNamespace =
     currentStep !== MockDataGeneratorStep.GENERATE_DATA;
-
-  const handlePreviousClick = () => {
-    if (currentStep === MockDataGeneratorStep.SCHEMA_EDITOR) {
-      // reset isSchemaConfirmed state when previous step is clicked
-      setIsSchemaConfirmed(false);
-    }
-    onPreviousStep();
-  };
 
   const onModalClose = useCallback(() => {
     track('Mock Data Generator Dismissed', {
@@ -204,7 +195,7 @@ const MockDataGeneratorModal = ({
       </ModalBody>
       <ModalFooter className={footerStyles}>
         <Button
-          onClick={handlePreviousClick}
+          onClick={onPreviousStep}
           disabled={currentStep === MockDataGeneratorStep.SCHEMA_CONFIRMATION}
         >
           Back

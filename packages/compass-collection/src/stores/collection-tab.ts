@@ -145,8 +145,11 @@ export function activatePlugin(
     store.dispatch(collectionMetadataFetched(metadata));
 
     // Assign experiment for Mock Data Generator
-    // Only assign when we're connected to Atlas and the org-level setting for AI features is enabled
+    // Only assign when we're connected to Atlas, the org-level setting for AI features is enabled,
+    // and the collection supports the Mock Data Generator feature (not readonly/timeseries)
     if (
+      !metadata.isReadonly &&
+      !metadata.isTimeSeries &&
       connectionInfoRef.current?.atlasMetadata?.clusterName && // Ensures we only assign in Atlas
       isAIFeatureEnabled(preferences.getPreferences()) // Ensures org-level AI features setting is enabled
     ) {
