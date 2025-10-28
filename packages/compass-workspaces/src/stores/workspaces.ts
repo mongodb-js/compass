@@ -14,7 +14,7 @@ import {
 } from '../components/workspace-close-handler';
 import { type ConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { showConfirmation } from '@mongodb-js/compass-components';
-import type { WorkspacesStateData } from '../services/workspaces-storage';
+import type { WorkspacesStateData } from '../types';
 
 const LocalAppRegistryMap = new Map<string, AppRegistry>();
 
@@ -992,77 +992,6 @@ type DatabaseRemovedAction = {
   namespace: string;
 };
 
-/**
- * Converts saved workspace state data back to OpenWorkspaceOptions format
- * for initializing the store
- */
-function convertSavedStateToOpenWorkspaceOptions(
-  savedState: WorkspacesStateData
-): OpenWorkspaceOptions[] {
-  return savedState.tabs.map((tab) => {
-    const type = tab.type;
-
-    switch (type) {
-      case 'Welcome':
-      case 'My Queries':
-      case 'Data Modeling':
-        return { type };
-      case 'Databases':
-      case 'Performance':
-        return {
-          type,
-          connectionId: tab.connectionId,
-        };
-      case 'Collections':
-        return {
-          type,
-          connectionId: tab.connectionId,
-          namespace: tab.namespace,
-        };
-      case 'Shell': {
-        const result: OpenWorkspaceOptions = {
-          type,
-          connectionId: tab.connectionId,
-        };
-        if ('initialEvaluate' in tab) {
-          result.initialEvaluate = tab.initialEvaluate;
-        }
-        if ('initialInput' in tab) {
-          result.initialInput = tab.initialInput;
-        }
-        return result;
-      }
-      case 'Collection': {
-        const result: OpenWorkspaceOptions = {
-          type,
-          connectionId: tab.connectionId,
-          namespace: tab.namespace,
-        };
-        if ('subTab' in tab) {
-          result.initialSubtab = tab.subTab;
-        }
-        if ('initialQuery' in tab) {
-          result.initialQuery = tab.initialQuery;
-        }
-
-        if ('initialAggregation' in tab) {
-          result.initialAggregation = tab.initialAggregation;
-        }
-        if ('editViewName' in tab) {
-          result.editViewName = tab.editViewName;
-        }
-        if ('initialPipeline' in tab) {
-          result.initialPipeline = tab.initialPipeline;
-        }
-        if ('initialPipelineText' in tab) {
-          result.initialPipelineText = tab.initialPipelineText;
-        }
-        return result;
-      }
-    }
-  });
-}
-
 export const loadSavedWorkspaces = (): WorkspacesThunkAction<
   Promise<void>,
   RestoreWorkspacesAction
@@ -1084,9 +1013,7 @@ export const loadSavedWorkspaces = (): WorkspacesThunkAction<
 
       const workspacesToRestore: OpenWorkspaceOptions[] = [];
       if (confirm) {
-        for (const workspace of convertSavedStateToOpenWorkspaceOptions(
-          savedState
-        )) {
+        for (const workspace of savedState.tabs) {
           // If the workspace is tied to a connection, check if the connection exists
           // and add it to the list of connections to restore if so.
           if ('connectionId' in workspace) {

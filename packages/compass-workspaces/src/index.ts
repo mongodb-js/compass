@@ -41,10 +41,8 @@ import {
 } from '@mongodb-js/compass-app-stores/provider';
 import type { PreferencesAccess } from 'compass-preferences-model/provider';
 import { preferencesLocator } from 'compass-preferences-model/provider';
-import {
-  type WorkspacesStateSchema,
-  workspacesStorageServiceLocator,
-} from './services/workspaces-storage';
+import { workspacesStorageServiceLocator } from './services/workspaces-storage';
+import { type WorkspacesStateSchema } from './types';
 import { type IUserData } from '@mongodb-js/compass-user-data';
 
 export type WorkspacesServices = {
@@ -249,7 +247,7 @@ const WorkspacesPlugin = registerCompassPlugin(
   }
 );
 
-export { WorkspacesStateSchema } from './services/workspaces-storage';
+export { WorkspacesStateSchema } from './types';
 export default WorkspacesPlugin;
 export { WorkspacesProvider } from './components/workspaces-provider';
 export type { OpenWorkspaceOptions, CollectionTabInfo };

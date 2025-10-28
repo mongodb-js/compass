@@ -1,9 +1,7 @@
 import React, { useRef } from 'react';
 import { AtlasUserData, type IUserData } from '@mongodb-js/compass-user-data';
-import {
-  WorkspacesStateSchema,
-  WorkspacesStorageServiceContext,
-} from './workspaces-storage';
+import { WorkspacesStorageServiceContext } from './workspaces-storage';
+import { WorkspacesStateSchema } from '../types';
 import { EJSON } from 'bson';
 
 export const WorkspacesStorageServiceProviderWeb: React.FunctionComponent<{
