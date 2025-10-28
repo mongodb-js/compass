@@ -45,6 +45,7 @@ export const enum AtlasOptInActions {
 
 export type AtlasOptInOpenModalAction = {
   type: AtlasOptInActions.OpenOptInModal;
+  isCloudOptIn: boolean;
 };
 
 export type AtlasOptInCloseModalAction = {
@@ -182,7 +183,7 @@ const optInReducer: Reducer<AtlasOptInState, Action> = (
       AtlasOptInActions.OpenOptInModal
     )
   ) {
-    return { ...state, isModalOpen: true };
+    return { ...state, isModalOpen: true, isCloudOptIn: action.isCloudOptIn };
   }
 
   if (
@@ -235,10 +236,11 @@ export const optIntoGenAIWithModalPrompt = ({
   return (dispatch, getState, { preferences }) => {
     // Nothing to do if we already opted in.
     const { state } = getState().optIn;
+    const prefs = preferences.getPreferences();
     if (
-      (state === 'optin-success' ||
-        preferences.getPreferences().optInGenAIFeatures) &&
-      preferences.getPreferences().enableGenAIFeaturesAtlasProject
+      (state === 'optin-success' || prefs.optInGenAIFeatures) &&
+      prefs.enableGenAIFeaturesAtlasProject &&
+      prefs.enableGenAISampleDocumentPassing
     ) {
       return Promise.resolve();
     }

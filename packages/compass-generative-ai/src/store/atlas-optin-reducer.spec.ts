@@ -205,6 +205,62 @@ describe('atlasOptInReducer', function () {
       expect(store.getState().optIn).to.have.property('state', 'optin-success');
     });
 
+    it('should show modal when enableGenAISampleDocumentPassing is disabled', async function () {
+      await mockPreferences.savePreferences({
+        optInGenAIFeatures: true,
+        enableGenAIFeaturesAtlasProject: true,
+        enableGenAISampleDocumentPassing: false,
+      });
+
+      const mockAtlasAiService = {
+        optIntoGenAIFeatures: sandbox.stub().resolves({ sub: '1234' }),
+      };
+      const store = configureStore({
+        atlasAuthService: {} as any,
+        atlasAiService: mockAtlasAiService as any,
+        preferences: mockPreferences,
+      });
+
+      const optInPromise = store.dispatch(
+        optIntoGenAIWithModalPrompt({ isCloudOptIn: true })
+      );
+
+      // Wait a tick for the async dispatch to complete
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      expect(store.getState().optIn).to.have.property('isModalOpen', true);
+
+      await store.dispatch(optIn());
+      await optInPromise;
+
+      expect(store.getState().optIn).to.have.property('state', 'optin-success');
+    });
+
+    it('should not show modal when all settings are enabled and user is opted in', async function () {
+      await mockPreferences.savePreferences({
+        optInGenAIFeatures: true,
+        enableGenAIFeaturesAtlasProject: true,
+        enableGenAISampleDocumentPassing: true,
+      });
+
+      const mockAtlasAiService = {
+        optIntoGenAIFeatures: sandbox.stub().resolves({ sub: '1234' }),
+      };
+      const store = configureStore({
+        atlasAuthService: {} as any,
+        atlasAiService: mockAtlasAiService as any,
+        preferences: mockPreferences,
+      });
+
+      const optInPromise = store.dispatch(
+        optIntoGenAIWithModalPrompt({ isCloudOptIn: true })
+      );
+
+      await optInPromise;
+      expect(store.getState().optIn).to.have.property('isModalOpen', false);
+      expect(mockAtlasAiService.optIntoGenAIFeatures).not.to.have.been.called;
+    });
+
     it('should reject if opt in flow fails', async function () {
       const mockAtlasAiService = {
         optIntoGenAIFeatures: sandbox.stub().rejects(new Error('Whoops!')),
