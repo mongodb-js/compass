@@ -62,19 +62,21 @@ const DocumentCountScreen = ({
 }: Props) => {
   const track = useTelemetry();
   const validationState = validateDocumentCount(documentCount);
-  const documentCountNumber = validationState.parsedValue;
-  const estimatedDiskSize = useMemo(
-    () =>
-      validationState.isValid &&
-      schemaAnalysisState.status === 'complete' &&
-      schemaAnalysisState.schemaMetadata.avgDocumentSize
-        ? formatBytes(
-            schemaAnalysisState.schemaMetadata.avgDocumentSize *
-              documentCountNumber!
-          )
-        : 'Not available',
-    [validationState.isValid, schemaAnalysisState, documentCountNumber]
-  );
+  const estimatedDiskSize = useMemo(() => {
+    if (
+      !validationState.isValid ||
+      schemaAnalysisState.status !== 'complete' ||
+      !schemaAnalysisState.schemaMetadata.avgDocumentSize ||
+      !validationState.parsedValue
+    ) {
+      return 'Not available';
+    }
+
+    return formatBytes(
+      schemaAnalysisState.schemaMetadata.avgDocumentSize *
+        validationState.parsedValue
+    );
+  }, [validationState, schemaAnalysisState]);
 
   const errorState = useMemo(() => {
     if (validationState.isValid) {

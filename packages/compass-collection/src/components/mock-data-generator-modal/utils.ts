@@ -202,7 +202,11 @@ function prepareFakerArgs(args: FakerArg[]) {
   });
 }
 
-export function validateDocumentCount(documentCount?: string) {
+export function validateDocumentCount(documentCount?: string): {
+  isValid: boolean;
+  errorMessage?: string;
+  parsedValue?: number;
+} {
   if (!documentCount) {
     return { isValid: false, errorMessage: 'Document count is required' };
   }
