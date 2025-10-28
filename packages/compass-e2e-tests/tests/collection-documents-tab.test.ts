@@ -10,8 +10,6 @@ import {
   init,
   cleanup,
   screenshotIfFailed,
-  TEST_COMPASS_WEB,
-  skipForWeb,
   DEFAULT_CONNECTION_NAME_1,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
@@ -20,7 +18,10 @@ import {
   createNestedDocumentsCollection,
   createNumbersCollection,
 } from '../helpers/insert-data';
-import { context as testRunnerContext } from '../helpers/test-runner-context';
+import {
+  isTestingWeb,
+  context as testRunnerContext,
+} from '../helpers/test-runner-context';
 import type { ChainablePromiseElement } from 'webdriverio';
 import { tryToInsertDocument } from '../helpers/commands/try-to-insert-document';
 
@@ -138,10 +139,8 @@ describe('Collection documents tab', function () {
       'Documents'
     );
 
-    if (!TEST_COMPASS_WEB) {
-      // setFeature/getFeature is not supported in compass-web yet
-      maxTimeMSBefore = (await browser.getFeature('maxTimeMS')) as string;
-    }
+    maxTimeMSBefore = (await browser.getFeature('maxTimeMS')) as string;
+    console.log({ MAX_TIME_MS_BEFORE: maxTimeMSBefore });
   });
 
   after(async function () {
@@ -150,10 +149,7 @@ describe('Collection documents tab', function () {
   });
 
   afterEach(async function () {
-    if (!TEST_COMPASS_WEB) {
-      // setFeature/getFeature is not supported in compass-web yet
-      await browser.setFeature('maxTimeMS', maxTimeMSBefore);
-    }
+    await browser.setFeature('maxTimeMS', maxTimeMSBefore);
     await screenshotIfFailed(compass, this.currentTest);
   });
 
@@ -185,7 +181,7 @@ describe('Collection documents tab', function () {
       used_regex: false,
     });
 
-    if (!TEST_COMPASS_WEB) {
+    if (!isTestingWeb()) {
       // no query history in compass-web yet
       const queries = await getRecentQueries(browser, true);
       expect(queries).to.deep.include.members([{ Filter: '{\n  i: 5\n}' }]);
@@ -225,7 +221,7 @@ describe('Collection documents tab', function () {
       used_regex: false,
     });
 
-    if (!TEST_COMPASS_WEB) {
+    if (!isTestingWeb()) {
       // no query history in compass-web yet
       const queries = await getRecentQueries(browser, true);
       expect(queries).to.deep.include.members([
@@ -273,7 +269,7 @@ describe('Collection documents tab', function () {
     const displayText = await documentListActionBarMessageElement.getText();
     expect(displayText).to.equal('1 – 1 of 1');
 
-    if (!TEST_COMPASS_WEB) {
+    if (!isTestingWeb()) {
       // no query history in compass-web yet
       const queries = await getRecentQueries(browser, true);
       expect(queries).to.deep.include.members([
@@ -285,43 +281,47 @@ describe('Collection documents tab', function () {
     }
   });
 
-  for (const maxTimeMSMode of ['ui', 'preference'] as const) {
-    it(`supports maxTimeMS (set via ${maxTimeMSMode})`, async function () {
-      skipForWeb(this, 'preferences modal not supported in compass-web');
+  describe('maxTimeMS configuration', function () {
+    for (const maxTimeMSMode of ['ui', 'preference'] as const) {
+      it(`supports maxTimeMS (set via ${maxTimeMSMode})`, async function () {
+        if (maxTimeMSMode === 'preference') {
+          if (isTestingWeb()) {
+            await browser.setFeature('maxTimeMS', 1);
+          } else {
+            await browser.openSettingsModal();
+            const settingsModal = browser.$(Selectors.SettingsModal);
+            await settingsModal.waitForDisplayed();
+            await browser.clickVisible(Selectors.GeneralSettingsButton);
 
-      if (maxTimeMSMode === 'preference') {
-        await browser.openSettingsModal();
-        const settingsModal = browser.$(Selectors.SettingsModal);
-        await settingsModal.waitForDisplayed();
-        await browser.clickVisible(Selectors.GeneralSettingsButton);
-
-        await browser.setValueVisible(
-          Selectors.SettingsInputElement('maxTimeMS'),
-          '1'
-        );
-        await browser.clickVisible(Selectors.SaveSettingsButton);
-        await settingsModal.waitForDisplayed({ reverse: true });
-      }
-
-      // execute a query that will take a long time, but set a maxTimeMS shorter than that
-      await browser.runFindOperation(
-        'Documents',
-        '{ $where: function() { return sleep(10000) || true; } }',
-        {
-          ...(maxTimeMSMode === 'ui' ? { maxTimeMS: '1' } : {}),
-          waitForResult: false,
+            await browser.setValueVisible(
+              Selectors.SettingsInputElement('maxTimeMS'),
+              '1'
+            );
+            await browser.clickVisible(Selectors.SaveSettingsButton);
+            await settingsModal.waitForDisplayed({ reverse: true });
+          }
         }
-      );
 
-      const documentListErrorElement = browser.$(Selectors.DocumentListError);
-      await documentListErrorElement.waitForDisplayed();
+        // execute a query that will take a long time, but set a maxTimeMS shorter than that
+        await browser.runFindOperation(
+          'Documents',
+          '{ $where: function() { return sleep(10000) || true; } }',
+          {
+            ...(maxTimeMSMode === 'ui' ? { maxTimeMS: '1' } : {}),
+            waitForResult: false,
+          }
+        );
 
-      const errorText = await documentListErrorElement.getText();
-      expect(errorText).to.include(
-        'Operation exceeded time limit. Please try increasing the maxTimeMS for the query in the expanded filter options.'
-      );
-    });
-  }
+        const documentListErrorElement = browser.$(Selectors.DocumentListError);
+        await documentListErrorElement.waitForDisplayed();
+
+        const errorText = await documentListErrorElement.getText();
+        expect(errorText).to.include(
+          'Operation exceeded time limit. Please try increasing the maxTimeMS for the query in the expanded filter options.'
+        );
+      });
+    }
+  });
 
   it('keeps the query when navigating to schema', async function () {
     await browser.runFindOperation('Documents', '{ i: 5 }');

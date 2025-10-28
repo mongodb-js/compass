@@ -63,7 +63,10 @@ const { Z_SYNC_FLUSH } = zlib.constants;
 
 const packageCompassAsync = promisify(packageCompass);
 
-// should we test compass-web (true) or compass electron (false)?
+/**
+ * should we test compass-web (true) or compass electron (false)?
+ * @deprecated use `isTestingWeb` instead
+ */
 export const TEST_COMPASS_WEB = isTestingWeb();
 
 // Extending the WebdriverIO's types to allow a verbose option to the chromedriver
