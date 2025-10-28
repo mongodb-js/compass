@@ -334,6 +334,7 @@ export function createDefaultChat({
     transport: Chat<AssistantMessage>['transport'];
   };
 }): Chat<AssistantMessage> {
+  const initialBaseUrl = 'http://PLACEHOLDER_BASE_URL_TO_BE_REPLACED.invalid';
   return new Chat({
     transport:
       options?.transport ??
@@ -343,8 +344,21 @@ export function createDefaultChat({
           target: appNameForPrompt,
         }),
         model: createOpenAI({
-          baseURL: atlasService.assistantApiEndpoint(),
+          baseURL: initialBaseUrl,
           apiKey: '',
+          fetch(url, init) {
+            return globalThis.fetch(
+              // The `baseUrl` can be dynamically changed, but `createOpenAI`
+              // constructor doesn't allow us to change it after initial call.
+              // Instead we're going to update it every time the fetch call
+              // happens
+              String(url).replace(
+                initialBaseUrl,
+                atlasService.assistantApiEndpoint()
+              ),
+              init
+            );
+          },
         }).responses('mongodb-chat-latest'),
       }),
     onError: (err: Error) => {

@@ -8,12 +8,13 @@ import {
 } from '@mongodb-js/compass-components';
 import { CompassWeb } from '../src/index';
 import { SandboxConnectionStorageProvider } from '../src/connection-storage';
+import './sandbox-process';
 import { sandboxLogger } from './sandbox-logger';
 import { sandboxTelemetry } from './sandbox-telemetry';
 import { useAtlasProxySignIn } from './sandbox-atlas-sign-in';
 import { sandboxConnectionStorage } from './sandbox-connection-storage';
 import { useWorkspaceTabRouter } from './sandbox-workspace-tab-router';
-import { SandboxPreferencesUpdateProvider } from '../src/preferences';
+import { SandboxPreferencesGlobalAccessProvider } from '../src/preferences';
 
 const sandboxContainerStyles = css({
   width: '100%',
@@ -90,14 +91,11 @@ const App = () => {
     return { readOnly: true };
   })();
 
-  const overrideGenAIFeatures =
-    process.env.COMPASS_OVERRIDE_ENABLE_AI_FEATURES === 'true';
-
   return (
     <SandboxConnectionStorageProvider
       value={isAtlas ? null : sandboxConnectionStorage}
     >
-      <SandboxPreferencesUpdateProvider>
+      <SandboxPreferencesGlobalAccessProvider>
         <Body as="div" className={sandboxContainerStyles}>
           <CompassWeb
             orgId={orgId ?? ''}
@@ -115,16 +113,12 @@ const App = () => {
               enableRollingIndexes: isAtlas,
               showDisabledConnections: true,
               enableGenAIFeaturesAtlasProject:
-                overrideGenAIFeatures ||
-                (isAtlas && !!enableGenAIFeaturesAtlasProject),
+                !isAtlas || !!enableGenAIFeaturesAtlasProject,
               enableGenAISampleDocumentPassing:
-                overrideGenAIFeatures ||
-                (isAtlas && !!enableGenAISampleDocumentPassing),
+                !isAtlas || !!enableGenAISampleDocumentPassing,
               enableGenAIFeaturesAtlasOrg:
-                overrideGenAIFeatures ||
-                (isAtlas && !!enableGenAIFeaturesAtlasOrg),
-              optInGenAIFeatures:
-                overrideGenAIFeatures || (isAtlas && !!optInGenAIFeatures),
+                !isAtlas || !!enableGenAIFeaturesAtlasOrg,
+              optInGenAIFeatures: isAtlas ? !!optInGenAIFeatures : false,
               enableDataModeling: true,
               enableMyQueries: isAtlas,
               ...groupRolePreferences,
@@ -135,7 +129,7 @@ const App = () => {
             onFailToLoadConnections={onFailToLoadConnections}
           ></CompassWeb>
         </Body>
-      </SandboxPreferencesUpdateProvider>
+      </SandboxPreferencesGlobalAccessProvider>
     </SandboxConnectionStorageProvider>
   );
 };

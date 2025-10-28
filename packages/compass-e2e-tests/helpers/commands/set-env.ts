@@ -2,8 +2,7 @@ import type { CompassBrowser } from '../compass-browser';
 import { isTestingWeb } from '../test-runner-context';
 
 /**
- * Sets an environment variable override in Compass Web.
- * This is only supported in Compass Web tests, not in Compass Desktop.
+ * Sets an environment variable override in Compass. This works the same way both for Compass desktop and web runtimes
  *
  * @example
  * // Set the Atlas service URL override in a test
@@ -20,24 +19,35 @@ export async function setEnv(
   browser: CompassBrowser,
   key: string,
   value: string
-): Promise<void> {
+): Promise<Record<string, string>> {
+  // In web, use injected function to set the env
   if (isTestingWeb()) {
-    // When running in Compass web we use a global function to set env vars
-    await browser.execute(
+    await browser.waitUntil(async () => {
+      return await browser.execute(() => {
+        return Symbol.for('@compass-web-sandbox-set-env') in globalThis;
+      });
+    });
+    return await browser.execute(
       (_key, _value) => {
         const kSandboxSetEnvFn = Symbol.for('@compass-web-sandbox-set-env');
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (globalThis as any)[kSandboxSetEnvFn]?.(_key, _value);
+        return (globalThis as any)[kSandboxSetEnvFn](_key, _value) as Record<
+          string,
+          string
+        >;
       },
       key,
       value
     );
-    return;
+  } else {
+    // In electron, just set the existing global var
+    return await browser.execute(
+      (_key, _value) => {
+        process.env[_key] = _value;
+        return process.env as Record<string, string>;
+      },
+      key,
+      value
+    );
   }
-
-  // When running in Compass desktop, we can't dynamically change env vars
-  // after the process has started, so we throw an error
-  throw new Error(
-    'setEnv is only supported in Compass web. For Compass desktop, set environment variables before starting the app.'
-  );
 }

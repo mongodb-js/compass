@@ -12,17 +12,24 @@ export async function setFeature<K extends keyof UserPreferences>(
 ): Promise<void> {
   if (isTestingWeb()) {
     // When running in Compass web we cannot use the IPC to update the
-    // preferences so we use a global function.
+    // preferences so we use a global function
+    await browser.waitUntil(async () => {
+      return await browser.execute(() => {
+        return (
+          Symbol.for('@compass-web-sandbox-preferences-access') in globalThis
+        );
+      });
+    });
     await browser.execute(
       async (_name, _value) => {
         const kSandboxUpdateFn = Symbol.for(
-          '@compass-web-sandbox-update-preferences'
+          '@compass-web-sandbox-preferences-access'
         );
         const attributes: Partial<AllPreferences> = {
           [_name]: _value === null ? undefined : _value,
         };
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        await (globalThis as any)[kSandboxUpdateFn]?.(attributes);
+        await (globalThis as any)[kSandboxUpdateFn].savePreferences(attributes);
       },
       name,
       value

@@ -604,10 +604,8 @@ describe('GuideCueService', function () {
   });
 
   context('when disabled', function () {
-    const initialValue = process.env.DISABLE_GUIDE_CUES;
     before(function () {
-      process.env.DISABLE_GUIDE_CUES = 'true';
-
+      guideCueService.enabled = false;
       guideCueService.addCue({ cueId: '1', isIntersecting: true, step: 1 });
       guideCueService.addCue({
         cueId: '3',
@@ -624,7 +622,7 @@ describe('GuideCueService', function () {
     });
 
     after(function () {
-      process.env.DISABLE_GUIDE_CUES = initialValue;
+      guideCueService.enabled = true;
     });
 
     it('does not add a cue', function () {
