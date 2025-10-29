@@ -8,8 +8,12 @@ import {
 } from '@mongodb-js/compass-components';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
-import React from 'react';
-import { usePreferences } from 'compass-preferences-model/provider';
+import React, { useCallback } from 'react';
+import {
+  useIsAIFeatureEnabled,
+  usePreference,
+  usePreferences,
+} from 'compass-preferences-model/provider';
 import toNS from 'mongodb-ns';
 import { wrapField } from '@mongodb-js/mongodb-constants';
 import {
@@ -17,13 +21,29 @@ import {
   useAssignment,
   ExperimentTestName,
   ExperimentTestGroup,
+  useTrackOnChange,
+  type TrackFunction,
 } from '@mongodb-js/compass-telemetry/provider';
+import {
+  SCHEMA_ANALYSIS_STATE_ANALYZING,
+  type SchemaAnalysisStatus,
+  type SchemaAnalysisError,
+} from '../../schema-analysis-types';
+import { MAX_COLLECTION_NESTING_DEPTH } from '../mock-data-generator-modal/utils';
 
 const collectionHeaderActionsStyles = css({
   display: 'flex',
   alignItems: 'center',
   overflow: 'hidden',
   gap: spacing[200],
+});
+
+const tooltipMessageStyles = css({
+  display: 'block',
+  marginBottom: spacing[100],
+  '&:last-child': {
+    marginBottom: 0,
+  },
 });
 
 function buildChartsUrl(
@@ -43,10 +63,15 @@ function buildChartsUrl(
 type CollectionHeaderActionsProps = {
   namespace: string;
   isReadonly: boolean;
+  isTimeSeries: boolean;
   editViewName?: string;
   sourceName?: string;
   sourcePipeline?: unknown[];
   onOpenMockDataModal: () => void;
+  hasSchemaAnalysisData: boolean;
+  schemaAnalysisError: SchemaAnalysisError | null;
+  analyzedSchemaDepth: number;
+  schemaAnalysisStatus: SchemaAnalysisStatus | null;
 };
 
 const CollectionHeaderActions: React.FunctionComponent<
@@ -54,26 +79,42 @@ const CollectionHeaderActions: React.FunctionComponent<
 > = ({
   namespace,
   isReadonly,
+  isTimeSeries,
   editViewName,
   sourceName,
   sourcePipeline,
   onOpenMockDataModal,
+  hasSchemaAnalysisData,
+  analyzedSchemaDepth,
+  schemaAnalysisStatus,
+  schemaAnalysisError,
 }: CollectionHeaderActionsProps) => {
   const connectionInfo = useConnectionInfo();
   const { id: connectionId, atlasMetadata } = connectionInfo;
   const { openCollectionWorkspace, openEditViewWorkspace, openShellWorkspace } =
     useOpenWorkspace();
-  const { readOnly: preferencesReadOnly, enableShell: showOpenShellButton } =
-    usePreferences(['readOnly', 'enableShell']);
+  const { readWrite: preferencesReadWrite, enableShell: showOpenShellButton } =
+    usePreferences(['readWrite', 'enableShell']);
   const track = useTelemetry();
+  const isAIFeatureEnabled = useIsAIFeatureEnabled();
+  const isSampleDocumentPassingEnabled = usePreference(
+    'enableGenAISampleDocumentPassing'
+  );
+
+  const { database, collection } = toNS(namespace);
+
+  const isMockDataGeneratorEligible = Boolean(
+    atlasMetadata && // Only show in Atlas
+      !isReadonly && // Don't show for readonly collections (views)
+      !isTimeSeries && // Don't show for time series collections
+      !sourceName // sourceName indicates it's a view
+  );
 
   // Get experiment assignment for Mock Data Generator
   const mockDataGeneratorAssignment = useAssignment(
     ExperimentTestName.mockDataGenerator,
-    true // trackIsInSample - this will fire the "Experiment Viewed" event
+    isMockDataGeneratorEligible // Only track eligible collections
   );
-
-  const { database, collection } = toNS(namespace);
 
   // Check if user is in treatment group for Mock Data Generator experiment
   const isInMockDataTreatmentVariant =
@@ -81,13 +122,57 @@ const CollectionHeaderActions: React.FunctionComponent<
     ExperimentTestGroup.mockDataGeneratorVariant;
 
   const shouldShowMockDataButton =
-    isInMockDataTreatmentVariant &&
-    atlasMetadata && // Only show in Atlas
-    !isReadonly && // Don't show for readonly collections (views)
-    !sourceName; // sourceName indicates it's a view
-  // TODO: CLOUDP-337090: also filter out overly nested collections
+    isMockDataGeneratorEligible && isInMockDataTreatmentVariant;
 
-  const hasData = true; // TODO: CLOUDP-337090
+  const exceedsMaxNestingDepth =
+    analyzedSchemaDepth > MAX_COLLECTION_NESTING_DEPTH;
+
+  const isCollectionEmpty =
+    !hasSchemaAnalysisData &&
+    schemaAnalysisStatus !== SCHEMA_ANALYSIS_STATE_ANALYZING;
+
+  const hasSchemaAnalysisUnsupportedStateError = Boolean(
+    schemaAnalysisError && schemaAnalysisError.errorType === 'unsupportedState'
+  );
+
+  const isView = isReadonly && sourceName && !editViewName;
+
+  const showViewEdit = isView && !preferencesReadWrite;
+  const shouldDisableMockDataButton =
+    !hasSchemaAnalysisData ||
+    exceedsMaxNestingDepth ||
+    hasSchemaAnalysisUnsupportedStateError;
+
+  const onMockDataGeneratorCtaButtonClicked = useCallback(() => {
+    track('Mock Data Generator Opened', {
+      gen_ai_features_enabled: isAIFeatureEnabled,
+      send_sample_values_enabled: isSampleDocumentPassingEnabled,
+    });
+    onOpenMockDataModal();
+  }, [
+    track,
+    isAIFeatureEnabled,
+    isSampleDocumentPassingEnabled,
+    onOpenMockDataModal,
+  ]);
+
+  useTrackOnChange(
+    (track: TrackFunction) => {
+      if (shouldShowMockDataButton) {
+        track('Mock Data Generator CTA Button Viewed', {
+          button_enabled: !shouldDisableMockDataButton,
+          gen_ai_features_enabled: isAIFeatureEnabled,
+          send_sample_values_enabled: isSampleDocumentPassingEnabled,
+        });
+      }
+    },
+    [
+      shouldShowMockDataButton,
+      shouldDisableMockDataButton,
+      isAIFeatureEnabled,
+      isSampleDocumentPassingEnabled,
+    ]
+  );
 
   return (
     <div
@@ -111,14 +196,18 @@ const CollectionHeaderActions: React.FunctionComponent<
       )}
       {shouldShowMockDataButton && (
         <Tooltip
-          enabled={!hasData}
+          enabled={
+            exceedsMaxNestingDepth ||
+            isCollectionEmpty ||
+            hasSchemaAnalysisUnsupportedStateError
+          }
           trigger={
             <div>
               <Button
                 data-testid="collection-header-generate-mock-data-button"
                 size={ButtonSize.Small}
-                disabled={!hasData}
-                onClick={onOpenMockDataModal}
+                disabled={shouldDisableMockDataButton}
+                onClick={onMockDataGeneratorCtaButtonClicked}
                 leftGlyph={<Icon glyph="Sparkle" />}
               >
                 Generate Mock Data
@@ -126,7 +215,23 @@ const CollectionHeaderActions: React.FunctionComponent<
             </div>
           }
         >
-          Please add data to your collection to generate similar mock documents
+          <>
+            {hasSchemaAnalysisUnsupportedStateError ? (
+              <span className={tooltipMessageStyles}>
+                {schemaAnalysisError?.errorMessage}
+              </span>
+            ) : exceedsMaxNestingDepth ? (
+              <span className={tooltipMessageStyles}>
+                At this time we are unable to generate mock data for collections
+                that have deeply nested documents.
+              </span>
+            ) : isCollectionEmpty ? (
+              <span className={tooltipMessageStyles}>
+                Please add data to your collection to generate similar mock
+                documents.
+              </span>
+            ) : null}
+          </>
         </Tooltip>
       )}
       {atlasMetadata && (
@@ -145,7 +250,7 @@ const CollectionHeaderActions: React.FunctionComponent<
           Visualize Your Data
         </Button>
       )}
-      {isReadonly && sourceName && !editViewName && !preferencesReadOnly && (
+      {showViewEdit && (
         <Button
           data-testid="collection-header-actions-edit-button"
           size={ButtonSize.Small}

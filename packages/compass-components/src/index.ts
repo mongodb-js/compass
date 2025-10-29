@@ -1,5 +1,10 @@
-export * from './components/leafygreen';
+// IMPORTANT: this import should always be the first one in compass-component
+// main entrypoint to ensure that emotion is reconfigured before any component
+// modules generate their stylesheets
+import './force-emotion-speedy';
+// -------------------------------
 
+export * from './components/leafygreen';
 export {
   default as emotion,
   flush,
@@ -136,6 +141,7 @@ export {
 };
 export {
   useFocusState,
+  useFocusStateIncludingUnfocused,
   useHoverState,
   FocusState,
 } from './hooks/use-focus-hover';
@@ -147,12 +153,13 @@ export {
   Theme,
   ThemeProvider,
 } from './hooks/use-theme';
+export { useThrottledProps } from './hooks/use-throttled-props';
 export {
   ContentWithFallback,
   FadeInPlaceholder,
 } from './components/content-with-fallback';
 export { InlineDefinition } from './components/inline-definition';
-export type { GlyphName } from '@leafygreen-ui/icon';
+export type { GlyphName, LGGlyph } from '@leafygreen-ui/icon';
 export { createGlyphComponent, createIconComponent } from '@leafygreen-ui/icon';
 export {
   SignalPopover,
@@ -212,6 +219,7 @@ export {
 } from './components/links/link';
 export { ChevronCollapse } from './components/chevron-collapse-icon';
 export { formatDate } from './utils/format-date';
+export { compactBytes, compactNumber } from './utils/format';
 export {
   VirtualList,
   type VirtualListRef,
@@ -223,3 +231,22 @@ export { ParagraphSkeleton } from '@leafygreen-ui/skeleton-loader';
 export { InsightsChip } from './components/insights-chip';
 export * from './components/drawer-portal';
 export { FileSelector } from './components/file-selector';
+export {
+  DiagramProvider,
+  Diagram,
+  useDiagram,
+  getNodesBounds,
+  getViewportForBounds,
+  applyLayout,
+  getCoordinatesForNewNode,
+} from '@mongodb-js/diagramming';
+export type {
+  EdgeProps,
+  NodeProps,
+  DiagramProps,
+  DiagramInstance,
+  NodeField,
+  NodeGlyph,
+} from '@mongodb-js/diagramming';
+// @experiment Skills in Atlas  | Jira Epic: CLOUDP-346311
+export { AtlasSkillsBanner } from './components/atlas-skills-banner';

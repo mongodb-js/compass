@@ -9,13 +9,12 @@ import workspacesReducer, {
   collectionRemoved,
   collectionRenamed,
   databaseRemoved,
-  getActiveTab,
   getInitialTabState,
-  getLocalAppRegistryForTab,
   cleanupLocalAppRegistries,
   connectionDisconnected,
   updateDatabaseInfo,
   updateCollectionInfo,
+  beforeUnloading,
 } from './stores/workspaces';
 import Workspaces from './components';
 import { applyMiddleware, createStore } from 'redux';
@@ -75,7 +74,11 @@ export function configureStore(
 export function activateWorkspacePlugin(
   {
     initialWorkspaceTabs,
-  }: { initialWorkspaceTabs?: OpenWorkspaceOptions[] | null },
+    onBeforeUnloadCallbackRequest,
+  }: {
+    initialWorkspaceTabs?: OpenWorkspaceOptions[] | null;
+    onBeforeUnloadCallbackRequest?: (canCloseCallback: () => boolean) => void;
+  },
   {
     globalAppRegistry,
     instancesManager,
@@ -163,60 +166,9 @@ export function activateWorkspacePlugin(
     }
   );
 
-  on(globalAppRegistry, 'menu-share-schema-json', () => {
-    const activeTab = getActiveTab(store.getState());
-    if (activeTab?.type === 'Collection') {
-      getLocalAppRegistryForTab(activeTab.id).emit('menu-share-schema-json');
-    }
+  onBeforeUnloadCallbackRequest?.(() => {
+    return store.dispatch(beforeUnloading());
   });
-
-  on(globalAppRegistry, 'open-active-namespace-export', function () {
-    const activeTab = getActiveTab(store.getState());
-    if (activeTab?.type === 'Collection') {
-      globalAppRegistry.emit(
-        'open-export',
-        {
-          exportFullCollection: true,
-          namespace: activeTab.namespace,
-          origin: 'menu',
-        },
-        {
-          connectionId: activeTab.connectionId,
-        }
-      );
-    }
-  });
-
-  on(globalAppRegistry, 'open-active-namespace-import', function () {
-    const activeTab = getActiveTab(store.getState());
-    if (activeTab?.type === 'Collection') {
-      globalAppRegistry.emit(
-        'open-import',
-        {
-          namespace: activeTab.namespace,
-          origin: 'menu',
-        },
-        {
-          connectionId: activeTab.connectionId,
-        }
-      );
-    }
-  });
-
-  // TODO(COMPASS-8033): activate this code and account for it in e2e tests and
-  // electron environment
-  // function onBeforeUnload(evt: BeforeUnloadEvent) {
-  //   const canUnload = store.getState().tabs.every((tab) => {
-  //     return canCloseTab(tab);
-  //   });
-  //   if (!canUnload) {
-  //     evt.preventDefault();
-  //   }
-  // }
-  // window.addEventListener('beforeunload', onBeforeUnload);
-  // addCleanup(() => {
-  //   window.removeEventListener('beforeunload', onBeforeUnload);
-  // });
 
   return {
     store,

@@ -330,6 +330,7 @@ export function WelcomeModalImage(props: SVGProps<SVGSVGElement>) {
 export function WelcomeTabImage(props: SVGProps<SVGSVGElement>) {
   return (
     <svg
+      className="darkreader-ignore-child-inline-style"
       width="298"
       height="198"
       viewBox="0 0 298 198"

@@ -1,33 +1,86 @@
 import {
   type ChatTransport,
-  type UIMessage,
+  type LanguageModel,
   type UIMessageChunk,
   convertToModelMessages,
   streamText,
 } from 'ai';
-import { createOpenAI } from '@ai-sdk/openai';
+import type { AssistantMessage } from './compass-assistant-provider';
 
-export class DocsProviderTransport implements ChatTransport<UIMessage> {
-  private openai: ReturnType<typeof createOpenAI>;
-
-  constructor({ baseUrl }: { baseUrl: string }) {
-    this.openai = createOpenAI({
-      baseURL: baseUrl,
-      apiKey: '',
-    });
+/** Returns true if the message should be excluded from being sent to the assistant API. */
+export function shouldExcludeMessage({ metadata }: AssistantMessage) {
+  if (metadata?.confirmation) {
+    return true;
   }
+  return false;
+}
+
+export class DocsProviderTransport implements ChatTransport<AssistantMessage> {
+  private model: LanguageModel;
+  private origin: string;
+  private instructions: string;
+
+  constructor({
+    instructions,
+    model,
+    origin,
+  }: {
+    instructions: string;
+    model: LanguageModel;
+    origin: string;
+  }) {
+    this.instructions = instructions;
+    this.model = model;
+    this.origin = origin;
+  }
+
+  static emptyStream = new ReadableStream<UIMessageChunk>({
+    start(controller) {
+      controller.close();
+    },
+  });
 
   sendMessages({
     messages,
     abortSignal,
-  }: Parameters<ChatTransport<UIMessage>['sendMessages']>[0]) {
+  }: Parameters<ChatTransport<AssistantMessage>['sendMessages']>[0]) {
+    // If the most recent message is a message that is meant to be excluded
+    // then we do not need to send this request to the assistant API as it's likely
+    // redundant otherwise.
+    if (shouldExcludeMessage(messages[messages.length - 1])) {
+      return Promise.resolve(DocsProviderTransport.emptyStream);
+    }
+
+    const filteredMessages = messages.filter(
+      (message) => !shouldExcludeMessage(message)
+    );
+
+    // If no messages remain after filtering, return an empty stream
+    if (filteredMessages.length === 0) {
+      return Promise.resolve(DocsProviderTransport.emptyStream);
+    }
+
+    const lastMessage = filteredMessages[filteredMessages.length - 1];
+
     const result = streamText({
-      model: this.openai.responses('mongodb-chat-latest'),
-      messages: convertToModelMessages(messages),
+      model: this.model,
+      messages: lastMessage.metadata?.sendWithoutHistory
+        ? convertToModelMessages([lastMessage])
+        : convertToModelMessages(filteredMessages),
       abortSignal: abortSignal,
+      headers: {
+        'X-Request-Origin': this.origin,
+      },
+      providerOptions: {
+        openai: {
+          store: false,
+          // If the last message has custom instructions, use them instead of the default
+          instructions: lastMessage.metadata?.instructions ?? this.instructions,
+        },
+      },
     });
 
-    return Promise.resolve(result.toUIMessageStream());
+    return Promise.resolve(result.toUIMessageStream({ sendSources: true }));
   }
 
   reconnectToStream(): Promise<ReadableStream<UIMessageChunk> | null> {

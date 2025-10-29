@@ -1,29 +1,39 @@
-import {
-  CompassFavoriteQueryStorage,
-  CompassRecentQueryStorage,
-} from './compass-query-storage';
-import type {
+// Main exports - these use runtime detection for backward compatibility
+export {
+  createWebRecentQueryStorage,
+  createWebFavoriteQueryStorage,
+  createWebPipelineStorage,
+  createElectronRecentQueryStorage,
+  createElectronFavoriteQueryStorage,
+  createElectronPipelineStorage,
+} from './storage-factories';
+
+export type {
+  WebStorageOptions,
+  ElectronStorageOptions,
+} from './storage-factories';
+
+// Re-export shared interfaces
+export type {
+  RecentQueryStorageInterface,
+  FavoriteQueryStorageInterface,
+  PipelineStorageInterface,
+} from './storage-interfaces';
+
+// Re-export schemas
+export type { RecentQuery, FavoriteQuery } from './query-storage-schema';
+export type { SavedPipeline } from './pipeline-storage-schema';
+
+// Re-export provider types
+export type {
   FavoriteQueryStorageAccess,
   RecentQueryStorageAccess,
+  PipelineStorageAccess,
 } from './provider';
 
-export type { SavedPipeline } from './pipeline-storage-schema';
-export { CompassPipelineStorage } from './compass-pipeline-storage';
+// Re-export provider components
 export {
-  CompassFavoriteQueryStorage,
-  CompassRecentQueryStorage,
-} from './compass-query-storage';
-export type { RecentQuery, FavoriteQuery } from './query-storage-schema';
-
-// These are exported to aid in testing
-export const compassFavoriteQueryStorageAccess: FavoriteQueryStorageAccess = {
-  getStorage() {
-    return new CompassFavoriteQueryStorage();
-  },
-};
-
-export const compassRecentQueryStorageAccess: RecentQueryStorageAccess = {
-  getStorage() {
-    return new CompassRecentQueryStorage();
-  },
-};
+  PipelineStorageProvider,
+  FavoriteQueryStorageProvider,
+  RecentQueryStorageProvider,
+} from './provider';

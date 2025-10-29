@@ -13,7 +13,7 @@ function renderLoader() {
   return render(<SpinLoader size="12px" />);
 }
 
-function renderCancelLoader(spy) {
+function renderCancelLoader(spy: sinon.SinonSpy) {
   return render(
     <CancelLoader
       data-testid="my-test-id"
@@ -34,7 +34,7 @@ describe('SpinLoader Component', function () {
   });
 
   describe('CancelLoader Component', function () {
-    let spy;
+    let spy: sinon.SinonSpy;
 
     beforeEach(function () {
       spy = sinon.spy();

@@ -33,9 +33,9 @@ export default function SearchNoResults() {
   return (
     <div className={centeredContent}>
       <Subtitle
-        className={css(
+        className={
           darkMode ? missingAtlasIndexDarkStyles : missingAtlasIndexLightStyles
-        )}
+        }
       >
         No preview documents
       </Subtitle>

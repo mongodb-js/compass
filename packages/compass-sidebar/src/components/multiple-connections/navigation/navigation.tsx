@@ -102,9 +102,10 @@ export function Navigation({
   const { openMyQueriesWorkspace, openDataModelingWorkspace } =
     useOpenWorkspace();
   const isDataModelingEnabled = usePreference('enableDataModeling');
+  const isMyQueriesEnabled = usePreference('enableMyQueries');
   return (
     <div>
-      {hasWorkspacePlugin('My Queries') && (
+      {hasWorkspacePlugin('My Queries') && isMyQueriesEnabled && (
         <NavigationItem
           onClick={openMyQueriesWorkspace}
           glyph="CurlyBraces"

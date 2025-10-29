@@ -52,7 +52,8 @@ describe('useContextMenuGroups', function () {
         <ContextMenuProvider menuWrapper={ContextMenu}>
           <TestComponent items={items} />
         </ContextMenuProvider>
-      </ContextMenuProvider>
+      </ContextMenuProvider>,
+      { includeContextMenu: true }
     );
 
     // Should only find one context menu (from the parent provider)

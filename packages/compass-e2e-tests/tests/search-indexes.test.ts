@@ -4,7 +4,6 @@ import {
   cleanup,
   screenshotIfFailed,
   Selectors,
-  serverSatisfies,
   skipForWeb,
   TEST_COMPASS_WEB,
   DEFAULT_CONNECTION_STRING_1,
@@ -158,11 +157,6 @@ describe('Search Indexes', function () {
 
   before(async function () {
     skipForWeb(this, 'search indexes disabled on compass-web');
-
-    // $search works with server 4.2 or more
-    if (!serverSatisfies('>= 4.1.11')) {
-      this.skip();
-    }
     compass = await init(this.test?.fullTitle());
     browser = compass.browser;
   });

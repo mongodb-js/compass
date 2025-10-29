@@ -7,14 +7,12 @@ ignore:
         reason: >-
           Not applicable as we do not use a valueFormatter or cellRenderer
           function
-        expires: 2025-09-17T13:05:57.065Z
         created: 2024-01-18T18:27:24.353Z
   SNYK-JS-AGGRIDCOMMUNITY-7414157:
     - '*':
         reason: >-
           Not applicable as we don't use ag-grid utils and the library never
           passes user input directly to the merge function
-        expires: 2025-09-17T13:05:57.065Z
         created: 2024-09-17T13:05:57.071Z
   SNYK-JS-ELECTRON-8642944:
     - '*':

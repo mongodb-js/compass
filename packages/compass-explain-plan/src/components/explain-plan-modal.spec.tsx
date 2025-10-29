@@ -9,11 +9,16 @@ import type { ExplainPlanModalProps } from './explain-plan-modal';
 import { ExplainPlanModal } from './explain-plan-modal';
 import { Provider } from 'react-redux';
 import { activatePlugin } from '../stores';
+import type { AllPreferences } from 'compass-preferences-model';
 
 function render(
   props: Partial<ExplainPlanModalProps>,
-  { preferences }: { preferences: { enableAIAssistant: boolean } } = {
-    preferences: { enableAIAssistant: false },
+  {
+    preferences,
+  }: {
+    preferences: Partial<AllPreferences>;
+  } = {
+    preferences: {},
   }
 ) {
   const { store } = activatePlugin(
@@ -35,7 +40,7 @@ function render(
         {...props}
       ></ExplainPlanModal>
     </Provider>,
-    { preferences: { enableAIAssistant: preferences?.enableAIAssistant } }
+    { preferences }
   );
 }
 
@@ -70,27 +75,22 @@ describe('ExplainPlanModal', function () {
           usedIndexes: [],
         } as any,
       },
-      { preferences: { enableAIAssistant: true } }
+      {
+        preferences: {
+          enableAIAssistant: true,
+          enableGenAIFeatures: true,
+          enableGenAIFeaturesAtlasOrg: true,
+          cloudFeatureRolloutAccess: {
+            GEN_AI_COMPASS: true,
+          },
+        },
+      }
     );
     expect(screen.getByTestId('interpret-for-me-button')).to.exist;
     expect(screen.getByTestId('interpret-for-me-button')).to.have.attr(
       'aria-disabled',
       'false'
     );
-  });
-
-  it('should not show "Interpret for me" button when AI assistant is disabled', function () {
-    render(
-      {
-        status: 'ready',
-        explainPlan: {
-          namespace: 'test',
-          usedIndexes: [],
-        } as any,
-      },
-      { preferences: { enableAIAssistant: false } }
-    );
-    expect(screen.queryByTestId('interpret-for-me-button')).to.not.exist;
   });
 
   it('should disable the "Interpret for me" button when the status is not ready', function () {
@@ -101,7 +101,14 @@ describe('ExplainPlanModal', function () {
           usedIndexes: [],
         } as any,
       },
-      { preferences: { enableAIAssistant: true } }
+      {
+        preferences: {
+          enableAIAssistant: true,
+          enableGenAIFeatures: true,
+          enableGenAIFeaturesAtlasOrg: true,
+          cloudFeatureRolloutAccess: { GEN_AI_COMPASS: true },
+        },
+      }
     );
     expect(screen.getByTestId('interpret-for-me-button')).to.have.attr(
       'aria-disabled',

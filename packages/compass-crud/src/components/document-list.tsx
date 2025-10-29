@@ -37,7 +37,7 @@ import {
   useIsLastAppliedQueryOutdated,
   useLastAppliedQuery,
 } from '@mongodb-js/compass-query-bar';
-import { usePreference } from 'compass-preferences-model/provider';
+import { usePreferences } from 'compass-preferences-model/provider';
 import { useAssistantActions } from '@mongodb-js/compass-assistant';
 
 // Table has its own scrollable container.
@@ -369,8 +369,12 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
 
   const query = useLastAppliedQuery('crud');
   const outdated = useIsLastAppliedQueryOutdated('crud');
-  const preferencesReadOnly = usePreference('readOnly');
-  const isImportExportEnabled = usePreference('enableImportExport');
+
+  const {
+    readOnly: preferencesReadOnly,
+    readWrite: preferencesReadWrite,
+    enableImportExport: isImportExportEnabled,
+  } = usePreferences(['readOnly', 'readWrite', 'enableImportExport']);
 
   const isEditable =
     !preferencesReadOnly &&
@@ -556,13 +560,16 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
               query: JSON.stringify(query.filter ?? {}),
               isCollectionScan: Boolean(isCollectionScan),
               isSearchIndexesSupported,
+              canCreateIndexes: !preferencesReadWrite,
               onCreateIndex: store.openCreateIndexModal.bind(store),
               onCreateSearchIndex: store.openCreateSearchIndexModal.bind(store),
-              onAssistantButtonClick: () =>
-                tellMoreAboutInsight({
-                  id: 'query-executed-without-index',
-                  query: JSON.stringify(query),
-                }),
+              onAssistantButtonClick: tellMoreAboutInsight
+                ? () =>
+                    tellMoreAboutInsight({
+                      id: 'query-executed-without-index',
+                      query: JSON.stringify(query),
+                    })
+                : undefined,
             })}
             docsPerPage={docsPerPage}
             updateMaxDocumentsPerPage={handleMaxDocsPerPageChanged}

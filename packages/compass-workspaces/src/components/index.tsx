@@ -27,12 +27,12 @@ type WorkspacesWithSidebarProps = {
    * @param ws current active workspace
    * @param collectionInfo active workspaces collection info
    */
-  onActiveWorkspaceTabChange<WS extends WorkspaceTab>(
+  onActiveWorkspaceTabChange: <WS extends WorkspaceTab>(
     ws: WS | null,
     collectionInfo: WS extends { type: 'Collection' }
       ? CollectionTabInfo | null
       : never
-  ): void;
+  ) => void;
   /**
    * Initial workspace tab to show (by default no tabs will be shown initially)
    */
@@ -54,6 +54,12 @@ type WorkspacesWithSidebarProps = {
    * actions from service locator context
    */
   renderModals?: () => React.ReactElement | null;
+  /**
+   * Callback that will get passed another callback function that, when called,
+   * would return back true or false depending on whether or not tabs can be
+   * safely closed without losing any important unsaved changes
+   */
+  onBeforeUnloadCallbackRequest?: (canCloseCallback: () => boolean) => void;
 };
 
 const containerLightThemeStyles = css({
@@ -72,12 +78,13 @@ const horizontalSplitStyles = css({
   display: 'grid',
   gridTemplateColumns: 'min-content auto',
   minHeight: 0,
+  overflowX: 'auto',
 });
 
 const workspacesStyles = css({
   minHeight: 0,
   overflow: 'hidden',
-  minWidth: '750px', // roughly the minimum needed for the CRUD toolbars
+  minWidth: '730px', // roughly the minimum needed for the CRUD toolbars
 });
 
 const sidebarStyles = css({

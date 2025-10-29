@@ -103,6 +103,7 @@ export type DatabaseTreeItem = VirtualTreeItem & {
   connectionItem: ConnectedConnectionTreeItem;
   dbName: string;
   hasWriteActionsDisabled: boolean;
+  canDeleteDatabase: boolean;
   inferredFromPrivileges: boolean;
 };
 
@@ -115,6 +116,7 @@ export type CollectionTreeItem = VirtualTreeItem & {
   databaseItem: DatabaseTreeItem;
   namespace: string;
   hasWriteActionsDisabled: boolean;
+  canEditCollection: boolean;
   inferredFromPrivileges: boolean;
 };
 
@@ -180,6 +182,7 @@ const connectedConnectionToItems = ({
   connectionsLength,
   expandedItems = {},
   preferencesReadOnly,
+  preferencesReadWrite,
   preferencesShellEnabled,
 }: {
   connection: ConnectedConnection;
@@ -187,6 +190,7 @@ const connectedConnectionToItems = ({
   connectionsLength: number;
   expandedItems: Record<string, false | Record<string, boolean>>;
   preferencesReadOnly: boolean;
+  preferencesReadWrite: boolean;
   preferencesShellEnabled: boolean;
 }): SidebarTreeItem[] => {
   const isExpanded = !!expandedItems[connectionInfo.id];
@@ -250,6 +254,8 @@ const connectedConnectionToItems = ({
         databasesLength,
         databaseIndex,
         hasWriteActionsDisabled,
+        canDeleteDatabase: !preferencesReadWrite,
+        canEditCollection: !preferencesReadWrite,
       });
     })
   );
@@ -272,6 +278,8 @@ const databaseToItems = ({
   databaseIndex,
   databasesLength,
   hasWriteActionsDisabled,
+  canDeleteDatabase,
+  canEditCollection,
 }: {
   database: Database;
   connectionId: string;
@@ -282,6 +290,8 @@ const databaseToItems = ({
   databaseIndex: number;
   databasesLength: number;
   hasWriteActionsDisabled: boolean;
+  canDeleteDatabase: boolean;
+  canEditCollection: boolean;
 }): SidebarTreeItem[] => {
   const isExpanded = !!expandedItems[id];
   const databaseTI: DatabaseTreeItem = {
@@ -299,6 +309,7 @@ const databaseToItems = ({
     isExpandable: true,
     hasWriteActionsDisabled,
     inferredFromPrivileges,
+    canDeleteDatabase,
   };
 
   const sidebarData: SidebarTreeItem[] = [databaseTI];
@@ -341,6 +352,7 @@ const databaseToItems = ({
         hasWriteActionsDisabled,
         isExpandable: false,
         inferredFromPrivileges,
+        canEditCollection,
       })
     )
   );
@@ -359,11 +371,13 @@ export function getVirtualTreeItems({
   connections,
   expandedItems = {},
   preferencesReadOnly,
+  preferencesReadWrite,
   preferencesShellEnabled,
 }: {
   connections: (NotConnectedConnection | ConnectedConnection)[];
   expandedItems: Record<string, false | Record<string, boolean>>;
   preferencesReadOnly: boolean;
+  preferencesReadWrite: boolean;
   preferencesShellEnabled: boolean;
 }): SidebarTreeItem[] {
   return connections.flatMap((connection, connectionIndex) => {
@@ -374,6 +388,7 @@ export function getVirtualTreeItems({
         connectionIndex,
         connectionsLength: connections.length,
         preferencesReadOnly,
+        preferencesReadWrite,
         preferencesShellEnabled,
       });
     } else {

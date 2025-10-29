@@ -1459,6 +1459,34 @@ type IndexDroppedEvent = ConnectionScopedEvent<{
 }>;
 
 /**
+ * This event is fired when user opens a drawer section. Either by switching
+ * to it via the drawer toolbar or by opening the drawer and the first tab is
+ * this drawer section.
+ *
+ * @category Gen AI
+ */
+type DrawerSectionOpenedEvent = CommonEvent<{
+  name: 'Drawer Section Opened';
+  payload: {
+    sectionId: string;
+  };
+}>;
+
+/**
+ * This event is fired when user closes a drawer section. Either by switching
+ * to another tab via the drawer toolbar or by closing the drawer when the
+ * active tab is this drawer section.
+ *
+ * @category Gen AI
+ */
+type DrawerSectionClosedEvent = CommonEvent<{
+  name: 'Drawer Section Closed';
+  payload: {
+    sectionId: string;
+  };
+}>;
+
+/**
  * This event is fired when user enters a prompt in the assistant chat
  * and hits "enter".
  *
@@ -1468,6 +1496,18 @@ type AssistantPromptSubmittedEvent = CommonEvent<{
   name: 'Assistant Prompt Submitted';
   payload: {
     user_input_length?: number;
+  };
+}>;
+
+/**
+ * This event is fired when a user uses an assistant entry point.
+ *
+ * @category Gen AI
+ */
+type AssistantEntryPointUsedEvent = CommonEvent<{
+  name: 'Assistant Entry Point Used';
+  payload: {
+    source: 'explain plan' | 'performance insights' | 'connection error';
   };
 }>;
 
@@ -1482,18 +1522,20 @@ type AssistantFeedbackSubmittedEvent = CommonEvent<{
     feedback: 'positive' | 'negative';
     text: string | undefined;
     request_id: string | null;
+    source: AssistantEntryPointUsedEvent['payload']['source'] | 'chat response';
   };
 }>;
 
 /**
- * This event is fired when a user uses an assistant entry point.
+ * This event is fired when a user confirms a confirmation message in the assistant chat.
  *
  * @category Gen AI
  */
-type AssistantEntryPointUsedEvent = CommonEvent<{
-  name: 'Assistant Entry Point Used';
+type AssistantConfirmationSubmittedEvent = CommonEvent<{
+  name: 'Assistant Confirmation Submitted';
   payload: {
-    source: 'explain plan' | 'performance insights' | 'connection error';
+    status: 'confirmed' | 'rejected';
+    source: AssistantEntryPointUsedEvent['payload']['source'] | 'chat response';
   };
 }>;
 
@@ -1597,26 +1639,6 @@ type AiOptInModalShownEvent = CommonEvent<{
  */
 type AiOptInModalDismissedEvent = CommonEvent<{
   name: 'AI Opt In Modal Dismissed';
-  payload: Record<string, never>;
-}>;
-
-/**
- * This event is fired when the AI Sign-In Modal is shown to the user.
- *
- * @category Gen AI
- */
-type AiSignInModalShownEvent = CommonEvent<{
-  name: 'AI Sign In Modal Shown';
-  payload: Record<string, never>;
-}>;
-
-/**
- * This event is fired when the AI Sign-In Modal is dismissed by the user.
- *
- * @category Gen AI
- */
-type AiSignInModalDismissedEvent = CommonEvent<{
-  name: 'AI Sign In Modal Dismissed';
   payload: Record<string, never>;
 }>;
 
@@ -2633,6 +2655,36 @@ type AtlasLinkClickedEvent = CommonEvent<{
 }>;
 
 /**
+ * This event is fired when a user clicks the Atlas Skills CTA banner.
+ *
+ * @category Other
+ */
+type AtlasSkillsCtaClickedEvent = CommonEvent<{
+  name: 'Atlas Skills CTA Clicked';
+  payload: {
+    /**
+     * The context/screen from which the Atlas Skills CTA was dismissed.
+     */
+    context: 'Documents Tab' | 'Aggregation Tab' | 'Indexes Tab' | 'Schema Tab';
+  };
+}>;
+
+/**
+ * This event is fired when a user dismisses the Atlas Skills CTA banner.
+ *
+ * @category Other
+ */
+type AtlasSkillsCtaDismissedEvent = CommonEvent<{
+  name: 'Atlas Skills CTA Dismissed';
+  payload: {
+    /**
+     * The context/screen from which the Atlas Skills CTA was dismissed.
+     */
+    context: 'Documents Tab' | 'Aggregation Tab' | 'Indexes Tab' | 'Schema Tab';
+  };
+}>;
+
+/**
  * This event is fired when the application launch is initiated.
  *
  * @category Other
@@ -2940,6 +2992,42 @@ type CreateIndexStrategiesDocumentationClicked = CommonEvent<{
 }>;
 
 /**
+ * This event is fired when user adds a collection in a data modeling diagram.
+ *
+ * @category Data Modeling
+ */
+type DataModelingDiagramCollectionAdded = CommonEvent<{
+  name: 'Data Modeling Collection Added';
+  payload: {
+    source: 'toolbar';
+  };
+}>;
+
+/**
+ * This event is fired when user removes a collection in a data modeling diagram.
+ *
+ * @category Data Modeling
+ */
+type DataModelingDiagramCollectionRemoved = CommonEvent<{
+  name: 'Data Modeling Collection Removed';
+  payload: {
+    source: 'side_panel';
+  };
+}>;
+
+/**
+ * This event is fired when user renames a collection in a data modeling diagram.
+ *
+ * @category Data Modeling
+ */
+type DataModelingDiagramCollectionRenamed = CommonEvent<{
+  name: 'Data Modeling Collection Renamed';
+  payload: {
+    source: 'side_panel';
+  };
+}>;
+
+/**
  * This event is fired when a new data modeling diagram is created
  *
  * @category Data Modeling
@@ -2960,6 +3048,44 @@ type DataModelingDiagramExported = CommonEvent<{
   name: 'Data Modeling Diagram Exported';
   payload: {
     format: 'png' | 'json' | 'diagram';
+  };
+}>;
+
+/**
+ * This event is fired when user removes a field in a data modeling diagram.
+ *
+ * @category Data Modeling
+ */
+type DataModelingDiagramFieldRemoved = CommonEvent<{
+  name: 'Data Modeling Field Removed';
+  payload: {
+    source: 'side_panel';
+  };
+}>;
+
+/**
+ * This event is fired when user renames a field in a data modeling diagram.
+ *
+ * @category Data Modeling
+ */
+type DataModelingDiagramFieldRenamed = CommonEvent<{
+  name: 'Data Modeling Field Renamed';
+  payload: {
+    source: 'side_panel';
+  };
+}>;
+
+/**
+ * This event is fired when user changes a field type in a data modeling diagram.
+ *
+ * @category Data Modeling
+ */
+type DataModelingDiagramFieldTypeChanged = CommonEvent<{
+  name: 'Data Modeling Field Type Changed';
+  payload: {
+    source: 'side_panel';
+    from?: string;
+    to?: string;
   };
 }>;
 
@@ -3032,6 +3158,169 @@ type ContextMenuItemClicked = CommonEvent<{
   };
 }>;
 
+// Types for the Mock Data Generator events
+type MockDataGeneratorScreen =
+  | 'SCHEMA_CONFIRMATION'
+  | 'SCHEMA_EDITOR'
+  | 'DOCUMENT_COUNT'
+  | 'PREVIEW_DATA'
+  | 'GENERATE_DATA';
+type MongoDBJsonFieldType =
+  | 'String'
+  | 'Number'
+  | 'Boolean'
+  | 'Date'
+  | 'Int32'
+  | 'Decimal128'
+  | 'Long'
+  | 'ObjectId'
+  | 'RegExp'
+  | 'Symbol'
+  | 'MaxKey'
+  | 'MinKey'
+  | 'Binary'
+  | 'Code'
+  | 'Timestamp'
+  | 'DBRef';
+type MockDataScriptStep =
+  | 'install fakerjs'
+  | 'create js file'
+  | 'mongosh script';
+
+/**
+ * This event is fired when the Mock Data Generator CTA button is viewed.
+ *
+ * @category Mock Data Generator
+ */
+type MockDataGeneratorCtaButtonViewedEvent = CommonEvent<{
+  name: 'Mock Data Generator CTA Button Viewed';
+  payload: {
+    button_enabled: boolean;
+    gen_ai_features_enabled: boolean;
+    send_sample_values_enabled: boolean;
+  };
+}>;
+
+/**
+ * This event is fired when the user clicks the enabled "Generate Mock Data" button in the collection tab header.
+ *
+ * @category Mock Data Generator
+ */
+type MockDataGeneratorOpenedEvent = CommonEvent<{
+  name: 'Mock Data Generator Opened';
+  payload: {
+    gen_ai_features_enabled: boolean;
+    send_sample_values_enabled: boolean;
+  };
+}>;
+
+/**
+ * This event is fired when the user views a screen in the Mock Data Generator modal.
+ *
+ * @category Mock Data Generator
+ */
+type MockDataGeneratorScreenViewedEvent = CommonEvent<{
+  name: 'Mock Data Generator Screen Viewed';
+  payload: {
+    screen: MockDataGeneratorScreen;
+  };
+}>;
+
+/**
+ * This event is fired when the user proceeds to the next screen or finishes the mock data generator modal.
+ *
+ * @category Mock Data Generator
+ */
+type MockDataGeneratorScreenProceededEvent = CommonEvent<{
+  name: 'Mock Data Generator Screen Proceeded';
+  payload: {
+    from_screen: MockDataGeneratorScreen;
+    to_screen: MockDataGeneratorScreen | 'finish';
+  };
+}>;
+
+/**
+ * This event is fired when the user closes the mock data generator modal.
+ *
+ * @category Mock Data Generator
+ */
+type MockDataGeneratorDismissedEvent = CommonEvent<{
+  name: 'Mock Data Generator Dismissed';
+  payload: {
+    screen: MockDataGeneratorScreen;
+    gen_ai_features_enabled: boolean;
+    send_sample_values_enabled: boolean;
+  };
+}>;
+
+/**
+ * This event is fired when the user changes the JSON type for a MongoDB field type mapping.
+ *
+ * @category Mock Data Generator
+ */
+type MockDataJsonTypeChangedEvent = CommonEvent<{
+  name: 'Mock Data JSON Type Changed';
+  payload: {
+    field_name: string;
+    previous_json_type: MongoDBJsonFieldType;
+    new_json_type: MongoDBJsonFieldType;
+    previous_faker_method: string;
+    new_faker_method: string;
+  };
+}>;
+
+/**
+ * This event is fired when the user changes the faker method for a MongoDB field type mapping.
+ *
+ * @category Mock Data Generator
+ */
+type MockDataFakerMethodChangedEvent = CommonEvent<{
+  name: 'Mock Data Faker Method Changed';
+  payload: {
+    field_name: string;
+    json_type: MongoDBJsonFieldType;
+    previous_faker_method: string;
+    new_faker_method: string;
+  };
+}>;
+
+/**
+ * This event is fired when the user changes the document count for the mock data generator modal.
+ *
+ * @category Mock Data Generator
+ */
+type MockDataDocumentCountChangedEvent = CommonEvent<{
+  name: 'Mock Data Document Count Changed';
+  payload: {
+    document_count: number;
+  };
+}>;
+
+/**
+ * This event is fired when the user generates a script in the mock data generator modal.
+ *
+ * @category Mock Data Generator
+ */
+type MockDataScriptGeneratedEvent = CommonEvent<{
+  name: 'Mock Data Script Generated';
+  payload: {
+    field_count: number;
+    output_docs_count: number;
+  };
+}>;
+
+/**
+ * This event is fired when the user copies the mongosh script in the script screen of the mock data generator modal.
+ *
+ * @category Mock Data Generator
+ */
+type MockDataScriptCopiedEvent = CommonEvent<{
+  name: 'Mock Data Script Copied';
+  payload: {
+    step: MockDataScriptStep;
+  };
+}>;
+
 export type TelemetryEvent =
   | AggregationCanceledEvent
   | AggregationCopiedEvent
@@ -3052,10 +3341,9 @@ export type TelemetryEvent =
   | AssistantResponseFailedEvent
   | AssistantFeedbackSubmittedEvent
   | AssistantEntryPointUsedEvent
+  | AssistantConfirmationSubmittedEvent
   | AiOptInModalShownEvent
   | AiOptInModalDismissedEvent
-  | AiSignInModalShownEvent
-  | AiSignInModalDismissedEvent
   | AiGenerateQueryClickedEvent
   | AiPromptSubmittedEvent
   | AiQueryFeedbackEvent
@@ -3063,6 +3351,8 @@ export type TelemetryEvent =
   | AiResponseGeneratedEvent
   | ApplicationLaunchedEvent
   | AtlasLinkClickedEvent
+  | AtlasSkillsCtaClickedEvent
+  | AtlasSkillsCtaDismissedEvent
   | AtlasSignInErrorEvent
   | AtlasSignInSuccessEvent
   | AtlasSignOutEvent
@@ -3086,7 +3376,18 @@ export type TelemetryEvent =
   | ConnectionRemovedEvent
   | CurrentOpShowOperationDetailsEvent
   | DatabaseCreatedEvent
+  | DataModelingDiagramCollectionAdded
+  | DataModelingDiagramCollectionRemoved
+  | DataModelingDiagramCollectionRenamed
   | DataModelingDiagramCreated
+  | DataModelingDiagramExported
+  | DataModelingDiagramFieldRemoved
+  | DataModelingDiagramFieldRenamed
+  | DataModelingDiagramFieldTypeChanged
+  | DataModelingDiagramImported
+  | DataModelingDiagramRelationshipAdded
+  | DataModelingDiagramRelationshipEdited
+  | DataModelingDiagramRelationshipDeleted
   | DeleteExportedEvent
   | DeleteExportOpenedEvent
   | DetailViewHideOperationDetailsEvent
@@ -3096,6 +3397,8 @@ export type TelemetryEvent =
   | DocumentDeletedEvent
   | DocumentInsertedEvent
   | DocumentUpdatedEvent
+  | DrawerSectionOpenedEvent
+  | DrawerSectionClosedEvent
   | EditorTypeChangedEvent
   | ErrorFetchingAttributesEvent
   | ExplainPlanExecutedEvent
@@ -3183,10 +3486,15 @@ export type TelemetryEvent =
   | CreateIndexIndexSuggestionsCopied
   | CreateIndexStrategiesDocumentationClicked
   | UUIDEncounteredEvent
-  | DataModelingDiagramExported
-  | DataModelingDiagramImported
-  | DataModelingDiagramRelationshipAdded
-  | DataModelingDiagramRelationshipEdited
-  | DataModelingDiagramRelationshipDeleted
   | ContextMenuOpened
-  | ContextMenuItemClicked;
+  | ContextMenuItemClicked
+  | MockDataGeneratorCtaButtonViewedEvent
+  | MockDataGeneratorOpenedEvent
+  | MockDataGeneratorScreenViewedEvent
+  | MockDataGeneratorScreenProceededEvent
+  | MockDataGeneratorDismissedEvent
+  | MockDataJsonTypeChangedEvent
+  | MockDataFakerMethodChangedEvent
+  | MockDataDocumentCountChangedEvent
+  | MockDataScriptGeneratedEvent
+  | MockDataScriptCopiedEvent;

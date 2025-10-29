@@ -1,10 +1,7 @@
 import React from 'react';
 import { z } from '@mongodb-js/compass-user-data';
-import {
-  type FeatureFlagDefinition,
-  type FeatureFlags,
-  featureFlags,
-} from './feature-flags';
+import type { AtlasCloudFeatureFlags, FeatureFlags } from './feature-flags';
+import { FEATURE_FLAG_PREFERENCES } from './feature-flags';
 import { parseRecord } from './parse-record';
 import {
   extractProxySecrets,
@@ -21,7 +18,7 @@ export type THEMES = (typeof THEMES_VALUES)[number];
 
 const enableDbAndCollStatsDescription: React.ReactNode = (
   <>
-    The{' '}
+    When enabled, Compass occasionally calls the{' '}
     <Link href="https://www.mongodb.com/docs/manual/reference/command/dbStats/#mongodb-dbcommand-dbcmd.dbStats">
       dbStats
     </Link>
@@ -29,7 +26,7 @@ const enableDbAndCollStatsDescription: React.ReactNode = (
     <Link href="https://www.mongodb.com/docs/manual/reference/command/collStats/">
       collStats
     </Link>{' '}
-    command return storage statistics for a given database or collection.
+    commands to access storage statistics for a given database or collection.
     Disabling this setting can help reduce Compass&apos; overhead on your
     MongoDB deployments.
   </>
@@ -61,6 +58,7 @@ export type UserConfigurablePreferences = PermanentFeatureFlags &
     enableFeedbackPanel: boolean;
     networkTraffic: boolean;
     readOnly: boolean;
+    readWrite: boolean;
     enableShell: boolean;
     enableDbAndCollStats: boolean;
     protectConnectionStrings?: boolean;
@@ -81,6 +79,7 @@ export type UserConfigurablePreferences = PermanentFeatureFlags &
       | 'atlas-local'
       | 'atlas-dev'
       | 'atlas-qa'
+      | 'atlas-staging'
       | 'atlas'
       | 'web-sandbox-atlas-local'
       | 'web-sandbox-atlas-dev'
@@ -92,6 +91,7 @@ export type UserConfigurablePreferences = PermanentFeatureFlags &
     enableExplainPlan: boolean;
     enableAtlasSearchIndexes: boolean;
     enableImportExport: boolean;
+    enableMyQueries: boolean;
     enableAggregationBuilderRunPipeline: boolean;
     enableAggregationBuilderExtraOptions: boolean;
     enableGenAISampleDocumentPassing: boolean;
@@ -103,6 +103,8 @@ export type UserConfigurablePreferences = PermanentFeatureFlags &
     enableProxySupport: boolean;
     proxy: string;
     inferNamespacesFromPrivileges?: boolean;
+    // Features that are enabled by default in Date Explorer, but are disabled in Compass
+    maxTimeMSEnvLimit?: number;
   };
 
 /**
@@ -123,6 +125,15 @@ export type InternalUserPreferences = {
   // TODO: Remove this as part of COMPASS-8970.
   enableConnectInNewWindow: boolean;
   showEndOfLifeConnectionModal: boolean;
+  zoomLevel?: number;
+  windowBounds?: {
+    x?: number;
+    y?: number;
+    width?: number;
+    height?: number;
+    isMaximized?: boolean;
+    isFullScreen?: boolean;
+  };
 };
 
 // UserPreferences contains all preferences stored to disk.
@@ -152,7 +163,6 @@ export type NonUserPreferences = {
 
 export type AtlasProjectPreferences = {
   enableGenAIFeaturesAtlasProject: boolean;
-  enableGenAISampleDocumentPassingOnAtlasProject: boolean;
 };
 
 export type AtlasOrgPreferences = {
@@ -196,7 +206,8 @@ export type DeriveValueFunction<T> = (
   /** Get a preference's value from the current set of preferences */
   getValue: <K extends keyof AllPreferences>(key: K) => AllPreferences[K],
   /** Get a preference's state from the current set of preferences */
-  getState: <K extends keyof AllPreferences>(key: K) => PreferenceState
+  getState: <K extends keyof AllPreferences>(key: K) => PreferenceState,
+  atlasCloudFeatureFlags: Partial<AtlasCloudFeatureFlags>
 ) => { value: T; state: PreferenceState };
 
 type SecretsConfiguration<T> = {
@@ -204,7 +215,7 @@ type SecretsConfiguration<T> = {
   merge(extracted: { remainder: string; secrets: string }): T;
 };
 
-type PreferenceDefinition<K extends keyof AllPreferences> = {
+export type PreferenceDefinition<K extends keyof AllPreferences> = {
   /** Whether the preference can be modified through the Settings UI */
   ui: K extends keyof UserConfigurablePreferences ? true : false;
   /** Whether the preference can be set on the command line */
@@ -265,18 +276,6 @@ export type StoredPreferencesValidator = ReturnType<
 
 export type StoredPreferences = z.output<StoredPreferencesValidator>;
 
-// Preference definitions
-const featureFlagsProps: Required<{
-  [K in keyof FeatureFlags]: PreferenceDefinition<K>;
-}> = Object.fromEntries(
-  Object.entries(featureFlags).map(([key, value]) => [
-    key as keyof FeatureFlags,
-    featureFlagToPreferenceDefinition(key, value),
-  ])
-) as unknown as Required<{
-  [K in keyof FeatureFlags]: PreferenceDefinition<K>;
-}>;
-
 const allFeatureFlagsProps: Required<{
   [K in keyof AllFeatureFlags]: PreferenceDefinition<K>;
 }> = {
@@ -312,7 +311,7 @@ const allFeatureFlagsProps: Required<{
     type: 'boolean',
   },
 
-  ...featureFlagsProps,
+  ...FEATURE_FLAG_PREFERENCES,
 };
 
 export const storedUserPreferencesProps: Required<{
@@ -459,6 +458,37 @@ export const storedUserPreferencesProps: Required<{
     type: 'boolean',
   },
   /**
+   * Zoom level for restoring browser zoom state.
+   */
+  zoomLevel: {
+    ui: false,
+    cli: false,
+    global: false,
+    description: null,
+    validator: z.number().optional(),
+    type: 'number',
+  },
+  /**
+   * Window bounds for restoring window size and position.
+   */
+  windowBounds: {
+    ui: false,
+    cli: false,
+    global: false,
+    description: null,
+    validator: z
+      .object({
+        x: z.number().optional(),
+        y: z.number().optional(),
+        width: z.number().optional(),
+        height: z.number().optional(),
+        isMaximized: z.boolean().optional(),
+        isFullScreen: z.boolean().optional(),
+      })
+      .optional(),
+    type: 'object',
+  },
+  /**
    * Enable/disable the AI services. This is currently set
    * in the atlas-service initialization where we make a request to the
    * ai endpoint to check what's enabled for the user (incremental rollout).
@@ -502,6 +532,23 @@ export const storedUserPreferencesProps: Required<{
       short: 'Set Read-Only Mode',
       long: 'Limit Compass strictly to read operations, with all write and delete capabilities removed.',
     },
+    validator: z.boolean().default(false),
+    type: 'boolean',
+  },
+  /**
+   * Removes "admin" features like editing indexes or dropping / renaming
+   * databases. Somewhat matches Atlas "Project Data Access Read Write" user
+   * role
+   */
+  readWrite: {
+    ui: true,
+    cli: false,
+    global: false,
+    description: {
+      short: 'Set Read-Write Mode',
+      long: 'Limit Compass to data read write operations only, with cababilities like renaming / dropping namespaces or editing indexes removed.',
+    },
+    deriveValue: deriveReadOnlyOptionState('readWrite', true),
     validator: z.boolean().default(false),
     type: 'boolean',
   },
@@ -793,10 +840,11 @@ export const storedUserPreferencesProps: Required<{
 
   /**
    * Chooses atlas service backend configuration from preset
-   *  - atlas-local: local mms backend (http://localhost:8080)
-   *  - atlas-dev:   dev mms backend (cloud-dev.mongodb.com)
-   *  - atlas-qa:    qa mms backend (cloud-qa.mongodb.com)
-   *  - atlas:       mms backend (cloud.mongodb.com)
+   *  - atlas-local:      local mms backend (http://localhost:8080)
+   *  - atlas-dev:        dev mms backend (cloud-dev.mongodb.com)
+   *  - atlas-qa:         qa mms backend (cloud-qa.mongodb.com)
+   *  - atlas-staging:    staging mms backend (cloud-stage.mongodb.com)
+   *  - atlas:            mms backend (cloud.mongodb.com)
    */
   atlasServiceBackendPreset: {
     ui: true,
@@ -810,6 +858,7 @@ export const storedUserPreferencesProps: Required<{
         'atlas-local',
         'atlas-dev',
         'atlas-qa',
+        'atlas-staging',
         'atlas',
         'web-sandbox-atlas-local',
         'web-sandbox-atlas-dev',
@@ -999,22 +1048,23 @@ export const storedUserPreferencesProps: Required<{
     validator: z.boolean().default(true),
     type: 'boolean',
   },
-  enableGenAISampleDocumentPassingOnAtlasProject: {
-    ui: false,
-    cli: true,
-    global: true,
-    description: {
-      short: 'Enable Gen AI Sample Document Passing on Atlas Project Level',
-    },
-    validator: z.boolean().default(true),
-    type: 'boolean',
-  },
   enableGenAIFeaturesAtlasOrg: {
     ui: false,
     cli: true,
     global: true,
     description: {
       short: 'Enable Gen AI Features on Atlas Org Level',
+    },
+    validator: z.boolean().default(true),
+    type: 'boolean',
+  },
+  enableMyQueries: {
+    ui: true,
+    cli: true,
+    global: true,
+    description: {
+      short:
+        'Enable My Queries feature to save and manage favorite queries and aggregations',
     },
     validator: z.boolean().default(true),
     type: 'boolean',
@@ -1030,6 +1080,17 @@ export const storedUserPreferencesProps: Required<{
     },
     validator: z.boolean().default(true),
     type: 'boolean',
+  },
+  maxTimeMSEnvLimit: {
+    ui: true,
+    cli: true,
+    global: true,
+    description: {
+      short:
+        'Maximum time limit for operations in environment (milliseconds). Set to 0 for no limit.',
+    },
+    validator: z.number().min(0).default(0),
+    type: 'number',
   },
 
   ...allFeatureFlagsProps,
@@ -1229,36 +1290,29 @@ function deriveFeatureRestrictingOptionsState<K extends keyof AllPreferences>(
   });
 }
 
-/** Helper for defining how to derive value/state for readOnly-affected preferences */
+/**
+ * Helper for defining how to derive value/state for readOnly-affected
+ * preferences. By default if `readOnly` is set to `true` will always return
+ * `false`. If `matchReadOnlyProperty` is `true` will return `true` if
+ * `readOnly` is `true`
+ *
+ * @param property original property name
+ * @param matchReadOnlyProperty whether to match readOnly or not
+ * @returns derived value
+ */
 function deriveReadOnlyOptionState<K extends keyof AllPreferences>(
-  property: K
+  property: K,
+  matchReadOnlyProperty = false
 ): DeriveValueFunction<boolean> {
   return (v, s) => ({
-    value: v(property) && !v('readOnly'),
+    value: Boolean(
+      matchReadOnlyProperty
+        ? v(property) || v('readOnly')
+        : v(property) && !v('readOnly')
+    ),
     state:
       s(property) ?? (v('readOnly') ? s('readOnly') ?? 'derived' : undefined),
   });
-}
-
-// Helper to convert feature flag definitions to preference definitions
-function featureFlagToPreferenceDefinition(
-  key: string,
-  featureFlag: FeatureFlagDefinition
-): PreferenceDefinition<keyof FeatureFlags> {
-  return {
-    cli: true,
-    global: true,
-    ui: true,
-    description: featureFlag.description,
-    // if a feature flag is 'released' it will always return true
-    // regardless of any persisted value.
-    deriveValue:
-      featureFlag.stage === 'released'
-        ? () => ({ value: true, state: 'hardcoded' })
-        : undefined,
-    validator: z.boolean().default(false),
-    type: 'boolean',
-  };
 }
 
 export function getPreferencesValidator() {

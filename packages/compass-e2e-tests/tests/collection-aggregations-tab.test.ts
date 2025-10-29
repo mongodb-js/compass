@@ -19,6 +19,7 @@ import {
 import { saveAggregationPipeline } from '../helpers/commands/save-aggregation-pipeline';
 import type { ChainablePromiseElement } from 'webdriverio';
 import { switchPipelineMode } from '../helpers/commands/switch-pipeline-mode';
+import { isTestingWeb } from '../helpers/test-runner-context';
 
 const { expect } = chai;
 
@@ -157,7 +158,9 @@ describe('Collection aggregations tab', function () {
       '$bucketAuto',
       '$collStats',
       '$count',
+      '$densify',
       '$facet',
+      '$fill',
       '$geoNear',
       '$graphLookup',
       '$group',
@@ -165,43 +168,34 @@ describe('Collection aggregations tab', function () {
       '$limit',
       '$lookup',
       '$match',
+      '$merge',
       '$out',
       '$project',
       '$redact',
       '$replaceRoot',
+      '$replaceWith',
       '$sample',
+      '$search',
+      '$searchMeta',
+      '$set',
+      '$setWindowFields',
       '$skip',
       '$sort',
       '$sortByCount',
+      '$unionWith',
+      '$unset',
       '$unwind',
     ];
 
-    if (serverSatisfies('>= 4.1.11')) {
-      expectedAggregations.push('$search');
-    }
-    if (serverSatisfies('>= 4.2.0')) {
-      expectedAggregations.push('$merge', '$replaceWith', '$set', '$unset');
-    }
-    if (serverSatisfies('>= 4.4.0')) {
-      expectedAggregations.push('$unionWith');
-    }
-    if (serverSatisfies('>= 4.4.9')) {
-      expectedAggregations.push('$searchMeta');
-    }
-    if (serverSatisfies('>= 5.0.0')) {
-      expectedAggregations.push('$setWindowFields');
-    }
-    if (serverSatisfies('>= 5.1.0')) {
-      expectedAggregations.push('$densify');
-    }
-    if (serverSatisfies('>= 5.3.0')) {
-      expectedAggregations.push('$fill');
-    }
     if (serverSatisfies('>=6.0.10 <7.0.0 || >=7.0.2')) {
       expectedAggregations.push('$vectorSearch');
     }
     if (serverSatisfies('>=8.1.0')) {
       expectedAggregations.push('$rankFusion');
+    }
+
+    if (serverSatisfies('>=8.3.0-alpha0')) {
+      expectedAggregations.push('$scoreFusion');
     }
 
     expectedAggregations.sort();
@@ -225,10 +219,6 @@ describe('Collection aggregations tab', function () {
   });
 
   it('shows atlas only stage preview', async function () {
-    if (serverSatisfies('< 4.1.11')) {
-      this.skip();
-    }
-
     await browser.selectStageOperator(0, '$search');
 
     await browser.waitUntil(async function () {
@@ -255,11 +245,6 @@ describe('Collection aggregations tab', function () {
   });
 
   it('shows $merge stage preview', async function () {
-    // $merge operator is supported from 4.2.0
-    if (serverSatisfies('< 4.2.0')) {
-      return this.skip();
-    }
-
     await browser.selectStageOperator(0, '$merge');
     await browser.setCodemirrorEditorValue(
       Selectors.stageEditor(0),
@@ -464,13 +449,6 @@ describe('Collection aggregations tab', function () {
   });
 
   describe('maxTimeMS', function () {
-    before(function () {
-      skipForWeb(
-        this,
-        "we don't support getFeature() and setFeature() in compass-web yet"
-      );
-    });
-
     let maxTimeMSBefore: any;
 
     beforeEach(async function () {
@@ -497,16 +475,20 @@ describe('Collection aggregations tab', function () {
         }
 
         if (maxTimeMSMode === 'preference') {
-          await browser.openSettingsModal();
-          const settingsModal = browser.$(Selectors.SettingsModal);
-          await settingsModal.waitForDisplayed();
-          await browser.clickVisible(Selectors.GeneralSettingsButton);
+          if (isTestingWeb()) {
+            await browser.setFeature('maxTimeMS', 1);
+          } else {
+            await browser.openSettingsModal();
+            const settingsModal = browser.$(Selectors.SettingsModal);
+            await settingsModal.waitForDisplayed();
+            await browser.clickVisible(Selectors.GeneralSettingsButton);
 
-          await browser.setValueVisible(
-            Selectors.SettingsInputElement('maxTimeMS'),
-            '1'
-          );
-          await browser.clickVisible(Selectors.SaveSettingsButton);
+            await browser.setValueVisible(
+              Selectors.SettingsInputElement('maxTimeMS'),
+              '1'
+            );
+            await browser.clickVisible(Selectors.SaveSettingsButton);
+          }
         }
 
         // run a projection that will take lots of time
@@ -623,10 +605,6 @@ describe('Collection aggregations tab', function () {
       '{ $jsonSchema: { bsonType: "object", required: [ "phone" ] } }';
     const VALIDATED_OUT_COLLECTION = 'nestedDocs';
     beforeEach(async function () {
-      if (serverSatisfies('< 5.0.0')) {
-        return this.skip();
-      }
-
       await browser.setValidation({
         connectionName: DEFAULT_CONNECTION_NAME_1,
         database: 'test',
@@ -643,10 +621,6 @@ describe('Collection aggregations tab', function () {
     });
 
     afterEach(async function () {
-      if (serverSatisfies('< 5.0.0')) {
-        return this.skip();
-      }
-
       await browser.setValidation({
         connectionName: DEFAULT_CONNECTION_NAME_1,
         database: 'test',
@@ -703,8 +677,13 @@ describe('Collection aggregations tab', function () {
       await errorDetailsJson.waitForDisplayed();
 
       // exit details
+      // leafygreen autofocus triggers a tooltip on the error code element,
+      // "Tab" to remove the focus
+      await browser.keys('Tab');
+      // now click the close button
       await browser.clickVisible(Selectors.confirmationModalConfirmButton());
-      await errorElement.waitForDisplayed();
+      // wait for the modal to go away
+      await errorDetailsJson.waitForDisplayed({ reverse: true });
     });
   });
 
@@ -755,10 +734,6 @@ describe('Collection aggregations tab', function () {
   });
 
   it('supports $merge as the last stage', async function () {
-    if (serverSatisfies('< 4.2.0')) {
-      return this.skip();
-    }
-
     await browser.selectStageOperator(0, '$merge');
     await browser.setCodemirrorEditorValue(
       Selectors.stageEditor(0),
@@ -823,10 +798,6 @@ describe('Collection aggregations tab', function () {
   });
 
   it('cancels pipeline with $merge as the last stage', async function () {
-    if (serverSatisfies('< 4.2.0')) {
-      return this.skip();
-    }
-
     await browser.selectStageOperator(0, '$merge');
     await browser.setCodemirrorEditorValue(
       Selectors.stageEditor(0),
@@ -951,12 +922,6 @@ describe('Collection aggregations tab', function () {
   });
 
   it('supports cancelling long-running aggregations', async function () {
-    if (serverSatisfies('< 4.4.0')) {
-      // $function expression that we use to simulate slow aggregation is only
-      // supported since server 4.4
-      this.skip();
-    }
-
     const slowQuery = `{
       sleep: {
         $function: {
@@ -1518,10 +1483,6 @@ describe('Collection aggregations tab', function () {
     });
 
     it('handles $merge stage operators', async function () {
-      if (serverSatisfies('< 4.2.0')) {
-        return this.skip();
-      }
-
       await browser.selectStageOperator(0, '$merge');
       await browser.setCodemirrorEditorValue(
         Selectors.stageEditor(0),
@@ -1540,10 +1501,6 @@ describe('Collection aggregations tab', function () {
     });
 
     it('handles atlas only operator', async function () {
-      if (serverSatisfies('< 4.1.11')) {
-        this.skip();
-      }
-
       await browser.selectStageOperator(0, '$search');
       await browser.setCodemirrorEditorValue(Selectors.stageEditor(0), '{}');
 

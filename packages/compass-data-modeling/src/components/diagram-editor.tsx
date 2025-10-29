@@ -10,6 +10,7 @@ import type { DataModelingState } from '../store/reducer';
 import {
   addNewFieldToCollection,
   moveCollection,
+  onAddNestedField,
   selectCollection,
   selectRelationship,
   selectBackground,
@@ -18,7 +19,16 @@ import {
   createNewRelationship,
   addCollection,
   selectField,
+  deleteCollection,
+  deleteRelationship,
+  removeField,
+  renameField,
 } from '../store/diagram';
+import type {
+  EdgeProps,
+  NodeProps,
+  DiagramProps,
+} from '@mongodb-js/compass-components';
 import {
   Banner,
   CancelLoader,
@@ -29,15 +39,15 @@ import {
   useDarkMode,
   useDrawerActions,
   useDrawerState,
+  useThrottledProps,
   rafraf,
+  Diagram,
+  useDiagram,
+  useHotkeys,
+  FocusState,
+  useFocusStateIncludingUnfocused,
 } from '@mongodb-js/compass-components';
 import { cancelAnalysis, retryAnalysis } from '../store/analysis-process';
-import {
-  Diagram,
-  type NodeProps,
-  type EdgeProps,
-  useDiagram,
-} from '@mongodb-js/diagramming';
 import type { FieldPath, StaticModel } from '../services/data-model-storage';
 import DiagramEditorToolbar from './diagram-editor-toolbar';
 import ExportDiagramModal from './export-diagram-modal';
@@ -47,6 +57,7 @@ import {
   getHighlightedFields,
   relationshipToDiagramEdge,
 } from '../utils/nodes-and-edges';
+import toNS from 'mongodb-ns';
 
 const loadingContainerStyles = css({
   width: '100%',
@@ -57,7 +68,7 @@ const loaderStyles = css({
   margin: '0 auto',
 });
 
-const bannerStyles = css({
+const errorBannerStyles = css({
   margin: spacing[200],
   '& > div': {
     display: 'flex',
@@ -65,15 +76,39 @@ const bannerStyles = css({
   },
 });
 
+const dataInfoBannerStyles = css({
+  margin: spacing[400],
+  position: 'absolute',
+  zIndex: 100,
+
+  h4: {
+    marginTop: 0,
+    marginBottom: 0,
+  },
+});
+
 const bannerButtonStyles = css({
   marginLeft: 'auto',
+});
+
+/**
+ * This is a hotfix for COMPASS-9738 where collection names spanning over
+ * multiple lines are not accounted for properly in the diagramming package.
+ * TODO(COMPASS-9738): Remove this hotfix once we have a proper solution in place.
+ */
+const diagramStyles = css({
+  '[data-nodeid] + div > div > div:first-child > div:nth-child(2)': {
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+  },
 });
 
 const ErrorBannerWithRetry: React.FunctionComponent<{
   onRetryClick: () => void;
 }> = ({ children, onRetryClick }) => {
   return (
-    <Banner variant="danger" className={bannerStyles}>
+    <Banner variant="danger" className={errorBannerStyles}>
       <div>{children}</div>
       <Button
         className={bannerButtonStyles}
@@ -104,20 +139,39 @@ const modelPreviewStyles = css({
   },
 });
 
+const displayContentsStyles = css({
+  display: 'contents',
+});
+
+const ZOOM_OPTIONS = {
+  maxZoom: 1,
+  minZoom: 0.25,
+};
+
 type SelectedItems = NonNullable<DiagramState>['selectedItems'];
 
 const DiagramContent: React.FunctionComponent<{
   diagramLabel: string;
+  database: string | null;
+  isNewlyCreatedDiagram?: boolean;
   model: StaticModel | null;
   isInRelationshipDrawingMode: boolean;
-  editErrors?: string[];
   newCollection?: string;
+  onAddFieldToObjectField: (ns: string, parentPath: string[]) => void;
   onAddNewFieldToCollection: (ns: string) => void;
   onMoveCollection: (ns: string, newPosition: [number, number]) => void;
   onCollectionSelect: (namespace: string) => void;
   onRelationshipSelect: (rId: string) => void;
   onFieldSelect: (namespace: string, fieldPath: FieldPath) => void;
+  onRenameField: (
+    namespace: string,
+    fieldPath: FieldPath,
+    newName: string
+  ) => void;
   onDiagramBackgroundClicked: () => void;
+  onDeleteCollection: (ns: string) => void;
+  onDeleteRelationship: (rId: string) => void;
+  onDeleteField: (ns: string, fieldPath: FieldPath) => void;
   selectedItems: SelectedItems;
   onCreateNewRelationship: ({
     localNamespace,
@@ -127,25 +181,37 @@ const DiagramContent: React.FunctionComponent<{
     foreignNamespace: string;
   }) => void;
   onRelationshipDrawn: () => void;
+  DiagramComponent?: typeof Diagram;
 }> = ({
   diagramLabel,
+  database,
+  isNewlyCreatedDiagram,
   model,
   isInRelationshipDrawingMode,
   newCollection,
+  onAddFieldToObjectField,
   onAddNewFieldToCollection,
   onMoveCollection,
   onCollectionSelect,
   onRelationshipSelect,
   onFieldSelect,
+  onRenameField,
   onDiagramBackgroundClicked,
   onCreateNewRelationship,
   onRelationshipDrawn,
+  onDeleteCollection,
+  onDeleteRelationship,
+  onDeleteField,
   selectedItems,
+  DiagramComponent = Diagram,
 }) => {
   const isDarkMode = useDarkMode();
   const diagram = useRef(useDiagram());
   const { openDrawer } = useDrawerActions();
   const { isDrawerOpen } = useDrawerState();
+  const [showDataInfoBanner, setshowDataInfoBanner] = useState(
+    isNewlyCreatedDiagram ?? false
+  );
 
   const setDiagramContainerRef = useCallback((ref: HTMLDivElement | null) => {
     if (ref) {
@@ -153,16 +219,6 @@ const DiagramContent: React.FunctionComponent<{
       (ref as any)._diagram = diagram.current;
     }
   }, []);
-
-  const edges = useMemo<EdgeProps[]>(() => {
-    return (model?.relationships ?? []).map((relationship) => {
-      const selected =
-        !!selectedItems &&
-        selectedItems.type === 'relationship' &&
-        selectedItems.id === relationship.id;
-      return relationshipToDiagramEdge(relationship, selected);
-    });
-  }, [model?.relationships, selectedItems]);
 
   const nodes = useMemo<NodeProps[]>(() => {
     const highlightedFields = getHighlightedFields(
@@ -181,19 +237,26 @@ const DiagramContent: React.FunctionComponent<{
           selectedItems?.type === 'field' && selectedItems.namespace === coll.ns
             ? selectedItems.fieldPath
             : undefined,
-        onClickAddNewFieldToCollection: () =>
-          onAddNewFieldToCollection(coll.ns),
         selected,
         isInRelationshipDrawingMode,
       });
     });
   }, [
-    onAddNewFieldToCollection,
     model?.collections,
     model?.relationships,
     selectedItems,
     isInRelationshipDrawingMode,
   ]);
+
+  const edges = useMemo<EdgeProps[]>(() => {
+    return (model?.relationships ?? []).map((relationship) => {
+      const selected =
+        !!selectedItems &&
+        selectedItems.type === 'relationship' &&
+        selectedItems.id === relationship.id;
+      return relationshipToDiagramEdge(relationship, selected, nodes);
+    });
+  }, [model?.relationships, selectedItems, nodes]);
 
   // Fit to view on initial mount
   useEffect(() => {
@@ -248,6 +311,129 @@ const DiagramContent: React.FunctionComponent<{
     [onRelationshipDrawn, onCreateNewRelationship]
   );
 
+  const onNodeClick = useCallback(
+    (_evt: React.MouseEvent | null, node: NodeProps) => {
+      if (node.type !== 'collection') {
+        return;
+      }
+      onCollectionSelect(node.id);
+      openDrawer(DATA_MODELING_DRAWER_ID);
+    },
+    [onCollectionSelect, openDrawer]
+  );
+
+  const onEdgeClick = useCallback(
+    (_evt: React.MouseEvent | null, edge: EdgeProps) => {
+      onRelationshipSelect(edge.id);
+      openDrawer(DATA_MODELING_DRAWER_ID);
+    },
+    [onRelationshipSelect, openDrawer]
+  );
+
+  const onFieldClick = useCallback(
+    (_evt: React.MouseEvent, { id: fieldPath, nodeId: namespace }) => {
+      _evt.stopPropagation(); // TODO(COMPASS-9659): should this be handled by the diagramming package?
+      if (!Array.isArray(fieldPath)) return; // TODO(COMPASS-9659): could be avoided with generics in the diagramming package
+      onFieldSelect(namespace, fieldPath);
+      openDrawer(DATA_MODELING_DRAWER_ID);
+    },
+    [onFieldSelect, openDrawer]
+  );
+
+  const onNodeDragStop = useCallback(
+    (evt: React.MouseEvent, node: NodeProps) => {
+      onMoveCollection(node.id, [node.position.x, node.position.y]);
+    },
+    [onMoveCollection]
+  );
+
+  const onPaneClick = useCallback(() => {
+    onDiagramBackgroundClicked();
+  }, [onDiagramBackgroundClicked]);
+
+  const onConnect = useCallback(
+    ({ source, target }: { source: string; target: string }) => {
+      handleNodesConnect(source, target);
+    },
+    [handleNodesConnect]
+  );
+
+  const onClickAddFieldToCollection = useCallback(
+    (event: React.MouseEvent<Element>, ns: string) => {
+      event.stopPropagation();
+      onAddNewFieldToCollection(ns);
+    },
+    [onAddNewFieldToCollection]
+  );
+
+  const onClickAddFieldToObjectField = useCallback(
+    (event: React.MouseEvent, nodeId: string, parentPath: string[]) => {
+      onAddFieldToObjectField(nodeId, parentPath);
+    },
+    [onAddFieldToObjectField]
+  );
+
+  const deleteItem = useCallback(() => {
+    switch (selectedItems?.type) {
+      case 'collection':
+        onDeleteCollection(selectedItems.id);
+        break;
+      case 'relationship':
+        onDeleteRelationship(selectedItems.id);
+        break;
+      case 'field':
+        onDeleteField(selectedItems.namespace, selectedItems.fieldPath);
+        break;
+      default:
+        break;
+    }
+  }, [selectedItems, onDeleteCollection, onDeleteRelationship, onDeleteField]);
+  useHotkeys('Backspace', deleteItem, [deleteItem]);
+  useHotkeys('Delete', deleteItem, [deleteItem]);
+  useHotkeys(
+    'Escape',
+    () => {
+      onDiagramBackgroundClicked();
+    },
+    [onDiagramBackgroundClicked]
+  );
+
+  const diagramProps: DiagramProps = useMemo(
+    () =>
+      ({
+        isDarkMode,
+        title: diagramLabel,
+        edges,
+        nodes,
+        onAddFieldToNodeClick: onClickAddFieldToCollection,
+        onAddFieldToObjectFieldClick: onClickAddFieldToObjectField,
+        onNodeClick,
+        onPaneClick,
+        onEdgeClick,
+        onFieldClick,
+        onFieldNameChange: onRenameField,
+        onNodeDragStop,
+        onConnect,
+      } satisfies DiagramProps),
+    [
+      isDarkMode,
+      diagramLabel,
+      edges,
+      nodes,
+      onClickAddFieldToCollection,
+      onClickAddFieldToObjectField,
+      onNodeClick,
+      onPaneClick,
+      onEdgeClick,
+      onFieldClick,
+      onRenameField,
+      onNodeDragStop,
+      onConnect,
+    ]
+  );
+
+  const throttledDiagramProps = useThrottledProps(diagramProps);
+
   return (
     <div
       ref={setDiagramContainerRef}
@@ -255,42 +441,27 @@ const DiagramContent: React.FunctionComponent<{
       data-testid="diagram-editor-container"
     >
       <div className={modelPreviewStyles} data-testid="model-preview">
-        <Diagram
-          isDarkMode={isDarkMode}
-          title={diagramLabel}
-          edges={edges}
-          nodes={nodes}
+        {showDataInfoBanner && (
+          <Banner
+            variant="info"
+            dismissible
+            onClose={() => setshowDataInfoBanner(false)}
+            className={dataInfoBannerStyles}
+            data-testid="data-info-banner"
+          >
+            <h4>Questions about your data?</h4>
+            This diagram was generated based on a sample of documents from{' '}
+            {database ?? 'a database'}. Changes made to the diagram will not
+            impact your data
+          </Banner>
+        )}
+        <DiagramComponent
+          {...throttledDiagramProps}
           // With threshold too low clicking sometimes gets confused with
-          // dragging
+          // dragging.
           nodeDragThreshold={5}
-          onNodeClick={(_evt, node) => {
-            if (node.type !== 'collection') {
-              return;
-            }
-            onCollectionSelect(node.id);
-            openDrawer(DATA_MODELING_DRAWER_ID);
-          }}
-          onPaneClick={onDiagramBackgroundClicked}
-          onEdgeClick={(_evt, edge) => {
-            onRelationshipSelect(edge.id);
-            openDrawer(DATA_MODELING_DRAWER_ID);
-          }}
-          onFieldClick={(_evt, { id: fieldPath, nodeId: namespace }) => {
-            _evt.stopPropagation(); // TODO(COMPASS-9659): should this be handled by the diagramming package?
-            if (!Array.isArray(fieldPath)) return; // TODO(COMPASS-9659): could be avoided with generics in the diagramming package
-            onFieldSelect(namespace, fieldPath);
-            openDrawer(DATA_MODELING_DRAWER_ID);
-          }}
-          fitViewOptions={{
-            maxZoom: 1,
-            minZoom: 0.25,
-          }}
-          onNodeDragStop={(evt, node) => {
-            onMoveCollection(node.id, [node.position.x, node.position.y]);
-          }}
-          onConnect={({ source, target }) => {
-            handleNodesConnect(source, target);
-          }}
+          fitViewOptions={ZOOM_OPTIONS}
+          className={diagramStyles}
         />
       </div>
     </div>
@@ -300,21 +471,31 @@ const DiagramContent: React.FunctionComponent<{
 const ConnectedDiagramContent = connect(
   (state: DataModelingState) => {
     const { diagram } = state;
+    const model = diagram ? selectCurrentModelFromState(state) : null;
     return {
-      model: diagram ? selectCurrentModelFromState(state) : null,
+      model,
       diagramLabel: diagram?.name || 'Schema Preview',
       selectedItems: state.diagram?.selectedItems ?? null,
       newCollection: diagram?.draftCollection,
+      isNewlyCreatedDiagram: diagram?.isNewlyCreated,
+      database: model?.collections[0]?.ns
+        ? toNS(model.collections[0].ns).database
+        : null, // TODO(COMPASS-9718): use diagram.database
     };
   },
   {
     onAddNewFieldToCollection: addNewFieldToCollection,
+    onAddFieldToObjectField: onAddNestedField,
     onMoveCollection: moveCollection,
     onCollectionSelect: selectCollection,
     onRelationshipSelect: selectRelationship,
     onFieldSelect: selectField,
+    onRenameField: renameField,
     onDiagramBackgroundClicked: selectBackground,
     onCreateNewRelationship: createNewRelationship,
+    onDeleteCollection: deleteCollection,
+    onDeleteRelationship: deleteRelationship,
+    onDeleteField: removeField,
   }
 )(DiagramContent);
 
@@ -324,12 +505,14 @@ const DiagramEditor: React.FunctionComponent<{
   onRetryClick: () => void;
   onCancelClick: () => void;
   onAddCollectionClick: () => void;
+  DiagramComponent?: typeof Diagram;
 }> = ({
   step,
   diagramId,
   onRetryClick,
   onCancelClick,
   onAddCollectionClick,
+  DiagramComponent = Diagram,
 }) => {
   const { openDrawer } = useDrawerActions();
   let content;
@@ -349,6 +532,8 @@ const DiagramEditor: React.FunctionComponent<{
     onAddCollectionClick();
     openDrawer(DATA_MODELING_DRAWER_ID);
   }, [openDrawer, onAddCollectionClick]);
+
+  const [focusProps, focusState] = useFocusStateIncludingUnfocused();
 
   if (step === 'NO_DIAGRAM_SELECTED') {
     return null;
@@ -389,23 +574,27 @@ const DiagramEditor: React.FunctionComponent<{
         key={diagramId}
         isInRelationshipDrawingMode={isInRelationshipDrawingMode}
         onRelationshipDrawn={onRelationshipDrawn}
+        DiagramComponent={DiagramComponent}
       ></ConnectedDiagramContent>
     );
   }
 
   return (
-    <WorkspaceContainer
-      toolbar={
-        <DiagramEditorToolbar
-          onRelationshipDrawingToggle={handleRelationshipDrawingToggle}
-          isInRelationshipDrawingMode={isInRelationshipDrawingMode}
-          onAddCollectionClick={handleAddCollectionClick}
-        />
-      }
-    >
-      {content}
-      <ExportDiagramModal />
-    </WorkspaceContainer>
+    <div className={displayContentsStyles} {...focusProps}>
+      <WorkspaceContainer
+        toolbar={
+          <DiagramEditorToolbar
+            diagramEditorHasFocus={focusState !== FocusState.NoFocus}
+            onRelationshipDrawingToggle={handleRelationshipDrawingToggle}
+            isInRelationshipDrawingMode={isInRelationshipDrawingMode}
+            onAddCollectionClick={handleAddCollectionClick}
+          />
+        }
+      >
+        {content}
+        <ExportDiagramModal />
+      </WorkspaceContainer>
+    </div>
   );
 };
 
@@ -414,7 +603,6 @@ export default connect(
     const { diagram, step } = state;
     return {
       step: step,
-      editErrors: diagram?.editErrors,
       diagramId: diagram?.id,
     };
   },

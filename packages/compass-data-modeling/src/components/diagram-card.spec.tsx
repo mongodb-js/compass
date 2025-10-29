@@ -9,6 +9,7 @@ describe('DiagramCard', () => {
     diagram: {
       id: 'test-diagram',
       connectionId: 'test-connection',
+      database: 'someDatabase',
       name: 'Test Diagram',
       createdAt: '2021-10-01T00:00:00.000Z',
       updatedAt: '2023-10-03T00:00:00.000',
@@ -31,7 +32,6 @@ describe('DiagramCard', () => {
           },
         },
       ] as [Edit],
-      databases: 'someDatabase',
     },
     onOpen: () => {},
     onDelete: () => {},

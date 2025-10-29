@@ -14,7 +14,10 @@ import {
   Long,
   Decimal128,
 } from 'bson';
-import { processSchema } from './transform-schema-to-field-info';
+import {
+  processSchema,
+  ProcessSchemaUnsupportedStateError,
+} from './transform-schema-to-field-info';
 import type { Schema } from 'mongodb-schema';
 
 describe('processSchema', function () {
@@ -53,13 +56,14 @@ describe('processSchema', function () {
 
     const result = processSchema(schema);
 
-    expect(result).to.deep.equal({
+    expect(result.fieldInfo).to.deep.equal({
       mixed: {
         type: 'String', // Should pick the most probable type
-        sample_values: ['text'],
+        sampleValues: ['text'],
         probability: 1.0,
       },
     });
+    expect(result.arrayLengthMap).to.deep.equal({});
   });
 
   it('filters out undefined and null types', function () {
@@ -103,13 +107,14 @@ describe('processSchema', function () {
 
     const result = processSchema(schema);
 
-    expect(result).to.deep.equal({
+    expect(result.fieldInfo).to.deep.equal({
       optional: {
         type: 'String',
-        sample_values: ['value'],
+        sampleValues: ['value'],
         probability: 0.67,
       },
     });
+    expect(result.arrayLengthMap).to.deep.equal({});
   });
 
   it('handles fields with no types', function () {
@@ -130,7 +135,8 @@ describe('processSchema', function () {
 
     const result = processSchema(schema);
 
-    expect(result).to.deep.equal({});
+    expect(result.fieldInfo).to.deep.equal({});
+    expect(result.arrayLengthMap).to.deep.equal({});
   });
 
   it('handles empty schema', function () {
@@ -141,10 +147,11 @@ describe('processSchema', function () {
 
     const result = processSchema(schema);
 
-    expect(result).to.deep.equal({});
+    expect(result.fieldInfo).to.deep.equal({});
+    expect(result.arrayLengthMap).to.deep.equal({});
   });
 
-  it('limits sample values to 10', function () {
+  it('limits sample values to 5', function () {
     const manyValues = Array.from({ length: 20 }, (_, i) => `value${i}`);
 
     const schema: Schema = {
@@ -173,8 +180,10 @@ describe('processSchema', function () {
 
     const result = processSchema(schema);
 
-    expect(result.field.sample_values).to.have.length(10);
-    expect(result.field.sample_values).to.deep.equal(manyValues.slice(0, 10));
+    expect(result.fieldInfo.field.sampleValues).to.have.length(5);
+    expect(result.fieldInfo.field.sampleValues).to.deep.equal(
+      manyValues.slice(0, 5)
+    );
   });
 
   it('transforms simple primitive fields', function () {
@@ -258,28 +267,29 @@ describe('processSchema', function () {
 
     const result = processSchema(schema);
 
-    expect(result).to.deep.equal({
+    expect(result.fieldInfo).to.deep.equal({
       name: {
         type: 'String',
-        sample_values: ['John', 'Jane', 'Bob'],
+        sampleValues: ['John', 'Jane', 'Bob'],
         probability: 1.0,
       },
       age: {
         type: 'Number',
-        sample_values: [25, 30, 35],
+        sampleValues: [25, 30, 35],
         probability: 0.9,
       },
       isActive: {
         type: 'Boolean',
-        sample_values: [true, false, true],
+        sampleValues: [true, false, true],
         probability: 0.8,
       },
       createdAt: {
         type: 'Date',
-        sample_values: [new Date('2023-01-01'), new Date('2023-06-15')],
+        sampleValues: [new Date('2023-01-01'), new Date('2023-06-15')],
         probability: 0.7,
       },
     });
+    expect(result.arrayLengthMap).to.deep.equal({});
   });
 
   it('handles various BSON types', function () {
@@ -471,58 +481,185 @@ describe('processSchema', function () {
 
     const result = processSchema(schema);
 
-    expect(result).to.deep.equal({
+    expect(result.fieldInfo).to.deep.equal({
       objectId: {
         type: 'ObjectId',
-        sample_values: ['642d766b7300158b1f22e972'],
+        sampleValues: ['642d766b7300158b1f22e972'],
         probability: 1.0,
       },
       binary: {
         type: 'Binary',
-        sample_values: ['dGVzdA=='],
+        // sampleValues property should be absent for Binary fields
         probability: 1.0,
       },
       regex: {
         type: 'RegExp',
-        sample_values: ['pattern'],
+        sampleValues: ['pattern'],
         probability: 1.0,
       },
       code: {
         type: 'Code',
-        sample_values: ['function() {}'],
+        sampleValues: ['function() {}'],
         probability: 1.0,
       },
       long: {
         type: 'Long',
-        sample_values: [123456789],
+        sampleValues: [123456789],
         probability: 1.0,
       },
       decimal: {
         type: 'Decimal128',
-        sample_values: [123.456],
+        sampleValues: [123.456],
         probability: 1.0,
       },
       timestamp: {
         type: 'Timestamp',
-        sample_values: [4294967297],
+        sampleValues: [4294967297],
         probability: 1.0,
       },
       maxKey: {
         type: 'MaxKey',
-        sample_values: ['MaxKey'],
+        sampleValues: ['MaxKey'],
         probability: 1.0,
       },
       minKey: {
         type: 'MinKey',
-        sample_values: ['MinKey'],
+        sampleValues: ['MinKey'],
         probability: 1.0,
       },
       symbol: {
         type: 'Symbol',
-        sample_values: ['symbol'],
+        sampleValues: ['symbol'],
         probability: 1.0,
       },
     });
+    expect(result.arrayLengthMap).to.deep.equal({});
+  });
+
+  it('excludes sample values for Binary fields to avoid massive payloads', function () {
+    const embedding = new Binary(Buffer.from([1, 2, 3, 4])); // Test Binary field logic
+    const schema: Schema = {
+      fields: [
+        {
+          name: 'plot_embedding',
+          path: ['plot_embedding'],
+          count: 1,
+          type: ['Binary'],
+          probability: 1.0,
+          hasDuplicates: false,
+          types: [
+            {
+              name: 'Binary',
+              bsonType: 'Binary',
+              path: ['plot_embedding'],
+              count: 1,
+              probability: 1.0,
+              values: [embedding],
+            },
+          ],
+        },
+        {
+          name: 'regular_field',
+          path: ['regular_field'],
+          count: 1,
+          type: ['String'],
+          probability: 1.0,
+          hasDuplicates: false,
+          types: [
+            {
+              name: 'String',
+              bsonType: 'String',
+              path: ['regular_field'],
+              count: 1,
+              probability: 1.0,
+              values: ['test'],
+            },
+          ],
+        },
+      ],
+      count: 1,
+    };
+
+    const result = processSchema(schema);
+
+    expect(result.fieldInfo).to.deep.equal({
+      plot_embedding: {
+        type: 'Binary',
+        // sampleValues property should be absent for Binary fields
+        probability: 1.0,
+      },
+      regular_field: {
+        type: 'String',
+        sampleValues: ['test'], // Should still have sample values for non-Binary fields
+        probability: 1.0,
+      },
+    });
+    expect(result.arrayLengthMap).to.deep.equal({});
+  });
+
+  it('truncates very long sample values to prevent massive payloads', function () {
+    const longText = 'A'.repeat(1000);
+    const schema: Schema = {
+      fields: [
+        {
+          name: 'longField',
+          path: ['longField'],
+          count: 1,
+          type: ['String'],
+          probability: 1.0,
+          hasDuplicates: false,
+          types: [
+            {
+              name: 'String',
+              bsonType: 'String',
+              path: ['longField'],
+              count: 1,
+              probability: 1.0,
+              values: [longText, 'short'],
+            },
+          ],
+        },
+      ],
+      count: 1,
+    };
+
+    const result = processSchema(schema);
+
+    expect(result.fieldInfo.longField.sampleValues).to.have.length(2);
+    expect(result.fieldInfo.longField.sampleValues![0]).to.equal(
+      'A'.repeat(300) + '...'
+    );
+    expect(result.fieldInfo.longField.sampleValues![1]).to.equal('short');
+  });
+
+  it('rounds probability to 2 decimal places', function () {
+    const schema: Schema = {
+      fields: [
+        {
+          name: 'field',
+          path: ['field'],
+          count: 1,
+          type: ['String'],
+          probability: 0.23076923076923078, // Very precise decimal
+          hasDuplicates: false,
+          types: [
+            {
+              name: 'String',
+              bsonType: 'String',
+              path: ['field'],
+              count: 1,
+              probability: 1.0,
+              values: ['test'],
+            },
+          ],
+        },
+      ],
+      count: 1,
+    };
+
+    const result = processSchema(schema);
+
+    expect(result.fieldInfo.field.probability).to.equal(0.23); // Rounded to 2 decimal places
   });
 
   it('transforms nested document field', function () {
@@ -589,18 +726,19 @@ describe('processSchema', function () {
 
     const result = processSchema(schema);
 
-    expect(result).to.deep.equal({
+    expect(result.fieldInfo).to.deep.equal({
       'user.name': {
         type: 'String',
-        sample_values: ['John'],
+        sampleValues: ['John'],
         probability: 1.0,
       },
       'user.age': {
         type: 'Number',
-        sample_values: [25, 30],
+        sampleValues: [25, 30],
         probability: 0.8,
       },
     });
+    expect(result.arrayLengthMap).to.deep.equal({});
   });
 
   it('transforms array field', function () {
@@ -643,12 +781,15 @@ describe('processSchema', function () {
 
     const result = processSchema(schema);
 
-    expect(result).to.deep.equal({
+    expect(result.fieldInfo).to.deep.equal({
       'tags[]': {
         type: 'String',
-        sample_values: ['red', 'blue', 'green'],
+        sampleValues: ['red', 'blue', 'green'],
         probability: 1.0,
       },
+    });
+    expect(result.arrayLengthMap).to.deep.equal({
+      'tags[]': 2, // Math.round(1.5) = 2
     });
   });
 
@@ -717,13 +858,14 @@ describe('processSchema', function () {
 
     const result = processSchema(schema);
 
-    expect(result).to.deep.equal({
+    expect(result.fieldInfo).to.deep.equal({
       'level1.level2.value': {
         type: 'String',
-        sample_values: ['deep'],
+        sampleValues: ['deep'],
         probability: 1.0,
       },
     });
+    expect(result.arrayLengthMap).to.deep.equal({});
   });
 
   it('handles arrays of documents', function () {
@@ -802,17 +944,20 @@ describe('processSchema', function () {
 
     const result = processSchema(schema);
 
-    expect(result).to.deep.equal({
+    expect(result.fieldInfo).to.deep.equal({
       'items[].id': {
         type: 'Number',
-        sample_values: [1, 2],
+        sampleValues: [1, 2],
         probability: 1.0,
       },
       'items[].cost': {
         type: 'Number',
-        sample_values: [10.5, 25.0],
+        sampleValues: [10.5, 25.0],
         probability: 1.0,
       },
+    });
+    expect(result.arrayLengthMap).to.deep.equal({
+      'items[]': 2, // averageLength: 2
     });
   });
 
@@ -889,12 +1034,17 @@ describe('processSchema', function () {
 
     const result = processSchema(schema);
 
-    expect(result).to.deep.equal({
+    expect(result.fieldInfo).to.deep.equal({
       'cube[][][]': {
         type: 'Number',
-        sample_values: [1, 2, 3, 4, 5, 6, 7, 8],
+        sampleValues: [1, 2, 3, 4, 5],
         probability: 1.0,
       },
+    });
+    expect(result.arrayLengthMap).to.deep.equal({
+      'cube[]': 2,
+      'cube[][]': 2,
+      'cube[][][]': 2,
     });
   });
 
@@ -988,17 +1138,21 @@ describe('processSchema', function () {
 
     const result = processSchema(schema);
 
-    expect(result).to.deep.equal({
+    expect(result.fieldInfo).to.deep.equal({
       'matrix[][].x': {
         type: 'Number',
-        sample_values: [1, 3],
+        sampleValues: [1, 3],
         probability: 1.0,
       },
       'matrix[][].y': {
         type: 'Number',
-        sample_values: [2, 4],
+        sampleValues: [2, 4],
         probability: 1.0,
       },
+    });
+    expect(result.arrayLengthMap).to.deep.equal({
+      'matrix[]': 2,
+      'matrix[][]': 1,
     });
   });
 
@@ -1092,17 +1246,374 @@ describe('processSchema', function () {
 
     const result = processSchema(schema);
 
-    expect(result).to.deep.equal({
+    expect(result.fieldInfo).to.deep.equal({
       'teams[].name': {
         type: 'String',
-        sample_values: ['Team A', 'Team B'],
+        sampleValues: ['Team A', 'Team B'],
         probability: 1.0,
       },
       'teams[].members[]': {
         type: 'String',
-        sample_values: ['Alice', 'Bob', 'Charlie'],
+        sampleValues: ['Alice', 'Bob', 'Charlie'],
         probability: 1.0,
       },
     });
+    expect(result.arrayLengthMap).to.deep.equal({
+      'teams[]': 2,
+      'teams[].members[]': 2, // Math.round(1.5) = 2
+    });
+  });
+
+  /**
+   * Verifies malformed field paths can be caught by bugs in the construction logic.
+   * These are unlikely to occur with valid `Schema` inputs to `processSchema`.
+   */
+  describe('validateFieldPath error conditions', function () {
+    it('throws error for empty field parts', function () {
+      const schema: Schema = {
+        fields: [
+          {
+            name: 'parent',
+            path: ['parent'],
+            count: 1,
+            type: ['Document'],
+            probability: 1.0,
+            hasDuplicates: false,
+            types: [
+              {
+                name: 'Document',
+                bsonType: 'Document',
+                path: ['parent'],
+                count: 1,
+                probability: 1.0,
+                fields: [
+                  {
+                    name: '', // Empty field name
+                    path: ['parent', ''],
+                    count: 1,
+                    type: ['String'],
+                    probability: 1.0,
+                    hasDuplicates: false,
+                    types: [
+                      {
+                        name: 'String',
+                        bsonType: 'String',
+                        path: ['parent', ''],
+                        count: 1,
+                        probability: 1.0,
+                        values: ['test'],
+                      },
+                    ],
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+        count: 1,
+      };
+
+      expect(() => processSchema(schema)).to.throw(
+        "invalid fieldPath 'parent.': field parts cannot be empty"
+      );
+    });
+
+    it('throws error for a field part that only contains "[]"', function () {
+      const schema: Schema = {
+        fields: [
+          {
+            name: '[]', // Field name is just "[]"
+            path: ['[]'],
+            count: 1,
+            type: ['String'],
+            probability: 1.0,
+            hasDuplicates: false,
+            types: [
+              {
+                name: 'String',
+                bsonType: 'String',
+                path: ['[]'],
+                count: 1,
+                probability: 1.0,
+                values: ['test'],
+              },
+            ],
+          },
+        ],
+        count: 1,
+      };
+
+      expect(() => processSchema(schema)).to.throw(
+        ProcessSchemaUnsupportedStateError,
+        "Feature is unsupported for field names that end with '[]'; field name: '[]'"
+      );
+    });
+
+    it('throws error for field names ending with []', function () {
+      const schema: Schema = {
+        fields: [
+          {
+            name: 'users[]',
+            path: ['users[]'],
+            count: 1,
+            type: ['String'],
+            probability: 1.0,
+            hasDuplicates: false,
+            types: [
+              {
+                name: 'String',
+                bsonType: 'String',
+                path: ['users[]'],
+                count: 1,
+                probability: 1.0,
+                values: ['test'],
+              },
+            ],
+          },
+        ],
+        count: 1,
+      };
+
+      expect(() => processSchema(schema)).to.throw(
+        ProcessSchemaUnsupportedStateError,
+        "Feature is unsupported for field names that end with '[]'; field name: 'users[]'"
+      );
+    });
+
+    it('throws error for nested field names ending with []', function () {
+      const schema: Schema = {
+        fields: [
+          {
+            name: 'parent',
+            path: ['parent'],
+            count: 1,
+            type: ['Document'],
+            probability: 1.0,
+            hasDuplicates: false,
+            types: [
+              {
+                name: 'Document',
+                bsonType: 'Document',
+                path: ['parent'],
+                count: 1,
+                probability: 1.0,
+                fields: [
+                  {
+                    name: 'child[]',
+                    path: ['parent', 'child[]'],
+                    count: 1,
+                    type: ['String'],
+                    probability: 1.0,
+                    hasDuplicates: false,
+                    types: [
+                      {
+                        name: 'String',
+                        bsonType: 'String',
+                        path: ['parent', 'child[]'],
+                        count: 1,
+                        probability: 1.0,
+                        values: ['test'],
+                      },
+                    ],
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+        count: 1,
+      };
+
+      expect(() => processSchema(schema)).to.throw(
+        ProcessSchemaUnsupportedStateError,
+        "Feature is unsupported for field names that end with '[]'; field name: 'child[]'"
+      );
+    });
+
+    it('throws error for field names containing dots', function () {
+      const schema: Schema = {
+        fields: [
+          {
+            name: 'user.name',
+            path: ['user.name'],
+            count: 1,
+            type: ['String'],
+            probability: 1.0,
+            hasDuplicates: false,
+            types: [
+              {
+                name: 'String',
+                bsonType: 'String',
+                path: ['user.name'],
+                count: 1,
+                probability: 1.0,
+                values: ['test'],
+              },
+            ],
+          },
+        ],
+        count: 1,
+      };
+
+      expect(() => processSchema(schema)).to.throw(
+        ProcessSchemaUnsupportedStateError,
+        "Feature is unsupported for field names that contain a '.'; field name: 'user.name'"
+      );
+    });
+  });
+
+  describe('Array Length Map', function () {
+    it('should handle array length bounds (min 1, max 50)', function () {
+      const schema: Schema = {
+        fields: [
+          {
+            name: 'smallArray',
+            path: ['smallArray'],
+            count: 1,
+            type: ['Array'],
+            probability: 1.0,
+            hasDuplicates: false,
+            types: [
+              {
+                name: 'Array',
+                bsonType: 'Array',
+                path: ['smallArray'],
+                count: 1,
+                probability: 1.0,
+                lengths: [0.3], // Very small average
+                averageLength: 0.3,
+                totalCount: 1,
+                types: [
+                  {
+                    name: 'String',
+                    bsonType: 'String',
+                    path: ['smallArray'],
+                    count: 1,
+                    probability: 1.0,
+                    values: ['test'],
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            name: 'largeArray',
+            path: ['largeArray'],
+            count: 1,
+            type: ['Array'],
+            probability: 1.0,
+            hasDuplicates: false,
+            types: [
+              {
+                name: 'Array',
+                bsonType: 'Array',
+                path: ['largeArray'],
+                count: 1,
+                probability: 1.0,
+                lengths: [100], // Very large average
+                averageLength: 100,
+                totalCount: 100,
+                types: [
+                  {
+                    name: 'Number',
+                    bsonType: 'Number',
+                    path: ['largeArray'],
+                    count: 100,
+                    probability: 1.0,
+                    values: [new Int32(1)],
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+        count: 1,
+      };
+
+      const result = processSchema(schema);
+
+      expect(result.arrayLengthMap).to.deep.equal({
+        'smallArray[]': 1, // Min 1
+        'largeArray[]': 50, // Max 50
+      });
+    });
+
+    it('should handle missing averageLength with default', function () {
+      const schema: Schema = {
+        fields: [
+          {
+            name: 'defaultArray',
+            path: ['defaultArray'],
+            count: 1,
+            type: ['Array'],
+            probability: 1.0,
+            hasDuplicates: false,
+            types: [
+              {
+                name: 'Array',
+                bsonType: 'Array',
+                path: ['defaultArray'],
+                count: 1,
+                probability: 1.0,
+                lengths: [2],
+                // averageLength is undefined
+                totalCount: 2,
+                types: [
+                  {
+                    name: 'String',
+                    bsonType: 'String',
+                    path: ['defaultArray'],
+                    count: 2,
+                    probability: 1.0,
+                    values: ['a', 'b'],
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+        count: 1,
+      };
+
+      const result = processSchema(schema);
+
+      expect(result.arrayLengthMap).to.deep.equal({
+        'defaultArray[]': 3, // DEFAULT_ARRAY_LENGTH = 3
+      });
+    });
+  });
+
+  it('throws ProcessSchemaUnsupportedStateError when Binary data is encountered', function () {
+    const binaryData = new Binary(Buffer.from('test'));
+
+    // Simulate a bug or edge case where Binary data somehow gets through
+    const schema: Schema = {
+      fields: [
+        {
+          name: 'testField',
+          path: ['testField'],
+          count: 1,
+          type: ['String'], // Pretend it's a String type to bypass Binary filtering
+          probability: 1.0,
+          hasDuplicates: false,
+          types: [
+            {
+              name: 'String', // Pretend it's a String type to bypass Binary filtering
+              bsonType: 'String',
+              path: ['testField'],
+              count: 1,
+              probability: 1.0,
+              values: [binaryData], // But include Binary data in values
+            },
+          ],
+        },
+      ],
+      count: 1,
+    };
+
+    expect(() => processSchema(schema)).to.throw(
+      ProcessSchemaUnsupportedStateError,
+      'Binary data encountered in sample value conversion. Binary fields should be excluded from sample value processing.'
+    );
   });
 });

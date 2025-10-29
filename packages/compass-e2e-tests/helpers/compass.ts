@@ -63,7 +63,10 @@ const { Z_SYNC_FLUSH } = zlib.constants;
 
 const packageCompassAsync = promisify(packageCompass);
 
-// should we test compass-web (true) or compass electron (false)?
+/**
+ * should we test compass-web (true) or compass electron (false)?
+ * @deprecated use `isTestingWeb` instead
+ */
 export const TEST_COMPASS_WEB = isTestingWeb();
 
 // Extending the WebdriverIO's types to allow a verbose option to the chromedriver
@@ -659,6 +662,10 @@ async function startCompassElectron(
 
   // Making sure end-of-life connection modal is not shown, simplify any test connecting to such a server
   process.env.COMPASS_DISABLE_END_OF_LIFE_CONNECTION_MODAL = 'true';
+
+  // TODO(COMPASS-9977) Turn off virtual scrolling in e2e tests until we can fix
+  // browser.scrollToVirtualItem() to work with it
+  process.env.COMPASS_DISABLE_VIRTUAL_TABLE_RENDERING = 'true';
 
   const options = {
     automationProtocol: 'webdriver' as const,

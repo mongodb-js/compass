@@ -1,0 +1,281 @@
+import React, { useCallback, useMemo } from 'react';
+import { connect } from 'react-redux';
+import {
+  Banner,
+  Body,
+  Code,
+  Copyable,
+  css,
+  cx,
+  InlineCode,
+  Language,
+  Link,
+  Overline,
+  palette,
+  spacing,
+  useDarkMode,
+} from '@mongodb-js/compass-components';
+import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
+import toNS from 'mongodb-ns';
+import { generateScript } from './script-generation-utils';
+import { DataGenerationStep, type FakerSchema } from './types';
+import type { ArrayLengthMap } from './script-generation-utils';
+import type { CollectionState } from '../../modules/collection-tab';
+import { SCHEMA_ANALYSIS_STATE_COMPLETE } from '../../schema-analysis-types';
+import {
+  type TrackFunction,
+  useTelemetry,
+  useTrackOnChange,
+} from '@mongodb-js/compass-telemetry/provider';
+import { DEFAULT_CONNECTION_STRING_FALLBACK } from './constants';
+import { redactConnectionString } from 'mongodb-connection-string-url';
+
+const RUN_SCRIPT_COMMAND = (connectionString: string) => `
+mongosh "${redactConnectionString(connectionString)}" \\
+  --username <your-username> \\
+  --password "<your-password>" \\
+  mockdatascript.js
+`;
+
+const outerSectionStyles = css({
+  display: 'flex',
+  flexDirection: 'column',
+  gap: spacing[400],
+});
+
+const listStyles = css({
+  listStylePosition: 'inside',
+  listStyleType: 'disc',
+  marginLeft: spacing[200],
+});
+
+const copyableStyles = css({
+  marginLeft: spacing[400],
+});
+
+const sectionInstructionStyles = css({
+  margin: `${spacing[200]}px 0`,
+});
+
+const resourceSectionStyles = css({
+  padding: `${spacing[400]}px ${spacing[800]}px`,
+  borderRadius: spacing[400],
+});
+
+const instructionTextStyle = css({
+  marginTop: spacing[200],
+});
+
+const resourceSectionLightStyles = css({
+  backgroundColor: palette.gray.light3,
+});
+
+const resourceSectionDarkStyles = css({
+  backgroundColor: palette.gray.dark3,
+});
+
+const resourceSectionHeader = css({
+  marginBottom: spacing[300],
+});
+
+const scriptCodeBlockStyles = css({
+  maxHeight: '230px',
+  overflowY: 'auto',
+});
+
+interface ScriptScreenProps {
+  fakerSchema: FakerSchema | null;
+  namespace: string;
+  arrayLengthMap: ArrayLengthMap;
+  documentCount: number;
+}
+
+const ScriptScreen = ({
+  fakerSchema,
+  namespace,
+  arrayLengthMap,
+  documentCount,
+}: ScriptScreenProps) => {
+  const isDarkMode = useDarkMode();
+  const connectionInfo = useConnectionInfo();
+  const track = useTelemetry();
+
+  const connectionString =
+    connectionInfo?.atlasMetadata?.userConnectionString ??
+    DEFAULT_CONNECTION_STRING_FALLBACK;
+
+  const { database, collection } = toNS(namespace);
+
+  // Generate the script using the faker schema
+  const scriptResult = useMemo(() => {
+    // Handle case where fakerSchema is not yet available
+    if (!fakerSchema) {
+      return {
+        success: false as const,
+        error: 'Faker schema not available',
+      };
+    }
+
+    return generateScript(fakerSchema, {
+      documentCount,
+      databaseName: database,
+      collectionName: collection,
+      arrayLengthMap,
+    });
+  }, [fakerSchema, documentCount, database, collection, arrayLengthMap]);
+
+  const onScriptCopy = useCallback(
+    ({ step }: { step: DataGenerationStep }) => {
+      track('Mock Data Script Copied', {
+        step: step,
+      });
+    },
+    [track]
+  );
+
+  useTrackOnChange(
+    (track: TrackFunction) => {
+      if (scriptResult.success && fakerSchema) {
+        track('Mock Data Script Generated', {
+          field_count: Object.keys(fakerSchema).length,
+          output_docs_count: documentCount,
+        });
+      }
+    },
+    [scriptResult.success, fakerSchema, documentCount]
+  );
+
+  return (
+    <section className={outerSectionStyles}>
+      {!scriptResult.success && (
+        <Banner variant="danger">
+          <strong>Script Generation Failed:</strong> {scriptResult.error}
+          <br />
+          Please go back to the start screen to re-submit the collection schema.
+        </Banner>
+      )}
+      <section>
+        <Body as="h2" baseFontSize={16} weight="medium">
+          Prerequisites
+        </Body>
+        <Body className={instructionTextStyle}>
+          To run the generated script, you must:
+        </Body>
+        <ul className={listStyles}>
+          <li>
+            Install{' '}
+            <Link href="https://www.mongodb.com/docs/mongodb-shell/install/">
+              mongosh
+            </Link>
+          </li>
+          <li>
+            Install{' '}
+            <Link href="https://fakerjs.dev/guide/#installation">faker.js</Link>
+            <Copyable
+              className={copyableStyles}
+              onCopy={() =>
+                onScriptCopy({ step: DataGenerationStep.INSTALL_FAKERJS })
+              }
+            >
+              npm install @faker-js/faker
+            </Copyable>
+          </li>
+        </ul>
+      </section>
+      <section>
+        <Body as="h2" baseFontSize={16} weight="medium">
+          1. Create a .js file with the following script
+        </Body>
+        <Body className={sectionInstructionStyles}>
+          In the directory that you created, create a file named
+          mockdatascript.js (or any name you&apos;d like).
+        </Body>
+        <Code
+          copyButtonAppearance={scriptResult.success ? 'hover' : 'persist'}
+          language={Language.JavaScript}
+          className={scriptCodeBlockStyles}
+          onCopy={() =>
+            onScriptCopy({ step: DataGenerationStep.CREATE_JS_FILE })
+          }
+        >
+          {scriptResult.success
+            ? scriptResult.script
+            : '// Script generation failed.'}
+        </Code>
+      </section>
+      <section>
+        <Body as="h2" baseFontSize={16} weight="medium">
+          2. Run the script with <InlineCode>mongosh</InlineCode>
+        </Body>
+        <Body className={sectionInstructionStyles}>
+          In the same working directory run the command below. Please{' '}
+          <strong>paste in your username and password</strong> where there are
+          placeholders.{' '}
+          <em>
+            Note that this will add data to your cluster and will not be
+            reversible.
+          </em>
+        </Body>
+        <Code
+          language={Language.Bash}
+          onCopy={() => onScriptCopy({ step: DataGenerationStep.RUN_SCRIPT })}
+        >
+          {RUN_SCRIPT_COMMAND(connectionString)}
+        </Code>
+      </section>
+      <section
+        className={cx(
+          resourceSectionStyles,
+          isDarkMode ? resourceSectionDarkStyles : resourceSectionLightStyles
+        )}
+      >
+        <Overline className={resourceSectionHeader}>Resources</Overline>
+        <ul>
+          <li>
+            <Link href="https://www.mongodb.com/docs/atlas/synthetic-data/">
+              Generating Synthetic Data with MongoDB
+            </Link>
+          </li>
+          <li>
+            <Link href="https://www.mongodb.com/docs/mongodb-shell/">
+              Learn About the MongoDB Shell
+            </Link>
+          </li>
+          {connectionInfo.atlasMetadata &&
+            connectionInfo.atlasMetadata.projectId && (
+              <li>
+                <Link
+                  href={`/v2/${connectionInfo.atlasMetadata.projectId}#/security/database/users`}
+                >
+                  Access your Database Users
+                </Link>
+              </li>
+            )}
+        </ul>
+      </section>
+    </section>
+  );
+};
+
+const mapStateToProps = (state: CollectionState) => {
+  const { fakerSchemaGeneration, namespace, schemaAnalysis } = state;
+
+  return {
+    fakerSchema:
+      fakerSchemaGeneration.status === 'completed'
+        ? fakerSchemaGeneration.editedFakerSchema
+        : null,
+    namespace,
+    arrayLengthMap:
+      schemaAnalysis?.status === SCHEMA_ANALYSIS_STATE_COMPLETE
+        ? schemaAnalysis.arrayLengthMap
+        : {},
+    // TODO(CLOUDP-333856): When document count step is implemented, get documentCount from state
+    documentCount: 100,
+  };
+};
+
+const ConnectedScriptScreen = connect(mapStateToProps)(ScriptScreen);
+
+export default ConnectedScriptScreen;
+export type { ScriptScreenProps };

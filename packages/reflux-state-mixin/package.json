@@ -5,15 +5,13 @@
     "name": "MongoDB Inc",
     "email": "compass@mongodb.com"
   },
-  "publishConfig": {
-    "access": "public"
-  },
+  "private": true,
   "bugs": {
     "url": "https://jira.mongodb.org/projects/COMPASS/issues",
     "email": "compass@mongodb.com"
   },
   "homepage": "https://github.com/mongodb-js/compass",
-  "version": "1.2.18",
+  "version": "1.2.24",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/compass.git"
@@ -35,8 +33,8 @@
   "scripts": {
     "bootstrap": "npm run compile",
     "prepublishOnly": "npm run compile && compass-scripts check-exports-exist",
-    "compile": "tsc -p tsconfig.json && gen-esm-wrapper . ./dist/.esm-wrapper.mjs",
-    "typecheck": "tsc -p tsconfig-lint.json --noEmit",
+    "compile": "tsc -p tsconfig-build.json && gen-esm-wrapper . ./dist/.esm-wrapper.mjs",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
     "eslint": "eslint-compass",
     "prettier": "prettier-compass",
     "lint": "npm run eslint . && npm run prettier -- --check .",
@@ -53,15 +51,15 @@
     "reflux": "^0.4.1"
   },
   "devDependencies": {
-    "@mongodb-js/eslint-config-compass": "^1.4.7",
-    "@mongodb-js/mocha-config-compass": "^1.7.0",
-    "@mongodb-js/prettier-config-compass": "^1.2.8",
-    "@mongodb-js/tsconfig-compass": "^1.2.9",
+    "@mongodb-js/eslint-config-compass": "^1.4.12",
+    "@mongodb-js/mocha-config-compass": "^1.7.2",
+    "@mongodb-js/prettier-config-compass": "^1.2.9",
+    "@mongodb-js/tsconfig-compass": "^1.2.12",
     "@types/mocha": "^9.0.0",
     "depcheck": "^1.4.1",
     "gen-esm-wrapper": "^1.1.0",
     "mocha": "^10.2.0",
     "nyc": "^15.1.0",
-    "typescript": "^5.9.2"
+    "typescript": "^5.9.3"
   }
 }

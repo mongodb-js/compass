@@ -5,7 +5,7 @@ import {
 } from 'compass-preferences-model/provider';
 import type { AtlasService } from '@mongodb-js/atlas-service/provider';
 import { AtlasServiceError } from '@mongodb-js/atlas-service/renderer';
-import type { ConnectionInfo } from '@mongodb-js/compass-connections/provider';
+import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import type { Document } from 'mongodb';
 import type { Logger } from '@mongodb-js/compass-logging';
 import { EJSON } from 'bson';
@@ -218,7 +218,6 @@ const aiURLConfig = {
 export interface MockDataSchemaRawField {
   type: string;
   sampleValues?: unknown[];
-  probability?: number;
 }
 
 export interface MockDataSchemaRequest {
@@ -227,30 +226,27 @@ export interface MockDataSchemaRequest {
   schema: Record<string, MockDataSchemaRawField>;
   validationRules?: Record<string, unknown> | null;
   includeSampleValues?: boolean;
+  requestId: string;
+  signal: AbortSignal;
 }
 
 export const MockDataSchemaResponseShape = z.object({
-  content: z.object({
-    fields: z.array(
-      z.object({
-        fieldPath: z.string(),
-        mongoType: z.string(),
-        fakerMethod: z.string(),
-        fakerArgs: z.array(
-          z.union([
-            z.object({
-              json: z.string(),
-            }),
-            z.string(),
-            z.number(),
-            z.boolean(),
-          ])
-        ),
-        isArray: z.boolean(),
-        probability: z.number(),
-      })
-    ),
-  }),
+  fields: z.array(
+    z.object({
+      fieldPath: z.string(),
+      fakerMethod: z.string(),
+      fakerArgs: z.array(
+        z.union([
+          z.object({
+            json: z.string(),
+          }),
+          z.string(),
+          z.number(),
+          z.boolean(),
+        ])
+      ),
+    })
+  ),
 });
 
 export type MockDataSchemaResponse = z.infer<
@@ -320,7 +316,7 @@ export class AtlasAiService {
   }
 
   private throwIfAINotEnabled() {
-    if (process.env.COMPASS_E2E_SKIP_ATLAS_SIGNIN === 'true') {
+    if (process.env.COMPASS_E2E_SKIP_AI_OPT_IN === 'true') {
       return;
     }
     if (!isAIFeatureEnabled(this.preferences.getPreferences())) {
@@ -461,7 +457,10 @@ export class AtlasAiService {
     const { collectionName, databaseName } = input;
     let schema = input.schema;
 
-    const url = this.getUrlForEndpoint('mock-data-schema', connectionInfo);
+    const url = `${this.getUrlForEndpoint(
+      'mock-data-schema',
+      connectionInfo
+    )}?request_id=${encodeURIComponent(input.requestId)}`;
 
     if (!input.includeSampleValues) {
       const newSchema: Record<
@@ -469,7 +468,7 @@ export class AtlasAiService {
         Omit<MockDataSchemaRawField, 'sampleValues'>
       > = {};
       for (const [k, v] of Object.entries(schema)) {
-        newSchema[k] = { type: v.type, probability: v.probability };
+        newSchema[k] = { type: v.type };
       }
       schema = newSchema;
     }
@@ -480,11 +479,13 @@ export class AtlasAiService {
         collectionName,
         databaseName,
         schema,
+        validationRules: input.validationRules,
       }),
       headers: {
         'Content-Type': 'application/json',
         Accept: 'application/json',
       },
+      signal: input.signal,
     });
 
     try {

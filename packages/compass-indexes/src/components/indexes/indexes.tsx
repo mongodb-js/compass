@@ -9,8 +9,13 @@ import {
   usePersistedState,
   EmptyContent,
   Body,
+  AtlasSkillsBanner,
 } from '@mongodb-js/compass-components';
-
+import {
+  useTelemetry,
+  SkillsBannerContextEnum,
+  useAtlasSkillsBanner,
+} from '@mongodb-js/compass-telemetry/provider';
 import IndexesToolbar from '../indexes-toolbar/indexes-toolbar';
 import RegularIndexesTable from '../regular-indexes-table/regular-indexes-table';
 import SearchIndexesTable from '../search-indexes-table/search-indexes-table';
@@ -106,7 +111,7 @@ const ViewNotSearchCompatibleBanner = ({
         </>
       )}
       This view is incompatible with search indexes. Only views containing
-      $addFields, $set or $match stages with the $expr operator are compatible
+      $match stages with the $expr operator, $addFields, or $set are compatible
       with search indexes.{' '}
       {!hasNoSearchIndexes && 'Edit the view to rebuild search indexes.'}{' '}
       <Link
@@ -140,6 +145,8 @@ const AtlasIndexesBanner = ({
       These indexes can be created and viewed under{' '}
       {atlasMetadata ? (
         <Link
+          target="_blank"
+          rel="noopener"
           href={getAtlasSearchIndexesLink({
             clusterName: atlasMetadata.clusterName,
             namespace,
@@ -193,9 +200,19 @@ export function Indexes({
   serverVersion,
   collectionStats,
 }: IndexesProps) {
+  const track = useTelemetry();
   const [atlasBannerDismissed, setDismissed] = usePersistedState(
     DISMISSED_SEARCH_INDEXES_BANNER_LOCAL_STORAGE_KEY,
     false
+  );
+
+  // @experiment Skills in Atlas  | Jira Epic: CLOUDP-346311
+  const [atlasSkillsBanner, setSkillDismissed] = usePersistedState(
+    'mongodb_compass_dismissedAtlasIndexSkillBanner',
+    false
+  );
+  const { shouldShowAtlasSkillsBanner } = useAtlasSkillsBanner(
+    SkillsBannerContextEnum.Indexes
   );
 
   const errorMessage =
@@ -284,6 +301,23 @@ export function Indexes({
       >
         <div className={indexesContainersStyles}>
           {getBanner()}
+
+          <AtlasSkillsBanner
+            ctaText="Learn how to design efficient indexes to speed up queries."
+            skillsUrl="https://learn.mongodb.com/courses/indexing-design-fundamentals?team=growth"
+            onCloseSkillsBanner={() => {
+              setSkillDismissed(true);
+              track('Atlas Skills CTA Dismissed', {
+                context: 'Indexes Tab',
+              });
+            }}
+            showBanner={shouldShowAtlasSkillsBanner && !atlasSkillsBanner}
+            onCtaClick={() => {
+              track('Atlas Skills CTA Clicked', {
+                context: 'Indexes Tab',
+              });
+            }}
+          />
           {!isReadonlyView && currentIndexesView === 'regular-indexes' && (
             <RegularIndexesTable />
           )}

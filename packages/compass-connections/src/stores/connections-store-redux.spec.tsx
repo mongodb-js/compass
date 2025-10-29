@@ -154,6 +154,9 @@ describe('CompassConnections store', function () {
       const { connectionsStore } = renderCompassConnections({
         preferences: {
           enableAIAssistant: true,
+          enableGenAIFeatures: true,
+          enableGenAIFeaturesAtlasOrg: true,
+          cloudFeatureRolloutAccess: { GEN_AI_COMPASS: true },
         },
         connectFn: sinon
           .stub()
@@ -171,6 +174,32 @@ describe('CompassConnections store', function () {
       await waitFor(() => {
         expect(screen.getByText('Debug for me')).to.exist;
       });
+    });
+
+    it('should not show debug action when assistant is disabled', async function () {
+      const { connectionsStore } = renderCompassConnections({
+        preferences: {
+          enableAIAssistant: false,
+          enableGenAIFeatures: false,
+          enableGenAIFeaturesAtlasOrg: false,
+          cloudFeatureRolloutAccess: { GEN_AI_COMPASS: false },
+        },
+        connectFn: sinon
+          .stub()
+          .rejects(new Error('Failed to connect to cluster')),
+      });
+
+      const connectionInfo = createDefaultConnectionInfo();
+
+      void connectionsStore.actions.connect(connectionInfo);
+
+      await waitFor(() => {
+        expect(screen.getByText('Failed to connect to cluster')).to.exist;
+      });
+
+      // The debug button should not be present when assistant is disabled
+      expect(screen.queryByText('Debug for me')).to.not.exist;
+      expect(screen.queryByTestId('connection-error-debug')).to.not.exist;
     });
 
     it('should show non-genuine modal at the end of connection if non genuine mongodb detected', async function () {

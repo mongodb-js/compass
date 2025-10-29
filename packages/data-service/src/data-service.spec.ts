@@ -1222,10 +1222,10 @@ describe('DataService', function () {
 
       it('allows to pass fallbackReadPreference and sets the read preference when unset', async function () {
         sandbox.spy(dataService, 'aggregateCursor');
-        const cursor = dataService.sampleCursor(
+        const cursor1 = dataService.sampleCursor(
           'db.coll',
-          {},
-          {},
+          undefined,
+          undefined, // testing that it works with no options provided
           {
             fallbackReadPreference: 'secondaryPreferred',
           }
@@ -1237,7 +1237,24 @@ describe('DataService', function () {
           [{ $sample: { size: 1000 } }],
           { allowDiskUse: true, readPreference: 'secondaryPreferred' }
         );
-        await cursor.close();
+        await cursor1.close();
+
+        const cursor2 = dataService.sampleCursor(
+          'db.coll',
+          {},
+          {}, // testing that it works with empty options
+          {
+            fallbackReadPreference: 'secondaryPreferred',
+          }
+        );
+
+        // eslint-disable-next-line @typescript-eslint/unbound-method
+        expect(dataService.aggregateCursor).to.have.been.calledWith(
+          'db.coll',
+          [{ $sample: { size: 1000 } }],
+          { allowDiskUse: true, readPreference: 'secondaryPreferred' }
+        );
+        await cursor2.close();
       });
 
       it('allows to pass fallbackReadPreference and does not set the read preference when it is already set', async function () {

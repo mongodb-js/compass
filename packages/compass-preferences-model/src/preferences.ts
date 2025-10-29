@@ -13,6 +13,7 @@ import type {
 import { allPreferencesProps } from './preferences-schema';
 import { InMemoryStorage } from './preferences-in-memory-storage';
 import type { PreferencesStorage } from './preferences-storage';
+import type { AtlasCloudFeatureFlags } from './feature-flags';
 import type { getActiveUser } from '.';
 
 export interface PreferencesAccess {
@@ -51,6 +52,7 @@ export class Preferences {
     cli: Partial<AllPreferences>;
     global: Partial<AllPreferences>;
     hardcoded: Partial<AllPreferences>;
+    atlasCloud: Partial<AtlasCloudFeatureFlags>;
   };
 
   constructor({
@@ -70,6 +72,7 @@ export class Preferences {
       cli: {},
       global: {},
       hardcoded: {},
+      atlasCloud: {},
       ...globalPreferences,
     };
 
@@ -210,6 +213,7 @@ export class Preferences {
 
     const originalValues = { ...values };
     const originalStates = { ...states };
+    const atlasCloudFeatureFlags = this._globalPreferences.atlasCloud;
 
     function deriveValue<K extends keyof AllPreferences>(
       key: K
@@ -226,7 +230,8 @@ export class Preferences {
         (k) =>
           (k as unknown) === key ? originalValues[k] : deriveValue(k).value,
         (k) =>
-          (k as unknown) === key ? originalStates[k] : deriveValue(k).state
+          (k as unknown) === key ? originalStates[k] : deriveValue(k).state,
+        atlasCloudFeatureFlags
       );
     }
 

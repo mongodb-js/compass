@@ -4,6 +4,7 @@ import {
   applyEdit,
   getCurrentDiagramFromState,
   getCurrentModel,
+  getTypeNameForTelemetry,
   openDiagram,
   redoEdit,
   undoEdit,
@@ -17,6 +18,11 @@ import type {
   StaticModel,
 } from '../services/data-model-storage';
 import { UUID } from 'bson';
+import Sinon from 'sinon';
+import {
+  type AnalysisFinishedAction,
+  AnalysisProcessActionTypes,
+} from './analysis-process';
 
 const model: StaticModel = {
   collections: [
@@ -59,6 +65,7 @@ const loadedDiagram: MongoDBDataModelDescription = {
   id: 'diagram-id',
   name: 'diagram-name',
   connectionId: 'connection-id',
+  database: 'db',
   createdAt: '2023-10-01T00:00:00.000Z',
   updatedAt: '2023-10-05T00:00:00.000Z',
   edits: [{ type: 'SetModel', model } as Edit],
@@ -66,9 +73,11 @@ const loadedDiagram: MongoDBDataModelDescription = {
 
 describe('Data Modeling store', function () {
   let store: DataModelingStore;
+  let openToastSpy: Sinon.SinonSpy;
 
   beforeEach(function () {
-    store = setupStore();
+    openToastSpy = Sinon.spy();
+    store = setupStore({}, undefined, openToastSpy);
   });
 
   describe('New Diagram', function () {
@@ -77,6 +86,7 @@ describe('Data Modeling store', function () {
       const newDiagram = {
         name: 'New Diagram',
         connectionId: 'connection-id',
+        database: 'db',
         collections: [
           {
             ns: 'db.collection1',
@@ -91,14 +101,16 @@ describe('Data Modeling store', function () {
         ],
         relations: model.relationships,
       };
-      store.dispatch({
-        type: 'data-modeling/analysis-stats/ANALYSIS_FINISHED',
+      const analysisFinishedAction: AnalysisFinishedAction = {
+        type: AnalysisProcessActionTypes.ANALYSIS_FINISHED,
         ...newDiagram,
-      });
+      };
+      store.dispatch(analysisFinishedAction);
 
       const initialDiagram = getCurrentDiagramFromState(store.getState());
       expect(initialDiagram.name).to.equal(newDiagram.name);
       expect(initialDiagram.connectionId).to.equal(newDiagram.connectionId);
+      expect(initialDiagram.database).to.equal(newDiagram.database);
       expect(initialDiagram.edits).to.have.length(1);
       expect(initialDiagram.edits[0].type).to.equal('SetModel');
       const initialEdit = initialDiagram.edits[0] as Extract<
@@ -129,6 +141,7 @@ describe('Data Modeling store', function () {
       expect(diagram.id).to.equal(loadedDiagram.id);
       expect(diagram.name).to.equal(loadedDiagram.name);
       expect(diagram.connectionId).to.equal(loadedDiagram.connectionId);
+      expect(diagram.database).to.equal(loadedDiagram.database);
       expect(diagram.edits).to.deep.equal(loadedDiagram.edits);
     });
   });
@@ -156,7 +169,7 @@ describe('Data Modeling store', function () {
 
       const state = store.getState();
       const diagram = getCurrentDiagramFromState(state);
-      expect(state.diagram?.editErrors).to.be.undefined;
+      expect(openToastSpy).not.to.have.been.called;
       expect(diagram.edits).to.have.length(2);
       expect(diagram.edits[0]).to.deep.equal(loadedDiagram.edits[0]);
       expect(diagram.edits[1]).to.deep.include(edit);
@@ -192,7 +205,7 @@ describe('Data Modeling store', function () {
 
       const state = store.getState();
       const diagram = getCurrentDiagramFromState(state);
-      expect(state.diagram?.editErrors).to.be.undefined;
+      expect(openToastSpy).not.to.have.been.called;
       expect(diagram.edits).to.have.length(2);
       expect(diagram.edits[0]).to.deep.equal(loadedDiagram.edits[0]);
       expect(diagram.edits[1]).to.deep.include({
@@ -216,9 +229,8 @@ describe('Data Modeling store', function () {
       } as unknown as Edit;
       store.dispatch(applyEdit(edit));
 
-      const editErrors = store.getState().diagram?.editErrors;
-      expect(editErrors).to.have.length(1);
-      expect(editErrors && editErrors[0]).to.equal(
+      expect(openToastSpy).to.have.been.calledOnce;
+      expect(openToastSpy.firstCall.args[1].description).to.include(
         "'relationship,relationship' is required"
       );
       const diagram = getCurrentDiagramFromState(store.getState());
@@ -352,7 +364,7 @@ describe('Data Modeling store', function () {
 
       const state = store.getState();
       const diagram = getCurrentDiagramFromState(state);
-      expect(state.diagram?.editErrors).to.be.undefined;
+      expect(openToastSpy).not.to.have.been.called;
       expect(diagram.edits).to.have.length(2);
       expect(diagram.edits[0]).to.deep.equal(loadedDiagram.edits[0]);
       expect(diagram.edits[1]).to.deep.include(edit);
@@ -372,11 +384,21 @@ describe('Data Modeling store', function () {
       } as unknown as Edit;
       store.dispatch(applyEdit(edit));
 
-      const editErrors = store.getState().diagram?.editErrors;
-      expect(editErrors).to.have.length(1);
-      expect(editErrors && editErrors[0]).to.equal("'newPosition' is required");
+      expect(openToastSpy).to.have.been.calledOnce;
+      expect(openToastSpy.firstCall.args[1].description).to.include(
+        "'newPosition' is required"
+      );
       const diagram = getCurrentDiagramFromState(store.getState());
       expect(diagram.edits).to.deep.equal(loadedDiagram.edits);
+    });
+
+    it('should handle an invalid RenameCollection edit', function () {
+      store.dispatch(openDiagram(loadedDiagram));
+      store.dispatch(renameCollection('nonExisting', 'newName'));
+      expect(openToastSpy).to.have.been.calledOnce;
+      expect(openToastSpy.firstCall.args[1].description).to.include(
+        "Collection 'nonExisting' not found"
+      );
     });
   });
 
@@ -572,5 +594,32 @@ describe('Data Modeling store', function () {
         'prop5B',
       ]);
     });
+  });
+});
+
+describe('getTypeNameForTelemetry', () => {
+  it('should return undefined when bsonType is undefined', () => {
+    const result = getTypeNameForTelemetry(undefined);
+    expect(result).to.be.undefined;
+  });
+
+  it('should return undefined when bsonType is an empty array', () => {
+    const result = getTypeNameForTelemetry([]);
+    expect(result).to.be.undefined;
+  });
+
+  it('should return the string when bsonType is a string', () => {
+    const result = getTypeNameForTelemetry('string');
+    expect(result).to.equal('string');
+  });
+
+  it('should return the single element when bsonType is an array with one element', () => {
+    const result = getTypeNameForTelemetry(['string']);
+    expect(result).to.equal('string');
+  });
+
+  it('should return "mixed" when bsonType is an array with multiple elements', () => {
+    const result = getTypeNameForTelemetry(['string', 'number']);
+    expect(result).to.equal('mixed');
   });
 });

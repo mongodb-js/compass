@@ -16,6 +16,9 @@ export const SettingsModalTabSelector = (name: string) =>
   `${SettingsModal} [data-testid="sidebar-${name}-item"]`;
 export const GeneralSettingsButton = SettingsModalTabSelector('general');
 export const GeneralSettingsContent = `${SettingsModal} [data-testid="general-settings"]`;
+export const ArtificialIntelligenceSettingsButton =
+  SettingsModalTabSelector('ai');
+export const ArtificialIntelligenceSettingsContent = `${SettingsModal} [data-testid="gen-ai-settings"]`;
 
 export const SettingsInputElement = (settingName: string): string => {
   return `${SettingsModal} [data-testid="${settingName}"]`;
@@ -500,56 +503,47 @@ export const ShellInput = '[data-testid="shell-input"]';
 export const ShellOutput = '[data-testid="shell-output"]';
 
 // Instance screen
-export const DatabasesTable = '[data-testid="database-grid"]';
+export const DatabasesTable = '[data-testid="databases-list"]';
 export const InstanceCreateDatabaseButton =
   '[data-testid="create-controls"] button';
 export const InstanceRefreshDatabaseButton =
   '[data-testid="refresh-controls"] button';
-export const DatabaseCard = '[data-testid="database-grid-item"]';
-// assume that there's only one hovered card at a time and that the first and only button is the drop button
-export const DatabaseCardDrop =
-  '[data-testid="database-grid"] [data-testid="namespace-card-actions"] button';
+export const DatabaseStatLoader =
+  '[data-testid="databases-list"] [data-testid="placeholder"]';
+
+export const databaseRow = (dbName: string): string => {
+  return `[data-testid="databases-list-row-${dbName}"]`;
+};
+
+export const databaseRowDrop = (dbName: string): string => {
+  return `${databaseRow(dbName)} button[data-action="delete"]`;
+};
+
+// Performance screen
 export const ServerStats = '.serverstats';
-export const DatabaseStatLoader = `${DatabaseCard} [data-testid="namespace-param-fallback"][data-ready=false]`;
-
-export const databaseCard = (dbName: string): string => {
-  return `${DatabaseCard}[data-id="${dbName}"]`;
-};
-
-export const databaseCardClickable = (dbName: string): string => {
-  // webdriver does not like clicking on the card even though the card has the
-  // click handler, so click on the title
-  return `${databaseCard(dbName)} [title="${dbName}"]`;
-};
 
 // Database screen
-export const CollectionsGrid = '[data-testid="collection-grid"]';
+export const CollectionsTable = '[data-testid="collections-list"]';
 export const DatabaseCreateCollectionButton =
   '[data-testid="create-controls"] button';
 export const DatabaseRefreshCollectionButton =
   '[data-testid="refresh-controls"] button';
-export const CollectionCard = '[data-testid="collection-grid-item"]';
-// assume that there's only one hovered card at a time and that the first and only button is the drop button
-export const CollectionCardDrop =
-  '[data-testid="collection-grid"] [data-testid="namespace-card-actions"] button';
 
-export const collectionCard = (
+export const collectionRow = (
   dbName: string,
   collectionName: string
 ): string => {
-  return `${CollectionCard}[data-id="${dbName}.${collectionName}"]`;
+  return `[data-testid="collections-list-row-${collectionName}"]`;
 };
 
-export const collectionCardClickable = (
+export const collectionRowDrop = (
   dbName: string,
   collectionName: string
 ): string => {
-  // webdriver does not like clicking on the card even though the card has the
-  // click handler, so click on the title
-  return `${collectionCard(
+  return `${collectionRow(
     dbName,
     collectionName
-  )} [title="${collectionName}"]`;
+  )} button[data-action="delete"]`;
 };
 
 // Collection screen
@@ -659,7 +653,7 @@ export const ImportSkipAnalyze = '[data-testid="skip-csv-analyze-button"]';
 export const ImportAnalyzeError =
   '[data-testid="import-modal"] [data-testid="analyze-error"]';
 export const ImportConfirm =
-  '[data-testid="import-modal"] [data-testid="import-button"]';
+  '[data-testid="import-modal"] [data-testid="import-button"][aria-disabled="false"]';
 export const ImportToast = '[data-testid="toast-import-toast"]';
 export const ImportToastErrorDetailsBtn =
   '[data-testid="toast-import-toast"] [data-testid="import-error-details-button"]';
@@ -894,6 +888,9 @@ export const AggregationSavedPipelineCardDeleteButton = (
 export const AggregationExplainButton =
   '[data-testid="pipeline-toolbar-explain-aggregation-button"]';
 export const AggregationExplainModal = '[data-testid="explain-plan-modal"]';
+export const ExplainPlanInterpretButton =
+  '[data-testid="interpret-for-me-button"]';
+export const ExplainPlanCloseButton = '[data-testid="explain-close-button"]';
 export const AggregationExplainModalCloseButton = `${AggregationExplainModal} [aria-label*="Close"]`;
 
 // Create view from pipeline modal
@@ -1392,14 +1389,6 @@ export const ModifySourceBanner = '[data-testid="modify-source-banner"]';
 export const InsightIconButton = '[data-testid="insight-badge-button"]';
 export const InsightPopoverCard = '[data-testid="insight-signal-card"]';
 
-// Atlas login
-export const LogInWithAtlasButton = 'button=Log in with Atlas';
-export const LogInWithAtlasModalButton = 'button*=Log in to Atlas';
-export const DisconnectAtlasAccountButton = 'button=Log Out';
-export const AtlasLoginStatus = '[data-testid="atlas-login-status"]';
-export const AtlasLoginErrorToast = '#atlas-sign-in-error';
-export const AgreeAndContinueButton = 'button=Agree and continue';
-
 // Proxy settings
 export const ProxyUrl =
   '[data-testid="proxy-settings"] [data-testid="proxy-url"]';
@@ -1487,6 +1476,7 @@ export const DataModelsListItemDeleteButton = `[data-action="delete"]`;
 export const DataModelAddRelationshipBtn = 'aria/Add Relationship';
 export const DataModelAddCollectionBtn = 'aria/Add Collection';
 export const DataModelNameInputLabel = '//label[text()="Name"]';
+export const DataModelFieldNameInputLabel = '//label[text()="Field name"]';
 export const DataModelNameInput =
   'input[data-testid="data-model-collection-drawer-name-input"]';
 export const DataModelRelationshipLocalCollectionSelect =
@@ -1509,6 +1499,11 @@ export const DataModelCollectionRelationshipItemEdit = `[aria-label="Edit relati
 export const DataModelCollectionRelationshipItemDelete = `[aria-label="Delete relationship"]`;
 export const DataModelCollectionSidebarItemDelete = `[aria-label="Delete collection"]`;
 export const DataModelCollectionSidebarItemDeleteButton = `[data-action="delete"]`;
+export const DataModelInfoBannerCloseBtn = `[data-testid="data-info-banner"] [aria-label="Close Message"]`;
+export const DataModelAddFieldBtn = '[aria-label="Add Field"]';
+export const DataModelDiagramField = (fieldName: string) =>
+  `//*[text()="${fieldName}"]`;
+export const DataModelDiagramFieldInput = 'input[title="Edit field name"]';
 
 // Side drawer
 export const SideDrawer = `[data-testid="${getDrawerIds().root}"]`;
@@ -1517,8 +1512,19 @@ export const SideDrawerCloseButton = `[data-testid="${
 }"]`;
 
 // Assistant
+export const AssistantDrawerButton = 'button[aria-label="MongoDB Assistant"]';
+export const AssistantDrawerCloseButton = `[data-testid="lg-drawer-close_button"]`;
 export const AssistantChatMessages = '[data-testid="assistant-chat-messages"]';
+export const AssistantChatMessage = '[data-testid^="assistant-message-"]';
+export const AssistantChatInput = '[data-testid="assistant-chat-input"]';
+export const AssistantChatInputTextArea = `${AssistantChatInput} textarea`;
+export const AssistantChatSubmitButton = `${AssistantChatInput} button[aria-label="Send message"]`;
 export const AssistantClearChatButton = '[data-testid="assistant-clear-chat"]';
-export const ConfirmClearChatModal =
+export const AssistantConfirmClearChatModal =
   '[data-testid="assistant-confirm-clear-chat-modal"]';
-export const ConfirmClearChatModalConfirmButton = `${ConfirmClearChatModal} [data-testid="lg-confirmation_modal-footer-confirm_button"]`;
+export const AssistantConfirmClearChatModalConfirmButton = `${AssistantConfirmClearChatModal} [data-testid="lg-confirmation_modal-footer-confirm_button"]`;
+
+// AI Opt-in Modal
+export const AIOptInModal = '[data-testid="ai-optin-modal"]';
+export const AIOptInModalAcceptButton = 'button=Use AI Features';
+export const AIOptInModalDeclineLink = 'span=Not now';

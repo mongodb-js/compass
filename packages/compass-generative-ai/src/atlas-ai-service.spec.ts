@@ -41,6 +41,7 @@ const mockConnectionInfo: ConnectionInfo = {
       globalWrites: false,
       rollingIndexes: false,
     },
+    userConnectionString: 'mongodb+srv://localhost:27020',
   },
 };
 
@@ -393,15 +394,16 @@ describe('AtlasAiService', function () {
             name: {
               type: 'string',
               sampleValues: ['John', 'Jane', 'Bob'],
-              probability: 0.9,
             },
             age: {
               type: 'number',
               sampleValues: [25, 30, 35],
-              probability: 0.8,
             },
           },
+          validationRules: null,
           includeSampleValues: false,
+          requestId: 'test-request-id',
+          signal: new AbortController().signal,
         };
 
         if (apiURLPreset === 'admin-api') {
@@ -426,26 +428,18 @@ describe('AtlasAiService', function () {
         if (apiURLPreset === 'cloud') {
           it('makes a post request to the correct endpoint', async function () {
             const mockResponse = {
-              content: {
-                fields: [
-                  {
-                    fieldPath: 'name',
-                    mongoType: 'string',
-                    fakerMethod: 'person.fullName',
-                    fakerArgs: [],
-                    isArray: false,
-                    probability: 1.0,
-                  },
-                  {
-                    fieldPath: 'age',
-                    mongoType: 'int',
-                    fakerMethod: 'number.int',
-                    fakerArgs: [{ json: '{"min": 18, "max": 65}' }],
-                    isArray: false,
-                    probability: 0.8,
-                  },
-                ],
-              },
+              fields: [
+                {
+                  fieldPath: 'name',
+                  fakerMethod: 'person.fullName',
+                  fakerArgs: [],
+                },
+                {
+                  fieldPath: 'age',
+                  fakerMethod: 'number.int',
+                  fakerArgs: [{ json: '{"min": 18, "max": 65}' }],
+                },
+              ],
             };
             const fetchStub = sandbox
               .stub()
@@ -460,33 +454,25 @@ describe('AtlasAiService', function () {
             expect(fetchStub).to.have.been.calledOnce;
             const { args } = fetchStub.firstCall;
             expect(args[0]).to.eq(
-              '/cloud/ai/v1/groups/testProject/mock-data-schema'
+              '/cloud/ai/v1/groups/testProject/mock-data-schema?request_id=test-request-id'
             );
             expect(result).to.deep.equal(mockResponse);
           });
 
           it('includes sample values by default (includeSampleValues=true)', async function () {
             const mockResponse = {
-              content: {
-                fields: [
-                  {
-                    fieldPath: 'name',
-                    mongoType: 'string',
-                    fakerMethod: 'person.fullName',
-                    fakerArgs: [],
-                    isArray: false,
-                    probability: 1.0,
-                  },
-                  {
-                    fieldPath: 'age',
-                    mongoType: 'int',
-                    fakerMethod: 'number.int',
-                    fakerArgs: [{ json: '{"min": 18, "max": 122}' }],
-                    isArray: false,
-                    probability: 0.8,
-                  },
-                ],
-              },
+              fields: [
+                {
+                  fieldPath: 'name',
+                  fakerMethod: 'person.fullName',
+                  fakerArgs: [],
+                },
+                {
+                  fieldPath: 'age',
+                  fakerMethod: 'number.int',
+                  fakerArgs: [{ json: '{"min": 18, "max": 122}' }],
+                },
+              ],
             };
             const fetchStub = sandbox
               .stub()
@@ -513,26 +499,18 @@ describe('AtlasAiService', function () {
 
           it('excludes sample values when includeSampleValues=false', async function () {
             const mockResponse = {
-              content: {
-                fields: [
-                  {
-                    fieldPath: 'name',
-                    mongoType: 'string',
-                    fakerMethod: 'person.fullName',
-                    fakerArgs: [],
-                    isArray: false,
-                    probability: 1.0,
-                  },
-                  {
-                    fieldPath: 'age',
-                    mongoType: 'int',
-                    fakerMethod: 'number.int',
-                    fakerArgs: [{ json: '{"min": 18, "max": 65}' }],
-                    isArray: false,
-                    probability: 0.8,
-                  },
-                ],
-              },
+              fields: [
+                {
+                  fieldPath: 'name',
+                  fakerMethod: 'person.fullName',
+                  fakerArgs: [],
+                },
+                {
+                  fieldPath: 'age',
+                  fakerMethod: 'number.int',
+                  fakerArgs: [{ json: '{"min": 18, "max": 65}' }],
+                },
+              ],
             };
             const fetchStub = sandbox
               .stub()
@@ -552,31 +530,22 @@ describe('AtlasAiService', function () {
             );
             expect(requestBody.schema.age).to.not.have.property('sampleValues');
             expect(requestBody.schema.name.type).to.equal('string');
-            expect(requestBody.schema.age.probability).to.equal(0.8);
           });
 
           it('makes POST request with correct headers and body structure', async function () {
             const mockResponse = {
-              content: {
-                fields: [
-                  {
-                    fieldPath: 'name',
-                    mongoType: 'string',
-                    fakerMethod: 'person.fullName',
-                    fakerArgs: [],
-                    isArray: false,
-                    probability: 1.0,
-                  },
-                  {
-                    fieldPath: 'age',
-                    mongoType: 'int',
-                    fakerMethod: 'number.int',
-                    fakerArgs: [{ json: '{"min": 18, "max": 65}' }],
-                    isArray: false,
-                    probability: 0.8,
-                  },
-                ],
-              },
+              fields: [
+                {
+                  fieldPath: 'name',
+                  fakerMethod: 'person.fullName',
+                  fakerArgs: [],
+                },
+                {
+                  fieldPath: 'age',
+                  fakerMethod: 'number.int',
+                  fakerArgs: [{ json: '{"min": 18, "max": 65}' }],
+                },
+              ],
             };
             const fetchStub = sandbox
               .stub()
@@ -651,6 +620,125 @@ describe('AtlasAiService', function () {
                 'Response does not match expected schema'
               );
             }
+          });
+
+          it('includes validation rules in request body when provided', async function () {
+            const mockResponse = {
+              fields: [
+                {
+                  fieldPath: 'email',
+                  mongoType: 'String',
+                  fakerMethod: 'internet.email',
+                  fakerArgs: [],
+                },
+                {
+                  fieldPath: 'age',
+                  mongoType: 'Int32',
+                  fakerMethod: 'number.int',
+                  fakerArgs: [{ json: '{"min": 18, "max": 120}' }],
+                },
+              ],
+            };
+            const fetchStub = sandbox
+              .stub()
+              .resolves(makeResponse(mockResponse));
+            global.fetch = fetchStub;
+
+            const validationRules = {
+              $jsonSchema: {
+                bsonType: 'object',
+                required: ['email', 'age'],
+                properties: {
+                  email: {
+                    bsonType: 'string',
+                    pattern:
+                      '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$',
+                  },
+                  age: {
+                    bsonType: 'int',
+                    minimum: 18,
+                    maximum: 120,
+                  },
+                },
+              },
+            };
+
+            const inputWithValidationRules = {
+              ...mockSchemaInput,
+              validationRules,
+            };
+
+            await atlasAiService.getMockDataSchema(
+              inputWithValidationRules,
+              mockConnectionInfo
+            );
+
+            const { args } = fetchStub.firstCall;
+            const requestBody = JSON.parse(args[1].body as string);
+
+            expect(requestBody).to.have.property('validationRules');
+            expect(requestBody.validationRules).to.deep.equal(validationRules);
+          });
+
+          it('includes null validation rules in request body when not provided', async function () {
+            const mockResponse = {
+              fields: [
+                {
+                  fieldPath: 'name',
+                  mongoType: 'String',
+                  fakerMethod: 'person.fullName',
+                  fakerArgs: [],
+                },
+              ],
+            };
+            const fetchStub = sandbox
+              .stub()
+              .resolves(makeResponse(mockResponse));
+            global.fetch = fetchStub;
+
+            await atlasAiService.getMockDataSchema(
+              mockSchemaInput,
+              mockConnectionInfo
+            );
+
+            const { args } = fetchStub.firstCall;
+            const requestBody = JSON.parse(args[1].body as string);
+
+            expect(requestBody).to.have.property('validationRules');
+            expect(requestBody.validationRules).to.be.null;
+          });
+
+          it('excludes validation rules from request body when explicitly undefined', async function () {
+            const mockResponse = {
+              fields: [
+                {
+                  fieldPath: 'name',
+                  mongoType: 'String',
+                  fakerMethod: 'person.fullName',
+                  fakerArgs: [],
+                },
+              ],
+            };
+            const fetchStub = sandbox
+              .stub()
+              .resolves(makeResponse(mockResponse));
+            global.fetch = fetchStub;
+
+            const inputWithUndefinedValidationRules = {
+              ...mockSchemaInput,
+              validationRules: undefined,
+            };
+
+            await atlasAiService.getMockDataSchema(
+              inputWithUndefinedValidationRules,
+              mockConnectionInfo
+            );
+
+            const { args } = fetchStub.firstCall;
+            const requestBody = JSON.parse(args[1].body as string);
+
+            // When validationRules is undefined, JSON.stringify excludes it from the output
+            expect(requestBody).to.not.have.property('validationRules');
           });
         }
       });

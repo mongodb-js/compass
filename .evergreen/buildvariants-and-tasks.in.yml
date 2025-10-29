@@ -3,7 +3,7 @@ const UNIT_TESTS_BUILD_VARIANTS = [
   {
     name: 'unit-tests-ubuntu',
     display_name: 'Unit Tests Ubuntu',
-    run_on: 'ubuntu2004-large',
+    run_on: 'ubuntu2204-large',
   },
   {
     name: 'unit-tests-windows',
@@ -13,7 +13,7 @@ const UNIT_TESTS_BUILD_VARIANTS = [
   {
     name: 'unit-tests-rhel',
     display_name: 'Unit Tests RHEL',
-    run_on: 'rhel80-large',
+    run_on: 'rhel93-large',
   },
   {
     name: 'unit-tests-macos',
@@ -27,11 +27,7 @@ const PACKAGE_BUILD_VARIANTS = [
   {
     name: 'package-ubuntu',
     display_name: 'Package Ubuntu',
-
-    // # NOTE: We are packaging on Ubuntu 18.04 in order to use glibc 2.27
-    // # when compiling/re-building addons. This ensures compatibility with other
-    // # debian platforms that have glibc 2.27 or newer.
-    run_on: 'ubuntu1804-large',
+    run_on: 'ubuntu2004-large',
     target_platform: 'ubuntu',
   },
   {
@@ -49,13 +45,13 @@ const PACKAGE_BUILD_VARIANTS = [
   {
     name: 'package-macos-x64',
     display_name: 'Package MacOS Intel',
-    run_on: 'macos-14',
+    run_on: 'macos-13',
     target_platform: 'macos',
   },
   {
     name: 'package-macos-arm',
     display_name: 'Package MacOS Arm64',
-    run_on: 'macos-14-arm64',
+    run_on: 'macos-13-arm64',
     target_platform: 'macos-arm',
   }
 ];
@@ -63,8 +59,8 @@ const PACKAGE_BUILD_VARIANTS = [
 const TEST_PACKAGED_APP_BUILD_VARIANTS = [
   {
     name: 'test-packaged-app-ubuntu',
-    display_name: 'Ubuntu 20.04',
-    run_on: 'ubuntu2004-large',
+    display_name: 'Ubuntu 22.04',
+    run_on: 'ubuntu2204-large',
     depends_on: 'package-ubuntu',
   },
   {
@@ -75,8 +71,8 @@ const TEST_PACKAGED_APP_BUILD_VARIANTS = [
   },
   {
     name: 'test-packaged-app-rhel',
-    display_name: 'RHEL 8.0',
-    run_on: 'rhel80-large',
+    display_name: 'RHEL 9.3',
+    run_on: 'rhel93-large',
     depends_on: 'package-rhel',
   },
   {
@@ -108,15 +104,11 @@ const TEST_PACKAGED_APP_BUILD_VARIANTS = [
 ];
 
 const EOL_SERVER_VERSIONS = [
-  { name: '44x-community', version: '4.4.x' },
-  { name: '44x-enterprise', version: '4.4.x-enterprise' },
-  { name: '5x-community', version: '5.x.x' },
-  { name: '5x-enterprise', version: '5.x.x-enterprise' }
+  { name: '60x-community', version: '6.0.x' },
+  { name: '60x-enterprise', version: '6.0.x-enterprise' },
 ];
 
 const MAINTAINED_SERVER_VERSIONS = [
-  { name: '60x-community', version: '6.0.x' },
-  { name: '60x-enterprise', version: '6.0.x-enterprise' },
   { name: '70x-community', version: '7.0.x' },
   { name: '70x-enterprise', version: '7.0.x-enterprise' },
   { name: '80x-community', version: '8.0.x' },
@@ -148,7 +140,7 @@ const E2E_TEST_GROUPS = Array.from({ length: E2E_TEST_GROUPS_NUMBER }).map((_, i
 buildvariants:
   - name: check
     display_name: Check
-    run_on: ubuntu2004-large
+    run_on: ubuntu2204-large
     tasks:
       - name: check
 
@@ -181,7 +173,7 @@ buildvariants:
 
   - name: smoketest-packaged-app
     display_name: Smoke Test via GitHub Actions
-    run_on: ubuntu2004-large
+    run_on: ubuntu2204-large
     depends_on:
     <% for (const distribution of COMPASS_DISTRIBUTIONS) { %>
     <% for (const buildVariant of PACKAGE_BUILD_VARIANTS) { %>
@@ -194,7 +186,7 @@ buildvariants:
 
   - name: test-eol-servers
     display_name: Test EoL Servers
-    run_on: ubuntu1804-large
+    run_on: ubuntu2004-large
     patchable: false
     depends_on:
       - name: package-compass
@@ -208,7 +200,7 @@ buildvariants:
 
   - name: test-maintained-servers
     display_name: Test Maintained Servers
-    run_on: ubuntu2004-large
+    run_on: ubuntu2204-large
     patchable: true
     depends_on:
       - name: package-compass
@@ -222,7 +214,7 @@ buildvariants:
 
   - name: test-latest-alpha
     display_name: Test Latest Alpha Server
-    run_on: ubuntu2004-large
+    run_on: ubuntu2204-large
     patchable: false
     depends_on:
       - name: package-compass
@@ -254,21 +246,26 @@ buildvariants:
 
   - name: publish
     display_name: Publish Artifacts
-    run_on: ubuntu2004-large
+    run_on: ubuntu2204-large
     tasks:
       - name: publish
       - name: publish-dev-release-info
+
+  - name: static-analysis
+    display_name: Create Static Analysis Report
+    run_on: ubuntu2004-large
+    tasks:
       - name: create_static_analysis_report
 
   - name: connectivity-tests
     display_name: Connectivity Tests
-    run_on: ubuntu2004-large
+    run_on: ubuntu2204-large
     tasks:
       - name: test-connectivity
 
   - name: e2e-coverage
     display_name: E2E Coverage
-    run_on: ubuntu2004-large
+    run_on: ubuntu2204-large
     tasks:
     <% for(const group of E2E_TEST_GROUPS) { %>
     - name: e2e-coverage-<%= group.number %>
@@ -276,13 +273,14 @@ buildvariants:
 
   - name: csfle-tests
     display_name: CSFLE Tests
-    run_on: ubuntu2004-large
+    run_on: ubuntu2204-large
     tasks:
       - name: test-csfle
 
   - name: test-web-sandbox
     display_name: Test Web Sandbox
-    run_on: ubuntu2004-large
+    # DEVPROD-22850: On ubuntu24.02, AppArmor blocks electron proxy used in web tests.
+    run_on: ubuntu2204-large
     tasks:
     <% for (const browser of BROWSERS) { %>
     <% for(const group of E2E_TEST_GROUPS) { %>
@@ -292,19 +290,19 @@ buildvariants:
 
   - name: test-can-bundle-compass-web
     display_name: Test Can Bundle Compass Web
-    run_on: ubuntu2004-large
+    run_on: ubuntu2204-large
     tasks:
       - name: test-can-bundle-compass-web
 
   - name: test-web-sandbox-atlas-cloud
     display_name: Test Web Sandbox (w/ Atlas Cloud login)
-    run_on: ubuntu2004-large
+    run_on: ubuntu2204-large
     tasks:
       - name: test-web-sandbox-atlas-cloud
 
   - name: generate-vulnerability-report
     display_name: Vulnerability Report
-    run_on: ubuntu2004-large
+    run_on: ubuntu2204-large
     tasks:
       - name: generate-vulnerability-report
 

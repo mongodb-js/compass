@@ -17,7 +17,7 @@ import FileInput, {
 } from './file-picker-dialog';
 
 describe('FileInput', function () {
-  let spy;
+  let spy: sinon.SinonSpy;
 
   beforeEach(function () {
     spy = sinon.spy();

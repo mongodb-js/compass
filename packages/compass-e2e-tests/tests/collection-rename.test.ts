@@ -12,7 +12,7 @@ import { createDummyCollections } from '../helpers/insert-data';
 import * as Selectors from '../helpers/selectors';
 
 const databaseName = 'test';
-const initialCollectionName = 'numbers';
+const initialCollectionName = 'csv-file';
 const newCollectionName = 'renamed';
 
 class RenameCollectionModal {

@@ -1,75 +1,99 @@
-import React, { useContext, useRef, useEffect } from 'react';
-import type { AllPreferences } from 'compass-preferences-model/provider';
+import React, { useCallback, useContext, useEffect, useRef } from 'react';
+import type {
+  AllPreferences,
+  AtlasCloudFeatureFlags,
+  PreferencesAccess,
+} from 'compass-preferences-model/provider';
 import { CompassWebPreferencesAccess } from 'compass-preferences-model/provider';
 
-export type SandboxPreferencesUpdateTrigger = (
-  updatePreference: (preferences: Partial<AllPreferences>) => Promise<void>
+type SandboxSetPreferencesGlobalAccess = (
+  preferences: PreferencesAccess
 ) => () => void;
 
-const SandboxPreferencesUpdateTriggerContext =
-  React.createContext<SandboxPreferencesUpdateTrigger | null>(null);
+const SandboxPreferencesGlobalAccessContext =
+  React.createContext<SandboxSetPreferencesGlobalAccess | null>(null);
 
-function useSandboxPreferencesUpdateTrigger() {
-  const updateTrigger = useContext(SandboxPreferencesUpdateTriggerContext);
-  return updateTrigger;
-}
+const kSandboxPreferencesAccess = Symbol.for(
+  '@compass-web-sandbox-preferences-access'
+);
 
 /**
  * Only used in the sandbox to provide a way to update preferences.
  * @internal
  */
-export const SandboxPreferencesUpdateProvider = ({
-  value,
+export const SandboxPreferencesGlobalAccessProvider = ({
   children,
 }: {
-  value: SandboxPreferencesUpdateTrigger | null;
   children: React.ReactNode;
 }) => {
+  const setPreferencesAccess = useCallback((preferences) => {
+    (globalThis as any)[kSandboxPreferencesAccess] = preferences;
+    // eslint-disable-next-line no-console
+    console.info(
+      `[compass-web sandbox] call window[Symbol.for('@compass-web-sandbox-preferences-access')].savePreferences({}) to dynamically update preferences`
+    );
+    return () => {
+      delete (globalThis as any)[kSandboxPreferencesAccess];
+    };
+  }, []);
+
   return (
-    <SandboxPreferencesUpdateTriggerContext.Provider value={value}>
+    <SandboxPreferencesGlobalAccessContext.Provider
+      value={setPreferencesAccess}
+    >
       {children}
-    </SandboxPreferencesUpdateTriggerContext.Provider>
+    </SandboxPreferencesGlobalAccessContext.Provider>
   );
 };
 
+const DEFAULT_COMPASS_WEB_PREFERENCES = {
+  enableExplainPlan: true,
+  enableAggregationBuilderRunPipeline: true,
+  enableAggregationBuilderExtraOptions: true,
+  enableAtlasSearchIndexes: false,
+  enableImportExport: false,
+  enableGenAIFeatures: true,
+  enableGenAIFeaturesAtlasProject: false,
+  enableGenAISampleDocumentPassing: false,
+  enableGenAIFeaturesAtlasOrg: false,
+  enablePerformanceAdvisorBanner: true,
+  enableMyQueries: false,
+  cloudFeatureRolloutAccess: {
+    GEN_AI_COMPASS: false,
+  },
+  maximumNumberOfActiveConnections: 10,
+  trackUsageStatistics: true,
+  enableShell: false,
+  enableCreatingNewConnections: false,
+  enableGlobalWrites: false,
+  optInGenAIFeatures: false,
+  enableConnectInNewWindow: false,
+  maxTimeMSEnvLimit: 300_000, // 5 minutes limit for Data Explorer}
+};
+
 export function useCompassWebPreferences(
-  initialPreferences?: Partial<AllPreferences>
+  initialPreferences: Partial<AllPreferences> = {},
+  atlasCloudFeatureFlags: Partial<AtlasCloudFeatureFlags> = {}
 ): React.MutableRefObject<CompassWebPreferencesAccess> {
   const preferencesAccess = useRef(
-    new CompassWebPreferencesAccess({
-      enableExplainPlan: true,
-      enableAggregationBuilderRunPipeline: true,
-      enableAggregationBuilderExtraOptions: true,
-      enableAtlasSearchIndexes: false,
-      enableImportExport: false,
-      enableGenAIFeatures: true,
-      enableGenAIFeaturesAtlasProject: false,
-      enableGenAISampleDocumentPassingOnAtlasProject: false,
-      enableGenAIFeaturesAtlasOrg: false,
-      enablePerformanceAdvisorBanner: true,
-      cloudFeatureRolloutAccess: {
-        GEN_AI_COMPASS: false,
+    new CompassWebPreferencesAccess(
+      {
+        ...DEFAULT_COMPASS_WEB_PREFERENCES,
+        ...initialPreferences,
       },
-      maximumNumberOfActiveConnections: 10,
-      trackUsageStatistics: true,
-      enableShell: false,
-      enableCreatingNewConnections: false,
-      enableGlobalWrites: false,
-      optInGenAIFeatures: false,
-      enableConnectInNewWindow: false,
-      ...initialPreferences,
-    })
+      { atlasCloud: atlasCloudFeatureFlags }
+    )
   );
 
-  const onPreferencesUpdateTriggered = useSandboxPreferencesUpdateTrigger();
+  const setPreferencesAccess = useContext(
+    SandboxPreferencesGlobalAccessContext
+  );
 
   useEffect(() => {
-    // This is used by our e2e tests so that we can call a global function in the browser
-    // from the testing runtime to update preferences.
-    return onPreferencesUpdateTriggered?.(async (preferences) => {
-      await preferencesAccess.current.savePreferences(preferences);
-    });
-  }, [onPreferencesUpdateTriggered]);
+    // This is used by our sandbox so that we can call a global function in the
+    // browser from the sandbox / testing runtime to access preferences.
+    return setPreferencesAccess?.(preferencesAccess.current);
+  }, [setPreferencesAccess]);
 
   return preferencesAccess;
 }

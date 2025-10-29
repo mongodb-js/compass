@@ -1,23 +1,211 @@
 /* eslint-disable react/prop-types */
 import React from 'react';
-import { PerformanceSignals, spacing } from '@mongodb-js/compass-components';
-import { compactBytes, compactNumber } from './format';
-import { NamespaceItemCard } from './namespace-card';
-import { ItemsGrid } from './items-grid';
+import { ItemsTable, VirtualItemsTable } from './items-table';
 import type { DatabaseProps } from 'mongodb-database-model';
 import { usePreference } from 'compass-preferences-model/provider';
+import type { LGColumnDef } from '@mongodb-js/compass-components';
+import {
+  css,
+  cx,
+  Icon,
+  palette,
+  PerformanceSignals,
+  Placeholder,
+  SignalPopover,
+  spacing,
+  Tooltip,
+  useDarkMode,
+  compactBytes,
+  compactNumber,
+} from '@mongodb-js/compass-components';
 
-const DATABASE_CARD_WIDTH = spacing[1600] * 4;
+const databaseNameWrapStyles = css({
+  display: 'flex',
+  gap: spacing[100],
+  flexWrap: 'wrap',
+  alignItems: 'anchor-center',
+  wordBreak: 'break-word',
+});
 
-const DATABASE_CARD_HEIGHT = 154;
-const DATABASE_CARD_WITHOUT_STATS_HEIGHT = DATABASE_CARD_HEIGHT - 85;
+const tooltipTriggerStyles = css({
+  display: 'flex',
+});
 
-const DATABASE_CARD_LIST_HEIGHT = 118;
-const DATABASE_CARD_LIST_WITHOUT_STATS_HEIGHT = DATABASE_CARD_LIST_HEIGHT - 50;
+const inferredFromPrivilegesLightStyles = css({
+  color: palette.gray.dark1,
+});
+
+const inferredFromPrivilegesDarkStyles = css({
+  color: palette.gray.base,
+});
+
+const collectionsLengthWrapStyles = css({
+  display: 'flex',
+  gap: spacing[100],
+  flexWrap: 'wrap',
+  alignItems: 'anchor-center',
+});
+
+const collectionsLengthStyles = css({});
+
+function isReady(
+  status: 'initial' | 'fetching' | 'refreshing' | 'ready' | 'error'
+) {
+  /*
+  yes:
+  * refreshing
+  * ready
+  * error
+
+  no:
+  * initial
+  * fetching
+  */
+
+  return status !== 'initial' && status !== 'fetching';
+}
+
+function databaseColumns({
+  darkMode,
+  enableDbAndCollStats,
+  showInsights,
+}: {
+  darkMode: boolean | undefined;
+  enableDbAndCollStats: boolean;
+  showInsights?: boolean;
+}): LGColumnDef<DatabaseProps>[] {
+  return [
+    {
+      accessorKey: 'name',
+      header: 'Database name',
+      enableSorting: true,
+      sortUndefined: 'last',
+      minSize: 300,
+      cell: (info) => {
+        const database = info.row.original;
+        const name = database.name;
+        return (
+          <span className={databaseNameWrapStyles}>
+            <span
+              className={cx(
+                database.inferred_from_privileges &&
+                  !darkMode &&
+                  inferredFromPrivilegesLightStyles,
+                database.inferred_from_privileges &&
+                  darkMode &&
+                  inferredFromPrivilegesDarkStyles
+              )}
+            >
+              {name}
+            </span>
+
+            {database.inferred_from_privileges && (
+              <Tooltip
+                align="bottom"
+                justify="start"
+                trigger={
+                  <div className={tooltipTriggerStyles}>
+                    <Icon glyph={'InfoWithCircle'} />
+                  </div>
+                }
+              >
+                Your privileges grant you access to this namespace, but it might
+                not currently exist
+              </Tooltip>
+            )}
+          </span>
+        );
+      },
+    },
+    {
+      accessorKey: 'storage_size',
+      header: 'Storage size',
+      enableSorting: true,
+      sortUndefined: 'last',
+      maxSize: 80,
+      cell: (info) => {
+        const database = info.row.original;
+        if (!isReady(database.status)) {
+          return <Placeholder maxChar={10}></Placeholder>;
+        }
+
+        return enableDbAndCollStats && database.storage_size !== undefined
+          ? compactBytes(database.storage_size)
+          : '-';
+      },
+    },
+    /*
+    {
+      accessorKey: 'data_size',
+      header: 'Data size',
+      enableSorting: true,
+      sortUndefined: 'last',
+      maxSize: 80,
+      cell: (info) => {
+        const database = info.row.original;
+        if (!isReady(database.status)) {
+          return <Placeholder maxChar={10}></Placeholder>;
+        }
+
+        return enableDbAndCollStats && database.data_size !== undefined
+          ? compactBytes(database.data_size)
+          : '-';
+      },
+    },
+    */
+    {
+      accessorKey: 'collectionsLength',
+      header: 'Collections',
+      enableSorting: true,
+      sortUndefined: 'last',
+      maxSize: 80,
+      cell: (info) => {
+        const database = info.row.original;
+        if (!isReady(database.status)) {
+          return <Placeholder maxChar={10}></Placeholder>;
+        }
+
+        const text = enableDbAndCollStats
+          ? compactNumber(database.collectionsLength)
+          : '-';
+
+        return (
+          <span className={collectionsLengthWrapStyles}>
+            <span className={collectionsLengthStyles}>{text}</span>
+            {showInsights &&
+              enableDbAndCollStats &&
+              (info.getValue() as number) > 10_000 && (
+                <SignalPopover
+                  signals={PerformanceSignals.get('too-many-collections')}
+                ></SignalPopover>
+              )}
+          </span>
+        );
+      },
+    },
+    {
+      accessorKey: 'index_count',
+      header: 'Indexes',
+      enableSorting: true,
+      sortUndefined: 'last',
+      maxSize: 80,
+      cell: (info) => {
+        const database = info.row.original;
+        if (!isReady(database.status)) {
+          return <Placeholder maxChar={10}></Placeholder>;
+        }
+
+        return enableDbAndCollStats && database.index_count !== undefined
+          ? compactNumber(database.index_count)
+          : '-';
+      },
+    },
+  ];
+}
 
 const DatabasesList: React.FunctionComponent<{
   databases: DatabaseProps[];
-  onDatabaseClick(id: string): void;
+  onDatabaseClick: (id: string) => void;
   onDeleteDatabaseClick?: (id: string) => void;
   onCreateDatabaseClick?: () => void;
   onRefreshClick?: () => void;
@@ -25,91 +213,38 @@ const DatabasesList: React.FunctionComponent<{
 }> = ({
   databases,
   onDatabaseClick,
-  onCreateDatabaseClick,
   onDeleteDatabaseClick,
+  onCreateDatabaseClick,
   onRefreshClick,
   renderLoadSampleDataBanner,
 }) => {
+  let virtual = true;
+  if (process.env.COMPASS_DISABLE_VIRTUAL_TABLE_RENDERING === 'true') {
+    virtual = false;
+  }
+
+  const showInsights = usePreference('showInsights');
   const enableDbAndCollStats = usePreference('enableDbAndCollStats');
+  const darkMode = useDarkMode();
+  const columns = React.useMemo(
+    () => databaseColumns({ darkMode, enableDbAndCollStats, showInsights }),
+    [darkMode, enableDbAndCollStats, showInsights]
+  );
+
+  const TableComponent = virtual ? VirtualItemsTable : ItemsTable;
   return (
-    <ItemsGrid
+    <TableComponent<DatabaseProps>
+      virtual={virtual}
+      data-testid="databases-list"
+      columns={columns}
       items={databases}
       itemType="database"
-      itemGridWidth={DATABASE_CARD_WIDTH}
-      itemGridHeight={
-        enableDbAndCollStats
-          ? DATABASE_CARD_HEIGHT
-          : DATABASE_CARD_WITHOUT_STATS_HEIGHT
-      }
-      itemListHeight={
-        enableDbAndCollStats
-          ? DATABASE_CARD_LIST_HEIGHT
-          : DATABASE_CARD_LIST_WITHOUT_STATS_HEIGHT
-      }
-      sortBy={[
-        { name: 'name', label: 'Database Name' },
-        { name: 'storage_size', label: 'Storage size' },
-        { name: 'collectionsLength', label: 'Collections' },
-        { name: 'index_count', label: 'Indexes' },
-      ]}
       onItemClick={onDatabaseClick}
       onDeleteItemClick={onDeleteDatabaseClick}
       onCreateItemClick={onCreateDatabaseClick}
       onRefreshClick={onRefreshClick}
-      renderItem={({
-        item: db,
-        onItemClick,
-        onDeleteItemClick,
-        viewType,
-        ...props
-      }) => {
-        return (
-          <NamespaceItemCard
-            id={db._id}
-            key={db._id}
-            name={db.name}
-            type="database"
-            viewType={viewType}
-            status={db.status}
-            inferredFromPrivileges={db.inferred_from_privileges}
-            data={[
-              {
-                label: 'Storage size',
-                value:
-                  enableDbAndCollStats && db.storage_size !== undefined
-                    ? compactBytes(db.storage_size)
-                    : 'N/A',
-                hint:
-                  enableDbAndCollStats &&
-                  db.data_size !== undefined &&
-                  `Uncompressed data size: ${compactBytes(db.data_size)}`,
-              },
-              {
-                label: 'Collections',
-                value: enableDbAndCollStats
-                  ? compactNumber(db.collectionsLength)
-                  : 'N/A',
-                insights:
-                  db.collectionsLength >= 10_000
-                    ? PerformanceSignals.get('too-many-collections')
-                    : undefined,
-              },
-              {
-                label: 'Indexes',
-                value:
-                  enableDbAndCollStats && db.index_count !== undefined
-                    ? compactNumber(db.index_count)
-                    : 'N/A',
-              },
-            ]}
-            onItemClick={onItemClick}
-            onItemDeleteClick={onDeleteItemClick}
-            {...props}
-          ></NamespaceItemCard>
-        );
-      }}
       renderLoadSampleDataBanner={renderLoadSampleDataBanner}
-    ></ItemsGrid>
+    ></TableComponent>
   );
 };
 

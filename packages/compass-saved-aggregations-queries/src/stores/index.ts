@@ -12,6 +12,7 @@ import type { Logger } from '@mongodb-js/compass-logging/provider';
 import type { workspacesServiceLocator } from '@mongodb-js/compass-workspaces/provider';
 import type {
   FavoriteQueryStorageAccess,
+  PipelineStorageAccess,
   PipelineStorage,
   FavoriteQueryStorage,
 } from '@mongodb-js/my-queries-storage/provider';
@@ -25,7 +26,7 @@ type MyQueriesServices = {
   globalAppRegistry: AppRegistry;
   logger: Logger;
   track: TrackFunction;
-  pipelineStorage?: PipelineStorage;
+  pipelineStorage?: PipelineStorageAccess;
   workspaces: ReturnType<typeof workspacesServiceLocator>;
   favoriteQueryStorageAccess?: FavoriteQueryStorageAccess;
 };
@@ -55,7 +56,7 @@ export function configureStore({
         preferencesAccess,
         logger,
         track,
-        pipelineStorage,
+        pipelineStorage: pipelineStorage?.getStorage(),
         queryStorage: favoriteQueryStorageAccess?.getStorage(),
         workspaces,
       })
@@ -69,9 +70,10 @@ export type RootState = ReturnType<
 
 type SavedQueryAggregationExtraArgs = Omit<
   MyQueriesServices,
-  'locateFavoriteQueryStorage'
+  'favoriteQueryStorageAccess' | 'pipelineStorage'
 > & {
   queryStorage?: FavoriteQueryStorage;
+  pipelineStorage?: PipelineStorage;
 };
 
 export type SavedQueryAggregationThunkAction<

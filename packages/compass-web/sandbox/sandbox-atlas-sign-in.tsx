@@ -13,13 +13,15 @@ console.info(
 type SignInStatus = 'checking' | 'signed-in' | 'signed-out';
 
 type ProjectParams = {
+  orgId: string;
   projectId: string;
   csrfToken: string;
   csrfTime: string;
   enableGenAIFeaturesAtlasProject: boolean;
-  enableGenAISampleDocumentPassingOnAtlasProject: boolean;
+  enableGenAISampleDocumentPassing: boolean;
   enableGenAIFeaturesAtlasOrg: boolean;
   optInGenAIFeatures: boolean;
+  userRoles: Record<string, boolean>;
 };
 
 type AtlasLoginReturnValue =
@@ -114,30 +116,40 @@ export function useAtlasProxySignIn(): AtlasLoginReturnValue {
           if (!projectId) {
             throw new Error('failed to get projectId');
           }
+          const params = await fetch(
+            `/cloud-mongodb-com/v2/${projectId}/params`
+          ).then((res) => {
+            return res.json();
+          });
           const {
             csrfToken,
             csrfTime,
             appUser: { isOptedIntoDataExplorerGenAIFeatures },
             currentOrganization: { genAIFeaturesEnabled },
             featureFlags: { groupEnabledFeatureFlags },
-          } = await fetch(`/cloud-mongodb-com/v2/${projectId}/params`).then(
-            (res) => {
-              return res.json();
-            }
-          );
+            userRoles,
+            currentOrganization,
+          } = params;
+          const overrideGenAIFeatures =
+            process.env.COMPASS_OVERRIDE_ENABLE_AI_FEATURES === 'true';
           setProjectParams({
+            orgId: currentOrganization.id,
             projectId,
             csrfToken,
             csrfTime,
             optInGenAIFeatures: isOptedIntoDataExplorerGenAIFeatures,
-            enableGenAIFeaturesAtlasOrg: genAIFeaturesEnabled,
-            enableGenAISampleDocumentPassingOnAtlasProject:
-              groupEnabledFeatureFlags.includes(
-                'ENABLE_DATA_EXPLORER_GEN_AI_SAMPLE_DOCUMENT_PASSING'
+            enableGenAIFeaturesAtlasOrg:
+              overrideGenAIFeatures || genAIFeaturesEnabled,
+            enableGenAISampleDocumentPassing:
+              !groupEnabledFeatureFlags.includes(
+                'DISABLE_DATA_EXPLORER_GEN_AI_SAMPLE_DOCUMENT_PASSING'
               ),
-            enableGenAIFeaturesAtlasProject: groupEnabledFeatureFlags.includes(
-              'ENABLE_DATA_EXPLORER_GEN_AI_FEATURES'
-            ),
+            enableGenAIFeaturesAtlasProject:
+              overrideGenAIFeatures ||
+              groupEnabledFeatureFlags.includes(
+                'ENABLE_DATA_EXPLORER_GEN_AI_FEATURES'
+              ),
+            userRoles,
           });
           setStatus('signed-in');
           if (IS_CI) {
