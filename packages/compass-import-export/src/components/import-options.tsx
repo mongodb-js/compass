@@ -116,7 +116,6 @@ function ImportOptions({
             <Select
               className={delimiterSelectStyles}
               id="import-delimiter-select"
-              aria-labelledby="import-delimiter-label"
               aria-label="Delimiter"
               data-testid="import-delimiter-select"
               onChange={(delimiter: string) =>

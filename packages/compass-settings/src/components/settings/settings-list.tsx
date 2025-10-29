@@ -188,7 +188,7 @@ function DefaultSortOrderSetting<PreferenceName extends 'defaultSortOrder'>({
       <Select
         className={inputStyles}
         allowDeselect={false}
-        aria-labelledby={`${name}-label`}
+        aria-label={`${name}-label`}
         id={name}
         name={name}
         data-testid={name}

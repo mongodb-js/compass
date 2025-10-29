@@ -67,7 +67,7 @@ type FieldDrawerContentProps = {
   }) => void;
 };
 
-const BSON_TYPES = Object.keys(BSONType);
+export const BSON_TYPES = Object.keys(BSONType);
 
 export function getIsFieldNameValid(
   currentFieldPath: FieldPath,
