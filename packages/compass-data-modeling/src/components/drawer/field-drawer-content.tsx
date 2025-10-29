@@ -9,7 +9,6 @@ import {
   ComboboxOption,
   TextInput,
 } from '@mongodb-js/compass-components';
-import { BSONType } from 'mongodb';
 import {
   changeFieldType,
   createNewRelationship,
@@ -33,6 +32,7 @@ import {
   isIdField,
   isRelationshipOfAField,
 } from '../../utils/utils';
+import { FIELD_TYPES } from '../../utils/field-types';
 
 type FieldDrawerContentProps = {
   namespace: string;
@@ -57,17 +57,13 @@ type FieldDrawerContentProps = {
   onChangeFieldType: ({
     ns,
     fieldPath,
-    oldTypes,
     newTypes,
   }: {
     ns: string;
     fieldPath: FieldPath;
-    oldTypes: string[];
     newTypes: string[];
   }) => void;
 };
-
-export const BSON_TYPES = Object.keys(BSONType);
 
 export function getIsFieldNameValid(
   currentFieldPath: FieldPath,
@@ -158,7 +154,6 @@ const FieldDrawerContent: React.FunctionComponent<FieldDrawerContentProps> = ({
     onChangeFieldType({
       ns: namespace,
       fieldPath,
-      oldTypes: fieldTypes,
       newTypes,
     });
   };
@@ -195,7 +190,7 @@ const FieldDrawerContent: React.FunctionComponent<FieldDrawerContentProps> = ({
             state={fieldTypeEditErrorMessage ? 'error' : undefined}
             errorMessage={fieldTypeEditErrorMessage}
           >
-            {BSON_TYPES.map((type) => (
+            {FIELD_TYPES.map((type) => (
               <ComboboxOption key={type} value={type} />
             ))}
           </Combobox>
