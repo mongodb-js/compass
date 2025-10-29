@@ -1,9 +1,11 @@
 import type { CompassBrowser } from '../compass-browser';
-import { isTestingWeb } from '../test-runner-context';
+import { inspect } from 'util';
 
 /**
- * Sets an environment variable override in Compass Web.
- * This is only supported in Compass Web tests, not in Compass Desktop.
+ * Sets an environment variable override in Compass, both web and desktop.
+ * Requires an application to be running already to be used, so make sure that
+ * the env variables you are changing are accessed dynamically in the
+ * application runtime after initialization
  *
  * @example
  * // Set the Atlas service URL override in a test
@@ -12,32 +14,57 @@ import { isTestingWeb } from '../test-runner-context';
  *   mockAtlasServer.endpoint
  * );
  *
- * @param browser - The CompassBrowser instance
- * @param key - The environment variable name
- * @param value - The environment variable value
+ * @param browser The CompassBrowser instance
+ * @param key The environment variable name
+ * @param value The environment variable value
  */
 export async function setEnv(
   browser: CompassBrowser,
   key: string,
   value: string
 ): Promise<void> {
-  if (isTestingWeb()) {
-    // When running in Compass web we use a global function to set env vars
-    await browser.execute(
-      (_key, _value) => {
-        const kSandboxSetEnvFn = Symbol.for('@compass-web-sandbox-set-env');
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (globalThis as any)[kSandboxSetEnvFn]?.(_key, _value);
-      },
-      key,
-      value
+  let latestValue: string | undefined;
+  try {
+    await browser.waitUntil(async () => {
+      try {
+        latestValue = await browser.execute(
+          (_key, _value) => {
+            // If process is available in global scope, we're in desktop
+            if ('process' in globalThis) {
+              process.env[_key] = _value;
+              // eslint-disable-next-line @typescript-eslint/no-require-imports
+              return require('electron').ipcRenderer.invoke(
+                'compass:set-process-env',
+                _key,
+                _value
+              );
+            } else {
+              const kProcessEnv = Symbol.for(
+                '@compass-web-sandbox-process-env'
+              );
+              (globalThis as any)[kProcessEnv][_key] = _value;
+              return (globalThis as any)[kProcessEnv][_key];
+            }
+          },
+          key,
+          value
+        );
+        return latestValue === value;
+      } catch {
+        // Either ipcRenderer.invoke or trying to set the value on undefined
+        // will fail inside browser.execute, this is a good indicator that the
+        // app is not ready yet for setEnv to be called. Return `false` to wait
+        // a bit more
+        return false;
+      }
+    });
+  } catch (err) {
+    throw new Error(
+      `Failed to set process.env.${key}: expected new value to be ${inspect(
+        value
+      )}, got ${inspect(latestValue)}. Original error:\n\n${
+        (err as Error).message
+      }`
     );
-    return;
   }
-
-  // When running in Compass desktop, we can't dynamically change env vars
-  // after the process has started, so we throw an error
-  throw new Error(
-    'setEnv is only supported in Compass web. For Compass desktop, set environment variables before starting the app.'
-  );
 }

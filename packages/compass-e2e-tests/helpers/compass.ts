@@ -600,6 +600,30 @@ async function processCommonOpts({
   };
 }
 
+async function setSharedConfigOnStart(browser: CompassBrowser) {
+  // Guide cues might affect too many tests in a way where the auto showing of the cue prevents
+  // clicks from working on elements. Dealing with this case-by-case is way too much work, so
+  // we disable the cues completely for the e2e tests
+  await browser.setEnv('DISABLE_GUIDE_CUES', 'true');
+
+  // Making sure end-of-life connection modal is not shown, simplify any test connecting to such a server
+  await browser.setFeature('showEndOfLifeConnectionModal', false);
+
+  // TODO(COMPASS-9977) Turn off virtual scrolling in e2e tests until we can fix
+  // browser.scrollToVirtualItem() to work with it
+  await browser.setEnv('COMPASS_DISABLE_VIRTUAL_TABLE_RENDERING', 'true');
+
+  // Convenient to have devtools enabled by default in tests
+  if (isTestingDesktop()) {
+    await browser.setFeature('enableDevTools', true, () => {
+      // This is a nice-to-have, so don't validate that it was actually set.
+      // Some tests will pre-configure compass in a way that doesn't allow
+      // devtools to be enabled
+      return true;
+    });
+  }
+}
+
 async function startCompassElectron(
   name: string,
   opts: StartCompassOptions = {}
@@ -654,18 +678,6 @@ async function startCompassElectron(
   if (!process.env.HADRON_AUTO_UPDATE_ENDPOINT_OVERRIDE) {
     process.env.HADRON_PRODUCT_NAME_OVERRIDE = 'MongoDB Compass WebdriverIO';
   }
-
-  // Guide cues might affect too many tests in a way where the auto showing of the cue prevents
-  // clicks from working on elements. Dealing with this case-by-case is way too much work, so
-  // we disable the cues completely for the e2e tests
-  process.env.DISABLE_GUIDE_CUES = 'true';
-
-  // Making sure end-of-life connection modal is not shown, simplify any test connecting to such a server
-  process.env.COMPASS_DISABLE_END_OF_LIFE_CONNECTION_MODAL = 'true';
-
-  // TODO(COMPASS-9977) Turn off virtual scrolling in e2e tests until we can fix
-  // browser.scrollToVirtualItem() to work with it
-  process.env.COMPASS_DISABLE_VIRTUAL_TABLE_RENDERING = 'true';
 
   const options = {
     automationProtocol: 'webdriver' as const,
@@ -1127,6 +1139,8 @@ export async function init(
       void ipcRenderer.invoke('compass:maximize');
     });
   }
+
+  await setSharedConfigOnStart(browser);
 
   if (compass.needsCloseWelcomeModal) {
     await browser.closeWelcomeModal();
