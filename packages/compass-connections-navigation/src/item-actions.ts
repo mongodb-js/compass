@@ -121,6 +121,43 @@ export const connectedConnectionItemActions = ({
           disabledDescription: 'Not supported',
         }
       : null,
+    // The following are just links to other parts of Atlas
+    !isPerformanceTabAvailable && connectionInfo.atlasMetadata
+      ? {
+          action: 'connection-performance-metrics',
+          icon: 'Gauge',
+          label: 'View performance metrics',
+          isDisabled: false,
+          disabledDescription: 'Not supported',
+        }
+      : null,
+    connectionInfo.atlasMetadata
+      ? {
+          action: 'connection-cluster-overview',
+          icon: 'Dashboard',
+          label: 'View cluster overview',
+          isDisabled: false,
+          disabledDescription: 'Not supported',
+        }
+      : null,
+    connectionInfo.atlasMetadata
+      ? {
+          action: 'connection-view-monitoring',
+          icon: 'TimeSeries',
+          label: 'View monitoring',
+          isDisabled: false,
+          disabledDescription: 'Not supported',
+        }
+      : null,
+    connectionInfo.atlasMetadata
+      ? {
+          action: 'connection-query-insights',
+          icon: 'Bulb',
+          label: 'View query insights',
+          isDisabled: false,
+          disabledDescription: 'Not supported',
+        }
+      : null,
     isAtlas
       ? null
       : {

@@ -35,7 +35,10 @@ import {
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import toNS from 'mongodb-ns';
-import { getConnectionTitle } from '@mongodb-js/connection-info';
+import {
+  type AtlasClusterMetadata,
+  getConnectionTitle,
+} from '@mongodb-js/connection-info';
 import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
 import { usePreferences } from 'compass-preferences-model/provider';
 
@@ -112,6 +115,21 @@ function buildChartsUrl(
     url.searchParams.set('database', database);
   }
   return url.toString();
+}
+
+function buildMonitoringUrl({
+  projectId,
+  clusterType,
+  clusterUniqueId,
+}: AtlasClusterMetadata) {
+  // {origin}/v2/{groupId}#/host/{'replicaSet' | 'cluster'}/{clusterId}
+  const url = new URL(`/v2/${projectId}`, window.location.origin);
+  const fragmentPath = [
+    'host',
+    clusterType === 'REPLICASET' ? 'replicaSet' : 'cluster',
+    clusterUniqueId,
+  ].join('/');
+  return `${url}#/${fragmentPath}`;
 }
 
 const TableControls: React.FunctionComponent<{
@@ -197,7 +215,18 @@ const TableControls: React.FunctionComponent<{
               Open MongoDB shell
             </Button>
           )}
-
+          {connectionInfo.atlasMetadata && (
+            <Button
+              data-testid={`${itemType}-header-view-monitoring`}
+              size="small"
+              href={buildMonitoringUrl(connectionInfo.atlasMetadata)}
+              target="_blank"
+              rel="noopener noreferrer"
+              leftGlyph={<Icon glyph="TimeSeries" />}
+            >
+              View monitoring
+            </Button>
+          )}
           {connectionInfo.atlasMetadata && (
             <Button
               data-testid={`${itemType}-header-visualize-your-data`}

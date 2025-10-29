@@ -32,6 +32,7 @@ import type {
 } from '@mongodb-js/compass-connections-navigation';
 import type { WorkspaceTab } from '@mongodb-js/compass-workspaces';
 import {
+  type AtlasClusterMetadata,
   getConnectionTitle,
   type ConnectionInfo,
 } from '@mongodb-js/connection-info';
@@ -103,6 +104,42 @@ const noDeploymentStyles = css({
   flexDirection: 'column',
   gap: spacing[200],
 });
+
+function buildMonitoringUrl(atlasMetadata?: AtlasClusterMetadata) {
+  if (!atlasMetadata) return;
+  // {origin}/v2/{groupId}#/host/{'replicaSet' | 'cluster'}/{clusterId}
+  const { projectId, clusterType, clusterUniqueId } = atlasMetadata;
+  const url = new URL(`/v2/${projectId}`, window.location.origin);
+  const fragmentPath = [
+    'host',
+    clusterType === 'REPLICASET' ? 'replicaSet' : 'cluster',
+    clusterUniqueId,
+  ].join('/');
+  return `${url}#/${fragmentPath}`;
+}
+
+export function buildClusterOverviewUrl(atlasMetadata?: AtlasClusterMetadata) {
+  if (!atlasMetadata) return;
+  const { projectId, clusterName } = atlasMetadata;
+  // {origin}/v2/{groupId}#/clusters/detail/{clusterName}
+  const url = new URL(`/v2/${projectId}`, window.location.origin);
+  return `${url}#/clusters/detail/${clusterName}`;
+}
+
+export function buildQueryInsightsUrl(atlasMetadata?: AtlasClusterMetadata) {
+  if (!atlasMetadata) return;
+  const { projectId, clusterType, clusterUniqueId } = atlasMetadata;
+  // '{origin}/v2/{projectId}#/metrics/{'replicaSet' | 'cluster'}/{clusterId}/queryInsights/shape';
+  const url = new URL(`/v2/${projectId}`, window.location.origin);
+  const fragmentPath = [
+    'metrics',
+    clusterType === 'REPLICASET' ? 'replicaSet' : 'cluster',
+    clusterUniqueId,
+    'queryInsights',
+    'shape',
+  ].join('/');
+  return `${url}#${fragmentPath}`;
+}
 
 /**
  * Indicates only Atlas cluster connections are supported, and the user cannot navigate
@@ -421,6 +458,27 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
         case 'show-connect-via-modal':
           onOpenConnectViaModal?.(getConnectionInfo(item).atlasMetadata);
           return;
+        case 'connection-cluster-overview': {
+          const dest = buildClusterOverviewUrl(
+            getConnectionInfo(item).atlasMetadata
+          );
+          if (dest) window.open(dest, '_blank');
+          return;
+        }
+        case 'connection-view-monitoring': {
+          const dest = buildMonitoringUrl(
+            getConnectionInfo(item).atlasMetadata
+          );
+          if (dest) window.open(dest, '_blank');
+          return;
+        }
+        case 'connection-query-insights': {
+          const dest = buildQueryInsightsUrl(
+            getConnectionInfo(item).atlasMetadata
+          );
+          if (dest) window.open(dest, '_blank');
+          return;
+        }
         case 'select-database':
           openCollectionsWorkspace(connectionId, getNamespace(item));
           return;
