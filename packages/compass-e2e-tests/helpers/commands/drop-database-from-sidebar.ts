@@ -20,10 +20,11 @@ export async function dropDatabaseFromSidebar(
 
   await browser.clickVisible(Selectors.DropDatabaseButton);
 
-  await browser.dropNamespace(dbName);
-
-  // wait for it to be gone
-  await browser
-    .$(Selectors.sidebarDatabase(connectionId, dbName))
-    .waitForExist({ reverse: true });
+  // Start the drop and wait for it to be gone
+  await Promise.all([
+    browser.dropNamespace(dbName),
+    browser
+      .$(Selectors.sidebarDatabase(connectionId, dbName))
+      .waitForExist({ reverse: true }),
+  ]);
 }
