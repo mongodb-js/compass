@@ -94,7 +94,7 @@ const DocumentCountScreen = ({
     onDocumentCountChange(event.target.value);
 
     // Track telemetry for valid numeric values
-    const value = parseInt(event.target.value, 10);
+    const value = Number(event.target.value);
     if (!isNaN(value)) {
       track('Mock Data Document Count Changed', {
         document_count: value,

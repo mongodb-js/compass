@@ -212,7 +212,7 @@ export function validateDocumentCount(documentCount?: string): {
   }
 
   const trimmed = documentCount.trim();
-  const num = parseInt(documentCount, 10);
+  const num = Number(documentCount);
 
   if (!trimmed)
     return { isValid: false, errorMessage: 'Document count is required' };

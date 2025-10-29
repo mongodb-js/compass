@@ -120,7 +120,7 @@ const ScriptScreen = ({
     }
 
     return generateScript(fakerSchema, {
-      documentCount: parseInt(documentCount, 10) || DEFAULT_DOCUMENT_COUNT,
+      documentCount: Number(documentCount) || DEFAULT_DOCUMENT_COUNT,
       databaseName: database,
       collectionName: collection,
       arrayLengthMap,
@@ -141,8 +141,7 @@ const ScriptScreen = ({
       if (scriptResult.success && fakerSchema) {
         track('Mock Data Script Generated', {
           field_count: Object.keys(fakerSchema).length,
-          output_docs_count:
-            parseInt(documentCount, 10) || DEFAULT_DOCUMENT_COUNT,
+          output_docs_count: Number(documentCount) || DEFAULT_DOCUMENT_COUNT,
         });
       }
     },
