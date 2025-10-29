@@ -30,6 +30,7 @@ import {
   type SchemaAnalysisError,
 } from '../../schema-analysis-types';
 import { MAX_COLLECTION_NESTING_DEPTH } from '../mock-data-generator-modal/utils';
+import { type AtlasClusterMetadata } from '@mongodb-js/connection-info';
 
 const collectionHeaderActionsStyles = css({
   display: 'flex',
@@ -58,6 +59,21 @@ function buildChartsUrl(
   url.searchParams.set('database', database);
   url.searchParams.set('collection', collection);
   return url.toString();
+}
+
+function buildMonitoringUrl({
+  projectId,
+  clusterType,
+  clusterUniqueId,
+}: AtlasClusterMetadata) {
+  // {origin}/v2/{groupId}#/host/{'replicaSet' | 'cluster'}/{clusterId}
+  const url = new URL(`/v2/${projectId}`, window.location.origin);
+  const fragmentPath = [
+    'host',
+    clusterType === 'REPLICASET' ? 'replicaSet' : 'cluster',
+    clusterUniqueId,
+  ].join('/');
+  return `${url}#/${fragmentPath}`;
 }
 
 type CollectionHeaderActionsProps = {
@@ -233,6 +249,18 @@ const CollectionHeaderActions: React.FunctionComponent<
             ) : null}
           </>
         </Tooltip>
+      )}
+      {atlasMetadata && (
+        <Button
+          data-testid="collection-header-view-monitoring"
+          size={ButtonSize.Small}
+          href={buildMonitoringUrl(atlasMetadata)}
+          target="_blank"
+          rel="noopener noreferrer"
+          leftGlyph={<Icon glyph="TimeSeries" />}
+        >
+          View monitoring
+        </Button>
       )}
       {atlasMetadata && (
         <Button
