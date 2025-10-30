@@ -86,7 +86,7 @@ describe('useDocumentItemContextMenu', function () {
       expect(screen.getByText('Delete document')).to.exist;
     });
 
-    it('shows "Stop editing" document is editing', function () {
+    it('shows "Stop editing" when document is editing', function () {
       doc.expanded = false;
       doc.editing = true;
 
