@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { connect } from 'react-redux';
 
 import {
@@ -33,7 +33,10 @@ import FakerSchemaEditorScreen from './faker-schema-editor-screen';
 import ScriptScreen from './script-screen';
 import DocumentCountScreen from './document-count-screen';
 import PreviewScreen from './preview-screen';
-import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
+import {
+  useTelemetry,
+  useTrackOnChange,
+} from '@mongodb-js/compass-telemetry/provider';
 import {
   useIsAIFeatureEnabled,
   usePreference,
@@ -124,13 +127,16 @@ const MockDataGeneratorModal = ({
     onNextStep,
   ]);
 
-  useEffect(() => {
-    if (isOpen) {
-      track('Mock Data Generator Screen Viewed', {
-        screen: currentStep,
-      });
-    }
-  }, [currentStep, track, isOpen]);
+  useTrackOnChange(
+    (track) => {
+      if (isOpen) {
+        track('Mock Data Generator Screen Viewed', {
+          screen: currentStep,
+        });
+      }
+    },
+    [currentStep, isOpen]
+  );
 
   const isNextButtonDisabled =
     (currentStep === MockDataGeneratorStep.SCHEMA_EDITOR &&
