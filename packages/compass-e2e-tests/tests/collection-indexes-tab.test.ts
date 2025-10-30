@@ -91,6 +91,7 @@ describe('Collection indexes tab', function () {
       Selectors.IndexFieldType
     }`;
     const indexFieldTypeElement = browser.$(indexFieldTypeSelector);
+    // TODO(COMPASS-8335):We can remove the waitUntil once in-progress indexes type is known
     await browser.waitUntil(async function () {
       const text = await indexFieldTypeElement.getText();
       return text === 'WILDCARD';
