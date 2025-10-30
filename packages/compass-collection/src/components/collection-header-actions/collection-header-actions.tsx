@@ -30,7 +30,6 @@ import {
   type SchemaAnalysisError,
 } from '../../schema-analysis-types';
 import { MAX_COLLECTION_NESTING_DEPTH } from '../mock-data-generator-modal/utils';
-import { type AtlasClusterMetadata } from '@mongodb-js/connection-info';
 import {
   buildChartsUrl,
   buildMonitoringUrl,
