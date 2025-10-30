@@ -15,17 +15,17 @@ import {
 
 import { type MockDataGeneratorState, MockDataGeneratorStep } from './types';
 import {
-  DEFAULT_DOCUMENT_COUNT,
-  MAX_DOCUMENT_COUNT,
   MOCK_DATA_GENERATOR_STEP_TO_NEXT_STEP_MAP,
   StepButtonLabelMap,
 } from './constants';
+import { validateDocumentCount } from './utils';
 import type { CollectionState } from '../../modules/collection-tab';
 import {
   mockDataGeneratorModalClosed,
   mockDataGeneratorNextButtonClicked,
   generateFakerMappings,
   mockDataGeneratorPreviousButtonClicked,
+  mockDataGeneratorDocumentCountChanged,
 } from '../../modules/collection-tab';
 
 import RawSchemaConfirmationScreen from './raw-schema-confirmation-screen';
@@ -64,6 +64,8 @@ interface Props {
   onPreviousStep: () => void;
   namespace: string;
   fakerSchemaGenerationState: MockDataGeneratorState;
+  documentCount: string;
+  onDocumentCountChange: (documentCount: string) => void;
 }
 
 const MockDataGeneratorModal = ({
@@ -75,10 +77,9 @@ const MockDataGeneratorModal = ({
   onPreviousStep,
   namespace,
   fakerSchemaGenerationState,
+  documentCount,
+  onDocumentCountChange,
 }: Props) => {
-  const [documentCount, setDocumentCount] = React.useState<number>(
-    DEFAULT_DOCUMENT_COUNT
-  );
   const track = useTelemetry();
   const isAIFeatureEnabled = useIsAIFeatureEnabled();
   const isSampleDocumentPassingEnabled = usePreference(
@@ -100,7 +101,7 @@ const MockDataGeneratorModal = ({
         return (
           <DocumentCountScreen
             documentCount={documentCount}
-            onDocumentCountChange={setDocumentCount}
+            onDocumentCountChange={onDocumentCountChange}
           />
         );
       case MockDataGeneratorStep.PREVIEW_DATA:
@@ -120,7 +121,7 @@ const MockDataGeneratorModal = ({
     currentStep,
     fakerSchemaGenerationState,
     documentCount,
-    setDocumentCount,
+    onDocumentCountChange,
     onNextStep,
   ]);
 
@@ -130,13 +131,13 @@ const MockDataGeneratorModal = ({
     });
   }, [currentStep, track]);
 
+  const isDocumentCountInvalid = !validateDocumentCount(documentCount).isValid;
+
   const isNextButtonDisabled =
     (currentStep === MockDataGeneratorStep.SCHEMA_EDITOR &&
       fakerSchemaGenerationState.status !== 'completed') ||
     (currentStep === MockDataGeneratorStep.DOCUMENT_COUNT &&
-      documentCount < 1) ||
-    (currentStep === MockDataGeneratorStep.DOCUMENT_COUNT &&
-      documentCount > MAX_DOCUMENT_COUNT);
+      isDocumentCountInvalid);
 
   const handleNextClick = useCallback(() => {
     const nextStep = MOCK_DATA_GENERATOR_STEP_TO_NEXT_STEP_MAP[currentStep];
@@ -220,6 +221,7 @@ const mapStateToProps = (state: CollectionState) => ({
   currentStep: state.mockDataGenerator.currentStep,
   namespace: state.namespace,
   fakerSchemaGenerationState: state.fakerSchemaGeneration,
+  documentCount: state.mockDataGenerator.documentCount,
 });
 
 const ConnectedMockDataGeneratorModal = connect(mapStateToProps, {
@@ -227,6 +229,7 @@ const ConnectedMockDataGeneratorModal = connect(mapStateToProps, {
   onNextStep: mockDataGeneratorNextButtonClicked,
   onConfirmSchema: generateFakerMappings,
   onPreviousStep: mockDataGeneratorPreviousButtonClicked,
+  onDocumentCountChange: mockDataGeneratorDocumentCountChanged,
 })(MockDataGeneratorModal);
 
 export default ConnectedMockDataGeneratorModal;
