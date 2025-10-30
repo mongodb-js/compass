@@ -49,6 +49,7 @@
   },
   "dependencies": {
     "@faker-js/faker": "^9.0.0",
+    "@mongodb-js/atlas-service": "^0.69.0",
     "@mongodb-js/compass-app-registry": "^9.4.27",
     "@mongodb-js/compass-app-stores": "^7.72.0",
     "@mongodb-js/compass-components": "^1.57.1",
