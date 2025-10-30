@@ -13,6 +13,7 @@ import {
   Placeholder,
   compactBytes,
   compactNumber,
+  InlineDefinition,
 } from '@mongodb-js/compass-components';
 import { ItemsTable, VirtualItemsTable } from './items-table';
 import type { CollectionProps } from 'mongodb-collection-model';
@@ -302,39 +303,34 @@ function collectionColumns({
         const documentSize = collection.document_size;
         const displayValue = compactBytes(storageSize);
 
-        return (
-          <Tooltip
-            align="top"
-            justify="start"
-            trigger={({
-              children,
-              ...props
-            }: React.PropsWithChildren<Record<string, unknown>>) => (
-              <span {...props}>
-                {displayValue}
-                {children}
-              </span>
-            )}
-          >
+        const definition = (
+          <div>
             <div>
-              <div>
-                <strong>Storage Size:</strong> {compactBytes(storageSize)}{' '}
-                (total allocated)
-              </div>
-              <div>
-                <strong>Used:</strong> {compactBytes(usedStorageSize)}
-              </div>
-              <div>
-                <strong>Free:</strong> {compactBytes(freeStorageSize)}
-              </div>
-              {documentSize !== undefined && (
-                <div>
-                  <strong>Data Size:</strong> {compactBytes(documentSize)}{' '}
-                  (uncompressed)
-                </div>
-              )}
+              <strong>Storage Size:</strong> {compactBytes(storageSize)} (total
+              allocated)
             </div>
-          </Tooltip>
+            <div>
+              <strong>Used:</strong> {compactBytes(usedStorageSize)}
+            </div>
+            <div>
+              <strong>Free:</strong> {compactBytes(freeStorageSize)}
+            </div>
+            {documentSize !== undefined && (
+              <div>
+                <strong>Data Size:</strong> {compactBytes(documentSize)}{' '}
+                (uncompressed)
+              </div>
+            )}
+          </div>
+        );
+
+        return (
+          <InlineDefinition
+            definition={definition}
+            tooltipProps={{ align: 'top', justify: 'start' }}
+          >
+            {displayValue}
+          </InlineDefinition>
         );
       },
     },
