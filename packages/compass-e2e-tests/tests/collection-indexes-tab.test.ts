@@ -91,7 +91,10 @@ describe('Collection indexes tab', function () {
       Selectors.IndexFieldType
     }`;
     const indexFieldTypeElement = browser.$(indexFieldTypeSelector);
-    expect(await indexFieldTypeElement.getText()).to.equal('WILDCARD');
+    await browser.waitUntil(async function () {
+      const text = await indexFieldTypeElement.getText();
+      return text === 'WILDCARD';
+    });
 
     await browser.dropIndex(indexName, 'drop-index-modal-wildcard.png');
   });
