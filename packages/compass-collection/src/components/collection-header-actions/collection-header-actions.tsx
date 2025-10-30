@@ -31,6 +31,10 @@ import {
 } from '../../schema-analysis-types';
 import { MAX_COLLECTION_NESTING_DEPTH } from '../mock-data-generator-modal/utils';
 import { type AtlasClusterMetadata } from '@mongodb-js/connection-info';
+import {
+  buildChartsUrl,
+  buildMonitoringUrl,
+} from '@mongodb-js/atlas-service/provider';
 
 const collectionHeaderActionsStyles = css({
   display: 'flex',
@@ -46,26 +50,6 @@ const tooltipMessageStyles = css({
     marginBottom: 0,
   },
 });
-
-function buildChartsUrl(
-  groupId: string,
-  clusterName: string,
-  namespace: string
-) {
-  const { database, collection } = toNS(namespace);
-  const url = new URL(`/charts/${groupId}`, window.location.origin);
-  url.searchParams.set('sourceType', 'cluster');
-  url.searchParams.set('name', clusterName);
-  url.searchParams.set('database', database);
-  url.searchParams.set('collection', collection);
-  return url.toString();
-}
-
-function buildMonitoringUrl(atlasMetadata: AtlasClusterMetadata) {
-  const { projectId, metricsType, metricsId } = atlasMetadata;
-  const url = new URL(`/v2/${projectId}`, window.location.origin);
-  return `${url}#/host/${metricsType}/${metricsId}`;
-}
 
 type CollectionHeaderActionsProps = {
   namespace: string;
@@ -257,11 +241,7 @@ const CollectionHeaderActions: React.FunctionComponent<
         <Button
           data-testid="collection-header-visualize-your-data"
           size={ButtonSize.Small}
-          href={buildChartsUrl(
-            atlasMetadata.projectId,
-            atlasMetadata.clusterName,
-            namespace
-          )}
+          href={buildChartsUrl(atlasMetadata, namespace)}
           target="_self"
           rel="noopener noreferrer"
           leftGlyph={<Icon glyph="Charts" />}

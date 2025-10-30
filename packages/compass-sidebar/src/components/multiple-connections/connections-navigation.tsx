@@ -32,7 +32,6 @@ import type {
 } from '@mongodb-js/compass-connections-navigation';
 import type { WorkspaceTab } from '@mongodb-js/compass-workspaces';
 import {
-  type AtlasClusterMetadata,
   getConnectionTitle,
   type ConnectionInfo,
 } from '@mongodb-js/connection-info';
@@ -63,6 +62,12 @@ import {
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import { usePreference } from 'compass-preferences-model/provider';
 import { wrapField } from '@mongodb-js/mongodb-constants';
+import {
+  buildPerformanceMetricsUrl,
+  buildClusterOverviewUrl,
+  buildMonitoringUrl,
+  buildQueryInsightsUrl,
+} from '@mongodb-js/atlas-service/provider';
 
 const connectionsContainerStyles = css({
   height: '100%',
@@ -104,34 +109,6 @@ const noDeploymentStyles = css({
   flexDirection: 'column',
   gap: spacing[200],
 });
-
-function buildPerformanceMetricsUrl(atlasMetadata?: AtlasClusterMetadata) {
-  if (!atlasMetadata) return;
-  const { projectId, metricsType, metricsId } = atlasMetadata;
-  const url = new URL(`/v2/${projectId}`, window.location.origin);
-  return `${url}#/host/${metricsType}/${metricsId}/realtime/panel`;
-}
-
-function buildMonitoringUrl(atlasMetadata?: AtlasClusterMetadata) {
-  if (!atlasMetadata) return;
-  const { projectId, metricsType, metricsId } = atlasMetadata;
-  const url = new URL(`/v2/${projectId}`, window.location.origin);
-  return `${url}#/host/${metricsType}/${metricsId}`;
-}
-
-export function buildClusterOverviewUrl(atlasMetadata?: AtlasClusterMetadata) {
-  if (!atlasMetadata) return;
-  const { projectId, clusterName } = atlasMetadata;
-  const url = new URL(`/v2/${projectId}`, window.location.origin);
-  return `${url}#/clusters/detail/${clusterName}`;
-}
-
-export function buildQueryInsightsUrl(atlasMetadata?: AtlasClusterMetadata) {
-  if (!atlasMetadata) return;
-  const { projectId, metricsType, metricsId } = atlasMetadata;
-  const url = new URL(`/v2/${projectId}`, window.location.origin);
-  return `${url}#/metrics/${metricsType}/${metricsId}/queryInsights/shape`;
-}
 
 /**
  * Indicates only Atlas cluster connections are supported, and the user cannot navigate
@@ -451,31 +428,27 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
           onOpenConnectViaModal?.(getConnectionInfo(item).atlasMetadata);
           return;
         case 'connection-atlas-performance-metrics': {
-          const dest = buildPerformanceMetricsUrl(
-            getConnectionInfo(item).atlasMetadata
-          );
-          if (dest) window.open(dest, '_blank');
+          const { atlasMetadata } = getConnectionInfo(item);
+          if (atlasMetadata)
+            window.open(buildPerformanceMetricsUrl(atlasMetadata), '_blank');
           return;
         }
         case 'connection-cluster-overview': {
-          const dest = buildClusterOverviewUrl(
-            getConnectionInfo(item).atlasMetadata
-          );
-          if (dest) window.open(dest, '_blank');
+          const { atlasMetadata } = getConnectionInfo(item);
+          if (atlasMetadata)
+            window.open(buildClusterOverviewUrl(atlasMetadata), '_blank');
           return;
         }
         case 'connection-view-monitoring': {
-          const dest = buildMonitoringUrl(
-            getConnectionInfo(item).atlasMetadata
-          );
-          if (dest) window.open(dest, '_blank');
+          const { atlasMetadata } = getConnectionInfo(item);
+          if (atlasMetadata)
+            window.open(buildMonitoringUrl(atlasMetadata), '_blank');
           return;
         }
         case 'connection-query-insights': {
-          const dest = buildQueryInsightsUrl(
-            getConnectionInfo(item).atlasMetadata
-          );
-          if (dest) window.open(dest, '_blank');
+          const { atlasMetadata } = getConnectionInfo(item);
+          if (atlasMetadata)
+            window.open(buildQueryInsightsUrl(atlasMetadata), '_blank');
           return;
         }
         case 'select-database':
