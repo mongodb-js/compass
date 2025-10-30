@@ -8,9 +8,11 @@ import {
   IconButton,
   palette,
   spacing,
+  Tooltip,
 } from '@mongodb-js/compass-components';
 import type { Relationship } from '../../services/data-model-storage';
 import { getDefaultRelationshipName } from '../../utils';
+import { isRelationshipInvalid } from '../../utils/utils';
 
 const titleBtnStyles = css({
   marginLeft: 'auto',
@@ -35,13 +37,23 @@ const relationshipItemStyles = css({
   alignItems: 'center',
 });
 
-const relationshipNameStyles = css({
+const relationshipNameWrapperStyles = css({
   flexGrow: 1,
+  minWidth: 0,
+  display: 'flex',
+  alignItems: 'center',
+  gap: spacing[100],
+  paddingRight: spacing[200],
+});
+
+const relationshipNameStyles = css({
   overflow: 'hidden',
   textOverflow: 'ellipsis',
   whiteSpace: 'nowrap',
-  minWidth: 0,
-  paddingRight: spacing[200],
+});
+
+const warnIconWrapperStyles = css({
+  display: 'flex',
 });
 
 const relationshipContentStyles = css({
@@ -97,12 +109,29 @@ export const RelationshipsSection: React.FunctionComponent<
                   data-relationship-id={r.id}
                   className={relationshipItemStyles}
                 >
-                  <span
-                    className={relationshipNameStyles}
-                    title={relationshipLabel}
-                  >
-                    {relationshipLabel}
-                  </span>
+                  <div className={relationshipNameWrapperStyles}>
+                    <span
+                      className={relationshipNameStyles}
+                      title={relationshipLabel}
+                    >
+                      {relationshipLabel}
+                    </span>
+                    {isRelationshipInvalid(r) && (
+                      <Tooltip
+                        trigger={
+                          <div className={warnIconWrapperStyles}>
+                            <Icon
+                              glyph="Warning"
+                              color={palette.yellow.light2}
+                            />
+                          </div>
+                        }
+                      >
+                        Can not resolve the relationship - please verify the
+                        linked fields and namespace.
+                      </Tooltip>
+                    )}
+                  </div>
                   <IconButton
                     aria-label="Edit relationship"
                     title="Edit relationship"

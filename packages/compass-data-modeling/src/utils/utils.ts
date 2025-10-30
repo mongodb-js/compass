@@ -84,3 +84,28 @@ export function dualSourceHandlerDebounce(
   };
   return Array.from({ length: count }, (_, i) => makeHandler(i));
 }
+
+export function getNamespaceRelationships(
+  namespace: string,
+  relationships: Relationship[] = []
+): Relationship[] {
+  return (
+    relationships.filter((r) => {
+      const [local, foreign] = r.relationship;
+      return local.ns === namespace || foreign.ns === namespace;
+    }) || []
+  );
+}
+
+export function isRelationshipInvalid(relationship: Relationship): boolean {
+  const [source, target] = relationship.relationship;
+  if (!source.ns || !target.ns || !source.fields || !target.fields) {
+    return true;
+  }
+
+  if (source.fields.length === 0 || target.fields.length === 0) {
+    return true;
+  }
+
+  return false;
+}
