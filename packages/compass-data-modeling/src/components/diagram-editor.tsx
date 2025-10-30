@@ -58,6 +58,7 @@ import {
   relationshipToDiagramEdge,
 } from '../utils/nodes-and-edges';
 import toNS from 'mongodb-ns';
+import { getNamespaceRelationships } from '../utils/utils';
 
 const loadingContainerStyles = css({
   width: '100%',
@@ -230,6 +231,10 @@ const DiagramContent: React.FunctionComponent<{
         !!selectedItems &&
         selectedItems.type === 'collection' &&
         selectedItems.id === coll.ns;
+      const relationships = getNamespaceRelationships(
+        coll.ns,
+        model?.relationships
+      );
       return collectionToDiagramNode({
         ...coll,
         highlightedFields,
@@ -239,6 +244,7 @@ const DiagramContent: React.FunctionComponent<{
             : undefined,
         selected,
         isInRelationshipDrawingMode,
+        relationships,
       });
     });
   }, [
