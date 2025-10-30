@@ -61,19 +61,10 @@ function buildChartsUrl(
   return url.toString();
 }
 
-function buildMonitoringUrl({
-  projectId,
-  clusterType,
-  clusterUniqueId,
-}: AtlasClusterMetadata) {
-  // {origin}/v2/{groupId}#/host/{'replicaSet' | 'cluster'}/{clusterId}
+function buildMonitoringUrl(atlasMetadata: AtlasClusterMetadata) {
+  const { projectId, metricsType, metricsId } = atlasMetadata;
   const url = new URL(`/v2/${projectId}`, window.location.origin);
-  const fragmentPath = [
-    'host',
-    clusterType === 'REPLICASET' ? 'replicaSet' : 'cluster',
-    clusterUniqueId,
-  ].join('/');
-  return `${url}#/${fragmentPath}`;
+  return `${url}#/host/${metricsType}/${metricsId}`;
 }
 
 type CollectionHeaderActionsProps = {
