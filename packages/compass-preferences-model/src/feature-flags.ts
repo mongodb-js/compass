@@ -217,6 +217,16 @@ export const FEATURE_FLAG_DEFINITIONS = [
   },
 
   {
+    name: 'enableRestoreWorkspaces',
+    stage: 'development',
+    atlasCloudFeatureFlagName:
+      'DATA_EXPLORER_COMPASS_WEB_ENABLE_RESTORE_WORKSPACES',
+    description: {
+      short: 'Enable restoring previous workspace tabs on startup',
+    },
+  },
+
+  {
     name: 'enableAutomaticRelationshipInference',
     stage: 'released',
     atlasCloudFeatureFlagName: null,

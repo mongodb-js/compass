@@ -85,6 +85,7 @@ export class AtlasService {
       | 'favoriteQueries'
       | 'recentQueries'
       | 'favoriteAggregations'
+      | 'savedWorkspaces'
       | 'dataModelDescriptions',
     id?: string
   ): string {
