@@ -1396,6 +1396,16 @@ describe('MockDataGeneratorModal', () => {
           }
         );
       });
+
+      it('does not fire a track event when the modal is closed', async () => {
+        const result = await renderModal({ currentStep, isOpen: false });
+        expect(result.track).to.not.have.been.calledWith(
+          'Mock Data Generator Screen Viewed',
+          {
+            screen: currentStep,
+          }
+        );
+      });
     });
   });
 });

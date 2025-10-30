@@ -125,10 +125,12 @@ const MockDataGeneratorModal = ({
   ]);
 
   useEffect(() => {
-    track('Mock Data Generator Screen Viewed', {
-      screen: currentStep,
-    });
-  }, [currentStep, track]);
+    if (isOpen) {
+      track('Mock Data Generator Screen Viewed', {
+        screen: currentStep,
+      });
+    }
+  }, [currentStep, track, isOpen]);
 
   const isNextButtonDisabled =
     (currentStep === MockDataGeneratorStep.SCHEMA_EDITOR &&
