@@ -99,11 +99,14 @@ export function getNamespaceRelationships(
 
 export function isRelationshipInvalid(relationship: Relationship): boolean {
   const [source, target] = relationship.relationship;
-  if (!source.ns || !target.ns || !source.fields || !target.fields) {
-    return true;
-  }
-
-  if (source.fields.length === 0 || target.fields.length === 0) {
+  if (
+    !source.ns ||
+    !target.ns ||
+    !source.fields ||
+    !target.fields ||
+    source.fields.length === 0 ||
+    target.fields.length === 0
+  ) {
     return true;
   }
 
