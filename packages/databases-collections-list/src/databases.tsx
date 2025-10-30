@@ -129,9 +129,42 @@ function databaseColumns({
           return <Placeholder maxChar={10}></Placeholder>;
         }
 
-        return enableDbAndCollStats && database.storage_size !== undefined
-          ? compactBytes(database.storage_size)
-          : '-';
+        if (!enableDbAndCollStats || database.storage_size === undefined) {
+          return '-';
+        }
+
+        const storageSize = database.storage_size;
+        const dataSize = database.data_size;
+        const displayValue = compactBytes(storageSize);
+
+        return (
+          <Tooltip
+            align="top"
+            justify="start"
+            trigger={({
+              children,
+              ...props
+            }: React.PropsWithChildren<Record<string, unknown>>) => (
+              <span {...props}>
+                {displayValue}
+                {children}
+              </span>
+            )}
+          >
+            <div>
+              <div>
+                <strong>Storage Size:</strong> {compactBytes(storageSize)}{' '}
+                (total allocated)
+              </div>
+              {dataSize !== undefined && (
+                <div>
+                  <strong>Data Size:</strong> {compactBytes(dataSize)}{' '}
+                  (uncompressed)
+                </div>
+              )}
+            </div>
+          </Tooltip>
+        );
       },
     },
     /*

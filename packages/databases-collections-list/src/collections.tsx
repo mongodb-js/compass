@@ -291,9 +291,51 @@ function collectionColumns({
         if (type === 'view') {
           return '-';
         }
-        return enableDbAndCollStats && collection.storage_size !== undefined
-          ? compactBytes(collection.storage_size)
-          : '-';
+
+        if (!enableDbAndCollStats || collection.storage_size === undefined) {
+          return '-';
+        }
+
+        const storageSize = collection.storage_size;
+        const freeStorageSize = collection.free_storage_size ?? 0;
+        const usedStorageSize = storageSize - freeStorageSize;
+        const documentSize = collection.document_size;
+        const displayValue = compactBytes(storageSize);
+
+        return (
+          <Tooltip
+            align="top"
+            justify="start"
+            trigger={({
+              children,
+              ...props
+            }: React.PropsWithChildren<Record<string, unknown>>) => (
+              <span {...props}>
+                {displayValue}
+                {children}
+              </span>
+            )}
+          >
+            <div>
+              <div>
+                <strong>Storage Size:</strong> {compactBytes(storageSize)}{' '}
+                (total allocated)
+              </div>
+              <div>
+                <strong>Used:</strong> {compactBytes(usedStorageSize)}
+              </div>
+              <div>
+                <strong>Free:</strong> {compactBytes(freeStorageSize)}
+              </div>
+              {documentSize !== undefined && (
+                <div>
+                  <strong>Data Size:</strong> {compactBytes(documentSize)}{' '}
+                  (uncompressed)
+                </div>
+              )}
+            </div>
+          </Tooltip>
+        );
       },
     },
     /*
