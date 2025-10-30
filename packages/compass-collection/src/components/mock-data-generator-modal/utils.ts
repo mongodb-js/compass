@@ -1,6 +1,7 @@
 import { type Logger, mongoLogId } from '@mongodb-js/compass-logging/provider';
 import type { FakerArg } from './script-generation-utils';
 import { faker } from '@faker-js/faker/locale/en';
+import { MAX_DOCUMENT_COUNT } from './constants';
 
 const MAX_FAKER_ARGS_COUNT = 2;
 const MAX_ARRAY_LENGTH = 10;
@@ -199,4 +200,31 @@ function prepareFakerArgs(args: FakerArg[]) {
     }
     return arg;
   });
+}
+
+export function validateDocumentCount(documentCount?: string): {
+  isValid: boolean;
+  errorMessage?: string;
+  parsedValue?: number;
+} {
+  if (!documentCount) {
+    return { isValid: false, errorMessage: 'Document count is required' };
+  }
+
+  const trimmed = documentCount.trim();
+  const num = Number(documentCount);
+
+  if (!trimmed)
+    return { isValid: false, errorMessage: 'Document count is required' };
+  if (isNaN(num))
+    return { isValid: false, errorMessage: 'Please enter a valid number' };
+  if (documentCount.includes('.'))
+    return { isValid: false, errorMessage: 'Please enter a whole number' };
+  if (num < 1 || num > MAX_DOCUMENT_COUNT)
+    return {
+      isValid: false,
+      errorMessage: `Document count must be between 1 and ${MAX_DOCUMENT_COUNT}`,
+    };
+
+  return { isValid: true, parsedValue: num };
 }
