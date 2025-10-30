@@ -35,12 +35,13 @@ import {
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import toNS from 'mongodb-ns';
-import {
-  type AtlasClusterMetadata,
-  getConnectionTitle,
-} from '@mongodb-js/connection-info';
+import { getConnectionTitle } from '@mongodb-js/connection-info';
 import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
 import { usePreferences } from 'compass-preferences-model/provider';
+import {
+  buildChartsUrl,
+  buildMonitoringUrl,
+} from '@mongodb-js/atlas-service/provider';
 
 type Item = {
   _id: string;
@@ -101,27 +102,6 @@ const pushRightStyles = css({
 const bannerRowStyles = css({
   paddingTop: spacing[200],
 });
-
-function buildChartsUrl(
-  groupId: string,
-  clusterName: string,
-  namespace?: string
-) {
-  const { database } = toNS(namespace ?? '');
-  const url = new URL(`/charts/${groupId}`, window.location.origin);
-  url.searchParams.set('sourceType', 'cluster');
-  url.searchParams.set('name', clusterName);
-  if (database) {
-    url.searchParams.set('database', database);
-  }
-  return url.toString();
-}
-
-function buildMonitoringUrl(atlasMetadata: AtlasClusterMetadata) {
-  const { projectId, metricsType, metricsId } = atlasMetadata;
-  const url = new URL(`/v2/${projectId}`, window.location.origin);
-  return `${url}#/host/${metricsType}/${metricsId}`;
-}
 
 const TableControls: React.FunctionComponent<{
   namespace?: string;
@@ -222,11 +202,7 @@ const TableControls: React.FunctionComponent<{
             <Button
               data-testid={`${itemType}-header-visualize-your-data`}
               size="small"
-              href={buildChartsUrl(
-                connectionInfo.atlasMetadata.projectId,
-                connectionInfo.atlasMetadata.clusterName,
-                namespace
-              )}
+              href={buildChartsUrl(connectionInfo.atlasMetadata, namespace)}
               target="_self"
               rel="noopener noreferrer"
               leftGlyph={<Icon glyph="Charts" />}
