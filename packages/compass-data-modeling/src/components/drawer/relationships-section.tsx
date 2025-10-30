@@ -4,11 +4,13 @@ import {
   Badge,
   Button,
   css,
+  cx,
   Icon,
   IconButton,
   palette,
   spacing,
   Tooltip,
+  useDarkMode,
 } from '@mongodb-js/compass-components';
 import type { Relationship } from '../../services/data-model-storage';
 import { getDefaultRelationshipName } from '../../utils';
@@ -54,6 +56,11 @@ const relationshipNameStyles = css({
 
 const warnIconWrapperStyles = css({
   display: 'flex',
+  color: palette.yellow.dark2,
+});
+
+const warnIconWrapperDarkStyles = css({
+  color: palette.yellow.light2,
 });
 
 const relationshipContentStyles = css({
@@ -77,6 +84,7 @@ export const RelationshipsSection: React.FunctionComponent<
   onEditRelationshipClick,
   onDeleteRelationshipClick,
 }) => {
+  const darkmode = useDarkMode();
   return (
     <DMDrawerSection
       label={
@@ -119,11 +127,13 @@ export const RelationshipsSection: React.FunctionComponent<
                     {isRelationshipInvalid(r) && (
                       <Tooltip
                         trigger={
-                          <div className={warnIconWrapperStyles}>
-                            <Icon
-                              glyph="Warning"
-                              color={palette.yellow.light2}
-                            />
+                          <div
+                            className={cx(
+                              warnIconWrapperStyles,
+                              darkmode && warnIconWrapperDarkStyles
+                            )}
+                          >
+                            <Icon glyph="Warning" />
                           </div>
                         }
                       >
