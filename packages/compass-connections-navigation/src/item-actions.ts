@@ -124,7 +124,7 @@ export const connectedConnectionItemActions = ({
     // The following are just links to other parts of Atlas
     !isPerformanceTabAvailable && connectionInfo.atlasMetadata
       ? {
-          action: 'connection-performance-metrics',
+          action: 'connection-atlas-performance-metrics',
           icon: 'Gauge',
           label: 'View performance metrics',
           isDisabled: false,

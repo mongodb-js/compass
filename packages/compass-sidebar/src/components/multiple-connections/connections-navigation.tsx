@@ -105,40 +105,32 @@ const noDeploymentStyles = css({
   gap: spacing[200],
 });
 
+function buildPerformanceMetricsUrl(atlasMetadata?: AtlasClusterMetadata) {
+  if (!atlasMetadata) return;
+  const { projectId, metricsType, metricsId } = atlasMetadata;
+  const url = new URL(`/v2/${projectId}`, window.location.origin);
+  return `${url}#/host/${metricsType}/${metricsId}/realtime/panel`;
+}
+
 function buildMonitoringUrl(atlasMetadata?: AtlasClusterMetadata) {
   if (!atlasMetadata) return;
-  // {origin}/v2/{groupId}#/host/{'replicaSet' | 'cluster'}/{clusterId}
-  const { projectId, clusterType, clusterUniqueId } = atlasMetadata;
+  const { projectId, metricsType, metricsId } = atlasMetadata;
   const url = new URL(`/v2/${projectId}`, window.location.origin);
-  const fragmentPath = [
-    'host',
-    clusterType === 'REPLICASET' ? 'replicaSet' : 'cluster',
-    clusterUniqueId,
-  ].join('/');
-  return `${url}#/${fragmentPath}`;
+  return `${url}#/host/${metricsType}/${metricsId}`;
 }
 
 export function buildClusterOverviewUrl(atlasMetadata?: AtlasClusterMetadata) {
   if (!atlasMetadata) return;
   const { projectId, clusterName } = atlasMetadata;
-  // {origin}/v2/{groupId}#/clusters/detail/{clusterName}
   const url = new URL(`/v2/${projectId}`, window.location.origin);
   return `${url}#/clusters/detail/${clusterName}`;
 }
 
 export function buildQueryInsightsUrl(atlasMetadata?: AtlasClusterMetadata) {
   if (!atlasMetadata) return;
-  const { projectId, clusterType, clusterUniqueId } = atlasMetadata;
-  // '{origin}/v2/{projectId}#/metrics/{'replicaSet' | 'cluster'}/{clusterId}/queryInsights/shape';
+  const { projectId, metricsType, metricsId } = atlasMetadata;
   const url = new URL(`/v2/${projectId}`, window.location.origin);
-  const fragmentPath = [
-    'metrics',
-    clusterType === 'REPLICASET' ? 'replicaSet' : 'cluster',
-    clusterUniqueId,
-    'queryInsights',
-    'shape',
-  ].join('/');
-  return `${url}#${fragmentPath}`;
+  return `${url}#/metrics/${metricsType}/${metricsId}/queryInsights/shape`;
 }
 
 /**
@@ -458,6 +450,13 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
         case 'show-connect-via-modal':
           onOpenConnectViaModal?.(getConnectionInfo(item).atlasMetadata);
           return;
+        case 'connection-atlas-performance-metrics': {
+          const dest = buildPerformanceMetricsUrl(
+            getConnectionInfo(item).atlasMetadata
+          );
+          if (dest) window.open(dest, '_blank');
+          return;
+        }
         case 'connection-cluster-overview': {
           const dest = buildClusterOverviewUrl(
             getConnectionInfo(item).atlasMetadata
