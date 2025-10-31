@@ -280,7 +280,9 @@ const actionsCellStyles = css({
       opacity: 1,
     },
   },
-  minWidth: spacing[800],
+  '*:has(button)': {
+    minWidth: spacing[800],
+  },
 });
 
 type ItemAction = 'delete';

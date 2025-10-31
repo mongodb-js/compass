@@ -54,6 +54,7 @@ describe('CollectionHeaderActions [Component]', function () {
           <CollectionHeaderActions
             namespace="test.test"
             isReadonly={false}
+            isTimeSeries={false}
             onOpenMockDataModal={sinon.stub()}
             hasSchemaAnalysisData={true}
             analyzedSchemaDepth={2}
@@ -221,6 +222,22 @@ describe('CollectionHeaderActions [Component]', function () {
     };
 
     it('should call useAssignment with correct parameters', async function () {
+      await renderCollectionHeaderActions(
+        {
+          namespace: 'test.collection',
+          isReadonly: false,
+        },
+        {},
+        atlasConnectionInfo
+      );
+
+      expect(mockUseAssignment).to.have.been.calledWith(
+        ExperimentTestName.mockDataGenerator,
+        true // trackIsInSample - Experiment viewed analytics event
+      );
+    });
+
+    it('should call useAssignment with trackIsInSample set to false in non-Atlas environments', async function () {
       await renderCollectionHeaderActions({
         namespace: 'test.collection',
         isReadonly: false,
@@ -228,7 +245,23 @@ describe('CollectionHeaderActions [Component]', function () {
 
       expect(mockUseAssignment).to.have.been.calledWith(
         ExperimentTestName.mockDataGenerator,
-        true // trackIsInSample - Experiment viewed analytics event
+        false // Not eligible - no Atlas metadata
+      );
+    });
+
+    it('should call useAssignment with trackIsInSample set to false for readonly collections', async function () {
+      await renderCollectionHeaderActions(
+        {
+          namespace: 'test.collection',
+          isReadonly: true,
+        },
+        {},
+        atlasConnectionInfo
+      );
+
+      expect(mockUseAssignment).to.have.been.calledWith(
+        ExperimentTestName.mockDataGenerator,
+        false // Not eligible - readonly collection
       );
     });
 
@@ -357,6 +390,20 @@ describe('CollectionHeaderActions [Component]', function () {
         );
         expect(button).to.exist;
         expect(button).to.have.attribute('aria-disabled', 'true');
+      });
+
+      it('should not show button for time series collections', async function () {
+        await renderCollectionHeaderActions(
+          {
+            isTimeSeries: true,
+          },
+          {},
+          atlasConnectionInfo
+        );
+
+        expect(
+          screen.queryByTestId('collection-header-generate-mock-data-button')
+        ).to.not.exist;
       });
     });
   });

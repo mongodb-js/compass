@@ -1085,7 +1085,7 @@ describe('DataService', function () {
         const instance = await dataService.instance();
         expect(instance.genuineMongoDB).to.deep.equal({
           isGenuine: true,
-          dbType: 'mongodb',
+          serverName: 'mongodb',
         });
         expect(instance.dataLake).to.deep.equal({
           isDataLake: false,

@@ -10,6 +10,7 @@ import reducer, {
   cancelSchemaAnalysis,
 } from '../modules/collection-tab';
 import { MockDataGeneratorStep } from '../components/mock-data-generator-modal/types';
+import { DEFAULT_DOCUMENT_COUNT } from '../components/mock-data-generator-modal/constants';
 
 import type { Collection } from '@mongodb-js/compass-app-stores/provider';
 import type { ActivateHelpers } from '@mongodb-js/compass-app-registry';
@@ -101,6 +102,7 @@ export function activatePlugin(
       mockDataGenerator: {
         isModalOpen: false,
         currentStep: MockDataGeneratorStep.SCHEMA_CONFIRMATION,
+        documentCount: DEFAULT_DOCUMENT_COUNT.toString(),
       },
       fakerSchemaGeneration: {
         status: 'idle',
@@ -143,8 +145,11 @@ export function activatePlugin(
     store.dispatch(collectionMetadataFetched(metadata));
 
     // Assign experiment for Mock Data Generator
-    // Only assign when we're connected to Atlas and the org-level setting for AI features is enabled
+    // Only assign when we're connected to Atlas, the org-level setting for AI features is enabled,
+    // and the collection supports the Mock Data Generator feature (not readonly/timeseries)
     if (
+      !metadata.isReadonly &&
+      !metadata.isTimeSeries &&
       connectionInfoRef.current?.atlasMetadata?.clusterName && // Ensures we only assign in Atlas
       isAIFeatureEnabled(preferences.getPreferences()) // Ensures org-level AI features setting is enabled
     ) {

@@ -1,6 +1,6 @@
 {
   "name": "@mongodb-js/compass-components",
-  "version": "1.56.0",
+  "version": "1.57.1",
   "description": "React Components used in Compass",
   "license": "SSPL",
   "main": "lib/index.js",
@@ -102,7 +102,6 @@
     "@react-aria/interactions": "^3.9.1",
     "@react-aria/utils": "^3.13.1",
     "@react-aria/visually-hidden": "^3.3.1",
-    "@tanstack/table-core": "^8.14.0",
     "bson": "^6.10.4",
     "focus-trap-react": "^9.0.2",
     "hadron-document": "^8.10.5",

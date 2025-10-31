@@ -13,6 +13,7 @@ import type {
 } from '@mongodb-js/compass-workspaces';
 import WorkspacesPlugin, {
   WorkspacesProvider,
+  WorkspacesStorageServiceProviderWeb,
 } from '@mongodb-js/compass-workspaces';
 import {
   CollectionsWorkspaceTab,
@@ -125,7 +126,8 @@ const WithStorageProviders = createServiceProvider(
       const type = pathParts[0] as
         | 'favoriteQueries'
         | 'recentQueries'
-        | 'favoriteAggregations';
+        | 'favoriteAggregations'
+        | 'savedWorkspaces';
       const pathOrgId = pathParts[1];
       const pathProjectId = pathParts[2];
       const id = pathParts[3];
@@ -176,7 +178,14 @@ const WithStorageProviders = createServiceProvider(
       <PipelineStorageProvider value={pipelineStorage.current}>
         <FavoriteQueryStorageProvider value={favoriteQueryStorage.current}>
           <RecentQueryStorageProvider value={recentQueryStorage.current}>
-            {children}
+            <WorkspacesStorageServiceProviderWeb
+              orgId={orgId}
+              projectId={projectId}
+              getResourceUrl={getResourceUrl}
+              authenticatedFetch={authenticatedFetch}
+            >
+              {children}
+            </WorkspacesStorageServiceProviderWeb>
           </RecentQueryStorageProvider>
         </FavoriteQueryStorageProvider>
       </PipelineStorageProvider>

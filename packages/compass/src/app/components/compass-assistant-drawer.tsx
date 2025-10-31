@@ -1,5 +1,4 @@
-import { useConnectionIds } from '@mongodb-js/compass-connections/provider';
-import { getGenuineMongoDB } from 'mongodb-build-info';
+import { useHasNonGenuineConnections } from '@mongodb-js/compass-app-stores/provider';
 import React from 'react';
 import { CompassAssistantDrawer } from '@mongodb-js/compass-assistant';
 
@@ -11,16 +10,12 @@ export function CompassAssistantDrawerWithConnections({
 }: {
   appName: string;
 }) {
-  // Check for non-genuine connections
-  const activeConnectionIds = useConnectionIds(
-    (conn) =>
-      getGenuineMongoDB(conn.info.connectionOptions.connectionString)
-        .isGenuine === false && conn.status === 'connected'
-  );
+  const hasNonGenuineConnections = useHasNonGenuineConnections();
+
   return (
     <CompassAssistantDrawer
       appName={appName}
-      hasNonGenuineConnections={activeConnectionIds.length > 0}
+      hasNonGenuineConnections={hasNonGenuineConnections}
     />
   );
 }
