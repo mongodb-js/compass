@@ -115,7 +115,7 @@ export function useHasNonGenuineConnections(): boolean {
     [instancesManager]
   );
 
-  const [result, setResult] = useState(hasNonGenuineConnections);
+  const [result, setResult] = useState(() => hasNonGenuineConnections());
 
   useEffect(() => {
     if (instancesManager) {
