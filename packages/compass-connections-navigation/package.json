@@ -55,7 +55,7 @@
     "@mongodb-js/connection-form": "^1.72.1",
     "@mongodb-js/connection-info": "^0.22.0",
     "compass-preferences-model": "^2.64.0",
-    "mongodb-build-info": "^1.7.2",
+    "mongodb-build-info": "^1.8.1",
     "react": "^17.0.2",
     "react-virtualized-auto-sizer": "^1.0.6",
     "react-window": "^1.8.6"

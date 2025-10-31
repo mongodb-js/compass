@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **Mongodb Compass**.
-This document was automatically generated on Thu Oct 30 2025.
+This document was automatically generated on Fri Oct 31 2025.
 
 ## List of dependencies
 
@@ -185,6 +185,7 @@ This document was automatically generated on Thu Oct 30 2025.
 | **[ampersand-events](#5aa8f29a56511aafd27953d01cb603faa9aa7e2f92847c72f879c42646e7f3fa)**                                   | 2.0.2        | MIT                                 |
 | **[ampersand-model](#82c2458e0e00bac271d59b70c0cc51b9d8c2ed725b62f51575b4b422c7aa5ca0)**                                    | 8.0.1        | MIT                                 |
 | **[ampersand-state](#50886d5661d4241b348d233af087614640a657fad2d772282410875a410ba00a)**                                    | 5.0.3        | MIT                                 |
+| **[ansi-regex](#945d39147a145d6a28d87154006fa731c2e69d2a19e76cc7012624a1109f9317)**                                         | 2.1.1        | MIT                                 |
 | **[ansi-styles](#22c90e10fdbeeedded470f2fb78a8094893efd4675108074eddde452da52ef87)**                                        | 4.3.0        | MIT                                 |
 | **[antlr4](#c5ad356fae2f067425b6c90b7251290842a1f2dec296bbd5afd5ccc32dcf3acc)**                                             | 4.7.2        | BSD-3-Clause                        |
 | **[array-next](#2eca7126c828f7c4b047e8bc3982acc390adc906c9e1fd2ab512d7ade811a40d)**                                         | 0.0.1        | MIT                                 |
@@ -357,7 +358,7 @@ This document was automatically generated on Thu Oct 30 2025.
 | **[lodash-es](#a591ea211f9167d2f80166d42532d3c01f7843fafac380deb0bcf693cdf6fa1d)**                                          | 4.17.21      | MIT                                 |
 | **[lodash.merge](#996e40d63a94f1b8693d7c81e0cdfb874c6432d6bbd675976fc1b6b13652c8db)**                                       | 4.6.2        | MIT                                 |
 | **[lodash](#adaac4144887ebc2c1b682380ff385210f681fc58b4bc1ef3986148cf8dcd28a)**                                             | 4.17.21      | MIT                                 |
-| **[lru-cache](#d0192735bd71c643cc16fbd4349d2043d2a045462dc4437006f0074165adf27e)**                                          | 11.1.0       | ISC                                 |
+| **[lru-cache](#10c5739147749b9d7134807a14c5667fe20576f24b327fc73f216b03a78a6052)**                                          | 11.2.2       | ISC                                 |
 | **[lru-cache](#fe7f0a2f2cf4c92f13c3a2a63f14f80f20f6919979306dc054e4f947c1234651)**                                          | 5.1.1        | ISC                                 |
 | **[math-intrinsics](#f585fed67bcee1ccc26f6fd0010ab256b0e752435b26949a15143b03495a11d9)**                                    | 1.1.0        | MIT                                 |
 | **[mdast-util-definitions](#906c46bd62e5d0bb51c7e5e1dbcd2c7385ca236a34a90348bd470966f289b4b4)**                             | 5.1.2        | MIT                                 |
@@ -394,12 +395,12 @@ This document was automatically generated on Thu Oct 30 2025.
 | **[minimist](#8162d302efd0533ce00fc8a52dd6703dbb4205435af84e72b7694c608a729de4)**                                           | 1.2.8        | MIT                                 |
 | **[mkdirp-classic](#e79cc875152b50c2eb57a97163d99f0155bf4e4af7ba4a7e01c12a17a4a3305c)**                                     | 0.5.3        | MIT                                 |
 | **[modify-filename](#7153be07939379ccf0072006c519fba2bdf5ab79ca8bb59bc5273f87a7bacbf6)**                                    | 1.1.0        | MIT                                 |
-| **[mongodb-build-info](#f0a98c22ae0766702726f79e058ac6dc4e4bead8557b67b816f40bd13fb54170)**                                 | 1.7.2        | Apache-2.0                          |
+| **[mongodb-build-info](#8f9a3c1ccf49d9332d5669c9fffde8b0d393163d32ac5b94ca1450ea9c137194)**                                 | 1.8.1        | Apache-2.0                          |
 | **[mongodb-client-encryption](#b69198b27f91ae57d05c6db2f6c1e6afdf2e56f8b5a66a2142292cd7efde2e53)**                          | 6.5.0        | Apache-2.0                          |
 | **[mongodb-cloud-info](#5437e58440df6b1fefae8943353daf4f333e29974720113bcddd634c6bcc3f75)**                                 | 2.1.7        | Apache-2.0                          |
 | **[mongodb-connection-string-url](#2e1146256a89ebd24e3398881e03807fe363d58444e6b7952ea50bd6108707bc)**                      | 3.0.1        | Apache-2.0                          |
 | **[mongodb-connection-string-url](#1fd70d8a07ac5222eca41b7f648d7e56e854e4947d54123daeca8614d050a545)**                      | 3.0.2        | Apache-2.0                          |
-| **[mongodb-log-writer](#2773a73e5385ed96d47f2a1d6236804c4b9bfeccf4b2359d30b989810409b0f1)**                                 | 2.4.1        | Apache-2.0                          |
+| **[mongodb-log-writer](#985aaa38a9ce4a6f192fbd3fba7f9a713cf11718348d09268e92b363cfa0067f)**                                 | 2.4.4        | Apache-2.0                          |
 | **[mongodb-mql-engines](#f3c3cf99d701af28ef931ec96d633f53a8010e9a64fe99de829cd0788725e29d)**                                | 0.0.4        | Apache-2.0                          |
 | **[mongodb-ns](#1cd7eed8e558e278003bafc11ef70f899d5d7c2e4e604a3223e4fa11a0f85fa7)**                                         | 3.0.1        | Apache-2.0                          |
 | **[mongodb-query-parser](#15068a4e6d825438a4e6d365a3566f58762ef216402070179557503b775f3ff4)**                               | 4.3.0        | Apache-2.0                          |
@@ -515,6 +516,7 @@ This document was automatically generated on Thu Oct 30 2025.
 | **[stream-json](#ea4f40ce7b976664343c524e7c792df474c2d2612858e18f6c20f78a2f925eb4)**                                        | 1.9.1        | BSD-3-Clause                        |
 | **[streamx](#3ac467da0204d0250c2b400cbee076ee4df4153aadc8fec4a71990300b6991df)**                                            | 2.21.1       | MIT                                 |
 | **[string_decoder](#b7999058a36380603fb66d82d8b9e36ddb8f0e5b81cd3f3233f31eac12b793fe)**                                     | 1.3.0        | MIT                                 |
+| **[strip-ansi](#79e4e45eb767932cbcc94ba2f18534155184857640dee665f4b43ae6d5294646)**                                         | 3.0.1        | MIT                                 |
 | **[strip-bom-buf](#4f426c3eaeb7d288c70eb64ad2e2617952c0d8da8cdedf4f8cb29ba65bb3b65e)**                                      | 2.0.0        | MIT                                 |
 | **[strip-bom-stream](#f7e90a4335dbb561f2b002d1b73cdb9d891c023959465fee58c1636e0216af2e)**                                   | 4.0.0        | MIT                                 |
 | **[strip-json-comments](#7e22a64e44ef0efd054f76d551df5305ac48eb5807079c025c8bf63c0a728c33)**                                | 3.1.1        | MIT                                 |
@@ -568,7 +570,7 @@ This document was automatically generated on Thu Oct 30 2025.
 | **[warning](#02c159f6bf591ba6e8523609cb610cbd897ea68c214f64dac6f21d7b4e4d3a2d)**                                            | 4.0.3        | MIT                                 |
 | **[web-streams-polyfill](#2349028b62115a87d9af122218c79a38cd90411e2b53a91c1cff7249e16f45f0)**                               | 3.3.3        | MIT                                 |
 | **[web-vitals](#66d3585417e14f352ce331e44fe42a97c4d03073d014efd601538735085f84fe)**                                         | 2.1.2        | Apache-2.0                          |
-| **[web-worker](#8aa3d357e4e58928a87a1cfde9f21452b05f10e194f93e5d5908bdff9b94e20a)**                                         | 1.3.0        | Apache-2.0                          |
+| **[web-worker](#b1cfb86d451a22131350d0ca31af5cc850f678c4807e7b53d2a71135da3d1a01)**                                         | 1.5.0        | Apache-2.0                          |
 | **[webidl-conversions](#3604b2bfa479706fe7bd8068257240d32158704a3bffae30b414963343027aa1)**                                 | 3.0.1        | BSD-2-Clause                        |
 | **[webidl-conversions](#cb7c681998e7ee3c598e6e37432bcf448946924eefe816636c3cb122bae46e1c)**                                 | 7.0.0        | BSD-2-Clause                        |
 | **[webpack](#f66671b8e46562985e59ddc3aa94074fbb7ff42d11a9be5292d5adff9a8c14e0)**                                            | 5.102.1      | MIT                                 |
@@ -19943,6 +19945,38 @@ License files:
       TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
       SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+<a id="945d39147a145d6a28d87154006fa731c2e69d2a19e76cc7012624a1109f9317"></a>
+
+### [ansi-regex](https://www.npmjs.com/package/ansi-regex) (version 2.1.1)
+
+License tags: MIT
+
+License files:
+
+- license:
+
+      The MIT License (MIT)
+
+      Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com)
+
+      Permission is hereby granted, free of charge, to any person obtaining a copy
+      of this software and associated documentation files (the "Software"), to deal
+      in the Software without restriction, including without limitation the rights
+      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+      copies of the Software, and to permit persons to whom the Software is
+      furnished to do so, subject to the following conditions:
+
+      The above copyright notice and this permission notice shall be included in
+      all copies or substantial portions of the Software.
+
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+      THE SOFTWARE.
+
 <a id="22c90e10fdbeeedded470f2fb78a8094893efd4675108074eddde452da52ef87"></a>
 
 ### [ansi-styles](https://www.npmjs.com/package/ansi-styles) (version 4.3.0)
@@ -26889,9 +26923,9 @@ License files:
       licenses; we recommend you read them, as their terms may differ from the
       terms above.
 
-<a id="d0192735bd71c643cc16fbd4349d2043d2a045462dc4437006f0074165adf27e"></a>
+<a id="10c5739147749b9d7134807a14c5667fe20576f24b327fc73f216b03a78a6052"></a>
 
-### [lru-cache](https://www.npmjs.com/package/lru-cache) (version 11.1.0)
+### [lru-cache](https://www.npmjs.com/package/lru-cache) (version 11.2.2)
 
 License tags: ISC
 
@@ -27553,9 +27587,9 @@ License files:
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
       THE SOFTWARE.
 
-<a id="f0a98c22ae0766702726f79e058ac6dc4e4bead8557b67b816f40bd13fb54170"></a>
+<a id="8f9a3c1ccf49d9332d5669c9fffde8b0d393163d32ac5b94ca1450ea9c137194"></a>
 
-### [mongodb-build-info](https://www.npmjs.com/package/mongodb-build-info) (version 1.7.2)
+### [mongodb-build-info](https://www.npmjs.com/package/mongodb-build-info) (version 1.8.1)
 
 License tags: Apache-2.0
 
@@ -28591,9 +28625,9 @@ License files:
          See the License for the specific language governing permissions and
          limitations under the License.
 
-<a id="2773a73e5385ed96d47f2a1d6236804c4b9bfeccf4b2359d30b989810409b0f1"></a>
+<a id="985aaa38a9ce4a6f192fbd3fba7f9a713cf11718348d09268e92b363cfa0067f"></a>
 
-### [mongodb-log-writer](https://www.npmjs.com/package/mongodb-log-writer) (version 2.4.1)
+### [mongodb-log-writer](https://www.npmjs.com/package/mongodb-log-writer) (version 2.4.4)
 
 License tags: Apache-2.0
 
@@ -39870,6 +39904,38 @@ License files:
       IN THE SOFTWARE.
       """
 
+<a id="79e4e45eb767932cbcc94ba2f18534155184857640dee665f4b43ae6d5294646"></a>
+
+### [strip-ansi](https://www.npmjs.com/package/strip-ansi) (version 3.0.1)
+
+License tags: MIT
+
+License files:
+
+- license:
+
+      The MIT License (MIT)
+
+      Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com)
+
+      Permission is hereby granted, free of charge, to any person obtaining a copy
+      of this software and associated documentation files (the "Software"), to deal
+      in the Software without restriction, including without limitation the rights
+      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+      copies of the Software, and to permit persons to whom the Software is
+      furnished to do so, subject to the following conditions:
+
+      The above copyright notice and this permission notice shall be included in
+      all copies or substantial portions of the Software.
+
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+      THE SOFTWARE.
+
 <a id="4f426c3eaeb7d288c70eb64ad2e2617952c0d8da8cdedf4f8cb29ba65bb3b65e"></a>
 
 ### [strip-bom-buf](https://www.npmjs.com/package/strip-bom-buf) (version 2.0.0)
@@ -42158,9 +42224,9 @@ License files:
          See the License for the specific language governing permissions and
          limitations under the License.
 
-<a id="8aa3d357e4e58928a87a1cfde9f21452b05f10e194f93e5d5908bdff9b94e20a"></a>
+<a id="b1cfb86d451a22131350d0ca31af5cc850f678c4807e7b53d2a71135da3d1a01"></a>
 
-### [web-worker](https://www.npmjs.com/package/web-worker) (version 1.3.0)
+### [web-worker](https://www.npmjs.com/package/web-worker) (version 1.5.0)
 
 License tags: Apache-2.0
 

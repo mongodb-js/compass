@@ -7,7 +7,7 @@ import type {
 } from 'mongodb';
 import {
   isEnterprise,
-  getGenuineMongoDB,
+  identifyServerName,
   getDataLake,
   isAtlas as checkIsAtlas,
   isLocalAtlas as checkIsLocalAtlas,
@@ -46,7 +46,7 @@ type HostInfoDetails = {
 
 type GenuineMongoDBDetails = {
   isGenuine: boolean;
-  dbType: string;
+  serverName: string;
 };
 
 type DataLakeDetails = {
@@ -122,6 +122,7 @@ export async function getInstance(
     getParameterResult,
     atlasVersionResult,
     isLocalAtlas,
+    genuineMongoDB,
   ] = await Promise.all([
     runCommand(
       adminDb,
@@ -158,6 +159,7 @@ export async function getInstance(
         return await client.db(db).collection(collection).countDocuments(query);
       }
     ),
+    buildGenuineMongoDBInfo(uri, client),
   ]);
 
   const isAtlas = !!atlasVersionResult.atlasVersion || checkIsAtlas(uri);
@@ -166,8 +168,8 @@ export async function getInstance(
     auth: adaptAuthInfo(connectionStatus),
     build: adaptBuildInfo(buildInfoResult),
     host: adaptHostInfo(hostInfoResult),
-    genuineMongoDB: buildGenuineMongoDBInfo(uri),
     dataLake: buildDataLakeInfo(buildInfoResult),
+    genuineMongoDB,
     featureCompatibilityVersion:
       getParameterResult?.featureCompatibilityVersion.version ?? null,
     isAtlas,
@@ -196,12 +198,30 @@ export function configuredKMSProviders(
     .map(([kmsProviderName]) => kmsProviderName as any);
 }
 
-function buildGenuineMongoDBInfo(uri: string): GenuineMongoDBDetails {
-  const { isGenuine, serverName } = getGenuineMongoDB(uri);
+async function buildGenuineMongoDBInfo(
+  uri: string,
+  client: MongoClient
+): Promise<GenuineMongoDBDetails> {
+  const adminDb = client.db('admin');
+  const serverName = await identifyServerName({
+    connectionString: uri,
+    async adminCommand(doc) {
+      try {
+        const result = await adminDb.command(doc);
+        debug('adminCommand(%O) = %O', doc, result);
+        return result;
+      } catch (err) {
+        debug('adminCommand(%O) failed %O', doc, err);
+        throw err;
+      }
+    },
+  });
 
   return {
-    isGenuine,
-    dbType: serverName,
+    // Actually, we can't say for sure that 'unknown' is genuine,
+    // but we cannot say that it's non-genuine either.
+    isGenuine: serverName === 'mongodb' || serverName === 'unknown',
+    serverName,
   };
 }
 
