@@ -34,6 +34,7 @@ import type {
   DataService,
   InstanceDetails,
 } from 'mongodb-data-service';
+import { identifyServerName } from 'mongodb-build-info';
 import Sinon from 'sinon';
 import React from 'react';
 import type {
@@ -175,8 +176,22 @@ export class MockDataService
   disconnect(): Promise<void> {
     return Promise.resolve();
   }
-  instance(): Promise<InstanceDetails> {
-    return Promise.resolve({
+  async instance(): Promise<InstanceDetails> {
+    const { connectionString } = this.connectionOptions;
+    const serverName = await identifyServerName({
+      connectionString,
+      adminCommand: () =>
+        Promise.reject(
+          new Error(
+            'MockDataService adminCommand: this is a mocked environment; no server commands available.'
+          )
+        ),
+    });
+    const genuineMongoDB = {
+      serverName,
+      isGenuine: serverName === 'mongodb' || serverName === 'unknown',
+    };
+    return {
       auth: {
         user: null,
         roles: [],
@@ -188,10 +203,7 @@ export class MockDataService
         version: '100.0.0',
       },
       host: {},
-      genuineMongoDB: {
-        isGenuine: true,
-        dbType: 'mongodb',
-      },
+      genuineMongoDB,
       dataLake: {
         isDataLake: false,
         version: null,
@@ -200,7 +212,7 @@ export class MockDataService
       isAtlas: false,
       isLocalAtlas: false,
       csfleMode: 'unavailable',
-    });
+    };
   }
 }
 

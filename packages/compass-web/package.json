@@ -129,7 +129,6 @@
     "is-ip": "^5.0.1",
     "mocha": "^10.2.0",
     "mongodb": "^6.19.0",
-    "mongodb-build-info": "^1.7.2",
     "mongodb-data-service": "^22.34.6",
     "mongodb-log-writer": "^2.3.4",
     "mongodb-ns": "^3.0.1",
