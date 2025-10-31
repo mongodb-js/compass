@@ -140,23 +140,13 @@ function buildWebArgs(yargs: Argv) {
         default: 'chrome',
       })
       // https://webdriver.io/docs/driverbinaries/
-      //
-      // If you leave out browserVersion it will try and find the browser binary
-      // on your system. If you specify it it will download that version. The
-      // main limitation then is that 'latest' is the only 'semantic' version
-      // that is supported for Firefox.
-      // https://github.com/puppeteer/puppeteer/blob/ab5d4ac60200d1cea5bcd4910f9ccb323128e79a/packages/browsers/src/browser-data/browser-data.ts#L66
-      //
-      // Alternatively we can download it ourselves and specify the path to the
-      // binary or we can even start and stop chromedriver/geckodriver manually.
-      //
-      // NOTE: The version of chromedriver or geckodriver in play might also be
-      // relevant.
       .option('browser-version', {
         type: 'string',
         description:
-          'Test runner browser version (`unset` will not provide an explicit version to webdriver)',
-        default: 'latest',
+          'Test runner browser version (`--no-browser-version` will not provide an explicit version to webdriver)',
+        // We're not defaulting browserVersion to anything in yargs config so
+        // that the value can be derived based on the browserName later
+        default: undefined,
       })
       .option('sandbox-url', {
         type: 'string',
@@ -278,6 +268,16 @@ if ('then' in parsedArgs && typeof parsedArgs.then === 'function') {
 
 export const context = parsedArgs as CommonParsedArgs &
   Partial<DesktopParsedArgs & WebParsedArgs>;
+
+if (context.browserVersion === undefined) {
+  context.browserVersion = context['browser-version'] =
+    // If you leave out `browserVersion` it will try and find the browser binary
+    // on your system. If you specify it it will download that version. The main
+    // limitation then is that 'latest' is the only 'semantic' version that is
+    // supported for Firefox.
+    // https://github.com/puppeteer/puppeteer/blob/ab5d4ac60200d1cea5bcd4910f9ccb323128e79a/packages/browsers/src/browser-data/browser-data.ts#L66
+    context.browserName === 'firefox' ? 'latest' : 'stable';
+}
 
 export function isTestingDesktop(ctx = context): ctx is DesktopParsedArgs {
   return testEnv === 'desktop';
