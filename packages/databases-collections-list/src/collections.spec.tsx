@@ -554,4 +554,37 @@ describe('Collections', () => {
       'Derived from foo'
     );
   });
+
+  it('renders a tooltip for storage size cell with storage breakdown and data size', async function () {
+    renderCollectionsList({
+      collections: colls,
+    });
+
+    const fooRow = screen.getByTestId('collections-list-row-foo');
+    expect(fooRow).to.exist;
+
+    const storageCell = fooRow.querySelector('td:nth-child(3)');
+    expect(storageCell).to.exist;
+
+    // Hover over the span inside the cell (the tooltip trigger)
+    const span = storageCell?.querySelector('span');
+    expect(span).to.exist;
+    userEvent.hover(span as Element);
+
+    await waitFor(
+      function () {
+        expect(screen.getByRole('tooltip')).to.exist;
+      },
+      {
+        timeout: 5000,
+      }
+    );
+
+    const tooltipText = screen.getByRole('tooltip').textContent;
+    expect(tooltipText).to.include('Storage Size:');
+    expect(tooltipText).to.include('1.00 kB');
+    expect(tooltipText).to.include('Used:');
+    expect(tooltipText).to.include('Free:');
+    expect(tooltipText).to.include('Data Size:');
+  });
 });
