@@ -31,7 +31,7 @@ import { CompassGenerativeAIPlugin } from '@mongodb-js/compass-generative-ai';
 import { ConnectionStorageProvider } from '@mongodb-js/connection-storage/provider';
 import { ConnectionImportExportProvider } from '@mongodb-js/compass-connection-import-export';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
-import { usePreference } from 'compass-preferences-model/provider';
+import { usePreferences } from 'compass-preferences-model/provider';
 import { CompassAssistantProvider } from '@mongodb-js/compass-assistant';
 import { APP_NAMES_FOR_PROMPT } from '@mongodb-js/compass-assistant';
 
@@ -143,7 +143,10 @@ export default function ThemedHome(
   props: HomeWithConnectionsProps
 ): ReturnType<typeof HomeWithConnections> {
   const track = useTelemetry();
-  const disableContextMenus = !usePreference('enableContextMenus');
+  const { enableContextMenus, showedNetworkOptIn } = usePreferences([
+    'enableContextMenus',
+    'showedNetworkOptIn',
+  ]);
   return (
     <CompassComponentsProvider
       onNextGuideGue={(cue) => {
@@ -198,7 +201,10 @@ export default function ThemedHome(
       onSignalClose={(id) => {
         track('Signal Closed', { id });
       }}
-      disableContextMenus={disableContextMenus}
+      disableContextMenus={!enableContextMenus}
+      // Wait for the "Welcome" modal to disappear before showing any guide cues
+      // in the app
+      disableGuideCues={!showedNetworkOptIn}
     >
       {({ darkMode, portalContainerRef }) => {
         return (
