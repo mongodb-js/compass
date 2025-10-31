@@ -32,9 +32,6 @@ const TypesDropdown: React.FunctionComponent<TypesDropdownProps> = ({
       onChange={handleTypeChange}
       allowDeselect={false}
       value={element.currentType}
-      readOnly={false}
-      // NOTE: Leafygreen doesn't support aria-label and only understand "aria-labelledby" and "label" instead
-      aria-labelledby=""
       aria-label="Field type"
       className={cx(selectStyles, 'table-view-cell-editor-types')}
       data-testid="table-view-types-dropdown-select"

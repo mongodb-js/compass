@@ -23,6 +23,7 @@ import {
   deleteRelationship,
   removeField,
   renameField,
+  changeFieldType,
 } from '../store/diagram';
 import type {
   EdgeProps,
@@ -58,6 +59,7 @@ import {
   relationshipToDiagramEdge,
 } from '../utils/nodes-and-edges';
 import toNS from 'mongodb-ns';
+import { FIELD_TYPES } from '../utils/field-types';
 
 const loadingContainerStyles = css({
   width: '100%',
@@ -168,6 +170,11 @@ const DiagramContent: React.FunctionComponent<{
     fieldPath: FieldPath,
     newName: string
   ) => void;
+  onChangeFieldType: (data: {
+    ns: string;
+    fieldPath: FieldPath;
+    newTypes: string[];
+  }) => void;
   onDiagramBackgroundClicked: () => void;
   onDeleteCollection: (ns: string) => void;
   onDeleteRelationship: (rId: string) => void;
@@ -196,6 +203,7 @@ const DiagramContent: React.FunctionComponent<{
   onRelationshipSelect,
   onFieldSelect,
   onRenameField,
+  onChangeFieldType,
   onDiagramBackgroundClicked,
   onCreateNewRelationship,
   onRelationshipDrawn,
@@ -373,6 +381,17 @@ const DiagramContent: React.FunctionComponent<{
     [onAddFieldToObjectField]
   );
 
+  const onFieldTypeChange = useCallback(
+    (ns: string, fieldPath: FieldPath, newTypes: string[]) => {
+      onChangeFieldType({
+        ns,
+        fieldPath,
+        newTypes,
+      });
+    },
+    [onChangeFieldType]
+  );
+
   const deleteItem = useCallback(() => {
     switch (selectedItems?.type) {
       case 'collection':
@@ -412,8 +431,10 @@ const DiagramContent: React.FunctionComponent<{
         onEdgeClick,
         onFieldClick,
         onFieldNameChange: onRenameField,
+        onFieldTypeChange,
         onNodeDragStop,
         onConnect,
+        fieldTypes: FIELD_TYPES,
       } satisfies DiagramProps),
     [
       isDarkMode,
@@ -427,6 +448,7 @@ const DiagramContent: React.FunctionComponent<{
       onEdgeClick,
       onFieldClick,
       onRenameField,
+      onFieldTypeChange,
       onNodeDragStop,
       onConnect,
     ]
@@ -491,6 +513,7 @@ const ConnectedDiagramContent = connect(
     onRelationshipSelect: selectRelationship,
     onFieldSelect: selectField,
     onRenameField: renameField,
+    onChangeFieldType: changeFieldType,
     onDiagramBackgroundClicked: selectBackground,
     onCreateNewRelationship: createNewRelationship,
     onDeleteCollection: deleteCollection,

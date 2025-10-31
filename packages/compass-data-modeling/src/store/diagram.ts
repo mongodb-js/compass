@@ -821,12 +821,10 @@ export function getTypeNameForTelemetry(
 export function changeFieldType({
   ns,
   fieldPath,
-  oldTypes,
   newTypes,
 }: {
   ns: string;
   fieldPath: FieldPath;
-  oldTypes: string[];
   newTypes: string[];
 }): DataModelingThunkAction<void, ApplyEditAction | RevertFailedEditAction> {
   return (dispatch, getState, { track }) => {
@@ -838,6 +836,7 @@ export function changeFieldType({
       jsonSchema: collectionSchema,
       fieldPath: fieldPath,
     });
+    const oldTypes = field?.fieldTypes;
     if (!field) throw new Error('Field not found in schema');
     const to = getSchemaWithNewTypes(field.jsonSchema, newTypes);
 

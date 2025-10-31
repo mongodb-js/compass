@@ -482,8 +482,8 @@ describe('CrudToolbar Component', function () {
   describe('documents per page select', function () {
     it('should render a select to update documents fetched per page', function () {
       renderCrudToolbar();
-      expect(screen.getByLabelText('Update number of documents per page')).to.be
-        .visible;
+      expect(screen.getByLabelText(/Update number of documents per page/i)).to
+        .be.visible;
     });
 
     it('should call updateDocumentsPerPage when select value changes', function () {
@@ -492,7 +492,7 @@ describe('CrudToolbar Component', function () {
         updateMaxDocumentsPerPage: stub,
       });
       userEvent.click(
-        screen.getByLabelText('Update number of documents per page')
+        screen.getByLabelText(/Update number of documents per page/i)
       );
       userEvent.click(screen.getByText('75'));
       expect(stub).to.be.calledWithExactly(75);
