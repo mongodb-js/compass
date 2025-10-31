@@ -67,7 +67,7 @@ export function useDocumentItemContextMenu({
             : undefined,
         ],
       },
-      isEditable
+      isEditable && !isEditing
         ? {
             telemetryLabel: 'Document Item Delete',
             items: [
