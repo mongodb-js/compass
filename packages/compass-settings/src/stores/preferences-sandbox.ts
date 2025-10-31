@@ -18,10 +18,7 @@ export class PreferencesSandbox {
   constructor(
     private preferences: Pick<
       PreferencesAccess,
-      | 'createSandbox'
-      | 'ensureDefaultConfigurableUserPreferences'
-      | 'getPreferences'
-      | 'savePreferences'
+      'createSandbox' | 'getPreferences' | 'savePreferences'
     >
   ) {}
 
