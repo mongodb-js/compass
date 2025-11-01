@@ -1,66 +1,62 @@
 import React from 'react';
-import type { ComponentProps } from 'react';
-import { render, screen, userEvent } from '@mongodb-js/testing-library-compass';
-import { spy } from 'sinon';
-import type { SinonSpy } from 'sinon';
+import {
+  render,
+  screen,
+  userEvent,
+  waitFor,
+} from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
-
-import { WelcomeModal } from './modal';
+import Sinon from 'sinon';
+import { WelcomeModal } from '../index';
 
 describe('WelcomeModal', function () {
-  let closeModalSpy: SinonSpy;
-  let renderWelcomeModal: (
-    props: Partial<ComponentProps<typeof WelcomeModal>>
-  ) => void;
-
-  beforeEach(function () {
-    closeModalSpy = spy();
-
-    renderWelcomeModal = (
-      props: Partial<ComponentProps<typeof WelcomeModal>> = {}
-    ) => {
-      render(
-        <WelcomeModal
-          networkTraffic={true}
-          isOpen={false}
-          closeModal={closeModalSpy}
-          {...props}
-        />
-      );
-    };
+  it('renders if was not shown before', function () {
+    render(<WelcomeModal></WelcomeModal>, {
+      preferences: { showedNetworkOptIn: false },
+    });
+    expect(screen.getByTestId('welcome-modal')).to.be.visible;
   });
 
-  it('renders', function () {
-    renderWelcomeModal({ isOpen: true });
-
-    const container = screen.queryByTestId('welcome-modal');
-    expect(container).to.be.visible;
-  });
-
-  it('closes when clicking the Start button', function () {
-    renderWelcomeModal({ isOpen: true });
-    const startButton = screen.getByText('Start').closest('button');
+  it('closes when clicking the Start button', async function () {
+    render(<WelcomeModal></WelcomeModal>, {
+      preferences: { showedNetworkOptIn: false },
+    });
+    const startButton = screen.getByRole('button', { name: 'Start' });
     expect(startButton).to.be.visible;
-    userEvent.click(startButton as Element);
-    expect(closeModalSpy.calledOnceWith()).to.be.true;
+    userEvent.click(startButton);
+    await waitFor(() => {
+      expect(() => screen.getByTestId('welcome-modal')).to.throw();
+    });
   });
 
-  it('closes when clicking the close button', function () {
-    renderWelcomeModal({ isOpen: true });
+  it('closes when clicking the close button', async function () {
+    render(<WelcomeModal></WelcomeModal>, {
+      preferences: { showedNetworkOptIn: false },
+    });
     const closeButton = screen.getByLabelText('Close modal');
     userEvent.click(closeButton);
-    expect(closeModalSpy.calledOnceWith()).to.be.true;
+    await waitFor(() => {
+      expect(() => screen.getByTestId('welcome-modal')).to.throw();
+    });
   });
 
-  it('closes when clicking the settings link and asks to open the settings', function () {
-    renderWelcomeModal({ isOpen: true });
+  it('closes when clicking the settings link and asks to open the settings', async function () {
+    const { globalAppRegistry } = render(<WelcomeModal></WelcomeModal>, {
+      preferences: { showedNetworkOptIn: false },
+    });
+    const emitSpy = Sinon.spy(globalAppRegistry, 'emit');
     const settingsLink = screen.getByText('Settings');
     userEvent.click(settingsLink);
-    expect(closeModalSpy.calledOnceWith(true)).to.be.true;
+    await waitFor(() => {
+      expect(() => screen.getByTestId('welcome-modal')).to.throw();
+    });
+    expect(emitSpy).to.have.been.called;
   });
 
   it('has no settings link when networkTraffic is false', function () {
-    renderWelcomeModal({ isOpen: true, networkTraffic: false });
+    render(<WelcomeModal></WelcomeModal>, {
+      preferences: { showedNetworkOptIn: false, networkTraffic: false },
+    });
     const settingsLink = screen.queryByText('Settings');
     expect(settingsLink).to.not.exist;
   });
