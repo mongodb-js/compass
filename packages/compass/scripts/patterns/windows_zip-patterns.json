@@ -7,6 +7,8 @@
   "chrome_100_percent.pak",
   "chrome_200_percent.pak",
   "d3dcompiler_47.dll",
+  "dxcompiler.dll",
+  "dxil.dll",
   "ffmpeg.dll",
   "icudtl.dat",
   "libEGL.dll",

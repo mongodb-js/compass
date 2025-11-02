@@ -162,14 +162,14 @@ describe('CompassSchema Component', function () {
 
       expect(
         screen.getByText(
-          'Learn how to add schema validation in this skill badge'
+          'Learn how to effectively design and optimize your schema.'
         )
       ).to.be.visible;
 
       expect(screen.getByRole('link', { name: /go to skills/i })).to.be.visible;
       expect(
         screen.getByText(
-          'Learn how to add schema validation in this skill badge'
+          'Learn how to effectively design and optimize your schema.'
         )
       ).to.be.visible;
 
@@ -191,7 +191,7 @@ describe('CompassSchema Component', function () {
 
       expect(
         screen.queryByText(
-          'Learn how to add schema validation in this skill badge'
+          'Learn how to effectively design and optimize your schema.'
         )
       ).to.not.exist;
       expect(screen.queryByRole('link', { name: /go to skills/i })).to.not
@@ -206,7 +206,7 @@ describe('CompassSchema Component', function () {
 
       expect(
         screen.queryByText(
-          'Learn how to add schema validation in this skill badge'
+          'Learn how to effectively design and optimize your schema.'
         )
       ).to.not.exist;
       expect(screen.queryByRole('link', { name: /go to skills/i })).to.not
@@ -221,7 +221,7 @@ describe('CompassSchema Component', function () {
 
       expect(
         screen.queryByText(
-          'Learn how to add schema validation in this skill badge'
+          'Learn how to effectively design and optimize your schema.'
         )
       ).to.not.exist;
       expect(screen.queryByRole('link', { name: /go to skills/i })).to.not
@@ -236,7 +236,7 @@ describe('CompassSchema Component', function () {
 
       expect(
         screen.getByText(
-          'Learn how to add schema validation in this skill badge'
+          'Learn how to effectively design and optimize your schema.'
         )
       ).to.be.visible;
 
@@ -248,7 +248,7 @@ describe('CompassSchema Component', function () {
       await waitFor(() => {
         expect(
           screen.queryByText(
-            'Learn how to add schema validation in this skill badge'
+            'Learn how to effectively design and optimize your schema.'
           )
         ).to.not.exist;
       });

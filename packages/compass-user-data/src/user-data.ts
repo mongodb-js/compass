@@ -306,7 +306,7 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
           `${this.dataType}/${this.orgId}/${this.projectId}/${id}`
         ),
         {
-          method: 'POST',
+          method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
           },
