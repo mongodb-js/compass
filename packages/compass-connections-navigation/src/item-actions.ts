@@ -127,8 +127,6 @@ export const connectedConnectionItemActions = ({
           action: 'connection-atlas-performance-metrics',
           icon: 'Gauge',
           label: 'View performance metrics',
-          isDisabled: false,
-          disabledDescription: 'Not supported',
         }
       : null,
     connectionInfo.atlasMetadata
@@ -136,8 +134,6 @@ export const connectedConnectionItemActions = ({
           action: 'connection-cluster-overview',
           icon: 'Dashboard',
           label: 'View cluster overview',
-          isDisabled: false,
-          disabledDescription: 'Not supported',
         }
       : null,
     connectionInfo.atlasMetadata
@@ -145,8 +141,6 @@ export const connectedConnectionItemActions = ({
           action: 'connection-view-monitoring',
           icon: 'TimeSeries',
           label: 'View monitoring',
-          isDisabled: false,
-          disabledDescription: 'Not supported',
         }
       : null,
     connectionInfo.atlasMetadata
@@ -154,8 +148,6 @@ export const connectedConnectionItemActions = ({
           action: 'connection-query-insights',
           icon: 'Bulb',
           label: 'View query insights',
-          isDisabled: false,
-          disabledDescription: 'Not supported',
         }
       : null,
     isAtlas
