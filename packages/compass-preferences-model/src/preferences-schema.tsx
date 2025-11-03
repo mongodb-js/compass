@@ -594,7 +594,7 @@ export const storedUserPreferencesProps: Required<{
       long: 'Allow Compass to make requests to a 3rd party mapping service.',
     },
     deriveValue: deriveNetworkTrafficOptionState('enableMaps'),
-    validator: z.boolean().default(false),
+    validator: z.boolean().default(true),
     type: 'boolean',
   },
   enableGenAIFeatures: {
@@ -621,7 +621,7 @@ export const storedUserPreferencesProps: Required<{
       long: 'Enables a tool that our Product team can use to occasionally reach out for feedback about Compass.',
     },
     deriveValue: deriveNetworkTrafficOptionState('enableFeedbackPanel'),
-    validator: z.boolean().default(false),
+    validator: z.boolean().default(true),
     type: 'boolean',
   },
   /**
@@ -637,7 +637,7 @@ export const storedUserPreferencesProps: Required<{
       long: 'Allow Compass to send anonymous usage statistics.',
     },
     deriveValue: deriveNetworkTrafficOptionState('trackUsageStatistics'),
-    validator: z.boolean().default(false),
+    validator: z.boolean().default(true),
     type: 'boolean',
   },
   /**
@@ -652,7 +652,7 @@ export const storedUserPreferencesProps: Required<{
       long: 'Allow Compass to periodically check for new updates.',
     },
     deriveValue: deriveNetworkTrafficOptionState('autoUpdates'),
-    validator: z.boolean().default(false),
+    validator: z.boolean().default(true),
     type: 'boolean',
   },
   /**

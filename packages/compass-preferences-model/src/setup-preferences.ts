@@ -72,10 +72,6 @@ export async function setupPreferences(
     return preferences.getPreferenceStates();
   });
 
-  ipcMain.handle('compass:ensure-default-configurable-user-preferences', () => {
-    return preferences.ensureDefaultConfigurableUserPreferences();
-  });
-
   ipcMain.handle('compass:get-configurable-user-preferences', () => {
     return preferences.getConfigurableUserPreferences();
   });
@@ -102,9 +98,6 @@ const makePreferenceMain = (
   },
   getPreferences(): AllPreferences {
     return preferences()?.getPreferences?.() ?? ({} as AllPreferences);
-  },
-  async ensureDefaultConfigurableUserPreferences(): Promise<void> {
-    return preferences()?.ensureDefaultConfigurableUserPreferences?.();
   },
   // eslint-disable-next-line @typescript-eslint/require-await
   async getConfigurableUserPreferences(): Promise<UserConfigurablePreferences> {
