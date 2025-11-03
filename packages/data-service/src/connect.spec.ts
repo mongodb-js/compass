@@ -27,7 +27,6 @@ const {
   E2E_TESTS_ATLAS_PASSWORD,
   E2E_TESTS_ATLAS_HOST,
   E2E_TESTS_DATA_LAKE_HOST,
-  E2E_TESTS_SERVERLESS_HOST,
   E2E_TESTS_FREE_TIER_HOST,
   E2E_TESTS_ANALYTICS_NODE_HOST,
   E2E_TESTS_ATLAS_X509_PEM_BASE64,
@@ -97,13 +96,6 @@ const COMPASS_TEST_DATA_LAKE_URL = buildConnectionString(
   E2E_TESTS_ATLAS_PASSWORD,
   E2E_TESTS_DATA_LAKE_HOST,
   { tls: 'true' }
-);
-
-const COMPASS_TEST_SERVERLESS_URL = buildConnectionString(
-  'mongodb+srv',
-  E2E_TESTS_ATLAS_USERNAME,
-  E2E_TESTS_ATLAS_PASSWORD,
-  E2E_TESTS_SERVERLESS_HOST
 );
 
 const envs = createTestEnvs([
@@ -248,16 +240,6 @@ describe('connect', function () {
 
       await connectAndGetAuthInfo({
         connectionString: COMPASS_TEST_DATA_LAKE_URL,
-      });
-    });
-
-    it('connects to serverless', async function () {
-      if (!IS_CI && !COMPASS_TEST_SERVERLESS_URL) {
-        return this.skip();
-      }
-
-      await connectAndGetAuthInfo({
-        connectionString: COMPASS_TEST_SERVERLESS_URL,
       });
     });
   });
@@ -492,11 +474,11 @@ describe('connect', function () {
       ANALYTICS. readPreference=secondary would more closely mirror the
       original ticket, but this cluster also has no secondaries so that would
       fail regardless of readPreferenceTags.
-      
+
       Ideally people would use readPreference=secondaryPreferred, but that works
       regardless so isn't a good test and if it was the case that people used
       that in the first place we'd never need this ticket.
-      
+
       readPreference=nearest tries to find one that matches the criteria and
       since the config server doesn't know about tags the following operations
       would hang unless we remove the tags. You can confirm this manually by
