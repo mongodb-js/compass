@@ -108,7 +108,7 @@ export type CollectionTabServices = {
 
 export function activatePlugin(
   { namespace, editViewName, tabId }: CollectionTabOptions,
-  services: CollectionTabServices,
+  services: CollectionTabServices & { globalAppRegistry: AppRegistry },
   { on, cleanup, addCleanup }: ActivateHelpers
 ): {
   store: ReturnType<typeof createStore>;
@@ -118,6 +118,7 @@ export function activatePlugin(
     dataService,
     collection: collectionModel,
     localAppRegistry,
+    globalAppRegistry,
     atlasAiService,
     workspaces,
     experimentationServices,
@@ -192,17 +193,23 @@ export function activatePlugin(
 
   // Listen for document insertions to re-trigger schema analysis for previously empty collections
   on(
-    localAppRegistry,
+    globalAppRegistry,
     'document-inserted',
-    (payload: {
-      ns: string;
-      view?: string;
-      mode: string;
-      multiple: boolean;
-      docs: unknown[];
-    }) => {
-      // Ensure event is for the current namespace
-      if (payload.ns === namespace) {
+    (
+      payload: {
+        ns: string;
+        view?: string;
+        mode: string;
+        multiple: boolean;
+        docs: unknown[];
+      },
+      { connectionId }: { connectionId?: string } = {}
+    ) => {
+      // Ensure event is for the current connection and namespace
+      if (
+        connectionId === connectionInfoRef.current.id &&
+        payload.ns === namespace
+      ) {
         const currentState = store.getState();
         if (shouldRetriggerSchemaAnalysis(currentState)) {
           // Check if user is in Mock Data Generator experiment variant before re-triggering
