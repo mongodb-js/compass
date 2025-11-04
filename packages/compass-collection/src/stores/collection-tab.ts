@@ -49,6 +49,35 @@ function shouldRetriggerSchemaAnalysis(state: CollectionState): boolean {
   );
 }
 
+/**
+ * Checks if user is in Mock Data Generator experiment variant.
+ * Returns false on error to default to not running schema analysis.
+ */
+async function shouldRunSchemaAnalysis(
+  experimentationServices: ExperimentationServices,
+  logger: Logger,
+  namespace: string
+): Promise<boolean> {
+  try {
+    const assignment = await experimentationServices.getAssignment(
+      ExperimentTestName.mockDataGenerator,
+      false // Don't track "Experiment Viewed" event here
+    );
+    return (
+      assignment?.assignmentData?.variant ===
+      ExperimentTestGroup.mockDataGeneratorVariant
+    );
+  } catch (error) {
+    // On error, default to not running schema analysis
+    logger.debug('Failed to get Mock Data Generator experiment assignment', {
+      experiment: ExperimentTestName.mockDataGenerator,
+      namespace: namespace,
+      error: error instanceof Error ? error.message : String(error),
+    });
+    return false;
+  }
+}
+
 export type CollectionTabOptions = {
   /**
    * Workspace Tab ID
@@ -177,31 +206,11 @@ export function activatePlugin(
         const currentState = store.getState();
         if (shouldRetriggerSchemaAnalysis(currentState)) {
           // Check if user is in Mock Data Generator experiment variant before re-triggering
-          const shouldRunSchemaAnalysis = async () => {
-            try {
-              const assignment = await experimentationServices.getAssignment(
-                ExperimentTestName.mockDataGenerator,
-                false // Don't track "Experiment Viewed" event here
-              );
-              return (
-                assignment?.assignmentData?.variant ===
-                ExperimentTestGroup.mockDataGeneratorVariant
-              );
-            } catch (error) {
-              // On error, default to not running schema analysis
-              logger.debug(
-                'Failed to get Mock Data Generator experiment assignment for document insertion re-trigger',
-                {
-                  experiment: ExperimentTestName.mockDataGenerator,
-                  namespace: namespace,
-                  error: error instanceof Error ? error.message : String(error),
-                }
-              );
-              return false;
-            }
-          };
-
-          void shouldRunSchemaAnalysis().then((shouldRun) => {
+          void shouldRunSchemaAnalysis(
+            experimentationServices,
+            logger,
+            namespace
+          ).then((shouldRun) => {
             if (shouldRun) {
               logger.debug(
                 'Re-triggering schema analysis after document insertion',
@@ -243,31 +252,11 @@ export function activatePlugin(
     if (!metadata.isReadonly && !metadata.isTimeSeries) {
       // Check experiment variant before running schema analysis
       // Only run schema analysis if user is in treatment variant
-      const shouldRunSchemaAnalysis = async () => {
-        try {
-          const assignment = await experimentationServices.getAssignment(
-            ExperimentTestName.mockDataGenerator,
-            false // Don't track "Experiment Viewed" event here
-          );
-          return (
-            assignment?.assignmentData?.variant ===
-            ExperimentTestGroup.mockDataGeneratorVariant
-          );
-        } catch (error) {
-          // On error, default to not running schema analysis
-          logger.debug(
-            'Failed to get Mock Data Generator experiment assignment',
-            {
-              experiment: ExperimentTestName.mockDataGenerator,
-              namespace: namespace,
-              error: error instanceof Error ? error.message : String(error),
-            }
-          );
-          return false;
-        }
-      };
-
-      void shouldRunSchemaAnalysis().then((shouldRun) => {
+      void shouldRunSchemaAnalysis(
+        experimentationServices,
+        logger,
+        namespace
+      ).then((shouldRun) => {
         if (shouldRun) {
           void store.dispatch(analyzeCollectionSchema());
         }
