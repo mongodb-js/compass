@@ -80,9 +80,5 @@ describe('Rolling indexes', function () {
         // often
         interval: 2_000,
       });
-
-    // Now that it's ready, delete it (it will also check that it's eventually
-    // removed from the list)
-    await browser.dropIndex(indexName);
   });
 });
