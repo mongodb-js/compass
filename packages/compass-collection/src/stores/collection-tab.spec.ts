@@ -18,6 +18,9 @@ import {
 import { type CollectionMetadata } from 'mongodb-collection-model';
 import type { types } from '@mongodb-js/mdb-experiment-js';
 
+// Wait time in ms for async operations to complete
+const WAIT_TIME = 50;
+
 // Helper function to create proper mock assignment objects for testing
 const createMockAssignment = (
   variant: ExperimentTestGroup
@@ -114,8 +117,8 @@ describe('Collection Tab Content store', function () {
     eventListeners.clear();
   });
 
-  const dataService = {} as unknown;
-  const atlasAiService = {} as unknown;
+  const dataService = {} as never;
+  const atlasAiService = {} as never;
   let store: ReturnType<typeof activatePlugin>['store'];
   let deactivate: ReturnType<typeof activatePlugin>['deactivate'];
 
@@ -149,8 +152,8 @@ describe('Collection Tab Content store', function () {
         ...options,
       },
       {
-        dataService: dataService as never,
-        atlasAiService: atlasAiService as never,
+        dataService,
+        atlasAiService,
         localAppRegistry,
         globalAppRegistry,
         collection: mockCollection as never,
@@ -231,7 +234,7 @@ describe('Collection Tab Content store', function () {
       );
 
       // Wait a bit to ensure assignment would have happened if it was going to
-      await new Promise((resolve) => setTimeout(resolve, 50));
+      await new Promise((resolve) => setTimeout(resolve, WAIT_TIME));
       expect(assignExperiment).to.not.have.been.called;
     });
 
@@ -254,7 +257,7 @@ describe('Collection Tab Content store', function () {
       );
 
       // Wait a bit to ensure assignment would have happened if it was going to
-      await new Promise((resolve) => setTimeout(resolve, 50));
+      await new Promise((resolve) => setTimeout(resolve, WAIT_TIME));
       expect(assignExperiment).to.not.have.been.called;
 
       // Store should still be functional
@@ -303,7 +306,7 @@ describe('Collection Tab Content store', function () {
       );
 
       // Wait a bit to ensure assignment would have happened if it was going to
-      await new Promise((resolve) => setTimeout(resolve, 50));
+      await new Promise((resolve) => setTimeout(resolve, WAIT_TIME));
       expect(assignExperiment).to.not.have.been.called;
     });
 
@@ -321,7 +324,7 @@ describe('Collection Tab Content store', function () {
       );
 
       // Wait a bit to ensure assignment would have happened if it was going to
-      await new Promise((resolve) => setTimeout(resolve, 50));
+      await new Promise((resolve) => setTimeout(resolve, WAIT_TIME));
       expect(assignExperiment).to.not.have.been.called;
     });
   });
@@ -402,7 +405,7 @@ describe('Collection Tab Content store', function () {
       });
 
       // Wait a bit to ensure schema analysis would not have been called
-      await new Promise((resolve) => setTimeout(resolve, 50));
+      await new Promise((resolve) => setTimeout(resolve, WAIT_TIME));
       expect(analyzeCollectionSchemaStub).to.not.have.been.called;
     });
 
@@ -453,7 +456,7 @@ describe('Collection Tab Content store', function () {
       });
 
       // Wait a bit to ensure schema analysis would not have been called
-      await new Promise((resolve) => setTimeout(resolve, 50));
+      await new Promise((resolve) => setTimeout(resolve, WAIT_TIME));
       expect(analyzeCollectionSchemaStub).to.not.have.been.called;
     });
 
@@ -475,7 +478,7 @@ describe('Collection Tab Content store', function () {
       });
 
       // Wait a bit to ensure schema analysis would not have been called
-      await new Promise((resolve) => setTimeout(resolve, 50));
+      await new Promise((resolve) => setTimeout(resolve, WAIT_TIME));
       expect(analyzeCollectionSchemaStub).to.not.have.been.called;
     });
   });
@@ -602,7 +605,7 @@ describe('Collection Tab Content store', function () {
       );
 
       // Wait a bit to ensure schema analysis is not called
-      await new Promise((resolve) => setTimeout(resolve, 50));
+      await new Promise((resolve) => setTimeout(resolve, WAIT_TIME));
       expect(analyzeCollectionSchemaStub).to.not.have.been.called;
     });
 
@@ -647,7 +650,7 @@ describe('Collection Tab Content store', function () {
       );
 
       // Wait a bit to ensure schema analysis is not called
-      await new Promise((resolve) => setTimeout(resolve, 50));
+      await new Promise((resolve) => setTimeout(resolve, WAIT_TIME));
       expect(analyzeCollectionSchemaStub).to.not.have.been.called;
     });
 
@@ -692,7 +695,7 @@ describe('Collection Tab Content store', function () {
       );
 
       // Wait a bit to ensure schema analysis is not called
-      await new Promise((resolve) => setTimeout(resolve, 50));
+      await new Promise((resolve) => setTimeout(resolve, WAIT_TIME));
       expect(analyzeCollectionSchemaStub).to.not.have.been.called;
     });
   });
