@@ -1114,9 +1114,6 @@ export async function init(
 
   await setSharedConfigOnStart(browser);
 
-  // For browser.executeAsync(). Trying to see if it will work for browser.execute() too.
-  await browser.setTimeout({ script: 5_000 });
-
   if (TEST_COMPASS_WEB) {
     // larger window for more consistent results
     const [width, height] = await browser.execute(() => {
