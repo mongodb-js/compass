@@ -39,12 +39,13 @@ describe('Rolling indexes', function () {
 
     this.timeout(extendedRollingIndexesTimeout * 1.2);
 
-    await createNumbersCollection();
+    const collName = `rolling-indexes-test-${Date.now()}`;
+    await createNumbersCollection(collName);
     await browser.connectToDefaults();
     await browser.navigateToCollectionTab(
       DEFAULT_CONNECTION_NAMES[0],
       'test',
-      'numbers',
+      collName,
       'Indexes'
     );
 
@@ -80,5 +81,9 @@ describe('Rolling indexes', function () {
         // often
         interval: 2_000,
       });
+
+    // Now that it's ready, delete it (it will also check that it's eventually
+    // removed from the list)
+    await browser.dropIndex(indexName);
   });
 });
