@@ -22,6 +22,7 @@ import {
 import { ConfirmationMessage } from './confirmation-message';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import { NON_GENUINE_WARNING_MESSAGE } from '../preset-messages';
+import { useMCPController } from '@mongodb-js/compass-generative-ai';
 
 const { DisclaimerText } = LgChatChatDisclaimer;
 const { ChatWindow } = LgChatChatWindow;
@@ -442,6 +443,7 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
                     messageBody={displayText}
                     data-testid={`assistant-message-${id}`}
                   >
+                    {`Message: ${JSON.stringify(message)}`}
                     {isSender === false && (
                       <Message.Actions
                         onRatingChange={(event, state) =>

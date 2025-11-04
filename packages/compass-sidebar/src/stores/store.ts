@@ -12,6 +12,7 @@ import {
   MongoDBInstancesManagerEvents,
 } from '@mongodb-js/compass-app-stores/provider';
 import type { ConnectionsService } from '@mongodb-js/compass-connections/provider';
+import type { MCPController } from '@mongodb-js/compass-generative-ai';
 
 export function createSidebarStore(
   {
@@ -19,11 +20,13 @@ export function createSidebarStore(
     connections,
     instancesManager,
     logger,
+    mcpController,
   }: {
     globalAppRegistry: AppRegistry;
     connections: ConnectionsService;
     instancesManager: MongoDBInstancesManager;
     logger: Logger;
+    mcpController: MCPController;
   },
   { on, cleanup }: ActivateHelpers
 ) {
@@ -35,6 +38,7 @@ export function createSidebarStore(
         connections,
         instancesManager,
         logger,
+        mcpController,
       })
     )
   );

@@ -1,0 +1,94 @@
+{
+  "name": "mongodb-mcp-server",
+  "description": "MongoDB Model Context Protocol Server",
+  "version": "1.2.0",
+  "type": "module",
+  "mcpName": "io.github.mongodb-js/mongodb-mcp-server",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/esm/lib.d.ts",
+        "default": "./dist/esm/lib.js"
+      },
+      "require": {
+        "types": "./dist/cjs/lib.d.ts",
+        "default": "./dist/cjs/lib.js"
+      }
+    }
+  },
+  "main": "./dist/cjs/lib.js",
+  "types": "./dist/cjs/lib.d.ts",
+  "author": "MongoDB <info@mongodb.com>",
+  "homepage": "https://github.com/mongodb-js/mongodb-mcp-server",
+  "repository": {
+    "url": "https://github.com/mongodb-js/mongodb-mcp-server.git"
+  },
+  "bin": {
+    "mongodb-mcp-server": "dist/esm/index.js"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "start": "node dist/index.js --transport http --loggers stderr mcp",
+    "start:stdio": "node dist/index.js --transport stdio --loggers stderr mcp",
+    "build:clean": "rm -rf dist",
+    "build:update-package-version": "tsx scripts/updatePackageVersion.ts",
+    "build:esm": "tsc --project tsconfig.esm.json && chmod +x dist/esm/index.js",
+    "build:cjs": "tsc --project tsconfig.cjs.json",
+    "build:universal-package": "tsx scripts/createUniversalPackage.ts",
+    "build": "npm run build:clean && concurrently \"npm run build:esm\" \"npm run build:cjs\" && npm run build:universal-package",
+    "inspect": "npm run build && mcp-inspector -- dist/esm/index.js",
+    "prettier": "prettier",
+    "check": "concurrently \"npm run build\" \"npm run check:types\" \"npm run check:lint\" \"npm run check:format\" \"npm run check:dependencies\"",
+    "check:lint": "eslint .",
+    "check:dependencies": "knip --strict",
+    "check:format": "prettier -c .",
+    "check:types": "tsc --noEmit --project tsconfig.json",
+    "fix": "npm run fix:lint && npm run reformat",
+    "fix:lint": "eslint . --fix",
+    "reformat": "prettier --write .",
+    "generate": "./scripts/generate.sh && npm run generate:arguments",
+    "generate:arguments": "tsx scripts/generateArguments.ts",
+    "test": "vitest --project eslint-rules --project unit-and-integration --coverage",
+    "pretest:accuracy": "npm run build",
+    "test:accuracy": "sh ./scripts/accuracy/runAccuracyTests.sh",
+    "test:long-running-tests": "vitest --project long-running-tests --coverage",
+    "atlas:cleanup": "vitest --project atlas-cleanup"
+  },
+  "license": "Apache-2.0",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.17.4",
+    "@mongodb-js/device-id": "^0.3.1",
+    "@mongodb-js/devtools-proxy-support": "^0.5.3",
+    "@mongosh/arg-parser": "^3.19.0",
+    "@mongosh/service-provider-node-driver": "^3.17.0",
+    "ai": "^5.0.72",
+    "bson": "^6.10.4",
+    "express": "^5.1.0",
+    "lru-cache": "^11.1.0",
+    "mongodb-connection-string-url": "^3.0.2",
+    "mongodb-log-writer": "^2.4.1",
+    "mongodb-redact": "^1.2.0",
+    "mongodb-schema": "^12.6.2",
+    "node-fetch": "^3.3.2",
+    "node-machine-id": "1.1.12",
+    "oauth4webapi": "^3.8.0",
+    "openapi-fetch": "^0.14.0",
+    "ts-levenshtein": "^1.0.7",
+    "voyage-ai-provider": "^2.0.0",
+    "yargs-parser": "21.1.1",
+    "zod": "^3.25.76"
+  },
+  "engines": {
+    "node": "^20.19.0 || ^22.12.0 || >= 23.0.0"
+  },
+  "optionalDependencies": {
+    "@mongodb-js/atlas-local": "^1.0.2",
+    "kerberos": "^2.2.2"
+  },
+  "yalcSig": "dc0fcdeb0947410388492935c9f2cf73"
+}

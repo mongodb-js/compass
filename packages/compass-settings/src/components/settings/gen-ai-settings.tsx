@@ -15,6 +15,7 @@ export const GenAISettings: React.FunctionComponent<{
       {isAIFeatureEnabled && (
         <>
           <SettingsList fields={['enableGenAISampleDocumentPassing']} />
+          <SettingsList fields={['enableMcpServer']} />
         </>
       )}
     </div>

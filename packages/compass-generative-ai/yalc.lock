@@ -1,0 +1,9 @@
+{
+  "version": "v1",
+  "packages": {
+    "mongodb-mcp-server": {
+      "signature": "dc0fcdeb0947410388492935c9f2cf73",
+      "replaced": "^1.2.0"
+    }
+  }
+}

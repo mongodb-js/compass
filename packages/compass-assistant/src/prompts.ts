@@ -39,9 +39,7 @@ You are able to:
 <inabilities>
 You CANNOT:
 
-1. Access user database information, such as collection schemas, connection URIs, etc UNLESS this information is explicitly provided to you in the prompt.
-2. Query MongoDB directly or execute code.
-3. Access the current state of the UI
+1. Access the current state of the UI
 </inabilities>
 `;
 };

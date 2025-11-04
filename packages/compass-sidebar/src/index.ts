@@ -15,6 +15,10 @@ import { connectionsLocator } from '@mongodb-js/compass-connections/provider';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
 import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
 import { AtlasClusterConnectionsOnly } from './components/multiple-connections/connections-navigation';
+import {
+  mcpControllerLocator,
+  type MCPController,
+} from '@mongodb-js/compass-generative-ai';
 
 export const CompassSidebarPlugin = registerCompassPlugin(
   {
@@ -27,11 +31,13 @@ export const CompassSidebarPlugin = registerCompassPlugin(
         connections,
         instancesManager,
         logger,
+        mcpController,
       }: {
         globalAppRegistry: AppRegistry;
         connections: ConnectionsService;
         instancesManager: MongoDBInstancesManager;
         logger: Logger;
+        mcpController: MCPController;
       },
       helpers: ActivateHelpers
     ) {
@@ -41,11 +47,15 @@ export const CompassSidebarPlugin = registerCompassPlugin(
           connections,
           instancesManager,
           logger,
+          mcpController,
         },
         helpers
       );
       return {
         store,
+        state: {
+          connections,
+        },
         deactivate,
       };
     },
@@ -54,6 +64,7 @@ export const CompassSidebarPlugin = registerCompassPlugin(
     connections: connectionsLocator,
     instancesManager: mongoDBInstancesManagerLocator,
     logger: createLoggerLocator('COMPASS-SIDEBAR-UI'),
+    mcpController: mcpControllerLocator,
   }
 );
 

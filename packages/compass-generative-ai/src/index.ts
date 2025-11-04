@@ -36,3 +36,17 @@ export type {
   MockDataSchemaRawField,
   MockDataSchemaResponse,
 } from './atlas-ai-service';
+
+export {
+  MCPController,
+  MCPConnectionManager,
+  createMCPConnectionErrorHandler,
+} from './mcp-service';
+
+export type { MCPServerInfo, MCPConnectParams } from './mcp-service';
+
+export {
+  mcpControllerLocator,
+  MCPControllerProvider,
+  useMCPController,
+} from './provider';

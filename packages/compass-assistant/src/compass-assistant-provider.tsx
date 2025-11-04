@@ -34,10 +34,16 @@ import {
   type TrackFunction,
   useTelemetry,
 } from '@mongodb-js/compass-telemetry/provider';
-import type { AtlasAiService } from '@mongodb-js/compass-generative-ai/provider';
+import {
+  type MCPController,
+  useMCPController,
+  type AtlasAiService,
+  mcpControllerLocator,
+} from '@mongodb-js/compass-generative-ai/provider';
 import { atlasAiServiceLocator } from '@mongodb-js/compass-generative-ai/provider';
 import { buildConversationInstructionsPrompt } from './prompts';
 import { createOpenAI } from '@ai-sdk/openai';
+import { type ToolSet } from 'ai';
 
 export const ASSISTANT_DRAWER_ID = 'compass-assistant-drawer';
 
@@ -60,6 +66,7 @@ export type AssistantMessage = UIMessage & {
     instructions?: string;
     /** Excludes history if this message is the last message being sent */
     sendWithoutHistory?: boolean;
+    availableTools?: string;
   };
 };
 
@@ -244,7 +251,6 @@ export const AssistantProvider: React.FunctionComponent<
       if (chat.status === 'streaming') {
         await chat.stop();
       }
-
       await chat.sendMessage(message, options);
     },
   });
@@ -271,6 +277,7 @@ export const CompassAssistantProvider = registerCompassPlugin(
       originForPrompt: string;
       chat?: Chat<AssistantMessage>;
       atlasAiService?: AtlasAiService;
+      mcpController?: MCPController;
     }>) => {
       if (!chat) {
         throw new Error('Chat was not provided by the state');
@@ -290,8 +297,11 @@ export const CompassAssistantProvider = registerCompassPlugin(
     },
     activate: (
       { chat: initialChat, originForPrompt, appNameForPrompt },
-      { atlasService, atlasAiService, logger, track }
+      { atlasService, atlasAiService, logger, track, mcpController }
     ) => {
+      if (!mcpController) {
+        throw new Error('mcpController was not provided by the state');
+      }
       const chat =
         initialChat ??
         createDefaultChat({
@@ -300,10 +310,11 @@ export const CompassAssistantProvider = registerCompassPlugin(
           atlasService,
           logger,
           track,
+          getTools: () => mcpController.getTools(),
         });
 
       return {
-        store: { state: { chat, atlasAiService } },
+        store: { state: { chat, atlasAiService, mcpController } },
         deactivate: () => {},
       };
     },
@@ -314,6 +325,7 @@ export const CompassAssistantProvider = registerCompassPlugin(
     atlasAuthService: atlasAuthServiceLocator,
     track: telemetryLocator,
     logger: createLoggerLocator('COMPASS-ASSISTANT'),
+    mcpController: mcpControllerLocator,
   }
 );
 
@@ -324,12 +336,14 @@ export function createDefaultChat({
   logger,
   track,
   options,
+  getTools,
 }: {
   originForPrompt: string;
   appNameForPrompt: string;
   atlasService: AtlasService;
   logger: Logger;
   track: TrackFunction;
+  getTools: () => ToolSet;
   options?: {
     transport: Chat<AssistantMessage>['transport'];
   };
@@ -338,6 +352,7 @@ export function createDefaultChat({
     transport:
       options?.transport ??
       new DocsProviderTransport({
+        getTools,
         origin: originForPrompt,
         instructions: buildConversationInstructionsPrompt({
           target: appNameForPrompt,

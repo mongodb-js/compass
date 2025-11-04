@@ -7,7 +7,10 @@ import {
 } from '@mongodb-js/compass-components';
 import { useActiveWorkspace } from '@mongodb-js/compass-workspaces/provider';
 import MultipleConnectionSidebar from './components/multiple-connections/sidebar';
-import type { ConnectionInfo } from '@mongodb-js/compass-connections/provider';
+import type {
+  ConnectionInfo,
+  ConnectionsService,
+} from '@mongodb-js/compass-connections/provider';
 
 const errorBoundaryStyles = css({
   width: defaultSidebarWidth,
@@ -18,11 +21,13 @@ export interface SidebarPluginProps {
     atlasMetadata: ConnectionInfo['atlasMetadata']
   ) => void;
   isCompassWeb?: boolean;
+  connections: ConnectionsService;
 }
 
 const SidebarPlugin: React.FunctionComponent<SidebarPluginProps> = ({
   onOpenConnectViaModal,
   isCompassWeb,
+  connections,
 }) => {
   const activeWorkspace = useActiveWorkspace();
   const { log, mongoLogId } = useLogger('COMPASS-SIDEBAR-UI');
@@ -42,6 +47,7 @@ const SidebarPlugin: React.FunctionComponent<SidebarPluginProps> = ({
     >
       <MultipleConnectionSidebar
         activeWorkspace={activeWorkspace}
+        connections={connections}
         onOpenConnectViaModal={onOpenConnectViaModal}
         isCompassWeb={isCompassWeb}
       />

@@ -992,6 +992,8 @@ describe('ConnectionsNavigationTree', function () {
           'Show connection info',
           'Refresh databases',
           { separator: true },
+          'Use for MCP server',
+          { separator: true },
           'Disconnect',
         ]);
       });

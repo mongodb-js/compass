@@ -25,6 +25,7 @@ import CSFLEConnectionModal, {
 } from '../csfle-connection-modal';
 import type { ConnectionsFilter } from '../use-filtered-connections';
 import { setConnectionIsCSFLEEnabled } from '../../modules/data-service';
+import { useMCPController } from '@mongodb-js/compass-generative-ai';
 
 const TOAST_TIMEOUT_MS = 5000; // 5 seconds.
 
@@ -106,6 +107,7 @@ export function MultipleConnectionSidebar({
 
   const maybeProtectConnectionString = useMaybeProtectConnectionString();
   const connectionsWithStatus = useConnectionsWithStatus();
+  const mcpController = useMCPController();
   const {
     connect,
     connectInNewWindow,
@@ -165,6 +167,33 @@ export function MultipleConnectionSidebar({
     [csfleModalConnectionId, onConnectionCsfleModeChanged]
   );
 
+  const onUseConnectionForMcp = useCallback(
+    (connectionInfo: ConnectionInfo) => {
+      void mcpController
+        .onActiveConnectionChanged(connectionInfo.id)
+        .then(() => {
+          openToast('mcp-connection-success', {
+            title: 'Success',
+            description: `MCP server is now using connection: ${
+              connectionInfo.favorite?.name ??
+              connectionInfo.connectionOptions.connectionString
+            }`,
+            variant: 'success',
+            timeout: TOAST_TIMEOUT_MS,
+          });
+        })
+        .catch((error: Error) => {
+          openToast('mcp-connection-error', {
+            title: 'Error',
+            description: `Failed to switch MCP server connection: ${error.message}`,
+            variant: 'warning',
+            timeout: TOAST_TIMEOUT_MS,
+          });
+        });
+    },
+    [mcpController]
+  );
+
   return (
     <ResizableSidebar data-testid="navigation-sidebar" useNewTheme={true}>
       <aside className={sidebarStyles}>
@@ -203,6 +232,7 @@ export function MultipleConnectionSidebar({
           onDisconnect={(id) => {
             void disconnect(id);
           }}
+          onUseConnectionForMcp={onUseConnectionForMcp}
           onOpenCsfleModal={onOpenCsfleModal}
           onOpenNonGenuineMongoDBModal={(connectionId: string) => {
             showNonGenuineMongoDBWarningModal(connectionId);

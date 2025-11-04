@@ -310,6 +310,12 @@ export const connectionContextMenuActions = ({
     },
     { separator: true },
     {
+      action: 'connection-use-for-mcp',
+      icon: 'Cloud',
+      label: 'Use for MCP server',
+    },
+    { separator: true },
+    {
       action: 'connection-disconnect',
       icon: 'Disconnect',
       label: 'Disconnect',

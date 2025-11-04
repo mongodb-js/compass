@@ -24,6 +24,7 @@ export type Actions =
   | 'open-non-genuine-mongodb-modal'
   | 'open-csfle-modal'
   | 'refresh-databases'
+  | 'connection-use-for-mcp'
   // database item related actions
   | 'select-database'
   | 'create-database'

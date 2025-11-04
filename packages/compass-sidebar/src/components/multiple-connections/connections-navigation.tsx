@@ -144,6 +144,7 @@ type ConnectionsNavigationComponentProps = {
   onOpenNonGenuineMongoDBModal(connectionId: string): void;
   onOpenConnectionInfo(id: string): void;
   onDisconnect(id: string): void;
+  onUseConnectionForMcp(info: ConnectionInfo): void;
   onOpenConnectViaModal?: (
     atlasMetadata: ConnectionInfo['atlasMetadata']
   ) => void;
@@ -190,6 +191,7 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
   onOpenNonGenuineMongoDBModal,
   onOpenConnectionInfo,
   onDisconnect,
+  onUseConnectionForMcp,
   onDatabaseExpand,
   fetchAllCollections,
   onRefreshDatabases: _onRefreshDatabases,
@@ -421,6 +423,9 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
         case 'show-connect-via-modal':
           onOpenConnectViaModal?.(getConnectionInfo(item).atlasMetadata);
           return;
+        case 'connection-use-for-mcp':
+          onUseConnectionForMcp(getConnectionInfo(item));
+          return;
         case 'select-database':
           openCollectionsWorkspace(connectionId, getNamespace(item));
           return;
@@ -473,6 +478,7 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
       onOpenCsfleModal,
       onOpenNonGenuineMongoDBModal,
       onOpenConnectViaModal,
+      onUseConnectionForMcp,
       connections,
       openCollectionsWorkspace,
       openCollectionWorkspace,

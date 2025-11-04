@@ -19,6 +19,7 @@ import type { ThunkAction } from 'redux-thunk';
 import type { ConnectionsService } from '@mongodb-js/compass-connections/provider';
 import type { MongoDBInstancesManager } from '@mongodb-js/compass-app-stores/provider';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
+import type { MCPController } from '@mongodb-js/compass-generative-ai';
 
 export interface RootState {
   connectionOptions: ConnectionOptionsState;
@@ -41,6 +42,7 @@ export type SidebarThunkAction<R, A extends Action = AnyAction> = ThunkAction<
     connections: ConnectionsService;
     instancesManager: MongoDBInstancesManager;
     logger: Logger;
+    mcpController: MCPController;
   },
   A
 >;

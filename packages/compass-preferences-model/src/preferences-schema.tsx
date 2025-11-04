@@ -72,6 +72,7 @@ export type UserConfigurablePreferences = PermanentFeatureFlags &
     maxTimeMS?: number;
     installURLHandlers: boolean;
     protectConnectionStringsForNewConnections: boolean;
+    enableMcpServer: boolean;
     // This preference is not a great fit for user preferences, but everything
     // except for user preferences doesn't allow required preferences to be
     // defined, so we are sticking it here
@@ -1091,6 +1092,18 @@ export const storedUserPreferencesProps: Required<{
     },
     validator: z.number().min(0).default(0),
     type: 'number',
+  },
+  enableMcpServer: {
+    ui: true,
+    cli: true,
+    global: true,
+    description: {
+      short: 'Enable MongoDB MCP Server',
+      long: 'Automatically start the MongoDB MCP (Model Context Protocol) Server when connecting to a MongoDB instance. The MCP server enables AI assistants to interact with your MongoDB databases.',
+    },
+    deriveValue: deriveNetworkTrafficOptionState('enableMcpServer'),
+    validator: z.boolean().default(false),
+    type: 'boolean',
   },
 
   ...allFeatureFlagsProps,
