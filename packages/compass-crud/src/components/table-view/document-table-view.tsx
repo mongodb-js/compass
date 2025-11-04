@@ -845,6 +845,7 @@ class DocumentTableView extends React.Component<DocumentTableViewProps> {
         tz: this.props.tz,
         darkMode: this.props.darkMode,
       },
+      resizable: true,
     };
   };
 
