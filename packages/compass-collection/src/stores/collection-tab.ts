@@ -27,7 +27,27 @@ import {
   ExperimentTestName,
   ExperimentTestGroup,
 } from '@mongodb-js/compass-telemetry/provider';
-import { SCHEMA_ANALYSIS_STATE_INITIAL } from '../schema-analysis-types';
+import {
+  SCHEMA_ANALYSIS_STATE_INITIAL,
+  SCHEMA_ANALYSIS_STATE_ERROR,
+  SCHEMA_ANALYSIS_STATE_COMPLETE,
+} from '../schema-analysis-types';
+import type { CollectionState } from '../modules/collection-tab';
+
+/**
+ * Determines if schema analysis should be re-triggered after document insertion.
+ * Re-triggers when:
+ * 1. Previous analysis failed (error state)
+ * 2. Analysis completed but no schema data (empty collection)
+ */
+function shouldRetriggerSchemaAnalysis(state: CollectionState): boolean {
+  return (
+    state.schemaAnalysis.status === SCHEMA_ANALYSIS_STATE_ERROR ||
+    (state.schemaAnalysis.status === SCHEMA_ANALYSIS_STATE_COMPLETE &&
+      (!state.schemaAnalysis.processedSchema ||
+        Object.keys(state.schemaAnalysis.processedSchema).length === 0))
+  );
+}
 
 export type CollectionTabOptions = {
   /**
@@ -140,6 +160,60 @@ export function activatePlugin(
   on(localAppRegistry, 'menu-share-schema-json', () => {
     store.dispatch(selectTab('Schema'));
   });
+
+  // Listen for document insertions to re-trigger schema analysis for previously empty collections
+  on(
+    localAppRegistry,
+    'document-inserted',
+    (payload: {
+      ns: string;
+      view?: string;
+      mode: string;
+      multiple: boolean;
+      docs: unknown[];
+    }) => {
+      // Ensure event is for the current namespace
+      if (payload.ns === namespace) {
+        const currentState = store.getState();
+        if (shouldRetriggerSchemaAnalysis(currentState)) {
+          // Check if user is in Mock Data Generator experiment variant before re-triggering
+          const shouldRunSchemaAnalysis = async () => {
+            try {
+              const assignment = await experimentationServices.getAssignment(
+                ExperimentTestName.mockDataGenerator,
+                false // Don't track "Experiment Viewed" event here
+              );
+              return (
+                assignment?.assignmentData?.variant ===
+                ExperimentTestGroup.mockDataGeneratorVariant
+              );
+            } catch (error) {
+              // On error, default to not running schema analysis
+              logger.debug(
+                'Failed to get Mock Data Generator experiment assignment for document insertion re-trigger',
+                {
+                  experiment: ExperimentTestName.mockDataGenerator,
+                  namespace: namespace,
+                  error: error instanceof Error ? error.message : String(error),
+                }
+              );
+              return false;
+            }
+          };
+
+          void shouldRunSchemaAnalysis().then((shouldRun) => {
+            if (shouldRun) {
+              logger.debug(
+                'Re-triggering schema analysis after document insertion',
+                { namespace }
+              );
+              void store.dispatch(analyzeCollectionSchema());
+            }
+          });
+        }
+      }
+    }
+  );
 
   void collectionModel.fetchMetadata({ dataService }).then((metadata) => {
     store.dispatch(collectionMetadataFetched(metadata));
