@@ -62,6 +62,42 @@ export const MCPControllerProvider: React.FC = createServiceProvider(
       };
     }, [mcpController]);
 
+    // Listen for connection events and automatically switch MCP server connection
+    useEffect(() => {
+      const handleConnectionEstablished = (connectionId: string) => {
+        logger.log.info(
+          logger.mongoLogId(1_001_000_420),
+          'MCP Controller',
+          'Connection established, switching MCP server to new connection',
+          { connectionId }
+        );
+        void mcpController.onActiveConnectionChanged(connectionId);
+      };
+
+      const handleConnectionDisconnected = (connectionId: string) => {
+        logger.log.info(
+          logger.mongoLogId(1_001_000_421),
+          'MCP Controller',
+          'Connection disconnected',
+          { connectionId }
+        );
+        // When a connection is disconnected, clear the MCP connection
+        void mcpController.onActiveConnectionChanged(undefined);
+      };
+
+      // Subscribe to connection events
+      connections.on('connected', handleConnectionEstablished);
+      connections.on('disconnected', handleConnectionDisconnected);
+
+      return () => {
+        connections.removeListener('connected', handleConnectionEstablished);
+        connections.removeListener(
+          'disconnected',
+          handleConnectionDisconnected
+        );
+      };
+    }, [mcpController, connections, logger]);
+
     return (
       <MCPControllerContext.Provider value={mcpController}>
         {children}
