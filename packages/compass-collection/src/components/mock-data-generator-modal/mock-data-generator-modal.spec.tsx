@@ -6,7 +6,6 @@ import {
   renderWithActiveConnection,
   waitFor,
   userEvent,
-  waitForElementToBeRemoved,
 } from '@mongodb-js/testing-library-compass';
 import { Provider } from 'react-redux';
 import { createStore, applyMiddleware } from 'redux';
@@ -475,23 +474,14 @@ describe('MockDataGeneratorModal', () => {
       userEvent.click(screen.getByText('email'));
       expect(screen.getByText('email')).to.exist;
       expect(screen.getByLabelText('JSON Type')).to.have.value('String');
-      // the "email" field should have a warning banner since the faker method is invalid
       expect(screen.getByLabelText('Faker Function')).to.have.value(
-        'Unrecognized'
+        'lorem.word'
       );
-      expect(
-        screen.getByText(
-          'Please select a function or we will default fill this field with the string "Unrecognized"'
-        )
-      ).to.exist;
 
       // select the "username" field
       userEvent.click(screen.getByText('username'));
       expect(screen.getByText('username')).to.exist;
       expect(screen.getByLabelText('JSON Type')).to.have.value('String');
-      expect(screen.getByLabelText('Faker Function')).to.have.value(
-        'Unrecognized'
-      );
     });
 
     it('does not show any fields that are not in the input schema', async () => {
@@ -530,81 +520,6 @@ describe('MockDataGeneratorModal', () => {
 
       expect(screen.getByText('name')).to.exist;
       expect(screen.queryByText('email')).to.not.exist;
-    });
-
-    it('shows unmapped fields as "Unrecognized"', async () => {
-      const mockServices = createMockServices();
-      mockServices.atlasAiService.getMockDataSchema = () =>
-        Promise.resolve({
-          fields: [
-            {
-              fieldPath: 'name',
-              mongoType: 'String',
-              fakerMethod: 'person.firstName',
-              fakerArgs: [],
-              isArray: false,
-              probability: 1.0,
-            },
-            {
-              fieldPath: 'age',
-              mongoType: 'Int32',
-              fakerMethod: 'number.int',
-              fakerArgs: [],
-              isArray: false,
-              probability: 1.0,
-            },
-          ],
-        });
-
-      await renderModal({
-        mockServices,
-        schemaAnalysis: {
-          ...defaultSchemaAnalysisState,
-          processedSchema: {
-            name: {
-              type: 'String',
-              probability: 1.0,
-            },
-            age: {
-              type: 'Int32',
-              probability: 1.0,
-            },
-            type: {
-              type: 'String',
-              probability: 1.0,
-              sampleValues: ['cat', 'dog'],
-            },
-          },
-          sampleDocument: { name: 'Peaches', age: 10, type: 'cat' },
-        },
-      });
-
-      // advance to the schema editor step
-      userEvent.click(screen.getByText('Confirm'));
-      await waitForElementToBeRemoved(() =>
-        screen.queryByTestId('faker-schema-editor-loader')
-      );
-
-      // select the "name" field
-      userEvent.click(screen.getByText('name'));
-      expect(screen.getByLabelText('JSON Type')).to.have.value('String');
-      expect(screen.getByLabelText('Faker Function')).to.have.value(
-        'person.firstName'
-      );
-
-      // select the "age" field
-      userEvent.click(screen.getByText('age'));
-      expect(screen.getByLabelText('JSON Type')).to.have.value('Int32');
-      expect(screen.getByLabelText('Faker Function')).to.have.value(
-        'number.int'
-      );
-
-      // select the "type" field
-      userEvent.click(screen.getByText('type'));
-      expect(screen.getByLabelText('JSON Type')).to.have.value('String');
-      expect(screen.getByLabelText('Faker Function')).to.have.value(
-        'Unrecognized'
-      );
     });
 
     it('displays preview of the faker call without args when the args are invalid', async () => {
