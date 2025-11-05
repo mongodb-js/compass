@@ -94,28 +94,33 @@ describe('Collection Tab Content store', function () {
     .stub(collectionTabModule, 'analyzeCollectionSchema')
     .returns(async () => {});
 
-  // Mock the cleanup helper to track event listeners
-  const eventListeners = new Map<string, ((...args: unknown[]) => void)[]>();
-  const mockCleanupHelper = {
+  // Track event listeners for proper cleanup
+  const eventListeners: Array<{
+    registry: AppRegistry;
+    eventName: string;
+    listener: (...args: unknown[]) => void;
+  }> = [];
+
+  const mockActivateHelpers = {
     on: sandbox.spy(
       (
-        _registry: unknown,
+        registry: AppRegistry,
         eventName: string,
         listener: (...args: unknown[]) => void
       ) => {
-        if (!eventListeners.has(eventName)) {
-          eventListeners.set(eventName, []);
-        }
-        eventListeners.get(eventName)!.push(listener);
+        registry.on(eventName, listener);
+        eventListeners.push({ registry, eventName, listener });
       }
     ),
-    cleanup: sandbox.spy(),
+    cleanup: sandbox.spy(() => {
+      // Remove all tracked event listeners
+      eventListeners.forEach(({ registry, eventName, listener }) => {
+        registry.removeListener(eventName, listener);
+      });
+      eventListeners.length = 0;
+    }),
     addCleanup: sandbox.spy(),
   };
-
-  beforeEach(function () {
-    eventListeners.clear();
-  });
 
   const dataService = {} as never;
   const atlasAiService = {} as never;
@@ -128,7 +133,7 @@ describe('Collection Tab Content store', function () {
     experimentationServices: Partial<ExperimentationServices> = {},
     connectionInfoRef: Partial<
       ReturnType<typeof connectionInfoRefLocator>
-    > = {},
+    > = mockAtlasConnectionInfo,
     logger = createNoopLogger('COMPASS-COLLECTION-TEST'),
     preferences = new ReadOnlyPreferenceAccess({
       enableGenAIFeatures: true,
@@ -163,7 +168,7 @@ describe('Collection Tab Content store', function () {
         logger,
         preferences,
       },
-      mockCleanupHelper as never
+      mockActivateHelpers as never
     ));
     await waitFor(() => {
       expect(store.getState())
@@ -174,6 +179,7 @@ describe('Collection Tab Content store', function () {
   };
 
   afterEach(function () {
+    mockActivateHelpers.cleanup();
     sandbox.resetHistory();
     deactivate();
   });
@@ -181,9 +187,13 @@ describe('Collection Tab Content store', function () {
   describe('selectTab', function () {
     it('should set active tab', async function () {
       const openCollectionWorkspaceSubtab = sandbox.spy();
-      const store = await configureStore(undefined, {
-        openCollectionWorkspaceSubtab,
-      });
+      const assignExperiment = sandbox.spy(() => Promise.resolve(null));
+
+      const store = await configureStore(
+        undefined,
+        { openCollectionWorkspaceSubtab },
+        { assignExperiment }
+      );
       store.dispatch(selectTab('Documents') as never);
       expect(openCollectionWorkspaceSubtab).to.have.been.calledWith(
         'workspace-tab-id',
@@ -541,13 +551,9 @@ describe('Collection Tab Content store', function () {
         error: new Error('No documents found'),
       } as never);
 
-      // Trigger the document-inserted event listener
-      const documentInsertedListeners =
-        eventListeners.get('document-inserted') || [];
-      expect(documentInsertedListeners).to.have.length(1);
-
-      // Call the event listener with the event payload
-      documentInsertedListeners[0](
+      // Trigger the document-inserted event
+      globalAppRegistry.emit(
+        'document-inserted',
         {
           ns: defaultMetadata.namespace,
           view: 'default',
@@ -587,13 +593,9 @@ describe('Collection Tab Content store', function () {
       // Reset the stub to track new calls
       analyzeCollectionSchemaStub.resetHistory();
 
-      // Trigger the document-inserted event listener with different collection
-      const documentInsertedListeners =
-        eventListeners.get('document-inserted') || [];
-      expect(documentInsertedListeners).to.have.length(1);
-
-      // Call the event listener with different collection namespace
-      documentInsertedListeners[0](
+      // Trigger the document-inserted event with different collection
+      globalAppRegistry.emit(
+        'document-inserted',
         {
           ns: 'different.collection',
           view: 'default',
@@ -632,13 +634,9 @@ describe('Collection Tab Content store', function () {
       // Reset the stub to track new calls
       analyzeCollectionSchemaStub.resetHistory();
 
-      // Trigger the document-inserted event listener with different connection
-      const documentInsertedListeners =
-        eventListeners.get('document-inserted') || [];
-      expect(documentInsertedListeners).to.have.length(1);
-
-      // Call the event listener with different connection ID
-      documentInsertedListeners[0](
+      // Trigger the document-inserted event with different connection
+      globalAppRegistry.emit(
+        'document-inserted',
         {
           ns: defaultMetadata.namespace,
           view: 'default',
@@ -677,13 +675,15 @@ describe('Collection Tab Content store', function () {
       // Schema analysis should not have been called initially
       expect(analyzeCollectionSchemaStub).to.not.have.been.called;
 
-      // Trigger the document-inserted event listener
-      const documentInsertedListeners =
-        eventListeners.get('document-inserted') || [];
-      expect(documentInsertedListeners).to.have.length(1);
+      // Verify the schema analysis state is INITIAL (as expected for control variant)
+      const initialState = store.getState() as {
+        schemaAnalysis: { status: string };
+      };
+      expect(initialState.schemaAnalysis.status).to.equal('initial');
 
-      // Call the event listener
-      documentInsertedListeners[0](
+      // Trigger the document-inserted event
+      globalAppRegistry.emit(
+        'document-inserted',
         {
           ns: defaultMetadata.namespace,
           view: 'default',
