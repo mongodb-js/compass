@@ -27,18 +27,15 @@ const isEditableTextElement = (
 ): element is HTMLElement => {
   if (!element) return false;
 
-  const tagName = element.tagName.toLowerCase();
-
-  if (tagName === 'input') {
-    const inputType = (element as HTMLInputElement).type.toLowerCase();
+  if (element instanceof HTMLInputElement) {
     return (
-      !NON_TEXT_INPUT_TYPES.includes(inputType) &&
-      !(element as HTMLInputElement).readOnly
+      !NON_TEXT_INPUT_TYPES.includes(element.type.toLowerCase()) &&
+      !element.readOnly
     );
   }
 
-  if (tagName === 'textarea') {
-    return !(element as HTMLTextAreaElement).readOnly;
+  if (element instanceof HTMLTextAreaElement) {
+    return !element.readOnly;
   }
 
   return element.getAttribute('contenteditable') === 'true';
@@ -48,7 +45,9 @@ function elementIsTextInput(
   element: Element | null
 ): element is HTMLInputElement | HTMLTextAreaElement {
   return (
-    !!element && (element.tagName === 'INPUT' || element.tagName === 'TEXTAREA')
+    !!element &&
+    (element instanceof HTMLInputElement ||
+      element instanceof HTMLTextAreaElement)
   );
 }
 
@@ -90,6 +89,15 @@ export function useCopyPasteContextMenu() {
   } | null>(null);
 
   useEffect(() => {
+    // Firefox up till 2024 didn't have readText.
+    const browserHasClipboardCapability =
+      !!navigator.clipboard &&
+      typeof navigator.clipboard.writeText === 'function';
+    if (!browserHasClipboardCapability) {
+      // Never enable the actions when the browser doesn't support it.
+      return;
+    }
+
     const captureSelectionState = () => {
       const selectionState = getSelectionState();
 
@@ -107,17 +115,17 @@ export function useCopyPasteContextMenu() {
 
     // Listen to events that can change selection or focus.
     // These impact if and what we can cut/copy/paste.
-    SELECTION_EVENTS.forEach((event) =>
-      document.addEventListener(event, captureSelectionState)
-    );
+    for (const event of SELECTION_EVENTS) {
+      document.addEventListener(event, captureSelectionState);
+    }
 
     // Initial capture.
     captureSelectionState();
 
     return () => {
-      SELECTION_EVENTS.forEach((event) =>
-        document.removeEventListener(event, captureSelectionState)
-      );
+      for (const event of SELECTION_EVENTS) {
+        document.removeEventListener(event, captureSelectionState);
+      }
     };
   }, []);
 
@@ -126,15 +134,8 @@ export function useCopyPasteContextMenu() {
 
     const selectedText = contextState.selectedText;
 
-    // The `execCommand` API is deprecated but still widely supported.
-    // We try to use the Clipboard API when available.
-    try {
-      await navigator.clipboard.writeText(selectedText);
-      document.execCommand('delete');
-    } catch {
-      // Fallback to execCommand cut.
-      document.execCommand('cut');
-    }
+    await navigator.clipboard.writeText(selectedText);
+    document.execCommand('delete');
   }, [contextState]);
 
   const onCopy = useCallback(async () => {
@@ -153,7 +154,8 @@ export function useCopyPasteContextMenu() {
         const text = await navigator.clipboard.readText();
         document.execCommand('insertText', false, text);
       } catch {
-        document.execCommand('paste');
+        // Ignore a paste error, the users may have strict permissions enabled
+        // for websites to paste in their browser.
       }
     }
   }, [contextState]);
