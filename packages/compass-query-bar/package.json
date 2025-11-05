@@ -76,7 +76,7 @@
     "@mongodb-js/compass-generative-ai": "^0.65.0",
     "@mongodb-js/compass-logging": "^1.7.23",
     "@mongodb-js/compass-telemetry": "^1.19.1",
-    "@mongodb-js/mongodb-constants": "^0.16.0",
+    "@mongodb-js/mongodb-constants": "^0.17.0",
     "@mongodb-js/my-queries-storage": "^0.48.0",
     "bson": "^6.10.4",
     "compass-preferences-model": "^2.64.0",
