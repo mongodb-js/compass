@@ -36,14 +36,16 @@ import {
 } from '@mongodb-js/compass-telemetry/provider';
 import {
   type MCPController,
-  useMCPController,
   type AtlasAiService,
   mcpControllerLocator,
 } from '@mongodb-js/compass-generative-ai/provider';
 import { atlasAiServiceLocator } from '@mongodb-js/compass-generative-ai/provider';
 import { buildConversationInstructionsPrompt } from './prompts';
 import { createOpenAI } from '@ai-sdk/openai';
-import { type ToolSet } from 'ai';
+import {
+  lastAssistantMessageIsCompleteWithApprovalResponses,
+  type ToolSet,
+} from 'ai';
 
 export const ASSISTANT_DRAWER_ID = 'compass-assistant-drawer';
 
@@ -277,7 +279,6 @@ export const CompassAssistantProvider = registerCompassPlugin(
       originForPrompt: string;
       chat?: Chat<AssistantMessage>;
       atlasAiService?: AtlasAiService;
-      mcpController?: MCPController;
     }>) => {
       if (!chat) {
         throw new Error('Chat was not provided by the state');
@@ -310,6 +311,8 @@ export const CompassAssistantProvider = registerCompassPlugin(
           atlasService,
           logger,
           track,
+          // TODO: Implement getTools() method on MCPController
+          // For now, return an empty toolset since we're just displaying tool calls
           getTools: () => mcpController.getTools(),
         });
 
@@ -348,7 +351,7 @@ export function createDefaultChat({
     transport: Chat<AssistantMessage>['transport'];
   };
 }): Chat<AssistantMessage> {
-  return new Chat({
+  return new Chat<AssistantMessage>({
     transport:
       options?.transport ??
       new DocsProviderTransport({
@@ -362,6 +365,7 @@ export function createDefaultChat({
           apiKey: '',
         }).responses('mongodb-chat-latest'),
       }),
+    sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithApprovalResponses,
     onError: (err: Error) => {
       logger.log.error(
         logger.mongoLogId(1_001_000_370),

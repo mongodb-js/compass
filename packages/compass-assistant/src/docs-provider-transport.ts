@@ -4,6 +4,7 @@ import {
   type ToolSet,
   type UIMessageChunk,
   convertToModelMessages,
+  stepCountIs,
   streamText,
 } from 'ai';
 import type { AssistantMessage } from './compass-assistant-provider';
@@ -82,6 +83,7 @@ export class DocsProviderTransport implements ChatTransport<AssistantMessage> {
         'X-Request-Origin': this.origin,
       },
       tools: this.getTools(),
+      stopWhen: stepCountIs(5),
       providerOptions: {
         openai: {
           store: false,

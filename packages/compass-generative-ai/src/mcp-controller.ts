@@ -247,6 +247,15 @@ export class MCPController {
     }
   }
 
+  public getToolDescription(name: string): string | undefined {
+    if (!this.runner.server) {
+      return undefined;
+    }
+    return this.runner.server
+      ?.getAvailableTools()
+      .find((toolBase) => toolBase.name === name)?.description;
+  }
+
   public getTools(): ToolSet {
     if (!this.runner.server) {
       return {};
@@ -268,6 +277,9 @@ export class MCPController {
               name: toolBase.name,
               description: toolBase.description,
               inputSchema: z.object(toolBase.argsShape),
+              needsApproval:
+                toolBase.operationType !== 'read' &&
+                toolBase.operationType !== 'metadata',
               execute: async (args, options) => {
                 return await toolBase.execute(args, {
                   signal: options.abortSignal ?? new AbortSignal(),
