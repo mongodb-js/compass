@@ -371,7 +371,6 @@ function ExportSelectFields({
                     aria-label="Enter a field to include in the export"
                     type="text"
                     className={textInputStyles}
-                    // @ts-expect-error see https://jira.mongodb.org/browse/LG-5587
                     ref={newFieldRef}
                     placeholder="Add field"
                     onKeyDown={handleAddFieldSubmit}

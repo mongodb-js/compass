@@ -157,7 +157,6 @@ function FindInPageInput({
             type="text"
             aria-label="Find in page"
             aria-labelledby="find-in-page-label"
-            // @ts-expect-error see https://jira.mongodb.org/browse/LG-5587
             ref={findInPageInputRef}
             onChange={onSearchChange}
             value={searchTerm}
