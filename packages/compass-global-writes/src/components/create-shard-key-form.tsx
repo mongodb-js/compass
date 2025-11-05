@@ -58,6 +58,10 @@ const chunksInputStyles = css({
   gap: spacing[100],
 });
 
+const accordionStyles = css({
+  paddingLeft: spacing[400],
+});
+
 const nbsp = '\u00a0';
 
 type ShardingAdvancedOption = 'default' | 'unique-index' | 'hashed-index';
@@ -219,7 +223,7 @@ export function CreateShardKeyForm({
           text="Advanced Shard Key Configuration"
           open={isAdvancedOptionsOpen}
           setOpen={setIsAdvancedOptionsOpen}
-          className={css({ paddingLeft: spacing[400] })}
+          className={accordionStyles}
         >
           <RadioGroup
             className={advanceOptionsGroupStyles}

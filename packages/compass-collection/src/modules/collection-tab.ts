@@ -27,6 +27,7 @@ import {
   type SchemaAnalysisError,
   type SchemaAnalysisState,
   type FieldInfo,
+  type MongoDBFieldType,
 } from '../schema-analysis-types';
 import { calculateSchemaDepth } from '../calculate-schema-depth';
 import {
@@ -41,8 +42,9 @@ import type {
   FakerSchema,
   MockDataGeneratorState,
 } from '../components/mock-data-generator-modal/types';
+import { DEFAULT_DOCUMENT_COUNT } from '../components/mock-data-generator-modal/constants';
 
-import { faker } from '@faker-js/faker/locale/en';
+import { isValidFakerMethod } from '../components/mock-data-generator-modal/utils';
 
 const DEFAULT_SAMPLE_SIZE = 100;
 
@@ -109,6 +111,7 @@ export type CollectionState = {
   mockDataGenerator: {
     isModalOpen: boolean;
     currentStep: MockDataGeneratorStep;
+    documentCount: string;
   };
   fakerSchemaGeneration: MockDataGeneratorState;
 };
@@ -124,9 +127,12 @@ export enum CollectionActions {
   MockDataGeneratorModalClosed = 'compass-collection/MockDataGeneratorModalClosed',
   MockDataGeneratorNextButtonClicked = 'compass-collection/MockDataGeneratorNextButtonClicked',
   MockDataGeneratorPreviousButtonClicked = 'compass-collection/MockDataGeneratorPreviousButtonClicked',
+  MockDataGeneratorDocumentCountChanged = 'compass-collection/MockDataGeneratorDocumentCountChanged',
   FakerMappingGenerationStarted = 'compass-collection/FakerMappingGenerationStarted',
   FakerMappingGenerationCompleted = 'compass-collection/FakerMappingGenerationCompleted',
   FakerMappingGenerationFailed = 'compass-collection/FakerMappingGenerationFailed',
+  FakerFieldTypeChanged = 'compass-collection/FakerFieldTypeChanged',
+  FakerFieldMethodChanged = 'compass-collection/FakerFieldMethodChanged',
 }
 
 interface CollectionMetadataFetchedAction {
@@ -179,6 +185,11 @@ interface MockDataGeneratorPreviousButtonClickedAction {
   type: CollectionActions.MockDataGeneratorPreviousButtonClicked;
 }
 
+interface MockDataGeneratorDocumentCountChangedAction {
+  type: CollectionActions.MockDataGeneratorDocumentCountChanged;
+  documentCount: string;
+}
+
 export interface FakerMappingGenerationStartedAction {
   type: CollectionActions.FakerMappingGenerationStarted;
   requestId: string;
@@ -196,6 +207,18 @@ export interface FakerMappingGenerationFailedAction {
   requestId: string;
 }
 
+export interface FakerFieldTypeChangedAction {
+  type: CollectionActions.FakerFieldTypeChanged;
+  fieldPath: string;
+  mongoType: MongoDBFieldType;
+}
+
+export interface FakerFieldMethodChangedAction {
+  type: CollectionActions.FakerFieldMethodChanged;
+  fieldPath: string;
+  fakerMethod: string;
+}
+
 const reducer: Reducer<CollectionState, Action> = (
   state = {
     // TODO(COMPASS-7782): use hook to get the workspace tab id instead
@@ -208,6 +231,7 @@ const reducer: Reducer<CollectionState, Action> = (
     mockDataGenerator: {
       isModalOpen: false,
       currentStep: MockDataGeneratorStep.SCHEMA_CONFIRMATION,
+      documentCount: DEFAULT_DOCUMENT_COUNT.toString(),
     },
     fakerSchemaGeneration: {
       status: 'idle',
@@ -314,6 +338,7 @@ const reducer: Reducer<CollectionState, Action> = (
         ...state.mockDataGenerator,
         isModalOpen: true,
         currentStep: MockDataGeneratorStep.SCHEMA_CONFIRMATION,
+        documentCount: DEFAULT_DOCUMENT_COUNT.toString(),
       },
     };
   }
@@ -416,6 +441,21 @@ const reducer: Reducer<CollectionState, Action> = (
   }
 
   if (
+    isAction<MockDataGeneratorDocumentCountChangedAction>(
+      action,
+      CollectionActions.MockDataGeneratorDocumentCountChanged
+    )
+  ) {
+    return {
+      ...state,
+      mockDataGenerator: {
+        ...state.mockDataGenerator,
+        documentCount: action.documentCount,
+      },
+    };
+  }
+
+  if (
     isAction<FakerMappingGenerationStartedAction>(
       action,
       CollectionActions.FakerMappingGenerationStarted
@@ -457,7 +497,8 @@ const reducer: Reducer<CollectionState, Action> = (
       ...state,
       fakerSchemaGeneration: {
         status: 'completed',
-        fakerSchema: action.fakerSchema,
+        originalLlmResponse: action.fakerSchema,
+        editedFakerSchema: action.fakerSchema, // Initially same as LLM response
         requestId: action.requestId,
       },
     };
@@ -483,6 +524,72 @@ const reducer: Reducer<CollectionState, Action> = (
       mockDataGenerator: {
         ...state.mockDataGenerator,
         currentStep: MockDataGeneratorStep.SCHEMA_CONFIRMATION,
+      },
+    };
+  }
+
+  if (
+    isAction<FakerFieldTypeChangedAction>(
+      action,
+      CollectionActions.FakerFieldTypeChanged
+    )
+  ) {
+    if (state.fakerSchemaGeneration.status !== 'completed') {
+      return state;
+    }
+
+    const { fieldPath, mongoType } = action;
+    const currentMapping =
+      state.fakerSchemaGeneration.editedFakerSchema[fieldPath];
+
+    if (!currentMapping) {
+      return state;
+    }
+
+    return {
+      ...state,
+      fakerSchemaGeneration: {
+        ...state.fakerSchemaGeneration,
+        editedFakerSchema: {
+          ...state.fakerSchemaGeneration.editedFakerSchema,
+          [fieldPath]: {
+            ...currentMapping,
+            mongoType,
+          },
+        },
+      },
+    };
+  }
+
+  if (
+    isAction<FakerFieldMethodChangedAction>(
+      action,
+      CollectionActions.FakerFieldMethodChanged
+    )
+  ) {
+    if (state.fakerSchemaGeneration.status !== 'completed') {
+      return state;
+    }
+
+    const { fieldPath, fakerMethod } = action;
+    const currentMapping =
+      state.fakerSchemaGeneration.editedFakerSchema[fieldPath];
+
+    if (!currentMapping) {
+      return state;
+    }
+
+    return {
+      ...state,
+      fakerSchemaGeneration: {
+        ...state.fakerSchemaGeneration,
+        editedFakerSchema: {
+          ...state.fakerSchemaGeneration.editedFakerSchema,
+          [fieldPath]: {
+            ...currentMapping,
+            fakerMethod,
+          },
+        },
       },
     };
   }
@@ -525,6 +632,37 @@ export const mockDataGeneratorPreviousButtonClicked = (): CollectionThunkAction<
     dispatch({
       type: CollectionActions.MockDataGeneratorPreviousButtonClicked,
     });
+  };
+};
+
+export const mockDataGeneratorDocumentCountChanged = (
+  documentCount: string
+): MockDataGeneratorDocumentCountChangedAction => {
+  return {
+    type: CollectionActions.MockDataGeneratorDocumentCountChanged,
+    documentCount,
+  };
+};
+
+export const fakerFieldTypeChanged = (
+  fieldPath: string,
+  mongoType: MongoDBFieldType
+): FakerFieldTypeChangedAction => {
+  return {
+    type: CollectionActions.FakerFieldTypeChanged,
+    fieldPath,
+    mongoType,
+  };
+};
+
+export const fakerFieldMethodChanged = (
+  fieldPath: string,
+  fakerMethod: string
+): FakerFieldMethodChangedAction => {
+  return {
+    type: CollectionActions.FakerFieldMethodChanged,
+    fieldPath,
+    fakerMethod,
   };
 };
 
@@ -712,9 +850,13 @@ export const cancelSchemaAnalysis = (): CollectionThunkAction<void> => {
 /**
  * Transforms LLM array format to keyed object structure.
  * Moves fieldPath from object property to object key.
+ *
+ * @param fakerSchema - The faker schema array from LLM response
+ * @param inputSchema - The schema definition for the LLM input used to carry over `mongoType` data
  */
 function transformFakerSchemaToObject(
-  fakerSchema: LlmFakerMapping[]
+  fakerSchema: LlmFakerMapping[],
+  inputSchema: Record<string, FieldInfo>
 ): FakerSchema {
   const result: FakerSchema = {};
 
@@ -722,43 +864,12 @@ function transformFakerSchemaToObject(
     const { fieldPath, ...fieldMapping } = field;
     result[fieldPath] = {
       ...fieldMapping,
-      mongoType: fieldMapping.mongoType,
+      // Note: `validateFakerSchema` already handles fields that are not present in `inputSchema`
+      mongoType: inputSchema[fieldPath]?.type,
     };
   }
 
   return result;
-}
-
-/**
- * Checks if the method exists and is callable on the faker object.
- *
- * Note: Only supports the format `module.method` (e.g., `internet.email`).
- * Nested modules or other formats are not supported.
- * @see {@link https://fakerjs.dev/api/}
- */
-function isValidFakerMethod(fakerMethod: string): boolean {
-  const parts = fakerMethod.split('.');
-
-  // Validate format: exactly module.method
-  if (parts.length !== 2) {
-    return false;
-  }
-
-  const [moduleName, methodName] = parts;
-
-  try {
-    const fakerModule = (faker as unknown as Record<string, unknown>)[
-      moduleName
-    ];
-    return (
-      fakerModule !== null &&
-      fakerModule !== undefined &&
-      typeof fakerModule === 'object' &&
-      typeof (fakerModule as Record<string, unknown>)[methodName] === 'function'
-    );
-  } catch {
-    return false;
-  }
 }
 
 /**
@@ -788,8 +899,16 @@ const validateFakerSchema = (
         probability: inputSchema[fieldPath].probability,
       };
       // Validate the faker method
-      if (isValidFakerMethod(fakerMapping.fakerMethod)) {
-        result[fieldPath] = fakerMapping;
+      const { isValid: isValidMethod, fakerArgs } = isValidFakerMethod(
+        fakerMapping.fakerMethod,
+        fakerMapping.fakerArgs,
+        logger
+      );
+      if (isValidMethod) {
+        result[fieldPath] = {
+          ...fakerMapping,
+          fakerArgs,
+        };
       } else {
         logger.log.warn(
           mongoLogId(1_001_000_372),
@@ -886,7 +1005,8 @@ export const generateFakerMappings = (): CollectionThunkAction<
 
       // Transform to keyed object structure
       const transformedFakerSchema = transformFakerSchemaToObject(
-        response.fields
+        response.fields,
+        schemaAnalysis.processedSchema
       );
 
       const validatedFakerSchema = validateFakerSchema(

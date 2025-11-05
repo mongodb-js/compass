@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { connect } from 'react-redux';
 import {
   Banner,
@@ -18,13 +18,23 @@ import {
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import toNS from 'mongodb-ns';
 import { generateScript } from './script-generation-utils';
-import type { FakerSchema } from './types';
+import { DataGenerationStep, type FakerSchema } from './types';
 import type { ArrayLengthMap } from './script-generation-utils';
 import type { CollectionState } from '../../modules/collection-tab';
 import { SCHEMA_ANALYSIS_STATE_COMPLETE } from '../../schema-analysis-types';
+import {
+  type TrackFunction,
+  useTelemetry,
+  useTrackOnChange,
+} from '@mongodb-js/compass-telemetry/provider';
+import {
+  DEFAULT_CONNECTION_STRING_FALLBACK,
+  DEFAULT_DOCUMENT_COUNT,
+} from './constants';
+import { redactConnectionString } from 'mongodb-connection-string-url';
 
-const RUN_SCRIPT_COMMAND = `
-mongosh "mongodb+srv://<your-cluster>.mongodb.net/<your-database>" \\
+const RUN_SCRIPT_COMMAND = (connectionString: string) => `
+mongosh "${redactConnectionString(connectionString)}" \\
   --username <your-username> \\
   --password "<your-password>" \\
   mockdatascript.js
@@ -80,7 +90,7 @@ interface ScriptScreenProps {
   fakerSchema: FakerSchema | null;
   namespace: string;
   arrayLengthMap: ArrayLengthMap;
-  documentCount: number;
+  documentCount: string;
 }
 
 const ScriptScreen = ({
@@ -91,6 +101,11 @@ const ScriptScreen = ({
 }: ScriptScreenProps) => {
   const isDarkMode = useDarkMode();
   const connectionInfo = useConnectionInfo();
+  const track = useTelemetry();
+
+  const connectionString: string =
+    connectionInfo?.atlasMetadata?.userConnectionString ??
+    DEFAULT_CONNECTION_STRING_FALLBACK;
 
   const { database, collection } = toNS(namespace);
 
@@ -105,12 +120,33 @@ const ScriptScreen = ({
     }
 
     return generateScript(fakerSchema, {
-      documentCount,
+      documentCount: Number(documentCount) || DEFAULT_DOCUMENT_COUNT,
       databaseName: database,
       collectionName: collection,
       arrayLengthMap,
     });
   }, [fakerSchema, documentCount, database, collection, arrayLengthMap]);
+
+  const onScriptCopy = useCallback(
+    ({ step }: { step: DataGenerationStep }) => {
+      track('Mock Data Script Copied', {
+        step: step,
+      });
+    },
+    [track]
+  );
+
+  useTrackOnChange(
+    (track: TrackFunction) => {
+      if (scriptResult.success && fakerSchema) {
+        track('Mock Data Script Generated', {
+          field_count: Object.keys(fakerSchema).length,
+          output_docs_count: Number(documentCount) || DEFAULT_DOCUMENT_COUNT,
+        });
+      }
+    },
+    [scriptResult.success, fakerSchema, documentCount]
+  );
 
   return (
     <section className={outerSectionStyles}>
@@ -138,7 +174,12 @@ const ScriptScreen = ({
           <li>
             Install{' '}
             <Link href="https://fakerjs.dev/guide/#installation">faker.js</Link>
-            <Copyable className={copyableStyles}>
+            <Copyable
+              className={copyableStyles}
+              onCopy={() =>
+                onScriptCopy({ step: DataGenerationStep.INSTALL_FAKERJS })
+              }
+            >
               npm install @faker-js/faker
             </Copyable>
           </li>
@@ -153,9 +194,12 @@ const ScriptScreen = ({
           mockdatascript.js (or any name you&apos;d like).
         </Body>
         <Code
-          copyable={scriptResult.success}
+          copyButtonAppearance={scriptResult.success ? 'hover' : 'persist'}
           language={Language.JavaScript}
           className={scriptCodeBlockStyles}
+          onCopy={() =>
+            onScriptCopy({ step: DataGenerationStep.CREATE_JS_FILE })
+          }
         >
           {scriptResult.success
             ? scriptResult.script
@@ -175,8 +219,11 @@ const ScriptScreen = ({
             reversible.
           </em>
         </Body>
-        <Code copyable language={Language.Bash}>
-          {RUN_SCRIPT_COMMAND}
+        <Code
+          language={Language.Bash}
+          onCopy={() => onScriptCopy({ step: DataGenerationStep.RUN_SCRIPT })}
+        >
+          {RUN_SCRIPT_COMMAND(connectionString)}
         </Code>
       </section>
       <section
@@ -214,20 +261,24 @@ const ScriptScreen = ({
 };
 
 const mapStateToProps = (state: CollectionState) => {
-  const { fakerSchemaGeneration, namespace, schemaAnalysis } = state;
+  const {
+    fakerSchemaGeneration,
+    namespace,
+    schemaAnalysis,
+    mockDataGenerator,
+  } = state;
 
   return {
     fakerSchema:
       fakerSchemaGeneration.status === 'completed'
-        ? fakerSchemaGeneration.fakerSchema
+        ? fakerSchemaGeneration.editedFakerSchema
         : null,
     namespace,
     arrayLengthMap:
       schemaAnalysis?.status === SCHEMA_ANALYSIS_STATE_COMPLETE
         ? schemaAnalysis.arrayLengthMap
         : {},
-    // TODO(CLOUDP-333856): When document count step is implemented, get documentCount from state
-    documentCount: 100,
+    documentCount: mockDataGenerator.documentCount,
   };
 };
 

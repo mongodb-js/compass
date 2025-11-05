@@ -81,7 +81,12 @@ export class AtlasService {
   userDataEndpoint(
     orgId: string,
     groupId: string,
-    type: 'favoriteQueries' | 'recentQueries' | 'favoriteAggregations',
+    type:
+      | 'favoriteQueries'
+      | 'recentQueries'
+      | 'favoriteAggregations'
+      | 'savedWorkspaces'
+      | 'dataModelDescriptions',
     id?: string
   ): string {
     const encodedOrgId = encodeURIComponent(orgId);

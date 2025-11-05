@@ -26,7 +26,16 @@ const FIRST_TEST = 'tests/time-to-first-query.test.ts';
 async function cleanupOnInterrupt() {
   // First trigger an abort on the mocha runner
   abortRunner?.();
-  await runnerPromise;
+  // Don't wait when bailing because it can take minutes of retries before it
+  // finally times out, the process exits back to the terminal but some zombie
+  // child stays around and keeps logging.. We only use bail locally when
+  // working on tests manually and in that case we probably don't care about the
+  // cleanup. If you see a test you're working on waiting for something that's
+  // never going to happen then you probably want to kill it and get back
+  // control immediately.
+  if (!context.mochaBail) {
+    await runnerPromise;
+  }
 }
 
 function terminateOnTimeout() {

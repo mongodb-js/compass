@@ -13,6 +13,7 @@ import type {
 import { allPreferencesProps } from './preferences-schema';
 import { InMemoryStorage } from './preferences-in-memory-storage';
 import type { PreferencesStorage } from './preferences-storage';
+import type { AtlasCloudFeatureFlags } from './feature-flags';
 import type { getActiveUser } from '.';
 
 export interface PreferencesAccess {
@@ -21,7 +22,6 @@ export interface PreferencesAccess {
   ): Promise<AllPreferences>;
   refreshPreferences(): Promise<AllPreferences>;
   getPreferences(): AllPreferences;
-  ensureDefaultConfigurableUserPreferences(): Promise<void>;
   getConfigurableUserPreferences(): Promise<UserConfigurablePreferences>;
   getPreferenceStates(): Promise<PreferenceStateInformation>;
   onPreferenceValueChanged<K extends keyof AllPreferences>(
@@ -51,6 +51,7 @@ export class Preferences {
     cli: Partial<AllPreferences>;
     global: Partial<AllPreferences>;
     hardcoded: Partial<AllPreferences>;
+    atlasCloud: Partial<AtlasCloudFeatureFlags>;
   };
 
   constructor({
@@ -70,6 +71,7 @@ export class Preferences {
       cli: {},
       global: {},
       hardcoded: {},
+      atlasCloud: {},
       ...globalPreferences,
     };
 
@@ -210,6 +212,7 @@ export class Preferences {
 
     const originalValues = { ...values };
     const originalStates = { ...states };
+    const atlasCloudFeatureFlags = this._globalPreferences.atlasCloud;
 
     function deriveValue<K extends keyof AllPreferences>(
       key: K
@@ -226,7 +229,8 @@ export class Preferences {
         (k) =>
           (k as unknown) === key ? originalValues[k] : deriveValue(k).value,
         (k) =>
-          (k as unknown) === key ? originalStates[k] : deriveValue(k).state
+          (k as unknown) === key ? originalStates[k] : deriveValue(k).state,
+        atlasCloudFeatureFlags
       );
     }
 
@@ -241,26 +245,6 @@ export class Preferences {
     }
 
     return { values, states };
-  }
-
-  /**
-   * If this is the first call to this method, this sets the defaults for
-   * user preferences.
-   */
-  async ensureDefaultConfigurableUserPreferences(): Promise<void> {
-    // Set the defaults and also update showedNetworkOptIn flag.
-    const { showedNetworkOptIn } = this.getPreferences();
-    if (!showedNetworkOptIn) {
-      await this.savePreferences({
-        autoUpdates: true,
-        enableGenAIFeatures: true,
-        enableMaps: true,
-        trackUsageStatistics: true,
-        enableFeedbackPanel: true,
-        showedNetworkOptIn: true,
-        theme: 'LIGHT',
-      });
-    }
   }
 
   /**

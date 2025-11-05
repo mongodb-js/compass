@@ -10,6 +10,7 @@ import type { MongoDBInstanceProps } from 'mongodb-instance-model';
 import { MongoDBInstance } from 'mongodb-instance-model';
 import React, {
   createContext,
+  useCallback,
   useContext,
   useEffect,
   useMemo,
@@ -92,6 +93,46 @@ export const mongoDBInstanceLocator = createServiceLocator(
   },
   'mongoDBInstanceLocator'
 );
+
+/**
+ * Hook to check if there are any connected non-genuine MongoDB connections.
+ * @return true if any connected connection is to a non-genuine MongoDB server.
+ */
+export function useHasNonGenuineConnections(): boolean {
+  const instancesManager = useContext(MongoDBInstancesManagerContext);
+
+  const hasNonGenuineConnections = useCallback(
+    function () {
+      if (!instancesManager) {
+        return false;
+      }
+      return Array.from(instancesManager.listMongoDBInstances().values()).some(
+        (instance) => {
+          return !instance.genuineMongoDB.isGenuine;
+        }
+      );
+    },
+    [instancesManager]
+  );
+
+  const [result, setResult] = useState(hasNonGenuineConnections);
+
+  useEffect(() => {
+    if (instancesManager) {
+      const updateResult = () => {
+        setResult(hasNonGenuineConnections);
+      };
+      instancesManager.on('instance-started', updateResult);
+      instancesManager.on('instance-removed', updateResult);
+      return () => {
+        instancesManager.off('instance-started', updateResult);
+        instancesManager.off('instance-removed', updateResult);
+      };
+    }
+  }, [instancesManager, setResult, hasNonGenuineConnections]);
+
+  return result;
+}
 
 const NamespaceModelContext = React.createContext<Database | Collection | null>(
   null

@@ -6,6 +6,7 @@ import {
   ButtonVariant,
   spacing,
   css,
+  cx,
   palette,
   useDarkMode,
 } from '@mongodb-js/compass-components';
@@ -42,6 +43,11 @@ const buttonGroupStyles = css({
   },
 });
 
+const confirmationMessageDarkModeStyles = css({
+  backgroundColor: palette.gray.dark3,
+  borderColor: palette.gray.dark2,
+});
+
 interface ConfirmationMessageProps {
   state: 'confirmed' | 'rejected' | 'pending';
   title: string;
@@ -57,11 +63,10 @@ export const ConfirmationMessage: React.FunctionComponent<
 
   return (
     <div
-      className={confirmationMessageStyles}
-      style={{
-        backgroundColor: darkMode ? palette.gray.dark3 : palette.gray.light3,
-        borderColor: darkMode ? palette.gray.dark2 : palette.gray.light2,
-      }}
+      className={cx(
+        confirmationMessageStyles,
+        darkMode && confirmationMessageDarkModeStyles
+      )}
     >
       <Body className={confirmationTitleStyles}>{title}</Body>
 

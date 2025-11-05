@@ -132,6 +132,10 @@ const disabledDescriptionDarkStyles = css({
   color: palette.gray.light1,
 });
 
+const displayNoneStyles = css({
+  display: 'none',
+});
+
 type FileInputVariant = 'default' | 'small' | 'vertical';
 
 // Matches Electron's file dialog options.
@@ -502,13 +506,13 @@ function FilePickerDialog({
         </div>
         <input
           data-testid={dataTestId ?? 'file-input'}
+          className={displayNoneStyles}
           ref={inputRef}
           id={`${id}_file_input`}
           name={id}
           type="file"
           multiple={multi}
           onChange={onFilesChanged}
-          style={{ display: 'none' }}
           // Force a re-render when the values change so
           // the component is controlled by the prop.
           // This is also useful for testing.

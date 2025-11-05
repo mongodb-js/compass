@@ -10,6 +10,7 @@ import {
 } from '@mongodb-js/testing-library-compass';
 import {
   CompassAssistantProvider,
+  createDefaultChat,
   useAssistantActions,
   type AssistantMessage,
 } from './compass-assistant-provider';
@@ -24,8 +25,10 @@ import {
 import type { AtlasAuthService } from '@mongodb-js/atlas-service/provider';
 import type { AtlasService } from '@mongodb-js/atlas-service/provider';
 import { CompassAssistantDrawer } from './compass-assistant-drawer';
-import { createMockChat } from '../test/utils';
+import { createBrokenTransport, createMockChat } from '../test/utils';
 import type { AtlasAiService } from '@mongodb-js/compass-generative-ai/provider';
+import type { TrackFunction } from '@mongodb-js/compass-telemetry';
+import { createLogger } from '@mongodb-js/compass-logging';
 
 function createMockProvider({
   mockAtlasService,
@@ -463,6 +466,44 @@ describe('CompassAssistantProvider', function () {
       expect(screen.queryByText('Hello assistant!')).to.not.exist;
     });
 
+    describe('error handling with default chat', function () {
+      it('fires a telemetry event and displays error banner when error occurs', async function () {
+        const track = sinon.stub();
+        const chat = createDefaultChat({
+          options: {
+            transport: createBrokenTransport(),
+          },
+          originForPrompt: 'mongodb-compass',
+          appNameForPrompt: 'MongoDB Compass',
+          atlasService: {
+            assistantApiEndpoint: sinon
+              .stub()
+              .returns('https://localhost:3000'),
+          } as unknown as AtlasService,
+          logger: createLogger('COMPASS-ASSISTANT-TEST'),
+          track: track as unknown as TrackFunction,
+        });
+        await renderOpenAssistantDrawer({
+          chat,
+        });
+
+        // Send a message
+        userEvent.type(
+          screen.getByPlaceholderText('Ask a question'),
+          'Hello assistant!'
+        );
+        userEvent.click(screen.getByLabelText('Send message'));
+
+        await waitFor(() => {
+          expect(screen.getByText(/Test connection error/)).to.exist;
+        });
+
+        expect(track).to.have.been.calledWith('Assistant Response Failed', {
+          error_name: 'ConnectionError',
+        });
+      });
+    });
+
     describe('clear chat button', function () {
       it('is hidden when the chat is empty', async function () {
         const mockChat = createMockChat({ messages: [] });
@@ -613,49 +654,47 @@ describe('CompassAssistantProvider', function () {
     });
   });
 
-  describe('CompassAssistantProvider', function () {
-    it('uses the Atlas Service assistantApiEndpoint', async function () {
-      const mockAtlasService = {
-        assistantApiEndpoint: sinon
-          .stub()
-          .returns('https://example.com/assistant/api/v1'),
-      };
+  it('uses the Atlas Service assistantApiEndpoint', async function () {
+    const mockAtlasService = {
+      assistantApiEndpoint: sinon
+        .stub()
+        .returns('https://example.com/assistant/api/v1'),
+    };
 
-      const mockAtlasAiService = {
-        ensureAiFeatureAccess: sinon.stub().callsFake(() => {
-          return Promise.resolve();
-        }),
-      };
+    const mockAtlasAiService = {
+      ensureAiFeatureAccess: sinon.stub().callsFake(() => {
+        return Promise.resolve();
+      }),
+    };
 
-      const mockAtlasAuthService = {};
+    const mockAtlasAuthService = {};
 
-      const MockedProvider = CompassAssistantProvider.withMockServices({
-        atlasService: mockAtlasService as unknown as AtlasService,
-        atlasAiService: mockAtlasAiService as unknown as AtlasAiService,
-        atlasAuthService: mockAtlasAuthService as unknown as AtlasAuthService,
-      });
+    const MockedProvider = CompassAssistantProvider.withMockServices({
+      atlasService: mockAtlasService as unknown as AtlasService,
+      atlasAiService: mockAtlasAiService as unknown as AtlasAiService,
+      atlasAuthService: mockAtlasAuthService as unknown as AtlasAuthService,
+    });
 
-      render(
-        <DrawerContentProvider>
-          <DrawerAnchor />
-          <MockedProvider
-            originForPrompt="mongodb-compass"
-            appNameForPrompt="MongoDB Compass"
-          />
-        </DrawerContentProvider>,
-        {
-          preferences: {
-            enableAIAssistant: true,
-            enableGenAIFeatures: true,
-            enableGenAIFeaturesAtlasOrg: true,
-            cloudFeatureRolloutAccess: { GEN_AI_COMPASS: true },
-          },
-        }
-      );
+    render(
+      <DrawerContentProvider>
+        <DrawerAnchor />
+        <MockedProvider
+          originForPrompt="mongodb-compass"
+          appNameForPrompt="MongoDB Compass"
+        />
+      </DrawerContentProvider>,
+      {
+        preferences: {
+          enableAIAssistant: true,
+          enableGenAIFeatures: true,
+          enableGenAIFeaturesAtlasOrg: true,
+          cloudFeatureRolloutAccess: { GEN_AI_COMPASS: true },
+        },
+      }
+    );
 
-      await waitFor(() => {
-        expect(mockAtlasService.assistantApiEndpoint.calledOnce).to.be.true;
-      });
+    await waitFor(() => {
+      expect(mockAtlasService.assistantApiEndpoint.calledOnce).to.be.true;
     });
   });
 });

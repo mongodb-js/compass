@@ -19,6 +19,7 @@ import {
 import { saveAggregationPipeline } from '../helpers/commands/save-aggregation-pipeline';
 import type { ChainablePromiseElement } from 'webdriverio';
 import { switchPipelineMode } from '../helpers/commands/switch-pipeline-mode';
+import { isTestingWeb } from '../helpers/test-runner-context';
 
 const { expect } = chai;
 
@@ -191,6 +192,10 @@ describe('Collection aggregations tab', function () {
     }
     if (serverSatisfies('>=8.1.0')) {
       expectedAggregations.push('$rankFusion');
+    }
+
+    if (serverSatisfies('>=8.3.0-alpha0')) {
+      expectedAggregations.push('$scoreFusion');
     }
 
     expectedAggregations.sort();
@@ -444,13 +449,6 @@ describe('Collection aggregations tab', function () {
   });
 
   describe('maxTimeMS', function () {
-    before(function () {
-      skipForWeb(
-        this,
-        "we don't support getFeature() and setFeature() in compass-web yet"
-      );
-    });
-
     let maxTimeMSBefore: any;
 
     beforeEach(async function () {
@@ -477,16 +475,20 @@ describe('Collection aggregations tab', function () {
         }
 
         if (maxTimeMSMode === 'preference') {
-          await browser.openSettingsModal();
-          const settingsModal = browser.$(Selectors.SettingsModal);
-          await settingsModal.waitForDisplayed();
-          await browser.clickVisible(Selectors.GeneralSettingsButton);
+          if (isTestingWeb()) {
+            await browser.setFeature('maxTimeMS', 1);
+          } else {
+            await browser.openSettingsModal();
+            const settingsModal = browser.$(Selectors.SettingsModal);
+            await settingsModal.waitForDisplayed();
+            await browser.clickVisible(Selectors.GeneralSettingsButton);
 
-          await browser.setValueVisible(
-            Selectors.SettingsInputElement('maxTimeMS'),
-            '1'
-          );
-          await browser.clickVisible(Selectors.SaveSettingsButton);
+            await browser.setValueVisible(
+              Selectors.SettingsInputElement('maxTimeMS'),
+              '1'
+            );
+            await browser.clickVisible(Selectors.SaveSettingsButton);
+          }
         }
 
         // run a projection that will take lots of time
@@ -675,8 +677,13 @@ describe('Collection aggregations tab', function () {
       await errorDetailsJson.waitForDisplayed();
 
       // exit details
+      // leafygreen autofocus triggers a tooltip on the error code element,
+      // "Tab" to remove the focus
+      await browser.keys('Tab');
+      // now click the close button
       await browser.clickVisible(Selectors.confirmationModalConfirmButton());
-      await errorElement.waitForDisplayed();
+      // wait for the modal to go away
+      await errorDetailsJson.waitForDisplayed({ reverse: true });
     });
   });
 

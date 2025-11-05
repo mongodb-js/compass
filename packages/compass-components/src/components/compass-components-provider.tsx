@@ -45,6 +45,11 @@ type CompassComponentsProviderProps = {
    * Set to disable context menus in the application.
    */
   disableContextMenus?: boolean;
+
+  /**
+   * Set to disable guide cues in the application
+   */
+  disableGuideCues?: boolean;
 } & {
   onNextGuideGue?: GuideCueProviderProps['onNext'];
   onNextGuideCueGroup?: GuideCueProviderProps['onNextGroup'];
@@ -130,6 +135,7 @@ export const CompassComponentsProvider = ({
   stackedElementsZIndex,
   popoverPortalContainer: _popoverPortalContainer,
   disableContextMenus,
+  disableGuideCues,
   ...signalHooksProviderProps
 }: CompassComponentsProviderProps) => {
   const darkMode = useDarkMode(_darkMode);
@@ -167,6 +173,7 @@ export const CompassComponentsProvider = ({
             <GuideCueProvider
               onNext={onNextGuideGue}
               onNextGroup={onNextGuideCueGroup}
+              disabled={disableGuideCues}
             >
               <SignalHooksProvider {...signalHooksProviderProps}>
                 <ConfirmationModalArea>

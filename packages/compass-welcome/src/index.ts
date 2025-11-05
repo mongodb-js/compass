@@ -1,49 +1,56 @@
 import React from 'react';
 import { registerCompassPlugin } from '@mongodb-js/compass-app-registry';
-import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
-import { workspacesServiceLocator } from '@mongodb-js/compass-workspaces/provider';
 import type { WorkspacePlugin } from '@mongodb-js/compass-workspaces';
-import { WelcomeModal, DesktopWelcomeTab, WebWelcomeTab } from './components';
-import { activatePlugin } from './stores';
-import { telemetryLocator } from '@mongodb-js/compass-telemetry/provider';
+import {
+  WelcomeModal as WelcomeModalComponent,
+  DesktopWelcomeTab,
+  WebWelcomeTab,
+} from './components';
 import { PluginTabTitleComponent, WorkspaceName } from './plugin-tab-title';
+import { preferencesLocator } from 'compass-preferences-model/provider';
+import { applyMiddleware, createStore } from 'redux';
+import thunk from 'redux-thunk';
+import welcomeModalStore from './stores/welcome-modal-store';
 
-const serviceLocators = {
-  logger: createLoggerLocator('COMPASS-MY-QUERIES-UI'),
-  track: telemetryLocator,
-  workspaces: workspacesServiceLocator,
-};
+// These plugins don't have any state or logic of their own, so their provider
+// is just an "empty" plugin
+const WorkspaceTabProvider = registerCompassPlugin({
+  name: WorkspaceName,
+  component: ({ children }) => {
+    return React.createElement(React.Fragment, null, children);
+  },
+  activate() {
+    return { store: {}, deactivate: () => undefined };
+  },
+});
 
 export const DesktopWorkspaceTab: WorkspacePlugin<typeof WorkspaceName> = {
   name: WorkspaceName,
-  provider: registerCompassPlugin(
-    {
-      name: WorkspaceName,
-      component: function WelcomeProvider({ children }) {
-        return React.createElement(React.Fragment, null, children);
-      },
-      activate: activatePlugin,
-    },
-    serviceLocators
-  ),
+  provider: WorkspaceTabProvider,
   content: DesktopWelcomeTab,
   header: PluginTabTitleComponent,
 };
 
 export const WebWorkspaceTab: WorkspacePlugin<typeof WorkspaceName> = {
   name: WorkspaceName,
-  provider: registerCompassPlugin(
-    {
-      name: WorkspaceName,
-      component: function WelcomeProvider({ children }) {
-        return React.createElement(React.Fragment, null, children);
-      },
-      activate: activatePlugin,
-    },
-    serviceLocators
-  ),
+  provider: WorkspaceTabProvider,
   content: WebWelcomeTab,
   header: PluginTabTitleComponent,
 };
 
-export { WelcomeModal };
+export const WelcomeModal = registerCompassPlugin(
+  {
+    name: 'WelcomeModal',
+    component: WelcomeModalComponent,
+    activate(_initialProps, services, { cleanup }) {
+      const { showedNetworkOptIn } = services.preferences.getPreferences();
+      const store = createStore(
+        welcomeModalStore,
+        { isOpen: !showedNetworkOptIn },
+        applyMiddleware(thunk.withExtraArgument(services))
+      );
+      return { store, deactivate: cleanup };
+    },
+  },
+  { preferences: preferencesLocator }
+);

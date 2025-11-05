@@ -4,7 +4,6 @@ import type {
   Relationship,
   StaticModel,
 } from '../services/data-model-storage';
-import { addFieldToJSONSchema } from '../utils/schema';
 import { updateSchema } from '../utils/schema-traversal';
 import {
   isRelationshipInvolvingField,
@@ -30,6 +29,21 @@ function renameFieldInRelationshipSide(
       ...side.fields.slice(edit.field.length),
     ],
   };
+}
+
+/**
+ * @param collections
+ * @param ns
+ * @throws Will throw an error if the namespace is not found in the collections.
+ */
+function assertCollectionExists(
+  collections: DataModelCollection[],
+  ns: string
+): void {
+  const collection = collections.find((c) => c.ns === ns);
+  if (!collection) {
+    throw new Error(`Collection '${ns}' not found`);
+  }
 }
 
 export function applyEdit(edit: Edit, model?: StaticModel): StaticModel {
@@ -81,6 +95,7 @@ export function applyEdit(edit: Edit, model?: StaticModel): StaticModel {
       };
     }
     case 'MoveCollection': {
+      assertCollectionExists(model.collections, edit.ns);
       return {
         ...model,
         collections: model.collections.map((collection) => {
@@ -95,6 +110,7 @@ export function applyEdit(edit: Edit, model?: StaticModel): StaticModel {
       };
     }
     case 'RemoveCollection': {
+      assertCollectionExists(model.collections, edit.ns);
       return {
         ...model,
         // Remove any relationships involving the collection being removed.
@@ -109,6 +125,7 @@ export function applyEdit(edit: Edit, model?: StaticModel): StaticModel {
       };
     }
     case 'RenameCollection': {
+      assertCollectionExists(model.collections, edit.fromNS);
       return {
         ...model,
         // Update relationships to point to the renamed namespace.
@@ -137,6 +154,7 @@ export function applyEdit(edit: Edit, model?: StaticModel): StaticModel {
       };
     }
     case 'UpdateCollectionNote': {
+      assertCollectionExists(model.collections, edit.ns);
       return {
         ...model,
         collections: model.collections.map((collection) => {
@@ -151,17 +169,22 @@ export function applyEdit(edit: Edit, model?: StaticModel): StaticModel {
       };
     }
     case 'AddField': {
+      assertCollectionExists(model.collections, edit.ns);
       return {
         ...model,
         collections: model.collections.map((collection) => {
           if (collection.ns === edit.ns) {
             return {
               ...collection,
-              jsonSchema: addFieldToJSONSchema(
-                collection.jsonSchema,
-                edit.field,
-                edit.jsonSchema
-              ),
+              jsonSchema: updateSchema({
+                jsonSchema: collection.jsonSchema,
+                fieldPath: edit.field.slice(0, -1),
+                updateParameters: {
+                  update: 'addField',
+                  newFieldSchema: edit.jsonSchema,
+                  newFieldName: edit.field[edit.field.length - 1],
+                },
+              }),
             };
           }
           return collection;
@@ -169,6 +192,7 @@ export function applyEdit(edit: Edit, model?: StaticModel): StaticModel {
       };
     }
     case 'RemoveField': {
+      assertCollectionExists(model.collections, edit.ns);
       return {
         ...model,
         // Remove any relationships involving the field being removed.
@@ -193,6 +217,7 @@ export function applyEdit(edit: Edit, model?: StaticModel): StaticModel {
       };
     }
     case 'RenameField': {
+      assertCollectionExists(model.collections, edit.ns);
       return {
         ...model,
         // Update any relationships involving the field being renamed.
@@ -227,6 +252,7 @@ export function applyEdit(edit: Edit, model?: StaticModel): StaticModel {
       };
     }
     case 'ChangeFieldType': {
+      assertCollectionExists(model.collections, edit.ns);
       return {
         ...model,
         collections: model.collections.map((collection) => {

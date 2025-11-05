@@ -3,12 +3,12 @@
 buildvariants:
   - name: check
     display_name: Check
-    run_on: ubuntu2004-large
+    run_on: ubuntu2204-large
     tasks:
       - name: check
   - name: unit-tests-ubuntu
     display_name: Unit Tests Ubuntu
-    run_on: ubuntu2004-large
+    run_on: ubuntu2204-large
     tasks:
       - name: test
       - name: test-electron
@@ -20,7 +20,7 @@ buildvariants:
       - name: test-electron
   - name: unit-tests-rhel
     display_name: Unit Tests RHEL
-    run_on: rhel80-large
+    run_on: rhel93-large
     tasks:
       - name: test
       - name: test-electron
@@ -35,7 +35,7 @@ buildvariants:
     expansions:
       target_platform: ubuntu
     display_name: Package Ubuntu
-    run_on: ubuntu1804-large
+    run_on: ubuntu2004-large
     tasks:
       - name: package-compass
       - name: package-compass-isolated
@@ -62,7 +62,7 @@ buildvariants:
     expansions:
       target_platform: macos
     display_name: Package MacOS Intel
-    run_on: macos-14
+    run_on: macos-13
     tasks:
       - name: package-compass
       - name: package-compass-isolated
@@ -71,14 +71,14 @@ buildvariants:
     expansions:
       target_platform: macos-arm
     display_name: Package MacOS Arm64
-    run_on: macos-14-arm64
+    run_on: macos-13-arm64
     tasks:
       - name: package-compass
       - name: package-compass-isolated
       - name: package-compass-readonly
   - name: smoketest-packaged-app
     display_name: Smoke Test via GitHub Actions
-    run_on: ubuntu2004-large
+    run_on: ubuntu2204-large
     depends_on:
       - name: package-compass
         variant: package-ubuntu
@@ -114,7 +114,7 @@ buildvariants:
       - name: smoketest-packaged-app
   - name: test-eol-servers
     display_name: Test EoL Servers
-    run_on: ubuntu1804-large
+    run_on: ubuntu2004-large
     patchable: false
     depends_on:
       - name: package-compass
@@ -128,7 +128,7 @@ buildvariants:
       - name: test-server-60x-enterprise-3
   - name: test-maintained-servers
     display_name: Test Maintained Servers
-    run_on: ubuntu2004-large
+    run_on: ubuntu2204-large
     patchable: true
     depends_on:
       - name: package-compass
@@ -148,7 +148,7 @@ buildvariants:
       - name: test-server-80x-enterprise-3
   - name: test-latest-alpha
     display_name: Test Latest Alpha Server
-    run_on: ubuntu2004-large
+    run_on: ubuntu2204-large
     patchable: false
     depends_on:
       - name: package-compass
@@ -158,8 +158,8 @@ buildvariants:
       - name: test-server-latest-alpha-2
       - name: test-server-latest-alpha-3
   - name: test-packaged-app-ubuntu
-    display_name: Test Packaged App Ubuntu 20.04
-    run_on: ubuntu2004-large
+    display_name: Test Packaged App Ubuntu 22.04
+    run_on: ubuntu2204-large
     patchable: true
     depends_on:
       - name: package-compass
@@ -180,8 +180,8 @@ buildvariants:
       - name: test-packaged-app-2
       - name: test-packaged-app-3
   - name: test-packaged-app-rhel
-    display_name: Test Packaged App RHEL 8.0
-    run_on: rhel80-large
+    display_name: Test Packaged App RHEL 9.3
+    run_on: rhel93-large
     patchable: true
     depends_on:
       - name: package-compass
@@ -236,31 +236,35 @@ buildvariants:
       - name: test-packaged-app-3
   - name: publish
     display_name: Publish Artifacts
-    run_on: ubuntu2004-large
+    run_on: ubuntu2204-large
     tasks:
       - name: publish
       - name: publish-dev-release-info
+  - name: static-analysis
+    display_name: Create Static Analysis Report
+    run_on: ubuntu2004-large
+    tasks:
       - name: create_static_analysis_report
   - name: connectivity-tests
     display_name: Connectivity Tests
-    run_on: ubuntu2004-large
+    run_on: ubuntu2204-large
     tasks:
       - name: test-connectivity
   - name: e2e-coverage
     display_name: E2E Coverage
-    run_on: ubuntu2004-large
+    run_on: ubuntu2204-large
     tasks:
       - name: e2e-coverage-1
       - name: e2e-coverage-2
       - name: e2e-coverage-3
   - name: csfle-tests
     display_name: CSFLE Tests
-    run_on: ubuntu2004-large
+    run_on: ubuntu2204-large
     tasks:
       - name: test-csfle
   - name: test-web-sandbox
     display_name: Test Web Sandbox
-    run_on: ubuntu2004-large
+    run_on: ubuntu2204-large
     tasks:
       - name: test-web-sandbox-chrome-1
       - name: test-web-sandbox-chrome-2
@@ -270,17 +274,17 @@ buildvariants:
       - name: test-web-sandbox-firefox-3
   - name: test-can-bundle-compass-web
     display_name: Test Can Bundle Compass Web
-    run_on: ubuntu2004-large
+    run_on: ubuntu2204-large
     tasks:
       - name: test-can-bundle-compass-web
   - name: test-web-sandbox-atlas-cloud
     display_name: Test Web Sandbox (w/ Atlas Cloud login)
-    run_on: ubuntu2004-large
+    run_on: ubuntu2204-large
     tasks:
       - name: test-web-sandbox-atlas-cloud
   - name: generate-vulnerability-report
     display_name: Vulnerability Report
-    run_on: ubuntu2004-large
+    run_on: ubuntu2204-large
     tasks:
       - name: generate-vulnerability-report
 tasks:

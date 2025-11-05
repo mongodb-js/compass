@@ -3,13 +3,13 @@ import path from 'path';
 import os from 'os';
 import { Preferences } from './preferences';
 import { expect } from 'chai';
-import { featureFlags } from './feature-flags';
+import { FEATURE_FLAG_DEFINITIONS } from './feature-flags';
 import { PersistentStorage } from './preferences-persistent-storage';
 import { createLogger } from '@mongodb-js/compass-logging';
 
-const releasedFeatureFlags = Object.entries(featureFlags)
-  .filter(([, v]) => v.stage === 'released')
-  .map(([k]) => k);
+const releasedFeatureFlags = FEATURE_FLAG_DEFINITIONS.filter(
+  (v) => v.stage === 'released'
+).map((v) => v.name);
 
 const expectedReleasedFeatureFlagsStates = Object.fromEntries(
   releasedFeatureFlags.map((ff) => [ff, 'hardcoded'])
@@ -50,7 +50,7 @@ describe('Preferences class', function () {
     const preferences = await setupPreferences(tmpdir);
     const result = preferences.getPreferences();
     expect(result.id).to.equal('General');
-    expect(result.enableMaps).to.equal(false);
+    expect(result.enableMaps).to.equal(true);
     expect(result.enableShell).to.equal(true);
   });
 
@@ -98,13 +98,12 @@ describe('Preferences class', function () {
     const preferences = await setupPreferences(tmpdir);
     const calls: any[] = [];
     preferences.onPreferencesChanged((prefs) => calls.push(prefs));
-    await preferences.savePreferences({ enableMaps: true });
-    expect(calls).to.deep.equal([{ enableMaps: true }]);
+    await preferences.savePreferences({ enableMaps: false });
+    expect(calls).to.deep.equal([{ enableMaps: false }]);
   });
 
   it('can return user-configurable preferences after setting their defaults', async function () {
     const preferences = await setupPreferences(tmpdir);
-    await preferences.ensureDefaultConfigurableUserPreferences();
     const result = preferences.getConfigurableUserPreferences();
     expect(result).not.to.have.property('id');
     expect(result.enableMaps).to.equal(true);
@@ -121,7 +120,6 @@ describe('Preferences class', function () {
         trackUsageStatistics: false,
       },
     });
-    await preferences.ensureDefaultConfigurableUserPreferences();
     const result = preferences.getConfigurableUserPreferences();
     expect(result).not.to.have.property('id');
     expect(result.autoUpdates).to.equal(true);
@@ -214,18 +212,10 @@ describe('Preferences class', function () {
     const preferences = await setupPreferences(tmpdir);
     const calls: any[] = [];
     preferences.onPreferencesChanged((prefs) => calls.push(prefs));
-    await preferences.ensureDefaultConfigurableUserPreferences();
     preferences.getConfigurableUserPreferences(); // set defaults
     await preferences.savePreferences({ networkTraffic: false });
     await preferences.savePreferences({ readOnly: true });
     expect(calls).to.deep.equal([
-      {
-        showedNetworkOptIn: true,
-        enableMaps: true,
-        enableFeedbackPanel: true,
-        trackUsageStatistics: true,
-        autoUpdates: true,
-      },
       {
         networkTraffic: false,
         enableMaps: false,

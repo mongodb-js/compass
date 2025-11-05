@@ -372,6 +372,7 @@ describe('CollectionHeader [Component]', function () {
           globalWrites: false,
           rollingIndexes: true,
         },
+        userConnectionString: 'mongodb+srv://localhost:27017',
       },
     };
 
@@ -394,6 +395,7 @@ describe('CollectionHeader [Component]', function () {
       return renderWithActiveConnection(
         <CompassExperimentationProvider
           useAssignment={mockUseAssignment}
+          useTrackInSample={Sinon.stub()}
           assignExperiment={Sinon.stub()}
           getAssignment={Sinon.stub().resolves(null)}
         >
@@ -429,7 +431,7 @@ describe('CollectionHeader [Component]', function () {
           schemaAnalysis: {
             status: SCHEMA_ANALYSIS_STATE_COMPLETE,
             processedSchema: {
-              field1: { type: 'String', sample_values: ['value1'] },
+              field1: { type: 'String', sampleValues: ['value1'] },
             },
             schemaMetadata: {
               maxNestingDepth: 2, // Below the limit of 4
@@ -485,10 +487,10 @@ describe('CollectionHeader [Component]', function () {
           schemaAnalysis: {
             status: SCHEMA_ANALYSIS_STATE_COMPLETE,
             processedSchema: {
-              field1: { type: 'String', sample_values: ['value1'] },
+              field1: { type: 'String', sampleValues: ['value1'] },
             },
             schemaMetadata: {
-              maxNestingDepth: 4, // Exceeds the limit
+              maxNestingDepth: 8, // Exceeds the limit
             },
           },
         },
@@ -514,7 +516,7 @@ describe('CollectionHeader [Component]', function () {
           schemaAnalysis: {
             status: SCHEMA_ANALYSIS_STATE_COMPLETE,
             processedSchema: {
-              field1: { type: 'String', sample_values: ['value1'] },
+              field1: { type: 'String', sampleValues: ['value1'] },
             },
             schemaMetadata: {
               maxNestingDepth: 2,
@@ -541,7 +543,7 @@ describe('CollectionHeader [Component]', function () {
           schemaAnalysis: {
             status: SCHEMA_ANALYSIS_STATE_COMPLETE,
             processedSchema: {
-              field1: { type: 'String', sample_values: ['value1'] },
+              field1: { type: 'String', sampleValues: ['value1'] },
             },
             schemaMetadata: {
               maxNestingDepth: 2,
@@ -576,7 +578,7 @@ describe('CollectionHeader [Component]', function () {
           schemaAnalysis: {
             status: SCHEMA_ANALYSIS_STATE_COMPLETE,
             processedSchema: {
-              field1: { type: 'String', sample_values: ['value1'] },
+              field1: { type: 'String', sampleValues: ['value1'] },
             },
             schemaMetadata: {
               maxNestingDepth: 2,

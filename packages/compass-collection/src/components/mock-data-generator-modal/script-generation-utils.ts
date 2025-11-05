@@ -1,8 +1,15 @@
-import type { MongoDBFieldType } from '@mongodb-js/compass-generative-ai';
 import type { FakerFieldMapping } from './types';
+import type { MongoDBFieldType } from '../../schema-analysis-types';
 import { prettify } from '@mongodb-js/compass-editor';
+import { UNRECOGNIZED_FAKER_METHOD } from '../../modules/collection-tab';
+import { faker } from '@faker-js/faker/locale/en';
 
-export type FakerArg = string | number | boolean | { json: string };
+export type FakerArg =
+  | string
+  | number
+  | boolean
+  | { json: string }
+  | FakerArg[];
 
 const DEFAULT_ARRAY_LENGTH = 3;
 
@@ -446,7 +453,7 @@ function renderArrayCode(
  */
 function generateFakerCall(mapping: FakerFieldMapping): string {
   const method =
-    mapping.fakerMethod === 'unrecognized'
+    mapping.fakerMethod === UNRECOGNIZED_FAKER_METHOD
       ? getDefaultFakerMethod(mapping.mongoType)
       : mapping.fakerMethod;
 
@@ -562,4 +569,171 @@ export function formatFakerArgs(fakerArgs: FakerArg[]): string {
   }
 
   return stringifiedArgs.join(', ');
+}
+
+type Document = Record<string, unknown>;
+
+/**
+ * Generates documents for the PreviewScreen component.
+ * Executes faker methods to create actual document objects.
+ */
+export function generateDocument(
+  fakerSchema: Record<string, FakerFieldMapping>,
+  arrayLengthMap: ArrayLengthMap = {}
+): Document {
+  const structure = buildDocumentStructure(fakerSchema);
+  return constructDocumentValues(structure, arrayLengthMap);
+}
+
+function computeValue(
+  elementType: ArrayStructure | FakerFieldMapping | DocumentStructure,
+  arrayLengthMap: ArrayLengthMap,
+  currentPath: string
+) {
+  try {
+    if ('mongoType' in elementType) {
+      // It's a field mapping
+      const mapping = elementType as FakerFieldMapping;
+
+      // Default to 1.0 for invalid probability values
+      let probability = 1.0;
+      if (
+        typeof mapping.probability === 'number' &&
+        mapping.probability >= 0 &&
+        mapping.probability <= 1
+      ) {
+        probability = mapping.probability;
+      }
+
+      const shouldIncludeField =
+        probability >= 1.0 || Math.random() < probability;
+      if (shouldIncludeField) {
+        return generateFakerValue(mapping);
+      }
+    } else if ('type' in elementType && elementType.type === 'array') {
+      return constructArrayValues(
+        elementType as ArrayStructure,
+        arrayLengthMap,
+        `${currentPath}[]`
+      );
+    } else {
+      return constructDocumentValues(
+        elementType as DocumentStructure,
+        arrayLengthMap,
+        currentPath
+      );
+    }
+  } catch {
+    // Skip invalid faker methods
+  }
+}
+
+/**
+ * Construct actual document values from document structure.
+ * Mirrors renderDocumentCode but executes faker calls instead of generating code.
+ */
+function constructDocumentValues(
+  structure: DocumentStructure,
+  arrayLengthMap: ArrayLengthMap = {},
+  currentPath: string = ''
+) {
+  const result: Document = {};
+  for (const [fieldName, value] of Object.entries(structure)) {
+    const newPath = currentPath ? `${currentPath}.${fieldName}` : fieldName;
+    const val = computeValue(value, arrayLengthMap, newPath);
+    if (val !== undefined) {
+      result[fieldName] = val;
+    }
+  }
+  return result;
+}
+
+/**
+ * Construct array values from array structure.
+ * Mirrors renderArrayCode but executes faker calls instead of generating code.
+ */
+function constructArrayValues(
+  arrayStructure: ArrayStructure,
+  arrayLengthMap: ArrayLengthMap,
+  currentPath: string
+) {
+  const elementType = arrayStructure.elementType;
+
+  // Get array length for this dimension
+  let arrayLength = DEFAULT_ARRAY_LENGTH;
+  if (arrayLengthMap[currentPath] !== undefined) {
+    arrayLength = arrayLengthMap[currentPath];
+  }
+  const result: unknown[] = [];
+  for (let i = 0; i < arrayLength; i++) {
+    result.push(computeValue(elementType, arrayLengthMap, currentPath));
+  }
+  return result;
+}
+
+/**
+ * Prepare faker arguments for execution.
+ * Converts FakerArg[] to actual values that can be passed to faker methods.
+ */
+function prepareFakerArgs(fakerArgs: FakerArg[]): unknown[] {
+  const preparedArgs: unknown[] = [];
+
+  for (const arg of fakerArgs) {
+    if (
+      typeof arg === 'string' ||
+      typeof arg === 'number' ||
+      typeof arg === 'boolean'
+    ) {
+      preparedArgs.push(arg);
+    } else if (typeof arg === 'object' && arg !== null && 'json' in arg) {
+      // Parse JSON objects
+      try {
+        const jsonArg = arg as { json: string };
+        preparedArgs.push(JSON.parse(jsonArg.json));
+      } catch {
+        // Skip invalid JSON
+        continue;
+      }
+    }
+  }
+
+  return preparedArgs;
+}
+
+/**
+ * Execute faker method to generate actual values.
+ * Mirrors generateFakerCall but executes the call instead of generating code.
+ */
+function generateFakerValue(
+  mapping: FakerFieldMapping
+): string | number | boolean | Date | null | undefined {
+  const method =
+    mapping.fakerMethod === UNRECOGNIZED_FAKER_METHOD
+      ? getDefaultFakerMethod(mapping.mongoType)
+      : mapping.fakerMethod;
+
+  try {
+    // Navigate to the faker method
+    const methodParts = method.split('.');
+    let fakerMethod: unknown = faker;
+    for (const part of methodParts) {
+      fakerMethod = (fakerMethod as Record<string, unknown>)[part];
+      if (!fakerMethod) {
+        throw new Error(`Faker method not found: ${method}`);
+      }
+    }
+
+    // Prepare arguments
+    const args = prepareFakerArgs(mapping.fakerArgs);
+
+    // Call the faker method
+    const result = (fakerMethod as (...args: unknown[]) => unknown).apply(
+      faker,
+      args
+    );
+
+    return result as string | number | boolean | Date | null | undefined;
+  } catch {
+    return undefined;
+  }
 }

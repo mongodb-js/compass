@@ -30,7 +30,6 @@ import {
 
 import { createElectronFileInputBackend } from '@mongodb-js/compass-components';
 import { CompassRendererConnectionStorage } from '@mongodb-js/connection-storage/renderer';
-import type { SettingsTabId } from '@mongodb-js/compass-settings';
 import type { AutoConnectPreferences } from '../main/auto-connect';
 
 const { log, mongoLogId } = createLogger('COMPASS-APP');
@@ -38,12 +37,18 @@ const track = createIpcTrack();
 
 import './index.less';
 import 'source-code-pro/source-code-pro.css';
+import {
+  ApplicationMenuContextProvider,
+  type ApplicationMenuProvider,
+} from '@mongodb-js/compass-electron-menu';
+import { ApplicationMenu } from '@mongodb-js/compass-electron-menu/ipc-provider-renderer';
 
 const DEFAULT_APP_VERSION = '0.0.0';
 
 class Application {
   private static instance: Application | null = null;
 
+  private menuProvider: ApplicationMenuProvider;
   version: string;
   previousVersion: string;
   highestInstalledVersion: string;
@@ -52,6 +57,7 @@ class Application {
     this.version = remote.app.getVersion() || '';
     this.previousVersion = DEFAULT_APP_VERSION;
     this.highestInstalledVersion = this.version;
+    this.menuProvider = new ApplicationMenu(ipcRenderer);
   }
 
   public static getInstance(): Application {
@@ -162,38 +168,27 @@ class Application {
       </div>
     `;
 
-    const wasNetworkOptInShown =
-      defaultPreferencesInstance.getPreferences().showedNetworkOptIn === true;
-
-    // If we haven't showed welcome modal that points users to network opt in
-    // yet, update preferences with default values to reflect that ...
-    if (!wasNetworkOptInShown) {
-      await defaultPreferencesInstance.ensureDefaultConfigurableUserPreferences();
-    }
-
     ReactDOM.render(
       <React.StrictMode>
-        <CompassElectron
-          appName={remote.app.getName()}
-          showWelcomeModal={!wasNetworkOptInShown}
-          createFileInputBackend={createElectronFileInputBackend(
-            remote,
-            webUtils
-          )}
-          showCollectionSubMenu={this.showCollectionSubMenu.bind(this)}
-          hideCollectionSubMenu={this.hideCollectionSubMenu.bind(this)}
-          showSettings={this.showSettingsModal.bind(this)}
-          connectionStorage={connectionStorage}
-          onAutoconnectInfoRequest={
-            initialAutoConnectPreferences.shouldAutoConnect
-              ? () => {
-                  return connectionStorage.getAutoConnectInfo(
-                    initialAutoConnectPreferences
-                  );
-                }
-              : undefined
-          }
-        />
+        <ApplicationMenuContextProvider provider={this.menuProvider}>
+          <CompassElectron
+            appName={remote.app.getName()}
+            createFileInputBackend={createElectronFileInputBackend(
+              remote,
+              webUtils
+            )}
+            connectionStorage={connectionStorage}
+            onAutoconnectInfoRequest={
+              initialAutoConnectPreferences.shouldAutoConnect
+                ? () => {
+                    return connectionStorage.getAutoConnectInfo(
+                      initialAutoConnectPreferences
+                    );
+                  }
+                : undefined
+            }
+          />
+        </ApplicationMenuContextProvider>
       </React.StrictMode>,
       elem.querySelector('[data-hook="layout-container"]')
     );
@@ -214,21 +209,6 @@ class Application {
     ipcRenderer?.on('app:refresh-data', () =>
       globalAppRegistry.emit('refresh-data')
     );
-  }
-
-  private setupSchemaSharingListener() {
-    ipcRenderer?.on('window:menu-share-schema-json', () => {
-      globalAppRegistry.emit('menu-share-schema-json');
-    });
-  }
-
-  private setupImportExportListeners() {
-    ipcRenderer?.on('compass:open-export', () => {
-      globalAppRegistry.emit('open-active-namespace-export');
-    });
-    ipcRenderer?.on('compass:open-import', () => {
-      globalAppRegistry.emit('open-active-namespace-import');
-    });
   }
 
   private setupDownloadStatusListeners() {
@@ -263,8 +243,6 @@ class Application {
 
   private setupIpcListeners() {
     this.setupDataRefreshListener();
-    this.setupSchemaSharingListener();
-    this.setupImportExportListeners();
     this.setupDownloadStatusListeners();
   }
 
@@ -455,20 +433,6 @@ class Application {
     // to avoid potential security issues
     document.addEventListener('dragover', (evt) => evt.preventDefault());
     document.addEventListener('drop', (evt) => evt.preventDefault());
-  }
-
-  private showCollectionSubMenu({ isReadOnly }: { isReadOnly: boolean }) {
-    void ipcRenderer?.call('window:show-collection-submenu', {
-      isReadOnly,
-    });
-  }
-
-  private hideCollectionSubMenu() {
-    void ipcRenderer?.call('window:hide-collection-submenu');
-  }
-
-  private showSettingsModal(tab?: SettingsTabId) {
-    globalAppRegistry?.emit('open-compass-settings', tab);
   }
 
   private async getWindowAutoConnectPreferences(): Promise<AutoConnectPreferences> {

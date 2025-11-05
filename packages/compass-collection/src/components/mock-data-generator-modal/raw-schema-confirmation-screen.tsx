@@ -9,6 +9,8 @@ import {
   BannerVariant,
   Body,
   DocumentList,
+  useDarkMode,
+  cx,
 } from '@mongodb-js/compass-components';
 
 import { usePreference } from 'compass-preferences-model/provider';
@@ -28,6 +30,11 @@ const documentContainerStyles = css({
   border: `1px solid ${palette.gray.light2}`,
   borderRadius: spacing[400],
 });
+const documentContainerDarkStyles = css({
+  backgroundColor: palette.gray.dark3,
+  border: `1px solid ${palette.gray.dark2}`,
+  borderRadius: spacing[400],
+});
 
 const documentStyles = css({
   padding: `${spacing[400]}px ${spacing[900]}px`,
@@ -39,6 +46,7 @@ const descriptionStyles = css({
 
 const errorBannerStyles = css({
   marginTop: spacing[400],
+  marginBottom: spacing[400],
 });
 
 const errorBannerTextStyles = css({
@@ -52,6 +60,7 @@ const RawSchemaConfirmationScreen = ({
   const enableSampleDocumentPassing = usePreference(
     'enableGenAISampleDocumentPassing'
   );
+  const isDarkMode = useDarkMode();
 
   const subtitleText = enableSampleDocumentPassing
     ? 'Sample Documents Collected'
@@ -69,7 +78,22 @@ const RawSchemaConfirmationScreen = ({
             {subtitleText}
           </Body>
           <Body className={descriptionStyles}>{descriptionText}</Body>
-          <div className={documentContainerStyles}>
+          {fakerSchemaGenerationStatus === 'error' && (
+            <Banner
+              variant={BannerVariant.Danger}
+              className={errorBannerStyles}
+            >
+              <Body className={errorBannerTextStyles}>
+                LLM Request failed. Please confirm again.
+              </Body>
+            </Banner>
+          )}
+          <div
+            className={cx(
+              documentContainerStyles,
+              isDarkMode && documentContainerDarkStyles
+            )}
+          >
             <DocumentList.Document
               className={documentStyles}
               editable={false}
@@ -82,16 +106,6 @@ const RawSchemaConfirmationScreen = ({
               }
             />
           </div>
-          {fakerSchemaGenerationStatus === 'error' && (
-            <Banner
-              variant={BannerVariant.Danger}
-              className={errorBannerStyles}
-            >
-              <Body className={errorBannerTextStyles}>
-                LLM Request failed. Please confirm again.
-              </Body>
-            </Banner>
-          )}
         </>
       ) : (
         // Not reachable since schema analysis must be finished before the modal can be opened

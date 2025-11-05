@@ -1,4 +1,5 @@
 import React from 'react';
+import type { DiagramInstance } from '@mongodb-js/compass-components';
 import {
   Button,
   css,
@@ -13,6 +14,7 @@ import {
   spacing,
   SpinLoader,
   PngIcon,
+  useDiagram,
 } from '@mongodb-js/compass-components';
 import type { ExportDiagramFormat } from '../store/export-diagram';
 import {
@@ -22,8 +24,6 @@ import {
 } from '../store/export-diagram';
 import { connect } from 'react-redux';
 import type { DataModelingState } from '../store/reducer';
-import { useDiagram } from '@mongodb-js/diagramming';
-import type { DiagramInstance } from '@mongodb-js/diagramming';
 
 const modelBodyStyles = css({
   paddingTop: spacing[600],
@@ -86,7 +86,7 @@ const ExportDiagramModal = ({
                 aria-label="Diagram File"
                 onClick={() => onSelectFormat('diagram')}
                 size="small"
-                description="Importable into Compass so teammates can collaborate."
+                description="Importable into Compass and Data Explorer so teammates can collaborate."
               >
                 Diagram File
               </Radio>

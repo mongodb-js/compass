@@ -107,7 +107,7 @@ export const setupInstance =
               version: instance.dataLake.version,
             },
             genuineMongoDB: {
-              dbType: instance.genuineMongoDB.dbType,
+              serverName: instance.genuineMongoDB.serverName,
               isGenuine: instance.genuineMongoDB.isGenuine,
             },
             topologyDescription: {

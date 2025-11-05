@@ -55,6 +55,7 @@ export enum WorkspacesActions {
   SelectNextTab = 'compass-workspaces/SelectNextTab',
   MoveTab = 'compass-workspaces/MoveTab',
   OpenTabFromCurrentActive = 'compass-workspaces/OpenTabFromCurrentActive',
+  RestoreWorkspaces = 'compass-workspaces/RestoreWorkspaces',
   DuplicateTab = 'compass-workspaces/DuplicateTab',
   CloseTabs = 'compass-workspaces/CloseTabs',
   CollectionRenamed = 'compass-workspaces/CollectionRenamed',
@@ -344,6 +345,18 @@ const reducer: Reducer<WorkspacesState, Action> = (
       ...state,
       tabs: newTabs,
       activeTabId: newTab.id,
+    };
+  }
+
+  if (
+    isAction<RestoreWorkspacesAction>(
+      action,
+      WorkspacesActions.RestoreWorkspaces
+    )
+  ) {
+    return {
+      ...state,
+      tabs: [...state.tabs, ...action.tabs.map(getInitialTabState)],
     };
   }
 
@@ -853,6 +866,11 @@ type OpenTabFromCurrentActiveAction = {
   defaultTab: OpenWorkspaceOptions;
 };
 
+type RestoreWorkspacesAction = {
+  type: WorkspacesActions.RestoreWorkspaces;
+  tabs: OpenWorkspaceOptions[];
+};
+
 export const openTabFromCurrent = (
   defaultTab?: OpenWorkspaceOptions | null
 ): OpenTabFromCurrentActiveAction => {
@@ -973,6 +991,56 @@ type DatabaseRemovedAction = {
   namespace: string;
 };
 
+export const loadSavedWorkspaces = (): WorkspacesThunkAction<
+  Promise<void>,
+  RestoreWorkspacesAction
+> => {
+  return async (dispatch, getState, { connections, userData, preferences }) => {
+    if (!preferences.getPreferences().enableRestoreWorkspaces) {
+      return;
+    }
+    const savedState = await userData.readOne('saved-workspaces', {
+      ignoreErrors: true,
+    });
+    if (savedState && savedState.tabs.length > 0) {
+      const confirm = await showConfirmation({
+        title: 'Reopen closed tabs?',
+        description:
+          'Your connection and tabs were closed, this action will reopen your previous session',
+        buttonText: 'Reopen tabs',
+      });
+
+      if (confirm) {
+        const workspacesToRestore: OpenWorkspaceOptions[] = [];
+        for (const workspace of savedState.tabs) {
+          // If the workspace is tied to a connection, check if the connection exists
+          // and add it to the list of connections to restore if so.
+          if ('connectionId' in workspace) {
+            const connectionInfo = connections.getConnectionById(
+              workspace.connectionId
+            )?.info;
+
+            if (!connectionInfo) {
+              continue;
+            }
+
+            void connections.connect(connectionInfo);
+          }
+
+          workspacesToRestore.push(workspace);
+        }
+
+        if (workspacesToRestore.length > 0) {
+          dispatch({
+            type: WorkspacesActions.RestoreWorkspaces,
+            tabs: workspacesToRestore,
+          });
+        }
+      }
+    }
+  };
+};
+
 export const databaseRemoved = (
   namespace: string
 ): WorkspacesThunkAction<void, DatabaseRemovedAction> => {
@@ -1042,6 +1110,14 @@ export const openFallbackWorkspace = (
       fallbackNamespace: fallbackNamespace ?? null,
     });
     cleanupRemovedTabs(oldTabs, getState().tabs);
+  };
+};
+
+export const beforeUnloading = (): WorkspacesThunkAction<boolean> => {
+  return (_dispatch, getState) => {
+    return getState().tabs.every((tab) => {
+      return canCloseTab(tab);
+    });
   };
 };
 

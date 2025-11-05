@@ -6,6 +6,7 @@ import {
   getSchemaWithNewTypes,
 } from './schema-traversal';
 import Sinon from 'sinon';
+import type { FieldPath } from '../services/data-model-storage';
 
 describe('traverseSchema', function () {
   let sandbox: Sinon.SinonSandbox;
@@ -764,6 +765,376 @@ describe('removeField', function () {
           },
         },
       });
+    });
+  });
+});
+
+describe('addField', function () {
+  describe('flat schema', function () {
+    it('add top level field', function () {
+      const schema = {
+        bsonType: 'object',
+        properties: {
+          name: { bsonType: 'string' },
+        },
+      };
+      const result = updateSchema({
+        jsonSchema: schema,
+        fieldPath: [],
+        updateParameters: {
+          update: 'addField',
+          newFieldName: 'age',
+          newFieldSchema: { bsonType: ['string', 'int'] },
+        },
+      });
+      expect(result).to.deep.equal({
+        ...schema,
+        properties: {
+          ...schema.properties,
+          age: { bsonType: ['string', 'int'] },
+        },
+      });
+    });
+  });
+
+  describe('nested schema', function () {
+    it('add a field to an object [properties]', function () {
+      const schema = {
+        bsonType: 'object',
+        properties: {
+          person: {
+            bsonType: 'object',
+            properties: {
+              name: { bsonType: 'string' },
+              address: {
+                bsonType: 'object',
+                properties: {
+                  street: { bsonType: 'string' },
+                  city: { bsonType: 'string' },
+                },
+              },
+            },
+          },
+        },
+      };
+      const result = updateSchema({
+        fieldPath: ['person', 'address'],
+        jsonSchema: schema,
+        updateParameters: {
+          update: 'addField',
+          newFieldName: 'country',
+          newFieldSchema: { bsonType: 'string' },
+        },
+      });
+      expect(result).to.deep.equal({
+        ...schema,
+        properties: {
+          person: {
+            ...schema.properties.person,
+            properties: {
+              ...schema.properties.person.properties,
+              address: {
+                ...schema.properties.person.properties.address,
+                properties: {
+                  ...schema.properties.person.properties.address.properties,
+                  country: { bsonType: 'string' },
+                },
+              },
+            },
+          },
+        },
+      });
+    });
+
+    it('add a field to a nested array [properties, items]', function () {
+      const schema = {
+        type: 'object',
+        properties: {
+          parent: {
+            bsonType: 'object',
+            properties: {
+              arrayOfObjects: {
+                bsonType: 'array',
+                items: {
+                  bsonType: 'object',
+                  properties: {
+                    field1: {
+                      bsonType: 'string',
+                    },
+                  },
+                },
+              },
+              sibling: {
+                bsonType: 'object',
+                properties: {
+                  fieldA: {
+                    bsonType: 'int',
+                  },
+                },
+              },
+            },
+          },
+        },
+      };
+      const result = updateSchema({
+        fieldPath: ['parent', 'arrayOfObjects'],
+        jsonSchema: schema,
+        updateParameters: {
+          update: 'addField',
+          newFieldName: 'field2',
+          newFieldSchema: { bsonType: 'string' },
+        },
+      });
+      const newFields: FieldPath[] = [];
+      traverseSchema({
+        jsonSchema: result,
+        visitor: ({ fieldPath }) => {
+          newFields.push(fieldPath);
+        },
+      });
+      expect(newFields).to.deep.equal([
+        ['parent'],
+        ['parent', 'arrayOfObjects'],
+        ['parent', 'arrayOfObjects', 'field1'],
+        ['parent', 'arrayOfObjects', 'field2'],
+        ['parent', 'sibling'],
+        ['parent', 'sibling', 'fieldA'],
+      ]);
+    });
+
+    it('add a field to an array of objects [items, properties]', function () {
+      const schema = {
+        type: 'object',
+        properties: {
+          arrayOfObjects: {
+            bsonType: 'array',
+            items: {
+              bsonType: 'object',
+              properties: {
+                field1: {
+                  bsonType: 'string',
+                },
+              },
+            },
+          },
+        },
+      };
+      const result = updateSchema({
+        fieldPath: ['arrayOfObjects'],
+        jsonSchema: schema,
+        updateParameters: {
+          update: 'addField',
+          newFieldName: 'field2',
+          newFieldSchema: { bsonType: 'string' },
+        },
+      });
+      expect(result.properties?.arrayOfObjects).to.deep.equal({
+        ...schema.properties?.arrayOfObjects,
+        items: {
+          ...schema.properties?.arrayOfObjects.items,
+          properties: {
+            ...schema.properties?.arrayOfObjects.items.properties,
+            field2: { bsonType: 'string' },
+          },
+        },
+      });
+    });
+
+    it('add a field to a touple containing object [items, properties]', function () {
+      const schema = {
+        type: 'object',
+        properties: {
+          tupleWithObject: {
+            bsonType: 'array',
+            items: [
+              {
+                type: 'int',
+              },
+              {
+                bsonType: 'object',
+                properties: {
+                  field1: {
+                    bsonType: 'string',
+                  },
+                },
+              },
+            ],
+          },
+        },
+      };
+      const result = updateSchema({
+        fieldPath: ['tupleWithObject'],
+        jsonSchema: schema,
+        updateParameters: {
+          update: 'addField',
+          newFieldName: 'field2',
+          newFieldSchema: { bsonType: 'string' },
+        },
+      });
+      const newFields: FieldPath[] = [];
+      traverseSchema({
+        jsonSchema: result,
+        visitor: ({ fieldPath }) => {
+          newFields.push(fieldPath);
+        },
+      });
+      expect(newFields).to.deep.equal([
+        ['tupleWithObject'],
+        ['tupleWithObject', 'field1'],
+        ['tupleWithObject', 'field2'],
+      ]);
+    });
+
+    it('add a field to a mixed type with object [anyOf, properties]', function () {
+      const schema = {
+        type: 'object',
+        properties: {
+          mixedField: {
+            anyOf: [
+              {
+                bsonType: 'object',
+                properties: {
+                  field1: {
+                    bsonType: 'string',
+                  },
+                },
+              },
+              {
+                bsonType: 'int',
+              },
+            ],
+          },
+        },
+      };
+      const result = updateSchema({
+        fieldPath: ['mixedField'],
+        jsonSchema: schema,
+        updateParameters: {
+          update: 'addField',
+          newFieldName: 'field2',
+          newFieldSchema: { bsonType: 'string' },
+        },
+      });
+      expect(result.properties?.mixedField).to.deep.equal({
+        anyOf: [
+          {
+            ...schema.properties?.mixedField?.anyOf[0],
+            properties: {
+              ...schema.properties?.mixedField?.anyOf[0].properties,
+              field2: { bsonType: 'string' },
+            },
+          },
+          schema.properties?.mixedField?.anyOf[1],
+        ],
+      });
+    });
+
+    it('add a field to a mixed array with objects [items, anyOf, properties]', function () {
+      const schema = {
+        type: 'object',
+        properties: {
+          mixedArrayField: {
+            bsonType: 'array',
+            items: {
+              anyOf: [
+                {
+                  bsonType: 'object',
+                  properties: {
+                    field1: {
+                      bsonType: 'string',
+                    },
+                  },
+                },
+                {
+                  bsonType: 'int',
+                },
+              ],
+            },
+          },
+        },
+      };
+      const result = updateSchema({
+        fieldPath: ['mixedArrayField'],
+        jsonSchema: schema,
+        updateParameters: {
+          update: 'addField',
+          newFieldName: 'field2',
+          newFieldSchema: { bsonType: 'string' },
+        },
+      });
+      expect(result.properties?.mixedArrayField).to.deep.equal({
+        bsonType: 'array',
+        items: {
+          anyOf: [
+            {
+              ...schema.properties?.mixedArrayField?.items.anyOf[0],
+              properties: {
+                ...schema.properties?.mixedArrayField?.items.anyOf[0]
+                  .properties,
+                field2: { bsonType: 'string' },
+              },
+            },
+            schema.properties?.mixedArrayField?.items.anyOf[1],
+          ],
+        },
+      });
+      const newFields: FieldPath[] = [];
+      traverseSchema({
+        jsonSchema: result,
+        visitor: ({ fieldPath }) => {
+          newFields.push(fieldPath);
+        },
+      });
+      expect(newFields).to.deep.equal([
+        ['mixedArrayField'],
+        ['mixedArrayField', 'field1'],
+        ['mixedArrayField', 'field2'],
+      ]);
+    });
+
+    it('add a field to a mixed type [anyOf, items, properties]', function () {
+      const schema = {
+        type: 'object',
+        properties: {
+          maybeArrayField: {
+            anyOf: [
+              { bsonType: 'string' },
+              {
+                bsonType: 'array',
+                items: {
+                  bsonType: 'object',
+                  properties: {
+                    field1: {
+                      bsonType: 'string',
+                    },
+                  },
+                },
+              },
+            ],
+          },
+        },
+      };
+      const result = updateSchema({
+        fieldPath: ['maybeArrayField'],
+        jsonSchema: schema,
+        updateParameters: {
+          update: 'addField',
+          newFieldName: 'field2',
+          newFieldSchema: { bsonType: 'string' },
+        },
+      });
+      const newFields: FieldPath[] = [];
+      traverseSchema({
+        jsonSchema: result,
+        visitor: ({ fieldPath }) => {
+          newFields.push(fieldPath);
+        },
+      });
+      expect(newFields).to.deep.equal([
+        ['maybeArrayField'],
+        ['maybeArrayField', 'field1'],
+        ['maybeArrayField', 'field2'],
+      ]);
     });
   });
 });

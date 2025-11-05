@@ -8,7 +8,7 @@ import { default as Badge } from '@leafygreen-ui/badge';
 import { default as Banner } from '@leafygreen-ui/banner';
 import Checkbox from '@leafygreen-ui/checkbox';
 import Card from '@leafygreen-ui/card';
-import Code, { Language } from '@leafygreen-ui/code';
+import Code, { Language, Panel } from '@leafygreen-ui/code';
 import ConfirmationModal from '@leafygreen-ui/confirmation-modal';
 import { default as LeafyGreenIcon } from '@leafygreen-ui/icon';
 import type { Size as LeafyGreenIconSize } from '@leafygreen-ui/icon';
@@ -53,19 +53,24 @@ import {
   TableBody,
   flexRender,
   useLeafyGreenTable,
+  useLeafyGreenVirtualTable,
+  type LeafyGreenVirtualItem,
   getExpandedRowModel,
   getFilteredRowModel,
+  type TableProps,
 } from '@leafygreen-ui/table';
-import type { Row as LgTableRowType } from '@tanstack/table-core'; // TODO(COMPASS-8437): import from LG
 
 export type {
   LGColumnDef,
   HeaderGroup,
+  LeafyGreenVirtualTable,
+  LeafyGreenTable,
   LeafyGreenTableCell,
   LeafyGreenTableRow,
   LGTableDataType,
   LGRowData,
   SortingState,
+  CellContext,
 } from '@leafygreen-ui/table';
 import { Tabs, Tab } from '@leafygreen-ui/tabs';
 import TextArea from '@leafygreen-ui/text-area';
@@ -73,7 +78,7 @@ import LeafyGreenTextInput from '@leafygreen-ui/text-input';
 import { SearchInput } from '@leafygreen-ui/search-input';
 export { usePrevious, useMergeRefs } from '@leafygreen-ui/hooks';
 import Toggle from '@leafygreen-ui/toggle';
-import Tooltip from '@leafygreen-ui/tooltip';
+import LGTooltip from '@leafygreen-ui/tooltip';
 import {
   H1,
   H2,
@@ -92,8 +97,10 @@ import {
   ComboboxOption,
   ComboboxGroup,
 } from '@leafygreen-ui/combobox';
+import { withStackedComponentStyles } from '../hooks/use-stacked-component';
 
 // 2. Wrap and make any changes/workaround to leafygreen components.
+const Tooltip = withStackedComponentStyles(LGTooltip);
 const Icon = ({
   size,
   ...rest
@@ -144,6 +151,7 @@ export {
   Checkbox,
   Chip,
   Code,
+  Panel,
   ConfirmationModal,
   Copyable,
   ExpandedContent,
@@ -197,9 +205,11 @@ export {
   InfoSprinkle,
   flexRender,
   useLeafyGreenTable,
+  useLeafyGreenVirtualTable,
+  type LeafyGreenVirtualItem,
+  type TableProps,
   getExpandedRowModel,
   getFilteredRowModel,
-  type LgTableRowType,
   Combobox,
   ComboboxGroup,
   ComboboxOption,

@@ -14,12 +14,11 @@ import CompassConnections, {
   LegacyConnectionsModal,
 } from '@mongodb-js/compass-connections';
 import { CompassFindInPagePlugin } from '@mongodb-js/compass-find-in-page';
-import type { SettingsTabId } from '@mongodb-js/compass-settings';
 import { CompassSettingsPlugin } from '@mongodb-js/compass-settings';
 import { WelcomeModal } from '@mongodb-js/compass-welcome';
 import { type ConnectionStorage } from '@mongodb-js/connection-storage/provider';
 import { AppRegistryProvider } from '@mongodb-js/compass-app-registry';
-import React, { useCallback, useState } from 'react';
+import React from 'react';
 import Workspace from './workspace';
 import { getExtraConnectionData } from '../utils/telemetry';
 // The only place where the app-stores plugin can be used as a plugin and not a
@@ -29,11 +28,10 @@ import { CompassInstanceStorePlugin } from '@mongodb-js/compass-app-stores';
 import FieldStorePlugin from '@mongodb-js/compass-field-store';
 import { AtlasAuthPlugin } from '@mongodb-js/atlas-service/renderer';
 import { CompassGenerativeAIPlugin } from '@mongodb-js/compass-generative-ai';
-import type { WorkspaceTab } from '@mongodb-js/compass-workspaces';
 import { ConnectionStorageProvider } from '@mongodb-js/connection-storage/provider';
 import { ConnectionImportExportProvider } from '@mongodb-js/compass-connection-import-export';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
-import { usePreference } from 'compass-preferences-model/provider';
+import { usePreferences } from 'compass-preferences-model/provider';
 import { CompassAssistantProvider } from '@mongodb-js/compass-assistant';
 import { APP_NAMES_FOR_PROMPT } from '@mongodb-js/compass-assistant';
 
@@ -61,10 +59,6 @@ const globalDarkThemeStyles = css({
 
 export type HomeProps = {
   appName: string;
-  showWelcomeModal?: boolean;
-  showCollectionSubMenu: (args: { isReadOnly: boolean }) => void;
-  hideCollectionSubMenu: () => void;
-  showSettings: (tab?: SettingsTabId) => void;
 };
 
 const verticalSplitStyles = css({
@@ -76,49 +70,19 @@ const verticalSplitStyles = css({
   overflow: 'hidden',
 });
 
-function Home({
-  appName,
-  showWelcomeModal = false,
-  showCollectionSubMenu,
-  hideCollectionSubMenu,
-  showSettings,
-}: HomeProps): React.ReactElement | null {
-  const onWorkspaceChange = useCallback(
-    (ws: WorkspaceTab | null, collectionInfo) => {
-      if (ws?.type === 'Collection') {
-        showCollectionSubMenu({ isReadOnly: !!collectionInfo?.isReadonly });
-      } else {
-        hideCollectionSubMenu();
-      }
-    },
-    [showCollectionSubMenu, hideCollectionSubMenu]
-  );
+function noop() {}
 
-  const [isWelcomeOpen, setIsWelcomeOpen] = useState(showWelcomeModal);
-
-  const closeWelcomeModal = useCallback(
-    (showSettingsModal?: boolean) => {
-      setIsWelcomeOpen(false);
-      if (showSettingsModal) {
-        showSettings('privacy');
-      }
-    },
-    [setIsWelcomeOpen, showSettings]
-  );
-
+function Home({ appName }: HomeProps): React.ReactElement | null {
   return (
     <ConnectionImportExportProvider>
       <CompassInstanceStorePlugin>
         <FieldStorePlugin>
           <div data-testid="home" className={verticalSplitStyles}>
             <AppRegistryProvider scopeName="Connections">
-              <Workspace
-                appName={appName}
-                onActiveWorkspaceTabChange={onWorkspaceChange}
-              />
+              <Workspace onActiveWorkspaceTabChange={noop} appName={appName} />
             </AppRegistryProvider>
           </div>
-          <WelcomeModal isOpen={isWelcomeOpen} closeModal={closeWelcomeModal} />
+          <WelcomeModal></WelcomeModal>
           <CompassSettingsPlugin></CompassSettingsPlugin>
           <CompassFindInPagePlugin></CompassFindInPagePlugin>
           <AtlasAuthPlugin></AtlasAuthPlugin>
@@ -179,7 +143,10 @@ export default function ThemedHome(
   props: HomeWithConnectionsProps
 ): ReturnType<typeof HomeWithConnections> {
   const track = useTelemetry();
-  const disableContextMenus = !usePreference('enableContextMenus');
+  const { enableContextMenus, showedNetworkOptIn } = usePreferences([
+    'enableContextMenus',
+    'showedNetworkOptIn',
+  ]);
   return (
     <CompassComponentsProvider
       onNextGuideGue={(cue) => {
@@ -234,7 +201,10 @@ export default function ThemedHome(
       onSignalClose={(id) => {
         track('Signal Closed', { id });
       }}
-      disableContextMenus={disableContextMenus}
+      disableContextMenus={!enableContextMenus}
+      // Wait for the "Welcome" modal to disappear before showing any guide cues
+      // in the app
+      disableGuideCues={!showedNetworkOptIn}
     >
       {({ darkMode, portalContainerRef }) => {
         return (
