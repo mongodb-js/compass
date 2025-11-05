@@ -6,6 +6,7 @@ import type { TypeCastTypes } from 'hadron-type-checker';
 import TypeChecker from 'hadron-type-checker';
 import { BaseRefluxStore } from './base-reflux-store';
 import type { BSONObject } from './crud-store';
+import type { ColumnState } from 'ag-grid-community';
 
 export type TableHeaderType = TypeCastTypes | 'Mixed';
 
@@ -52,6 +53,8 @@ export type GridStoreTriggerParams = {
     rowIndex: number;
   };
 };
+
+export type GridColumnState = Record<string, ColumnState[]>;
 
 const MIXED = 'Mixed';
 

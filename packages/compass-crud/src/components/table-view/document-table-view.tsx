@@ -27,6 +27,7 @@ import type {
   GridActions,
   GridStoreTriggerParams,
   TableHeaderType,
+  GridColumnState,
 } from '../../stores/grid-store';
 import type {
   CellDoubleClickedEvent,
@@ -37,6 +38,7 @@ import type {
   GridReadyEvent,
   RowNode,
   ValueGetterParams,
+  ColumnResizedEvent,
 } from 'ag-grid-community';
 
 const MIXED = 'Mixed' as const;
@@ -70,6 +72,8 @@ export type DocumentTableViewProps = {
   tz: string;
   className?: string;
   darkMode?: boolean;
+  gridColumnState: GridColumnState;
+  setGridColumnState: React.Dispatch<React.SetStateAction<GridColumnState>>;
 };
 
 export type GridContext = {
@@ -148,6 +152,7 @@ class DocumentTableView extends React.Component<DocumentTableViewProps> {
         const fid = data.isFooter ? '1' : '0';
         return String(data.hadronDocument.getStringId()) + fid;
       },
+      onColumnResized: this.onColumnResized.bind(this),
     };
 
     this.collection = mongodbns(props.ns).collection;
@@ -169,6 +174,8 @@ class DocumentTableView extends React.Component<DocumentTableViewProps> {
   }
 
   componentDidUpdate(prevProps: DocumentTableViewProps) {
+    this.setGridColumns();
+
     this.handleBreadcrumbChange();
 
     // @note: Durran: Since all the values are getting passed down as props now
@@ -209,6 +216,26 @@ class DocumentTableView extends React.Component<DocumentTableViewProps> {
    */
   onCellDoubleClicked(event: CellDoubleClickedEvent) {
     this.addFooter(event.node, event.data, 'editing');
+  }
+
+  /**
+   * Callback for when a column's width is changed
+   *
+   * @param {Object} event
+   *     finished {Boolean} - indicates the end of a stream of column resize events
+   */
+  onColumnResized(event: ColumnResizedEvent) {
+    if (event.finished) {
+      // Delete the existing entry so that the logic ran during componentDidUpdate
+      // doesn't use the previously existing entry before the current grid column
+      // update to gridColumnState is made
+      delete this.props.gridColumnState[this.collection];
+
+      this.props.setGridColumnState({
+        ...this.props.gridColumnState,
+        [this.collection]: this.columnApi.getColumnState(),
+      });
+    }
   }
 
   /**
@@ -585,6 +612,17 @@ class DocumentTableView extends React.Component<DocumentTableViewProps> {
         );
       }
     }
+  }
+
+  /**
+   * When the component is updated, handle setting updated column widths
+   */
+  setGridColumns() {
+    if (!this.props.gridColumnState[this.collection] || !this.columnApi) {
+      return;
+    }
+
+    this.columnApi.setColumnState(this.props.gridColumnState[this.collection]);
   }
 
   /**

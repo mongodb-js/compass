@@ -1,4 +1,10 @@
-import React, { useCallback, useLayoutEffect, useMemo, useRef } from 'react';
+import React, {
+  useCallback,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { ObjectId } from 'bson';
 import {
   Button,
@@ -39,6 +45,7 @@ import {
 } from '@mongodb-js/compass-query-bar';
 import { usePreferences } from 'compass-preferences-model/provider';
 import { useAssistantActions } from '@mongodb-js/compass-assistant';
+import type { GridColumnState } from '../stores/grid-store';
 
 // Table has its own scrollable container.
 const tableStyles = css({
@@ -317,6 +324,8 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
     updateMaxDocumentsPerPage,
   } = props;
 
+  const [gridColumnState, setGridColumnState] = useState<GridColumnState>({});
+
   const onOpenInsert = useCallback(
     (key: 'insert-document' | 'import-file') => {
       if (key === 'insert-document') {
@@ -480,6 +489,8 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
               initialScrollTop={currentViewInitialScrollTop}
               scrollableContainerRef={scrollRef}
               scrollTriggerRef={scrollTriggerRef}
+              gridColumnState={gridColumnState}
+              setGridColumnState={setGridColumnState}
             />
           );
         }
