@@ -8,6 +8,7 @@ import type {
   Relationship,
 } from '../services/data-model-storage';
 import {
+  DEFAULT_IS_EXPANDED,
   validateEdit,
   type Edit,
   type MongoDBDataModelDescription,
@@ -193,7 +194,7 @@ export const diagramReducer: Reducer<DiagramState> = (
                 ] as const,
                 indexes: [],
                 shardKey: undefined,
-                isExpanded: false,
+                isExpanded: collection.isExpanded,
               })),
               relationships: action.relations,
             },
@@ -917,7 +918,7 @@ export function addCollection(
         ns,
         jsonSchema: {} as MongoDBJSONSchema,
         indexes: [],
-        isExpanded: false,
+        isExpanded: DEFAULT_IS_EXPANDED,
       });
     }
 

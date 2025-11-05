@@ -1,8 +1,9 @@
-import type {
-  DataModelCollection,
-  Edit,
-  Relationship,
-  StaticModel,
+import {
+  DEFAULT_IS_EXPANDED,
+  type DataModelCollection,
+  type Edit,
+  type Relationship,
+  type StaticModel,
 } from '../services/data-model-storage';
 import { updateSchema } from '../utils/schema-traversal';
 import {
@@ -60,7 +61,7 @@ export function applyEdit(edit: Edit, model?: StaticModel): StaticModel {
         jsonSchema: edit.initialSchema,
         displayPosition: edit.position,
         indexes: [],
-        isExpanded: false,
+        isExpanded: DEFAULT_IS_EXPANDED,
       };
       return {
         ...model,

@@ -94,11 +94,13 @@ describe('Data Modeling store', function () {
             ns: 'db.collection1',
             schema: model.collections[0].jsonSchema,
             position: { x: 0, y: 0 },
+            isExpanded: true,
           },
           {
             ns: 'db.collection2',
             schema: model.collections[1].jsonSchema,
             position: { x: 0, y: 0 },
+            isExpanded: true,
           },
         ],
         relations: model.relationships,

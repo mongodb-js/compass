@@ -27,6 +27,8 @@ export const RelationshipSchema = z.object({
 
 export type Relationship = z.output<typeof RelationshipSchema>;
 
+export const DEFAULT_IS_EXPANDED = true;
+
 const CollectionSchema = z.object({
   ns: z.string(),
   jsonSchema: z.custom<MongoDBJSONSchema>((value) => {
@@ -37,7 +39,7 @@ const CollectionSchema = z.object({
   shardKey: z.record(z.unknown()).optional(),
   displayPosition: z.tuple([z.number(), z.number()]),
   note: z.string().optional(),
-  isExpanded: z.boolean().default(false),
+  isExpanded: z.boolean().default(DEFAULT_IS_EXPANDED),
 });
 
 export type DataModelCollection = z.output<typeof CollectionSchema>;
