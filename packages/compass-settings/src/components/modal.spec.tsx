@@ -60,8 +60,7 @@ describe('SettingsModal', function () {
     renderSettingsModal({ isOpen: false });
 
     expect(fetchSettingsSpy.called).to.be.false;
-    const container = screen.queryByTestId('settings-modal');
-    expect(container).to.not.exist;
+    expect(screen.getByTestId('settings-modal')).to.be.closed;
   });
 
   it('modal footer actions', async function () {

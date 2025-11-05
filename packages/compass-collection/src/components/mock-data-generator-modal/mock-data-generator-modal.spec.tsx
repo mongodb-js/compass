@@ -134,23 +134,23 @@ describe('MockDataGeneratorModal', () => {
     it('renders the modal when isOpen is true', async () => {
       await renderModal();
 
-      expect(screen.getByTestId('generate-mock-data-modal')).to.exist;
+      expect(screen.getByTestId('generate-mock-data-modal')).to.be.open;
     });
 
     it('does not render the modal when isOpen is false', async () => {
       await renderModal({ isOpen: false });
 
-      expect(screen.queryByTestId('generate-mock-data-modal')).to.not.exist;
+      expect(screen.getByTestId('generate-mock-data-modal')).to.be.closed;
     });
 
     it('closes the modal when the close button is clicked', async () => {
       await renderModal();
 
-      expect(screen.getByTestId('generate-mock-data-modal')).to.exist;
+      expect(screen.getByTestId('generate-mock-data-modal')).to.be.open;
       userEvent.click(screen.getByLabelText('Close modal'));
       await waitFor(
         () =>
-          expect(screen.queryByTestId('generate-mock-data-modal')).to.not.exist
+          expect(screen.getByTestId('generate-mock-data-modal')).to.be.closed
       );
     });
 
@@ -172,11 +172,11 @@ describe('MockDataGeneratorModal', () => {
     it('closes the modal when the cancel button is clicked', async () => {
       await renderModal();
 
-      expect(screen.getByTestId('generate-mock-data-modal')).to.exist;
+      expect(screen.getByTestId('generate-mock-data-modal')).to.be.open;
       userEvent.click(screen.getByText('Cancel'));
       await waitFor(
         () =>
-          expect(screen.queryByTestId('generate-mock-data-modal')).to.not.exist
+          expect(screen.getByTestId('generate-mock-data-modal')).to.be.closed
       );
     });
 
@@ -1062,11 +1062,11 @@ describe('MockDataGeneratorModal', () => {
         },
       });
 
-      expect(screen.getByTestId('generate-mock-data-modal')).to.exist;
+      expect(screen.getByTestId('generate-mock-data-modal')).to.be.open;
       userEvent.click(screen.getByText('Done'));
       await waitFor(
         () =>
-          expect(screen.queryByTestId('generate-mock-data-modal')).to.not.exist
+          expect(screen.getByTestId('generate-mock-data-modal')).to.be.closed
       );
     });
 
