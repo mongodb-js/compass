@@ -45,6 +45,7 @@ import type {
 import { DEFAULT_DOCUMENT_COUNT } from '../components/mock-data-generator-modal/constants';
 
 import { isValidFakerMethod } from '../components/mock-data-generator-modal/utils';
+import { getDefaultFakerMethod } from '../components/mock-data-generator-modal/script-generation-utils';
 
 const DEFAULT_SAMPLE_SIZE = 100;
 
@@ -918,7 +919,7 @@ const validateFakerSchema = (
         );
         result[fieldPath] = {
           mongoType: fakerMapping.mongoType,
-          fakerMethod: UNRECOGNIZED_FAKER_METHOD,
+          fakerMethod: getDefaultFakerMethod(fakerMapping.mongoType),
           fakerArgs: [],
           probability: fakerMapping.probability,
         };
@@ -927,7 +928,7 @@ const validateFakerSchema = (
       // Field not mapped by LLM - add default
       result[fieldPath] = {
         mongoType: inputSchema[fieldPath].type,
-        fakerMethod: UNRECOGNIZED_FAKER_METHOD,
+        fakerMethod: getDefaultFakerMethod(inputSchema[fieldPath].type),
         fakerArgs: [],
         probability: inputSchema[fieldPath].probability,
       };
