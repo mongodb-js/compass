@@ -13,7 +13,7 @@ import {
 import { useMCPController } from '@mongodb-js/compass-generative-ai/provider';
 
 const toolCallCardStyles = css({
-  padding: spacing[300],
+  padding: spacing[200],
   borderRadius: spacing[200],
   backgroundColor: palette.gray.light3,
   border: `1px solid ${palette.gray.light2}`,
@@ -28,15 +28,15 @@ const toolHeaderStyles = css({
   display: 'flex',
   alignItems: 'center',
   gap: spacing[200],
-  marginBottom: spacing[200],
+  marginBottom: spacing[100],
 });
 
 const toolIconContainerStyles = css({
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  width: spacing[500],
-  height: spacing[500],
+  width: spacing[400],
+  height: spacing[400],
   borderRadius: '4px',
   backgroundColor: palette.white,
 });
@@ -48,25 +48,25 @@ const toolIconContainerDarkModeStyles = css({
 const toolNameStyles = css({
   fontFamily: 'Source Code Pro, monospace',
   fontWeight: 600,
-  fontSize: '13px',
-  lineHeight: '20px',
+  fontSize: '12px',
+  lineHeight: '16px',
 });
 
 const toolDescriptionStyles = css({
-  marginBottom: spacing[200],
-  fontSize: '13px',
-  lineHeight: '20px',
+  marginBottom: spacing[100],
+  fontSize: '12px',
+  lineHeight: '16px',
 });
 
 const inputLabelStyles = css({
   fontWeight: 600,
-  fontSize: '13px',
+  fontSize: '12px',
 });
 
 const codeBlockStyles = css({
   maxHeight: '200px',
   overflowY: 'auto',
-  fontSize: '12px',
+  fontSize: '11px',
   backgroundColor: palette.gray.light2,
   padding: spacing[200],
   borderRadius: '4px',
@@ -88,8 +88,10 @@ const expandableHeaderStyles = css({
   marginTop: spacing[100],
   borderRadius: '4px',
   backgroundColor: palette.gray.light2,
+  transition: 'background-color color 0.2s ease-in-out',
   '&:hover': {
     backgroundColor: palette.gray.light1,
+    color: palette.black,
   },
 });
 
@@ -102,7 +104,7 @@ const expandableHeaderDarkModeStyles = css({
 
 const expandableContentStyles = css({
   marginTop: spacing[100],
-  padding: spacing[200],
+  padding: spacing[100],
   borderRadius: '4px',
   backgroundColor: palette.gray.light2,
 });
@@ -130,6 +132,7 @@ const statusStyles = css({
 const statusTextStyles = css({
   color: palette.gray.dark1,
   fontWeight: 500,
+  fontSize: '12px',
 });
 
 export interface ToolCallPart {
@@ -206,14 +209,12 @@ export const ToolCallMessage: React.FunctionComponent<ToolCallMessageProps> = ({
             darkMode && toolIconContainerDarkModeStyles
           )}
         >
-          <Icon glyph="Wrench" size="small" />
+          <Icon glyph="Wrench" size="xsmall" />
         </div>
-        <div>
-          <div className={toolNameStyles}>{toolName}</div>
+        <div className={toolNameStyles}>
+          <b>{toolName}</b>: {description}
         </div>
       </div>
-
-      <Body className={toolDescriptionStyles}>{description}</Body>
 
       {/* Input Section */}
       <div>
@@ -233,7 +234,10 @@ export const ToolCallMessage: React.FunctionComponent<ToolCallMessageProps> = ({
           }}
         >
           <span className={inputLabelStyles}>Input</span>
-          <Icon glyph={isInputExpanded ? 'ChevronDown' : 'ChevronRight'} />
+          <Icon
+            glyph={isInputExpanded ? 'ChevronDown' : 'ChevronRight'}
+            size="xsmall"
+          />
         </div>
         {isInputExpanded && (
           <div
@@ -273,7 +277,10 @@ export const ToolCallMessage: React.FunctionComponent<ToolCallMessageProps> = ({
             }}
           >
             <span className={inputLabelStyles}>Output</span>
-            <Icon glyph={isOutputExpanded ? 'ChevronDown' : 'ChevronRight'} />
+            <Icon
+              glyph={isOutputExpanded ? 'ChevronDown' : 'ChevronRight'}
+              size="xsmall"
+            />
           </div>
           {isOutputExpanded && (
             <div
@@ -301,14 +308,14 @@ export const ToolCallMessage: React.FunctionComponent<ToolCallMessageProps> = ({
           <Button
             variant={ButtonVariant.Default}
             onClick={() => onDeny?.(toolCall.approval!.id)}
-            size="default"
+            size="xsmall"
           >
             Deny
           </Button>
           <Button
             variant={ButtonVariant.Primary}
             onClick={() => onApprove?.(toolCall.approval!.id)}
-            size="default"
+            size="xsmall"
           >
             Allow
           </Button>
@@ -321,6 +328,7 @@ export const ToolCallMessage: React.FunctionComponent<ToolCallMessageProps> = ({
           <Icon
             glyph={wasApproved ? 'CheckmarkWithCircle' : 'XWithCircle'}
             color={palette.gray.dark1}
+            size="xsmall"
           />
           <Body className={statusTextStyles} weight="medium">
             {wasApproved ? 'Tool call approved' : 'Tool call denied'}
