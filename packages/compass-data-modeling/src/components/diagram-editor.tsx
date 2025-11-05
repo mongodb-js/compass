@@ -61,7 +61,6 @@ import {
 } from '../utils/nodes-and-edges';
 import toNS from 'mongodb-ns';
 import { usePreference } from 'compass-preferences-model/provider';
-import { use } from 'chai';
 
 const loadingContainerStyles = css({
   width: '100%',
@@ -347,7 +346,7 @@ const DiagramContent: React.FunctionComponent<{
       // fields (to represent the field path better). While all current code in
       // compass always uses array of strings as field id, some older saved
       // diagrams might not. Also handling this explicitly is sort of needed
-      // anyway to convinve typescript that we're doing the right thing
+      // anyway to convince typescript that we're doing the right thing
       const fieldPath = Array.isArray(id)
         ? id
         : typeof id === 'string'
