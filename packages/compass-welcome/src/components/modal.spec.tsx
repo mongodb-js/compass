@@ -25,7 +25,7 @@ describe('WelcomeModal', function () {
     expect(startButton).to.be.visible;
     userEvent.click(startButton);
     await waitFor(() => {
-      expect(() => screen.getByTestId('welcome-modal')).to.throw();
+      expect(screen.getByTestId('welcome-modal')).to.be.closed;
     });
   });
 
@@ -36,7 +36,7 @@ describe('WelcomeModal', function () {
     const closeButton = screen.getByLabelText('Close modal');
     userEvent.click(closeButton);
     await waitFor(() => {
-      expect(() => screen.getByTestId('welcome-modal')).to.throw();
+      expect(screen.getByTestId('welcome-modal')).to.be.closed;
     });
   });
 
@@ -48,7 +48,7 @@ describe('WelcomeModal', function () {
     const settingsLink = screen.getByText('Settings');
     userEvent.click(settingsLink);
     await waitFor(() => {
-      expect(() => screen.getByTestId('welcome-modal')).to.throw();
+      expect(screen.getByTestId('welcome-modal')).to.be.closed;
     });
     expect(emitSpy).to.have.been.called;
   });

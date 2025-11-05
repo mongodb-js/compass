@@ -73,6 +73,8 @@ import { expect } from 'chai';
 import { Provider } from 'react-redux';
 import ConnectionString from 'mongodb-connection-string-url';
 
+import './assertions';
+
 function wait(ms: number) {
   return new Promise((resolve) => {
     setTimeout(resolve, ms);
