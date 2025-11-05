@@ -60,6 +60,8 @@ import {
   relationshipToDiagramEdge,
 } from '../utils/nodes-and-edges';
 import toNS from 'mongodb-ns';
+import { usePreference } from 'compass-preferences-model/provider';
+import { use } from 'chai';
 
 const loadingContainerStyles = css({
   width: '100%',
@@ -210,6 +212,7 @@ const DiagramContent: React.FunctionComponent<{
   onToggleCollectionExpanded,
 }) => {
   const isDarkMode = useDarkMode();
+  const isCollapseFlagEnabled = usePreference('enableDataModelingCollapse');
   const diagram = useRef(useDiagram());
   const { openDrawer } = useDrawerActions();
   const { isDrawerOpen } = useDrawerState();
@@ -443,7 +446,9 @@ const DiagramContent: React.FunctionComponent<{
         onFieldNameChange: onRenameField,
         onNodeDragStop,
         onConnect,
-        onNodeExpandToggle: handleNodeExpandedToggle,
+        onNodeExpandToggle: isCollapseFlagEnabled
+          ? handleNodeExpandedToggle
+          : undefined,
       } satisfies DiagramProps),
     [
       isDarkMode,
@@ -460,6 +465,7 @@ const DiagramContent: React.FunctionComponent<{
       onNodeDragStop,
       onConnect,
       handleNodeExpandedToggle,
+      isCollapseFlagEnabled,
     ]
   );
 
