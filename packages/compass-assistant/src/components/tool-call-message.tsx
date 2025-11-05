@@ -135,6 +135,29 @@ const statusTextStyles = css({
   fontSize: '12px',
 });
 
+const collectionListStyles = css({
+  marginTop: spacing[200],
+  marginBottom: spacing[200],
+  paddingLeft: spacing[300],
+});
+
+const collectionItemStyles = css({
+  fontSize: '13px',
+  lineHeight: '20px',
+  fontFamily: 'Source Code Pro, monospace',
+  color: palette.gray.dark2,
+});
+
+const collectionItemDarkModeStyles = css({
+  color: palette.gray.light2,
+});
+
+const collectionHeaderStyles = css({
+  fontWeight: 600,
+  fontSize: '13px',
+  marginBottom: spacing[100],
+});
+
 export interface ToolCallPart {
   type: string;
   toolCallId?: string;
@@ -170,6 +193,23 @@ function getToolDisplayName(type: string): string {
   return type.replace(/^tool-/, '');
 }
 
+// Parse collection names from the list-collections output
+function parseCollectionNames(outputText: string): string[] {
+  const collections: string[] = [];
+  const lines = outputText.split('\n');
+
+  for (const line of lines) {
+    const trimmedLine = line.trim();
+    // Match lines that are just quoted strings
+    const match = trimmedLine.match(/^"(.+)"$/);
+    if (match) {
+      collections.push(match[1]);
+    }
+  }
+
+  return collections;
+}
+
 export const ToolCallMessage: React.FunctionComponent<ToolCallMessageProps> = ({
   toolCall,
   onApprove,
@@ -198,23 +238,56 @@ export const ToolCallMessage: React.FunctionComponent<ToolCallMessageProps> = ({
   const isDenied = toolCall.state === 'output-denied';
   const wasApproved = toolCall.approval?.approved === true;
 
+  // Special handling for list-collections
+  const isListCollections = toolName === 'list-collections';
+  const collections =
+    isListCollections && hasOutput ? parseCollectionNames(outputText) : [];
+  const databaseName = isListCollections
+    ? (toolCall.input as { database?: string })?.database
+    : undefined;
+
   return (
     <div
       className={cx(toolCallCardStyles, darkMode && toolCallCardDarkModeStyles)}
     >
-      <div className={toolHeaderStyles}>
-        <div
-          className={cx(
-            toolIconContainerStyles,
-            darkMode && toolIconContainerDarkModeStyles
-          )}
-        >
-          <Icon glyph="Wrench" size="xsmall" />
+      {isListCollections && collections.length > 0 ? (
+        // Special rendering for list-collections
+        <>
+          <div className={toolHeaderStyles}>
+            <div className={collectionHeaderStyles}>
+              Collections in database &quot;{databaseName}&quot;
+            </div>
+          </div>
+          <ul className={collectionListStyles}>
+            {collections.map((collection, index) => (
+              <li
+                key={index}
+                className={cx(
+                  collectionItemStyles,
+                  darkMode && collectionItemDarkModeStyles
+                )}
+              >
+                {collection}
+              </li>
+            ))}
+          </ul>
+        </>
+      ) : (
+        // Default rendering for all other tools
+        <div className={toolHeaderStyles}>
+          <div
+            className={cx(
+              toolIconContainerStyles,
+              darkMode && toolIconContainerDarkModeStyles
+            )}
+          >
+            <Icon glyph="Wrench" size="xsmall" />
+          </div>
+          <div className={toolNameStyles}>
+            <b>{toolName}</b>: {description}
+          </div>
         </div>
-        <div className={toolNameStyles}>
-          <b>{toolName}</b>: {description}
-        </div>
-      </div>
+      )}
 
       {/* Input Section */}
       <div>

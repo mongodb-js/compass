@@ -68,11 +68,6 @@ export class DocsProviderTransport implements ChatTransport<AssistantMessage> {
 
     const lastMessage = filteredMessages[filteredMessages.length - 1];
 
-    console.log(
-      'lastMessage.metadata?.availableTools',
-      lastMessage,
-      this.getTools()
-    );
     const result = streamText({
       model: this.model,
       messages: lastMessage.metadata?.sendWithoutHistory
@@ -83,7 +78,19 @@ export class DocsProviderTransport implements ChatTransport<AssistantMessage> {
         'X-Request-Origin': this.origin,
       },
       tools: this.getTools(),
-      stopWhen: stepCountIs(5),
+      stopWhen: (options) => {
+        const { steps } = options;
+        if (
+          steps.some((step) =>
+            step.toolCalls?.some(
+              (toolCall) => toolCall.toolName === 'list-collections'
+            )
+          )
+        ) {
+          return stepCountIs(1)(options);
+        }
+        return stepCountIs(5)(options);
+      },
       providerOptions: {
         openai: {
           store: false,
