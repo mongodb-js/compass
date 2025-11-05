@@ -422,6 +422,13 @@ function unwrapContextMenuContainer(result: RenderResult) {
     firstChild instanceof HTMLElement &&
     firstChild.getAttribute('data-testid') === 'context-menu-children-container'
   ) {
+    if (
+      firstChild.firstChild instanceof HTMLElement &&
+      firstChild.firstChild.getAttribute('data-testid') ===
+        'copy-paste-context-menu-container'
+    ) {
+      return { container: firstChild.firstChild, ...rest };
+    }
     return { container: firstChild, ...rest };
   } else {
     return { container, ...rest };
