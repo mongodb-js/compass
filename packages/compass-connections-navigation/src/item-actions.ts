@@ -312,7 +312,7 @@ export const connectionContextMenuActions = ({
     {
       action: 'connection-use-for-mcp',
       icon: 'Cloud',
-      label: 'Use for MCP server',
+      label: 'Use with Assistant',
     },
     { separator: true },
     {

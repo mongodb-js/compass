@@ -17,7 +17,8 @@ import type { MCPConnectParams } from './mcp-connection-manager';
 import { MCPConnectionManager } from './mcp-connection-manager';
 import { createMCPConnectionErrorHandler } from './mcp-connection-error-handler';
 import type { ConnectionsService } from '@mongodb-js/compass-connections/src/stores/store-context';
-import { type ToolSet, tool } from 'ai';
+import type { WorkspacesService } from '@mongodb-js/compass-workspaces/provider';
+import { Tool, type ToolSet, tool } from 'ai';
 import z from 'zod';
 
 class CompassMCPLogger extends LoggerBase {
@@ -95,6 +96,7 @@ type MCPControllerConfig = {
 export class MCPController {
   private logger: Logger;
   private connections: ConnectionsService;
+  private workspaces?: WorkspacesService;
   private preferences: PreferencesAccess;
   private getTelemetryAnonymousId: () => string;
   private mcpConnectionManagers: MCPConnectionManager[] = [];
@@ -260,14 +262,17 @@ export class MCPController {
     if (!this.runner.server) {
       return {};
     }
-    console.log(
-      'this.runner.server?.getAvailableTools()',
-      this.runner.server?.getAvailableTools()
+
+    const availableTools = this.runner.server.getAvailableTools();
+
+    // Find the MCP Server's find tool to reuse its schema
+    const findTool = availableTools.find(
+      (toolBase) => toolBase.name === 'find'
     );
-    return Object.fromEntries(
+
+    const mcpTools = Object.fromEntries(
       // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-      this.runner.server
-        ?.getAvailableTools()
+      availableTools
         .filter((toolBase) => !toolBase.name.includes('atlas'))
         .slice(0, 10)
         .map((toolBase) => {
@@ -285,6 +290,7 @@ export class MCPController {
                   signal: options.abortSignal ?? new AbortSignal(),
                   requestId: options.toolCallId,
                   sendNotification: async () => {},
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
                   sendRequest: () => undefined as any,
                 });
               },
@@ -292,6 +298,132 @@ export class MCPController {
           ];
         }) ?? []
     );
+
+    // Add custom Compass tools
+    // Add compass-open-query tool that reuses the find tool's schema
+    if (findTool) {
+      mcpTools['find'] = tool({
+        name: 'find',
+        description:
+          findTool.description +
+          'Also opens a MongoDB query tab in Compass with the specified collection and query parameters.',
+        // Reuse the find tool's schema
+        inputSchema: z.object(findTool.argsShape),
+        needsApproval: false,
+        execute: async (args, options) => {
+          const findResult = await findTool.execute(args, {
+            signal: options.abortSignal ?? new AbortSignal(),
+            requestId: options.toolCallId ?? '',
+            sendNotification: async () => {},
+            sendRequest: () => undefined as any,
+          });
+          return this.openQueryInCompass(args, JSON.stringify(findResult));
+        },
+      }) satisfies Tool<
+        { [x: string]: any },
+        { success: boolean; message: string; namespace?: string }
+      >;
+    }
+
+    return mcpTools;
+  }
+
+  private openQueryInCompass(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    args: Record<string, any>,
+    findResult: string
+  ): { success: boolean; message: string; namespace?: string } {
+    try {
+      if (!this.workspaces) {
+        return {
+          success: false,
+          message: 'Workspaces service not available.',
+        };
+      }
+
+      if (!this.currentConnectionId) {
+        return {
+          success: false,
+          message:
+            'No active connection. Please connect to a MongoDB cluster first.',
+        };
+      }
+
+      const { database, collection, filter, projection, sort, skip, limit } =
+        args;
+
+      if (!database || !collection) {
+        return {
+          success: false,
+          message: 'Database and collection parameters are required.',
+        };
+      }
+
+      const namespace = `${database}.${collection}`;
+
+      // Build the query object matching Compass's expected format
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const initialQuery: Record<string, any> = {};
+
+      if (filter) {
+        initialQuery.filter = filter;
+      }
+
+      if (projection) {
+        initialQuery.project = projection;
+      }
+
+      if (sort) {
+        initialQuery.sort = sort;
+      }
+
+      if (skip !== undefined) {
+        initialQuery.skip = skip;
+      }
+
+      if (limit !== undefined) {
+        initialQuery.limit = limit;
+      }
+
+      // Open the collection workspace with the query
+      this.workspaces.openCollectionWorkspace(
+        this.currentConnectionId,
+        namespace,
+        {
+          initialQuery:
+            Object.keys(initialQuery).length > 0 ? initialQuery : undefined,
+          initialSubtab: 'Documents',
+          newTab: true,
+        }
+      );
+
+      this.logger.log.info(
+        this.logger.mongoLogId(1_001_000_412),
+        'MCP Server',
+        'Opened query in Compass',
+        { namespace, initialQuery }
+      );
+
+      return {
+        success: true,
+        message: `Successfully opened query tab for ${namespace} in Compass with the specified query parameters. Here's the result of the find call itself: ${findResult}. You don't need to present this data but you can use it for reference to answer the user's questions.`,
+        namespace,
+      };
+    } catch (error) {
+      this.logger.log.error(
+        this.logger.mongoLogId(1_001_000_413),
+        'MCP Server',
+        'Error opening query in Compass',
+        { error, args }
+      );
+
+      return {
+        success: false,
+        message: `Failed to open query in Compass: ${
+          error instanceof Error ? error.message : String(error)
+        }`,
+      };
+    }
   }
 
   public async onActiveConnectionChanged(
@@ -380,5 +512,30 @@ export class MCPController {
 
   public async deactivate(): Promise<void> {
     await this.stopServer();
+  }
+
+  /**
+   * Attach the workspaces service to enable opening queries in Compass UI.
+   * This should be called from within the workspaces context.
+   */
+  public attachWorkspaces(workspaces: WorkspacesService): void {
+    this.workspaces = workspaces;
+    this.logger.log.info(
+      this.logger.mongoLogId(1_001_000_414),
+      'MCP Server',
+      'Workspaces service attached to MCP Controller'
+    );
+  }
+
+  /**
+   * Detach the workspaces service.
+   */
+  public detachWorkspaces(): void {
+    this.workspaces = undefined;
+    this.logger.log.info(
+      this.logger.mongoLogId(1_001_000_415),
+      'MCP Server',
+      'Workspaces service detached from MCP Controller'
+    );
   }
 }

@@ -174,7 +174,7 @@ export function MultipleConnectionSidebar({
         .then(() => {
           openToast('mcp-connection-success', {
             title: 'Success',
-            description: `MCP server is now using connection: ${
+            description: `Assistant is now connected to: ${
               connectionInfo.favorite?.name ??
               connectionInfo.connectionOptions.connectionString
             }`,

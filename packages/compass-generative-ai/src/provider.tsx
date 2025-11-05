@@ -1,10 +1,7 @@
 import React, { createContext, useContext, useMemo, useEffect } from 'react';
 import { AtlasAiService } from './atlas-ai-service';
 import { MCPController } from './mcp-controller';
-import {
-  preferencesLocator,
-  usePreference,
-} from 'compass-preferences-model/provider';
+import { preferencesLocator } from 'compass-preferences-model/provider';
 import { useLogger } from '@mongodb-js/compass-logging/provider';
 import { atlasServiceLocator } from '@mongodb-js/atlas-service/provider';
 import {
@@ -45,7 +42,6 @@ export const AtlasAiServiceProvider: React.FC<{
 export const MCPControllerProvider: React.FC = createServiceProvider(
   function MCPControllerProvider({ children }) {
     const logger = useLogger('MCP-CONTROLLER');
-    const mcpEnabled = usePreference('enableMcpServer');
     const preferences = preferencesLocator();
     const connections = connectionsLocator();
     const mcpController = useMemo(() => {
@@ -57,7 +53,7 @@ export const MCPControllerProvider: React.FC = createServiceProvider(
         },
         connections,
       });
-    }, [logger, mcpEnabled, connections, preferences]);
+    }, [logger, connections, preferences]);
 
     useEffect(() => {
       void mcpController.activate();

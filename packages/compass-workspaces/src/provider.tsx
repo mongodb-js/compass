@@ -1,4 +1,4 @@
-import React, { useContext, useRef } from 'react';
+import React, { useContext, useEffect, useRef } from 'react';
 import { useSelector, useStore } from './stores/context';
 import type { OpenWorkspaceOptions, TabOptions } from './stores/workspaces';
 import {
@@ -10,6 +10,7 @@ import { createServiceLocator } from '@mongodb-js/compass-app-registry';
 import type { CollectionSubtab, WorkspaceTab } from './types';
 import type { WorkspaceDestroyHandler } from './components/workspace-close-handler';
 import { useRegisterTabDestroyHandler } from './components/workspace-close-handler';
+import { useMCPController } from '@mongodb-js/compass-generative-ai/provider';
 
 function useWorkspacesStore() {
   try {
@@ -320,6 +321,16 @@ export const WorkspacesServiceProvider: React.FunctionComponent<{
     return service.current;
   })();
   /* eslint-enable react-hooks/rules-of-hooks */
+
+  const mcpController = useMCPController();
+  useEffect(() => {
+    if (mcpController) {
+      mcpController.attachWorkspaces(value);
+      return () => {
+        mcpController.detachWorkspaces();
+      };
+    }
+  }, [value, mcpController]);
 
   return (
     <WorkspacesServiceContext.Provider value={value}>
