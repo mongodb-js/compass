@@ -303,11 +303,11 @@ export const connectionContextMenuActions = ({
           icon: 'InfoWithCircle',
           label: 'Show connection info',
         },
-    {
-      action: 'refresh-databases',
-      label: 'Refresh databases',
-      icon: 'Refresh',
-    },
+    // {
+    //   action: 'refresh-databases',
+    //   label: 'Refresh databases',
+    //   icon: 'Refresh',
+    // },
     { separator: true },
     {
       action: 'connection-use-for-mcp',

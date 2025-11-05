@@ -366,6 +366,18 @@ export class MCPController {
     }
   }
 
+  public getConnectionStatus(): {
+    isConnected: boolean;
+    connectionId?: string;
+    connectionString?: string;
+  } {
+    return {
+      isConnected: !!this.currentConnectionId && !!this.server,
+      connectionId: this.currentConnectionId,
+      connectionString: this.currentConnectionString,
+    };
+  }
+
   public async deactivate(): Promise<void> {
     await this.stopServer();
   }

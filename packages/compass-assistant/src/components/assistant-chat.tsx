@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useContext, useRef } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useContext,
+  useRef,
+  useState,
+} from 'react';
 import type { AssistantMessage } from '../compass-assistant-provider';
 import { AssistantActionsContext } from '../compass-assistant-provider';
 import type { Chat } from '../@ai-sdk/react/chat-react';
@@ -18,12 +24,14 @@ import {
   LgChatChatDisclaimer,
   Link,
   Icon,
+  Tooltip,
 } from '@mongodb-js/compass-components';
 import { ConfirmationMessage } from './confirmation-message';
 import { ToolCallMessage } from './tool-call-message';
 import type { ToolCallPart } from './tool-call-message';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import { NON_GENUINE_WARNING_MESSAGE } from '../preset-messages';
+import { useMCPController } from '@mongodb-js/compass-generative-ai/provider';
 
 const { DisclaimerText } = LgChatChatDisclaimer;
 const { ChatWindow } = LgChatChatWindow;
@@ -162,14 +170,7 @@ const welcomeMessageStyles = css({
   paddingLeft: spacing[400],
   paddingRight: spacing[400],
 });
-const disclaimerTextStyles = css({
-  paddingBottom: spacing[400],
-  paddingLeft: spacing[400],
-  paddingRight: spacing[400],
-  a: {
-    fontSize: 'inherit',
-  },
-});
+
 // On small screens, many components end up breaking words which we don't want.
 // This is a general temporary fix for all components that we want to prevent from wrapping.
 const noWrapFixesStyles = css({
@@ -218,6 +219,159 @@ const sparkleIconOverrideStyle = {
 
 const inputBarTextareaProps = {
   placeholder: 'Ask a question',
+};
+
+const mcpStatusContainerStyles = (isConnected: boolean, darkMode: boolean) =>
+  css({
+    display: 'flex',
+    alignItems: 'center',
+    gap: spacing[100],
+    fontSize: '12px',
+    marginTop: spacing[100],
+    padding: `${spacing[100]}px ${spacing[200]}px`,
+    marginBottom: spacing[600],
+    borderRadius: '12px',
+    border: `1px solid ${
+      isConnected
+        ? darkMode
+          ? palette.green.dark2
+          : palette.green.light1
+        : darkMode
+        ? palette.gray.dark2
+        : palette.gray.light1
+    }`,
+    backgroundColor: isConnected
+      ? darkMode
+        ? palette.green.dark3
+        : palette.green.light3
+      : darkMode
+      ? palette.gray.dark3
+      : palette.gray.light3,
+    width: 'fit-content',
+  });
+
+const mcpStatusDotStyles = (isConnected: boolean, darkMode: boolean) =>
+  css({
+    width: '6px',
+    height: '6px',
+    borderRadius: '50%',
+    backgroundColor: isConnected
+      ? darkMode
+        ? palette.green.base
+        : palette.green.dark1
+      : darkMode
+      ? palette.gray.base
+      : palette.gray.dark1,
+  });
+
+const mcpStatusTextStyles = (isConnected: boolean, darkMode: boolean) =>
+  css({
+    color: isConnected
+      ? darkMode
+        ? palette.green.light1
+        : palette.green.dark2
+      : darkMode
+      ? palette.gray.light1
+      : palette.gray.dark2,
+    fontSize: '12px',
+    lineHeight: '16px',
+    fontWeight: 500,
+  });
+
+// Extract a friendly connection name from connection string
+const getConnectionDisplayName = (connectionString?: string): string => {
+  if (!connectionString) return 'Unknown';
+
+  try {
+    // Try to parse the connection string to get a host/database name
+    const url = new URL(connectionString);
+    const hostname = url.hostname;
+    const pathname = url.pathname.replace('/', '');
+
+    if (pathname) {
+      return `${hostname}/${pathname}`;
+    }
+    return hostname;
+  } catch {
+    // If parsing fails, just show a truncated version
+    return connectionString.length > 30
+      ? connectionString.substring(0, 30) + '...'
+      : connectionString;
+  }
+};
+
+const MCPConnectionStatus: React.FC = () => {
+  const mcpController = useMCPController();
+  const darkMode = useDarkMode();
+  const [connectionStatus, setConnectionStatus] = useState(() =>
+    mcpController.getConnectionStatus()
+  );
+
+  // Poll for connection status updates
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const newStatus = mcpController.getConnectionStatus();
+      setConnectionStatus((prevStatus) => {
+        // Only update if status has actually changed
+        if (
+          prevStatus.isConnected !== newStatus.isConnected ||
+          prevStatus.connectionId !== newStatus.connectionId
+        ) {
+          return newStatus;
+        }
+        return prevStatus;
+      });
+    }, 1000); // Check every second
+
+    return () => clearInterval(interval);
+  }, [mcpController]);
+
+  const displayName = getConnectionDisplayName(
+    connectionStatus.connectionString ?? undefined
+  );
+
+  const statusText = connectionStatus.isConnected
+    ? `Connected to ${displayName}`
+    : 'Not Connected';
+
+  const tooltipContent = connectionStatus.isConnected
+    ? `Connection: ${connectionStatus.connectionString || 'N/A'}`
+    : 'MCP Server is not connected to a database';
+
+  return (
+    <Tooltip
+      align="top"
+      justify="start"
+      darkMode={darkMode}
+      trigger={
+        <div style={{ width: '100%', paddingLeft: spacing[400] }}>
+          <div
+            className={mcpStatusContainerStyles(
+              !!connectionStatus.isConnected,
+              !!darkMode
+            )}
+          >
+            <div
+              className={mcpStatusDotStyles(
+                !!connectionStatus.isConnected,
+                !!darkMode
+              )}
+            />
+            <span
+              className={mcpStatusTextStyles(
+                !!connectionStatus.isConnected,
+                !!darkMode
+              )}
+            >
+              {statusText}
+            </span>
+          </div>
+        </div>
+      }
+    >
+      {tooltipContent}
+    </Tooltip>
+  );
 };
 
 export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
@@ -561,17 +715,20 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
               textareaProps={inputBarTextareaProps}
             />
           </div>
-          <DisclaimerText className={disclaimerTextStyles}>
-            AI can make mistakes. Review for accuracy.{' '}
-            <Link
-              className={noWrapFixesStyles}
-              hideExternalIcon={false}
-              href={GEN_AI_FAQ_LINK}
-              target="_blank"
-            >
-              Learn more
-            </Link>
-          </DisclaimerText>
+          <MCPConnectionStatus />
+          {/* <DisclaimerText className={disclaimerTextStyles}>
+            <div style={{ display: 'inline-block' }}>
+              AI can make mistakes. Review for accuracy.{' '}
+              <Link
+                className={noWrapFixesStyles}
+                hideExternalIcon={false}
+                href={GEN_AI_FAQ_LINK}
+                target="_blank"
+              >
+                Learn more
+              </Link>
+            </div>
+          </DisclaimerText> */}
         </ChatWindow>
       </LeafyGreenChatProvider>
     </div>
