@@ -394,6 +394,7 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
         </div>
         <div className={toolbarRightActionStyles}>
           <Select
+            data-testid="crud-document-per-page-selector"
             size="xsmall"
             disabled={isFetching}
             allowDeselect={false}
