@@ -30,7 +30,17 @@ module.exports = {
     '@lg-code/*',
     '@mongodb-js/diagramming',
   ],
-  mongosh: ['@mongosh/*'],
+  mongosh: [
+    // mongosh and driver dependencies
+    '@mongosh/*',
+    '@mongodb-js/devtools-connect',
+    '@mongodb-js/devtools-proxy-support',
+    'mongodb',
+    'bson',
+    'kerberos',
+    'socks',
+    'mongodb-client-encryption',
+  ],
   // TODO(COMPASS-9443): Update update-* github actions to handle all groups as
   // a matrix inside one action instead of having separate action for every
   // group and add more groups following the ones in _dependabot

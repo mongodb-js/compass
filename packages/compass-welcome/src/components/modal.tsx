@@ -1,5 +1,5 @@
-import React, { useCallback } from 'react';
-
+import React from 'react';
+import { connect } from 'react-redux';
 import {
   MarketingModal,
   Body,
@@ -8,8 +8,9 @@ import {
   spacing,
   useDarkMode,
 } from '@mongodb-js/compass-components';
-import { withPreferences } from 'compass-preferences-model/provider';
-
+import { usePreference } from 'compass-preferences-model/provider';
+import type { WelcomeModalState } from '../stores/welcome-modal-store';
+import { closeModal, openSettings } from '../stores/welcome-modal-store';
 import { WelcomeModalImage } from './welcome-image';
 
 const disclaimer = css({
@@ -21,31 +22,25 @@ const link = css({
 });
 
 type WelcomeModalProps = {
-  networkTraffic: boolean;
   isOpen: boolean;
-  closeModal: (openSettings?: boolean) => void;
+  onClose: () => void;
+  onOpenSettingsClick: () => void;
 };
 
 export const WelcomeModal: React.FunctionComponent<WelcomeModalProps> = ({
-  networkTraffic,
   isOpen,
-  closeModal,
+  onClose,
+  onOpenSettingsClick,
 }) => {
+  const networkTraffic = usePreference('networkTraffic');
   const darkMode = useDarkMode();
-  const goToSettings = useCallback(() => {
-    closeModal(true);
-  }, [closeModal]);
-
-  const close = useCallback(() => {
-    closeModal();
-  }, [closeModal]);
 
   return (
     <MarketingModal
       data-testid="welcome-modal"
       open={isOpen}
-      onClose={close}
-      onButtonClick={close}
+      onClose={onClose}
+      onButtonClick={onClose}
       title="Welcome to Compass"
       buttonText="Start"
       showBlob
@@ -61,7 +56,7 @@ export const WelcomeModal: React.FunctionComponent<WelcomeModalProps> = ({
               data-testid="open-settings-link"
               hideExternalIcon
               className={link}
-              onClick={goToSettings}
+              onClick={onOpenSettingsClick}
             >
               Settings
             </Link>{' '}
@@ -81,4 +76,9 @@ export const WelcomeModal: React.FunctionComponent<WelcomeModalProps> = ({
   );
 };
 
-export default withPreferences(WelcomeModal, ['networkTraffic']);
+export default connect(
+  (state: WelcomeModalState) => {
+    return { isOpen: state.isOpen };
+  },
+  { onClose: closeModal, onOpenSettingsClick: openSettings }
+)(WelcomeModal);
