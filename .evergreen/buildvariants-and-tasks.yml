@@ -9,28 +9,31 @@ buildvariants:
   - name: unit-tests-ubuntu
     display_name: Unit Tests Ubuntu
     run_on: ubuntu2204-large
+    patchable: true
     tasks:
       - name: test
       - name: test-electron
   - name: unit-tests-windows
     display_name: Unit Tests Windows
     run_on: windows-vsCurrent-large
+    patchable: true
     tasks:
       - name: test
       - name: test-electron
   - name: unit-tests-rhel
     display_name: Unit Tests RHEL
     run_on: rhel93-large
+    patchable: true
     tasks:
       - name: test
       - name: test-electron
   - name: unit-tests-macos
     display_name: Unit Tests MacOS
-    run_on: macos-15-arm64
+    run_on: macos-15-arm64-gui
+    patchable: false
     tasks:
       - name: test
       - name: test-electron
-        run_on: macos-15-arm64-gui
   - name: package-ubuntu
     expansions:
       target_platform: ubuntu

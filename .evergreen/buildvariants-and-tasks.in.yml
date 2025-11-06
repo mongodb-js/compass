@@ -18,8 +18,10 @@ const UNIT_TESTS_BUILD_VARIANTS = [
   {
     name: 'unit-tests-macos',
     display_name: 'Unit Tests MacOS',
-    run_on: 'macos-15-arm64',
-    run_on_gui: 'macos-15-arm64-gui'
+    // We only have gui variants of the macos 15, so both unit tests will be
+    // running on it. We will not be running those on patches to save resources
+    run_on: 'macos-15-arm64-gui', 
+    patchable: false,
   }
 ];
 
@@ -150,6 +152,7 @@ buildvariants:
 
     display_name: <%= buildVariant.display_name %>
     run_on: <%= buildVariant.run_on %>
+    patchable: <%= buildVariant.patchable ?? true %>
     tasks:
     - name: test
     - name: test-electron
