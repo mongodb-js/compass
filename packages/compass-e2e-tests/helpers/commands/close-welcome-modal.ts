@@ -22,5 +22,5 @@ export async function closeWelcomeModal(
   // does something like location.reload() immediately it definitely won't show
   // the welcome modal a second time. It is kinda irrelevant which setting we
   // use, but it must be an uncontrolled one
-  await browser.setFeature('zoomLevel', 1);
+  await browser.setFeature('zoomLevel', 0);
 }
