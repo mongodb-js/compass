@@ -67,6 +67,7 @@ interface Props {
   onJsonTypeSelect: (jsonType: MongoDBFieldType) => void;
   activeFakerArgs: FakerArg[];
   onFakerFunctionSelect: (fakerFunction: string) => void;
+  originalLlmFakerMethod?: string;
 }
 
 const FakerMappingSelector = ({
@@ -75,16 +76,18 @@ const FakerMappingSelector = ({
   activeFakerArgs,
   onJsonTypeSelect,
   onFakerFunctionSelect,
+  originalLlmFakerMethod,
 }: Props) => {
   const fakerMethodOptions = useMemo(() => {
     const methods = MONGO_TYPE_TO_FAKER_METHODS[activeJsonType] || [];
 
-    if (methods.includes(activeFakerFunction)) {
-      return methods;
+    // Include original LLM method if it's not already in the list of methods
+    if (originalLlmFakerMethod && !methods.includes(originalLlmFakerMethod)) {
+      return [originalLlmFakerMethod, ...methods];
     }
 
-    return [activeFakerFunction, ...methods];
-  }, [activeJsonType, activeFakerFunction]);
+    return methods;
+  }, [activeJsonType, originalLlmFakerMethod]);
 
   return (
     <div className={fieldMappingSelectorsStyles}>

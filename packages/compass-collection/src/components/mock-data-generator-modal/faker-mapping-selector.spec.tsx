@@ -157,4 +157,53 @@ describe('FakerMappingSelector', () => {
       )
     ).to.not.exist;
   });
+
+  it('should always include the original LLM faker method in the dropdown', () => {
+    const originalLlmMethod = 'custom.llmMethod';
+
+    render(
+      <FakerMappingSelector
+        activeJsonType="String"
+        activeFakerFunction="lorem.word"
+        activeFakerArgs={[]}
+        onJsonTypeSelect={onJsonTypeSelectStub}
+        onFakerFunctionSelect={onFakerFunctionSelectStub}
+        originalLlmFakerMethod={originalLlmMethod}
+      />
+    );
+
+    const fakerFunctionSelect = screen.getByLabelText('Faker Function');
+    userEvent.click(fakerFunctionSelect);
+
+    // Should include the original LLM method even though it's not in MONGO_TYPE_TO_FAKER_METHODS
+    expect(screen.getByRole('option', { name: originalLlmMethod })).to.exist;
+
+    // Should also include standard methods for String type
+    expect(screen.getByRole('option', { name: 'lorem.word' })).to.exist;
+    expect(screen.getByRole('option', { name: 'lorem.sentence' })).to.exist;
+  });
+
+  it('should not duplicate the original LLM method if it is already in the standard methods', () => {
+    const originalLlmMethod = 'lorem.word';
+
+    render(
+      <FakerMappingSelector
+        activeJsonType="String"
+        activeFakerFunction="lorem.sentence"
+        activeFakerArgs={[]}
+        onJsonTypeSelect={onJsonTypeSelectStub}
+        onFakerFunctionSelect={onFakerFunctionSelectStub}
+        originalLlmFakerMethod={originalLlmMethod}
+      />
+    );
+
+    const fakerFunctionSelect = screen.getByLabelText('Faker Function');
+    userEvent.click(fakerFunctionSelect);
+
+    // Should only have one instance of 'lorem.word'
+    const loremWordOptions = screen.getAllByRole('option', {
+      name: 'lorem.word',
+    });
+    expect(loremWordOptions).to.have.length(1);
+  });
 });

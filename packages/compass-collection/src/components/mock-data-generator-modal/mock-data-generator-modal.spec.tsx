@@ -791,6 +791,68 @@ describe('MockDataGeneratorModal', () => {
         );
       });
     });
+
+    it('preserves original fakerArgs when selecting original LLM method', async () => {
+      // Mock response with fakerArgs
+      const mockServicesWithArgs = {
+        ...mockServicesWithMockDataResponse,
+        atlasAiService: {
+          getMockDataSchema: sinon.stub().resolves({
+            fields: [
+              {
+                fieldPath: 'name',
+                mongoType: 'String',
+                fakerMethod: 'person.firstName',
+                fakerArgs: [{ json: '{"locale":"en"}' }],
+                probability: 0.8,
+              },
+            ],
+          }),
+        },
+      };
+
+      await renderModal({
+        mockServices: mockServicesWithArgs,
+        schemaAnalysis: mockSchemaAnalysis,
+      });
+
+      userEvent.click(screen.getByText('Confirm'));
+      await waitFor(() => {
+        expect(screen.getByTestId('faker-schema-editor')).to.exist;
+      });
+
+      // Change to a different faker method (this resets fakerArgs)
+      const fakerMethodSelect = screen.getByLabelText('Faker Function');
+      userEvent.click(fakerMethodSelect);
+      const wordOption = await screen.findByRole('option', {
+        name: 'lorem.word',
+      });
+      userEvent.click(wordOption);
+
+      await waitFor(() => {
+        expect(screen.getByLabelText('Faker Function')).to.have.value(
+          'lorem.word'
+        );
+      });
+
+      // Select the original LLM method again
+      userEvent.click(fakerMethodSelect);
+      const firstNameOption = await screen.findByRole('option', {
+        name: 'person.firstName',
+      });
+      userEvent.click(firstNameOption);
+
+      await waitFor(() => {
+        expect(screen.getByLabelText('Faker Function')).to.have.value(
+          'person.firstName'
+        );
+      });
+
+      const preview = screen.getByTestId('faker-function-call-preview');
+      expect(preview.textContent).to.include(
+        'faker.person.firstName({"locale":"en"})'
+      );
+    });
   });
 
   describe('on the document count step', () => {
