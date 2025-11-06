@@ -733,6 +733,64 @@ describe('MockDataGeneratorModal', () => {
         );
       });
     });
+
+    it('persists user modifications to faker mappings when navigating back to the screen', async () => {
+      await renderModal({
+        mockServices: mockServicesWithMockDataResponse,
+        schemaAnalysis: mockSchemaAnalysis,
+      });
+
+      userEvent.click(screen.getByText('Confirm'));
+      await waitFor(() => {
+        expect(screen.getByTestId('faker-schema-editor')).to.exist;
+      });
+
+      // Change the JSON type from String to Number
+      const jsonTypeSelect = screen.getByLabelText('JSON Type');
+      userEvent.click(jsonTypeSelect);
+      const numberOption = await screen.findByRole('option', {
+        name: 'Number',
+      });
+      userEvent.click(numberOption);
+
+      await waitFor(() => {
+        expect(screen.getByLabelText('JSON Type')).to.have.value('Number');
+      });
+
+      const fakerMethodSelect = screen.getByLabelText('Faker Function');
+      userEvent.click(fakerMethodSelect);
+      const floatOption = await screen.findByRole('option', {
+        name: 'number.float',
+      });
+      userEvent.click(floatOption);
+
+      await waitFor(() => {
+        expect(screen.getByLabelText('Faker Function')).to.have.value(
+          'number.float'
+        );
+      });
+
+      // Advance to document count step
+      userEvent.click(screen.getByText('Confirm mappings'));
+      await waitFor(() => {
+        expect(screen.getByText('Specify Number of Documents to Generate')).to
+          .exist;
+      });
+
+      // Go back to schema editor
+      userEvent.click(screen.getByText('Back'));
+      await waitFor(() => {
+        expect(screen.getByTestId('faker-schema-editor')).to.exist;
+      });
+
+      // Verify both selections persisted
+      await waitFor(() => {
+        expect(screen.getByLabelText('JSON Type')).to.have.value('Number');
+        expect(screen.getByLabelText('Faker Function')).to.have.value(
+          'number.float'
+        );
+      });
+    });
   });
 
   describe('on the document count step', () => {
