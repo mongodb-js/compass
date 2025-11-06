@@ -170,6 +170,7 @@ const MatchConditionForm = ({
           aria-label={LABELS.operatorSelect}
           value={condition.operator}
           onChange={handleOperatorChange}
+          data-testid="match-condition-operator-select"
         >
           {MATCH_OPERATOR_LABELS.map(({ operator, label }) => {
             return (
@@ -183,8 +184,6 @@ const MatchConditionForm = ({
       <div className={valueInputStyles}>
         <TextInput
           placeholder={LABELS.valueInput}
-          // NOTE: LeafyGreen doesn't support aria-label and only understands "aria-labelledby" and "label".
-          aria-labelledby=""
           data-testid="match-stage-expected-value-input"
           aria-label={LABELS.valueInput}
           value={condition.value}
@@ -198,6 +197,7 @@ const MatchConditionForm = ({
           aria-label={LABELS.typeSelect}
           value={condition.bsonType}
           onChange={handleBsonTypeChange}
+          data-testid="match-condition-type-select"
         >
           {CASTABLE_TYPES.map((type) => (
             <Option key={type} value={`${type}`}>
