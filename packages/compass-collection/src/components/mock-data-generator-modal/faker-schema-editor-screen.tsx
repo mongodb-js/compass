@@ -249,4 +249,4 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
     dispatch(fakerFieldMappingRestored(fieldPath, mapping)),
 });
 
-export default connect(() => ({}), mapDispatchToProps)(FakerSchemaEditorScreen);
+export default connect(null, mapDispatchToProps)(FakerSchemaEditorScreen);
