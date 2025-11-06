@@ -143,10 +143,12 @@ export default function ThemedHome(
   props: HomeWithConnectionsProps
 ): ReturnType<typeof HomeWithConnections> {
   const track = useTelemetry();
-  const { enableContextMenus, showedNetworkOptIn } = usePreferences([
-    'enableContextMenus',
-    'showedNetworkOptIn',
-  ]);
+  const { enableContextMenus, showedNetworkOptIn, enableGuideCues } =
+    usePreferences([
+      'enableContextMenus',
+      'showedNetworkOptIn',
+      'enableGuideCues',
+    ]);
   return (
     <CompassComponentsProvider
       onNextGuideGue={(cue) => {
@@ -204,7 +206,7 @@ export default function ThemedHome(
       disableContextMenus={!enableContextMenus}
       // Wait for the "Welcome" modal to disappear before showing any guide cues
       // in the app
-      disableGuideCues={!showedNetworkOptIn}
+      disableGuideCues={!enableGuideCues || !showedNetworkOptIn}
     >
       {({ darkMode, portalContainerRef }) => {
         return (
