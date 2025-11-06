@@ -32,6 +32,7 @@ import type {
 import type {
   CellDoubleClickedEvent,
   ColDef,
+  ColumnState,
   ColumnApi,
   GridApi,
   GridCellDef,
@@ -72,8 +73,7 @@ export type DocumentTableViewProps = {
   tz: string;
   className?: string;
   darkMode?: boolean;
-  gridColumnState: GridColumnState;
-  setGridColumnState: React.Dispatch<React.SetStateAction<GridColumnState>>;
+  tableColumnData: Record<string, ColumnState[]>;
 };
 
 export type GridContext = {
@@ -226,15 +226,8 @@ class DocumentTableView extends React.Component<DocumentTableViewProps> {
    */
   onColumnResized(event: ColumnResizedEvent) {
     if (event.finished) {
-      // Delete the existing entry so that the logic ran during componentDidUpdate
-      // doesn't use the previously existing entry before the current grid column
-      // update to gridColumnState is made
-      delete this.props.gridColumnState[this.collection];
-
-      this.props.setGridColumnState({
-        ...this.props.gridColumnState,
-        [this.collection]: this.columnApi.getColumnState(),
-      });
+      this.props.tableColumnData[this.props.workspaceTabId] =
+        this.columnApi.getColumnState();
     }
   }
 
@@ -614,15 +607,21 @@ class DocumentTableView extends React.Component<DocumentTableViewProps> {
     }
   }
 
+  // TODO: Determine when setGridColumns can be ran so that column widths are set at first "paint"
   /**
    * When the component is updated, handle setting updated column widths
    */
   setGridColumns() {
-    if (!this.props.gridColumnState[this.collection] || !this.columnApi) {
+    if (
+      !this.props.tableColumnData?.[this.props.workspaceTabId] ||
+      !this.columnApi
+    ) {
       return;
     }
 
-    this.columnApi.setColumnState(this.props.gridColumnState[this.collection]);
+    this.columnApi.setColumnState(
+      this.props.tableColumnData[this.props.workspaceTabId]
+    );
   }
 
   /**

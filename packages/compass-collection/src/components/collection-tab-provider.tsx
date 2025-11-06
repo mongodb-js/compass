@@ -2,27 +2,31 @@ import React, { useContext, useRef } from 'react';
 import type { CollectionTabPluginMetadata } from '../modules/collection-tab';
 import type { CompassPluginComponent } from '@mongodb-js/compass-app-registry';
 import type { CollectionSubtab } from '@mongodb-js/compass-workspaces';
+import type { ColumnState } from 'ag-grid-community';
 
 export interface CollectionTabPlugin {
   name: CollectionSubtab;
   provider: CompassPluginComponent<CollectionTabPluginMetadata, any, any>;
   content: React.FunctionComponent<CollectionTabPluginMetadata>;
   header: React.FunctionComponent;
+  tableColumnStateData: Record<string, ColumnState[]>;
 }
 
 type CollectionTabComponentsProviderValue = {
   tabs: CollectionTabPlugin[];
   modals: CollectionTabPlugin['content'][];
   queryBar: CollectionTabPlugin['content'];
+  tableColumnData: CollectionTabPlugin['tableColumnStateData'];
 };
 
 const defaultComponents: CollectionTabComponentsProviderValue = {
   tabs: [],
   modals: [],
   queryBar: (() => null) as any,
+  tableColumnData: {},
 };
 
-const CollectionTabComponentsContext =
+export const CollectionTabComponentsContext =
   React.createContext<CollectionTabComponentsProviderValue>(defaultComponents);
 
 export const CollectionTabsProvider: React.FunctionComponent<

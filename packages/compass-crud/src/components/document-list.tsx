@@ -4,6 +4,7 @@ import React, {
   useMemo,
   useRef,
   useState,
+  useContext,
 } from 'react';
 import { ObjectId } from 'bson';
 import {
@@ -38,14 +39,17 @@ import {
 import type { CrudStore, BSONObject, DocumentView } from '../stores/crud-store';
 import { getToolbarSignal } from '../utils/toolbar-signal';
 import BulkDeleteModal from './bulk-delete-modal';
-import { useTabState } from '@mongodb-js/compass-workspaces/provider';
+import {
+  useTabState,
+  useWorkspaceTabId,
+} from '@mongodb-js/compass-workspaces/provider';
 import {
   useIsLastAppliedQueryOutdated,
   useLastAppliedQuery,
 } from '@mongodb-js/compass-query-bar';
 import { usePreferences } from 'compass-preferences-model/provider';
 import { useAssistantActions } from '@mongodb-js/compass-assistant';
-import type { GridColumnState } from '../stores/grid-store';
+import { CollectionTabComponentsContext } from '@mongodb-js/compass-collection';
 
 // Table has its own scrollable container.
 const tableStyles = css({
@@ -324,7 +328,10 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
     updateMaxDocumentsPerPage,
   } = props;
 
-  const [gridColumnState, setGridColumnState] = useState<GridColumnState>({});
+  const tableColumnData = useContext(
+    CollectionTabComponentsContext
+  ).tableColumnData;
+  const workspaceTabId = useWorkspaceTabId();
 
   const onOpenInsert = useCallback(
     (key: 'insert-document' | 'import-file') => {
@@ -489,8 +496,8 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
               initialScrollTop={currentViewInitialScrollTop}
               scrollableContainerRef={scrollRef}
               scrollTriggerRef={scrollTriggerRef}
-              gridColumnState={gridColumnState}
-              setGridColumnState={setGridColumnState}
+              workspaceTabId={workspaceTabId}
+              tableColumnData={tableColumnData}
             />
           );
         }
