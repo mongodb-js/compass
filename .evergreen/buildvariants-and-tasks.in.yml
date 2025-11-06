@@ -100,7 +100,7 @@ const TEST_PACKAGED_APP_BUILD_VARIANTS = [
     name: 'test-packaged-app-macos-15-x64',
     display_name: 'MacOS x64 15',
     run_on: 'macos-15-amd64-gui',
-    patchable: true, // TODO: just to test that this works, revert before merging
+    patchable: false,
     depends_on: 'package-macos-x64'
   }
 ];
