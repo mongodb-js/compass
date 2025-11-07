@@ -24,11 +24,7 @@ import {
   useTrackOnChange,
   type TrackFunction,
 } from '@mongodb-js/compass-telemetry/provider';
-import {
-  SCHEMA_ANALYSIS_STATE_ANALYZING,
-  type SchemaAnalysisStatus,
-  type SchemaAnalysisError,
-} from '../../schema-analysis-types';
+import { type SchemaAnalysisError } from '../../schema-analysis-types';
 import { MAX_COLLECTION_NESTING_DEPTH } from '../mock-data-generator-modal/utils';
 import {
   buildChartsUrl,
@@ -61,7 +57,8 @@ type CollectionHeaderActionsProps = {
   hasSchemaAnalysisData: boolean;
   schemaAnalysisError: SchemaAnalysisError | null;
   analyzedSchemaDepth: number;
-  schemaAnalysisStatus: SchemaAnalysisStatus | null;
+  isCollectionEmpty: boolean;
+  hasUnsupportedStateError: boolean;
 };
 
 const CollectionHeaderActions: React.FunctionComponent<
@@ -76,8 +73,9 @@ const CollectionHeaderActions: React.FunctionComponent<
   onOpenMockDataModal,
   hasSchemaAnalysisData,
   analyzedSchemaDepth,
-  schemaAnalysisStatus,
   schemaAnalysisError,
+  isCollectionEmpty,
+  hasUnsupportedStateError,
 }: CollectionHeaderActionsProps) => {
   const connectionInfo = useConnectionInfo();
   const { id: connectionId, atlasMetadata } = connectionInfo;
@@ -117,21 +115,13 @@ const CollectionHeaderActions: React.FunctionComponent<
   const exceedsMaxNestingDepth =
     analyzedSchemaDepth > MAX_COLLECTION_NESTING_DEPTH;
 
-  const isCollectionEmpty =
-    !hasSchemaAnalysisData &&
-    schemaAnalysisStatus !== SCHEMA_ANALYSIS_STATE_ANALYZING;
-
-  const hasSchemaAnalysisUnsupportedStateError = Boolean(
-    schemaAnalysisError && schemaAnalysisError.errorType === 'unsupportedState'
-  );
-
   const isView = isReadonly && sourceName && !editViewName;
 
   const showViewEdit = isView && !preferencesReadWrite;
   const shouldDisableMockDataButton =
     !hasSchemaAnalysisData ||
     exceedsMaxNestingDepth ||
-    hasSchemaAnalysisUnsupportedStateError;
+    hasUnsupportedStateError;
 
   const onMockDataGeneratorCtaButtonClicked = useCallback(() => {
     track('Mock Data Generator Opened', {
@@ -189,7 +179,7 @@ const CollectionHeaderActions: React.FunctionComponent<
           enabled={
             exceedsMaxNestingDepth ||
             isCollectionEmpty ||
-            hasSchemaAnalysisUnsupportedStateError
+            hasUnsupportedStateError
           }
           trigger={
             <div>
@@ -206,7 +196,7 @@ const CollectionHeaderActions: React.FunctionComponent<
           }
         >
           <>
-            {hasSchemaAnalysisUnsupportedStateError ? (
+            {hasUnsupportedStateError ? (
               <span className={tooltipMessageStyles}>
                 {schemaAnalysisError?.errorMessage}
               </span>

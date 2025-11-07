@@ -31,8 +31,45 @@ import {
   SCHEMA_ANALYSIS_STATE_INITIAL,
   SCHEMA_ANALYSIS_STATE_ERROR,
   SCHEMA_ANALYSIS_STATE_COMPLETE,
+  SCHEMA_ANALYSIS_STATE_ANALYZING,
 } from '../schema-analysis-types';
 import type { CollectionState } from '../modules/collection-tab';
+
+/**
+ * Determines if collection has valid schema analysis data.
+ * Returns true when analysis is complete and has processed schema data.
+ */
+export function selectHasSchemaAnalysisData(state: CollectionState): boolean {
+  return !!(
+    state.schemaAnalysis &&
+    state.schemaAnalysis.status === SCHEMA_ANALYSIS_STATE_COMPLETE &&
+    Object.keys(state.schemaAnalysis.processedSchema).length > 0
+  );
+}
+
+/**
+ * Determines if schema analysis error is of 'unsupportedState' type.
+ * Used for showing specific error messages and disabling certain features.
+ */
+export function selectHasUnsupportedStateError(
+  state: CollectionState
+): boolean {
+  return (
+    state.schemaAnalysis?.status === SCHEMA_ANALYSIS_STATE_ERROR &&
+    state.schemaAnalysis?.error?.errorType === 'unsupportedState'
+  );
+}
+
+/**
+ * Determines if collection appears empty (no schema data and not analyzing).
+ * Used for UI states and button enabling/disabling.
+ */
+export function selectIsCollectionEmpty(state: CollectionState): boolean {
+  return (
+    !selectHasSchemaAnalysisData(state) &&
+    state.schemaAnalysis?.status !== SCHEMA_ANALYSIS_STATE_ANALYZING
+  );
+}
 
 /**
  * Determines if schema analysis should be re-triggered after document insertion.
@@ -40,12 +77,17 @@ import type { CollectionState } from '../modules/collection-tab';
  * 1. Previous analysis failed (error state)
  * 2. Analysis completed but no schema data (empty collection)
  */
-function shouldRetriggerSchemaAnalysis(state: CollectionState): boolean {
+export function selectShouldRetriggerSchemaAnalysis(
+  state: CollectionState
+): boolean {
+  // Don't retrigger if already analyzing
+  if (state.schemaAnalysis?.status === SCHEMA_ANALYSIS_STATE_ANALYZING) {
+    return false;
+  }
+
   return (
-    state.schemaAnalysis.status === SCHEMA_ANALYSIS_STATE_ERROR ||
-    (state.schemaAnalysis.status === SCHEMA_ANALYSIS_STATE_COMPLETE &&
-      (!state.schemaAnalysis.processedSchema ||
-        Object.keys(state.schemaAnalysis.processedSchema).length === 0))
+    state.schemaAnalysis?.status === SCHEMA_ANALYSIS_STATE_ERROR ||
+    !selectHasSchemaAnalysisData(state)
   );
 }
 
@@ -211,7 +253,7 @@ export function activatePlugin(
         payload.ns === namespace
       ) {
         const currentState = store.getState();
-        if (shouldRetriggerSchemaAnalysis(currentState)) {
+        if (selectShouldRetriggerSchemaAnalysis(currentState)) {
           // Check if user is in Mock Data Generator experiment variant before re-triggering
           shouldRunSchemaAnalysis(experimentationServices, logger, namespace)
             .then((shouldRun) => {
