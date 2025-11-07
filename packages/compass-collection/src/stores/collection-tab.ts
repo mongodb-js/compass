@@ -213,19 +213,22 @@ export function activatePlugin(
         const currentState = store.getState();
         if (shouldRetriggerSchemaAnalysis(currentState)) {
           // Check if user is in Mock Data Generator experiment variant before re-triggering
-          void shouldRunSchemaAnalysis(
-            experimentationServices,
-            logger,
-            namespace
-          ).then((shouldRun) => {
-            if (shouldRun) {
-              logger.debug(
-                'Re-triggering schema analysis after document insertion',
-                { namespace }
-              );
-              void store.dispatch(analyzeCollectionSchema());
-            }
-          });
+          shouldRunSchemaAnalysis(experimentationServices, logger, namespace)
+            .then((shouldRun) => {
+              if (shouldRun) {
+                logger.debug(
+                  'Re-triggering schema analysis after document insertion',
+                  { namespace }
+                );
+                void store.dispatch(analyzeCollectionSchema());
+              }
+            })
+            .catch((error) => {
+              logger.debug('Error checking schema analysis experiment', {
+                namespace: namespace,
+                error: error instanceof Error ? error.message : String(error),
+              });
+            });
         }
       }
     }
