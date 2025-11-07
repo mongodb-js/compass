@@ -655,10 +655,6 @@ async function startCompassElectron(
     process.env.HADRON_PRODUCT_NAME_OVERRIDE = 'MongoDB Compass WebdriverIO';
   }
 
-  // TODO(COMPASS-9977) Turn off virtual scrolling in e2e tests until we can fix
-  // browser.scrollToVirtualItem() to work with it
-  process.env.COMPASS_DISABLE_VIRTUAL_TABLE_RENDERING = 'true';
-
   const options = {
     automationProtocol: 'webdriver' as const,
     capabilities: {
@@ -1094,6 +1090,10 @@ async function setSharedConfigOnStart(browser: CompassBrowser) {
     // Compass in a way where changing this config is not allowed
     return true;
   });
+
+  // TODO(COMPASS-9977) Turn off virtual scrolling in e2e tests until we can fix
+  // browser.scrollToVirtualItem() to work with it
+  await browser.setEnv('COMPASS_DISABLE_VIRTUAL_TABLE_RENDERING', 'true');
 }
 
 export async function init(
