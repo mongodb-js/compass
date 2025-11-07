@@ -17,11 +17,15 @@ import { inspect } from 'util';
  * @param browser The CompassBrowser instance
  * @param key The environment variable name
  * @param value The environment variable value
+ * @param dangerouslySkipWaitFor If true will not wait for process.env value in the app to
+ * equal requested value. This is not recommended, don't use it unless you know
+ * what you're doing
  */
 export async function setEnv(
   browser: CompassBrowser,
   key: string,
-  value: string
+  value: string,
+  dangerouslySkipWaitFor?: boolean
 ): Promise<void> {
   let latestValue: string | undefined;
   try {
@@ -58,7 +62,7 @@ export async function setEnv(
         // will fail inside browser.execute, this is a good indicator that the
         // app is not ready yet for setEnv to be called. Return `false` to wait
         // a bit more
-        return false;
+        return dangerouslySkipWaitFor ?? false;
       }
     });
   } catch (err) {

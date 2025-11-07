@@ -77,6 +77,10 @@ describe('Auto-update', function () {
         // run the app again and check that the version changed
         const compass = await init(`${testName} restart`, {
           firstRun: false,
+          // smoketests that are running this suite are using the version of the
+          // compass that doesn't have the methods needed to set env in shared
+          // config. It's safe to skip taking into account the test being used
+          dangerouslySkipSharedConfigWaitFor: true,
         });
         const { browser } = compass;
         try {
