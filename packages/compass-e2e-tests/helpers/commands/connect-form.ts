@@ -15,10 +15,10 @@ const debug = Debug('compass-e2e-tests');
 export async function resetConnectForm(browser: CompassBrowser): Promise<void> {
   if (await browser.$(Selectors.ConnectionModal).isDisplayed()) {
     await browser.clickVisible(Selectors.ConnectionModalCloseButton);
-    await browser
-      .$(Selectors.ConnectionModal)
-      .waitForDisplayed({ reverse: true });
   }
+  await browser
+    .$(Selectors.ConnectionModal)
+    .waitForClickable({ reverse: true });
 
   await browser.clickVisible(Selectors.SidebarNewConnectionButton);
 
