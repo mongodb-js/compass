@@ -270,7 +270,9 @@ describe('MongoDB Assistant', function () {
 
         await optInModal.waitForDisplayed({ reverse: true });
 
-        expect(await getDisplayedMessages(browser)).to.deep.equal([]);
+        expect(
+          await browser.$(Selectors.AssistantChatMessages).isDisplayed()
+        ).equals(false);
       });
 
       it('should display opt-in modal for explain plan entry point', async function () {
