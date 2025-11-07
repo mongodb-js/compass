@@ -145,8 +145,7 @@ export const FEATURE_FLAG_DEFINITIONS = [
   {
     name: 'enableDataModelingCollapse',
     stage: 'development',
-    atlasCloudFeatureFlagName:
-      'DATA_EXPLORER_COMPASS_WEB_ENABLE_DATA_MODELING_COLLAPSE',
+    atlasCloudFeatureFlagName: null,
     description: {
       short: 'Enable Collapse / Expand functionality in Data Modeling',
     },
