@@ -680,4 +680,192 @@ describe('Collection Tab Content store', function () {
       expect(analyzeCollectionSchemaStub).to.not.have.been.called;
     });
   });
+
+  describe('import-finished event listener', function () {
+    it('should re-trigger schema analysis when import is completed for current collection', async function () {
+      const getAssignment = sandbox.spy(() =>
+        Promise.resolve(
+          createMockAssignment(ExperimentTestGroup.mockDataGeneratorVariant)
+        )
+      );
+      const assignExperiment = sandbox.spy(() => Promise.resolve(null));
+
+      const store = await configureStore(
+        undefined,
+        undefined,
+        { getAssignment, assignExperiment },
+        mockAtlasConnectionInfo,
+        undefined,
+        undefined,
+        { ...defaultMetadata, isReadonly: false, isTimeSeries: false }
+      );
+
+      // Wait for initial schema analysis to complete
+      await waitFor(() => {
+        expect(analyzeCollectionSchemaStub).to.have.been.calledOnce;
+      });
+
+      // Reset the stub to track new calls
+      analyzeCollectionSchemaStub.resetHistory();
+
+      // Simulate the empty collection
+      store.dispatch({
+        type: 'compass-collection/SchemaAnalysisFailed',
+        error: new Error('No documents found'),
+      });
+
+      // Emit import-finished event
+      globalAppRegistry.emit(
+        'import-finished',
+        {
+          ns: defaultMetadata.namespace,
+          connectionId: mockAtlasConnectionInfo.current.id,
+        },
+        { connectionId: mockAtlasConnectionInfo.current.id }
+      );
+
+      // Wait for schema analysis to be re-triggered
+      await waitFor(() => {
+        expect(analyzeCollectionSchemaStub).to.have.been.calledOnce;
+      });
+    });
+
+    it('should not re-trigger schema analysis for different collection', async function () {
+      const getAssignment = sandbox.spy(() =>
+        Promise.resolve(
+          createMockAssignment(ExperimentTestGroup.mockDataGeneratorVariant)
+        )
+      );
+      const assignExperiment = sandbox.spy(() => Promise.resolve(null));
+
+      const store = await configureStore(
+        undefined,
+        undefined,
+        { getAssignment, assignExperiment },
+        mockAtlasConnectionInfo,
+        undefined,
+        undefined,
+        { ...defaultMetadata, isReadonly: false, isTimeSeries: false }
+      );
+
+      // Wait for initial schema analysis to complete
+      await waitFor(() => {
+        expect(analyzeCollectionSchemaStub).to.have.been.calledOnce;
+      });
+
+      // Reset the stub to track new calls
+      analyzeCollectionSchemaStub.resetHistory();
+
+      // Simulate the empty collection
+      store.dispatch({
+        type: 'compass-collection/SchemaAnalysisFailed',
+        error: new Error('No documents found'),
+      });
+
+      // Emit import-finished event for different collection
+      globalAppRegistry.emit(
+        'import-finished',
+        {
+          ns: 'different.collection',
+          connectionId: mockAtlasConnectionInfo.current.id,
+        },
+        { connectionId: mockAtlasConnectionInfo.current.id }
+      );
+
+      // Wait a bit to ensure no action is taken
+      await new Promise((resolve) => setTimeout(resolve, WAIT_TIME));
+      expect(analyzeCollectionSchemaStub).to.not.have.been.called;
+    });
+
+    it('should not re-trigger schema analysis for different connection', async function () {
+      const getAssignment = sandbox.spy(() =>
+        Promise.resolve(
+          createMockAssignment(ExperimentTestGroup.mockDataGeneratorVariant)
+        )
+      );
+      const assignExperiment = sandbox.spy(() => Promise.resolve(null));
+
+      const store = await configureStore(
+        undefined,
+        undefined,
+        { getAssignment, assignExperiment },
+        mockAtlasConnectionInfo,
+        undefined,
+        undefined,
+        { ...defaultMetadata, isReadonly: false, isTimeSeries: false }
+      );
+
+      // Wait for initial schema analysis to complete
+      await waitFor(() => {
+        expect(analyzeCollectionSchemaStub).to.have.been.calledOnce;
+      });
+
+      // Reset the stub to track new calls
+      analyzeCollectionSchemaStub.resetHistory();
+
+      // Simulate the empty collection
+      store.dispatch({
+        type: 'compass-collection/SchemaAnalysisFailed',
+        error: new Error('No documents found'),
+      });
+
+      // Emit import-finished event for different connection
+      globalAppRegistry.emit(
+        'import-finished',
+        {
+          ns: defaultMetadata.namespace,
+          connectionId: 'different-connection-id',
+        },
+        { connectionId: 'different-connection-id' }
+      );
+
+      // Wait a bit to ensure no action is taken
+      await new Promise((resolve) => setTimeout(resolve, WAIT_TIME));
+      expect(analyzeCollectionSchemaStub).to.not.have.been.called;
+    });
+
+    it('should not re-trigger schema analysis when user is not in experiment variant', async function () {
+      const getAssignment = sandbox.spy(() =>
+        Promise.resolve(
+          createMockAssignment(ExperimentTestGroup.mockDataGeneratorControl)
+        )
+      );
+      const assignExperiment = sandbox.spy(() => Promise.resolve(null));
+
+      await configureStore(
+        undefined,
+        undefined,
+        { getAssignment, assignExperiment },
+        mockAtlasConnectionInfo
+      );
+
+      // Wait for initial assignment check
+      await waitFor(() => {
+        expect(getAssignment).to.have.been.calledOnce;
+      });
+
+      // Schema analysis should not have been called initially
+      expect(analyzeCollectionSchemaStub).to.not.have.been.called;
+
+      // Verify the schema analysis state is INITIAL (as expected for control variant)
+      const initialState = store.getState() as {
+        schemaAnalysis: { status: string };
+      };
+      expect(initialState.schemaAnalysis.status).to.equal('initial');
+
+      // Emit import-finished event
+      globalAppRegistry.emit(
+        'import-finished',
+        {
+          ns: defaultMetadata.namespace,
+          connectionId: mockAtlasConnectionInfo.current.id,
+        },
+        { connectionId: mockAtlasConnectionInfo.current.id }
+      );
+
+      // Wait a bit to ensure schema analysis is not called
+      await new Promise((resolve) => setTimeout(resolve, WAIT_TIME));
+      expect(analyzeCollectionSchemaStub).to.not.have.been.called;
+    });
+  });
 });

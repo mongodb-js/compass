@@ -233,6 +233,28 @@ export function activatePlugin(
     store.dispatch(selectTab('Schema'));
   });
 
+  const handleSchemaAnalysisRetrigger = (eventType: string) => {
+    const currentState = store.getState();
+    if (selectShouldRetriggerSchemaAnalysis(currentState)) {
+      // Check if user is in Mock Data Generator experiment variant before re-triggering
+      shouldRunSchemaAnalysis(experimentationServices, logger, namespace)
+        .then((shouldRun) => {
+          if (shouldRun) {
+            logger.debug(`Re-triggering schema analysis after ${eventType}`, {
+              namespace,
+            });
+            void store.dispatch(analyzeCollectionSchema());
+          }
+        })
+        .catch((error) => {
+          logger.debug('Error checking schema analysis experiment', {
+            namespace: namespace,
+            error: error instanceof Error ? error.message : String(error),
+          });
+        });
+    }
+  };
+
   // Listen for document insertions to re-trigger schema analysis for previously empty collections
   on(
     globalAppRegistry,
@@ -252,26 +274,28 @@ export function activatePlugin(
         connectionId === connectionInfoRef.current.id &&
         payload.ns === namespace
       ) {
-        const currentState = store.getState();
-        if (selectShouldRetriggerSchemaAnalysis(currentState)) {
-          // Check if user is in Mock Data Generator experiment variant before re-triggering
-          shouldRunSchemaAnalysis(experimentationServices, logger, namespace)
-            .then((shouldRun) => {
-              if (shouldRun) {
-                logger.debug(
-                  'Re-triggering schema analysis after document insertion',
-                  { namespace }
-                );
-                void store.dispatch(analyzeCollectionSchema());
-              }
-            })
-            .catch((error) => {
-              logger.debug('Error checking schema analysis experiment', {
-                namespace: namespace,
-                error: error instanceof Error ? error.message : String(error),
-              });
-            });
-        }
+        handleSchemaAnalysisRetrigger('document insertion');
+      }
+    }
+  );
+
+  // Listen for import completion to re-trigger schema analysis for previously empty collections
+  on(
+    globalAppRegistry,
+    'import-finished',
+    (
+      payload: {
+        ns: string;
+        connectionId?: string;
+      },
+      { connectionId }: { connectionId?: string } = {}
+    ) => {
+      // Ensure event is for the current connection and namespace
+      if (
+        connectionId === connectionInfoRef.current.id &&
+        payload.ns === namespace
+      ) {
+        handleSchemaAnalysisRetrigger('import finished');
       }
     }
   );
