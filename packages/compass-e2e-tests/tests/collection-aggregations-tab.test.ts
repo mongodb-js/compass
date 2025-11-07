@@ -194,7 +194,7 @@ describe('Collection aggregations tab', function () {
       expectedAggregations.push('$rankFusion');
     }
 
-    if (serverSatisfies('>=8.3.0-alpha0')) {
+    if (serverSatisfies('>=8.2')) {
       expectedAggregations.push('$scoreFusion');
     }
 
