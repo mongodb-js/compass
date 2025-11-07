@@ -4,7 +4,10 @@ import { selectTab } from '../modules/collection-tab';
 import * as collectionTabModule from '../modules/collection-tab';
 import { waitFor } from '@mongodb-js/testing-library-compass';
 import Sinon from 'sinon';
-import AppRegistry from '@mongodb-js/compass-app-registry';
+import type { ActivateHelpers } from '@mongodb-js/compass-app-registry';
+import AppRegistry, {
+  createActivateHelpers,
+} from '@mongodb-js/compass-app-registry';
 import { expect } from 'chai';
 import type { workspacesServiceLocator } from '@mongodb-js/compass-workspaces/provider';
 import type { ExperimentationServices } from '@mongodb-js/compass-telemetry/provider';
@@ -94,36 +97,10 @@ describe('Collection Tab Content store', function () {
     .stub(collectionTabModule, 'analyzeCollectionSchema')
     .returns(async () => {});
 
-  // Track event listeners for proper cleanup
-  const eventListeners: Array<{
-    registry: AppRegistry;
-    eventName: string;
-    listener: (...args: unknown[]) => void;
-  }> = [];
+  let mockActivateHelpers: ActivateHelpers;
 
-  const mockActivateHelpers = {
-    on: sandbox.spy(
-      (
-        registry: AppRegistry,
-        eventName: string,
-        listener: (...args: unknown[]) => void
-      ) => {
-        registry.on(eventName, listener);
-        eventListeners.push({ registry, eventName, listener });
-      }
-    ),
-    cleanup: sandbox.spy(() => {
-      // Remove all tracked event listeners
-      eventListeners.forEach(({ registry, eventName, listener }) => {
-        registry.removeListener(eventName, listener);
-      });
-      eventListeners.length = 0;
-    }),
-    addCleanup: sandbox.spy(),
-  };
-
-  const dataService = {} as never;
-  const atlasAiService = {} as never;
+  const dataService = {} as any;
+  const atlasAiService = {} as any;
   let store: ReturnType<typeof activatePlugin>['store'];
   let deactivate: ReturnType<typeof activatePlugin>['deactivate'];
 
@@ -161,14 +138,14 @@ describe('Collection Tab Content store', function () {
         atlasAiService,
         localAppRegistry,
         globalAppRegistry,
-        collection: mockCollection as never,
-        workspaces: workspaces as never,
-        experimentationServices: experimentationServices as never,
-        connectionInfoRef: connectionInfoRef as never,
+        collection: mockCollection as any,
+        workspaces: workspaces as any,
+        experimentationServices: experimentationServices as any,
+        connectionInfoRef: connectionInfoRef as any,
         logger,
         preferences,
       },
-      mockActivateHelpers as never
+      mockActivateHelpers
     ));
     await waitFor(() => {
       expect(store.getState())
@@ -177,6 +154,10 @@ describe('Collection Tab Content store', function () {
     });
     return store;
   };
+
+  beforeEach(function () {
+    mockActivateHelpers = createActivateHelpers();
+  });
 
   afterEach(function () {
     mockActivateHelpers.cleanup();
@@ -194,7 +175,7 @@ describe('Collection Tab Content store', function () {
         { openCollectionWorkspaceSubtab },
         { assignExperiment }
       );
-      store.dispatch(selectTab('Documents') as never);
+      store.dispatch(selectTab('Documents') as any);
       expect(openCollectionWorkspaceSubtab).to.have.been.calledWith(
         'workspace-tab-id',
         'Documents'
@@ -508,7 +489,7 @@ describe('Collection Tab Content store', function () {
       });
 
       // Dispatch cancel action
-      store.dispatch(collectionTabModule.cancelSchemaAnalysis() as never);
+      store.dispatch(collectionTabModule.cancelSchemaAnalysis() as any);
 
       // Verify the state is reset to initial
       expect(
@@ -549,7 +530,7 @@ describe('Collection Tab Content store', function () {
       store.dispatch({
         type: 'compass-collection/SchemaAnalysisFailed',
         error: new Error('No documents found'),
-      } as never);
+      } as any);
 
       // Trigger the document-inserted event
       globalAppRegistry.emit(
