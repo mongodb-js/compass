@@ -3,7 +3,6 @@ import React, {
   useLayoutEffect,
   useMemo,
   useRef,
-  useState,
   useContext,
 } from 'react';
 import { ObjectId } from 'bson';
@@ -166,6 +165,12 @@ const DocumentViewComponent: React.FunctionComponent<
     return null;
   }
 
+  const tableColumnData = useContext(
+    CollectionTabComponentsContext
+  ).tableColumnData;
+  const workspaceTabId = useWorkspaceTabId();
+  const columnDefs = tableColumnData[workspaceTabId] || null;
+
   if (props.view === 'List') {
     return (
       <VirtualizedDocumentListView
@@ -190,6 +195,9 @@ const DocumentViewComponent: React.FunctionComponent<
           key={props.darkMode ? 'dark' : 'light'}
           {...props}
           className={tableStyles}
+          tableColumnData={tableColumnData}
+          workspaceTabId={workspaceTabId}
+          columnDefs={columnDefs}
         />
       </>
     );
@@ -327,11 +335,6 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
     docsPerPage,
     updateMaxDocumentsPerPage,
   } = props;
-
-  const tableColumnData = useContext(
-    CollectionTabComponentsContext
-  ).tableColumnData;
-  const workspaceTabId = useWorkspaceTabId();
 
   const onOpenInsert = useCallback(
     (key: 'insert-document' | 'import-file') => {
@@ -496,8 +499,6 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
               initialScrollTop={currentViewInitialScrollTop}
               scrollableContainerRef={scrollRef}
               scrollTriggerRef={scrollTriggerRef}
-              workspaceTabId={workspaceTabId}
-              tableColumnData={tableColumnData}
             />
           );
         }

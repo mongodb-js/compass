@@ -74,6 +74,7 @@ export type DocumentTableViewProps = {
   className?: string;
   darkMode?: boolean;
   tableColumnData: Record<string, ColumnState[]>;
+  columnDefs: ColDef[] | null;
 };
 
 export type GridContext = {
@@ -134,6 +135,7 @@ class DocumentTableView extends React.Component<DocumentTableViewProps> {
           }
           return params.nextCellDef;
         },
+        columnDefs: this.props.columnDefs,
       },
       onGridReady: this.onGridReady.bind(this),
       isFullWidthCell: function (rowNode) {
@@ -174,8 +176,6 @@ class DocumentTableView extends React.Component<DocumentTableViewProps> {
   }
 
   componentDidUpdate(prevProps: DocumentTableViewProps) {
-    this.setGridColumns();
-
     this.handleBreadcrumbChange();
 
     // @note: Durran: Since all the values are getting passed down as props now
@@ -226,8 +226,21 @@ class DocumentTableView extends React.Component<DocumentTableViewProps> {
    */
   onColumnResized(event: ColumnResizedEvent) {
     if (event.finished) {
-      this.props.tableColumnData[this.props.workspaceTabId] =
-        this.columnApi.getColumnState();
+      const columnDefs = this.columnApi.columnController.columnDefs;
+      const columnState = this.columnApi.getColumnState();
+
+      const columnWidths = columnState.reduce((acc, curr) => {
+        acc[curr.colId] = curr.width;
+        return acc;
+      }, {});
+
+      for (const columnDef of columnDefs) {
+        if (columnWidths[columnDef.colId] !== undefined) {
+          columnDef.width = columnWidths[columnDef.colId];
+        }
+      }
+
+      this.props.tableColumnData[this.props.workspaceTabId] = columnDefs;
     }
   }
 
@@ -605,23 +618,6 @@ class DocumentTableView extends React.Component<DocumentTableViewProps> {
         );
       }
     }
-  }
-
-  // TODO: Determine when setGridColumns can be ran so that column widths are set at first "paint"
-  /**
-   * When the component is updated, handle setting updated column widths
-   */
-  setGridColumns() {
-    if (
-      !this.props.tableColumnData?.[this.props.workspaceTabId] ||
-      !this.columnApi
-    ) {
-      return;
-    }
-
-    this.columnApi.setColumnState(
-      this.props.tableColumnData[this.props.workspaceTabId]
-    );
   }
 
   /**
