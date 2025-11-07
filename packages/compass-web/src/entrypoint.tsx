@@ -48,7 +48,10 @@ import type {
   AllPreferences,
   AtlasCloudFeatureFlags,
 } from 'compass-preferences-model/provider';
-import { PreferencesProvider } from 'compass-preferences-model/provider';
+import {
+  PreferencesProvider,
+  usePreferences,
+} from 'compass-preferences-model/provider';
 import FieldStorePlugin from '@mongodb-js/compass-field-store';
 import {
   atlasServiceLocator,
@@ -56,7 +59,10 @@ import {
 } from '@mongodb-js/atlas-service/provider';
 import { AtlasAiServiceProvider } from '@mongodb-js/compass-generative-ai/provider';
 import { LoggerProvider } from '@mongodb-js/compass-logging/provider';
-import { TelemetryProvider } from '@mongodb-js/compass-telemetry/provider';
+import {
+  TelemetryProvider,
+  useTelemetry,
+} from '@mongodb-js/compass-telemetry/provider';
 import CompassConnections from '@mongodb-js/compass-connections';
 import { AtlasCloudConnectionStorageProvider } from './connection-storage';
 import { AtlasCloudAuthServiceProvider } from './atlas-auth-service';
@@ -392,6 +398,83 @@ const connectedContainerStyles = css({
   display: 'flex',
 });
 
+const CompassComponentsProviderWeb: React.FunctionComponent<{
+  darkMode?: boolean;
+}> = ({ darkMode, children }) => {
+  const track = useTelemetry();
+  const { enableContextMenus, enableGuideCues } = usePreferences([
+    'enableContextMenus',
+    'enableGuideCues',
+  ]);
+  return (
+    <CompassComponentsProvider
+      darkMode={darkMode}
+      // Making sure that compass-web modals and tooltips are definitely not
+      // hidden by Cloud UI sidebar and page header
+      stackedElementsZIndex={10_000}
+      onNextGuideGue={(cue) => {
+        track('Guide Cue Dismissed', {
+          groupId: cue.groupId,
+          cueId: cue.cueId,
+          step: cue.step,
+        });
+      }}
+      onNextGuideCueGroup={(cue) => {
+        if (cue.groupSteps !== cue.step) {
+          track('Guide Cue Group Dismissed', {
+            groupId: cue.groupId,
+            cueId: cue.cueId,
+            step: cue.step,
+          });
+        }
+      }}
+      onContextMenuOpen={(itemGroups) => {
+        if (itemGroups.length > 0) {
+          track('Context Menu Opened', {
+            item_groups: itemGroups.map((group) => group.telemetryLabel),
+          });
+        }
+      }}
+      onContextMenuItemClick={(itemGroup, item) => {
+        track('Context Menu Item Clicked', {
+          item_group: itemGroup.telemetryLabel,
+          item_label: item.label,
+        });
+      }}
+      onDrawerSectionOpen={(drawerSectionId) => {
+        track('Drawer Section Opened', {
+          sectionId: drawerSectionId,
+        });
+      }}
+      onDrawerSectionHide={(drawerSectionId) => {
+        track('Drawer Section Closed', {
+          sectionId: drawerSectionId,
+        });
+      }}
+      onSignalMount={(id) => {
+        track('Signal Shown', { id });
+      }}
+      onSignalOpen={(id) => {
+        track('Signal Opened', { id });
+      }}
+      onSignalPrimaryActionClick={(id) => {
+        track('Signal Action Button Clicked', { id });
+      }}
+      onSignalLinkClick={(id) => {
+        track('Signal Link Clicked', { id });
+      }}
+      onSignalClose={(id) => {
+        track('Signal Closed', { id });
+      }}
+      disableContextMenus={!enableContextMenus}
+      disableGuideCues={!enableGuideCues}
+      {...LINK_PROPS}
+    >
+      {children}
+    </CompassComponentsProvider>
+  );
+};
+
 /** @public */
 const CompassWeb = ({
   appName,
@@ -461,70 +544,10 @@ const CompassWeb = ({
   return (
     <GlobalAppRegistryProvider value={appRegistry.current}>
       <AppRegistryProvider scopeName="Compass Web Root">
-        <CompassComponentsProvider
-          darkMode={darkMode}
-          // Making sure that compass-web modals and tooltips are definitely not
-          // hidden by Cloud UI sidebar and page header
-          stackedElementsZIndex={10_000}
-          onNextGuideGue={(cue) => {
-            onTrackRef.current?.('Guide Cue Dismissed', {
-              groupId: cue.groupId,
-              cueId: cue.cueId,
-              step: cue.step,
-            });
-          }}
-          onNextGuideCueGroup={(cue) => {
-            if (cue.groupSteps !== cue.step) {
-              onTrackRef.current?.('Guide Cue Group Dismissed', {
-                groupId: cue.groupId,
-                cueId: cue.cueId,
-                step: cue.step,
-              });
-            }
-          }}
-          onContextMenuOpen={(itemGroups) => {
-            if (itemGroups.length > 0) {
-              onTrackRef.current?.('Context Menu Opened', {
-                item_groups: itemGroups.map((group) => group.telemetryLabel),
-              });
-            }
-          }}
-          onContextMenuItemClick={(itemGroup, item) => {
-            onTrackRef.current?.('Context Menu Item Clicked', {
-              item_group: itemGroup.telemetryLabel,
-              item_label: item.label,
-            });
-          }}
-          onDrawerSectionOpen={(drawerSectionId) => {
-            onTrackRef.current?.('Drawer Section Opened', {
-              sectionId: drawerSectionId,
-            });
-          }}
-          onDrawerSectionHide={(drawerSectionId) => {
-            onTrackRef.current?.('Drawer Section Closed', {
-              sectionId: drawerSectionId,
-            });
-          }}
-          onSignalMount={(id) => {
-            onTrackRef.current?.('Signal Shown', { id });
-          }}
-          onSignalOpen={(id) => {
-            onTrackRef.current?.('Signal Opened', { id });
-          }}
-          onSignalPrimaryActionClick={(id) => {
-            onTrackRef.current?.('Signal Action Button Clicked', { id });
-          }}
-          onSignalLinkClick={(id) => {
-            onTrackRef.current?.('Signal Link Clicked', { id });
-          }}
-          onSignalClose={(id) => {
-            onTrackRef.current?.('Signal Closed', { id });
-          }}
-          {...LINK_PROPS}
-        >
-          <PreferencesProvider value={preferencesAccess.current}>
-            <LoggerProvider value={logger}>
-              <TelemetryProvider options={telemetryOptions.current}>
+        <PreferencesProvider value={preferencesAccess.current}>
+          <LoggerProvider value={logger}>
+            <TelemetryProvider options={telemetryOptions.current}>
+              <CompassComponentsProviderWeb darkMode={darkMode}>
                 <WithAtlasProviders>
                   <WithStorageProviders orgId={orgId} projectId={projectId}>
                     <DataModelStorageServiceProviderWeb
@@ -602,10 +625,10 @@ const CompassWeb = ({
                     </DataModelStorageServiceProviderWeb>
                   </WithStorageProviders>
                 </WithAtlasProviders>
-              </TelemetryProvider>
-            </LoggerProvider>
-          </PreferencesProvider>
-        </CompassComponentsProvider>
+              </CompassComponentsProviderWeb>
+            </TelemetryProvider>
+          </LoggerProvider>
+        </PreferencesProvider>
       </AppRegistryProvider>
     </GlobalAppRegistryProvider>
   );

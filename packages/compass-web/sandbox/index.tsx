@@ -126,6 +126,7 @@ const App = () => {
               optInGenAIFeatures:
                 overrideGenAIFeatures || (isAtlas && !!optInGenAIFeatures),
               enableDataModeling: true,
+              enableDataModelingCollapse: true,
               enableMyQueries: isAtlas,
               ...groupRolePreferences,
             }}
