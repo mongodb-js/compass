@@ -1330,11 +1330,11 @@ export const ConfirmationModalInput = `${ConfirmationModal} input`;
 
 export const confirmationModalConfirmButton = (
   modalSelector = ConfirmationModal
-) => `${modalSelector} [role=dialog] [data-testid*="confirm_button"]`;
+) => `${modalSelector} [data-testid*="confirm_button"]`;
 
 export const confirmationModalCancelButton = (
   modalSelector = ConfirmationModal
-) => `${modalSelector} [role=dialog] [data-testid*="cancel_button"]`;
+) => `${modalSelector} [data-testid*="cancel_button"]`;
 
 // New pipeline from text modal
 export const NewPipelineFromTextModal = '[data-testid="import-pipeline-modal"]';
