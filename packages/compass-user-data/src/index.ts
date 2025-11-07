@@ -1,3 +1,8 @@
-export type { ReadAllResult } from './user-data';
-export { IUserData, FileUserData, AtlasUserData } from './user-data';
+export type { ReadAllResult, UserDataType } from './user-data';
+export {
+  IUserData,
+  FileUserData,
+  AtlasUserData,
+  assertsUserDataType,
+} from './user-data';
 export { z } from 'zod';
