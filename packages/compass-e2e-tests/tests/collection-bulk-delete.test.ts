@@ -90,6 +90,9 @@ describe('Bulk Delete', function () {
 
     // Press delete in the confirmation modal
     await browser.clickVisible(Selectors.confirmationModalConfirmButton());
+    await browser
+      .$(Selectors.BulkDeleteModal)
+      .waitForDisplayed({ reverse: true });
     await browser.runFindOperation('Documents', '{ i: 5 }');
 
     // Check the telemetry
