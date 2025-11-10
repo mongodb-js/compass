@@ -2247,7 +2247,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
     return indexToProgress;
   }
 
-  @op(mongoLogId(1_001_000_380))
+  @op(mongoLogId(1_001_000_381))
   async fetchShardKey(
     ns: string,
     options: Omit<FindOptions, 'projection'> = {},
