@@ -14,6 +14,12 @@ export async function resizeWindow(
   height: number
 ): Promise<WindowSize> {
   let newSize: WindowSize | undefined | void;
+  // On macOS you can only change height as much as the system allows, so when
+  // on macOS, skip checking for the height matching what we requested. That's
+  // not great that we can't be sure that we got what we requested, but there's
+  // little we can do and generally speaking we usually mostly care about the
+  // width being big enough when resizing
+  const skipHeightCheck = process.platform === 'darwin';
   try {
     await browser.waitUntil(async () => {
       // Electron doesn't support setWindowSize, so we use a custom ipc handler
@@ -37,7 +43,7 @@ export async function resizeWindow(
       return (
         newSize &&
         isEqualWithMargin(newSize.width, width) &&
-        isEqualWithMargin(newSize.height, height)
+        (skipHeightCheck || isEqualWithMargin(newSize.height, height))
       );
     });
   } catch (err) {
