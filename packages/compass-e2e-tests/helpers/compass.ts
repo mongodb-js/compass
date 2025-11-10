@@ -425,6 +425,7 @@ interface StartCompassOptions {
   firstRun?: boolean;
   extraSpawnArgs?: string[];
   wrapBinary?: (binary: string) => Promise<string> | string;
+  dangerouslySkipSharedConfigWaitFor?: boolean;
 }
 
 let defaultUserDataDir: string | undefined;
@@ -654,10 +655,6 @@ async function startCompassElectron(
   if (!process.env.HADRON_AUTO_UPDATE_ENDPOINT_OVERRIDE) {
     process.env.HADRON_PRODUCT_NAME_OVERRIDE = 'MongoDB Compass WebdriverIO';
   }
-
-  // TODO(COMPASS-9977) Turn off virtual scrolling in e2e tests until we can fix
-  // browser.scrollToVirtualItem() to work with it
-  process.env.COMPASS_DISABLE_VIRTUAL_TABLE_RENDERING = 'true';
 
   const options = {
     automationProtocol: 'webdriver' as const,
@@ -1076,7 +1073,10 @@ function augmentError(error: Error, stack: string) {
   error.stack = `${error.stack ?? ''}\nvia ${strippedLines.join('\n')}`;
 }
 
-async function setSharedConfigOnStart(browser: CompassBrowser) {
+async function setSharedConfigOnStart(
+  browser: CompassBrowser,
+  dangerouslySkipSharedConfigWaitFor = false
+) {
   // Guide cues might affect too many tests in a way where the auto showing of
   // the cue prevents clicks from working on elements. Dealing with this
   // case-by-case is way too much work, so we disable the cues completely for
@@ -1094,6 +1094,14 @@ async function setSharedConfigOnStart(browser: CompassBrowser) {
     // Compass in a way where changing this config is not allowed
     return true;
   });
+
+  // TODO(COMPASS-9977) Turn off virtual scrolling in e2e tests until we can fix
+  // browser.scrollToVirtualItem() to work with it
+  await browser.setEnv(
+    'COMPASS_DISABLE_VIRTUAL_TABLE_RENDERING',
+    'true',
+    dangerouslySkipSharedConfigWaitFor
+  );
 }
 
 export async function init(
@@ -1112,7 +1120,10 @@ export async function init(
 
   const { browser } = compass;
 
-  await setSharedConfigOnStart(browser);
+  await setSharedConfigOnStart(
+    browser,
+    opts.dangerouslySkipSharedConfigWaitFor
+  );
 
   if (TEST_COMPASS_WEB) {
     // larger window for more consistent results
