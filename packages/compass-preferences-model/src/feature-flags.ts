@@ -140,6 +140,18 @@ export const FEATURE_FLAG_DEFINITIONS = [
   },
 
   /**
+   * Feature flag for Data Modeling Collapse / Expand functionality. Epic COMPASS-9625
+   */
+  {
+    name: 'enableDataModelingCollapse',
+    stage: 'development',
+    atlasCloudFeatureFlagName: null,
+    description: {
+      short: 'Enable Collapse / Expand functionality in Data Modeling',
+    },
+  },
+
+  /**
    * Feature flags for Early Journey Indexes Guidance & Awareness  | Jira Epic: CLOUDP-239367
    * These are passed from MMS and not editable by user
    */

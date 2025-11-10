@@ -11,7 +11,12 @@ import type {
   BrowserWindowConstructorOptions,
   FindInPageOptions,
 } from 'electron';
-import { app as electronApp, shell, BrowserWindow } from 'electron';
+import {
+  app as electronApp,
+  shell,
+  screen as electronScreen,
+  BrowserWindow,
+} from 'electron';
 import { enable } from '@electron/remote/main';
 
 import { createLogger, mongoLogId } from '@mongodb-js/compass-logging';
@@ -203,6 +208,20 @@ function showConnectWindow(
       ...(opts && opts.webPreferences),
     },
   };
+
+  const primaryDisplay = electronScreen.getPrimaryDisplay();
+  log.info(
+    mongoLogId(1_001_000_380),
+    'Window Manager',
+    'Creating new browser window',
+    {
+      options: windowOpts,
+      screenSize: {
+        width: primaryDisplay.workAreaSize.width,
+        height: primaryDisplay.workAreaSize.height,
+      },
+    }
+  );
 
   debug('creating new main window:', windowOpts);
   let window: BrowserWindow | null = new BrowserWindow(windowOpts);
