@@ -29,7 +29,6 @@ export function assertsUserDataType(
   if (!validUserDataTypes.includes(value as UserDataType)) {
     throw new Error(`Invalid UserDataType: ${String(value)}`);
   }
-  return;
 }
 
 type SerializeContent<I> = (content: I) => string;
