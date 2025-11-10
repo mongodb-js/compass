@@ -19,7 +19,10 @@ export { ConfirmationModalVariant };
 type ConfirmationModalProps = React.ComponentProps<typeof ConfirmationModal>;
 
 type ConfirmationProperties = Partial<
-  Pick<ConfirmationModalProps, 'title' | 'variant' | 'requiredInputText'>
+  Pick<
+    ConfirmationModalProps,
+    'title' | 'variant' | 'requiredInputText' | 'initialFocus'
+  >
 > & {
   buttonText?: React.ReactNode;
   confirmButtonProps?: Omit<ButtonProps, 'onClick'>;
@@ -197,6 +200,13 @@ const ConfirmationModalStateHandler: React.FunctionComponent = ({
           onClick: handleCancel,
         }}
         requiredInputText={confirmationProps.requiredInputText ?? undefined}
+        initialFocus={
+          confirmationProps.initialFocus ??
+          (confirmationProps.requiredInputText
+            ? 'auto'
+            : // TODO: Update this once https://jira.mongodb.org/browse/LG-5735 gets resolved
+              '[data-testid=lg-confirmation_modal-footer-cancel_button]')
+        }
       >
         {confirmationProps.description}
         {confirmationProps.warning && (

@@ -25,7 +25,7 @@ export const showErrorDetails = function showErrorDetails({
     buttonText: closeAction.replace(/\b\w/g, (c) => c.toUpperCase()),
     confirmButtonProps: {
       variant: ButtonVariant.Default,
-      autoFocus: true,
     },
+    initialFocus: '[data-testid=lg-confirmation_modal-footer-confirm_button]',
   });
 };
