@@ -18,7 +18,10 @@ export { ConfirmationModalVariant };
 type ConfirmationModalProps = React.ComponentProps<typeof ConfirmationModal>;
 
 type ConfirmationProperties = Partial<
-  Pick<ConfirmationModalProps, 'title' | 'variant' | 'requiredInputText'>
+  Pick<
+    ConfirmationModalProps,
+    'title' | 'variant' | 'requiredInputText' | 'initialFocus'
+  >
 > & {
   buttonText?: React.ReactNode;
   confirmButtonProps?: Omit<ButtonProps, 'onClick'>;
@@ -188,6 +191,7 @@ const ConfirmationModalStateHandler: React.FunctionComponent = ({
           children: confirmationProps.buttonText ?? 'Confirm',
           onClick: handleConfirm,
           ...confirmationProps.confirmButtonProps,
+          'data-lgid': 'lg-confirmation_modal-footer-confirm_button',
         }}
         cancelButtonProps={{
           className: confirmationProps.hideCancelButton
@@ -196,6 +200,10 @@ const ConfirmationModalStateHandler: React.FunctionComponent = ({
           onClick: handleCancel,
         }}
         requiredInputText={confirmationProps.requiredInputText ?? undefined}
+        initialFocus={
+          confirmationProps.initialFocus ??
+          '[data-lgid=lg-confirmation_modal-footer-confirm_button]'
+        }
       >
         {confirmationProps.description}
         {confirmationProps.warning && (
