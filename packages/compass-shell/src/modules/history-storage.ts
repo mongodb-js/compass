@@ -23,7 +23,7 @@ export class HistoryStorage {
     this.migrationChecked = true;
 
     const oldAppName = getAppName();
-    if (oldAppName && oldAppName !== 'ShellHistory') {
+    if (oldAppName) {
       await this.userData.migrateFromOldFolder(oldAppName);
     }
   }
