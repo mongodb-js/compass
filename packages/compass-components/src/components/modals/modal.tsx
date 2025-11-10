@@ -11,6 +11,9 @@ const styles = css({
   // content and this messes up the autocompleter within the modal. So we clear
   // the transform here.
   transform: 'none',
+  '&:not([open])': {
+    pointerEvents: 'none',
+  },
 });
 
 const fullScreenStyles = css({
