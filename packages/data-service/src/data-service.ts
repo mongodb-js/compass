@@ -1741,7 +1741,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
     filter: Filter<Document>,
     options: CountDocumentsOptions = {},
     executionOptions?: ExecutionOptions & {
-      fallbackReadPreference: ReadPreferenceMode;
+      fallbackReadPreference?: ReadPreferenceMode;
     }
   ): Promise<number> {
     return this._cancellableOperation(
