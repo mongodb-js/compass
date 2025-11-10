@@ -27,12 +27,10 @@ import type {
   GridActions,
   GridStoreTriggerParams,
   TableHeaderType,
-  GridColumnState,
 } from '../../stores/grid-store';
 import type {
   CellDoubleClickedEvent,
   ColDef,
-  ColumnState,
   ColumnApi,
   GridApi,
   GridCellDef,
@@ -41,6 +39,7 @@ import type {
   ValueGetterParams,
   ColumnResizedEvent,
 } from 'ag-grid-community';
+import type { TableDataObject } from '@mongodb-js/compass-workspaces/provider';
 
 const MIXED = 'Mixed' as const;
 
@@ -73,7 +72,7 @@ export type DocumentTableViewProps = {
   tz: string;
   className?: string;
   darkMode?: boolean;
-  tableColumnData: Record<string, ColumnState[]>;
+  tableData: TableDataObject;
   columnDefs: ColDef[] | null;
 };
 
@@ -240,7 +239,7 @@ class DocumentTableView extends React.Component<DocumentTableViewProps> {
         }
       }
 
-      this.props.tableColumnData[this.props.workspaceTabId] = columnDefs;
+      this.props.tableData.columnDefs = columnDefs;
     }
   }
 

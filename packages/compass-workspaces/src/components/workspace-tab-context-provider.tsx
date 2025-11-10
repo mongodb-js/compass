@@ -149,7 +149,7 @@ const WorkspaceTabContextProvider: React.FunctionComponent<
   }
 
   return (
-    <WorkspaceTabStateProvider id={tab.id}>
+    <WorkspaceTabStateProvider id={tab.id} tableData={tab.tableData}>
       <AppRegistryProvider
         key={tab.id}
         scopeName="Workspace Tab"

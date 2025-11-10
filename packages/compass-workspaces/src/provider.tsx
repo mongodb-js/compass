@@ -383,6 +383,8 @@ export { useWorkspacePlugins } from './components/workspaces-provider';
 export {
   useWorkspaceTabId,
   useTabState,
+  useWorkspaceTabTableData,
+  TableDataObject,
 } from './components/workspace-tab-state-provider';
 export {
   useOnTabClose,

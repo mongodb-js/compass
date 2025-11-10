@@ -40,7 +40,7 @@ import { getToolbarSignal } from '../utils/toolbar-signal';
 import BulkDeleteModal from './bulk-delete-modal';
 import {
   useTabState,
-  useWorkspaceTabId,
+  useWorkspaceTabTableData,
 } from '@mongodb-js/compass-workspaces/provider';
 import {
   useIsLastAppliedQueryOutdated,
@@ -48,7 +48,6 @@ import {
 } from '@mongodb-js/compass-query-bar';
 import { usePreferences } from 'compass-preferences-model/provider';
 import { useAssistantActions } from '@mongodb-js/compass-assistant';
-import { CollectionTabComponentsContext } from '@mongodb-js/compass-collection';
 
 // Table has its own scrollable container.
 const tableStyles = css({
@@ -165,11 +164,8 @@ const DocumentViewComponent: React.FunctionComponent<
     return null;
   }
 
-  const tableColumnData = useContext(
-    CollectionTabComponentsContext
-  ).tableColumnData;
-  const workspaceTabId = useWorkspaceTabId();
-  const columnDefs = tableColumnData[workspaceTabId] || null;
+  const tableData = useWorkspaceTabTableData();
+  const columnDefs = tableData.columnDefs.length ? tableData.columnDefs : null;
 
   if (props.view === 'List') {
     return (
@@ -195,8 +191,7 @@ const DocumentViewComponent: React.FunctionComponent<
           key={props.darkMode ? 'dark' : 'light'}
           {...props}
           className={tableStyles}
-          tableColumnData={tableColumnData}
-          workspaceTabId={workspaceTabId}
+          tableData={tableData}
           columnDefs={columnDefs}
         />
       </>

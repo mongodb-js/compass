@@ -9,8 +9,13 @@ import type { ReactReduxContextValue, TypedUseSelectorHook } from 'react-redux';
 import { Provider, createSelectorHook, createStoreHook } from 'react-redux';
 import type { AnyAction } from 'redux';
 import { createStore } from 'redux';
+import { ColDef } from 'ag-grid-community';
 
 type TabState = Record<string, Record<string, unknown>>;
+
+export type TableDataObject = {
+  columnDefs: ColDef[];
+};
 
 const SET_STATE = 'compass-workspaces/workspace-tab-state-provider/SET_STATE';
 
@@ -67,6 +72,11 @@ export const TabStateStoreContext = React.createContext<
 );
 
 const WorkspaceTabIdContext = React.createContext<string | null>(null);
+const WorkspaceTabTableColumnDefsContext = React.createContext<TableDataObject>(
+  {
+    columnDefs: [],
+  }
+);
 
 /**
  * Exported for testing purposes only
@@ -82,14 +92,18 @@ export const TabStoreProvider: React.FunctionComponent = ({ children }) => {
 
 export const WorkspaceTabStateProvider = ({
   id,
+  tableData,
   children,
 }: {
   id: string;
+  tableData: TableDataObject;
   children: React.ReactChild;
 }) => {
   return (
     <WorkspaceTabIdContext.Provider value={id}>
-      <TabStoreProvider>{children}</TabStoreProvider>
+      <WorkspaceTabTableColumnDefsContext.Provider value={tableData}>
+        <TabStoreProvider>{children}</TabStoreProvider>
+      </WorkspaceTabTableColumnDefsContext.Provider>
     </WorkspaceTabIdContext.Provider>
   );
 };
@@ -105,6 +119,10 @@ export function useWorkspaceTabId() {
     tabId = 'test-tab-id';
   }
   return tabId;
+}
+
+export function useWorkspaceTabTableData() {
+  return useContext(WorkspaceTabTableColumnDefsContext);
 }
 
 const useStore: () => TabStateStore = createStoreHook(TabStateStoreContext);
