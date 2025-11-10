@@ -7,7 +7,6 @@ export class HistoryStorage {
   private migrationChecked = false;
 
   constructor(basePath?: string) {
-    // TODO: https://jira.mongodb.org/browse/COMPASS-7080
     this.userData = new FileUserData(z.string().array(), 'ShellHistory', {
       basePath,
     });
