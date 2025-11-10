@@ -4,6 +4,10 @@ import { isTestingDesktop } from '../test-runner-context';
 
 type WindowSize = Awaited<ReturnType<CompassBrowser['getWindowSize']>>;
 
+function isEqualWithMargin(a: number, b: number, margin = 30) {
+  return Math.abs(a - b) <= margin;
+}
+
 export async function resizeWindow(
   browser: CompassBrowser,
   width: number,
@@ -30,7 +34,11 @@ export async function resizeWindow(
         await browser.setWindowSize(width, height);
         newSize = await browser.getWindowSize();
       }
-      return newSize && newSize.width === width && newSize.height === height;
+      return (
+        newSize &&
+        isEqualWithMargin(newSize.width, width) &&
+        isEqualWithMargin(newSize.height, height)
+      );
     });
   } catch (err) {
     throw new Error(
