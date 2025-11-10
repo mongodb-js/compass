@@ -119,9 +119,7 @@ const CollectionHeaderActions: React.FunctionComponent<
 
   const showViewEdit = isView && !preferencesReadWrite;
   const shouldDisableMockDataButton =
-    !hasSchemaAnalysisData ||
-    exceedsMaxNestingDepth ||
-    hasUnsupportedStateError;
+    !hasSchemaAnalysisData || exceedsMaxNestingDepth;
 
   const onMockDataGeneratorCtaButtonClicked = useCallback(() => {
     track('Mock Data Generator Opened', {

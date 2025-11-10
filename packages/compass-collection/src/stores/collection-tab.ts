@@ -73,9 +73,8 @@ export function selectIsCollectionEmpty(state: CollectionState): boolean {
 
 /**
  * Determines if schema analysis should be re-triggered after document insertion.
- * Re-triggers when:
- * 1. Previous analysis failed (error state)
- * 2. Analysis completed but no schema data (empty collection)
+ * Re-triggers when collection has no valid schema analysis data (error states,
+ * initial state, and completed analysis with empty schema).
  */
 export function selectShouldRetriggerSchemaAnalysis(
   state: CollectionState
@@ -85,10 +84,8 @@ export function selectShouldRetriggerSchemaAnalysis(
     return false;
   }
 
-  return (
-    state.schemaAnalysis?.status === SCHEMA_ANALYSIS_STATE_ERROR ||
-    !selectHasSchemaAnalysisData(state)
-  );
+  // Re-trigger if no valid schema data
+  return !selectHasSchemaAnalysisData(state);
 }
 
 /**
