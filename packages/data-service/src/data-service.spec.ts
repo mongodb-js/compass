@@ -16,7 +16,6 @@ import type {
 import EventEmitter from 'events';
 import type { ClientMockOptions } from '../test/helpers';
 import { createMongoClientMock } from '../test/helpers';
-import { AbortController } from '../test/mocks';
 import { createClonedClient } from './connect-mongo-client';
 import { runCommand } from './run-command';
 import { mochaTestServer } from '@mongodb-js/compass-test-server';
@@ -153,12 +152,14 @@ describe('DataService', function () {
         const { info: [, , , , startedAttr] = [] } = startedLog ?? {};
         expect(startedAttr).to.have.property(
           'connectionId',
-          dataServiceLogTest._id
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (dataServiceLogTest as any)._id
         );
         const { info: [, , , , succeededAttr] = [] } = succeededLog ?? {};
         expect(succeededAttr).to.have.property(
           'connectionId',
-          dataServiceLogTest._id
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (dataServiceLogTest as any)._id
         );
       });
 
@@ -197,12 +198,14 @@ describe('DataService', function () {
         const { info: [, , , , startedAttr] = [] } = startedLog ?? {};
         expect(startedAttr).to.have.property(
           'connectionId',
-          dataServiceLogTest._id
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (dataServiceLogTest as any)._id
         );
         const { info: [, , , , succeededAttr] = [] } = failedLog ?? {};
         expect(succeededAttr).to.have.property(
           'connectionId',
-          dataServiceLogTest._id
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (dataServiceLogTest as any)._id
         );
       });
     });
@@ -269,17 +272,17 @@ describe('DataService', function () {
           connectionId,
           duration: 400,
           failure: new Error('fail'),
-        });
+        } as any);
         client.emit('serverHeartbeatFailed', {
           connectionId,
           duration: 600,
           failure: new Error('fail'),
-        });
+        } as any);
         client.emit('serverHeartbeatFailed', {
           connectionId,
           duration: 800,
           failure: new Error('fail'),
-        });
+        } as any);
         const logEntries = [
           // Picking the attrs part of the log
           ...logger.debug.args.map((args) => args[4]),
@@ -1431,7 +1434,7 @@ describe('DataService', function () {
         const topology = dataService.getLastSeenTopology();
 
         expect(topology).to.not.be.null;
-        expect(topology!.servers.values().next().value.address).to.be.a(
+        expect(topology!.servers.values().next().value!.address).to.be.a(
           'string'
         );
 
