@@ -18,6 +18,9 @@ export async function resetConnectForm(browser: CompassBrowser): Promise<void> {
   }
   await browser
     .$(Selectors.ConnectionModal)
+    .waitForDisplayed({ reverse: true });
+  await browser
+    .$(Selectors.ConnectionModal)
     .waitForClickable({ reverse: true });
 
   await browser.clickVisible(Selectors.SidebarNewConnectionButton);
@@ -924,6 +927,8 @@ export async function saveConnection(
     .waitForDisplayed({ reverse: true });
 }
 
+let screenshotCounter = 0;
+
 export async function setupDefaultConnections(browser: CompassBrowser) {
   // When running tests against Atlas Cloud, connections can't be added or
   // removed from the UI manually, so we skip setup for default connections
@@ -953,20 +958,28 @@ export async function setupDefaultConnections(browser: CompassBrowser) {
   whereas we do have some tests that try and use those. We can easily change
   this in future if needed, though.
   */
-  for (const connectionInfo of DEFAULT_CONNECTIONS) {
-    const connectionName = getConnectionTitle(connectionInfo);
-    if (await browser.removeConnection(connectionName)) {
-      debug('Removing existing connection so we do not create a duplicate', {
-        connectionName,
+
+  try {
+    for (const connectionInfo of DEFAULT_CONNECTIONS) {
+      const connectionName = getConnectionTitle(connectionInfo);
+      if (await browser.removeConnection(connectionName)) {
+        debug('Removing existing connection so we do not create a duplicate', {
+          connectionName,
+        });
+      }
+    }
+
+    for (const connectionInfo of DEFAULT_CONNECTIONS) {
+      await browser.saveConnection({
+        connectionString: connectionInfo.connectionOptions.connectionString,
+        connectionName: connectionInfo.favorite?.name,
+        connectionColor: connectionInfo.favorite?.color,
       });
     }
-  }
-
-  for (const connectionInfo of DEFAULT_CONNECTIONS) {
-    await browser.saveConnection({
-      connectionString: connectionInfo.connectionOptions.connectionString,
-      connectionName: connectionInfo.favorite?.name,
-      connectionColor: connectionInfo.favorite?.color,
-    });
+  } catch (err) {
+    await browser.screenshot(
+      `connection-form-setup-default-connections-${screenshotCounter++}.png`
+    );
+    throw err;
   }
 }
