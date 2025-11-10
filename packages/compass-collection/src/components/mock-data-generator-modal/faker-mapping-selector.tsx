@@ -27,7 +27,6 @@ const fieldMappingSelectorsStyles = css({
 });
 
 const labelStyles = css({
-  color: palette.gray.dark1,
   fontWeight: 600,
 });
 

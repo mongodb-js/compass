@@ -725,7 +725,7 @@ describe('MockDataGeneratorModal', () => {
         expect(screen.getByTestId('faker-schema-editor')).to.exist;
       });
 
-      userEvent.click(screen.getByText('Confirm mappings'));
+      userEvent.click(screen.getByText('Next'));
 
       await waitFor(() => {
         expect(screen.getByText('Specify Number of Documents to Generate')).to
