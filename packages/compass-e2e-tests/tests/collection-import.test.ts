@@ -596,9 +596,6 @@ describe('Collection import', function () {
       expect(await errorDetailsJson.getText()).to.include(
         'schemaRulesNotSatisfied'
       );
-      // leafygreen autofocus triggers a tooltip on the error code element,
-      // "Tab" to remove the focus
-      await browser.keys('Tab');
       // now click the close button
       await browser.clickVisible(Selectors.confirmationModalConfirmButton());
       // wait for the modal to go away
