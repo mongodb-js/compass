@@ -25,7 +25,6 @@ export const showErrorDetails = function showErrorDetails({
     buttonText: closeAction.replace(/\b\w/g, (c) => c.toUpperCase()),
     confirmButtonProps: {
       variant: ButtonVariant.Default,
-      autoFocus: true,
     },
   });
 };
