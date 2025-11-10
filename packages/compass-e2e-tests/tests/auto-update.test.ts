@@ -24,7 +24,13 @@ describe('Auto-update', function () {
 
       // run the app and wait for it to auto-update
       console.log('starting compass the first time');
-      const compass = await init(testName, { firstRun: true });
+      const compass = await init(testName, {
+        firstRun: true,
+        // smoketests that are running this suite are using the version of the
+        // compass that doesn't have the methods needed to set env in shared
+        // config. It's safe to skip taking into account the test being used
+        dangerouslySkipSharedConfigWaitFor: true,
+      });
       const { browser } = compass;
       try {
         await browser.$(Selectors.AutoUpdateToast).waitForDisplayed();
