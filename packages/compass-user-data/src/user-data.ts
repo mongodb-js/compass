@@ -148,7 +148,7 @@ export class FileUserData<T extends z.Schema> extends IUserData<T> {
       await fs.rename(oldFolderPath, newFolderPath);
 
       log.info(
-        mongoLogId(1_001_000_380),
+        mongoLogId(1_001_000_382),
         'Filesystem',
         'Successfully migrated data folder',
         {
@@ -173,7 +173,7 @@ export class FileUserData<T extends z.Schema> extends IUserData<T> {
 
       // Any other error is a real failure
       log.error(
-        mongoLogId(1_001_000_381),
+        mongoLogId(1_001_000_383),
         'Filesystem',
         'Failed to migrate data folder',
         {
