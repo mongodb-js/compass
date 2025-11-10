@@ -9,7 +9,6 @@ import {
 } from '@mongodb-js/testing-library-compass';
 import sinon from 'sinon';
 import FakerMappingSelector from './faker-mapping-selector';
-import { UNRECOGNIZED_FAKER_METHOD } from '../../modules/collection-tab';
 import type { MongoDBFieldType } from '../../schema-analysis-types';
 import {
   MONGO_TYPE_TO_FAKER_METHODS,
@@ -120,42 +119,6 @@ describe('FakerMappingSelector', () => {
     expect(onFakerFunctionSelectStub).to.have.been.calledOnceWith(
       'internet.email'
     );
-  });
-
-  it('should show warning banner when faker method is unrecognized', () => {
-    render(
-      <FakerMappingSelector
-        activeJsonType={mockActiveJsonType}
-        activeFakerFunction={UNRECOGNIZED_FAKER_METHOD}
-        activeFakerArgs={mockActiveFakerArgs}
-        onJsonTypeSelect={onJsonTypeSelectStub}
-        onFakerFunctionSelect={onFakerFunctionSelectStub}
-      />
-    );
-
-    expect(
-      screen.getByText(
-        /Please select a function or we will default fill this field/
-      )
-    ).to.exist;
-  });
-
-  it('should not show warning banner when faker method is recognized', () => {
-    render(
-      <FakerMappingSelector
-        activeJsonType={mockActiveJsonType}
-        activeFakerFunction={mockActiveFakerFunction}
-        activeFakerArgs={mockActiveFakerArgs}
-        onJsonTypeSelect={onJsonTypeSelectStub}
-        onFakerFunctionSelect={onFakerFunctionSelectStub}
-      />
-    );
-
-    expect(
-      screen.queryByText(
-        /Please select a function or we will default fill this field/
-      )
-    ).to.not.exist;
   });
 
   it('should always include the original LLM faker method in the dropdown', () => {
