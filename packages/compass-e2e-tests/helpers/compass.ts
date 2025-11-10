@@ -1125,30 +1125,16 @@ export async function init(
     opts.dangerouslySkipSharedConfigWaitFor
   );
 
-  if (TEST_COMPASS_WEB) {
-    // larger window for more consistent results
-    const [width, height] = await browser.execute(() => {
-      // in case setWindowSize() below doesn't work
-      // eslint-disable-next-line no-restricted-globals
-      window.resizeTo(window.screen.availWidth, window.screen.availHeight);
-      // eslint-disable-next-line no-restricted-globals
-      return [window.screen.availWidth, window.screen.availHeight];
-    });
-    // getting available width=1512, height=944 in electron on mac which is arbitrary
-    debug(`available width=${width}, height=${height}`);
-    try {
-      // window.resizeTo() doesn't work on firefox
-      await browser.setWindowSize(width, height);
-    } catch (err) {
-      console.error(err instanceof Error ? err.stack : err);
-    }
-  } else {
-    await browser.execute(() => {
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
-      const { ipcRenderer } = require('electron');
-      void ipcRenderer.invoke('compass:maximize');
-    });
-  }
+  // Matches Compass desktop defaults
+  const defaultWindowWidth = 1432;
+  const defaultWindowHeight = 840;
+
+  const { width: newWidth, height: newHeight } = await browser.resizeWindow(
+    defaultWindowWidth,
+    defaultWindowHeight
+  );
+
+  debug(`resized window to ${newWidth}x${newHeight}`);
 
   if (compass.needsCloseWelcomeModal) {
     await browser.closeWelcomeModal();
