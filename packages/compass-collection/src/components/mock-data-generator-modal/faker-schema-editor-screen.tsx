@@ -159,7 +159,6 @@ const FakerSchemaEditorContent = ({
           activeField={activeField}
           fields={fieldPaths}
           onFieldSelect={setActiveField}
-          fakerSchema={fakerSchema}
         />
         {activeJsonType && activeFakerFunction && (
           <FakerMappingSelector
