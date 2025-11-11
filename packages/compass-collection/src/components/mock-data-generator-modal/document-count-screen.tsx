@@ -2,6 +2,7 @@ import {
   Body,
   compactBytes,
   css,
+  Description,
   palette,
   spacing,
   TextInput,
@@ -21,7 +22,6 @@ const titleStyles = css({
 });
 
 const descriptionStyles = css({
-  color: palette.gray.dark1,
   fontStyle: 'italic',
 });
 
@@ -107,9 +107,9 @@ const DocumentCountScreen = ({
       <Body className={titleStyles}>
         Specify Number of Documents to Generate
       </Body>
-      <Body className={descriptionStyles}>
+      <Description className={descriptionStyles}>
         Indicate the amount of documents you want to generate below.
-      </Body>
+      </Description>
       <div className={inputContainerStyles}>
         <TextInput
           label="Documents to generate in current collection"
