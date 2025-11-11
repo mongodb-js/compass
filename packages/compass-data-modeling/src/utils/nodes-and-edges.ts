@@ -174,7 +174,7 @@ export function collectionToDiagramNode({
   if (relationships.some(isRelationshipInvalid)) {
     variant = {
       type: 'warn' as const,
-      warnMessage: 'One or more relationships can not be resolved.',
+      warnMessage: 'One or more relationships cannot be resolved.',
     };
   }
   return {

@@ -137,7 +137,7 @@ export const RelationshipsSection: React.FunctionComponent<
                           </div>
                         }
                       >
-                        Can not resolve the relationship - please verify the
+                        Cannot resolve the relationship - please verify the
                         linked fields and namespace.
                       </Tooltip>
                     )}

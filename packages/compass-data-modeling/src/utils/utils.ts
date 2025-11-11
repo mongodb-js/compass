@@ -89,12 +89,10 @@ export function getNamespaceRelationships(
   namespace: string,
   relationships: Relationship[] = []
 ): Relationship[] {
-  return (
-    relationships.filter((r) => {
-      const [local, foreign] = r.relationship;
-      return local.ns === namespace || foreign.ns === namespace;
-    }) || []
-  );
+  return relationships.filter((r) => {
+    const [local, foreign] = r.relationship;
+    return local.ns === namespace || foreign.ns === namespace;
+  });
 }
 
 export function isRelationshipInvalid(relationship: Relationship): boolean {
