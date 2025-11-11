@@ -43,6 +43,7 @@ import {
 import treeKill from 'tree-kill';
 import { downloadPath } from './downloads';
 import path from 'path';
+import { globalFixturesAbortController } from './test-runner-global-fixtures';
 
 const killAsync = async (pid: number, signal?: string) => {
   return new Promise<void>((resolve, reject) => {
@@ -177,6 +178,27 @@ export class Compass {
         return v(browser, ...args);
       });
     }
+
+    // The waitUntil helper will continue running even if we started tests
+    // teardown on abort. To work around that, we will override the default
+    // method, will short circuit the wait if we aborted, and then throw the
+    // error instead of returning the result
+    browser.overwriteCommand(
+      'waitUntil',
+      async function (origWaitUntil, condition, options) {
+        // eslint-disable-next-line @typescript-eslint/await-thenable
+        const result = await origWaitUntil(function () {
+          if (globalFixturesAbortController.signal.aborted) {
+            return true;
+          }
+          return condition();
+        }, options);
+        if (globalFixturesAbortController.signal.aborted) {
+          throw new Error('Test run was aborted');
+        }
+        return result;
+      }
+    );
 
     this.addDebugger();
   }
