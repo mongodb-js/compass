@@ -1155,7 +1155,7 @@ export async function init(
       await browser.closeWelcomeModal();
     } catch (err) {
       await browser.screenshot(
-        screenshotPathName('error-closing-welcome-modal')
+        screenshotPathName(`${name ?? 'init'}-close-welcome-modal`)
       );
       throw err;
     }
