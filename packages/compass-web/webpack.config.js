@@ -151,20 +151,10 @@ module.exports = (env, args) => {
         // Can be either `web` or `webdriverio`, helpful if we need special
         // behavior for tests in sandbox
         'process.env.APP_ENV': JSON.stringify(process.env.APP_ENV ?? 'web'),
-        ...(process.env.COMPASS_ASSISTANT_BASE_URL_OVERRIDE
-          ? {
-              'process.env.COMPASS_ASSISTANT_BASE_URL_OVERRIDE': JSON.stringify(
-                process.env.COMPASS_ASSISTANT_BASE_URL_OVERRIDE
-              ),
-            }
-          : {}),
-        ...(process.env.COMPASS_OVERRIDE_ENABLE_AI_FEATURES
-          ? {
-              'process.env.COMPASS_OVERRIDE_ENABLE_AI_FEATURES': JSON.stringify(
-                process.env.COMPASS_OVERRIDE_ENABLE_AI_FEATURES
-              ),
-            }
-          : {}),
+        // NB: DefinePlugin completely replaces matched string with a provided
+        // value, in most cases WE DO NOT WANT THAT and process variables in the
+        // code are added to be able to change them in runtime. Do not add new
+        // records unless you're super sure it's needed
       }),
 
       new webpack.ProvidePlugin({
