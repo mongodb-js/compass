@@ -4,7 +4,7 @@ import {
   isRelationshipOfAField,
   isSameFieldOrAncestor,
   dualSourceHandlerDebounce,
-  isRelationshipInvalid,
+  isRelationshipValid,
 } from './utils';
 import type { Relationship } from '../services/data-model-storage';
 
@@ -137,41 +137,41 @@ describe('dualSourceHandlerDebounce', function () {
   });
 });
 
-describe('isRelationshipInvalid', function () {
-  it('should return true for relationships with missing namespaces', function () {
+describe('isRelationshipValid', function () {
+  it('should return false for relationships with missing namespaces', function () {
     const relationship = {
       relationship: [
         { ns: '', fields: ['a'], cardinality: 1 },
         { ns: 'db.coll2', fields: ['b'], cardinality: 1 },
       ],
     } as any;
-    expect(isRelationshipInvalid(relationship)).to.be.true;
+    expect(isRelationshipValid(relationship)).to.be.false;
   });
-  it('should return true for relationships with no fields', function () {
+  it('should return false for relationships with no fields', function () {
     const relationship = {
       relationship: [
         { ns: 'db.coll1', fields: undefined, cardinality: 1 },
         { ns: 'db.coll2', cardinality: 1 },
       ],
     } as any;
-    expect(isRelationshipInvalid(relationship)).to.be.true;
+    expect(isRelationshipValid(relationship)).to.be.false;
   });
-  it('should return true for relationships with empty fields', function () {
+  it('should return false for relationships with empty fields', function () {
     const relationship = {
       relationship: [
         { ns: 'db.coll1', fields: [], cardinality: 1 },
         { ns: 'db.coll2', fields: [], cardinality: 1 },
       ],
     } as any;
-    expect(isRelationshipInvalid(relationship)).to.be.true;
+    expect(isRelationshipValid(relationship)).to.be.false;
   });
-  it('should return false for relationships with correct namespaces and fields', function () {
+  it('should return true for relationships with correct namespaces and fields', function () {
     const relationship = {
       relationship: [
         { ns: 'db.coll1', fields: ['_id'], cardinality: 1 },
         { ns: 'db.coll2', fields: ['order_id'], cardinality: 1 },
       ],
     } as any;
-    expect(isRelationshipInvalid(relationship)).to.be.false;
+    expect(isRelationshipValid(relationship)).to.be.true;
   });
 });

@@ -14,7 +14,7 @@ import {
 } from '@mongodb-js/compass-components';
 import type { Relationship } from '../../services/data-model-storage';
 import { getDefaultRelationshipName } from '../../utils';
-import { isRelationshipInvalid } from '../../utils/utils';
+import { isRelationshipValid } from '../../utils/utils';
 
 const titleBtnStyles = css({
   marginLeft: 'auto',
@@ -124,7 +124,7 @@ export const RelationshipsSection: React.FunctionComponent<
                     >
                       {relationshipLabel}
                     </span>
-                    {isRelationshipInvalid(r) && (
+                    {!isRelationshipValid(r) && (
                       <Tooltip
                         trigger={
                           <div

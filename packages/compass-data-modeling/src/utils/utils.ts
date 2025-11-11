@@ -95,7 +95,7 @@ export function getNamespaceRelationships(
   });
 }
 
-export function isRelationshipInvalid(relationship: Relationship): boolean {
+export function isRelationshipValid(relationship: Relationship): boolean {
   const [source, target] = relationship.relationship;
   if (
     !source.ns ||
@@ -105,8 +105,8 @@ export function isRelationshipInvalid(relationship: Relationship): boolean {
     source.fields.length === 0 ||
     target.fields.length === 0
   ) {
-    return true;
+    return false;
   }
 
-  return false;
+  return true;
 }

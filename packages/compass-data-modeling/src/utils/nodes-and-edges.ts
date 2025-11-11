@@ -13,7 +13,7 @@ import type {
   Relationship,
 } from '../services/data-model-storage';
 import { traverseSchema } from './schema-traversal';
-import { areFieldPathsEqual, isIdField, isRelationshipInvalid } from './utils';
+import { areFieldPathsEqual, isIdField, isRelationshipValid } from './utils';
 
 const NO_HIGHLIGHTED_FIELDS = {};
 
@@ -171,7 +171,7 @@ export function collectionToDiagramNode({
   isExpanded,
 }: CollectionWithRenderOptions): NodeProps {
   let variant: NodeProps['variant'] = undefined;
-  if (relationships.some(isRelationshipInvalid)) {
+  if (relationships.some((r) => !isRelationshipValid(r))) {
     variant = {
       type: 'warn' as const,
       warnMessage: 'One or more relationships cannot be resolved.',
