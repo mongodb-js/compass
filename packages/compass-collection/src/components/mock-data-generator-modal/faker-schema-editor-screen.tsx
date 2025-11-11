@@ -1,13 +1,8 @@
 import {
-  Body,
-  Button,
-  ButtonSize,
-  ButtonVariant,
   css,
   Description,
   H3,
   Link,
-  palette,
   spacing,
   SpinLoaderWithLabel,
 } from '@mongodb-js/compass-components';
@@ -172,10 +167,8 @@ const FakerSchemaEditorContent = ({
 };
 
 const FakerSchemaEditorScreen = ({
-  onSchemaConfirmed,
   fakerSchemaGenerationState,
 }: {
-  onSchemaConfirmed: () => void;
   fakerSchemaGenerationState: MockDataGeneratorState;
 }) => {
   return (
@@ -204,7 +197,6 @@ const FakerSchemaEditorScreen = ({
       {fakerSchemaGenerationState.status === 'completed' && (
         <FakerSchemaEditorContent
           fakerSchema={fakerSchemaGenerationState.editedFakerSchema}
-          onSchemaConfirmed={onSchemaConfirmed}
         />
       )}
     </div>

@@ -6,7 +6,6 @@ import {
   css,
   Label,
   Option,
-  palette,
   Select,
   spacing,
 } from '@mongodb-js/compass-components';

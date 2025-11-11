@@ -3,7 +3,6 @@ import {
   compactBytes,
   css,
   Description,
-  palette,
   spacing,
   TextInput,
 } from '@mongodb-js/compass-components';
