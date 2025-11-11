@@ -64,8 +64,7 @@ async function createSearchIndex(
     Selectors.createIndexDropdownAction('search-indexes')
   );
 
-  const modal = browser.$(Selectors.SearchIndexModal);
-  await modal.waitForDisplayed();
+  await browser.waitForOpenModal(Selectors.SearchIndexModal);
 
   await browser.setValueVisible(Selectors.SearchIndexName, indexName);
   await browser.setCodemirrorEditorValue(
@@ -74,7 +73,7 @@ async function createSearchIndex(
   );
 
   await browser.clickVisible(Selectors.SearchIndexConfirmButton);
-  await modal.waitForDisplayed({ reverse: true });
+  await browser.waitForOpenModal(Selectors.SearchIndexModal, { reverse: true });
 }
 
 async function updateSearchIndex(
@@ -89,8 +88,7 @@ async function updateSearchIndex(
   await browser.hover(indexRowSelector);
   await browser.clickVisible(Selectors.searchIndexEditButton(indexName));
 
-  const modal = browser.$(Selectors.SearchIndexModal);
-  await modal.waitForDisplayed();
+  await browser.waitForOpenModal(Selectors.SearchIndexModal);
 
   await browser.setCodemirrorEditorValue(
     Selectors.SearchIndexDefinition,
@@ -98,7 +96,7 @@ async function updateSearchIndex(
   );
 
   await browser.clickVisible(Selectors.SearchIndexConfirmButton);
-  await modal.waitForDisplayed({ reverse: true });
+  await browser.waitForOpenModal(Selectors.SearchIndexModal, { reverse: true });
 }
 
 async function dropSearchIndex(browser: CompassBrowser, indexName: string) {

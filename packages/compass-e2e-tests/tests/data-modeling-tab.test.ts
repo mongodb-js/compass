@@ -429,8 +429,7 @@ describe('Data Modeling tab', function () {
       });
 
       await browser.clickVisible(Selectors.DataModelExportButton);
-      const exportModal = browser.$(Selectors.DataModelExportModal);
-      await exportModal.waitForDisplayed();
+      await browser.waitForOpenModal(Selectors.DataModelExportModal);
 
       await browser.clickParent(Selectors.DataModelExportJsonOption);
       await browser.clickVisible(Selectors.DataModelExportModalConfirmButton);
@@ -505,8 +504,7 @@ describe('Data Modeling tab', function () {
       });
 
       await browser.clickVisible(Selectors.DataModelExportButton);
-      const exportModal = browser.$(Selectors.DataModelExportModal);
-      await exportModal.waitForDisplayed();
+      await browser.waitForOpenModal(Selectors.DataModelExportModal);
 
       await browser.clickParent(Selectors.DataModelExportPngOption);
       await browser.clickVisible(Selectors.DataModelExportModalConfirmButton);
@@ -558,8 +556,7 @@ describe('Data Modeling tab', function () {
       await browser.waitForAnimations(dataModelEditor);
 
       await browser.clickVisible(Selectors.DataModelExportButton);
-      const exportModal = browser.$(Selectors.DataModelExportModal);
-      await exportModal.waitForDisplayed();
+      await browser.waitForOpenModal(Selectors.DataModelExportModal);
 
       await browser.clickParent(Selectors.DataModelExportDiagramOption);
       await browser.clickVisible(Selectors.DataModelExportModalConfirmButton);
