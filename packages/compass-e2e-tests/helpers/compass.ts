@@ -1173,7 +1173,14 @@ export async function init(
   }
 
   if (compass.needsCloseWelcomeModal) {
-    await browser.closeWelcomeModal();
+    try {
+      await browser.closeWelcomeModal();
+    } catch (err) {
+      await browser.screenshot(
+        screenshotPathName(`${name ?? 'init'}-close-welcome-modal`)
+      );
+      throw err;
+    }
   }
 
   return compass;
