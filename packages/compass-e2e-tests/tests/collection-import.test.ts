@@ -36,14 +36,15 @@ async function importJSONFile(browser: CompassBrowser, jsonPath: string) {
   await browser.selectFile(Selectors.ImportFileInput, jsonPath);
 
   // Wait for the modal to appear.
-  const importModal = browser.$(Selectors.ImportModal);
-  await importModal.waitForDisplayed();
+  await browser.waitForOpenModal(Selectors.ImportModal);
 
   // Confirm import.
   await browser.clickVisible(Selectors.ImportConfirm);
 
   // Wait for the modal to go away.
-  await importModal.waitForDisplayed({ reverse: true });
+  await browser.waitForOpenModal(Selectors.ImportModal, {
+    reverse: true,
+  });
 
   // Wait for the done toast to appear and close it.
   const toastElement = browser.$(Selectors.ImportToast);
@@ -162,8 +163,7 @@ describe('Collection import', function () {
     await browser.clickVisible(Selectors.InsertDocumentOption);
 
     // wait for the modal to appear
-    const insertDialog = browser.$(Selectors.InsertDialog);
-    await insertDialog.waitForDisplayed();
+    await browser.waitForOpenModal(Selectors.InsertDialog);
 
     // set the text in the editor
     await browser.setCodemirrorEditorValue(
@@ -180,7 +180,9 @@ describe('Collection import', function () {
     await browser.clickVisible(Selectors.InsertConfirm);
 
     // wait for the modal to go away
-    await insertDialog.waitForDisplayed({ reverse: true });
+    await browser.waitForOpenModal(Selectors.InsertDialog, {
+      reverse: true,
+    });
 
     // make sure the documents appear in the collection
     const messageElement = browser.$(Selectors.DocumentListActionBarMessage);
@@ -223,8 +225,7 @@ describe('Collection import', function () {
     await browser.clickVisible(Selectors.InsertDocumentOption);
 
     // wait for the modal to appear
-    const insertDialog = browser.$(Selectors.InsertDialog);
-    await insertDialog.waitForDisplayed();
+    await browser.waitForOpenModal(Selectors.InsertDialog);
 
     // pick list view
     await browser.clickVisible(
@@ -275,7 +276,9 @@ describe('Collection import', function () {
     await browser.clickVisible(Selectors.InsertConfirm);
 
     // wait for the modal to go away
-    await insertDialog.waitForDisplayed({ reverse: true });
+    await browser.waitForOpenModal(Selectors.InsertDialog, {
+      reverse: true,
+    });
 
     // make sure the documents appear in the collection
     const messageElement = browser.$(Selectors.DocumentListActionBarMessage);
@@ -315,8 +318,7 @@ describe('Collection import', function () {
     await browser.clickVisible(Selectors.InsertDocumentOption);
 
     // wait for the modal to appear
-    const insertDialog = browser.$(Selectors.InsertDialog);
-    await insertDialog.waitForDisplayed();
+    await browser.waitForOpenModal(Selectors.InsertDialog);
 
     // set the text in the editor
     await browser.setCodemirrorEditorValue(Selectors.InsertJSONEditor, json);
@@ -331,7 +333,9 @@ describe('Collection import', function () {
     await browser.clickVisible(Selectors.InsertConfirm);
 
     // wait for the modal to go away
-    await insertDialog.waitForDisplayed({ reverse: true });
+    await browser.waitForOpenModal(Selectors.InsertDialog, {
+      reverse: true,
+    });
 
     // make sure the documents appear in the collection
     const messageElement = browser.$(Selectors.DocumentListActionBarMessage);
@@ -368,8 +372,7 @@ describe('Collection import', function () {
     await browser.clickVisible(Selectors.InsertDocumentOption);
 
     // wait for the modal to appear
-    const insertDialog = browser.$(Selectors.InsertDialog);
-    await insertDialog.waitForDisplayed();
+    await browser.waitForOpenModal(Selectors.InsertDialog);
 
     // set the text in the editor
     await browser.setCodemirrorEditorValue(Selectors.InsertJSONEditor, json);
@@ -385,7 +388,9 @@ describe('Collection import', function () {
 
     // cancel and wait for the modal to go away
     await browser.clickVisible(Selectors.InsertCancel);
-    await insertDialog.waitForDisplayed({ reverse: true });
+    await browser.waitForOpenModal(Selectors.InsertDialog, {
+      reverse: true,
+    });
   });
 
   it('supports JSON files', async function () {
@@ -504,14 +509,15 @@ describe('Collection import', function () {
     // Select the file.
     await browser.selectFile(Selectors.ImportFileInput, jsonPath);
     // Wait for the modal to appear.
-    const importModal = browser.$(Selectors.ImportModal);
-    await importModal.waitForDisplayed();
+    await browser.waitForOpenModal(Selectors.ImportModal);
 
     // Confirm import.
     await browser.clickVisible(Selectors.ImportConfirm);
 
     // Wait for the modal to go away.
-    await importModal.waitForDisplayed({ reverse: true });
+    await browser.waitForOpenModal(Selectors.ImportModal, {
+      reverse: true,
+    });
 
     // Wait for the error toast to appear and close it.
     const toastElement = browser.$(Selectors.ImportToast);
@@ -564,8 +570,7 @@ describe('Collection import', function () {
       // Select the file.
       await browser.selectFile(Selectors.ImportFileInput, jsonPath);
       // Wait for the modal to appear.
-      const importModal = browser.$(Selectors.ImportModal);
-      await importModal.waitForDisplayed();
+      await browser.waitForOpenModal(Selectors.ImportModal);
 
       // Click the stop on errors checkbox.
       const stopOnErrorsCheckbox = browser.$(
@@ -578,7 +583,9 @@ describe('Collection import', function () {
       await browser.clickVisible(Selectors.ImportConfirm);
 
       // Wait for the modal to go away.
-      await importModal.waitForDisplayed({ reverse: true });
+      await browser.waitForOpenModal(Selectors.ImportModal, {
+        reverse: true,
+      });
 
       // Wait for the error toast to appear
       const toastElement = browser.$(Selectors.ImportToast);
@@ -618,14 +625,15 @@ describe('Collection import', function () {
       // Select the file.
       await browser.selectFile(Selectors.ImportFileInput, csvPath);
       // Wait for the modal to appear.
-      const importModal = browser.$(Selectors.ImportModal);
-      await importModal.waitForDisplayed();
+      await browser.waitForOpenModal(Selectors.ImportModal);
 
       // Confirm import.
       await browser.clickVisible(Selectors.ImportConfirm);
 
       // Wait for the modal to go away.
-      await importModal.waitForDisplayed({ reverse: true });
+      await browser.waitForOpenModal(Selectors.ImportModal, {
+        reverse: true,
+      });
 
       // Wait for the error toast to appear
       const toastElement = browser.$(Selectors.ImportToast);
@@ -685,8 +693,7 @@ describe('Collection import', function () {
     await browser.selectFile(Selectors.ImportFileInput, csvPath);
 
     // Wait for the modal to appear.
-    const importModal = browser.$(Selectors.ImportModal);
-    await importModal.waitForDisplayed();
+    await browser.waitForOpenModal(Selectors.ImportModal);
 
     // wait for it to finish analyzing
     await browser.$(Selectors.ImportConfirm).waitForDisplayed();
@@ -723,7 +730,9 @@ describe('Collection import', function () {
     await browser.clickVisible(Selectors.ImportConfirm);
 
     // Wait for the modal to go away.
-    await importModal.waitForDisplayed({ reverse: true });
+    await browser.waitForOpenModal(Selectors.ImportModal, {
+      reverse: true,
+    });
 
     // Wait for the done toast to appear and close it.
     const toastElement = browser.$(Selectors.ImportToast);
@@ -813,8 +822,7 @@ describe('Collection import', function () {
     await browser.selectFile(Selectors.ImportFileInput, csvPath);
 
     // Wait for the modal to appear.
-    const importModal = browser.$(Selectors.ImportModal);
-    await importModal.waitForDisplayed();
+    await browser.waitForOpenModal(Selectors.ImportModal);
 
     // wait for it to finish analyzing
     await browser.$(Selectors.ImportConfirm).waitForDisplayed();
@@ -920,7 +928,9 @@ describe('Collection import', function () {
     await browser.clickVisible(Selectors.ImportConfirm);
 
     // Wait for the modal to go away.
-    await importModal.waitForDisplayed({ reverse: true });
+    await browser.waitForOpenModal(Selectors.ImportModal, {
+      reverse: true,
+    });
 
     // Wait for the done toast to appear and close it.
     const toastElement = browser.$(Selectors.ImportToast);
@@ -970,8 +980,7 @@ describe('Collection import', function () {
     await browser.selectFile(Selectors.ImportFileInput, csvPath);
 
     // Wait for the modal to appear.
-    const importModal = browser.$(Selectors.ImportModal);
-    await importModal.waitForDisplayed();
+    await browser.waitForOpenModal(Selectors.ImportModal);
 
     // it now autodetects the delimiter
     const importDelimiterSelectButton = browser.$(
@@ -1004,7 +1013,9 @@ describe('Collection import', function () {
     await browser.clickVisible(Selectors.ImportConfirm);
 
     // Wait for the modal to go away.
-    await importModal.waitForDisplayed({ reverse: true });
+    await browser.waitForOpenModal(Selectors.ImportModal, {
+      reverse: true,
+    });
 
     // Wait for the done toast to appear and close it.
     const toastElement = browser.$(Selectors.ImportToast);
@@ -1060,8 +1071,7 @@ describe('Collection import', function () {
     await browser.selectFile(Selectors.ImportFileInput, csvPath);
 
     // Wait for the modal to appear.
-    const importModal = browser.$(Selectors.ImportModal);
-    await importModal.waitForDisplayed();
+    await browser.waitForOpenModal(Selectors.ImportModal);
 
     // wait for it to finish analyzing
     await browser.$(Selectors.ImportConfirm).waitForDisplayed();
@@ -1076,7 +1086,9 @@ describe('Collection import', function () {
     await browser.clickVisible(Selectors.ImportConfirm);
 
     // Wait for the modal to go away.
-    await importModal.waitForDisplayed({ reverse: true });
+    await browser.waitForOpenModal(Selectors.ImportModal, {
+      reverse: true,
+    });
 
     // Wait for the error toast to appear and close it.
     const toastElement = browser.$(Selectors.ImportToast);
@@ -1119,8 +1131,7 @@ describe('Collection import', function () {
     await browser.selectFile(Selectors.ImportFileInput, csvPath);
 
     // wait for the modal to appear
-    const importModal = browser.$(Selectors.ImportModal);
-    await importModal.waitForDisplayed();
+    await browser.waitForOpenModal(Selectors.ImportModal);
 
     // it now autodetects the delimiter correctly
     const importDelimiterSelectButton = browser.$(
@@ -1150,7 +1161,9 @@ describe('Collection import', function () {
     await browser.clickVisible(Selectors.ImportConfirm);
 
     // Wait for the modal to go away.
-    await importModal.waitForDisplayed({ reverse: true });
+    await browser.waitForOpenModal(Selectors.ImportModal, {
+      reverse: true,
+    });
 
     // Wait for the done toast to appear and close it.
     const toastElement = browser.$(Selectors.ImportToast);
@@ -1208,8 +1221,7 @@ describe('Collection import', function () {
     await browser.selectFile(Selectors.ImportFileInput, jsonPath);
 
     // wait for the modal to appear
-    const importModal = browser.$(Selectors.ImportModal);
-    await importModal.waitForDisplayed();
+    await browser.waitForOpenModal(Selectors.ImportModal);
 
     // Click the stop on errors checkbox.
     const stopOnErrorsCheckbox = browser.$(
@@ -1222,7 +1234,9 @@ describe('Collection import', function () {
     await browser.clickVisible(Selectors.ImportConfirm);
 
     // Wait for the modal to go away.
-    await importModal.waitForDisplayed({ reverse: true });
+    await browser.waitForOpenModal(Selectors.ImportModal, {
+      reverse: true,
+    });
 
     // Wait for the error toast to appear and close it.
     const toastElement = browser.$(Selectors.ImportToast);
@@ -1264,14 +1278,15 @@ describe('Collection import', function () {
     await browser.selectFile(Selectors.ImportFileInput, jsonPath);
 
     // Wait for the modal to appear.
-    const importModal = browser.$(Selectors.ImportModal);
-    await importModal.waitForDisplayed();
+    await browser.waitForOpenModal(Selectors.ImportModal);
 
     // Confirm import.
     await browser.clickVisible(Selectors.ImportConfirm);
 
     // Wait for the modal to go away.
-    await importModal.waitForDisplayed({ reverse: true });
+    await browser.waitForOpenModal(Selectors.ImportModal, {
+      reverse: true,
+    });
 
     // Wait for the error toast to appear.
     const toastElement = browser.$(Selectors.ImportToast);
@@ -1338,8 +1353,7 @@ describe('Collection import', function () {
       await browser.selectFile(Selectors.ImportFileInput, csvPath);
 
       // Wait for the modal to appear.
-      const importModal = browser.$(Selectors.ImportModal);
-      await importModal.waitForDisplayed();
+      await browser.waitForOpenModal(Selectors.ImportModal);
 
       // Wait for the import button to become available because detect can take
       // a while
@@ -1484,8 +1498,7 @@ describe('Collection import', function () {
       await browser.selectFile(Selectors.ImportFileInput, csvPath);
 
       // Wait for the modal to appear.
-      const importModal = browser.$(Selectors.ImportModal);
-      await importModal.waitForDisplayed();
+      await browser.waitForOpenModal(Selectors.ImportModal);
 
       // Confirm import.
       await browser.clickVisible(Selectors.ImportConfirm);
