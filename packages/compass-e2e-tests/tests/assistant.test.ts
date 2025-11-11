@@ -528,7 +528,10 @@ describe('MongoDB Assistant', function () {
 });
 
 async function openAssistantDrawer(browser: CompassBrowser) {
-  await browser.clickVisible(Selectors.AssistantDrawerButton);
+  if (!(await browser.$(Selectors.AssistantDrawerCloseButton).isDisplayed())) {
+    await browser.clickVisible(Selectors.AssistantDrawerButton);
+  }
+  await browser.$(Selectors.AssistantDrawerCloseButton).waitForDisplayed();
 }
 
 async function clearChat(browser: CompassBrowser) {
