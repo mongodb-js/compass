@@ -24,7 +24,7 @@ export async function resizeWindow(
     await browser.waitUntil(async () => {
       // Electron doesn't support setWindowSize, so we use a custom ipc handler
       if (isTestingDesktop()) {
-        newSize = await browser.execute(
+        await browser.execute(
           async (_width: number, _height: number) => {
             // eslint-disable-next-line @typescript-eslint/no-require-imports
             return await require('electron').ipcRenderer.invoke(
@@ -38,8 +38,8 @@ export async function resizeWindow(
         );
       } else {
         await browser.setWindowSize(width, height);
-        newSize = await browser.getWindowSize();
       }
+      newSize = await browser.getWindowSize();
       return (
         newSize &&
         isEqualWithMargin(newSize.width, width) &&
