@@ -6,14 +6,14 @@ import fs from 'fs/promises';
 import { HistoryStorage } from './history-storage';
 
 describe('HistoryStorage', function () {
-  let tmpDir;
-  let historyFilePath;
+  let tmpDir: string;
+  let historyFilePath: string;
 
-  let historyStorage;
+  let historyStorage: HistoryStorage;
 
   beforeEach(async function () {
     tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'compass-shell-test'));
-    historyFilePath = path.join(tmpDir, 'shell-history.json');
+    historyFilePath = path.join(tmpDir, 'ShellHistory', 'shell-history.json');
 
     historyStorage = new HistoryStorage(tmpDir);
   });
