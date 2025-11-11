@@ -15,7 +15,9 @@ export async function hideVisibleModal(browser: CompassBrowser): Promise<void> {
     const waitOptions = { timeout: 2_000 };
     try {
       await browser.clickVisible(Selectors.LGModalClose, waitOptions);
-      await browser.$(Selectors.LGModal).waitForDisplayed({ reverse: true });
+      await browser
+        .$(Selectors.LGModal)
+        .waitForDisplayed({ reverse: true, ...waitOptions });
     } catch (err) {
       // if the modal disappears by itself in the meantime, that's fine
       debug('ignoring', err);
