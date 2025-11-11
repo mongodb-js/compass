@@ -21,7 +21,7 @@ class DataModelStorageAtlas implements DataModelStorage {
   constructor(orgId: string, projectId: string, atlasService: AtlasService) {
     this.userData = new AtlasUserData(
       MongoDBDataModelDescriptionSchema,
-      'dataModelDescriptions',
+      'DataModelDescriptions',
       {
         orgId,
         projectId,
@@ -37,7 +37,7 @@ class DataModelStorageAtlas implements DataModelStorage {
             !type ||
             !pathOrgId ||
             !pathProjectId ||
-            type !== 'dataModelDescriptions'
+            type !== 'DataModelDescriptions'
           ) {
             throw new Error(
               'DataModelStorageAtlas is used outside of Atlas Cloud context'
