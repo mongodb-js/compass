@@ -21,8 +21,7 @@ async function setReadOnlyFeatureViaSettingsModal(
   }
 
   await browser.openSettingsModal();
-  const settingsModal = browser.$(Selectors.SettingsModal);
-  await settingsModal.waitForDisplayed();
+  await browser.waitForOpenModal(Selectors.SettingsModal);
 
   await browser.waitUntil(async () => {
     await browser.clickVisible(Selectors.GeneralSettingsButton);
@@ -48,7 +47,7 @@ async function setReadOnlyFeatureViaSettingsModal(
   }
 
   // wait for the modal to go away
-  await settingsModal.waitForDisplayed({ reverse: true });
+  await browser.waitForOpenModal(Selectors.SettingsModal, { reverse: true });
 }
 
 describe('readOnly: true / Read-Only Edition', function () {
