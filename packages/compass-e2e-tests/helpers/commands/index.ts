@@ -66,3 +66,7 @@ export * from './read-first-document-content';
 export * from './read-stage-operators';
 export * from './click-confirmation-action';
 export * from './get-input-by-label';
+export * from './get-open-modals';
+export * from './is-modal-open';
+export * from './is-modal-eventually-open';
+export * from './wait-for-open-modal';
