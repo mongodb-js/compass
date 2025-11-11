@@ -42,9 +42,9 @@ async function closeTab(
           await browser.clickVisible(
             browser.$(Selectors.ConfirmTabCloseModal).$('button=Close tab')
           );
-          await browser
-            .$(Selectors.ConfirmTabCloseModal)
-            .waitForDisplayed({ reverse: true });
+          await browser.waitForOpenModal(Selectors.ConfirmTabCloseModal, {
+            reverse: true,
+          });
         }
       }
       return (

@@ -241,8 +241,7 @@ describe('MongoDB Assistant', function () {
 
       await browser.clickVisible(Selectors.AIOptInModalDeclineLink);
 
-      const optInModal = browser.$(Selectors.AIOptInModal);
-      await optInModal.waitForDisplayed({ reverse: true });
+      await browser.waitForOpenModal(Selectors.AIOptInModal, { reverse: true });
 
       const chatInput = browser.$(Selectors.AssistantChatInputTextArea);
       expect(await chatInput.getValue()).not.to.equal(testMessage);
@@ -262,13 +261,13 @@ describe('MongoDB Assistant', function () {
           browser.$(Selectors.ConnectionToastErrorDebugButton)
         );
 
-        const optInModal = browser.$(Selectors.AIOptInModal);
-        await optInModal.waitForDisplayed();
-        expect(await optInModal.isDisplayed()).to.be.true;
+        await browser.waitForOpenModal(Selectors.AIOptInModal);
 
         await browser.clickVisible(Selectors.AIOptInModalDeclineLink);
 
-        await optInModal.waitForDisplayed({ reverse: true });
+        await browser.waitForOpenModal(Selectors.AIOptInModal, {
+          reverse: true,
+        });
 
         expect(
           await browser.$(Selectors.AssistantChatMessages).isDisplayed()
@@ -278,13 +277,12 @@ describe('MongoDB Assistant', function () {
       it('should display opt-in modal for explain plan entry point', async function () {
         await useExplainPlanEntryPoint(browser);
 
-        const optInModal = browser.$(Selectors.AIOptInModal);
-        await optInModal.waitForDisplayed();
-        expect(await optInModal.isDisplayed()).to.be.true;
+        await browser.waitForOpenModal(Selectors.AIOptInModal);
 
         await browser.clickVisible(Selectors.AIOptInModalDeclineLink);
-
-        await optInModal.waitForDisplayed({ reverse: true });
+        await browser.waitForOpenModal(Selectors.AIOptInModal, {
+          reverse: true,
+        });
 
         expect(await getDisplayedMessages(browser)).to.deep.equal([]);
       });
@@ -305,13 +303,10 @@ describe('MongoDB Assistant', function () {
     it('sends the message if the user opts in', async function () {
       await sendMessage(testMessage, { expectedResult: 'opt-in' });
 
-      const optInModal = browser.$(Selectors.AIOptInModal);
-      await optInModal.waitForDisplayed();
-      expect(await optInModal.isDisplayed()).to.be.true;
+      await browser.waitForOpenModal(Selectors.AIOptInModal);
 
       await browser.clickVisible(Selectors.AIOptInModalAcceptButton);
-
-      await optInModal.waitForDisplayed({ reverse: true });
+      await browser.waitForOpenModal(Selectors.AIOptInModal, { reverse: true });
 
       const chatInput = browser.$(Selectors.AssistantChatInputTextArea);
       expect(await chatInput.getValue()).to.equal('');
@@ -609,7 +604,7 @@ async function useExplainPlanEntryPoint(browser: CompassBrowser) {
 
   await browser.clickVisible(Selectors.ExplainPlanInterpretButton);
 
-  await browser.$(Selectors.AggregationExplainModal).waitForDisplayed({
+  await browser.waitForOpenModal(Selectors.AggregationExplainModal, {
     reverse: true,
   });
 
