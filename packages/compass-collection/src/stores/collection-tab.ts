@@ -66,8 +66,8 @@ export function selectHasUnsupportedStateError(
  */
 export function selectIsCollectionEmpty(state: CollectionState): boolean {
   return (
-    !selectHasSchemaAnalysisData(state) &&
-    state.schemaAnalysis?.status !== SCHEMA_ANALYSIS_STATE_ANALYZING
+    state.schemaAnalysis?.status === SCHEMA_ANALYSIS_STATE_ERROR &&
+    state.schemaAnalysis?.error?.errorType === 'empty'
   );
 }
 

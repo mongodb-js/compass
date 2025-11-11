@@ -58,8 +58,9 @@ describe('CollectionHeaderActions [Component]', function () {
             onOpenMockDataModal={sinon.stub()}
             hasSchemaAnalysisData={true}
             analyzedSchemaDepth={2}
-            schemaAnalysisStatus="complete"
             schemaAnalysisError={null}
+            isCollectionEmpty={false}
+            hasUnsupportedStateError={false}
             {...props}
           />
         </WorkspacesServiceProvider>
@@ -354,7 +355,9 @@ describe('CollectionHeaderActions [Component]', function () {
             isReadonly: false,
             hasSchemaAnalysisData: true,
             analyzedSchemaDepth: MAX_COLLECTION_NESTING_DEPTH + 1,
-            schemaAnalysisStatus: 'complete',
+            schemaAnalysisError: null,
+            isCollectionEmpty: false,
+            hasUnsupportedStateError: false,
             onOpenMockDataModal: sinon.stub(),
           },
           {},
@@ -374,11 +377,37 @@ describe('CollectionHeaderActions [Component]', function () {
             namespace: 'test.collection',
             isReadonly: false,
             hasSchemaAnalysisData: false,
-            schemaAnalysisStatus: 'error',
             schemaAnalysisError: {
               errorType: 'unsupportedState',
               errorMessage: 'Unsupported state',
             },
+            isCollectionEmpty: false,
+            hasUnsupportedStateError: true,
+            onOpenMockDataModal: sinon.stub(),
+          },
+          {},
+          atlasConnectionInfo
+        );
+
+        const button = screen.getByTestId(
+          'collection-header-generate-mock-data-button'
+        );
+        expect(button).to.exist;
+        expect(button).to.have.attribute('aria-disabled', 'true');
+      });
+
+      it('should disable button when collection is empty', async function () {
+        await renderCollectionHeaderActions(
+          {
+            namespace: 'test.collection',
+            isReadonly: false,
+            hasSchemaAnalysisData: false,
+            schemaAnalysisError: {
+              errorType: 'empty',
+              errorMessage: 'No documents found in the collection to analyze.',
+            },
+            isCollectionEmpty: true,
+            hasUnsupportedStateError: false,
             onOpenMockDataModal: sinon.stub(),
           },
           {},

@@ -1,6 +1,6 @@
 import type { CollectionTabOptions } from './collection-tab';
 import { activatePlugin } from './collection-tab';
-import { selectTab } from '../modules/collection-tab';
+import { selectTab, EmptyCollectionError } from '../modules/collection-tab';
 import * as collectionTabModule from '../modules/collection-tab';
 import { waitFor } from '@mongodb-js/testing-library-compass';
 import Sinon from 'sinon';
@@ -529,7 +529,7 @@ describe('Collection Tab Content store', function () {
       // Simulate the empty collection
       store.dispatch({
         type: 'compass-collection/SchemaAnalysisFailed',
-        error: new Error('No documents found'),
+        error: new EmptyCollectionError(),
       } as any);
 
       // Trigger the document-inserted event
@@ -711,7 +711,7 @@ describe('Collection Tab Content store', function () {
       // Simulate the empty collection
       store.dispatch({
         type: 'compass-collection/SchemaAnalysisFailed',
-        error: new Error('No documents found'),
+        error: new EmptyCollectionError(),
       });
 
       // Emit import-finished event
@@ -759,7 +759,7 @@ describe('Collection Tab Content store', function () {
       // Simulate the empty collection
       store.dispatch({
         type: 'compass-collection/SchemaAnalysisFailed',
-        error: new Error('No documents found'),
+        error: new EmptyCollectionError(),
       });
 
       // Emit import-finished event for different collection
@@ -806,7 +806,7 @@ describe('Collection Tab Content store', function () {
       // Simulate the empty collection
       store.dispatch({
         type: 'compass-collection/SchemaAnalysisFailed',
-        error: new Error('No documents found'),
+        error: new EmptyCollectionError(),
       });
 
       // Emit import-finished event for different connection
