@@ -1131,7 +1131,8 @@ export async function init(
 
   const { width: newWidth, height: newHeight } = await browser.resizeWindow(
     defaultWindowWidth,
-    defaultWindowHeight
+    defaultWindowHeight,
+    opts.dangerouslySkipSharedConfigWaitFor
   );
 
   debug(`resized window to ${newWidth}x${newHeight}`);
