@@ -51,11 +51,11 @@ describe('Instance sidebar', function () {
       Selectors.ClusterInfoItem
     );
 
-    const modal = browser.$(Selectors.ConnectionInfoModal);
-    await modal.waitForDisplayed();
-
+    await browser.waitForOpenModal(Selectors.ConnectionInfoModal);
     await browser.clickVisible(Selectors.ConnectionInfoModalCloseButton);
-    await modal.waitForDisplayed({ reverse: true });
+    await browser.waitForOpenModal(Selectors.ConnectionInfoModal, {
+      reverse: true,
+    });
   });
 
   it('contains a dbs/collections tree view', async function () {

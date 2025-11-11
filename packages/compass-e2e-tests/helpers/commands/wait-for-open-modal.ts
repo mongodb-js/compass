@@ -9,6 +9,7 @@ export async function waitForOpenModal(
 ): Promise<void> {
   await browser.waitUntil(
     async () => {
+      /* eslint-disable-next-line @typescript-eslint/await-thenable -- WebdriverIO chainable promise array should be awaited */
       const modals = await browser.getOpenModals(selector);
       const count = await modals.length;
       if (reverse) {

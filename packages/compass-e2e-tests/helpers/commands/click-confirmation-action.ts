@@ -9,8 +9,7 @@ export async function clickConfirmationAction(
 ) {
   await browser.clickVisible(actionButtonSelector);
 
-  const confirmationModal = browser.$(Selectors.ConfirmationModal);
-  await confirmationModal.waitForDisplayed();
+  await browser.waitForOpenModal(Selectors.ConfirmationModal);
 
   if (confirmationText) {
     await browser.setValueVisible(
@@ -24,5 +23,7 @@ export async function clickConfirmationAction(
   }
 
   await browser.clickVisible(Selectors.confirmationModalConfirmButton());
-  await confirmationModal.waitForDisplayed({ reverse: true });
+  await browser.waitForOpenModal(Selectors.ConfirmationModal, {
+    reverse: true,
+  });
 }

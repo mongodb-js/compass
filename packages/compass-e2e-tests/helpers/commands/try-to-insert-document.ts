@@ -13,8 +13,7 @@ export async function tryToInsertDocument(
   await browser.clickVisible(Selectors.InsertDocumentOption);
 
   // wait for the modal to appear
-  const insertDialog = browser.$(Selectors.InsertDialog);
-  await insertDialog.waitForDisplayed();
+  await browser.waitForOpenModal(Selectors.InsertDialog);
 
   if (document) {
     // set the text in the editor

@@ -57,7 +57,7 @@ describe('Bulk Delete', function () {
 
     // Open the modal.
     await browser.clickVisible(Selectors.OpenBulkDeleteButton);
-    await browser.$(Selectors.BulkDeleteModal).waitForDisplayed();
+    await browser.waitForOpenModal(Selectors.BulkDeleteModal);
 
     // Check the telemetry
     const openedEvent = await telemetryEntry('Bulk Delete Opened');
@@ -84,15 +84,15 @@ describe('Bulk Delete', function () {
     await browser.clickVisible(Selectors.BulkDeleteModalDeleteButton);
 
     // The modal should go away
-    await browser
-      .$(Selectors.BulkDeleteModal)
-      .waitForDisplayed({ reverse: true });
+    await browser.waitForOpenModal(Selectors.BulkDeleteModal, {
+      reverse: true,
+    });
 
     // Press delete in the confirmation modal
     await browser.clickVisible(Selectors.confirmationModalConfirmButton());
-    await browser
-      .$(Selectors.BulkDeleteModal)
-      .waitForDisplayed({ reverse: true });
+    await browser.waitForOpenModal(Selectors.ConfirmationModal, {
+      reverse: true,
+    });
     await browser.runFindOperation('Documents', '{ i: 5 }');
 
     // Check the telemetry
@@ -134,7 +134,7 @@ describe('Bulk Delete', function () {
 
     // Open the modal.
     await browser.clickVisible(Selectors.OpenBulkDeleteButton);
-    await browser.$(Selectors.BulkDeleteModal).waitForDisplayed();
+    await browser.waitForOpenModal(Selectors.BulkDeleteModal);
 
     // Check that it will update the expected number of documents
     expect(await browser.$(Selectors.BulkDeleteModalTitle).getText()).to.equal(
@@ -149,9 +149,9 @@ describe('Bulk Delete', function () {
     await browser.clickVisible(Selectors.BulkDeleteModalDeleteButton);
 
     // The modal should go away
-    await browser
-      .$(Selectors.BulkDeleteModal)
-      .waitForDisplayed({ reverse: true });
+    await browser.waitForOpenModal(Selectors.BulkDeleteModal, {
+      reverse: true,
+    });
 
     // Press cancel in the confirmation modal
     await browser.clickVisible(Selectors.confirmationModalCancelButton());
@@ -176,7 +176,7 @@ describe('Bulk Delete', function () {
 
     // Open the modal.
     await browser.clickVisible(Selectors.OpenBulkDeleteButton);
-    await browser.$(Selectors.BulkDeleteModal).waitForDisplayed();
+    await browser.waitForOpenModal(Selectors.BulkDeleteModal);
 
     // Click the export button
     await browser.clickVisible(Selectors.BulkDeleteModalExportButton);

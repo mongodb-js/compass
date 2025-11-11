@@ -10,17 +10,19 @@ export async function hideVisibleModal(browser: CompassBrowser): Promise<void> {
   // the same time we're trying to close the modal, then make it error out
   // quickly so it can be ignored and we move on.
 
-  if (await browser.$(Selectors.LGModal).isDisplayed()) {
-    // close any modals that might be in the way
-    const waitOptions = { timeout: 2_000 };
+  /* eslint-disable-next-line @typescript-eslint/await-thenable -- WebdriverIO chainable promise array should be awaited */
+  const openModals = await browser.getOpenModals(Selectors.LGModal);
+  for (const modal of openModals) {
     try {
-      await browser.clickVisible(Selectors.LGModalClose, waitOptions);
-      await browser
-        .$(Selectors.LGModal)
-        .waitForDisplayed({ reverse: true, ...waitOptions });
+      await browser.clickVisible(browser.$(modal).$(Selectors.LGModalClose), {
+        timeout: 2_000,
+      });
     } catch (err) {
       // if the modal disappears by itself in the meantime, that's fine
-      debug('ignoring', err);
+      debug('ignoring', err instanceof Error ? err.stack : err);
     }
   }
+  await browser.waitForOpenModal(Selectors.LGModal, {
+    reverse: true,
+  });
 }
