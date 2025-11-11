@@ -44,6 +44,7 @@ import treeKill from 'tree-kill';
 import { downloadPath } from './downloads';
 import path from 'path';
 import { globalFixturesAbortController } from './test-runner-global-fixtures';
+import { dialogOpenLocator } from './dialog-open-locator-strategy';
 
 const killAsync = async (pid: number, signal?: string) => {
   return new Promise<void>((resolve, reject) => {
@@ -199,6 +200,9 @@ export class Compass {
         return result;
       }
     );
+
+    // Adding a custom locator strategy to help locate open dialogs from a selector synchronously
+    browser.addLocatorStrategy('dialogOpen', dialogOpenLocator);
 
     this.addDebugger();
   }
