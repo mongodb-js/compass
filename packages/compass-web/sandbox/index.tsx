@@ -14,6 +14,7 @@ import { useAtlasProxySignIn } from './sandbox-atlas-sign-in';
 import { sandboxConnectionStorage } from './sandbox-connection-storage';
 import { useWorkspaceTabRouter } from './sandbox-workspace-tab-router';
 import { SandboxPreferencesGlobalAccessProvider } from '../src/preferences';
+import './sandbox-process';
 
 const sandboxContainerStyles = css({
   width: '100%',
@@ -126,6 +127,7 @@ const App = () => {
               optInGenAIFeatures:
                 overrideGenAIFeatures || (isAtlas && !!optInGenAIFeatures),
               enableDataModeling: true,
+              enableDataModelingCollapse: true,
               enableMyQueries: isAtlas,
               ...groupRolePreferences,
             }}

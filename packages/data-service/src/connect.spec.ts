@@ -11,7 +11,7 @@ import { UUID } from 'mongodb';
 
 import connect from './connect';
 import type { ConnectionOptions } from './connection-options';
-import type DataService from './data-service';
+import type { DataServiceImpl, default as DataService } from './data-service';
 import { redactConnectionOptions } from './redact';
 import { runCommand } from './run-command';
 import { MongoLogWriter } from 'mongodb-log-writer';
@@ -27,7 +27,6 @@ const {
   E2E_TESTS_ATLAS_PASSWORD,
   E2E_TESTS_ATLAS_HOST,
   E2E_TESTS_DATA_LAKE_HOST,
-  E2E_TESTS_SERVERLESS_HOST,
   E2E_TESTS_FREE_TIER_HOST,
   E2E_TESTS_ANALYTICS_NODE_HOST,
   E2E_TESTS_ATLAS_X509_PEM_BASE64,
@@ -38,7 +37,7 @@ const buildConnectionString = (
   username: string | undefined,
   password: string | undefined,
   host: string | undefined,
-  params?: MongoClientOptions
+  params?: Partial<Record<keyof MongoClientOptions, string>>
 ): string => {
   if (!username || !password || !host) {
     return '';
@@ -99,13 +98,6 @@ const COMPASS_TEST_DATA_LAKE_URL = buildConnectionString(
   { tls: 'true' }
 );
 
-const COMPASS_TEST_SERVERLESS_URL = buildConnectionString(
-  'mongodb+srv',
-  E2E_TESTS_ATLAS_USERNAME,
-  E2E_TESTS_ATLAS_PASSWORD,
-  E2E_TESTS_SERVERLESS_HOST
-);
-
 const envs = createTestEnvs([
   'enterprise',
   'ldap',
@@ -143,7 +135,7 @@ describe('connect', function () {
         return this.skip();
       }
 
-      let dataService: DataService;
+      let dataService: DataService | undefined;
 
       try {
         dataService = await connect({
@@ -155,11 +147,14 @@ describe('connect', function () {
         const explainPlan = await dataService.explainFind('test.test', {}, {});
 
         const targetHost = explainPlan?.serverInfo?.host;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const replSetStatus: any = await runCommand(
-          dataService['_database']('admin', 'META'),
+          (dataService as DataServiceImpl)['_database']('admin', 'META'),
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           { replSetGetStatus: 1 } as any
         );
-        const targetHostStatus = replSetStatus?.members.find((member) =>
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const targetHostStatus = replSetStatus?.members.find((member: any) =>
           member.name.startsWith(targetHost)
         );
 
@@ -174,7 +169,7 @@ describe('connect', function () {
         return this.skip();
       }
 
-      let dataService: DataService;
+      let dataService: DataService | undefined;
 
       try {
         dataService = await connect({
@@ -185,18 +180,23 @@ describe('connect', function () {
 
         const explainPlan = await dataService.explainFind('test.test', {}, {});
 
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const replSetGetConfig: any = await runCommand(
-          dataService['_database']('admin', 'META'),
+          (dataService as DataServiceImpl)['_database']('admin', 'META'),
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           { replSetGetConfig: 1 } as any
         );
 
-        const analtyticsNode = replSetGetConfig?.config?.members.find(
-          (member) => member?.tags.nodeType === 'ANALYTICS'
+        const analyticsNode = replSetGetConfig?.config?.members.find(
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (member: any) => member?.tags.nodeType === 'ANALYTICS'
         );
+
+        expect(explainPlan?.serverInfo?.host).to.exist;
 
         // test that queries are routed to the analytics node
         expect(explainPlan?.serverInfo?.host).to.be.equal(
-          analtyticsNode?.host.split(':')[0]
+          analyticsNode?.host.split(':')[0]
         );
       } finally {
         await dataService?.disconnect();
@@ -248,16 +248,6 @@ describe('connect', function () {
 
       await connectAndGetAuthInfo({
         connectionString: COMPASS_TEST_DATA_LAKE_URL,
-      });
-    });
-
-    it('connects to serverless', async function () {
-      if (!IS_CI && !COMPASS_TEST_SERVERLESS_URL) {
-        return this.skip();
-      }
-
-      await connectAndGetAuthInfo({
-        connectionString: COMPASS_TEST_SERVERLESS_URL,
       });
     });
   });
@@ -492,11 +482,11 @@ describe('connect', function () {
       ANALYTICS. readPreference=secondary would more closely mirror the
       original ticket, but this cluster also has no secondaries so that would
       fail regardless of readPreferenceTags.
-      
+
       Ideally people would use readPreference=secondaryPreferred, but that works
       regardless so isn't a good test and if it was the case that people used
       that in the first place we'd never need this ticket.
-      
+
       readPreference=nearest tries to find one that matches the criteria and
       since the config server doesn't know about tags the following operations
       would hang unless we remove the tags. You can confirm this manually by
@@ -712,7 +702,7 @@ async function connectAndGetAuthInfo(connectionOptions: ConnectionOptions) {
         : undefined,
     });
     const connectionStatus = await runCommand(
-      dataService['_database']('admin', 'META'),
+      (dataService as DataServiceImpl)['_database']('admin', 'META'),
       { connectionStatus: 1 }
     );
 

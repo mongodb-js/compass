@@ -11,7 +11,7 @@
     "email": "compass@mongodb.com"
   },
   "homepage": "https://github.com/mongodb-js/compass",
-  "version": "7.71.0",
+  "version": "7.72.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/compass.git"
@@ -71,15 +71,15 @@
     "xvfb-maybe": "^0.2.1"
   },
   "dependencies": {
-    "@mongodb-js/compass-components": "^1.57.0",
-    "@mongodb-js/compass-connections": "^1.85.0",
+    "@mongodb-js/compass-components": "^1.57.1",
+    "@mongodb-js/compass-connections": "^1.86.0",
     "@mongodb-js/compass-logging": "^1.7.23",
     "@mongodb-js/connection-info": "^0.22.0",
     "@mongodb-js/compass-app-registry": "^9.4.27",
     "mongodb-collection-model": "^5.35.6",
     "mongodb-database-model": "^2.35.6",
-    "mongodb-instance-model": "^12.55.0",
-    "compass-preferences-model": "^2.63.0",
+    "mongodb-instance-model": "^12.56.0",
+    "compass-preferences-model": "^2.64.0",
     "mongodb-ns": "^3.0.1",
     "react": "^17.0.2"
   },

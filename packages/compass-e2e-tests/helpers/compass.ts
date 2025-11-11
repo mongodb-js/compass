@@ -43,6 +43,7 @@ import {
 import treeKill from 'tree-kill';
 import { downloadPath } from './downloads';
 import path from 'path';
+import { globalFixturesAbortController } from './test-runner-global-fixtures';
 
 const killAsync = async (pid: number, signal?: string) => {
   return new Promise<void>((resolve, reject) => {
@@ -177,6 +178,27 @@ export class Compass {
         return v(browser, ...args);
       });
     }
+
+    // The waitUntil helper will continue running even if we started tests
+    // teardown on abort. To work around that, we will override the default
+    // method, will short circuit the wait if we aborted, and then throw the
+    // error instead of returning the result
+    browser.overwriteCommand(
+      'waitUntil',
+      async function (origWaitUntil, condition, options) {
+        // eslint-disable-next-line @typescript-eslint/await-thenable
+        const result = await origWaitUntil(function () {
+          if (globalFixturesAbortController.signal.aborted) {
+            return true;
+          }
+          return condition();
+        }, options);
+        if (globalFixturesAbortController.signal.aborted) {
+          throw new Error('Test run was aborted');
+        }
+        return result;
+      }
+    );
 
     this.addDebugger();
   }
@@ -425,6 +447,7 @@ interface StartCompassOptions {
   firstRun?: boolean;
   extraSpawnArgs?: string[];
   wrapBinary?: (binary: string) => Promise<string> | string;
+  dangerouslySkipSharedConfigWaitFor?: boolean;
 }
 
 let defaultUserDataDir: string | undefined;
@@ -654,18 +677,6 @@ async function startCompassElectron(
   if (!process.env.HADRON_AUTO_UPDATE_ENDPOINT_OVERRIDE) {
     process.env.HADRON_PRODUCT_NAME_OVERRIDE = 'MongoDB Compass WebdriverIO';
   }
-
-  // Guide cues might affect too many tests in a way where the auto showing of the cue prevents
-  // clicks from working on elements. Dealing with this case-by-case is way too much work, so
-  // we disable the cues completely for the e2e tests
-  process.env.DISABLE_GUIDE_CUES = 'true';
-
-  // Making sure end-of-life connection modal is not shown, simplify any test connecting to such a server
-  process.env.COMPASS_DISABLE_END_OF_LIFE_CONNECTION_MODAL = 'true';
-
-  // TODO(COMPASS-9977) Turn off virtual scrolling in e2e tests until we can fix
-  // browser.scrollToVirtualItem() to work with it
-  process.env.COMPASS_DISABLE_VIRTUAL_TABLE_RENDERING = 'true';
 
   const options = {
     automationProtocol: 'webdriver' as const,
@@ -1084,6 +1095,37 @@ function augmentError(error: Error, stack: string) {
   error.stack = `${error.stack ?? ''}\nvia ${strippedLines.join('\n')}`;
 }
 
+async function setSharedConfigOnStart(
+  browser: CompassBrowser,
+  dangerouslySkipSharedConfigWaitFor = false
+) {
+  // Guide cues might affect too many tests in a way where the auto showing of
+  // the cue prevents clicks from working on elements. Dealing with this
+  // case-by-case is way too much work, so we disable the cues completely for
+  // the e2e tests
+  await browser.setFeature('enableGuideCues', false);
+
+  // Making sure end-of-life connection modal is not shown, simplify any test
+  // connecting to such a server
+  await browser.setFeature('showEndOfLifeConnectionModal', false);
+
+  // Nice-to-have for desktop tests: if devtools are enabled, you don't need to
+  // spend time enabling them manually in settings
+  await browser.setFeature('enableDevTools', true, () => {
+    // Do not validate that the value was set: some tests might pre-configure
+    // Compass in a way where changing this config is not allowed
+    return true;
+  });
+
+  // TODO(COMPASS-9977) Turn off virtual scrolling in e2e tests until we can fix
+  // browser.scrollToVirtualItem() to work with it
+  await browser.setEnv(
+    'COMPASS_DISABLE_VIRTUAL_TABLE_RENDERING',
+    'true',
+    dangerouslySkipSharedConfigWaitFor
+  );
+}
+
 export async function init(
   name?: string,
   opts: StartCompassOptions = {}
@@ -1100,8 +1142,10 @@ export async function init(
 
   const { browser } = compass;
 
-  // For browser.executeAsync(). Trying to see if it will work for browser.execute() too.
-  await browser.setTimeout({ script: 5_000 });
+  await setSharedConfigOnStart(
+    browser,
+    opts.dangerouslySkipSharedConfigWaitFor
+  );
 
   if (TEST_COMPASS_WEB) {
     // larger window for more consistent results

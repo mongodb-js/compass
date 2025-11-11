@@ -30,6 +30,10 @@ import {
   type SchemaAnalysisError,
 } from '../../schema-analysis-types';
 import { MAX_COLLECTION_NESTING_DEPTH } from '../mock-data-generator-modal/utils';
+import {
+  buildChartsUrl,
+  buildMonitoringUrl,
+} from '@mongodb-js/atlas-service/provider';
 
 const collectionHeaderActionsStyles = css({
   display: 'flex',
@@ -45,20 +49,6 @@ const tooltipMessageStyles = css({
     marginBottom: 0,
   },
 });
-
-function buildChartsUrl(
-  groupId: string,
-  clusterName: string,
-  namespace: string
-) {
-  const { database, collection } = toNS(namespace);
-  const url = new URL(`/charts/${groupId}`, window.location.origin);
-  url.searchParams.set('sourceType', 'cluster');
-  url.searchParams.set('name', clusterName);
-  url.searchParams.set('database', database);
-  url.searchParams.set('collection', collection);
-  return url.toString();
-}
 
 type CollectionHeaderActionsProps = {
   namespace: string;
@@ -236,13 +226,21 @@ const CollectionHeaderActions: React.FunctionComponent<
       )}
       {atlasMetadata && (
         <Button
+          data-testid="collection-header-view-monitoring"
+          size={ButtonSize.Small}
+          href={buildMonitoringUrl(atlasMetadata)}
+          target="_blank"
+          rel="noopener noreferrer"
+          leftGlyph={<Icon glyph="TimeSeries" />}
+        >
+          View monitoring
+        </Button>
+      )}
+      {atlasMetadata && (
+        <Button
           data-testid="collection-header-visualize-your-data"
           size={ButtonSize.Small}
-          href={buildChartsUrl(
-            atlasMetadata.projectId,
-            atlasMetadata.clusterName,
-            namespace
-          )}
+          href={buildChartsUrl(atlasMetadata, namespace)}
           target="_self"
           rel="noopener noreferrer"
           leftGlyph={<Icon glyph="Charts" />}

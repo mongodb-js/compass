@@ -302,7 +302,7 @@ describe('Logging and Telemetry integration', function () {
             const { dataLake, genuineMongoDB } = actual;
             expect({ dataLake, genuineMongoDB }).to.deep.equal({
               dataLake: { isDataLake: false, version: null },
-              genuineMongoDB: { dbType: 'mongodb', isGenuine: true },
+              genuineMongoDB: { serverName: 'mongodb', isGenuine: true },
             });
 
             expect(actual.featureCompatibilityVersion).to.be.a('string');

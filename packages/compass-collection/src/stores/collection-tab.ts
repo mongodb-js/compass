@@ -10,6 +10,7 @@ import reducer, {
   cancelSchemaAnalysis,
 } from '../modules/collection-tab';
 import { MockDataGeneratorStep } from '../components/mock-data-generator-modal/types';
+import { DEFAULT_DOCUMENT_COUNT } from '../components/mock-data-generator-modal/constants';
 
 import type { Collection } from '@mongodb-js/compass-app-stores/provider';
 import type { ActivateHelpers } from '@mongodb-js/compass-app-registry';
@@ -101,6 +102,7 @@ export function activatePlugin(
       mockDataGenerator: {
         isModalOpen: false,
         currentStep: MockDataGeneratorStep.SCHEMA_CONFIRMATION,
+        documentCount: DEFAULT_DOCUMENT_COUNT.toString(),
       },
       fakerSchemaGeneration: {
         status: 'idle',

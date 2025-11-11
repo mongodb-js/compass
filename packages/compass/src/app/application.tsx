@@ -30,7 +30,6 @@ import {
 
 import { createElectronFileInputBackend } from '@mongodb-js/compass-components';
 import { CompassRendererConnectionStorage } from '@mongodb-js/connection-storage/renderer';
-import type { SettingsTabId } from '@mongodb-js/compass-settings';
 import type { AutoConnectPreferences } from '../main/auto-connect';
 
 const { log, mongoLogId } = createLogger('COMPASS-APP');
@@ -169,26 +168,15 @@ class Application {
       </div>
     `;
 
-    const wasNetworkOptInShown =
-      defaultPreferencesInstance.getPreferences().showedNetworkOptIn === true;
-
-    // If we haven't showed welcome modal that points users to network opt in
-    // yet, update preferences with default values to reflect that ...
-    if (!wasNetworkOptInShown) {
-      await defaultPreferencesInstance.ensureDefaultConfigurableUserPreferences();
-    }
-
     ReactDOM.render(
       <React.StrictMode>
         <ApplicationMenuContextProvider provider={this.menuProvider}>
           <CompassElectron
             appName={remote.app.getName()}
-            showWelcomeModal={!wasNetworkOptInShown}
             createFileInputBackend={createElectronFileInputBackend(
               remote,
               webUtils
             )}
-            showSettings={this.showSettingsModal.bind(this)}
             connectionStorage={connectionStorage}
             onAutoconnectInfoRequest={
               initialAutoConnectPreferences.shouldAutoConnect
@@ -445,10 +433,6 @@ class Application {
     // to avoid potential security issues
     document.addEventListener('dragover', (evt) => evt.preventDefault());
     document.addEventListener('drop', (evt) => evt.preventDefault());
-  }
-
-  private showSettingsModal(tab?: SettingsTabId) {
-    globalAppRegistry?.emit('open-compass-settings', tab);
   }
 
   private async getWindowAutoConnectPreferences(): Promise<AutoConnectPreferences> {

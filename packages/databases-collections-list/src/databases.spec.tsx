@@ -272,4 +272,36 @@ describe('Databases', function () {
       'Your privileges grant you access to this namespace, but it might not currently exist'
     );
   });
+
+  it('renders a tooltip for storage size cell with storage and data size', async function () {
+    renderDatabasesList({
+      databases: dbs,
+    });
+
+    const fooRow = screen.getByTestId('databases-list-row-foo');
+    expect(fooRow).to.exist;
+
+    const storageCell = fooRow.querySelector('td:nth-child(2)');
+    expect(storageCell).to.exist;
+
+    // Hover over the span inside the cell (the tooltip trigger)
+    const span = storageCell?.querySelector('span');
+    expect(span).to.exist;
+    userEvent.hover(span as Element);
+
+    await waitFor(
+      function () {
+        expect(screen.getByRole('tooltip')).to.exist;
+      },
+      {
+        timeout: 5000,
+      }
+    );
+
+    const tooltipText = screen.getByRole('tooltip').textContent;
+    expect(tooltipText).to.include('Storage Size:');
+    expect(tooltipText).to.include('5.00 kB');
+    expect(tooltipText).to.include('Data Size:');
+    expect(tooltipText).to.include('1.00 kB');
+  });
 });

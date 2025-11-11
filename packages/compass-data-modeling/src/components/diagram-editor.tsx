@@ -23,11 +23,13 @@ import {
   deleteRelationship,
   removeField,
   renameField,
+  toggleCollectionExpanded,
 } from '../store/diagram';
 import type {
   EdgeProps,
   NodeProps,
   DiagramProps,
+  FieldId,
 } from '@mongodb-js/compass-components';
 import {
   Banner,
@@ -59,6 +61,7 @@ import {
 } from '../utils/nodes-and-edges';
 import toNS from 'mongodb-ns';
 import { getNamespaceRelationships } from '../utils/utils';
+import { usePreference } from 'compass-preferences-model/provider';
 
 const loadingContainerStyles = css({
   width: '100%',
@@ -183,6 +186,7 @@ const DiagramContent: React.FunctionComponent<{
   }) => void;
   onRelationshipDrawn: () => void;
   DiagramComponent?: typeof Diagram;
+  onToggleCollectionExpanded: (namespace: string) => void;
 }> = ({
   diagramLabel,
   database,
@@ -205,8 +209,10 @@ const DiagramContent: React.FunctionComponent<{
   onDeleteField,
   selectedItems,
   DiagramComponent = Diagram,
+  onToggleCollectionExpanded,
 }) => {
   const isDarkMode = useDarkMode();
+  const isCollapseFlagEnabled = usePreference('enableDataModelingCollapse');
   const diagram = useRef(useDiagram());
   const { openDrawer } = useDrawerActions();
   const { isDrawerOpen } = useDrawerState();
@@ -245,6 +251,7 @@ const DiagramContent: React.FunctionComponent<{
         selected,
         isInRelationshipDrawingMode,
         relationships,
+        isExpanded: coll.isExpanded,
       });
     });
   }, [
@@ -337,9 +344,24 @@ const DiagramContent: React.FunctionComponent<{
   );
 
   const onFieldClick = useCallback(
-    (_evt: React.MouseEvent, { id: fieldPath, nodeId: namespace }) => {
+    (
+      _evt: React.MouseEvent,
+      { id, nodeId: namespace }: { id: FieldId; nodeId: string }
+    ) => {
+      // Diagramming package accepts both string ids and array of string ids for
+      // fields (to represent the field path better). While all current code in
+      // compass always uses array of strings as field id, some older saved
+      // diagrams might not. Also handling this explicitly is sort of needed
+      // anyway to convince typescript that we're doing the right thing
+      const fieldPath = Array.isArray(id)
+        ? id
+        : typeof id === 'string'
+        ? [id]
+        : undefined;
+      if (!fieldPath) {
+        return;
+      }
       _evt.stopPropagation(); // TODO(COMPASS-9659): should this be handled by the diagramming package?
-      if (!Array.isArray(fieldPath)) return; // TODO(COMPASS-9659): could be avoided with generics in the diagramming package
       onFieldSelect(namespace, fieldPath);
       openDrawer(DATA_MODELING_DRAWER_ID);
     },
@@ -404,6 +426,15 @@ const DiagramContent: React.FunctionComponent<{
     [onDiagramBackgroundClicked]
   );
 
+  const handleNodeExpandedToggle = useCallback(
+    (evt: React.MouseEvent, nodeId: string) => {
+      evt.preventDefault();
+      evt.stopPropagation();
+      onToggleCollectionExpanded(nodeId);
+    },
+    [onToggleCollectionExpanded]
+  );
+
   const diagramProps: DiagramProps = useMemo(
     () =>
       ({
@@ -420,6 +451,9 @@ const DiagramContent: React.FunctionComponent<{
         onFieldNameChange: onRenameField,
         onNodeDragStop,
         onConnect,
+        onNodeExpandToggle: isCollapseFlagEnabled
+          ? handleNodeExpandedToggle
+          : undefined,
       } satisfies DiagramProps),
     [
       isDarkMode,
@@ -435,6 +469,8 @@ const DiagramContent: React.FunctionComponent<{
       onRenameField,
       onNodeDragStop,
       onConnect,
+      handleNodeExpandedToggle,
+      isCollapseFlagEnabled,
     ]
   );
 
@@ -502,6 +538,7 @@ const ConnectedDiagramContent = connect(
     onDeleteCollection: deleteCollection,
     onDeleteRelationship: deleteRelationship,
     onDeleteField: removeField,
+    onToggleCollectionExpanded: toggleCollectionExpanded,
   }
 )(DiagramContent);
 
