@@ -38,6 +38,7 @@ export async function resizeWindow(
           width,
           height
         );
+        newSize ??= { width: 0, height: 0 }; // in older compass versions 'compass:maximize' doesn't return anything
       } else {
         await browser.setWindowSize(width, height);
         newSize = await browser.getWindowSize();
