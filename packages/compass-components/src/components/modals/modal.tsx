@@ -39,6 +39,8 @@ function UnwrappedModal({
       className={cx(styles, className, {
         [fullScreenStyles]: fullScreen,
       })}
+      /* For now, we're defaulting to not auto-focus the first focusable element */
+      initialFocus={null}
       {...props}
     >
       <Body as="div">{children}</Body>
