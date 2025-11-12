@@ -5,6 +5,7 @@ import {
   fireEvent,
   userEvent,
   renderHook,
+  waitFor,
 } from '@mongodb-js/testing-library-compass';
 import { useGridFilters, useFilteredItems } from './use-grid-filters';
 
@@ -17,7 +18,7 @@ describe('use-grid-header', function () {
     it('should render search input', function () {
       const { result } = renderHook(() => useGridFilters(items));
       render(result.current.controls);
-      await screen.findByText('search');
+      expect(screen.getByLabelText('Search', { selector: 'input' })).to.exist;
     });
     it('should render database and collection selects', function () {
       const { result } = renderHook(() => useGridFilters(items));
