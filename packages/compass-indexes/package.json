@@ -84,7 +84,6 @@
     "mongodb": "^6.19.0",
     "mongodb-collection-model": "^5.36.0",
     "mongodb-data-service": "^22.35.0",
-    "mongodb-mql-engines": "^0.0.4",
     "mongodb-ns": "^3.0.1",
     "mongodb-query-parser": "^4.3.0",
     "react": "^17.0.2",
