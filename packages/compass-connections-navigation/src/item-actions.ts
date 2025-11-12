@@ -243,13 +243,6 @@ export const collectionItemActions = ({
   if (type === 'view') {
     actions.push({ separator: true });
     actions.push(
-      canEditCollection
-        ? {
-            action: 'drop-collection',
-            label: 'Drop view',
-            icon: 'Trash',
-          }
-        : null,
       {
         action: 'duplicate-view',
         label: 'Duplicate view',
@@ -260,6 +253,13 @@ export const collectionItemActions = ({
             action: 'modify-view',
             label: 'Modify view',
             icon: 'Edit',
+          }
+        : null,
+      canEditCollection
+        ? {
+            action: 'drop-collection',
+            label: 'Drop view',
+            icon: 'Trash',
           }
         : null
     );
@@ -379,7 +379,7 @@ export const databaseContextMenuActions = ({
           icon: 'Plus',
           label: 'Create database',
         },
-    hasWriteActionsDisabled && canDeleteDatabase
+    hasWriteActionsDisabled || !canDeleteDatabase
       ? null
       : {
           action: 'drop-database',

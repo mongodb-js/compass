@@ -91,6 +91,7 @@ import { createServiceProvider } from '@mongodb-js/compass-app-registry';
 import { CompassAssistantProvider } from '@mongodb-js/compass-assistant';
 import { CompassAssistantDrawerWithConnections } from './compass-assistant-drawer';
 import { APP_NAMES_FOR_PROMPT } from '@mongodb-js/compass-assistant';
+import { assertsUserDataType } from '@mongodb-js/compass-user-data';
 
 /** @public */
 export type TrackFunction = (
@@ -129,11 +130,8 @@ const WithStorageProviders = createServiceProvider(
       atlasService.authenticatedFetch.bind(atlasService);
     const getResourceUrl = (path?: string) => {
       const pathParts = path?.split('/').filter(Boolean) || [];
-      const type = pathParts[0] as
-        | 'favoriteQueries'
-        | 'recentQueries'
-        | 'favoriteAggregations'
-        | 'savedWorkspaces';
+      const type = pathParts[0];
+      assertsUserDataType(type);
       const pathOrgId = pathParts[1];
       const pathProjectId = pathParts[2];
       const id = pathParts[3];

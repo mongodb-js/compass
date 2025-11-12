@@ -435,10 +435,12 @@ tasks:
         vars:
           compass_distribution: compass
       - func: spawn-signing-server
+        retry_on_failure: true
       - func: package
         vars:
           debug: hadron*,mongo*,compass*,electron*,sign*
           compass_distribution: compass
+        retry_on_failure: true
       - func: verify-artifacts
       - func: save-all-artifacts
         vars:
@@ -458,10 +460,12 @@ tasks:
         vars:
           compass_distribution: compass-isolated
       - func: spawn-signing-server
+        retry_on_failure: true
       - func: package
         vars:
           debug: hadron*,mongo*,compass*,electron*,sign*
           compass_distribution: compass-isolated
+        retry_on_failure: true
       - func: verify-artifacts
       - func: save-all-artifacts
         vars:
@@ -481,10 +485,12 @@ tasks:
         vars:
           compass_distribution: compass-readonly
       - func: spawn-signing-server
+        retry_on_failure: true
       - func: package
         vars:
           debug: hadron*,mongo*,compass*,electron*,sign*
           compass_distribution: compass-readonly
+        retry_on_failure: true
       - func: verify-artifacts
       - func: save-all-artifacts
         vars:

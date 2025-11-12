@@ -1064,10 +1064,13 @@ describe('ConnectionsNavigationTree', function () {
         const contextMenu = screen.getByTestId('context-menu');
 
         // Check that write actions are not present in read-only mode
-        expect(() => within(contextMenu).getByText('Create collection')).to
-          .throw;
-        expect(() => within(contextMenu).getByText('Create database')).to.throw;
-        expect(() => within(contextMenu).getByText('Drop database')).to.throw;
+        expect(() =>
+          within(contextMenu).getByText('Create collection')
+        ).to.throw();
+        expect(() =>
+          within(contextMenu).getByText('Create database')
+        ).to.throw();
+        expect(() => within(contextMenu).getByText('Drop database')).to.throw();
 
         // Check that read-only actions are still present
         expect(within(contextMenu).getByText('View performance metrics')).to.be

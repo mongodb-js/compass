@@ -392,12 +392,14 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
                 const seenTitles = new Set<string>();
                 const sources = [];
                 for (const part of parts) {
-                  if (part.type === 'source-url') {
-                    const title = part.title || 'Documentation Link';
-                    if (!seenTitles.has(title)) {
-                      seenTitles.add(title);
+                  // Related sources are type source-url. We want to only
+                  // include url_citation (has url and title), not file_citation
+                  // (no url or title).
+                  if (part.type === 'source-url' && part.url && part.title) {
+                    if (!seenTitles.has(part.title)) {
+                      seenTitles.add(part.title);
                       sources.push({
-                        children: title,
+                        children: part.title,
                         href: part.url,
                         variant: 'Docs',
                       });

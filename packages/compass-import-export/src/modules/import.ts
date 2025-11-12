@@ -21,7 +21,7 @@ import { analyzeCSVFields } from '../import/analyze-csv-fields';
 import type { AnalyzeCSVFieldsResult } from '../import/analyze-csv-fields';
 import { importCSV } from '../import/import-csv';
 import { importJSON } from '../import/import-json';
-import { getUserDataFolderPath } from '../utils/get-user-data-file-path';
+import { getStoragePath } from '@mongodb-js/compass-utils';
 import {
   showBloatedDocumentSignalToast,
   showUnboundArraySignalToast,
@@ -176,6 +176,14 @@ const onFileSelectError = (error: Error) => ({
   type: FILE_SELECT_ERROR,
   error,
 });
+
+export function getUserDataFolderPath() {
+  const basepath = getStoragePath();
+  if (basepath === undefined) {
+    throw new Error('cannot access user data folder path');
+  }
+  return basepath;
+}
 
 async function getErrorLogPath(fileName: string) {
   // Create the error log output file.

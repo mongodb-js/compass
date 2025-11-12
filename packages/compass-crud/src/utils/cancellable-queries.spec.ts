@@ -18,8 +18,8 @@ describe('cancellable-queries', function () {
   const cluster = mochaTestServer();
   let dataService: DataService;
   let preferences: PreferencesAccess;
-  let abortController;
-  let signal;
+  let abortController: AbortController;
+  let signal: AbortSignal;
 
   before(async function () {
     preferences = await createSandboxFromDefaultPreferences();
@@ -99,7 +99,7 @@ describe('cancellable-queries', function () {
         dataService,
         preferences,
         'cancel.numbers',
-        null,
+        {},
         {
           signal,
         }
@@ -138,7 +138,7 @@ describe('cancellable-queries', function () {
         dataService,
         preferences,
         'cancel.numbers',
-        'this is not a filter',
+        {},
         {
           signal,
           hint: { _id_: 1 }, // this collection doesn't have this index so this query should fail

@@ -10,6 +10,7 @@ import {
   screenshotIfFailed,
   DEFAULT_CONNECTION_NAME_1,
   skipForWeb,
+  screenshotPathName,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
@@ -48,124 +49,129 @@ describe('MongoDB Assistant', function () {
   const collectionName = 'entryPoints';
 
   before(async function () {
-    mockAtlasServer = await startMockAtlasServiceServer();
-    mockAssistantServer = await startMockAssistantServer();
+    try {
+      mockAtlasServer = await startMockAtlasServiceServer();
+      mockAssistantServer = await startMockAssistantServer();
 
-    process.env.COMPASS_ATLAS_SERVICE_UNAUTH_BASE_URL_OVERRIDE =
-      mockAtlasServer.endpoint;
+      process.env.COMPASS_ATLAS_SERVICE_UNAUTH_BASE_URL_OVERRIDE =
+        mockAtlasServer.endpoint;
 
-    telemetry = await startTelemetryServer();
-    compass = await init(this.test?.fullTitle());
+      telemetry = await startTelemetryServer();
+      compass = await init(this.test?.fullTitle());
 
-    sendMessage = async (
-      text: string,
-      {
-        response = {
-          status: 200,
-          body: testResponse,
-        },
-        expectedResult = 'success',
-      }: {
-        response?: MockAssistantResponse;
-        expectedResult?: 'success' | 'opt-in';
-      } = {}
-    ) => {
-      const existingMessages = await getDisplayedMessages(browser);
+      sendMessage = async (
+        text: string,
+        {
+          response = {
+            status: 200,
+            body: testResponse,
+          },
+          expectedResult = 'success',
+        }: {
+          response?: MockAssistantResponse;
+          expectedResult?: 'success' | 'opt-in';
+        } = {}
+      ) => {
+        const existingMessages = await getDisplayedMessages(browser);
 
-      mockAssistantServer.setResponse(response);
-      const chatInput = browser.$(Selectors.AssistantChatInputTextArea);
-      await chatInput.waitForDisplayed();
-      await chatInput.setValue(text);
-      await browser.clickVisible(Selectors.AssistantChatSubmitButton);
+        mockAssistantServer.setResponse(response);
+        const chatInput = browser.$(Selectors.AssistantChatInputTextArea);
+        await chatInput.waitForDisplayed();
+        await chatInput.setValue(text);
+        await browser.clickVisible(Selectors.AssistantChatSubmitButton);
 
-      switch (expectedResult) {
-        case 'success':
-          await browser.waitUntil(async () => {
-            const newMessages = await getDisplayedMessages(browser);
-            return (
-              newMessages.length > existingMessages.length &&
-              newMessages.some(
-                (message) =>
-                  message.text === response?.body &&
-                  message.role === 'assistant'
-              ) &&
-              newMessages.some(
-                (message) => message.text === text && message.role === 'user'
-              )
-            );
-          });
-          break;
-        case 'opt-in':
-          await browser
-            .$(Selectors.AIOptInModalAcceptButton)
-            .waitForDisplayed();
-      }
-    };
-
-    const setup = async () => {
-      browser = compass.browser;
-      await setAIFeatures(true);
-
-      await browser.setupDefaultConnections();
-      await browser.connectToDefaults();
-      await browser.selectConnectionMenuItem(
-        DEFAULT_CONNECTION_NAME_1,
-        Selectors.CreateDatabaseButton,
-        false
-      );
-      await browser.addDatabase(dbName, collectionName);
-
-      await browser.navigateToCollectionTab(
-        DEFAULT_CONNECTION_NAME_1,
-        dbName,
-        collectionName,
-        'Aggregations'
-      );
-    };
-
-    setAIFeatures = async (newValue: boolean) => {
-      if (isTestingWeb()) {
-        await browser.setEnv(
-          'COMPASS_OVERRIDE_ENABLE_AI_FEATURES',
-          newValue ? 'true' : 'false'
-        );
-      }
-      await browser.setFeature('enableGenAIFeatures', newValue);
-
-      if (newValue) {
-        await browser.$(Selectors.AssistantDrawerButton).waitForDisplayed();
-      } else {
-        await browser.$(Selectors.AssistantDrawerButton).waitForDisplayed({
-          reverse: true,
-        });
-      }
-    };
-
-    setAIOptIn = async (newValue: boolean) => {
-      if (
-        isTestingWeb() ||
-        ((await browser.getFeature('optInGenAIFeatures')) === true &&
-          newValue === false)
-      ) {
-        await cleanup(compass);
-        // Reseting the opt-in to false can be tricky so it's best to start over in this case.
-        compass = await init(this.test?.fullTitle(), { firstRun: true });
-        await setup();
-
-        if (isTestingWeb()) {
-          await setAIFeatures(true);
+        switch (expectedResult) {
+          case 'success':
+            await browser.waitUntil(async () => {
+              const newMessages = await getDisplayedMessages(browser);
+              return (
+                newMessages.length > existingMessages.length &&
+                newMessages.some(
+                  (message) =>
+                    message.text === response?.body &&
+                    message.role === 'assistant'
+                ) &&
+                newMessages.some(
+                  (message) => message.text === text && message.role === 'user'
+                )
+              );
+            });
+            break;
+          case 'opt-in':
+            await browser
+              .$(Selectors.AIOptInModalAcceptButton)
+              .waitForDisplayed();
         }
-        await browser.setFeature(
-          'optInGenAIFeatures',
-          newValue ? 'true' : 'false'
+      };
+
+      const setup = async () => {
+        browser = compass.browser;
+        await setAIFeatures(true);
+
+        await browser.setupDefaultConnections();
+        await browser.connectToDefaults();
+        await browser.selectConnectionMenuItem(
+          DEFAULT_CONNECTION_NAME_1,
+          Selectors.CreateDatabaseButton,
+          false
         );
-        return;
-      }
+        await browser.addDatabase(dbName, collectionName);
 
-      await browser.setFeature('optInGenAIFeatures', newValue);
-    };
+        await browser.navigateToCollectionTab(
+          DEFAULT_CONNECTION_NAME_1,
+          dbName,
+          collectionName,
+          'Aggregations'
+        );
+      };
 
-    await setup();
+      setAIFeatures = async (newValue: boolean) => {
+        if (isTestingWeb()) {
+          await browser.setEnv(
+            'COMPASS_OVERRIDE_ENABLE_AI_FEATURES',
+            newValue ? 'true' : 'false'
+          );
+        }
+        await browser.setFeature('enableGenAIFeatures', newValue);
+
+        if (newValue) {
+          await browser.$(Selectors.AssistantDrawerButton).waitForDisplayed();
+        } else {
+          await browser.$(Selectors.AssistantDrawerButton).waitForDisplayed({
+            reverse: true,
+          });
+        }
+      };
+
+      setAIOptIn = async (newValue: boolean) => {
+        if (
+          isTestingWeb() ||
+          ((await browser.getFeature('optInGenAIFeatures')) === true &&
+            newValue === false)
+        ) {
+          await cleanup(compass);
+          // Reseting the opt-in to false can be tricky so it's best to start over in this case.
+          compass = await init(this.test?.fullTitle(), { firstRun: true });
+          await setup();
+
+          if (isTestingWeb()) {
+            await setAIFeatures(true);
+          }
+          await browser.setFeature(
+            'optInGenAIFeatures',
+            newValue ? 'true' : 'false'
+          );
+          return;
+        }
+
+        await browser.setFeature('optInGenAIFeatures', newValue);
+      };
+
+      await setup();
+    } catch (err) {
+      await browser.screenshot(screenshotPathName('before-MongoDB-Assistant'));
+      throw err;
+    }
   });
 
   after(async function () {
@@ -179,10 +185,17 @@ describe('MongoDB Assistant', function () {
   });
 
   afterEach(async function () {
-    mockAssistantServer.clearRequests();
-    await clearChat(browser);
-
     await screenshotIfFailed(compass, this.currentTest);
+
+    try {
+      mockAssistantServer.clearRequests();
+      await clearChat(browser);
+    } catch (err) {
+      await browser.screenshot(
+        screenshotPathName('afterEach-MongoDB-Assistant')
+      );
+      throw err;
+    }
   });
 
   describe('drawer visibility', function () {
@@ -296,8 +309,13 @@ describe('MongoDB Assistant', function () {
         this,
         'E2E testing for opt-in on compass-web is not yet implemented'
       );
-      await setAIOptIn(false);
-      await openAssistantDrawer(browser);
+      try {
+        await setAIOptIn(false);
+        await openAssistantDrawer(browser);
+      } catch (err) {
+        await browser.screenshot(screenshotPathName('before-opting-in'));
+        throw err;
+      }
     });
 
     it('sends the message if the user opts in', async function () {
@@ -323,8 +341,13 @@ describe('MongoDB Assistant', function () {
 
   describe('after opt-in', function () {
     before(async function () {
-      await setAIOptIn(true);
-      await openAssistantDrawer(browser);
+      try {
+        await setAIOptIn(true);
+        await openAssistantDrawer(browser);
+      } catch (err) {
+        await browser.screenshot(screenshotPathName('before-after-opting-in'));
+        throw err;
+      }
     });
 
     describe('clear chat button', function () {
@@ -442,13 +465,20 @@ describe('MongoDB Assistant', function () {
     describe('entry points', function () {
       describe('explain plan entry point', function () {
         before(async function () {
-          await setAIOptIn(true);
-          await setAIFeatures(true);
+          try {
+            await setAIOptIn(true);
+            await setAIFeatures(true);
 
-          mockAssistantServer.setResponse({
-            status: 200,
-            body: 'You should create an index.',
-          });
+            mockAssistantServer.setResponse({
+              status: 200,
+              body: 'You should create an index.',
+            });
+          } catch (err) {
+            await browser.screenshot(
+              screenshotPathName('before-explain-plan-entry-point')
+            );
+            throw err;
+          }
         });
 
         it('opens assistant with explain plan prompt when clicking "Interpret for me"', async function () {
