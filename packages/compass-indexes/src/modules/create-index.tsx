@@ -304,8 +304,8 @@ function getInitialState(): State {
 
 export const createIndexOpened = (
   initialQuery?: Document
-): IndexesThunkAction<Promise<void>, CreateIndexOpenedAction> => {
-  return async (dispatch) => {
+): IndexesThunkAction<void, CreateIndexOpenedAction> => {
+  return (dispatch) => {
     dispatch({
       type: ActionTypes.CreateIndexOpened,
       initialQuery,
