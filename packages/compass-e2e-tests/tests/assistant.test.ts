@@ -165,10 +165,16 @@ describe('MongoDB Assistant', function () {
   });
 
   afterEach(async function () {
-    mockAssistantServer.clearRequests();
-    await clearChat(browser);
-
     await screenshotIfFailed(compass, this.currentTest);
+    try {
+      mockAssistantServer.clearRequests();
+      await clearChat(browser);
+    } catch (err) {
+      await browser.screenshot(
+        screenshotPathName('afterEach-MongoDB-Assistant')
+      );
+      throw err;
+    }
   });
 
   describe('drawer visibility', function () {
@@ -267,8 +273,13 @@ describe('MongoDB Assistant', function () {
 
   describe('opting in', function () {
     before(async function () {
-      await setAIOptIn(false);
-      await openAssistantDrawer(browser);
+      try {
+        await setAIOptIn(false);
+        await openAssistantDrawer(browser);
+      } catch (err) {
+        await browser.screenshot(screenshotPathName('before-opting-in'));
+        throw err;
+      }
     });
 
     it('sends the message if the user opts in', async function () {
@@ -294,8 +305,13 @@ describe('MongoDB Assistant', function () {
 
   describe('after opt-in', function () {
     before(async function () {
-      await setAIOptIn(true);
-      await openAssistantDrawer(browser);
+      try {
+        await setAIOptIn(true);
+        await openAssistantDrawer(browser);
+      } catch (err) {
+        await browser.screenshot(screenshotPathName('before-after-opting-in'));
+        throw err;
+      }
     });
 
     describe('clear chat button', function () {
