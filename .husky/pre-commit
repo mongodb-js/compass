@@ -4,6 +4,10 @@
 # listings staged files only
 fileList=$(git diff --diff-filter=AM --cached --name-only)
 
+# hide all unstaged changes and pop them when exiting the script
+git stash --keep-index -m "pre-commit hook"
+trap "git stash pop" EXIT
+
 if [ -n "$fileList" ]; then
   echo "Prettifying staged files..."
   npx prettier-compass --write --ignore-unknown $fileList
