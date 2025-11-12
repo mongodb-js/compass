@@ -28837,7 +28837,7 @@ License files:
       See the License for the specific language governing permissions and
       limitations under the License.
 
-<a id="f3c3cf99d701af28ef931ec96d633f53a8010e9a64fe99de829cd0788725e29d"></a>
+<a id="1cd7eed8e558e278003bafc11ef70f899d5d7c2e4e604a3223e4fa11a0f85fa7"></a>
 
 ### [mongodb-ns](https://www.npmjs.com/package/mongodb-ns) (version 3.0.1)
 
