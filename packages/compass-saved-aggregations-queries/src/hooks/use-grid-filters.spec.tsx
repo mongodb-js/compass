@@ -5,7 +5,6 @@ import {
   fireEvent,
   userEvent,
   renderHook,
-  waitFor,
 } from '@mongodb-js/testing-library-compass';
 import { useGridFilters, useFilteredItems } from './use-grid-filters';
 
