@@ -274,12 +274,10 @@ describe('exportJSON', function () {
     expect(result.docsWritten).to.equal(0);
     expect(result.aborted).to.be.true;
 
-    try {
-      await fs.promises.readFile(resultPath, 'utf8');
-      expect.fail('Expected file to not exist');
-    } catch {
-      // noop
-    }
+    const error = await fs.promises
+      .readFile(resultPath, 'utf8')
+      .catch((e) => e);
+    expect(error).to.be.instanceOf(Error);
     // close the stream so that afterEach hook can clear the tmpdir
     // otherwise it will throw an error (for windows)
     output.close();
@@ -313,10 +311,11 @@ describe('exportJSON', function () {
     try {
       JSON.parse(data);
       expect.fail('Expected file to not be valid JSON');
-    } catch {
+    } catch (err: any) {
       // With signal part of streams pipeline the file is created and if
       // the signal is aborted the stream is destroyed and file is not
       // writable anymore and as a result its not able to write trailing ] to the file.
+      expect(err.message).to.not.equal('Expected file to not be valid JSON');
     }
     expect(result.aborted).to.be.true;
     expect(result.docsWritten).to.equal(0);

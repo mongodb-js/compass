@@ -24,16 +24,12 @@ describe('HistoryStorage', function () {
 
   describe('#save', function () {
     it('creates the file and directory if not existing', async function () {
-      await fs.access(historyFilePath);
+      const error = await fs.access(historyFilePath).catch((e) => e);
+      expect(error).to.be.instanceOf(Error);
 
       await historyStorage.save([]);
 
-      try {
-        await fs.access(historyFilePath);
-        expect.fail('expected to fail');
-      } catch {
-        // ignore
-      }
+      await fs.access(historyFilePath);
     });
 
     it('stores entries', async function () {
@@ -67,7 +63,7 @@ describe('HistoryStorage', function () {
       try {
         await fs.access(historyFilePath);
         expect.fail('Expected file to not exist');
-      } catch (e) {
+      } catch (e: any) {
         expect(e.code).to.equal('ENOENT');
       }
       expect(await historyStorage.load()).to.deep.equal([]);

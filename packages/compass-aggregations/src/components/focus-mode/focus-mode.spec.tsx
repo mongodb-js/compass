@@ -42,8 +42,8 @@ describe('FocusMode', function () {
       screen.getByLabelText(/close modal/i).click();
     });
 
-    expect(() => {
-      screen.getByTestId('focus-mode-modal');
-    }).to.throw();
+    await waitFor(() => {
+      expect(screen.queryByTestId('focus-mode-modal')).to.not.exist;
+    });
   });
 });

@@ -182,12 +182,10 @@ describe('PipelineBuilder', function () {
     const pipeline = `[{$match: {}}, {$unwind: "users"}, {$out: "test"}]`;
     pipelineBuilder.reset(pipeline);
 
-    try {
-      await pipelineBuilder.getPreviewForPipeline('airbnb.listings', {});
-      expect.fail('expected an error to be thrown');
-    } catch {
-      // ignore
-    }
+    const error = await pipelineBuilder
+      .getPreviewForPipeline('airbnb.listings', {})
+      .catch((e) => e);
+    expect(error).to.be.instanceOf(Error);
   });
 
   it('should handle leading and trailing stages of the pipeline', function () {
