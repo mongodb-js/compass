@@ -40,8 +40,6 @@ describe('CreateIndexForm', () => {
     expect(screen.getByText('Index fields')).to.exist;
   });
 
-  it('renders the options accordion', () => {});
-
   it('renders standard index options when accordion is expanded', () => {
     renderWithStore();
     expect(screen.getByTestId('create-index-modal-toggle-options')).to.exist;
