@@ -96,7 +96,6 @@ const MockDataGeneratorModal = ({
       case MockDataGeneratorStep.SCHEMA_EDITOR:
         return (
           <FakerSchemaEditorScreen
-            onSchemaConfirmed={onNextStep}
             fakerSchemaGenerationState={fakerSchemaGenerationState}
           />
         );
@@ -125,7 +124,6 @@ const MockDataGeneratorModal = ({
     fakerSchemaGenerationState,
     documentCount,
     onDocumentCountChange,
-    onNextStep,
   ]);
 
   useTrackOnChange(

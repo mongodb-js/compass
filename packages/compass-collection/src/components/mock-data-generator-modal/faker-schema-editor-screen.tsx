@@ -1,11 +1,8 @@
 import {
-  Body,
-  Button,
-  ButtonSize,
-  ButtonVariant,
   css,
+  Description,
+  H3,
   Link,
-  palette,
   spacing,
   SpinLoaderWithLabel,
 } from '@mongodb-js/compass-components';
@@ -36,19 +33,10 @@ const innerEditorStyles = css({
 });
 
 const titleStyles = css({
-  color: palette.black,
   fontWeight: 600,
   fontSize: '16px',
   lineHeight: '20px',
   marginBottom: 0,
-});
-
-const bodyStyles = css({
-  color: palette.gray.dark1,
-});
-
-const confirmMappingsButtonStyles = css({
-  width: '200px',
 });
 
 const schemaEditorLoaderStyles = css({
@@ -60,13 +48,11 @@ const schemaEditorLoaderStyles = css({
 const FakerSchemaEditorContent = ({
   fakerSchema,
   originalLlmResponse,
-  onSchemaConfirmed,
   onFieldTypeChanged,
   onFieldMethodChanged,
 }: {
   fakerSchema: FakerSchema;
   originalLlmResponse: FakerSchema;
-  onSchemaConfirmed: () => void;
   onFieldTypeChanged: (fieldPath: string, mongoType: MongoDBFieldType) => void;
   onFieldMethodChanged: (fieldPath: string, fakerMethod: string) => void;
 }) => {
@@ -145,25 +131,15 @@ const FakerSchemaEditorContent = ({
           />
         )}
       </div>
-      <Button
-        size={ButtonSize.Small}
-        className={confirmMappingsButtonStyles}
-        variant={ButtonVariant.Primary}
-        onClick={onSchemaConfirmed}
-      >
-        Confirm mappings
-      </Button>
     </>
   );
 };
 
 const FakerSchemaEditorScreen = ({
-  onSchemaConfirmed,
   fakerSchemaGenerationState,
   onFieldTypeChanged,
   onFieldMethodChanged,
 }: {
-  onSchemaConfirmed: () => void;
   fakerSchemaGenerationState: MockDataGeneratorState;
   onFieldTypeChanged: (fieldPath: string, mongoType: MongoDBFieldType) => void;
   onFieldMethodChanged: (fieldPath: string, fakerMethod: string) => void;
@@ -171,16 +147,17 @@ const FakerSchemaEditorScreen = ({
   return (
     <div data-testid="faker-schema-editor" className={containerStyles}>
       <div>
-        <h3 className={titleStyles}>
+        <H3 className={titleStyles}>
           Confirm Field to Faker Function Mappings
-        </h3>
-        <Body className={bodyStyles}>
-          We have sampled your collection and created a schema based on your
-          documents. That schema has been sent to an LLM and it has returned the
-          following mapping between your schema fields and{' '}
-          <Link href="https://fakerjs.dev/api/faker.html">faker functions</Link>
-          .
-        </Body>
+        </H3>
+        <Description>
+          We analyzed a sample of your data and used generative AI to suggest
+          the following mapping between your document fields and data simulation
+          functions.{' '}
+          <Link href="https://www.mongodb.com/docs/generative-ai-faq/?utm_source=compass&utm_medium=product">
+            Learn more about MongoDB’s AI usage
+          </Link>
+        </Description>
       </div>
       {fakerSchemaGenerationState.status === 'in-progress' && (
         <div
@@ -194,7 +171,6 @@ const FakerSchemaEditorScreen = ({
         <FakerSchemaEditorContent
           fakerSchema={fakerSchemaGenerationState.editedFakerSchema}
           originalLlmResponse={fakerSchemaGenerationState.originalLlmResponse}
-          onSchemaConfirmed={onSchemaConfirmed}
           onFieldTypeChanged={onFieldTypeChanged}
           onFieldMethodChanged={onFieldMethodChanged}
         />

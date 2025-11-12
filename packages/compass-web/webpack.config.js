@@ -165,14 +165,6 @@ module.exports = (env, args) => {
               ),
             }
           : {}),
-        ...(process.env.COMPASS_DISABLE_VIRTUAL_TABLE_RENDERING
-          ? {
-              'process.env.COMPASS_DISABLE_VIRTUAL_TABLE_RENDERING':
-                JSON.stringify(
-                  process.env.COMPASS_DISABLE_VIRTUAL_TABLE_RENDERING
-                ),
-            }
-          : {}),
       }),
 
       new webpack.ProvidePlugin({

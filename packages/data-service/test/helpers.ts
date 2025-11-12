@@ -40,8 +40,9 @@ export function createMongoClientMock({
 } {
   const db = {
     command(spec: Document) {
-      const cmd = Object.keys(spec).find((key) =>
-        ALLOWED_COMMANDS.includes(key as (typeof ALLOWED_COMMANDS)[number])
+      const cmd = Object.keys(spec).find(
+        (key): key is (typeof ALLOWED_COMMANDS)[number] =>
+          ALLOWED_COMMANDS.includes(key as (typeof ALLOWED_COMMANDS)[number])
       );
       if (cmd && commands[cmd]) {
         const command = commands[cmd];
@@ -55,7 +56,7 @@ export function createMongoClientMock({
       return Promise.reject(
         new Error(
           `not authorized on ${String(
-            this.databaseName
+            (this as unknown as ReturnType<MongoClient['db']>).databaseName
           )} to execute command ${JSON.stringify(spec)}`
         )
       );

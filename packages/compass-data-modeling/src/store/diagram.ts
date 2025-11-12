@@ -8,6 +8,7 @@ import type {
   Relationship,
 } from '../services/data-model-storage';
 import {
+  DEFAULT_IS_EXPANDED,
   validateEdit,
   type Edit,
   type MongoDBDataModelDescription,
@@ -187,9 +188,13 @@ export const diagramReducer: Reducer<DiagramState> = (
               collections: action.collections.map((collection) => ({
                 ns: collection.ns,
                 jsonSchema: collection.schema,
-                displayPosition: [collection.position.x, collection.position.y],
+                displayPosition: [
+                  collection.position.x,
+                  collection.position.y,
+                ] as const,
                 indexes: [],
                 shardKey: undefined,
+                isExpanded: collection.isExpanded,
               })),
               relationships: action.relations,
             },
@@ -441,6 +446,10 @@ export function selectBackground(): DiagramBackgroundSelectedAction {
   return {
     type: DiagramActionTypes.DIAGRAM_BACKGROUND_SELECTED,
   };
+}
+
+export function toggleCollectionExpanded(namespace: string) {
+  return applyEdit({ type: 'ToggleExpandCollection', ns: namespace });
 }
 
 export function createNewRelationship({
@@ -870,6 +879,7 @@ function getPositionForNewCollection(
     ns: newCollection.ns,
     jsonSchema: newCollection.jsonSchema,
     displayPosition: [0, 0],
+    isExpanded: newCollection.isExpanded,
   });
   const xyposition = getCoordinatesForNewNode(existingNodes, newNode);
   return [xyposition.x, xyposition.y];
@@ -908,6 +918,7 @@ export function addCollection(
         ns,
         jsonSchema: {} as MongoDBJSONSchema,
         indexes: [],
+        isExpanded: DEFAULT_IS_EXPANDED,
       });
     }
 

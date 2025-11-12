@@ -21,6 +21,7 @@ import {
 } from './drawer-section-components';
 import { useChangeOnBlur } from './use-change-on-blur';
 import { RelationshipsSection } from './relationships-section';
+import { getNamespaceRelationships } from '../../utils/utils';
 
 type CollectionDrawerContentProps = {
   namespace: string;
@@ -170,12 +171,10 @@ export default connect(
       namespace: collection.ns,
       isDraftCollection: state.diagram?.draftCollection === ownProps.namespace,
       collections: model.collections,
-      relationships: model.relationships.filter((r) => {
-        const [local, foreign] = r.relationship;
-        return (
-          local.ns === ownProps.namespace || foreign.ns === ownProps.namespace
-        );
-      }),
+      relationships: getNamespaceRelationships(
+        ownProps.namespace,
+        model.relationships
+      ),
     };
   },
   {

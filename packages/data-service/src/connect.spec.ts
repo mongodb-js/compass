@@ -11,7 +11,7 @@ import { UUID } from 'mongodb';
 
 import connect from './connect';
 import type { ConnectionOptions } from './connection-options';
-import type DataService from './data-service';
+import type { DataServiceImpl, default as DataService } from './data-service';
 import { redactConnectionOptions } from './redact';
 import { runCommand } from './run-command';
 import { MongoLogWriter } from 'mongodb-log-writer';
@@ -37,7 +37,7 @@ const buildConnectionString = (
   username: string | undefined,
   password: string | undefined,
   host: string | undefined,
-  params?: MongoClientOptions
+  params?: Partial<Record<keyof MongoClientOptions, string>>
 ): string => {
   if (!username || !password || !host) {
     return '';
@@ -135,7 +135,7 @@ describe('connect', function () {
         return this.skip();
       }
 
-      let dataService: DataService;
+      let dataService: DataService | undefined;
 
       try {
         dataService = await connect({
@@ -147,11 +147,14 @@ describe('connect', function () {
         const explainPlan = await dataService.explainFind('test.test', {}, {});
 
         const targetHost = explainPlan?.serverInfo?.host;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const replSetStatus: any = await runCommand(
-          dataService['_database']('admin', 'META'),
+          (dataService as DataServiceImpl)['_database']('admin', 'META'),
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           { replSetGetStatus: 1 } as any
         );
-        const targetHostStatus = replSetStatus?.members.find((member) =>
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const targetHostStatus = replSetStatus?.members.find((member: any) =>
           member.name.startsWith(targetHost)
         );
 
@@ -166,7 +169,7 @@ describe('connect', function () {
         return this.skip();
       }
 
-      let dataService: DataService;
+      let dataService: DataService | undefined;
 
       try {
         dataService = await connect({
@@ -177,18 +180,23 @@ describe('connect', function () {
 
         const explainPlan = await dataService.explainFind('test.test', {}, {});
 
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const replSetGetConfig: any = await runCommand(
-          dataService['_database']('admin', 'META'),
+          (dataService as DataServiceImpl)['_database']('admin', 'META'),
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           { replSetGetConfig: 1 } as any
         );
 
-        const analtyticsNode = replSetGetConfig?.config?.members.find(
-          (member) => member?.tags.nodeType === 'ANALYTICS'
+        const analyticsNode = replSetGetConfig?.config?.members.find(
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (member: any) => member?.tags.nodeType === 'ANALYTICS'
         );
+
+        expect(explainPlan?.serverInfo?.host).to.exist;
 
         // test that queries are routed to the analytics node
         expect(explainPlan?.serverInfo?.host).to.be.equal(
-          analtyticsNode?.host.split(':')[0]
+          analyticsNode?.host.split(':')[0]
         );
       } finally {
         await dataService?.disconnect();
@@ -694,7 +702,7 @@ async function connectAndGetAuthInfo(connectionOptions: ConnectionOptions) {
         : undefined,
     });
     const connectionStatus = await runCommand(
-      dataService['_database']('admin', 'META'),
+      (dataService as DataServiceImpl)['_database']('admin', 'META'),
       { connectionStatus: 1 }
     );
 
