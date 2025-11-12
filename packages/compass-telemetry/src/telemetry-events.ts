@@ -2877,6 +2877,13 @@ type CreateIndexNewFieldAdded = CommonEvent<{
   };
 }>;
 
+type CreateIndexOptionsClicked = CommonEvent<{
+  name: 'Options Clicked';
+  payload: {
+    context: CreateIndexModalContext;
+  };
+}>;
+
 type CreateIndexModalClosed = CommonEvent<{
   name: 'Create Index Modal Closed';
   payload: {
@@ -3371,6 +3378,7 @@ export type TelemetryEvent =
   | CreateIndexModalCancelled
   | CreateIndexModalClosed
   | CreateIndexNewFieldAdded
+  | CreateIndexOptionsClicked
   | UUIDEncounteredEvent
   | ContextMenuOpened
   | ContextMenuItemClicked

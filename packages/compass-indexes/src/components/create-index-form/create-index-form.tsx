@@ -12,6 +12,7 @@ import {
 } from '@mongodb-js/compass-connections/provider';
 import { usePreference } from 'compass-preferences-model/provider';
 import type { Document } from 'mongodb';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 
 const createIndexModalFieldsStyles = css({
   margin: `${spacing[600]}px 0 ${spacing[800]}px 0`,
@@ -54,6 +55,8 @@ function CreateIndexForm({
   const showRollingIndexOption =
     rollingIndexesFeatureEnabled && supportsRollingIndexes;
 
+  const track = useTelemetry();
+
   const schemaFields = useAutocompleteFields(namespace);
   const schemaFieldNames = useMemo(() => {
     return schemaFields
@@ -92,6 +95,11 @@ function CreateIndexForm({
       <Accordion
         data-testid="create-index-modal-toggle-options"
         text={'Options'}
+        setOpen={() => {
+          track('Options Clicked', {
+            context: 'Create Index Modal',
+          });
+        }}
       >
         <div
           data-testid="create-index-modal-options"
