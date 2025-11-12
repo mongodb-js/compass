@@ -142,8 +142,8 @@ describe('PipelineToolbar', function () {
           showRunButton
         />
       );
-      const toolbar = screen.getByTestId('pipeline-toolbar');
       // TODO
+      //const toolbar = screen.getByTestId('pipeline-toolbar');
       //expect(within(toolbar).queryByTestId('pipeline-settings')).to.not.exist;
     });
   });
