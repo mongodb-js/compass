@@ -179,10 +179,10 @@ describe('MongoDB Assistant', function () {
   });
 
   afterEach(async function () {
+    await screenshotIfFailed(compass, this.currentTest);
+
     mockAssistantServer.clearRequests();
     await clearChat(browser);
-
-    await screenshotIfFailed(compass, this.currentTest);
   });
 
   describe('drawer visibility', function () {
