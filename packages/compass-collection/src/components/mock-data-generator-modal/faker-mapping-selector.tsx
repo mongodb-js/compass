@@ -76,12 +76,12 @@ const FakerMappingSelector = ({
 }: Props) => {
   const fakerMethodOptions = useMemo(() => {
     const methods = MONGO_TYPE_TO_FAKER_METHODS[activeJsonType] || [];
-
-    if (methods.includes(activeFakerFunction)) {
+    const methodNames = methods.map((m) => m.method);
+    if (methodNames.includes(activeFakerFunction)) {
       return methods;
     }
 
-    return [activeFakerFunction, ...methods];
+    return [{ method: activeFakerFunction }, ...methods];
   }, [activeJsonType, activeFakerFunction]);
 
   return (
@@ -105,8 +105,8 @@ const FakerMappingSelector = ({
         value={activeFakerFunction}
         onChange={onFakerFunctionSelect}
       >
-        {fakerMethodOptions.map((method) => (
-          <Option key={method} value={method}>
+        {fakerMethodOptions.map(({ method, description }) => (
+          <Option key={method} value={method} description={description}>
             {method}
           </Option>
         ))}

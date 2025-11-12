@@ -54,7 +54,7 @@ describe('FakerMappingSelector', () => {
       MONGO_TYPE_TO_FAKER_METHODS
     )) {
       it(`should display faker methods for ${mongoType}`, () => {
-        const firstMethod = methods[0];
+        const firstMethod = methods[0].method;
 
         render(
           <FakerMappingSelector
@@ -71,7 +71,7 @@ describe('FakerMappingSelector', () => {
         const fakerFunctionSelect = screen.getByLabelText('Faker Function');
         userEvent.click(fakerFunctionSelect);
 
-        methods.forEach((method) => {
+        methods.forEach(({ method }) => {
           expect(screen.getByRole('option', { name: method })).to.exist;
         });
       });
