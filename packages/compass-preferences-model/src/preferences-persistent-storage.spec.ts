@@ -40,8 +40,18 @@ describe('PersistentStorage', function () {
     const preferencesDir = getPreferencesFolder(tmpDir);
     const preferencesFile = getPreferencesFile(tmpDir);
 
-    await fs.access(preferencesDir);
-    await fs.access(preferencesFile);
+    try {
+      await fs.access(preferencesDir);
+      expect.fail('expected to throw');
+    } catch {
+      // ignore
+    }
+    try {
+      await fs.access(preferencesFile);
+      expect.fail('expected to throw');
+    } catch {
+      // ignore
+    }
 
     await storage.setup();
 

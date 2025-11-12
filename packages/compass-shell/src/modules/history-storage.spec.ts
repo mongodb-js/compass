@@ -28,7 +28,12 @@ describe('HistoryStorage', function () {
 
       await historyStorage.save([]);
 
-      await fs.access(historyFilePath);
+      try {
+        await fs.access(historyFilePath);
+        expect.fail('expected to fail');
+      } catch {
+        // ignore
+      }
     });
 
     it('stores entries', async function () {
