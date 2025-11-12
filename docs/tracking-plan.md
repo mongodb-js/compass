@@ -2282,7 +2282,6 @@ a system that doesn't offer a suitable secret storage backend.
 
 **Properties**:
 
-- **flow** (optional): `"Start with Query" | "Start with Index" | undefined`
 - **context** (required): `"Create Index Modal"`
 - **is_compass_web** (optional): `true | undefined`
 

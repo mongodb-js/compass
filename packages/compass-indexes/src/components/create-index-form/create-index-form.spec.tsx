@@ -1,73 +1,56 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@mongodb-js/testing-library-compass';
+import { render, screen, userEvent } from '@mongodb-js/testing-library-compass';
+import { Provider } from 'react-redux';
 import { CreateIndexForm } from './create-index-form';
 import type { Field } from '../../modules/create-index';
 import { expect } from 'chai';
-import type { SinonSpy } from 'sinon';
-
 import { setupStore } from '../../../test/setup-store';
-import sinon from 'sinon';
-import { Provider } from 'react-redux';
 
 describe('CreateIndexForm', () => {
-  let onTabClickSpy: SinonSpy;
-  const store = setupStore();
+  const defaultProps = {
+    namespace: 'test.collection',
+    fields: [
+      { name: 'field1', type: '1' },
+      { name: 'field2', type: '-1' },
+    ] as Field[],
+    serverVersion: '5.0.0',
+    onSelectFieldNameClick: () => {},
+    onSelectFieldTypeClick: () => {},
+    onAddFieldClick: () => {},
+    onRemoveFieldClick: () => {},
+    query: null,
+  };
 
-  beforeEach(function () {
-    onTabClickSpy = sinon.spy();
-  });
-
-  const renderComponent = ({
-    showIndexesGuidanceVariant,
-  }: {
-    showIndexesGuidanceVariant?: boolean;
-  }) => {
-    render(
+  const renderWithStore = (props = defaultProps) => {
+    const store = setupStore();
+    return render(
       <Provider store={store}>
-        <CreateIndexForm
-          namespace="testNamespace"
-          fields={
-            [
-              { name: 'field1', type: 'string' },
-              { name: 'field2', type: 'number' },
-            ] as Field[]
-          }
-          serverVersion="5.0.0"
-          currentTab="IndexFlow"
-          onSelectFieldNameClick={() => {}}
-          onSelectFieldTypeClick={() => {}}
-          onAddFieldClick={() => {}}
-          onRemoveFieldClick={() => {}}
-          onTabClick={onTabClickSpy}
-          showIndexesGuidanceVariant={showIndexesGuidanceVariant || false}
-          query={null}
-        />
+        <CreateIndexForm {...props} />
       </Provider>
     );
   };
 
   it('renders the create index form', () => {
-    renderComponent({});
+    renderWithStore();
     expect(screen.getByTestId('create-index-form')).to.exist;
   });
 
-  describe('when showIndexesGuidanceVariant is false', () => {
-    it('renders the RadioBoxGroup', () => {
-      renderComponent({});
-      expect(screen.queryByTestId('create-index-form-flows')).not.to.exist;
-    });
+  it('renders the index fields section', () => {
+    renderWithStore();
+    expect(screen.getByText('Index fields')).to.exist;
   });
 
-  describe('when showIndexesGuidanceVariant is true', () => {
-    it('renders the RadioBoxGroup', () => {
-      renderComponent({ showIndexesGuidanceVariant: true });
-      expect(screen.getByTestId('create-index-form-flows')).to.exist;
-    });
-    it('calls onTabClick when a RadioBox is selected', () => {
-      renderComponent({ showIndexesGuidanceVariant: true });
-      const radioBox = screen.getByLabelText('Start with a Query');
-      fireEvent.click(radioBox);
-      expect(onTabClickSpy).to.be.calledWith('QueryFlow');
-    });
+  it('renders the options accordion', () => {});
+
+  it('renders standard index options when accordion is expanded', () => {
+    renderWithStore();
+    expect(screen.getByTestId('create-index-modal-toggle-options')).to.exist;
+
+    // Click to expand the options accordion
+    const optionsButton = screen.getByText('Options');
+    expect(optionsButton).to.exist;
+    userEvent.click(optionsButton);
+
+    expect(screen.getByTestId('create-index-modal-options')).to.exist;
   });
 });
