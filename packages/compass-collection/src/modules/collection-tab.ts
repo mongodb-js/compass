@@ -40,7 +40,6 @@ import { MockDataGeneratorStep } from '../components/mock-data-generator-modal/t
 import type {
   LlmFakerMapping,
   FakerSchema,
-  FakerFieldMapping,
   MockDataGeneratorState,
 } from '../components/mock-data-generator-modal/types';
 import { DEFAULT_DOCUMENT_COUNT } from '../components/mock-data-generator-modal/constants';
@@ -135,7 +134,6 @@ export enum CollectionActions {
   FakerMappingGenerationFailed = 'compass-collection/FakerMappingGenerationFailed',
   FakerFieldTypeChanged = 'compass-collection/FakerFieldTypeChanged',
   FakerFieldMethodChanged = 'compass-collection/FakerFieldMethodChanged',
-  FakerFieldMappingRestored = 'compass-collection/FakerFieldMappingRestored',
 }
 
 interface CollectionMetadataFetchedAction {
@@ -220,12 +218,6 @@ export interface FakerFieldMethodChangedAction {
   type: CollectionActions.FakerFieldMethodChanged;
   fieldPath: string;
   fakerMethod: string;
-}
-
-export interface FakerFieldMappingRestoredAction {
-  type: CollectionActions.FakerFieldMappingRestored;
-  fieldPath: string;
-  mapping: FakerFieldMapping;
 }
 
 const reducer: Reducer<CollectionState, Action> = (
@@ -584,38 +576,24 @@ const reducer: Reducer<CollectionState, Action> = (
     const { fieldPath, fakerMethod } = action;
     const currentMapping =
       state.fakerSchemaGeneration.editedFakerSchema[fieldPath];
+    const originalLlmMapping =
+      state.fakerSchemaGeneration.originalLlmResponse[fieldPath];
 
     if (!currentMapping) {
       return state;
     }
 
-    return {
-      ...state,
-      fakerSchemaGeneration: {
-        ...state.fakerSchemaGeneration,
-        editedFakerSchema: {
-          ...state.fakerSchemaGeneration.editedFakerSchema,
-          [fieldPath]: {
-            ...currentMapping,
-            fakerMethod,
-            fakerArgs: [], // Reset args when method changes
-          },
-        },
-      },
-    };
-  }
-
-  if (
-    isAction<FakerFieldMappingRestoredAction>(
-      action,
-      CollectionActions.FakerFieldMappingRestored
-    )
-  ) {
-    if (state.fakerSchemaGeneration.status !== 'completed') {
-      return state;
-    }
-
-    const { fieldPath, mapping } = action;
+    const isRestoringOriginalMapping =
+      originalLlmMapping &&
+      currentMapping.mongoType === originalLlmMapping.mongoType &&
+      fakerMethod === originalLlmMapping.fakerMethod;
+    const updatedMapping = isRestoringOriginalMapping
+      ? originalLlmMapping
+      : {
+          ...currentMapping,
+          fakerMethod,
+          fakerArgs: [], // Reset args when method changes
+        };
 
     return {
       ...state,
@@ -623,7 +601,7 @@ const reducer: Reducer<CollectionState, Action> = (
         ...state.fakerSchemaGeneration,
         editedFakerSchema: {
           ...state.fakerSchemaGeneration.editedFakerSchema,
-          [fieldPath]: mapping,
+          [fieldPath]: updatedMapping,
         },
       },
     };
@@ -698,17 +676,6 @@ export const fakerFieldMethodChanged = (
     type: CollectionActions.FakerFieldMethodChanged,
     fieldPath,
     fakerMethod,
-  };
-};
-
-export const fakerFieldMappingRestored = (
-  fieldPath: string,
-  mapping: FakerFieldMapping
-): FakerFieldMappingRestoredAction => {
-  return {
-    type: CollectionActions.FakerFieldMappingRestored,
-    fieldPath,
-    mapping,
   };
 };
 
