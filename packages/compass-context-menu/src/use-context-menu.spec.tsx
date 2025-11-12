@@ -209,8 +209,8 @@ describe('useContextMenu', function () {
         expect(screen.getByTestId('menu-item-Parent Item 2')).to.exist;
 
         // Should not show child items
-        expect(() => screen.getByTestId('menu-item-Child Item 1')).to.throw;
-        expect(() => screen.getByTestId('menu-item-Child Item 2')).to.throw;
+        expect(() => screen.getByTestId('menu-item-Child Item 1')).to.throw();
+        expect(() => screen.getByTestId('menu-item-Child Item 2')).to.throw();
       });
 
       it('shows both parent and child items when right clicking child area', function () {
@@ -252,7 +252,7 @@ describe('useContextMenu', function () {
 
         expect(childOnAction).to.have.been.calledOnceWithExactly(1);
         expect(parentOnAction).to.not.have.been.called;
-        expect(() => screen.getByTestId('test-menu')).to.throw;
+        expect(() => screen.getByTestId('test-menu')).to.throw();
       });
 
       it('triggers only the parent action when clicking a parent menu item from child context', function () {
@@ -275,7 +275,7 @@ describe('useContextMenu', function () {
 
         expect(parentOnAction).to.have.been.calledOnceWithExactly(1);
         expect(childOnAction).to.not.have.been.called;
-        expect(() => screen.getByTestId('test-menu')).to.throw;
+        expect(() => screen.getByTestId('test-menu')).to.throw();
       });
     });
 
@@ -324,7 +324,7 @@ describe('useContextMenu', function () {
           window.dispatchEvent(new Event(event));
 
           // Verify menu is closed
-          expect(() => screen.getByTestId('test-menu')).to.throw;
+          expect(() => screen.getByTestId('test-menu')).to.throw();
         });
       }
     });

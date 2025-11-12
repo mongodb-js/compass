@@ -214,22 +214,22 @@ describe('RegularIndexesTable Component', function () {
         } else {
           expect(() => {
             within(indexRow).getByTestId(indexCell);
-          }).to.throw;
+          }).to.throw();
         }
       }
 
       if (index.name === '_id_') {
         expect(() => {
           within(indexRow).getByTestId('index-actions-hide-action');
-        }).to.throw;
+        }).to.throw();
         expect(() => {
           within(indexRow).getByTestId('index-actions-delete-action');
-        }).to.throw;
+        }).to.throw();
       } else {
         if (index.extra.hidden) {
           expect(() =>
             within(indexRow).getByTestId('index-actions-hide-action')
-          ).to.throw;
+          ).to.throw();
           expect(within(indexRow).getByTestId('index-actions-unhide-action')).to
             .exist;
         } else {
@@ -237,7 +237,7 @@ describe('RegularIndexesTable Component', function () {
             .exist;
           expect(() =>
             within(indexRow).getByTestId('index-actions-unhide-action')
-          ).to.throw;
+          ).to.throw();
         }
         expect(within(indexRow).getByTestId('index-actions-delete-action')).to
           .exist;
@@ -277,7 +277,7 @@ describe('RegularIndexesTable Component', function () {
       if (index.status === 'creating') {
         expect(() =>
           within(indexRow).getByTestId('index-actions-delete-action')
-        ).to.throw;
+        ).to.throw();
       } else {
         expect(within(indexRow).getByTestId('index-actions-delete-action')).to
           .exist;
@@ -301,8 +301,9 @@ describe('RegularIndexesTable Component', function () {
 
       expect(() => within(indexRow).getByTestId('index-actions-hide-action')).to
         .throw;
-      expect(() => within(indexRow).getByTestId('index-actions-delete-action'))
-        .to.throw;
+      expect(() =>
+        within(indexRow).getByTestId('index-actions-delete-action')
+      ).to.throw();
 
       userEvent.click(within(indexRow).getByLabelText('Expand row'));
       const detailsRow = indexRow.nextSibling as HTMLTableRowElement;
@@ -350,7 +351,7 @@ describe('RegularIndexesTable Component', function () {
       `indexes-row-${rollingIndexes[0].indexName}`
     );
     expect(within(indexRow).getByTestId('index-ready')).to.exist;
-    expect(() => within(indexRow).getByTestId('index-building')).to.throw;
+    expect(() => within(indexRow).getByTestId('index-building')).to.throw();
 
     cleanup();
 
@@ -364,7 +365,7 @@ describe('RegularIndexesTable Component', function () {
     });
 
     indexRow = screen.getByTestId(`indexes-row-${rollingIndexes[0].indexName}`);
-    expect(() => within(indexRow).getByTestId('index-ready')).to.throw;
+    expect(() => within(indexRow).getByTestId('index-ready')).to.throw();
     expect(within(indexRow).getByTestId('index-building')).to.exist;
   });
 
@@ -378,7 +379,7 @@ describe('RegularIndexesTable Component', function () {
 
     expect(() => {
       screen.getByTestId('indexes-list');
-    }).to.throw;
+    }).to.throw();
   });
 
   it('renders the delete and hide/unhide button when a user can modify indexes', function () {
@@ -399,7 +400,7 @@ describe('RegularIndexesTable Component', function () {
       const indexRow = screen.getByTestId(`indexes-row-${index.name}`);
       expect(() => {
         within(indexRow).queryByTestId('indexes-actions-field');
-      }).to.throw;
+      }).to.throw();
     });
   });
 
@@ -411,7 +412,7 @@ describe('RegularIndexesTable Component', function () {
       const indexRow = screen.getByTestId(`indexes-row-${index.name}`);
       expect(() => {
         within(indexRow).getByTestId('indexes-actions-field');
-      }).to.throw;
+      }).to.throw();
     });
   });
 

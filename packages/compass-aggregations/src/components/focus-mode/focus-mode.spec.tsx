@@ -22,7 +22,7 @@ describe('FocusMode', function () {
     await waitFor(() => {
       expect(() => {
         screen.getByTestId('focus-mode-modal');
-      }).to.throw;
+      }).to.throw();
     });
   });
 
@@ -44,6 +44,6 @@ describe('FocusMode', function () {
 
     expect(() => {
       screen.getByTestId('focus-mode-modal');
-    }).to.throw;
+    }).to.throw();
   });
 });

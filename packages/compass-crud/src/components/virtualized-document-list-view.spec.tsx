@@ -194,7 +194,7 @@ describe('VirtualizedDocumentListView', function () {
     [documentElement] = screen.getAllByTestId('editable-document');
 
     // Verify that we have an editing state
-    expect(() => within(documentElement).getByText('Cancel')).to.throw;
-    expect(() => within(documentElement).getByText('Update')).to.throw;
+    expect(() => within(documentElement).getByText('Cancel')).to.throw();
+    expect(() => within(documentElement).getByText('Update')).to.throw();
   });
 });

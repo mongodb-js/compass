@@ -61,7 +61,7 @@ describe('UrlOptionsListEditor', function () {
       // After click, the options list should disappear
       expect(() => {
         screen.getByRole('listbox');
-      }).to.throw;
+      }).to.throw();
 
       expect(screen.getAllByText(/appname/i)[1]).to.be.visible;
 

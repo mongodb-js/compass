@@ -382,7 +382,7 @@ describe('AggregationsAndQueriesAndUpdatemanyList', function () {
       userEvent.click(screen.getByLabelText(new RegExp(value, 'i')));
 
       await waitFor(() => {
-        expect(screen.getByLabelText(new RegExp(value, 'i'))).to.throw;
+        expect(() => screen.getByLabelText(new RegExp(value, 'i'))).to.throw();
       });
     };
 
@@ -546,7 +546,7 @@ describe('AggregationsAndQueriesAndUpdatemanyList', function () {
             // Modal content expectations
             expect(screen.getByText('Select a Namespace')).to.exist;
             // We don't show description in this modal
-            expect(() => screen.getByTestId('description')).to.throw;
+            expect(() => screen.getByTestId('description')).to.throw();
             // connection is already selected because there is only one
             expect(() => screen.getByTestId('connection-select-field')).to
               .throw;
@@ -701,7 +701,7 @@ describe('AggregationsAndQueriesAndUpdatemanyList', function () {
               expect(screen.getByText('Select a Connection and Namespace')).to
                 .exist;
               // We don't show description in this modal
-              expect(() => screen.getByTestId('description')).to.throw;
+              expect(() => screen.getByTestId('description')).to.throw();
               expect(screen.getByTestId('connection-select-field')).to.exist;
               expect(screen.getByTestId('database-select-field')).to.exist;
               expect(screen.getByTestId('collection-select-field')).to.exist;

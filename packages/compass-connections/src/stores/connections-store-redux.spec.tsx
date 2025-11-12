@@ -482,7 +482,7 @@ describe('CompassConnections store', function () {
       await connectPromise;
 
       expect(track).to.have.been.calledWith('Connection Disconnected');
-      expect(() => screen.getByText(/Connecting to/)).to.throw;
+      expect(() => screen.getByText(/Connecting to/)).to.throw();
     });
   });
 

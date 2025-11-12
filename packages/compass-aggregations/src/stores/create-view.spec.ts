@@ -69,7 +69,7 @@ describe('CreateViewStore [Store]', function () {
             source: 'dataService.test',
             pipeline: [{ $project: { a: 1 } }],
           });
-        }).to.throw;
+        }).to.throw();
       });
       it('dispatches the open action and sets the correct state', function () {
         appRegistry.emit(

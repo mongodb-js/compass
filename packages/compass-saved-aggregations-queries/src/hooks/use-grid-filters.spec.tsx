@@ -17,9 +17,7 @@ describe('use-grid-header', function () {
     it('should render search input', function () {
       const { result } = renderHook(() => useGridFilters(items));
       render(result.current.controls);
-      expect(async () => {
-        await screen.findByText('search');
-      }).to.not.throw;
+      await screen.findByText('search');
     });
     it('should render database and collection selects', function () {
       const { result } = renderHook(() => useGridFilters(items));
