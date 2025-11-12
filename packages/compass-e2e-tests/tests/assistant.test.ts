@@ -258,7 +258,7 @@ describe('MongoDB Assistant', function () {
       });
 
       it('should display opt-in modal for explain plan entry point', async function () {
-        await useExplainPlanEntryPoint(browser);
+        await useExplainPlanEntryPoint(browser, { waitForMessages: false });
 
         const optInModal = browser.$(Selectors.AIOptInModal);
         await optInModal.waitForDisplayed();
@@ -268,7 +268,9 @@ describe('MongoDB Assistant', function () {
 
         await optInModal.waitForDisplayed({ reverse: true });
 
-        expect(await getDisplayedMessages(browser)).to.deep.equal([]);
+        expect(
+          await browser.$(Selectors.AssistantChatMessages).isDisplayed()
+        ).to.equal(false);
       });
     });
   });
@@ -601,7 +603,10 @@ async function waitForMessages(
   }
 }
 
-async function useExplainPlanEntryPoint(browser: CompassBrowser) {
+async function useExplainPlanEntryPoint(
+  browser: CompassBrowser,
+  { waitForMessages = true } = {}
+) {
   await browser.clickVisible(Selectors.AggregationExplainButton);
 
   await browser.clickVisible(Selectors.ExplainPlanInterpretButton);
@@ -610,5 +615,7 @@ async function useExplainPlanEntryPoint(browser: CompassBrowser) {
     reverse: true,
   });
 
-  await browser.$(Selectors.AssistantChatMessages).waitForDisplayed();
+  if (waitForMessages) {
+    await browser.$(Selectors.AssistantChatMessages).waitForDisplayed();
+  }
 }
