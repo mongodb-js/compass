@@ -394,10 +394,19 @@ class CompassWindowManager {
     // To resize an electron window you have to do it from the main process.
     // This is here so that the e2e tests can resize the window from the
     // renderer process.
-    ipcMain?.handle('compass:maximize', () => {
-      const first = BrowserWindow.getAllWindows()[0];
-      first.maximize();
-    });
+    ipcMain?.handle(
+      'compass:maximize',
+      (evt, width: number, height: number) => {
+        const window = BrowserWindow.fromWebContents(evt.sender);
+        if (width && height) {
+          window?.setSize(width, height);
+        } else {
+          window?.maximize();
+        }
+        const [newWidth, newHeight] = window?.getSize() ?? [];
+        return window ? { width: newWidth, height: newHeight } : null;
+      }
+    );
 
     await electronApp.whenReady();
     await onAppReady();

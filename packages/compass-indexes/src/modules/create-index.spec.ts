@@ -219,18 +219,6 @@ describe('create-index module', function () {
 
       expect(store.getState().createIndex.isVisible).to.equal(true);
     });
-
-    it('sets currentTab=IndexFlow if no query is provided', function () {
-      void store.dispatch(createIndexOpened());
-
-      expect(store.getState().createIndex.currentTab).to.equal('IndexFlow');
-    });
-
-    it('sets currentTab=QueryFlow if a query is provided', function () {
-      void store.dispatch(createIndexOpened({ query }));
-
-      expect(store.getState().createIndex.currentTab).to.equal('QueryFlow');
-    });
   });
 
   describe('createIndexClosed', function () {

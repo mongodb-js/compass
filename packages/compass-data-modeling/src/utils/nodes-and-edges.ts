@@ -13,7 +13,7 @@ import type {
   Relationship,
 } from '../services/data-model-storage';
 import { traverseSchema } from './schema-traversal';
-import { areFieldPathsEqual, isIdField } from './utils';
+import { areFieldPathsEqual, isIdField, isRelationshipValid } from './utils';
 
 const NO_HIGHLIGHTED_FIELDS = {};
 
@@ -156,6 +156,7 @@ type CollectionWithRenderOptions = Pick<
   selectedField?: FieldPath;
   selected: boolean;
   isInRelationshipDrawingMode: boolean;
+  relationships: Relationship[];
 };
 
 export function collectionToDiagramNode({
@@ -166,8 +167,16 @@ export function collectionToDiagramNode({
   highlightedFields,
   selected,
   isInRelationshipDrawingMode,
+  relationships,
   isExpanded,
 }: CollectionWithRenderOptions): NodeProps {
+  let variant: NodeProps['variant'] = undefined;
+  if (relationships.some((r) => !isRelationshipValid(r))) {
+    variant = {
+      type: 'warn' as const,
+      warnMessage: 'One or more relationships cannot be resolved.',
+    };
+  }
   return {
     id: ns,
     type: 'collection',
@@ -185,6 +194,7 @@ export function collectionToDiagramNode({
     selected,
     connectable: isInRelationshipDrawingMode,
     draggable: !isInRelationshipDrawingMode,
+    variant,
   };
 }
 

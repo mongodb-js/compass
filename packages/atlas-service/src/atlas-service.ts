@@ -9,6 +9,7 @@ import {
 import type { Logger } from '@mongodb-js/compass-logging';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import type { AtlasClusterMetadata } from '@mongodb-js/connection-info';
+import { type UserDataType } from '@mongodb-js/compass-user-data';
 
 export type AtlasServiceOptions = {
   defaultHeaders?: Record<string, string>;
@@ -81,12 +82,7 @@ export class AtlasService {
   userDataEndpoint(
     orgId: string,
     groupId: string,
-    type:
-      | 'favoriteQueries'
-      | 'recentQueries'
-      | 'favoriteAggregations'
-      | 'savedWorkspaces'
-      | 'dataModelDescriptions',
+    type: UserDataType,
     id?: string
   ): string {
     const encodedOrgId = encodeURIComponent(orgId);
