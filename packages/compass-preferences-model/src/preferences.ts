@@ -22,7 +22,6 @@ export interface PreferencesAccess {
   ): Promise<AllPreferences>;
   refreshPreferences(): Promise<AllPreferences>;
   getPreferences(): AllPreferences;
-  ensureDefaultConfigurableUserPreferences(): Promise<void>;
   getConfigurableUserPreferences(): Promise<UserConfigurablePreferences>;
   getPreferenceStates(): Promise<PreferenceStateInformation>;
   onPreferenceValueChanged<K extends keyof AllPreferences>(
@@ -246,26 +245,6 @@ export class Preferences {
     }
 
     return { values, states };
-  }
-
-  /**
-   * If this is the first call to this method, this sets the defaults for
-   * user preferences.
-   */
-  async ensureDefaultConfigurableUserPreferences(): Promise<void> {
-    // Set the defaults and also update showedNetworkOptIn flag.
-    const { showedNetworkOptIn } = this.getPreferences();
-    if (!showedNetworkOptIn) {
-      await this.savePreferences({
-        autoUpdates: true,
-        enableGenAIFeatures: true,
-        enableMaps: true,
-        trackUsageStatistics: true,
-        enableFeedbackPanel: true,
-        showedNetworkOptIn: true,
-        theme: 'LIGHT',
-      });
-    }
   }
 
   /**

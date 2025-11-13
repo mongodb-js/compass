@@ -13,9 +13,7 @@ export async function dropCollectionFromSidebar(
     collectionName,
     'drop-collection'
   );
-  await browser.dropNamespace(collectionName);
 
-  // wait for it to be gone
   const connectionId = await browser.getConnectionIdByName(connectionName);
   const collectionSelector = Selectors.sidebarCollection(
     connectionId,
@@ -23,5 +21,10 @@ export async function dropCollectionFromSidebar(
     collectionName
   );
   const collectionElement = browser.$(collectionSelector);
-  await collectionElement.waitForExist({ reverse: true });
+
+  // Start the drop and wait for it to be gone
+  await Promise.all([
+    collectionElement.waitForExist({ reverse: true }),
+    browser.dropNamespace(collectionName),
+  ]);
 }

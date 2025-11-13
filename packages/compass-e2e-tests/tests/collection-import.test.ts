@@ -643,7 +643,6 @@ describe('Collection import', function () {
       // Find the log file
       const logFilePath = path.resolve(
         compass.userDataPath || '',
-        compass.appName || '',
         'ImportErrorLogs',
         `import-${filename}.log`
       );
@@ -1293,7 +1292,6 @@ describe('Collection import', function () {
 
     const logFilePath = path.resolve(
       compass.userDataPath || '',
-      compass.appName || '',
       'ImportErrorLogs',
       `import-${fileName}.log`
     );

@@ -20,6 +20,8 @@ import {
 } from '@mongodb-js/compass-components';
 import AddCollection from './icons/add-collection';
 import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
+import { useApplicationMenu } from '@mongodb-js/compass-electron-menu';
+import { dualSourceHandlerDebounce } from '../utils/utils';
 
 const breadcrumbsStyles = css({
   padding: `${spacing[300]}px ${spacing[400]}px`,
@@ -55,6 +57,7 @@ export const DiagramEditorToolbar: React.FunctionComponent<{
   diagramName?: string;
   hasUndo: boolean;
   hasRedo: boolean;
+  diagramEditorHasFocus?: boolean;
   isInRelationshipDrawingMode: boolean;
   onUndoClick: () => void;
   onRedoClick: () => void;
@@ -67,6 +70,7 @@ export const DiagramEditorToolbar: React.FunctionComponent<{
   hasUndo,
   onUndoClick,
   hasRedo,
+  diagramEditorHasFocus,
   onRedoClick,
   onExportClick,
   onRelationshipDrawingToggle,
@@ -87,18 +91,40 @@ export const DiagramEditorToolbar: React.FunctionComponent<{
     [diagramName, openDataModelingWorkspace]
   );
 
-  // TODO(COMPASS-9976): Integrate with application menu
+  // Use dualSourceHandlerDebounce to avoid handling the same keypresses
+  // coming through useHotkeys and the application menu.
+  const [undoHotkey, undoAppMenu] = useMemo(
+    () => dualSourceHandlerDebounce(onUndoClick),
+    [onUndoClick]
+  );
+  const [redoHotkey, redoAppMenu] = useMemo(
+    () => dualSourceHandlerDebounce(onRedoClick),
+    [onRedoClick]
+  );
+
   // macOS: Cmd+Shift+Z = Redo, Cmd+Z = Undo
   // Windows/Linux: Ctrl+Z = Undo, Ctrl+Y = Redo
-  useHotkeys('mod+z', onUndoClick, { enabled: step === 'EDITING' }, [
-    onUndoClick,
+  useHotkeys('mod+z', undoHotkey, { enabled: step === 'EDITING' }, [
+    undoHotkey,
   ]);
-  useHotkeys('mod+shift+z', onRedoClick, { enabled: step === 'EDITING' }, [
-    onRedoClick,
+  useHotkeys('mod+shift+z', redoHotkey, { enabled: step === 'EDITING' }, [
+    redoHotkey,
   ]);
-  useHotkeys('mod+y', onRedoClick, { enabled: step === 'EDITING' }, [
-    onRedoClick,
+  useHotkeys('mod+y', redoHotkey, { enabled: step === 'EDITING' }, [
+    redoHotkey,
   ]);
+
+  // Take over the undo/redo functionality in the application menu
+  // if either no element is focused or a child of the data modeling editor
+  // view is focused.
+  useApplicationMenu({
+    roles: diagramEditorHasFocus
+      ? {
+          undo: undoAppMenu,
+          redo: redoAppMenu,
+        }
+      : {},
+  });
 
   if (step !== 'EDITING') {
     return null;

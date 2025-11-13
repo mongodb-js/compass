@@ -444,7 +444,7 @@ const Schema: React.FunctionComponent<{
           <div className={contentStyles}>
             {enablePerformanceAdvisorBanner && <PerformanceAdvisorBanner />}
             <AtlasSkillsBanner
-              ctaText="Learn how to add schema validation in this skill badge"
+              ctaText="Learn how to effectively design and optimize your schema."
               skillsUrl="https://learn.mongodb.com/skills?team=growth&openTab=data+modeling"
               onCloseSkillsBanner={() => {
                 setDismissed(true);

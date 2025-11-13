@@ -40,7 +40,6 @@ function hasAtlasEnvironmentVariables(): boolean {
     'E2E_TESTS_ATLAS_HOST',
     'E2E_TESTS_DATA_LAKE_HOST',
     'E2E_TESTS_ANALYTICS_NODE_HOST',
-    'E2E_TESTS_SERVERLESS_HOST',
     'E2E_TESTS_FREE_TIER_HOST',
     'E2E_TESTS_ATLAS_USERNAME',
     'E2E_TESTS_ATLAS_PASSWORD',
@@ -380,30 +379,6 @@ describe('Connection string', function () {
     if (!TEST_COMPASS_WEB) {
       const result = await browser.shellEval(
         connectionNameFromString(connectionString),
-        'db.runCommand({ connectionStatus: 1 })',
-        true
-      );
-      assertNotError(result);
-      expect(result).to.have.property('ok', 1);
-    }
-  });
-
-  it('can connect to Atlas Serverless', async function () {
-    if (!hasAtlasEnvironmentVariables()) {
-      return this.skip();
-    }
-
-    const username = process.env.E2E_TESTS_ATLAS_USERNAME ?? '';
-    const password = process.env.E2E_TESTS_ATLAS_PASSWORD ?? '';
-    const host = process.env.E2E_TESTS_SERVERLESS_HOST ?? '';
-    const connectionString = `mongodb+srv://${username}:${password}@${host}`;
-    const connectionName = connectionNameFromString(connectionString);
-
-    await browser.connectWithConnectionString(connectionString);
-
-    if (!TEST_COMPASS_WEB) {
-      const result = await browser.shellEval(
-        connectionName,
         'db.runCommand({ connectionStatus: 1 })',
         true
       );
@@ -867,28 +842,6 @@ describe('Connection form', function () {
       awsSecretAccessKey: secret,
       awsSessionToken: token,
     };
-    const connectionName = this.test?.fullTitle() ?? '';
-    await browser.connectWithConnectionForm({
-      ...atlasConnectionOptions,
-      connectionName,
-    });
-    const result = await browser.shellEval(
-      connectionName,
-      'db.runCommand({ connectionStatus: 1 })',
-      true
-    );
-    assertNotError(result);
-    expect(result).to.have.property('ok', 1);
-  });
-
-  it('can connect to Atlas Serverless', async function () {
-    if (!hasAtlasEnvironmentVariables()) {
-      return this.skip();
-    }
-
-    const atlasConnectionOptions: ConnectFormState = basicAtlasOptions(
-      process.env.E2E_TESTS_SERVERLESS_HOST ?? ''
-    );
     const connectionName = this.test?.fullTitle() ?? '';
     await browser.connectWithConnectionForm({
       ...atlasConnectionOptions,

@@ -15,7 +15,7 @@ import {
   type AssistantMessage,
 } from '../compass-assistant-provider';
 import sinon from 'sinon';
-import type { TextPart } from 'ai';
+import type { SourceUrlUIPart, TextPart } from 'ai';
 import type { Chat } from '../@ai-sdk/react/chat-react';
 
 describe('AssistantChat', function () {
@@ -38,6 +38,19 @@ describe('AssistantChat', function () {
           title: 'MongoDB',
           url: 'https://en.wikipedia.org/wiki/MongoDB',
           sourceId: '1',
+        },
+        // this one should be filtered out since it has no url
+        {
+          type: 'source-url',
+          title: 'no url',
+          sourceId: '2',
+          // url isn't actually required for file_citation
+        } as unknown as SourceUrlUIPart,
+        // this one should be filtered out since it has no title
+        {
+          type: 'source-url',
+          url: 'no title',
+          sourceId: '3',
         },
       ],
       metadata: {

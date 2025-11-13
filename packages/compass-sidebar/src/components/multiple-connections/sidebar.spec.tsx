@@ -54,7 +54,7 @@ describe('Multiple Connections Sidebar Component', function () {
     _id: '1',
     status: 'ready',
     genuineMongoDB: {
-      dbType: 'local',
+      serverName: 'mongodb',
       isGenuine: true,
     },
     build: {

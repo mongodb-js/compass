@@ -31,10 +31,6 @@ export class CompassWebPreferencesAccess implements PreferencesAccess {
     return this._preferences.getPreferences();
   }
 
-  ensureDefaultConfigurableUserPreferences() {
-    return this._preferences.ensureDefaultConfigurableUserPreferences();
-  }
-
   getConfigurableUserPreferences() {
     return Promise.resolve(this._preferences.getConfigurableUserPreferences());
   }

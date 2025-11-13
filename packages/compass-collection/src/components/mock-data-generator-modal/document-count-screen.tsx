@@ -2,7 +2,7 @@ import {
   Body,
   compactBytes,
   css,
-  palette,
+  Description,
   spacing,
   TextInput,
 } from '@mongodb-js/compass-components';
@@ -10,7 +10,8 @@ import React, { useMemo } from 'react';
 import { connect } from 'react-redux';
 import type { CollectionState } from '../../modules/collection-tab';
 import type { SchemaAnalysisState } from '../../schema-analysis-types';
-import { DEFAULT_DOCUMENT_COUNT, MAX_DOCUMENT_COUNT } from './constants';
+import { MAX_DOCUMENT_COUNT } from './constants';
+import { validateDocumentCount } from './utils';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 
 const BYTE_PRECISION_THRESHOLD = 1000;
@@ -20,7 +21,6 @@ const titleStyles = css({
 });
 
 const descriptionStyles = css({
-  color: palette.gray.dark1,
   fontStyle: 'italic',
 });
 
@@ -45,18 +45,9 @@ const formatBytes = (bytes: number) => {
   return compactBytes(bytes, true, decimals);
 };
 
-type ErrorState =
-  | {
-      state: 'error';
-      message: string;
-    }
-  | {
-      state: 'none';
-    };
-
 interface OwnProps {
-  documentCount: number;
-  onDocumentCountChange: (documentCount: number) => void;
+  documentCount: string;
+  onDocumentCountChange: (documentCount: string) => void;
 }
 
 interface Props extends OwnProps {
@@ -69,37 +60,41 @@ const DocumentCountScreen = ({
   schemaAnalysisState,
 }: Props) => {
   const track = useTelemetry();
-  const estimatedDiskSize = useMemo(
-    () =>
-      schemaAnalysisState.status === 'complete' &&
-      schemaAnalysisState.schemaMetadata.avgDocumentSize
-        ? formatBytes(
-            schemaAnalysisState.schemaMetadata.avgDocumentSize * documentCount
-          )
-        : 'Not available',
-    [schemaAnalysisState, documentCount]
-  );
+  const validationState = validateDocumentCount(documentCount);
+  const estimatedDiskSize = useMemo(() => {
+    if (
+      !validationState.isValid ||
+      schemaAnalysisState.status !== 'complete' ||
+      !schemaAnalysisState.schemaMetadata.avgDocumentSize ||
+      !validationState.parsedValue
+    ) {
+      return 'Not available';
+    }
 
-  const isOutOfRange = documentCount < 1 || documentCount > MAX_DOCUMENT_COUNT;
+    return formatBytes(
+      schemaAnalysisState.schemaMetadata.avgDocumentSize *
+        validationState.parsedValue
+    );
+  }, [validationState, schemaAnalysisState]);
 
-  const errorState: ErrorState = useMemo(() => {
-    if (isOutOfRange) {
-      return {
-        state: 'error',
-        message: `Document count must be between 1 and ${MAX_DOCUMENT_COUNT}`,
-      };
+  const errorState = useMemo(() => {
+    if (validationState.isValid) {
+      return { state: 'none' as const };
     }
     return {
-      state: 'none',
+      state: 'error' as const,
+      message: validationState.errorMessage,
     };
-  }, [isOutOfRange]);
+  }, [validationState.isValid, validationState.errorMessage]);
 
   const handleDocumentCountChange = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
-    const value = parseInt(event.target.value, 10);
+    onDocumentCountChange(event.target.value);
+
+    // Track telemetry for valid numeric values
+    const value = Number(event.target.value);
     if (!isNaN(value)) {
-      onDocumentCountChange(value);
       track('Mock Data Document Count Changed', {
         document_count: value,
       });
@@ -111,16 +106,14 @@ const DocumentCountScreen = ({
       <Body className={titleStyles}>
         Specify Number of Documents to Generate
       </Body>
-      <Body className={descriptionStyles}>
+      <Description className={descriptionStyles}>
         Indicate the amount of documents you want to generate below.
-        <br />
-        Note: We have defaulted to {DEFAULT_DOCUMENT_COUNT}.
-      </Body>
+      </Description>
       <div className={inputContainerStyles}>
         <TextInput
           label="Documents to generate in current collection"
           type="number"
-          value={documentCount.toString()}
+          value={documentCount}
           onChange={handleDocumentCountChange}
           min={1}
           max={MAX_DOCUMENT_COUNT}

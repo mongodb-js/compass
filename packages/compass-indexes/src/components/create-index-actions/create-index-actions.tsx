@@ -2,7 +2,7 @@ import React from 'react';
 import { css, Banner, spacing, Button } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
 import { areAllFieldsFilledIn } from '../../utils/create-index-modal-validation';
-import type { Field, Tab } from '../../modules/create-index';
+import type { Field } from '../../modules/create-index';
 import type { RootState } from '../../modules';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 
@@ -33,32 +33,16 @@ function CreateIndexActions({
   onCreateIndexClick,
   onCancelCreateIndexClick,
   fields,
-  currentTab,
-  indexSuggestions,
 }: {
   error: string | null;
   onErrorBannerCloseClick: () => void;
   onCreateIndexClick: () => void;
   onCancelCreateIndexClick: () => void;
   fields: Field[];
-  currentTab: Tab;
-  indexSuggestions: Record<string, number> | null;
 }) {
   const track = useTelemetry();
 
-  let isCreateIndexButtonDisabled = false;
-  // Disable create index button if the user is in Query Flow and has no suggestions
-  if (currentTab === 'QueryFlow') {
-    if (indexSuggestions === null) {
-      isCreateIndexButtonDisabled = true;
-    }
-  }
-  // Or if they are in the Index Flow but have not completed the fields
-  else {
-    if (!areAllFieldsFilledIn(fields)) {
-      isCreateIndexButtonDisabled = true;
-    }
-  }
+  const isCreateIndexButtonDisabled = !areAllFieldsFilledIn(fields);
 
   return (
     <div className={containerStyles}>
@@ -102,11 +86,9 @@ function CreateIndexActions({
 }
 
 const mapState = ({ createIndex }: RootState) => {
-  const { fields, currentTab, indexSuggestions } = createIndex;
+  const { fields } = createIndex;
   return {
     fields,
-    currentTab,
-    indexSuggestions,
   };
 };
 

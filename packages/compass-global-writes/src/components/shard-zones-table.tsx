@@ -17,7 +17,6 @@ import {
   type LGTableDataType,
   getExpandedRowModel,
   getFilteredRowModel,
-  type LgTableRowType,
 } from '@mongodb-js/compass-components';
 import type { ShardZoneData } from '../store/reducer';
 import { ShardZonesDescription } from './shard-zones-description';
@@ -77,7 +76,7 @@ const parseData = (shardZones: ShardZoneData[]): ShardZoneExpandableRow[] => {
 };
 
 const hasFilteredChildren = (
-  row: LgTableRowType<LGTableDataType<ShardZoneRow>>
+  row: LeafyGreenTableRow<LGTableDataType<ShardZoneRow>>
 ) =>
   row.subRows.some(
     (subRow) => Object.values(subRow.columnFilters).includes(true) // columnFilters: e.g. { __global__: true }

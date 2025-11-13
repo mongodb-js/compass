@@ -86,7 +86,7 @@ describe('instance-detail-helper', function () {
             true
           );
           expect(instanceDetails).to.have.nested.property(
-            'genuineMongoDB.dbType',
+            'genuineMongoDB.serverName',
             'mongodb'
           );
         });
@@ -241,7 +241,7 @@ describe('instance-detail-helper', function () {
         );
 
         expect(instanceDetails).to.have.nested.property(
-          'genuineMongoDB.dbType',
+          'genuineMongoDB.serverName',
           'cosmosdb'
         );
       });
@@ -271,7 +271,7 @@ describe('instance-detail-helper', function () {
         );
 
         expect(instanceDetails).to.have.nested.property(
-          'genuineMongoDB.dbType',
+          'genuineMongoDB.serverName',
           'documentdb'
         );
       });

@@ -5,7 +5,7 @@ import {
 } from '@react-aria/interactions';
 import { mergeProps } from '@react-aria/utils';
 import type React from 'react';
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 export enum FocusState {
   NoFocus = 'NoFocus',
@@ -55,6 +55,53 @@ export function useFocusState(): [
     isFocusVisible
   );
   return [mergedProps, focusStateRef.current, focusStateRef];
+}
+
+function checkBodyFocused(): boolean {
+  const { documentElement, activeElement, body } = document;
+  return (
+    activeElement === documentElement ||
+    activeElement === body ||
+    !activeElement
+  );
+}
+
+function useIsDocumentUnfocused() {
+  const [isBodyFocused, setIsBodyFocused] = useState(checkBodyFocused());
+
+  useEffect(() => {
+    const cleanup: (() => void)[] = [];
+    const listener = () => {
+      setIsBodyFocused(checkBodyFocused());
+    };
+    for (const el of [document.body, document.documentElement]) {
+      for (const ev of ['focus', 'blur', 'focusin', 'focusout']) {
+        el.addEventListener(ev, listener);
+        cleanup.push(() => el.removeEventListener(ev, listener));
+      }
+    }
+    return () => {
+      for (const cb of cleanup) {
+        cb();
+      }
+    };
+  }, [setIsBodyFocused]);
+
+  return isBodyFocused;
+}
+
+export function useFocusStateIncludingUnfocused(): [
+  React.HTMLAttributes<HTMLElement>,
+  FocusState | 'Unfocused',
+  React.MutableRefObject<FocusState | 'Unfocused'>
+] {
+  const focusStateRef = useRef<FocusState | 'Unfocused'>(FocusState.NoFocus);
+  const [props, state] = useFocusState();
+  const isUnfocused = useIsDocumentUnfocused();
+  const extendedState = isUnfocused ? 'Unfocused' : state;
+
+  focusStateRef.current = extendedState;
+  return [props, extendedState, focusStateRef];
 }
 
 export function useHoverState(): [

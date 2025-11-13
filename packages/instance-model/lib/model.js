@@ -88,7 +88,7 @@ const BuildInfo = AmpersandModel.extend({
 const GenuineMongoDB = AmpersandModel.extend({
   props: {
     isGenuine: { type: 'boolean', default: true },
-    dbType: 'string',
+    serverName: 'string',
   },
 });
 

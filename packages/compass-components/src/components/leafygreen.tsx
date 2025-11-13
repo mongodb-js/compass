@@ -59,7 +59,6 @@ import {
   getFilteredRowModel,
   type TableProps,
 } from '@leafygreen-ui/table';
-import type { Row as LgTableRowType } from '@tanstack/table-core'; // TODO(COMPASS-8437): import from LG
 
 export type {
   LGColumnDef,
@@ -211,7 +210,6 @@ export {
   type TableProps,
   getExpandedRowModel,
   getFilteredRowModel,
-  type LgTableRowType,
   Combobox,
   ComboboxGroup,
   ComboboxOption,

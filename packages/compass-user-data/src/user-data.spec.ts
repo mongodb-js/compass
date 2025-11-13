@@ -6,6 +6,7 @@ import {
   FileUserData,
   AtlasUserData,
   type FileUserDataOptions,
+  type UserDataType,
 } from './user-data';
 import { z, type ZodError } from 'zod';
 import sinon from 'sinon';
@@ -340,6 +341,174 @@ describe('user-data', function () {
       });
     });
   });
+
+  context('FileUserData.migrateFromOldFolder', function () {
+    it('migrates data from old folder to new folder', async function () {
+      // Create FileUserData with old type name and write data
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const oldUserData = new FileUserData(
+        getTestSchema(),
+        'iLoveJavaScript' as any,
+        {
+          basePath: tmpDir,
+        }
+      );
+
+      await oldUserData.write('test-file', { name: 'Old Data' });
+
+      // Verify old data exists
+      const oldData = await oldUserData.readOne('test-file');
+      expect(oldData).to.deep.equal({
+        ...defaultValues(),
+        name: 'Old Data',
+      });
+
+      // Create new FileUserData with new type name
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const newUserData = new FileUserData(
+        getTestSchema(),
+        'iReallyLoveJavaScript' as any,
+        {
+          basePath: tmpDir,
+        }
+      );
+
+      // Perform migration
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const migrated = await (newUserData as any).migrateFromOldFolder(
+        'iLoveJavaScript'
+      );
+      expect(migrated).to.be.true;
+
+      // Verify data is now accessible from new folder
+      const newData = await newUserData.readOne('test-file');
+      expect(newData).to.deep.equal({
+        ...defaultValues(),
+        name: 'Old Data',
+      });
+
+      // Verify old folder no longer exists by checking filesystem directly
+      const oldFolderPath = path.join(tmpDir, 'iLoveJavaScript');
+      try {
+        await fs.access(oldFolderPath);
+        expect.fail('Old folder should not exist');
+      } catch (error) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        expect((error as any).code).to.equal('ENOENT');
+      }
+    });
+
+    it('returns false when old folder does not exist', async function () {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const userData = new FileUserData(
+        getTestSchema(),
+        'iReallyLoveJavaScript' as any,
+        {
+          basePath: tmpDir,
+        }
+      );
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const migrated = await (userData as any).migrateFromOldFolder(
+        'nonExistentFolder'
+      );
+      expect(migrated).to.be.false;
+    });
+
+    it('returns false when new folder already exists', async function () {
+      // Create data in both old and new folders
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const oldUserData = new FileUserData(
+        getTestSchema(),
+        'iLoveJavaScript' as any,
+        {
+          basePath: tmpDir,
+        }
+      );
+      await oldUserData.write('old-file', { name: 'Old Data' });
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const newUserData = new FileUserData(
+        getTestSchema(),
+        'iReallyLoveJavaScript' as any,
+        {
+          basePath: tmpDir,
+        }
+      );
+      await newUserData.write('new-file', { name: 'New Data' });
+
+      // Attempt migration - should return false because new folder exists
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const migrated = await (newUserData as any).migrateFromOldFolder(
+        'iLoveJavaScript'
+      );
+      expect(migrated).to.be.false;
+
+      // Verify both folders still have their data
+      const oldData = await oldUserData.readOne('old-file');
+      expect(oldData?.name).to.equal('Old Data');
+
+      const newData = await newUserData.readOne('new-file');
+      expect(newData?.name).to.equal('New Data');
+    });
+
+    it('returns false when old and new names are the same', async function () {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const userData = new FileUserData(
+        getTestSchema(),
+        'iLoveJavaScript' as any,
+        {
+          basePath: tmpDir,
+        }
+      );
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const migrated = await (userData as any).migrateFromOldFolder(
+        'iLoveJavaScript'
+      );
+      expect(migrated).to.be.false;
+    });
+
+    it('handles migration idempotently', async function () {
+      // Create data in old folder
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const oldUserData = new FileUserData(
+        getTestSchema(),
+        'iLoveJavaScript' as any,
+        {
+          basePath: tmpDir,
+        }
+      );
+      await oldUserData.write('test-file', { name: 'Migrated Data' });
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const newUserData = new FileUserData(
+        getTestSchema(),
+        'iReallyLoveJavaScript' as any,
+        {
+          basePath: tmpDir,
+        }
+      );
+
+      // First migration should succeed
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const firstMigration = await (newUserData as any).migrateFromOldFolder(
+        'iLoveJavaScript'
+      );
+      expect(firstMigration).to.be.true;
+
+      // Second migration attempt should return false (old folder doesn't exist)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const secondMigration = await (newUserData as any).migrateFromOldFolder(
+        'iLoveJavaScript'
+      );
+      expect(secondMigration).to.be.false;
+
+      // Data should still be accessible
+      const data = await newUserData.readOne('test-file');
+      expect(data?.name).to.equal('Migrated Data');
+    });
+  });
 });
 
 describe('AtlasUserData', function () {
@@ -361,10 +530,7 @@ describe('AtlasUserData', function () {
     validatorOpts: ValidatorOptions = {},
     orgId = 'test-org',
     projectId = 'test-proj',
-    type:
-      | 'recentQueries'
-      | 'favoriteQueries'
-      | 'favoriteAggregations' = 'favoriteQueries'
+    type: UserDataType = 'FavoriteQueries'
   ) => {
     return new AtlasUserData(getTestSchema(validatorOpts), type, {
       orgId,
@@ -387,7 +553,7 @@ describe('AtlasUserData', function () {
     it('writes data successfully', async function () {
       authenticatedFetchStub.resolves(mockResponse({}));
       getResourceUrlStub.returns(
-        'cluster-connection.cloud.mongodb.com/favoriteQueries/test-org/test-proj'
+        'cluster-connection.cloud.mongodb.com/FavoriteQueries/test-org/test-proj'
       );
 
       const userData = getAtlasUserData();
@@ -398,9 +564,9 @@ describe('AtlasUserData', function () {
 
       const [url, options] = authenticatedFetchStub.firstCall.args;
       expect(url).to.equal(
-        'cluster-connection.cloud.mongodb.com/favoriteQueries/test-org/test-proj'
+        'cluster-connection.cloud.mongodb.com/FavoriteQueries/test-org/test-proj'
       );
-      expect(options.method).to.equal('POST');
+      expect(options.method).to.equal('PUT');
       expect(options.headers['Content-Type']).to.equal('application/json');
 
       const body = JSON.parse(options.body as string);
@@ -418,7 +584,7 @@ describe('AtlasUserData', function () {
         new Error('HTTP 500: Internal Server Error')
       );
       getResourceUrlStub.returns(
-        'cluster-connection.cloud.mongodb.com/favoriteQueries/test-org/test-proj'
+        'cluster-connection.cloud.mongodb.com/FavoriteQueries/test-org/test-proj'
       );
 
       const userData = getAtlasUserData();
@@ -430,7 +596,7 @@ describe('AtlasUserData', function () {
     it('validator removes unknown props', async function () {
       authenticatedFetchStub.resolves(mockResponse({}));
       getResourceUrlStub.returns(
-        'cluster-connection.cloud.mongodb.com/favoriteQueries/test-org/test-proj'
+        'cluster-connection.cloud.mongodb.com/FavoriteQueries/test-org/test-proj'
       );
 
       const userData = getAtlasUserData();
@@ -446,7 +612,7 @@ describe('AtlasUserData', function () {
     it('uses custom serializer when provided', async function () {
       authenticatedFetchStub.resolves(mockResponse({}));
       getResourceUrlStub.returns(
-        'cluster-connection.cloud.mongodb.com/favoriteQueries/test-org/test-proj'
+        'cluster-connection.cloud.mongodb.com/FavoriteQueries/test-org/test-proj'
       );
 
       const userData = new AtlasUserData(getTestSchema(), 'FavoriteQueries', {
@@ -470,7 +636,7 @@ describe('AtlasUserData', function () {
     it('deletes data successfully', async function () {
       authenticatedFetchStub.resolves(mockResponse({}));
       getResourceUrlStub.returns(
-        'cluster-connection.cloud.mongodb.com/favoriteQueries/test-org/test-proj/test-id'
+        'cluster-connection.cloud.mongodb.com/FavoriteQueries/test-org/test-proj/test-id'
       );
 
       const userData = getAtlasUserData();
@@ -481,7 +647,7 @@ describe('AtlasUserData', function () {
 
       const [url, options] = authenticatedFetchStub.firstCall.args;
       expect(url).to.equal(
-        'cluster-connection.cloud.mongodb.com/favoriteQueries/test-org/test-proj/test-id'
+        'cluster-connection.cloud.mongodb.com/FavoriteQueries/test-org/test-proj/test-id'
       );
       expect(options.method).to.equal('DELETE');
     });
@@ -489,7 +655,7 @@ describe('AtlasUserData', function () {
     it('returns false when authenticatedFetch throws an error', async function () {
       authenticatedFetchStub.rejects(new Error('HTTP 404: Not Found'));
       getResourceUrlStub.returns(
-        'cluster-connection.cloud.mongodb.com/favoriteQueries/test-org/test-proj'
+        'cluster-connection.cloud.mongodb.com/FavoriteQueries/test-org/test-proj'
       );
 
       const userData = getAtlasUserData();
@@ -507,7 +673,7 @@ describe('AtlasUserData', function () {
       ];
       authenticatedFetchStub.resolves(mockResponse(responseData));
       getResourceUrlStub.returns(
-        'cluster-connection.cloud.mongodb.com/favoriteQueries/test-org/test-proj'
+        'cluster-connection.cloud.mongodb.com/FavoriteQueries/test-org/test-proj'
       );
 
       const userData = getAtlasUserData();
@@ -535,7 +701,7 @@ describe('AtlasUserData', function () {
       expect(authenticatedFetchStub).to.have.been.calledOnce;
       const [url, options] = authenticatedFetchStub.firstCall.args;
       expect(url).to.equal(
-        'cluster-connection.cloud.mongodb.com/favoriteQueries/test-org/test-proj'
+        'cluster-connection.cloud.mongodb.com/FavoriteQueries/test-org/test-proj'
       );
       expect(options.method).to.equal('GET');
     });
@@ -543,7 +709,7 @@ describe('AtlasUserData', function () {
     it('handles empty response', async function () {
       authenticatedFetchStub.resolves(mockResponse([]));
       getResourceUrlStub.returns(
-        'cluster-connection.cloud.mongodb.com/favoriteQueries/test-org/test-proj'
+        'cluster-connection.cloud.mongodb.com/FavoriteQueries/test-org/test-proj'
       );
 
       const userData = getAtlasUserData();
@@ -556,7 +722,7 @@ describe('AtlasUserData', function () {
     it('handles non-array response', async function () {
       authenticatedFetchStub.resolves(mockResponse({ notAnArray: true }));
       getResourceUrlStub.returns(
-        'cluster-connection.cloud.mongodb.com/favoriteQueries/test-org/test-proj'
+        'cluster-connection.cloud.mongodb.com/FavoriteQueries/test-org/test-proj'
       );
 
       const userData = getAtlasUserData();
@@ -569,7 +735,7 @@ describe('AtlasUserData', function () {
     it('handles errors gracefully', async function () {
       authenticatedFetchStub.rejects(new Error('Unknown error'));
       getResourceUrlStub.returns(
-        'cluster-connection.cloud.mongodb.com/favoriteQueries/test-org/test-proj'
+        'cluster-connection.cloud.mongodb.com/FavoriteQueries/test-org/test-proj'
       );
 
       const userData = getAtlasUserData();
@@ -585,7 +751,7 @@ describe('AtlasUserData', function () {
         new Error('HTTP 500: Internal Server Error')
       );
       getResourceUrlStub.returns(
-        'cluster-connection.cloud.mongodb.com/favoriteQueries/test-org/test-proj'
+        'cluster-connection.cloud.mongodb.com/FavoriteQueries/test-org/test-proj'
       );
 
       const userData = getAtlasUserData();
@@ -602,7 +768,7 @@ describe('AtlasUserData', function () {
       const responseData = [{ data: 'custom:{"name":"Custom"}' }];
       authenticatedFetchStub.resolves(mockResponse(responseData));
       getResourceUrlStub.returns(
-        'cluster-connection.cloud.mongodb.com/favoriteQueries/test-org/test-proj'
+        'cluster-connection.cloud.mongodb.com/FavoriteQueries/test-org/test-proj'
       );
 
       const userData = new AtlasUserData(getTestSchema(), 'FavoriteQueries', {
@@ -639,7 +805,7 @@ describe('AtlasUserData', function () {
       ];
       authenticatedFetchStub.resolves(mockResponse(responseData));
       getResourceUrlStub.returns(
-        'cluster-connection.cloud.mongodb.com/favoriteQueries/test-org/test-proj'
+        'cluster-connection.cloud.mongodb.com/FavoriteQueries/test-org/test-proj'
       );
 
       const userData = getAtlasUserData();
@@ -671,11 +837,11 @@ describe('AtlasUserData', function () {
       getResourceUrlStub
         .onFirstCall()
         .returns(
-          'cluster-connection.cloud.mongodb.com/favoriteQueries/test-org/test-proj/test-id'
+          'cluster-connection.cloud.mongodb.com/FavoriteQueries/test-org/test-proj/test-id'
         )
         .onSecondCall()
         .returns(
-          'cluster-connection.cloud.mongodb.com/favoriteQueries/test-org/test-proj/test-id'
+          'cluster-connection.cloud.mongodb.com/FavoriteQueries/test-org/test-proj/test-id'
         );
 
       const userData = getAtlasUserData();
@@ -690,13 +856,13 @@ describe('AtlasUserData', function () {
 
       const [getUrl, getOptions] = authenticatedFetchStub.firstCall.args;
       expect(getUrl).to.equal(
-        'cluster-connection.cloud.mongodb.com/favoriteQueries/test-org/test-proj/test-id'
+        'cluster-connection.cloud.mongodb.com/FavoriteQueries/test-org/test-proj/test-id'
       );
       expect(getOptions.method).to.equal('GET');
 
       const [putUrl, putOptions] = authenticatedFetchStub.secondCall.args;
       expect(putUrl).to.equal(
-        'cluster-connection.cloud.mongodb.com/favoriteQueries/test-org/test-proj/test-id'
+        'cluster-connection.cloud.mongodb.com/FavoriteQueries/test-org/test-proj/test-id'
       );
       expect(putOptions.method).to.equal('PUT');
       expect(putOptions.headers['Content-Type']).to.equal('application/json');
@@ -714,7 +880,7 @@ describe('AtlasUserData', function () {
         .rejects(new Error('HTTP 400: Bad Request'));
 
       getResourceUrlStub.returns(
-        'cluster-connection.cloud.mongodb.com/favoriteQueries/test-org/test-proj/test-id'
+        'cluster-connection.cloud.mongodb.com/FavoriteQueries/test-org/test-proj/test-id'
       );
 
       const userData = getAtlasUserData();
@@ -739,11 +905,11 @@ describe('AtlasUserData', function () {
       getResourceUrlStub
         .onFirstCall()
         .returns(
-          'cluster-connection.cloud.mongodb.com/favoriteQueries/test-org/test-proj'
+          'cluster-connection.cloud.mongodb.com/FavoriteQueries/test-org/test-proj'
         )
         .onSecondCall()
         .returns(
-          'cluster-connection.cloud.mongodb.com/favoriteQueries/test-org/test-proj/test-id'
+          'cluster-connection.cloud.mongodb.com/FavoriteQueries/test-org/test-proj/test-id'
         );
 
       const userData = new AtlasUserData(getTestSchema(), 'FavoriteQueries', {
@@ -769,7 +935,7 @@ describe('AtlasUserData', function () {
     it('constructs URL correctly for write operation', async function () {
       authenticatedFetchStub.resolves(mockResponse({}));
       getResourceUrlStub.returns(
-        'cluster-connection.cloud.mongodb.com/favoriteQueries/custom-org/custom-proj/test-id'
+        'cluster-connection.cloud.mongodb.com/FavoriteQueries/custom-org/custom-proj/test-id'
       );
 
       const userData = getAtlasUserData({}, 'custom-org', 'custom-proj');
@@ -777,14 +943,14 @@ describe('AtlasUserData', function () {
 
       const [url] = authenticatedFetchStub.firstCall.args;
       expect(url).to.equal(
-        'cluster-connection.cloud.mongodb.com/favoriteQueries/custom-org/custom-proj/test-id'
+        'cluster-connection.cloud.mongodb.com/FavoriteQueries/custom-org/custom-proj/test-id'
       );
     });
 
     it('constructs URL correctly for delete operation', async function () {
       authenticatedFetchStub.resolves(mockResponse({}));
       getResourceUrlStub.returns(
-        'cluster-connection.cloud.mongodb.com/favoriteQueries/org123/proj456/item789'
+        'cluster-connection.cloud.mongodb.com/FavoriteQueries/org123/proj456/item789'
       );
 
       const userData = getAtlasUserData({}, 'org123', 'proj456');
@@ -792,14 +958,14 @@ describe('AtlasUserData', function () {
 
       const [url] = authenticatedFetchStub.firstCall.args;
       expect(url).to.equal(
-        'cluster-connection.cloud.mongodb.com/favoriteQueries/org123/proj456/item789'
+        'cluster-connection.cloud.mongodb.com/FavoriteQueries/org123/proj456/item789'
       );
     });
 
     it('constructs URL correctly for read operation', async function () {
       authenticatedFetchStub.resolves(mockResponse({}));
       getResourceUrlStub.returns(
-        'cluster-connection.cloud.mongodb.com/favoriteQueries/org456/proj123'
+        'cluster-connection.cloud.mongodb.com/FavoriteQueries/org456/proj123'
       );
 
       const userData = getAtlasUserData({}, 'org456', 'proj123');
@@ -808,7 +974,7 @@ describe('AtlasUserData', function () {
 
       const [url] = authenticatedFetchStub.firstCall.args;
       expect(url).to.equal(
-        'cluster-connection.cloud.mongodb.com/favoriteQueries/org456/proj123'
+        'cluster-connection.cloud.mongodb.com/FavoriteQueries/org456/proj123'
       );
     });
 
@@ -827,11 +993,11 @@ describe('AtlasUserData', function () {
       getResourceUrlStub
         .onFirstCall()
         .returns(
-          'cluster-connection.cloud.mongodb.com/favoriteQueries/org123/proj456'
+          'cluster-connection.cloud.mongodb.com/FavoriteQueries/org123/proj456'
         )
         .onSecondCall()
         .returns(
-          'cluster-connection.cloud.mongodb.com/favoriteQueries/org123/proj456/item789'
+          'cluster-connection.cloud.mongodb.com/FavoriteQueries/org123/proj456/item789'
         );
 
       const userData = getAtlasUserData({}, 'org123', 'proj456');
@@ -841,32 +1007,32 @@ describe('AtlasUserData', function () {
 
       const [getUrl] = authenticatedFetchStub.firstCall.args;
       expect(getUrl).to.equal(
-        'cluster-connection.cloud.mongodb.com/favoriteQueries/org123/proj456'
+        'cluster-connection.cloud.mongodb.com/FavoriteQueries/org123/proj456'
       );
 
       const [putUrl] = authenticatedFetchStub.secondCall.args;
       expect(putUrl).to.equal(
-        'cluster-connection.cloud.mongodb.com/favoriteQueries/org123/proj456/item789'
+        'cluster-connection.cloud.mongodb.com/FavoriteQueries/org123/proj456/item789'
       );
     });
 
     it('constructs URL correctly for different types', async function () {
       authenticatedFetchStub.resolves(mockResponse({}));
       getResourceUrlStub.returns(
-        'cluster-connection.cloud.mongodb.com/recentQueries/org123/proj456'
+        'cluster-connection.cloud.mongodb.com/RecentQueries/org123/proj456'
       );
 
       const userData = getAtlasUserData(
         {},
         'org123',
         'proj456',
-        'recentQueries'
+        'RecentQueries'
       );
       await userData.write('item789', { name: 'Recent Item' });
 
       const [url] = authenticatedFetchStub.firstCall.args;
       expect(url).to.equal(
-        'cluster-connection.cloud.mongodb.com/recentQueries/org123/proj456'
+        'cluster-connection.cloud.mongodb.com/RecentQueries/org123/proj456'
       );
     });
   });

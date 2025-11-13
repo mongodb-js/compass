@@ -22,7 +22,12 @@ export type SchemaAnalysisStartedState = {
 
 export type SchemaAnalysisError = {
   errorMessage: string;
-  errorType: 'timeout' | 'highComplexity' | 'general' | 'unsupportedState';
+  errorType:
+    | 'timeout'
+    | 'highComplexity'
+    | 'general'
+    | 'unsupportedState'
+    | 'empty';
 };
 
 export type SchemaAnalysisErrorState = {

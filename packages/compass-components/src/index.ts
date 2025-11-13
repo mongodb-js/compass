@@ -141,6 +141,7 @@ export {
 };
 export {
   useFocusState,
+  useFocusStateIncludingUnfocused,
   useHoverState,
   FocusState,
 } from './hooks/use-focus-hover';
@@ -243,6 +244,7 @@ export type {
   EdgeProps,
   NodeProps,
   DiagramProps,
+  FieldId,
   DiagramInstance,
   NodeField,
   NodeGlyph,

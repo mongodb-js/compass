@@ -8,6 +8,10 @@ export const ROW_HEIGHT = 28;
 export type Actions =
   // Atlas Cloud actions
   | 'show-connect-via-modal'
+  | 'connection-atlas-performance-metrics'
+  | 'connection-cluster-overview'
+  | 'connection-view-monitoring'
+  | 'connection-query-insights'
   // connection item related actions
   | 'open-shell'
   | 'select-connection'

@@ -21,7 +21,8 @@ export type RequiredDataServiceProps =
   | 'collectionStats'
   | 'collectionInfo'
   | 'listCollections'
-  | 'isListSearchIndexesSupported';
+  | 'isListSearchIndexesSupported'
+  | 'fetchShardKey';
 // TODO: It might make sense to refactor the DataService interface to be closer to
 // { ..., getCSFLEMode(): 'unavailable' } | {  ..., getCSFLEMode(): 'unavailable' | 'enabled' | 'disabled', isUpdateAllowed(): ..., knownSchemaForCollection(): ... }
 // so that either these methods are always present together or always absent

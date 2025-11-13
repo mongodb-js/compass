@@ -140,7 +140,6 @@ function sendStreamingResponse(res: http.ServerResponse, content: string) {
   sendChunk();
 }
 
-export const MOCK_ASSISTANT_SERVER_PORT = 27097;
 export async function startMockAssistantServer(
   {
     response: _response,
@@ -222,7 +221,7 @@ export async function startMockAssistantServer(
           return sendStreamingResponse(res, response.body);
         });
     })
-    .listen(MOCK_ASSISTANT_SERVER_PORT);
+    .listen(0);
   await once(server, 'listening');
 
   // address() returns either a string or AddressInfo.

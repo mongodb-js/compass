@@ -42,12 +42,20 @@ import type {
   FakerSchema,
   MockDataGeneratorState,
 } from '../components/mock-data-generator-modal/types';
+import { DEFAULT_DOCUMENT_COUNT } from '../components/mock-data-generator-modal/constants';
 
 import { isValidFakerMethod } from '../components/mock-data-generator-modal/utils';
 
 const DEFAULT_SAMPLE_SIZE = 100;
 
 const NO_DOCUMENTS_ERROR = 'No documents found in the collection to analyze.';
+
+export class EmptyCollectionError extends Error {
+  constructor() {
+    super(NO_DOCUMENTS_ERROR);
+    this.name = 'EmptyCollectionError';
+  }
+}
 
 function isAction<A extends AnyAction>(
   action: AnyAction,
@@ -63,6 +71,13 @@ function getErrorDetails(error: Error): SchemaAnalysisError {
   if (error instanceof ProcessSchemaUnsupportedStateError) {
     return {
       errorType: 'unsupportedState',
+      errorMessage: error.message,
+    };
+  }
+
+  if (error instanceof EmptyCollectionError) {
+    return {
+      errorType: 'empty',
       errorMessage: error.message,
     };
   }
@@ -110,6 +125,7 @@ export type CollectionState = {
   mockDataGenerator: {
     isModalOpen: boolean;
     currentStep: MockDataGeneratorStep;
+    documentCount: string;
   };
   fakerSchemaGeneration: MockDataGeneratorState;
 };
@@ -125,6 +141,7 @@ export enum CollectionActions {
   MockDataGeneratorModalClosed = 'compass-collection/MockDataGeneratorModalClosed',
   MockDataGeneratorNextButtonClicked = 'compass-collection/MockDataGeneratorNextButtonClicked',
   MockDataGeneratorPreviousButtonClicked = 'compass-collection/MockDataGeneratorPreviousButtonClicked',
+  MockDataGeneratorDocumentCountChanged = 'compass-collection/MockDataGeneratorDocumentCountChanged',
   FakerMappingGenerationStarted = 'compass-collection/FakerMappingGenerationStarted',
   FakerMappingGenerationCompleted = 'compass-collection/FakerMappingGenerationCompleted',
   FakerMappingGenerationFailed = 'compass-collection/FakerMappingGenerationFailed',
@@ -182,6 +199,11 @@ interface MockDataGeneratorPreviousButtonClickedAction {
   type: CollectionActions.MockDataGeneratorPreviousButtonClicked;
 }
 
+interface MockDataGeneratorDocumentCountChangedAction {
+  type: CollectionActions.MockDataGeneratorDocumentCountChanged;
+  documentCount: string;
+}
+
 export interface FakerMappingGenerationStartedAction {
   type: CollectionActions.FakerMappingGenerationStarted;
   requestId: string;
@@ -223,6 +245,7 @@ const reducer: Reducer<CollectionState, Action> = (
     mockDataGenerator: {
       isModalOpen: false,
       currentStep: MockDataGeneratorStep.SCHEMA_CONFIRMATION,
+      documentCount: DEFAULT_DOCUMENT_COUNT.toString(),
     },
     fakerSchemaGeneration: {
       status: 'idle',
@@ -329,6 +352,7 @@ const reducer: Reducer<CollectionState, Action> = (
         ...state.mockDataGenerator,
         isModalOpen: true,
         currentStep: MockDataGeneratorStep.SCHEMA_CONFIRMATION,
+        documentCount: DEFAULT_DOCUMENT_COUNT.toString(),
       },
     };
   }
@@ -426,6 +450,21 @@ const reducer: Reducer<CollectionState, Action> = (
       mockDataGenerator: {
         ...state.mockDataGenerator,
         currentStep: previousStep,
+      },
+    };
+  }
+
+  if (
+    isAction<MockDataGeneratorDocumentCountChangedAction>(
+      action,
+      CollectionActions.MockDataGeneratorDocumentCountChanged
+    )
+  ) {
+    return {
+      ...state,
+      mockDataGenerator: {
+        ...state.mockDataGenerator,
+        documentCount: action.documentCount,
       },
     };
   }
@@ -610,6 +649,15 @@ export const mockDataGeneratorPreviousButtonClicked = (): CollectionThunkAction<
   };
 };
 
+export const mockDataGeneratorDocumentCountChanged = (
+  documentCount: string
+): MockDataGeneratorDocumentCountChangedAction => {
+  return {
+    type: CollectionActions.MockDataGeneratorDocumentCountChanged,
+    documentCount,
+  };
+};
+
 export const fakerFieldTypeChanged = (
   fieldPath: string,
   mongoType: MongoDBFieldType
@@ -722,7 +770,7 @@ export const analyzeCollectionSchema = (): CollectionThunkAction<
         logger.debug(NO_DOCUMENTS_ERROR);
         dispatch({
           type: CollectionActions.SchemaAnalysisFailed,
-          error: new Error(NO_DOCUMENTS_ERROR),
+          error: new EmptyCollectionError(),
         });
         return;
       }

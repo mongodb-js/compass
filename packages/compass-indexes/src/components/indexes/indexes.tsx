@@ -303,7 +303,7 @@ export function Indexes({
           {getBanner()}
 
           <AtlasSkillsBanner
-            ctaText="Design and apply indexes that make queries run faster."
+            ctaText="Learn how to design efficient indexes to speed up queries."
             skillsUrl="https://learn.mongodb.com/courses/indexing-design-fundamentals?team=growth"
             onCloseSkillsBanner={() => {
               setSkillDismissed(true);

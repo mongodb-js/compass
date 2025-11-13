@@ -733,6 +733,19 @@ export interface DataService {
     }
   ): Promise<Document[]>;
 
+  /**
+   * Fetch shard keys for the collection from the collections config.
+   *
+   * @param ns - The namespace to try to find shard key for.
+   * @param options - The query options.
+   * @param executionOptions - The execution options.
+   */
+  fetchShardKey(
+    ns: string,
+    options?: Omit<FindOptions, 'projection'>,
+    executionOptions?: ExecutionOptions
+  ): Promise<Record<string, unknown> | null>;
+
   /*** Insert ***/
 
   /**
@@ -1728,7 +1741,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
     filter: Filter<Document>,
     options: CountDocumentsOptions = {},
     executionOptions?: ExecutionOptions & {
-      fallbackReadPreference: ReadPreferenceMode;
+      fallbackReadPreference?: ReadPreferenceMode;
     }
   ): Promise<number> {
     return this._cancellableOperation(
@@ -2234,6 +2247,44 @@ class DataServiceImpl extends WithLogContext implements DataService {
     return indexToProgress;
   }
 
+  @op(mongoLogId(1_001_000_381))
+  async fetchShardKey(
+    ns: string,
+    options: Omit<FindOptions, 'projection'> = {},
+    executionOptions?: ExecutionOptions
+  ): Promise<Record<string, unknown> | null> {
+    const docs = await this.find(
+      'config.collections',
+      {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        _id: ns as any,
+        // unsplittable introduced in SPM-3364 to mark unsharded collections
+        // that are still being tracked in the catalog
+        unsplittable: { $ne: true },
+      },
+      { ...options, projection: { key: 1, _id: 0 } },
+      { abortSignal: executionOptions?.abortSignal }
+    );
+    return docs.length ? docs[0].key : null;
+  }
+
+  private async _fetchShardKeyWithSilentFail(
+    ...args: Parameters<DataService['fetchShardKey']>
+  ): ReturnType<DataService['fetchShardKey']> {
+    try {
+      return await this.fetchShardKey(...args);
+    } catch (err) {
+      // Rethrow if we aborted along the way.
+      if (this.isCancelError(err)) {
+        throw err;
+      }
+
+      // Return null on error.
+      // This is oftentimes a lack of permissions to run a find on config.collections.
+      return null;
+    }
+  }
+
   @op(mongoLogId(1_001_000_047))
   async indexes(
     ns: string,
@@ -2245,19 +2296,21 @@ class DataServiceImpl extends WithLogContext implements DataService {
       );
       return indexes.map((compactIndexEntry) => {
         const [name, keys] = compactIndexEntry;
-        return createIndexDefinition(ns, {
+        return createIndexDefinition(ns, null, {
           name,
           key: Object.fromEntries(keys),
         });
       });
     }
 
-    const [indexes, indexStats, indexSizes, indexProgress] = await Promise.all([
-      this._collection(ns, 'CRUD').indexes({ ...options, full: true }),
-      this._indexStats(ns),
-      this._indexSizes(ns),
-      this._indexProgress(ns),
-    ]);
+    const [indexes, indexStats, indexSizes, indexProgress, shardKey] =
+      await Promise.all([
+        this._collection(ns, 'CRUD').indexes({ ...options, full: true }),
+        this._indexStats(ns),
+        this._indexSizes(ns),
+        this._indexProgress(ns),
+        this._fetchShardKeyWithSilentFail(ns),
+      ]);
 
     const maxSize = Math.max(...Object.values(indexSizes));
 
@@ -2269,6 +2322,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
         const name = index.name;
         return createIndexDefinition(
           ns,
+          shardKey ?? null,
           index,
           indexStats[name],
           indexSizes[name],

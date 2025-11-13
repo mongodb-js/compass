@@ -13,7 +13,7 @@ import { createNumbersCollection } from '../../helpers/insert-data';
 import { isTestingAtlasCloudSandbox } from '../../helpers/test-runner-context';
 import { switchPipelineMode } from '../../helpers/commands/switch-pipeline-mode';
 
-describe('Collection ai query', function () {
+describe('Collection ai query (with real Cloud backend)', function () {
   let compass: Compass;
   let browser: CompassBrowser;
 

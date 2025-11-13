@@ -295,6 +295,14 @@ class CompassApplication {
     ipcMain?.handle('compass:mainProcessPid', () => {
       return process.pid;
     });
+
+    ipcMain?.handle(
+      'compass:set-process-env',
+      (_evt, key: string, value: string) => {
+        process.env[key] = value;
+        return process.env[key];
+      }
+    );
   }
 
   private static async setupLogging(): Promise<void> {

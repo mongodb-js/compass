@@ -33,10 +33,14 @@ export type GroupCue = Cue & {
 type GuideCueContextValue = {
   onNext?: (cue: Cue) => void;
   onNextGroup?: (groupCue: GroupCue) => void;
+  disabled?: boolean;
 };
+
 const GuideCueContext = React.createContext<GuideCueContextValue>({});
+
 export const GuideCueProvider: React.FC<GuideCueContextValue> = ({
   children,
+  disabled = false,
   ...callbacks
 }) => {
   const callbacksRef = useRef(callbacks);
@@ -49,8 +53,9 @@ export const GuideCueProvider: React.FC<GuideCueContextValue> = ({
       onNextGroup(groupCue: GroupCue) {
         callbacksRef.current.onNextGroup?.(groupCue);
       },
+      disabled,
     }),
-    []
+    [disabled]
   );
   return (
     <GuideCueContext.Provider value={value}>
@@ -251,12 +256,14 @@ export const GuideCue = <T extends HTMLElement>({
     };
   }, [isCueOpen, cueData, onNext, setOpen]);
 
+  const isCueDisabled = context.disabled;
+
   return (
     <>
       {readyToRender && (
         <LGGuideCue
           {...restOfCueProps}
-          open={isCueOpen}
+          open={!isCueDisabled && isCueOpen}
           numberOfSteps={guideCueService.getCountOfSteps(cueData.groupId)}
           onDismiss={() => {
             onDismiss?.();

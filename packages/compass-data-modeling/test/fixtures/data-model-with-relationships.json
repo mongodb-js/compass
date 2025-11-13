@@ -12,6 +12,7 @@
         "collections": [
           {
             "ns": "flights.airlines",
+            "isExpanded": false,
             "jsonSchema": {
               "bsonType": "object",
               "required": [
@@ -63,6 +64,7 @@
           },
           {
             "ns": "flights.airports",
+            "isExpanded": false,
             "jsonSchema": {
               "bsonType": "object",
               "required": [
@@ -110,6 +112,7 @@
           },
           {
             "ns": "flights.airports_coordinates_for_schema",
+            "isExpanded": false,
             "jsonSchema": {
               "bsonType": "object",
               "required": ["_id", "coordinates", "Country", "Name"],
@@ -136,6 +139,7 @@
           },
           {
             "ns": "flights.countries",
+            "isExpanded": false,
             "jsonSchema": {
               "bsonType": "object",
               "required": ["_id", "iso_code", "name"],
@@ -159,6 +163,7 @@
           },
           {
             "ns": "flights.planes",
+            "isExpanded": false,
             "jsonSchema": {
               "bsonType": "object",
               "required": ["_id", "IATA", "ICAO", "name"],
@@ -182,6 +187,7 @@
           },
           {
             "ns": "flights.routes",
+            "isExpanded": false,
             "jsonSchema": {
               "bsonType": "object",
               "required": [

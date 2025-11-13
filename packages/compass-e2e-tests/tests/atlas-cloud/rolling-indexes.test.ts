@@ -39,12 +39,13 @@ describe('Rolling indexes', function () {
 
     this.timeout(extendedRollingIndexesTimeout * 1.2);
 
-    await createNumbersCollection();
+    const collName = `rolling-indexes-test-${Date.now()}`;
+    await createNumbersCollection(collName);
     await browser.connectToDefaults();
     await browser.navigateToCollectionTab(
       DEFAULT_CONNECTION_NAMES[0],
       'test',
-      'numbers',
+      collName,
       'Indexes'
     );
 

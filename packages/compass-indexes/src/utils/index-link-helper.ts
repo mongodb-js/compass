@@ -22,10 +22,12 @@ const HELP_URLS = {
     'https://docs.mongodb.com/master/reference/bson-type-comparison-order/#collation',
   COLLATION_REF: 'https://docs.mongodb.com/master/reference/collation',
   HIDDEN: 'https://www.mongodb.com/docs/manual/core/index-hidden/',
+  SHARDKEY: 'https://www.mongodb.com/docs/manual/core/sharding-shard-key/',
   UNKNOWN: null,
 };
 
 export type HELP_URL_KEY =
+  | 'shardKey' // The only camelCase key at the moment.
   | Uppercase<keyof typeof HELP_URLS>
   | Lowercase<keyof typeof HELP_URLS>;
 

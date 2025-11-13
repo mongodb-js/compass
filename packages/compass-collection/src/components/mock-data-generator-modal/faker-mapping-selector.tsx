@@ -6,7 +6,6 @@ import {
   css,
   Label,
   Option,
-  palette,
   Select,
   spacing,
 } from '@mongodb-js/compass-components';
@@ -27,7 +26,6 @@ const fieldMappingSelectorsStyles = css({
 });
 
 const labelStyles = css({
-  color: palette.gray.dark1,
   fontWeight: 600,
 });
 

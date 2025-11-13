@@ -371,7 +371,7 @@ describe('CSFLECollectionTracker', function () {
   });
 
   context('with server-side FLE2 schema info', function () {
-    let SOME_UUID1, SOME_UUID2;
+    let SOME_UUID1: Binary, SOME_UUID2: Binary;
     beforeEach(async function () {
       [tracker, dataService, SOME_UUID1, SOME_UUID2] = await createTracker();
       // Creating the collections needs to be done through the non-FLE-aware
@@ -468,7 +468,7 @@ describe('CSFLECollectionTracker', function () {
           err = error;
         }
         expect(err).to.be.instanceOf(Error);
-        expect(err.message).to.match(
+        expect((err as Error).message).to.match(
           /\[Compass\] Missing encrypted field information for collection/
         );
       });
@@ -493,7 +493,7 @@ describe('CSFLECollectionTracker', function () {
           err = error;
         }
         expect(err).to.be.instanceOf(Error);
-        expect(err.message).to.match(
+        expect((err as Error).message).to.match(
           /\[Compass\] Missing encrypted field 'a' of collection/
         );
       });

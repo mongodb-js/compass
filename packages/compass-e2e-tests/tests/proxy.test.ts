@@ -53,7 +53,13 @@ describe('Proxy support', function () {
 
     if (compass) {
       await screenshotIfFailed(compass, this.currentTest);
-      await browser.setFeature('proxy', '');
+      await browser.setFeature(
+        'proxy',
+        '',
+        // do not validate proxy options on clean-up: it won't update if it was
+        // set via cli
+        () => true
+      );
       await cleanup(compass);
     }
   });
@@ -79,7 +85,13 @@ describe('Proxy support', function () {
 
     await browser.setFeature(
       'proxy',
-      `http://localhost:${port(httpProxyServer2)}`
+      `http://localhost:${port(httpProxyServer2)}`,
+      (value, expected) => {
+        // proxy does some modification of value before storing it, so we are
+        // just asserting that the expected value is somewhere in the resulting
+        // string
+        return (value as string).includes(expected as string);
+      }
     );
     const result = await browser.execute(async function () {
       const response = await fetch('http://proxy-test-compass.mongodb.com/');

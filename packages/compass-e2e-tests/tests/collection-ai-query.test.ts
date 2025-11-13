@@ -7,17 +7,15 @@ import {
   init,
   cleanup,
   screenshotIfFailed,
-  skipForWeb,
-  TEST_COMPASS_WEB,
   DEFAULT_CONNECTION_NAME_1,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
 import { createNumbersCollection } from '../helpers/insert-data';
-import { startMockAtlasServiceServer } from '../helpers/atlas-service';
-import type { MockAtlasServerResponse } from '../helpers/atlas-service';
+import { startMockAtlasServiceServer } from '../helpers/mock-atlas-service';
+import type { MockAtlasServerResponse } from '../helpers/mock-atlas-service';
 
-describe('Collection ai query', function () {
+describe('Collection ai query (with mocked backend)', function () {
   let compass: Compass;
   let browser: CompassBrowser;
   let telemetry: Telemetry;
@@ -27,10 +25,6 @@ describe('Collection ai query', function () {
   let clearRequests: () => void;
 
   before(async function () {
-    skipForWeb(this, 'ai queries not yet available in compass-web');
-
-    process.env.COMPASS_E2E_SKIP_AI_OPT_IN = 'true';
-
     // Start a mock server to pass an ai response.
     const {
       endpoint,
@@ -45,11 +39,19 @@ describe('Collection ai query', function () {
     clearRequests = _clearRequests;
     setMockAtlasServerResponse = _setMockAtlasServerResponse;
 
-    process.env.COMPASS_ATLAS_SERVICE_UNAUTH_BASE_URL_OVERRIDE = endpoint;
-
     telemetry = await startTelemetryServer();
     compass = await init(this.test?.fullTitle());
     browser = compass.browser;
+
+    await browser.setEnv(
+      'COMPASS_ATLAS_SERVICE_UNAUTH_BASE_URL_OVERRIDE',
+      endpoint
+    );
+
+    await browser.setFeature('enableGenAIFeatures', true);
+    await browser.setFeature('enableGenAISampleDocumentPassing', true);
+    await browser.setFeature('optInGenAIFeatures', true);
+
     await browser.setupDefaultConnections();
   });
 
@@ -66,13 +68,7 @@ describe('Collection ai query', function () {
   });
 
   after(async function () {
-    if (TEST_COMPASS_WEB) {
-      return;
-    }
-
     await stopMockAtlasServer();
-
-    delete process.env.COMPASS_E2E_SKIP_AI_OPT_IN;
 
     await cleanup(compass);
     await telemetry.stop();

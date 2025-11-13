@@ -27,7 +27,10 @@ import {
   useTelemetry,
   useTrackOnChange,
 } from '@mongodb-js/compass-telemetry/provider';
-import { DEFAULT_CONNECTION_STRING_FALLBACK } from './constants';
+import {
+  DEFAULT_CONNECTION_STRING_FALLBACK,
+  DEFAULT_DOCUMENT_COUNT,
+} from './constants';
 import { redactConnectionString } from 'mongodb-connection-string-url';
 
 const RUN_SCRIPT_COMMAND = (connectionString: string) => `
@@ -87,7 +90,7 @@ interface ScriptScreenProps {
   fakerSchema: FakerSchema | null;
   namespace: string;
   arrayLengthMap: ArrayLengthMap;
-  documentCount: number;
+  documentCount: string;
 }
 
 const ScriptScreen = ({
@@ -100,7 +103,7 @@ const ScriptScreen = ({
   const connectionInfo = useConnectionInfo();
   const track = useTelemetry();
 
-  const connectionString =
+  const connectionString: string =
     connectionInfo?.atlasMetadata?.userConnectionString ??
     DEFAULT_CONNECTION_STRING_FALLBACK;
 
@@ -117,7 +120,7 @@ const ScriptScreen = ({
     }
 
     return generateScript(fakerSchema, {
-      documentCount,
+      documentCount: Number(documentCount) || DEFAULT_DOCUMENT_COUNT,
       databaseName: database,
       collectionName: collection,
       arrayLengthMap,
@@ -138,7 +141,7 @@ const ScriptScreen = ({
       if (scriptResult.success && fakerSchema) {
         track('Mock Data Script Generated', {
           field_count: Object.keys(fakerSchema).length,
-          output_docs_count: documentCount,
+          output_docs_count: Number(documentCount) || DEFAULT_DOCUMENT_COUNT,
         });
       }
     },
@@ -258,7 +261,12 @@ const ScriptScreen = ({
 };
 
 const mapStateToProps = (state: CollectionState) => {
-  const { fakerSchemaGeneration, namespace, schemaAnalysis } = state;
+  const {
+    fakerSchemaGeneration,
+    namespace,
+    schemaAnalysis,
+    mockDataGenerator,
+  } = state;
 
   return {
     fakerSchema:
@@ -270,8 +278,7 @@ const mapStateToProps = (state: CollectionState) => {
       schemaAnalysis?.status === SCHEMA_ANALYSIS_STATE_COMPLETE
         ? schemaAnalysis.arrayLengthMap
         : {},
-    // TODO(CLOUDP-333856): When document count step is implemented, get documentCount from state
-    documentCount: 100,
+    documentCount: mockDataGenerator.documentCount,
   };
 };
 

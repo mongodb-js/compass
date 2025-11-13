@@ -204,9 +204,16 @@ describe('OIDC integration', function () {
   });
 
   afterEach(async function () {
-    await browser.setFeature('browserCommandForOIDCAuth', undefined);
-    await browser.setFeature('persistOIDCTokens', undefined);
-    await browser.setFeature('enableShell', true);
+    try {
+      await browser.setFeature('browserCommandForOIDCAuth', undefined);
+      await browser.setFeature('persistOIDCTokens', undefined);
+      await browser.setFeature('enableShell', true);
+    } catch (err) {
+      // We don't want to completely fail if this failed for some reason, but
+      // keel the error log around
+      console.warn('Failed to restore the preferences before closing compass:');
+      console.warn(err);
+    }
     await screenshotIfFailed(compass, this.currentTest);
     await cleanup(compass);
   });

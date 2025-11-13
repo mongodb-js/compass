@@ -1,85 +1,121 @@
 import type { CompassPluginComponent } from '@mongodb-js/compass-app-registry';
 import type { WorkspaceTabCoreProps } from '@mongodb-js/compass-components';
+import { z } from '@mongodb-js/compass-user-data';
 
-export type CollectionSubtab =
-  | 'Documents'
-  | 'Aggregations'
-  | 'Schema'
-  | 'Indexes'
-  | 'Validation'
-  | 'GlobalWrites';
+const CollectionSubtabSchema = z.enum([
+  'Documents',
+  'Aggregations',
+  'Schema',
+  'Indexes',
+  'Validation',
+  'GlobalWrites',
+]);
 
-export type WelcomeWorkspace = {
-  type: 'Welcome';
-};
+export type CollectionSubtab = z.output<typeof CollectionSubtabSchema>;
 
-export type MyQueriesWorkspace = {
-  type: 'My Queries';
-};
+const WelcomeWorkspaceSchema = z.object({
+  type: z.literal('Welcome'),
+});
 
-export type DataModelingWorkspace = {
-  type: 'Data Modeling';
-};
+export type WelcomeWorkspace = z.output<typeof WelcomeWorkspaceSchema>;
 
-export type ShellWorkspace = {
-  type: 'Shell';
-  connectionId: string;
-  initialEvaluate?: string | string[];
-  initialInput?: string;
-};
+const MyQueriesWorkspaceSchema = z.object({
+  type: z.literal('My Queries'),
+});
 
-export type ServerStatsWorkspace = {
-  type: 'Performance';
-  connectionId: string;
-};
+export type MyQueriesWorkspace = z.output<typeof MyQueriesWorkspaceSchema>;
 
-export type DatabasesWorkspace = {
-  type: 'Databases';
-  connectionId: string;
-};
+const DataModelingWorkspaceSchema = z.object({
+  type: z.literal('Data Modeling'),
+});
 
-export type CollectionsWorkspace = {
-  type: 'Collections';
-  connectionId: string;
-  namespace: string;
+export type DataModelingWorkspace = z.output<
+  typeof DataModelingWorkspaceSchema
+>;
+
+const DatabasesWorkspaceSchema = z.object({
+  type: z.literal('Databases'),
+  connectionId: z.string(),
+});
+
+export type DatabasesWorkspace = z.output<typeof DatabasesWorkspaceSchema>;
+
+const ServerStatsWorkspaceSchema = z.object({
+  type: z.literal('Performance'),
+  connectionId: z.string(),
+});
+
+export type ServerStatsWorkspace = z.output<typeof ServerStatsWorkspaceSchema>;
+
+const ShellWorkspaceSchema = z.object({
+  type: z.literal('Shell'),
+  connectionId: z.string(),
+  initialEvaluate: z.union([z.string(), z.array(z.string())]).optional(),
+  initialInput: z.string().optional(),
+});
+
+export type ShellWorkspace = z.output<typeof ShellWorkspaceSchema>;
+
+const CollectionsWorkspaceSchema = z.object({
+  type: z.literal('Collections'),
+  connectionId: z.string(),
+  namespace: z.string(),
   // TODO(COMPASS-9456): Remove the `inferredFromPrivileges` field here.
-  inferredFromPrivileges?: boolean;
-};
+  inferredFromPrivileges: z.boolean().optional(),
+});
 
-export type CollectionWorkspace = {
+export type CollectionsWorkspace = z.output<typeof CollectionsWorkspaceSchema>;
+
+const CollectionWorkspaceSchema = z.object({
+  type: z.literal('Collection'),
+  subTab: CollectionSubtabSchema,
+  initialQuery: z.record(z.any()).optional(),
+  initialPipeline: z.array(z.unknown()).optional(),
+  initialPipelineText: z.string().optional(),
+  initialAggregation: z.unknown().optional(),
+  editViewName: z.string().optional(),
+  connectionId: z.string(),
+  namespace: z.string(),
+  // TODO(COMPASS-9456): Remove the `inferredFromPrivileges` field here.
+  inferredFromPrivileges: z.boolean().optional(),
+});
+
+export type CollectionWorkspace = z.output<typeof CollectionWorkspaceSchema> & {
   // TODO(COMPASS-7782): use hook to get the tab id within workspace.
   // This is not added in other workspaces
   // 1. because they don't need it and
   // 2. to avoid unnecessary changes in the types definition within those plugins.
   tabId: string;
-  type: 'Collection';
-  connectionId: string;
-  namespace: string;
-  subTab: CollectionSubtab;
-  initialQuery?: unknown;
-  initialPipeline?: unknown[];
-  initialPipelineText?: string;
-  initialAggregation?: unknown;
-  editViewName?: string;
-  // TODO(COMPASS-9456): Remove the `inferredFromPrivileges` field here.
-  inferredFromPrivileges?: boolean;
 };
 
-export type WorkspaceTabProps =
-  | WelcomeWorkspace
-  | MyQueriesWorkspace
-  | DataModelingWorkspace
-  | ShellWorkspace
-  | ServerStatsWorkspace
-  | DatabasesWorkspace
-  | CollectionsWorkspace
-  | (Omit<CollectionWorkspace, 'tabId'> & {
-      subTab: CollectionSubtab;
-    });
+const WorkspaceTabPropsSchema = z.discriminatedUnion('type', [
+  WelcomeWorkspaceSchema,
+  MyQueriesWorkspaceSchema,
+  DataModelingWorkspaceSchema,
+  DatabasesWorkspaceSchema,
+  ServerStatsWorkspaceSchema,
+  ShellWorkspaceSchema,
+  CollectionsWorkspaceSchema,
+  CollectionWorkspaceSchema,
+]);
 
-export type WorkspaceTab = {
-  id: string;
-} & WorkspaceTabProps;
+export type WorkspaceTabProps = z.output<typeof WorkspaceTabPropsSchema>;
+
+export const WorkspaceTabSchema = WorkspaceTabPropsSchema.and(
+  z.object({
+    id: z.string(),
+  })
+);
+
+export type WorkspaceTab = z.output<typeof WorkspaceTabSchema>;
+
+export const WorkspacesStateSchema = z.object({
+  tabs: z.array(WorkspaceTabSchema),
+  activeTabId: z.string().nullable(),
+  timestamp: z.number(),
+});
+
+export type WorkspacesStateData = z.output<typeof WorkspacesStateSchema>;
 
 export type AnyWorkspace =
   | WelcomeWorkspace

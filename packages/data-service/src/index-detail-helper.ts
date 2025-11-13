@@ -1,3 +1,5 @@
+import { isDeepStrictEqual } from 'util';
+import { EJSON } from 'bson';
 import type { IndexDescriptionInfo } from 'mongodb';
 
 export type IndexInfo = {
@@ -33,7 +35,14 @@ export type IndexDefinition = {
     | 'clustered'
     | 'columnstore';
   cardinality: 'single' | 'compound';
-  properties: ('unique' | 'sparse' | 'partial' | 'ttl' | 'collation')[];
+  properties: (
+    | 'unique'
+    | 'sparse'
+    | 'partial'
+    | 'ttl'
+    | 'collation'
+    | 'shardKey'
+  )[];
   extra: Record<string, string | number | boolean | Record<string, any>>;
   size: IndexSize;
   relativeSize: number;
@@ -56,7 +65,8 @@ export function getIndexCardinality(
 }
 
 export function getIndexProperties(
-  index: Pick<IndexDefinition, 'name' | 'key' | 'fields' | 'extra'>
+  index: Pick<IndexDefinition, 'name' | 'key' | 'fields' | 'extra'>,
+  collectionShardKey: unknown
 ): IndexDefinition['properties'] {
   const properties: IndexDefinition['properties'] = [];
 
@@ -78,6 +88,16 @@ export function getIndexProperties(
 
   if (index.extra.collation) {
     properties.push('collation');
+  }
+
+  if (
+    collectionShardKey &&
+    isDeepStrictEqual(
+      EJSON.serialize(collectionShardKey),
+      EJSON.serialize(index.key)
+    )
+  ) {
+    properties.push('shardKey');
   }
 
   return properties;
@@ -120,7 +140,15 @@ export function getIndexType(
 
 export function createIndexDefinition(
   ns: string,
-  { name, key, v, ...extra }: IndexDescriptionInfo & { name: string },
+  collectionShardKey: unknown,
+  {
+    name,
+    key,
+    v,
+    ...extra
+  }: IndexDescriptionInfo & {
+    name: string;
+  },
   indexStats?: IndexStats,
   indexSize?: number,
   maxSize?: number,
@@ -150,7 +178,7 @@ export function createIndexDefinition(
     ...indexStats,
     type: getIndexType(index),
     cardinality: getIndexCardinality(index),
-    properties: getIndexProperties(index),
+    properties: getIndexProperties(index, collectionShardKey),
     size: indexSize,
     relativeSize: (indexSize / maxSize) * 100,
     buildProgress: buildProgress ?? 0,

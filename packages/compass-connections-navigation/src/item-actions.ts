@@ -121,6 +121,35 @@ export const connectedConnectionItemActions = ({
           disabledDescription: 'Not supported',
         }
       : null,
+    // The following are just links to other parts of Atlas
+    !isPerformanceTabAvailable && connectionInfo.atlasMetadata
+      ? {
+          action: 'connection-atlas-performance-metrics',
+          icon: 'Gauge',
+          label: 'View performance metrics',
+        }
+      : null,
+    connectionInfo.atlasMetadata
+      ? {
+          action: 'connection-cluster-overview',
+          icon: 'Dashboard',
+          label: 'View cluster overview',
+        }
+      : null,
+    connectionInfo.atlasMetadata
+      ? {
+          action: 'connection-view-monitoring',
+          icon: 'TimeSeries',
+          label: 'View monitoring',
+        }
+      : null,
+    connectionInfo.atlasMetadata
+      ? {
+          action: 'connection-query-insights',
+          icon: 'Bulb',
+          label: 'View query insights',
+        }
+      : null,
     isAtlas
       ? null
       : {
@@ -214,13 +243,6 @@ export const collectionItemActions = ({
   if (type === 'view') {
     actions.push({ separator: true });
     actions.push(
-      canEditCollection
-        ? {
-            action: 'drop-collection',
-            label: 'Drop view',
-            icon: 'Trash',
-          }
-        : null,
       {
         action: 'duplicate-view',
         label: 'Duplicate view',
@@ -231,6 +253,13 @@ export const collectionItemActions = ({
             action: 'modify-view',
             label: 'Modify view',
             icon: 'Edit',
+          }
+        : null,
+      canEditCollection
+        ? {
+            action: 'drop-collection',
+            label: 'Drop view',
+            icon: 'Trash',
           }
         : null
     );
@@ -350,7 +379,7 @@ export const databaseContextMenuActions = ({
           icon: 'Plus',
           label: 'Create database',
         },
-    hasWriteActionsDisabled && canDeleteDatabase
+    hasWriteActionsDisabled || !canDeleteDatabase
       ? null
       : {
           action: 'drop-database',

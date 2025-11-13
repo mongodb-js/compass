@@ -13,7 +13,7 @@ import type {
   Relationship,
 } from '../services/data-model-storage';
 import { traverseSchema } from './schema-traversal';
-import { areFieldPathsEqual, isIdField } from './utils';
+import { areFieldPathsEqual, isIdField, isRelationshipValid } from './utils';
 
 const NO_HIGHLIGHTED_FIELDS = {};
 
@@ -37,12 +37,20 @@ export const getHighlightedFields = (
   }
   return selection;
 };
+type BaseNodeField = {
+  path: string[];
+} & Required<Pick<NodeField, 'id' | 'name' | 'depth' | 'type'>>;
 
-const getBaseNodeField = (fieldPath: string[]): NodeField => {
+const getBaseNodeField = (
+  fieldPath: string[],
+  fieldTypes: string[]
+): BaseNodeField => {
   return {
     name: fieldPath[fieldPath.length - 1],
+    path: fieldPath,
     id: fieldPath,
     depth: fieldPath.length - 1,
+    type: fieldTypes.length === 1 ? fieldTypes[0] : fieldTypes,
   };
 };
 
@@ -51,18 +59,22 @@ const getBaseNodeField = (fieldPath: string[]): NodeField => {
  */
 export const getBaseFieldsFromSchema = ({
   jsonSchema,
+  isExpanded = true,
 }: {
   jsonSchema: MongoDBJSONSchema;
-}): NodeField[] => {
+  isExpanded?: boolean;
+}): BaseNodeField[] => {
   if (!jsonSchema || !jsonSchema.properties) {
     return [];
   }
-  const fields: NodeField[] = [];
+  const fields: BaseNodeField[] = [];
 
   traverseSchema({
     jsonSchema,
-    visitor: ({ fieldPath }) => {
-      fields.push(getBaseNodeField(fieldPath));
+    visitor: ({ fieldPath, fieldTypes }) => {
+      if (isExpanded || fieldPath.length === 1) {
+        fields.push(getBaseNodeField(fieldPath, fieldTypes));
+      }
     },
   });
 
@@ -72,47 +84,46 @@ export const getBaseFieldsFromSchema = ({
 const KEY_GLYPH: NodeGlyph[] = ['key'];
 const NO_GLYPH: NodeGlyph[] = [];
 
-export const getFieldsFromSchema = ({
+type ExtendedNodeField = BaseNodeField &
+  Required<Pick<NodeField, 'glyphs' | 'selectable' | 'selected' | 'editable'>> &
+  Pick<NodeField, 'variant'>;
+
+export const getExtendedFieldsFromSchema = ({
   jsonSchema,
   highlightedFields = [],
   selectedField,
+  isExpanded = true,
 }: {
   jsonSchema: MongoDBJSONSchema;
   highlightedFields?: FieldPath[];
   selectedField?: FieldPath;
-}): NodeProps['fields'] => {
+  isExpanded?: boolean;
+}): ExtendedNodeField[] => {
   if (!jsonSchema || !jsonSchema.properties) {
     return [];
   }
-  const fields: NodeProps['fields'] = [];
 
-  traverseSchema({
+  return getBaseFieldsFromSchema({
     jsonSchema,
-    visitor: ({ fieldPath, fieldTypes }) => {
-      fields.push({
-        ...getBaseNodeField(fieldPath),
-        type: fieldTypes.length === 1 ? fieldTypes[0] : fieldTypes,
-        glyphs:
-          fieldTypes.length === 1 && fieldTypes[0] === 'objectId'
-            ? KEY_GLYPH
-            : NO_GLYPH,
-        selectable: true,
-        selected:
-          !!selectedField?.length &&
-          areFieldPathsEqual(fieldPath, selectedField),
-        editable: !isIdField(fieldPath),
-        variant:
-          highlightedFields.length &&
-          highlightedFields.some((highlightedField) =>
-            areFieldPathsEqual(fieldPath, highlightedField)
-          )
-            ? 'preview'
-            : undefined,
-      });
-    },
+    isExpanded,
+  }).map((field): ExtendedNodeField => {
+    return {
+      ...field,
+      glyphs: field.type === 'objectId' ? KEY_GLYPH : NO_GLYPH,
+      selectable: true,
+      selected:
+        !!selectedField?.length &&
+        areFieldPathsEqual(field.path, selectedField),
+      editable: !isIdField(field.path),
+      variant:
+        highlightedFields.length &&
+        highlightedFields.some((highlightedField) =>
+          areFieldPathsEqual(field.path, highlightedField)
+        )
+          ? 'preview'
+          : undefined,
+    };
   });
-
-  return fields;
 };
 
 /**
@@ -122,28 +133,30 @@ export function collectionToBaseNodeForLayout({
   ns,
   jsonSchema,
   displayPosition,
-}: Pick<DataModelCollection, 'ns' | 'jsonSchema' | 'displayPosition'>): Pick<
-  NodeProps,
-  'id' | 'position' | 'fields'
-> {
+  isExpanded,
+}: Pick<
+  DataModelCollection,
+  'ns' | 'jsonSchema' | 'displayPosition' | 'isExpanded'
+>): Pick<NodeProps, 'id' | 'position' | 'fields'> {
   return {
     id: ns,
     position: {
       x: displayPosition[0],
       y: displayPosition[1],
     },
-    fields: getBaseFieldsFromSchema({ jsonSchema }),
+    fields: getBaseFieldsFromSchema({ jsonSchema, isExpanded }),
   };
 }
 
 type CollectionWithRenderOptions = Pick<
   DataModelCollection,
-  'ns' | 'jsonSchema' | 'displayPosition'
+  'ns' | 'jsonSchema' | 'displayPosition' | 'isExpanded'
 > & {
   highlightedFields: Record<string, FieldPath[] | undefined>;
   selectedField?: FieldPath;
   selected: boolean;
   isInRelationshipDrawingMode: boolean;
+  relationships: Relationship[];
 };
 
 export function collectionToDiagramNode({
@@ -154,7 +167,16 @@ export function collectionToDiagramNode({
   highlightedFields,
   selected,
   isInRelationshipDrawingMode,
+  relationships,
+  isExpanded,
 }: CollectionWithRenderOptions): NodeProps {
+  let variant: NodeProps['variant'] = undefined;
+  if (relationships.some((r) => !isRelationshipValid(r))) {
+    variant = {
+      type: 'warn' as const,
+      warnMessage: 'One or more relationships cannot be resolved.',
+    };
+  }
   return {
     id: ns,
     type: 'collection',
@@ -163,14 +185,16 @@ export function collectionToDiagramNode({
       y: displayPosition[1],
     },
     title: toNS(ns).collection,
-    fields: getFieldsFromSchema({
+    fields: getExtendedFieldsFromSchema({
       jsonSchema: jsonSchema,
       highlightedFields: highlightedFields[ns] ?? undefined,
       selectedField,
+      isExpanded,
     }),
     selected,
     connectable: isInRelationshipDrawingMode,
     draggable: !isInRelationshipDrawingMode,
+    variant,
   };
 }
 
