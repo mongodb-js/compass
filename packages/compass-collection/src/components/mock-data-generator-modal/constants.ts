@@ -195,9 +195,9 @@ export const MONGO_TYPE_TO_FAKER_METHODS: Record<
   Code: [
     {
       method: 'lorem.sentence',
-      description: 'Short line of text code or content',
+      description: 'Short line of code',
     },
-    { method: 'lorem.paragraph', description: 'Block of placeholder text' },
+    { method: 'lorem.paragraph', description: 'Block of placeholder code' },
     { method: 'git.commitMessage', description: 'Git-style commit message' },
   ],
 
