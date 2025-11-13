@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **Mongodb Compass**.
-This document was automatically generated on Wed Nov 12 2025.
+This document was automatically generated on Thu Nov 13 2025.
 
 ## List of dependencies
 
@@ -401,7 +401,6 @@ This document was automatically generated on Wed Nov 12 2025.
 | **[mongodb-connection-string-url](#2e1146256a89ebd24e3398881e03807fe363d58444e6b7952ea50bd6108707bc)**                      | 3.0.1        | Apache-2.0                          |
 | **[mongodb-connection-string-url](#1fd70d8a07ac5222eca41b7f648d7e56e854e4947d54123daeca8614d050a545)**                      | 3.0.2        | Apache-2.0                          |
 | **[mongodb-log-writer](#985aaa38a9ce4a6f192fbd3fba7f9a713cf11718348d09268e92b363cfa0067f)**                                 | 2.4.4        | Apache-2.0                          |
-| **[mongodb-mql-engines](#f3c3cf99d701af28ef931ec96d633f53a8010e9a64fe99de829cd0788725e29d)**                                | 0.0.4        | Apache-2.0                          |
 | **[mongodb-ns](#1cd7eed8e558e278003bafc11ef70f899d5d7c2e4e604a3223e4fa11a0f85fa7)**                                         | 3.0.1        | Apache-2.0                          |
 | **[mongodb-ns](#15cc8a3da3a5e870e2d1230562cb9b6bbacd596d19d09daf5ad4d7bdbe331fa1)**                                         | 3.0.3        | Apache-2.0                          |
 | **[mongodb-query-parser](#15068a4e6d825438a4e6d365a3566f58762ef216402070179557503b775f3ff4)**                               | 4.3.0        | Apache-2.0                          |
@@ -28837,12 +28836,6 @@ License files:
       WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
       See the License for the specific language governing permissions and
       limitations under the License.
-
-<a id="f3c3cf99d701af28ef931ec96d633f53a8010e9a64fe99de829cd0788725e29d"></a>
-
-### [mongodb-mql-engines](https://www.npmjs.com/package/mongodb-mql-engines) (version 0.0.4)
-
-License tags: Apache-2.0
 
 <a id="1cd7eed8e558e278003bafc11ef70f899d5d7c2e4e604a3223e4fa11a0f85fa7"></a>
 
