@@ -771,7 +771,7 @@ describe('MockDataGeneratorModal', () => {
       });
 
       // Advance to document count step
-      userEvent.click(screen.getByText('Confirm mappings'));
+      userEvent.click(screen.getByTestId('next-step-button'));
       await waitFor(() => {
         expect(screen.getByText('Specify Number of Documents to Generate')).to
           .exist;
