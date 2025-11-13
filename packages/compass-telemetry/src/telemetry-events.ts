@@ -3064,6 +3064,18 @@ type DataModelingDiagramFieldRemoved = CommonEvent<{
 }>;
 
 /**
+ * This event is fired when user adds a field in a data modeling diagram.
+ *
+ * @category Data Modeling
+ */
+type DataModelingDiagramFieldAdded = CommonEvent<{
+  name: 'Data Modeling Field Added';
+  payload: {
+    source: 'side_panel' | 'diagram';
+  };
+}>;
+
+/**
  * This event is fired when user renames a field in a data modeling diagram.
  *
  * @category Data Modeling
@@ -3071,7 +3083,7 @@ type DataModelingDiagramFieldRemoved = CommonEvent<{
 type DataModelingDiagramFieldRenamed = CommonEvent<{
   name: 'Data Modeling Field Renamed';
   payload: {
-    source: 'side_panel';
+    source: 'side_panel' | 'diagram';
   };
 }>;
 
@@ -3083,7 +3095,7 @@ type DataModelingDiagramFieldRenamed = CommonEvent<{
 type DataModelingDiagramFieldTypeChanged = CommonEvent<{
   name: 'Data Modeling Field Type Changed';
   payload: {
-    source: 'side_panel';
+    source: 'side_panel' | 'diagram';
     from?: string;
     to?: string;
   };
@@ -3381,6 +3393,7 @@ export type TelemetryEvent =
   | DataModelingDiagramCollectionRenamed
   | DataModelingDiagramCreated
   | DataModelingDiagramExported
+  | DataModelingDiagramFieldAdded
   | DataModelingDiagramFieldRemoved
   | DataModelingDiagramFieldRenamed
   | DataModelingDiagramFieldTypeChanged

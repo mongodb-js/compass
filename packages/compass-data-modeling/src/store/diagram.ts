@@ -507,9 +507,10 @@ export function redoEdit(): DataModelingThunkAction<void, RedoEditAction> {
 
 export function onAddNestedField(
   ns: string,
-  parentFieldPath: string[]
+  parentFieldPath: string[],
+  source: 'side_panel' | 'diagram'
 ): DataModelingThunkAction<void, ApplyEditAction | RevertFailedEditAction> {
-  return (dispatch, getState) => {
+  return (dispatch, getState, { track }) => {
     const modelState = selectCurrentModelFromState(getState());
 
     const collection = modelState.collections.find((c) => c.ns === ns);
@@ -533,14 +534,19 @@ export function onAddNestedField(
       },
     };
 
+    track('Data Modeling Field Added', {
+      source,
+    });
+
     return dispatch(applyEdit(edit));
   };
 }
 
 export function addNewFieldToCollection(
-  ns: string
+  ns: string,
+  source: 'side_panel' | 'diagram'
 ): DataModelingThunkAction<void, ApplyEditAction | RevertFailedEditAction> {
-  return (dispatch, getState) => {
+  return (dispatch, getState, { track }) => {
     const modelState = selectCurrentModelFromState(getState());
 
     const collection = modelState.collections.find((c) => c.ns === ns);
@@ -560,6 +566,10 @@ export function addNewFieldToCollection(
         bsonType: 'string',
       },
     };
+
+    track('Data Modeling Field Added', {
+      source,
+    });
 
     return dispatch(applyEdit(edit));
   };
@@ -791,14 +801,20 @@ export function removeField(
   };
 }
 
-export function renameField(
-  ns: string,
-  field: FieldPath,
-  newName: string
-): DataModelingThunkAction<void, ApplyEditAction | RevertFailedEditAction> {
+export function renameField({
+  ns,
+  field,
+  newName,
+  source,
+}: {
+  ns: string;
+  field: FieldPath;
+  newName: string;
+  source: 'side_panel' | 'diagram';
+}): DataModelingThunkAction<void, ApplyEditAction | RevertFailedEditAction> {
   return (dispatch, getState, { track }) => {
     track('Data Modeling Field Renamed', {
-      source: 'side_panel',
+      source,
     });
 
     dispatch(applyEdit({ type: 'RenameField', ns, field, newName }));
@@ -832,11 +848,13 @@ export function changeFieldType({
   fieldPath,
   oldTypes,
   newTypes,
+  source,
 }: {
   ns: string;
   fieldPath: FieldPath;
   oldTypes: string[];
   newTypes: string[];
+  source: 'side_panel' | 'diagram';
 }): DataModelingThunkAction<void, ApplyEditAction | RevertFailedEditAction> {
   return (dispatch, getState, { track }) => {
     const collectionSchema = selectCurrentModelFromState(
@@ -851,7 +869,7 @@ export function changeFieldType({
     const to = getSchemaWithNewTypes(field.jsonSchema, newTypes);
 
     track('Data Modeling Field Type Changed', {
-      source: 'side_panel',
+      source,
       from: getTypeNameForTelemetry(oldTypes),
       to: getTypeNameForTelemetry(newTypes),
     });

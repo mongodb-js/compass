@@ -49,21 +49,29 @@ type FieldDrawerContentProps = {
   }) => void;
   onEditRelationshipClick: (rId: string) => void;
   onDeleteRelationshipClick: (rId: string) => void;
-  onRenameField: (
-    namespace: string,
-    fromFieldPath: FieldPath,
-    newName: string
-  ) => void;
+  onRenameField: ({
+    ns,
+    field,
+    newName,
+    source,
+  }: {
+    ns: string;
+    field: FieldPath;
+    newName: string;
+    source: 'side_panel' | 'diagram';
+  }) => void;
   onChangeFieldType: ({
     ns,
     fieldPath,
     oldTypes,
     newTypes,
+    source,
   }: {
     ns: string;
     fieldPath: FieldPath;
     oldTypes: string[];
     newTypes: string[];
+    source: 'side_panel' | 'diagram';
   }) => void;
 };
 
@@ -138,7 +146,12 @@ const FieldDrawerContent: React.FunctionComponent<FieldDrawerContentProps> = ({
       if (!isFieldNameValid) {
         return;
       }
-      onRenameField(namespace, fieldPath, trimmedName);
+      onRenameField({
+        ns: namespace,
+        field: fieldPath,
+        newName: trimmedName,
+        source: 'side_panel',
+      });
     }
   );
 
@@ -160,6 +173,7 @@ const FieldDrawerContent: React.FunctionComponent<FieldDrawerContentProps> = ({
       fieldPath,
       oldTypes: fieldTypes,
       newTypes,
+      source: 'side_panel',
     });
   };
 
