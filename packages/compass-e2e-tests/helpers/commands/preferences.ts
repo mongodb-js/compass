@@ -6,16 +6,21 @@ import type {
 import { isTestingWeb } from '../test-runner-context';
 import { inspect } from 'util';
 
-function _waitUntilPreferencesAccessAvailable(
+async function _waitUntilPreferencesAccessAvailable(
   browser: CompassBrowser
 ): Promise<void> {
+  const waitUntilOptions = {
+    timeoutMsg: 'Preferences are not available',
+    interval: 3000,
+  };
+
   if (!isTestingWeb()) {
-    return browser.waitUntil(() => {
-      return browser.execute(() => {
+    await browser.waitUntil(() => {
+      return browser.execute(async () => {
         try {
           // eslint-disable-next-line @typescript-eslint/no-require-imports
-          require('electron').ipcRenderer.invoke(
-            'compass:save-preferences', // this will throw if handler is not registered yet
+          await require('electron').ipcRenderer.invoke(
+            'compass:save-preferences', // this will reject if handler is not registered yet
             {}
           );
           return true;
@@ -23,19 +28,17 @@ function _waitUntilPreferencesAccessAvailable(
           return false;
         }
       });
-    });
-  }
-  return browser.waitUntil(
-    () => {
+    }, waitUntilOptions);
+  } else {
+    await browser.waitUntil(() => {
       return browser.execute(() => {
         const kSandboxPreferencesAccess = Symbol.for(
           '@compass-web-sandbox-preferences-access'
         );
         return kSandboxPreferencesAccess in globalThis;
       });
-    },
-    { timeoutMsg: 'Preferences are not available' }
-  );
+    }, waitUntilOptions);
+  }
 }
 
 function _setFeatureWeb<K extends keyof UserPreferences>(
@@ -57,18 +60,19 @@ function _setFeatureWeb<K extends keyof UserPreferences>(
   );
 }
 
-function _setFeatureDesktop<K extends keyof UserPreferences>(
+async function _setFeatureDesktop<K extends keyof UserPreferences>(
   browser: CompassBrowser,
   name: K,
   value: UserPreferences[K]
 ): Promise<AllPreferences> {
-  return browser.execute(
-    (_name, _value) => {
+  return await browser.execute(
+    async (_name, _value) => {
       // eslint-disable-next-line @typescript-eslint/no-require-imports
-      return require('electron').ipcRenderer.invoke(
+      const newPreferences = await require('electron').ipcRenderer.invoke(
         'compass:save-preferences',
         { [_name]: _value === null ? undefined : _value }
       );
+      return newPreferences;
     },
     name,
     value
@@ -94,15 +98,20 @@ export async function setFeature<K extends keyof UserPreferences>(
   let latestValue: UserPreferences[K];
   try {
     await _waitUntilPreferencesAccessAvailable(browser);
+    const currentPreferences = await getFeatures(browser);
+    // We can be running tests against compass version where the preference
+    // doesn't exist yet (older compass build in smoke tests for example), in
+    // that case setting preference does nothing, so we will skip the validation
+    const doesPreferenceExists = name in currentPreferences;
     await browser.waitUntil(
       async () => {
         const newPreferences = await (isTestingWeb()
           ? _setFeatureWeb
           : _setFeatureDesktop)(browser, name, value);
         latestValue = newPreferences[name];
-        return isEqual(latestValue, value);
+        return doesPreferenceExists ? isEqual(latestValue, value) : true;
       },
-      { interval: 500 }
+      { interval: 1000 }
     );
   } catch (err) {
     const expected = inspect(value);
@@ -135,9 +144,14 @@ export async function getFeature<K extends keyof AllPreferences>(
   browser: CompassBrowser,
   name: K
 ): Promise<AllPreferences[K]> {
+  return (await getFeatures(browser))[name];
+}
+
+export async function getFeatures(
+  browser: CompassBrowser
+): Promise<AllPreferences> {
   await _waitUntilPreferencesAccessAvailable(browser);
-  const allPreferences = await (isTestingWeb()
-    ? _getFeaturesWeb
-    : _getFeaturesDesktop)(browser);
-  return allPreferences[name];
+  return await (isTestingWeb() ? _getFeaturesWeb : _getFeaturesDesktop)(
+    browser
+  );
 }

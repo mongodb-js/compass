@@ -23,11 +23,16 @@ import { connect } from 'react-redux';
 import { openMockDataGeneratorModal } from '../../modules/collection-tab';
 import type { CollectionState } from '../../modules/collection-tab';
 import {
-  SCHEMA_ANALYSIS_STATE_COMPLETE,
   SCHEMA_ANALYSIS_STATE_ERROR,
+  SCHEMA_ANALYSIS_STATE_COMPLETE,
   type SchemaAnalysisStatus,
   type SchemaAnalysisError,
 } from '../../schema-analysis-types';
+import {
+  selectHasSchemaAnalysisData,
+  selectIsCollectionEmpty,
+  selectHasUnsupportedStateError,
+} from '../../stores/collection-tab';
 
 const collectionHeaderStyles = css({
   padding: spacing[400],
@@ -73,6 +78,8 @@ type CollectionHeaderProps = {
   analyzedSchemaDepth: number;
   schemaAnalysisStatus: SchemaAnalysisStatus | null;
   schemaAnalysisError: SchemaAnalysisError | null;
+  isCollectionEmpty: boolean;
+  hasUnsupportedStateError: boolean;
 };
 
 const getInsightsForPipeline = (pipeline: any[], isAtlas: boolean) => {
@@ -110,8 +117,9 @@ const CollectionHeader: React.FunctionComponent<CollectionHeaderProps> = ({
   onOpenMockDataModal,
   hasSchemaAnalysisData,
   analyzedSchemaDepth,
-  schemaAnalysisStatus,
   schemaAnalysisError,
+  isCollectionEmpty,
+  hasUnsupportedStateError,
 }) => {
   const darkMode = useDarkMode();
   const showInsights = usePreference('showInsights');
@@ -192,8 +200,9 @@ const CollectionHeader: React.FunctionComponent<CollectionHeaderProps> = ({
           onOpenMockDataModal={onOpenMockDataModal}
           hasSchemaAnalysisData={hasSchemaAnalysisData}
           analyzedSchemaDepth={analyzedSchemaDepth}
-          schemaAnalysisStatus={schemaAnalysisStatus}
           schemaAnalysisError={schemaAnalysisError}
+          isCollectionEmpty={isCollectionEmpty}
+          hasUnsupportedStateError={hasUnsupportedStateError}
         />
       </div>
       <MockDataGeneratorModal />
@@ -209,15 +218,14 @@ const mapStateToProps = (state: CollectionState) => {
       schemaAnalysis && schemaAnalysis.status === SCHEMA_ANALYSIS_STATE_ERROR
         ? schemaAnalysis.error
         : null,
-    hasSchemaAnalysisData:
-      schemaAnalysis &&
-      schemaAnalysis.status === SCHEMA_ANALYSIS_STATE_COMPLETE &&
-      Object.keys(schemaAnalysis.processedSchema).length > 0,
+    hasSchemaAnalysisData: selectHasSchemaAnalysisData(state),
     analyzedSchemaDepth:
       schemaAnalysis && schemaAnalysis.status === SCHEMA_ANALYSIS_STATE_COMPLETE
         ? schemaAnalysis.schemaMetadata.maxNestingDepth
         : 0,
     schemaAnalysisStatus: schemaAnalysis?.status || null,
+    isCollectionEmpty: selectIsCollectionEmpty(state),
+    hasUnsupportedStateError: selectHasUnsupportedStateError(state),
   };
 };
 

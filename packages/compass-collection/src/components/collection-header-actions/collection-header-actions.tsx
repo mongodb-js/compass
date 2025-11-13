@@ -24,12 +24,12 @@ import {
   useTrackOnChange,
   type TrackFunction,
 } from '@mongodb-js/compass-telemetry/provider';
-import {
-  SCHEMA_ANALYSIS_STATE_ANALYZING,
-  type SchemaAnalysisStatus,
-  type SchemaAnalysisError,
-} from '../../schema-analysis-types';
+import { type SchemaAnalysisError } from '../../schema-analysis-types';
 import { MAX_COLLECTION_NESTING_DEPTH } from '../mock-data-generator-modal/utils';
+import {
+  buildChartsUrl,
+  buildMonitoringUrl,
+} from '@mongodb-js/atlas-service/provider';
 
 const collectionHeaderActionsStyles = css({
   display: 'flex',
@@ -46,20 +46,6 @@ const tooltipMessageStyles = css({
   },
 });
 
-function buildChartsUrl(
-  groupId: string,
-  clusterName: string,
-  namespace: string
-) {
-  const { database, collection } = toNS(namespace);
-  const url = new URL(`/charts/${groupId}`, window.location.origin);
-  url.searchParams.set('sourceType', 'cluster');
-  url.searchParams.set('name', clusterName);
-  url.searchParams.set('database', database);
-  url.searchParams.set('collection', collection);
-  return url.toString();
-}
-
 type CollectionHeaderActionsProps = {
   namespace: string;
   isReadonly: boolean;
@@ -71,7 +57,8 @@ type CollectionHeaderActionsProps = {
   hasSchemaAnalysisData: boolean;
   schemaAnalysisError: SchemaAnalysisError | null;
   analyzedSchemaDepth: number;
-  schemaAnalysisStatus: SchemaAnalysisStatus | null;
+  isCollectionEmpty: boolean;
+  hasUnsupportedStateError: boolean;
 };
 
 const CollectionHeaderActions: React.FunctionComponent<
@@ -86,8 +73,9 @@ const CollectionHeaderActions: React.FunctionComponent<
   onOpenMockDataModal,
   hasSchemaAnalysisData,
   analyzedSchemaDepth,
-  schemaAnalysisStatus,
   schemaAnalysisError,
+  isCollectionEmpty,
+  hasUnsupportedStateError,
 }: CollectionHeaderActionsProps) => {
   const connectionInfo = useConnectionInfo();
   const { id: connectionId, atlasMetadata } = connectionInfo;
@@ -127,21 +115,11 @@ const CollectionHeaderActions: React.FunctionComponent<
   const exceedsMaxNestingDepth =
     analyzedSchemaDepth > MAX_COLLECTION_NESTING_DEPTH;
 
-  const isCollectionEmpty =
-    !hasSchemaAnalysisData &&
-    schemaAnalysisStatus !== SCHEMA_ANALYSIS_STATE_ANALYZING;
-
-  const hasSchemaAnalysisUnsupportedStateError = Boolean(
-    schemaAnalysisError && schemaAnalysisError.errorType === 'unsupportedState'
-  );
-
   const isView = isReadonly && sourceName && !editViewName;
 
   const showViewEdit = isView && !preferencesReadWrite;
   const shouldDisableMockDataButton =
-    !hasSchemaAnalysisData ||
-    exceedsMaxNestingDepth ||
-    hasSchemaAnalysisUnsupportedStateError;
+    !hasSchemaAnalysisData || exceedsMaxNestingDepth;
 
   const onMockDataGeneratorCtaButtonClicked = useCallback(() => {
     track('Mock Data Generator Opened', {
@@ -199,7 +177,7 @@ const CollectionHeaderActions: React.FunctionComponent<
           enabled={
             exceedsMaxNestingDepth ||
             isCollectionEmpty ||
-            hasSchemaAnalysisUnsupportedStateError
+            hasUnsupportedStateError
           }
           trigger={
             <div>
@@ -216,7 +194,7 @@ const CollectionHeaderActions: React.FunctionComponent<
           }
         >
           <>
-            {hasSchemaAnalysisUnsupportedStateError ? (
+            {hasUnsupportedStateError ? (
               <span className={tooltipMessageStyles}>
                 {schemaAnalysisError?.errorMessage}
               </span>
@@ -236,13 +214,21 @@ const CollectionHeaderActions: React.FunctionComponent<
       )}
       {atlasMetadata && (
         <Button
+          data-testid="collection-header-view-monitoring"
+          size={ButtonSize.Small}
+          href={buildMonitoringUrl(atlasMetadata)}
+          target="_blank"
+          rel="noopener noreferrer"
+          leftGlyph={<Icon glyph="TimeSeries" />}
+        >
+          View monitoring
+        </Button>
+      )}
+      {atlasMetadata && (
+        <Button
           data-testid="collection-header-visualize-your-data"
           size={ButtonSize.Small}
-          href={buildChartsUrl(
-            atlasMetadata.projectId,
-            atlasMetadata.clusterName,
-            namespace
-          )}
+          href={buildChartsUrl(atlasMetadata, namespace)}
           target="_self"
           rel="noopener noreferrer"
           leftGlyph={<Icon glyph="Charts" />}

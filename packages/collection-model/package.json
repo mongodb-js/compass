@@ -2,7 +2,7 @@
   "name": "mongodb-collection-model",
   "description": "MongoDB collection model",
   "author": "Lucas Hrabovsky <lucas@mongodb.com>",
-  "version": "5.35.6",
+  "version": "5.36.0",
   "bugs": {
     "url": "https://jira.mongodb.org/projects/COMPASS/issues",
     "email": "compass@mongodb.com"
@@ -31,7 +31,7 @@
   "dependencies": {
     "ampersand-collection": "^2.0.2",
     "ampersand-model": "^8.0.1",
-    "mongodb-data-service": "^22.34.6",
+    "mongodb-data-service": "^22.35.0",
     "mongodb-ns": "^3.0.1"
   },
   "devDependencies": {

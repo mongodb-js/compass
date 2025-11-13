@@ -52,11 +52,6 @@ export const makePreferencesIpc = (
       return refreshCachedPreferences();
     },
     getPreferences,
-    ensureDefaultConfigurableUserPreferences(): Promise<void> {
-      return ipcRenderer.invoke(
-        'compass:ensure-default-configurable-user-preferences'
-      );
-    },
     getConfigurableUserPreferences(): Promise<UserConfigurablePreferences> {
       return ipcRenderer.invoke('compass:get-configurable-user-preferences');
     },

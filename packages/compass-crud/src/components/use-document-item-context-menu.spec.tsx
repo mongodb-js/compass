@@ -104,12 +104,13 @@ describe('useDocumentItemContextMenu', function () {
 
       // Should show "Stop editing" when editing
       expect(screen.getByText('Cancel editing')).to.exist;
+      // Should not show "Edit document" or "Delete document" while editing
       expect(screen.queryByText('Edit document')).to.not.exist;
+      expect(screen.queryByText('Delete document')).to.not.exist;
       // But show other operations
       expect(screen.getByText('Expand all fields')).to.exist;
       expect(screen.getByText('Copy document')).to.exist;
       expect(screen.getByText('Clone document...')).to.exist;
-      expect(screen.getByText('Delete document')).to.exist;
     });
   });
 
