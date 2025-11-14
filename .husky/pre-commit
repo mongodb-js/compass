@@ -4,19 +4,6 @@
 # listings staged files only
 fileList=$(git diff --diff-filter=AM --cached --name-only)
 
-# making sure that pre-commit hook preserves the partial commits where only some
-# hunks are staged for commit
-# 1. stash only staged files first (there's no option to stash only uncommited
-#    files, so we have to reverse the logic)
-git stash --staged -m "pre-commit hook: staged" -q
-# 2. stash everything that's left
-git stash -m "pre-commit hook: unstaged" -q
-# 3. restore staged state
-git stash pop stash@{1} -q
-
-# when script exits, pop the stash with unstaged files
-trap "git stash pop -q" EXIT
-
 if [ -n "$fileList" ]; then
   echo "Prettifying staged files..."
   npx prettier-compass --write --ignore-unknown $fileList
