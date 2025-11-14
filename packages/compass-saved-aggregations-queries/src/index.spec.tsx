@@ -700,9 +700,11 @@ describe('AggregationsAndQueriesAndUpdatemanyList', function () {
               // Modal content expectations
               expect(screen.getByText('Select a Connection and Namespace')).to
                 .exist;
-              // We don't show description in this modal
-              // TODO
-              //expect(() => screen.getByTestId('description')).to.throw();
+              const descriptionElement = screen.getByTestId('description');
+              expect(descriptionElement).to.exist;
+              expect(descriptionElement.textContent).to.include(
+                'The namespace bar.foo for the saved query Query doesn’t exist in any of the active connections.'
+              );
               expect(screen.getByTestId('connection-select-field')).to.exist;
               expect(screen.getByTestId('database-select-field')).to.exist;
               expect(screen.getByTestId('collection-select-field')).to.exist;
