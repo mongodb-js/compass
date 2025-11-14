@@ -791,14 +791,16 @@ describe('ConnectionsNavigationTree', function () {
       });
 
       context('when connection is not ready', function () {
-        it('should not show `show performance action` at all', async function () {
+        it('should leave `show performance action` disabled', async function () {
           await renderConnectionsNavigationTree();
           // peaches connection is not ready
           userEvent.hover(screen.getByText('peaches'));
           const connection = screen.getByTestId('connection_initial');
           userEvent.click(within(connection).getByTitle('Show actions'));
-          // TODO
-          //expect(screen.queryByText('View performance metrics')).to.not.exist;
+          const metricsButton = screen
+            .getByText('View performance metrics')
+            .closest('button');
+          expect(metricsButton).to.have.attribute('aria-disabled', 'true');
         });
       });
     });
