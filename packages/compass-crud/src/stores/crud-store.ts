@@ -253,7 +253,7 @@ const DEFAULT_INITIAL_MAX_TIME_MS = 60000;
  * We want to make sure `count` does not hold back the query results for too
  * long after docs are returned.
  */
-const COUNT_MAX_TIME_MS_CAP = 5000;
+export const COUNT_MAX_TIME_MS_CAP = 5000;
 
 /**
  * The key we use to persist the user selected maximum documents per page for
