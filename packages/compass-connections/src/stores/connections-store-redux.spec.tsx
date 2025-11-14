@@ -482,8 +482,9 @@ describe('CompassConnections store', function () {
       await connectPromise;
 
       expect(track).to.have.been.calledWith('Connection Disconnected');
-      // TODO
-      //expect(() => screen.getByText(/Connecting to/)).to.throw();
+      await waitFor(() => {
+        expect(screen.queryByText(/Connecting to/)).to.not.exist;
+      });
     });
   });
 
