@@ -102,7 +102,7 @@ for (let batchStart = 0; batchStart < TOTAL_DOCUMENTS; batchStart += BATCH_SIZE)
   }
 
   // Insert the batch
-  const insertResult = db.getCollection(${JSON.stringify(
+  db.getCollection(${JSON.stringify(
     options.collectionName
   )}).insertMany(batchDocuments);
 

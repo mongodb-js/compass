@@ -180,7 +180,7 @@ const ScriptScreen = ({
                 onScriptCopy({ step: DataGenerationStep.INSTALL_FAKERJS })
               }
             >
-              npm install @faker-js/faker@9.9.0
+              npm install @faker-js/faker@9
             </Copyable>
           </li>
         </ul>
