@@ -50,6 +50,13 @@ const DEFAULT_SAMPLE_SIZE = 100;
 
 const NO_DOCUMENTS_ERROR = 'No documents found in the collection to analyze.';
 
+export class EmptyCollectionError extends Error {
+  constructor() {
+    super(NO_DOCUMENTS_ERROR);
+    this.name = 'EmptyCollectionError';
+  }
+}
+
 function isAction<A extends AnyAction>(
   action: AnyAction,
   type: A['type']
@@ -64,6 +71,13 @@ function getErrorDetails(error: Error): SchemaAnalysisError {
   if (error instanceof ProcessSchemaUnsupportedStateError) {
     return {
       errorType: 'unsupportedState',
+      errorMessage: error.message,
+    };
+  }
+
+  if (error instanceof EmptyCollectionError) {
+    return {
+      errorType: 'empty',
       errorMessage: error.message,
     };
   }
@@ -756,7 +770,7 @@ export const analyzeCollectionSchema = (): CollectionThunkAction<
         logger.debug(NO_DOCUMENTS_ERROR);
         dispatch({
           type: CollectionActions.SchemaAnalysisFailed,
-          error: new Error(NO_DOCUMENTS_ERROR),
+          error: new EmptyCollectionError(),
         });
         return;
       }

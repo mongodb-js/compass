@@ -112,11 +112,13 @@ describe('Bulk Update', () => {
     // The success toast is displayed
     await browser.$(Selectors.BulkUpdateSuccessToast).waitForDisplayed();
 
-    const toastText = await browser
-      .$(Selectors.BulkUpdateSuccessToast)
-      .getText();
+    await browser.waitUntil(async () => {
+      const toastText = await browser
+        .$(Selectors.BulkUpdateSuccessToast)
+        .getText();
+      return toastText.includes('1 document has been updated.');
+    });
 
-    expect(toastText).to.contain('1 document has been updated.');
     // We close the toast
     await browser.clickVisible(Selectors.BulkUpdateSuccessToastDismissButton);
 

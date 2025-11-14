@@ -379,7 +379,7 @@ export const databaseContextMenuActions = ({
           icon: 'Plus',
           label: 'Create database',
         },
-    hasWriteActionsDisabled && canDeleteDatabase
+    hasWriteActionsDisabled || !canDeleteDatabase
       ? null
       : {
           action: 'drop-database',

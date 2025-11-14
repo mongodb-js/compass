@@ -2858,21 +2858,6 @@ export type CreateIndexModalContext = 'Create Index Modal';
 type CreateIndexButtonClickedEvent = CommonEvent<{
   name: 'Create Index Button Clicked';
   payload: {
-    flow: 'Start with Query' | 'Start with Index' | undefined;
-    context: CreateIndexModalContext;
-  };
-}>;
-
-type CreateIndexErrorParsingQueryEvent = CommonEvent<{
-  name: 'Error parsing query';
-  payload: {
-    context: CreateIndexModalContext;
-  };
-}>;
-
-type CreateIndexErrorGettingCoveredQueriesEvent = CommonEvent<{
-  name: 'Error generating covered queries';
-  payload: {
     context: CreateIndexModalContext;
   };
 }>;
@@ -2899,42 +2884,6 @@ type CreateIndexOptionsClicked = CommonEvent<{
   };
 }>;
 
-type CreateIndexCoveredQueriesButtonClicked = CommonEvent<{
-  name: 'Covered Queries Button Clicked';
-  payload: {
-    context: CreateIndexModalContext;
-  };
-}>;
-
-type CreateIndexSuggestedIndexButtonClicked = CommonEvent<{
-  name: 'Suggested Index Button Clicked';
-  payload: {
-    context: CreateIndexModalContext;
-  };
-}>;
-
-type CreateIndexIndexTabClicked = CommonEvent<{
-  name: 'Start with an Index Tab Clicked';
-  payload: {
-    context: CreateIndexModalContext;
-  };
-}>;
-
-type CreateIndexQueryTabClicked = CommonEvent<{
-  name: 'Start with a Query Tab Clicked';
-  payload: {
-    context: CreateIndexModalContext;
-  };
-}>;
-
-type CreateIndexCodeEquivalentToggled = CommonEvent<{
-  name: 'Code Equivalent Toggled';
-  payload: {
-    context: CreateIndexModalContext;
-    toggled: 'On' | 'Off';
-  };
-}>;
-
 type CreateIndexModalClosed = CommonEvent<{
   name: 'Create Index Modal Closed';
   payload: {
@@ -2944,48 +2893,6 @@ type CreateIndexModalClosed = CommonEvent<{
 
 type CreateIndexModalCancelled = CommonEvent<{
   name: 'Cancel Button Clicked';
-  payload: {
-    context: CreateIndexModalContext;
-  };
-}>;
-
-type CreateIndexProgrammingLanguageLinkClicked = CommonEvent<{
-  name: 'View Programming Language Syntax Clicked';
-  payload: {
-    context: CreateIndexModalContext;
-  };
-}>;
-
-type CreateIndexCoveredQueriesLearnMoreClicked = CommonEvent<{
-  name: 'Covered Queries Learn More Clicked';
-  payload: {
-    context: CreateIndexModalContext;
-  };
-}>;
-
-type CreateIndexESRLearnMoreClicked = CommonEvent<{
-  name: 'ESR Learn More Clicked';
-  payload: {
-    context: CreateIndexModalContext;
-  };
-}>;
-
-type CreateIndexInputIndexCopied = CommonEvent<{
-  name: 'Input Index Copied';
-  payload: {
-    context: CreateIndexModalContext;
-  };
-}>;
-
-type CreateIndexIndexSuggestionsCopied = CommonEvent<{
-  name: 'Index Suggestions Copied';
-  payload: {
-    context: CreateIndexModalContext;
-  };
-}>;
-
-type CreateIndexStrategiesDocumentationClicked = CommonEvent<{
-  name: 'Index Strategies Documentation Clicked';
   payload: {
     context: CreateIndexModalContext;
   };
@@ -3468,23 +3375,10 @@ export type TelemetryEvent =
   | TimeToFirstByteEvent
   | ExperimentViewedEvent
   | CreateIndexButtonClickedEvent
-  | CreateIndexErrorParsingQueryEvent
-  | CreateIndexErrorGettingCoveredQueriesEvent
-  | CreateIndexCodeEquivalentToggled
-  | CreateIndexCoveredQueriesButtonClicked
-  | CreateIndexCoveredQueriesLearnMoreClicked
-  | CreateIndexESRLearnMoreClicked
-  | CreateIndexIndexTabClicked
   | CreateIndexModalCancelled
   | CreateIndexModalClosed
   | CreateIndexNewFieldAdded
   | CreateIndexOptionsClicked
-  | CreateIndexProgrammingLanguageLinkClicked
-  | CreateIndexQueryTabClicked
-  | CreateIndexSuggestedIndexButtonClicked
-  | CreateIndexInputIndexCopied
-  | CreateIndexIndexSuggestionsCopied
-  | CreateIndexStrategiesDocumentationClicked
   | UUIDEncounteredEvent
   | ContextMenuOpened
   | ContextMenuItemClicked

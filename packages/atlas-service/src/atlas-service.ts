@@ -53,14 +53,17 @@ function getAutomationAgentClusterId(
 }
 
 export class AtlasService {
-  private config: AtlasServiceConfig;
   constructor(
     private readonly authService: AtlasAuthService,
     private readonly preferences: PreferencesAccess,
     private readonly logger: Logger,
-    private readonly options?: AtlasServiceOptions
-  ) {
-    this.config = getAtlasConfig(preferences);
+    private readonly options?: AtlasServiceOptions,
+    private readonly defaultConfigOverride?: AtlasServiceConfig
+  ) {}
+  // Config value is dynamic to make sure that process.env overrides are taken
+  // into account in runtime
+  get config(): AtlasServiceConfig {
+    return this.defaultConfigOverride ?? getAtlasConfig(this.preferences);
   }
   adminApiEndpoint(path?: string): string {
     return `${this.config.atlasApiBaseUrl}${normalizePath(path)}`;
