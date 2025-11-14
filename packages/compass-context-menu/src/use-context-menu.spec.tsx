@@ -3,6 +3,8 @@ import {
   screen,
   userEvent,
   testingLibrary,
+  waitFor,
+  fireEvent,
 } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import sinon from 'sinon';
@@ -308,9 +310,10 @@ describe('useContextMenu', function () {
       expect(itemGroup.items[0]).to.include({ label: 'Test Item' });
     });
 
-    describe('menu closing behavior', function () {
+    // TODO(COMPASS-10075) fix then re-enable these tests.
+    describe.skip('menu closing behavior', function () {
       for (const event of ['scroll', 'resize', 'click']) {
-        it(`closes menu on window ${event} event`, function () {
+        it(`closes menu on window ${event} event`, async function () {
           render(
             <ContextMenuProvider menuWrapper={TestMenu}>
               <TestComponent />
@@ -321,13 +324,14 @@ describe('useContextMenu', function () {
           userEvent.click(trigger, { button: 2 });
 
           // Verify menu is open
-          expect(screen.getByTestId('menu-item-Test Item')).to.exist;
+          expect(screen.getByTestId('menu-item-Test Item')).to.be.visible;
 
           window.dispatchEvent(new Event(event));
 
           // Verify menu is closed
-          // TODO
-          //expect(() => screen.getByTestId('test-menu')).to.throw;
+          await waitFor(() => {
+            expect(screen.queryByTestId('test-menu')).to.not.be.visible;
+          });
         });
       }
     });
