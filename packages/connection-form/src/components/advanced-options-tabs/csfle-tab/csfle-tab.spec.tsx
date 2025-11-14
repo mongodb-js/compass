@@ -540,8 +540,7 @@ describe('In-Use Encryption', function () {
         })
       );
 
-      // TODO
-      //expect(() => card1).to.throw();
+      expect(screen.queryByTestId('local-kms-card-item')).to.not.exist;
     });
   });
 
