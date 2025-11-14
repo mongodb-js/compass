@@ -254,7 +254,7 @@ describe('useContextMenu', function () {
 
         expect(childOnAction).to.have.been.calledOnceWithExactly(1);
         expect(parentOnAction).to.not.have.been.called;
-        // TODO
+        // TODO(COMPASS-10075)
         //expect(() => screen.getByTestId('test-menu')).to.throw;
       });
 
@@ -278,7 +278,7 @@ describe('useContextMenu', function () {
 
         expect(parentOnAction).to.have.been.calledOnceWithExactly(1);
         expect(childOnAction).to.not.have.been.called;
-        // TODO
+        // TODO(COMPASS-10075)
         //expect(() => screen.getByTestId('test-menu')).to.throw;
       });
     });
