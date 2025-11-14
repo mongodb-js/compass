@@ -73,7 +73,7 @@ use(${JSON.stringify(options.databaseName)});
 
 // Document generation function
 function generateDocument() {
-return ${documentCode};
+  return ${documentCode};
 }
 
 const BATCH_SIZE = 1000; // Number of documents to insert per batch
@@ -84,10 +84,9 @@ console.log(\`Starting mock data generation for ${options.databaseName.replace(
       /[\\`$]/g,
       '\\$&'
     )}.${options.collectionName.replace(/[\\`$]/g, '\\$&')}\`);
-console.log(\`Target: \${TOTAL_DOCUMENTS} documents\`);
+console.log(\`Total documents to generate: \${TOTAL_DOCUMENTS} documents\`);
 console.log(\`Batch size: \${BATCH_SIZE} documents per batch\`);
 
-let totalInserted = 0;
 const startTime = new Date();
 
 for (let batchStart = 0; batchStart < TOTAL_DOCUMENTS; batchStart += BATCH_SIZE) {
@@ -107,15 +106,13 @@ for (let batchStart = 0; batchStart < TOTAL_DOCUMENTS; batchStart += BATCH_SIZE)
     options.collectionName
   )}).insertMany(batchDocuments);
 
-  totalInserted += insertResult.insertedIds.length;
-  console.log(\`Batch inserted successfully. Progress: \${totalInserted}/\${TOTAL_DOCUMENTS}\`);
+  console.log(\`Batch inserted successfully.\`);
 }
 
 const endTime = new Date();
 const duration = ((endTime - startTime) / 1000).toFixed(2);
 
 console.log(\`\\n=== Mock Data Generation Complete ===\`);
-console.log(\`Total documents inserted: \${totalInserted}\`);
 console.log(\`Total time: \${duration} seconds\`);
 console.log(\`Collection: ${options.databaseName.replace(
       /[\\`$]/g,

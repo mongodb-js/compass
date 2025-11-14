@@ -180,7 +180,7 @@ const ScriptScreen = ({
                 onScriptCopy({ step: DataGenerationStep.INSTALL_FAKERJS })
               }
             >
-              npm install @faker-js/faker@9.0.0
+              npm install @faker-js/faker@9.9.0
             </Copyable>
           </li>
         </ul>
@@ -190,8 +190,8 @@ const ScriptScreen = ({
           1. Create a .js file with the following script
         </Body>
         <Body className={sectionInstructionStyles}>
-          In the directory that you created, create a file named
-          mockdatascript.js (or any name you&apos;d like).
+          In the directory that you created, create a file named{' '}
+          <strong>mockdatascript.js</strong> (or any name you&apos;d like).
         </Body>
         <Code
           copyButtonAppearance={scriptResult.success ? 'hover' : 'persist'}
