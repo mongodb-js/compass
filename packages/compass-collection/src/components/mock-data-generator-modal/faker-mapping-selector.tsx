@@ -1,6 +1,4 @@
 import {
-  Banner,
-  BannerVariant,
   Body,
   Code,
   css,
@@ -10,7 +8,6 @@ import {
   spacing,
 } from '@mongodb-js/compass-components';
 import React, { useMemo } from 'react';
-import { UNRECOGNIZED_FAKER_METHOD } from '../../modules/collection-tab';
 import {
   MONGO_TYPE_TO_FAKER_METHODS,
   MongoDBFieldTypeValues,
@@ -65,6 +62,7 @@ interface Props {
   onJsonTypeSelect: (jsonType: MongoDBFieldType) => void;
   activeFakerArgs: FakerArg[];
   onFakerFunctionSelect: (fakerFunction: string) => void;
+  originalLlmFakerMethod?: string;
 }
 
 const FakerMappingSelector = ({
@@ -73,16 +71,18 @@ const FakerMappingSelector = ({
   activeFakerArgs,
   onJsonTypeSelect,
   onFakerFunctionSelect,
+  originalLlmFakerMethod,
 }: Props) => {
   const fakerMethodOptions = useMemo(() => {
     const methods = MONGO_TYPE_TO_FAKER_METHODS[activeJsonType] || [];
 
-    if (methods.includes(activeFakerFunction)) {
-      return methods;
+    // Include original LLM method if it's not already in the list of methods
+    if (originalLlmFakerMethod && !methods.includes(originalLlmFakerMethod)) {
+      return [originalLlmFakerMethod, ...methods];
     }
 
-    return [activeFakerFunction, ...methods];
-  }, [activeJsonType, activeFakerFunction]);
+    return methods;
+  }, [activeJsonType, originalLlmFakerMethod]);
 
   return (
     <div className={fieldMappingSelectorsStyles}>
@@ -111,29 +111,17 @@ const FakerMappingSelector = ({
           </Option>
         ))}
       </Select>
-      {activeFakerFunction === UNRECOGNIZED_FAKER_METHOD ? (
-        <Banner variant={BannerVariant.Warning}>
-          Please select a function or we will default fill this field with the
-          string &quot;Unrecognized&quot;
-        </Banner>
-      ) : (
-        <>
-          <Label htmlFor="faker-function-call-preview">
-            Preview Faker Function Call
-          </Label>
-          <Code
-            id="faker-function-call-preview"
-            data-testid="faker-function-call-preview"
-            language="javascript"
-            copyButtonAppearance="none"
-          >
-            {formatFakerFunctionCallWithArgs(
-              activeFakerFunction,
-              activeFakerArgs
-            )}
-          </Code>
-        </>
-      )}
+      <Label htmlFor="faker-function-call-preview">
+        Preview Faker Function Call
+      </Label>
+      <Code
+        id="faker-function-call-preview"
+        data-testid="faker-function-call-preview"
+        language="javascript"
+        copyButtonAppearance="none"
+      >
+        {formatFakerFunctionCallWithArgs(activeFakerFunction, activeFakerArgs)}
+      </Code>
     </div>
   );
 };

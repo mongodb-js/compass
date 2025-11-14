@@ -9,7 +9,6 @@ import {
 } from '@mongodb-js/testing-library-compass';
 import sinon from 'sinon';
 import FakerMappingSelector from './faker-mapping-selector';
-import { UNRECOGNIZED_FAKER_METHOD } from '../../modules/collection-tab';
 import type { MongoDBFieldType } from '../../schema-analysis-types';
 import {
   MONGO_TYPE_TO_FAKER_METHODS,
@@ -122,39 +121,52 @@ describe('FakerMappingSelector', () => {
     );
   });
 
-  it('should show warning banner when faker method is unrecognized', () => {
+  it('should always include the original LLM faker method in the dropdown', () => {
+    const originalLlmMethod = 'custom.llmMethod';
+
     render(
       <FakerMappingSelector
-        activeJsonType={mockActiveJsonType}
-        activeFakerFunction={UNRECOGNIZED_FAKER_METHOD}
-        activeFakerArgs={mockActiveFakerArgs}
+        activeJsonType="String"
+        activeFakerFunction="lorem.word"
+        activeFakerArgs={[]}
         onJsonTypeSelect={onJsonTypeSelectStub}
         onFakerFunctionSelect={onFakerFunctionSelectStub}
+        originalLlmFakerMethod={originalLlmMethod}
       />
     );
 
-    expect(
-      screen.getByText(
-        /Please select a function or we will default fill this field/
-      )
-    ).to.exist;
+    const fakerFunctionSelect = screen.getByLabelText('Faker Function');
+    userEvent.click(fakerFunctionSelect);
+
+    // Should include the original LLM method even though it's not in MONGO_TYPE_TO_FAKER_METHODS
+    expect(screen.getByRole('option', { name: originalLlmMethod })).to.exist;
+
+    // Should also include standard methods for String type
+    expect(screen.getByRole('option', { name: 'lorem.word' })).to.exist;
+    expect(screen.getByRole('option', { name: 'lorem.sentence' })).to.exist;
   });
 
-  it('should not show warning banner when faker method is recognized', () => {
+  it('should not duplicate the original LLM method if it is already in the standard methods', () => {
+    const originalLlmMethod = 'lorem.word';
+
     render(
       <FakerMappingSelector
-        activeJsonType={mockActiveJsonType}
-        activeFakerFunction={mockActiveFakerFunction}
-        activeFakerArgs={mockActiveFakerArgs}
+        activeJsonType="String"
+        activeFakerFunction="lorem.sentence"
+        activeFakerArgs={[]}
         onJsonTypeSelect={onJsonTypeSelectStub}
         onFakerFunctionSelect={onFakerFunctionSelectStub}
+        originalLlmFakerMethod={originalLlmMethod}
       />
     );
 
-    expect(
-      screen.queryByText(
-        /Please select a function or we will default fill this field/
-      )
-    ).to.not.exist;
+    const fakerFunctionSelect = screen.getByLabelText('Faker Function');
+    userEvent.click(fakerFunctionSelect);
+
+    // Should only have one instance of 'lorem.word'
+    const loremWordOptions = screen.getAllByRole('option', {
+      name: 'lorem.word',
+    });
+    expect(loremWordOptions).to.have.length(1);
   });
 });
