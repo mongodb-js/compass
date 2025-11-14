@@ -161,17 +161,30 @@ const DiagramContent: React.FunctionComponent<{
   model: StaticModel | null;
   isInRelationshipDrawingMode: boolean;
   newCollection?: string;
-  onAddFieldToObjectField: (ns: string, parentPath: string[]) => void;
-  onAddNewFieldToCollection: (ns: string) => void;
+  onAddFieldToObjectField: (
+    ns: string,
+    parentPath: string[],
+    source: 'side_panel' | 'diagram'
+  ) => void;
+  onAddNewFieldToCollection: (
+    ns: string,
+    source: 'side_panel' | 'diagram'
+  ) => void;
   onMoveCollection: (ns: string, newPosition: [number, number]) => void;
   onCollectionSelect: (namespace: string) => void;
   onRelationshipSelect: (rId: string) => void;
   onFieldSelect: (namespace: string, fieldPath: FieldPath) => void;
-  onRenameField: (
-    namespace: string,
-    fieldPath: FieldPath,
-    newName: string
-  ) => void;
+  onRenameField: ({
+    ns,
+    field,
+    newName,
+    source,
+  }: {
+    ns: string;
+    field: FieldPath;
+    newName: string;
+    source: 'diagram';
+  }) => void;
   onDiagramBackgroundClicked: () => void;
   onDeleteCollection: (ns: string) => void;
   onDeleteRelationship: (rId: string) => void;
@@ -389,14 +402,14 @@ const DiagramContent: React.FunctionComponent<{
   const onClickAddFieldToCollection = useCallback(
     (event: React.MouseEvent<Element>, ns: string) => {
       event.stopPropagation();
-      onAddNewFieldToCollection(ns);
+      onAddNewFieldToCollection(ns, 'diagram');
     },
     [onAddNewFieldToCollection]
   );
 
   const onClickAddFieldToObjectField = useCallback(
     (event: React.MouseEvent, nodeId: string, parentPath: string[]) => {
-      onAddFieldToObjectField(nodeId, parentPath);
+      onAddFieldToObjectField(nodeId, parentPath, 'diagram');
     },
     [onAddFieldToObjectField]
   );
@@ -448,7 +461,8 @@ const DiagramContent: React.FunctionComponent<{
         onPaneClick,
         onEdgeClick,
         onFieldClick,
-        onFieldNameChange: onRenameField,
+        onFieldNameChange: (ns, field, newName) =>
+          onRenameField({ ns, field, newName, source: 'diagram' }),
         onNodeDragStop,
         onConnect,
         onNodeExpandToggle: isCollapseFlagEnabled
