@@ -6,7 +6,6 @@ import {
   renderWithActiveConnection,
   waitFor,
   userEvent,
-  waitForElementToBeRemoved,
 } from '@mongodb-js/testing-library-compass';
 import { Provider } from 'react-redux';
 import { createStore, applyMiddleware } from 'redux';
@@ -475,23 +474,14 @@ describe('MockDataGeneratorModal', () => {
       userEvent.click(screen.getByText('email'));
       expect(screen.getByText('email')).to.exist;
       expect(screen.getByLabelText('JSON Type')).to.have.value('String');
-      // the "email" field should have a warning banner since the faker method is invalid
       expect(screen.getByLabelText('Faker Function')).to.have.value(
-        'Unrecognized'
+        'lorem.word'
       );
-      expect(
-        screen.getByText(
-          'Please select a function or we will default fill this field with the string "Unrecognized"'
-        )
-      ).to.exist;
 
       // select the "username" field
       userEvent.click(screen.getByText('username'));
       expect(screen.getByText('username')).to.exist;
       expect(screen.getByLabelText('JSON Type')).to.have.value('String');
-      expect(screen.getByLabelText('Faker Function')).to.have.value(
-        'Unrecognized'
-      );
     });
 
     it('does not show any fields that are not in the input schema', async () => {
@@ -530,81 +520,6 @@ describe('MockDataGeneratorModal', () => {
 
       expect(screen.getByText('name')).to.exist;
       expect(screen.queryByText('email')).to.not.exist;
-    });
-
-    it('shows unmapped fields as "Unrecognized"', async () => {
-      const mockServices = createMockServices();
-      mockServices.atlasAiService.getMockDataSchema = () =>
-        Promise.resolve({
-          fields: [
-            {
-              fieldPath: 'name',
-              mongoType: 'String',
-              fakerMethod: 'person.firstName',
-              fakerArgs: [],
-              isArray: false,
-              probability: 1.0,
-            },
-            {
-              fieldPath: 'age',
-              mongoType: 'Int32',
-              fakerMethod: 'number.int',
-              fakerArgs: [],
-              isArray: false,
-              probability: 1.0,
-            },
-          ],
-        });
-
-      await renderModal({
-        mockServices,
-        schemaAnalysis: {
-          ...defaultSchemaAnalysisState,
-          processedSchema: {
-            name: {
-              type: 'String',
-              probability: 1.0,
-            },
-            age: {
-              type: 'Int32',
-              probability: 1.0,
-            },
-            type: {
-              type: 'String',
-              probability: 1.0,
-              sampleValues: ['cat', 'dog'],
-            },
-          },
-          sampleDocument: { name: 'Peaches', age: 10, type: 'cat' },
-        },
-      });
-
-      // advance to the schema editor step
-      userEvent.click(screen.getByText('Confirm'));
-      await waitForElementToBeRemoved(() =>
-        screen.queryByTestId('faker-schema-editor-loader')
-      );
-
-      // select the "name" field
-      userEvent.click(screen.getByText('name'));
-      expect(screen.getByLabelText('JSON Type')).to.have.value('String');
-      expect(screen.getByLabelText('Faker Function')).to.have.value(
-        'person.firstName'
-      );
-
-      // select the "age" field
-      userEvent.click(screen.getByText('age'));
-      expect(screen.getByLabelText('JSON Type')).to.have.value('Int32');
-      expect(screen.getByLabelText('Faker Function')).to.have.value(
-        'number.int'
-      );
-
-      // select the "type" field
-      userEvent.click(screen.getByText('type'));
-      expect(screen.getByLabelText('JSON Type')).to.have.value('String');
-      expect(screen.getByLabelText('Faker Function')).to.have.value(
-        'Unrecognized'
-      );
     });
 
     it('displays preview of the faker call without args when the args are invalid', async () => {
@@ -817,6 +732,126 @@ describe('MockDataGeneratorModal', () => {
           }
         );
       });
+    });
+
+    it('persists user modifications to faker mappings when navigating back to the screen', async () => {
+      await renderModal({
+        mockServices: mockServicesWithMockDataResponse,
+        schemaAnalysis: mockSchemaAnalysis,
+      });
+
+      userEvent.click(screen.getByText('Confirm'));
+      await waitFor(() => {
+        expect(screen.getByTestId('faker-schema-editor')).to.exist;
+      });
+
+      // Change the JSON type from String to Number
+      const jsonTypeSelect = screen.getByLabelText('JSON Type');
+      userEvent.click(jsonTypeSelect);
+      const numberOption = await screen.findByRole('option', {
+        name: 'Number',
+      });
+      userEvent.click(numberOption);
+
+      await waitFor(() => {
+        expect(screen.getByLabelText('JSON Type')).to.have.value('Number');
+      });
+
+      const fakerMethodSelect = screen.getByLabelText('Faker Function');
+      userEvent.click(fakerMethodSelect);
+      const floatOption = await screen.findByRole('option', {
+        name: 'number.float',
+      });
+      userEvent.click(floatOption);
+
+      await waitFor(() => {
+        expect(screen.getByLabelText('Faker Function')).to.have.value(
+          'number.float'
+        );
+      });
+
+      // Advance to document count step
+      userEvent.click(screen.getByTestId('next-step-button'));
+      await waitFor(() => {
+        expect(screen.getByText('Specify Number of Documents to Generate')).to
+          .exist;
+      });
+
+      // Go back to schema editor
+      userEvent.click(screen.getByText('Back'));
+      await waitFor(() => {
+        expect(screen.getByTestId('faker-schema-editor')).to.exist;
+      });
+
+      // Verify both selections persisted
+      await waitFor(() => {
+        expect(screen.getByLabelText('JSON Type')).to.have.value('Number');
+        expect(screen.getByLabelText('Faker Function')).to.have.value(
+          'number.float'
+        );
+      });
+    });
+
+    it('preserves original fakerArgs when selecting original LLM method', async () => {
+      // Mock response with fakerArgs
+      const mockServicesWithArgs = {
+        ...mockServicesWithMockDataResponse,
+        atlasAiService: {
+          getMockDataSchema: sinon.stub().resolves({
+            fields: [
+              {
+                fieldPath: 'name',
+                mongoType: 'String',
+                fakerMethod: 'person.firstName',
+                fakerArgs: [{ json: '{"locale":"en"}' }],
+                probability: 0.8,
+              },
+            ],
+          }),
+        },
+      };
+
+      await renderModal({
+        mockServices: mockServicesWithArgs,
+        schemaAnalysis: mockSchemaAnalysis,
+      });
+
+      userEvent.click(screen.getByText('Confirm'));
+      await waitFor(() => {
+        expect(screen.getByTestId('faker-schema-editor')).to.exist;
+      });
+
+      // Change to a different faker method (this resets fakerArgs)
+      const fakerMethodSelect = screen.getByLabelText('Faker Function');
+      userEvent.click(fakerMethodSelect);
+      const wordOption = await screen.findByRole('option', {
+        name: 'lorem.word',
+      });
+      userEvent.click(wordOption);
+
+      await waitFor(() => {
+        expect(screen.getByLabelText('Faker Function')).to.have.value(
+          'lorem.word'
+        );
+      });
+
+      // Select the original LLM method again
+      userEvent.click(fakerMethodSelect);
+      const firstNameOption = await screen.findByRole('option', {
+        name: 'person.firstName',
+      });
+      userEvent.click(firstNameOption);
+
+      await waitFor(() => {
+        expect(screen.getByLabelText('Faker Function')).to.have.value(
+          'person.firstName'
+        );
+      });
+
+      const preview = screen.getByTestId('faker-function-call-preview');
+      expect(preview.textContent).to.include(
+        'faker.person.firstName({"locale":"en"})'
+      );
     });
   });
 
