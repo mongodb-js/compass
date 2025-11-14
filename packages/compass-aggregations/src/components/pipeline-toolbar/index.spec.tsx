@@ -132,22 +132,6 @@ describe('PipelineToolbar', function () {
     });
   });
 
-  describe('renders with setting row - hidden', function () {
-    it('does not render toolbar settings', async function () {
-      await renderWithStore(
-        <PipelineToolbar
-          isBuilderView
-          showExplainButton
-          showExportButton
-          showRunButton
-        />
-      );
-      // TODO
-      //const toolbar = screen.getByTestId('pipeline-toolbar');
-      //expect(within(toolbar).queryByTestId('pipeline-settings')).to.not.exist;
-    });
-  });
-
   // @experiment Skills in Atlas  | Jira Epic: CLOUDP-346311
   describe('Atlas Skills Banner', function () {
     let preferences: PreferencesAccess;
