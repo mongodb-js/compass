@@ -6,7 +6,7 @@
 > the tracking plan for the specific Compass version you can use the following
 > URL: `https://github.com/mongodb-js/compass/blob/<compass version>/docs/tracking-plan.md`
 
-Generated on Thu, Nov 13, 2025
+Generated on Fri, Nov 14, 2025
 
 ## Table of Contents
 
@@ -89,6 +89,7 @@ Generated on Thu, Nov 13, 2025
 - [Data Modeling Collection Renamed](#event--DataModelingDiagramCollectionRenamed)
 - [Data Modeling Diagram Created](#event--DataModelingDiagramCreated)
 - [Data Modeling Diagram Exported](#event--DataModelingDiagramExported)
+- [Data Modeling Field Added](#event--DataModelingDiagramFieldAdded)
 - [Data Modeling Field Removed](#event--DataModelingDiagramFieldRemoved)
 - [Data Modeling Field Renamed](#event--DataModelingDiagramFieldRenamed)
 - [Data Modeling Field Type Changed](#event--DataModelingDiagramFieldTypeChanged)
@@ -1108,6 +1109,17 @@ This event is fired when user exports data modeling diagram.
 - **format** (required): `"png" | "json" | "diagram"`
 - **is_compass_web** (optional): `true | undefined`
 
+<a name="event--DataModelingDiagramFieldAdded"></a>
+
+### Data Modeling Field Added
+
+This event is fired when user adds a field in a data modeling diagram.
+
+**Properties**:
+
+- **source** (required): `"side_panel" | "diagram"`
+- **is_compass_web** (optional): `true | undefined`
+
 <a name="event--DataModelingDiagramFieldRemoved"></a>
 
 ### Data Modeling Field Removed
@@ -1127,7 +1139,7 @@ This event is fired when user renames a field in a data modeling diagram.
 
 **Properties**:
 
-- **source** (required): `"side_panel"`
+- **source** (required): `"side_panel" | "diagram"`
 - **is_compass_web** (optional): `true | undefined`
 
 <a name="event--DataModelingDiagramFieldTypeChanged"></a>
@@ -1138,7 +1150,7 @@ This event is fired when user changes a field type in a data modeling diagram.
 
 **Properties**:
 
-- **source** (required): `"side_panel"`
+- **source** (required): `"side_panel" | "diagram"`
 - **from** (optional): `string | undefined`
 - **to** (optional): `string | undefined`
 - **is_compass_web** (optional): `true | undefined`
