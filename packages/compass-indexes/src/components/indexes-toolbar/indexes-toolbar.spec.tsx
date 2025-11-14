@@ -22,7 +22,6 @@ describe('IndexesToolbar Component', function () {
         hasTooManyIndexes={false}
         errorMessage={null}
         isReadonlyView={false}
-        readOnly={false}
         isWritable={true}
         writeStateDescription={undefined}
         onRefreshIndexes={() => {}}

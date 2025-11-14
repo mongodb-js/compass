@@ -28,7 +28,6 @@ const renderIndexList = (
       indexes={indexes}
       status="READY"
       isWritable={true}
-      readOnly={false}
       isReadonlyView={false}
       onDropIndexClick={noop}
       onEditIndexClick={noop}
