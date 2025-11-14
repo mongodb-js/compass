@@ -151,29 +151,6 @@ export const FEATURE_FLAG_DEFINITIONS = [
     },
   },
 
-  /**
-   * Feature flags for Early Journey Indexes Guidance & Awareness  | Jira Epic: CLOUDP-239367
-   * These are passed from MMS and not editable by user
-   */
-  {
-    name: 'enableIndexesGuidanceExp',
-    stage: 'development',
-    atlasCloudFeatureFlagName: null,
-    description: {
-      short: 'Enable Indexes Guidance Experiment',
-    },
-  },
-
-  {
-    name: 'showIndexesGuidanceVariant',
-    stage: 'development',
-    atlasCloudFeatureFlagName: null,
-    description: {
-      short:
-        'Used to check if user is in the Indexes Guidance Experiment Variant',
-    },
-  },
-
   {
     name: 'enableContextMenus',
     stage: 'released',

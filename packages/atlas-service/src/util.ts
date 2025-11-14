@@ -255,6 +255,7 @@ export function getAtlasConfig(
   const { atlasServiceBackendPreset } = preferences.getPreferences();
   const envConfig = {
     atlasApiBaseUrl: process.env.COMPASS_ATLAS_SERVICE_UNAUTH_BASE_URL_OVERRIDE,
+    cloudBaseUrl: process.env.COMPASS_CLOUD_BASE_URL_OVERRIDE,
     atlasLogin: {
       clientId: process.env.COMPASS_CLIENT_ID_OVERRIDE,
       issuer: process.env.COMPASS_OIDC_ISSUER_OVERRIDE,
