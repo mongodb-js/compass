@@ -35,7 +35,9 @@ describe('lenientlyFixQuery [Utils]', function () {
   describe('when an ObjectId is pasted alone', function () {
     it('returns a fix action with _id: ObjectId("<id>")', function () {
       const query = lenientlyFixQuery('{578cfb38d5021e616087f53f}');
-      expect(query).to.equal('{ _id: ObjectId("578cfb38d5021e616087f53f") }');
+      expect(query).to.equal(
+        '\\{ _id: ObjectId("578cfb38d5021e616087f53f") ${}}'
+      );
     });
   });
 

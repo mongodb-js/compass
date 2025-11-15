@@ -16,7 +16,6 @@ function _fixObjectIdInQuery(query: string): string | undefined {
   if (match) {
     return `{ _id: ObjectId("${match[1]}") }`;
   }
-  return;
 }
 
 function _fixBraceEscapingInQuery(query: string): string | undefined {
@@ -26,33 +25,18 @@ function _fixBraceEscapingInQuery(query: string): string | undefined {
     return;
   }
 
-  let modified = false;
   if (query.startsWith('{') && query.endsWith('}')) {
     const queryWithoutWrappingBraces = query.substring(1, query.length - 1);
     const isInnerQueryValid = _isValidQuery(queryWithoutWrappingBraces);
     if (isInnerQueryValid) {
-      modified = true;
-      query = queryWithoutWrappingBraces;
+      return queryWithoutWrappingBraces;
     }
   } else {
     const wrappedQuery = `{${query}}`;
     if (_isValidQuery(wrappedQuery)) {
-      modified = true;
-      query = wrappedQuery;
+      return wrappedQuery;
     }
   }
-
-  if (!modified) {
-    return;
-  }
-
-  // Add template formatting to put the cursor position before the last closing brace.
-  query = query.replaceAll('{', '\\{');
-  const caretPosition = query.lastIndexOf('}');
-
-  query =
-    query.substring(0, caretPosition) + '${}' + query.substring(caretPosition);
-  return query;
 }
 
 export function lenientlyFixQuery(query: string): string | false {
@@ -76,5 +60,15 @@ export function lenientlyFixQuery(query: string): string | false {
     query = fixedBraceEscaping;
   }
 
-  return modified ? query : false;
+  if (!modified) {
+    return false;
+  }
+
+  // Add template formatting to put the cursor position before the last closing brace.
+  query = query.replaceAll('{', '\\{');
+  const caretPosition = query.lastIndexOf('}');
+
+  query =
+    query.substring(0, caretPosition) + '${}' + query.substring(caretPosition);
+  return query;
 }
