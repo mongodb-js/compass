@@ -31,4 +31,38 @@ describe('lenientlyFixQuery [Utils]', function () {
       expect(query).to.equal('\\{ query: 1 ${}}');
     });
   });
+
+  describe('when an ObjectId is pasted alone', function () {
+    it('returns a fix action with _id: ObjectId("<id>")', function () {
+      const query = lenientlyFixQuery('{578cfb38d5021e616087f53f}');
+      expect(query).to.equal(
+        '\\{ _id: ObjectId("578cfb38d5021e616087f53f") ${}}'
+      );
+    });
+  });
+
+  describe('when a valid ObjectId query is pasted', function () {
+    it('returns a no-op with the existing query', function () {
+      const query = lenientlyFixQuery(
+        '{ _id: ObjectId("507f1f77bcf86cd799439011") }'
+      );
+
+      expect(query).to.equal(false);
+    });
+  });
+
+  describe('when an invalid ObjectId is pasted', function () {
+    it('returns a no-op with the existing query', function () {
+      const queryWith25Chars = lenientlyFixQuery('{578cfb38d5021e616087f53f1}');
+      expect(queryWith25Chars).to.equal(false);
+
+      const queryWithObjectIdNoBraces = lenientlyFixQuery(
+        '578cfb38d5021e616087f53f1'
+      );
+      expect(queryWithObjectIdNoBraces).to.equal(false);
+
+      const pineappleQuery = lenientlyFixQuery('{pineapple}');
+      expect(pineappleQuery).to.equal(false);
+    });
+  });
 });
