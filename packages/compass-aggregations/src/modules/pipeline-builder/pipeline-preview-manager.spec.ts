@@ -157,7 +157,7 @@ describe('PipelinePreviewManager', function () {
       const pipeline = [{ $match: {} }, { $sort: {} }, { $out: 'test' }];
       expect(() => {
         createPreviewAggregation(pipeline);
-      }).to.throw;
+      }).to.throw();
     });
 
     it('should not throw when output stage is not at the end of pipeline', function () {

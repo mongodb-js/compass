@@ -84,7 +84,6 @@ type IndexesToolbarProps = {
   writeStateDescription?: string;
   isSearchIndexesSupported: boolean;
   // via withPreferences:
-  readOnly?: boolean;
   collectionStats: CollectionStats;
 };
 

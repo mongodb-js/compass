@@ -40,13 +40,16 @@ describe('PersistentStorage', function () {
     const preferencesDir = getPreferencesFolder(tmpDir);
     const preferencesFile = getPreferencesFile(tmpDir);
 
-    expect(async () => await fs.access(preferencesDir)).to.throw;
-    expect(async () => await fs.access(preferencesFile)).to.throw;
+    let error = await fs.access(preferencesDir).catch((e) => e);
+    expect(error).to.be.instanceOf(Error);
+
+    error = await fs.access(preferencesFile).catch((e) => e);
+    expect(error).to.be.instanceOf(Error);
 
     await storage.setup();
 
-    expect(async () => await fs.access(preferencesDir)).to.not.throw;
-    expect(async () => await fs.access(preferencesFile)).to.not.throw;
+    await fs.access(preferencesDir);
+    await fs.access(preferencesFile);
 
     expect(
       JSON.parse(await fs.readFile(preferencesFile, 'utf8'))
@@ -61,7 +64,7 @@ describe('PersistentStorage', function () {
     await fs.writeFile(preferencesFile, '{}}', 'utf-8');
 
     // Ensure it exists
-    expect(async () => await fs.access(preferencesFile)).to.not.throw;
+    await fs.access(preferencesFile);
 
     await storage.setup();
 

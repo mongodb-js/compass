@@ -77,12 +77,12 @@ describe('Preferences class', function () {
 
   it('throws when saving invalid data', async function () {
     const preferences = await setupPreferences(tmpdir);
-    expect(
-      async () =>
-        await preferences.savePreferences({
-          telemetryAnonymousId: 'not-a-uuid',
-        })
-    ).to.throw;
+    const error = await preferences
+      .savePreferences({
+        telemetryAnonymousId: 'not-a-uuid',
+      })
+      .catch((e) => e);
+    expect(error).to.be.instanceOf(Error);
   });
 
   it('stores preferences across instances', async function () {

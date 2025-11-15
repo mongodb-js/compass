@@ -133,7 +133,7 @@ describe('Indexes Component', function () {
 
     expect(() => {
       screen.getByTestId('indexes-list');
-    }).to.throw;
+    }).to.throw();
   });
 
   context('regular indexes', function () {

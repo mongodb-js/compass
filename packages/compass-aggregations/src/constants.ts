@@ -24,7 +24,7 @@ export const MERGE_STAGE_PREVIEW_TEXT =
   'the specified location.';
 
 export const PIPELINE_HELP_URI =
-  'https://www.mongodb.com/docs/manual/reference/operator/aggregation-pipeline/';
+  'https://www.mongodb.com/docs/manual/reference/mql/aggregation-stages/';
 
 export const STAGE_HELP_BASE_URL =
   'https://www.mongodb.com/docs/manual/reference/operator/aggregation';

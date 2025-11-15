@@ -46,7 +46,6 @@ type SearchIndexesTableProps = {
   namespace: string;
   indexes: SearchIndex[];
   isWritable?: boolean;
-  readOnly?: boolean;
   isReadonlyView: boolean;
   collectionStats?: CollectionStats;
   status: FetchStatus;
