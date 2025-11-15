@@ -38,8 +38,7 @@ describe('FocusMode', function () {
     });
 
     it('renders docs link', function () {
-      const element = screen.queryByText(/open docs/i);
-      expect(element).to.exist;
+      const element = screen.getByText(/open docs/i);
 
       expect(element.closest('a')).to.have.attribute(
         'href',
@@ -62,8 +61,7 @@ describe('FocusMode', function () {
     });
 
     it('renders docs link', function () {
-      const element = screen.queryByText(/open docs/i);
-      expect(element).to.exist;
+      const element = screen.getByText(/open docs/i);
 
       expect(element.closest('a')).to.have.attribute(
         'href',
