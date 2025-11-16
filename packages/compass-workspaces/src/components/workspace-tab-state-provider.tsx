@@ -9,12 +9,11 @@ import type { ReactReduxContextValue, TypedUseSelectorHook } from 'react-redux';
 import { Provider, createSelectorHook, createStoreHook } from 'react-redux';
 import type { AnyAction } from 'redux';
 import { createStore } from 'redux';
-import { ColDef } from 'ag-grid-community';
 
 type TabState = Record<string, Record<string, unknown>>;
 
 export type TableDataObject = {
-  columnDefs: ColDef[];
+  columnWidths: Record<string, number>;
 };
 
 const SET_STATE = 'compass-workspaces/workspace-tab-state-provider/SET_STATE';
@@ -74,7 +73,7 @@ export const TabStateStoreContext = React.createContext<
 const WorkspaceTabIdContext = React.createContext<string | null>(null);
 const WorkspaceTabTableColumnDefsContext = React.createContext<TableDataObject>(
   {
-    columnDefs: [],
+    columnWidths: {},
   }
 );
 

@@ -165,7 +165,6 @@ const DocumentViewComponent: React.FunctionComponent<
   }
 
   const tableData = useWorkspaceTabTableData();
-  const columnDefs = tableData.columnDefs.length ? tableData.columnDefs : null;
 
   if (props.view === 'List') {
     return (
@@ -192,7 +191,6 @@ const DocumentViewComponent: React.FunctionComponent<
           {...props}
           className={tableStyles}
           tableData={tableData}
-          columnDefs={columnDefs}
         />
       </>
     );

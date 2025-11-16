@@ -73,7 +73,6 @@ export type DocumentTableViewProps = {
   className?: string;
   darkMode?: boolean;
   tableData: TableDataObject;
-  columnDefs: ColDef[] | null;
 };
 
 export type GridContext = {
@@ -134,7 +133,6 @@ class DocumentTableView extends React.Component<DocumentTableViewProps> {
           }
           return params.nextCellDef;
         },
-        columnDefs: this.props.columnDefs,
       },
       onGridReady: this.onGridReady.bind(this),
       isFullWidthCell: function (rowNode) {
@@ -225,21 +223,10 @@ class DocumentTableView extends React.Component<DocumentTableViewProps> {
    */
   onColumnResized(event: ColumnResizedEvent) {
     if (event.finished) {
-      const columnDefs = this.columnApi.columnController.columnDefs;
       const columnState = this.columnApi.getColumnState();
-
-      const columnWidths = columnState.reduce((acc, curr) => {
-        acc[curr.colId] = curr.width;
-        return acc;
-      }, {});
-
-      for (const columnDef of columnDefs) {
-        if (columnWidths[columnDef.colId] !== undefined) {
-          columnDef.width = columnWidths[columnDef.colId];
-        }
+      for (const column of columnState) {
+        this.props.tableData.columnWidths[column.colId] = column.width;
       }
-
-      this.props.tableData.columnDefs = columnDefs;
     }
   }
 
@@ -878,6 +865,7 @@ class DocumentTableView extends React.Component<DocumentTableViewProps> {
         darkMode: this.props.darkMode,
       },
       resizable: true,
+      width: this.props.tableData.columnWidths[String(path[path.length - 1])],
     };
   };
 
