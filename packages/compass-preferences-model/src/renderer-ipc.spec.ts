@@ -1,10 +1,11 @@
 import { makePreferencesIpc } from './renderer-ipc';
 import { EventEmitter } from 'events';
 import { expect } from 'chai';
+import type { UserPreferences } from './preferences-schema';
 
 describe('Renderer IPC', function () {
   const ipcImpl = {
-    'compass:save-preferences'(attributes) {
+    'compass:save-preferences'(attributes: Partial<UserPreferences>) {
       return { savePreferences: 1, attributes };
     },
     'compass:get-preferences'() {
@@ -19,7 +20,7 @@ describe('Renderer IPC', function () {
   };
   const ipcMock = Object.assign(new EventEmitter(), {
     invoke(method: string, ...args: any[]) {
-      return Promise.resolve(ipcImpl[method](...args));
+      return Promise.resolve((ipcImpl as any)[method](...args));
     },
   });
   const preferencesIpc = makePreferencesIpc(ipcMock as any);
