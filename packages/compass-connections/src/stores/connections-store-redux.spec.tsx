@@ -240,7 +240,7 @@ describe('CompassConnections store', function () {
     });
 
     it('should show device auth code modal when OIDC flow triggers the notification', async function () {
-      let resolveConnect;
+      let resolveConnect: undefined | (() => void);
       const connectFn = sinon.stub().callsFake(() => {
         return new Promise((resolve) => {
           resolveConnect = () => resolve({});
@@ -278,6 +278,7 @@ describe('CompassConnections store', function () {
         expect(screen.getByText('ABCabc123')).to.exist;
       });
 
+      if (!resolveConnect) throw new Error('resolveConnect is not defined');
       resolveConnect();
 
       await connectPromise;
@@ -373,7 +374,8 @@ describe('CompassConnections store', function () {
       });
 
       // Send a heartbeat fail with an error that's not a non-retryable error code.
-      dataService['emit']('serverHeartbeatFailed', {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (dataService as any)['emit']('serverHeartbeatFailed', {
         failure: new Error('code: 1234, Not the error we are looking for'),
       });
 
@@ -413,7 +415,8 @@ describe('CompassConnections store', function () {
       dataService.isConnected = () => true;
 
       // Send a heartbeat fail with an error that's a non-retryable error code.
-      dataService['emit']('serverHeartbeatFailed', {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (dataService as any)['emit']('serverHeartbeatFailed', {
         failure: new Error('code: 3003, reason: Insufficient permissions'),
       });
 
@@ -497,10 +500,12 @@ describe('CompassConnections store', function () {
       // proceeding
       connectionsStore.actions.createNewConnection();
 
+      const connectionInfoId =
+        connectionsStore.getState().editingConnectionInfoId;
+      if (!connectionInfoId) throw new Error('No editingConnectionInfoId set');
+
       const editingConnection =
-        connectionsStore.getState().connections.byId[
-          connectionsStore.getState().editingConnectionInfoId
-        ];
+        connectionsStore.getState().connections.byId[connectionInfoId];
 
       const newConnection = {
         ...editingConnection.info,
