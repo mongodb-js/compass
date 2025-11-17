@@ -9,6 +9,7 @@ import {
 import type { Logger } from '@mongodb-js/compass-logging';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import type { AtlasClusterMetadata } from '@mongodb-js/connection-info';
+import { type UserDataType } from '@mongodb-js/compass-user-data';
 
 export type AtlasServiceOptions = {
   defaultHeaders?: Record<string, string>;
@@ -52,14 +53,17 @@ function getAutomationAgentClusterId(
 }
 
 export class AtlasService {
-  private config: AtlasServiceConfig;
   constructor(
     private readonly authService: AtlasAuthService,
     private readonly preferences: PreferencesAccess,
     private readonly logger: Logger,
-    private readonly options?: AtlasServiceOptions
-  ) {
-    this.config = getAtlasConfig(preferences);
+    private readonly options?: AtlasServiceOptions,
+    private readonly defaultConfigOverride?: AtlasServiceConfig
+  ) {}
+  // Config value is dynamic to make sure that process.env overrides are taken
+  // into account in runtime
+  get config(): AtlasServiceConfig {
+    return this.defaultConfigOverride ?? getAtlasConfig(this.preferences);
   }
   adminApiEndpoint(path?: string): string {
     return `${this.config.atlasApiBaseUrl}${normalizePath(path)}`;
@@ -81,12 +85,7 @@ export class AtlasService {
   userDataEndpoint(
     orgId: string,
     groupId: string,
-    type:
-      | 'favoriteQueries'
-      | 'recentQueries'
-      | 'favoriteAggregations'
-      | 'savedWorkspaces'
-      | 'dataModelDescriptions',
+    type: UserDataType,
     id?: string
   ): string {
     const encodedOrgId = encodeURIComponent(orgId);

@@ -45,10 +45,18 @@ import type {
 import { DEFAULT_DOCUMENT_COUNT } from '../components/mock-data-generator-modal/constants';
 
 import { isValidFakerMethod } from '../components/mock-data-generator-modal/utils';
+import { getDefaultFakerMethod } from '../components/mock-data-generator-modal/script-generation-utils';
 
 const DEFAULT_SAMPLE_SIZE = 100;
 
 const NO_DOCUMENTS_ERROR = 'No documents found in the collection to analyze.';
+
+export class EmptyCollectionError extends Error {
+  constructor() {
+    super(NO_DOCUMENTS_ERROR);
+    this.name = 'EmptyCollectionError';
+  }
+}
 
 function isAction<A extends AnyAction>(
   action: AnyAction,
@@ -64,6 +72,13 @@ function getErrorDetails(error: Error): SchemaAnalysisError {
   if (error instanceof ProcessSchemaUnsupportedStateError) {
     return {
       errorType: 'unsupportedState',
+      errorMessage: error.message,
+    };
+  }
+
+  if (error instanceof EmptyCollectionError) {
+    return {
+      errorType: 'empty',
       errorMessage: error.message,
     };
   }
@@ -555,6 +570,7 @@ const reducer: Reducer<CollectionState, Action> = (
           [fieldPath]: {
             ...currentMapping,
             mongoType,
+            fakerArgs: [], // Reset args when type changes
           },
         },
       },
@@ -574,10 +590,24 @@ const reducer: Reducer<CollectionState, Action> = (
     const { fieldPath, fakerMethod } = action;
     const currentMapping =
       state.fakerSchemaGeneration.editedFakerSchema[fieldPath];
+    const originalLlmMapping =
+      state.fakerSchemaGeneration.originalLlmResponse[fieldPath];
 
     if (!currentMapping) {
       return state;
     }
+
+    const isRestoringOriginalMapping =
+      originalLlmMapping &&
+      currentMapping.mongoType === originalLlmMapping.mongoType &&
+      fakerMethod === originalLlmMapping.fakerMethod;
+    const updatedMapping = isRestoringOriginalMapping
+      ? originalLlmMapping
+      : {
+          ...currentMapping,
+          fakerMethod,
+          fakerArgs: [], // Reset args when method changes
+        };
 
     return {
       ...state,
@@ -585,10 +615,7 @@ const reducer: Reducer<CollectionState, Action> = (
         ...state.fakerSchemaGeneration,
         editedFakerSchema: {
           ...state.fakerSchemaGeneration.editedFakerSchema,
-          [fieldPath]: {
-            ...currentMapping,
-            fakerMethod,
-          },
+          [fieldPath]: updatedMapping,
         },
       },
     };
@@ -756,7 +783,7 @@ export const analyzeCollectionSchema = (): CollectionThunkAction<
         logger.debug(NO_DOCUMENTS_ERROR);
         dispatch({
           type: CollectionActions.SchemaAnalysisFailed,
-          error: new Error(NO_DOCUMENTS_ERROR),
+          error: new EmptyCollectionError(),
         });
         return;
       }
@@ -918,7 +945,7 @@ const validateFakerSchema = (
         );
         result[fieldPath] = {
           mongoType: fakerMapping.mongoType,
-          fakerMethod: UNRECOGNIZED_FAKER_METHOD,
+          fakerMethod: getDefaultFakerMethod(fakerMapping.mongoType),
           fakerArgs: [],
           probability: fakerMapping.probability,
         };
@@ -927,7 +954,7 @@ const validateFakerSchema = (
       // Field not mapped by LLM - add default
       result[fieldPath] = {
         mongoType: inputSchema[fieldPath].type,
-        fakerMethod: UNRECOGNIZED_FAKER_METHOD,
+        fakerMethod: getDefaultFakerMethod(inputSchema[fieldPath].type),
         fakerArgs: [],
         probability: inputSchema[fieldPath].probability,
       };

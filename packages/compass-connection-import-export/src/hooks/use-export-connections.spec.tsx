@@ -261,11 +261,23 @@ describe('useExportConnections', function () {
             // expecting to include the non-favorite connections as well
             savedConnectionType: 'recent',
           },
+          {
+            id: 'id2',
+            connectionOptions: {
+              connectionString: 'mongodb://localhost:2021',
+            },
+            favorite: {
+              name: '',
+            },
+            // expecting to include the non-favorite connections as well
+            savedConnectionType: 'recent',
+          },
         ],
       }
     );
 
     expect(result.current.state.connectionList).to.deep.equal([
+      { id: 'id2', name: 'localhost:2021', selected: true },
       { id: 'id1', name: 'name1', selected: true },
     ]);
   });

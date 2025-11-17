@@ -256,8 +256,7 @@ export const GuideCue = <T extends HTMLElement>({
     };
   }, [isCueOpen, cueData, onNext, setOpen]);
 
-  const isCueDisabled =
-    context.disabled || process.env.DISABLE_GUIDE_CUES === 'true';
+  const isCueDisabled = context.disabled;
 
   return (
     <>

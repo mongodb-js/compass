@@ -62,9 +62,14 @@ describe('ContentWithFallback', function () {
     const [contentContainer, contextMenuContainer] = Array.from(
       container.children
     );
-    expect(contentContainer.children.length).to.equal(0);
+    expect(contentContainer.children.length).to.equal(1);
     expect(contextMenuContainer.getAttribute('data-testid')).to.equal(
       'context-menu-container'
+    );
+    const copyPasteContextMenu = contentContainer.children[0];
+    expect(copyPasteContextMenu.children.length).to.equal(0);
+    expect(copyPasteContextMenu.getAttribute('data-testid')).to.equal(
+      'copy-paste-context-menu-container'
     );
   });
 

@@ -8,6 +8,7 @@ import type {
   Relationship,
 } from '../services/data-model-storage';
 import {
+  DEFAULT_IS_EXPANDED,
   validateEdit,
   type Edit,
   type MongoDBDataModelDescription,
@@ -187,9 +188,13 @@ export const diagramReducer: Reducer<DiagramState> = (
               collections: action.collections.map((collection) => ({
                 ns: collection.ns,
                 jsonSchema: collection.schema,
-                displayPosition: [collection.position.x, collection.position.y],
+                displayPosition: [
+                  collection.position.x,
+                  collection.position.y,
+                ] as const,
                 indexes: [],
                 shardKey: undefined,
+                isExpanded: collection.isExpanded,
               })),
               relationships: action.relations,
             },
@@ -443,6 +448,10 @@ export function selectBackground(): DiagramBackgroundSelectedAction {
   };
 }
 
+export function toggleCollectionExpanded(namespace: string) {
+  return applyEdit({ type: 'ToggleExpandCollection', ns: namespace });
+}
+
 export function createNewRelationship({
   localNamespace,
   foreignNamespace = null,
@@ -498,9 +507,10 @@ export function redoEdit(): DataModelingThunkAction<void, RedoEditAction> {
 
 export function onAddNestedField(
   ns: string,
-  parentFieldPath: string[]
+  parentFieldPath: string[],
+  source: 'side_panel' | 'diagram'
 ): DataModelingThunkAction<void, ApplyEditAction | RevertFailedEditAction> {
-  return (dispatch, getState) => {
+  return (dispatch, getState, { track }) => {
     const modelState = selectCurrentModelFromState(getState());
 
     const collection = modelState.collections.find((c) => c.ns === ns);
@@ -524,14 +534,19 @@ export function onAddNestedField(
       },
     };
 
+    track('Data Modeling Field Added', {
+      source,
+    });
+
     return dispatch(applyEdit(edit));
   };
 }
 
 export function addNewFieldToCollection(
-  ns: string
+  ns: string,
+  source: 'side_panel' | 'diagram'
 ): DataModelingThunkAction<void, ApplyEditAction | RevertFailedEditAction> {
-  return (dispatch, getState) => {
+  return (dispatch, getState, { track }) => {
     const modelState = selectCurrentModelFromState(getState());
 
     const collection = modelState.collections.find((c) => c.ns === ns);
@@ -551,6 +566,10 @@ export function addNewFieldToCollection(
         bsonType: 'string',
       },
     };
+
+    track('Data Modeling Field Added', {
+      source,
+    });
 
     return dispatch(applyEdit(edit));
   };
@@ -782,14 +801,20 @@ export function removeField(
   };
 }
 
-export function renameField(
-  ns: string,
-  field: FieldPath,
-  newName: string
-): DataModelingThunkAction<void, ApplyEditAction | RevertFailedEditAction> {
+export function renameField({
+  ns,
+  field,
+  newName,
+  source,
+}: {
+  ns: string;
+  field: FieldPath;
+  newName: string;
+  source: 'side_panel' | 'diagram';
+}): DataModelingThunkAction<void, ApplyEditAction | RevertFailedEditAction> {
   return (dispatch, getState, { track }) => {
     track('Data Modeling Field Renamed', {
-      source: 'side_panel',
+      source,
     });
 
     dispatch(applyEdit({ type: 'RenameField', ns, field, newName }));
@@ -823,11 +848,13 @@ export function changeFieldType({
   fieldPath,
   oldTypes,
   newTypes,
+  source,
 }: {
   ns: string;
   fieldPath: FieldPath;
   oldTypes: string[];
   newTypes: string[];
+  source: 'side_panel' | 'diagram';
 }): DataModelingThunkAction<void, ApplyEditAction | RevertFailedEditAction> {
   return (dispatch, getState, { track }) => {
     const collectionSchema = selectCurrentModelFromState(
@@ -842,7 +869,7 @@ export function changeFieldType({
     const to = getSchemaWithNewTypes(field.jsonSchema, newTypes);
 
     track('Data Modeling Field Type Changed', {
-      source: 'side_panel',
+      source,
       from: getTypeNameForTelemetry(oldTypes),
       to: getTypeNameForTelemetry(newTypes),
     });
@@ -870,6 +897,7 @@ function getPositionForNewCollection(
     ns: newCollection.ns,
     jsonSchema: newCollection.jsonSchema,
     displayPosition: [0, 0],
+    isExpanded: newCollection.isExpanded,
   });
   const xyposition = getCoordinatesForNewNode(existingNodes, newNode);
   return [xyposition.x, xyposition.y];
@@ -908,6 +936,7 @@ export function addCollection(
         ns,
         jsonSchema: {} as MongoDBJSONSchema,
         indexes: [],
+        isExpanded: DEFAULT_IS_EXPANDED,
       });
     }
 
