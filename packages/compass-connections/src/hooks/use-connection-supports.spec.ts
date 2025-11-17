@@ -30,6 +30,7 @@ const mockConnections: ConnectionInfo[] = [
         globalWrites: false,
         rollingIndexes: false,
       },
+      userConnectionString: 'mongodb+srv://foo',
     },
   },
   {
@@ -52,6 +53,7 @@ const mockConnections: ConnectionInfo[] = [
         globalWrites: false,
         rollingIndexes: false,
       },
+      userConnectionString: 'mongodb+srv://foo',
     },
   },
   {
@@ -74,6 +76,7 @@ const mockConnections: ConnectionInfo[] = [
         globalWrites: false,
         rollingIndexes: false,
       },
+      userConnectionString: 'mongodb+srv://foo',
     },
   },
   {
@@ -96,6 +99,7 @@ const mockConnections: ConnectionInfo[] = [
         globalWrites: false,
         rollingIndexes: true,
       },
+      userConnectionString: 'mongodb+srv://foo',
     },
   },
   {
@@ -118,6 +122,7 @@ const mockConnections: ConnectionInfo[] = [
         globalWrites: false,
         rollingIndexes: true,
       },
+      userConnectionString: 'mongodb+srv://foo',
     },
   },
   {
@@ -140,6 +145,7 @@ const mockConnections: ConnectionInfo[] = [
         globalWrites: true,
         rollingIndexes: true,
       },
+      userConnectionString: 'mongodb+srv://foo',
     },
   },
 ];

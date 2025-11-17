@@ -63,6 +63,7 @@ describe('HistoryStorage', function () {
       try {
         await fs.access(historyFilePath);
         expect.fail('Expected file to not exist');
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (e: any) {
         expect(e.code).to.equal('ENOENT');
       }

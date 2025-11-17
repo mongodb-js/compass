@@ -8,7 +8,7 @@ import {
   cleanup,
   userEvent,
 } from '@mongodb-js/testing-library-compass';
-import { spy, stub } from 'sinon';
+import { spy } from 'sinon';
 import type { SinonSpy } from 'sinon';
 import { expect } from 'chai';
 import { Provider } from 'react-redux';
@@ -18,7 +18,6 @@ import { SettingsModal } from './modal';
 
 describe('SettingsModal', function () {
   let onCloseSpy: SinonSpy;
-  let fetchSettingsSpy: SinonSpy;
   let onSaveSpy: SinonSpy;
   let onSelectTabSpy: SinonSpy;
   let renderSettingsModal: (
@@ -27,7 +26,6 @@ describe('SettingsModal', function () {
 
   beforeEach(function () {
     onCloseSpy = spy();
-    fetchSettingsSpy = stub().resolves();
     onSaveSpy = spy();
     onSelectTabSpy = spy();
 
@@ -40,11 +38,11 @@ describe('SettingsModal', function () {
           <SettingsModal
             isOpen={false}
             onClose={onCloseSpy}
-            fetchSettings={fetchSettingsSpy}
             onSave={onSaveSpy}
             onSelectTab={onSelectTabSpy}
-            loadingState="ready"
+            selectedTab={undefined}
             hasChangedSettings={false}
+            isOIDCEnabled={false}
             {...props}
           />
         </Provider>
@@ -59,7 +57,6 @@ describe('SettingsModal', function () {
   it('renders nothing until it is open and loaded', function () {
     renderSettingsModal({ isOpen: false });
 
-    expect(fetchSettingsSpy.called).to.be.false;
     const container = screen.queryByTestId('settings-modal');
     expect(container).to.not.exist;
   });
