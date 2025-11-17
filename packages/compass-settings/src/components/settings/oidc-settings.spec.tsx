@@ -36,7 +36,11 @@ describe('OIDCSettings', function () {
     cleanup();
   });
 
-  ['showOIDCDeviceAuthFlow', 'persistOIDCTokens'].forEach((option) => {
+  const settings: (keyof ReturnType<typeof getSettings>)[] = [
+    'showOIDCDeviceAuthFlow',
+    'persistOIDCTokens',
+  ];
+  settings.forEach((option) => {
     it(`renders ${option}`, function () {
       expect(within(container).getByTestId(option)).to.exist;
     });
