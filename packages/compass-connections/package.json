@@ -47,7 +47,7 @@
     "test-ci": "npm run test-cov",
     "test-ci-electron": "npm run test-electron",
     "reformat": "npm run eslint . -- --fix && npm run prettier -- --write .",
-    "typecheck": "echo \"TODO(COMPASS-9897): typecheck is failing in test files\" && tsc -p tsconfig-build.json --noEmit"
+    "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
     "@mongodb-js/compass-app-registry": "^9.4.28",
@@ -55,7 +55,6 @@
     "@mongodb-js/compass-components": "^1.59.0",
     "@mongodb-js/compass-logging": "^1.7.24",
     "@mongodb-js/compass-telemetry": "^1.19.3",
-    "@mongodb-js/compass-utils": "^0.9.22",
     "@mongodb-js/connection-form": "^1.74.0",
     "@mongodb-js/connection-info": "^0.23.0",
     "@mongodb-js/connection-storage": "^0.62.0",
