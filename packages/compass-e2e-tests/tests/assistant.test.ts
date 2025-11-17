@@ -175,6 +175,13 @@ describe('MongoDB Assistant', function () {
       );
       throw err;
     }
+
+    // Close the drawer if open to provide a clean environment for the next test
+    const drawerCloseButton = browser.$(Selectors.AssistantDrawerCloseButton);
+    if (await drawerCloseButton.isDisplayed()) {
+      await browser.clickVisible(drawerCloseButton);
+      await drawerCloseButton.waitForDisplayed({ reverse: true });
+    }
   });
 
   describe('drawer visibility', function () {
@@ -316,6 +323,10 @@ describe('MongoDB Assistant', function () {
         await browser.screenshot(screenshotPathName('before-after-opting-in'));
         throw err;
       }
+    });
+
+    beforeEach(async function () {
+      await openAssistantDrawer(browser);
     });
 
     describe('clear chat button', function () {
