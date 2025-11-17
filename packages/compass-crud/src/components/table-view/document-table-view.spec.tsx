@@ -49,7 +49,7 @@ describe('<DocumentTableView />', function () {
         component?.unmount();
       });
 
-      it('columnWidths data gets applied to relevant grid column', async function () {
+      it('columnWidths data is applied to the relevant grid column', async function () {
         // Ensure we wait for GridReadyEvent so columnApi is set
         await new Promise(setImmediate);
 
