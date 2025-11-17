@@ -133,7 +133,7 @@ function UrlOptionsListEditor({
             className={optionSelectStyles}
             placeholder="Select key"
             name="select-url-options-key-name"
-            aria-label={
+            aria-labelledby={
               uriOption.name ? `${uriOption.name} select` : 'new option select'
             }
             onChange={(name, event): void => {
