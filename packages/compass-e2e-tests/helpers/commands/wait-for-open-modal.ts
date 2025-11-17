@@ -9,8 +9,19 @@ export async function waitForOpenModal(
 ): Promise<void> {
   await browser.waitUntil(
     async () => {
-      const open = await browser.isModalOpen(selector);
-      return reverse ? !open : open;
+      const modals = await browser.getOpenModals(selector);
+      if (reverse) {
+        return modals.length === 0;
+      } else {
+        for (const modal of modals) {
+          // Ensure any modals are interactable if open
+          await modal.waitForClickable({
+            timeout: 500,
+            timeoutMsg: 'Timeout waiting for open modal to become clickable',
+          });
+        }
+        return modals.length > 0;
+      }
     },
     {
       timeout: 2_000,
