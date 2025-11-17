@@ -121,6 +121,7 @@ export type DocumentListProps = {
     CrudToolbarProps,
     | 'error'
     | 'count'
+    | 'lastCountRunMaxTimeMS'
     | 'loadingCount'
     | 'start'
     | 'end'
@@ -278,6 +279,7 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
     view,
     error,
     count,
+    lastCountRunMaxTimeMS,
     loadingCount,
     start,
     end,
@@ -534,6 +536,7 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
             error={error}
             count={count}
             isFetching={isFetching}
+            lastCountRunMaxTimeMS={lastCountRunMaxTimeMS}
             loadingCount={loadingCount}
             start={start}
             end={end}

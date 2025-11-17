@@ -345,6 +345,7 @@ type CrudState = {
   isReadonly: boolean;
   isTimeSeries: boolean;
   status: DOCUMENTS_STATUSES;
+  lastCountRunMaxTimeMS: number;
   debouncingLoad: boolean;
   loadingCount: boolean;
   shardKeys: null | BSONObject;
@@ -453,6 +454,7 @@ class CrudStoreImpl
       status: DOCUMENTS_STATUS_INITIAL,
       debouncingLoad: false,
       loadingCount: false,
+      lastCountRunMaxTimeMS: COUNT_MAX_TIME_MS_CAP,
       shardKeys: null,
       resultId: resultId(),
       isWritable: this.instance.isWritable,
@@ -1779,6 +1781,7 @@ class CrudStoreImpl
 
     // This is so that the UI can update to show that we're fetching
     this.setState({
+      lastCountRunMaxTimeMS: countOptions.maxTimeMS,
       status: DOCUMENTS_STATUS_FETCHING,
       abortController,
       error: null,

@@ -25,7 +25,7 @@ import {
 } from '@mongodb-js/compass-components';
 import type { MenuAction, Signal } from '@mongodb-js/compass-components';
 import { ViewSwitcher } from './view-switcher';
-import { COUNT_MAX_TIME_MS_CAP, type DocumentView } from '../stores/crud-store';
+import { type DocumentView } from '../stores/crud-store';
 import { AddDataMenu } from './add-data-menu';
 import { usePreference } from 'compass-preferences-model/provider';
 import UpdateMenu from './update-data-menu';
@@ -116,7 +116,8 @@ const ERROR_CODE_OPERATION_TIMED_OUT = 50;
 const INCREASE_MAX_TIME_MS_HINT =
   'Operation exceeded time limit. Please try increasing the maxTimeMS for the query in the expanded filter options.';
 
-const COUNT_UNAVAILABLE_TOOLTIP = `The count is not available for this query. This can happen when the count operation fails or exceeds the maxTimeMS of ${COUNT_MAX_TIME_MS_CAP}.`;
+const countUnavailableTooltipText = (maxTimeMS: number) =>
+  `The count is not available for this query. This can happen when the count operation fails or exceeds the maxTimeMS of ${maxTimeMS}.`;
 
 type ErrorWithPossibleCode = Error & {
   code?: {
@@ -141,6 +142,7 @@ export type CrudToolbarProps = {
   instanceDescription: string;
   isWritable: boolean;
   isFetching: boolean;
+  lastCountRunMaxTimeMS: number;
   loadingCount: boolean;
   onApplyClicked: () => void;
   onResetClicked: () => void;
@@ -173,6 +175,7 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
   instanceDescription,
   isWritable,
   isFetching,
+  lastCountRunMaxTimeMS,
   loadingCount,
   onApplyClicked,
   onResetClicked,
@@ -426,10 +429,17 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
                 {count ?? (
                   <Tooltip
                     trigger={
-                      <span className={countUnavailableTextStyles}>N/A</span>
+                      <span
+                        data-testid="crud-document-count-unavailable"
+                        className={countUnavailableTextStyles}
+                      >
+                        N/A
+                      </span>
                     }
                   >
-                    <Body>{COUNT_UNAVAILABLE_TOOLTIP}</Body>
+                    <Body>
+                      {countUnavailableTooltipText(lastCountRunMaxTimeMS)}
+                    </Body>
                   </Tooltip>
                 )}
               </span>
