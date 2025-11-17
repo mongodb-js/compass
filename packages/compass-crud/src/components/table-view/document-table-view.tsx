@@ -91,7 +91,7 @@ export type GridContext = {
 /**
  * Represents the table view of the documents tab.
  */
-class DocumentTableView extends React.Component<DocumentTableViewProps> {
+export class DocumentTableView extends React.Component<DocumentTableViewProps> {
   AGGrid: React.ReactElement;
   collection: string;
   topLevel: boolean;

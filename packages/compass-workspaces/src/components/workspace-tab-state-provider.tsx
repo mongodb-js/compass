@@ -71,11 +71,9 @@ export const TabStateStoreContext = React.createContext<
 );
 
 const WorkspaceTabIdContext = React.createContext<string | null>(null);
-const WorkspaceTabTableColumnDefsContext = React.createContext<TableDataObject>(
-  {
-    columnWidths: {},
-  }
-);
+const WorkspaceTabTableDataContext = React.createContext<TableDataObject>({
+  columnWidths: {},
+});
 
 /**
  * Exported for testing purposes only
@@ -100,9 +98,9 @@ export const WorkspaceTabStateProvider = ({
 }) => {
   return (
     <WorkspaceTabIdContext.Provider value={id}>
-      <WorkspaceTabTableColumnDefsContext.Provider value={tableData}>
+      <WorkspaceTabTableDataContext.Provider value={tableData}>
         <TabStoreProvider>{children}</TabStoreProvider>
-      </WorkspaceTabTableColumnDefsContext.Provider>
+      </WorkspaceTabTableDataContext.Provider>
     </WorkspaceTabIdContext.Provider>
   );
 };
@@ -121,7 +119,7 @@ export function useWorkspaceTabId() {
 }
 
 export function useWorkspaceTabTableData() {
-  return useContext(WorkspaceTabTableColumnDefsContext);
+  return useContext(WorkspaceTabTableDataContext);
 }
 
 const useStore: () => TabStateStore = createStoreHook(TabStateStoreContext);
