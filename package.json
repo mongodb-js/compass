@@ -134,6 +134,7 @@
     "@leafygreen-ui/text-area": "^10.0.2",
     "@leafygreen-ui/card": "^12.0.2",
     "@leafygreen-ui/logo": "^10.0.2",
-    "@leafygreen-ui/tabs": "^17.0.4"
+    "@leafygreen-ui/tabs": "^17.0.4",
+    "@testing-library/dom": "^8.20.1"
   }
 }
