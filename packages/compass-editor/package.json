@@ -74,7 +74,7 @@
     "@lezer/highlight": "^1.2.1",
     "@mongodb-js/compass-components": "^1.59.0",
     "@mongodb-js/mongodb-constants": "^0.17.0",
-    "mongodb-query-parser": "^4.3.0",
+    "mongodb-query-parser": "^4.5.0",
     "polished": "^4.2.2",
     "prettier": "^2.7.1",
     "react": "^17.0.2"

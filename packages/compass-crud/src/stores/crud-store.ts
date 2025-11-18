@@ -68,7 +68,7 @@ import type {
 } from '@mongodb-js/compass-connections/provider';
 import type { Query, QueryBarService } from '@mongodb-js/compass-query-bar';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
-import type { MongoServerError } from 'mongodb';
+import type { CollationOptions, MongoServerError } from 'mongodb';
 
 export type BSONObject = TypeCastMap['Object'];
 export type BSONArray = TypeCastMap['Array'];
@@ -587,7 +587,7 @@ class CrudStoreImpl
     if (id !== undefined) {
       doc.onRemoveStart();
       try {
-        await this.dataService.deleteOne(this.state.ns, { _id: id } as any);
+        await this.dataService.deleteOne(this.state.ns, { _id: id as any });
         // emit on the document(list view) and success state(json view)
         doc.onRemoveSuccess();
         const payload = { view: this.state.view, ns: this.state.ns };
@@ -864,6 +864,7 @@ class CrudStoreImpl
       filter,
       limit,
       sort,
+      hint,
       project: projection,
       collation,
       maxTimeMS,
@@ -892,9 +893,10 @@ class CrudStoreImpl
     const opts = {
       skip,
       limit: nextPageCount,
-      sort,
-      projection,
-      collation,
+      hint: hint ?? undefined,
+      sort: sort ?? undefined,
+      projection: projection ?? undefined,
+      collation: collation as CollationOptions,
       maxTimeMS: capMaxTimeMSAtPreferenceLimit(this.preferences, maxTimeMS),
       promoteValues: false,
       bsonRegExp: true,
@@ -918,7 +920,7 @@ class CrudStoreImpl
         this.state.isDataLake,
         ns,
         filter ?? {},
-        opts as any,
+        opts,
         {
           abortSignal: signal,
         }
@@ -1647,9 +1649,14 @@ class CrudStoreImpl
           : query.maxTimeMS
       ),
       signal,
+      ...(query.hint
+        ? {
+            hint: query.hint,
+          }
+        : {}),
     };
 
-    if (this.isCountHintSafe(query)) {
+    if (!countOptions.hint && this.isCountHintSafe(query)) {
       countOptions.hint = '_id_';
     }
 
@@ -1669,11 +1676,12 @@ class CrudStoreImpl
     }
 
     const findOptions = {
-      sort,
-      projection: query.project,
+      sort: sort ?? undefined,
+      projection: query.project ?? undefined,
       skip: query.skip,
       limit: docsPerPage,
-      collation: query.collation,
+      collation: query.collation as CollationOptions,
+      hint: query.hint ?? undefined,
       maxTimeMS: capMaxTimeMSAtPreferenceLimit(
         this.preferences,
         query.maxTimeMS
@@ -1703,7 +1711,7 @@ class CrudStoreImpl
     // Only check if index was used if query filter or sort is not empty
     if (!isEmpty(query.filter) || !isEmpty(query.sort)) {
       void this.dataService
-        .explainFind(ns, query.filter ?? {}, findOptions as any, {
+        .explainFind(ns, query.filter ?? {}, findOptions, {
           explainVerbosity: 'queryPlanner',
           abortSignal: signal,
         })
@@ -1770,7 +1778,7 @@ class CrudStoreImpl
         this.state.isDataLake,
         ns,
         query.filter ?? {},
-        findOptions as any,
+        findOptions,
         {
           abortSignal: signal,
         }

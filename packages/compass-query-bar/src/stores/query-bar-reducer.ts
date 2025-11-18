@@ -228,7 +228,7 @@ export const applyFromHistory = (
   return (dispatch, getState, { localAppRegistry, preferences }) => {
     const currentFields = getState().queryBar.fields;
     const currentQuery = currentQueryFieldsToRetain.reduce<
-      Record<string, Document | number>
+      Record<string, Document | number | string>
     >((acc, key) => {
       const { value } = currentFields[key];
       if (value) {
