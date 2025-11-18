@@ -48,7 +48,7 @@ describe('PipelineStages', function () {
       const container = renderPipelineStages({ showAddNewStage: false });
       expect(() => {
         within(container).getByTestId('pipeline-toolbar-add-stage-button');
-      }).to.throw;
+      }).to.throw();
     });
     it('renders add stage button', function () {
       const onStageAddedSpy = spy();
