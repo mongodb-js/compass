@@ -490,9 +490,7 @@ function generateFakerCall(mapping: FakerFieldMapping): string {
   }
 
   const args = formatFakerArgs(mapping.fakerArgs);
-  const fakerCall = `faker.${method}(${args})`;
-
-  return fakerCall;
+  return `faker.${method}(${args})`;
 }
 
 /**
