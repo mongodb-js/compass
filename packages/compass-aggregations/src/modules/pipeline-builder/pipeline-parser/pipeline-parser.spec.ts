@@ -430,11 +430,11 @@ describe('PipelineParser', function () {
       [``, '{}', 'hello', '20'].forEach((expression) => {
         expect(() => {
           PipelineParser.parse(expression);
-        }).to.throw;
+        }).to.throw();
       });
       expect(() => {
         PipelineParser.parse(`[]`);
-      }).to.not.throw;
+      }).to.not.throw();
     });
     it('parses commented out pipeline', function () {
       const pipeline = `[

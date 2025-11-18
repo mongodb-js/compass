@@ -178,13 +178,14 @@ describe('PipelineBuilder', function () {
     mock.restore();
   });
 
-  it('throws when previewing a pipeline with output stage and not fitlering it out', function () {
+  it('throws when previewing a pipeline with output stage and not fitlering it out', async function () {
     const pipeline = `[{$match: {}}, {$unwind: "users"}, {$out: "test"}]`;
     pipelineBuilder.reset(pipeline);
 
-    expect(async () => {
-      await pipelineBuilder.getPreviewForPipeline('airbnb.listings', {});
-    }).to.throw;
+    const error = await pipelineBuilder
+      .getPreviewForPipeline('airbnb.listings', {})
+      .catch((e) => e);
+    expect(error).to.be.instanceOf(Error);
   });
 
   it('should handle leading and trailing stages of the pipeline', function () {

@@ -71,7 +71,7 @@ describe('TypeField', function () {
         expect(
           () => screen.getByText(`${key}: ${JSON.stringify(extras[key])}`),
           `it does not render ${key} prop in tooltip`
-        ).to.throw;
+        ).to.throw();
       }
     });
   });

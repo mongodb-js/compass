@@ -14,7 +14,6 @@ import {
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
 import ConnectionString from 'mongodb-connection-string-url';
-import { isCancelError } from '@mongodb-js/compass-utils';
 
 export function isOIDCAuth(connectionString: string): boolean {
   const authMechanismString = (
@@ -23,10 +22,6 @@ export function isOIDCAuth(connectionString: string): boolean {
   ).toUpperCase();
 
   return authMechanismString === 'MONGODB-OIDC';
-}
-
-export function getConnectionErrorMessage(err?: any) {
-  return isCancelError(err) ? null : err?.message ?? null;
 }
 
 export function getConnectingStatusText(connectionInfo: ConnectionInfo) {

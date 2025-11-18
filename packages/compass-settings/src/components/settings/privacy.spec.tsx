@@ -13,7 +13,7 @@ import configureStore from '../../../test/configure-store';
 import { fetchSettings } from '../../stores/settings';
 
 function renderPrivacySettings(
-  store,
+  store: ReturnType<typeof configureStore>,
   props: Partial<React.ComponentProps<typeof PrivacySettings>> = {}
 ) {
   const component = () => (
@@ -47,12 +47,13 @@ describe('PrivacySettings', function () {
       container = renderPrivacySettings(store);
     });
 
-    [
+    const settings: (keyof ReturnType<typeof getSettings>)[] = [
       'autoUpdates',
       'enableMaps',
       'trackUsageStatistics',
       'enableFeedbackPanel',
-    ].forEach((option) => {
+    ];
+    settings.forEach((option) => {
       it(`renders ${option}`, function () {
         expect(within(container).getByTestId(option)).to.exist;
       });
