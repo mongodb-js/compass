@@ -967,7 +967,7 @@ const validateFakerSchema = (
       mongoType: 'ObjectId',
       fakerMethod: 'database.mongodbObjectId',
       fakerArgs: [],
-      probability: result._id.probability,
+      probability: result._id.probability ?? 1.0,
     };
   }
 

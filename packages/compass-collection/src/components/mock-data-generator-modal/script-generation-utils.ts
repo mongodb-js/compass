@@ -484,13 +484,13 @@ function generateFakerCall(mapping: FakerFieldMapping): string {
       ? getDefaultFakerMethod(mapping.mongoType)
       : mapping.fakerMethod;
 
+  // Use direct ObjectId generation for MongoDB ObjectIds
+  if (method === 'database.mongodbObjectId') {
+    return 'new ObjectId()';
+  }
+
   const args = formatFakerArgs(mapping.fakerArgs);
   const fakerCall = `faker.${method}(${args})`;
-
-  // Wrap ObjectId faker calls with new ObjectId() for proper BSON type
-  if (method === 'database.mongodbObjectId') {
-    return `new ObjectId(${fakerCall})`;
-  }
 
   return fakerCall;
 }

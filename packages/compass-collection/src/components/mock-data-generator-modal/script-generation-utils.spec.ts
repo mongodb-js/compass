@@ -944,8 +944,7 @@ describe('Script Generation', () => {
 
       expect(result.success).to.equal(true);
       if (result.success) {
-        expect(result.script).to.contain('new ObjectId(');
-        expect(result.script).to.contain('faker.database.mongodbObjectId()');
+        expect(result.script).to.contain('new ObjectId()');
 
         // Test that the generated document code is executable
         const document = testDocumentCodeExecution(result.script);
@@ -955,7 +954,7 @@ describe('Script Generation', () => {
       }
     });
 
-    it('should wrap ObjectId faker calls with new ObjectId() for proper BSON type', () => {
+    it('should use direct new ObjectId() generation for ObjectId fields', () => {
       const schema = {
         _id: {
           mongoType: 'ObjectId' as const,
@@ -977,10 +976,9 @@ describe('Script Generation', () => {
 
       expect(result.success).to.equal(true);
       if (result.success) {
-        // Check that ObjectId fields are wrapped with new ObjectId()
-        expect(result.script).to.contain('_id: new ObjectId(');
-        expect(result.script).to.contain('faker.database.mongodbObjectId()');
-        expect(result.script).to.contain('movie_id: new ObjectId(');
+        // Check that ObjectId fields use direct new ObjectId() generation
+        expect(result.script).to.contain('_id: new ObjectId()');
+        expect(result.script).to.contain('movie_id: new ObjectId()');
 
         // Test that the generated document code is executable and produces ObjectId instances
         const document = testDocumentCodeExecution(result.script);
