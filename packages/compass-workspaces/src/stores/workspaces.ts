@@ -210,15 +210,10 @@ export const getInitialTabState = (
     const subTab =
       initialSubtab ?? (isAggregationsSubtab ? 'Aggregations' : 'Documents');
 
-    const tableData = {
-      columnWidths: {},
-    };
-
     return {
       id: tabId,
       subTab,
       ...rest,
-      tableData,
     };
   }
   return { id: tabId, ...workspace };

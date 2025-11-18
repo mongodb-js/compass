@@ -35,10 +35,8 @@ describe('<DocumentTableView />', function () {
               },
             }}
             resetColumns={sinon.spy()}
-            tableData={{
-              columnWidths: {
-                name: 1337,
-              },
+            columnWidths={{
+              name: 1337,
             }}
             start={1}
           />

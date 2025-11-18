@@ -379,12 +379,10 @@ export const workspacesServiceLocator = createServiceLocator(
   'workspacesServiceLocator'
 );
 
-export type { TableDataObject } from './components/workspace-tab-state-provider';
 export { useWorkspacePlugins } from './components/workspaces-provider';
 export {
   useWorkspaceTabId,
   useTabState,
-  useWorkspaceTabTableData,
 } from './components/workspace-tab-state-provider';
 export {
   useOnTabClose,

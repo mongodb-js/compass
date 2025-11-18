@@ -12,10 +12,6 @@ import { createStore } from 'redux';
 
 type TabState = Record<string, Record<string, unknown>>;
 
-export type TableDataObject = {
-  columnWidths: Record<string, number>;
-};
-
 const SET_STATE = 'compass-workspaces/workspace-tab-state-provider/SET_STATE';
 
 const CLEANUP_TAB_STATE =
@@ -71,9 +67,6 @@ export const TabStateStoreContext = React.createContext<
 );
 
 const WorkspaceTabIdContext = React.createContext<string | null>(null);
-const WorkspaceTabTableDataContext = React.createContext<TableDataObject>({
-  columnWidths: {},
-});
 
 /**
  * Exported for testing purposes only
@@ -89,18 +82,14 @@ export const TabStoreProvider: React.FunctionComponent = ({ children }) => {
 
 export const WorkspaceTabStateProvider = ({
   id,
-  tableData,
   children,
 }: {
   id: string;
-  tableData: TableDataObject;
   children: React.ReactChild;
 }) => {
   return (
     <WorkspaceTabIdContext.Provider value={id}>
-      <WorkspaceTabTableDataContext.Provider value={tableData}>
-        <TabStoreProvider>{children}</TabStoreProvider>
-      </WorkspaceTabTableDataContext.Provider>
+      <TabStoreProvider>{children}</TabStoreProvider>
     </WorkspaceTabIdContext.Provider>
   );
 };
@@ -116,10 +105,6 @@ export function useWorkspaceTabId() {
     tabId = 'test-tab-id';
   }
   return tabId;
-}
-
-export function useWorkspaceTabTableData() {
-  return useContext(WorkspaceTabTableDataContext);
 }
 
 const useStore: () => TabStateStore = createStoreHook(TabStateStoreContext);

@@ -39,7 +39,6 @@ import type {
   ValueGetterParams,
   ColumnResizedEvent,
 } from 'ag-grid-community';
-import type { TableDataObject } from '@mongodb-js/compass-workspaces/provider';
 
 const MIXED = 'Mixed' as const;
 
@@ -72,7 +71,12 @@ export type DocumentTableViewProps = {
   tz: string;
   className?: string;
   darkMode?: boolean;
-  tableData: TableDataObject;
+  columnWidths: Record<string, number>;
+  setColumnWidths: (
+    newState:
+      | Record<string, number>
+      | ((prev: Record<string, number>) => Record<string, number>)
+  ) => void;
 };
 
 export type GridContext = {
@@ -223,10 +227,15 @@ export class DocumentTableView extends React.Component<DocumentTableViewProps> {
    */
   onColumnResized(event: ColumnResizedEvent) {
     if (event.finished) {
-      const columnState = this.columnApi.getColumnState();
+      const columnState = this.columnApi?.getColumnState() || [];
+      const currentColumnWidths: Record<string, number> = {};
       for (const column of columnState) {
-        this.props.tableData.columnWidths[column.colId] = column.width;
+        if (column.width) currentColumnWidths[column.colId] = column.width;
       }
+      this.props.setColumnWidths((prev) => ({
+        ...prev,
+        ...currentColumnWidths,
+      }));
     }
   }
 
@@ -865,7 +874,7 @@ export class DocumentTableView extends React.Component<DocumentTableViewProps> {
         darkMode: this.props.darkMode,
       },
       resizable: true,
-      width: this.props.tableData.columnWidths[String(path[path.length - 1])],
+      width: this.props.columnWidths[String(path[path.length - 1])],
     };
   };
 

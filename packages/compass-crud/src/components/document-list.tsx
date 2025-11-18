@@ -32,10 +32,7 @@ import {
 import type { CrudStore, BSONObject, DocumentView } from '../stores/crud-store';
 import { getToolbarSignal } from '../utils/toolbar-signal';
 import BulkDeleteModal from './bulk-delete-modal';
-import {
-  useTabState,
-  useWorkspaceTabTableData,
-} from '@mongodb-js/compass-workspaces/provider';
+import { useTabState } from '@mongodb-js/compass-workspaces/provider';
 import {
   useIsLastAppliedQueryOutdated,
   useLastAppliedQuery,
@@ -147,18 +144,24 @@ const DocumentViewComponent: React.FunctionComponent<
     initialScrollTop?: number;
     scrollTriggerRef?: React.Ref<HTMLDivElement>;
     scrollableContainerRef?: React.Ref<HTMLDivElement>;
+    columnWidths: Record<string, number>;
+    setColumnWidths: (
+      newState:
+        | Record<string, number>
+        | ((prev: Record<string, number>) => Record<string, number>)
+    ) => void;
   }
 > = ({
   initialScrollTop,
   scrollTriggerRef,
   scrollableContainerRef,
+  columnWidths,
+  setColumnWidths,
   ...props
 }) => {
   if (props.docs?.length === 0) {
     return null;
   }
-
-  const tableData = useWorkspaceTabTableData();
 
   if (props.view === 'List') {
     return (
@@ -184,7 +187,8 @@ const DocumentViewComponent: React.FunctionComponent<
           key={props.darkMode ? 'dark' : 'light'}
           {...props}
           className={tableStyles}
-          tableData={tableData}
+          columnWidths={columnWidths}
+          setColumnWidths={setColumnWidths}
         />
       </>
     );
@@ -424,6 +428,11 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
     ]
   );
 
+  const [columnWidths, setColumnWidths] = useTabState<Record<string, number>>(
+    'columnWidths',
+    {}
+  );
+
   const renderContent = useCallback(
     (scrollTriggerRef: React.Ref<HTMLDivElement>) => {
       let content = null;
@@ -486,6 +495,8 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
               initialScrollTop={currentViewInitialScrollTop}
               scrollableContainerRef={scrollRef}
               scrollTriggerRef={scrollTriggerRef}
+              columnWidths={columnWidths}
+              setColumnWidths={setColumnWidths}
             />
           );
         }
