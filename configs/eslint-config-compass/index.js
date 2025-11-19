@@ -98,6 +98,7 @@ module.exports = {
   plugins: [...shared.plugins, '@mongodb-js/compass', 'chai-friendly'],
   rules: {
     ...shared.rules,
+    '@mongodb-js/compass/no-expect-throw-without-call': 'error',
     '@mongodb-js/compass/no-inline-emotion-css': 'error',
     '@mongodb-js/compass/no-leafygreen-outside-compass-components': 'error',
     '@mongodb-js/compass/unique-mongodb-log-id': [
