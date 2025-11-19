@@ -1216,6 +1216,30 @@ class DataServiceImpl extends WithLogContext implements DataService {
                   },
                 },
                 nindexes: { $max: '$storageStats.nindexes' },
+                numBuckets: {
+                  $first: {
+                    $ifNull: [
+                      '$storageStats.timeseries.bucketCount',
+                      '$storageStats.numBuckets',
+                    ],
+                  },
+                },
+                totalBucketSize: {
+                  $first: {
+                    $ifNull: [
+                      {
+                        $multiply: [
+                          '$storageStats.timeseries.avgBucketSize',
+                          '$storageStats.timeseries.bucketCount',
+                        ],
+                      },
+                      '$storageStats.totalBucketSize',
+                    ],
+                  },
+                },
+                avgBucketSizeFromStats: {
+                  $first: '$storageStats.timeseries.avgBucketSize',
+                },
               },
             },
             {
@@ -1228,6 +1252,30 @@ class DataServiceImpl extends WithLogContext implements DataService {
                       $divide: ['$unscaledCollSize', { $toDouble: '$count' }],
                     },
                     else: 0,
+                  },
+                },
+                // `avgBucketSize` is the average bucket size for time series collections
+                avgBucketSize: {
+                  $cond: {
+                    if: { $ne: ['$avgBucketSizeFromStats', null] },
+                    then: '$avgBucketSizeFromStats',
+                    else: {
+                      $cond: {
+                        if: {
+                          $and: [
+                            { $ne: ['$numBuckets', null] },
+                            { $ne: ['$numBuckets', 0] },
+                          ],
+                        },
+                        then: {
+                          $divide: [
+                            { $toDouble: '$totalBucketSize' },
+                            { $toDouble: '$numBuckets' },
+                          ],
+                        },
+                        else: null,
+                      },
+                    },
                   },
                 },
               },
@@ -2995,6 +3043,8 @@ class DataServiceImpl extends WithLogContext implements DataService {
       free_storage_size: data.freeStorageSize ?? 0,
       index_count: data.nindexes ?? 0,
       index_size: data.totalIndexSize ?? 0,
+      bucket_count: data.numBuckets,
+      avg_bucket_size: data.avgBucketSize,
     };
   }
 
