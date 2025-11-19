@@ -21,10 +21,11 @@ import {
   useContextMenuGroups,
   usePersistedState,
   AtlasSkillsBanner,
+  Tooltip,
 } from '@mongodb-js/compass-components';
 import type { MenuAction, Signal } from '@mongodb-js/compass-components';
 import { ViewSwitcher } from './view-switcher';
-import type { DocumentView } from '../stores/crud-store';
+import { type DocumentView } from '../stores/crud-store';
 import { AddDataMenu } from './add-data-menu';
 import { usePreference } from 'compass-preferences-model/provider';
 import UpdateMenu from './update-data-menu';
@@ -87,6 +88,12 @@ const loaderContainerStyles = css({
   paddingRight: spacing[200],
 });
 
+const countUnavailableTextStyles = css({
+  textDecoration: 'underline',
+  textDecorationStyle: 'dotted',
+  textUnderlineOffset: '3px',
+});
+
 type ExportDataOption = 'export-query' | 'export-full-collection';
 const exportDataActions: MenuAction<ExportDataOption>[] = [
   { action: 'export-query', label: 'Export query results' },
@@ -108,6 +115,9 @@ const ERROR_CODE_OPERATION_TIMED_OUT = 50;
 
 const INCREASE_MAX_TIME_MS_HINT =
   'Operation exceeded time limit. Please try increasing the maxTimeMS for the query in the expanded filter options.';
+
+const countUnavailableTooltipText = (maxTimeMS: number) =>
+  `The count is not available for this query. This can happen when the count operation fails or exceeds the maxTimeMS of ${maxTimeMS}.`;
 
 type ErrorWithPossibleCode = Error & {
   code?: {
@@ -132,6 +142,7 @@ export type CrudToolbarProps = {
   instanceDescription: string;
   isWritable: boolean;
   isFetching: boolean;
+  lastCountRunMaxTimeMS: number;
   loadingCount: boolean;
   onApplyClicked: () => void;
   onResetClicked: () => void;
@@ -164,6 +175,7 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
   instanceDescription,
   isWritable,
   isFetching,
+  lastCountRunMaxTimeMS,
   loadingCount,
   onApplyClicked,
   onResetClicked,
@@ -196,11 +208,6 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
   // @experiment Skills in Atlas  | Jira Epic: CLOUDP-346311
   const { shouldShowAtlasSkillsBanner } = useAtlasSkillsBanner(
     SkillsBannerContextEnum.Documents
-  );
-
-  const displayedDocumentCount = useMemo(
-    () => (loadingCount ? '' : `${count ?? 'N/A'}`),
-    [loadingCount, count]
   );
 
   const onClickRefreshDocuments = useCallback(() => {
@@ -416,7 +423,27 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
           </Select>
           <Body data-testid="crud-document-count-display">
             {start} – {end}{' '}
-            {displayedDocumentCount && `of ${displayedDocumentCount}`}
+            {!loadingCount && (
+              <span>
+                {'of '}
+                {count ?? (
+                  <Tooltip
+                    trigger={
+                      <span
+                        data-testid="crud-document-count-unavailable"
+                        className={countUnavailableTextStyles}
+                      >
+                        N/A
+                      </span>
+                    }
+                  >
+                    <Body>
+                      {countUnavailableTooltipText(lastCountRunMaxTimeMS)}
+                    </Body>
+                  </Tooltip>
+                )}
+              </span>
+            )}
           </Body>
           {loadingCount && (
             <div className={loaderContainerStyles}>

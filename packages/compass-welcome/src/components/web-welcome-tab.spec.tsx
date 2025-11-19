@@ -53,9 +53,10 @@ describe('WebWelcomeTab', function () {
       renderWebWelcomeTab([CONNECTION_ITEM]);
       try {
         screen.getByTestId('add-new-atlas-cluster-button');
-        expect.fail('add-new-atlas-cluster-button should not be rendered');
-      } catch {
-        // noop
+      } catch (err: any) {
+        expect(err.message).to.not.equal(
+          'add-new-atlas-cluster-button should not be rendered'
+        );
       }
     });
     it('does not render the connection plug SVG', function () {

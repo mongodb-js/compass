@@ -20,12 +20,8 @@ const renderFocusModeStageEditor = (
 describe('FocusMode', function () {
   it('does not render editor when stage index is -1', async function () {
     await renderFocusModeStageEditor({ index: -1 });
-    expect(() => {
-      screen.getByTestId('stage-operator-combobox');
-    }).to.throw;
-    expect(() => {
-      screen.getByText(/open docs/i);
-    }).to.throw;
+    expect(screen.queryByTestId('stage-operator-combobox')).to.not.exist;
+    expect(screen.queryByText(/open docs/i)).to.not.exist;
   });
 
   context('when operator is not defined', function () {
@@ -41,10 +37,13 @@ describe('FocusMode', function () {
       expect(dropdown).to.exist;
     });
 
-    it('does not render docs link', function () {
-      expect(() => {
-        screen.getByText(/open docs/i);
-      }).to.throw;
+    it('renders docs link', function () {
+      const element = screen.getByText(/open docs/i);
+
+      expect(element.closest('a')).to.have.attribute(
+        'href',
+        'https://www.mongodb.com/docs/manual/reference/mql/aggregation-stages/'
+      );
     });
   });
 
@@ -62,7 +61,12 @@ describe('FocusMode', function () {
     });
 
     it('renders docs link', function () {
-      expect(screen.getByText(/open docs/i)).to.exist;
+      const element = screen.getByText(/open docs/i);
+
+      expect(element.closest('a')).to.have.attribute(
+        'href',
+        'https://www.mongodb.com/docs/manual/reference/operator/aggregation/limit/'
+      );
     });
   });
 });

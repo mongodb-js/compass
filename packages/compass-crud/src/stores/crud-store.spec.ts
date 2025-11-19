@@ -316,6 +316,7 @@ describe('store', function () {
           status: 'closed',
         },
         debouncingLoad: false,
+        lastCountRunMaxTimeMS: 5000,
         loadingCount: false,
         collection: 'test',
         count: null,
