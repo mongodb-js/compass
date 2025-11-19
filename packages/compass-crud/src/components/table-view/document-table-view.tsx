@@ -72,11 +72,7 @@ export type DocumentTableViewProps = {
   className?: string;
   darkMode?: boolean;
   columnWidths: Record<string, number>;
-  setColumnWidths: (
-    newState:
-      | Record<string, number>
-      | ((prev: Record<string, number>) => Record<string, number>)
-  ) => void;
+  onColumnWidthChange: (newColumnWidths: Record<string, number>) => void;
 };
 
 export type GridContext = {
@@ -232,10 +228,7 @@ export class DocumentTableView extends React.Component<DocumentTableViewProps> {
       for (const column of columnState) {
         if (column.width) currentColumnWidths[column.colId] = column.width;
       }
-      this.props.setColumnWidths((prev) => ({
-        ...prev,
-        ...currentColumnWidths,
-      }));
+      this.props.onColumnWidthChange(currentColumnWidths);
     }
   }
 
