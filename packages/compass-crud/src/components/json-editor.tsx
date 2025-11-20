@@ -110,7 +110,7 @@ const JSONEditor: React.FunctionComponent<JSONEditorProps> = ({
   const onChange = useCallback((value: string) => {
     let containsErrors = false;
     try {
-      JSON.parse(value);
+      HadronDocument.FromEJSON(value);
     } catch {
       containsErrors = true;
     }
