@@ -25,8 +25,8 @@ export const SettingsInputElement = (settingName: string): string => {
 };
 
 // LG Modals
-export const LGModal = '[data-testid="lg-modal"]';
-export const LGModalClose = '[data-testid="lg-modal-close"]';
+export const LGModal = '[data-lgid="lg-modal"]';
+export const LGModalClose = '[data-lgid="lg-modal-close"]';
 
 // LG Toasts container (these test ids are used by LG in the toast and are not in the code anywhere).
 export const LGToastContainer = '[data-testid="lg-toast-scroll-container"]';
