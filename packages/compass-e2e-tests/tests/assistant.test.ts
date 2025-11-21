@@ -175,6 +175,13 @@ describe('MongoDB Assistant', function () {
       );
       throw err;
     }
+
+    // Close the drawer if open to provide a clean environment for the next test
+    const drawerCloseButton = browser.$(Selectors.AssistantDrawerCloseButton);
+    if (await drawerCloseButton.isDisplayed()) {
+      await browser.clickVisible(drawerCloseButton);
+      await drawerCloseButton.waitForDisplayed({ reverse: true });
+    }
   });
 
   describe('drawer visibility', function () {
@@ -252,11 +259,13 @@ describe('MongoDB Assistant', function () {
 
         await optInModal.waitForDisplayed({ reverse: true });
 
-        expect(await getDisplayedMessages(browser)).to.deep.equal([]);
+        expect(
+          await browser.$(Selectors.AssistantChatMessages).isDisplayed()
+        ).to.equal(false);
       });
 
       it('should display opt-in modal for explain plan entry point', async function () {
-        await useExplainPlanEntryPoint(browser);
+        await useExplainPlanEntryPoint(browser, { waitForMessages: false });
 
         const optInModal = browser.$(Selectors.AIOptInModal);
         await optInModal.waitForDisplayed();
@@ -266,7 +275,9 @@ describe('MongoDB Assistant', function () {
 
         await optInModal.waitForDisplayed({ reverse: true });
 
-        expect(await getDisplayedMessages(browser)).to.deep.equal([]);
+        expect(
+          await browser.$(Selectors.AssistantChatMessages).isDisplayed()
+        ).to.equal(false);
       });
     });
   });
@@ -312,6 +323,10 @@ describe('MongoDB Assistant', function () {
         await browser.screenshot(screenshotPathName('before-after-opting-in'));
         throw err;
       }
+    });
+
+    beforeEach(async function () {
+      await openAssistantDrawer(browser);
     });
 
     describe('clear chat button', function () {
@@ -526,7 +541,10 @@ describe('MongoDB Assistant', function () {
 });
 
 async function openAssistantDrawer(browser: CompassBrowser) {
-  await browser.clickVisible(Selectors.AssistantDrawerButton);
+  if (!(await browser.$(Selectors.AssistantDrawerCloseButton).isDisplayed())) {
+    await browser.clickVisible(Selectors.AssistantDrawerButton);
+  }
+  await browser.$(Selectors.AssistantDrawerCloseButton).waitForDisplayed();
 }
 
 async function clearChat(browser: CompassBrowser) {
@@ -596,7 +614,10 @@ async function waitForMessages(
   }
 }
 
-async function useExplainPlanEntryPoint(browser: CompassBrowser) {
+async function useExplainPlanEntryPoint(
+  browser: CompassBrowser,
+  { waitForMessages = true } = {}
+) {
   await browser.clickVisible(Selectors.AggregationExplainButton);
 
   await browser.clickVisible(Selectors.ExplainPlanInterpretButton);
@@ -605,5 +626,7 @@ async function useExplainPlanEntryPoint(browser: CompassBrowser) {
     reverse: true,
   });
 
-  await browser.$(Selectors.AssistantChatMessages).waitForDisplayed();
+  if (waitForMessages) {
+    await browser.$(Selectors.AssistantChatMessages).waitForDisplayed();
+  }
 }

@@ -218,15 +218,16 @@ describe('BulkUpdateModal Component', function () {
     expect(onUpdateSpy).to.have.been.calledOnce;
   });
 
-  it('saves the query when a name is provided', function () {
+  it('saves the query when a name is provided', async function () {
     const saveUpdateQuerySpy = sinon.spy();
-    renderBulkUpdateModal({ saveUpdateQuery: saveUpdateQuerySpy });
+    renderBulkUpdateModal({
+      saveUpdateQuery: saveUpdateQuerySpy,
+    });
 
     userEvent.click(screen.getByTestId('inline-save-query-modal-opener'));
-    userEvent.type(
-      screen.getByTestId('inline-save-query-modal-input'),
-      'MySavedQuery'
-    );
+    const inputElement = screen.getByTestId('inline-save-query-modal-input');
+    await waitFor(() => expect(inputElement).to.be.visible);
+    userEvent.type(inputElement, 'MySavedQuery');
 
     userEvent.click(screen.getByTestId('inline-save-query-modal-submit'));
     expect(saveUpdateQuerySpy).to.have.been.calledOnceWith('MySavedQuery');

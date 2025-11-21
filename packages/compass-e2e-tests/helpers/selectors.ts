@@ -26,7 +26,7 @@ export const SettingsInputElement = (settingName: string): string => {
 
 // LG Modals
 export const LGModal = '[data-testid="lg-modal"]';
-export const LGModalClose = '[data-testid="lg-modal-close_button"]';
+export const LGModalClose = '[data-testid="lg-modal-close"]';
 
 // LG Toasts container (these test ids are used by LG in the toast and are not in the code anywhere).
 export const LGToastContainer = '[data-testid="lg-toast-scroll-container"]';
@@ -255,7 +255,7 @@ export const ConnectionsTitle = '[data-testid="connections-header"]';
 export const SidebarNewConnectionButton = '[data-action="add-new-connection"]';
 export const ConnectButton =
   '[data-testid="sidebar-navigation-item-actions-connection-connect-action"]';
-export const ConnectDropdownButton = `${ConnectButton} [data-testid="lg-split_button-trigger"]`;
+export const ConnectDropdownButton = `[data-testid="lg-split_button-trigger"]`;
 export const ConnectInNewWindowButton =
   '[data-action="connection-connect-in-new-window"]';
 export const ConnectionMenu = '[data-testid="sidebar-navigation-item-actions"]';

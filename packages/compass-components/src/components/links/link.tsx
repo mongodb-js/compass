@@ -1,7 +1,8 @@
 import React, { useContext, forwardRef, useMemo } from 'react';
 import { Link as LGLink } from '@leafygreen-ui/typography';
-import LGButton from '@leafygreen-ui/button';
-import LGIconButton from '@leafygreen-ui/icon-button';
+import LGButton, { type ButtonProps } from '@leafygreen-ui/button';
+import LGIconButton, { type IconButtonProps } from '@leafygreen-ui/icon-button';
+import type { PolymorphicAs } from '@leafygreen-ui/polymorphic';
 
 type RequiredURLSearchParamsContextValue = {
   utmSource?: string;
@@ -72,13 +73,20 @@ export const Link = (({ href, children, ...rest }: LeafygreenLinkProps) => {
   );
 }) as unknown as typeof LGLink;
 
+function extractHref(props: Record<string, unknown>) {
+  if (typeof props.href === 'string') {
+    return props.href;
+  }
+}
+
 // eslint-disable-next-line react/display-name
 export const Button = forwardRef(
-  (
-    { href, children, ...rest }: React.ComponentProps<typeof LGButton>,
+  <TAsProp extends PolymorphicAs = 'button'>(
+    { children, ...rest }: ButtonProps<TAsProp>,
     ref: React.ForwardedRef<HTMLButtonElement>
   ) => {
     const { utmSource, utmMedium } = useRequiredURLSearchParams();
+    const href = extractHref(rest);
 
     const hrefWithParams = useMemo(() => {
       if (href) {
@@ -97,11 +105,12 @@ export const Button = forwardRef(
 
 // eslint-disable-next-line react/display-name
 export const IconButton = forwardRef(
-  (
-    { href, children, ...rest }: React.ComponentProps<typeof LGIconButton>,
-    ref: React.ForwardedRef<HTMLAnchorElement>
+  <TAsProp extends PolymorphicAs = 'button'>(
+    { children, ...rest }: IconButtonProps<TAsProp>,
+    ref: React.ForwardedRef<HTMLButtonElement>
   ) => {
     const { utmSource, utmMedium } = useRequiredURLSearchParams();
+    const href = extractHref(rest);
 
     const hrefWithParams = useMemo(() => {
       if (href) {
@@ -111,7 +120,7 @@ export const IconButton = forwardRef(
     }, [href, utmSource, utmMedium]);
 
     return (
-      <LGIconButton href={hrefWithParams} {...rest} ref={ref}>
+      <LGIconButton {...rest} href={hrefWithParams} ref={ref}>
         {children}
       </LGIconButton>
     );

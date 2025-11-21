@@ -26,6 +26,11 @@ export async function setComboBoxValue(
   );
   await comboboxListSelectorElement.waitForDisplayed();
   await browser.setValueVisible(comboboxInputSelector, comboboxValue);
-  await browser.keys(['Enter']);
+  await browser.clickVisible(
+    comboboxListSelectorElement.$(
+      // Handle existing as well as new values
+      `[aria-label="${comboboxValue}"],[aria-label='Field: "${comboboxValue}"']`
+    )
+  );
   await comboboxListSelectorElement.waitForDisplayed({ reverse: true });
 }

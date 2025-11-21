@@ -12,9 +12,7 @@ export async function selectStageOperator(
 
   await focusStageOperator(browser, index);
 
-  await browser.setValueVisible(comboboxSelector, stageOperator);
-
-  await browser.keys(['Enter']);
+  await browser.setComboBoxValue(comboboxSelector, stageOperator);
 
   // the "select" should now blur and the ace textarea become focused
   await browser.waitUntil(async () => {
