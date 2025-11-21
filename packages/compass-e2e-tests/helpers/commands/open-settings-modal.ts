@@ -11,7 +11,7 @@ export async function openSettingsModal(
   });
 
   const settingsModalElement = browser.$(Selectors.SettingsModal);
-  await settingsModalElement.waitForExist();
+  await settingsModalElement.waitForDisplayed();
   if (tab) {
     await browser.clickVisible(Selectors.SettingsModalTabSelector(tab));
   }
