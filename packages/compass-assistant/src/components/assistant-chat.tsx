@@ -25,7 +25,7 @@ import { NON_GENUINE_WARNING_MESSAGE } from '../preset-messages';
 
 const { DisclaimerText } = LgChatChatDisclaimer;
 const { ChatWindow } = LgChatChatWindow;
-const { LeafyGreenChatProvider, Variant } = LgChatLeafygreenChatProvider;
+const { LeafyGreenChatProvider } = LgChatLeafygreenChatProvider;
 const { Message } = LgChatMessage;
 const { InputBar } = LgChatInputBar;
 
@@ -379,7 +379,7 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
       )}
       style={chatContainerOverrideStyle}
     >
-      <LeafyGreenChatProvider variant={Variant.Compact}>
+      <LeafyGreenChatProvider>
         <ChatWindow title="MongoDB Assistant" className={chatWindowFixesStyles}>
           <div
             data-testid="assistant-chat-messages"
