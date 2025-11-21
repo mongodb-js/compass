@@ -15,21 +15,16 @@ import {
   fontFamilies,
   palette,
   useDarkMode,
-  LgChatChatDisclaimer,
-  Link,
   Icon,
 } from '@mongodb-js/compass-components';
 import { ConfirmationMessage } from './confirmation-message';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import { NON_GENUINE_WARNING_MESSAGE } from '../preset-messages';
 
-const { DisclaimerText } = LgChatChatDisclaimer;
 const { ChatWindow } = LgChatChatWindow;
 const { LeafyGreenChatProvider, Variant } = LgChatLeafygreenChatProvider;
 const { Message } = LgChatMessage;
 const { InputBar } = LgChatInputBar;
-
-const GEN_AI_FAQ_LINK = 'https://www.mongodb.com/docs/generative-ai-faq/';
 
 interface AssistantChatProps {
   chat: Chat<AssistantMessage>;
@@ -159,14 +154,6 @@ const welcomeMessageStyles = css({
   paddingBottom: spacing[400],
   paddingLeft: spacing[400],
   paddingRight: spacing[400],
-});
-const disclaimerTextStyles = css({
-  paddingBottom: spacing[400],
-  paddingLeft: spacing[400],
-  paddingRight: spacing[400],
-  a: {
-    fontSize: 'inherit',
-  },
 });
 // On small screens, many components end up breaking words which we don't want.
 // This is a general temporary fix for all components that we want to prevent from wrapping.
@@ -501,17 +488,6 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
               textareaProps={inputBarTextareaProps}
             />
           </div>
-          <DisclaimerText className={disclaimerTextStyles}>
-            AI can make mistakes. Review for accuracy.{' '}
-            <Link
-              className={noWrapFixesStyles}
-              hideExternalIcon={false}
-              href={GEN_AI_FAQ_LINK}
-              target="_blank"
-            >
-              Learn more
-            </Link>
-          </DisclaimerText>
         </ChatWindow>
       </LeafyGreenChatProvider>
     </div>
