@@ -58,6 +58,8 @@ function createCollection(
     index_count: 15,
     index_size: 16,
     calculated_storage_size: undefined,
+    bucket_count: undefined,
+    avg_bucket_size: undefined,
     ...props,
   };
 
@@ -103,9 +105,11 @@ const colls: CollectionProps[] = [
     storage_size: 5000,
     document_count: undefined,
     avg_document_size: undefined,
-    index_size: undefined,
+    index_size: 2000,
     type: 'timeseries',
-    index_count: undefined,
+    index_count: 2,
+    bucket_count: 50,
+    avg_bucket_size: 100,
     properties: [{ id: 'timeseries' }],
   }),
   createCollection('qux', {
@@ -405,9 +409,9 @@ describe('Collections', () => {
     });
 
     await testSortColumn(screen, 'collections-list', 'Indexes', [
-      ['5', '0', '-', '-', '5', '1', '11', '3', '5', '17'],
-      ['17', '11', '5', '5', '5', '3', '1', '0', '-', '-'],
-      ['0', '1', '3', '5', '5', '5', '11', '17', '-', '-'],
+      ['5', '0', '-', '2', '5', '1', '11', '3', '5', '17'],
+      ['17', '11', '5', '5', '5', '3', '2', '1', '0', '-'],
+      ['0', '1', '2', '3', '5', '5', '5', '11', '17', '-'],
     ]);
   });
 
@@ -421,7 +425,7 @@ describe('Collections', () => {
         '500.00 B',
         '0 B',
         '-',
-        '-',
+        '2.00 kB',
         '17.00 kB',
         '10.00 MB',
         '555.00 B',
@@ -435,22 +439,22 @@ describe('Collections', () => {
         '200.00 kB',
         '123.46 kB',
         '17.00 kB',
+        '2.00 kB',
         '555.00 B',
         '500.00 B',
         '0 B',
-        '-',
         '-',
       ],
       [
         '0 B',
         '500.00 B',
         '555.00 B',
+        '2.00 kB',
         '17.00 kB',
         '123.46 kB',
         '200.00 kB',
         '333.33 kB',
         '10.00 MB',
-        '-',
         '-',
       ],
     ]);
@@ -553,6 +557,34 @@ describe('Collections', () => {
     expect(screen.getByRole('tooltip').textContent).to.equal(
       'Derived from foo'
     );
+  });
+
+  it('renders a tooltip for timeseries badge with bucket stats', async function () {
+    renderCollectionsList({
+      collections: colls,
+    });
+
+    const result = inspectTable(screen, 'collections-list');
+    const badge = result.trs[3].querySelector(
+      '[data-testid="collection-badge-timeseries"]'
+    );
+    expect(badge).to.exist;
+
+    userEvent.hover(badge as Element);
+    await waitFor(
+      function () {
+        expect(screen.getByRole('tooltip')).to.exist;
+      },
+      {
+        timeout: 5000,
+      }
+    );
+
+    const tooltipText = screen.getByRole('tooltip').textContent;
+    expect(tooltipText).to.include('Bucket count:');
+    expect(tooltipText).to.include('50');
+    expect(tooltipText).to.include('Avg. bucket size:');
+    expect(tooltipText).to.include('100.00 B');
   });
 
   it('renders a tooltip for storage size cell with storage breakdown and data size', async function () {
