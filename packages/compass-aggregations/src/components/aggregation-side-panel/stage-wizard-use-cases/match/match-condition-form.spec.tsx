@@ -73,9 +73,9 @@ describe('condition', function () {
       renderCondition({ condition });
       expect(screen.getByLabelText(new RegExp(SINGLE_SELECT_LABEL, 'i'))).to
         .exist;
-      expect(screen.getByLabelText(LABELS.operatorSelect)).to.exist;
+      expect(screen.getByTestId('match-condition-operator-select')).to.exist;
       expect(screen.getByTestId('match-stage-expected-value-input')).to.exist;
-      expect(screen.getByLabelText(LABELS.typeSelect)).to.exist;
+      expect(screen.getByTestId('match-condition-type-select')).to.exist;
     });
 
     it('should call onConditionChange with updated condition when a field is selected', function () {
