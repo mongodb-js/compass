@@ -45,6 +45,7 @@ module.exports = (env, args) => {
         '@mongodb-js/devtools-proxy-support': localPolyfill(
           '@mongodb-js/devtools-proxy-support'
         ),
+        '@mongodb-js/oidc-plugin': localPolyfill('@mongodb-js/oidc-plugin'),
 
         ...(config.mode === 'production'
           ? {
@@ -56,11 +57,14 @@ module.exports = (env, args) => {
             }
           : {}),
 
-        // Replace 'devtools-connect' with a package that just directly connects
-        // using the driver (= web-compatible driver) logic, because devtools-connect
-        // contains a lot of logic that makes sense in a desktop application/CLI but
-        // not in a web environment (DNS resolution, OIDC, CSFLE/QE, etc.)
+        // We replace the direct import without own the sanitizes unsupported options
+        // from the web env that are never relevant to connecting on web.
         '@mongodb-js/devtools-connect': localPolyfill(
+          '@mongodb-js/devtools-connect'
+        ),
+
+        // Then we call into the real devtools-connect package
+        'devtools-connect-original': require.resolve(
           '@mongodb-js/devtools-connect'
         ),
 
@@ -124,6 +128,7 @@ module.exports = (env, args) => {
         os: require.resolve('os-browserify/browser'),
         crypto: require.resolve('crypto-browserify'),
         dns: localPolyfill('dns'),
+        'os-dns-native': localPolyfill('os-dns-native'),
         // Built-in Node.js modules imported by the driver directly and used in
         // ways that requires us to provide a no-op polyfill
         zlib: localPolyfill('zlib'),
