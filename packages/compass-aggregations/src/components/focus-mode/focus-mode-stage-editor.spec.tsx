@@ -42,7 +42,7 @@ describe('FocusMode', function () {
 
       expect(element.closest('a')).to.have.attribute(
         'href',
-        'https://www.mongodb.com/docs/manual/reference/mql/aggregation-stages/'
+        'https://www.mongodb.com/docs/manual/core/aggregation-pipeline/'
       );
     });
   });

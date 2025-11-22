@@ -154,7 +154,7 @@ const FakerSchemaEditorScreen = ({
           We analyzed a sample of your data and used generative AI to suggest
           the following mapping between your document fields and data simulation
           functions.{' '}
-          <Link href="https://www.mongodb.com/docs/generative-ai-faq/?utm_source=compass&utm_medium=product">
+          <Link href="https://www.mongodb.com/docs/generative-ai-faq/">
             Learn more about MongoDB’s AI usage
           </Link>
         </Description>
