@@ -8,6 +8,7 @@ ignores:
  - '@types/chai-dom'
  - '@types/react'
  - '@types/react-dom'
+ - 'devtools-connect-original'
 # Used in electron-proxy through @ts-check, but depcheckrc can't detect it
  - '@types/express-http-proxy'
 # Used in webpack config as polyfills, depcheck can't detect that because of `/`
