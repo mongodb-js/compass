@@ -1,6 +1,10 @@
+import * as devtools_connect from 'devtools-connect-original';
+import { createMongoDBOIDCPlugin } from '../oidc-plugin';
+
 export function hookLogger() {
   /* no-op */
 }
+
 export async function connectMongoClient(
   url: string,
   options: any,
@@ -16,23 +20,21 @@ export async function connectMongoClient(
   delete options.parentState;
   delete options.parentHandle;
   options.__skipPingOnConnect = true;
-  const client = new MongoClient(url, options);
-  await client.connect();
+  const { client } = await devtools_connect.connectMongoClient(
+    url,
+    options,
+    logger,
+    MongoClient
+  );
   return {
     client,
     state: {
-      getStateShareServer() {
-        return Promise.resolve('Not Available');
+      // eslint-disable-next-line @typescript-eslint/require-await
+      async getStateShareServer() {
+        return 'Not Available';
       },
-      oidcPlugin: {
-        logger,
-        serialize() {
-          return Promise.resolve(undefined);
-        },
-      },
-      destroy() {
-        return Promise.resolve();
-      },
+      oidcPlugin: createMongoDBOIDCPlugin({ logger }),
+      async destroy() {},
     },
   };
 }
