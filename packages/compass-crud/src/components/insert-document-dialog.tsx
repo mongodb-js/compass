@@ -19,6 +19,7 @@ import {
   spacing,
   showErrorDetails,
 } from '@mongodb-js/compass-components';
+import HadronDocument from 'hadron-document';
 
 import type { InsertCSFLEWarningBannerProps } from './insert-csfle-warning-banner';
 import InsertCSFLEWarningBanner from './insert-csfle-warning-banner';
@@ -170,7 +171,7 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
   const hasErrors = useCallback(() => {
     if (jsonView) {
       try {
-        JSON.parse(jsonDoc);
+        HadronDocument.FromEJSON(jsonDoc);
         return false;
       } catch {
         return true;
