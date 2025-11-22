@@ -145,11 +145,15 @@ const DocumentViewComponent: React.FunctionComponent<
     initialScrollTop?: number;
     scrollTriggerRef?: React.Ref<HTMLDivElement>;
     scrollableContainerRef?: React.Ref<HTMLDivElement>;
+    columnWidths: Record<string, number>;
+    onColumnWidthChange: (newColumnWidths: Record<string, number>) => void;
   }
 > = ({
   initialScrollTop,
   scrollTriggerRef,
   scrollableContainerRef,
+  columnWidths,
+  onColumnWidthChange,
   ...props
 }) => {
   if (props.docs?.length === 0) {
@@ -180,6 +184,8 @@ const DocumentViewComponent: React.FunctionComponent<
           key={props.darkMode ? 'dark' : 'light'}
           {...props}
           className={tableStyles}
+          columnWidths={columnWidths}
+          onColumnWidthChange={onColumnWidthChange}
         />
       </>
     );
@@ -420,6 +426,18 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
     ]
   );
 
+  const [columnWidths, setColumnWidths] = useTabState<Record<string, number>>(
+    'columnWidths',
+    {}
+  );
+
+  const onColumnWidthChange = useCallback((newColumnWidths) => {
+    setColumnWidths({
+      ...columnWidths,
+      ...newColumnWidths,
+    });
+  }, []);
+
   const renderContent = useCallback(
     (scrollTriggerRef: React.Ref<HTMLDivElement>) => {
       let content = null;
@@ -482,6 +500,8 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
               initialScrollTop={currentViewInitialScrollTop}
               scrollableContainerRef={scrollRef}
               scrollTriggerRef={scrollTriggerRef}
+              columnWidths={columnWidths}
+              onColumnWidthChange={onColumnWidthChange}
             />
           );
         }
