@@ -72,7 +72,8 @@ const StatusMessages: Record<Status, string> = {
 function useHadronDocumentStatus(
   doc: HadronDocument,
   editing: boolean,
-  deleting: boolean
+  deleting: boolean,
+  initialError: Error | null = null
 ) {
   const [status, setStatus] = useState<Status>(() => {
     return editing
@@ -214,6 +215,17 @@ function useHadronDocumentStatus(
     }
   }, [status, updateStatus]);
 
+  useEffect(() => {
+    setError(() => {
+      if (initialError) {
+        return {
+          message: initialError.message,
+        };
+      }
+      return null;
+    });
+  }, [initialError]);
+
   return { status, updateStatus, error };
 }
 
@@ -287,7 +299,7 @@ const EditActionsFooter: React.FunctionComponent<{
   editing: boolean;
   deleting: boolean;
   modified?: boolean;
-  containsErrors?: boolean;
+  validationError: Error | null;
   alwaysForceUpdate?: boolean;
   onUpdate(force: boolean): void;
   onDelete(): void;
@@ -297,7 +309,7 @@ const EditActionsFooter: React.FunctionComponent<{
   editing,
   deleting,
   modified = false,
-  containsErrors = false,
+  validationError: initialError = null,
   alwaysForceUpdate = false,
   onUpdate,
   onDelete,
@@ -307,14 +319,13 @@ const EditActionsFooter: React.FunctionComponent<{
     status: _status,
     updateStatus,
     error,
-  } = useHadronDocumentStatus(doc, editing, deleting);
-
+  } = useHadronDocumentStatus(doc, editing, deleting, initialError);
   const darkMode = useDarkMode();
 
   // Allow props to override event based status of the document (helpful for
   // JSON editor where changing the document text doesn't really generate any
   // changes of the HadronDocument)
-  const status = containsErrors
+  const status = initialError
     ? 'ContainsErrors'
     : modified
     ? 'Modified'

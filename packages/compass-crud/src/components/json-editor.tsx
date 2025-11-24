@@ -79,7 +79,9 @@ const JSONEditor: React.FunctionComponent<JSONEditorProps> = ({
     () => doc.modifiedEJSONString ?? doc.toEJSON()
   );
   const [initialValue] = useState<string>(() => doc.toEJSON());
-  const [containsErrors, setContainsErrors] = useState<boolean>(false);
+  const [docValidationError, setDocValidationError] = useState<Error | null>(
+    null
+  );
   const setModifiedEJSONStringRef = useRef<(value: string | null) => void>(
     doc.setModifiedEJSONString.bind(doc)
   );
@@ -108,14 +110,14 @@ const JSONEditor: React.FunctionComponent<JSONEditorProps> = ({
   }, [doc, openInsertDocumentDialog]);
 
   const onChange = useCallback((value: string) => {
-    let containsErrors = false;
     try {
       HadronDocument.FromEJSON(value);
-    } catch {
-      containsErrors = true;
+      setDocValidationError(null);
+    } catch (error) {
+      setDocValidationError(error as Error);
+    } finally {
+      setValue(value);
     }
-    setContainsErrors(containsErrors);
-    setValue(value);
   }, []);
 
   const onCancel = useCallback(() => {
@@ -315,7 +317,7 @@ const JSONEditor: React.FunctionComponent<JSONEditorProps> = ({
         editing={!!editing}
         deleting={!!deleting}
         modified={value !== initialValue}
-        containsErrors={containsErrors}
+        validationError={docValidationError}
         onUpdate={onUpdate}
         onDelete={onDelete}
         onCancel={onCancel}
