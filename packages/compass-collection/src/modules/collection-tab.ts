@@ -961,6 +961,16 @@ const validateFakerSchema = (
     }
   }
 
+  // Always override _id field to use mongodbObjectId
+  if (result._id) {
+    result._id = {
+      mongoType: 'ObjectId',
+      fakerMethod: 'database.mongodbObjectId',
+      fakerArgs: [],
+      probability: result._id.probability ?? 1.0,
+    };
+  }
+
   return result;
 };
 
