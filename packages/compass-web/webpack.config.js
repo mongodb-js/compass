@@ -57,17 +57,6 @@ module.exports = (env, args) => {
             }
           : {}),
 
-        // We replace the direct import without own the sanitizes unsupported options
-        // from the web env that are never relevant to connecting on web.
-        '@mongodb-js/devtools-connect': localPolyfill(
-          '@mongodb-js/devtools-connect'
-        ),
-
-        // Then we call into the real devtools-connect package
-        'devtools-connect-original': require.resolve(
-          '@mongodb-js/devtools-connect'
-        ),
-
         // TODO(COMPASS-7407): compass-logging
         // hard to disable the whole thing while there are direct dependencies
         // on log-writer

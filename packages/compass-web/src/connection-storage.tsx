@@ -138,6 +138,7 @@ export class AtlasCloudConnectionStorage
           ...connectionInfo,
           connectionOptions: {
             ...connectionInfo.connectionOptions,
+            useSystemCA: false,
             lookup: () => {
               return {
                 wsURL: this.atlasService.driverProxyEndpoint(

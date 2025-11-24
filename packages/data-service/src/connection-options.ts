@@ -19,7 +19,8 @@ export type OIDCOptions = Omit<
   >[];
 };
 
-export interface ConnectionOptions {
+export interface ConnectionOptions
+  extends Pick<DevtoolsConnectOptions, 'useSystemCA'> {
   /**
    * The connection string to connect to the MongoDB instance including all options set by the user.
    */
