@@ -314,6 +314,7 @@ export const startAnalysis = (): SchemaThunkAction<
 
     const driverOptions: AggregateOptions = {
       maxTimeMS: capMaxTimeMSAtPreferenceLimit(preferences, query.maxTimeMS),
+      hint: query.hint ?? undefined,
     };
 
     analysisAbortControllerRef.current = new AbortController();
