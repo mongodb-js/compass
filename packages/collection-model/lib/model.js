@@ -278,7 +278,7 @@ const CollectionModel = AmpersandModel.extend(debounceActions(['fetch']), {
       this.set({ status: newStatus });
       const [collStats, collectionInfo] = await Promise.all([
         shouldFetchDbAndCollStats
-          ? dataService.collectionStats(this.database, this.name)
+          ? dataService.collectionStats(this.database, this.name, this.type)
           : null,
         fetchInfo ? dataService.collectionInfo(this.database, this.name) : null,
       ]);

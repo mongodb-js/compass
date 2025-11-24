@@ -633,9 +633,66 @@ describe('DataService', function () {
         it('returns an object with the collection stats', async function () {
           const stats = await dataService.collectionStats(
             testDatabaseName,
-            testCollectionName
+            testCollectionName,
+            'collection'
           );
           expect(stats.name).to.equal(testCollectionName);
+        });
+      });
+
+      context('when the collection is a timeseries collection', function () {
+        let timeseriesCollectionName: string;
+
+        beforeEach(async function () {
+          timeseriesCollectionName = `timeseries-${new UUID().toString()}`;
+          // Create a timeseries collection
+          await mongoClient
+            .db(testDatabaseName)
+            .createCollection(timeseriesCollectionName, {
+              timeseries: {
+                timeField: 'timestamp',
+                metaField: 'metadata',
+              },
+            });
+          // Insert some data into the timeseries collection
+          await mongoClient
+            .db(testDatabaseName)
+            .collection(timeseriesCollectionName)
+            .insertMany([
+              {
+                timestamp: new Date(),
+                metadata: { sensor: 'A' },
+                value: 10,
+              },
+              {
+                timestamp: new Date(),
+                metadata: { sensor: 'B' },
+                value: 20,
+              },
+            ]);
+        });
+
+        afterEach(async function () {
+          try {
+            await mongoClient
+              .db(testDatabaseName)
+              .collection(timeseriesCollectionName)
+              .drop();
+          } catch {
+            /* ignore */
+          }
+        });
+
+        it('returns an object with the collection stats including bucket stats', async function () {
+          const stats = await dataService.collectionStats(
+            testDatabaseName,
+            timeseriesCollectionName,
+            'timeseries'
+          );
+          expect(stats.name).to.equal(timeseriesCollectionName);
+          // Timeseries collections should have bucket stats
+          expect(stats).to.have.property('bucket_count');
+          expect(stats).to.have.property('avg_bucket_size');
         });
       });
     });
