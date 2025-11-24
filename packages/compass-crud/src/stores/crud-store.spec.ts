@@ -2413,7 +2413,7 @@ describe('store', function () {
       );
     });
 
-    it('should keep user projection when provided', async function () {
+    it('should keep user fields when provided', async function () {
       await fetchDocuments(
         dataService,
         track,
@@ -2422,13 +2422,25 @@ describe('store', function () {
         'test.test',
         {},
         {
-          projection: { _id: 1 },
+          projection: { _id: 1, pineapple: 1 },
+          hint: 'pineapple',
+          limit: 10,
+          skip: 7,
+          sort: { pineapple: 1 },
         }
       );
       expect(find).to.have.been.calledOnce;
       expect(find.getCall(0))
         .to.have.nested.property('args.2.projection')
-        .deep.eq({ _id: 1 });
+        .deep.eq({ _id: 1, pineapple: 1 });
+      expect(find.getCall(0)).to.have.nested.property('args.2.limit').eq(10);
+      expect(find.getCall(0)).to.have.nested.property('args.2.skip').eq(7);
+      expect(find.getCall(0))
+        .to.have.nested.property('args.2.sort')
+        .deep.eq({ pineapple: 1 });
+      expect(find.getCall(0))
+        .to.have.nested.property('args.2.hint')
+        .eq('pineapple');
     });
 
     it('should retry find operation if failed with server error when applying custom projection', async function () {
