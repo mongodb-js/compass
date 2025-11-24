@@ -64,6 +64,7 @@ const NOOP_DATA_PROVIDER: IndexesDataService = {
   collectionInfo(dbName, collName) {
     return Promise.resolve(null);
   },
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   collectionStats(databaseName, collectionName, collectionType) {
     return Promise.resolve({
       avg_document_size: 0,
