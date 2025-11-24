@@ -6,6 +6,7 @@ import {
   DEFAULT_PROJECT,
   DEFAULT_COLLATION,
   DEFAULT_MAX_TIME_MS,
+  DEFAULT_HINT,
 } from 'mongodb-query-parser';
 
 /**
@@ -30,7 +31,7 @@ const DEFAULT_QUERY_VALUES = {
   project: DEFAULT_PROJECT,
   collation: DEFAULT_COLLATION,
   sort: DEFAULT_SORT,
-  hint: null,
+  hint: DEFAULT_HINT,
   skip: DEFAULT_SKIP,
   limit: DEFAULT_LIMIT,
   maxTimeMS: DEFAULT_MAX_TIME_MS,
