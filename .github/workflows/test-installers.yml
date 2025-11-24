@@ -74,7 +74,7 @@ jobs:
         include:
           # MacOS
           - package: osx_dmg
-            runs-on: macos-latest
+            runs-on: macos-15-intel
             arch: x64
             hadron-platform: darwin
           - package: osx_zip
@@ -184,11 +184,6 @@ jobs:
       COMPASS_E2E_MOCHA_TIMEOUT: 720000 # 12min
       COMPASS_E2E_WEBDRIVER_WAITFOR_TIMEOUT: 600000 # 10min
     steps:
-      # Setting TERM to xterm on macOS. Sometimes $TERM is not set there
-      # and tput commands fail in that case.
-      - name: Set TERM for macOS
-        if: runner.os == 'macOS'
-        run: echo "TERM=xterm" >> $GITHUB_ENV
       - name: Checkout
         uses: actions/checkout@v2
       - name: Setup Node.js
