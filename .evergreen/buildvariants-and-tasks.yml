@@ -9,28 +9,31 @@ buildvariants:
   - name: unit-tests-ubuntu
     display_name: Unit Tests Ubuntu
     run_on: ubuntu2204-large
+    patchable: true
     tasks:
       - name: test
       - name: test-electron
   - name: unit-tests-windows
     display_name: Unit Tests Windows
     run_on: windows-vsCurrent-large
+    patchable: true
     tasks:
       - name: test
       - name: test-electron
   - name: unit-tests-rhel
     display_name: Unit Tests RHEL
     run_on: rhel93-large
+    patchable: true
     tasks:
       - name: test
       - name: test-electron
   - name: unit-tests-macos
     display_name: Unit Tests MacOS
-    run_on: macos-14-arm64
+    run_on: macos-15-arm64-gui
+    patchable: false
     tasks:
       - name: test
       - name: test-electron
-        run_on: macos-14-arm64-gui
   - name: package-ubuntu
     expansions:
       target_platform: ubuntu
@@ -212,9 +215,9 @@ buildvariants:
       - name: test-packaged-app-macos-11-1
       - name: test-packaged-app-macos-11-2
       - name: test-packaged-app-macos-11-3
-  - name: test-packaged-app-macos-14-arm
-    display_name: Test Packaged App MacOS arm64 14
-    run_on: macos-14-arm64-gui
+  - name: test-packaged-app-macos-15-arm
+    display_name: Test Packaged App MacOS arm64 15
+    run_on: macos-15-arm64-gui
     patchable: true
     depends_on:
       - name: package-compass
@@ -223,10 +226,10 @@ buildvariants:
       - name: test-packaged-app-1
       - name: test-packaged-app-2
       - name: test-packaged-app-3
-  - name: test-packaged-app-macos-14-x64
-    display_name: Test Packaged App MacOS x64 14
-    run_on: macos-14-gui
-    patchable: false
+  - name: test-packaged-app-macos-15-x64
+    display_name: Test Packaged App MacOS x64 15
+    run_on: macos-15-amd64-gui
+    patchable: true
     depends_on:
       - name: package-compass
         variant: package-macos-x64

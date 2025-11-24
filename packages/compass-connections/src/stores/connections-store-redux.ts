@@ -2243,15 +2243,13 @@ async function shouldShowEndOfLifeWarning(
   debug: Logger['debug']
 ) {
   try {
-    const { showEndOfLifeConnectionModal, networkTraffic } =
-      preferences.getPreferences();
-    if (!showEndOfLifeConnectionModal) {
-      return;
-    }
     const latestEndOfLifeServerVersion = await getLatestEndOfLifeServerVersion(
-      networkTraffic
+      preferences.getPreferences().networkTraffic
     );
-    return isEndOfLifeVersion(serverVersion, latestEndOfLifeServerVersion);
+    return (
+      preferences.getPreferences().showEndOfLifeConnectionModal &&
+      isEndOfLifeVersion(serverVersion, latestEndOfLifeServerVersion)
+    );
   } catch (err) {
     debug(
       'failed to get instance details to determine if the server version is end-of-life',
@@ -2265,10 +2263,24 @@ export const showEndOfLifeMongoDBWarningModal = (
   connectionId: string,
   version: string
 ): ConnectionsThunkAction<void> => {
-  return (_dispatch, getState, { track }) => {
+  return (_dispatch, getState, { track, preferences }) => {
+    const abortController = new AbortController();
+    const removeListener = preferences.onPreferenceValueChanged(
+      'showEndOfLifeConnectionModal',
+      (shouldShow) => {
+        if (!shouldShow) {
+          abortController.abort();
+          removeListener();
+        }
+      }
+    );
     const connectionInfo = getCurrentConnectionInfo(getState(), connectionId);
     track('Screen', { name: 'end_of_life_mongodb_modal' }, connectionInfo);
-    void _showEndOfLifeMongoDBWarningModal(connectionInfo, version);
+    void _showEndOfLifeMongoDBWarningModal(
+      connectionInfo,
+      version,
+      abortController.signal
+    );
   };
 };
 

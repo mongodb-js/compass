@@ -27,8 +27,10 @@ describe('DesktopWelcomeTab', function () {
     try {
       screen.getByTestId('add-new-connection-button');
       expect.fail('add-new-connection-button should not be rendered');
-    } catch {
-      // noop
+    } catch (err: any) {
+      expect(err.message).to.not.equal(
+        'add-new-connection-button should not be rendered'
+      );
     }
   });
 

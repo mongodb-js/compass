@@ -36,12 +36,13 @@ describe('GeneralSettings', function () {
     cleanup();
   });
 
-  [
+  const settings: (keyof ReturnType<typeof getSettings>)[] = [
     'readOnly',
     'enableShell',
     'protectConnectionStrings',
     'showKerberosPasswordField',
-  ].forEach((option) => {
+  ];
+  settings.forEach((option) => {
     it(`renders ${option}`, function () {
       expect(within(container).getByTestId(option)).to.exist;
     });

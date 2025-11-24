@@ -16,7 +16,7 @@ describe('PipelineResultsList', function () {
     );
     expect(() => {
       screen.getByTestId('document-list-item');
-    }).to.throw;
+    }).to.throw();
   });
 
   it('renders list view', function () {

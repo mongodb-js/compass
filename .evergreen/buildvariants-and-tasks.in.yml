@@ -18,8 +18,10 @@ const UNIT_TESTS_BUILD_VARIANTS = [
   {
     name: 'unit-tests-macos',
     display_name: 'Unit Tests MacOS',
-    run_on: 'macos-14-arm64',
-    run_on_gui: 'macos-14-arm64-gui'
+    // We only have gui variants of the macos 15, so both unit tests will be
+    // running on it. We will not be running those on patches to save resources
+    run_on: 'macos-15-arm64-gui', 
+    patchable: false,
   }
 ];
 
@@ -89,15 +91,15 @@ const TEST_PACKAGED_APP_BUILD_VARIANTS = [
     depends_on: 'package-macos-x64'
   },
   {
-    name: 'test-packaged-app-macos-14-arm',
-    display_name: 'MacOS arm64 14',
-    run_on: 'macos-14-arm64-gui',
+    name: 'test-packaged-app-macos-15-arm',
+    display_name: 'MacOS arm64 15',
+    run_on: 'macos-15-arm64-gui',
     depends_on: 'package-macos-arm'
   },
   {
-    name: 'test-packaged-app-macos-14-x64',
-    display_name: 'MacOS x64 14',
-    run_on: 'macos-14-gui',
+    name: 'test-packaged-app-macos-15-x64',
+    display_name: 'MacOS x64 15',
+    run_on: 'macos-15-amd64-gui',
     patchable: false,
     depends_on: 'package-macos-x64'
   }
@@ -150,6 +152,7 @@ buildvariants:
 
     display_name: <%= buildVariant.display_name %>
     run_on: <%= buildVariant.run_on %>
+    patchable: <%= buildVariant.patchable ?? true %>
     tasks:
     - name: test
     - name: test-electron

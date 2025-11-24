@@ -6,6 +6,7 @@ import {
   within,
   userEvent,
   renderWithConnections,
+  waitFor,
 } from '@mongodb-js/testing-library-compass';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
@@ -37,6 +38,7 @@ describe('CrudToolbar Component', function () {
         count={55}
         end={20}
         getPage={noop}
+        lastCountRunMaxTimeMS={12345}
         insertDataHandler={noop}
         loadingCount={false}
         isFetching={false}
@@ -499,6 +501,31 @@ describe('CrudToolbar Component', function () {
     });
   });
 
+  describe('when count the count is unavailable', function () {
+    it('shows N/A with the count maxTimeMS', async function () {
+      renderCrudToolbar({
+        count: undefined,
+      });
+      expect(screen.getByText('N/A')).to.be.visible;
+
+      const naText = screen.getByTestId('crud-document-count-unavailable');
+      expect(naText).to.be.visible;
+      userEvent.hover(naText);
+
+      await waitFor(
+        function () {
+          expect(screen.getByRole('tooltip')).to.exist;
+        },
+        {
+          timeout: 5000,
+        }
+      );
+
+      const tooltipText = screen.getByRole('tooltip').textContent;
+      expect(tooltipText).to.include('maxTimeMS of 12345.');
+    });
+  });
+
   describe('context menu', function () {
     beforeEach(async function () {
       await preferences.savePreferences({ enableImportExport: true });
@@ -897,6 +924,7 @@ describe('CrudToolbar Component', function () {
             isFetching={false}
             docsPerPage={25}
             isWritable
+            lastCountRunMaxTimeMS={1234}
             instanceDescription=""
             onApplyClicked={noop}
             onResetClicked={noop}

@@ -131,7 +131,7 @@ export function validateField(
   }: Pick<UserPreferences, 'maxTimeMS' | 'maxTimeMSEnvLimit'>
 ) {
   const validated = validate(field, value);
-  if (field === 'filter' && validated === '') {
+  if ((field === 'filter' || field === 'hint') && validated === '') {
     // TODO(COMPASS-5205): Things like { i: $} confuses queryParser and
     // ultimately it sets filter to '' whereas it has to be a {} (if valid) or
     // false (if invalid). Should probably be fixed in mongodb-query-parser,
@@ -161,12 +161,6 @@ export function validateField(
     ) {
       return false;
     }
-  }
-
-  // We don't have a validator for indexes, but indexes share the same structure as
-  // a sort document, so we're leveraging this to validate the hint field
-  if (field === 'hint') {
-    return validate('sort', value);
   }
 
   return validated;

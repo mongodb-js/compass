@@ -2,7 +2,7 @@
   "name": "compass-preferences-model",
   "description": "Compass preferences model",
   "author": "Lucas Hrabovsky <lucas@mongodb.com>",
-  "version": "2.65.0",
+  "version": "2.66.2",
   "bugs": {
     "url": "https://jira.mongodb.org/projects/COMPASS/issues",
     "email": "compass@mongodb.com"
@@ -47,11 +47,11 @@
     "test": "mocha",
     "test-ci": "npm run test",
     "reformat": "npm run eslint . -- --fix && npm run prettier -- --write .",
-    "typecheck": "echo \"TODO(COMPASS-9897): typecheck is failing in test files\" && tsc -p tsconfig-build.json --noEmit"
+    "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
     "@mongodb-js/compass-app-registry": "^9.4.28",
-    "@mongodb-js/compass-components": "^1.58.0",
+    "@mongodb-js/compass-components": "^1.59.1",
     "@mongodb-js/compass-logging": "^1.7.24",
     "@mongodb-js/compass-user-data": "^0.11.1",
     "@mongodb-js/devtools-proxy-support": "^0.5.5",

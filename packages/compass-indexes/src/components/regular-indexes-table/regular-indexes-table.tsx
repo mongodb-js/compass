@@ -44,7 +44,6 @@ type RegularIndexesTableProps = {
   onUnhideIndexClick: (name: string) => void;
   onDeleteIndexClick: (name: string) => void;
   onDeleteFailedIndexClick: (name: string) => void;
-  readOnly?: boolean;
   error?: string | null;
   onRegularIndexesOpened: (tabId: string) => void;
   onRegularIndexesClosed: (tabId: string) => void;

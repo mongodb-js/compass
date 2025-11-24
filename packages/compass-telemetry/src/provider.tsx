@@ -135,8 +135,8 @@ export function useTrackOnChange(
  *
  * @example
  * useFireExperimentViewed({
- *   testName: ExperimentTestName.earlyJourneyIndexesGuidance,
- *   shouldFire: enableInIndexesGuidanceExp ,
+ *   testName: ExperimentTestName.mockDataGenerator,
+ *   shouldFire: enableMockDataGenerator,
  * });
  */
 export const useFireExperimentViewed = ({

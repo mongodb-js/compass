@@ -142,14 +142,16 @@ describe('ConnectionForm Component', function () {
         expect(screen.getByRole('button', { name: 'Disconnect' })).to.exist;
         expect(() =>
           screen.getByTestId('toggle-edit-connection-string')
-        ).to.throw;
+        ).to.throw();
         expect(() =>
           screen.getByTestId('advanced-connection-options')
-        ).to.throw;
-        expect(() => screen.getByRole('button', { name: 'Connect' })).to.throw;
+        ).to.throw();
+        expect(() =>
+          screen.getByRole('button', { name: 'Connect' })
+        ).to.throw();
         expect(() =>
           screen.getByRole('button', { name: 'Save & Connect' })
-        ).to.throw;
+        ).to.throw();
 
         // pressing enter calls onSubmit which saves
         fireEvent.submit(screen.getByRole('form'));
@@ -177,10 +179,10 @@ describe('ConnectionForm Component', function () {
 
         expect(() =>
           screen.getByTestId('disabled-connected-connection-banner')
-        ).to.throw;
+        ).to.throw();
         expect(() =>
           screen.getByRole('button', { name: 'Disconnect' })
-        ).to.throw;
+        ).to.throw();
         expect(screen.getByTestId('toggle-edit-connection-string')).to.exist;
         expect(screen.getByTestId('advanced-connection-options')).to.exist;
         expect(screen.getByRole('button', { name: 'Connect' })).to.exist;
@@ -474,7 +476,7 @@ describe('ConnectionForm Component', function () {
       />
     );
 
-    expect(() => screen.getByText(saveAndConnectText)).to.throw;
+    expect(() => screen.getByText(saveAndConnectText)).to.throw();
   });
 
   it('should not include the help panels', function () {
