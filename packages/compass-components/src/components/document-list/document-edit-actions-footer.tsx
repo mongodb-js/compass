@@ -299,7 +299,7 @@ const EditActionsFooter: React.FunctionComponent<{
   editing: boolean;
   deleting: boolean;
   modified?: boolean;
-  validationError: Error | null;
+  validationError?: Error | null;
   alwaysForceUpdate?: boolean;
   onUpdate(force: boolean): void;
   onDelete(): void;
