@@ -3240,6 +3240,36 @@ type MockDataScriptCopiedEvent = CommonEvent<{
   };
 }>;
 
+/**
+ * This event is fired when a user clicks the link to Atlas Search in the Indexes tab for a view.
+ *
+ * @category Other
+ */
+type AtlasSearchIndexesForViewLinkClickedEvent = CommonEvent<{
+  name: 'Atlas Search Indexes for View Link Clicked';
+  payload: {
+    /**
+     * The context/screen from which the link was clicked.
+     */
+    context: 'Indexes Tab';
+  };
+}>;
+
+/**
+ * This event is fired when a user clicks the button to create a search index for a view.
+ *
+ * @category Other
+ */
+type CreateSearchIndexForViewClickedEvent = CommonEvent<{
+  name: 'Create Search Index for View Clicked';
+  payload: {
+    /**
+     * The context/screen from which the link was clicked.
+     */
+    context: 'Indexes Tab';
+  };
+}>;
+
 export type TelemetryEvent =
   | AggregationCanceledEvent
   | AggregationCopiedEvent
@@ -3270,6 +3300,7 @@ export type TelemetryEvent =
   | AiResponseGeneratedEvent
   | ApplicationLaunchedEvent
   | AtlasLinkClickedEvent
+  | AtlasSearchIndexesForViewLinkClickedEvent
   | AtlasSkillsCtaClickedEvent
   | AtlasSkillsCtaDismissedEvent
   | AtlasSignInErrorEvent
@@ -3293,6 +3324,7 @@ export type TelemetryEvent =
   | ConnectionFailedEvent
   | ConnectionImportedEvent
   | ConnectionRemovedEvent
+  | CreateSearchIndexForViewClickedEvent
   | CurrentOpShowOperationDetailsEvent
   | DatabaseCreatedEvent
   | DataModelingDiagramCollectionAdded
