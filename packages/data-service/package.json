@@ -52,7 +52,6 @@
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
-    "@mongodb-js/compass-logging": "^1.7.24",
     "@mongodb-js/compass-utils": "^0.9.22",
     "@mongodb-js/devtools-connect": "^3.9.7",
     "@mongodb-js/devtools-proxy-support": "^0.5.5",
@@ -61,6 +60,7 @@
     "mongodb": "^6.19.0",
     "mongodb-build-info": "^1.8.1",
     "mongodb-connection-string-url": "^3.0.1",
+    "mongodb-log-writer": "^2.4.4",
     "mongodb-ns": "^3.0.1"
   },
   "devDependencies": {
@@ -78,7 +78,6 @@
     "depcheck": "^1.4.1",
     "kerberos": "^2.2.1",
     "mocha": "^10.2.0",
-    "mongodb-log-writer": "^2.3.4",
     "nyc": "^15.1.0",
     "sinon": "^9.2.3",
     "socks": "^2.7.3",
