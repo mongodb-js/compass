@@ -5,7 +5,9 @@
     "name": "MongoDB Inc",
     "email": "compass@mongodb.com"
   },
-  "private": true,
+  "publishConfig": {
+    "access": "public"
+  },
   "bugs": {
     "url": "https://jira.mongodb.org/projects/COMPASS/issues",
     "email": "compass@mongodb.com"
