@@ -1,3 +1,7 @@
+// When including sample documents, we want to ensure that we do not
+// attach large documents and exceed the limit. OpenAI roughly estimates
+// 4 characters = 1 token and we should not exceed context window limits.
+// This roughly translates to 128k tokens.
 const MAX_TOTAL_PROMPT_LENGTH = 512000;
 const MIN_SAMPLE_DOCUMENTS = 1;
 
@@ -14,7 +18,7 @@ function getCurrentTimeString() {
     timeZoneName: 'short',
     hour12: false,
   };
-  // Tue, Nov 25, 2025, 12:06:20 GMT+1
+  // e.g. Tue, Nov 25, 2025, 12:00:00 GMT+1
   return dateTime.toLocaleString('en-US', options);
 }
 
@@ -105,19 +109,17 @@ export function buildUserPromptForQuery({
     const singleDocumentStr = JSON.stringify(
       sampleDocuments.slice(0, MIN_SAMPLE_DOCUMENTS)
     );
+    const promptLengthWithoutSampleDocs =
+      messages.join('\n').length + queryPrompt.length;
     if (
-      sampleDocumentsStr.length +
-        messages.join('\n').length +
-        queryPrompt.length <=
+      sampleDocumentsStr.length + promptLengthWithoutSampleDocs <=
       MAX_TOTAL_PROMPT_LENGTH
     ) {
       messages.push(
         'Sample documents from the collection: ```' + sampleDocumentsStr + '```'
       );
     } else if (
-      singleDocumentStr.length +
-        messages.join('\n').length +
-        queryPrompt.length <=
+      singleDocumentStr.length + promptLengthWithoutSampleDocs <=
       MAX_TOTAL_PROMPT_LENGTH
     ) {
       messages.push(
