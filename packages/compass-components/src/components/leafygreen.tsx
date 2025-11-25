@@ -76,7 +76,7 @@ import { Tabs, Tab } from '@leafygreen-ui/tabs';
 import TextArea from '@leafygreen-ui/text-area';
 import LeafyGreenTextInput from '@leafygreen-ui/text-input';
 import { SearchInput } from '@leafygreen-ui/search-input';
-export { usePrevious, useMergeRefs } from '@leafygreen-ui/hooks';
+export { useMergeRefs } from '@leafygreen-ui/hooks';
 import Toggle from '@leafygreen-ui/toggle';
 import LGTooltip from '@leafygreen-ui/tooltip';
 import {

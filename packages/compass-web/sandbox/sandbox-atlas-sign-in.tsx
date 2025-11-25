@@ -78,6 +78,8 @@ export function useAtlasProxySignIn(): AtlasLoginReturnValue {
     null
   );
 
+  // Global is modified only for local dev convenience
+  // eslint-disable-next-line react-hooks/immutability
   const signIn = ((window as any).__signIn = useCallback(async () => {
     try {
       const { projectId } = await fetch('/authenticate', {
@@ -96,6 +98,8 @@ export function useAtlasProxySignIn(): AtlasLoginReturnValue {
     }
   }, []));
 
+  // Ditto
+  // eslint-disable-next-line react-hooks/immutability
   const signOut = ((window as any).__signOut = useCallback(() => {
     return fetch('/logout').then(
       () => {

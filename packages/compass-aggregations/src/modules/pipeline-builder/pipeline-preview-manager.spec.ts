@@ -31,7 +31,7 @@ describe('PipelinePreviewManager', function () {
 
     const result = await Promise.allSettled([
       previewManager.getPreviewForStage(0, 'test.test', []),
-      previewManager.cancelPreviewForStage(0),
+      Promise.resolve(previewManager.cancelPreviewForStage(0)),
     ]);
 
     expect(result[0]).to.have.property('status', 'rejected');
@@ -108,7 +108,7 @@ describe('PipelinePreviewManager', function () {
       previewManager.getPreviewForStage(2, 'test.test', []),
       previewManager.getPreviewForStage(3, 'test.test', []),
       previewManager.getPreviewForStage(4, 'test.test', []),
-      previewManager.clearQueue(1),
+      Promise.resolve(previewManager.clearQueue(1)),
     ]);
 
     // Only pipeline for stage 0 was executed

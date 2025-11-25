@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { connect } from 'react-redux';
 import {
   InfoModal,
@@ -158,32 +158,29 @@ const ExportToLanguageModal: React.FunctionComponent<
   const input = isQuery ? inputExpression.filter : inputExpression.aggregation;
 
   const [wasOpen, setWasOpen] = useState(false);
-
-  useEffect(() => {
-    if (modalOpen && !wasOpen) {
-      const connectionInfo = connectionInfoRef.current;
-
-      if (mode === 'Query') {
-        track('Query Export Opened', {}, connectionInfo);
-      } else if (mode === 'Delete Query') {
-        track('Delete Export Opened', {}, connectionInfo);
-      } else if (mode === 'Update Query') {
-        track('Update Export Opened', {}, connectionInfo);
-      } else if (mode === 'Pipeline') {
-        track(
-          'Aggregation Export Opened',
-          {
-            ...stageCountForTelemetry(inputExpression),
-          },
-          connectionInfo
-        );
-      }
-
-      track('Screen', { name: 'export_to_language_modal' }, connectionInfo);
+  if (modalOpen !== wasOpen && modalOpen) {
+    // Used for tracking, not for rendering
+    // eslint-disable-next-line react-hooks/refs
+    const connectionInfo = connectionInfoRef.current;
+    // All this tracking logic should probably be packed into an action, but
+    // this requires a bit more refactoring than just replacing the effect with
+    // a setState in render
+    if (mode === 'Query') {
+      track('Query Export Opened', {}, connectionInfo);
+    } else if (mode === 'Delete Query') {
+      track('Delete Export Opened', {}, connectionInfo);
+    } else if (mode === 'Update Query') {
+      track('Update Export Opened', {}, connectionInfo);
+    } else if (mode === 'Pipeline') {
+      track(
+        'Aggregation Export Opened',
+        stageCountForTelemetry(inputExpression),
+        connectionInfo
+      );
     }
-
+    track('Screen', { name: 'export_to_language_modal' }, connectionInfo);
     setWasOpen(modalOpen);
-  }, [modalOpen, wasOpen, mode, inputExpression, track, connectionInfoRef]);
+  }
 
   const trackCopiedOutput = useCallback(() => {
     const commonProps = {

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import {
   FormFieldContainer,
   Label,
@@ -55,16 +55,13 @@ function AuthenticationGSSAPI({
     authMechanismProperties.get('CANONICALIZE_HOST_NAME') || 'none';
 
   const [showPassword, setShowPassword] = useState<boolean>(false);
+  if (!showPassword && password.length) {
+    setShowPassword(true);
+  }
 
   const showKerberosPasswordField = !!useConnectionFormSetting(
     'showKerberosPasswordField'
   );
-
-  useEffect(() => {
-    if (!showPassword && password.length) {
-      setShowPassword(true);
-    }
-  }, [password, showPassword, updateConnectionFormField]);
 
   return (
     <>

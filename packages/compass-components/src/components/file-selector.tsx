@@ -1,4 +1,4 @@
-import React, { type InputHTMLAttributes, useRef } from 'react';
+import React, { type InputHTMLAttributes, useCallback, useRef } from 'react';
 import { css } from '@leafygreen-ui/emotion';
 
 const displayNoneStyles = css({
@@ -33,6 +33,10 @@ export function FileSelector({
     [onSelect]
   );
 
+  const onClick = useCallback(() => {
+    inputRef.current?.click();
+  }, []);
+
   return (
     <>
       <input
@@ -42,9 +46,12 @@ export function FileSelector({
         onChange={onFilesChanged}
         className={displayNoneStyles}
       />
-      {trigger({
-        onClick: () => inputRef.current?.click(),
-      })}
+      {trigger(
+        // ref is not accessed in the render for rendering purposes, it's
+        // accessed in the callback, but the rule is not detecting it
+        // eslint-disable-next-line react-hooks/refs
+        { onClick }
+      )}
     </>
   );
 }

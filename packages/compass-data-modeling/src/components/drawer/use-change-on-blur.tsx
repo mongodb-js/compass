@@ -1,4 +1,5 @@
-import { useState, useLayoutEffect } from 'react';
+import { useSyncStateOnPropChange } from '@mongodb-js/compass-components';
+import { useState } from 'react';
 
 export function useChangeOnBlur(
   value: string,
@@ -10,9 +11,9 @@ export function useChangeOnBlur(
   onKeyDown: React.KeyboardEventHandler;
 } {
   const [_value, setValue] = useState(value);
-  useLayoutEffect(() => {
-    // Usually this is in sync with local value, but if it's changed externally,
-    // we run an effect and sync it back
+  // Usually this is in sync with local _value, but if it's changed externally,
+  // we run an effect and sync it back
+  useSyncStateOnPropChange(() => {
     setValue(value);
   }, [value]);
   return {

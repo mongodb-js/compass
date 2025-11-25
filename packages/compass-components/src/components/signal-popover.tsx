@@ -17,6 +17,8 @@ import { spacing } from '@leafygreen-ui/tokens';
 import { GuideCue } from './guide-cue/guide-cue';
 import { useEffectOnChange } from '../hooks/use-effect-on-change';
 import { rafraf } from '../utils/rafraf';
+import { useCurrentValueRef } from '../hooks/use-current-value-ref';
+import { useInitialValue } from '../hooks/use-initial-value';
 
 type SignalTrackingHooks = {
   onSignalMount(id: string): void;
@@ -51,8 +53,7 @@ const TrackingHooksContext = React.createContext<SignalTrackingHooks>({
 const SignalHooksProvider: React.FunctionComponent<
   Partial<SignalTrackingHooks>
 > = ({ children, ..._hooks }) => {
-  const hooksRef = useRef(_hooks);
-  hooksRef.current = _hooks;
+  const hooksRef = useCurrentValueRef(_hooks);
   const hooks = useMemo(() => {
     return {
       onSignalMount(id: string) {
@@ -70,9 +71,11 @@ const SignalHooksProvider: React.FunctionComponent<
       onSignalClose(id: string) {
         hooksRef.current.onSignalClose?.(id);
       },
-      onAssistantButtonClick: hooksRef.current.onAssistantButtonClick,
+      onAssistantButtonClick() {
+        hooksRef.current.onAssistantButtonClick?.();
+      },
     };
-  }, []);
+  }, [hooksRef]);
 
   return (
     <TrackingHooksContext.Provider value={hooks}>
@@ -502,11 +505,11 @@ const SignalPopover: React.FunctionComponent<SignalPopoverProps> = ({
   // whole component lifecycle and at the same time avoid calling onSignalMount
   // for ids that were already mounted, we keep track of "mounted" signals in a
   // Set ref that will stay the same through the whole component lifecycle
-  const mountedSignalsRef = useRef(new Set<string>());
+  const mountedSignals = useInitialValue(new Set<string>());
   signals.forEach(({ id }) => {
-    if (!mountedSignalsRef.current.has(id)) {
+    if (!mountedSignals.has(id)) {
       hooks.onSignalMount(id);
-      mountedSignalsRef.current.add(id);
+      mountedSignals.add(id);
     }
   });
 

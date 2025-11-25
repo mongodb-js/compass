@@ -10,9 +10,6 @@ export function useFormattedDate(timestamp?: number): string | undefined {
   );
 
   useEffect(() => {
-    setFormattedDate(
-      typeof timestamp === 'number' ? formatDate(timestamp) : undefined
-    );
     const interval = setInterval(() => {
       setFormattedDate(
         typeof timestamp === 'number' ? formatDate(timestamp) : undefined

@@ -1,10 +1,4 @@
-import React, {
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-  useMemo,
-} from 'react';
+import React, { useCallback, useRef, useState, useMemo } from 'react';
 import {
   Modal,
   ModalFooter,
@@ -222,14 +216,16 @@ export const BaseSearchIndexModal: React.FunctionComponent<
     undefined
   );
 
-  useEffect(() => {
+  const [prevOpen, setPrevOpen] = useState(isModalOpen);
+  if (prevOpen !== isModalOpen) {
     if (isModalOpen) {
       setSearchIndexType(initialSearchIndexType);
       setIndexName(initialIndexName);
       setIndexDefinition(initialIndexDefinition);
       setParsingError(undefined);
     }
-  }, [isModalOpen, initialIndexName, initialIndexDefinition]);
+    setPrevOpen(isModalOpen);
+  }
 
   const onSearchIndexDefinitionChanged = useCallback(
     (newDefinition: string) => {

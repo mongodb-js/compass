@@ -1,5 +1,5 @@
 import type { ChangeEvent } from 'react';
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import type { ConnectionOptions } from 'mongodb-data-service';
 import {
   Label,
@@ -125,17 +125,22 @@ function ProxyAndSshTunnelTab({
     connectionStringUrl,
     connectionOptions
   );
-
-  const options = [...tabOptions];
   const showProxySettings = useConnectionFormSetting('showProxySettings');
-  if (showProxySettings) {
-    options.push({
-      title: 'Application-level Proxy',
-      id: 'app-proxy',
-      type: 'app-proxy',
-      component: AppProxy,
-    });
-  }
+  const options = useMemo(() => {
+    if (showProxySettings) {
+      return [
+        ...tabOptions,
+        {
+          title: 'Application-level Proxy',
+          id: 'app-proxy',
+          type: 'app-proxy',
+          component: AppProxy,
+        } as const,
+      ];
+    } else {
+      return [...tabOptions];
+    }
+  }, [showProxySettings]);
 
   const selectedOptionIndex =
     options.findIndex((x) => x.type === selectedTunnelType) ?? 0;
@@ -177,15 +182,15 @@ function ProxyAndSshTunnelTab({
   );
 
   const optionSelected = useCallback(
-    (event: ChangeEvent<HTMLInputElement>) => {
-      event.preventDefault();
-      const item = options.find(({ id }) => id === event.target.value);
+    (evt: ChangeEvent<HTMLInputElement>) => {
+      evt.preventDefault();
+      const item = options.find(({ id }) => id === evt.target.value);
       if (item) {
         handleOptionChanged(selectedOption.type, item.type);
         setSelectedOption(item);
       }
     },
-    [selectedOption, handleOptionChanged]
+    [handleOptionChanged, options, selectedOption.type]
   );
 
   const TunnelContent = selectedOption.component;

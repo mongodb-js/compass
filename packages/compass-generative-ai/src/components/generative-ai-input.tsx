@@ -20,7 +20,9 @@ import {
   keyframes,
   palette,
   spacing,
+  useCurrentValueRef,
   useDarkMode,
+  useSyncStateOnPropChange,
 } from '@mongodb-js/compass-components';
 import {
   IntercomTrackingEvent,
@@ -336,14 +338,15 @@ function GenerativeAIInput({
   isAggregationGeneratedFromQuery = false,
   onResetIsAggregationGeneratedFromQuery,
 }: GenerativeAIInputProps) {
-  const promptTextInputRef = useRef<HTMLTextAreaElement>(null);
-  const [showSuccess, setShowSuccess] = useState(false);
-  const [showEmptyResultsDisclaimer, setShowEmptyResultsDisclaimer] =
-    useState(false);
   const darkMode = useDarkMode();
   const guideCueRef = useRef<HTMLTextAreaElement>(null);
+  const promptTextInputRef = useRef<HTMLTextAreaElement>(null);
+  const [showSuccess, setShowSuccess] = useState(false);
 
-  useEffect(() => {
+  const [showEmptyResultsDisclaimer, setShowEmptyResultsDisclaimer] = useState(
+    didGenerateEmptyResults
+  );
+  useSyncStateOnPropChange(() => {
     if (didGenerateEmptyResults) {
       setShowEmptyResultsDisclaimer(true);
     }
@@ -376,17 +379,20 @@ function GenerativeAIInput({
     [aiPromptText, onClose, handleSubmit, isFetching, onCancelRequest]
   );
 
-  useEffect(() => {
+  useSyncStateOnPropChange(() => {
     if (didSucceed) {
       setShowSuccess(true);
+    }
+  }, [didSucceed]);
 
+  useEffect(() => {
+    if (showSuccess) {
       const timeoutId = setTimeout(() => {
         setShowSuccess(false);
       }, 1500);
-
       return () => clearTimeout(timeoutId);
     }
-  }, [didSucceed]);
+  }, [showSuccess]);
 
   useEffect(() => {
     if (show) {
@@ -394,13 +400,12 @@ function GenerativeAIInput({
     }
   }, [show]);
 
-  const onCancelRequestRef = useRef(onCancelRequest);
-  onCancelRequestRef.current = onCancelRequest;
+  const onCancelRequestRef = useCurrentValueRef(onCancelRequest);
 
   useEffect(() => {
     // When unmounting, ensure we cancel any ongoing requests.
     return () => onCancelRequestRef.current?.();
-  }, []);
+  }, [onCancelRequestRef]);
 
   if (!show) {
     return null;

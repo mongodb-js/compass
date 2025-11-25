@@ -176,7 +176,7 @@ describe('atlasOptInReducer', function () {
 
       await Promise.all([
         store.dispatch(optIn()),
-        store.dispatch(cancelOptIn()),
+        Promise.resolve(store.dispatch(cancelOptIn())),
       ]);
       expect(store.getState().optIn).to.have.nested.property(
         'state',

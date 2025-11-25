@@ -26,7 +26,7 @@ const renderIndexList = (
     <SearchIndexesTable
       namespace="foo.bar"
       indexes={indexes}
-      status="READY"
+      status={FetchStatuses.READY}
       isWritable={true}
       isReadonlyView={false}
       onDropIndexClick={noop}

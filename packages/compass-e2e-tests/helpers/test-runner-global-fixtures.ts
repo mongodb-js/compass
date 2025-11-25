@@ -174,7 +174,10 @@ export async function mochaGlobalTeardown() {
   debug('Cleaning up after the tests ...');
   await Promise.allSettled(
     cleanupFns.map((fn) => {
-      return fn();
+      // We get a mix of sync and non-sync functions here. Awaiting even the
+      // sync ones just makes the logic simpler, but doesn't make
+      // typescript-eslint happy
+      return fn() as Promise<void>;
     })
   );
 }

@@ -9,10 +9,8 @@ import type { SearchIndex } from 'mongodb-data-service';
 
 import { isAction } from '../utils/is-action';
 import { FetchStatuses, NOT_FETCHABLE_STATUSES } from '../utils/fetch-status';
-import type { FetchStatus } from '../utils/fetch-status';
 
 import { FetchReasons } from '../utils/fetch-reason';
-import type { FetchReason } from '../utils/fetch-reason';
 
 import type { IndexesThunkAction } from '.';
 import { switchToSearchIndexes } from './index-view';
@@ -48,7 +46,7 @@ export enum ActionTypes {
 
 type FetchSearchIndexesStartedAction = {
   type: ActionTypes.FetchSearchIndexesStarted;
-  reason: FetchReason;
+  reason: FetchReasons;
 };
 
 type FetchSearchIndexesSucceededAction = {
@@ -118,7 +116,7 @@ type UpdateSearchIndexState = {
 };
 
 export type State = {
-  status: FetchStatus;
+  status: FetchStatuses;
   createIndex: CreateSearchIndexState;
   updateIndex: UpdateSearchIndexState;
   error?: string;
@@ -376,7 +374,7 @@ export const updateSearchIndexClosed = (): UpdateSearchIndexClosedAction => ({
 });
 
 const fetchSearchIndexesStarted = (
-  reason: FetchReason
+  reason: FetchReasons
 ): FetchSearchIndexesStartedAction => ({
   type: ActionTypes.FetchSearchIndexesStarted,
   reason,
@@ -596,7 +594,7 @@ type FetchSearchIndexesActions =
   | FetchSearchIndexesFailedAction;
 
 const fetchIndexes = (
-  reason: FetchReason
+  reason: FetchReasons
 ): IndexesThunkAction<Promise<void>, FetchSearchIndexesActions> => {
   return async (dispatch, getState, { dataService }) => {
     const {

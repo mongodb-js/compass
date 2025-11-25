@@ -3,7 +3,7 @@ import type { PipelineBuilderThunkAction } from '.';
 import type { SearchIndex } from 'mongodb-data-service';
 import { isAction } from '../utils/is-action';
 
-enum SearchIndexesStatuses {
+export enum SearchIndexesStatuses {
   INITIAL = 'INITIAL',
   LOADING = 'LOADING',
   READY = 'READY',
@@ -39,7 +39,7 @@ export type SearchIndexesAction =
 type State = {
   isSearchIndexesSupported: boolean;
   indexes: SearchIndex[];
-  status: SearchIndexesStatus;
+  status: SearchIndexesStatuses;
 };
 
 export const INITIAL_STATE: State = {

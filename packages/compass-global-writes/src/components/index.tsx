@@ -7,7 +7,7 @@ import {
   SpinLoaderWithLabel,
   ConfirmationModalArea,
 } from '@mongodb-js/compass-components';
-import type { RootState, ShardingStatus } from '../store/reducer';
+import type { RootState } from '../store/reducer';
 import { ShardingStatuses } from '../store/reducer';
 import UnshardedState from './states/unsharded';
 import ShardingState from './states/sharding';
@@ -36,13 +36,13 @@ const loaderStyles = css({
 });
 
 type GlobalWritesProps = {
-  shardingStatus: ShardingStatus;
+  shardingStatus: ShardingStatuses;
 };
 
 function ShardingStateView({
   shardingStatus,
 }: {
-  shardingStatus: Exclude<ShardingStatus, 'NOT_READY'>;
+  shardingStatus: Exclude<ShardingStatuses, 'NOT_READY'>;
 }) {
   if (shardingStatus === ShardingStatuses.UNSHARDED) {
     return <UnshardedState />;
@@ -72,7 +72,7 @@ function ShardingStateView({
     return <IncompleteShardingSetup />;
   }
 
-  if (shardingStatus === String(ShardingStatuses.LOADING_ERROR)) {
+  if (shardingStatus === ShardingStatuses.LOADING_ERROR) {
     return <LoadingError />;
   }
 

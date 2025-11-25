@@ -154,10 +154,6 @@ export {
   ThemeProvider,
 } from './hooks/use-theme';
 export { useThrottledProps } from './hooks/use-throttled-props';
-export {
-  ContentWithFallback,
-  FadeInPlaceholder,
-} from './components/content-with-fallback';
 export { InlineDefinition } from './components/inline-definition';
 export type { GlyphName, LGGlyph } from '@leafygreen-ui/icon';
 export { createGlyphComponent, createIconComponent } from '@leafygreen-ui/icon';
@@ -249,5 +245,8 @@ export type {
   NodeField,
   NodeGlyph,
 } from '@mongodb-js/diagramming';
+export { useInitialValue } from './hooks/use-initial-value';
+export { useCurrentValueRef } from './hooks/use-current-value-ref';
+export { useSyncStateOnPropChange } from './hooks/use-sync-state-on-prop-change';
 // @experiment Skills in Atlas  | Jira Epic: CLOUDP-346311
 export { AtlasSkillsBanner } from './components/atlas-skills-banner';

@@ -23,6 +23,7 @@ import type { RootState } from '../../modules';
 import type { Document } from 'mongodb';
 import { CompassExperimentationProvider } from '@mongodb-js/compass-telemetry';
 import { ExperimentTestGroup } from '@mongodb-js/compass-telemetry/provider';
+import { FetchStatuses } from '../../utils/fetch-status';
 
 const renderIndexes = async (
   options: Partial<IndexesPluginOptions> = {},
@@ -82,7 +83,7 @@ describe('Indexes Component', function () {
       regularIndexes: {
         indexes: [],
         error: 'Some random error',
-        status: 'ERROR',
+        status: FetchStatuses.ERROR,
         inProgressIndexes: [],
       },
     });
@@ -124,7 +125,7 @@ describe('Indexes Component', function () {
     await renderIndexes(undefined, undefined, {
       indexView: 'regular-indexes',
       regularIndexes: {
-        status: 'NOT_READY',
+        status: FetchStatuses.NOT_READY,
         inProgressIndexes: [],
         indexes: [],
       },
@@ -161,7 +162,7 @@ describe('Indexes Component', function () {
             },
           ] as RegularIndex[],
           error: undefined,
-          status: 'READY',
+          status: FetchStatuses.READY,
           inProgressIndexes: [],
         },
       });
@@ -211,7 +212,7 @@ describe('Indexes Component', function () {
             },
           ],
           error: undefined,
-          status: 'READY',
+          status: FetchStatuses.READY,
         },
       });
 
@@ -269,7 +270,7 @@ describe('Indexes Component', function () {
             },
           ],
           error: undefined,
-          status: 'READY',
+          status: FetchStatuses.READY,
         },
       });
 

@@ -88,6 +88,9 @@ function LightningSparks({
 // Shows a plug that animates through the connection process.
 export function ConnectionPlug() {
   const isConnected = useIsAConnectionConnected();
+  // Purity rule is mostly relevant for values directly rendered on the screen,
+  // here we use it just to keep track of animation
+  // eslint-disable-next-line react-hooks/purity
   const animationStartTime = useRef<number>(Date.now());
   const animationFrameRef = useRef<number | null>(null);
 

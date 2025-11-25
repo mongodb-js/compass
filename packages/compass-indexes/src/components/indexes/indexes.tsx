@@ -25,7 +25,6 @@ import { VIEW_PIPELINE_UTILS } from '@mongodb-js/mongodb-constants';
 import type { State as RegularIndexesState } from '../../modules/regular-indexes';
 import type { State as SearchIndexesState } from '../../modules/search-indexes';
 import { FetchStatuses } from '../../utils/fetch-status';
-import type { FetchStatus } from '../../utils/fetch-status';
 import type { RootState } from '../../modules';
 import {
   CreateSearchIndexModal,
@@ -174,7 +173,7 @@ type IndexesProps = {
   collectionStats: CollectionStats;
 };
 
-function isRefreshingStatus(status: FetchStatus) {
+function isRefreshingStatus(status: FetchStatuses) {
   return (
     status === FetchStatuses.FETCHING || status === FetchStatuses.REFRESHING
   );
