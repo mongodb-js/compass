@@ -74,7 +74,7 @@ jobs:
         include:
           # MacOS
           - package: osx_dmg
-            runs-on: macos-13
+            runs-on: macos-15-intel
             arch: x64
             hadron-platform: darwin
           - package: osx_zip
