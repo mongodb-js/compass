@@ -1,6 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { css, cx } from '@leafygreen-ui/emotion';
 import { spacing } from '@leafygreen-ui/tokens';
+import type {
+  InferredPolymorphicPropsWithRef,
+  PolymorphicAs,
+} from '@leafygreen-ui/polymorphic';
+import type { BaseButtonProps } from '@leafygreen-ui/button';
+
 import { Button, Icon, Tooltip } from '../leafygreen';
 import type { Signal } from '../signal-popover';
 import { SignalPopover } from '../signal-popover';
@@ -79,11 +85,11 @@ function useElementParentHoverState<T extends HTMLElement>(
   return isHovered;
 }
 
-function ActionButton({
+function ActionButton<TAsProp extends PolymorphicAs = 'button'>({
   tooltipText,
   tooltipEnabled,
   ...props
-}: Partial<React.ComponentProps<typeof Button>> & {
+}: InferredPolymorphicPropsWithRef<TAsProp, BaseButtonProps> & {
   tooltipText: string;
   tooltipEnabled: boolean;
 }) {

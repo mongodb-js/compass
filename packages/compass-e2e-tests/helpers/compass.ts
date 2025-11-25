@@ -489,13 +489,18 @@ function execFileIgnoreError(
   stderr: string;
 }> {
   return new Promise((resolve) => {
-    execFile(path, args, opts, function (error, stdout, stderr) {
-      resolve({
-        error,
-        stdout,
-        stderr,
-      });
-    });
+    execFile(
+      path,
+      args,
+      { ...opts, encoding: 'utf8' },
+      function (error, stdout, stderr) {
+        resolve({
+          error,
+          stdout,
+          stderr,
+        });
+      }
+    );
   });
 }
 
