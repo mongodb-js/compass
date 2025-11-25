@@ -10,6 +10,8 @@ export interface CollectionStats {
   free_storage_size: number;
   index_count: number;
   index_size: number;
+  bucket_count?: number;
+  avg_bucket_size?: number;
 }
 
 export interface CollStatsIndexDetails {

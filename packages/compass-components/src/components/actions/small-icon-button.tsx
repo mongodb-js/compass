@@ -1,6 +1,7 @@
 import React, { forwardRef } from 'react';
 import { css, cx } from '@leafygreen-ui/emotion';
 import { spacing } from '@leafygreen-ui/tokens';
+import type { AccessibleIconButtonProps } from '@leafygreen-ui/icon-button';
 
 import { IconButton } from '../leafygreen';
 
@@ -34,27 +35,22 @@ const buttonSizeStyle: Record<ItemActionButtonSize, string | undefined> = {
 export type SmallIconButtonProps = {
   glyph: React.ReactChild;
   label: string;
-  title?: string;
   size: ItemActionButtonSize;
-  onClick(evt: React.MouseEvent<HTMLButtonElement>): void;
-} & Omit<React.HTMLProps<HTMLButtonElement>, 'size'>;
+  onClick?: React.MouseEventHandler<HTMLButtonElement>;
+} & Omit<
+  AccessibleIconButtonProps & React.ButtonHTMLAttributes<HTMLButtonElement>,
+  'size' | 'onClick'
+>;
 
-export const SmallIconButton = forwardRef<
-  HTMLButtonElement,
-  SmallIconButtonProps
->(function SmallIconButton(
-  { glyph, size, label, onClick, children, title, className, ...rest },
-  ref
+export const SmallIconButton = forwardRef(function SmallIconButton(
+  { glyph, size, label, children, className, ...rest }: SmallIconButtonProps,
+  ref: React.Ref<HTMLButtonElement>
 ) {
   return (
     <IconButton
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-expect-error leafygreen confuses TS a lot here
       ref={ref}
       className={cx(buttonSizeStyle[size], className)}
       aria-label={label}
-      title={title}
-      onClick={onClick}
       {...rest}
     >
       <span role="presentation" className={iconContainerStyle}>

@@ -21,6 +21,7 @@ const noop = () => {
 
 const testOutdatedMessageId = 'crud-outdated-message-id';
 const testErrorMessageId = 'document-list-error-summary';
+const testDocumentsPerPageId = 'crud-document-per-page-selector';
 
 const addDataText = 'Add Data';
 const updateDataText = 'Update';
@@ -482,20 +483,24 @@ describe('CrudToolbar Component', function () {
   });
 
   describe('documents per page select', function () {
-    it('should render a select to update documents fetched per page', function () {
+    it('should render a select to update documents fetched per page', async function () {
       renderCrudToolbar();
-      expect(screen.getByLabelText('Update number of documents per page')).to.be
-        .visible;
+
+      await waitFor(
+        () => expect(screen.getByTestId(testDocumentsPerPageId)).to.be.visible
+      );
     });
 
-    it('should call updateDocumentsPerPage when select value changes', function () {
+    it('should call updateDocumentsPerPage when select value changes', async function () {
       const stub = sinon.stub();
       renderCrudToolbar({
         updateMaxDocumentsPerPage: stub,
       });
-      userEvent.click(
-        screen.getByLabelText('Update number of documents per page')
-      );
+
+      const selector = screen.getByTestId(testDocumentsPerPageId);
+
+      await waitFor(() => expect(selector).to.be.visible);
+      userEvent.click(selector);
       userEvent.click(screen.getByText('75'));
       expect(stub).to.be.calledWithExactly(75);
     });

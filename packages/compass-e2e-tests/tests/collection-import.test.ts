@@ -70,7 +70,9 @@ async function selectFieldType(
   );
   await fieldTypeSelectMenu.waitForDisplayed();
 
-  const fieldTypeSelectSpan = fieldTypeSelectMenu.$(`span=${fieldType}`);
+  const fieldTypeSelectSpan = fieldTypeSelectMenu.$(
+    `[role=option][aria-label="${fieldType}"]`
+  );
   await fieldTypeSelectSpan.waitForDisplayed();
   await fieldTypeSelectSpan.scrollIntoView();
   await browser.pause(1000);
