@@ -140,11 +140,6 @@ const messageFeedFixesStyles = css({
     fontWeight: 600,
   },
 });
-const chatWindowFixesStyles = css({
-  height: '100%',
-  display: 'flex',
-  flexDirection: 'column',
-});
 const welcomeMessageStyles = css({
   paddingBottom: spacing[400],
   paddingLeft: spacing[400],
@@ -370,7 +365,7 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
       style={chatContainerOverrideStyle}
     >
       <LeafyGreenChatProvider>
-        <ChatWindow title="MongoDB Assistant" className={chatWindowFixesStyles}>
+        <ChatWindow>
           <div
             data-testid="assistant-chat-messages"
             className={messageFeedFixesStyles}
