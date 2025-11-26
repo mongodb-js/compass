@@ -42,11 +42,6 @@ const assistantChatFixesStyles = css({
     listStyleType: 'decimal',
   },
 
-  // Remove extra padding
-  '> div, > div > div, > div > div > div, > div > div > div': {
-    height: '100%',
-    padding: 0,
-  },
   // This is currently set to 'pre-wrap' which causes list items to be on a different line than the list markers.
   'li, ol': {
     whiteSpace: 'normal',
