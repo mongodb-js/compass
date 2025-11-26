@@ -88,6 +88,8 @@ const TestComponent: React.FunctionComponent<{
 
   return (
     <DrawerContentProvider>
+      {/* Breaking this rule is fine while none of the tests try to re-render the content */}
+      {/* eslint-disable-next-line react-hooks/static-components */}
       <MockedProvider
         originForPrompt="mongodb-compass"
         appNameForPrompt="MongoDB Compass"
@@ -113,6 +115,8 @@ describe('useAssistantActions', function () {
 
       return (
         <DrawerContentProvider>
+          {/* Breaking this rule is fine while none of the tests try to re-render the content */}
+          {/* eslint-disable-next-line react-hooks/static-components */}
           <MockedProvider
             originForPrompt="mongodb-compass"
             appNameForPrompt="MongoDB Compass"
