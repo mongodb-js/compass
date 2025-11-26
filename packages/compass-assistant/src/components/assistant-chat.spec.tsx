@@ -121,8 +121,7 @@ describe('AssistantChat', function () {
 
   it('displays the disclaimer and welcome text', function () {
     renderWithChat(createMockChat({ messages: [] }));
-    expect(screen.getByText(/AI can make mistakes, so review for accuracy/)).to
-      .exist;
+    expect(screen.getByText(/Review answers for accuracy/)).to.exist;
   });
 
   it('displays the welcome text when there are no messages', function () {
