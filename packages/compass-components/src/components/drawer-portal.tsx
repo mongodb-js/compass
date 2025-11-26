@@ -17,6 +17,7 @@ import { css, cx } from '@leafygreen-ui/emotion';
 import { isEqual } from 'lodash';
 import { rafraf } from '../utils/rafraf';
 import { GuideCue, type GuideCueProps } from './guide-cue/guide-cue';
+import { useSyncStateOnPropChange } from '../hooks/use-sync-state-on-prop-change';
 import { BaseFontSize, fontWeights } from '@leafygreen-ui/tokens';
 
 type ToolbarData = Required<DrawerLayoutProps>['toolbarData'];
@@ -438,6 +439,9 @@ export const DrawerSection: React.FunctionComponent<DrawerSectionProps> = ({
   });
   const actions = useContext(DrawerActionsContext);
   const prevProps = useRef<DrawerSectionProps>();
+  useSyncStateOnPropChange(() => {
+    setPortalNode(querySectionPortal(document, props.id));
+  }, [props.id]);
   useEffect(() => {
     if (!isEqual(prevProps.current, props)) {
       actions.current.updateToolbarData({ autoOpen: false, ...props });
@@ -453,7 +457,6 @@ export const DrawerSection: React.FunctionComponent<DrawerSectionProps> = ({
         'Can not use DrawerSection without DrawerAnchor being mounted on the page'
       );
     }
-    setPortalNode(querySectionPortal(drawerEl, props.id));
     const mutationObserver = new MutationObserver((mutations) => {
       for (const mutation of mutations) {
         if (mutation.type === 'childList') {

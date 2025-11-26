@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import {
   FormFieldContainer,
   Label,
@@ -6,6 +6,7 @@ import {
   RadioBoxGroup,
   RadioBox,
   Checkbox,
+  useSyncStateOnPropChange,
 } from '@mongodb-js/compass-components';
 
 import type ConnectionStringUrl from 'mongodb-connection-string-url';
@@ -55,16 +56,15 @@ function AuthenticationGSSAPI({
     authMechanismProperties.get('CANONICALIZE_HOST_NAME') || 'none';
 
   const [showPassword, setShowPassword] = useState<boolean>(false);
+  useSyncStateOnPropChange(() => {
+    if (!showPassword && password.length) {
+      setShowPassword(true);
+    }
+  }, [showPassword, password]);
 
   const showKerberosPasswordField = !!useConnectionFormSetting(
     'showKerberosPasswordField'
   );
-
-  useEffect(() => {
-    if (!showPassword && password.length) {
-      setShowPassword(true);
-    }
-  }, [password, showPassword, updateConnectionFormField]);
 
   return (
     <>
