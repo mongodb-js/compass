@@ -110,6 +110,10 @@
       "eslint-plugin-jsx-a11y": "^6.10.2",
       "eslint-plugin-react": "^7.37.5",
       "eslint-plugin-react-hooks": "^7.0.1"
+    },
+    "@mongodb-js/diagramming": {
+      "@leafygreen-ui/select": "^17.0.2",
+      "@leafygreen-ui/tokens": "^4.1.0"
     }
   }
 }
