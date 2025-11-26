@@ -151,14 +151,6 @@ const noWrapFixesStyles = css({
   whiteSpace: 'nowrap',
 });
 
-/** TODO(COMPASS-9751): This should be handled by Leafygreen's disclaimers update */
-const inputBarStyleFixes = css({
-  width: '100%',
-  paddingLeft: spacing[400],
-  paddingRight: spacing[400],
-  paddingBottom: spacing[100],
-});
-
 function makeErrorMessage(message: string) {
   message = message || 'An error occurred';
   return `${message}. Try clearing the chat if the error persists.`;
@@ -476,16 +468,12 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
               </p>
             </div>
           )}
-          <div className={inputBarStyleFixes}>
-            <InputBar
-              data-testid="assistant-chat-input"
-              onMessageSend={(messageBody) =>
-                void handleMessageSend(messageBody)
-              }
-              state={status === 'submitted' ? 'loading' : undefined}
-              textareaProps={inputBarTextareaProps}
-            />
-          </div>
+          <InputBar
+            data-testid="assistant-chat-input"
+            onMessageSend={(messageBody) => void handleMessageSend(messageBody)}
+            state={status === 'submitted' ? 'loading' : undefined}
+            textareaProps={inputBarTextareaProps}
+          />
         </ChatWindow>
       </LeafyGreenChatProvider>
     </div>
