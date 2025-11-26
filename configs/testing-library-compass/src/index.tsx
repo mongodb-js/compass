@@ -127,8 +127,10 @@ export class MockDataService
       | 'instance'
     >
 {
-  constructor(private connectionOptions: ConnectionInfo['connectionOptions']) {
+  private connectionOptions: ConnectionInfo['connectionOptions'];
+  constructor(connectionOptions: ConnectionInfo['connectionOptions']) {
     super();
+    this.connectionOptions = connectionOptions;
     this.setMaxListeners(0);
   }
   getConnectionString() {

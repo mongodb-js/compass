@@ -375,6 +375,7 @@ export const storedUserPreferencesProps: Required<{
       short: 'Compass UI Theme',
     },
     validator: z
+
       .effect(z.enum(THEMES_VALUES), {
         type: 'preprocess',
         transform: (val) =>

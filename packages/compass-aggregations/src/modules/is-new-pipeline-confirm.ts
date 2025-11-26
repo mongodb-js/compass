@@ -5,6 +5,7 @@ import type Stage from './pipeline-builder/stage';
 import type { Document } from 'bson';
 import type { PipelineParserError } from './pipeline-builder/pipeline-parser/utils';
 
+// @ts-expect-error TODO(): replace enums with const kv objects
 export enum ActionTypes {
   NewPipelineConfirmed = 'compass-aggregations/is-new-pipeline-confirm/newPipelineConfirmed',
 }

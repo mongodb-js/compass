@@ -35,6 +35,7 @@ export type AtlasSignInThunkAction<
   A extends AnyAction = AnyAction
 > = ThunkAction<R, AtlasSignInState, { atlasAuthService: AtlasAuthService }, A>;
 
+// @ts-expect-error TODO(): replace enums with const kv objects
 export const enum AtlasSignInActions {
   RestoringStart = 'atlas-service/atlas-signin/StartRestoring',
   RestoringFailed = 'atlas-service/atlas-signin/RestoringFailed',

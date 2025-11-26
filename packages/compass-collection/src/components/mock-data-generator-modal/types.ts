@@ -2,6 +2,7 @@ import type { MockDataSchemaResponse } from '@mongodb-js/compass-generative-ai';
 import type { FakerArg } from './script-generation-utils';
 import type { MongoDBFieldType } from '../../schema-analysis-types';
 
+// @ts-expect-error TODO(): replace enums with const kv objects
 export enum MockDataGeneratorStep {
   SCHEMA_CONFIRMATION = 'SCHEMA_CONFIRMATION',
   SCHEMA_EDITOR = 'SCHEMA_EDITOR',
@@ -49,6 +50,7 @@ export interface FakerFieldMapping {
 
 export type FakerSchema = Record<string, FakerFieldMapping>;
 
+// @ts-expect-error TODO(): replace enums with const kv objects
 export enum DataGenerationStep {
   INSTALL_FAKERJS = 'install fakerjs',
   CREATE_JS_FILE = 'create js file',

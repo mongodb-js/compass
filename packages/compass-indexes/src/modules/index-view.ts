@@ -9,6 +9,7 @@ import { ActionTypes as SearchIndexActionTypes } from './search-indexes';
 
 export type IndexView = 'regular-indexes' | 'search-indexes';
 
+// @ts-expect-error TODO(): replace enums with const kv objects
 export enum ActionTypes {
   IndexViewChanged = 'compass-indexes/index-list/index-view-changed',
 }

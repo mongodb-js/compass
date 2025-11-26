@@ -1,3 +1,4 @@
+// @ts-expect-error TODO(): replace enums with const kv objects
 export enum FetchStatuses {
   /**
    * We do not have a list yet.

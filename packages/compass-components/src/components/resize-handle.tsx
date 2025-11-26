@@ -2,6 +2,7 @@ import React, { useRef } from 'react';
 import { css, cx } from '@leafygreen-ui/emotion';
 import { palette } from '@leafygreen-ui/palette';
 
+// @ts-expect-error TODO(): replace enums with const kv objects
 enum ResizeDirection {
   TOP = 'TOP',
   RIGHT = 'RIGHT',

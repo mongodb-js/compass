@@ -35,6 +35,7 @@ import type {
   PipelineGeneratedFromQueryAction,
 } from './pipeline-ai';
 
+// @ts-expect-error TODO(): replace enums with const kv objects
 export const enum StageEditorActionTypes {
   StagePreviewFetch = 'compass-aggregations/pipeline-builder/stage-editor/StagePreviewFetch',
   StagePreviewFetchSkipped = 'compass-aggregations/pipeline-builder/stage-editor/StagePreviewFetchSkipped',

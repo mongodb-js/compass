@@ -24,6 +24,7 @@ type ShellPluginThunkAction<R, A extends AnyAction = AnyAction> = ThunkAction<
   A
 >;
 
+// @ts-expect-error TODO(): replace enums with const kv objects
 enum ActionTypes {
   RuntimeCreated = 'compass-shell/RuntimeCreated',
   RuntimeDestroyed = 'compass-shell/RuntimeDestroyed',

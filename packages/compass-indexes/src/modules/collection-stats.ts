@@ -24,6 +24,7 @@ export type CollectionStats = Pick<
   'index_count' | 'index_size' | 'pipeline'
 > | null;
 
+// @ts-expect-error TODO(): replace enums with const kv objects
 enum StatsActions {
   CollectionStatsFetched = 'compass-indexes/CollectionStatsFetchedCollection',
 }

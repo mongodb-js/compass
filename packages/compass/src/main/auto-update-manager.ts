@@ -156,6 +156,8 @@ async function promptForUpdate(
  * downloading state update process can not be interrupted by anything, even
  * disabling autoupdates in settings.
  */
+
+// @ts-expect-error TODO(): replace enums with const kv objects
 export const enum AutoUpdateManagerState {
   Initial = 'initial',
   Disabled = 'disabled',

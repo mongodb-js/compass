@@ -5,6 +5,7 @@ import type { AnyAction } from 'redux';
 import { isAction } from '../utils/is-action';
 import { DEFAULT_MAX_TIME_MS } from '../constants';
 
+// @ts-expect-error TODO(): replace enums with const kv objects
 export enum ActionTypes {
   CollapseToggled = 'aggregations/input-documents/CollapseToggled',
   DocumentsFetchStarted = 'aggregations/input-documents/DocumentsFetchStarted',

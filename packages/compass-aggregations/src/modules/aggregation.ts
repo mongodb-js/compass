@@ -41,6 +41,7 @@ export const WriteOperation = {
   Overwrite: 'overwriting',
 } as const;
 
+// @ts-expect-error TODO(): replace enums with const kv objects
 export enum ActionTypes {
   RunAggregation = 'compass-aggeregations/runAggregation',
   AggregationStarted = 'compass-aggregations/aggregationStarted',

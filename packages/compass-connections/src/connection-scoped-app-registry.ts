@@ -26,10 +26,15 @@ interface EventForwarder<T extends string> {
 export class ConnectionScopedAppRegistryImpl<T extends string>
   implements EventForwarder<T>
 {
+  private readonly appRegistryEmitter: AppRegistry['emit'];
+  private readonly connectionInfoRef: ConnectionInfoRef;
   constructor(
-    private readonly appRegistryEmitter: AppRegistry['emit'],
-    private readonly connectionInfoRef: ConnectionInfoRef
-  ) {}
+    appRegistryEmitter: AppRegistry['emit'],
+    connectionInfoRef: ConnectionInfoRef
+  ) {
+    this.appRegistryEmitter = appRegistryEmitter;
+    this.connectionInfoRef = connectionInfoRef;
+  }
 
   /**
    * @deprecated

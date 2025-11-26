@@ -16,6 +16,7 @@ import semver from 'semver';
 export type ValidationServerAction = 'error' | 'warn' | 'errorAndLog';
 export type ValidationLevel = 'off' | 'moderate' | 'strict';
 
+// @ts-expect-error TODO(): replace enums with const kv objects
 export const enum ValidationActions {
   ValidatorChanged = 'compass-schema-validation/validation/ValidatorChanged',
   ValidationCanceled = 'compass-schema-validation/validation/ValidationCanceled',

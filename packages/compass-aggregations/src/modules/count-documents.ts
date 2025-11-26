@@ -10,6 +10,7 @@ import { ActionTypes as ConfirmNewPipelineActions } from './is-new-pipeline-conf
 import { getPipelineFromBuilderState } from './pipeline-builder/builder-helpers';
 import { isAction } from '../utils/is-action';
 
+// @ts-expect-error TODO(): replace enums with const kv objects
 export enum ActionTypes {
   CountStarted = 'compass-aggregations/countStarted',
   CountFinished = 'compass-aggregations/countFinished',

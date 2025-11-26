@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { css, cx, keyframes } from '@leafygreen-ui/emotion';
 
+// @ts-expect-error TODO(): replace enums with const kv objects
 enum RenderStatus {
   Nothing = 'Nothing',
   Fallback = 'Fallback',

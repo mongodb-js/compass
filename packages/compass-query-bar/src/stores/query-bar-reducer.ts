@@ -62,6 +62,7 @@ export const INITIAL_STATE: QueryBarState = {
   favoriteQueries: [],
 };
 
+// @ts-expect-error TODO(): replace enums with const kv objects
 export enum QueryBarActions {
   ChangeReadonlyConnectionStatus = 'compass-query-bar/ChangeReadonlyConnectionStatus',
   ToggleQueryOptions = 'compass-query-bar/ToggleQueryOptions',

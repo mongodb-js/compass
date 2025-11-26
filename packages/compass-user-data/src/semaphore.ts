@@ -1,7 +1,10 @@
 export class Semaphore {
   private currentCount = 0;
   private queue: (() => void)[] = [];
-  constructor(private maxConcurrentOps: number) {}
+  private maxConcurrentOps: number;
+  constructor(maxConcurrentOps: number) {
+    this.maxConcurrentOps = maxConcurrentOps;
+  }
 
   waitForRelease(): Promise<() => void> {
     return new Promise((resolve) => {
