@@ -14,7 +14,6 @@ const tempNewEslintRulesDisabled = {
   'react-hooks/globals': 'off',
   'react-hooks/static-components': 'off',
   'react-hooks/purity': 'off',
-  '@typescript-eslint/no-redundant-type-constituents': 'off',
   '@typescript-eslint/await-thenable': 'off',
   '@typescript-eslint/no-unsafe-enum-comparison': 'off',
 };
