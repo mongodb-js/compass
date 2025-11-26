@@ -1,7 +1,9 @@
 import { Assertion, util } from 'chai';
 
+// TODO(COMPASS-10119): Move declaration into a separate .d.ts and implementation into a *-register.js file as we do with other global patching code intended for tests.
+
 declare global {
-  // eslint-disable-next-line @typescript-eslint/no-namespace
+  // eslint-disable-next-line @typescript-eslint/no-namespace -- We're following a pattern established in the `@types/chai-as-promised` package to add a Chai assertion property.
   export namespace Chai {
     interface Assertion {
       /** Asserts that a dialog is open */
