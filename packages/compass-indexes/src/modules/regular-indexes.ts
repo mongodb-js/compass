@@ -7,9 +7,7 @@ import {
 } from '@mongodb-js/compass-components';
 
 import { FetchStatuses, NOT_FETCHABLE_STATUSES } from '../utils/fetch-status';
-import type { FetchStatus } from '../utils/fetch-status';
 import { FetchReasons } from '../utils/fetch-reason';
-import type { FetchReason } from '../utils/fetch-reason';
 import { isAction } from '../utils/is-action';
 import type { CreateIndexSpec } from './create-index';
 import type { IndexesThunkAction, RootState } from '.';
@@ -130,7 +128,7 @@ type IndexesClosedAction = {
 
 type FetchIndexesStartedAction = {
   type: ActionTypes.FetchIndexesStarted;
-  reason: FetchReason;
+  reason: FetchReasons;
 };
 
 type FetchIndexesSucceededAction = {
@@ -171,7 +169,7 @@ type RollingIndexTimeoutCheckAction = {
 };
 
 export type State = {
-  status: FetchStatus;
+  status: FetchStatuses;
   indexes: RegularIndex[];
   inProgressIndexes: InProgressIndex[];
   rollingIndexes?: RollingIndex[];
@@ -346,7 +344,7 @@ export default function reducer(
 }
 
 const fetchIndexesStarted = (
-  reason: FetchReason
+  reason: FetchReasons
 ): FetchIndexesStartedAction => ({
   type: ActionTypes.FetchIndexesStarted,
   reason,
@@ -380,7 +378,7 @@ function pickCollectionStatFields(state: RootState) {
 }
 
 const fetchIndexes = (
-  reason: FetchReason
+  reason: FetchReasons
 ): IndexesThunkAction<Promise<void>, FetchIndexesActions> => {
   return async (
     dispatch,
@@ -425,8 +423,8 @@ const fetchIndexes = (
         dataService.indexes(namespace),
         shouldFetchRollingIndexes
           ? rollingIndexesService.listRollingIndexes(namespace)
-          : undefined,
-      ] as [Promise<IndexDefinition[]>, Promise<AtlasIndexStats[]> | undefined];
+          : Promise.resolve(undefined),
+      ] as [Promise<IndexDefinition[]>, Promise<AtlasIndexStats[] | undefined>];
       const [indexes, rollingIndexes] = await Promise.all(promises);
       const indexesBefore = pickCollectionStatFields(getState());
       dispatch(fetchIndexesSucceeded(indexes, rollingIndexes));

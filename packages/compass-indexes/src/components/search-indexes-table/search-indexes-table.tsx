@@ -31,7 +31,6 @@ import {
   startPollingSearchIndexes,
   stopPollingSearchIndexes,
 } from '../../modules/search-indexes';
-import type { FetchStatus } from '../../utils/fetch-status';
 import { IndexesTable } from '../indexes-table';
 import SearchIndexActions from './search-index-actions';
 import { ZeroGraphic } from './zero-graphic';
@@ -48,7 +47,7 @@ type SearchIndexesTableProps = {
   isWritable?: boolean;
   isReadonlyView: boolean;
   collectionStats?: CollectionStats;
-  status: FetchStatus;
+  status: FetchStatuses;
   onDropIndexClick: (name: string) => void;
   onEditIndexClick: (name: string) => void;
   onOpenCreateModalClick: () => void;
@@ -56,7 +55,7 @@ type SearchIndexesTableProps = {
   onSearchIndexesClosed: (tabId: string) => void;
 };
 
-function isReadyStatus(status: FetchStatus) {
+function isReadyStatus(status: FetchStatuses) {
   return (
     status === FetchStatuses.READY ||
     status === FetchStatuses.REFRESHING ||
