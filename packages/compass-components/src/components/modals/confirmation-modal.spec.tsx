@@ -1,10 +1,5 @@
 import React from 'react';
-import {
-  render,
-  screen,
-  cleanup,
-  within,
-} from '@mongodb-js/testing-library-compass';
+import { render, screen, cleanup } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 
 import ConfirmationModal from './confirmation-modal';
@@ -28,8 +23,8 @@ describe('ConfirmationModal Component', function () {
   });
 
   it('should show the modal button', function () {
-    const { container } = renderModal();
-    const button = within(container).getByText('Confirm').closest('button');
+    renderModal();
+    const button = screen.getByText('Confirm').closest('button');
     expect(button).to.not.match('disabled');
   });
 
