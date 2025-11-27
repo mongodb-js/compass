@@ -47,7 +47,12 @@ export default function WebWelcomeTab() {
             {numConnections === 0 && (
               <>
                 <Button
-                  as={Link}
+                  as={
+                    /* The type assert is a temporary workaround for https://jira.mongodb.org/browse/LG-5590 */
+                    Link as React.FunctionComponent<{
+                      href: string;
+                    }>
+                  }
                   data-testid="add-new-atlas-cluster-button"
                   variant={ButtonVariant.Primary}
                   href={'#/clusters/starterTemplates'}
