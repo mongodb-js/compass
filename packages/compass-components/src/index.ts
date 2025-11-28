@@ -155,10 +155,6 @@ export {
   ThemeProvider,
 } from './hooks/use-theme';
 export { useThrottledProps } from './hooks/use-throttled-props';
-export {
-  ContentWithFallback,
-  FadeInPlaceholder,
-} from './components/content-with-fallback';
 export { InlineDefinition } from './components/inline-definition';
 export type { GlyphName, LGGlyph } from '@leafygreen-ui/icon';
 export { createGlyphComponent, createIconComponent } from '@leafygreen-ui/icon';
