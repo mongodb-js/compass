@@ -7,9 +7,9 @@ import {
   LeafyGreenProvider,
   spacing,
   withDarkMode,
+  useForceUpdate,
 } from '@mongodb-js/compass-components';
-import { Element } from 'hadron-document';
-import type { ICellRendererReactComp } from 'ag-grid-react';
+import { type Document, Element } from 'hadron-document';
 import type { ICellRendererParams } from 'ag-grid-community';
 import type { GridActions, TableHeaderType } from '../../stores/grid-store';
 import type { CrudActions } from '../../stores/crud-store';
@@ -61,6 +61,11 @@ const UNEDITABLE = 'is-uneditable';
 const INVALID = 'is-invalid';
 
 /**
+ * The valid constant.
+ */
+const VALID = 'valid';
+
+/**
  * The deleted constant.
  */
 const DELETED = 'is-deleted';
@@ -80,6 +85,151 @@ const decrypdedIconStyles = css({
   display: 'flex',
 });
 
+const getElementLength = (
+  element: Element | undefined | null
+): number | undefined => {
+  if (!element) {
+    return undefined;
+  }
+
+  if (element.currentType === 'Object') {
+    return Object.keys(element.generateObject() as object).length;
+  }
+  if (element.currentType === 'Array' && element.elements) {
+    return element.elements.size;
+  }
+};
+
+interface CellContentProps {
+  element: Element | undefined | null;
+  cellState:
+    | typeof UNEDITABLE
+    | typeof EMPTY
+    | typeof INVALID
+    | typeof DELETED
+    | typeof ADDED
+    | typeof EDITED
+    | typeof VALID;
+  onUndo: (event: React.MouseEvent) => void;
+  onExpand: (event: React.MouseEvent) => void;
+}
+
+const CellContent: React.FC<CellContentProps> = ({
+  element,
+  cellState,
+  onUndo,
+  onExpand,
+}) => {
+  const forceUpdate = useForceUpdate();
+  const isEmpty = element === undefined || element === null;
+  const handleElementEvent = useCallback(() => {
+    forceUpdate();
+  }, []);
+
+  // Subscribe to element events
+  useEffect(() => {
+    if (!isEmpty && element) {
+      element.on(Element.Events.Added, handleElementEvent);
+      element.on(Element.Events.Converted, handleElementEvent);
+      element.on(Element.Events.Edited, handleElementEvent);
+      element.on(Element.Events.Reverted, handleElementEvent);
+
+      return () => {
+        element.removeListener(Element.Events.Added, handleElementEvent);
+        element.removeListener(Element.Events.Converted, handleElementEvent);
+        element.removeListener(Element.Events.Edited, handleElementEvent);
+        element.removeListener(Element.Events.Reverted, handleElementEvent);
+      };
+    }
+  }, [isEmpty, element, handleElementEvent]);
+
+  const elementLength = getElementLength(element);
+
+  const renderContent = useCallback(() => {
+    if (cellState === EMPTY || !element) {
+      return 'No field';
+    }
+
+    if (cellState === UNEDITABLE) {
+      return '';
+    }
+
+    if (cellState === DELETED) {
+      return 'Deleted field';
+    }
+
+    if (cellState === INVALID) {
+      let valueClass = `${VALUE_CLASS}-is-${element.currentType.toLowerCase()}`;
+      valueClass = `${valueClass} ${INVALID_VALUE}`;
+
+      return <div className={valueClass}>{element.currentValue}</div>;
+    }
+
+    let className = VALUE_BASE;
+    let elementContent: string | JSX.Element = '';
+    if (cellState === ADDED || cellState === EDITED) {
+      className = `${className} ${VALUE_BASE}-${cellState}`;
+    }
+
+    const isArrayOrObject =
+      element.currentType === 'Array' || element.currentType === 'Object';
+
+    if (elementLength !== undefined && isArrayOrObject) {
+      if (element.currentType === 'Object') {
+        elementContent = `{} ${elementLength} fields`;
+      } else if (element.currentType === 'Array') {
+        elementContent = `[] ${elementLength} elements`;
+      }
+    } else {
+      elementContent = (
+        <BSONValue type={element.currentType} value={element.currentValue} />
+      );
+    }
+
+    return (
+      <div className={className}>
+        <div className={cellContainerStyle}>
+          {element.decrypted && (
+            <span
+              data-testid="hadron-document-element-decrypted-icon"
+              title="Encrypted Field"
+              className={decrypdedIconStyles}
+            >
+              <Icon glyph="Key" size="small" />
+            </span>
+          )}
+          {elementContent}
+        </div>
+      </div>
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    element,
+    element?.currentType,
+    element?.currentValue,
+    elementLength,
+    cellState,
+  ]);
+
+  const canUndo =
+    cellState === ADDED ||
+    cellState === EDITED ||
+    cellState === INVALID ||
+    cellState === DELETED;
+
+  const canExpand =
+    (cellState === VALID || cellState === ADDED || cellState === EDITED) &&
+    (element?.currentType === 'Object' || element?.currentType === 'Array');
+
+  return (
+    <>
+      {canUndo && <CellUndoButton alignLeft={canExpand} onClick={onUndo} />}
+      {canExpand && <CellExpandButton onClick={onExpand} />}
+      {renderContent()}
+    </>
+  );
+};
+
 export type CellRendererProps = Omit<ICellRendererParams, 'context'> & {
   context: GridContext;
   parentType: TableHeaderType;
@@ -94,276 +244,182 @@ export type CellRendererProps = Omit<ICellRendererParams, 'context'> & {
 /**
  * The custom cell renderer that renders a cell in the table view.
  */
-class CellRenderer
-  extends React.Component<CellRendererProps>
-  implements ICellRendererReactComp
-{
-  element: Element;
-  isEmpty: boolean;
-  isDeleted: boolean;
-  editable: boolean;
+const CellRenderer: React.FC<CellRendererProps> = ({
+  value,
+  context,
+  column,
+  node,
+  parentType,
+  elementAdded,
+  elementRemoved,
+  elementTypeChanged,
+  drillDown,
+  api,
+  darkMode,
+}) => {
+  const element = value as Element | undefined | null;
 
-  constructor(props: CellRendererProps) {
-    super(props);
+  const isEmpty = element === undefined || element === null;
+  const [isDeleted, setIsDeleted] = useState(false);
 
-    this.isEmpty = props.value === undefined || props.value === null;
-    this.isDeleted = false;
-    this.element = props.value;
-
+  const isEditable = useMemo(() => {
     /* Can't get the editable() function from here, so have to reevaluate */
-    this.editable = true;
-    if (props.context.path.length > 0 && props.column.getColId() !== '$_id') {
-      const parent = props.node.data.hadronDocument.getChild(
-        props.context.path
-      );
-      if (
-        !parent ||
-        (props.parentType && parent.currentType !== props.parentType)
-      ) {
-        this.editable = false;
+    let editable = true;
+    if (context.path.length > 0 && column.getColId() !== '$_id') {
+      const parent = node.data.hadronDocument.getChild(context.path);
+      if (!parent || (parentType && parent.currentType !== parentType)) {
+        editable = false;
       } else if (parent.currentType === 'Array') {
         let maxKey = 0;
         if (parent.elements.lastElement) {
           maxKey = +parent.elements.lastElement.currentKey + 1;
         }
-        if (+props.column.getColId() > maxKey) {
-          this.editable = false;
+        if (+column.getColId() > maxKey) {
+          editable = false;
         }
       }
     }
+    return editable;
+  }, [context.path, column, node.data.hadronDocument, parentType]);
+
+  // Determine cell state
+  let cellState:
+    | typeof UNEDITABLE
+    | typeof EMPTY
+    | typeof INVALID
+    | typeof DELETED
+    | typeof ADDED
+    | typeof EDITED
+    | typeof VALID;
+
+  if (!isEditable) {
+    cellState = UNEDITABLE;
+  } else if (isEmpty || isDeleted) {
+    cellState = EMPTY;
+  } else if (!element.isCurrentTypeValid()) {
+    cellState = INVALID;
+  } else if (element.isRemoved()) {
+    cellState = DELETED;
+  } else if (element.isAdded()) {
+    cellState = ADDED;
+  } else if (element.isModified()) {
+    cellState = EDITED;
+  } else {
+    cellState = VALID;
   }
 
-  componentDidMount() {
-    if (!this.isEmpty) {
-      this.subscribeElementEvents();
-    }
-  }
+  const handleUndo = useCallback(
+    (event: React.MouseEvent) => {
+      event.stopPropagation();
+      if (!element) {
+        return;
+      }
+      const oid: string = node.data.hadronDocument.getStringId();
+      if (cellState === ADDED) {
+        setIsDeleted(true);
+        const isArray =
+          !element.parent?.isRoot() && element.parent?.currentType === 'Array';
+        elementRemoved(String(element.currentKey), oid, isArray);
+      } else if (cellState === DELETED) {
+        elementAdded(String(element.currentKey), element.currentType, oid);
+      } else {
+        elementTypeChanged(String(element.currentKey), element.type, oid);
+      }
+      element.revert();
+    },
+    [
+      element,
+      node.data.hadronDocument,
+      elementRemoved,
+      elementAdded,
+      elementTypeChanged,
+    ]
+  );
 
-  componentWillUnmount() {
-    if (!this.isEmpty) {
-      this.unsubscribeElementEvents();
-    }
-  }
+  const handleDrillDown = useCallback(
+    (event: React.MouseEvent) => {
+      event.stopPropagation();
+      if (!element) {
+        return;
+      }
+      drillDown(node.data.hadronDocument as Document, element);
+    },
+    [drillDown, node.data.hadronDocument, element]
+  );
 
-  subscribeElementEvents() {
-    this.element.on(Element.Events.Added, this.handleElementEvent);
-    this.element.on(Element.Events.Converted, this.handleElementEvent);
-    this.element.on(Element.Events.Edited, this.handleElementEvent);
-    this.element.on(Element.Events.Reverted, this.handleElementEvent);
-  }
-
-  unsubscribeElementEvents() {
-    this.element.removeListener(Element.Events.Added, this.handleElementEvent);
-    this.element.removeListener(
-      Element.Events.Converted,
-      this.handleElementEvent
-    );
-    this.element.removeListener(Element.Events.Edited, this.handleElementEvent);
-    this.element.removeListener(
-      Element.Events.Reverted,
-      this.handleElementEvent
-    );
-  }
-
-  handleElementEvent = () => {
-    this.forceUpdate();
-  };
-
-  handleUndo = (event: React.MouseEvent) => {
-    event.stopPropagation();
-    const oid = this.props.node.data.hadronDocument.getStringId();
-    if (this.element.isAdded()) {
-      this.isDeleted = true;
-      const isArray =
-        !this.element.parent?.isRoot() &&
-        this.element.parent?.currentType === 'Array';
-      this.props.elementRemoved(String(this.element.currentKey), oid, isArray);
-    } else if (this.element.isRemoved()) {
-      this.props.elementAdded(
-        String(this.element.currentKey),
-        this.element.currentType,
-        oid
-      );
-    } else {
-      this.props.elementTypeChanged(
-        String(this.element.currentKey),
-        this.element.type,
-        oid
-      );
-    }
-    this.element.revert();
-  };
-
-  handleDrillDown(event: React.MouseEvent) {
-    event.stopPropagation();
-    this.props.drillDown(this.props.node.data.hadronDocument, this.element);
-  }
-
-  handleClicked() {
-    if (this.props.node.data.state === 'editing') {
-      this.props.api.startEditingCell({
-        rowIndex: this.props.node.rowIndex,
-        colKey: this.props.column.getColId(),
+  const handleClicked = useCallback(() => {
+    if (node.data.state === 'editing') {
+      api.startEditingCell({
+        rowIndex: node.rowIndex,
+        colKey: column.getColId(),
       });
     }
-  }
+  }, [node, api, column]);
 
-  refresh() {
-    return true;
-  }
-
-  renderInvalidCell() {
-    let valueClass = `${VALUE_CLASS}-is-${this.element.currentType.toLowerCase()}`;
-    valueClass = `${valueClass} ${INVALID_VALUE}`;
-
-    /* Return internal div because invalid cells should only hightlight text? */
-
-    return <div className={valueClass}>{this.element.currentValue}</div>;
-  }
-
-  getLength(): number | undefined {
-    if (this.element.currentType === 'Object') {
-      return Object.keys(this.element.generateObject() as object).length;
-    }
-    if (this.element.currentType === 'Array') {
-      return this.element.elements!.size;
-    }
-  }
-
-  renderValidCell() {
-    let className = VALUE_BASE;
-    let element: string | JSX.Element = '';
-    if (this.element.isAdded()) {
-      className = `${className} ${VALUE_BASE}-${ADDED}`;
-    } else if (this.element.isEdited()) {
-      className = `${className} ${VALUE_BASE}-${EDITED}`;
-    }
-
-    if (this.element.currentType === 'Object') {
-      element = `{} ${this.getLength() as number} fields`;
-    } else if (this.element.currentType === 'Array') {
-      element = `[] ${this.getLength() as number} elements`;
-    } else {
-      element = (
-        <BSONValue
-          type={this.props.value.currentType}
-          value={this.props.value.currentValue}
-        />
-      );
-    }
-
-    return (
-      <div className={className}>
-        <div className={cellContainerStyle}>
-          {this.props.value.decrypted && (
-            <span
-              data-testid="hadron-document-element-decrypted-icon"
-              title="Encrypted Field"
-              className={decrypdedIconStyles}
-            >
-              <Icon glyph="Key" size="small" />
-            </span>
-          )}
-          {element}
-        </div>
-      </div>
-    );
-  }
-
-  renderUndo(canUndo: boolean, canExpand: boolean) {
-    let undoButtonClass = `${BUTTON_CLASS} ${BUTTON_CLASS}-undo`;
-    if (canUndo && canExpand) {
-      undoButtonClass = `${undoButtonClass} ${BUTTON_CLASS}-left`;
-    }
-
-    if (!canUndo) {
-      return null;
-    }
-    return (
-      <IconButton
-        className={undoButtonClass}
-        // @ts-expect-error TODO: size="small" is not an acceptable size
-        size="small"
-        aria-label="Expand"
-        onClick={this.handleUndo.bind(this)}
+  return (
+    // `ag-grid` renders this component outside of the context chain
+    // so we re-supply the dark mode theme here.
+    <LeafyGreenProvider darkMode={darkMode}>
+      {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/interactive-supports-focus*/}
+      <div
+        className={cellState === VALID ? BEM_BASE : `${BEM_BASE}-${cellState}`}
+        onClick={handleClicked}
+        role="button"
       >
-        <Icon glyph="Undo"></Icon>
-      </IconButton>
-    );
-  }
-
-  renderExpand(canExpand: boolean) {
-    if (!canExpand) {
-      return null;
-    }
-    return (
-      <span>
-        <IconButton
-          className={BUTTON_CLASS}
-          // @ts-expect-error TODO: size="small" is not an acceptable size
-          size="small"
-          aria-label="Expand"
-          onClick={this.handleDrillDown.bind(this)}
-        >
-          <Icon glyph="OpenNewTab" size="xsmall" />
-        </IconButton>
-      </span>
-    );
-  }
-
-  render() {
-    let element;
-    let className = BEM_BASE;
-    let canUndo = false;
-    let canExpand = false;
-
-    if (!this.editable) {
-      element = '';
-      className = `${className}-${UNEDITABLE}`;
-    } else if (this.isEmpty || this.isDeleted) {
-      element = 'No field';
-      className = `${className}-${EMPTY}`;
-    } else if (!this.element.isCurrentTypeValid()) {
-      element = this.renderInvalidCell();
-      className = `${className}-${INVALID}`;
-      canUndo = true;
-    } else if (this.element.isRemoved()) {
-      element = 'Deleted field';
-      className = `${className}-${DELETED}`;
-      canUndo = true;
-    } else {
-      element = this.renderValidCell();
-      if (this.element.isAdded()) {
-        className = `${className}-${ADDED}`;
-        canUndo = true;
-      } else if (this.element.isModified()) {
-        className = `${className}-${EDITED}`;
-        canUndo = true;
-      }
-      canExpand =
-        this.element.currentType === 'Object' ||
-        this.element.currentType === 'Array';
-    }
-
-    return (
-      // `ag-grid` renders this component outside of the context chain
-      // so we re-supply the dark mode theme here.
-      <LeafyGreenProvider darkMode={this.props.darkMode}>
-        {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/interactive-supports-focus*/}
-        <div
-          className={className}
-          onClick={this.handleClicked.bind(this)}
-          role="button"
-        >
-          {this.renderUndo(canUndo, canExpand)}
-          {this.renderExpand(canExpand)}
-          {element}
-        </div>
-      </LeafyGreenProvider>
-    );
-  }
-
-  static displayName = 'CellRenderer';
-}
+        <CellContent
+          element={element}
+          cellState={cellState}
+          onUndo={handleUndo}
+          onExpand={handleDrillDown}
+        />
+      </div>
+    </LeafyGreenProvider>
+  );
+};
 
 export default withDarkMode(CellRenderer);
+
+interface CellUndoButtonProps {
+  alignLeft: boolean;
+  onClick: (event: React.MouseEvent) => void;
+}
+
+const CellUndoButton: React.FC<CellUndoButtonProps> = ({
+  alignLeft,
+  onClick,
+}) => {
+  let undoButtonClass = `${BUTTON_CLASS} ${BUTTON_CLASS}-undo`;
+  if (alignLeft) {
+    undoButtonClass = `${undoButtonClass} ${BUTTON_CLASS}-left`;
+  }
+
+  return (
+    <IconButton
+      className={undoButtonClass}
+      // @ts-expect-error TODO: size="small" is not an acceptable size
+      size="small"
+      aria-label="Undo"
+      onClick={onClick}
+    >
+      <Icon glyph="Undo"></Icon>
+    </IconButton>
+  );
+};
+
+interface CellExpandButtonProps {
+  onClick: (event: React.MouseEvent) => void;
+}
+
+const CellExpandButton: React.FC<CellExpandButtonProps> = ({ onClick }) => {
+  return (
+    <IconButton
+      className={BUTTON_CLASS}
+      // @ts-expect-error TODO: size="small" is not an acceptable size
+      size="small"
+      aria-label="Expand"
+      onClick={onClick}
+    >
+      <Icon glyph="OpenNewTab" size="xsmall" />
+    </IconButton>
+  );
+};

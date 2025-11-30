@@ -21,7 +21,7 @@ import { spacing } from '@leafygreen-ui/tokens';
 import { KeyEditor, ValueEditor, TypeEditor } from './element-editors';
 import { EditActions, AddFieldActions } from './element-actions';
 import { useAutoFocusContext } from './auto-focus-context';
-import { useForceUpdate } from './use-force-update';
+import { useForceUpdate } from '../../hooks/use-force-update';
 import { usePrevious } from './use-previous';
 import { css, cx } from '@leafygreen-ui/emotion';
 import { palette } from '@leafygreen-ui/palette';
