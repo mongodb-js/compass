@@ -145,7 +145,8 @@ export default connect(
   },
   {
     onExportToLanguage: exportToLanguage,
-    onExportData: () => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    onExportData: (_action: ExportDataOption) => {
       return (dispatch: PipelineBuilderThunkDispatch) => {
         dispatch(exportAggregationResults());
       };
