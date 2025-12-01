@@ -55,9 +55,11 @@ function AuthenticationGSSAPI({
   const canonicalizeHostname =
     authMechanismProperties.get('CANONICALIZE_HOST_NAME') || 'none';
 
-  const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [showPassword, setShowPassword] = useState<boolean>(() => {
+    return password.length > 0;
+  });
   useSyncStateOnPropChange(() => {
-    if (!showPassword && password.length) {
+    if (!showPassword && password.length > 0) {
       setShowPassword(true);
     }
   }, [showPassword, password]);
