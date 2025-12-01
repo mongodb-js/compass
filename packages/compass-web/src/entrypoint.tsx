@@ -105,7 +105,13 @@ const WithAtlasProviders: React.FC<{ children: React.ReactNode }> = ({
   return (
     <AtlasCloudAuthServiceProvider>
       <AtlasClusterConnectionsOnlyProvider value={true}>
-        <AtlasServiceProvider>
+        <AtlasServiceProvider
+          options={{
+            defaultHeaders: {
+              'X-Request-Origin': 'atlas-data-explorer',
+            },
+          }}
+        >
           <AtlasAiServiceProvider apiURLPreset="cloud">
             {children}
           </AtlasAiServiceProvider>

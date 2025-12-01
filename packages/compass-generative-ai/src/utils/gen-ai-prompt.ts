@@ -55,7 +55,7 @@ function buildInstructionsForAggregateQuery() {
 }
 
 export type UserPromptForQueryOptions = {
-  userPrompt: string;
+  userInput: string;
   databaseName?: string;
   collectionName?: string;
   schema?: unknown;
@@ -64,7 +64,7 @@ export type UserPromptForQueryOptions = {
 
 function buildUserPromptForQuery({
   type,
-  userPrompt,
+  userInput,
   databaseName,
   collectionName,
   schema,
@@ -75,7 +75,7 @@ function buildUserPromptForQuery({
   const queryPrompt = [
     type === 'find' ? 'Write a query' : 'Generate an aggregation',
     'that does the following:',
-    `"${userPrompt}"`,
+    `"${userInput}"`,
   ].join(' ');
 
   if (databaseName) {
@@ -129,20 +129,12 @@ export type AiQueryPrompt = {
   };
 };
 
-export function buildFindQueryPrompt({
-  userPrompt,
-  databaseName,
-  collectionName,
-  schema,
-  sampleDocuments,
-}: UserPromptForQueryOptions): AiQueryPrompt {
+export function buildFindQueryPrompt(
+  options: UserPromptForQueryOptions
+): AiQueryPrompt {
   const prompt = buildUserPromptForQuery({
     type: 'find',
-    userPrompt,
-    databaseName,
-    collectionName,
-    schema,
-    sampleDocuments,
+    ...options,
   });
   const instructions = buildInstructionsForFindQuery();
   return {
@@ -153,20 +145,12 @@ export function buildFindQueryPrompt({
   };
 }
 
-export function buildAggregateQueryPrompt({
-  userPrompt,
-  databaseName,
-  collectionName,
-  schema,
-  sampleDocuments,
-}: UserPromptForQueryOptions): AiQueryPrompt {
+export function buildAggregateQueryPrompt(
+  options: UserPromptForQueryOptions
+): AiQueryPrompt {
   const prompt = buildUserPromptForQuery({
     type: 'aggregate',
-    userPrompt,
-    databaseName,
-    collectionName,
-    schema,
-    sampleDocuments,
+    ...options,
   });
   const instructions = buildInstructionsForAggregateQuery();
   return {

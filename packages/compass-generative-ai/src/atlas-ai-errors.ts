@@ -18,4 +18,15 @@ class AtlasAiServiceApiResponseParseError extends Error {
   }
 }
 
-export { AtlasAiServiceInvalidInputError, AtlasAiServiceApiResponseParseError };
+class AtlasAiServiceGenAiResponseError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'AtlasAiServiceGenAiResponseError';
+  }
+}
+
+export {
+  AtlasAiServiceInvalidInputError,
+  AtlasAiServiceApiResponseParseError,
+  AtlasAiServiceGenAiResponseError,
+};

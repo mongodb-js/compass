@@ -15,7 +15,17 @@ import { optIntoGenAIWithModalPrompt } from './store/atlas-optin-reducer';
 import {
   AtlasAiServiceInvalidInputError,
   AtlasAiServiceApiResponseParseError,
+  AtlasAiServiceGenAiResponseError,
 } from './atlas-ai-errors';
+import { createOpenAI } from '@ai-sdk/openai';
+import {
+  AiChatTransport,
+  type SendMessagesPayload,
+} from './utils/ai-chat-transport';
+import {
+  buildAggregateQueryPrompt,
+  buildFindQueryPrompt,
+} from './utils/gen-ai-prompt';
 
 type GenerativeAiInput = {
   userInput: string;
@@ -36,14 +46,6 @@ type AIAggregation = {
   content: {
     aggregation?: {
       pipeline?: string;
-    };
-  };
-};
-
-type AIFeatureEnablement = {
-  features: {
-    [featureName: string]: {
-      enabled: boolean;
     };
   };
 };
@@ -98,6 +100,40 @@ function buildQueryOrAggregationMessageBody(
 
 function hasExtraneousKeys(obj: any, expectedKeys: string[]) {
   return Object.keys(obj).some((key) => !expectedKeys.includes(key));
+}
+
+/**
+ * For generating queries with the AI chatbot, currently we don't
+ * have a chat interface and only need to send a single message.
+ * This function builds the message so it can be sent to the AI model.
+ */
+function buildChatMessageForAiModel(
+  { signal, ...restOfInput }: Omit<GenerativeAiInput, 'requestId'>,
+  { type }: { type: 'find' | 'aggregate' }
+): SendMessagesPayload {
+  const { prompt, metadata } =
+    type === 'aggregate'
+      ? buildAggregateQueryPrompt(restOfInput)
+      : buildFindQueryPrompt(restOfInput);
+  return {
+    trigger: 'submit-message',
+    chatId: crypto.randomUUID(),
+    messageId: undefined,
+    messages: [
+      {
+        id: crypto.randomUUID(),
+        role: 'user',
+        parts: [
+          {
+            type: 'text',
+            text: prompt,
+          },
+        ],
+        metadata,
+      },
+    ],
+    abortSignal: signal,
+  };
 }
 
 export function validateAIQueryResponse(
@@ -271,6 +307,8 @@ export class AtlasAiService {
   private preferences: PreferencesAccess;
   private logger: Logger;
 
+  private chatTransport: AiChatTransport;
+
   constructor({
     apiURLPreset,
     atlasService,
@@ -286,8 +324,16 @@ export class AtlasAiService {
     this.atlasService = atlasService;
     this.preferences = preferences;
     this.logger = logger;
-
     this.initPromise = this.setupAIAccess();
+
+    const model = createOpenAI({
+      apiKey: '',
+      baseURL: this.atlasService.assistantApiEndpoint(),
+      fetch: this.atlasService.authenticatedFetch.bind(this.atlasService),
+      // TODO(COMPASS-10125): Switch the model to `mongodb-slim-latest` when
+      // enabling this feature (to use edu-chatbot for GenAI).
+    }).responses('mongodb-chat-latest');
+    this.chatTransport = new AiChatTransport({ model });
   }
 
   /**
@@ -423,6 +469,13 @@ export class AtlasAiService {
     input: GenerativeAiInput,
     connectionInfo: ConnectionInfo
   ) {
+    if (this.preferences.getPreferences().enableChatbotEndpointForGenAI) {
+      return this.generateQueryUsingChatbot(
+        input,
+        validateAIAggregationResponse,
+        { type: 'aggregate' }
+      );
+    }
     return this.getQueryOrAggregationFromUserInput(
       {
         connectionInfo,
@@ -437,6 +490,11 @@ export class AtlasAiService {
     input: GenerativeAiInput,
     connectionInfo: ConnectionInfo
   ) {
+    if (this.preferences.getPreferences().enableChatbotEndpointForGenAI) {
+      return this.generateQueryUsingChatbot(input, validateAIQueryResponse, {
+        type: 'find',
+      });
+    }
     return this.getQueryOrAggregationFromUserInput(
       {
         urlId: 'query',
@@ -527,12 +585,96 @@ export class AtlasAiService {
     });
   }
 
-  private validateAIFeatureEnablementResponse(
-    response: any
-  ): asserts response is AIFeatureEnablement {
-    const { features } = response;
-    if (typeof features !== 'object') {
-      throw new Error('Unexpected response: expected features to be an object');
+  private parseXmlResponseAndMapToMmsJsonResponse(responseStr: string): any {
+    const expectedTags = [
+      'filter',
+      'project',
+      'sort',
+      'skip',
+      'limit',
+      'aggregation',
+    ];
+
+    // Currently the prompt forces LLM to return xml-styled data
+    const result: any = {};
+    for (const tag of expectedTags) {
+      const regex = new RegExp(`<${tag}>([\\s\\S]*?)<\\/${tag}>`, 'i');
+      const match = responseStr.match(regex);
+      if (match && match[1]) {
+        const value = match[1].trim();
+        try {
+          // Here the value is valid js string, but not valid json, so we use eval to parse it.
+          const tagValue = eval(`(${value})`);
+          if (
+            !tagValue ||
+            (typeof tagValue === 'object' && Object.keys(tagValue).length === 0)
+          ) {
+            result[tag] = null;
+          } else {
+            result[tag] = JSON.stringify(tagValue);
+          }
+        } catch (e) {
+          this.logger.log.warn(
+            this.logger.mongoLogId(1_001_000_309),
+            'AtlasAiService',
+            `Failed to parse value for tag <${tag}>: ${value}`,
+            { error: e }
+          );
+          result[tag] = null;
+        }
+      }
     }
+
+    // Keep the response same as we have from mms api
+    return {
+      content: {
+        aggregation: {
+          pipeline: result.aggregation,
+        },
+        query: {
+          filter: result.filter,
+          project: result.project,
+          sort: result.sort,
+          skip: result.skip,
+          limit: result.limit,
+        },
+      },
+    };
+  }
+
+  private async generateQueryUsingChatbot<T>(
+    // TODO(COMPASS-10083): When storing data, we want have requestId as well.
+    input: Omit<GenerativeAiInput, 'requestId'>,
+    validateFn: (res: any) => asserts res is T,
+    options: { type: 'find' | 'aggregate' }
+  ): Promise<T> {
+    this.throwIfAINotEnabled();
+    const response = await this.chatTransport.sendMessages(
+      buildChatMessageForAiModel(input, options)
+    );
+
+    const chunks: string[] = [];
+    let done = false;
+    const reader = response.getReader();
+    while (!done) {
+      const { done: _done, value } = await reader.read();
+      if (_done) {
+        done = true;
+        break;
+      }
+      if (value.type === 'text-delta') {
+        chunks.push(value.delta);
+      }
+      if (value.type === 'error') {
+        throw new AtlasAiServiceGenAiResponseError(value.errorText);
+      }
+    }
+
+    const responseText = chunks.join('');
+    const parsedResponse =
+      this.parseXmlResponseAndMapToMmsJsonResponse(responseText);
+    validateFn(parsedResponse);
+
+    return parsedResponse;
   }
 }
