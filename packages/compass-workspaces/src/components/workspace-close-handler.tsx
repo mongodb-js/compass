@@ -1,6 +1,7 @@
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import type { WorkspaceTab } from '../types';
 import { useWorkspaceTabId } from './workspace-tab-state-provider';
+import { useCurrentValueRef } from '@mongodb-js/compass-components';
 
 export type WorkspaceDestroyHandler = () => boolean;
 
@@ -77,14 +78,13 @@ function useOnTabDestroyHandler(
   handler: WorkspaceDestroyHandler
 ) {
   const tabId = useWorkspaceTabId();
-  const handlerRef = useRef(handler);
-  handlerRef.current = handler;
+  const handlerRef = useCurrentValueRef(handler);
   useEffect(() => {
     const onClose: WorkspaceDestroyHandler = () => {
       return handlerRef.current();
     };
     return setTabDestroyHandler(type, tabId, onClose);
-  }, [type, tabId]);
+  }, [type, tabId, handlerRef]);
 }
 
 /**

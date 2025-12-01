@@ -9,6 +9,7 @@ import {
   WorkspaceContainer,
   spacing,
   withDarkMode,
+  useCurrentValueRef,
 } from '@mongodb-js/compass-components';
 import type { InsertDocumentDialogProps } from './insert-document-dialog';
 import InsertDocumentDialog from './insert-document-dialog';
@@ -225,8 +226,9 @@ const useViewScrollTop = (view: DocumentView, isFetching: boolean) => {
     }
   }, [view, listViewScrollTop, jsonViewScrollTop]);
 
-  const currentViewInitialScrollTopRef = useRef(currentViewInitialScrollTop);
-  currentViewInitialScrollTopRef.current = currentViewInitialScrollTop;
+  const currentViewInitialScrollTopRef = useCurrentValueRef(
+    currentViewInitialScrollTop
+  );
 
   const setCurrentViewInitialScrollTop = useCallback(
     (scrollTop: number) => {
@@ -239,10 +241,9 @@ const useViewScrollTop = (view: DocumentView, isFetching: boolean) => {
     [view, setListViewScrollTop, setJsonViewScrollTop]
   );
 
-  const setCurrentViewInitialScrollTopRef = useRef(
+  const setCurrentViewInitialScrollTopRef = useCurrentValueRef(
     setCurrentViewInitialScrollTop
   );
-  setCurrentViewInitialScrollTopRef.current = setCurrentViewInitialScrollTop;
 
   // Preserve the scroll top for the current view when the entire component is
   // being unmounted
@@ -259,7 +260,7 @@ const useViewScrollTop = (view: DocumentView, isFetching: boolean) => {
         scrollRef.current?.scrollTop ?? 0
       );
     };
-  }, []);
+  }, [currentViewInitialScrollTopRef, setCurrentViewInitialScrollTopRef]);
 
   // Preserve the scroll top when documents are refreshed and loading List /
   // JSON view unmounts in between
@@ -271,7 +272,7 @@ const useViewScrollTop = (view: DocumentView, isFetching: boolean) => {
     ) {
       scrollRef.current.scrollTop = currentViewInitialScrollTopRef.current;
     }
-  }, [isFetching]);
+  }, [currentViewInitialScrollTopRef, isFetching]);
 
   return {
     scrollRef,

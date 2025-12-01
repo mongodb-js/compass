@@ -1,7 +1,8 @@
-import React, { createContext, useContext, useRef } from 'react';
+import React, { createContext, useContext } from 'react';
 import type { types } from '@mongodb-js/mdb-experiment-js';
 import type { typesReact } from '@mongodb-js/mdb-experiment-js/react';
 import type { ExperimentTestName } from './growth-experiments';
+import { useInitialValue } from '@mongodb-js/compass-components';
 
 type UseAssignmentHook = (
   experimentName: ExperimentTestName,
@@ -79,19 +80,23 @@ export const CompassExperimentationProvider: React.FC<{
   getAssignment,
   useTrackInSample,
 }) => {
-  // Use useRef to keep the functions up-to-date; Use mutation pattern to maintain the
-  // same object reference to prevent unnecessary re-renders of consuming components
-  const { current: contextValue } = useRef({
+  // Use mutation pattern to maintain the same object reference to prevent
+  // unnecessary re-renders of consuming components
+  const contextValue = useInitialValue({
     useAssignment,
     assignExperiment,
     getAssignment,
     useTrackInSample,
   });
-  contextValue.useAssignment = useAssignment;
-  contextValue.assignExperiment = assignExperiment;
-  contextValue.getAssignment = getAssignment;
-  contextValue.useTrackInSample = useTrackInSample;
-
+  // We use useInitialValue to keep a stable object reference, but then we
+  // directly assign the values to it to make they are always up to date with
+  // what's being passed
+  Object.assign(contextValue, {
+    useAssignment,
+    assignExperiment,
+    getAssignment,
+    useTrackInSample,
+  });
   return (
     <ExperimentationContext.Provider value={contextValue}>
       {children}
