@@ -1232,7 +1232,7 @@ export const queryBarResetFilterButton = (tabName: string): string => {
 };
 export const queryBarExportToLanguageButton = (tabName: string): string => {
   const tabSelector = collectionContent(tabName);
-  return `${tabSelector} [data-testid="query-bar-open-export-to-language-button"]`;
+  return `${tabSelector} [data-testid="crud-export-to-language-button"]`;
 };
 export const GenAIEntryButton = '[data-testid="open-ai-query-entry-button"]';
 export const GenAITextInput = '[data-testid="ai-user-text-input"]';
