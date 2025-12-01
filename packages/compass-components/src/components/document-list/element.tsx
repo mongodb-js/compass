@@ -1,15 +1,8 @@
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
 import type {
   default as HadronDocumentType,
   Element as HadronElementType,
-  Editor as EditorType,
 } from 'hadron-document';
 import {
   ElementEvents,
@@ -49,18 +42,18 @@ function getEditorByType(type: HadronElementType['type']) {
 }
 
 function useElementEditor(el: HadronElementType) {
-  const editor = useRef<EditorType | null>(null);
-
-  if (
-    !editor.current ||
-    editor.current?.element !== el ||
-    editor.current?.type !== el.currentType
-  ) {
-    const Editor = getEditorByType(el.currentType);
-    editor.current = new Editor(el);
-  }
-
-  return editor.current;
+  return useMemo(
+    () => {
+      const Editor = getEditorByType(el.currentType);
+      return new Editor(el);
+    },
+    // The list of deps is exhaustive, but we want `currentType` to be an
+    // explicit dependency of the memo to make sure that even if the `el`
+    // instance is the same, but `currentType` changed, we create a new editor
+    // instance
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [el, el.currentType]
+  );
 }
 
 function useHadronElement(el: HadronElementType) {

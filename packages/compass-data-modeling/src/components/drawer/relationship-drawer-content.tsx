@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useRef } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { connect } from 'react-redux';
 import type { DataModelingState } from '../../store/reducer';
 import {
@@ -10,6 +10,7 @@ import {
   css,
   palette,
   TextArea,
+  useCurrentValueRef,
 } from '@mongodb-js/compass-components';
 import {
   deleteRelationship,
@@ -52,8 +53,7 @@ function useRelationshipFormFields(
 ): RelationshipFormFields & {
   onFieldChange: (key: keyof RelationshipFormFields, value: string) => void;
 } {
-  const onRelationshipChangeRef = useRef(onRelationshipChange);
-  onRelationshipChangeRef.current = onRelationshipChange;
+  const onRelationshipChangeRef = useCurrentValueRef(onRelationshipChange);
   const [local, foreign] = relationship.relationship;
   const localCollection = local.ns ?? '';
   // Leafygreen select / combobox only supports string fields, so we stringify
@@ -93,7 +93,7 @@ function useRelationshipFormFields(
       }
       onRelationshipChangeRef.current(newRelationship);
     },
-    [relationship]
+    [onRelationshipChangeRef, relationship]
   );
   return {
     localCollection,

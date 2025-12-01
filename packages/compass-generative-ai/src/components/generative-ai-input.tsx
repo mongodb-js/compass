@@ -20,6 +20,7 @@ import {
   keyframes,
   palette,
   spacing,
+  useCurrentValueRef,
   useDarkMode,
 } from '@mongodb-js/compass-components';
 import {
@@ -394,13 +395,12 @@ function GenerativeAIInput({
     }
   }, [show]);
 
-  const onCancelRequestRef = useRef(onCancelRequest);
-  onCancelRequestRef.current = onCancelRequest;
+  const onCancelRequestRef = useCurrentValueRef(onCancelRequest);
 
   useEffect(() => {
     // When unmounting, ensure we cancel any ongoing requests.
     return () => onCancelRequestRef.current?.();
-  }, []);
+  }, [onCancelRequestRef]);
 
   if (!show) {
     return null;

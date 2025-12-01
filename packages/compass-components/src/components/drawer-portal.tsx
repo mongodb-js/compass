@@ -18,6 +18,7 @@ import { isEqual } from 'lodash';
 import { rafraf } from '../utils/rafraf';
 import { GuideCue, type GuideCueProps } from './guide-cue/guide-cue';
 import { BaseFontSize, fontWeights } from '@leafygreen-ui/tokens';
+import { useInitialValue } from '../hooks/use-initial-value';
 
 type ToolbarData = Required<DrawerLayoutProps>['toolbarData'];
 
@@ -498,7 +499,7 @@ export { DrawerDisplayMode };
 
 export function useDrawerActions() {
   const actions = useContext(DrawerActionsContext);
-  const stableActions = useRef({
+  const stableActions = useInitialValue({
     openDrawer: (id: string) => {
       rafraf(() => {
         actions.current.openDrawer(id);
@@ -508,7 +509,7 @@ export function useDrawerActions() {
       actions.current.closeDrawer();
     },
   });
-  return stableActions.current;
+  return stableActions;
 }
 
 export const useDrawerState = () => {
