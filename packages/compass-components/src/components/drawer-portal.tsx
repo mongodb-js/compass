@@ -51,6 +51,9 @@ type DrawerActionsContextValue = {
     closeDrawer: () => void;
     updateToolbarData: (data: DrawerSectionProps) => void;
     removeToolbarData: (id: string) => void;
+    setCurrent: (
+      fn: (current: DrawerActionsContextValue['current']) => void
+    ) => void;
   };
 };
 
@@ -78,6 +81,7 @@ const DrawerActionsContext = React.createContext<DrawerActionsContextValue>({
     closeDrawer: () => undefined,
     updateToolbarData: () => undefined,
     removeToolbarData: () => undefined,
+    setCurrent: () => undefined,
   },
 });
 
@@ -124,7 +128,7 @@ export const DrawerContentProvider: React.FunctionComponent<{
     useState<DrawerOpenStateContextValue>(false);
   const [drawerCurrentTab, setDrawerCurrentTab] =
     useState<DrawerCurrentTabStateContextValue>(null);
-  const drawerActions = useRef({
+  const drawerActions = useRef<DrawerActionsContextValue['current']>({
     openDrawer: () => undefined,
     closeDrawer: () => undefined,
     updateToolbarData: (data: DrawerSectionProps) => {
@@ -146,6 +150,9 @@ export const DrawerContentProvider: React.FunctionComponent<{
           return data.id !== id;
         });
       });
+    },
+    setCurrent: (fn) => {
+      fn(drawerActions.current);
     },
   });
 
@@ -187,11 +194,14 @@ export const DrawerContentProvider: React.FunctionComponent<{
 
 const DrawerContextGrabber: React.FunctionComponent = ({ children }) => {
   const drawerToolbarContext = useDrawerToolbarContext();
-  const actions = useContext(DrawerActionsContext);
   const openStateSetter = useContext(DrawerSetOpenStateContext);
   const currentTabSetter = useContext(DrawerSetCurrentTabContext);
-  actions.current.openDrawer = drawerToolbarContext.openDrawer;
-  actions.current.closeDrawer = drawerToolbarContext.closeDrawer;
+  const actions = useContext(DrawerActionsContext);
+
+  actions.current.setCurrent((current) => {
+    current.openDrawer = drawerToolbarContext.openDrawer;
+    current.closeDrawer = drawerToolbarContext.closeDrawer;
+  });
 
   useEffect(() => {
     openStateSetter(drawerToolbarContext.isDrawerOpen);

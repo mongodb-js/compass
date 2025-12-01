@@ -1,14 +1,15 @@
-import type { Logger } from '@mongodb-js/compass-logging';
-import { mongoLogId, debug as _debug } from '@mongodb-js/compass-logging';
+import type { MongoLogWriter } from 'mongodb-log-writer';
+import { mongoLogId } from 'mongodb-log-writer';
+import _debug from 'debug';
 
-export const debug = _debug.extend('data-service');
+export const debug = _debug('data-service');
 
 export { mongoLogId };
 
 type MongoLogId = ReturnType<typeof mongoLogId>;
 
 export type DataServiceImplLogger = Pick<
-  Logger['log']['unbound'],
+  MongoLogWriter,
   'debug' | 'info' | 'warn' | 'error' | 'fatal'
 >;
 
