@@ -88,7 +88,6 @@ function LightningSparks({
 // Shows a plug that animates through the connection process.
 export function ConnectionPlug() {
   const isConnected = useIsAConnectionConnected();
-  const animationStartTime = useRef<number>(Date.now());
   const animationFrameRef = useRef<number | null>(null);
 
   // 0 = disconnected/animation start, 1 = connected/animation complete.
@@ -100,16 +99,15 @@ export function ConnectionPlug() {
     const cancelOngoingAnimation = () => {
       if (animationFrameRef.current) {
         cancelAnimationFrame(animationFrameRef.current);
-        animationFrameRef.current = null;
       }
     };
 
     if (isConnected) {
       cancelOngoingAnimation();
-      animationStartTime.current = Date.now();
+      const animationStartTime = Date.now();
 
       const animate = () => {
-        const elapsed = Date.now() - animationStartTime.current;
+        const elapsed = Date.now() - animationStartTime;
         const rawProgress = Math.min(
           elapsed / CONNECT_ANIMATION_DURATION_MS,
           1
@@ -129,10 +127,10 @@ export function ConnectionPlug() {
     } else if (!isConnected) {
       cancelOngoingAnimation();
       // Quick disconnect animation.
-      animationStartTime.current = Date.now();
+      const animationStartTime = Date.now();
 
       const animate = () => {
-        const elapsed = Date.now() - animationStartTime.current;
+        const elapsed = Date.now() - animationStartTime;
         const rawProgress = Math.min(
           elapsed / DISCONNECT_ANIMATION_DURATION_MS,
           1
