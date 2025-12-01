@@ -42,13 +42,11 @@ export const ThemeProvider = ({
 const withDarkMode = function <
   ComponentProps extends WithDarkModeProps = WithDarkModeProps
 >(
-  WrappedComponent: React.ComponentType<ComponentProps & WithDarkModeProps>
+  WrappedComponent: React.ComponentType<ComponentProps>
 ): React.ComponentType<ComponentProps> {
   const ComponentWithDarkMode = (
     props: ComponentProps,
-    ref: React.ForwardedRef<
-      React.ComponentType<ComponentProps & WithDarkModeProps>
-    >
+    ref: React.ForwardedRef<React.ComponentType<ComponentProps>>
   ) => {
     const darkMode = useDarkMode();
     return (
