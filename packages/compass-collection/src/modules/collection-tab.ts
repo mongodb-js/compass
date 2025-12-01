@@ -131,6 +131,7 @@ export type CollectionState = {
   fakerSchemaGeneration: MockDataGeneratorState;
 };
 
+// @ts-expect-error TODO(COMPASS-10124): replace enums with const kv objects
 export enum CollectionActions {
   CollectionMetadataFetched = 'compass-collection/CollectionMetadataFetched',
   SchemaAnalysisStarted = 'compass-collection/SchemaAnalysisStarted',

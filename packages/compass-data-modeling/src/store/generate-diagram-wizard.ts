@@ -26,6 +26,7 @@ export type GenerateDiagramWizardState = {
   error: Error | null;
 };
 
+// @ts-expect-error TODO(COMPASS-10124): replace enums with const kv objects
 export enum GenerateDiagramWizardActionTypes {
   CREATE_NEW_DIAGRAM = 'data-modeling/generate-diagram-wizard/CREATE_NEW_DIAGRAM',
   CANCEL_CREATE_NEW_DIAGRAM = 'data-modeling/generate-diagram-wizard/CANCEL_CREATE_NEW_DIAGRAM',

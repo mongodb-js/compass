@@ -31,6 +31,7 @@ export type AnalysisProcessState = {
   relationsInferred: number;
 };
 
+// @ts-expect-error TODO(COMPASS-10124): replace enums with const kv objects
 export enum AnalysisProcessActionTypes {
   ANALYZING_COLLECTIONS_START = 'data-modeling/analysis-stats/ANALYZING_COLLECTIONS_START',
   NAMESPACE_SAMPLE_FETCHED = 'data-modeling/analysis-stats/NAMESPACE_SAMPLE_FETCHED',

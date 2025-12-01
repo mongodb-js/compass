@@ -1,6 +1,7 @@
 import { ExperimentTestGroup, ExperimentTestName } from './growth-experiments';
 import { useAssignment, useTrackInSample } from './experimentation-provider';
 
+// @ts-expect-error TODO(COMPASS-10124): replace enums with const kv objects
 export enum SkillsBannerContextEnum {
   Documents = 'documents',
   Aggregation = 'aggregation',

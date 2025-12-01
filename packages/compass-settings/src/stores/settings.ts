@@ -38,6 +38,7 @@ export const INITIAL_STATE: State = {
   tab: undefined,
 };
 
+// @ts-expect-error TODO(COMPASS-10124): replace enums with const kv objects
 export enum ActionTypes {
   // TODO(COMPASS-7098): based on usage, `fetched` and `synced` should be two
   // different groups of actions, not one

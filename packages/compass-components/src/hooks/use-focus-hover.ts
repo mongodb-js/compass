@@ -7,6 +7,7 @@ import { mergeProps } from '@react-aria/utils';
 import type React from 'react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
+// @ts-expect-error TODO(COMPASS-10124): replace enums with const kv objects
 export enum FocusState {
   NoFocus = 'NoFocus',
   FocusVisible = 'FocusVisible',

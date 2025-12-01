@@ -221,6 +221,7 @@ export type ConnectionsThunkAction<
   A extends AnyAction = AnyAction
 > = ThunkAction<R, State, ThunkExtraArg, A>;
 
+// @ts-expect-error TODO(COMPASS-10124): replace enums with const kv objects
 export const enum ActionTypes {
   // Actions related to getting connections from the persistent store (like disk
   // or cloud backend)

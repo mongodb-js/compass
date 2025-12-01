@@ -57,18 +57,25 @@ function createCompassWebDebugger(
 
 export class CompassWebLogger implements Logger {
   log: Logger['log'];
-
   debug: Debugger;
-
+  private component: string;
+  private callbackRef: {
+    current: {
+      onLog?: LogFunction;
+      onDebug?: DebugFunction;
+    };
+  };
   constructor(
-    private component: string,
-    private callbackRef: {
+    component: string,
+    callbackRef: {
       current: {
         onLog?: LogFunction;
         onDebug?: DebugFunction;
       };
     }
   ) {
+    this.component = component;
+    this.callbackRef = callbackRef;
     const target = {
       write(line: string, callback: () => void) {
         callbackRef.current.onLog?.(JSON.parse(line));
