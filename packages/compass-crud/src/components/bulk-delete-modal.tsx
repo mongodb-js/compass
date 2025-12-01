@@ -94,7 +94,12 @@ const BulkDeleteModal: React.FunctionComponent<BulkDeleteModalProps> = ({
 
   const exportButtonId = useId();
   return (
-    <Modal setOpen={onCancel} open={open} data-testid="bulk-delete-modal">
+    <Modal
+      setOpen={onCancel}
+      open={open}
+      data-testid="bulk-delete-modal"
+      initialFocus={`#${exportButtonId}`}
+    >
       <ModalHeader
         title={`Delete ${documentCount ?? ''} document${
           documentCount === 1 ? '' : 's'
