@@ -6,13 +6,12 @@ import type { SavedQueryAggregationThunkAction } from '.';
 import type { Actions as DeleteItemActions } from './delete-item';
 import { ActionTypes as DeleteItemActionTypes } from './delete-item';
 
-// @ts-expect-error TODO(COMPASS-10124): replace enums with const kv objects
-export enum ActionTypes {
-  ITEMS_FETCHED = 'compass-saved-aggregations-queries/itemsFetched',
-}
+export const ActionTypes = {
+  ITEMS_FETCHED: 'compass-saved-aggregations-queries/itemsFetched',
+} as const;
 
 export type Actions = {
-  type: ActionTypes.ITEMS_FETCHED;
+  type: typeof ActionTypes.ITEMS_FETCHED;
   payload: Item[];
 };
 

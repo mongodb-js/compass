@@ -3,11 +3,12 @@ import LeafyGreenProvider, {
   useDarkMode as useLeafyGreenDarkMode,
 } from '@leafygreen-ui/leafygreen-provider';
 
-// @ts-expect-error TODO(COMPASS-10124): replace enums with const kv objects
-enum Theme {
-  Light = 'Light',
-  Dark = 'Dark',
-}
+const Themes = {
+  Light: 'Light',
+  Dark: 'Dark',
+} as const;
+
+export type Theme = (typeof Themes)[keyof typeof Themes];
 
 export function useDarkMode(localDarkMode?: boolean): boolean | undefined {
   const darkMode = useLeafyGreenDarkMode(localDarkMode);
@@ -30,7 +31,7 @@ export const ThemeProvider = ({
   };
 }): React.ReactElement => {
   return theme.enabled ? (
-    <LeafyGreenProvider darkMode={theme.theme === Theme.Dark}>
+    <LeafyGreenProvider darkMode={theme.theme === Themes.Dark}>
       {children}
     </LeafyGreenProvider>
   ) : (
@@ -70,4 +71,4 @@ const withDarkMode = function <
   ) as unknown as typeof WrappedComponent;
 };
 
-export { Theme, withDarkMode };
+export { Themes, withDarkMode };

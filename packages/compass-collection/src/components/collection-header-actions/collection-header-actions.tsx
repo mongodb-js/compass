@@ -19,8 +19,8 @@ import { wrapField } from '@mongodb-js/mongodb-constants';
 import {
   useTelemetry,
   useAssignment,
-  ExperimentTestName,
-  ExperimentTestGroup,
+  ExperimentTestNames,
+  ExperimentTestGroups,
   useTrackOnChange,
   type TrackFunction,
 } from '@mongodb-js/compass-telemetry/provider';
@@ -100,14 +100,14 @@ const CollectionHeaderActions: React.FunctionComponent<
 
   // Get experiment assignment for Mock Data Generator
   const mockDataGeneratorAssignment = useAssignment(
-    ExperimentTestName.mockDataGenerator,
+    ExperimentTestNames.mockDataGenerator,
     isMockDataGeneratorEligible // Only track eligible collections
   );
 
   // Check if user is in treatment group for Mock Data Generator experiment
   const isInMockDataTreatmentVariant =
     mockDataGeneratorAssignment?.assignment?.assignmentData?.variant ===
-    ExperimentTestGroup.mockDataGeneratorVariant;
+    ExperimentTestGroups.mockDataGeneratorVariant;
 
   const shouldShowMockDataButton =
     isMockDataGeneratorEligible && isInMockDataTreatmentVariant;

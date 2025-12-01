@@ -91,23 +91,24 @@ export const prepareInProgressIndex = (
   };
 };
 
-// @ts-expect-error TODO(COMPASS-10124): replace enums with const kv objects
-export enum ActionTypes {
-  IndexesOpened = 'compass-indexes/regular-indexes/indexes-opened',
-  IndexesClosed = 'compass-indexes/regular-indexes/indexes-closed',
+export const ActionTypes = {
+  IndexesOpened: 'compass-indexes/regular-indexes/indexes-opened',
+  IndexesClosed: 'compass-indexes/regular-indexes/indexes-closed',
 
-  FetchIndexesStarted = 'compass-indexes/regular-indexes/fetch-indexes-started',
-  FetchIndexesSucceeded = 'compass-indexes/regular-indexes/fetch-indexes-succeeded',
-  FetchIndexesFailed = 'compass-indexes/regular-indexes/fetch-indexes-failed',
+  FetchIndexesStarted: 'compass-indexes/regular-indexes/fetch-indexes-started',
+  FetchIndexesSucceeded:
+    'compass-indexes/regular-indexes/fetch-indexes-succeeded',
+  FetchIndexesFailed: 'compass-indexes/regular-indexes/fetch-indexes-failed',
 
   // Basically the same thing as ActionTypes.IndexCreationSucceeded
   // in that it will remove the index, but it is for manually removing the row
   // of an index that failed
-  FailedIndexRemoved = 'compass-indexes/regular-indexes/failed-index-removed',
+  FailedIndexRemoved: 'compass-indexes/regular-indexes/failed-index-removed',
 
-  IndexCreationStarted = 'compass-indexes/create-index/index-creation-started',
-  IndexCreationSucceeded = 'compass-indexes/create-index/index-creation-succeeded',
-  IndexCreationFailed = 'compass-indexes/create-index/index-creation-failed',
+  IndexCreationStarted: 'compass-indexes/create-index/index-creation-started',
+  IndexCreationSucceeded:
+    'compass-indexes/create-index/index-creation-succeeded',
+  IndexCreationFailed: 'compass-indexes/create-index/index-creation-failed',
 
   // Special case event that happens on a timeout when rolling index is created.
   //
@@ -118,56 +119,57 @@ export enum ActionTypes {
   // end up with a stuck "in progress" index. For cases like this we will just
   // check whether or not index is still in progress after a few polls and
   // remove the in progress index from the list.
-  RollingIndexTimeoutCheck = 'compass-indexes/create-index/rolling-index-timeout-check',
-}
+  RollingIndexTimeoutCheck:
+    'compass-indexes/create-index/rolling-index-timeout-check',
+} as const;
 
 type IndexesOpenedAction = {
-  type: ActionTypes.IndexesOpened;
+  type: typeof ActionTypes.IndexesOpened;
 };
 
 type IndexesClosedAction = {
-  type: ActionTypes.IndexesClosed;
+  type: typeof ActionTypes.IndexesClosed;
 };
 
 type FetchIndexesStartedAction = {
-  type: ActionTypes.FetchIndexesStarted;
+  type: typeof ActionTypes.FetchIndexesStarted;
   reason: FetchReason;
 };
 
 type FetchIndexesSucceededAction = {
-  type: ActionTypes.FetchIndexesSucceeded;
+  type: typeof ActionTypes.FetchIndexesSucceeded;
   indexes: RegularIndex[];
   rollingIndexes?: RollingIndex[];
 };
 
 type FetchIndexesFailedAction = {
-  type: ActionTypes.FetchIndexesFailed;
+  type: typeof ActionTypes.FetchIndexesFailed;
   error: string;
 };
 
 type IndexCreationStartedAction = {
-  type: ActionTypes.IndexCreationStarted;
+  type: typeof ActionTypes.IndexCreationStarted;
   inProgressIndex: InProgressIndex;
 };
 
 type IndexCreationSucceededAction = {
-  type: ActionTypes.IndexCreationSucceeded;
+  type: typeof ActionTypes.IndexCreationSucceeded;
   inProgressIndexId: string;
 };
 
 type IndexCreationFailedAction = {
-  type: ActionTypes.IndexCreationFailed;
+  type: typeof ActionTypes.IndexCreationFailed;
   inProgressIndexId: string;
   error: string;
 };
 
 type FailedIndexRemovedAction = {
-  type: ActionTypes.FailedIndexRemoved;
+  type: typeof ActionTypes.FailedIndexRemoved;
   inProgressIndexId: string;
 };
 
 type RollingIndexTimeoutCheckAction = {
-  type: ActionTypes.RollingIndexTimeoutCheck;
+  type: typeof ActionTypes.RollingIndexTimeoutCheck;
   indexId: string;
 };
 

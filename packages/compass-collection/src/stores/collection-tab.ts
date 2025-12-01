@@ -9,7 +9,7 @@ import reducer, {
   analyzeCollectionSchema,
   cancelSchemaAnalysis,
 } from '../modules/collection-tab';
-import { MockDataGeneratorStep } from '../components/mock-data-generator-modal/types';
+import { MockDataGeneratorSteps } from '../components/mock-data-generator-modal/types';
 import { DEFAULT_DOCUMENT_COUNT } from '../components/mock-data-generator-modal/constants';
 
 import type { Collection } from '@mongodb-js/compass-app-stores/provider';
@@ -24,8 +24,8 @@ import {
   type PreferencesAccess,
 } from 'compass-preferences-model/provider';
 import {
-  ExperimentTestName,
-  ExperimentTestGroup,
+  ExperimentTestNames,
+  ExperimentTestGroups,
 } from '@mongodb-js/compass-telemetry/provider';
 import {
   SCHEMA_ANALYSIS_STATE_INITIAL,
@@ -99,17 +99,17 @@ async function shouldRunSchemaAnalysis(
 ): Promise<boolean> {
   try {
     const assignment = await experimentationServices.getAssignment(
-      ExperimentTestName.mockDataGenerator,
+      ExperimentTestNames.mockDataGenerator,
       false // Don't track "Experiment Viewed" event here
     );
     return (
       assignment?.assignmentData?.variant ===
-      ExperimentTestGroup.mockDataGeneratorVariant
+      ExperimentTestGroups.mockDataGeneratorVariant
     );
   } catch (error) {
     // On error, default to not running schema analysis
     logger.debug('Failed to get Mock Data Generator experiment assignment', {
-      experiment: ExperimentTestName.mockDataGenerator,
+      experiment: ExperimentTestNames.mockDataGenerator,
       namespace: namespace,
       error: error instanceof Error ? error.message : String(error),
     });
@@ -190,7 +190,7 @@ export function activatePlugin(
       },
       mockDataGenerator: {
         isModalOpen: false,
-        currentStep: MockDataGeneratorStep.SCHEMA_CONFIRMATION,
+        currentStep: MockDataGeneratorSteps.SCHEMA_CONFIRMATION,
         documentCount: DEFAULT_DOCUMENT_COUNT.toString(),
       },
       fakerSchemaGeneration: {
@@ -310,12 +310,12 @@ export function activatePlugin(
       isAIFeatureEnabled(preferences.getPreferences()) // Ensures org-level AI features setting is enabled
     ) {
       void experimentationServices
-        .assignExperiment(ExperimentTestName.mockDataGenerator, {
+        .assignExperiment(ExperimentTestNames.mockDataGenerator, {
           team: 'Atlas Growth',
         })
         .catch((error) => {
           logger.debug('Mock Data Generator experiment assignment failed', {
-            experiment: ExperimentTestName.mockDataGenerator,
+            experiment: ExperimentTestNames.mockDataGenerator,
             namespace: namespace,
             error: error instanceof Error ? error.message : String(error),
           });

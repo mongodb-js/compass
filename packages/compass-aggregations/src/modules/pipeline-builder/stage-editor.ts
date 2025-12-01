@@ -35,128 +35,141 @@ import type {
   PipelineGeneratedFromQueryAction,
 } from './pipeline-ai';
 
-// @ts-expect-error TODO(COMPASS-10124): replace enums with const kv objects
-export const enum StageEditorActionTypes {
-  StagePreviewFetch = 'compass-aggregations/pipeline-builder/stage-editor/StagePreviewFetch',
-  StagePreviewFetchSkipped = 'compass-aggregations/pipeline-builder/stage-editor/StagePreviewFetchSkipped',
-  StagePreviewFetchSuccess = 'compass-aggregations/pipeline-builder/stage-editor/StagePreviewFetchSuccess',
-  StagePreviewFetchError = 'compass-aggregations/pipeline-builder/stage-editor/StagePreviewFetchError',
-  StageRun = 'compass-aggregations/pipeline-builder/stage-editor/StageRun',
-  StageRunSuccess = 'compass-aggregations/pipeline-builder/stage-editor/StageRunSuccess',
-  StageRunError = 'compass-aggregations/pipeline-builder/stage-editor/StageRunError',
-  StageValueChange = 'compass-aggregations/pipeline-builder/stage-editor/StageValueChange',
-  StageOperatorChange = 'compass-aggregations/pipeline-builder/stage-editor/StageOperatorChange',
-  StageCollapsedChange = 'compass-aggregations/pipeline-builder/stage-editor/StageCollapsedChange',
-  StageDisabledChange = 'compass-aggregations/pipeline-builder/stage-editor/StageDisabledChange',
-  StageAdded = 'compass-aggregations/pipeline-builder/stage-editor/StageAdded',
-  StageRemoved = 'compass-aggregations/pipeline-builder/stage-editor/StageRemoved',
-  StageMoved = 'compass-aggregations/pipeline-builder/stage-editor/StageMoved',
-  WizardAdded = 'compass-aggregations/pipeline-builder/stage-wizard/WizardAdded',
-  WizardRemoved = 'compass-aggregations/pipeline-builder/stage-wizard/WizardRemoved',
-  WizardChanged = 'compass-aggregations/pipeline-builder/stage-wizard/WizardChanged',
-  WizardToStageClicked = 'compass-aggregations/pipeline-builder/stage-wizard/wizardToStageClicked',
-}
+export const StageEditorActionTypes = {
+  StagePreviewFetch:
+    'compass-aggregations/pipeline-builder/stage-editor/StagePreviewFetch',
+  StagePreviewFetchSkipped:
+    'compass-aggregations/pipeline-builder/stage-editor/StagePreviewFetchSkipped',
+  StagePreviewFetchSuccess:
+    'compass-aggregations/pipeline-builder/stage-editor/StagePreviewFetchSuccess',
+  StagePreviewFetchError:
+    'compass-aggregations/pipeline-builder/stage-editor/StagePreviewFetchError',
+  StageRun: 'compass-aggregations/pipeline-builder/stage-editor/StageRun',
+  StageRunSuccess:
+    'compass-aggregations/pipeline-builder/stage-editor/StageRunSuccess',
+  StageRunError:
+    'compass-aggregations/pipeline-builder/stage-editor/StageRunError',
+  StageValueChange:
+    'compass-aggregations/pipeline-builder/stage-editor/StageValueChange',
+  StageOperatorChange:
+    'compass-aggregations/pipeline-builder/stage-editor/StageOperatorChange',
+  StageCollapsedChange:
+    'compass-aggregations/pipeline-builder/stage-editor/StageCollapsedChange',
+  StageDisabledChange:
+    'compass-aggregations/pipeline-builder/stage-editor/StageDisabledChange',
+  StageAdded: 'compass-aggregations/pipeline-builder/stage-editor/StageAdded',
+  StageRemoved:
+    'compass-aggregations/pipeline-builder/stage-editor/StageRemoved',
+  StageMoved: 'compass-aggregations/pipeline-builder/stage-editor/StageMoved',
+  WizardAdded: 'compass-aggregations/pipeline-builder/stage-wizard/WizardAdded',
+  WizardRemoved:
+    'compass-aggregations/pipeline-builder/stage-wizard/WizardRemoved',
+  WizardChanged:
+    'compass-aggregations/pipeline-builder/stage-wizard/WizardChanged',
+  WizardToStageClicked:
+    'compass-aggregations/pipeline-builder/stage-wizard/wizardToStageClicked',
+} as const;
 
 export type StagePreviewFetchAction = {
-  type: StageEditorActionTypes.StagePreviewFetch;
+  type: typeof StageEditorActionTypes.StagePreviewFetch;
   id: number;
 };
 
 export type StagePreviewFetchSkippedAction = {
-  type: StageEditorActionTypes.StagePreviewFetchSkipped;
+  type: typeof StageEditorActionTypes.StagePreviewFetchSkipped;
   id: number;
 };
 
 export type StagePreviewFetchSuccessAction = {
-  type: StageEditorActionTypes.StagePreviewFetchSuccess;
+  type: typeof StageEditorActionTypes.StagePreviewFetchSuccess;
   id: number;
   previewDocs: HadronDocument[];
 };
 
 export type StagePreviewFetchErrorAction = {
-  type: StageEditorActionTypes.StagePreviewFetchError;
+  type: typeof StageEditorActionTypes.StagePreviewFetchError;
   id: number;
   error: MongoServerError;
 };
 
 export type StageRunAction = {
-  type: StageEditorActionTypes.StageRun;
+  type: typeof StageEditorActionTypes.StageRun;
   id: number;
 };
 
 export type StageRunSuccessAction = {
-  type: StageEditorActionTypes.StageRunSuccess;
+  type: typeof StageEditorActionTypes.StageRunSuccess;
   id: number;
   previewDocs: HadronDocument[];
 };
 
 export type StageRunErrorAction = {
-  type: StageEditorActionTypes.StageRunError;
+  type: typeof StageEditorActionTypes.StageRunError;
   id: number;
   error: MongoServerError;
 };
 
 export type ChangeStageValueAction = {
-  type: StageEditorActionTypes.StageValueChange;
+  type: typeof StageEditorActionTypes.StageValueChange;
   id: number;
   stage: Stage;
 };
 
 export type ChangeStageOperatorAction = {
-  type: StageEditorActionTypes.StageOperatorChange;
+  type: typeof StageEditorActionTypes.StageOperatorChange;
   id: number;
   stage: Stage;
 };
 
 export type ChangeStageCollapsedAction = {
-  type: StageEditorActionTypes.StageCollapsedChange;
+  type: typeof StageEditorActionTypes.StageCollapsedChange;
   id: number;
   collapsed: boolean;
 };
 
 export type ChangeStageDisabledAction = {
-  type: StageEditorActionTypes.StageDisabledChange;
+  type: typeof StageEditorActionTypes.StageDisabledChange;
   id: number;
   disabled: boolean;
 };
 
 export type StageAddAction = {
-  type: StageEditorActionTypes.StageAdded;
+  type: typeof StageEditorActionTypes.StageAdded;
   after: number;
   stage: StoreStage;
 };
 
 export type StageRemoveAction = {
-  type: StageEditorActionTypes.StageRemoved;
+  type: typeof StageEditorActionTypes.StageRemoved;
   at: number;
 };
 
 export type StageMoveAction = {
-  type: StageEditorActionTypes.StageMoved;
+  type: typeof StageEditorActionTypes.StageMoved;
   from: number;
   to: number;
 };
 
 type WizardAddAction = {
-  type: StageEditorActionTypes.WizardAdded;
+  type: typeof StageEditorActionTypes.WizardAdded;
   wizard: Wizard;
   after: number;
 };
 
 type WizardRemoveAction = {
-  type: StageEditorActionTypes.WizardRemoved;
+  type: typeof StageEditorActionTypes.WizardRemoved;
   at: number;
 };
 
 type WizardChangeAction = {
-  type: StageEditorActionTypes.WizardChanged;
+  type: typeof StageEditorActionTypes.WizardChanged;
   at: number;
   value: string | null;
   syntaxError: SyntaxError | null;
 };
 
 type WizardToStageAction = {
-  type: StageEditorActionTypes.WizardToStageClicked;
+  type: typeof StageEditorActionTypes.WizardToStageClicked;
   at: number;
   stage: StoreStage;
 };

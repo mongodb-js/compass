@@ -38,51 +38,50 @@ export const INITIAL_STATE: State = {
   tab: undefined,
 };
 
-// @ts-expect-error TODO(COMPASS-10124): replace enums with const kv objects
-export enum ActionTypes {
+export const ActionTypes = {
   // TODO(COMPASS-7098): based on usage, `fetched` and `synced` should be two
   // different groups of actions, not one
-  SettingsFetchedStart = 'compass-settings/SettingsFetchedStart',
-  SettingsFetched = 'compass-settings/settingsFetched',
-  ChangeFieldValue = 'compass-settings/ChangeFieldValue',
-  FieldUpdated = 'compass-settings/settingsFieldUpdated',
-  SettingsSaved = 'compass-settings/settingsUpdated',
-  OpenSettingsModal = 'compass-settings/OpenSettingsModal',
-  SelectTab = 'compass-settings/SelectTab',
-  CloseSettingsModal = 'compass-settings/CloseSettingsModal',
-}
+  SettingsFetchedStart: 'compass-settings/SettingsFetchedStart',
+  SettingsFetched: 'compass-settings/settingsFetched',
+  ChangeFieldValue: 'compass-settings/ChangeFieldValue',
+  FieldUpdated: 'compass-settings/settingsFieldUpdated',
+  SettingsSaved: 'compass-settings/settingsUpdated',
+  OpenSettingsModal: 'compass-settings/OpenSettingsModal',
+  SelectTab: 'compass-settings/SelectTab',
+  CloseSettingsModal: 'compass-settings/CloseSettingsModal',
+} as const;
 
 type SettingsFetchedAction = {
-  type: ActionTypes.SettingsFetched;
+  type: typeof ActionTypes.SettingsFetched;
   settings: UserConfigurablePreferences;
   preferenceStates: PreferenceStateInformation;
   updatedFields: (keyof UserConfigurablePreferences)[];
 };
 
 type SaveSettingsAction = {
-  type: ActionTypes.SettingsSaved;
+  type: typeof ActionTypes.SettingsSaved;
 };
 
 type SettingsFetchStartAction = {
-  type: ActionTypes.SettingsFetchedStart;
+  type: typeof ActionTypes.SettingsFetchedStart;
 };
 
 type OpenSettingsModalAction = {
-  type: ActionTypes.OpenSettingsModal;
+  type: typeof ActionTypes.OpenSettingsModal;
   tab?: SettingsTabId;
 };
 
 type SelectTabAction = {
-  type: ActionTypes.SelectTab;
+  type: typeof ActionTypes.SelectTab;
   tab?: SettingsTabId;
 };
 
 type CloseSettingsModalAction = {
-  type: ActionTypes.CloseSettingsModal;
+  type: typeof ActionTypes.CloseSettingsModal;
 };
 
 type ChangeFieldValueAction<K extends keyof UserConfigurablePreferences> = {
-  type: ActionTypes.ChangeFieldValue;
+  type: typeof ActionTypes.ChangeFieldValue;
   field: K;
   value: UserConfigurablePreferences[K];
 };

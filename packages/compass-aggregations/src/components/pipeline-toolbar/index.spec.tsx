@@ -11,7 +11,7 @@ import { renderWithStore } from '../../../test/configure-store';
 import { PipelineToolbar } from './index';
 import { createElectronPipelineStorage } from '@mongodb-js/my-queries-storage/electron';
 import { CompassExperimentationProvider } from '@mongodb-js/compass-telemetry';
-import { ExperimentTestGroup } from '@mongodb-js/compass-telemetry/provider';
+import { ExperimentTestGroups } from '@mongodb-js/compass-telemetry/provider';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 
@@ -164,7 +164,7 @@ describe('PipelineToolbar', function () {
           mockUseAssignment.returns({
             assignment: {
               assignmentData: {
-                variant: ExperimentTestGroup.atlasSkillsVariant,
+                variant: ExperimentTestGroups.atlasSkillsVariant,
               },
             },
             ...commonAsyncStatus,
@@ -173,7 +173,7 @@ describe('PipelineToolbar', function () {
           mockUseAssignment.returns({
             assignment: {
               assignmentData: {
-                variant: ExperimentTestGroup.atlasSkillsControl,
+                variant: ExperimentTestGroups.atlasSkillsControl,
               },
             },
             ...commonAsyncStatus,

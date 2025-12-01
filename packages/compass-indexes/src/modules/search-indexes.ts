@@ -25,84 +25,96 @@ const ATLAS_SEARCH_SERVER_ERRORS: Record<string, string> = {
     'This index name is already in use. Please choose another one.',
 };
 
-// @ts-expect-error TODO(COMPASS-10124): replace enums with const kv objects
-export enum ActionTypes {
+export const ActionTypes = {
   // Fetch indexes
-  FetchSearchIndexesStarted = 'compass-indexes/search-indexes/fetch-search-indexes-started',
-  FetchSearchIndexesSucceeded = 'compass-indexes/search-indexes/fetch-search-indexes-succeeded',
-  FetchSearchIndexesFailed = 'compass-indexes/search-indexes/fetch-search-indexes-failed',
+  FetchSearchIndexesStarted:
+    'compass-indexes/search-indexes/fetch-search-indexes-started',
+  FetchSearchIndexesSucceeded:
+    'compass-indexes/search-indexes/fetch-search-indexes-succeeded',
+  FetchSearchIndexesFailed:
+    'compass-indexes/search-indexes/fetch-search-indexes-failed',
 
   // Create Index
-  CreateSearchIndexOpened = 'compass-indexes/search-indexes/create-search-index-opened',
-  CreateSearchIndexClosed = 'compass-indexes/search-indexes/create-search-index-closed',
-  CreateSearchIndexStarted = 'compass-indexes/search-indexes/create-search-index-started',
-  CreateSearchIndexFailed = 'compass-indexes/search-indexes/create-search-index-failed',
-  CreateSearchIndexSucceeded = 'compass-indexes/search-indexes/create-search-index-succeeded',
+  CreateSearchIndexOpened:
+    'compass-indexes/search-indexes/create-search-index-opened',
+  CreateSearchIndexClosed:
+    'compass-indexes/search-indexes/create-search-index-closed',
+  CreateSearchIndexStarted:
+    'compass-indexes/search-indexes/create-search-index-started',
+  CreateSearchIndexFailed:
+    'compass-indexes/search-indexes/create-search-index-failed',
+  CreateSearchIndexSucceeded:
+    'compass-indexes/search-indexes/create-search-index-succeeded',
 
   // Update Index
-  UpdateSearchIndexOpened = 'compass-indexes/search-indexes/update-search-index-opened',
-  UpdateSearchIndexClosed = 'compass-indexes/search-indexes/update-search-index-closed',
-  UpdateSearchIndexStarted = 'compass-indexes/search-indexes/update-search-index-started',
-  UpdateSearchIndexFailed = 'compass-indexes/search-indexes/update-search-index-failed',
-  UpdateSearchIndexSucceeded = 'compass-indexes/search-indexes/update-search-index-succeeded',
-}
+  UpdateSearchIndexOpened:
+    'compass-indexes/search-indexes/update-search-index-opened',
+  UpdateSearchIndexClosed:
+    'compass-indexes/search-indexes/update-search-index-closed',
+  UpdateSearchIndexStarted:
+    'compass-indexes/search-indexes/update-search-index-started',
+  UpdateSearchIndexFailed:
+    'compass-indexes/search-indexes/update-search-index-failed',
+  UpdateSearchIndexSucceeded:
+    'compass-indexes/search-indexes/update-search-index-succeeded',
+} as const;
 
 type FetchSearchIndexesStartedAction = {
-  type: ActionTypes.FetchSearchIndexesStarted;
+  type: typeof ActionTypes.FetchSearchIndexesStarted;
   reason: FetchReason;
 };
 
 type FetchSearchIndexesSucceededAction = {
-  type: ActionTypes.FetchSearchIndexesSucceeded;
+  type: typeof ActionTypes.FetchSearchIndexesSucceeded;
   indexes: SearchIndex[];
 };
 
 type FetchSearchIndexesFailedAction = {
-  type: ActionTypes.FetchSearchIndexesFailed;
+  type: typeof ActionTypes.FetchSearchIndexesFailed;
   error: string;
 };
 
 export type CreateSearchIndexOpenedAction = {
-  type: ActionTypes.CreateSearchIndexOpened;
+  type: typeof ActionTypes.CreateSearchIndexOpened;
 };
 
 type CreateSearchIndexStartedAction = {
-  type: ActionTypes.CreateSearchIndexStarted;
+  type: typeof ActionTypes.CreateSearchIndexStarted;
 };
 
 type CreateSearchIndexFailedAction = {
-  type: ActionTypes.CreateSearchIndexFailed;
+  type: typeof ActionTypes.CreateSearchIndexFailed;
   error: string;
 };
 
 type CreateSearchIndexSucceededAction = {
-  type: ActionTypes.CreateSearchIndexSucceeded;
+  type: typeof ActionTypes.CreateSearchIndexSucceeded;
 };
 
 type CreateSearchIndexClosedAction = {
-  type: ActionTypes.CreateSearchIndexClosed;
+  type: typeof ActionTypes.CreateSearchIndexClosed;
 };
 
 type UpdateSearchIndexOpenedAction = {
-  type: ActionTypes.UpdateSearchIndexOpened;
+  type: typeof ActionTypes.UpdateSearchIndexOpened;
   indexName: string;
 };
 
 type UpdateSearchIndexStartedAction = {
-  type: ActionTypes.UpdateSearchIndexStarted;
+  type: typeof ActionTypes.UpdateSearchIndexStarted;
 };
 
 type UpdateSearchIndexFailedAction = {
-  type: ActionTypes.UpdateSearchIndexFailed;
+  type: typeof ActionTypes.UpdateSearchIndexFailed;
   error: string;
 };
 
 type UpdateSearchIndexSucceededAction = {
-  type: ActionTypes.UpdateSearchIndexSucceeded;
+  type: typeof ActionTypes.UpdateSearchIndexSucceeded;
 };
 
 type UpdateSearchIndexClosedAction = {
-  type: ActionTypes.UpdateSearchIndexClosed;
+  type: typeof ActionTypes.UpdateSearchIndexClosed;
 };
 
 type CreateSearchIndexState = {
