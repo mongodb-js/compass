@@ -979,6 +979,13 @@ describe('Collection aggregations tab', function () {
       '{ i: 5 }'
     );
 
+    // Wait for the pipeline to be validated before trying to export
+    await browser.waitUntil(async function () {
+      const textElement = browser.$(Selectors.stagePreviewToolbarTooltip(0));
+      const text = await textElement.getText();
+      return text === '(Sample of 1 document)';
+    });
+
     // Open the modal.
     await browser.clickVisible(Selectors.ExportAggregationResultsButton);
     const exportModal = browser.$(Selectors.ExportModal);

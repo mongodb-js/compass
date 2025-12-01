@@ -77,7 +77,6 @@ export const PipelineSettings: React.FunctionComponent<
   onCreateNewPipeline,
 }) => {
   const enableSavedAggregationsQueries = usePreference('enableMyQueries');
-  const isImportExportEnabled = usePreference('enableImportExport');
   const isPipelineNameDisplayed =
     !editViewName && !!enableSavedAggregationsQueries;
 
@@ -99,7 +98,7 @@ export const PipelineSettings: React.FunctionComponent<
             Create new
           </Button>
         )}
-        {isImportExportEnabled && isExportDataEnabled && (
+        {isExportDataEnabled && (
           <DropdownMenuButton<ExportDataOption>
             data-testid="pipeline-toolbar-export-data-button"
             actions={exportDataActions}
