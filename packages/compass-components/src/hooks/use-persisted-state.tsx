@@ -17,7 +17,7 @@ function usePersistedState<S>(
   const idRef = useRef(id);
   const storageRef = useRef(storage);
   const [state, setState] = useState<S>(() => {
-    const initialStored = storageRef.current.getItem(idRef.current);
+    const initialStored = storage.getItem(id);
     if (initialStored) {
       try {
         return JSON.parse(initialStored);
