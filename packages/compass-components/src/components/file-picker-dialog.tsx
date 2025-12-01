@@ -394,7 +394,7 @@ function FilePickerDialog({
       });
       onChange(files);
     },
-    [onChange]
+    [backend, onChange]
   );
 
   const handleOpenFileInput = useCallback(() => {
