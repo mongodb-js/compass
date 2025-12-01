@@ -7,6 +7,7 @@ import type { RestorePipelineAction } from './saved-pipeline';
 import { RESTORE_PIPELINE } from './saved-pipeline';
 import { isAction } from '../utils/is-action';
 
+// @ts-expect-error TODO(COMPASS-10124): replace enums with const kv objects
 export enum ActionTypes {
   AutoPreviewToggled = 'compass-aggregations/autoPreviewToggled',
 }

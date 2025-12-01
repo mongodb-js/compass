@@ -100,6 +100,7 @@ export const initialState: ExportState = {
   exportFileError: undefined,
 };
 
+// @ts-expect-error TODO(COMPASS-10124): replace enums with const kv objects
 export const enum ExportActionTypes {
   OpenExport = 'compass-import-export/export/OpenExport',
   CloseExport = 'compass-import-export/export/CloseExport',

@@ -9,6 +9,7 @@ import { isAction } from '../utils/is-action';
 import type { IndexesThunkAction, RootState } from '.';
 import { createRegularIndex } from './regular-indexes';
 
+// @ts-expect-error TODO(COMPASS-10124): replace enums with const kv objects
 export enum ActionTypes {
   FieldAdded = 'compass-indexes/create-index/fields/field-added',
   FieldTypeUpdated = 'compass-indexes/create-index/fields/field-type-updated',

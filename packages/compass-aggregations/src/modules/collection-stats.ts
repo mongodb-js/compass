@@ -20,6 +20,7 @@ export function pickCollectionStats(collection: Collection): CollectionStats {
   };
 }
 
+// @ts-expect-error TODO(COMPASS-10124): replace enums with const kv objects
 enum CollectionStatsActions {
   CollectionStatsFetched = 'compass-aggregations/collection-stats/CollectionStatsFetched',
 }

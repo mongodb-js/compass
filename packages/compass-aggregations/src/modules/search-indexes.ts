@@ -3,6 +3,7 @@ import type { PipelineBuilderThunkAction } from '.';
 import type { SearchIndex } from 'mongodb-data-service';
 import { isAction } from '../utils/is-action';
 
+// @ts-expect-error TODO(COMPASS-10124): replace enums with const kv objects
 export enum SearchIndexesStatuses {
   INITIAL = 'INITIAL',
   LOADING = 'LOADING',
@@ -12,6 +13,7 @@ export enum SearchIndexesStatuses {
 
 export type SearchIndexesStatus = keyof typeof SearchIndexesStatuses;
 
+// @ts-expect-error TODO(COMPASS-10124): replace enums with const kv objects
 export enum ActionTypes {
   FetchIndexesStarted = 'compass-aggregations/search-indexes/FetchIndexesStarted',
   FetchIndexesFinished = 'compass-aggregations/search-indexes/FetchIndexesFinished',

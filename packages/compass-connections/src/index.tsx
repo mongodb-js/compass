@@ -1,7 +1,7 @@
 import { preferencesLocator } from 'compass-preferences-model/provider';
 import { registerCompassPlugin } from '@mongodb-js/compass-app-registry';
 import type { connect as devtoolsConnect } from 'mongodb-data-service';
-import React, { useContext, useRef } from 'react';
+import React, { useContext } from 'react';
 import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
 import { connectionStorageLocator } from '@mongodb-js/connection-storage/provider';
 import type {
@@ -25,6 +25,7 @@ import {
 export type { ConnectionFeature } from './utils/connection-supports';
 export { connectionSupports, connectable } from './utils/connection-supports';
 import { compassAssistantServiceLocator } from '@mongodb-js/compass-assistant';
+import { useInitialValue } from '@mongodb-js/compass-components';
 
 const ConnectionsComponent: React.FunctionComponent<{
   /**
@@ -148,9 +149,9 @@ const ConnectFnContext = React.createContext<
 export const ConnectFnProvider: React.FunctionComponent<{
   connect?: typeof devtoolsConnect | undefined;
 }> = ({ connect, children }) => {
-  const ref = useRef(connect);
+  const connectFn = useInitialValue(() => connect);
   return (
-    <ConnectFnContext.Provider value={ref.current}>
+    <ConnectFnContext.Provider value={connectFn}>
       {children}
     </ConnectFnContext.Provider>
   );

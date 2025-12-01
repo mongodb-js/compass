@@ -11,8 +11,12 @@ type ErrorLoc = {
 };
 
 export class PipelineParserError extends SyntaxError {
-  constructor(message: string, public loc?: ErrorLoc, public code?: number) {
+  loc?: ErrorLoc;
+  code?: number;
+  constructor(message: string, loc?: ErrorLoc, code?: number) {
     super(message);
+    this.loc = loc;
+    this.code = code;
   }
 }
 

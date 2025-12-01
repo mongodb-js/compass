@@ -26,6 +26,7 @@ export const INITIAL_STATE: CreateViewState = {
   pipeline: [],
 };
 
+// @ts-expect-error TODO(COMPASS-10124): replace enums with const kv objects
 enum CreateViewActionTypes {
   Open = 'aggregations/create-view/Open',
   Close = 'aggregations/create-view/Close',

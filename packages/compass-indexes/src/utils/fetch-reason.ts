@@ -1,3 +1,4 @@
+// @ts-expect-error TODO(COMPASS-10124): replace enums with const kv objects
 export enum FetchReasons {
   INITIAL_FETCH = 'INITIAL_FETCH',
   REFRESH = 'REFRESH',

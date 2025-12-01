@@ -12,6 +12,7 @@ import { isAction } from '../utils/is-action';
 
 export type Workspace = 'builder' | 'results';
 
+// @ts-expect-error TODO(COMPASS-10124): replace enums with const kv objects
 export enum ActionTypes {
   WorkspaceChanged = 'compass-aggregations/workspaceChanged',
 }
