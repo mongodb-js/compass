@@ -5,6 +5,20 @@ const shared = require('@mongodb-js/eslint-config-devtools');
 const common = require('@mongodb-js/eslint-config-devtools/common');
 const chaiFriendly = require('eslint-plugin-chai-friendly');
 
+// TODO(COMPASS-9459): disabling a bunch of new rules to unblock automatic updates
+const tempNewEslintRulesDisabled = {
+  'react-hooks/immutability': 'off',
+  'react-hooks/refs': 'off',
+  'react-hooks/set-state-in-effect': 'off',
+  'react-hooks/preserve-manual-memoization': 'off',
+  'react-hooks/globals': 'off',
+  'react-hooks/static-components': 'off',
+  'react-hooks/purity': 'off',
+  '@typescript-eslint/no-redundant-type-constituents': 'off',
+  '@typescript-eslint/await-thenable': 'off',
+  '@typescript-eslint/no-unsafe-enum-comparison': 'off',
+};
+
 const extraTsRules = {
   // Newly converted plugins use `any` quite a lot, we can't enable the rule,
   // but we can warn so we can eventually address this
@@ -31,6 +45,8 @@ const extraTsRules = {
 const tsRules = {
   ...common.tsRules,
   ...extraTsRules,
+
+  ...tempNewEslintRulesDisabled,
 };
 
 const tsOverrides = {
@@ -47,6 +63,8 @@ const tsxRules = {
       additionalHooks: '(useTrackOnChange|useContextMenuGroups)',
     },
   ],
+
+  ...tempNewEslintRulesDisabled,
 };
 
 const tsxOverrides = {
@@ -68,6 +86,8 @@ const commonTestOverrides = {
       ],
     },
   ],
+
+  ...tempNewEslintRulesDisabled,
 };
 
 const testJsOverrides = {

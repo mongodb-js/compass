@@ -91,7 +91,7 @@ export default function ConnectionsFilterPopover({
       >
         Filter connections
       </Tooltip>
-      <InteractivePopover
+      <InteractivePopover<HTMLButtonElement>
         open={open}
         setOpen={setOpen}
         containerClassName={containerStyles}
