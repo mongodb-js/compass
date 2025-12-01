@@ -11,7 +11,6 @@ const tempNewEslintRulesDisabled = {
   'react-hooks/set-state-in-effect': 'off',
   'react-hooks/preserve-manual-memoization': 'off',
   'react-hooks/static-components': 'off',
-  '@typescript-eslint/no-redundant-type-constituents': 'off',
   '@typescript-eslint/no-unsafe-enum-comparison': 'off',
 };
 
