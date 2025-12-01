@@ -47,6 +47,7 @@ export const cleanupLocalAppRegistries = () => {
   LocalAppRegistryMap.clear();
 };
 
+// @ts-expect-error TODO(COMPASS-10124): replace enums with const kv objects
 export enum WorkspacesActions {
   OpenWorkspace = 'compass-workspaces/OpenWorkspace',
   OpenFallbackWorkspace = 'compass-workspace/OpenFallbackWorkspace',

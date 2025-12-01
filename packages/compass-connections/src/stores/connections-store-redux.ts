@@ -221,6 +221,7 @@ export type ConnectionsThunkAction<
   A extends AnyAction = AnyAction
 > = ThunkAction<R, State, ThunkExtraArg, A>;
 
+// @ts-expect-error TODO(COMPASS-10124): replace enums with const kv objects
 export const enum ActionTypes {
   // Actions related to getting connections from the persistent store (like disk
   // or cloud backend)
@@ -2100,10 +2101,9 @@ const cleanupConnection = (
     const connectionAttempt = ConnectionAttemptForConnection.get(connectionId);
     const dataService = DataServiceForConnection.get(connectionId);
 
-    void Promise.all([
-      connectionAttempt?.cancelConnectionAttempt(),
-      dataService?.disconnect(),
-    ]).then(
+    connectionAttempt?.cancelConnectionAttempt();
+
+    void dataService?.disconnect().then(
       () => {
         debug('connection closed', connectionId);
       },
@@ -2219,7 +2219,10 @@ export const removeAllRecentConnections = (): ConnectionsThunkAction<
       toRemove.map((connection) => {
         dispatch(cleanupConnection(connection.info.id));
         track('Connection Removed', {}, connection.info);
-        return connectionStorage.delete?.({ id: connection.info.id });
+        return (
+          connectionStorage.delete?.({ id: connection.info.id }) ??
+          Promise.resolve()
+        );
       })
     );
 

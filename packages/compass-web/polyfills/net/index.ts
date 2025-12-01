@@ -8,6 +8,7 @@ import { Duplex } from 'stream';
  * used when running compass-web in a local sandbox, mms has their own
  * implementation
  */
+// @ts-expect-error TODO(COMPASS-10124): replace enums with const kv objects
 enum MESSAGE_TYPE {
   JSON = 0x01,
   BINARY = 0x02,

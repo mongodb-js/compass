@@ -1,16 +1,17 @@
-import React, { useState } from 'react';
+import React from 'react';
 
 // This file exports `@leafygreen-ui` components and wraps some of them.
 
 // 1. Import the components we use from leafygreen.
-import { default as Copyable } from '@leafygreen-ui/copyable';
-import { default as Badge } from '@leafygreen-ui/badge';
+import { Copyable } from '@leafygreen-ui/copyable';
+import { Badge } from '@leafygreen-ui/badge';
 import { default as Banner } from '@leafygreen-ui/banner';
-import Checkbox from '@leafygreen-ui/checkbox';
-import Card from '@leafygreen-ui/card';
-import Code, { Language, Panel } from '@leafygreen-ui/code';
+import { Checkbox } from '@leafygreen-ui/checkbox';
+import { Card } from '@leafygreen-ui/card';
+import { Code, Language, Panel } from '@leafygreen-ui/code';
 import ConfirmationModal from '@leafygreen-ui/confirmation-modal';
-import { default as LeafyGreenIcon } from '@leafygreen-ui/icon';
+export type { ConfirmationModalProps } from '@leafygreen-ui/confirmation-modal';
+import { Icon as LeafyGreenIcon } from '@leafygreen-ui/icon';
 import type { Size as LeafyGreenIconSize } from '@leafygreen-ui/icon';
 export type { GlyphName } from '@leafygreen-ui/icon';
 import { Chip } from '@leafygreen-ui/chip';
@@ -34,7 +35,7 @@ import { InfoSprinkle } from '@leafygreen-ui/info-sprinkle';
 import Modal, { Footer as ModalFooter } from '@leafygreen-ui/modal';
 import MarketingModal from '@leafygreen-ui/marketing-modal';
 import { Pipeline, Stage } from '@leafygreen-ui/pipeline';
-import Popover from '@leafygreen-ui/popover';
+import { Popover } from '@leafygreen-ui/popover';
 import { RadioBox, RadioBoxGroup } from '@leafygreen-ui/radio-box-group';
 import { Radio, RadioGroup } from '@leafygreen-ui/radio-group';
 import {
@@ -73,12 +74,12 @@ export type {
   CellContext,
 } from '@leafygreen-ui/table';
 import { Tabs, Tab } from '@leafygreen-ui/tabs';
-import TextArea from '@leafygreen-ui/text-area';
-import LeafyGreenTextInput from '@leafygreen-ui/text-input';
+import { TextArea } from '@leafygreen-ui/text-area';
+import { TextInput } from '@leafygreen-ui/text-input';
 import { SearchInput } from '@leafygreen-ui/search-input';
-export { usePrevious, useMergeRefs } from '@leafygreen-ui/hooks';
-import Toggle from '@leafygreen-ui/toggle';
-import LGTooltip from '@leafygreen-ui/tooltip';
+export { useMergeRefs } from '@leafygreen-ui/hooks';
+import { Toggle } from '@leafygreen-ui/toggle';
+import { Tooltip as LGTooltip } from '@leafygreen-ui/tooltip';
 import {
   H1,
   H2,
@@ -118,29 +119,6 @@ delete (Checkbox as React.ComponentType<any>).propTypes;
 // We wrap these so that we can add the utm_source and utm_medium parameters to
 // all hrefs.
 export { Link, Button, IconButton } from './links/link';
-
-// Working around leafygreen lack of support for `defaultValue` property
-const TextInput: typeof LeafyGreenTextInput = React.forwardRef(
-  function TextInput({ defaultValue, value, onChange, ...props }, ref) {
-    const [uncontrolledValue, setUncontrolledValue] = useState(
-      String(defaultValue) ?? ''
-    );
-    const isControlled = typeof defaultValue === 'undefined';
-    return (
-      <LeafyGreenTextInput
-        {...props}
-        value={isControlled ? value : uncontrolledValue}
-        onChange={(e) => {
-          setUncontrolledValue(e.currentTarget.value);
-          onChange?.(e);
-        }}
-        ref={ref}
-      ></LeafyGreenTextInput>
-    );
-  }
-);
-
-TextInput.displayName = 'TextInput';
 
 // 3. Export the leafygreen components.
 export {
@@ -218,19 +196,7 @@ export {
 export * as Avatar from '@leafygreen-ui/avatar';
 export * as InputOption from '@leafygreen-ui/input-option';
 
-export * as LgChatAvatar from '@lg-chat/avatar';
-export * as LgChatChatDisclaimer from '@lg-chat/chat-disclaimer';
 export * as LgChatChatWindow from '@lg-chat/chat-window';
-export * as LgChatFixedChatWindow from '@lg-chat/fixed-chat-window';
 export * as LgChatInputBar from '@lg-chat/input-bar';
 export * as LgChatLeafygreenChatProvider from '@lg-chat/leafygreen-chat-provider';
-export * as LgChatLgMarkdown from '@lg-chat/lg-markdown';
-export * as LgChatMessageActions from '@lg-chat/message-actions';
-export * as LgChatMessageFeed from '@lg-chat/message-feed';
-export * as LgChatMessageFeedback from '@lg-chat/message-feedback';
-export * as LgChatMessagePrompts from '@lg-chat/message-prompts';
-export * as LgChatMessageRating from '@lg-chat/message-rating';
 export * as LgChatMessage from '@lg-chat/message';
-export * as LgChatRichLinks from '@lg-chat/rich-links';
-export * as LgChatSuggestions from '@lg-chat/suggestions';
-export * as LgChatTitleBar from '@lg-chat/title-bar';

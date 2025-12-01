@@ -3,6 +3,7 @@ import LeafyGreenProvider, {
   useDarkMode as useLeafyGreenDarkMode,
 } from '@leafygreen-ui/leafygreen-provider';
 
+// @ts-expect-error TODO(COMPASS-10124): replace enums with const kv objects
 enum Theme {
   Light = 'Light',
   Dark = 'Dark',
@@ -42,13 +43,11 @@ export const ThemeProvider = ({
 const withDarkMode = function <
   ComponentProps extends WithDarkModeProps = WithDarkModeProps
 >(
-  WrappedComponent: React.ComponentType<ComponentProps & WithDarkModeProps>
+  WrappedComponent: React.ComponentType<ComponentProps>
 ): React.ComponentType<ComponentProps> {
   const ComponentWithDarkMode = (
     props: ComponentProps,
-    ref: React.ForwardedRef<
-      React.ComponentType<ComponentProps & WithDarkModeProps>
-    >
+    ref: React.ForwardedRef<React.ComponentType<ComponentProps>>
   ) => {
     const darkMode = useDarkMode();
     return (

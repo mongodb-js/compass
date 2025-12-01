@@ -24,6 +24,7 @@ export type CreateShardKeyData = Pick<
   | 'presplitHashedZones'
 >;
 
+// @ts-expect-error TODO(COMPASS-10124): replace enums with const kv objects
 enum GlobalWritesActionTypes {
   ManagedNamespaceFetched = 'global-writes/ManagedNamespaceFetched',
   NamespaceShardingErrorFetched = 'global-writes/NamespaceShardingErrorFetched',
@@ -114,6 +115,7 @@ type UnmanagingNamespaceErroredAction = {
   type: GlobalWritesActionTypes.UnmanagingNamespaceErrored;
 };
 
+// @ts-expect-error TODO(COMPASS-10124): replace enums with const kv objects
 export enum ShardingStatuses {
   /**
    * Initial status, no information available yet.

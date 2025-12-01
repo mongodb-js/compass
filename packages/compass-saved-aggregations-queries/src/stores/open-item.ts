@@ -47,6 +47,7 @@ const INITIAL_STATE: State = {
   updateItemNamespace: false,
 };
 
+// @ts-expect-error TODO(COMPASS-10124): replace enums with const kv objects
 export enum ActionTypes {
   OpenModal = 'compass-saved-aggregations-queries/openModal',
   CloseModal = 'compass-saved-aggregations-queries/closeModal',

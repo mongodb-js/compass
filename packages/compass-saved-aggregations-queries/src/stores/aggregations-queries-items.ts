@@ -6,6 +6,7 @@ import type { SavedQueryAggregationThunkAction } from '.';
 import type { Actions as DeleteItemActions } from './delete-item';
 import { ActionTypes as DeleteItemActionTypes } from './delete-item';
 
+// @ts-expect-error TODO(COMPASS-10124): replace enums with const kv objects
 export enum ActionTypes {
   ITEMS_FETCHED = 'compass-saved-aggregations-queries/itemsFetched',
 }
@@ -75,8 +76,12 @@ export const fetchItems = (): SavedQueryAggregationThunkAction<
     { pipelineStorage, queryStorage }
   ): Promise<void> => {
     const payload = await Promise.allSettled([
-      (await pipelineStorage?.loadAll())?.map(mapAggregationToItem) ?? [],
-      (await queryStorage?.loadAll())?.map(mapQueryToItem) ?? [],
+      pipelineStorage?.loadAll().then((items) => {
+        return items.map(mapAggregationToItem);
+      }) ?? Promise.resolve([]),
+      queryStorage?.loadAll().then((items) => {
+        return items.map(mapQueryToItem);
+      }) ?? Promise.resolve([]),
     ]);
     dispatch({
       type: ActionTypes.ITEMS_FETCHED,

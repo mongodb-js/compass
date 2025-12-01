@@ -16,7 +16,10 @@ const initialCollectionName = 'csv-file';
 const newCollectionName = 'renamed';
 
 class RenameCollectionModal {
-  constructor(private browser: CompassBrowser) {}
+  private browser: CompassBrowser;
+  constructor(browser: CompassBrowser) {
+    this.browser = browser;
+  }
   get confirmationScreen() {
     return this.browser.$(Selectors.RenameCollectionModalConfirmationScreen);
   }

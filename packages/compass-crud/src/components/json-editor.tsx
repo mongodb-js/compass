@@ -11,6 +11,7 @@ import {
   DocumentList,
   palette,
   spacing,
+  useCurrentValueRef,
   useDarkMode,
 } from '@mongodb-js/compass-components';
 import type { Document } from 'hadron-document';
@@ -82,10 +83,9 @@ const JSONEditor: React.FunctionComponent<JSONEditorProps> = ({
   const [docValidationError, setDocValidationError] = useState<Error | null>(
     null
   );
-  const setModifiedEJSONStringRef = useRef<(value: string | null) => void>(
-    doc.setModifiedEJSONString.bind(doc)
-  );
-  setModifiedEJSONStringRef.current = doc.setModifiedEJSONString.bind(doc);
+  const setModifiedEJSONStringRef = useCurrentValueRef<
+    (value: string | null) => void
+  >(doc.setModifiedEJSONString.bind(doc));
 
   useEffect(() => {
     const setModifiedEJSONString = setModifiedEJSONStringRef.current;
@@ -96,7 +96,7 @@ const JSONEditor: React.FunctionComponent<JSONEditorProps> = ({
       // value when the it's unmounted and is restored on next mount.
       setModifiedEJSONString(editing ? value : null);
     };
-  }, [value, editing]);
+  }, [value, editing, setModifiedEJSONStringRef]);
 
   const handleCopy = useCallback(() => {
     copyToClipboard?.(doc);

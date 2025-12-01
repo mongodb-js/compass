@@ -91,6 +91,7 @@ export const prepareInProgressIndex = (
   };
 };
 
+// @ts-expect-error TODO(COMPASS-10124): replace enums with const kv objects
 export enum ActionTypes {
   IndexesOpened = 'compass-indexes/regular-indexes/indexes-opened',
   IndexesClosed = 'compass-indexes/regular-indexes/indexes-closed',
@@ -425,8 +426,8 @@ const fetchIndexes = (
         dataService.indexes(namespace),
         shouldFetchRollingIndexes
           ? rollingIndexesService.listRollingIndexes(namespace)
-          : undefined,
-      ] as [Promise<IndexDefinition[]>, Promise<AtlasIndexStats[]> | undefined];
+          : Promise.resolve(undefined),
+      ] as const;
       const [indexes, rollingIndexes] = await Promise.all(promises);
       const indexesBefore = pickCollectionStatFields(getState());
       dispatch(fetchIndexesSucceeded(indexes, rollingIndexes));

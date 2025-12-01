@@ -55,11 +55,10 @@ export async function createIndex(
   await createModal.waitForDisplayed();
 
   // Select / type field name
-  await browser.setValueVisible(
+  await browser.setComboBoxValue(
     Selectors.createIndexModalFieldNameSelectInput(createRowIndex),
     fieldName
   );
-  await browser.keys(['Enter']);
 
   // Select field type
   const fieldTypeSelect = browser.$(

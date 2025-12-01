@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import type HadronDocument from 'hadron-document';
 import { DocumentEvents, ElementEvents } from 'hadron-document';
 import type { Element } from 'hadron-document';
@@ -110,18 +116,6 @@ function useHadronDocumentStatus(
   );
 
   useEffect(() => {
-    if (status !== 'Initial') {
-      return;
-    }
-
-    if (editing) {
-      updateStatus('Editing');
-    } else if (deleting) {
-      updateStatus('Deleting');
-    }
-  }, [status, updateStatus, editing, deleting]);
-
-  useEffect(() => {
     const onUpdate = () => {
       updateStatus(
         invalidElementsRef.current.size === 0
@@ -226,7 +220,20 @@ function useHadronDocumentStatus(
     });
   }, [initialError]);
 
-  return { status, updateStatus, error };
+  const derivedStatus = useMemo(() => {
+    if (status !== 'Initial') {
+      return status;
+    }
+    if (editing) {
+      return 'Editing';
+    }
+    if (deleting) {
+      return 'Deleting';
+    }
+    return status;
+  }, [status, editing, deleting]);
+
+  return { status: derivedStatus, updateStatus, error };
 }
 
 const container = css({
