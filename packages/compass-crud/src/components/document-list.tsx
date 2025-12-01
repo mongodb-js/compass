@@ -432,12 +432,17 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
     {}
   );
 
-  const onColumnWidthChange = useCallback((newColumnWidths) => {
-    setColumnWidths({
-      ...columnWidths,
-      ...newColumnWidths,
-    });
-  }, []);
+  const onColumnWidthChange = useCallback(
+    (newColumnWidths: Record<string, number>) => {
+      setColumnWidths((columnWidths) => {
+        return {
+          ...columnWidths,
+          ...newColumnWidths,
+        };
+      });
+    },
+    [setColumnWidths]
+  );
 
   const renderContent = useCallback(
     (scrollTriggerRef: React.Ref<HTMLDivElement>) => {
@@ -523,6 +528,8 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
       query,
       scrollRef,
       currentViewInitialScrollTop,
+      columnWidths,
+      onColumnWidthChange,
     ]
   );
 
