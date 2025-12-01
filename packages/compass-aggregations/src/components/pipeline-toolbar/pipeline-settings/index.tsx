@@ -52,10 +52,9 @@ const exportCodeButtonTextStyles = css({
     },
 });
 
-type ExportDataOption = 'export-query' | 'export-full-collection';
+type ExportDataOption = 'export-query';
 const exportDataActions: MenuAction<ExportDataOption>[] = [
-  { action: 'export-query', label: 'Export query results' },
-  { action: 'export-full-collection', label: 'Export the full collection' },
+  { action: 'export-query', label: 'Export pipeline results' },
 ];
 
 type PipelineSettingsProps = {
@@ -146,13 +145,9 @@ export default connect(
   },
   {
     onExportToLanguage: exportToLanguage,
-    onExportData: (action: ExportDataOption) => {
+    onExportData: () => {
       return (dispatch: PipelineBuilderThunkDispatch) => {
-        if (action === 'export-full-collection') {
-          dispatch(exportAggregationResults());
-        } else {
-          dispatch(exportAggregationResults());
-        }
+        dispatch(exportAggregationResults());
       };
     },
     onCreateNewPipeline: confirmNewPipeline,
