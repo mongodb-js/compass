@@ -26,6 +26,7 @@ import {
   buildAggregateQueryPrompt,
   buildFindQueryPrompt,
 } from './utils/gen-ai-prompt';
+import { parseXmlToMmsJsonResponse } from './utils/xml-to-mms-response';
 
 type GenerativeAiInput = {
   userInput: string;
@@ -585,63 +586,6 @@ export class AtlasAiService {
     });
   }
 
-  private parseXmlResponseAndMapToMmsJsonResponse(responseStr: string): any {
-    const expectedTags = [
-      'filter',
-      'project',
-      'sort',
-      'skip',
-      'limit',
-      'aggregation',
-    ];
-
-    // Currently the prompt forces LLM to return xml-styled data
-    const result: any = {};
-    for (const tag of expectedTags) {
-      const regex = new RegExp(`<${tag}>([\\s\\S]*?)<\\/${tag}>`, 'i');
-      const match = responseStr.match(regex);
-      if (match && match[1]) {
-        const value = match[1].trim();
-        try {
-          // Here the value is valid js string, but not valid json, so we use eval to parse it.
-          const tagValue = eval(`(${value})`);
-          if (
-            !tagValue ||
-            (typeof tagValue === 'object' && Object.keys(tagValue).length === 0)
-          ) {
-            result[tag] = null;
-          } else {
-            result[tag] = JSON.stringify(tagValue);
-          }
-        } catch (e) {
-          this.logger.log.warn(
-            this.logger.mongoLogId(1_001_000_309),
-            'AtlasAiService',
-            `Failed to parse value for tag <${tag}>: ${value}`,
-            { error: e }
-          );
-          result[tag] = null;
-        }
-      }
-    }
-
-    // Keep the response same as we have from mms api
-    return {
-      content: {
-        aggregation: {
-          pipeline: result.aggregation,
-        },
-        query: {
-          filter: result.filter,
-          project: result.project,
-          sort: result.sort,
-          skip: result.skip,
-          limit: result.limit,
-        },
-      },
-    };
-  }
-
   private async generateQueryUsingChatbot<T>(
     // TODO(COMPASS-10083): When storing data, we want have requestId as well.
     input: Omit<GenerativeAiInput, 'requestId'>,
@@ -670,9 +614,10 @@ export class AtlasAiService {
       }
     }
 
-    const responseText = chunks.join('');
-    const parsedResponse =
-      this.parseXmlResponseAndMapToMmsJsonResponse(responseText);
+    const parsedResponse = parseXmlToMmsJsonResponse(
+      chunks.join(''),
+      this.logger
+    );
     validateFn(parsedResponse);
 
     return parsedResponse;

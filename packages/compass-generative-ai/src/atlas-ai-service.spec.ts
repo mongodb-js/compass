@@ -51,6 +51,7 @@ class MockAtlasService {
   getCurrentUser = () => Promise.resolve(ATLAS_USER);
   cloudEndpoint = (url: string) => `${['/cloud', url].join('/')}`;
   adminApiEndpoint = (url: string) => `${[BASE_URL, url].join('/')}`;
+  assistantApiEndpoint = (url: string) => `${[BASE_URL, url].join('/')}`;
   authenticatedFetch = (url: string, init: RequestInit) => {
     return fetch(url, init);
   };
