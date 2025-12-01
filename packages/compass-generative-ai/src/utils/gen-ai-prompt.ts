@@ -54,10 +54,7 @@ function buildInstructionsForAggregateQuery() {
   ].join('\n');
 }
 
-type QueryType = 'find' | 'aggregate';
-
 export type UserPromptForQueryOptions = {
-  type: QueryType;
   userPrompt: string;
   databaseName?: string;
   collectionName?: string;
@@ -65,20 +62,14 @@ export type UserPromptForQueryOptions = {
   sampleDocuments?: unknown[];
 };
 
-export function buildInstructionsForQuery({ type }: { type: QueryType }) {
-  return type === 'find'
-    ? buildInstructionsForFindQuery()
-    : buildInstructionsForAggregateQuery();
-}
-
-export function buildUserPromptForQuery({
+function buildUserPromptForQuery({
   type,
   userPrompt,
   databaseName,
   collectionName,
   schema,
   sampleDocuments,
-}: UserPromptForQueryOptions): string {
+}: UserPromptForQueryOptions & { type: 'find' | 'aggregate' }): string {
   const messages = [];
 
   const queryPrompt = [
@@ -129,4 +120,59 @@ export function buildUserPromptForQuery({
   }
   messages.push(queryPrompt);
   return messages.join('\n');
+}
+
+export type AiQueryPrompt = {
+  prompt: string;
+  metadata: {
+    instructions: string;
+  };
+};
+
+export function buildFindQueryPrompt({
+  userPrompt,
+  databaseName,
+  collectionName,
+  schema,
+  sampleDocuments,
+}: UserPromptForQueryOptions): AiQueryPrompt {
+  const prompt = buildUserPromptForQuery({
+    type: 'find',
+    userPrompt,
+    databaseName,
+    collectionName,
+    schema,
+    sampleDocuments,
+  });
+  const instructions = buildInstructionsForFindQuery();
+  return {
+    prompt,
+    metadata: {
+      instructions,
+    },
+  };
+}
+
+export function buildAggregateQueryPrompt({
+  userPrompt,
+  databaseName,
+  collectionName,
+  schema,
+  sampleDocuments,
+}: UserPromptForQueryOptions): AiQueryPrompt {
+  const prompt = buildUserPromptForQuery({
+    type: 'aggregate',
+    userPrompt,
+    databaseName,
+    collectionName,
+    schema,
+    sampleDocuments,
+  });
+  const instructions = buildInstructionsForAggregateQuery();
+  return {
+    prompt,
+    metadata: {
+      instructions,
+    },
+  };
 }
