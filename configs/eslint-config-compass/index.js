@@ -9,7 +9,6 @@ const chaiFriendly = require('eslint-plugin-chai-friendly');
 const tempNewEslintRulesDisabled = {
   'react-hooks/refs': 'off',
   'react-hooks/preserve-manual-memoization': 'off',
-  'react-hooks/static-components': 'off',
   '@typescript-eslint/no-unsafe-enum-comparison': 'off',
 };
 
