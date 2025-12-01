@@ -172,8 +172,7 @@ export type AtlasOrgPreferences = {
 
 export type AllPreferences = UserPreferences &
   CliOnlyPreferences &
-  NonUserPreferences &
-  PermanentFeatureFlags;
+  NonUserPreferences;
 
 // Types related to PreferenceDefinition
 type PostProcessFunction<T> = (

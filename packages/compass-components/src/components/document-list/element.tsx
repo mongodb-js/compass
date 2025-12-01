@@ -22,7 +22,6 @@ import { KeyEditor, ValueEditor, TypeEditor } from './element-editors';
 import { EditActions, AddFieldActions } from './element-actions';
 import { useAutoFocusContext } from './auto-focus-context';
 import { useForceUpdate } from './use-force-update';
-import { usePrevious } from './use-previous';
 import { css, cx } from '@leafygreen-ui/emotion';
 import { palette } from '@leafygreen-ui/palette';
 import { Icon } from '../leafygreen';
@@ -30,6 +29,7 @@ import { useDarkMode } from '../../hooks/use-theme';
 import VisibleFieldsToggle from './visible-field-toggle';
 import { hasDistinctValue } from 'mongodb-query-util';
 import { useContextMenuGroups } from '../context-menu';
+import { useSyncStateOnPropChange } from '../../hooks/use-sync-state-on-prop-change';
 
 function getEditorByType(type: HadronElementType['type']) {
   switch (type) {
@@ -65,7 +65,6 @@ function useElementEditor(el: HadronElementType) {
 
 function useHadronElement(el: HadronElementType) {
   const forceUpdate = useForceUpdate();
-  const prevEl = usePrevious(el);
   const editor = useElementEditor(el);
   // NB: Duplicate key state is kept local to the component and not derived on
   // every change so that only the changed key is highlighed as duplicate
@@ -105,11 +104,9 @@ function useHadronElement(el: HadronElementType) {
     [el, forceUpdate]
   );
 
-  useEffect(() => {
-    if (prevEl && prevEl !== el) {
-      forceUpdate();
-    }
-  }, [el, prevEl, forceUpdate]);
+  useSyncStateOnPropChange(() => {
+    forceUpdate();
+  }, [el]);
 
   useEffect(() => {
     el.on(ElementEvents.Converted, onElementChanged);

@@ -426,8 +426,8 @@ const fetchIndexes = (
         dataService.indexes(namespace),
         shouldFetchRollingIndexes
           ? rollingIndexesService.listRollingIndexes(namespace)
-          : undefined,
-      ] as [Promise<IndexDefinition[]>, Promise<AtlasIndexStats[]> | undefined];
+          : Promise.resolve(undefined),
+      ] as const;
       const [indexes, rollingIndexes] = await Promise.all(promises);
       const indexesBefore = pickCollectionStatFields(getState());
       dispatch(fetchIndexesSucceeded(indexes, rollingIndexes));
