@@ -405,6 +405,7 @@ export default function BulkUpdateModal({
       setOpen={closeBulkUpdateModal}
       data-testid="bulk-update-modal"
       className={enablePreview ? modalContentStyles : undefined}
+      initialFocus={`#${bulkUpdateUpdateId} .cm-content`}
     >
       <ModalHeader title={modalTitleAndButtonText} subtitle={ns} />
       <ModalBody>
@@ -439,8 +440,6 @@ export default function BulkUpdateModal({
                   onBlur={() => ({})}
                   annotations={annotations}
                   minLines={12}
-                  // eslint-disable-next-line jsx-a11y/no-autofocus
-                  autoFocus
                 />
 
                 <div className={bannerContainerStyles}>
