@@ -38,7 +38,7 @@ export type SchemaAnalysisState = {
   resultId: string;
 };
 
-// @ts-expect-error TODO(): replace enums with const kv objects
+// @ts-expect-error TODO(COMPASS-10124): replace enums with const kv objects
 export const enum SchemaAnalysisActions {
   analysisStarted = 'schema-service/schema-analysis/analysisStarted',
   analysisFinished = 'schema-service/schema-analysis/analysisFinished',

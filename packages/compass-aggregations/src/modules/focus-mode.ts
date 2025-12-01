@@ -3,7 +3,7 @@ import type { PipelineBuilderThunkAction } from '.';
 import { isAction } from '../utils/is-action';
 import { addStage, pipelineFromStore } from './pipeline-builder/stage-editor';
 
-// @ts-expect-error TODO(): replace enums with const kv objects
+// @ts-expect-error TODO(COMPASS-10124): replace enums with const kv objects
 enum ActionTypes {
   FocusModeEnabled = 'compass-aggregations/focusModeEnabled',
   FocusModeDisabled = 'compass-aggregations/focusModeDisabled',

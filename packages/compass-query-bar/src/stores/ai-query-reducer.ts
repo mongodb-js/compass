@@ -40,7 +40,7 @@ export const initialState: AIQueryState = {
   lastAIQueryRequestId: null,
 };
 
-// @ts-expect-error TODO(): replace enums with const kv objects
+// @ts-expect-error TODO(COMPASS-10124): replace enums with const kv objects
 export const enum AIQueryActionTypes {
   AIQueryStarted = 'compass-query-bar/ai-query/AIQueryStarted',
   AIQueryCancelled = 'compass-query-bar/ai-query/AIQueryCancelled',

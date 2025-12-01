@@ -14,7 +14,7 @@ export function isAction<A extends AnyAction>(
 
 export type SerializedExplainPlan = ReturnType<ExplainPlan['serialize']>;
 
-// @ts-expect-error TODO(): replace enums with const kv objects
+// @ts-expect-error TODO(COMPASS-10124): replace enums with const kv objects
 enum ExplainPlanModalActionTypes {
   CloseExplainPlanModal = 'compass-explain-plan-modal/CloseExplainPlanModal',
   FetchExplainPlanModalLoading = 'compass-explain-plan-modal/FetchExplainPlanModalLoading',

@@ -43,7 +43,7 @@ export const initialState: AIPipelineState = {
   isAggregationGeneratedFromQuery: false,
 };
 
-// @ts-expect-error TODO(): replace enums with const kv objects
+// @ts-expect-error TODO(COMPASS-10124): replace enums with const kv objects
 export const enum AIPipelineActionTypes {
   AIPipelineStarted = 'compass-aggregations/pipeline-builder/pipeline-ai/AIPipelineStarted',
   AIPipelineCancelled = 'compass-aggregations/pipeline-builder/pipeline-ai/AIPipelineCancelled',

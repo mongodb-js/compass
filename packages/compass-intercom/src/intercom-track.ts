@@ -7,7 +7,7 @@ type WindowWithIntercomGlobals = Window &
     attachEvent?: (...args: any[]) => any;
   };
 
-// @ts-expect-error TODO(): replace enums with const kv objects
+// @ts-expect-error TODO(COMPASS-10124): replace enums with const kv objects
 export enum IntercomTrackingEvent {
   submittedNlPrompt = 'submitted-nl-prompt',
 }

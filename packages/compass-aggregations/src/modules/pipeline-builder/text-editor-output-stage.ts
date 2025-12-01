@@ -20,7 +20,7 @@ import type {
 } from './pipeline-ai';
 import { getDestinationNamespaceFromStage } from '../../utils/stage';
 
-// @ts-expect-error TODO(): replace enums with const kv objects
+// @ts-expect-error TODO(COMPASS-10124): replace enums with const kv objects
 const enum OutputStageActionTypes {
   FetchStarted = 'compass-aggregations/pipeline-builder/text-editor-output-stage/FetchStarted',
   FetchSucceded = 'compass-aggregations/pipeline-builder/text-editor-output-stage/FetchSucceded',

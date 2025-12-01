@@ -25,7 +25,7 @@ const ATLAS_SEARCH_SERVER_ERRORS: Record<string, string> = {
     'This index name is already in use. Please choose another one.',
 };
 
-// @ts-expect-error TODO(): replace enums with const kv objects
+// @ts-expect-error TODO(COMPASS-10124): replace enums with const kv objects
 export enum ActionTypes {
   // Fetch indexes
   FetchSearchIndexesStarted = 'compass-indexes/search-indexes/fetch-search-indexes-started',

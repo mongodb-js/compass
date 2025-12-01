@@ -35,7 +35,7 @@ export const INITIAL_STATE: CreateNamespaceState = {
   connectionMetaData: {},
 };
 
-// @ts-expect-error TODO(): replace enums with const kv objects
+// @ts-expect-error TODO(COMPASS-10124): replace enums with const kv objects
 export const enum CreateNamespaceActionTypes {
   Reset = 'databases-collections/Reset',
   Open = 'databases-collections/create-collection/Open',

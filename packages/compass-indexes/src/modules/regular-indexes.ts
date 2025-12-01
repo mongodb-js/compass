@@ -91,7 +91,7 @@ export const prepareInProgressIndex = (
   };
 };
 
-// @ts-expect-error TODO(): replace enums with const kv objects
+// @ts-expect-error TODO(COMPASS-10124): replace enums with const kv objects
 export enum ActionTypes {
   IndexesOpened = 'compass-indexes/regular-indexes/indexes-opened',
   IndexesClosed = 'compass-indexes/regular-indexes/indexes-closed',

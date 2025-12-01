@@ -21,7 +21,7 @@ const ERROR_CODE_MAX_TIME_MS_EXPIRED = 50;
 const SAMPLE_SIZE = 1000;
 const ABORT_MESSAGE = 'Operation cancelled';
 
-// @ts-expect-error TODO(): replace enums with const kv objects
+// @ts-expect-error TODO(COMPASS-10124): replace enums with const kv objects
 export const enum RulesGenerationActions {
   generationStarted = 'schema-validation/rules-generation/generationStarted',
   generationFailed = 'schema-validation/rules-generation/generationFailed',
