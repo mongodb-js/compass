@@ -1,4 +1,4 @@
-import React, { useMemo, useRef } from 'react';
+import React, { useLayoutEffect, useMemo, useRef } from 'react';
 import { Menu, MenuItem, MenuSeparator } from './leafygreen';
 import { css, cx } from '@leafygreen-ui/emotion';
 import { spacing } from '@leafygreen-ui/tokens';
@@ -75,10 +75,12 @@ export function ContextMenu({
   const { position, itemGroups } = menu;
 
   // TODO: Remove when https://jira.mongodb.org/browse/LG-5342 is resolved
-  if (anchorRef.current) {
-    anchorRef.current.style.left = `${position.x}px`;
-    anchorRef.current.style.top = `${position.y}px`;
-  }
+  useLayoutEffect(() => {
+    if (anchorRef.current) {
+      anchorRef.current.style.left = `${position.x}px`;
+      anchorRef.current.style.top = `${position.y}px`;
+    }
+  }, [position]);
 
   return (
     <div data-testid="context-menu-container">

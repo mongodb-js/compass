@@ -55,6 +55,10 @@ export function ContextMenuProvider({
   );
 
   const onContextMenuOpenRef = useRef(onContextMenuOpen);
+  // NB: This is not using `useCurrentValueRef` from compass-components because
+  // this would cause a circular dep. We know what we're doing, see
+  // `useCurrentValueRef` documentation for explanation
+  // eslint-disable-next-line react-hooks/refs
   onContextMenuOpenRef.current = onContextMenuOpen;
 
   const handleClosingEvent = useCallback(

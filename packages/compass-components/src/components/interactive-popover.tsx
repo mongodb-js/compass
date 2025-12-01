@@ -163,6 +163,8 @@ function InteractivePopover<TriggerElement extends HTMLElement>({
 
   const closeButtonId = 'close-button-id';
 
+  // This is an allowed "custom ref" case
+  // eslint-disable-next-line react-hooks/refs
   return trigger({
     onClick: onClickTrigger,
     ref: triggerRef,

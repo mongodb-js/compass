@@ -1,6 +1,6 @@
 import './index.less';
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Banner,
   LeafyGreenProvider,
@@ -9,6 +9,7 @@ import {
   spacing,
   palette,
   useScrollbars,
+  useInitialValue,
 } from '@mongodb-js/compass-components';
 
 import GraphsComponent from './server-stats-graphs-component';
@@ -118,7 +119,7 @@ function PerformancePanelMsgs() {
  * Renders the entire performance tab, including charts and lists.
  */
 function PerformanceComponent() {
-  const eventDispatcher = useRef(realTimeDispatcher());
+  const eventDispatcher = useInitialValue(realTimeDispatcher());
   const connectionInfoRef = useConnectionInfoRef();
 
   useTrackOnChange(
@@ -140,11 +141,11 @@ function PerformanceComponent() {
 
   return (
     <section className="rt-perf">
-      <ServerStatsToolbar eventDispatcher={eventDispatcher.current} />
+      <ServerStatsToolbar eventDispatcher={eventDispatcher} />
       <LeafyGreenProvider darkMode>
         <div className={cx(workspaceContainerStyles, scrollbarStyles)}>
           <PerformancePanelMsgs />
-          <PerformancePanel eventDispatcher={eventDispatcher.current} />
+          <PerformancePanel eventDispatcher={eventDispatcher} />
         </div>
       </LeafyGreenProvider>
     </section>

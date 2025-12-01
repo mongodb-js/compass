@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useMemo, useRef } from 'react';
+import React, { useContext, useEffect, useMemo } from 'react';
 import type { ToastProps } from '@leafygreen-ui/toast';
 import {
   ToastProvider,
@@ -6,6 +6,8 @@ import {
 } from '@leafygreen-ui/toast';
 import { useStackedComponent } from './use-stacked-component';
 import { css } from '..';
+import { useInitialValue } from './use-initial-value';
+import { useCurrentValueRef } from './use-current-value-ref';
 
 export type ToastProperties = Pick<
   ToastProps,
@@ -158,12 +160,9 @@ const ToastStateHandler: React.FunctionComponent = ({ children }) => {
   // interface in a ref so that we can safely use it inside our effects
   //
   // @see {@link https://jira.mongodb.org/browse/LG-3209}
-  const toastRef = useRef(useLeafygreenToast());
-  const toastStateRef = useRef<GlobalToastState>();
-
-  if (!toastStateRef.current) {
-    toastStateRef.current = toastState;
-    toastStateRef.current.onToastsChange = (action, toast) => {
+  const toastRef = useCurrentValueRef(useLeafygreenToast());
+  const _toastState = useInitialValue<GlobalToastState>(() => {
+    toastState.onToastsChange = (action, toast) => {
       if (action === 'push') {
         toastRef.current.pushToast({
           ...(toast as ToastProperties),
@@ -177,16 +176,16 @@ const ToastStateHandler: React.FunctionComponent = ({ children }) => {
         toastRef.current.popToast(toast.id);
       }
     };
-  }
-
+    return toastState;
+  });
   useEffect(() => {
     return () => {
-      const ids = toastStateRef.current?.clear();
+      const ids = _toastState.clear();
       ids?.forEach((id) => {
         toastRef.current.popToast(id);
       });
     };
-  }, []);
+  }, [_toastState, toastRef]);
 
   return <>{children}</>;
 };

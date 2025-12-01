@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import {
   Table,
   TableBody,
@@ -17,6 +17,7 @@ import {
   type LGTableDataType,
   getExpandedRowModel,
   getFilteredRowModel,
+  useCurrentValueRef,
 } from '@mongodb-js/compass-components';
 import type { ShardZoneData } from '../store/reducer';
 import { ShardZonesDescription } from './shard-zones-description';
@@ -119,8 +120,7 @@ export function ShardZonesTable({
     maxLeafRowFilterDepth: 2,
   });
 
-  const tableRef = useRef(table);
-  tableRef.current = table;
+  const tableRef = useCurrentValueRef(table);
 
   const handleSearchTextChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
