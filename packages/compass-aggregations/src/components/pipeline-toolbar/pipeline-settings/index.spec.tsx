@@ -15,14 +15,18 @@ import { PipelineSettings } from '.';
 describe('PipelineSettings', function () {
   let container: HTMLElement;
   let onExportToLanguageSpy: SinonSpy;
+  let onExportDataSpy: SinonSpy;
   let onCreateNewPipelineSpy: SinonSpy;
   beforeEach(async function () {
     onExportToLanguageSpy = spy();
+    onExportDataSpy = spy();
     onCreateNewPipelineSpy = spy();
     await renderWithStore(
       <PipelineSettings
         isExportToLanguageEnabled={true}
+        isExportDataEnabled={true}
         onExportToLanguage={onExportToLanguageSpy}
+        onExportData={onExportDataSpy}
         onCreateNewPipeline={onCreateNewPipelineSpy}
       />
     );
@@ -41,9 +45,9 @@ describe('PipelineSettings', function () {
     expect(onCreateNewPipelineSpy.calledOnce).to.be.true;
   });
 
-  it('calls onExportToLanguage callback when export to language button is clicked', function () {
+  it('calls onExportToLanguage callback when export code button is clicked', function () {
     const button = within(container).getByTestId(
-      'pipeline-toolbar-export-button'
+      'pipeline-toolbar-export-code-button'
     );
     expect(button).to.exist;
 

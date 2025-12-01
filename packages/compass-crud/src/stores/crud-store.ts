@@ -98,6 +98,7 @@ export type CrudActions = {
   runBulkUpdate(): Promise<void>;
   closeBulkDeleteDialog(): void;
   runBulkDelete(): Promise<void>;
+  openQueryExportToLanguageDialog(): void;
   openDeleteQueryExportToLanguageDialog(): void;
   saveUpdateQuery(name: string): Promise<void>;
 };
@@ -1981,6 +1982,22 @@ class CrudStoreImpl
         this.bulkDeleteFailed(ex as Error);
       }
     }
+  }
+
+  openQueryExportToLanguageDialog(): void {
+    const query = this.queryBar.getLastAppliedQuery('crud');
+    this.localAppRegistry.emit(
+      'open-query-export-to-language',
+      {
+        filter: toJSString(query.filter) || '{}',
+        project: query.project ? toJSString(query.project) : undefined,
+        sort: query.sort ? toJSString(query.sort) : undefined,
+        collation: query.collation ? toJSString(query.collation) : undefined,
+        skip: query.skip ? String(query.skip) : undefined,
+        limit: query.limit ? String(query.limit) : undefined,
+      },
+      'Query'
+    );
   }
 
   openDeleteQueryExportToLanguageDialog(): void {

@@ -1,7 +1,6 @@
 import React, { useCallback, useMemo } from 'react';
 import {
   Button,
-  Icon,
   OptionsToggle,
   css,
   cx,
@@ -118,11 +117,6 @@ type QueryBarProps = {
   applyId: number;
   filterHasContent: boolean;
   showExplainButton?: boolean;
-  /**
-   * Used by Cloud only to hide the export to language functionality
-   * as it isn't supported.
-   */
-  showExportToLanguageButton?: boolean;
   valid: boolean;
   expanded: boolean;
   placeholders?: Record<QueryProperty, string>;
@@ -137,7 +131,6 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
   buttonLabel = 'Apply',
   onApply,
   onReset,
-  onOpenExportToLanguage,
   // Used to specify which query options to show and where they are positioned.
   queryOptionsLayout = [
     'project',
@@ -150,7 +143,6 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
   applyId,
   filterHasContent,
   showExplainButton = false,
-  showExportToLanguageButton = true,
   valid: isQueryValid,
   expanded: isQueryOptionsExpanded,
   placeholders,
@@ -281,19 +273,6 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
         >
           {buttonLabel}
         </Button>
-        {showExportToLanguageButton && (
-          <Button
-            onClick={onOpenExportToLanguage}
-            title="Open export to language"
-            aria-label="Open export to language"
-            data-testid="query-bar-open-export-to-language-button"
-            disabled={isAIFetching}
-            type="button"
-            size="small"
-          >
-            <Icon glyph="Code" />
-          </Button>
-        )}
         {queryOptionsLayout && queryOptionsLayout.length > 0 && (
           <div>
             <QueryOptionsToggle
