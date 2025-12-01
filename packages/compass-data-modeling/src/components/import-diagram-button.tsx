@@ -1,17 +1,18 @@
 import React from 'react';
-import { Button, FileSelector } from '@mongodb-js/compass-components';
+import {
+  Button,
+  type ButtonProps,
+  FileSelector,
+} from '@mongodb-js/compass-components';
 
-type importDiagramButtonProps = Omit<
-  React.ComponentProps<typeof Button>,
-  'onClick'
-> & {
+type ImportDiagramButtonProps = Omit<ButtonProps, 'onClick'> & {
   onImportDiagram: (file: File) => void;
 };
 
 export const ImportDiagramButton = ({
   onImportDiagram,
   ...buttonProps
-}: importDiagramButtonProps) => {
+}: ImportDiagramButtonProps) => {
   return (
     <FileSelector
       id="import-diagram-file-input"

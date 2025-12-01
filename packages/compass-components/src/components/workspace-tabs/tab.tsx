@@ -340,6 +340,7 @@ function Tab({
           </div>
 
           <IconButton
+            as="button"
             className={cx(closeButtonStyles, 'workspace-tab-close-button')}
             onClick={(e) => {
               e.stopPropagation();
