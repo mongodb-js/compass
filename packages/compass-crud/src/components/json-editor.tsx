@@ -295,6 +295,7 @@ const JSONEditor: React.FunctionComponent<JSONEditorProps> = ({
     <div data-testid="editable-json">
       <CodemirrorMultilineEditor
         ref={editorRef}
+        data-testid="json-editor"
         language="json"
         text={value}
         onChangeText={onChange}
