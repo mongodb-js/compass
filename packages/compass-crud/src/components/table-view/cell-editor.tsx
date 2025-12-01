@@ -24,8 +24,8 @@ import type {
   RowNode,
 } from 'ag-grid-community';
 import type { ICellEditorReactComp } from 'ag-grid-react';
-import type { GridActions, TableHeaderType } from '../../stores/grid-store';
-import type { CrudActions } from '../../stores/crud-store';
+import type { GridActions, TableHeaderType } from '../../stores/grid-types';
+import type { CrudActions } from '../../stores/crud-types';
 import type { GridContext } from './document-table-view';
 
 /**

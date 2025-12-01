@@ -27,7 +27,7 @@ import InsertDocument from './insert-document';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
 import { withLogger } from '@mongodb-js/compass-logging/provider';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
-import type { WriteError } from '../stores/crud-store';
+import type { WriteError } from '../stores/crud-types';
 
 /**
  * The insert invalid message.

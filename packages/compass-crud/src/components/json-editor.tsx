@@ -20,7 +20,7 @@ import {
   CodemirrorMultilineEditor,
 } from '@mongodb-js/compass-editor';
 import type { EditorRef, Action } from '@mongodb-js/compass-editor';
-import type { CrudActions } from '../stores/crud-store';
+import type { CrudActions } from '../stores/crud-types';
 import { useAutocompleteFields } from '@mongodb-js/compass-field-store';
 
 const editorStyles = css({

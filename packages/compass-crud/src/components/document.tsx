@@ -4,7 +4,7 @@ import type { EditableDocumentProps } from './editable-document';
 import EditableDocument from './editable-document';
 import type { ReadonlyDocumentProps } from './readonly-document';
 import ReadonlyDocument from './readonly-document';
-import type { BSONObject } from '../stores/crud-store';
+import type { BSONObject } from '../stores/crud-types';
 
 export type DocumentProps = {
   doc: HadronDocument | BSONObject;

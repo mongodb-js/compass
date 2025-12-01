@@ -1,6 +1,6 @@
 import React from 'react';
 import { Icon } from '@mongodb-js/compass-components';
-import type { TableHeaderType } from '../../stores/grid-store';
+import type { TableHeaderType } from '../../stores/grid-types';
 
 const BEM_BASE = 'ag-header-breadcrumb';
 const ICON_TYPE: Partial<Record<TableHeaderType, string>> = {

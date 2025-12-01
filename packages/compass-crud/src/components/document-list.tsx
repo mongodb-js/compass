@@ -29,7 +29,7 @@ import {
   DOCUMENTS_STATUS_FETCHING,
   DOCUMENTS_STATUS_FETCHED_INITIAL,
 } from '../constants/documents-statuses';
-import type { CrudStore, BSONObject, DocumentView } from '../stores/crud-store';
+import type { BSONObject, DocumentView } from '../stores/crud-types';
 import { getToolbarSignal } from '../utils/toolbar-signal';
 import BulkDeleteModal from './bulk-delete-modal';
 import { useTabState } from '@mongodb-js/compass-workspaces/provider';
@@ -65,7 +65,7 @@ const loaderContainerStyles = css({
 });
 
 export type DocumentListProps = {
-  store: CrudStore;
+  store?: any;
   openInsertDocumentDialog?: (doc: BSONObject, cloned: boolean) => void;
   openBulkUpdateModal: () => void;
   updateBulkUpdatePreview: (updateText: string) => void;
@@ -645,3 +645,163 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
 };
 
 export default withDarkMode(DocumentList);
+
+// Redux connected version
+import { connect } from 'react-redux';
+import type { RootCrudState } from '../stores/reducer';
+import * as CrudActions from '../stores/crud';
+import * as InsertActions from '../stores/insert';
+import * as BulkUpdateActions from '../stores/bulk-update';
+import * as BulkDeleteActions from '../stores/bulk-delete';
+import * as TableActions from '../stores/table';
+
+function mapStateToProps(state: RootCrudState) {
+  const { crud, insert, bulkUpdate, table } = state;
+
+  if (!crud) {
+    return {} as any;
+  }
+
+  return {
+    docs: crud.docs || [],
+    view: crud.view,
+    insert: {
+      doc: insert.doc,
+      csfleState: insert.csfleState,
+      isOpen: insert.isOpen,
+      error: insert.error,
+      mode: insert.mode,
+      jsonDoc: insert.jsonDoc,
+      isCommentNeeded: insert.isCommentNeeded,
+      jsonView: insert.jsonView,
+    },
+    bulkUpdate: {
+      isOpen: bulkUpdate.isOpen,
+      syntaxError: bulkUpdate.syntaxError,
+      serverError: bulkUpdate.serverError,
+      preview: bulkUpdate.preview,
+      updateText: bulkUpdate.updateText,
+    },
+    status: crud.status,
+    debouncingLoad: crud.debouncingLoad,
+    isCollectionScan: crud.isCollectionScan,
+    isSearchIndexesSupported: crud.isSearchIndexesSupported,
+    isUpdatePreviewSupported: crud.isUpdatePreviewSupported,
+    error: crud.error,
+    count: crud.count,
+    lastCountRunMaxTimeMS: crud.lastCountRunMaxTimeMS,
+    loadingCount: crud.loadingCount,
+    start: crud.start,
+    end: crud.end,
+    page: crud.page,
+    isWritable: crud.isWritable,
+    instanceDescription: crud.instanceDescription,
+    resultId: crud.resultId,
+    docsPerPage: crud.docsPerPage,
+    version: crud.version,
+    ns: crud.ns,
+    // Table state
+    table,
+    // Expose the store state for bulk delete (used in component)
+    store: { state: state } as any,
+  };
+}
+
+function mapDispatchToProps(dispatch: any) {
+  return {
+    viewChanged: (view: DocumentView) => {
+      dispatch(CrudActions.viewChanged(view));
+    },
+    getPage: (page: number) => {
+      dispatch(CrudActions.getPage(page));
+    },
+    refreshDocuments: () => {
+      dispatch(CrudActions.refreshDocuments(true));
+    },
+    updateMaxDocumentsPerPage: (docsPerPage: number) => {
+      dispatch(CrudActions.updateMaxDocumentsPerPage(docsPerPage));
+    },
+    // Insert/Update/Delete actions
+    openInsertDocumentDialog: (doc: BSONObject, cloned: boolean) => {
+      dispatch(InsertActions.openInsertDocumentDialog(doc, cloned));
+    },
+    closeInsertDocumentDialog: () => {
+      dispatch(InsertActions.closeInsertDocumentDialog());
+    },
+    insertDocument: () => {
+      dispatch(InsertActions.insertDocument());
+    },
+    insertMany: () => {
+      // TODO: implement insertMany
+    },
+    updateJsonDoc: (jsonDoc: string) => {
+      dispatch(InsertActions.updateJsonDoc(jsonDoc));
+    },
+    toggleInsertDocument: (mode: string) => {
+      dispatch(InsertActions.toggleInsertDocument(mode as 'List' | 'JSON'));
+    },
+    toggleInsertDocumentView: () => {
+      dispatch(InsertActions.toggleInsertDocumentView());
+    },
+    updateComment: (isCommentNeeded: boolean) => {
+      dispatch({ type: 'compass-crud/UPDATE_COMMENT', isCommentNeeded });
+    },
+    updateDocument: (doc: Document) => {
+      dispatch(InsertActions.updateDocument(doc));
+    },
+    replaceDocument: (doc: Document) => {
+      dispatch(InsertActions.replaceDocument(doc));
+    },
+    removeDocument: (doc: Document) => {
+      dispatch(InsertActions.removeDocument(doc));
+    },
+    copyToClipboard: (doc: Document) => {
+      dispatch(CrudActions.copyToClipboard(doc));
+    },
+    // Bulk update actions
+    openBulkUpdateModal: () => {
+      dispatch(BulkUpdateActions.openBulkUpdateModal());
+    },
+    closeBulkUpdateModal: () => {
+      dispatch(BulkUpdateActions.closeBulkUpdateModal());
+    },
+    updateBulkUpdatePreview: (updateText: string) => {
+      dispatch(BulkUpdateActions.updateTextChanged(updateText));
+    },
+    runBulkUpdate: () => {
+      dispatch(BulkUpdateActions.runBulkUpdate());
+    },
+    saveUpdateQuery: (name: string) => {
+      dispatch(BulkUpdateActions.saveUpdateQuery(name));
+    },
+    // Bulk delete actions
+    openBulkDeleteDialog: () => {
+      dispatch(BulkDeleteActions.openBulkDeleteDialog());
+    },
+    closeBulkDeleteDialog: () => {
+      dispatch(BulkDeleteActions.closeBulkDeleteDialog());
+    },
+    runBulkDelete: () => {
+      dispatch(BulkDeleteActions.runBulkDelete());
+    },
+    openDeleteQueryExportToLanguageDialog: () => {
+      dispatch(BulkDeleteActions.openDeleteQueryExportToLanguageDialog());
+    },
+    // Table actions
+    drillDown: (doc: Document, element: any, editParams?: any) => {
+      dispatch(TableActions.drillDown(doc, element, editParams));
+    },
+    // Search index actions
+    openCreateIndexModal: () => {
+      dispatch(CrudActions.openCreateIndexModal());
+    },
+    openCreateSearchIndexModal: () => {
+      dispatch(CrudActions.openCreateSearchIndexModal());
+    },
+  };
+}
+
+export const ConnectedDocumentList = connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(withDarkMode(DocumentList));

@@ -1,6 +1,6 @@
 import React from 'react';
 import { cx } from '@mongodb-js/compass-components';
-import type { TableHeaderType } from '../../stores/grid-store';
+import type { TableHeaderType } from '../../stores/grid-types';
 
 export type HeaderCellRendererProps = {
   displayName: string;

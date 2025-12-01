@@ -140,18 +140,17 @@ application can be listened to via [compass-app-registry][compass-app-registry].
 
 ### Code Tour
 
-`Compass Crud` uses React, and Reflux for state management. There are two stores
-we manage: `crud-store`(`./src/stores/crud-store.js`) and
-`grid-store`(`./src/stores/grid-store.js`). Overall structure of this repo:
+`Compass Crud` uses React and Redux for state management. The main Redux store is in
+`./src/stores/store.ts` with individual slices in `./src/stores/` (crud, insert,
+bulk-update, bulk-delete, etc.). Overall structure of this repo:
 
 - `./dist`: webpack-compiled version of this plugin.
 - `./scripts`: scripts to `link` and `unlink` React version to compass when
   developing this locally in Compass.
-- `./src/actions`: reflux actions that are available throughout this plugin.
 - `./src/assets`: css assets, such as variables and styles from compass.
 - `./src/components`: react components that make up this plugin. Almost all
   components have a `.jsx`, `.spec.js`, `.less` and `.js` files.
-- `./src/stores`: home to reflux stores.
+- `./src/stores`: Redux stores and reducers for state management.
 - `./src/utils`: util `.js` files to be used throughout the plugin.
 
 ## Install

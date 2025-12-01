@@ -12,7 +12,7 @@ import {
   spacing,
   useId,
 } from '@mongodb-js/compass-components';
-import type { BSONObject } from '../stores/crud-store';
+import type { BSONObject } from '../stores/crud-types';
 import { toJSString } from 'mongodb-query-parser';
 import { ReadonlyFilter } from './readonly-filter';
 import ReadonlyDocument from './readonly-document';

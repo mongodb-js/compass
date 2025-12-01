@@ -6,7 +6,7 @@ import { withPreferences } from 'compass-preferences-model/provider';
 
 import { documentStyles, documentContentStyles } from './readonly-document';
 import { getInsightsForDocument } from '../utils';
-import type { CrudActions } from '../stores/crud-store';
+import type { CrudActions } from '../stores/crud-types';
 
 const documentElementsContainerStyles = css({
   position: 'relative',

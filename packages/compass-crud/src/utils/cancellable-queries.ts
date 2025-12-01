@@ -1,6 +1,6 @@
 import type { PreferencesAccess } from 'compass-preferences-model/provider';
 import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model/provider';
-import type { BSONObject } from '../stores/crud-store';
+import type { BSONObject } from '../stores/crud-types';
 import type { DataService } from './data-service';
 
 export async function countDocuments(

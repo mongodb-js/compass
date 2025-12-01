@@ -8,7 +8,7 @@ import {
   type VirtualListRef,
 } from '@mongodb-js/compass-components';
 
-import { type BSONObject } from '../stores/crud-store';
+import { type BSONObject } from '../stores/crud-types';
 import type { DocumentProps } from './document';
 import { DocumentListViewItem } from './document-list-view-item';
 

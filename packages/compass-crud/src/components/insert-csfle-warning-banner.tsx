@@ -1,6 +1,6 @@
 import React from 'react';
 import { css, Banner, BannerVariant } from '@mongodb-js/compass-components';
-import type { InsertCSFLEState } from '../stores/crud-store';
+import type { InsertCSFLEState } from '../stores/crud-types';
 
 export type InsertCSFLEWarningBannerProps = {
   csfleState: InsertCSFLEState;

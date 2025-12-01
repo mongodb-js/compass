@@ -4,7 +4,7 @@ import { KeylineCard, css, cx, spacing } from '@mongodb-js/compass-components';
 import type { DocumentProps } from './document';
 import Document from './document';
 import type HadronDocument from 'hadron-document';
-import type { BSONObject } from '../stores/crud-store';
+import type { BSONObject } from '../stores/crud-types';
 
 const listStyles = css({
   listStyle: 'none',

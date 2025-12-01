@@ -11,8 +11,8 @@ import {
 import { Element } from 'hadron-document';
 import type { ICellRendererReactComp } from 'ag-grid-react';
 import type { ICellRendererParams } from 'ag-grid-community';
-import type { GridActions, TableHeaderType } from '../../stores/grid-store';
-import type { CrudActions } from '../../stores/crud-store';
+import type { GridActions, TableHeaderType } from '../../stores/grid-types';
+import type { CrudActions } from '../../stores/crud-types';
 import type { GridContext } from './document-table-view';
 
 /**

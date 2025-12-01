@@ -2,12 +2,10 @@ import React from 'react';
 import type { DocumentProps } from './components/document';
 import Document from './components/document';
 import type { DocumentListProps } from './components/document-list';
-import DocumentList from './components/document-list';
+import { ConnectedDocumentList } from './components/document-list';
 import InsertDocumentDialog from './components/insert-document-dialog';
-import {
-  type EmittedAppRegistryEvents,
-  activateDocumentsPlugin,
-} from './stores/crud-store';
+import type { EmittedAppRegistryEvents } from './stores/crud-types';
+import { activateCrudStore } from './stores/store';
 import {
   connectionInfoRefLocator,
   connectionScopedAppRegistryLocator,
@@ -33,21 +31,27 @@ import { fieldStoreServiceLocator } from '@mongodb-js/compass-field-store';
 import { queryBarServiceLocator } from '@mongodb-js/compass-query-bar';
 import { telemetryLocator } from '@mongodb-js/compass-telemetry/provider';
 import { CrudTabTitle } from './plugin-title';
+import { Provider } from 'react-redux';
 
 const CompassDocumentsPluginProvider = registerCompassPlugin(
   {
     name: 'CompassDocuments',
-    component: function CrudProvider({ children, ...props }) {
-      return React.createElement(
-        React.Fragment,
-        null,
-        // Cloning children with props is a workaround for reflux store.
-        React.isValidElement(children)
+    component: function CrudProvider({
+      children,
+      ...props
+    }: {
+      children?: React.ReactNode;
+      [key: string]: any;
+    }) {
+      const { store } = props as any;
+      return React.createElement(Provider, {
+        store,
+        children: React.isValidElement(children)
           ? React.cloneElement(children, props)
-          : null
-      );
+          : null,
+      });
     },
-    activate: activateDocumentsPlugin,
+    activate: activateCrudStore,
   },
   {
     dataService: dataServiceLocator as DataServiceLocator<
@@ -72,13 +76,17 @@ const CompassDocumentsPluginProvider = registerCompassPlugin(
 export const CompassDocumentsPlugin = {
   name: 'Documents' as const,
   provider: CompassDocumentsPluginProvider,
-  content: DocumentList as any, // as any because of reflux store
-  header: CrudTabTitle as any, // as any because of reflux store
+  content: ConnectedDocumentList,
+  header: CrudTabTitle,
 };
 
-export default DocumentList;
+export default ConnectedDocumentList;
 export type { DocumentListProps, DocumentProps };
-export { DocumentList, Document, InsertDocumentDialog };
+export {
+  ConnectedDocumentList as DocumentList,
+  Document,
+  InsertDocumentDialog,
+};
 export type { DocumentListViewProps } from './components/document-list-view';
 export { default as DocumentListView } from './components/document-list-view';
 export type { DocumentJsonViewProps } from './components/document-json-view';

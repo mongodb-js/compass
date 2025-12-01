@@ -25,7 +25,7 @@ import {
 } from '@mongodb-js/compass-components';
 import type { MenuAction, Signal } from '@mongodb-js/compass-components';
 import { ViewSwitcher } from './view-switcher';
-import { type DocumentView } from '../stores/crud-store';
+import { type DocumentView } from '../stores/crud-types';
 import { AddDataMenu } from './add-data-menu';
 import { usePreference } from 'compass-preferences-model/provider';
 import UpdateMenu from './update-data-menu';
