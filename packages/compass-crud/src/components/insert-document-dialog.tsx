@@ -180,6 +180,20 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
     return invalidElements.length > 0;
   }, [invalidElements, jsonDoc, jsonView]);
 
+  const getErrorMessage = useCallback((): string | undefined => {
+    if (jsonView) {
+      try {
+        HadronDocument.FromEJSON(jsonDoc);
+      } catch (e) {
+        return (e as Error).message;
+      }
+    } else {
+      if (invalidElements.length > 0) {
+        return INSERT_INVALID_MESSAGE;
+      }
+    }
+  }, [jsonDoc, jsonView, invalidElements]);
+
   const handleInvalid = useCallback(
     (el: Element) => {
       if (!invalidElements.includes(el.uuid)) {
@@ -282,17 +296,27 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
   );
 
   const currentView = jsonView ? 'JSON' : 'List';
-  const variant = insertInProgress ? 'info' : 'danger';
 
-  const error = useMemo(() => {
+  const banner = useMemo(() => {
     if (hasErrors()) {
-      return { message: INSERT_INVALID_MESSAGE };
+      const errorMessage = getErrorMessage();
+      return {
+        message: errorMessage ?? INSERT_INVALID_MESSAGE,
+        variant: 'danger' as const,
+      };
     }
     if (insertInProgress) {
-      return { message: 'Inserting Document' };
+      return { message: 'Inserting Document', variant: 'info' as const };
     }
-    return _error;
-  }, [_error, hasErrors, insertInProgress]);
+    if (_error) {
+      return {
+        message: _error.message,
+        variant: 'danger' as const,
+        info: _error.info,
+      };
+    }
+    return null;
+  }, [_error, hasErrors, getErrorMessage, insertInProgress]);
 
   return (
     <FormModal
@@ -352,21 +376,21 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
           updateComment={updateComment}
         />
       </div>
-      {error && (
+      {banner && (
         <Banner
           data-testid="insert-document-banner"
-          data-variant={variant}
-          variant={variant}
+          data-variant={banner.variant}
+          variant={banner.variant}
           className={bannerStyles}
         >
-          {error?.message}
-          {error?.info && (
+          {banner.message}
+          {banner.info && (
             <Button
               size="xsmall"
               className={errorDetailsBtnStyles}
               onClick={() =>
                 showErrorDetails({
-                  details: error.info!,
+                  details: banner.info!,
                   closeAction: 'back',
                 })
               }
