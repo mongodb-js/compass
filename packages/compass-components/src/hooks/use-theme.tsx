@@ -3,6 +3,7 @@ import LeafyGreenProvider, {
   useDarkMode as useLeafyGreenDarkMode,
 } from '@leafygreen-ui/leafygreen-provider';
 
+// @ts-expect-error TODO(COMPASS-10124): replace enums with const kv objects
 enum Theme {
   Light = 'Light',
   Dark = 'Dark',

@@ -53,13 +53,24 @@ function getAutomationAgentClusterId(
 }
 
 export class AtlasService {
+  private readonly authService: AtlasAuthService;
+  private readonly preferences: PreferencesAccess;
+  private readonly logger: Logger;
+  private readonly options?: AtlasServiceOptions;
+  private readonly defaultConfigOverride?: AtlasServiceConfig;
   constructor(
-    private readonly authService: AtlasAuthService,
-    private readonly preferences: PreferencesAccess,
-    private readonly logger: Logger,
-    private readonly options?: AtlasServiceOptions,
-    private readonly defaultConfigOverride?: AtlasServiceConfig
-  ) {}
+    authService: AtlasAuthService,
+    preferences: PreferencesAccess,
+    logger: Logger,
+    options?: AtlasServiceOptions,
+    defaultConfigOverride?: AtlasServiceConfig
+  ) {
+    this.authService = authService;
+    this.preferences = preferences;
+    this.logger = logger;
+    this.options = options;
+    this.defaultConfigOverride = defaultConfigOverride;
+  }
   // Config value is dynamic to make sure that process.env overrides are taken
   // into account in runtime
   get config(): AtlasServiceConfig {

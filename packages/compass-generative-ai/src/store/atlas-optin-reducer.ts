@@ -32,6 +32,7 @@ export type GenAIAtlasOptInThunkAction<
   A
 >;
 
+// @ts-expect-error TODO(COMPASS-10124): replace enums with const kv objects
 export const enum AtlasOptInActions {
   OpenOptInModal = 'compass-generative-ai/atlas-optin/OpenOptInModal',
   CloseOptInModal = 'compass-generative-ai/atlas-optin/CloseOptInModal',

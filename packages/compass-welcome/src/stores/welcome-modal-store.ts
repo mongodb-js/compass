@@ -17,6 +17,7 @@ export type WelcomeModalThunkAction<
   A
 >;
 
+// @ts-expect-error TODO(COMPASS-10124): replace enums with const kv objects
 enum WelcomeModalActionTypes {
   ModalClosed = 'compass-welcome/welcome-modal/ModalClosed',
   OpenSettingsClicked = 'compass-welcome/welcome-modal/OpenSettingsClicked',

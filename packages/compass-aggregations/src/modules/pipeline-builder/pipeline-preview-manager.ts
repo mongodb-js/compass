@@ -76,10 +76,12 @@ export function createPreviewAggregation(
 export class PipelinePreviewManager {
   private queue = new Map<number, AbortController>();
   private lastPipeline = new Map<number, Document[]>();
-  constructor(
-    private dataService: DataService,
-    private preferences: PreferencesAccess
-  ) {}
+  private dataService: DataService;
+  private preferences: PreferencesAccess;
+  constructor(dataService: DataService, preferences: PreferencesAccess) {
+    this.dataService = dataService;
+    this.preferences = preferences;
+  }
 
   /**
    * Request aggregation results with a default debounce

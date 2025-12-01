@@ -19,6 +19,7 @@ import type {
 
 export type PipelineMode = 'builder-ui' | 'as-text';
 
+// @ts-expect-error TODO(COMPASS-10124): replace enums with const kv objects
 export enum ActionTypes {
   PipelineModeToggled = 'compass-aggregations/pipelineModeToggled',
 }
