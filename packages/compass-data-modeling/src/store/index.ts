@@ -27,10 +27,12 @@ export type DataModelingStoreServices = {
 export function activateDataModelingStore(
   { openToast = _openToast }: DataModelingStoreOptions,
   services: DataModelingStoreServices,
-  { cleanup }: ActivateHelpers
+  { cleanup, addCleanup }: ActivateHelpers
 ) {
-  const cancelAnalysisControllerRef = { current: null };
-  const cancelExportControllerRef = { current: null };
+  const cancelAnalysisControllerRef: DataModelingExtraArgs['cancelAnalysisControllerRef'] =
+    { current: null };
+  const cancelExportControllerRef: DataModelingExtraArgs['cancelExportControllerRef'] =
+    { current: null };
   const store = createStore(
     reducer,
     applyMiddleware(
@@ -42,5 +44,12 @@ export function activateDataModelingStore(
       })
     )
   );
+
+  addCleanup(() => {
+    // Abort any ongoing analysis and exporting when deactivated.
+    cancelAnalysisControllerRef.current?.abort();
+    cancelExportControllerRef.current?.abort();
+  });
+
   return { store, deactivate: cleanup };
 }

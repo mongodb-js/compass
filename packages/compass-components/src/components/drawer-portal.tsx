@@ -17,6 +17,7 @@ import { css, cx } from '@leafygreen-ui/emotion';
 import { isEqual } from 'lodash';
 import { rafraf } from '../utils/rafraf';
 import { GuideCue, type GuideCueProps } from './guide-cue/guide-cue';
+import { useSyncStateOnPropChange } from '../hooks/use-sync-state-on-prop-change';
 import { BaseFontSize, fontWeights } from '@leafygreen-ui/tokens';
 import { useInitialValue } from '../hooks/use-initial-value';
 
@@ -52,6 +53,9 @@ type DrawerActionsContextValue = {
     closeDrawer: () => void;
     updateToolbarData: (data: DrawerSectionProps) => void;
     removeToolbarData: (id: string) => void;
+    setCurrent: (
+      fn: (current: DrawerActionsContextValue['current']) => void
+    ) => void;
   };
 };
 
@@ -79,6 +83,7 @@ const DrawerActionsContext = React.createContext<DrawerActionsContextValue>({
     closeDrawer: () => undefined,
     updateToolbarData: () => undefined,
     removeToolbarData: () => undefined,
+    setCurrent: () => undefined,
   },
 });
 
@@ -125,7 +130,7 @@ export const DrawerContentProvider: React.FunctionComponent<{
     useState<DrawerOpenStateContextValue>(false);
   const [drawerCurrentTab, setDrawerCurrentTab] =
     useState<DrawerCurrentTabStateContextValue>(null);
-  const drawerActions = useRef({
+  const drawerActions = useRef<DrawerActionsContextValue['current']>({
     openDrawer: () => undefined,
     closeDrawer: () => undefined,
     updateToolbarData: (data: DrawerSectionProps) => {
@@ -147,6 +152,9 @@ export const DrawerContentProvider: React.FunctionComponent<{
           return data.id !== id;
         });
       });
+    },
+    setCurrent: (fn) => {
+      fn(drawerActions.current);
     },
   });
 
@@ -188,11 +196,14 @@ export const DrawerContentProvider: React.FunctionComponent<{
 
 const DrawerContextGrabber: React.FunctionComponent = ({ children }) => {
   const drawerToolbarContext = useDrawerToolbarContext();
-  const actions = useContext(DrawerActionsContext);
   const openStateSetter = useContext(DrawerSetOpenStateContext);
   const currentTabSetter = useContext(DrawerSetCurrentTabContext);
-  actions.current.openDrawer = drawerToolbarContext.openDrawer;
-  actions.current.closeDrawer = drawerToolbarContext.closeDrawer;
+  const actions = useContext(DrawerActionsContext);
+
+  actions.current.setCurrent((current) => {
+    current.openDrawer = drawerToolbarContext.openDrawer;
+    current.closeDrawer = drawerToolbarContext.closeDrawer;
+  });
 
   useEffect(() => {
     openStateSetter(drawerToolbarContext.isDrawerOpen);
@@ -439,6 +450,9 @@ export const DrawerSection: React.FunctionComponent<DrawerSectionProps> = ({
   });
   const actions = useContext(DrawerActionsContext);
   const prevProps = useRef<DrawerSectionProps>();
+  useSyncStateOnPropChange(() => {
+    setPortalNode(querySectionPortal(document, props.id));
+  }, [props.id]);
   useEffect(() => {
     if (!isEqual(prevProps.current, props)) {
       actions.current.updateToolbarData({ autoOpen: false, ...props });
@@ -454,7 +468,6 @@ export const DrawerSection: React.FunctionComponent<DrawerSectionProps> = ({
         'Can not use DrawerSection without DrawerAnchor being mounted on the page'
       );
     }
-    setPortalNode(querySectionPortal(drawerEl, props.id));
     const mutationObserver = new MutationObserver((mutations) => {
       for (const mutation of mutations) {
         if (mutation.type === 'childList') {
