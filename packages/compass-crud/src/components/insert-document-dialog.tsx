@@ -166,32 +166,17 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
    * Checks for invalidElements in hadron doc if in HadronDocument view, or
    * parsing error in JsonView of the modal
    *
-   * @returns {Boolean} If the document has errors.
    */
-  const hasErrors = useCallback(() => {
+  const documentErrors = useMemo(() => {
     if (jsonView) {
       try {
         HadronDocument.FromEJSON(jsonDoc);
         return false;
-      } catch {
-        return true;
-      }
-    }
-    return invalidElements.length > 0;
-  }, [invalidElements, jsonDoc, jsonView]);
-
-  const getErrorMessage = useCallback((): string | undefined => {
-    if (jsonView) {
-      try {
-        HadronDocument.FromEJSON(jsonDoc);
       } catch (e) {
         return (e as Error).message;
       }
-    } else {
-      if (invalidElements.length > 0) {
-        return INSERT_INVALID_MESSAGE;
-      }
     }
+    return invalidElements.length > 0 ? INSERT_INVALID_MESSAGE : false;
   }, [jsonDoc, jsonView, invalidElements]);
 
   const handleInvalid = useCallback(
@@ -205,7 +190,7 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
 
   const handleValid = useCallback(
     (el: Element) => {
-      if (hasErrors()) {
+      if (documentErrors) {
         setInvalidElements((invalidElements) =>
           without(invalidElements, el.uuid)
         );
@@ -213,7 +198,7 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
         setInvalidElements([]);
       }
     },
-    [hasErrors, setInvalidElements]
+    [documentErrors, setInvalidElements]
   );
 
   useEffect(() => {
@@ -298,10 +283,9 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
   const currentView = jsonView ? 'JSON' : 'List';
 
   const banner = useMemo(() => {
-    if (hasErrors()) {
-      const errorMessage = getErrorMessage();
+    if (documentErrors) {
       return {
-        message: errorMessage ?? INSERT_INVALID_MESSAGE,
+        message: documentErrors,
         variant: 'danger' as const,
       };
     }
@@ -316,7 +300,7 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
       };
     }
     return null;
-  }, [_error, hasErrors, getErrorMessage, insertInProgress]);
+  }, [_error, documentErrors, insertInProgress]);
 
   return (
     <FormModal
@@ -327,7 +311,7 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
       onSubmit={handleInsert.bind(this)}
       onCancel={closeInsertDocumentDialog}
       submitButtonText="Insert"
-      submitDisabled={hasErrors()}
+      submitDisabled={Boolean(documentErrors)}
       data-testid="insert-document-modal"
       minBodyHeight={spacing[1600] * 2} // make sure there is enough space for the menu
     >
@@ -340,7 +324,7 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
           onChange={switchInsertDocumentView.bind(this)}
         >
           <SegmentedControlOption
-            disabled={hasErrors()}
+            disabled={Boolean(documentErrors)}
             data-testid="insert-document-dialog-view-json"
             aria-label="E-JSON View"
             value="JSON"
@@ -352,7 +336,7 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
             }}
           ></SegmentedControlOption>
           <SegmentedControlOption
-            disabled={hasErrors()}
+            disabled={Boolean(documentErrors)}
             data-testid="insert-document-dialog-view-list"
             aria-label="Document list"
             value="List"
