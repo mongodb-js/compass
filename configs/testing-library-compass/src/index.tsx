@@ -340,8 +340,13 @@ function createWrapper(
   const StoreGetter: React.FunctionComponent = ({ children }) => {
     const store = useStore();
     const actions = useConnectionActions();
-    wrapperState.connectionsStore.getState = store.getState.bind(store);
-    wrapperState.connectionsStore.actions = actions;
+    // We're breaking the rules of hooks on purpose here to expose the values
+    // outside of the render for testing purposes
+    // eslint-disable-next-line react-hooks/immutability
+    Object.assign(wrapperState.connectionsStore, {
+      getState: store.getState.bind(store),
+      actions,
+    });
     return <>{children}</>;
   };
   const logger = {
@@ -618,6 +623,9 @@ function createPluginWrapper<
 ) {
   const ref: { current: PluginContext } = { current: {} as any };
   function ComponentWithProvider({ children, ...props }: any) {
+    // We're breaking the rules of hooks on purpose here to expose the ref
+    // outside of the render
+    // eslint-disable-next-line react-hooks/immutability
     const plugin = (ref.current = Plugin.useActivate(
       initialPluginProps ?? ({} as any)
     ));

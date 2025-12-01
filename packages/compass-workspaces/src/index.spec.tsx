@@ -65,6 +65,8 @@ describe('WorkspacesPlugin', function () {
 
   async function renderPlugin() {
     function OpenWorkspaceFnsGetter() {
+      // exposed outside of render loop for testing
+      // eslint-disable-next-line react-hooks/globals
       openFns = useOpenWorkspace();
       return null;
     }

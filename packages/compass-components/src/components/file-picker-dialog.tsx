@@ -20,6 +20,7 @@ import {
   Link,
   Description,
 } from './leafygreen';
+import { useInitialValue } from '../hooks/use-initial-value';
 
 const { base: redBaseColor } = palette.red;
 
@@ -175,11 +176,11 @@ export const FileInputBackendContext = createContext<
 function useFileInputBackend() {
   const fileInputBackendContext = useContext(FileInputBackendContext);
 
-  const fileInputBackend = useRef<null | FileInputBackend>(
-    fileInputBackendContext ? fileInputBackendContext() : null
-  );
+  const fileInputBackend = useInitialValue<null | FileInputBackend>(() => {
+    return fileInputBackendContext ? fileInputBackendContext() : null;
+  });
 
-  return fileInputBackend.current;
+  return fileInputBackend;
 }
 
 // Matches require('electron') or require('@electron/remote')
@@ -205,10 +206,12 @@ export type ElectronWebUtilsProvider = {
 export const FileInputBackendProvider: React.FunctionComponent<{
   createFileInputBackend: (() => FileInputBackend) | null;
 }> = ({ children, createFileInputBackend }) => {
-  const createFileInputBackendRef = useRef(createFileInputBackend);
+  const initialCreateFileInputBackend = useInitialValue(() => {
+    return createFileInputBackend;
+  });
 
   return (
-    <FileInputBackendContext.Provider value={createFileInputBackendRef.current}>
+    <FileInputBackendContext.Provider value={initialCreateFileInputBackend}>
       {children}
     </FileInputBackendContext.Provider>
   );

@@ -1,6 +1,7 @@
-import React, { useContext, useRef } from 'react';
+import React, { useContext } from 'react';
 import type { AnyWorkspace } from '../';
 import type { WorkspacePlugin } from '../types';
+import { useInitialValue } from '@mongodb-js/compass-components';
 
 export type AnyWorkspacePlugin =
   | WorkspacePlugin<'Welcome'>
@@ -17,9 +18,9 @@ const WorkspacesContext = React.createContext<AnyWorkspacePlugin[]>([]);
 export const WorkspacesProvider: React.FunctionComponent<{
   value: AnyWorkspacePlugin[];
 }> = ({ value, children }) => {
-  const valueRef = useRef(value);
+  const initialValue = useInitialValue(value);
   return (
-    <WorkspacesContext.Provider value={valueRef.current}>
+    <WorkspacesContext.Provider value={initialValue}>
       {children}
     </WorkspacesContext.Provider>
   );
@@ -27,7 +28,7 @@ export const WorkspacesProvider: React.FunctionComponent<{
 
 export const useWorkspacePlugins = () => {
   const workspaces = useContext(WorkspacesContext);
-  const workspacePlugins = useRef({
+  const workspacePlugins = useInitialValue({
     hasWorkspacePlugin: <T extends AnyWorkspace['type']>(name: T) => {
       return workspaces.some((ws) => ws.name === name);
     },
@@ -44,5 +45,5 @@ export const useWorkspacePlugins = () => {
       return plugin as unknown as WorkspacePlugin<T>;
     },
   });
-  return workspacePlugins.current;
+  return workspacePlugins;
 };

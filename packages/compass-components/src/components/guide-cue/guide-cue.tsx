@@ -10,7 +10,7 @@ import { guideCueService, type ShowCueEventDetail } from './guide-cue-service';
 import { GuideCue as LGGuideCue } from '@leafygreen-ui/guide-cue';
 import { GROUP_STEPS_MAP } from './guide-cue-groups';
 import type { GroupName } from './guide-cue-groups';
-import { css, cx } from '../..';
+import { css, cx, useCurrentValueRef } from '../..';
 import { rafraf } from '../../utils/rafraf';
 
 const hiddenPopoverStyles = css({
@@ -43,8 +43,7 @@ export const GuideCueProvider: React.FC<GuideCueContextValue> = ({
   disabled = false,
   ...callbacks
 }) => {
-  const callbacksRef = useRef(callbacks);
-  callbacksRef.current = callbacks;
+  const callbacksRef = useCurrentValueRef(callbacks);
   const value = useMemo(
     () => ({
       onNext(cue: Cue) {
@@ -55,7 +54,7 @@ export const GuideCueProvider: React.FC<GuideCueContextValue> = ({
       },
       disabled,
     }),
-    [disabled]
+    [disabled, callbacksRef]
   );
   return (
     <GuideCueContext.Provider value={value}>
@@ -285,7 +284,10 @@ export const GuideCue = <T extends HTMLElement>({
           {description}
         </LGGuideCue>
       )}
-      {trigger?.({ ref: refEl })}
+      {trigger?.(
+        // eslint-disable-next-line react-hooks/refs
+        { ref: refEl }
+      )}
     </>
   );
 };

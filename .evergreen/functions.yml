@@ -306,6 +306,7 @@ functions:
   spawn-signing-server:
     # spawn
     - command: host.create
+      retry_on_failure: true
       type: setup
       params:
         provider: ec2
@@ -314,6 +315,7 @@ functions:
           - sg-097bff6dd0d1d31d0 # Magic string that's needed for SSH'ing.
     # write host info (this file will be read by signingtool when connection to ssh server)
     - command: host.list
+      retry_on_failure: true
       params:
         num_hosts: 1
         path: spawned_hosts.json
@@ -321,6 +323,7 @@ functions:
         wait: true
     # copy ssh key (this key will be used to connect to ssh server)
     - command: shell.exec
+      retry_on_failure: true
       params:
         working_dir: src
         shell: bash
@@ -332,6 +335,7 @@ functions:
 
     # wait for host to be ready
     - command: shell.exec
+      retry_on_failure: true
       params:
         exec_as_string: true
         shell: bash
@@ -379,11 +383,13 @@ functions:
           EOL
     # Update the expansions
     - command: expansions.update
+      retry_on_failure: true
       params:
         file: signing_host_info.yml
 
   package:
     - command: shell.exec
+      retry_on_failure: true
       params:
         working_dir: src
         shell: bash
@@ -402,10 +408,12 @@ functions:
           eval $(.evergreen/print-compass-env.sh)
           cd packages/compass && npm run prepackage-compass
     - command: ec2.assume_role
+      retry_on_failure: true
       display_name: Assume IAM role with permissions to pull Kondukto API token
       params:
         role_arn: ${kondukto_role_arn}
     - command: shell.exec
+      retry_on_failure: true
       params:
         working_dir: src
         shell: bash
@@ -426,6 +434,7 @@ functions:
 
           bash ".evergreen/retry-with-backoff.sh" .evergreen/create-sbom.sh
     - command: shell.exec
+      retry_on_failure: true
       params:
         working_dir: src
         shell: bash
