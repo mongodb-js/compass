@@ -7,11 +7,9 @@ const chaiFriendly = require('eslint-plugin-chai-friendly');
 
 // TODO(COMPASS-9459): disabling a bunch of new rules to unblock automatic updates
 const tempNewEslintRulesDisabled = {
-  'react-hooks/immutability': 'off',
   'react-hooks/refs': 'off',
   'react-hooks/set-state-in-effect': 'off',
   'react-hooks/preserve-manual-memoization': 'off',
-  'react-hooks/globals': 'off',
   'react-hooks/static-components': 'off',
   '@typescript-eslint/no-redundant-type-constituents': 'off',
   '@typescript-eslint/no-unsafe-enum-comparison': 'off',
