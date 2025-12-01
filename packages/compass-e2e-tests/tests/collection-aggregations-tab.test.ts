@@ -980,11 +980,16 @@ describe('Collection aggregations tab', function () {
     );
 
     // Wait for the pipeline to be validated before trying to export
-    await browser.waitUntil(async function () {
-      const textElement = browser.$(Selectors.stagePreviewToolbarTooltip(0));
-      const text = await textElement.getText();
-      return text === '(Sample of 1 document)';
-    });
+    await browser.waitUntil(
+      async function () {
+        const textElement = browser.$(Selectors.stagePreviewToolbarTooltip(0));
+        const text = await textElement.getText();
+        return text === '(Sample of 1 document)';
+      },
+      {
+        timeoutMsg: 'Expected stage preview to show "(Sample of 1 document)"',
+      }
+    );
 
     // Open the modal.
     await browser.clickVisible(Selectors.ExportAggregationResultsButton);
