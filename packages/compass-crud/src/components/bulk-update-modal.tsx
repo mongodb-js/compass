@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect, useCallback } from 'react';
+import React, { useMemo, useState, useCallback } from 'react';
 import type { UpdatePreview } from 'mongodb-data-service';
 import type { Document } from 'bson';
 import { toJSString } from 'mongodb-query-parser';
@@ -14,7 +14,6 @@ import {
   Description,
   Link,
   useDarkMode,
-  usePrevious,
   Modal,
   ModalFooter,
   Button,
@@ -25,6 +24,7 @@ import {
   TextInput,
   useId,
   DocumentIcon,
+  useSyncStateOnPropChange,
 } from '@mongodb-js/compass-components';
 import type { Annotation } from '@mongodb-js/compass-editor';
 import { CodemirrorMultilineEditor } from '@mongodb-js/compass-editor';
@@ -352,7 +352,6 @@ export default function BulkUpdateModal({
   const darkMode = useDarkMode();
 
   const [text, setText] = useState(updateText);
-  const wasOpen = usePrevious(isOpen);
 
   const onChangeText = (value: string) => {
     setText(value);
@@ -377,11 +376,11 @@ export default function BulkUpdateModal({
   // This hack in addition to keeping the text state locally exists due to
   // reflux (unlike redux) being async. We can remove it once we move
   // compass-crud to redux.
-  useEffect(() => {
-    if (isOpen && !wasOpen) {
+  useSyncStateOnPropChange(() => {
+    if (isOpen) {
       setText(updateText);
     }
-  }, [isOpen, wasOpen, updateText]);
+  }, [isOpen]);
 
   const modalTitleAndButtonText = useMemo(() => {
     if (typeof count !== 'number') {

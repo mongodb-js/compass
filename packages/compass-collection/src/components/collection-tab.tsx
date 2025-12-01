@@ -331,6 +331,8 @@ const CollectionTab = ({
   };
 
   return (
+    // This component is not created in render, just accessed from context
+    // eslint-disable-next-line react-hooks/static-components
     <QueryBarPlugin {...pluginProps}>
       <CollectionTabWithMetadata
         collectionMetadata={collectionMetadata}

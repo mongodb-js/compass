@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { connect } from 'react-redux';
 import {
   InfoModal,
@@ -10,6 +10,7 @@ import {
   spacing,
   FormFieldContainer,
   Panel,
+  useSyncStateOnPropChange,
 } from '@mongodb-js/compass-components';
 import type { Language } from '@mongodb-js/compass-components';
 import type { OutputLanguage } from '../modules/languages';
@@ -157,12 +158,14 @@ const ExportToLanguageModal: React.FunctionComponent<
 
   const input = isQuery ? inputExpression.filter : inputExpression.aggregation;
 
-  const [wasOpen, setWasOpen] = useState(false);
-
-  useEffect(() => {
-    if (modalOpen && !wasOpen) {
+  useSyncStateOnPropChange(() => {
+    if (modalOpen) {
+      // Used for tracking, not for rendering
+      // eslint-disable-next-line react-hooks/refs
       const connectionInfo = connectionInfoRef.current;
-
+      // All this tracking logic should probably be packed into an action, but
+      // this requires a bit more refactoring than just replacing the effect
+      // with a setState in render
       if (mode === 'Query') {
         track('Query Export Opened', {}, connectionInfo);
       } else if (mode === 'Delete Query') {
@@ -172,18 +175,13 @@ const ExportToLanguageModal: React.FunctionComponent<
       } else if (mode === 'Pipeline') {
         track(
           'Aggregation Export Opened',
-          {
-            ...stageCountForTelemetry(inputExpression),
-          },
+          stageCountForTelemetry(inputExpression),
           connectionInfo
         );
       }
-
       track('Screen', { name: 'export_to_language_modal' }, connectionInfo);
     }
-
-    setWasOpen(modalOpen);
-  }, [modalOpen, wasOpen, mode, inputExpression, track, connectionInfoRef]);
+  }, [modalOpen]);
 
   const trackCopiedOutput = useCallback(() => {
     const commonProps = {

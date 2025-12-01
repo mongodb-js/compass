@@ -2100,10 +2100,9 @@ const cleanupConnection = (
     const connectionAttempt = ConnectionAttemptForConnection.get(connectionId);
     const dataService = DataServiceForConnection.get(connectionId);
 
-    void Promise.all([
-      connectionAttempt?.cancelConnectionAttempt(),
-      dataService?.disconnect(),
-    ]).then(
+    connectionAttempt?.cancelConnectionAttempt();
+
+    void dataService?.disconnect().then(
       () => {
         debug('connection closed', connectionId);
       },
@@ -2219,7 +2218,10 @@ export const removeAllRecentConnections = (): ConnectionsThunkAction<
       toRemove.map((connection) => {
         dispatch(cleanupConnection(connection.info.id));
         track('Connection Removed', {}, connection.info);
-        return connectionStorage.delete?.({ id: connection.info.id });
+        return (
+          connectionStorage.delete?.({ id: connection.info.id }) ??
+          Promise.resolve()
+        );
       })
     );
 

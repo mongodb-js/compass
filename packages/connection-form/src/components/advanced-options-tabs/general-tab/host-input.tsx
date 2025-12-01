@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import {
   FormFieldContainer,
   Label,
@@ -6,6 +6,7 @@ import {
   ListEditor,
   css,
   spacing,
+  useSyncStateOnPropChange,
 } from '@mongodb-js/compass-components';
 import type ConnectionStringUrl from 'mongodb-connection-string-url';
 import type { MongoClientOptions } from 'mongodb';
@@ -40,7 +41,7 @@ function HostInput({
       .get('directConnection') === 'true' ||
     (!connectionStringUrl.isSRV && hosts.length === 1);
 
-  useEffect(() => {
+  useSyncStateOnPropChange(() => {
     // Update the hosts in the state when the underlying connection string hosts
     // change. This can be when a user changes connections, pastes in a new
     // connection string, or changes a setting which also updates the hosts.

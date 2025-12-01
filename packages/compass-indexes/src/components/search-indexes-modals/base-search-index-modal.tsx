@@ -1,10 +1,4 @@
-import React, {
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-  useMemo,
-} from 'react';
+import React, { useCallback, useRef, useState, useMemo } from 'react';
 import {
   Modal,
   ModalFooter,
@@ -25,6 +19,7 @@ import {
   RadioBoxGroup,
   RadioBox,
   rafraf,
+  useSyncStateOnPropChange,
 } from '@mongodb-js/compass-components';
 import type { Annotation } from '@mongodb-js/compass-editor';
 import {
@@ -222,14 +217,14 @@ export const BaseSearchIndexModal: React.FunctionComponent<
     undefined
   );
 
-  useEffect(() => {
+  useSyncStateOnPropChange(() => {
     if (isModalOpen) {
       setSearchIndexType(initialSearchIndexType);
       setIndexName(initialIndexName);
       setIndexDefinition(initialIndexDefinition);
       setParsingError(undefined);
     }
-  }, [isModalOpen, initialIndexName, initialIndexDefinition]);
+  }, [isModalOpen]);
 
   const onSearchIndexDefinitionChanged = useCallback(
     (newDefinition: string) => {
