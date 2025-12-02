@@ -4,17 +4,35 @@ import {
   buildAggregateQueryPrompt,
   type UserPromptForQueryOptions,
 } from './gen-ai-prompt';
+import { toJSString } from 'mongodb-query-parser';
+import { ObjectId } from 'bson';
 
 const OPTIONS: UserPromptForQueryOptions = {
   userPrompt: 'Find all users older than 30',
-  databaseName: 'testDB',
-  collectionName: 'users',
+  databaseName: 'airbnb',
+  collectionName: 'listings',
   schema: {
-    name: 'string',
-    age: 'number',
-    email: 'string',
+    _id: {
+      types: [
+        {
+          bsonType: 'ObjectId',
+        },
+      ],
+    },
+    userId: {
+      types: [
+        {
+          bsonType: 'ObjectId',
+        },
+      ],
+    },
   },
-  sampleDocuments: [{ name: 'Alice', age: 25, email: 'alice@example.com' }],
+  sampleDocuments: [
+    {
+      _id: new ObjectId('68a2dfe93d5adb16ebf4c866'),
+      userId: new ObjectId('68a2dfe93d5adb16ebf4c865'),
+    },
+  ],
 };
 
 describe('GenAI Prompts', function () {
@@ -48,7 +66,7 @@ describe('GenAI Prompts', function () {
       'includes schema text'
     );
     expect(prompt).to.include(
-      JSON.stringify(OPTIONS.schema),
+      toJSString(OPTIONS.schema),
       'includes actual schema'
     );
     expect(prompt).to.include(
@@ -56,7 +74,7 @@ describe('GenAI Prompts', function () {
       'includes sample documents text'
     );
     expect(prompt).to.include(
-      JSON.stringify(OPTIONS.sampleDocuments),
+      toJSString(OPTIONS.sampleDocuments),
       'includes actual sample documents'
     );
   });
@@ -91,7 +109,7 @@ describe('GenAI Prompts', function () {
       'includes schema text'
     );
     expect(prompt).to.include(
-      JSON.stringify(OPTIONS.schema),
+      toJSString(OPTIONS.schema),
       'includes actual schema'
     );
     expect(prompt).to.include(
@@ -99,7 +117,7 @@ describe('GenAI Prompts', function () {
       'includes sample documents text'
     );
     expect(prompt).to.include(
-      JSON.stringify(OPTIONS.sampleDocuments),
+      toJSString(OPTIONS.sampleDocuments),
       'includes actual sample documents'
     );
   });

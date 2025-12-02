@@ -1,3 +1,5 @@
+import { toJSString } from 'mongodb-query-parser';
+
 // When including sample documents, we want to ensure that we do not
 // attach large documents and exceed the limit. OpenAI roughly estimates
 // 4 characters = 1 token and we should not exceed context window limits.
@@ -96,7 +98,7 @@ function buildUserPromptForQuery({
   if (schema) {
     messages.push(
       `Schema from a sample of documents from the collection: ${withCodeFence(
-        JSON.stringify(schema)
+        toJSString(schema)!
       )}`
     );
   }
@@ -105,15 +107,16 @@ function buildUserPromptForQuery({
     // exceed the token limit. So we try following:
     // 1. If attaching all the sample documents exceeds then limit, we attach only 1 document.
     // 2. If attaching 1 document still exceeds the limit, we do not attach any sample documents.
-    const sampleDocumentsStr = JSON.stringify(sampleDocuments);
-    const singleDocumentStr = JSON.stringify(
+    const sampleDocumentsStr = toJSString(sampleDocuments);
+    const singleDocumentStr = toJSString(
       sampleDocuments.slice(0, MIN_SAMPLE_DOCUMENTS)
     );
     const promptLengthWithoutSampleDocs =
       messages.join('\n').length + queryPrompt.length;
     if (
+      sampleDocumentsStr &&
       sampleDocumentsStr.length + promptLengthWithoutSampleDocs <=
-      MAX_TOTAL_PROMPT_LENGTH
+        MAX_TOTAL_PROMPT_LENGTH
     ) {
       messages.push(
         `Sample documents from the collection: ${withCodeFence(
@@ -121,8 +124,9 @@ function buildUserPromptForQuery({
         )}`
       );
     } else if (
+      singleDocumentStr &&
       singleDocumentStr.length + promptLengthWithoutSampleDocs <=
-      MAX_TOTAL_PROMPT_LENGTH
+        MAX_TOTAL_PROMPT_LENGTH
     ) {
       messages.push(
         `Sample document from the collection: ${withCodeFence(
