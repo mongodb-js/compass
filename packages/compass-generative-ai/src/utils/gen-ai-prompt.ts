@@ -62,6 +62,15 @@ export type UserPromptForQueryOptions = {
   sampleDocuments?: unknown[];
 };
 
+function withCodeFence(code: string): string {
+  return [
+    '', // Line break
+    '```',
+    code,
+    '```',
+  ].join('\n');
+}
+
 function buildUserPromptForQuery({
   type,
   userPrompt,
@@ -86,9 +95,9 @@ function buildUserPromptForQuery({
   }
   if (schema) {
     messages.push(
-      'Schema from a sample of documents from the collection: ```' +
-        JSON.stringify(schema) +
-        '```'
+      `Schema from a sample of documents from the collection: ${withCodeFence(
+        JSON.stringify(schema)
+      )}`
     );
   }
   if (sampleDocuments) {
@@ -107,14 +116,18 @@ function buildUserPromptForQuery({
       MAX_TOTAL_PROMPT_LENGTH
     ) {
       messages.push(
-        'Sample documents from the collection: ```' + sampleDocumentsStr + '```'
+        `Sample documents from the collection: ${withCodeFence(
+          sampleDocumentsStr
+        )}`
       );
     } else if (
       singleDocumentStr.length + promptLengthWithoutSampleDocs <=
       MAX_TOTAL_PROMPT_LENGTH
     ) {
       messages.push(
-        'Sample document from the collection: ```' + singleDocumentStr + '```'
+        `Sample document from the collection: ${withCodeFence(
+          singleDocumentStr
+        )}`
       );
     }
   }
