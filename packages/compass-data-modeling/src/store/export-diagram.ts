@@ -16,34 +16,33 @@ export type ExportDiagramState = {
   exportFormat?: ExportDiagramFormat;
 };
 
-// @ts-expect-error TODO(COMPASS-10124): replace enums with const kv objects
-export enum ExportDiagramActionTypes {
-  MODAL_OPENED = 'data-modeling/export-diagram/MODAL_OPENED',
-  MODAL_CLOSED = 'data-modeling/export-diagram/MODAL_CLOSED',
-  FORMAT_SELECTED = 'data-modeling/export-diagram/FORMAT_SELECTED',
-  EXPORT_STARTED = 'data-modeling/export-diagram/EXPORT_STARTED',
-  EXPORT_COMPLETED = 'data-modeling/export-diagram/EXPORT_COMPLETED',
-}
+export const ExportDiagramActionTypes = {
+  MODAL_OPENED: 'data-modeling/export-diagram/MODAL_OPENED',
+  MODAL_CLOSED: 'data-modeling/export-diagram/MODAL_CLOSED',
+  FORMAT_SELECTED: 'data-modeling/export-diagram/FORMAT_SELECTED',
+  EXPORT_STARTED: 'data-modeling/export-diagram/EXPORT_STARTED',
+  EXPORT_COMPLETED: 'data-modeling/export-diagram/EXPORT_COMPLETED',
+} as const;
 
 type ModalOpenedAction = {
-  type: ExportDiagramActionTypes.MODAL_OPENED;
+  type: typeof ExportDiagramActionTypes.MODAL_OPENED;
 };
 
 type ModalClosedAction = {
-  type: ExportDiagramActionTypes.MODAL_CLOSED;
+  type: typeof ExportDiagramActionTypes.MODAL_CLOSED;
 };
 
 type FormatSelectedAction = {
-  type: ExportDiagramActionTypes.FORMAT_SELECTED;
+  type: typeof ExportDiagramActionTypes.FORMAT_SELECTED;
   format: ExportDiagramFormat;
 };
 
 type ExportStartedAction = {
-  type: ExportDiagramActionTypes.EXPORT_STARTED;
+  type: typeof ExportDiagramActionTypes.EXPORT_STARTED;
 };
 
 type ExportCompletedAction = {
-  type: ExportDiagramActionTypes.EXPORT_COMPLETED;
+  type: typeof ExportDiagramActionTypes.EXPORT_COMPLETED;
 };
 
 export type ExportDiagramActions =

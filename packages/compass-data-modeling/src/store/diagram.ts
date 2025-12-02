@@ -65,73 +65,73 @@ export type DiagramState =
     })
   | null; // null when no diagram is currently open
 
-// @ts-expect-error TODO(COMPASS-10124): replace enums with const kv objects
-export enum DiagramActionTypes {
-  OPEN_DIAGRAM = 'data-modeling/diagram/OPEN_DIAGRAM',
-  DELETE_DIAGRAM = 'data-modeling/diagram/DELETE_DIAGRAM',
-  RENAME_DIAGRAM = 'data-modeling/diagram/RENAME_DIAGRAM',
-  APPLY_INITIAL_LAYOUT = 'data-modeling/diagram/APPLY_INITIAL_LAYOUT',
-  APPLY_EDIT = 'data-modeling/diagram/APPLY_EDIT',
-  UNDO_EDIT = 'data-modeling/diagram/UNDO_EDIT',
-  REDO_EDIT = 'data-modeling/diagram/REDO_EDIT',
-  REVERT_FAILED_EDIT = 'data-modeling/diagram/REVERT_FAILED_EDIT',
-  COLLECTION_SELECTED = 'data-modeling/diagram/COLLECTION_SELECTED',
-  RELATIONSHIP_SELECTED = 'data-modeling/diagram/RELATIONSHIP_SELECTED',
-  FIELD_SELECTED = 'data-modeling/diagram/FIELD_SELECTED',
-  DIAGRAM_BACKGROUND_SELECTED = 'data-modeling/diagram/DIAGRAM_BACKGROUND_SELECTED',
-}
+export const DiagramActionTypes = {
+  OPEN_DIAGRAM: 'data-modeling/diagram/OPEN_DIAGRAM',
+  DELETE_DIAGRAM: 'data-modeling/diagram/DELETE_DIAGRAM',
+  RENAME_DIAGRAM: 'data-modeling/diagram/RENAME_DIAGRAM',
+  APPLY_INITIAL_LAYOUT: 'data-modeling/diagram/APPLY_INITIAL_LAYOUT',
+  APPLY_EDIT: 'data-modeling/diagram/APPLY_EDIT',
+  UNDO_EDIT: 'data-modeling/diagram/UNDO_EDIT',
+  REDO_EDIT: 'data-modeling/diagram/REDO_EDIT',
+  REVERT_FAILED_EDIT: 'data-modeling/diagram/REVERT_FAILED_EDIT',
+  COLLECTION_SELECTED: 'data-modeling/diagram/COLLECTION_SELECTED',
+  RELATIONSHIP_SELECTED: 'data-modeling/diagram/RELATIONSHIP_SELECTED',
+  FIELD_SELECTED: 'data-modeling/diagram/FIELD_SELECTED',
+  DIAGRAM_BACKGROUND_SELECTED:
+    'data-modeling/diagram/DIAGRAM_BACKGROUND_SELECTED',
+} as const;
 
 export type OpenDiagramAction = {
-  type: DiagramActionTypes.OPEN_DIAGRAM;
+  type: typeof DiagramActionTypes.OPEN_DIAGRAM;
   diagram: MongoDBDataModelDescription;
 };
 
 export type DeleteDiagramAction = {
-  type: DiagramActionTypes.DELETE_DIAGRAM;
+  type: typeof DiagramActionTypes.DELETE_DIAGRAM;
   isCurrent: boolean; // technically a derived state, but we don't have access to this in some slices
 };
 
 export type RenameDiagramAction = {
-  type: DiagramActionTypes.RENAME_DIAGRAM;
+  type: typeof DiagramActionTypes.RENAME_DIAGRAM;
   id: string;
   name: string;
 };
 
 export type ApplyEditAction = {
-  type: DiagramActionTypes.APPLY_EDIT;
+  type: typeof DiagramActionTypes.APPLY_EDIT;
   edit: Edit;
 };
 
 export type UndoEditAction = {
-  type: DiagramActionTypes.UNDO_EDIT;
+  type: typeof DiagramActionTypes.UNDO_EDIT;
 };
 
 export type RevertFailedEditAction = {
-  type: DiagramActionTypes.REVERT_FAILED_EDIT;
+  type: typeof DiagramActionTypes.REVERT_FAILED_EDIT;
 };
 
 export type RedoEditAction = {
-  type: DiagramActionTypes.REDO_EDIT;
+  type: typeof DiagramActionTypes.REDO_EDIT;
 };
 
 export type CollectionSelectedAction = {
-  type: DiagramActionTypes.COLLECTION_SELECTED;
+  type: typeof DiagramActionTypes.COLLECTION_SELECTED;
   namespace: string;
 };
 
 export type RelationSelectedAction = {
-  type: DiagramActionTypes.RELATIONSHIP_SELECTED;
+  type: typeof DiagramActionTypes.RELATIONSHIP_SELECTED;
   relationshipId: string;
 };
 
 export type FieldSelectedAction = {
-  type: DiagramActionTypes.FIELD_SELECTED;
+  type: typeof DiagramActionTypes.FIELD_SELECTED;
   namespace: string;
   fieldPath: FieldPath;
 };
 
 export type DiagramBackgroundSelectedAction = {
-  type: DiagramActionTypes.DIAGRAM_BACKGROUND_SELECTED;
+  type: typeof DiagramActionTypes.DIAGRAM_BACKGROUND_SELECTED;
 };
 
 export type DiagramActions =

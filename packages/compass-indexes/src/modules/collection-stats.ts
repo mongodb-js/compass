@@ -24,13 +24,12 @@ export type CollectionStats = Pick<
   'index_count' | 'index_size' | 'pipeline'
 > | null;
 
-// @ts-expect-error TODO(COMPASS-10124): replace enums with const kv objects
-enum StatsActions {
-  CollectionStatsFetched = 'compass-indexes/CollectionStatsFetchedCollection',
-}
+const StatsActions = {
+  CollectionStatsFetched: 'compass-indexes/CollectionStatsFetchedCollection',
+} as const;
 
 interface CollectionStatsFetchedAction {
-  type: StatsActions.CollectionStatsFetched;
+  type: typeof StatsActions.CollectionStatsFetched;
   collection: Collection;
 }
 

@@ -1,5 +1,6 @@
 import React, { useEffect, useCallback } from 'react';
 import { connect } from 'react-redux';
+import type { Theme } from '@mongodb-js/compass-components';
 import {
   Banner,
   Body,
@@ -7,7 +8,7 @@ import {
   css,
   spacing,
   palette,
-  Theme,
+  Themes,
   useDarkMode,
   MarketingModal,
   cx,
@@ -55,11 +56,11 @@ const disclaimerStylesCommon = {
 };
 
 const disclaimerStyles = {
-  [Theme.Light]: css({
+  [Themes.Light]: css({
     color: palette.gray.dark1,
     ...disclaimerStylesCommon,
   }),
-  [Theme.Dark]: css({
+  [Themes.Dark]: css({
     color: palette.gray.light2,
     ...disclaimerStylesCommon,
   }),
@@ -84,7 +85,7 @@ const focusBoxShadow = (color: string) => `
     0 0 0 4px ${palette.blue.light1};
 `;
 const disabledButtonStyles: Record<Theme, string> = {
-  [Theme.Light]: css({
+  [Themes.Light]: css({
     [leafyGreenButtonSelector]: {
       [`&, ${hoverSelector}, ${activeSelector}`]: {
         backgroundColor: palette.gray.light2,
@@ -101,7 +102,7 @@ const disabledButtonStyles: Record<Theme, string> = {
     },
   }),
 
-  [Theme.Dark]: css({
+  [Themes.Dark]: css({
     [leafyGreenButtonSelector]: {
       [`&, ${hoverSelector}, ${activeSelector}`]: {
         backgroundColor: palette.gray.dark3,
@@ -179,7 +180,7 @@ export const AIOptInModal: React.FunctionComponent<OptInModalProps> = ({
   const track = useTelemetry();
   const darkMode = useDarkMode();
   const currentDisabledButtonStyles =
-    disabledButtonStyles[darkMode ? Theme.Dark : Theme.Light];
+    disabledButtonStyles[darkMode ? Themes.Dark : Themes.Light];
 
   useEffect(() => {
     if (isOptInModalVisible) {
@@ -215,7 +216,9 @@ export const AIOptInModal: React.FunctionComponent<OptInModalProps> = ({
       onLinkClick={onOptInModalClose}
       graphic={<AiImageBanner />}
       disclaimer={
-        <div className={disclaimerStyles[darkMode ? Theme.Dark : Theme.Light]}>
+        <div
+          className={disclaimerStyles[darkMode ? Themes.Dark : Themes.Light]}
+        >
           Features in {isCloudOptIn ? 'Data Explorer' : 'Compass'} powered by
           generative AI may produce inaccurate responses. Please see our{' '}
           <Link hideExternalIcon={false} href={GEN_AI_FAQ_LINK} target="_blank">

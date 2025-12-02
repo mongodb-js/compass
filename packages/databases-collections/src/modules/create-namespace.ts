@@ -35,61 +35,60 @@ export const INITIAL_STATE: CreateNamespaceState = {
   connectionMetaData: {},
 };
 
-// @ts-expect-error TODO(COMPASS-10124): replace enums with const kv objects
-export const enum CreateNamespaceActionTypes {
-  Reset = 'databases-collections/Reset',
-  Open = 'databases-collections/create-collection/Open',
-  Close = 'databases-collections/create-collection/Close',
-  HandleError = 'databases-collections/error/HandleError',
-  ClearError = 'databases-collections/error/ClearError',
-  ToggleIsRunning = 'databases-collections/is-running/ToggleIsRunning',
-  TopologyChanged = 'databases-collections/TopologyChanged',
-  ServerVersionRetrieved = 'databases-collections/ServerVersionRetrieved',
-  KMSProvidersRetrieved = 'databases-collections/KMSProvidersRetrieved',
-}
+export const CreateNamespaceActionTypes = {
+  Reset: 'databases-collections/Reset',
+  Open: 'databases-collections/create-collection/Open',
+  Close: 'databases-collections/create-collection/Close',
+  HandleError: 'databases-collections/error/HandleError',
+  ClearError: 'databases-collections/error/ClearError',
+  ToggleIsRunning: 'databases-collections/is-running/ToggleIsRunning',
+  TopologyChanged: 'databases-collections/TopologyChanged',
+  ServerVersionRetrieved: 'databases-collections/ServerVersionRetrieved',
+  KMSProvidersRetrieved: 'databases-collections/KMSProvidersRetrieved',
+} as const;
 
 export type ResetAction = {
-  type: CreateNamespaceActionTypes.Reset;
+  type: typeof CreateNamespaceActionTypes.Reset;
 };
 
 export type OpenAction = {
-  type: CreateNamespaceActionTypes.Open;
+  type: typeof CreateNamespaceActionTypes.Open;
   connectionId: string;
   databaseName: string | null;
 };
 
 export type CloseAction = {
-  type: CreateNamespaceActionTypes.Close;
+  type: typeof CreateNamespaceActionTypes.Close;
 };
 
 export type HandleErrorAction = {
-  type: CreateNamespaceActionTypes.HandleError;
+  type: typeof CreateNamespaceActionTypes.HandleError;
   error: Error;
 };
 
 export type ClearErrorAction = {
-  type: CreateNamespaceActionTypes.ClearError;
+  type: typeof CreateNamespaceActionTypes.ClearError;
 };
 
 export type ToggleIsRunningAction = {
-  type: CreateNamespaceActionTypes.ToggleIsRunning;
+  type: typeof CreateNamespaceActionTypes.ToggleIsRunning;
   isRunning: boolean;
 };
 
 export type TopologyChangedAction = {
-  type: CreateNamespaceActionTypes.TopologyChanged;
+  type: typeof CreateNamespaceActionTypes.TopologyChanged;
   connectionId: string;
   newTopology: string;
 };
 
 export type ServerVersionRetrievedAction = {
-  type: CreateNamespaceActionTypes.ServerVersionRetrieved;
+  type: typeof CreateNamespaceActionTypes.ServerVersionRetrieved;
   connectionId: string;
   version: string;
 };
 
 export type KMSProvidersRetrievedAction = {
-  type: CreateNamespaceActionTypes.KMSProvidersRetrieved;
+  type: typeof CreateNamespaceActionTypes.KMSProvidersRetrieved;
   connectionId: string;
   configuredKMSProviders: ReturnType<DataService['configuredKMSProviders']>;
 };

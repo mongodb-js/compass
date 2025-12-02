@@ -11,7 +11,8 @@ import { Provider } from 'react-redux';
 import { createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
 import MockDataGeneratorModal from './mock-data-generator-modal';
-import { DataGenerationStep, MockDataGeneratorStep } from './types';
+import type { MockDataGeneratorStep } from './types';
+import { DataGenerationSteps, MockDataGeneratorSteps } from './types';
 import {
   DEFAULT_CONNECTION_STRING_FALLBACK,
   MOCK_DATA_GENERATOR_STEP_TO_NEXT_STEP_MAP,
@@ -47,7 +48,7 @@ const mockUserConnectionString = 'mockUserConnectionString';
 describe('MockDataGeneratorModal', () => {
   async function renderModal({
     isOpen = true,
-    currentStep = MockDataGeneratorStep.SCHEMA_CONFIRMATION,
+    currentStep = MockDataGeneratorSteps.SCHEMA_CONFIRMATION,
     enableGenAISampleDocumentPassing = false,
     mockServices = createMockServices(),
     schemaAnalysis = defaultSchemaAnalysisState,
@@ -160,7 +161,7 @@ describe('MockDataGeneratorModal', () => {
         expect(result.track).to.have.been.calledWith(
           'Mock Data Generator Dismissed',
           {
-            screen: MockDataGeneratorStep.SCHEMA_CONFIRMATION,
+            screen: MockDataGeneratorSteps.SCHEMA_CONFIRMATION,
             gen_ai_features_enabled: false,
             send_sample_values_enabled: false,
           }
@@ -186,7 +187,7 @@ describe('MockDataGeneratorModal', () => {
         expect(result.track).to.have.been.calledWith(
           'Mock Data Generator Dismissed',
           {
-            screen: MockDataGeneratorStep.SCHEMA_CONFIRMATION,
+            screen: MockDataGeneratorSteps.SCHEMA_CONFIRMATION,
             gen_ai_features_enabled: false,
             send_sample_values_enabled: false,
           }
@@ -724,10 +725,10 @@ describe('MockDataGeneratorModal', () => {
         expect(result.track).to.have.been.calledWith(
           'Mock Data Generator Screen Proceeded',
           {
-            from_screen: MockDataGeneratorStep.SCHEMA_CONFIRMATION,
+            from_screen: MockDataGeneratorSteps.SCHEMA_CONFIRMATION,
             to_screen:
               MOCK_DATA_GENERATOR_STEP_TO_NEXT_STEP_MAP[
-                MockDataGeneratorStep.SCHEMA_CONFIRMATION
+                MockDataGeneratorSteps.SCHEMA_CONFIRMATION
               ],
           }
         );
@@ -857,7 +858,7 @@ describe('MockDataGeneratorModal', () => {
 
   describe('on the document count step', () => {
     it('displays the correct step title and description', async () => {
-      await renderModal({ currentStep: MockDataGeneratorStep.DOCUMENT_COUNT });
+      await renderModal({ currentStep: MockDataGeneratorSteps.DOCUMENT_COUNT });
 
       expect(screen.getByText('Specify Number of Documents to Generate')).to
         .exist;
@@ -870,7 +871,7 @@ describe('MockDataGeneratorModal', () => {
     });
 
     it('displays the default document count when the user does not enter a document count', async () => {
-      await renderModal({ currentStep: MockDataGeneratorStep.DOCUMENT_COUNT });
+      await renderModal({ currentStep: MockDataGeneratorSteps.DOCUMENT_COUNT });
 
       expect(
         screen.getByLabelText('Documents to generate in current collection')
@@ -878,7 +879,7 @@ describe('MockDataGeneratorModal', () => {
     });
 
     it('disables the Next button and shows an error message when the document count is greater than 100000', async () => {
-      await renderModal({ currentStep: MockDataGeneratorStep.DOCUMENT_COUNT });
+      await renderModal({ currentStep: MockDataGeneratorSteps.DOCUMENT_COUNT });
 
       userEvent.type(
         screen.getByLabelText('Documents to generate in current collection'),
@@ -894,7 +895,7 @@ describe('MockDataGeneratorModal', () => {
 
     it('displays "Not available" when the avgDocumentSize is undefined', async () => {
       await renderModal({
-        currentStep: MockDataGeneratorStep.DOCUMENT_COUNT,
+        currentStep: MockDataGeneratorSteps.DOCUMENT_COUNT,
         schemaAnalysis: {
           ...defaultSchemaAnalysisState,
           schemaMetadata: {
@@ -910,7 +911,7 @@ describe('MockDataGeneratorModal', () => {
 
     it('displays the correct estimated disk size when a valid document count is entered', async () => {
       await renderModal({
-        currentStep: MockDataGeneratorStep.DOCUMENT_COUNT,
+        currentStep: MockDataGeneratorSteps.DOCUMENT_COUNT,
         schemaAnalysis: {
           ...defaultSchemaAnalysisState,
           schemaMetadata: {
@@ -933,7 +934,7 @@ describe('MockDataGeneratorModal', () => {
     });
 
     it('allows the input to be cleared and shows appropriate error message', async () => {
-      await renderModal({ currentStep: MockDataGeneratorStep.DOCUMENT_COUNT });
+      await renderModal({ currentStep: MockDataGeneratorSteps.DOCUMENT_COUNT });
 
       const documentCountInput = screen.getByLabelText(
         'Documents to generate in current collection'
@@ -955,7 +956,7 @@ describe('MockDataGeneratorModal', () => {
     });
 
     it('handles typing and clearing naturally without reverting', async () => {
-      await renderModal({ currentStep: MockDataGeneratorStep.DOCUMENT_COUNT });
+      await renderModal({ currentStep: MockDataGeneratorSteps.DOCUMENT_COUNT });
 
       const documentCountInput = screen.getByLabelText(
         'Documents to generate in current collection'
@@ -981,7 +982,7 @@ describe('MockDataGeneratorModal', () => {
 
     it('fires a track event when the document count is changed', async () => {
       const result = await renderModal({
-        currentStep: MockDataGeneratorStep.DOCUMENT_COUNT,
+        currentStep: MockDataGeneratorSteps.DOCUMENT_COUNT,
         schemaAnalysis: {
           ...defaultSchemaAnalysisState,
           schemaMetadata: {
@@ -1010,7 +1011,7 @@ describe('MockDataGeneratorModal', () => {
   describe('on the generate data step', () => {
     it('enables the Back button', async () => {
       await renderModal({
-        currentStep: MockDataGeneratorStep.GENERATE_DATA,
+        currentStep: MockDataGeneratorSteps.GENERATE_DATA,
         fakerSchemaGeneration: {
           status: 'completed',
           originalLlmResponse: {
@@ -1042,7 +1043,7 @@ describe('MockDataGeneratorModal', () => {
 
     it('renders the main sections: Prerequisites, steps, and Resources', async () => {
       await renderModal({
-        currentStep: MockDataGeneratorStep.GENERATE_DATA,
+        currentStep: MockDataGeneratorSteps.GENERATE_DATA,
         fakerSchemaGeneration: {
           status: 'completed',
           originalLlmResponse: {
@@ -1074,7 +1075,7 @@ describe('MockDataGeneratorModal', () => {
 
     it('closes the modal when the Done button is clicked', async () => {
       await renderModal({
-        currentStep: MockDataGeneratorStep.GENERATE_DATA,
+        currentStep: MockDataGeneratorSteps.GENERATE_DATA,
         fakerSchemaGeneration: {
           status: 'completed',
           originalLlmResponse: {
@@ -1129,7 +1130,7 @@ describe('MockDataGeneratorModal', () => {
       };
 
       await renderModal({
-        currentStep: MockDataGeneratorStep.GENERATE_DATA,
+        currentStep: MockDataGeneratorSteps.GENERATE_DATA,
         connectionInfo: atlasConnectionInfo,
         fakerSchemaGeneration: {
           status: 'completed',
@@ -1169,7 +1170,7 @@ describe('MockDataGeneratorModal', () => {
       };
 
       await renderModal({
-        currentStep: MockDataGeneratorStep.GENERATE_DATA,
+        currentStep: MockDataGeneratorSteps.GENERATE_DATA,
         connectionInfo: nonAtlasConnectionInfo,
       });
 
@@ -1190,7 +1191,7 @@ describe('MockDataGeneratorModal', () => {
 
       try {
         await renderModal({
-          currentStep: MockDataGeneratorStep.GENERATE_DATA,
+          currentStep: MockDataGeneratorSteps.GENERATE_DATA,
           fakerSchemaGeneration: {
             status: 'completed',
             originalLlmResponse: {
@@ -1228,7 +1229,7 @@ describe('MockDataGeneratorModal', () => {
 
     it('displays the script when generation succeeds', async () => {
       await renderModal({
-        currentStep: MockDataGeneratorStep.GENERATE_DATA,
+        currentStep: MockDataGeneratorSteps.GENERATE_DATA,
         fakerSchemaGeneration: {
           status: 'completed',
           originalLlmResponse: {
@@ -1272,7 +1273,7 @@ describe('MockDataGeneratorModal', () => {
 
     it('fires a track event when the script is generated', async () => {
       const result = await renderModal({
-        currentStep: MockDataGeneratorStep.GENERATE_DATA,
+        currentStep: MockDataGeneratorSteps.GENERATE_DATA,
         documentCount: '100',
         fakerSchemaGeneration: {
           status: 'completed',
@@ -1321,7 +1322,7 @@ describe('MockDataGeneratorModal', () => {
 
     it('fires a track event when the mongosh script is copied', async () => {
       const result = await renderModal({
-        currentStep: MockDataGeneratorStep.GENERATE_DATA,
+        currentStep: MockDataGeneratorSteps.GENERATE_DATA,
         fakerSchemaGeneration: {
           status: 'completed',
           originalLlmResponse: {
@@ -1365,7 +1366,7 @@ describe('MockDataGeneratorModal', () => {
         expect(result.track).to.have.been.calledWith(
           'Mock Data Script Copied',
           {
-            step: DataGenerationStep.RUN_SCRIPT,
+            step: DataGenerationSteps.RUN_SCRIPT,
           }
         );
       });
@@ -1395,7 +1396,7 @@ describe('MockDataGeneratorModal', () => {
       };
 
       await renderModal({
-        currentStep: MockDataGeneratorStep.GENERATE_DATA,
+        currentStep: MockDataGeneratorSteps.GENERATE_DATA,
         connectionInfo: atlasConnectionInfo,
         fakerSchemaGeneration: {
           status: 'completed',
@@ -1430,7 +1431,7 @@ describe('MockDataGeneratorModal', () => {
       };
 
       await renderModal({
-        currentStep: MockDataGeneratorStep.GENERATE_DATA,
+        currentStep: MockDataGeneratorSteps.GENERATE_DATA,
         connectionInfo: atlasConnectionInfoWithoutAtlasMetadata,
         fakerSchemaGeneration: {
           status: 'completed',

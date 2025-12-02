@@ -46,8 +46,8 @@ import {
   Diagram,
   useDiagram,
   useHotkeys,
-  FocusState,
   useFocusStateIncludingUnfocused,
+  FocusStates,
 } from '@mongodb-js/compass-components';
 import { cancelAnalysis, retryAnalysis } from '../store/analysis-process';
 import type { FieldPath, StaticModel } from '../services/data-model-storage';
@@ -641,7 +641,7 @@ const DiagramEditor: React.FunctionComponent<{
       <WorkspaceContainer
         toolbar={
           <DiagramEditorToolbar
-            diagramEditorHasFocus={focusState !== FocusState.NoFocus}
+            diagramEditorHasFocus={focusState !== FocusStates.NoFocus}
             onRelationshipDrawingToggle={handleRelationshipDrawingToggle}
             isInRelationshipDrawingMode={isInRelationshipDrawingMode}
             onAddCollectionClick={handleAddCollectionClick}

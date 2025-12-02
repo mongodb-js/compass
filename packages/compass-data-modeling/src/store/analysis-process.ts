@@ -31,23 +31,26 @@ export type AnalysisProcessState = {
   relationsInferred: number;
 };
 
-// @ts-expect-error TODO(COMPASS-10124): replace enums with const kv objects
-export enum AnalysisProcessActionTypes {
-  ANALYZING_COLLECTIONS_START = 'data-modeling/analysis-stats/ANALYZING_COLLECTIONS_START',
-  NAMESPACE_SAMPLE_FETCHED = 'data-modeling/analysis-stats/NAMESPACE_SAMPLE_FETCHED',
-  NAMESPACE_SCHEMA_ANALYZED = 'data-modeling/analysis-stats/NAMESPACE_SCHEMA_ANALYZED',
-  NAMESPACES_RELATIONS_INFERRED = 'data-modeling/analysis-stats/NAMESPACES_RELATIONS_INFERRED',
-  ANALYSIS_FINISHED = 'data-modeling/analysis-stats/ANALYSIS_FINISHED',
-  ANALYSIS_FAILED = 'data-modeling/analysis-stats/ANALYSIS_FAILED',
-  ANALYSIS_CANCELED = 'data-modeling/analysis-stats/ANALYSIS_CANCELED',
-}
+export const AnalysisProcessActionTypes = {
+  ANALYZING_COLLECTIONS_START:
+    'data-modeling/analysis-stats/ANALYZING_COLLECTIONS_START',
+  NAMESPACE_SAMPLE_FETCHED:
+    'data-modeling/analysis-stats/NAMESPACE_SAMPLE_FETCHED',
+  NAMESPACE_SCHEMA_ANALYZED:
+    'data-modeling/analysis-stats/NAMESPACE_SCHEMA_ANALYZED',
+  NAMESPACES_RELATIONS_INFERRED:
+    'data-modeling/analysis-stats/NAMESPACES_RELATIONS_INFERRED',
+  ANALYSIS_FINISHED: 'data-modeling/analysis-stats/ANALYSIS_FINISHED',
+  ANALYSIS_FAILED: 'data-modeling/analysis-stats/ANALYSIS_FAILED',
+  ANALYSIS_CANCELED: 'data-modeling/analysis-stats/ANALYSIS_CANCELED',
+} as const;
 
 export type AnalysisOptions = {
   automaticallyInferRelations: boolean;
 };
 
 export type AnalyzingCollectionsStartAction = {
-  type: AnalysisProcessActionTypes.ANALYZING_COLLECTIONS_START;
+  type: typeof AnalysisProcessActionTypes.ANALYZING_COLLECTIONS_START;
   name: string;
   connectionId: string;
   database: string;
@@ -56,23 +59,23 @@ export type AnalyzingCollectionsStartAction = {
 };
 
 export type NamespaceSampleFetchedAction = {
-  type: AnalysisProcessActionTypes.NAMESPACE_SAMPLE_FETCHED;
+  type: typeof AnalysisProcessActionTypes.NAMESPACE_SAMPLE_FETCHED;
   namespace: string;
 };
 
 export type NamespaceSchemaAnalyzedAction = {
-  type: AnalysisProcessActionTypes.NAMESPACE_SCHEMA_ANALYZED;
+  type: typeof AnalysisProcessActionTypes.NAMESPACE_SCHEMA_ANALYZED;
   namespace: string;
 };
 
 export type NamespacesRelationsInferredAction = {
-  type: AnalysisProcessActionTypes.NAMESPACES_RELATIONS_INFERRED;
+  type: typeof AnalysisProcessActionTypes.NAMESPACES_RELATIONS_INFERRED;
   namespace: string;
   count: number;
 };
 
 export type AnalysisFinishedAction = {
-  type: AnalysisProcessActionTypes.ANALYSIS_FINISHED;
+  type: typeof AnalysisProcessActionTypes.ANALYSIS_FINISHED;
   name: string;
   connectionId: string;
   database: string;
@@ -86,12 +89,12 @@ export type AnalysisFinishedAction = {
 };
 
 export type AnalysisFailedAction = {
-  type: AnalysisProcessActionTypes.ANALYSIS_FAILED;
+  type: typeof AnalysisProcessActionTypes.ANALYSIS_FAILED;
   error: Error;
 };
 
 export type AnalysisCanceledAction = {
-  type: AnalysisProcessActionTypes.ANALYSIS_CANCELED;
+  type: typeof AnalysisProcessActionTypes.ANALYSIS_CANCELED;
 };
 
 export type AnalysisProgressActions =

@@ -15,7 +15,7 @@ import type { THEMES } from 'compass-preferences-model';
 
 import COMPASS_ICON from './icon';
 import type { CompassApplication } from './application';
-import { AutoUpdateManagerState } from './auto-update-manager';
+import { AutoUpdateManagerStates } from './auto-update-manager';
 import { createIpcTrack } from '@mongodb-js/compass-telemetry';
 
 const track = createIpcTrack();
@@ -480,11 +480,11 @@ class CompassMenu {
     app.on('auto-updater:new-state', (state) => {
       const updateManagerState = ((): UpdateManagerState => {
         switch (state) {
-          case AutoUpdateManagerState.ManualDownload:
-          case AutoUpdateManagerState.DownloadingUpdate:
+          case AutoUpdateManagerStates.ManualDownload:
+          case AutoUpdateManagerStates.DownloadingUpdate:
             return 'installing updates';
-          case AutoUpdateManagerState.RestartDismissed:
-          case AutoUpdateManagerState.PromptForRestart:
+          case AutoUpdateManagerStates.RestartDismissed:
+          case AutoUpdateManagerStates.PromptForRestart:
             return 'ready to restart';
           default:
             return 'idle';

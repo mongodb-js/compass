@@ -25,7 +25,7 @@ import {
   useSyncStateOnPropChange,
 } from '@mongodb-js/compass-components';
 import {
-  IntercomTrackingEvent,
+  IntercomTrackingEvents,
   intercomTrack,
 } from '@mongodb-js/compass-intercom';
 
@@ -353,7 +353,7 @@ function GenerativeAIInput({
 
   const handleSubmit = useCallback(
     (aiPromptText: string) => {
-      intercomTrack(IntercomTrackingEvent.submittedNlPrompt);
+      intercomTrack(IntercomTrackingEvents.submittedNlPrompt);
       onSubmitText(aiPromptText);
     },
     [onSubmitText]

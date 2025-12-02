@@ -41,16 +41,15 @@ export const WriteOperation = {
   Overwrite: 'overwriting',
 } as const;
 
-// @ts-expect-error TODO(COMPASS-10124): replace enums with const kv objects
-export enum ActionTypes {
-  RunAggregation = 'compass-aggeregations/runAggregation',
-  AggregationStarted = 'compass-aggregations/aggregationStarted',
-  AggregationFinished = 'compass-aggregations/aggregationFinished',
-  AggregationFailed = 'compass-aggregations/aggregationFailed',
-  AggregationCancelledByUser = 'compass-aggregations/aggregationCancelledByUser',
-  LastPageReached = 'compass-aggregations/lastPageReached',
-  ResultViewTypeChanged = 'compass-aggregations/resultViewTypeChanged',
-}
+export const ActionTypes = {
+  RunAggregation: 'compass-aggeregations/runAggregation',
+  AggregationStarted: 'compass-aggregations/aggregationStarted',
+  AggregationFinished: 'compass-aggregations/aggregationFinished',
+  AggregationFailed: 'compass-aggregations/aggregationFailed',
+  AggregationCancelledByUser: 'compass-aggregations/aggregationCancelledByUser',
+  LastPageReached: 'compass-aggregations/lastPageReached',
+  ResultViewTypeChanged: 'compass-aggregations/resultViewTypeChanged',
+} as const;
 
 type PreviousPageData = {
   page: number;
@@ -59,17 +58,17 @@ type PreviousPageData = {
 };
 
 export type RunAggregation = {
-  type: ActionTypes.RunAggregation;
+  type: typeof ActionTypes.RunAggregation;
   pipeline: Document[];
 };
 
 export type AggregationStartedAction = {
-  type: ActionTypes.AggregationStarted;
+  type: typeof ActionTypes.AggregationStarted;
   abortController: AbortController;
 };
 
 export type AggregationFinishedAction = {
-  type: ActionTypes.AggregationFinished;
+  type: typeof ActionTypes.AggregationFinished;
   documents: HadronDocument[];
   page: number;
   isLast: boolean;
@@ -81,22 +80,22 @@ export type AggregationError = {
 };
 
 export type AggregationFailedAction = {
-  type: ActionTypes.AggregationFailed;
+  type: typeof ActionTypes.AggregationFailed;
   error: AggregationError;
   page: number;
 };
 
 export type AggregationCancelledAction = {
-  type: ActionTypes.AggregationCancelledByUser;
+  type: typeof ActionTypes.AggregationCancelledByUser;
 };
 
 export type LastPageReachedAction = {
-  type: ActionTypes.LastPageReached;
+  type: typeof ActionTypes.LastPageReached;
   page: number;
 };
 
 export type ResultViewTypeChangedAction = {
-  type: ActionTypes.ResultViewTypeChanged;
+  type: typeof ActionTypes.ResultViewTypeChanged;
   viewType: 'document' | 'json';
 };
 

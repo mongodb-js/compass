@@ -7,14 +7,15 @@ import { mergeProps } from '@react-aria/utils';
 import type React from 'react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
-// @ts-expect-error TODO(COMPASS-10124): replace enums with const kv objects
-export enum FocusState {
-  NoFocus = 'NoFocus',
-  FocusVisible = 'FocusVisible',
-  Focus = 'Focus',
-  FocusWithinVisible = 'FocusWithinVisible',
-  FocusWithin = 'FocusWithin',
-}
+export const FocusStates = {
+  NoFocus: 'NoFocus',
+  FocusVisible: 'FocusVisible',
+  Focus: 'Focus',
+  FocusWithinVisible: 'FocusWithinVisible',
+  FocusWithin: 'FocusWithin',
+} as const;
+
+export type FocusState = (typeof FocusStates)[keyof typeof FocusStates];
 
 function getFocusState(
   isFocused: boolean,
@@ -22,14 +23,14 @@ function getFocusState(
   isFocusVisible: boolean
 ) {
   return isFocused && isFocusVisible
-    ? FocusState.FocusVisible
+    ? FocusStates.FocusVisible
     : isFocused
-    ? FocusState.Focus
+    ? FocusStates.Focus
     : isFocusWithin && isFocusVisible
-    ? FocusState.FocusWithinVisible
+    ? FocusStates.FocusWithinVisible
     : isFocusWithin
-    ? FocusState.FocusWithin
-    : FocusState.NoFocus;
+    ? FocusStates.FocusWithin
+    : FocusStates.NoFocus;
 }
 
 export function useFocusState(): [
@@ -37,7 +38,7 @@ export function useFocusState(): [
   FocusState,
   React.MutableRefObject<FocusState>
 ] {
-  const focusStateRef = useRef(FocusState.NoFocus);
+  const focusStateRef = useRef<FocusState>(FocusStates.NoFocus);
   const [isFocused, setIsFocused] = useState(false);
   const [isFocusWithin, setIsFocusWithin] = useState(false);
   const { isFocusVisible } = useFocusVisible();
@@ -96,7 +97,7 @@ export function useFocusStateIncludingUnfocused(): [
   FocusState | 'Unfocused',
   React.MutableRefObject<FocusState | 'Unfocused'>
 ] {
-  const focusStateRef = useRef<FocusState | 'Unfocused'>(FocusState.NoFocus);
+  const focusStateRef = useRef<FocusState | 'Unfocused'>(FocusStates.NoFocus);
   const [props, state] = useFocusState();
   const isUnfocused = useIsDocumentUnfocused();
   const extendedState = isUnfocused ? 'Unfocused' : state;
