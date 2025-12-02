@@ -41,6 +41,7 @@ import type { AtlasAiService } from '@mongodb-js/compass-generative-ai/provider'
 import { atlasAiServiceLocator } from '@mongodb-js/compass-generative-ai/provider';
 import { buildConversationInstructionsPrompt } from './prompts';
 import { createOpenAI } from '@ai-sdk/openai';
+import { AssistantGlobalStateProvider } from './assistant-global-state';
 
 export const ASSISTANT_DRAWER_ID = 'compass-assistant-drawer';
 
@@ -285,13 +286,15 @@ export const CompassAssistantProvider = registerCompassPlugin(
         throw new Error('atlasAiService was not provided by the state');
       }
       return (
-        <AssistantProvider
-          appNameForPrompt={appNameForPrompt}
-          chat={chat}
-          atlasAiService={atlasAiService}
-        >
-          {children}
-        </AssistantProvider>
+        <AssistantGlobalStateProvider>
+          <AssistantProvider
+            appNameForPrompt={appNameForPrompt}
+            chat={chat}
+            atlasAiService={atlasAiService}
+          >
+            {children}
+          </AssistantProvider>
+        </AssistantGlobalStateProvider>
       );
     },
     activate: (
