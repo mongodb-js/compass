@@ -1,4 +1,4 @@
-import React, { useCallback, useContext } from 'react';
+import React, { useCallback, useContext, useMemo } from 'react';
 import {
   Badge,
   css,
@@ -21,6 +21,7 @@ import {
 } from 'compass-preferences-model/provider';
 import { useChat } from './@ai-sdk/react/use-chat';
 import type { Chat } from './@ai-sdk/react/chat-react';
+import { useAssistantGlobalState } from './assistant-global-state';
 
 const assistantTitleStyles = css({
   display: 'flex',
@@ -55,11 +56,22 @@ export const CompassAssistantDrawer: React.FunctionComponent<{
   appName: string;
   autoOpen?: boolean;
   hasNonGenuineConnections?: boolean;
-}> = ({ appName, autoOpen, hasNonGenuineConnections = false }) => {
+}> = ({ appName, autoOpen }) => {
   const chat = useContext(AssistantContext);
 
   const enableAIAssistant = usePreference('enableAIAssistant');
   const isAiFeatureEnabled = useIsAIFeatureEnabled();
+  const assistantGlobalState = useAssistantGlobalState();
+  // TODO: this is derived from instance model currently, so this is just a quick hack to demonstrate how to use this state after it gets synced. more state needs to be added to the global state
+  const hasNonGenuineConnections = useMemo(() => {
+    return assistantGlobalState.currentActiveConnections.some((connInfo) => {
+      return !connInfo.connectionOptions.connectionString.includes(
+        'mongodb.net'
+      );
+    });
+  }, [assistantGlobalState.currentActiveConnections]);
+
+  console.log({ assistantGlobalState, hasNonGenuineConnections });
 
   if (!enableAIAssistant || !isAiFeatureEnabled) {
     return null;

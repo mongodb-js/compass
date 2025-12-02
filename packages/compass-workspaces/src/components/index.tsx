@@ -16,6 +16,7 @@ import type { WorkspaceTab } from '../types';
 import Workspaces from './workspaces';
 import { connect } from '../stores/context';
 import { WorkspacesServiceProvider } from '../provider';
+import { useSyncAssistantGlobalState } from '@mongodb-js/compass-assistant';
 
 type WorkspacesWithSidebarProps = {
   /**
@@ -112,6 +113,7 @@ const WorkspacesWithSidebar: React.FunctionComponent<
   useEffect(() => {
     onChange.current(activeTab, activeTabCollectionInfo);
   }, [activeTab, activeTabCollectionInfo, onChange]);
+  useSyncAssistantGlobalState('currentWorkspace', activeTab);
   return (
     <WorkspacesServiceProvider>
       <div
