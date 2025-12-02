@@ -99,7 +99,6 @@
     "@mongodb-js/compass-workspaces": "^0.70.0",
     "@mongodb-js/connection-info": "^0.24.0",
     "@mongodb-js/connection-storage": "^0.63.0",
-    "@mongodb-js/devtools-connect": "^3.11.0",
     "@mongodb-js/devtools-proxy-support": "^0.5.5",
     "@mongodb-js/eslint-config-compass": "^1.4.12",
     "@mongodb-js/mocha-config-compass": "^1.7.2",
