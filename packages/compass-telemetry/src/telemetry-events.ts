@@ -3243,7 +3243,7 @@ type MockDataScriptCopiedEvent = CommonEvent<{
 /**
  * This event is fired when a user clicks the link to Atlas Search in the Indexes tab for a view.
  *
- * @category Other
+ * @category Indexes
  */
 type AtlasSearchIndexesForViewLinkClickedEvent = CommonEvent<{
   name: 'Atlas Search Indexes for View Link Clicked';
@@ -3258,7 +3258,7 @@ type AtlasSearchIndexesForViewLinkClickedEvent = CommonEvent<{
 /**
  * This event is fired when a user clicks the button to create a search index for a view.
  *
- * @category Other
+ * @category Indexes
  */
 type CreateSearchIndexForViewClickedEvent = CommonEvent<{
   name: 'Create Search Index for View Clicked';
