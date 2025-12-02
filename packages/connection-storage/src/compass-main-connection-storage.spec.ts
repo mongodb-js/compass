@@ -795,6 +795,7 @@ describe('ConnectionStorage', function () {
         oidc: {},
         fleOptions: { storeCredentials: false },
         lookup: () => ({} as any),
+        useSystemCA: true,
       };
       await connectionStorage.save({
         connectionInfo: {
