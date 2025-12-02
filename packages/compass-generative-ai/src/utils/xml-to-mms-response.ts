@@ -43,9 +43,7 @@ export function parseXmlToMmsJsonResponse(xmlString: string, logger: Logger) {
   // Keep the response same as we have from mms api
   return {
     content: {
-      aggregation: {
-        pipeline: result.aggregation,
-      },
+      ...(result.aggregation ? { aggregation: result.aggregation } : {}),
       query: {
         filter: result.filter,
         project: result.project,

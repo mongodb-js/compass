@@ -327,10 +327,20 @@ export class AtlasAiService {
     this.logger = logger;
     this.initPromise = this.setupAIAccess();
 
+    const initialBaseUrl = 'http://PLACEHOLDER_BASE_URL_TO_BE_REPLACED.invalid';
     const model = createOpenAI({
       apiKey: '',
-      baseURL: this.atlasService.assistantApiEndpoint(),
-      fetch: this.atlasService.authenticatedFetch.bind(this.atlasService),
+      baseURL: initialBaseUrl,
+      fetch: (url, init) => {
+        // The `baseUrl` can be dynamically changed, but `createOpenAI`
+        // doesn't allow us to change it after initial call. Instead
+        // we're going to update it every time the fetch call happens
+        const uri = String(url).replace(
+          initialBaseUrl,
+          this.atlasService.assistantApiEndpoint()
+        );
+        return this.atlasService.authenticatedFetch(uri, init);
+      },
       // TODO(COMPASS-10125): Switch the model to `mongodb-slim-latest` when
       // enabling this feature (to use edu-chatbot for GenAI).
     }).responses('mongodb-chat-latest');
