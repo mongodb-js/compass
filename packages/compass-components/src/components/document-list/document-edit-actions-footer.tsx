@@ -209,17 +209,6 @@ function useHadronDocumentStatus(
     }
   }, [status, updateStatus]);
 
-  useEffect(() => {
-    setError(() => {
-      if (initialError) {
-        return {
-          message: initialError.message,
-        };
-      }
-      return null;
-    });
-  }, [initialError]);
-
   const derivedStatus = useMemo(() => {
     if (status !== 'Initial') {
       return status;
@@ -233,7 +222,19 @@ function useHadronDocumentStatus(
     return status;
   }, [status, editing, deleting]);
 
-  return { status: derivedStatus, updateStatus, error };
+  const derivedError = useMemo(() => {
+    if (error) {
+      return error;
+    }
+    if (initialError) {
+      return {
+        message: initialError.message,
+      };
+    }
+    return null;
+  }, [error, initialError]);
+
+  return { status: derivedStatus, updateStatus, error: derivedError };
 }
 
 const container = css({
