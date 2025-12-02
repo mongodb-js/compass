@@ -46,6 +46,7 @@ jobs:
     needs: configure_matrix
     env:
       UPDATE_BRANCH_NAME: ci/update-${{ matrix.group_name }}
+    continue-on-error: true
     strategy:
       matrix:
         group_name: ${{ fromJSON(needs.configure_matrix.outputs.group_name) }}

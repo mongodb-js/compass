@@ -67,6 +67,8 @@ export const QueryBar: React.FunctionComponent<
   React.ComponentProps<typeof QueryBarComponent>
 > = (props) => {
   const Component = useQueryBarComponent();
+  // Component is not created, just accessed via context
+  // eslint-disable-next-line react-hooks/static-components
   return <Component {...props}></Component>;
 };
 

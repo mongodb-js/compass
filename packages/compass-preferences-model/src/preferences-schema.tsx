@@ -172,8 +172,7 @@ export type AtlasOrgPreferences = {
 
 export type AllPreferences = UserPreferences &
   CliOnlyPreferences &
-  NonUserPreferences &
-  PermanentFeatureFlags;
+  NonUserPreferences;
 
 // Types related to PreferenceDefinition
 type PostProcessFunction<T> = (
@@ -375,6 +374,7 @@ export const storedUserPreferencesProps: Required<{
       short: 'Compass UI Theme',
     },
     validator: z
+
       .effect(z.enum(THEMES_VALUES), {
         type: 'preprocess',
         transform: (val) =>

@@ -12,12 +12,11 @@ import {
 import { AutoFocusContext } from './auto-focus-context';
 import { useForceUpdate } from './use-force-update';
 import { calculateShowMoreToggleOffset, HadronElement } from './element';
-import { usePrevious } from './use-previous';
 import VisibleFieldsToggle from './visible-field-toggle';
 import { documentTypography } from './typography';
+import { useSyncStateOnPropChange } from '../../hooks/use-sync-state-on-prop-change';
 
 function useHadronDocument(doc: HadronDocumentType) {
-  const prevDoc = usePrevious(doc);
   const forceUpdate = useForceUpdate();
 
   const onVisibleElementsChanged = useCallback(
@@ -44,12 +43,10 @@ function useHadronDocument(doc: HadronDocumentType) {
     [doc, forceUpdate]
   );
 
-  useEffect(() => {
-    // Force update if the document that was passed to the component changed
-    if (prevDoc && prevDoc !== doc) {
-      forceUpdate();
-    }
-  }, [prevDoc, doc, forceUpdate]);
+  // Force update if the document that was passed to the component changed
+  useSyncStateOnPropChange(() => {
+    forceUpdate();
+  }, [doc]);
 
   useEffect(() => {
     doc.on(DocumentEvents.VisibleElementsChanged, onVisibleElementsChanged);
@@ -105,12 +102,6 @@ const HadronDocument: React.FunctionComponent<{
     type: 'key' | 'value' | 'type';
   } | null>(null);
 
-  useEffect(() => {
-    if (!editing) {
-      setAutoFocus(null);
-    }
-  }, [editing]);
-
   const handleVisibleFieldsChanged = useCallback(
     (totalVisibleFields: number) => {
       document.setMaxVisibleElementsCount(totalVisibleFields);
@@ -138,7 +129,7 @@ const HadronDocument: React.FunctionComponent<{
         data-testid="hadron-document"
         data-id={document.uuid}
       >
-        <AutoFocusContext.Provider value={autoFocus}>
+        <AutoFocusContext.Provider value={editing ? autoFocus : null}>
           {visibleElements.map((el, idx) => {
             return (
               <HadronElement

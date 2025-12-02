@@ -12,7 +12,10 @@ import {
   atlasServiceLocator,
 } from '@mongodb-js/atlas-service/provider';
 import { DocsProviderTransport } from './docs-provider-transport';
-import { useDrawerActions } from '@mongodb-js/compass-components';
+import {
+  useDrawerActions,
+  useInitialValue,
+} from '@mongodb-js/compass-components';
 import {
   buildConnectionErrorPrompt,
   buildExplainPlanPrompt,
@@ -180,56 +183,12 @@ export const AssistantProvider: React.FunctionComponent<
   const { openDrawer } = useDrawerActions();
   const track = useTelemetry();
 
-  const createEntryPointHandler = useRef(function <T>(
-    entryPointName:
-      | 'explain plan'
-      | 'performance insights'
-      | 'connection error',
-    builder: (props: T) => EntryPointMessage
-  ) {
-    return (props: T) => {
-      if (!assistantActionsContext.current.ensureOptInAndSend) {
-        return;
-      }
-
-      const { prompt, metadata } = builder(props);
-      void assistantActionsContext.current.ensureOptInAndSend(
-        {
-          text: prompt,
-          metadata: {
-            ...metadata,
-            source: entryPointName,
-          },
-        },
-        {},
-        () => {
-          openDrawer(ASSISTANT_DRAWER_ID);
-
-          track('Assistant Entry Point Used', {
-            source: entryPointName,
-          });
-        }
-      );
-    };
-  }).current;
-  const assistantActionsContext = useRef<AssistantActionsContextType>({
-    interpretExplainPlan: createEntryPointHandler(
-      'explain plan',
-      buildExplainPlanPrompt
-    ),
-    interpretConnectionError: createEntryPointHandler(
-      'connection error',
-      buildConnectionErrorPrompt
-    ),
-    tellMoreAboutInsight: createEntryPointHandler(
-      'performance insights',
-      buildProactiveInsightsPrompt
-    ),
-    ensureOptInAndSend: async (
+  const ensureOptInAndSend = useInitialValue(() => {
+    return async function (
       message: SendMessage,
       options: SendOptions,
       callback: () => void
-    ) => {
+    ) {
       try {
         await atlasAiService.ensureAiFeatureAccess();
       } catch {
@@ -246,12 +205,59 @@ export const AssistantProvider: React.FunctionComponent<
       }
 
       await chat.sendMessage(message, options);
-    },
+    };
+  });
+
+  const createEntryPointHandler = useInitialValue(() => {
+    return function <T>(
+      entryPointName:
+        | 'explain plan'
+        | 'performance insights'
+        | 'connection error',
+      builder: (props: T) => EntryPointMessage
+    ) {
+      return function (props: T) {
+        const { prompt, metadata } = builder(props);
+        void ensureOptInAndSend(
+          {
+            text: prompt,
+            metadata: {
+              ...metadata,
+              source: entryPointName,
+            },
+          },
+          {},
+          () => {
+            openDrawer(ASSISTANT_DRAWER_ID);
+
+            track('Assistant Entry Point Used', {
+              source: entryPointName,
+            });
+          }
+        );
+      };
+    };
+  });
+
+  const assistantActionsContext = useInitialValue<AssistantActionsContextType>({
+    interpretExplainPlan: createEntryPointHandler(
+      'explain plan',
+      buildExplainPlanPrompt
+    ),
+    interpretConnectionError: createEntryPointHandler(
+      'connection error',
+      buildConnectionErrorPrompt
+    ),
+    tellMoreAboutInsight: createEntryPointHandler(
+      'performance insights',
+      buildProactiveInsightsPrompt
+    ),
+    ensureOptInAndSend,
   });
 
   return (
     <AssistantContext.Provider value={chat}>
-      <AssistantActionsContext.Provider value={assistantActionsContext.current}>
+      <AssistantActionsContext.Provider value={assistantActionsContext}>
         {children}
       </AssistantActionsContext.Provider>
     </AssistantContext.Provider>

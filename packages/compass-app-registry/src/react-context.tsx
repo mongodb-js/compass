@@ -1,10 +1,5 @@
-import React, {
-  createContext,
-  useEffect,
-  useRef,
-  useContext,
-  useState,
-} from 'react';
+import React, { createContext, useEffect, useContext, useState } from 'react';
+import { useInitialValue } from '@mongodb-js/compass-components';
 import { globalAppRegistry, AppRegistry } from './app-registry';
 
 /**
@@ -57,7 +52,7 @@ export function GlobalAppRegistryProvider({
   value?: AppRegistry;
   children?: React.ReactNode;
 }) {
-  const appRegistry = useRef(value ?? globalAppRegistry).current;
+  const appRegistry = useInitialValue(value ?? globalAppRegistry);
   return (
     <GlobalAppRegistryContext.Provider value={appRegistry}>
       {children}
@@ -73,11 +68,11 @@ export function AppRegistryProvider({
   children,
   ...props
 }: AppRegistryProviderProps) {
-  const initialPropsRef = useRef(props);
+  const initialProps = useInitialValue(props);
   const {
     localAppRegistry: initialLocalAppRegistry,
     deactivateOnUnmount = true,
-  } = initialPropsRef.current;
+  } = initialProps;
 
   const globalAppRegistry = useGlobalAppRegistry();
   const isTopLevelProvider = useIsTopLevelProvider();

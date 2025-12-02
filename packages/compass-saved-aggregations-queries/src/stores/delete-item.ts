@@ -4,12 +4,12 @@ import {
   ConfirmationModalVariant,
 } from '@mongodb-js/compass-components';
 
-export enum ActionTypes {
-  DeleteItemConfirm = 'compass-saved-aggregations-queries/deleteItemConfirm',
-}
+export const ActionTypes = {
+  DeleteItemConfirm: 'compass-saved-aggregations-queries/deleteItemConfirm',
+} as const;
 
 type DeleteItemConfirmAction = {
-  type: ActionTypes.DeleteItemConfirm;
+  type: typeof ActionTypes.DeleteItemConfirm;
   id: string;
 };
 

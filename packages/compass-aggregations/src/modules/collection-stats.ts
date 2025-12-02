@@ -20,12 +20,13 @@ export function pickCollectionStats(collection: Collection): CollectionStats {
   };
 }
 
-enum CollectionStatsActions {
-  CollectionStatsFetched = 'compass-aggregations/collection-stats/CollectionStatsFetched',
-}
+const CollectionStatsActions = {
+  CollectionStatsFetched:
+    'compass-aggregations/collection-stats/CollectionStatsFetched',
+} as const;
 
 interface CollectionStatsFetchedAction {
-  type: CollectionStatsActions.CollectionStatsFetched;
+  type: typeof CollectionStatsActions.CollectionStatsFetched;
   collection: Collection;
 }
 

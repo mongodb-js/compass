@@ -53,21 +53,25 @@ function getKeyName(node: t.ObjectProperty['key']): string | null {
     : null;
 }
 
-export const enum StageAssertionErrorCodes {
-  InvalidStage,
-  NotObjectExpression,
-  NoStageOperator,
-  UnrecognizedStageName,
-  NoStageValue,
-  InvalidStageValue,
-}
+export const StageAssertionErrorCodes = {
+  InvalidStage: 'InvalidStage',
+  NotObjectExpression: 'NotObjectExpression',
+  NoStageOperator: 'NoStageOperator',
+  UnrecognizedStageName: 'UnrecognizedStageName',
+  NoStageValue: 'NoStageValue',
+  InvalidStageValue: 'InvalidStageValue',
+} as const;
+
+export type StageAssertionErrorCode =
+  (typeof StageAssertionErrorCodes)[keyof typeof StageAssertionErrorCodes];
 
 export function assertStageNode(
   node?: t.Node | null,
   loose = false
 ): asserts node is StageLike {
   let error: string | null = null;
-  let errorCode: number = StageAssertionErrorCodes.InvalidStage;
+  let errorCode: StageAssertionErrorCode =
+    StageAssertionErrorCodes.InvalidStage;
   let causedBy = node;
 
   if (!node || node.type !== 'ObjectExpression') {

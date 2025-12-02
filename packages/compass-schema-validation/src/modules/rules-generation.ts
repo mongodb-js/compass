@@ -21,28 +21,29 @@ const ERROR_CODE_MAX_TIME_MS_EXPIRED = 50;
 const SAMPLE_SIZE = 1000;
 const ABORT_MESSAGE = 'Operation cancelled';
 
-export const enum RulesGenerationActions {
-  generationStarted = 'schema-validation/rules-generation/generationStarted',
-  generationFailed = 'schema-validation/rules-generation/generationFailed',
-  generationFinished = 'schema-validation/rules-generation/generationFinished',
-  generationErrorCleared = 'schema-validation/rules-generation/generationErrorCleared',
-}
+export const RulesGenerationActions = {
+  generationStarted: 'schema-validation/rules-generation/generationStarted',
+  generationFailed: 'schema-validation/rules-generation/generationFailed',
+  generationFinished: 'schema-validation/rules-generation/generationFinished',
+  generationErrorCleared:
+    'schema-validation/rules-generation/generationErrorCleared',
+} as const;
 
 export type RulesGenerationStarted = {
-  type: RulesGenerationActions.generationStarted;
+  type: typeof RulesGenerationActions.generationStarted;
 };
 
 export type RulesGenerationFailed = {
-  type: RulesGenerationActions.generationFailed;
+  type: typeof RulesGenerationActions.generationFailed;
   error: Error;
 };
 
 export type RulesGenerationErrorCleared = {
-  type: RulesGenerationActions.generationErrorCleared;
+  type: typeof RulesGenerationActions.generationErrorCleared;
 };
 
 export type RulesGenerationFinished = {
-  type: RulesGenerationActions.generationFinished;
+  type: typeof RulesGenerationActions.generationFinished;
 };
 
 export type RulesGenerationError = {

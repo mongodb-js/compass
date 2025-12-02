@@ -100,32 +100,37 @@ export const initialState: ExportState = {
   exportFileError: undefined,
 };
 
-export const enum ExportActionTypes {
-  OpenExport = 'compass-import-export/export/OpenExport',
-  CloseExport = 'compass-import-export/export/CloseExport',
-  CloseInProgressMessage = 'compass-import-export/export/CloseInProgressMessage',
-  BackToSelectFieldOptions = 'compass-import-export/export/BackToSelectFieldOptions',
-  BackToSelectFieldsToExport = 'compass-import-export/export/BackToSelectFieldsToExport',
-  ReadyToExport = 'compass-import-export/export/ReadyToExport',
+export const ExportActionTypes = {
+  OpenExport: 'compass-import-export/export/OpenExport',
+  CloseExport: 'compass-import-export/export/CloseExport',
+  CloseInProgressMessage: 'compass-import-export/export/CloseInProgressMessage',
+  BackToSelectFieldOptions:
+    'compass-import-export/export/BackToSelectFieldOptions',
+  BackToSelectFieldsToExport:
+    'compass-import-export/export/BackToSelectFieldsToExport',
+  ReadyToExport: 'compass-import-export/export/ReadyToExport',
 
-  ToggleFieldToExport = 'compass-import-export/export/ToggleFieldToExport',
-  AddFieldToExport = 'compass-import-export/export/AddFieldToExport',
-  ToggleExportAllSelectedFields = 'compass-import-export/export/ToggleExportAllSelectedFields',
+  ToggleFieldToExport: 'compass-import-export/export/ToggleFieldToExport',
+  AddFieldToExport: 'compass-import-export/export/AddFieldToExport',
+  ToggleExportAllSelectedFields:
+    'compass-import-export/export/ToggleExportAllSelectedFields',
 
-  SelectFieldsToExport = 'compass-import-export/export/SelectFieldsToExport',
-  FetchFieldsToExport = 'compass-import-export/export/FetchFieldsToExport',
-  FetchFieldsToExportSuccess = 'compass-import-export/export/FetchFieldsToExportSuccess',
-  FetchFieldsToExportError = 'compass-import-export/export/FetchFieldsToExportError',
+  SelectFieldsToExport: 'compass-import-export/export/SelectFieldsToExport',
+  FetchFieldsToExport: 'compass-import-export/export/FetchFieldsToExport',
+  FetchFieldsToExportSuccess:
+    'compass-import-export/export/FetchFieldsToExportSuccess',
+  FetchFieldsToExportError:
+    'compass-import-export/export/FetchFieldsToExportError',
 
-  RunExport = 'compass-import-export/export/RunExport',
-  ExportFileError = 'compass-import-export/export/ExportFileError',
-  CancelExport = 'compass-import-export/export/CancelExport',
-  RunExportError = 'compass-import-export/export/RunExportError',
-  RunExportSuccess = 'compass-import-export/export/RunExportSuccess',
-}
+  RunExport: 'compass-import-export/export/RunExport',
+  ExportFileError: 'compass-import-export/export/ExportFileError',
+  CancelExport: 'compass-import-export/export/CancelExport',
+  RunExportError: 'compass-import-export/export/RunExportError',
+  RunExportSuccess: 'compass-import-export/export/RunExportSuccess',
+} as const;
 
 type OpenExportAction = {
-  type: ExportActionTypes.OpenExport;
+  type: typeof ExportActionTypes.OpenExport;
   connectionId: string;
   origin: 'menu' | 'crud-toolbar' | 'empty-state' | 'aggregations-toolbar';
 } & Omit<ExportOptions, 'fieldsToExport' | 'selectedFieldOption'>;
@@ -150,7 +155,7 @@ export const openExport = (
 };
 
 type CloseExportAction = {
-  type: ExportActionTypes.CloseExport;
+  type: typeof ExportActionTypes.CloseExport;
 };
 
 export const connectionDisconnected = (
@@ -172,7 +177,7 @@ export const closeExport = (): CloseExportAction => ({
 });
 
 type CloseInProgressMessageAction = {
-  type: ExportActionTypes.CloseInProgressMessage;
+  type: typeof ExportActionTypes.CloseInProgressMessage;
 };
 
 export const closeInProgressMessage = (): CloseInProgressMessageAction => ({
@@ -180,11 +185,11 @@ export const closeInProgressMessage = (): CloseInProgressMessageAction => ({
 });
 
 type SelectFieldsToExportAction = {
-  type: ExportActionTypes.SelectFieldsToExport;
+  type: typeof ExportActionTypes.SelectFieldsToExport;
 };
 
 type BackToSelectFieldOptionsAction = {
-  type: ExportActionTypes.BackToSelectFieldOptions;
+  type: typeof ExportActionTypes.BackToSelectFieldOptions;
 };
 
 export const backToSelectFieldOptions = (): BackToSelectFieldOptionsAction => ({
@@ -192,7 +197,7 @@ export const backToSelectFieldOptions = (): BackToSelectFieldOptionsAction => ({
 });
 
 type BackToSelectFieldsToExportAction = {
-  type: ExportActionTypes.BackToSelectFieldsToExport;
+  type: typeof ExportActionTypes.BackToSelectFieldsToExport;
 };
 
 export const backToSelectFieldsToExport =
@@ -201,23 +206,23 @@ export const backToSelectFieldsToExport =
   });
 
 type FetchFieldsToExportAction = {
-  type: ExportActionTypes.FetchFieldsToExport;
+  type: typeof ExportActionTypes.FetchFieldsToExport;
   fieldsToExportAbortController: AbortController;
 };
 
 type FetchFieldsToExportErrorAction = {
-  type: ExportActionTypes.FetchFieldsToExportError;
+  type: typeof ExportActionTypes.FetchFieldsToExportError;
   errorMessage?: string;
 };
 
 type FetchFieldsToExportSuccessAction = {
-  type: ExportActionTypes.FetchFieldsToExportSuccess;
+  type: typeof ExportActionTypes.FetchFieldsToExportSuccess;
   fieldsToExport: FieldsToExport;
   aborted?: boolean;
 };
 
 type ToggleFieldToExportAction = {
-  type: ExportActionTypes.ToggleFieldToExport;
+  type: typeof ExportActionTypes.ToggleFieldToExport;
   fieldId: string;
 };
 export const toggleFieldToExport = (fieldId: string) => ({
@@ -226,14 +231,14 @@ export const toggleFieldToExport = (fieldId: string) => ({
 });
 
 type ToggleExportAllSelectedFieldsAction = {
-  type: ExportActionTypes.ToggleExportAllSelectedFields;
+  type: typeof ExportActionTypes.ToggleExportAllSelectedFields;
 };
 export const toggleExportAllSelectedFields = () => ({
   type: ExportActionTypes.ToggleExportAllSelectedFields,
 });
 
 type AddFieldToExportAction = {
-  type: ExportActionTypes.AddFieldToExport;
+  type: typeof ExportActionTypes.AddFieldToExport;
   path: SchemaPath;
 };
 export const addFieldToExport = (path: SchemaPath) => ({
@@ -242,7 +247,7 @@ export const addFieldToExport = (path: SchemaPath) => ({
 });
 
 type ReadyToExportAction = {
-  type: ExportActionTypes.ReadyToExport;
+  type: typeof ExportActionTypes.ReadyToExport;
   selectedFieldOption?: 'all-fields';
 };
 
@@ -251,17 +256,17 @@ export const readyToExport = (): ReadyToExportAction => ({
 });
 
 type ExportFileErrorAction = {
-  type: ExportActionTypes.ExportFileError;
+  type: typeof ExportActionTypes.ExportFileError;
   errorMessage: string;
 };
 
 type RunExportAction = {
-  type: ExportActionTypes.RunExport;
+  type: typeof ExportActionTypes.RunExport;
   exportAbortController: AbortController;
 };
 
 type CancelExportAction = {
-  type: ExportActionTypes.CancelExport;
+  type: typeof ExportActionTypes.CancelExport;
 };
 
 export const cancelExport = (): CancelExportAction => ({
@@ -269,12 +274,12 @@ export const cancelExport = (): CancelExportAction => ({
 });
 
 type RunExportErrorAction = {
-  type: ExportActionTypes.RunExportError;
+  type: typeof ExportActionTypes.RunExportError;
   error: Error;
 };
 
 type RunExportSuccessAction = {
-  type: ExportActionTypes.RunExportSuccess;
+  type: typeof ExportActionTypes.RunExportSuccess;
   aborted: boolean;
 };
 
