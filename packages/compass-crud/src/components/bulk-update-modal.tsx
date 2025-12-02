@@ -404,7 +404,7 @@ export default function BulkUpdateModal({
       open={isOpen}
       setOpen={closeBulkUpdateModal}
       data-testid="bulk-update-modal"
-      contentClassName={enablePreview ? modalContentStyles : undefined}
+      className={enablePreview ? modalContentStyles : undefined}
       initialFocus={`#${bulkUpdateUpdateId} .cm-content`}
     >
       <ModalHeader title={modalTitleAndButtonText} subtitle={ns} />

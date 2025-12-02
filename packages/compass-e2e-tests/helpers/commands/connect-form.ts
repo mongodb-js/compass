@@ -13,13 +13,11 @@ import { getConnectionTitle } from '@mongodb-js/connection-info';
 const debug = Debug('compass-e2e-tests');
 
 export async function resetConnectForm(browser: CompassBrowser): Promise<void> {
-  if (await browser.$(Selectors.ConnectionModal).isDisplayed()) {
+  if (await browser.isModalOpen(Selectors.ConnectionModal)) {
     await browser.clickVisible(Selectors.ConnectionModalCloseButton);
-    await browser
-      .$(Selectors.ConnectionModal)
-      .waitForDisplayed({ reverse: true });
   }
 
+  await browser.waitForOpenModal(Selectors.ConnectionModal, { reverse: true });
   await browser.clickVisible(Selectors.SidebarNewConnectionButton);
 
   const connectionTitleSelector = Selectors.ConnectionModalTitle;
@@ -919,9 +917,7 @@ export async function saveConnection(
 ): Promise<void> {
   await browser.setConnectFormState(state);
   await browser.clickVisible(Selectors.ConnectionModalSaveButton);
-  await browser
-    .$(Selectors.ConnectionModal)
-    .waitForDisplayed({ reverse: true });
+  await browser.waitForOpenModal(Selectors.ConnectionModal, { reverse: true });
 }
 
 let screenshotCounter = 0;

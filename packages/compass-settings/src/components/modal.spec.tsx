@@ -56,9 +56,7 @@ describe('SettingsModal', function () {
 
   it('renders nothing until it is open and loaded', function () {
     renderSettingsModal({ isOpen: false });
-
-    const container = screen.queryByTestId('settings-modal');
-    expect(container).to.not.exist;
+    expect(screen.getByTestId('settings-modal')).to.be.closed;
   });
 
   it('modal footer actions', async function () {

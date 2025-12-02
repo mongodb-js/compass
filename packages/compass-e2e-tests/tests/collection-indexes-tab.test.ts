@@ -120,8 +120,7 @@ describe('Collection indexes tab', function () {
 
       await browser.clickVisible(Selectors.CreateIndexButton);
 
-      const createModal = browser.$(Selectors.CreateIndexModal);
-      await createModal.waitForDisplayed();
+      await browser.waitForOpenModal(Selectors.CreateIndexModal);
 
       // Select i filed name from Combobox.
       const fieldNameSelect = browser.$(
@@ -156,7 +155,9 @@ describe('Collection indexes tab', function () {
 
       await browser.clickVisible(Selectors.CreateIndexConfirmButton);
 
-      await createModal.waitForDisplayed({ reverse: true });
+      await browser.waitForOpenModal(Selectors.CreateIndexModal, {
+        reverse: true,
+      });
 
       const indexComponent = browser.$(Selectors.indexComponent('columnstore'));
       await indexComponent.waitForDisplayed();
@@ -168,8 +169,7 @@ describe('Collection indexes tab', function () {
         }`
       );
 
-      const dropModal = browser.$(Selectors.DropIndexModal);
-      await dropModal.waitForDisplayed();
+      await browser.waitForOpenModal(Selectors.DropIndexModal);
 
       await browser.setValueVisible(
         Selectors.DropIndexModalConfirmButton,
@@ -181,7 +181,9 @@ describe('Collection indexes tab', function () {
       );
       await browser.clickVisible(ConfirmButtonSelector);
 
-      await dropModal.waitForDisplayed({ reverse: true });
+      await browser.waitForOpenModal(Selectors.DropIndexModal, {
+        reverse: true,
+      });
 
       await indexComponent.waitForDisplayed({ reverse: true });
     });

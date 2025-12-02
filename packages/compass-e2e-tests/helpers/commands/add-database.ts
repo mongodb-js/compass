@@ -10,8 +10,7 @@ export async function addDatabase(
   collectionOptions?: AddCollectionOptions,
   screenshotPath?: string
 ): Promise<void> {
-  const createModalElement = browser.$(Selectors.CreateDatabaseModal);
-  await createModalElement.waitForDisplayed();
+  await browser.waitForOpenModal(Selectors.CreateDatabaseModal);
   await browser.setValueVisible(Selectors.CreateDatabaseDatabaseName, dbName);
   await browser.setValueVisible(
     Selectors.CreateDatabaseCollectionName,
@@ -25,5 +24,7 @@ export async function addDatabase(
   }
 
   await createButton.click();
-  await createModalElement.waitForDisplayed({ reverse: true });
+  await browser.waitForOpenModal(Selectors.CreateDatabaseModal, {
+    reverse: true,
+  });
 }
