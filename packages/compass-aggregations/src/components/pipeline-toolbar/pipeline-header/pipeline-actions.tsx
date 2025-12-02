@@ -17,7 +17,6 @@ import {
   getIsPipelineInvalidFromBuilderState,
   getPipelineStageOperatorsFromBuilderState,
 } from '../../../modules/pipeline-builder/builder-helpers';
-import { isOutputStage } from '../../../utils/stage';
 import { openCreateIndexModal } from '../../../modules/insights';
 import {
   useIsAIFeatureEnabled,
@@ -169,8 +168,6 @@ export const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
 
 const mapState = (state: RootState) => {
   const resultPipeline = getPipelineStageOperatorsFromBuilderState(state);
-  const lastStage = resultPipeline[resultPipeline.length - 1];
-  const isMergeOrOutPipeline = isOutputStage(lastStage);
   const hasSyntaxErrors = getIsPipelineInvalidFromBuilderState(state, false);
   const isBuilderView = state.workspace === 'builder';
   const isAIFetching = state.pipelineBuilder.aiPipeline.status === 'fetching';

@@ -12,7 +12,6 @@ import { spy } from 'sinon';
 import type { SinonSpy } from 'sinon';
 import ConnectedPipelineActions, { PipelineActions } from './pipeline-actions';
 import { renderWithStore } from '../../../../test/configure-store';
-import { changeStageDisabled } from '../../../modules/pipeline-builder/stage-editor';
 import {
   type PreferencesAccess,
   createSandboxFromDefaultPreferences,

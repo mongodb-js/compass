@@ -14,7 +14,11 @@ import { SaveMenu } from './pipeline-menus';
 import PipelineName from './pipeline-name';
 import PipelineExtraSettings from './pipeline-extra-settings';
 import type { RootState, PipelineBuilderThunkDispatch } from '../../../modules';
-import { getIsPipelineInvalidFromBuilderState } from '../../../modules/pipeline-builder/builder-helpers';
+import {
+  getIsPipelineInvalidFromBuilderState,
+  getPipelineStageOperatorsFromBuilderState,
+} from '../../../modules/pipeline-builder/builder-helpers';
+import { isOutputStage } from '../../../utils/stage';
 import { confirmNewPipeline } from '../../../modules/is-new-pipeline-confirm';
 import ModifySourceBanner from '../../modify-source-banner';
 import type { MenuAction } from '@mongodb-js/compass-components';
@@ -77,6 +81,7 @@ export const PipelineSettings: React.FunctionComponent<
   onCreateNewPipeline,
 }) => {
   const enableSavedAggregationsQueries = usePreference('enableMyQueries');
+  const enableImportExport = usePreference('enableImportExport');
   const isPipelineNameDisplayed =
     !editViewName && !!enableSavedAggregationsQueries;
 
@@ -98,7 +103,7 @@ export const PipelineSettings: React.FunctionComponent<
             Create new
           </Button>
         )}
-        {isExportDataEnabled && (
+        {enableImportExport && isExportDataEnabled && (
           <DropdownMenuButton<ExportDataOption>
             data-testid="pipeline-toolbar-export-data-button"
             actions={exportDataActions}
@@ -136,11 +141,16 @@ export const PipelineSettings: React.FunctionComponent<
 
 export default connect(
   (state: RootState) => {
+    const resultPipeline = getPipelineStageOperatorsFromBuilderState(state);
+    const lastStage = resultPipeline[resultPipeline.length - 1];
+    const isMergeOrOutPipeline = isOutputStage(lastStage);
     const hasSyntaxErrors = getIsPipelineInvalidFromBuilderState(state, false);
+    const isAIFetching = state.pipelineBuilder.aiPipeline.status === 'fetching';
     return {
       editViewName: state.editViewName ?? undefined,
-      isExportToLanguageEnabled: !hasSyntaxErrors,
-      isExportDataEnabled: !hasSyntaxErrors,
+      isExportToLanguageEnabled: !hasSyntaxErrors && !isAIFetching,
+      isExportDataEnabled:
+        !isMergeOrOutPipeline && !hasSyntaxErrors && !isAIFetching,
     };
   },
   {
