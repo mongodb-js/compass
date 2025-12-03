@@ -239,7 +239,6 @@ describe.only('Collection ai query with chatbot (with mocked backend)', function
     });
 
     it('makes request to the server and updates the query bar with the response', async function () {
-      await new Promise((resolve) => setTimeout(resolve, 10000));
       // Click the ai entry button.
       await browser.clickVisible(Selectors.GenAIEntryButton);
 
@@ -285,7 +284,7 @@ describe.only('Collection ai query with chatbot (with mocked backend)', function
     });
   });
 
-  describe.only('when the chatbot api request errors', function () {
+  describe('when the chatbot api request errors', function () {
     beforeEach(async function () {
       await setup(browser, dbName, collName);
       mockAssistantServer.setResponse({

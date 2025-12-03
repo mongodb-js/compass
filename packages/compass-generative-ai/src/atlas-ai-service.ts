@@ -15,7 +15,6 @@ import { optIntoGenAIWithModalPrompt } from './store/atlas-optin-reducer';
 import {
   AtlasAiServiceInvalidInputError,
   AtlasAiServiceApiResponseParseError,
-  AtlasAiServiceGenAiResponseError,
 } from './atlas-ai-errors';
 import { createOpenAI } from '@ai-sdk/openai';
 import {
@@ -27,6 +26,7 @@ import {
   buildFindQueryPrompt,
 } from './utils/gen-ai-prompt';
 import { parseXmlToMmsJsonResponse } from './utils/xml-to-mms-response';
+import { AiChatbotInvalidResponseError } from './chatbot-errors';
 
 type GenerativeAiInput = {
   userInput: string;
@@ -620,7 +620,7 @@ export class AtlasAiService {
         chunks.push(value.delta);
       }
       if (value.type === 'error') {
-        throw new AtlasAiServiceGenAiResponseError(value.errorText);
+        throw new AiChatbotInvalidResponseError(value.errorText);
       }
     }
 
