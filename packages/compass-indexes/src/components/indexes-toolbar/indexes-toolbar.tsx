@@ -28,6 +28,7 @@ import { indexViewChanged } from '../../modules/index-view';
 import type { CollectionStats } from '../../modules/collection-stats';
 import type { Document } from 'mongodb';
 import { VIEW_PIPELINE_UTILS } from '@mongodb-js/mongodb-constants';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 
 const toolbarButtonsContainer = css({
   display: 'flex',
@@ -321,6 +322,8 @@ export const CreateIndexButton: React.FunctionComponent<
   indexView,
   isViewPipelineSearchQueryable,
 }) => {
+  const track = useTelemetry();
+
   const onActionDispatch = useCallback(
     (action: CreateIndexActions) => {
       switch (action) {
@@ -338,7 +341,12 @@ export const CreateIndexButton: React.FunctionComponent<
       return (
         <Button
           disabled={!isWritable || !isViewPipelineSearchQueryable}
-          onClick={onCreateSearchIndexClick}
+          onClick={() => {
+            onCreateSearchIndexClick();
+            track('Create Search Index for View Clicked', {
+              context: 'Indexes Tab',
+            });
+          }}
           variant="primary"
           size="small"
         >
