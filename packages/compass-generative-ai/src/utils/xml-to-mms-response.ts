@@ -9,10 +9,11 @@ export function parseXmlToMmsJsonResponse(xmlString: string, logger: Logger) {
     'skip',
     'limit',
     'aggregation',
-  ];
+  ] as const;
 
   // Currently the prompt forces LLM to return xml-styled data
-  const result: any = {};
+  const result: Partial<Record<(typeof expectedTags)[number], string | null>> =
+    {};
   for (const tag of expectedTags) {
     const regex = new RegExp(`<${tag}>([\\s\\S]*?)<\\/${tag}>`, 'i');
     const match = xmlString.match(regex);
@@ -27,7 +28,7 @@ export function parseXmlToMmsJsonResponse(xmlString: string, logger: Logger) {
           result[tag] = null;
         } else {
           // No indentation
-          result[tag] = toJSString(tagValue, 0);
+          result[tag] = toJSString(tagValue, 0) ?? null;
         }
       } catch (e) {
         logger.log.warn(

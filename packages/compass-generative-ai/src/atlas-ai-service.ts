@@ -291,16 +291,17 @@ export class AtlasAiService {
     this.logger = logger;
     this.initPromise = this.setupAIAccess();
 
-    const initialBaseUrl = 'http://PLACEHOLDER_BASE_URL_TO_BE_REPLACED.invalid';
+    const PLACEHOLDER_BASE_URL =
+      'http://PLACEHOLDER_BASE_URL_TO_BE_REPLACED.invalid';
     this.aiModel = createOpenAI({
       apiKey: '',
-      baseURL: initialBaseUrl,
+      baseURL: PLACEHOLDER_BASE_URL,
       fetch: (url, init) => {
         // The `baseUrl` can be dynamically changed, but `createOpenAI`
         // doesn't allow us to change it after initial call. Instead
         // we're going to update it every time the fetch call happens
         const uri = String(url).replace(
-          initialBaseUrl,
+          PLACEHOLDER_BASE_URL,
           this.atlasService.assistantApiEndpoint()
         );
         return this.atlasService.authenticatedFetch(uri, init);
