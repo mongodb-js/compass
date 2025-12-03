@@ -6,7 +6,7 @@
 > the tracking plan for the specific Compass version you can use the following
 > URL: `https://github.com/mongodb-js/compass/blob/<compass version>/docs/tracking-plan.md`
 
-Generated on Sun, Nov 30, 2025
+Generated on Wed, Dec 3, 2025
 
 ## Table of Contents
 
@@ -165,6 +165,8 @@ Generated on Sun, Nov 30, 2025
 
 ### Indexes
 
+- [Atlas Search Indexes for View Link Clicked](#event--AtlasSearchIndexesForViewLinkClickedEvent)
+- [Create Search Index for View Clicked](#event--CreateSearchIndexForViewClickedEvent)
 - [Index Created](#event--IndexCreatedEvent)
 - [Index Create Failed](#event--IndexCreateFailedEvent)
 - [Index Create Opened](#event--IndexCreateOpenedEvent)
@@ -1875,6 +1877,30 @@ This event is fired when user opens the import dialog.
 
 ## Indexes
 
+<a name="event--AtlasSearchIndexesForViewLinkClickedEvent"></a>
+
+### Atlas Search Indexes for View Link Clicked
+
+This event is fired when a user clicks the link to Atlas Search in the Indexes tab for a view.
+
+**Properties**:
+
+- **context** (required): `"Indexes Tab"`
+  - The context/screen from which the link was clicked.
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--CreateSearchIndexForViewClickedEvent"></a>
+
+### Create Search Index for View Clicked
+
+This event is fired when a user clicks the button to create a search index for a view.
+
+**Properties**:
+
+- **context** (required): `"Indexes Tab"`
+  - The context/screen from which the link was clicked.
+- **is_compass_web** (optional): `true | undefined`
+
 <a name="event--IndexCreatedEvent"></a>
 
 ### Index Created
@@ -2193,7 +2219,7 @@ This event is fired when a user clicks the Atlas Skills CTA banner.
 
 **Properties**:
 
-- **context** (required): `"Documents Tab" | "Aggregation Tab" | "Indexes Tab" | "Schema Tab"`
+- **context** (required): `"Indexes Tab" | "Documents Tab" | "Aggregation Tab" | "Schema Tab"`
   - The context/screen from which the Atlas Skills CTA was dismissed.
 - **is_compass_web** (optional): `true | undefined`
 
@@ -2205,7 +2231,7 @@ This event is fired when a user dismisses the Atlas Skills CTA banner.
 
 **Properties**:
 
-- **context** (required): `"Documents Tab" | "Aggregation Tab" | "Indexes Tab" | "Schema Tab"`
+- **context** (required): `"Indexes Tab" | "Documents Tab" | "Aggregation Tab" | "Schema Tab"`
   - The context/screen from which the Atlas Skills CTA was dismissed.
 - **is_compass_web** (optional): `true | undefined`
 

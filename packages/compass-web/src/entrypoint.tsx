@@ -22,7 +22,12 @@ import {
   DropNamespacePlugin,
   RenameCollectionPlugin,
 } from '@mongodb-js/compass-databases-collections';
-import { CompassComponentsProvider, css } from '@mongodb-js/compass-components';
+import {
+  CompassComponentsProvider,
+  css,
+  useCurrentValueRef,
+  useInitialValue,
+} from '@mongodb-js/compass-components';
 import {
   CollectionTabsProvider,
   WorkspaceTab as CollectionWorkspace,
@@ -486,7 +491,7 @@ const CompassWeb = ({
   projectId,
   darkMode,
   initialAutoconnectId,
-  initialWorkspace,
+  initialWorkspace: _initialWorkspace,
   onActiveWorkspaceTabChange,
   initialPreferences,
   atlasCloudFeatureFlags,
@@ -497,7 +502,7 @@ const CompassWeb = ({
   onFailToLoadConnections,
   onBeforeUnloadCallbackRequest,
 }: CompassWebProps) => {
-  const appRegistry = useRef(new AppRegistry());
+  const appRegistry = useInitialValue(new AppRegistry());
   const logger = useCompassWebLogger({
     onLog,
     onDebug,
@@ -507,20 +512,19 @@ const CompassWeb = ({
     atlasCloudFeatureFlags
   );
   // TODO (COMPASS-9565): My Queries feature flag will be used to conditionally provide storage providers
-  const initialWorkspaceRef = useRef(initialWorkspace);
-  const initialWorkspaceTabsRef = useRef(
-    initialWorkspaceRef.current ? [initialWorkspaceRef.current] : []
+  const initialWorkspace = useInitialValue(_initialWorkspace);
+  const initialWorkspaceTabs = useInitialValue(() =>
+    initialWorkspace ? [initialWorkspace] : []
   );
 
   const autoconnectId =
-    initialWorkspaceRef.current && 'connectionId' in initialWorkspaceRef.current
-      ? initialWorkspaceRef.current.connectionId
+    initialWorkspace && 'connectionId' in initialWorkspace
+      ? initialWorkspace.connectionId
       : initialAutoconnectId ?? undefined;
 
-  const onTrackRef = useRef(onTrack);
-  onTrackRef.current = onTrack;
+  const onTrackRef = useCurrentValueRef(onTrack);
 
-  const telemetryOptions = useRef<TelemetryServiceOptions>({
+  const telemetryOptions = useInitialValue<TelemetryServiceOptions>({
     sendTrack: (event: string, properties: Record<string, any> | undefined) => {
       void onTrackRef.current?.(event, properties || {});
     },
@@ -529,11 +533,11 @@ const CompassWeb = ({
   });
 
   return (
-    <GlobalAppRegistryProvider value={appRegistry.current}>
+    <GlobalAppRegistryProvider value={appRegistry}>
       <AppRegistryProvider scopeName="Compass Web Root">
         <PreferencesProvider value={preferencesAccess.current}>
           <LoggerProvider value={logger}>
-            <TelemetryProvider options={telemetryOptions.current}>
+            <TelemetryProvider options={telemetryOptions}>
               <CompassComponentsProviderWeb darkMode={darkMode}>
                 <WithAtlasProviders>
                   <WithStorageProviders orgId={orgId} projectId={projectId}>
@@ -586,9 +590,7 @@ const CompassWeb = ({
                               <FieldStorePlugin>
                                 <WithConnectionsStore>
                                   <CompassWorkspace
-                                    initialWorkspaceTabs={
-                                      initialWorkspaceTabsRef.current
-                                    }
+                                    initialWorkspaceTabs={initialWorkspaceTabs}
                                     onActiveWorkspaceTabChange={
                                       onActiveWorkspaceTabChange
                                     }

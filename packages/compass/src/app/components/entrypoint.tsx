@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React from 'react';
 import { AppRegistryProvider } from '@mongodb-js/compass-app-registry';
 import { defaultPreferencesInstance } from 'compass-preferences-model';
 import { PreferencesProvider } from 'compass-preferences-model/provider';
@@ -32,20 +32,21 @@ import {
 } from '@mongodb-js/compass-telemetry';
 import { DataModelStorageServiceProviderElectron } from '@mongodb-js/compass-data-modeling/renderer';
 import { WorkspacesStorageServiceProviderDesktop } from '@mongodb-js/compass-workspaces';
+import { useInitialValue } from '@mongodb-js/compass-components';
 
 const WithPreferencesAndLoggerProviders: React.FC = ({ children }) => {
-  const loggerProviderValue = useRef({
+  const loggerProviderValue = useInitialValue({
     createLogger,
   });
-  const preferencesProviderValue = useRef(defaultPreferencesInstance);
-  const telemetryOptions = useRef<TelemetryServiceOptions>({
+  const preferencesProviderValue = useInitialValue(defaultPreferencesInstance);
+  const telemetryOptions = useInitialValue<TelemetryServiceOptions>({
     sendTrack: createIpcSendTrack(),
     preferences: defaultPreferencesInstance,
   });
   return (
-    <PreferencesProvider value={preferencesProviderValue.current}>
-      <LoggerProvider value={loggerProviderValue.current}>
-        <TelemetryProvider options={telemetryOptions.current}>
+    <PreferencesProvider value={preferencesProviderValue}>
+      <LoggerProvider value={loggerProviderValue}>
+        <TelemetryProvider options={telemetryOptions}>
           {children}
         </TelemetryProvider>
       </LoggerProvider>
@@ -54,9 +55,9 @@ const WithPreferencesAndLoggerProviders: React.FC = ({ children }) => {
 };
 
 export const WithAtlasProviders: React.FC = ({ children }) => {
-  const authService = useRef(new CompassAtlasAuthService());
+  const authService = useInitialValue(() => new CompassAtlasAuthService());
   return (
-    <AtlasAuthServiceProvider value={authService.current}>
+    <AtlasAuthServiceProvider value={authService}>
       <AtlasServiceProvider
         options={{
           defaultHeaders: {
@@ -74,28 +75,28 @@ export const WithAtlasProviders: React.FC = ({ children }) => {
 };
 
 export const WithStorageProviders: React.FC = ({ children }) => {
-  const pipelineStorage = useRef<PipelineStorageAccess>({
+  const pipelineStorage = useInitialValue<PipelineStorageAccess>({
     getStorage(options) {
       return createElectronPipelineStorage({ basepath: options?.basePath });
     },
   });
-  const favoriteQueryStorage = useRef<FavoriteQueryStorageAccess>({
+  const favoriteQueryStorage = useInitialValue<FavoriteQueryStorageAccess>({
     getStorage(options) {
       return createElectronFavoriteQueryStorage({
         basepath: options?.basepath,
       });
     },
   });
-  const recentQueryStorage = useRef<RecentQueryStorageAccess>({
+  const recentQueryStorage = useInitialValue<RecentQueryStorageAccess>({
     getStorage(options) {
       return createElectronRecentQueryStorage({ basepath: options?.basepath });
     },
   });
 
   return (
-    <PipelineStorageProvider value={pipelineStorage.current}>
-      <FavoriteQueryStorageProvider value={favoriteQueryStorage.current}>
-        <RecentQueryStorageProvider value={recentQueryStorage.current}>
+    <PipelineStorageProvider value={pipelineStorage}>
+      <FavoriteQueryStorageProvider value={favoriteQueryStorage}>
+        <RecentQueryStorageProvider value={recentQueryStorage}>
           <WorkspacesStorageServiceProviderDesktop>
             <DataModelStorageServiceProviderElectron>
               {children}

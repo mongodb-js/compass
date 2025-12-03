@@ -280,6 +280,8 @@ export const VirtualGrid = forwardRef<
     });
 
   const gridContainerProps = mergeProps(
+    // Ref is passed down and not used for "rendering"
+    // eslint-disable-next-line react-hooks/refs
     { ref, className: cx(container, classNames?.container) },
     containerProps,
     rectProps

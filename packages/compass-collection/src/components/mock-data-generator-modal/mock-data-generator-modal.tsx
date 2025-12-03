@@ -13,7 +13,11 @@ import {
   spacing,
 } from '@mongodb-js/compass-components';
 
-import { type MockDataGeneratorState, MockDataGeneratorStep } from './types';
+import {
+  type MockDataGeneratorState,
+  type MockDataGeneratorStep,
+  MockDataGeneratorSteps,
+} from './types';
 import {
   MOCK_DATA_GENERATOR_STEP_TO_NEXT_STEP_MAP,
   StepButtonLabelMap,
@@ -91,22 +95,22 @@ const MockDataGeneratorModal = ({
 
   const modalBodyContent = useMemo(() => {
     switch (currentStep) {
-      case MockDataGeneratorStep.SCHEMA_CONFIRMATION:
+      case MockDataGeneratorSteps.SCHEMA_CONFIRMATION:
         return <RawSchemaConfirmationScreen />;
-      case MockDataGeneratorStep.SCHEMA_EDITOR:
+      case MockDataGeneratorSteps.SCHEMA_EDITOR:
         return (
           <FakerSchemaEditorScreen
             fakerSchemaGenerationState={fakerSchemaGenerationState}
           />
         );
-      case MockDataGeneratorStep.DOCUMENT_COUNT:
+      case MockDataGeneratorSteps.DOCUMENT_COUNT:
         return (
           <DocumentCountScreen
             documentCount={documentCount}
             onDocumentCountChange={onDocumentCountChange}
           />
         );
-      case MockDataGeneratorStep.PREVIEW_DATA:
+      case MockDataGeneratorSteps.PREVIEW_DATA:
         return (
           <PreviewScreen
             confirmedFakerSchema={
@@ -116,7 +120,7 @@ const MockDataGeneratorModal = ({
             }
           />
         );
-      case MockDataGeneratorStep.GENERATE_DATA:
+      case MockDataGeneratorSteps.GENERATE_DATA:
         return <ScriptScreen />;
     }
   }, [
@@ -140,9 +144,9 @@ const MockDataGeneratorModal = ({
   const isDocumentCountInvalid = !validateDocumentCount(documentCount).isValid;
 
   const isNextButtonDisabled =
-    (currentStep === MockDataGeneratorStep.SCHEMA_EDITOR &&
+    (currentStep === MockDataGeneratorSteps.SCHEMA_EDITOR &&
       fakerSchemaGenerationState.status !== 'completed') ||
-    (currentStep === MockDataGeneratorStep.DOCUMENT_COUNT &&
+    (currentStep === MockDataGeneratorSteps.DOCUMENT_COUNT &&
       isDocumentCountInvalid);
 
   const handleNextClick = useCallback(() => {
@@ -152,9 +156,9 @@ const MockDataGeneratorModal = ({
       to_screen: nextStep,
     });
 
-    if (currentStep === MockDataGeneratorStep.GENERATE_DATA) {
+    if (currentStep === MockDataGeneratorSteps.GENERATE_DATA) {
       onClose();
-    } else if (currentStep === MockDataGeneratorStep.SCHEMA_CONFIRMATION) {
+    } else if (currentStep === MockDataGeneratorSteps.SCHEMA_CONFIRMATION) {
       void onConfirmSchema();
     } else {
       onNextStep();
@@ -162,7 +166,7 @@ const MockDataGeneratorModal = ({
   }, [currentStep, onConfirmSchema, onNextStep, onClose, track]);
 
   const shouldShowNamespace =
-    currentStep !== MockDataGeneratorStep.GENERATE_DATA;
+    currentStep !== MockDataGeneratorSteps.GENERATE_DATA;
 
   const onModalClose = useCallback(() => {
     track('Mock Data Generator Dismissed', {
@@ -202,7 +206,7 @@ const MockDataGeneratorModal = ({
       <ModalFooter className={footerStyles}>
         <Button
           onClick={onPreviousStep}
-          disabled={currentStep === MockDataGeneratorStep.SCHEMA_CONFIRMATION}
+          disabled={currentStep === MockDataGeneratorSteps.SCHEMA_CONFIRMATION}
         >
           Back
         </Button>

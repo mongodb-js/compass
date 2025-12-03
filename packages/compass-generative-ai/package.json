@@ -87,6 +87,7 @@
     "depcheck": "^1.4.1",
     "electron-mocha": "^12.2.0",
     "mocha": "^10.2.0",
+    "mongodb-query-parser": "^4.5.0",
     "nyc": "^15.1.0",
     "p-queue": "^7.4.1",
     "sinon": "^9.2.3",

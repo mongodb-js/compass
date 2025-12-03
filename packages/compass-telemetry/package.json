@@ -50,11 +50,12 @@
     "reformat": "npm run eslint . -- --fix && npm run prettier -- --write ."
   },
   "dependencies": {
-    "@mongodb-js/compass-logging": "^1.7.25",
     "@mongodb-js/compass-app-registry": "^9.4.29",
+    "@mongodb-js/compass-components": "^1.59.0",
+    "@mongodb-js/compass-logging": "^1.7.25",
+    "@mongodb-js/mdb-experiment-js": "1.9.0",
     "hadron-ipc": "^3.5.22",
-    "react": "^17.0.2",
-    "@mongodb-js/mdb-experiment-js": "1.9.0"
+    "react": "^17.0.2"
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-compass": "^1.4.12",

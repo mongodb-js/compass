@@ -1,7 +1,10 @@
+import { toJSString } from 'mongodb-query-parser';
+
 // When including sample documents, we want to ensure that we do not
 // attach large documents and exceed the limit. OpenAI roughly estimates
 // 4 characters = 1 token and we should not exceed context window limits.
 // This roughly translates to 128k tokens.
+// TODO(COMPASS-10129): Adjust this limit based on the model's context window.
 const MAX_TOTAL_PROMPT_LENGTH = 512000;
 const MIN_SAMPLE_DOCUMENTS = 1;
 
@@ -55,16 +58,25 @@ function buildInstructionsForAggregateQuery() {
 }
 
 export type UserPromptForQueryOptions = {
-  userInput: string;
+  userPrompt: string;
   databaseName?: string;
   collectionName?: string;
   schema?: unknown;
   sampleDocuments?: unknown[];
 };
 
+function withCodeFence(code: string): string {
+  return [
+    '', // Line break
+    '```',
+    code,
+    '```',
+  ].join('\n');
+}
+
 function buildUserPromptForQuery({
   type,
-  userInput,
+  userPrompt,
   databaseName,
   collectionName,
   schema,
@@ -75,7 +87,7 @@ function buildUserPromptForQuery({
   const queryPrompt = [
     type === 'find' ? 'Write a query' : 'Generate an aggregation',
     'that does the following:',
-    `"${userInput}"`,
+    `"${userPrompt}"`,
   ].join(' ');
 
   if (databaseName) {
@@ -86,9 +98,9 @@ function buildUserPromptForQuery({
   }
   if (schema) {
     messages.push(
-      'Schema from a sample of documents from the collection: ```' +
-        JSON.stringify(schema) +
-        '```'
+      `Schema from a sample of documents from the collection:${withCodeFence(
+        toJSString(schema)!
+      )}`
     );
   }
   if (sampleDocuments) {
@@ -96,25 +108,31 @@ function buildUserPromptForQuery({
     // exceed the token limit. So we try following:
     // 1. If attaching all the sample documents exceeds then limit, we attach only 1 document.
     // 2. If attaching 1 document still exceeds the limit, we do not attach any sample documents.
-    const sampleDocumentsStr = JSON.stringify(sampleDocuments);
-    const singleDocumentStr = JSON.stringify(
+    const sampleDocumentsStr = toJSString(sampleDocuments);
+    const singleDocumentStr = toJSString(
       sampleDocuments.slice(0, MIN_SAMPLE_DOCUMENTS)
     );
     const promptLengthWithoutSampleDocs =
       messages.join('\n').length + queryPrompt.length;
     if (
+      sampleDocumentsStr &&
       sampleDocumentsStr.length + promptLengthWithoutSampleDocs <=
-      MAX_TOTAL_PROMPT_LENGTH
+        MAX_TOTAL_PROMPT_LENGTH
     ) {
       messages.push(
-        'Sample documents from the collection: ```' + sampleDocumentsStr + '```'
+        `Sample documents from the collection:${withCodeFence(
+          sampleDocumentsStr
+        )}`
       );
     } else if (
+      singleDocumentStr &&
       singleDocumentStr.length + promptLengthWithoutSampleDocs <=
-      MAX_TOTAL_PROMPT_LENGTH
+        MAX_TOTAL_PROMPT_LENGTH
     ) {
       messages.push(
-        'Sample document from the collection: ```' + singleDocumentStr + '```'
+        `Sample document from the collection:${withCodeFence(
+          singleDocumentStr
+        )}`
       );
     }
   }
@@ -129,12 +147,20 @@ export type AiQueryPrompt = {
   };
 };
 
-export function buildFindQueryPrompt(
-  options: UserPromptForQueryOptions
-): AiQueryPrompt {
+export function buildFindQueryPrompt({
+  userPrompt,
+  databaseName,
+  collectionName,
+  schema,
+  sampleDocuments,
+}: UserPromptForQueryOptions): AiQueryPrompt {
   const prompt = buildUserPromptForQuery({
     type: 'find',
-    ...options,
+    userPrompt,
+    databaseName,
+    collectionName,
+    schema,
+    sampleDocuments,
   });
   const instructions = buildInstructionsForFindQuery();
   return {
@@ -145,12 +171,20 @@ export function buildFindQueryPrompt(
   };
 }
 
-export function buildAggregateQueryPrompt(
-  options: UserPromptForQueryOptions
-): AiQueryPrompt {
+export function buildAggregateQueryPrompt({
+  userPrompt,
+  databaseName,
+  collectionName,
+  schema,
+  sampleDocuments,
+}: UserPromptForQueryOptions): AiQueryPrompt {
   const prompt = buildUserPromptForQuery({
     type: 'aggregate',
-    ...options,
+    userPrompt,
+    databaseName,
+    collectionName,
+    schema,
+    sampleDocuments,
   });
   const instructions = buildInstructionsForAggregateQuery();
   return {

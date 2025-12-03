@@ -14,7 +14,7 @@ export async function resizeWindow(
   height: number,
   dangerouslySkipWaitFor?: boolean
 ): Promise<WindowSize> {
-  let newSize: WindowSize | undefined | void;
+  let newSize: WindowSize | undefined;
   // On macOS you can only change height as much as the system allows, so when
   // on macOS, skip checking for the height matching what we requested. That's
   // not great that we can't be sure that we got what we requested, but there's

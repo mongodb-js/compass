@@ -3,6 +3,7 @@
   "compilerOptions": {
     "removeComments": false,
     "moduleResolution": "node16",
-    "module": "node16"
+    "module": "node16",
+    "erasableSyntaxOnly": true
   }
 }

@@ -7,12 +7,12 @@ import type { RestorePipelineAction } from './saved-pipeline';
 import { RESTORE_PIPELINE } from './saved-pipeline';
 import { isAction } from '../utils/is-action';
 
-export enum ActionTypes {
-  AutoPreviewToggled = 'compass-aggregations/autoPreviewToggled',
-}
+export const ActionTypes = {
+  AutoPreviewToggled: 'compass-aggregations/autoPreviewToggled',
+} as const;
 
 export type AutoPreviewToggledAction = {
-  type: ActionTypes.AutoPreviewToggled;
+  type: typeof ActionTypes.AutoPreviewToggled;
   value: boolean;
 };
 export type AutoPreviewAction = AutoPreviewToggledAction;

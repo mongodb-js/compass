@@ -24,24 +24,27 @@ type ShellPluginThunkAction<R, A extends AnyAction = AnyAction> = ThunkAction<
   A
 >;
 
-enum ActionTypes {
-  RuntimeCreated = 'compass-shell/RuntimeCreated',
-  RuntimeDestroyed = 'compass-shell/RuntimeDestroyed',
-  HistoryLoaded = 'compass-shell/HistoryLoaded',
-  HistorySaved = 'compass-shell/HistorySaved',
-}
+const ActionTypes = {
+  RuntimeCreated: 'compass-shell/RuntimeCreated',
+  RuntimeDestroyed: 'compass-shell/RuntimeDestroyed',
+  HistoryLoaded: 'compass-shell/HistoryLoaded',
+  HistorySaved: 'compass-shell/HistorySaved',
+} as const;
 
-type RuntimeCreatedAction = { type: ActionTypes.RuntimeCreated; id: string };
+type RuntimeCreatedAction = {
+  type: typeof ActionTypes.RuntimeCreated;
+  id: string;
+};
 
-type RuntimeDestroyedAction = { type: ActionTypes.RuntimeDestroyed };
+type RuntimeDestroyedAction = { type: typeof ActionTypes.RuntimeDestroyed };
 
 type HistoryLoadedAction = {
-  type: ActionTypes.HistoryLoaded;
+  type: typeof ActionTypes.HistoryLoaded;
   history: string[];
 };
 
 type HistorySavedAction = {
-  type: ActionTypes.HistorySaved;
+  type: typeof ActionTypes.HistorySaved;
   history: string[];
 };
 
