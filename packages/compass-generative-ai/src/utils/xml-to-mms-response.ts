@@ -32,7 +32,7 @@ export function parseXmlToMmsJsonResponse(xmlString: string, logger: Logger) {
         }
       } catch (e) {
         logger.log.warn(
-          logger.mongoLogId(1_001_000_309),
+          logger.mongoLogId(1_001_000_384),
           'AtlasAiService',
           `Failed to parse value for tag <${tag}>: ${value}`,
           { error: e }
