@@ -216,7 +216,7 @@ describe('BSONValue', function () {
       );
 
       expect(container.querySelector('.element-value')?.textContent).to.eq(
-        'LegacyPythonUUID("0123456789abcdef0123456789abcdef")'
+        'LegacyPythonUUID("01234567-89ab-cdef-0123-456789abcdef")'
       );
     });
 
