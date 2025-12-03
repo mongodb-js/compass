@@ -1,8 +1,7 @@
-// @ts-expect-error TODO(COMPASS-10124): replace enums with const kv objects
-export enum FetchReasons {
-  INITIAL_FETCH = 'INITIAL_FETCH',
-  REFRESH = 'REFRESH',
-  POLL = 'POLL',
-}
+export const FetchReasons = {
+  INITIAL_FETCH: 'INITIAL_FETCH',
+  REFRESH: 'REFRESH',
+  POLL: 'POLL',
+} as const;
 
-export type FetchReason = keyof typeof FetchReasons;
+export type FetchReason = (typeof FetchReasons)[keyof typeof FetchReasons];

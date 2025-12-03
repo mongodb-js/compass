@@ -10,7 +10,7 @@ import {
   WorkspacesServiceProvider,
   type WorkspacesService,
 } from '@mongodb-js/compass-workspaces/provider';
-import { ExperimentTestName } from '@mongodb-js/compass-telemetry/provider';
+import { ExperimentTestNames } from '@mongodb-js/compass-telemetry/provider';
 import { CompassExperimentationProvider } from '@mongodb-js/compass-telemetry';
 import type { ConnectionInfo } from '@mongodb-js/compass-connections/provider';
 
@@ -233,7 +233,7 @@ describe('CollectionHeaderActions [Component]', function () {
       );
 
       expect(mockUseAssignment).to.have.been.calledWith(
-        ExperimentTestName.mockDataGenerator,
+        ExperimentTestNames.mockDataGenerator,
         true // trackIsInSample - Experiment viewed analytics event
       );
     });
@@ -245,7 +245,7 @@ describe('CollectionHeaderActions [Component]', function () {
       });
 
       expect(mockUseAssignment).to.have.been.calledWith(
-        ExperimentTestName.mockDataGenerator,
+        ExperimentTestNames.mockDataGenerator,
         false // Not eligible - no Atlas metadata
       );
     });
@@ -261,7 +261,7 @@ describe('CollectionHeaderActions [Component]', function () {
       );
 
       expect(mockUseAssignment).to.have.been.calledWith(
-        ExperimentTestName.mockDataGenerator,
+        ExperimentTestNames.mockDataGenerator,
         false // Not eligible - readonly collection
       );
     });

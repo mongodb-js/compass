@@ -3,13 +3,12 @@ import { type PipelineBuilderThunkAction } from '.';
 import { getPipelineFromBuilderState } from './pipeline-builder/builder-helpers';
 import type { AnyAction } from 'redux';
 
-// @ts-expect-error TODO(COMPASS-10124): replace enums with const kv objects
-enum ActionTypes {
-  SidePanelToggled = 'compass-aggregations/sidePanelToggled',
-}
+const ActionTypes = {
+  SidePanelToggled: 'compass-aggregations/sidePanelToggled',
+} as const;
 
 type SidePanelToggledAction = {
-  type: ActionTypes.SidePanelToggled;
+  type: typeof ActionTypes.SidePanelToggled;
 };
 export type SidePanelAction = SidePanelToggledAction;
 

@@ -12,27 +12,26 @@ export type CollectionInfo = Pick<Collection, 'name' | 'type'>;
 
 type CollectionType = CollectionInfo['type'];
 
-// @ts-expect-error TODO(COMPASS-10124): replace enums with const kv objects
-export enum ActionTypes {
-  CollectionsFetch = 'compass-aggregations/collectionsFetched',
-  CollectionFieldsFetched = 'compass-aggregations/collectionFieldsFetched',
-  CollectionDataUpdated = 'compass-aggregations/collectionDataUpdated',
-}
+export const ActionTypes = {
+  CollectionsFetch: 'compass-aggregations/collectionsFetched',
+  CollectionFieldsFetched: 'compass-aggregations/collectionFieldsFetched',
+  CollectionDataUpdated: 'compass-aggregations/collectionDataUpdated',
+} as const;
 
 type CollectionsFetchedAction = {
-  type: ActionTypes.CollectionsFetch;
+  type: typeof ActionTypes.CollectionsFetch;
   data: State;
 };
 
 type CollectionFieldsFetchedAction = {
-  type: ActionTypes.CollectionFieldsFetched;
+  type: typeof ActionTypes.CollectionFieldsFetched;
   collection: string;
   fields: string[];
   collectionType: CollectionType;
 };
 
 type CollectionDataUpdatedAction = {
-  type: ActionTypes.CollectionDataUpdated;
+  type: typeof ActionTypes.CollectionDataUpdated;
   collection: string;
   data: CollectionData;
 };

@@ -5,23 +5,22 @@ import type { AnyAction } from 'redux';
 import { isAction } from '../utils/is-action';
 import { DEFAULT_MAX_TIME_MS } from '../constants';
 
-// @ts-expect-error TODO(COMPASS-10124): replace enums with const kv objects
-export enum ActionTypes {
-  CollapseToggled = 'aggregations/input-documents/CollapseToggled',
-  DocumentsFetchStarted = 'aggregations/input-documents/DocumentsFetchStarted',
-  DocumentsFetchFinished = 'aggregations/input-documents/DocumentsFetchFinished',
-}
+export const ActionTypes = {
+  CollapseToggled: 'aggregations/input-documents/CollapseToggled',
+  DocumentsFetchStarted: 'aggregations/input-documents/DocumentsFetchStarted',
+  DocumentsFetchFinished: 'aggregations/input-documents/DocumentsFetchFinished',
+} as const;
 
 type CollapseToggledAction = {
-  type: ActionTypes.CollapseToggled;
+  type: typeof ActionTypes.CollapseToggled;
 };
 
 type DocumentsFetchStartedAction = {
-  type: ActionTypes.DocumentsFetchStarted;
+  type: typeof ActionTypes.DocumentsFetchStarted;
 };
 
 type DocumentsFetchFinishedAction = {
-  type: ActionTypes.DocumentsFetchFinished;
+  type: typeof ActionTypes.DocumentsFetchFinished;
   documents: HadronDocument[];
   error: Error | null;
 };

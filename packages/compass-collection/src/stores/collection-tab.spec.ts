@@ -15,6 +15,10 @@ import type { connectionInfoRefLocator } from '@mongodb-js/compass-connections/p
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import { ReadOnlyPreferenceAccess } from 'compass-preferences-model/provider';
 import {
+  ExperimentTestNames,
+  ExperimentTestGroups,
+} from '@mongodb-js/compass-telemetry/provider';
+import type {
   ExperimentTestName,
   ExperimentTestGroup,
 } from '@mongodb-js/compass-telemetry/provider';
@@ -40,7 +44,7 @@ const createMockAssignment = (
     testGroupId: 'test-group-id',
     entityId: 'test-user-id',
     testId: 'test-id',
-    testName: ExperimentTestName.mockDataGenerator,
+    testName: ExperimentTestNames.mockDataGenerator,
     testGroupDatabaseId: 'test-group-db-id',
     meta: { isLaunchedExperiment: true },
   },
@@ -196,7 +200,7 @@ describe('Collection Tab Content store', function () {
 
       await waitFor(() => {
         expect(assignExperiment).to.have.been.calledOnceWith(
-          ExperimentTestName.mockDataGenerator,
+          ExperimentTestNames.mockDataGenerator,
           {
             team: 'Atlas Growth',
           }
@@ -324,7 +328,7 @@ describe('Collection Tab Content store', function () {
     it('should start schema analysis if collection is not read-only and not time-series', async function () {
       const getAssignment = sandbox.spy(() =>
         Promise.resolve(
-          createMockAssignment(ExperimentTestGroup.mockDataGeneratorVariant)
+          createMockAssignment(ExperimentTestGroups.mockDataGeneratorVariant)
         )
       );
       const assignExperiment = sandbox.spy(() => Promise.resolve(null));
@@ -390,7 +394,7 @@ describe('Collection Tab Content store', function () {
 
       await waitFor(() => {
         expect(getAssignment).to.have.been.calledOnceWith(
-          ExperimentTestName.mockDataGenerator,
+          ExperimentTestNames.mockDataGenerator,
           false
         );
       });
@@ -403,7 +407,7 @@ describe('Collection Tab Content store', function () {
     it('should start schema analysis in Atlas when user is in treatment variant', async function () {
       const getAssignment = sandbox.spy(() =>
         Promise.resolve(
-          createMockAssignment(ExperimentTestGroup.mockDataGeneratorVariant)
+          createMockAssignment(ExperimentTestGroups.mockDataGeneratorVariant)
         )
       );
       const assignExperiment = sandbox.spy(() => Promise.resolve(null));
@@ -417,7 +421,7 @@ describe('Collection Tab Content store', function () {
 
       await waitFor(() => {
         expect(getAssignment).to.have.been.calledOnceWith(
-          ExperimentTestName.mockDataGenerator,
+          ExperimentTestNames.mockDataGenerator,
           false // Don't track "Experiment Viewed" event
         );
         expect(analyzeCollectionSchemaStub).to.have.been.calledOnce;
@@ -427,7 +431,7 @@ describe('Collection Tab Content store', function () {
     it('should not start schema analysis in Atlas when user is in control variant', async function () {
       const getAssignment = sandbox.spy(() =>
         Promise.resolve(
-          createMockAssignment(ExperimentTestGroup.mockDataGeneratorControl)
+          createMockAssignment(ExperimentTestGroups.mockDataGeneratorControl)
         )
       );
       const assignExperiment = sandbox.spy(() => Promise.resolve(null));
@@ -441,7 +445,7 @@ describe('Collection Tab Content store', function () {
 
       await waitFor(() => {
         expect(getAssignment).to.have.been.calledOnceWith(
-          ExperimentTestName.mockDataGenerator,
+          ExperimentTestNames.mockDataGenerator,
           false
         );
       });
@@ -478,7 +482,7 @@ describe('Collection Tab Content store', function () {
     it('should cancel schema analysis when cancelSchemaAnalysis is dispatched', async function () {
       const getAssignment = sandbox.spy(() =>
         Promise.resolve(
-          createMockAssignment(ExperimentTestGroup.mockDataGeneratorVariant)
+          createMockAssignment(ExperimentTestGroups.mockDataGeneratorVariant)
         )
       );
       const assignExperiment = sandbox.spy(() => Promise.resolve(null));
@@ -503,7 +507,7 @@ describe('Collection Tab Content store', function () {
     it('should re-trigger schema analysis when document is inserted into current collection', async function () {
       const getAssignment = sandbox.spy(() =>
         Promise.resolve(
-          createMockAssignment(ExperimentTestGroup.mockDataGeneratorVariant)
+          createMockAssignment(ExperimentTestGroups.mockDataGeneratorVariant)
         )
       );
       const assignExperiment = sandbox.spy(() => Promise.resolve(null));
@@ -554,7 +558,7 @@ describe('Collection Tab Content store', function () {
     it('should not re-trigger schema analysis for different collection', async function () {
       const getAssignment = sandbox.spy(() =>
         Promise.resolve(
-          createMockAssignment(ExperimentTestGroup.mockDataGeneratorVariant)
+          createMockAssignment(ExperimentTestGroups.mockDataGeneratorVariant)
         )
       );
       const assignExperiment = sandbox.spy(() => Promise.resolve(null));
@@ -595,7 +599,7 @@ describe('Collection Tab Content store', function () {
     it('should not re-trigger schema analysis for different connection', async function () {
       const getAssignment = sandbox.spy(() =>
         Promise.resolve(
-          createMockAssignment(ExperimentTestGroup.mockDataGeneratorVariant)
+          createMockAssignment(ExperimentTestGroups.mockDataGeneratorVariant)
         )
       );
       const assignExperiment = sandbox.spy(() => Promise.resolve(null));
@@ -636,7 +640,7 @@ describe('Collection Tab Content store', function () {
     it('should not re-trigger schema analysis when user is not in experiment variant', async function () {
       const getAssignment = sandbox.spy(() =>
         Promise.resolve(
-          createMockAssignment(ExperimentTestGroup.mockDataGeneratorControl)
+          createMockAssignment(ExperimentTestGroups.mockDataGeneratorControl)
         )
       );
       const assignExperiment = sandbox.spy(() => Promise.resolve(null));
@@ -685,7 +689,7 @@ describe('Collection Tab Content store', function () {
     it('should re-trigger schema analysis when import is completed for current collection', async function () {
       const getAssignment = sandbox.spy(() =>
         Promise.resolve(
-          createMockAssignment(ExperimentTestGroup.mockDataGeneratorVariant)
+          createMockAssignment(ExperimentTestGroups.mockDataGeneratorVariant)
         )
       );
       const assignExperiment = sandbox.spy(() => Promise.resolve(null));
@@ -733,7 +737,7 @@ describe('Collection Tab Content store', function () {
     it('should not re-trigger schema analysis for different collection', async function () {
       const getAssignment = sandbox.spy(() =>
         Promise.resolve(
-          createMockAssignment(ExperimentTestGroup.mockDataGeneratorVariant)
+          createMockAssignment(ExperimentTestGroups.mockDataGeneratorVariant)
         )
       );
       const assignExperiment = sandbox.spy(() => Promise.resolve(null));
@@ -780,7 +784,7 @@ describe('Collection Tab Content store', function () {
     it('should not re-trigger schema analysis for different connection', async function () {
       const getAssignment = sandbox.spy(() =>
         Promise.resolve(
-          createMockAssignment(ExperimentTestGroup.mockDataGeneratorVariant)
+          createMockAssignment(ExperimentTestGroups.mockDataGeneratorVariant)
         )
       );
       const assignExperiment = sandbox.spy(() => Promise.resolve(null));
@@ -827,7 +831,7 @@ describe('Collection Tab Content store', function () {
     it('should not re-trigger schema analysis when user is not in experiment variant', async function () {
       const getAssignment = sandbox.spy(() =>
         Promise.resolve(
-          createMockAssignment(ExperimentTestGroup.mockDataGeneratorControl)
+          createMockAssignment(ExperimentTestGroups.mockDataGeneratorControl)
         )
       );
       const assignExperiment = sandbox.spy(() => Promise.resolve(null));

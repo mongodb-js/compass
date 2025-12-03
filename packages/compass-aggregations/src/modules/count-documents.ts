@@ -10,25 +10,24 @@ import { ActionTypes as ConfirmNewPipelineActions } from './is-new-pipeline-conf
 import { getPipelineFromBuilderState } from './pipeline-builder/builder-helpers';
 import { isAction } from '../utils/is-action';
 
-// @ts-expect-error TODO(COMPASS-10124): replace enums with const kv objects
-export enum ActionTypes {
-  CountStarted = 'compass-aggregations/countStarted',
-  CountFinished = 'compass-aggregations/countFinished',
-  CountFailed = 'compass-aggregations/countFailed',
-}
+export const ActionTypes = {
+  CountStarted: 'compass-aggregations/countStarted',
+  CountFinished: 'compass-aggregations/countFinished',
+  CountFailed: 'compass-aggregations/countFailed',
+} as const;
 
 type CountStartedAction = {
-  type: ActionTypes.CountStarted;
+  type: typeof ActionTypes.CountStarted;
   abortController: AbortController;
 };
 
 type CountFinishedAction = {
-  type: ActionTypes.CountFinished;
+  type: typeof ActionTypes.CountFinished;
   count: number;
 };
 
 type CountFailedAction = {
-  type: ActionTypes.CountFailed;
+  type: typeof ActionTypes.CountFailed;
 };
 
 export type Actions =

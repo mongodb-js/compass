@@ -26,124 +26,137 @@ export type GenerateDiagramWizardState = {
   error: Error | null;
 };
 
-// @ts-expect-error TODO(COMPASS-10124): replace enums with const kv objects
-export enum GenerateDiagramWizardActionTypes {
-  CREATE_NEW_DIAGRAM = 'data-modeling/generate-diagram-wizard/CREATE_NEW_DIAGRAM',
-  CANCEL_CREATE_NEW_DIAGRAM = 'data-modeling/generate-diagram-wizard/CANCEL_CREATE_NEW_DIAGRAM',
+export const GenerateDiagramWizardActionTypes = {
+  CREATE_NEW_DIAGRAM:
+    'data-modeling/generate-diagram-wizard/CREATE_NEW_DIAGRAM',
+  CANCEL_CREATE_NEW_DIAGRAM:
+    'data-modeling/generate-diagram-wizard/CANCEL_CREATE_NEW_DIAGRAM',
 
-  CHANGE_NAME = 'data-modeling/generate-diagram-wizard/CHANGE_NAME',
-  CONFIRM_NAME = 'data-modeling/generate-diagram-wizard/CONFIRM_NAME',
-  CANCEL_CONFIRM_NAME = 'data-modeling/generate-diagram-wizard/CANCEL_CONFIRM_NAME',
+  CHANGE_NAME: 'data-modeling/generate-diagram-wizard/CHANGE_NAME',
+  CONFIRM_NAME: 'data-modeling/generate-diagram-wizard/CONFIRM_NAME',
+  CANCEL_CONFIRM_NAME:
+    'data-modeling/generate-diagram-wizard/CANCEL_CONFIRM_NAME',
 
-  SELECT_CONNECTION = 'data-modeling/generate-diagram-wizard/SELECT_CONNECTION',
-  CONFIRM_SELECT_CONNECTION = 'data-modeling/generate-diagram-wizard/CONFIRM_SELECT_CONNECTION',
-  CONNECTION_CONNECTED = 'data-modeling/generate-diagram-wizard/CONNECTION_CONNECTED',
-  DATABASES_FETCHED = 'data-modeling/generate-diagram-wizard/DATABASES_FETCHED',
-  CANCEL_SELECTED_CONNECTION = 'data-modeling/generate-diagram-wizard/CANCEL_SELECTED_CONNECTION',
-  CONNECTION_FAILED = 'data-modeling/generate-diagram-wizard/CONNECTION_FAILED',
+  SELECT_CONNECTION: 'data-modeling/generate-diagram-wizard/SELECT_CONNECTION',
+  CONFIRM_SELECT_CONNECTION:
+    'data-modeling/generate-diagram-wizard/CONFIRM_SELECT_CONNECTION',
+  CONNECTION_CONNECTED:
+    'data-modeling/generate-diagram-wizard/CONNECTION_CONNECTED',
+  DATABASES_FETCHED: 'data-modeling/generate-diagram-wizard/DATABASES_FETCHED',
+  CANCEL_SELECTED_CONNECTION:
+    'data-modeling/generate-diagram-wizard/CANCEL_SELECTED_CONNECTION',
+  CONNECTION_FAILED: 'data-modeling/generate-diagram-wizard/CONNECTION_FAILED',
 
-  SELECT_DATABASE = 'data-modeling/generate-diagram-wizard/SELECT_DATABASE',
-  CONFIRM_SELECT_DATABASE = 'data-modeling/generate-diagram-wizard/CONFIRM_SELECT_DATABASE',
-  DATABASES_FETCH_FAILED = 'data-modeling/generate-diagram-wizard/DATABASES_FETCH_FAILED',
-  COLLECTIONS_FETCHED = 'data-modeling/generate-diagram-wizard/COLLECTIONS_FETCHED',
-  CANCEL_SELECTED_DATABASE = 'data-modeling/generate-diagram-wizard/CANCEL_SELECTED_DATABASE',
-  COLLECTIONS_FETCH_FAILED = 'data-modeling/generate-diagram-wizard/COLLECTIONS_FETCH_FAILED',
+  SELECT_DATABASE: 'data-modeling/generate-diagram-wizard/SELECT_DATABASE',
+  CONFIRM_SELECT_DATABASE:
+    'data-modeling/generate-diagram-wizard/CONFIRM_SELECT_DATABASE',
+  DATABASES_FETCH_FAILED:
+    'data-modeling/generate-diagram-wizard/DATABASES_FETCH_FAILED',
+  COLLECTIONS_FETCHED:
+    'data-modeling/generate-diagram-wizard/COLLECTIONS_FETCHED',
+  CANCEL_SELECTED_DATABASE:
+    'data-modeling/generate-diagram-wizard/CANCEL_SELECTED_DATABASE',
+  COLLECTIONS_FETCH_FAILED:
+    'data-modeling/generate-diagram-wizard/COLLECTIONS_FETCH_FAILED',
 
-  SELECT_COLLECTIONS = 'data-modeling/generate-diagram-wizard/SELECT_COLLECTIONS',
-  TOGGLE_INFER_RELATIONS = 'data-modeling/generate-diagram-wizard/TOGGLE_INFER_RELATIONS',
-  CONFIRM_SELECTED_COLLECTIONS = 'data-modeling/generate-diagram-wizard/CONFIRM_SELECTED_COLLECTIONS',
-}
+  SELECT_COLLECTIONS:
+    'data-modeling/generate-diagram-wizard/SELECT_COLLECTIONS',
+  TOGGLE_INFER_RELATIONS:
+    'data-modeling/generate-diagram-wizard/TOGGLE_INFER_RELATIONS',
+  CONFIRM_SELECTED_COLLECTIONS:
+    'data-modeling/generate-diagram-wizard/CONFIRM_SELECTED_COLLECTIONS',
+} as const;
 
 export type CreateNewDiagramAction = {
-  type: GenerateDiagramWizardActionTypes.CREATE_NEW_DIAGRAM;
+  type: typeof GenerateDiagramWizardActionTypes.CREATE_NEW_DIAGRAM;
 };
 
 export type CancelCreateNewDiagramAction = {
-  type: GenerateDiagramWizardActionTypes.CANCEL_CREATE_NEW_DIAGRAM;
+  type: typeof GenerateDiagramWizardActionTypes.CANCEL_CREATE_NEW_DIAGRAM;
 };
 
 export type ChangeNameAction = {
-  type: GenerateDiagramWizardActionTypes.CHANGE_NAME;
+  type: typeof GenerateDiagramWizardActionTypes.CHANGE_NAME;
   name: string;
 };
 
 export type ConfirmNameAction = {
-  type: GenerateDiagramWizardActionTypes.CONFIRM_NAME;
+  type: typeof GenerateDiagramWizardActionTypes.CONFIRM_NAME;
 };
 
 export type CancelConfirmNameAction = {
-  type: GenerateDiagramWizardActionTypes.CANCEL_CONFIRM_NAME;
+  type: typeof GenerateDiagramWizardActionTypes.CANCEL_CONFIRM_NAME;
 };
 
 export type SelectConnectionAction = {
-  type: GenerateDiagramWizardActionTypes.SELECT_CONNECTION;
+  type: typeof GenerateDiagramWizardActionTypes.SELECT_CONNECTION;
   id: string;
 };
 
 export type ConfirmSelectConnectionAction = {
-  type: GenerateDiagramWizardActionTypes.CONFIRM_SELECT_CONNECTION;
+  type: typeof GenerateDiagramWizardActionTypes.CONFIRM_SELECT_CONNECTION;
 };
 
 export type CancelSelectedConnectionAction = {
-  type: GenerateDiagramWizardActionTypes.CANCEL_SELECTED_CONNECTION;
+  type: typeof GenerateDiagramWizardActionTypes.CANCEL_SELECTED_CONNECTION;
 };
 
 export type ConnectionConnectedAction = {
-  type: GenerateDiagramWizardActionTypes.CONNECTION_CONNECTED;
+  type: typeof GenerateDiagramWizardActionTypes.CONNECTION_CONNECTED;
 };
 
 export type DatabasesFetchedAction = {
-  type: GenerateDiagramWizardActionTypes.DATABASES_FETCHED;
+  type: typeof GenerateDiagramWizardActionTypes.DATABASES_FETCHED;
   connectionId: string;
   databases: string[];
 };
 
 export type ConnectionFailedAction = {
-  type: GenerateDiagramWizardActionTypes.CONNECTION_FAILED;
+  type: typeof GenerateDiagramWizardActionTypes.CONNECTION_FAILED;
 };
 
 export type SelectDatabaseAction = {
-  type: GenerateDiagramWizardActionTypes.SELECT_DATABASE;
+  type: typeof GenerateDiagramWizardActionTypes.SELECT_DATABASE;
   database: string;
 };
 
 export type DatabasesFetchFailedAction = {
-  type: GenerateDiagramWizardActionTypes.DATABASES_FETCH_FAILED;
+  type: typeof GenerateDiagramWizardActionTypes.DATABASES_FETCH_FAILED;
   error: Error;
 };
 
 export type ConfirmSelectDatabaseAction = {
-  type: GenerateDiagramWizardActionTypes.CONFIRM_SELECT_DATABASE;
+  type: typeof GenerateDiagramWizardActionTypes.CONFIRM_SELECT_DATABASE;
 };
 
 export type CancelSelectedDatabaseAction = {
-  type: GenerateDiagramWizardActionTypes.CANCEL_SELECTED_DATABASE;
+  type: typeof GenerateDiagramWizardActionTypes.CANCEL_SELECTED_DATABASE;
 };
 
 export type CollectionsFetchedAction = {
-  type: GenerateDiagramWizardActionTypes.COLLECTIONS_FETCHED;
+  type: typeof GenerateDiagramWizardActionTypes.COLLECTIONS_FETCHED;
   connectionId: string;
   database: string;
   collections: string[];
 };
 
 export type CollectionsFetchFailedAction = {
-  type: GenerateDiagramWizardActionTypes.COLLECTIONS_FETCH_FAILED;
+  type: typeof GenerateDiagramWizardActionTypes.COLLECTIONS_FETCH_FAILED;
   error: Error;
 };
 
 export type SelectCollectionsAction = {
-  type: GenerateDiagramWizardActionTypes.SELECT_COLLECTIONS;
+  type: typeof GenerateDiagramWizardActionTypes.SELECT_COLLECTIONS;
   collections: string[];
 };
 
 export type ToggleInferRelationsAction = {
-  type: GenerateDiagramWizardActionTypes.TOGGLE_INFER_RELATIONS;
+  type: typeof GenerateDiagramWizardActionTypes.TOGGLE_INFER_RELATIONS;
   newVal: boolean;
 };
 
 export type ConfirmSelectedCollectionsAction = {
-  type: GenerateDiagramWizardActionTypes.CONFIRM_SELECTED_COLLECTIONS;
+  type: typeof GenerateDiagramWizardActionTypes.CONFIRM_SELECTED_COLLECTIONS;
 };
 
 export type GenerateDiagramWizardActions =
