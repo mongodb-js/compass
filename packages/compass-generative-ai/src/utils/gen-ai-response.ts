@@ -2,10 +2,7 @@ import { AiChatbotInvalidResponseError } from '../chatbot-errors';
 import { type AiQueryPrompt } from './gen-ai-prompt';
 import type { LanguageModel } from 'ai';
 import { streamText } from 'ai';
-/**
- * Function that takes an LanguageModel and a message of type
- * AiQueryPrompt and returns a Promise that resolves to a string response
- */
+
 export async function getAiQueryResponse(
   model: LanguageModel,
   message: AiQueryPrompt,
@@ -17,7 +14,7 @@ export async function getAiQueryResponse(
     providerOptions: {
       openai: {
         store: false,
-        instructions: message.metadata.instructions || '',
+        instructions: message.metadata.instructions,
       },
     },
     abortSignal,
