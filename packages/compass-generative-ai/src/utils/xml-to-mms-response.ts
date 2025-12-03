@@ -1,4 +1,5 @@
 import type { Logger } from '@mongodb-js/compass-logging';
+import parse, { toJSString } from 'mongodb-query-parser';
 
 export function parseXmlToMmsJsonResponse(xmlString: string, logger: Logger) {
   const expectedTags = [
@@ -18,15 +19,15 @@ export function parseXmlToMmsJsonResponse(xmlString: string, logger: Logger) {
     if (match && match[1]) {
       const value = match[1].trim();
       try {
-        // Here the value is valid js string, but not valid json, so we use eval to parse it.
-        const tagValue = eval(`(${value})`);
+        const tagValue = parse(value);
         if (
           !tagValue ||
           (typeof tagValue === 'object' && Object.keys(tagValue).length === 0)
         ) {
           result[tag] = null;
         } else {
-          result[tag] = JSON.stringify(tagValue);
+          // No indentation
+          result[tag] = toJSString(tagValue, 0);
         }
       } catch (e) {
         logger.log.warn(

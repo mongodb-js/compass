@@ -22,7 +22,7 @@ describe('parseXmlToMmsJsonResponse', function () {
     expect(result).to.deep.equal({
       content: {
         aggregation: {
-          pipeline: '[{"$match":{"status":"A"}}]',
+          pipeline: "[{$match:{status:'A'}}]",
         },
         query: {
           filter: null,
@@ -45,7 +45,7 @@ describe('parseXmlToMmsJsonResponse', function () {
       content: {
         aggregation: null,
         query: {
-          filter: '{"age":{"$gt":25}}',
+          filter: '{age:{$gt:25}}',
           project: null,
           sort: null,
           skip: null,
@@ -65,7 +65,7 @@ describe('parseXmlToMmsJsonResponse', function () {
     expect(result).to.deep.equal({
       content: {
         aggregation: {
-          pipeline: '[{"$match":{"status":"A"}}]',
+          pipeline: "[{$match:{status:'A'}}]",
         },
         query: {
           filter: null,
@@ -94,9 +94,9 @@ describe('parseXmlToMmsJsonResponse', function () {
       content: {
         aggregation: null,
         query: {
-          filter: '{"age":{"$gt":25}}',
-          project: '{"name":1,"age":1}',
-          sort: '{"age":-1}',
+          filter: '{age:{$gt:25}}',
+          project: '{name:1,age:1}',
+          sort: '{age:-1}',
           skip: '5',
           limit: '10',
         },
