@@ -40,16 +40,34 @@ export function parseXmlToMmsJsonResponse(xmlString: string, logger: Logger) {
     }
   }
 
-  // Keep the response same as we have from mms api
+  // Keep the response same as we have from mms api. If llm generated
+  // an aggregation, we want to return that instead of a query
+  if (result.aggregation) {
+    return {
+      content: {
+        aggregation: {
+          pipeline: result.aggregation,
+        },
+        query: {
+          filter: null,
+          project: null,
+          sort: null,
+          skip: null,
+          limit: null,
+        },
+      },
+    };
+  }
+
   return {
     content: {
-      ...(result.aggregation ? { aggregation: result.aggregation } : {}),
+      aggregation: null,
       query: {
-        filter: result.filter,
-        project: result.project,
-        sort: result.sort,
-        skip: result.skip,
-        limit: result.limit,
+        filter: result.filter ?? null,
+        project: result.project ?? null,
+        sort: result.sort ?? null,
+        skip: result.skip ?? null,
+        limit: result.limit ?? null,
       },
     },
   };
