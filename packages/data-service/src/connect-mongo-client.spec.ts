@@ -14,6 +14,7 @@ import ConnectionString from 'mongodb-connection-string-url';
 const defaultOptions = {
   productDocsLink: 'https://www.mongodb.com/docs/compass/',
   productName: 'MongoDB Compass',
+  useSystemCA: true,
 };
 
 const setupListeners = () => {
