@@ -19,6 +19,7 @@ import {
   spacing,
   showErrorDetails,
 } from '@mongodb-js/compass-components';
+import HadronDocument from 'hadron-document';
 
 import type { InsertCSFLEWarningBannerProps } from './insert-csfle-warning-banner';
 import InsertCSFLEWarningBanner from './insert-csfle-warning-banner';
@@ -165,19 +166,18 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
    * Checks for invalidElements in hadron doc if in HadronDocument view, or
    * parsing error in JsonView of the modal
    *
-   * @returns {Boolean} If the document has errors.
    */
-  const hasErrors = useCallback(() => {
+  const documentErrors = useMemo(() => {
     if (jsonView) {
       try {
-        JSON.parse(jsonDoc);
+        HadronDocument.FromEJSON(jsonDoc);
         return false;
-      } catch {
-        return true;
+      } catch (e) {
+        return (e as Error).message;
       }
     }
-    return invalidElements.length > 0;
-  }, [invalidElements, jsonDoc, jsonView]);
+    return invalidElements.length > 0 ? INSERT_INVALID_MESSAGE : false;
+  }, [jsonDoc, jsonView, invalidElements]);
 
   const handleInvalid = useCallback(
     (el: Element) => {
@@ -190,7 +190,7 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
 
   const handleValid = useCallback(
     (el: Element) => {
-      if (hasErrors()) {
+      if (documentErrors) {
         setInvalidElements((invalidElements) =>
           without(invalidElements, el.uuid)
         );
@@ -198,7 +198,7 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
         setInvalidElements([]);
       }
     },
-    [hasErrors, setInvalidElements]
+    [documentErrors, setInvalidElements]
   );
 
   useEffect(() => {
@@ -281,17 +281,26 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
   );
 
   const currentView = jsonView ? 'JSON' : 'List';
-  const variant = insertInProgress ? 'info' : 'danger';
 
-  const error = useMemo(() => {
-    if (hasErrors()) {
-      return { message: INSERT_INVALID_MESSAGE };
+  const banner = useMemo(() => {
+    if (documentErrors) {
+      return {
+        message: documentErrors,
+        variant: 'danger' as const,
+      };
     }
     if (insertInProgress) {
-      return { message: 'Inserting Document' };
+      return { message: 'Inserting Document', variant: 'info' as const };
     }
-    return _error;
-  }, [_error, hasErrors, insertInProgress]);
+    if (_error) {
+      return {
+        message: _error.message,
+        variant: 'danger' as const,
+        info: _error.info,
+      };
+    }
+    return null;
+  }, [_error, documentErrors, insertInProgress]);
 
   return (
     <FormModal
@@ -302,7 +311,7 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
       onSubmit={handleInsert.bind(this)}
       onCancel={closeInsertDocumentDialog}
       submitButtonText="Insert"
-      submitDisabled={hasErrors()}
+      submitDisabled={Boolean(documentErrors)}
       data-testid="insert-document-modal"
       minBodyHeight={spacing[1600] * 2} // make sure there is enough space for the menu
     >
@@ -315,7 +324,7 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
           onChange={switchInsertDocumentView.bind(this)}
         >
           <SegmentedControlOption
-            disabled={hasErrors()}
+            disabled={Boolean(documentErrors)}
             data-testid="insert-document-dialog-view-json"
             aria-label="E-JSON View"
             value="JSON"
@@ -327,7 +336,7 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
             }}
           ></SegmentedControlOption>
           <SegmentedControlOption
-            disabled={hasErrors()}
+            disabled={Boolean(documentErrors)}
             data-testid="insert-document-dialog-view-list"
             aria-label="Document list"
             value="List"
@@ -351,21 +360,21 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
           updateComment={updateComment}
         />
       </div>
-      {error && (
+      {banner && (
         <Banner
           data-testid="insert-document-banner"
-          data-variant={variant}
-          variant={variant}
+          data-variant={banner.variant}
+          variant={banner.variant}
           className={bannerStyles}
         >
-          {error?.message}
-          {error?.info && (
+          {banner.message}
+          {banner.info && (
             <Button
               size="xsmall"
               className={errorDetailsBtnStyles}
               onClick={() =>
                 showErrorDetails({
-                  details: error.info!,
+                  details: banner.info!,
                   closeAction: 'back',
                 })
               }
