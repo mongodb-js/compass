@@ -125,6 +125,20 @@ const ObjectIdValue: React.FunctionComponent<PropsByValueType<'ObjectId'>> = ({
   );
 };
 
+const toUUIDWithHyphens = (hex: string): string => {
+  return (
+    hex.substring(0, 8) +
+    '-' +
+    hex.substring(8, 12) +
+    '-' +
+    hex.substring(12, 16) +
+    '-' +
+    hex.substring(16, 20) +
+    '-' +
+    hex.substring(20, 32)
+  );
+};
+
 const toLegacyJavaUUID = ({ value }: PropsByValueType<'Binary'>) => {
   // Get the hex representation from the buffer.
   const hex = Buffer.from(value.buffer).toString('hex');
@@ -150,18 +164,8 @@ const toLegacyJavaUUID = ({ value }: PropsByValueType<'Binary'>) => {
     lsb.substring(4, 6) +
     lsb.substring(2, 4) +
     lsb.substring(0, 2);
-  const reversed = msb + lsb;
-  const uuid =
-    reversed.substring(0, 8) +
-    '-' +
-    reversed.substring(8, 12) +
-    '-' +
-    reversed.substring(12, 16) +
-    '-' +
-    reversed.substring(16, 20) +
-    '-' +
-    reversed.substring(20, 32);
-  return 'LegacyJavaUUID("' + uuid + '")';
+  const uuid = msb + lsb;
+  return 'LegacyJavaUUID("' + toUUIDWithHyphens(uuid) + '")';
 };
 
 const toLegacyCSharpUUID = ({ value }: PropsByValueType<'Binary'>) => {
@@ -176,35 +180,14 @@ const toLegacyCSharpUUID = ({ value }: PropsByValueType<'Binary'>) => {
   const b = hex.substring(10, 12) + hex.substring(8, 10);
   const c = hex.substring(14, 16) + hex.substring(12, 14);
   const d = hex.substring(16, 32);
-  const reversed = a + b + c + d;
-  const uuid =
-    reversed.substring(0, 8) +
-    '-' +
-    reversed.substring(8, 12) +
-    '-' +
-    reversed.substring(12, 16) +
-    '-' +
-    reversed.substring(16, 20) +
-    '-' +
-    reversed.substring(20, 32);
-  return 'LegacyCSharpUUID("' + uuid + '")';
+  const uuid = a + b + c + d;
+  return 'LegacyCSharpUUID("' + toUUIDWithHyphens(uuid) + '")';
 };
 
 const toLegacyPythonUUID = ({ value }: PropsByValueType<'Binary'>) => {
   // Get the hex representation from the buffer.
   const hex = Buffer.from(value.buffer).toString('hex');
-  // Python format uses the hex like UUID in subtype 4.
-  const uuid =
-    hex.substring(0, 8) +
-    '-' +
-    hex.substring(8, 12) +
-    '-' +
-    hex.substring(12, 16) +
-    '-' +
-    hex.substring(16, 20) +
-    '-' +
-    hex.substring(20, 32);
-  return 'LegacyPythonUUID("' + uuid + '")';
+  return 'LegacyPythonUUID("' + toUUIDWithHyphens(hex) + '")';
 };
 
 // Binary sub_type 3.
