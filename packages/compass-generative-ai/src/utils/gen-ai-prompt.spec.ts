@@ -8,7 +8,7 @@ import { toJSString } from 'mongodb-query-parser';
 import { ObjectId } from 'bson';
 
 const OPTIONS: UserPromptForQueryOptions = {
-  userPrompt: 'Find all users older than 30',
+  userInput: 'Find all users older than 30',
   databaseName: 'airbnb',
   collectionName: 'listings',
   schema: {
@@ -50,7 +50,7 @@ describe('GenAI Prompts', function () {
 
     expect(prompt).to.be.a('string');
     expect(prompt).to.include(
-      `Write a query that does the following: "${OPTIONS.userPrompt}"`,
+      `Write a query that does the following: "${OPTIONS.userInput}"`,
       'includes user prompt'
     );
     expect(prompt).to.include(
@@ -93,7 +93,7 @@ describe('GenAI Prompts', function () {
 
     expect(prompt).to.be.a('string');
     expect(prompt).to.include(
-      `Generate an aggregation that does the following: "${OPTIONS.userPrompt}"`,
+      `Generate an aggregation that does the following: "${OPTIONS.userInput}"`,
       'includes user prompt'
     );
     expect(prompt).to.include(
