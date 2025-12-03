@@ -377,9 +377,8 @@ describe('Collection import', function () {
     // make sure that there's an error and that the insert button is disabled
     const errorElement = browser.$(Selectors.InsertDialogErrorMessage);
     await errorElement.waitForDisplayed();
-    expect(await errorElement.getText()).to.equal(
-      'Insert not permitted while document contains errors.'
-    );
+    const text = await errorElement.getText();
+    expect(text.toLowerCase()).to.contain('unexpected token');
     const insertButton = browser.$(Selectors.InsertConfirm);
     await browser.waitForAriaDisabled(insertButton, true);
 

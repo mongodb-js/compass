@@ -9,7 +9,7 @@ import {
 } from '@mongodb-js/testing-library-compass';
 import { Provider } from 'react-redux';
 import { CompassExperimentationProvider } from '@mongodb-js/compass-telemetry';
-import { ExperimentTestGroup } from '@mongodb-js/compass-telemetry/provider';
+import { ExperimentTestGroups } from '@mongodb-js/compass-telemetry/provider';
 import QueryBarPlugin from '@mongodb-js/compass-query-bar';
 import {
   createElectronFavoriteQueryStorage,
@@ -97,7 +97,7 @@ describe('CompassSchema Component', function () {
         mockUseAssignment.returns({
           assignment: {
             assignmentData: {
-              variant: ExperimentTestGroup.atlasSkillsVariant,
+              variant: ExperimentTestGroups.atlasSkillsVariant,
             },
           },
           ...commonAsyncStatus,
@@ -106,7 +106,7 @@ describe('CompassSchema Component', function () {
         mockUseAssignment.returns({
           assignment: {
             assignmentData: {
-              variant: ExperimentTestGroup.atlasSkillsControl,
+              variant: ExperimentTestGroups.atlasSkillsControl,
             },
           },
           ...commonAsyncStatus,

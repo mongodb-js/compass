@@ -7,7 +7,8 @@ import { variantColors } from '@leafygreen-ui/code';
 import { Icon, Link } from './leafygreen';
 import { spacing } from '@leafygreen-ui/tokens';
 import { css, cx } from '@leafygreen-ui/emotion';
-import { Theme, useDarkMode } from '../hooks/use-theme';
+import type { Theme } from '../hooks/use-theme';
+import { Themes, useDarkMode } from '../hooks/use-theme';
 import { useLegacyUUIDDisplayContext } from './document-list/legacy-uuid-format-context';
 
 type ValueProps =
@@ -32,7 +33,7 @@ const VALUE_COLOR_BY_THEME_AND_TYPE: Record<
   Theme,
   Partial<Record<ValueTypes, string>>
 > = {
-  [Theme.Dark]: {
+  [Themes.Dark]: {
     Int32: variantColors.dark[9],
     Double: variantColors.dark[9],
     Decimal128: variantColors.dark[9],
@@ -41,7 +42,7 @@ const VALUE_COLOR_BY_THEME_AND_TYPE: Record<
     String: variantColors.dark[7],
     ObjectId: variantColors.dark[5],
   },
-  [Theme.Light]: {
+  [Themes.Light]: {
     Int32: variantColors.light[9],
     Double: variantColors.light[9],
     Decimal128: variantColors.light[9],
@@ -75,7 +76,7 @@ export const BSONValueContainer: React.FunctionComponent<
     }
     return {
       color:
-        VALUE_COLOR_BY_THEME_AND_TYPE[darkMode ? Theme.Dark : Theme.Light][
+        VALUE_COLOR_BY_THEME_AND_TYPE[darkMode ? Themes.Dark : Themes.Light][
           type
         ],
     };

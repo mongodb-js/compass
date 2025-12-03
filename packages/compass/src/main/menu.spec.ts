@@ -8,7 +8,7 @@ import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 import type { CompassApplication } from './application';
 import type { CompassMenu as _CompassMenu } from './menu';
 import { quitItem } from './menu';
-import { AutoUpdateManagerState } from './auto-update-manager';
+import { AutoUpdateManagerStates } from './auto-update-manager';
 import { RendererDefinedMenuState } from '@mongodb-js/compass-electron-menu/ipc-provider-main';
 
 function serializable<T>(obj: T): T {
@@ -86,7 +86,10 @@ describe('CompassMenu', function () {
         updateManagerState: 'idle',
       })
     );
-    App.emit('auto-updater:new-state', AutoUpdateManagerState.PromptForRestart);
+    App.emit(
+      'auto-updater:new-state',
+      AutoUpdateManagerStates.PromptForRestart
+    );
     expect(serializable(CompassMenu['windowState'].get(bw.id))).to.deep.eq(
       serializable({
         rendererState: new RendererDefinedMenuState(ipcMain as any),
@@ -95,7 +98,7 @@ describe('CompassMenu', function () {
     );
     App.emit(
       'auto-updater:new-state',
-      AutoUpdateManagerState.DownloadingUpdate
+      AutoUpdateManagerStates.DownloadingUpdate
     );
 
     expect(serializable(CompassMenu['windowState'].get(bw.id))).to.deep.eq(
@@ -127,17 +130,17 @@ describe('CompassMenu', function () {
         describe('when the auto updater is in an idle state', () => {
           it('displays `Checking for updates...` in the menu', () => {
             const idleStates = [
-              AutoUpdateManagerState.Initial,
-              AutoUpdateManagerState.Disabled,
-              AutoUpdateManagerState.UserPromptedManualCheck,
-              AutoUpdateManagerState.CheckingForUpdatesForManualCheck,
-              AutoUpdateManagerState.CheckingForUpdatesForAutomaticCheck,
-              AutoUpdateManagerState.NoUpdateAvailable,
-              AutoUpdateManagerState.UpdateAvailable,
-              AutoUpdateManagerState.UpdateDismissed,
-              AutoUpdateManagerState.DownloadingError,
-              AutoUpdateManagerState.Restarting,
-              AutoUpdateManagerState.OutdatedOperatingSystem,
+              AutoUpdateManagerStates.Initial,
+              AutoUpdateManagerStates.Disabled,
+              AutoUpdateManagerStates.UserPromptedManualCheck,
+              AutoUpdateManagerStates.CheckingForUpdatesForManualCheck,
+              AutoUpdateManagerStates.CheckingForUpdatesForAutomaticCheck,
+              AutoUpdateManagerStates.NoUpdateAvailable,
+              AutoUpdateManagerStates.UpdateAvailable,
+              AutoUpdateManagerStates.UpdateDismissed,
+              AutoUpdateManagerStates.DownloadingError,
+              AutoUpdateManagerStates.Restarting,
+              AutoUpdateManagerStates.OutdatedOperatingSystem,
             ];
             for (const state of idleStates) {
               App.emit('auto-updater:new-state', state);
@@ -155,8 +158,8 @@ describe('CompassMenu', function () {
             sinon.stub(process, 'platform').value('darwin');
 
             const idleStates = [
-              AutoUpdateManagerState.ManualDownload,
-              AutoUpdateManagerState.DownloadingUpdate,
+              AutoUpdateManagerStates.ManualDownload,
+              AutoUpdateManagerStates.DownloadingUpdate,
             ];
             for (const state of idleStates) {
               App.emit('auto-updater:new-state', state);
@@ -175,8 +178,8 @@ describe('CompassMenu', function () {
             sinon.stub(process, 'platform').value('darwin');
 
             const idleStates = [
-              AutoUpdateManagerState.PromptForRestart,
-              AutoUpdateManagerState.RestartDismissed,
+              AutoUpdateManagerStates.PromptForRestart,
+              AutoUpdateManagerStates.RestartDismissed,
             ];
             for (const state of idleStates) {
               App.emit('auto-updater:new-state', state);
@@ -198,17 +201,17 @@ describe('CompassMenu', function () {
           describe('when the auto updater is in an idle state', () => {
             it('displays `Checking for updates...` in the menu', () => {
               const idleStates = [
-                AutoUpdateManagerState.Initial,
-                AutoUpdateManagerState.Disabled,
-                AutoUpdateManagerState.UserPromptedManualCheck,
-                AutoUpdateManagerState.CheckingForUpdatesForManualCheck,
-                AutoUpdateManagerState.CheckingForUpdatesForAutomaticCheck,
-                AutoUpdateManagerState.NoUpdateAvailable,
-                AutoUpdateManagerState.UpdateAvailable,
-                AutoUpdateManagerState.UpdateDismissed,
-                AutoUpdateManagerState.DownloadingError,
-                AutoUpdateManagerState.Restarting,
-                AutoUpdateManagerState.OutdatedOperatingSystem,
+                AutoUpdateManagerStates.Initial,
+                AutoUpdateManagerStates.Disabled,
+                AutoUpdateManagerStates.UserPromptedManualCheck,
+                AutoUpdateManagerStates.CheckingForUpdatesForManualCheck,
+                AutoUpdateManagerStates.CheckingForUpdatesForAutomaticCheck,
+                AutoUpdateManagerStates.NoUpdateAvailable,
+                AutoUpdateManagerStates.UpdateAvailable,
+                AutoUpdateManagerStates.UpdateDismissed,
+                AutoUpdateManagerStates.DownloadingError,
+                AutoUpdateManagerStates.Restarting,
+                AutoUpdateManagerStates.OutdatedOperatingSystem,
               ];
               for (const state of idleStates) {
                 App.emit('auto-updater:new-state', state);
@@ -227,8 +230,8 @@ describe('CompassMenu', function () {
             sinon.stub(process, 'platform').value(platform);
 
             const idleStates = [
-              AutoUpdateManagerState.ManualDownload,
-              AutoUpdateManagerState.DownloadingUpdate,
+              AutoUpdateManagerStates.ManualDownload,
+              AutoUpdateManagerStates.DownloadingUpdate,
             ];
             for (const state of idleStates) {
               App.emit('auto-updater:new-state', state);
@@ -247,8 +250,8 @@ describe('CompassMenu', function () {
             sinon.stub(process, 'platform').value(platform);
 
             const idleStates = [
-              AutoUpdateManagerState.PromptForRestart,
-              AutoUpdateManagerState.RestartDismissed,
+              AutoUpdateManagerStates.PromptForRestart,
+              AutoUpdateManagerStates.RestartDismissed,
             ];
             for (const state of idleStates) {
               App.emit('auto-updater:new-state', state);

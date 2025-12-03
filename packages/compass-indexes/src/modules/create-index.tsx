@@ -9,24 +9,24 @@ import { isAction } from '../utils/is-action';
 import type { IndexesThunkAction, RootState } from '.';
 import { createRegularIndex } from './regular-indexes';
 
-// @ts-expect-error TODO(COMPASS-10124): replace enums with const kv objects
-export enum ActionTypes {
-  FieldAdded = 'compass-indexes/create-index/fields/field-added',
-  FieldTypeUpdated = 'compass-indexes/create-index/fields/field-type-updated',
-  FieldRemoved = 'compass-indexes/create-index/fields/field-removed',
-  FieldsChanged = 'compass-indexes/create-index/fields/fields-changed',
+export const ActionTypes = {
+  FieldAdded: 'compass-indexes/create-index/fields/field-added',
+  FieldTypeUpdated: 'compass-indexes/create-index/fields/field-type-updated',
+  FieldRemoved: 'compass-indexes/create-index/fields/field-removed',
+  FieldsChanged: 'compass-indexes/create-index/fields/fields-changed',
 
-  OptionChanged = 'compass-indexes/create-index/option-changed',
-  OptionToggled = 'compass-indexes/create-index/option-toggled',
+  OptionChanged: 'compass-indexes/create-index/option-changed',
+  OptionToggled: 'compass-indexes/create-index/option-toggled',
 
-  ErrorEncountered = 'compass-indexes/create-index/error-encountered',
-  ErrorCleared = 'compass-indexes/create-index/error-cleared',
+  ErrorEncountered: 'compass-indexes/create-index/error-encountered',
+  ErrorCleared: 'compass-indexes/create-index/error-cleared',
 
-  CreateIndexOpened = 'compass-indexes/create-index/create-index-shown',
-  CreateIndexClosed = 'compass-indexes/create-index/create-index-hidden',
+  CreateIndexOpened: 'compass-indexes/create-index/create-index-shown',
+  CreateIndexClosed: 'compass-indexes/create-index/create-index-hidden',
 
-  CreateIndexFormSubmitted = 'compass-indexes/create-index/create-index-form-submitted',
-}
+  CreateIndexFormSubmitted:
+    'compass-indexes/create-index/create-index-form-submitted',
+} as const;
 
 // fields
 
@@ -35,22 +35,22 @@ export type Field = { name: string; type: string };
 const INITIAL_FIELDS_STATE = [{ name: '', type: '' }];
 
 type FieldAddedAction = {
-  type: ActionTypes.FieldAdded;
+  type: typeof ActionTypes.FieldAdded;
 };
 
 type FieldTypeUpdatedAction = {
-  type: ActionTypes.FieldTypeUpdated;
+  type: typeof ActionTypes.FieldTypeUpdated;
   idx: number;
   fType: string;
 };
 
 type FieldRemovedAction = {
-  type: ActionTypes.FieldRemoved;
+  type: typeof ActionTypes.FieldRemoved;
   idx: number;
 };
 
 type FieldsChangedAction = {
-  type: ActionTypes.FieldsChanged;
+  type: typeof ActionTypes.FieldsChanged;
   fields: Field[];
 };
 
@@ -59,21 +59,21 @@ type FieldsChangedAction = {
  * submitted
  */
 type ErrorEncounteredAction = {
-  type: ActionTypes.ErrorEncountered;
+  type: typeof ActionTypes.ErrorEncountered;
   error: string;
 };
 
 type ErrorClearedAction = {
-  type: ActionTypes.ErrorCleared;
+  type: typeof ActionTypes.ErrorCleared;
 };
 
 export type CreateIndexOpenedAction = {
-  type: ActionTypes.CreateIndexOpened;
+  type: typeof ActionTypes.CreateIndexOpened;
   initialQuery?: Document;
 };
 
 type CreateIndexClosedAction = {
-  type: ActionTypes.CreateIndexClosed;
+  type: typeof ActionTypes.CreateIndexClosed;
 };
 
 /**
@@ -81,7 +81,7 @@ type CreateIndexClosedAction = {
  * submitted for index creation
  */
 type CreateIndexFormSubmittedAction = {
-  type: ActionTypes.CreateIndexFormSubmitted;
+  type: typeof ActionTypes.CreateIndexFormSubmitted;
 };
 
 export const fieldAdded = () => ({
@@ -231,7 +231,7 @@ type ValueForOption<O extends OptionNames> =
   (typeof OPTIONS)[O]['type'] extends 'checkbox' ? boolean : string;
 
 type OptionChangedAction<O extends OptionNames = OptionNames> = {
-  type: ActionTypes.OptionChanged;
+  type: typeof ActionTypes.OptionChanged;
   name: O;
   value: ValueForOption<O>;
 };
@@ -244,7 +244,7 @@ export function optionChanged<O extends OptionNames>(
 }
 
 type OptionToggledAction<O extends OptionNames = OptionNames> = {
-  type: ActionTypes.OptionToggled;
+  type: typeof ActionTypes.OptionToggled;
   name: O;
   enabled: boolean;
 };

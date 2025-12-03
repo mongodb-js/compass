@@ -134,6 +134,7 @@ const AtlasIndexesBanner = ({
   onDismissClick: () => void;
 }) => {
   const { atlasMetadata } = useConnectionInfo();
+  const track = useTelemetry();
 
   if (!atlasMetadata || dismissed) {
     return null;
@@ -151,6 +152,11 @@ const AtlasIndexesBanner = ({
             clusterName: atlasMetadata.clusterName,
             namespace,
           })}
+          onClick={() => {
+            track('Atlas Search Indexes for View Link Clicked', {
+              context: 'Indexes Tab',
+            });
+          }}
           hideExternalIcon
         >
           {linkTitle}

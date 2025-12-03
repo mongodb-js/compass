@@ -16,7 +16,7 @@ import {
   WorkspacesServiceProvider,
   type WorkspacesService,
 } from '@mongodb-js/compass-workspaces/provider';
-import { MockDataGeneratorStep } from '../mock-data-generator-modal/types';
+import { MockDataGeneratorSteps } from '../mock-data-generator-modal/types';
 import { SCHEMA_ANALYSIS_STATE_COMPLETE } from '../../schema-analysis-types';
 import { CompassExperimentationProvider } from '@mongodb-js/compass-telemetry';
 import type { ConnectionInfo } from '@mongodb-js/compass-connections/provider';
@@ -31,7 +31,7 @@ function renderCollectionHeader(
   const defaultState = {
     mockDataGenerator: {
       isModalOpen: false,
-      currentStep: MockDataGeneratorStep.SCHEMA_CONFIRMATION,
+      currentStep: MockDataGeneratorSteps.SCHEMA_CONFIRMATION,
     },
     ...stateOverrides,
   };
@@ -308,7 +308,7 @@ describe('CollectionHeader [Component]', function () {
     const mockStoreWithUndefinedSchema = createStore(() => ({
       mockDataGenerator: {
         isModalOpen: false,
-        currentStep: MockDataGeneratorStep.SCHEMA_CONFIRMATION,
+        currentStep: MockDataGeneratorSteps.SCHEMA_CONFIRMATION,
       },
       // schemaAnalysis not provided
     }));
@@ -385,7 +385,7 @@ describe('CollectionHeader [Component]', function () {
       const defaultState = {
         mockDataGenerator: {
           isModalOpen: false,
-          currentStep: MockDataGeneratorStep.SCHEMA_CONFIRMATION,
+          currentStep: MockDataGeneratorSteps.SCHEMA_CONFIRMATION,
         },
         ...stateOverrides,
       };

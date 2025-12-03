@@ -18,11 +18,10 @@ import {
   fieldNameHasError,
 } from '../../../utils/validation';
 
-// @ts-expect-error TODO(COMPASS-10124): replace enums with const kv objects
-enum MONGODB_SCHEME {
-  MONGODB = 'MONGODB',
-  MONGODB_SRV = 'MONGODB_SRV',
-}
+const MONGODB_SCHEME = {
+  MONGODB: 'MONGODB',
+  MONGODB_SRV: 'MONGODB_SRV',
+} as const;
 
 const descriptionStyles = css({
   marginTop: spacing[200],

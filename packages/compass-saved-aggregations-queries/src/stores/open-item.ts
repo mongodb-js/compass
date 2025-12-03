@@ -47,25 +47,29 @@ const INITIAL_STATE: State = {
   updateItemNamespace: false,
 };
 
-// @ts-expect-error TODO(COMPASS-10124): replace enums with const kv objects
-export enum ActionTypes {
-  OpenModal = 'compass-saved-aggregations-queries/openModal',
-  CloseModal = 'compass-saved-aggregations-queries/closeModal',
-  ConnectionSelected = 'compass-saved-aggregations-queries/connectionSelected',
-  ConnectionSelectedForPreSelectedNamespace = 'compass-saved-aggregations-queries/connectionSelectedForPreSelectedNamespace',
-  DatabaseSelected = 'compass-saved-aggregations-queries/DatabaseSelected',
-  LoadDatabases = 'compass-saved-aggregations-queries/loadDatabases',
-  LoadDatabasesSuccess = 'compass-saved-aggregations-queries/loadDatabasesSuccess',
-  LoadDatabasesError = 'compass-saved-aggregations-queries/loadDatabasesError',
-  CollectionSelected = 'compass-saved-aggregations-queries/collectionSelected',
-  LoadCollections = 'compass-saved-aggregations-queries/loadCollections',
-  LoadCollectionsSuccess = 'compass-saved-aggregations-queries/loadCollectionsSuccess',
-  LoadCollectionsError = 'compass-saved-aggregations-queries/loadCollectionsError',
-  UpdateNamespaceChecked = 'compass-saved-aggregations-queries/updateNamespaceChecked',
-}
+export const ActionTypes = {
+  OpenModal: 'compass-saved-aggregations-queries/openModal',
+  CloseModal: 'compass-saved-aggregations-queries/closeModal',
+  ConnectionSelected: 'compass-saved-aggregations-queries/connectionSelected',
+  ConnectionSelectedForPreSelectedNamespace:
+    'compass-saved-aggregations-queries/connectionSelectedForPreSelectedNamespace',
+  DatabaseSelected: 'compass-saved-aggregations-queries/DatabaseSelected',
+  LoadDatabases: 'compass-saved-aggregations-queries/loadDatabases',
+  LoadDatabasesSuccess:
+    'compass-saved-aggregations-queries/loadDatabasesSuccess',
+  LoadDatabasesError: 'compass-saved-aggregations-queries/loadDatabasesError',
+  CollectionSelected: 'compass-saved-aggregations-queries/collectionSelected',
+  LoadCollections: 'compass-saved-aggregations-queries/loadCollections',
+  LoadCollectionsSuccess:
+    'compass-saved-aggregations-queries/loadCollectionsSuccess',
+  LoadCollectionsError:
+    'compass-saved-aggregations-queries/loadCollectionsError',
+  UpdateNamespaceChecked:
+    'compass-saved-aggregations-queries/updateNamespaceChecked',
+} as const;
 
 type OpenModalAction = {
-  type: ActionTypes.OpenModal;
+  type: typeof ActionTypes.OpenModal;
   modal: OpenedModal;
   connections: State['connections'];
   selectedItem?: Item;
@@ -75,59 +79,59 @@ type OpenModalAction = {
 };
 
 type CloseModalAction = {
-  type: ActionTypes.CloseModal;
+  type: typeof ActionTypes.CloseModal;
 };
 
 type ConnectionSelectedAction = {
-  type: ActionTypes.ConnectionSelected;
+  type: typeof ActionTypes.ConnectionSelected;
   selectedConnection: string;
 };
 
 // Supposed to happen when a connection is selected without destroying the
 // pre-selected namespace(database / collection) state in the store
 type ConnectionSelectedForPreSelectedNamespaceAction = {
-  type: ActionTypes.ConnectionSelectedForPreSelectedNamespace;
+  type: typeof ActionTypes.ConnectionSelectedForPreSelectedNamespace;
   selectedConnection: string;
 };
 
 type DatabaseSelectedAction = {
-  type: ActionTypes.DatabaseSelected;
+  type: typeof ActionTypes.DatabaseSelected;
   database: string;
 };
 
 type LoadDatabasesAction = {
-  type: ActionTypes.LoadDatabases;
+  type: typeof ActionTypes.LoadDatabases;
 };
 
 type LoadDatabasesSuccessAction = {
-  type: ActionTypes.LoadDatabasesSuccess;
+  type: typeof ActionTypes.LoadDatabasesSuccess;
   databases: string[];
 };
 
 type LoadDatabasesErrorAction = {
-  type: ActionTypes.LoadDatabasesError;
+  type: typeof ActionTypes.LoadDatabasesError;
 };
 
 type CollectionSelectedAction = {
-  type: ActionTypes.CollectionSelected;
+  type: typeof ActionTypes.CollectionSelected;
   collection: string;
 };
 
 type LoadCollectionsAction = {
-  type: ActionTypes.LoadCollections;
+  type: typeof ActionTypes.LoadCollections;
 };
 
 type LoadCollectionsSuccessAction = {
-  type: ActionTypes.LoadCollectionsSuccess;
+  type: typeof ActionTypes.LoadCollectionsSuccess;
   collections: string[];
 };
 
 type LoadCollectionsErrorAction = {
-  type: ActionTypes.LoadCollectionsError;
+  type: typeof ActionTypes.LoadCollectionsError;
 };
 
 type UpdateNamespaceCheckedAction = {
-  type: ActionTypes.UpdateNamespaceChecked;
+  type: typeof ActionTypes.UpdateNamespaceChecked;
   updateItemNamespace: boolean;
 };
 
