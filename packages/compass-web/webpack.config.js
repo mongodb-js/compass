@@ -8,6 +8,7 @@ const {
 } = require('@mongodb-js/webpack-config-compass');
 const { execFile } = require('child_process');
 const { promisify } = require('util');
+const fs = require('fs');
 
 const execFileAsync = promisify(execFile);
 
@@ -163,6 +164,43 @@ module.exports = (env, args) => {
         process: [localPolyfill('process'), 'process'],
       }),
 
+      // Plugin to collect entrypoint filename information and save it in a
+      // manifest file
+      function (compiler) {
+        compiler.hooks.afterEmit.tapPromise(
+          'manifest',
+          async function (compilation) {
+            const stats = compilation.getStats().toJson({
+              all: false,
+              outputPath: true,
+              entrypoints: true,
+            });
+
+            if (!('index' in stats.entrypoints)) {
+              throw new Error(
+                'Missing expected entrypoint in the stats object'
+              );
+            }
+
+            await fs.promises.writeFile(
+              path.join(stats.outputPath, 'assets-manifest.json'),
+              JSON.stringify(
+                stats.entrypoints.index.assets
+                  .map((asset) => {
+                    return asset.name;
+                  })
+                  // The root entrypoint is at the end of the assets list, but
+                  // we'd want to preload it first, reversing here puts the
+                  // manifest list in the load order we want
+                  .reverse(),
+                null,
+                2
+              )
+            );
+          }
+        );
+      },
+
       // Only applied when running webpack in --watch mode. In this mode we want
       // to constantly rebuild d.ts files when source changes, we also don't
       // want to fail and stop compilation if we failed to generate definitions
@@ -251,7 +289,9 @@ module.exports = (env, args) => {
   config.output = {
     path: config.output.path,
     filename: (pathData) => {
-      return pathData.chunk.hasEntryModule() ? 'compass-web.mjs' : '[name].mjs';
+      return pathData.chunk.hasEntryModule()
+        ? 'compass-web.mjs'
+        : '[name].[contenthash].mjs';
     },
     library: {
       type: 'module',
