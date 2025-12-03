@@ -1,6 +1,9 @@
 export function createAgent(): void {
   // The original can return 'undefined' as well
 }
+export function isExistingAgentInstance(): boolean {
+  return false;
+}
 export function useOrCreateAgent(): void {
   // The original can return 'undefined' as well
 }
