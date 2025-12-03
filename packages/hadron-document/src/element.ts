@@ -41,6 +41,7 @@ export function isInternalFieldPath(path: string | number): boolean {
  * Types that are not editable.
  */
 const UNEDITABLE_TYPES = [
+  // TODO: Should we allow editing binary?
   'Binary',
   'Code',
   'MinKey',

@@ -45,6 +45,11 @@ export type TypeCastMap = {
   BSONSymbol: BSONSymbol;
   Timestamp: Timestamp;
   Undefined: undefined;
+  // TODO: Do we want uuid and the legacy uuid types here?
+  // Probably doesn't hurt...
+  // With binary maybe let them display the binary?
+  // Let folks edit binary?
+  // What about the existing UUIDs?
 };
 
 export type TypeCastTypes = keyof TypeCastMap;

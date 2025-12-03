@@ -405,13 +405,16 @@ const CompassComponentsProviderWeb: React.FunctionComponent<{
   darkMode?: boolean;
 }> = ({ darkMode, children }) => {
   const track = useTelemetry();
-  const { enableContextMenus, enableGuideCues } = usePreferences([
-    'enableContextMenus',
-    'enableGuideCues',
-  ]);
+  const { enableContextMenus, enableGuideCues, legacyUUIDDisplayEncoding } =
+    usePreferences([
+      'enableContextMenus',
+      'enableGuideCues',
+      'legacyUUIDDisplayEncoding',
+    ]);
   return (
     <CompassComponentsProvider
       darkMode={darkMode}
+      legacyUUIDDisplayEncoding={legacyUUIDDisplayEncoding}
       // Making sure that compass-web modals and tooltips are definitely not
       // hidden by Cloud UI sidebar and page header
       stackedElementsZIndex={10_000}
