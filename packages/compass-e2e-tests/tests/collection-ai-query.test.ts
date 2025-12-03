@@ -195,7 +195,7 @@ async function setup(
   await browser.setFeature('optInGenAIFeatures', true);
 }
 
-describe.only('Collection ai query with chatbot (with mocked backend)', function () {
+describe('Collection ai query with chatbot (with mocked backend)', function () {
   const dbName = 'test';
   const collName = 'numbers';
   let compass: Compass;
@@ -257,7 +257,7 @@ describe.only('Collection ai query with chatbot (with mocked backend)', function
         const queryBarFilterContent = await browser.getCodemirrorEditorText(
           Selectors.queryBarOptionInputFilter('Documents')
         );
-        return queryBarFilterContent === '{"i":{"$gt":50}}';
+        return queryBarFilterContent === '{i:{$gt:50}}';
       });
 
       // Check that the request was made with the correct parameters.
