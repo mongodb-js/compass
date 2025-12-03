@@ -4,6 +4,7 @@ import { toJSString } from 'mongodb-query-parser';
 // attach large documents and exceed the limit. OpenAI roughly estimates
 // 4 characters = 1 token and we should not exceed context window limits.
 // This roughly translates to 128k tokens.
+// TODO(COMPASS-10129): Adjust this limit based on the model's context window.
 const MAX_TOTAL_PROMPT_LENGTH = 512000;
 const MIN_SAMPLE_DOCUMENTS = 1;
 
@@ -97,7 +98,7 @@ function buildUserPromptForQuery({
   }
   if (schema) {
     messages.push(
-      `Schema from a sample of documents from the collection: ${withCodeFence(
+      `Schema from a sample of documents from the collection:${withCodeFence(
         toJSString(schema)!
       )}`
     );
@@ -119,7 +120,7 @@ function buildUserPromptForQuery({
         MAX_TOTAL_PROMPT_LENGTH
     ) {
       messages.push(
-        `Sample documents from the collection: ${withCodeFence(
+        `Sample documents from the collection:${withCodeFence(
           sampleDocumentsStr
         )}`
       );
@@ -129,7 +130,7 @@ function buildUserPromptForQuery({
         MAX_TOTAL_PROMPT_LENGTH
     ) {
       messages.push(
-        `Sample document from the collection: ${withCodeFence(
+        `Sample document from the collection:${withCodeFence(
           singleDocumentStr
         )}`
       );
