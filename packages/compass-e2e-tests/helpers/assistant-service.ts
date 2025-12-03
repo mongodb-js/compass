@@ -212,8 +212,8 @@ export async function startMockAssistantServer(
           });
 
           if (response.status !== 200) {
-            res.writeHead(response.status);
             res.setHeader('Content-Type', 'application/json');
+            res.writeHead(response.status);
             return res.end(JSON.stringify({ error: response.body }));
           }
 
