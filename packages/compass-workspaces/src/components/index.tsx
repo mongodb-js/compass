@@ -66,6 +66,8 @@ type WorkspacesWithSidebarProps = {
    * safely closed without losing any important unsaved changes
    */
   onBeforeUnloadCallbackRequest?: (canCloseCallback: () => boolean) => void;
+
+  shouldSaveWorkspaces?: () => boolean;
 };
 
 const containerLightThemeStyles = css({
