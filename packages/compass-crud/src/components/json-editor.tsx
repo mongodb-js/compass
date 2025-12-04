@@ -11,6 +11,7 @@ import {
   DocumentList,
   palette,
   spacing,
+  useCurrentValueRef,
   useDarkMode,
 } from '@mongodb-js/compass-components';
 import type { Document } from 'hadron-document';
@@ -79,11 +80,12 @@ const JSONEditor: React.FunctionComponent<JSONEditorProps> = ({
     () => doc.modifiedEJSONString ?? doc.toEJSON()
   );
   const [initialValue] = useState<string>(() => doc.toEJSON());
-  const [containsErrors, setContainsErrors] = useState<boolean>(false);
-  const setModifiedEJSONStringRef = useRef<(value: string | null) => void>(
-    doc.setModifiedEJSONString.bind(doc)
+  const [docValidationError, setDocValidationError] = useState<Error | null>(
+    null
   );
-  setModifiedEJSONStringRef.current = doc.setModifiedEJSONString.bind(doc);
+  const setModifiedEJSONStringRef = useCurrentValueRef<
+    (value: string | null) => void
+  >(doc.setModifiedEJSONString.bind(doc));
 
   useEffect(() => {
     const setModifiedEJSONString = setModifiedEJSONStringRef.current;
@@ -94,7 +96,7 @@ const JSONEditor: React.FunctionComponent<JSONEditorProps> = ({
       // value when the it's unmounted and is restored on next mount.
       setModifiedEJSONString(editing ? value : null);
     };
-  }, [value, editing]);
+  }, [value, editing, setModifiedEJSONStringRef]);
 
   const handleCopy = useCallback(() => {
     copyToClipboard?.(doc);
@@ -108,14 +110,14 @@ const JSONEditor: React.FunctionComponent<JSONEditorProps> = ({
   }, [doc, openInsertDocumentDialog]);
 
   const onChange = useCallback((value: string) => {
-    let containsErrors = false;
     try {
-      JSON.parse(value);
-    } catch {
-      containsErrors = true;
+      HadronDocument.FromEJSON(value);
+      setDocValidationError(null);
+    } catch (error) {
+      setDocValidationError(error as Error);
+    } finally {
+      setValue(value);
     }
-    setContainsErrors(containsErrors);
-    setValue(value);
   }, []);
 
   const onCancel = useCallback(() => {
@@ -293,6 +295,7 @@ const JSONEditor: React.FunctionComponent<JSONEditorProps> = ({
     <div data-testid="editable-json">
       <CodemirrorMultilineEditor
         ref={editorRef}
+        data-testid="json-editor"
         language="json"
         text={value}
         onChangeText={onChange}
@@ -315,7 +318,7 @@ const JSONEditor: React.FunctionComponent<JSONEditorProps> = ({
         editing={!!editing}
         deleting={!!deleting}
         modified={value !== initialValue}
-        containsErrors={containsErrors}
+        validationError={docValidationError}
         onUpdate={onUpdate}
         onDelete={onDelete}
         onCancel={onCancel}

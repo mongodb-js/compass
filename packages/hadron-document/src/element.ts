@@ -989,11 +989,12 @@ export class Element extends EventEmitter {
  */
 export class ElementList implements Iterable<Element> {
   private elements: Element[];
-
+  private parent: Document | Element;
   constructor(
-    private parent: Document | Element,
+    parent: Document | Element,
     originalDoc: BSONObject | BSONArray | null | undefined
   ) {
+    this.parent = parent;
     this.elements = Object.entries(originalDoc ?? {}).map(([k, v]) => {
       return new Element(
         this.isArray() ? parseInt(k, 10) : k,

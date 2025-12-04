@@ -1,5 +1,11 @@
-import React, { useEffect, useRef } from 'react';
-import { css, cx, palette, useDarkMode } from '@mongodb-js/compass-components';
+import React, { useEffect } from 'react';
+import {
+  css,
+  cx,
+  palette,
+  useCurrentValueRef,
+  useDarkMode,
+} from '@mongodb-js/compass-components';
 import type { CollectionTabInfo } from '../stores/workspaces';
 import {
   getActiveTab,
@@ -102,11 +108,10 @@ const WorkspacesWithSidebar: React.FunctionComponent<
   renderModals,
 }) => {
   const darkMode = useDarkMode();
-  const onChange = useRef(onActiveWorkspaceTabChange);
-  onChange.current = onActiveWorkspaceTabChange;
+  const onChange = useCurrentValueRef(onActiveWorkspaceTabChange);
   useEffect(() => {
     onChange.current(activeTab, activeTabCollectionInfo);
-  }, [activeTab, activeTabCollectionInfo]);
+  }, [activeTab, activeTabCollectionInfo, onChange]);
   return (
     <WorkspacesServiceProvider>
       <div

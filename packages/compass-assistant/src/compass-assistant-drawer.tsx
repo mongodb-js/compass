@@ -120,6 +120,10 @@ export const ClearChatButton: React.FunctionComponent<{
     if (confirmed) {
       await stop();
       clearError();
+      // Instead of breaking React rules, we should probably expose the "clear"
+      // as an interface on the chat class. Otherwise it's kinda expected taht
+      // we "mutate" messages directly to update the state
+      // eslint-disable-next-line react-hooks/immutability
       chat.messages = chat.messages.filter(
         (message) => message.metadata?.isPermanent
       );

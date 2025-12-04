@@ -14,31 +14,34 @@ export function isAction<A extends AnyAction>(
 
 export type SerializedExplainPlan = ReturnType<ExplainPlan['serialize']>;
 
-enum ExplainPlanModalActionTypes {
-  CloseExplainPlanModal = 'compass-explain-plan-modal/CloseExplainPlanModal',
-  FetchExplainPlanModalLoading = 'compass-explain-plan-modal/FetchExplainPlanModalLoading',
-  FetchExplainPlanModalSuccess = 'compass-explain-plan-modal/FetchExplainPlanModalSuccess',
-  FetchExplainPlanModalError = 'compass-explain-plan-modal/FetchExplainPlanModalError',
-}
+const ExplainPlanModalActionTypes = {
+  CloseExplainPlanModal: 'compass-explain-plan-modal/CloseExplainPlanModal',
+  FetchExplainPlanModalLoading:
+    'compass-explain-plan-modal/FetchExplainPlanModalLoading',
+  FetchExplainPlanModalSuccess:
+    'compass-explain-plan-modal/FetchExplainPlanModalSuccess',
+  FetchExplainPlanModalError:
+    'compass-explain-plan-modal/FetchExplainPlanModalError',
+} as const;
 
 type CloseExplainPlanModalAction = {
-  type: ExplainPlanModalActionTypes.CloseExplainPlanModal;
+  type: typeof ExplainPlanModalActionTypes.CloseExplainPlanModal;
 };
 
 type FetchExplainPlanModalLoadingAction = {
-  type: ExplainPlanModalActionTypes.FetchExplainPlanModalLoading;
+  type: typeof ExplainPlanModalActionTypes.FetchExplainPlanModalLoading;
   id: number;
   operationType: 'query' | 'aggregation';
 };
 
 type FetchExplainPlanModalSuccessAction = {
-  type: ExplainPlanModalActionTypes.FetchExplainPlanModalSuccess;
+  type: typeof ExplainPlanModalActionTypes.FetchExplainPlanModalSuccess;
   explainPlan: SerializedExplainPlan;
   rawExplainPlan: unknown;
 };
 
 type FetchExplainPlanModalErrorAction = {
-  type: ExplainPlanModalActionTypes.FetchExplainPlanModalError;
+  type: typeof ExplainPlanModalActionTypes.FetchExplainPlanModalError;
   error: string;
   rawExplainPlan: unknown;
 };

@@ -78,7 +78,7 @@ export function useAtlasProxySignIn(): AtlasLoginReturnValue {
     null
   );
 
-  const signIn = ((window as any).__signIn = useCallback(async () => {
+  const signIn = useCallback(async () => {
     try {
       const { projectId } = await fetch('/authenticate', {
         method: 'POST',
@@ -94,9 +94,9 @@ export function useAtlasProxySignIn(): AtlasLoginReturnValue {
         description: (err as any).message,
       });
     }
-  }, []));
+  }, []);
 
-  const signOut = ((window as any).__signOut = useCallback(() => {
+  const signOut = useCallback(() => {
     return fetch('/logout').then(
       () => {
         window.location.reload();
@@ -105,7 +105,11 @@ export function useAtlasProxySignIn(): AtlasLoginReturnValue {
         // noop
       }
     );
-  }, []));
+  }, []);
+
+  // Global is modified only for local dev convenience
+  // eslint-disable-next-line react-hooks/immutability
+  Object.assign(window, { __signIn: signIn, __signOut: signOut });
 
   useEffect(() => {
     let mounted = true;

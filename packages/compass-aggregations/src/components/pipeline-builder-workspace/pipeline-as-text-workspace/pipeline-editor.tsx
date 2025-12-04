@@ -9,6 +9,7 @@ import {
   useDarkMode,
   cx,
   useRequiredURLSearchParams,
+  useCurrentValueRef,
 } from '@mongodb-js/compass-components';
 import {
   createAggregationAutocompleter,
@@ -83,8 +84,7 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
   const track = useTelemetry();
   const connectionInfoRef = useConnectionInfoRef();
   const editorInitialValueRef = useRef<string>(pipelineText);
-  const editorCurrentValueRef = useRef<string>(pipelineText);
-  editorCurrentValueRef.current = pipelineText;
+  const editorCurrentValueRef = useCurrentValueRef<string>(pipelineText);
 
   const { utmSource, utmMedium } = useRequiredURLSearchParams();
 
@@ -112,7 +112,7 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
       );
       editorInitialValueRef.current = editorCurrentValueRef.current;
     }
-  }, [num_stages, track, connectionInfoRef]);
+  }, [editorCurrentValueRef, track, num_stages, connectionInfoRef]);
 
   const annotations: Annotation[] = useMemo(() => {
     return syntaxErrors

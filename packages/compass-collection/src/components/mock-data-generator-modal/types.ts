@@ -2,13 +2,16 @@ import type { MockDataSchemaResponse } from '@mongodb-js/compass-generative-ai';
 import type { FakerArg } from './script-generation-utils';
 import type { MongoDBFieldType } from '../../schema-analysis-types';
 
-export enum MockDataGeneratorStep {
-  SCHEMA_CONFIRMATION = 'SCHEMA_CONFIRMATION',
-  SCHEMA_EDITOR = 'SCHEMA_EDITOR',
-  DOCUMENT_COUNT = 'DOCUMENT_COUNT',
-  PREVIEW_DATA = 'PREVIEW_DATA',
-  GENERATE_DATA = 'GENERATE_DATA',
-}
+export const MockDataGeneratorSteps = {
+  SCHEMA_CONFIRMATION: 'SCHEMA_CONFIRMATION',
+  SCHEMA_EDITOR: 'SCHEMA_EDITOR',
+  DOCUMENT_COUNT: 'DOCUMENT_COUNT',
+  PREVIEW_DATA: 'PREVIEW_DATA',
+  GENERATE_DATA: 'GENERATE_DATA',
+} as const;
+
+export type MockDataGeneratorStep =
+  (typeof MockDataGeneratorSteps)[keyof typeof MockDataGeneratorSteps];
 
 type MockDataGeneratorIdleState = {
   status: 'idle';
@@ -49,8 +52,11 @@ export interface FakerFieldMapping {
 
 export type FakerSchema = Record<string, FakerFieldMapping>;
 
-export enum DataGenerationStep {
-  INSTALL_FAKERJS = 'install fakerjs',
-  CREATE_JS_FILE = 'create js file',
-  RUN_SCRIPT = 'mongosh script',
-}
+export const DataGenerationSteps = {
+  INSTALL_FAKERJS: 'install fakerjs',
+  CREATE_JS_FILE: 'create js file',
+  RUN_SCRIPT: 'mongosh script',
+} as const;
+
+export type DataGenerationStep =
+  (typeof DataGenerationSteps)[keyof typeof DataGenerationSteps];

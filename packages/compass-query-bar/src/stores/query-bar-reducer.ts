@@ -62,25 +62,26 @@ export const INITIAL_STATE: QueryBarState = {
   favoriteQueries: [],
 };
 
-export enum QueryBarActions {
-  ChangeReadonlyConnectionStatus = 'compass-query-bar/ChangeReadonlyConnectionStatus',
-  ToggleQueryOptions = 'compass-query-bar/ToggleQueryOptions',
-  ChangeField = 'compass-query-bar/ChangeField',
-  SetQuery = 'compass-query-bar/SetQuery',
-  ApplyQuery = 'compass-query-bar/ApplyQuery',
-  ResetQuery = 'compass-query-bar/ResetQuery',
-  ApplyFromHistory = 'compass-query-bar/ApplyFromHistory',
-  RecentQueriesFetched = 'compass-query-bar/RecentQueriesFetched',
-  FavoriteQueriesFetched = 'compass-query-bar/FavoriteQueriesFetched',
-}
+export const QueryBarActions = {
+  ChangeReadonlyConnectionStatus:
+    'compass-query-bar/ChangeReadonlyConnectionStatus',
+  ToggleQueryOptions: 'compass-query-bar/ToggleQueryOptions',
+  ChangeField: 'compass-query-bar/ChangeField',
+  SetQuery: 'compass-query-bar/SetQuery',
+  ApplyQuery: 'compass-query-bar/ApplyQuery',
+  ResetQuery: 'compass-query-bar/ResetQuery',
+  ApplyFromHistory: 'compass-query-bar/ApplyFromHistory',
+  RecentQueriesFetched: 'compass-query-bar/RecentQueriesFetched',
+  FavoriteQueriesFetched: 'compass-query-bar/FavoriteQueriesFetched',
+} as const;
 
 type ChangeReadonlyConnectionStatusAction = {
-  type: QueryBarActions.ChangeReadonlyConnectionStatus;
+  type: typeof QueryBarActions.ChangeReadonlyConnectionStatus;
   readonly: boolean;
 };
 
 type ToggleQueryOptionsAction = {
-  type: QueryBarActions.ToggleQueryOptions;
+  type: typeof QueryBarActions.ToggleQueryOptions;
   force?: boolean;
 };
 
@@ -91,7 +92,7 @@ export const toggleQueryOptions = (
 };
 
 type ChangeFieldAction<T = QueryProperty> = {
-  type: QueryBarActions.ChangeField;
+  type: typeof QueryBarActions.ChangeField;
   name: T;
   value: FormField<T>;
 };
@@ -119,7 +120,7 @@ export const changeField = (
 };
 
 type ApplyQueryAction = {
-  type: QueryBarActions.ApplyQuery;
+  type: typeof QueryBarActions.ApplyQuery;
   query: BaseQuery;
   source: string;
 };
@@ -150,7 +151,7 @@ export const applyQuery = (
 };
 
 type ResetQueryAction = {
-  type: QueryBarActions.ResetQuery;
+  type: typeof QueryBarActions.ResetQuery;
   fields: QueryFormFields;
   source: string;
 };
@@ -172,7 +173,7 @@ export const resetQuery = (
 };
 
 type SetQueryAction = {
-  type: QueryBarActions.SetQuery;
+  type: typeof QueryBarActions.SetQuery;
   fields: QueryFormFields;
 };
 
@@ -217,7 +218,7 @@ export const openExportToLanguage = (): QueryBarThunkAction<void> => {
 };
 
 type ApplyFromHistoryAction = {
-  type: QueryBarActions.ApplyFromHistory;
+  type: typeof QueryBarActions.ApplyFromHistory;
   fields: QueryFormFields;
 };
 
@@ -253,7 +254,7 @@ export const applyFromHistory = (
 };
 
 type RecentQueriesFetchedAction = {
-  type: QueryBarActions.RecentQueriesFetched;
+  type: typeof QueryBarActions.RecentQueriesFetched;
   recents: RecentQuery[];
 };
 export const fetchRecents = (): QueryBarThunkAction<
@@ -306,7 +307,7 @@ export const fetchSavedQueries = (): QueryBarThunkAction<void> => {
 };
 
 type FavoriteQueriesFetchedAction = {
-  type: QueryBarActions.FavoriteQueriesFetched;
+  type: typeof QueryBarActions.FavoriteQueriesFetched;
   favorites: FavoriteQuery[];
 };
 export const fetchFavorites = (): QueryBarThunkAction<

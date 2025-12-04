@@ -51,7 +51,7 @@ async function saveWorkspaceStateToUserData(
   try {
     // Transform the state to the format we want to save
     const stateToSave: WorkspacesStateData = {
-      tabs: state.tabs,
+      tabs: state.tabs.filter((tab) => tab.type !== 'Welcome'), // Don't save welcome tabs
       activeTabId: state.activeTabId,
       timestamp: Date.now(),
     };

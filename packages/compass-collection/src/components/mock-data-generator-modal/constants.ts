@@ -1,12 +1,13 @@
-import { MockDataGeneratorStep } from './types';
+import type { MockDataGeneratorStep } from './types';
+import { MockDataGeneratorSteps } from './types';
 import type { MongoDBFieldType } from '../../schema-analysis-types';
 
 export const StepButtonLabelMap = {
-  [MockDataGeneratorStep.SCHEMA_CONFIRMATION]: 'Confirm',
-  [MockDataGeneratorStep.SCHEMA_EDITOR]: 'Next',
-  [MockDataGeneratorStep.DOCUMENT_COUNT]: 'Next',
-  [MockDataGeneratorStep.PREVIEW_DATA]: 'Generate Script',
-  [MockDataGeneratorStep.GENERATE_DATA]: 'Done',
+  [MockDataGeneratorSteps.SCHEMA_CONFIRMATION]: 'Confirm',
+  [MockDataGeneratorSteps.SCHEMA_EDITOR]: 'Next',
+  [MockDataGeneratorSteps.DOCUMENT_COUNT]: 'Next',
+  [MockDataGeneratorSteps.PREVIEW_DATA]: 'Generate Script',
+  [MockDataGeneratorSteps.GENERATE_DATA]: 'Done',
 } as const;
 
 // Map of the current mock data generator step to the next step or 'finish' if the user is on the last step.
@@ -15,12 +16,12 @@ export const MOCK_DATA_GENERATOR_STEP_TO_NEXT_STEP_MAP: Record<
   MockDataGeneratorStep,
   MockDataGeneratorStep | 'finish'
 > = {
-  [MockDataGeneratorStep.SCHEMA_CONFIRMATION]:
-    MockDataGeneratorStep.SCHEMA_EDITOR,
-  [MockDataGeneratorStep.SCHEMA_EDITOR]: MockDataGeneratorStep.DOCUMENT_COUNT,
-  [MockDataGeneratorStep.DOCUMENT_COUNT]: MockDataGeneratorStep.PREVIEW_DATA,
-  [MockDataGeneratorStep.PREVIEW_DATA]: MockDataGeneratorStep.GENERATE_DATA,
-  [MockDataGeneratorStep.GENERATE_DATA]: 'finish',
+  [MockDataGeneratorSteps.SCHEMA_CONFIRMATION]:
+    MockDataGeneratorSteps.SCHEMA_EDITOR,
+  [MockDataGeneratorSteps.SCHEMA_EDITOR]: MockDataGeneratorSteps.DOCUMENT_COUNT,
+  [MockDataGeneratorSteps.DOCUMENT_COUNT]: MockDataGeneratorSteps.PREVIEW_DATA,
+  [MockDataGeneratorSteps.PREVIEW_DATA]: MockDataGeneratorSteps.GENERATE_DATA,
+  [MockDataGeneratorSteps.GENERATE_DATA]: 'finish',
 };
 
 export const DEFAULT_DOCUMENT_COUNT = 1000;
