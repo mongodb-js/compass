@@ -11,7 +11,7 @@ const loggerMock = {
   mongoLogId: (id: number) => id,
 } as unknown as Logger;
 describe('parseXmlToMmsJsonResponse', function () {
-  it('should prioritize aggregation over query fields', function () {
+  it('should return prioritize aggregation over query when available and valid', function () {
     const xmlString = `
       <filter>{ age: { $gt: 25 } }</filter>
       <aggregation>[{ $match: { status: "A" } }]</aggregation>
@@ -35,7 +35,7 @@ describe('parseXmlToMmsJsonResponse', function () {
     });
   });
 
-  it('should return null for aggregation if not provided', function () {
+  it('should not return aggregation if its not available in the response', function () {
     const xmlString = `
       <filter>{ age: { $gt: 25 } }</filter>
     `;
@@ -43,7 +43,6 @@ describe('parseXmlToMmsJsonResponse', function () {
     const result = parseXmlToMmsJsonResponse(xmlString, loggerMock);
     expect(result).to.deep.equal({
       content: {
-        aggregation: null,
         query: {
           filter: '{age:{$gt:25}}',
           project: null,
@@ -55,7 +54,7 @@ describe('parseXmlToMmsJsonResponse', function () {
     });
   });
 
-  it('should return null for query fields if not provided', function () {
+  it('should not return query if its not available in the response', function () {
     const xmlString = `
       <aggregation>[{ $match: { status: "A" } }]</aggregation>
     `;
@@ -66,13 +65,6 @@ describe('parseXmlToMmsJsonResponse', function () {
       content: {
         aggregation: {
           pipeline: "[{$match:{status:'A'}}]",
-        },
-        query: {
-          filter: null,
-          project: null,
-          sort: null,
-          skip: null,
-          limit: null,
         },
       },
     });
@@ -92,7 +84,6 @@ describe('parseXmlToMmsJsonResponse', function () {
 
     expect(result).to.deep.equal({
       content: {
-        aggregation: null,
         query: {
           filter: '{age:{$gt:25}}',
           project: '{name:1,age:1}',
@@ -104,31 +95,31 @@ describe('parseXmlToMmsJsonResponse', function () {
     });
   });
 
-  context('it should return null values for invalid data', function () {
+  context('it should handle invalid data', function () {
     it('invalid json', function () {
       const result = parseXmlToMmsJsonResponse(
         `<filter>{ age: { $gt: 25 </filter>`,
         loggerMock
       );
-      expect(result.content.query.filter).to.equal(null);
+      expect(result.content).to.not.have.property('query');
     });
     it('empty object', function () {
       const result = parseXmlToMmsJsonResponse(
         `<filter>{}</filter>`,
         loggerMock
       );
-      expect(result.content.query.filter).to.equal(null);
+      expect(result.content).to.not.have.property('query');
     });
     it('empty array', function () {
       const result = parseXmlToMmsJsonResponse(
         `<aggregation>[]</aggregation>`,
         loggerMock
       );
-      expect(result.content.aggregation).to.equal(null);
+      expect(result.content).to.not.have.property('aggregation');
     });
     it('zero value', function () {
       const result = parseXmlToMmsJsonResponse(`<limit>0</limit>`, loggerMock);
-      expect(result.content.query.limit).to.equal(null);
+      expect(result.content).to.not.have.property('query');
     });
   });
 });

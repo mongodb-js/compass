@@ -137,6 +137,14 @@ function buildUserPromptForQuery({
     }
   }
   messages.push(queryPrompt);
+
+  // If at this point we have exceeded the limit, throw an error.
+  const totalPromptLength = messages.join('\n').length;
+  if (totalPromptLength > MAX_TOTAL_PROMPT_LENGTH) {
+    throw new Error(
+      'Sorry, your request is too large. Please use a smaller prompt or try using this feature on a collection with smaller documents.'
+    );
+  }
   return messages.join('\n');
 }
 

@@ -12,8 +12,14 @@ export function parseXmlToMmsJsonResponse(xmlString: string, logger: Logger) {
   ] as const;
 
   // Currently the prompt forces LLM to return xml-styled data
-  const result: Partial<Record<(typeof expectedTags)[number], string | null>> =
-    {};
+  const result: Record<(typeof expectedTags)[number], string | null> = {
+    filter: null,
+    project: null,
+    sort: null,
+    skip: null,
+    limit: null,
+    aggregation: null,
+  };
   for (const tag of expectedTags) {
     const regex = new RegExp(`<${tag}>([\\s\\S]*?)<\\/${tag}>`, 'i');
     const match = xmlString.match(regex);
@@ -42,13 +48,15 @@ export function parseXmlToMmsJsonResponse(xmlString: string, logger: Logger) {
     }
   }
 
-  // Keep the response same as we have from mms api. If llm generated
-  // an aggregation, we want to return that instead of a query
-  if (result.aggregation) {
+  const { aggregation, ...query } = result;
+  const isQueryEmpty = Object.values(query).every((v) => v === null);
+
+  // It prioritizes aggregation over query if both are present
+  if (aggregation && !isQueryEmpty) {
     return {
       content: {
         aggregation: {
-          pipeline: result.aggregation,
+          pipeline: aggregation,
         },
         query: {
           filter: null,
@@ -60,17 +68,16 @@ export function parseXmlToMmsJsonResponse(xmlString: string, logger: Logger) {
       },
     };
   }
-
   return {
     content: {
-      aggregation: null,
-      query: {
-        filter: result.filter ?? null,
-        project: result.project ?? null,
-        sort: result.sort ?? null,
-        skip: result.skip ?? null,
-        limit: result.limit ?? null,
-      },
+      ...(aggregation
+        ? {
+            aggregation: {
+              pipeline: aggregation,
+            },
+          }
+        : {}),
+      ...(isQueryEmpty ? {} : { query }),
     },
   };
 }
