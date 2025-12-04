@@ -23,7 +23,8 @@ const handleWorkspacesStateChange = (() => {
  * This allows you to perform side effects when the state is updated.
  */
 export function workspacesStateChangeMiddleware(
-  services: WorkspacesServices
+  services: WorkspacesServices,
+  shouldSaveWorkspaces?: () => boolean
 ): Middleware<Record<string, never>, WorkspacesState> {
   return (store) => (next) => (action: AnyAction) => {
     const prevState = store.getState();
@@ -32,7 +33,10 @@ export function workspacesStateChangeMiddleware(
 
     // Only call the callback if the workspaces state actually changed
     if (prevState !== nextState) {
-      if (services.preferences.getPreferences().enableRestoreWorkspaces) {
+      if (
+        services.preferences.getPreferences().enableRestoreWorkspaces &&
+        shouldSaveWorkspaces?.()
+      ) {
         handleWorkspacesStateChange(nextState, services);
       }
     }
