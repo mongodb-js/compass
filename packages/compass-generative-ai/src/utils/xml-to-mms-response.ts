@@ -1,7 +1,25 @@
 import type { Logger } from '@mongodb-js/compass-logging';
 import parse, { toJSString } from 'mongodb-query-parser';
 
-export function parseXmlToMmsJsonResponse(xmlString: string, logger: Logger) {
+type MmsJsonResponse = {
+  content: {
+    query?: {
+      filter: string | null;
+      project: string | null;
+      sort: string | null;
+      skip: string | null;
+      limit: string | null;
+    };
+    aggregation?: {
+      pipeline: string;
+    };
+  };
+};
+
+export function parseXmlToMmsJsonResponse(
+  xmlString: string,
+  logger: Logger
+): MmsJsonResponse {
   const expectedTags = [
     'filter',
     'project',
