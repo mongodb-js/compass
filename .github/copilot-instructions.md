@@ -1,4 +1,4 @@
-Do not include an overview section in your reviews.
+For overview, do not summarize the changes. Only provide high level feedback on code quality, performance, and best practices.
 
 When reviewing code, focus on:
 
