@@ -56,33 +56,11 @@ export const CompassAssistantDrawer: React.FunctionComponent<{
   appName: string;
   autoOpen?: boolean;
   hasNonGenuineConnections?: boolean;
-}> = ({ appName, autoOpen }) => {
+}> = ({ appName, autoOpen, hasNonGenuineConnections = false }) => {
   const chat = useContext(AssistantContext);
 
   const enableAIAssistant = usePreference('enableAIAssistant');
   const isAiFeatureEnabled = useIsAIFeatureEnabled();
-  const assistantGlobalState = useAssistantGlobalState();
-  // TODO: this is derived from instance model currently, so this is just a quick hack to demonstrate how to use this state after it gets synced. more state needs to be added to the global state
-  const hasNonGenuineConnections = useMemo(() => {
-    return assistantGlobalState.currentActiveConnections.some((connInfo) => {
-      return !connInfo.connectionOptions.connectionString.includes(
-        'mongodb.net'
-      );
-    });
-  }, [assistantGlobalState.currentActiveConnections]);
-
-  const currentActiveConnection = useMemo(() => {
-    return assistantGlobalState.currentActiveConnections.find((connInfo) => {
-      return (
-        connInfo.id === assistantGlobalState.currentWorkspace?.connectionId
-      );
-    });
-  }, [
-    assistantGlobalState.currentActiveConnections,
-    assistantGlobalState.currentWorkspace,
-  ]);
-
-  //console.log({ assistantGlobalState, hasNonGenuineConnections, currentActiveConnection });
 
   if (!enableAIAssistant || !isAiFeatureEnabled) {
     return null;
