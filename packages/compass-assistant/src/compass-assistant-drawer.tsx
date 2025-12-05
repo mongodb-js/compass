@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useMemo } from 'react';
+import React, { useCallback, useContext } from 'react';
 import {
   Badge,
   css,
@@ -21,7 +21,6 @@ import {
 } from 'compass-preferences-model/provider';
 import { useChat } from './@ai-sdk/react/use-chat';
 import type { Chat } from './@ai-sdk/react/chat-react';
-import { useAssistantGlobalState } from './assistant-global-state';
 
 const assistantTitleStyles = css({
   display: 'flex',
