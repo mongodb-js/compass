@@ -164,6 +164,7 @@ export async function connectMongoClientDataService({
     productDocsLink: productDocsLink ?? 'https://www.mongodb.com/docs/compass/',
     monitorCommands: true,
     autoEncryption: connectionOptions.fleOptions?.autoEncryption,
+    useSystemCA: connectionOptions.useSystemCA ?? true,
     ...oidcOptions,
   };
 
