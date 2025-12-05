@@ -1,3 +1,5 @@
+Do not include an overview section in your reviews.
+
 When reviewing code, focus on:
 
 ## Performance Red Flags
@@ -26,6 +28,3 @@ When reviewing code, focus on:
 ### Performance antipatterns
 
 - Warn about db.stats() performance implications, especially in connection with freeStorage: 1. Provide a reference to the official MongoDB documentation.
-
-At the start of every review, say "Started reviewing".
-At the end of every review, say "Done reviewing".
