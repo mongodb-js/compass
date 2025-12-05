@@ -10,17 +10,13 @@ import {
 } from '@mongodb-js/compass-components';
 import { AIExperienceEntry } from '@mongodb-js/compass-generative-ai';
 import type { RootState } from '../../../modules';
-import {
-  exportAggregationResults,
-  runAggregation,
-} from '../../../modules/aggregation';
+import { runAggregation } from '../../../modules/aggregation';
 import { updateView } from '../../../modules/update-view';
 import { explainAggregation } from '../../../modules/explain';
 import {
   getIsPipelineInvalidFromBuilderState,
   getPipelineStageOperatorsFromBuilderState,
 } from '../../../modules/pipeline-builder/builder-helpers';
-import { isOutputStage } from '../../../utils/stage';
 import { openCreateIndexModal } from '../../../modules/insights';
 import {
   useIsAIFeatureEnabled,
@@ -39,10 +35,6 @@ type PipelineActionsProps = {
   showRunButton?: boolean;
   isRunButtonDisabled?: boolean;
   onRunAggregation: () => void;
-
-  showExportButton?: boolean;
-  isExportButtonDisabled?: boolean;
-  onExportAggregationResults: () => void;
 
   showUpdateViewButton?: boolean;
   isUpdateViewButtonDisabled?: boolean;
@@ -68,8 +60,6 @@ export const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
   isOptionsVisible,
   showRunButton,
   isRunButtonDisabled,
-  showExportButton,
-  isExportButtonDisabled,
   showUpdateViewButton,
   isUpdateViewButtonDisabled,
   isExplainButtonDisabled,
@@ -79,7 +69,6 @@ export const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
   onUpdateView,
   onRunAggregation,
   onToggleOptions,
-  onExportAggregationResults,
   onExplainAggregation,
   showCollectionScanInsight,
   onCollectionScanInsightActionButtonClick,
@@ -152,18 +141,6 @@ export const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
           Explain
         </Button>
       )}
-      {!showUpdateViewButton && showExportButton && (
-        <Button
-          aria-label="Export aggregation"
-          data-testid="pipeline-toolbar-export-aggregation-button"
-          variant="default"
-          size="small"
-          onClick={onExportAggregationResults}
-          disabled={isExportButtonDisabled}
-        >
-          Export
-        </Button>
-      )}
       {!showUpdateViewButton && showRunButton && (
         <Button
           aria-label="Run aggregation"
@@ -191,8 +168,6 @@ export const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
 
 const mapState = (state: RootState) => {
   const resultPipeline = getPipelineStageOperatorsFromBuilderState(state);
-  const lastStage = resultPipeline[resultPipeline.length - 1];
-  const isMergeOrOutPipeline = isOutputStage(lastStage);
   const hasSyntaxErrors = getIsPipelineInvalidFromBuilderState(state, false);
   const isBuilderView = state.workspace === 'builder';
   const isAIFetching = state.pipelineBuilder.aiPipeline.status === 'fetching';
@@ -200,8 +175,6 @@ const mapState = (state: RootState) => {
   return {
     isRunButtonDisabled: hasSyntaxErrors || isAIFetching,
     isExplainButtonDisabled: hasSyntaxErrors || isAIFetching,
-    isExportButtonDisabled:
-      isMergeOrOutPipeline || hasSyntaxErrors || isAIFetching,
     showAIEntry:
       !state.pipelineBuilder.aiPipeline.isInputVisible &&
       resultPipeline.length > 0 &&
@@ -217,7 +190,6 @@ const mapState = (state: RootState) => {
 const mapDispatch = {
   onUpdateView: updateView,
   onRunAggregation: runAggregation,
-  onExportAggregationResults: exportAggregationResults,
   onExplainAggregation: explainAggregation,
   onCollectionScanInsightActionButtonClick: openCreateIndexModal,
   onShowAIInputClick: showAIInput,

@@ -53,7 +53,6 @@ export type PipelineToolbarProps = {
   isAggregationGeneratedFromQuery?: boolean;
   isBuilderView: boolean;
   showRunButton: boolean;
-  showExportButton: boolean;
   showExplainButton: boolean;
   onHideAIInputClick?: () => void;
 };
@@ -61,7 +60,6 @@ export type PipelineToolbarProps = {
 export const PipelineToolbar: React.FunctionComponent<PipelineToolbarProps> = ({
   isBuilderView,
   showRunButton,
-  showExportButton,
   showExplainButton,
 }) => {
   const darkMode = useDarkMode();
@@ -91,7 +89,6 @@ export const PipelineToolbar: React.FunctionComponent<PipelineToolbarProps> = ({
           isOptionsVisible={isOptionsVisible}
           onToggleOptions={() => setIsOptionsVisible(!isOptionsVisible)}
           showRunButton={showRunButton}
-          showExportButton={showExportButton}
           showExplainButton={showExplainButton}
         />
         {isOptionsVisible && (

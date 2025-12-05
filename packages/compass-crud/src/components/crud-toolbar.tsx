@@ -7,6 +7,7 @@ import {
 
 import {
   Body,
+  Button,
   DropdownMenuButton,
   Icon,
   IconButton,
@@ -22,6 +23,7 @@ import {
   usePersistedState,
   AtlasSkillsBanner,
   Tooltip,
+  WorkspaceContainer,
 } from '@mongodb-js/compass-components';
 import type { MenuAction, Signal } from '@mongodb-js/compass-components';
 import { ViewSwitcher } from './view-switcher';
@@ -73,6 +75,13 @@ const prevNextStyles = css({
 
 const exportCollectionButtonStyles = css({
   whiteSpace: 'nowrap',
+});
+
+const exportCodeButtonTextStyles = css({
+  [`@container ${WorkspaceContainer.toolbarContainerQueryName} (width < ${DOCUMENT_NARROW_ICON_BREAKPOINT})`]:
+    {
+      display: 'none',
+    },
 });
 
 const outputOptionsButtonStyles = css({
@@ -151,6 +160,7 @@ export type CrudToolbarProps = {
   onExpandAllClicked: () => void;
   onCollapseAllClicked: () => void;
   openExportFileDialog: (exportFullCollection?: boolean) => void;
+  onOpenExportToLanguage: () => void;
   outdated: boolean;
   page: number;
   readonly: boolean;
@@ -184,6 +194,7 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
   onExpandAllClicked,
   onCollapseAllClicked,
   openExportFileDialog,
+  onOpenExportToLanguage,
   outdated,
   page,
   readonly,
@@ -359,22 +370,6 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
               instanceDescription={instanceDescription}
             />
           )}
-          {isImportExportEnabled && (
-            <DropdownMenuButton<ExportDataOption>
-              data-testid="crud-export-collection"
-              actions={exportDataActions}
-              onAction={(action: ExportDataOption) =>
-                openExportFileDialog(action === 'export-full-collection')
-              }
-              buttonText="Export Data"
-              buttonProps={{
-                className: exportCollectionButtonStyles,
-                size: 'xsmall',
-                leftGlyph: <Icon glyph="Export" />,
-              }}
-              narrowBreakpoint={DOCUMENT_NARROW_ICON_BREAKPOINT}
-            />
-          )}
           {!readonly && (
             <UpdateMenu
               isWritable={isWritable && !shouldDisableBulkOp}
@@ -397,6 +392,33 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
               onClick={onDeleteButtonClicked}
             ></DeleteMenu>
           )}
+          {isImportExportEnabled && (
+            <DropdownMenuButton<ExportDataOption>
+              data-testid="crud-export-collection"
+              actions={exportDataActions}
+              onAction={(action: ExportDataOption) =>
+                openExportFileDialog(action === 'export-full-collection')
+              }
+              buttonText="Export Data"
+              buttonProps={{
+                className: exportCollectionButtonStyles,
+                size: 'xsmall',
+                leftGlyph: <Icon glyph="Export" />,
+              }}
+              narrowBreakpoint={DOCUMENT_NARROW_ICON_BREAKPOINT}
+            />
+          )}
+          <Button
+            onClick={onOpenExportToLanguage}
+            title="Export query to language"
+            aria-label="Export query to language"
+            data-testid="crud-export-to-language-button"
+            className={exportCollectionButtonStyles}
+            size="xsmall"
+            leftGlyph={<Icon glyph="Code" />}
+          >
+            <span className={exportCodeButtonTextStyles}>Export Code</span>
+          </Button>
           {insights && <SignalPopover signals={insights} />}
         </div>
         <div className={toolbarRightActionStyles}>

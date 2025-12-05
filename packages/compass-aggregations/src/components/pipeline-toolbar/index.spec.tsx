@@ -20,12 +20,7 @@ describe('PipelineToolbar', function () {
     let toolbar: HTMLElement;
     beforeEach(async function () {
       await renderWithStore(
-        <PipelineToolbar
-          isBuilderView
-          showExportButton
-          showRunButton
-          showExplainButton
-        />,
+        <PipelineToolbar isBuilderView showRunButton showExplainButton />,
         { pipeline: [{ $match: { _id: 1 } }] },
         undefined,
         {
@@ -105,10 +100,6 @@ describe('PipelineToolbar', function () {
       expect(
         within(settings).getByTestId('pipeline-toolbar-create-new-button'),
         'shows create-new button'
-      ).to.exist;
-      expect(
-        within(settings).getByTestId('pipeline-toolbar-export-button'),
-        'shows export to language button'
       ).to.exist;
 
       expect(
@@ -197,12 +188,7 @@ describe('PipelineToolbar', function () {
           assignExperiment={mockAssignExperiment}
           getAssignment={mockGetAssignment}
         >
-          <PipelineToolbar
-            isBuilderView
-            showRunButton
-            showExportButton
-            showExplainButton
-          />
+          <PipelineToolbar isBuilderView showRunButton showExplainButton />
         </CompassExperimentationProvider>,
         { pipeline: [] }, // Initial state
         undefined, // Connection info

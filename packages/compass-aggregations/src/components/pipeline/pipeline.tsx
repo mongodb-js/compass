@@ -49,10 +49,7 @@ export type PipelineProps = Pick<
   | 'savingPipelineCancel'
   | 'clonePipeline'
 > &
-  Pick<
-    PipelineToolbarProps,
-    'showRunButton' | 'showExportButton' | 'showExplainButton'
-  > &
+  Pick<PipelineToolbarProps, 'showRunButton' | 'showExplainButton'> &
   Pick<
     SettingsProps,
     | 'toggleSettingsIsExpanded'
@@ -108,7 +105,6 @@ class Pipeline extends PureComponent<
     return (
       <PipelineToolbar
         showRunButton={this.props.showRunButton}
-        showExportButton={this.props.showExportButton}
         showExplainButton={this.props.showExplainButton}
       />
     );

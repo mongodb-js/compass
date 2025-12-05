@@ -9,7 +9,6 @@ describe('Aggregations [Component]', function () {
   beforeEach(async function () {
     await renderWithStore(
       <Aggregations
-        showExportButton={true}
         showRunButton={true}
         showExplainButton={true}
         enableSearchActivationProgramP1={false}

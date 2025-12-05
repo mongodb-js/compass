@@ -36,7 +36,6 @@ const noop = () => {
   /* no op */
 };
 
-const exportToLanguageButtonId = 'query-bar-open-export-to-language-button';
 const queryHistoryButtonId = 'query-history-button';
 const queryHistoryComponentTestId = 'query-history';
 
@@ -87,7 +86,6 @@ describe('QueryBar Component', function () {
                 onApply={noop}
                 onReset={noop}
                 resultId="123"
-                showExportToLanguageButton
                 {...props}
               />
             </Provider>
@@ -120,7 +118,6 @@ describe('QueryBar Component', function () {
       renderQueryBar({
         onApply: onApplySpy,
         onReset: onResetSpy,
-        showExportToLanguageButton: true,
       });
     });
 
@@ -209,22 +206,7 @@ describe('QueryBar Component', function () {
     it('query controls are enabled', function () {
       expect(
         screen
-          .getByTestId('query-bar-open-export-to-language-button')
-          .getAttribute('aria-disabled')
-      ).to.equal('false');
-      expect(
-        screen
           .getByTestId('query-bar-apply-filter-button')
-          .getAttribute('aria-disabled')
-      ).to.equal('false');
-      expect(
-        screen
-          .getByTestId('query-bar-open-export-to-language-button')
-          .getAttribute('aria-disabled')
-      ).to.equal('false');
-      expect(
-        screen
-          .getByTestId('query-bar-open-export-to-language-button')
           .getAttribute('aria-disabled')
       ).to.equal('false');
     });
@@ -255,22 +237,7 @@ describe('QueryBar Component', function () {
 
       expect(
         screen
-          .getByTestId('query-bar-open-export-to-language-button')
-          .getAttribute('aria-disabled')
-      ).to.equal('true');
-      expect(
-        screen
           .getByTestId('query-bar-apply-filter-button')
-          .getAttribute('aria-disabled')
-      ).to.equal('true');
-      expect(
-        screen
-          .getByTestId('query-bar-open-export-to-language-button')
-          .getAttribute('aria-disabled')
-      ).to.equal('true');
-      expect(
-        screen
-          .getByTestId('query-bar-open-export-to-language-button')
           .getAttribute('aria-disabled')
       ).to.equal('true');
     });
@@ -365,21 +332,6 @@ describe('QueryBar Component', function () {
     it('renders the expanded inputs', function () {
       const queryInputs = screen.getAllByRole('textbox');
       expect(queryInputs.length).to.equal(3);
-    });
-  });
-
-  describe('when showExportToLanguageButton is false', function () {
-    beforeEach(function () {
-      renderQueryBar({
-        showExportToLanguageButton: false,
-      });
-    });
-
-    it('does not render the exportToLanguage button', function () {
-      const exportToLanguageButton = screen.queryByTestId(
-        exportToLanguageButtonId
-      );
-      expect(exportToLanguageButton).to.not.exist;
     });
   });
 

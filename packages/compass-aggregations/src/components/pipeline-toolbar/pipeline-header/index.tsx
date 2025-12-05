@@ -57,7 +57,6 @@ const savedAggregationsPopoverStyles = css({
 type PipelineHeaderProps = {
   isOptionsVisible: boolean;
   showRunButton: boolean;
-  showExportButton: boolean;
   showExplainButton: boolean;
   onToggleOptions: () => void;
   isOpenPipelineVisible: boolean;
@@ -104,7 +103,6 @@ const SavedPipelinesButton: React.FunctionComponent = () => {
 
 export const PipelineHeader: React.FunctionComponent<PipelineHeaderProps> = ({
   showRunButton,
-  showExportButton,
   showExplainButton,
   onToggleOptions,
   isOptionsVisible,
@@ -126,7 +124,6 @@ export const PipelineHeader: React.FunctionComponent<PipelineHeaderProps> = ({
           onToggleOptions={onToggleOptions}
           isOptionsVisible={isOptionsVisible}
           showRunButton={showRunButton}
-          showExportButton={showExportButton}
           showExplainButton={showExplainButton}
         />
       </div>

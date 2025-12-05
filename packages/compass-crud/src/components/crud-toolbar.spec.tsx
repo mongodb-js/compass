@@ -53,6 +53,7 @@ describe('CrudToolbar Component', function () {
         onExpandAllClicked={noop}
         onCollapseAllClicked={noop}
         openExportFileDialog={noop}
+        onOpenExportToLanguage={noop}
         outdated={false}
         page={0}
         readonly={false}
@@ -938,6 +939,7 @@ describe('CrudToolbar Component', function () {
             onExpandAllClicked={noop}
             onCollapseAllClicked={noop}
             openExportFileDialog={noop}
+            onOpenExportToLanguage={noop}
             outdated={false}
             page={0}
             readonly={false}

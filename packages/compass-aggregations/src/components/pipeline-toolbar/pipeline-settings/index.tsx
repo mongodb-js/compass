@@ -1,15 +1,27 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { Button, Icon, css, spacing } from '@mongodb-js/compass-components';
+import {
+  Button,
+  Icon,
+  css,
+  spacing,
+  DropdownMenuButton,
+  WorkspaceContainer,
+} from '@mongodb-js/compass-components';
 import { exportToLanguage } from '../../../modules/export-to-language';
+import { exportAggregationResults } from '../../../modules/aggregation';
 import { SaveMenu } from './pipeline-menus';
 import PipelineName from './pipeline-name';
 import PipelineExtraSettings from './pipeline-extra-settings';
-import type { RootState } from '../../../modules';
-import { getIsPipelineInvalidFromBuilderState } from '../../../modules/pipeline-builder/builder-helpers';
+import type { RootState, PipelineBuilderThunkDispatch } from '../../../modules';
+import {
+  getIsPipelineInvalidFromBuilderState,
+  getPipelineStageOperatorsFromBuilderState,
+} from '../../../modules/pipeline-builder/builder-helpers';
+import { isOutputStage } from '../../../utils/stage';
 import { confirmNewPipeline } from '../../../modules/is-new-pipeline-confirm';
-import { hiddenOnNarrowPipelineToolbarStyles } from '../pipeline-toolbar-container';
 import ModifySourceBanner from '../../modify-source-banner';
+import type { MenuAction } from '@mongodb-js/compass-components';
 
 import { usePreference } from 'compass-preferences-model/provider';
 
@@ -33,10 +45,28 @@ const extraSettingsStyles = css({
   flex: 'none',
 });
 
+const exportDataButtonStyles = css({
+  whiteSpace: 'nowrap',
+});
+
+const exportCodeButtonTextStyles = css({
+  [`@container ${WorkspaceContainer.toolbarContainerQueryName} (width < 900px)`]:
+    {
+      display: 'none',
+    },
+});
+
+type ExportDataOption = 'export-query';
+const exportDataActions: MenuAction<ExportDataOption>[] = [
+  { action: 'export-query', label: 'Export pipeline results' },
+];
+
 type PipelineSettingsProps = {
   editViewName?: string;
   isExportToLanguageEnabled?: boolean;
+  isExportDataEnabled?: boolean;
   onExportToLanguage: () => void;
+  onExportData: (action: ExportDataOption) => void;
   onCreateNewPipeline: () => void;
 };
 
@@ -45,10 +75,13 @@ export const PipelineSettings: React.FunctionComponent<
 > = ({
   editViewName,
   isExportToLanguageEnabled,
+  isExportDataEnabled,
   onExportToLanguage,
+  onExportData,
   onCreateNewPipeline,
 }) => {
   const enableSavedAggregationsQueries = usePreference('enableMyQueries');
+  const enableImportExport = usePreference('enableImportExport');
   const isPipelineNameDisplayed =
     !editViewName && !!enableSavedAggregationsQueries;
 
@@ -70,18 +103,30 @@ export const PipelineSettings: React.FunctionComponent<
             Create new
           </Button>
         )}
+        {enableImportExport && isExportDataEnabled && (
+          <DropdownMenuButton<ExportDataOption>
+            data-testid="pipeline-toolbar-export-data-button"
+            actions={exportDataActions}
+            onAction={onExportData}
+            buttonText="Export Data"
+            buttonProps={{
+              className: exportDataButtonStyles,
+              size: 'xsmall',
+              leftGlyph: <Icon glyph="Export" />,
+            }}
+            narrowBreakpoint="900px"
+          />
+        )}
         <Button
-          variant="primaryOutline"
           size="xsmall"
           leftGlyph={<Icon glyph="Code" />}
           onClick={onExportToLanguage}
-          data-testid="pipeline-toolbar-export-button"
+          data-testid="pipeline-toolbar-export-code-button"
           disabled={!isExportToLanguageEnabled}
-          title="Export to language"
+          title="Export query to language"
+          className={exportDataButtonStyles}
         >
-          <span className={hiddenOnNarrowPipelineToolbarStyles}>
-            Export to language
-          </span>
+          <span className={exportCodeButtonTextStyles}>Export Code</span>
         </Button>
       </div>
       {editViewName && (
@@ -96,14 +141,26 @@ export const PipelineSettings: React.FunctionComponent<
 
 export default connect(
   (state: RootState) => {
+    const resultPipeline = getPipelineStageOperatorsFromBuilderState(state);
+    const lastStage = resultPipeline[resultPipeline.length - 1];
+    const isMergeOrOutPipeline = isOutputStage(lastStage);
     const hasSyntaxErrors = getIsPipelineInvalidFromBuilderState(state, false);
+    const isAIFetching = state.pipelineBuilder.aiPipeline.status === 'fetching';
     return {
       editViewName: state.editViewName ?? undefined,
-      isExportToLanguageEnabled: !hasSyntaxErrors,
+      isExportToLanguageEnabled: !hasSyntaxErrors && !isAIFetching,
+      isExportDataEnabled:
+        !isMergeOrOutPipeline && !hasSyntaxErrors && !isAIFetching,
     };
   },
   {
     onExportToLanguage: exportToLanguage,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    onExportData: (_action: ExportDataOption) => {
+      return (dispatch: PipelineBuilderThunkDispatch) => {
+        dispatch(exportAggregationResults());
+      };
+    },
     onCreateNewPipeline: confirmNewPipeline,
   }
 )(PipelineSettings);
