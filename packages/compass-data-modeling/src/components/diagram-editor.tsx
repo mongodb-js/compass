@@ -233,12 +233,6 @@ const DiagramContent: React.FunctionComponent<{
     isNewlyCreatedDiagram ?? false
   );
 
-  // This is an antipattern example to be detected by Copilot reviewer
-  const [obj, setObj] = useState({ a: '' });
-  useEffect(() => {
-    obj.a = 'abc';
-  }, [obj]);
-
   const setDiagramContainerRef = useCallback((ref: HTMLDivElement | null) => {
     if (ref) {
       // For debugging purposes, we attach the diagram to the ref.
