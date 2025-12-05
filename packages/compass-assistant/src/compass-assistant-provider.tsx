@@ -1,4 +1,4 @@
-import React, { type PropsWithChildren, useCallback, useRef } from 'react';
+import React, { type PropsWithChildren, useRef } from 'react';
 import { type UIMessage } from './@ai-sdk/react/use-chat';
 import { Chat } from './@ai-sdk/react/chat-react';
 import { createContext, useContext } from 'react';
@@ -47,8 +47,6 @@ import {
   AssistantGlobalStateProvider,
   useAssistantGlobalState,
 } from './assistant-global-state';
-import type { GlobalState } from './assistant-global-state';
-import { redactConnectionString } from 'mongodb-connection-string-url';
 
 export const ASSISTANT_DRAWER_ID = 'compass-assistant-drawer';
 
@@ -208,8 +206,6 @@ export const AssistantProvider: React.FunctionComponent<
         currentWorkspaceCollectionInfo,
       } = assistantGlobalStateRef.current;
 
-      console.log('assistantGlobalState', assistantGlobalStateRef.current);
-
       try {
         await atlasAiService.ensureAiFeatureAccess();
       } catch {
@@ -232,7 +228,6 @@ export const AssistantProvider: React.FunctionComponent<
 
       // TODO: only if the context changed since last message
       if (message?.metadata?.sendContext) {
-        console.log('adding extra context to the message');
         chat.messages = [
           ...chat.messages,
           buildContextPromptText({

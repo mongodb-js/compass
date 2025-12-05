@@ -48,7 +48,6 @@ export function useSyncAssistantGlobalState<T extends keyof GlobalState>(
   stateKey: T,
   newState: GlobalState[T]
 ) {
-  console.log('useSyncAssistantGlobalState', stateKey, newState);
   const setState = React.useContext(AssistantGlobalSetStateContext);
   useEffect(() => {
     setState((prevState) => {
