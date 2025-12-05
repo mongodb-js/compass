@@ -18,6 +18,7 @@ import {
 import BSONValue from './bson-value';
 import { expect } from 'chai';
 import { render, cleanup, screen } from '@mongodb-js/testing-library-compass';
+import { LegacyUUIDDisplayContext } from './document-list/legacy-uuid-format-context';
 
 describe('BSONValue', function () {
   afterEach(cleanup);
@@ -44,6 +45,11 @@ describe('BSONValue', function () {
       type: 'Binary',
       value: Binary.createFromHexString('3132303d', Binary.SUBTYPE_UUID),
       expected: "UUID('3132303d')",
+    },
+    {
+      type: 'Binary',
+      value: Binary.createFromBase64('dGVzdA==', Binary.SUBTYPE_UUID_OLD),
+      expected: "Binary.createFromBase64('dGVzdA==', 3)",
     },
     {
       type: 'Binary',
@@ -158,5 +164,110 @@ describe('BSONValue', function () {
 
     expect(await screen.findByTestId('bson-value-in-use-encryption-docs-link'))
       .to.be.visible;
+  });
+
+  describe('Legacy UUID display formats', function () {
+    const legacyUuidBinary = Binary.createFromHexString(
+      '0123456789abcdef0123456789abcdef',
+      Binary.SUBTYPE_UUID_OLD
+    );
+
+    it('should render Legacy UUID without encoding (raw format)', function () {
+      const { container } = render(
+        <LegacyUUIDDisplayContext.Provider value="">
+          <BSONValue type="Binary" value={legacyUuidBinary} />
+        </LegacyUUIDDisplayContext.Provider>
+      );
+
+      expect(container.querySelector('.element-value')?.textContent).to.include(
+        "Binary.createFromBase64('ASNFZ4mrze8BI0VniavN7w==', 3)"
+      );
+    });
+
+    it('should render Legacy UUID in Java format', function () {
+      const { container } = render(
+        <LegacyUUIDDisplayContext.Provider value="LegacyJavaUUID">
+          <BSONValue type="Binary" value={legacyUuidBinary} />
+        </LegacyUUIDDisplayContext.Provider>
+      );
+
+      expect(container.querySelector('.element-value')?.textContent).to.eq(
+        'LegacyJavaUUID("efcdab89-6745-2301-efcd-ab8967452301")'
+      );
+    });
+
+    it('should render Legacy UUID in C# format', function () {
+      const { container } = render(
+        <LegacyUUIDDisplayContext.Provider value="LegacyCSharpUUID">
+          <BSONValue type="Binary" value={legacyUuidBinary} />
+        </LegacyUUIDDisplayContext.Provider>
+      );
+
+      expect(container.querySelector('.element-value')?.textContent).to.eq(
+        'LegacyCSharpUUID("67452301-ab89-efcd-0123-456789abcdef")'
+      );
+    });
+
+    it('should render Legacy UUID in Python format', function () {
+      const { container } = render(
+        <LegacyUUIDDisplayContext.Provider value="LegacyPythonUUID">
+          <BSONValue type="Binary" value={legacyUuidBinary} />
+        </LegacyUUIDDisplayContext.Provider>
+      );
+
+      expect(container.querySelector('.element-value')?.textContent).to.eq(
+        'LegacyPythonUUID("01234567-89ab-cdef-0123-456789abcdef")'
+      );
+    });
+
+    it('should fallback to raw format if UUID conversion fails', function () {
+      // Create an invalid UUID binary that will cause conversion to fail.
+      const invalidUuidBinary = new Binary(
+        Buffer.from('invalid'),
+        Binary.SUBTYPE_UUID_OLD
+      );
+
+      const { container } = render(
+        <LegacyUUIDDisplayContext.Provider value="LegacyJavaUUID">
+          <BSONValue type="Binary" value={invalidUuidBinary} />
+        </LegacyUUIDDisplayContext.Provider>
+      );
+
+      expect(container.querySelector('.element-value')?.textContent).to.include(
+        'Binary.createFromBase64('
+      );
+    });
+
+    it('should fallback to raw format for all Legacy UUID formats on error', function () {
+      const invalidUuidBinary = new Binary(
+        Buffer.from('invalid'),
+        Binary.SUBTYPE_UUID_OLD
+      );
+
+      const formats = [
+        'LegacyJavaUUID',
+        'LegacyCSharpUUID',
+        'LegacyPythonUUID',
+      ] as const;
+
+      formats.forEach((format) => {
+        const { container } = render(
+          <LegacyUUIDDisplayContext.Provider value={format}>
+            <BSONValue type="Binary" value={invalidUuidBinary} />
+          </LegacyUUIDDisplayContext.Provider>
+        );
+
+        expect(
+          container.querySelector('.element-value')?.textContent
+        ).to.include(
+          'Binary.createFromBase64(',
+          `${format} should fallback to raw format`
+        );
+        expect(
+          container.querySelector('.element-value')?.textContent
+        ).to.include(', 3)', `${format} should show subtype 3`);
+        cleanup();
+      });
+    });
   });
 });

@@ -11,7 +11,11 @@ export {
 export { capMaxTimeMSAtPreferenceLimit } from './maxtimems';
 export { FEATURE_FLAG_DEFINITIONS as featureFlags } from './feature-flags';
 export type * from './feature-flags';
-export { getSettingDescription, SORT_ORDER_VALUES } from './preferences-schema';
+export {
+  getSettingDescription,
+  SORT_ORDER_VALUES,
+  LEGACY_UUID_ENCODINGS,
+} from './preferences-schema';
 export type * from './preferences-schema';
 export type { DevtoolsProxyOptions } from '@mongodb-js/devtools-proxy-support';
 export type { ParsedGlobalPreferencesResult } from './global-config';

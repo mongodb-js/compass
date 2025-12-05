@@ -9,6 +9,7 @@ import { spacing } from '@leafygreen-ui/tokens';
 import { css, cx } from '@leafygreen-ui/emotion';
 import type { Theme } from '../hooks/use-theme';
 import { Themes, useDarkMode } from '../hooks/use-theme';
+import { useLegacyUUIDDisplayContext } from './document-list/legacy-uuid-format-context';
 
 type ValueProps =
   | {
@@ -120,6 +121,108 @@ const ObjectIdValue: React.FunctionComponent<PropsByValueType<'ObjectId'>> = ({
       <span className={nonSelectable}>ObjectId(&apos;</span>
       {stringifiedValue}
       <span className={nonSelectable}>&apos;)</span>
+    </BSONValueContainer>
+  );
+};
+
+const toUUIDWithHyphens = (hex: string): string => {
+  return (
+    hex.substring(0, 8) +
+    '-' +
+    hex.substring(8, 12) +
+    '-' +
+    hex.substring(12, 16) +
+    '-' +
+    hex.substring(16, 20) +
+    '-' +
+    hex.substring(20, 32)
+  );
+};
+
+const toLegacyJavaUUID = ({ value }: PropsByValueType<'Binary'>) => {
+  // Get the hex representation from the buffer.
+  const hex = Buffer.from(value.buffer).toString('hex');
+  // Reverse byte order for Java legacy UUID format (reverse all bytes).
+  let msb = hex.substring(0, 16);
+  let lsb = hex.substring(16, 32);
+  // Reverse pairs of hex characters (bytes).
+  msb =
+    msb.substring(14, 16) +
+    msb.substring(12, 14) +
+    msb.substring(10, 12) +
+    msb.substring(8, 10) +
+    msb.substring(6, 8) +
+    msb.substring(4, 6) +
+    msb.substring(2, 4) +
+    msb.substring(0, 2);
+  lsb =
+    lsb.substring(14, 16) +
+    lsb.substring(12, 14) +
+    lsb.substring(10, 12) +
+    lsb.substring(8, 10) +
+    lsb.substring(6, 8) +
+    lsb.substring(4, 6) +
+    lsb.substring(2, 4) +
+    lsb.substring(0, 2);
+  const uuid = msb + lsb;
+  return 'LegacyJavaUUID("' + toUUIDWithHyphens(uuid) + '")';
+};
+
+const toLegacyCSharpUUID = ({ value }: PropsByValueType<'Binary'>) => {
+  // Get the hex representation from the buffer.
+  const hex = Buffer.from(value.buffer).toString('hex');
+  // Reverse byte order for C# legacy UUID format (first 3 groups only).
+  const a =
+    hex.substring(6, 8) +
+    hex.substring(4, 6) +
+    hex.substring(2, 4) +
+    hex.substring(0, 2);
+  const b = hex.substring(10, 12) + hex.substring(8, 10);
+  const c = hex.substring(14, 16) + hex.substring(12, 14);
+  const d = hex.substring(16, 32);
+  const uuid = a + b + c + d;
+  return 'LegacyCSharpUUID("' + toUUIDWithHyphens(uuid) + '")';
+};
+
+const toLegacyPythonUUID = ({ value }: PropsByValueType<'Binary'>) => {
+  // Get the hex representation from the buffer.
+  const hex = Buffer.from(value.buffer).toString('hex');
+  return 'LegacyPythonUUID("' + toUUIDWithHyphens(hex) + '")';
+};
+
+// Binary sub_type 3.
+const LegacyUUIDValue: React.FunctionComponent<PropsByValueType<'Binary'>> = (
+  bsonValue
+) => {
+  const legacyUUIDDisplayEncoding = useLegacyUUIDDisplayContext();
+
+  const stringifiedValue = useMemo(() => {
+    // UUID must be exactly 16 bytes.
+    if (bsonValue.value.buffer.length === 16) {
+      try {
+        if (legacyUUIDDisplayEncoding === 'LegacyJavaUUID') {
+          return toLegacyJavaUUID(bsonValue);
+        } else if (legacyUUIDDisplayEncoding === 'LegacyCSharpUUID') {
+          return toLegacyCSharpUUID(bsonValue);
+        } else if (legacyUUIDDisplayEncoding === 'LegacyPythonUUID') {
+          return toLegacyPythonUUID(bsonValue);
+        }
+      } catch {
+        // Ignore errors and fallback to the raw representation.
+        // The UUID conversion can fail if the binary data is not a valid UUID.
+      }
+    }
+
+    // Raw, no encoding.
+    return `Binary.createFromBase64('${truncate(
+      bsonValue.value.toString('base64'),
+      100
+    )}', ${bsonValue.value.sub_type})`;
+  }, [legacyUUIDDisplayEncoding, bsonValue]);
+
+  return (
+    <BSONValueContainer type="Binary" title={stringifiedValue}>
+      {stringifiedValue}
     </BSONValueContainer>
   );
 };
@@ -242,7 +345,9 @@ const DateValue: React.FunctionComponent<PropsByValueType<'Date'>> = ({
 };
 
 const NumberValue: React.FunctionComponent<
-  PropsByValueType<'Int32' | 'Double'> & { type: 'Int32' | 'Double' }
+  PropsByValueType<'Int32' | 'Double' | 'Int64' | 'Decimal128'> & {
+    type: 'Int32' | 'Double' | 'Int64' | 'Decimal128';
+  }
 > = ({ type, value }) => {
   const stringifiedValue = useMemo(() => {
     return String(value.valueOf());
@@ -377,6 +482,9 @@ const BSONValue: React.FunctionComponent<ValueProps> = (props) => {
     case 'Date':
       return <DateValue value={props.value}></DateValue>;
     case 'Binary':
+      if (props.value.sub_type === Binary.SUBTYPE_UUID_OLD) {
+        return <LegacyUUIDValue value={props.value}></LegacyUUIDValue>;
+      }
       return <BinaryValue value={props.value}></BinaryValue>;
     case 'Int32':
     case 'Double':
