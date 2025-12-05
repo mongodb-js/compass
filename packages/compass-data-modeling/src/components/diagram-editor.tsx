@@ -62,7 +62,6 @@ import {
 import toNS from 'mongodb-ns';
 import { getNamespaceRelationships } from '../utils/utils';
 import { usePreference } from 'compass-preferences-model/provider';
-import { use } from 'chai';
 
 const loadingContainerStyles = css({
   width: '100%',

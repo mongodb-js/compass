@@ -14,7 +14,7 @@ When reviewing code, focus on:
 
 ## Best practices
 
-- Refer to official documentation and best practices for React.js, Redux and Node.js. If you see anti-patterns, highlight them and provide references to the relevant documentation.
+- Refer to official documentation and best practices for React.js, Redux and Node.js. If you see anti-patterns, highlight them and provide links to the relevant official documentation.
 
 ## Review Style
 
