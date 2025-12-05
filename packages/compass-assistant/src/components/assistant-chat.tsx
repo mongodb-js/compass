@@ -263,11 +263,15 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
       const trimmedMessageBody = messageBody.trim();
       if (trimmedMessageBody) {
         await chat.stop();
-        void ensureOptInAndSend?.({ text: trimmedMessageBody }, {}, () => {
-          track('Assistant Prompt Submitted', {
-            user_input_length: trimmedMessageBody.length,
-          });
-        });
+        void ensureOptInAndSend?.(
+          { text: trimmedMessageBody, metadata: { sendContext: true } },
+          {},
+          () => {
+            track('Assistant Prompt Submitted', {
+              user_input_length: trimmedMessageBody.length,
+            });
+          }
+        );
       }
     },
     [track, ensureOptInAndSend, chat]
@@ -374,83 +378,87 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
             ref={messagesContainerRef}
           >
             <div className={messagesWrapStyles}>
-              {messages.map((message, index) => {
-                const { id, role, metadata, parts } = message;
-                const seenTitles = new Set<string>();
-                const sources = [];
-                for (const part of parts) {
-                  // Related sources are type source-url. We want to only
-                  // include url_citation (has url and title), not file_citation
-                  // (no url or title).
-                  if (part.type === 'source-url' && part.url && part.title) {
-                    if (!seenTitles.has(part.title)) {
-                      seenTitles.add(part.title);
-                      sources.push({
-                        children: part.title,
-                        href: part.url,
-                        variant: 'Docs',
-                      });
+              {messages
+                .filter((message) => !message.id.startsWith('system-context-'))
+                .map((message, index) => {
+                  const { id, role, metadata, parts } = message;
+                  const seenTitles = new Set<string>();
+                  const sources = [];
+                  for (const part of parts) {
+                    // Related sources are type source-url. We want to only
+                    // include url_citation (has url and title), not file_citation
+                    // (no url or title).
+                    if (part.type === 'source-url' && part.url && part.title) {
+                      if (!seenTitles.has(part.title)) {
+                        seenTitles.add(part.title);
+                        sources.push({
+                          children: part.title,
+                          href: part.url,
+                          variant: 'Docs',
+                        });
+                      }
                     }
                   }
-                }
-                if (metadata?.confirmation) {
-                  const { description, state } = metadata.confirmation;
-                  const isLastMessage = index === messages.length - 1;
+                  if (metadata?.confirmation) {
+                    const { description, state } = metadata.confirmation;
+                    const isLastMessage = index === messages.length - 1;
+
+                    return (
+                      <ConfirmationMessage
+                        key={id}
+                        // Show as rejected if it's not the last message
+                        state={
+                          !isLastMessage && state === 'pending'
+                            ? 'rejected'
+                            : state
+                        }
+                        title="Please confirm your request"
+                        description={description}
+                        onConfirm={() =>
+                          handleConfirmation(message, 'confirmed')
+                        }
+                        onReject={() => handleConfirmation(message, 'rejected')}
+                      />
+                    );
+                  }
+
+                  const displayText =
+                    message.metadata?.displayText ||
+                    message.parts
+                      ?.filter((part) => part.type === 'text')
+                      .map((part) => part.text)
+                      .join('');
+
+                  const isSender = role === 'user';
 
                   return (
-                    <ConfirmationMessage
+                    <Message
                       key={id}
-                      // Show as rejected if it's not the last message
-                      state={
-                        !isLastMessage && state === 'pending'
-                          ? 'rejected'
-                          : state
-                      }
-                      title="Please confirm your request"
-                      description={description}
-                      onConfirm={() => handleConfirmation(message, 'confirmed')}
-                      onReject={() => handleConfirmation(message, 'rejected')}
-                    />
+                      sourceType="markdown"
+                      isSender={isSender}
+                      messageBody={displayText}
+                      data-testid={`assistant-message-${id}`}
+                    >
+                      {isSender === false && (
+                        <Message.Actions
+                          onRatingChange={(event, state) =>
+                            handleFeedback({ message, state })
+                          }
+                          onSubmitFeedback={(event, state) =>
+                            handleFeedback({ message, state })
+                          }
+                          className={noWrapFixesStyles}
+                        />
+                      )}
+                      {sources.length > 0 && (
+                        <Message.Links
+                          className={noWrapFixesStyles}
+                          links={sources}
+                        />
+                      )}
+                    </Message>
                   );
-                }
-
-                const displayText =
-                  message.metadata?.displayText ||
-                  message.parts
-                    ?.filter((part) => part.type === 'text')
-                    .map((part) => part.text)
-                    .join('');
-
-                const isSender = role === 'user';
-
-                return (
-                  <Message
-                    key={id}
-                    sourceType="markdown"
-                    isSender={isSender}
-                    messageBody={displayText}
-                    data-testid={`assistant-message-${id}`}
-                  >
-                    {isSender === false && (
-                      <Message.Actions
-                        onRatingChange={(event, state) =>
-                          handleFeedback({ message, state })
-                        }
-                        onSubmitFeedback={(event, state) =>
-                          handleFeedback({ message, state })
-                        }
-                        className={noWrapFixesStyles}
-                      />
-                    )}
-                    {sources.length > 0 && (
-                      <Message.Links
-                        className={noWrapFixesStyles}
-                        links={sources}
-                      />
-                    )}
-                  </Message>
-                );
-              })}
+                })}
             </div>
           </div>
           {error && (

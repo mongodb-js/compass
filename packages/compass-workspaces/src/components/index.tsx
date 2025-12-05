@@ -16,6 +16,7 @@ import type { WorkspaceTab } from '../types';
 import Workspaces from './workspaces';
 import { connect } from '../stores/context';
 import { WorkspacesServiceProvider } from '../provider';
+import { useSyncAssistantGlobalState } from '@mongodb-js/compass-assistant';
 
 type WorkspacesWithSidebarProps = {
   /**
@@ -112,6 +113,11 @@ const WorkspacesWithSidebar: React.FunctionComponent<
   useEffect(() => {
     onChange.current(activeTab, activeTabCollectionInfo);
   }, [activeTab, activeTabCollectionInfo, onChange]);
+  useSyncAssistantGlobalState('currentWorkspace', activeTab);
+  useSyncAssistantGlobalState(
+    'currentWorkspaceCollectionInfo',
+    activeTabCollectionInfo
+  );
   return (
     <WorkspacesServiceProvider>
       <div
@@ -132,11 +138,14 @@ const WorkspacesWithSidebar: React.FunctionComponent<
 
 export default connect((state: WorkspacesState) => {
   const activeTab = getActiveTab(state);
+  console.log('workspaces with sidebar connect', state);
   return {
     activeTab,
     activeTabCollectionInfo:
       activeTab?.type === 'Collection'
-        ? state.collectionInfo[activeTab.namespace]
+        ? state.collectionInfo[
+            `${activeTab.connectionId}.${activeTab.namespace}`
+          ]
         : null,
   };
 })(WorkspacesWithSidebar);
