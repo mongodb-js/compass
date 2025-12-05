@@ -62,6 +62,7 @@ import {
 import toNS from 'mongodb-ns';
 import { getNamespaceRelationships } from '../utils/utils';
 import { usePreference } from 'compass-preferences-model/provider';
+import { use } from 'chai';
 
 const loadingContainerStyles = css({
   width: '100%',
@@ -232,6 +233,12 @@ const DiagramContent: React.FunctionComponent<{
   const [showDataInfoBanner, setshowDataInfoBanner] = useState(
     isNewlyCreatedDiagram ?? false
   );
+
+  // This is an antipattern example to be detected by Copilot reviewer
+  const [obj, setObj] = useState({ a: '' });
+  useEffect(() => {
+    obj.a = 'abc';
+  }, [obj]);
 
   const setDiagramContainerRef = useCallback((ref: HTMLDivElement | null) => {
     if (ref) {
