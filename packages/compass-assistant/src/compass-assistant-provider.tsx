@@ -1,4 +1,4 @@
-import React, { type PropsWithChildren, useRef } from 'react';
+import React, { type PropsWithChildren, useCallback, useRef } from 'react';
 import { type UIMessage } from './@ai-sdk/react/use-chat';
 import { Chat } from './@ai-sdk/react/chat-react';
 import { createContext, useContext } from 'react';
@@ -13,11 +13,13 @@ import {
 } from '@mongodb-js/atlas-service/provider';
 import { DocsProviderTransport } from './docs-provider-transport';
 import {
+  useCurrentValueRef,
   useDrawerActions,
   useInitialValue,
 } from '@mongodb-js/compass-components';
 import {
   buildConnectionErrorPrompt,
+  buildContextPromptText,
   buildExplainPlanPrompt,
   buildProactiveInsightsPrompt,
   type EntryPointMessage,
@@ -31,7 +33,7 @@ import {
   createLoggerLocator,
   type Logger,
 } from '@mongodb-js/compass-logging/provider';
-import type { ConnectionInfo } from '@mongodb-js/connection-info';
+import { type ConnectionInfo } from '@mongodb-js/connection-info';
 import {
   telemetryLocator,
   type TrackFunction,
@@ -41,11 +43,17 @@ import type { AtlasAiService } from '@mongodb-js/compass-generative-ai/provider'
 import { atlasAiServiceLocator } from '@mongodb-js/compass-generative-ai/provider';
 import { buildConversationInstructionsPrompt } from './prompts';
 import { createOpenAI } from '@ai-sdk/openai';
-import { AssistantGlobalStateProvider } from './assistant-global-state';
+import {
+  AssistantGlobalStateProvider,
+  useAssistantGlobalState,
+} from './assistant-global-state';
+import type { GlobalState } from './assistant-global-state';
+import { redactConnectionString } from 'mongodb-connection-string-url';
 
 export const ASSISTANT_DRAWER_ID = 'compass-assistant-drawer';
 
 export type AssistantMessage = UIMessage & {
+  role?: 'user' | 'assistant' | 'system';
   metadata?: {
     /** The text to display instead of the message text. */
     displayText?: string;
@@ -64,6 +72,8 @@ export type AssistantMessage = UIMessage & {
     instructions?: string;
     /** Excludes history if this message is the last message being sent */
     sendWithoutHistory?: boolean;
+    /** Whether to send the current context along with the message if the context changed */
+    sendContext?: boolean;
   };
 };
 
@@ -184,12 +194,22 @@ export const AssistantProvider: React.FunctionComponent<
   const { openDrawer } = useDrawerActions();
   const track = useTelemetry();
 
+  const assistantGlobalStateRef = useCurrentValueRef(useAssistantGlobalState());
+
   const ensureOptInAndSend = useInitialValue(() => {
     return async function (
       message: SendMessage,
       options: SendOptions,
       callback: () => void
     ) {
+      const {
+        currentWorkspace,
+        currentActiveConnections,
+        currentWorkspaceCollectionInfo,
+      } = assistantGlobalStateRef.current;
+
+      console.log('assistantGlobalState', assistantGlobalStateRef.current);
+
       try {
         await atlasAiService.ensureAiFeatureAccess();
       } catch {
@@ -203,6 +223,24 @@ export const AssistantProvider: React.FunctionComponent<
 
       if (chat.status === 'streaming') {
         await chat.stop();
+      }
+
+      const currentActiveConnection =
+        currentActiveConnections.find((connInfo) => {
+          return connInfo.id === currentWorkspace?.connectionId;
+        }) ?? null;
+
+      // TODO: only if the context changed since last message
+      if (message?.metadata?.sendContext) {
+        console.log('adding extra context to the message');
+        chat.messages = [
+          ...chat.messages,
+          buildContextPromptText({
+            currentWorkspace,
+            currentActiveConnection,
+            currentWorkspaceCollectionInfo,
+          }),
+        ];
       }
 
       await chat.sendMessage(message, options);
@@ -225,6 +263,7 @@ export const AssistantProvider: React.FunctionComponent<
             metadata: {
               ...metadata,
               source: entryPointName,
+              sendContext: true,
             },
           },
           {},

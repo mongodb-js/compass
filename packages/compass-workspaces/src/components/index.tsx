@@ -117,6 +117,10 @@ const WorkspacesWithSidebar: React.FunctionComponent<
     onChange.current(activeTab, activeTabCollectionInfo);
   }, [activeTab, activeTabCollectionInfo, onChange]);
   useSyncAssistantGlobalState('currentWorkspace', activeTab);
+  useSyncAssistantGlobalState(
+    'currentWorkspaceCollectionInfo',
+    activeTabCollectionInfo
+  );
   return (
     <WorkspacesServiceProvider>
       <div
@@ -137,11 +141,14 @@ const WorkspacesWithSidebar: React.FunctionComponent<
 
 export default connect((state: WorkspacesState) => {
   const activeTab = getActiveTab(state);
+  console.log('workspaces with sidebar connect', state);
   return {
     activeTab,
     activeTabCollectionInfo:
       activeTab?.type === 'Collection'
-        ? state.collectionInfo[activeTab.namespace]
+        ? state.collectionInfo[
+            `${activeTab.connectionId}.${activeTab.namespace}`
+          ]
         : null,
   };
 })(WorkspacesWithSidebar);
