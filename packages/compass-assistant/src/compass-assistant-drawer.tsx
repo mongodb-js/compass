@@ -71,7 +71,18 @@ export const CompassAssistantDrawer: React.FunctionComponent<{
     });
   }, [assistantGlobalState.currentActiveConnections]);
 
-  console.log({ assistantGlobalState, hasNonGenuineConnections });
+  const currentActiveConnection = useMemo(() => {
+    return assistantGlobalState.currentActiveConnections.find((connInfo) => {
+      return (
+        connInfo.id === assistantGlobalState.currentWorkspace?.connectionId
+      );
+    });
+  }, [
+    assistantGlobalState.currentActiveConnections,
+    assistantGlobalState.currentWorkspace,
+  ]);
+
+  //console.log({ assistantGlobalState, hasNonGenuineConnections, currentActiveConnection });
 
   if (!enableAIAssistant || !isAiFeatureEnabled) {
     return null;

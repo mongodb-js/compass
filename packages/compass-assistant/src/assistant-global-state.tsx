@@ -1,13 +1,16 @@
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import React, { useEffect } from 'react';
 
-// TODO: move workspace types to their own package and `import { WorkspaceTab } from '@mongodb-js/workspace-info'` instead
+// TODO: move workspace types to their own package and `import { WorkspaceTab, CollectionTabInfo } from '@mongodb-js/workspace-info'` instead
 type WorkspaceTab = any;
+type CollectionTabInfo = any;
 
-type GlobalState = {
+export type GlobalState = {
   currentActiveConnections: ConnectionInfo[];
   // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
   currentWorkspace: WorkspaceTab | null;
+  // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
+  currentWorkspaceCollectionInfo: CollectionTabInfo | null;
   currentQuery: object | null;
   currentAggregation: object | null;
 };
@@ -15,6 +18,7 @@ type GlobalState = {
 const INITIAL_STATE: GlobalState = {
   currentActiveConnections: [],
   currentWorkspace: null,
+  currentWorkspaceCollectionInfo: null,
   currentQuery: null,
   currentAggregation: null,
 };
@@ -44,6 +48,7 @@ export function useSyncAssistantGlobalState<T extends keyof GlobalState>(
   stateKey: T,
   newState: GlobalState[T]
 ) {
+  console.log('useSyncAssistantGlobalState', stateKey, newState);
   const setState = React.useContext(AssistantGlobalSetStateContext);
   useEffect(() => {
     setState((prevState) => {
