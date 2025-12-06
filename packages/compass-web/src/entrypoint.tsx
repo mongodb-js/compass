@@ -306,6 +306,8 @@ export type CompassWebProps = {
    * safely closed without losing any important unsaved changes
    */
   onBeforeUnloadCallbackRequest?: (canCloseCallback: () => boolean) => void;
+
+  shouldSaveWorkspaces?: () => boolean;
 };
 
 function CompassWorkspace({
@@ -495,6 +497,7 @@ const CompassWeb = ({
   onOpenConnectViaModal,
   onFailToLoadConnections,
   onBeforeUnloadCallbackRequest,
+  shouldSaveWorkspaces,
 }: CompassWebProps) => {
   const appRegistry = useInitialValue(new AppRegistry());
   const logger = useCompassWebLogger({
@@ -585,6 +588,7 @@ const CompassWeb = ({
                                 <WithConnectionsStore>
                                   <CompassWorkspace
                                     initialWorkspaceTabs={initialWorkspaceTabs}
+                                    shouldSaveWorkspaces={shouldSaveWorkspaces}
                                     onActiveWorkspaceTabChange={
                                       onActiveWorkspaceTabChange
                                     }

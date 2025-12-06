@@ -54,7 +54,8 @@ export type WorkspacesServices = {
 
 export function configureStore(
   initialWorkspaceTabs: OpenWorkspaceOptions[] | undefined | null,
-  services: WorkspacesServices
+  services: WorkspacesServices,
+  shouldSaveWorkspaces?: () => boolean
 ) {
   const initialTabs =
     initialWorkspaceTabs && initialWorkspaceTabs.length > 0
@@ -73,7 +74,7 @@ export function configureStore(
     },
     applyMiddleware(
       thunk.withExtraArgument(services),
-      workspacesStateChangeMiddleware(services)
+      workspacesStateChangeMiddleware(services, shouldSaveWorkspaces)
     )
   );
 
@@ -84,9 +85,11 @@ export function activateWorkspacePlugin(
   {
     initialWorkspaceTabs,
     onBeforeUnloadCallbackRequest,
+    shouldSaveWorkspaces,
   }: {
     initialWorkspaceTabs?: OpenWorkspaceOptions[] | null;
     onBeforeUnloadCallbackRequest?: (canCloseCallback: () => boolean) => void;
+    shouldSaveWorkspaces?: () => boolean;
   },
   {
     globalAppRegistry,
@@ -98,14 +101,18 @@ export function activateWorkspacePlugin(
   }: WorkspacesServices,
   { on, cleanup, addCleanup }: ActivateHelpers
 ) {
-  const store = configureStore(initialWorkspaceTabs, {
-    globalAppRegistry,
-    instancesManager,
-    connections,
-    logger,
-    preferences,
-    userData,
-  });
+  const store = configureStore(
+    initialWorkspaceTabs,
+    {
+      globalAppRegistry,
+      instancesManager,
+      connections,
+      logger,
+      preferences,
+      userData,
+    },
+    shouldSaveWorkspaces
+  );
 
   void store.dispatch(loadSavedWorkspaces());
 
