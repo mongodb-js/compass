@@ -1,15 +1,15 @@
 import { expect } from 'chai';
-import { parseXmlToMmsJsonResponse } from './xml-to-mms-response';
+import { parseXmlToJsonResponse } from './parse-xml-response';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 
-describe('parseXmlToMmsJsonResponse', function () {
+describe('parseXmlToJsonResponse', function () {
   it('should return prioritize aggregation over query when available and valid', function () {
     const xmlString = `
       <filter>{ age: { $gt: 25 } }</filter>
       <aggregation>[{ $match: { status: "A" } }]</aggregation>
     `;
 
-    const result = parseXmlToMmsJsonResponse(xmlString, createNoopLogger());
+    const result = parseXmlToJsonResponse(xmlString, createNoopLogger());
 
     expect(result).to.deep.equal({
       content: {
@@ -32,7 +32,7 @@ describe('parseXmlToMmsJsonResponse', function () {
       <filter>{ age: { $gt: 25 } }</filter>
     `;
 
-    const result = parseXmlToMmsJsonResponse(xmlString, createNoopLogger());
+    const result = parseXmlToJsonResponse(xmlString, createNoopLogger());
     expect(result).to.deep.equal({
       content: {
         query: {
@@ -51,7 +51,7 @@ describe('parseXmlToMmsJsonResponse', function () {
       <aggregation>[{ $match: { status: "A" } }]</aggregation>
     `;
 
-    const result = parseXmlToMmsJsonResponse(xmlString, createNoopLogger());
+    const result = parseXmlToJsonResponse(xmlString, createNoopLogger());
 
     expect(result).to.deep.equal({
       content: {
@@ -72,7 +72,7 @@ describe('parseXmlToMmsJsonResponse', function () {
       <aggregation></aggregation>
     `;
 
-    const result = parseXmlToMmsJsonResponse(xmlString, createNoopLogger());
+    const result = parseXmlToJsonResponse(xmlString, createNoopLogger());
 
     expect(result).to.deep.equal({
       content: {
@@ -89,28 +89,28 @@ describe('parseXmlToMmsJsonResponse', function () {
 
   context('it should handle invalid data', function () {
     it('invalid json', function () {
-      const result = parseXmlToMmsJsonResponse(
+      const result = parseXmlToJsonResponse(
         `<filter>{ age: { $gt: 25 </filter>`,
         createNoopLogger()
       );
       expect(result.content).to.not.have.property('query');
     });
     it('empty object', function () {
-      const result = parseXmlToMmsJsonResponse(
+      const result = parseXmlToJsonResponse(
         `<filter>{}</filter>`,
         createNoopLogger()
       );
       expect(result.content).to.not.have.property('query');
     });
     it('empty array', function () {
-      const result = parseXmlToMmsJsonResponse(
+      const result = parseXmlToJsonResponse(
         `<aggregation>[]</aggregation>`,
         createNoopLogger()
       );
       expect(result.content).to.not.have.property('aggregation');
     });
     it('zero value', function () {
-      const result = parseXmlToMmsJsonResponse(
+      const result = parseXmlToJsonResponse(
         `<limit>0</limit>`,
         createNoopLogger()
       );
