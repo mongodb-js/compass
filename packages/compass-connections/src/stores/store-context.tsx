@@ -1,10 +1,4 @@
-import React, {
-  createContext,
-  useContext,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import React, { createContext, useContext, useRef, useState } from 'react';
 import type {
   MapStateToProps,
   ReactReduxContextValue,
@@ -49,7 +43,6 @@ import { createServiceLocator } from '@mongodb-js/compass-app-registry';
 import { isEqual } from 'lodash';
 import type { ImportConnectionOptions } from '@mongodb-js/connection-storage/provider';
 import { useInitialValue } from '@mongodb-js/compass-components';
-import { useSyncAssistantGlobalState } from '@mongodb-js/compass-assistant';
 
 type ConnectionsStore = ReturnType<typeof configureStore> extends Store<
   infer S,
@@ -169,19 +162,6 @@ export const ConnectionActionsProvider: React.FunctionComponent = ({
   const [actions] = useState(() => {
     return getConnectionsActions(dispatch);
   });
-  // TODO: should probably be separate from this provider
-  const activeConnections = useConnectionsList((connection) => {
-    return connection.status === 'connected';
-  });
-  const activeConnectionsInfo = useMemo(() => {
-    return activeConnections.map((connection) => {
-      return connection.info;
-    });
-  }, [activeConnections]);
-  useSyncAssistantGlobalState(
-    'currentActiveConnections',
-    activeConnectionsInfo
-  );
   return (
     <ConnectionActionsContext.Provider value={actions}>
       {children}
