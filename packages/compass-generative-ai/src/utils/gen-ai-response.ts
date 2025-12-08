@@ -20,14 +20,7 @@ export async function getAiQueryResponse(
     abortSignal,
   }).toUIMessageStream();
   const chunks: string[] = [];
-  let done = false;
-  const reader = response.getReader();
-  while (!done) {
-    const { done: _done, value } = await reader.read();
-    if (_done) {
-      done = true;
-      break;
-    }
+  for await (const value of response) {
     if (value.type === 'text-delta') {
       chunks.push(value.delta);
     }
