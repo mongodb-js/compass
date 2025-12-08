@@ -78,6 +78,7 @@ export type EmittedAppRegistryEvents =
   | 'open-import'
   | 'open-export'
   | 'document-deleted'
+  | 'documents-deleted' //Added new type for handling bulk deletion
   | 'document-inserted';
 
 export type CrudActions = {
@@ -1978,6 +1979,10 @@ class CrudStoreImpl
       try {
         await this.dataService.deleteMany(this.state.ns, filter);
         this.bulkDeleteSuccess();
+        // Emit both events so all listeners update (fixes bulk delete document count not updating)
+        const payload = { view: this.state.view, ns: this.state.ns };
+        this.localAppRegistry.emit('documents-deleted', payload);
+        this.connectionScopedAppRegistry.emit('documents-deleted', payload);
       } catch (ex) {
         this.bulkDeleteFailed(ex as Error);
       }
