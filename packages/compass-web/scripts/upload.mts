@@ -2,7 +2,8 @@ import fs from 'fs';
 import path from 'path';
 import child_process from 'child_process';
 import { brotliCompressSync } from 'zlib';
-import { S3 } from '@aws-sdk/client-s3';
+import { promisify } from 'util';
+import S3 from 'aws-sdk/clients/s3.js';
 
 // TODO(SRE-4971): replace with a compass-web-only bucket when provisioned
 const DOWNLOADS_BUCKET = 'cdn-origin-compass';
@@ -36,8 +37,9 @@ if (!artifacts.length) {
 
 const contentTypeForExt: Record<string, string> = {
   '.mjs': 'text/javascript',
-  '.ts': 'text/typescript', // type definitions
   '.txt': 'text/plain', // extracted third party license info
+  '.ts': 'text/typescript', // type definitions
+  '.json': 'application/json', // tsdoc meta
 };
 
 const ALLOWED_EXTS = Object.keys(contentTypeForExt);
@@ -49,8 +51,6 @@ for (const file of artifacts) {
 }
 
 const s3Client = new S3({
-  region: 'us-east-1',
-  useArnRegion: true,
   credentials: getCredentials(),
 });
 
@@ -69,7 +69,13 @@ for (const file of artifacts) {
   const fileContent = fs.readFileSync(filePath, 'utf8');
   const compressedFileContent = brotliCompressSync(fileContent);
 
-  const res = await s3Client.putObject({
+  const asyncPutObject: (
+    params: S3.Types.PutObjectRequest
+  ) => Promise<S3.Types.PutObjectOutput> = promisify(
+    s3Client.putObject.bind(s3Client)
+  );
+
+  const res = await asyncPutObject({
     ACL: 'private',
     Bucket: DOWNLOADS_BUCKET,
     Key: objectKey,
