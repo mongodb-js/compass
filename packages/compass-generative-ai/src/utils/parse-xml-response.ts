@@ -1,7 +1,7 @@
 import type { Logger } from '@mongodb-js/compass-logging';
 import parse, { toJSString } from 'mongodb-query-parser';
 
-type JsonResponse = {
+type ParsedXmlJsonResponse = {
   content: {
     query?: {
       filter: string | null;
@@ -19,7 +19,7 @@ type JsonResponse = {
 export function parseXmlToJsonResponse(
   xmlString: string,
   logger: Logger
-): JsonResponse {
+): ParsedXmlJsonResponse {
   const expectedTags = [
     'filter',
     'project',
@@ -28,6 +28,12 @@ export function parseXmlToJsonResponse(
     'limit',
     'aggregation',
   ] as const;
+
+  const parser = new DOMParser();
+  const xmlDoc = parser.parseFromString(
+    `<root>${xmlString}</root>`,
+    'text/xml'
+  );
 
   // Currently the prompt forces LLM to return xml-styled data
   const result: Record<(typeof expectedTags)[number], string | null> = {
@@ -39,10 +45,8 @@ export function parseXmlToJsonResponse(
     aggregation: null,
   };
   for (const tag of expectedTags) {
-    const regex = new RegExp(`<${tag}>([\\s\\S]*?)<\\/${tag}>`, 'i');
-    const match = xmlString.match(regex);
-    if (match && match[1]) {
-      const value = match[1].trim();
+    const value = xmlDoc.querySelector(tag)?.textContent?.trim();
+    if (value) {
       try {
         const tagValue = parse(value);
         if (
