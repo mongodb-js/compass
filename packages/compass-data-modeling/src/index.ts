@@ -4,7 +4,7 @@ import { preferencesLocator } from 'compass-preferences-model/provider';
 import { connectionsLocator } from '@mongodb-js/compass-connections/provider';
 import { telemetryLocator } from '@mongodb-js/compass-telemetry/provider';
 import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
-import type { WorkspacePlugin } from '@mongodb-js/compass-workspaces';
+import type { WorkspacePlugin } from '@mongodb-js/workspace-info';
 import DataModelingComponent from './components/data-modeling';
 import { mongoDBInstancesManagerLocator } from '@mongodb-js/compass-app-stores/provider';
 import { dataModelStorageServiceLocator } from './provider';

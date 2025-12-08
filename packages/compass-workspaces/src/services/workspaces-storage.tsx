@@ -5,7 +5,7 @@ import {
   type ReadAllResult,
 } from '@mongodb-js/compass-user-data';
 import React, { useContext } from 'react';
-import { WorkspacesStateSchema } from '../types';
+import { WorkspacesStateSchema } from '@mongodb-js/workspace-info';
 
 const throwIfNotTestEnv = () => {
   if (process.env.NODE_ENV !== 'test') {

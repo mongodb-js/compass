@@ -8,10 +8,10 @@ import { useConnectionActions } from '@mongodb-js/compass-connections/provider';
 import { CompassInstanceStorePlugin } from '@mongodb-js/compass-app-stores';
 import type {
   CollectionTabInfo,
-  OpenWorkspaceOptions,
   WorkspaceTab,
-} from '@mongodb-js/compass-workspaces';
+} from '@mongodb-js/workspace-info';
 import WorkspacesPlugin, {
+  type OpenWorkspaceOptions,
   WorkspacesProvider,
   WorkspacesStorageServiceProviderWeb,
 } from '@mongodb-js/compass-workspaces';

@@ -1,7 +1,7 @@
 import React from 'react';
 import { AtlasUserData, type IUserData } from '@mongodb-js/compass-user-data';
 import { WorkspacesStorageServiceContext } from './workspaces-storage';
-import { WorkspacesStateSchema } from '../types';
+import { WorkspacesStateSchema } from '@mongodb-js/workspace-info';
 import { EJSON } from 'bson';
 import { useInitialValue } from '@mongodb-js/compass-components';
 

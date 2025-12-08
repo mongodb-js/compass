@@ -243,6 +243,7 @@
     "@mongodb-js/testing-library-compass": "^1.4.0",
     "@mongodb-js/tsconfig-compass": "^1.2.12",
     "@mongodb-js/webpack-config-compass": "^1.10.12",
+    "@mongodb-js/workspace-info": "^1.0.0",
     "@segment/analytics-node": "^1.1.4",
     "@types/minimatch": "^5.1.2",
     "bson": "^6.10.4",
