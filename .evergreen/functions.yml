@@ -521,6 +521,25 @@ functions:
           echo "Uploading release assets to S3 and GitHub if needed..."
           npm run --workspace mongodb-compass upload
 
+  publish-web:
+    - command: ec2.assume_role
+      params:
+        role_arn: ${downloads_bucket_role_arn}
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        env:
+          <<: *compass-env
+        script: |
+          set -e
+          # Load environment variables
+          eval $(.evergreen/print-compass-env.sh)
+          echo "Compiling compass-web"
+          npm run --workspace @mongodb-js/compass-web compile
+          echo "Uploading release assets to S3"
+          npm run --workspace @mongodb-js/compass-web upload
+
   publish-dev-release-info:
     - command: shell.exec
       params:
