@@ -62,13 +62,15 @@
     "test-cov": "nyc --compact=false --produce-source-map=false -x \"**/*.spec.*\" --reporter=lcov --reporter=text --reporter=html npm run test",
     "test-watch": "npm run test -- --watch",
     "test-ci": "npm run test-cov",
-    "reformat": "npm run eslint . -- --fix && npm run prettier -- --write ."
+    "reformat": "npm run eslint . -- --fix && npm run prettier -- --write .",
+    "upload": "node --experimental-strip-types scripts/upload.mts"
   },
   "peerDependencies": {
     "react": "^17.0.2",
     "react-dom": "^17.0.2"
   },
   "devDependencies": {
+    "@aws-sdk/client-s3": "^3.943.0",
     "@microsoft/api-extractor": "^7.55.1",
     "@mongodb-js/atlas-service": "^0.73.0",
     "@mongodb-js/compass-aggregations": "^9.93.0",
