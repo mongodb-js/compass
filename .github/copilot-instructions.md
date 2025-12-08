@@ -17,6 +17,7 @@ When reviewing code, focus on:
 ## Best practices
 
 - Refer to official documentation and best practices for React.js, Redux and Node.js. If you see anti-patterns, highlight them and provide links to the relevant official documentation.
+- Encourage modern JavaScript/TypeScript features and syntax where applicable (e.g. for-of loops, nullish coalescing for Javascript; utility types or satisfied for Typescript..).
 
 ### Testing
 
