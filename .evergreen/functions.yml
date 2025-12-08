@@ -48,6 +48,9 @@ variables:
     GITHUB_TOKEN: ${devtoolsbot_github_token}
     DOWNLOAD_CENTER_AWS_ACCESS_KEY_ID: ${aws_key_evergreen_integrations}
     DOWNLOAD_CENTER_AWS_SECRET_ACCESS_KEY: ${aws_secret_evergreen_integrations}
+    DOWNLOAD_CENTER_NEW_AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+    DOWNLOAD_CENTER_NEW_AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+    DOWNLOAD_CENTER_NEW_AWS_SESSION_TOKEN: ${AWS_SESSION_TOKEN}
     EVERGREEN_BUCKET_NAME: mciuploads
     EVERGREEN_BUCKET_KEY_PREFIX: ${project}/${revision}_${revision_order_id}
     MONGODB_RUNNER_LOG_DIR: ${workdir}/src/.testserver/
@@ -504,16 +507,13 @@ functions:
   publish:
     - command: ec2.assume_role
       params:
-        role_arn: 'arn:aws:iam::119629040606:role/s3-access.cdn-origin-compass'
+        role_arn: ${downloads_bucket_role_arn}
     - command: shell.exec
       params:
         working_dir: src
         shell: bash
         env:
           <<: *compass-env
-          DOWNLOAD_CENTER_NEW_AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
-          DOWNLOAD_CENTER_NEW_AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
-          DOWNLOAD_CENTER_NEW_AWS_SESSION_TOKEN: ${AWS_SESSION_TOKEN}
         script: |
           set -e
           # Load environment variables
