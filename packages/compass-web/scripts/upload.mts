@@ -54,6 +54,8 @@ const s3Client = new S3({
   credentials: getCredentials(),
 });
 
+const CACHE_MAX_AGE = 5 * 1000 * 60; // 5mins
+
 for (const file of artifacts) {
   const filePath = path.join(DIST_DIR, file);
   // NB: important that upload root directory is always `compass/`
@@ -83,6 +85,7 @@ for (const file of artifacts) {
     ContentType: contentTypeForExt[path.extname(file)],
     ContentEncoding: 'br',
     ContentLength: compressedFileContent.byteLength,
+    CacheControl: `public, max-age=${CACHE_MAX_AGE}, must-revalidate`,
   });
 
   console.log('Successfully uploaded %s (ETag: %s)', file, res.ETag);
