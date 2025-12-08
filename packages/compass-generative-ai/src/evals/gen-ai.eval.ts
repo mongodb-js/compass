@@ -65,11 +65,9 @@ async function makeAssistantCall(
   });
 
   const chunks: string[] = [];
-
   for await (const chunk of result.toUIMessageStream()) {
-    const t = ((chunk as any).delta as string) || '';
-    if (t) {
-      chunks.push(t);
+    if (chunk.type === 'text-delta') {
+      chunks.push(chunk.delta);
     }
   }
   return {
@@ -78,7 +76,7 @@ async function makeAssistantCall(
 }
 
 function allText(messages: Message[]): string {
-  return messages.map((m) => m.text).join('\n');
+  return messages.map((m) => m.content).join('\n');
 }
 
 const Factuality: ConversationEvalScorer = ({ input, output, expected }) => {
