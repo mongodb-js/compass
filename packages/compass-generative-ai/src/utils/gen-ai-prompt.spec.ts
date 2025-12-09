@@ -11,6 +11,7 @@ const OPTIONS: PromptContextOptions = {
   userInput: 'Find all users older than 30',
   databaseName: 'airbnb',
   collectionName: 'listings',
+  userId: 'test-user-id',
   schema: {
     _id: {
       types: [
@@ -50,9 +51,10 @@ describe('GenAI Prompts', function () {
 
     expect(prompt).to.be.a('string');
     expect(prompt).to.include(
-      `Write a query that does the following: "${OPTIONS.userInput}"`,
+      'Write a query that does the following:',
       'includes user prompt'
     );
+    expect(prompt).to.include(OPTIONS.userInput, 'includes user prompt');
     expect(prompt).to.include(
       `Database name: "${OPTIONS.databaseName}"`,
       'includes database name'
@@ -93,9 +95,10 @@ describe('GenAI Prompts', function () {
 
     expect(prompt).to.be.a('string');
     expect(prompt).to.include(
-      `Generate an aggregation that does the following: "${OPTIONS.userInput}"`,
+      'Generate an aggregation that does the following:',
       'includes user prompt'
     );
+    expect(prompt).to.include(OPTIONS.userInput, 'includes user prompt');
     expect(prompt).to.include(
       `Database name: "${OPTIONS.databaseName}"`,
       'includes database name'
