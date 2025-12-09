@@ -1,15 +1,13 @@
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
+import type {
+  WorkspaceTab,
+  CollectionTabInfo,
+} from '@mongodb-js/workspace-info';
 import React, { useEffect } from 'react';
-
-// TODO: move workspace types to their own package and `import { WorkspaceTab, CollectionTabInfo } from '@mongodb-js/workspace-info'` instead
-type WorkspaceTab = any;
-type CollectionTabInfo = any;
 
 export type GlobalState = {
   currentActiveConnections: ConnectionInfo[];
-  // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
   currentWorkspace: WorkspaceTab | null;
-  // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
   currentWorkspaceCollectionInfo: CollectionTabInfo | null;
   currentQuery: object | null;
   currentAggregation: object | null;

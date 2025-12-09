@@ -2,6 +2,10 @@ import {
   getConnectionTitle,
   type ConnectionInfo,
 } from '@mongodb-js/connection-info';
+import type {
+  WorkspaceTab,
+  CollectionTabInfo,
+} from '@mongodb-js/workspace-info';
 import { redactConnectionString } from 'mongodb-connection-string-url';
 import type { AssistantMessage } from './compass-assistant-provider';
 
@@ -229,20 +233,17 @@ ${connectionError}`,
   };
 };
 
-// TODO: move workspace types to their own package and `import { WorkspaceTab, CollectionTabInfo } from '@mongodb-js/workspace-info'` instead
-type WorkspaceTab = any;
-type WorkspaceCollectionInfo = any;
-
-export function buildContextPromptText({
+export function buildContextPrompt({
   currentWorkspace,
   currentActiveConnection,
   currentWorkspaceCollectionInfo,
 }: {
-  // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
   currentWorkspace: WorkspaceTab | null;
-  currentActiveConnection: ConnectionInfo | null;
-  // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
-  currentWorkspaceCollectionInfo: WorkspaceCollectionInfo | null;
+  currentActiveConnection: Pick<ConnectionInfo, 'connectionOptions'> | null;
+  currentWorkspaceCollectionInfo: Pick<
+    CollectionTabInfo,
+    'isTimeSeries' | 'sourceName'
+  > | null;
 }): AssistantMessage {
   const parts: string[] = [];
 
@@ -257,14 +258,22 @@ export function buildContextPromptText({
   }
 
   if (currentWorkspace) {
-    const tabName = (currentWorkspace.subTab ??
-      currentWorkspace.type) as string;
-    const namespacePart = currentWorkspace.namespace
+    const isNamespaceTab =
+      currentWorkspace.type === 'Collection' ||
+      currentWorkspace.type === 'Collections';
+    const tabName =
+      (currentWorkspace.type === 'Collection' && currentWorkspace.subTab) ||
+      currentWorkspace.type;
+    const namespacePart = isNamespaceTab
       ? ` for the "${currentWorkspace.namespace}" namespace`
       : '';
     const lines = [`The user is on the "${tabName}" tab${namespacePart}.`];
     // looks like normal collections don't have currentWorkspaceCollectionInfo
-    if (currentWorkspace.namespace && currentWorkspaceCollectionInfo) {
+    if (
+      isNamespaceTab &&
+      currentWorkspace.namespace &&
+      currentWorkspaceCollectionInfo
+    ) {
       if (currentWorkspaceCollectionInfo.isTimeSeries) {
         lines.push(
           `"${currentWorkspace.namespace}" is a time-series collection.`
@@ -273,7 +282,7 @@ export function buildContextPromptText({
 
       if (currentWorkspaceCollectionInfo.sourceName) {
         lines.push(
-          `"${currentWorkspace.namespace}" is a view on the ${currentWorkspaceCollectionInfo.sourceName} collection.`
+          `"${currentWorkspace.namespace}" is a view on the "${currentWorkspaceCollectionInfo.sourceName}" collection.`
         );
       }
     }
@@ -295,7 +304,5 @@ export function buildContextPromptText({
     role: 'system',
   };
 
-  // eslint-disable-next-line no-console
-  console.log('system context prompt', prompt, (prompt.parts[0] as any).text);
   return prompt;
 }

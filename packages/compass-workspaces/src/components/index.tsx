@@ -141,7 +141,6 @@ const WorkspacesWithSidebar: React.FunctionComponent<
 
 export default connect((state: WorkspacesState) => {
   const activeTab = getActiveTab(state);
-  console.log('workspaces with sidebar connect', state);
   return {
     activeTab,
     activeTabCollectionInfo:

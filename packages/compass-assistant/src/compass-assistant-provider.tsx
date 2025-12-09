@@ -19,7 +19,7 @@ import {
 } from '@mongodb-js/compass-components';
 import {
   buildConnectionErrorPrompt,
-  buildContextPromptText,
+  buildContextPrompt,
   buildExplainPlanPrompt,
   buildProactiveInsightsPrompt,
   type EntryPointMessage,
@@ -223,14 +223,14 @@ export const AssistantProvider: React.FunctionComponent<
 
       const currentActiveConnection =
         currentActiveConnections.find((connInfo) => {
-          return connInfo.id === currentWorkspace?.connectionId;
+          return connInfo.id === (currentWorkspace as any)?.connectionId;
         }) ?? null;
 
       // TODO: only if the context changed since last message
       if (message?.metadata?.sendContext) {
         chat.messages = [
           ...chat.messages,
-          buildContextPromptText({
+          buildContextPrompt({
             currentWorkspace,
             currentActiveConnection,
             currentWorkspaceCollectionInfo,

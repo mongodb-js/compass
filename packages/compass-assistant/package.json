@@ -61,6 +61,7 @@
     "@mongodb-js/compass-logging": "^1.7.25",
     "@mongodb-js/compass-telemetry": "^1.19.5",
     "@mongodb-js/connection-info": "^0.24.0",
+    "@mongodb-js/workspace-info": "^1.0.0",
     "ai": "^5.0.26",
     "compass-preferences-model": "^2.66.3",
     "mongodb-connection-string-url": "^3.0.1",
