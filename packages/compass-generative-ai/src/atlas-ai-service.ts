@@ -259,7 +259,6 @@ export type MockDataSchemaResponse = z.infer<
   typeof MockDataSchemaResponseShape
 >;
 
-// TODO: Evaluate this
 function getActiveUserId(preferences: PreferencesAccess): string {
   const { currentUserId, telemetryAnonymousId, telemetryAtlasUserId } =
     preferences.getPreferences();
