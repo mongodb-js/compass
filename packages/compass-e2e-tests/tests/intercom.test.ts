@@ -29,7 +29,7 @@ describe('Intercom integration', function () {
     await cleanup(compass);
   });
 
-  it('should load Intercom script', async function () {
+  it('should load the Intercom script in an iframe', async function () {
     const isIntercomAvailable = await compass.browser.execute(() => {
       return !!process.env.HADRON_METRICS_INTERCOM_APP_ID;
     });
@@ -42,7 +42,15 @@ describe('Intercom integration', function () {
     }
 
     await compass.browser.waitUntil(
-      () => {
+      async () => {
+        // Ensure the Intercom script is loaded in the iframe.
+        // TODO
+        await compass.browser.execute(() => {
+          // eslint-disable-next-line no-restricted-globals
+          return 'Intercom' in window && typeof window.Intercom === 'function';
+        });
+
+        // Ensure it's not loaded in the main window.
         return compass.browser.execute(() => {
           // eslint-disable-next-line no-restricted-globals
           return 'Intercom' in window && typeof window.Intercom === 'function';

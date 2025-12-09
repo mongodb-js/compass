@@ -71,6 +71,7 @@ const defaultCSP = {
     'https://widget.intercom.io',
     'https://js.intercomcdn.com',
     "'unsafe-eval'",
+    "'unsafe-inline'",
   ],
   'object-src': ["'none'"],
   'font-src': ['*', 'https://js.intercomcdn.com'],

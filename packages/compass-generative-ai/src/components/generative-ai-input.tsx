@@ -22,10 +22,7 @@ import {
   spacing,
   useDarkMode,
 } from '@mongodb-js/compass-components';
-import {
-  IntercomTrackingEvent,
-  intercomTrack,
-} from '@mongodb-js/compass-intercom';
+import { intercomTrack } from '@mongodb-js/compass-intercom';
 
 import { DEFAULT_AI_ENTRY_SIZE } from './ai-entry-svg';
 import { AIFeedback } from './ai-feedback';
@@ -351,7 +348,7 @@ function GenerativeAIInput({
 
   const handleSubmit = useCallback(
     (aiPromptText: string) => {
-      intercomTrack(IntercomTrackingEvent.submittedNlPrompt);
+      intercomTrack('submitted-nl-prompt');
       onSubmitText(aiPromptText);
     },
     [onSubmitText]

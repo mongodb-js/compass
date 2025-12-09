@@ -16,7 +16,7 @@ import * as webvitals from 'web-vitals';
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-import { setupIntercom } from '@mongodb-js/compass-intercom';
+import { IsolatedIntercomManager } from '@mongodb-js/compass-intercom';
 import { createLogger } from '@mongodb-js/compass-logging';
 import { createIpcTrack } from '@mongodb-js/compass-telemetry';
 
@@ -319,7 +319,7 @@ class Application {
 
   private async setupIntercomAndLogError() {
     try {
-      await setupIntercom(defaultPreferencesInstance);
+      await IsolatedIntercomManager.init(defaultPreferencesInstance);
     } catch (e) {
       log.warn(
         mongoLogId(1001000289),

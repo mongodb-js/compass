@@ -1,2 +1,4 @@
-export { setupIntercom } from './setup-intercom';
-export { intercomTrack, IntercomTrackingEvent } from './intercom-track';
+export {
+  IsolatedIntercomManager,
+  intercomTrack,
+} from './isolated-intercom-manager';
