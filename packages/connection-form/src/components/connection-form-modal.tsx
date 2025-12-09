@@ -6,7 +6,6 @@ import ConnectionForm from './connection-form';
 
 const styles = css({
   width: '960px',
-  maxWidth: '960px',
 });
 
 export default function ConnectionFormModal({
