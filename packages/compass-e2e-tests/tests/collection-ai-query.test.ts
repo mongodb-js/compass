@@ -269,6 +269,11 @@ describe('Collection ai query with chatbot (with mocked backend)', function () {
       // enabling this feature.
       expect(queryRequest.content.model).to.equal('mongodb-chat-latest');
       expect(queryRequest.content.instructions).to.be.string;
+      expect(queryRequest.content.metadata).to.have.property('userId');
+      expect(queryRequest.content.metadata.store).to.have.equal('true');
+      expect(queryRequest.content.metadata.sensitiveStorage).to.have.equal(
+        'sensitive'
+      );
       expect(queryRequest.content.input).to.be.an('array').of.length(1);
 
       const message = queryRequest.content.input[0];
