@@ -59,6 +59,7 @@
     "@mongodb-js/compass-maybe-protect-connection-string": "^0.64.3",
     "@mongodb-js/compass-telemetry": "^1.19.5",
     "@mongodb-js/compass-workspaces": "^0.70.0",
+    "@mongodb-js/workspace-info": "^1.0.0",
     "@mongodb-js/connection-info": "^0.24.0",
     "@mongodb-js/mongodb-constants": "^0.17.0",
     "compass-preferences-model": "^2.66.3",

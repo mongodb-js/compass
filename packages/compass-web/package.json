@@ -97,6 +97,7 @@
     "@mongodb-js/compass-user-data": "^0.11.2",
     "@mongodb-js/compass-welcome": "^0.87.0",
     "@mongodb-js/compass-workspaces": "^0.70.0",
+    "@mongodb-js/workspace-info": "^1.0.0",
     "@mongodb-js/connection-info": "^0.24.0",
     "@mongodb-js/connection-storage": "^0.63.0",
     "@mongodb-js/devtools-proxy-support": "^0.5.5",

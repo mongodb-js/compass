@@ -1,6 +1,6 @@
 import React from 'react';
 import { registerCompassPlugin } from '@mongodb-js/compass-app-registry';
-import type { WorkspacePlugin } from '@mongodb-js/compass-workspaces';
+import type { WorkspacePlugin } from '@mongodb-js/workspace-info';
 import {
   WelcomeModal as WelcomeModalComponent,
   DesktopWelcomeTab,

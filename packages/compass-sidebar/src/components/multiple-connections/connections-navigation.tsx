@@ -30,7 +30,7 @@ import type {
   SidebarConnection,
   SidebarItem,
 } from '@mongodb-js/compass-connections-navigation';
-import type { WorkspaceTab } from '@mongodb-js/compass-workspaces';
+import type { WorkspaceTab } from '@mongodb-js/workspace-info';
 import {
   getConnectionTitle,
   type ConnectionInfo,

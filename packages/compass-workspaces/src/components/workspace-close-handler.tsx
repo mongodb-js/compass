@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import type { WorkspaceTab } from '../types';
+import type { WorkspaceTab } from '@mongodb-js/workspace-info';
 import { useWorkspaceTabId } from './workspace-tab-state-provider';
 import { useCurrentValueRef } from '@mongodb-js/compass-components';
 

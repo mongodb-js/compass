@@ -3,7 +3,7 @@ import {
   WorkspaceTab,
   type WorkspaceTabCoreProps,
 } from '@mongodb-js/compass-components';
-import type { WorkspacePluginProps } from '@mongodb-js/compass-workspaces';
+import type { WorkspacePluginProps } from '@mongodb-js/workspace-info';
 
 export const WorkspaceName = 'Welcome' as const;
 

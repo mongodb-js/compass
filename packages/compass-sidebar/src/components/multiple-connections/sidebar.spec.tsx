@@ -10,7 +10,7 @@ import {
   userEvent,
 } from '@mongodb-js/testing-library-compass';
 import MultipleConnectionSidebar from './sidebar';
-import type { WorkspaceTab } from '@mongodb-js/compass-workspaces';
+import type { WorkspaceTab } from '@mongodb-js/workspace-info';
 import { WorkspacesProvider } from '@mongodb-js/compass-workspaces';
 import type { WorkspacesService } from '@mongodb-js/compass-workspaces/provider';
 import { WorkspacesServiceProvider } from '@mongodb-js/compass-workspaces/provider';

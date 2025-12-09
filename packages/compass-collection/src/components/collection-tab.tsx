@@ -12,7 +12,7 @@ import {
 } from './collection-tab-provider';
 import type { CollectionTabOptions } from '../stores/collection-tab';
 import type { CollectionMetadata } from 'mongodb-collection-model';
-import type { CollectionSubtab } from '@mongodb-js/compass-workspaces';
+import type { CollectionSubtab } from '@mongodb-js/workspace-info';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import {
   useConnectionInfoRef,

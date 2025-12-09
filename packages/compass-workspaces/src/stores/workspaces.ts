@@ -3,8 +3,15 @@ import type { ThunkAction } from 'redux-thunk';
 import { ObjectId } from 'bson';
 import AppRegistry from '@mongodb-js/compass-app-registry';
 import toNS from 'mongodb-ns';
-import type { Workspace, WorkspacesServices, CollectionSubtab } from '..';
-import type { WorkspaceTab, WorkspaceTabProps } from '../types';
+import type { WorkspacesServices } from '..';
+import type {
+  WorkspaceTab,
+  WorkspaceTabProps,
+  CollectionSubtab,
+  CollectionTabInfo,
+  DatabaseTabInfo,
+  Workspace,
+} from '@mongodb-js/workspace-info';
 import { isEqual } from 'lodash';
 import { cleanupTabState } from '../components/workspace-tab-state-provider';
 import {
@@ -73,17 +80,6 @@ function isAction<A extends AnyAction>(
 ): action is A {
   return action.type === type;
 }
-
-export type CollectionTabInfo = {
-  isTimeSeries: boolean;
-  isReadonly: boolean;
-  sourceName?: string | null;
-  inferredFromPrivileges: boolean;
-};
-
-export type DatabaseTabInfo = {
-  inferredFromPrivileges: boolean;
-};
 
 export type WorkspacesState = {
   /**
@@ -641,29 +637,6 @@ export const getActiveTab = (state: WorkspacesState): WorkspaceTab | null => {
   return state.tabs[getActiveTabIndex(state)] ?? null;
 };
 
-export type OpenWorkspaceOptions =
-  | Pick<Workspace<'Welcome'>, 'type'>
-  | Pick<Workspace<'My Queries'>, 'type'>
-  | Pick<Workspace<'Data Modeling'>, 'type'>
-  | Pick<
-      Workspace<'Shell'>,
-      'type' | 'connectionId' | 'initialEvaluate' | 'initialInput'
-    >
-  | Pick<Workspace<'Databases'>, 'type' | 'connectionId'>
-  | Pick<Workspace<'Performance'>, 'type' | 'connectionId'>
-  | Pick<Workspace<'Collections'>, 'type' | 'connectionId' | 'namespace'>
-  | (Pick<Workspace<'Collection'>, 'type' | 'connectionId' | 'namespace'> &
-      Partial<
-        Pick<
-          Workspace<'Collection'>,
-          | 'initialQuery'
-          | 'initialAggregation'
-          | 'initialPipeline'
-          | 'initialPipelineText'
-          | 'editViewName'
-        >
-      > & { initialSubtab?: CollectionSubtab });
-
 type OpenWorkspaceAction = {
   type: typeof WorkspacesActions.OpenWorkspace;
   workspace: OpenWorkspaceOptions;
@@ -692,6 +665,29 @@ export type TabOptions = {
    */
   newTab?: boolean;
 };
+
+export type OpenWorkspaceOptions =
+  | Pick<Workspace<'Welcome'>, 'type'>
+  | Pick<Workspace<'My Queries'>, 'type'>
+  | Pick<Workspace<'Data Modeling'>, 'type'>
+  | Pick<
+      Workspace<'Shell'>,
+      'type' | 'connectionId' | 'initialEvaluate' | 'initialInput'
+    >
+  | Pick<Workspace<'Databases'>, 'type' | 'connectionId'>
+  | Pick<Workspace<'Performance'>, 'type' | 'connectionId'>
+  | Pick<Workspace<'Collections'>, 'type' | 'connectionId' | 'namespace'>
+  | (Pick<Workspace<'Collection'>, 'type' | 'connectionId' | 'namespace'> &
+      Partial<
+        Pick<
+          Workspace<'Collection'>,
+          | 'initialQuery'
+          | 'initialAggregation'
+          | 'initialPipeline'
+          | 'initialPipelineText'
+          | 'editViewName'
+        >
+      > & { initialSubtab?: CollectionSubtab });
 
 export const updateCollectionInfo = (
   namespaceId: string,
