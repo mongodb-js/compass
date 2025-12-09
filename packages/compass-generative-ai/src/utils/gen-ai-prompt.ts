@@ -62,6 +62,7 @@ export type PromptContextOptions = {
   databaseName: string;
   collectionName: string;
   userId: string;
+  enableStorage: boolean;
   schema?: unknown;
   sampleDocuments?: unknown[];
 };
@@ -82,7 +83,9 @@ function buildUserPromptForQuery({
   collectionName,
   schema,
   sampleDocuments,
-}: PromptContextOptions & { type: 'find' | 'aggregate' }): string {
+}: Omit<PromptContextOptions, 'userId' | 'enableStorage'> & {
+  type: 'find' | 'aggregate';
+}): string {
   const messages = [];
 
   const queryPrompt = [
@@ -156,50 +159,72 @@ export type AiQueryPrompt = {
   metadata: {
     instructions: string;
     userId: string;
-    store: 'true' | 'false';
-    sensitiveStorage: 'sensitive';
-  };
+  } & (
+    | {
+        store: 'true';
+        sensitiveStorage: 'sensitive';
+      }
+    | {
+        store: 'false';
+      }
+  );
 };
 
 function buildMetadata({
   instructions,
   userId,
+  enableStorage,
 }: {
   instructions: string;
   userId: string;
+  enableStorage: boolean;
 }): AiQueryPrompt['metadata'] {
   return {
     instructions,
     userId,
-    sensitiveStorage: 'sensitive',
-    store: 'true',
+    ...(enableStorage
+      ? {
+          sensitiveStorage: 'sensitive',
+          store: 'true',
+        }
+      : {
+          store: 'false',
+        }),
   };
 }
 
-export function buildFindQueryPrompt(
-  options: PromptContextOptions
-): AiQueryPrompt {
+export function buildFindQueryPrompt({
+  userId,
+  enableStorage,
+  ...restOfTheOptions
+}: PromptContextOptions): AiQueryPrompt {
   const prompt = buildUserPromptForQuery({
     type: 'find',
-    ...options,
+    ...restOfTheOptions,
   });
   const instructions = buildInstructionsForFindQuery();
   return {
     prompt,
-    metadata: buildMetadata({ instructions, userId: options.userId }),
+    metadata: buildMetadata({
+      instructions,
+      userId,
+      enableStorage,
+    }),
   };
 }
 
-export function buildAggregateQueryPrompt(
-  options: PromptContextOptions
-): AiQueryPrompt {
+export function buildAggregateQueryPrompt({
+  userId,
+  enableStorage,
+  ...restOfTheOptions
+}: PromptContextOptions): AiQueryPrompt {
   const prompt = buildUserPromptForQuery({
     type: 'aggregate',
-    ...options,
+    ...restOfTheOptions,
   });
   const instructions = buildInstructionsForAggregateQuery();
   return {
     prompt,
-    metadata: buildMetadata({ instructions, userId: options.userId }),
+    metadata: buildMetadata({ instructions, userId, enableStorage }),
   };
 }

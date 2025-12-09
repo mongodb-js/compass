@@ -34,6 +34,7 @@ type GenerativeAiInput = {
   sampleDocuments?: Document[];
   signal: AbortSignal;
   requestId: string;
+  enableStorage: boolean;
 };
 
 // The size/token validation happens on the server, however, we do

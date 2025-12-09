@@ -6,7 +6,10 @@ import {
   dataServiceLocator,
   type DataServiceLocator,
 } from '@mongodb-js/compass-connections/provider';
-import { mongoDBInstanceLocator } from '@mongodb-js/compass-app-stores/provider';
+import {
+  mongoDBInstanceLocator,
+  collectionModelLocator,
+} from '@mongodb-js/compass-app-stores/provider';
 import {
   QueryBarComponentProvider,
   useQueryBarComponent,
@@ -56,6 +59,7 @@ const QueryBarPlugin = registerCompassPlugin(
     atlasAiService: atlasAiServiceLocator,
     favoriteQueryStorageAccess: favoriteQueryStorageAccessLocator,
     recentQueryStorageAccess: recentQueryStorageAccessLocator,
+    collection: collectionModelLocator,
   }
 );
 
