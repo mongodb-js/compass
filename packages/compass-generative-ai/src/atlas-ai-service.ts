@@ -259,6 +259,15 @@ export type MockDataSchemaResponse = z.infer<
   typeof MockDataSchemaResponseShape
 >;
 
+// TODO: Evaluate this
+function getActiveUserId(preferences: PreferencesAccess): string {
+  const { currentUserId, telemetryAnonymousId, telemetryAtlasUserId } =
+    preferences.getPreferences();
+  return (
+    currentUserId || telemetryAnonymousId || telemetryAtlasUserId || 'unknown'
+  );
+}
+
 /**
  * The type of resource from the natural language query REST API
  */
@@ -304,7 +313,13 @@ export class AtlasAiService {
           PLACEHOLDER_BASE_URL,
           this.atlasService.assistantApiEndpoint()
         );
-        return this.atlasService.authenticatedFetch(uri, init);
+        return this.atlasService.authenticatedFetch(uri, {
+          ...init,
+          headers: {
+            ...(init?.headers ?? {}),
+            entrypoint: 'natural-language-to-mql',
+          },
+        });
       },
       // TODO(COMPASS-10125): Switch the model to `mongodb-slim-latest` when
       // enabling this feature (to use edu-chatbot for GenAI).
@@ -445,7 +460,10 @@ export class AtlasAiService {
     connectionInfo: ConnectionInfo
   ) {
     if (this.preferences.getPreferences().enableChatbotEndpointForGenAI) {
-      const message = buildAggregateQueryPrompt(input);
+      const message = buildAggregateQueryPrompt({
+        ...input,
+        userId: getActiveUserId(this.preferences),
+      });
       return this.generateQueryUsingChatbot(
         message,
         validateAIAggregationResponse,
@@ -467,7 +485,10 @@ export class AtlasAiService {
     connectionInfo: ConnectionInfo
   ) {
     if (this.preferences.getPreferences().enableChatbotEndpointForGenAI) {
-      const message = buildFindQueryPrompt(input);
+      const message = buildFindQueryPrompt({
+        ...input,
+        userId: getActiveUserId(this.preferences),
+      });
       return this.generateQueryUsingChatbot(message, validateAIQueryResponse, {
         signal: input.signal,
       });

@@ -912,6 +912,7 @@ describe('AtlasAiService', function () {
         const mockAtlasService = new MockAtlasService();
         await preferences.savePreferences({
           enableChatbotEndpointForGenAI: true,
+          telemetryAtlasUserId: '1234',
         });
         atlasAiService = new AtlasAiService({
           apiURLPreset: 'cloud',
@@ -1047,7 +1048,11 @@ describe('AtlasAiService', function () {
             const requestBody = JSON.parse(args[1].body as string);
 
             expect(requestBody.model).to.equal('mongodb-chat-latest');
-            expect(requestBody.store).to.equal(false);
+            expect(requestBody.metadata).to.deep.equal({
+              userId: '1234',
+              store: 'true',
+              sensitiveStorage: 'sensitive',
+            });
             expect(requestBody.instructions).to.be.a('string');
             expect(requestBody.input).to.be.an('array');
 
