@@ -187,16 +187,18 @@ export const lessLoader = (args: ConfigArgs) => ({
 });
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export const assetsLoader = (_args: ConfigArgs) => ({
-  test: /\.(jpe?g|png|svg|gif|woff|woff2|ttf|eot|otf)(\?.+?)?$/,
-  // asset (or asset auto) will either compile as data-uri or to a file path
-  // based on the size, this is a good strategy for loading assets in the GUI
-  type: 'asset',
-  parser: {
-    dataUrlCondition: {
-      maxSize: 2 * 1024, // 2kb
-    },
-  },
+export const fontLoader = (_args: ConfigArgs) => ({
+  test: /\.(woff|woff2|ttf|eot|otf)(\?.+?)?$/,
+  // fonts are always big and should be emitted as a separate file
+  type: 'asset/resource',
+});
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export const imageLoader = (_args: ConfigArgs) => ({
+  test: /\.(jpe?g|png|svg|gif)(\?.+?)?$/,
+  // it's convenient to inline images as data-urls to make sure that publised
+  // library artifacts only produce importable javascript assets
+  type: 'asset/inline',
 });
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -223,7 +225,7 @@ export const sourceLoader = (args: ConfigArgs) => ({
     nodeLoader(args).test,
     cssLoader(args).test,
     lessLoader(args).test,
-    assetsLoader(args).test,
+    resourceLoader(args).test,
     sharedObjectLoader(args).test,
     // Produced by html-webpack-plugin and should not be handled
     /\.(ejs|html)$/,
