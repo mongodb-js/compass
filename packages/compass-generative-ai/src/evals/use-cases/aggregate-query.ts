@@ -9,11 +9,9 @@ export const aggregateQueries = [
       schema: {},
       sampleDocuments: [],
     }),
-    expectedOutput: [
-      {
-        $match: { year: 1983 },
-      },
-    ],
+    expectedOutput: `<aggregation>
+      [{$match: {year: 1983}}]
+    </aggregation>`,
     name: 'basic aggregate query',
   },
   {
@@ -25,20 +23,14 @@ export const aggregateQueries = [
       schema: {},
       sampleDocuments: [],
     }),
-    expectedOutput: [
-      {
-        $match: { title: { $regex: 'alien', $options: 'i' } },
-      },
-      {
-        $project: { _id: 1, title: 1, year: 1 },
-      },
-      {
-        $sort: { year: 1 },
-      },
-      {
-        $limit: 3,
-      },
-    ],
+    expectedOutput: `<aggregation>
+      [
+        {$match: {title: {$regex: "alien", $options: "i"}}},
+        {$project: {_id: 1, title: 1, year: 1}},
+        {$sort: {year: 1}},
+        {$limit: 3}
+      ]
+    </aggregation>`,
     name: 'aggregate with filter projection sort and limit',
   },
   {
@@ -50,12 +42,9 @@ export const aggregateQueries = [
       schema: {},
       sampleDocuments: [],
     }),
-    expectedOutput: [
-      {
-        $match: { 'Violation Code': 21 },
-        $project: { 'Plate ID': 1 },
-      },
-    ],
+    expectedOutput: `<aggregation>
+      [{$match: {"Violation Code": 21}, $project: {"Plate ID": 1}}]
+    </aggregation>`,
     name: 'aggregate with filter and projection',
   },
   {
@@ -68,14 +57,12 @@ export const aggregateQueries = [
       schema: {},
       sampleDocuments: [],
     }),
-    expectedOutput: [
-      {
-        $match: { _id: 'ObjectId("5ca652bf56618187558b4de3")' },
-      },
-      {
-        $project: { name: 1 },
-      },
-    ],
+    expectedOutput: `<aggregation>
+      [
+        {$match: {_id: ObjectId("5ca652bf56618187558b4de3")}},
+        {$project: {name: 1}}
+      ]
+    </aggregation>`,
     name: 'geo-based aggregate',
   },
   {
@@ -87,16 +74,16 @@ export const aggregateQueries = [
       schema: {},
       sampleDocuments: [],
     }),
-    expectedOutput: [
-      {
+    expectedOutput: `<aggregation>
+      [{
         $match: {
           $and: [
-            { property_type: 'Hotel' },
-            { 'review_scores.review_scores_rating': { $lte: 70 } },
-          ],
-        },
-      },
-    ],
+            {property_type: "Hotel"},
+            {"review_scores.review_scores_rating": {$lte: 70}}
+          ]
+        }
+      }]
+    </aggregation>`,
     name: 'complex aggregate with nested fields',
   },
   {
@@ -108,14 +95,14 @@ export const aggregateQueries = [
       schema: {},
       sampleDocuments: [],
     }),
-    expectedOutput: [
-      {
+    expectedOutput: `<aggregation>
+      [{
         $group: {
           _id: null,
-          totalReviewsOverall: { $sum: '$number_of_reviews' },
-        },
-      },
-    ],
+          totalReviewsOverall: {$sum: "$number_of_reviews"}
+        }
+      }]
+    </aggregation>`,
     name: 'aggregate with a group',
   },
   {
@@ -127,12 +114,14 @@ export const aggregateQueries = [
       schema: {},
       sampleDocuments: [],
     }),
-    expectedOutput: [
-      { $group: { _id: '$beds', count: { $sum: 1 } } },
-      { $sort: { count: -1 } },
-      { $limit: 1 },
-      { $project: { bedCount: '$_id' } },
-    ],
+    expectedOutput: `<aggregation>
+      [
+        {$group: {_id: "$beds", count: {$sum: 1}}},
+        {$sort: {count: -1}},
+        {$limit: 1},
+        {$project: {bedCount: "$_id"}}
+      ]
+    </aggregation>`,
     name: 'complex aggregate 1',
   },
   {
@@ -144,17 +133,14 @@ export const aggregateQueries = [
       schema: {},
       sampleDocuments: [],
     }),
-    expectedOutput: [
-      {
-        $group: {
-          _id: '$host.host_id',
-          totalReviews: { $sum: '$number_of_reviews' },
-        },
-      },
-      { $sort: { totalReviews: -1 } },
-      { $limit: 1 },
-      { $project: { hostId: '$_id' } },
-    ],
+    expectedOutput: `<aggregation>
+      [
+        {$group: {_id: "$host.host_id", totalReviews: {$sum: "$number_of_reviews"}}},
+        {$sort: {totalReviews: -1}},
+        {$limit: 1},
+        {$project: {hostId: "$_id"}}
+      ]
+    </aggregation>`,
     name: 'complex aggregate 2',
   },
   {
@@ -166,27 +152,23 @@ export const aggregateQueries = [
       schema: {},
       sampleDocuments: [],
     }),
-    expectedOutput: [
-      {
-        $match: {
-          $and: [
-            {
-              birthdate: {
-                $gte: new Date(`${new Date().getFullYear() - 30}-01-01`),
-              },
-            },
-            {
-              birthdate: {
-                $lt: new Date(`${new Date().getFullYear() - 29}-01-01`),
-              },
-            },
-          ],
+    expectedOutput: `<aggregation>
+      [
+        {
+          $match: {
+            $and: [
+              {birthdate: {$gte: new Date("${
+                new Date().getFullYear() - 30
+              }-01-01")}},
+              {birthdate: {$lt: new Date("${
+                new Date().getFullYear() - 29
+              }-01-01")}}
+            ]
+          }
         },
-      },
-      {
-        $project: { name: 1, birthdate: 1 },
-      },
-    ],
+        {$project: {name: 1, birthdate: 1}}
+      ]
+    </aggregation>`,
     name: 'relative date aggregate 1',
   },
   {
@@ -198,11 +180,9 @@ export const aggregateQueries = [
       schema: {},
       sampleDocuments: [],
     }),
-    expectedOutput: [
-      {
-        $match: { year: new Date().getFullYear() - 1 },
-      },
-    ],
+    expectedOutput: `<aggregation>
+      [{$match: {year: ${new Date().getFullYear() - 1}}}]
+    </aggregation>`,
     name: 'relative date aggregate 2',
   },
   {
@@ -214,10 +194,12 @@ export const aggregateQueries = [
       schema: {},
       sampleDocuments: [],
     }),
-    expectedOutput: [
-      { $match: { amenities: 'Step-free access' } },
-      { $project: { price: 1, amenities: { $slice: 3 } } },
-    ],
+    expectedOutput: `<aggregation>
+      [
+        {$match: {amenities: "Step-free access"}},
+        {$project: {price: 1, amenities: {$slice: 3}}}
+      ]
+    </aggregation>`,
     name: 'complex projection aggregate',
   },
   {
@@ -230,16 +212,12 @@ export const aggregateQueries = [
       // withSamples: true,
       sampleDocuments: [],
     }),
-    expectedOutput: [
-      {
-        $match: {
-          $and: [{ 'Vehicle Make': 'ACURA' }, { 'Registration State': 'NY' }],
-        },
-      },
-      {
-        $project: { 'Plate ID': 1 },
-      },
-    ],
+    expectedOutput: `<aggregation>
+      [
+        {$match: {$and: [{"Vehicle Make": "ACURA"}, {"Registration State": "NY"}]}},
+        {$project: {"Plate ID": 1}}
+      ]
+    </aggregation>`,
     name: 'with sample documents aggregate',
   },
   {
@@ -251,13 +229,13 @@ export const aggregateQueries = [
       schema: {},
       sampleDocuments: [],
     }),
-    expectedOutput: [
-      {
-        $project: { _id: 0, precio: '$price' },
-        $sort: { price: 1 },
-        $limit: 1,
-      },
-    ],
+    expectedOutput: `<aggregation>
+      [{
+        $project: {_id: 0, precio: "$price"},
+        $sort: {price: 1},
+        $limit: 1
+      }]
+    </aggregation>`,
     name: 'aggregate with non-english prompt',
   },
   {
@@ -269,11 +247,13 @@ export const aggregateQueries = [
       schema: {},
       sampleDocuments: [],
     }),
-    expectedOutput: [
-      { $sort: { price: -1 } },
-      { $project: { cancellation_policy: 1, 'host.host_url': 1 } },
-      { $limit: 1 },
-    ],
+    expectedOutput: `<aggregation>
+      [
+        {$sort: {price: -1}},
+        {$project: {cancellation_policy: 1, "host.host_url": 1}},
+        {$limit: 1}
+      ]
+    </aggregation>`,
     name: 'simple aggregate with sort and limit',
   },
   {
@@ -285,12 +265,14 @@ export const aggregateQueries = [
       schema: {},
       sampleDocuments: [],
     }),
-    expectedOutput: [
-      { $unwind: '$items' },
-      { $unwind: '$items.tags' },
-      { $group: { _id: '$items.tags', avgPrice: { $avg: '$items.price' } } },
-      { $project: { _id: 0, tag: '$_id', avgPrice: 1 } },
-    ],
+    expectedOutput: `<aggregation>
+      [
+        {$unwind: "$items"},
+        {$unwind: "$items.tags"},
+        {$group: {_id: "$items.tags", avgPrice: {$avg: "$items.price"}}},
+        {$project: {_id: 0, tag: "$_id", avgPrice: 1}}
+      ]
+    </aggregation>`,
     name: 'aggregate with unwind and group',
   },
   {
@@ -302,12 +284,14 @@ export const aggregateQueries = [
       schema: {},
       sampleDocuments: [],
     }),
-    expectedOutput: [
-      { $project: { _id: 1, numAmenities: { $size: '$amenities' } } },
-      { $sort: { numAmenities: -1 } },
-      { $limit: 1 },
-      { $project: { _id: 1 } },
-    ],
+    expectedOutput: `<aggregation>
+      [
+        {$project: {_id: 1, numAmenities: {$size: "$amenities"}}},
+        {$sort: {numAmenities: -1}},
+        {$limit: 1},
+        {$project: {_id: 1}}
+      ]
+    </aggregation>`,
     name: 'aggregate with size operator',
   },
   {
@@ -319,15 +303,17 @@ export const aggregateQueries = [
       schema: {},
       sampleDocuments: [],
     }),
-    expectedOutput: [
-      { $match: { year: { $regex: '^(198[0-9]|199[0-9])$' } } },
-      { $addFields: { titleWords: { $split: ['$title', ' '] } } },
-      { $unwind: '$titleWords' },
-      { $group: { _id: '$titleWords', count: { $sum: 1 } } },
-      { $sort: { count: -1, _id: 1 } },
-      { $limit: 5 },
-      { $project: { _id: 0, count: 1, word: '$_id' } },
-    ],
+    expectedOutput: `<aggregation>
+      [
+        {$match: {year: {$regex: "^(198[0-9]|199[0-9])$"}}},
+        {$addFields: {titleWords: {$split: ["$title", " "]}}},
+        {$unwind: "$titleWords"},
+        {$group: {_id: "$titleWords", count: {$sum: 1}}},
+        {$sort: {count: -1, _id: 1}},
+        {$limit: 5},
+        {$project: {_id: 0, count: 1, word: "$_id"}}
+      ]
+    </aggregation>`,
     name: 'aggregate with regex, addFields and split',
   },
   {
@@ -339,39 +325,41 @@ export const aggregateQueries = [
       schema: {},
       sampleDocuments: [],
     }),
-    expectedOutput: [
-      { $match: { beds: { $gt: 2 } } },
-      {
-        $group: {
-          _id: null,
-          totalListings: { $sum: 1 },
-          withWasher: {
-            $sum: {
-              $cond: [{ $in: ['Washer', '$amenities'] }, 1, 0],
-            },
-          },
+    expectedOutput: `<aggregation>
+      [
+        {$match: {beds: {$gt: 2}}},
+        {
+          $group: {
+            _id: null,
+            totalListings: {$sum: 1},
+            withWasher: {
+              $sum: {
+                $cond: [{$in: ["Washer", "$amenities"]}, 1, 0]
+              }
+            }
+          }
         },
-      },
-      {
-        $project: {
-          washerPercentage: {
-            $concat: [
-              {
-                $toString: {
-                  $round: {
-                    $multiply: [
-                      { $divide: ['$withWasher', '$totalListings'] },
-                      100,
-                    ],
-                  },
+        {
+          $project: {
+            washerPercentage: {
+              $concat: [
+                {
+                  $toString: {
+                    $round: {
+                      $multiply: [
+                        {$divide: ["$withWasher", "$totalListings"]},
+                        100
+                      ]
+                    }
+                  }
                 },
-              },
-              '%',
-            ],
-          },
-        },
-      },
-    ],
+                "%"
+              ]
+            }
+          }
+        }
+      ]
+    </aggregation>`,
     name: 'super complex aggregate with complex project',
   },
   {
@@ -383,23 +371,21 @@ export const aggregateQueries = [
       schema: {},
       sampleDocuments: [],
     }),
-    expectedOutput: [
-      {
-        $match: { 'Street Name': { $regex: 'ave', $options: 'i' } },
-      },
-      {
-        $sort: { 'Summons Number': 1 },
-      },
-      {
-        $project: {
-          'Summons Number': 1,
-          'Plate ID': 1,
-          'Vehicle Make': { $toLower: '$Vehicle Make' },
-          'Vehicle Body Type': { $toLower: '$Vehicle Body Type' },
-          _id: 0,
-        },
-      },
-    ],
+    expectedOutput: `<aggregation>
+      [
+        {$match: {"Street Name": {$regex: "ave", $options: "i"}}},
+        {$sort: {"Summons Number": 1}},
+        {
+          $project: {
+            "Summons Number": 1,
+            "Plate ID": 1,
+            "Vehicle Make": {$toLower: "$Vehicle Make"},
+            "Vehicle Body Type": {$toLower: "$Vehicle Body Type"},
+            _id: 0
+          }
+        }
+      ]
+    </aggregation>`,
     name: 'complex aggregate with regex and string operators',
   },
   {
@@ -411,7 +397,7 @@ export const aggregateQueries = [
       schema: {},
       sampleDocuments: [],
     }),
-    expectedOutput: [
+    expectedOutput: `<aggregation>[
       {
         $lookup: {
           from: 'movies',
@@ -422,7 +408,7 @@ export const aggregateQueries = [
       },
       { $unwind: '$movies' },
       { $project: { movie_title: '$movies.title', comment_text: '$text' } },
-    ],
+    ]</aggregation>`,
     name: 'prompt with sql join',
   },
   {
@@ -433,7 +419,9 @@ export const aggregateQueries = [
       schema: {},
       sampleDocuments: [],
     }),
-    expectedOutput: [{ $project: { customer_name: 1 } }],
+    expectedOutput: `<aggregation>
+      [{$project: {customer_name: 1}}]
+    </aggregation>`,
     name: 'simple projection aggregate',
   },
   {
@@ -445,18 +433,20 @@ export const aggregateQueries = [
       schema: {},
       sampleDocuments: [],
     }),
-    expectedOutput: [
-      {
-        $lookup: {
-          from: 'movies',
-          localField: 'movie_id',
-          foreignField: '_id',
-          as: 'movies',
+    expectedOutput: `<aggregation>
+      [
+        {
+          $lookup: {
+            from: "movies",
+            localField: "movie_id",
+            foreignField: "_id",
+            as: "movies"
+          }
         },
-      },
-      { $unwind: '$movies' },
-      { $project: { movie_title: '$movies.title', comment_text: '$text' } },
-    ],
+        {$unwind: "$movies"},
+        {$project: {movie_title: "$movies.title", comment_text: "$text"}}
+      ]
+    </aggregation>`,
     name: 'prompt with sql join',
   },
 ];

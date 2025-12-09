@@ -5,6 +5,8 @@ import { Eval } from 'braintrust';
 import type { EvalScorer } from 'braintrust';
 import { OpenAI } from 'openai';
 import { genAiUsecases } from './use-cases';
+import { parseXmlToMmsJsonResponse } from '../utils/xml-to-mms-response';
+import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 
 type Message = {
   content: string;
@@ -79,11 +81,16 @@ function allText(messages: Message[]): string {
   return messages.map((m) => m.content).join('\n');
 }
 
+const logger = createNoopLogger();
 const Factuality: ConversationEvalScorer = ({ input, output, expected }) => {
   return _Factuality({
     input: allText(input.messages),
-    output: allText(output.messages),
-    expected: allText(expected.messages),
+    output: JSON.stringify(
+      parseXmlToMmsJsonResponse(allText(output.messages), logger)
+    ),
+    expected: JSON.stringify(
+      parseXmlToMmsJsonResponse(allText(expected.messages), logger)
+    ),
     model: 'gpt-4.1',
     temperature: undefined,
   });
@@ -103,7 +110,7 @@ void Eval<
           instructions: { content: usecase.prompt.metadata.instructions },
         },
         expected: {
-          messages: [{ content: JSON.stringify(usecase.expectedOutput) }],
+          messages: [{ content: usecase.expectedOutput }],
         },
       };
     });

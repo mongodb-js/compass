@@ -9,9 +9,7 @@ export const findQueries = [
       schema: {},
       sampleDocuments: [],
     }),
-    expectedOutput: {
-      filter: { year: 1983 },
-    },
+    expectedOutput: `<filter>{year: 1983}</filter>`,
     name: 'simple find',
   },
   {
@@ -23,12 +21,12 @@ export const findQueries = [
       schema: {},
       sampleDocuments: [],
     }),
-    expectedOutput: {
-      filter: { title: { $regex: 'alien', $options: 'i' } },
-      projection: { _id: 1, title: 1, year: 1 },
-      sort: { year: 1 },
-      limit: 3,
-    },
+    expectedOutput: `
+      <filter>{title: {$regex: "alien", $options: "i"}}</filter>
+      <project>{_id: 1, title: 1, year: 1}</project>
+      <sort>{year: 1}</sort>
+      <limit>3</limit>
+    `,
     name: 'find with filter projection sort and limit',
   },
   {
@@ -40,10 +38,10 @@ export const findQueries = [
       schema: {},
       sampleDocuments: [],
     }),
-    expectedOutput: {
-      filter: { 'Violation Code': 21 },
-      projection: { 'Plate ID': 1 },
-    },
+    expectedOutput: `
+      <filter>{"Violation Code": 21}</filter>
+      <project>{"Plate ID": 1}</project>
+    `,
     name: 'find with filter and projection',
   },
   {
@@ -55,10 +53,10 @@ export const findQueries = [
       schema: {},
       sampleDocuments: [],
     }),
-    expectedOutput: {
-      filter: { _id: 'ObjectId("5ca652bf56618187558b4de3")' },
-      projection: { name: 1 },
-    },
+    expectedOutput: `
+      <filter>{_id: 'ObjectId("5ca652bf56618187558b4de3")'}</filter>
+      <project>{name: 1}</project>
+    `,
     name: 'geo-based find',
   },
   {
@@ -70,14 +68,14 @@ export const findQueries = [
       schema: {},
       sampleDocuments: [],
     }),
-    expectedOutput: {
-      filter: {
+    expectedOutput: `
+      <filter>{
         $and: [
-          { property_type: 'Hotel' },
-          { 'review_scores.review_scores_rating': { $lte: 70 } },
-        ],
-      },
-    },
+          { property_type: "Hotel" },
+          { "review_scores.review_scores_rating": { $lte: 70 } }
+        ]
+      }</filter>
+    `,
     name: 'complex find with nested fields',
   },
   {
@@ -89,12 +87,14 @@ export const findQueries = [
       schema: {},
       sampleDocuments: [],
     }),
-    expectedOutput: [
-      { $group: { _id: '$beds', count: { $sum: 1 } } },
-      { $sort: { count: -1 } },
-      { $limit: 1 },
-      { $project: { bedCount: '$_id' } },
-    ],
+    expectedOutput: `
+      <aggregation>[
+        { $group: { _id: "$beds", count: { $sum: 1 } } },
+        { $sort: { count: -1 } },
+        { $limit: 1 },
+        { $project: { bedCount: "$_id" } }
+      ]</aggregation>
+    `,
     name: 'find query that translates to aggregation 1',
   },
   {
@@ -106,14 +106,15 @@ export const findQueries = [
       schema: {},
       sampleDocuments: [],
     }),
-    expectedOutput: [
-      {
-        $group: {
-          _id: null,
-          totalReviewsOverall: { $sum: '$number_of_reviews' },
-        },
-      },
-    ],
+    expectedOutput: `<aggregation>[
+        {
+          $group: {
+            _id: null,
+            totalReviewsOverall: { $sum: "$number_of_reviews" }
+          }
+        }
+      ]</aggregation>
+    `,
     name: 'find query that translates to aggregation 2',
   },
   {
@@ -125,17 +126,17 @@ export const findQueries = [
       schema: {},
       sampleDocuments: [],
     }),
-    expectedOutput: [
+    expectedOutput: `<aggregation>[
       {
         $group: {
-          _id: '$host.host_id',
-          totalReviews: { $sum: '$number_of_reviews' },
-        },
+          _id: "$host.host_id",
+          totalReviews: { $sum: "$number_of_reviews" }
+        }
       },
       { $sort: { totalReviews: -1 } },
       { $limit: 1 },
-      { $project: { hostId: '$_id' } },
-    ],
+      { $project: { hostId: "$_id" } }
+    ]</aggregation>`,
     name: 'find query that translates to aggregation 3',
   },
   {
@@ -147,9 +148,7 @@ export const findQueries = [
       schema: {},
       sampleDocuments: [],
     }),
-    expectedOutput: {
-      filter: { year: new Date().getFullYear() - 1 },
-    },
+    expectedOutput: `<filter>{year: ${new Date().getFullYear() - 1}}</filter>`,
     name: 'relative date find 1',
   },
   {
@@ -161,23 +160,22 @@ export const findQueries = [
       schema: {},
       sampleDocuments: [],
     }),
-    expectedOutput: {
-      filter: {
+    expectedOutput: `<filter>{
         $and: [
           {
             birthdate: {
-              $gte: new Date(`${new Date().getFullYear() - 30}-01-01`),
-            },
+              $gte: new Date("${new Date().getFullYear() - 30}-01-01")
+            }
           },
           {
             birthdate: {
-              $lt: new Date(`${new Date().getFullYear() - 29}-01-01`),
-            },
-          },
-        ],
-      },
-      projection: { name: 1, birthdate: 1 },
-    },
+              $lt: new Date("${new Date().getFullYear() - 29}-01-01")
+            }
+          }
+        ]
+      }</filter>
+      <project>{name: 1, birthdate: 1}</project>
+    `,
     name: 'relative date find 2',
   },
   {
@@ -188,9 +186,7 @@ export const findQueries = [
       schema: {},
       sampleDocuments: [],
     }),
-    expectedOutput: {
-      filter: { filter: true },
-    },
+    expectedOutput: `<filter>{filter: true}</filter>`,
     name: 'boolean field find',
   },
   {
@@ -202,10 +198,10 @@ export const findQueries = [
       schema: {},
       sampleDocuments: [],
     }),
-    expectedOutput: {
-      filter: { amenities: 'Step-free access' },
-      projection: { price: 1, amenities: { $slice: 3 } },
-    },
+    expectedOutput: `
+      <filter>{amenities: "Step-free access"}</filter>
+      <project>{price: 1, amenities: {$slice: 3}}</project>
+    `,
     name: 'complex projection find',
   },
   {
@@ -218,12 +214,17 @@ export const findQueries = [
       // withSamples: true,
       sampleDocuments: [],
     }),
-    expectedOutput: {
-      filter: {
-        $and: [{ 'Vehicle Make': 'ACURA' }, { 'Registration State': 'NY' }],
-      },
-      projection: { 'Plate ID': 1 },
-    },
+    expectedOutput: `
+      <filter>
+        {
+          $and: [
+            {"Vehicle Make": "ACURA"}, 
+            {"Registration State": "NY"}
+          ]
+        }
+      </filter>
+      <project>{"Plate ID": 1}</project>
+    `,
     name: 'with sample documents find',
   },
   {
@@ -235,11 +236,11 @@ export const findQueries = [
       schema: {},
       sampleDocuments: [],
     }),
-    expectedOutput: {
-      projection: { _id: 0, precio: '$price' },
-      sort: { precio: 1 },
-      limit: 1,
-    },
+    expectedOutput: `
+      <project>{_id: 0, precio: "$price"}</project>
+      <sort>{precio: 1}</sort>
+      <limit>1</limit>
+    `,
     name: 'find with non-english prompt',
   },
   {
@@ -251,17 +252,17 @@ export const findQueries = [
       schema: {},
       sampleDocuments: [],
     }),
-    expectedOutput: {
-      filter: { 'Street Name': { $regex: 'ave', $options: 'i' } },
-      sort: { 'Summons Number': 1 },
-      projection: {
-        'Summons Number': 1,
-        'Plate ID': 1,
-        'Vehicle Make': { $toLower: '$Vehicle Make' },
-        'Vehicle Body Type': { $toLower: '$Vehicle Body Type' },
-        _id: 0,
-      },
-    },
+    expectedOutput: `
+      <filter>{"Street Name": {$regex: "ave", $options: "i"}}</filter>
+      <sort>{"Summons Number": 1}</sort>
+      <project>{
+        "Summons Number": 1,
+        "Plate ID": 1,
+        "Vehicle Make": {$toLower: "$Vehicle Make"},
+        "Vehicle Body Type": {$toLower: "$Vehicle Body Type"},
+        _id: 0
+      }</project>
+    `,
     name: 'complex find with regex and string operators',
   },
   {
@@ -272,9 +273,7 @@ export const findQueries = [
       schema: {},
       sampleDocuments: [],
     }),
-    expectedOutput: {
-      projection: { customer_name: 1 },
-    },
+    expectedOutput: `<project>{customer_name: 1}</project>`,
     name: 'simple projection find',
   },
 ];
