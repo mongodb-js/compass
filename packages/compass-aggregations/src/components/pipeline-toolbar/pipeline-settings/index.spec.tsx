@@ -58,6 +58,17 @@ describe('PipelineSettings', function () {
 
       expect(onExportToLanguageSpy.calledOnce).to.be.true;
     });
+
+    it('calls onExportData callback when export data button is clicked', function () {
+      const button = within(container).getByTestId(
+        'pipeline-toolbar-export-data-button'
+      );
+      expect(button).to.exist;
+
+      userEvent.click(button);
+
+      expect(onExportDataSpy.calledOnce).to.be.true;
+    });
   });
 
   describe('export data button visibility', function () {
@@ -81,9 +92,8 @@ describe('PipelineSettings', function () {
         </PreferencesProvider>
       );
 
-      expect(
-        screen.queryByTestId('pipeline-toolbar-export-data-button-show-actions')
-      ).to.not.exist;
+      expect(screen.queryByTestId('pipeline-toolbar-export-data-button')).to.not
+        .exist;
     });
 
     it('shows export data button when enableImportExport preference is enabled', async function () {
@@ -104,16 +114,15 @@ describe('PipelineSettings', function () {
         </PreferencesProvider>
       );
 
-      expect(
-        screen.getByTestId('pipeline-toolbar-export-data-button-show-actions')
-      ).to.exist;
+      expect(screen.getByTestId('pipeline-toolbar-export-data-button')).to
+        .exist;
     });
   });
 
   describe('export data button disabled state', function () {
     afterEach(cleanup);
 
-    it('should disable export data button when isExportDataEnabled is false', async function () {
+    it('should hide export data button when isExportDataEnabled is false', async function () {
       const preferences = await createSandboxFromDefaultPreferences();
       await preferences.savePreferences({
         enableImportExport: true,
@@ -132,9 +141,8 @@ describe('PipelineSettings', function () {
       );
 
       // Button should not be rendered when isExportDataEnabled is false
-      expect(
-        screen.queryByTestId('pipeline-toolbar-export-data-button-show-actions')
-      ).to.not.exist;
+      expect(screen.queryByTestId('pipeline-toolbar-export-data-button')).to.not
+        .exist;
     });
 
     it('should disable export code button when isExportToLanguageEnabled is false', async function () {
@@ -178,9 +186,8 @@ describe('PipelineSettings', function () {
       );
 
       // Export data button should not be rendered
-      expect(
-        screen.queryByTestId('pipeline-toolbar-export-data-button-show-actions')
-      ).to.not.exist;
+      expect(screen.queryByTestId('pipeline-toolbar-export-data-button')).to.not
+        .exist;
 
       // Export code button should be disabled
       const codeButton = screen.getByTestId(

@@ -863,7 +863,7 @@ export const AggregationErrorDetailsBtn =
 export const RunPipelineButton = `[data-testid="pipeline-toolbar-run-button"]`;
 export const EditPipelineButton = `[data-testid="pipeline-toolbar-edit-button"]`;
 export const GoToCollectionButton = `[data-testid="pipeline-results-go-to-collection"]`;
-export const ExportAggregationResultsButton = `[data-testid="pipeline-toolbar-export-data-button-show-actions"]`;
+export const ExportAggregationResultsButton = `[data-testid="pipeline-toolbar-export-data-button"]`;
 
 export const AggregationOpenSavedPipelinesButton = `[data-testid="pipeline-toolbar-open-pipelines-button"]`;
 export const AggregationSavedPipelinesPopover = `[data-testid="saved-pipelines"]`;

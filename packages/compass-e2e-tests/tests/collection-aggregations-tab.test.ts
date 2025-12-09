@@ -991,12 +991,8 @@ describe('Collection aggregations tab', function () {
       }
     );
 
-    // Open the modal.
+    // Click the export data button to open the modal.
     await browser.clickVisible(Selectors.ExportAggregationResultsButton);
-    // Click the "Export pipeline results" menu item
-    await browser.clickVisible(
-      '[data-testid="pipeline-toolbar-export-data-button-export-query-action"]'
-    );
     const exportModal = browser.$(Selectors.ExportModal);
     await exportModal.waitForDisplayed();
 

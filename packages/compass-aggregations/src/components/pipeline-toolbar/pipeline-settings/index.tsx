@@ -5,7 +5,6 @@ import {
   Icon,
   css,
   spacing,
-  DropdownMenuButton,
   WorkspaceContainer,
 } from '@mongodb-js/compass-components';
 import { exportToLanguage } from '../../../modules/export-to-language';
@@ -21,7 +20,6 @@ import {
 import { isOutputStage } from '../../../utils/stage';
 import { confirmNewPipeline } from '../../../modules/is-new-pipeline-confirm';
 import ModifySourceBanner from '../../modify-source-banner';
-import type { MenuAction } from '@mongodb-js/compass-components';
 
 import { usePreference } from 'compass-preferences-model/provider';
 
@@ -56,17 +54,12 @@ const exportCodeButtonTextStyles = css({
     },
 });
 
-type ExportDataOption = 'export-query';
-const exportDataActions: MenuAction<ExportDataOption>[] = [
-  { action: 'export-query', label: 'Export pipeline results' },
-];
-
 type PipelineSettingsProps = {
   editViewName?: string;
   isExportToLanguageEnabled?: boolean;
   isExportDataEnabled?: boolean;
   onExportToLanguage: () => void;
-  onExportData: (action: ExportDataOption) => void;
+  onExportData: () => void;
   onCreateNewPipeline: () => void;
 };
 
@@ -104,18 +97,16 @@ export const PipelineSettings: React.FunctionComponent<
           </Button>
         )}
         {enableImportExport && isExportDataEnabled && (
-          <DropdownMenuButton<ExportDataOption>
+          <Button
+            size="xsmall"
+            leftGlyph={<Icon glyph="Export" />}
+            onClick={onExportData}
             data-testid="pipeline-toolbar-export-data-button"
-            actions={exportDataActions}
-            onAction={onExportData}
-            buttonText="Export Data"
-            buttonProps={{
-              className: exportDataButtonStyles,
-              size: 'xsmall',
-              leftGlyph: <Icon glyph="Export" />,
-            }}
-            narrowBreakpoint="900px"
-          />
+            title="Export pipeline results"
+            className={exportDataButtonStyles}
+          >
+            <span className={exportCodeButtonTextStyles}>Export Data</span>
+          </Button>
         )}
         <Button
           size="xsmall"
@@ -155,8 +146,7 @@ export default connect(
   },
   {
     onExportToLanguage: exportToLanguage,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    onExportData: (_action: ExportDataOption) => {
+    onExportData: () => {
       return (dispatch: PipelineBuilderThunkDispatch) => {
         dispatch(exportAggregationResults());
       };
