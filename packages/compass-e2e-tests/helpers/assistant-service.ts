@@ -170,12 +170,13 @@ export async function startMockAssistantServer(
   let response = _response;
   const server = http
     .createServer((req, res) => {
-      res.setHeader('Access-Control-Allow-Origin', '*');
+      res.setHeader('Access-Control-Allow-Origin', req.headers.origin || '*');
       res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
       res.setHeader(
         'Access-Control-Allow-Headers',
-        'Content-Type, Authorization, X-Request-Origin, User-Agent'
+        'Content-Type, Authorization, X-Request-Origin, User-Agent, X-CSRF-Token, X-CSRF-Time'
       );
+      res.setHeader('Access-Control-Allow-Credentials', 'true');
 
       // Handle preflight requests
       if (req.method === 'OPTIONS') {
@@ -212,8 +213,8 @@ export async function startMockAssistantServer(
           });
 
           if (response.status !== 200) {
-            res.writeHead(response.status);
             res.setHeader('Content-Type', 'application/json');
+            res.writeHead(response.status);
             return res.end(JSON.stringify({ error: response.body }));
           }
 
