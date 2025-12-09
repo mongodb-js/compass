@@ -37,7 +37,7 @@ import { useFavoriteQueryStorageAccess } from '@mongodb-js/my-queries-storage/pr
 
 const modalContentStyles = css({
   width: '100%',
-  maxWidth: '1280px',
+  maxWidth: `calc(min(100vw, 1280px) - 2 * ${spacing['800']}px)`,
 });
 
 const columnsStyles = css({
