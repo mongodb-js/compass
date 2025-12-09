@@ -49,7 +49,12 @@ const QueryBarPlugin = registerCompassPlugin(
   },
   {
     dataService: dataServiceLocator as DataServiceLocator<
-      'sample' | 'getConnectionString'
+      | 'sample'
+      | 'getConnectionString'
+      | 'collectionStats'
+      | 'collectionInfo'
+      | 'listCollections'
+      | 'isListSearchIndexesSupported'
     >,
     instance: mongoDBInstanceLocator,
     preferences: preferencesLocator,

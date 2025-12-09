@@ -93,9 +93,7 @@ function buildUserPromptForQuery({
   collectionName,
   schema,
   sampleDocuments,
-}: Omit<PromptContextOptions, 'userId' | 'enableStorage'> & {
-  type: 'find' | 'aggregate';
-}): string {
+}: BuildPromptOptions): string {
   const messages = [];
 
   const queryPrompt = [
