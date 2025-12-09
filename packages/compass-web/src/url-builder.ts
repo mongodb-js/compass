@@ -1,8 +1,8 @@
 import type {
   CollectionSubtab,
-  OpenWorkspaceOptions,
   WorkspaceTab,
-} from '@mongodb-js/compass-workspaces';
+} from '@mongodb-js/workspace-info';
+import type { OpenWorkspaceOptions } from '@mongodb-js/compass-workspaces';
 import toNS from 'mongodb-ns';
 
 /**

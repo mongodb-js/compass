@@ -18,7 +18,7 @@ import type {
 } from 'compass-preferences-model';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 import { PreferencesProvider } from 'compass-preferences-model/provider';
-import { type WorkspaceTab } from '@mongodb-js/compass-workspaces';
+import { type WorkspaceTab } from '@mongodb-js/workspace-info';
 import { ConnectionStatus } from '@mongodb-js/compass-connections/provider';
 
 const connections: Connection[] = [

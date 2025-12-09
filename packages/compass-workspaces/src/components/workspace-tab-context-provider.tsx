@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef } from 'react';
 import { getLocalAppRegistryForTab } from '../stores/workspaces';
-import type { WorkspaceTab } from '../types';
+import type { WorkspaceTab } from '@mongodb-js/workspace-info';
 import { NamespaceProvider } from '@mongodb-js/compass-app-stores/provider';
 import {
   ConnectionInfoProvider,
