@@ -1,10 +1,10 @@
 import React from 'react';
 import { css, cx } from '@leafygreen-ui/emotion';
+import { spacing } from '@leafygreen-ui/tokens';
 import { Body, Modal as LeafyGreenModal } from '../leafygreen';
 import { withStackedComponentStyles } from '../../hooks/use-stacked-component';
 
 const styles = css({
-  width: '600px',
   letterSpacing: 0,
   padding: 0,
   // The LG modal applies transform: translate3d(0, 0, 0) style to the modal
@@ -17,9 +17,12 @@ const styles = css({
 });
 
 const fullScreenStyles = css({
-  width: '100%',
-  height: '100%',
-  alignSelf: 'stretch',
+  top: spacing['600'],
+  bottom: spacing['600'],
+  left: spacing['800'],
+  right: spacing['800'],
+  height: 'auto',
+  width: 'auto',
   '& > div': {
     height: '100%',
     maxHeight: '100%',
