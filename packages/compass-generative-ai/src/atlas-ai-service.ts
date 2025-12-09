@@ -16,6 +16,15 @@ import {
   AtlasAiServiceInvalidInputError,
   AtlasAiServiceApiResponseParseError,
 } from './atlas-ai-errors';
+import { createOpenAI } from '@ai-sdk/openai';
+import { type LanguageModel } from 'ai';
+import type { AiQueryPrompt } from './utils/gen-ai-prompt';
+import {
+  buildAggregateQueryPrompt,
+  buildFindQueryPrompt,
+} from './utils/gen-ai-prompt';
+import { parseXmlToJsonResponse } from './utils/parse-xml-response';
+import { getAiQueryResponse } from './utils/gen-ai-response';
 
 type GenerativeAiInput = {
   userInput: string;
@@ -36,14 +45,6 @@ type AIAggregation = {
   content: {
     aggregation?: {
       pipeline?: string;
-    };
-  };
-};
-
-type AIFeatureEnablement = {
-  features: {
-    [featureName: string]: {
-      enabled: boolean;
     };
   };
 };
@@ -271,6 +272,8 @@ export class AtlasAiService {
   private preferences: PreferencesAccess;
   private logger: Logger;
 
+  private aiModel: LanguageModel;
+
   constructor({
     apiURLPreset,
     atlasService,
@@ -286,8 +289,26 @@ export class AtlasAiService {
     this.atlasService = atlasService;
     this.preferences = preferences;
     this.logger = logger;
-
     this.initPromise = this.setupAIAccess();
+
+    const PLACEHOLDER_BASE_URL =
+      'http://PLACEHOLDER_BASE_URL_TO_BE_REPLACED.invalid';
+    this.aiModel = createOpenAI({
+      apiKey: '',
+      baseURL: PLACEHOLDER_BASE_URL,
+      fetch: (url, init) => {
+        // The `baseUrl` can be dynamically changed, but `createOpenAI`
+        // doesn't allow us to change it after initial call. Instead
+        // we're going to update it every time the fetch call happens
+        const uri = String(url).replace(
+          PLACEHOLDER_BASE_URL,
+          this.atlasService.assistantApiEndpoint()
+        );
+        return this.atlasService.authenticatedFetch(uri, init);
+      },
+      // TODO(COMPASS-10125): Switch the model to `mongodb-slim-latest` when
+      // enabling this feature (to use edu-chatbot for GenAI).
+    }).responses('mongodb-chat-latest');
   }
 
   /**
@@ -423,6 +444,14 @@ export class AtlasAiService {
     input: GenerativeAiInput,
     connectionInfo: ConnectionInfo
   ) {
+    if (this.preferences.getPreferences().enableChatbotEndpointForGenAI) {
+      const message = buildAggregateQueryPrompt(input);
+      return this.generateQueryUsingChatbot(
+        message,
+        validateAIAggregationResponse,
+        { signal: input.signal }
+      );
+    }
     return this.getQueryOrAggregationFromUserInput(
       {
         connectionInfo,
@@ -437,6 +466,12 @@ export class AtlasAiService {
     input: GenerativeAiInput,
     connectionInfo: ConnectionInfo
   ) {
+    if (this.preferences.getPreferences().enableChatbotEndpointForGenAI) {
+      const message = buildFindQueryPrompt(input);
+      return this.generateQueryUsingChatbot(message, validateAIQueryResponse, {
+        signal: input.signal,
+      });
+    }
     return this.getQueryOrAggregationFromUserInput(
       {
         urlId: 'query',
@@ -527,12 +562,19 @@ export class AtlasAiService {
     });
   }
 
-  private validateAIFeatureEnablementResponse(
-    response: any
-  ): asserts response is AIFeatureEnablement {
-    const { features } = response;
-    if (typeof features !== 'object') {
-      throw new Error('Unexpected response: expected features to be an object');
-    }
+  private async generateQueryUsingChatbot<T>(
+    message: AiQueryPrompt,
+    validateFn: (res: any) => asserts res is T,
+    options: { signal: AbortSignal }
+  ): Promise<T> {
+    this.throwIfAINotEnabled();
+    const response = await getAiQueryResponse(
+      this.aiModel,
+      message,
+      options.signal
+    );
+    const parsedResponse = parseXmlToJsonResponse(response, this.logger);
+    validateFn(parsedResponse);
+    return parsedResponse;
   }
 }
