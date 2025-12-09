@@ -57,15 +57,25 @@ function buildInstructionsForAggregateQuery() {
   ].join('\n');
 }
 
-export type PromptContextOptions = {
+type BuildPromptOptions = {
   userInput: string;
   databaseName: string;
   collectionName: string;
-  userId: string;
-  enableStorage: boolean;
   schema?: unknown;
   sampleDocuments?: unknown[];
+  type: 'find' | 'aggregate';
 };
+
+type BuildMetadataOptions = {
+  userId: string;
+  enableStorage: boolean;
+  type: 'find' | 'aggregate';
+};
+
+export type PromptContextOptions = Omit<
+  BuildPromptOptions & BuildMetadataOptions,
+  'type'
+>;
 
 function withCodeFence(code: string): string {
   return [
@@ -171,16 +181,15 @@ export type AiQueryPrompt = {
 };
 
 function buildMetadata({
-  instructions,
+  type,
   userId,
   enableStorage,
-}: {
-  instructions: string;
-  userId: string;
-  enableStorage: boolean;
-}): AiQueryPrompt['metadata'] {
+}: BuildMetadataOptions): AiQueryPrompt['metadata'] {
   return {
-    instructions,
+    instructions:
+      type === 'find'
+        ? buildInstructionsForFindQuery()
+        : buildInstructionsForAggregateQuery(),
     userId,
     ...(enableStorage
       ? {
@@ -198,15 +207,15 @@ export function buildFindQueryPrompt({
   enableStorage,
   ...restOfTheOptions
 }: PromptContextOptions): AiQueryPrompt {
+  const type = 'find';
   const prompt = buildUserPromptForQuery({
-    type: 'find',
+    type,
     ...restOfTheOptions,
   });
-  const instructions = buildInstructionsForFindQuery();
   return {
     prompt,
     metadata: buildMetadata({
-      instructions,
+      type,
       userId,
       enableStorage,
     }),
@@ -218,13 +227,13 @@ export function buildAggregateQueryPrompt({
   enableStorage,
   ...restOfTheOptions
 }: PromptContextOptions): AiQueryPrompt {
+  const type = 'aggregate';
   const prompt = buildUserPromptForQuery({
-    type: 'aggregate',
+    type,
     ...restOfTheOptions,
   });
-  const instructions = buildInstructionsForAggregateQuery();
   return {
     prompt,
-    metadata: buildMetadata({ instructions, userId, enableStorage }),
+    metadata: buildMetadata({ type, userId, enableStorage }),
   };
 }

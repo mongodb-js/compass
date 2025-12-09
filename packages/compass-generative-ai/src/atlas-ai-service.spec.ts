@@ -213,6 +213,7 @@ describe('AtlasAiService', function () {
                     { _id: new ObjectId('642d766b7300158b1f22e972') },
                   ],
                   requestId: 'abc',
+                  enableStorage: false,
                 },
                 mockConnectionInfo
               );
@@ -223,7 +224,7 @@ describe('AtlasAiService', function () {
 
               expect(args[0]).to.eq(expectedEndpoints[aiEndpoint]);
               expect(args[1].body).to.eq(
-                '{"userInput":"test","collectionName":"jam","databaseName":"peanut","schema":{"_id":{"types":[{"bsonType":"ObjectId"}]}},"sampleDocuments":[{"_id":{"$oid":"642d766b7300158b1f22e972"}}]}'
+                '{"userInput":"test","collectionName":"jam","databaseName":"peanut","schema":{"_id":{"types":[{"bsonType":"ObjectId"}]}},"sampleDocuments":[{"_id":{"$oid":"642d766b7300158b1f22e972"}}],"enableStorage":false}'
               );
               expect(res).to.deep.eq(responses.success);
             });
@@ -241,6 +242,7 @@ describe('AtlasAiService', function () {
                       databaseName: 'peanut',
                       requestId: 'abc',
                       signal: new AbortController().signal,
+                      enableStorage: false,
                     },
                     mockConnectionInfo
                   );
@@ -263,6 +265,7 @@ describe('AtlasAiService', function () {
                     sampleDocuments: [{ test: '4'.repeat(5120001) }],
                     requestId: 'abc',
                     signal: new AbortController().signal,
+                    enableStorage: false,
                   },
                   mockConnectionInfo
                 );
@@ -294,6 +297,7 @@ describe('AtlasAiService', function () {
                   ],
                   requestId: 'abc',
                   signal: new AbortController().signal,
+                  enableStorage: false,
                 },
                 mockConnectionInfo
               );
@@ -302,7 +306,7 @@ describe('AtlasAiService', function () {
 
               expect(fetchStub).to.have.been.calledOnce;
               expect(args[1].body).to.eq(
-                '{"userInput":"test","collectionName":"test.test","databaseName":"peanut","sampleDocuments":[{"a":"1"}]}'
+                '{"userInput":"test","collectionName":"test.test","databaseName":"peanut","sampleDocuments":[{"a":"1"}],"enableStorage":false}'
               );
             });
           });
@@ -1035,6 +1039,7 @@ describe('AtlasAiService', function () {
                 { _id: new ObjectId('642d766b7300158b1f22e972') },
               ],
               requestId: 'abc',
+              enableStorage: true,
             };
 
             const res = await atlasAiService[functionName](
