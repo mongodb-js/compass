@@ -24,37 +24,41 @@ import type {
   PipelineGeneratedFromQueryAction,
 } from './pipeline-ai';
 
-// @ts-expect-error TODO(COMPASS-10124): replace enums with const kv objects
-export const enum EditorActionTypes {
-  EditorPreviewFetch = 'compass-aggregations/pipeline-builder/text-editor-pipeline/TextEditorPreviewFetch',
-  EditorPreviewFetchSkipped = 'compass-aggregations/pipeline-builder/text-editor-pipeline/EditorPreviewFetchSkipped',
-  EditorPreviewFetchSuccess = 'compass-aggregations/pipeline-builder/text-editor-pipeline/TextEditorPreviewFetchSuccess',
-  EditorPreviewFetchError = 'compass-aggregations/pipeline-builder/text-editor-pipeline/TextEditorPreviewFetchError',
-  EditorValueChange = 'compass-aggregations/pipeline-builder/text-editor-pipeline/TextEditorValueChange',
-}
+export const EditorActionTypes = {
+  EditorPreviewFetch:
+    'compass-aggregations/pipeline-builder/text-editor-pipeline/TextEditorPreviewFetch',
+  EditorPreviewFetchSkipped:
+    'compass-aggregations/pipeline-builder/text-editor-pipeline/EditorPreviewFetchSkipped',
+  EditorPreviewFetchSuccess:
+    'compass-aggregations/pipeline-builder/text-editor-pipeline/TextEditorPreviewFetchSuccess',
+  EditorPreviewFetchError:
+    'compass-aggregations/pipeline-builder/text-editor-pipeline/TextEditorPreviewFetchError',
+  EditorValueChange:
+    'compass-aggregations/pipeline-builder/text-editor-pipeline/TextEditorValueChange',
+} as const;
 
 export type EditorValueChangeAction = {
-  type: EditorActionTypes.EditorValueChange;
+  type: typeof EditorActionTypes.EditorValueChange;
   pipelineText: string;
   pipeline: Document[] | null;
   syntaxErrors: PipelineParserError[];
 };
 
 type EditorPreviewFetchAction = {
-  type: EditorActionTypes.EditorPreviewFetch;
+  type: typeof EditorActionTypes.EditorPreviewFetch;
 };
 
 type EditorPreviewFetchSkippedAction = {
-  type: EditorActionTypes.EditorPreviewFetchSkipped;
+  type: typeof EditorActionTypes.EditorPreviewFetchSkipped;
 };
 
 type EditorPreviewFetchSuccessAction = {
-  type: EditorActionTypes.EditorPreviewFetchSuccess;
+  type: typeof EditorActionTypes.EditorPreviewFetchSuccess;
   previewDocs: HadronDocument[];
 };
 
 type EditorPreviewFetchErrorAction = {
-  type: EditorActionTypes.EditorPreviewFetchError;
+  type: typeof EditorActionTypes.EditorPreviewFetchError;
   serverError: MongoServerError;
 };
 

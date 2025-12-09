@@ -1,6 +1,6 @@
 import type { Middleware, AnyAction } from 'redux';
 import type { WorkspacesState } from './workspaces';
-import type { WorkspacesStateData } from '../types';
+import type { WorkspacesStateData } from '@mongodb-js/workspace-info';
 import type { WorkspacesServices } from '..';
 import { mongoLogId } from '@mongodb-js/compass-logging/provider';
 
@@ -51,7 +51,7 @@ async function saveWorkspaceStateToUserData(
   try {
     // Transform the state to the format we want to save
     const stateToSave: WorkspacesStateData = {
-      tabs: state.tabs,
+      tabs: state.tabs.filter((tab) => tab.type !== 'Welcome'), // Don't save welcome tabs
       activeTabId: state.activeTabId,
       timestamp: Date.now(),
     };

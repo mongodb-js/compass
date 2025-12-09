@@ -224,6 +224,14 @@ export const FEATURE_FLAG_DEFINITIONS = [
         'Enable automatic relationship inference during data model generation',
     },
   },
+  {
+    name: 'enableChatbotEndpointForGenAI',
+    stage: 'development',
+    atlasCloudFeatureFlagName: null,
+    description: {
+      short: 'Enable Chatbot API for Generative AI',
+    },
+  },
 ] as const satisfies ReadonlyArray<FeatureFlagDefinition>;
 
 type FeatureFlagDefinitions = typeof FEATURE_FLAG_DEFINITIONS;

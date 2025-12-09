@@ -26,19 +26,18 @@ export const INITIAL_STATE: CreateViewState = {
   pipeline: [],
 };
 
-// @ts-expect-error TODO(COMPASS-10124): replace enums with const kv objects
-enum CreateViewActionTypes {
-  Open = 'aggregations/create-view/Open',
-  Close = 'aggregations/create-view/Close',
-  ToggleIsRunning = 'aggregations/create-view/is-running/ToggleIsRunning',
-  HandleError = 'aggregations/create-view/error/HandleError',
-  ClearError = 'aggregations/create-view/error/ClearError',
-  ChangeViewName = 'aggregations/create-view/name/ChangeName',
-  Reset = 'aggregations/create-view/reset',
-}
+const CreateViewActionTypes = {
+  Open: 'aggregations/create-view/Open',
+  Close: 'aggregations/create-view/Close',
+  ToggleIsRunning: 'aggregations/create-view/is-running/ToggleIsRunning',
+  HandleError: 'aggregations/create-view/error/HandleError',
+  ClearError: 'aggregations/create-view/error/ClearError',
+  ChangeViewName: 'aggregations/create-view/name/ChangeName',
+  Reset: 'aggregations/create-view/reset',
+} as const;
 
 export type OpenAction = {
-  type: CreateViewActionTypes.Open;
+  type: typeof CreateViewActionTypes.Open;
   connectionId: string;
   source: string;
   pipeline: unknown[];
@@ -46,30 +45,30 @@ export type OpenAction = {
 };
 
 export type CloseAction = {
-  type: CreateViewActionTypes.Close;
+  type: typeof CreateViewActionTypes.Close;
 };
 
 export type ToggleIsRunningAction = {
-  type: CreateViewActionTypes.ToggleIsRunning;
+  type: typeof CreateViewActionTypes.ToggleIsRunning;
   isRunning: boolean;
 };
 
 export type HandleErrorAction = {
-  type: CreateViewActionTypes.HandleError;
+  type: typeof CreateViewActionTypes.HandleError;
   error: Error;
 };
 
 export type ClearErrorAction = {
-  type: CreateViewActionTypes.ClearError;
+  type: typeof CreateViewActionTypes.ClearError;
 };
 
 export type ChangeViewNameAction = {
-  type: CreateViewActionTypes.ChangeViewName;
+  type: typeof CreateViewActionTypes.ChangeViewName;
   name: string;
 };
 
 export type ResetAction = {
-  type: CreateViewActionTypes.Reset;
+  type: typeof CreateViewActionTypes.Reset;
 };
 
 export type CreateViewAction =

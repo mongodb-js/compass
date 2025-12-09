@@ -21,24 +21,26 @@ const INITIAL_STATE: State = {
   id: undefined,
 };
 
-// @ts-expect-error TODO(COMPASS-10124): replace enums with const kv objects
-export enum ActionTypes {
-  EditItemClicked = 'compass-saved-aggregations-queries/edit-item/editItemClicked',
-  EditItemCancelled = 'compass-saved-aggregations-queries/edit-item/editItemCancelled',
-  EditItemUpdated = 'compass-saved-aggregations-queries/edit-item/editItemUpdated',
-}
+export const ActionTypes = {
+  EditItemClicked:
+    'compass-saved-aggregations-queries/edit-item/editItemClicked',
+  EditItemCancelled:
+    'compass-saved-aggregations-queries/edit-item/editItemCancelled',
+  EditItemUpdated:
+    'compass-saved-aggregations-queries/edit-item/editItemUpdated',
+} as const;
 
 type EditItemClickedAction = {
-  type: ActionTypes.EditItemClicked;
+  type: typeof ActionTypes.EditItemClicked;
   id: string;
 };
 
 type EditItemCancelledAction = {
-  type: ActionTypes.EditItemCancelled;
+  type: typeof ActionTypes.EditItemCancelled;
 };
 
 type EditItemUpdatedAction = {
-  type: ActionTypes.EditItemUpdated;
+  type: typeof ActionTypes.EditItemUpdated;
   id: string;
 };
 

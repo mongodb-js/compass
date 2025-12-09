@@ -62,6 +62,7 @@ export const WithAtlasProviders: React.FC = ({ children }) => {
         options={{
           defaultHeaders: {
             'User-Agent': `${getAppName()}/${getAppVersion()}`,
+            'X-Request-Origin': 'mongodb-compass',
           },
         }}
       >

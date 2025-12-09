@@ -146,3 +146,14 @@ export type WorkspacePlugin<T extends AnyWorkspace['type']> = {
   content: (props: WorkspacePluginProps<T>) => React.ReactElement | null;
   header: (props: PluginHeaderProps<T>) => React.ReactElement | null;
 };
+
+export type CollectionTabInfo = {
+  isTimeSeries: boolean;
+  isReadonly: boolean;
+  sourceName?: string | null;
+  inferredFromPrivileges: boolean;
+};
+
+export type DatabaseTabInfo = {
+  inferredFromPrivileges: boolean;
+};

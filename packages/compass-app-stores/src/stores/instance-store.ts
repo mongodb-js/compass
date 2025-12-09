@@ -554,6 +554,7 @@ export function createInstancesStore(
   );
 
   on(globalAppRegistry, 'document-deleted', refreshNamespaceStats);
+  on(globalAppRegistry, 'documents-deleted', refreshNamespaceStats);
   on(globalAppRegistry, 'document-inserted', refreshNamespaceStats);
   on(globalAppRegistry, 'import-finished', refreshNamespaceStats);
 

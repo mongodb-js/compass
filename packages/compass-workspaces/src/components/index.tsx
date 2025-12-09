@@ -6,13 +6,16 @@ import {
   useCurrentValueRef,
   useDarkMode,
 } from '@mongodb-js/compass-components';
-import type { CollectionTabInfo } from '../stores/workspaces';
 import {
   getActiveTab,
-  type OpenWorkspaceOptions,
   type WorkspacesState,
+  type OpenWorkspaceOptions,
 } from '../stores/workspaces';
-import type { WorkspaceTab } from '../types';
+import type {
+  WorkspaceTab,
+  CollectionTabInfo,
+} from '@mongodb-js/workspace-info';
+
 import Workspaces from './workspaces';
 import { connect } from '../stores/context';
 import { WorkspacesServiceProvider } from '../provider';

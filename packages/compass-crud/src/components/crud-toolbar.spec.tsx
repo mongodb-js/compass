@@ -13,7 +13,7 @@ import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 import { CrudToolbar } from './crud-toolbar';
 import { renderWithQueryBar } from '../../test/render-with-query-bar';
 import { CompassExperimentationProvider } from '@mongodb-js/compass-telemetry';
-import { ExperimentTestGroup } from '@mongodb-js/compass-telemetry/provider';
+import { ExperimentTestGroups } from '@mongodb-js/compass-telemetry/provider';
 
 const noop = () => {
   /* noop */
@@ -887,7 +887,7 @@ describe('CrudToolbar Component', function () {
           mockUseAssignment.returns({
             assignment: {
               assignmentData: {
-                variant: ExperimentTestGroup.atlasSkillsVariant,
+                variant: ExperimentTestGroups.atlasSkillsVariant,
               },
             },
             ...commonAsyncStatus,
@@ -896,7 +896,7 @@ describe('CrudToolbar Component', function () {
           mockUseAssignment.returns({
             assignment: {
               assignmentData: {
-                variant: ExperimentTestGroup.atlasSkillsControl,
+                variant: ExperimentTestGroups.atlasSkillsControl,
               },
             },
             ...commonAsyncStatus,

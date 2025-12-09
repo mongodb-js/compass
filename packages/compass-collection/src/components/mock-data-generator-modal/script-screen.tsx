@@ -18,7 +18,8 @@ import {
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import toNS from 'mongodb-ns';
 import { generateScript } from './script-generation-utils';
-import { DataGenerationStep, type FakerSchema } from './types';
+import type { DataGenerationStep } from './types';
+import { DataGenerationSteps, type FakerSchema } from './types';
 import type { ArrayLengthMap } from './script-generation-utils';
 import type { CollectionState } from '../../modules/collection-tab';
 import { SCHEMA_ANALYSIS_STATE_COMPLETE } from '../../schema-analysis-types';
@@ -177,7 +178,7 @@ const ScriptScreen = ({
             <Copyable
               className={copyableStyles}
               onCopy={() =>
-                onScriptCopy({ step: DataGenerationStep.INSTALL_FAKERJS })
+                onScriptCopy({ step: DataGenerationSteps.INSTALL_FAKERJS })
               }
             >
               npm install @faker-js/faker@9
@@ -198,7 +199,7 @@ const ScriptScreen = ({
           language={Language.JavaScript}
           className={scriptCodeBlockStyles}
           onCopy={() =>
-            onScriptCopy({ step: DataGenerationStep.CREATE_JS_FILE })
+            onScriptCopy({ step: DataGenerationSteps.CREATE_JS_FILE })
           }
         >
           {scriptResult.success
@@ -221,7 +222,7 @@ const ScriptScreen = ({
         </Body>
         <Code
           language={Language.Bash}
-          onCopy={() => onScriptCopy({ step: DataGenerationStep.RUN_SCRIPT })}
+          onCopy={() => onScriptCopy({ step: DataGenerationSteps.RUN_SCRIPT })}
         >
           {RUN_SCRIPT_COMMAND(connectionString)}
         </Code>

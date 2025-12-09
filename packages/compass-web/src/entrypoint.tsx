@@ -8,10 +8,10 @@ import { useConnectionActions } from '@mongodb-js/compass-connections/provider';
 import { CompassInstanceStorePlugin } from '@mongodb-js/compass-app-stores';
 import type {
   CollectionTabInfo,
-  OpenWorkspaceOptions,
   WorkspaceTab,
-} from '@mongodb-js/compass-workspaces';
+} from '@mongodb-js/workspace-info';
 import WorkspacesPlugin, {
+  type OpenWorkspaceOptions,
   WorkspacesProvider,
   WorkspacesStorageServiceProviderWeb,
 } from '@mongodb-js/compass-workspaces';
@@ -110,7 +110,13 @@ const WithAtlasProviders: React.FC<{ children: React.ReactNode }> = ({
   return (
     <AtlasCloudAuthServiceProvider>
       <AtlasClusterConnectionsOnlyProvider value={true}>
-        <AtlasServiceProvider>
+        <AtlasServiceProvider
+          options={{
+            defaultHeaders: {
+              'X-Request-Origin': 'atlas-data-explorer',
+            },
+          }}
+        >
           <AtlasAiServiceProvider apiURLPreset="cloud">
             {children}
           </AtlasAiServiceProvider>

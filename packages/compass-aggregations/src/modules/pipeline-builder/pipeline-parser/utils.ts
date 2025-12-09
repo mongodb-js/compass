@@ -3,6 +3,7 @@ import type { Node } from '@babel/types';
 import _parseShellBSON, { ParseMode } from '@mongodb-js/shell-bson-parser';
 import { prettify } from '@mongodb-js/compass-editor';
 import type { FormatOptions } from '@mongodb-js/compass-editor';
+import type { StageAssertionErrorCode } from './stage-parser';
 
 type ErrorLoc = {
   line: number;
@@ -12,8 +13,8 @@ type ErrorLoc = {
 
 export class PipelineParserError extends SyntaxError {
   loc?: ErrorLoc;
-  code?: number;
-  constructor(message: string, loc?: ErrorLoc, code?: number) {
+  code?: StageAssertionErrorCode;
+  constructor(message: string, loc?: ErrorLoc, code?: StageAssertionErrorCode) {
     super(message);
     this.loc = loc;
     this.code = code;
