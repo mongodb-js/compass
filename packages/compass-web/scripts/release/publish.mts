@@ -2,14 +2,30 @@ import path from 'path';
 import { brotliCompressSync } from 'zlib';
 import { inspect } from 'util';
 import {
+  ALLOWED_PUBLISH_ENVIRONMENTS,
   DOWNLOADS_BUCKET,
   DOWNLOADS_BUCKET_PUBLIC_HOST,
   ENTRYPOINT_FILENAME,
   MANIFEST_FILENAME,
+  PUBLISH_ENVIRONMENT,
   RELEASE_COMMIT,
   asyncPutObject,
   getObjectKey,
 } from './utils.mts';
+
+console.log(
+  'Publishing compass-web@%s to %s environment',
+  RELEASE_COMMIT,
+  PUBLISH_ENVIRONMENT
+);
+
+if (!ALLOWED_PUBLISH_ENVIRONMENTS.includes(PUBLISH_ENVIRONMENT ?? '')) {
+  throw new Error(
+    `Unknown publish environment: expected ${inspect(
+      ALLOWED_PUBLISH_ENVIRONMENTS
+    )}, got ${inspect(PUBLISH_ENVIRONMENT)}`
+  );
+}
 
 const publicManifestUrl = new URL(
   getObjectKey(MANIFEST_FILENAME),
@@ -31,6 +47,8 @@ function assertResponseIsOk(res: Response) {
   }
 }
 
+console.log('Fetching manifest from %s', publicManifestUrl);
+
 try {
   const res = await fetch(publicManifestUrl);
   assertResponseIsOk(res);
@@ -51,6 +69,8 @@ try {
     );
   }
 
+  console.log('Checking that assets in manifest exist');
+
   assets = manifest.map((asset) => {
     return new URL(getObjectKey(asset), DOWNLOADS_BUCKET_PUBLIC_HOST);
   });
@@ -65,18 +85,6 @@ try {
   throw new AggregateError(
     [err],
     `Aborting publish, failed to resolve manifest ${publicManifestUrl}`
-  );
-}
-
-const ALLOWED_PUBLISH_ENVIRONMENTS = ['dev', 'qa', 'staging', 'prod'];
-
-const PUBLISH_ENVIRONMENT = process.env.COMPASS_WEB_PUBLISH_ENVIRONMENT;
-
-if (!ALLOWED_PUBLISH_ENVIRONMENTS.includes(PUBLISH_ENVIRONMENT ?? '')) {
-  throw new Error(
-    `Unknown publish environment: expected ${inspect(
-      ALLOWED_PUBLISH_ENVIRONMENTS
-    )}, got ${inspect(PUBLISH_ENVIRONMENT)}`
   );
 }
 
@@ -104,7 +112,7 @@ console.log(
   fileKey
 );
 
-const ENTRYPOINT_CACHE_MAX_AGE = 1000 * 60 * 3; // 3mins
+const ENTRYPOINT_CACHE_MAX_AGE_SECONDS = 1 * 60 * 3; // 3mins
 
 const res = await asyncPutObject({
   ACL: 'private',

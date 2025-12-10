@@ -14,6 +14,10 @@ export const MANIFEST_FILENAME = 'assets-manifest.json';
 
 export const DIST_DIR = path.resolve(import.meta.dirname, '..', '..', 'dist');
 
+export const ALLOWED_PUBLISH_ENVIRONMENTS = ['dev', 'qa', 'staging', 'prod'];
+
+export const PUBLISH_ENVIRONMENT = process.env.COMPASS_WEB_PUBLISH_ENVIRONMENT;
+
 export const RELEASE_COMMIT =
   process.env.COMPASS_WEB_RELEASE_COMMIT ||
   child_process
