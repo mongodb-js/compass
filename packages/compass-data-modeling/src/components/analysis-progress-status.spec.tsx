@@ -33,7 +33,7 @@ describe('AnalysisProgressStatus', () => {
 
   it('Allows cancellation', async () => {
     const store = await renderAnalysisProgressStatus();
-    expect(screen.getByText('Sampling collections..')).to.be.visible;
+    expect(screen.getByText('Sampling collections…')).to.be.visible;
     expect(screen.getByText('Cancel')).to.be.visible;
     screen.getByText('Cancel').click();
     await waitFor(() => {
@@ -47,7 +47,7 @@ describe('AnalysisProgressStatus', () => {
       const store = await renderAnalysisProgressStatus({
         automaticallyInferRelations: false,
       });
-      expect(screen.getByText('Sampling collections..')).to.be.visible;
+      expect(screen.getByText('Sampling collections…')).to.be.visible;
       expect(screen.getByText('0/3')).to.be.visible;
 
       // 2 out of 3 samples fetched, 1 analyzed
@@ -61,7 +61,7 @@ describe('AnalysisProgressStatus', () => {
         type: AnalysisProcessActionTypes.NAMESPACE_SCHEMA_ANALYZED,
       });
 
-      expect(screen.getByText('Sampling collections..')).to.be.visible;
+      expect(screen.getByText('Sampling collections…')).to.be.visible;
       expect(screen.getByText('2/3')).to.be.visible;
 
       // Last sample fetched
@@ -69,7 +69,7 @@ describe('AnalysisProgressStatus', () => {
         type: AnalysisProcessActionTypes.NAMESPACE_SAMPLE_FETCHED,
       });
 
-      expect(screen.getByText('Analyzing collection schemas..')).to.be.visible;
+      expect(screen.getByText('Analyzing collection schemas…')).to.be.visible;
       expect(screen.getByText('1/3')).to.be.visible;
 
       // Finish analyzing
@@ -80,17 +80,16 @@ describe('AnalysisProgressStatus', () => {
         type: AnalysisProcessActionTypes.NAMESPACE_SCHEMA_ANALYZED,
       });
 
-      expect(
-        screen.queryByText('Inferring relationships between collections..')
-      ).not.to.exist;
-      expect(screen.getByText('Preparing diagram..')).to.be.visible;
+      expect(screen.queryByText('Inferring relationships between collections…'))
+        .not.to.exist;
+      expect(screen.getByText('Preparing diagram…')).to.be.visible;
     });
 
     it('With relationship inferring', async () => {
       const store = await renderAnalysisProgressStatus({
         automaticallyInferRelations: true,
       });
-      expect(screen.getByText('Sampling collections..')).to.be.visible;
+      expect(screen.getByText('Sampling collections…')).to.be.visible;
       expect(screen.getByText('0/3')).to.be.visible;
 
       // Fetch and analyze all samples
@@ -113,7 +112,7 @@ describe('AnalysisProgressStatus', () => {
         type: AnalysisProcessActionTypes.NAMESPACE_SCHEMA_ANALYZED,
       });
 
-      expect(screen.getByText('Inferring relationships between collections..'))
+      expect(screen.getByText('Inferring relationships between collections…'))
         .to.be.visible;
       expect(screen.queryByText('0/3')).not.to.exist;
 
@@ -125,7 +124,7 @@ describe('AnalysisProgressStatus', () => {
         type: AnalysisProcessActionTypes.NAMESPACE_RELATIONS_INFERRED,
       });
 
-      expect(screen.getByText('Inferring relationships between collections..'))
+      expect(screen.getByText('Inferring relationships between collections…'))
         .to.be.visible;
       expect(screen.queryByText('2/3')).not.to.exist;
 
@@ -134,7 +133,7 @@ describe('AnalysisProgressStatus', () => {
         type: AnalysisProcessActionTypes.NAMESPACE_RELATIONS_INFERRED,
       });
 
-      expect(screen.getByText('Preparing diagram..')).to.be.visible;
+      expect(screen.getByText('Preparing diagram…')).to.be.visible;
     });
   });
 });

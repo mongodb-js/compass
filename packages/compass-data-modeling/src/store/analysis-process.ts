@@ -417,3 +417,7 @@ export function cancelAnalysis(): DataModelingThunkAction<void, never> {
     cancelAnalysisControllerRef.current = null;
   };
 }
+
+export const selectIsAnalysisInProgress = (state: {
+  analysisProgress: AnalysisProcessState;
+}): boolean => state.analysisProgress.step !== 'IDLE';
