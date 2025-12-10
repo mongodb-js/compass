@@ -264,7 +264,7 @@ function getActiveUserId(preferences: PreferencesAccess): string {
   const { currentUserId, telemetryAnonymousId, telemetryAtlasUserId } =
     preferences.getPreferences();
   return (
-    currentUserId || telemetryAnonymousId || telemetryAtlasUserId || 'unknown'
+    currentUserId ?? telemetryAnonymousId ?? telemetryAtlasUserId ?? 'unknown'
   );
 }
 
