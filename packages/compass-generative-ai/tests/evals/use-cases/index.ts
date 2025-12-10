@@ -1,6 +1,6 @@
 import { findQueries } from './find-query';
 import { aggregateQueries } from './aggregate-query';
-import * as toNS from 'mongodb-ns';
+import toNS from 'mongodb-ns';
 
 export type GenAiUsecase = {
   namespace: string;

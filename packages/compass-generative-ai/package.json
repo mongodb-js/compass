@@ -49,7 +49,8 @@
     "test-watch": "npm run test -- --watch",
     "test-ci": "npm run test-cov",
     "test-ci-electron": "npm run test-electron",
-    "reformat": "npm run eslint . -- --fix && npm run prettier -- --write ."
+    "reformat": "npm run eslint . -- --fix && npm run prettier -- --write .",
+    "eval": "braintrust eval tests/evals"
   },
   "dependencies": {
     "@ai-sdk/openai": "^2.0.4",
