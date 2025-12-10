@@ -1050,8 +1050,13 @@ describe('AtlasAiService', function () {
             expect(fetchStub).to.have.been.calledOnce;
 
             const { args } = fetchStub.firstCall;
-            const requestBody = JSON.parse(args[1].body as string);
 
+            const requestHeaders = args[1].headers as Record<string, string>;
+            expect(requestHeaders['x-client-request-id']).to.equal(
+              input.requestId
+            );
+
+            const requestBody = JSON.parse(args[1].body as string);
             expect(requestBody.model).to.equal('mongodb-chat-latest');
             expect(requestBody.metadata).to.deep.equal({
               userId: '1234',
@@ -1086,6 +1091,7 @@ describe('AtlasAiService', function () {
                   databaseName: 'peanut',
                   requestId: 'abc',
                   signal: new AbortController().signal,
+                  enableStorage: false,
                 },
                 mockConnectionInfo
               );

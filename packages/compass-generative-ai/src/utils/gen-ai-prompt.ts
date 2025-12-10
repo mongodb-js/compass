@@ -69,6 +69,7 @@ type BuildPromptOptions = {
 type BuildMetadataOptions = {
   userId: string;
   enableStorage: boolean;
+  requestId: string;
   type: 'find' | 'aggregate';
 };
 
@@ -167,6 +168,7 @@ export type AiQueryPrompt = {
   metadata: {
     instructions: string;
     userId: string;
+    requestId: string;
   } & (
     | {
         store: 'true';
@@ -181,6 +183,7 @@ export type AiQueryPrompt = {
 function buildMetadata({
   type,
   userId,
+  requestId,
   enableStorage,
 }: BuildMetadataOptions): AiQueryPrompt['metadata'] {
   return {
@@ -189,6 +192,7 @@ function buildMetadata({
         ? buildInstructionsForFindQuery()
         : buildInstructionsForAggregateQuery(),
     userId,
+    requestId,
     ...(enableStorage
       ? {
           sensitiveStorage: 'sensitive',
@@ -203,6 +207,7 @@ function buildMetadata({
 export function buildFindQueryPrompt({
   userId,
   enableStorage,
+  requestId,
   ...restOfTheOptions
 }: PromptContextOptions): AiQueryPrompt {
   const type = 'find';
@@ -215,6 +220,7 @@ export function buildFindQueryPrompt({
     metadata: buildMetadata({
       type,
       userId,
+      requestId,
       enableStorage,
     }),
   };
@@ -223,6 +229,7 @@ export function buildFindQueryPrompt({
 export function buildAggregateQueryPrompt({
   userId,
   enableStorage,
+  requestId,
   ...restOfTheOptions
 }: PromptContextOptions): AiQueryPrompt {
   const type = 'aggregate';
@@ -232,6 +239,6 @@ export function buildAggregateQueryPrompt({
   });
   return {
     prompt,
-    metadata: buildMetadata({ type, userId, enableStorage }),
+    metadata: buildMetadata({ type, userId, requestId, enableStorage }),
   };
 }

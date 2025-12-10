@@ -8,7 +8,7 @@ export async function getAiQueryResponse(
   message: AiQueryPrompt,
   abortSignal: AbortSignal
 ): Promise<string> {
-  const { instructions, ...restOfMetadata } = message.metadata;
+  const { instructions, requestId, ...restOfMetadata } = message.metadata;
   const response = streamText({
     model,
     messages: [{ role: 'user', content: message.prompt }],
@@ -17,6 +17,9 @@ export async function getAiQueryResponse(
         instructions,
         metadata: restOfMetadata,
       },
+    },
+    headers: {
+      'X-Client-Request-Id': requestId,
     },
     abortSignal,
   }).toUIMessageStream();

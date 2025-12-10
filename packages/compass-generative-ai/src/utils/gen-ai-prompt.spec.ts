@@ -13,6 +13,7 @@ const OPTIONS: PromptContextOptions = {
   collectionName: 'listings',
   userId: 'test-user-id',
   enableStorage: false,
+  requestId: 'test-request-id',
   schema: {
     _id: {
       types: [
@@ -48,6 +49,7 @@ describe('GenAI Prompts', function () {
     );
     expect(metadata.userId).to.equal(OPTIONS.userId);
     expect(metadata.store).to.equal('false');
+    expect(metadata.requestId).to.equal(OPTIONS.requestId);
 
     expect(prompt).to.be.a('string');
     expect(prompt).to.include(
@@ -91,6 +93,7 @@ describe('GenAI Prompts', function () {
     );
     expect(metadata.userId).to.equal(OPTIONS.userId);
     expect(metadata.store).to.equal('false');
+    expect(metadata.requestId).to.equal(OPTIONS.requestId);
 
     expect(prompt).to.be.a('string');
     expect(prompt).to.include(
