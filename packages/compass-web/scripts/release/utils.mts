@@ -47,5 +47,5 @@ export const asyncPutObject: (
 export function getObjectKey(filename: string, release = RELEASE_COMMIT) {
   // TODO(SRE-4971): while we're uploading to the downloads bucket, the object
   // key always needs to start with `compass/`
-  return `compass/web/${release}/${filename}`;
+  return `compass/compass-web/${release}/${filename}`;
 }
