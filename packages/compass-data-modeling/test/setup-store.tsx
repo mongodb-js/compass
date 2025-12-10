@@ -28,7 +28,7 @@ type ConnectionInfoWithMockData = ConnectionInfo & {
 };
 
 export type DataModelingStore = Awaited<ReturnType<typeof setupStore>>;
-const testConnections = [
+export const testConnections = [
   {
     id: 'one',
     savedConnectionType: 'favorite' as const,
@@ -172,6 +172,19 @@ export const setupStore = (
             listCollections: (database: string) => {
               return Promise.resolve(
                 conn.databases.find((x) => x._id === database)?.collections
+              );
+            },
+            sample: () => {
+              return new Promise((resolve) =>
+                setTimeout(
+                  () =>
+                    resolve([
+                      { _id: 'sample1' },
+                      { _id: 'sample2' },
+                      { _id: 'sample3' },
+                    ]),
+                  1
+                )
               );
             },
           };
