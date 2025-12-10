@@ -428,6 +428,24 @@ describe('CompassAssistantProvider', function () {
 
         expect(screen.getByText('Hello assistant!')).to.exist;
       });
+
+      const contextMessage = mockChat.messages.find((message) =>
+        message.id.match(/^system-context-/)
+      );
+      if (contextMessage) {
+        // just clear it up so we can deep compare
+        contextMessage.id = 'system-context';
+      }
+      expect(contextMessage).to.deep.equal({
+        id: 'system-context',
+        role: 'system',
+        parts: [
+          {
+            type: 'text',
+            text: 'The user does not have any tabs open.',
+          },
+        ],
+      });
     });
 
     it('will not send new messages if the user does not opt in', async function () {
