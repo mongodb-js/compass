@@ -64,6 +64,7 @@
     "@leafygreen-ui/polymorphic": "^3.1.0",
     "@leafygreen-ui/popover": "^14.3.1",
     "@leafygreen-ui/portal": "^7.1.0",
+    "@leafygreen-ui/progress-bar": "^1.0.7",
     "@leafygreen-ui/radio-box-group": "^15.0.10",
     "@leafygreen-ui/radio-group": "^13.0.10",
     "@leafygreen-ui/search-input": "^6.1.1",

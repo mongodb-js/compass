@@ -23,6 +23,7 @@ import {
 import { Menu, MenuSeparator, MenuItem } from '@leafygreen-ui/menu';
 export type { MenuItemProps } from '@leafygreen-ui/menu';
 import { InfoSprinkle } from '@leafygreen-ui/info-sprinkle';
+import { ProgressBar } from '@leafygreen-ui/progress-bar';
 
 // If a leafygreen Menu (and therefore MenuItems) makes its way into a <form>,
 // clicking on a menu item will submit that form. This is because it uses a button
@@ -191,6 +192,7 @@ export {
   Combobox,
   ComboboxGroup,
   ComboboxOption,
+  ProgressBar,
 };
 
 export * as Avatar from '@leafygreen-ui/avatar';
