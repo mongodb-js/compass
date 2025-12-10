@@ -116,7 +116,7 @@ const res = await asyncPutObject({
   ContentLength: compressedFileContent.byteLength,
   // "Latest" entrypoint files can change quite often, so max-age is quite
   // short and browser should always revalidate on stale
-  CacheControl: `public, max-age=${ENTRYPOINT_CACHE_MAX_AGE}, must-revalidate`,
+  CacheControl: `public, max-age=${ENTRYPOINT_CACHE_MAX_AGE_SECONDS}, must-revalidate`,
 });
 
 console.log(

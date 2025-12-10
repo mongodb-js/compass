@@ -29,7 +29,7 @@ for (const file of artifacts) {
   }
 }
 
-const IMMUTABLE_CACHE_MAX_AGE = 1000 * 60 * 60 * 24 * 7; // a week
+const IMMUTABLE_CACHE_MAX_AGE_SECONDS = 1 * 60 * 60 * 24 * 7; // a week
 
 for (const file of artifacts) {
   const filePath = path.join(DIST_DIR, file);
@@ -55,7 +55,7 @@ for (const file of artifacts) {
     ContentLength: compressedFileContent.byteLength,
     // Assets stored under the commit hash never change after upload, so the
     // cache-control setting for them can be quite generous
-    CacheControl: `public, max-age=${IMMUTABLE_CACHE_MAX_AGE}, immutable`,
+    CacheControl: `public, max-age=${IMMUTABLE_CACHE_MAX_AGE_SECONDS}, immutable`,
   });
 
   console.log('Successfully uploaded %s (ETag: %s)', file, res.ETag);
