@@ -1,24 +1,11 @@
 import {
-  css,
   ProgressLoaderWithCancel,
-  spacing,
   useDarkMode,
 } from '@mongodb-js/compass-components';
 import React from 'react';
 import { connect } from 'react-redux';
 import type { DataModelingState } from '../store/reducer';
 import { cancelAnalysis, type AnalysisStep } from '../store/analysis-process';
-
-const loaderStyles = css({
-  margin: '0 auto',
-});
-
-const loadingContainerStyles = css({
-  width: '100%',
-  paddingTop: spacing[1800] * 3,
-  display: 'flex',
-  justifyContent: 'center',
-});
 
 function getProgressPropsFromStatus({
   step,
@@ -97,22 +84,19 @@ export const AnalysisProgressStatus: React.FC<AnalysisProgressStatusProps> = ({
 }) => {
   const darkMode = useDarkMode();
   return (
-    <div className={loadingContainerStyles}>
-      <ProgressLoaderWithCancel
-        darkMode={darkMode}
-        variant="success"
-        className={loaderStyles}
-        cancelText="Cancel"
-        onCancel={onCancelClick}
-        {...getProgressPropsFromStatus({
-          step,
-          sampledCollections,
-          analyzedCollections,
-          collectionRelationsInferred,
-          totalCollections,
-        })}
-      ></ProgressLoaderWithCancel>
-    </div>
+    <ProgressLoaderWithCancel
+      darkMode={darkMode}
+      variant="success"
+      cancelText="Cancel"
+      onCancel={onCancelClick}
+      {...getProgressPropsFromStatus({
+        step,
+        sampledCollections,
+        analyzedCollections,
+        collectionRelationsInferred,
+        totalCollections,
+      })}
+    ></ProgressLoaderWithCancel>
   );
 };
 
