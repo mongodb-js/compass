@@ -1,0 +1,1491 @@
+[
+  {
+    "_id": "10006546",
+    "listing_url": "https://www.airbnb.com/rooms/10006546",
+    "name": "Ribeira Charming Duplex",
+    "interaction": "Cot - 10 € / night Dog - € 7,5 / night",
+    "house_rules": "Make the house your home...",
+    "property_type": "House",
+    "room_type": "Entire home/apt",
+    "bed_type": "Real Bed",
+    "minimum_nights": "2",
+    "maximum_nights": "30",
+    "cancellation_policy": "moderate",
+    "last_scraped": {
+      "$date": {
+        "$numberLong": "1550293200000"
+      }
+    },
+    "calendar_last_scraped": {
+      "$date": {
+        "$numberLong": "1550293200000"
+      }
+    },
+    "first_review": {
+      "$date": {
+        "$numberLong": "1451797200000"
+      }
+    },
+    "last_review": {
+      "$date": {
+        "$numberLong": "1547960400000"
+      }
+    },
+    "accommodates": 8,
+    "bedrooms": 3,
+    "beds": 5,
+    "number_of_reviews": 51,
+    "bathrooms": {
+      "$numberDecimal": "1.0"
+    },
+    "price": {
+      "$numberDecimal": "80.00"
+    },
+    "security_deposit": {
+      "$numberDecimal": "200.00"
+    },
+    "cleaning_fee": {
+      "$numberDecimal": "35.00"
+    },
+    "extra_people": {
+      "$numberDecimal": "15.00"
+    },
+    "guests_included": {
+      "$numberDecimal": "6"
+    },
+    "images": {
+      "thumbnail_url": "",
+      "medium_url": "",
+      "picture_url": "https://a0.muscache.com/im/pictures/e83e702f-ef49-40fb-8fa0-6512d7e26e9b.jpg?aki_policy=large",
+      "xl_picture_url": ""
+    },
+    "address": {
+      "street": "Porto, Porto, Portugal",
+      "suburb": "",
+      "government_area": "Cedofeita, Ildefonso, Sé, Miragaia, Nicolau, Vitória",
+      "market": "Porto",
+      "country": "Portugal",
+      "country_code": "PT",
+      "location": {
+        "type": "Point",
+        "coordinates": [-8.61308, 41.1413],
+        "is_location_exact": false
+      }
+    },
+    "availability": {
+      "availability_30": 28,
+      "availability_60": 47,
+      "availability_90": 74,
+      "availability_365": 239
+    },
+    "host_id": "51399391"
+  },
+  {
+    "_id": "10009999",
+    "listing_url": "https://www.airbnb.com/rooms/10009999",
+    "name": "Horto flat with small garden",
+    "interaction": "I´ll be happy to help you with any doubts, tips or any other information needed during your stay.",
+    "house_rules": "I just hope the guests treat the space as they´re own, with respect to it as well as to my neighbours! Espero apenas que os hóspedes tratem o lugar com carinho e respeito aos vizinhos!",
+    "property_type": "Apartment",
+    "room_type": "Entire home/apt",
+    "bed_type": "Real Bed",
+    "minimum_nights": "2",
+    "maximum_nights": "1125",
+    "cancellation_policy": "flexible",
+    "last_scraped": {
+      "$date": {
+        "$numberLong": "1549861200000"
+      }
+    },
+    "calendar_last_scraped": {
+      "$date": {
+        "$numberLong": "1549861200000"
+      }
+    },
+    "accommodates": 4,
+    "bedrooms": 1,
+    "beds": 2,
+    "number_of_reviews": 0,
+    "bathrooms": {
+      "$numberDecimal": "1.0"
+    },
+    "price": {
+      "$numberDecimal": "317.00"
+    },
+    "cleaning_fee": {
+      "$numberDecimal": "187.00"
+    },
+    "extra_people": {
+      "$numberDecimal": "0.00"
+    },
+    "guests_included": {
+      "$numberDecimal": "1"
+    },
+    "images": {
+      "thumbnail_url": "",
+      "medium_url": "",
+      "picture_url": "https://a0.muscache.com/im/pictures/e83e702f-ef49-40fb-8fa0-6512d7e26e9b.jpg?aki_policy=large",
+      "xl_picture_url": ""
+    },
+    "address": {
+      "street": "Rio de Janeiro, Rio de Janeiro, Brazil",
+      "suburb": "Jardim Botânico",
+      "government_area": "Jardim Botânico",
+      "market": "Rio De Janeiro",
+      "country": "Brazil",
+      "country_code": "BR",
+      "location": {
+        "type": "Point",
+        "coordinates": [-43.23074991429229, -22.966253551739655],
+        "is_location_exact": true
+      }
+    },
+    "availability": {
+      "availability_30": 0,
+      "availability_60": 0,
+      "availability_90": 0,
+      "availability_365": 0
+    },
+    "host_id": "1282196"
+  },
+  {
+    "_id": "1001265",
+    "listing_url": "https://www.airbnb.com/rooms/1001265",
+    "name": "Ocean View Waikiki Marina w/prkg",
+    "interaction": "We try our best at creating, simple responsive management which never bothers the guest.",
+    "house_rules": "The general welfare and well being of all the community.",
+    "property_type": "Condominium",
+    "room_type": "Entire home/apt",
+    "bed_type": "Real Bed",
+    "minimum_nights": "3",
+    "maximum_nights": "365",
+    "cancellation_policy": "strict_14_with_grace_period",
+    "last_scraped": {
+      "$date": {
+        "$numberLong": "1551848400000"
+      }
+    },
+    "calendar_last_scraped": {
+      "$date": {
+        "$numberLong": "1551848400000"
+      }
+    },
+    "first_review": {
+      "$date": {
+        "$numberLong": "1369368000000"
+      }
+    },
+    "last_review": {
+      "$date": {
+        "$numberLong": "1549515600000"
+      }
+    },
+    "accommodates": 2,
+    "bedrooms": 1,
+    "beds": 1,
+    "number_of_reviews": 96,
+    "bathrooms": {
+      "$numberDecimal": "1.0"
+    },
+    "price": {
+      "$numberDecimal": "115.00"
+    },
+    "cleaning_fee": {
+      "$numberDecimal": "100.00"
+    },
+    "extra_people": {
+      "$numberDecimal": "0.00"
+    },
+    "guests_included": {
+      "$numberDecimal": "1"
+    },
+    "images": {
+      "thumbnail_url": "",
+      "medium_url": "",
+      "picture_url": "https://a0.muscache.com/im/pictures/e83e702f-ef49-40fb-8fa0-6512d7e26e9b.jpg?aki_policy=large",
+      "xl_picture_url": ""
+    },
+    "address": {
+      "street": "Honolulu, HI, United States",
+      "suburb": "Oʻahu",
+      "government_area": "Primary Urban Center",
+      "market": "Oahu",
+      "country": "United States",
+      "country_code": "US",
+      "location": {
+        "type": "Point",
+        "coordinates": [-157.83919, 21.28634],
+        "is_location_exact": true
+      }
+    },
+    "availability": {
+      "availability_30": 16,
+      "availability_60": 46,
+      "availability_90": 76,
+      "availability_365": 343
+    },
+    "host_id": "5448114"
+  },
+  {
+    "_id": "10021707",
+    "listing_url": "https://www.airbnb.com/rooms/10021707",
+    "name": "Private Room in Bushwick",
+    "interaction": "",
+    "house_rules": "",
+    "property_type": "Apartment",
+    "room_type": "Private room",
+    "bed_type": "Real Bed",
+    "minimum_nights": "14",
+    "maximum_nights": "1125",
+    "cancellation_policy": "flexible",
+    "last_scraped": {
+      "$date": {
+        "$numberLong": "1551848400000"
+      }
+    },
+    "calendar_last_scraped": {
+      "$date": {
+        "$numberLong": "1551848400000"
+      }
+    },
+    "first_review": {
+      "$date": {
+        "$numberLong": "1454216400000"
+      }
+    },
+    "last_review": {
+      "$date": {
+        "$numberLong": "1454216400000"
+      }
+    },
+    "accommodates": 1,
+    "bedrooms": 1,
+    "beds": 1,
+    "number_of_reviews": 1,
+    "bathrooms": {
+      "$numberDecimal": "1.5"
+    },
+    "price": {
+      "$numberDecimal": "40.00"
+    },
+    "extra_people": {
+      "$numberDecimal": "0.00"
+    },
+    "guests_included": {
+      "$numberDecimal": "1"
+    },
+    "images": {
+      "thumbnail_url": "",
+      "medium_url": "",
+      "picture_url": "https://a0.muscache.com/im/pictures/e83e702f-ef49-40fb-8fa0-6512d7e26e9b.jpg?aki_policy=large",
+      "xl_picture_url": ""
+    },
+    "address": {
+      "street": "Brooklyn, NY, United States",
+      "suburb": "Brooklyn",
+      "government_area": "Bushwick",
+      "market": "New York",
+      "country": "United States",
+      "country_code": "US",
+      "location": {
+        "type": "Point",
+        "coordinates": [-73.93615, 40.69791],
+        "is_location_exact": true
+      }
+    },
+    "availability": {
+      "availability_30": 0,
+      "availability_60": 0,
+      "availability_90": 0,
+      "availability_365": 0
+    },
+    "host_id": "11275734"
+  },
+  {
+    "_id": "10030955",
+    "listing_url": "https://www.airbnb.com/rooms/10030955",
+    "name": "Apt Linda Vista Lagoa - Rio",
+    "interaction": "",
+    "house_rules": "",
+    "property_type": "Apartment",
+    "room_type": "Private room",
+    "bed_type": "Real Bed",
+    "minimum_nights": "1",
+    "maximum_nights": "1125",
+    "cancellation_policy": "flexible",
+    "last_scraped": {
+      "$date": {
+        "$numberLong": "1549861200000"
+      }
+    },
+    "calendar_last_scraped": {
+      "$date": {
+        "$numberLong": "1549861200000"
+      }
+    },
+    "accommodates": 2,
+    "bedrooms": 1,
+    "beds": 1,
+    "number_of_reviews": 0,
+    "bathrooms": {
+      "$numberDecimal": "2.0"
+    },
+    "price": {
+      "$numberDecimal": "701.00"
+    },
+    "security_deposit": {
+      "$numberDecimal": "1000.00"
+    },
+    "cleaning_fee": {
+      "$numberDecimal": "250.00"
+    },
+    "extra_people": {
+      "$numberDecimal": "0.00"
+    },
+    "guests_included": {
+      "$numberDecimal": "1"
+    },
+    "images": {
+      "thumbnail_url": "",
+      "medium_url": "",
+      "picture_url": "https://a0.muscache.com/im/pictures/e83e702f-ef49-40fb-8fa0-6512d7e26e9b.jpg?aki_policy=large",
+      "xl_picture_url": ""
+    },
+    "address": {
+      "street": "Rio de Janeiro, Rio de Janeiro, Brazil",
+      "suburb": "Lagoa",
+      "government_area": "Lagoa",
+      "market": "Rio De Janeiro",
+      "country": "Brazil",
+      "country_code": "BR",
+      "location": {
+        "type": "Point",
+        "coordinates": [-43.205047082633435, -22.971950988341874],
+        "is_location_exact": true
+      }
+    },
+    "availability": {
+      "availability_30": 28,
+      "availability_60": 58,
+      "availability_90": 88,
+      "availability_365": 363
+    },
+    "host_id": "51496939"
+  },
+  {
+    "_id": "1003530",
+    "listing_url": "https://www.airbnb.com/rooms/1003530",
+    "name": "New York City - Upper West Side Apt",
+    "interaction": "",
+    "house_rules": "No smoking is permitted in the apartment. All towels that are used should be placed in the bath tub upon departure. I have a cat, Samantha, who can stay or go, whichever is preferred.   Please text me upon departure.",
+    "property_type": "Apartment",
+    "room_type": "Private room",
+    "bed_type": "Real Bed",
+    "minimum_nights": "12",
+    "maximum_nights": "360",
+    "cancellation_policy": "strict_14_with_grace_period",
+    "last_scraped": {
+      "$date": {
+        "$numberLong": "1551934800000"
+      }
+    },
+    "calendar_last_scraped": {
+      "$date": {
+        "$numberLong": "1551934800000"
+      }
+    },
+    "first_review": {
+      "$date": {
+        "$numberLong": "1367208000000"
+      }
+    },
+    "last_review": {
+      "$date": {
+        "$numberLong": "1534046400000"
+      }
+    },
+    "accommodates": 2,
+    "bedrooms": 1,
+    "beds": 1,
+    "number_of_reviews": 70,
+    "bathrooms": {
+      "$numberDecimal": "1.0"
+    },
+    "price": {
+      "$numberDecimal": "135.00"
+    },
+    "security_deposit": {
+      "$numberDecimal": "0.00"
+    },
+    "cleaning_fee": {
+      "$numberDecimal": "135.00"
+    },
+    "extra_people": {
+      "$numberDecimal": "0.00"
+    },
+    "guests_included": {
+      "$numberDecimal": "1"
+    },
+    "images": {
+      "thumbnail_url": "",
+      "medium_url": "",
+      "picture_url": "https://a0.muscache.com/im/pictures/e83e702f-ef49-40fb-8fa0-6512d7e26e9b.jpg?aki_policy=large",
+      "xl_picture_url": ""
+    },
+    "address": {
+      "street": "New York, NY, United States",
+      "suburb": "Manhattan",
+      "government_area": "Upper West Side",
+      "market": "New York",
+      "country": "United States",
+      "country_code": "US",
+      "location": {
+        "type": "Point",
+        "coordinates": [-73.96523, 40.79962],
+        "is_location_exact": false
+      }
+    },
+    "availability": {
+      "availability_30": 0,
+      "availability_60": 0,
+      "availability_90": 0,
+      "availability_365": 93
+    },
+    "host_id": "454250"
+  },
+  {
+    "_id": "10038496",
+    "listing_url": "https://www.airbnb.com/rooms/10038496",
+    "name": "Copacabana Apartment Posto 6",
+    "interaction": "Contact telephone numbers if needed: Valeria ((PHONE NUMBER HIDDEN) (URL HIDDEN) ((PHONE NUMBER HIDDEN) cell phone (URL HIDDEN) (021) mobile/(PHONE NUMBER HIDDEN) José (URL HIDDEN)Concierge support; Fernando (caretaker boss) business hours.",
+    "house_rules": "Entreguem o imóvel conforme receberam e respeitem as regras do condomínio para não serem incomodados.  Não danificar os utensílios e tudo que se refere as boas condições referentes ao mesmo . Não fazer barulho após às 22:00  até às 8:00. Usar entrada de serviço se estiver molhado voltando da praia.",
+    "property_type": "Apartment",
+    "room_type": "Entire home/apt",
+    "bed_type": "Real Bed",
+    "minimum_nights": "3",
+    "maximum_nights": "75",
+    "cancellation_policy": "strict_14_with_grace_period",
+    "last_scraped": {
+      "$date": {
+        "$numberLong": "1549861200000"
+      }
+    },
+    "calendar_last_scraped": {
+      "$date": {
+        "$numberLong": "1549861200000"
+      }
+    },
+    "first_review": {
+      "$date": {
+        "$numberLong": "1453093200000"
+      }
+    },
+    "last_review": {
+      "$date": {
+        "$numberLong": "1548651600000"
+      }
+    },
+    "accommodates": 4,
+    "bedrooms": 1,
+    "beds": 3,
+    "number_of_reviews": 70,
+    "bathrooms": {
+      "$numberDecimal": "2.0"
+    },
+    "price": {
+      "$numberDecimal": "119.00"
+    },
+    "security_deposit": {
+      "$numberDecimal": "600.00"
+    },
+    "cleaning_fee": {
+      "$numberDecimal": "150.00"
+    },
+    "extra_people": {
+      "$numberDecimal": "40.00"
+    },
+    "guests_included": {
+      "$numberDecimal": "3"
+    },
+    "images": {
+      "thumbnail_url": "",
+      "medium_url": "",
+      "picture_url": "https://a0.muscache.com/im/pictures/e83e702f-ef49-40fb-8fa0-6512d7e26e9b.jpg?aki_policy=large",
+      "xl_picture_url": ""
+    },
+    "address": {
+      "street": "Rio de Janeiro, Rio de Janeiro, Brazil",
+      "suburb": "Copacabana",
+      "government_area": "Copacabana",
+      "market": "Rio De Janeiro",
+      "country": "Brazil",
+      "country_code": "BR",
+      "location": {
+        "type": "Point",
+        "coordinates": [-43.190849194463404, -22.984339360067814],
+        "is_location_exact": false
+      }
+    },
+    "availability": {
+      "availability_30": 7,
+      "availability_60": 19,
+      "availability_90": 33,
+      "availability_365": 118
+    },
+    "host_id": "51530266"
+  },
+  {
+    "_id": "10047964",
+    "listing_url": "https://www.airbnb.com/rooms/10047964",
+    "name": "Charming Flat in Downtown Moda",
+    "interaction": "",
+    "house_rules": "Be and feel like your own home, with total respect and love..this would be wonderful!",
+    "property_type": "House",
+    "room_type": "Entire home/apt",
+    "bed_type": "Real Bed",
+    "minimum_nights": "2",
+    "maximum_nights": "1125",
+    "cancellation_policy": "flexible",
+    "last_scraped": {
+      "$date": {
+        "$numberLong": "1550466000000"
+      }
+    },
+    "calendar_last_scraped": {
+      "$date": {
+        "$numberLong": "1550466000000"
+      }
+    },
+    "first_review": {
+      "$date": {
+        "$numberLong": "1459569600000"
+      }
+    },
+    "last_review": {
+      "$date": {
+        "$numberLong": "1459569600000"
+      }
+    },
+    "accommodates": 6,
+    "bedrooms": 2,
+    "beds": 6,
+    "number_of_reviews": 1,
+    "bathrooms": {
+      "$numberDecimal": "1.0"
+    },
+    "price": {
+      "$numberDecimal": "527.00"
+    },
+    "cleaning_fee": {
+      "$numberDecimal": "211.00"
+    },
+    "extra_people": {
+      "$numberDecimal": "211.00"
+    },
+    "guests_included": {
+      "$numberDecimal": "1"
+    },
+    "images": {
+      "thumbnail_url": "",
+      "medium_url": "",
+      "picture_url": "https://a0.muscache.com/im/pictures/e83e702f-ef49-40fb-8fa0-6512d7e26e9b.jpg?aki_policy=large",
+      "xl_picture_url": ""
+    },
+    "address": {
+      "street": "Kadıköy, İstanbul, Turkey",
+      "suburb": "Moda",
+      "government_area": "Kadikoy",
+      "market": "Istanbul",
+      "country": "Turkey",
+      "country_code": "TR",
+      "location": {
+        "type": "Point",
+        "coordinates": [29.03133, 40.98585],
+        "is_location_exact": true
+      }
+    },
+    "availability": {
+      "availability_30": 27,
+      "availability_60": 57,
+      "availability_90": 87,
+      "availability_365": 362
+    },
+    "host_id": "1241644"
+  },
+  {
+    "_id": "10051164",
+    "listing_url": "https://www.airbnb.com/rooms/10051164",
+    "name": "Catete's Colonial Big Hause Room B",
+    "interaction": "Sou geógrafa, gosto de arte e cultura. Moro neste endereço (porém em outro espaço, que não o casarão) com meu companheiro Carlos Henrique, que é músico, farmacêutico e acupunturista, meus filhos Pedro, estudante do ensino médio e Estevão estudante de antropologia . Somos todos os três responsáveis pelas hospedagens e manutenção do Casarão. Sejam bem vindos! Estaremos com total disponibilidade para ajudá-los.",
+    "house_rules": "",
+    "property_type": "House",
+    "room_type": "Private room",
+    "bed_type": "Real Bed",
+    "minimum_nights": "2",
+    "maximum_nights": "1125",
+    "cancellation_policy": "strict_14_with_grace_period",
+    "last_scraped": {
+      "$date": {
+        "$numberLong": "1549861200000"
+      }
+    },
+    "calendar_last_scraped": {
+      "$date": {
+        "$numberLong": "1549861200000"
+      }
+    },
+    "first_review": {
+      "$date": {
+        "$numberLong": "1455080400000"
+      }
+    },
+    "last_review": {
+      "$date": {
+        "$numberLong": "1455080400000"
+      }
+    },
+    "accommodates": 8,
+    "bedrooms": 1,
+    "beds": 8,
+    "number_of_reviews": 1,
+    "bathrooms": {
+      "$numberDecimal": "4.0"
+    },
+    "price": {
+      "$numberDecimal": "250.00"
+    },
+    "security_deposit": {
+      "$numberDecimal": "0.00"
+    },
+    "cleaning_fee": {
+      "$numberDecimal": "0.00"
+    },
+    "extra_people": {
+      "$numberDecimal": "40.00"
+    },
+    "guests_included": {
+      "$numberDecimal": "4"
+    },
+    "images": {
+      "thumbnail_url": "",
+      "medium_url": "",
+      "picture_url": "https://a0.muscache.com/im/pictures/e83e702f-ef49-40fb-8fa0-6512d7e26e9b.jpg?aki_policy=large",
+      "xl_picture_url": ""
+    },
+    "address": {
+      "street": "Rio de Janeiro, Rio de Janeiro, Brazil",
+      "suburb": "Catete",
+      "government_area": "Catete",
+      "market": "Rio De Janeiro",
+      "country": "Brazil",
+      "country_code": "BR",
+      "location": {
+        "type": "Point",
+        "coordinates": [-43.18015675229857, -22.92638234778768],
+        "is_location_exact": true
+      }
+    },
+    "availability": {
+      "availability_30": 10,
+      "availability_60": 10,
+      "availability_90": 21,
+      "availability_365": 296
+    },
+    "host_id": "51326285"
+  },
+  {
+    "_id": "10057447",
+    "listing_url": "https://www.airbnb.com/rooms/10057447",
+    "name": "Modern Spacious 1 Bedroom Loft",
+    "interaction": "",
+    "house_rules": "",
+    "property_type": "Apartment",
+    "room_type": "Entire home/apt",
+    "bed_type": "Real Bed",
+    "minimum_nights": "1",
+    "maximum_nights": "1125",
+    "cancellation_policy": "flexible",
+    "last_scraped": {
+      "$date": {
+        "$numberLong": "1552276800000"
+      }
+    },
+    "calendar_last_scraped": {
+      "$date": {
+        "$numberLong": "1552276800000"
+      }
+    },
+    "accommodates": 4,
+    "bedrooms": 1,
+    "beds": 2,
+    "number_of_reviews": 0,
+    "bathrooms": {
+      "$numberDecimal": "1.0"
+    },
+    "price": {
+      "$numberDecimal": "50.00"
+    },
+    "extra_people": {
+      "$numberDecimal": "31.00"
+    },
+    "guests_included": {
+      "$numberDecimal": "1"
+    },
+    "images": {
+      "thumbnail_url": "",
+      "medium_url": "",
+      "picture_url": "https://a0.muscache.com/im/pictures/e83e702f-ef49-40fb-8fa0-6512d7e26e9b.jpg?aki_policy=large",
+      "xl_picture_url": ""
+    },
+    "address": {
+      "street": "Montréal, Québec, Canada",
+      "suburb": "Mile End",
+      "government_area": "Le Plateau-Mont-Royal",
+      "market": "Montreal",
+      "country": "Canada",
+      "country_code": "CA",
+      "location": {
+        "type": "Point",
+        "coordinates": [-73.59111, 45.51889],
+        "is_location_exact": true
+      }
+    },
+    "availability": {
+      "availability_30": 0,
+      "availability_60": 0,
+      "availability_90": 0,
+      "availability_365": 0
+    },
+    "host_id": "51612949"
+  },
+  {
+    "_id": "10057826",
+    "listing_url": "https://www.airbnb.com/rooms/10057826",
+    "name": "Deluxe Loft Suite",
+    "interaction": "",
+    "house_rules": "Guest must leave a copy of credit card with front desk for any incidentals/ damages with a copy of valid ID. There are no additional charges than what has been paid in advance.",
+    "property_type": "Apartment",
+    "room_type": "Entire home/apt",
+    "bed_type": "Real Bed",
+    "minimum_nights": "3",
+    "maximum_nights": "1125",
+    "cancellation_policy": "strict_14_with_grace_period",
+    "last_scraped": {
+      "$date": {
+        "$numberLong": "1551934800000"
+      }
+    },
+    "calendar_last_scraped": {
+      "$date": {
+        "$numberLong": "1551934800000"
+      }
+    },
+    "first_review": {
+      "$date": {
+        "$numberLong": "1451797200000"
+      }
+    },
+    "last_review": {
+      "$date": {
+        "$numberLong": "1518930000000"
+      }
+    },
+    "accommodates": 4,
+    "bedrooms": 0,
+    "beds": 2,
+    "number_of_reviews": 5,
+    "bathrooms": {
+      "$numberDecimal": "1.0"
+    },
+    "price": {
+      "$numberDecimal": "205.00"
+    },
+    "extra_people": {
+      "$numberDecimal": "0.00"
+    },
+    "guests_included": {
+      "$numberDecimal": "1"
+    },
+    "images": {
+      "thumbnail_url": "",
+      "medium_url": "",
+      "picture_url": "https://a0.muscache.com/im/pictures/e83e702f-ef49-40fb-8fa0-6512d7e26e9b.jpg?aki_policy=large",
+      "xl_picture_url": ""
+    },
+    "address": {
+      "street": "Brooklyn, NY, United States",
+      "suburb": "Greenpoint",
+      "government_area": "Greenpoint",
+      "market": "New York",
+      "country": "United States",
+      "country_code": "US",
+      "location": {
+        "type": "Point",
+        "coordinates": [-73.94472, 40.72778],
+        "is_location_exact": true
+      }
+    },
+    "availability": {
+      "availability_30": 30,
+      "availability_60": 31,
+      "availability_90": 31,
+      "availability_365": 243
+    },
+    "host_id": "47554473"
+  },
+  {
+    "_id": "10059244",
+    "listing_url": "https://www.airbnb.com/rooms/10059244",
+    "name": "Ligne verte - à 15 min de métro du centre ville.",
+    "interaction": "Une amie sera disponible en cas de besoin.",
+    "house_rules": "Non fumeur Respect des voisins Respect des biens  Merci! :)",
+    "property_type": "Apartment",
+    "room_type": "Entire home/apt",
+    "bed_type": "Real Bed",
+    "minimum_nights": "2",
+    "maximum_nights": "1125",
+    "cancellation_policy": "moderate",
+    "last_scraped": {
+      "$date": {
+        "$numberLong": "1552276800000"
+      }
+    },
+    "calendar_last_scraped": {
+      "$date": {
+        "$numberLong": "1552276800000"
+      }
+    },
+    "accommodates": 2,
+    "bedrooms": 0,
+    "beds": 1,
+    "number_of_reviews": 0,
+    "bathrooms": {
+      "$numberDecimal": "1.0"
+    },
+    "price": {
+      "$numberDecimal": "43.00"
+    },
+    "extra_people": {
+      "$numberDecimal": "12.00"
+    },
+    "guests_included": {
+      "$numberDecimal": "1"
+    },
+    "images": {
+      "thumbnail_url": "",
+      "medium_url": "",
+      "picture_url": "https://a0.muscache.com/im/pictures/e83e702f-ef49-40fb-8fa0-6512d7e26e9b.jpg?aki_policy=large",
+      "xl_picture_url": ""
+    },
+    "address": {
+      "street": "Montréal, Québec, Canada",
+      "suburb": "Hochelaga-Maisonneuve",
+      "government_area": "Mercier-Hochelaga-Maisonneuve",
+      "market": "Montreal",
+      "country": "Canada",
+      "country_code": "CA",
+      "location": {
+        "type": "Point",
+        "coordinates": [-73.54949, 45.54548],
+        "is_location_exact": false
+      }
+    },
+    "availability": {
+      "availability_30": 0,
+      "availability_60": 0,
+      "availability_90": 0,
+      "availability_365": 32
+    },
+    "host_id": "7140229"
+  },
+  {
+    "_id": "10059872",
+    "listing_url": "https://www.airbnb.com/rooms/10059872",
+    "name": "Soho Cozy, Spacious and Convenient",
+    "interaction": "",
+    "house_rules": "",
+    "property_type": "Apartment",
+    "room_type": "Entire home/apt",
+    "bed_type": "Real Bed",
+    "minimum_nights": "4",
+    "maximum_nights": "20",
+    "cancellation_policy": "flexible",
+    "last_scraped": {
+      "$date": {
+        "$numberLong": "1552276800000"
+      }
+    },
+    "calendar_last_scraped": {
+      "$date": {
+        "$numberLong": "1552276800000"
+      }
+    },
+    "first_review": {
+      "$date": {
+        "$numberLong": "1450501200000"
+      }
+    },
+    "last_review": {
+      "$date": {
+        "$numberLong": "1522123200000"
+      }
+    },
+    "accommodates": 3,
+    "bedrooms": 1,
+    "beds": 2,
+    "number_of_reviews": 3,
+    "bathrooms": {
+      "$numberDecimal": "1.0"
+    },
+    "price": {
+      "$numberDecimal": "699.00"
+    },
+    "extra_people": {
+      "$numberDecimal": "0.00"
+    },
+    "guests_included": {
+      "$numberDecimal": "1"
+    },
+    "images": {
+      "thumbnail_url": "",
+      "medium_url": "",
+      "picture_url": "https://a0.muscache.com/im/pictures/e83e702f-ef49-40fb-8fa0-6512d7e26e9b.jpg?aki_policy=large",
+      "xl_picture_url": ""
+    },
+    "address": {
+      "street": "Hong Kong, Hong Kong Island, Hong Kong",
+      "suburb": "Central & Western District",
+      "government_area": "Central & Western",
+      "market": "Hong Kong",
+      "country": "Hong Kong",
+      "country_code": "HK",
+      "location": {
+        "type": "Point",
+        "coordinates": [114.15027, 22.28158],
+        "is_location_exact": true
+      }
+    },
+    "availability": {
+      "availability_30": 0,
+      "availability_60": 0,
+      "availability_90": 0,
+      "availability_365": 0
+    },
+    "host_id": "51624384"
+  },
+  {
+    "_id": "10066928",
+    "listing_url": "https://www.airbnb.com/rooms/10066928",
+    "name": "3 chambres au coeur du Plateau",
+    "interaction": "N'hésitez pas à m'écrire pour toute demande de renseignement !",
+    "house_rules": "Merci de respecter ce lieu de vie.",
+    "property_type": "Apartment",
+    "room_type": "Entire home/apt",
+    "bed_type": "Real Bed",
+    "minimum_nights": "1",
+    "maximum_nights": "1125",
+    "cancellation_policy": "flexible",
+    "last_scraped": {
+      "$date": {
+        "$numberLong": "1552276800000"
+      }
+    },
+    "calendar_last_scraped": {
+      "$date": {
+        "$numberLong": "1552276800000"
+      }
+    },
+    "accommodates": 6,
+    "bedrooms": 3,
+    "beds": 3,
+    "number_of_reviews": 0,
+    "bathrooms": {
+      "$numberDecimal": "1.0"
+    },
+    "price": {
+      "$numberDecimal": "140.00"
+    },
+    "extra_people": {
+      "$numberDecimal": "0.00"
+    },
+    "guests_included": {
+      "$numberDecimal": "1"
+    },
+    "images": {
+      "thumbnail_url": "",
+      "medium_url": "",
+      "picture_url": "https://a0.muscache.com/im/pictures/e83e702f-ef49-40fb-8fa0-6512d7e26e9b.jpg?aki_policy=large",
+      "xl_picture_url": ""
+    },
+    "address": {
+      "street": "Montréal, Québec, Canada",
+      "suburb": "Le Plateau-Mont-Royal",
+      "government_area": "Le Plateau-Mont-Royal",
+      "market": "Montreal",
+      "country": "Canada",
+      "country_code": "CA",
+      "location": {
+        "type": "Point",
+        "coordinates": [-73.57383, 45.52233],
+        "is_location_exact": true
+      }
+    },
+    "availability": {
+      "availability_30": 0,
+      "availability_60": 0,
+      "availability_90": 0,
+      "availability_365": 0
+    },
+    "host_id": "9036477"
+  },
+  {
+    "_id": "10069642",
+    "listing_url": "https://www.airbnb.com/rooms/10069642",
+    "name": "Ótimo Apto proximo Parque Olimpico",
+    "interaction": "",
+    "house_rules": "",
+    "property_type": "Apartment",
+    "room_type": "Entire home/apt",
+    "bed_type": "Real Bed",
+    "minimum_nights": "15",
+    "maximum_nights": "20",
+    "cancellation_policy": "strict_14_with_grace_period",
+    "last_scraped": {
+      "$date": {
+        "$numberLong": "1549861200000"
+      }
+    },
+    "calendar_last_scraped": {
+      "$date": {
+        "$numberLong": "1549861200000"
+      }
+    },
+    "accommodates": 5,
+    "bedrooms": 2,
+    "beds": 2,
+    "number_of_reviews": 0,
+    "bathrooms": {
+      "$numberDecimal": "2.0"
+    },
+    "price": {
+      "$numberDecimal": "858.00"
+    },
+    "security_deposit": {
+      "$numberDecimal": "4476.00"
+    },
+    "cleaning_fee": {
+      "$numberDecimal": "112.00"
+    },
+    "extra_people": {
+      "$numberDecimal": "75.00"
+    },
+    "guests_included": {
+      "$numberDecimal": "1"
+    },
+    "images": {
+      "thumbnail_url": "",
+      "medium_url": "",
+      "picture_url": "https://a0.muscache.com/im/pictures/e83e702f-ef49-40fb-8fa0-6512d7e26e9b.jpg?aki_policy=large",
+      "xl_picture_url": ""
+    },
+    "address": {
+      "street": "Rio de Janeiro, Rio de Janeiro, Brazil",
+      "suburb": "Recreio dos Bandeirantes",
+      "government_area": "Recreio dos Bandeirantes",
+      "market": "Rio De Janeiro",
+      "country": "Brazil",
+      "country_code": "BR",
+      "location": {
+        "type": "Point",
+        "coordinates": [-43.4311123147628, -23.00035792660916],
+        "is_location_exact": false
+      }
+    },
+    "availability": {
+      "availability_30": 0,
+      "availability_60": 0,
+      "availability_90": 0,
+      "availability_365": 0
+    },
+    "host_id": "51670240"
+  },
+  {
+    "_id": "10082307",
+    "listing_url": "https://www.airbnb.com/rooms/10082307",
+    "name": "Double Room en-suite (307)",
+    "interaction": "",
+    "house_rules": "",
+    "property_type": "Apartment",
+    "room_type": "Private room",
+    "bed_type": "Real Bed",
+    "minimum_nights": "1",
+    "maximum_nights": "1125",
+    "cancellation_policy": "strict_14_with_grace_period",
+    "last_scraped": {
+      "$date": {
+        "$numberLong": "1552276800000"
+      }
+    },
+    "calendar_last_scraped": {
+      "$date": {
+        "$numberLong": "1552276800000"
+      }
+    },
+    "accommodates": 2,
+    "bedrooms": 1,
+    "beds": 1,
+    "number_of_reviews": 0,
+    "bathrooms": {
+      "$numberDecimal": "1.0"
+    },
+    "price": {
+      "$numberDecimal": "361.00"
+    },
+    "extra_people": {
+      "$numberDecimal": "130.00"
+    },
+    "guests_included": {
+      "$numberDecimal": "2"
+    },
+    "images": {
+      "thumbnail_url": "",
+      "medium_url": "",
+      "picture_url": "https://a0.muscache.com/im/pictures/e83e702f-ef49-40fb-8fa0-6512d7e26e9b.jpg?aki_policy=large",
+      "xl_picture_url": ""
+    },
+    "address": {
+      "street": "Hong Kong, Kowloon, Hong Kong",
+      "suburb": "Yau Tsim Mong",
+      "government_area": "Yau Tsim Mong",
+      "market": "Hong Kong",
+      "country": "Hong Kong",
+      "country_code": "HK",
+      "location": {
+        "type": "Point",
+        "coordinates": [114.17158, 22.30469],
+        "is_location_exact": true
+      }
+    },
+    "availability": {
+      "availability_30": 30,
+      "availability_60": 60,
+      "availability_90": 90,
+      "availability_365": 365
+    },
+    "host_id": "51289938"
+  },
+  {
+    "_id": "10082422",
+    "listing_url": "https://www.airbnb.com/rooms/10082422",
+    "name": "Nice room in Barcelona Center",
+    "interaction": "",
+    "house_rules": "",
+    "property_type": "Apartment",
+    "room_type": "Private room",
+    "bed_type": "Real Bed",
+    "minimum_nights": "1",
+    "maximum_nights": "9",
+    "cancellation_policy": "flexible",
+    "last_scraped": {
+      "$date": {
+        "$numberLong": "1552021200000"
+      }
+    },
+    "calendar_last_scraped": {
+      "$date": {
+        "$numberLong": "1552021200000"
+      }
+    },
+    "accommodates": 2,
+    "bedrooms": 1,
+    "beds": 2,
+    "number_of_reviews": 0,
+    "bathrooms": {
+      "$numberDecimal": "1.0"
+    },
+    "price": {
+      "$numberDecimal": "50.00"
+    },
+    "security_deposit": {
+      "$numberDecimal": "100.00"
+    },
+    "cleaning_fee": {
+      "$numberDecimal": "10.00"
+    },
+    "extra_people": {
+      "$numberDecimal": "0.00"
+    },
+    "guests_included": {
+      "$numberDecimal": "1"
+    },
+    "images": {
+      "thumbnail_url": "",
+      "medium_url": "",
+      "picture_url": "https://a0.muscache.com/im/pictures/e83e702f-ef49-40fb-8fa0-6512d7e26e9b.jpg?aki_policy=large",
+      "xl_picture_url": ""
+    },
+    "address": {
+      "street": "Barcelona, Catalunya, Spain",
+      "suburb": "Eixample",
+      "government_area": "la Dreta de l'Eixample",
+      "market": "Barcelona",
+      "country": "Spain",
+      "country_code": "ES",
+      "location": {
+        "type": "Point",
+        "coordinates": [2.16942, 41.40082],
+        "is_location_exact": true
+      }
+    },
+    "availability": {
+      "availability_30": 0,
+      "availability_60": 0,
+      "availability_90": 0,
+      "availability_365": 0
+    },
+    "host_id": "30393403"
+  },
+  {
+    "_id": "10083468",
+    "listing_url": "https://www.airbnb.com/rooms/10083468",
+    "name": "Be Happy in Porto",
+    "interaction": "I`am always avaiable with for my guests.",
+    "house_rules": ". No smoking inside the apartment. . Is forbidden receive or lead strange people to the apartment. . Only people that are part of the reservation should have access to the apartment. . Do not eat on the bedroom. . Do not drink things like wine or sugary drinks on the bedroom.",
+    "property_type": "Loft",
+    "room_type": "Entire home/apt",
+    "bed_type": "Real Bed",
+    "minimum_nights": "2",
+    "maximum_nights": "1125",
+    "cancellation_policy": "moderate",
+    "last_scraped": {
+      "$date": {
+        "$numberLong": "1550293200000"
+      }
+    },
+    "calendar_last_scraped": {
+      "$date": {
+        "$numberLong": "1550293200000"
+      }
+    },
+    "first_review": {
+      "$date": {
+        "$numberLong": "1451710800000"
+      }
+    },
+    "last_review": {
+      "$date": {
+        "$numberLong": "1549688400000"
+      }
+    },
+    "accommodates": 2,
+    "bedrooms": 1,
+    "beds": 1,
+    "number_of_reviews": 178,
+    "bathrooms": {
+      "$numberDecimal": "1.0"
+    },
+    "price": {
+      "$numberDecimal": "30.00"
+    },
+    "security_deposit": {
+      "$numberDecimal": "0.00"
+    },
+    "cleaning_fee": {
+      "$numberDecimal": "10.00"
+    },
+    "extra_people": {
+      "$numberDecimal": "0.00"
+    },
+    "guests_included": {
+      "$numberDecimal": "1"
+    },
+    "images": {
+      "thumbnail_url": "",
+      "medium_url": "",
+      "picture_url": "https://a0.muscache.com/im/pictures/e83e702f-ef49-40fb-8fa0-6512d7e26e9b.jpg?aki_policy=large",
+      "xl_picture_url": ""
+    },
+    "address": {
+      "street": "Porto, Porto, Portugal",
+      "suburb": "",
+      "government_area": "Cedofeita, Ildefonso, Sé, Miragaia, Nicolau, Vitória",
+      "market": "Porto",
+      "country": "Portugal",
+      "country_code": "PT",
+      "location": {
+        "type": "Point",
+        "coordinates": [-8.61123, 41.15225],
+        "is_location_exact": false
+      }
+    },
+    "availability": {
+      "availability_30": 16,
+      "availability_60": 40,
+      "availability_90": 67,
+      "availability_365": 335
+    },
+    "host_id": "27518920"
+  },
+  {
+    "_id": "10084023",
+    "listing_url": "https://www.airbnb.com/rooms/10084023",
+    "name": "City center private room with bed",
+    "interaction": "A phone card of unlimited data will be provided during the stay, and phone call can also be made by the card. We have 3 bedrooms in the house and 2 are occupied by us,  lots of Hong Kong traveling tips will be provided and also simple local tour if time is allowed.",
+    "house_rules": "1. 禁止吸煙, 只限女生入住 (除得到批准) No smoking and only female is allowed   2.熱水爐是儲水式, 不能長開, 用後請關上 The water heater cannot be turned on overnight, it will keep boiling water, thus, turn it off after use. 3. 不收清潔費,請保持房間及客廳清潔, 用過之碗筷需即日自行清洗 No cleaning fee is charged, thus, Please keep all the places including your room and living room clean and tidy, and make sure the dishes are washed after cooking on the same day. 4. 將收取港幣$1000為按金, 退房時將會歸還 (除故意破壞物品) Deposit of HKD$1000 will be charged and will return back when check out if nothing is damaged. 5. 房人將得到1條大門 1條鐵閘 及1條房鎖匙, 遺失需扣除$50 配匙費 1 main door key, 1 gate key and 1 private room key will be given at check in, $50 will be charged if lost. 6.洗髮後請必須將掉出來的頭髮拾起丟到垃圾桶或廁所,以免堵塞渠口 After washing hair, Please pick up your own hair and throw them in rubbish bin or toilet bowl, to avoid blocking the drain.",
+    "property_type": "Guesthouse",
+    "room_type": "Private room",
+    "bed_type": "Futon",
+    "minimum_nights": "1",
+    "maximum_nights": "500",
+    "cancellation_policy": "strict_14_with_grace_period",
+    "last_scraped": {
+      "$date": {
+        "$numberLong": "1552276800000"
+      }
+    },
+    "calendar_last_scraped": {
+      "$date": {
+        "$numberLong": "1552276800000"
+      }
+    },
+    "first_review": {
+      "$date": {
+        "$numberLong": "1450760400000"
+      }
+    },
+    "last_review": {
+      "$date": {
+        "$numberLong": "1551416400000"
+      }
+    },
+    "accommodates": 1,
+    "bedrooms": 1,
+    "beds": 1,
+    "number_of_reviews": 81,
+    "bathrooms": {
+      "$numberDecimal": "1.0"
+    },
+    "price": {
+      "$numberDecimal": "181.00"
+    },
+    "security_deposit": {
+      "$numberDecimal": "0.00"
+    },
+    "cleaning_fee": {
+      "$numberDecimal": "50.00"
+    },
+    "extra_people": {
+      "$numberDecimal": "100.00"
+    },
+    "guests_included": {
+      "$numberDecimal": "1"
+    },
+    "images": {
+      "thumbnail_url": "",
+      "medium_url": "",
+      "picture_url": "https://a0.muscache.com/im/pictures/e83e702f-ef49-40fb-8fa0-6512d7e26e9b.jpg?aki_policy=large",
+      "xl_picture_url": ""
+    },
+    "address": {
+      "street": "Hong Kong , 九龍, Hong Kong",
+      "suburb": "Sham Shui Po District",
+      "government_area": "Sham Shui Po",
+      "market": "Hong Kong",
+      "country": "Hong Kong",
+      "country_code": "HK",
+      "location": {
+        "type": "Point",
+        "coordinates": [114.1669, 22.3314],
+        "is_location_exact": true
+      }
+    },
+    "availability": {
+      "availability_30": 14,
+      "availability_60": 24,
+      "availability_90": 40,
+      "availability_365": 220
+    },
+    "host_id": "51744313"
+  },
+  {
+    "_id": "10091713",
+    "listing_url": "https://www.airbnb.com/rooms/10091713",
+    "name": "Surry Hills Studio - Your Perfect Base in Sydney",
+    "interaction": "You have complete privacy during your stay.",
+    "house_rules": "No smoking:  No smoking any substance, including e-cigarettes. Lost Keys / Locked out of Apartment:   If you lose the key to the apartment building itself (i.e., the yellow security key) the cost of replacing it is $250. It will be deducted from your security deposit.  If you lock yourself out of the apartment, it is solely your responsibility to contact a locksmith to open the apartment door for you. You are also solely responsible for the cost of the locksmith, including the cost of replacing the lock mechanism if necessary. If the lock mechanism needs to be replaced by the locksmith,  you must provide 2 copies of the new key.",
+    "property_type": "Apartment",
+    "room_type": "Entire home/apt",
+    "bed_type": "Real Bed",
+    "minimum_nights": "10",
+    "maximum_nights": "21",
+    "cancellation_policy": "strict_14_with_grace_period",
+    "last_scraped": {
+      "$date": {
+        "$numberLong": "1551934800000"
+      }
+    },
+    "calendar_last_scraped": {
+      "$date": {
+        "$numberLong": "1551934800000"
+      }
+    },
+    "first_review": {
+      "$date": {
+        "$numberLong": "1482987600000"
+      }
+    },
+    "last_review": {
+      "$date": {
+        "$numberLong": "1521345600000"
+      }
+    },
+    "accommodates": 2,
+    "bedrooms": 0,
+    "beds": 1,
+    "number_of_reviews": 64,
+    "bathrooms": {
+      "$numberDecimal": "1.0"
+    },
+    "price": {
+      "$numberDecimal": "181.00"
+    },
+    "security_deposit": {
+      "$numberDecimal": "300.00"
+    },
+    "cleaning_fee": {
+      "$numberDecimal": "50.00"
+    },
+    "extra_people": {
+      "$numberDecimal": "0.00"
+    },
+    "guests_included": {
+      "$numberDecimal": "1"
+    },
+    "images": {
+      "thumbnail_url": "",
+      "medium_url": "",
+      "picture_url": "https://a0.muscache.com/im/pictures/e83e702f-ef49-40fb-8fa0-6512d7e26e9b.jpg?aki_policy=large",
+      "xl_picture_url": ""
+    },
+    "address": {
+      "street": "Surry Hills, NSW, Australia",
+      "suburb": "Darlinghurst",
+      "government_area": "Sydney",
+      "market": "Sydney",
+      "country": "Australia",
+      "country_code": "AU",
+      "location": {
+        "type": "Point",
+        "coordinates": [151.21554, -33.88029],
+        "is_location_exact": true
+      }
+    },
+    "availability": {
+      "availability_30": 0,
+      "availability_60": 0,
+      "availability_90": 0,
+      "availability_365": 0
+    },
+    "host_id": "13764143"
+  }
+]
