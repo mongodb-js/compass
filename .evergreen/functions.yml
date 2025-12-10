@@ -559,16 +559,16 @@ functions:
           <<: *compass-env
           COMPASS_WEB_PUBLISH_ENVIRONMENT: '${compass_web_publish_environment}'
           COMPASS_WEB_RELEASE_COMMIT: '${compass_web_release_commit}'
-          GITHUB_COMMIT: ${github_commit}
         script: |
           set -e
           # Load environment variables
           eval $(.evergreen/print-compass-env.sh)
-          export COMPASS_WEB_RELEASE_COMMIT="${COMPASS_WEB_RELEASE_COMMIT:-$GITHUB_COMMIT}"
           # Deploy to dev on every commit to main, do nothing for release branches
-          # TODO: gate and only run for 10gen-compass-main project and not patches
-          echo "Publishing compass-web@$COMPASS_WEB_RELEASE_COMMIT to $COMPASS_WEB_PUBLISH_ENVIRONMENT"
-          npm run --workspace @mongodb-js/compass-web publish
+          if [[ "$EVERGREEN_PROJECT" == '10gen-compass-main' && "$EVERGREEN_IS_PATCH" != "true" ]]; then
+            npm run --workspace @mongodb-js/compass-web publish
+          else 
+            echo "Skipping publish: wrong project ($EVERGREEN_PROJECT) or patch ($EVERGREEN_IS_PATCH)"
+          fi
 
   publish-dev-release-info:
     - command: shell.exec
