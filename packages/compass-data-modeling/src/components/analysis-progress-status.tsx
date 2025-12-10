@@ -78,14 +78,16 @@ function getProgressPropsFromStatus({
   };
 }
 
-const AnalysisProgressStatus: React.FC<{
+export type AnalysisProgressStatusProps = {
   step: AnalysisStep;
   sampledCollections: number;
   analyzedCollections: number;
   collectionRelationsInferred: number;
   totalCollections: number;
   onCancelClick: () => void;
-}> = ({
+};
+
+export const AnalysisProgressStatus: React.FC<AnalysisProgressStatusProps> = ({
   step,
   sampledCollections,
   analyzedCollections,
