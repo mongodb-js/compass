@@ -15,6 +15,7 @@ const generalFields = [
   'enableShowDialogOnQuit',
   'enableDbAndCollStats',
   'inferNamespacesFromPrivileges',
+  'legacyUUIDDisplayEncoding',
 ] as const;
 
 export const GeneralSettings: React.FunctionComponent = () => {
