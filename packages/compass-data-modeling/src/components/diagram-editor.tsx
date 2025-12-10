@@ -576,7 +576,6 @@ const DiagramEditor: React.FunctionComponent<{
   step: DataModelingState['step'];
   diagramId?: string;
   onRetryClick: () => void;
-  onCancelClick: () => void;
   onAddCollectionClick: () => void;
   DiagramComponent?: typeof Diagram;
 }> = ({

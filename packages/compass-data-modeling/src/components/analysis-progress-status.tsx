@@ -35,7 +35,7 @@ function getProgressPropsFromStatus({
   if (step === 'SAMPLING') {
     return {
       isIndeterminate: false,
-      label: `Sampling collections..`,
+      label: 'Sampling collections…',
       maxValue: totalCollections,
       value: sampledCollections,
       formatValue: 'fraction',
@@ -44,7 +44,7 @@ function getProgressPropsFromStatus({
   if (step === 'ANALYZING_SCHEMA') {
     return {
       isIndeterminate: false,
-      label: `Analyzing collection schemas..`,
+      label: 'Analyzing collection schemas…',
       maxValue: totalCollections,
       value: analyzedCollections,
       formatValue: 'fraction',
@@ -53,7 +53,7 @@ function getProgressPropsFromStatus({
   if (step === 'INFERRING_RELATIONSHIPS') {
     return {
       isIndeterminate: false,
-      label: 'Inferring relationships between collections..',
+      label: 'Inferring relationships between collections…',
       maxValue: totalCollections,
       value: collectionRelationsInferred,
       formatValue: undefined,
@@ -61,7 +61,7 @@ function getProgressPropsFromStatus({
   }
   return {
     isIndeterminate: true,
-    label: 'Preparing diagram..',
+    label: 'Preparing diagram…',
   };
 }
 
