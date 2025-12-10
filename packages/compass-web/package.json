@@ -63,7 +63,8 @@
     "test-watch": "npm run test -- --watch",
     "test-ci": "npm run test-cov",
     "reformat": "npm run eslint . -- --fix && npm run prettier -- --write .",
-    "upload": "node --experimental-strip-types scripts/upload.mts"
+    "upload": "node --experimental-strip-types scripts/release/upload.mts",
+    "publish": "node --experimental-strip-types scripts/release/publish.mts"
   },
   "peerDependencies": {
     "react": "^17.0.2",
