@@ -578,6 +578,9 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
             onExpandAllClicked={onExpandAllClicked}
             onCollapseAllClicked={onCollapseAllClicked}
             openExportFileDialog={openExportFileDialog}
+            onOpenExportToLanguage={store.openQueryExportToLanguageDialog.bind(
+              store
+            )}
             outdated={outdated}
             readonly={!isEditable}
             viewSwitchHandler={handleViewChanged}

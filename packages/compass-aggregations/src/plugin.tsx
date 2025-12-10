@@ -7,7 +7,6 @@ import type { ConfigureStoreOptions } from './stores/store';
 export const AggregationsPlugin: React.FunctionComponent<
   ConfigureStoreOptions
 > = () => {
-  const showExportButton = usePreference('enableImportExport');
   const showRunButton = usePreference('enableAggregationBuilderRunPipeline');
   const showExplainButton = usePreference('enableExplainPlan');
   const enableSearchActivationProgramP1 = usePreference(
@@ -17,7 +16,6 @@ export const AggregationsPlugin: React.FunctionComponent<
   return (
     <ConfirmationModalArea>
       <Aggregations
-        showExportButton={showExportButton}
         showRunButton={showRunButton}
         showExplainButton={showExplainButton}
         enableSearchActivationProgramP1={enableSearchActivationProgramP1}
