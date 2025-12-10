@@ -843,7 +843,7 @@ export const AggregationSettingsApplyButton =
   '[data-testid="aggregation-settings-apply"]';
 export const AddStageButton = '[data-testid="add-stage"]';
 export const ExportAggregationToLanguage =
-  '[data-testid="pipeline-toolbar-export-button"]';
+  '[data-testid="pipeline-toolbar-export-code-button"]';
 export const CreateNewPipelineButton =
   '[data-testid="pipeline-toolbar-create-new-button"]';
 export const NewPipelineActions = '#new-pipeline-actions';
@@ -863,7 +863,7 @@ export const AggregationErrorDetailsBtn =
 export const RunPipelineButton = `[data-testid="pipeline-toolbar-run-button"]`;
 export const EditPipelineButton = `[data-testid="pipeline-toolbar-edit-button"]`;
 export const GoToCollectionButton = `[data-testid="pipeline-results-go-to-collection"]`;
-export const ExportAggregationResultsButton = `[data-testid="pipeline-toolbar-export-aggregation-button"]`;
+export const ExportAggregationResultsButton = `[data-testid="pipeline-toolbar-export-data-button"]`;
 
 export const AggregationOpenSavedPipelinesButton = `[data-testid="pipeline-toolbar-open-pipelines-button"]`;
 export const AggregationSavedPipelinesPopover = `[data-testid="saved-pipelines"]`;
@@ -1232,7 +1232,7 @@ export const queryBarResetFilterButton = (tabName: string): string => {
 };
 export const queryBarExportToLanguageButton = (tabName: string): string => {
   const tabSelector = collectionContent(tabName);
-  return `${tabSelector} [data-testid="query-bar-open-export-to-language-button"]`;
+  return `${tabSelector} [data-testid="crud-export-to-language-button"]`;
 };
 export const GenAIEntryButton = '[data-testid="open-ai-query-entry-button"]';
 export const GenAITextInput = '[data-testid="ai-user-text-input"]';
