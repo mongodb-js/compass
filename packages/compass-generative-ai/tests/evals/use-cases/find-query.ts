@@ -135,7 +135,7 @@ export const findQueries: GenAiUsecase[] = [
     name: 'find with complex projection',
   },
   {
-    namespace: 'NYC.parking_2015',
+    namespace: 'nyc.parking',
     userInput:
       'Return only the Plate IDs of Acura vehicles registered in New York',
     expectedOutput: `
@@ -163,7 +163,7 @@ export const findQueries: GenAiUsecase[] = [
     name: 'find with non-english prompt',
   },
   {
-    namespace: 'NYC.parking_2015',
+    namespace: 'nyc.parking',
     userInput:
       'Write a query that does the following: find all of the parking incidents that occurred on an ave (match all ways to write ave). Return all of the plate ids involved with their summons number and vehicle make and body type. Put the vehicle make and body type into lower case. No _id, sorted by the summons number lowest first.',
     expectedOutput: `

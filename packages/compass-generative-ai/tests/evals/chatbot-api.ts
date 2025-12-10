@@ -1,18 +1,9 @@
 import { streamText } from 'ai';
 import { createOpenAI } from '@ai-sdk/openai';
-import { OpenAI } from 'openai';
-import { init } from 'autoevals';
 import type {
   ConversationEvalCaseInput,
   ConversationTaskOutput,
 } from './types';
-
-const client = new OpenAI({
-  baseURL: 'https://api.braintrust.dev/v1/proxy',
-  apiKey: process.env.BRAINTRUST_API_KEY,
-});
-
-init({ client });
 
 export async function makeChatbotCall(
   input: ConversationEvalCaseInput

@@ -1,6 +1,6 @@
 import { findQueries } from './find-query';
 import { aggregateQueries } from './aggregate-query';
-import toNS from 'mongodb-ns';
+import * as toNS from 'mongodb-ns';
 
 export type GenAiUsecase = {
   namespace: string;
@@ -10,11 +10,11 @@ export type GenAiUsecase = {
   name: string;
 };
 
-import airbnbListings from '../fixtures/airbnb.listingsAndReviews.json';
-import berlinBars from '../fixtures/berlin.cocktailbars.json';
-import netflixMovies from '../fixtures/netflix.movies.json';
-import netflixComments from '../fixtures/netflix.comments.json';
-import nycParking from '../fixtures/NYC.parking_2015.json';
+import airbnbListings from '../fixtures/airbnb.listingsAndReviews';
+import berlinBars from '../fixtures/berlin.cocktailbars';
+import netflixMovies from '../fixtures/netflix.movies';
+import netflixComments from '../fixtures/netflix.comments';
+import nycParking from '../fixtures/nyc.parking';
 
 import { getSampleAndSchemaFromDataset } from '../utils';
 import {

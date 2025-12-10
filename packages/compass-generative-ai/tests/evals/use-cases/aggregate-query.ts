@@ -22,7 +22,7 @@ export const aggregateQueries: GenAiUsecase[] = [
     name: 'aggregate with filter projection sort and limit',
   },
   {
-    namespace: 'NYC.parking_2015',
+    namespace: 'nyc.parking',
     userInput:
       'find all the violations for the violation code 21 and only return the car plate',
     expectedOutput: `<aggregation>
@@ -128,7 +128,7 @@ export const aggregateQueries: GenAiUsecase[] = [
     name: 'aggregate with array slice',
   },
   {
-    namespace: 'NYC.parking_2015',
+    namespace: 'nyc.parking',
     userInput:
       'Return only the Plate IDs of Acura vehicles registered in New York',
     expectedOutput: `<aggregation>
@@ -252,7 +252,7 @@ export const aggregateQueries: GenAiUsecase[] = [
     name: 'super complex aggregate with complex project',
   },
   {
-    namespace: 'NYC.parking_2015',
+    namespace: 'nyc.parking',
     userInput:
       'Write a query that does the following: find all of the parking incidents that occurred on an ave (match all ways to write ave). Return all of the plate ids involved with their summons number and vehicle make and body type. Put the vehicle make and body type into lower case. No _id, sorted by the summons number lowest first.',
     expectedOutput: `<aggregation>

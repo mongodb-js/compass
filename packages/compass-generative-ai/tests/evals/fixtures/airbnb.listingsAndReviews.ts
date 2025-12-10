@@ -1,4 +1,4 @@
-[
+export default [
   {
     "_id": "10006546",
     "listing_url": "https://www.airbnb.com/rooms/10006546",

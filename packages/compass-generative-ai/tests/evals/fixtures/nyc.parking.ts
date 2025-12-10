@@ -1,4 +1,4 @@
-[
+export default [
   {
     "_id": {
       "$oid": "5735040085629ed4fa83946f"
