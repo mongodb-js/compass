@@ -16,6 +16,12 @@ import {
 import { inferForeignToLocalRelationshipsForCollection } from './relationships';
 import { mongoLogId } from '@mongodb-js/compass-logging/provider';
 
+export type AnalysisStep =
+  | 'IDLE'
+  | 'SAMPLING'
+  | 'ANALYZING_SCHEMA'
+  | 'INFERRING_RELATIONSHIPS';
+
 export type AnalysisProcessState = {
   currentAnalysisOptions:
     | ({
@@ -25,10 +31,11 @@ export type AnalysisProcessState = {
         collections: string[];
       } & AnalysisOptions)
     | null;
-  analysisProcessStatus: 'idle' | 'in-progress';
+  step: AnalysisStep;
   samplesFetched: number;
   schemasAnalyzed: number;
-  relationsInferred: number;
+  willInferRelations: boolean;
+  collectionRelationsInferred: number;
 };
 
 export const AnalysisProcessActionTypes = {
@@ -38,8 +45,8 @@ export const AnalysisProcessActionTypes = {
     'data-modeling/analysis-stats/NAMESPACE_SAMPLE_FETCHED',
   NAMESPACE_SCHEMA_ANALYZED:
     'data-modeling/analysis-stats/NAMESPACE_SCHEMA_ANALYZED',
-  NAMESPACES_RELATIONS_INFERRED:
-    'data-modeling/analysis-stats/NAMESPACES_RELATIONS_INFERRED',
+  NAMESPACE_RELATIONS_INFERRED:
+    'data-modeling/analysis-stats/NAMESPACE_RELATIONS_INFERRED',
   ANALYSIS_FINISHED: 'data-modeling/analysis-stats/ANALYSIS_FINISHED',
   ANALYSIS_FAILED: 'data-modeling/analysis-stats/ANALYSIS_FAILED',
   ANALYSIS_CANCELED: 'data-modeling/analysis-stats/ANALYSIS_CANCELED',
@@ -56,22 +63,19 @@ export type AnalyzingCollectionsStartAction = {
   database: string;
   collections: string[];
   options: AnalysisOptions;
+  willInferRelations: boolean;
 };
 
 export type NamespaceSampleFetchedAction = {
   type: typeof AnalysisProcessActionTypes.NAMESPACE_SAMPLE_FETCHED;
-  namespace: string;
 };
 
 export type NamespaceSchemaAnalyzedAction = {
   type: typeof AnalysisProcessActionTypes.NAMESPACE_SCHEMA_ANALYZED;
-  namespace: string;
 };
 
 export type NamespacesRelationsInferredAction = {
-  type: typeof AnalysisProcessActionTypes.NAMESPACES_RELATIONS_INFERRED;
-  namespace: string;
-  count: number;
+  type: typeof AnalysisProcessActionTypes.NAMESPACE_RELATIONS_INFERRED;
 };
 
 export type AnalysisFinishedAction = {
@@ -106,24 +110,26 @@ export type AnalysisProgressActions =
   | AnalysisFailedAction
   | AnalysisCanceledAction;
 
-const INITIAL_STATE = {
+const INITIAL_STATE: AnalysisProcessState = {
   currentAnalysisOptions: null,
-  analysisProcessStatus: 'idle' as const,
+  step: 'IDLE',
   samplesFetched: 0,
   schemasAnalyzed: 0,
-  relationsInferred: 0,
+  willInferRelations: false,
+  collectionRelationsInferred: 0,
 };
 
 export const analysisProcessReducer: Reducer<AnalysisProcessState> = (
   state = INITIAL_STATE,
   action
 ) => {
+  const totalCollections =
+    state.currentAnalysisOptions?.collections.length ?? 0;
   if (
     isAction(action, AnalysisProcessActionTypes.ANALYZING_COLLECTIONS_START)
   ) {
     return {
       ...INITIAL_STATE,
-      analysisProcessStatus: 'in-progress',
       currentAnalysisOptions: {
         name: action.name,
         connectionId: action.connectionId,
@@ -131,18 +137,42 @@ export const analysisProcessReducer: Reducer<AnalysisProcessState> = (
         collections: action.collections,
         automaticallyInferRelations: action.options.automaticallyInferRelations,
       },
+      step: 'SAMPLING',
+      willInferRelations: action.willInferRelations,
     };
   }
   if (isAction(action, AnalysisProcessActionTypes.NAMESPACE_SAMPLE_FETCHED)) {
+    const samplesFetched = state.samplesFetched + 1;
+    const nextStep = 'ANALYZING_SCHEMA';
     return {
       ...state,
-      samplesFetched: state.samplesFetched + 1,
+      samplesFetched,
+      step: samplesFetched === totalCollections ? nextStep : state.step,
     };
   }
   if (isAction(action, AnalysisProcessActionTypes.NAMESPACE_SCHEMA_ANALYZED)) {
+    const schemasAnalyzed = state.schemasAnalyzed + 1;
+    const nextStep = state.willInferRelations
+      ? 'INFERRING_RELATIONSHIPS'
+      : 'IDLE';
     return {
       ...state,
-      schemasAnalyzed: state.schemasAnalyzed + 1,
+      schemasAnalyzed,
+      step: schemasAnalyzed === totalCollections ? nextStep : state.step,
+    };
+  }
+  if (
+    isAction(action, AnalysisProcessActionTypes.NAMESPACE_RELATIONS_INFERRED)
+  ) {
+    const collectionRelationsInferred = state.collectionRelationsInferred + 1;
+    const nextStep = 'IDLE';
+    return {
+      ...state,
+      collectionRelationsInferred,
+      step:
+        collectionRelationsInferred === totalCollections
+          ? nextStep
+          : state.step,
     };
   }
   if (
@@ -152,7 +182,7 @@ export const analysisProcessReducer: Reducer<AnalysisProcessState> = (
   ) {
     return {
       ...state,
-      analysisProcessStatus: 'idle',
+      step: 'IDLE',
     };
   }
   return state;
@@ -218,6 +248,9 @@ export function startAnalysis(
     });
     const cancelController = (cancelAnalysisControllerRef.current =
       new AbortController());
+    const willInferRelations =
+      preferences.getPreferences().enableAutomaticRelationshipInference &&
+      options.automaticallyInferRelations;
     dispatch({
       type: AnalysisProcessActionTypes.ANALYZING_COLLECTIONS_START,
       name,
@@ -225,6 +258,7 @@ export function startAnalysis(
       database,
       collections,
       options,
+      willInferRelations,
     });
     try {
       let relations: Relationship[] = [];
@@ -242,31 +276,27 @@ export function startAnalysis(
             }
           );
 
-          const accessor = await analyzeDocuments(sample, {
-            signal: cancelController.signal,
-          });
-
-          // TODO(COMPASS-9314): Update how we show analysis progress.
           dispatch({
             type: AnalysisProcessActionTypes.NAMESPACE_SAMPLE_FETCHED,
-            namespace: ns,
+          });
+
+          const accessor = await analyzeDocuments(sample, {
+            signal: cancelController.signal,
           });
 
           const schema = await accessor.getMongoDBJsonSchema({
             signal: cancelController.signal,
           });
+
           dispatch({
             type: AnalysisProcessActionTypes.NAMESPACE_SCHEMA_ANALYZED,
-            namespace: ns,
           });
+
           return { ns, schema, sample, isExpanded: DEFAULT_IS_EXPANDED };
         })
       );
 
-      const attemptRelationshipInference =
-        preferences.getPreferences().enableAutomaticRelationshipInference &&
-        options.automaticallyInferRelations;
-      if (attemptRelationshipInference) {
+      if (willInferRelations) {
         relations = (
           await Promise.all(
             collections.map(
@@ -293,9 +323,7 @@ export function startAnalysis(
                     }
                   );
                 dispatch({
-                  type: AnalysisProcessActionTypes.NAMESPACES_RELATIONS_INFERRED,
-                  namespace: ns,
-                  count: relationships.length,
+                  type: AnalysisProcessActionTypes.NAMESPACE_RELATIONS_INFERRED,
                 });
                 return relationships;
               }
@@ -338,7 +366,7 @@ export function startAnalysis(
 
       track('Data Modeling Diagram Created', {
         num_collections: collections.length,
-        num_relations_inferred: attemptRelationshipInference
+        num_relations_inferred: willInferRelations
           ? relations.length
           : undefined,
       });

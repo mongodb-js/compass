@@ -40,6 +40,7 @@ export {
   SpinLoader,
   SpinLoaderWithLabel,
   CancelLoader,
+  ProgressLoaderWithCancel,
 } from './components/loader';
 import { ResizeHandle, ResizeDirection } from './components/resize-handle';
 import { Accordion } from './components/accordion';
