@@ -51,7 +51,7 @@ type SpinLoaderWithLabelProps = Omit<SpinLoaderProps, 'size' | 'title'> & {
 
 type CancelActionProps = {
   onCancel(): void;
-  cancelText: string;
+  cancelText?: string;
 };
 
 type CancelLoaderProps = Omit<SpinLoaderWithLabelProps, 'children'> &
