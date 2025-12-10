@@ -429,8 +429,8 @@ describe('CompassAssistantProvider', function () {
         expect(screen.getByText('Hello assistant!')).to.exist;
       });
 
-      const contextMessage = mockChat.messages.find((message) =>
-        message.id.match(/^system-context-/)
+      const contextMessage = mockChat.messages.find(
+        (message) => message.metadata?.isSystemContext
       );
       if (contextMessage) {
         // just clear it up so we can deep compare
@@ -439,6 +439,9 @@ describe('CompassAssistantProvider', function () {
       expect(contextMessage).to.deep.equal({
         id: 'system-context',
         role: 'system',
+        metadata: {
+          isSystemContext: true,
+        },
         parts: [
           {
             type: 'text',

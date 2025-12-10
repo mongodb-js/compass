@@ -72,6 +72,9 @@ export type AssistantMessage = UIMessage & {
     sendWithoutHistory?: boolean;
     /** Whether to send the current context along with the message if the context changed */
     sendContext?: boolean;
+
+    /** Whether this is a message to the model that we don't want to display to the user*/
+    isSystemContext?: boolean;
   };
 };
 

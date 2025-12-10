@@ -235,8 +235,8 @@ describe('prompts', function () {
       if (testCase.context.currentWorkspaceCollectionInfo?.sourceName) {
         summary.isView = true;
       }
-      if ((testCase.context.currentWorkspace as any)?.subTab) {
-        summary.subTab = (testCase.context.currentWorkspace as any).subTab;
+      if (hasSubtab(testCase.context.currentWorkspace)) {
+        summary.subTab = testCase.context.currentWorkspace.subTab;
       }
       const summaryString = Object.entries(summary)
         .map(([k, v]) => `${k}=${v}`)
@@ -244,11 +244,30 @@ describe('prompts', function () {
       it(`renders the expected prompt for ${summaryString}`, function () {
         const result = buildContextPrompt(testCase.context);
         expect(result.id).to.match(/^system-context-/);
+        expect(result.metadata?.isSystemContext).to.equal(true);
         expect(result.role).to.equal('system');
         expect(result.parts).to.have.lengthOf(1);
-        const text = (result.parts[0] as any).text;
+        const text = hasText(result.parts[0]) ? result.parts[0].text : '';
         expect(text).equal(testCase.expected);
       });
     }
   });
 });
+
+function hasSubtab(obj: unknown): obj is { subTab: string } {
+  return (
+    typeof obj === 'object' &&
+    obj !== null &&
+    'subTab' in obj &&
+    typeof (obj as any).subTab === 'string'
+  );
+}
+
+function hasText(obj: unknown): obj is { text: string } {
+  return (
+    typeof obj === 'object' &&
+    obj !== null &&
+    'text' in obj &&
+    typeof (obj as any).text === 'string'
+  );
+}

@@ -301,6 +301,9 @@ export function buildContextPrompt({
         text,
       },
     ],
+    metadata: {
+      isSystemContext: true,
+    },
     role: 'system',
   };
 

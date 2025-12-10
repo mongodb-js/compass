@@ -362,7 +362,7 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
   );
 
   const visibleMessages = messages.filter(
-    (message) => !message.id.startsWith('system-context-')
+    (message) => !message.metadata?.isSystemContext
   );
 
   return (
