@@ -182,6 +182,16 @@ export type CompassAssistantService = {
   getIsAssistantEnabled: () => boolean;
 };
 
+// Type guard to check if currentWorkspace has a connectionId property
+function hasConnectionId(obj: unknown): obj is { connectionId: string } {
+  return (
+    typeof obj === 'object' &&
+    obj !== null &&
+    'connectionId' in obj &&
+    typeof (obj as any).connectionId === 'string'
+  );
+}
+
 export const AssistantProvider: React.FunctionComponent<
   PropsWithChildren<{
     appNameForPrompt: string;
@@ -223,7 +233,10 @@ export const AssistantProvider: React.FunctionComponent<
 
       const currentActiveConnection =
         currentActiveConnections.find((connInfo) => {
-          return connInfo.id === (currentWorkspace as any)?.connectionId;
+          return (
+            hasConnectionId(currentWorkspace) &&
+            connInfo.id === currentWorkspace.connectionId
+          );
         }) ?? null;
 
       // TODO: only if the context changed since last message
