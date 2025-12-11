@@ -202,7 +202,7 @@ function StringEnumSetting<PreferenceName extends StringEnumPreferences>({
       <Select
         className={inputStyles}
         allowDeselect={false}
-        aria-label={`${name}-label`}
+        aria-labelledby={`${name}-label`}
         id={name}
         name={name}
         data-testid={name}
