@@ -78,6 +78,7 @@ export type EmittedAppRegistryEvents =
   | 'open-import'
   | 'open-export'
   | 'document-deleted'
+  | 'documents-deleted' //Added new type for handling bulk deletion
   | 'document-inserted';
 
 export type CrudActions = {
@@ -98,6 +99,7 @@ export type CrudActions = {
   runBulkUpdate(): Promise<void>;
   closeBulkDeleteDialog(): void;
   runBulkDelete(): Promise<void>;
+  openQueryExportToLanguageDialog(): void;
   openDeleteQueryExportToLanguageDialog(): void;
   saveUpdateQuery(name: string): Promise<void>;
 };
@@ -1977,10 +1979,30 @@ class CrudStoreImpl
       try {
         await this.dataService.deleteMany(this.state.ns, filter);
         this.bulkDeleteSuccess();
+        // Emit both events so all listeners update (fixes bulk delete document count not updating)
+        const payload = { view: this.state.view, ns: this.state.ns };
+        this.localAppRegistry.emit('documents-deleted', payload);
+        this.connectionScopedAppRegistry.emit('documents-deleted', payload);
       } catch (ex) {
         this.bulkDeleteFailed(ex as Error);
       }
     }
+  }
+
+  openQueryExportToLanguageDialog(): void {
+    const query = this.queryBar.getLastAppliedQuery('crud');
+    this.localAppRegistry.emit(
+      'open-query-export-to-language',
+      {
+        filter: toJSString(query.filter) || '{}',
+        project: query.project ? toJSString(query.project) : undefined,
+        sort: query.sort ? toJSString(query.sort) : undefined,
+        collation: query.collation ? toJSString(query.collation) : undefined,
+        skip: query.skip ? String(query.skip) : undefined,
+        limit: query.limit ? String(query.limit) : undefined,
+      },
+      'Query'
+    );
   }
 
   openDeleteQueryExportToLanguageDialog(): void {

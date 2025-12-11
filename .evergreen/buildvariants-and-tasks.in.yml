@@ -252,6 +252,7 @@ buildvariants:
     run_on: ubuntu2204-large
     tasks:
       - name: publish
+      - name: publish-web
       - name: publish-dev-release-info
 
   - name: static-analysis
@@ -409,6 +410,22 @@ tasks:
           scope: mongodb-compass
       - func: get-all-artifacts
       - func: publish
+
+  - name: publish-web
+    # Publish both on PRs and on main (if it gets too noisy and won't be used
+    # much we can probably disable for PRs)
+    tags: ['run-on-pr']
+    depends_on:
+      - name: '.required-for-publish'
+        variant: '*'
+    commands:
+      - func: prepare
+      - func: install
+      - func: bootstrap
+        vars:
+          scope: "@mongodb-js/compass-web"
+      - func: upload-web
+      - func: publish-web
 
   - name: publish-dev-release-info
     tags: []

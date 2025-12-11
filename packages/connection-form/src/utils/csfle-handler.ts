@@ -1,4 +1,3 @@
-import { randomBytes } from 'crypto';
 import { cloneDeep } from 'lodash';
 import type { ConnectionOptions } from 'mongodb-data-service';
 import type {
@@ -356,7 +355,7 @@ export function adjustCSFLEParams(
 }
 
 export function randomLocalKey(): string {
-  return randomBytes(96).toString('base64');
+  return crypto.getRandomValues(Buffer.alloc(96)).toString('base64');
 }
 
 export function handleAddKmsProvider<T extends KMSProviderType>({

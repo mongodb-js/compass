@@ -1,5 +1,5 @@
-# The variables are with the functions because they are only used by the
-# functions and also because you can't use variables across includes.
+# The variables and paratemers are with the functions because they are only used
+# by the functions and also because you can't use variables across includes.
 variables:
   - &save-artifact-params-private
     aws_key: ${aws_key}
@@ -48,6 +48,9 @@ variables:
     GITHUB_TOKEN: ${devtoolsbot_github_token}
     DOWNLOAD_CENTER_AWS_ACCESS_KEY_ID: ${aws_key_evergreen_integrations}
     DOWNLOAD_CENTER_AWS_SECRET_ACCESS_KEY: ${aws_secret_evergreen_integrations}
+    DOWNLOAD_CENTER_NEW_AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+    DOWNLOAD_CENTER_NEW_AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+    DOWNLOAD_CENTER_NEW_AWS_SESSION_TOKEN: ${AWS_SESSION_TOKEN}
     EVERGREEN_BUCKET_NAME: mciuploads
     EVERGREEN_BUCKET_KEY_PREFIX: ${project}/${revision}_${revision_order_id}
     MONGODB_RUNNER_LOG_DIR: ${workdir}/src/.testserver/
@@ -73,6 +76,13 @@ variables:
     E2E_TESTS_ATLAS_SPECIFICPERMISSION_STRING: ${e2e_tests_atlas_specificpermission_string}
     E2E_TESTS_ATLAS_CS_WITHOUT_SEARCH: ${e2e_tests_atlas_cs_without_search}
     E2E_TESTS_ATLAS_CS_WITH_SEARCH: ${e2e_tests_atlas_cs_with_search}
+
+parameters:
+  - key: compass_web_publish_environment
+    value: dev
+    description: Atlas Cloud environment that compass-web will be deployed for during a CI run
+  - key: compass_web_release_commit
+    description: Exact commit that will be deployed as a latest release for provided compass_web_publish_environment
 
 # This is here with the variables because anchors aren't supported across includes
 post:
@@ -504,22 +514,61 @@ functions:
   publish:
     - command: ec2.assume_role
       params:
-        role_arn: 'arn:aws:iam::119629040606:role/s3-access.cdn-origin-compass'
+        role_arn: ${downloads_bucket_role_arn}
     - command: shell.exec
       params:
         working_dir: src
         shell: bash
         env:
           <<: *compass-env
-          DOWNLOAD_CENTER_NEW_AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
-          DOWNLOAD_CENTER_NEW_AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
-          DOWNLOAD_CENTER_NEW_AWS_SESSION_TOKEN: ${AWS_SESSION_TOKEN}
         script: |
           set -e
           # Load environment variables
           eval $(.evergreen/print-compass-env.sh)
           echo "Uploading release assets to S3 and GitHub if needed..."
           npm run --workspace mongodb-compass upload
+
+  upload-web:
+    - command: ec2.assume_role
+      params:
+        role_arn: ${downloads_bucket_role_arn}
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        env:
+          <<: *compass-env
+        script: |
+          set -e
+          # Load environment variables
+          eval $(.evergreen/print-compass-env.sh)
+          echo "Compiling compass-web"
+          npm run --workspace @mongodb-js/compass-web compile
+          echo "Uploading release assets to S3"
+          npm run --workspace @mongodb-js/compass-web upload
+
+  publish-web:
+    - command: ec2.assume_role
+      params:
+        role_arn: ${downloads_bucket_role_arn}
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        env:
+          <<: *compass-env
+          COMPASS_WEB_PUBLISH_ENVIRONMENT: '${compass_web_publish_environment}'
+          COMPASS_WEB_RELEASE_COMMIT: '${compass_web_release_commit}'
+        script: |
+          set -e
+          # Load environment variables
+          eval $(.evergreen/print-compass-env.sh)
+          # Deploy to dev on every commit to main, do nothing for release branches
+          if [[ "$EVERGREEN_PROJECT" == '10gen-compass-main' && "$EVERGREEN_IS_PATCH" != "true" ]]; then
+            npm run --workspace @mongodb-js/compass-web publish
+          else 
+            echo "Skipping publish: wrong project ($EVERGREEN_PROJECT) or patch ($EVERGREEN_IS_PATCH)"
+          fi
 
   publish-dev-release-info:
     - command: shell.exec

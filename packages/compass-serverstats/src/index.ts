@@ -10,7 +10,7 @@ import { mongoDBInstanceLocator } from '@mongodb-js/compass-app-stores/provider'
 import CurrentOpStore from './stores/current-op-store';
 import ServerStatsStore from './stores/server-stats-graphs-store';
 import TopStore from './stores/top-store';
-import type { WorkspacePlugin } from '@mongodb-js/compass-workspaces';
+import type { WorkspacePlugin } from '@mongodb-js/workspace-info';
 import {
   WorkspaceName,
   ServerStatsPluginTitleComponent,

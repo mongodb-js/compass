@@ -11,7 +11,7 @@ import type {
   ConnectionInfoRef,
   DataService,
 } from '@mongodb-js/compass-connections/provider';
-import type { CollectionSubtab } from '@mongodb-js/compass-workspaces';
+import type { CollectionSubtab } from '@mongodb-js/workspace-info';
 import type { AtlasAiService } from '@mongodb-js/compass-generative-ai/provider';
 import type { experimentationServiceLocator } from '@mongodb-js/compass-telemetry/provider';
 import { type Logger, mongoLogId } from '@mongodb-js/compass-logging/provider';

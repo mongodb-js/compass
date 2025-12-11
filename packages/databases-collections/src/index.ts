@@ -16,7 +16,7 @@ import { activatePlugin as activateCreateNamespacePlugin } from './stores/create
 import { DatabasesPlugin, DatabasesWorkspaceName } from './databases-plugin';
 import MappedRenameCollectionModal from './components/rename-collection-modal/rename-collection-modal';
 import { activateRenameCollectionPlugin } from './stores/rename-collection';
-import type { WorkspacePlugin } from '@mongodb-js/compass-workspaces';
+import type { WorkspacePlugin } from '@mongodb-js/workspace-info';
 import { workspacesServiceLocator } from '@mongodb-js/compass-workspaces/provider';
 import {
   favoriteQueryStorageAccessLocator,

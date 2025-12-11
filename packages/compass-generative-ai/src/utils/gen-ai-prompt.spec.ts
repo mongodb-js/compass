@@ -2,12 +2,12 @@ import { expect } from 'chai';
 import {
   buildFindQueryPrompt,
   buildAggregateQueryPrompt,
-  type UserPromptForQueryOptions,
+  type PromptContextOptions,
 } from './gen-ai-prompt';
 import { toJSString } from 'mongodb-query-parser';
 import { ObjectId } from 'bson';
 
-const OPTIONS: UserPromptForQueryOptions = {
+const OPTIONS: PromptContextOptions = {
   userInput: 'Find all users older than 30',
   databaseName: 'airbnb',
   collectionName: 'listings',

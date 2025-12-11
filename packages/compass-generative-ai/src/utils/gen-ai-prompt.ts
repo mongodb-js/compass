@@ -57,7 +57,7 @@ function buildInstructionsForAggregateQuery() {
   ].join('\n');
 }
 
-export type UserPromptForQueryOptions = {
+export type PromptContextOptions = {
   userInput: string;
   databaseName?: string;
   collectionName?: string;
@@ -81,7 +81,7 @@ function buildUserPromptForQuery({
   collectionName,
   schema,
   sampleDocuments,
-}: UserPromptForQueryOptions & { type: 'find' | 'aggregate' }): string {
+}: PromptContextOptions & { type: 'find' | 'aggregate' }): string {
   const messages = [];
 
   const queryPrompt = [
@@ -138,14 +138,15 @@ function buildUserPromptForQuery({
   }
   messages.push(queryPrompt);
 
+  const prompt = messages.join('\n');
+
   // If at this point we have exceeded the limit, throw an error.
-  const totalPromptLength = messages.join('\n').length;
-  if (totalPromptLength > MAX_TOTAL_PROMPT_LENGTH) {
+  if (prompt.length > MAX_TOTAL_PROMPT_LENGTH) {
     throw new Error(
       'Sorry, your request is too large. Please use a smaller prompt or try using this feature on a collection with smaller documents.'
     );
   }
-  return messages.join('\n');
+  return prompt;
 }
 
 export type AiQueryPrompt = {
@@ -161,7 +162,7 @@ export function buildFindQueryPrompt({
   collectionName,
   schema,
   sampleDocuments,
-}: UserPromptForQueryOptions): AiQueryPrompt {
+}: PromptContextOptions): AiQueryPrompt {
   const prompt = buildUserPromptForQuery({
     type: 'find',
     userInput,
@@ -185,7 +186,7 @@ export function buildAggregateQueryPrompt({
   collectionName,
   schema,
   sampleDocuments,
-}: UserPromptForQueryOptions): AiQueryPrompt {
+}: PromptContextOptions): AiQueryPrompt {
   const prompt = buildUserPromptForQuery({
     type: 'aggregate',
     userInput,

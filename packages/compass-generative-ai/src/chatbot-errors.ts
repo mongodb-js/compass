@@ -1,20 +1,8 @@
-export class AiChatbotError extends Error {
-  statusCode: number;
-  errorCode: string;
-  detail: string;
+import { AtlasServiceError } from '@mongodb-js/atlas-service/renderer';
 
-  constructor(statusCode: number, detail: string, errorCode: string) {
-    super(`${errorCode}: ${detail}`);
-    this.name = 'ServerError';
-    this.statusCode = statusCode;
-    this.errorCode = errorCode;
-    this.detail = detail;
-  }
-}
-
-export class AiChatbotInvalidResponseError extends AiChatbotError {
+export class AiChatbotInvalidResponseError extends AtlasServiceError {
   constructor(message: string) {
-    super(500, message, 'INVALID_RESPONSE');
+    super('ServerError', 500, message, 'INVALID_RESPONSE');
     this.name = 'AiChatbotInvalidResponseError';
   }
 }

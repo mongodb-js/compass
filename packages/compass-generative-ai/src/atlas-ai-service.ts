@@ -23,7 +23,7 @@ import {
   buildAggregateQueryPrompt,
   buildFindQueryPrompt,
 } from './utils/gen-ai-prompt';
-import { parseXmlToMmsJsonResponse } from './utils/xml-to-mms-response';
+import { parseXmlToJsonResponse } from './utils/parse-xml-response';
 import { getAiQueryResponse } from './utils/gen-ai-response';
 
 type GenerativeAiInput = {
@@ -573,7 +573,7 @@ export class AtlasAiService {
       message,
       options.signal
     );
-    const parsedResponse = parseXmlToMmsJsonResponse(response, this.logger);
+    const parsedResponse = parseXmlToJsonResponse(response, this.logger);
     validateFn(parsedResponse);
     return parsedResponse;
   }
