@@ -55,6 +55,18 @@ export function useSyncAssistantGlobalState<T extends keyof GlobalState>(
       };
     });
   }, [newState, setState, stateKey]);
+
+  // clean up on unmount
+  useEffect(() => {
+    return () => {
+      setState((prevState) => {
+        return {
+          ...prevState,
+          [stateKey]: INITIAL_STATE[stateKey],
+        };
+      });
+    };
+  });
 }
 
 export function useAssistantGlobalState() {
