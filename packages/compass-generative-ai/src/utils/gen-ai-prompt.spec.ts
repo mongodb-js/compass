@@ -35,6 +35,11 @@ const OPTIONS: PromptContextOptions = {
   ],
 };
 
+const expectedSchema = {
+  _id: 'ObjectId',
+  userId: 'ObjectId',
+};
+
 describe('GenAI Prompts', function () {
   it('buildFindQueryPrompt', function () {
     const {
@@ -66,7 +71,7 @@ describe('GenAI Prompts', function () {
       'includes schema text'
     );
     expect(prompt).to.include(
-      toJSString(OPTIONS.schema),
+      toJSString(expectedSchema),
       'includes actual schema'
     );
     expect(prompt).to.include(
@@ -109,7 +114,7 @@ describe('GenAI Prompts', function () {
       'includes schema text'
     );
     expect(prompt).to.include(
-      toJSString(OPTIONS.schema),
+      toJSString(expectedSchema),
       'includes actual schema'
     );
     expect(prompt).to.include(
