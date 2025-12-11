@@ -19,7 +19,7 @@ describe('AnalysisProgressStatus', () => {
         preferences,
       },
     });
-    store.dispatch(
+    void store.dispatch(
       startAnalysis(
         'My Diagram',
         testConnections[0].id,
