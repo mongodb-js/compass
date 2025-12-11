@@ -414,41 +414,48 @@ describe('CompassAssistantProvider', function () {
 
       await renderOpenAssistantDrawer({ chat: mockChat });
 
-      userEvent.type(
-        screen.getByPlaceholderText('Ask a question'),
-        'Hello assistant!'
-      );
-      userEvent.click(screen.getByLabelText('Send message'));
+      for (let i = 0; i < 2; i++) {
+        userEvent.type(
+          screen.getByPlaceholderText('Ask a question'),
+          `Hello assistant! (${i})`
+        );
+        userEvent.click(screen.getByLabelText('Send message'));
 
-      await waitFor(() => {
-        expect(sendMessageSpy.calledOnce).to.be.true;
-        expect(sendMessageSpy.firstCall.args[0]).to.deep.include({
-          text: 'Hello assistant!',
+        await waitFor(() => {
+          expect(sendMessageSpy.callCount).to.equal(i + 1);
+          expect(sendMessageSpy.getCall(i).args[0]).to.deep.include({
+            text: `Hello assistant! (${i})`,
+          });
+
+          expect(screen.getByText(`Hello assistant! (${i})`)).to.exist;
         });
+      }
 
-        expect(screen.getByText('Hello assistant!')).to.exist;
-      });
-
-      const contextMessage = mockChat.messages.find(
+      const contextMessages = mockChat.messages.filter(
         (message) => message.metadata?.isSystemContext
       );
-      if (contextMessage) {
+
+      for (const contextMessage of contextMessages) {
         // just clear it up so we can deep compare
         contextMessage.id = 'system-context';
       }
-      expect(contextMessage).to.deep.equal({
-        id: 'system-context',
-        role: 'system',
-        metadata: {
-          isSystemContext: true,
-        },
-        parts: [
-          {
-            type: 'text',
-            text: 'The user does not have any tabs open.',
+
+      // it only sent one
+      expect(contextMessages).to.deep.equal([
+        {
+          id: 'system-context',
+          role: 'system',
+          metadata: {
+            isSystemContext: true,
           },
-        ],
-      });
+          parts: [
+            {
+              type: 'text',
+              text: 'The user does not have any tabs open.',
+            },
+          ],
+        },
+      ]);
     });
 
     it('will not send new messages if the user does not opt in', async function () {

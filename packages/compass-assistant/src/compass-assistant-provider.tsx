@@ -207,6 +207,8 @@ export const AssistantProvider: React.FunctionComponent<
 
   const assistantGlobalStateRef = useCurrentValueRef(useAssistantGlobalState());
 
+  const lastContextPromptRef = useRef<string | null>(null);
+
   const ensureOptInAndSend = useInitialValue(() => {
     return async function (
       message: SendMessage,
@@ -243,17 +245,26 @@ export const AssistantProvider: React.FunctionComponent<
           );
         }) ?? null;
 
-      // TODO: only if the context changed since last message
-      if (message?.metadata?.sendContext) {
-        chat.messages = [
-          ...chat.messages,
-          buildContextPrompt({
-            activeWorkspace,
-            activeConnection,
-            activeCollectionMetadata,
-            activeCollectionSubTab,
-          }),
-        ];
+      const contextPrompt = buildContextPrompt({
+        activeWorkspace,
+        activeConnection,
+        activeCollectionMetadata,
+        activeCollectionSubTab,
+      });
+
+      // use just the text so we have a stable reference to compare against
+      const contextPromptText =
+        contextPrompt.parts[0].type === 'text'
+          ? contextPrompt.parts[0].text
+          : '';
+
+      const shouldSendContextPrompt =
+        message?.metadata?.sendContext &&
+        (!lastContextPromptRef.current ||
+          lastContextPromptRef.current !== contextPromptText);
+      if (shouldSendContextPrompt) {
+        lastContextPromptRef.current = contextPromptText;
+        chat.messages = [...chat.messages, contextPrompt];
       }
 
       await chat.sendMessage(message, options);
