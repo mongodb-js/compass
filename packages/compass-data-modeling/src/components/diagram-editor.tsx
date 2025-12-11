@@ -191,6 +191,7 @@ const DiagramContent: React.FunctionComponent<{
     ns: string;
     fieldPath: FieldPath;
     newTypes: string[];
+    source: 'diagram';
   }) => void;
   onDiagramBackgroundClicked: () => void;
   onDeleteCollection: (ns: string) => void;
@@ -428,6 +429,7 @@ const DiagramContent: React.FunctionComponent<{
         ns,
         fieldPath,
         newTypes,
+        source: 'diagram',
       });
     },
     [onChangeFieldType]
@@ -488,6 +490,7 @@ const DiagramContent: React.FunctionComponent<{
         onNodeExpandToggle: isCollapseFlagEnabled
           ? handleNodeExpandedToggle
           : undefined,
+        fieldTypes: FIELD_TYPES,
       } satisfies DiagramProps),
     [
       isDarkMode,
