@@ -82,10 +82,7 @@ const ConnectionsComponent: React.FunctionComponent<{
       return connection.info;
     });
   }, [activeConnections]);
-  useSyncAssistantGlobalState(
-    'currentActiveConnections',
-    activeConnectionsInfo
-  );
+  useSyncAssistantGlobalState('activeConnections', activeConnectionsInfo);
 
   return (
     <ConnectionActionsProvider>

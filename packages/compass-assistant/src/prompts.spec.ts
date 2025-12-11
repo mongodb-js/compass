@@ -41,62 +41,67 @@ describe('prompts', function () {
       // No active tab
       {
         context: {
-          currentWorkspace: null,
-          currentActiveConnection: null,
-          currentWorkspaceCollectionInfo: null,
+          activeWorkspace: null,
+          activeConnection: null,
+          activeCollectionMetadata: null,
+          activeCollectionSubTab: null,
         },
         expected: 'The user does not have any tabs open.',
       },
       // Welcome
       {
         context: {
-          currentWorkspace: {
+          activeWorkspace: {
             id: 'welcome-tab-1',
             type: 'Welcome',
           },
-          currentActiveConnection: null,
-          currentWorkspaceCollectionInfo: null,
+          activeConnection: null,
+          activeCollectionMetadata: null,
+          activeCollectionSubTab: null,
         },
         expected: 'The user is on the "Welcome" tab.',
       },
       // My Queries
       {
         context: {
-          currentWorkspace: {
+          activeWorkspace: {
             id: 'my-queries-tab-1',
             type: 'My Queries',
           },
-          currentActiveConnection: null,
-          currentWorkspaceCollectionInfo: null,
+          activeConnection: null,
+          activeCollectionMetadata: null,
+          activeCollectionSubTab: null,
         },
         expected: 'The user is on the "My Queries" tab.',
       },
       // Data Modeling
       {
         context: {
-          currentWorkspace: {
+          activeWorkspace: {
             id: 'data-modelling-tab-1',
             type: 'Data Modeling',
           },
-          currentActiveConnection: null,
-          currentWorkspaceCollectionInfo: null,
+          activeConnection: null,
+          activeCollectionMetadata: null,
+          activeCollectionSubTab: null,
         },
         expected: 'The user is on the "Data Modeling" tab.',
       },
       // Databases
       {
         context: {
-          currentWorkspace: {
+          activeWorkspace: {
             id: 'databases-tab-1',
             type: 'Databases',
             connectionId: 'conn-1',
           },
-          currentActiveConnection: {
+          activeConnection: {
             connectionOptions: {
               connectionString: 'mongodb://localhost:27017',
             },
           },
-          currentWorkspaceCollectionInfo: null,
+          activeCollectionMetadata: null,
+          activeCollectionSubTab: null,
         },
         expected:
           'The connection is named "localhost:27017". The redacted connection string is "mongodb://localhost:27017/".\n\nThe user is on the "Databases" tab.',
@@ -104,17 +109,18 @@ describe('prompts', function () {
       // Performance
       {
         context: {
-          currentWorkspace: {
+          activeWorkspace: {
             id: 'performance-tab-1',
             type: 'Performance',
             connectionId: 'conn-1',
           },
-          currentActiveConnection: {
+          activeConnection: {
             connectionOptions: {
               connectionString: 'mongodb://localhost:27017',
             },
           },
-          currentWorkspaceCollectionInfo: null,
+          activeCollectionMetadata: null,
+          activeCollectionSubTab: null,
         },
         expected:
           'The connection is named "localhost:27017". The redacted connection string is "mongodb://localhost:27017/".\n\nThe user is on the "Performance" tab.',
@@ -122,17 +128,18 @@ describe('prompts', function () {
       // Shell
       {
         context: {
-          currentWorkspace: {
+          activeWorkspace: {
             id: 'shell-tab-1',
             type: 'Shell',
             connectionId: 'conn-1',
           },
-          currentActiveConnection: {
+          activeConnection: {
             connectionOptions: {
               connectionString: 'mongodb://localhost:27017',
             },
           },
-          currentWorkspaceCollectionInfo: null,
+          activeCollectionMetadata: null,
+          activeCollectionSubTab: null,
         },
         expected:
           'The connection is named "localhost:27017". The redacted connection string is "mongodb://localhost:27017/".\n\nThe user is on the "Shell" tab.',
@@ -140,18 +147,19 @@ describe('prompts', function () {
       // Collections
       {
         context: {
-          currentWorkspace: {
+          activeWorkspace: {
             id: 'collections-tab-1',
             type: 'Collections',
             connectionId: 'conn-1',
             namespace: 'test',
           },
-          currentActiveConnection: {
+          activeConnection: {
             connectionOptions: {
               connectionString: 'mongodb://localhost:27017',
             },
           },
-          currentWorkspaceCollectionInfo: null,
+          activeCollectionMetadata: null,
+          activeCollectionSubTab: null,
         },
         expected:
           'The connection is named "localhost:27017". The redacted connection string is "mongodb://localhost:27017/".\n\nThe user is on the "Collections" tab for the "test" namespace.',
@@ -159,21 +167,22 @@ describe('prompts', function () {
       // Normal Collection
       {
         context: {
-          currentWorkspace: {
+          activeWorkspace: {
             id: 'collection-tab-1',
             type: 'Collection',
             connectionId: 'conn-1',
             namespace: 'test.normal',
             subTab: 'Schema',
           },
-          currentActiveConnection: {
+          activeConnection: {
             connectionOptions: {
               connectionString: 'mongodb://localhost:27017',
             },
           },
-          currentWorkspaceCollectionInfo: {
+          activeCollectionMetadata: {
             isTimeSeries: false,
           },
+          activeCollectionSubTab: 'Schema',
         },
         expected:
           'The connection is named "localhost:27017". The redacted connection string is "mongodb://localhost:27017/".\n\nThe user is on the "Schema" tab for the "test.normal" namespace.',
@@ -181,21 +190,22 @@ describe('prompts', function () {
       // Timeseries Collection
       {
         context: {
-          currentWorkspace: {
+          activeWorkspace: {
             id: 'collection-tab-1',
             type: 'Collection',
             connectionId: 'conn-1',
             namespace: 'test.timeseries',
             subTab: 'Aggregations',
           },
-          currentActiveConnection: {
+          activeConnection: {
             connectionOptions: {
               connectionString: 'mongodb://localhost:27017',
             },
           },
-          currentWorkspaceCollectionInfo: {
+          activeCollectionMetadata: {
             isTimeSeries: true,
           },
+          activeCollectionSubTab: 'Aggregations',
         },
         expected:
           'The connection is named "localhost:27017". The redacted connection string is "mongodb://localhost:27017/".\n\nThe user is on the "Aggregations" tab for the "test.timeseries" namespace. "test.timeseries" is a time-series collection.',
@@ -203,22 +213,23 @@ describe('prompts', function () {
       // View Collection
       {
         context: {
-          currentWorkspace: {
+          activeWorkspace: {
             id: 'collection-tab-1',
             type: 'Collection',
             connectionId: 'conn-1',
             namespace: 'test.view',
             subTab: 'Documents',
           },
-          currentActiveConnection: {
+          activeConnection: {
             connectionOptions: {
               connectionString: 'mongodb://localhost:27017',
             },
           },
-          currentWorkspaceCollectionInfo: {
+          activeCollectionMetadata: {
             isTimeSeries: false,
             sourceName: 'test.normal',
           },
+          activeCollectionSubTab: 'Documents',
         },
         expected:
           'The connection is named "localhost:27017". The redacted connection string is "mongodb://localhost:27017/".\n\nThe user is on the "Documents" tab for the "test.view" namespace. "test.view" is a view on the "test.normal" collection.',
@@ -227,16 +238,16 @@ describe('prompts', function () {
 
     for (const testCase of testCases) {
       const summary: Record<string, string | boolean> = {
-        type: testCase.context.currentWorkspace?.type || 'No active tab',
+        type: testCase.context.activeWorkspace?.type || 'No active tab',
       };
-      if (testCase.context.currentWorkspaceCollectionInfo?.isTimeSeries) {
+      if (testCase.context.activeCollectionMetadata?.isTimeSeries) {
         summary.isTimeSeries = true;
       }
-      if (testCase.context.currentWorkspaceCollectionInfo?.sourceName) {
+      if (testCase.context.activeCollectionMetadata?.sourceName) {
         summary.isView = true;
       }
-      if (hasSubtab(testCase.context.currentWorkspace)) {
-        summary.subTab = testCase.context.currentWorkspace.subTab;
+      if (hasSubtab(testCase.context.activeWorkspace)) {
+        summary.subTab = testCase.context.activeWorkspace.subTab;
       }
       const summaryString = Object.entries(summary)
         .map(([k, v]) => `${k}=${v}`)

@@ -3,9 +3,10 @@ import {
   type ConnectionInfo,
 } from '@mongodb-js/connection-info';
 import type {
+  CollectionSubtab,
   WorkspaceTab,
-  CollectionTabInfo,
 } from '@mongodb-js/workspace-info';
+import type { CollectionMetadata } from 'mongodb-collection-model';
 import { redactConnectionString } from 'mongodb-connection-string-url';
 import type { AssistantMessage } from './compass-assistant-provider';
 
@@ -234,53 +235,49 @@ ${connectionError}`,
 };
 
 export function buildContextPrompt({
-  currentWorkspace,
-  currentActiveConnection,
-  currentWorkspaceCollectionInfo,
+  activeWorkspace,
+  activeConnection,
+  activeCollectionMetadata,
+  activeCollectionSubTab,
 }: {
-  currentWorkspace: WorkspaceTab | null;
-  currentActiveConnection: Pick<ConnectionInfo, 'connectionOptions'> | null;
-  currentWorkspaceCollectionInfo: Pick<
-    CollectionTabInfo,
+  activeWorkspace: WorkspaceTab | null;
+  activeConnection: Pick<ConnectionInfo, 'connectionOptions'> | null;
+  activeCollectionMetadata: Pick<
+    CollectionMetadata,
     'isTimeSeries' | 'sourceName'
+    // TODO: isClustered, isFLE, isSearchIndexesSupported, isDataLake, isAtlas, serverVersion
   > | null;
+  activeCollectionSubTab: CollectionSubtab | null;
 }): AssistantMessage {
   const parts: string[] = [];
 
-  if (currentActiveConnection) {
-    const connectionName = getConnectionTitle(currentActiveConnection);
+  if (activeConnection) {
+    const connectionName = getConnectionTitle(activeConnection);
     const redactedConnectionString = redactConnectionString(
-      currentActiveConnection.connectionOptions.connectionString
+      activeConnection.connectionOptions.connectionString
     );
     parts.push(
       `The connection is named "${connectionName}". The redacted connection string is "${redactedConnectionString}".`
     );
   }
 
-  if (currentWorkspace) {
-    const isNamespaceTab = hasNamespace(currentWorkspace);
-    const tabName =
-      (currentWorkspace.type === 'Collection' && currentWorkspace.subTab) ||
-      currentWorkspace.type;
+  if (activeWorkspace) {
+    const isNamespaceTab = hasNamespace(activeWorkspace);
+    const tabName = activeCollectionSubTab || activeWorkspace.type;
     const namespacePart = isNamespaceTab
-      ? ` for the "${currentWorkspace.namespace}" namespace`
+      ? ` for the "${activeWorkspace.namespace}" namespace`
       : '';
     const lines = [`The user is on the "${tabName}" tab${namespacePart}.`];
-    // looks like normal collections don't have currentWorkspaceCollectionInfo
-    if (
-      isNamespaceTab &&
-      currentWorkspace.namespace &&
-      currentWorkspaceCollectionInfo
-    ) {
-      if (currentWorkspaceCollectionInfo.isTimeSeries) {
+    if (isNamespaceTab && activeConnection && activeCollectionMetadata) {
+      if (activeCollectionMetadata.isTimeSeries) {
         lines.push(
-          `"${currentWorkspace.namespace}" is a time-series collection.`
+          `"${activeWorkspace.namespace}" is a time-series collection.`
         );
       }
 
-      if (currentWorkspaceCollectionInfo.sourceName) {
+      if (activeCollectionMetadata.sourceName) {
         lines.push(
-          `"${currentWorkspace.namespace}" is a view on the "${currentWorkspaceCollectionInfo.sourceName}" collection.`
+          `"${activeWorkspace.namespace}" is a view on the "${activeCollectionMetadata.sourceName}" collection.`
         );
       }
     }

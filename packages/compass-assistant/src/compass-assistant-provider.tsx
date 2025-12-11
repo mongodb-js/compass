@@ -185,7 +185,7 @@ export type CompassAssistantService = {
   getIsAssistantEnabled: () => boolean;
 };
 
-// Type guard to check if currentWorkspace has a connectionId property
+// Type guard to check if activeWorkspace has a connectionId property
 function hasConnectionId(obj: unknown): obj is { connectionId: string } {
   return (
     typeof obj === 'object' &&
@@ -214,9 +214,10 @@ export const AssistantProvider: React.FunctionComponent<
       callback: () => void
     ) {
       const {
-        currentWorkspace,
-        currentActiveConnections,
-        currentWorkspaceCollectionInfo,
+        activeWorkspace,
+        activeConnections,
+        activeCollectionMetadata,
+        activeCollectionSubTab,
       } = assistantGlobalStateRef.current;
 
       try {
@@ -234,11 +235,11 @@ export const AssistantProvider: React.FunctionComponent<
         await chat.stop();
       }
 
-      const currentActiveConnection =
-        currentActiveConnections.find((connInfo) => {
+      const activeConnection =
+        activeConnections.find((connInfo) => {
           return (
-            hasConnectionId(currentWorkspace) &&
-            connInfo.id === currentWorkspace.connectionId
+            hasConnectionId(activeWorkspace) &&
+            connInfo.id === activeWorkspace.connectionId
           );
         }) ?? null;
 
@@ -247,9 +248,10 @@ export const AssistantProvider: React.FunctionComponent<
         chat.messages = [
           ...chat.messages,
           buildContextPrompt({
-            currentWorkspace,
-            currentActiveConnection,
-            currentWorkspaceCollectionInfo,
+            activeWorkspace,
+            activeConnection,
+            activeCollectionMetadata,
+            activeCollectionSubTab,
           }),
         ];
       }

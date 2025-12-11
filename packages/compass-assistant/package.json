@@ -64,6 +64,7 @@
     "@mongodb-js/workspace-info": "^1.0.0",
     "ai": "^5.0.26",
     "compass-preferences-model": "^2.66.3",
+    "mongodb-collection-model": "^5.37.0",
     "mongodb-connection-string-url": "^3.0.1",
     "react": "^17.0.2",
     "throttleit": "^2.1.0",
