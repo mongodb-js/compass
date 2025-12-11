@@ -2943,7 +2943,7 @@ type DataModelingDiagramCreated = CommonEvent<{
   name: 'Data Modeling Diagram Created';
   payload: {
     num_collections: number;
-    num_relations_inferred: number;
+    num_relations_inferred?: number;
   };
 }>;
 
