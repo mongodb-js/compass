@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { flattenSchemaToObject } from './util';
 
-const schema = {
+const mockSchema = {
   _id: {
     types: [
       {
@@ -139,7 +139,7 @@ const schema = {
 
 describe('utils', function () {
   it('flattenSchemaToObject', function () {
-    expect(flattenSchemaToObject(schema)).to.deep.equal({
+    expect(flattenSchemaToObject(mockSchema)).to.deep.equal({
       _id: 'ObjectId',
       name: 'String',
       createdAt: 'Date',

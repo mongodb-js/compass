@@ -11,7 +11,7 @@ export function isAction<A extends AnyAction>(
 function processArraySchema(
   types: Document[],
   result: Record<string, string>,
-  prefix: string = ''
+  prefix: string
 ): Record<string, string> {
   // We only consider the first bsonType for simplicity
   const firstType = types[0];
@@ -45,7 +45,7 @@ function processDocumentSchema(
         processDocumentSchema(firstType.fields, result, `${prefixedKey}.`);
       }
     } else if (firstType.bsonType === 'Array') {
-      processArraySchema(value.types, result, prefixedKey);
+      processArraySchema(firstType.types, result, prefixedKey);
     } else if (firstType.bsonType) {
       result[prefixedKey] = firstType.bsonType;
     }
@@ -53,6 +53,9 @@ function processDocumentSchema(
   return result;
 }
 
+/**
+ * Flattens a schema representation into a flat object.
+ */
 export function flattenSchemaToObject(
   schema: Document
 ): Record<string, string> {
