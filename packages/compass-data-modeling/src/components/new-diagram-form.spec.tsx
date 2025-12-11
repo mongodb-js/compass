@@ -10,6 +10,7 @@ import NewDiagramForm from './new-diagram-form';
 import { changeName, createNewDiagram } from '../store/generate-diagram-wizard';
 import { renderWithStore } from '../../test/setup-store';
 import type { DataModelingStore } from '../../test/setup-store';
+import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 
 function getComboboxByTestId(testId: string) {
   return within(screen.getByTestId(testId)).getByRole('combobox');
@@ -282,7 +283,12 @@ describe('NewDiagramForm', function () {
 
   context('select-collections step', function () {
     it('shows list of collections', async function () {
-      const { store } = renderWithStore(<NewDiagramForm />);
+      const preferences = await createSandboxFromDefaultPreferences();
+      const { store } = renderWithStore(<NewDiagramForm />, {
+        services: {
+          preferences,
+        },
+      });
 
       {
         // Navigate to connections step
