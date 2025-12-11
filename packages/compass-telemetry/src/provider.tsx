@@ -6,6 +6,10 @@ import type { TrackFunction } from './types';
 import type { ExperimentTestName } from './growth-experiments';
 import { ExperimentationContext } from './experimentation-provider';
 import type { types } from '@mongodb-js/mdb-experiment-js';
+import {
+  useCurrentValueRef,
+  useInitialValue,
+} from '@mongodb-js/compass-components';
 
 const noop = () => {
   // noop
@@ -23,14 +27,14 @@ export const TelemetryProvider: React.FC<{
   options: Omit<TelemetryServiceOptions, 'logger'>;
 }> = ({ options, children }) => {
   const logger = useLogger('COMPASS-TELEMETRY');
-  const trackFn = useRef(
-    createTrack({
+  const trackFn = useInitialValue(() => {
+    return createTrack({
       logger,
       ...options,
-    })
-  );
+    });
+  });
   return (
-    <TelemetryContext.Provider value={trackFn.current}>
+    <TelemetryContext.Provider value={trackFn}>
       {children}
     </TelemetryContext.Provider>
   );
@@ -114,8 +118,7 @@ export function useTrackOnChange(
   dependencies: unknown[],
   options: { skipOnMount: boolean } = { skipOnMount: false }
 ) {
-  const onChangeRef = React.useRef(onChange);
-  onChangeRef.current = onChange;
+  const onChangeRef = useCurrentValueRef(onChange);
   const track = useTelemetry();
   const initialRef = useRef<boolean>(true);
   React.useEffect(() => {
@@ -135,8 +138,8 @@ export function useTrackOnChange(
  *
  * @example
  * useFireExperimentViewed({
- *   testName: ExperimentTestName.earlyJourneyIndexesGuidance,
- *   shouldFire: enableInIndexesGuidanceExp ,
+ *   testName: ExperimentTestName.mockDataGenerator,
+ *   shouldFire: enableMockDataGenerator,
  * });
  */
 export const useFireExperimentViewed = ({
@@ -161,8 +164,18 @@ export const useFireExperimentViewed = ({
 };
 
 export type { TrackFunction };
-export { ExperimentTestName, ExperimentTestGroup } from './growth-experiments';
+export {
+  ExperimentTestNames,
+  ExperimentTestGroups,
+} from './growth-experiments';
+export type {
+  ExperimentTestName,
+  ExperimentTestGroup,
+} from './growth-experiments';
 export { useAssignment, useTrackInSample } from './experimentation-provider';
 
 // @experiment Skills in Atlas  | Jira Epic: CLOUDP-346311
-export { SkillsBannerContextEnum, useAtlasSkillsBanner } from './atlas-skills';
+export {
+  SkillsBannerContexts as SkillsBannerContextEnum,
+  useAtlasSkillsBanner,
+} from './atlas-skills';

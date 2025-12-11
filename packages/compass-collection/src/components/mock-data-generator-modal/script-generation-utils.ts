@@ -73,22 +73,49 @@ use(${JSON.stringify(options.databaseName)});
 
 // Document generation function
 function generateDocument() {
-return ${documentCode};
+  return ${documentCode};
 }
 
-// Generate and insert documents
-const documents = [];
-for (let i = 0; i < ${options.documentCount}; i++) {
-documents.push(generateDocument());
+const BATCH_SIZE = 1000; // Number of documents to insert per batch
+const TOTAL_DOCUMENTS = ${options.documentCount};
+const numBatches = Math.ceil(TOTAL_DOCUMENTS / BATCH_SIZE);
+
+console.log(\`Starting mock data generation for ${options.databaseName.replace(
+      /[\\`$]/g,
+      '\\$&'
+    )}.${options.collectionName.replace(/[\\`$]/g, '\\$&')}\`);
+console.log(\`Total documents to generate: \${TOTAL_DOCUMENTS} documents\`);
+console.log(\`Batch size: \${BATCH_SIZE} documents per batch\`);
+
+const startTime = new Date();
+
+for (let batchStart = 0; batchStart < TOTAL_DOCUMENTS; batchStart += BATCH_SIZE) {
+  const batchEnd = Math.min(batchStart + BATCH_SIZE, TOTAL_DOCUMENTS);
+  const batchSize = batchEnd - batchStart;
+
+  console.log(\`Generating batch \${Math.floor(batchStart / BATCH_SIZE) + 1} of \${numBatches} (\${batchSize} documents)...\`);
+
+  // Generate documents for this batch
+  const batchDocuments = [];
+  for (let i = 0; i < batchSize; i++) {
+    batchDocuments.push(generateDocument());
+  }
+
+  // Insert the batch
+  db.getCollection(${JSON.stringify(
+    options.collectionName
+  )}).insertMany(batchDocuments);
+
+  console.log(\`Batch inserted successfully.\`);
 }
 
-// Insert documents into collection
-db.getCollection(${JSON.stringify(
-      options.collectionName
-    )}).insertMany(documents);
+const endTime = new Date();
+const duration = ((endTime - startTime) / 1000).toFixed(2);
 
-console.log(\`Successfully inserted \${documents.length} documents into ${options.databaseName.replace(
-      /[\\`$]/g, // Escape backslashes, backticks and dollar signs
+console.log(\`\\n=== Mock Data Generation Complete ===\`);
+console.log(\`Total time: \${duration} seconds\`);
+console.log(\`Collection: ${options.databaseName.replace(
+      /[\\`$]/g,
       '\\$&'
     )}.${options.collectionName.replace(/[\\`$]/g, '\\$&')}\`);`;
 
@@ -457,6 +484,11 @@ function generateFakerCall(mapping: FakerFieldMapping): string {
       ? getDefaultFakerMethod(mapping.mongoType)
       : mapping.fakerMethod;
 
+  // Use direct ObjectId generation for MongoDB ObjectIds
+  if (method === 'database.mongodbObjectId') {
+    return 'new ObjectId()';
+  }
+
   const args = formatFakerArgs(mapping.fakerArgs);
   return `faker.${method}(${args})`;
 }
@@ -708,7 +740,7 @@ function generateFakerValue(
   mapping: FakerFieldMapping
 ): string | number | boolean | Date | null | undefined {
   const method =
-    mapping.fakerMethod === 'unrecognized'
+    mapping.fakerMethod === UNRECOGNIZED_FAKER_METHOD
       ? getDefaultFakerMethod(mapping.mongoType)
       : mapping.fakerMethod;
 

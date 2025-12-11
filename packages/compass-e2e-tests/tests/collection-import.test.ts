@@ -70,7 +70,9 @@ async function selectFieldType(
   );
   await fieldTypeSelectMenu.waitForDisplayed();
 
-  const fieldTypeSelectSpan = fieldTypeSelectMenu.$(`span=${fieldType}`);
+  const fieldTypeSelectSpan = fieldTypeSelectMenu.$(
+    `[role=option][aria-label="${fieldType}"]`
+  );
   await fieldTypeSelectSpan.waitForDisplayed();
   await fieldTypeSelectSpan.scrollIntoView();
   await browser.pause(1000);
@@ -375,9 +377,8 @@ describe('Collection import', function () {
     // make sure that there's an error and that the insert button is disabled
     const errorElement = browser.$(Selectors.InsertDialogErrorMessage);
     await errorElement.waitForDisplayed();
-    expect(await errorElement.getText()).to.equal(
-      'Insert not permitted while document contains errors.'
-    );
+    const text = await errorElement.getText();
+    expect(text.toLowerCase()).to.contain('unexpected token');
     const insertButton = browser.$(Selectors.InsertConfirm);
     await browser.waitForAriaDisabled(insertButton, true);
 
@@ -643,7 +644,6 @@ describe('Collection import', function () {
       // Find the log file
       const logFilePath = path.resolve(
         compass.userDataPath || '',
-        compass.appName || '',
         'ImportErrorLogs',
         `import-${filename}.log`
       );
@@ -1293,7 +1293,6 @@ describe('Collection import', function () {
 
     const logFilePath = path.resolve(
       compass.userDataPath || '',
-      compass.appName || '',
       'ImportErrorLogs',
       `import-${fileName}.log`
     );

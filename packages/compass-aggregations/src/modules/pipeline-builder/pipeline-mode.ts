@@ -19,12 +19,12 @@ import type {
 
 export type PipelineMode = 'builder-ui' | 'as-text';
 
-export enum ActionTypes {
-  PipelineModeToggled = 'compass-aggregations/pipelineModeToggled',
-}
+export const ActionTypes = {
+  PipelineModeToggled: 'compass-aggregations/pipelineModeToggled',
+} as const;
 
 export type PipelineModeToggledAction = {
-  type: ActionTypes.PipelineModeToggled;
+  type: typeof ActionTypes.PipelineModeToggled;
   mode: PipelineMode;
   pipelineText: string;
   pipeline: Document[] | null;

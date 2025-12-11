@@ -5,12 +5,13 @@ import type Stage from './pipeline-builder/stage';
 import type { Document } from 'bson';
 import type { PipelineParserError } from './pipeline-builder/pipeline-parser/utils';
 
-export enum ActionTypes {
-  NewPipelineConfirmed = 'compass-aggregations/is-new-pipeline-confirm/newPipelineConfirmed',
-}
+export const ActionTypes = {
+  NewPipelineConfirmed:
+    'compass-aggregations/is-new-pipeline-confirm/newPipelineConfirmed',
+} as const;
 
 export type NewPipelineConfirmedAction = {
-  type: ActionTypes.NewPipelineConfirmed;
+  type: typeof ActionTypes.NewPipelineConfirmed;
   stages: Stage[];
   pipelineText: string;
   pipeline: Document[] | null;

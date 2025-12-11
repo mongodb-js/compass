@@ -28,7 +28,7 @@ import { CompassAssistantDrawer } from './compass-assistant-drawer';
 import { createBrokenTransport, createMockChat } from '../test/utils';
 import type { AtlasAiService } from '@mongodb-js/compass-generative-ai/provider';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
-import { createLogger } from '@mongodb-js/compass-logging';
+import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 
 function createMockProvider({
   mockAtlasService,
@@ -88,6 +88,8 @@ const TestComponent: React.FunctionComponent<{
 
   return (
     <DrawerContentProvider>
+      {/* Breaking this rule is fine while none of the tests try to re-render the content */}
+      {/* eslint-disable-next-line react-hooks/static-components */}
       <MockedProvider
         originForPrompt="mongodb-compass"
         appNameForPrompt="MongoDB Compass"
@@ -113,6 +115,8 @@ describe('useAssistantActions', function () {
 
       return (
         <DrawerContentProvider>
+          {/* Breaking this rule is fine while none of the tests try to re-render the content */}
+          {/* eslint-disable-next-line react-hooks/static-components */}
           <MockedProvider
             originForPrompt="mongodb-compass"
             appNameForPrompt="MongoDB Compass"
@@ -480,7 +484,7 @@ describe('CompassAssistantProvider', function () {
               .stub()
               .returns('https://localhost:3000'),
           } as unknown as AtlasService,
-          logger: createLogger('COMPASS-ASSISTANT-TEST'),
+          logger: createNoopLogger(),
           track: track as unknown as TrackFunction,
         });
         await renderOpenAssistantDrawer({
@@ -654,47 +658,42 @@ describe('CompassAssistantProvider', function () {
     });
   });
 
+  let sandbox: sinon.SinonSandbox;
+
+  beforeEach(function () {
+    sandbox = sinon.createSandbox();
+  });
+
+  afterEach(function () {
+    if (sandbox) {
+      sandbox.reset();
+    }
+  });
+
   it('uses the Atlas Service assistantApiEndpoint', async function () {
     const mockAtlasService = {
-      assistantApiEndpoint: sinon
+      assistantApiEndpoint: sandbox
         .stub()
         .returns('https://example.com/assistant/api/v1'),
     };
 
-    const mockAtlasAiService = {
-      ensureAiFeatureAccess: sinon.stub().callsFake(() => {
-        return Promise.resolve();
-      }),
-    };
-
-    const mockAtlasAuthService = {};
-
-    const MockedProvider = CompassAssistantProvider.withMockServices({
+    const chat = createDefaultChat({
+      originForPrompt: 'foo',
+      appNameForPrompt: 'bar',
       atlasService: mockAtlasService as unknown as AtlasService,
-      atlasAiService: mockAtlasAiService as unknown as AtlasAiService,
-      atlasAuthService: mockAtlasAuthService as unknown as AtlasAuthService,
+      logger: createNoopLogger(),
+      track: () => undefined,
     });
 
-    render(
-      <DrawerContentProvider>
-        <DrawerAnchor />
-        <MockedProvider
-          originForPrompt="mongodb-compass"
-          appNameForPrompt="MongoDB Compass"
-        />
-      </DrawerContentProvider>,
-      {
-        preferences: {
-          enableAIAssistant: true,
-          enableGenAIFeatures: true,
-          enableGenAIFeaturesAtlasOrg: true,
-          cloudFeatureRolloutAccess: { GEN_AI_COMPASS: true },
-        },
-      }
+    const fetchStub = sandbox
+      .stub(globalThis, 'fetch')
+      .resolves({ ok: true, headers: [] } as any);
+
+    await chat.sendMessage({ text: 'hello' });
+
+    expect(mockAtlasService.assistantApiEndpoint.calledOnce).to.be.true;
+    expect(fetchStub.lastCall.args[0]).to.eq(
+      'https://example.com/assistant/api/v1/responses'
     );
-
-    await waitFor(() => {
-      expect(mockAtlasService.assistantApiEndpoint.calledOnce).to.be.true;
-    });
   });
 });

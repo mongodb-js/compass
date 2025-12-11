@@ -16,6 +16,15 @@ import {
   AtlasAiServiceInvalidInputError,
   AtlasAiServiceApiResponseParseError,
 } from './atlas-ai-errors';
+import { createOpenAI } from '@ai-sdk/openai';
+import { type LanguageModel } from 'ai';
+import type { AiQueryPrompt } from './utils/gen-ai-prompt';
+import {
+  buildAggregateQueryPrompt,
+  buildFindQueryPrompt,
+} from './utils/gen-ai-prompt';
+import { parseXmlToJsonResponse } from './utils/parse-xml-response';
+import { getAiQueryResponse } from './utils/gen-ai-response';
 
 type GenerativeAiInput = {
   userInput: string;
@@ -36,14 +45,6 @@ type AIAggregation = {
   content: {
     aggregation?: {
       pipeline?: string;
-    };
-  };
-};
-
-type AIFeatureEnablement = {
-  features: {
-    [featureName: string]: {
-      enabled: boolean;
     };
   };
 };
@@ -208,10 +209,15 @@ const aiURLConfig = {
     query: 'unauth/ai/api/v1/mql-query',
   },
   cloud: {
-    aggregation: (groupId: string) => `ai/v1/groups/${groupId}/mql-aggregation`,
-    query: (groupId: string) => `ai/v1/groups/${groupId}/mql-query`,
-    'mock-data-schema': (groupId: string) =>
-      `ai/v1/groups/${groupId}/mock-data-schema`,
+    aggregation: (projectId: string) => {
+      return `ai/v1/groups/${projectId}/mql-aggregation`;
+    },
+    query: (projectId: string) => {
+      return `ai/v1/groups/${projectId}/mql-query`;
+    },
+    'mock-data-schema': (projectId: string) => {
+      return `ai/v1/groups/${projectId}/mock-data-schema`;
+    },
   },
 } as const;
 
@@ -266,6 +272,8 @@ export class AtlasAiService {
   private preferences: PreferencesAccess;
   private logger: Logger;
 
+  private aiModel: LanguageModel;
+
   constructor({
     apiURLPreset,
     atlasService,
@@ -281,8 +289,26 @@ export class AtlasAiService {
     this.atlasService = atlasService;
     this.preferences = preferences;
     this.logger = logger;
-
     this.initPromise = this.setupAIAccess();
+
+    const PLACEHOLDER_BASE_URL =
+      'http://PLACEHOLDER_BASE_URL_TO_BE_REPLACED.invalid';
+    this.aiModel = createOpenAI({
+      apiKey: '',
+      baseURL: PLACEHOLDER_BASE_URL,
+      fetch: (url, init) => {
+        // The `baseUrl` can be dynamically changed, but `createOpenAI`
+        // doesn't allow us to change it after initial call. Instead
+        // we're going to update it every time the fetch call happens
+        const uri = String(url).replace(
+          PLACEHOLDER_BASE_URL,
+          this.atlasService.assistantApiEndpoint()
+        );
+        return this.atlasService.authenticatedFetch(uri, init);
+      },
+      // TODO(COMPASS-10125): Switch the model to `mongodb-slim-latest` when
+      // enabling this feature (to use edu-chatbot for GenAI).
+    }).responses('mongodb-chat-latest');
   }
 
   /**
@@ -290,18 +316,11 @@ export class AtlasAiService {
    */
   private getUrlForEndpoint(
     resourceType: AIResourceType,
-    connectionInfo?: ConnectionInfo
+    { atlasMetadata }: ConnectionInfo
   ) {
-    if (this.apiURLPreset === 'cloud') {
-      const atlasMetadata = connectionInfo?.atlasMetadata;
-      if (!atlasMetadata) {
-        throw new AtlasAiServiceInvalidInputError(
-          "Can't perform generative ai request: atlasMetadata is not available"
-        );
-      }
-
+    if (atlasMetadata) {
       return this.atlasService.cloudEndpoint(
-        aiURLConfig[this.apiURLPreset][resourceType](atlasMetadata.projectId)
+        aiURLConfig.cloud[resourceType](atlasMetadata.projectId)
       );
     }
 
@@ -311,7 +330,7 @@ export class AtlasAiService {
       );
     }
 
-    const urlPath = aiURLConfig[this.apiURLPreset][resourceType];
+    const urlPath = aiURLConfig['admin-api'][resourceType];
     return this.atlasService.adminApiEndpoint(urlPath);
   }
 
@@ -353,8 +372,7 @@ export class AtlasAiService {
     }: {
       urlId: 'query' | 'aggregation';
       input: GenerativeAiInput;
-
-      connectionInfo?: ConnectionInfo;
+      connectionInfo: ConnectionInfo;
     },
     validationFn: (res: any) => asserts res is T
   ): Promise<T> => {
@@ -426,6 +444,14 @@ export class AtlasAiService {
     input: GenerativeAiInput,
     connectionInfo: ConnectionInfo
   ) {
+    if (this.preferences.getPreferences().enableChatbotEndpointForGenAI) {
+      const message = buildAggregateQueryPrompt(input);
+      return this.generateQueryUsingChatbot(
+        message,
+        validateAIAggregationResponse,
+        { signal: input.signal }
+      );
+    }
     return this.getQueryOrAggregationFromUserInput(
       {
         connectionInfo,
@@ -440,6 +466,12 @@ export class AtlasAiService {
     input: GenerativeAiInput,
     connectionInfo: ConnectionInfo
   ) {
+    if (this.preferences.getPreferences().enableChatbotEndpointForGenAI) {
+      const message = buildFindQueryPrompt(input);
+      return this.generateQueryUsingChatbot(message, validateAIQueryResponse, {
+        signal: input.signal,
+      });
+    }
     return this.getQueryOrAggregationFromUserInput(
       {
         urlId: 'query',
@@ -530,12 +562,19 @@ export class AtlasAiService {
     });
   }
 
-  private validateAIFeatureEnablementResponse(
-    response: any
-  ): asserts response is AIFeatureEnablement {
-    const { features } = response;
-    if (typeof features !== 'object') {
-      throw new Error('Unexpected response: expected features to be an object');
-    }
+  private async generateQueryUsingChatbot<T>(
+    message: AiQueryPrompt,
+    validateFn: (res: any) => asserts res is T,
+    options: { signal: AbortSignal }
+  ): Promise<T> {
+    this.throwIfAINotEnabled();
+    const response = await getAiQueryResponse(
+      this.aiModel,
+      message,
+      options.signal
+    );
+    const parsedResponse = parseXmlToJsonResponse(response, this.logger);
+    validateFn(parsedResponse);
+    return parsedResponse;
   }
 }

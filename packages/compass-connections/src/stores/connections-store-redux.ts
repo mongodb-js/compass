@@ -28,7 +28,7 @@ import {
 import { getNotificationTriggers } from '../components/connection-status-notifications';
 import { openToast, showConfirmation } from '@mongodb-js/compass-components';
 import { adjustConnectionOptionsBeforeConnect } from '@mongodb-js/connection-form';
-import mongodbBuildInfo, { getGenuineMongoDB } from 'mongodb-build-info';
+import { isAtlasStream } from 'mongodb-build-info';
 import EventEmitter from 'events';
 import { showNonGenuineMongoDBWarningModal as _showNonGenuineMongoDBWarningModal } from '../components/non-genuine-connection-modal';
 import { showEndOfLifeMongoDBWarningModal as _showEndOfLifeMongoDBWarningModal } from '../components/end-of-life-connection-modal';
@@ -221,126 +221,126 @@ export type ConnectionsThunkAction<
   A extends AnyAction = AnyAction
 > = ThunkAction<R, State, ThunkExtraArg, A>;
 
-export const enum ActionTypes {
+export const ActionTypes = {
   // Actions related to getting connections from the persistent store (like disk
   // or cloud backend)
-  ConnectionsLoadStart = 'ConnectionsLoadStart',
-  ConnectionsLoadSuccess = 'ConnectionsLoadSuccess',
-  ConnectionsLoadError = 'ConnectionsLoadError',
+  ConnectionsLoadStart: 'ConnectionsLoadStart',
+  ConnectionsLoadSuccess: 'ConnectionsLoadSuccess',
+  ConnectionsLoadError: 'ConnectionsLoadError',
 
-  ConnectionsRefreshStart = 'ConnectionsRefreshStart',
-  ConnectionsRefreshSuccess = 'ConnectionsRefreshSuccess',
-  ConnectionsRefreshError = 'ConnectionsRefreshError',
+  ConnectionsRefreshStart: 'ConnectionsRefreshStart',
+  ConnectionsRefreshSuccess: 'ConnectionsRefreshSuccess',
+  ConnectionsRefreshError: 'ConnectionsRefreshError',
 
   // Desktop-only connections import feature
-  ConnectionsImportParsingStart = 'ConnectionsImportParsingStart',
-  ConnectionsImportParsingFinish = 'ConnectionsImportParsingFinish',
-  ConnectionsImportStart = 'ConnectionsImportStart',
-  ConnectionsImportFinish = 'ConnectionsImportFinish',
+  ConnectionsImportParsingStart: 'ConnectionsImportParsingStart',
+  ConnectionsImportParsingFinish: 'ConnectionsImportParsingFinish',
+  ConnectionsImportStart: 'ConnectionsImportStart',
+  ConnectionsImportFinish: 'ConnectionsImportFinish',
 
   // Desktop-only connections export feature
-  ConnectionsExportStart = 'ConnectionsExportStart',
-  ConnectionsExportFinish = 'ConnectionsExportFinish',
+  ConnectionsExportStart: 'ConnectionsExportStart',
+  ConnectionsExportFinish: 'ConnectionsExportFinish',
 
   // Checking for the need to autoconnect on application start
-  ConnectionAutoconnectCheck = 'ConnectionAutoconnectCheck',
+  ConnectionAutoconnectCheck: 'ConnectionAutoconnectCheck',
 
   // Connection attempt related actions. Connection attempt can be triggered by
   // user actions or autoconnect
-  ConnectionAttemptStart = 'ConnectionAttemptStart',
-  ConnectionAttemptSuccess = 'ConnectionAttemptSuccess',
-  ConnectionAttemptError = 'ConnectionAttemptError',
-  ConnectionAttemptCancelled = 'ConnectionAttemptCancelled',
+  ConnectionAttemptStart: 'ConnectionAttemptStart',
+  ConnectionAttemptSuccess: 'ConnectionAttemptSuccess',
+  ConnectionAttemptError: 'ConnectionAttemptError',
+  ConnectionAttemptCancelled: 'ConnectionAttemptCancelled',
   // During the connection attempt process if OIDC auth flow requires manually
   // entering a device code on the external website. Only required for single
   // connection mode and can be removed afterwards
-  OidcNotifyDeviceAuth = 'OidcNotifyDeviceAuth',
-  Disconnect = 'Disconnect',
+  OidcNotifyDeviceAuth: 'OidcNotifyDeviceAuth',
+  Disconnect: 'Disconnect',
 
   // Actions related to modifying connection info
 
   // Anything that is triggered by the user from the UI through action buttons
   // and connection editing form
-  CreateNewConnection = 'CreateNewConnection',
-  DuplicateConnection = 'DuplicateConnection',
-  EditConnection = 'EditConnection',
+  CreateNewConnection: 'CreateNewConnection',
+  DuplicateConnection: 'DuplicateConnection',
+  EditConnection: 'EditConnection',
   // Opens a special favorite editing modal form. Only applicable for single
   // connection mode where the special form is accessible
-  EditConnectionFavoriteInfo = 'EditConnectionFavoriteInfo',
-  ToggleFavoriteConnection = 'ToggleFavoriteConnection',
-  CancelEditConnection = 'CancelEditConnection',
-  SaveEditedConnection = 'SaveEditedConnection',
+  EditConnectionFavoriteInfo: 'EditConnectionFavoriteInfo',
+  ToggleFavoriteConnection: 'ToggleFavoriteConnection',
+  CancelEditConnection: 'CancelEditConnection',
+  SaveEditedConnection: 'SaveEditedConnection',
   // When connection info is actually updated in storage. Can be a result of
   // events above, or implicitly triggered by the application flow: for example
   // when secrets are changed and we want to store the updated ones
-  SaveConnectionInfo = 'SaveConnectionInfo',
-  RemoveConnection = 'RemoveConnection',
-  RemoveAllRecentConnections = 'RemoveAllRecentConnections',
-}
+  SaveConnectionInfo: 'SaveConnectionInfo',
+  RemoveConnection: 'RemoveConnection',
+  RemoveAllRecentConnections: 'RemoveAllRecentConnections',
+} as const;
 
 type ConnectionsLoadStartAction = {
-  type: ActionTypes.ConnectionsLoadStart;
+  type: typeof ActionTypes.ConnectionsLoadStart;
 };
 
 type ConnectionsLoadSuccessAction = {
-  type: ActionTypes.ConnectionsLoadSuccess;
+  type: typeof ActionTypes.ConnectionsLoadSuccess;
   connections: ConnectionInfo[];
 };
 
 type ConnectionsLoadErrorAction = {
-  type: ActionTypes.ConnectionsLoadError;
+  type: typeof ActionTypes.ConnectionsLoadError;
   error: Error;
 };
 
 type ConnectionsRefreshStartAction = {
-  type: ActionTypes.ConnectionsRefreshStart;
+  type: typeof ActionTypes.ConnectionsRefreshStart;
 };
 
 type ConnectionsRefreshSuccessAction = {
-  type: ActionTypes.ConnectionsRefreshSuccess;
+  type: typeof ActionTypes.ConnectionsRefreshSuccess;
   connections: ConnectionInfo[];
 };
 
 type ConnectionsRefreshErrorAction = {
-  type: ActionTypes.ConnectionsRefreshError;
+  type: typeof ActionTypes.ConnectionsRefreshError;
   error: Error;
 };
 
 // TODO: move all import / export actions to connections store
 
 // type ConnectionsImportParsingStartAction = {
-//   type: ActionTypes.ConnectionsImportParsingStart;
+//   type: typeof ActionTypes.ConnectionsImportParsingStart;
 // };
 
 // type ConnectionsImportParsingFinishAction = {
-//   type: ActionTypes.ConnectionsImportParsingFinish;
+//   type: typeof ActionTypes.ConnectionsImportParsingFinish;
 //   connections: ConnectionInfo[];
 // };
 
 type ConnectionsImportStartAction = {
-  type: ActionTypes.ConnectionsImportStart;
+  type: typeof ActionTypes.ConnectionsImportStart;
 };
 
 type ConnectionsImportFinishAction = {
-  type: ActionTypes.ConnectionsImportFinish;
+  type: typeof ActionTypes.ConnectionsImportFinish;
   connections: ConnectionInfo[];
 };
 
 // type ConnectionsExportStartAction = {
-//   type: ActionTypes.ConnectionsExportStart;
+//   type: typeof ActionTypes.ConnectionsExportStart;
 // };
 
 // type ConnectionsExportFinishAction = {
-//   type: ActionTypes.ConnectionsExportFinish;
+//   type: typeof ActionTypes.ConnectionsExportFinish;
 // };
 
 type ConnectionAutoconnectCheckAction = {
-  type: ActionTypes.ConnectionAutoconnectCheck;
+  type: typeof ActionTypes.ConnectionAutoconnectCheck;
   connectionInfo: ConnectionInfo | undefined;
 };
 
 type ConnectionAttemptStartAction = {
-  type: ActionTypes.ConnectionAttemptStart;
+  type: typeof ActionTypes.ConnectionAttemptStart;
   connectionInfo: ConnectionInfo;
   options: {
     forceSave: boolean;
@@ -348,68 +348,68 @@ type ConnectionAttemptStartAction = {
 };
 
 type ConnectionAttemptSuccessAction = {
-  type: ActionTypes.ConnectionAttemptSuccess;
+  type: typeof ActionTypes.ConnectionAttemptSuccess;
   connectionId: ConnectionId;
 };
 
 type ConnectionAttemptErrorAction = {
-  type: ActionTypes.ConnectionAttemptError;
+  type: typeof ActionTypes.ConnectionAttemptError;
   connectionId: ConnectionId | null;
   error: Error;
 };
 
 type ConnectionAttemptCancelledAction = {
-  type: ActionTypes.ConnectionAttemptCancelled;
+  type: typeof ActionTypes.ConnectionAttemptCancelled;
   connectionId: ConnectionId;
 };
 
 type DisconnectAction = {
-  type: ActionTypes.Disconnect;
+  type: typeof ActionTypes.Disconnect;
   connectionId: ConnectionId;
 };
 
 type CreateNewConnectionAction = {
-  type: ActionTypes.CreateNewConnection;
+  type: typeof ActionTypes.CreateNewConnection;
 };
 
 type DuplicateConnectionAction = {
-  type: ActionTypes.DuplicateConnection;
+  type: typeof ActionTypes.DuplicateConnection;
   duplicateInfo: ConnectionInfo;
   isAutoDuplicate: boolean;
 };
 
 type EditConnectionAction = {
-  type: ActionTypes.EditConnection;
+  type: typeof ActionTypes.EditConnection;
   connectionId: ConnectionId;
 };
 
 type ToggleFavoriteConnectionAction = {
-  type: ActionTypes.ToggleFavoriteConnection;
+  type: typeof ActionTypes.ToggleFavoriteConnection;
   connectionId: ConnectionId;
 };
 
 type CancelEditConnectionAction = {
-  type: ActionTypes.CancelEditConnection;
+  type: typeof ActionTypes.CancelEditConnection;
   connectionId: ConnectionId;
 };
 
 type SaveEditedConnectionAction = {
-  type: ActionTypes.SaveEditedConnection;
+  type: typeof ActionTypes.SaveEditedConnection;
   connectionId: ConnectionId;
 };
 
 type SaveConnectionInfoAction = {
-  type: ActionTypes.SaveConnectionInfo;
+  type: typeof ActionTypes.SaveConnectionInfo;
   connectionInfo: ConnectionInfo;
 };
 
 type RemoveConnectionAction = {
-  type: ActionTypes.RemoveConnection;
+  type: typeof ActionTypes.RemoveConnection;
   connectionId: ConnectionId;
 };
 
 type RemoveAllRecentConnectionsActions = {
-  type: ActionTypes.RemoveAllRecentConnections;
+  type: typeof ActionTypes.RemoveAllRecentConnections;
 };
 
 function isAction<A extends AnyAction>(
@@ -1416,13 +1416,13 @@ function isAtlasStreamsInstance(
   adjustedConnectionInfoForConnection: ConnectionInfo
 ) {
   try {
-    return mongodbBuildInfo.isAtlasStream(
+    return isAtlasStream(
       adjustedConnectionInfoForConnection.connectionOptions.connectionString
     );
   } catch {
     // This catch-all is not ideal, but it safe-guards regular connections
     // instead of making assumptions on the fact that the implementation
-    // of `mongodbBuildInfo.isAtlasStream` would never throw.
+    // of `isAtlasStream` would never throw.
     return false;
   }
 }
@@ -1844,7 +1844,7 @@ const connectWithOptions = (
               is_dataLake: dataLake.isDataLake,
               is_enterprise: build.isEnterprise,
               is_genuine: genuineMongoDB.isGenuine,
-              non_genuine_server_name: genuineMongoDB.dbType,
+              non_genuine_server_name: genuineMongoDB.serverName,
               server_version: build.version,
               server_arch: host.arch,
               server_os_family: host.os_family,
@@ -1888,10 +1888,7 @@ const connectWithOptions = (
           connectionId: connectionInfo.id,
         });
 
-        if (
-          getGenuineMongoDB(connectionInfo.connectionOptions.connectionString)
-            .isGenuine === false
-        ) {
+        if (!instanceInfo.genuineMongoDB.isGenuine) {
           dispatch(showNonGenuineMongoDBWarningModal(connectionInfo.id));
         } else if (
           await shouldShowEndOfLifeWarning(
@@ -2103,10 +2100,9 @@ const cleanupConnection = (
     const connectionAttempt = ConnectionAttemptForConnection.get(connectionId);
     const dataService = DataServiceForConnection.get(connectionId);
 
-    void Promise.all([
-      connectionAttempt?.cancelConnectionAttempt(),
-      dataService?.disconnect(),
-    ]).then(
+    connectionAttempt?.cancelConnectionAttempt();
+
+    void dataService?.disconnect().then(
       () => {
         debug('connection closed', connectionId);
       },
@@ -2222,7 +2218,10 @@ export const removeAllRecentConnections = (): ConnectionsThunkAction<
       toRemove.map((connection) => {
         dispatch(cleanupConnection(connection.info.id));
         track('Connection Removed', {}, connection.info);
-        return connectionStorage.delete?.({ id: connection.info.id });
+        return (
+          connectionStorage.delete?.({ id: connection.info.id }) ??
+          Promise.resolve()
+        );
       })
     );
 
@@ -2246,15 +2245,13 @@ async function shouldShowEndOfLifeWarning(
   debug: Logger['debug']
 ) {
   try {
-    const { showEndOfLifeConnectionModal, networkTraffic } =
-      preferences.getPreferences();
-    if (!showEndOfLifeConnectionModal) {
-      return;
-    }
     const latestEndOfLifeServerVersion = await getLatestEndOfLifeServerVersion(
-      networkTraffic
+      preferences.getPreferences().networkTraffic
     );
-    return isEndOfLifeVersion(serverVersion, latestEndOfLifeServerVersion);
+    return (
+      preferences.getPreferences().showEndOfLifeConnectionModal &&
+      isEndOfLifeVersion(serverVersion, latestEndOfLifeServerVersion)
+    );
   } catch (err) {
     debug(
       'failed to get instance details to determine if the server version is end-of-life',
@@ -2268,10 +2265,24 @@ export const showEndOfLifeMongoDBWarningModal = (
   connectionId: string,
   version: string
 ): ConnectionsThunkAction<void> => {
-  return (_dispatch, getState, { track }) => {
+  return (_dispatch, getState, { track, preferences }) => {
+    const abortController = new AbortController();
+    const removeListener = preferences.onPreferenceValueChanged(
+      'showEndOfLifeConnectionModal',
+      (shouldShow) => {
+        if (!shouldShow) {
+          abortController.abort();
+          removeListener();
+        }
+      }
+    );
     const connectionInfo = getCurrentConnectionInfo(getState(), connectionId);
     track('Screen', { name: 'end_of_life_mongodb_modal' }, connectionInfo);
-    void _showEndOfLifeMongoDBWarningModal(connectionInfo, version);
+    void _showEndOfLifeMongoDBWarningModal(
+      connectionInfo,
+      version,
+      abortController.signal
+    );
   };
 };
 

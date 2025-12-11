@@ -10,7 +10,7 @@ import {
   userEvent,
 } from '@mongodb-js/testing-library-compass';
 import MultipleConnectionSidebar from './sidebar';
-import type { WorkspaceTab } from '@mongodb-js/compass-workspaces';
+import type { WorkspaceTab } from '@mongodb-js/workspace-info';
 import { WorkspacesProvider } from '@mongodb-js/compass-workspaces';
 import type { WorkspacesService } from '@mongodb-js/compass-workspaces/provider';
 import { WorkspacesServiceProvider } from '@mongodb-js/compass-workspaces/provider';
@@ -54,7 +54,7 @@ describe('Multiple Connections Sidebar Component', function () {
     _id: '1',
     status: 'ready',
     genuineMongoDB: {
-      dbType: 'local',
+      serverName: 'mongodb',
       isGenuine: true,
     },
     build: {
@@ -278,7 +278,7 @@ describe('Multiple Connections Sidebar Component', function () {
       it('should display an empty state with a CTA to add new connection', function () {
         doRender(undefined, []);
 
-        expect(() => screen.getByRole('tree')).to.throw;
+        expect(() => screen.getByRole('tree')).to.throw();
 
         const ctaText = screen.getByText(
           'You have not connected to any deployments.'

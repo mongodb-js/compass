@@ -1,10 +1,7 @@
 import type AppRegistry from '@mongodb-js/compass-app-registry';
 import type { ActivateHelpers } from '@mongodb-js/compass-app-registry';
 import { registerCompassPlugin } from '@mongodb-js/compass-app-registry';
-import type {
-  OpenWorkspaceOptions,
-  CollectionTabInfo,
-} from './stores/workspaces';
+import type { OpenWorkspaceOptions } from './stores/workspaces';
 import workspacesReducer, {
   collectionRemoved,
   collectionRenamed,
@@ -14,11 +11,13 @@ import workspacesReducer, {
   connectionDisconnected,
   updateDatabaseInfo,
   updateCollectionInfo,
+  loadSavedWorkspaces,
   beforeUnloading,
 } from './stores/workspaces';
 import Workspaces from './components';
 import { applyMiddleware, createStore } from 'redux';
 import thunk from 'redux-thunk';
+import { workspacesStateChangeMiddleware } from './stores/workspaces-middleware';
 import type { MongoDBInstance } from '@mongodb-js/compass-app-stores/provider';
 import { mongoDBInstancesManagerLocator } from '@mongodb-js/compass-app-stores/provider';
 import type Collection from 'mongodb-collection-model';
@@ -37,6 +36,9 @@ import {
 } from '@mongodb-js/compass-app-stores/provider';
 import type { PreferencesAccess } from 'compass-preferences-model/provider';
 import { preferencesLocator } from 'compass-preferences-model/provider';
+import { workspacesStorageServiceLocator } from './services/workspaces-storage';
+import type { WorkspacesStateSchema } from '@mongodb-js/workspace-info';
+import { type IUserData } from '@mongodb-js/compass-user-data';
 
 export type WorkspacesServices = {
   globalAppRegistry: AppRegistry;
@@ -44,6 +46,7 @@ export type WorkspacesServices = {
   connections: ConnectionsService;
   logger: Logger;
   preferences: PreferencesAccess;
+  userData: IUserData<typeof WorkspacesStateSchema>;
 };
 
 export function configureStore(
@@ -65,7 +68,10 @@ export function configureStore(
       collectionInfo: {},
       databaseInfo: {},
     },
-    applyMiddleware(thunk.withExtraArgument(services))
+    applyMiddleware(
+      thunk.withExtraArgument(services),
+      workspacesStateChangeMiddleware(services)
+    )
   );
 
   return store;
@@ -85,6 +91,7 @@ export function activateWorkspacePlugin(
     connections,
     logger,
     preferences,
+    userData,
   }: WorkspacesServices,
   { on, cleanup, addCleanup }: ActivateHelpers
 ) {
@@ -94,7 +101,10 @@ export function activateWorkspacePlugin(
     connections,
     logger,
     preferences,
+    userData,
   });
+
+  void store.dispatch(loadSavedWorkspaces());
 
   addCleanup(cleanupLocalAppRegistries);
 
@@ -188,25 +198,14 @@ const WorkspacesPlugin = registerCompassPlugin(
     connections: connectionsLocator,
     logger: createLoggerLocator('COMPASS-WORKSPACES-UI'),
     preferences: preferencesLocator,
+    userData: workspacesStorageServiceLocator,
   }
 );
 
 export default WorkspacesPlugin;
 export { WorkspacesProvider } from './components/workspaces-provider';
-export type { OpenWorkspaceOptions, CollectionTabInfo };
-export type {
-  WelcomeWorkspace,
-  MyQueriesWorkspace,
-  DataModelingWorkspace,
-  ServerStatsWorkspace,
-  ShellWorkspace,
-  DatabasesWorkspace,
-  CollectionsWorkspace,
-  CollectionWorkspace,
-  AnyWorkspace,
-  Workspace,
-  WorkspacePlugin,
-  WorkspaceTab,
-  CollectionSubtab,
-  WorkspacePluginProps,
-} from './types';
+
+export { WorkspacesStorageServiceProviderDesktop } from './services/workspaces-storage-desktop';
+export { WorkspacesStorageServiceProviderWeb } from './services/workspaces-storage-web';
+
+export type { OpenWorkspaceOptions } from './stores/workspaces';

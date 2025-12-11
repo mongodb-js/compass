@@ -24,11 +24,13 @@ import {
   removeField,
   renameField,
   changeFieldType,
+  toggleCollectionExpanded,
 } from '../store/diagram';
 import type {
   EdgeProps,
   NodeProps,
   DiagramProps,
+  FieldId,
 } from '@mongodb-js/compass-components';
 import {
   Banner,
@@ -45,6 +47,8 @@ import {
   Diagram,
   useDiagram,
   useHotkeys,
+  useFocusStateIncludingUnfocused,
+  FocusStates,
 } from '@mongodb-js/compass-components';
 import { cancelAnalysis, retryAnalysis } from '../store/analysis-process';
 import type { FieldPath, StaticModel } from '../services/data-model-storage';
@@ -58,6 +62,8 @@ import {
 } from '../utils/nodes-and-edges';
 import toNS from 'mongodb-ns';
 import { FIELD_TYPES } from '../utils/field-types';
+import { getNamespaceRelationships } from '../utils/utils';
+import { usePreference } from 'compass-preferences-model/provider';
 
 const loadingContainerStyles = css({
   width: '100%',
@@ -139,6 +145,10 @@ const modelPreviewStyles = css({
   },
 });
 
+const displayContentsStyles = css({
+  display: 'contents',
+});
+
 const ZOOM_OPTIONS = {
   maxZoom: 1,
   minZoom: 0.25,
@@ -153,17 +163,30 @@ const DiagramContent: React.FunctionComponent<{
   model: StaticModel | null;
   isInRelationshipDrawingMode: boolean;
   newCollection?: string;
-  onAddFieldToObjectField: (ns: string, parentPath: string[]) => void;
-  onAddNewFieldToCollection: (ns: string) => void;
+  onAddFieldToObjectField: (
+    ns: string,
+    parentPath: string[],
+    source: 'side_panel' | 'diagram'
+  ) => void;
+  onAddNewFieldToCollection: (
+    ns: string,
+    source: 'side_panel' | 'diagram'
+  ) => void;
   onMoveCollection: (ns: string, newPosition: [number, number]) => void;
   onCollectionSelect: (namespace: string) => void;
   onRelationshipSelect: (rId: string) => void;
   onFieldSelect: (namespace: string, fieldPath: FieldPath) => void;
-  onRenameField: (
-    namespace: string,
-    fieldPath: FieldPath,
-    newName: string
-  ) => void;
+  onRenameField: ({
+    ns,
+    field,
+    newName,
+    source,
+  }: {
+    ns: string;
+    field: FieldPath;
+    newName: string;
+    source: 'diagram';
+  }) => void;
   onChangeFieldType: (data: {
     ns: string;
     fieldPath: FieldPath;
@@ -183,6 +206,7 @@ const DiagramContent: React.FunctionComponent<{
   }) => void;
   onRelationshipDrawn: () => void;
   DiagramComponent?: typeof Diagram;
+  onToggleCollectionExpanded: (namespace: string) => void;
 }> = ({
   diagramLabel,
   database,
@@ -206,8 +230,10 @@ const DiagramContent: React.FunctionComponent<{
   onDeleteField,
   selectedItems,
   DiagramComponent = Diagram,
+  onToggleCollectionExpanded,
 }) => {
   const isDarkMode = useDarkMode();
+  const isCollapseFlagEnabled = usePreference('enableDataModelingCollapse');
   const diagram = useRef(useDiagram());
   const { openDrawer } = useDrawerActions();
   const { isDrawerOpen } = useDrawerState();
@@ -232,6 +258,10 @@ const DiagramContent: React.FunctionComponent<{
         !!selectedItems &&
         selectedItems.type === 'collection' &&
         selectedItems.id === coll.ns;
+      const relationships = getNamespaceRelationships(
+        coll.ns,
+        model?.relationships
+      );
       return collectionToDiagramNode({
         ...coll,
         highlightedFields,
@@ -241,6 +271,8 @@ const DiagramContent: React.FunctionComponent<{
             : undefined,
         selected,
         isInRelationshipDrawingMode,
+        relationships,
+        isExpanded: coll.isExpanded,
       });
     });
   }, [
@@ -333,9 +365,24 @@ const DiagramContent: React.FunctionComponent<{
   );
 
   const onFieldClick = useCallback(
-    (_evt: React.MouseEvent, { id: fieldPath, nodeId: namespace }) => {
+    (
+      _evt: React.MouseEvent,
+      { id, nodeId: namespace }: { id: FieldId; nodeId: string }
+    ) => {
+      // Diagramming package accepts both string ids and array of string ids for
+      // fields (to represent the field path better). While all current code in
+      // compass always uses array of strings as field id, some older saved
+      // diagrams might not. Also handling this explicitly is sort of needed
+      // anyway to convince typescript that we're doing the right thing
+      const fieldPath = Array.isArray(id)
+        ? id
+        : typeof id === 'string'
+        ? [id]
+        : undefined;
+      if (!fieldPath) {
+        return;
+      }
       _evt.stopPropagation(); // TODO(COMPASS-9659): should this be handled by the diagramming package?
-      if (!Array.isArray(fieldPath)) return; // TODO(COMPASS-9659): could be avoided with generics in the diagramming package
       onFieldSelect(namespace, fieldPath);
       openDrawer(DATA_MODELING_DRAWER_ID);
     },
@@ -363,14 +410,14 @@ const DiagramContent: React.FunctionComponent<{
   const onClickAddFieldToCollection = useCallback(
     (event: React.MouseEvent<Element>, ns: string) => {
       event.stopPropagation();
-      onAddNewFieldToCollection(ns);
+      onAddNewFieldToCollection(ns, 'diagram');
     },
     [onAddNewFieldToCollection]
   );
 
   const onClickAddFieldToObjectField = useCallback(
     (event: React.MouseEvent, nodeId: string, parentPath: string[]) => {
-      onAddFieldToObjectField(nodeId, parentPath);
+      onAddFieldToObjectField(nodeId, parentPath, 'diagram');
     },
     [onAddFieldToObjectField]
   );
@@ -411,6 +458,15 @@ const DiagramContent: React.FunctionComponent<{
     [onDiagramBackgroundClicked]
   );
 
+  const handleNodeExpandedToggle = useCallback(
+    (evt: React.MouseEvent, nodeId: string) => {
+      evt.preventDefault();
+      evt.stopPropagation();
+      onToggleCollectionExpanded(nodeId);
+    },
+    [onToggleCollectionExpanded]
+  );
+
   const diagramProps: DiagramProps = useMemo(
     () =>
       ({
@@ -424,11 +480,14 @@ const DiagramContent: React.FunctionComponent<{
         onPaneClick,
         onEdgeClick,
         onFieldClick,
-        onFieldNameChange: onRenameField,
+        onFieldNameChange: (ns, field, newName) =>
+          onRenameField({ ns, field, newName, source: 'diagram' }),
         onFieldTypeChange,
         onNodeDragStop,
         onConnect,
-        fieldTypes: FIELD_TYPES,
+        onNodeExpandToggle: isCollapseFlagEnabled
+          ? handleNodeExpandedToggle
+          : undefined,
       } satisfies DiagramProps),
     [
       isDarkMode,
@@ -445,6 +504,8 @@ const DiagramContent: React.FunctionComponent<{
       onFieldTypeChange,
       onNodeDragStop,
       onConnect,
+      handleNodeExpandedToggle,
+      isCollapseFlagEnabled,
     ]
   );
 
@@ -513,6 +574,7 @@ const ConnectedDiagramContent = connect(
     onDeleteCollection: deleteCollection,
     onDeleteRelationship: deleteRelationship,
     onDeleteField: removeField,
+    onToggleCollectionExpanded: toggleCollectionExpanded,
   }
 )(DiagramContent);
 
@@ -549,6 +611,8 @@ const DiagramEditor: React.FunctionComponent<{
     onAddCollectionClick();
     openDrawer(DATA_MODELING_DRAWER_ID);
   }, [openDrawer, onAddCollectionClick]);
+
+  const [focusProps, focusState] = useFocusStateIncludingUnfocused();
 
   if (step === 'NO_DIAGRAM_SELECTED') {
     return null;
@@ -595,18 +659,21 @@ const DiagramEditor: React.FunctionComponent<{
   }
 
   return (
-    <WorkspaceContainer
-      toolbar={
-        <DiagramEditorToolbar
-          onRelationshipDrawingToggle={handleRelationshipDrawingToggle}
-          isInRelationshipDrawingMode={isInRelationshipDrawingMode}
-          onAddCollectionClick={handleAddCollectionClick}
-        />
-      }
-    >
-      {content}
-      <ExportDiagramModal />
-    </WorkspaceContainer>
+    <div className={displayContentsStyles} {...focusProps}>
+      <WorkspaceContainer
+        toolbar={
+          <DiagramEditorToolbar
+            diagramEditorHasFocus={focusState !== FocusStates.NoFocus}
+            onRelationshipDrawingToggle={handleRelationshipDrawingToggle}
+            isInRelationshipDrawingMode={isInRelationshipDrawingMode}
+            onAddCollectionClick={handleAddCollectionClick}
+          />
+        }
+      >
+        {content}
+        <ExportDiagramModal />
+      </WorkspaceContainer>
+    </div>
   );
 };
 

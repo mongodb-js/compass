@@ -16,7 +16,6 @@ import type {
 import EventEmitter from 'events';
 import type { ClientMockOptions } from '../test/helpers';
 import { createMongoClientMock } from '../test/helpers';
-import { AbortController } from '../test/mocks';
 import { createClonedClient } from './connect-mongo-client';
 import { runCommand } from './run-command';
 import { mochaTestServer } from '@mongodb-js/compass-test-server';
@@ -115,7 +114,7 @@ describe('DataService', function () {
         fatal: () => {},
       };
 
-      let dataServiceLogTest;
+      let dataServiceLogTest: DataService | undefined;
 
       beforeEach(function () {
         logs.length = 0;
@@ -153,12 +152,14 @@ describe('DataService', function () {
         const { info: [, , , , startedAttr] = [] } = startedLog ?? {};
         expect(startedAttr).to.have.property(
           'connectionId',
-          dataServiceLogTest._id
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (dataServiceLogTest as any)._id
         );
         const { info: [, , , , succeededAttr] = [] } = succeededLog ?? {};
         expect(succeededAttr).to.have.property(
           'connectionId',
-          dataServiceLogTest._id
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (dataServiceLogTest as any)._id
         );
       });
 
@@ -197,12 +198,14 @@ describe('DataService', function () {
         const { info: [, , , , startedAttr] = [] } = startedLog ?? {};
         expect(startedAttr).to.have.property(
           'connectionId',
-          dataServiceLogTest._id
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (dataServiceLogTest as any)._id
         );
         const { info: [, , , , succeededAttr] = [] } = failedLog ?? {};
         expect(succeededAttr).to.have.property(
           'connectionId',
-          dataServiceLogTest._id
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (dataServiceLogTest as any)._id
         );
       });
     });
@@ -269,17 +272,17 @@ describe('DataService', function () {
           connectionId,
           duration: 400,
           failure: new Error('fail'),
-        });
+        } as any);
         client.emit('serverHeartbeatFailed', {
           connectionId,
           duration: 600,
           failure: new Error('fail'),
-        });
+        } as any);
         client.emit('serverHeartbeatFailed', {
           connectionId,
           duration: 800,
           failure: new Error('fail'),
-        });
+        } as any);
         const logEntries = [
           // Picking the attrs part of the log
           ...logger.debug.args.map((args) => args[4]),
@@ -630,7 +633,8 @@ describe('DataService', function () {
         it('returns an object with the collection stats', async function () {
           const stats = await dataService.collectionStats(
             testDatabaseName,
-            testCollectionName
+            testCollectionName,
+            'collection'
           );
           expect(stats.name).to.equal(testCollectionName);
         });
@@ -766,6 +770,57 @@ describe('DataService', function () {
             expectedCollections
           );
         });
+      });
+    });
+
+    describe('#collectionStats with timeseries', function () {
+      it('returns an object with the collection stats including bucket stats', async function () {
+        const timeseriesCollectionName = `timeseries-${new UUID().toString()}`;
+
+        try {
+          // Create a timeseries collection
+          await mongoClient
+            .db(testDatabaseName)
+            .createCollection(timeseriesCollectionName, {
+              timeseries: {
+                timeField: 'timestamp',
+                metaField: 'metadata',
+              },
+            });
+          // Insert some data into the timeseries collection
+          await mongoClient
+            .db(testDatabaseName)
+            .collection(timeseriesCollectionName)
+            .insertMany([
+              {
+                timestamp: new Date(),
+                metadata: { sensor: 'A' },
+                value: 10,
+              },
+              {
+                timestamp: new Date(),
+                metadata: { sensor: 'B' },
+                value: 20,
+              },
+            ]);
+
+          const stats = await dataService.collectionStats(
+            testDatabaseName,
+            timeseriesCollectionName,
+            'timeseries'
+          );
+          expect(stats.name).to.equal(timeseriesCollectionName);
+          // Timeseries collections should have bucket stats
+          expect(stats).to.have.property('bucket_count');
+          expect(stats).to.have.property('avg_bucket_size');
+        } finally {
+          // Clean up the timeseries collection
+          await mongoClient
+            .db(testDatabaseName)
+            .collection(timeseriesCollectionName)
+            .drop()
+            .catch(() => null);
+        }
       });
     });
 
@@ -1085,7 +1140,7 @@ describe('DataService', function () {
         const instance = await dataService.instance();
         expect(instance.genuineMongoDB).to.deep.equal({
           isGenuine: true,
-          dbType: 'mongodb',
+          serverName: 'mongodb',
         });
         expect(instance.dataLake).to.deep.equal({
           isDataLake: false,
@@ -1431,7 +1486,7 @@ describe('DataService', function () {
         const topology = dataService.getLastSeenTopology();
 
         expect(topology).to.not.be.null;
-        expect(topology!.servers.values().next().value.address).to.be.a(
+        expect(topology!.servers.values().next().value!.address).to.be.a(
           'string'
         );
 
@@ -1554,6 +1609,24 @@ describe('DataService', function () {
         expect(commandSpy.args[0][0]).to.deep.equal({
           killSessions: [session.id],
         });
+      });
+    });
+
+    describe('#fetchShardKey', function () {
+      beforeEach(async function () {
+        await mongoClient
+          .db(testDatabaseName)
+          .collection(testCollectionName)
+          .createIndex(
+            {
+              a: 1,
+            },
+            {}
+          );
+      });
+
+      it('fetches the shard key (there is none in this test)', async function () {
+        expect(await dataService.fetchShardKey(testNamespace)).to.equal(null);
       });
     });
 
@@ -2006,6 +2079,122 @@ describe('DataService', function () {
 
         const count = await replDataService.count(namespace, {});
         expect(count).to.equal(100);
+      });
+    });
+  });
+
+  context('with real sharded cluster', function () {
+    this.slow(10_000);
+    this.timeout(20_000);
+
+    const cluster = mochaTestServer({
+      topology: 'sharded',
+      secondaries: 0,
+    });
+
+    let dataService: DataServiceImpl;
+    let mongoClient: MongoClient;
+    let connectionOptions: ConnectionOptions;
+    let testCollectionName: string;
+    let testDatabaseName: string;
+    let testNamespace: string;
+
+    before(async function () {
+      testDatabaseName = `compass-data-service-sharded-tests`;
+      const connectionString = cluster().connectionString;
+      connectionOptions = {
+        connectionString,
+      };
+
+      mongoClient = new MongoClient(connectionOptions.connectionString);
+      await mongoClient.connect();
+
+      dataService = new DataServiceImpl(connectionOptions);
+      await dataService.connect();
+    });
+
+    after(async function () {
+      // eslint-disable-next-line no-console
+      await dataService?.disconnect().catch(console.log);
+      await mongoClient?.close();
+    });
+
+    beforeEach(async function () {
+      testCollectionName = `coll-${new UUID().toString()}`;
+      testNamespace = `${testDatabaseName}.${testCollectionName}`;
+
+      await mongoClient
+        .db(testDatabaseName)
+        .collection(testCollectionName)
+        .insertMany(TEST_DOCS);
+
+      await mongoClient
+        .db(testDatabaseName)
+        .collection(testCollectionName)
+        .createIndex(
+          {
+            a: 1,
+          },
+          {}
+        );
+    });
+
+    afterEach(async function () {
+      sinon.restore();
+
+      await mongoClient
+        .db(testDatabaseName)
+        .collection(testCollectionName)
+        .drop();
+    });
+
+    describe('with a sharded collection', function () {
+      beforeEach(async function () {
+        await runCommand(dataService['_database']('admin', 'META'), {
+          shardCollection: testNamespace,
+          key: {
+            a: 1,
+          },
+          // We don't run the shardCollection command outside of tests
+          // so it isn't part of the runCommand type.
+        } as unknown as Parameters<typeof runCommand>[1]);
+      });
+
+      describe('#fetchShardKey', function () {
+        it('fetches the shard key', async function () {
+          expect(await dataService.fetchShardKey(testNamespace)).to.deep.equal({
+            a: 1,
+          });
+
+          // Can be cancelled.
+          const abortController = new AbortController();
+          const abortSignal = abortController.signal;
+          const promise = dataService
+            .fetchShardKey(
+              testNamespace,
+              {},
+              { abortSignal: abortSignal as unknown as AbortSignal }
+            )
+            .catch((err) => err);
+          abortController.abort();
+          const error = await promise;
+
+          expect(dataService.isCancelError(error)).to.be.true;
+        });
+      });
+
+      describe('#indexes', function () {
+        it('includes the shard key', async function () {
+          const indexes = await dataService.indexes(testNamespace);
+
+          expect(indexes.length).to.equal(2);
+          expect(
+            indexes.find((index) => index.key._id === 1)?.properties
+          ).to.not.include('shardKey');
+          expect(
+            indexes.find((index) => index.key.a === 1)?.properties
+          ).to.include('shardKey');
+        });
       });
     });
   });

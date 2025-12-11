@@ -8,6 +8,29 @@ import { Semaphore } from './semaphore';
 
 const { log, mongoLogId } = createLogger('COMPASS-USER-STORAGE');
 
+const validUserDataTypes = [
+  'RecentQueries',
+  'FavoriteQueries',
+  'SavedPipelines',
+  'DataModelDescriptions',
+  'WorkspacesState',
+  'AppPreferences',
+  'Users',
+  'Connections',
+  'AtlasState',
+  'ShellHistory',
+] as const;
+
+export type UserDataType = (typeof validUserDataTypes)[number];
+
+export function assertsUserDataType(
+  value: unknown
+): asserts value is UserDataType {
+  if (!validUserDataTypes.includes(value as UserDataType)) {
+    throw new Error(`Invalid UserDataType: ${String(value)}`);
+  }
+}
+
 type SerializeContent<I> = (content: I) => string;
 type DeserializeContent = (content: string) => unknown;
 type GetResourceUrl = (path?: string) => string;
@@ -42,12 +65,12 @@ export interface ReadAllResult<T extends z.Schema> {
 
 export abstract class IUserData<T extends z.Schema> {
   protected readonly validator: T;
-  protected readonly dataType: string;
+  protected readonly dataType: UserDataType;
   protected readonly serialize: SerializeContent<z.input<T>>;
   protected readonly deserialize: DeserializeContent;
   constructor(
     validator: T,
-    dataType: string,
+    dataType: UserDataType,
     {
       serialize = (content: z.input<T>) => JSON.stringify(content, null, 2),
       deserialize = JSON.parse,
@@ -81,7 +104,7 @@ export class FileUserData<T extends z.Schema> extends IUserData<T> {
 
   constructor(
     validator: T,
-    dataType: string,
+    dataType: UserDataType,
     { basePath, serialize, deserialize }: FileUserDataOptions<z.input<T>>
   ) {
     super(validator, dataType, { serialize, deserialize });
@@ -100,6 +123,66 @@ export class FileUserData<T extends z.Schema> extends IUserData<T> {
     await fs.mkdir(root, { recursive: true });
 
     return root;
+  }
+
+  /**
+   * Migrates data from an old folder name to the current dataType folder.
+   * This is useful when renaming a dataType while preserving existing user data.
+   *
+   * @param oldDataType - The old folder name to migrate from
+   * @returns Promise<boolean> - true if migration was performed, false if not needed or failed
+   */
+  async migrateFromOldFolder(oldDataType: string): Promise<boolean> {
+    if (oldDataType === this.dataType) {
+      return false;
+    }
+
+    try {
+      const basepath = this.basePath ? this.basePath : getStoragePath();
+      const oldFolderPath = path.join(basepath, oldDataType);
+      const newFolderPath = path.join(basepath, this.dataType);
+
+      // Attempt to rename directly - if it succeeds, migration happened
+      // If it fails, we handle the specific error cases
+      await fs.rename(oldFolderPath, newFolderPath);
+
+      log.info(
+        mongoLogId(1_001_000_382),
+        'Filesystem',
+        'Successfully migrated data folder',
+        {
+          from: oldDataType,
+          to: this.dataType,
+        }
+      );
+      return true;
+    } catch (error) {
+      const err = error as NodeJS.ErrnoException;
+
+      // ENOENT means old folder doesn't exist - nothing to migrate
+      if (err.code === 'ENOENT') {
+        return false;
+      }
+
+      // EEXIST or ENOTEMPTY means new folder already exists
+      // This could mean migration already happened or user has new data
+      if (err.code === 'EEXIST' || err.code === 'ENOTEMPTY') {
+        return false;
+      }
+
+      // Any other error is a real failure
+      log.error(
+        mongoLogId(1_001_000_383),
+        'Filesystem',
+        'Failed to migrate data folder',
+        {
+          from: oldDataType,
+          to: this.dataType,
+          error: err.message,
+        }
+      );
+      return false;
+    }
   }
 
   private async getFileAbsolutePath(filepath?: string): Promise<string> {
@@ -281,7 +364,7 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
   private projectId: string = '';
   constructor(
     validator: T,
-    dataType: string,
+    dataType: UserDataType,
     {
       orgId,
       projectId,
@@ -306,7 +389,7 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
           `${this.dataType}/${this.orgId}/${this.projectId}/${id}`
         ),
         {
-          method: 'POST',
+          method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
           },

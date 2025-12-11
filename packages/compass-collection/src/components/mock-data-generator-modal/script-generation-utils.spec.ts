@@ -1,5 +1,6 @@
 import { expect } from 'chai';
 import { faker } from '@faker-js/faker/locale/en';
+import { ObjectId } from 'bson';
 import { generateScript, generateDocument } from './script-generation-utils';
 import type { FakerFieldMapping } from './types';
 import { UNRECOGNIZED_FAKER_METHOD } from '../../modules/collection-tab';
@@ -26,17 +27,19 @@ function testDocumentCodeExecution(script: string): any {
   const returnExpression = returnMatch![1];
 
   // Create a new function
-  // This is equivalent to: function(faker) { return <returnExpression>; }
+  // This is equivalent to: function(faker, ObjectId) { return <returnExpression>; }
   // The 'faker' parameter will receive the real faker.js library when we pass it in on call
+  // The 'ObjectId' parameter will receive the BSON ObjectId constructor
   // eslint-disable-next-line @typescript-eslint/no-implied-eval
   const generateDocument = new Function(
     'faker', // Parameter name for the faker library
+    'ObjectId', // Parameter name for the ObjectId constructor
     `return ${returnExpression};` // Function body: return the document structure
   );
 
-  // Execute the function with the real faker library
+  // Execute the function with the real faker library and ObjectId constructor
   // This actually generates a document using faker methods and returns it
-  return generateDocument(faker);
+  return generateDocument(faker, ObjectId);
 }
 
 describe('Script Generation', () => {
@@ -941,10 +944,49 @@ describe('Script Generation', () => {
 
       expect(result.success).to.equal(true);
       if (result.success) {
-        expect(result.script).to.contain('faker.database.mongodbObjectId()');
+        expect(result.script).to.contain('new ObjectId()');
 
         // Test that the generated document code is executable
-        testDocumentCodeExecution(result.script);
+        const document = testDocumentCodeExecution(result.script);
+        expect(document).to.be.an('object');
+        expect(document).to.have.property('unknownId');
+        expect(document.unknownId).to.be.instanceOf(ObjectId);
+      }
+    });
+
+    it('should use direct new ObjectId() generation for ObjectId fields', () => {
+      const schema = {
+        _id: {
+          mongoType: 'ObjectId' as const,
+          fakerMethod: 'database.mongodbObjectId',
+          fakerArgs: [],
+        },
+        movie_id: {
+          mongoType: 'ObjectId' as const,
+          fakerMethod: 'database.mongodbObjectId',
+          fakerArgs: [],
+        },
+      };
+
+      const result = generateScript(schema, {
+        databaseName: 'testdb',
+        collectionName: 'test',
+        documentCount: 1,
+      });
+
+      expect(result.success).to.equal(true);
+      if (result.success) {
+        // Check that ObjectId fields use direct new ObjectId() generation
+        expect(result.script).to.contain('_id: new ObjectId()');
+        expect(result.script).to.contain('movie_id: new ObjectId()');
+
+        // Test that the generated document code is executable and produces ObjectId instances
+        const document = testDocumentCodeExecution(result.script);
+        expect(document).to.be.an('object');
+        expect(document).to.have.property('_id');
+        expect(document).to.have.property('movie_id');
+        expect(document._id).to.be.instanceOf(ObjectId);
+        expect(document.movie_id).to.be.instanceOf(ObjectId);
       }
     });
 

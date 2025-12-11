@@ -375,10 +375,12 @@ export interface DataService {
    *
    * @param databaseName - The database name.
    * @param collectionName - The collection name.
+   * @param collectionType - The collection type ('collection', 'view', or 'timeseries').
    */
   collectionStats(
     databaseName: string,
-    collectionName: string
+    collectionName: string,
+    collectionType: 'collection' | 'view' | 'timeseries'
   ): Promise<CollectionStats>;
 
   /**
@@ -732,6 +734,19 @@ export interface DataService {
       fallbackReadPreference?: ReadPreferenceMode;
     }
   ): Promise<Document[]>;
+
+  /**
+   * Fetch shard keys for the collection from the collections config.
+   *
+   * @param ns - The namespace to try to find shard key for.
+   * @param options - The query options.
+   * @param executionOptions - The execution options.
+   */
+  fetchShardKey(
+    ns: string,
+    options?: Omit<FindOptions, 'projection'>,
+    executionOptions?: ExecutionOptions
+  ): Promise<Record<string, unknown> | null>;
 
   /*** Insert ***/
 
@@ -1169,56 +1184,75 @@ class DataServiceImpl extends WithLogContext implements DataService {
   })
   async collectionStats(
     databaseName: string,
-    collectionName: string
+    collectionName: string,
+    collectionType: 'collection' | 'view' | 'timeseries'
   ): Promise<CollectionStats> {
     const ns = `${databaseName}.${collectionName}`;
 
     try {
       const coll = this._collection(ns, 'CRUD');
+
+      // Build the aggregation pipeline dynamically based on collection type
+      const groupStage: Record<string, unknown> = {
+        _id: null,
+        capped: { $first: '$storageStats.capped' },
+        count: { $sum: '$storageStats.count' },
+        size: { $sum: { $toDouble: '$storageStats.size' } },
+        storageSize: {
+          $sum: { $toDouble: '$storageStats.storageSize' },
+        },
+        totalIndexSize: {
+          $sum: { $toDouble: '$storageStats.totalIndexSize' },
+        },
+        freeStorageSize: {
+          $sum: { $toDouble: '$storageStats.freeStorageSize' },
+        },
+        unscaledCollSize: {
+          $sum: {
+            $multiply: [
+              { $toDouble: '$storageStats.avgObjSize' },
+              { $toDouble: '$storageStats.count' },
+            ],
+          },
+        },
+        nindexes: { $max: '$storageStats.nindexes' },
+      };
+
+      // Only extract bucket statistics for time series collections
+      if (collectionType === 'timeseries') {
+        groupStage.timeseriesBucketCount = {
+          $first: '$storageStats.timeseries.bucketCount',
+        };
+        groupStage.timeseriesAvgBucketSize = {
+          $first: '$storageStats.timeseries.avgBucketSize',
+        };
+      }
+
+      const addFieldsStage: Record<string, unknown> = {
+        // `avgObjSize` is the average of per-shard `avgObjSize` weighted by `count`
+        avgObjSize: {
+          $cond: {
+            if: { $ne: ['$count', 0] },
+            then: {
+              $divide: ['$unscaledCollSize', { $toDouble: '$count' }],
+            },
+            else: 0,
+          },
+        },
+      };
+
+      // Only calculate bucket stats for time series collections
+      if (collectionType === 'timeseries') {
+        addFieldsStage.bucket_count = '$timeseriesBucketCount';
+        addFieldsStage.avg_bucket_size = '$timeseriesAvgBucketSize';
+      }
+
       const collStats = await coll
         .aggregate(
           [
             { $collStats: { storageStats: {} } },
-            {
-              $group: {
-                _id: null,
-                capped: { $first: '$storageStats.capped' },
-                count: { $sum: '$storageStats.count' },
-                size: { $sum: { $toDouble: '$storageStats.size' } },
-                storageSize: {
-                  $sum: { $toDouble: '$storageStats.storageSize' },
-                },
-                totalIndexSize: {
-                  $sum: { $toDouble: '$storageStats.totalIndexSize' },
-                },
-                freeStorageSize: {
-                  $sum: { $toDouble: '$storageStats.freeStorageSize' },
-                },
-                unscaledCollSize: {
-                  $sum: {
-                    $multiply: [
-                      { $toDouble: '$storageStats.avgObjSize' },
-                      { $toDouble: '$storageStats.count' },
-                    ],
-                  },
-                },
-                nindexes: { $max: '$storageStats.nindexes' },
-              },
-            },
-            {
-              $addFields: {
-                // `avgObjSize` is the average of per-shard `avgObjSize` weighted by `count`
-                avgObjSize: {
-                  $cond: {
-                    if: { $ne: ['$count', 0] },
-                    then: {
-                      $divide: ['$unscaledCollSize', { $toDouble: '$count' }],
-                    },
-                    else: 0,
-                  },
-                },
-              },
-            },
+            { $group: groupStage },
+            { $addFields: addFieldsStage },
           ],
           { enableUtf8Validation: false }
         )
@@ -1728,7 +1762,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
     filter: Filter<Document>,
     options: CountDocumentsOptions = {},
     executionOptions?: ExecutionOptions & {
-      fallbackReadPreference: ReadPreferenceMode;
+      fallbackReadPreference?: ReadPreferenceMode;
     }
   ): Promise<number> {
     return this._cancellableOperation(
@@ -2234,6 +2268,44 @@ class DataServiceImpl extends WithLogContext implements DataService {
     return indexToProgress;
   }
 
+  @op(mongoLogId(1_001_000_381))
+  async fetchShardKey(
+    ns: string,
+    options: Omit<FindOptions, 'projection'> = {},
+    executionOptions?: ExecutionOptions
+  ): Promise<Record<string, unknown> | null> {
+    const docs = await this.find(
+      'config.collections',
+      {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        _id: ns as any,
+        // unsplittable introduced in SPM-3364 to mark unsharded collections
+        // that are still being tracked in the catalog
+        unsplittable: { $ne: true },
+      },
+      { ...options, projection: { key: 1, _id: 0 } },
+      { abortSignal: executionOptions?.abortSignal }
+    );
+    return docs.length ? docs[0].key : null;
+  }
+
+  private async _fetchShardKeyWithSilentFail(
+    ...args: Parameters<DataService['fetchShardKey']>
+  ): ReturnType<DataService['fetchShardKey']> {
+    try {
+      return await this.fetchShardKey(...args);
+    } catch (err) {
+      // Rethrow if we aborted along the way.
+      if (this.isCancelError(err)) {
+        throw err;
+      }
+
+      // Return null on error.
+      // This is oftentimes a lack of permissions to run a find on config.collections.
+      return null;
+    }
+  }
+
   @op(mongoLogId(1_001_000_047))
   async indexes(
     ns: string,
@@ -2245,19 +2317,21 @@ class DataServiceImpl extends WithLogContext implements DataService {
       );
       return indexes.map((compactIndexEntry) => {
         const [name, keys] = compactIndexEntry;
-        return createIndexDefinition(ns, {
+        return createIndexDefinition(ns, null, {
           name,
           key: Object.fromEntries(keys),
         });
       });
     }
 
-    const [indexes, indexStats, indexSizes, indexProgress] = await Promise.all([
-      this._collection(ns, 'CRUD').indexes({ ...options, full: true }),
-      this._indexStats(ns),
-      this._indexSizes(ns),
-      this._indexProgress(ns),
-    ]);
+    const [indexes, indexStats, indexSizes, indexProgress, shardKey] =
+      await Promise.all([
+        this._collection(ns, 'CRUD').indexes({ ...options, full: true }),
+        this._indexStats(ns),
+        this._indexSizes(ns),
+        this._indexProgress(ns),
+        this._fetchShardKeyWithSilentFail(ns),
+      ]);
 
     const maxSize = Math.max(...Object.values(indexSizes));
 
@@ -2269,6 +2343,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
         const name = index.name;
         return createIndexDefinition(
           ns,
+          shardKey ?? null,
           index,
           indexStats[name],
           indexSizes[name],
@@ -2941,6 +3016,8 @@ class DataServiceImpl extends WithLogContext implements DataService {
       free_storage_size: data.freeStorageSize ?? 0,
       index_count: data.nindexes ?? 0,
       index_size: data.totalIndexSize ?? 0,
+      bucket_count: data.bucket_count,
+      avg_bucket_size: data.avg_bucket_size,
     };
   }
 

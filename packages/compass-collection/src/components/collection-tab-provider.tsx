@@ -1,7 +1,8 @@
-import React, { useContext, useRef } from 'react';
+import React, { useContext } from 'react';
 import type { CollectionTabPluginMetadata } from '../modules/collection-tab';
 import type { CompassPluginComponent } from '@mongodb-js/compass-app-registry';
-import type { CollectionSubtab } from '@mongodb-js/compass-workspaces';
+import type { CollectionSubtab } from '@mongodb-js/workspace-info';
+import { useInitialValue } from '@mongodb-js/compass-components';
 
 export interface CollectionTabPlugin {
   name: CollectionSubtab;
@@ -28,9 +29,9 @@ const CollectionTabComponentsContext =
 export const CollectionTabsProvider: React.FunctionComponent<
   Partial<CollectionTabComponentsProviderValue>
 > = ({ children, ...props }) => {
-  const valueRef = useRef({ ...defaultComponents, ...props });
+  const valueRef = useInitialValue({ ...defaultComponents, ...props });
   return (
-    <CollectionTabComponentsContext.Provider value={valueRef.current}>
+    <CollectionTabComponentsContext.Provider value={valueRef}>
       {children}
     </CollectionTabComponentsContext.Provider>
   );

@@ -1,12 +1,21 @@
-import React, { useEffect, useRef } from 'react';
-import { css, cx, palette, useDarkMode } from '@mongodb-js/compass-components';
-import type { CollectionTabInfo } from '../stores/workspaces';
+import React, { useEffect } from 'react';
+import {
+  css,
+  cx,
+  palette,
+  useCurrentValueRef,
+  useDarkMode,
+} from '@mongodb-js/compass-components';
 import {
   getActiveTab,
-  type OpenWorkspaceOptions,
   type WorkspacesState,
+  type OpenWorkspaceOptions,
 } from '../stores/workspaces';
-import type { WorkspaceTab } from '../types';
+import type {
+  WorkspaceTab,
+  CollectionTabInfo,
+} from '@mongodb-js/workspace-info';
+
 import Workspaces from './workspaces';
 import { connect } from '../stores/context';
 import { WorkspacesServiceProvider } from '../provider';
@@ -102,11 +111,10 @@ const WorkspacesWithSidebar: React.FunctionComponent<
   renderModals,
 }) => {
   const darkMode = useDarkMode();
-  const onChange = useRef(onActiveWorkspaceTabChange);
-  onChange.current = onActiveWorkspaceTabChange;
+  const onChange = useCurrentValueRef(onActiveWorkspaceTabChange);
   useEffect(() => {
     onChange.current(activeTab, activeTabCollectionInfo);
-  }, [activeTab, activeTabCollectionInfo]);
+  }, [activeTab, activeTabCollectionInfo, onChange]);
   return (
     <WorkspacesServiceProvider>
       <div

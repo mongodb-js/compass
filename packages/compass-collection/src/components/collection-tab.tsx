@@ -12,7 +12,7 @@ import {
 } from './collection-tab-provider';
 import type { CollectionTabOptions } from '../stores/collection-tab';
 import type { CollectionMetadata } from 'mongodb-collection-model';
-import type { CollectionSubtab } from '@mongodb-js/compass-workspaces';
+import type { CollectionSubtab } from '@mongodb-js/workspace-info';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import {
   useConnectionInfoRef,
@@ -331,6 +331,8 @@ const CollectionTab = ({
   };
 
   return (
+    // This component is not created in render, just accessed from context
+    // eslint-disable-next-line react-hooks/static-components
     <QueryBarPlugin {...pluginProps}>
       <CollectionTabWithMetadata
         collectionMetadata={collectionMetadata}

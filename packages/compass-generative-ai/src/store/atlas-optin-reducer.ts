@@ -32,50 +32,50 @@ export type GenAIAtlasOptInThunkAction<
   A
 >;
 
-export const enum AtlasOptInActions {
-  OpenOptInModal = 'compass-generative-ai/atlas-optin/OpenOptInModal',
-  CloseOptInModal = 'compass-generative-ai/atlas-optin/CloseOptInModal',
-  AttemptStart = 'compass-generative-ai/atlas-optin/AttemptStart',
-  AttemptEnd = 'compass-generative-ai/atlas-optin/AttemptEnd',
-  Start = 'compass-generative-ai/atlas-optin/AtlasOptInStart',
-  OptInSuccess = 'compass-generative-ai/atlas-optin/AtlasOptInSuccess',
-  Error = 'compass-generative-ai/atlas-optin/AtlasOptInError',
-  Cancel = 'compass-generative-ai/atlas-optin/AtlasOptInCancel',
-}
+export const AtlasOptInActions = {
+  OpenOptInModal: 'compass-generative-ai/atlas-optin/OpenOptInModal',
+  CloseOptInModal: 'compass-generative-ai/atlas-optin/CloseOptInModal',
+  AttemptStart: 'compass-generative-ai/atlas-optin/AttemptStart',
+  AttemptEnd: 'compass-generative-ai/atlas-optin/AttemptEnd',
+  Start: 'compass-generative-ai/atlas-optin/AtlasOptInStart',
+  OptInSuccess: 'compass-generative-ai/atlas-optin/AtlasOptInSuccess',
+  Error: 'compass-generative-ai/atlas-optin/AtlasOptInError',
+  Cancel: 'compass-generative-ai/atlas-optin/AtlasOptInCancel',
+} as const;
 
 export type AtlasOptInOpenModalAction = {
-  type: AtlasOptInActions.OpenOptInModal;
+  type: typeof AtlasOptInActions.OpenOptInModal;
 };
 
 export type AtlasOptInCloseModalAction = {
-  type: AtlasOptInActions.CloseOptInModal;
+  type: typeof AtlasOptInActions.CloseOptInModal;
 };
 
 export type AtlasOptInAttemptStartAction = {
-  type: AtlasOptInActions.AttemptStart;
+  type: typeof AtlasOptInActions.AttemptStart;
   attemptId: number;
 };
 
 export type AtlasOptInAttemptEndAction = {
-  type: AtlasOptInActions.AttemptEnd;
+  type: typeof AtlasOptInActions.AttemptEnd;
   attemptId: number;
 };
 
 export type AtlasOptInStartAction = {
-  type: AtlasOptInActions.Start;
+  type: typeof AtlasOptInActions.Start;
   isCloudOptIn: boolean;
 };
 
 export type AtlasOptInSuccessAction = {
-  type: AtlasOptInActions.OptInSuccess;
+  type: typeof AtlasOptInActions.OptInSuccess;
 };
 
 export type AtlasOptInErrorAction = {
-  type: AtlasOptInActions.Error;
+  type: typeof AtlasOptInActions.Error;
   error: string;
 };
 
-export type AtlasOptInCancelAction = { type: AtlasOptInActions.Cancel };
+export type AtlasOptInCancelAction = { type: typeof AtlasOptInActions.Cancel };
 
 const INITIAL_STATE = {
   state: 'initial' as const,

@@ -4,7 +4,10 @@ import type { DataModelingThunkAction } from './reducer';
 import { analyzeDocuments, type MongoDBJSONSchema } from 'mongodb-schema';
 import { getCurrentDiagramFromState } from './diagram';
 import { UUID } from 'bson';
-import type { Relationship } from '../services/data-model-storage';
+import {
+  DEFAULT_IS_EXPANDED,
+  type Relationship,
+} from '../services/data-model-storage';
 import { applyLayout } from '@mongodb-js/compass-components';
 import {
   collectionToBaseNodeForLayout,
@@ -28,22 +31,26 @@ export type AnalysisProcessState = {
   relationsInferred: number;
 };
 
-export enum AnalysisProcessActionTypes {
-  ANALYZING_COLLECTIONS_START = 'data-modeling/analysis-stats/ANALYZING_COLLECTIONS_START',
-  NAMESPACE_SAMPLE_FETCHED = 'data-modeling/analysis-stats/NAMESPACE_SAMPLE_FETCHED',
-  NAMESPACE_SCHEMA_ANALYZED = 'data-modeling/analysis-stats/NAMESPACE_SCHEMA_ANALYZED',
-  NAMESPACES_RELATIONS_INFERRED = 'data-modeling/analysis-stats/NAMESPACES_RELATIONS_INFERRED',
-  ANALYSIS_FINISHED = 'data-modeling/analysis-stats/ANALYSIS_FINISHED',
-  ANALYSIS_FAILED = 'data-modeling/analysis-stats/ANALYSIS_FAILED',
-  ANALYSIS_CANCELED = 'data-modeling/analysis-stats/ANALYSIS_CANCELED',
-}
+export const AnalysisProcessActionTypes = {
+  ANALYZING_COLLECTIONS_START:
+    'data-modeling/analysis-stats/ANALYZING_COLLECTIONS_START',
+  NAMESPACE_SAMPLE_FETCHED:
+    'data-modeling/analysis-stats/NAMESPACE_SAMPLE_FETCHED',
+  NAMESPACE_SCHEMA_ANALYZED:
+    'data-modeling/analysis-stats/NAMESPACE_SCHEMA_ANALYZED',
+  NAMESPACES_RELATIONS_INFERRED:
+    'data-modeling/analysis-stats/NAMESPACES_RELATIONS_INFERRED',
+  ANALYSIS_FINISHED: 'data-modeling/analysis-stats/ANALYSIS_FINISHED',
+  ANALYSIS_FAILED: 'data-modeling/analysis-stats/ANALYSIS_FAILED',
+  ANALYSIS_CANCELED: 'data-modeling/analysis-stats/ANALYSIS_CANCELED',
+} as const;
 
 export type AnalysisOptions = {
   automaticallyInferRelations: boolean;
 };
 
 export type AnalyzingCollectionsStartAction = {
-  type: AnalysisProcessActionTypes.ANALYZING_COLLECTIONS_START;
+  type: typeof AnalysisProcessActionTypes.ANALYZING_COLLECTIONS_START;
   name: string;
   connectionId: string;
   database: string;
@@ -52,23 +59,23 @@ export type AnalyzingCollectionsStartAction = {
 };
 
 export type NamespaceSampleFetchedAction = {
-  type: AnalysisProcessActionTypes.NAMESPACE_SAMPLE_FETCHED;
+  type: typeof AnalysisProcessActionTypes.NAMESPACE_SAMPLE_FETCHED;
   namespace: string;
 };
 
 export type NamespaceSchemaAnalyzedAction = {
-  type: AnalysisProcessActionTypes.NAMESPACE_SCHEMA_ANALYZED;
+  type: typeof AnalysisProcessActionTypes.NAMESPACE_SCHEMA_ANALYZED;
   namespace: string;
 };
 
 export type NamespacesRelationsInferredAction = {
-  type: AnalysisProcessActionTypes.NAMESPACES_RELATIONS_INFERRED;
+  type: typeof AnalysisProcessActionTypes.NAMESPACES_RELATIONS_INFERRED;
   namespace: string;
   count: number;
 };
 
 export type AnalysisFinishedAction = {
-  type: AnalysisProcessActionTypes.ANALYSIS_FINISHED;
+  type: typeof AnalysisProcessActionTypes.ANALYSIS_FINISHED;
   name: string;
   connectionId: string;
   database: string;
@@ -76,17 +83,18 @@ export type AnalysisFinishedAction = {
     ns: string;
     schema: MongoDBJSONSchema;
     position: { x: number; y: number };
+    isExpanded: boolean;
   }[];
   relations: Relationship[];
 };
 
 export type AnalysisFailedAction = {
-  type: AnalysisProcessActionTypes.ANALYSIS_FAILED;
+  type: typeof AnalysisProcessActionTypes.ANALYSIS_FAILED;
   error: Error;
 };
 
 export type AnalysisCanceledAction = {
-  type: AnalysisProcessActionTypes.ANALYSIS_CANCELED;
+  type: typeof AnalysisProcessActionTypes.ANALYSIS_CANCELED;
 };
 
 export type AnalysisProgressActions =
@@ -154,7 +162,7 @@ async function getInitialLayout({
   collections,
   relations,
 }: {
-  collections: { ns: string; schema: MongoDBJSONSchema }[];
+  collections: { ns: string; schema: MongoDBJSONSchema; isExpanded: boolean }[];
   relations: Relationship[];
 }) {
   const hasRelations = relations.length > 0;
@@ -163,6 +171,7 @@ async function getInitialLayout({
       ns: coll.ns,
       jsonSchema: coll.schema,
       displayPosition: [0, 0],
+      isExpanded: coll.isExpanded,
     });
   });
   return await applyLayout({
@@ -250,7 +259,7 @@ export function startAnalysis(
             type: AnalysisProcessActionTypes.NAMESPACE_SCHEMA_ANALYZED,
             namespace: ns,
           });
-          return { ns, schema, sample };
+          return { ns, schema, sample, isExpanded: DEFAULT_IS_EXPANDED };
         })
       );
 

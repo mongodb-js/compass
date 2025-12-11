@@ -30,6 +30,9 @@ const buttonStyles = css({
   padding: spacing[200],
   textAlign: 'left',
   fontWeight: 500,
+  display: 'flex',
+  alignItems: 'center',
+  gap: '8px',
 });
 
 const activeStylesLight = css({
@@ -44,8 +47,11 @@ const activeStylesLight = css({
 
 const activeStylesDark = css({
   color: palette.white,
+  backgroundColor: palette.green.dark3,
+  fontWeight: 600,
+
   '&:active,&:focus': {
-    backgroundColor: palette.gray.dark3,
+    backgroundColor: palette.green.dark3,
     color: palette.white,
   },
 });
@@ -65,7 +71,6 @@ const hoverStylesDark = css({
 });
 
 const labelStyles = css({
-  color: palette.gray.dark1,
   fontWeight: 600,
 });
 

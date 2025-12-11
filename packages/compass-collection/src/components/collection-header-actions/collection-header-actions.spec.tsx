@@ -10,7 +10,7 @@ import {
   WorkspacesServiceProvider,
   type WorkspacesService,
 } from '@mongodb-js/compass-workspaces/provider';
-import { ExperimentTestName } from '@mongodb-js/compass-telemetry/provider';
+import { ExperimentTestNames } from '@mongodb-js/compass-telemetry/provider';
 import { CompassExperimentationProvider } from '@mongodb-js/compass-telemetry';
 import type { ConnectionInfo } from '@mongodb-js/compass-connections/provider';
 
@@ -54,11 +54,13 @@ describe('CollectionHeaderActions [Component]', function () {
           <CollectionHeaderActions
             namespace="test.test"
             isReadonly={false}
+            isTimeSeries={false}
             onOpenMockDataModal={sinon.stub()}
             hasSchemaAnalysisData={true}
             analyzedSchemaDepth={2}
-            schemaAnalysisStatus="complete"
             schemaAnalysisError={null}
+            isCollectionEmpty={false}
+            hasUnsupportedStateError={false}
             {...props}
           />
         </WorkspacesServiceProvider>
@@ -221,14 +223,46 @@ describe('CollectionHeaderActions [Component]', function () {
     };
 
     it('should call useAssignment with correct parameters', async function () {
+      await renderCollectionHeaderActions(
+        {
+          namespace: 'test.collection',
+          isReadonly: false,
+        },
+        {},
+        atlasConnectionInfo
+      );
+
+      expect(mockUseAssignment).to.have.been.calledWith(
+        ExperimentTestNames.mockDataGenerator,
+        true // trackIsInSample - Experiment viewed analytics event
+      );
+    });
+
+    it('should call useAssignment with trackIsInSample set to false in non-Atlas environments', async function () {
       await renderCollectionHeaderActions({
         namespace: 'test.collection',
         isReadonly: false,
       });
 
       expect(mockUseAssignment).to.have.been.calledWith(
-        ExperimentTestName.mockDataGenerator,
-        true // trackIsInSample - Experiment viewed analytics event
+        ExperimentTestNames.mockDataGenerator,
+        false // Not eligible - no Atlas metadata
+      );
+    });
+
+    it('should call useAssignment with trackIsInSample set to false for readonly collections', async function () {
+      await renderCollectionHeaderActions(
+        {
+          namespace: 'test.collection',
+          isReadonly: true,
+        },
+        {},
+        atlasConnectionInfo
+      );
+
+      expect(mockUseAssignment).to.have.been.calledWith(
+        ExperimentTestNames.mockDataGenerator,
+        false // Not eligible - readonly collection
       );
     });
 
@@ -321,7 +355,9 @@ describe('CollectionHeaderActions [Component]', function () {
             isReadonly: false,
             hasSchemaAnalysisData: true,
             analyzedSchemaDepth: MAX_COLLECTION_NESTING_DEPTH + 1,
-            schemaAnalysisStatus: 'complete',
+            schemaAnalysisError: null,
+            isCollectionEmpty: false,
+            hasUnsupportedStateError: false,
             onOpenMockDataModal: sinon.stub(),
           },
           {},
@@ -341,11 +377,12 @@ describe('CollectionHeaderActions [Component]', function () {
             namespace: 'test.collection',
             isReadonly: false,
             hasSchemaAnalysisData: false,
-            schemaAnalysisStatus: 'error',
             schemaAnalysisError: {
               errorType: 'unsupportedState',
               errorMessage: 'Unsupported state',
             },
+            isCollectionEmpty: false,
+            hasUnsupportedStateError: true,
             onOpenMockDataModal: sinon.stub(),
           },
           {},
@@ -357,6 +394,45 @@ describe('CollectionHeaderActions [Component]', function () {
         );
         expect(button).to.exist;
         expect(button).to.have.attribute('aria-disabled', 'true');
+      });
+
+      it('should disable button when collection is empty', async function () {
+        await renderCollectionHeaderActions(
+          {
+            namespace: 'test.collection',
+            isReadonly: false,
+            hasSchemaAnalysisData: false,
+            schemaAnalysisError: {
+              errorType: 'empty',
+              errorMessage: 'No documents found in the collection to analyze.',
+            },
+            isCollectionEmpty: true,
+            hasUnsupportedStateError: false,
+            onOpenMockDataModal: sinon.stub(),
+          },
+          {},
+          atlasConnectionInfo
+        );
+
+        const button = screen.getByTestId(
+          'collection-header-generate-mock-data-button'
+        );
+        expect(button).to.exist;
+        expect(button).to.have.attribute('aria-disabled', 'true');
+      });
+
+      it('should not show button for time series collections', async function () {
+        await renderCollectionHeaderActions(
+          {
+            isTimeSeries: true,
+          },
+          {},
+          atlasConnectionInfo
+        );
+
+        expect(
+          screen.queryByTestId('collection-header-generate-mock-data-button')
+        ).to.not.exist;
       });
     });
   });

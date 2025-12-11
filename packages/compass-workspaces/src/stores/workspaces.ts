@@ -3,8 +3,15 @@ import type { ThunkAction } from 'redux-thunk';
 import { ObjectId } from 'bson';
 import AppRegistry from '@mongodb-js/compass-app-registry';
 import toNS from 'mongodb-ns';
-import type { Workspace, WorkspacesServices, CollectionSubtab } from '..';
-import type { WorkspaceTab, WorkspaceTabProps } from '../types';
+import type { WorkspacesServices } from '..';
+import type {
+  WorkspaceTab,
+  WorkspaceTabProps,
+  CollectionSubtab,
+  CollectionTabInfo,
+  DatabaseTabInfo,
+  Workspace,
+} from '@mongodb-js/workspace-info';
 import { isEqual } from 'lodash';
 import { cleanupTabState } from '../components/workspace-tab-state-provider';
 import {
@@ -47,24 +54,25 @@ export const cleanupLocalAppRegistries = () => {
   LocalAppRegistryMap.clear();
 };
 
-export enum WorkspacesActions {
-  OpenWorkspace = 'compass-workspaces/OpenWorkspace',
-  OpenFallbackWorkspace = 'compass-workspace/OpenFallbackWorkspace',
-  SelectTab = 'compass-workspaces/SelectTab',
-  SelectPreviousTab = 'compass-workspaces/SelectPreviousTab',
-  SelectNextTab = 'compass-workspaces/SelectNextTab',
-  MoveTab = 'compass-workspaces/MoveTab',
-  OpenTabFromCurrentActive = 'compass-workspaces/OpenTabFromCurrentActive',
-  DuplicateTab = 'compass-workspaces/DuplicateTab',
-  CloseTabs = 'compass-workspaces/CloseTabs',
-  CollectionRenamed = 'compass-workspaces/CollectionRenamed',
-  CollectionRemoved = 'compass-workspaces/CollectionRemoved',
-  DatabaseRemoved = 'compass-workspaces/DatabaseRemoved',
-  ConnectionDisconnected = 'compass-workspaces/ConnectionDisconnected',
-  FetchCollectionTabInfo = 'compass-workspaces/FetchCollectionTabInfo',
-  FetchDatabaseTabInfo = 'compass-workspaces/FetchDatabaseTabInfo',
-  CollectionSubtabSelected = 'compass-workspaces/CollectionSubtabSelected',
-}
+export const WorkspacesActions = {
+  OpenWorkspace: 'compass-workspaces/OpenWorkspace',
+  OpenFallbackWorkspace: 'compass-workspace/OpenFallbackWorkspace',
+  SelectTab: 'compass-workspaces/SelectTab',
+  SelectPreviousTab: 'compass-workspaces/SelectPreviousTab',
+  SelectNextTab: 'compass-workspaces/SelectNextTab',
+  MoveTab: 'compass-workspaces/MoveTab',
+  OpenTabFromCurrentActive: 'compass-workspaces/OpenTabFromCurrentActive',
+  RestoreWorkspaces: 'compass-workspaces/RestoreWorkspaces',
+  DuplicateTab: 'compass-workspaces/DuplicateTab',
+  CloseTabs: 'compass-workspaces/CloseTabs',
+  CollectionRenamed: 'compass-workspaces/CollectionRenamed',
+  CollectionRemoved: 'compass-workspaces/CollectionRemoved',
+  DatabaseRemoved: 'compass-workspaces/DatabaseRemoved',
+  ConnectionDisconnected: 'compass-workspaces/ConnectionDisconnected',
+  FetchCollectionTabInfo: 'compass-workspaces/FetchCollectionTabInfo',
+  FetchDatabaseTabInfo: 'compass-workspaces/FetchDatabaseTabInfo',
+  CollectionSubtabSelected: 'compass-workspaces/CollectionSubtabSelected',
+} as const;
 
 function isAction<A extends AnyAction>(
   action: AnyAction,
@@ -72,17 +80,6 @@ function isAction<A extends AnyAction>(
 ): action is A {
   return action.type === type;
 }
-
-export type CollectionTabInfo = {
-  isTimeSeries: boolean;
-  isReadonly: boolean;
-  sourceName?: string | null;
-  inferredFromPrivileges: boolean;
-};
-
-export type DatabaseTabInfo = {
-  inferredFromPrivileges: boolean;
-};
 
 export type WorkspacesState = {
   /**
@@ -344,6 +341,18 @@ const reducer: Reducer<WorkspacesState, Action> = (
       ...state,
       tabs: newTabs,
       activeTabId: newTab.id,
+    };
+  }
+
+  if (
+    isAction<RestoreWorkspacesAction>(
+      action,
+      WorkspacesActions.RestoreWorkspaces
+    )
+  ) {
+    return {
+      ...state,
+      tabs: [...state.tabs, ...action.tabs.map(getInitialTabState)],
     };
   }
 
@@ -628,6 +637,35 @@ export const getActiveTab = (state: WorkspacesState): WorkspaceTab | null => {
   return state.tabs[getActiveTabIndex(state)] ?? null;
 };
 
+type OpenWorkspaceAction = {
+  type: typeof WorkspacesActions.OpenWorkspace;
+  workspace: OpenWorkspaceOptions;
+  newTab?: boolean;
+};
+
+type FetchCollectionInfoAction = {
+  type: typeof WorkspacesActions.FetchCollectionTabInfo;
+  // This uniquely identifies the collection tab for a given connection
+  namespaceId: string;
+  info: CollectionTabInfo;
+};
+
+type FetchDatabaseInfoAction = {
+  type: typeof WorkspacesActions.FetchDatabaseTabInfo;
+  // This uniquely identifies the database tab for a given connection
+  namespaceId: string;
+  info: DatabaseTabInfo;
+};
+
+export type TabOptions = {
+  /**
+   * Optional. If set to `true`, always opens workspace in a new tab, otherwise
+   * will resolve whether or not current active tab can be replaced based on the
+   * replace handlers
+   */
+  newTab?: boolean;
+};
+
 export type OpenWorkspaceOptions =
   | Pick<Workspace<'Welcome'>, 'type'>
   | Pick<Workspace<'My Queries'>, 'type'>
@@ -650,35 +688,6 @@ export type OpenWorkspaceOptions =
           | 'editViewName'
         >
       > & { initialSubtab?: CollectionSubtab });
-
-type OpenWorkspaceAction = {
-  type: WorkspacesActions.OpenWorkspace;
-  workspace: OpenWorkspaceOptions;
-  newTab?: boolean;
-};
-
-type FetchCollectionInfoAction = {
-  type: WorkspacesActions.FetchCollectionTabInfo;
-  // This uniquely identifies the collection tab for a given connection
-  namespaceId: string;
-  info: CollectionTabInfo;
-};
-
-type FetchDatabaseInfoAction = {
-  type: WorkspacesActions.FetchDatabaseTabInfo;
-  // This uniquely identifies the database tab for a given connection
-  namespaceId: string;
-  info: DatabaseTabInfo;
-};
-
-export type TabOptions = {
-  /**
-   * Optional. If set to `true`, always opens workspace in a new tab, otherwise
-   * will resolve whether or not current active tab can be replaced based on the
-   * replace handlers
-   */
-  newTab?: boolean;
-};
 
 export const updateCollectionInfo = (
   namespaceId: string,
@@ -820,14 +829,17 @@ export const openWorkspace = (
   };
 };
 
-type SelectTabAction = { type: WorkspacesActions.SelectTab; atIndex: number };
+type SelectTabAction = {
+  type: typeof WorkspacesActions.SelectTab;
+  atIndex: number;
+};
 
 export const selectTab = (atIndex: number): SelectTabAction => {
   return { type: WorkspacesActions.SelectTab, atIndex };
 };
 
 type MoveTabAction = {
-  type: WorkspacesActions.MoveTab;
+  type: typeof WorkspacesActions.MoveTab;
   fromIndex: number;
   toIndex: number;
 };
@@ -836,21 +848,28 @@ export const moveTab = (fromIndex: number, toIndex: number): MoveTabAction => {
   return { type: WorkspacesActions.MoveTab, fromIndex, toIndex };
 };
 
-type SelectPreviousTabAction = { type: WorkspacesActions.SelectPreviousTab };
+type SelectPreviousTabAction = {
+  type: typeof WorkspacesActions.SelectPreviousTab;
+};
 
 export const selectPrevTab = (): SelectPreviousTabAction => {
   return { type: WorkspacesActions.SelectPreviousTab };
 };
 
-type SelectNextTabAction = { type: WorkspacesActions.SelectNextTab };
+type SelectNextTabAction = { type: typeof WorkspacesActions.SelectNextTab };
 
 export const selectNextTab = (): SelectNextTabAction => {
   return { type: WorkspacesActions.SelectNextTab };
 };
 
 type OpenTabFromCurrentActiveAction = {
-  type: WorkspacesActions.OpenTabFromCurrentActive;
+  type: typeof WorkspacesActions.OpenTabFromCurrentActive;
   defaultTab: OpenWorkspaceOptions;
+};
+
+type RestoreWorkspacesAction = {
+  type: typeof WorkspacesActions.RestoreWorkspaces;
+  tabs: OpenWorkspaceOptions[];
 };
 
 export const openTabFromCurrent = (
@@ -863,7 +882,7 @@ export const openTabFromCurrent = (
 };
 
 type DuplicateTabAction = {
-  type: WorkspacesActions.DuplicateTab;
+  type: typeof WorkspacesActions.DuplicateTab;
   atIndex: number;
 };
 
@@ -886,7 +905,7 @@ async function confirmClosingTab() {
 }
 
 type CloseTabsAction = {
-  type: WorkspacesActions.CloseTabs;
+  type: typeof WorkspacesActions.CloseTabs;
   tabIds: string[];
   activeTabId?: string;
 };
@@ -934,7 +953,7 @@ export const closeAllOtherTabs = (
 };
 
 type CollectionRenamedAction = {
-  type: WorkspacesActions.CollectionRenamed;
+  type: typeof WorkspacesActions.CollectionRenamed;
   from: string;
   to: string;
 };
@@ -951,7 +970,7 @@ export const collectionRenamed = (
 };
 
 type CollectionRemovedAction = {
-  type: WorkspacesActions.CollectionRemoved;
+  type: typeof WorkspacesActions.CollectionRemoved;
   namespace: string;
 };
 
@@ -969,8 +988,58 @@ export const collectionRemoved = (
 };
 
 type DatabaseRemovedAction = {
-  type: WorkspacesActions.DatabaseRemoved;
+  type: typeof WorkspacesActions.DatabaseRemoved;
   namespace: string;
+};
+
+export const loadSavedWorkspaces = (): WorkspacesThunkAction<
+  Promise<void>,
+  RestoreWorkspacesAction
+> => {
+  return async (dispatch, getState, { connections, userData, preferences }) => {
+    if (!preferences.getPreferences().enableRestoreWorkspaces) {
+      return;
+    }
+    const savedState = await userData.readOne('saved-workspaces', {
+      ignoreErrors: true,
+    });
+    if (savedState && savedState.tabs.length > 0) {
+      const confirm = await showConfirmation({
+        title: 'Reopen closed tabs?',
+        description:
+          'Your connection and tabs were closed, this action will reopen your previous session',
+        buttonText: 'Reopen tabs',
+      });
+
+      if (confirm) {
+        const workspacesToRestore: OpenWorkspaceOptions[] = [];
+        for (const workspace of savedState.tabs) {
+          // If the workspace is tied to a connection, check if the connection exists
+          // and add it to the list of connections to restore if so.
+          if ('connectionId' in workspace) {
+            const connectionInfo = connections.getConnectionById(
+              workspace.connectionId
+            )?.info;
+
+            if (!connectionInfo) {
+              continue;
+            }
+
+            void connections.connect(connectionInfo);
+          }
+
+          workspacesToRestore.push(workspace);
+        }
+
+        if (workspacesToRestore.length > 0) {
+          dispatch({
+            type: WorkspacesActions.RestoreWorkspaces,
+            tabs: workspacesToRestore,
+          });
+        }
+      }
+    }
+  };
 };
 
 export const databaseRemoved = (
@@ -987,7 +1056,7 @@ export const databaseRemoved = (
 };
 
 type ConnectionDisconnectedAction = {
-  type: WorkspacesActions.ConnectionDisconnected;
+  type: typeof WorkspacesActions.ConnectionDisconnected;
   connectionId: ConnectionInfo['id'];
 };
 
@@ -1005,7 +1074,7 @@ export const connectionDisconnected = (
 };
 
 type CollectionSubtabSelectedAction = {
-  type: WorkspacesActions.CollectionSubtabSelected;
+  type: typeof WorkspacesActions.CollectionSubtabSelected;
   tabId: string;
   subTab: CollectionSubtab;
 };
@@ -1020,7 +1089,7 @@ export const collectionSubtabSelected = (
 });
 
 type OpenFallbackWorkspaceAction = {
-  type: WorkspacesActions.OpenFallbackWorkspace;
+  type: typeof WorkspacesActions.OpenFallbackWorkspace;
   toReplace: Extract<WorkspaceTab, { namespace: string }>;
   fallbackNamespace: string | null;
 };

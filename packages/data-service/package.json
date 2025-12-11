@@ -7,7 +7,7 @@
     "email": "compass@mongodb.com"
   },
   "homepage": "https://github.com/mongodb-js/compass",
-  "version": "22.34.5",
+  "version": "22.36.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/compass.git"
@@ -49,18 +49,19 @@
     "test-watch": "npm run test -- --watch",
     "test-ci": "npm run test-cov -- -- --include \"./**/*.{spec,test}.*\"  --exclude \"./src/connect.spec.ts\" --exclude \"./src/csfle-collection-tracker.spec.ts\"",
     "reformat": "npm run eslint . -- --fix && npm run prettier -- --write .",
-    "typecheck": "echo \"TODO(COMPASS-9897): typecheck is failing in test files\" && tsc -p tsconfig-build.json --noEmit"
+    "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
-    "@mongodb-js/compass-logging": "^1.7.22",
-    "@mongodb-js/compass-utils": "^0.9.20",
-    "@mongodb-js/devtools-connect": "^3.9.3",
-    "@mongodb-js/devtools-proxy-support": "^0.5.2",
+    "@mongodb-js/compass-utils": "^0.9.23",
+    "@mongodb-js/devtools-connect": "^3.9.7",
+    "@mongodb-js/devtools-proxy-support": "^0.5.5",
     "bson": "^6.10.4",
+    "debug": "^4.3.4",
     "lodash": "^4.17.21",
     "mongodb": "^6.19.0",
-    "mongodb-build-info": "^1.7.2",
+    "mongodb-build-info": "^1.8.1",
     "mongodb-connection-string-url": "^3.0.1",
+    "mongodb-log-writer": "^2.4.4",
     "mongodb-ns": "^3.0.1"
   },
   "devDependencies": {
@@ -78,7 +79,6 @@
     "depcheck": "^1.4.1",
     "kerberos": "^2.2.1",
     "mocha": "^10.2.0",
-    "mongodb-log-writer": "^2.3.4",
     "nyc": "^15.1.0",
     "sinon": "^9.2.3",
     "socks": "^2.7.3",

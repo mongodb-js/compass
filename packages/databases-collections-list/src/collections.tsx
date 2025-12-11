@@ -13,6 +13,7 @@ import {
   Placeholder,
   compactBytes,
   compactNumber,
+  InlineDefinition,
 } from '@mongodb-js/compass-components';
 import { ItemsTable, VirtualItemsTable } from './items-table';
 import type { CollectionProps } from 'mongodb-collection-model';
@@ -141,8 +142,31 @@ function collectionPropertyToBadge(
       };
     case 'capped':
       return { id, name: id, variant: 'darkgray' };
-    case 'timeseries':
-      return { id, name: id, variant: 'darkgray', icon: 'TimeSeries' };
+    case 'timeseries': {
+      let hint: React.ReactNode = undefined;
+      if (
+        collection.bucket_count !== undefined ||
+        collection.avg_bucket_size !== undefined
+      ) {
+        hint = (
+          <>
+            {collection.bucket_count !== undefined && (
+              <div>
+                <strong>Bucket count:</strong>{' '}
+                {compactNumber(collection.bucket_count)}
+              </div>
+            )}
+            {collection.avg_bucket_size !== undefined && (
+              <div>
+                <strong>Avg. bucket size:</strong>{' '}
+                {compactBytes(collection.avg_bucket_size)}
+              </div>
+            )}
+          </>
+        );
+      }
+      return { id, name: id, variant: 'darkgray', icon: 'TimeSeries', hint };
+    }
     case 'fle2':
       return {
         id,
@@ -291,9 +315,46 @@ function collectionColumns({
         if (type === 'view') {
           return '-';
         }
-        return enableDbAndCollStats && collection.storage_size !== undefined
-          ? compactBytes(collection.storage_size)
-          : '-';
+
+        if (!enableDbAndCollStats || collection.storage_size === undefined) {
+          return '-';
+        }
+
+        const storageSize = collection.storage_size;
+        const freeStorageSize = collection.free_storage_size ?? 0;
+        const usedStorageSize = storageSize - freeStorageSize;
+        const documentSize = collection.document_size;
+        const displayValue = compactBytes(storageSize);
+
+        const definition = (
+          <div>
+            <div>
+              <strong>Storage Size:</strong> {compactBytes(storageSize)} (total
+              allocated)
+            </div>
+            <div>
+              <strong>Used:</strong> {compactBytes(usedStorageSize)}
+            </div>
+            <div>
+              <strong>Free:</strong> {compactBytes(freeStorageSize)}
+            </div>
+            {documentSize !== undefined && (
+              <div>
+                <strong>Data Size:</strong> {compactBytes(documentSize)}{' '}
+                (uncompressed)
+              </div>
+            )}
+          </div>
+        );
+
+        return (
+          <InlineDefinition
+            definition={definition}
+            tooltipProps={{ align: 'top', justify: 'start' }}
+          >
+            {displayValue}
+          </InlineDefinition>
+        );
       },
     },
     /*
@@ -377,7 +438,7 @@ function collectionColumns({
         }
 
         const type = collection.type as string;
-        if (type === 'view' || type === 'timeseries') {
+        if (type === 'view') {
           return '-';
         }
 
@@ -398,7 +459,7 @@ function collectionColumns({
           return <Placeholder maxChar={10}></Placeholder>;
         }
 
-        if (collection.type === 'view' || collection.type === 'timeseries') {
+        if (collection.type === 'view') {
           return '-';
         }
 

@@ -140,25 +140,14 @@ export const FEATURE_FLAG_DEFINITIONS = [
   },
 
   /**
-   * Feature flags for Early Journey Indexes Guidance & Awareness  | Jira Epic: CLOUDP-239367
-   * These are passed from MMS and not editable by user
+   * Feature flag for Data Modeling Collapse / Expand functionality. Epic COMPASS-9625
    */
   {
-    name: 'enableIndexesGuidanceExp',
+    name: 'enableDataModelingCollapse',
     stage: 'development',
     atlasCloudFeatureFlagName: null,
     description: {
-      short: 'Enable Indexes Guidance Experiment',
-    },
-  },
-
-  {
-    name: 'showIndexesGuidanceVariant',
-    stage: 'development',
-    atlasCloudFeatureFlagName: null,
-    description: {
-      short:
-        'Used to check if user is in the Indexes Guidance Experiment Variant',
+      short: 'Enable Collapse / Expand functionality in Data Modeling',
     },
   },
 
@@ -217,12 +206,30 @@ export const FEATURE_FLAG_DEFINITIONS = [
   },
 
   {
+    name: 'enableRestoreWorkspaces',
+    stage: 'development',
+    atlasCloudFeatureFlagName:
+      'DATA_EXPLORER_COMPASS_WEB_ENABLE_RESTORE_WORKSPACES',
+    description: {
+      short: 'Enable restoring previous workspace tabs on startup',
+    },
+  },
+
+  {
     name: 'enableAutomaticRelationshipInference',
     stage: 'released',
     atlasCloudFeatureFlagName: null,
     description: {
       short:
         'Enable automatic relationship inference during data model generation',
+    },
+  },
+  {
+    name: 'enableChatbotEndpointForGenAI',
+    stage: 'development',
+    atlasCloudFeatureFlagName: null,
+    description: {
+      short: 'Enable Chatbot API for Generative AI',
     },
   },
 ] as const satisfies ReadonlyArray<FeatureFlagDefinition>;

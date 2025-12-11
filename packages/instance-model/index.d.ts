@@ -59,7 +59,7 @@ interface BuildInfo {
 
 interface GenuineMongoDB {
   isGenuine: boolean;
-  dbType: string;
+  serverName: string;
 }
 
 interface DataLake {

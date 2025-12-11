@@ -50,7 +50,7 @@ describe('Preferences class', function () {
     const preferences = await setupPreferences(tmpdir);
     const result = preferences.getPreferences();
     expect(result.id).to.equal('General');
-    expect(result.enableMaps).to.equal(false);
+    expect(result.enableMaps).to.equal(true);
     expect(result.enableShell).to.equal(true);
   });
 
@@ -77,12 +77,12 @@ describe('Preferences class', function () {
 
   it('throws when saving invalid data', async function () {
     const preferences = await setupPreferences(tmpdir);
-    expect(
-      async () =>
-        await preferences.savePreferences({
-          telemetryAnonymousId: 'not-a-uuid',
-        })
-    ).to.throw;
+    const error = await preferences
+      .savePreferences({
+        telemetryAnonymousId: 'not-a-uuid',
+      })
+      .catch((e) => e);
+    expect(error).to.be.instanceOf(Error);
   });
 
   it('stores preferences across instances', async function () {
@@ -98,13 +98,12 @@ describe('Preferences class', function () {
     const preferences = await setupPreferences(tmpdir);
     const calls: any[] = [];
     preferences.onPreferencesChanged((prefs) => calls.push(prefs));
-    await preferences.savePreferences({ enableMaps: true });
-    expect(calls).to.deep.equal([{ enableMaps: true }]);
+    await preferences.savePreferences({ enableMaps: false });
+    expect(calls).to.deep.equal([{ enableMaps: false }]);
   });
 
   it('can return user-configurable preferences after setting their defaults', async function () {
     const preferences = await setupPreferences(tmpdir);
-    await preferences.ensureDefaultConfigurableUserPreferences();
     const result = preferences.getConfigurableUserPreferences();
     expect(result).not.to.have.property('id');
     expect(result.enableMaps).to.equal(true);
@@ -121,7 +120,6 @@ describe('Preferences class', function () {
         trackUsageStatistics: false,
       },
     });
-    await preferences.ensureDefaultConfigurableUserPreferences();
     const result = preferences.getConfigurableUserPreferences();
     expect(result).not.to.have.property('id');
     expect(result.autoUpdates).to.equal(true);
@@ -214,18 +212,10 @@ describe('Preferences class', function () {
     const preferences = await setupPreferences(tmpdir);
     const calls: any[] = [];
     preferences.onPreferencesChanged((prefs) => calls.push(prefs));
-    await preferences.ensureDefaultConfigurableUserPreferences();
     preferences.getConfigurableUserPreferences(); // set defaults
     await preferences.savePreferences({ networkTraffic: false });
     await preferences.savePreferences({ readOnly: true });
     expect(calls).to.deep.equal([
-      {
-        showedNetworkOptIn: true,
-        enableMaps: true,
-        enableFeedbackPanel: true,
-        trackUsageStatistics: true,
-        autoUpdates: true,
-      },
       {
         networkTraffic: false,
         enableMaps: false,

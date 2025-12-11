@@ -1,13 +1,6 @@
 import React, { useMemo } from 'react';
-import {
-  css,
-  spacing,
-  Accordion,
-  Body,
-  RadioBoxGroup,
-  RadioBox,
-} from '@mongodb-js/compass-components';
-import type { Field, Tab } from '../../modules/create-index';
+import { css, spacing, Accordion, Body } from '@mongodb-js/compass-components';
+import type { Field } from '../../modules/create-index';
 import { useAutocompleteFields } from '@mongodb-js/compass-field-store';
 import { CreateIndexFields } from '../create-index-fields';
 import { hasColumnstoreIndexesSupport } from '../../utils/columnstore-indexes';
@@ -18,9 +11,6 @@ import {
   useConnectionSupports,
 } from '@mongodb-js/compass-connections/provider';
 import { usePreference } from 'compass-preferences-model/provider';
-import IndexFlowSection from './index-flow-section';
-import QueryFlowSection from './query-flow-section';
-import toNS from 'mongodb-ns';
 import type { Document } from 'mongodb';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 
@@ -36,21 +26,14 @@ const createIndexModalOptionStyles = css({
   paddingLeft: spacing[100] + 2,
 });
 
-const createIndexModalFlowsStyles = css({
-  marginBottom: spacing[600],
-});
-
 export type CreateIndexFormProps = {
   namespace: string;
   fields: Field[];
   serverVersion: string;
-  currentTab: Tab;
   onSelectFieldNameClick: (idx: number, name: string) => void;
   onSelectFieldTypeClick: (idx: number, fType: string) => void;
   onAddFieldClick: () => void; // Plus icon.
   onRemoveFieldClick: (idx: number) => void; // Minus icon.
-  onTabClick: (tab: Tab) => void;
-  showIndexesGuidanceVariant?: boolean;
   query: Document | null;
 };
 
@@ -58,13 +41,10 @@ function CreateIndexForm({
   namespace,
   fields,
   serverVersion,
-  currentTab,
   onSelectFieldNameClick,
   onSelectFieldTypeClick,
   onAddFieldClick,
   onRemoveFieldClick,
-  onTabClick,
-  showIndexesGuidanceVariant,
 }: CreateIndexFormProps) {
   const { id: connectionId } = useConnectionInfo();
   const rollingIndexesFeatureEnabled = !!usePreference('enableRollingIndexes');
@@ -88,100 +68,33 @@ function CreateIndexForm({
       });
   }, [schemaFields]);
 
-  const showIndexesGuidanceIndexFlow =
-    showIndexesGuidanceVariant && currentTab === 'IndexFlow';
-  const showIndexesGuidanceQueryFlow =
-    showIndexesGuidanceVariant && currentTab === 'QueryFlow';
-
-  const { database: dbName, collection: collectionName } = toNS(namespace);
-
   return (
     <>
       <div
         className={createIndexModalFieldsStyles}
         data-testid="create-index-form"
       >
-        {!showIndexesGuidanceVariant ? (
-          <Body weight="medium" className={indexFieldsHeaderStyles}>
-            Index fields
-          </Body>
-        ) : (
-          <RadioBoxGroup
-            aria-labelledby="index-flows"
-            data-testid="create-index-form-flows"
-            id="create-index-form-flows"
-            onChange={(e) => {
-              const tabName =
-                e.target.value === 'IndexFlow'
-                  ? 'Start with an Index'
-                  : 'Start with a Query';
-              track(`${tabName} Tab Clicked`, {
-                context: 'Create Index Modal',
-              });
-              onTabClick(e.target.value as Tab);
-            }}
-            value={currentTab}
-            className={createIndexModalFlowsStyles}
-          >
-            <RadioBox id="index-flow" value={'IndexFlow'}>
-              Start with an Index
-            </RadioBox>
-            <RadioBox id="query-flow" value={'QueryFlow'}>
-              Start with a Query
-            </RadioBox>
-          </RadioBoxGroup>
-        )}
+        <Body weight="medium" className={indexFieldsHeaderStyles}>
+          Index fields
+        </Body>
 
         {fields.length > 0 ? (
-          // Variant UI
-          showIndexesGuidanceVariant && showIndexesGuidanceIndexFlow ? (
-            <IndexFlowSection
-              fields={fields}
-              dbName={dbName}
-              collectionName={collectionName}
-              createIndexFieldsComponent={
-                <CreateIndexFields
-                  schemaFields={schemaFieldNames}
-                  fields={fields}
-                  serverVersion={serverVersion}
-                  isRemovable={!(fields.length > 1)}
-                  onSelectFieldNameClick={onSelectFieldNameClick}
-                  onSelectFieldTypeClick={onSelectFieldTypeClick}
-                  onAddFieldClick={onAddFieldClick}
-                  onRemoveFieldClick={onRemoveFieldClick}
-                />
-              }
-            />
-          ) : (
-            // Control UI
-            !showIndexesGuidanceQueryFlow && (
-              <CreateIndexFields
-                schemaFields={schemaFieldNames}
-                fields={fields}
-                serverVersion={serverVersion}
-                isRemovable={!(fields.length > 1)}
-                onSelectFieldNameClick={onSelectFieldNameClick}
-                onSelectFieldTypeClick={onSelectFieldTypeClick}
-                onAddFieldClick={onAddFieldClick}
-                onRemoveFieldClick={onRemoveFieldClick}
-              />
-            )
-          )
+          <CreateIndexFields
+            schemaFields={schemaFieldNames}
+            fields={fields}
+            serverVersion={serverVersion}
+            isRemovable={!(fields.length > 1)}
+            onSelectFieldNameClick={onSelectFieldNameClick}
+            onSelectFieldTypeClick={onSelectFieldTypeClick}
+            onAddFieldClick={onAddFieldClick}
+            onRemoveFieldClick={onRemoveFieldClick}
+          />
         ) : null}
       </div>
 
-      {showIndexesGuidanceQueryFlow && (
-        <QueryFlowSection
-          schemaFields={schemaFields}
-          serverVersion={serverVersion}
-          dbName={dbName}
-          collectionName={collectionName}
-        />
-      )}
-
       <Accordion
         data-testid="create-index-modal-toggle-options"
-        text={showIndexesGuidanceVariant ? 'Index Options' : 'Options'}
+        text={'Options'}
         setOpen={() => {
           track('Options Clicked', {
             context: 'Create Index Modal',

@@ -3,32 +3,34 @@ import type { PipelineBuilderThunkAction } from '.';
 import type { SearchIndex } from 'mongodb-data-service';
 import { isAction } from '../utils/is-action';
 
-enum SearchIndexesStatuses {
-  INITIAL = 'INITIAL',
-  LOADING = 'LOADING',
-  READY = 'READY',
-  ERROR = 'ERROR',
-}
+const SearchIndexesStatuses = {
+  INITIAL: 'INITIAL',
+  LOADING: 'LOADING',
+  READY: 'READY',
+  ERROR: 'ERROR',
+} as const;
 
 export type SearchIndexesStatus = keyof typeof SearchIndexesStatuses;
 
-export enum ActionTypes {
-  FetchIndexesStarted = 'compass-aggregations/search-indexes/FetchIndexesStarted',
-  FetchIndexesFinished = 'compass-aggregations/search-indexes/FetchIndexesFinished',
-  FetchIndexesFailed = 'compass-aggregations/search-indexes/FetchIndexesFailed',
-}
+export const ActionTypes = {
+  FetchIndexesStarted:
+    'compass-aggregations/search-indexes/FetchIndexesStarted',
+  FetchIndexesFinished:
+    'compass-aggregations/search-indexes/FetchIndexesFinished',
+  FetchIndexesFailed: 'compass-aggregations/search-indexes/FetchIndexesFailed',
+} as const;
 
 type FetchIndexesStartedAction = {
-  type: ActionTypes.FetchIndexesStarted;
+  type: typeof ActionTypes.FetchIndexesStarted;
 };
 
 type FetchIndexesFinishedAction = {
-  type: ActionTypes.FetchIndexesFinished;
+  type: typeof ActionTypes.FetchIndexesFinished;
   indexes: SearchIndex[];
 };
 
 type FetchIndexesFailedAction = {
-  type: ActionTypes.FetchIndexesFailed;
+  type: typeof ActionTypes.FetchIndexesFailed;
 };
 
 export type SearchIndexesAction =

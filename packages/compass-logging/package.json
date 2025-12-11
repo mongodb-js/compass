@@ -5,13 +5,15 @@
     "name": "MongoDB Inc",
     "email": "compass@mongodb.com"
   },
-  "private": true,
+  "publishConfig": {
+    "access": "public"
+  },
   "bugs": {
     "url": "https://jira.mongodb.org/projects/COMPASS/issues",
     "email": "compass@mongodb.com"
   },
   "homepage": "https://github.com/mongodb-js/compass",
-  "version": "1.7.22",
+  "version": "1.7.25",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/compass.git"
@@ -51,8 +53,8 @@
   },
   "dependencies": {
     "debug": "^4.3.4",
-    "@mongodb-js/compass-app-registry": "^9.4.27",
-    "hadron-ipc": "^3.5.20",
+    "@mongodb-js/compass-app-registry": "^9.4.29",
+    "hadron-ipc": "^3.5.22",
     "is-electron-renderer": "^2.0.1",
     "mongodb-log-writer": "^2.3.4",
     "react": "^17.0.2"

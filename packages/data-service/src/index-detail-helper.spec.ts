@@ -1,8 +1,13 @@
 import { expect } from 'chai';
-import type { IndexInfo } from './index-detail-helper';
+import type { IndexDescriptionInfo, IndexDirection } from 'mongodb';
+
 import { createIndexDefinition } from './index-detail-helper';
 
-const SIMPLE_INDEX: IndexInfo = {
+type IndexDescriptionWithName = IndexDescriptionInfo & {
+  name: string;
+};
+
+const SIMPLE_INDEX: IndexDescriptionWithName = {
   v: 1,
   key: {
     foo: 1,
@@ -10,7 +15,7 @@ const SIMPLE_INDEX: IndexInfo = {
   name: 'foo',
 };
 
-const INDEXES_FIXTURE: IndexInfo[] = [
+const INDEXES_FIXTURE: IndexDescriptionWithName[] = [
   {
     v: 1,
     key: {
@@ -129,7 +134,7 @@ const INDEXES_FIXTURE: IndexInfo[] = [
   {
     v: 1,
     key: {
-      '$**': 'columnstore',
+      '$**': 'columnstore' as IndexDirection /* Coming in a later version. */,
     },
     name: 'columnstore_single_subtree',
     ns: 'mongodb.fanclub',
@@ -137,7 +142,16 @@ const INDEXES_FIXTURE: IndexInfo[] = [
   {
     v: 1,
     key: {
-      'address.$**': 'columnstore',
+      aShardedField: 1,
+    },
+    name: 'shardedIndexKey',
+    ns: 'mongodb.fanclub',
+  },
+  {
+    v: 1,
+    key: {
+      'address.$**':
+        'columnstore' as IndexDirection /* Coming in a later version. */,
     },
     name: 'columnstore_multi_subtree',
     columnstoreProjection: {
@@ -150,7 +164,13 @@ const INDEXES_FIXTURE: IndexInfo[] = [
 
 describe('createIndexDefinition', function () {
   const definitions = INDEXES_FIXTURE.map((index) => {
-    return createIndexDefinition('mongodb.fanclub', index);
+    return createIndexDefinition(
+      'mongodb.fanclub',
+      {
+        aShardedField: 1,
+      },
+      index
+    );
   });
   const definitionsMap = new Map(
     definitions.map((index) => [index.name, index])
@@ -170,6 +190,7 @@ describe('createIndexDefinition', function () {
       'not_wildcard',
       'seniors',
       'seniors-inverse',
+      'shardedIndexKey',
       'wildcard_multi_subtree',
       'wildcard_single_subtree',
     ]);
@@ -269,6 +290,23 @@ describe('createIndexDefinition', function () {
     );
   });
 
+  it('should recognize shard keys', function () {
+    expect(
+      definitions.every(
+        (index) =>
+          index.name === 'shardedIndexKey' ||
+          !index.properties.includes('shardKey')
+      )
+    ).to.eq(
+      true,
+      'expected every index to not have the shard key excluding shardedIndexKey'
+    );
+
+    expect(definitionsMap.get('shardedIndexKey'))
+      .to.have.property('properties')
+      .include('shardKey');
+  });
+
   describe('cardinality', function () {
     it('non-text simple index', function () {
       const index = {
@@ -279,7 +317,7 @@ describe('createIndexDefinition', function () {
         name: 'age_index',
         ns: 'mongodb.fanclub',
       };
-      expect(createIndexDefinition('', index)).to.have.property(
+      expect(createIndexDefinition('', null, index)).to.have.property(
         'cardinality',
         'single'
       );
@@ -295,14 +333,14 @@ describe('createIndexDefinition', function () {
         name: 'age_index',
         ns: 'mongodb.fanclub',
       };
-      expect(createIndexDefinition('', index)).to.have.property(
+      expect(createIndexDefinition('', null, index)).to.have.property(
         'cardinality',
         'compound'
       );
     });
 
     it('simple text index', function () {
-      const index = {
+      const index: IndexDescriptionWithName = {
         v: 1,
         key: {
           _fts: 'text',
@@ -317,14 +355,14 @@ describe('createIndexDefinition', function () {
         language_override: 'language',
         textIndexVersion: 3,
       };
-      expect(createIndexDefinition('', index)).to.have.property(
+      expect(createIndexDefinition('', null, index)).to.have.property(
         'cardinality',
         'single'
       );
     });
 
     it('text index on multiple fields which are all text', function () {
-      const index = {
+      const index: IndexDescriptionWithName = {
         v: 1,
         key: {
           _fts: 'text',
@@ -340,14 +378,14 @@ describe('createIndexDefinition', function () {
         language_override: 'language',
         textIndexVersion: 3,
       };
-      expect(createIndexDefinition('', index)).to.have.property(
+      expect(createIndexDefinition('', null, index)).to.have.property(
         'cardinality',
         'compound'
       );
     });
 
     it('text index on multiple fields which are mixed', function () {
-      const index = {
+      const index: IndexDescriptionWithName = {
         v: 1,
         key: {
           _fts: 'text',
@@ -363,7 +401,7 @@ describe('createIndexDefinition', function () {
         language_override: 'language',
         textIndexVersion: 3,
       };
-      expect(createIndexDefinition('', index)).to.have.property(
+      expect(createIndexDefinition('', null, index)).to.have.property(
         'cardinality',
         'compound'
       );
@@ -372,19 +410,25 @@ describe('createIndexDefinition', function () {
 
   it('calculates correct ttl', function () {
     expect(
-      createIndexDefinition('', { ...SIMPLE_INDEX, expireAfterSeconds: 20 })
+      createIndexDefinition('', null, {
+        ...SIMPLE_INDEX,
+        expireAfterSeconds: 20,
+      })
     )
       .to.have.property('properties')
       .include('ttl');
 
     expect(
-      createIndexDefinition('', { ...SIMPLE_INDEX, expireAfterSeconds: 0 })
+      createIndexDefinition('', null, {
+        ...SIMPLE_INDEX,
+        expireAfterSeconds: 0,
+      })
     )
       .to.have.property('properties')
       .include('ttl');
 
     expect(
-      createIndexDefinition('', {
+      createIndexDefinition('', null, {
         ...SIMPLE_INDEX,
         expireAfterSeconds: undefined,
       })
@@ -392,7 +436,7 @@ describe('createIndexDefinition', function () {
       .to.have.property('properties')
       .not.include('ttl');
 
-    expect(createIndexDefinition('', { ...SIMPLE_INDEX }))
+    expect(createIndexDefinition('', null, { ...SIMPLE_INDEX }))
       .to.have.property('properties')
       .not.include('ttl');
   });

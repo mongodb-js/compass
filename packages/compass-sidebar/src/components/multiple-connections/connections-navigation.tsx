@@ -30,7 +30,7 @@ import type {
   SidebarConnection,
   SidebarItem,
 } from '@mongodb-js/compass-connections-navigation';
-import type { WorkspaceTab } from '@mongodb-js/compass-workspaces';
+import type { WorkspaceTab } from '@mongodb-js/workspace-info';
 import {
   getConnectionTitle,
   type ConnectionInfo,
@@ -62,6 +62,12 @@ import {
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import { usePreference } from 'compass-preferences-model/provider';
 import { wrapField } from '@mongodb-js/mongodb-constants';
+import {
+  buildPerformanceMetricsUrl,
+  buildClusterOverviewUrl,
+  buildMonitoringUrl,
+  buildQueryInsightsUrl,
+} from '@mongodb-js/atlas-service/provider';
 
 const connectionsContainerStyles = css({
   height: '100%',
@@ -421,6 +427,30 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
         case 'show-connect-via-modal':
           onOpenConnectViaModal?.(getConnectionInfo(item).atlasMetadata);
           return;
+        case 'connection-atlas-performance-metrics': {
+          const { atlasMetadata } = getConnectionInfo(item);
+          if (atlasMetadata)
+            window.open(buildPerformanceMetricsUrl(atlasMetadata), '_blank');
+          return;
+        }
+        case 'connection-cluster-overview': {
+          const { atlasMetadata } = getConnectionInfo(item);
+          if (atlasMetadata)
+            window.open(buildClusterOverviewUrl(atlasMetadata), '_blank');
+          return;
+        }
+        case 'connection-view-monitoring': {
+          const { atlasMetadata } = getConnectionInfo(item);
+          if (atlasMetadata)
+            window.open(buildMonitoringUrl(atlasMetadata), '_blank');
+          return;
+        }
+        case 'connection-query-insights': {
+          const { atlasMetadata } = getConnectionInfo(item);
+          if (atlasMetadata)
+            window.open(buildQueryInsightsUrl(atlasMetadata), '_blank');
+          return;
+        }
         case 'select-database':
           openCollectionsWorkspace(connectionId, getNamespace(item));
           return;

@@ -43,6 +43,7 @@ import {
 import treeKill from 'tree-kill';
 import { downloadPath } from './downloads';
 import path from 'path';
+import { globalFixturesAbortController } from './test-runner-global-fixtures';
 
 const killAsync = async (pid: number, signal?: string) => {
   return new Promise<void>((resolve, reject) => {
@@ -63,7 +64,10 @@ const { Z_SYNC_FLUSH } = zlib.constants;
 
 const packageCompassAsync = promisify(packageCompass);
 
-// should we test compass-web (true) or compass electron (false)?
+/**
+ * should we test compass-web (true) or compass electron (false)?
+ * @deprecated use `isTestingWeb` instead
+ */
 export const TEST_COMPASS_WEB = isTestingWeb();
 
 // Extending the WebdriverIO's types to allow a verbose option to the chromedriver
@@ -174,6 +178,27 @@ export class Compass {
         return v(browser, ...args);
       });
     }
+
+    // The waitUntil helper will continue running even if we started tests
+    // teardown on abort. To work around that, we will override the default
+    // method, will short circuit the wait if we aborted, and then throw the
+    // error instead of returning the result
+    browser.overwriteCommand(
+      'waitUntil',
+      async function (origWaitUntil, condition, options) {
+        // eslint-disable-next-line @typescript-eslint/await-thenable
+        const result = await origWaitUntil(function () {
+          if (globalFixturesAbortController.signal.aborted) {
+            return true;
+          }
+          return condition();
+        }, options);
+        if (globalFixturesAbortController.signal.aborted) {
+          throw new Error('Test run was aborted');
+        }
+        return result;
+      }
+    );
 
     this.addDebugger();
   }
@@ -422,6 +447,7 @@ interface StartCompassOptions {
   firstRun?: boolean;
   extraSpawnArgs?: string[];
   wrapBinary?: (binary: string) => Promise<string> | string;
+  dangerouslySkipSharedConfigWaitFor?: boolean;
 }
 
 let defaultUserDataDir: string | undefined;
@@ -463,13 +489,18 @@ function execFileIgnoreError(
   stderr: string;
 }> {
   return new Promise((resolve) => {
-    execFile(path, args, opts, function (error, stdout, stderr) {
-      resolve({
-        error,
-        stdout,
-        stderr,
-      });
-    });
+    execFile(
+      path,
+      args,
+      { ...opts, encoding: 'utf8' },
+      function (error, stdout, stderr) {
+        resolve({
+          error,
+          stdout,
+          stderr,
+        });
+      }
+    );
   });
 }
 
@@ -651,18 +682,6 @@ async function startCompassElectron(
   if (!process.env.HADRON_AUTO_UPDATE_ENDPOINT_OVERRIDE) {
     process.env.HADRON_PRODUCT_NAME_OVERRIDE = 'MongoDB Compass WebdriverIO';
   }
-
-  // Guide cues might affect too many tests in a way where the auto showing of the cue prevents
-  // clicks from working on elements. Dealing with this case-by-case is way too much work, so
-  // we disable the cues completely for the e2e tests
-  process.env.DISABLE_GUIDE_CUES = 'true';
-
-  // Making sure end-of-life connection modal is not shown, simplify any test connecting to such a server
-  process.env.COMPASS_DISABLE_END_OF_LIFE_CONNECTION_MODAL = 'true';
-
-  // TODO(COMPASS-9977) Turn off virtual scrolling in e2e tests until we can fix
-  // browser.scrollToVirtualItem() to work with it
-  process.env.COMPASS_DISABLE_VIRTUAL_TABLE_RENDERING = 'true';
 
   const options = {
     automationProtocol: 'webdriver' as const,
@@ -1081,6 +1100,37 @@ function augmentError(error: Error, stack: string) {
   error.stack = `${error.stack ?? ''}\nvia ${strippedLines.join('\n')}`;
 }
 
+async function setSharedConfigOnStart(
+  browser: CompassBrowser,
+  dangerouslySkipSharedConfigWaitFor = false
+) {
+  // Guide cues might affect too many tests in a way where the auto showing of
+  // the cue prevents clicks from working on elements. Dealing with this
+  // case-by-case is way too much work, so we disable the cues completely for
+  // the e2e tests
+  await browser.setFeature('enableGuideCues', false);
+
+  // Making sure end-of-life connection modal is not shown, simplify any test
+  // connecting to such a server
+  await browser.setFeature('showEndOfLifeConnectionModal', false);
+
+  // Nice-to-have for desktop tests: if devtools are enabled, you don't need to
+  // spend time enabling them manually in settings
+  await browser.setFeature('enableDevTools', true, () => {
+    // Do not validate that the value was set: some tests might pre-configure
+    // Compass in a way where changing this config is not allowed
+    return true;
+  });
+
+  // TODO(COMPASS-9977) Turn off virtual scrolling in e2e tests until we can fix
+  // browser.scrollToVirtualItem() to work with it
+  await browser.setEnv(
+    'COMPASS_DISABLE_VIRTUAL_TABLE_RENDERING',
+    'true',
+    dangerouslySkipSharedConfigWaitFor
+  );
+}
+
 export async function init(
   name?: string,
   opts: StartCompassOptions = {}
@@ -1097,36 +1147,32 @@ export async function init(
 
   const { browser } = compass;
 
-  // For browser.executeAsync(). Trying to see if it will work for browser.execute() too.
-  await browser.setTimeout({ script: 5_000 });
+  await setSharedConfigOnStart(
+    browser,
+    opts.dangerouslySkipSharedConfigWaitFor
+  );
 
-  if (TEST_COMPASS_WEB) {
-    // larger window for more consistent results
-    const [width, height] = await browser.execute(() => {
-      // in case setWindowSize() below doesn't work
-      // eslint-disable-next-line no-restricted-globals
-      window.resizeTo(window.screen.availWidth, window.screen.availHeight);
-      // eslint-disable-next-line no-restricted-globals
-      return [window.screen.availWidth, window.screen.availHeight];
-    });
-    // getting available width=1512, height=944 in electron on mac which is arbitrary
-    debug(`available width=${width}, height=${height}`);
-    try {
-      // window.resizeTo() doesn't work on firefox
-      await browser.setWindowSize(width, height);
-    } catch (err) {
-      console.error(err instanceof Error ? err.stack : err);
-    }
-  } else {
-    await browser.execute(() => {
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
-      const { ipcRenderer } = require('electron');
-      void ipcRenderer.invoke('compass:maximize');
-    });
-  }
+  // Matches Compass desktop defaults
+  const defaultWindowWidth = 1432;
+  const defaultWindowHeight = 840;
+
+  const { width: newWidth, height: newHeight } = await browser.resizeWindow(
+    defaultWindowWidth,
+    defaultWindowHeight,
+    opts.dangerouslySkipSharedConfigWaitFor
+  );
+
+  debug(`resized window to ${newWidth}x${newHeight}`);
 
   if (compass.needsCloseWelcomeModal) {
-    await browser.closeWelcomeModal();
+    try {
+      await browser.closeWelcomeModal();
+    } catch (err) {
+      await browser.screenshot(
+        screenshotPathName(`${name ?? 'init'}-close-welcome-modal`)
+      );
+      throw err;
+    }
   }
 
   return compass;

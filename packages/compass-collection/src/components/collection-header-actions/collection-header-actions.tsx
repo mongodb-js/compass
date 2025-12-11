@@ -19,17 +19,17 @@ import { wrapField } from '@mongodb-js/mongodb-constants';
 import {
   useTelemetry,
   useAssignment,
-  ExperimentTestName,
-  ExperimentTestGroup,
+  ExperimentTestNames,
+  ExperimentTestGroups,
   useTrackOnChange,
   type TrackFunction,
 } from '@mongodb-js/compass-telemetry/provider';
-import {
-  SCHEMA_ANALYSIS_STATE_ANALYZING,
-  type SchemaAnalysisStatus,
-  type SchemaAnalysisError,
-} from '../../schema-analysis-types';
+import { type SchemaAnalysisError } from '../../schema-analysis-types';
 import { MAX_COLLECTION_NESTING_DEPTH } from '../mock-data-generator-modal/utils';
+import {
+  buildChartsUrl,
+  buildMonitoringUrl,
+} from '@mongodb-js/atlas-service/provider';
 
 const collectionHeaderActionsStyles = css({
   display: 'flex',
@@ -46,23 +46,10 @@ const tooltipMessageStyles = css({
   },
 });
 
-function buildChartsUrl(
-  groupId: string,
-  clusterName: string,
-  namespace: string
-) {
-  const { database, collection } = toNS(namespace);
-  const url = new URL(`/charts/${groupId}`, window.location.origin);
-  url.searchParams.set('sourceType', 'cluster');
-  url.searchParams.set('name', clusterName);
-  url.searchParams.set('database', database);
-  url.searchParams.set('collection', collection);
-  return url.toString();
-}
-
 type CollectionHeaderActionsProps = {
   namespace: string;
   isReadonly: boolean;
+  isTimeSeries: boolean;
   editViewName?: string;
   sourceName?: string;
   sourcePipeline?: unknown[];
@@ -70,7 +57,8 @@ type CollectionHeaderActionsProps = {
   hasSchemaAnalysisData: boolean;
   schemaAnalysisError: SchemaAnalysisError | null;
   analyzedSchemaDepth: number;
-  schemaAnalysisStatus: SchemaAnalysisStatus | null;
+  isCollectionEmpty: boolean;
+  hasUnsupportedStateError: boolean;
 };
 
 const CollectionHeaderActions: React.FunctionComponent<
@@ -78,14 +66,16 @@ const CollectionHeaderActions: React.FunctionComponent<
 > = ({
   namespace,
   isReadonly,
+  isTimeSeries,
   editViewName,
   sourceName,
   sourcePipeline,
   onOpenMockDataModal,
   hasSchemaAnalysisData,
   analyzedSchemaDepth,
-  schemaAnalysisStatus,
   schemaAnalysisError,
+  isCollectionEmpty,
+  hasUnsupportedStateError,
 }: CollectionHeaderActionsProps) => {
   const connectionInfo = useConnectionInfo();
   const { id: connectionId, atlasMetadata } = connectionInfo;
@@ -99,31 +89,31 @@ const CollectionHeaderActions: React.FunctionComponent<
     'enableGenAISampleDocumentPassing'
   );
 
-  // Get experiment assignment for Mock Data Generator
-  const mockDataGeneratorAssignment = useAssignment(
-    ExperimentTestName.mockDataGenerator,
-    true // trackIsInSample - this will fire the "Experiment Viewed" event
+  const { database, collection } = toNS(namespace);
+
+  const isMockDataGeneratorEligible = Boolean(
+    atlasMetadata && // Only show in Atlas
+      !isReadonly && // Don't show for readonly collections (views)
+      !isTimeSeries && // Don't show for time series collections
+      !sourceName // sourceName indicates it's a view
   );
 
-  const { database, collection } = toNS(namespace);
+  // Get experiment assignment for Mock Data Generator
+  const mockDataGeneratorAssignment = useAssignment(
+    ExperimentTestNames.mockDataGenerator,
+    isMockDataGeneratorEligible // Only track eligible collections
+  );
 
   // Check if user is in treatment group for Mock Data Generator experiment
   const isInMockDataTreatmentVariant =
     mockDataGeneratorAssignment?.assignment?.assignmentData?.variant ===
-    ExperimentTestGroup.mockDataGeneratorVariant;
+    ExperimentTestGroups.mockDataGeneratorVariant;
 
   const shouldShowMockDataButton =
-    isInMockDataTreatmentVariant &&
-    atlasMetadata && // Only show in Atlas
-    !isReadonly && // Don't show for readonly collections (views)
-    !sourceName; // sourceName indicates it's a view
+    isMockDataGeneratorEligible && isInMockDataTreatmentVariant;
 
   const exceedsMaxNestingDepth =
     analyzedSchemaDepth > MAX_COLLECTION_NESTING_DEPTH;
-
-  const isCollectionEmpty =
-    !hasSchemaAnalysisData &&
-    schemaAnalysisStatus !== SCHEMA_ANALYSIS_STATE_ANALYZING;
 
   const isView = isReadonly && sourceName && !editViewName;
 
@@ -184,7 +174,11 @@ const CollectionHeaderActions: React.FunctionComponent<
       )}
       {shouldShowMockDataButton && (
         <Tooltip
-          enabled={exceedsMaxNestingDepth || isCollectionEmpty}
+          enabled={
+            exceedsMaxNestingDepth ||
+            isCollectionEmpty ||
+            hasUnsupportedStateError
+          }
           trigger={
             <div>
               <Button
@@ -199,41 +193,42 @@ const CollectionHeaderActions: React.FunctionComponent<
             </div>
           }
         >
-          {/* TODO(CLOUDP-333853): update disabled open-modal button
-          tooltip to communicate if schema analysis is incomplete */}
           <>
-            {exceedsMaxNestingDepth && (
+            {hasUnsupportedStateError ? (
+              <span className={tooltipMessageStyles}>
+                {schemaAnalysisError?.errorMessage}
+              </span>
+            ) : exceedsMaxNestingDepth ? (
               <span className={tooltipMessageStyles}>
                 At this time we are unable to generate mock data for collections
                 that have deeply nested documents.
               </span>
-            )}
-            {isCollectionEmpty && (
+            ) : isCollectionEmpty ? (
               <span className={tooltipMessageStyles}>
                 Please add data to your collection to generate similar mock
                 documents.
               </span>
-            )}
-            {schemaAnalysisError &&
-              schemaAnalysisError.errorType === 'unsupportedState' && (
-                <span className={tooltipMessageStyles}>
-                  This collection has a field with a name that contains a
-                  &quot.&quot, which mock data generation does not support at
-                  this time.
-                </span>
-              )}
+            ) : null}
           </>
         </Tooltip>
       )}
       {atlasMetadata && (
         <Button
+          data-testid="collection-header-view-monitoring"
+          size={ButtonSize.Small}
+          href={buildMonitoringUrl(atlasMetadata)}
+          target="_blank"
+          rel="noopener noreferrer"
+          leftGlyph={<Icon glyph="TimeSeries" />}
+        >
+          View monitoring
+        </Button>
+      )}
+      {atlasMetadata && (
+        <Button
           data-testid="collection-header-visualize-your-data"
           size={ButtonSize.Small}
-          href={buildChartsUrl(
-            atlasMetadata.projectId,
-            atlasMetadata.clusterName,
-            namespace
-          )}
+          href={buildChartsUrl(atlasMetadata, namespace)}
           target="_self"
           rel="noopener noreferrer"
           leftGlyph={<Icon glyph="Charts" />}

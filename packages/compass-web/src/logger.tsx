@@ -2,7 +2,10 @@ import type { Logger } from '@mongodb-js/compass-logging/provider';
 import { MongoLogWriter } from 'mongodb-log-writer/mongo-log-writer';
 import type { Writable } from 'stream';
 import { mongoLogId } from '@mongodb-js/compass-logging/provider';
-import { useRef } from 'react';
+import {
+  useCurrentValueRef,
+  useInitialValue,
+} from '@mongodb-js/compass-components';
 
 /** @public */
 export type LogMessage = {
@@ -54,18 +57,25 @@ function createCompassWebDebugger(
 
 export class CompassWebLogger implements Logger {
   log: Logger['log'];
-
   debug: Debugger;
-
+  private component: string;
+  private callbackRef: {
+    current: {
+      onLog?: LogFunction;
+      onDebug?: DebugFunction;
+    };
+  };
   constructor(
-    private component: string,
-    private callbackRef: {
+    component: string,
+    callbackRef: {
       current: {
         onLog?: LogFunction;
         onDebug?: DebugFunction;
       };
     }
   ) {
+    this.component = component;
+    this.callbackRef = callbackRef;
     const target = {
       write(line: string, callback: () => void) {
         callbackRef.current.onLog?.(JSON.parse(line));
@@ -92,14 +102,9 @@ export function useCompassWebLogger(callbacks: {
   onLog?: LogFunction;
   onDebug?: DebugFunction;
 }): CompassWebLogger {
-  const callbackRef = useRef(callbacks);
-  callbackRef.current = callbacks;
-  const loggerAndTelemetryRef = useRef<CompassWebLogger>();
-  if (!loggerAndTelemetryRef.current) {
-    loggerAndTelemetryRef.current = new CompassWebLogger(
-      'COMPASS-WEB',
-      callbackRef
-    );
-  }
-  return loggerAndTelemetryRef.current;
+  const callbackRef = useCurrentValueRef(callbacks);
+  const loggerAndTelemetry = useInitialValue<CompassWebLogger>(() => {
+    return new CompassWebLogger('COMPASS-WEB', callbackRef);
+  });
+  return loggerAndTelemetry;
 }

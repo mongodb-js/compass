@@ -16,7 +16,10 @@ const initialCollectionName = 'csv-file';
 const newCollectionName = 'renamed';
 
 class RenameCollectionModal {
-  constructor(private browser: CompassBrowser) {}
+  private browser: CompassBrowser;
+  constructor(browser: CompassBrowser) {
+    this.browser = browser;
+  }
   get confirmationScreen() {
     return this.browser.$(Selectors.RenameCollectionModalConfirmationScreen);
   }
@@ -136,7 +139,7 @@ describe('Collection Rename Modal', () => {
       await browser.clickVisible(Selectors.SidebarFilterInput);
       await browser.setValueVisible(
         Selectors.SidebarFilterInput,
-        `^(${databaseName}|${newCollectionName})$`
+        `${databaseName}.${newCollectionName}`
       );
       await browser
         .$(

@@ -15,21 +15,16 @@ import {
   fontFamilies,
   palette,
   useDarkMode,
-  LgChatChatDisclaimer,
-  Link,
   Icon,
 } from '@mongodb-js/compass-components';
 import { ConfirmationMessage } from './confirmation-message';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import { NON_GENUINE_WARNING_MESSAGE } from '../preset-messages';
 
-const { DisclaimerText } = LgChatChatDisclaimer;
 const { ChatWindow } = LgChatChatWindow;
-const { LeafyGreenChatProvider, Variant } = LgChatLeafygreenChatProvider;
+const { LeafyGreenChatProvider } = LgChatLeafygreenChatProvider;
 const { Message } = LgChatMessage;
 const { InputBar } = LgChatInputBar;
-
-const GEN_AI_FAQ_LINK = 'https://www.mongodb.com/docs/generative-ai-faq/';
 
 interface AssistantChatProps {
   chat: Chat<AssistantMessage>;
@@ -159,14 +154,6 @@ const welcomeMessageStyles = css({
   paddingBottom: spacing[400],
   paddingLeft: spacing[400],
   paddingRight: spacing[400],
-});
-const disclaimerTextStyles = css({
-  paddingBottom: spacing[400],
-  paddingLeft: spacing[400],
-  paddingRight: spacing[400],
-  a: {
-    fontSize: 'inherit',
-  },
 });
 // On small screens, many components end up breaking words which we don't want.
 // This is a general temporary fix for all components that we want to prevent from wrapping.
@@ -379,7 +366,7 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
       )}
       style={chatContainerOverrideStyle}
     >
-      <LeafyGreenChatProvider variant={Variant.Compact}>
+      <LeafyGreenChatProvider>
         <ChatWindow title="MongoDB Assistant" className={chatWindowFixesStyles}>
           <div
             data-testid="assistant-chat-messages"
@@ -392,12 +379,14 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
                 const seenTitles = new Set<string>();
                 const sources = [];
                 for (const part of parts) {
-                  if (part.type === 'source-url') {
-                    const title = part.title || 'Documentation Link';
-                    if (!seenTitles.has(title)) {
-                      seenTitles.add(title);
+                  // Related sources are type source-url. We want to only
+                  // include url_citation (has url and title), not file_citation
+                  // (no url or title).
+                  if (part.type === 'source-url' && part.url && part.title) {
+                    if (!seenTitles.has(part.title)) {
+                      seenTitles.add(part.title);
                       sources.push({
-                        children: title,
+                        children: part.title,
                         href: part.url,
                         variant: 'Docs',
                       });
@@ -499,17 +488,6 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
               textareaProps={inputBarTextareaProps}
             />
           </div>
-          <DisclaimerText className={disclaimerTextStyles}>
-            AI can make mistakes. Review for accuracy.{' '}
-            <Link
-              className={noWrapFixesStyles}
-              hideExternalIcon={false}
-              href={GEN_AI_FAQ_LINK}
-              target="_blank"
-            >
-              Learn more
-            </Link>
-          </DisclaimerText>
         </ChatWindow>
       </LeafyGreenChatProvider>
     </div>

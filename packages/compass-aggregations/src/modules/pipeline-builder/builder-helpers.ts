@@ -63,7 +63,7 @@ export function getPipelineStageOperatorsFromBuilderState(
 export function getPipelineStageOperatorsFromBuilderState(
   state: RootState,
   filterEmptyStageOperators = true
-): (string | null)[] | string[] {
+): (string | null)[] {
   const stages =
     state.pipelineBuilder.pipelineMode === 'builder-ui'
       ? state.pipelineBuilder.stageEditor.stages

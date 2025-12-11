@@ -103,7 +103,7 @@ describe('group with subset', function () {
         );
       });
       it('renders number of records input', function () {
-        expect(screen.getByTestId('number-of-records-input')).to.throw;
+        expect(screen.queryByTestId('number-of-records-input')).to.exist;
       });
     });
 

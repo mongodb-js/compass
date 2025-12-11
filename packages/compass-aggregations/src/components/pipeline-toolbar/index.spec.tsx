@@ -11,7 +11,7 @@ import { renderWithStore } from '../../../test/configure-store';
 import { PipelineToolbar } from './index';
 import { createElectronPipelineStorage } from '@mongodb-js/my-queries-storage/electron';
 import { CompassExperimentationProvider } from '@mongodb-js/compass-telemetry';
-import { ExperimentTestGroup } from '@mongodb-js/compass-telemetry/provider';
+import { ExperimentTestGroups } from '@mongodb-js/compass-telemetry/provider';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 
@@ -20,12 +20,7 @@ describe('PipelineToolbar', function () {
     let toolbar: HTMLElement;
     beforeEach(async function () {
       await renderWithStore(
-        <PipelineToolbar
-          isBuilderView
-          showExportButton
-          showRunButton
-          showExplainButton
-        />,
+        <PipelineToolbar isBuilderView showRunButton showExplainButton />,
         { pipeline: [{ $match: { _id: 1 } }] },
         undefined,
         {
@@ -106,10 +101,6 @@ describe('PipelineToolbar', function () {
         within(settings).getByTestId('pipeline-toolbar-create-new-button'),
         'shows create-new button'
       ).to.exist;
-      expect(
-        within(settings).getByTestId('pipeline-toolbar-export-button'),
-        'shows export to language button'
-      ).to.exist;
 
       expect(
         within(settings).getByTestId('pipeline-toolbar-preview-toggle'),
@@ -129,21 +120,6 @@ describe('PipelineToolbar', function () {
       expect(saveMenuContent.childNodes[0].textContent).to.equal('Save');
       expect(saveMenuContent.childNodes[1].textContent).to.equal('Save as');
       expect(saveMenuContent.childNodes[2].textContent).to.equal('Create view');
-    });
-  });
-
-  describe('renders with setting row - hidden', function () {
-    it('does not render toolbar settings', async function () {
-      await renderWithStore(
-        <PipelineToolbar
-          isBuilderView
-          showExplainButton
-          showExportButton
-          showRunButton
-        />
-      );
-      const toolbar = screen.getByTestId('pipeline-toolbar');
-      expect(() => within(toolbar).getByTestId('pipeline-settings')).to.throw;
     });
   });
 
@@ -179,7 +155,7 @@ describe('PipelineToolbar', function () {
           mockUseAssignment.returns({
             assignment: {
               assignmentData: {
-                variant: ExperimentTestGroup.atlasSkillsVariant,
+                variant: ExperimentTestGroups.atlasSkillsVariant,
               },
             },
             ...commonAsyncStatus,
@@ -188,7 +164,7 @@ describe('PipelineToolbar', function () {
           mockUseAssignment.returns({
             assignment: {
               assignmentData: {
-                variant: ExperimentTestGroup.atlasSkillsControl,
+                variant: ExperimentTestGroups.atlasSkillsControl,
               },
             },
             ...commonAsyncStatus,
@@ -212,12 +188,7 @@ describe('PipelineToolbar', function () {
           assignExperiment={mockAssignExperiment}
           getAssignment={mockGetAssignment}
         >
-          <PipelineToolbar
-            isBuilderView
-            showRunButton
-            showExportButton
-            showExplainButton
-          />
+          <PipelineToolbar isBuilderView showRunButton showExplainButton />
         </CompassExperimentationProvider>,
         { pipeline: [] }, // Initial state
         undefined, // Connection info

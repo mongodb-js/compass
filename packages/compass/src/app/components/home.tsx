@@ -14,12 +14,11 @@ import CompassConnections, {
   LegacyConnectionsModal,
 } from '@mongodb-js/compass-connections';
 import { CompassFindInPagePlugin } from '@mongodb-js/compass-find-in-page';
-import type { SettingsTabId } from '@mongodb-js/compass-settings';
 import { CompassSettingsPlugin } from '@mongodb-js/compass-settings';
 import { WelcomeModal } from '@mongodb-js/compass-welcome';
 import { type ConnectionStorage } from '@mongodb-js/connection-storage/provider';
 import { AppRegistryProvider } from '@mongodb-js/compass-app-registry';
-import React, { useCallback, useState } from 'react';
+import React from 'react';
 import Workspace from './workspace';
 import { getExtraConnectionData } from '../utils/telemetry';
 // The only place where the app-stores plugin can be used as a plugin and not a
@@ -32,7 +31,7 @@ import { CompassGenerativeAIPlugin } from '@mongodb-js/compass-generative-ai';
 import { ConnectionStorageProvider } from '@mongodb-js/connection-storage/provider';
 import { ConnectionImportExportProvider } from '@mongodb-js/compass-connection-import-export';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
-import { usePreference } from 'compass-preferences-model/provider';
+import { usePreferences } from 'compass-preferences-model/provider';
 import { CompassAssistantProvider } from '@mongodb-js/compass-assistant';
 import { APP_NAMES_FOR_PROMPT } from '@mongodb-js/compass-assistant';
 
@@ -60,8 +59,6 @@ const globalDarkThemeStyles = css({
 
 export type HomeProps = {
   appName: string;
-  showWelcomeModal?: boolean;
-  showSettings: (tab?: SettingsTabId) => void;
 };
 
 const verticalSplitStyles = css({
@@ -75,23 +72,7 @@ const verticalSplitStyles = css({
 
 function noop() {}
 
-function Home({
-  appName,
-  showWelcomeModal = false,
-  showSettings,
-}: HomeProps): React.ReactElement | null {
-  const [isWelcomeOpen, setIsWelcomeOpen] = useState(showWelcomeModal);
-
-  const closeWelcomeModal = useCallback(
-    (showSettingsModal?: boolean) => {
-      setIsWelcomeOpen(false);
-      if (showSettingsModal) {
-        showSettings('privacy');
-      }
-    },
-    [setIsWelcomeOpen, showSettings]
-  );
-
+function Home({ appName }: HomeProps): React.ReactElement | null {
   return (
     <ConnectionImportExportProvider>
       <CompassInstanceStorePlugin>
@@ -101,7 +82,7 @@ function Home({
               <Workspace onActiveWorkspaceTabChange={noop} appName={appName} />
             </AppRegistryProvider>
           </div>
-          <WelcomeModal isOpen={isWelcomeOpen} closeModal={closeWelcomeModal} />
+          <WelcomeModal></WelcomeModal>
           <CompassSettingsPlugin></CompassSettingsPlugin>
           <CompassFindInPagePlugin></CompassFindInPagePlugin>
           <AtlasAuthPlugin></AtlasAuthPlugin>
@@ -162,9 +143,20 @@ export default function ThemedHome(
   props: HomeWithConnectionsProps
 ): ReturnType<typeof HomeWithConnections> {
   const track = useTelemetry();
-  const disableContextMenus = !usePreference('enableContextMenus');
+  const {
+    enableContextMenus,
+    legacyUUIDDisplayEncoding,
+    showedNetworkOptIn,
+    enableGuideCues,
+  } = usePreferences([
+    'enableContextMenus',
+    'legacyUUIDDisplayEncoding',
+    'showedNetworkOptIn',
+    'enableGuideCues',
+  ]);
   return (
     <CompassComponentsProvider
+      legacyUUIDDisplayEncoding={legacyUUIDDisplayEncoding}
       onNextGuideGue={(cue) => {
         track('Guide Cue Dismissed', {
           groupId: cue.groupId,
@@ -217,7 +209,10 @@ export default function ThemedHome(
       onSignalClose={(id) => {
         track('Signal Closed', { id });
       }}
-      disableContextMenus={disableContextMenus}
+      disableContextMenus={!enableContextMenus}
+      // Wait for the "Welcome" modal to disappear before showing any guide cues
+      // in the app
+      disableGuideCues={!enableGuideCues || !showedNetworkOptIn}
     >
       {({ darkMode, portalContainerRef }) => {
         return (

@@ -41,12 +41,12 @@ import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { useWorkspaceTabId } from '@mongodb-js/compass-workspaces/provider';
 import type { CollectionStats } from '../../modules/collection-stats';
 import { VIEW_PIPELINE_UTILS } from '@mongodb-js/mongodb-constants';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 
 type SearchIndexesTableProps = {
   namespace: string;
   indexes: SearchIndex[];
   isWritable?: boolean;
-  readOnly?: boolean;
   isReadonlyView: boolean;
   collectionStats?: CollectionStats;
   status: FetchStatus;
@@ -72,6 +72,8 @@ function ZeroState({
   onOpenCreateModalClick: () => void;
   isViewPipelineSearchQueryable: boolean;
 }) {
+  const track = useTelemetry();
+
   return (
     <EmptyContent
       icon={ZeroGraphic}
@@ -84,7 +86,12 @@ function ZeroState({
           justify="middle"
           trigger={
             <Button
-              onClick={onOpenCreateModalClick}
+              onClick={() => {
+                onOpenCreateModalClick();
+                track('Create Search Index for View Clicked', {
+                  context: 'Indexes Tab',
+                });
+              }}
               data-testid="create-atlas-search-index-button"
               variant="primary"
               size="small"

@@ -1,12 +1,13 @@
-import { MockDataGeneratorStep } from './types';
+import type { MockDataGeneratorStep } from './types';
+import { MockDataGeneratorSteps } from './types';
 import type { MongoDBFieldType } from '../../schema-analysis-types';
 
 export const StepButtonLabelMap = {
-  [MockDataGeneratorStep.SCHEMA_CONFIRMATION]: 'Confirm',
-  [MockDataGeneratorStep.SCHEMA_EDITOR]: 'Next',
-  [MockDataGeneratorStep.DOCUMENT_COUNT]: 'Next',
-  [MockDataGeneratorStep.PREVIEW_DATA]: 'Generate Script',
-  [MockDataGeneratorStep.GENERATE_DATA]: 'Done',
+  [MockDataGeneratorSteps.SCHEMA_CONFIRMATION]: 'Confirm',
+  [MockDataGeneratorSteps.SCHEMA_EDITOR]: 'Next',
+  [MockDataGeneratorSteps.DOCUMENT_COUNT]: 'Next',
+  [MockDataGeneratorSteps.PREVIEW_DATA]: 'Generate Script',
+  [MockDataGeneratorSteps.GENERATE_DATA]: 'Done',
 } as const;
 
 // Map of the current mock data generator step to the next step or 'finish' if the user is on the last step.
@@ -15,12 +16,12 @@ export const MOCK_DATA_GENERATOR_STEP_TO_NEXT_STEP_MAP: Record<
   MockDataGeneratorStep,
   MockDataGeneratorStep | 'finish'
 > = {
-  [MockDataGeneratorStep.SCHEMA_CONFIRMATION]:
-    MockDataGeneratorStep.SCHEMA_EDITOR,
-  [MockDataGeneratorStep.SCHEMA_EDITOR]: MockDataGeneratorStep.DOCUMENT_COUNT,
-  [MockDataGeneratorStep.DOCUMENT_COUNT]: MockDataGeneratorStep.PREVIEW_DATA,
-  [MockDataGeneratorStep.PREVIEW_DATA]: MockDataGeneratorStep.GENERATE_DATA,
-  [MockDataGeneratorStep.GENERATE_DATA]: 'finish',
+  [MockDataGeneratorSteps.SCHEMA_CONFIRMATION]:
+    MockDataGeneratorSteps.SCHEMA_EDITOR,
+  [MockDataGeneratorSteps.SCHEMA_EDITOR]: MockDataGeneratorSteps.DOCUMENT_COUNT,
+  [MockDataGeneratorSteps.DOCUMENT_COUNT]: MockDataGeneratorSteps.PREVIEW_DATA,
+  [MockDataGeneratorSteps.PREVIEW_DATA]: MockDataGeneratorSteps.GENERATE_DATA,
+  [MockDataGeneratorSteps.GENERATE_DATA]: 'finish',
 };
 
 export const DEFAULT_DOCUMENT_COUNT = 1000;
@@ -52,85 +53,178 @@ export const MongoDBFieldTypeValues: MongoDBFieldType[] = [
  */
 export const MONGO_TYPE_TO_FAKER_METHODS: Record<
   MongoDBFieldType,
-  Array<string>
+  Array<{ method: string; description?: string }>
 > = {
   String: [
-    'lorem.word',
-    'lorem.words',
-    'lorem.sentence',
-    'lorem.paragraph',
-    'person.firstName',
-    'person.lastName',
-    'person.fullName',
-    'person.jobTitle',
-    'internet.displayName',
-    'internet.email',
-    'internet.emoji',
-    'internet.password',
-    'internet.url',
-    'internet.domainName',
-    'internet.userName',
-    'phone.number',
-    'location.city',
-    'location.country',
-    'location.streetAddress',
-    'location.zipCode',
-    'location.state',
-    'company.name',
-    'company.catchPhrase',
-    'color.human',
-    'commerce.productName',
-    'commerce.department',
-    'finance.accountName',
-    'finance.currencyCode',
-    'git.commitSha',
-    'string.uuid',
-    'string.alpha',
-    'string.alphanumeric',
-    'system.fileName',
-    'system.filePath',
-    'system.mimeType',
-    'book.title',
-    'music.songName',
-    'food.dish',
-    'animal.type',
-    'vehicle.model',
-    'hacker.phrase',
-    'science.chemicalElement',
+    { method: 'lorem.word', description: 'Single word' },
+    { method: 'lorem.words', description: 'Multiple words' },
+    { method: 'lorem.sentence', description: 'Short sentence' },
+    { method: 'lorem.paragraph', description: 'Paragraph of text' },
+    { method: 'person.firstName' },
+    { method: 'person.lastName' },
+    { method: 'person.fullName' },
+    { method: 'person.jobTitle' },
+    {
+      method: 'internet.displayName',
+      description: 'Username-style display name',
+    },
+    { method: 'internet.email' },
+    { method: 'internet.emoji' },
+    { method: 'internet.password', description: 'Randomly generated password' },
+    { method: 'internet.url' },
+    { method: 'internet.domainName' },
+    { method: 'internet.userName' },
+    { method: 'phone.number' },
+    { method: 'location.city' },
+    { method: 'location.country' },
+    { method: 'location.streetAddress' },
+    { method: 'location.zipCode' },
+    { method: 'location.state' },
+    { method: 'company.name' },
+    {
+      method: 'company.catchPhrase',
+      description: 'Corporate-style marketing slogan',
+    },
+    { method: 'color.human', description: 'Human-readable color name' },
+    {
+      method: 'commerce.productName',
+      description: 'Product name from a commerce catalog',
+    },
+    {
+      method: 'commerce.department',
+      description: 'Commerce category or department name',
+    },
+    {
+      method: 'finance.accountName',
+      description: 'Financial account type or name',
+    },
+    {
+      method: 'finance.currencyCode',
+      description: 'ISO 4217 currency code like USD or EUR',
+    },
+    { method: 'git.commitSha', description: 'Git commit SHA hash' },
+    { method: 'string.uuid' },
+    { method: 'string.alpha', description: 'Alphabetic string' },
+    { method: 'string.alphanumeric', description: 'Alphanumeric string' },
+    {
+      method: 'system.fileName',
+      description: 'File name with optional extension',
+    },
+    { method: 'system.filePath', description: 'System-like file path' },
+    {
+      method: 'system.mimeType',
+      description: 'MIME type string like image/png',
+    },
+    { method: 'book.title' },
+    { method: 'music.songName' },
+    { method: 'food.dish' },
+    { method: 'animal.type' },
+    { method: 'vehicle.model' },
+    { method: 'hacker.phrase', description: 'Hacker-style phrase' },
+    {
+      method: 'science.chemicalElement',
+      description: 'Chemical element with name and symbol',
+    },
   ],
+
   Number: [
-    'number.binary',
-    'number.octal',
-    'number.hex',
-    'commerce.price',
-    'date.weekday',
-    'internet.port',
-    'number.int',
-    'number.float',
-    'finance.amount',
-    'location.latitude',
-    'location.longitude',
+    { method: 'number.binary', description: 'Binary number string' },
+    { method: 'number.octal', description: 'Octal number string' },
+    { method: 'number.hex', description: 'Hexadecimal number string' },
+    { method: 'commerce.price', description: 'Monetary price with decimals' },
+    { method: 'date.weekday', description: 'Day of the week' },
+    { method: 'internet.port', description: 'Network port number' },
+    { method: 'number.int' },
+    { method: 'number.float' },
+    {
+      method: 'finance.amount',
+      description: 'Monetary amount as number or string',
+    },
+    { method: 'location.latitude' },
+    { method: 'location.longitude' },
   ],
-  Int32: ['number.int', 'finance.amount'],
-  Long: ['number.int', 'number.bigInt'],
-  Decimal128: ['number.float', 'finance.amount'],
-  Boolean: ['datatype.boolean'],
+
+  Int32: [
+    { method: 'number.int' },
+    { method: 'finance.amount', description: 'Monetary amount as integer' },
+  ],
+
+  Long: [
+    { method: 'number.int' },
+    { method: 'number.bigInt', description: 'Large integer value as bigint' },
+  ],
+
+  Decimal128: [
+    { method: 'number.float' },
+    { method: 'finance.amount', description: 'Decimal-style monetary amount' },
+  ],
+
+  Boolean: [{ method: 'datatype.boolean' }],
+
   Date: [
-    'date.recent',
-    'date.past',
-    'date.future',
-    'date.anytime',
-    'date.birthdate',
+    { method: 'date.recent', description: 'Date within the last few days' },
+    { method: 'date.past', description: 'Past date relative to now' },
+    { method: 'date.future', description: 'Future date relative to now' },
+    { method: 'date.anytime', description: 'Date at any time in history' },
+    { method: 'date.birthdate' },
   ],
-  Timestamp: ['date.recent', 'date.past', 'date.future', 'date.anytime'],
-  ObjectId: ['database.mongodbObjectId'],
-  Binary: ['string.hexadecimal', 'string.binary'],
-  RegExp: ['lorem.word', 'string.alpha'],
-  Code: ['lorem.sentence', 'lorem.paragraph', 'git.commitMessage'],
-  MinKey: ['number.int'],
-  MaxKey: ['number.int'],
-  Symbol: ['lorem.word', 'string.symbol'],
-  DBRef: ['database.mongodbObjectId'],
+
+  Timestamp: [
+    { method: 'date.recent' },
+    { method: 'date.past' },
+    { method: 'date.future' },
+    { method: 'date.anytime' },
+  ],
+
+  ObjectId: [
+    {
+      method: 'database.mongodbObjectId',
+      description: 'Valid MongoDB ObjectId string',
+    },
+  ],
+
+  Binary: [
+    {
+      method: 'string.hexadecimal',
+      description: 'Hexadecimal string representation',
+    },
+    { method: 'string.binary', description: 'Binary string representation' },
+  ],
+
+  RegExp: [{ method: 'lorem.word' }, { method: 'string.alpha' }],
+
+  Code: [
+    {
+      method: 'lorem.sentence',
+      description: 'Short line of code',
+    },
+    { method: 'lorem.paragraph', description: 'Block of placeholder code' },
+    { method: 'git.commitMessage', description: 'Git-style commit message' },
+  ],
+
+  MinKey: [
+    {
+      method: 'number.int',
+      description: 'Integer representing minimal key value',
+    },
+  ],
+
+  MaxKey: [
+    {
+      method: 'number.int',
+      description: 'Integer representing maximal key value',
+    },
+  ],
+
+  Symbol: [
+    { method: 'lorem.word' },
+    {
+      method: 'string.symbol',
+      description: 'Symbol character such as punctuation or currency',
+    },
+  ],
+
+  DBRef: [{ method: 'database.mongodbObjectId' }],
 };
 
 export const DEFAULT_CONNECTION_STRING_FALLBACK = '<connection-string>';

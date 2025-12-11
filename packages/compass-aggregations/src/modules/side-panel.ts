@@ -3,12 +3,12 @@ import { type PipelineBuilderThunkAction } from '.';
 import { getPipelineFromBuilderState } from './pipeline-builder/builder-helpers';
 import type { AnyAction } from 'redux';
 
-enum ActionTypes {
-  SidePanelToggled = 'compass-aggregations/sidePanelToggled',
-}
+const ActionTypes = {
+  SidePanelToggled: 'compass-aggregations/sidePanelToggled',
+} as const;
 
 type SidePanelToggledAction = {
-  type: ActionTypes.SidePanelToggled;
+  type: typeof ActionTypes.SidePanelToggled;
 };
 export type SidePanelAction = SidePanelToggledAction;
 

@@ -156,24 +156,28 @@ async function promptForUpdate(
  * downloading state update process can not be interrupted by anything, even
  * disabling autoupdates in settings.
  */
-export const enum AutoUpdateManagerState {
-  Initial = 'initial',
-  Disabled = 'disabled',
-  UserPromptedManualCheck = 'manual-check',
-  CheckingForUpdatesForManualCheck = 'checking-for-updates-manual',
-  CheckingForUpdatesForAutomaticCheck = 'checking-for-updates-automatic',
-  NoUpdateAvailable = 'no-update-available',
-  UpdateAvailable = 'update-available',
-  UpdateDismissed = 'update-dismissed',
-  ManualDownload = 'manual-download',
-  DownloadingUpdate = 'downloading-update',
-  DownloadingError = 'downloading-error',
-  PromptForRestart = 'prompt-for-restart',
-  Restarting = 'restarting',
-  RestartDismissed = 'restart-dismissed',
-  PromptToUpdateExternally = 'prompt-to-update-externally',
-  OutdatedOperatingSystem = 'outdated-operating-system',
-}
+
+export const AutoUpdateManagerStates = {
+  Initial: 'initial',
+  Disabled: 'disabled',
+  UserPromptedManualCheck: 'manual-check',
+  CheckingForUpdatesForManualCheck: 'checking-for-updates-manual',
+  CheckingForUpdatesForAutomaticCheck: 'checking-for-updates-automatic',
+  NoUpdateAvailable: 'no-update-available',
+  UpdateAvailable: 'update-available',
+  UpdateDismissed: 'update-dismissed',
+  ManualDownload: 'manual-download',
+  DownloadingUpdate: 'downloading-update',
+  DownloadingError: 'downloading-error',
+  PromptForRestart: 'prompt-for-restart',
+  Restarting: 'restarting',
+  RestartDismissed: 'restart-dismissed',
+  PromptToUpdateExternally: 'prompt-to-update-externally',
+  OutdatedOperatingSystem: 'outdated-operating-system',
+} as const;
+
+export type AutoUpdateManagerState =
+  (typeof AutoUpdateManagerStates)[keyof typeof AutoUpdateManagerStates];
 
 type UpdateInfo = {
   from: string;
@@ -192,7 +196,7 @@ type StateEnterAction = (
 
 const manualCheck: StateEnterAction = function (updateManager) {
   updateManager.setState(
-    AutoUpdateManagerState.CheckingForUpdatesForManualCheck
+    AutoUpdateManagerStates.CheckingForUpdatesForManualCheck
   );
 };
 
@@ -213,9 +217,9 @@ const checkForUpdates: StateEnterAction = async function checkForUpdates(
   this.maybeInterrupt();
 
   if (updateInfo.available) {
-    updateManager.setState(AutoUpdateManagerState.UpdateAvailable, updateInfo);
+    updateManager.setState(AutoUpdateManagerStates.UpdateAvailable, updateInfo);
   } else {
-    if (fromState === AutoUpdateManagerState.UserPromptedManualCheck) {
+    if (fromState === AutoUpdateManagerStates.UserPromptedManualCheck) {
       if (updateInfo.reason === 'outdated-operating-system') {
         void dialog
           .showMessageBox({
@@ -239,13 +243,13 @@ const checkForUpdates: StateEnterAction = async function checkForUpdates(
     }
 
     if (updateInfo.reason === 'outdated-operating-system') {
-      updateManager.setState(AutoUpdateManagerState.OutdatedOperatingSystem);
+      updateManager.setState(AutoUpdateManagerStates.OutdatedOperatingSystem);
       return;
     }
 
     this.maybeInterrupt();
 
-    updateManager.setState(AutoUpdateManagerState.NoUpdateAvailable);
+    updateManager.setState(AutoUpdateManagerStates.NoUpdateAvailable);
   }
 };
 
@@ -274,31 +278,31 @@ const STATE_UPDATE: Record<
   AutoUpdateManagerState,
   AutoUpdateManagerStateDefinition
 > = {
-  [AutoUpdateManagerState.Initial]: {
+  [AutoUpdateManagerStates.Initial]: {
     nextStates: [
-      AutoUpdateManagerState.CheckingForUpdatesForManualCheck,
-      AutoUpdateManagerState.CheckingForUpdatesForAutomaticCheck,
-      AutoUpdateManagerState.Disabled,
-      AutoUpdateManagerState.UserPromptedManualCheck,
+      AutoUpdateManagerStates.CheckingForUpdatesForManualCheck,
+      AutoUpdateManagerStates.CheckingForUpdatesForAutomaticCheck,
+      AutoUpdateManagerStates.Disabled,
+      AutoUpdateManagerStates.UserPromptedManualCheck,
     ],
     enter: noop,
   },
-  [AutoUpdateManagerState.UserPromptedManualCheck]: {
-    nextStates: [AutoUpdateManagerState.CheckingForUpdatesForManualCheck],
+  [AutoUpdateManagerStates.UserPromptedManualCheck]: {
+    nextStates: [AutoUpdateManagerStates.CheckingForUpdatesForManualCheck],
     enter: manualCheck,
   },
-  [AutoUpdateManagerState.Disabled]: {
+  [AutoUpdateManagerStates.Disabled]: {
     nextStates: [
-      AutoUpdateManagerState.CheckingForUpdatesForAutomaticCheck,
-      AutoUpdateManagerState.UserPromptedManualCheck,
+      AutoUpdateManagerStates.CheckingForUpdatesForAutomaticCheck,
+      AutoUpdateManagerStates.UserPromptedManualCheck,
     ],
     enter: disableAutoUpdates,
   },
-  [AutoUpdateManagerState.NoUpdateAvailable]: {
+  [AutoUpdateManagerStates.NoUpdateAvailable]: {
     nextStates: [
-      AutoUpdateManagerState.CheckingForUpdatesForManualCheck,
-      AutoUpdateManagerState.UserPromptedManualCheck,
-      AutoUpdateManagerState.Disabled,
+      AutoUpdateManagerStates.CheckingForUpdatesForManualCheck,
+      AutoUpdateManagerStates.UserPromptedManualCheck,
+      AutoUpdateManagerStates.Disabled,
     ],
     enter: async function (updateManager) {
       log.info(
@@ -314,42 +318,42 @@ const STATE_UPDATE: Record<
       this.maybeInterrupt();
 
       updateManager.setState(
-        AutoUpdateManagerState.CheckingForUpdatesForAutomaticCheck
+        AutoUpdateManagerStates.CheckingForUpdatesForAutomaticCheck
       );
     },
   },
-  [AutoUpdateManagerState.CheckingForUpdatesForAutomaticCheck]: {
+  [AutoUpdateManagerStates.CheckingForUpdatesForAutomaticCheck]: {
     nextStates: [
-      AutoUpdateManagerState.UpdateAvailable,
-      AutoUpdateManagerState.NoUpdateAvailable,
-      AutoUpdateManagerState.Disabled,
-      AutoUpdateManagerState.UserPromptedManualCheck,
-      AutoUpdateManagerState.OutdatedOperatingSystem,
+      AutoUpdateManagerStates.UpdateAvailable,
+      AutoUpdateManagerStates.NoUpdateAvailable,
+      AutoUpdateManagerStates.Disabled,
+      AutoUpdateManagerStates.UserPromptedManualCheck,
+      AutoUpdateManagerStates.OutdatedOperatingSystem,
     ],
     enter: checkForUpdates,
   },
-  [AutoUpdateManagerState.CheckingForUpdatesForManualCheck]: {
+  [AutoUpdateManagerStates.CheckingForUpdatesForManualCheck]: {
     nextStates: [
-      AutoUpdateManagerState.UpdateAvailable,
-      AutoUpdateManagerState.NoUpdateAvailable,
-      AutoUpdateManagerState.Disabled,
-      AutoUpdateManagerState.UserPromptedManualCheck,
-      AutoUpdateManagerState.OutdatedOperatingSystem,
+      AutoUpdateManagerStates.UpdateAvailable,
+      AutoUpdateManagerStates.NoUpdateAvailable,
+      AutoUpdateManagerStates.Disabled,
+      AutoUpdateManagerStates.UserPromptedManualCheck,
+      AutoUpdateManagerStates.OutdatedOperatingSystem,
     ],
     enter: checkForUpdates,
   },
-  [AutoUpdateManagerState.UpdateAvailable]: {
+  [AutoUpdateManagerStates.UpdateAvailable]: {
     nextStates: [
-      AutoUpdateManagerState.DownloadingUpdate,
-      AutoUpdateManagerState.ManualDownload,
-      AutoUpdateManagerState.UpdateDismissed,
-      AutoUpdateManagerState.Disabled,
-      AutoUpdateManagerState.PromptToUpdateExternally,
+      AutoUpdateManagerStates.DownloadingUpdate,
+      AutoUpdateManagerStates.ManualDownload,
+      AutoUpdateManagerStates.UpdateDismissed,
+      AutoUpdateManagerStates.Disabled,
+      AutoUpdateManagerStates.PromptToUpdateExternally,
     ],
     enter: async function (updateManager, fromState, updateInfo: UpdateInfo) {
       const automaticCheck =
         fromState ===
-        AutoUpdateManagerState.CheckingForUpdatesForAutomaticCheck;
+        AutoUpdateManagerStates.CheckingForUpdatesForAutomaticCheck;
       log.info(
         mongoLogId(1001000127),
         'AutoUpdateManager',
@@ -359,7 +363,7 @@ const STATE_UPDATE: Record<
 
       if (!supportsAutoupdater()) {
         updateManager.setState(
-          AutoUpdateManagerState.PromptToUpdateExternally,
+          AutoUpdateManagerStates.PromptToUpdateExternally,
           updateInfo,
           !automaticCheck
         );
@@ -381,7 +385,7 @@ const STATE_UPDATE: Record<
 
       if (answer === 'update') {
         updateManager.setState(
-          AutoUpdateManagerState.DownloadingUpdate,
+          AutoUpdateManagerStates.DownloadingUpdate,
           updateInfo,
           !automaticCheck
         );
@@ -390,22 +394,22 @@ const STATE_UPDATE: Record<
 
       if (answer === 'download') {
         updateManager.setState(
-          AutoUpdateManagerState.ManualDownload,
+          AutoUpdateManagerStates.ManualDownload,
           updateInfo
         );
         return;
       }
 
       updateManager.setState(
-        AutoUpdateManagerState.UpdateDismissed,
+        AutoUpdateManagerStates.UpdateDismissed,
         updateInfo
       );
     },
   },
-  [AutoUpdateManagerState.DownloadingUpdate]: {
+  [AutoUpdateManagerStates.DownloadingUpdate]: {
     nextStates: [
-      AutoUpdateManagerState.PromptForRestart,
-      AutoUpdateManagerState.DownloadingError,
+      AutoUpdateManagerStates.PromptForRestart,
+      AutoUpdateManagerStates.DownloadingError,
     ],
     enter: function (
       updateManager,
@@ -427,14 +431,14 @@ const STATE_UPDATE: Record<
       this.maybeInterrupt();
 
       autoUpdater.once('error', (error) => {
-        updateManager.setState(AutoUpdateManagerState.DownloadingError, error);
+        updateManager.setState(AutoUpdateManagerStates.DownloadingError, error);
       });
 
       this.maybeInterrupt();
 
       autoUpdater.once('update-downloaded', () => {
         updateManager.setState(
-          AutoUpdateManagerState.PromptForRestart,
+          AutoUpdateManagerStates.PromptForRestart,
           updateInfo
         );
       });
@@ -455,10 +459,10 @@ const STATE_UPDATE: Record<
       autoUpdater.checkForUpdates();
     },
   },
-  [AutoUpdateManagerState.PromptForRestart]: {
+  [AutoUpdateManagerStates.PromptForRestart]: {
     nextStates: [
-      AutoUpdateManagerState.Restarting,
-      AutoUpdateManagerState.RestartDismissed,
+      AutoUpdateManagerStates.Restarting,
+      AutoUpdateManagerStates.RestartDismissed,
     ],
     enter: function (updateManager, _fromState, updateInfo: UpdateInfo) {
       log.info(
@@ -475,8 +479,8 @@ const STATE_UPDATE: Record<
       });
     },
   },
-  [AutoUpdateManagerState.ManualDownload]: {
-    nextStates: [AutoUpdateManagerState.UserPromptedManualCheck],
+  [AutoUpdateManagerStates.ManualDownload]: {
+    nextStates: [AutoUpdateManagerStates.UserPromptedManualCheck],
     enter: function (updateManager, _fromState, updateInfo: UpdateInfo) {
       log.info(
         mongoLogId(1_001_000_167),
@@ -506,8 +510,8 @@ const STATE_UPDATE: Record<
       void download(url);
     },
   },
-  [AutoUpdateManagerState.UpdateDismissed]: {
-    nextStates: [AutoUpdateManagerState.UserPromptedManualCheck],
+  [AutoUpdateManagerStates.UpdateDismissed]: {
+    nextStates: [AutoUpdateManagerStates.UserPromptedManualCheck],
     enter: (_updateManager, _fromState, updateInfo: UpdateInfo) => {
       log.info(
         mongoLogId(1_001_000_245),
@@ -518,8 +522,8 @@ const STATE_UPDATE: Record<
       track('Autoupdate Dismissed', { update_version: updateInfo.to });
     },
   },
-  [AutoUpdateManagerState.RestartDismissed]: {
-    nextStates: [AutoUpdateManagerState.UserPromptedManualCheck],
+  [AutoUpdateManagerStates.RestartDismissed]: {
+    nextStates: [AutoUpdateManagerStates.UserPromptedManualCheck],
     enter: () => {
       log.info(
         mongoLogId(1_001_000_165),
@@ -528,8 +532,8 @@ const STATE_UPDATE: Record<
       );
     },
   },
-  [AutoUpdateManagerState.OutdatedOperatingSystem]: {
-    nextStates: [AutoUpdateManagerState.UserPromptedManualCheck],
+  [AutoUpdateManagerStates.OutdatedOperatingSystem]: {
+    nextStates: [AutoUpdateManagerStates.UserPromptedManualCheck],
     enter: () => {
       ipcMain?.broadcast(
         'autoupdate:update-download-failed',
@@ -542,8 +546,8 @@ const STATE_UPDATE: Record<
       );
     },
   },
-  [AutoUpdateManagerState.DownloadingError]: {
-    nextStates: [AutoUpdateManagerState.UserPromptedManualCheck],
+  [AutoUpdateManagerStates.DownloadingError]: {
+    nextStates: [AutoUpdateManagerStates.UserPromptedManualCheck],
     enter: (_updateManager, _fromState, error) => {
       ipcMain?.broadcast('autoupdate:update-download-failed');
       log.error(
@@ -557,7 +561,7 @@ const STATE_UPDATE: Record<
       );
     },
   },
-  [AutoUpdateManagerState.Restarting]: {
+  [AutoUpdateManagerStates.Restarting]: {
     nextStates: [],
     enter: function () {
       log.info(
@@ -577,10 +581,10 @@ const STATE_UPDATE: Record<
       autoUpdater.quitAndInstall();
     },
   },
-  [AutoUpdateManagerState.PromptToUpdateExternally]: {
+  [AutoUpdateManagerStates.PromptToUpdateExternally]: {
     nextStates: [
-      AutoUpdateManagerState.UpdateDismissed,
-      AutoUpdateManagerState.ManualDownload,
+      AutoUpdateManagerStates.UpdateDismissed,
+      AutoUpdateManagerStates.ManualDownload,
     ],
     enter: async function (
       updateManager,
@@ -616,13 +620,16 @@ const STATE_UPDATE: Record<
 
       if (answer.response === 1) {
         updateManager.setState(
-          AutoUpdateManagerState.UpdateDismissed,
+          AutoUpdateManagerStates.UpdateDismissed,
           updateInfo
         );
         return;
       }
 
-      updateManager.setState(AutoUpdateManagerState.ManualDownload, updateInfo);
+      updateManager.setState(
+        AutoUpdateManagerStates.ManualDownload,
+        updateInfo
+      );
       return;
     },
   },
@@ -672,7 +679,8 @@ class CompassAutoUpdateManager {
   }
 
   private static initCalled = false;
-  private static state = AutoUpdateManagerState.Initial;
+  private static state: AutoUpdateManagerState =
+    AutoUpdateManagerStates.Initial;
   private static fetch: (url: string) => Promise<Response>;
 
   static autoUpdateOptions: AutoUpdateManagerOptions;
@@ -853,11 +861,11 @@ class CompassAutoUpdateManager {
   }
 
   private static handleIpcUpdateDownloadRestartConfirmed() {
-    this.setState(AutoUpdateManagerState.Restarting);
+    this.setState(AutoUpdateManagerStates.Restarting);
   }
 
   private static handleIpcUpdateDownloadRestartDismissed() {
-    this.setState(AutoUpdateManagerState.RestartDismissed);
+    this.setState(AutoUpdateManagerStates.RestartDismissed);
   }
 
   private static checkForMismatchedMacOSArch() {
@@ -950,7 +958,7 @@ class CompassAutoUpdateManager {
     // auto-updates aren't supported it will still display a popup with an
     // Install button that does nothing.
     compassApp.on('check-for-updates', () => {
-      this.setState(AutoUpdateManagerState.UserPromptedManualCheck);
+      this.setState(AutoUpdateManagerStates.UserPromptedManualCheck);
     });
 
     this.on('new-state', (state: AutoUpdateManagerState) =>
@@ -959,7 +967,7 @@ class CompassAutoUpdateManager {
 
     compassApp.on(
       'menu-request-restart',
-      this.setState.bind(this, AutoUpdateManagerState.Restarting)
+      this.setState.bind(this, AutoUpdateManagerStates.Restarting)
     );
 
     ipcMain?.on(
@@ -974,7 +982,7 @@ class CompassAutoUpdateManager {
 
     ipcMain?.on(
       'autoupdate:download-update-dismissed',
-      this.setState.bind(this, AutoUpdateManagerState.UpdateDismissed)
+      this.setState.bind(this, AutoUpdateManagerStates.UpdateDismissed)
     );
 
     const { preferences } = compassApp;
@@ -1004,13 +1012,13 @@ class CompassAutoUpdateManager {
           //
         });
         this.setState(
-          AutoUpdateManagerState.CheckingForUpdatesForAutomaticCheck
+          AutoUpdateManagerStates.CheckingForUpdatesForAutomaticCheck
         );
       } else {
         track('Autoupdate Disabled', {
           //
         });
-        this.setState(AutoUpdateManagerState.Disabled);
+        this.setState(AutoUpdateManagerStates.Disabled);
       }
     });
 
@@ -1023,11 +1031,11 @@ class CompassAutoUpdateManager {
       // show the popup while the app is loading
       void wait(this.autoUpdateOptions.initialUpdateDelay).then(() => {
         this.setState(
-          AutoUpdateManagerState.CheckingForUpdatesForAutomaticCheck
+          AutoUpdateManagerStates.CheckingForUpdatesForAutomaticCheck
         );
       });
     } else {
-      this.setState(AutoUpdateManagerState.Disabled);
+      this.setState(AutoUpdateManagerStates.Disabled);
     }
   }
 

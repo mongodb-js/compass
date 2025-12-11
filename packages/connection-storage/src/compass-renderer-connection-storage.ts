@@ -20,7 +20,10 @@ export type ConnectionStorageIPCRenderer = Pick<
 
 class CompassRendererConnectionStorage implements ConnectionStorage {
   private _ipc: ConnectionStorageIPCInterface | undefined;
-  constructor(private readonly ipcRenderer?: ConnectionStorageIPCRenderer) {}
+  private readonly ipcRenderer?: ConnectionStorageIPCRenderer;
+  constructor(ipcRenderer?: ConnectionStorageIPCRenderer) {
+    this.ipcRenderer = ipcRenderer;
+  }
 
   get ipc() {
     const ipc =

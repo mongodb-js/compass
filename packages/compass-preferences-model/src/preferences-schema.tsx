@@ -41,6 +41,14 @@ export const SORT_ORDER_VALUES = [
 
 export type SORT_ORDERS = (typeof SORT_ORDER_VALUES)[number];
 
+export const LEGACY_UUID_ENCODINGS = [
+  '',
+  'LegacyJavaUUID',
+  'LegacyCSharpUUID',
+  'LegacyPythonUUID',
+] as const;
+export type LEGACY_UUID_ENCODINGS = (typeof LEGACY_UUID_ENCODINGS)[number];
+
 export type PermanentFeatureFlags = {
   showDevFeatureFlags?: boolean;
   enableDebugUseCsfleSchemaMap?: boolean;
@@ -72,6 +80,7 @@ export type UserConfigurablePreferences = PermanentFeatureFlags &
     maxTimeMS?: number;
     installURLHandlers: boolean;
     protectConnectionStringsForNewConnections: boolean;
+    legacyUUIDDisplayEncoding: LEGACY_UUID_ENCODINGS;
     // This preference is not a great fit for user preferences, but everything
     // except for user preferences doesn't allow required preferences to be
     // defined, so we are sticking it here
@@ -134,6 +143,7 @@ export type InternalUserPreferences = {
     isMaximized?: boolean;
     isFullScreen?: boolean;
   };
+  enableGuideCues: boolean;
 };
 
 // UserPreferences contains all preferences stored to disk.
@@ -171,8 +181,7 @@ export type AtlasOrgPreferences = {
 
 export type AllPreferences = UserPreferences &
   CliOnlyPreferences &
-  NonUserPreferences &
-  PermanentFeatureFlags;
+  NonUserPreferences;
 
 // Types related to PreferenceDefinition
 type PostProcessFunction<T> = (
@@ -374,6 +383,7 @@ export const storedUserPreferencesProps: Required<{
       short: 'Compass UI Theme',
     },
     validator: z
+
       .effect(z.enum(THEMES_VALUES), {
         type: 'preprocess',
         transform: (val) =>
@@ -450,11 +460,7 @@ export const storedUserPreferencesProps: Required<{
     cli: false,
     global: false,
     description: null,
-    validator: z
-      .boolean()
-      .default(
-        process.env.COMPASS_DISABLE_END_OF_LIFE_CONNECTION_MODAL !== 'true'
-      ),
+    validator: z.boolean().default(true),
     type: 'boolean',
   },
   /**
@@ -487,6 +493,17 @@ export const storedUserPreferencesProps: Required<{
       })
       .optional(),
     type: 'object',
+  },
+  /**
+   * Whether or not guide cues are enabled in the application
+   */
+  enableGuideCues: {
+    ui: false,
+    cli: false,
+    global: false,
+    description: null,
+    validator: z.boolean().default(true),
+    type: 'boolean',
   },
   /**
    * Enable/disable the AI services. This is currently set
@@ -594,7 +611,7 @@ export const storedUserPreferencesProps: Required<{
       long: 'Allow Compass to make requests to a 3rd party mapping service.',
     },
     deriveValue: deriveNetworkTrafficOptionState('enableMaps'),
-    validator: z.boolean().default(false),
+    validator: z.boolean().default(true),
     type: 'boolean',
   },
   enableGenAIFeatures: {
@@ -621,7 +638,7 @@ export const storedUserPreferencesProps: Required<{
       long: 'Enables a tool that our Product team can use to occasionally reach out for feedback about Compass.',
     },
     deriveValue: deriveNetworkTrafficOptionState('enableFeedbackPanel'),
-    validator: z.boolean().default(false),
+    validator: z.boolean().default(true),
     type: 'boolean',
   },
   /**
@@ -637,7 +654,7 @@ export const storedUserPreferencesProps: Required<{
       long: 'Allow Compass to send anonymous usage statistics.',
     },
     deriveValue: deriveNetworkTrafficOptionState('trackUsageStatistics'),
-    validator: z.boolean().default(false),
+    validator: z.boolean().default(true),
     type: 'boolean',
   },
   /**
@@ -652,7 +669,7 @@ export const storedUserPreferencesProps: Required<{
       long: 'Allow Compass to periodically check for new updates.',
     },
     deriveValue: deriveNetworkTrafficOptionState('autoUpdates'),
-    validator: z.boolean().default(false),
+    validator: z.boolean().default(true),
     type: 'boolean',
   },
   /**
@@ -721,7 +738,7 @@ export const storedUserPreferencesProps: Required<{
       long: `Enable the Chromium Developer Tools that can be used to debug Electron's process.`,
     },
     deriveValue: deriveFeatureRestrictingOptionsState('enableDevTools'),
-    validator: z.boolean().default(process.env.APP_ENV === 'webdriverio'),
+    validator: z.boolean().default(false),
     type: 'boolean',
   },
   /**
@@ -1091,6 +1108,42 @@ export const storedUserPreferencesProps: Required<{
     },
     validator: z.number().min(0).default(0),
     type: 'number',
+  },
+
+  // There are a good amount of folks who still use the legacy UUID
+  // binary subtype 3, so we provide an option to control how those
+  // values are displayed in Compass.
+  legacyUUIDDisplayEncoding: {
+    ui: true,
+    cli: true,
+    global: true,
+    description: {
+      short: 'Encoding for Displaying Legacy UUID Values',
+      long: 'Select the encoding to be used when displaying legacy UUID of the binary subtype 3.',
+      options: {
+        '': {
+          label: 'Raw data (no encoding)',
+          description: 'Display legacy UUIDs as raw binary data',
+        },
+        LegacyJavaUUID: {
+          label: 'Legacy Java UUID',
+          description:
+            'Display legacy UUIDs using Java UUID encoding. LegacyJavaUUID("UUID_STRING")',
+        },
+        LegacyCSharpUUID: {
+          label: 'Legacy C# UUID',
+          description:
+            'Display legacy UUIDs using C# UUID encoding. LegacyCSharpUUID("UUID_STRING")',
+        },
+        LegacyPythonUUID: {
+          label: 'Legacy Python UUID',
+          description:
+            'Display legacy UUIDs using Python UUID encoding. LegacyPythonUUID("UUID_STRING")',
+        },
+      },
+    },
+    validator: z.enum(LEGACY_UUID_ENCODINGS).default(''),
+    type: 'string',
   },
 
   ...allFeatureFlagsProps,

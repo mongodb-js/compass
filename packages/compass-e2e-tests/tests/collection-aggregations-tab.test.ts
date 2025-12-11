@@ -19,6 +19,7 @@ import {
 import { saveAggregationPipeline } from '../helpers/commands/save-aggregation-pipeline';
 import type { ChainablePromiseElement } from 'webdriverio';
 import { switchPipelineMode } from '../helpers/commands/switch-pipeline-mode';
+import { isTestingWeb } from '../helpers/test-runner-context';
 
 const { expect } = chai;
 
@@ -189,11 +190,11 @@ describe('Collection aggregations tab', function () {
     if (serverSatisfies('>=6.0.10 <7.0.0 || >=7.0.2')) {
       expectedAggregations.push('$vectorSearch');
     }
-    if (serverSatisfies('>=8.1.0')) {
+    if (serverSatisfies('>=8.0.14')) {
       expectedAggregations.push('$rankFusion');
     }
 
-    if (serverSatisfies('>=8.3.0-alpha0')) {
+    if (serverSatisfies('>=8.2')) {
       expectedAggregations.push('$scoreFusion');
     }
 
@@ -448,13 +449,6 @@ describe('Collection aggregations tab', function () {
   });
 
   describe('maxTimeMS', function () {
-    before(function () {
-      skipForWeb(
-        this,
-        "we don't support getFeature() and setFeature() in compass-web yet"
-      );
-    });
-
     let maxTimeMSBefore: any;
 
     beforeEach(async function () {
@@ -481,16 +475,20 @@ describe('Collection aggregations tab', function () {
         }
 
         if (maxTimeMSMode === 'preference') {
-          await browser.openSettingsModal();
-          const settingsModal = browser.$(Selectors.SettingsModal);
-          await settingsModal.waitForDisplayed();
-          await browser.clickVisible(Selectors.GeneralSettingsButton);
+          if (isTestingWeb()) {
+            await browser.setFeature('maxTimeMS', 1);
+          } else {
+            await browser.openSettingsModal();
+            const settingsModal = browser.$(Selectors.SettingsModal);
+            await settingsModal.waitForDisplayed();
+            await browser.clickVisible(Selectors.GeneralSettingsButton);
 
-          await browser.setValueVisible(
-            Selectors.SettingsInputElement('maxTimeMS'),
-            '1'
-          );
-          await browser.clickVisible(Selectors.SaveSettingsButton);
+            await browser.setValueVisible(
+              Selectors.SettingsInputElement('maxTimeMS'),
+              '1'
+            );
+            await browser.clickVisible(Selectors.SaveSettingsButton);
+          }
         }
 
         // run a projection that will take lots of time
@@ -981,7 +979,19 @@ describe('Collection aggregations tab', function () {
       '{ i: 5 }'
     );
 
-    // Open the modal.
+    // Wait for the pipeline to be validated before trying to export
+    await browser.waitUntil(
+      async function () {
+        const textElement = browser.$(Selectors.stagePreviewToolbarTooltip(0));
+        const text = await textElement.getText();
+        return text === '(Sample of 1 document)';
+      },
+      {
+        timeoutMsg: 'Expected stage preview to show "(Sample of 1 document)"',
+      }
+    );
+
+    // Click the export data button to open the modal.
     await browser.clickVisible(Selectors.ExportAggregationResultsButton);
     const exportModal = browser.$(Selectors.ExportModal);
     await exportModal.waitForDisplayed();

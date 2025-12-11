@@ -9,7 +9,7 @@ import {
   connectionInfoRefLocator,
 } from '@mongodb-js/compass-connections/provider';
 import { collectionModelLocator } from '@mongodb-js/compass-app-stores/provider';
-import type { WorkspacePlugin } from '@mongodb-js/compass-workspaces';
+import type { WorkspacePlugin } from '@mongodb-js/workspace-info';
 import { workspacesServiceLocator } from '@mongodb-js/compass-workspaces/provider';
 import { experimentationServiceLocator } from '@mongodb-js/compass-telemetry/provider';
 import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';

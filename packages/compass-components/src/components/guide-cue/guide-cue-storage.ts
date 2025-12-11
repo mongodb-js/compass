@@ -8,13 +8,15 @@ export interface GuideCueStorage {
 }
 
 export class CompassGuideCueStorage implements GuideCueStorage {
+  private readonly storage: Pick<Storage, 'getItem' | 'setItem'>;
+  private readonly key: string;
   constructor(
-    private readonly storage: Pick<
-      Storage,
-      'getItem' | 'setItem'
-    > = globalThis.localStorage,
-    private readonly key: string = GUIDE_CUE_KEY
-  ) {}
+    storage: Pick<Storage, 'getItem' | 'setItem'> = globalThis.localStorage,
+    key: string = GUIDE_CUE_KEY
+  ) {
+    this.storage = storage;
+    this.key = key;
+  }
 
   get data(): GuideCueData {
     try {

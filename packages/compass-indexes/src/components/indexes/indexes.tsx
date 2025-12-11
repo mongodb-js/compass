@@ -134,6 +134,7 @@ const AtlasIndexesBanner = ({
   onDismissClick: () => void;
 }) => {
   const { atlasMetadata } = useConnectionInfo();
+  const track = useTelemetry();
 
   if (!atlasMetadata || dismissed) {
     return null;
@@ -151,6 +152,11 @@ const AtlasIndexesBanner = ({
             clusterName: atlasMetadata.clusterName,
             namespace,
           })}
+          onClick={() => {
+            track('Atlas Search Indexes for View Link Clicked', {
+              context: 'Indexes Tab',
+            });
+          }}
           hideExternalIcon
         >
           {linkTitle}
@@ -303,7 +309,7 @@ export function Indexes({
           {getBanner()}
 
           <AtlasSkillsBanner
-            ctaText="Design and apply indexes that make queries run faster."
+            ctaText="Learn how to design efficient indexes to speed up queries."
             skillsUrl="https://learn.mongodb.com/courses/indexing-design-fundamentals?team=growth"
             onCloseSkillsBanner={() => {
               setSkillDismissed(true);

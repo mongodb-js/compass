@@ -9,6 +9,7 @@ import {
   WorkspaceContainer,
   spacing,
   withDarkMode,
+  useCurrentValueRef,
 } from '@mongodb-js/compass-components';
 import type { InsertDocumentDialogProps } from './insert-document-dialog';
 import InsertDocumentDialog from './insert-document-dialog';
@@ -121,6 +122,7 @@ export type DocumentListProps = {
     CrudToolbarProps,
     | 'error'
     | 'count'
+    | 'lastCountRunMaxTimeMS'
     | 'loadingCount'
     | 'start'
     | 'end'
@@ -144,11 +146,15 @@ const DocumentViewComponent: React.FunctionComponent<
     initialScrollTop?: number;
     scrollTriggerRef?: React.Ref<HTMLDivElement>;
     scrollableContainerRef?: React.Ref<HTMLDivElement>;
+    columnWidths: Record<string, number>;
+    onColumnWidthChange: (newColumnWidths: Record<string, number>) => void;
   }
 > = ({
   initialScrollTop,
   scrollTriggerRef,
   scrollableContainerRef,
+  columnWidths,
+  onColumnWidthChange,
   ...props
 }) => {
   if (props.docs?.length === 0) {
@@ -179,6 +185,8 @@ const DocumentViewComponent: React.FunctionComponent<
           key={props.darkMode ? 'dark' : 'light'}
           {...props}
           className={tableStyles}
+          columnWidths={columnWidths}
+          onColumnWidthChange={onColumnWidthChange}
         />
       </>
     );
@@ -218,8 +226,9 @@ const useViewScrollTop = (view: DocumentView, isFetching: boolean) => {
     }
   }, [view, listViewScrollTop, jsonViewScrollTop]);
 
-  const currentViewInitialScrollTopRef = useRef(currentViewInitialScrollTop);
-  currentViewInitialScrollTopRef.current = currentViewInitialScrollTop;
+  const currentViewInitialScrollTopRef = useCurrentValueRef(
+    currentViewInitialScrollTop
+  );
 
   const setCurrentViewInitialScrollTop = useCallback(
     (scrollTop: number) => {
@@ -232,10 +241,9 @@ const useViewScrollTop = (view: DocumentView, isFetching: boolean) => {
     [view, setListViewScrollTop, setJsonViewScrollTop]
   );
 
-  const setCurrentViewInitialScrollTopRef = useRef(
+  const setCurrentViewInitialScrollTopRef = useCurrentValueRef(
     setCurrentViewInitialScrollTop
   );
-  setCurrentViewInitialScrollTopRef.current = setCurrentViewInitialScrollTop;
 
   // Preserve the scroll top for the current view when the entire component is
   // being unmounted
@@ -252,7 +260,7 @@ const useViewScrollTop = (view: DocumentView, isFetching: boolean) => {
         scrollRef.current?.scrollTop ?? 0
       );
     };
-  }, []);
+  }, [currentViewInitialScrollTopRef, setCurrentViewInitialScrollTopRef]);
 
   // Preserve the scroll top when documents are refreshed and loading List /
   // JSON view unmounts in between
@@ -264,7 +272,7 @@ const useViewScrollTop = (view: DocumentView, isFetching: boolean) => {
     ) {
       scrollRef.current.scrollTop = currentViewInitialScrollTopRef.current;
     }
-  }, [isFetching]);
+  }, [currentViewInitialScrollTopRef, isFetching]);
 
   return {
     scrollRef,
@@ -278,6 +286,7 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
     view,
     error,
     count,
+    lastCountRunMaxTimeMS,
     loadingCount,
     start,
     end,
@@ -418,6 +427,23 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
     ]
   );
 
+  const [columnWidths, setColumnWidths] = useTabState<Record<string, number>>(
+    'columnWidths',
+    {}
+  );
+
+  const onColumnWidthChange = useCallback(
+    (newColumnWidths: Record<string, number>) => {
+      setColumnWidths((columnWidths) => {
+        return {
+          ...columnWidths,
+          ...newColumnWidths,
+        };
+      });
+    },
+    [setColumnWidths]
+  );
+
   const renderContent = useCallback(
     (scrollTriggerRef: React.Ref<HTMLDivElement>) => {
       let content = null;
@@ -480,6 +506,8 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
               initialScrollTop={currentViewInitialScrollTop}
               scrollableContainerRef={scrollRef}
               scrollTriggerRef={scrollTriggerRef}
+              columnWidths={columnWidths}
+              onColumnWidthChange={onColumnWidthChange}
             />
           );
         }
@@ -500,6 +528,8 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
       query,
       scrollRef,
       currentViewInitialScrollTop,
+      columnWidths,
+      onColumnWidthChange,
     ]
   );
 
@@ -534,6 +564,7 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
             error={error}
             count={count}
             isFetching={isFetching}
+            lastCountRunMaxTimeMS={lastCountRunMaxTimeMS}
             loadingCount={loadingCount}
             start={start}
             end={end}
@@ -547,6 +578,9 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
             onExpandAllClicked={onExpandAllClicked}
             onCollapseAllClicked={onCollapseAllClicked}
             openExportFileDialog={openExportFileDialog}
+            onOpenExportToLanguage={store.openQueryExportToLanguageDialog.bind(
+              store
+            )}
             outdated={outdated}
             readonly={!isEditable}
             viewSwitchHandler={handleViewChanged}

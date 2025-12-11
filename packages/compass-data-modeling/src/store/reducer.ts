@@ -36,11 +36,12 @@ export type DataModelingActions =
   | DiagramActions
   | ExportDiagramActions;
 
-export type DataModelingActionTypes =
-  | GenerateDiagramWizardActionTypes
-  | AnalysisProcessActionTypes
-  | DiagramActionTypes
-  | ExportDiagramActionTypes;
+type _ActionTypes = typeof GenerateDiagramWizardActionTypes &
+  typeof AnalysisProcessActionTypes &
+  typeof DiagramActionTypes &
+  typeof ExportDiagramActionTypes;
+
+export type DataModelingActionTypes = _ActionTypes[keyof _ActionTypes];
 
 export type DataModelingState = ReturnType<typeof reducer>;
 

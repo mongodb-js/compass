@@ -4,16 +4,24 @@ import createDebug from 'debug';
 const debug = createDebug('compass:smoketests:execute');
 
 export class ExecuteFailure extends Error {
+  command: string;
+  args: string[];
+  status: number | null;
+  signal: NodeJS.Signals | null;
   constructor(
-    public command: string,
-    public args: string[],
-    public status: number | null,
-    public signal: NodeJS.Signals | null
+    command: string,
+    args: string[],
+    status: number | null,
+    signal: NodeJS.Signals | null
   ) {
     const commandDetails = `${command} ${args.join(' ')}`;
     const statusDetails = `status = ${status || 'null'}`;
     const signalDetails = `signal = ${signal || 'null'})`;
     super(`${commandDetails} exited with ${statusDetails} ${signalDetails}`);
+    this.command = command;
+    this.args = args;
+    this.status = status;
+    this.signal = signal;
   }
 }
 

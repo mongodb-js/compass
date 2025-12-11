@@ -109,10 +109,10 @@ describe('CreateNamespacePlugin', function () {
 
   context('when we are trying to create a database', function () {
     it('should should throw when emitted event does not carry connectionId', function () {
-      expect(() => appRegistry.emit('open-create-database')).to.throw;
+      expect(() => appRegistry.emit('open-create-database')).to.throw();
       expect(() =>
         screen.getByRole('heading', { name: 'Create Database' })
-      ).to.throw;
+      ).to.throw();
     });
 
     it('should handle create database flow on `open-create-database` event', async function () {
@@ -164,10 +164,10 @@ describe('CreateNamespacePlugin', function () {
     it('should should throw when emitted event does not carry connectionId', function () {
       expect(() =>
         appRegistry.emit('open-create-collection', { database: 'db' })
-      ).to.throw;
+      ).to.throw();
       expect(() =>
         screen.getByRole('heading', { name: 'Create Collection' })
-      ).to.throw;
+      ).to.throw();
     });
 
     it('should handle create collection flow on `open-create-collection` event', async function () {

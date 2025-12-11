@@ -22,7 +22,6 @@ describe('IndexesToolbar Component', function () {
         hasTooManyIndexes={false}
         errorMessage={null}
         isReadonlyView={false}
-        readOnly={false}
         isWritable={true}
         writeStateDescription={undefined}
         onRefreshIndexes={() => {}}
@@ -318,7 +317,7 @@ describe('IndexesToolbar Component', function () {
       renderIndexesToolbar({
         hasTooManyIndexes: true,
       });
-      expect(() => screen.getByTestId('insight-badge-button')).to.not.throw;
+      expect(() => screen.getByTestId('insight-badge-button')).to.not.throw();
     });
 
     context('and when there is an error', function () {
@@ -327,7 +326,7 @@ describe('IndexesToolbar Component', function () {
           hasTooManyIndexes: true,
           errorMessage: 'Something bad happened',
         });
-        expect(() => screen.getByTestId('insight-badge-button')).to.throw;
+        expect(() => screen.getByTestId('insight-badge-button')).to.throw();
       });
     });
   });

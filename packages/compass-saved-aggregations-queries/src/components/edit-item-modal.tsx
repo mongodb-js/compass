@@ -1,5 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { FormModal, TextInput } from '@mongodb-js/compass-components';
+import React, { useState } from 'react';
+import {
+  FormModal,
+  TextInput,
+  useSyncStateOnPropChange,
+} from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
 import type { MapDispatchToProps, MapStateToProps } from 'react-redux';
 import type { RootState } from '../stores';
@@ -21,7 +25,7 @@ const EditItemModal: React.FunctionComponent<EditItemModalProps> = ({
   onCancel,
 }) => {
   const [name, setName] = useState(item?.name ?? '');
-  useEffect(() => {
+  useSyncStateOnPropChange(() => {
     setName(item?.name ?? '');
   }, [item]);
 

@@ -37,15 +37,14 @@ export class GuideCueService extends EventTarget {
 
   private _activeGroupId: GroupName | null = null;
   private _activeCue: Cue | null = null;
+  private readonly _storage: GuideCueStorage;
 
-  constructor(private readonly _storage: GuideCueStorage) {
+  constructor(_storage: GuideCueStorage) {
     super();
+    this._storage = _storage;
   }
 
   addCue(cue: Omit<Cue, 'isVisited'>) {
-    if (process.env.DISABLE_GUIDE_CUES === 'true') {
-      return;
-    }
     const cueIndex = this.getCueIndex(cue.cueId, cue.groupId);
     if (cueIndex !== -1) {
       // eslint-disable-next-line no-console

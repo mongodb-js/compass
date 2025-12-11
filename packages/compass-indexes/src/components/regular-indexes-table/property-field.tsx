@@ -35,6 +35,19 @@ export const getPropertyTooltip = (
   return null;
 };
 
+const HIDDEN_INDEX_TEXT = 'HIDDEN';
+const SHARD_KEY_INDEX_TEXT = 'SHARD KEY';
+
+export const getPropertyText = (
+  property: RegularIndex['properties'][number]
+): string => {
+  if (property === 'shardKey') {
+    return SHARD_KEY_INDEX_TEXT;
+  }
+
+  return property;
+};
+
 const PropertyBadgeWithTooltip: React.FunctionComponent<{
   text: string;
   link: string;
@@ -65,8 +78,6 @@ type PropertyFieldProps = {
   properties: RegularIndex['properties'];
 };
 
-const HIDDEN_INDEX_TEXT = 'HIDDEN';
-
 const PropertyField: React.FunctionComponent<PropertyFieldProps> = ({
   extra,
   properties,
@@ -79,7 +90,7 @@ const PropertyField: React.FunctionComponent<PropertyFieldProps> = ({
           return (
             <PropertyBadgeWithTooltip
               key={property}
-              text={property}
+              text={getPropertyText(property)}
               link={getIndexHelpLink(property) ?? '#'}
               tooltip={getPropertyTooltip(property, extra)}
             />

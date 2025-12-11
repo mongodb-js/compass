@@ -11,9 +11,11 @@ import {
   DocumentList,
   useDarkMode,
   cx,
+  Link,
 } from '@mongodb-js/compass-components';
 
 import { usePreference } from 'compass-preferences-model/provider';
+import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import toSimplifiedFieldInfo from './to-simplified-field-info';
 import type { CollectionState } from '../../modules/collection-tab';
 import type { SchemaAnalysisState } from '../../schema-analysis-types';
@@ -44,8 +46,14 @@ const descriptionStyles = css({
   marginBottom: spacing[200],
 });
 
+const projectSettingsInfoStyles = css({
+  marginBottom: spacing[400],
+  color: palette.gray.dark1,
+});
+
 const errorBannerStyles = css({
   marginTop: spacing[400],
+  marginBottom: spacing[400],
 });
 
 const errorBannerTextStyles = css({
@@ -60,6 +68,7 @@ const RawSchemaConfirmationScreen = ({
     'enableGenAISampleDocumentPassing'
   );
   const isDarkMode = useDarkMode();
+  const connectionInfo = useConnectionInfo();
 
   const subtitleText = enableSampleDocumentPassing
     ? 'Sample Documents Collected'
@@ -69,6 +78,19 @@ const RawSchemaConfirmationScreen = ({
     ? 'A sample of documents from your collection will be sent to an LLM for processing.'
     : 'We have identified the following schema from your documents. This schema will be sent to an LLM for processing.';
 
+  const projectId = connectionInfo.atlasMetadata?.projectId;
+  const projectSettingsLink = projectId ? (
+    <Link
+      href={`${window.location.origin}/v2/${projectId}#/settings/groupSettings`}
+      target="_blank"
+      hideExternalIcon
+    >
+      Project Settings
+    </Link>
+  ) : (
+    'Project Settings'
+  );
+
   return (
     <div data-testid="raw-schema-confirmation">
       {schemaAnalysis.status === 'complete' ? (
@@ -77,6 +99,21 @@ const RawSchemaConfirmationScreen = ({
             {subtitleText}
           </Body>
           <Body className={descriptionStyles}>{descriptionText}</Body>
+          <Body className={projectSettingsInfoStyles}>
+            To improve mock data quality, Project Owners can enable sending
+            sample field values to the AI model in {projectSettingsLink}.
+            Refresh Data Explorer for changes to take effect.
+          </Body>
+          {fakerSchemaGenerationStatus === 'error' && (
+            <Banner
+              variant={BannerVariant.Danger}
+              className={errorBannerStyles}
+            >
+              <Body className={errorBannerTextStyles}>
+                LLM Request failed. Please confirm again.
+              </Body>
+            </Banner>
+          )}
           <div
             className={cx(
               documentContainerStyles,
@@ -95,16 +132,6 @@ const RawSchemaConfirmationScreen = ({
               }
             />
           </div>
-          {fakerSchemaGenerationStatus === 'error' && (
-            <Banner
-              variant={BannerVariant.Danger}
-              className={errorBannerStyles}
-            >
-              <Body className={errorBannerTextStyles}>
-                LLM Request failed. Please confirm again.
-              </Body>
-            </Banner>
-          )}
         </>
       ) : (
         // Not reachable since schema analysis must be finished before the modal can be opened

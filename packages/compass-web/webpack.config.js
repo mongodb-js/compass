@@ -151,28 +151,10 @@ module.exports = (env, args) => {
         // Can be either `web` or `webdriverio`, helpful if we need special
         // behavior for tests in sandbox
         'process.env.APP_ENV': JSON.stringify(process.env.APP_ENV ?? 'web'),
-        ...(process.env.COMPASS_ASSISTANT_BASE_URL_OVERRIDE
-          ? {
-              'process.env.COMPASS_ASSISTANT_BASE_URL_OVERRIDE': JSON.stringify(
-                process.env.COMPASS_ASSISTANT_BASE_URL_OVERRIDE
-              ),
-            }
-          : {}),
-        ...(process.env.COMPASS_OVERRIDE_ENABLE_AI_FEATURES
-          ? {
-              'process.env.COMPASS_OVERRIDE_ENABLE_AI_FEATURES': JSON.stringify(
-                process.env.COMPASS_OVERRIDE_ENABLE_AI_FEATURES
-              ),
-            }
-          : {}),
-        ...(process.env.COMPASS_DISABLE_VIRTUAL_TABLE_RENDERING
-          ? {
-              'process.env.COMPASS_DISABLE_VIRTUAL_TABLE_RENDERING':
-                JSON.stringify(
-                  process.env.COMPASS_DISABLE_VIRTUAL_TABLE_RENDERING
-                ),
-            }
-          : {}),
+        // NB: DefinePlugin completely replaces matched string with a provided
+        // value, in most cases WE DO NOT WANT THAT and process variables in the
+        // code are added to be able to change them in runtime. Do not add new
+        // records unless you're super sure it's needed
       }),
 
       new webpack.ProvidePlugin({
@@ -180,6 +162,40 @@ module.exports = (env, args) => {
         // Required by the driver to function in browser environment
         process: [localPolyfill('process'), 'process'],
       }),
+
+      // Plugin to collect entrypoint filename information and save it in a
+      // manifest file
+      function (compiler) {
+        compiler.hooks.emit.tap('manifest', function (compilation) {
+          const stats = compilation.getStats().toJson({
+            all: false,
+            outputPath: true,
+            entrypoints: true,
+          });
+
+          if (!('index' in stats.entrypoints)) {
+            throw new Error('Missing expected entrypoint in the stats object');
+          }
+
+          const assets = JSON.stringify(
+            stats.entrypoints.index.assets
+              .map((asset) => {
+                return asset.name;
+              })
+              // The root entrypoint is at the end of the assets list, but
+              // we'd want to preload it first, reversing here puts the
+              // manifest list in the load order we want
+              .reverse(),
+            null,
+            2
+          );
+
+          compilation.emitAsset(
+            'assets-manifest.json',
+            new webpack.sources.RawSource(assets)
+          );
+        });
+      },
 
       // Only applied when running webpack in --watch mode. In this mode we want
       // to constantly rebuild d.ts files when source changes, we also don't
@@ -269,7 +285,9 @@ module.exports = (env, args) => {
   config.output = {
     path: config.output.path,
     filename: (pathData) => {
-      return pathData.chunk.hasEntryModule() ? 'compass-web.mjs' : '[name].mjs';
+      return pathData.chunk.hasEntryModule()
+        ? 'compass-web.mjs'
+        : '[name].[contenthash].mjs';
     },
     library: {
       type: 'module',
