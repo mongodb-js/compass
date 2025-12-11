@@ -258,9 +258,7 @@ export function buildContextPrompt({
   }
 
   if (currentWorkspace) {
-    const isNamespaceTab =
-      currentWorkspace.type === 'Collection' ||
-      currentWorkspace.type === 'Collections';
+    const isNamespaceTab = hasNamespace(currentWorkspace);
     const tabName =
       (currentWorkspace.type === 'Collection' && currentWorkspace.subTab) ||
       currentWorkspace.type;
@@ -308,4 +306,13 @@ export function buildContextPrompt({
   };
 
   return prompt;
+}
+
+function hasNamespace(obj: unknown): obj is { namespace: string } {
+  return (
+    typeof obj === 'object' &&
+    obj !== null &&
+    'namespace' in obj &&
+    typeof (obj as any).namespace === 'string'
+  );
 }
