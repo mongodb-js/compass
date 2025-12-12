@@ -18,7 +18,13 @@ type ParsedXmlJsonResponse = {
 
 export function parseXmlToJsonResponse(
   xmlString: string,
-  logger: Logger
+  {
+    logger,
+    type,
+  }: {
+    logger: Logger;
+    type: 'find' | 'aggregate';
+  }
 ): ParsedXmlJsonResponse {
   const expectedTags = [
     'filter',
@@ -70,36 +76,24 @@ export function parseXmlToJsonResponse(
     }
   }
 
-  const { aggregation, ...query } = result;
-  const isQueryEmpty = Object.values(query).every((v) => v === null);
+  const { aggregation: pipeline, ...query } = result;
 
-  // It prioritizes aggregation over query if both are present
-  if (aggregation && !isQueryEmpty) {
+  const aggregation = {
+    pipeline: pipeline ?? '',
+  };
+  // For aggregation, we only return aggregation field
+  if (type === 'aggregate') {
     return {
       content: {
-        aggregation: {
-          pipeline: aggregation,
-        },
-        query: {
-          filter: null,
-          project: null,
-          sort: null,
-          skip: null,
-          limit: null,
-        },
+        aggregation,
       },
     };
   }
+
   return {
     content: {
-      ...(aggregation
-        ? {
-            aggregation: {
-              pipeline: aggregation,
-            },
-          }
-        : {}),
-      ...(isQueryEmpty ? {} : { query }),
+      query,
+      aggregation,
     },
   };
 }
