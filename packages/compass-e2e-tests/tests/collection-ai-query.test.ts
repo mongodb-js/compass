@@ -265,10 +265,16 @@ describe('Collection ai query with chatbot (with mocked backend)', function () {
       expect(requests.length).to.equal(1);
 
       const queryRequest = requests[0];
+      expect(queryRequest.req.headers).to.have.property('x-client-request-id');
       // TODO(COMPASS-10125): Switch the model to `mongodb-slim-latest` when
       // enabling this feature.
       expect(queryRequest.content.model).to.equal('mongodb-chat-latest');
       expect(queryRequest.content.instructions).to.be.string;
+      expect(queryRequest.content.metadata).to.have.property('userId');
+      expect(queryRequest.content.metadata.store).to.have.equal('true');
+      expect(queryRequest.content.metadata.sensitiveStorage).to.have.equal(
+        'sensitive'
+      );
       expect(queryRequest.content.input).to.be.an('array').of.length(1);
 
       const message = queryRequest.content.input[0];

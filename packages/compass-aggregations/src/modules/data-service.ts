@@ -1,6 +1,13 @@
 import type { DataService as OriginalDataService } from 'mongodb-data-service';
 
+type FetchCollectionMetadataDataServiceMethods =
+  | 'collectionStats'
+  | 'collectionInfo'
+  | 'listCollections'
+  | 'isListSearchIndexesSupported';
+
 export type RequiredDataServiceProps =
+  | FetchCollectionMetadataDataServiceMethods
   | 'isCancelError'
   | 'estimatedCount'
   | 'aggregate'

@@ -156,16 +156,16 @@ export async function startMockAssistantServer(
   getResponse: () => MockAssistantResponse;
   setResponse: (response: MockAssistantResponse) => void;
   getRequests: () => {
-    content: any;
-    req: any;
+    content: Record<string, any>;
+    req: http.IncomingMessage;
   }[];
   endpoint: string;
   server: http.Server;
   stop: () => Promise<void>;
 }> {
   let requests: {
-    content: any;
-    req: any;
+    content: Record<string, any>;
+    req: http.IncomingMessage;
   }[] = [];
   let response = _response;
   const server = http

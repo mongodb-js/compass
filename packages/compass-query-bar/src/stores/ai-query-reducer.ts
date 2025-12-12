@@ -166,6 +166,7 @@ export const runAIQuery = (
       logger: { log },
       connectionInfoRef,
       track,
+      collection,
     }
   ) => {
     const provideSampleDocuments =
@@ -218,6 +219,7 @@ export const runAIQuery = (
         }
       );
       const schema = await getSimplifiedSchema(sampleDocuments);
+      const { isFLE } = await collection.fetchMetadata({ dataService });
 
       const { collection: collectionName, database: databaseName } =
         toNS(namespace);
@@ -235,6 +237,7 @@ export const runAIQuery = (
               }
             : undefined),
           requestId,
+          enableStorage: !isFLE,
         },
         connectionInfo
       );

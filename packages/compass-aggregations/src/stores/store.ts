@@ -188,6 +188,7 @@ export function activateAggregationsPlugin(
         connectionInfoRef,
         connectionScopedAppRegistry,
         dataService,
+        collection: collectionModel,
       })
     )
   );
