@@ -2,36 +2,27 @@ import React from 'react';
 import { css, cx } from '@leafygreen-ui/emotion';
 import { spacing } from '@leafygreen-ui/tokens';
 import { Body, Modal as LeafyGreenModal } from '../leafygreen';
-import { useScrollbars } from '../../hooks/use-scrollbars';
 import { withStackedComponentStyles } from '../../hooks/use-stacked-component';
 
-const contentStyles = css({
-  width: '600px',
+const styles = css({
+  // Force the width and height and margins to never extend the containing element
+  maxHeight: `calc(100vh - 2 * ${spacing['600']}px)`,
+  maxWidth: `calc(100vw - 2 * ${spacing['800']}px)`,
+
   letterSpacing: 0,
   padding: 0,
   // The LG modal applies transform: translate3d(0, 0, 0) style to the modal
   // content and this messes up the autocompleter within the modal. So we clear
   // the transform here.
   transform: 'none',
-});
-
-const modalFullScreenStyles = css({
-  '& > div': {
-    paddingTop: spacing[600],
-    paddingBottom: spacing[600],
-    paddingLeft: spacing[800],
-    paddingRight: spacing[800],
-    height: '100vh',
-    maxHeight: '100vh',
+  '&:not([open])': {
+    pointerEvents: 'none',
   },
 });
 
-const contentFullScreenStyles = css({
+const fullScreenStyles = css({
+  height: 'auto',
   width: '100%',
-  height: '100%',
-  maxHeight: '100%',
-  margin: 0,
-  alignSelf: 'stretch',
   '& > div': {
     height: '100%',
     maxHeight: '100%',
@@ -40,32 +31,23 @@ const contentFullScreenStyles = css({
 
 function UnwrappedModal({
   className,
-  contentClassName,
   children,
   fullScreen = false,
   ...props
-}: React.ComponentProps<typeof LeafyGreenModal> & {
+}: Omit<React.ComponentProps<typeof LeafyGreenModal>, 'backdropClassName'> & {
   fullScreen?: boolean;
 }): React.ReactElement {
-  // NOTE: We supply scrollbar styles to the `Modal` content as
-  // there is currently a bug in `LeafyGreen` with the portal providers
-  // where our top level `portalContainer` we supply to the `LeafyGreenProvider`
-  // in home.tsx is not used by Modals.
-  // Once this issue is fixed we can remove these styles here.
-  const { className: scrollbarStyles } = useScrollbars();
-
   return (
     <LeafyGreenModal
       className={cx(
-        scrollbarStyles,
-        fullScreen && modalFullScreenStyles,
+        styles,
+        {
+          [fullScreenStyles]: fullScreen && props.open,
+        },
         className
       )}
-      contentClassName={cx(
-        contentStyles,
-        fullScreen && contentFullScreenStyles,
-        contentClassName
-      )}
+      /* For now, we're defaulting to not auto-focus the first focusable element */
+      initialFocus={null}
       {...props}
     >
       <Body as="div">{children}</Body>

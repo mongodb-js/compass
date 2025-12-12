@@ -287,8 +287,7 @@ describe('Collection documents tab', function () {
           await browser.setFeature('maxTimeMS', 1);
         } else {
           await browser.openSettingsModal();
-          const settingsModal = browser.$(Selectors.SettingsModal);
-          await settingsModal.waitForDisplayed();
+          await browser.waitForOpenModal(Selectors.SettingsModal);
           await browser.clickVisible(Selectors.GeneralSettingsButton);
 
           await browser.setValueVisible(
@@ -296,7 +295,9 @@ describe('Collection documents tab', function () {
             '1'
           );
           await browser.clickVisible(Selectors.SaveSettingsButton);
-          await settingsModal.waitForDisplayed({ reverse: true });
+          await browser.waitForOpenModal(Selectors.SettingsModal, {
+            reverse: true,
+          });
         }
       }
 
@@ -588,8 +589,7 @@ FindIterable<Document> result = collection.find(filter);`);
     await browser.clickVisible(Selectors.CloneDocumentButton);
 
     // wait for the modal to appear
-    const insertDialog = browser.$(Selectors.InsertDialog);
-    await insertDialog.waitForDisplayed();
+    await browser.waitForOpenModal(Selectors.InsertDialog);
 
     // set the text in the editor and insert the document
     await browser.setCodemirrorEditorValue(
@@ -599,7 +599,7 @@ FindIterable<Document> result = collection.find(filter);`);
     const insertConfirm = browser.$(Selectors.InsertConfirm);
     await insertConfirm.waitForEnabled();
     await browser.clickVisible(Selectors.InsertConfirm);
-    await insertDialog.waitForDisplayed({ reverse: true });
+    await browser.waitForOpenModal(Selectors.InsertDialog, { reverse: true });
 
     await browser.runFindOperation('Documents', '{ i: 10042 }');
 
@@ -724,17 +724,14 @@ FindIterable<Document> result = collection.find(filter);`);
       await errorElement.waitForDisplayed();
       await errorDetailsBtn.click();
 
-      const errorDetailsJson = browser.$(Selectors.ErrorDetailsJson);
-      await errorDetailsJson.waitForDisplayed();
+      await browser.$(Selectors.ErrorDetailsJson).waitForDisplayed();
 
-      // exit details
-      // leafygreen autofocus triggers a tooltip on the error code element,
-      // "Tab" to remove the focus
-      await browser.keys('Tab');
       // now click the close button
       await browser.clickVisible(Selectors.confirmationModalConfirmButton());
       // wait for the modal to go away
-      await errorDetailsJson.waitForDisplayed({ reverse: true });
+      await browser.$(Selectors.ErrorDetailsJson).waitForDisplayed({
+        reverse: true,
+      });
     });
 
     describe('Editing', function () {
@@ -781,12 +778,13 @@ FindIterable<Document> result = collection.find(filter);`);
         await errorDetailsBtn.waitForDisplayed();
         await errorDetailsBtn.click();
 
-        const errorDetailsJson = browser.$(Selectors.ErrorDetailsJson);
-        await errorDetailsJson.waitForDisplayed();
+        await browser.$(Selectors.ErrorDetailsJson).waitForDisplayed();
 
         // exit details
         await browser.clickVisible(Selectors.confirmationModalConfirmButton());
-        await errorDetailsJson.waitForDisplayed({ reverse: true });
+        await browser.$(Selectors.ErrorDetailsJson).waitForDisplayed({
+          reverse: true,
+        });
       });
 
       it('shows error info when editing via json view', async function () {
@@ -830,12 +828,13 @@ FindIterable<Document> result = collection.find(filter);`);
         await errorDetailsBtn.waitForDisplayed();
         await errorDetailsBtn.click();
 
-        const errorDetailsJson = browser.$(Selectors.ErrorDetailsJson);
-        await errorDetailsJson.waitForDisplayed();
+        await browser.$(Selectors.ErrorDetailsJson).waitForDisplayed();
 
         // exit details
         await browser.clickVisible(Selectors.confirmationModalConfirmButton());
-        await errorDetailsJson.waitForDisplayed({ reverse: true });
+        await browser.$(Selectors.ErrorDetailsJson).waitForDisplayed({
+          reverse: true,
+        });
       });
 
       it('shows error info when editing via table view', async function () {
@@ -876,12 +875,13 @@ FindIterable<Document> result = collection.find(filter);`);
         await errorDetailsBtn.waitForDisplayed();
         await errorDetailsBtn.click();
 
-        const errorDetailsJson = browser.$(Selectors.ErrorDetailsJson);
-        await errorDetailsJson.waitForDisplayed();
+        await browser.$(Selectors.ErrorDetailsJson).waitForDisplayed();
 
         // exit details
         await browser.clickVisible(Selectors.confirmationModalConfirmButton());
-        await errorDetailsJson.waitForDisplayed({ reverse: true });
+        await browser.$(Selectors.ErrorDetailsJson).waitForDisplayed({
+          reverse: true,
+        });
       });
     });
   });

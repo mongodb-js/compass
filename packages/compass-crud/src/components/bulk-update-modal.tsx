@@ -37,7 +37,7 @@ import { useFavoriteQueryStorageAccess } from '@mongodb-js/my-queries-storage/pr
 
 const modalContentStyles = css({
   width: '100%',
-  maxWidth: '1280px',
+  maxWidth: `calc(min(100vw, 1280px) - 2 * ${spacing['800']}px)`,
 });
 
 const columnsStyles = css({
@@ -404,7 +404,7 @@ export default function BulkUpdateModal({
       open={isOpen}
       setOpen={closeBulkUpdateModal}
       data-testid="bulk-update-modal"
-      contentClassName={enablePreview ? modalContentStyles : undefined}
+      className={enablePreview ? modalContentStyles : undefined}
       initialFocus={`#${bulkUpdateUpdateId} .cm-content`}
     >
       <ModalHeader title={modalTitleAndButtonText} subtitle={ns} />

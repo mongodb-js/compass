@@ -90,8 +90,7 @@ describe('Collection export', function () {
       // Open the modal.
       await browser.clickVisible(Selectors.ExportCollectionMenuButton);
       await browser.clickVisible(Selectors.ExportCollectionQueryOption);
-      const exportModal = browser.$(Selectors.ExportModal);
-      await exportModal.waitForDisplayed();
+      await browser.waitForOpenModal(Selectors.ExportModal);
 
       // Make sure the query is shown in the modal.
       const exportModalQueryTextElement = browser.$(
@@ -126,8 +125,7 @@ describe('Collection export', function () {
       await browser.setExportFilename(filename);
 
       // Wait for the modal to go away.
-      const exportModalElement = browser.$(Selectors.ExportModal);
-      await exportModalElement.waitForDisplayed({
+      await browser.waitForOpenModal(Selectors.ExportModal, {
         reverse: true,
       });
 
@@ -172,8 +170,7 @@ describe('Collection export', function () {
       // Open the modal.
       await browser.clickVisible(Selectors.ExportCollectionMenuButton);
       await browser.clickVisible(Selectors.ExportCollectionQueryOption);
-      const exportModal = browser.$(Selectors.ExportModal);
-      await exportModal.waitForDisplayed();
+      await browser.waitForOpenModal(Selectors.ExportModal);
 
       const exportModalQueryTextElement = browser.$(
         Selectors.ExportModalCodePreview
@@ -198,8 +195,7 @@ describe('Collection export', function () {
       await browser.setExportFilename(filename);
 
       // Wait for the modal to go away.
-      const exportModalElement = browser.$(Selectors.ExportModal);
-      await exportModalElement.waitForDisplayed({
+      await browser.waitForOpenModal(Selectors.ExportModal, {
         reverse: true,
       });
 
@@ -240,8 +236,7 @@ describe('Collection export', function () {
       // Open the modal.
       await browser.clickVisible(Selectors.ExportCollectionMenuButton);
       await browser.clickVisible(Selectors.ExportCollectionQueryOption);
-      const exportModal = browser.$(Selectors.ExportModal);
-      await exportModal.waitForDisplayed();
+      await browser.waitForOpenModal(Selectors.ExportModal);
 
       // Make sure the query is shown in the modal.
       const exportModalQueryTextElement = browser.$(
@@ -262,8 +257,7 @@ describe('Collection export', function () {
       await browser.setExportFilename(filename);
 
       // Wait for the modal to go away.
-      const exportModalElement = browser.$(Selectors.ExportModal);
-      await exportModalElement.waitForDisplayed({
+      await browser.waitForOpenModal(Selectors.ExportModal, {
         reverse: true,
       });
 
@@ -307,8 +301,7 @@ describe('Collection export', function () {
       await browser.clickVisible(
         Selectors.ExportCollectionFullCollectionOption
       );
-      const exportModal = browser.$(Selectors.ExportModal);
-      await exportModal.waitForDisplayed();
+      await browser.waitForOpenModal(Selectors.ExportModal);
 
       // Export the entire collection.
       await selectExportFileTypeCSV(browser);
@@ -318,8 +311,7 @@ describe('Collection export', function () {
       await browser.setExportFilename(filename);
 
       // Wait for the modal to go away.
-      const exportModalElement = browser.$(Selectors.ExportModal);
-      await exportModalElement.waitForDisplayed({
+      await browser.waitForOpenModal(Selectors.ExportModal, {
         reverse: true,
       });
 
@@ -357,8 +349,7 @@ describe('Collection export', function () {
       // Open the modal.
       await browser.clickVisible(Selectors.ExportCollectionMenuButton);
       await browser.clickVisible(Selectors.ExportCollectionQueryOption);
-      const exportModal = browser.$(Selectors.ExportModal);
-      await exportModal.waitForDisplayed();
+      await browser.waitForOpenModal(Selectors.ExportModal);
 
       // Make sure the query is shown in the modal.
       const exportModalQueryTextElement = browser.$(
@@ -390,8 +381,7 @@ describe('Collection export', function () {
       await browser.setExportFilename(filename);
 
       // Wait for the modal to go away.
-      const exportModalElement = browser.$(Selectors.ExportModal);
-      await exportModalElement.waitForDisplayed({
+      await browser.waitForOpenModal(Selectors.ExportModal, {
         reverse: true,
       });
 
@@ -436,8 +426,7 @@ describe('Collection export', function () {
       // Open the modal.
       await browser.clickVisible(Selectors.ExportCollectionMenuButton);
       await browser.clickVisible(Selectors.ExportCollectionQueryOption);
-      const exportModal = browser.$(Selectors.ExportModal);
-      await exportModal.waitForDisplayed();
+      await browser.waitForOpenModal(Selectors.ExportModal);
 
       const exportModalQueryTextElement = browser.$(
         Selectors.ExportModalCodePreview
@@ -462,8 +451,7 @@ describe('Collection export', function () {
       await browser.setExportFilename(filename);
 
       // Wait for the modal to go away.
-      const exportModalElement = browser.$(Selectors.ExportModal);
-      await exportModalElement.waitForDisplayed({
+      await browser.waitForOpenModal(Selectors.ExportModal, {
         reverse: true,
       });
 
@@ -503,8 +491,7 @@ describe('Collection export', function () {
       await browser.clickVisible(
         Selectors.ExportCollectionFullCollectionOption
       );
-      const exportModal = browser.$(Selectors.ExportModal);
-      await exportModal.waitForDisplayed();
+      await browser.waitForOpenModal(Selectors.ExportModal);
 
       await browser.clickVisible(Selectors.ExportModalExportButton);
 
@@ -513,8 +500,7 @@ describe('Collection export', function () {
       await browser.setExportFilename(filename);
 
       // Wait for the modal to go away.
-      const exportModalElement = browser.$(Selectors.ExportModal);
-      await exportModalElement.waitForDisplayed({
+      await browser.waitForOpenModal(Selectors.ExportModal, {
         reverse: true,
       });
 
@@ -554,8 +540,7 @@ describe('Collection export', function () {
       await browser.clickVisible(
         Selectors.ExportCollectionFullCollectionOption
       );
-      const exportModal = browser.$(Selectors.ExportModal);
-      await exportModal.waitForDisplayed();
+      await browser.waitForOpenModal(Selectors.ExportModal);
 
       // Set the json format to canonical.
       await browser.clickVisible(Selectors.ExportJSONFormatAccordion);
@@ -568,8 +553,7 @@ describe('Collection export', function () {
       await browser.setExportFilename(filename);
 
       // Wait for the modal to go away.
-      const exportModalElement = browser.$(Selectors.ExportModal);
-      await exportModalElement.waitForDisplayed({
+      await browser.waitForOpenModal(Selectors.ExportModal, {
         reverse: true,
       });
 
@@ -610,8 +594,7 @@ describe('Collection export', function () {
       // Open the modal.
       await browser.clickVisible(Selectors.ExportCollectionMenuButton);
       await browser.clickVisible(Selectors.ExportCollectionQueryOption);
-      const exportModal = browser.$(Selectors.ExportModal);
-      await exportModal.waitForDisplayed();
+      await browser.waitForOpenModal(Selectors.ExportModal);
 
       // Choose to export select fields.
       await browser.clickVisible(Selectors.ExportQuerySelectFieldsOption);
@@ -632,8 +615,7 @@ describe('Collection export', function () {
       await browser.setExportFilename(filename);
 
       // Wait for the modal to go away.
-      const exportModalElement = browser.$(Selectors.ExportModal);
-      await exportModalElement.waitForDisplayed({
+      await browser.waitForOpenModal(Selectors.ExportModal, {
         reverse: true,
       });
 
@@ -705,8 +687,7 @@ describe('Collection export', function () {
       // Open the modal.
       await browser.clickVisible(Selectors.ExportCollectionMenuButton);
       await browser.clickVisible(Selectors.ExportCollectionQueryOption);
-      const exportModal = browser.$(Selectors.ExportModal);
-      await exportModal.waitForDisplayed();
+      await browser.waitForOpenModal(Selectors.ExportModal);
 
       // Choose to export select fields.
       await browser.clickVisible(Selectors.ExportQuerySelectFieldsOption);
@@ -725,8 +706,7 @@ describe('Collection export', function () {
       await browser.setExportFilename(filename);
 
       // Wait for the modal to go away.
-      const exportModalElement = browser.$(Selectors.ExportModal);
-      await exportModalElement.waitForDisplayed({
+      await browser.waitForOpenModal(Selectors.ExportModal, {
         reverse: true,
       });
 
@@ -792,8 +772,7 @@ describe('Collection export', function () {
       // Open the modal.
       await browser.clickVisible(Selectors.ExportCollectionMenuButton);
       await browser.clickVisible(Selectors.ExportCollectionQueryOption);
-      const exportModal = browser.$(Selectors.ExportModal);
-      await exportModal.waitForDisplayed();
+      await browser.waitForOpenModal(Selectors.ExportModal);
 
       // Choose to export select fields.
       await browser.clickVisible(Selectors.ExportQuerySelectFieldsOption);
@@ -814,8 +793,7 @@ describe('Collection export', function () {
       await browser.setExportFilename(filename);
 
       // Wait for the modal to go away.
-      const exportModalElement = browser.$(Selectors.ExportModal);
-      await exportModalElement.waitForDisplayed({
+      await browser.waitForOpenModal(Selectors.ExportModal, {
         reverse: true,
       });
 
@@ -901,8 +879,7 @@ describe('Collection export', function () {
       // Open the modal.
       await browser.clickVisible(Selectors.ExportCollectionMenuButton);
       await browser.clickVisible(Selectors.ExportCollectionQueryOption);
-      const exportModal = browser.$(Selectors.ExportModal);
-      await exportModal.waitForDisplayed();
+      await browser.waitForOpenModal(Selectors.ExportModal);
 
       // Make sure the query is shown in the modal.
       const exportModalQueryTextElement = browser.$(
@@ -949,8 +926,7 @@ describe('Collection export', function () {
       await browser.setExportFilename(filename);
 
       // Wait for the modal to go away.
-      const exportModalElement = browser.$(Selectors.ExportModal);
-      await exportModalElement.waitForDisplayed({
+      await browser.waitForOpenModal(Selectors.ExportModal, {
         reverse: true,
       });
 
@@ -1000,8 +976,7 @@ describe('Collection export', function () {
       // Open the modal.
       await browser.clickVisible(Selectors.ExportCollectionMenuButton);
       await browser.clickVisible(Selectors.ExportCollectionQueryOption);
-      const exportModal = browser.$(Selectors.ExportModal);
-      await exportModal.waitForDisplayed();
+      await browser.waitForOpenModal(Selectors.ExportModal);
 
       // Make sure the query is shown in the modal.
       const exportModalQueryTextElement = browser.$(
@@ -1048,8 +1023,7 @@ describe('Collection export', function () {
       await browser.setExportFilename(filename);
 
       // Wait for the modal to go away.
-      const exportModalElement = browser.$(Selectors.ExportModal);
-      await exportModalElement.waitForDisplayed({
+      await browser.waitForOpenModal(Selectors.ExportModal, {
         reverse: true,
       });
 

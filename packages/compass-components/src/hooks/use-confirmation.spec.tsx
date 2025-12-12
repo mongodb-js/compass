@@ -2,7 +2,6 @@ import {
   render,
   screen,
   waitFor,
-  waitForElementToBeRemoved,
   within,
   userEvent,
 } from '@mongodb-js/testing-library-compass';
@@ -44,23 +43,21 @@ describe('use-confirmation', function () {
         within(modal).getByText('This action can not be undone.')
       ).to.exist;
       expect(within(modal).getByText('Yes')).to.exist;
-      expect(within(modal).getByText('Cancel')).to.exist;
+      const cancelElement = within(modal).getByText('Cancel');
+      expect(cancelElement).to.exist;
+      expect(cancelElement.parentElement).to.equal(document.activeElement);
     });
 
     it('handles cancel action', async function () {
       userEvent.click(within(modal).getByText('Cancel'));
-      await waitForElementToBeRemoved(() =>
-        screen.getByTestId('confirmation-modal')
-      );
+      await waitFor(() => expect(modal).to.not.be.displayed);
       const confirmed = await response;
       expect(confirmed).to.be.false;
     });
 
     it('handles confirm action', async function () {
       userEvent.click(within(modal).getByText('Yes'));
-      await waitForElementToBeRemoved(() =>
-        screen.getByTestId('confirmation-modal')
-      );
+      await waitFor(() => expect(modal).to.not.be.displayed);
       const confirmed = await response;
       expect(confirmed).to.be.true;
     });
@@ -83,10 +80,13 @@ describe('use-confirmation', function () {
             screen.getByRole('button', { name: 'Confirm' })
           ).to.have.attribute('aria-disabled', 'true');
 
-          userEvent.type(
-            screen.getByRole('textbox', { name: /Type "Yes"/ }),
-            'Yes'
-          );
+          const textInputElement = screen.getByRole('textbox', {
+            name: /Type "Yes"/,
+          });
+
+          // The input should have focus
+          expect(textInputElement).to.equal(document.activeElement);
+          userEvent.type(textInputElement, 'Yes');
 
           expect(
             screen.getByRole('button', { name: 'Confirm' })

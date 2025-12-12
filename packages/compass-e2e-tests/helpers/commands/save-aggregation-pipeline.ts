@@ -34,8 +34,7 @@ export async function saveAggregationPipeline(
   await browser.clickVisible(Selectors.SavePipelineSaveAsAction);
 
   // wait for the modal to appear
-  const savePipelineModal = browser.$(Selectors.SavePipelineModal);
-  await savePipelineModal.waitForDisplayed();
+  await browser.waitForOpenModal(Selectors.SavePipelineModal);
 
   // set aggregation name
   await browser.waitForAnimations(Selectors.SavePipelineNameInput);
@@ -49,7 +48,9 @@ export async function saveAggregationPipeline(
   await createButton.click();
 
   // wait for the modal to disappear
-  await savePipelineModal.waitForDisplayed({ reverse: true });
+  await browser.waitForOpenModal(Selectors.SavePipelineModal, {
+    reverse: true,
+  });
 
   // Wait for the aggregation's name to be displayed.
   await browser.waitForAnimations(Selectors.AggregationPipelineName);
