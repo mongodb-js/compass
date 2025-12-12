@@ -263,11 +263,15 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
       const trimmedMessageBody = messageBody.trim();
       if (trimmedMessageBody) {
         await chat.stop();
-        void ensureOptInAndSend?.({ text: trimmedMessageBody }, {}, () => {
-          track('Assistant Prompt Submitted', {
-            user_input_length: trimmedMessageBody.length,
-          });
-        });
+        void ensureOptInAndSend?.(
+          { text: trimmedMessageBody, metadata: { sendContext: true } },
+          {},
+          () => {
+            track('Assistant Prompt Submitted', {
+              user_input_length: trimmedMessageBody.length,
+            });
+          }
+        );
       }
     },
     [track, ensureOptInAndSend, chat]
@@ -357,6 +361,10 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
     [ensureOptInAndSend, setMessages, track]
   );
 
+  const visibleMessages = messages.filter(
+    (message) => !message.metadata?.isSystemContext
+  );
+
   return (
     <div
       data-testid="assistant-chat"
@@ -374,7 +382,7 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
             ref={messagesContainerRef}
           >
             <div className={messagesWrapStyles}>
-              {messages.map((message, index) => {
+              {visibleMessages.map((message, index) => {
                 const { id, role, metadata, parts } = message;
                 const seenTitles = new Set<string>();
                 const sources = [];
@@ -395,7 +403,7 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
                 }
                 if (metadata?.confirmation) {
                   const { description, state } = metadata.confirmation;
-                  const isLastMessage = index === messages.length - 1;
+                  const isLastMessage = index === visibleMessages.length - 1;
 
                   return (
                     <ConfirmationMessage
