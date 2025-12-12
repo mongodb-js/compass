@@ -1,7 +1,7 @@
 import { preferencesLocator } from 'compass-preferences-model/provider';
 import { registerCompassPlugin } from '@mongodb-js/compass-app-registry';
 import type { connect as devtoolsConnect } from 'mongodb-data-service';
-import React, { useContext } from 'react';
+import React, { useContext, useMemo } from 'react';
 import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
 import { connectionStorageLocator } from '@mongodb-js/connection-storage/provider';
 import type {
@@ -21,10 +21,14 @@ import {
 import {
   ConnectionsStoreContext,
   ConnectionActionsProvider,
+  useConnectionsList,
 } from './stores/store-context';
 export type { ConnectionFeature } from './utils/connection-supports';
 export { connectionSupports, connectable } from './utils/connection-supports';
-import { compassAssistantServiceLocator } from '@mongodb-js/compass-assistant';
+import {
+  compassAssistantServiceLocator,
+  useSyncAssistantGlobalState,
+} from '@mongodb-js/compass-assistant';
 import { useInitialValue } from '@mongodb-js/compass-components';
 
 const ConnectionsComponent: React.FunctionComponent<{
@@ -70,6 +74,16 @@ const ConnectionsComponent: React.FunctionComponent<{
    */
   onFailToLoadConnections: (error: Error) => void;
 }> = ({ children }) => {
+  const activeConnections = useConnectionsList((connection) => {
+    return connection.status === 'connected';
+  });
+  const activeConnectionsInfo = useMemo(() => {
+    return activeConnections.map((connection) => {
+      return connection.info;
+    });
+  }, [activeConnections]);
+  useSyncAssistantGlobalState('activeConnections', activeConnectionsInfo);
+
   return (
     <ConnectionActionsProvider>
       {children}
