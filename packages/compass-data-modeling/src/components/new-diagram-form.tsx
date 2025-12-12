@@ -39,6 +39,7 @@ import {
   Checkbox,
 } from '@mongodb-js/compass-components';
 import { usePreference } from 'compass-preferences-model/provider';
+import { selectIsAnalysisInProgress } from '../store/analysis-process';
 
 const footerStyles = css({
   flexDirection: 'row',
@@ -559,8 +560,7 @@ export default connect(
       collections: databaseCollections ?? [],
       selectedCollections: selectedCollections ?? [],
       error,
-      analysisInProgress:
-        state.analysisProgress.analysisProcessStatus === 'in-progress',
+      analysisInProgress: selectIsAnalysisInProgress(state),
       automaticallyInferRelationships:
         state.generateDiagramWizard.automaticallyInferRelations,
     };

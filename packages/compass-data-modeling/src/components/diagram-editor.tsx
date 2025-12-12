@@ -33,7 +33,6 @@ import type {
 } from '@mongodb-js/compass-components';
 import {
   Banner,
-  CancelLoader,
   WorkspaceContainer,
   css,
   spacing,
@@ -49,7 +48,7 @@ import {
   useFocusStateIncludingUnfocused,
   FocusStates,
 } from '@mongodb-js/compass-components';
-import { cancelAnalysis, retryAnalysis } from '../store/analysis-process';
+import { retryAnalysis } from '../store/analysis-process';
 import type { FieldPath, StaticModel } from '../services/data-model-storage';
 import DiagramEditorToolbar from './diagram-editor-toolbar';
 import ExportDiagramModal from './export-diagram-modal';
@@ -62,15 +61,7 @@ import {
 import toNS from 'mongodb-ns';
 import { getNamespaceRelationships } from '../utils/utils';
 import { usePreference } from 'compass-preferences-model/provider';
-
-const loadingContainerStyles = css({
-  width: '100%',
-  paddingTop: spacing[1800] * 3,
-});
-
-const loaderStyles = css({
-  margin: '0 auto',
-});
+import AnalysisProgressStatus from './analysis-progress-status';
 
 const errorBannerStyles = css({
   margin: spacing[200],
@@ -560,14 +551,12 @@ const DiagramEditor: React.FunctionComponent<{
   step: DataModelingState['step'];
   diagramId?: string;
   onRetryClick: () => void;
-  onCancelClick: () => void;
   onAddCollectionClick: () => void;
   DiagramComponent?: typeof Diagram;
 }> = ({
   step,
   diagramId,
   onRetryClick,
-  onCancelClick,
   onAddCollectionClick,
   DiagramComponent = Diagram,
 }) => {
@@ -597,16 +586,7 @@ const DiagramEditor: React.FunctionComponent<{
   }
 
   if (step === 'ANALYZING') {
-    content = (
-      <div className={loadingContainerStyles}>
-        <CancelLoader
-          className={loaderStyles}
-          progressText="Analyzing …"
-          cancelText="Cancel"
-          onCancel={onCancelClick}
-        ></CancelLoader>
-      </div>
-    );
+    content = <AnalysisProgressStatus />;
   }
 
   if (step === 'ANALYSIS_FAILED') {
@@ -665,7 +645,6 @@ export default connect(
   },
   {
     onRetryClick: retryAnalysis,
-    onCancelClick: cancelAnalysis,
     onAddCollectionClick: addCollection,
   }
 )(DiagramEditor);
