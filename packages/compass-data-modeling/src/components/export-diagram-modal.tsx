@@ -88,7 +88,7 @@ const ExportDiagramModal = ({
                 size="small"
                 description="Importable into Compass and Data Explorer so teammates can collaborate."
               >
-                Diagram File
+                MDM File
               </Radio>
             </div>
             <div className={radioItemStyles}>
