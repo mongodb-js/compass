@@ -41,7 +41,7 @@ const CollectionBadges: React.FunctionComponent = ({ children }) => {
 
 const collectionBadgeStyles = css({
   gap: spacing[100],
-  'white-space': 'nowrap',
+  whiteSpace: 'nowrap',
 });
 
 const viewOnStyles = css({

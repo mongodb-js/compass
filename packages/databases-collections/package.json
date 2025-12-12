@@ -75,7 +75,7 @@
     "mongodb-database-model": "^2.37.0",
     "mongodb-instance-model": "^12.59.0",
     "mongodb-ns": "^3.0.1",
-    "mongodb-query-parser": "^4.5.0",
+    "mongodb-query-parser": "^4.6.0",
     "prop-types": "^15.7.2",
     "react": "^17.0.2",
     "react-redux": "^8.1.3",

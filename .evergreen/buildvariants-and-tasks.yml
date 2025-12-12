@@ -428,6 +428,7 @@ tasks:
       - func: bootstrap
         vars:
           scope: '@mongodb-js/compass-web'
+      - func: upload-web
       - func: publish-web
   - name: publish-dev-release-info
     tags: []

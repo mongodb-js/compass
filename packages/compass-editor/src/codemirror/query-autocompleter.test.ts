@@ -10,7 +10,7 @@ describe('query autocompleter', function () {
   after(cleanup);
 
   it('returns all completions when current token is vaguely matches identifier', async function () {
-    expect(await getCompletions('foo')).to.have.lengthOf(45);
+    expect(await getCompletions('foo')).to.have.lengthOf(49);
   });
 
   it("doesn't return anything when not matching identifier", async function () {
