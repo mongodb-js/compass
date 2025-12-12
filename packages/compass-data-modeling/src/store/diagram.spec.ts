@@ -380,6 +380,45 @@ describe('Data Modeling store', function () {
       ]);
     });
 
+    it('should apply a valid MoveMultipleCollections edit', function () {
+      store.dispatch(openDiagram(loadedDiagram));
+
+      const newPosition0 = [
+        model.collections[0].displayPosition[0] + 20,
+        100,
+      ] as [number, number];
+      const newPosition1 = [
+        model.collections[1].displayPosition[0] + 20,
+        200,
+      ] as [number, number];
+      const edit: Omit<
+        Extract<Edit, { type: 'MoveMultipleCollections' }>,
+        'id' | 'timestamp'
+      > = {
+        type: 'MoveMultipleCollections',
+        newPositions: {
+          [model.collections[0].ns]: newPosition0,
+          [model.collections[1].ns]: newPosition1,
+        },
+      };
+      store.dispatch(applyEdit(edit));
+
+      const state = store.getState();
+      const diagram = getCurrentDiagramFromState(state);
+      expect(openToastSpy).not.to.have.been.called;
+      expect(diagram.edits).to.have.length(2);
+      expect(diagram.edits[0]).to.deep.equal(loadedDiagram.edits[0]);
+      expect(diagram.edits[1]).to.deep.include(edit);
+
+      const currentModel = getCurrentModel(diagram.edits);
+      expect(currentModel.collections[0].displayPosition).to.deep.equal(
+        newPosition0
+      );
+      expect(currentModel.collections[1].displayPosition).to.deep.equal(
+        newPosition1
+      );
+    });
+
     it('should not apply invalid MoveCollection edit', function () {
       store.dispatch(openDiagram(loadedDiagram));
 
