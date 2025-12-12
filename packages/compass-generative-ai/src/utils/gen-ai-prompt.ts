@@ -87,6 +87,11 @@ function withCodeFence(code: string): string {
   ].join('\n');
 }
 
+export function escapeXmlUserInput(input: string): string {
+  const regex = /(<)(\/?[a-zA-Z_-]*)(>)/g;
+  return input.replace(regex, '&lt;$2&gt;');
+}
+
 function buildUserPromptForQuery({
   type,
   userInput,
@@ -100,7 +105,7 @@ function buildUserPromptForQuery({
   const queryPrompt = [
     type === 'find' ? 'Write a query' : 'Generate an aggregation',
     'that does the following:',
-    `<user_prompt>${userInput}</user_prompt>`,
+    `<user_prompt>${escapeXmlUserInput(userInput)}</user_prompt>`,
   ].join(' ');
 
   if (databaseName) {
