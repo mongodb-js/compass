@@ -864,8 +864,8 @@ export function changeFieldType({
       jsonSchema: collectionSchema,
       fieldPath: fieldPath,
     });
-    const oldTypes = field?.fieldTypes;
     if (!field) throw new Error('Field not found in schema');
+    const oldTypes = field.fieldTypes;
     const to = getSchemaWithNewTypes(field.jsonSchema, newTypes);
 
     track('Data Modeling Field Type Changed', {

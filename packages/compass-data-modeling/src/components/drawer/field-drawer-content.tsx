@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { connect } from 'react-redux';
 import type {
   FieldPath,
@@ -131,6 +131,9 @@ const FieldDrawerContent: React.FunctionComponent<FieldDrawerContentProps> = ({
     string | undefined
   >();
   const [fieldTypes, setFieldTypes] = useState<string[]>(types);
+  useEffect(() => {
+    setFieldTypes(types);
+  }, [types]);
 
   const { value: fieldName, ...nameInputProps } = useChangeOnBlur(
     fieldPath[fieldPath.length - 1],
