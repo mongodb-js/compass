@@ -81,6 +81,7 @@
     "bson": "^6.10.4",
     "compass-preferences-model": "^2.66.3",
     "lodash": "^4.17.21",
+    "mongodb-collection-model": "^5.37.0",
     "mongodb": "^6.19.0",
     "mongodb-instance-model": "^12.59.0",
     "mongodb-ns": "^3.0.1",
