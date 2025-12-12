@@ -245,7 +245,7 @@ export function buildContextPrompt({
   activeCollectionMetadata: Pick<
     CollectionMetadata,
     'isTimeSeries' | 'sourceName'
-    // TODO: isClustered, isFLE, isSearchIndexesSupported, isDataLake, isAtlas, serverVersion
+    // TODO(COMPASS-10173): isClustered, isFLE, isSearchIndexesSupported, isDataLake, isAtlas, serverVersion
   > | null;
   activeCollectionSubTab: CollectionSubtab | null;
 }): AssistantMessage {
