@@ -97,7 +97,6 @@ export function applyEdit(edit: Edit, model?: StaticModel): StaticModel {
       };
     }
     case 'MoveCollection': {
-      console.log('Applying move collection edit', edit);
       assertCollectionExists(model.collections, edit.ns);
       return {
         ...model,
@@ -113,7 +112,6 @@ export function applyEdit(edit: Edit, model?: StaticModel): StaticModel {
       };
     }
     case 'MoveMultipleCollections': {
-      console.log('Applying move multiple collections edit', edit);
       const movedCollections = Object.keys(edit.newPositions);
       for (const ns of movedCollections) {
         assertCollectionExists(model.collections, ns);
