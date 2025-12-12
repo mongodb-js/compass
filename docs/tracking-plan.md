@@ -1098,6 +1098,7 @@ This event is fired when a new data modeling diagram is created
 **Properties**:
 
 - **num_collections** (required): `number`
+- **num_relations_inferred** (optional): `number | undefined`
 - **is_compass_web** (optional): `true | undefined`
 
 <a name="event--DataModelingDiagramExported"></a>
