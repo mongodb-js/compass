@@ -263,10 +263,10 @@ export function startAnalysis(
         })
       );
 
-      if (
+      const attemptRelationshipInference =
         preferences.getPreferences().enableAutomaticRelationshipInference &&
-        options.automaticallyInferRelations
-      ) {
+        options.automaticallyInferRelations;
+      if (attemptRelationshipInference) {
         relations = (
           await Promise.all(
             collections.map(
@@ -338,6 +338,9 @@ export function startAnalysis(
 
       track('Data Modeling Diagram Created', {
         num_collections: collections.length,
+        num_relations_inferred: attemptRelationshipInference
+          ? relations.length
+          : undefined,
       });
 
       void dataModelStorage.save(getCurrentDiagramFromState(getState()));
