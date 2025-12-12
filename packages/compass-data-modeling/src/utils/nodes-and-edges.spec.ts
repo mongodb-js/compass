@@ -4,7 +4,6 @@ import {
   relationshipToDiagramEdge,
 } from './nodes-and-edges';
 import { type Relationship } from '../services/data-model-storage';
-import { type NodeProps } from '@mongodb-js/compass-components';
 
 describe('getFieldsFromSchema', function () {
   describe('flat schema', function () {
@@ -699,17 +698,9 @@ describe('relationshipToDiagramEdge', function () {
     note: 'Test relationship',
   };
 
-  const node: NodeProps = {
-    id: relationship.relationship[0].ns!,
-    title: 'Collection A',
-    type: 'collection',
-    position: { x: 0, y: 0 },
-    fields: [],
-  };
-
   it('should forward basic properties', function () {
     const isSelected = true;
-    const edge = relationshipToDiagramEdge(relationship, isSelected, []);
+    const edge = relationshipToDiagramEdge(relationship, isSelected);
     expect(edge.id).to.equal(relationship.id);
     expect(edge.source).to.equal(relationship.relationship[0].ns);
     expect(edge.target).to.equal(relationship.relationship[1].ns);
@@ -717,60 +708,15 @@ describe('relationshipToDiagramEdge', function () {
   });
 
   it('should map cardinality to markers', function () {
-    const edge = relationshipToDiagramEdge(relationship, false, []);
+    const edge = relationshipToDiagramEdge(relationship, false);
     expect(edge.markerStart).to.equal('one');
     expect(edge.markerEnd).to.equal('many');
   });
 
-  it('should find field indices', function () {
-    const nodes: NodeProps[] = [
-      {
-        ...node,
-        id: relationship.relationship[0].ns!,
-        fields: [
-          {
-            id: ['otherPath'],
-            name: 'fieldA', // same name but different path
-            type: 'string',
-          },
-          {
-            id: ['parent', 'otherField'], // same parent but different field
-            name: 'otherField',
-            type: 'string',
-          },
-          {
-            id: relationship.relationship[0].fields as string[],
-            name: 'fieldA',
-            type: 'string',
-          },
-        ],
-      },
-      {
-        ...node,
-        id: relationship.relationship[1].ns!,
-        fields: [
-          {
-            id: ['otherPath'],
-            name: 'fieldB', // same name but different path
-            type: 'string',
-          },
-          {
-            id: relationship.relationship[1].fields as string[],
-            name: 'fieldB',
-            type: 'string',
-          },
-          {
-            id: ['otherParent', 'otherField'], // same parent but different field
-            name: 'otherField',
-            type: 'string',
-          },
-        ],
-      },
-    ];
-
-    const edge = relationshipToDiagramEdge(relationship, false, nodes);
-    expect(edge.sourceFieldIndex).to.equal(2);
-    expect(edge.targetFieldIndex).to.equal(1);
+  it('should map field ids', function () {
+    const edge = relationshipToDiagramEdge(relationship, false);
+    expect(edge.sourceFieldId).to.equal(relationship.relationship[0].fields);
+    expect(edge.targetFieldId).to.equal(relationship.relationship[1].fields);
   });
 
   it('should choose animated for incomplete relationships', function () {
