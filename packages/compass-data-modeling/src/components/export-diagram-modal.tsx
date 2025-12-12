@@ -83,7 +83,7 @@ const ExportDiagramModal = ({
               <Radio
                 checked={exportFormat === 'diagram'}
                 value="diagram"
-                aria-label="Diagram File"
+                aria-label="MDM File"
                 onClick={() => onSelectFormat('diagram')}
                 size="small"
                 description="Importable into Compass and Data Explorer so teammates can collaborate."
