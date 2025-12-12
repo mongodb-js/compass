@@ -28,7 +28,7 @@ const MockQueryBarPlugin = QueryBarPlugin.withMockServices({
     getConnectionString() {
       return { hosts: [] } as any;
     },
-  },
+  } as any,
   instance: { on() {}, removeListener() {} } as any,
   favoriteQueryStorageAccess: {
     getStorage: () =>
@@ -39,6 +39,9 @@ const MockQueryBarPlugin = QueryBarPlugin.withMockServices({
       createElectronRecentQueryStorage({ basepath: '/tmp/test' }),
   },
   atlasAiService: {} as any,
+  collection: {
+    fetchMetadata: () => Promise.resolve({} as any),
+  } as any,
 });
 
 function renderField(
