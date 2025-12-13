@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { connect } from 'react-redux';
 import type {
   FieldPath,
@@ -9,7 +9,6 @@ import {
   ComboboxOption,
   TextInput,
 } from '@mongodb-js/compass-components';
-import { BSONType } from 'mongodb';
 import {
   changeFieldType,
   createNewRelationship,
@@ -33,6 +32,7 @@ import {
   isIdField,
   isRelationshipOfAField,
 } from '../../utils/utils';
+import { FIELD_TYPES } from '../../utils/field-types';
 
 type FieldDrawerContentProps = {
   namespace: string;
@@ -63,19 +63,15 @@ type FieldDrawerContentProps = {
   onChangeFieldType: ({
     ns,
     fieldPath,
-    oldTypes,
     newTypes,
     source,
   }: {
     ns: string;
     fieldPath: FieldPath;
-    oldTypes: string[];
     newTypes: string[];
     source: 'side_panel' | 'diagram';
   }) => void;
 };
-
-const BSON_TYPES = Object.keys(BSONType);
 
 export function getIsFieldNameValid(
   currentFieldPath: FieldPath,
@@ -135,6 +131,9 @@ const FieldDrawerContent: React.FunctionComponent<FieldDrawerContentProps> = ({
     string | undefined
   >();
   const [fieldTypes, setFieldTypes] = useState<string[]>(types);
+  useEffect(() => {
+    setFieldTypes(types);
+  }, [types]);
 
   const { value: fieldName, ...nameInputProps } = useChangeOnBlur(
     fieldPath[fieldPath.length - 1],
@@ -171,7 +170,6 @@ const FieldDrawerContent: React.FunctionComponent<FieldDrawerContentProps> = ({
     onChangeFieldType({
       ns: namespace,
       fieldPath,
-      oldTypes: fieldTypes,
       newTypes,
       source: 'side_panel',
     });
@@ -209,7 +207,7 @@ const FieldDrawerContent: React.FunctionComponent<FieldDrawerContentProps> = ({
             state={fieldTypeEditErrorMessage ? 'error' : undefined}
             errorMessage={fieldTypeEditErrorMessage}
           >
-            {BSON_TYPES.map((type) => (
+            {FIELD_TYPES.map((type) => (
               <ComboboxOption key={type} value={type} />
             ))}
           </Combobox>

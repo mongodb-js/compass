@@ -85,7 +85,7 @@
     "@lg-chat/leafygreen-chat-provider": "^5.0.2",
     "@lg-chat/message": "^8.2.0",
     "@mongodb-js/compass-context-menu": "^0.3.1",
-    "@mongodb-js/diagramming": "^2.2.1",
+    "@mongodb-js/diagramming": "^2.2.2",
     "@react-aria/interactions": "^3.9.1",
     "@react-aria/utils": "^3.13.1",
     "@react-aria/visually-hidden": "^3.3.1",
