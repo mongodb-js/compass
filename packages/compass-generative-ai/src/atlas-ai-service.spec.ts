@@ -102,10 +102,7 @@ describe('AtlasAiService', function () {
         delete mockConnectionInfo.atlasMetadata;
       }
 
-      beforeEach(async function () {
-        await preferences.savePreferences({
-          enableChatbotEndpointForGenAI: false,
-        });
+      beforeEach(function () {
         const mockAtlasService = new MockAtlasService();
         atlasAiService = new AtlasAiService({
           apiURLPreset,
@@ -714,9 +711,6 @@ describe('AtlasAiService', function () {
 
     beforeEach(async function () {
       const mockAtlasService = new MockAtlasService();
-      await preferences.savePreferences({
-        enableChatbotEndpointForGenAI: true,
-      });
       atlasAiService = new AtlasAiService({
         apiURLPreset: 'cloud',
         atlasService: mockAtlasService as any,
