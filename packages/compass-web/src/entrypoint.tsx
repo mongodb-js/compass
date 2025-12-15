@@ -126,6 +126,55 @@ const WithAtlasProviders: React.FC<{ children: React.ReactNode }> = ({
   );
 };
 
+const WithConnectionsProvider: React.FC<{
+  appName: string;
+  autoconnectId?: string;
+  onFailToLoadConnections: (err: Error) => void;
+  children: React.ReactNode;
+}> = ({ appName, autoconnectId, onFailToLoadConnections, children }) => {
+  const logger = useCompassWebLogger({});
+
+  return (
+    <CompassConnections
+      appName={appName}
+      onFailToLoadConnections={onFailToLoadConnections}
+      // Compass Web runs in browser environments where system CA certificates
+      // are not available, so we disable useSystemCA
+      useSystemCA={false}
+      onExtraConnectionDataRequest={() => {
+        return Promise.resolve([{}, null] as [
+          Record<string, unknown>,
+          null
+        ]);
+      }}
+      onAutoconnectInfoRequest={(connectionStore) => {
+        if (autoconnectId) {
+          return connectionStore.loadAll().then(
+            (connections) => {
+              return connections.find(
+                (connectionInfo) => connectionInfo.id === autoconnectId
+              );
+            },
+            (err) => {
+              const { log, mongoLogId } = logger;
+              log.warn(
+                mongoLogId(1_001_000_329),
+                'Compass Web',
+                'Could not load connections when trying to autoconnect',
+                { err: err.message }
+              );
+              return undefined;
+            }
+          );
+        }
+        return Promise.resolve(undefined);
+      }}
+    >
+      {children}
+    </CompassConnections>
+  );
+};
+
 const WithStorageProviders = createServiceProvider(
   function WithStorageProviders({
     orgId,
@@ -556,38 +605,10 @@ const CompassWeb = ({
                           originForPrompt="atlas-data-explorer"
                           appNameForPrompt={APP_NAMES_FOR_PROMPT.DataExplorer}
                         >
-                          <CompassConnections
+                          <WithConnectionsProvider
                             appName={appName ?? 'Compass Web'}
+                            autoconnectId={autoconnectId}
                             onFailToLoadConnections={onFailToLoadConnections}
-                            onExtraConnectionDataRequest={() => {
-                              return Promise.resolve([{}, null] as [
-                                Record<string, unknown>,
-                                null
-                              ]);
-                            }}
-                            onAutoconnectInfoRequest={(connectionStore) => {
-                              if (autoconnectId) {
-                                return connectionStore.loadAll().then(
-                                  (connections) => {
-                                    return connections.find(
-                                      (connectionInfo) =>
-                                        connectionInfo.id === autoconnectId
-                                    );
-                                  },
-                                  (err) => {
-                                    const { log, mongoLogId } = logger;
-                                    log.warn(
-                                      mongoLogId(1_001_000_329),
-                                      'Compass Web',
-                                      'Could not load connections when trying to autoconnect',
-                                      { err: err.message }
-                                    );
-                                    return undefined;
-                                  }
-                                );
-                              }
-                              return Promise.resolve(undefined);
-                            }}
                           >
                             <CompassInstanceStorePlugin>
                               <FieldStorePlugin>
@@ -611,7 +632,7 @@ const CompassWeb = ({
                                 isCloudOptIn={true}
                               />
                             </CompassInstanceStorePlugin>
-                          </CompassConnections>
+                          </WithConnectionsProvider>
                         </CompassAssistantProvider>
                       </AtlasCloudConnectionStorageProvider>
                     </DataModelStorageServiceProviderWeb>

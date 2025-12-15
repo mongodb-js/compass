@@ -214,6 +214,7 @@ type ThunkExtraArg = {
   globalAppRegistry: Pick<AppRegistry, 'on' | 'emit' | 'removeListener'>;
   onFailToLoadConnections: (error: Error) => void;
   compassAssistant: CompassAssistantService;
+  useSystemCA?: boolean;
 };
 
 export type ConnectionsThunkAction<
@@ -1532,6 +1533,7 @@ const connectWithOptions = (
       appName,
       getExtraConnectionData,
       connectFn,
+      useSystemCA,
     }
   ) => {
     let inflightConnection = InFlightConnections.get(connectionInfo.id);
@@ -1643,6 +1645,7 @@ const connectWithOptions = (
                   deviceAuthAbortController.signal
                 );
               },
+              useSystemCA,
             }),
           }
         );

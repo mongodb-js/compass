@@ -163,6 +163,22 @@ export class AtlasCloudConnectionStorage
       });
     return this.loadAllPromise;
   }
+
+  async save({
+    connectionInfo,
+  }: {
+    connectionInfo: ConnectionInfo;
+  }): Promise<void> {
+    // Ensure useSystemCA is false for all connections in the browser environment
+    const normalizedInfo: ConnectionInfo = {
+      ...connectionInfo,
+      connectionOptions: {
+        ...connectionInfo.connectionOptions,
+        useSystemCA: false,
+      },
+    };
+    return super.save({ connectionInfo: normalizedInfo });
+  }
 }
 
 const SandboxConnectionStorageContext =

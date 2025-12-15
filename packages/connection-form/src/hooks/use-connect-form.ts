@@ -848,6 +848,7 @@ export function adjustConnectionOptionsBeforeConnect({
   defaultAppName,
   notifyDeviceFlow,
   preferences,
+  useSystemCA,
 }: {
   connectionOptions: Readonly<ConnectionOptions>;
   connectionId: string;
@@ -861,6 +862,7 @@ export function adjustConnectionOptionsBeforeConnect({
     telemetryAnonymousId?: string;
     forceConnectionOptions: [string, string][];
   };
+  useSystemCA?: boolean;
 }): ConnectionOptions {
   const transformers: ((
     connectionOptions: Readonly<ConnectionOptions>
@@ -882,5 +884,14 @@ export function adjustConnectionOptionsBeforeConnect({
   for (const transformer of transformers) {
     connectionOptions = transformer(connectionOptions);
   }
+
+  // Apply useSystemCA if explicitly provided
+  if (useSystemCA !== undefined) {
+    connectionOptions = {
+      ...connectionOptions,
+      useSystemCA,
+    };
+  }
+
   return connectionOptions;
 }

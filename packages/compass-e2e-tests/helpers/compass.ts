@@ -24,12 +24,14 @@ import { CHROME_STARTUP_FLAGS } from './chrome-startup-flags';
 import {
   DEFAULT_CONNECTION_STRINGS,
   DEFAULT_CONNECTION_NAMES,
+  DEFAULT_CONNECTIONS,
   DEFAULT_CONNECTIONS_SERVER_INFO,
   isTestingWeb,
   isTestingDesktop,
   context,
   assertTestingWeb,
   isTestingAtlasCloudExternal,
+  isTestingAtlasCloudSandbox,
 } from './test-runner-context';
 import {
   MONOREPO_ELECTRON_CHROMIUM_VERSION,
@@ -897,6 +899,22 @@ export async function startBrowser(
     );
   } else {
     await browser.navigateTo(context.sandboxUrl);
+
+    // For Atlas Cloud Sandbox tests, inject the default connections into localStorage
+    // and reload the page so that SandboxConnectionStorage picks them up
+    if (isTestingAtlasCloudSandbox(context)) {
+      await browser.execute((connections) => {
+        const historyKey = 'CONNECTIONS_HISTORY_V$';
+        const bytes = new TextEncoder().encode(JSON.stringify(connections));
+        const binStr = String.fromCodePoint(...bytes);
+        const b64Str = window.btoa(binStr);
+        localStorage.setItem(historyKey, b64Str);
+      }, DEFAULT_CONNECTIONS);
+
+      // Reload the page so that SandboxConnectionStorage is re-instantiated
+      // with the connections from localStorage
+      await browser.navigateTo(context.sandboxUrl);
+    }
   }
 
   const compass = new Compass(name, browser, {

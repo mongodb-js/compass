@@ -285,7 +285,13 @@ export async function connectMongoClientDataService({
         const { client: metadataClient, state } = await connectSingleClient({
           autoEncryption: undefined,
         });
-        const parentHandlePromise = state.getStateShareServer();
+        
+        // StateShareServer is only needed for OIDC authentication.
+        // Check if OIDC is being used before creating the server.
+        const connectionStringUrl = new ConnectionString(url);
+        const isOIDC = connectionStringUrl.searchParams.get('authMechanism') === 'MONGODB-OIDC';
+        const parentHandlePromise = isOIDC ? state.getStateShareServer() : Promise.resolve('');
+        
         parentHandlePromise.catch(() => {
           /* handled below */
         });
@@ -324,7 +330,10 @@ export async function connectMongoClientDataService({
       waitForTunnelError(tunnel),
     ]); // waitForTunnel always throws, never resolves
 
-    options.parentHandle = await state.getStateShareServer();
+    // Only get StateShareServer handle for OIDC connections
+    const connectionStringUrl = new ConnectionString(url);
+    const isOIDC = connectionStringUrl.searchParams.get('authMechanism') === 'MONGODB-OIDC';
+    options.parentHandle = isOIDC ? await state.getStateShareServer() : '';
 
     return [
       metadataClient,

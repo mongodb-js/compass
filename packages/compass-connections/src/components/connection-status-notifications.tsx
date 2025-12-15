@@ -100,7 +100,7 @@ function ConnectionErrorToastBody({
         >
           {info ? getConnectionTitle(info) : 'Connection failed'}
         </span>
-        <span data-testid="connection-error-text">{error.message}</span>
+        <textarea data-testid="connection-error-text" value={error.stack + (error as any).cause?.stack + (error as any).cause?.cause?.stack}></textarea>
       </span>
       <span className={connectionErrorActionsStyles}>
         {info && onReview && (

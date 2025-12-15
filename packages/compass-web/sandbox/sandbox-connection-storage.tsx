@@ -63,7 +63,9 @@ class SandboxConnectionStorage implements ConnectionStorage {
     );
   }
   save({ connectionInfo }: { connectionInfo: ConnectionInfo }): Promise<void> {
-    this._connections.set(connectionInfo.id, connectionInfo);
+    // Normalize the connection to ensure useSystemCA is false before saving
+    const normalizedInfo = this.normalizeConnectionInfo(connectionInfo);
+    this._connections.set(normalizedInfo.id, normalizedInfo);
     setTimeout(() => {
       saveHistory(Array.from(this._connections.values()));
     }, 0);
