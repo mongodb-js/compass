@@ -772,4 +772,25 @@ describe('relationshipToDiagramEdge', function () {
     expect(edge.sourceFieldIndex).to.equal(2);
     expect(edge.targetFieldIndex).to.equal(1);
   });
+
+  it('should choose animated for incomplete relationships', function () {
+    const incompleteEdge = relationshipToDiagramEdge(
+      {
+        ...relationship,
+        relationship: [
+          {
+            ...relationship.relationship[0],
+            fields: null,
+          },
+          relationship.relationship[1],
+        ],
+      },
+      false,
+      []
+    );
+    expect(incompleteEdge.animated).to.equal(true);
+
+    const completeEdge = relationshipToDiagramEdge(relationship, false, []);
+    expect(completeEdge.animated).to.equal(false);
+  });
 });

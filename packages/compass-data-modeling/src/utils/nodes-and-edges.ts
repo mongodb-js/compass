@@ -245,5 +245,6 @@ export function relationshipToDiagramEdge(
     markerStart: source.cardinality === 1 ? 'one' : 'many',
     markerEnd: target.cardinality === 1 ? 'one' : 'many',
     selected,
+    animated: !isRelationshipValid(relationship),
   };
 }
