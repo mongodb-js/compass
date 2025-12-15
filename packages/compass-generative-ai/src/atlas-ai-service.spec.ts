@@ -959,6 +959,9 @@ describe('AtlasAiService', function () {
             ] as Chunk[],
             response: {
               content: {
+                aggregation: {
+                  pipeline: '',
+                },
                 query: {
                   filter: "{test:'pineapple'}",
                   project: null,
@@ -1074,6 +1077,10 @@ describe('AtlasAiService', function () {
             );
             expect(content[0].text).to.include(
               `Collection name: "${input.collectionName}"`
+            );
+            expect(content[0].text).to.include(
+              `_id: 'ObjectId`,
+              'includes schema information in the prompt'
             );
             expect(res).to.deep.eq(successResponse.response);
           });

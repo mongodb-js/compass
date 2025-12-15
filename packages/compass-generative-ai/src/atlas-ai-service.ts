@@ -490,7 +490,7 @@ export class AtlasAiService {
       return this.generateQueryUsingChatbot(
         message,
         validateAIAggregationResponse,
-        { signal: input.signal }
+        { signal: input.signal, type: 'aggregate' }
       );
     }
     return this.getQueryOrAggregationFromUserInput(
@@ -514,6 +514,7 @@ export class AtlasAiService {
       });
       return this.generateQueryUsingChatbot(message, validateAIQueryResponse, {
         signal: input.signal,
+        type: 'find',
       });
     }
     return this.getQueryOrAggregationFromUserInput(
@@ -609,7 +610,7 @@ export class AtlasAiService {
   private async generateQueryUsingChatbot<T>(
     message: AiQueryPrompt,
     validateFn: (res: any) => asserts res is T,
-    options: { signal: AbortSignal }
+    options: { signal: AbortSignal; type: 'find' | 'aggregate' }
   ): Promise<T> {
     this.throwIfAINotEnabled();
     const response = await getAiQueryResponse(
@@ -617,7 +618,10 @@ export class AtlasAiService {
       message,
       options.signal
     );
-    const parsedResponse = parseXmlToJsonResponse(response, this.logger);
+    const parsedResponse = parseXmlToJsonResponse(response, {
+      logger: this.logger,
+      type: options.type,
+    });
     validateFn(parsedResponse);
     return parsedResponse;
   }
