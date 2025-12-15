@@ -35,6 +35,21 @@ const OPTIONS: PromptContextOptions = {
   ],
 };
 
+const expectedSampleDocuments = `[
+  {
+    _id: ObjectId('68a2dfe93d5adb16ebf4c866'),
+    userId: ObjectId('68a2dfe93d5adb16ebf4c865')
+  }
+]
+`;
+
+const expectedSchema = `
+{
+  _id: 'ObjectId',
+  userId: 'ObjectId'
+}
+`;
+
 describe('GenAI Prompts', function () {
   it('buildFindQueryPrompt', function () {
     const {
@@ -65,16 +80,13 @@ describe('GenAI Prompts', function () {
       'Schema from a sample of documents from the collection:',
       'includes schema text'
     );
-    expect(prompt).to.include(
-      toJSString(OPTIONS.schema),
-      'includes actual schema'
-    );
+    expect(prompt).to.include(expectedSchema, 'includes actual schema');
     expect(prompt).to.include(
       'Sample documents from the collection:',
       'includes sample documents text'
     );
     expect(prompt).to.include(
-      toJSString(OPTIONS.sampleDocuments),
+      expectedSampleDocuments,
       'includes actual sample documents'
     );
   });
@@ -108,16 +120,13 @@ describe('GenAI Prompts', function () {
       'Schema from a sample of documents from the collection:',
       'includes schema text'
     );
-    expect(prompt).to.include(
-      toJSString(OPTIONS.schema),
-      'includes actual schema'
-    );
+    expect(prompt).to.include(expectedSchema, 'includes actual schema');
     expect(prompt).to.include(
       'Sample documents from the collection:',
       'includes sample documents text'
     );
     expect(prompt).to.include(
-      toJSString(OPTIONS.sampleDocuments),
+      expectedSampleDocuments,
       'includes actual sample documents'
     );
   });

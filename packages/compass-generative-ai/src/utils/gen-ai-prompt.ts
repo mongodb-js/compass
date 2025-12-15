@@ -1,4 +1,5 @@
 import { toJSString } from 'mongodb-query-parser';
+import { flattenSchemaToObject } from './util';
 
 // When including sample documents, we want to ensure that we do not
 // attach large documents and exceed the limit. OpenAI roughly estimates
@@ -99,7 +100,7 @@ function buildUserPromptForQuery({
   if (schema) {
     messages.push(
       `Schema from a sample of documents from the collection:${withCodeFence(
-        toJSString(schema)!
+        toJSString(flattenSchemaToObject(schema))!
       )}`
     );
   }

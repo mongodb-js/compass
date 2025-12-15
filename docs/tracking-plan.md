@@ -6,7 +6,7 @@
 > the tracking plan for the specific Compass version you can use the following
 > URL: `https://github.com/mongodb-js/compass/blob/<compass version>/docs/tracking-plan.md`
 
-Generated on Wed, Dec 10, 2025
+Generated on Mon, Dec 15, 2025
 
 ## Table of Contents
 
@@ -1098,6 +1098,7 @@ This event is fired when a new data modeling diagram is created
 **Properties**:
 
 - **num_collections** (required): `number`
+- **num_relations_inferred** (optional): `number | undefined`
 - **is_compass_web** (optional): `true | undefined`
 
 <a name="event--DataModelingDiagramExported"></a>

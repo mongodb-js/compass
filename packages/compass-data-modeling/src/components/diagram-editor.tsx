@@ -23,6 +23,7 @@ import {
   deleteRelationship,
   removeField,
   renameField,
+  changeFieldType,
   toggleCollectionExpanded,
 } from '../store/diagram';
 import type {
@@ -60,6 +61,7 @@ import {
   relationshipToDiagramEdge,
 } from '../utils/nodes-and-edges';
 import toNS from 'mongodb-ns';
+import { FIELD_TYPES } from '../utils/field-types';
 import { getNamespaceRelationships } from '../utils/utils';
 import { usePreference } from 'compass-preferences-model/provider';
 
@@ -185,6 +187,12 @@ const DiagramContent: React.FunctionComponent<{
     newName: string;
     source: 'diagram';
   }) => void;
+  onChangeFieldType: (data: {
+    ns: string;
+    fieldPath: FieldPath;
+    newTypes: string[];
+    source: 'diagram';
+  }) => void;
   onDiagramBackgroundClicked: () => void;
   onDeleteCollection: (ns: string) => void;
   onDeleteRelationship: (rId: string) => void;
@@ -214,6 +222,7 @@ const DiagramContent: React.FunctionComponent<{
   onRelationshipSelect,
   onFieldSelect,
   onRenameField,
+  onChangeFieldType,
   onDiagramBackgroundClicked,
   onCreateNewRelationship,
   onRelationshipDrawn,
@@ -414,6 +423,18 @@ const DiagramContent: React.FunctionComponent<{
     [onAddFieldToObjectField]
   );
 
+  const onFieldTypeChange = useCallback(
+    (ns: string, fieldPath: FieldPath, newTypes: string[]) => {
+      onChangeFieldType({
+        ns,
+        fieldPath,
+        newTypes,
+        source: 'diagram',
+      });
+    },
+    [onChangeFieldType]
+  );
+
   const deleteItem = useCallback(() => {
     switch (selectedItems?.type) {
       case 'collection':
@@ -463,11 +484,13 @@ const DiagramContent: React.FunctionComponent<{
         onFieldClick,
         onFieldNameChange: (ns, field, newName) =>
           onRenameField({ ns, field, newName, source: 'diagram' }),
+        onFieldTypeChange,
         onNodeDragStop,
         onConnect,
         onNodeExpandToggle: isCollapseFlagEnabled
           ? handleNodeExpandedToggle
           : undefined,
+        fieldTypes: FIELD_TYPES,
       } satisfies DiagramProps),
     [
       isDarkMode,
@@ -481,6 +504,7 @@ const DiagramContent: React.FunctionComponent<{
       onEdgeClick,
       onFieldClick,
       onRenameField,
+      onFieldTypeChange,
       onNodeDragStop,
       onConnect,
       handleNodeExpandedToggle,
@@ -508,7 +532,7 @@ const DiagramContent: React.FunctionComponent<{
             <h4>Questions about your data?</h4>
             This diagram was generated based on a sample of documents from{' '}
             {database ?? 'a database'}. Changes made to the diagram will not
-            impact your data
+            impact your data.
           </Banner>
         )}
         <DiagramComponent
@@ -547,6 +571,7 @@ const ConnectedDiagramContent = connect(
     onRelationshipSelect: selectRelationship,
     onFieldSelect: selectField,
     onRenameField: renameField,
+    onChangeFieldType: changeFieldType,
     onDiagramBackgroundClicked: selectBackground,
     onCreateNewRelationship: createNewRelationship,
     onDeleteCollection: deleteCollection,

@@ -13,5 +13,5 @@ export const NON_GENUINE_WARNING_MESSAGE: AssistantMessage = {
       'You are connected to **a non-genuine MongoDB server**. MongoDB Assistant will not provide accurate guidance for non-genuine hosts, and we encourage users to use real MongoDB deployments to take full advantage of our developer tools.',
     isPermanent: true,
   },
-  role: 'assistant',
+  role: 'system',
 };

@@ -674,7 +674,7 @@ export function deleteDiagram(
   return async (dispatch, getState, { dataModelStorage }) => {
     const confirmed = await showConfirmation({
       title: 'Are you sure you want to delete this diagram?',
-      description: 'This action can not be undone',
+      description: 'This action can not be undone.',
       variant: 'danger',
     });
     if (!confirmed) {
@@ -847,13 +847,11 @@ export function getTypeNameForTelemetry(
 export function changeFieldType({
   ns,
   fieldPath,
-  oldTypes,
   newTypes,
   source,
 }: {
   ns: string;
   fieldPath: FieldPath;
-  oldTypes: string[];
   newTypes: string[];
   source: 'side_panel' | 'diagram';
 }): DataModelingThunkAction<void, ApplyEditAction | RevertFailedEditAction> {
@@ -867,6 +865,7 @@ export function changeFieldType({
       fieldPath: fieldPath,
     });
     if (!field) throw new Error('Field not found in schema');
+    const oldTypes = field.fieldTypes;
     const to = getSchemaWithNewTypes(field.jsonSchema, newTypes);
 
     track('Data Modeling Field Type Changed', {
