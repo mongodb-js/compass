@@ -954,6 +954,9 @@ describe('AtlasAiService', function () {
             ] as Chunk[],
             response: {
               content: {
+                aggregation: {
+                  pipeline: '',
+                },
                 query: {
                   filter: "{test:'pineapple'}",
                   project: null,
