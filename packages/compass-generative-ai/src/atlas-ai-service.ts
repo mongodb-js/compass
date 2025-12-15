@@ -306,9 +306,7 @@ export class AtlasAiService {
         );
         return this.atlasService.authenticatedFetch(uri, init);
       },
-      // TODO(COMPASS-10125): Switch the model to `mongodb-slim-latest` when
-      // enabling this feature (to use edu-chatbot for GenAI).
-    }).responses('mongodb-chat-latest');
+    }).responses('mongodb-slim-latest');
   }
 
   /**
