@@ -260,12 +260,35 @@ export type MockDataSchemaResponse = z.infer<
   typeof MockDataSchemaResponseShape
 >;
 
-function getActiveUserId(preferences: PreferencesAccess): string {
+async function getHashedActiveUserId(
+  preferences: PreferencesAccess,
+  logger: Logger
+): Promise<string> {
   const { currentUserId, telemetryAnonymousId, telemetryAtlasUserId } =
     preferences.getPreferences();
-  return (
-    currentUserId ?? telemetryAnonymousId ?? telemetryAtlasUserId ?? 'unknown'
-  );
+  const userId = currentUserId ?? telemetryAnonymousId ?? telemetryAtlasUserId;
+  if (!userId) {
+    return 'unknown';
+  }
+  try {
+    const data = new TextEncoder().encode(userId);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    const hashHex = hashArray
+      .map((b) => b.toString(16).padStart(2, '0'))
+      .join('');
+    return hashHex;
+  } catch (e) {
+    logger.log.warn(
+      logger.mongoLogId(1_001_000_385),
+      'AtlasAiService',
+      'Failed to hash user id for AI request',
+      {
+        error: (e as Error).message,
+      }
+    );
+    return 'unknown';
+  }
 }
 
 /**
@@ -462,7 +485,7 @@ export class AtlasAiService {
     if (this.preferences.getPreferences().enableChatbotEndpointForGenAI) {
       const message = buildAggregateQueryPrompt({
         ...input,
-        userId: getActiveUserId(this.preferences),
+        userId: await getHashedActiveUserId(this.preferences, this.logger),
       });
       return this.generateQueryUsingChatbot(
         message,
@@ -487,7 +510,7 @@ export class AtlasAiService {
     if (this.preferences.getPreferences().enableChatbotEndpointForGenAI) {
       const message = buildFindQueryPrompt({
         ...input,
-        userId: getActiveUserId(this.preferences),
+        userId: await getHashedActiveUserId(this.preferences, this.logger),
       });
       return this.generateQueryUsingChatbot(message, validateAIQueryResponse, {
         signal: input.signal,

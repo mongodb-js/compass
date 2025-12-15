@@ -1058,11 +1058,12 @@ describe('AtlasAiService', function () {
 
             const requestBody = JSON.parse(args[1].body as string);
             expect(requestBody.model).to.equal('mongodb-chat-latest');
-            expect(requestBody.metadata).to.deep.equal({
-              userId: '1234',
+            const { userId, ...restOfMetadata } = requestBody.metadata;
+            expect(restOfMetadata).to.deep.equal({
               store: 'true',
               sensitiveStorage: 'sensitive',
             });
+            expect(userId).to.be.a('string').that.is.not.empty;
             expect(requestBody.instructions).to.be.a('string');
             expect(requestBody.input).to.be.an('array');
 
