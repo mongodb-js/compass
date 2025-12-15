@@ -39,6 +39,7 @@ export const inValueRange = (
   d: { value: any; dx?: number; bson?: any }
 ) => {
   const compOperators: Record<string, (a: number, b: number) => boolean> = {
+    __proto__: null,
     $gte: function (a: number, b: number) {
       return a >= b;
     },

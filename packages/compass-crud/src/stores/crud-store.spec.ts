@@ -2719,7 +2719,7 @@ describe('store', function () {
     let fakeSetItem: (key: string, value: string) => void;
 
     beforeEach(function () {
-      const localStorageValues: Record<string, string> = {};
+      const localStorageValues: Record<string, string> = Object.create(null);
       fakeGetItem = sinon.fake((key: string) => {
         return localStorageValues[key];
       });

@@ -89,7 +89,7 @@ export class ObjectGenerator {
     options: ObjectGeneratorOptions = {}
   ): Record<string, unknown> {
     if (elements) {
-      const object: Record<string, unknown> = {};
+      const object: Record<string, unknown> = Object.create(null);
       for (const element of elements) {
         if (options.excludeInternalFields && element.isInternalField()) {
           continue;
@@ -118,7 +118,7 @@ export class ObjectGenerator {
     options: ObjectGeneratorOptions = {}
   ): Record<string, unknown> {
     if (elements) {
-      const object: Record<string, unknown> = {};
+      const object: Record<string, unknown> = Object.create(null);
       for (const element of elements) {
         if (options.excludeInternalFields && element.isInternalField()) {
           continue;

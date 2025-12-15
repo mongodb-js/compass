@@ -21,7 +21,7 @@ export function unBSON(value: any): any {
   if (shape === 'array') {
     return value.map(unBSON);
   } else if (shape === 'object') {
-    const mapped: Record<string, any> = {};
+    const mapped: Record<string, any> = Object.create(null);
     for (const [k, v] of Object.entries(value)) {
       mapped[k] = unBSON(v);
     }

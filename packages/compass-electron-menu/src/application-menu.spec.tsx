@@ -131,6 +131,7 @@ describe('application-menu / useApplicationMenu', function () {
     const handlerUndoA = () => {};
     const handlerRedoA = () => {};
     let roles: Record<string, () => void> = {
+      __proto__: null,
       undo: handlerUndoA,
       redo: handlerRedoA,
     };
