@@ -508,7 +508,7 @@ const DiagramContent: React.FunctionComponent<{
             <h4>Questions about your data?</h4>
             This diagram was generated based on a sample of documents from{' '}
             {database ?? 'a database'}. Changes made to the diagram will not
-            impact your data
+            impact your data.
           </Banner>
         )}
         <DiagramComponent
