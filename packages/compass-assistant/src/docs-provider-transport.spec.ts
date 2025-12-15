@@ -5,7 +5,7 @@ import {
   shouldExcludeMessage,
 } from './docs-provider-transport';
 import type { AssistantMessage } from './compass-assistant-provider';
-import { MockLanguageModelV2 } from 'ai/test';
+import { MockLanguageModelV3 } from 'ai/test';
 import type { UIMessageChunk } from 'ai';
 import { waitFor } from '@mongodb-js/testing-library-compass';
 
@@ -39,7 +39,7 @@ describe('DocsProviderTransport', function () {
   });
 
   describe('sending messages', function () {
-    let mockModel: MockLanguageModelV2;
+    let mockModel: MockLanguageModelV3;
     let doStream: sinon.SinonStub;
     let transport: DocsProviderTransport;
     let abortController: AbortController;
@@ -57,7 +57,7 @@ describe('DocsProviderTransport', function () {
           },
         },
       });
-      mockModel = new MockLanguageModelV2({
+      mockModel = new MockLanguageModelV3({
         doStream,
       });
       abortController = new AbortController();
