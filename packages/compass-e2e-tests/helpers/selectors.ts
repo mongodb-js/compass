@@ -1460,7 +1460,7 @@ export const DataModelExportButton = 'button[aria-label="Export"]';
 export const DataModelExportModal = '[data-testid="export-diagram-modal"]';
 export const DataModelExportPngOption = `${DataModelExportModal} input[aria-label="PNG"]`;
 export const DataModelExportJsonOption = `${DataModelExportModal} input[aria-label="JSON"]`;
-export const DataModelExportDiagramOption = `${DataModelExportModal} input[aria-label="Diagram File"]`;
+export const DataModelExportDiagramOption = `${DataModelExportModal} input[aria-label="MDM File"]`;
 export const DataModelExportModalConfirmButton =
   '[data-testid="export-button"]';
 export const DataModelsListItem = (diagramName?: string) => {
