@@ -19,27 +19,22 @@ export const findQueries: GenAiUsecase[] = [
     `,
     name: 'find with filter projection sort and limit',
   },
-  // TODO: Geo query
-  // {
-  //   namespace: 'berlin.cocktailbars',
-  //   userInput:
-  //     'find all the bars 10km from the berlin center, only return their names',
-  //   expectedOutput: `
-  //     <filter>{_id: 'ObjectId("5ca652bf56618187558b4de3")'}</filter>
-  //     <project>{name: 1}</project>
-  //   `,
-  //   name: 'geo-based find',
-  // },
+  {
+    namespace: 'airbnb.listingsAndReviews',
+    userInput: 'find all the listings with 10km from the instanbul center',
+    expectedOutput: `
+      <filter>{location: {$geoWithin: {$centerSphere: [[28.9784, 41.0082], 10 / 3963.2]}}}</filter>
+    `,
+    name: 'geo-based find',
+  },
   {
     namespace: 'airbnb.listingsAndReviews',
     userInput:
       'Return all the properties of type "Hotel" and with ratings lte 70',
     expectedOutput: `
       <filter>{
-        $and: [
-          { property_type: "Hotel" },
-          { "review_scores.review_scores_rating": { $lte: 70 } }
-        ]
+        property_type: "Hotel",
+        "review_scores.review_scores_rating": { $lte: 70 }
       }</filter>
     `,
     name: 'find with nested match fields',
@@ -80,7 +75,7 @@ export const findQueries: GenAiUsecase[] = [
     expectedOutput: `<aggregation>[
       {
         $group: {
-          _id: "$host_id",
+          _id: "$host.host_id",
           totalReviews: { $sum: "$number_of_reviews" }
         }
       },
@@ -97,9 +92,9 @@ export const findQueries: GenAiUsecase[] = [
     name: 'relative date find 1',
   },
   {
-    namespace: 'netflix.comments',
+    namespace: 'netflix.movies',
     userInput:
-      'Which comments were posted in last 30 years. return name and date',
+      'Which comments were posted 30 years ago. consider all comments from that year. return name and date',
     expectedOutput: `<filter>{
         $and: [
           {
@@ -165,7 +160,7 @@ export const findQueries: GenAiUsecase[] = [
   {
     namespace: 'nyc.parking',
     userInput:
-      'Write a query that does the following: find all of the parking incidents that occurred on an ave (match all ways to write ave). Return all of the plate ids involved with their summons number and vehicle make and body type. Put the vehicle make and body type into lower case. No _id, sorted by the summons number lowest first.',
+      'Write a query that does the following: find all of the parking incidents that occurred on any ave. Return all of the plate ids involved with their summons number and vehicle make and body type. Put the vehicle make and body type into lower case. No _id, sorted by the summons number lowest first.',
     expectedOutput: `
       <filter>{"Street Name": {$regex: "ave", $options: "i"}}</filter>
       <sort>{"Summons Number": 1}</sort>

@@ -5,7 +5,6 @@ import toNS from 'mongodb-ns';
 export type GenAiUsecase = {
   namespace: string;
   userInput: string;
-  // TODO: multiple expected outputs?
   expectedOutput: string;
   name: string;
 };
@@ -37,7 +36,7 @@ async function getDatasets(): Promise<DatasetSamples> {
     'berlin.cocktailbars': await getSampleAndSchemaFromDataset(berlinBars),
     'netflix.movies': await getSampleAndSchemaFromDataset(netflixMovies),
     'netflix.comments': await getSampleAndSchemaFromDataset(netflixComments),
-    'NYC.parking_2015': await getSampleAndSchemaFromDataset(nycParking),
+    'nyc.parking': await getSampleAndSchemaFromDataset(nycParking),
   };
 }
 

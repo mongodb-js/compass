@@ -33,11 +33,10 @@ export const aggregateQueries: GenAiUsecase[] = [
   {
     namespace: 'berlin.cocktailbars',
     userInput:
-      'find all the bars 10km from the berlin center, only return their names. Berlin center is at longitude 13.4050 and latitude 52.5200',
-    // <aggregation>[ { $geoNear: { near: { type: "Point", coordinates: [13.4050, 52.5200] }, distanceField: "dist", maxDistance: 10000, spherical: true, key: "koordinaten" } }, { $project: { name: 1, _id: 0 } } ]</aggregation>
+      'find all the bars 10km from the berlin center, only return their names. Berlin center is at longitude 13.4050 and latitude 52.5200. use correct key for coordinates.',
     expectedOutput: `<aggregation>
       [
-        {$match: {location: {$geoWithin: {$centerSphere: [[13.4050, 52.5200], 10 / 3963.2]}}}},
+        {$geoNear: { near: {type: "Point", coordinates: [13.4050, 52.5200]}, distanceField: "dist", maxDistance: 10000, spherical: true, key: "koordinaten" }},
         {$project: {name: 1, _id: 0}}
       ]
     </aggregation>`,
@@ -47,14 +46,11 @@ export const aggregateQueries: GenAiUsecase[] = [
     namespace: 'airbnb.listingsAndReviews',
     userInput:
       'Return all the properties of type "Hotel" and with ratings lte 70',
-    // <aggregation>[ { $match: { property_type: "Hotel", "review_scores.review_scores_rating": { $lte: 70 } } } ]</aggregation>
     expectedOutput: `<aggregation>
       [{
         $match: {
-          $and: [
-            {property_type: "Hotel"},
-            {number_of_reviews: {$lte: 70}}
-          ]
+          property_type: "Hotel",
+          "review_scores.review_scores_rating": { $lte: 70 }
         }
       }]
     </aggregation>`,
@@ -69,7 +65,7 @@ export const aggregateQueries: GenAiUsecase[] = [
         {$group: {_id: "$beds", count: {$sum: 1}}},
         {$sort: {count: -1}},
         {$limit: 1},
-        {$project: {bedCount: "$_id"}}
+        {$project: {bedCount: "$_id", _id: 0}}
       ]
     </aggregation>`,
     name: 'aggregate with group sort limit and project',
@@ -83,7 +79,7 @@ export const aggregateQueries: GenAiUsecase[] = [
         {$group: {_id: "$host.host_id", totalReviews: {$sum: "$number_of_reviews"}}},
         {$sort: {totalReviews: -1}},
         {$limit: 1},
-        {$project: {hostId: "$_id"}}
+        {$project: {hostId: "$_id", _id: 0}}
       ]
     </aggregation>`,
     name: 'aggregate with group sort limit and project 2',
@@ -91,7 +87,7 @@ export const aggregateQueries: GenAiUsecase[] = [
   {
     namespace: 'netflix.movies',
     userInput:
-      'Which movies were released in last 30 years. return title and year',
+      'Which movies were released 30 years ago (consider whole year). return title and year',
     expectedOutput: `<aggregation>
       [
         {
@@ -159,26 +155,25 @@ export const aggregateQueries: GenAiUsecase[] = [
     expectedOutput: `<aggregation>
       [
         {$sort: {price: -1}},
-        {$project: {cancellation_policy: 1, "listing_url": 1}},
+        {$project: {cancellation_policy: 1, "listing_url": 1, _id: 0}},
         {$limit: 1}
       ]
     </aggregation>`,
     name: 'simple aggregate with sort and limit',
   },
-  // {
-  //   namespace: 'berlin.cocktailbars',
-  //   userInput:
-  //     '',
-  //   expectedOutput: `<aggregation>
-  //     [
-  //       {$unwind: "$items"},
-  //       {$unwind: "$items.tags"},
-  //       {$group: {_id: "$items.tags", avgPrice: {$avg: "$items.price"}}},
-  //       {$project: {_id: 0, tag: "$_id", avgPrice: 1}}
-  //     ]
-  //   </aggregation>`,
-  //   name: 'aggregate with unwind and group',
-  // },
+  {
+    namespace: 'airbnb.listingsAndReviews',
+    userInput:
+      'group all the listings based on the amenities tags and return only count and tag name',
+    expectedOutput: `<aggregation>
+      [
+        {$unwind: "$amenities"},
+        {$group: {_id: "$amenities", count: {$sum: 1}}},
+        {$project: {_id: 0, tag: "$_id", count: 1}}
+      ]
+    </aggregation>`,
+    name: 'aggregate with unwind and group',
+  },
   {
     namespace: 'airbnb.listingsAndReviews',
     userInput:
@@ -199,7 +194,7 @@ export const aggregateQueries: GenAiUsecase[] = [
       'What are the 5 most frequent words (case sensitive) used in movie titles in the 1980s and 1990s combined? Sorted first by frequency count then alphabetically. output fields count and word',
     expectedOutput: `<aggregation>
       [
-        {$match: {year: {$regex: "^(198[0-9]|199[0-9])$"}}},
+        {$match: {year: { $gte: 1980, $lte: 1999 }}},
         {$addFields: {titleWords: {$split: ["$title", " "]}}},
         {$unwind: "$titleWords"},
         {$group: {_id: "$titleWords", count: {$sum: 1}}},
@@ -254,7 +249,7 @@ export const aggregateQueries: GenAiUsecase[] = [
   {
     namespace: 'nyc.parking',
     userInput:
-      'Write a query that does the following: find all of the parking incidents that occurred on an ave (match all ways to write ave). Return all of the plate ids involved with their summons number and vehicle make and body type. Put the vehicle make and body type into lower case. No _id, sorted by the summons number lowest first.',
+      'Write a query that does the following: find all of the parking incidents that occurred on any ave. Return all of the plate ids involved with their summons number and vehicle make and body type. Put the vehicle make and body type into lower case. No _id, sorted by the summons number lowest first.',
     expectedOutput: `<aggregation>
       [
         {$match: {"Street Name": {$regex: "ave", $options: "i"}}},

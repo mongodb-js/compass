@@ -11,7 +11,7 @@ export async function makeChatbotCall(
   const openai = createOpenAI({
     baseURL:
       process.env.COMPASS_ASSISTANT_BASE_URL_OVERRIDE ??
-      'https://knowledge.mongodb.com/api/v1',
+      'https://eval.knowledge-dev.mongodb.com/api/v1',
     apiKey: '',
     headers: {
       'X-Request-Origin': 'compass-gen-ai-braintrust',
