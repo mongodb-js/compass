@@ -8,10 +8,10 @@ import { useConnectionActions } from '@mongodb-js/compass-connections/provider';
 import { CompassInstanceStorePlugin } from '@mongodb-js/compass-app-stores';
 import type {
   CollectionTabInfo,
-  OpenWorkspaceOptions,
   WorkspaceTab,
-} from '@mongodb-js/compass-workspaces';
+} from '@mongodb-js/workspace-info';
 import WorkspacesPlugin, {
+  type OpenWorkspaceOptions,
   WorkspacesProvider,
   WorkspacesStorageServiceProviderWeb,
 } from '@mongodb-js/compass-workspaces';
@@ -110,7 +110,13 @@ const WithAtlasProviders: React.FC<{ children: React.ReactNode }> = ({
   return (
     <AtlasCloudAuthServiceProvider>
       <AtlasClusterConnectionsOnlyProvider value={true}>
-        <AtlasServiceProvider>
+        <AtlasServiceProvider
+          options={{
+            defaultHeaders: {
+              'X-Request-Origin': 'atlas-data-explorer',
+            },
+          }}
+        >
           <AtlasAiServiceProvider apiURLPreset="cloud">
             {children}
           </AtlasAiServiceProvider>
@@ -405,13 +411,16 @@ const CompassComponentsProviderWeb: React.FunctionComponent<{
   darkMode?: boolean;
 }> = ({ darkMode, children }) => {
   const track = useTelemetry();
-  const { enableContextMenus, enableGuideCues } = usePreferences([
-    'enableContextMenus',
-    'enableGuideCues',
-  ]);
+  const { enableContextMenus, enableGuideCues, legacyUUIDDisplayEncoding } =
+    usePreferences([
+      'enableContextMenus',
+      'enableGuideCues',
+      'legacyUUIDDisplayEncoding',
+    ]);
   return (
     <CompassComponentsProvider
       darkMode={darkMode}
+      legacyUUIDDisplayEncoding={legacyUUIDDisplayEncoding}
       // Making sure that compass-web modals and tooltips are definitely not
       // hidden by Cloud UI sidebar and page header
       stackedElementsZIndex={10_000}

@@ -1,6 +1,5 @@
 import React, { useContext } from 'react';
-import type { AnyWorkspace } from '../';
-import type { WorkspacePlugin } from '../types';
+import type { WorkspacePlugin, AnyWorkspace } from '@mongodb-js/workspace-info';
 import { useInitialValue } from '@mongodb-js/compass-components';
 
 export type AnyWorkspacePlugin =

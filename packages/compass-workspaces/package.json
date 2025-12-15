@@ -53,10 +53,12 @@
   "dependencies": {
     "@mongodb-js/compass-app-registry": "^9.4.29",
     "@mongodb-js/compass-app-stores": "^7.75.0",
+    "@mongodb-js/compass-assistant": "^1.20.0",
     "@mongodb-js/compass-components": "^1.59.2",
     "@mongodb-js/compass-connections": "^1.89.0",
     "@mongodb-js/compass-logging": "^1.7.25",
     "@mongodb-js/compass-user-data": "^0.11.2",
+    "@mongodb-js/workspace-info": "^1.0.0",
     "bson": "^6.10.4",
     "compass-preferences-model": "^2.66.3",
     "lodash": "^4.17.21",

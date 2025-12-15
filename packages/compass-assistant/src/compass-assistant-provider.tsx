@@ -13,11 +13,13 @@ import {
 } from '@mongodb-js/atlas-service/provider';
 import { DocsProviderTransport } from './docs-provider-transport';
 import {
+  useCurrentValueRef,
   useDrawerActions,
   useInitialValue,
 } from '@mongodb-js/compass-components';
 import {
   buildConnectionErrorPrompt,
+  buildContextPrompt,
   buildExplainPlanPrompt,
   buildProactiveInsightsPrompt,
   type EntryPointMessage,
@@ -31,7 +33,7 @@ import {
   createLoggerLocator,
   type Logger,
 } from '@mongodb-js/compass-logging/provider';
-import type { ConnectionInfo } from '@mongodb-js/connection-info';
+import { type ConnectionInfo } from '@mongodb-js/connection-info';
 import {
   telemetryLocator,
   type TrackFunction,
@@ -41,10 +43,15 @@ import type { AtlasAiService } from '@mongodb-js/compass-generative-ai/provider'
 import { atlasAiServiceLocator } from '@mongodb-js/compass-generative-ai/provider';
 import { buildConversationInstructionsPrompt } from './prompts';
 import { createOpenAI } from '@ai-sdk/openai';
+import {
+  AssistantGlobalStateProvider,
+  useAssistantGlobalState,
+} from './assistant-global-state';
 
 export const ASSISTANT_DRAWER_ID = 'compass-assistant-drawer';
 
 export type AssistantMessage = UIMessage & {
+  role?: 'user' | 'assistant' | 'system';
   metadata?: {
     /** The text to display instead of the message text. */
     displayText?: string;
@@ -63,6 +70,11 @@ export type AssistantMessage = UIMessage & {
     instructions?: string;
     /** Excludes history if this message is the last message being sent */
     sendWithoutHistory?: boolean;
+    /** Whether to send the current context along with the message if the context changed */
+    sendContext?: boolean;
+
+    /** Whether this is a message to the model that we don't want to display to the user*/
+    isSystemContext?: boolean;
   };
 };
 
@@ -173,6 +185,16 @@ export type CompassAssistantService = {
   getIsAssistantEnabled: () => boolean;
 };
 
+// Type guard to check if activeWorkspace has a connectionId property
+function hasConnectionId(obj: unknown): obj is { connectionId: string } {
+  return (
+    typeof obj === 'object' &&
+    obj !== null &&
+    'connectionId' in obj &&
+    typeof (obj as any).connectionId === 'string'
+  );
+}
+
 export const AssistantProvider: React.FunctionComponent<
   PropsWithChildren<{
     appNameForPrompt: string;
@@ -183,12 +205,23 @@ export const AssistantProvider: React.FunctionComponent<
   const { openDrawer } = useDrawerActions();
   const track = useTelemetry();
 
+  const assistantGlobalStateRef = useCurrentValueRef(useAssistantGlobalState());
+
+  const lastContextPromptRef = useRef<string | null>(null);
+
   const ensureOptInAndSend = useInitialValue(() => {
     return async function (
       message: SendMessage,
       options: SendOptions,
       callback: () => void
     ) {
+      const {
+        activeWorkspace,
+        activeConnections,
+        activeCollectionMetadata,
+        activeCollectionSubTab,
+      } = assistantGlobalStateRef.current;
+
       try {
         await atlasAiService.ensureAiFeatureAccess();
       } catch {
@@ -202,6 +235,36 @@ export const AssistantProvider: React.FunctionComponent<
 
       if (chat.status === 'streaming') {
         await chat.stop();
+      }
+
+      const activeConnection =
+        activeConnections.find((connInfo) => {
+          return (
+            hasConnectionId(activeWorkspace) &&
+            connInfo.id === activeWorkspace.connectionId
+          );
+        }) ?? null;
+
+      const contextPrompt = buildContextPrompt({
+        activeWorkspace,
+        activeConnection,
+        activeCollectionMetadata,
+        activeCollectionSubTab,
+      });
+
+      // use just the text so we have a stable reference to compare against
+      const contextPromptText =
+        contextPrompt.parts[0].type === 'text'
+          ? contextPrompt.parts[0].text
+          : '';
+
+      const shouldSendContextPrompt =
+        message?.metadata?.sendContext &&
+        (!lastContextPromptRef.current ||
+          lastContextPromptRef.current !== contextPromptText);
+      if (shouldSendContextPrompt) {
+        lastContextPromptRef.current = contextPromptText;
+        chat.messages = [...chat.messages, contextPrompt];
       }
 
       await chat.sendMessage(message, options);
@@ -224,6 +287,7 @@ export const AssistantProvider: React.FunctionComponent<
             metadata: {
               ...metadata,
               source: entryPointName,
+              sendContext: true,
             },
           },
           {},
@@ -285,13 +349,15 @@ export const CompassAssistantProvider = registerCompassPlugin(
         throw new Error('atlasAiService was not provided by the state');
       }
       return (
-        <AssistantProvider
-          appNameForPrompt={appNameForPrompt}
-          chat={chat}
-          atlasAiService={atlasAiService}
-        >
-          {children}
-        </AssistantProvider>
+        <AssistantGlobalStateProvider>
+          <AssistantProvider
+            appNameForPrompt={appNameForPrompt}
+            chat={chat}
+            atlasAiService={atlasAiService}
+          >
+            {children}
+          </AssistantProvider>
+        </AssistantGlobalStateProvider>
       );
     },
     activate: (

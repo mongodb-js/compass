@@ -27,7 +27,7 @@ export const ImportDiagramButton = ({
       }}
       trigger={({ onClick }) => (
         <Button {...buttonProps} onClick={onClick}>
-          Import Diagram
+          Import diagram
         </Button>
       )}
     />

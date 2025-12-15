@@ -2,13 +2,13 @@ import { expect } from 'chai';
 import {
   buildFindQueryPrompt,
   buildAggregateQueryPrompt,
-  type UserPromptForQueryOptions,
+  type PromptContextOptions,
 } from './gen-ai-prompt';
 import { toJSString } from 'mongodb-query-parser';
 import { ObjectId } from 'bson';
 
-const OPTIONS: UserPromptForQueryOptions = {
-  userPrompt: 'Find all users older than 30',
+const OPTIONS: PromptContextOptions = {
+  userInput: 'Find all users older than 30',
   databaseName: 'airbnb',
   collectionName: 'listings',
   schema: {
@@ -50,7 +50,7 @@ describe('GenAI Prompts', function () {
 
     expect(prompt).to.be.a('string');
     expect(prompt).to.include(
-      `Write a query that does the following: "${OPTIONS.userPrompt}"`,
+      `Write a query that does the following: "${OPTIONS.userInput}"`,
       'includes user prompt'
     );
     expect(prompt).to.include(
@@ -93,7 +93,7 @@ describe('GenAI Prompts', function () {
 
     expect(prompt).to.be.a('string');
     expect(prompt).to.include(
-      `Generate an aggregation that does the following: "${OPTIONS.userPrompt}"`,
+      `Generate an aggregation that does the following: "${OPTIONS.userInput}"`,
       'includes user prompt'
     );
     expect(prompt).to.include(
@@ -120,5 +120,64 @@ describe('GenAI Prompts', function () {
       toJSString(OPTIONS.sampleDocuments),
       'includes actual sample documents'
     );
+  });
+
+  it('throws if user prompt exceeds the max size', function () {
+    try {
+      buildFindQueryPrompt({
+        ...OPTIONS,
+        userInput: 'a'.repeat(512001),
+      });
+      expect.fail('Expected buildFindQueryPrompt to throw');
+    } catch (err) {
+      expect(err).to.have.property(
+        'message',
+        'Sorry, your request is too large. Please use a smaller prompt or try using this feature on a collection with smaller documents.'
+      );
+    }
+  });
+
+  context('handles large sample documents', function () {
+    it('sends all the sample docs if within limits', function () {
+      const sampleDocuments = [
+        { a: '1' },
+        { a: '2' },
+        { a: '3' },
+        { a: '4'.repeat(5120) },
+      ];
+      const prompt = buildFindQueryPrompt({
+        ...OPTIONS,
+        sampleDocuments,
+      }).prompt;
+
+      expect(prompt).to.include(toJSString(sampleDocuments));
+    });
+    it('sends only one sample doc if all exceed limits', function () {
+      const sampleDocuments = [
+        { a: '1'.repeat(5120) },
+        { a: '2'.repeat(5120001) },
+        { a: '3'.repeat(5120001) },
+        { a: '4'.repeat(5120001) },
+      ];
+      const prompt = buildFindQueryPrompt({
+        ...OPTIONS,
+        sampleDocuments,
+      }).prompt;
+      expect(prompt).to.include(toJSString([sampleDocuments[0]]));
+    });
+    it('should not send sample docs if even one exceeds limits', function () {
+      const sampleDocuments = [
+        { a: '1'.repeat(5120001) },
+        { a: '2'.repeat(5120001) },
+        { a: '3'.repeat(5120001) },
+        { a: '4'.repeat(5120001) },
+      ];
+      const prompt = buildFindQueryPrompt({
+        ...OPTIONS,
+        sampleDocuments,
+      }).prompt;
+      expect(prompt).to.not.include('Sample document from the collection:');
+      expect(prompt).to.not.include('Sample documents from the collection:');
+    });
   });
 });

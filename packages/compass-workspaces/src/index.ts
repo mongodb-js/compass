@@ -1,10 +1,7 @@
 import type AppRegistry from '@mongodb-js/compass-app-registry';
 import type { ActivateHelpers } from '@mongodb-js/compass-app-registry';
 import { registerCompassPlugin } from '@mongodb-js/compass-app-registry';
-import type {
-  OpenWorkspaceOptions,
-  CollectionTabInfo,
-} from './stores/workspaces';
+import type { OpenWorkspaceOptions } from './stores/workspaces';
 import workspacesReducer, {
   collectionRemoved,
   collectionRenamed,
@@ -40,7 +37,7 @@ import {
 import type { PreferencesAccess } from 'compass-preferences-model/provider';
 import { preferencesLocator } from 'compass-preferences-model/provider';
 import { workspacesStorageServiceLocator } from './services/workspaces-storage';
-import { type WorkspacesStateSchema } from './types';
+import type { WorkspacesStateSchema } from '@mongodb-js/workspace-info';
 import { type IUserData } from '@mongodb-js/compass-user-data';
 
 export type WorkspacesServices = {
@@ -205,26 +202,10 @@ const WorkspacesPlugin = registerCompassPlugin(
   }
 );
 
-export { WorkspacesStateSchema } from './types';
 export default WorkspacesPlugin;
 export { WorkspacesProvider } from './components/workspaces-provider';
-export type { OpenWorkspaceOptions, CollectionTabInfo };
-export type {
-  WelcomeWorkspace,
-  MyQueriesWorkspace,
-  DataModelingWorkspace,
-  ServerStatsWorkspace,
-  ShellWorkspace,
-  DatabasesWorkspace,
-  CollectionsWorkspace,
-  CollectionWorkspace,
-  AnyWorkspace,
-  Workspace,
-  WorkspacePlugin,
-  WorkspaceTab,
-  CollectionSubtab,
-  WorkspacePluginProps,
-} from './types';
 
 export { WorkspacesStorageServiceProviderDesktop } from './services/workspaces-storage-desktop';
 export { WorkspacesStorageServiceProviderWeb } from './services/workspaces-storage-web';
+
+export type { OpenWorkspaceOptions } from './stores/workspaces';

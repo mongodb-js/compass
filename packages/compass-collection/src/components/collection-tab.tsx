@@ -12,7 +12,7 @@ import {
 } from './collection-tab-provider';
 import type { CollectionTabOptions } from '../stores/collection-tab';
 import type { CollectionMetadata } from 'mongodb-collection-model';
-import type { CollectionSubtab } from '@mongodb-js/compass-workspaces';
+import type { CollectionSubtab } from '@mongodb-js/workspace-info';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import {
   useConnectionInfoRef,
@@ -24,6 +24,7 @@ import {
   useGlobalAppRegistry,
   useLocalAppRegistry,
 } from '@mongodb-js/compass-app-registry';
+import { useSyncAssistantGlobalState } from '@mongodb-js/compass-assistant';
 
 type CollectionSubtabTrackingId = Lowercase<CollectionSubtab> extends infer U
   ? U extends string
@@ -206,6 +207,9 @@ const CollectionTabWithMetadata: React.FunctionComponent<
 
   const tabs = useCollectionTabs(pluginProps);
   const activeTabIndex = tabs.findIndex((tab) => tab.name === currentTab);
+
+  useSyncAssistantGlobalState('activeCollectionMetadata', collectionMetadata);
+  useSyncAssistantGlobalState('activeCollectionSubTab', currentTab);
 
   return (
     <div className={collectionStyles} data-testid="collection">

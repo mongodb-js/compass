@@ -1,6 +1,6 @@
 import type { Middleware, AnyAction } from 'redux';
 import type { WorkspacesState } from './workspaces';
-import type { WorkspacesStateData } from '../types';
+import type { WorkspacesStateData } from '@mongodb-js/workspace-info';
 import type { WorkspacesServices } from '..';
 import { mongoLogId } from '@mongodb-js/compass-logging/provider';
 

@@ -1,4 +1,12 @@
-import type { ConnectionInfo } from '@mongodb-js/connection-info';
+import {
+  getConnectionTitle,
+  type ConnectionInfo,
+} from '@mongodb-js/connection-info';
+import type {
+  CollectionSubtab,
+  WorkspaceTab,
+} from '@mongodb-js/workspace-info';
+import type { CollectionMetadata } from 'mongodb-collection-model';
 import { redactConnectionString } from 'mongodb-connection-string-url';
 import type { AssistantMessage } from './compass-assistant-provider';
 
@@ -225,3 +233,83 @@ ${connectionError}`,
     },
   };
 };
+
+export function buildContextPrompt({
+  activeWorkspace,
+  activeConnection,
+  activeCollectionMetadata,
+  activeCollectionSubTab,
+}: {
+  activeWorkspace: WorkspaceTab | null;
+  activeConnection: Pick<ConnectionInfo, 'connectionOptions'> | null;
+  activeCollectionMetadata: Pick<
+    CollectionMetadata,
+    'isTimeSeries' | 'sourceName'
+    // TODO(COMPASS-10173): isClustered, isFLE, isSearchIndexesSupported, isDataLake, isAtlas, serverVersion
+  > | null;
+  activeCollectionSubTab: CollectionSubtab | null;
+}): AssistantMessage {
+  const parts: string[] = [];
+
+  if (activeConnection) {
+    const connectionName = getConnectionTitle(activeConnection);
+    const redactedConnectionString = redactConnectionString(
+      activeConnection.connectionOptions.connectionString
+    );
+    parts.push(
+      `The connection is named "${connectionName}". The redacted connection string is "${redactedConnectionString}".`
+    );
+  }
+
+  if (activeWorkspace) {
+    const isNamespaceTab = hasNamespace(activeWorkspace);
+    const tabName = activeCollectionSubTab || activeWorkspace.type;
+    const namespacePart = isNamespaceTab
+      ? ` for the "${activeWorkspace.namespace}" namespace`
+      : '';
+    const lines = [`The user is on the "${tabName}" tab${namespacePart}.`];
+    if (isNamespaceTab && activeConnection && activeCollectionMetadata) {
+      if (activeCollectionMetadata.isTimeSeries) {
+        lines.push(
+          `"${activeWorkspace.namespace}" is a time-series collection.`
+        );
+      }
+
+      if (activeCollectionMetadata.sourceName) {
+        lines.push(
+          `"${activeWorkspace.namespace}" is a view on the "${activeCollectionMetadata.sourceName}" collection.`
+        );
+      }
+    }
+    parts.push(lines.join(' '));
+  } else {
+    parts.push(`The user does not have any tabs open.`);
+  }
+
+  const text = parts.join('\n\n');
+
+  const prompt: AssistantMessage = {
+    id: `system-context-${Date.now()}`,
+    parts: [
+      {
+        type: 'text',
+        text,
+      },
+    ],
+    metadata: {
+      isSystemContext: true,
+    },
+    role: 'system',
+  };
+
+  return prompt;
+}
+
+function hasNamespace(obj: unknown): obj is { namespace: string } {
+  return (
+    typeof obj === 'object' &&
+    obj !== null &&
+    'namespace' in obj &&
+    typeof (obj as any).namespace === 'string'
+  );
+}
