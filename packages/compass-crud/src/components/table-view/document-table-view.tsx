@@ -224,7 +224,7 @@ export class DocumentTableView extends React.Component<DocumentTableViewProps> {
   onColumnResized(event: ColumnResizedEvent) {
     if (event.finished) {
       const columnState = this.columnApi?.getColumnState() || [];
-      const currentColumnWidths: Record<string, number> = {};
+      const currentColumnWidths: Record<string, number> = Object.create(null);
       for (const column of columnState) {
         if (column.width) currentColumnWidths[column.colId] = column.width;
       }
@@ -888,8 +888,11 @@ export class DocumentTableView extends React.Component<DocumentTableViewProps> {
     path: (string | number)[],
     types: TableHeaderType[]
   ): ColDef[] => {
-    const headers: Record<string, ColDef> = {};
-    const headerTypes: Record<string, Record<string, TableHeaderType>> = {};
+    const headers: Record<string, ColDef> = Object.create(null);
+    const headerTypes: Record<
+      string,
+      Record<string, TableHeaderType>
+    > = Object.create(null);
     const isEditable = this.props.isEditable;
     const parentType = types.length ? types[types.length - 1] : 'Object';
 
@@ -944,7 +947,7 @@ export class DocumentTableView extends React.Component<DocumentTableViewProps> {
      the grid. This is handled here for the initial header values, and then
      in the GridStore for any subsequent updates. */
     const columnHeaders = Object.values(headers);
-    const showing: Record<string, TableHeaderType> = {};
+    const showing: Record<string, TableHeaderType> = Object.create(null);
 
     map(headerTypes, function (oids, key) {
       const colTypes = Object.values(oids);

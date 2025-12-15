@@ -130,7 +130,7 @@ describe('application-menu / useApplicationMenu', function () {
 
     const handlerUndoA = () => {};
     const handlerRedoA = () => {};
-    let roles: Record<string, () => void> = {
+    let roles: Readonly<Record<string, () => void>> = {
       undo: handlerUndoA,
       redo: handlerRedoA,
     };
