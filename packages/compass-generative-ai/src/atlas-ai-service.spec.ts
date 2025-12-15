@@ -86,21 +86,9 @@ describe('AtlasAiService', function () {
     global.fetch = initialFetch;
   });
 
-  const endpointBasepathTests = [
-    {
-      apiURLPreset: 'admin-api',
-      expectedEndpoints: {},
-    },
-    {
-      apiURLPreset: 'cloud',
-      expectedEndpoints: {
-        'mock-data-schema':
-          '/cloud/ai/v1/groups/testProject/mock-data-schema?request_id=abc',
-      },
-    },
-  ] as const;
+  const endpointBasepathTests = ['admin-api', 'cloud'] as const;
 
-  for (const { apiURLPreset } of endpointBasepathTests) {
+  for (const apiURLPreset of endpointBasepathTests) {
     const describeName =
       apiURLPreset === 'admin-api'
         ? 'connection WITHOUT atlas metadata'
