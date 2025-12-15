@@ -66,7 +66,7 @@ describe('ExplainPlanModal', function () {
     expect(screen.getByText('Query Performance Summary')).to.exist;
   });
 
-  it('should show "Interpret for me" button when AI assistant is enabled', function () {
+  it('should show "Interpret" button when AI assistant is enabled', function () {
     render(
       {
         status: 'ready',
@@ -93,7 +93,7 @@ describe('ExplainPlanModal', function () {
     );
   });
 
-  it('should disable the "Interpret for me" button when the status is not ready', function () {
+  it('should disable the "Interpret" button when the status is not ready', function () {
     render(
       {
         status: 'loading',
