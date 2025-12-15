@@ -140,11 +140,11 @@ export const aggregateQueries: GenAiUsecase[] = [
     userInput:
       '¿Qué alojamiento tiene el precio más bajo? devolver el número en un campo llamado "precio"',
     expectedOutput: `<aggregation>
-      [{
-        $project: {_id: 0, precio: "$price"},
-        $sort: {price: 1},
-        $limit: 1
-      }]
+      [
+        {$project: {_id: 0, precio: "$price"}},
+        {$sort: {price: 1}},
+        {$limit: 1}
+      ]
     </aggregation>`,
     name: 'aggregate with non-english prompt',
   },
