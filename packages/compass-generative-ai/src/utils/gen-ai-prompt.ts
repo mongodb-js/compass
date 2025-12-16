@@ -1,12 +1,9 @@
 import { toJSString } from 'mongodb-query-parser';
 import { flattenSchemaToObject } from './util';
+import { AiChatbotPromptTooLargeError } from '../chatbot-errors';
 
-// When including sample documents, we want to ensure that we do not
-// attach large documents and exceed the limit. OpenAI roughly estimates
-// 4 characters = 1 token and we should not exceed context window limits.
-// This roughly translates to 128k tokens.
-// TODO(COMPASS-10129): Adjust this limit based on the model's context window.
-const MAX_TOTAL_PROMPT_LENGTH = 512000;
+// chatbot slim model suppport ~250k characters
+const MAX_TOTAL_PROMPT_LENGTH = 250_000;
 const MIN_SAMPLE_DOCUMENTS = 1;
 
 function getCurrentTimeString() {
@@ -165,7 +162,7 @@ function buildUserPromptForQuery({
 
   // If at this point we have exceeded the limit, throw an error.
   if (prompt.length > MAX_TOTAL_PROMPT_LENGTH) {
-    throw new Error(
+    throw new AiChatbotPromptTooLargeError(
       'Sorry, your request is too large. Please use a smaller prompt or try using this feature on a collection with smaller documents.'
     );
   }
