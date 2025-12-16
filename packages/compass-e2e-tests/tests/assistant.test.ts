@@ -460,7 +460,7 @@ describe('MongoDB Assistant', function () {
           }
         });
 
-        it('opens assistant with explain plan prompt when clicking "Interpret for me"', async function () {
+        it('opens assistant with explain plan prompt when clicking "Interpret"', async function () {
           await useExplainPlanEntryPoint(browser);
 
           await browser.clickVisible('button*=Confirm');
@@ -513,7 +513,7 @@ describe('MongoDB Assistant', function () {
           });
         });
 
-        it('opens assistant with error message view prompt when clicking "Debug for me"', async function () {
+        it('opens assistant with error message view prompt when clicking "Debug"', async function () {
           await browser.connectWithConnectionString(
             'mongodb-invalid://localhost:27017',
             { connectionStatus: 'failure' }
