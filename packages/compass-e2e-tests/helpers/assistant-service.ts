@@ -156,16 +156,16 @@ export async function startMockAssistantServer(
   getResponse: () => MockAssistantResponse;
   setResponse: (response: MockAssistantResponse) => void;
   getRequests: () => {
-    content: any;
-    req: any;
+    content: Record<string, any>;
+    req: http.IncomingMessage;
   }[];
   endpoint: string;
   server: http.Server;
   stop: () => Promise<void>;
 }> {
   let requests: {
-    content: any;
-    req: any;
+    content: Record<string, any>;
+    req: http.IncomingMessage;
   }[] = [];
   let response = _response;
   const server = http
@@ -174,7 +174,7 @@ export async function startMockAssistantServer(
       res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
       res.setHeader(
         'Access-Control-Allow-Headers',
-        'Content-Type, Authorization, X-Request-Origin, User-Agent, X-CSRF-Token, X-CSRF-Time'
+        'Content-Type, Authorization, X-Request-Origin, User-Agent, X-CSRF-Token, X-CSRF-Time, Entrypoint, X-Client-Request-Id'
       );
       res.setHeader('Access-Control-Allow-Credentials', 'true');
 

@@ -213,6 +213,7 @@ describe('AtlasAiService', function () {
                     { _id: new ObjectId('642d766b7300158b1f22e972') },
                   ],
                   requestId: 'abc',
+                  enableStorage: false,
                 },
                 mockConnectionInfo
               );
@@ -223,7 +224,7 @@ describe('AtlasAiService', function () {
 
               expect(args[0]).to.eq(expectedEndpoints[aiEndpoint]);
               expect(args[1].body).to.eq(
-                '{"userInput":"test","collectionName":"jam","databaseName":"peanut","schema":{"_id":{"types":[{"bsonType":"ObjectId"}]}},"sampleDocuments":[{"_id":{"$oid":"642d766b7300158b1f22e972"}}]}'
+                '{"userInput":"test","collectionName":"jam","databaseName":"peanut","schema":{"_id":{"types":[{"bsonType":"ObjectId"}]}},"sampleDocuments":[{"_id":{"$oid":"642d766b7300158b1f22e972"}}],"enableStorage":false}'
               );
               expect(res).to.deep.eq(responses.success);
             });
@@ -241,6 +242,7 @@ describe('AtlasAiService', function () {
                       databaseName: 'peanut',
                       requestId: 'abc',
                       signal: new AbortController().signal,
+                      enableStorage: false,
                     },
                     mockConnectionInfo
                   );
@@ -263,6 +265,7 @@ describe('AtlasAiService', function () {
                     sampleDocuments: [{ test: '4'.repeat(5120001) }],
                     requestId: 'abc',
                     signal: new AbortController().signal,
+                    enableStorage: false,
                   },
                   mockConnectionInfo
                 );
@@ -294,6 +297,7 @@ describe('AtlasAiService', function () {
                   ],
                   requestId: 'abc',
                   signal: new AbortController().signal,
+                  enableStorage: false,
                 },
                 mockConnectionInfo
               );
@@ -302,7 +306,7 @@ describe('AtlasAiService', function () {
 
               expect(fetchStub).to.have.been.calledOnce;
               expect(args[1].body).to.eq(
-                '{"userInput":"test","collectionName":"test.test","databaseName":"peanut","sampleDocuments":[{"a":"1"}]}'
+                '{"userInput":"test","collectionName":"test.test","databaseName":"peanut","sampleDocuments":[{"a":"1"}],"enableStorage":false}'
               );
             });
           });
@@ -912,6 +916,7 @@ describe('AtlasAiService', function () {
         const mockAtlasService = new MockAtlasService();
         await preferences.savePreferences({
           enableChatbotEndpointForGenAI: true,
+          telemetryAtlasUserId: '1234',
         });
         atlasAiService = new AtlasAiService({
           apiURLPreset: 'cloud',
@@ -1037,6 +1042,7 @@ describe('AtlasAiService', function () {
                 { _id: new ObjectId('642d766b7300158b1f22e972') },
               ],
               requestId: 'abc',
+              enableStorage: true,
             };
 
             const res = await atlasAiService[functionName](
@@ -1047,10 +1053,20 @@ describe('AtlasAiService', function () {
             expect(fetchStub).to.have.been.calledOnce;
 
             const { args } = fetchStub.firstCall;
-            const requestBody = JSON.parse(args[1].body as string);
 
+            const requestHeaders = args[1].headers as Record<string, string>;
+            expect(requestHeaders['x-client-request-id']).to.equal(
+              input.requestId
+            );
+
+            const requestBody = JSON.parse(args[1].body as string);
             expect(requestBody.model).to.equal('mongodb-chat-latest');
-            expect(requestBody.store).to.equal(false);
+            const { userId, ...restOfMetadata } = requestBody.metadata;
+            expect(restOfMetadata).to.deep.equal({
+              store: 'true',
+              sensitiveStorage: 'sensitive',
+            });
+            expect(userId).to.be.a('string').that.is.not.empty;
             expect(requestBody.instructions).to.be.a('string');
             expect(requestBody.input).to.be.an('array');
 
@@ -1083,6 +1099,7 @@ describe('AtlasAiService', function () {
                   databaseName: 'peanut',
                   requestId: 'abc',
                   signal: new AbortController().signal,
+                  enableStorage: false,
                 },
                 mockConnectionInfo
               );

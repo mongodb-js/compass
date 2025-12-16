@@ -81,6 +81,18 @@ async function createStore(basepath: string) {
         sample() {
           return Promise.resolve([]);
         },
+        listCollections() {
+          return Promise.resolve([]);
+        },
+        collectionInfo() {
+          return Promise.resolve({} as any);
+        },
+        collectionStats() {
+          return Promise.resolve({} as any);
+        },
+        isListSearchIndexesSupported() {
+          return Promise.resolve(true);
+        },
       },
       globalAppRegistry: mockAppRegistry,
       localAppRegistry: mockAppRegistry,
@@ -88,6 +100,11 @@ async function createStore(basepath: string) {
       track: createNoopTrack(),
       connectionInfoRef: mockConnectionInfoRef,
       atlasAiService: mockAtlasAiService,
+      collection: {
+        fetchMetadata() {
+          return Promise.resolve({});
+        },
+      } as any,
     }
   );
 
