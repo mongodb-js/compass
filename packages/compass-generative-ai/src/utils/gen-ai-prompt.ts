@@ -2,7 +2,7 @@ import { toJSString } from 'mongodb-query-parser';
 import { flattenSchemaToObject } from './util';
 import { AiChatbotPromptTooLargeError } from '../chatbot-errors';
 
-// chatbot slim model suppport ~250k characters
+// chatbot slim model support ~250k characters
 const MAX_TOTAL_PROMPT_LENGTH = 250_000;
 const MIN_SAMPLE_DOCUMENTS = 1;
 

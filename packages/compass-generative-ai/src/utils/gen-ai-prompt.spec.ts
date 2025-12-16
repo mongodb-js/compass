@@ -155,7 +155,7 @@ describe('GenAI Prompts', function () {
       expect.fail('Expected buildFindQueryPrompt to throw');
     } catch (err) {
       expect(err).to.be.instanceOf(AiChatbotPromptTooLargeError);
-      expect((err as AiChatbotPromptTooLargeError).message).to.have.equal(
+      expect((err as AiChatbotPromptTooLargeError).message).to.equal(
         'PROMPT_TOO_LARGE: Sorry, your request is too large. Please use a smaller prompt or try using this feature on a collection with smaller documents.'
       );
     }
