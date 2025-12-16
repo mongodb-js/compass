@@ -205,6 +205,18 @@ export const FEATURE_FLAG_DEFINITIONS = [
     },
   },
 
+  /*
+   * Feature flag for AI Assistant's tool calling feature.
+   */
+  {
+    name: 'enableToolCalling',
+    stage: 'development',
+    atlasCloudFeatureFlagName: null,
+    description: {
+      short: 'Enable tool calling in the AI Assistant',
+    },
+  },
+
   {
     name: 'enableRestoreWorkspaces',
     stage: 'development',
