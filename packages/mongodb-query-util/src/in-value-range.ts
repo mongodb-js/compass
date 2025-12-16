@@ -38,7 +38,9 @@ export const inValueRange = (
   field: any,
   d: { value: any; dx?: number; bson?: any }
 ) => {
-  const compOperators: Record<string, (a: number, b: number) => boolean> = {
+  const compOperators: Readonly<
+    Record<string, (a: number, b: number) => boolean>
+  > = {
     $gte: function (a: number, b: number) {
       return a >= b;
     },

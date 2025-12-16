@@ -158,7 +158,7 @@ export const ExplainPlanModal: React.FunctionComponent<
               }}
               disabled={status !== 'ready'}
             >
-              Interpret for me
+              Interpret
             </Button>
             <Tooltip
               triggerEvent="hover"

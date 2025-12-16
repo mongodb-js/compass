@@ -215,7 +215,7 @@ export default connect(
   (state: DataModelingState) => {
     const { diagram, step } = state;
     return {
-      step: step,
+      step,
       hasUndo: (diagram?.edits.prev.length ?? 0) > 0,
       hasRedo: (diagram?.edits.next.length ?? 0) > 0,
       diagramName: diagram?.name,

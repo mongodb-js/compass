@@ -1194,6 +1194,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
 
       // Build the aggregation pipeline dynamically based on collection type
       const groupStage: Record<string, unknown> = {
+        __proto__: null,
         _id: null,
         capped: { $first: '$storageStats.capped' },
         count: { $sum: '$storageStats.count' },
@@ -1230,6 +1231,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
 
       const addFieldsStage: Record<string, unknown> = {
         // `avgObjSize` is the average of per-shard `avgObjSize` weighted by `count`
+        __proto__: null,
         avgObjSize: {
           $cond: {
             if: { $ne: ['$count', 0] },

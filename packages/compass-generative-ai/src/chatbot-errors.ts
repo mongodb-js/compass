@@ -6,3 +6,10 @@ export class AiChatbotInvalidResponseError extends AtlasServiceError {
     this.name = 'AiChatbotInvalidResponseError';
   }
 }
+
+export class AiChatbotPromptTooLargeError extends AtlasServiceError {
+  constructor(message: string) {
+    super('NetworkError', 400, message, 'PROMPT_TOO_LARGE');
+    this.name = 'AiChatbotPromptTooLargeError';
+  }
+}

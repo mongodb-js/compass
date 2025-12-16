@@ -172,7 +172,7 @@ describe('CompassConnections store', function () {
       });
 
       await waitFor(() => {
-        expect(screen.getByText('Debug for me')).to.exist;
+        expect(screen.getByText('Debug')).to.exist;
       });
     });
 
@@ -198,7 +198,7 @@ describe('CompassConnections store', function () {
       });
 
       // The debug button should not be present when assistant is disabled
-      expect(screen.queryByText('Debug for me')).to.not.exist;
+      expect(screen.queryByText('Debug')).to.not.exist;
       expect(screen.queryByTestId('connection-error-debug')).to.not.exist;
     });
 
