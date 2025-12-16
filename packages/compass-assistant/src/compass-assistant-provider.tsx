@@ -258,10 +258,15 @@ export const AssistantProvider: React.FunctionComponent<
           ? contextPrompt.parts[0].text
           : '';
 
+      const hasSystemContextMessage = chat.messages.some((message) => {
+        return message.metadata?.isSystemContext;
+      });
+
       const shouldSendContextPrompt =
         message?.metadata?.sendContext &&
         (!lastContextPromptRef.current ||
-          lastContextPromptRef.current !== contextPromptText);
+          lastContextPromptRef.current !== contextPromptText ||
+          !hasSystemContextMessage);
       if (shouldSendContextPrompt) {
         lastContextPromptRef.current = contextPromptText;
         chat.messages = [...chat.messages, contextPrompt];

@@ -431,7 +431,7 @@ describe('CompassAssistantProvider', function () {
         });
       }
 
-      const contextMessages = mockChat.messages.filter(
+      let contextMessages = mockChat.messages.filter(
         (message) => message.metadata?.isSystemContext
       );
 
@@ -456,6 +456,30 @@ describe('CompassAssistantProvider', function () {
           ],
         },
       ]);
+
+      // if we clear the chat it will send the context again next time
+      sendMessageSpy.resetHistory();
+      mockChat.messages = [];
+
+      userEvent.type(
+        screen.getByPlaceholderText('Ask a question'),
+        'How about now?'
+      );
+      userEvent.click(screen.getByLabelText('Send message'));
+
+      await waitFor(() => {
+        expect(sendMessageSpy.callCount).to.equal(1);
+        expect(sendMessageSpy.getCall(0).args[0]).to.deep.include({
+          text: 'How about now?',
+        });
+
+        expect(screen.getByText('How about now?')).to.exist;
+      });
+
+      contextMessages = mockChat.messages.filter(
+        (message) => message.metadata?.isSystemContext
+      );
+      expect(contextMessages).to.have.lengthOf(1);
     });
 
     it('will not send new messages if the user does not opt in', async function () {
