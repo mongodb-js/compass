@@ -1,6 +1,7 @@
 import { findQueries } from './find-query';
 import { aggregateQueries } from './aggregate-query';
 import toNS from 'mongodb-ns';
+import { UUID } from 'bson';
 
 export type GenAiUsecase = {
   namespace: string;
@@ -61,6 +62,9 @@ export async function generateGenAiEvalCases() {
         schema,
         collectionName,
         databaseName,
+        enableStorage: false,
+        requestId: new UUID().toString(),
+        userId: 'compass-eval-tests-user',
       };
       const {
         metadata: { instructions },
