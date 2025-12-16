@@ -112,14 +112,14 @@ export function applyEdit(edit: Edit, model?: StaticModel): StaticModel {
       };
     }
     case 'MoveMultipleCollections': {
-      const movedCollections = Object.keys(edit.newPositions);
+      const movedCollections = new Set(Object.keys(edit.newPositions));
       for (const ns of movedCollections) {
         assertCollectionExists(model.collections, ns);
       }
       return {
         ...model,
         collections: model.collections.map((collection) => {
-          if (movedCollections.includes(collection.ns)) {
+          if (movedCollections.has(collection.ns)) {
             return {
               ...collection,
               displayPosition: edit.newPositions[collection.ns],
