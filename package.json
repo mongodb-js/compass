@@ -45,7 +45,7 @@
     "update-tracking-plan": "npx ts-node scripts/generate-tracking-plan.ts > docs/tracking-plan.md",
     "postupdate-tracking-plan": "npx prettier-compass docs/tracking-plan.md --write",
     "bump-packages": "bump-monorepo-packages",
-    "publish-packages": "lerna publish from-package --no-verify-access --no-push --no-git-tag-version --yes --stream",
+    "publish-packages": "lerna publish from-package --no-verify-access --no-push --no-git-tag-version --yes",
     "version": "node ./scripts/align-monorepo-dependencies.js --no-commit",
     "where": "monorepo-where",
     "create-workspace": "node ./scripts/create-workspace.js",
