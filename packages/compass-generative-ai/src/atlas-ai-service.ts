@@ -344,9 +344,7 @@ export class AtlasAiService {
           },
         });
       },
-      // TODO(COMPASS-10125): Switch the model to `mongodb-slim-latest` when
-      // enabling this feature (to use edu-chatbot for GenAI).
-    }).responses('mongodb-chat-latest');
+    }).responses('mongodb-slim-latest');
   }
 
   /**

@@ -226,7 +226,7 @@ export const FEATURE_FLAG_DEFINITIONS = [
   },
   {
     name: 'enableChatbotEndpointForGenAI',
-    stage: 'development',
+    stage: 'released',
     atlasCloudFeatureFlagName: null,
     description: {
       short: 'Enable Chatbot API for Generative AI',
