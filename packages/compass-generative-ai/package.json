@@ -70,8 +70,8 @@
     "redux": "^4.2.1",
     "redux-thunk": "^2.4.2",
     "zod": "^3.25.76",
-    "@ai-sdk/openai": "^2.0.4",
-    "ai": "^5.0.26"
+    "@ai-sdk/openai": "^3.0.0-beta.96",
+    "ai": "^6.0.0-beta.151"
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-compass": "^1.4.12",

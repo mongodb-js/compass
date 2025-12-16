@@ -225,6 +225,7 @@ export const runAIPipelineGeneration = (
       logger: { log, mongoLogId },
       track,
       connectionInfoRef,
+      collection,
     }
   ) => {
     const {
@@ -286,6 +287,9 @@ export const runAIPipelineGeneration = (
           }
         )) || [];
       const schema = await getSimplifiedSchema(sampleDocuments);
+      const { isFLE } = await collection.fetchMetadata({
+        dataService: dataService!,
+      });
 
       const { collection: collectionName, database: databaseName } =
         toNS(namespace);
@@ -303,6 +307,7 @@ export const runAIPipelineGeneration = (
               }
             : undefined),
           requestId,
+          enableStorage: !isFLE,
         },
         connectionInfo
       );

@@ -835,6 +835,7 @@ describe('AtlasAiService', function () {
               { _id: new ObjectId('642d766b7300158b1f22e972') },
             ],
             requestId: 'abc',
+            enableStorage: true,
           };
 
           const res = await atlasAiService[functionName](
@@ -845,10 +846,20 @@ describe('AtlasAiService', function () {
           expect(fetchStub).to.have.been.calledOnce;
 
           const { args } = fetchStub.firstCall;
+          const requestHeaders = args[1].headers as Record<string, string>;
+          expect(requestHeaders['x-client-request-id']).to.equal(
+            input.requestId
+          );
+          expect(requestHeaders['entrypoint']).to.equal(
+            'natural-language-to-mql'
+          );
           const requestBody = JSON.parse(args[1].body as string);
-
-          expect(requestBody.model).to.equal('mongodb-slim-latest');
-          expect(requestBody.store).to.equal(false);
+          const { userId, ...restOfMetadata } = requestBody.metadata;
+          expect(restOfMetadata).to.deep.equal({
+            store: 'true',
+            sensitiveStorage: 'sensitive',
+          });
+          expect(userId).to.be.a('string').that.is.not.empty;
           expect(requestBody.instructions).to.be.a('string');
           expect(requestBody.input).to.be.an('array');
 
@@ -881,6 +892,7 @@ describe('AtlasAiService', function () {
                 databaseName: 'peanut',
                 requestId: 'abc',
                 signal: new AbortController().signal,
+                enableStorage: true,
               },
               mockConnectionInfo
             );

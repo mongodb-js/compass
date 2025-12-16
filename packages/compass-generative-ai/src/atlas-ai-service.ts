@@ -34,6 +34,7 @@ type GenerativeAiInput = {
   sampleDocuments?: Document[];
   signal: AbortSignal;
   requestId: string;
+  enableStorage: boolean;
 };
 
 // The size/token validation happens on the server, however, we do
@@ -259,6 +260,37 @@ export type MockDataSchemaResponse = z.infer<
   typeof MockDataSchemaResponseShape
 >;
 
+async function getHashedActiveUserId(
+  preferences: PreferencesAccess,
+  logger: Logger
+): Promise<string> {
+  const { currentUserId, telemetryAnonymousId, telemetryAtlasUserId } =
+    preferences.getPreferences();
+  const userId = currentUserId ?? telemetryAnonymousId ?? telemetryAtlasUserId;
+  if (!userId) {
+    return 'unknown';
+  }
+  try {
+    const data = new TextEncoder().encode(userId);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    const hashHex = hashArray
+      .map((b) => b.toString(16).padStart(2, '0'))
+      .join('');
+    return hashHex;
+  } catch (e) {
+    logger.log.warn(
+      logger.mongoLogId(1_001_000_385),
+      'AtlasAiService',
+      'Failed to hash user id for AI request',
+      {
+        error: (e as Error).message,
+      }
+    );
+    return 'unknown';
+  }
+}
+
 /**
  * The type of resource from the natural language query REST API
  */
@@ -304,7 +336,13 @@ export class AtlasAiService {
           PLACEHOLDER_BASE_URL,
           this.atlasService.assistantApiEndpoint()
         );
-        return this.atlasService.authenticatedFetch(uri, init);
+        return this.atlasService.authenticatedFetch(uri, {
+          ...init,
+          headers: {
+            ...(init?.headers ?? {}),
+            entrypoint: 'natural-language-to-mql',
+          },
+        });
       },
     }).responses('mongodb-slim-latest');
   }
@@ -443,7 +481,10 @@ export class AtlasAiService {
     connectionInfo: ConnectionInfo
   ) {
     if (this.preferences.getPreferences().enableChatbotEndpointForGenAI) {
-      const message = buildAggregateQueryPrompt(input);
+      const message = buildAggregateQueryPrompt({
+        ...input,
+        userId: await getHashedActiveUserId(this.preferences, this.logger),
+      });
       return this.generateQueryUsingChatbot(
         message,
         validateAIAggregationResponse,
@@ -465,7 +506,10 @@ export class AtlasAiService {
     connectionInfo: ConnectionInfo
   ) {
     if (this.preferences.getPreferences().enableChatbotEndpointForGenAI) {
-      const message = buildFindQueryPrompt(input);
+      const message = buildFindQueryPrompt({
+        ...input,
+        userId: await getHashedActiveUserId(this.preferences, this.logger),
+      });
       return this.generateQueryUsingChatbot(message, validateAIQueryResponse, {
         signal: input.signal,
         type: 'find',

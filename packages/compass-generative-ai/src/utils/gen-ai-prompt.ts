@@ -58,13 +58,26 @@ function buildInstructionsForAggregateQuery() {
   ].join('\n');
 }
 
-export type PromptContextOptions = {
+type BuildPromptOptions = {
   userInput: string;
-  databaseName?: string;
-  collectionName?: string;
+  databaseName: string;
+  collectionName: string;
   schema?: unknown;
   sampleDocuments?: unknown[];
+  type: 'find' | 'aggregate';
 };
+
+type BuildMetadataOptions = {
+  userId: string;
+  enableStorage: boolean;
+  requestId: string;
+  type: 'find' | 'aggregate';
+};
+
+export type PromptContextOptions = Omit<
+  BuildPromptOptions & BuildMetadataOptions,
+  'type'
+>;
 
 function withCodeFence(code: string): string {
   return [
@@ -75,6 +88,13 @@ function withCodeFence(code: string): string {
   ].join('\n');
 }
 
+export function escapeUserInput(input: string): string {
+  // Explicitly escape the <user_prompt> and </user_prompt> tags
+  return input
+    .replace('<user_prompt>', '&lt;user_prompt&gt;')
+    .replace('</user_prompt>', '&lt;/user_prompt&gt;');
+}
+
 function buildUserPromptForQuery({
   type,
   userInput,
@@ -82,13 +102,13 @@ function buildUserPromptForQuery({
   collectionName,
   schema,
   sampleDocuments,
-}: PromptContextOptions & { type: 'find' | 'aggregate' }): string {
+}: BuildPromptOptions): string {
   const messages = [];
 
   const queryPrompt = [
     type === 'find' ? 'Write a query' : 'Generate an aggregation',
     'that does the following:',
-    `"${userInput}"`,
+    `<user_prompt>${escapeUserInput(userInput)}</user_prompt>`,
   ].join(' ');
 
   if (databaseName) {
@@ -98,9 +118,10 @@ function buildUserPromptForQuery({
     messages.push(`Collection name: "${collectionName}"`);
   }
   if (schema) {
+    const schemaStr = toJSString(flattenSchemaToObject(schema));
     messages.push(
       `Schema from a sample of documents from the collection:${withCodeFence(
-        toJSString(flattenSchemaToObject(schema))!
+        `<user_schema>${schemaStr}</user_schema>`
       )}`
     );
   }
@@ -122,7 +143,7 @@ function buildUserPromptForQuery({
     ) {
       messages.push(
         `Sample documents from the collection:${withCodeFence(
-          sampleDocumentsStr
+          `<sample_documents>${sampleDocumentsStr}</sample_documents>`
         )}`
       );
     } else if (
@@ -132,11 +153,12 @@ function buildUserPromptForQuery({
     ) {
       messages.push(
         `Sample document from the collection:${withCodeFence(
-          singleDocumentStr
+          `<sample_documents>${singleDocumentStr}</sample_documents>`
         )}`
       );
     }
   }
+
   messages.push(queryPrompt);
 
   const prompt = messages.join('\n');
@@ -154,53 +176,78 @@ export type AiQueryPrompt = {
   prompt: string;
   metadata: {
     instructions: string;
-  };
+    userId: string;
+    requestId: string;
+  } & (
+    | {
+        store: 'true';
+        sensitiveStorage: 'sensitive';
+      }
+    | {
+        store: 'false';
+      }
+  );
 };
 
+function buildMetadata({
+  type,
+  userId,
+  requestId,
+  enableStorage,
+}: BuildMetadataOptions): AiQueryPrompt['metadata'] {
+  return {
+    instructions:
+      type === 'find'
+        ? buildInstructionsForFindQuery()
+        : buildInstructionsForAggregateQuery(),
+    userId,
+    requestId,
+    ...(enableStorage
+      ? {
+          sensitiveStorage: 'sensitive',
+          store: 'true',
+        }
+      : {
+          store: 'false',
+        }),
+  };
+}
+
 export function buildFindQueryPrompt({
-  userInput,
-  databaseName,
-  collectionName,
-  schema,
-  sampleDocuments,
+  userId,
+  enableStorage,
+  requestId,
+  ...restOfTheOptions
 }: PromptContextOptions): AiQueryPrompt {
+  const type = 'find';
   const prompt = buildUserPromptForQuery({
-    type: 'find',
-    userInput,
-    databaseName,
-    collectionName,
-    schema,
-    sampleDocuments,
+    type,
+    ...restOfTheOptions,
   });
-  const instructions = buildInstructionsForFindQuery();
   return {
     prompt,
-    metadata: {
-      instructions,
-    },
+    metadata: buildMetadata({
+      type,
+      userId,
+      requestId,
+      enableStorage,
+    }),
   };
 }
 
 export function buildAggregateQueryPrompt({
-  userInput,
-  databaseName,
-  collectionName,
-  schema,
-  sampleDocuments,
+  userId,
+  enableStorage,
+  requestId,
+  ...restOfTheOptions
 }: PromptContextOptions): AiQueryPrompt {
+  const type = 'aggregate';
   const prompt = buildUserPromptForQuery({
-    type: 'aggregate',
-    userInput,
-    databaseName,
-    collectionName,
-    schema,
-    sampleDocuments,
+    type,
+    ...restOfTheOptions,
   });
-  const instructions = buildInstructionsForAggregateQuery();
   return {
     prompt,
-    metadata: {
-      instructions,
-    },
+    metadata: buildMetadata({ type, userId, requestId, enableStorage }),
   };
 }
