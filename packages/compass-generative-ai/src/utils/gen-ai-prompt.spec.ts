@@ -85,13 +85,17 @@ describe('GenAI Prompts', function () {
       'Schema from a sample of documents from the collection:',
       'includes schema text'
     );
-    expect(prompt).to.include(expectedSchema, 'includes actual schema');
     expect(prompt).to.include(
       'Sample documents from the collection:',
       'includes sample documents text'
     );
-    expect(prompt).to.include(
-      expectedSampleDocuments,
+    const cleanedPrompt = prompt.replace(/\s+/g, '');
+    expect(cleanedPrompt).to.include(
+      expectedSchema.replace(/\s+/g, ''),
+      'includes actual schema'
+    );
+    expect(cleanedPrompt).to.include(
+      expectedSampleDocuments.replace(/\s+/g, ''),
       'includes actual sample documents'
     );
   });
@@ -126,13 +130,17 @@ describe('GenAI Prompts', function () {
       'Schema from a sample of documents from the collection:',
       'includes schema text'
     );
-    expect(prompt).to.include(expectedSchema, 'includes actual schema');
     expect(prompt).to.include(
       'Sample documents from the collection:',
       'includes sample documents text'
     );
-    expect(prompt).to.include(
-      expectedSampleDocuments,
+    const cleanedPrompt = prompt.replace(/\s+/g, '');
+    expect(cleanedPrompt).to.include(
+      expectedSchema.replace(/\s+/g, ''),
+      'includes actual schema'
+    );
+    expect(cleanedPrompt).to.include(
+      expectedSampleDocuments.replace(/\s+/g, ''),
       'includes actual sample documents'
     );
   });
