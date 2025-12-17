@@ -142,10 +142,7 @@ const WithConnectionsProvider: React.FC<{
       // are not available, so we disable useSystemCA
       useSystemCA={false}
       onExtraConnectionDataRequest={() => {
-        return Promise.resolve([{}, null] as [
-          Record<string, unknown>,
-          null
-        ]);
+        return Promise.resolve([{}, null] as [Record<string, unknown>, null]);
       }}
       onAutoconnectInfoRequest={(connectionStore) => {
         if (autoconnectId) {

@@ -285,13 +285,17 @@ export async function connectMongoClientDataService({
         const { client: metadataClient, state } = await connectSingleClient({
           autoEncryption: undefined,
         });
-        
+
         // StateShareServer is only needed for OIDC authentication.
         // Check if OIDC is being used before creating the server.
         const connectionStringUrl = new ConnectionString(url);
-        const isOIDC = connectionStringUrl.searchParams.get('authMechanism') === 'MONGODB-OIDC';
-        const parentHandlePromise = isOIDC ? state.getStateShareServer() : Promise.resolve('');
-        
+        const isOIDC =
+          connectionStringUrl.searchParams.get('authMechanism') ===
+          'MONGODB-OIDC';
+        const parentHandlePromise = isOIDC
+          ? state.getStateShareServer()
+          : Promise.resolve('');
+
         parentHandlePromise.catch(() => {
           /* handled below */
         });
@@ -332,7 +336,8 @@ export async function connectMongoClientDataService({
 
     // Only get StateShareServer handle for OIDC connections
     const connectionStringUrl = new ConnectionString(url);
-    const isOIDC = connectionStringUrl.searchParams.get('authMechanism') === 'MONGODB-OIDC';
+    const isOIDC =
+      connectionStringUrl.searchParams.get('authMechanism') === 'MONGODB-OIDC';
     options.parentHandle = isOIDC ? await state.getStateShareServer() : '';
 
     return [
