@@ -1,6 +1,7 @@
 import {
   type ChatTransport,
   type LanguageModel,
+  type ToolSet,
   type UIMessageChunk,
   convertToModelMessages,
   streamText,
@@ -18,20 +19,24 @@ export function shouldExcludeMessage({ metadata }: AssistantMessage) {
 export class DocsProviderTransport implements ChatTransport<AssistantMessage> {
   private model: LanguageModel;
   private origin: string;
+  private getTools: () => ToolSet;
   private instructions: string;
 
   constructor({
-    instructions,
     model,
     origin,
+    getTools,
+    instructions,
   }: {
-    instructions: string;
     model: LanguageModel;
     origin: string;
+    getTools?: () => ToolSet;
+    instructions: string;
   }) {
-    this.instructions = instructions;
     this.model = model;
     this.origin = origin;
+    this.getTools = getTools ?? (() => ({}));
+    this.instructions = instructions;
   }
 
   static emptyStream = new ReadableStream<UIMessageChunk>({
@@ -71,6 +76,7 @@ export class DocsProviderTransport implements ChatTransport<AssistantMessage> {
       headers: {
         'X-Request-Origin': this.origin,
       },
+      tools: this.getTools(),
       providerOptions: {
         openai: {
           store: false,
