@@ -189,6 +189,7 @@ export default connect(
       currentStep,
       isGotoCollectionsStepDisabled:
         !formFields.diagramName.value ||
+        Boolean(formFields.diagramName.error) ||
         !formFields.selectedConnection.value ||
         !formFields.selectedDatabase.value,
       isGenerateDiagramDisabled:

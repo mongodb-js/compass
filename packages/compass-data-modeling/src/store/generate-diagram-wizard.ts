@@ -378,7 +378,7 @@ export function changeName(
       type: GenerateDiagramWizardActionTypes.CHANGE_NAME,
       name,
       error: nameExists
-        ? new Error('Diagram with this name already exists')
+        ? new Error('Diagram with this name already exists.')
         : undefined,
     });
   };
@@ -422,7 +422,7 @@ export function selectConnection(
       );
       dispatch({
         type: GenerateDiagramWizardActionTypes.CONNECTION_FAILED,
-        error: new Error('Connection failed'),
+        error: new Error('Connection failed.'),
       });
       return;
     }

@@ -83,10 +83,20 @@ const SetupDiagramStep = ({
           }}
           clearable={false}
           multiselect={false}
-          disabled={connections.length === 0 || selectedConnection.isConnecting}
-          searchEmptyMessage="You do not have any connections, create a new connection first"
-          state={selectedConnection.error ? 'error' : undefined}
-          errorMessage={selectedConnection.error?.message}
+          disabled={selectedConnection.isConnecting}
+          state={
+            selectedConnection.error || connections.length === 0
+              ? 'error'
+              : undefined
+          }
+          errorMessage={(() => {
+            if (selectedConnection.error) {
+              return selectedConnection.error.message;
+            }
+            if (connections.length === 0) {
+              return 'You do not have any connections, create a new connection first.';
+            }
+          })()}
         >
           {activeConnections.map((connection) => {
             return (
@@ -124,8 +134,19 @@ const SetupDiagramStep = ({
           disabled={
             !selectedConnection.value || selectedConnection.isConnecting
           }
-          state={selectedDatabase.error ? 'error' : undefined}
-          errorMessage={selectedDatabase.error?.message}
+          state={
+            selectedDatabase.error || databases.length === 0
+              ? 'error'
+              : undefined
+          }
+          errorMessage={(() => {
+            if (selectedDatabase.error) {
+              return selectedDatabase.error.message;
+            }
+            if (databases.length === 0) {
+              return 'No databases found for the selected connection.';
+            }
+          })()}
         >
           {databases.map((db) => {
             return <ComboboxOption key={db} value={db}></ComboboxOption>;
