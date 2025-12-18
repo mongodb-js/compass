@@ -262,6 +262,9 @@ export const generateDiagramWizardReducer: Reducer<
         selectedDatabase: {
           value: action.database,
         },
+        selectedCollections: {
+          isFetchingCollections: true,
+        },
       },
     };
   }
