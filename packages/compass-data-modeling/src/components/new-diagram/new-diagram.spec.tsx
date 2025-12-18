@@ -6,10 +6,13 @@ import {
   waitFor,
   within,
 } from '@mongodb-js/testing-library-compass';
-import NewDiagramForm from './new-diagram-form';
-import { changeName, createNewDiagram } from '../store/generate-diagram-wizard';
-import { renderWithStore } from '../../test/setup-store';
-import type { DataModelingStore } from '../../test/setup-store';
+import NewDiagramForm from './new-diagram-modal';
+import {
+  changeName,
+  createNewDiagram,
+} from '../../store/generate-diagram-wizard';
+import { renderWithStore } from '../../../test/setup-store';
+import type { DataModelingStore } from '../../../test/setup-store';
 
 function getComboboxByTestId(testId: string) {
   return within(screen.getByTestId(testId)).getByRole('combobox');
@@ -33,14 +36,16 @@ describe('NewDiagramForm', function () {
         within(modal).getByTestId('new-diagram-name-input'),
         'diagram-1'
       );
-      expect(store.getState().generateDiagramWizard.diagramName).to.equal(
-        'diagram-1'
-      );
+      expect(
+        store.getState().generateDiagramWizard.formFields.diagramName.value
+      ).to.equal('diagram-1');
     });
 
     it('keeps next button disabled if diagram name is empty', function () {
       userEvent.clear(within(modal).getByTestId('new-diagram-name-input'));
-      expect(store.getState().generateDiagramWizard.diagramName).to.equal('');
+      expect(
+        store.getState().generateDiagramWizard.formFields.diagramName.value
+      ).to.equal('');
       const button = within(modal).getByRole('button', {
         name: /next/i,
       });
@@ -58,13 +63,13 @@ describe('NewDiagramForm', function () {
   });
 
   context('select-connection step', function () {
-    it('shows warning if there are no connections', function () {
+    it('shows warning if there are no connections', async function () {
       const { store } = renderWithStore(<NewDiagramForm />, {
         connections: [],
       });
       store.dispatch(createNewDiagram());
 
-      store.dispatch(changeName('diagram1'));
+      await store.dispatch(changeName('diagram1'));
       userEvent.click(
         screen.getByRole('button', {
           name: /next/i,
@@ -83,7 +88,7 @@ describe('NewDiagramForm', function () {
       {
         // Navigate to connections step
         store.dispatch(createNewDiagram());
-        store.dispatch(changeName('diagram1'));
+        await store.dispatch(changeName('diagram1'));
         userEvent.click(
           screen.getByRole('button', {
             name: /next/i,
@@ -96,9 +101,10 @@ describe('NewDiagramForm', function () {
       expect(screen.getByText('Conn2')).to.exist;
 
       userEvent.click(screen.getByText('Conn2'));
-      expect(store.getState().generateDiagramWizard.selectedConnectionId).to.eq(
-        'two'
-      );
+      expect(
+        store.getState().generateDiagramWizard.formFields.selectedConnectionId
+          .value
+      ).to.eq('two');
 
       userEvent.click(
         screen.getByRole('button', {
@@ -139,7 +145,7 @@ describe('NewDiagramForm', function () {
       {
         // Navigate to connections step
         store.dispatch(createNewDiagram());
-        store.dispatch(changeName('diagram1'));
+        await store.dispatch(changeName('diagram1'));
         userEvent.click(
           screen.getByRole('button', {
             name: /next/i,
@@ -170,7 +176,7 @@ describe('NewDiagramForm', function () {
       {
         // Navigate to connections step
         store.dispatch(createNewDiagram());
-        store.dispatch(changeName('diagram1'));
+        await store.dispatch(changeName('diagram1'));
         userEvent.click(
           screen.getByRole('button', {
             name: /next/i,
@@ -199,9 +205,9 @@ describe('NewDiagramForm', function () {
       expect(screen.getByText('sample_airbnb')).to.exist;
 
       userEvent.click(screen.getByText('sample_airbnb'));
-      expect(store.getState().generateDiagramWizard.selectedDatabase).to.eq(
-        'sample_airbnb'
-      );
+      expect(
+        store.getState().generateDiagramWizard.formFields.selectedDatabase.value
+      ).to.eq('sample_airbnb');
 
       userEvent.click(
         screen.getByRole('button', {
@@ -214,7 +220,8 @@ describe('NewDiagramForm', function () {
       );
       await waitFor(() => {
         expect(
-          store.getState().generateDiagramWizard.selectedCollections
+          store.getState().generateDiagramWizard.formFields.selectedCollections
+            .value
         ).to.deep.equal(['listings', 'listingsAndReviews', 'reviews']);
       });
 
@@ -249,7 +256,7 @@ describe('NewDiagramForm', function () {
       {
         // Navigate to connections step
         store.dispatch(createNewDiagram());
-        store.dispatch(changeName('diagram1'));
+        await store.dispatch(changeName('diagram1'));
         userEvent.click(
           screen.getByRole('button', {
             name: /next/i,
@@ -272,9 +279,10 @@ describe('NewDiagramForm', function () {
       });
 
       expect(screen.getByText(/select database/i)).to.exist;
-      expect(store.getState().generateDiagramWizard.error?.message).to.equal(
-        'Can not list databases'
-      );
+      expect(
+        store.getState().generateDiagramWizard.formFields.selectedDatabase.error
+          ?.message
+      ).to.equal('Can not list databases');
       const alert = screen.getByRole('alert');
       expect(alert.textContent).to.contain('Can not list databases');
     });
@@ -287,7 +295,7 @@ describe('NewDiagramForm', function () {
       {
         // Navigate to connections step
         store.dispatch(createNewDiagram());
-        store.dispatch(changeName('diagram1'));
+        await store.dispatch(changeName('diagram1'));
         userEvent.click(
           screen.getByRole('button', {
             name: /next/i,
@@ -335,7 +343,8 @@ describe('NewDiagramForm', function () {
         'SELECT_COLLECTIONS'
       );
       expect(
-        store.getState().generateDiagramWizard.selectedCollections
+        store.getState().generateDiagramWizard.formFields.selectedCollections
+          .value
       ).to.deep.equal(['listings', 'listingsAndReviews', 'reviews']);
 
       userEvent.click(
@@ -383,7 +392,7 @@ describe('NewDiagramForm', function () {
       {
         // Navigate to connections step
         store.dispatch(createNewDiagram());
-        store.dispatch(changeName('diagram1'));
+        await store.dispatch(changeName('diagram1'));
         userEvent.click(
           screen.getByRole('button', {
             name: /next/i,
@@ -425,9 +434,10 @@ describe('NewDiagramForm', function () {
       }
 
       expect(screen.getByText(/select database/i)).to.exist;
-      expect(store.getState().generateDiagramWizard.error?.message).to.equal(
-        'Can not list collections'
-      );
+      expect(
+        store.getState().generateDiagramWizard.formFields.selectedCollections
+          .error?.message
+      ).to.equal('Can not list collections');
       const alert = screen.getByRole('alert');
       expect(alert.textContent).to.contain('Can not list collections');
     });
