@@ -490,14 +490,16 @@ export const useFilteredConnections = ({
 
   const expandedMemo: ConnectionsNavigationTreeProps['expanded'] =
     useMemo(() => {
-      const result: Record<string, false | Record<string, boolean>> = {};
+      const result: Record<string, false | Record<string, boolean>> =
+        Object.create(null);
       for (const { connectionInfo, connectionStatus } of connections) {
         if (connectionStatus !== 'connected') {
           result[connectionInfo.id] = false;
           continue;
         }
 
-        const expandedItemsInConnection: Record<string, boolean> = {};
+        const expandedItemsInConnection: Record<string, boolean> =
+          Object.create(null);
         const { state: expandedState, databases: expandedDatabases } = expanded[
           connectionInfo.id
         ] ?? { databases: {} };

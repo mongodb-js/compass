@@ -210,8 +210,8 @@ describe('useContextMenu', function () {
         expect(screen.getByTestId('menu-item-Parent Item 2')).to.exist;
 
         // Should not show child items
-        expect(() => screen.getByTestId('menu-item-Child Item 1')).to.throw;
-        expect(() => screen.getByTestId('menu-item-Child Item 2')).to.throw;
+        expect(screen.queryByTestId('menu-item-Child Item 1')).to.not.exist;
+        expect(screen.queryByTestId('menu-item-Child Item 2')).to.not.exist;
       });
 
       it('shows both parent and child items when right clicking child area', function () {

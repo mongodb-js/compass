@@ -118,7 +118,7 @@ const featureDescription: Record<
     title: 'Interactive Diagram Analysis',
     subtitle: 'Explore and annotate interactive diagrams',
   },
-};
+} as const;
 
 const FeaturesList: React.FunctionComponent<{ features: Feature[] }> = ({
   features,

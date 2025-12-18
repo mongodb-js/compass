@@ -257,8 +257,8 @@ describe('RegularIndexesTable Component', function () {
         expect(within(indexRow).getByTestId(indexCell)).to.exist;
       }
 
-      expect(() => within(indexRow).getByTestId('index-actions-hide-action')).to
-        .throw;
+      expect(within(indexRow).queryByTestId('index-actions-hide-action')).to.not
+        .exist;
       if (index.status === 'creating') {
         expect(() =>
           within(indexRow).getByTestId('index-actions-delete-action')
@@ -283,8 +283,8 @@ describe('RegularIndexesTable Component', function () {
         expect(within(indexRow).getByTestId(indexCell)).to.exist;
       }
 
-      expect(() => within(indexRow).getByTestId('index-actions-hide-action')).to
-        .throw;
+      expect(within(indexRow).queryByTestId('index-actions-hide-action')).to.not
+        .exist;
       expect(() =>
         within(indexRow).getByTestId('index-actions-delete-action')
       ).to.throw();

@@ -118,7 +118,7 @@ const disabledButtonStyles: Record<Theme, string> = {
       },
     },
   }),
-};
+} as const;
 
 const CloudAIOptInBannerContent: React.FunctionComponent<{
   isProjectAIEnabled: boolean;

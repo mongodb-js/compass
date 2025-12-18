@@ -821,7 +821,7 @@ export async function startBrowser(
         },
       },
     },
-  };
+  } as const;
 
   // webdriverio removed RemoteOptions. It is now
   // Capabilities.WebdriverIOConfig, but Capabilities is not exported

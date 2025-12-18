@@ -109,7 +109,7 @@ const exportSchemaFormatOptionDetails: Record<
       </div>
     ),
   },
-};
+} as const;
 
 const formatTypeRadioBoxGroupId = 'export-schema-format-type-box-group';
 const formatTypeRadioBoxGroupLabelId = `${formatTypeRadioBoxGroupId}-label`;

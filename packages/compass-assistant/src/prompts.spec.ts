@@ -237,7 +237,12 @@ describe('prompts', function () {
     ];
 
     for (const testCase of testCases) {
-      const summary: Record<string, string | boolean> = {
+      const summary: {
+        type: string;
+        isTimeSeries?: boolean;
+        isView?: boolean;
+        subTab?: string;
+      } = {
         type: testCase.context.activeWorkspace?.type || 'No active tab',
       };
       if (testCase.context.activeCollectionMetadata?.isTimeSeries) {

@@ -203,7 +203,7 @@ function isPrimitiveSchemaType(type: SchemaType): type is PrimitiveSchemaType {
  * The result is used for the Mock Data Generator LLM call and script generation.
  */
 export function processSchema(schema: Schema): ProcessSchemaResult {
-  const fieldInfo: Record<string, FieldInfo> = {};
+  const fieldInfo: Record<string, FieldInfo> = Object.create(null);
   const arrayLengthMap: ArrayLengthMap = {};
 
   if (!schema.fields) {

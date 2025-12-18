@@ -30,7 +30,7 @@ const GSSAPI_CANONICALIZE_HOST_NAME_OPTIONS: Record<
     label: 'Forward and reverse',
     value: 'forwardAndReverse',
   },
-};
+} as const;
 
 function AuthenticationGSSAPI({
   errors,

@@ -404,7 +404,7 @@ describe('In-Use Encryption', function () {
       fireEvent.click(screen.getByText('Local KMS'));
       fireEvent.click(screen.getByText('Add item'));
 
-      const kmsProviders: Record<string, any> = {};
+      const kmsProviders: Record<string, any> = Object.create(null);
 
       for (const kmsProviderName of ['local', 'local:1'] as const) {
         const kmsCard = screen.getByTestId(`${kmsProviderName}-kms-card-item`);
@@ -452,7 +452,7 @@ describe('In-Use Encryption', function () {
       renameKMSProvider('local', 'new_name_1');
       renameKMSProvider('local:1', 'new_name_2');
 
-      const kmsProviders: Record<string, any> = {};
+      const kmsProviders: Record<string, any> = Object.create(null);
 
       for (const kmsProviderName of [
         'local:new_name_1',

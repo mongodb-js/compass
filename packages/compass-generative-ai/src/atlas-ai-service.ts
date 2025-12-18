@@ -541,7 +541,7 @@ export class AtlasAiService {
       const newSchema: Record<
         string,
         Omit<MockDataSchemaRawField, 'sampleValues'>
-      > = {};
+      > = Object.create(null);
       for (const [k, v] of Object.entries(schema)) {
         newSchema[k] = { type: v.type };
       }

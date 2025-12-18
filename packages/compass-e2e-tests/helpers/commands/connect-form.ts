@@ -426,7 +426,7 @@ const colorMap: Record<string, string> = {
   color7: 'Pink',
   color8: 'Orange',
   color9: 'Yellow',
-};
+} as const;
 
 function colorValueToName(color: string): string {
   if (colorMap[color]) {
