@@ -123,7 +123,7 @@ export const ClearChatButton: React.FunctionComponent<{
 
       // TODO: We use one chat instance for the entire Assistant service but when a conversation is cleared,
       // we need to treat it as a new chat. So, we override the ID to a newly generated one.
-      // This is used by i.e. SuggestedPrompts to reset the state of the selected index.
+      // This is used by e.g. SuggestedPrompts to reset the state of the selected index.
       // @ts-expect-error This is a readonly property but we need to mutate it to generate a new ID
       // eslint-disable-next-line react-hooks/immutability
       chat.id = chat.generateId();
