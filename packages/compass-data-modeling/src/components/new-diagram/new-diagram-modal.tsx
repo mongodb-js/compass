@@ -92,6 +92,7 @@ type NewDiagramModalProps = {
   isGenerateDiagramDisabled: boolean;
   numSelectedCollections: number;
   numTotalCollections: number;
+  selectedDatabaseName: string;
   onCancel: () => void;
   onStep: (step: 'SETUP_DIAGRAM' | 'SELECT_COLLECTIONS') => void;
   onGenerate: () => void;
@@ -104,6 +105,7 @@ const NewDiagramModal: React.FunctionComponent<NewDiagramModalProps> = ({
   isGotoCollectionsStepDisabled,
   numSelectedCollections,
   numTotalCollections,
+  selectedDatabaseName,
   onCancel,
   onStep,
   onGenerate,
@@ -122,16 +124,16 @@ const NewDiagramModal: React.FunctionComponent<NewDiagramModalProps> = ({
         };
       case 'SELECT_COLLECTIONS':
         return {
-          title: 'Select collections',
+          title: `Select collections for ${selectedDatabaseName}`,
           description:
-            'Choose the collections you want to include in your diagram.',
+            'These collections will be included in your generated diagram.',
           onNextClick: onGenerate,
           onPreviousClick: () => onStep('SETUP_DIAGRAM'),
           nextLabel: 'Generate',
           previousLabel: 'Back',
           isNextDisabled: isGenerateDiagramDisabled,
           step: currentStep,
-          footerText: (
+          footerText: numTotalCollections > 0 && (
             <>
               <strong>{numSelectedCollections}</strong>/
               <strong>{numTotalCollections}</strong> total{' '}
@@ -145,12 +147,13 @@ const NewDiagramModal: React.FunctionComponent<NewDiagramModalProps> = ({
     }
   }, [
     currentStep,
-    onCancel,
     isGotoCollectionsStepDisabled,
-    onGenerate,
     isGenerateDiagramDisabled,
     numSelectedCollections,
     numTotalCollections,
+    selectedDatabaseName,
+    onCancel,
+    onGenerate,
     onStep,
   ]);
 
@@ -198,6 +201,7 @@ export default connect(
         state.analysisProgress.analysisProcessStatus === 'in-progress',
       numSelectedCollections: formFields.selectedCollections.value?.length || 0,
       numTotalCollections: databaseCollections?.length || 0,
+      selectedDatabaseName: formFields.selectedDatabase.value || '',
     };
   },
   {

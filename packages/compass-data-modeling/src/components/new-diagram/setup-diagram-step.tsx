@@ -67,6 +67,30 @@ const SetupDiagramStep = ({
     return [active, other];
   }, [connections]);
 
+  const connectionErrorMessage = useMemo(() => {
+    if (selectedConnection.error) {
+      return selectedConnection.error.message;
+    }
+    if (connections.length === 0) {
+      return 'You do not have any connections, create a new connection first.';
+    }
+    return undefined;
+  }, [selectedConnection.error, connections.length]);
+
+  const databaseErrorMessage = useMemo(() => {
+    if (connectionErrorMessage) {
+      // Let the connection error show first
+      return undefined;
+    }
+    if (selectedDatabase.error) {
+      return selectedDatabase.error.message;
+    }
+    if (databases.length === 0) {
+      return 'No databases found for the selected connection.';
+    }
+    return undefined;
+  }, [connectionErrorMessage, selectedDatabase.error, databases.length]);
+
   return (
     <div className={containerStyles}>
       <div className={connectionAndDatabaseContainerStyles}>
@@ -84,19 +108,8 @@ const SetupDiagramStep = ({
           clearable={false}
           multiselect={false}
           disabled={selectedConnection.isConnecting}
-          state={
-            selectedConnection.error || connections.length === 0
-              ? 'error'
-              : undefined
-          }
-          errorMessage={(() => {
-            if (selectedConnection.error) {
-              return selectedConnection.error.message;
-            }
-            if (connections.length === 0) {
-              return 'You do not have any connections, create a new connection first.';
-            }
-          })()}
+          state={connectionErrorMessage ? 'error' : undefined}
+          errorMessage={connectionErrorMessage}
         >
           {activeConnections.map((connection) => {
             return (
@@ -134,19 +147,8 @@ const SetupDiagramStep = ({
           disabled={
             !selectedConnection.value || selectedConnection.isConnecting
           }
-          state={
-            selectedDatabase.error || databases.length === 0
-              ? 'error'
-              : undefined
-          }
-          errorMessage={(() => {
-            if (selectedDatabase.error) {
-              return selectedDatabase.error.message;
-            }
-            if (databases.length === 0) {
-              return 'No databases found for the selected connection.';
-            }
-          })()}
+          state={databaseErrorMessage ? 'error' : undefined}
+          errorMessage={databaseErrorMessage}
         >
           {databases.map((db) => {
             return <ComboboxOption key={db} value={db}></ComboboxOption>;

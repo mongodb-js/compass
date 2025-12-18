@@ -4,6 +4,9 @@ import {
   FormFieldContainer,
   SearchInput,
   SelectList,
+  spacing,
+  SpinLoaderWithLabel,
+  WarningSummary,
 } from '@mongodb-js/compass-components';
 import { usePreference } from 'compass-preferences-model/provider';
 import React from 'react';
@@ -15,6 +18,17 @@ import {
 } from '../../store/generate-diagram-wizard';
 import type { DataModelingState } from '../../store/reducer';
 
+const loadingStyles = css({
+  textAlign: 'center',
+  marginTop: spacing[1800],
+  marginBottom: spacing[1800],
+});
+
+const errorStyles = css({
+  marginTop: spacing[600],
+  marginBottom: spacing[600],
+});
+
 const selectListStyles = css({
   maxHeight: 200,
   overflow: 'scroll',
@@ -24,6 +38,8 @@ type SelectCollectionsStepProps = {
   collections: string[];
   selectedCollections: string[];
   automaticallyInferRelationships: boolean;
+  isFetchingCollections: boolean;
+  error?: Error;
   onCollectionsSelect: (colls: string[]) => void;
   onAutomaticallyInferRelationshipsToggle: (newVal: boolean) => void;
 };
@@ -34,6 +50,8 @@ const SelectCollectionsStep: React.FunctionComponent<
   automaticallyInferRelationships,
   collections,
   selectedCollections,
+  isFetchingCollections,
+  error,
   onCollectionsSelect,
   onAutomaticallyInferRelationshipsToggle,
 }) => {
@@ -49,6 +67,24 @@ const SelectCollectionsStep: React.FunctionComponent<
       return collections;
     }
   }, [collections, searchTerm]);
+
+  if (isFetchingCollections) {
+    return (
+      <div className={loadingStyles}>
+        <SpinLoaderWithLabel progressText="">
+          Fetching collections ...
+        </SpinLoaderWithLabel>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className={errorStyles}>
+        <WarningSummary warnings={[error.message]} />
+      </div>
+    );
+  }
   return (
     <>
       <FormFieldContainer>
@@ -130,13 +166,18 @@ const SelectCollectionsStep: React.FunctionComponent<
 
 export default connect(
   (state: DataModelingState) => {
-    const { formFields, databaseCollections, automaticallyInferRelations } =
-      state.generateDiagramWizard;
+    const {
+      formFields: { selectedCollections },
+      databaseCollections,
+      automaticallyInferRelations,
+    } = state.generateDiagramWizard;
 
     return {
       collections: databaseCollections ?? [],
-      selectedCollections: formFields.selectedCollections.value ?? [],
+      selectedCollections: selectedCollections.value ?? [],
       automaticallyInferRelationships: automaticallyInferRelations,
+      isFetchingCollections: Boolean(selectedCollections.isFetchingCollections),
+      error: selectedCollections.error,
     };
   },
   {
