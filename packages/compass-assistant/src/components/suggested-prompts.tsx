@@ -177,9 +177,7 @@ export const SuggestedPrompts: React.FunctionComponent<{
       {prompts.map((prompt, index) => (
         <MessagePrompt
           key={index}
-          onClick={() =>
-            void onMessageSend({ text: prompt.text, metadata: prompt.metadata })
-          }
+          onClick={() => void onMessageSend(prompt)}
           data-testid={`suggested-action-${index}`}
         >
           {prompt.metadata?.displayText ?? prompt.text}

@@ -103,51 +103,51 @@ describe('SuggestedPrompts', function () {
 
       await waitFor(() => {
         expect(onMessageSendStub.calledOnce).to.be.true;
-        expect(onMessageSendStub.firstCall.args[0]).to.equal(
-          'What can I do with MongoDB Compass, and what are some usage tips?'
-        );
+        expect(onMessageSendStub.firstCall.args[0]).to.deep.equal({
+          text: 'What can I do with MongoDB Compass, and what are some usage tips?',
+        });
       });
     });
 
-    it('marks prompt as selected when clicked', async function () {
-      renderSuggestedPrompts({});
-
-      const prompt = screen.getByTestId('suggested-action-0');
-      userEvent.click(prompt);
-
-      await waitFor(() => {
-        expect(prompt.getAttribute('aria-pressed')).to.equal('true');
-      });
-    });
-
-    it('resets selection state when workspace changes', async function () {
-      const { rerender } = renderSuggestedPrompts({
-        activeWorkspace: { type: 'Databases' } as WorkspaceTab,
-      });
-
-      const prompt = screen.getByTestId('suggested-action-0');
-      userEvent.click(prompt);
-
-      await waitFor(() => {
-        expect(onMessageSendStub.calledOnce).to.be.true;
-      });
-
-      rerender(
+    it('prompts disappear after they are selected', async function () {
+      const chat = createMockChat({ messages: [] });
+      const { rerender } = render(
         <AssistantGlobalStateProvider>
-          <TestWrapper
-            activeWorkspace={createCollectionWorkspace()}
-            activeCollectionSubTab="Documents"
-          >
-            <SuggestedPrompts
-              chat={createMockChat({ messages: [] })}
-              onMessageSend={onMessageSendStub}
-            />
+          <TestWrapper>
+            <SuggestedPrompts chat={chat} onMessageSend={onMessageSendStub} />
           </TestWrapper>
         </AssistantGlobalStateProvider>
       );
 
-      const newPrompt = screen.getByTestId('suggested-action-0');
-      expect(newPrompt.getAttribute('aria-pressed')).to.equal('false');
+      const prompt = screen.getByTestId('suggested-action-0');
+      expect(screen.getByText('Suggested Actions')).to.exist;
+
+      // Make the stub realistically add a message to the chat when called
+      onMessageSendStub.callsFake((message) => {
+        const userMessage: AssistantMessage = {
+          id: Date.now().toString(),
+          role: 'user',
+          parts: [{ type: 'text', text: message.text }],
+        };
+        // @ts-expect-error pushMessage is a protected method
+        chat.state.pushMessage(userMessage);
+
+        // Trigger a re-render to simulate React's response to the state change
+        rerender(
+          <AssistantGlobalStateProvider>
+            <TestWrapper>
+              <SuggestedPrompts chat={chat} onMessageSend={onMessageSendStub} />
+            </TestWrapper>
+          </AssistantGlobalStateProvider>
+        );
+      });
+
+      userEvent.click(prompt);
+
+      // Wait for the message to be added and prompts to disappear
+      await waitFor(() => {
+        expect(screen.queryByText('Suggested Actions')).to.not.exist;
+      });
     });
   });
 
@@ -228,7 +228,7 @@ describe('SuggestedPrompts', function () {
 
       await waitFor(() => {
         expect(onMessageSendStub.calledOnce).to.be.true;
-        const metadataArg = onMessageSendStub.firstCall.args[1];
+        const metadataArg = onMessageSendStub.firstCall.args[0];
         expect(metadataArg.metadata).to.be.undefined;
       });
     });
@@ -247,14 +247,15 @@ describe('SuggestedPrompts', function () {
 
       await waitFor(() => {
         expect(onMessageSendStub.calledOnce).to.be.true;
-        const [message, options] = onMessageSendStub.firstCall.args;
+        const message = onMessageSendStub.firstCall.args[0];
 
-        expect(message).to.equal(
-          "How can I improve the performance of my query in Compass? Use the `explain` tool to get the query's explain output and include it in your analysis."
-        );
-        expect(options.metadata?.displayText).to.equal(
-          'How can I improve the performance of my query in Compass?'
-        );
+        expect(message).to.deep.equal({
+          text: "How can I improve the performance of my query in Compass? Use the `explain` tool to get the query's explain output and include it in your analysis.",
+          metadata: {
+            displayText:
+              'How can I improve the performance of my query in Compass?',
+          },
+        });
       });
     });
   });
