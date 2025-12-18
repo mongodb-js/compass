@@ -20,6 +20,7 @@ import {
 import { ConfirmationMessage } from './confirmation-message';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import { NON_GENUINE_WARNING_MESSAGE } from '../preset-messages';
+import { SuggestedPrompts } from './suggested-prompts';
 
 const { ChatWindow } = LgChatChatWindow;
 const { LeafyGreenChatProvider } = LgChatLeafygreenChatProvider;
@@ -259,12 +260,18 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
   }, [hasNonGenuineConnections, chat, setMessages]);
 
   const handleMessageSend = useCallback(
-    async (messageBody: string) => {
+    async (
+      messageBody: string,
+      { metadata }: { metadata?: AssistantMessage['metadata'] } = {}
+    ) => {
       const trimmedMessageBody = messageBody.trim();
       if (trimmedMessageBody) {
         await chat.stop();
         void ensureOptInAndSend?.(
-          { text: trimmedMessageBody, metadata: { sendContext: true } },
+          {
+            text: trimmedMessageBody,
+            metadata: { sendContext: true, ...metadata },
+          },
           {},
           () => {
             track('Assistant Prompt Submitted', {
@@ -486,6 +493,7 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
               </p>
             </div>
           )}
+          <SuggestedPrompts chat={chat} onMessageSend={handleMessageSend} />
           <div className={inputBarStyleFixes}>
             <InputBar
               data-testid="assistant-chat-input"
