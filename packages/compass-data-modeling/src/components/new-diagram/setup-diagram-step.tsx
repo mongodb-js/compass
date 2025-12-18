@@ -35,7 +35,7 @@ const connectionAndDatabaseContainerStyles = css({
 
 type SetupDiagramStepProps = {
   diagramName: GenerateDiagramWizardState['formFields']['diagramName'];
-  selectedConnectionId: GenerateDiagramWizardState['formFields']['selectedConnectionId'];
+  selectedConnection: GenerateDiagramWizardState['formFields']['selectedConnection'];
   selectedDatabase: GenerateDiagramWizardState['formFields']['selectedDatabase'];
   databases: string[];
 
@@ -46,7 +46,7 @@ type SetupDiagramStepProps = {
 
 const SetupDiagramStep = ({
   diagramName,
-  selectedConnectionId,
+  selectedConnection,
   selectedDatabase,
   databases,
   onNameChange,
@@ -74,7 +74,7 @@ const SetupDiagramStep = ({
           label="Connection"
           placeholder="Select connection"
           aria-label="Select connection"
-          value={selectedConnectionId.value ?? ''}
+          value={selectedConnection.value ?? ''}
           data-testid="new-diagram-connection-selector"
           onChange={(connectionId) => {
             if (connectionId) {
@@ -83,12 +83,10 @@ const SetupDiagramStep = ({
           }}
           clearable={false}
           multiselect={false}
-          disabled={
-            connections.length === 0 || selectedConnectionId.isConnecting
-          }
+          disabled={connections.length === 0 || selectedConnection.isConnecting}
           searchEmptyMessage="You do not have any connections, create a new connection first"
-          state={selectedConnectionId.error ? 'error' : undefined}
-          errorMessage={selectedConnectionId.error?.message}
+          state={selectedConnection.error ? 'error' : undefined}
+          errorMessage={selectedConnection.error?.message}
         >
           {activeConnections.map((connection) => {
             return (
@@ -124,7 +122,7 @@ const SetupDiagramStep = ({
           clearable={false}
           multiselect={false}
           disabled={
-            !selectedConnectionId.value || selectedConnectionId.isConnecting
+            !selectedConnection.value || selectedConnection.isConnecting
           }
           state={selectedDatabase.error ? 'error' : undefined}
           errorMessage={selectedDatabase.error?.message}
@@ -155,11 +153,11 @@ const SetupDiagramStep = ({
 export default connect(
   ({ generateDiagramWizard }: DataModelingState) => {
     const {
-      formFields: { diagramName, selectedConnectionId, selectedDatabase },
+      formFields: { diagramName, selectedConnection, selectedDatabase },
     } = generateDiagramWizard;
     return {
       diagramName,
-      selectedConnectionId,
+      selectedConnection,
       selectedDatabase,
       databases: generateDiagramWizard.connectionDatabases ?? [],
     };

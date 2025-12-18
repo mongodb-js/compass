@@ -102,7 +102,7 @@ describe('NewDiagramForm', function () {
 
       userEvent.click(screen.getByText('Conn2'));
       expect(
-        store.getState().generateDiagramWizard.formFields.selectedConnectionId
+        store.getState().generateDiagramWizard.formFields.selectedConnection
           .value
       ).to.eq('two');
 

@@ -16,7 +16,7 @@ export type GenerateDiagramWizardState = {
   step: 'SETUP_DIAGRAM' | 'SELECT_COLLECTIONS';
   formFields: {
     diagramName: FormField;
-    selectedConnectionId: FormField & { isConnecting?: boolean };
+    selectedConnection: FormField & { isConnecting?: boolean };
     selectedDatabase: FormField & { isFetchingDatabases?: boolean };
     selectedCollections: FormField<string[]> & {
       isFetchingCollections?: boolean;
@@ -154,7 +154,7 @@ const INITIAL_STATE: GenerateDiagramWizardState = {
   step: 'SETUP_DIAGRAM',
   formFields: {
     diagramName: {},
-    selectedConnectionId: {},
+    selectedConnection: {},
     selectedDatabase: {},
     selectedCollections: {},
   },
@@ -186,7 +186,7 @@ export const generateDiagramWizardReducer: Reducer<
       ...state,
       formFields: {
         ...state.formFields,
-        selectedConnectionId: {
+        selectedConnection: {
           isConnecting: true,
           value: action.id,
         },
@@ -200,8 +200,8 @@ export const generateDiagramWizardReducer: Reducer<
       ...state,
       formFields: {
         ...state.formFields,
-        selectedConnectionId: {
-          ...state.formFields.selectedConnectionId,
+        selectedConnection: {
+          ...state.formFields.selectedConnection,
           isConnecting: false,
           error: undefined,
         },
@@ -216,8 +216,8 @@ export const generateDiagramWizardReducer: Reducer<
       ...state,
       formFields: {
         ...state.formFields,
-        selectedConnectionId: {
-          ...state.formFields.selectedConnectionId,
+        selectedConnection: {
+          ...state.formFields.selectedConnection,
           isConnecting: false,
           error: action.error,
         },
@@ -226,7 +226,7 @@ export const generateDiagramWizardReducer: Reducer<
   }
 
   if (isAction(action, GenerateDiagramWizardActionTypes.DATABASES_FETCHED)) {
-    if (action.connectionId !== state.formFields.selectedConnectionId.value) {
+    if (action.connectionId !== state.formFields.selectedConnection.value) {
       return state;
     }
     return {
@@ -268,7 +268,7 @@ export const generateDiagramWizardReducer: Reducer<
 
   if (isAction(action, GenerateDiagramWizardActionTypes.COLLECTIONS_FETCHED)) {
     if (
-      action.connectionId !== state.formFields.selectedConnectionId.value ||
+      action.connectionId !== state.formFields.selectedConnection.value ||
       action.database !== state.formFields.selectedDatabase.value
     ) {
       return state;
@@ -472,17 +472,17 @@ export function selectDatabase(
       database,
     });
     try {
-      const { selectedConnectionId, selectedDatabase } =
+      const { selectedConnection, selectedDatabase } =
         getState().generateDiagramWizard.formFields;
-      if (!selectedConnectionId.value || !selectedDatabase.value) {
+      if (!selectedConnection.value || !selectedDatabase.value) {
         return;
       }
       const mongoDBInstance =
         services.instanceManager.getMongoDBInstanceForConnection(
-          selectedConnectionId.value
+          selectedConnection.value
         );
       const dataService = services.connections.getDataServiceForConnection(
-        selectedConnectionId.value
+        selectedConnection.value
       );
       const db = mongoDBInstance.databases.get(selectedDatabase.value);
       if (!db) {
@@ -491,7 +491,7 @@ export function selectDatabase(
       await db.fetchCollections({ dataService });
       dispatch({
         type: GenerateDiagramWizardActionTypes.COLLECTIONS_FETCHED,
-        connectionId: selectedConnectionId.value,
+        connectionId: selectedConnection.value,
         database: selectedDatabase.value,
         collections: db.collections
           .map((coll) => {
@@ -533,7 +533,7 @@ export function confirmSelectedCollections(): DataModelingThunkAction<
     const {
       formFields: {
         diagramName,
-        selectedConnectionId,
+        selectedConnection,
         selectedDatabase,
         selectedCollections,
       },
@@ -541,7 +541,7 @@ export function confirmSelectedCollections(): DataModelingThunkAction<
     } = getState().generateDiagramWizard;
     if (
       !diagramName.value ||
-      !selectedConnectionId.value ||
+      !selectedConnection.value ||
       !selectedDatabase.value ||
       !selectedCollections.value
     ) {
@@ -553,7 +553,7 @@ export function confirmSelectedCollections(): DataModelingThunkAction<
     void dispatch(
       startAnalysis(
         diagramName.value,
-        selectedConnectionId.value,
+        selectedConnection.value,
         selectedDatabase.value,
         selectedCollections.value,
         { automaticallyInferRelations }
