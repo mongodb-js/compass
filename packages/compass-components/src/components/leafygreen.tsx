@@ -9,7 +9,10 @@ import { default as Banner } from '@leafygreen-ui/banner';
 import { Checkbox } from '@leafygreen-ui/checkbox';
 import { Card } from '@leafygreen-ui/card';
 import { Code, Language, Panel } from '@leafygreen-ui/code';
-import { ConfirmationModal } from '@leafygreen-ui/confirmation-modal';
+import {
+  ConfirmationModal,
+  Variant as ConfirmationModalVariant,
+} from '@leafygreen-ui/confirmation-modal';
 export type { ConfirmationModalProps } from '@leafygreen-ui/confirmation-modal';
 import { Icon as LeafyGreenIcon } from '@leafygreen-ui/icon';
 import type { Size as LeafyGreenIconSize } from '@leafygreen-ui/icon';
@@ -132,6 +135,7 @@ export {
   Code,
   Panel,
   ConfirmationModal,
+  ConfirmationModalVariant,
   Copyable,
   ExpandedContent,
   HeaderCell,

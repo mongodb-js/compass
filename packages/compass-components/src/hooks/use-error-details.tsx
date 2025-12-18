@@ -1,7 +1,6 @@
 import { showConfirmation } from './use-confirmation';
-import { Code } from '../components/leafygreen';
+import { Code, ConfirmationModalVariant } from '../components/leafygreen';
 import React from 'react';
-import { ButtonVariant } from '..';
 
 export const showErrorDetails = function showErrorDetails({
   details,
@@ -23,9 +22,6 @@ export const showErrorDetails = function showErrorDetails({
     ),
     hideCancelButton: true,
     buttonText: closeAction.replace(/\b\w/g, (c) => c.toUpperCase()),
-    confirmButtonProps: {
-      variant: ButtonVariant.Default,
-    },
-    initialFocus: '[data-testid=lg-confirmation_modal-footer-confirm_button]',
+    variant: ConfirmationModalVariant.Default,
   });
 };
