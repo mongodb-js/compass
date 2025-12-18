@@ -20,6 +20,7 @@ import {
 import { ConfirmationMessage } from './confirmation-message';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import { NON_GENUINE_WARNING_MESSAGE } from '../preset-messages';
+import { SuggestedPrompts } from './suggested-prompts';
 
 const { ChatWindow } = LgChatChatWindow;
 const { LeafyGreenChatProvider } = LgChatLeafygreenChatProvider;
@@ -30,6 +31,11 @@ interface AssistantChatProps {
   chat: Chat<AssistantMessage>;
   hasNonGenuineConnections: boolean;
 }
+
+export type SendMessageOptions = {
+  text: string;
+  metadata?: AssistantMessage['metadata'];
+};
 
 // TODO(COMPASS-9751): These are temporary patches to make the Assistant chat take the entire
 // width and height of the drawer since Leafygreen doesn't support this yet.
@@ -239,12 +245,15 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
   }, [hasNonGenuineConnections, chat, setMessages]);
 
   const handleMessageSend = useCallback(
-    async (messageBody: string) => {
-      const trimmedMessageBody = messageBody.trim();
+    async ({ text, metadata }: SendMessageOptions) => {
+      const trimmedMessageBody = text.trim();
       if (trimmedMessageBody) {
         await chat.stop();
         void ensureOptInAndSend?.(
-          { text: trimmedMessageBody, metadata: { sendContext: true } },
+          {
+            text: trimmedMessageBody,
+            metadata: { sendContext: true, ...metadata },
+          },
           {},
           () => {
             track('Assistant Prompt Submitted', {
@@ -466,9 +475,10 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
               </p>
             </div>
           )}
+          <SuggestedPrompts chat={chat} onMessageSend={handleMessageSend} />
           <InputBar
             data-testid="assistant-chat-input"
-            onMessageSend={(messageBody) => void handleMessageSend(messageBody)}
+            onMessageSend={(text) => void handleMessageSend({ text })}
             state={status === 'submitted' ? 'loading' : undefined}
             textareaProps={inputBarTextareaProps}
           />

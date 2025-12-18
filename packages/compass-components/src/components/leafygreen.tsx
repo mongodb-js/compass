@@ -202,3 +202,4 @@ export * as LgChatChatWindow from '@lg-chat/chat-window';
 export * as LgChatInputBar from '@lg-chat/input-bar';
 export * as LgChatLeafygreenChatProvider from '@lg-chat/leafygreen-chat-provider';
 export * as LgChatMessage from '@lg-chat/message';
+export * as LgChatMessagePrompts from '@lg-chat/message-prompts';
