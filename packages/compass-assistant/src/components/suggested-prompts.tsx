@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import {
   css,
   LgChatMessagePrompts,
@@ -8,11 +8,12 @@ import {
 import { useAssistantGlobalState } from '../assistant-global-state';
 import type { AssistantMessage } from '../compass-assistant-provider';
 import type { Chat } from '../@ai-sdk/react/chat-react';
+import type { SendMessageOptions } from './assistant-chat';
 
 const { MessagePrompts, MessagePrompt } = LgChatMessagePrompts;
 
 export type SuggestedPromptConfig = {
-  message: string;
+  text: string;
   metadata?: AssistantMessage['metadata'];
 };
 
@@ -31,67 +32,63 @@ function getSuggestedPromptsForTab(
       case 'Documents':
         return [
           {
-            message: 'How can I modify or delete multiple documents at once?',
+            text: 'How can I modify or delete multiple documents at once?',
           },
           {
-            message:
-              "How can I improve the performance of my query in Compass? Use the `explain` tool to get the query's explain output and include it in your analysis.",
+            text: "How can I improve the performance of my query in Compass? Use the `explain` tool to get the query's explain output and include it in your analysis.",
             metadata: {
               displayText:
                 'How can I improve the performance of my query in Compass?',
             },
           },
           {
-            message: 'Why is my query returning no results?',
+            text: 'Why is my query returning no results?',
           },
           {
-            message: 'How can I export my query code?',
+            text: 'How can I export my query code?',
           },
         ];
       case 'Aggregations':
         return [
           {
-            message: 'What is an aggregation pipeline?',
+            text: 'What is an aggregation pipeline?',
           },
           {
-            message:
-              "How can I improve the performance of my aggregation in Compass? Use the `explain` tool to get the aggregation's explain output and include it in your analysis.",
+            text: "How can I improve the performance of my aggregation in Compass? Use the `explain` tool to get the aggregation's explain output and include it in your analysis.",
             metadata: {
               displayText:
                 'How can I improve the performance of my aggregation in Compass?',
             },
           },
           {
-            message: 'Why is my aggregation pipeline returning no results?',
+            text: 'Why is my aggregation pipeline returning no results?',
           },
           {
-            message: 'How can I export my aggregation pipeline code?',
+            text: 'How can I export my aggregation pipeline code?',
           },
         ];
       case 'Schema':
         return [
           {
-            message:
-              'What are some MongoDB data modeling best practices and anti-patterns?',
+            text: 'What are some MongoDB data modeling best practices and anti-patterns?',
           },
           {
-            message:
-              'How can I visualize the relationships between fields in Compass?',
+            text: 'How can I visualize the relationships between fields in Compass?',
           },
           {
-            message: "How can I export my collection's schema?",
+            text: "How can I export my collection's schema?",
           },
         ];
       case 'Validation':
         return [
           {
-            message: 'What are validation rules?',
+            text: 'What are validation rules?',
           },
           {
-            message: 'When is it helpful to set validation rules?',
+            text: 'When is it helpful to set validation rules?',
           },
           {
-            message: 'Can you show examples of JSON Schema for validation?',
+            text: 'Can you show examples of JSON Schema for validation?',
           },
         ];
     }
@@ -101,15 +98,13 @@ function getSuggestedPromptsForTab(
   if (activeWorkspaceType === 'Data Modeling') {
     return [
       {
-        message:
-          'What are some MongoDB data modeling best practices and anti-patterns?',
+        text: 'What are some MongoDB data modeling best practices and anti-patterns?',
       },
       {
-        message:
-          'Can I plan changes to my data model without affecting actual data?',
+        text: 'Can I plan changes to my data model without affecting actual data?',
       },
       {
-        message: 'How do I share my Compass data model with others?',
+        text: 'How do I share my Compass data model with others?',
       },
     ];
   }
@@ -117,14 +112,13 @@ function getSuggestedPromptsForTab(
   // Default to generic prompts for other tabs
   return [
     {
-      message:
-        'What can I do with MongoDB Compass, and what are some usage tips?',
+      text: 'What can I do with MongoDB Compass, and what are some usage tips?',
     },
     {
-      message: 'How can I optimize performance in MongoDB Compass?',
+      text: 'How can I optimize performance in MongoDB Compass?',
     },
     {
-      message: 'How do I connect to my MongoDB deployment?',
+      text: 'How do I connect to my MongoDB deployment?',
     },
   ];
 }
@@ -137,16 +131,9 @@ const suggestedPromptsStyles = css({
 
 export const SuggestedPrompts: React.FunctionComponent<{
   chat: Chat<AssistantMessage>;
-  onMessageSend: (
-    messageBody: string,
-    { metadata }: { metadata?: AssistantMessage['metadata'] }
-  ) => void;
+  onMessageSend: (options: SendMessageOptions) => Promise<void>;
 }> = ({ chat, onMessageSend }) => {
   const darkMode = useDarkMode();
-  const [selectedState, setSelectedState] = useState<{
-    key: string;
-    index: number | undefined;
-  }>({ key: '', index: undefined });
 
   const { activeWorkspace, activeCollectionSubTab } = useAssistantGlobalState();
   const activeWorkspaceType = activeWorkspace?.type;
@@ -175,20 +162,9 @@ export const SuggestedPrompts: React.FunctionComponent<{
     [chatId, activeWorkspaceType, activeCollectionSubTab]
   );
 
-  // Derive the selected index - reset if the key doesn't match
-  const selectedIndex =
-    selectedState.key === promptsKey ? selectedState.index : undefined;
-
   if (prompts.length === 0) {
     return null;
   }
-
-  const handlePromptClick = (index: number, prompt: SuggestedPromptConfig) => {
-    setSelectedState({ key: promptsKey, index });
-    // Send the full message (which may include additional instructions)
-    // while the UI shows the cleaner displayMessage
-    onMessageSend(prompt.message, { metadata: prompt.metadata });
-  };
 
   return (
     <MessagePrompts
@@ -201,11 +177,12 @@ export const SuggestedPrompts: React.FunctionComponent<{
       {prompts.map((prompt, index) => (
         <MessagePrompt
           key={index}
-          selected={selectedIndex === index}
-          onClick={() => handlePromptClick(index, prompt)}
+          onClick={() =>
+            void onMessageSend({ text: prompt.text, metadata: prompt.metadata })
+          }
           data-testid={`suggested-action-${index}`}
         >
-          {prompt.metadata?.displayText ?? prompt.message}
+          {prompt.metadata?.displayText ?? prompt.text}
         </MessagePrompt>
       ))}
     </MessagePrompts>

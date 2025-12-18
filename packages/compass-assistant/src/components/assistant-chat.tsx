@@ -32,6 +32,11 @@ interface AssistantChatProps {
   hasNonGenuineConnections: boolean;
 }
 
+export type SendMessageOptions = {
+  text: string;
+  metadata?: AssistantMessage['metadata'];
+};
+
 // TODO(COMPASS-9751): These are temporary patches to make the Assistant chat take the entire
 // width and height of the drawer since Leafygreen doesn't support this yet.
 const assistantChatFixesStyles = css({
@@ -260,11 +265,8 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
   }, [hasNonGenuineConnections, chat, setMessages]);
 
   const handleMessageSend = useCallback(
-    async (
-      messageBody: string,
-      { metadata }: { metadata?: AssistantMessage['metadata'] } = {}
-    ) => {
-      const trimmedMessageBody = messageBody.trim();
+    async ({ text, metadata }: SendMessageOptions) => {
+      const trimmedMessageBody = text.trim();
       if (trimmedMessageBody) {
         await chat.stop();
         void ensureOptInAndSend?.(
@@ -497,9 +499,7 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
           <div className={inputBarStyleFixes}>
             <InputBar
               data-testid="assistant-chat-input"
-              onMessageSend={(messageBody) =>
-                void handleMessageSend(messageBody)
-              }
+              onMessageSend={(text) => void handleMessageSend({ text })}
               state={status === 'submitted' ? 'loading' : undefined}
               textareaProps={inputBarTextareaProps}
             />
