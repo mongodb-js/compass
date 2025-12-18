@@ -20,6 +20,7 @@ import {
 } from '@mongodb-js/compass-components';
 import SetupDiagramStep from './setup-diagram-step';
 import SelectCollectionsStep from './select-collections-step';
+import { selectIsAnalysisInProgress } from '../../store/analysis-process';
 
 const footerStyles = css({
   flexDirection: 'row',
@@ -198,7 +199,7 @@ export default connect(
       isGenerateDiagramDisabled:
         !formFields.selectedCollections.value ||
         formFields.selectedCollections.value.length === 0 ||
-        state.analysisProgress.analysisProcessStatus === 'in-progress',
+        selectIsAnalysisInProgress(state),
       numSelectedCollections: formFields.selectedCollections.value?.length || 0,
       numTotalCollections: databaseCollections?.length || 0,
       selectedDatabaseName: formFields.selectedDatabase.value || '',

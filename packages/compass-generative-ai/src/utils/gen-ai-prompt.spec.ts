@@ -7,6 +7,7 @@ import {
 } from './gen-ai-prompt';
 import { toJSString } from 'mongodb-query-parser';
 import { ObjectId } from 'bson';
+import { AiChatbotPromptTooLargeError } from '../chatbot-errors';
 
 const OPTIONS: PromptContextOptions = {
   userInput: 'Find all users older than 30',
@@ -149,13 +150,13 @@ describe('GenAI Prompts', function () {
     try {
       buildFindQueryPrompt({
         ...OPTIONS,
-        userInput: 'a'.repeat(512001),
+        userInput: 'a'.repeat(250_001),
       });
       expect.fail('Expected buildFindQueryPrompt to throw');
     } catch (err) {
-      expect(err).to.have.property(
-        'message',
-        'Sorry, your request is too large. Please use a smaller prompt or try using this feature on a collection with smaller documents.'
+      expect(err).to.be.instanceOf(AiChatbotPromptTooLargeError);
+      expect((err as AiChatbotPromptTooLargeError).message).to.equal(
+        'PROMPT_TOO_LARGE: Sorry, your request is too large. Please use a smaller prompt or try using this feature on a collection with smaller documents.'
       );
     }
   });
@@ -178,9 +179,9 @@ describe('GenAI Prompts', function () {
     it('sends only one sample doc if all exceed limits', function () {
       const sampleDocuments = [
         { a: '1'.repeat(5120) },
-        { a: '2'.repeat(5120001) },
-        { a: '3'.repeat(5120001) },
-        { a: '4'.repeat(5120001) },
+        { a: '2'.repeat(250_001) },
+        { a: '3'.repeat(250_001) },
+        { a: '4'.repeat(250_001) },
       ];
       const prompt = buildFindQueryPrompt({
         ...OPTIONS,
@@ -190,10 +191,10 @@ describe('GenAI Prompts', function () {
     });
     it('should not send sample docs if even one exceeds limits', function () {
       const sampleDocuments = [
-        { a: '1'.repeat(5120001) },
-        { a: '2'.repeat(5120001) },
-        { a: '3'.repeat(5120001) },
-        { a: '4'.repeat(5120001) },
+        { a: '1'.repeat(250_001) },
+        { a: '2'.repeat(250_001) },
+        { a: '3'.repeat(250_001) },
+        { a: '4'.repeat(250_001) },
       ];
       const prompt = buildFindQueryPrompt({
         ...OPTIONS,

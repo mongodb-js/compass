@@ -12,6 +12,7 @@ import { renderWithStore } from '../../../test/setup-store';
 import type { DataModelingStore } from '../../../test/setup-store';
 import { openDiagramFromFile } from '../../store/diagram';
 import FlightDiagram from '../../../test/fixtures/data-model-with-relationships.json';
+import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 
 function getComboboxByTestId(testId: string) {
   return within(screen.getByTestId(testId)).getByRole('combobox');
@@ -321,7 +322,12 @@ describe('NewDiagramModal', function () {
 
   context('select-collections step', function () {
     it('shows list of collections', async function () {
-      const { store } = renderWithStore(<NewDiagramModal />);
+      const preferences = await createSandboxFromDefaultPreferences();
+      const { store } = renderWithStore(<NewDiagramModal />, {
+        services: {
+          preferences,
+        },
+      });
       await setSetupDiagramStep(store, {
         connection: { id: 'two', name: 'Conn2' },
         databaseName: 'sample_airbnb',

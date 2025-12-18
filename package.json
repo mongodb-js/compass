@@ -117,9 +117,9 @@
     "@leafygreen-ui/leafygreen-provider": "^5.0.4",
     "@leafygreen-ui/marketing-modal": "^6.0.0",
     "@leafygreen-ui/modal": "^18.0.0",
-    "@leafygreen-ui/select": "^17.0.1",
+    "@leafygreen-ui/select": "^17.0.2",
     "@leafygreen-ui/text-input": "^16.2.1",
-    "@leafygreen-ui/tokens": "^4.0.0",
+    "@leafygreen-ui/tokens": "^4.1.0",
     "@leafygreen-ui/typography": "^22.2.2"
   }
 }
