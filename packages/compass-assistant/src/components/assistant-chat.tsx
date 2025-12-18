@@ -18,6 +18,8 @@ import {
   Icon,
 } from '@mongodb-js/compass-components';
 import { ConfirmationMessage } from './confirmation-message';
+import { ToolCallMessage } from './tool-call-message';
+import type { ToolCallPart } from './tool-call-message';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import { NON_GENUINE_WARNING_MESSAGE } from '../preset-messages';
 
@@ -217,7 +219,14 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
     chat.messages[chat.messages.length - 1] ?? {};
 
   const { ensureOptInAndSend } = useContext(AssistantActionsContext);
-  const { messages, status, error, clearError, setMessages } = useChat({
+  const {
+    messages,
+    status,
+    error,
+    clearError,
+    setMessages,
+    addToolApprovalResponse,
+  } = useChat({
     chat,
   });
 
@@ -361,6 +370,22 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
     [ensureOptInAndSend, setMessages, track]
   );
 
+  const handleToolApproval = useCallback(
+    (approvalId: string, approved: boolean) => {
+      void addToolApprovalResponse({
+        id: approvalId,
+        approved,
+      });
+
+      // TODO: Add telemetry event for tool approvals when it's added to the telemetry schema
+      // track('Assistant Tool Call Approval', {
+      //   approved,
+      //   approval_id: approvalId,
+      // });
+    },
+    [addToolApprovalResponse]
+  );
+
   const visibleMessages = messages.filter(
     (message) => !message.metadata?.isSystemContext
   );
@@ -386,6 +411,8 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
                 const { id, role, metadata, parts } = message;
                 const seenTitles = new Set<string>();
                 const sources = [];
+                const toolCalls: ToolCallPart[] = [];
+
                 for (const part of parts) {
                   // Related sources are type source-url. We want to only
                   // include url_citation (has url and title), not file_citation
@@ -400,7 +427,14 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
                       });
                     }
                   }
+
+                  // Detect tool call parts (they have a "tool-" prefix or a toolCallId)
+                  if (part.type.startsWith('tool-') || 'toolCallId' in part) {
+                    toolCalls.push(part as ToolCallPart);
+                  }
                 }
+
+                // Handle confirmation messages
                 if (metadata?.confirmation) {
                   const { description, state } = metadata.confirmation;
                   const isLastMessage = index === visibleMessages.length - 1;
@@ -431,32 +465,60 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
 
                 const isSender = role === 'user';
 
+                // Render tool calls and text content together
                 return (
-                  <Message
-                    key={id}
-                    sourceType="markdown"
-                    isSender={isSender}
-                    messageBody={displayText}
-                    data-testid={`assistant-message-${id}`}
-                  >
-                    {isSender === false && (
-                      <Message.Actions
-                        onRatingChange={(event, state) =>
-                          handleFeedback({ message, state })
-                        }
-                        onSubmitFeedback={(event, state) =>
-                          handleFeedback({ message, state })
-                        }
-                        className={noWrapFixesStyles}
-                      />
+                  <React.Fragment key={id}>
+                    {/* Show tool calls if present */}
+                    {toolCalls.length > 0 && (
+                      <>
+                        {toolCalls.map((toolCall) => {
+                          const toolCallId =
+                            toolCall.toolCallId || `${id}-${toolCall.type}`;
+
+                          return (
+                            <ToolCallMessage
+                              key={toolCallId}
+                              toolCall={toolCall}
+                              onApprove={(approvalId) =>
+                                handleToolApproval(approvalId, true)
+                              }
+                              onDeny={(approvalId) =>
+                                handleToolApproval(approvalId, false)
+                              }
+                            />
+                          );
+                        })}
+                      </>
                     )}
-                    {sources.length > 0 && (
-                      <Message.Links
-                        className={noWrapFixesStyles}
-                        links={sources}
-                      />
+                    {/* Show text message if there's text content */}
+                    {displayText && (
+                      <Message
+                        key={`${id}-text`}
+                        sourceType="markdown"
+                        isSender={isSender}
+                        messageBody={displayText}
+                        data-testid={`assistant-message-${id}`}
+                      >
+                        {isSender === false && (
+                          <Message.Actions
+                            onRatingChange={(event, state) =>
+                              handleFeedback({ message, state })
+                            }
+                            onSubmitFeedback={(event, state) =>
+                              handleFeedback({ message, state })
+                            }
+                            className={noWrapFixesStyles}
+                          />
+                        )}
+                        {sources.length > 0 && (
+                          <Message.Links
+                            className={noWrapFixesStyles}
+                            links={sources}
+                          />
+                        )}
+                      </Message>
                     )}
-                  </Message>
+                  </React.Fragment>
                 );
               })}
             </div>
@@ -492,7 +554,7 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
               onMessageSend={(messageBody) =>
                 void handleMessageSend(messageBody)
               }
-              state={status === 'submitted' ? 'loading' : undefined}
+              state={status !== 'ready' ? 'loading' : undefined}
               textareaProps={inputBarTextareaProps}
             />
           </div>
