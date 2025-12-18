@@ -48,11 +48,6 @@ const assistantChatFixesStyles = css({
     listStyleType: 'decimal',
   },
 
-  // Remove extra padding
-  '> div, > div > div, > div > div > div, > div > div > div': {
-    height: '100%',
-    padding: 0,
-  },
   // This is currently set to 'pre-wrap' which causes list items to be on a different line than the list markers.
   'li, ol': {
     whiteSpace: 'normal',
@@ -140,9 +135,7 @@ const messageFeedFixesStyles = css({
   display: 'flex',
   flexDirection: 'column-reverse',
   overflowY: 'auto',
-  width: '100%',
   wordBreak: 'break-word',
-  flex: 1,
   padding: spacing[400],
   gap: spacing[400],
 
@@ -150,11 +143,6 @@ const messageFeedFixesStyles = css({
   '& > div > div > div:has(svg[aria-label="Sparkle Icon"]) p': {
     fontWeight: 600,
   },
-});
-const chatWindowFixesStyles = css({
-  height: '100%',
-  display: 'flex',
-  flexDirection: 'column',
 });
 const welcomeMessageStyles = css({
   paddingBottom: spacing[400],
@@ -165,14 +153,6 @@ const welcomeMessageStyles = css({
 // This is a general temporary fix for all components that we want to prevent from wrapping.
 const noWrapFixesStyles = css({
   whiteSpace: 'nowrap',
-});
-
-/** TODO(COMPASS-9751): This should be handled by Leafygreen's disclaimers update */
-const inputBarStyleFixes = css({
-  width: '100%',
-  paddingLeft: spacing[400],
-  paddingRight: spacing[400],
-  paddingBottom: spacing[100],
 });
 
 function makeErrorMessage(message: string) {
@@ -384,7 +364,7 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
       style={chatContainerOverrideStyle}
     >
       <LeafyGreenChatProvider>
-        <ChatWindow title="MongoDB Assistant" className={chatWindowFixesStyles}>
+        <ChatWindow>
           <div
             data-testid="assistant-chat-messages"
             className={messageFeedFixesStyles}
@@ -496,14 +476,12 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
             </div>
           )}
           <SuggestedPrompts chat={chat} onMessageSend={handleMessageSend} />
-          <div className={inputBarStyleFixes}>
-            <InputBar
-              data-testid="assistant-chat-input"
-              onMessageSend={(text) => void handleMessageSend({ text })}
-              state={status === 'submitted' ? 'loading' : undefined}
-              textareaProps={inputBarTextareaProps}
-            />
-          </div>
+          <InputBar
+            data-testid="assistant-chat-input"
+            onMessageSend={(text) => void handleMessageSend({ text })}
+            state={status === 'submitted' ? 'loading' : undefined}
+            textareaProps={inputBarTextareaProps}
+          />
         </ChatWindow>
       </LeafyGreenChatProvider>
     </div>

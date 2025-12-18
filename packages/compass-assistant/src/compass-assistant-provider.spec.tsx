@@ -402,9 +402,13 @@ describe('CompassAssistantProvider', function () {
         ],
         transport: {
           sendMessages: sinon.stub().returns(
-            new Promise(() => {
-              return new ReadableStream({});
-            })
+            Promise.resolve(
+              new ReadableStream({
+                start(c) {
+                  c.close();
+                },
+              })
+            )
           ),
           reconnectToStream: sinon.stub(),
         },
@@ -493,9 +497,13 @@ describe('CompassAssistantProvider', function () {
         ],
         transport: {
           sendMessages: sinon.stub().returns(
-            new Promise(() => {
-              return new ReadableStream({});
-            })
+            Promise.resolve(
+              new ReadableStream({
+                start(c) {
+                  c.close();
+                },
+              })
+            )
           ),
           reconnectToStream: sinon.stub(),
         },
