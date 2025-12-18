@@ -8,7 +8,6 @@ import React, {
 import { Variant as ConfirmationModalVariant } from '@leafygreen-ui/confirmation-modal';
 import ConfirmationModal from '../components/modals/confirmation-modal';
 import { css } from '@leafygreen-ui/emotion';
-import type { ButtonProps } from '@leafygreen-ui/button';
 import FormFieldContainer from '../components/form-field-container';
 import { Banner, TextInput } from '../components/leafygreen';
 import { spacing } from '@leafygreen-ui/tokens';
@@ -21,11 +20,14 @@ type ConfirmationModalProps = React.ComponentProps<typeof ConfirmationModal>;
 type ConfirmationProperties = Partial<
   Pick<
     ConfirmationModalProps,
-    'title' | 'variant' | 'requiredInputText' | 'initialFocus'
+    | 'title'
+    | 'variant'
+    | 'requiredInputText'
+    | 'initialFocus'
+    | 'confirmButtonProps'
   >
 > & {
   buttonText?: React.ReactNode;
-  confirmButtonProps?: Omit<ButtonProps, 'onClick'>;
   hideConfirmButton?: boolean;
   hideCancelButton?: boolean;
   description?: React.ReactNode;
