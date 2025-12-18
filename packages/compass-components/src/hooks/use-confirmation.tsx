@@ -12,6 +12,7 @@ import FormFieldContainer from '../components/form-field-container';
 import { Banner, TextInput } from '../components/leafygreen';
 import { spacing } from '@leafygreen-ui/tokens';
 import { useInitialValue } from './use-initial-value';
+import { useId } from '@react-aria/utils';
 
 export { ConfirmationModalVariant };
 
@@ -174,6 +175,8 @@ const ConfirmationModalStateHandler: React.FunctionComponent = ({
     onUserAction(false);
   }, [onUserAction]);
 
+  const initialFocusId = useId();
+
   return (
     <>
       {children}
@@ -188,6 +191,7 @@ const ConfirmationModalStateHandler: React.FunctionComponent = ({
         title={confirmationProps.title ?? 'Are you sure?'}
         variant={confirmationProps.variant ?? ConfirmationModalVariant.Default}
         confirmButtonProps={{
+          id: confirmationProps.hideCancelButton ? initialFocusId : undefined,
           className: confirmationProps.hideConfirmButton
             ? hideButtonStyles
             : undefined,
@@ -196,6 +200,7 @@ const ConfirmationModalStateHandler: React.FunctionComponent = ({
           ...confirmationProps.confirmButtonProps,
         }}
         cancelButtonProps={{
+          id: !confirmationProps.hideCancelButton ? initialFocusId : undefined,
           className: confirmationProps.hideCancelButton
             ? hideButtonStyles
             : undefined,
@@ -207,7 +212,7 @@ const ConfirmationModalStateHandler: React.FunctionComponent = ({
           (confirmationProps.requiredInputText
             ? 'auto'
             : // TODO: Update this once https://jira.mongodb.org/browse/LG-5735 gets resolved
-              '[data-testid=lg-confirmation_modal-footer-cancel_button]')
+              `#${initialFocusId}`)
         }
       >
         {confirmationProps.description}
