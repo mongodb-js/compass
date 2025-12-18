@@ -44,7 +44,7 @@
     "@leafygreen-ui/chip": "^4.0.9",
     "@leafygreen-ui/code": "^20.2.3",
     "@leafygreen-ui/combobox": "^12.2.1",
-    "@leafygreen-ui/confirmation-modal": "^10.2.4",
+    "@leafygreen-ui/confirmation-modal": "^10.3.0",
     "@leafygreen-ui/copyable": "^12.0.1",
     "@leafygreen-ui/drawer": "^5.1.3",
     "@leafygreen-ui/emotion": "^5.1.0",
