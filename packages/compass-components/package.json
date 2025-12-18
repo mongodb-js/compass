@@ -42,7 +42,7 @@
     "@leafygreen-ui/card": "^13.2.1",
     "@leafygreen-ui/checkbox": "^18.1.3",
     "@leafygreen-ui/chip": "^4.0.9",
-    "@leafygreen-ui/code": "^20.2.3",
+    "@leafygreen-ui/code": "^20.2.5",
     "@leafygreen-ui/combobox": "^12.2.1",
     "@leafygreen-ui/confirmation-modal": "^10.3.0",
     "@leafygreen-ui/copyable": "^12.0.1",
