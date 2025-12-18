@@ -3,6 +3,7 @@ import { isAction } from './util';
 import type { DataModelingThunkAction } from './reducer';
 import { startAnalysis } from './analysis-process';
 import toNS from 'mongodb-ns';
+import { getDiagramName } from '../services/open-and-download-diagram';
 
 type FormField<T = string> = {
   error?: Error;
@@ -467,13 +468,38 @@ export function selectDatabase(
   database: string
 ): DataModelingThunkAction<
   Promise<void>,
-  SelectDatabaseAction | CollectionsFetchedAction | CollectionsFetchFailedAction
+  | SelectDatabaseAction
+  | ChangeNameAction
+  | CollectionsFetchedAction
+  | CollectionsFetchFailedAction
 > {
   return async (dispatch, getState, services) => {
     dispatch({
       type: GenerateDiagramWizardActionTypes.SELECT_DATABASE,
       database,
     });
+
+    // If the current diagram name is empty, we want to auto-generate the it
+    // (DATABASE_NAME_DD_MM_YYYY). If it exists, we want to add a number to it.
+    const currentDiagramName =
+      getState().generateDiagramWizard.formFields.diagramName.value;
+    if (!currentDiagramName) {
+      const diagrams = await services.dataModelStorage.loadAll();
+      const date = new Date();
+      const newDiagramName = [
+        database,
+        date.getDate(),
+        date.getMonth() + 1,
+        date.getFullYear(),
+      ].join('_');
+      dispatch({
+        type: GenerateDiagramWizardActionTypes.CHANGE_NAME,
+        name: getDiagramName(
+          diagrams.map((d) => d.name),
+          newDiagramName
+        ),
+      });
+    }
     try {
       const { selectedConnection, selectedDatabase } =
         getState().generateDiagramWizard.formFields;

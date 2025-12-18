@@ -56,7 +56,14 @@ async function setSetupDiagramStep(
   }
 
   if (diagramName) {
-    userEvent.type(screen.getByTestId('new-diagram-name-input'), diagramName);
+    // Clear the name because we auto-generate it when selecting DB
+    userEvent.clear(screen.getByTestId('new-diagram-name-input'));
+    await waitFor(() => {
+      expect(
+        store.getState().generateDiagramWizard.formFields.diagramName.value
+      ).to.equal('');
+    });
+    userEvent.paste(screen.getByTestId('new-diagram-name-input'), diagramName);
     await waitFor(() => {
       expect(
         store.getState().generateDiagramWizard.formFields.diagramName.value
@@ -235,6 +242,20 @@ describe('NewDiagramModal', function () {
           store.getState().generateDiagramWizard.formFields.selectedDatabase
             .value
         ).to.eq('sample_airbnb');
+      });
+
+      it('auto generates the name of a diagram', async function () {
+        const { store } = renderWithStore(<NewDiagramModal />);
+        await setSetupDiagramStep(store, {
+          connection: { id: 'two', name: 'Conn2' },
+          databaseName: 'sample_airbnb',
+        });
+        await waitFor(() => {
+          // Not testing for exact date, but format
+          expect(
+            store.getState().generateDiagramWizard.formFields.diagramName.value
+          ).to.match(/^sample_airbnb_\d{2}_\d{2}_\d{4}$/);
+        });
       });
 
       it('shows error if it fails to fetch list of databases', async function () {
