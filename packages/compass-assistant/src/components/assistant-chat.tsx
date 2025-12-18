@@ -22,6 +22,7 @@ import { ToolCallMessage } from './tool-call-message';
 import type { ToolCallPart } from './tool-call-message';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import { NON_GENUINE_WARNING_MESSAGE } from '../preset-messages';
+import { SuggestedPrompts } from './suggested-prompts';
 
 const { ChatWindow } = LgChatChatWindow;
 const { LeafyGreenChatProvider } = LgChatLeafygreenChatProvider;
@@ -32,6 +33,11 @@ interface AssistantChatProps {
   chat: Chat<AssistantMessage>;
   hasNonGenuineConnections: boolean;
 }
+
+export type SendMessageOptions = {
+  text: string;
+  metadata?: AssistantMessage['metadata'];
+};
 
 // TODO(COMPASS-9751): These are temporary patches to make the Assistant chat take the entire
 // width and height of the drawer since Leafygreen doesn't support this yet.
@@ -44,11 +50,6 @@ const assistantChatFixesStyles = css({
     listStyleType: 'decimal',
   },
 
-  // Remove extra padding
-  '> div, > div > div, > div > div > div, > div > div > div': {
-    height: '100%',
-    padding: 0,
-  },
   // This is currently set to 'pre-wrap' which causes list items to be on a different line than the list markers.
   'li, ol': {
     whiteSpace: 'normal',
@@ -136,9 +137,7 @@ const messageFeedFixesStyles = css({
   display: 'flex',
   flexDirection: 'column-reverse',
   overflowY: 'auto',
-  width: '100%',
   wordBreak: 'break-word',
-  flex: 1,
   padding: spacing[400],
   gap: spacing[400],
 
@@ -146,11 +145,6 @@ const messageFeedFixesStyles = css({
   '& > div > div > div:has(svg[aria-label="Sparkle Icon"]) p': {
     fontWeight: 600,
   },
-});
-const chatWindowFixesStyles = css({
-  height: '100%',
-  display: 'flex',
-  flexDirection: 'column',
 });
 const welcomeMessageStyles = css({
   paddingBottom: spacing[400],
@@ -161,14 +155,6 @@ const welcomeMessageStyles = css({
 // This is a general temporary fix for all components that we want to prevent from wrapping.
 const noWrapFixesStyles = css({
   whiteSpace: 'nowrap',
-});
-
-/** TODO(COMPASS-9751): This should be handled by Leafygreen's disclaimers update */
-const inputBarStyleFixes = css({
-  width: '100%',
-  paddingLeft: spacing[400],
-  paddingRight: spacing[400],
-  paddingBottom: spacing[100],
 });
 
 function makeErrorMessage(message: string) {
@@ -268,12 +254,15 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
   }, [hasNonGenuineConnections, chat, setMessages]);
 
   const handleMessageSend = useCallback(
-    async (messageBody: string) => {
-      const trimmedMessageBody = messageBody.trim();
+    async ({ text, metadata }: SendMessageOptions) => {
+      const trimmedMessageBody = text.trim();
       if (trimmedMessageBody) {
         await chat.stop();
         void ensureOptInAndSend?.(
-          { text: trimmedMessageBody, metadata: { sendContext: true } },
+          {
+            text: trimmedMessageBody,
+            metadata: { sendContext: true, ...metadata },
+          },
           {},
           () => {
             track('Assistant Prompt Submitted', {
@@ -400,7 +389,7 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
       style={chatContainerOverrideStyle}
     >
       <LeafyGreenChatProvider>
-        <ChatWindow title="MongoDB Assistant" className={chatWindowFixesStyles}>
+        <ChatWindow>
           <div
             data-testid="assistant-chat-messages"
             className={messageFeedFixesStyles}
@@ -548,16 +537,13 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
               </p>
             </div>
           )}
-          <div className={inputBarStyleFixes}>
-            <InputBar
-              data-testid="assistant-chat-input"
-              onMessageSend={(messageBody) =>
-                void handleMessageSend(messageBody)
-              }
-              state={status !== 'ready' ? 'loading' : undefined}
-              textareaProps={inputBarTextareaProps}
-            />
-          </div>
+          <SuggestedPrompts chat={chat} onMessageSend={handleMessageSend} />
+          <InputBar
+            data-testid="assistant-chat-input"
+            onMessageSend={(text) => void handleMessageSend({ text })}
+            state={status !== 'ready' ? 'loading' : undefined}
+            textareaProps={inputBarTextareaProps}
+          />
         </ChatWindow>
       </LeafyGreenChatProvider>
     </div>

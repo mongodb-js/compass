@@ -290,7 +290,6 @@ export const AssistantProvider: React.FunctionComponent<
       const { enableToolCalling } = preferences.getPreferences();
 
       if (enableToolCalling) {
-        console.log('tool calling is enabled');
         toolsController.setActiveTools(new Set(['compass-ui']));
         toolsController.setContext({
           query: toJSString(assistantGlobalStateRef.current.currentQuery),
@@ -299,7 +298,6 @@ export const AssistantProvider: React.FunctionComponent<
           ),
         });
       } else {
-        console.log('tool calling is disabled');
         toolsController.setActiveTools(new Set([]));
         toolsController.setContext({
           query: undefined,

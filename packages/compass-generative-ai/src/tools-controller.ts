@@ -41,7 +41,6 @@ export class ToolsController {
             'ToolsController',
             'Executing get-compass-context tool'
           );
-          console.log('get-compass-context', this.context);
           return Promise.resolve(this.context);
         },
         // TODO: toModelOutput function to format this?
