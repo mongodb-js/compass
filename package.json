@@ -118,8 +118,8 @@
     "@leafygreen-ui/marketing-modal": "^8.1.7",
     "@leafygreen-ui/modal": "^21.0.0",
     "@leafygreen-ui/select": "^17.0.2",
-    "@leafygreen-ui/text-input": "^16.2.1",
-    "@leafygreen-ui/tokens": "^4.1.0",
-    "@leafygreen-ui/typography": "^22.2.2"
+    "@leafygreen-ui/text-input": "^16.2.2",
+    "@leafygreen-ui/tokens": "^4.2.0",
+    "@leafygreen-ui/typography": "^22.2.3"
   }
 }
