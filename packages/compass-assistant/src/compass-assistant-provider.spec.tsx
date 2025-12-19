@@ -189,12 +189,11 @@ describe('useAssistantActions', function () {
     expect(result.current.tellMoreAboutInsight).to.be.undefined;
   });
 
-  it('returns actions when both AI features and assistant flag AND enablePerformanceInsightsEntrypoints are enabled', function () {
+  it('returns actions when both AI features and assistant flag is enabled', function () {
     const { result } = renderHook(() => useAssistantActions(), {
       wrapper: createWrapper(createMockChat({ messages: [] })),
       preferences: {
         enableAIAssistant: true,
-        enablePerformanceInsightsEntrypoints: true,
         enableGenAIFeatures: true,
         enableGenAIFeaturesAtlasOrg: true,
         cloudFeatureRolloutAccess: { GEN_AI_COMPASS: true },

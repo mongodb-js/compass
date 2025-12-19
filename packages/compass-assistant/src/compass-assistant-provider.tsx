@@ -131,9 +131,6 @@ export function useAssistantActions(): AssistantActionsType {
   const actions = useContext(AssistantActionsContext);
   const isAIFeatureEnabled = useIsAIFeatureEnabled();
   const isAssistantFlagEnabled = usePreference('enableAIAssistant');
-  const isPerformanceInsightEntrypointsEnabled = usePreference(
-    'enablePerformanceInsightsEntrypoints'
-  );
 
   if (!isAIFeatureEnabled || !isAssistantFlagEnabled) {
     return {
