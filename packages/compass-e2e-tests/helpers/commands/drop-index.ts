@@ -15,8 +15,7 @@ export async function dropIndex(
     `${indexComponentSelector} ${Selectors.IndexesTableDropIndexButton}`
   );
 
-  const dropModal = browser.$(Selectors.DropIndexModal);
-  await dropModal.waitForDisplayed();
+  await browser.waitForOpenModal(Selectors.DropIndexModal);
 
   await browser.setValueVisible(
     Selectors.DropIndexModalConfirmNameInput,
@@ -29,7 +28,7 @@ export async function dropIndex(
 
   await browser.clickVisible(Selectors.DropIndexModalConfirmButton);
 
-  await dropModal.waitForDisplayed({ reverse: true });
+  await browser.waitForOpenModal(Selectors.DropIndexModal, { reverse: true });
 
   await indexComponent.waitForDisplayed({ reverse: true });
 }

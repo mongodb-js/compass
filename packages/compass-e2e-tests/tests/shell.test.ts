@@ -53,11 +53,10 @@ describe('Shell', function () {
     await browser.openShell(DEFAULT_CONNECTION_NAME_1);
     await browser.clickVisible(Selectors.ShellInfoButton);
 
-    const infoModalElement = browser.$(Selectors.ShellInfoModal);
-    await infoModalElement.waitForDisplayed();
+    await browser.waitForOpenModal(Selectors.ShellInfoModal);
 
     await browser.clickVisible(Selectors.ShellInfoModalCloseButton);
-    await infoModalElement.waitForDisplayed({ reverse: true });
+    await browser.waitForOpenModal(Selectors.ShellInfoModal, { reverse: true });
 
     await browser.closeShell(DEFAULT_CONNECTION_NAME_1);
   });
@@ -73,15 +72,13 @@ describe('Shell', function () {
     ).to.be.equal(true);
 
     await browser.openSettingsModal();
-    const settingsModal = browser.$(Selectors.SettingsModal);
-    await settingsModal.waitForDisplayed();
     await browser.clickVisible(Selectors.GeneralSettingsButton);
 
     await browser.clickParent(Selectors.SettingsInputElement('enableShell'));
     await browser.clickVisible(Selectors.SaveSettingsButton);
 
     // wait for the modal to go away
-    await settingsModal.waitForDisplayed({ reverse: true });
+    await browser.waitForOpenModal(Selectors.SettingsModal, { reverse: true });
 
     expect(
       await browser.hasConnectionMenuItem(
