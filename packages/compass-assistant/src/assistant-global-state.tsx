@@ -67,10 +67,6 @@ export function useSyncAssistantGlobalState<T extends keyof GlobalState>(
         state.activeCollectionSubTab = null;
       }
 
-      if (stateKey === 'currentAggregation') {
-        console.log(stateKey, newState);
-      }
-
       return state;
     });
   }, [newState, setState, stateKey]);
