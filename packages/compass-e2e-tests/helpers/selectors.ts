@@ -25,8 +25,8 @@ export const SettingsInputElement = (settingName: string): string => {
 };
 
 // LG Modals
-export const LGModal = '[data-testid="lg-modal"]';
-export const LGModalClose = '[data-testid="lg-modal-close"]';
+export const LGModal = '[data-lgid="lg-modal"]';
+export const LGModalClose = '[data-lgid="lg-modal-close"]';
 
 // LG Toasts container (these test ids are used by LG in the toast and are not in the code anywhere).
 export const LGToastContainer = '[data-testid="lg-toast-scroll-container"]';
@@ -1330,11 +1330,11 @@ export const ConfirmationModalInput = `${ConfirmationModal} input`;
 
 export const confirmationModalConfirmButton = (
   modalSelector = ConfirmationModal
-) => `${modalSelector} [role=dialog] [data-testid*="confirm_button"]`;
+) => `${modalSelector} [data-testid*="confirm_button"]`;
 
 export const confirmationModalCancelButton = (
   modalSelector = ConfirmationModal
-) => `${modalSelector} [role=dialog] [data-testid*="cancel_button"]`;
+) => `${modalSelector} [data-testid*="cancel_button"]`;
 
 // New pipeline from text modal
 export const NewPipelineFromTextModal = '[data-testid="import-pipeline-modal"]';
@@ -1460,7 +1460,7 @@ export const DataModelExportButton = 'button[aria-label="Export"]';
 export const DataModelExportModal = '[data-testid="export-diagram-modal"]';
 export const DataModelExportPngOption = `${DataModelExportModal} input[aria-label="PNG"]`;
 export const DataModelExportJsonOption = `${DataModelExportModal} input[aria-label="JSON"]`;
-export const DataModelExportDiagramOption = `${DataModelExportModal} input[aria-label="Diagram File"]`;
+export const DataModelExportDiagramOption = `${DataModelExportModal} input[aria-label="MDM File"]`;
 export const DataModelExportModalConfirmButton =
   '[data-testid="export-button"]';
 export const DataModelsListItem = (diagramName?: string) => {

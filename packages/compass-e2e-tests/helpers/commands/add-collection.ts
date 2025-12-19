@@ -34,8 +34,7 @@ export async function addCollection(
   collectionOptions?: AddCollectionOptions,
   screenshotPath?: string
 ): Promise<void> {
-  const createModalElement = browser.$(Selectors.CreateCollectionModal);
-  await createModalElement.waitForDisplayed();
+  await browser.waitForOpenModal(Selectors.CreateCollectionModal);
 
   await browser.setValueVisible(
     Selectors.CreateDatabaseCollectionName,
@@ -216,5 +215,7 @@ export async function addCollection(
   }
 
   await browser.clickVisible(Selectors.CreateCollectionCreateButton);
-  await createModalElement.waitForDisplayed({ reverse: true });
+  await browser.waitForOpenModal(Selectors.CreateCollectionModal, {
+    reverse: true,
+  });
 }

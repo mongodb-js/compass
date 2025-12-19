@@ -9,7 +9,10 @@ import { default as Banner } from '@leafygreen-ui/banner';
 import { Checkbox } from '@leafygreen-ui/checkbox';
 import { Card } from '@leafygreen-ui/card';
 import { Code, Language, Panel } from '@leafygreen-ui/code';
-import ConfirmationModal from '@leafygreen-ui/confirmation-modal';
+import {
+  ConfirmationModal,
+  Variant as ConfirmationModalVariant,
+} from '@leafygreen-ui/confirmation-modal';
 export type { ConfirmationModalProps } from '@leafygreen-ui/confirmation-modal';
 import { Icon as LeafyGreenIcon } from '@leafygreen-ui/icon';
 import type { Size as LeafyGreenIconSize } from '@leafygreen-ui/icon';
@@ -23,6 +26,7 @@ import {
 import { Menu, MenuSeparator, MenuItem } from '@leafygreen-ui/menu';
 export type { MenuItemProps } from '@leafygreen-ui/menu';
 import { InfoSprinkle } from '@leafygreen-ui/info-sprinkle';
+import { ProgressBar } from '@leafygreen-ui/progress-bar';
 
 // If a leafygreen Menu (and therefore MenuItems) makes its way into a <form>,
 // clicking on a menu item will submit that form. This is because it uses a button
@@ -32,8 +36,8 @@ import { InfoSprinkle } from '@leafygreen-ui/info-sprinkle';
   type: 'button',
 };
 
-import Modal, { Footer as ModalFooter } from '@leafygreen-ui/modal';
-import MarketingModal from '@leafygreen-ui/marketing-modal';
+import { Modal, Footer as ModalFooter } from '@leafygreen-ui/modal';
+import { MarketingModal } from '@leafygreen-ui/marketing-modal';
 import { Pipeline, Stage } from '@leafygreen-ui/pipeline';
 import { Popover } from '@leafygreen-ui/popover';
 import { RadioBox, RadioBoxGroup } from '@leafygreen-ui/radio-box-group';
@@ -131,6 +135,7 @@ export {
   Code,
   Panel,
   ConfirmationModal,
+  ConfirmationModalVariant,
   Copyable,
   ExpandedContent,
   HeaderCell,
@@ -191,6 +196,7 @@ export {
   Combobox,
   ComboboxGroup,
   ComboboxOption,
+  ProgressBar,
 };
 
 export * as Avatar from '@leafygreen-ui/avatar';
@@ -200,3 +206,4 @@ export * as LgChatChatWindow from '@lg-chat/chat-window';
 export * as LgChatInputBar from '@lg-chat/input-bar';
 export * as LgChatLeafygreenChatProvider from '@lg-chat/leafygreen-chat-provider';
 export * as LgChatMessage from '@lg-chat/message';
+export * as LgChatMessagePrompts from '@lg-chat/message-prompts';

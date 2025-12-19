@@ -23,6 +23,7 @@ import {
   deleteRelationship,
   removeField,
   renameField,
+  changeFieldType,
   toggleCollectionExpanded,
 } from '../store/diagram';
 import type {
@@ -33,7 +34,6 @@ import type {
 } from '@mongodb-js/compass-components';
 import {
   Banner,
-  CancelLoader,
   WorkspaceContainer,
   css,
   spacing,
@@ -49,7 +49,7 @@ import {
   useFocusStateIncludingUnfocused,
   FocusStates,
 } from '@mongodb-js/compass-components';
-import { cancelAnalysis, retryAnalysis } from '../store/analysis-process';
+import { retryAnalysis } from '../store/analysis-process';
 import type { FieldPath, StaticModel } from '../services/data-model-storage';
 import DiagramEditorToolbar from './diagram-editor-toolbar';
 import ExportDiagramModal from './export-diagram-modal';
@@ -60,17 +60,10 @@ import {
   relationshipToDiagramEdge,
 } from '../utils/nodes-and-edges';
 import toNS from 'mongodb-ns';
+import { FIELD_TYPES } from '../utils/field-types';
 import { getNamespaceRelationships } from '../utils/utils';
 import { usePreference } from 'compass-preferences-model/provider';
-
-const loadingContainerStyles = css({
-  width: '100%',
-  paddingTop: spacing[1800] * 3,
-});
-
-const loaderStyles = css({
-  margin: '0 auto',
-});
+import AnalysisProgressStatus from './analysis-progress-status';
 
 const errorBannerStyles = css({
   margin: spacing[200],
@@ -185,6 +178,12 @@ const DiagramContent: React.FunctionComponent<{
     newName: string;
     source: 'diagram';
   }) => void;
+  onChangeFieldType: (data: {
+    ns: string;
+    fieldPath: FieldPath;
+    newTypes: string[];
+    source: 'diagram';
+  }) => void;
   onDiagramBackgroundClicked: () => void;
   onDeleteCollection: (ns: string) => void;
   onDeleteRelationship: (rId: string) => void;
@@ -214,6 +213,7 @@ const DiagramContent: React.FunctionComponent<{
   onRelationshipSelect,
   onFieldSelect,
   onRenameField,
+  onChangeFieldType,
   onDiagramBackgroundClicked,
   onCreateNewRelationship,
   onRelationshipDrawn,
@@ -414,6 +414,18 @@ const DiagramContent: React.FunctionComponent<{
     [onAddFieldToObjectField]
   );
 
+  const onFieldTypeChange = useCallback(
+    (ns: string, fieldPath: FieldPath, newTypes: string[]) => {
+      onChangeFieldType({
+        ns,
+        fieldPath,
+        newTypes,
+        source: 'diagram',
+      });
+    },
+    [onChangeFieldType]
+  );
+
   const deleteItem = useCallback(() => {
     switch (selectedItems?.type) {
       case 'collection':
@@ -463,11 +475,13 @@ const DiagramContent: React.FunctionComponent<{
         onFieldClick,
         onFieldNameChange: (ns, field, newName) =>
           onRenameField({ ns, field, newName, source: 'diagram' }),
+        onFieldTypeChange,
         onNodeDragStop,
         onConnect,
         onNodeExpandToggle: isCollapseFlagEnabled
           ? handleNodeExpandedToggle
           : undefined,
+        fieldTypes: FIELD_TYPES,
       } satisfies DiagramProps),
     [
       isDarkMode,
@@ -481,6 +495,7 @@ const DiagramContent: React.FunctionComponent<{
       onEdgeClick,
       onFieldClick,
       onRenameField,
+      onFieldTypeChange,
       onNodeDragStop,
       onConnect,
       handleNodeExpandedToggle,
@@ -547,6 +562,7 @@ const ConnectedDiagramContent = connect(
     onRelationshipSelect: selectRelationship,
     onFieldSelect: selectField,
     onRenameField: renameField,
+    onChangeFieldType: changeFieldType,
     onDiagramBackgroundClicked: selectBackground,
     onCreateNewRelationship: createNewRelationship,
     onDeleteCollection: deleteCollection,
@@ -560,14 +576,12 @@ const DiagramEditor: React.FunctionComponent<{
   step: DataModelingState['step'];
   diagramId?: string;
   onRetryClick: () => void;
-  onCancelClick: () => void;
   onAddCollectionClick: () => void;
   DiagramComponent?: typeof Diagram;
 }> = ({
   step,
   diagramId,
   onRetryClick,
-  onCancelClick,
   onAddCollectionClick,
   DiagramComponent = Diagram,
 }) => {
@@ -597,16 +611,7 @@ const DiagramEditor: React.FunctionComponent<{
   }
 
   if (step === 'ANALYZING') {
-    content = (
-      <div className={loadingContainerStyles}>
-        <CancelLoader
-          className={loaderStyles}
-          progressText="Analyzing …"
-          cancelText="Cancel"
-          onCancel={onCancelClick}
-        ></CancelLoader>
-      </div>
-    );
+    content = <AnalysisProgressStatus />;
   }
 
   if (step === 'ANALYSIS_FAILED') {
@@ -665,7 +670,6 @@ export default connect(
   },
   {
     onRetryClick: retryAnalysis,
-    onCancelClick: cancelAnalysis,
     onAddCollectionClick: addCollection,
   }
 )(DiagramEditor);

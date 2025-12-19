@@ -5,8 +5,10 @@ export type { WorkspaceTab } from '@mongodb-js/workspace-info';
 export type { OpenWorkspaceOptions } from '@mongodb-js/compass-workspaces';
 export {
   CompassExperimentationProvider,
-  ExperimentTestName,
-  ExperimentTestGroup,
+  ExperimentTestNames,
+  ExperimentTestGroups,
+  type ExperimentTestName,
+  type ExperimentTestGroup,
 } from '@mongodb-js/compass-telemetry';
 export type { CollectionTabInfo } from '@mongodb-js/workspace-info';
 export type {

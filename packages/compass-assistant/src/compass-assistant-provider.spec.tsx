@@ -5,7 +5,6 @@ import {
   screen,
   userEvent,
   waitFor,
-  waitForElementToBeRemoved,
   within,
 } from '@mongodb-js/testing-library-compass';
 import {
@@ -402,9 +401,13 @@ describe('CompassAssistantProvider', function () {
         ],
         transport: {
           sendMessages: sinon.stub().returns(
-            new Promise(() => {
-              return new ReadableStream({});
-            })
+            Promise.resolve(
+              new ReadableStream({
+                start(c) {
+                  c.close();
+                },
+              })
+            )
           ),
           reconnectToStream: sinon.stub(),
         },
@@ -431,7 +434,7 @@ describe('CompassAssistantProvider', function () {
         });
       }
 
-      const contextMessages = mockChat.messages.filter(
+      let contextMessages = mockChat.messages.filter(
         (message) => message.metadata?.isSystemContext
       );
 
@@ -456,6 +459,30 @@ describe('CompassAssistantProvider', function () {
           ],
         },
       ]);
+
+      // if we clear the chat it will send the context again next time
+      sendMessageSpy.resetHistory();
+      mockChat.messages = [];
+
+      userEvent.type(
+        screen.getByPlaceholderText('Ask a question'),
+        'How about now?'
+      );
+      userEvent.click(screen.getByLabelText('Send message'));
+
+      await waitFor(() => {
+        expect(sendMessageSpy.callCount).to.equal(1);
+        expect(sendMessageSpy.getCall(0).args[0]).to.deep.include({
+          text: 'How about now?',
+        });
+
+        expect(screen.getByText('How about now?')).to.exist;
+      });
+
+      contextMessages = mockChat.messages.filter(
+        (message) => message.metadata?.isSystemContext
+      );
+      expect(contextMessages).to.have.lengthOf(1);
     });
 
     it('will not send new messages if the user does not opt in', async function () {
@@ -469,9 +496,13 @@ describe('CompassAssistantProvider', function () {
         ],
         transport: {
           sendMessages: sinon.stub().returns(
-            new Promise(() => {
-              return new ReadableStream({});
-            })
+            Promise.resolve(
+              new ReadableStream({
+                start(c) {
+                  c.close();
+                },
+              })
+            )
           ),
           reconnectToStream: sinon.stub(),
         },
@@ -596,8 +627,9 @@ describe('CompassAssistantProvider', function () {
         userEvent.click(clearButton);
 
         await waitFor(() => {
-          expect(screen.getByTestId('assistant-confirm-clear-chat-modal')).to
-            .exist;
+          expect(
+            screen.getByTestId('assistant-confirm-clear-chat-modal').firstChild
+          ).to.exist;
         });
 
         // There should be messages in the chat
@@ -608,9 +640,11 @@ describe('CompassAssistantProvider', function () {
         const confirmButton = within(modal).getByText('Clear chat');
         userEvent.click(confirmButton);
 
-        await waitForElementToBeRemoved(() =>
-          screen.getByTestId('assistant-confirm-clear-chat-modal')
-        );
+        await waitFor(() => {
+          expect(
+            screen.getByTestId('assistant-confirm-clear-chat-modal').firstChild
+          ).to.not.exist;
+        });
 
         expect(mockChat.messages).to.be.empty;
         expect(screen.queryByTestId('assistant-message-1')).to.not.exist;
@@ -626,8 +660,9 @@ describe('CompassAssistantProvider', function () {
         userEvent.click(clearButton);
 
         await waitFor(() => {
-          expect(screen.getByTestId('assistant-confirm-clear-chat-modal')).to
-            .exist;
+          expect(
+            screen.getByTestId('assistant-confirm-clear-chat-modal').firstChild
+          ).to.exist;
         });
 
         // There should be messages in the chat
@@ -638,9 +673,11 @@ describe('CompassAssistantProvider', function () {
         const cancelButton = within(modal).getByText('Cancel');
         userEvent.click(cancelButton);
 
-        await waitForElementToBeRemoved(() =>
-          screen.getByTestId('assistant-confirm-clear-chat-modal')
-        );
+        await waitFor(() => {
+          expect(
+            screen.getByTestId('assistant-confirm-clear-chat-modal').firstChild
+          ).to.not.exist;
+        });
 
         expect(mockChat.messages).to.deep.equal(mockMessages);
         expect(screen.getByTestId('assistant-message-1')).to.exist;
@@ -658,8 +695,9 @@ describe('CompassAssistantProvider', function () {
         userEvent.click(clearButton);
 
         await waitFor(() => {
-          expect(screen.getByTestId('assistant-confirm-clear-chat-modal')).to
-            .exist;
+          expect(
+            screen.getByTestId('assistant-confirm-clear-chat-modal').firstChild
+          ).to.exist;
         });
 
         // There should be messages in the chat
@@ -672,9 +710,11 @@ describe('CompassAssistantProvider', function () {
         const confirmButton = within(modal).getByText('Clear chat');
         userEvent.click(confirmButton);
 
-        await waitForElementToBeRemoved(() =>
-          screen.getByTestId('assistant-confirm-clear-chat-modal')
-        );
+        await waitFor(() => {
+          expect(
+            screen.getByTestId('assistant-confirm-clear-chat-modal').firstChild
+          ).to.not.exist;
+        });
 
         // The non-genuine warning message should still be in the chat
         expect(screen.getByTestId('assistant-message-non-genuine-warning')).to

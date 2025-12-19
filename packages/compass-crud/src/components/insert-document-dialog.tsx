@@ -306,7 +306,6 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
     <FormModal
       title="Insert Document"
       subtitle={`To collection ${ns}`}
-      className="insert-document-dialog"
       open={isOpen}
       onSubmit={handleInsert.bind(this)}
       onCancel={closeInsertDocumentDialog}

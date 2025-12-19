@@ -258,10 +258,15 @@ export const AssistantProvider: React.FunctionComponent<
           ? contextPrompt.parts[0].text
           : '';
 
+      const hasSystemContextMessage = chat.messages.some((message) => {
+        return message.metadata?.isSystemContext;
+      });
+
       const shouldSendContextPrompt =
         message?.metadata?.sendContext &&
         (!lastContextPromptRef.current ||
-          lastContextPromptRef.current !== contextPromptText);
+          lastContextPromptRef.current !== contextPromptText ||
+          !hasSystemContextMessage);
       if (shouldSendContextPrompt) {
         lastContextPromptRef.current = contextPromptText;
         chat.messages = [...chat.messages, contextPrompt];
@@ -419,6 +424,21 @@ export function createDefaultChat({
           baseURL: initialBaseUrl,
           apiKey: '',
           fetch(url, init) {
+            if (init?.body) {
+              // TODO: Temporary hack to transform developer role to system role
+              // before sending the request. Should be removed once our backend supports it.
+              const body = JSON.parse(init?.body as string);
+              body.input = body.input.map((message: any) => {
+                if (message.role === 'developer') {
+                  return {
+                    ...message,
+                    role: 'system',
+                  };
+                }
+                return message;
+              });
+              init.body = JSON.stringify(body);
+            }
             return globalThis.fetch(
               // The `baseUrl` can be dynamically changed, but `createOpenAI`
               // constructor doesn't allow us to change it after initial call.

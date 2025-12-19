@@ -8,8 +8,10 @@ export type {
 
 export { CompassExperimentationProvider } from './experimentation-provider';
 export {
-  ExperimentTestNames as ExperimentTestName,
-  ExperimentTestGroups as ExperimentTestGroup,
+  ExperimentTestNames,
+  type ExperimentTestName,
+  ExperimentTestGroups,
+  type ExperimentTestGroup,
 } from './growth-experiments';
 
 // @experiment Skills in Atlas  | Jira Epic: CLOUDP-346311

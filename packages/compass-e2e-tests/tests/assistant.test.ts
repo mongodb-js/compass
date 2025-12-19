@@ -230,8 +230,7 @@ describe('MongoDB Assistant', function () {
 
       await browser.clickVisible(Selectors.AIOptInModalDeclineLink);
 
-      const optInModal = browser.$(Selectors.AIOptInModal);
-      await optInModal.waitForDisplayed({ reverse: true });
+      await browser.waitForOpenModal(Selectors.AIOptInModal, { reverse: true });
 
       const chatInput = browser.$(Selectors.AssistantChatInputTextArea);
       expect(await chatInput.getValue()).not.to.equal(testMessage);
@@ -251,13 +250,13 @@ describe('MongoDB Assistant', function () {
           browser.$(Selectors.ConnectionToastErrorDebugButton)
         );
 
-        const optInModal = browser.$(Selectors.AIOptInModal);
-        await optInModal.waitForDisplayed();
-        expect(await optInModal.isDisplayed()).to.be.true;
+        await browser.waitForOpenModal(Selectors.AIOptInModal);
 
         await browser.clickVisible(Selectors.AIOptInModalDeclineLink);
 
-        await optInModal.waitForDisplayed({ reverse: true });
+        await browser.waitForOpenModal(Selectors.AIOptInModal, {
+          reverse: true,
+        });
 
         expect(
           await browser.$(Selectors.AssistantChatMessages).isDisplayed()
@@ -267,13 +266,12 @@ describe('MongoDB Assistant', function () {
       it('should display opt-in modal for explain plan entry point', async function () {
         await useExplainPlanEntryPoint(browser, { waitForMessages: false });
 
-        const optInModal = browser.$(Selectors.AIOptInModal);
-        await optInModal.waitForDisplayed();
-        expect(await optInModal.isDisplayed()).to.be.true;
+        await browser.waitForOpenModal(Selectors.AIOptInModal);
 
         await browser.clickVisible(Selectors.AIOptInModalDeclineLink);
-
-        await optInModal.waitForDisplayed({ reverse: true });
+        await browser.waitForOpenModal(Selectors.AIOptInModal, {
+          reverse: true,
+        });
 
         expect(
           await browser.$(Selectors.AssistantChatMessages).isDisplayed()
@@ -296,13 +294,10 @@ describe('MongoDB Assistant', function () {
     it('sends the message if the user opts in', async function () {
       await sendMessage(testMessage, { expectedResult: 'opt-in' });
 
-      const optInModal = browser.$(Selectors.AIOptInModal);
-      await optInModal.waitForDisplayed();
-      expect(await optInModal.isDisplayed()).to.be.true;
+      await browser.waitForOpenModal(Selectors.AIOptInModal);
 
       await browser.clickVisible(Selectors.AIOptInModalAcceptButton);
-
-      await optInModal.waitForDisplayed({ reverse: true });
+      await browser.waitForOpenModal(Selectors.AIOptInModal, { reverse: true });
 
       const chatInput = browser.$(Selectors.AssistantChatInputTextArea);
       expect(await chatInput.getValue()).to.equal('');
@@ -460,7 +455,7 @@ describe('MongoDB Assistant', function () {
           }
         });
 
-        it('opens assistant with explain plan prompt when clicking "Interpret for me"', async function () {
+        it('opens assistant with explain plan prompt when clicking "Interpret"', async function () {
           await useExplainPlanEntryPoint(browser);
 
           await browser.clickVisible('button*=Confirm');
@@ -513,7 +508,7 @@ describe('MongoDB Assistant', function () {
           });
         });
 
-        it('opens assistant with error message view prompt when clicking "Debug for me"', async function () {
+        it('opens assistant with error message view prompt when clicking "Debug"', async function () {
           await browser.connectWithConnectionString(
             'mongodb-invalid://localhost:27017',
             { connectionStatus: 'failure' }
@@ -622,7 +617,7 @@ async function useExplainPlanEntryPoint(
 
   await browser.clickVisible(Selectors.ExplainPlanInterpretButton);
 
-  await browser.$(Selectors.AggregationExplainModal).waitForDisplayed({
+  await browser.waitForOpenModal(Selectors.AggregationExplainModal, {
     reverse: true,
   });
 
