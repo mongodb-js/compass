@@ -383,8 +383,7 @@ describe('Collection aggregations tab', function () {
     await browser.clickVisible(Selectors.SavePipelineCreateViewAction);
 
     // wait for the modal to appear
-    const createViewModal = browser.$(Selectors.CreateViewModal);
-    await createViewModal.waitForDisplayed();
+    await browser.waitForOpenModal(Selectors.CreateViewModal);
 
     // set view name
     await browser.setValueVisible(
@@ -409,10 +408,9 @@ describe('Collection aggregations tab', function () {
       'my-view-from-pipeline',
       'duplicate-view'
     );
-    const duplicateModal = browser.$(Selectors.DuplicateViewModal);
 
     // wait for the modal, fill out the modal, confirm
-    await duplicateModal.waitForDisplayed();
+    await browser.waitForOpenModal(Selectors.DuplicateViewModal);
     await browser.setValueVisible(
       Selectors.DuplicateViewModalTextInput,
       'duplicated-view'
@@ -423,7 +421,9 @@ describe('Collection aggregations tab', function () {
     await confirmDuplicateButton.waitForEnabled();
 
     await confirmDuplicateButton.click();
-    await duplicateModal.waitForDisplayed({ reverse: true });
+    await browser.waitForOpenModal(Selectors.DuplicateViewModal, {
+      reverse: true,
+    });
 
     // wait for the active tab to become the newly duplicated view
     await waitForTab(browser, 'test.duplicated-view');
@@ -479,8 +479,8 @@ describe('Collection aggregations tab', function () {
             await browser.setFeature('maxTimeMS', 1);
           } else {
             await browser.openSettingsModal();
-            const settingsModal = browser.$(Selectors.SettingsModal);
-            await settingsModal.waitForDisplayed();
+            await browser.waitForOpenModal(Selectors.SettingsModal);
+
             await browser.clickVisible(Selectors.GeneralSettingsButton);
 
             await browser.setValueVisible(
@@ -565,10 +565,9 @@ describe('Collection aggregations tab', function () {
     await browser.clickVisible(Selectors.RunPipelineButton);
 
     // confirm the write operation
-    const writeOperationConfirmationModal = browser.$(
+    await browser.waitForOpenModal(
       Selectors.AggregationWriteOperationConfirmationModal
     );
-    await writeOperationConfirmationModal.waitForDisplayed();
 
     const description = await browser
       .$(Selectors.AggregationWriteOperationConfirmationModalDescription)
@@ -581,7 +580,10 @@ describe('Collection aggregations tab', function () {
       Selectors.AggregationWriteOperationConfirmButton
     );
 
-    await writeOperationConfirmationModal.waitForDisplayed({ reverse: true });
+    await browser.waitForOpenModal(
+      Selectors.AggregationWriteOperationConfirmationModal,
+      { reverse: true }
+    );
 
     // go to the new collection
     const goToCollectionButton = browser.$(Selectors.GoToCollectionButton);
@@ -642,10 +644,9 @@ describe('Collection aggregations tab', function () {
       await browser.clickVisible(Selectors.RunPipelineButton);
 
       // confirm the write operation
-      const writeOperationConfirmationModal = browser.$(
+      await browser.waitForOpenModal(
         Selectors.AggregationWriteOperationConfirmationModal
       );
-      await writeOperationConfirmationModal.waitForDisplayed();
 
       const description = await browser
         .$(Selectors.AggregationWriteOperationConfirmationModalDescription)
@@ -657,7 +658,10 @@ describe('Collection aggregations tab', function () {
         Selectors.AggregationWriteOperationConfirmButton
       );
 
-      await writeOperationConfirmationModal.waitForDisplayed({ reverse: true });
+      await browser.waitForOpenModal(
+        Selectors.AggregationWriteOperationConfirmationModal,
+        { reverse: true }
+      );
 
       const errorElement = browser.$(Selectors.AggregationErrorBanner);
       await errorElement.waitForDisplayed();
@@ -673,17 +677,14 @@ describe('Collection aggregations tab', function () {
       await errorElement.waitForDisplayed();
       await errorDetailsBtn.click();
 
-      const errorDetailsJson = browser.$(Selectors.ErrorDetailsJson);
-      await errorDetailsJson.waitForDisplayed();
+      await browser.$(Selectors.ErrorDetailsJson).waitForDisplayed();
 
-      // exit details
-      // leafygreen autofocus triggers a tooltip on the error code element,
-      // "Tab" to remove the focus
-      await browser.keys('Tab');
       // now click the close button
       await browser.clickVisible(Selectors.confirmationModalConfirmButton());
       // wait for the modal to go away
-      await errorDetailsJson.waitForDisplayed({ reverse: true });
+      await browser.$(Selectors.ErrorDetailsJson).waitForDisplayed({
+        reverse: true,
+      });
     });
   });
 
@@ -714,10 +715,9 @@ describe('Collection aggregations tab', function () {
     await browser.clickVisible(Selectors.RunPipelineButton);
 
     // confirm the write operation
-    const writeOperationConfirmationModal = browser.$(
+    await browser.waitForOpenModal(
       Selectors.AggregationWriteOperationConfirmationModal
     );
-    await writeOperationConfirmationModal.waitForDisplayed();
 
     const description = await browser
       .$(Selectors.AggregationWriteOperationConfirmationModalDescription)
@@ -727,7 +727,10 @@ describe('Collection aggregations tab', function () {
     expect(description).to.contain('test.numbers');
 
     await browser.clickVisible(Selectors.AggregationWriteOperationCancelButton);
-    await writeOperationConfirmationModal.waitForDisplayed({ reverse: true });
+    await browser.waitForOpenModal(
+      Selectors.AggregationWriteOperationConfirmationModal,
+      { reverse: true }
+    );
 
     // the pipeline can be futher edited
     await waitForAnyText(browser, browser.$(Selectors.stageContent(0)));
@@ -762,10 +765,9 @@ describe('Collection aggregations tab', function () {
     await browser.clickVisible(Selectors.RunPipelineButton);
 
     // confirm the write operation
-    const writeOperationConfirmationModal = browser.$(
+    await browser.waitForOpenModal(
       Selectors.AggregationWriteOperationConfirmationModal
     );
-    await writeOperationConfirmationModal.waitForDisplayed();
 
     const description = await browser
       .$(Selectors.AggregationWriteOperationConfirmationModalDescription)
@@ -778,7 +780,10 @@ describe('Collection aggregations tab', function () {
       Selectors.AggregationWriteOperationConfirmButton
     );
 
-    await writeOperationConfirmationModal.waitForDisplayed({ reverse: true });
+    await browser.waitForOpenModal(
+      Selectors.AggregationWriteOperationConfirmationModal,
+      { reverse: true }
+    );
 
     // go to the new collection
     const goToCollectionButton = browser.$(Selectors.GoToCollectionButton);
@@ -824,10 +829,9 @@ describe('Collection aggregations tab', function () {
     await browser.clickVisible(Selectors.RunPipelineButton);
 
     // confirm the write operation
-    const writeOperationConfirmationModal = browser.$(
+    await browser.waitForOpenModal(
       Selectors.AggregationWriteOperationConfirmationModal
     );
-    await writeOperationConfirmationModal.waitForDisplayed();
 
     const description = await browser
       .$(Selectors.AggregationWriteOperationConfirmationModalDescription)
@@ -837,7 +841,10 @@ describe('Collection aggregations tab', function () {
     expect(description).to.contain('test.numbers');
 
     await browser.clickVisible(Selectors.AggregationWriteOperationCancelButton);
-    await writeOperationConfirmationModal.waitForDisplayed({ reverse: true });
+    await browser.waitForOpenModal(
+      Selectors.AggregationWriteOperationConfirmationModal,
+      { reverse: true }
+    );
 
     // the pipeline can be futher edited
     await waitForAnyText(browser, browser.$(Selectors.stageContent(0)));
@@ -993,8 +1000,7 @@ describe('Collection aggregations tab', function () {
 
     // Click the export data button to open the modal.
     await browser.clickVisible(Selectors.ExportAggregationResultsButton);
-    const exportModal = browser.$(Selectors.ExportModal);
-    await exportModal.waitForDisplayed();
+    await browser.waitForOpenModal(Selectors.ExportModal);
 
     // Make sure the aggregation is shown in the modal.
     const exportModalAggregationTextElement = browser.$(
@@ -1013,10 +1019,7 @@ describe('Collection aggregations tab', function () {
     await browser.setExportFilename(filename);
 
     // Wait for the modal to go away.
-    const exportModalElement = browser.$(Selectors.ExportModal);
-    await exportModalElement.waitForDisplayed({
-      reverse: true,
-    });
+    await browser.waitForOpenModal(Selectors.ExportModal, { reverse: true });
 
     await browser.waitForExportToFinishAndCloseToast();
 
@@ -1040,15 +1043,16 @@ describe('Collection aggregations tab', function () {
 
     await browser.clickVisible(Selectors.AggregationExplainButton);
     await browser.waitForAnimations(Selectors.AggregationExplainModal);
+    await browser.waitForOpenModal(Selectors.AggregationExplainModal);
 
-    const modal = browser.$(Selectors.AggregationExplainModal);
-    await modal.waitForDisplayed();
-    await browser.waitForAnimations(Selectors.AggregationExplainModal);
-
-    expect(await modal.getText()).to.contain('Query Performance Summary');
+    expect(
+      await browser.$(Selectors.AggregationExplainModal).getText()
+    ).to.contain('Query Performance Summary');
 
     await browser.clickVisible(Selectors.AggregationExplainModalCloseButton);
-    await modal.waitForDisplayed({ reverse: true });
+    await browser.waitForOpenModal(Selectors.AggregationExplainModal, {
+      reverse: true,
+    });
   });
 
   it('shows confirmation modal when create new pipeline is clicked and aggregation is modified', async function () {
@@ -1321,8 +1325,8 @@ describe('Collection aggregations tab', function () {
         '{ i: 5 }'
       );
       await browser.clickVisible(Selectors.stageFocusModeButton(0));
-      const modal = browser.$(Selectors.FocusModeModal);
-      await modal.waitForDisplayed();
+
+      await browser.waitForOpenModal(Selectors.FocusModeModal);
 
       await browser.$(Selectors.FocusModeStageInput).waitForDisplayed();
       await browser.$(Selectors.FocusModeStageEditor).waitForDisplayed();
@@ -1330,7 +1334,9 @@ describe('Collection aggregations tab', function () {
 
       await browser.clickVisible(Selectors.FocusModeCloseModalButton);
 
-      await modal.waitForDisplayed({ reverse: true });
+      await browser.waitForOpenModal(Selectors.FocusModeModal, {
+        reverse: true,
+      });
     });
 
     it('navigates between stages', async function () {
@@ -1354,8 +1360,7 @@ describe('Collection aggregations tab', function () {
       );
 
       await browser.clickVisible(Selectors.stageFocusModeButton(0));
-      const modal = browser.$(Selectors.FocusModeModal);
-      await modal.waitForDisplayed();
+      await browser.waitForOpenModal(Selectors.FocusModeModal);
 
       const nextButton = browser.$(Selectors.FocusModeNextStageButton);
       const previousButton = browser.$(Selectors.FocusModePreviousStageButton);
@@ -1399,7 +1404,9 @@ describe('Collection aggregations tab', function () {
 
       await browser.clickVisible(Selectors.FocusModeCloseModalButton);
 
-      await modal.waitForDisplayed({ reverse: true });
+      await browser.waitForOpenModal(Selectors.FocusModeModal, {
+        reverse: true,
+      });
     });
 
     it('adds a new stage before or after current stage', async function () {
@@ -1410,8 +1417,7 @@ describe('Collection aggregations tab', function () {
       );
 
       await browser.clickVisible(Selectors.stageFocusModeButton(0));
-      const modal = browser.$(Selectors.FocusModeModal);
-      await modal.waitForDisplayed();
+      await browser.waitForOpenModal(Selectors.FocusModeModal);
 
       await browser.waitUntil(async () => {
         const activeStage = browser.$(Selectors.FocusModeActiveStageLabel);
@@ -1451,7 +1457,9 @@ describe('Collection aggregations tab', function () {
 
       await browser.clickVisible(Selectors.FocusModeCloseModalButton);
 
-      await modal.waitForDisplayed({ reverse: true });
+      await browser.waitForOpenModal(Selectors.FocusModeModal, {
+        reverse: true,
+      });
     });
 
     it('hides stage input and output when preview is disabled', async function () {
@@ -1464,8 +1472,7 @@ describe('Collection aggregations tab', function () {
       );
 
       await browser.clickVisible(Selectors.stageFocusModeButton(0));
-      const modal = browser.$(Selectors.FocusModeModal);
-      await modal.waitForDisplayed();
+      await browser.waitForOpenModal(Selectors.FocusModeModal);
 
       await browser
         .$(Selectors.FocusModeStageInput)
@@ -1484,8 +1491,7 @@ describe('Collection aggregations tab', function () {
       );
 
       await browser.clickVisible(Selectors.stageFocusModeButton(0));
-      const modal = browser.$(Selectors.FocusModeModal);
-      await modal.waitForDisplayed();
+      await browser.waitForOpenModal(Selectors.FocusModeModal);
 
       await browser.waitUntil(async () => {
         const outputElem = browser.$(Selectors.FocusModeStageOutput);
@@ -1502,8 +1508,7 @@ describe('Collection aggregations tab', function () {
       );
 
       await browser.clickVisible(Selectors.stageFocusModeButton(0));
-      const modal = browser.$(Selectors.FocusModeModal);
-      await modal.waitForDisplayed();
+      await browser.waitForOpenModal(Selectors.FocusModeModal);
 
       await browser.waitUntil(async () => {
         const outputElem = browser.$(Selectors.FocusModeStageOutput);
@@ -1517,8 +1522,7 @@ describe('Collection aggregations tab', function () {
       await browser.setCodemirrorEditorValue(Selectors.stageEditor(0), '{}');
 
       await browser.clickVisible(Selectors.stageFocusModeButton(0));
-      const modal = browser.$(Selectors.FocusModeModal);
-      await modal.waitForDisplayed();
+      await browser.waitForOpenModal(Selectors.FocusModeModal);
 
       await browser.waitUntil(async () => {
         const outputElem = browser.$(Selectors.FocusModeStageOutput);
@@ -1725,8 +1729,7 @@ describe('Collection aggregations tab', function () {
         await browser.setCodemirrorEditorValue(Selectors.stageEditor(1), '1');
 
         await browser.clickVisible(Selectors.stageFocusModeButton(0));
-        const modal = browser.$(Selectors.FocusModeModal);
-        await modal.waitForDisplayed();
+        await browser.waitForOpenModal(Selectors.FocusModeModal);
 
         await browser.$(Selectors.FocusModeStageInput).waitForDisplayed();
         await browser.$(Selectors.FocusModeStageEditor).waitForDisplayed();

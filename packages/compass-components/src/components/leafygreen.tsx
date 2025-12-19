@@ -9,7 +9,10 @@ import { Banner } from '@leafygreen-ui/banner';
 import { Checkbox } from '@leafygreen-ui/checkbox';
 import { Card } from '@leafygreen-ui/card';
 import { Code, Language, Panel } from '@leafygreen-ui/code';
-import ConfirmationModal from '@leafygreen-ui/confirmation-modal';
+import {
+  ConfirmationModal,
+  Variant as ConfirmationModalVariant,
+} from '@leafygreen-ui/confirmation-modal';
 export type { ConfirmationModalProps } from '@leafygreen-ui/confirmation-modal';
 import { Icon as LeafyGreenIcon } from '@leafygreen-ui/icon';
 import type { Size as LeafyGreenIconSize } from '@leafygreen-ui/icon';
@@ -33,8 +36,8 @@ import { ProgressBar } from '@leafygreen-ui/progress-bar';
   type: 'button',
 };
 
-import Modal, { Footer as ModalFooter } from '@leafygreen-ui/modal';
-import MarketingModal from '@leafygreen-ui/marketing-modal';
+import { Modal, Footer as ModalFooter } from '@leafygreen-ui/modal';
+import { MarketingModal } from '@leafygreen-ui/marketing-modal';
 import { Pipeline, Stage } from '@leafygreen-ui/pipeline';
 import { Popover } from '@leafygreen-ui/popover';
 import { RadioBox, RadioBoxGroup } from '@leafygreen-ui/radio-box-group';
@@ -132,6 +135,7 @@ export {
   Code,
   Panel,
   ConfirmationModal,
+  ConfirmationModalVariant,
   Copyable,
   ExpandedContent,
   HeaderCell,

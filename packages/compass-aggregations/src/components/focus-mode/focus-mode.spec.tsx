@@ -18,12 +18,8 @@ describe('FocusMode', function () {
 
   it('does not show modal when closed', async function () {
     const store = await renderFocusMode();
-    store.dispatch(disableFocusMode() as any);
-    await waitFor(() => {
-      expect(() => {
-        screen.getByTestId('focus-mode-modal');
-      }).to.throw();
-    });
+    store.dispatch(disableFocusMode());
+    expect(screen.getByTestId('focus-mode-modal')).to.be.closed;
   });
 
   it('shows modal when open', async function () {
@@ -36,14 +32,12 @@ describe('FocusMode', function () {
 
   it('hides modal when close button is clicked', async function () {
     const store = await renderFocusMode();
-    store.dispatch(enableFocusMode(0) as any);
+    store.dispatch(enableFocusMode(0));
 
     await waitFor(() => {
       screen.getByLabelText(/close modal/i).click();
     });
 
-    await waitFor(() => {
-      expect(screen.queryByTestId('focus-mode-modal')).to.not.exist;
-    });
+    expect(screen.queryByTestId('focus-mode-modal')).to.be.closed;
   });
 });

@@ -1,6 +1,5 @@
 import React, { useEffect, useCallback } from 'react';
 import { connect } from 'react-redux';
-import type { Theme } from '@mongodb-js/compass-components';
 import {
   Banner,
   Body,
@@ -73,53 +72,6 @@ const bannerStyles = css({
   textAlign: 'left',
 });
 
-// TODO: The LG MarketingModal does not provide a way to disable the button
-// so this is a temporary workaround to make the button look disabled.
-const leafyGreenButtonSelector =
-  'button[data-lgid="lg-button"]:not([aria-label="Close modal"])';
-const focusSelector = `&:focus-visible, &[data-focus="true"]`;
-const hoverSelector = `&:hover, &[data-hover="true"]`;
-const activeSelector = `&:active, &[data-active="true"]`;
-const focusBoxShadow = (color: string) => `
-    0 0 0 2px ${color}, 
-    0 0 0 4px ${palette.blue.light1};
-`;
-const disabledButtonStyles: Record<Theme, string> = {
-  [Themes.Light]: css({
-    [leafyGreenButtonSelector]: {
-      [`&, ${hoverSelector}, ${activeSelector}`]: {
-        backgroundColor: palette.gray.light2,
-        borderColor: palette.gray.light1,
-        color: palette.gray.base,
-        boxShadow: 'none',
-        cursor: 'not-allowed',
-      },
-
-      [focusSelector]: {
-        color: palette.gray.base,
-        boxShadow: focusBoxShadow(palette.white),
-      },
-    },
-  }),
-
-  [Themes.Dark]: css({
-    [leafyGreenButtonSelector]: {
-      [`&, ${hoverSelector}, ${activeSelector}`]: {
-        backgroundColor: palette.gray.dark3,
-        borderColor: palette.gray.dark2,
-        color: palette.gray.dark1,
-        boxShadow: 'none',
-        cursor: 'not-allowed',
-      },
-
-      [focusSelector]: {
-        color: palette.gray.dark1,
-        boxShadow: focusBoxShadow(palette.black),
-      },
-    },
-  }),
-};
-
 const CloudAIOptInBannerContent: React.FunctionComponent<{
   isProjectAIEnabled: boolean;
   isSampleDocumentPassingEnabled: boolean;
@@ -179,8 +131,6 @@ export const AIOptInModal: React.FunctionComponent<OptInModalProps> = ({
   );
   const track = useTelemetry();
   const darkMode = useDarkMode();
-  const currentDisabledButtonStyles =
-    disabledButtonStyles[darkMode ? Themes.Dark : Themes.Light];
 
   useEffect(() => {
     if (isOptInModalVisible) {
@@ -208,10 +158,11 @@ export const AIOptInModal: React.FunctionComponent<OptInModalProps> = ({
       open={isOptInModalVisible}
       onClose={handleModalClose}
       data-testid="ai-optin-modal"
-      // TODO Button Disabling
-      className={!isProjectAIEnabled ? currentDisabledButtonStyles : undefined}
-      buttonText="Use AI Features"
-      onButtonClick={onConfirmClick}
+      buttonProps={{
+        children: 'Use AI Features',
+        onClick: onConfirmClick,
+        disabled: !isProjectAIEnabled,
+      }}
       linkText="Not now"
       onLinkClick={onOptInModalClose}
       graphic={<AiImageBanner />}

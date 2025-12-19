@@ -173,9 +173,8 @@ async function assertCannotInsertData(
   );
 
   // cancel and wait for the modal to go away
-  const insertDialog = browser.$(Selectors.InsertDialog);
   await browser.clickVisible(Selectors.InsertCancel);
-  await insertDialog.waitForDisplayed({ reverse: true });
+  await browser.waitForOpenModal(Selectors.InsertDialog, { reverse: true });
 }
 
 async function assertCannotCreateDb(
@@ -196,8 +195,7 @@ async function assertCannotCreateDb(
     false
   );
 
-  const createModalElement = browser.$(Selectors.CreateDatabaseModal);
-  await createModalElement.waitForDisplayed();
+  await browser.waitForOpenModal(Selectors.CreateDatabaseModal);
   await browser.setValueVisible(Selectors.CreateDatabaseDatabaseName, dbName);
   await browser.setValueVisible(
     Selectors.CreateDatabaseCollectionName,
@@ -216,7 +214,9 @@ async function assertCannotCreateDb(
 
   // cancel and wait for the modal to go away
   await browser.clickVisible(Selectors.CreateDatabaseCancelButton);
-  await createModalElement.waitForDisplayed({ reverse: true });
+  await browser.waitForOpenModal(Selectors.CreateDatabaseModal, {
+    reverse: true,
+  });
 }
 
 async function assertCannotCreateCollection(
@@ -235,8 +235,7 @@ async function assertCannotCreateCollection(
   await browser.hover(Selectors.sidebarDatabase(connectionId, dbName));
   await browser.clickVisible(Selectors.CreateCollectionButton);
 
-  const createModalElement = browser.$(Selectors.CreateCollectionModal);
-  await createModalElement.waitForDisplayed();
+  await browser.waitForOpenModal(Selectors.CreateCollectionModal);
   await browser.setValueVisible(
     Selectors.CreateDatabaseCollectionName,
     collectionName
@@ -253,7 +252,9 @@ async function assertCannotCreateCollection(
 
   // cancel and wait for the modal to go away
   await browser.clickVisible(Selectors.CreateCollectionCancelButton);
-  await createModalElement.waitForDisplayed({ reverse: true });
+  await browser.waitForOpenModal(Selectors.CreateCollectionModal, {
+    reverse: true,
+  });
 }
 
 function assertNotError(result: any) {
@@ -320,7 +321,7 @@ describe('Connection string', function () {
 
     // click the review button in the toast
     await browser.clickVisible(Selectors.ConnectionToastErrorReviewButton);
-    await browser.$(Selectors.ConnectionModal).waitForDisplayed();
+    await browser.waitForOpenModal(Selectors.ConnectionModal);
     const errorText = await browser
       .$(Selectors.ConnectionFormErrorMessage)
       .getText();
@@ -328,9 +329,9 @@ describe('Connection string', function () {
 
     // close the modal
     await browser.clickVisible(Selectors.ConnectionModalCloseButton);
-    await browser
-      .$(Selectors.ConnectionModal)
-      .waitForDisplayed({ reverse: true });
+    await browser.waitForOpenModal(Selectors.ConnectionModal, {
+      reverse: true,
+    });
   });
 
   it('can connect to an Atlas replicaset without srv', async function () {
@@ -1012,7 +1013,7 @@ describe('Connection form', function () {
       await browser.$(toastSelector).waitForDisplayed({ reverse: true });
 
       // make sure the connection form is populated with this connection
-      await browser.$(Selectors.ConnectionModal).waitForDisplayed();
+      await browser.waitForOpenModal(Selectors.ConnectionModal);
       const errorText = await browser
         .$(Selectors.ConnectionFormErrorMessage)
         .getText();
@@ -1024,9 +1025,9 @@ describe('Connection form', function () {
 
       // close the modal
       await browser.clickVisible(Selectors.ConnectionModalCloseButton);
-      await browser
-        .$(Selectors.ConnectionModal)
-        .waitForDisplayed({ reverse: true });
+      await browser.waitForOpenModal(Selectors.ConnectionModal, {
+        reverse: true,
+      });
     }
   });
 });

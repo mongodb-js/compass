@@ -114,14 +114,14 @@ describe('Global Tabs', function () {
       })
     );
     await browser.clickVisible(Selectors.CloseWorkspaceTab);
-    await browser.$(Selectors.ConfirmTabCloseModal).waitForDisplayed();
+    await browser.waitForOpenModal(Selectors.ConfirmTabCloseModal);
 
     await browser.clickVisible(
       browser.$(Selectors.ConfirmTabCloseModal).$('button=Cancel')
     );
-    await browser
-      .$(Selectors.ConfirmTabCloseModal)
-      .waitForExist({ reverse: true });
+    await browser.waitForOpenModal(Selectors.ConfirmTabCloseModal, {
+      reverse: true,
+    });
 
     // Checking first that cancel leaves the tab on the screen
     expect(await browser.$$(Selectors.workspaceTab()).length).to.equal(1);
@@ -133,14 +133,14 @@ describe('Global Tabs', function () {
       })
     );
     await browser.clickVisible(Selectors.CloseWorkspaceTab);
-    await browser.$(Selectors.ConfirmTabCloseModal).waitForDisplayed();
+    await browser.waitForOpenModal(Selectors.ConfirmTabCloseModal);
 
     await browser.clickVisible(
       browser.$(Selectors.ConfirmTabCloseModal).$('button=Close tab')
     );
-    await browser
-      .$(Selectors.ConfirmTabCloseModal)
-      .waitForExist({ reverse: true });
+    await browser.waitForOpenModal(Selectors.ConfirmTabCloseModal, {
+      reverse: true,
+    });
 
     // When confirmed, should remove the tab
     expect(await browser.$$(Selectors.workspaceTab()).length).to.equal(0);
