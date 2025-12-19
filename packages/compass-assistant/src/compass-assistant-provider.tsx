@@ -147,9 +147,7 @@ export function useAssistantActions(): AssistantActionsType {
   return {
     interpretExplainPlan,
     interpretConnectionError,
-    tellMoreAboutInsight: isPerformanceInsightEntrypointsEnabled
-      ? tellMoreAboutInsight
-      : undefined,
+    tellMoreAboutInsight,
     getIsAssistantEnabled: () => true,
   };
 }
