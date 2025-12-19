@@ -10,7 +10,6 @@ import {
   palette,
   useDarkMode,
 } from '@mongodb-js/compass-components';
-import { useToolsController } from '@mongodb-js/compass-generative-ai/provider';
 
 const toolCallCardStyles = css({
   padding: spacing[200],
@@ -170,14 +169,10 @@ export const ToolCallMessage: React.FunctionComponent<ToolCallMessageProps> = ({
   onDeny,
 }) => {
   const darkMode = useDarkMode();
-  const toolsController = useToolsController();
   const [isInputExpanded, setIsInputExpanded] = useState(false);
   const [isOutputExpanded, setIsOutputExpanded] = useState(false);
 
   const toolName = getToolDisplayName(toolCall.type);
-  const description =
-    toolsController.getToolDescription(toolCall.type.replace(/^tool-/, '')) ||
-    '';
   const inputJSON = JSON.stringify(toolCall.input || {}, null, 2);
 
   // Extract output text if available
@@ -205,7 +200,7 @@ export const ToolCallMessage: React.FunctionComponent<ToolCallMessageProps> = ({
           <Icon glyph="Wrench" size="xsmall" />
         </div>
         <div className={toolNameStyles}>
-          <b>{toolName}</b>: {description}
+          <b>{toolName}</b>
         </div>
       </div>
 

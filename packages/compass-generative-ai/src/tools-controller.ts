@@ -55,8 +55,4 @@ export class ToolsController {
     // one and start connecting if necessary
     this.context = context;
   }
-
-  getToolDescription(name: string): string | undefined {
-    return this.getActiveTools()[name]?.description;
-  }
 }
