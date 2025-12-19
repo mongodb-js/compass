@@ -143,6 +143,8 @@ describe('NewDiagramModal', function () {
           within(modal).getByTestId('new-diagram-name-input'),
           'Test Diagram'
         );
+        // Blur to trigger validation
+        userEvent.tab();
         await waitFor(() => {
           expect(
             store.getState().generateDiagramWizard.formFields.diagramName.value

@@ -89,14 +89,12 @@ async function setupDiagram(
     Selectors.CreateDataModelNameInput,
     options.diagramName
   );
-  await browser.clickVisible(Selectors.CreateDataModelConfirmButton);
 
   // Select existing connection
   await browser.selectOption({
     selectSelector: Selectors.CreateDataModelConnectionSelector,
     optionText: options.connectionName,
   });
-  await browser.clickVisible(Selectors.CreateDataModelConfirmButton);
 
   // Select a database
   await browser.selectOption({

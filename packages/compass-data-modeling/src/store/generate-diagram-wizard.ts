@@ -36,6 +36,7 @@ export const GenerateDiagramWizardActionTypes = {
     'data-modeling/generate-diagram-wizard/CANCEL_CREATE_NEW_DIAGRAM',
 
   CHANGE_NAME: 'data-modeling/generate-diagram-wizard/CHANGE_NAME',
+  INVALID_NAME: 'data-modeling/generate-diagram-wizard/INVALID_NAME',
 
   SELECT_CONNECTION: 'data-modeling/generate-diagram-wizard/SELECT_CONNECTION',
   CONNECTION_CONNECTED:
@@ -75,7 +76,10 @@ export type CancelCreateNewDiagramAction = {
 export type ChangeNameAction = {
   type: typeof GenerateDiagramWizardActionTypes.CHANGE_NAME;
   name: string;
-  error?: Error;
+};
+export type InvalidNameAction = {
+  type: typeof GenerateDiagramWizardActionTypes.INVALID_NAME;
+  error: Error;
 };
 
 export type SelectConnectionAction = {
@@ -138,6 +142,7 @@ export type GenerateDiagramWizardActions =
   | CreateNewDiagramAction
   | CancelCreateNewDiagramAction
   | ChangeNameAction
+  | InvalidNameAction
   | SelectConnectionAction
   | ConnectionConnectedAction
   | DatabasesFetchedAction
@@ -177,6 +182,17 @@ export const generateDiagramWizardReducer: Reducer<
         ...state.formFields,
         diagramName: {
           value: action.name,
+        },
+      },
+    };
+  }
+  if (isAction(action, GenerateDiagramWizardActionTypes.INVALID_NAME)) {
+    return {
+      ...state,
+      formFields: {
+        ...state.formFields,
+        diagramName: {
+          ...state.formFields.diagramName,
           error: action.error,
         },
       },
@@ -372,19 +388,30 @@ export function createNewDiagram(): CreateNewDiagramAction {
   return { type: GenerateDiagramWizardActionTypes.CREATE_NEW_DIAGRAM };
 }
 
-export function changeName(
-  name: string
-): DataModelingThunkAction<Promise<void>, ChangeNameAction> {
+export function changeName(name: string): ChangeNameAction {
+  return {
+    type: GenerateDiagramWizardActionTypes.CHANGE_NAME,
+    name,
+  };
+}
+
+export function validateDiagramName(): DataModelingThunkAction<
+  Promise<void>,
+  InvalidNameAction
+> {
   return async (dispatch, getState, { dataModelStorage }) => {
+    const diagramName =
+      getState().generateDiagramWizard.formFields.diagramName.value;
+    if (!diagramName) {
+      return;
+    }
     const items = await dataModelStorage.loadAll();
-    const nameExists = items.find((x) => x.name === name);
-    dispatch({
-      type: GenerateDiagramWizardActionTypes.CHANGE_NAME,
-      name,
-      error: nameExists
-        ? new Error('Diagram with this name already exists.')
-        : undefined,
-    });
+    if (items.some((x) => x.name === diagramName)) {
+      dispatch({
+        type: GenerateDiagramWizardActionTypes.INVALID_NAME,
+        error: new Error('Diagram with this name already exists.'),
+      });
+    }
   };
 }
 

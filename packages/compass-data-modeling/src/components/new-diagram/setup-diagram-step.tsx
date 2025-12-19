@@ -10,8 +10,9 @@ import React, { useMemo } from 'react';
 import { connect } from 'react-redux';
 import type { DataModelingState } from '../../store/reducer';
 import { useConnectionsList } from '@mongodb-js/compass-connections/provider';
-import { type GenerateDiagramWizardState } from '../../store/generate-diagram-wizard';
+import type { GenerateDiagramWizardState } from '../../store/generate-diagram-wizard';
 import {
+  validateDiagramName,
   changeName,
   selectConnection,
   selectDatabase,
@@ -40,6 +41,7 @@ type SetupDiagramStepProps = {
   databases: string[];
 
   onNameChange: (name: string) => void;
+  onValidateName: () => void;
   onConnectionSelect: (connectionId: string) => void;
   onDatabaseSelect: (databaseName: string) => void;
 };
@@ -50,6 +52,7 @@ const SetupDiagramStep = ({
   selectedDatabase,
   databases,
   onNameChange,
+  onValidateName,
   onConnectionSelect,
   onDatabaseSelect,
 }: SetupDiagramStepProps) => {
@@ -162,6 +165,10 @@ const SetupDiagramStep = ({
         onChange={(e) => {
           onNameChange(e.currentTarget.value);
         }}
+        // With wdio, there's a race condition if we try to validate the name
+        // on each change due to async state update (which is needed for validation).
+        // So we validate on blur instead.
+        onBlur={onValidateName}
         state={diagramName.error ? 'error' : undefined}
         errorMessage={diagramName.error?.message}
       ></TextInput>
@@ -189,5 +196,6 @@ export default connect(
     onConnectionSelect: selectConnection,
     onDatabaseSelect: selectDatabase,
     onNameChange: changeName,
+    onValidateName: validateDiagramName,
   }
 )(SetupDiagramStep);
