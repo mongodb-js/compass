@@ -59,7 +59,6 @@ import {
   lastAssistantMessageIsCompleteWithApprovalResponses,
   type ToolSet,
 } from 'ai';
-import { toJSString } from 'mongodb-query-parser';
 
 export const ASSISTANT_DRAWER_ID = 'compass-assistant-drawer';
 
@@ -292,10 +291,9 @@ export const AssistantProvider: React.FunctionComponent<
       if (enableToolCalling) {
         toolsController.setActiveTools(new Set(['compass-ui']));
         toolsController.setContext({
-          query: toJSString(assistantGlobalStateRef.current.currentQuery),
-          aggregation: toJSString(
-            assistantGlobalStateRef.current.currentAggregation
-          ),
+          query: assistantGlobalStateRef.current.currentQuery || undefined,
+          aggregation:
+            assistantGlobalStateRef.current.currentAggregation || undefined,
         });
       } else {
         toolsController.setActiveTools(new Set([]));

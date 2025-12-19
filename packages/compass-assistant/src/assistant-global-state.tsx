@@ -10,8 +10,8 @@ export type GlobalState = {
   activeConnections: ConnectionInfo[];
   activeWorkspace: WorkspaceTab | null;
   activeCollectionMetadata: CollectionMetadata | null;
-  currentQuery: object | null;
-  currentAggregation: object | null;
+  currentQuery: string | null;
+  currentAggregation: string | null;
   activeCollectionSubTab: CollectionSubtab | null;
 };
 
@@ -65,6 +65,10 @@ export function useSyncAssistantGlobalState<T extends keyof GlobalState>(
       if (state.activeWorkspace?.type !== 'Collection') {
         state.activeCollectionMetadata = null;
         state.activeCollectionSubTab = null;
+      }
+
+      if (stateKey === 'currentAggregation') {
+        console.log(stateKey, newState);
       }
 
       return state;
