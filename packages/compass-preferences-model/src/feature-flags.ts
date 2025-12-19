@@ -198,7 +198,7 @@ export const FEATURE_FLAG_DEFINITIONS = [
    */
   {
     name: 'enablePerformanceInsightsEntrypoints',
-    stage: 'development',
+    stage: 'released',
     atlasCloudFeatureFlagName: null,
     description: {
       short: 'Enable the performance insights AI Assistant entrypoints',
