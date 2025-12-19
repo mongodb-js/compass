@@ -458,27 +458,23 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
                 return (
                   <React.Fragment key={id}>
                     {/* Show tool calls if present */}
-                    {toolCalls.length > 0 && (
-                      <>
-                        {toolCalls.map((toolCall) => {
-                          const toolCallId =
-                            toolCall.toolCallId || `${id}-${toolCall.type}`;
+                    {toolCalls.map((toolCall) => {
+                      const toolCallId =
+                        toolCall.toolCallId || `${id}-${toolCall.type}`;
 
-                          return (
-                            <ToolCallMessage
-                              key={toolCallId}
-                              toolCall={toolCall}
-                              onApprove={(approvalId) =>
-                                handleToolApproval(approvalId, true)
-                              }
-                              onDeny={(approvalId) =>
-                                handleToolApproval(approvalId, false)
-                              }
-                            />
-                          );
-                        })}
-                      </>
-                    )}
+                      return (
+                        <ToolCallMessage
+                          key={toolCallId}
+                          toolCall={toolCall}
+                          onApprove={(approvalId) =>
+                            handleToolApproval(approvalId, true)
+                          }
+                          onDeny={(approvalId) =>
+                            handleToolApproval(approvalId, false)
+                          }
+                        />
+                      );
+                    })}
                     {/* Show text message if there's text content */}
                     {displayText && (
                       <Message
