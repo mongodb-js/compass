@@ -288,7 +288,7 @@ describe('Connection Import / Export', function () {
           await browser.selectConnectionsMenuItem(
             Selectors.ExportConnectionsModalOpen
           );
-          await browser.$(Selectors.ExportConnectionsModal).waitForDisplayed();
+          await browser.waitForOpenModal(Selectors.ExportConnectionsModal);
         }
 
         // Enter filename and adjust secrets handling
@@ -350,7 +350,7 @@ describe('Connection Import / Export', function () {
           await browser.selectConnectionsMenuItem(
             Selectors.ImportConnectionsModalOpen
           );
-          await browser.$(Selectors.ImportConnectionsModal).waitForDisplayed();
+          await browser.waitForOpenModal(Selectors.ImportConnectionsModal);
         }
 
         // Enter filename and adjust secrets handling

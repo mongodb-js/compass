@@ -5,7 +5,6 @@ import {
   screen,
   userEvent,
   waitFor,
-  waitForElementToBeRemoved,
   within,
 } from '@mongodb-js/testing-library-compass';
 import {
@@ -402,9 +401,13 @@ describe('CompassAssistantProvider', function () {
         ],
         transport: {
           sendMessages: sinon.stub().returns(
-            new Promise(() => {
-              return new ReadableStream({});
-            })
+            Promise.resolve(
+              new ReadableStream({
+                start(c) {
+                  c.close();
+                },
+              })
+            )
           ),
           reconnectToStream: sinon.stub(),
         },
@@ -493,9 +496,13 @@ describe('CompassAssistantProvider', function () {
         ],
         transport: {
           sendMessages: sinon.stub().returns(
-            new Promise(() => {
-              return new ReadableStream({});
-            })
+            Promise.resolve(
+              new ReadableStream({
+                start(c) {
+                  c.close();
+                },
+              })
+            )
           ),
           reconnectToStream: sinon.stub(),
         },
@@ -620,8 +627,9 @@ describe('CompassAssistantProvider', function () {
         userEvent.click(clearButton);
 
         await waitFor(() => {
-          expect(screen.getByTestId('assistant-confirm-clear-chat-modal')).to
-            .exist;
+          expect(
+            screen.getByTestId('assistant-confirm-clear-chat-modal').firstChild
+          ).to.exist;
         });
 
         // There should be messages in the chat
@@ -632,9 +640,11 @@ describe('CompassAssistantProvider', function () {
         const confirmButton = within(modal).getByText('Clear chat');
         userEvent.click(confirmButton);
 
-        await waitForElementToBeRemoved(() =>
-          screen.getByTestId('assistant-confirm-clear-chat-modal')
-        );
+        await waitFor(() => {
+          expect(
+            screen.getByTestId('assistant-confirm-clear-chat-modal').firstChild
+          ).to.not.exist;
+        });
 
         expect(mockChat.messages).to.be.empty;
         expect(screen.queryByTestId('assistant-message-1')).to.not.exist;
@@ -650,8 +660,9 @@ describe('CompassAssistantProvider', function () {
         userEvent.click(clearButton);
 
         await waitFor(() => {
-          expect(screen.getByTestId('assistant-confirm-clear-chat-modal')).to
-            .exist;
+          expect(
+            screen.getByTestId('assistant-confirm-clear-chat-modal').firstChild
+          ).to.exist;
         });
 
         // There should be messages in the chat
@@ -662,9 +673,11 @@ describe('CompassAssistantProvider', function () {
         const cancelButton = within(modal).getByText('Cancel');
         userEvent.click(cancelButton);
 
-        await waitForElementToBeRemoved(() =>
-          screen.getByTestId('assistant-confirm-clear-chat-modal')
-        );
+        await waitFor(() => {
+          expect(
+            screen.getByTestId('assistant-confirm-clear-chat-modal').firstChild
+          ).to.not.exist;
+        });
 
         expect(mockChat.messages).to.deep.equal(mockMessages);
         expect(screen.getByTestId('assistant-message-1')).to.exist;
@@ -682,8 +695,9 @@ describe('CompassAssistantProvider', function () {
         userEvent.click(clearButton);
 
         await waitFor(() => {
-          expect(screen.getByTestId('assistant-confirm-clear-chat-modal')).to
-            .exist;
+          expect(
+            screen.getByTestId('assistant-confirm-clear-chat-modal').firstChild
+          ).to.exist;
         });
 
         // There should be messages in the chat
@@ -696,9 +710,11 @@ describe('CompassAssistantProvider', function () {
         const confirmButton = within(modal).getByText('Clear chat');
         userEvent.click(confirmButton);
 
-        await waitForElementToBeRemoved(() =>
-          screen.getByTestId('assistant-confirm-clear-chat-modal')
-        );
+        await waitFor(() => {
+          expect(
+            screen.getByTestId('assistant-confirm-clear-chat-modal').firstChild
+          ).to.not.exist;
+        });
 
         // The non-genuine warning message should still be in the chat
         expect(screen.getByTestId('assistant-message-non-genuine-warning')).to

@@ -11,7 +11,7 @@
     "email": "compass@mongodb.com"
   },
   "homepage": "https://github.com/mongodb-js/compass",
-  "version": "0.69.0",
+  "version": "0.69.1",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/compass.git"
@@ -49,15 +49,16 @@
     "test-watch": "npm run test -- --watch",
     "test-ci": "npm run test-cov",
     "test-ci-electron": "npm run test-electron",
-    "reformat": "npm run eslint . -- --fix && npm run prettier -- --write ."
+    "reformat": "npm run eslint . -- --fix && npm run prettier -- --write .",
+    "eval": "braintrust eval tests/evals"
   },
   "dependencies": {
-    "@mongodb-js/atlas-service": "^0.74.0",
+    "@mongodb-js/atlas-service": "^0.74.1",
     "@mongodb-js/compass-app-registry": "^9.5.0",
     "@mongodb-js/compass-components": "^1.60.0",
     "@mongodb-js/compass-intercom": "^0.51.0",
     "@mongodb-js/compass-logging": "^1.8.0",
-    "@mongodb-js/compass-telemetry": "^1.20.0",
+    "@mongodb-js/compass-telemetry": "^1.20.1",
     "@mongodb-js/compass-utils": "^0.9.24",
     "@mongodb-js/connection-info": "^0.24.1",
     "bson": "^6.10.4",
@@ -84,10 +85,13 @@
     "@types/mocha": "^9.0.0",
     "@types/react": "^17.0.5",
     "@types/sinon-chai": "^3.2.5",
+    "autoevals": "^0.0.130",
+    "braintrust": "^0.2.4",
     "chai": "^4.3.6",
     "depcheck": "^1.4.1",
     "electron-mocha": "^12.2.0",
     "mocha": "^10.2.0",
+    "mongodb-ns": "^3.1.0",
     "nyc": "^15.1.0",
     "p-queue": "^7.4.1",
     "sinon": "^9.2.3",

@@ -8,21 +8,27 @@ import React, {
 import { Variant as ConfirmationModalVariant } from '@leafygreen-ui/confirmation-modal';
 import ConfirmationModal from '../components/modals/confirmation-modal';
 import { css } from '@leafygreen-ui/emotion';
-import type { ButtonProps } from '@leafygreen-ui/button';
 import FormFieldContainer from '../components/form-field-container';
 import { Banner, TextInput } from '../components/leafygreen';
 import { spacing } from '@leafygreen-ui/tokens';
 import { useInitialValue } from './use-initial-value';
+import { useId } from '@react-aria/utils';
 
 export { ConfirmationModalVariant };
 
 type ConfirmationModalProps = React.ComponentProps<typeof ConfirmationModal>;
 
 type ConfirmationProperties = Partial<
-  Pick<ConfirmationModalProps, 'title' | 'variant' | 'requiredInputText'>
+  Pick<
+    ConfirmationModalProps,
+    | 'title'
+    | 'variant'
+    | 'requiredInputText'
+    | 'initialFocus'
+    | 'confirmButtonProps'
+  >
 > & {
   buttonText?: React.ReactNode;
-  confirmButtonProps?: Omit<ButtonProps, 'onClick'>;
   hideConfirmButton?: boolean;
   hideCancelButton?: boolean;
   description?: React.ReactNode;
@@ -169,6 +175,8 @@ const ConfirmationModalStateHandler: React.FunctionComponent = ({
     onUserAction(false);
   }, [onUserAction]);
 
+  const initialFocusId = useId();
+
   return (
     <>
       {children}
@@ -183,6 +191,7 @@ const ConfirmationModalStateHandler: React.FunctionComponent = ({
         title={confirmationProps.title ?? 'Are you sure?'}
         variant={confirmationProps.variant ?? ConfirmationModalVariant.Default}
         confirmButtonProps={{
+          id: confirmationProps.hideCancelButton ? initialFocusId : undefined,
           className: confirmationProps.hideConfirmButton
             ? hideButtonStyles
             : undefined,
@@ -191,12 +200,20 @@ const ConfirmationModalStateHandler: React.FunctionComponent = ({
           ...confirmationProps.confirmButtonProps,
         }}
         cancelButtonProps={{
+          id: !confirmationProps.hideCancelButton ? initialFocusId : undefined,
           className: confirmationProps.hideCancelButton
             ? hideButtonStyles
             : undefined,
           onClick: handleCancel,
         }}
         requiredInputText={confirmationProps.requiredInputText ?? undefined}
+        initialFocus={
+          confirmationProps.initialFocus ??
+          (confirmationProps.requiredInputText
+            ? 'auto'
+            : // TODO: Update this once https://jira.mongodb.org/browse/LG-5735 gets resolved
+              `#${initialFocusId}`)
+        }
       >
         {confirmationProps.description}
         {confirmationProps.warning && (
