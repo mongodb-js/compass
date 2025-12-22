@@ -140,6 +140,7 @@ const messageFeedFixesStyles = css({
   wordBreak: 'break-word',
   padding: spacing[400],
   gap: spacing[400],
+  width: '100%',
 
   // TODO(COMPASS-9751): We're setting the font weight to 600 here as the LG styling for the Assistant header isn't set
   '& > div > div > div:has(svg[aria-label="Sparkle Icon"]) p': {
