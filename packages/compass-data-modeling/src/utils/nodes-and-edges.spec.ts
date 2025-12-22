@@ -731,12 +731,11 @@ describe('relationshipToDiagramEdge', function () {
           relationship.relationship[1],
         ],
       },
-      false,
-      []
+      false
     );
     expect(incompleteEdge.animated).to.equal(true);
 
-    const completeEdge = relationshipToDiagramEdge(relationship, false, []);
+    const completeEdge = relationshipToDiagramEdge(relationship, false);
     expect(completeEdge.animated).to.equal(false);
   });
 });
