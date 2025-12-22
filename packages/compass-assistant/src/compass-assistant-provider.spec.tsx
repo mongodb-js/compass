@@ -25,7 +25,10 @@ import type { AtlasAuthService } from '@mongodb-js/atlas-service/provider';
 import type { AtlasService } from '@mongodb-js/atlas-service/provider';
 import { CompassAssistantDrawer } from './compass-assistant-drawer';
 import { createBrokenTransport, createMockChat } from '../test/utils';
-import type { AtlasAiService } from '@mongodb-js/compass-generative-ai/provider';
+import type {
+  AtlasAiService,
+  ToolsController,
+} from '@mongodb-js/compass-generative-ai/provider';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 
@@ -33,10 +36,12 @@ function createMockProvider({
   mockAtlasService,
   mockAtlasAiService,
   mockAtlasAuthService,
+  mockToolsController,
 }: {
   mockAtlasService?: any;
   mockAtlasAiService?: any;
   mockAtlasAuthService?: any;
+  mockToolsController?: any;
 } = {}) {
   if (!mockAtlasService) {
     mockAtlasService = {
@@ -56,10 +61,19 @@ function createMockProvider({
     mockAtlasAuthService = {};
   }
 
+  if (!mockToolsController) {
+    mockToolsController = {
+      setActiveTools: sinon.stub().resolves(),
+      getAvailableTools: sinon.stub().resolves({}),
+      setContext: sinon.stub().resolves(),
+    };
+  }
+
   return CompassAssistantProvider.withMockServices({
     atlasService: mockAtlasService as unknown as AtlasService,
     atlasAiService: mockAtlasAiService as unknown as AtlasAiService,
     atlasAuthService: mockAtlasAuthService as unknown as AtlasAuthService,
+    toolsController: mockToolsController as unknown as ToolsController,
   });
 }
 
@@ -70,6 +84,7 @@ const TestComponent: React.FunctionComponent<{
   mockAtlasService?: any;
   mockAtlasAiService?: any;
   mockAtlasAuthService?: any;
+  mockToolsController?: any;
   hasNonGenuineConnections?: boolean;
 }> = ({
   chat,
@@ -77,12 +92,14 @@ const TestComponent: React.FunctionComponent<{
   mockAtlasService,
   mockAtlasAiService,
   mockAtlasAuthService,
+  mockToolsController,
   hasNonGenuineConnections,
 }) => {
   const MockedProvider = createMockProvider({
     mockAtlasService: mockAtlasService as unknown as AtlasService,
     mockAtlasAiService: mockAtlasAiService as unknown as AtlasAiService,
     mockAtlasAuthService: mockAtlasAuthService as unknown as AtlasAuthService,
+    mockToolsController: mockToolsController as unknown as ToolsController,
   });
 
   return (
@@ -138,6 +155,7 @@ describe('useAssistantActions', function () {
         enableGenAIFeatures: false,
         enableGenAIFeaturesAtlasOrg: true,
         cloudFeatureRolloutAccess: { GEN_AI_COMPASS: true },
+        enableToolCalling: true,
       },
     });
 
@@ -152,6 +170,7 @@ describe('useAssistantActions', function () {
         enableGenAIFeatures: true,
         enableGenAIFeaturesAtlasOrg: false,
         cloudFeatureRolloutAccess: { GEN_AI_COMPASS: true },
+        enableToolCalling: true,
       },
     });
 
@@ -166,6 +185,7 @@ describe('useAssistantActions', function () {
         enableGenAIFeatures: true,
         enableGenAIFeaturesAtlasOrg: true,
         cloudFeatureRolloutAccess: { GEN_AI_COMPASS: false },
+        enableToolCalling: true,
       },
     });
 
@@ -180,6 +200,7 @@ describe('useAssistantActions', function () {
         enableGenAIFeatures: true,
         enableGenAIFeaturesAtlasOrg: true,
         cloudFeatureRolloutAccess: { GEN_AI_COMPASS: true },
+        enableToolCalling: true,
       },
     });
 
@@ -198,6 +219,7 @@ describe('useAssistantActions', function () {
         enableGenAIFeatures: true,
         enableGenAIFeaturesAtlasOrg: true,
         cloudFeatureRolloutAccess: { GEN_AI_COMPASS: true },
+        enableToolCalling: true,
       },
     });
 
@@ -229,6 +251,7 @@ describe('CompassAssistantProvider', function () {
         enableGenAIFeatures: true,
         enableGenAIFeaturesAtlasOrg: true,
         cloudFeatureRolloutAccess: { GEN_AI_COMPASS: true },
+        enableToolCalling: true,
       },
     });
 
@@ -244,6 +267,7 @@ describe('CompassAssistantProvider', function () {
           enableGenAIFeatures: false,
           enableGenAIFeaturesAtlasOrg: true,
           cloudFeatureRolloutAccess: { GEN_AI_COMPASS: true },
+          enableToolCalling: true,
         },
       });
 
@@ -259,6 +283,7 @@ describe('CompassAssistantProvider', function () {
           enableGenAIFeatures: true,
           enableGenAIFeaturesAtlasOrg: false,
           cloudFeatureRolloutAccess: { GEN_AI_COMPASS: true },
+          enableToolCalling: true,
         },
       });
 
@@ -274,6 +299,7 @@ describe('CompassAssistantProvider', function () {
           enableGenAIFeatures: true,
           enableGenAIFeaturesAtlasOrg: true,
           cloudFeatureRolloutAccess: { GEN_AI_COMPASS: false },
+          enableToolCalling: true,
         },
       });
 
@@ -290,6 +316,7 @@ describe('CompassAssistantProvider', function () {
         enableGenAIFeatures: true,
         enableGenAIFeaturesAtlasOrg: true,
         cloudFeatureRolloutAccess: { GEN_AI_COMPASS: true },
+        enableToolCalling: true,
       },
     });
 
@@ -310,16 +337,19 @@ describe('CompassAssistantProvider', function () {
     async function renderOpenAssistantDrawer({
       chat,
       atlastAiService,
+      toolsController,
       hasNonGenuineConnections,
     }: {
       chat: Chat<AssistantMessage>;
       atlastAiService?: Partial<AtlasAiService>;
+      toolsController?: Partial<ToolsController>;
       hasNonGenuineConnections?: boolean;
     }): Promise<ReturnType<typeof render>> {
       const result = render(
         <TestComponent
           chat={chat}
           mockAtlasAiService={atlastAiService}
+          mockToolsController={toolsController}
           autoOpen={true}
           hasNonGenuineConnections={hasNonGenuineConnections}
         />,
@@ -329,6 +359,7 @@ describe('CompassAssistantProvider', function () {
             enableGenAIFeatures: true,
             enableGenAIFeaturesAtlasOrg: true,
             cloudFeatureRolloutAccess: { GEN_AI_COMPASS: true },
+            enableToolCalling: true,
           },
         }
       );
