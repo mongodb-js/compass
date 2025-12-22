@@ -21,6 +21,8 @@ import { ConfirmationMessage } from './confirmation-message';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import { NON_GENUINE_WARNING_MESSAGE } from '../preset-messages';
 import { SuggestedPrompts } from './suggested-prompts';
+import { ToolToggle } from './tool-toggle';
+import { usePreference } from 'compass-preferences-model/provider';
 
 const { ChatWindow } = LgChatChatWindow;
 const { LeafyGreenChatProvider } = LgChatLeafygreenChatProvider;
@@ -191,12 +193,19 @@ const inputBarTextareaProps = {
   placeholder: 'Ask a question',
 };
 
+const toolToggleContainerStyles = css({
+  display: 'flex',
+  width: '100%',
+  padding: `${spacing[200]}px ${spacing[400]}px`,
+});
+
 export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
   chat,
   hasNonGenuineConnections,
 }) => {
   const track = useTelemetry();
   const darkMode = useDarkMode();
+  const isToolCallingEnabled = usePreference('enableToolCalling');
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const previousLastMessageId = useRef<string | undefined>(undefined);
   const { id: lastMessageId, role: lastMessageRole } =
@@ -476,6 +485,11 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
             </div>
           )}
           <SuggestedPrompts chat={chat} onMessageSend={handleMessageSend} />
+          {isToolCallingEnabled && (
+            <div className={toolToggleContainerStyles}>
+              <ToolToggle />
+            </div>
+          )}
           <InputBar
             data-testid="assistant-chat-input"
             onMessageSend={(text) => void handleMessageSend({ text })}
