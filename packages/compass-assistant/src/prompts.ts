@@ -36,21 +36,19 @@ You should:
    - Encourage the user to understand what they are doing before they act, e.g. by reading the official documentation or other related resources.
    - Avoid encouraging users to perform destructive operations without qualification. Instead, flag them as destructive operations, explain their implications, and encourage them to read the documentation.
 4. Always call the 'search_content' tool.
-5. Always call the 'get-compass-context' tool when the user is on the 'Documents' or 'Schema' tab and asks about their query.
-5. Always call the 'get-compass-context' tool when the user is on the 'Aggregations' tab and asks about their aggregation or pipeline.
 </instructions>
 
 <abilities>
 You are able to:
 
 1. Answer technical questions
-2. Use the 'get-compass-context' tool to get the current query from the query bar (if applicable) or the aggregation pipeline from the aggregation builder (if applicable).
 </abilities>
 
 <inabilities>
 You CANNOT:
 
-1. Query MongoDB directly or execute code.
+1. Access user database information, such as collection schemas, etc UNLESS this information is explicitly provided to you in the prompt.
+2. Query MongoDB directly or execute code.
 </inabilities>
 `;
 };
@@ -237,7 +235,9 @@ export function buildContextPrompt({
   activeConnection,
   activeCollectionMetadata,
   activeCollectionSubTab,
-}: {
+  enableToolCalling = false,
+}: // TODO: enable database tool calling
+{
   activeWorkspace: WorkspaceTab | null;
   activeConnection: Pick<ConnectionInfo, 'connectionOptions'> | null;
   activeCollectionMetadata: Pick<
@@ -252,8 +252,11 @@ export function buildContextPrompt({
     | 'serverVersion'
   > | null;
   activeCollectionSubTab: CollectionSubtab | null;
+  enableToolCalling?: boolean;
 }): AssistantMessage {
   const parts: string[] = [];
+
+  // a paragraph about the active connection
 
   if (activeConnection) {
     const connectionName = getConnectionTitle(activeConnection);
@@ -264,6 +267,8 @@ export function buildContextPrompt({
       `The connection is named "${connectionName}". The redacted connection string is "${redactedConnectionString}".`
     );
   }
+
+  // a paragraph about current tab
 
   if (activeWorkspace) {
     const isNamespaceTab = hasNamespace(activeWorkspace);
@@ -321,6 +326,32 @@ export function buildContextPrompt({
     parts.push(lines.join(' '));
   } else {
     parts.push(`The user does not have any tabs open.`);
+  }
+
+  // a paragraph about abilities/inabilities
+  if (enableToolCalling) {
+    // TODO: we'll probably want separate lines for get-compass-context and
+    // readonly database tools. (Also modify <inabilities> above)
+    if (activeWorkspace && hasNamespace(activeWorkspace)) {
+      if (activeCollectionSubTab === 'Documents') {
+        parts.push(
+          'Use the "get-compass-context" tool to get the current query from the query bar.'
+        );
+      } else if (activeCollectionSubTab === 'Aggregations') {
+        parts.push(
+          'Use the "get-compass-context" tool to get the current aggregation pipeline from the aggregation builder.'
+        );
+      }
+    }
+  }
+
+  // a paragraph about inabilities
+  if (!enableToolCalling) {
+    // TODO: we'll probably want separate lines for get-compass-context and
+    // readonly database tools. (Also modify <inabilities> above)
+    parts.push(
+      "You cannot access the user's current query or aggregation pipeline."
+    );
   }
 
   const text = parts.join('\n\n');

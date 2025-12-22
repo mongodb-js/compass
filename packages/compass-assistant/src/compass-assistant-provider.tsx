@@ -254,11 +254,14 @@ export const AssistantProvider: React.FunctionComponent<
           );
         }) ?? null;
 
+      const { enableToolCalling } = preferences.getPreferences();
+
       const contextPrompt = buildContextPrompt({
         activeWorkspace,
         activeConnection,
         activeCollectionMetadata,
         activeCollectionSubTab,
+        enableToolCalling,
       });
 
       // use just the text so we have a stable reference to compare against
@@ -280,8 +283,6 @@ export const AssistantProvider: React.FunctionComponent<
         lastContextPromptRef.current = contextPromptText;
         chat.messages = [...chat.messages, contextPrompt];
       }
-
-      const { enableToolCalling } = preferences.getPreferences();
 
       if (enableToolCalling) {
         toolsController.setActiveTools(new Set(['compass-ui']));
