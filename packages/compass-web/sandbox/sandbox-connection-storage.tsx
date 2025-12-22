@@ -36,14 +36,36 @@ class SandboxConnectionStorage implements ConnectionStorage {
       return [info.id, info];
     })
   );
+
+  // Ensure useSystemCA is set to false for all connections since system CA
+  // certificates are not available in the browser environment
+  private normalizeConnectionInfo(info: ConnectionInfo): ConnectionInfo {
+    return {
+      ...info,
+      connectionOptions: {
+        ...info.connectionOptions,
+        useSystemCA: false,
+      },
+    };
+  }
+
   loadAll(): Promise<ConnectionInfo[]> {
-    return Promise.resolve(Array.from(this._connections.values()));
+    return Promise.resolve(
+      Array.from(this._connections.values()).map((info) =>
+        this.normalizeConnectionInfo(info)
+      )
+    );
   }
   load({ id }: { id: string }): Promise<ConnectionInfo | undefined> {
-    return Promise.resolve(this._connections.get(id));
+    const info = this._connections.get(id);
+    return Promise.resolve(
+      info ? this.normalizeConnectionInfo(info) : undefined
+    );
   }
   save({ connectionInfo }: { connectionInfo: ConnectionInfo }): Promise<void> {
-    this._connections.set(connectionInfo.id, connectionInfo);
+    // Normalize the connection to ensure useSystemCA is false before saving
+    const normalizedInfo = this.normalizeConnectionInfo(connectionInfo);
+    this._connections.set(normalizedInfo.id, normalizedInfo);
     setTimeout(() => {
       saveHistory(Array.from(this._connections.values()));
     }, 0);

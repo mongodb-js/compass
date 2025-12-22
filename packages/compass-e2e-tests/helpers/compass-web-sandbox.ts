@@ -208,7 +208,11 @@ export const getAtlasCloudSandboxDefaultConnections = (
     str.password = dbPassword;
     return {
       id: name,
-      connectionOptions: { connectionString: String(str) },
+      connectionOptions: {
+        connectionString: String(str),
+        // System CA certificates are not available in the browser environment
+        useSystemCA: false,
+      },
       favorite: { name },
     };
   });

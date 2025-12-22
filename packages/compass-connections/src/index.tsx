@@ -73,6 +73,11 @@ const ConnectionsComponent: React.FunctionComponent<{
    * When connections fail to load, this callback will be called
    */
   onFailToLoadConnections: (error: Error) => void;
+  /**
+   * Can be used to override the default useSystemCA behavior.
+   * Set to false in browser environments where system CA certificates are not available.
+   */
+  useSystemCA?: boolean;
 }> = ({ children }) => {
   const activeConnections = useConnectionsList((connection) => {
     return connection.status === 'connected';
@@ -119,6 +124,7 @@ const CompassConnectionsPlugin = registerCompassPlugin(
         globalAppRegistry,
         onFailToLoadConnections: initialProps.onFailToLoadConnections,
         compassAssistant,
+        useSystemCA: initialProps.useSystemCA,
       });
 
       setTimeout(() => {

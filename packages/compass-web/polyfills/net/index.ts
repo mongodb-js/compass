@@ -27,8 +27,12 @@ class Socket extends Duplex {
     lookup?: ConnectionOptions['lookup'];
     tls?: boolean;
   }) {
+    // WS does not support callback lookup
+    if ((lookup?.length ?? 0) > 0) lookup = undefined;
+
     const { wsURL, ...atlasOptions } =
       lookup?.() ?? ({} as { wsURL?: string; clusterName?: string });
+
     this._ws = new WebSocket(wsURL ?? '/ws-proxy');
     this._ws.binaryType = 'arraybuffer';
     this._ws.addEventListener(
@@ -159,8 +163,6 @@ export { isIPv4, isIPv6 } from 'is-ip';
 export const isIP = (input: string) => ipVersion(input) ?? 0;
 export const createConnection = (options: { host: string; port: number }) => {
   const socket = new Socket();
-  setTimeout(() => {
-    socket.connect(options);
-  });
+  socket.connect(options);
   return socket;
 };

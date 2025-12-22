@@ -1,6 +1,9 @@
 export function createAgent(): void {
   // The original can return 'undefined' as well
 }
+export function isExistingAgentInstance(): boolean {
+  return false;
+}
 export function useOrCreateAgent(): void {
   // The original can return 'undefined' as well
 }
@@ -10,14 +13,17 @@ export function createSocks5Tunnel(): void {
 export function hookLogger(): void {
   // no-op
 }
-export function createFetch(): never {
-  throw new Error('node-fetch like-API not available in compass-web');
+export function createFetch(): typeof fetch {
+  return async () =>
+    Promise.reject(new Error('node-fetch not available in compass web'));
 }
-export function systemCA(): never {
-  throw new Error('system CA access not available in compass-web');
+export async function systemCA() {
+  await Promise.reject(
+    new Error('system CA access not available in compass-web')
+  );
 }
 export function resetSystemCACache(): never {
-  throw new Error('system CA access not available in compass-web');
+  throw new Error('reset system CA access not available in compass-web');
 }
 
 // Explicitly web-compatible
