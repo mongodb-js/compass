@@ -207,7 +207,7 @@ export function relationshipToDiagramEdge(
     id: relationship.id,
     source: source.ns ?? '',
     target: target.ns ?? '',
-    sourceFieldId: source.fields || [],
+    sourceFieldId: source.fields ?? [],
     targetFieldId: target.fields ?? [],
     markerStart: source.cardinality === 1 ? 'one' : 'many',
     markerEnd: target.cardinality === 1 ? 'one' : 'many',
