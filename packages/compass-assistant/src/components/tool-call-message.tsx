@@ -81,7 +81,7 @@ const expandableHeaderStyles = css({
   marginTop: spacing[100],
   borderRadius: '4px',
   backgroundColor: palette.gray.light2,
-  transition: 'background-color color 0.2s ease-in-out',
+  transition: 'background-color 0.2s ease-in-out, color 0.2s ease-in-out',
   '&:hover': {
     backgroundColor: palette.gray.light1,
     color: palette.black,
