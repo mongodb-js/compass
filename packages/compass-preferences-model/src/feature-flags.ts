@@ -194,18 +194,6 @@ export const FEATURE_FLAG_DEFINITIONS = [
   },
 
   /*
-   * Feature flag for AI Assistant's performance insight entrypoints.
-   */
-  {
-    name: 'enablePerformanceInsightsEntrypoints',
-    stage: 'development',
-    atlasCloudFeatureFlagName: null,
-    description: {
-      short: 'Enable the performance insights AI Assistant entrypoints',
-    },
-  },
-
-  /*
    * Feature flag for AI Assistant's tool calling feature.
    */
   {

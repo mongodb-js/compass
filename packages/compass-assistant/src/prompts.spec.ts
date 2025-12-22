@@ -181,11 +181,17 @@ describe('prompts', function () {
           },
           activeCollectionMetadata: {
             isTimeSeries: false,
+            isClustered: false,
+            isFLE: false,
+            isSearchIndexesSupported: false,
+            isDataLake: false,
+            isAtlas: false,
+            serverVersion: '7.0.0',
           },
           activeCollectionSubTab: 'Schema',
         },
         expected:
-          'The connection is named "localhost:27017". The redacted connection string is "mongodb://localhost:27017/".\n\nThe user is on the "Schema" tab for the "test.normal" namespace.',
+          'The connection is named "localhost:27017". The redacted connection string is "mongodb://localhost:27017/".\n\nThe user is on the "Schema" tab for the "test.normal" namespace. "test.normal" does not support Atlas Search indexes. Server version: 7.0.0',
       },
       // Timeseries Collection
       {
@@ -204,11 +210,17 @@ describe('prompts', function () {
           },
           activeCollectionMetadata: {
             isTimeSeries: true,
+            isClustered: false,
+            isFLE: false,
+            isSearchIndexesSupported: false,
+            isDataLake: false,
+            isAtlas: false,
+            serverVersion: '',
           },
           activeCollectionSubTab: 'Aggregations',
         },
         expected:
-          'The connection is named "localhost:27017". The redacted connection string is "mongodb://localhost:27017/".\n\nThe user is on the "Aggregations" tab for the "test.timeseries" namespace. "test.timeseries" is a time-series collection.',
+          'The connection is named "localhost:27017". The redacted connection string is "mongodb://localhost:27017/".\n\nThe user is on the "Aggregations" tab for the "test.timeseries" namespace. "test.timeseries" is a time-series collection, does not support Atlas Search indexes. Server version: ',
       },
       // View Collection
       {
@@ -228,11 +240,191 @@ describe('prompts', function () {
           activeCollectionMetadata: {
             isTimeSeries: false,
             sourceName: 'test.normal',
+            isClustered: false,
+            isFLE: false,
+            isSearchIndexesSupported: false,
+            isDataLake: false,
+            isAtlas: false,
+            serverVersion: '7.0.0',
           },
           activeCollectionSubTab: 'Documents',
         },
         expected:
-          'The connection is named "localhost:27017". The redacted connection string is "mongodb://localhost:27017/".\n\nThe user is on the "Documents" tab for the "test.view" namespace. "test.view" is a view on the "test.normal" collection.',
+          'The connection is named "localhost:27017". The redacted connection string is "mongodb://localhost:27017/".\n\nThe user is on the "Documents" tab for the "test.view" namespace. "test.view" is a view on the "test.normal" collection, does not support Atlas Search indexes. Server version: 7.0.0',
+      },
+      // Clustered Collection
+      {
+        context: {
+          activeWorkspace: {
+            id: 'collection-tab-1',
+            type: 'Collection',
+            connectionId: 'conn-1',
+            namespace: 'test.clustered',
+            subTab: 'Schema',
+          },
+          activeConnection: {
+            connectionOptions: {
+              connectionString: 'mongodb://localhost:27017',
+            },
+          },
+          activeCollectionMetadata: {
+            isTimeSeries: false,
+            isClustered: true,
+            isFLE: false,
+            isSearchIndexesSupported: false,
+            isDataLake: false,
+            isAtlas: false,
+            serverVersion: '7.0.0',
+          },
+          activeCollectionSubTab: 'Schema',
+        },
+        expected:
+          'The connection is named "localhost:27017". The redacted connection string is "mongodb://localhost:27017/".\n\nThe user is on the "Schema" tab for the "test.clustered" namespace. "test.clustered" is a clustered collection, does not support Atlas Search indexes. Server version: 7.0.0',
+      },
+      // FLE Collection
+      {
+        context: {
+          activeWorkspace: {
+            id: 'collection-tab-1',
+            type: 'Collection',
+            connectionId: 'conn-1',
+            namespace: 'test.encrypted',
+            subTab: 'Documents',
+          },
+          activeConnection: {
+            connectionOptions: {
+              connectionString: 'mongodb://localhost:27017',
+            },
+          },
+          activeCollectionMetadata: {
+            isTimeSeries: false,
+            isClustered: false,
+            isFLE: true,
+            isSearchIndexesSupported: false,
+            isDataLake: false,
+            isAtlas: false,
+            serverVersion: '7.0.0',
+          },
+          activeCollectionSubTab: 'Documents',
+        },
+        expected:
+          'The connection is named "localhost:27017". The redacted connection string is "mongodb://localhost:27017/".\n\nThe user is on the "Documents" tab for the "test.encrypted" namespace. "test.encrypted" has encrypted fields, does not support Atlas Search indexes. Server version: 7.0.0',
+      },
+      // Collection with Search Indexes Support
+      {
+        context: {
+          activeWorkspace: {
+            id: 'collection-tab-1',
+            type: 'Collection',
+            connectionId: 'conn-1',
+            namespace: 'test.searchable',
+            subTab: 'Indexes',
+          },
+          activeConnection: {
+            connectionOptions: {
+              connectionString: 'mongodb+srv://cluster.mongodb.net',
+            },
+          },
+          activeCollectionMetadata: {
+            isTimeSeries: false,
+            isClustered: false,
+            isFLE: false,
+            isSearchIndexesSupported: true,
+            isDataLake: false,
+            isAtlas: true,
+            serverVersion: '7.0.0',
+          },
+          activeCollectionSubTab: 'Indexes',
+        },
+        expected:
+          'The connection is named "cluster.mongodb.net". The redacted connection string is "mongodb+srv://cluster.mongodb.net/".\n\nThe user is on the "Indexes" tab for the "test.searchable" namespace. "test.searchable" supports Atlas Search indexes. The instance is Atlas. Server version: 7.0.0',
+      },
+      // Data Lake Collection
+      {
+        context: {
+          activeWorkspace: {
+            id: 'collection-tab-1',
+            type: 'Collection',
+            connectionId: 'conn-1',
+            namespace: 'test.datalake',
+            subTab: 'Documents',
+          },
+          activeConnection: {
+            connectionOptions: {
+              connectionString: 'mongodb+srv://datalake.mongodb.net',
+            },
+          },
+          activeCollectionMetadata: {
+            isTimeSeries: false,
+            isClustered: false,
+            isFLE: false,
+            isSearchIndexesSupported: false,
+            isDataLake: true,
+            isAtlas: true,
+            serverVersion: '6.0.0',
+          },
+          activeCollectionSubTab: 'Documents',
+        },
+        expected:
+          'The connection is named "datalake.mongodb.net". The redacted connection string is "mongodb+srv://datalake.mongodb.net/".\n\nThe user is on the "Documents" tab for the "test.datalake" namespace. "test.datalake" does not support Atlas Search indexes. The instance is Data Lake and Atlas. Server version: 6.0.0',
+      },
+      // Collection with multiple features
+      {
+        context: {
+          activeWorkspace: {
+            id: 'collection-tab-1',
+            type: 'Collection',
+            connectionId: 'conn-1',
+            namespace: 'test.multifeature',
+            subTab: 'Aggregations',
+          },
+          activeConnection: {
+            connectionOptions: {
+              connectionString: 'mongodb+srv://cluster.mongodb.net',
+            },
+          },
+          activeCollectionMetadata: {
+            isTimeSeries: true,
+            isClustered: true,
+            isFLE: true,
+            isSearchIndexesSupported: true,
+            isDataLake: false,
+            isAtlas: true,
+            serverVersion: '8.0.0',
+          },
+          activeCollectionSubTab: 'Aggregations',
+        },
+        expected:
+          'The connection is named "cluster.mongodb.net". The redacted connection string is "mongodb+srv://cluster.mongodb.net/".\n\nThe user is on the "Aggregations" tab for the "test.multifeature" namespace. "test.multifeature" is a time-series collection, is a clustered collection, has encrypted fields, supports Atlas Search indexes. The instance is Atlas. Server version: 8.0.0',
+      },
+      // Collection without server version
+      {
+        context: {
+          activeWorkspace: {
+            id: 'collection-tab-1',
+            type: 'Collection',
+            connectionId: 'conn-1',
+            namespace: 'test.noversion',
+            subTab: 'Documents',
+          },
+          activeConnection: {
+            connectionOptions: {
+              connectionString: 'mongodb://localhost:27017',
+            },
+          },
+          activeCollectionMetadata: {
+            isTimeSeries: false,
+            isClustered: false,
+            isFLE: false,
+            isSearchIndexesSupported: false,
+            isDataLake: false,
+            isAtlas: false,
+            serverVersion: '7.0.0',
+          },
+          activeCollectionSubTab: 'Documents',
+        },
+        expected:
+          'The connection is named "localhost:27017". The redacted connection string is "mongodb://localhost:27017/".\n\nThe user is on the "Documents" tab for the "test.noversion" namespace. "test.noversion" does not support Atlas Search indexes. Server version: 7.0.0',
       },
     ];
 
@@ -245,6 +437,21 @@ describe('prompts', function () {
       }
       if (testCase.context.activeCollectionMetadata?.sourceName) {
         summary.isView = true;
+      }
+      if (testCase.context.activeCollectionMetadata?.isClustered) {
+        summary.isClustered = true;
+      }
+      if (testCase.context.activeCollectionMetadata?.isFLE) {
+        summary.isFLE = true;
+      }
+      if (testCase.context.activeCollectionMetadata?.isSearchIndexesSupported) {
+        summary.isSearchIndexesSupported = true;
+      }
+      if (testCase.context.activeCollectionMetadata?.isDataLake) {
+        summary.isDataLake = true;
+      }
+      if (testCase.context.activeCollectionMetadata?.isAtlas) {
+        summary.isAtlas = true;
       }
       if (hasSubtab(testCase.context.activeWorkspace)) {
         summary.subTab = testCase.context.activeWorkspace.subTab;
