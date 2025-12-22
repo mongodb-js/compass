@@ -367,13 +367,12 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
         approved,
       });
 
-      // TODO: Add telemetry event for tool approvals when it's added to the telemetry schema
-      // track('Assistant Tool Call Approval', {
-      //   approved,
-      //   approval_id: approvalId,
-      // });
+      track('Assistant Tool Call Approval', {
+        approved,
+        approval_id: approvalId,
+      });
     },
-    [addToolApprovalResponse]
+    [addToolApprovalResponse, track]
   );
 
   const visibleMessages = messages.filter(
