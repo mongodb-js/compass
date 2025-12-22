@@ -458,9 +458,10 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
                 return (
                   <React.Fragment key={id}>
                     {/* Show tool calls if present */}
-                    {toolCalls.map((toolCall) => {
+                    {toolCalls.map((toolCall, index) => {
                       const toolCallId =
-                        toolCall.toolCallId || `${id}-${toolCall.type}`;
+                        toolCall.toolCallId ||
+                        `${id}-${toolCall.type}-${index}`;
 
                       return (
                         <ToolCallMessage
