@@ -64,7 +64,7 @@ function createMockProvider({
   if (!mockToolsController) {
     mockToolsController = {
       setActiveTools: sinon.stub().resolves(),
-      getAvailableTools: sinon.stub().resolves({}),
+      getActiveTools: sinon.stub().resolves({}),
       setContext: sinon.stub().resolves(),
     };
   }
@@ -339,11 +339,13 @@ describe('CompassAssistantProvider', function () {
       atlastAiService,
       toolsController,
       hasNonGenuineConnections,
+      enableToolCalling = true,
     }: {
       chat: Chat<AssistantMessage>;
       atlastAiService?: Partial<AtlasAiService>;
       toolsController?: Partial<ToolsController>;
       hasNonGenuineConnections?: boolean;
+      enableToolCalling?: boolean;
     }): Promise<ReturnType<typeof render>> {
       const result = render(
         <TestComponent
@@ -359,7 +361,7 @@ describe('CompassAssistantProvider', function () {
             enableGenAIFeatures: true,
             enableGenAIFeaturesAtlasOrg: true,
             cloudFeatureRolloutAccess: { GEN_AI_COMPASS: true },
-            enableToolCalling: true,
+            enableToolCalling,
           },
         }
       );
@@ -558,6 +560,119 @@ describe('CompassAssistantProvider', function () {
         expect(sendMessageSpy.called).to.be.false;
       });
       expect(screen.queryByText('Hello assistant!')).to.not.exist;
+    });
+
+    it('disables tools if toolCalling feature is disabled', async function () {
+      const mockChat = new Chat<AssistantMessage>({
+        messages: [
+          {
+            id: 'assistant',
+            role: 'assistant',
+            parts: [{ type: 'text', text: 'Hello user!' }],
+          },
+        ],
+      });
+
+      const sendMessageSpy = sinon.spy(mockChat, 'sendMessage');
+
+      const mockToolsController = {
+        setActiveTools: sinon.stub().resolves(),
+        getActiveTools: sinon.stub().resolves({}),
+        setContext: sinon.stub().resolves(),
+      };
+
+      await renderOpenAssistantDrawer({
+        chat: mockChat,
+        toolsController: mockToolsController,
+        enableToolCalling: false,
+      });
+
+      const input = screen.getByPlaceholderText('Ask a question');
+      const sendButton = screen.getByLabelText('Send message');
+
+      userEvent.type(input, 'Hello assistant');
+      userEvent.click(sendButton);
+
+      await waitFor(() => {
+        expect(sendMessageSpy.calledOnce).to.be.true;
+        expect(sendMessageSpy.firstCall.args[0]).to.deep.include({
+          text: 'Hello assistant',
+        });
+      });
+
+      const contextMessages = mockChat.messages.filter(
+        (message) => message.metadata?.isSystemContext
+      );
+      expect(contextMessages).to.have.lengthOf(1);
+
+      expect(mockToolsController.setActiveTools.callCount).to.equal(1);
+      expect(
+        mockToolsController.setActiveTools.firstCall.args[0]
+      ).to.deep.equal(new Set());
+
+      expect(mockToolsController.setContext.callCount).to.equal(1);
+      expect(mockToolsController.setContext.firstCall.args[0]).to.deep.equal({
+        query: undefined,
+        aggregation: undefined,
+      });
+    });
+
+    it('enables tools if toolCalling feature is enabled', async function () {
+      const mockChat = new Chat<AssistantMessage>({
+        messages: [
+          {
+            id: 'assistant',
+            role: 'assistant',
+            parts: [{ type: 'text', text: 'Hello user!' }],
+          },
+        ],
+      });
+
+      const sendMessageSpy = sinon.spy(mockChat, 'sendMessage');
+
+      const mockToolsController = {
+        setActiveTools: sinon.stub().resolves(),
+        getActiveTools: sinon.stub().resolves({}),
+        setContext: sinon.stub().resolves(),
+      };
+
+      await renderOpenAssistantDrawer({
+        chat: mockChat,
+        toolsController: mockToolsController,
+        enableToolCalling: true,
+      });
+
+      const input = screen.getByPlaceholderText('Ask a question');
+      const sendButton = screen.getByLabelText('Send message');
+
+      userEvent.type(input, 'Hello assistant');
+      userEvent.click(sendButton);
+
+      await waitFor(() => {
+        expect(sendMessageSpy.calledOnce).to.be.true;
+        expect(sendMessageSpy.firstCall.args[0]).to.deep.include({
+          text: 'Hello assistant',
+        });
+      });
+
+      const contextMessages = mockChat.messages.filter(
+        (message) => message.metadata?.isSystemContext
+      );
+      expect(contextMessages).to.have.lengthOf(1);
+
+      expect(mockToolsController.setActiveTools.callCount).to.equal(1);
+      expect(
+        mockToolsController.setActiveTools.firstCall.args[0]
+      ).to.deep.equal(new Set(['compass-ui']));
+
+      // TODO: I honestly don't know how to test being on a Document or
+      // Aggregation tab here and setting the query or aggreation global
+      // context. Maybe something for an e2e test?
+      expect(mockToolsController.setContext.callCount).to.equal(1);
+      expect(mockToolsController.setContext.firstCall.args[0]).to.deep.equal({
+        query: undefined,
+        aggregation: undefined,
+      });
     });
 
     describe('error handling with default chat', function () {
