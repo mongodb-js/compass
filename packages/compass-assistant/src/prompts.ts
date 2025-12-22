@@ -293,6 +293,8 @@ export function buildContextPrompt({
 
       if (activeCollectionMetadata.isSearchIndexesSupported) {
         collectionDetails.push('supports Atlas Search indexes');
+      } else {
+        collectionDetails.push('does not support Atlas Search indexes');
       }
 
       if (collectionDetails.length > 0) {

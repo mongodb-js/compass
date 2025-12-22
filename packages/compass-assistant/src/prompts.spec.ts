@@ -191,7 +191,7 @@ describe('prompts', function () {
           activeCollectionSubTab: 'Schema',
         },
         expected:
-          'The connection is named "localhost:27017". The redacted connection string is "mongodb://localhost:27017/".\n\nThe user is on the "Schema" tab for the "test.normal" namespace. Server version: 7.0.0',
+          'The connection is named "localhost:27017". The redacted connection string is "mongodb://localhost:27017/".\n\nThe user is on the "Schema" tab for the "test.normal" namespace. "test.normal" does not support Atlas Search indexes. Server version: 7.0.0',
       },
       // Timeseries Collection
       {
@@ -220,7 +220,7 @@ describe('prompts', function () {
           activeCollectionSubTab: 'Aggregations',
         },
         expected:
-          'The connection is named "localhost:27017". The redacted connection string is "mongodb://localhost:27017/".\n\nThe user is on the "Aggregations" tab for the "test.timeseries" namespace. "test.timeseries" is a time-series collection. Server version: ',
+          'The connection is named "localhost:27017". The redacted connection string is "mongodb://localhost:27017/".\n\nThe user is on the "Aggregations" tab for the "test.timeseries" namespace. "test.timeseries" is a time-series collection, does not support Atlas Search indexes. Server version: ',
       },
       // View Collection
       {
@@ -250,7 +250,7 @@ describe('prompts', function () {
           activeCollectionSubTab: 'Documents',
         },
         expected:
-          'The connection is named "localhost:27017". The redacted connection string is "mongodb://localhost:27017/".\n\nThe user is on the "Documents" tab for the "test.view" namespace. "test.view" is a view on the "test.normal" collection. Server version: 7.0.0',
+          'The connection is named "localhost:27017". The redacted connection string is "mongodb://localhost:27017/".\n\nThe user is on the "Documents" tab for the "test.view" namespace. "test.view" is a view on the "test.normal" collection, does not support Atlas Search indexes. Server version: 7.0.0',
       },
       // Clustered Collection
       {
@@ -279,7 +279,7 @@ describe('prompts', function () {
           activeCollectionSubTab: 'Schema',
         },
         expected:
-          'The connection is named "localhost:27017". The redacted connection string is "mongodb://localhost:27017/".\n\nThe user is on the "Schema" tab for the "test.clustered" namespace. "test.clustered" is a clustered collection. Server version: 7.0.0',
+          'The connection is named "localhost:27017". The redacted connection string is "mongodb://localhost:27017/".\n\nThe user is on the "Schema" tab for the "test.clustered" namespace. "test.clustered" is a clustered collection, does not support Atlas Search indexes. Server version: 7.0.0',
       },
       // FLE Collection
       {
@@ -308,7 +308,7 @@ describe('prompts', function () {
           activeCollectionSubTab: 'Documents',
         },
         expected:
-          'The connection is named "localhost:27017". The redacted connection string is "mongodb://localhost:27017/".\n\nThe user is on the "Documents" tab for the "test.encrypted" namespace. "test.encrypted" has encrypted fields. Server version: 7.0.0',
+          'The connection is named "localhost:27017". The redacted connection string is "mongodb://localhost:27017/".\n\nThe user is on the "Documents" tab for the "test.encrypted" namespace. "test.encrypted" has encrypted fields, does not support Atlas Search indexes. Server version: 7.0.0',
       },
       // Collection with Search Indexes Support
       {
@@ -366,7 +366,7 @@ describe('prompts', function () {
           activeCollectionSubTab: 'Documents',
         },
         expected:
-          'The connection is named "datalake.mongodb.net". The redacted connection string is "mongodb+srv://datalake.mongodb.net/".\n\nThe user is on the "Documents" tab for the "test.datalake" namespace. The instance is Data Lake and Atlas. Server version: 6.0.0',
+          'The connection is named "datalake.mongodb.net". The redacted connection string is "mongodb+srv://datalake.mongodb.net/".\n\nThe user is on the "Documents" tab for the "test.datalake" namespace. "test.datalake" does not support Atlas Search indexes. The instance is Data Lake and Atlas. Server version: 6.0.0',
       },
       // Collection with multiple features
       {
@@ -424,7 +424,7 @@ describe('prompts', function () {
           activeCollectionSubTab: 'Documents',
         },
         expected:
-          'The connection is named "localhost:27017". The redacted connection string is "mongodb://localhost:27017/".\n\nThe user is on the "Documents" tab for the "test.noversion" namespace. Server version: 7.0.0',
+          'The connection is named "localhost:27017". The redacted connection string is "mongodb://localhost:27017/".\n\nThe user is on the "Documents" tab for the "test.noversion" namespace. "test.noversion" does not support Atlas Search indexes. Server version: 7.0.0',
       },
     ];
 
