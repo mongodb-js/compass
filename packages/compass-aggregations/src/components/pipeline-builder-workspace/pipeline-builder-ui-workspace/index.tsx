@@ -112,17 +112,13 @@ type Stage = {
   value: string | null;
 };
 
-function stageToString(stage: Stage): string {
-  return `{ ${stage.stageOperator}: ${stage.value} }`;
-}
-
 function getPipelineTextFromStages(stages: Stage[]): string {
   const code = `[${stages
     .filter(
       (stage) =>
         stage.stageOperator !== null && stage.value !== null && !stage.disabled
     )
-    .map((stage) => stageToString(stage))
+    .map((stage) => `{ ${stage.stageOperator}: ${stage.value} }`)
     .join(',\n')}\n]`;
   return prettify(code);
 }
