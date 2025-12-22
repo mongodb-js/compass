@@ -55,10 +55,8 @@ import {
   AssistantGlobalStateProvider,
   useAssistantGlobalState,
 } from './assistant-global-state';
-import {
-  lastAssistantMessageIsCompleteWithApprovalResponses,
-  type ToolSet,
-} from 'ai';
+import { lastAssistantMessageIsCompleteWithApprovalResponses } from 'ai';
+import type { ToolSet } from 'ai';
 
 export const ASSISTANT_DRAWER_ID = 'compass-assistant-drawer';
 
