@@ -110,7 +110,7 @@ const toolDescriptionStyles = css({
 });
 
 // Placeholder tools - these should be replaced with actual tool definitions
-const AVAILABLE_TOOLS = [
+export const AVAILABLE_TOOLS = [
   {
     name: 'find',
     description:
