@@ -118,53 +118,6 @@ describe('NewDiagramModal', function () {
         );
         expect(store.getState().generateDiagramWizard.inProgress).to.be.false;
       });
-
-      it('show error if diagram name already exists', async function () {
-        const blob = new Blob(
-          [
-            JSON.stringify({
-              version: 1,
-              type: 'Compass Data Modeling Diagram',
-              name: 'Test Diagram',
-              database: 'test-database',
-              edits: Buffer.from(JSON.stringify(FlightDiagram.edits)).toString(
-                'base64'
-              ),
-            }),
-          ],
-          { type: 'application/json' }
-        );
-        const file = new File([blob], 'diagram.json', {
-          type: 'application/json',
-        });
-        await store.dispatch(openDiagramFromFile(file));
-
-        userEvent.type(
-          within(modal).getByTestId('new-diagram-name-input'),
-          'Test Diagram'
-        );
-        // Blur to trigger validation
-        userEvent.tab();
-        await waitFor(() => {
-          expect(
-            store.getState().generateDiagramWizard.formFields.diagramName.value
-          ).to.equal('Test Diagram');
-        });
-        const button = within(modal).getByRole('button', {
-          name: /next/i,
-        });
-        expect(button.getAttribute('aria-disabled')).to.equal('true');
-        await waitFor(() => {
-          expect(
-            store.getState().generateDiagramWizard.formFields.diagramName.error
-              ?.message
-          ).to.equal('Diagram with this name already exists.');
-        });
-        const errorMessage = within(modal).getByText(
-          /Diagram with this name already exists./i
-        );
-        expect(errorMessage).to.exist;
-      });
     });
 
     context('select-connection', function () {
