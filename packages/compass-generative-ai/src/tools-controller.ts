@@ -3,7 +3,7 @@ import type { Logger } from '@mongodb-js/compass-logging';
 import z from 'zod';
 
 // TODO: add readonly-db
-type ToolGroup = 'compass-ui';
+type ToolGroup = 'compass';
 
 type CompassContext = {
   query?: string;
@@ -29,7 +29,7 @@ export class ToolsController {
   getActiveTools(): ToolSet {
     const tools = Object.create(null);
 
-    if (this.toolGroups.has('compass-ui')) {
+    if (this.toolGroups.has('compass')) {
       tools['get-compass-context'] = {
         description: 'Get the current Compass query or aggregation.',
         inputSchema: z.object({}),

@@ -644,7 +644,7 @@ describe('CompassAssistantProvider', function () {
       expect(mockToolsController.setActiveTools.callCount).to.equal(1);
       expect(
         mockToolsController.setActiveTools.firstCall.args[0]
-      ).to.deep.equal(new Set(['compass-ui']));
+      ).to.deep.equal(new Set(['compass']));
 
       // TODO: I honestly don't know how to test being on a Document or
       // Aggregation tab here and setting the query or aggreation global

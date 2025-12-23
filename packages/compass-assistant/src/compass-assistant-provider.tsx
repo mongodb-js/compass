@@ -283,7 +283,7 @@ export const AssistantProvider: React.FunctionComponent<
       }
 
       if (enableToolCalling) {
-        toolsController.setActiveTools(new Set(['compass-ui']));
+        toolsController.setActiveTools(new Set(['compass']));
         toolsController.setContext({
           query: assistantGlobalStateRef.current.currentQuery || undefined,
           aggregation:
