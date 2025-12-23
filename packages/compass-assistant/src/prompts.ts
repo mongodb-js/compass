@@ -256,8 +256,6 @@ export function buildContextPrompt({
 }): AssistantMessage {
   const parts: string[] = [];
 
-  // a paragraph about the active connection
-
   if (activeConnection) {
     const connectionName = getConnectionTitle(activeConnection);
     const redactedConnectionString = redactConnectionString(
@@ -267,8 +265,6 @@ export function buildContextPrompt({
       `The connection is named "${connectionName}". The redacted connection string is "${redactedConnectionString}".`
     );
   }
-
-  // a paragraph about current tab
 
   if (activeWorkspace) {
     const isNamespaceTab = hasNamespace(activeWorkspace);
@@ -328,7 +324,6 @@ export function buildContextPrompt({
     parts.push(`The user does not have any tabs open.`);
   }
 
-  // a paragraph about abilities/inabilities
   if (enableToolCalling) {
     // TODO: we'll probably want separate lines for get-compass-context and
     // readonly database tools. (Also modify <inabilities> above)
@@ -345,7 +340,6 @@ export function buildContextPrompt({
     }
   }
 
-  // a paragraph about inabilities
   if (!enableToolCalling) {
     // TODO: we'll probably want separate lines for get-compass-context and
     // readonly database tools. (Also modify <inabilities> above)
