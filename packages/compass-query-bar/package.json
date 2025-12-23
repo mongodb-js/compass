@@ -66,6 +66,7 @@
   },
   "dependencies": {
     "@mongodb-js/atlas-service": "^0.74.1",
+    "@mongodb-js/compass-assistant": "^1.21.1",
     "@mongodb-js/compass-app-registry": "^9.5.0",
     "@mongodb-js/compass-app-stores": "^7.76.1",
     "@mongodb-js/compass-collection": "^4.91.1",
