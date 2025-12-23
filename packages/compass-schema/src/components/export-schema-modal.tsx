@@ -149,7 +149,7 @@ const ExportSchemaModal: React.FunctionComponent<{
   );
 
   return (
-    <Modal open={isOpen} setOpen={onClose} contentClassName={modalStyles}>
+    <Modal open={isOpen} setOpen={onClose} className={modalStyles}>
       <ModalHeader title="Export JSON Schema" />
       <ModalBody>
         <Label

@@ -12,8 +12,7 @@ export async function exportToLanguage(
   language: string,
   options?: ExportToLanguageOptions
 ): Promise<string> {
-  const exportModal = browser.$(Selectors.ExportToLanguageModal);
-  await exportModal.waitForDisplayed();
+  await browser.waitForOpenModal(Selectors.ExportToLanguageModal);
 
   // pick the language
   await browser.waitUntil(async () => {
@@ -65,7 +64,9 @@ export async function exportToLanguage(
 
   // close the modal again
   await browser.clickVisible(Selectors.ExportToLanguageCloseButton);
-  await exportModal.waitForDisplayed({ reverse: true });
+  await browser.waitForOpenModal(Selectors.ExportToLanguageModal, {
+    reverse: true,
+  });
 
   // normalize copied text so that it's the same for all platforms
   return text.replace(/\r\n/g, '\n').replace(/\n+/g, '\n');

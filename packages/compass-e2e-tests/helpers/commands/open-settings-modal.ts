@@ -10,8 +10,7 @@ export async function openSettingsModal(
     require('electron').ipcRenderer.emit('window:show-settings');
   });
 
-  const settingsModalElement = browser.$(Selectors.SettingsModal);
-  await settingsModalElement.waitForExist();
+  await browser.waitForOpenModal(Selectors.SettingsModal);
   if (tab) {
     await browser.clickVisible(Selectors.SettingsModalTabSelector(tab));
   }

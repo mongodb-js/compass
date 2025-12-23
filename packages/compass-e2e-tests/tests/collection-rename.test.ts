@@ -40,13 +40,11 @@ class RenameCollectionModal {
   }
 
   async isVisible() {
-    const modal = this.browser.$(Selectors.RenameCollectionModal);
-    await modal.waitForDisplayed();
+    await this.browser.waitForOpenModal(Selectors.RenameCollectionModal);
   }
 
   async isNotVisible() {
-    const modal = this.browser.$(Selectors.RenameCollectionModal);
-    return modal.waitForDisplayed({
+    await this.browser.waitForOpenModal(Selectors.RenameCollectionModal, {
       reverse: true,
     });
   }

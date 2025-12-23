@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **Mongodb Compass**.
-This document was automatically generated on Thu Dec 18 2025.
+This document was automatically generated on Mon Dec 22 2025.
 
 ## List of dependencies
 
@@ -106,7 +106,7 @@ This document was automatically generated on Thu Dec 18 2025.
 | **[@lezer/json](#7869bdb7c09e2ae1e28909eb504f475477cc5ed0750dc8ccee42886961975253)**                                        | 1.0.0          | MIT                                 |
 | **[@lezer/lr](#1443872b0ea87b0af4967c9026094e634c83118fb811349742ca05bde397412b)**                                          | 1.4.1          | MIT                                 |
 | **[@lg-chat/chat-window](#9439c5d511476417d59be21dff39b9cef66667285f3ebf3f7dabf55b6243f16d)**                               | 6.0.0          | Apache-2.0                          |
-| **[@lg-chat/input-bar](#08461a8a0bf93763adf838d410b0f49dd0dceb60108ffdabee3500a6d3026499)**                                 | 12.1.0         | Apache-2.0                          |
+| **[@lg-chat/input-bar](#1b4422edb08e3c256b882793fdc0a518573a74190ba0d6ce1e386a337d90b8bf)**                                 | 12.1.1         | Apache-2.0                          |
 | **[@lg-chat/leafygreen-chat-provider](#a8334490cacefebae9b468ca1a993aa2f405dd31ef5fc79cdb92954e21201d3f)**                  | 6.0.0          | Apache-2.0                          |
 | **[@lg-chat/lg-markdown](#22e0e8e88532c4afff94a41748986e78485a156f8b5133eb1b6dce1336c51e14)**                               | 5.0.2          | Apache-2.0                          |
 | **[@lg-chat/message-feedback](#64afd2dab8ad40e7b32ec2b108cf61ee0f6f4a95f3f23bf220f7d814c1e6b3cd)**                          | 9.0.1          | Apache-2.0                          |
@@ -518,7 +518,7 @@ This document was automatically generated on Thu Dec 18 2025.
 | **[supports-color](#b97a30572cac0a03b8cf442bc01621a041d5714550984f25cb71fac2587edbd6)**                                     | 7.2.0          | MIT                                 |
 | **[system-ca](#f7020e15c3acda122c176b63132660540ac26981c7037d110fc2896e3551ab19)**                                          | 2.0.1          | Apache-2.0                          |
 | **[tabbable](#0ebe87140b76c7f2135bbd5099e7973a5ec2b5d8fe2bec8e272608cf0b3f396a)**                                           | 5.3.3          | MIT                                 |
-| **[tabbable](#ada26e0fb4c29e360f21411870400a662ae4e21dae15f33a5707c2ee1d89689b)**                                           | 6.2.0          | MIT                                 |
+| **[tabbable](#2d739f1daa79be2426cf054c54e02b3982f59e4d97a931fcef73b49c7f8b5855)**                                           | 6.3.0          | MIT                                 |
 | **[tar-fs](#b280f1ed792c3daea1b1c98232cd6dcd5abefed6fa18adba6dda87a2ed1f262f)**                                             | 3.1.1          | MIT                                 |
 | **[tar-stream](#5605712784129d10d2559e12f8031603f0cf4e5ff206f09356e4bf1dc5ab1168)**                                         | 1.6.2          | MIT                                 |
 | **[text-decoder](#38d982fa3cff0a5dbbc8bc747ff94aa87dabf412f50e7efab74c9a4a44ae1246)**                                       | 1.2.3          | Apache-2.0                          |
@@ -7521,9 +7521,9 @@ License files:
          See the License for the specific language governing permissions and
          limitations under the License.
 
-<a id="08461a8a0bf93763adf838d410b0f49dd0dceb60108ffdabee3500a6d3026499"></a>
+<a id="1b4422edb08e3c256b882793fdc0a518573a74190ba0d6ce1e386a337d90b8bf"></a>
 
-### [@lg-chat/input-bar](https://www.npmjs.com/package/@lg-chat/input-bar) (version 12.1.0)
+### [@lg-chat/input-bar](https://www.npmjs.com/package/@lg-chat/input-bar) (version 12.1.1)
 
 License tags: Apache-2.0
 
@@ -39461,9 +39461,9 @@ License files:
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
       SOFTWARE.
 
-<a id="ada26e0fb4c29e360f21411870400a662ae4e21dae15f33a5707c2ee1d89689b"></a>
+<a id="2d739f1daa79be2426cf054c54e02b3982f59e4d97a931fcef73b49c7f8b5855"></a>
 
-### [tabbable](https://www.npmjs.com/package/tabbable) (version 6.2.0)
+### [tabbable](https://www.npmjs.com/package/tabbable) (version 6.3.0)
 
 License tags: MIT
 

@@ -201,7 +201,7 @@ describe('Automatically connecting from the command line', function () {
       );
       expect(error).to.include('Authentication failed');
       await browser.clickVisible(Selectors.ConnectionToastErrorReviewButton);
-      await browser.$(Selectors.ConnectionModal).waitForDisplayed();
+      await browser.waitForOpenModal(Selectors.ConnectionModal);
       const connectFormState = await browser.getConnectFormState();
       expect(connectFormState.defaultUsername).to.equal('doesnotexist');
       expect(connectFormState.defaultPassword).to.equal('asdf/');

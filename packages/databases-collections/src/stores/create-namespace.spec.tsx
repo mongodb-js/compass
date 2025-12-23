@@ -101,9 +101,8 @@ describe('CreateNamespacePlugin', function () {
     });
 
     userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
-    await waitForElementToBeRemoved(
-      screen.queryByRole('heading', { name: 'Create Database' })
-    );
+    expect(screen.queryByRole('heading', { name: 'Create Database' })).to.not
+      .exist;
     expect(createCollectionSpy).to.not.be.called;
   });
 
