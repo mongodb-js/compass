@@ -5,7 +5,7 @@ import React from 'react';
 // 1. Import the components we use from leafygreen.
 import { Copyable } from '@leafygreen-ui/copyable';
 import { Badge } from '@leafygreen-ui/badge';
-import { default as Banner } from '@leafygreen-ui/banner';
+import { Banner } from '@leafygreen-ui/banner';
 import { Checkbox } from '@leafygreen-ui/checkbox';
 import { Card } from '@leafygreen-ui/card';
 import { Code, Language, Panel } from '@leafygreen-ui/code';
