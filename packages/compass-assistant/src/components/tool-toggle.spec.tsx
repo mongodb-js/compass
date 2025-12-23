@@ -62,7 +62,7 @@ describe('ToolToggle', function () {
           enableGenAIDatabaseToolCalling: false,
         },
       });
-      expect(screen.getByTestId('tool-toggle-switch')).not.to.exist;
+      expect(screen.queryByTestId('tool-toggle-switch')).to.not.exist;
 
       const button = screen.getByTestId('tool-toggle-button');
       userEvent.click(button);
