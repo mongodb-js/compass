@@ -484,8 +484,8 @@ describe('AggregationsAndQueriesAndUpdatemanyList', function () {
               expect(screen.getByText('Select a Namespace')).to.exist;
               expect(screen.getByTestId('description')).to.exist;
               // connection is already selected because there is only one
-              expect(() => screen.getByTestId('connection-select-field')).to
-                .throw;
+              expect(screen.queryByTestId('connection-select-field')).to.not
+                .exist;
               expect(screen.getByTestId('database-select-field')).to.exist;
               expect(screen.getByTestId('collection-select-field')).to.exist;
 
@@ -548,8 +548,8 @@ describe('AggregationsAndQueriesAndUpdatemanyList', function () {
             // We don't show description in this modal
             expect(() => screen.getByTestId('description')).to.throw();
             // connection is already selected because there is only one
-            expect(() => screen.getByTestId('connection-select-field')).to
-              .throw;
+            expect(screen.queryByTestId('connection-select-field')).to.not
+              .exist;
             expect(screen.getByTestId('database-select-field')).to.exist;
             expect(screen.getByTestId('collection-select-field')).to.exist;
 

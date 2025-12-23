@@ -73,7 +73,7 @@ const StatusMessages: Record<Status, string> = {
   ['DeleteStart']: 'Removing document…',
   ['DeleteError']: '',
   ['DeleteSuccess']: 'Document deleted.',
-};
+} as const;
 
 function useHadronDocumentStatus(
   doc: HadronDocument,

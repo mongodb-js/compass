@@ -353,7 +353,8 @@ export const DrawerAnchor: React.FunctionComponent = ({ children }) => {
         if (!drawerEl) {
           return;
         }
-        const nodes: Record<string, HTMLButtonElement | undefined> = {};
+        const nodes: Record<string, HTMLButtonElement | undefined> =
+          Object.create(null);
         for (const item of toolbarData) {
           if (!item.guideCue) {
             continue;

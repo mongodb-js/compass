@@ -23,7 +23,7 @@ const ATLAS_SEARCH_SERVER_ERRORS: Record<string, string> = {
   InvalidIndexSpecificationOption: 'Invalid index definition.',
   IndexAlreadyExists:
     'This index name is already in use. Please choose another one.',
-};
+} as const;
 
 export const ActionTypes = {
   // Fetch indexes

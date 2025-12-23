@@ -25,7 +25,7 @@ export const getHighlightedFields = (
     return NO_HIGHLIGHTED_FIELDS;
   const { id } = selectedItems;
   const { relationship } = relationships?.find((rel) => rel.id === id) ?? {};
-  const selection: Record<string, string[][] | undefined> = {};
+  const selection: Record<string, string[][] | undefined> = Object.create(null);
   if (relationship?.[0].ns && relationship?.[0].fields) {
     selection[relationship[0].ns] = [relationship[0].fields];
   }

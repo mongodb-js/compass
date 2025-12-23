@@ -42,37 +42,33 @@ export function parseXmlToJsonResponse(
   );
 
   // Currently the prompt forces LLM to return xml-styled data
-  const result: Record<(typeof expectedTags)[number], string | null> = {
-    filter: null,
-    project: null,
-    sort: null,
-    skip: null,
-    limit: null,
-    aggregation: null,
-  };
+  const result: Record<(typeof expectedTags)[number], string | null> =
+    Object.create(null);
+
   for (const tag of expectedTags) {
+    result[tag] = null;
+
     const value = xmlDoc.querySelector(tag)?.textContent?.trim();
-    if (value) {
-      try {
-        const tagValue = parse(value);
-        if (
-          !tagValue ||
-          (typeof tagValue === 'object' && Object.keys(tagValue).length === 0)
-        ) {
-          result[tag] = null;
-        } else {
-          // No indentation
-          result[tag] = toJSString(tagValue, 0) ?? null;
-        }
-      } catch (e) {
-        logger.log.warn(
-          logger.mongoLogId(1_001_000_384),
-          'AtlasAiService',
-          `Failed to parse value for tag <${tag}>: ${value}`,
-          { error: e }
-        );
-        result[tag] = null;
+    if (!value) {
+      continue;
+    }
+
+    try {
+      const tagValue = parse(value);
+      if (
+        tagValue &&
+        !(typeof tagValue === 'object' && Object.keys(tagValue).length === 0)
+      ) {
+        // No indentation
+        result[tag] = toJSString(tagValue, 0) ?? null;
       }
+    } catch (e) {
+      logger.log.warn(
+        logger.mongoLogId(1_001_000_384),
+        'AtlasAiService',
+        `Failed to parse value for tag <${tag}>: ${value}`,
+        { error: e }
+      );
     }
   }
 

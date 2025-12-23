@@ -48,7 +48,7 @@ type DecayUnion<T> = {
 function decayUnion<T extends object>(value: T): DecayUnion<T> {
   return value;
 }
-const empty: Record<string, never> = {};
+const empty: Record<string, never> = {} as const;
 
 const GCPFields: KMSField<'gcp'>[] = [
   {

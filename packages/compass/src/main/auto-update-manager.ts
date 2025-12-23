@@ -274,9 +274,8 @@ const noop = () => {
  * State update map defined as `{ state: [fromStates, enter()]}` where `enter` is
  * the action that needs to happen when entering the respective state.
  */
-const STATE_UPDATE: Record<
-  AutoUpdateManagerState,
-  AutoUpdateManagerStateDefinition
+const STATE_UPDATE: Readonly<
+  Record<AutoUpdateManagerState, AutoUpdateManagerStateDefinition>
 > = {
   [AutoUpdateManagerStates.Initial]: {
     nextStates: [
@@ -638,7 +637,7 @@ const STATE_UPDATE: Record<
 /**
  * Map package.json product names to API endpoint product names.
  */
-const API_PRODUCT: Record<string, string> = {
+const API_PRODUCT: Readonly<Record<string, string>> = {
   'mongodb-compass': 'compass',
   'mongodb-compass-readonly': 'compass-readonly',
 };

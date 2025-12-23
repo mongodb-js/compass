@@ -30,7 +30,7 @@ const buttonSizeStyle: Record<ItemActionButtonSize, string | undefined> = {
     width: `${20}px !important`,
     height: `${20}px !important`,
   }),
-};
+} as const;
 
 export type SmallIconButtonProps = {
   glyph: React.ReactChild;

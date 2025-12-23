@@ -72,7 +72,7 @@ export async function listCSVFields({
           // ie. the whole array counts as one field
           const flattened = headerFields.map(csvHeaderNameToFieldName);
 
-          const fieldMap: Record<string, true> = {};
+          const fieldMap: Record<string, true> = Object.create(null);
 
           // make sure that each array field is only included once
           for (const name of flattened) {
