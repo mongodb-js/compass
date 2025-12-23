@@ -31,6 +31,10 @@ import type {
 } from '@mongodb-js/compass-generative-ai/provider';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
+import {
+  AssistantGlobalStateProvider,
+  useSyncAssistantGlobalState,
+} from './assistant-global-state';
 
 function createMockProvider({
   mockAtlasService,
@@ -86,6 +90,8 @@ const TestComponent: React.FunctionComponent<{
   mockAtlasAuthService?: any;
   mockToolsController?: any;
   hasNonGenuineConnections?: boolean;
+  currentQuery?: string;
+  currentAggregation?: string;
 }> = ({
   chat,
   autoOpen,
@@ -94,6 +100,8 @@ const TestComponent: React.FunctionComponent<{
   mockAtlasAuthService,
   mockToolsController,
   hasNonGenuineConnections,
+  currentQuery,
+  currentAggregation,
 }) => {
   const MockedProvider = createMockProvider({
     mockAtlasService: mockAtlasService as unknown as AtlasService,
@@ -102,25 +110,38 @@ const TestComponent: React.FunctionComponent<{
     mockToolsController: mockToolsController as unknown as ToolsController,
   });
 
+  const FakeStateSetterComponent = () => {
+    useSyncAssistantGlobalState('currentQuery', currentQuery ?? null);
+    useSyncAssistantGlobalState(
+      'currentAggregation',
+      currentAggregation ?? null
+    );
+
+    return null;
+  };
+
   return (
-    <DrawerContentProvider>
-      {/* Breaking this rule is fine while none of the tests try to re-render the content */}
-      {/* eslint-disable-next-line react-hooks/static-components */}
-      <MockedProvider
-        originForPrompt="mongodb-compass"
-        appNameForPrompt="MongoDB Compass"
-        chat={chat}
-      >
-        <DrawerAnchor>
-          <div data-testid="provider-children">Provider children</div>
-          <CompassAssistantDrawer
-            appName="Compass"
-            autoOpen={autoOpen}
-            hasNonGenuineConnections={hasNonGenuineConnections}
-          />
-        </DrawerAnchor>
-      </MockedProvider>
-    </DrawerContentProvider>
+    <AssistantGlobalStateProvider>
+      <DrawerContentProvider>
+        {/* Breaking this rule is fine while none of the tests try to re-render the content */}
+        {/* eslint-disable-next-line react-hooks/static-components */}
+        <MockedProvider
+          originForPrompt="mongodb-compass"
+          appNameForPrompt="MongoDB Compass"
+          chat={chat}
+        >
+          <DrawerAnchor>
+            <div data-testid="provider-children">Provider children</div>
+            <CompassAssistantDrawer
+              appName="Compass"
+              autoOpen={autoOpen}
+              hasNonGenuineConnections={hasNonGenuineConnections}
+            />
+          </DrawerAnchor>
+          <FakeStateSetterComponent />
+        </MockedProvider>
+      </DrawerContentProvider>
+    </AssistantGlobalStateProvider>
   );
 };
 
@@ -321,12 +342,16 @@ describe('CompassAssistantProvider', function () {
       toolsController,
       hasNonGenuineConnections,
       enableToolCalling = true,
+      query,
+      aggregation,
     }: {
       chat: Chat<AssistantMessage>;
       atlastAiService?: Partial<AtlasAiService>;
       toolsController?: Partial<ToolsController>;
       hasNonGenuineConnections?: boolean;
       enableToolCalling?: boolean;
+      query?: string;
+      aggregation?: string;
     }): Promise<ReturnType<typeof render>> {
       const result = render(
         <TestComponent
@@ -335,6 +360,8 @@ describe('CompassAssistantProvider', function () {
           mockToolsController={toolsController}
           autoOpen={true}
           hasNonGenuineConnections={hasNonGenuineConnections}
+          currentQuery={query}
+          currentAggregation={aggregation}
         />,
         {
           preferences: {
@@ -617,10 +644,15 @@ describe('CompassAssistantProvider', function () {
         setContext: sinon.stub().resolves(),
       };
 
+      const query = 'This is a fake query';
+      const aggregation = 'This is a fake aggregation';
+
       await renderOpenAssistantDrawer({
         chat: mockChat,
         toolsController: mockToolsController,
         enableToolCalling: true,
+        query,
+        aggregation,
       });
 
       const input = screen.getByPlaceholderText('Ask a question');
@@ -646,13 +678,10 @@ describe('CompassAssistantProvider', function () {
         mockToolsController.setActiveTools.firstCall.args[0]
       ).to.deep.equal(new Set(['compass']));
 
-      // TODO: I honestly don't know how to test being on a Document or
-      // Aggregation tab here and setting the query or aggreation global
-      // context. Maybe something for an e2e test?
       expect(mockToolsController.setContext.callCount).to.equal(1);
       expect(mockToolsController.setContext.firstCall.args[0]).to.deep.equal({
-        query: undefined,
-        aggregation: undefined,
+        query,
+        aggregation,
       });
     });
 
