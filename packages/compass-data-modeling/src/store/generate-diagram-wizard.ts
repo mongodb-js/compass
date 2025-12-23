@@ -506,19 +506,17 @@ export function selectDatabase(
       database,
     });
 
-    // If the current diagram name is empty, we want to auto-generate the it
+    // If the current diagram name is empty, we want to auto-generate it
     // (DATABASE_NAME_DD_MM_YYYY). If it exists, we want to add a number to it.
     const currentDiagramName =
       getState().generateDiagramWizard.formFields.diagramName.value;
     if (!currentDiagramName) {
       const diagrams = await services.dataModelStorage.loadAll();
       const date = new Date();
-      const newDiagramName = [
-        database,
-        date.getDate(),
-        date.getMonth() + 1,
-        date.getFullYear(),
-      ].join('_');
+      const day = date.getDate().toString().padStart(2, '0');
+      const month = (date.getMonth() + 1).toString().padStart(2, '0');
+      const year = date.getFullYear();
+      const newDiagramName = [database, day, month, year].join('_');
       dispatch({
         type: GenerateDiagramWizardActionTypes.CHANGE_NAME,
         name: getDiagramName(

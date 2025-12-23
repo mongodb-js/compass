@@ -10,8 +10,6 @@ import NewDiagramModal from './new-diagram-modal';
 import { createNewDiagram } from '../../store/generate-diagram-wizard';
 import { renderWithStore } from '../../../test/setup-store';
 import type { DataModelingStore } from '../../../test/setup-store';
-import { openDiagramFromFile } from '../../store/diagram';
-import FlightDiagram from '../../../test/fixtures/data-model-with-relationships.json';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 
 function getComboboxByTestId(testId: string) {
