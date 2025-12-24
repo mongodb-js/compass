@@ -79,6 +79,10 @@ const ConnectionsComponent: React.FunctionComponent<{
   });
   const activeConnectionsInfo = useMemo(() => {
     return activeConnections.map((connection) => {
+      // TODO: we need the connection's DevtoolsConnectOptions so that the
+      // assistant can connect to the same thing, probably via
+      // dataService.getMongoClientConnectionOptions() but then we need to get
+      // the dataService for the connection somewhere..
       return connection.info;
     });
   }, [activeConnections]);

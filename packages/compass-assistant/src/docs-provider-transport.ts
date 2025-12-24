@@ -45,7 +45,7 @@ export class DocsProviderTransport implements ChatTransport<AssistantMessage> {
     },
   });
 
-  sendMessages({
+  async sendMessages({
     messages,
     abortSignal,
   }: Parameters<ChatTransport<AssistantMessage>['sendMessages']>[0]) {
@@ -69,9 +69,9 @@ export class DocsProviderTransport implements ChatTransport<AssistantMessage> {
 
     const result = streamText({
       model: this.model,
-      messages: lastMessage.metadata?.sendWithoutHistory
+      messages: await (lastMessage.metadata?.sendWithoutHistory
         ? convertToModelMessages([lastMessage])
-        : convertToModelMessages(filteredMessages),
+        : convertToModelMessages(filteredMessages)),
       abortSignal: abortSignal,
       headers: {
         'X-Request-Origin': this.origin,

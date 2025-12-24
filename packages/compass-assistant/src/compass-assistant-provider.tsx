@@ -283,8 +283,20 @@ export const AssistantProvider: React.FunctionComponent<
       }
 
       if (enableToolCalling) {
-        toolsController.setActiveTools(new Set(['compass']));
+        // TODO: only include db-read if the setting is enabled
+        toolsController.setActiveTools(new Set(['compass', 'db-read']));
         toolsController.setContext({
+          connection: activeConnection
+            ? {
+                connectionId: activeConnection.id,
+                connectionString:
+                  activeConnection.connectionOptions.connectionString,
+                connectOptions: {
+                  productName: 'MongoDB Compass',
+                  productDocsLink: 'https://www.mongodb.com/docs/compass/',
+                }, // TODO: use the connection's actual DevtoolsConnectOptions
+              }
+            : undefined,
           query: assistantGlobalStateRef.current.currentQuery || undefined,
           aggregation:
             assistantGlobalStateRef.current.currentAggregation || undefined,
@@ -292,6 +304,7 @@ export const AssistantProvider: React.FunctionComponent<
       } else {
         toolsController.setActiveTools(new Set([]));
         toolsController.setContext({
+          connection: undefined,
           query: undefined,
           aggregation: undefined,
         });
