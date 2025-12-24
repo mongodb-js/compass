@@ -59,7 +59,7 @@
     "@mongodb-js/compass-logging": "^1.8.0",
     "@mongodb-js/compass-user-data": "^0.12.0",
     "@mongodb-js/workspace-info": "^1.1.0",
-    "bson": "^6.10.4",
+    "bson": "^7.0.0",
     "compass-preferences-model": "^2.67.0",
     "lodash": "^4.17.21",
     "mongodb-collection-model": "^5.37.1",
