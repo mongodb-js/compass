@@ -59,7 +59,7 @@
     "@mongodb-js/connection-form": "^1.76.0",
     "@mongodb-js/connection-info": "^0.24.1",
     "@mongodb-js/my-queries-storage": "^0.51.0",
-    "bson": "^6.10.4",
+    "bson": "^7.0.0",
     "compass-preferences-model": "^2.67.0",
     "fuse.js": "^6.5.3",
     "mongodb-ns": "^3.0.1",
