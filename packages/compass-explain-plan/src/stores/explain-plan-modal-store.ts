@@ -224,18 +224,20 @@ export const openExplainPlanModal = (
           return !isOutputStage(stage);
         });
 
+        const maxTimeMSValue = capMaxTimeMSAtPreferenceLimit(
+          preferences,
+          maxTimeMS ?? DEFAULT_MAX_TIME_MS
+        );
+
         const explainOptions = {
-          maxTimeMS: capMaxTimeMSAtPreferenceLimit(
-            preferences,
-            maxTimeMS ?? DEFAULT_MAX_TIME_MS
-          ),
+          maxTimeMS: maxTimeMSValue,
         };
 
         rawExplainPlan = await dataService.explainAggregate(
           namespace,
           pipeline,
           { ...explainOptions, collation },
-          { explainVerbosity, abortSignal: signal }
+          { explainVerbosity, maxTimeMS: maxTimeMSValue, abortSignal: signal }
         );
 
         try {
@@ -263,19 +265,21 @@ export const openExplainPlanModal = (
       if (event.query) {
         const { filter, ...options } = event.query;
 
+        const maxTimeMSValue = capMaxTimeMSAtPreferenceLimit(
+          preferences,
+          options.maxTimeMS ?? DEFAULT_MAX_TIME_MS
+        );
+
         const explainOptions = {
           ...options,
-          maxTimeMS: capMaxTimeMSAtPreferenceLimit(
-            preferences,
-            options.maxTimeMS ?? DEFAULT_MAX_TIME_MS
-          ),
+          maxTimeMS: maxTimeMSValue,
         };
 
         rawExplainPlan = await dataService.explainFind(
           namespace,
           filter,
           explainOptions,
-          { explainVerbosity, abortSignal: signal }
+          { explainVerbosity, maxTimeMS: maxTimeMSValue, abortSignal: signal }
         );
 
         try {

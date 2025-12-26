@@ -168,6 +168,7 @@ export type ExecutionOptions = {
 
 export type ExplainExecuteOptions = ExecutionOptions & {
   explainVerbosity?: keyof typeof ExplainVerbosity;
+  maxTimeMS?: number;
 };
 
 export type SampleOptions = {
@@ -2107,7 +2108,10 @@ class DataServiceImpl extends WithLogContext implements DataService {
           ...options,
           session,
         });
-        const results = await cursor.explain(verbosity);
+        const results = await cursor.explain({
+          verbosity,
+          maxTimeMS: executionOptions?.maxTimeMS,
+        });
         void cursor.close();
         return results;
       },
@@ -2139,7 +2143,10 @@ class DataServiceImpl extends WithLogContext implements DataService {
           ...options,
           session,
         });
-        const results = await cursor.explain(verbosity);
+        const results = await cursor.explain({
+          verbosity,
+          maxTimeMS: executionOptions?.maxTimeMS,
+        });
         void cursor.close();
         return results;
       },
