@@ -3,59 +3,52 @@ import { isAction } from './util';
 import type { DataModelingThunkAction } from './reducer';
 import { startAnalysis } from './analysis-process';
 import toNS from 'mongodb-ns';
+import { getDiagramName } from '../services/open-and-download-diagram';
+
+type FormField<T = string> = {
+  error?: Error;
+  value?: T;
+};
 
 export type GenerateDiagramWizardState = {
   // Overall progress of the wizard, kept separate from the step so that closing
   // the wizard can preserve the last step if needed
   inProgress: boolean;
-  step:
-    | 'ENTER_NAME'
-    | 'SELECT_CONNECTION'
-    | 'CONNECTING'
-    | 'LOADING_DATABASES'
-    | 'SELECT_DATABASE'
-    | 'LOADING_COLLECTIONS'
-    | 'SELECT_COLLECTIONS';
-  diagramName: string;
-  selectedConnectionId: string | null;
+  step: 'SETUP_DIAGRAM' | 'SELECT_COLLECTIONS';
+  formFields: {
+    diagramName: FormField;
+    selectedConnection: FormField & { isConnecting?: boolean };
+    selectedDatabase: FormField & { isFetchingDatabases?: boolean };
+    selectedCollections: FormField<string[]> & {
+      isFetchingCollections?: boolean;
+    };
+  };
   connectionDatabases: string[] | null;
-  selectedDatabase: string | null;
   databaseCollections: string[] | null;
-  selectedCollections: string[] | null;
   automaticallyInferRelations: boolean;
-  error: Error | null;
 };
 
 export const GenerateDiagramWizardActionTypes = {
+  GOTO_STEP: 'data-modeling/generate-diagram-wizard/GOTO_STEP',
   CREATE_NEW_DIAGRAM:
     'data-modeling/generate-diagram-wizard/CREATE_NEW_DIAGRAM',
   CANCEL_CREATE_NEW_DIAGRAM:
     'data-modeling/generate-diagram-wizard/CANCEL_CREATE_NEW_DIAGRAM',
 
   CHANGE_NAME: 'data-modeling/generate-diagram-wizard/CHANGE_NAME',
-  CONFIRM_NAME: 'data-modeling/generate-diagram-wizard/CONFIRM_NAME',
-  CANCEL_CONFIRM_NAME:
-    'data-modeling/generate-diagram-wizard/CANCEL_CONFIRM_NAME',
+  INVALID_NAME: 'data-modeling/generate-diagram-wizard/INVALID_NAME',
 
   SELECT_CONNECTION: 'data-modeling/generate-diagram-wizard/SELECT_CONNECTION',
-  CONFIRM_SELECT_CONNECTION:
-    'data-modeling/generate-diagram-wizard/CONFIRM_SELECT_CONNECTION',
   CONNECTION_CONNECTED:
     'data-modeling/generate-diagram-wizard/CONNECTION_CONNECTED',
   DATABASES_FETCHED: 'data-modeling/generate-diagram-wizard/DATABASES_FETCHED',
-  CANCEL_SELECTED_CONNECTION:
-    'data-modeling/generate-diagram-wizard/CANCEL_SELECTED_CONNECTION',
   CONNECTION_FAILED: 'data-modeling/generate-diagram-wizard/CONNECTION_FAILED',
 
   SELECT_DATABASE: 'data-modeling/generate-diagram-wizard/SELECT_DATABASE',
-  CONFIRM_SELECT_DATABASE:
-    'data-modeling/generate-diagram-wizard/CONFIRM_SELECT_DATABASE',
   DATABASES_FETCH_FAILED:
     'data-modeling/generate-diagram-wizard/DATABASES_FETCH_FAILED',
   COLLECTIONS_FETCHED:
     'data-modeling/generate-diagram-wizard/COLLECTIONS_FETCHED',
-  CANCEL_SELECTED_DATABASE:
-    'data-modeling/generate-diagram-wizard/CANCEL_SELECTED_DATABASE',
   COLLECTIONS_FETCH_FAILED:
     'data-modeling/generate-diagram-wizard/COLLECTIONS_FETCH_FAILED',
 
@@ -66,6 +59,11 @@ export const GenerateDiagramWizardActionTypes = {
   CONFIRM_SELECTED_COLLECTIONS:
     'data-modeling/generate-diagram-wizard/CONFIRM_SELECTED_COLLECTIONS',
 } as const;
+
+export type GotoStepAction = {
+  type: typeof GenerateDiagramWizardActionTypes.GOTO_STEP;
+  step: GenerateDiagramWizardState['step'];
+};
 
 export type CreateNewDiagramAction = {
   type: typeof GenerateDiagramWizardActionTypes.CREATE_NEW_DIAGRAM;
@@ -79,28 +77,15 @@ export type ChangeNameAction = {
   type: typeof GenerateDiagramWizardActionTypes.CHANGE_NAME;
   name: string;
 };
-
-export type ConfirmNameAction = {
-  type: typeof GenerateDiagramWizardActionTypes.CONFIRM_NAME;
-};
-
-export type CancelConfirmNameAction = {
-  type: typeof GenerateDiagramWizardActionTypes.CANCEL_CONFIRM_NAME;
+export type InvalidNameAction = {
+  type: typeof GenerateDiagramWizardActionTypes.INVALID_NAME;
+  error: Error;
 };
 
 export type SelectConnectionAction = {
   type: typeof GenerateDiagramWizardActionTypes.SELECT_CONNECTION;
   id: string;
 };
-
-export type ConfirmSelectConnectionAction = {
-  type: typeof GenerateDiagramWizardActionTypes.CONFIRM_SELECT_CONNECTION;
-};
-
-export type CancelSelectedConnectionAction = {
-  type: typeof GenerateDiagramWizardActionTypes.CANCEL_SELECTED_CONNECTION;
-};
-
 export type ConnectionConnectedAction = {
   type: typeof GenerateDiagramWizardActionTypes.CONNECTION_CONNECTED;
 };
@@ -113,6 +98,7 @@ export type DatabasesFetchedAction = {
 
 export type ConnectionFailedAction = {
   type: typeof GenerateDiagramWizardActionTypes.CONNECTION_FAILED;
+  error: Error;
 };
 
 export type SelectDatabaseAction = {
@@ -123,14 +109,6 @@ export type SelectDatabaseAction = {
 export type DatabasesFetchFailedAction = {
   type: typeof GenerateDiagramWizardActionTypes.DATABASES_FETCH_FAILED;
   error: Error;
-};
-
-export type ConfirmSelectDatabaseAction = {
-  type: typeof GenerateDiagramWizardActionTypes.CONFIRM_SELECT_DATABASE;
-};
-
-export type CancelSelectedDatabaseAction = {
-  type: typeof GenerateDiagramWizardActionTypes.CANCEL_SELECTED_DATABASE;
 };
 
 export type CollectionsFetchedAction = {
@@ -160,18 +138,16 @@ export type ConfirmSelectedCollectionsAction = {
 };
 
 export type GenerateDiagramWizardActions =
+  | GotoStepAction
   | CreateNewDiagramAction
   | CancelCreateNewDiagramAction
   | ChangeNameAction
+  | InvalidNameAction
   | SelectConnectionAction
-  | ConfirmSelectConnectionAction
-  | CancelSelectedConnectionAction
   | ConnectionConnectedAction
   | DatabasesFetchedAction
   | SelectDatabaseAction
-  | ConfirmSelectDatabaseAction
   | DatabasesFetchFailedAction
-  | CancelSelectedDatabaseAction
   | CollectionsFetchedAction
   | SelectCollectionsAction
   | ToggleInferRelationsAction
@@ -181,14 +157,15 @@ export type GenerateDiagramWizardActions =
 
 const INITIAL_STATE: GenerateDiagramWizardState = {
   inProgress: false,
-  step: 'ENTER_NAME',
-  diagramName: '',
-  selectedConnectionId: null,
-  error: null,
+  step: 'SETUP_DIAGRAM',
+  formFields: {
+    diagramName: {},
+    selectedConnection: {},
+    selectedDatabase: {},
+    selectedCollections: {},
+  },
   connectionDatabases: null,
-  selectedDatabase: null,
   databaseCollections: null,
-  selectedCollections: null,
   automaticallyInferRelations: true,
 };
 
@@ -201,52 +178,83 @@ export const generateDiagramWizardReducer: Reducer<
   if (isAction(action, GenerateDiagramWizardActionTypes.CHANGE_NAME)) {
     return {
       ...state,
-      diagramName: action.name,
+      formFields: {
+        ...state.formFields,
+        diagramName: {
+          value: action.name,
+        },
+      },
     };
   }
-  if (isAction(action, GenerateDiagramWizardActionTypes.CONFIRM_NAME)) {
+  if (isAction(action, GenerateDiagramWizardActionTypes.INVALID_NAME)) {
     return {
       ...state,
-      step: 'SELECT_CONNECTION',
-    };
-  }
-  if (isAction(action, GenerateDiagramWizardActionTypes.CANCEL_CONFIRM_NAME)) {
-    return {
-      ...state,
-      error: null,
-      step: 'ENTER_NAME',
+      formFields: {
+        ...state.formFields,
+        diagramName: {
+          ...state.formFields.diagramName,
+          error: action.error,
+        },
+      },
     };
   }
   if (isAction(action, GenerateDiagramWizardActionTypes.SELECT_CONNECTION)) {
     return {
       ...state,
-      selectedConnectionId: action.id,
-      error: null,
-    };
-  }
-  if (
-    isAction(action, GenerateDiagramWizardActionTypes.CONFIRM_SELECT_CONNECTION)
-  ) {
-    return {
-      ...state,
-      step: 'CONNECTING',
+      formFields: {
+        ...state.formFields,
+        selectedConnection: {
+          isConnecting: true,
+          value: action.id,
+        },
+        selectedDatabase: {},
+      },
+      connectionDatabases: [],
     };
   }
   if (isAction(action, GenerateDiagramWizardActionTypes.CONNECTION_CONNECTED)) {
     return {
       ...state,
-      step: 'LOADING_DATABASES',
+      formFields: {
+        ...state.formFields,
+        selectedConnection: {
+          ...state.formFields.selectedConnection,
+          isConnecting: false,
+          error: undefined,
+        },
+        selectedDatabase: {
+          isFetchingDatabases: true,
+        },
+      },
     };
   }
+  if (isAction(action, GenerateDiagramWizardActionTypes.CONNECTION_FAILED)) {
+    return {
+      ...state,
+      formFields: {
+        ...state.formFields,
+        selectedConnection: {
+          ...state.formFields.selectedConnection,
+          isConnecting: false,
+          error: action.error,
+        },
+      },
+    };
+  }
+
   if (isAction(action, GenerateDiagramWizardActionTypes.DATABASES_FETCHED)) {
-    if (action.connectionId !== state.selectedConnectionId) {
+    if (action.connectionId !== state.formFields.selectedConnection.value) {
       return state;
     }
     return {
       ...state,
-      step: 'SELECT_DATABASE',
       connectionDatabases: action.databases,
-      selectedDatabase: null,
+      formFields: {
+        ...state.formFields,
+        selectedDatabase: {
+          isFetchingDatabases: false,
+        },
+      },
     };
   }
   if (
@@ -254,55 +262,62 @@ export const generateDiagramWizardReducer: Reducer<
   ) {
     return {
       ...state,
-      step: 'SELECT_DATABASE',
-      error: action.error,
+      formFields: {
+        ...state.formFields,
+        selectedDatabase: {
+          isFetchingDatabases: false,
+          error: action.error,
+        },
+      },
     };
   }
   if (isAction(action, GenerateDiagramWizardActionTypes.SELECT_DATABASE)) {
     return {
       ...state,
-      selectedDatabase: action.database,
+      formFields: {
+        ...state.formFields,
+        selectedDatabase: {
+          value: action.database,
+        },
+        selectedCollections: {
+          isFetchingCollections: true,
+        },
+      },
     };
   }
-  if (
-    isAction(
-      action,
-      GenerateDiagramWizardActionTypes.CANCEL_SELECTED_CONNECTION
-    )
-  ) {
-    return { ...state, step: 'SELECT_CONNECTION', selectedConnectionId: null };
-  }
+
   if (isAction(action, GenerateDiagramWizardActionTypes.COLLECTIONS_FETCHED)) {
     if (
-      action.connectionId !== state.selectedConnectionId ||
-      action.database !== state.selectedDatabase
+      action.connectionId !== state.formFields.selectedConnection.value ||
+      action.database !== state.formFields.selectedDatabase.value
     ) {
       return state;
     }
     return {
       ...state,
-      step: 'SELECT_COLLECTIONS',
       databaseCollections: action.collections,
       // pre-select all collections by default
-      selectedCollections: action.collections,
+      formFields: {
+        ...state.formFields,
+        selectedCollections: {
+          value: action.collections,
+        },
+      },
       automaticallyInferRelations: true,
     };
   }
   if (isAction(action, GenerateDiagramWizardActionTypes.SELECT_COLLECTIONS)) {
     return {
       ...state,
-      selectedCollections: action.collections,
+      formFields: {
+        ...state.formFields,
+        selectedCollections: {
+          value: action.collections,
+        },
+      },
     };
   }
-  if (
-    isAction(action, GenerateDiagramWizardActionTypes.CANCEL_SELECTED_DATABASE)
-  ) {
-    return {
-      ...state,
-      step: 'SELECT_DATABASE',
-      selectedDatabase: null,
-    };
-  }
+
   if (
     isAction(
       action,
@@ -322,27 +337,19 @@ export const generateDiagramWizardReducer: Reducer<
       inProgress: false,
     };
   }
-  if (isAction(action, GenerateDiagramWizardActionTypes.CONNECTION_FAILED)) {
-    return {
-      ...state,
-      inProgress: false,
-    };
-  }
+
   if (
     isAction(action, GenerateDiagramWizardActionTypes.COLLECTIONS_FETCH_FAILED)
   ) {
     return {
       ...state,
-      error: action.error,
-      step: 'SELECT_DATABASE',
-    };
-  }
-  if (
-    isAction(action, GenerateDiagramWizardActionTypes.CONFIRM_SELECT_DATABASE)
-  ) {
-    return {
-      ...state,
-      step: 'LOADING_COLLECTIONS',
+      formFields: {
+        ...state.formFields,
+        selectedCollections: {
+          isFetchingCollections: false,
+          error: action.error,
+        },
+      },
     };
   }
   if (
@@ -353,48 +360,79 @@ export const generateDiagramWizardReducer: Reducer<
       automaticallyInferRelations: action.newVal,
     };
   }
+  if (isAction(action, GenerateDiagramWizardActionTypes.GOTO_STEP)) {
+    return {
+      ...state,
+      step: action.step,
+    };
+  }
   return state;
 };
+
+export function gotoStep(
+  step: GenerateDiagramWizardState['step']
+): DataModelingThunkAction<void, GotoStepAction> {
+  return (dispatch, getState) => {
+    const currentStep = getState().generateDiagramWizard.step;
+    if (currentStep === step) {
+      return;
+    }
+    dispatch({
+      type: GenerateDiagramWizardActionTypes.GOTO_STEP,
+      step,
+    });
+  };
+}
 
 export function createNewDiagram(): CreateNewDiagramAction {
   return { type: GenerateDiagramWizardActionTypes.CREATE_NEW_DIAGRAM };
 }
 
 export function changeName(name: string): ChangeNameAction {
-  return { type: GenerateDiagramWizardActionTypes.CHANGE_NAME, name };
-}
-
-export function confirmName(): ConfirmNameAction {
-  return { type: GenerateDiagramWizardActionTypes.CONFIRM_NAME };
-}
-
-export function selectConnection(connectionId: string): SelectConnectionAction {
   return {
-    type: GenerateDiagramWizardActionTypes.SELECT_CONNECTION,
-    id: connectionId,
+    type: GenerateDiagramWizardActionTypes.CHANGE_NAME,
+    name,
   };
 }
 
-export function confirmSelectConnection(): DataModelingThunkAction<
+export function validateDiagramName(): DataModelingThunkAction<
   Promise<void>,
-  | ConfirmSelectConnectionAction
+  InvalidNameAction
+> {
+  return async (dispatch, getState, { dataModelStorage }) => {
+    const diagramName =
+      getState().generateDiagramWizard.formFields.diagramName.value;
+    if (!diagramName) {
+      return;
+    }
+    const items = await dataModelStorage.loadAll();
+    if (items.some((x) => x.name === diagramName)) {
+      dispatch({
+        type: GenerateDiagramWizardActionTypes.INVALID_NAME,
+        error: new Error('Diagram with this name already exists.'),
+      });
+    }
+  };
+}
+
+export function selectConnection(
+  connectionId: string
+): DataModelingThunkAction<
+  Promise<void>,
+  | SelectConnectionAction
   | ConnectionConnectedAction
   | DatabasesFetchedAction
   | ConnectionFailedAction
   | DatabasesFetchFailedAction
 > {
-  return async (dispatch, getState, services) => {
-    dispatch({
-      type: GenerateDiagramWizardActionTypes.CONFIRM_SELECT_CONNECTION,
-    });
-
-    const { selectedConnectionId } = getState().generateDiagramWizard;
-    if (!selectedConnectionId) {
-      return;
-    }
+  return async (dispatch, _getState, services) => {
     try {
+      dispatch({
+        type: GenerateDiagramWizardActionTypes.SELECT_CONNECTION,
+        id: connectionId,
+      });
       const connectionInfo =
-        services.connections.getConnectionById(selectedConnectionId)?.info;
+        services.connections.getConnectionById(connectionId)?.info;
       if (!connectionInfo) {
         return;
       }
@@ -402,7 +440,7 @@ export function confirmSelectConnection(): DataModelingThunkAction<
       // ConnectionsService.connect does not throw an error if it fails to establish a connection,
       // so explicitly checking if error is in the connection item and throwing it.
       const connectionError =
-        services.connections.getConnectionById(selectedConnectionId)?.error;
+        services.connections.getConnectionById(connectionId)?.error;
       if (connectionError) {
         throw connectionError;
       }
@@ -415,6 +453,7 @@ export function confirmSelectConnection(): DataModelingThunkAction<
       );
       dispatch({
         type: GenerateDiagramWizardActionTypes.CONNECTION_FAILED,
+        error: new Error('Connection failed.'),
       });
       return;
     }
@@ -422,15 +461,13 @@ export function confirmSelectConnection(): DataModelingThunkAction<
     try {
       dispatch({ type: GenerateDiagramWizardActionTypes.CONNECTION_CONNECTED });
       const mongoDBInstance =
-        services.instanceManager.getMongoDBInstanceForConnection(
-          selectedConnectionId
-        );
+        services.instanceManager.getMongoDBInstanceForConnection(connectionId);
       const dataService =
-        services.connections.getDataServiceForConnection(selectedConnectionId);
+        services.connections.getDataServiceForConnection(connectionId);
       await mongoDBInstance.fetchDatabases({ dataService });
       dispatch({
         type: GenerateDiagramWizardActionTypes.DATABASES_FETCHED,
-        connectionId: selectedConnectionId,
+        connectionId: connectionId,
         databases: mongoDBInstance.databases
           .map((db) => {
             return db.name;
@@ -454,44 +491,62 @@ export function confirmSelectConnection(): DataModelingThunkAction<
   };
 }
 
-export function selectDatabase(database: string): SelectDatabaseAction {
-  return {
-    type: GenerateDiagramWizardActionTypes.SELECT_DATABASE,
-    database,
-  };
-}
-
-export function confirmSelectDatabase(): DataModelingThunkAction<
+export function selectDatabase(
+  database: string
+): DataModelingThunkAction<
   Promise<void>,
-  | ConfirmSelectDatabaseAction
+  | SelectDatabaseAction
+  | ChangeNameAction
   | CollectionsFetchedAction
   | CollectionsFetchFailedAction
 > {
   return async (dispatch, getState, services) => {
     dispatch({
-      type: GenerateDiagramWizardActionTypes.CONFIRM_SELECT_DATABASE,
+      type: GenerateDiagramWizardActionTypes.SELECT_DATABASE,
+      database,
     });
+
+    // If the current diagram name is empty, we want to auto-generate it
+    // (DATABASE_NAME_DD_MM_YYYY). If it exists, we want to add a number to it.
+    const currentDiagramName =
+      getState().generateDiagramWizard.formFields.diagramName.value;
+    if (!currentDiagramName) {
+      const diagrams = await services.dataModelStorage.loadAll();
+      const date = new Date();
+      const day = date.getDate().toString().padStart(2, '0');
+      const month = (date.getMonth() + 1).toString().padStart(2, '0');
+      const year = date.getFullYear();
+      const newDiagramName = [database, day, month, year].join('_');
+      dispatch({
+        type: GenerateDiagramWizardActionTypes.CHANGE_NAME,
+        name: getDiagramName(
+          diagrams.map((d) => d.name),
+          newDiagramName
+        ),
+      });
+    }
     try {
-      const { selectedConnectionId, selectedDatabase } =
-        getState().generateDiagramWizard;
-      if (!selectedConnectionId || !selectedDatabase) {
+      const { selectedConnection, selectedDatabase } =
+        getState().generateDiagramWizard.formFields;
+      if (!selectedConnection.value || !selectedDatabase.value) {
         return;
       }
       const mongoDBInstance =
         services.instanceManager.getMongoDBInstanceForConnection(
-          selectedConnectionId
+          selectedConnection.value
         );
-      const dataService =
-        services.connections.getDataServiceForConnection(selectedConnectionId);
-      const db = mongoDBInstance.databases.get(selectedDatabase);
+      const dataService = services.connections.getDataServiceForConnection(
+        selectedConnection.value
+      );
+      const db = mongoDBInstance.databases.get(selectedDatabase.value);
       if (!db) {
         return;
       }
       await db.fetchCollections({ dataService });
       dispatch({
         type: GenerateDiagramWizardActionTypes.COLLECTIONS_FETCHED,
-        connectionId: selectedConnectionId,
-        database: selectedDatabase,
+        connectionId: selectedConnection.value,
+        database: selectedDatabase.value,
         collections: db.collections
           .map((coll) => {
             return coll.name;
@@ -530,13 +585,20 @@ export function confirmSelectedCollections(): DataModelingThunkAction<
 > {
   return (dispatch, getState) => {
     const {
-      diagramName,
-      selectedConnectionId,
-      selectedDatabase,
-      selectedCollections,
+      formFields: {
+        diagramName,
+        selectedConnection,
+        selectedDatabase,
+        selectedCollections,
+      },
       automaticallyInferRelations,
     } = getState().generateDiagramWizard;
-    if (!selectedConnectionId || !selectedDatabase || !selectedCollections) {
+    if (
+      !diagramName.value ||
+      !selectedConnection.value ||
+      !selectedDatabase.value ||
+      !selectedCollections.value
+    ) {
       return;
     }
     dispatch({
@@ -544,10 +606,10 @@ export function confirmSelectedCollections(): DataModelingThunkAction<
     });
     void dispatch(
       startAnalysis(
-        diagramName,
-        selectedConnectionId,
-        selectedDatabase,
-        selectedCollections,
+        diagramName.value,
+        selectedConnection.value,
+        selectedDatabase.value,
+        selectedCollections.value,
         { automaticallyInferRelations }
       )
     );
@@ -556,18 +618,6 @@ export function confirmSelectedCollections(): DataModelingThunkAction<
 
 export function cancelCreateNewDiagram(): CancelCreateNewDiagramAction {
   return { type: GenerateDiagramWizardActionTypes.CANCEL_CREATE_NEW_DIAGRAM };
-}
-
-export function cancelConfirmName(): CancelConfirmNameAction {
-  return { type: GenerateDiagramWizardActionTypes.CANCEL_CONFIRM_NAME };
-}
-
-export function cancelSelectedConnection(): CancelSelectedConnectionAction {
-  return { type: GenerateDiagramWizardActionTypes.CANCEL_SELECTED_CONNECTION };
-}
-
-export function cancelSelectedDatabase(): CancelSelectedDatabaseAction {
-  return { type: GenerateDiagramWizardActionTypes.CANCEL_SELECTED_DATABASE };
 }
 
 export function toggleInferRelationships(

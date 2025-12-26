@@ -47,9 +47,8 @@ You are able to:
 <inabilities>
 You CANNOT:
 
-1. Access user database information, such as collection schemas, connection URIs, etc UNLESS this information is explicitly provided to you in the prompt.
+1. Access user database information, such as collection schemas, etc UNLESS this information is explicitly provided to you in the prompt.
 2. Query MongoDB directly or execute code.
-3. Access the current state of the UI
 </inabilities>
 `;
 };
@@ -236,7 +235,9 @@ export function buildContextPrompt({
   activeConnection,
   activeCollectionMetadata,
   activeCollectionSubTab,
-}: {
+  enableToolCalling = false,
+}: // TODO: enable database tool calling
+{
   activeWorkspace: WorkspaceTab | null;
   activeConnection: Pick<ConnectionInfo, 'connectionOptions'> | null;
   activeCollectionMetadata: Pick<
@@ -251,6 +252,7 @@ export function buildContextPrompt({
     | 'serverVersion'
   > | null;
   activeCollectionSubTab: CollectionSubtab | null;
+  enableToolCalling?: boolean;
 }): AssistantMessage {
   const parts: string[] = [];
 
@@ -320,6 +322,30 @@ export function buildContextPrompt({
     parts.push(lines.join(' '));
   } else {
     parts.push(`The user does not have any tabs open.`);
+  }
+
+  if (enableToolCalling) {
+    // TODO: we'll probably want separate lines for get-compass-context and
+    // readonly database tools. (Also modify <inabilities> above)
+    if (activeWorkspace && hasNamespace(activeWorkspace)) {
+      if (activeCollectionSubTab === 'Documents') {
+        parts.push(
+          'Use the "get-compass-context" tool to get the current query from the query bar.'
+        );
+      } else if (activeCollectionSubTab === 'Aggregations') {
+        parts.push(
+          'Use the "get-compass-context" tool to get the current aggregation pipeline from the aggregation builder.'
+        );
+      }
+    }
+  }
+
+  if (!enableToolCalling) {
+    // TODO: we'll probably want separate lines for get-compass-context and
+    // readonly database tools. (Also modify <inabilities> above)
+    parts.push(
+      "You cannot access the user's current query or aggregation pipeline."
+    );
   }
 
   const text = parts.join('\n\n');
