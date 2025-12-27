@@ -96,19 +96,23 @@ function Accordion({
   const darkMode = useDarkMode();
   const [localOpen, setLocalOpen] = useState(_open ?? defaultOpen);
   const setOpenRef = useCurrentValueRef(_setOpen);
-  const onOpenChange = useCallback(() => {
-    setLocalOpen((prevValue) => {
-      const newValue = !prevValue;
-      setOpenRef.current?.(newValue);
-      return newValue;
-    });
-  }, [setOpenRef]);
+  const onOpenChange = useCallback(
+    (e: React.SyntheticEvent<HTMLElement>) => {
+      e.preventDefault();
+      setLocalOpen((prevValue) => {
+        const newValue = !prevValue;
+        setOpenRef.current?.(newValue);
+        return newValue;
+      });
+    },
+    [setOpenRef]
+  );
   const regionId = useId();
   const labelId = useId();
   const open = typeof _open !== 'undefined' ? _open : localOpen;
   return (
-    <>
-      <button
+    <details open={open}>
+      <summary
         {...props}
         className={cx(
           darkMode ? buttonDarkThemeStyles : buttonLightThemeStyles,
@@ -117,7 +121,6 @@ function Accordion({
           textClassName
         )}
         id={labelId}
-        type="button"
         aria-expanded={open ? 'true' : 'false'}
         aria-controls={regionId}
         onClick={onOpenChange}
@@ -135,14 +138,12 @@ function Accordion({
             <Description className={buttonHintStyles}>{hintText}</Description>
           )}
         </div>
-      </button>
+      </summary>
 
-      {open && (
-        <div role="region" aria-labelledby={labelId} id={regionId}>
-          {props.children}
-        </div>
-      )}
-    </>
+      <div role="region" aria-labelledby={labelId} id={regionId}>
+        {props.children}
+      </div>
+    </details>
   );
 }
 
