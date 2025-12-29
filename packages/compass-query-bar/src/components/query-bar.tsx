@@ -45,6 +45,9 @@ import {
   useFavoriteQueryStorageAccess,
   useRecentQueryStorageAccess,
 } from '@mongodb-js/my-queries-storage/provider';
+import { useQueryBarQuery } from './hooks';
+import { useSyncAssistantGlobalState } from '@mongodb-js/compass-assistant';
+import { toJSString } from 'mongodb-query-parser';
 
 const queryBarFormStyles = css({
   display: 'flex',
@@ -202,6 +205,9 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
     favoriteQueryStorageAvailable &&
     recentQueryStorageAvailable &&
     isMyQueriesEnabled;
+
+  const query = useQueryBarQuery();
+  useSyncAssistantGlobalState('currentQuery', toJSString(query) || null);
 
   return (
     <form

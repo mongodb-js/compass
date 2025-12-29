@@ -26,6 +26,8 @@ import {
   type ProactiveInsightsContext,
 } from './prompts';
 import {
+  type PreferencesAccess,
+  preferencesLocator,
   useIsAIFeatureEnabled,
   usePreference,
 } from 'compass-preferences-model/provider';
@@ -39,14 +41,22 @@ import {
   type TrackFunction,
   useTelemetry,
 } from '@mongodb-js/compass-telemetry/provider';
-import type { AtlasAiService } from '@mongodb-js/compass-generative-ai/provider';
-import { atlasAiServiceLocator } from '@mongodb-js/compass-generative-ai/provider';
+import type {
+  AtlasAiService,
+  ToolsController,
+} from '@mongodb-js/compass-generative-ai/provider';
+import {
+  atlasAiServiceLocator,
+  toolsControllerLocator,
+} from '@mongodb-js/compass-generative-ai/provider';
 import { buildConversationInstructionsPrompt } from './prompts';
 import { createOpenAI } from '@ai-sdk/openai';
 import {
   AssistantGlobalStateProvider,
   useAssistantGlobalState,
 } from './assistant-global-state';
+import { lastAssistantMessageIsCompleteWithApprovalResponses } from 'ai';
+import type { ToolSet } from 'ai';
 
 export const ASSISTANT_DRAWER_ID = 'compass-assistant-drawer';
 
@@ -195,8 +205,10 @@ export const AssistantProvider: React.FunctionComponent<
     appNameForPrompt: string;
     chat: Chat<AssistantMessage>;
     atlasAiService: AtlasAiService;
+    toolsController: ToolsController;
+    preferences: PreferencesAccess;
   }>
-> = ({ chat, atlasAiService, children }) => {
+> = ({ chat, atlasAiService, toolsController, preferences, children }) => {
   const { openDrawer } = useDrawerActions();
   const track = useTelemetry();
 
@@ -240,11 +252,14 @@ export const AssistantProvider: React.FunctionComponent<
           );
         }) ?? null;
 
+      const { enableToolCalling } = preferences.getPreferences();
+
       const contextPrompt = buildContextPrompt({
         activeWorkspace,
         activeConnection,
         activeCollectionMetadata,
         activeCollectionSubTab,
+        enableToolCalling,
       });
 
       // use just the text so we have a stable reference to compare against
@@ -267,6 +282,20 @@ export const AssistantProvider: React.FunctionComponent<
         chat.messages = [...chat.messages, contextPrompt];
       }
 
+      if (enableToolCalling) {
+        toolsController.setActiveTools(new Set(['compass']));
+        toolsController.setContext({
+          query: assistantGlobalStateRef.current.currentQuery || undefined,
+          aggregation:
+            assistantGlobalStateRef.current.currentAggregation || undefined,
+        });
+      } else {
+        toolsController.setActiveTools(new Set([]));
+        toolsController.setContext({
+          query: undefined,
+          aggregation: undefined,
+        });
+      }
       await chat.sendMessage(message, options);
     };
   });
@@ -335,12 +364,16 @@ export const CompassAssistantProvider = registerCompassPlugin(
       appNameForPrompt,
       chat,
       atlasAiService,
+      toolsController,
+      preferences,
       children,
     }: PropsWithChildren<{
       appNameForPrompt: string;
       originForPrompt: string;
       chat?: Chat<AssistantMessage>;
       atlasAiService?: AtlasAiService;
+      toolsController?: ToolsController;
+      preferences?: PreferencesAccess;
     }>) => {
       if (!chat) {
         throw new Error('Chat was not provided by the state');
@@ -348,12 +381,20 @@ export const CompassAssistantProvider = registerCompassPlugin(
       if (!atlasAiService) {
         throw new Error('atlasAiService was not provided by the state');
       }
+      if (!toolsController) {
+        throw new Error('toolsController was not provided by the state');
+      }
+      if (!preferences) {
+        throw new Error('preferences was not provided by the state');
+      }
       return (
         <AssistantGlobalStateProvider>
           <AssistantProvider
             appNameForPrompt={appNameForPrompt}
             chat={chat}
             atlasAiService={atlasAiService}
+            toolsController={toolsController}
+            preferences={preferences}
           >
             {children}
           </AssistantProvider>
@@ -362,7 +403,14 @@ export const CompassAssistantProvider = registerCompassPlugin(
     },
     activate: (
       { chat: initialChat, originForPrompt, appNameForPrompt },
-      { atlasService, atlasAiService, logger, track }
+      {
+        atlasService,
+        atlasAiService,
+        toolsController,
+        preferences,
+        logger,
+        track,
+      }
     ) => {
       const chat =
         initialChat ??
@@ -372,10 +420,13 @@ export const CompassAssistantProvider = registerCompassPlugin(
           atlasService,
           logger,
           track,
+          getTools: () => toolsController.getActiveTools(),
         });
 
       return {
-        store: { state: { chat, atlasAiService } },
+        store: {
+          state: { chat, atlasAiService, toolsController, preferences },
+        },
         deactivate: () => {},
       };
     },
@@ -384,8 +435,10 @@ export const CompassAssistantProvider = registerCompassPlugin(
     atlasService: atlasServiceLocator,
     atlasAiService: atlasAiServiceLocator,
     atlasAuthService: atlasAuthServiceLocator,
+    toolsController: toolsControllerLocator,
     track: telemetryLocator,
     logger: createLoggerLocator('COMPASS-ASSISTANT'),
+    preferences: preferencesLocator,
   }
 );
 
@@ -396,6 +449,7 @@ export function createDefaultChat({
   logger,
   track,
   options,
+  getTools,
 }: {
   originForPrompt: string;
   appNameForPrompt: string;
@@ -405,13 +459,15 @@ export function createDefaultChat({
   options?: {
     transport: Chat<AssistantMessage>['transport'];
   };
+  getTools?: () => ToolSet;
 }): Chat<AssistantMessage> {
   const initialBaseUrl = 'http://PLACEHOLDER_BASE_URL_TO_BE_REPLACED.invalid';
-  return new Chat({
+  return new Chat<AssistantMessage>({
     transport:
       options?.transport ??
       new DocsProviderTransport({
         origin: originForPrompt,
+        getTools,
         instructions: buildConversationInstructionsPrompt({
           target: appNameForPrompt,
         }),
@@ -448,6 +504,7 @@ export function createDefaultChat({
           },
         }).responses('mongodb-chat-latest'),
       }),
+    sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithApprovalResponses,
     onError: (err: Error) => {
       logger.log.error(
         logger.mongoLogId(1_001_000_370),

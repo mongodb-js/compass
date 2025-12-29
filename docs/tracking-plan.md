@@ -6,7 +6,7 @@
 > the tracking plan for the specific Compass version you can use the following
 > URL: `https://github.com/mongodb-js/compass/blob/<compass version>/docs/tracking-plan.md`
 
-Generated on Mon, Dec 22, 2025
+Generated on Sun, Dec 28, 2025
 
 ## Table of Contents
 
@@ -201,6 +201,7 @@ Generated on Mon, Dec 22, 2025
 - [Error Fetching Attributes](#event--ErrorFetchingAttributesEvent)
 - [Keytar Secrets Migration Failed](#event--KeytarSecretsMigrationFailedEvent)
 - [Performance Advisor Clicked](#event--PerformanceAdvisorClickedEvent)
+- [Assistant Tool Call Approval](#event--AssistantToolCallApprovalEvent)
 - [Screen](#event--ScreenEvent)
 - [Secret Storage Not Available](#event--SecretStorageNotAvailableEvent)
 - [Experiment Viewed](#event--ExperimentViewedEvent)
@@ -2271,6 +2272,16 @@ NOTE: Should be removed as part of https://jira.mongodb.org/browse/COMPASS-7948.
 ### Performance Advisor Clicked
 
 This event is fired when a user clicks on the Performance Advisor CTA.
+
+<a name="event--AssistantToolCallApprovalEvent"></a>
+
+### Assistant Tool Call Approval
+
+**Properties**:
+
+- **approved** (required): `boolean`
+- **approval_id** (required): `string`
+- **is_compass_web** (optional): `true | undefined`
 
 <a name="event--ScreenEvent"></a>
 
