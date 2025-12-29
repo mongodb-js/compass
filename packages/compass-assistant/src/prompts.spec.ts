@@ -511,10 +511,7 @@ describe('prompts', function () {
 
     for (const testCase of testCases) {
       const summary: {
-        type: string;
-        isTimeSeries?: boolean;
-        isView?: boolean;
-        subTab?: string;
+        [key: string]: string | boolean;
       } = {
         type: testCase.context.activeWorkspace?.type || 'No active tab',
       };
