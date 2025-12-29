@@ -25,18 +25,27 @@ import type { AtlasAuthService } from '@mongodb-js/atlas-service/provider';
 import type { AtlasService } from '@mongodb-js/atlas-service/provider';
 import { CompassAssistantDrawer } from './compass-assistant-drawer';
 import { createBrokenTransport, createMockChat } from '../test/utils';
-import type { AtlasAiService } from '@mongodb-js/compass-generative-ai/provider';
+import type {
+  AtlasAiService,
+  ToolsController,
+} from '@mongodb-js/compass-generative-ai/provider';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
+import {
+  AssistantGlobalStateProvider,
+  useSyncAssistantGlobalState,
+} from './assistant-global-state';
 
 function createMockProvider({
   mockAtlasService,
   mockAtlasAiService,
   mockAtlasAuthService,
+  mockToolsController,
 }: {
   mockAtlasService?: any;
   mockAtlasAiService?: any;
   mockAtlasAuthService?: any;
+  mockToolsController?: any;
 } = {}) {
   if (!mockAtlasService) {
     mockAtlasService = {
@@ -56,10 +65,19 @@ function createMockProvider({
     mockAtlasAuthService = {};
   }
 
+  if (!mockToolsController) {
+    mockToolsController = {
+      setActiveTools: sinon.stub().resolves(),
+      getActiveTools: sinon.stub().resolves({}),
+      setContext: sinon.stub().resolves(),
+    };
+  }
+
   return CompassAssistantProvider.withMockServices({
     atlasService: mockAtlasService as unknown as AtlasService,
     atlasAiService: mockAtlasAiService as unknown as AtlasAiService,
     atlasAuthService: mockAtlasAuthService as unknown as AtlasAuthService,
+    toolsController: mockToolsController as unknown as ToolsController,
   });
 }
 
@@ -70,40 +88,60 @@ const TestComponent: React.FunctionComponent<{
   mockAtlasService?: any;
   mockAtlasAiService?: any;
   mockAtlasAuthService?: any;
+  mockToolsController?: any;
   hasNonGenuineConnections?: boolean;
+  currentQuery?: string;
+  currentAggregation?: string;
 }> = ({
   chat,
   autoOpen,
   mockAtlasService,
   mockAtlasAiService,
   mockAtlasAuthService,
+  mockToolsController,
   hasNonGenuineConnections,
+  currentQuery,
+  currentAggregation,
 }) => {
   const MockedProvider = createMockProvider({
     mockAtlasService: mockAtlasService as unknown as AtlasService,
     mockAtlasAiService: mockAtlasAiService as unknown as AtlasAiService,
     mockAtlasAuthService: mockAtlasAuthService as unknown as AtlasAuthService,
+    mockToolsController: mockToolsController as unknown as ToolsController,
   });
 
+  const FakeStateSetterComponent = () => {
+    useSyncAssistantGlobalState('currentQuery', currentQuery ?? null);
+    useSyncAssistantGlobalState(
+      'currentAggregation',
+      currentAggregation ?? null
+    );
+
+    return null;
+  };
+
   return (
-    <DrawerContentProvider>
-      {/* Breaking this rule is fine while none of the tests try to re-render the content */}
-      {/* eslint-disable-next-line react-hooks/static-components */}
-      <MockedProvider
-        originForPrompt="mongodb-compass"
-        appNameForPrompt="MongoDB Compass"
-        chat={chat}
-      >
-        <DrawerAnchor>
-          <div data-testid="provider-children">Provider children</div>
-          <CompassAssistantDrawer
-            appName="Compass"
-            autoOpen={autoOpen}
-            hasNonGenuineConnections={hasNonGenuineConnections}
-          />
-        </DrawerAnchor>
-      </MockedProvider>
-    </DrawerContentProvider>
+    <AssistantGlobalStateProvider>
+      <DrawerContentProvider>
+        {/* Breaking this rule is fine while none of the tests try to re-render the content */}
+        {/* eslint-disable-next-line react-hooks/static-components */}
+        <MockedProvider
+          originForPrompt="mongodb-compass"
+          appNameForPrompt="MongoDB Compass"
+          chat={chat}
+        >
+          <DrawerAnchor>
+            <div data-testid="provider-children">Provider children</div>
+            <CompassAssistantDrawer
+              appName="Compass"
+              autoOpen={autoOpen}
+              hasNonGenuineConnections={hasNonGenuineConnections}
+            />
+          </DrawerAnchor>
+          <FakeStateSetterComponent />
+        </MockedProvider>
+      </DrawerContentProvider>
+    </AssistantGlobalStateProvider>
   );
 };
 
@@ -138,6 +176,7 @@ describe('useAssistantActions', function () {
         enableGenAIFeatures: false,
         enableGenAIFeaturesAtlasOrg: true,
         cloudFeatureRolloutAccess: { GEN_AI_COMPASS: true },
+        enableToolCalling: true,
       },
     });
 
@@ -152,6 +191,7 @@ describe('useAssistantActions', function () {
         enableGenAIFeatures: true,
         enableGenAIFeaturesAtlasOrg: false,
         cloudFeatureRolloutAccess: { GEN_AI_COMPASS: true },
+        enableToolCalling: true,
       },
     });
 
@@ -166,6 +206,7 @@ describe('useAssistantActions', function () {
         enableGenAIFeatures: true,
         enableGenAIFeaturesAtlasOrg: true,
         cloudFeatureRolloutAccess: { GEN_AI_COMPASS: false },
+        enableToolCalling: true,
       },
     });
 
@@ -180,24 +221,7 @@ describe('useAssistantActions', function () {
         enableGenAIFeatures: true,
         enableGenAIFeaturesAtlasOrg: true,
         cloudFeatureRolloutAccess: { GEN_AI_COMPASS: true },
-      },
-    });
-
-    expect(Object.keys(result.current)).to.have.length.greaterThan(0);
-    expect(result.current.interpretExplainPlan).to.be.a('function');
-    expect(result.current.interpretConnectionError).to.be.a('function');
-    expect(result.current.tellMoreAboutInsight).to.be.undefined;
-  });
-
-  it('returns actions when both AI features and assistant flag AND enablePerformanceInsightsEntrypoints are enabled', function () {
-    const { result } = renderHook(() => useAssistantActions(), {
-      wrapper: createWrapper(createMockChat({ messages: [] })),
-      preferences: {
-        enableAIAssistant: true,
-        enablePerformanceInsightsEntrypoints: true,
-        enableGenAIFeatures: true,
-        enableGenAIFeaturesAtlasOrg: true,
-        cloudFeatureRolloutAccess: { GEN_AI_COMPASS: true },
+        enableToolCalling: true,
       },
     });
 
@@ -229,6 +253,7 @@ describe('CompassAssistantProvider', function () {
         enableGenAIFeatures: true,
         enableGenAIFeaturesAtlasOrg: true,
         cloudFeatureRolloutAccess: { GEN_AI_COMPASS: true },
+        enableToolCalling: true,
       },
     });
 
@@ -244,6 +269,7 @@ describe('CompassAssistantProvider', function () {
           enableGenAIFeatures: false,
           enableGenAIFeaturesAtlasOrg: true,
           cloudFeatureRolloutAccess: { GEN_AI_COMPASS: true },
+          enableToolCalling: true,
         },
       });
 
@@ -259,6 +285,7 @@ describe('CompassAssistantProvider', function () {
           enableGenAIFeatures: true,
           enableGenAIFeaturesAtlasOrg: false,
           cloudFeatureRolloutAccess: { GEN_AI_COMPASS: true },
+          enableToolCalling: true,
         },
       });
 
@@ -274,6 +301,7 @@ describe('CompassAssistantProvider', function () {
           enableGenAIFeatures: true,
           enableGenAIFeaturesAtlasOrg: true,
           cloudFeatureRolloutAccess: { GEN_AI_COMPASS: false },
+          enableToolCalling: true,
         },
       });
 
@@ -290,6 +318,7 @@ describe('CompassAssistantProvider', function () {
         enableGenAIFeatures: true,
         enableGenAIFeaturesAtlasOrg: true,
         cloudFeatureRolloutAccess: { GEN_AI_COMPASS: true },
+        enableToolCalling: true,
       },
     });
 
@@ -310,18 +339,29 @@ describe('CompassAssistantProvider', function () {
     async function renderOpenAssistantDrawer({
       chat,
       atlastAiService,
+      toolsController,
       hasNonGenuineConnections,
+      enableToolCalling = true,
+      query,
+      aggregation,
     }: {
       chat: Chat<AssistantMessage>;
       atlastAiService?: Partial<AtlasAiService>;
+      toolsController?: Partial<ToolsController>;
       hasNonGenuineConnections?: boolean;
+      enableToolCalling?: boolean;
+      query?: string;
+      aggregation?: string;
     }): Promise<ReturnType<typeof render>> {
       const result = render(
         <TestComponent
           chat={chat}
           mockAtlasAiService={atlastAiService}
+          mockToolsController={toolsController}
           autoOpen={true}
           hasNonGenuineConnections={hasNonGenuineConnections}
+          currentQuery={query}
+          currentAggregation={aggregation}
         />,
         {
           preferences: {
@@ -329,6 +369,7 @@ describe('CompassAssistantProvider', function () {
             enableGenAIFeatures: true,
             enableGenAIFeaturesAtlasOrg: true,
             cloudFeatureRolloutAccess: { GEN_AI_COMPASS: true },
+            enableToolCalling,
           },
         }
       );
@@ -527,6 +568,121 @@ describe('CompassAssistantProvider', function () {
         expect(sendMessageSpy.called).to.be.false;
       });
       expect(screen.queryByText('Hello assistant!')).to.not.exist;
+    });
+
+    it('disables tools if toolCalling feature is disabled', async function () {
+      const mockChat = new Chat<AssistantMessage>({
+        messages: [
+          {
+            id: 'assistant',
+            role: 'assistant',
+            parts: [{ type: 'text', text: 'Hello user!' }],
+          },
+        ],
+      });
+
+      const sendMessageSpy = sinon.spy(mockChat, 'sendMessage');
+
+      const mockToolsController = {
+        setActiveTools: sinon.stub().resolves(),
+        getActiveTools: sinon.stub().resolves({}),
+        setContext: sinon.stub().resolves(),
+      };
+
+      await renderOpenAssistantDrawer({
+        chat: mockChat,
+        toolsController: mockToolsController,
+        enableToolCalling: false,
+      });
+
+      const input = screen.getByPlaceholderText('Ask a question');
+      const sendButton = screen.getByLabelText('Send message');
+
+      userEvent.type(input, 'Hello assistant');
+      userEvent.click(sendButton);
+
+      await waitFor(() => {
+        expect(sendMessageSpy.calledOnce).to.be.true;
+        expect(sendMessageSpy.firstCall.args[0]).to.deep.include({
+          text: 'Hello assistant',
+        });
+      });
+
+      const contextMessages = mockChat.messages.filter(
+        (message) => message.metadata?.isSystemContext
+      );
+      expect(contextMessages).to.have.lengthOf(1);
+
+      expect(mockToolsController.setActiveTools.callCount).to.equal(1);
+      expect(
+        mockToolsController.setActiveTools.firstCall.args[0]
+      ).to.deep.equal(new Set());
+
+      expect(mockToolsController.setContext.callCount).to.equal(1);
+      expect(mockToolsController.setContext.firstCall.args[0]).to.deep.equal({
+        query: undefined,
+        aggregation: undefined,
+      });
+    });
+
+    it('enables tools if toolCalling feature is enabled', async function () {
+      const mockChat = new Chat<AssistantMessage>({
+        messages: [
+          {
+            id: 'assistant',
+            role: 'assistant',
+            parts: [{ type: 'text', text: 'Hello user!' }],
+          },
+        ],
+      });
+
+      const sendMessageSpy = sinon.spy(mockChat, 'sendMessage');
+
+      const mockToolsController = {
+        setActiveTools: sinon.stub().resolves(),
+        getActiveTools: sinon.stub().resolves({}),
+        setContext: sinon.stub().resolves(),
+      };
+
+      const query = 'This is a fake query';
+      const aggregation = 'This is a fake aggregation';
+
+      await renderOpenAssistantDrawer({
+        chat: mockChat,
+        toolsController: mockToolsController,
+        enableToolCalling: true,
+        query,
+        aggregation,
+      });
+
+      const input = screen.getByPlaceholderText('Ask a question');
+      const sendButton = screen.getByLabelText('Send message');
+
+      userEvent.type(input, 'Hello assistant');
+      userEvent.click(sendButton);
+
+      await waitFor(() => {
+        expect(sendMessageSpy.calledOnce).to.be.true;
+        expect(sendMessageSpy.firstCall.args[0]).to.deep.include({
+          text: 'Hello assistant',
+        });
+      });
+
+      const contextMessages = mockChat.messages.filter(
+        (message) => message.metadata?.isSystemContext
+      );
+      expect(contextMessages).to.have.lengthOf(1);
+
+      expect(mockToolsController.setActiveTools.callCount).to.equal(1);
+      expect(
+        mockToolsController.setActiveTools.firstCall.args[0]
+      ).to.deep.equal(new Set(['compass']));
+
+      expect(mockToolsController.setContext.callCount).to.equal(1);
+      expect(mockToolsController.setContext.firstCall.args[0]).to.deep.equal({
+        query,
+        aggregation,
+      });
     });
 
     describe('error handling with default chat', function () {

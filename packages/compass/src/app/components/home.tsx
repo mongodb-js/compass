@@ -28,6 +28,7 @@ import { CompassInstanceStorePlugin } from '@mongodb-js/compass-app-stores';
 import FieldStorePlugin from '@mongodb-js/compass-field-store';
 import { AtlasAuthPlugin } from '@mongodb-js/atlas-service/renderer';
 import { CompassGenerativeAIPlugin } from '@mongodb-js/compass-generative-ai';
+import { ToolsControllerProvider } from '@mongodb-js/compass-generative-ai/provider';
 import { ConnectionStorageProvider } from '@mongodb-js/connection-storage/provider';
 import { ConnectionImportExportProvider } from '@mongodb-js/compass-connection-import-export';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
@@ -114,26 +115,28 @@ function HomeWithConnections({
   return (
     <ConnectionStorageProvider value={connectionStorage}>
       <FileInputBackendProvider createFileInputBackend={createFileInputBackend}>
-        <CompassAssistantProvider
-          originForPrompt="mongodb-compass"
-          appNameForPrompt={APP_NAMES_FOR_PROMPT.Compass}
-        >
-          <CompassConnections
-            appName={props.appName}
-            onExtraConnectionDataRequest={getExtraConnectionData}
-            onAutoconnectInfoRequest={onAutoconnectInfoRequest}
-            doNotReconnectDisconnectedAutoconnectInfo
-            onFailToLoadConnections={(error) => {
-              openToast('failed-to-load-connections', {
-                title: 'Failed to load connections',
-                description: error.message,
-                variant: 'warning',
-              });
-            }}
+        <ToolsControllerProvider>
+          <CompassAssistantProvider
+            originForPrompt="mongodb-compass"
+            appNameForPrompt={APP_NAMES_FOR_PROMPT.Compass}
           >
-            <Home {...props}></Home>
-          </CompassConnections>
-        </CompassAssistantProvider>
+            <CompassConnections
+              appName={props.appName}
+              onExtraConnectionDataRequest={getExtraConnectionData}
+              onAutoconnectInfoRequest={onAutoconnectInfoRequest}
+              doNotReconnectDisconnectedAutoconnectInfo
+              onFailToLoadConnections={(error) => {
+                openToast('failed-to-load-connections', {
+                  title: 'Failed to load connections',
+                  description: error.message,
+                  variant: 'warning',
+                });
+              }}
+            >
+              <Home {...props}></Home>
+            </CompassConnections>
+          </CompassAssistantProvider>
+        </ToolsControllerProvider>
       </FileInputBackendProvider>
     </ConnectionStorageProvider>
   );

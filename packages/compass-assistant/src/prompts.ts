@@ -47,9 +47,8 @@ You are able to:
 <inabilities>
 You CANNOT:
 
-1. Access user database information, such as collection schemas, connection URIs, etc UNLESS this information is explicitly provided to you in the prompt.
+1. Access user database information, such as collection schemas, etc UNLESS this information is explicitly provided to you in the prompt.
 2. Query MongoDB directly or execute code.
-3. Access the current state of the UI
 </inabilities>
 `;
 };
@@ -169,11 +168,8 @@ export const buildProactiveInsightsPrompt = (
   switch (context.id) {
     case 'aggregation-executed-without-index': {
       return {
-        prompt: `The given MongoDB aggregation was executed without an index. Provide a concise human readable explanation that explains why it might degrade performance to not use an index. 
-
-Please suggest whether an existing index can be used to improve the performance of this query, or if a new index must be created, and describe how it can be accomplished in MongoDB Compass. Do not advise users to create indexes without weighing the pros and cons. 
-
-Respond with as much concision and clarity as possible. 
+        prompt: `Provide a concise, human-readable explanation of why not using an index for this aggregation can degrade performance. Do not refer to the specifics of the explain plan output, but use it to contextualize your recommendations. Assess whether any existing indexes could optimize this operation, or if a new index could improve performance. Do not ever explicitly instruct to create an index. If a new index might help, mention important pros and cons of adding an index, not just benefits, and briefly describe how to create it in MongoDB Compass.
+Consider the type of collection (e.g. view v. not). If tools are available, use the \`explain\` tool to get the explain plan output, use the \`list-indexes\` tool to get the list of indexes for this collection.
 
 <input>
 ${context.stages.join('\n')}
@@ -239,15 +235,24 @@ export function buildContextPrompt({
   activeConnection,
   activeCollectionMetadata,
   activeCollectionSubTab,
-}: {
+  enableToolCalling = false,
+}: // TODO: enable database tool calling
+{
   activeWorkspace: WorkspaceTab | null;
   activeConnection: Pick<ConnectionInfo, 'connectionOptions'> | null;
   activeCollectionMetadata: Pick<
     CollectionMetadata,
-    'isTimeSeries' | 'sourceName'
-    // TODO(COMPASS-10173): isClustered, isFLE, isSearchIndexesSupported, isDataLake, isAtlas, serverVersion
+    | 'isTimeSeries'
+    | 'sourceName'
+    | 'isClustered'
+    | 'isFLE'
+    | 'isSearchIndexesSupported'
+    | 'isDataLake'
+    | 'isAtlas'
+    | 'serverVersion'
   > | null;
   activeCollectionSubTab: CollectionSubtab | null;
+  enableToolCalling?: boolean;
 }): AssistantMessage {
   const parts: string[] = [];
 
@@ -269,21 +274,78 @@ export function buildContextPrompt({
       : '';
     const lines = [`The user is on the "${tabName}" tab${namespacePart}.`];
     if (isNamespaceTab && activeConnection && activeCollectionMetadata) {
+      const collectionDetails: string[] = [];
       if (activeCollectionMetadata.isTimeSeries) {
-        lines.push(
-          `"${activeWorkspace.namespace}" is a time-series collection.`
-        );
+        collectionDetails.push('is a time-series collection');
       }
 
       if (activeCollectionMetadata.sourceName) {
-        lines.push(
-          `"${activeWorkspace.namespace}" is a view on the "${activeCollectionMetadata.sourceName}" collection.`
+        collectionDetails.push(
+          `is a view on the "${activeCollectionMetadata.sourceName}" collection`
         );
       }
+
+      if (activeCollectionMetadata.isClustered) {
+        collectionDetails.push('is a clustered collection');
+      }
+
+      if (activeCollectionMetadata.isFLE) {
+        collectionDetails.push('has encrypted fields');
+      }
+
+      if (activeCollectionMetadata.isSearchIndexesSupported) {
+        collectionDetails.push('supports Atlas Search indexes');
+      } else {
+        collectionDetails.push('does not support Atlas Search indexes');
+      }
+
+      if (collectionDetails.length > 0) {
+        lines.push(
+          `"${activeWorkspace.namespace}" ${collectionDetails.join(', ')}.`
+        );
+      }
+
+      // Instance metadata
+      const instanceDetails: string[] = [];
+      if (activeCollectionMetadata.isDataLake) {
+        instanceDetails.push('Data Lake');
+      }
+      if (activeCollectionMetadata.isAtlas) {
+        instanceDetails.push('Atlas');
+      }
+
+      if (instanceDetails.length > 0) {
+        lines.push(`The instance is ${instanceDetails.join(' and ')}.`);
+      }
+      lines.push(`Server version: ${activeCollectionMetadata.serverVersion}`);
     }
     parts.push(lines.join(' '));
   } else {
     parts.push(`The user does not have any tabs open.`);
+  }
+
+  if (enableToolCalling) {
+    // TODO: we'll probably want separate lines for get-compass-context and
+    // readonly database tools. (Also modify <inabilities> above)
+    if (activeWorkspace && hasNamespace(activeWorkspace)) {
+      if (activeCollectionSubTab === 'Documents') {
+        parts.push(
+          'Use the "get-compass-context" tool to get the current query from the query bar.'
+        );
+      } else if (activeCollectionSubTab === 'Aggregations') {
+        parts.push(
+          'Use the "get-compass-context" tool to get the current aggregation pipeline from the aggregation builder.'
+        );
+      }
+    }
+  }
+
+  if (!enableToolCalling) {
+    // TODO: we'll probably want separate lines for get-compass-context and
+    // readonly database tools. (Also modify <inabilities> above)
+    parts.push(
+      "You cannot access the user's current query or aggregation pipeline."
+    );
   }
 
   const text = parts.join('\n\n');

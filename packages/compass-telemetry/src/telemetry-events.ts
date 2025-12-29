@@ -1683,6 +1683,14 @@ type PipelineAiFeedbackEvent = ConnectionScopedEvent<{
   };
 }>;
 
+type AssistantToolCallApprovalEvent = CommonEvent<{
+  name: 'Assistant Tool Call Approval';
+  payload: {
+    approved: boolean;
+    approval_id: string;
+  };
+}>;
+
 /**
  * This event is fired when user filters queries using db / coll filter.
  *
@@ -3379,6 +3387,7 @@ export type TelemetryEvent =
   | PerformancePausedEvent
   | PerformanceResumedEvent
   | PipelineAiFeedbackEvent
+  | AssistantToolCallApprovalEvent
   | QueryEditedEvent
   | QueryExecutedEvent
   | QueryExportedEvent

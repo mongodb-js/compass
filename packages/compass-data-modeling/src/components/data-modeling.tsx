@@ -2,7 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import DiagramEditor from './diagram-editor';
 import SavedDiagramsList from './saved-diagrams-list';
-import NewDiagramFormModal from './new-diagram-form';
+import NewDiagramFormModal from './new-diagram/new-diagram-modal';
 import type { DataModelingState } from '../store/reducer';
 import { DiagramProvider } from '@mongodb-js/compass-components';
 import DiagramEditorSidePanel from './drawer/diagram-editor-side-panel';
