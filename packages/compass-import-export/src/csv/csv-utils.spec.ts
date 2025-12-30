@@ -480,7 +480,7 @@ describe('placeValue', function () {
 });
 
 function parseHeader(header: string[]): Record<string, PathPart[]> {
-  const parsed: Record<string, PathPart[]> = {};
+  const parsed: Record<string, PathPart[]> = Object.create(null);
   for (const name of header) {
     parsed[name] = parseCSVHeaderName(name);
   }

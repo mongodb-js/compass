@@ -44,8 +44,8 @@ async function openMenuForQueryItem(
   await browser.$(Selectors.SavedItemMenu).waitForDisplayed();
 }
 
-const knownQueryNames: Record<string, true> = {};
-const knownQueryFilters: Record<string, true> = {};
+const knownQueryNames: Record<string, true> = Object.create(null);
+const knownQueryFilters: Record<string, true> = Object.create(null);
 
 async function saveQuery(
   browser: CompassBrowser,

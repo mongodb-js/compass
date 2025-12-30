@@ -42,7 +42,9 @@ export function parseXmlToJsonResponse(
   );
 
   // Currently the prompt forces LLM to return xml-styled data
-  const result: Record<(typeof expectedTags)[number], string | null> = {
+  const result: {
+    [key in (typeof expectedTags)[number]]: string | null;
+  } = {
     filter: null,
     project: null,
     sort: null,
