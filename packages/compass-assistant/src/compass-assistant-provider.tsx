@@ -60,6 +60,11 @@ import type { ToolSet } from 'ai';
 
 export const ASSISTANT_DRAWER_ID = 'compass-assistant-drawer';
 
+type BasicConnectionInfo = {
+  id: string;
+  name: string;
+};
+
 export type AssistantMessage = UIMessage & {
   role?: 'user' | 'assistant' | 'system';
   metadata?: {
@@ -85,6 +90,11 @@ export type AssistantMessage = UIMessage & {
 
     /** Whether this is a message to the model that we don't want to display to the user*/
     isSystemContext?: boolean;
+
+    /** Just enough info so we can tell which connection this message is related
+     *  to (if any) and print that name for the user
+     */
+    connectionInfo?: BasicConnectionInfo | null;
   };
 };
 
