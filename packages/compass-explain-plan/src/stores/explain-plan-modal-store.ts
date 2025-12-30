@@ -232,7 +232,7 @@ export const openExplainPlanModal = (
         rawExplainPlan = await dataService.explainAggregate(
           namespace,
           pipeline,
-          { collation },
+          { collation, maxTimeMS: maxTimeMSValue },
           { explainVerbosity, maxTimeMS: maxTimeMSValue, abortSignal: signal }
         );
 
@@ -269,7 +269,7 @@ export const openExplainPlanModal = (
         rawExplainPlan = await dataService.explainFind(
           namespace,
           filter,
-          options,
+          { ...options, maxTimeMS: maxTimeMSValue },
           { explainVerbosity, maxTimeMS: maxTimeMSValue, abortSignal: signal }
         );
 

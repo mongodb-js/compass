@@ -91,7 +91,7 @@ export const fetchExplainForPipeline = (): PipelineBuilderThunkAction<
       const rawExplainPlan = await dataService.dataService?.explainAggregate?.(
         namespace,
         pipeline,
-        {},
+        { maxTimeMS: maxTimeMS ?? undefined },
         {
           explainVerbosity: 'queryPlanner',
           maxTimeMS: maxTimeMS ?? undefined,
