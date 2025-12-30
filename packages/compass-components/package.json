@@ -46,7 +46,7 @@
     "@leafygreen-ui/combobox": "^12.3.0",
     "@leafygreen-ui/confirmation-modal": "^10.3.0",
     "@leafygreen-ui/copyable": "^12.0.2",
-    "@leafygreen-ui/drawer": "^5.2.0",
+    "@leafygreen-ui/drawer": "^5.2.1",
     "@leafygreen-ui/emotion": "^5.1.0",
     "@leafygreen-ui/guide-cue": "^8.2.0",
     "@leafygreen-ui/hooks": "^9.3.0",
