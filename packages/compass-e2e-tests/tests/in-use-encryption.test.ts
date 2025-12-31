@@ -774,6 +774,10 @@ describe('CSFLE / QE', function () {
           "{ phoneNumber: '10101010' }"
         );
 
+        // Wait for the documents to be shown
+        // (switching from json view to list view).
+        await browser.$(Selectors.DocumentListEntry).waitForDisplayed();
+
         const modifiedResult = await browser.getFirstListDocument();
         expect(modifiedResult.phoneNumber).to.be.equal('"10101010"');
       });
