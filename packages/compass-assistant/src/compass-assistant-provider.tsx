@@ -60,6 +60,11 @@ import type { ToolSet } from 'ai';
 
 export const ASSISTANT_DRAWER_ID = 'compass-assistant-drawer';
 
+type BasicConnectionInfo = {
+  id: string;
+  name: string;
+};
+
 export type AssistantMessage = UIMessage & {
   role?: 'user' | 'assistant' | 'system';
   metadata?: {
@@ -85,6 +90,11 @@ export type AssistantMessage = UIMessage & {
 
     /** Whether this is a message to the model that we don't want to display to the user*/
     isSystemContext?: boolean;
+
+    /** Just enough info so we can tell which connection this message is related
+     *  to (if any) and print that name for the user
+     */
+    connectionInfo?: BasicConnectionInfo | null;
   };
 };
 
@@ -283,8 +293,20 @@ export const AssistantProvider: React.FunctionComponent<
       }
 
       if (enableToolCalling) {
-        toolsController.setActiveTools(new Set(['compass']));
+        // TODO: only include db-read if the setting is enabled
+        toolsController.setActiveTools(new Set(['compass', 'db-read']));
         toolsController.setContext({
+          connection: activeConnection
+            ? {
+                connectionId: activeConnection.id,
+                connectionString:
+                  activeConnection.connectionOptions.connectionString,
+                connectOptions: {
+                  productName: 'MongoDB Compass',
+                  productDocsLink: 'https://www.mongodb.com/docs/compass/',
+                }, // TODO: use the connection's actual DevtoolsConnectOptions
+              }
+            : undefined,
           query: assistantGlobalStateRef.current.currentQuery || undefined,
           aggregation:
             assistantGlobalStateRef.current.currentAggregation || undefined,
@@ -292,6 +314,7 @@ export const AssistantProvider: React.FunctionComponent<
       } else {
         toolsController.setActiveTools(new Set([]));
         toolsController.setContext({
+          connection: undefined,
           query: undefined,
           aggregation: undefined,
         });

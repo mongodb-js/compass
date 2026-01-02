@@ -23,6 +23,9 @@ import type { ToolCallPart } from './tool-call-message';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import { NON_GENUINE_WARNING_MESSAGE } from '../preset-messages';
 import { SuggestedPrompts } from './suggested-prompts';
+import type { UIDataTypes, UIMessagePart, UITools } from 'ai';
+import { useAssistantGlobalState } from '../assistant-global-state';
+import { getConnectionTitle } from '@mongodb-js/connection-info';
 
 const { ChatWindow } = LgChatChatWindow;
 const { LeafyGreenChatProvider } = LgChatLeafygreenChatProvider;
@@ -194,6 +197,20 @@ const inputBarTextareaProps = {
   placeholder: 'Ask a question',
 };
 
+function partIsToolcall(part: UIMessagePart<UIDataTypes, UITools>): boolean {
+  return part.type.startsWith('tool-') || 'toolCallId' in part;
+}
+
+// Type guard to check if activeWorkspace has a connectionId property
+function hasConnectionId(obj: unknown): obj is { connectionId: string } {
+  return (
+    typeof obj === 'object' &&
+    obj !== null &&
+    'connectionId' in obj &&
+    typeof (obj as any).connectionId === 'string'
+  );
+}
+
 export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
   chat,
   hasNonGenuineConnections,
@@ -253,6 +270,53 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
       });
     }
   }, [hasNonGenuineConnections, chat, setMessages]);
+
+  const { activeConnections, activeWorkspace } = useAssistantGlobalState();
+
+  const activeConnection =
+    activeConnections.find((connInfo) => {
+      return (
+        hasConnectionId(activeWorkspace) &&
+        connInfo.id === activeWorkspace.connectionId
+      );
+    }) ?? null;
+
+  useEffect(() => {
+    let newToolcallsFound = false;
+
+    const newMessages: AssistantMessage[] = chat.messages.map((message) => {
+      const toolCalls = message.parts.filter((part) => partIsToolcall(part));
+      if (toolCalls.length > 0) {
+        if (message.metadata?.connectionInfo !== undefined) {
+          // If it is set or null, then we have already processed this message
+          return { ...message };
+        }
+
+        // If there are tool calls we want to remember the connectionInfo
+        newToolcallsFound = true;
+        const connectionInfo = activeConnection
+          ? {
+              id: activeConnection.id,
+              name: getConnectionTitle(activeConnection),
+            }
+          : null;
+        return {
+          ...message,
+          metadata: {
+            ...message.metadata,
+            connectionInfo,
+          },
+        };
+      } else {
+        // If there are no tool calls we don't need to add connection info
+        return { ...message };
+      }
+    });
+
+    if (newToolcallsFound) {
+      setMessages(() => newMessages);
+    }
+  }, [activeConnection, chat, setMessages]);
 
   const handleMessageSend = useCallback(
     async ({ text, metadata }: SendMessageOptions) => {
@@ -418,7 +482,7 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
                   }
 
                   // Detect tool call parts (they have a "tool-" prefix or a toolCallId)
-                  if (part.type.startsWith('tool-') || 'toolCallId' in part) {
+                  if (partIsToolcall(part)) {
                     toolCalls.push(part as ToolCallPart);
                   }
                 }
@@ -465,6 +529,7 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
 
                       return (
                         <ToolCallMessage
+                          connection={message.metadata?.connectionInfo ?? null}
                           key={toolCallId}
                           toolCall={toolCall}
                           onApprove={(approvalId) =>

@@ -153,6 +153,7 @@ export interface ToolCallPart {
 }
 
 interface ToolCallMessageProps {
+  connection: { id: string; name: string } | null;
   toolCall: ToolCallPart;
   onApprove?: (approvalId: string) => void;
   onDeny?: (approvalId: string) => void;
@@ -164,6 +165,7 @@ function getToolDisplayName(type: string): string {
 }
 
 export const ToolCallMessage: React.FunctionComponent<ToolCallMessageProps> = ({
+  connection,
   toolCall,
   onApprove,
   onDeny,
@@ -203,6 +205,8 @@ export const ToolCallMessage: React.FunctionComponent<ToolCallMessageProps> = ({
           <b>{toolName}</b>
         </div>
       </div>
+
+      <b>{connection ? connection.name : 'Unknown Connection'}</b>
 
       {/* Input Section */}
       <div>
