@@ -198,50 +198,17 @@ export function collectionToDiagramNode({
   };
 }
 
-function findNodeByNS(ns: string, nodes: NodeProps[]): NodeProps | undefined {
-  return nodes.find((node) => node.id === ns);
-}
-
-function findFieldIndex({
-  fieldPath,
-  nodes,
-  ns,
-}: {
-  fieldPath: string[];
-  nodes: NodeProps[];
-  ns?: string;
-}): number | undefined {
-  if (!ns || !fieldPath.length) return undefined;
-  const node = findNodeByNS(ns, nodes);
-  if (!node) return undefined;
-
-  for (const [index, field] of node.fields.entries()) {
-    if (!field.id || !Array.isArray(field.id)) continue;
-    // TODO(COMPASS-9504 and COMPASS-9935): Accept partial paths for collapsed nodes and fields.
-    if (areFieldPathsEqual(field.id, fieldPath)) return index;
-  }
-}
-
 export function relationshipToDiagramEdge(
   relationship: Relationship,
-  selected = false,
-  nodes: NodeProps[]
+  selected = false
 ): EdgeProps {
   const [source, target] = relationship.relationship;
   return {
     id: relationship.id,
     source: source.ns ?? '',
     target: target.ns ?? '',
-    sourceFieldIndex: findFieldIndex({
-      fieldPath: source.fields ?? [],
-      nodes,
-      ns: source.ns ?? undefined,
-    }),
-    targetFieldIndex: findFieldIndex({
-      fieldPath: target.fields ?? [],
-      nodes,
-      ns: target.ns ?? undefined,
-    }),
+    sourceFieldId: source.fields ?? [],
+    targetFieldId: target.fields ?? [],
     markerStart: source.cardinality === 1 ? 'one' : 'many',
     markerEnd: target.cardinality === 1 ? 'one' : 'many',
     selected,

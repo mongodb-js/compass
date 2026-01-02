@@ -280,9 +280,9 @@ const DiagramContent: React.FunctionComponent<{
         !!selectedItems &&
         selectedItems.type === 'relationship' &&
         selectedItems.id === relationship.id;
-      return relationshipToDiagramEdge(relationship, selected, nodes);
+      return relationshipToDiagramEdge(relationship, selected);
     });
-  }, [model?.relationships, selectedItems, nodes]);
+  }, [model?.relationships, selectedItems]);
 
   // Fit to view on initial mount
   useEffect(() => {
