@@ -10,6 +10,7 @@ import type { DataModelingState } from '../store/reducer';
 import {
   addNewFieldToCollection,
   moveCollection,
+  moveMultipleCollections,
   onAddNestedField,
   selectCollection,
   selectRelationship,
@@ -164,6 +165,9 @@ const DiagramContent: React.FunctionComponent<{
     source: 'side_panel' | 'diagram'
   ) => void;
   onMoveCollection: (ns: string, newPosition: [number, number]) => void;
+  onMoveMultipleCollections: (
+    newPositions: Record<string, [number, number]>
+  ) => void;
   onCollectionSelect: (namespace: string) => void;
   onRelationshipSelect: (rId: string) => void;
   onFieldSelect: (namespace: string, fieldPath: FieldPath) => void;
@@ -209,6 +213,7 @@ const DiagramContent: React.FunctionComponent<{
   onAddFieldToObjectField,
   onAddNewFieldToCollection,
   onMoveCollection,
+  onMoveMultipleCollections,
   onCollectionSelect,
   onRelationshipSelect,
   onFieldSelect,
@@ -382,10 +387,20 @@ const DiagramContent: React.FunctionComponent<{
   );
 
   const onNodeDragStop = useCallback(
-    (evt: React.MouseEvent, node: NodeProps) => {
-      onMoveCollection(node.id, [node.position.x, node.position.y]);
+    (evt: React.MouseEvent, node: NodeProps, nodes: NodeProps[]) => {
+      if (nodes.length === 1) {
+        onMoveCollection(node.id, [node.position.x, node.position.y]);
+      } else {
+        const newPositions = Object.fromEntries(
+          nodes.map((node): [string, [number, number]] => [
+            node.id,
+            [node.position.x, node.position.y],
+          ])
+        );
+        onMoveMultipleCollections(newPositions);
+      }
     },
-    [onMoveCollection]
+    [onMoveCollection, onMoveMultipleCollections]
   );
 
   const onPaneClick = useCallback(() => {
@@ -558,6 +573,7 @@ const ConnectedDiagramContent = connect(
     onAddNewFieldToCollection: addNewFieldToCollection,
     onAddFieldToObjectField: onAddNestedField,
     onMoveCollection: moveCollection,
+    onMoveMultipleCollections: moveMultipleCollections,
     onCollectionSelect: selectCollection,
     onRelationshipSelect: selectRelationship,
     onFieldSelect: selectField,

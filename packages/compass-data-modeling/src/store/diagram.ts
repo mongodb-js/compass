@@ -591,6 +591,19 @@ export function moveCollection(
   return applyEdit(edit);
 }
 
+export function moveMultipleCollections(
+  newPositions: Record<string, [number, number]>
+): DataModelingThunkAction<void, ApplyEditAction | RevertFailedEditAction> {
+  const edit: Omit<
+    Extract<Edit, { type: 'MoveMultipleCollections' }>,
+    'id' | 'timestamp'
+  > = {
+    type: 'MoveMultipleCollections',
+    newPositions,
+  };
+  return applyEdit(edit);
+}
+
 export function renameCollection(
   fromNS: string,
   toNS: string
