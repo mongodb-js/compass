@@ -128,7 +128,7 @@ export type AtlasServiceConfig = {
 
 /**
  * Atlas service backend configurations.
- *  - atlas-local:             local mms backend         (localhost)
+ *  - atlas-local:             local mms backend         (cloud-local.mongodb.com)
  *  - atlas-dev:               dev mms backend           (cloud-dev.mongodb.com)
  *  - atlas-qa:                qa mms backend            (cloud-qa.mongodb.com)
  *  - atlas-staging:           staging mms backend       (cloud-stage.mongodb.com)
@@ -140,16 +140,16 @@ export type AtlasServiceConfig = {
  */
 const config = {
   'atlas-local': {
-    ccsBaseUrl: 'ws://localhost:61001/ws',
+    ccsBaseUrl: 'ws://cloud-local.mongodb.com/cluster-connection',
     cloudBaseUrl: '',
-    atlasApiBaseUrl: 'http://localhost:8080/api/private',
+    atlasApiBaseUrl: 'http://cloud-local.mongodb.com/api/private',
     atlasLogin: {
       clientId: '0oaq1le5jlzxCuTbu357',
       issuer: 'https://auth-qa.mongodb.com/oauth2/default',
     },
-    authPortalUrl: 'https://account-dev.mongodb.com/account/login',
+    authPortalUrl: 'https://account-local.mongodb.com/account/login',
     assistantApiBaseUrl: 'https://knowledge-dev.mongodb.com/api/v1',
-    userDataBaseUrl: 'https://cloud-dev.mongodb.com/ui/userData',
+    userDataBaseUrl: 'https://cloud-local.mongodb.com/ui/userData',
   },
   'atlas-dev': {
     ccsBaseUrl: '',
