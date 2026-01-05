@@ -2,22 +2,19 @@
 # by the functions and also because you can't use variables across includes.
 variables:
   - &save-artifact-params-private
-    aws_key: ${aws_key}
-    aws_secret: ${aws_secret}
     bucket: ${__default_bucket}
+    role_arn: ${__default_bucket_role_arn}
     content_type: application/octet-stream
     permissions: private
     visibility: signed
   - &save-artifact-params-public
-    aws_key: ${aws_key}
-    aws_secret: ${aws_secret}
     bucket: ${__default_bucket}
+    role_arn: ${__default_bucket_role_arn}
     content_type: application/octet-stream
     permissions: public-read
   - &get-artifact-params
-    aws_key: ${aws_key}
-    aws_secret: ${aws_secret}
     bucket: ${__default_bucket}
+    role_arn: ${__default_bucket_role_arn}
     content_type: application/octet-stream
     # NOTE: anything added here should probably also be added to the list
   - &compass-env
@@ -876,143 +873,143 @@ functions:
   save-all-artifacts:
     - command: s3.put
       params:
-        <<: *save-artifact-params-public
+        <<: *save-artifact-params-private
         local_file: src/packages/compass/dist/${windows_setup_filename}
         remote_file: ${revision}_${revision_order_id}/${windows_setup_filename}
         optional: true
     - command: s3.put
       params:
-        <<: *save-artifact-params-public
+        <<: *save-artifact-params-private
         local_file: src/packages/compass/dist/${windows_msi_filename}
         remote_file: ${revision}_${revision_order_id}/${windows_msi_filename}
         optional: true
     - command: s3.put
       params:
-        <<: *save-artifact-params-public
+        <<: *save-artifact-params-private
         local_file: src/packages/compass/dist/${windows_zip_filename}
         remote_file: ${revision}_${revision_order_id}/${windows_zip_filename}
         content_type: application/zip
         optional: true
     - command: s3.put
       params:
-        <<: *save-artifact-params-public
+        <<: *save-artifact-params-private
         local_file: src/packages/compass/dist/${windows_zip_sign_filename}
         remote_file: ${revision}_${revision_order_id}/${windows_zip_sign_filename}
         content_type: application/pgp-signature
         optional: true
     - command: s3.put
       params:
-        <<: *save-artifact-params-public
+        <<: *save-artifact-params-private
         local_file: src/packages/compass/dist/${windows_nupkg_full_filename}
         remote_file: ${revision}_${revision_order_id}/${windows_nupkg_full_filename}
         optional: true
     - command: s3.put
       params:
-        <<: *save-artifact-params-public
+        <<: *save-artifact-params-private
         local_file: src/packages/compass/dist/${windows_nupkg_full_sign_filename}
         remote_file: ${revision}_${revision_order_id}/${windows_nupkg_full_sign_filename}
         content_type: application/pgp-signature
         optional: true
     - command: s3.put
       params:
-        <<: *save-artifact-params-public
+        <<: *save-artifact-params-private
         local_file: src/packages/compass/dist/${windows_releases_filename}
         remote_file: ${revision}_${revision_order_id}/${windows_releases_filename}
         optional: true
     - command: s3.put
       params:
-        <<: *save-artifact-params-public
+        <<: *save-artifact-params-private
         local_file: src/packages/compass/dist/${osx_dmg_filename}
         remote_file: ${revision}_${revision_order_id}/${osx_dmg_filename}
         content_type: application/x-apple-diskimage
         optional: true
     - command: s3.put
       params:
-        <<: *save-artifact-params-public
+        <<: *save-artifact-params-private
         local_file: src/packages/compass/dist/${osx_zip_filename}
         remote_file: ${revision}_${revision_order_id}/${osx_zip_filename}
         content_type: application/zip
         optional: true
     - command: s3.put
       params:
-        <<: *save-artifact-params-public
+        <<: *save-artifact-params-private
         local_file: src/packages/compass/dist/${osx_zip_sign_filename}
         remote_file: ${revision}_${revision_order_id}/${osx_zip_sign_filename}
         content_type: application/pgp-signature
         optional: true
     - command: s3.put
       params:
-        <<: *save-artifact-params-public
+        <<: *save-artifact-params-private
         local_file: src/packages/compass/dist/${linux_rpm_filename}
         remote_file: ${revision}_${revision_order_id}/${linux_rpm_filename}
         content_type: application/x-redhat-package-manager
         optional: true
     - command: s3.put
       params:
-        <<: *save-artifact-params-public
+        <<: *save-artifact-params-private
         local_file: src/packages/compass/dist/${rhel_tar_filename}
         remote_file: ${revision}_${revision_order_id}/${rhel_tar_filename}
         content_type: application/x-gzip
         optional: true
     - command: s3.put
       params:
-        <<: *save-artifact-params-public
+        <<: *save-artifact-params-private
         local_file: src/packages/compass/dist/${rhel_tar_sign_filename}
         remote_file: ${revision}_${revision_order_id}/${rhel_tar_sign_filename}
         content_type: application/pgp-signature
         optional: true
     - command: s3.put
       params:
-        <<: *save-artifact-params-public
+        <<: *save-artifact-params-private
         local_file: src/packages/compass/dist/${linux_deb_filename}
         remote_file: ${revision}_${revision_order_id}/${linux_deb_filename}
         content_type: application/vnd.debian.binary-package
         optional: true
     - command: s3.put
       params:
-        <<: *save-artifact-params-public
+        <<: *save-artifact-params-private
         local_file: src/packages/compass/dist/${linux_deb_sign_filename}
         remote_file: ${revision}_${revision_order_id}/${linux_deb_sign_filename}
         content_type: application/pgp-signature
         optional: true
     - command: s3.put
       params:
-        <<: *save-artifact-params-public
+        <<: *save-artifact-params-private
         local_file: src/packages/compass/dist/${linux_tar_filename}
         remote_file: ${revision}_${revision_order_id}/${linux_tar_filename}
         content_type: application/x-gzip
         optional: true
     - command: s3.put
       params:
-        <<: *save-artifact-params-public
+        <<: *save-artifact-params-private
         local_file: src/packages/compass/dist/${linux_tar_sign_filename}
         remote_file: ${revision}_${revision_order_id}/${linux_tar_sign_filename}
         content_type: application/pgp-signature
         optional: true
     - command: s3.put
       params:
-        <<: *save-artifact-params-public
+        <<: *save-artifact-params-private
         local_file: src/.sbom/purls.txt
         remote_file: ${revision}_${revision_order_id}/${task_id}/purls.txt
         content_type: text/plain
         optional: true
     - command: s3.put
       params:
-        <<: *save-artifact-params-public
+        <<: *save-artifact-params-private
         local_file: src/.sbom/sbom-lite.json
         remote_file: ${revision}_${revision_order_id}/${task_id}/sbom-lite.json
         content_type: application/json
         optional: true
     - command: s3.put
       params:
-        <<: *save-artifact-params-public
+        <<: *save-artifact-params-private
         local_file: src/.sbom/sbom.json
         remote_file: ${revision}_${revision_order_id}/${task_id}/sbom.json
         content_type: application/json
         optional: true
     - command: s3.put
       params:
-        <<: *save-artifact-params-public
+        <<: *save-artifact-params-private
         local_file: src/.sbom/first-party-deps.json
         remote_file: ${revision}_${revision_order_id}/first-party-deps-${compass_distribution}-${build_variant}.json
         content_type: application/json
