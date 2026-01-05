@@ -206,7 +206,7 @@ async function getInitialLayout({
   });
   return await applyLayout({
     nodes,
-    edges: relations.map((rel) => relationshipToDiagramEdge(rel, false, [])), // nodes are not important here
+    edges: relations.map((rel) => relationshipToDiagramEdge(rel, false)),
     direction: hasRelations ? 'STAR' : 'RECTANGLE',
   });
 }

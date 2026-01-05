@@ -18,6 +18,8 @@ import {
   Icon,
 } from '@mongodb-js/compass-components';
 import { ConfirmationMessage } from './confirmation-message';
+import { ToolCallMessage } from './tool-call-message';
+import type { ToolCallPart } from './tool-call-message';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import { NON_GENUINE_WARNING_MESSAGE } from '../preset-messages';
 import { SuggestedPrompts } from './suggested-prompts';
@@ -140,6 +142,7 @@ const messageFeedFixesStyles = css({
   wordBreak: 'break-word',
   padding: spacing[400],
   gap: spacing[400],
+  width: '100%',
 
   // TODO(COMPASS-9751): We're setting the font weight to 600 here as the LG styling for the Assistant header isn't set
   '& > div > div > div:has(svg[aria-label="Sparkle Icon"]) p': {
@@ -212,7 +215,14 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
     chat.messages[chat.messages.length - 1] ?? {};
 
   const { ensureOptInAndSend } = useContext(AssistantActionsContext);
-  const { messages, status, error, clearError, setMessages } = useChat({
+  const {
+    messages,
+    status,
+    error,
+    clearError,
+    setMessages,
+    addToolApprovalResponse,
+  } = useChat({
     chat,
   });
 
@@ -359,6 +369,21 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
     [ensureOptInAndSend, setMessages, track]
   );
 
+  const handleToolApproval = useCallback(
+    (approvalId: string, approved: boolean) => {
+      void addToolApprovalResponse({
+        id: approvalId,
+        approved,
+      });
+
+      track('Assistant Tool Call Approval', {
+        approved,
+        approval_id: approvalId,
+      });
+    },
+    [addToolApprovalResponse, track]
+  );
+
   const visibleMessages = messages.filter(
     (message) => !message.metadata?.isSystemContext
   );
@@ -384,6 +409,8 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
                 const { id, role, metadata, parts } = message;
                 const seenTitles = new Set<string>();
                 const sources = [];
+                const toolCalls: ToolCallPart[] = [];
+
                 for (const part of parts) {
                   // Related sources are type source-url. We want to only
                   // include url_citation (has url and title), not file_citation
@@ -398,7 +425,14 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
                       });
                     }
                   }
+
+                  // Detect tool call parts (they have a "tool-" prefix or a toolCallId)
+                  if (part.type.startsWith('tool-') || 'toolCallId' in part) {
+                    toolCalls.push(part as ToolCallPart);
+                  }
                 }
+
+                // Handle confirmation messages
                 if (metadata?.confirmation) {
                   const { description, state } = metadata.confirmation;
                   const isLastMessage = index === visibleMessages.length - 1;
@@ -429,32 +463,57 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
 
                 const isSender = role === 'user';
 
+                // Render tool calls and text content together
                 return (
-                  <Message
-                    key={id}
-                    sourceType="markdown"
-                    isSender={isSender}
-                    messageBody={displayText}
-                    data-testid={`assistant-message-${id}`}
-                  >
-                    {isSender === false && (
-                      <Message.Actions
-                        onRatingChange={(event, state) =>
-                          handleFeedback({ message, state })
-                        }
-                        onSubmitFeedback={(event, state) =>
-                          handleFeedback({ message, state })
-                        }
-                        className={noWrapFixesStyles}
-                      />
+                  <React.Fragment key={id}>
+                    {/* Show tool calls if present */}
+                    {toolCalls.map((toolCall, index) => {
+                      const toolCallId =
+                        toolCall.toolCallId ||
+                        `${id}-${toolCall.type}-${index}`;
+
+                      return (
+                        <ToolCallMessage
+                          key={toolCallId}
+                          toolCall={toolCall}
+                          onApprove={(approvalId) =>
+                            handleToolApproval(approvalId, true)
+                          }
+                          onDeny={(approvalId) =>
+                            handleToolApproval(approvalId, false)
+                          }
+                        />
+                      );
+                    })}
+                    {/* Show text message if there's text content */}
+                    {displayText && (
+                      <Message
+                        key={`${id}-text`}
+                        sourceType="markdown"
+                        isSender={isSender}
+                        messageBody={displayText}
+                        data-testid={`assistant-message-${id}`}
+                      >
+                        {isSender === false && (
+                          <Message.Actions
+                            onRatingChange={(event, state) =>
+                              handleFeedback({ message, state })
+                            }
+                            onSubmitFeedback={(event, state) =>
+                              handleFeedback({ message, state })
+                            }
+                            className={noWrapFixesStyles}
+                          />
+                        )}
+                        {sources.length > 0 && (
+                          <Message.Links
+                            className={noWrapFixesStyles}
+                            links={sources}
+                          />
+                        )}
+                      </Message>
                     )}
-                    {sources.length > 0 && (
-                      <Message.Links
-                        className={noWrapFixesStyles}
-                        links={sources}
-                      />
-                    )}
-                  </Message>
+                  </React.Fragment>
                 );
               })}
             </div>

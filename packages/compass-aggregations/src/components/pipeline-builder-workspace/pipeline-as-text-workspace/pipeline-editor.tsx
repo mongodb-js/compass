@@ -23,6 +23,7 @@ import type { PipelineParserError } from '../../../modules/pipeline-builder/pipe
 import { useAutocompleteFields } from '@mongodb-js/compass-field-store';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
+import { useSyncAssistantGlobalState } from '@mongodb-js/compass-assistant';
 
 const containerStyles = css({
   position: 'relative',
@@ -85,6 +86,8 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
   const connectionInfoRef = useConnectionInfoRef();
   const editorInitialValueRef = useRef<string>(pipelineText);
   const editorCurrentValueRef = useCurrentValueRef<string>(pipelineText);
+
+  useSyncAssistantGlobalState('currentAggregation', pipelineText);
 
   const { utmSource, utmMedium } = useRequiredURLSearchParams();
 

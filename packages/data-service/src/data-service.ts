@@ -168,6 +168,7 @@ export type ExecutionOptions = {
 
 export type ExplainExecuteOptions = ExecutionOptions & {
   explainVerbosity?: keyof typeof ExplainVerbosity;
+  maxTimeMS?: number;
 };
 
 export type SampleOptions = {
@@ -1193,8 +1194,19 @@ class DataServiceImpl extends WithLogContext implements DataService {
       const coll = this._collection(ns, 'CRUD');
 
       // Build the aggregation pipeline dynamically based on collection type
-      const groupStage: Record<string, unknown> = {
-        __proto__: null,
+      const groupStage: {
+        _id: null;
+        capped: { $first: string };
+        count: { $sum: string };
+        size: { $sum: { $toDouble: string } };
+        storageSize: { $sum: { $toDouble: string } };
+        totalIndexSize: { $sum: { $toDouble: string } };
+        freeStorageSize: { $sum: { $toDouble: string } };
+        unscaledCollSize: { $sum: { $multiply: unknown[] } };
+        nindexes: { $max: string };
+        timeseriesBucketCount?: { $first: string };
+        timeseriesAvgBucketSize?: { $first: string };
+      } = {
         _id: null,
         capped: { $first: '$storageStats.capped' },
         count: { $sum: '$storageStats.count' },
@@ -2107,7 +2119,10 @@ class DataServiceImpl extends WithLogContext implements DataService {
           ...options,
           session,
         });
-        const results = await cursor.explain(verbosity);
+        const results = await cursor.explain({
+          verbosity,
+          maxTimeMS: executionOptions?.maxTimeMS,
+        });
         void cursor.close();
         return results;
       },
@@ -2139,7 +2154,10 @@ class DataServiceImpl extends WithLogContext implements DataService {
           ...options,
           session,
         });
-        const results = await cursor.explain(verbosity);
+        const results = await cursor.explain({
+          verbosity,
+          maxTimeMS: executionOptions?.maxTimeMS,
+        });
         void cursor.close();
         return results;
       },

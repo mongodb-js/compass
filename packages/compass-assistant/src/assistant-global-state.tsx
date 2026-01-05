@@ -10,8 +10,8 @@ export type GlobalState = {
   activeConnections: ConnectionInfo[];
   activeWorkspace: WorkspaceTab | null;
   activeCollectionMetadata: CollectionMetadata | null;
-  currentQuery: object | null;
-  currentAggregation: object | null;
+  currentQuery: string | null;
+  currentAggregation: string | null;
   activeCollectionSubTab: CollectionSubtab | null;
 };
 

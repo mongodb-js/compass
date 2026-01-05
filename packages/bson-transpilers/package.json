@@ -1,6 +1,6 @@
 {
   "name": "bson-transpilers",
-  "version": "3.2.24",
+  "version": "3.2.25",
   "apiVersion": "0.0.1",
   "description": "Source to source compilers using ANTLR",
   "contributors": [
@@ -32,7 +32,7 @@
   },
   "license": "SSPL",
   "devDependencies": {
-    "@mongodb-js/eslint-config-compass": "^1.4.13",
+    "@mongodb-js/eslint-config-compass": "^1.4.14",
     "chai": "^4.3.4",
     "depcheck": "^1.4.1",
     "mocha": "^10.2.0"

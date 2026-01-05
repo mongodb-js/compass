@@ -609,7 +609,7 @@ export const languages: Record<EditorLanguage, () => LanguageSupport> = {
   'javascript-expression': () => {
     return new LanguageSupport(javascriptExpression);
   },
-};
+} as const;
 
 export const languageName = Facet.define<EditorLanguage>({});
 
