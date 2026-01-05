@@ -19,7 +19,7 @@ JSON_CONTENT=$( jq -n \
   '{version: $id, bucket_key_prefix: $key}'
 )
 
-URL="https://mciuploads.s3.amazonaws.com/${EVERGREEN_PROJECT}/compass/dev/$1"
+URL="https://${EVERGREEN_BUCKET_NAME}.s3.amazonaws.com/compass/dev/$1"
 DATA=$(curl -sf "${URL}" || echo "$JSON_CONTENT")
 CURRENT_VERSION=$(echo "$DATA" | jq -r '.version')
 
