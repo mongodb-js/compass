@@ -197,9 +197,8 @@ const inputBarTextareaProps = {
 };
 
 const toolToggleContainerStyles = css({
-  display: 'flex',
-  width: '100%',
-  padding: `${spacing[200]}px ${spacing[400]}px`,
+  paddingLeft: spacing[50],
+  paddingRight: spacing[50],
 });
 
 export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
@@ -544,17 +543,21 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
             </div>
           )}
           <SuggestedPrompts chat={chat} onMessageSend={handleMessageSend} />
-          {isToolCallingEnabled && (
-            <div className={toolToggleContainerStyles}>
-              <ToolToggle />
-            </div>
-          )}
+
           <InputBar
             data-testid="assistant-chat-input"
             onMessageSend={(text) => void handleMessageSend({ text })}
             state={status === 'submitted' ? 'loading' : undefined}
             textareaProps={inputBarTextareaProps}
-          />
+          >
+            {isToolCallingEnabled && (
+              <InputBar.AdditionalActions>
+                <div className={toolToggleContainerStyles}>
+                  <ToolToggle />
+                </div>
+              </InputBar.AdditionalActions>
+            )}
+          </InputBar>
         </ChatWindow>
       </LeafyGreenChatProvider>
     </div>
