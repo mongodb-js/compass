@@ -107,7 +107,7 @@ This document was automatically generated on Mon Jan 05 2026.
 | **[@lezer/lr](#1443872b0ea87b0af4967c9026094e634c83118fb811349742ca05bde397412b)**                                          | 1.4.1          | MIT                                 |
 | **[@lg-chat/chat-button](#06a30c240d3ae1052c9097a80baef6e7ac821e8c3e8314c9e48e1f22628e6ecf)**                               | 0.2.0          | Apache-2.0                          |
 | **[@lg-chat/chat-window](#9439c5d511476417d59be21dff39b9cef66667285f3ebf3f7dabf55b6243f16d)**                               | 6.0.0          | Apache-2.0                          |
-| **[@lg-chat/input-bar](#1b4422edb08e3c256b882793fdc0a518573a74190ba0d6ce1e386a337d90b8bf)**                                 | 12.1.1         | Apache-2.0                          |
+| **[@lg-chat/input-bar](#28ef9f5536495c40e395a886f275300432dc44d798a4eeb63c5b6dea11f72807)**                                 | 12.2.0         | Apache-2.0                          |
 | **[@lg-chat/leafygreen-chat-provider](#a8334490cacefebae9b468ca1a993aa2f405dd31ef5fc79cdb92954e21201d3f)**                  | 6.0.0          | Apache-2.0                          |
 | **[@lg-chat/lg-markdown](#22e0e8e88532c4afff94a41748986e78485a156f8b5133eb1b6dce1336c51e14)**                               | 5.0.2          | Apache-2.0                          |
 | **[@lg-chat/message-feedback](#64afd2dab8ad40e7b32ec2b108cf61ee0f6f4a95f3f23bf220f7d814c1e6b3cd)**                          | 9.0.1          | Apache-2.0                          |
@@ -7723,9 +7723,9 @@ License files:
          See the License for the specific language governing permissions and
          limitations under the License.
 
-<a id="1b4422edb08e3c256b882793fdc0a518573a74190ba0d6ce1e386a337d90b8bf"></a>
+<a id="28ef9f5536495c40e395a886f275300432dc44d798a4eeb63c5b6dea11f72807"></a>
 
-### [@lg-chat/input-bar](https://www.npmjs.com/package/@lg-chat/input-bar) (version 12.1.1)
+### [@lg-chat/input-bar](https://www.npmjs.com/package/@lg-chat/input-bar) (version 12.2.0)
 
 License tags: Apache-2.0
 
