@@ -369,7 +369,7 @@ export const createIndexFormSubmitted = (): IndexesThunkAction<
 
     const formIndexOptions = getState().createIndex.options;
 
-    let spec: Record<string, IndexDirection> = {};
+    let spec: Record<string, IndexDirection> = Object.create(null);
 
     try {
       // Gather from the index input fields

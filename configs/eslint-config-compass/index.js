@@ -77,6 +77,14 @@ const commonTestOverrides = {
       ],
     },
   ],
+  '@mongodb-js/devtools/no-expect-method-without-call': [
+    'error',
+    {
+      // 'open' and 'closed' are custom chai properties defined in
+      // testing-library-compass.
+      properties: ['open', 'closed'],
+    },
+  ],
 
   ...tempNewEslintRulesDisabled,
 };

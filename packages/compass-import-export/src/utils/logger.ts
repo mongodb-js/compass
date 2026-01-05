@@ -1,7 +1,7 @@
 import debug from 'debug';
 const PREFIX = 'mongodb-compass-import-export';
 
-const _LOGGERS: Record<string, debug.Debugger> = {};
+const _LOGGERS: Record<string, debug.Debugger> = Object.create(null);
 
 export const createDebug = function (name: string) {
   if (!_LOGGERS[name]) {

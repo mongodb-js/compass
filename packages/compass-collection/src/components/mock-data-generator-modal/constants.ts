@@ -12,9 +12,8 @@ export const StepButtonLabelMap = {
 
 // Map of the current mock data generator step to the next step or 'finish' if the user is on the last step.
 // For the purposes of telemetry tracking the step progression in the modal.
-export const MOCK_DATA_GENERATOR_STEP_TO_NEXT_STEP_MAP: Record<
-  MockDataGeneratorStep,
-  MockDataGeneratorStep | 'finish'
+export const MOCK_DATA_GENERATOR_STEP_TO_NEXT_STEP_MAP: Readonly<
+  Record<MockDataGeneratorStep, MockDataGeneratorStep | 'finish'>
 > = {
   [MockDataGeneratorSteps.SCHEMA_CONFIRMATION]:
     MockDataGeneratorSteps.SCHEMA_EDITOR,
@@ -51,9 +50,8 @@ export const MongoDBFieldTypeValues: MongoDBFieldType[] = [
  * Not all Faker methods are included here.
  * More can be found in the Faker.js API: https://v9.fakerjs.dev/api/
  */
-export const MONGO_TYPE_TO_FAKER_METHODS: Record<
-  MongoDBFieldType,
-  Array<{ method: string; description?: string }>
+export const MONGO_TYPE_TO_FAKER_METHODS: Readonly<
+  Record<MongoDBFieldType, Array<{ method: string; description?: string }>>
 > = {
   String: [
     { method: 'lorem.word', description: 'Single word' },

@@ -84,7 +84,7 @@ export const CompassAssistantDrawer: React.FunctionComponent<{
         </div>
       }
       label="MongoDB Assistant"
-      glyph="Sparkle"
+      glyph={'Assistant'}
       autoOpen={autoOpen}
       guideCue={{
         cueId: 'assistant-drawer',

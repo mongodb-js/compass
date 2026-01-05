@@ -51,7 +51,7 @@ const VALUE_COLOR_BY_THEME_AND_TYPE: Record<
     String: variantColors.light[7],
     ObjectId: variantColors.light[5],
   },
-};
+} as const;
 
 const bsonValue = css({
   whiteSpace: 'nowrap',

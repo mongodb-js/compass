@@ -1744,6 +1744,21 @@ describe('DataService', function () {
 
         expect(dataService.isCancelError(error)).to.be.true;
       });
+      it('passes maxTimeMS to cursor.explain()', async function () {
+        const explain = await dataService.explainAggregate(
+          testNamespace,
+          [
+            {
+              $match: {
+                a: 1,
+              },
+            },
+          ],
+          {},
+          { maxTimeMS: 5000 }
+        );
+        expect(explain).to.be.an('object');
+      });
     });
 
     describe('#explainFind', function () {
@@ -1776,6 +1791,15 @@ describe('DataService', function () {
         const error = await promise;
 
         expect(dataService.isCancelError(error)).to.be.true;
+      });
+      it('passes maxTimeMS to cursor.explain()', async function () {
+        const explain = await dataService.explainFind(
+          testNamespace,
+          { a: 1 },
+          {},
+          { maxTimeMS: 5000 }
+        );
+        expect(explain).to.be.an('object');
       });
     });
 
