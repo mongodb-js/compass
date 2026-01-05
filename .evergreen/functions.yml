@@ -545,7 +545,7 @@ functions:
           echo "Compiling compass-web"
           npm run --workspace @mongodb-js/compass-web compile
           echo "Uploading release assets to S3"
-          npm run --workspace @mongodb-js/compass-web upload
+          npm run --workspace @mongodb-js/compass-web upload-dist
 
   publish-web:
     - command: ec2.assume_role
@@ -565,7 +565,7 @@ functions:
           eval $(.evergreen/print-compass-env.sh)
           # Deploy to dev on every commit to main, do nothing for release branches
           if [[ "$EVERGREEN_PROJECT" == '10gen-compass-main' && "$EVERGREEN_IS_PATCH" != "true" ]]; then
-            npm run --workspace @mongodb-js/compass-web publish
+            npm run --workspace @mongodb-js/compass-web upload-entrypoint
           else 
             echo "Skipping publish: wrong project ($EVERGREEN_PROJECT) or patch ($EVERGREEN_IS_PATCH)"
           fi
