@@ -322,6 +322,36 @@ describe('AssistantChat', function () {
     expect(ensureOptInAndSendStub.notCalled).to.be.true;
   });
 
+  describe('sending and stopping', function () {
+    it('can click the stop button after submission', async function () {
+      const chat = createMockChat({ messages: [], status: 'submitted' });
+      const stopSpy = sinon.spy(chat, 'stop');
+
+      renderWithChat(chat);
+
+      const stopButton = screen.getByLabelText('Stop message');
+      userEvent.click(stopButton);
+
+      await waitFor(() => {
+        expect(stopSpy).to.have.been.calledOnce;
+      });
+    });
+
+    it('can click the stop button when streaming', async function () {
+      const chat = createMockChat({ messages: [], status: 'streaming' });
+      const stopSpy = sinon.spy(chat, 'stop');
+
+      renderWithChat(chat);
+
+      const stopButton = screen.getByLabelText('Stop message');
+      userEvent.click(stopButton);
+
+      await waitFor(() => {
+        expect(stopSpy).to.have.been.calledOnce;
+      });
+    });
+  });
+
   it('displays user and assistant messages with different styling', function () {
     renderWithChat(createMockChat({ messages: mockMessages }));
 

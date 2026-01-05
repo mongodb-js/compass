@@ -547,8 +547,13 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
           <InputBar
             data-testid="assistant-chat-input"
             onMessageSend={(text) => void handleMessageSend({ text })}
-            state={status === 'submitted' ? 'loading' : undefined}
+            state={
+              status === 'submitted' || status === 'streaming'
+                ? 'loading'
+                : undefined
+            }
             textareaProps={inputBarTextareaProps}
+            onClickStopButton={() => void chat.stop()}
           >
             {isToolCallingEnabled && (
               <InputBar.AdditionalActions>
