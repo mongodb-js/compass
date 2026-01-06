@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   css,
   LgChatMessage,
+  spacing,
   useDarkMode,
 } from '@mongodb-js/compass-components';
 
@@ -74,8 +75,10 @@ function mapToolCallStateToCardState(
   }
 }
 
-// TODO(COMPASS-10000): This is a temporary fix to make the tool call message take the entire width of the chat message.
-const toolCallMessageFixesStyles = css({
+const toolCallMessageStyles = css({
+  paddingTop: spacing[400],
+
+  // TODO(COMPASS-10000): This is a temporary fix to make the tool call message take the entire width of the chat message.
   '> div': {
     width: '100%',
   },
@@ -87,7 +90,6 @@ export const ToolCallMessage: React.FunctionComponent<ToolCallMessageProps> = ({
   onDeny,
 }) => {
   const darkMode = useDarkMode();
-  const [isExpanded, setIsExpanded] = useState(false);
 
   const toolName = getToolDisplayName(toolCall.type);
   const toolCallState = mapToolCallStateToCardState(toolCall.state);
@@ -131,14 +133,8 @@ ${outputText}
   }
 
   return (
-    <Message
-      isSender={false}
-      messageBody=""
-      className={toolCallMessageFixesStyles}
-    >
+    <div className={toolCallMessageStyles}>
       <Message.ToolCard
-        initialIsExpanded={isExpanded}
-        onToggleExpanded={setIsExpanded}
         showExpandButton={true}
         state={toolCallState}
         title={title}
@@ -154,6 +150,6 @@ ${outputText}
           />
         )}
       </Message.ToolCard>
-    </Message>
+    </div>
   );
 };
