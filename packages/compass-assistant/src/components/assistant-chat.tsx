@@ -549,6 +549,7 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
             onMessageSend={(text) => void handleMessageSend({ text })}
             state={status === 'submitted' ? 'loading' : undefined}
             textareaProps={inputBarTextareaProps}
+            onClickStopButton={() => void chat.stop()}
           >
             {isToolCallingEnabled && (
               <InputBar.AdditionalActions>
