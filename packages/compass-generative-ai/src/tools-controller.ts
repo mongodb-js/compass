@@ -303,6 +303,7 @@ function registerTools(server: Server) {
       config: server.userConfig,
       telemetry: telemetry as any,
       elicitation: server.elicitation,
+      uiRegistry: server.uiRegistry,
     });
     if (tool.register(server)) {
       server.tools.push(tool);
