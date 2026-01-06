@@ -27,8 +27,9 @@ module.exports = {
   leafygreen: [
     '@emotion/*',
     '@leafygreen-ui/*',
-    '@lg-code/*',
+    '@lg-chat/*',
     '@mongodb-js/diagramming',
+    '@lg-tools/*',
   ],
   mongosh: [
     // mongosh and driver dependencies
