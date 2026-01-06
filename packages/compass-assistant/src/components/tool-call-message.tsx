@@ -10,6 +10,8 @@ import {
   palette,
   useDarkMode,
 } from '@mongodb-js/compass-components';
+import type { ToolUIPart } from 'ai';
+import type { BasicConnectionInfo } from '../compass-assistant-provider';
 
 const toolCallCardStyles = css({
   padding: spacing[200],
@@ -128,33 +130,9 @@ const statusTextStyles = css({
   fontSize: '12px',
 });
 
-export interface ToolCallPart {
-  type: string;
-  toolCallId?: string;
-  state?:
-    | 'approval-requested'
-    | 'approval-responded'
-    | 'input-available'
-    | 'output-available'
-    | 'output-error'
-    | 'output-denied';
-  input?: Record<string, unknown>;
-  output?: {
-    content?: Array<{
-      type: string;
-      text?: string;
-    }>;
-  };
-  approval?: {
-    id: string;
-    approved?: boolean;
-    reason?: string;
-  };
-}
-
 interface ToolCallMessageProps {
-  connection: { id: string; name: string } | null;
-  toolCall: ToolCallPart;
+  connection: BasicConnectionInfo | null;
+  toolCall: ToolUIPart;
   onApprove?: (approvalId: string) => void;
   onDeny?: (approvalId: string) => void;
 }
@@ -206,7 +184,7 @@ export const ToolCallMessage: React.FunctionComponent<ToolCallMessageProps> = ({
         </div>
       </div>
 
-      <b>{connection ? connection.name : 'Unknown Connection'}</b>
+      {connection && <b>{connection.name}</b>}
 
       {/* Input Section */}
       <div>
@@ -299,14 +277,14 @@ export const ToolCallMessage: React.FunctionComponent<ToolCallMessageProps> = ({
         <div className={buttonGroupStyles}>
           <Button
             variant={ButtonVariant.Default}
-            onClick={() => onDeny?.(toolCall.approval!.id)}
+            onClick={() => onDeny?.(toolCall.approval.id)}
             size="xsmall"
           >
             Deny
           </Button>
           <Button
             variant={ButtonVariant.Primary}
-            onClick={() => onApprove?.(toolCall.approval!.id)}
+            onClick={() => onApprove?.(toolCall.approval.id)}
             size="xsmall"
           >
             Allow

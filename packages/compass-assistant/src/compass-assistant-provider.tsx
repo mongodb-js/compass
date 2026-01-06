@@ -51,6 +51,7 @@ import {
 } from '@mongodb-js/compass-generative-ai/provider';
 import { buildConversationInstructionsPrompt } from './prompts';
 import { createOpenAI } from '@ai-sdk/openai';
+import type { ActiveConnectionInfo } from './assistant-global-state';
 import {
   AssistantGlobalStateProvider,
   useAssistantGlobalState,
@@ -60,9 +61,13 @@ import type { ToolSet } from 'ai';
 
 export const ASSISTANT_DRAWER_ID = 'compass-assistant-drawer';
 
-type BasicConnectionInfo = {
+export type BasicConnectionInfo = {
   id: string;
   name: string;
+};
+
+type ToolCallInfo = {
+  connection: BasicConnectionInfo | null;
 };
 
 export type AssistantMessage = UIMessage & {
@@ -95,6 +100,7 @@ export type AssistantMessage = UIMessage & {
      *  to (if any) and print that name for the user
      */
     connectionInfo?: BasicConnectionInfo | null;
+    toolCalls?: Record<string, ToolCallInfo>;
   };
 };
 
@@ -292,33 +298,14 @@ export const AssistantProvider: React.FunctionComponent<
         chat.messages = [...chat.messages, contextPrompt];
       }
 
-      if (enableToolCalling) {
-        // TODO: only include db-read if the setting is enabled
-        toolsController.setActiveTools(new Set(['compass', 'db-read']));
-        toolsController.setContext({
-          connection: activeConnection
-            ? {
-                connectionId: activeConnection.id,
-                connectionString:
-                  activeConnection.connectionOptions.connectionString,
-                connectOptions: {
-                  productName: 'MongoDB Compass',
-                  productDocsLink: 'https://www.mongodb.com/docs/compass/',
-                }, // TODO: use the connection's actual DevtoolsConnectOptions
-              }
-            : undefined,
-          query: assistantGlobalStateRef.current.currentQuery || undefined,
-          aggregation:
-            assistantGlobalStateRef.current.currentAggregation || undefined,
-        });
-      } else {
-        toolsController.setActiveTools(new Set([]));
-        toolsController.setContext({
-          connection: undefined,
-          query: undefined,
-          aggregation: undefined,
-        });
-      }
+      const query = assistantGlobalStateRef.current.currentQuery;
+      const aggregation = assistantGlobalStateRef.current.currentAggregation;
+      setToolsContext(toolsController, {
+        connection: activeConnection,
+        query,
+        aggregation,
+        enableToolCalling,
+      });
       await chat.sendMessage(message, options);
     };
   });
@@ -540,4 +527,46 @@ export function createDefaultChat({
       });
     },
   });
+}
+
+export function setToolsContext(
+  toolsController: ToolsController,
+  {
+    connection,
+    query,
+    aggregation,
+    enableToolCalling,
+  }: {
+    connection?: ActiveConnectionInfo | null;
+    query?: string | null;
+    aggregation?: string | null;
+    enableToolCalling?: boolean;
+  }
+) {
+  if (enableToolCalling) {
+    // TODO: only include db-read if the setting is enabled
+    toolsController.setActiveTools(new Set(['compass', 'db-read']));
+    toolsController.setContext({
+      connection: connection
+        ? {
+            connectionId: connection.id,
+            connectionString: connection.connectionOptions.connectionString,
+            connectOptions: {
+              productName: 'MongoDB Compass',
+              productDocsLink: 'https://www.mongodb.com/docs/compass/',
+              ...connection.connectOptions,
+            },
+          }
+        : undefined,
+      query: query || undefined,
+      aggregation: aggregation || undefined,
+    });
+  } else {
+    toolsController.setActiveTools(new Set([]));
+    toolsController.setContext({
+      connection: undefined,
+      query: undefined,
+      aggregation: undefined,
+    });
+  }
 }

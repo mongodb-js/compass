@@ -29,7 +29,6 @@ type ToolsContext = CompassContext & {
   connection?: ToolsConnectParams;
 };
 
-// TODO: rather than string there must be a better type we can use here
 const readonlyTools = new Set<string>([
   'find',
   'aggregate',
@@ -40,7 +39,7 @@ const readonlyTools = new Set<string>([
   'collection-indexes',
   'collection-schema',
   //'explain',
-  // TODO: we're only allowd 10 tools at the moment
+  // TODO: we're only allowed 10 tools at the moment
   //'collection-storage-size',
   //'db-stats',
   //'mongodb-logs',
@@ -79,7 +78,6 @@ export class ToolsController {
   private context: ToolsContext = Object.create(null);
   private readonly runner: InMemoryRunner;
   private connectionManager: ToolsConnectionManager;
-  private currentConnection?: ToolsConnectParams;
 
   constructor({ logger, getTelemetryAnonymousId }: ToolsControllerConfig) {
     this.logger = logger;
@@ -99,9 +97,6 @@ export class ToolsController {
     });
 
     this.connectionManager = new ToolsConnectionManager({
-      // TODO: this is a hack so that we can have the connection manager always
-      // exist rather than only once createConnectionManager is called. Feels
-      // worth it?
       logger: this.runner.logger,
       getTelemetryAnonymousId,
     });
@@ -119,8 +114,6 @@ export class ToolsController {
       );
       // Nothing to do because this will only happen once when Compass is closed
     });
-
-    this.currentConnection = undefined;
   }
 
   setActiveTools(toolGroups: Set<ToolGroup>): void {
@@ -142,9 +135,13 @@ export class ToolsController {
             'ToolsController',
             'Executing get-compass-context tool'
           );
-          return Promise.resolve(this.context);
+          // be explicit about what we return so we don't accidentally leak the
+          // connection details
+          return Promise.resolve({
+            query: this.context.query,
+            aggregation: this.context.aggregation,
+          });
         },
-        // TODO: toModelOutput function to format this?
       };
     }
 
@@ -152,7 +149,7 @@ export class ToolsController {
       registerTools(this.runner.server);
     }
 
-    if (this.currentConnection && this.toolGroups.has('db-read')) {
+    if (hasConnection(this.context) && this.toolGroups.has('db-read')) {
       const availableTools = this.runner.server?.tools ?? [];
       for (const toolBase of availableTools) {
         if (!readonlyTools.has(toolBase.name)) {
@@ -170,14 +167,45 @@ export class ToolsController {
           needsApproval: true,
           strict: true,
           execute: async (args: any, options: any) => {
-            return await (toolBase as any).execute(args, {
-              // TODO: protected
-              signal: options.abortSignal ?? new AbortSignal(),
-              requestId: options.toolCallId,
-              sendNotification: async () => {},
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              sendRequest: () => undefined as any,
-            });
+            if (!hasConnection(this.context)) {
+              // the context could have changed between when the tool was
+              // created and when it gets executed
+              // TODO: how are we supposed to signal errors?
+              throw new Error('No active connection to execute tool');
+            }
+
+            // connect
+            const connectParams = this.context.connection;
+            try {
+              await this.connectionManager.connectToCompassConnection(
+                connectParams
+              );
+            } catch (error) {
+              this.logger.log.error(
+                this.logger.mongoLogId(1_001_000_410),
+                'ToolsController',
+                'Error when attempting to connect to Compass connection before executing tool',
+                { error }
+              );
+              // TODO: re-throwing for now until I can tell how to signal errors
+              throw error;
+            }
+
+            let result: any; // TODO
+            try {
+              result = await (toolBase as any).execute(args, {
+                // TODO: protected
+                signal: options.abortSignal ?? new AbortSignal(),
+                requestId: options.toolCallId,
+                sendNotification: async () => {},
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                sendRequest: () => undefined as any,
+              });
+            } finally {
+              // disconnect
+              await this.connectionManager.disconnect();
+            }
+            return result;
           },
         } as any);
       }
@@ -188,14 +216,6 @@ export class ToolsController {
 
   setContext(context: ToolsContext): void {
     this.context = context;
-    // TODO: This is not waiting for the connection to finish and we're relying on
-    // mongodb-mcp-server's error handling and the error handling inside
-    // this.switchConnectionManagerToCurrentConnection() and
-    // this.connectionManager. The mongodb-mcp-server does not seem to deal with
-    // a state where the connection is still being established by the time the
-    // tool executes, so it won't wait for us. In that situation the tool call
-    // will just fail.
-    void this.switchConnectionManagerToCurrentConnection(context.connection);
   }
 
   // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
@@ -264,23 +284,6 @@ export class ToolsController {
       );
     }
   }
-
-  private async switchConnectionManagerToCurrentConnection(
-    connectParams?: ToolsConnectParams
-  ): Promise<void> {
-    try {
-      this.currentConnection = connectParams;
-
-      await this.connectionManager.updateConnection(connectParams);
-    } catch (error) {
-      this.logger.log.error(
-        this.logger.mongoLogId(1_001_000_410),
-        'ToolsController',
-        'Error when attempting to switch connection for connection manager',
-        { error }
-      );
-    }
-  }
 }
 
 // TODO: this is a complete hack because server's registerTools() is private and
@@ -305,4 +308,10 @@ function registerTools(server: Server) {
       server.tools.push(tool);
     }
   }
+}
+
+function hasConnection(obj: ToolsContext): obj is ToolsContext & {
+  connection: ToolsConnectParams;
+} {
+  return !!obj.connection;
 }

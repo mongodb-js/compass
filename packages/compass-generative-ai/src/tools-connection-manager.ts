@@ -56,41 +56,6 @@ To connect, choose a connection from Compass's connection sidebar - https://www.
     );
   }
 
-  async connectToCompassConnection(
-    connectParams: ToolsConnectParams
-  ): Promise<AnyConnectionState> {
-    const { connectionId, connectOptions, connectionString } =
-      this.overridePresetAppName(connectParams);
-    try {
-      const serviceProvider = await NodeDriverServiceProvider.connect(
-        connectionString,
-        connectOptions
-      );
-      await serviceProvider.runCommand('admin', { hello: 1 });
-      this.activeConnection = {
-        id: connectionId,
-        provider: serviceProvider,
-      };
-      return this.changeState('connection-success', {
-        tag: 'connected',
-        serviceProvider,
-        isSearchSupported: () => Promise.resolve(false),
-      });
-    } catch (error) {
-      this.logger.error({
-        id: { __value: 1_001_000_411 },
-        context: 'compass-tools-connection-manager',
-        message: `Error connecting to Compass connection - ${
-          error instanceof Error ? error.message : String(error)
-        }`,
-      });
-      return this.changeState('connection-error', {
-        tag: 'errored',
-        errorReason: error instanceof Error ? error.message : String(error),
-      });
-    }
-  }
-
   override async disconnect(): Promise<ConnectionStateDisconnected> {
     try {
       await this.activeConnection?.provider?.close();
@@ -115,17 +80,11 @@ To connect, choose a connection from Compass's connection sidebar - https://www.
     this._events.emit('close', this.currentConnectionState);
   }
 
-  async updateConnection(
-    connectParams: ToolsConnectParams | undefined
+  async connectToCompassConnection(
+    connectParams: ToolsConnectParams
   ): Promise<void> {
-    if (connectParams?.connectionId === this.activeConnection?.id) {
-      return;
-    }
-
-    await this.disconnect();
-
-    if (!connectParams) {
-      return;
+    if (this.activeConnection) {
+      throw new Error('Already connected to a Compass connection');
     }
 
     if (isAtlasStream(connectParams.connectionString)) {
@@ -142,10 +101,36 @@ To connect, choose a connection from Compass's connection sidebar - https://www.
       return;
     }
 
-    // TODO: ideally we don't want to wait for the connection to be established
-    // and just continue in the background. It only has to be connected after
-    // the model tries to use a tool.
-    await this.connectToCompassConnection(connectParams);
+    const { connectionId, connectOptions, connectionString } =
+      this.overridePresetAppName(connectParams);
+    try {
+      const serviceProvider = await NodeDriverServiceProvider.connect(
+        connectionString,
+        connectOptions
+      );
+      await serviceProvider.runCommand('admin', { hello: 1 });
+      this.activeConnection = {
+        id: connectionId,
+        provider: serviceProvider,
+      };
+      return void this.changeState('connection-success', {
+        tag: 'connected',
+        serviceProvider,
+        isSearchSupported: () => Promise.resolve(false),
+      });
+    } catch (error) {
+      this.logger.error({
+        id: { __value: 1_001_000_411 },
+        context: 'compass-tools-connection-manager',
+        message: `Error connecting to Compass connection - ${
+          error instanceof Error ? error.message : String(error)
+        }`,
+      });
+      return void this.changeState('connection-error', {
+        tag: 'errored',
+        errorReason: error instanceof Error ? error.message : String(error),
+      });
+    }
   }
 
   overridePresetAppName(connectParams: ToolsConnectParams): ToolsConnectParams {

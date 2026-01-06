@@ -44,12 +44,6 @@ You are able to:
 1. Answer technical questions
 </abilities>
 
-<inabilities>
-You CANNOT:
-
-1. Access user database information, such as collection schemas, etc UNLESS this information is explicitly provided to you in the prompt.
-2. Query MongoDB directly or execute code.
-</inabilities>
 `;
 };
 
@@ -325,27 +319,39 @@ export function buildContextPrompt({
   }
 
   if (enableToolCalling) {
-    // TODO: we'll probably want separate lines for get-compass-context and
-    // readonly database tools. (Also modify <inabilities> above)
-    if (activeWorkspace && hasNamespace(activeWorkspace)) {
-      if (activeCollectionSubTab === 'Documents') {
-        parts.push(
-          'Use the "get-compass-context" tool to get the current query from the query bar.'
-        );
-      } else if (activeCollectionSubTab === 'Aggregations') {
-        parts.push(
-          'Use the "get-compass-context" tool to get the current aggregation pipeline from the aggregation builder.'
-        );
-      }
-    }
-  }
-
-  if (!enableToolCalling) {
-    // TODO: we'll probably want separate lines for get-compass-context and
-    // readonly database tools. (Also modify <inabilities> above)
-    parts.push(
-      "You cannot access the user's current query or aggregation pipeline."
+    let abilityNum = 1;
+    const abilities = [];
+    abilities.push('<abilities>');
+    abilities.push('You CAN:');
+    abilities.push(
+      `${abilityNum++}. Access user database information, such as collection schemas, etc.`
     );
+    abilities.push(`${abilityNum++}. Query MongoDB directly.`);
+    abilities.push(
+      `${abilityNum++}. Access the user's current query or aggregation pipeline.`
+    );
+    abilities.push('</inabilities>');
+
+    parts.push(abilities.join('\n'));
+  } else {
+    // TODO: take into account the database tool calling setting
+
+    let inabilityNum = 1;
+    const inabilities = [];
+    inabilities.push('<inabilities>');
+    inabilities.push('You CANNOT:');
+    inabilities.push(
+      `${inabilityNum++}. Access user database information, such as collection schemas, etc UNLESS this information is explicitly provided to you in the prompt.`
+    );
+    inabilities.push(
+      `${inabilityNum++}. Query MongoDB directly or execute code.`
+    );
+    inabilities.push(
+      `${inabilityNum++}. You cannot access the user's current query or aggregation pipeline.`
+    );
+    inabilities.push('</inabilities>');
+
+    parts.push(inabilities.join('\n'));
   }
 
   const text = parts.join('\n\n');
@@ -367,11 +373,12 @@ export function buildContextPrompt({
   return prompt;
 }
 
-function hasNamespace(obj: unknown): obj is { namespace: string } {
-  return (
-    typeof obj === 'object' &&
-    obj !== null &&
-    'namespace' in obj &&
-    typeof (obj as any).namespace === 'string'
-  );
+function hasNamespace(
+  workspaceTab: WorkspaceTab | null
+): workspaceTab is WorkspaceTab & { namespace: string } {
+  if (!workspaceTab) {
+    return false;
+  }
+
+  return !!(workspaceTab as WorkspaceTab & { namespace?: string }).namespace;
 }
