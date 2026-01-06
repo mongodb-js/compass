@@ -10,6 +10,7 @@ import {
 import type { ServiceProvider } from '@mongosh/service-provider-core';
 import { isAtlas, isAtlasStream } from 'mongodb-build-info';
 import ConnectionString from 'mongodb-connection-string-url';
+import { mongoLogId } from '@mongodb-js/compass-logging/provider';
 
 export interface ToolsConnectParams {
   connectionId: string;
@@ -60,11 +61,14 @@ To connect, choose a connection from Compass's connection sidebar - https://www.
       await this.activeConnection?.provider?.close();
     } catch (error) {
       this.logger.error({
-        id: { __value: 1_001_000_412 },
+        id: mongoLogId(1_001_000_411),
         context: 'compass-tools-connection-manager',
         message: `Error disconnecting from Compass connection - ${
           error instanceof Error ? error.message : String(error)
         }`,
+        attributes: {
+          error: (error as any).stack,
+        },
       });
     }
 
@@ -119,11 +123,14 @@ To connect, choose a connection from Compass's connection sidebar - https://www.
       });
     } catch (error) {
       this.logger.error({
-        id: { __value: 1_001_000_411 },
+        id: mongoLogId(1_001_000_412),
         context: 'compass-tools-connection-manager',
         message: `Error connecting to Compass connection - ${
           error instanceof Error ? error.message : String(error)
         }`,
+        attributes: {
+          error: (error as any).stack,
+        },
       });
       return void this.changeState('connection-error', {
         tag: 'errored',
