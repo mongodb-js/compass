@@ -108,7 +108,6 @@ To connect, choose a connection from Compass's connection sidebar - https://www.
         connectionString,
         connectOptions
       );
-      await serviceProvider.runCommand('admin', { hello: 1 });
       this.activeConnection = {
         id: connectionId,
         provider: serviceProvider,
@@ -116,6 +115,7 @@ To connect, choose a connection from Compass's connection sidebar - https://www.
       return void this.changeState('connection-success', {
         tag: 'connected',
         serviceProvider,
+        // TODO(COMPASS-10214): implement if needed
         isSearchSupported: () => Promise.resolve(false),
       });
     } catch (error) {
