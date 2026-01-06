@@ -12,7 +12,6 @@ import type {
   TransportRunnerConfig,
   UserConfig,
 } from 'mongodb-mcp-server';
-import { AllTools } from 'mongodb-mcp-server/tools';
 import { createConnectionErrorHandler } from './tools-connection-error-handler';
 import { ToolsLogger } from './tools-logger';
 import { ToolsConnectionManager } from './tools-connection-manager';
@@ -39,7 +38,7 @@ const readonlyTools = new Set<string>([
   'collection-indexes',
   'collection-schema',
   //'explain',
-  // TODO: we're only allowed 10 tools at the moment
+  // TODO(EAI-1474): we're only allowed 10 tools at the moment
   //'collection-storage-size',
   //'db-stats',
   //'mongodb-logs',
@@ -146,7 +145,7 @@ export class ToolsController {
     }
 
     if (this.runner.server && this.runner.server.tools.length === 0) {
-      registerTools(this.runner.server);
+      this.runner.server.registerTools();
     }
 
     if (hasConnection(this.context) && this.toolGroups.has('db-read')) {
@@ -162,8 +161,8 @@ export class ToolsController {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
         tools[toolBase.name] = tool({
           name: toolBase.name,
-          description: (toolBase as any).description as string, // TODO: protected
-          inputSchema: z.object((toolBase as any).argsShape), // TODO: protected
+          description: toolBase.description,
+          inputSchema: z.object(toolBase.argsShape),
           needsApproval: true,
           strict: true,
           execute: async (args: any, options: any) => {
@@ -191,15 +190,10 @@ export class ToolsController {
               throw error;
             }
 
-            let result: any; // TODO
+            let result: any; // TODO: CallToolResult
             try {
-              result = await (toolBase as any).execute(args, {
-                // TODO: protected
+              result = await toolBase.invoke(args, {
                 signal: options.abortSignal ?? new AbortSignal(),
-                requestId: options.toolCallId,
-                sendNotification: async () => {},
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                sendRequest: () => undefined as any,
               });
             } finally {
               // disconnect
@@ -207,7 +201,7 @@ export class ToolsController {
             }
             return result;
           },
-        } as any);
+        } as any); // TODO: inputSchema and execute types are messed up
       }
     }
 
@@ -282,31 +276,6 @@ export class ToolsController {
         'Error when attempting to close the MCP server',
         { error }
       );
-    }
-  }
-}
-
-// TODO: this is a complete hack because server's registerTools() is private and
-// the only way it gets called is through connect() which is never going to
-// happen.
-function registerTools(server: Server) {
-  const telemetry = {
-    close: () => {},
-    emitEvents: () => {},
-    isTelemetryEnabled: () => false,
-  };
-  for (const toolConstructor of AllTools) {
-    const tool = new toolConstructor({
-      category: toolConstructor.category,
-      operationType: toolConstructor.operationType,
-      session: server.session,
-      config: server.userConfig,
-      telemetry: telemetry as any,
-      elicitation: server.elicitation,
-      uiRegistry: server.uiRegistry,
-    });
-    if (tool.register(server)) {
-      server.tools.push(tool);
     }
   }
 }
