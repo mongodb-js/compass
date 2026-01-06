@@ -226,9 +226,8 @@ export const ToolToggle: React.FunctionComponent = () => {
                 natural language to explore data and generate queries.
               </Description>
             </div>
-            {/** TODO: Add an actual link to the documentation */}
             <Link
-              href="https://mongodb.com/docs/atlas/ai-tools"
+              href="https://www.mongodb.com/docs/compass/query-with-natural-language/compass-ai-assistant/"
               target="_blank"
             >
               Learn more
