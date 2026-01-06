@@ -1,6 +1,5 @@
 import {
   ConnectionManager,
-  type AnyConnectionState,
   type ConnectionStateDisconnected,
   type LoggerBase,
 } from 'mongodb-mcp-server';
@@ -43,7 +42,7 @@ export class ToolsConnectionManager extends ConnectionManager {
     this.getTelemetryAnonymousId = getTelemetryAnonymousId;
   }
 
-  override connect(): Promise<AnyConnectionState> {
+  override connect(): Promise<never> {
     // It shouldn't be possible for a user to get here because the connect tool
     // is not included. We also only include the database tools when there is a
     // relevant connection.
