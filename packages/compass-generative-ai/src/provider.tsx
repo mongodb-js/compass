@@ -69,10 +69,17 @@ export const ToolsControllerProvider: React.FC = createServiceProvider(
       });
     }, [logger, telemetryAnonymousId]);
 
+    const promiseRef = React.useRef<Promise<void> | null>(null);
+
     useEffect(() => {
-      void toolsController.startServer();
+      promiseRef.current = toolsController.startServer();
       return () => {
-        void toolsController.stopServer();
+        if (!promiseRef.current) {
+          return;
+        }
+        void promiseRef.current.finally(() => {
+          void toolsController.stopServer();
+        });
       };
     }, [toolsController]);
 
