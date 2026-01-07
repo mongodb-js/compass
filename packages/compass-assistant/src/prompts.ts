@@ -333,7 +333,7 @@ export function buildContextPrompt({
     abilities.push(
       `${abilityNum++}. Access the user's current query or aggregation pipeline.`
     );
-    abilities.push('</inabilities>');
+    abilities.push('</abilities>');
 
     parts.push(abilities.join('\n'));
   }

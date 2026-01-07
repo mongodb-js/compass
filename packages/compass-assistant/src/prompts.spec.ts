@@ -45,7 +45,7 @@ You CANNOT:
 <abilities>
 You CAN:
 1. Access the user's current query or aggregation pipeline.
-</inabilities>
+</abilities>
 
 <inabilities>
 You CANNOT:
