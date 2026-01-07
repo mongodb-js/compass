@@ -112,6 +112,10 @@ const toolDescriptionStyles = css({
 // Placeholder tools - these should be replaced with actual tool definitions
 export const AVAILABLE_TOOLS = [
   {
+    name: 'get-compass-context',
+    description: 'Get the current query or aggregation.',
+  },
+  {
     name: 'find',
     description:
       'Retrieves specific documents that match your search criteria.',
@@ -226,9 +230,8 @@ export const ToolToggle: React.FunctionComponent = () => {
                 natural language to explore data and generate queries.
               </Description>
             </div>
-            {/** TODO: Add an actual link to the documentation */}
             <Link
-              href="https://mongodb.com/docs/atlas/ai-tools"
+              href="https://www.mongodb.com/docs/compass/query-with-natural-language/compass-ai-assistant/"
               target="_blank"
             >
               Learn more

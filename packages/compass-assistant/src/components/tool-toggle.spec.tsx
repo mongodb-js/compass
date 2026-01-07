@@ -88,7 +88,7 @@ describe('ToolToggle', function () {
         expect(link).to.exist;
         expect(link).to.have.attribute(
           'href',
-          'https://mongodb.com/docs/atlas/ai-tools'
+          'https://www.mongodb.com/docs/compass/query-with-natural-language/compass-ai-assistant/'
         );
         expect(link).to.have.attribute('target', '_blank');
       });
