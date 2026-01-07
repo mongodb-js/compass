@@ -31,7 +31,6 @@ type ToolsContext = CompassContext & {
 const readonlyTools = new Set<string>([
   'find',
   'aggregate',
-  'list-databases',
   'count',
   'list-databases',
   'list-collections',
