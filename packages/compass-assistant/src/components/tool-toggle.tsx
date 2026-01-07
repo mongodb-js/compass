@@ -109,12 +109,7 @@ const toolDescriptionStyles = css({
   fontWeight: 300,
 });
 
-// Placeholder tools - these should be replaced with actual tool definitions
-export const AVAILABLE_TOOLS = [
-  {
-    name: 'get-compass-context',
-    description: 'Get the current query or aggregation.',
-  },
+export const DATABASE_TOOLS = [
   {
     name: 'find',
     description:
@@ -161,6 +156,14 @@ export const AVAILABLE_TOOLS = [
   {
     name: 'export',
     description: 'Exports query or aggregation results in EJSON format.',
+  },
+];
+
+export const AVAILABLE_TOOLS = [
+  ...DATABASE_TOOLS,
+  {
+    name: 'get-compass-context',
+    description: 'Get the current query or aggregation.',
   },
 ];
 
@@ -241,12 +244,12 @@ export const ToolToggle: React.FunctionComponent = () => {
                 <div className={toolsHeaderTextStyles}>
                   Available tools{' '}
                   <span className={toolsHeaderTextCountStyles}>
-                    ({AVAILABLE_TOOLS.length})
+                    ({DATABASE_TOOLS.length})
                   </span>
                 </div>
               </div>
               <div className={`${toolListStyles}`}>
-                {AVAILABLE_TOOLS.map((tool) => (
+                {DATABASE_TOOLS.map((tool) => (
                   <div key={tool.name} className={toolItemStyles}>
                     <div className={toolNameStyles}>{tool.name}</div>
                     <div className={toolDescriptionStyles}>
