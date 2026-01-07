@@ -49,7 +49,7 @@ const verticalResizerStyle = css({
   bottom: 0,
   top: 0,
   ':hover': {
-    cursor: 'ew-resize',
+    cursor: 'col-resize',
   },
 });
 
@@ -60,7 +60,7 @@ const horizontalResizerStyle = css({
   right: 0,
   left: 0,
   ':hover': {
-    cursor: 'ns-resize',
+    cursor: 'row-resize',
   },
 });
 

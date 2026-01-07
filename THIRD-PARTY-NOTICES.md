@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **Mongodb Compass**.
-This document was automatically generated on Sun Jan 04 2026.
+This document was automatically generated on Wed Jan 07 2026.
 
 ## List of dependencies
 
@@ -107,13 +107,13 @@ This document was automatically generated on Sun Jan 04 2026.
 | **[@lezer/lr](#1443872b0ea87b0af4967c9026094e634c83118fb811349742ca05bde397412b)**                                          | 1.4.1          | MIT                                 |
 | **[@lg-chat/chat-button](#06a30c240d3ae1052c9097a80baef6e7ac821e8c3e8314c9e48e1f22628e6ecf)**                               | 0.2.0          | Apache-2.0                          |
 | **[@lg-chat/chat-window](#9439c5d511476417d59be21dff39b9cef66667285f3ebf3f7dabf55b6243f16d)**                               | 6.0.0          | Apache-2.0                          |
-| **[@lg-chat/input-bar](#1b4422edb08e3c256b882793fdc0a518573a74190ba0d6ce1e386a337d90b8bf)**                                 | 12.1.1         | Apache-2.0                          |
+| **[@lg-chat/input-bar](#28ef9f5536495c40e395a886f275300432dc44d798a4eeb63c5b6dea11f72807)**                                 | 12.2.0         | Apache-2.0                          |
 | **[@lg-chat/leafygreen-chat-provider](#a8334490cacefebae9b468ca1a993aa2f405dd31ef5fc79cdb92954e21201d3f)**                  | 6.0.0          | Apache-2.0                          |
 | **[@lg-chat/lg-markdown](#22e0e8e88532c4afff94a41748986e78485a156f8b5133eb1b6dce1336c51e14)**                               | 5.0.2          | Apache-2.0                          |
 | **[@lg-chat/message-feedback](#64afd2dab8ad40e7b32ec2b108cf61ee0f6f4a95f3f23bf220f7d814c1e6b3cd)**                          | 9.0.1          | Apache-2.0                          |
 | **[@lg-chat/message-prompts](#3419799a6283ae5492122b2c4f8c04855e276e017d89dd3b75ffeb03a03f1d3c)**                           | 4.2.0          | Apache-2.0                          |
 | **[@lg-chat/message-rating](#0fc2ef43e50a01aaa9e82bd660485b1659aad18662cf7000827d6b2c0844fa17)**                            | 7.1.0          | Apache-2.0                          |
-| **[@lg-chat/message](#6cc21845779b1afc5b7ae38e2bf2cae1ccc9ce6c2aa9a3e16632e75b9ebb1e12)**                                   | 10.1.2         | Apache-2.0                          |
+| **[@lg-chat/message](#ec59c7f145aee58b30de779e4ad4544aba0a18a258a0e48a4eb2840bced8706f)**                                   | 10.2.0         | Apache-2.0                          |
 | **[@lg-chat/rich-links](#42c0b3859a81d73908c76a37f04e69c8a14dafcdee5e54623643d686ed87ead8)**                                | 4.0.7          | Apache-2.0                          |
 | **[@lg-chat/title-bar](#8b204f531be9167158b7ade91b872ccddeef8b3499ac0af3d8cc34f75fa352d0)**                                 | 5.0.1          | Apache-2.0                          |
 | **[@lukeed/uuid](#82700fba068def47ea9842f28d700a387f59da805f74a6ed10a5eb7eece4cdab)**                                       | 2.0.1          | MIT                                 |
@@ -276,6 +276,7 @@ This document was automatically generated on Sun Jan 04 2026.
 | **[extend](#ae97d7c14998a815a0e454892978d9dc4459fec4bd2082e62166ca0010795397)**                                             | 3.0.2          | MIT                                 |
 | **[facepaint](#7f6881dbbff5f35b8670063d56384fa880a5558aeaf952f1dc00997cfc7cddd4)**                                          | 1.2.1          | MIT                                 |
 | **[fast-deep-equal](#c3b1bc7fbf8bedbac237ffb2eb2aa967bc264fc393bb6451c52a831352540d09)**                                    | 2.0.1          | MIT                                 |
+| **[fast-deep-equal](#60db03f2d9496a0b9ae959899afa824927ba0b591f97c193aa8b0c67acc710e6)**                                    | 3.1.3          | MIT                                 |
 | **[fast-fifo](#73dd6ac73a7cdba7975f1bcbad3ee41c32161f9140482245cbd1175f366d5fd3)**                                          | 1.3.2          | MIT                                 |
 | **[fast-memoize](#f613a3ea5150bd2496e9eb6f15357579eb3ec308a8ee91cdafce0d68ffef289b)**                                       | 2.5.2          | MIT                                 |
 | **[fast-xml-parser](#ebbe8cacbca0e6da2c884ade309dddffc2df1cf8f3532ffda03e31aa6d3a9a3b)**                                    | 4.4.1          | MIT                                 |
@@ -351,6 +352,7 @@ This document was automatically generated on Sun Jan 04 2026.
 | **[lodash-es](#a591ea211f9167d2f80166d42532d3c01f7843fafac380deb0bcf693cdf6fa1d)**                                          | 4.17.21        | MIT                                 |
 | **[lodash.merge](#996e40d63a94f1b8693d7c81e0cdfb874c6432d6bbd675976fc1b6b13652c8db)**                                       | 4.6.2          | MIT                                 |
 | **[lodash](#adaac4144887ebc2c1b682380ff385210f681fc58b4bc1ef3986148cf8dcd28a)**                                             | 4.17.21        | MIT                                 |
+| **[lottie-web](#1f97ad7c365ecbd3628b72df96e42dada0d2e9a4aa6d79b66e93911bdebb6ccd)**                                         | 5.13.0         | MIT                                 |
 | **[lru-cache](#10c5739147749b9d7134807a14c5667fe20576f24b327fc73f216b03a78a6052)**                                          | 11.2.2         | ISC                                 |
 | **[lru-cache](#fe7f0a2f2cf4c92f13c3a2a63f14f80f20f6919979306dc054e4f947c1234651)**                                          | 5.1.1          | ISC                                 |
 | **[math-intrinsics](#f585fed67bcee1ccc26f6fd0010ab256b0e752435b26949a15143b03495a11d9)**                                    | 1.1.0          | MIT                                 |
@@ -455,6 +457,7 @@ This document was automatically generated on Sun Jan 04 2026.
 | **[react-keyed-flatten-children](#594b6580588a2d4751e91fd2958d78e8b3b77efd1dc01d7e4552d958b45bbfb2)**                       | 2.2.1          | MIT                                 |
 | **[react-leaflet-draw](#d80b4b765d856cdefe411a073d3b3dde06100128005f1381b4d26d6cf53134c7)**                                 | 0.19.0         | ISC                                 |
 | **[react-leaflet](#a5fc1f0504a89a932a12c5a183b75a748207329f20af6078f926e182d55aee8d)**                                      | 2.4.0          | MIT                                 |
+| **[react-lottie-player](#eae8dfe1b6fecdba0669c6b988635cd9e11df897744a9be684616a19a9c88cef)**                                | 1.5.6          | MIT                                 |
 | **[react-markdown](#150d3f6299d6458a9a68ee91dde4c4e7d91a88fcb8a118b7b53e81b1b1e28974)**                                     | 8.0.7          | MIT                                 |
 | **[react-redux](#156f5c2e2cbbda376faae24e78cc75de697170101ff7e9d2955c0f891cffd6a8)**                                        | 8.1.3          | MIT                                 |
 | **[react-textarea-autosize](#11d7bf5e758f8c949015023743c6e09b8963c40779c57d43dbbc2de639eb5c33)**                            | 8.5.9          | MIT                                 |
@@ -471,6 +474,7 @@ This document was automatically generated on Sun Jan 04 2026.
 | **[remark-rehype](#54fbc8195e94d4a7c12b616aacdec50f6b2de1248533311872425f0fec84cc86)**                                      | 10.1.0         | MIT                                 |
 | **[reservoir](#84f8998f94ad5bd85b50458378edf3815fff553cdcabf8ced3db418f05e85ff6)**                                          | 0.1.2          | MIT                                 |
 | **[resolve-mongodb-srv](#2ae8b0c9dbe8e8c900bfaf5567bcf2af917e62fb0a24121b4d667dffbeaffa99)**                                | 1.1.5          | Apache-2.0                          |
+| **[rfdc](#254614cf47e3b568e914e632c0510d09b47b3a287cab5d1a834576511a341a2f)**                                               | 1.4.1          | MIT                                 |
 | **[router](#1b270661457a8f738b0cfe76c768fd3585c8771d04fad5f7aae1f1feed84a8da)**                                             | 2.2.0          | MIT                                 |
 | **[run-applescript](#235c737185151e246ca6c3099135f0b89a61bababb6e5b16f4444a5578eee364)**                                    | 7.0.0          | MIT                                 |
 | **[safe-buffer](#952cf236ee56e7de5ea7e772caf3e256866f9dbdffc492539c48cd8c15ac9674)**                                        | 5.2.1          | MIT                                 |
@@ -7723,9 +7727,9 @@ License files:
          See the License for the specific language governing permissions and
          limitations under the License.
 
-<a id="1b4422edb08e3c256b882793fdc0a518573a74190ba0d6ce1e386a337d90b8bf"></a>
+<a id="28ef9f5536495c40e395a886f275300432dc44d798a4eeb63c5b6dea11f72807"></a>
 
-### [@lg-chat/input-bar](https://www.npmjs.com/package/@lg-chat/input-bar) (version 12.1.1)
+### [@lg-chat/input-bar](https://www.npmjs.com/package/@lg-chat/input-bar) (version 12.2.0)
 
 License tags: Apache-2.0
 
@@ -8929,9 +8933,9 @@ License files:
          See the License for the specific language governing permissions and
          limitations under the License.
 
-<a id="6cc21845779b1afc5b7ae38e2bf2cae1ccc9ce6c2aa9a3e16632e75b9ebb1e12"></a>
+<a id="ec59c7f145aee58b30de779e4ad4544aba0a18a258a0e48a4eb2840bced8706f"></a>
 
-### [@lg-chat/message](https://www.npmjs.com/package/@lg-chat/message) (version 10.1.2)
+### [@lg-chat/message](https://www.npmjs.com/package/@lg-chat/message) (version 10.2.0)
 
 License tags: Apache-2.0
 
@@ -23310,6 +23314,38 @@ License files:
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
       SOFTWARE.
 
+<a id="60db03f2d9496a0b9ae959899afa824927ba0b591f97c193aa8b0c67acc710e6"></a>
+
+### [fast-deep-equal](https://www.npmjs.com/package/fast-deep-equal) (version 3.1.3)
+
+License tags: MIT
+
+License files:
+
+- LICENSE:
+
+      MIT License
+
+      Copyright (c) 2017 Evgeny Poberezkin
+
+      Permission is hereby granted, free of charge, to any person obtaining a copy
+      of this software and associated documentation files (the "Software"), to deal
+      in the Software without restriction, including without limitation the rights
+      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+      copies of the Software, and to permit persons to whom the Software is
+      furnished to do so, subject to the following conditions:
+
+      The above copyright notice and this permission notice shall be included in all
+      copies or substantial portions of the Software.
+
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+      SOFTWARE.
+
 <a id="73dd6ac73a7cdba7975f1bcbad3ee41c32161f9140482245cbd1175f366d5fd3"></a>
 
 ### [fast-fifo](https://www.npmjs.com/package/fast-fifo) (version 1.3.2)
@@ -26035,6 +26071,38 @@ License files:
       maintained libraries used by this software which have their own
       licenses; we recommend you read them, as their terms may differ from the
       terms above.
+
+<a id="1f97ad7c365ecbd3628b72df96e42dada0d2e9a4aa6d79b66e93911bdebb6ccd"></a>
+
+### [lottie-web](https://www.npmjs.com/package/lottie-web) (version 5.13.0)
+
+License tags: MIT
+
+License files:
+
+- LICENSE.md:
+
+      The MIT License (MIT)
+
+      Copyright (c) 2015 Bodymovin
+
+      Permission is hereby granted, free of charge, to any person obtaining a copy
+      of this software and associated documentation files (the "Software"), to deal
+      in the Software without restriction, including without limitation the rights
+      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+      copies of the Software, and to permit persons to whom the Software is
+      furnished to do so, subject to the following conditions:
+
+      The above copyright notice and this permission notice shall be included in all
+      copies or substantial portions of the Software.
+
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+      SOFTWARE.
 
 <a id="10c5739147749b9d7134807a14c5667fe20576f24b327fc73f216b03a78a6052"></a>
 
@@ -37157,6 +37225,38 @@ License files:
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
       SOFTWARE.
 
+<a id="eae8dfe1b6fecdba0669c6b988635cd9e11df897744a9be684616a19a9c88cef"></a>
+
+### [react-lottie-player](https://www.npmjs.com/package/react-lottie-player) (version 1.5.6)
+
+License tags: MIT
+
+License files:
+
+- LICENSE:
+
+      MIT License
+
+      Copyright (c) 2020 Mikael Finstad
+
+      Permission is hereby granted, free of charge, to any person obtaining a copy
+      of this software and associated documentation files (the "Software"), to deal
+      in the Software without restriction, including without limitation the rights
+      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+      copies of the Software, and to permit persons to whom the Software is
+      furnished to do so, subject to the following conditions:
+
+      The above copyright notice and this permission notice shall be included in all
+      copies or substantial portions of the Software.
+
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+      SOFTWARE.
+
 <a id="150d3f6299d6458a9a68ee91dde4c4e7d91a88fcb8a118b7b53e81b1b1e28974"></a>
 
 ### [react-markdown](https://www.npmjs.com/package/react-markdown) (version 8.0.7)
@@ -37869,6 +37969,32 @@ License files:
          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
          See the License for the specific language governing permissions and
          limitations under the License.
+
+<a id="254614cf47e3b568e914e632c0510d09b47b3a287cab5d1a834576511a341a2f"></a>
+
+### [rfdc](https://www.npmjs.com/package/rfdc) (version 1.4.1)
+
+License tags: MIT
+
+License files:
+
+- LICENSE:
+
+      Copyright 2019 "David Mark Clements <david.mark.clements@gmail.com>"
+
+      Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+      documentation files (the "Software"), to deal in the Software without restriction, including without limitation
+      the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and
+      to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+      The above copyright notice and this permission notice shall be included in all copies or substantial portions
+      of the Software.
+
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED
+      TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+      THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
+      CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+      IN THE SOFTWARE.
 
 <a id="1b270661457a8f738b0cfe76c768fd3585c8771d04fad5f7aae1f1feed84a8da"></a>
 
