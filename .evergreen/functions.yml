@@ -106,28 +106,28 @@ post:
     params:
       <<: *save-artifact-params-private
       local_file: src/.sbom/dependencies.json
-      remote_file: ${revision}_${revision_order_id}/dependencies.json
+      remote_file: ssdlc/${revision}_${revision_order_id}/dependencies.json
       content_type: application/json
       optional: true
   - command: s3.put
     params:
       <<: *save-artifact-params-private
       local_file: src/.sbom/snyk-test-result.json
-      remote_file: ${revision}_${revision_order_id}/snyk-test-result.json
+      remote_file: ssdlc/${revision}_${revision_order_id}/snyk-test-result.json
       content_type: application/json
       optional: true
   - command: s3.put
     params:
       <<: *save-artifact-params-private
       local_file: src/.sbom/snyk-test-result.html
-      remote_file: ${revision}_${revision_order_id}/snyk-test-result.html
+      remote_file: ssdlc/${revision}_${revision_order_id}/snyk-test-result.html
       content_type: text/html
       optional: true
   - command: s3.put
     params:
       <<: *save-artifact-params-private
       local_file: src/.sbom/vulnerability-report.md
-      remote_file: ${revision}_${revision_order_id}/vulnerability-report.md
+      remote_file: ssdlc/${revision}_${revision_order_id}/vulnerability-report.md
       content_type: text/markdown
       optional: true
   - command: attach.xunit_results
@@ -505,7 +505,7 @@ functions:
       params:
         <<: *save-artifact-params-private
         local_file: src/static-analysis-report.tgz
-        remote_file: ${revision}_${revision_order_id}/static-analysis-report.tgz
+        remote_file: ssdlc/${revision}_${revision_order_id}/static-analysis-report.tgz
         content_type: application/x-gzip
 
   publish:
@@ -1004,7 +1004,7 @@ functions:
       params:
         <<: *save-artifact-params-private
         local_file: src/.sbom/sbom.json
-        remote_file: ${revision}_${revision_order_id}/${task_id}/sbom.json
+        remote_file: ssdlc/${revision}_${revision_order_id}/${task_id}/sbom.json
         content_type: application/json
         optional: true
     - command: s3.put
