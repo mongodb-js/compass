@@ -229,7 +229,7 @@ export const startImport = (): ImportThunkAction<Promise<void>> => {
 
     const ignoreBlanks = ignoreBlanks_ && fileType === FILE_TYPES.CSV;
     const fileSize = fileStats?.size || 0;
-    const fields: Record<string, CSVParsableFieldType> = {};
+    const fields: Record<string, CSVParsableFieldType> = Object.create(null);
     for (const [name, type] of transform) {
       if (exclude.includes(name)) {
         continue;
@@ -662,7 +662,7 @@ const loadCSVPreviewDocs = (): ImportThunkAction<Promise<void>> => {
     try {
       const result = await listCSVFields({ input, delimiter, newline });
 
-      const fieldMap: Record<string, number[]> = {};
+      const fieldMap: Record<string, number[]> = Object.create(null);
       const fields: FieldFromCSV[] = [];
 
       // group the array fields' cells together so that large arrays don't kill

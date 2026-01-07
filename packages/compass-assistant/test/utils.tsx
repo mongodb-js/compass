@@ -8,7 +8,7 @@ export const createMockChat = ({
   transport,
 }: {
   messages: AssistantMessage[];
-  status?: 'submitted' | 'streaming';
+  status?: Chat<AssistantMessage>['status'];
   transport?: Chat<AssistantMessage>['transport'];
 }) => {
   const newChat = new Chat<AssistantMessage>({

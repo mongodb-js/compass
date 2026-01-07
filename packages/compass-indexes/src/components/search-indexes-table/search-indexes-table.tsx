@@ -127,7 +127,7 @@ const statusBadgeVariants: Record<SearchIndexStatus, BadgeVariant> = {
   READY: BadgeVariant.Green,
   STALE: BadgeVariant.LightGray,
   DELETING: BadgeVariant.Red,
-};
+} as const;
 
 function IndexStatus({
   status,

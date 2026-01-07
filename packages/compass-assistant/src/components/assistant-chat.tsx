@@ -39,6 +39,8 @@ import type { WorkspaceTab } from '@mongodb-js/workspace-info';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
 import { useToolsController } from '@mongodb-js/compass-generative-ai/provider';
+import { ToolToggle } from './tool-toggle';
+import { usePreference } from 'compass-preferences-model/provider';
 
 const { ChatWindow } = LgChatChatWindow;
 const { LeafyGreenChatProvider } = LgChatLeafygreenChatProvider;
@@ -238,6 +240,10 @@ function mapConnectionInfoForToolCard(
     name: getConnectionTitle(connectionInfo),
   };
 }
+const toolToggleContainerStyles = css({
+  paddingLeft: spacing[50],
+  paddingRight: spacing[50],
+});
 
 export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
   chat,
@@ -245,6 +251,7 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
 }) => {
   const track = useTelemetry();
   const darkMode = useDarkMode();
+  const isToolCallingEnabled = usePreference('enableToolCalling');
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const previousLastMessageId = useRef<string | undefined>(undefined);
   const { id: lastMessageId, role: lastMessageRole } =
@@ -672,12 +679,22 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
             </div>
           )}
           <SuggestedPrompts chat={chat} onMessageSend={handleMessageSend} />
+
           <InputBar
             data-testid="assistant-chat-input"
             onMessageSend={(text) => void handleMessageSend({ text })}
             state={status === 'submitted' ? 'loading' : undefined}
             textareaProps={inputBarTextareaProps}
-          />
+            onClickStopButton={() => void chat.stop()}
+          >
+            {isToolCallingEnabled && (
+              <InputBar.AdditionalActions>
+                <div className={toolToggleContainerStyles}>
+                  <ToolToggle />
+                </div>
+              </InputBar.AdditionalActions>
+            )}
+          </InputBar>
         </ChatWindow>
       </LeafyGreenChatProvider>
     </div>

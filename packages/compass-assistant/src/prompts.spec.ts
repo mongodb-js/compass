@@ -510,7 +510,9 @@ describe('prompts', function () {
     ];
 
     for (const testCase of testCases) {
-      const summary: Record<string, string | boolean> = {
+      const summary: {
+        [key: string]: string | boolean;
+      } = {
         type: testCase.context.activeWorkspace?.type || 'No active tab',
       };
       if (testCase.context.activeCollectionMetadata?.isTimeSeries) {
