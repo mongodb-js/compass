@@ -44,6 +44,7 @@ import {
 import type {
   AtlasAiService,
   ToolsController,
+  ToolGroup,
 } from '@mongodb-js/compass-generative-ai/provider';
 import {
   atlasAiServiceLocator,
@@ -268,7 +269,8 @@ export const AssistantProvider: React.FunctionComponent<
           );
         }) ?? null;
 
-      const { enableToolCalling } = preferences.getPreferences();
+      const { enableToolCalling, enableGenAIDatabaseToolCalling } =
+        preferences.getPreferences();
 
       const contextPrompt = buildContextPrompt({
         activeWorkspace,
@@ -276,6 +278,7 @@ export const AssistantProvider: React.FunctionComponent<
         activeCollectionMetadata,
         activeCollectionSubTab,
         enableToolCalling,
+        enableGenAIDatabaseToolCalling,
       });
 
       // use just the text so we have a stable reference to compare against
@@ -536,16 +539,21 @@ export function setToolsContext(
     query,
     aggregation,
     enableToolCalling,
+    enableGenAIDatabaseToolCalling,
   }: {
     connection?: ActiveConnectionInfo | null;
     query?: string | null;
     aggregation?: string | null;
     enableToolCalling?: boolean;
+    enableGenAIDatabaseToolCalling?: boolean;
   }
 ) {
   if (enableToolCalling) {
-    // TODO: only include db-read if the setting is enabled
-    toolsController.setActiveTools(new Set(['compass', 'db-read']));
+    const toolGroups = new Set<ToolGroup>(['compass']);
+    if (enableGenAIDatabaseToolCalling) {
+      toolGroups.add('db-read');
+    }
+    toolsController.setActiveTools(toolGroups);
     toolsController.setContext({
       connection: connection
         ? {

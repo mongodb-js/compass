@@ -104,6 +104,7 @@ export const toolsControllerLocator = createServiceLocator(
   'toolsControllerLocator'
 );
 export { ToolsController } from './tools-controller';
+export type { ToolGroup } from './tools-controller';
 
 // Export the hook for direct use in components
 export const useToolsController = useToolsControllerContext;

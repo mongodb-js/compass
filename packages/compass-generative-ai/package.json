@@ -53,6 +53,10 @@
     "eval": "braintrust eval tests/evals"
   },
   "dependencies": {
+    "@mongosh/service-provider-node-driver": "^3.18.0",
+    "@mongosh/service-provider-core": "^3.7.0",
+    "mongodb-build-info": "^1.8.1",
+    "mongodb-connection-string-url": "^3.0.1",
     "@mongodb-js/atlas-service": "^0.75.0",
     "@mongodb-js/compass-app-registry": "^9.6.0",
     "@mongodb-js/compass-components": "^1.61.0",

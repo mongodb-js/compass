@@ -230,8 +230,8 @@ export function buildContextPrompt({
   activeCollectionMetadata,
   activeCollectionSubTab,
   enableToolCalling = false,
-}: // TODO: enable database tool calling
-{
+  enableGenAIDatabaseToolCalling = false,
+}: {
   activeWorkspace: WorkspaceTab | null;
   activeConnection: Pick<ConnectionInfo, 'connectionOptions'> | null;
   activeCollectionMetadata: Pick<
@@ -247,6 +247,7 @@ export function buildContextPrompt({
   > | null;
   activeCollectionSubTab: CollectionSubtab | null;
   enableToolCalling?: boolean;
+  enableGenAIDatabaseToolCalling?: boolean;
 }): AssistantMessage {
   const parts: string[] = [];
 
@@ -323,32 +324,38 @@ export function buildContextPrompt({
     const abilities = [];
     abilities.push('<abilities>');
     abilities.push('You CAN:');
-    abilities.push(
-      `${abilityNum++}. Access user database information, such as collection schemas, etc.`
-    );
-    abilities.push(`${abilityNum++}. Query MongoDB directly.`);
+    if (enableGenAIDatabaseToolCalling) {
+      abilities.push(
+        `${abilityNum++}. Access user database information, such as collection schemas, etc.`
+      );
+      abilities.push(`${abilityNum++}. Query MongoDB directly.`);
+    }
     abilities.push(
       `${abilityNum++}. Access the user's current query or aggregation pipeline.`
     );
     abilities.push('</inabilities>');
 
     parts.push(abilities.join('\n'));
-  } else {
-    // TODO: take into account the database tool calling setting
+  }
 
+  if (!enableToolCalling || !enableGenAIDatabaseToolCalling) {
     let inabilityNum = 1;
     const inabilities = [];
     inabilities.push('<inabilities>');
     inabilities.push('You CANNOT:');
-    inabilities.push(
-      `${inabilityNum++}. Access user database information, such as collection schemas, etc UNLESS this information is explicitly provided to you in the prompt.`
-    );
-    inabilities.push(
-      `${inabilityNum++}. Query MongoDB directly or execute code.`
-    );
-    inabilities.push(
-      `${inabilityNum++}. You cannot access the user's current query or aggregation pipeline.`
-    );
+    if (!enableGenAIDatabaseToolCalling) {
+      inabilities.push(
+        `${inabilityNum++}. Access user database information, such as collection schemas, etc UNLESS this information is explicitly provided to you in the prompt.`
+      );
+      inabilities.push(
+        `${inabilityNum++}. Query MongoDB directly or execute code.`
+      );
+    }
+    if (!enableToolCalling) {
+      inabilities.push(
+        `${inabilityNum++}. Access the user's current query or aggregation pipeline.`
+      );
+    }
     inabilities.push('</inabilities>');
 
     parts.push(inabilities.join('\n'));

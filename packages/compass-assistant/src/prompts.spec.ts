@@ -34,6 +34,33 @@ describe('prompts', function () {
   });
 
   describe('buildContextPrompt', function () {
+    const toolCallingOff = `
+<inabilities>
+You CANNOT:
+1. Access user database information, such as collection schemas, etc UNLESS this information is explicitly provided to you in the prompt.
+2. Query MongoDB directly or execute code.
+3. Access the user's current query or aggregation pipeline.
+</inabilities>`.trim();
+    const toolCallingOn = `
+<abilities>
+You CAN:
+1. Access the user's current query or aggregation pipeline.
+</inabilities>
+
+<inabilities>
+You CANNOT:
+1. Access user database information, such as collection schemas, etc UNLESS this information is explicitly provided to you in the prompt.
+2. Query MongoDB directly or execute code.
+</inabilities>`.trim();
+
+    const databaseToolCallingOn = `
+<abilities>
+You CAN:
+1. Access user database information, such as collection schemas, etc.
+2. Query MongoDB directly.
+3. Access the user's current query or aggregation pipeline.
+</inabilities>`.trim();
+
     const testCases: {
       context: Parameters<typeof buildContextPrompt>[0];
       expected: string;
@@ -46,9 +73,9 @@ describe('prompts', function () {
           activeCollectionMetadata: null,
           activeCollectionSubTab: null,
           enableToolCalling: false,
+          enableGenAIDatabaseToolCalling: false,
         },
-        expected:
-          "The user does not have any tabs open.\n\nYou cannot access the user's current query or aggregation pipeline.",
+        expected: `The user does not have any tabs open.\n\n${toolCallingOff}`,
       },
       // Welcome
       {
@@ -61,9 +88,9 @@ describe('prompts', function () {
           activeCollectionMetadata: null,
           activeCollectionSubTab: null,
           enableToolCalling: false,
+          enableGenAIDatabaseToolCalling: false,
         },
-        expected:
-          'The user is on the "Welcome" tab.\n\nYou cannot access the user\'s current query or aggregation pipeline.',
+        expected: `The user is on the "Welcome" tab.\n\n${toolCallingOff}`,
       },
       // My Queries
       {
@@ -76,9 +103,9 @@ describe('prompts', function () {
           activeCollectionMetadata: null,
           activeCollectionSubTab: null,
           enableToolCalling: false,
+          enableGenAIDatabaseToolCalling: false,
         },
-        expected:
-          'The user is on the "My Queries" tab.\n\nYou cannot access the user\'s current query or aggregation pipeline.',
+        expected: `The user is on the "My Queries" tab.\n\n${toolCallingOff}`,
       },
       // Data Modeling
       {
@@ -91,9 +118,9 @@ describe('prompts', function () {
           activeCollectionMetadata: null,
           activeCollectionSubTab: null,
           enableToolCalling: false,
+          enableGenAIDatabaseToolCalling: false,
         },
-        expected:
-          'The user is on the "Data Modeling" tab.\n\nYou cannot access the user\'s current query or aggregation pipeline.',
+        expected: `The user is on the "Data Modeling" tab.\n\n${toolCallingOff}`,
       },
       // Databases
       {
@@ -111,9 +138,9 @@ describe('prompts', function () {
           activeCollectionMetadata: null,
           activeCollectionSubTab: null,
           enableToolCalling: false,
+          enableGenAIDatabaseToolCalling: false,
         },
-        expected:
-          'The connection is named "localhost:27017". The redacted connection string is "mongodb://localhost:27017/".\n\nThe user is on the "Databases" tab.\n\nYou cannot access the user\'s current query or aggregation pipeline.',
+        expected: `The connection is named "localhost:27017". The redacted connection string is "mongodb://localhost:27017/".\n\nThe user is on the "Databases" tab.\n\n${toolCallingOff}`,
       },
       // Performance
       {
@@ -131,9 +158,9 @@ describe('prompts', function () {
           activeCollectionMetadata: null,
           activeCollectionSubTab: null,
           enableToolCalling: false,
+          enableGenAIDatabaseToolCalling: false,
         },
-        expected:
-          'The connection is named "localhost:27017". The redacted connection string is "mongodb://localhost:27017/".\n\nThe user is on the "Performance" tab.\n\nYou cannot access the user\'s current query or aggregation pipeline.',
+        expected: `The connection is named "localhost:27017". The redacted connection string is "mongodb://localhost:27017/".\n\nThe user is on the "Performance" tab.\n\n${toolCallingOff}`,
       },
       // Shell
       {
@@ -151,9 +178,9 @@ describe('prompts', function () {
           activeCollectionMetadata: null,
           activeCollectionSubTab: null,
           enableToolCalling: false,
+          enableGenAIDatabaseToolCalling: false,
         },
-        expected:
-          'The connection is named "localhost:27017". The redacted connection string is "mongodb://localhost:27017/".\n\nThe user is on the "Shell" tab.\n\nYou cannot access the user\'s current query or aggregation pipeline.',
+        expected: `The connection is named "localhost:27017". The redacted connection string is "mongodb://localhost:27017/".\n\nThe user is on the "Shell" tab.\n\n${toolCallingOff}`,
       },
       // Collections
       {
@@ -172,9 +199,9 @@ describe('prompts', function () {
           activeCollectionMetadata: null,
           activeCollectionSubTab: null,
           enableToolCalling: false,
+          enableGenAIDatabaseToolCalling: false,
         },
-        expected:
-          'The connection is named "localhost:27017". The redacted connection string is "mongodb://localhost:27017/".\n\nThe user is on the "Collections" tab for the "test" namespace.\n\nYou cannot access the user\'s current query or aggregation pipeline.',
+        expected: `The connection is named "localhost:27017". The redacted connection string is "mongodb://localhost:27017/".\n\nThe user is on the "Collections" tab for the "test" namespace.\n\n${toolCallingOff}`,
       },
       // Normal Collection
       {
@@ -202,9 +229,9 @@ describe('prompts', function () {
           },
           activeCollectionSubTab: 'Schema',
           enableToolCalling: false,
+          enableGenAIDatabaseToolCalling: false,
         },
-        expected:
-          'The connection is named "localhost:27017". The redacted connection string is "mongodb://localhost:27017/".\n\nThe user is on the "Schema" tab for the "test.normal" namespace. "test.normal" does not support Atlas Search indexes. Server version: 7.0.0\n\nYou cannot access the user\'s current query or aggregation pipeline.',
+        expected: `The connection is named "localhost:27017". The redacted connection string is "mongodb://localhost:27017/".\n\nThe user is on the "Schema" tab for the "test.normal" namespace. "test.normal" does not support Atlas Search indexes. Server version: 7.0.0\n\n${toolCallingOff}`,
       },
       // Collection, Documents tab with enableToolCalling=true
       {
@@ -232,9 +259,9 @@ describe('prompts', function () {
           },
           activeCollectionSubTab: 'Documents',
           enableToolCalling: true,
+          enableGenAIDatabaseToolCalling: false,
         },
-        expected:
-          'The connection is named "localhost:27017". The redacted connection string is "mongodb://localhost:27017/".\n\nThe user is on the "Documents" tab for the "test.normal" namespace. "test.normal" does not support Atlas Search indexes. Server version: 7.0.0\n\nUse the "get-compass-context" tool to get the current query from the query bar.',
+        expected: `The connection is named "localhost:27017". The redacted connection string is "mongodb://localhost:27017/".\n\nThe user is on the "Documents" tab for the "test.normal" namespace. "test.normal" does not support Atlas Search indexes. Server version: 7.0.0\n\n${toolCallingOn}`,
       },
       // Collection, Aggregations tab with enableToolCalling=true
       {
@@ -262,9 +289,39 @@ describe('prompts', function () {
           },
           activeCollectionSubTab: 'Aggregations',
           enableToolCalling: true,
+          enableGenAIDatabaseToolCalling: false,
         },
-        expected:
-          'The connection is named "localhost:27017". The redacted connection string is "mongodb://localhost:27017/".\n\nThe user is on the "Aggregations" tab for the "test.normal" namespace. "test.normal" does not support Atlas Search indexes. Server version: 7.0.0\n\nUse the "get-compass-context" tool to get the current aggregation pipeline from the aggregation builder.',
+        expected: `The connection is named "localhost:27017". The redacted connection string is "mongodb://localhost:27017/".\n\nThe user is on the "Aggregations" tab for the "test.normal" namespace. "test.normal" does not support Atlas Search indexes. Server version: 7.0.0\n\n${toolCallingOn}`,
+      },
+      // Collection, Aggregations tab with enableToolCalling=true AND genAIDatabaseToolCalling=true
+      {
+        context: {
+          activeWorkspace: {
+            id: 'collection-tab-1',
+            type: 'Collection',
+            connectionId: 'conn-1',
+            namespace: 'test.normal',
+            subTab: 'Aggregations',
+          },
+          activeConnection: {
+            connectionOptions: {
+              connectionString: 'mongodb://localhost:27017',
+            },
+          },
+          activeCollectionMetadata: {
+            isTimeSeries: false,
+            isClustered: false,
+            isFLE: false,
+            isSearchIndexesSupported: false,
+            isDataLake: false,
+            isAtlas: false,
+            serverVersion: '7.0.0',
+          },
+          activeCollectionSubTab: 'Aggregations',
+          enableToolCalling: true,
+          enableGenAIDatabaseToolCalling: true,
+        },
+        expected: `The connection is named "localhost:27017". The redacted connection string is "mongodb://localhost:27017/".\n\nThe user is on the "Aggregations" tab for the "test.normal" namespace. "test.normal" does not support Atlas Search indexes. Server version: 7.0.0\n\n${databaseToolCallingOn}`,
       },
       // Timeseries Collection
       {
@@ -292,9 +349,9 @@ describe('prompts', function () {
           },
           activeCollectionSubTab: 'Aggregations',
           enableToolCalling: false,
+          enableGenAIDatabaseToolCalling: false,
         },
-        expected:
-          'The connection is named "localhost:27017". The redacted connection string is "mongodb://localhost:27017/".\n\nThe user is on the "Aggregations" tab for the "test.timeseries" namespace. "test.timeseries" is a time-series collection, does not support Atlas Search indexes. Server version: \n\nYou cannot access the user\'s current query or aggregation pipeline.',
+        expected: `The connection is named "localhost:27017". The redacted connection string is "mongodb://localhost:27017/".\n\nThe user is on the "Aggregations" tab for the "test.timeseries" namespace. "test.timeseries" is a time-series collection, does not support Atlas Search indexes. Server version: \n\n${toolCallingOff}`,
       },
       // View Collection
       {
@@ -323,9 +380,9 @@ describe('prompts', function () {
           },
           activeCollectionSubTab: 'Documents',
           enableToolCalling: false,
+          enableGenAIDatabaseToolCalling: false,
         },
-        expected:
-          'The connection is named "localhost:27017". The redacted connection string is "mongodb://localhost:27017/".\n\nThe user is on the "Documents" tab for the "test.view" namespace. "test.view" is a view on the "test.normal" collection, does not support Atlas Search indexes. Server version: 7.0.0\n\nYou cannot access the user\'s current query or aggregation pipeline.',
+        expected: `The connection is named "localhost:27017". The redacted connection string is "mongodb://localhost:27017/".\n\nThe user is on the "Documents" tab for the "test.view" namespace. "test.view" is a view on the "test.normal" collection, does not support Atlas Search indexes. Server version: 7.0.0\n\n${toolCallingOff}`,
       },
       // Clustered Collection
       {
@@ -353,9 +410,9 @@ describe('prompts', function () {
           },
           activeCollectionSubTab: 'Schema',
           enableToolCalling: false,
+          enableGenAIDatabaseToolCalling: false,
         },
-        expected:
-          'The connection is named "localhost:27017". The redacted connection string is "mongodb://localhost:27017/".\n\nThe user is on the "Schema" tab for the "test.clustered" namespace. "test.clustered" is a clustered collection, does not support Atlas Search indexes. Server version: 7.0.0\n\nYou cannot access the user\'s current query or aggregation pipeline.',
+        expected: `The connection is named "localhost:27017". The redacted connection string is "mongodb://localhost:27017/".\n\nThe user is on the "Schema" tab for the "test.clustered" namespace. "test.clustered" is a clustered collection, does not support Atlas Search indexes. Server version: 7.0.0\n\n${toolCallingOff}`,
       },
       // FLE Collection
       {
@@ -383,9 +440,9 @@ describe('prompts', function () {
           },
           activeCollectionSubTab: 'Documents',
           enableToolCalling: false,
+          enableGenAIDatabaseToolCalling: false,
         },
-        expected:
-          'The connection is named "localhost:27017". The redacted connection string is "mongodb://localhost:27017/".\n\nThe user is on the "Documents" tab for the "test.encrypted" namespace. "test.encrypted" has encrypted fields, does not support Atlas Search indexes. Server version: 7.0.0\n\nYou cannot access the user\'s current query or aggregation pipeline.',
+        expected: `The connection is named "localhost:27017". The redacted connection string is "mongodb://localhost:27017/".\n\nThe user is on the "Documents" tab for the "test.encrypted" namespace. "test.encrypted" has encrypted fields, does not support Atlas Search indexes. Server version: 7.0.0\n\n${toolCallingOff}`,
       },
       // Collection with Search Indexes Support
       {
@@ -413,9 +470,9 @@ describe('prompts', function () {
           },
           activeCollectionSubTab: 'Indexes',
           enableToolCalling: false,
+          enableGenAIDatabaseToolCalling: false,
         },
-        expected:
-          'The connection is named "cluster.mongodb.net". The redacted connection string is "mongodb+srv://cluster.mongodb.net/".\n\nThe user is on the "Indexes" tab for the "test.searchable" namespace. "test.searchable" supports Atlas Search indexes. The instance is Atlas. Server version: 7.0.0\n\nYou cannot access the user\'s current query or aggregation pipeline.',
+        expected: `The connection is named "cluster.mongodb.net". The redacted connection string is "mongodb+srv://cluster.mongodb.net/".\n\nThe user is on the "Indexes" tab for the "test.searchable" namespace. "test.searchable" supports Atlas Search indexes. The instance is Atlas. Server version: 7.0.0\n\n${toolCallingOff}`,
       },
       // Data Lake Collection
       {
@@ -443,9 +500,9 @@ describe('prompts', function () {
           },
           activeCollectionSubTab: 'Documents',
           enableToolCalling: false,
+          enableGenAIDatabaseToolCalling: false,
         },
-        expected:
-          'The connection is named "datalake.mongodb.net". The redacted connection string is "mongodb+srv://datalake.mongodb.net/".\n\nThe user is on the "Documents" tab for the "test.datalake" namespace. "test.datalake" does not support Atlas Search indexes. The instance is Data Lake and Atlas. Server version: 6.0.0\n\nYou cannot access the user\'s current query or aggregation pipeline.',
+        expected: `The connection is named "datalake.mongodb.net". The redacted connection string is "mongodb+srv://datalake.mongodb.net/".\n\nThe user is on the "Documents" tab for the "test.datalake" namespace. "test.datalake" does not support Atlas Search indexes. The instance is Data Lake and Atlas. Server version: 6.0.0\n\n${toolCallingOff}`,
       },
       // Collection with multiple features
       {
@@ -473,9 +530,9 @@ describe('prompts', function () {
           },
           activeCollectionSubTab: 'Aggregations',
           enableToolCalling: false,
+          enableGenAIDatabaseToolCalling: false,
         },
-        expected:
-          'The connection is named "cluster.mongodb.net". The redacted connection string is "mongodb+srv://cluster.mongodb.net/".\n\nThe user is on the "Aggregations" tab for the "test.multifeature" namespace. "test.multifeature" is a time-series collection, is a clustered collection, has encrypted fields, supports Atlas Search indexes. The instance is Atlas. Server version: 8.0.0\n\nYou cannot access the user\'s current query or aggregation pipeline.',
+        expected: `The connection is named "cluster.mongodb.net". The redacted connection string is "mongodb+srv://cluster.mongodb.net/".\n\nThe user is on the "Aggregations" tab for the "test.multifeature" namespace. "test.multifeature" is a time-series collection, is a clustered collection, has encrypted fields, supports Atlas Search indexes. The instance is Atlas. Server version: 8.0.0\n\n${toolCallingOff}`,
       },
       // Collection without server version
       {
@@ -503,18 +560,20 @@ describe('prompts', function () {
           },
           activeCollectionSubTab: 'Documents',
           enableToolCalling: false,
+          enableGenAIDatabaseToolCalling: false,
         },
-        expected:
-          'The connection is named "localhost:27017". The redacted connection string is "mongodb://localhost:27017/".\n\nThe user is on the "Documents" tab for the "test.noversion" namespace. "test.noversion" does not support Atlas Search indexes. Server version: 7.0.0\n\nYou cannot access the user\'s current query or aggregation pipeline.',
+        expected: `The connection is named "localhost:27017". The redacted connection string is "mongodb://localhost:27017/".\n\nThe user is on the "Documents" tab for the "test.noversion" namespace. "test.noversion" does not support Atlas Search indexes. Server version: 7.0.0\n\n${toolCallingOff}`,
       },
     ];
 
     for (const testCase of testCases) {
       const summary: {
         [key: string]: string | boolean;
-      } = {
-        type: testCase.context.activeWorkspace?.type || 'No active tab',
-      };
+      } = {};
+      summary.enableToolCalling = testCase.context.enableToolCalling ?? false;
+      summary.enableGenAIDatabaseToolCalling =
+        testCase.context.enableGenAIDatabaseToolCalling ?? false;
+      summary.type = testCase.context.activeWorkspace?.type || 'No active tab';
       if (testCase.context.activeCollectionMetadata?.isTimeSeries) {
         summary.isTimeSeries = true;
       }

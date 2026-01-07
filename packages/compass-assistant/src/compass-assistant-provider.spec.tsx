@@ -25,9 +25,10 @@ import type { AtlasAuthService } from '@mongodb-js/atlas-service/provider';
 import type { AtlasService } from '@mongodb-js/atlas-service/provider';
 import { CompassAssistantDrawer } from './compass-assistant-drawer';
 import { createBrokenTransport, createMockChat } from '../test/utils';
-import type {
-  AtlasAiService,
-  ToolsController,
+import {
+  ToolsControllerProvider,
+  type AtlasAiService,
+  type ToolsController,
 } from '@mongodb-js/compass-generative-ai/provider';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
@@ -123,23 +124,25 @@ const TestComponent: React.FunctionComponent<{
   return (
     <AssistantGlobalStateProvider>
       <DrawerContentProvider>
-        {/* Breaking this rule is fine while none of the tests try to re-render the content */}
-        {/* eslint-disable-next-line react-hooks/static-components */}
-        <MockedProvider
-          originForPrompt="mongodb-compass"
-          appNameForPrompt="MongoDB Compass"
-          chat={chat}
-        >
-          <DrawerAnchor>
-            <div data-testid="provider-children">Provider children</div>
-            <CompassAssistantDrawer
-              appName="Compass"
-              autoOpen={autoOpen}
-              hasNonGenuineConnections={hasNonGenuineConnections}
-            />
-          </DrawerAnchor>
-          <FakeStateSetterComponent />
-        </MockedProvider>
+        <ToolsControllerProvider>
+          {/* Breaking this rule is fine while none of the tests try to re-render the content */}
+          {/* eslint-disable-next-line react-hooks/static-components */}
+          <MockedProvider
+            originForPrompt="mongodb-compass"
+            appNameForPrompt="MongoDB Compass"
+            chat={chat}
+          >
+            <DrawerAnchor>
+              <div data-testid="provider-children">Provider children</div>
+              <CompassAssistantDrawer
+                appName="Compass"
+                autoOpen={autoOpen}
+                hasNonGenuineConnections={hasNonGenuineConnections}
+              />
+            </DrawerAnchor>
+            <FakeStateSetterComponent />
+          </MockedProvider>
+        </ToolsControllerProvider>
       </DrawerContentProvider>
     </AssistantGlobalStateProvider>
   );
@@ -495,7 +498,7 @@ describe('CompassAssistantProvider', function () {
           parts: [
             {
               type: 'text',
-              text: 'The user does not have any tabs open.',
+              text: "The user does not have any tabs open.\n\n<abilities>\nYou CAN:\n1. Access the user's current query or aggregation pipeline.\n</inabilities>\n\n<inabilities>\nYou CANNOT:\n1. Access user database information, such as collection schemas, etc UNLESS this information is explicitly provided to you in the prompt.\n2. Query MongoDB directly or execute code.\n</inabilities>",
             },
           ],
         },
@@ -620,6 +623,7 @@ describe('CompassAssistantProvider', function () {
 
       expect(mockToolsController.setContext.callCount).to.equal(1);
       expect(mockToolsController.setContext.firstCall.args[0]).to.deep.equal({
+        connection: undefined,
         query: undefined,
         aggregation: undefined,
       });
@@ -680,6 +684,7 @@ describe('CompassAssistantProvider', function () {
 
       expect(mockToolsController.setContext.callCount).to.equal(1);
       expect(mockToolsController.setContext.firstCall.args[0]).to.deep.equal({
+        connection: undefined,
         query,
         aggregation,
       });

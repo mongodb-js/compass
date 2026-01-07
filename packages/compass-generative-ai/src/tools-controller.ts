@@ -17,7 +17,7 @@ import { ToolsLogger } from './tools-logger';
 import { ToolsConnectionManager } from './tools-connection-manager';
 import type { ToolsConnectParams } from './tools-connection-manager';
 
-type ToolGroup = 'compass' | 'db-read';
+export type ToolGroup = 'compass' | 'db-read';
 
 type CompassContext = {
   query?: string;
