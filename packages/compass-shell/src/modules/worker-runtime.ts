@@ -106,10 +106,7 @@ export function createWorkerRuntime(
 
   const runtime = new WorkerRuntime(
     driverUrl,
-    driverOptions ?? {
-      productDocsLink: 'https://www.mongodb.com/docs/compass',
-      productName: 'Compass',
-    },
+    driverOptions,
     cliOptions ?? {},
     {
       name: 'Compass Shell Worker',
