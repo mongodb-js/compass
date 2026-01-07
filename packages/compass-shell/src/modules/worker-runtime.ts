@@ -98,6 +98,12 @@ export function createWorkerRuntime(
     ...dataService.getMongoClientConnectionOptions(),
   };
 
+  if (!driverOptions) {
+    throw new Error(
+      'Expected getMongoClientConnectionOptions to return connection options'
+    );
+  }
+
   const runtime = new WorkerRuntime(
     driverUrl,
     driverOptions ?? {
