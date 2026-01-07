@@ -53,6 +53,7 @@
     "eval": "braintrust eval test/assistant.eval.ts --verbose"
   },
   "dependencies": {
+    "@mongosh/service-provider-node-driver": "^3.18.0",
     "@ai-sdk/openai": "^3.0.1",
     "@mongodb-js/atlas-service": "^0.75.0",
     "@mongodb-js/compass-app-registry": "^9.6.0",
