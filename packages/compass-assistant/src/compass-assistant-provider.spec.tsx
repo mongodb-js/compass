@@ -498,7 +498,7 @@ describe('CompassAssistantProvider', function () {
           parts: [
             {
               type: 'text',
-              text: "The user does not have any tabs open.\n\n<abilities>\nYou CAN:\n1. Access the user's current query or aggregation pipeline.\n</inabilities>\n\n<inabilities>\nYou CANNOT:\n1. Access user database information, such as collection schemas, etc UNLESS this information is explicitly provided to you in the prompt.\n2. Query MongoDB directly or execute code.\n</inabilities>",
+              text: "The user does not have any tabs open.\n\n<abilities>\nYou CAN:\n1. Access user database information, such as collection schemas, etc.\n2. Query MongoDB directly.\n3. Access the user's current query or aggregation pipeline.\n</abilities>",
             },
           ],
         },
@@ -680,7 +680,7 @@ describe('CompassAssistantProvider', function () {
       expect(mockToolsController.setActiveTools.callCount).to.equal(1);
       expect(
         mockToolsController.setActiveTools.firstCall.args[0]
-      ).to.deep.equal(new Set(['compass']));
+      ).to.deep.equal(new Set(['compass', 'db-read']));
 
       expect(mockToolsController.setContext.callCount).to.equal(1);
       expect(mockToolsController.setContext.firstCall.args[0]).to.deep.equal({

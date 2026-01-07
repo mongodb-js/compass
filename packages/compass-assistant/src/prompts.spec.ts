@@ -59,7 +59,7 @@ You CAN:
 1. Access user database information, such as collection schemas, etc.
 2. Query MongoDB directly.
 3. Access the user's current query or aggregation pipeline.
-</inabilities>`.trim();
+</abilities>`.trim();
 
     const testCases: {
       context: Parameters<typeof buildContextPrompt>[0];
