@@ -63,7 +63,7 @@
     "@mongodb-js/connection-info": "^0.25.0",
     "bson": "^6.10.4",
     "compass-preferences-model": "^2.68.0",
-    "mongodb": "^6.19.0",
+    "mongodb": "^6.21.0",
     "mongodb-query-parser": "^4.6.0",
     "mongodb-schema": "^12.6.3",
     "react": "^17.0.2",
