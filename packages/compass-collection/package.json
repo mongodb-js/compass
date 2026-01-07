@@ -68,7 +68,7 @@
     "bson": "^6.10.4",
     "compass-preferences-model": "^2.68.0",
     "hadron-document": "^8.10.7",
-    "mongodb": "^6.19.0",
+    "mongodb": "^6.21.0",
     "mongodb-collection-model": "^5.38.0",
     "mongodb-connection-string-url": "^3.0.2",
     "mongodb-ns": "^3.0.1",
