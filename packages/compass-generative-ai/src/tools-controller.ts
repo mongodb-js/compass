@@ -165,18 +165,7 @@ export class ToolsController {
           needsApproval: true,
           strict: true,
           execute: async (args: any, options: any) => {
-            console.log(
-              'TOOLSCONTROLLER executing tool',
-              toolBase.name,
-              args,
-              options
-            );
-
             if (!hasConnection(this.context)) {
-              console.log(
-                'TOOLSCONTROLLER No active connection to execute tool'
-              );
-
               // the context could have changed between when the tool was
               // created and when it gets executed
               // TODO: how are we supposed to signal errors?
@@ -197,8 +186,6 @@ export class ToolsController {
                 { error }
               );
               // TODO: re-throwing for now until I can tell how to signal errors
-
-              console.log('TOOLSCONTROLLER rethrowing', error.stack);
               throw error;
             }
 
