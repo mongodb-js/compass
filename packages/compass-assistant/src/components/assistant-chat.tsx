@@ -426,6 +426,11 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
 
   const { currentQuery, currentAggregation } = useAssistantGlobalState();
 
+  const enableToolCalling = usePreference('enableToolCalling');
+  const enableGenAIDatabaseToolCalling = usePreference(
+    'enableGenAIDatabaseToolCalling'
+  );
+
   const handleToolApproval = useCallback(
     ({
       messageId,
@@ -470,8 +475,8 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
         connection: activeConnection,
         query: currentQuery,
         aggregation: currentAggregation,
-        // by definition if we made it here it must be on
-        enableToolCalling: true,
+        enableToolCalling,
+        enableGenAIDatabaseToolCalling,
       });
 
       void addToolApprovalResponse({
@@ -486,12 +491,14 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
     },
     [
       setMessages,
-      addToolApprovalResponse,
-      track,
-      activeConnection,
       toolsController,
+      activeConnection,
       currentQuery,
       currentAggregation,
+      enableToolCalling,
+      enableGenAIDatabaseToolCalling,
+      addToolApprovalResponse,
+      track,
     ]
   );
 

@@ -308,6 +308,7 @@ export const AssistantProvider: React.FunctionComponent<
         query,
         aggregation,
         enableToolCalling,
+        enableGenAIDatabaseToolCalling,
       });
       await chat.sendMessage(message, options);
     };
