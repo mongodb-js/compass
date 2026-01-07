@@ -293,7 +293,7 @@ You CAN:
         },
         expected: `The connection is named "localhost:27017". The redacted connection string is "mongodb://localhost:27017/".\n\nThe user is on the "Aggregations" tab for the "test.normal" namespace. "test.normal" does not support Atlas Search indexes. Server version: 7.0.0\n\n${toolCallingOn}`,
       },
-      // Collection, Aggregations tab with enableToolCalling=true AND genAIDatabaseToolCalling=true
+      // Collection, Aggregations tab with enableToolCalling=true AND enableGenAIDatabaseToolCalling=true
       {
         context: {
           activeWorkspace: {

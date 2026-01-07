@@ -973,7 +973,7 @@ export const storedUserPreferencesProps: Required<{
       short: 'Enable database tool calling',
       long: 'Allow the AI Assistant to interact with the database through tool calling.',
     },
-    validator: z.boolean().default(false),
+    validator: z.boolean().default(true),
     type: 'boolean',
   },
 
