@@ -592,7 +592,7 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
 
                       // If have a connection saved for this tool call, use
                       // that, otherwise use the active connection. That way a
-                      // tool call that hasn't exected yet will always display
+                      // tool call that hasn't executed yet will always display
                       // the current active connection and one that already
                       // executed will always show the connection it executed
                       // against.
