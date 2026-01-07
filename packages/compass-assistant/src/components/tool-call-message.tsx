@@ -4,7 +4,9 @@ import {
   LgChatMessage,
   spacing,
   useDarkMode,
+  InlineDefinition,
 } from '@mongodb-js/compass-components';
+import { AVAILABLE_TOOLS } from './tool-toggle';
 
 const { Message } = LgChatMessage;
 
@@ -53,6 +55,10 @@ function getToolDisplayName(type: string): string {
   return type.replace(/^tool-/, '');
 }
 
+function getToolDescription(toolName: string): string | undefined {
+  return AVAILABLE_TOOLS.find((tool) => tool.name === toolName)?.description;
+}
+
 // Map our tool call states to LeafyGreen ToolCardState
 function mapToolCallStateToCardState(
   toolCallState?: ToolCallPart['state']
@@ -92,6 +98,7 @@ export const ToolCallMessage: React.FunctionComponent<ToolCallMessageProps> = ({
   const darkMode = useDarkMode();
 
   const toolName = getToolDisplayName(toolCall.type);
+  const toolDescription = getToolDescription(toolName);
   const toolCallState = mapToolCallStateToCardState(toolCall.state);
 
   const inputJSON = JSON.stringify(toolCall.input || {}, null, 2);
@@ -123,13 +130,21 @@ ${outputText}
       : ''
   }`;
 
-  let title = `Run ${toolName}?`;
+  const toolNameElement = toolDescription ? (
+    <InlineDefinition definition={toolDescription}>{toolName}</InlineDefinition>
+  ) : (
+    toolName
+  );
+
+  let title: React.ReactNode;
   if (hasOutput) {
-    title = `Ran ${toolName}`;
+    title = <>Ran {toolNameElement}</>;
   } else if (wasApproved) {
-    title = `Running ${toolName}`;
+    title = <>Running {toolNameElement}</>;
   } else if (isDenied) {
-    title = `Cancelled ${toolName}`;
+    title = <>Cancelled {toolNameElement}</>;
+  } else {
+    title = <>Run {toolNameElement}?</>;
   }
 
   return (

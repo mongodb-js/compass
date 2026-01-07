@@ -112,6 +112,10 @@ const toolDescriptionStyles = css({
 // Placeholder tools - these should be replaced with actual tool definitions
 export const AVAILABLE_TOOLS = [
   {
+    name: 'get-compass-context',
+    description: 'Get the current query or aggregation.',
+  },
+  {
     name: 'find',
     description:
       'Retrieves specific documents that match your search criteria.',
