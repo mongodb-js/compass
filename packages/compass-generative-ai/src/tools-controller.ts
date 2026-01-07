@@ -37,11 +37,10 @@ const readonlyTools = new Set<string>([
   'list-collections',
   'collection-indexes',
   'collection-schema',
-  //'explain',
-  // TODO(EAI-1474): we're only allowed 10 tools at the moment
-  //'collection-storage-size',
-  //'db-stats',
-  //'mongodb-logs',
+  'explain',
+  'collection-storage-size',
+  'db-stats',
+  'mongodb-logs',
 ]);
 
 /**
