@@ -53,7 +53,7 @@
     "@mongodb-js/connection-info": "^0.25.0",
     "@mongodb-js/shell-bson-parser": "^1.4.0",
     "lodash": "^4.17.21",
-    "mongodb": "^6.19.0",
+    "mongodb": "^6.21.0",
     "mongodb-build-info": "^1.8.1",
     "mongodb-connection-string-url": "^3.0.1",
     "mongodb-data-service": "^22.37.0",
