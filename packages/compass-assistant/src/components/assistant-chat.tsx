@@ -445,11 +445,13 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
     ({
       message,
       toolCallId,
+      type,
       approvalId,
       approved,
     }: {
       message: AssistantMessage;
       toolCallId: string;
+      type: string;
       approvalId: string;
       approved: boolean;
     }) => {
@@ -464,6 +466,7 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
 
       track('Assistant Tool Call Approval', {
         approved,
+        type,
         approval_id: approvalId,
       });
     },
@@ -569,6 +572,7 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
                             handleToolApproval({
                               message,
                               toolCallId,
+                              type: toolCall.type,
                               approvalId,
                               approved: true,
                             })
@@ -577,6 +581,7 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
                             handleToolApproval({
                               message,
                               toolCallId,
+                              type: toolCall.type,
                               approvalId,
                               approved: false,
                             })
