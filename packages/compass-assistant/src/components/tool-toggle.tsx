@@ -226,8 +226,9 @@ export const ToolToggle: React.FunctionComponent = () => {
                 />
               </div>
               <Description>
-                These are currently enabled and require approval. You can use
-                natural language to explore data and generate queries.
+                {enableToolCalling
+                  ? 'These are currently enabled and require approval. You can use natural language to explore data and generate queries.'
+                  : 'These are currently disabled. Enable them to use natural language to explore data and generate queries.'}
               </Description>
             </div>
             <Link
