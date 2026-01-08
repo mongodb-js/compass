@@ -268,11 +268,11 @@ export const AssistantProvider: React.FunctionComponent<
       }
 
       if (foundToolApprovalRequests) {
-        // TODO: Even though we await the promise above, if we immediately send
+        // Even though we await the promise above, if we immediately send
         // the message then ai sdk will throw because we haven't dealt with the
-        // approval requests. We can probably poll and wait for the messages to
-        // update?
-        await new Promise((resolve) => setTimeout(resolve, 1000));
+        // approval requests. Maybe because chat.addToolApprovalResponse() does
+        // not always return a promise?
+        await new Promise((resolve) => setTimeout(resolve, 0));
       }
 
       if (chat.status === 'streaming') {
