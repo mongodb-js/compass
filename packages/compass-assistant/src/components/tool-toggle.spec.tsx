@@ -5,7 +5,7 @@ import {
   userEvent,
   waitFor,
 } from '@mongodb-js/testing-library-compass';
-import { AVAILABLE_TOOLS, ToolToggle } from './tool-toggle';
+import { DATABASE_TOOLS, ToolToggle } from './tool-toggle';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
@@ -106,9 +106,9 @@ describe('ToolToggle', function () {
 
       await waitFor(() => {
         // Check for a sample of the tools
-        AVAILABLE_TOOLS.forEach((tool) => {
+        for (const tool of DATABASE_TOOLS) {
           expect(screen.getByText(tool.name)).to.exist;
-        });
+        }
       });
     });
   });
