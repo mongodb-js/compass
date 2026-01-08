@@ -4,6 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const { DownloadCenter } = require('@mongodb-js/dl-center');
 const download = require('download');
+const S3 = require('aws-sdk/clients/s3');
 
 const DOWNLOADS_BUCKET = 'downloads.10gen.com';
 const DOWNLOADS_BUCKET_NEW = 'cdn-origin-compass';
@@ -80,12 +81,22 @@ const downloadAssetFromEvergreen = ({ name, path: dest }) => {
   // eslint-disable-next-line no-async-promise-executor
   return new Promise(async (resolve, reject) => {
     requireEnvironmentVariables([
+      'EVERGREEN_AWS_ACCESS_KEY_ID',
+      'EVERGREEN_AWS_SECRET_ACCESS_KEY',
       'EVERGREEN_BUCKET_NAME',
       'EVERGREEN_BUCKET_KEY_PREFIX',
     ]);
-    const bucket = process.env.EVERGREEN_BUCKET_NAME;
-    const key = `${process.env.EVERGREEN_BUCKET_KEY_PREFIX}/${name}`;
-    const url = `https://${bucket}.s3.amazonaws.com/${key}`;
+    const s3Client = new S3({
+      credentials: {
+        accessKeyId: process.env.EVERGREEN_AWS_ACCESS_KEY_ID,
+        secretAccessKey: process.env.EVERGREEN_AWS_SECRET_ACCESS_KEY,
+      },
+    });
+    const url = s3Client.getSignedUrl('getObject', {
+      Bucket: process.env.EVERGREEN_BUCKET_NAME,
+      Key: `${process.env.EVERGREEN_BUCKET_KEY_PREFIX}/${name}`,
+      Expires: 60 * 5, // 5 minutes
+    });
     const stream = download(url);
     await fs.promises.mkdir(path.dirname(dest), { recursive: true });
     stream.pipe(fs.createWriteStream(dest));
