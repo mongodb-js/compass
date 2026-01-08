@@ -18,6 +18,8 @@ export const ALLOWED_PUBLISH_ENVIRONMENTS = ['dev', 'qa', 'staging', 'prod'];
 
 export const PUBLISH_ENVIRONMENT = process.env.COMPASS_WEB_PUBLISH_ENVIRONMENT;
 
+export const DRY_RUN = process.env.COMPASS_WEB_PUBLISH_DRY_RUN === 'true';
+
 export const RELEASE_COMMIT =
   process.env.COMPASS_WEB_RELEASE_COMMIT ||
   child_process
@@ -27,8 +29,7 @@ export const RELEASE_COMMIT =
 function getAWSCredentials() {
   if (
     !process.env.DOWNLOAD_CENTER_NEW_AWS_ACCESS_KEY_ID ||
-    !process.env.DOWNLOAD_CENTER_NEW_AWS_SECRET_ACCESS_KEY ||
-    !process.env.DOWNLOAD_CENTER_NEW_AWS_SESSION_TOKEN
+    !process.env.DOWNLOAD_CENTER_NEW_AWS_SECRET_ACCESS_KEY
   ) {
     throw new Error('Missing required env variables');
   }
@@ -38,15 +39,17 @@ function getAWSCredentials() {
     sessionToken: process.env.DOWNLOAD_CENTER_NEW_AWS_SESSION_TOKEN,
   };
 }
-const s3Client = new S3({
-  credentials: getAWSCredentials(),
-});
+
+let s3Client;
 
 export const asyncPutObject: (
   params: S3.Types.PutObjectRequest
-) => Promise<S3.Types.PutObjectOutput> = promisify(
-  s3Client.putObject.bind(s3Client)
-);
+) => Promise<S3.Types.PutObjectOutput> = (params) => {
+  s3Client ??= new S3({
+    credentials: getAWSCredentials(),
+  });
+  return promisify(s3Client.putObject.bind(s3Client))(params);
+};
 
 export function getObjectKey(filename: string, release = RELEASE_COMMIT) {
   // TODO(SRE-4971): while we're uploading to the downloads bucket, the object
