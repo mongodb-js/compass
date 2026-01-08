@@ -58,7 +58,7 @@ import {
   useAssistantGlobalState,
 } from './assistant-global-state';
 import { lastAssistantMessageIsCompleteWithApprovalResponses } from 'ai';
-import type { ToolSet } from 'ai';
+import type { ToolSet, UIDataTypes, UIMessagePart, UITools } from 'ai';
 
 export const ASSISTANT_DRAWER_ID = 'compass-assistant-drawer';
 
@@ -252,6 +252,29 @@ export const AssistantProvider: React.FunctionComponent<
       // place to do tracking.
       callback();
 
+      // Automatically deny any pending tool approval requests in the chat before
+      // sending the new message because ai sdk does not allow leaving them.
+      let foundToolApprovalRequests = false;
+      for (const message of chat.messages) {
+        for (const part of message.parts) {
+          if (partIsApprovalRequest(part)) {
+            foundToolApprovalRequests = true;
+            await chat.addToolApprovalResponse({
+              id: part.approval.id,
+              approved: false,
+            });
+          }
+        }
+      }
+
+      if (foundToolApprovalRequests) {
+        // TODO: Even though we await the promise above, if we immediately send
+        // the message then ai sdk will throw because we haven't dealt with the
+        // approval requests. We can probably poll and wait for the messages to
+        // update?
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+      }
+
       if (chat.status === 'streaming') {
         await chat.stop();
       }
@@ -305,6 +328,7 @@ export const AssistantProvider: React.FunctionComponent<
         enableToolCalling,
         enableGenAIDatabaseToolCalling,
       });
+
       await chat.sendMessage(message, options);
     };
   });
@@ -574,4 +598,10 @@ export function setToolsContext(
       aggregation: undefined,
     });
   }
+}
+
+function partIsApprovalRequest(
+  part: UIMessagePart<UIDataTypes, UITools>
+): part is UIMessagePart<UIDataTypes, UITools> & { approval: { id: string } } {
+  return (part as { state?: string }).state === 'approval-requested';
 }

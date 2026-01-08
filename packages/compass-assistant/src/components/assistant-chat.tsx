@@ -175,7 +175,8 @@ function makeErrorMessage(message: string) {
 }
 
 const errorBannerWrapperStyles = css({
-  margin: spacing[400],
+  padding: spacing[400],
+  maxWidth: '100%',
 });
 
 const messagesWrapStyles = css({
@@ -524,7 +525,7 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
 
                   return (
                     <ConfirmationMessage
-                      key={id}
+                      key={`${id}-confirmation`}
                       // Show as rejected if it's not the last message
                       state={
                         !isLastMessage && state === 'pending'
@@ -553,17 +554,16 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
 
                 // Render tool calls and text content together
                 return (
-                  <React.Fragment key={id}>
+                  <React.Fragment key={`${id}-${index}`}>
                     {/* Show tool calls if present */}
                     {toolCalls.map((toolCall, index) => {
                       const toolCallId =
-                        toolCall.toolCallId ||
-                        `${id}-${toolCall.type}-${index}`;
+                        toolCall.toolCallId || `${id}-${toolCall.type}`;
 
                       return (
                         <ToolCallMessage
                           connection={messageConnection}
-                          key={toolCallId}
+                          key={`${toolCallId}-${index}`}
                           toolCall={toolCall}
                           onApprove={(approvalId) =>
                             handleToolApproval({
