@@ -1,5 +1,5 @@
-import { tool } from 'ai';
-import type { ToolExecutionOptions, ToolSet } from 'ai';
+import { tool, zodSchema } from 'ai';
+import type { ToolSet } from 'ai';
 import type { Logger } from '@mongodb-js/compass-logging';
 import z from 'zod';
 import {
@@ -156,20 +156,21 @@ export class ToolsController {
           continue;
         }
 
-        // TODO: the types here are all messaged up for many reasons, not least
-        // because somehing is up with it inferring that the z.object() is
-        // actually valid for inputSchema.
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
         tools[toolBase.name] = tool({
-          name: toolBase.name,
           description: toolBase.description,
-          inputSchema: z.object(toolBase.argsShape),
+          inputSchema: zodSchema(z.object(toolBase.argsShape)),
           needsApproval: true,
           strict: true,
-          execute: async (args: any, options: ToolExecutionOptions) => {
+          execute: async (args, options) => {
             if (this.currentToolCallId !== options.toolCallId) {
-              // Sanity check
-              throw new Error('Tool call ID mismatch');
+              // sanity check in case we ever get multiple tool calls in parallel
+              const error = new Error('Tool call ID mismatch');
+              this.logger.log.error(
+                this.logger.mongoLogId(1_001_000_415),
+                'ToolsController',
+                error.message
+              );
+              throw error;
             }
 
             const connectParams = this.context.connections.find(
@@ -179,7 +180,13 @@ export class ToolsController {
             if (!connectParams) {
               // the context could have changed between when the tool was
               // created and when it gets executed
-              throw new Error('No active connection to execute tool');
+              const error = new Error('No active connection to execute tool');
+              this.logger.log.error(
+                this.logger.mongoLogId(1_001_000_414),
+                'ToolsController',
+                error.message
+              );
+              throw error;
             }
 
             // connect
@@ -187,17 +194,17 @@ export class ToolsController {
               await this.connectionManager.connectToCompassConnection(
                 connectParams
               );
-            } catch (error) {
+            } catch (error: any) {
               this.logger.log.error(
                 this.logger.mongoLogId(1_001_000_410),
                 'ToolsController',
                 'Error when attempting to connect to Compass connection before executing tool',
-                { error }
+                { error: error.message }
               );
               throw error;
             }
 
-            let result: any; // TODO: CallToolResult
+            let result: Awaited<ReturnType<typeof toolBase.invoke>>;
             try {
               result = await toolBase.invoke(args, {
                 signal: options.abortSignal ?? new AbortSignal(),
@@ -208,7 +215,7 @@ export class ToolsController {
             }
             return result;
           },
-        } as any); // TODO: inputSchema and execute types are messed up
+        });
       }
     }
 
@@ -259,14 +266,14 @@ export class ToolsController {
         'ToolsController',
         'In-memory MCP server started successfully'
       );
-    } catch (error) {
+    } catch (error: any) {
       // In case of errors we don't want Compass to crash so we
       // silence MCP start errors and instead log them for debugging.
       this.logger.log.error(
         this.logger.mongoLogId(1_001_000_404),
         'ToolsController',
         'Error when attempting to start MCP server',
-        { error }
+        { error: error.message }
       );
     }
   }
@@ -287,12 +294,12 @@ export class ToolsController {
         'ToolsController',
         'MCP server stopped successfully'
       );
-    } catch (error) {
+    } catch (error: any) {
       this.logger.log.error(
         this.logger.mongoLogId(1_001_000_408),
         'ToolsController',
         'Error when attempting to close the MCP server',
-        { error }
+        { error: error.message }
       );
     }
   }
