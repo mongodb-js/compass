@@ -5,6 +5,7 @@ import {
   spacing,
   useDarkMode,
   InlineDefinition,
+  ServerIcon,
 } from '@mongodb-js/compass-components';
 import type { ToolUIPart } from 'ai';
 import type { BasicConnectionInfo } from '../compass-assistant-provider';
@@ -81,7 +82,7 @@ export const ToolCallMessage: React.FunctionComponent<ToolCallMessageProps> = ({
 
   // TODO: find a better way to only display this when the connection is relevant
   if (connection && toolCall.type !== 'tool-get-compass-context') {
-    chips.push({ label: connection.name });
+    chips.push({ glyph: <ServerIcon />, label: connection.name });
   }
 
   const toolName = getToolDisplayName(toolCall.type);
