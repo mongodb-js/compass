@@ -83,6 +83,7 @@ export class ToolsController {
     const mcpConfig = UserConfigSchema.parse({
       disabledTools: ['connect'],
       loggers: ['mcp'],
+      readOnly: true,
     });
 
     this.runner = new InMemoryRunner({
