@@ -1,12 +1,6 @@
 import React, { useCallback, useEffect, useContext, useRef } from 'react';
-import type {
-  AssistantMessage,
-  BasicConnectionInfo,
-} from '../compass-assistant-provider';
-import {
-  AssistantActionsContext,
-  setToolsContext,
-} from '../compass-assistant-provider';
+import type { AssistantMessage } from '../compass-assistant-provider';
+import { AssistantActionsContext } from '../compass-assistant-provider';
 import type { Chat } from '../@ai-sdk/react/chat-react';
 import { useChat } from '../@ai-sdk/react/use-chat';
 import {
@@ -36,11 +30,10 @@ import {
 } from 'ai';
 import { useAssistantGlobalState } from '../assistant-global-state';
 import type { WorkspaceTab } from '@mongodb-js/workspace-info';
-import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
-import { useToolsController } from '@mongodb-js/compass-generative-ai/provider';
 import { ToolToggle } from './tool-toggle';
 import { usePreference } from 'compass-preferences-model/provider';
+import { useToolsController } from '@mongodb-js/compass-generative-ai/provider';
 
 const { ChatWindow } = LgChatChatWindow;
 const { LeafyGreenChatProvider } = LgChatLeafygreenChatProvider;
@@ -212,6 +205,7 @@ const inputBarTextareaProps = {
   placeholder: 'Ask a question',
 };
 
+// Type guard to check if a message part is a ToolUIPart
 function partIsToolUI(
   part: UIMessagePart<UIDataTypes, UITools>
 ): part is ToolUIPart {
@@ -228,18 +222,6 @@ function hasConnectionId(
   return !!(obj as WorkspaceTab & { connectionId: string }).connectionId;
 }
 
-function mapConnectionInfoForToolCard(
-  connectionInfo: ConnectionInfo | null
-): BasicConnectionInfo | null {
-  if (!connectionInfo) {
-    return null;
-  }
-
-  return {
-    id: connectionInfo.id,
-    name: getConnectionTitle(connectionInfo),
-  };
-}
 const toolToggleContainerStyles = css({
   paddingLeft: spacing[50],
   paddingRight: spacing[50],
@@ -315,6 +297,40 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
         connInfo.id === activeWorkspace.connectionId
       );
     }) ?? null;
+
+  useEffect(() => {
+    let foundNewMessages = false;
+
+    // Fill in connection info for newly created messages as soon as possible so
+    // that all tool calls will use the correct connection even if the user
+    // navigates around while the assistant is responding.
+    const newMessages: AssistantMessage[] = chat.messages.map((message) => {
+      if (message.metadata?.connectionInfo !== undefined) {
+        // If it is set or null, then we have already processed this message
+        return { ...message };
+      }
+
+      foundNewMessages = true;
+
+      const connectionInfo = activeConnection
+        ? {
+            id: activeConnection.id,
+            name: getConnectionTitle(activeConnection),
+          }
+        : null;
+      return {
+        ...message,
+        metadata: {
+          ...message.metadata,
+          connectionInfo,
+        },
+      };
+    });
+
+    if (foundNewMessages) {
+      setMessages(() => newMessages);
+    }
+  }, [activeConnection, chat, setMessages]);
 
   const handleMessageSend = useCallback(
     async ({ text, metadata }: SendMessageOptions) => {
@@ -424,61 +440,22 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
 
   const toolsController = useToolsController();
 
-  const { currentQuery, currentAggregation } = useAssistantGlobalState();
-
-  const enableToolCalling = usePreference('enableToolCalling');
-  const enableGenAIDatabaseToolCalling = usePreference(
-    'enableGenAIDatabaseToolCalling'
-  );
-
   const handleToolApproval = useCallback(
     ({
-      messageId,
+      message,
       toolCallId,
       approvalId,
       approved,
     }: {
-      messageId: string;
+      message: AssistantMessage;
       toolCallId: string;
       approvalId: string;
       approved: boolean;
     }) => {
-      // store the connection info used at the time of approval so that we can
-      // keep displaying the correct info even when the active connection
-      // changes as the user navigates around.
-      setMessages((messages) => {
-        return messages.map((message) => {
-          if (message.id === messageId) {
-            return {
-              ...message,
-              metadata: {
-                ...message.metadata,
-                toolCalls: {
-                  ...message.metadata?.toolCalls,
-                  [toolCallId]: {
-                    ...message.metadata?.toolCalls?.[toolCallId],
-                    connection: mapConnectionInfoForToolCard(activeConnection),
-                  },
-                },
-              },
-            };
-          } else {
-            return { ...message };
-          }
-        });
+      toolsController.setConnectionIdForToolCall({
+        toolCallId,
+        connectionId: message.metadata?.connectionInfo?.id ?? null,
       });
-
-      // we set the context when sending a prompt, but also here to ensure that
-      // the tool call will execute against the active connection in case the
-      // user navigated around after the assistant started responding
-      setToolsContext(toolsController, {
-        connection: activeConnection,
-        query: currentQuery,
-        aggregation: currentAggregation,
-        enableToolCalling,
-        enableGenAIDatabaseToolCalling,
-      });
-
       void addToolApprovalResponse({
         id: approvalId,
         approved,
@@ -489,17 +466,7 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
         approval_id: approvalId,
       });
     },
-    [
-      setMessages,
-      toolsController,
-      activeConnection,
-      currentQuery,
-      currentAggregation,
-      enableToolCalling,
-      enableGenAIDatabaseToolCalling,
-      addToolApprovalResponse,
-      track,
-    ]
+    [addToolApprovalResponse, toolsController, track]
   );
 
   const visibleMessages = messages.filter(
@@ -581,6 +548,9 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
 
                 const isSender = role === 'user';
 
+                const messageConnection =
+                  message.metadata?.connectionInfo ?? null;
+
                 // Render tool calls and text content together
                 return (
                   <React.Fragment key={id}>
@@ -590,27 +560,14 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
                         toolCall.toolCallId ||
                         `${id}-${toolCall.type}-${index}`;
 
-                      // If have a connection saved for this tool call, use
-                      // that, otherwise use the active connection. That way a
-                      // tool call that hasn't executed yet will always display
-                      // the current active connection and one that already
-                      // executed will always show the connection it executed
-                      // against.
-                      const toolConnection =
-                        message.metadata?.toolCalls?.[toolCallId]?.connection ??
-                        null;
-                      const connection = toolConnection
-                        ? toolConnection
-                        : mapConnectionInfoForToolCard(activeConnection);
-
                       return (
                         <ToolCallMessage
-                          connection={connection}
+                          connection={messageConnection}
                           key={toolCallId}
                           toolCall={toolCall}
                           onApprove={(approvalId) =>
                             handleToolApproval({
-                              messageId: id,
+                              message,
                               toolCallId,
                               approvalId,
                               approved: true,
@@ -618,7 +575,7 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
                           }
                           onDeny={(approvalId) =>
                             handleToolApproval({
-                              messageId: id,
+                              message,
                               toolCallId,
                               approvalId,
                               approved: false,

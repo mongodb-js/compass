@@ -1,5 +1,5 @@
 import { tool } from 'ai';
-import type { ToolSet } from 'ai';
+import type { ToolExecutionOptions, ToolSet } from 'ai';
 import type { Logger } from '@mongodb-js/compass-logging';
 import z from 'zod';
 import {
@@ -25,7 +25,7 @@ type CompassContext = {
 };
 
 type ToolsContext = CompassContext & {
-  connection?: ToolsConnectParams;
+  connections: ToolsConnectParams[];
 };
 
 const readonlyTools = new Set<string>([
@@ -75,6 +75,8 @@ export class ToolsController {
   private context: ToolsContext = Object.create(null);
   private readonly runner: InMemoryRunner;
   private connectionManager: ToolsConnectionManager;
+  private currentToolCallId: string | null = null;
+  private currentConnectionId: string | null = null;
 
   constructor({ logger, getTelemetryAnonymousId }: ToolsControllerConfig) {
     this.logger = logger;
@@ -146,7 +148,7 @@ export class ToolsController {
       this.runner.server.registerTools();
     }
 
-    if (hasConnection(this.context) && this.toolGroups.has('db-read')) {
+    if (this.toolGroups.has('db-read')) {
       const availableTools = this.runner.server?.tools ?? [];
       for (const toolBase of availableTools) {
         if (!readonlyTools.has(toolBase.name)) {
@@ -163,16 +165,23 @@ export class ToolsController {
           inputSchema: z.object(toolBase.argsShape),
           needsApproval: true,
           strict: true,
-          execute: async (args: any, options: any) => {
-            if (!hasConnection(this.context)) {
+          execute: async (args: any, options: ToolExecutionOptions) => {
+            if (this.currentToolCallId !== options.toolCallId) {
+              // Sanity check
+              throw new Error('Tool call ID mismatch');
+            }
+
+            const connectParams = this.context.connections.find(
+              (connection) =>
+                connection.connectionId === this.currentConnectionId
+            );
+            if (!connectParams) {
               // the context could have changed between when the tool was
               // created and when it gets executed
-              // TODO: how are we supposed to signal errors?
               throw new Error('No active connection to execute tool');
             }
 
             // connect
-            const connectParams = this.context.connection;
             try {
               await this.connectionManager.connectToCompassConnection(
                 connectParams
@@ -184,7 +193,6 @@ export class ToolsController {
                 'Error when attempting to connect to Compass connection before executing tool',
                 { error }
               );
-              // TODO: re-throwing for now until I can tell how to signal errors
               throw error;
             }
 
@@ -208,6 +216,17 @@ export class ToolsController {
 
   setContext(context: ToolsContext): void {
     this.context = context;
+  }
+
+  setConnectionIdForToolCall({
+    toolCallId,
+    connectionId,
+  }: {
+    toolCallId: string;
+    connectionId: string | null;
+  }): void {
+    this.currentToolCallId = toolCallId;
+    this.currentConnectionId = connectionId;
   }
 
   // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
@@ -276,10 +295,4 @@ export class ToolsController {
       );
     }
   }
-}
-
-function hasConnection(obj: ToolsContext): obj is ToolsContext & {
-  connection: ToolsConnectParams;
-} {
-  return !!obj.connection;
 }

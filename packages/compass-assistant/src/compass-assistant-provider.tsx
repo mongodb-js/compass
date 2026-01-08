@@ -67,10 +67,6 @@ export type BasicConnectionInfo = {
   name: string;
 };
 
-type ToolCallInfo = {
-  connection: BasicConnectionInfo | null;
-};
-
 export type AssistantMessage = UIMessage & {
   role?: 'user' | 'assistant' | 'system';
   metadata?: {
@@ -98,10 +94,9 @@ export type AssistantMessage = UIMessage & {
     isSystemContext?: boolean;
 
     /** Just enough info so we can tell which connection this message is related
-     *  to (if any) and print that name for the user
+     *  to (if any).
      */
     connectionInfo?: BasicConnectionInfo | null;
-    toolCalls?: Record<string, ToolCallInfo>;
   };
 };
 
@@ -304,7 +299,7 @@ export const AssistantProvider: React.FunctionComponent<
       const query = assistantGlobalStateRef.current.currentQuery;
       const aggregation = assistantGlobalStateRef.current.currentAggregation;
       setToolsContext(toolsController, {
-        connection: activeConnection,
+        connections: activeConnections,
         query,
         aggregation,
         enableToolCalling,
@@ -536,13 +531,13 @@ export function createDefaultChat({
 export function setToolsContext(
   toolsController: ToolsController,
   {
-    connection,
+    connections,
     query,
     aggregation,
     enableToolCalling,
     enableGenAIDatabaseToolCalling,
   }: {
-    connection?: ActiveConnectionInfo | null;
+    connections: ActiveConnectionInfo[];
     query?: string | null;
     aggregation?: string | null;
     enableToolCalling?: boolean;
@@ -556,24 +551,25 @@ export function setToolsContext(
     }
     toolsController.setActiveTools(toolGroups);
     toolsController.setContext({
-      connection: connection
-        ? {
-            connectionId: connection.id,
-            connectionString: connection.connectionOptions.connectionString,
-            connectOptions: {
-              productName: 'MongoDB Compass',
-              productDocsLink: 'https://www.mongodb.com/docs/compass/',
-              ...connection.connectOptions,
-            },
-          }
-        : undefined,
+      connections: connections.map((connection) => {
+        if (!connection.connectOptions) {
+          throw new Error(
+            `Connection ${connection.id} is missing connectOptions`
+          );
+        }
+        return {
+          connectionId: connection.id,
+          connectionString: connection.connectionOptions.connectionString,
+          connectOptions: connection.connectOptions,
+        };
+      }),
       query: query || undefined,
       aggregation: aggregation || undefined,
     });
   } else {
     toolsController.setActiveTools(new Set([]));
     toolsController.setContext({
-      connection: undefined,
+      connections: [],
       query: undefined,
       aggregation: undefined,
     });
