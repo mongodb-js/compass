@@ -623,7 +623,7 @@ describe('CompassAssistantProvider', function () {
 
       expect(mockToolsController.setContext.callCount).to.equal(1);
       expect(mockToolsController.setContext.firstCall.args[0]).to.deep.equal({
-        connection: undefined,
+        connections: [],
         query: undefined,
         aggregation: undefined,
       });
@@ -684,7 +684,7 @@ describe('CompassAssistantProvider', function () {
 
       expect(mockToolsController.setContext.callCount).to.equal(1);
       expect(mockToolsController.setContext.firstCall.args[0]).to.deep.equal({
-        connection: undefined,
+        connections: [],
         query,
         aggregation,
       });

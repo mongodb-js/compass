@@ -310,15 +310,20 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
         // If it is set or null, then we have already processed this message
         return { ...message };
       }
-
-      foundNewMessages = true;
-
       const connectionInfo = activeConnection
         ? {
             id: activeConnection.id,
             name: getConnectionTitle(activeConnection),
           }
         : null;
+
+      if (!connectionInfo) {
+        // leave the message unchanged
+        return { ...message };
+      }
+
+      foundNewMessages = true;
+
       return {
         ...message,
         metadata: {
