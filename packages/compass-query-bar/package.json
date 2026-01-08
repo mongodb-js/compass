@@ -83,7 +83,7 @@
     "compass-preferences-model": "^2.68.0",
     "lodash": "^4.17.21",
     "mongodb-collection-model": "^5.38.0",
-    "mongodb": "^6.19.0",
+    "mongodb": "^6.21.0",
     "mongodb-instance-model": "^12.61.0",
     "mongodb-ns": "^3.0.1",
     "mongodb-query-parser": "^4.6.0",

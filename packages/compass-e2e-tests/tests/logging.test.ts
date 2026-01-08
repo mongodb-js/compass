@@ -221,7 +221,7 @@ describe('Logging and Telemetry integration', function () {
           msg: 'Initiating connection attempt',
           attr: (actual: any) => {
             expect(actual.uri).to.match(/^mongodb:\/\/127.0.0.1:27091/);
-            expect(actual.driver.name).to.equal('nodejs');
+            expect(actual.driver.name).to.equal('mongodb-js');
           },
         },
         {
@@ -358,7 +358,6 @@ describe('Logging and Telemetry integration', function () {
         });
       });
 
-      // eslint-disable-next-line mocha/no-setup-in-describe
       criticalPathExpectedLogs.forEach((expected, i) => {
         // Adding a number because some of the expected messages are duplicates,
         // resulting in duplicate test names.

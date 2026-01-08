@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **Mongodb Compass**.
-This document was automatically generated on Sun Jan 04 2026.
+This document was automatically generated on Thu Jan 08 2026.
 
 ## List of dependencies
 
@@ -107,13 +107,13 @@ This document was automatically generated on Sun Jan 04 2026.
 | **[@lezer/lr](#1443872b0ea87b0af4967c9026094e634c83118fb811349742ca05bde397412b)**                                          | 1.4.1          | MIT                                 |
 | **[@lg-chat/chat-button](#06a30c240d3ae1052c9097a80baef6e7ac821e8c3e8314c9e48e1f22628e6ecf)**                               | 0.2.0          | Apache-2.0                          |
 | **[@lg-chat/chat-window](#9439c5d511476417d59be21dff39b9cef66667285f3ebf3f7dabf55b6243f16d)**                               | 6.0.0          | Apache-2.0                          |
-| **[@lg-chat/input-bar](#1b4422edb08e3c256b882793fdc0a518573a74190ba0d6ce1e386a337d90b8bf)**                                 | 12.1.1         | Apache-2.0                          |
+| **[@lg-chat/input-bar](#28ef9f5536495c40e395a886f275300432dc44d798a4eeb63c5b6dea11f72807)**                                 | 12.2.0         | Apache-2.0                          |
 | **[@lg-chat/leafygreen-chat-provider](#a8334490cacefebae9b468ca1a993aa2f405dd31ef5fc79cdb92954e21201d3f)**                  | 6.0.0          | Apache-2.0                          |
 | **[@lg-chat/lg-markdown](#22e0e8e88532c4afff94a41748986e78485a156f8b5133eb1b6dce1336c51e14)**                               | 5.0.2          | Apache-2.0                          |
 | **[@lg-chat/message-feedback](#64afd2dab8ad40e7b32ec2b108cf61ee0f6f4a95f3f23bf220f7d814c1e6b3cd)**                          | 9.0.1          | Apache-2.0                          |
 | **[@lg-chat/message-prompts](#3419799a6283ae5492122b2c4f8c04855e276e017d89dd3b75ffeb03a03f1d3c)**                           | 4.2.0          | Apache-2.0                          |
 | **[@lg-chat/message-rating](#0fc2ef43e50a01aaa9e82bd660485b1659aad18662cf7000827d6b2c0844fa17)**                            | 7.1.0          | Apache-2.0                          |
-| **[@lg-chat/message](#6cc21845779b1afc5b7ae38e2bf2cae1ccc9ce6c2aa9a3e16632e75b9ebb1e12)**                                   | 10.1.2         | Apache-2.0                          |
+| **[@lg-chat/message](#ec59c7f145aee58b30de779e4ad4544aba0a18a258a0e48a4eb2840bced8706f)**                                   | 10.2.0         | Apache-2.0                          |
 | **[@lg-chat/rich-links](#42c0b3859a81d73908c76a37f04e69c8a14dafcdee5e54623643d686ed87ead8)**                                | 4.0.7          | Apache-2.0                          |
 | **[@lg-chat/title-bar](#8b204f531be9167158b7ade91b872ccddeef8b3499ac0af3d8cc34f75fa352d0)**                                 | 5.0.1          | Apache-2.0                          |
 | **[@lukeed/uuid](#82700fba068def47ea9842f28d700a387f59da805f74a6ed10a5eb7eece4cdab)**                                       | 2.0.1          | MIT                                 |
@@ -225,7 +225,7 @@ This document was automatically generated on Sun Jan 04 2026.
 | **[cookie-signature](#c34745e22d9cb7780483441cd3d34efff81714675558c13ce856e7e94aa640f3)**                                   | 1.2.2          | MIT                                 |
 | **[cookie](#6fffbd43d8f0d9a659c21e31a0935f0a1226c9990be593a9649dcd61e4db1204)**                                             | 0.7.1          | MIT                                 |
 | **[core-js](#2d0305d15eab4ad23db10b97faf9d8e8e0d5ad30a616c5892d1edd535d8a08c8)**                                            | 3.17.3         | MIT                                 |
-| **[cpu-features](#fa992e00865a6ed732ac63bbf64c89ee2da4ec39944684e6002a3a34b5adb65c)**                                       | 0.0.9          | MIT                                 |
+| **[cpu-features](#5cc8a81a046950da99f4224ebaf7f620dad62a61362f6cc5e8629aebf7d59094)**                                       | 0.0.10         | MIT                                 |
 | **[crelt](#806aff03b8ffaac07d96530102f540d10d005fc2cedb14e55e25e1bbd78a12a8)**                                              | 1.0.6          | MIT                                 |
 | **[cross-fetch](#a20c045c29ed2b3df6d5165307a9aeb0ed2d67089b57f716fdc3dd82d9c40bc7)**                                        | 3.2.0          | MIT                                 |
 | **[css-loader](#36a5fb6f554559a2f884527f4dd7aa81131ccc3b1aee899472cfec2eda765798)**                                         | 4.3.0          | MIT                                 |
@@ -276,6 +276,7 @@ This document was automatically generated on Sun Jan 04 2026.
 | **[extend](#ae97d7c14998a815a0e454892978d9dc4459fec4bd2082e62166ca0010795397)**                                             | 3.0.2          | MIT                                 |
 | **[facepaint](#7f6881dbbff5f35b8670063d56384fa880a5558aeaf952f1dc00997cfc7cddd4)**                                          | 1.2.1          | MIT                                 |
 | **[fast-deep-equal](#c3b1bc7fbf8bedbac237ffb2eb2aa967bc264fc393bb6451c52a831352540d09)**                                    | 2.0.1          | MIT                                 |
+| **[fast-deep-equal](#60db03f2d9496a0b9ae959899afa824927ba0b591f97c193aa8b0c67acc710e6)**                                    | 3.1.3          | MIT                                 |
 | **[fast-fifo](#73dd6ac73a7cdba7975f1bcbad3ee41c32161f9140482245cbd1175f366d5fd3)**                                          | 1.3.2          | MIT                                 |
 | **[fast-memoize](#f613a3ea5150bd2496e9eb6f15357579eb3ec308a8ee91cdafce0d68ffef289b)**                                       | 2.5.2          | MIT                                 |
 | **[fast-xml-parser](#ebbe8cacbca0e6da2c884ade309dddffc2df1cf8f3532ffda03e31aa6d3a9a3b)**                                    | 4.4.1          | MIT                                 |
@@ -342,7 +343,7 @@ This document was automatically generated on Sun Jan 04 2026.
 | **[json5](#16281c6ea25e0cec4bc0bb8c01d1759d66992776381bf9c5af6959bec47d2f77)**                                              | 2.2.3          | MIT                                 |
 | **[jsondiffpatch](#5c3e668cdb0fba6c68f3293461effa0c2a91f6806c1df799731381f9936b43c2)**                                      | 0.7.3          | MIT                                 |
 | **[jsonfile](#1504ddbe5031429f6d90bb02373b4629ff5da9ef4e869d5015ff42f685817e74)**                                           | 6.1.0          | MIT                                 |
-| **[kerberos](#ca3c5608522e29e5bb1448cbc98ecd22ae59e194adfeb8c882448b88d2c2c45d)**                                           | 2.2.1          | Apache-2.0                          |
+| **[kerberos](#8a37f60cb8e7212c7829a2457fa64a519f157c353c26a9ffc72e45609cedfad1)**                                           | 2.2.2          | Apache-2.0                          |
 | **[key-tree-store](#63e3bcb8e06ac6b9f7c153030ce57fad6e985a0cc7f0109d3fc6073192a932f8)**                                     | 1.3.0          | MIT                                 |
 | **[keytar](#752f1130bbd6c5dc941bdb20fb39579c1d350252a112c58f2558b7c5f536d6f7)**                                             | 7.9.0          | MIT                                 |
 | **[leaflet-defaulticon-compatibility](#7fba582082c899d764d8e4214d2f6f06cd043b2dce51598ec24ce299f5640a6e)**                  | 0.1.1          | BSD-2-Clause                        |
@@ -351,7 +352,8 @@ This document was automatically generated on Sun Jan 04 2026.
 | **[lodash-es](#a591ea211f9167d2f80166d42532d3c01f7843fafac380deb0bcf693cdf6fa1d)**                                          | 4.17.21        | MIT                                 |
 | **[lodash.merge](#996e40d63a94f1b8693d7c81e0cdfb874c6432d6bbd675976fc1b6b13652c8db)**                                       | 4.6.2          | MIT                                 |
 | **[lodash](#adaac4144887ebc2c1b682380ff385210f681fc58b4bc1ef3986148cf8dcd28a)**                                             | 4.17.21        | MIT                                 |
-| **[lru-cache](#10c5739147749b9d7134807a14c5667fe20576f24b327fc73f216b03a78a6052)**                                          | 11.2.2         | ISC                                 |
+| **[lottie-web](#1f97ad7c365ecbd3628b72df96e42dada0d2e9a4aa6d79b66e93911bdebb6ccd)**                                         | 5.13.0         | MIT                                 |
+| **[lru-cache](#d3f4eb0c34032c928ffe57f82a029cc3803fec746ffa57386e0c93259cd4bd82)**                                          | 11.2.4         | BlueOak-1.0.0                       |
 | **[lru-cache](#fe7f0a2f2cf4c92f13c3a2a63f14f80f20f6919979306dc054e4f947c1234651)**                                          | 5.1.1          | ISC                                 |
 | **[math-intrinsics](#f585fed67bcee1ccc26f6fd0010ab256b0e752435b26949a15143b03495a11d9)**                                    | 1.1.0          | MIT                                 |
 | **[mdast-util-definitions](#906c46bd62e5d0bb51c7e5e1dbcd2c7385ca236a34a90348bd470966f289b4b4)**                             | 5.1.2          | MIT                                 |
@@ -393,20 +395,20 @@ This document was automatically generated on Sun Jan 04 2026.
 | **[mongodb-cloud-info](#5437e58440df6b1fefae8943353daf4f333e29974720113bcddd634c6bcc3f75)**                                 | 2.1.7          | Apache-2.0                          |
 | **[mongodb-connection-string-url](#2e1146256a89ebd24e3398881e03807fe363d58444e6b7952ea50bd6108707bc)**                      | 3.0.1          | Apache-2.0                          |
 | **[mongodb-connection-string-url](#1fd70d8a07ac5222eca41b7f648d7e56e854e4947d54123daeca8614d050a545)**                      | 3.0.2          | Apache-2.0                          |
-| **[mongodb-log-writer](#985aaa38a9ce4a6f192fbd3fba7f9a713cf11718348d09268e92b363cfa0067f)**                                 | 2.4.4          | Apache-2.0                          |
+| **[mongodb-log-writer](#43b453c1e7e71ec0e775dd6c05d9e651306812e7b0a3db7d2dc296747e6d8daf)**                                 | 2.5.4          | Apache-2.0                          |
 | **[mongodb-ns](#1cd7eed8e558e278003bafc11ef70f899d5d7c2e4e604a3223e4fa11a0f85fa7)**                                         | 3.0.1          | Apache-2.0                          |
 | **[mongodb-ns](#15cc8a3da3a5e870e2d1230562cb9b6bbacd596d19d09daf5ad4d7bdbe331fa1)**                                         | 3.0.3          | Apache-2.0                          |
 | **[mongodb-query-parser](#d817d4187ec55ec7bda7f42ef2f56810a590ea061120a9b448c499b4a36ce7af)**                               | 4.6.0          | Apache-2.0                          |
 | **[mongodb-redact](#6e144657052b14482fcf7c46948b75815e885a6a92d9770bf29d479ba3188617)**                                     | 1.1.8          | Apache-2.0                          |
 | **[mongodb-schema](#d52daffa6d61460e3150193a605979139808c9c73332354e1a27d0d4619a5bcd)**                                     | 12.6.3         | Apache-2.0                          |
-| **[mongodb](#6ccc8437faa6b7dd23d9b92f07f505450a6274463303eb7bb08af9943163ff9a)**                                            | 6.19.0         | Apache-2.0                          |
+| **[mongodb](#4885a82f78bbf987a4dbdf2428ebec7a4e92ede5a15520b37e57338ab6a17d3c)**                                            | 6.21.0         | Apache-2.0                          |
 | **[ms](#2083576c5af8054927640b4788059806d07e250a26066c9ccb2d928394fb9226)**                                                 | 2.1.3          | MIT                                 |
 | **[napi-build-utils](#4446cbf58ee41dfc4c30b35af90a053cab7e15fcc9736c67a43265eeef531372)**                                   | 2.0.0          | MIT                                 |
 | **[native-machine-id](#906056a6d58d5df99105901c8c819d7534e7035561494eadf8ab0b48d4e0c418)**                                  | 0.1.2          | Apache-2.0                          |
 | **[negotiator](#617fa350c7c0fe851efe2301be0dfe1e0a38808562f7dbd2e655d30b17730ccc)**                                         | 1.0.0          | MIT                                 |
 | **[netmask](#2bd5b8ff7fab9adace6c38d3fd32e7328484939fdd07836635b0155d0afc35b2)**                                            | 2.0.2          | MIT                                 |
 | **[node-abi](#8439498b871b0967513772928c8dcf9a61a3eda72f10609e7d521a6996ea0726)**                                           | 4.24.0         | MIT                                 |
-| **[node-addon-api](#75c2a47526765afc024a6641ec7b1b37935dc672a211ebdd9773d74bc43a95b4)**                                     | 6.1.0          | MIT                                 |
+| **[node-addon-api](#af9f7588524ca4e68f4efe7b24aea46d9c8004263b1d7cf3b558f86d87a163e8)**                                     | 4.3.0          | MIT                                 |
 | **[node-cache](#7facc0b98aa570bf195800a761cbe85a8d5b639a49d16be0162f589f86ab6f4e)**                                         | 5.1.2          | MIT                                 |
 | **[node-domexception](#3c25065fd2bc1b6b56856e30ac5b8f34ddae33ca87b225854f8d855b0ccabfbe)**                                  | 1.0.0          | MIT                                 |
 | **[node-fetch](#364527ef1b51cc6ac34872b931049c9e25b5014f9b40e3898c84e1a830e21720)**                                         | 2.6.7          | MIT                                 |
@@ -455,6 +457,7 @@ This document was automatically generated on Sun Jan 04 2026.
 | **[react-keyed-flatten-children](#594b6580588a2d4751e91fd2958d78e8b3b77efd1dc01d7e4552d958b45bbfb2)**                       | 2.2.1          | MIT                                 |
 | **[react-leaflet-draw](#d80b4b765d856cdefe411a073d3b3dde06100128005f1381b4d26d6cf53134c7)**                                 | 0.19.0         | ISC                                 |
 | **[react-leaflet](#a5fc1f0504a89a932a12c5a183b75a748207329f20af6078f926e182d55aee8d)**                                      | 2.4.0          | MIT                                 |
+| **[react-lottie-player](#eae8dfe1b6fecdba0669c6b988635cd9e11df897744a9be684616a19a9c88cef)**                                | 1.5.6          | MIT                                 |
 | **[react-markdown](#150d3f6299d6458a9a68ee91dde4c4e7d91a88fcb8a118b7b53e81b1b1e28974)**                                     | 8.0.7          | MIT                                 |
 | **[react-redux](#156f5c2e2cbbda376faae24e78cc75de697170101ff7e9d2955c0f891cffd6a8)**                                        | 8.1.3          | MIT                                 |
 | **[react-textarea-autosize](#11d7bf5e758f8c949015023743c6e09b8963c40779c57d43dbbc2de639eb5c33)**                            | 8.5.9          | MIT                                 |
@@ -471,6 +474,7 @@ This document was automatically generated on Sun Jan 04 2026.
 | **[remark-rehype](#54fbc8195e94d4a7c12b616aacdec50f6b2de1248533311872425f0fec84cc86)**                                      | 10.1.0         | MIT                                 |
 | **[reservoir](#84f8998f94ad5bd85b50458378edf3815fff553cdcabf8ced3db418f05e85ff6)**                                          | 0.1.2          | MIT                                 |
 | **[resolve-mongodb-srv](#2ae8b0c9dbe8e8c900bfaf5567bcf2af917e62fb0a24121b4d667dffbeaffa99)**                                | 1.1.5          | Apache-2.0                          |
+| **[rfdc](#254614cf47e3b568e914e632c0510d09b47b3a287cab5d1a834576511a341a2f)**                                               | 1.4.1          | MIT                                 |
 | **[router](#1b270661457a8f738b0cfe76c768fd3585c8771d04fad5f7aae1f1feed84a8da)**                                             | 2.2.0          | MIT                                 |
 | **[run-applescript](#235c737185151e246ca6c3099135f0b89a61bababb6e5b16f4444a5578eee364)**                                    | 7.0.0          | MIT                                 |
 | **[safe-buffer](#952cf236ee56e7de5ea7e772caf3e256866f9dbdffc492539c48cd8c15ac9674)**                                        | 5.2.1          | MIT                                 |
@@ -501,7 +505,7 @@ This document was automatically generated on Sun Jan 04 2026.
 | **[space-separated-tokens](#9b48fc080c7093651a07b66f349e7adefab08e5b65c63eed171352c38d6bd762)**                             | 2.0.2          | MIT                                 |
 | **[sparse-bitfield](#0cbcf2cac3ff859d288ae5ffc2c793bbd2430b120f5930bd09b6dba7259086d7)**                                    | 3.0.3          | MIT                                 |
 | **[sprintf-js](#d8b6ff1ba6436283de681a756ad453428005e61986c5113a3a8088ced2b36eb7)**                                         | 1.1.3          | BSD-3-Clause                        |
-| **[ssh2](#caa88a7f6fedc946b33fe4cdcd84104598cca8b841b593d1ffb031578cd3d8c9)**                                               | 1.15.0         | MIT                                 |
+| **[ssh2](#93a456b00d0854244fabe1d5f5fd42fa38d0528630795c8c9a1d478b6960b80e)**                                               | 1.17.0         | MIT                                 |
 | **[statuses](#a347e5a1994ef74647a2af80f58030a572f71173d5c1dfc0ce6eb55f4005b17d)**                                           | 2.0.1          | MIT                                 |
 | **[statuses](#d39841e95558c32cf23fd38bbb45e971edc4b3c907e806a9528a1e5b7b5075de)**                                           | 2.0.2          | MIT                                 |
 | **[stream-chain](#dbe4594ad347bd2850f84bc41ea7ed1f0bebb82c38b9e7e0f6820d1c071e534c)**                                       | 2.2.5          | BSD-3-Clause                        |
@@ -530,6 +534,7 @@ This document was automatically generated on Sun Jan 04 2026.
 | **[toidentifier](#2067d1f99d35f28c8384d3e9762282f3c2ded0041392af855caf28ba2209bd2a)**                                       | 1.0.1          | MIT                                 |
 | **[tr46](#a94418e116fb43931c49abb9cd596d6814a55956c3d0d11b7e225592b9977197)**                                               | 0.0.3          | MIT                                 |
 | **[tr46](#73a239b431778fd3a06957f11cd6de530a4ba35ca946f8656f46e02228113c2b)**                                               | 4.1.1          | MIT                                 |
+| **[tr46](#4feee99112f5c98ed690b06fef9805b3626bef43e424319f97ca7dc48c928206)**                                               | 5.1.1          | MIT                                 |
 | **[trim-lines](#b8821b7e3d26af9ce54e21c7b881372d4325dc51a4f7f92ff34b7d204ebb7171)**                                         | 3.0.1          | MIT                                 |
 | **[trough](#fd49cc565505cf8e34adceca71f8f797aea35abbeaa869d478ce92d8d0ed896b)**                                             | 2.2.0          | MIT                                 |
 | **[tslib](#c5fc5d0adaeec50d156fc1f9a16cbca801bfb431eb78f3647a1237a0e239ae35)**                                              | 2.6.2          | 0BSD                                |
@@ -566,6 +571,7 @@ This document was automatically generated on Sun Jan 04 2026.
 | **[webidl-conversions](#cb7c681998e7ee3c598e6e37432bcf448946924eefe816636c3cb122bae46e1c)**                                 | 7.0.0          | BSD-2-Clause                        |
 | **[webpack](#f66671b8e46562985e59ddc3aa94074fbb7ff42d11a9be5292d5adff9a8c14e0)**                                            | 5.102.1        | MIT                                 |
 | **[whatwg-url](#3a968d9d3fed498fc1edf2f65459cc89b6a2fea277b5c9b5c3f3a0b41390835a)**                                         | 13.0.0         | MIT                                 |
+| **[whatwg-url](#17a00d3c2cc51711db5016df22cecd190a597149966f4d3d0539457d982f2c68)**                                         | 14.2.0         | MIT                                 |
 | **[whatwg-url](#cd3f81c4a0fd856ab1d9c9fc99c1d7eaf2c12c4867b218e9901e5020a1ffcd85)**                                         | 5.0.0          | MIT                                 |
 | **[winreg-ts](#b1df7eee15fa28ae85b9086513c8316c08a21c254e8eda11e63c6321a03ac4a7)**                                          | 1.0.4          | BSD-2-Clause                        |
 | **[wrappy](#13cebf193d7ada5ee347b9ae819b96f5e6da21f9b53e7f268c7703b686158595)**                                             | 1.0.2          | ISC                                 |
@@ -7723,9 +7729,9 @@ License files:
          See the License for the specific language governing permissions and
          limitations under the License.
 
-<a id="1b4422edb08e3c256b882793fdc0a518573a74190ba0d6ce1e386a337d90b8bf"></a>
+<a id="28ef9f5536495c40e395a886f275300432dc44d798a4eeb63c5b6dea11f72807"></a>
 
-### [@lg-chat/input-bar](https://www.npmjs.com/package/@lg-chat/input-bar) (version 12.1.1)
+### [@lg-chat/input-bar](https://www.npmjs.com/package/@lg-chat/input-bar) (version 12.2.0)
 
 License tags: Apache-2.0
 
@@ -8929,9 +8935,9 @@ License files:
          See the License for the specific language governing permissions and
          limitations under the License.
 
-<a id="6cc21845779b1afc5b7ae38e2bf2cae1ccc9ce6c2aa9a3e16632e75b9ebb1e12"></a>
+<a id="ec59c7f145aee58b30de779e4ad4544aba0a18a258a0e48a4eb2840bced8706f"></a>
 
-### [@lg-chat/message](https://www.npmjs.com/package/@lg-chat/message) (version 10.1.2)
+### [@lg-chat/message](https://www.npmjs.com/package/@lg-chat/message) (version 10.2.0)
 
 License tags: Apache-2.0
 
@@ -21661,9 +21667,9 @@ License files:
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
       THE SOFTWARE.
 
-<a id="fa992e00865a6ed732ac63bbf64c89ee2da4ec39944684e6002a3a34b5adb65c"></a>
+<a id="5cc8a81a046950da99f4224ebaf7f620dad62a61362f6cc5e8629aebf7d59094"></a>
 
-### [cpu-features](https://www.npmjs.com/package/cpu-features) (version 0.0.9)
+### [cpu-features](https://www.npmjs.com/package/cpu-features) (version 0.0.10)
 
 License tags: MIT
 
@@ -23281,6 +23287,38 @@ License tags: MIT
 <a id="c3b1bc7fbf8bedbac237ffb2eb2aa967bc264fc393bb6451c52a831352540d09"></a>
 
 ### [fast-deep-equal](https://www.npmjs.com/package/fast-deep-equal) (version 2.0.1)
+
+License tags: MIT
+
+License files:
+
+- LICENSE:
+
+      MIT License
+
+      Copyright (c) 2017 Evgeny Poberezkin
+
+      Permission is hereby granted, free of charge, to any person obtaining a copy
+      of this software and associated documentation files (the "Software"), to deal
+      in the Software without restriction, including without limitation the rights
+      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+      copies of the Software, and to permit persons to whom the Software is
+      furnished to do so, subject to the following conditions:
+
+      The above copyright notice and this permission notice shall be included in all
+      copies or substantial portions of the Software.
+
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+      SOFTWARE.
+
+<a id="60db03f2d9496a0b9ae959899afa824927ba0b591f97c193aa8b0c67acc710e6"></a>
+
+### [fast-deep-equal](https://www.npmjs.com/package/fast-deep-equal) (version 3.1.3)
 
 License tags: MIT
 
@@ -25515,9 +25553,9 @@ License files:
       OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
        ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-<a id="ca3c5608522e29e5bb1448cbc98ecd22ae59e194adfeb8c882448b88d2c2c45d"></a>
+<a id="8a37f60cb8e7212c7829a2457fa64a519f157c353c26a9ffc72e45609cedfad1"></a>
 
-### [kerberos](https://www.npmjs.com/package/kerberos) (version 2.2.1)
+### [kerberos](https://www.npmjs.com/package/kerberos) (version 2.2.2)
 
 License tags: Apache-2.0
 
@@ -26036,31 +26074,103 @@ License files:
       licenses; we recommend you read them, as their terms may differ from the
       terms above.
 
-<a id="10c5739147749b9d7134807a14c5667fe20576f24b327fc73f216b03a78a6052"></a>
+<a id="1f97ad7c365ecbd3628b72df96e42dada0d2e9a4aa6d79b66e93911bdebb6ccd"></a>
 
-### [lru-cache](https://www.npmjs.com/package/lru-cache) (version 11.2.2)
+### [lottie-web](https://www.npmjs.com/package/lottie-web) (version 5.13.0)
 
-License tags: ISC
+License tags: MIT
 
 License files:
 
-- LICENSE:
+- LICENSE.md:
 
-      The ISC License
+      The MIT License (MIT)
 
-      Copyright (c) 2010-2023 Isaac Z. Schlueter and Contributors
+      Copyright (c) 2015 Bodymovin
 
-      Permission to use, copy, modify, and/or distribute this software for any
-      purpose with or without fee is hereby granted, provided that the above
-      copyright notice and this permission notice appear in all copies.
+      Permission is hereby granted, free of charge, to any person obtaining a copy
+      of this software and associated documentation files (the "Software"), to deal
+      in the Software without restriction, including without limitation the rights
+      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+      copies of the Software, and to permit persons to whom the Software is
+      furnished to do so, subject to the following conditions:
 
-      THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
-      WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
-      MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
-      ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
-      WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
-      ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
-      IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+      The above copyright notice and this permission notice shall be included in all
+      copies or substantial portions of the Software.
+
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+      SOFTWARE.
+
+<a id="d3f4eb0c34032c928ffe57f82a029cc3803fec746ffa57386e0c93259cd4bd82"></a>
+
+### [lru-cache](https://www.npmjs.com/package/lru-cache) (version 11.2.4)
+
+License tags: BlueOak-1.0.0
+
+License files:
+
+- LICENSE.md:
+
+      # Blue Oak Model License
+
+      Version 1.0.0
+
+      ## Purpose
+
+      This license gives everyone as much permission to work with
+      this software as possible, while protecting contributors
+      from liability.
+
+      ## Acceptance
+
+      In order to receive this license, you must agree to its
+      rules.  The rules of this license are both obligations
+      under that agreement and conditions to your license.
+      You must not do anything with this software that triggers
+      a rule that you cannot or will not follow.
+
+      ## Copyright
+
+      Each contributor licenses you to do everything with this
+      software that would otherwise infringe that contributor's
+      copyright in it.
+
+      ## Notices
+
+      You must ensure that everyone who gets a copy of
+      any part of this software from you, with or without
+      changes, also gets the text of this license or a link to
+      <https://blueoakcouncil.org/license/1.0.0>.
+
+      ## Excuse
+
+      If anyone notifies you in writing that you have not
+      complied with [Notices](#notices), you can keep your
+      license by taking all practical steps to comply within 30
+      days after the notice.  If you do not do so, your license
+      ends immediately.
+
+      ## Patent
+
+      Each contributor licenses you to do everything with this
+      software that would otherwise infringe any patent claims
+      they can license or become able to license.
+
+      ## Reliability
+
+      No contributor can revoke this license.
+
+      ## No Liability
+
+      ***As far as the law allows, this software comes as is,
+      without any warranty or condition, and no contributor
+      will be liable to anyone for any damages related to this
+      software or this license, under any kind of legal claim.***
 
 <a id="fe7f0a2f2cf4c92f13c3a2a63f14f80f20f6919979306dc054e4f947c1234651"></a>
 
@@ -27738,9 +27848,9 @@ License files:
          See the License for the specific language governing permissions and
          limitations under the License.
 
-<a id="985aaa38a9ce4a6f192fbd3fba7f9a713cf11718348d09268e92b363cfa0067f"></a>
+<a id="43b453c1e7e71ec0e775dd6c05d9e651306812e7b0a3db7d2dc296747e6d8daf"></a>
 
-### [mongodb-log-writer](https://www.npmjs.com/package/mongodb-log-writer) (version 2.4.4)
+### [mongodb-log-writer](https://www.npmjs.com/package/mongodb-log-writer) (version 2.5.4)
 
 License tags: Apache-2.0
 
@@ -29010,9 +29120,9 @@ License files:
          See the License for the specific language governing permissions and
          limitations under the License.
 
-<a id="6ccc8437faa6b7dd23d9b92f07f505450a6274463303eb7bb08af9943163ff9a"></a>
+<a id="4885a82f78bbf987a4dbdf2428ebec7a4e92ede5a15520b37e57338ab6a17d3c"></a>
 
-### [mongodb](https://www.npmjs.com/package/mongodb) (version 6.19.0)
+### [mongodb](https://www.npmjs.com/package/mongodb) (version 6.21.0)
 
 License tags: Apache-2.0
 
@@ -29560,9 +29670,9 @@ License files:
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
       SOFTWARE.
 
-<a id="75c2a47526765afc024a6641ec7b1b37935dc672a211ebdd9773d74bc43a95b4"></a>
+<a id="af9f7588524ca4e68f4efe7b24aea46d9c8004263b1d7cf3b558f86d87a163e8"></a>
 
-### [node-addon-api](https://www.npmjs.com/package/node-addon-api) (version 6.1.0)
+### [node-addon-api](https://www.npmjs.com/package/node-addon-api) (version 4.3.0)
 
 License tags: MIT
 
@@ -37157,6 +37267,38 @@ License files:
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
       SOFTWARE.
 
+<a id="eae8dfe1b6fecdba0669c6b988635cd9e11df897744a9be684616a19a9c88cef"></a>
+
+### [react-lottie-player](https://www.npmjs.com/package/react-lottie-player) (version 1.5.6)
+
+License tags: MIT
+
+License files:
+
+- LICENSE:
+
+      MIT License
+
+      Copyright (c) 2020 Mikael Finstad
+
+      Permission is hereby granted, free of charge, to any person obtaining a copy
+      of this software and associated documentation files (the "Software"), to deal
+      in the Software without restriction, including without limitation the rights
+      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+      copies of the Software, and to permit persons to whom the Software is
+      furnished to do so, subject to the following conditions:
+
+      The above copyright notice and this permission notice shall be included in all
+      copies or substantial portions of the Software.
+
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+      SOFTWARE.
+
 <a id="150d3f6299d6458a9a68ee91dde4c4e7d91a88fcb8a118b7b53e81b1b1e28974"></a>
 
 ### [react-markdown](https://www.npmjs.com/package/react-markdown) (version 8.0.7)
@@ -37869,6 +38011,32 @@ License files:
          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
          See the License for the specific language governing permissions and
          limitations under the License.
+
+<a id="254614cf47e3b568e914e632c0510d09b47b3a287cab5d1a834576511a341a2f"></a>
+
+### [rfdc](https://www.npmjs.com/package/rfdc) (version 1.4.1)
+
+License tags: MIT
+
+License files:
+
+- LICENSE:
+
+      Copyright 2019 "David Mark Clements <david.mark.clements@gmail.com>"
+
+      Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+      documentation files (the "Software"), to deal in the Software without restriction, including without limitation
+      the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and
+      to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+      The above copyright notice and this permission notice shall be included in all copies or substantial portions
+      of the Software.
+
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED
+      TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+      THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
+      CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+      IN THE SOFTWARE.
 
 <a id="1b270661457a8f738b0cfe76c768fd3585c8771d04fad5f7aae1f1feed84a8da"></a>
 
@@ -38938,9 +39106,9 @@ License files:
       (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
       SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-<a id="caa88a7f6fedc946b33fe4cdcd84104598cca8b841b593d1ffb031578cd3d8c9"></a>
+<a id="93a456b00d0854244fabe1d5f5fd42fa38d0528630795c8c9a1d478b6960b80e"></a>
 
-### [ssh2](https://www.npmjs.com/package/ssh2) (version 1.15.0)
+### [ssh2](https://www.npmjs.com/package/ssh2) (version 1.17.0)
 
 License tags: MIT
 
@@ -40126,6 +40294,38 @@ License tags: MIT
 <a id="73a239b431778fd3a06957f11cd6de530a4ba35ca946f8656f46e02228113c2b"></a>
 
 ### [tr46](https://www.npmjs.com/package/tr46) (version 4.1.1)
+
+License tags: MIT
+
+License files:
+
+- LICENSE.md:
+
+      The MIT License (MIT)
+
+      Copyright (c) Sebastian Mayr
+
+      Permission is hereby granted, free of charge, to any person obtaining a copy
+      of this software and associated documentation files (the "Software"), to deal
+      in the Software without restriction, including without limitation the rights
+      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+      copies of the Software, and to permit persons to whom the Software is
+      furnished to do so, subject to the following conditions:
+
+      The above copyright notice and this permission notice shall be included in all
+      copies or substantial portions of the Software.
+
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+      SOFTWARE.
+
+<a id="4feee99112f5c98ed690b06fef9805b3626bef43e424319f97ca7dc48c928206"></a>
+
+### [tr46](https://www.npmjs.com/package/tr46) (version 5.1.1)
 
 License tags: MIT
 
@@ -41771,6 +41971,38 @@ License files:
 <a id="3a968d9d3fed498fc1edf2f65459cc89b6a2fea277b5c9b5c3f3a0b41390835a"></a>
 
 ### [whatwg-url](https://www.npmjs.com/package/whatwg-url) (version 13.0.0)
+
+License tags: MIT
+
+License files:
+
+- LICENSE.txt:
+
+      The MIT License (MIT)
+
+      Copyright (c) Sebastian Mayr
+
+      Permission is hereby granted, free of charge, to any person obtaining a copy
+      of this software and associated documentation files (the "Software"), to deal
+      in the Software without restriction, including without limitation the rights
+      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+      copies of the Software, and to permit persons to whom the Software is
+      furnished to do so, subject to the following conditions:
+
+      The above copyright notice and this permission notice shall be included in
+      all copies or substantial portions of the Software.
+
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+      THE SOFTWARE.
+
+<a id="17a00d3c2cc51711db5016df22cecd190a597149966f4d3d0539457d982f2c68"></a>
+
+### [whatwg-url](https://www.npmjs.com/package/whatwg-url) (version 14.2.0)
 
 License tags: MIT
 
