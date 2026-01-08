@@ -19,7 +19,7 @@ JSON_CONTENT=$( jq -n \
   '{version: $id, bucket_key_prefix: $key}'
 )
 
-URL="https://${EVERGREEN_BUCKET_NAME}.s3.amazonaws.com/compass/dev/$1"
+URL="https://s3.amazonaws.com/downloads.10gen.com/compass/dev/$1"
 DATA=$(curl -sf "${URL}" || echo "$JSON_CONTENT")
 CURRENT_VERSION=$(echo "$DATA" | jq -r '.version')
 
