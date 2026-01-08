@@ -49,6 +49,8 @@ variables:
     DOWNLOAD_CENTER_NEW_AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
     DOWNLOAD_CENTER_NEW_AWS_SESSION_TOKEN: ${AWS_SESSION_TOKEN}
     EVERGREEN_BUCKET_NAME: ${__default_bucket}
+    EVERGREEN_AWS_ACCESS_KEY_ID: ${aws_key}
+    EVERGREEN_AWS_SECRET_ACCESS_KEY: ${aws_secret}
     EVERGREEN_BUCKET_KEY_PREFIX: ${revision}_${revision_order_id}
     MONGODB_RUNNER_LOG_DIR: ${workdir}/src/.testserver/
     DOCKERHUB_USERNAME: ${dockerhub_username}

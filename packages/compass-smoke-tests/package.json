@@ -35,6 +35,7 @@
     "@mongodb-js/prettier-config-compass": "^1.2.9",
     "@mongodb-js/tsconfig-compass": "^1.2.13",
     "@types/node": "^20",
+    "aws-sdk": "^2.1692.0",
     "compass-e2e-tests": "^1.49.0",
     "depcheck": "^1.4.1",
     "debug": "^4.3.4",

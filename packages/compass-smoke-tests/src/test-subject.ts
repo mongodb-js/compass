@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
+import S3 from 'aws-sdk/clients/s3';
 
 import { type SmokeTestsContextWithSandbox } from './context';
 
@@ -10,6 +11,22 @@ import {
   writeAndReadPackageDetails,
 } from './build-info';
 import { downloadFile } from './downloads';
+
+function getAwsCredentials() {
+  const keys = [
+    'EVERGREEN_AWS_ACCESS_KEY_ID',
+    'EVERGREEN_AWS_SECRET_ACCESS_KEY',
+  ] as const;
+  for (const key of keys) {
+    if (!process.env[key]) {
+      throw new Error(`${key} is not set`);
+    }
+  }
+  return {
+    accessKeyId: process.env.EVERGREEN_AWS_ACCESS_KEY_ID!,
+    secretAccessKey: process.env.EVERGREEN_AWS_SECRET_ACCESS_KEY!,
+  };
+}
 
 type TestSubjectDetails = PackageDetails & {
   /**
@@ -70,8 +87,17 @@ export async function getTestSubject(
       'Bucket name and key prefix are needed to download'
     );
 
+    const s3Client = new S3({
+      credentials: getAwsCredentials(),
+    });
+    const url = s3Client.getSignedUrl('getObject', {
+      Bucket: context.bucketName,
+      Key: `${context.bucketKeyPrefix}/${subject.filename}`,
+      Expires: 60 * 5, // 5 minutes
+    });
+
     const filepath = await downloadFile({
-      url: `https://${context.bucketName}.s3.amazonaws.com/${context.bucketKeyPrefix}/${subject.filename}`,
+      url,
       targetFilename: subject.filename,
       clearCache: context.forceDownload,
     });
