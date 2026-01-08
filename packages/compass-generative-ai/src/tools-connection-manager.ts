@@ -92,7 +92,7 @@ To connect, choose a connection from Compass's connection sidebar - https://www.
 
     if (isAtlasStream(connectParams.connectionString)) {
       this.logger.warning({
-        id: { __value: 1_001_000_413 },
+        id: mongoLogId(1_001_000_413),
         context: 'compass-tools-connection-manager',
         message: 'Attempting a connection to an Atlas Stream.',
       });
