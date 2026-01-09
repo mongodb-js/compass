@@ -965,6 +965,17 @@ export function addCollection(
   };
 }
 
+export function applySetModelEdit(
+  model: Extract<Edit, { type: 'SetModel' }>['model']
+): DataModelingThunkAction<void, ApplyEditAction> {
+  const edit: Omit<Extract<Edit, { type: 'SetModel' }>, 'id' | 'timestamp'> = {
+    type: 'SetModel',
+    model,
+  };
+
+  return applyEdit(edit);
+}
+
 /**
  * @internal Exported for testing purposes only, use `selectCurrentModel` or
  * `selectCurrentModelFromState` instead

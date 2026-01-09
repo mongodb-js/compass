@@ -39,6 +39,7 @@ const selectAllLabelStyles = css({ lineHeight: '16px' });
 type SelectItem = {
   id: string;
   selected: boolean;
+  disabled?: boolean;
 };
 
 type SelectListProps<T extends SelectItem> = {
@@ -67,7 +68,9 @@ export function SelectList<T extends SelectItem>(
   const handleSelectAllChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       onChange(
-        items.map((item) => ({ ...item, selected: !!e.target.checked }))
+        items
+          .filter((x) => !x.disabled)
+          .map((item) => ({ ...item, selected: !!e.target.checked }))
       );
     },
     [items, onChange]
@@ -75,11 +78,13 @@ export function SelectList<T extends SelectItem>(
   const handleSelectItemChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       onChange(
-        items.map((item) =>
-          e.target.name === `select-${item.id}`
-            ? { ...item, selected: !!e.target.checked }
-            : item
-        )
+        items
+          .filter((x) => !x.disabled)
+          .map((item) =>
+            e.target.name === `select-${item.id}`
+              ? { ...item, selected: !!e.target.checked }
+              : item
+          )
       );
     },
     [items, onChange]
@@ -117,7 +122,7 @@ export function SelectList<T extends SelectItem>(
               }
               onChange={handleSelectItemChange}
               checked={item.selected}
-              disabled={disabled}
+              disabled={item.disabled || disabled}
             />
           </div>
         ))}

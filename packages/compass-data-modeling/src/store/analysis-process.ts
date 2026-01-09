@@ -2,11 +2,17 @@ import type { Reducer } from 'redux';
 import { isAction } from './util';
 import type { DataModelingThunkAction } from './reducer';
 import { analyzeDocuments, type MongoDBJSONSchema } from 'mongodb-schema';
-import { getCurrentDiagramFromState } from './diagram';
+import {
+  applySetModelEdit,
+  getCurrentDiagramFromState,
+  getCurrentModel,
+} from './diagram';
 import { UUID } from 'bson';
 import {
   DEFAULT_IS_EXPANDED,
+  type SetModelEdit,
   type Relationship,
+  type Edit,
 } from '../services/data-model-storage';
 import { applyLayout } from '@mongodb-js/compass-components';
 import {
@@ -15,6 +21,14 @@ import {
 } from '../utils/nodes-and-edges';
 import { inferForeignToLocalRelationshipsForCollection } from './relationships';
 import { mongoLogId } from '@mongodb-js/compass-logging/provider';
+import { isEqual } from 'lodash';
+
+type AnalyzedCollection = {
+  ns: string;
+  schema: MongoDBJSONSchema;
+  position: { x: number; y: number };
+  isExpanded: boolean;
+};
 
 export type AnalysisStep =
   | 'IDLE'
@@ -50,10 +64,14 @@ export const AnalysisProcessActionTypes = {
   ANALYSIS_FINISHED: 'data-modeling/analysis-stats/ANALYSIS_FINISHED',
   ANALYSIS_FAILED: 'data-modeling/analysis-stats/ANALYSIS_FAILED',
   ANALYSIS_CANCELED: 'data-modeling/analysis-stats/ANALYSIS_CANCELED',
+  REDO_ANALYSIS_FINISHED: 'data-modeling/analysis-stats/REDO_ANALYSIS_FINISHED',
+  REDO_ANALYSIS_FAILED: 'data-modeling/analysis-stats/REDO_ANALYSIS_FAILED',
+  REDO_ANALYSIS_CANCELED: 'data-modeling/analysis-stats/REDO_ANALYSIS_CANCELED',
 } as const;
 
 export type AnalysisOptions = {
   automaticallyInferRelations: boolean;
+  abortSignal?: AbortSignal;
 };
 
 export type AnalyzingCollectionsStartAction = {
@@ -83,12 +101,7 @@ export type AnalysisFinishedAction = {
   name: string;
   connectionId: string;
   database: string;
-  collections: {
-    ns: string;
-    schema: MongoDBJSONSchema;
-    position: { x: number; y: number };
-    isExpanded: boolean;
-  }[];
+  collections: AnalyzedCollection[];
   relations: Relationship[];
 };
 
@@ -101,6 +114,19 @@ export type AnalysisCanceledAction = {
   type: typeof AnalysisProcessActionTypes.ANALYSIS_CANCELED;
 };
 
+export type RedoAnalysisFinishedAction = {
+  type: typeof AnalysisProcessActionTypes.REDO_ANALYSIS_FINISHED;
+};
+
+export type RedoAnalysisFailedAction = {
+  type: typeof AnalysisProcessActionTypes.REDO_ANALYSIS_FAILED;
+  error: Error;
+};
+
+export type RedoAnalysisCanceledAction = {
+  type: typeof AnalysisProcessActionTypes.REDO_ANALYSIS_CANCELED;
+};
+
 export type AnalysisProgressActions =
   | AnalyzingCollectionsStartAction
   | NamespaceSampleFetchedAction
@@ -108,7 +134,10 @@ export type AnalysisProgressActions =
   | NamespacesRelationsInferredAction
   | AnalysisFinishedAction
   | AnalysisFailedAction
-  | AnalysisCanceledAction;
+  | AnalysisCanceledAction
+  | RedoAnalysisFinishedAction
+  | RedoAnalysisFailedAction
+  | RedoAnalysisCanceledAction;
 
 const INITIAL_STATE: AnalysisProcessState = {
   currentAnalysisOptions: null,
@@ -178,7 +207,10 @@ export const analysisProcessReducer: Reducer<AnalysisProcessState> = (
   if (
     isAction(action, AnalysisProcessActionTypes.ANALYSIS_CANCELED) ||
     isAction(action, AnalysisProcessActionTypes.ANALYSIS_FAILED) ||
-    isAction(action, AnalysisProcessActionTypes.ANALYSIS_FINISHED)
+    isAction(action, AnalysisProcessActionTypes.ANALYSIS_FINISHED) ||
+    isAction(action, AnalysisProcessActionTypes.REDO_ANALYSIS_CANCELED) ||
+    isAction(action, AnalysisProcessActionTypes.REDO_ANALYSIS_FAILED) ||
+    isAction(action, AnalysisProcessActionTypes.REDO_ANALYSIS_FINISHED)
   ) {
     return {
       ...state,
@@ -215,8 +247,8 @@ export function startAnalysis(
   name: string,
   connectionId: string,
   database: string,
-  collections: string[],
-  options: AnalysisOptions
+  dbCollections: string[],
+  options: Omit<AnalysisOptions, 'abortSignal'>
 ): DataModelingThunkAction<
   Promise<void>,
   | AnalyzingCollectionsStartAction
@@ -231,138 +263,45 @@ export function startAnalysis(
     dispatch,
     getState,
     {
-      connections,
       cancelAnalysisControllerRef,
-      logger,
       track,
-      dataModelStorage,
+      logger,
       preferences,
+      dataModelStorage,
     }
   ) => {
     // Analysis is in progress, don't start a new one unless user canceled it
     if (cancelAnalysisControllerRef.current) {
       return;
     }
-    const namespaces = collections.map((collName) => {
-      return `${database}.${collName}`;
-    });
     const cancelController = (cancelAnalysisControllerRef.current =
       new AbortController());
-    const willInferRelations =
-      preferences.getPreferences().enableAutomaticRelationshipInference &&
-      options.automaticallyInferRelations;
-    dispatch({
-      type: AnalysisProcessActionTypes.ANALYZING_COLLECTIONS_START,
-      name,
-      connectionId,
-      database,
-      collections,
-      options,
-      willInferRelations,
-    });
     try {
-      let relations: Relationship[] = [];
-      const dataService = connections.getDataServiceForConnection(connectionId);
-
-      const collections = await Promise.all(
-        namespaces.map(async (ns) => {
-          const sample = await dataService.sample(
-            ns,
-            { size: 100 },
-            { promoteValues: false },
-            {
-              abortSignal: cancelController.signal,
-              fallbackReadPreference: 'secondaryPreferred',
-            }
-          );
-
-          dispatch({
-            type: AnalysisProcessActionTypes.NAMESPACE_SAMPLE_FETCHED,
-          });
-
-          const accessor = await analyzeDocuments(sample, {
-            signal: cancelController.signal,
-          });
-
-          const schema = await accessor.getMongoDBJsonSchema({
-            signal: cancelController.signal,
-          });
-
-          dispatch({
-            type: AnalysisProcessActionTypes.NAMESPACE_SCHEMA_ANALYZED,
-          });
-
-          return { ns, schema, sample, isExpanded: DEFAULT_IS_EXPANDED };
+      const { collections, relations } = await dispatch(
+        analyzeCollections({
+          name,
+          connectionId,
+          database,
+          dbCollections,
+          options: {
+            ...options,
+            abortSignal: cancelController.signal,
+          },
         })
       );
-
-      if (willInferRelations) {
-        relations = (
-          await Promise.all(
-            collections.map(
-              async ({
-                ns,
-                schema,
-                sample,
-              }): Promise<Relationship['relationship'][]> => {
-                const relationships =
-                  await inferForeignToLocalRelationshipsForCollection(
-                    ns,
-                    schema,
-                    sample,
-                    collections,
-                    dataService,
-                    cancelController.signal,
-                    (err) => {
-                      logger.log.warn(
-                        mongoLogId(1_001_000_371),
-                        'DataModeling',
-                        'Failed to identify relationship for collection',
-                        { ns, error: err.message }
-                      );
-                    }
-                  );
-                dispatch({
-                  type: AnalysisProcessActionTypes.NAMESPACE_RELATIONS_INFERRED,
-                });
-                return relationships;
-              }
-            )
-          )
-        ).flatMap((relationships) => {
-          return relationships.map((relationship) => {
-            return {
-              id: new UUID().toHexString(),
-              relationship,
-              isInferred: true,
-            };
-          });
-        });
-      }
-
-      if (cancelController.signal.aborted) {
-        throw cancelController.signal.reason;
-      }
-
-      const positioned = await getInitialLayout({
-        collections,
-        relations,
-      });
 
       dispatch({
         type: AnalysisProcessActionTypes.ANALYSIS_FINISHED,
         name,
         connectionId,
         database,
-        collections: collections.map((coll) => {
-          const node = positioned.nodes.find((node) => {
-            return node.id === coll.ns;
-          });
-          const position = node ? node.position : { x: 0, y: 0 };
-          return { ...coll, position };
-        }),
+        collections,
         relations,
       });
+
+      const willInferRelations =
+        preferences.getPreferences().enableAutomaticRelationshipInference &&
+        options.automaticallyInferRelations;
 
       track('Data Modeling Diagram Created', {
         num_collections: collections.length,
@@ -370,7 +309,6 @@ export function startAnalysis(
           ? relations.length
           : undefined,
       });
-
       void dataModelStorage.save(getCurrentDiagramFromState(getState()));
     } catch (err) {
       if (cancelController.signal.aborted) {
@@ -424,3 +362,262 @@ export function cancelAnalysis(): DataModelingThunkAction<void, never> {
 export const selectIsAnalysisInProgress = (state: {
   analysisProgress: AnalysisProcessState;
 }): boolean => state.analysisProgress.step !== 'IDLE';
+
+export function redoAnalysis(
+  name: string,
+  connectionId: string,
+  database: string,
+  dbCollections: string[],
+  options: Omit<AnalysisOptions, 'abortSignal'>
+): DataModelingThunkAction<
+  Promise<void>,
+  | AnalyzingCollectionsStartAction
+  | NamespaceSampleFetchedAction
+  | NamespaceSchemaAnalyzedAction
+  | NamespacesRelationsInferredAction
+  | RedoAnalysisFinishedAction
+  | RedoAnalysisCanceledAction
+  | RedoAnalysisFailedAction
+> {
+  return async (
+    dispatch,
+    getState,
+    { cancelAnalysisControllerRef, logger }
+  ) => {
+    const { diagram } = getState();
+    // Analysis is in progress, don't start a new one unless user canceled it
+    if (cancelAnalysisControllerRef.current || !diagram) {
+      return;
+    }
+    const cancelController = (cancelAnalysisControllerRef.current =
+      new AbortController());
+    try {
+      const { collections, relations } = await dispatch(
+        analyzeCollections({
+          name,
+          connectionId,
+          database,
+          dbCollections,
+          options: {
+            ...options,
+            abortSignal: cancelController.signal,
+          },
+        })
+      );
+      const edits = diagram.edits.prev.pop() ?? [];
+      const model = getModelFromReanalysis(edits, collections, relations);
+      void dispatch(applySetModelEdit(model));
+      dispatch({
+        type: AnalysisProcessActionTypes.REDO_ANALYSIS_FINISHED,
+      });
+    } catch (err) {
+      if (cancelController.signal.aborted) {
+        dispatch({ type: AnalysisProcessActionTypes.REDO_ANALYSIS_CANCELED });
+      } else {
+        logger.log.error(
+          mongoLogId(1_001_000_388),
+          'DataModeling',
+          'Failed to re-analyze schema',
+          { err }
+        );
+        dispatch({
+          type: AnalysisProcessActionTypes.REDO_ANALYSIS_FAILED,
+          error: err as Error,
+        });
+      }
+    } finally {
+      cancelAnalysisControllerRef.current = null;
+    }
+  };
+}
+
+export function analyzeCollections({
+  name,
+  connectionId,
+  database,
+  dbCollections,
+  options,
+}: {
+  name: string;
+  connectionId: string;
+  database: string;
+  dbCollections: string[];
+  options: AnalysisOptions;
+}): DataModelingThunkAction<
+  Promise<{ collections: AnalyzedCollection[]; relations: Relationship[] }>,
+  | AnalyzingCollectionsStartAction
+  | NamespaceSampleFetchedAction
+  | NamespaceSchemaAnalyzedAction
+  | NamespacesRelationsInferredAction
+  | AnalysisFinishedAction
+  | AnalysisCanceledAction
+  | AnalysisFailedAction
+> {
+  return async (dispatch, _getState, { connections, logger, preferences }) => {
+    const namespaces = dbCollections.map((collName) => {
+      return `${database}.${collName}`;
+    });
+    const willInferRelations =
+      preferences.getPreferences().enableAutomaticRelationshipInference &&
+      options.automaticallyInferRelations;
+    dispatch({
+      type: AnalysisProcessActionTypes.ANALYZING_COLLECTIONS_START,
+      name,
+      connectionId,
+      database,
+      collections: dbCollections,
+      options,
+      willInferRelations,
+    });
+    let relations: Relationship[] = [];
+    const dataService = connections.getDataServiceForConnection(connectionId);
+
+    const collections = await Promise.all(
+      namespaces.map(async (ns) => {
+        const sample = await dataService.sample(
+          ns,
+          { size: 100 },
+          { promoteValues: false },
+          {
+            abortSignal: options.abortSignal,
+            fallbackReadPreference: 'secondaryPreferred',
+          }
+        );
+
+        dispatch({
+          type: AnalysisProcessActionTypes.NAMESPACE_SAMPLE_FETCHED,
+        });
+
+        const accessor = await analyzeDocuments(sample, {
+          signal: options.abortSignal,
+        });
+
+        const schema = await accessor.getMongoDBJsonSchema({
+          signal: options.abortSignal,
+        });
+
+        dispatch({
+          type: AnalysisProcessActionTypes.NAMESPACE_SCHEMA_ANALYZED,
+        });
+
+        return { ns, schema, sample, isExpanded: DEFAULT_IS_EXPANDED };
+      })
+    );
+
+    if (willInferRelations) {
+      relations = (
+        await Promise.all(
+          collections.map(
+            async ({
+              ns,
+              schema,
+              sample,
+            }): Promise<Relationship['relationship'][]> => {
+              const relationships =
+                await inferForeignToLocalRelationshipsForCollection(
+                  ns,
+                  schema,
+                  sample,
+                  collections,
+                  dataService,
+                  options.abortSignal,
+                  (err) => {
+                    logger.log.warn(
+                      mongoLogId(1_001_000_371),
+                      'DataModeling',
+                      'Failed to identify relationship for collection',
+                      { ns, error: err.message }
+                    );
+                  }
+                );
+              dispatch({
+                type: AnalysisProcessActionTypes.NAMESPACE_RELATIONS_INFERRED,
+              });
+              return relationships;
+            }
+          )
+        )
+      ).flatMap((relationships) => {
+        return relationships.map((relationship) => {
+          return {
+            id: new UUID().toHexString(),
+            relationship,
+            isInferred: true,
+          };
+        });
+      });
+    }
+
+    if (options.abortSignal?.aborted) {
+      throw options.abortSignal.reason;
+    }
+
+    const positioned = await getInitialLayout({
+      collections,
+      relations,
+    });
+
+    return {
+      collections: collections.map((coll) => {
+        const node = positioned.nodes.find((node) => {
+          return node.id === coll.ns;
+        });
+        const position = node ? node.position : { x: 0, y: 0 };
+        return { ...coll, position };
+      }),
+      relations,
+    };
+  };
+}
+
+function getModelFromReanalysis(
+  edits: Edit[],
+  collections: AnalyzedCollection[],
+  relations: Relationship[]
+) {
+  const initialSetModelEdit = edits[0]; // First one is always SetModelEdit
+  if (initialSetModelEdit.type !== 'SetModel') {
+    throw new Error('Invalid diagram');
+  }
+  const initialRelationships = initialSetModelEdit.model.relationships;
+
+  // In order to preserve the user changes, we will apply all the edits done
+  // after first SetModel.
+  const newSetModelEdit: SetModelEdit = {
+    type: 'SetModel',
+    id: new UUID().toString(),
+    timestamp: new Date().toISOString(),
+    model: {
+      collections: collections.map((collection) => ({
+        ns: collection.ns,
+        jsonSchema: collection.schema,
+        displayPosition: [
+          collection.position.x,
+          collection.position.y,
+        ] as const,
+        indexes: [],
+        shardKey: undefined,
+        isExpanded: collection.isExpanded,
+      })),
+      // When the first analysis happened, it generated a list of relationship with unique
+      // ids and any changes in relationships are tied to those ids. The relationships
+      // generated from reanalysis will have different. So we have to replace new ids
+      // with the existing ones.
+      relationships: relations.map((relation) => {
+        const existingRelation = initialRelationships.find((x) =>
+          isEqual(x.relationship, relation.relationship)
+        );
+        if (existingRelation) {
+          return {
+            ...relation,
+            id: existingRelation.id,
+          };
+        }
+        return relation;
+      }),
+    },
+  };
+
+  edits.splice(0, 1, newSetModelEdit);
+  return getCurrentModel(edits);
+}

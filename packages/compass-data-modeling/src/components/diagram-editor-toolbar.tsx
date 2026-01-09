@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { connect } from 'react-redux';
 import type { DataModelingState } from '../store/reducer';
 import { redoEdit, undoEdit } from '../store/diagram';
@@ -17,11 +17,14 @@ import {
   Breadcrumbs,
   type BreadcrumbItem,
   useHotkeys,
+  Menu,
+  MenuItem,
 } from '@mongodb-js/compass-components';
 import AddCollection from './icons/add-collection';
 import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
 import { useApplicationMenu } from '@mongodb-js/compass-electron-menu';
 import { dualSourceHandlerDebounce } from '../utils/utils';
+import { reselectCollections } from '../store/reselect-collections-wizard';
 
 const breadcrumbsStyles = css({
   padding: `${spacing[300]}px ${spacing[400]}px`,
@@ -64,6 +67,7 @@ export const DiagramEditorToolbar: React.FunctionComponent<{
   onExportClick: () => void;
   onRelationshipDrawingToggle: () => void;
   onAddCollectionClick: () => void;
+  onAddCollectionsFromDatabaseClick: () => void;
 }> = ({
   step,
   diagramName,
@@ -75,10 +79,12 @@ export const DiagramEditorToolbar: React.FunctionComponent<{
   onExportClick,
   onRelationshipDrawingToggle,
   onAddCollectionClick,
+  onAddCollectionsFromDatabaseClick,
   isInRelationshipDrawingMode,
 }) => {
   const darkmode = useDarkMode();
   const { openDataModelingWorkspace } = useOpenWorkspace();
+  const [isAddCollectionMenuOpen, setIsAddCollectionMenuOpen] = useState(false);
 
   const breadcrumbItems: [
     ...BreadcrumbItem[],
@@ -164,18 +170,42 @@ export const DiagramEditorToolbar: React.FunctionComponent<{
           >
             Redo
           </Tooltip>
-          <Tooltip
-            trigger={
-              <IconButton
-                aria-label="Add Collection"
-                onClick={onAddCollectionClick}
-              >
-                <AddCollection />
-              </IconButton>
-            }
+          <Menu
+            align="bottom"
+            justify="start"
+            open={isAddCollectionMenuOpen}
+            setOpen={setIsAddCollectionMenuOpen}
+            trigger={({ onClick }: any) => {
+              return (
+                <Tooltip
+                  trigger={
+                    <IconButton aria-label="Add Collection" onClick={onClick}>
+                      <AddCollection />
+                    </IconButton>
+                  }
+                >
+                  Add a new collection
+                </Tooltip>
+              );
+            }}
           >
-            Add a new collection
-          </Tooltip>
+            <MenuItem
+              onClick={() => {
+                setIsAddCollectionMenuOpen(false);
+                onAddCollectionClick();
+              }}
+            >
+              Add a new Collection
+            </MenuItem>
+            <MenuItem
+              onClick={() => {
+                setIsAddCollectionMenuOpen(false);
+                onAddCollectionsFromDatabaseClick();
+              }}
+            >
+              Select from database
+            </MenuItem>
+          </Menu>
           <Tooltip
             trigger={
               <IconButton
@@ -225,5 +255,6 @@ export default connect(
     onUndoClick: undoEdit,
     onRedoClick: redoEdit,
     onExportClick: showExportModal,
+    onAddCollectionsFromDatabaseClick: reselectCollections,
   }
 )(DiagramEditorToolbar);
