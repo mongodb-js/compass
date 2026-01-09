@@ -95,6 +95,8 @@ module.exports = (env, args) => {
         // ),
 
         // Things that are easier to polyfill than to deal with their usage
+        'process/browser': require.resolve('process/browser'),
+        process: localPolyfill('process'),
         stream: require.resolve('readable-stream'),
         path: require.resolve('path-browserify'),
         // The `/` so that we are resolving the installed polyfill version with
@@ -215,6 +217,36 @@ module.exports = (env, args) => {
             }
           });
         });
+      },
+
+      /**
+       * Plug into the normalModuleFactory to remove the `node:` schema from
+       * imports: webpack doesn't handle node: schema for web and doesn't allow
+       * to alias imports with the schema so we clean them up before we can get
+       * to the aliasing flow.
+       *
+       * @see {@link https://github.com/webpack/webpack/issues/14166}
+       */
+      function (compiler) {
+        compiler.hooks.normalModuleFactory.tap(
+          'RemoveNodeSchemaPlugin',
+          (factory) => {
+            factory.hooks.beforeResolve.tap(
+              'RemoveNodeSchemaPlugin',
+              (data) => {
+                // Remove the `node:` prefix and allow a "normal" webpack
+                // resolution mechanism to do the rest
+                if (data.request.startsWith('node:')) {
+                  data.request = data.request.replace('node:', '');
+                  for (const dep of data.dependencies) {
+                    dep.request = dep.request.replace('node:', '');
+                    dep.userRequest = dep.userRequest.replace('node:', '');
+                  }
+                }
+              }
+            );
+          }
+        );
       },
     ],
     performance: {
