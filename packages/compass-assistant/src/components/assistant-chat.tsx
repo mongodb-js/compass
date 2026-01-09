@@ -228,6 +228,24 @@ const toolToggleContainerStyles = css({
   paddingRight: spacing[50],
 });
 
+function lastMessageIsEmpty(messages: AssistantMessage[]): boolean {
+  if (messages.length === 0) {
+    return true;
+  }
+
+  const message = messages[messages.length - 1];
+
+  if (message.parts.length === 0) {
+    return true;
+  }
+  const part = message.parts[message.parts.length - 1];
+  if (partIsToolUI(part) || (part.type === 'text' && part.text.trim() === '')) {
+    return true;
+  }
+
+  return false;
+}
+
 export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
   chat,
   hasNonGenuineConnections,
@@ -482,6 +500,10 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
     (message) => !message.metadata?.isSystemContext
   );
 
+  const isLoading =
+    status === 'submitted' ||
+    (status === 'streaming' && lastMessageIsEmpty(visibleMessages));
+
   return (
     <div
       data-testid="assistant-chat"
@@ -657,7 +679,7 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
           <InputBar
             data-testid="assistant-chat-input"
             onMessageSend={(text) => void handleMessageSend({ text })}
-            state={status === 'submitted' ? 'loading' : undefined}
+            state={isLoading ? 'loading' : undefined}
             textareaProps={inputBarTextareaProps}
             onClickStopButton={() => void chat.stop()}
           >
