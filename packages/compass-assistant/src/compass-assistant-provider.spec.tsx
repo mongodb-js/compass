@@ -68,9 +68,12 @@ function createMockProvider({
 
   if (!mockToolsController) {
     mockToolsController = {
-      setActiveTools: sinon.stub().resolves(),
-      getActiveTools: sinon.stub().resolves({}),
-      setContext: sinon.stub().resolves(),
+      setActiveTools: sinon.stub(),
+      getActiveTools: sinon.stub(),
+      setContext: sinon.stub(),
+      startServer: sinon.stub().resolves(),
+      stopServer: sinon.stub().resolves(),
+      setConnectionIdForToolCall: sinon.stub(),
     };
   }
 
@@ -643,9 +646,12 @@ describe('CompassAssistantProvider', function () {
       const sendMessageSpy = sinon.spy(mockChat, 'sendMessage');
 
       const mockToolsController = {
-        setActiveTools: sinon.stub().resolves(),
-        getActiveTools: sinon.stub().resolves({}),
-        setContext: sinon.stub().resolves(),
+        setActiveTools: sinon.stub(),
+        getActiveTools: sinon.stub(),
+        setContext: sinon.stub(),
+        startServer: sinon.stub().resolves(),
+        stopServer: sinon.stub().resolves(),
+        setConnectionIdForToolCall: sinon.stub(),
       };
 
       const query = 'This is a fake query';
@@ -680,7 +686,7 @@ describe('CompassAssistantProvider', function () {
       expect(mockToolsController.setActiveTools.callCount).to.equal(1);
       expect(
         mockToolsController.setActiveTools.firstCall.args[0]
-      ).to.deep.equal(new Set(['compass', 'db-read']));
+      ).to.deep.equal(new Set(['compass']));
 
       expect(mockToolsController.setContext.callCount).to.equal(1);
       expect(mockToolsController.setContext.firstCall.args[0]).to.deep.equal({
