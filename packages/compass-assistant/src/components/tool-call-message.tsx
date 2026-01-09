@@ -1,5 +1,5 @@
 import React from 'react';
-import _ from 'lodash';
+import _, { max } from 'lodash';
 import {
   css,
   LgChatMessage,
@@ -79,6 +79,11 @@ const expandableContentStyles = css({
     fontSize: '12px',
     fontWeight: 600,
     textTransform: 'uppercase',
+  },
+
+  pre: {
+    maxHeight: '200px',
+    overflow: 'auto',
   },
 });
 const expandableContentStylesLight = css({
