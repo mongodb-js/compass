@@ -78,7 +78,6 @@ export const CompassAssistantDrawer: React.FunctionComponent<{
         <div className={assistantTitleStyles}>
           <div className={assistantTitleTextWrapperStyles}>
             <span className={assistantTitleTextStyles}>MongoDB Assistant</span>
-            <Badge variant="blue">Preview</Badge>
           </div>
           <ClearChatButton chat={chat} />
         </div>
