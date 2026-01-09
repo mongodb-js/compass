@@ -1,5 +1,5 @@
 import React from 'react';
-import _, { max } from 'lodash';
+import _ from 'lodash';
 import {
   css,
   LgChatMessage,
@@ -133,7 +133,7 @@ export const ToolCallMessage: React.FunctionComponent<ToolCallMessageProps> = ({
   const isDenied = toolCall.state === 'output-denied';
 
   const expandableContent = [
-    `### Input
+    `### Arguments
 
 \`\`\`json
 ${inputJSON}
@@ -141,7 +141,7 @@ ${inputJSON}
   ];
 
   if (hasOutput) {
-    expandableContent.push(`### Output
+    expandableContent.push(`### Response
 
 \`\`\`json
 ${outputText}
