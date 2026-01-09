@@ -140,7 +140,7 @@ export type AtlasServiceConfig = {
  */
 const config = {
   'atlas-local': {
-    ccsBaseUrl: 'ws://cloud-local.mongodb.com/cluster-connection',
+    ccsBaseUrl: 'ws://localhost:61001/ws',
     cloudBaseUrl: '',
     atlasApiBaseUrl: 'http://cloud-local.mongodb.com/api/private',
     atlasLogin: {
