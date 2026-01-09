@@ -1,4 +1,5 @@
 import React from 'react';
+import _ from 'lodash';
 import {
   css,
   LgChatMessage,
@@ -6,6 +7,8 @@ import {
   useDarkMode,
   InlineDefinition,
   ServerIcon,
+  palette,
+  cx,
 } from '@mongodb-js/compass-components';
 import type { ToolUIPart } from 'ai';
 import type { BasicConnectionInfo } from '../compass-assistant-provider';
@@ -70,6 +73,26 @@ const toolCallMessageStyles = css({
   },
 });
 
+const expandableContentStyles = css({
+  h3: {
+    lineHeight: '16px',
+    fontSize: '12px',
+    fontWeight: 600,
+    textTransform: 'uppercase',
+  },
+});
+const expandableContentStylesLight = css({
+  h3: {
+    color: palette.gray.dark1,
+  },
+});
+
+const expandableContentStylesDark = css({
+  h3: {
+    color: palette.gray.light1,
+  },
+});
+
 export const ToolCallMessage: React.FunctionComponent<ToolCallMessageProps> = ({
   connection,
   toolCall,
@@ -104,19 +127,31 @@ export const ToolCallMessage: React.FunctionComponent<ToolCallMessageProps> = ({
   const wasApproved = toolCall.approval?.approved === true;
   const isDenied = toolCall.state === 'output-denied';
 
-  const expandableContent = `## Input
+  const expandableContent = [
+    `### Input
+
 \`\`\`json
 ${inputJSON}
-\`\`\`${
-    hasOutput
-      ? `
+\`\`\``,
+  ];
 
-## Output
+  if (hasOutput) {
+    expandableContent.push(`### Output
+
 \`\`\`json
 ${outputText}
-\`\`\``
-      : ''
-  }`;
+\`\`\``);
+  }
+
+  if (toolCall.errorText) {
+    expandableContent.push(`### Error
+
+\`\`\`
+${toolCall.errorText}
+\`\`\``);
+  }
+
+  const expandableContentText = expandableContent.join('\n\n');
 
   const toolNameElement = toolDescription ? (
     <InlineDefinition definition={toolDescription}>{toolName}</InlineDefinition>
@@ -135,17 +170,37 @@ ${outputText}
     title = <>Run {toolNameElement}?</>;
   }
 
+  if (toolCall.state === 'input-streaming') {
+    // The tool call renders with undefined input or incomplete input and then
+    // soon after with an object. At that point even if there are no parameters
+    // for the tool call (think list-databases), the input will be {}. In order
+    // to have the tool card's initialIsExpanded work correctly, we therefore
+    // wait until the input is fully available which in our case is pretty much
+    // instantly because none of our tools take a large amount of input yet.
+    return null;
+  }
+
+  const initialIsExpanded = !hasOutput && !_.isEmpty(toolCall.input);
+
   return (
     <div className={toolCallMessageStyles}>
       <Message.ToolCard
+        initialIsExpanded={initialIsExpanded}
         showExpandButton={true}
         state={toolCallState}
         title={title}
         darkMode={darkMode}
         chips={chips}
       >
-        <Message.ToolCard.ExpandableContent>
-          {expandableContent}
+        <Message.ToolCard.ExpandableContent
+          className={cx(
+            expandableContentStyles,
+            darkMode
+              ? expandableContentStylesDark
+              : expandableContentStylesLight
+          )}
+        >
+          {expandableContentText}
         </Message.ToolCard.ExpandableContent>
         {isAwaitingApproval && toolCall.approval && (
           <Message.ToolCard.Actions

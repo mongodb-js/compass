@@ -69,7 +69,8 @@
     "mongodb-connection-string-url": "^3.0.1",
     "react": "^17.0.2",
     "throttleit": "^2.1.0",
-    "use-sync-external-store": "^1.5.0"
+    "use-sync-external-store": "^1.5.0",
+    "lodash": "^4.17.21"
   },
   "devDependencies": {
     "@fast-csv/parse": "^5.0.5",
