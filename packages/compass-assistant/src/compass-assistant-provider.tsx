@@ -333,6 +333,7 @@ export const AssistantProvider: React.FunctionComponent<
       const query = assistantGlobalStateRef.current.currentQuery;
       const aggregation = assistantGlobalStateRef.current.currentAggregation;
       setToolsContext(toolsController, {
+        activeConnection,
         connections: activeConnections,
         query,
         aggregation,
@@ -566,12 +567,14 @@ export function createDefaultChat({
 export function setToolsContext(
   toolsController: ToolsController,
   {
+    activeConnection,
     connections,
     query,
     aggregation,
     enableToolCalling,
     enableGenAIDatabaseToolCalling,
   }: {
+    activeConnection: ActiveConnectionInfo | null;
     connections: ActiveConnectionInfo[];
     query?: string | null;
     aggregation?: string | null;
@@ -581,7 +584,7 @@ export function setToolsContext(
 ) {
   if (enableToolCalling) {
     const toolGroups = new Set<ToolGroup>(['compass']);
-    if (enableGenAIDatabaseToolCalling) {
+    if (enableGenAIDatabaseToolCalling && activeConnection) {
       toolGroups.add('db-read');
     }
     toolsController.setActiveTools(toolGroups);
