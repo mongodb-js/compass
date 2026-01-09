@@ -75,8 +75,8 @@ export class ToolsController {
   private context: ToolsContext = Object.create(null);
   private readonly runner: InMemoryRunner;
   private connectionManager: ToolsConnectionManager;
-  private currentToolCallId: string | null = null;
-  private currentConnectionId: string | null = null;
+  private connectionIdByToolCallId: Record<string, string | null> =
+    Object.create(null);
 
   constructor({ logger, getTelemetryAnonymousId }: ToolsControllerConfig) {
     this.logger = logger;
@@ -145,12 +145,16 @@ export class ToolsController {
       };
     }
 
-    if (this.runner.server && this.runner.server.tools.length === 0) {
-      this.runner.server.registerTools();
-    }
-
     if (this.toolGroups.has('db-read')) {
-      const availableTools = this.runner.server?.tools ?? [];
+      if (!this.runner.server) {
+        throw new Error('MCP server is not started');
+      }
+
+      if (this.runner.server.tools.length === 0) {
+        this.runner.server.registerTools();
+      }
+
+      const availableTools = this.runner.server.tools ?? [];
       for (const toolBase of availableTools) {
         if (!readonlyTools.has(toolBase.name)) {
           continue;
@@ -162,20 +166,24 @@ export class ToolsController {
           needsApproval: true,
           strict: true,
           execute: async (args, options) => {
-            if (this.currentToolCallId !== options.toolCallId) {
+            const connectionId =
+              this.connectionIdByToolCallId[options.toolCallId];
+            if (!connectionId) {
               // sanity check in case we ever get multiple tool calls in parallel
-              const error = new Error('Tool call ID mismatch');
+              const error = new Error("Can't find connection for tool call");
               this.logger.log.error(
                 this.logger.mongoLogId(1_001_000_415),
                 'ToolsController',
-                error.message
+                error.message,
+                {
+                  toolCallId: options.toolCallId,
+                }
               );
               throw error;
             }
 
             const connectParams = this.context.connections.find(
-              (connection) =>
-                connection.connectionId === this.currentConnectionId
+              (connection) => connection.connectionId === connectionId
             );
             if (!connectParams) {
               // the context could have changed between when the tool was
@@ -233,8 +241,7 @@ export class ToolsController {
     toolCallId: string;
     connectionId: string | null;
   }): void {
-    this.currentToolCallId = toolCallId;
-    this.currentConnectionId = connectionId;
+    this.connectionIdByToolCallId[toolCallId] = connectionId;
   }
 
   // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents

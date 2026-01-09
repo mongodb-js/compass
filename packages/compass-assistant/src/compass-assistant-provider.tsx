@@ -252,6 +252,20 @@ export const AssistantProvider: React.FunctionComponent<
       // place to do tracking.
       callback();
 
+      const { enableToolCalling, enableGenAIDatabaseToolCalling } =
+        preferences.getPreferences();
+
+      if (enableToolCalling && enableGenAIDatabaseToolCalling) {
+        // Start the server once the first time both the feature flag and
+        // setting are enabled, just before sending a message so that it will be
+        // there when we call getActiveTools(). It is just some one-time setup
+        // so we don't stop it again if the setting is turned off. It would just log
+        // a lot of things every time. Main reason to lazy-start it is to avoid
+        // all those logs appearing even if the feature flag and/or setting is
+        // off.
+        await toolsController.startServer();
+      }
+
       // Automatically deny any pending tool approval requests in the chat before
       // sending the new message because ai sdk does not allow leaving them.
       let foundToolApprovalRequests = false;
@@ -286,9 +300,6 @@ export const AssistantProvider: React.FunctionComponent<
             connInfo.id === activeWorkspace.connectionId
           );
         }) ?? null;
-
-      const { enableToolCalling, enableGenAIDatabaseToolCalling } =
-        preferences.getPreferences();
 
       const contextPrompt = buildContextPrompt({
         activeWorkspace,
