@@ -14,7 +14,7 @@ describe('ToolToggle', function () {
     it('shows disabled icon when tool calling is disabled', function () {
       render(<ToolToggle />, {
         preferences: {
-          enableGenAIDatabaseToolCalling: false,
+          enableGenAIToolCalling: false,
         },
       });
 
@@ -27,7 +27,7 @@ describe('ToolToggle', function () {
     it('shows active icon when tool calling is enabled', function () {
       render(<ToolToggle />, {
         preferences: {
-          enableGenAIDatabaseToolCalling: true,
+          enableGenAIToolCalling: true,
         },
       });
 
@@ -42,7 +42,7 @@ describe('ToolToggle', function () {
     it('opens popover when button is clicked', async function () {
       render(<ToolToggle />, {
         preferences: {
-          enableGenAIDatabaseToolCalling: false,
+          enableGenAIToolCalling: false,
         },
       });
 
@@ -59,7 +59,7 @@ describe('ToolToggle', function () {
     it('displays the toggle switch in the popover', async function () {
       render(<ToolToggle />, {
         preferences: {
-          enableGenAIDatabaseToolCalling: false,
+          enableGenAIToolCalling: false,
         },
       });
       expect(screen.queryByTestId('tool-toggle-switch')).to.not.exist;
@@ -76,7 +76,7 @@ describe('ToolToggle', function () {
     it('displays the Learn more link', async function () {
       render(<ToolToggle />, {
         preferences: {
-          enableGenAIDatabaseToolCalling: false,
+          enableGenAIToolCalling: false,
         },
       });
 
@@ -97,7 +97,7 @@ describe('ToolToggle', function () {
     it('displays all available tools in the list', async function () {
       render(<ToolToggle />, {
         preferences: {
-          enableGenAIDatabaseToolCalling: false,
+          enableGenAIToolCalling: false,
         },
       });
 
@@ -117,7 +117,7 @@ describe('ToolToggle', function () {
     it('toggle switch reflects current preference state - disabled', async function () {
       render(<ToolToggle />, {
         preferences: {
-          enableGenAIDatabaseToolCalling: false,
+          enableGenAIToolCalling: false,
         },
       });
 
@@ -134,7 +134,7 @@ describe('ToolToggle', function () {
     it('toggle switch reflects current preference state - enabled', async function () {
       render(<ToolToggle />, {
         preferences: {
-          enableGenAIDatabaseToolCalling: true,
+          enableGenAIToolCalling: true,
         },
       });
 
@@ -151,7 +151,7 @@ describe('ToolToggle', function () {
     it('clicking toggle switch enables tool calling when disabled', async function () {
       const { preferences } = render(<ToolToggle />, {
         preferences: {
-          enableGenAIDatabaseToolCalling: false,
+          enableGenAIToolCalling: false,
         },
       });
 
@@ -171,7 +171,7 @@ describe('ToolToggle', function () {
       await waitFor(() => {
         expect(savePreferencesSpy).to.have.been.calledOnce;
         expect(savePreferencesSpy).to.have.been.calledWith({
-          enableGenAIDatabaseToolCalling: true,
+          enableGenAIToolCalling: true,
         });
       });
     });
@@ -179,7 +179,7 @@ describe('ToolToggle', function () {
     it('clicking toggle switch disables tool calling when enabled', async function () {
       const { preferences } = render(<ToolToggle />, {
         preferences: {
-          enableGenAIDatabaseToolCalling: true,
+          enableGenAIToolCalling: true,
         },
       });
 
@@ -199,7 +199,7 @@ describe('ToolToggle', function () {
       await waitFor(() => {
         expect(savePreferencesSpy).to.have.been.calledOnce;
         expect(savePreferencesSpy).to.have.been.calledWith({
-          enableGenAIDatabaseToolCalling: false,
+          enableGenAIToolCalling: false,
         });
       });
     });
@@ -207,7 +207,7 @@ describe('ToolToggle', function () {
     it('updates button icon after preference is toggled', async function () {
       const { preferences } = render(<ToolToggle />, {
         preferences: {
-          enableGenAIDatabaseToolCalling: false,
+          enableGenAIToolCalling: false,
         },
       });
 

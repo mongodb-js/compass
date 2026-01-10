@@ -168,7 +168,7 @@ export const AVAILABLE_TOOLS = [
 ];
 
 export const ToolToggle: React.FunctionComponent = () => {
-  const enableToolCalling = usePreference('enableGenAIDatabaseToolCalling');
+  const enableToolCalling = usePreference('enableGenAIToolCalling');
   const preferences = usePreferencesContext();
   const [popoverOpen, setPopoverOpen] = useState(false);
   const darkMode = useDarkMode();
@@ -178,7 +178,7 @@ export const ToolToggle: React.FunctionComponent = () => {
   const handleToggle = useCallback(
     (checked: boolean) => {
       void preferences.savePreferences({
-        enableGenAIDatabaseToolCalling: checked,
+        enableGenAIToolCalling: checked,
       });
     },
     [preferences]

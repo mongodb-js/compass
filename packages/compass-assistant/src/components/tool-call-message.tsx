@@ -109,7 +109,7 @@ export const ToolCallMessage: React.FunctionComponent<ToolCallMessageProps> = ({
   const chips = [];
 
   // TODO: find a better way to only display this when the connection is relevant
-  if (connection && toolCall.type !== 'tool-get-compass-context') {
+  if (connection && !toolCall.type.startsWith('tool-get-current-')) {
     chips.push({ glyph: <ServerIcon />, label: connection.name });
   }
 

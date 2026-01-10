@@ -252,10 +252,10 @@ export const AssistantProvider: React.FunctionComponent<
       // place to do tracking.
       callback();
 
-      const { enableToolCalling, enableGenAIDatabaseToolCalling } =
+      const { enableToolCalling, enableGenAIToolCalling } =
         preferences.getPreferences();
 
-      if (enableToolCalling && enableGenAIDatabaseToolCalling) {
+      if (enableToolCalling && enableGenAIToolCalling) {
         // Start the server once the first time both the feature flag and
         // setting are enabled, just before sending a message so that it will be
         // there when we call getActiveTools(). It is just some one-time setup
@@ -307,7 +307,7 @@ export const AssistantProvider: React.FunctionComponent<
         activeCollectionMetadata,
         activeCollectionSubTab,
         enableToolCalling,
-        enableGenAIDatabaseToolCalling,
+        enableGenAIToolCalling,
       });
 
       // use just the text so we have a stable reference to compare against
@@ -338,7 +338,7 @@ export const AssistantProvider: React.FunctionComponent<
         query,
         aggregation,
         enableToolCalling,
-        enableGenAIDatabaseToolCalling,
+        enableGenAIToolCalling,
       });
 
       await chat.sendMessage(message, options);
@@ -572,20 +572,23 @@ export function setToolsContext(
     query,
     aggregation,
     enableToolCalling,
-    enableGenAIDatabaseToolCalling,
+    enableGenAIToolCalling,
   }: {
     activeConnection: ActiveConnectionInfo | null;
     connections: ActiveConnectionInfo[];
     query?: string | null;
     aggregation?: string | null;
     enableToolCalling?: boolean;
-    enableGenAIDatabaseToolCalling?: boolean;
+    enableGenAIToolCalling?: boolean;
   }
 ) {
   if (enableToolCalling) {
-    const toolGroups = new Set<ToolGroup>(['compass']);
-    if (enableGenAIDatabaseToolCalling && activeConnection) {
-      toolGroups.add('db-read');
+    const toolGroups = new Set<ToolGroup>([]);
+    if (enableGenAIToolCalling) {
+      toolGroups.add('compass');
+      if (activeConnection) {
+        toolGroups.add('db-read');
+      }
     }
     toolsController.setActiveTools(toolGroups);
     toolsController.setContext({

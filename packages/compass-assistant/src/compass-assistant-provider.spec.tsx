@@ -95,7 +95,7 @@ const TestComponent: React.FunctionComponent<{
   mockToolsController?: any;
   hasNonGenuineConnections?: boolean;
   currentQuery?: string;
-  currentAggregation?: string;
+  currentPipeline?: string;
 }> = ({
   chat,
   autoOpen,
@@ -105,7 +105,7 @@ const TestComponent: React.FunctionComponent<{
   mockToolsController,
   hasNonGenuineConnections,
   currentQuery,
-  currentAggregation,
+  currentPipeline,
 }) => {
   const MockedProvider = createMockProvider({
     mockAtlasService: mockAtlasService as unknown as AtlasService,
@@ -116,10 +116,7 @@ const TestComponent: React.FunctionComponent<{
 
   const FakeStateSetterComponent = () => {
     useSyncAssistantGlobalState('currentQuery', currentQuery ?? null);
-    useSyncAssistantGlobalState(
-      'currentAggregation',
-      currentAggregation ?? null
-    );
+    useSyncAssistantGlobalState('currentPipeline', currentPipeline ?? null);
 
     return null;
   };
@@ -367,7 +364,7 @@ describe('CompassAssistantProvider', function () {
           autoOpen={true}
           hasNonGenuineConnections={hasNonGenuineConnections}
           currentQuery={query}
-          currentAggregation={aggregation}
+          currentPipeline={aggregation}
         />,
         {
           preferences: {

@@ -104,7 +104,7 @@ export type UserConfigurablePreferences = PermanentFeatureFlags &
     enableAggregationBuilderRunPipeline: boolean;
     enableAggregationBuilderExtraOptions: boolean;
     enableGenAISampleDocumentPassing: boolean;
-    enableGenAIDatabaseToolCalling: boolean;
+    enableGenAIToolCalling: boolean;
     enablePerformanceAdvisorBanner: boolean;
     maximumNumberOfActiveConnections?: number;
     defaultSortOrder: SORT_ORDERS;
@@ -965,13 +965,13 @@ export const storedUserPreferencesProps: Required<{
     type: 'boolean',
   },
 
-  enableGenAIDatabaseToolCalling: {
+  enableGenAIToolCalling: {
     ui: true,
     cli: true,
     global: true,
     description: {
-      short: 'Enable database tool calling',
-      long: 'Allow the AI Assistant to interact with the database through tool calling.',
+      short: 'Enable read-only tool calling',
+      long: 'Allow the AI Assistant to perform read-only tool calling.',
     },
     validator: z.boolean().default(true),
     type: 'boolean',
