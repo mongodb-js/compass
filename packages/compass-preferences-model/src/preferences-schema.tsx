@@ -970,8 +970,20 @@ export const storedUserPreferencesProps: Required<{
     cli: true,
     global: true,
     description: {
-      short: 'Enable read-only tool calling',
-      long: 'Allow the AI Assistant to perform read-only tool calling.',
+      short: 'Enable read-only tools in the MongoDB Assistant',
+      long: 'Allow the MongoDB Assistant to interact with your databases. All actions require your approval before running.',
+      longReact: (
+        <>
+          Allow the MongoDB Assistant to interact with your databases. All
+          actions require your approval before running. Learn more about{' '}
+          <Link
+            href="https://www.mongodb.com/docs/compass/query-with-natural-language/compass-ai-assistant/"
+            target="_blank"
+          >
+            MongoDB database tools
+          </Link>
+        </>
+      ),
     },
     validator: z.boolean().default(true),
     type: 'boolean',
