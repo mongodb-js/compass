@@ -163,11 +163,11 @@ export const AVAILABLE_TOOLS = [
   ...DATABASE_TOOLS,
   {
     name: 'get-current-query',
-    description: 'Get the current query.',
+    description: 'Get the current query from the querybar.',
   },
   {
     name: 'get-current-pipeline',
-    description: 'Get the current pipeline.',
+    description: 'Get the current pipeline from the aggregation builder.',
   },
 ];
 
