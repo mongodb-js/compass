@@ -227,8 +227,6 @@ jobs:
       - name: Run tests
         env:
           EVERGREEN_BUCKET_KEY_PREFIX: ${{ inputs.bucket_key_prefix }}
-          EVERGREEN_AWS_ACCESS_KEY_ID: ${{ secrets.EVERGREEN_AWS_ACCESS_KEY_ID }}
-          EVERGREEN_AWS_SECRET_ACCESS_KEY: ${{ secrets.EVERGREEN_AWS_SECRET_ACCESS_KEY }}
           HADRON_DISTRIBUTION: ${{ matrix.hadron-distribution }}
           DEV_VERSION_IDENTIFIER: ${{ inputs.dev_version }}
           PLATFORM: ${{ matrix.hadron-platform }}
