@@ -21,7 +21,7 @@ export type ToolGroup = 'compass' | 'db-read';
 
 type CompassContext = {
   query?: string;
-  aggregation?: string;
+  pipeline?: string;
 };
 
 type ToolsContext = CompassContext & {
@@ -124,22 +124,36 @@ export class ToolsController {
     const tools = Object.create(null);
 
     if (this.toolGroups.has('compass')) {
-      tools['get-compass-context'] = {
-        description: 'Get the current Compass query or aggregation.',
+      tools['get-current-query'] = {
+        description: 'Get the query from the focused tab.',
         inputSchema: z.object({}),
         needsApproval: true,
         strict: false,
-        execute: (): Promise<CompassContext> => {
+        execute: (): Promise<{ query?: string }> => {
           this.logger.log.info(
             this.logger.mongoLogId(1_001_000_386),
             'ToolsController',
-            'Executing get-compass-context tool'
+            'Executing get-current-query tool'
           );
-          // be explicit about what we return so we don't accidentally leak the
-          // connection details
           return Promise.resolve({
             query: this.context.query,
-            aggregation: this.context.aggregation,
+          });
+        },
+      };
+
+      tools['get-current-pipeline'] = {
+        description: 'Get the pipeline from the focused tab.',
+        inputSchema: z.object({}),
+        needsApproval: true,
+        strict: false,
+        execute: (): Promise<{ pipeline?: string }> => {
+          this.logger.log.info(
+            this.logger.mongoLogId(1_001_000_416),
+            'ToolsController',
+            'Executing get-current-pipeline tool'
+          );
+          return Promise.resolve({
+            pipeline: this.context.pipeline,
           });
         },
       };

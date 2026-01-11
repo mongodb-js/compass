@@ -331,12 +331,12 @@ export const AssistantProvider: React.FunctionComponent<
       }
 
       const query = assistantGlobalStateRef.current.currentQuery;
-      const aggregation = assistantGlobalStateRef.current.currentAggregation;
+      const pipeline = assistantGlobalStateRef.current.currentPipeline;
       setToolsContext(toolsController, {
         activeConnection,
         connections: activeConnections,
         query,
-        aggregation,
+        pipeline,
         enableToolCalling,
         enableGenAIToolCalling,
       });
@@ -570,14 +570,14 @@ export function setToolsContext(
     activeConnection,
     connections,
     query,
-    aggregation,
+    pipeline,
     enableToolCalling,
     enableGenAIToolCalling,
   }: {
     activeConnection: ActiveConnectionInfo | null;
     connections: ActiveConnectionInfo[];
     query?: string | null;
-    aggregation?: string | null;
+    pipeline?: string | null;
     enableToolCalling?: boolean;
     enableGenAIToolCalling?: boolean;
   }
@@ -605,14 +605,14 @@ export function setToolsContext(
         };
       }),
       query: query || undefined,
-      aggregation: aggregation || undefined,
+      pipeline: pipeline || undefined,
     });
   } else {
     toolsController.setActiveTools(new Set([]));
     toolsController.setContext({
       connections: [],
       query: undefined,
-      aggregation: undefined,
+      pipeline: undefined,
     });
   }
 }

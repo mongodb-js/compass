@@ -32,10 +32,16 @@ import {
 } from '@mongodb-js/compass-generative-ai/provider';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
+import type { ActiveConnectionInfo } from './assistant-global-state';
 import {
   AssistantGlobalStateProvider,
   useSyncAssistantGlobalState,
 } from './assistant-global-state';
+import type {
+  CollectionSubtab,
+  WorkspaceTab,
+} from '@mongodb-js/workspace-info';
+import type { CollectionMetadata } from 'mongodb-collection-model';
 
 function createMockProvider({
   mockAtlasService,
@@ -96,6 +102,10 @@ const TestComponent: React.FunctionComponent<{
   hasNonGenuineConnections?: boolean;
   currentQuery?: string;
   currentPipeline?: string;
+  connections?: ActiveConnectionInfo[];
+  activeWorkspace?: WorkspaceTab;
+  collectionMetadata?: CollectionMetadata;
+  currentTab?: CollectionSubtab;
 }> = ({
   chat,
   autoOpen,
@@ -106,6 +116,10 @@ const TestComponent: React.FunctionComponent<{
   hasNonGenuineConnections,
   currentQuery,
   currentPipeline,
+  connections,
+  activeWorkspace,
+  collectionMetadata,
+  currentTab,
 }) => {
   const MockedProvider = createMockProvider({
     mockAtlasService: mockAtlasService as unknown as AtlasService,
@@ -115,6 +129,13 @@ const TestComponent: React.FunctionComponent<{
   });
 
   const FakeStateSetterComponent = () => {
+    useSyncAssistantGlobalState('activeConnections', connections ?? []);
+    useSyncAssistantGlobalState('activeWorkspace', activeWorkspace ?? null);
+    useSyncAssistantGlobalState(
+      'activeCollectionMetadata',
+      collectionMetadata ?? null
+    );
+    useSyncAssistantGlobalState('activeCollectionSubTab', currentTab ?? null);
     useSyncAssistantGlobalState('currentQuery', currentQuery ?? null);
     useSyncAssistantGlobalState('currentPipeline', currentPipeline ?? null);
 
@@ -345,16 +366,26 @@ describe('CompassAssistantProvider', function () {
       toolsController,
       hasNonGenuineConnections,
       enableToolCalling = true,
+      enableGenAIToolCalling = true,
       query,
-      aggregation,
+      pipeline,
+      connections,
+      activeWorkspace,
+      collectionMetadata,
+      currentTab,
     }: {
       chat: Chat<AssistantMessage>;
       atlastAiService?: Partial<AtlasAiService>;
       toolsController?: Partial<ToolsController>;
       hasNonGenuineConnections?: boolean;
       enableToolCalling?: boolean;
+      enableGenAIToolCalling?: boolean;
       query?: string;
-      aggregation?: string;
+      pipeline?: string;
+      connections?: ActiveConnectionInfo[];
+      activeWorkspace?: WorkspaceTab;
+      collectionMetadata?: CollectionMetadata;
+      currentTab?: CollectionSubtab;
     }): Promise<ReturnType<typeof render>> {
       const result = render(
         <TestComponent
@@ -364,7 +395,11 @@ describe('CompassAssistantProvider', function () {
           autoOpen={true}
           hasNonGenuineConnections={hasNonGenuineConnections}
           currentQuery={query}
-          currentPipeline={aggregation}
+          currentPipeline={pipeline}
+          connections={connections}
+          activeWorkspace={activeWorkspace}
+          collectionMetadata={collectionMetadata}
+          currentTab={currentTab}
         />,
         {
           preferences: {
@@ -373,6 +408,7 @@ describe('CompassAssistantProvider', function () {
             enableGenAIFeaturesAtlasOrg: true,
             cloudFeatureRolloutAccess: { GEN_AI_COMPASS: true },
             enableToolCalling,
+            enableGenAIToolCalling,
           },
         }
       );
@@ -596,6 +632,7 @@ describe('CompassAssistantProvider', function () {
         chat: mockChat,
         toolsController: mockToolsController,
         enableToolCalling: false,
+        enableGenAIToolCalling: true,
       });
 
       const input = screen.getByPlaceholderText('Ask a question');
@@ -625,11 +662,11 @@ describe('CompassAssistantProvider', function () {
       expect(mockToolsController.setContext.firstCall.args[0]).to.deep.equal({
         connections: [],
         query: undefined,
-        aggregation: undefined,
+        pipeline: undefined,
       });
     });
 
-    it('enables tools if toolCalling feature is enabled', async function () {
+    it('disables tools if toolCalling feature is enabled and enableGenAIToolCalling setting is disabled', async function () {
       const mockChat = new Chat<AssistantMessage>({
         messages: [
           {
@@ -652,14 +689,80 @@ describe('CompassAssistantProvider', function () {
       };
 
       const query = 'This is a fake query';
-      const aggregation = 'This is a fake aggregation';
+      const pipeline = 'This is a fake aggregation';
 
       await renderOpenAssistantDrawer({
         chat: mockChat,
         toolsController: mockToolsController,
         enableToolCalling: true,
+        enableGenAIToolCalling: false,
         query,
-        aggregation,
+        pipeline,
+      });
+
+      const input = screen.getByPlaceholderText('Ask a question');
+      const sendButton = screen.getByLabelText('Send message');
+
+      userEvent.type(input, 'Hello assistant');
+      userEvent.click(sendButton);
+
+      await waitFor(() => {
+        expect(sendMessageSpy.calledOnce).to.be.true;
+        expect(sendMessageSpy.firstCall.args[0]).to.deep.include({
+          text: 'Hello assistant',
+        });
+      });
+
+      const contextMessages = mockChat.messages.filter(
+        (message) => message.metadata?.isSystemContext
+      );
+      expect(contextMessages).to.have.lengthOf(1);
+
+      expect(mockToolsController.setActiveTools.callCount).to.equal(1);
+      expect(
+        mockToolsController.setActiveTools.firstCall.args[0]
+      ).to.deep.equal(new Set([]));
+
+      expect(mockToolsController.setContext.callCount).to.equal(1);
+      expect(mockToolsController.setContext.firstCall.args[0]).to.deep.equal({
+        connections: [],
+        query,
+        pipeline,
+      });
+    });
+
+    it('enables tools if toolCalling feature is enabled and enableGenAIToolCalling setting is enabled', async function () {
+      const mockChat = new Chat<AssistantMessage>({
+        messages: [
+          {
+            id: 'assistant',
+            role: 'assistant',
+            parts: [{ type: 'text', text: 'Hello user!' }],
+          },
+        ],
+      });
+
+      const sendMessageSpy = sinon.spy(mockChat, 'sendMessage');
+
+      const mockToolsController = {
+        setActiveTools: sinon.stub(),
+        getActiveTools: sinon.stub(),
+        setContext: sinon.stub(),
+        startServer: sinon.stub().resolves(),
+        stopServer: sinon.stub().resolves(),
+        setConnectionIdForToolCall: sinon.stub(),
+      };
+
+      const query = 'This is a fake query';
+      const pipeline = 'This is a fake aggregation';
+
+      await renderOpenAssistantDrawer({
+        chat: mockChat,
+        toolsController: mockToolsController,
+        enableToolCalling: true,
+        enableGenAIToolCalling: true,
+        query,
+        pipeline,
       });
 
       const input = screen.getByPlaceholderText('Ask a question');
@@ -689,7 +792,100 @@ describe('CompassAssistantProvider', function () {
       expect(mockToolsController.setContext.firstCall.args[0]).to.deep.equal({
         connections: [],
         query,
-        aggregation,
+        pipeline,
+      });
+    });
+
+    it('enables database tools if toolCalling feature and enableGenAIToolCalling setting are enabled and there is a focused connection', async function () {
+      const mockChat = new Chat<AssistantMessage>({
+        messages: [
+          {
+            id: 'assistant',
+            role: 'assistant',
+            parts: [{ type: 'text', text: 'Hello user!' }],
+          },
+        ],
+      });
+
+      const sendMessageSpy = sinon.spy(mockChat, 'sendMessage');
+
+      const mockToolsController = {
+        setActiveTools: sinon.stub(),
+        getActiveTools: sinon.stub(),
+        setContext: sinon.stub(),
+        startServer: sinon.stub().resolves(),
+        stopServer: sinon.stub().resolves(),
+        setConnectionIdForToolCall: sinon.stub(),
+      };
+
+      const query = 'This is a fake query';
+      const pipeline = 'This is a fake aggregation';
+      const connections: ActiveConnectionInfo[] = [
+        {
+          id: 'connection-1',
+          connectionOptions: {
+            connectionString: 'mongodb://localhost:27017',
+          },
+          connectOptions: {
+            productName: 'test',
+            productDocsLink: 'https://example.com/docs',
+          },
+        },
+      ];
+      const activeWorkspace: WorkspaceTab = {
+        id: 'workspace-1',
+        type: 'Databases',
+        connectionId: connections[0]?.id,
+      };
+
+      await renderOpenAssistantDrawer({
+        chat: mockChat,
+        toolsController: mockToolsController,
+        enableToolCalling: true,
+        enableGenAIToolCalling: true,
+        query,
+        pipeline,
+        connections,
+        activeWorkspace,
+      });
+
+      const input = screen.getByPlaceholderText('Ask a question');
+      const sendButton = screen.getByLabelText('Send message');
+
+      userEvent.type(input, 'Hello assistant');
+      userEvent.click(sendButton);
+
+      await waitFor(() => {
+        expect(sendMessageSpy.calledOnce).to.be.true;
+        expect(sendMessageSpy.firstCall.args[0]).to.deep.include({
+          text: 'Hello assistant',
+        });
+      });
+
+      const contextMessages = mockChat.messages.filter(
+        (message) => message.metadata?.isSystemContext
+      );
+      expect(contextMessages).to.have.lengthOf(1);
+
+      expect(mockToolsController.setActiveTools.callCount).to.equal(1);
+      expect(
+        mockToolsController.setActiveTools.firstCall.args[0]
+      ).to.deep.equal(new Set(['compass', 'db-read']));
+
+      expect(mockToolsController.setContext.callCount).to.equal(1);
+      expect(mockToolsController.setContext.firstCall.args[0]).to.deep.equal({
+        connections: [
+          {
+            connectionId: 'connection-1',
+            connectionString: 'mongodb://localhost:27017',
+            connectOptions: {
+              productName: 'test',
+              productDocsLink: 'https://example.com/docs',
+            },
+          },
+        ],
+        query,
+        pipeline,
       });
     });
 

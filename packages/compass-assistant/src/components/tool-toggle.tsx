@@ -162,8 +162,12 @@ export const DATABASE_TOOLS = [
 export const AVAILABLE_TOOLS = [
   ...DATABASE_TOOLS,
   {
-    name: 'get-compass-context',
-    description: 'Get the current query or aggregation.',
+    name: 'get-current-query',
+    description: 'Get the current query.',
+  },
+  {
+    name: 'get-current-pipeline',
+    description: 'Get the current pipeline.',
   },
 ];
 
@@ -244,12 +248,12 @@ export const ToolToggle: React.FunctionComponent = () => {
                 <div className={toolsHeaderTextStyles}>
                   Available tools{' '}
                   <span className={toolsHeaderTextCountStyles}>
-                    ({DATABASE_TOOLS.length})
+                    ({AVAILABLE_TOOLS.length})
                   </span>
                 </div>
               </div>
               <div className={`${toolListStyles}`}>
-                {DATABASE_TOOLS.map((tool) => (
+                {AVAILABLE_TOOLS.map((tool) => (
                   <div key={tool.name} className={toolItemStyles}>
                     <div className={toolNameStyles}>{tool.name}</div>
                     <div className={toolDescriptionStyles}>
