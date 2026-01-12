@@ -32,10 +32,10 @@ export const ReselectCollectionsWizardActionTypes = {
     'data-modeling/reselect-collections-wizard/CONNECT_TO_CONNECTION_SUCCEEDED',
   CONNECT_TO_CONNECTION_FAILED:
     'data-modeling/reselect-collections-wizard/CONNECT_TO_CONNECTION_FAILED',
-  TOGGLE_INFER_RELATION_:
-    'data-modeling/reselect-collections-wizard/TOGGLE_INFER_RELATION',
-  SELECT_COLLECTIONS_:
-    'data-modeling/reselect-collections-wizard/SELECT_COLLECTIONS',
+  TOGGLE_INFER_RELATION_CLICKED:
+    'data-modeling/reselect-collections-wizard/TOGGLE_INFER_RELATION_CLICKED',
+  SELECT_COLLECTIONS_CLICKED:
+    'data-modeling/reselect-collections-wizard/SELECT_COLLECTIONS_CLICKED',
   START_ANALYSIS: 'data-modeling/reselect-collections-wizard/START_ANALYSIS',
 } as const;
 
@@ -68,15 +68,16 @@ export type ConnectToConnectionFailedAction = {
 };
 export type ConnectToConnectionSucceededAction = {
   type: typeof ReselectCollectionsWizardActionTypes.CONNECT_TO_CONNECTION_SUCCEEDED;
+  collections: string[];
 };
 
 export type ToggleInferRelationsAction = {
-  type: typeof ReselectCollectionsWizardActionTypes.TOGGLE_INFER_RELATION_;
+  type: typeof ReselectCollectionsWizardActionTypes.TOGGLE_INFER_RELATION_CLICKED;
   val: boolean;
 };
 
 export type SelectCollectionsAction = {
-  type: typeof ReselectCollectionsWizardActionTypes.SELECT_COLLECTIONS_;
+  type: typeof ReselectCollectionsWizardActionTypes.SELECT_COLLECTIONS_CLICKED;
   collections: string[];
 };
 
@@ -88,6 +89,11 @@ export type ReselectCollectionsWizardActions =
   | ShowReselectCollectionWizardAction
   | HideReselectCollectionWizardAction
   | ConnectionSelectedAction
+  | ConnectToConnectionClickedAction
+  | ConnectToConnectionFailedAction
+  | ConnectToConnectionSucceededAction
+  | ToggleInferRelationsAction
+  | SelectCollectionsAction
   | StartAnalysisAction;
 
 const INITIAL_STATE: ReselectCollectionsWizardState = {
@@ -165,14 +171,17 @@ export const reselectCollectionsWizardReducer: Reducer<
   if (
     isAction(
       action,
-      ReselectCollectionsWizardActionTypes.TOGGLE_INFER_RELATION_
+      ReselectCollectionsWizardActionTypes.TOGGLE_INFER_RELATION_CLICKED
     )
   ) {
     return { ...state, automaticallyInferRelations: action.val };
   }
 
   if (
-    isAction(action, ReselectCollectionsWizardActionTypes.SELECT_COLLECTIONS_)
+    isAction(
+      action,
+      ReselectCollectionsWizardActionTypes.SELECT_COLLECTIONS_CLICKED
+    )
   ) {
     return { ...state, newSelectedCollections: action.collections };
   }
@@ -350,7 +359,7 @@ export function toggleInferRelationships(
   val: boolean
 ): ToggleInferRelationsAction {
   return {
-    type: ReselectCollectionsWizardActionTypes.TOGGLE_INFER_RELATION_,
+    type: ReselectCollectionsWizardActionTypes.TOGGLE_INFER_RELATION_CLICKED,
     val,
   };
 }
@@ -359,7 +368,7 @@ export function selectCollections(
   collections: string[]
 ): SelectCollectionsAction {
   return {
-    type: ReselectCollectionsWizardActionTypes.SELECT_COLLECTIONS_,
+    type: ReselectCollectionsWizardActionTypes.SELECT_COLLECTIONS_CLICKED,
     collections,
   };
 }
