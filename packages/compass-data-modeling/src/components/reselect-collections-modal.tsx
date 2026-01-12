@@ -289,6 +289,7 @@ export default connect(
       databaseCollections,
       selectedConnectionId,
       selectedDatabase,
+      selectedCollections,
       newSelectedCollections,
     } = state.reselectCollections;
 
@@ -305,7 +306,7 @@ export default connect(
         newSelectedCollections.length === 0 ||
         selectIsAnalysisInProgress(state),
       numSelectedCollections:
-        newSelectedCollections.length + selectCollections.length,
+        newSelectedCollections.length + selectedCollections.length,
       numTotalCollections: databaseCollections.length,
       selectedDatabaseName: selectedDatabase || '',
       isConnecting,
