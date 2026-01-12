@@ -17,7 +17,7 @@ import { ToolsLogger } from './tools-logger';
 import { ToolsConnectionManager } from './tools-connection-manager';
 import type { ToolsConnectParams } from './tools-connection-manager';
 
-export type ToolGroup = 'compass' | 'db-read';
+export type ToolGroup = 'querybar' | 'aggregation-builder' | 'db-read';
 
 type CompassContext = {
   query?: string;
@@ -123,7 +123,7 @@ export class ToolsController {
   getActiveTools(): ToolSet {
     const tools = Object.create(null);
 
-    if (this.toolGroups.has('compass')) {
+    if (this.toolGroups.has('querybar')) {
       tools['get-current-query'] = {
         description: 'Get the query from the focused tab.',
         inputSchema: z.object({}),
@@ -140,7 +140,9 @@ export class ToolsController {
           });
         },
       };
+    }
 
+    if (this.toolGroups.has('aggregation-builder')) {
       tools['get-current-pipeline'] = {
         description: 'Get the pipeline from the focused tab.',
         inputSchema: z.object({}),

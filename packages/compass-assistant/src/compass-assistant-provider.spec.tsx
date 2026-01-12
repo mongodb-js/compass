@@ -763,6 +763,14 @@ describe('CompassAssistantProvider', function () {
         enableGenAIToolCalling: true,
         query,
         pipeline,
+        activeWorkspace: {
+          id: 'workspace-1',
+          type: 'Collection',
+          connectionId: 'connection-1',
+          namespace: 'foo.foo',
+          subTab: 'Aggregations',
+        },
+        currentTab: 'Aggregations',
       });
 
       const input = screen.getByPlaceholderText('Ask a question');
@@ -786,7 +794,7 @@ describe('CompassAssistantProvider', function () {
       expect(mockToolsController.setActiveTools.callCount).to.equal(1);
       expect(
         mockToolsController.setActiveTools.firstCall.args[0]
-      ).to.deep.equal(new Set(['compass']));
+      ).to.deep.equal(new Set(['aggregation-builder']));
 
       expect(mockToolsController.setContext.callCount).to.equal(1);
       expect(mockToolsController.setContext.firstCall.args[0]).to.deep.equal({
@@ -870,7 +878,7 @@ describe('CompassAssistantProvider', function () {
       expect(mockToolsController.setActiveTools.callCount).to.equal(1);
       expect(
         mockToolsController.setActiveTools.firstCall.args[0]
-      ).to.deep.equal(new Set(['compass', 'db-read']));
+      ).to.deep.equal(new Set(['db-read']));
 
       expect(mockToolsController.setContext.callCount).to.equal(1);
       expect(mockToolsController.setContext.firstCall.args[0]).to.deep.equal({

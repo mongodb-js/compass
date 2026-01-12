@@ -59,6 +59,10 @@ import {
 } from './assistant-global-state';
 import { lastAssistantMessageIsCompleteWithApprovalResponses } from 'ai';
 import type { ToolSet, UIDataTypes, UIMessagePart, UITools } from 'ai';
+import type {
+  CollectionSubtab,
+  WorkspaceTab,
+} from '@mongodb-js/workspace-info';
 
 export const ASSISTANT_DRAWER_ID = 'compass-assistant-drawer';
 
@@ -66,6 +70,8 @@ export type BasicConnectionInfo = {
   id: string;
   name: string;
 };
+
+export type ActiveTabType = CollectionSubtab | WorkspaceTab['type'] | null;
 
 export type AssistantMessage = UIMessage & {
   role?: 'user' | 'assistant' | 'system';
@@ -332,6 +338,10 @@ export const AssistantProvider: React.FunctionComponent<
 
       const query = assistantGlobalStateRef.current.currentQuery;
       const pipeline = assistantGlobalStateRef.current.currentPipeline;
+      const activeTab: ActiveTabType = activeWorkspace
+        ? activeCollectionSubTab || activeWorkspace.type
+        : null;
+      console.log({ activeTab, activeWorkspace, activeCollectionSubTab });
       setToolsContext(toolsController, {
         activeConnection,
         connections: activeConnections,
@@ -339,6 +349,7 @@ export const AssistantProvider: React.FunctionComponent<
         pipeline,
         enableToolCalling,
         enableGenAIToolCalling,
+        activeTab,
       });
 
       await chat.sendMessage(message, options);
@@ -573,6 +584,7 @@ export function setToolsContext(
     pipeline,
     enableToolCalling,
     enableGenAIToolCalling,
+    activeTab,
   }: {
     activeConnection: ActiveConnectionInfo | null;
     connections: ActiveConnectionInfo[];
@@ -580,12 +592,18 @@ export function setToolsContext(
     pipeline?: string | null;
     enableToolCalling?: boolean;
     enableGenAIToolCalling?: boolean;
+    activeTab?: ActiveTabType;
   }
 ) {
   if (enableToolCalling) {
     const toolGroups = new Set<ToolGroup>([]);
     if (enableGenAIToolCalling) {
-      toolGroups.add('compass');
+      if (activeTab === 'Documents' || activeTab === 'Schema') {
+        toolGroups.add('querybar');
+      }
+      if (activeTab === 'Aggregations') {
+        toolGroups.add('aggregation-builder');
+      }
       if (activeConnection) {
         toolGroups.add('db-read');
       }
