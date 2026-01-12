@@ -111,6 +111,24 @@ export function applyEdit(edit: Edit, model?: StaticModel): StaticModel {
         }),
       };
     }
+    case 'MoveMultipleCollections': {
+      const movedCollections = new Set(Object.keys(edit.newPositions));
+      for (const ns of movedCollections) {
+        assertCollectionExists(model.collections, ns);
+      }
+      return {
+        ...model,
+        collections: model.collections.map((collection) => {
+          if (movedCollections.has(collection.ns)) {
+            return {
+              ...collection,
+              displayPosition: edit.newPositions[collection.ns],
+            };
+          }
+          return collection;
+        }),
+      };
+    }
     case 'RemoveCollection': {
       assertCollectionExists(model.collections, edit.ns);
       return {
