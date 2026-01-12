@@ -3,6 +3,7 @@
 const path = require('path');
 const Target = require('../lib/target');
 const { downloadAssetFromEvergreen } = require('../lib/download-center');
+const { getBuildAttestations } = require('../lib/build-attestations');
 
 const cli = require('mongodb-js-cli')('hadron-build:download');
 const abortIfError = cli.abortIfError.bind(cli);
@@ -32,8 +33,8 @@ const run = async function run (argv) {
   const assetsToDownload = assets.flatMap(({ assets }) => {
     return assets;
   });
-
-  const downloads = assetsToDownload.map(async (asset) => {
+  const attestations = getBuildAttestations(argv.dir);
+  const downloads = [...assetsToDownload, ...attestations].map(async (asset) => {
     const shortPath = path.relative(root, asset.path);
     cli.info(
       `${asset.name}: download from evg bucket started (path: ${shortPath})`
