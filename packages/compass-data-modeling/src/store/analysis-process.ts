@@ -10,7 +10,6 @@ import {
 import { UUID } from 'bson';
 import {
   DEFAULT_IS_EXPANDED,
-  type SetModelEdit,
   type Relationship,
   type Edit,
 } from '../services/data-model-storage';
