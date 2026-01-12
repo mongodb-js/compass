@@ -212,6 +212,8 @@ const ReselectCollectionsModal: React.FunctionComponent<
       case 'SELECT_CONNECTION':
         return {
           title: 'Select connection',
+          description:
+            'To fetch the collections for this database, select and connect to the database associated with this data model first.',
           onNextClick: onConnect,
           onPreviousClick: onCancel,
           nextLabel: 'Connect',
