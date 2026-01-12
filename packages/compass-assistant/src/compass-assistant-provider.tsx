@@ -341,7 +341,6 @@ export const AssistantProvider: React.FunctionComponent<
       const activeTab: ActiveTabType = activeWorkspace
         ? activeCollectionSubTab || activeWorkspace.type
         : null;
-      console.log({ activeTab, activeWorkspace, activeCollectionSubTab });
       setToolsContext(toolsController, {
         activeConnection,
         connections: activeConnections,
