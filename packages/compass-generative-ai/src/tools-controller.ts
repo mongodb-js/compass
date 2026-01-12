@@ -84,6 +84,7 @@ export class ToolsController {
       disabledTools: ['connect'],
       loggers: ['mcp'],
       readOnly: true,
+      telemetry: 'disabled',
     });
 
     this.runner = new InMemoryRunner({
