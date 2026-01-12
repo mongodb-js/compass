@@ -569,24 +569,20 @@ export function analyzeCollections({
   };
 }
 
-function getModelFromReanalysis(
+// Exported for tests only
+export function getModelFromReanalysis(
   edits: Edit[],
   collections: AnalyzedCollection[],
   relations: Relationship[]
 ) {
-  const lastSetModelEdit = [...edits]
-    .reverse()
-    .find((edit) => edit.type === 'SetModel');
-  if (!lastSetModelEdit) {
-    throw new Error('Invalid diagram state.');
-  }
+  const currentModel = getCurrentModel(edits as [Edit, ...Edit[]]);
 
-  const initialRelationships = lastSetModelEdit.model.relationships;
-  const initialCollections = lastSetModelEdit.model.collections;
+  const currentRelationships = currentModel.relationships;
+  const currentCollections = currentModel.collections;
 
   const newCollections = collections
     .filter((collection) => {
-      return !initialCollections.find((x) => x.ns === collection.ns);
+      return !currentCollections.find((x) => x.ns === collection.ns);
     })
     .map((collection) => ({
       ns: collection.ns,
@@ -599,13 +595,12 @@ function getModelFromReanalysis(
       shardKey: undefined,
       isExpanded: collection.isExpanded,
     }));
-  const newRelations = relations.filter((relation) => {
-    return !initialRelationships.find((x) =>
+  const newRelations = [...relations].filter((relation) => {
+    return !currentRelationships.find((x) =>
       isEqual(x.relationship, relation.relationship)
     );
   });
 
-  const currentModel = getCurrentModel(edits as [Edit, ...Edit[]]);
   return {
     collections: [...currentModel.collections, ...newCollections],
     relationships: [...currentModel.relationships, ...newRelations],
