@@ -109,7 +109,7 @@ export const ToolCallMessage: React.FunctionComponent<ToolCallMessageProps> = ({
   const chips = [];
 
   // TODO: find a better way to only display this when the connection is relevant
-  if (connection && toolCall.type !== 'tool-get-compass-context') {
+  if (connection && !toolCall.type.startsWith('tool-get-current-')) {
     chips.push({ glyph: <ServerIcon />, label: connection.name });
   }
 
@@ -131,6 +131,8 @@ export const ToolCallMessage: React.FunctionComponent<ToolCallMessageProps> = ({
   const isAwaitingApproval = toolCall.state === 'approval-requested';
   const wasApproved = toolCall.approval?.approved === true;
   const isDenied = toolCall.state === 'output-denied';
+  const didRun =
+    toolCall.state === 'output-available' || toolCall.state === 'output-error';
 
   const expandableContent = [
     `### Arguments
@@ -165,7 +167,7 @@ ${toolCall.errorText}
   );
 
   let title: React.ReactNode;
-  if (hasOutput) {
+  if (didRun) {
     title = <>Ran {toolNameElement}</>;
   } else if (wasApproved) {
     title = <>Running {toolNameElement}</>;
@@ -185,7 +187,7 @@ ${toolCall.errorText}
     return null;
   }
 
-  const initialIsExpanded = !hasOutput && !_.isEmpty(toolCall.input);
+  const initialIsExpanded = !_.isEmpty(toolCall.input);
 
   return (
     <div className={toolCallMessageStyles}>

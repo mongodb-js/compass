@@ -230,7 +230,7 @@ export function buildContextPrompt({
   activeCollectionMetadata,
   activeCollectionSubTab,
   enableToolCalling = false,
-  enableGenAIDatabaseToolCalling = false,
+  enableGenAIToolCalling = false,
 }: {
   activeWorkspace: WorkspaceTab | null;
   activeConnection: Pick<ConnectionInfo, 'connectionOptions'> | null;
@@ -247,7 +247,7 @@ export function buildContextPrompt({
   > | null;
   activeCollectionSubTab: CollectionSubtab | null;
   enableToolCalling?: boolean;
-  enableGenAIDatabaseToolCalling?: boolean;
+  enableGenAIToolCalling?: boolean;
 }): AssistantMessage {
   const parts: string[] = [];
 
@@ -324,7 +324,7 @@ export function buildContextPrompt({
     const abilities = [];
     abilities.push('<abilities>');
     abilities.push('You CAN:');
-    if (enableGenAIDatabaseToolCalling) {
+    if (enableGenAIToolCalling) {
       abilities.push(
         `${abilityNum++}. Access user database information, such as collection schemas, etc.`
       );
@@ -338,12 +338,12 @@ export function buildContextPrompt({
     parts.push(abilities.join('\n'));
   }
 
-  if (!enableToolCalling || !enableGenAIDatabaseToolCalling) {
+  if (!enableToolCalling || !enableGenAIToolCalling) {
     let inabilityNum = 1;
     const inabilities = [];
     inabilities.push('<inabilities>');
     inabilities.push('You CANNOT:');
-    if (!enableGenAIDatabaseToolCalling) {
+    if (!enableGenAIToolCalling) {
       inabilities.push(
         `${inabilityNum++}. Access user database information, such as collection schemas, etc UNLESS this information is explicitly provided to you in the prompt.`
       );

@@ -478,10 +478,14 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
       approvalId: string;
       approved: boolean;
     }) => {
+      // TODO: we can probably move this to a useEffect() similar to where we
+      // fill in the message connection info and then it will work even when we
+      // auto-approve a tool call
       toolsController.setConnectionIdForToolCall({
         toolCallId,
         connectionId: message.metadata?.connectionInfo?.id ?? null,
       });
+
       void addToolApprovalResponse({
         id: approvalId,
         approved,

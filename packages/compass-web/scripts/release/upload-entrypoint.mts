@@ -5,6 +5,7 @@ import {
   ALLOWED_PUBLISH_ENVIRONMENTS,
   DOWNLOADS_BUCKET,
   DOWNLOADS_BUCKET_PUBLIC_HOST,
+  DRY_RUN,
   ENTRYPOINT_FILENAME,
   MANIFEST_FILENAME,
   PUBLISH_ENVIRONMENT,
@@ -114,21 +115,25 @@ console.log(
 
 const ENTRYPOINT_CACHE_MAX_AGE_SECONDS = 1 * 60 * 3; // 3mins
 
-const res = await asyncPutObject({
-  ACL: 'private',
-  Bucket: DOWNLOADS_BUCKET,
-  Key: fileKey,
-  Body: compressedFileContent,
-  ContentType: 'text/javascript',
-  ContentEncoding: 'br',
-  ContentLength: compressedFileContent.byteLength,
-  // "Latest" entrypoint files can change quite often, so max-age is quite
-  // short and browser should always revalidate on stale
-  CacheControl: `public, max-age=${ENTRYPOINT_CACHE_MAX_AGE_SECONDS}, must-revalidate`,
-});
+if (DRY_RUN) {
+  console.log('Skipping actual upload because dry run');
+} else {
+  const res = await asyncPutObject({
+    ACL: 'private',
+    Bucket: DOWNLOADS_BUCKET,
+    Key: fileKey,
+    Body: compressedFileContent,
+    ContentType: 'text/javascript',
+    ContentEncoding: 'br',
+    ContentLength: compressedFileContent.byteLength,
+    // "Latest" entrypoint files can change quite often, so max-age is quite
+    // short and browser should always revalidate on stale
+    CacheControl: `public, max-age=${ENTRYPOINT_CACHE_MAX_AGE_SECONDS}, must-revalidate`,
+  });
 
-console.log(
-  'Successfully uploaded %s (ETag: %s)',
-  path.basename(fileKey),
-  res.ETag
-);
+  console.log(
+    'Successfully uploaded %s (ETag: %s)',
+    path.basename(fileKey),
+    res.ETag
+  );
+}

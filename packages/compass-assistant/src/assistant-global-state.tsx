@@ -16,7 +16,7 @@ export type GlobalState = {
   activeWorkspace: WorkspaceTab | null;
   activeCollectionMetadata: CollectionMetadata | null;
   currentQuery: string | null;
-  currentAggregation: string | null;
+  currentPipeline: string | null;
   activeCollectionSubTab: CollectionSubtab | null;
 };
 
@@ -25,7 +25,7 @@ const INITIAL_STATE: GlobalState = {
   activeWorkspace: null,
   activeCollectionMetadata: null,
   currentQuery: null,
-  currentAggregation: null,
+  currentPipeline: null,
   activeCollectionSubTab: null,
 };
 

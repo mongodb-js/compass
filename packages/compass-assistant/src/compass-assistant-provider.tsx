@@ -59,6 +59,10 @@ import {
 } from './assistant-global-state';
 import { lastAssistantMessageIsCompleteWithApprovalResponses } from 'ai';
 import type { ToolSet, UIDataTypes, UIMessagePart, UITools } from 'ai';
+import type {
+  CollectionSubtab,
+  WorkspaceTab,
+} from '@mongodb-js/workspace-info';
 
 export const ASSISTANT_DRAWER_ID = 'compass-assistant-drawer';
 
@@ -66,6 +70,8 @@ export type BasicConnectionInfo = {
   id: string;
   name: string;
 };
+
+export type ActiveTabType = CollectionSubtab | WorkspaceTab['type'] | null;
 
 export type AssistantMessage = UIMessage & {
   role?: 'user' | 'assistant' | 'system';
@@ -252,10 +258,10 @@ export const AssistantProvider: React.FunctionComponent<
       // place to do tracking.
       callback();
 
-      const { enableToolCalling, enableGenAIDatabaseToolCalling } =
+      const { enableToolCalling, enableGenAIToolCalling } =
         preferences.getPreferences();
 
-      if (enableToolCalling && enableGenAIDatabaseToolCalling) {
+      if (enableToolCalling && enableGenAIToolCalling) {
         // Start the server once the first time both the feature flag and
         // setting are enabled, just before sending a message so that it will be
         // there when we call getActiveTools(). It is just some one-time setup
@@ -307,7 +313,7 @@ export const AssistantProvider: React.FunctionComponent<
         activeCollectionMetadata,
         activeCollectionSubTab,
         enableToolCalling,
-        enableGenAIDatabaseToolCalling,
+        enableGenAIToolCalling,
       });
 
       // use just the text so we have a stable reference to compare against
@@ -331,14 +337,18 @@ export const AssistantProvider: React.FunctionComponent<
       }
 
       const query = assistantGlobalStateRef.current.currentQuery;
-      const aggregation = assistantGlobalStateRef.current.currentAggregation;
+      const pipeline = assistantGlobalStateRef.current.currentPipeline;
+      const activeTab: ActiveTabType = activeWorkspace
+        ? activeCollectionSubTab || activeWorkspace.type
+        : null;
       setToolsContext(toolsController, {
         activeConnection,
         connections: activeConnections,
         query,
-        aggregation,
+        pipeline,
         enableToolCalling,
-        enableGenAIDatabaseToolCalling,
+        enableGenAIToolCalling,
+        activeTab,
       });
 
       await chat.sendMessage(message, options);
@@ -570,22 +580,32 @@ export function setToolsContext(
     activeConnection,
     connections,
     query,
-    aggregation,
+    pipeline,
     enableToolCalling,
-    enableGenAIDatabaseToolCalling,
+    enableGenAIToolCalling,
+    activeTab,
   }: {
     activeConnection: ActiveConnectionInfo | null;
     connections: ActiveConnectionInfo[];
     query?: string | null;
-    aggregation?: string | null;
+    pipeline?: string | null;
     enableToolCalling?: boolean;
-    enableGenAIDatabaseToolCalling?: boolean;
+    enableGenAIToolCalling?: boolean;
+    activeTab?: ActiveTabType;
   }
 ) {
   if (enableToolCalling) {
-    const toolGroups = new Set<ToolGroup>(['compass']);
-    if (enableGenAIDatabaseToolCalling && activeConnection) {
-      toolGroups.add('db-read');
+    const toolGroups = new Set<ToolGroup>([]);
+    if (enableGenAIToolCalling) {
+      if (activeTab === 'Documents' || activeTab === 'Schema') {
+        toolGroups.add('querybar');
+      }
+      if (activeTab === 'Aggregations') {
+        toolGroups.add('aggregation-builder');
+      }
+      if (activeConnection) {
+        toolGroups.add('db-read');
+      }
     }
     toolsController.setActiveTools(toolGroups);
     toolsController.setContext({
@@ -602,14 +622,14 @@ export function setToolsContext(
         };
       }),
       query: query || undefined,
-      aggregation: aggregation || undefined,
+      pipeline: pipeline || undefined,
     });
   } else {
     toolsController.setActiveTools(new Set([]));
     toolsController.setContext({
       connections: [],
       query: undefined,
-      aggregation: undefined,
+      pipeline: undefined,
     });
   }
 }

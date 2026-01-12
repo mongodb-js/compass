@@ -162,13 +162,17 @@ export const DATABASE_TOOLS = [
 export const AVAILABLE_TOOLS = [
   ...DATABASE_TOOLS,
   {
-    name: 'get-compass-context',
-    description: 'Get the current query or aggregation.',
+    name: 'get-current-query',
+    description: 'Get the current query from the querybar.',
+  },
+  {
+    name: 'get-current-pipeline',
+    description: 'Get the current pipeline from the aggregation builder.',
   },
 ];
 
 export const ToolToggle: React.FunctionComponent = () => {
-  const enableToolCalling = usePreference('enableGenAIDatabaseToolCalling');
+  const enableToolCalling = usePreference('enableGenAIToolCalling');
   const preferences = usePreferencesContext();
   const [popoverOpen, setPopoverOpen] = useState(false);
   const darkMode = useDarkMode();
@@ -178,7 +182,7 @@ export const ToolToggle: React.FunctionComponent = () => {
   const handleToggle = useCallback(
     (checked: boolean) => {
       void preferences.savePreferences({
-        enableGenAIDatabaseToolCalling: checked,
+        enableGenAIToolCalling: checked,
       });
     },
     [preferences]
@@ -229,8 +233,9 @@ export const ToolToggle: React.FunctionComponent = () => {
                 />
               </div>
               <Description>
-                These are currently enabled and require approval. You can use
-                natural language to explore data and generate queries.
+                {enableToolCalling
+                  ? 'These are currently enabled and require approval. You can use natural language to explore data and generate queries.'
+                  : 'These are currently disabled. Enable them to use natural language to explore data and generate queries.'}
               </Description>
             </div>
             <Link
@@ -244,12 +249,12 @@ export const ToolToggle: React.FunctionComponent = () => {
                 <div className={toolsHeaderTextStyles}>
                   Available tools{' '}
                   <span className={toolsHeaderTextCountStyles}>
-                    ({DATABASE_TOOLS.length})
+                    ({AVAILABLE_TOOLS.length})
                   </span>
                 </div>
               </div>
               <div className={`${toolListStyles}`}>
-                {DATABASE_TOOLS.map((tool) => (
+                {AVAILABLE_TOOLS.map((tool) => (
                   <div key={tool.name} className={toolItemStyles}>
                     <div className={toolNameStyles}>{tool.name}</div>
                     <div className={toolDescriptionStyles}>
