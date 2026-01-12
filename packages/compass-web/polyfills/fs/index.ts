@@ -15,4 +15,9 @@ export function rmSync() {
 export function readFileSync() {
   // noop
 }
+
+export function createWriteStream() {
+  throw new Error('Not supported in browser environment');
+}
+
 export default { promises, rmSync, readFileSync };
