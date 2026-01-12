@@ -404,7 +404,7 @@ export function redoAnalysis(
           },
         })
       );
-      const edits = diagram.edits.prev.pop() ?? [];
+      const edits = diagram.edits.current;
       const model = getModelFromReanalysis(edits, collections, relations);
       void dispatch(applySetModelEdit(model));
       dispatch({
@@ -575,49 +575,40 @@ function getModelFromReanalysis(
   collections: AnalyzedCollection[],
   relations: Relationship[]
 ) {
-  const initialSetModelEdit = edits[0]; // First one is always SetModelEdit
-  if (initialSetModelEdit.type !== 'SetModel') {
-    throw new Error('Invalid diagram');
+  const lastSetModelEdit = [...edits]
+    .reverse()
+    .find((edit) => edit.type === 'SetModel');
+  if (!lastSetModelEdit) {
+    throw new Error('Invalid diagram state.');
   }
-  const initialRelationships = initialSetModelEdit.model.relationships;
 
-  // In order to preserve the user changes, we will apply all the edits done
-  // after first SetModel.
-  const newSetModelEdit: SetModelEdit = {
-    type: 'SetModel',
-    id: new UUID().toString(),
-    timestamp: new Date().toISOString(),
-    model: {
-      collections: collections.map((collection) => ({
-        ns: collection.ns,
-        jsonSchema: collection.schema,
-        displayPosition: [
-          collection.position.x,
-          collection.position.y,
-        ] as const,
-        indexes: [],
-        shardKey: undefined,
-        isExpanded: collection.isExpanded,
-      })),
-      // When the first analysis happened, it generated a list of relationship with unique
-      // ids and any changes in relationships are tied to those ids. The relationships
-      // generated from reanalysis will have different. So we have to replace new ids
-      // with the existing ones.
-      relationships: relations.map((relation) => {
-        const existingRelation = initialRelationships.find((x) =>
-          isEqual(x.relationship, relation.relationship)
-        );
-        if (existingRelation) {
-          return {
-            ...relation,
-            id: existingRelation.id,
-          };
-        }
-        return relation;
-      }),
-    },
+  const initialRelationships = lastSetModelEdit.model.relationships;
+  const initialCollections = lastSetModelEdit.model.collections;
+
+  const newCollections = collections
+    .filter((collection) => {
+      return !initialCollections.find((x) => x.ns === collection.ns);
+    })
+    .map((collection) => ({
+      ns: collection.ns,
+      jsonSchema: collection.schema,
+      displayPosition: [collection.position.x, collection.position.y] as [
+        number,
+        number
+      ],
+      indexes: [],
+      shardKey: undefined,
+      isExpanded: collection.isExpanded,
+    }));
+  const newRelations = relations.filter((relation) => {
+    return !initialRelationships.find((x) =>
+      isEqual(x.relationship, relation.relationship)
+    );
+  });
+
+  const currentModel = getCurrentModel(edits as [Edit, ...Edit[]]);
+  return {
+    collections: [...currentModel.collections, ...newCollections],
+    relationships: [...currentModel.relationships, ...newRelations],
   };
-
-  edits.splice(0, 1, newSetModelEdit);
-  return getCurrentModel(edits);
 }
