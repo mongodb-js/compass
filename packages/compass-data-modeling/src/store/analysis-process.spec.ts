@@ -9,6 +9,7 @@ import { UUID } from 'bson';
 import { getModelFromReanalysis } from './analysis-process';
 import { type DataModelingStore, setupStore } from '../../test/setup-store';
 import {
+  createNewRelationship,
   deleteCollection,
   deleteRelationship,
   moveCollection,
@@ -146,6 +147,61 @@ describe('analysis-process', function () {
               },
             ],
           },
+          ...relationships,
+        ]);
+      });
+      it('should not include a relation that was added in SetModel and then removed', function () {
+        store.dispatch(deleteRelationship(model.relationships[0].id));
+        const edits = store.getState().diagram?.edits.current;
+        const relationships = [
+          // Let's add it back
+          getMockedRelationship(
+            model.relationships[0].relationship[0].ns!,
+            model.relationships[0].relationship[1].ns!
+          ),
+        ];
+        const newModel = getModelFromReanalysis(
+          edits as [Edit, ...Edit[]],
+          [],
+          relationships
+        );
+        expect(newModel.collections).to.deep.equal(model.collections);
+        expect(newModel.relationships).to.deep.equal([]);
+      });
+      it('should retain a relation that was added after SetModel edit', function () {
+        store.dispatch(
+          createNewRelationship({
+            localNamespace: 'db.collection6',
+            foreignNamespace: 'db.collection7',
+            localFields: ['fieldA'],
+            foreignFields: ['fieldB'],
+          })
+        );
+        const edits = store.getState().diagram?.edits.current;
+        const relationships = [
+          getMockedRelationship('db.collection3', 'db.collection4'),
+        ];
+        const newModel = getModelFromReanalysis(
+          edits as [Edit, ...Edit[]],
+          [],
+          relationships
+        );
+        expect(newModel.collections).to.deep.equal(model.collections);
+
+        // Added via dispatch (createNewRelationship)
+        const indexOfAddedRelation = newModel.relationships.findIndex(
+          (rel) =>
+            rel.relationship[0].ns === 'db.collection6' &&
+            rel.relationship[1].ns === 'db.collection7'
+        );
+
+        expect(indexOfAddedRelation).to.be.greaterThan(-1);
+        const otherRelationships = newModel.relationships.filter(
+          (_, idx) => idx !== indexOfAddedRelation
+        );
+
+        expect(otherRelationships).to.deep.equal([
+          ...model.relationships,
           ...relationships,
         ]);
       });

@@ -575,14 +575,21 @@ export function getModelFromReanalysis(
   collections: AnalyzedCollection[],
   relations: Relationship[]
 ) {
+  const lastSetModelEdit = [...edits]
+    .reverse()
+    .find((edit) => edit.type === 'SetModel');
+  if (!lastSetModelEdit) {
+    throw new Error('Invalid diagram state.');
+  }
+
   const currentModel = getCurrentModel(edits as [Edit, ...Edit[]]);
 
-  const currentRelationships = currentModel.relationships;
-  const currentCollections = currentModel.collections;
+  const initialRelationships = currentModel.relationships;
+  const initialCollections = currentModel.collections;
 
   const newCollections = collections
     .filter((collection) => {
-      return !currentCollections.find((x) => x.ns === collection.ns);
+      return !initialCollections.find((x) => x.ns === collection.ns);
     })
     .map((collection) => ({
       ns: collection.ns,
@@ -595,10 +602,26 @@ export function getModelFromReanalysis(
       shardKey: undefined,
       isExpanded: collection.isExpanded,
     }));
-  const newRelations = [...relations].filter((relation) => {
-    return !currentRelationships.find((x) =>
+  const newRelations = relations.filter((relation) => {
+    // Unlike collections, the algorithm may infer relationships that maybe were removed
+    // by the user. So we compare the initial SetModel state and the current model.
+    // If the `relation` exists in SetModel phase and does not exist in current model, it means
+    // the user removed it, so we don't add it back.
+    const existsInSetModel = lastSetModelEdit.model.relationships.find((x) =>
       isEqual(x.relationship, relation.relationship)
     );
+    const existsInCurrentModel = initialRelationships.find((x) =>
+      isEqual(x.relationship, relation.relationship)
+    );
+    // Currently exists
+    if (existsInCurrentModel) {
+      return false;
+    }
+    // User removed it
+    if (existsInSetModel && !existsInCurrentModel) {
+      return false;
+    }
+    return true;
   });
 
   return {
