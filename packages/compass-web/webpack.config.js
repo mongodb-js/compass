@@ -83,7 +83,6 @@ module.exports = (env, args) => {
         'fs/promises': localPolyfill('fs/promises'),
         // TODO(COMPASS-7411): compass-utils
         fs: localPolyfill('fs'),
-        'node:fs': localPolyfill('fs'),
 
         // We can't polyfill connection-form because some shared methods from
         // connection-form are used in connection flow, so you can't connect
