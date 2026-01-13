@@ -4,6 +4,11 @@ import { AtlasAiPlugin } from './components';
 import { atlasAiServiceLocator } from './provider';
 import { preferencesLocator } from 'compass-preferences-model/provider';
 import { activatePlugin } from './store/atlas-ai-store';
+import { defaultParserOptions } from 'mongodb-mcp-server';
+
+// TODO: Remove once mongodb-mcp-server is used.
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const parserOptions = defaultParserOptions;
 
 export const CompassGenerativeAIPlugin = registerCompassPlugin(
   {

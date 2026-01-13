@@ -17,7 +17,7 @@ export const GenAISettings: React.FunctionComponent<{
         <>
           <SettingsList fields={['enableGenAISampleDocumentPassing']} />
           {isToolCallingEnabled && (
-            <SettingsList fields={['enableGenAIDatabaseToolCalling']} />
+            <SettingsList fields={['enableGenAIToolCalling']} />
           )}
         </>
       )}

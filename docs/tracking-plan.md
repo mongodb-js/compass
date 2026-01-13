@@ -2279,6 +2279,7 @@ This event is fired when a user clicks on the Performance Advisor CTA.
 
 **Properties**:
 
+- **type** (required): `string`
 - **approved** (required): `boolean`
 - **approval_id** (required): `string`
 - **is_compass_web** (optional): `true | undefined`

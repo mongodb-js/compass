@@ -199,7 +199,7 @@ export const FEATURE_FLAG_DEFINITIONS = [
   {
     name: 'enableToolCalling',
     stage: 'development',
-    atlasCloudFeatureFlagName: null,
+    atlasCloudFeatureFlagName: 'DATA_EXPLORER_ENABLE_TOOL_CALLING',
     description: {
       short: 'Enable tool calling in the AI Assistant',
     },
