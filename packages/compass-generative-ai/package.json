@@ -53,6 +53,10 @@
     "eval": "braintrust eval tests/evals"
   },
   "dependencies": {
+    "@mongosh/service-provider-node-driver": "^3.18.0",
+    "@mongosh/service-provider-core": "^3.7.0",
+    "mongodb-build-info": "^1.8.1",
+    "mongodb-connection-string-url": "^3.0.1",
     "@mongodb-js/atlas-service": "^0.75.0",
     "@mongodb-js/compass-app-registry": "^9.6.0",
     "@mongodb-js/compass-components": "^1.61.0",
@@ -64,6 +68,7 @@
     "bson": "^6.10.4",
     "compass-preferences-model": "^2.68.0",
     "mongodb": "^6.21.0",
+    "mongodb-mcp-server": "1.4.1-prerelease.4",
     "mongodb-query-parser": "^4.6.0",
     "mongodb-schema": "^12.6.3",
     "react": "^17.0.2",
@@ -71,8 +76,8 @@
     "redux": "^4.2.1",
     "redux-thunk": "^2.4.2",
     "zod": "^3.25.76",
-    "@ai-sdk/openai": "^3.0.0-beta.96",
-    "ai": "^6.0.0-beta.151"
+    "@ai-sdk/openai": "^3.0.1",
+    "ai": "^6.0.3"
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-compass": "^1.4.14",

@@ -11,6 +11,7 @@ import {
   Button,
   Link,
   useDarkMode,
+  fontFamilies,
 } from '@mongodb-js/compass-components';
 import {
   usePreference,
@@ -52,6 +53,7 @@ const toolsHeaderStyles = css({
 });
 
 const toolsHeaderTextStyles = css({
+  fontFamily: fontFamilies.default,
   fontSize: '13px',
   fontWeight: 600,
   color: palette.gray.light3,
@@ -59,6 +61,7 @@ const toolsHeaderTextStyles = css({
 });
 
 const toolsHeaderTextCountStyles = css({
+  fontFamily: fontFamilies.default,
   fontWeight: 400,
   color: palette.gray.light1,
 });
@@ -103,18 +106,14 @@ const toolNameStyles = css({
 });
 
 const toolDescriptionStyles = css({
+  fontFamily: fontFamilies.default,
   fontSize: '12px',
   lineHeight: '18px',
   color: palette.gray.light1,
   fontWeight: 300,
 });
 
-// Placeholder tools - these should be replaced with actual tool definitions
-export const AVAILABLE_TOOLS = [
-  {
-    name: 'get-compass-context',
-    description: 'Get the current query or aggregation.',
-  },
+export const DATABASE_TOOLS = [
   {
     name: 'find',
     description:
@@ -164,8 +163,24 @@ export const AVAILABLE_TOOLS = [
   },
 ];
 
-export const ToolToggle: React.FunctionComponent = () => {
-  const enableToolCalling = usePreference('enableGenAIDatabaseToolCalling');
+export const AVAILABLE_TOOLS = [
+  ...DATABASE_TOOLS,
+  {
+    name: 'get-current-query',
+    description: 'Get the current query from the querybar.',
+  },
+  {
+    name: 'get-current-pipeline',
+    description: 'Get the current pipeline from the aggregation builder.',
+  },
+];
+
+export const ToolToggle: React.FunctionComponent<{
+  // TODO(COMPASS-10239, COMPASS-10237): this will likely go away once we allow
+  // DE users to toggle the feature
+  allowSavingPreferences?: boolean;
+}> = ({ allowSavingPreferences }) => {
+  const enableToolCalling = usePreference('enableGenAIToolCalling');
   const preferences = usePreferencesContext();
   const [popoverOpen, setPopoverOpen] = useState(false);
   const darkMode = useDarkMode();
@@ -175,7 +190,7 @@ export const ToolToggle: React.FunctionComponent = () => {
   const handleToggle = useCallback(
     (checked: boolean) => {
       void preferences.savePreferences({
-        enableGenAIDatabaseToolCalling: checked,
+        enableGenAIToolCalling: checked,
       });
     },
     [preferences]
@@ -195,7 +210,7 @@ export const ToolToggle: React.FunctionComponent = () => {
             ref={ref}
             data-testid="tool-toggle-button"
             onClick={onClick}
-            aria-label="Configure database tool calling"
+            aria-label="Configure tool calling"
             aria-expanded={popoverOpen}
             darkMode={darkMode}
             size="small"
@@ -223,11 +238,13 @@ export const ToolToggle: React.FunctionComponent = () => {
                   checked={enableToolCalling}
                   onChange={handleToggle}
                   data-testid="tool-toggle-switch"
+                  disabled={!allowSavingPreferences}
                 />
               </div>
               <Description>
-                These are currently enabled and require approval. You can use
-                natural language to explore data and generate queries.
+                {enableToolCalling
+                  ? 'These are currently enabled and require approval. You can use natural language to explore data and generate queries.'
+                  : 'These are currently disabled. Enable them to use natural language to explore data and generate queries.'}
               </Description>
             </div>
             <Link
