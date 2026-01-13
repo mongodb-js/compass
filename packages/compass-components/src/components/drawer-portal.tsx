@@ -529,11 +529,14 @@ export function useDrawerActions() {
 export const useDrawerState = () => {
   const drawerOpenStateContext = useContext(DrawerOpenStateContext);
   const drawerState = useContext(DrawerStateContext);
+  const drawerCurrentTabStateContext = useContext(DrawerCurrentTabStateContext);
+
   return {
     isDrawerOpen:
       drawerOpenStateContext &&
       // the second check is a workaround, because LG doesn't set isDrawerOpen to false when it's empty
       drawerState.length > 0,
+    currentDrawerTab: drawerCurrentTabStateContext,
   };
 };
 

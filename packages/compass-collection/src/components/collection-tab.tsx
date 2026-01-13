@@ -25,6 +25,7 @@ import {
   useLocalAppRegistry,
 } from '@mongodb-js/compass-app-registry';
 import { useSyncAssistantGlobalState } from '@mongodb-js/compass-assistant';
+import { useIndexesDrawerActions } from '@mongodb-js/compass-indexes-drawer-tab';
 
 type CollectionSubtabTrackingId = Lowercase<CollectionSubtab> extends infer U
   ? U extends string
@@ -210,6 +211,9 @@ const CollectionTabWithMetadata: React.FunctionComponent<
 
   useSyncAssistantGlobalState('activeCollectionMetadata', collectionMetadata);
   useSyncAssistantGlobalState('activeCollectionSubTab', currentTab);
+
+  const { setActiveCollectionMetadata } = useIndexesDrawerActions();
+  setActiveCollectionMetadata(collectionMetadata);
 
   return (
     <div className={collectionStyles} data-testid="collection">
