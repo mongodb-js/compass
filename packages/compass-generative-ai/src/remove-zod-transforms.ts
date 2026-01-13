@@ -16,7 +16,7 @@ export function removeZodTransforms(schema: z.ZodTypeAny): z.ZodTypeAny {
   // ZodObject - process each property
   if ('shape' in def && typeof def.shape === 'function') {
     const shape = def.shape();
-    const newShape: Record<string, z.ZodTypeAny> = {};
+    const newShape: Record<string, z.ZodTypeAny> = Object.create(null);
     for (const key in shape) {
       newShape[key] = removeZodTransforms(shape[key]);
     }
