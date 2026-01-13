@@ -1,6 +1,6 @@
 {
   "name": "@mongodb-js/compass-indexes-drawer-tab",
-  "description": "Compass plugin for the Indexes drawer tab",
+  "description": "A tab container/window in the right drawer that shows information regarding search indexes in a collection ",
   "author": {
     "name": "MongoDB Inc",
     "email": "compass@mongodb.com"
@@ -11,7 +11,7 @@
     "email": "compass@mongodb.com"
   },
   "homepage": "https://github.com/mongodb-js/compass",
-  "version": "1.19.2",
+  "version": "1.0.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/compass.git"
@@ -21,13 +21,13 @@
   ],
   "license": "SSPL",
   "main": "dist/index.js",
-  "compass:main": "src/index.tsx",
+  "compass:main": "src/index.ts",
   "exports": {
     "import": "./dist/.esm-wrapper.mjs",
     "require": "./dist/index.js"
   },
   "compass:exports": {
-    ".": "./src/index.tsx"
+    ".": "./src/index.ts"
   },
   "types": "./dist/index.d.ts",
   "scripts": {
@@ -49,25 +49,21 @@
     "reformat": "npm run eslint . -- --fix && npm run prettier -- --write ."
   },
   "dependencies": {
-    "@mongodb-js/compass-app-registry": "^9.4.28",
-    "@mongodb-js/compass-components": "^1.59.1",
-    "@mongodb-js/compass-logging": "^1.7.24",
-    "@mongodb-js/compass-telemetry": "^1.19.4",
-    "@mongodb-js/connection-info": "^0.25.0",
-    "@mongodb-js/workspace-info": "^1.2.0",
-    "compass-preferences-model": "^2.66.2",
-    "mongodb-collection-model": "^5.38.0",
-    "react": "^17.0.2"
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2"
   },
   "devDependencies": {
-    "@mongodb-js/eslint-config-compass": "^1.4.12",
-    "@mongodb-js/mocha-config-compass": "^1.7.2",
+    "@mongodb-js/compass-app-registry": "^9.6.0",
+    "@mongodb-js/eslint-config-compass": "^1.4.14",
+    "@mongodb-js/mocha-config-compass": "^1.7.4",
     "@mongodb-js/prettier-config-compass": "^1.2.9",
-    "@mongodb-js/testing-library-compass": "^1.4.0",
-    "@mongodb-js/tsconfig-compass": "^1.2.12",
+    "@mongodb-js/testing-library-compass": "^1.4.2",
+    "@mongodb-js/tsconfig-compass": "^1.2.13",
     "@types/chai": "^4.2.21",
+    "@types/chai-dom": "^0.0.10",
     "@types/mocha": "^9.0.0",
     "@types/react": "^17.0.5",
+    "@types/react-dom": "^17.0.10",
     "@types/sinon-chai": "^3.2.5",
     "chai": "^4.3.6",
     "depcheck": "^1.4.1",
