@@ -21,26 +21,25 @@ const getBuildVersion = (version) => {
   return newVersion;
 };
 
-const distroVariants = Target.supportedDistributions
-  .map((distro) => {
-    return buildVariants.map((variant) => {
-      return `${distro}-${variant}`;
-    });
-  })
-  .flat();
+const distroVariants = Target.supportedDistributions.flatMap((distro) => {
+  return buildVariants.map((variant) => {
+    return `${distro}-${variant}`;
+  });
+});
 
 const getPlatformSpecificAttestations = (dir, version) => {
-  return ['purls.txt', 'sbom-lite.json', 'sbom.json', 'first-party-deps.json']
-    .map((file) => {
-      return distroVariants
-        .map((variant) => ({
-          downloadKey: path.join(variant, file),
-          uploadKey: path.join(version, variant, file),
-          localPath: path.join(dir, 'dist', variant, file),
-        }))
-        .flat();
-    })
-    .flat();
+  return [
+    'purls.txt',
+    'sbom-lite.json',
+    'sbom.json',
+    'first-party-deps.json',
+  ].flatMap((file) => {
+    return distroVariants.flatMap((variant) => ({
+      downloadKey: path.join(variant, file),
+      uploadKey: path.join(version, variant, file),
+      localPath: path.join(dir, 'dist', variant, file),
+    }));
+  });
 };
 
 const getBuildSpecificAttestations = (dir, version) => {
