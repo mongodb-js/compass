@@ -17,6 +17,7 @@ import {
 import sinon from 'sinon';
 import type { SourceUrlUIPart, TextPart } from 'ai';
 import type { Chat } from '../@ai-sdk/react/chat-react';
+import { ToolsControllerProvider } from '@mongodb-js/compass-generative-ai/provider';
 
 describe('AssistantChat', function () {
   const mockMessages: AssistantMessage[] = [
@@ -82,9 +83,17 @@ describe('AssistantChat', function () {
       ensureOptInAndSend: ensureOptInAndSendStub,
     };
     const result = render(
-      <AssistantActionsContext.Provider value={assistantActionsContext as any}>
-        <AssistantChat chat={chat} hasNonGenuineConnections={false} />
-      </AssistantActionsContext.Provider>,
+      <ToolsControllerProvider>
+        <AssistantActionsContext.Provider
+          value={assistantActionsContext as any}
+        >
+          <AssistantChat
+            chat={chat}
+            hasNonGenuineConnections={false}
+            allowSavingPreferences={true}
+          />
+        </AssistantActionsContext.Provider>
+      </ToolsControllerProvider>,
       {
         connections,
       }
@@ -204,7 +213,15 @@ describe('AssistantChat', function () {
   describe('non-genuine MongoDB host handling', function () {
     it('shows warning message in chat when connected to non-genuine MongoDB', function () {
       const chat = createMockChat({ messages: [] });
-      render(<AssistantChat chat={chat} hasNonGenuineConnections={true} />);
+      render(
+        <ToolsControllerProvider>
+          <AssistantChat
+            chat={chat}
+            hasNonGenuineConnections={true}
+            allowSavingPreferences={true}
+          />
+        </ToolsControllerProvider>
+      );
 
       expect(chat.messages).to.have.length(1);
       expect(chat.messages[0].id).to.equal('non-genuine-warning');
@@ -217,9 +234,18 @@ describe('AssistantChat', function () {
 
     it('does not show warning message when all connections are genuine', function () {
       const chat = createMockChat({ messages: [] });
-      render(<AssistantChat chat={chat} hasNonGenuineConnections={false} />, {
-        connections: [],
-      });
+      render(
+        <ToolsControllerProvider>
+          <AssistantChat
+            chat={chat}
+            hasNonGenuineConnections={false}
+            allowSavingPreferences={true}
+          />
+        </ToolsControllerProvider>,
+        {
+          connections: [],
+        }
+      );
 
       const warningMessage = screen.queryByText(
         /MongoDB Assistant will not provide accurate guidance for non-genuine hosts/
@@ -230,7 +256,13 @@ describe('AssistantChat', function () {
     it('warning message is removed when all active connections are changed to genuine', async function () {
       const chat = createMockChat({ messages: [] });
       const { rerender } = render(
-        <AssistantChat chat={chat} hasNonGenuineConnections={true} />,
+        <ToolsControllerProvider>
+          <AssistantChat
+            chat={chat}
+            hasNonGenuineConnections={true}
+            allowSavingPreferences={true}
+          />
+        </ToolsControllerProvider>,
         {}
       );
 
@@ -240,7 +272,15 @@ describe('AssistantChat', function () {
         )
       ).to.exist;
 
-      rerender(<AssistantChat chat={chat} hasNonGenuineConnections={false} />);
+      rerender(
+        <ToolsControllerProvider>
+          <AssistantChat
+            chat={chat}
+            hasNonGenuineConnections={false}
+            allowSavingPreferences={true}
+          />
+        </ToolsControllerProvider>
+      );
 
       await waitFor(() => {
         const warningMessage = screen.queryByText(

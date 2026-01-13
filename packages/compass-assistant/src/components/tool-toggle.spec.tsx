@@ -12,9 +12,9 @@ import sinon from 'sinon';
 describe('ToolToggle', function () {
   describe('rendering', function () {
     it('shows disabled icon when tool calling is disabled', function () {
-      render(<ToolToggle />, {
+      render(<ToolToggle allowSavingPreferences={true} />, {
         preferences: {
-          enableGenAIDatabaseToolCalling: false,
+          enableGenAIToolCalling: false,
         },
       });
 
@@ -25,9 +25,9 @@ describe('ToolToggle', function () {
     });
 
     it('shows active icon when tool calling is enabled', function () {
-      render(<ToolToggle />, {
+      render(<ToolToggle allowSavingPreferences={true} />, {
         preferences: {
-          enableGenAIDatabaseToolCalling: true,
+          enableGenAIToolCalling: true,
         },
       });
 
@@ -40,9 +40,9 @@ describe('ToolToggle', function () {
 
   describe('popover behavior', function () {
     it('opens popover when button is clicked', async function () {
-      render(<ToolToggle />, {
+      render(<ToolToggle allowSavingPreferences={true} />, {
         preferences: {
-          enableGenAIDatabaseToolCalling: false,
+          enableGenAIToolCalling: false,
         },
       });
 
@@ -57,9 +57,9 @@ describe('ToolToggle', function () {
     });
 
     it('displays the toggle switch in the popover', async function () {
-      render(<ToolToggle />, {
+      render(<ToolToggle allowSavingPreferences={true} />, {
         preferences: {
-          enableGenAIDatabaseToolCalling: false,
+          enableGenAIToolCalling: false,
         },
       });
       expect(screen.queryByTestId('tool-toggle-switch')).to.not.exist;
@@ -74,9 +74,9 @@ describe('ToolToggle', function () {
     });
 
     it('displays the Learn more link', async function () {
-      render(<ToolToggle />, {
+      render(<ToolToggle allowSavingPreferences={true} />, {
         preferences: {
-          enableGenAIDatabaseToolCalling: false,
+          enableGenAIToolCalling: false,
         },
       });
 
@@ -95,9 +95,9 @@ describe('ToolToggle', function () {
     });
 
     it('displays all available tools in the list', async function () {
-      render(<ToolToggle />, {
+      render(<ToolToggle allowSavingPreferences={true} />, {
         preferences: {
-          enableGenAIDatabaseToolCalling: false,
+          enableGenAIToolCalling: false,
         },
       });
 
@@ -115,9 +115,9 @@ describe('ToolToggle', function () {
 
   describe('preference toggling', function () {
     it('toggle switch reflects current preference state - disabled', async function () {
-      render(<ToolToggle />, {
+      render(<ToolToggle allowSavingPreferences={true} />, {
         preferences: {
-          enableGenAIDatabaseToolCalling: false,
+          enableGenAIToolCalling: false,
         },
       });
 
@@ -132,9 +132,9 @@ describe('ToolToggle', function () {
     });
 
     it('toggle switch reflects current preference state - enabled', async function () {
-      render(<ToolToggle />, {
+      render(<ToolToggle allowSavingPreferences={true} />, {
         preferences: {
-          enableGenAIDatabaseToolCalling: true,
+          enableGenAIToolCalling: true,
         },
       });
 
@@ -149,11 +149,14 @@ describe('ToolToggle', function () {
     });
 
     it('clicking toggle switch enables tool calling when disabled', async function () {
-      const { preferences } = render(<ToolToggle />, {
-        preferences: {
-          enableGenAIDatabaseToolCalling: false,
-        },
-      });
+      const { preferences } = render(
+        <ToolToggle allowSavingPreferences={true} />,
+        {
+          preferences: {
+            enableGenAIToolCalling: false,
+          },
+        }
+      );
 
       const savePreferencesSpy = sinon.spy(preferences, 'savePreferences');
 
@@ -171,17 +174,20 @@ describe('ToolToggle', function () {
       await waitFor(() => {
         expect(savePreferencesSpy).to.have.been.calledOnce;
         expect(savePreferencesSpy).to.have.been.calledWith({
-          enableGenAIDatabaseToolCalling: true,
+          enableGenAIToolCalling: true,
         });
       });
     });
 
     it('clicking toggle switch disables tool calling when enabled', async function () {
-      const { preferences } = render(<ToolToggle />, {
-        preferences: {
-          enableGenAIDatabaseToolCalling: true,
-        },
-      });
+      const { preferences } = render(
+        <ToolToggle allowSavingPreferences={true} />,
+        {
+          preferences: {
+            enableGenAIToolCalling: true,
+          },
+        }
+      );
 
       const savePreferencesSpy = sinon.spy(preferences, 'savePreferences');
 
@@ -199,17 +205,20 @@ describe('ToolToggle', function () {
       await waitFor(() => {
         expect(savePreferencesSpy).to.have.been.calledOnce;
         expect(savePreferencesSpy).to.have.been.calledWith({
-          enableGenAIDatabaseToolCalling: false,
+          enableGenAIToolCalling: false,
         });
       });
     });
 
     it('updates button icon after preference is toggled', async function () {
-      const { preferences } = render(<ToolToggle />, {
-        preferences: {
-          enableGenAIDatabaseToolCalling: false,
-        },
-      });
+      const { preferences } = render(
+        <ToolToggle allowSavingPreferences={true} />,
+        {
+          preferences: {
+            enableGenAIToolCalling: false,
+          },
+        }
+      );
 
       const savePreferencesSpy = sinon.spy(preferences, 'savePreferences');
 

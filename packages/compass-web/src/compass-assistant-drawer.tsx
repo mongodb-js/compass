@@ -16,6 +16,7 @@ export function CompassAssistantDrawerWithConnections({
     <CompassAssistantDrawer
       appName={appName}
       hasNonGenuineConnections={hasNonGenuineConnections}
+      allowSavingPreferences={false}
     />
   );
 }
