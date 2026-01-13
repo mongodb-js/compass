@@ -2181,6 +2181,7 @@ export function activateDocumentsPlugin(
     store,
     actions,
     deactivate() {
+      store.cancelOperation();
       cleanup();
     },
   };

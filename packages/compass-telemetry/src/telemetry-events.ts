@@ -1683,9 +1683,14 @@ type PipelineAiFeedbackEvent = ConnectionScopedEvent<{
   };
 }>;
 
+/*
+ * This event is fired when a tool call was either approved or rejected by the
+ * user.
+ */
 type AssistantToolCallApprovalEvent = CommonEvent<{
   name: 'Assistant Tool Call Approval';
   payload: {
+    type: string;
     approved: boolean;
     approval_id: string;
   };

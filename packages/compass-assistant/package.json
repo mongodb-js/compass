@@ -53,7 +53,8 @@
     "eval": "braintrust eval test/assistant.eval.ts --verbose"
   },
   "dependencies": {
-    "@ai-sdk/openai": "^3.0.0-beta.96",
+    "@mongosh/service-provider-node-driver": "^3.18.0",
+    "@ai-sdk/openai": "^3.0.1",
     "@mongodb-js/atlas-service": "^0.75.0",
     "@mongodb-js/compass-app-registry": "^9.6.0",
     "@mongodb-js/compass-components": "^1.61.0",
@@ -62,13 +63,14 @@
     "@mongodb-js/compass-telemetry": "^1.21.0",
     "@mongodb-js/connection-info": "^0.25.0",
     "@mongodb-js/workspace-info": "^1.2.0",
-    "ai": "^6.0.0-beta.151",
+    "ai": "^6.0.3",
     "compass-preferences-model": "^2.68.0",
     "mongodb-collection-model": "^5.38.0",
     "mongodb-connection-string-url": "^3.0.1",
     "react": "^17.0.2",
     "throttleit": "^2.1.0",
-    "use-sync-external-store": "^1.5.0"
+    "use-sync-external-store": "^1.5.0",
+    "lodash": "^4.17.21"
   },
   "devDependencies": {
     "@fast-csv/parse": "^5.0.5",
