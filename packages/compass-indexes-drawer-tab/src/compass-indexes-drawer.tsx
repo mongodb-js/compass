@@ -30,7 +30,10 @@ export const CompassIndexesDrawer: React.FunctionComponent<{
   const drawerState = useContext(IndexesDrawerContext);
   const { getIsIndexesDrawerEnabled } = useIndexesDrawerActions();
 
-  if (!getIsIndexesDrawerEnabled()) {
+  if (
+    !getIsIndexesDrawerEnabled() ||
+    drawerGlobalState.activeWorkspace?.type !== 'Collection'
+  ) {
     return null;
   }
 
@@ -41,22 +44,20 @@ export const CompassIndexesDrawer: React.FunctionComponent<{
   }
 
   return (
-    drawerGlobalState.activeWorkspace?.type === 'Collection' && (
-      <DrawerSection
-        id={INDEXES_DRAWER_ID}
-        title={
-          <div className={indexesTitleStyles}>
-            <span className={indexesTitleTextStyles}>Indexes</span>
-          </div>
-        }
-        label="Indexes"
-        glyph="SearchIndex"
-        autoOpen={autoOpen}
-      >
-        <div>
-          {drawerState.currentPage === 'indexes-list' && <IndexesListPage />}
+    <DrawerSection
+      id={INDEXES_DRAWER_ID}
+      title={
+        <div className={indexesTitleStyles}>
+          <span className={indexesTitleTextStyles}>Indexes</span>
         </div>
-      </DrawerSection>
-    )
+      }
+      label="Indexes"
+      glyph="SearchIndex"
+      autoOpen={autoOpen}
+    >
+      <div>
+        {drawerState.currentPage === 'indexes-list' && <IndexesListPage />}
+      </div>
+    </DrawerSection>
   );
 };
