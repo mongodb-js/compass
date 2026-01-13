@@ -10,7 +10,6 @@ import {
 } from '@mongodb-js/compass-components';
 import { usePreference } from 'compass-preferences-model/provider';
 import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
-import { IndexesDrawerGlobalStateProvider } from './indexes-drawer-global-state';
 
 export const INDEXES_DRAWER_ID = 'compass-indexes-drawer';
 
@@ -157,11 +156,9 @@ export const CompassIndexesDrawerProvider = registerCompassPlugin(
       initialState?: Partial<IndexesDrawerContextType>;
     }>) => {
       return (
-        <IndexesDrawerGlobalStateProvider>
-          <IndexesDrawerProvider initialState={initialState}>
-            {children}
-          </IndexesDrawerProvider>
-        </IndexesDrawerGlobalStateProvider>
+        <IndexesDrawerProvider initialState={initialState}>
+          {children}
+        </IndexesDrawerProvider>
       );
     },
     activate: () => {

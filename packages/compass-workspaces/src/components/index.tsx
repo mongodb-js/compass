@@ -20,7 +20,6 @@ import Workspaces from './workspaces';
 import { connect } from '../stores/context';
 import { WorkspacesServiceProvider } from '../provider';
 import { useSyncAssistantGlobalState } from '@mongodb-js/compass-assistant';
-import { useSyncIndexesDrawerGlobalState } from '@mongodb-js/compass-indexes-drawer-tab';
 
 type WorkspacesWithSidebarProps = {
   /**
@@ -118,7 +117,6 @@ const WorkspacesWithSidebar: React.FunctionComponent<
     onChange.current(activeTab, activeTabCollectionInfo);
   }, [activeTab, activeTabCollectionInfo, onChange]);
   useSyncAssistantGlobalState('activeWorkspace', activeTab);
-  useSyncIndexesDrawerGlobalState('activeWorkspace', activeTab);
 
   return (
     <WorkspacesServiceProvider>

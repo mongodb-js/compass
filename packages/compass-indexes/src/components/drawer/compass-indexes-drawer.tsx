@@ -5,8 +5,8 @@ import {
   IndexesDrawerContext,
   useIndexesDrawerActions,
 } from './compass-indexes-provider';
-import { IndexesListPage } from './components/indexes-list-page';
-import { useIndexesDrawerGlobalState } from './indexes-drawer-global-state';
+import { IndexesListPage } from './pages/indexes-list-page';
+import {useActiveWorkspace} from "@mongodb-js/compass-workspaces/provider";
 
 const indexesTitleStyles = css({
   display: 'flex',
@@ -20,20 +20,17 @@ const indexesTitleTextStyles = css({
 
 /**
  * CompassIndexesDrawer component that wraps search indexes management in a DrawerSection.
- * This component can be placed at any level in the component tree as long as
- * it's within an IndexesDrawerProvider.
+ * This component is rendered at the app level but only shows when inside a Collection workspace.
+ * It relies on the ConnectionInfoProvider and NamespaceProvider from WorkspaceTabContextProvider.
  */
 export const CompassIndexesDrawer: React.FunctionComponent<{
   autoOpen?: boolean;
 }> = ({ autoOpen = false }) => {
-  const drawerGlobalState = useIndexesDrawerGlobalState();
   const drawerState = useContext(IndexesDrawerContext);
   const { getIsIndexesDrawerEnabled } = useIndexesDrawerActions();
+  const activeWorkspace = useActiveWorkspace();
 
-  if (
-    !getIsIndexesDrawerEnabled() ||
-    drawerGlobalState.activeWorkspace?.type !== 'Collection'
-  ) {
+  if (!getIsIndexesDrawerEnabled() || activeWorkspace?.type !== 'Collection') {
     return null;
   }
 
@@ -61,3 +58,4 @@ export const CompassIndexesDrawer: React.FunctionComponent<{
     </DrawerSection>
   );
 };
+

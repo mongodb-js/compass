@@ -101,7 +101,7 @@ import { CompassAssistantDrawerWithConnections } from './compass-assistant-drawe
 import {
   CompassIndexesDrawer,
   CompassIndexesDrawerProvider,
-} from '@mongodb-js/compass-indexes-drawer-tab';
+} from '@mongodb-js/compass-indexes';
 import { APP_NAMES_FOR_PROMPT } from '@mongodb-js/compass-assistant';
 import { assertsUserDataType } from '@mongodb-js/compass-user-data';
 

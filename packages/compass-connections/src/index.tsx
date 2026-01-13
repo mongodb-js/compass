@@ -30,7 +30,6 @@ import {
   useSyncAssistantGlobalState,
 } from '@mongodb-js/compass-assistant';
 import { useInitialValue } from '@mongodb-js/compass-components';
-import { useSyncIndexesDrawerGlobalState } from '@mongodb-js/compass-indexes-drawer-tab';
 
 const ConnectionsComponent: React.FunctionComponent<{
   /**
@@ -84,7 +83,6 @@ const ConnectionsComponent: React.FunctionComponent<{
     });
   }, [activeConnections]);
   useSyncAssistantGlobalState('activeConnections', activeConnectionsInfo);
-  useSyncIndexesDrawerGlobalState('activeConnections', activeConnectionsInfo);
 
   return (
     <ConnectionActionsProvider>

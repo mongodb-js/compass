@@ -35,7 +35,7 @@ import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import { usePreferences } from 'compass-preferences-model/provider';
 import { CompassAssistantProvider } from '@mongodb-js/compass-assistant';
 import { APP_NAMES_FOR_PROMPT } from '@mongodb-js/compass-assistant';
-import { CompassIndexesDrawerProvider } from '@mongodb-js/compass-indexes-drawer-tab';
+import { CompassIndexesDrawerProvider } from '@mongodb-js/compass-indexes';
 
 resetGlobalCSS();
 

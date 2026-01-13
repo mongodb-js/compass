@@ -20,8 +20,6 @@ import {
 } from '@mongodb-js/compass-components';
 import { CompassIndexesDrawer } from './compass-indexes-drawer';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
-import type { WorkspaceTab } from '@mongodb-js/workspace-info';
-import { useSyncIndexesDrawerGlobalState } from './indexes-drawer-global-state';
 
 function createMockProvider() {
   return CompassIndexesDrawerProvider.withMockServices({
@@ -29,20 +27,12 @@ function createMockProvider() {
   });
 }
 
-// Mock workspace for Collection type
-const mockCollectionWorkspace: WorkspaceTab = {
-  type: 'Collection',
-  namespace: 'test.collection',
-  connectionId: 'test-connection',
-  id: 'test-workspace-id',
-} as WorkspaceTab;
-
-const GlobalStateSetup: React.FunctionComponent<{
-  children: React.ReactNode;
-}> = ({ children }) => {
-  useSyncIndexesDrawerGlobalState('activeWorkspace', mockCollectionWorkspace);
-  return <>{children}</>;
-};
+// Mock collection model for testing
+const mockCollectionModel = {
+  ns: 'test.collection',
+  _id: 'test.collection',
+  modelType: 'Collection',
+} as any;
 
 // Test component that renders CompassIndexesDrawerProvider with children
 const TestComponent: React.FunctionComponent<{
@@ -57,12 +47,10 @@ const TestComponent: React.FunctionComponent<{
       {/* eslint-disable-next-line react-hooks/static-components */}
       <MockedProvider>
         <IndexesDrawerProvider initialState={initialState}>
-          <GlobalStateSetup>
-            <DrawerAnchor>
-              <div data-testid="provider-children">Provider children</div>
-              <CompassIndexesDrawer autoOpen={autoOpen} />
-            </DrawerAnchor>
-          </GlobalStateSetup>
+          <DrawerAnchor>
+            <div data-testid="provider-children">Provider children</div>
+            <CompassIndexesDrawer autoOpen={autoOpen} />
+          </DrawerAnchor>
         </IndexesDrawerProvider>
       </MockedProvider>
     </DrawerContentProvider>
@@ -345,14 +333,26 @@ describe('CompassIndexesDrawer', function () {
   });
 
   describe('rendering behavior', function () {
-    it('displays the drawer content when opened', async function () {
+    it('displays the drawer content when opened in a collection context', async function () {
+      const MockedProvider = createMockProvider().withMockServices({
+        logger: createNoopLogger(),
+        collection: () => mockCollectionModel,
+      });
+
       render(
-        <TestComponent
-          autoOpen={true}
-          initialState={{
-            currentPage: 'indexes-list',
-          }}
-        />,
+        <DrawerContentProvider>
+          <MockedProvider>
+            <IndexesDrawerProvider
+              initialState={{
+                currentPage: 'indexes-list',
+              }}
+            >
+              <DrawerAnchor>
+                <CompassIndexesDrawer autoOpen={true} />
+              </DrawerAnchor>
+            </IndexesDrawerProvider>
+          </MockedProvider>
+        </DrawerContentProvider>,
         {
           preferences: {
             enableSearchActivationProgramP1: true,
@@ -366,13 +366,25 @@ describe('CompassIndexesDrawer', function () {
     });
 
     it('displays indexes-list page by default', async function () {
+      const MockedProvider = createMockProvider().withMockServices({
+        logger: createNoopLogger(),
+        collection: () => mockCollectionModel,
+      });
+
       render(
-        <TestComponent
-          autoOpen={true}
-          initialState={{
-            currentPage: 'indexes-list',
-          }}
-        />,
+        <DrawerContentProvider>
+          <MockedProvider>
+            <IndexesDrawerProvider
+              initialState={{
+                currentPage: 'indexes-list',
+              }}
+            >
+              <DrawerAnchor>
+                <CompassIndexesDrawer autoOpen={true} />
+              </DrawerAnchor>
+            </IndexesDrawerProvider>
+          </MockedProvider>
+        </DrawerContentProvider>,
         {
           preferences: {
             enableSearchActivationProgramP1: true,
@@ -386,12 +398,39 @@ describe('CompassIndexesDrawer', function () {
     });
 
     it('does not render when feature flag is disabled', function () {
+      const MockedProvider = createMockProvider().withMockServices({
+        logger: createNoopLogger(),
+        collection: () => mockCollectionModel,
+      });
+
+      render(
+        <DrawerContentProvider>
+          <MockedProvider>
+            <IndexesDrawerProvider>
+              <DrawerAnchor>
+                <CompassIndexesDrawer autoOpen={true} />
+              </DrawerAnchor>
+            </IndexesDrawerProvider>
+          </MockedProvider>
+        </DrawerContentProvider>,
+        {
+          preferences: {
+            enableSearchActivationProgramP1: false,
+          },
+        }
+      );
+
+      expect(screen.queryByText('Indexes')).to.not.exist;
+    });
+
+    it('does not render when not in a collection context', function () {
       render(<TestComponent autoOpen={true} />, {
         preferences: {
-          enableSearchActivationProgramP1: false,
+          enableSearchActivationProgramP1: true,
         },
       });
 
+      // Should not render because there's no collection model in context
       expect(screen.queryByText('Indexes')).to.not.exist;
     });
   });
