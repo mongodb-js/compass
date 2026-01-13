@@ -8,5 +8,7 @@ ignores:
  - '@types/react'
  - '@types/react-dom'
  - 'p-queue'
+  # mongodb-mcp-server will be used by the upcoming 
+ - 'mongodb-mcp-server'
 ignore-patterns:
  - 'dist'
