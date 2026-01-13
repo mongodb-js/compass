@@ -11,6 +11,7 @@ import {
   Button,
   Link,
   useDarkMode,
+  fontFamilies,
 } from '@mongodb-js/compass-components';
 import {
   usePreference,
@@ -52,6 +53,7 @@ const toolsHeaderStyles = css({
 });
 
 const toolsHeaderTextStyles = css({
+  fontFamily: fontFamilies.default,
   fontSize: '13px',
   fontWeight: 600,
   color: palette.gray.light3,
@@ -59,6 +61,7 @@ const toolsHeaderTextStyles = css({
 });
 
 const toolsHeaderTextCountStyles = css({
+  fontFamily: fontFamilies.default,
   fontWeight: 400,
   color: palette.gray.light1,
 });
@@ -95,6 +98,7 @@ const toolItemStyles = css({
 });
 
 const toolNameStyles = css({
+  fontFamily: fontFamilies.default,
   fontSize: '13px',
   fontWeight: 600,
   fontFamily: "'Source Code Pro', monospace",
@@ -103,6 +107,7 @@ const toolNameStyles = css({
 });
 
 const toolDescriptionStyles = css({
+  fontFamily: fontFamilies.default,
   fontSize: '12px',
   lineHeight: '18px',
   color: palette.gray.light1,
