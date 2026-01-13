@@ -117,7 +117,6 @@ const WorkspacesWithSidebar: React.FunctionComponent<
     onChange.current(activeTab, activeTabCollectionInfo);
   }, [activeTab, activeTabCollectionInfo, onChange]);
   useSyncAssistantGlobalState('activeWorkspace', activeTab);
-
   return (
     <WorkspacesServiceProvider>
       <div
