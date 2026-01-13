@@ -216,6 +216,8 @@ async function publishGitHubRelease(assets, version, channel, dryRun) {
 }
 
 async function uploadAssetsToDownloadCenter(assets, channel, dryRun) {
+  cli.info('Uploading assets to download center…');
+
   await checkAssetsExist(
     assets.map((asset) => {
       return asset.path;
