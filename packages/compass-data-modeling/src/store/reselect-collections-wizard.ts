@@ -441,7 +441,7 @@ async function getCollectionsForDatabase(
   if (!db) {
     throw new Error('The selected database does not exist on this connection.');
   }
-  await db.fetchCollections({ dataService });
+  await db.fetchCollections({ dataService, force: true });
   return db.collections
     .map((coll) => {
       return coll.name;

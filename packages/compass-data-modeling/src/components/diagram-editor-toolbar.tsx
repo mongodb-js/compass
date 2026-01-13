@@ -175,6 +175,7 @@ export const DiagramEditorToolbar: React.FunctionComponent<{
             justify="start"
             open={isAddCollectionMenuOpen}
             setOpen={setIsAddCollectionMenuOpen}
+            data-testid="add-collection-menu"
             trigger={({ onClick }: any) => {
               return (
                 <Tooltip
@@ -190,6 +191,7 @@ export const DiagramEditorToolbar: React.FunctionComponent<{
             }}
           >
             <MenuItem
+              data-testid="add-new-collection"
               onClick={() => {
                 setIsAddCollectionMenuOpen(false);
                 onAddCollectionClick();
@@ -198,6 +200,7 @@ export const DiagramEditorToolbar: React.FunctionComponent<{
               Add a new Collection
             </MenuItem>
             <MenuItem
+              data-testid="select-from-database"
               onClick={() => {
                 setIsAddCollectionMenuOpen(false);
                 onAddCollectionsFromDatabaseClick();

@@ -1474,7 +1474,16 @@ export const DataModelsListItemActions = (diagramName: string) =>
   `${DataModelsListItem(diagramName)} [aria-label="Show actions"]`;
 export const DataModelsListItemDeleteButton = `[data-action="delete"]`;
 export const DataModelAddRelationshipBtn = 'aria/Add Relationship';
-export const DataModelAddCollectionBtn = 'aria/Add Collection';
+export const DataModelAddCollectionMenuBtn = 'aria/Add Collection';
+export const DataModelAddCollectionMenu = '[data-testid="add-collection-menu"]';
+export const DataModelAddEmptyCollectionOption =
+  '[data-testid="add-collection-menu"] [data-testid="add-new-collection"]';
+export const DataModelSelectFromDatabaseOption =
+  '[data-testid="add-collection-menu"] [data-testid="select-from-database"]';
+export const DataModelSelectCollectionItem = (name: string) =>
+  `[data-testid="select-list-item-${name}"] label`;
+export const DataModelReselectCollectionsModal = `[data-testid="reselect-collections-modal"]`;
+export const DataModelReselectCollectionsModalConfirmButton = `[data-testid="reselect-collections-confirm-button"]`;
 export const DataModelNameInputLabel = '//label[text()="Name"]';
 export const DataModelFieldNameInputLabel = '//label[text()="Field name"]';
 export const DataModelNameInput =
