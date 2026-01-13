@@ -6,6 +6,7 @@ import {
   useIndexesDrawerActions,
 } from './compass-indexes-provider';
 import { IndexesListPage } from './components/indexes-list-page';
+import { useIndexesDrawerGlobalState } from './indexes-drawer-global-state';
 
 const indexesTitleStyles = css({
   display: 'flex',
@@ -25,6 +26,7 @@ const indexesTitleTextStyles = css({
 export const CompassIndexesDrawer: React.FunctionComponent<{
   autoOpen?: boolean;
 }> = ({ autoOpen = false }) => {
+  const drawerGlobalState = useIndexesDrawerGlobalState();
   const drawerState = useContext(IndexesDrawerContext);
   const { getIsIndexesDrawerEnabled } = useIndexesDrawerActions();
 
@@ -39,7 +41,7 @@ export const CompassIndexesDrawer: React.FunctionComponent<{
   }
 
   return (
-    drawerState.activeWorkspace?.type === 'Collection' && (
+    drawerGlobalState.activeWorkspace?.type === 'Collection' && (
       <DrawerSection
         id={INDEXES_DRAWER_ID}
         title={

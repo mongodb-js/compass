@@ -103,10 +103,6 @@ describe('useIndexesDrawerActions', function () {
     });
 
     expect(Object.keys(result.current)).to.have.length.greaterThan(1);
-    expect(result.current.setActiveConnections).to.be.a('function');
-    expect(result.current.setActiveWorkspace).to.be.a('function');
-    expect(result.current.setActiveCollectionMetadata).to.be.a('function');
-    expect(result.current.setActiveCollectionSubTab).to.be.a('function');
     expect(result.current.openIndexesListPage).to.be.a('function');
     expect(result.current.openCreateSearchIndexPage).to.be.a('function');
     expect(result.current.openEditSearchIndexPage).to.be.a('function');
@@ -125,7 +121,6 @@ describe('useIndexesDrawerContext', function () {
       wrapper: ({ children }) => (
         <IndexesDrawerProvider
           initialState={{
-            activeWorkspace: mockCollectionWorkspace,
             currentPage: 'indexes-list',
           }}
         >
@@ -136,10 +131,8 @@ describe('useIndexesDrawerContext', function () {
 
     expect(result.current).to.include({
       currentPage: 'indexes-list',
+      currentIndexName: null,
     });
-    expect(result.current?.activeWorkspace).to.deep.equal(
-      mockCollectionWorkspace
-    );
   });
 });
 
@@ -156,61 +149,15 @@ describe('CompassIndexesDrawerProvider', function () {
 
   describe('disabling the Indexes Drawer', function () {
     it('does not render indexes drawer when feature flag is disabled', function () {
-      render(
-        <TestComponent
-          initialState={{
-            activeWorkspace: mockCollectionWorkspace,
-          }}
-        />,
-        {
-          preferences: {
-            enableSearchActivationProgramP1: false,
-          },
-        }
-      );
+      render(<TestComponent />, {
+        preferences: {
+          enableSearchActivationProgramP1: false,
+        },
+      });
 
       expect(screen.getByTestId('provider-children')).to.exist;
       expect(screen.queryByLabelText('Indexes')).to.not.exist;
     });
-  });
-
-  it('renders the indexes drawer when feature flag is enabled and workspace is Collection', function () {
-    render(
-      <TestComponent
-        initialState={{
-          activeWorkspace: mockCollectionWorkspace,
-        }}
-      />,
-      {
-        preferences: {
-          enableSearchActivationProgramP1: true,
-        },
-      }
-    );
-
-    expect(screen.queryByLabelText('Indexes')).to.exist;
-  });
-
-  it('does not render drawer when workspace is not Collection type', function () {
-    const nonCollectionWorkspace: WorkspaceTab = {
-      type: 'Databases',
-      id: 'test-workspace-id',
-    } as WorkspaceTab;
-
-    render(
-      <TestComponent
-        initialState={{
-          activeWorkspace: nonCollectionWorkspace,
-        }}
-      />,
-      {
-        preferences: {
-          enableSearchActivationProgramP1: true,
-        },
-      }
-    );
-
-    expect(screen.queryByLabelText('Indexes')).to.not.exist;
   });
 
   describe('drawer state management', function () {
@@ -222,28 +169,16 @@ describe('CompassIndexesDrawerProvider', function () {
       });
 
       expect(result.current).to.deep.equal({
-        activeConnections: [],
-        activeWorkspace: null,
-        activeCollectionMetadata: null,
-        activeCollectionSubTab: null,
         currentPage: 'indexes-list',
-        indexName: null,
+        currentIndexName: null,
       });
     });
 
     it('initializes with provided initial state', function () {
-      const mockMetadata = {
-        _id: 'test.collection',
-        database: 'test',
-        collection: 'collection',
-      } as CollectionMetadata;
-
       const { result } = renderHook(() => useIndexesDrawerContext(), {
         wrapper: ({ children }) => (
           <IndexesDrawerProvider
             initialState={{
-              activeWorkspace: mockCollectionWorkspace,
-              activeCollectionMetadata: mockMetadata,
               currentPage: 'create-search-index',
             }}
           >
@@ -252,114 +187,13 @@ describe('CompassIndexesDrawerProvider', function () {
         ),
       });
 
-      expect(result.current?.activeWorkspace).to.deep.equal(
-        mockCollectionWorkspace
-      );
-      expect(result.current?.activeCollectionMetadata).to.deep.equal(
-        mockMetadata
-      );
-      expect(result.current?.currentPage).to.equal('create-search-index');
+      expect(result.current).to.include({
+        currentPage: 'create-search-index',
+      });
     });
   });
 
   describe('drawer actions', function () {
-    it('setActiveConnections updates state', async function () {
-      const MockedProvider = createMockProvider();
-
-      const TestActionComponent = () => {
-        const { setActiveConnections } = useIndexesDrawerActions();
-        const state = useIndexesDrawerContext();
-
-        return (
-          <div>
-            <button
-              onClick={() =>
-                setActiveConnections?.([
-                  { id: 'conn1' } as ConnectionInfo,
-                  { id: 'conn2' } as ConnectionInfo,
-                ])
-              }
-              data-testid="set-connections-button"
-            >
-              Set Connections
-            </button>
-            <div data-testid="connections-count">
-              {state?.activeConnections.length}
-            </div>
-          </div>
-        );
-      };
-
-      render(
-        <DrawerContentProvider>
-          <MockedProvider>
-            <IndexesDrawerProvider>
-              <TestActionComponent />
-            </IndexesDrawerProvider>
-          </MockedProvider>
-        </DrawerContentProvider>,
-        {
-          preferences: {
-            enableSearchActivationProgramP1: true,
-          },
-        }
-      );
-
-      expect(screen.getByTestId('connections-count')).to.have.text('0');
-
-      const button = screen.getByTestId('set-connections-button');
-      userEvent.click(button);
-
-      await waitFor(() => {
-        expect(screen.getByTestId('connections-count')).to.have.text('2');
-      });
-    });
-
-    it('setActiveWorkspace updates state', async function () {
-      const MockedProvider = createMockProvider();
-
-      const TestActionComponent = () => {
-        const { setActiveWorkspace } = useIndexesDrawerActions();
-        const state = useIndexesDrawerContext();
-
-        return (
-          <div>
-            <button
-              onClick={() => setActiveWorkspace?.(mockCollectionWorkspace)}
-              data-testid="set-workspace-button"
-            >
-              Set Workspace
-            </button>
-            <div data-testid="workspace-type">
-              {state?.activeWorkspace?.type || 'none'}
-            </div>
-          </div>
-        );
-      };
-
-      render(
-        <DrawerContentProvider>
-          <MockedProvider>
-            <IndexesDrawerProvider>
-              <TestActionComponent />
-            </IndexesDrawerProvider>
-          </MockedProvider>
-        </DrawerContentProvider>,
-        {
-          preferences: {
-            enableSearchActivationProgramP1: true,
-          },
-        }
-      );
-
-      const button = screen.getByTestId('set-workspace-button');
-      userEvent.click(button);
-
-      await waitFor(() => {
-        expect(screen.getByTestId('workspace-type')).to.have.text('Collection');
-      });
-    });
-
     it('openIndexesListPage updates state and opens drawer', async function () {
       const MockedProvider = createMockProvider();
 
@@ -462,7 +296,9 @@ describe('CompassIndexesDrawerProvider', function () {
               Open Edit
             </button>
             <div data-testid="page">{state?.currentPage}</div>
-            <div data-testid="index-name">{state?.indexName || 'none'}</div>
+            <div data-testid="index-name">
+              {state?.currentIndexName || 'none'}
+            </div>
           </div>
         );
       };
@@ -504,12 +340,11 @@ describe('CompassIndexesDrawer', function () {
   });
 
   describe('rendering behavior', function () {
-    it('displays the drawer content when opened with Collection workspace', async function () {
+    it('displays the drawer content when opened', async function () {
       render(
         <TestComponent
           autoOpen={true}
           initialState={{
-            activeWorkspace: mockCollectionWorkspace,
             currentPage: 'indexes-list',
           }}
         />,
@@ -530,7 +365,6 @@ describe('CompassIndexesDrawer', function () {
         <TestComponent
           autoOpen={true}
           initialState={{
-            activeWorkspace: mockCollectionWorkspace,
             currentPage: 'indexes-list',
           }}
         />,
@@ -547,37 +381,11 @@ describe('CompassIndexesDrawer', function () {
     });
 
     it('does not render when feature flag is disabled', function () {
-      render(
-        <TestComponent
-          autoOpen={true}
-          initialState={{
-            activeWorkspace: mockCollectionWorkspace,
-          }}
-        />,
-        {
-          preferences: {
-            enableSearchActivationProgramP1: false,
-          },
-        }
-      );
-
-      expect(screen.queryByText('Indexes')).to.not.exist;
-    });
-
-    it('does not render when workspace is null', function () {
-      render(
-        <TestComponent
-          autoOpen={true}
-          initialState={{
-            activeWorkspace: null,
-          }}
-        />,
-        {
-          preferences: {
-            enableSearchActivationProgramP1: true,
-          },
-        }
-      );
+      render(<TestComponent autoOpen={true} />, {
+        preferences: {
+          enableSearchActivationProgramP1: false,
+        },
+      });
 
       expect(screen.queryByText('Indexes')).to.not.exist;
     });

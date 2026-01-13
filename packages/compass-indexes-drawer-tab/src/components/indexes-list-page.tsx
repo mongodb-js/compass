@@ -1,15 +1,15 @@
-import { useIndexesDrawerContext } from '../compass-indexes-provider';
 import React from 'react';
+import { useIndexesDrawerGlobalState } from '../indexes-drawer-global-state';
 
 export type IndexesListPageProps = {};
 
 const IndexesListPage: React.FunctionComponent<IndexesListPageProps> = ({}) => {
-  const indexesDrawerContext = useIndexesDrawerContext();
+  const indexesDrawerGlobalState = useIndexesDrawerGlobalState();
 
   return (
     <div>
       IndexesListPage for{' '}
-      {indexesDrawerContext?.activeCollectionMetadata?.namespace}
+      {indexesDrawerGlobalState?.activeCollectionMetadata?.namespace}
     </div>
   );
 };

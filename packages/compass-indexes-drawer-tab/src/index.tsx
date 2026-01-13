@@ -10,3 +10,4 @@ export type {
   CompassIndexesDrawerService,
   IndexesDrawerContextType,
 } from './compass-indexes-provider';
+export { useSyncIndexesDrawerGlobalState } from './indexes-drawer-global-state';
