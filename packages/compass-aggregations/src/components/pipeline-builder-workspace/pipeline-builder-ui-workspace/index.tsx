@@ -59,7 +59,7 @@ export const PipelineBuilderUIWorkspace: React.FunctionComponent<
   onStageAddAfterEnd,
   onUseCaseDropped,
 }) => {
-  useSyncAssistantGlobalState('currentAggregation', pipelineText);
+  useSyncAssistantGlobalState('currentPipeline', pipelineText);
 
   return (
     <PipelineBuilderDndWrapper

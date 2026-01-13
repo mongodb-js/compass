@@ -19,12 +19,21 @@ import {
 } from '@mongodb-js/compass-components';
 import { ConfirmationMessage } from './confirmation-message';
 import { ToolCallMessage } from './tool-call-message';
-import type { ToolCallPart } from './tool-call-message';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import { NON_GENUINE_WARNING_MESSAGE } from '../preset-messages';
 import { SuggestedPrompts } from './suggested-prompts';
+import {
+  type ToolUIPart,
+  type UIDataTypes,
+  type UIMessagePart,
+  type UITools,
+} from 'ai';
+import { useAssistantGlobalState } from '../assistant-global-state';
+import type { WorkspaceTab } from '@mongodb-js/workspace-info';
+import { getConnectionTitle } from '@mongodb-js/connection-info';
 import { ToolToggle } from './tool-toggle';
 import { usePreference } from 'compass-preferences-model/provider';
+import { useToolsController } from '@mongodb-js/compass-generative-ai/provider';
 
 const { ChatWindow } = LgChatChatWindow;
 const { LeafyGreenChatProvider } = LgChatLeafygreenChatProvider;
@@ -34,6 +43,7 @@ const { InputBar } = LgChatInputBar;
 interface AssistantChatProps {
   chat: Chat<AssistantMessage>;
   hasNonGenuineConnections: boolean;
+  allowSavingPreferences: boolean;
 }
 
 export type SendMessageOptions = {
@@ -166,7 +176,8 @@ function makeErrorMessage(message: string) {
 }
 
 const errorBannerWrapperStyles = css({
-  margin: spacing[400],
+  padding: spacing[400],
+  maxWidth: '100%',
 });
 
 const messagesWrapStyles = css({
@@ -196,14 +207,50 @@ const inputBarTextareaProps = {
   placeholder: 'Ask a question',
 };
 
+// Type guard to check if a message part is a ToolUIPart
+function partIsToolUI(
+  part: UIMessagePart<UIDataTypes, UITools>
+): part is ToolUIPart {
+  return part.type.startsWith('tool-') || 'toolCallId' in part;
+}
+
+// Type guard to check if activeWorkspace has a connectionId property
+function hasConnectionId(
+  obj: WorkspaceTab | null
+): obj is WorkspaceTab & { connectionId: string } {
+  if (!obj) {
+    return false;
+  }
+  return !!(obj as WorkspaceTab & { connectionId: string }).connectionId;
+}
+
 const toolToggleContainerStyles = css({
   paddingLeft: spacing[50],
   paddingRight: spacing[50],
 });
 
+function lastMessageIsEmpty(messages: AssistantMessage[]): boolean {
+  if (messages.length === 0) {
+    return true;
+  }
+
+  const message = messages[messages.length - 1];
+
+  if (message.parts.length === 0) {
+    return true;
+  }
+  const part = message.parts[message.parts.length - 1];
+  if (partIsToolUI(part) || (part.type === 'text' && part.text.trim() === '')) {
+    return true;
+  }
+
+  return false;
+}
+
 export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
   chat,
   hasNonGenuineConnections,
+  allowSavingPreferences,
 }) => {
   const track = useTelemetry();
   const darkMode = useDarkMode();
@@ -261,6 +308,55 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
       });
     }
   }, [hasNonGenuineConnections, chat, setMessages]);
+
+  const { activeConnections, activeWorkspace } = useAssistantGlobalState();
+
+  const activeConnection =
+    activeConnections.find((connInfo) => {
+      return (
+        hasConnectionId(activeWorkspace) &&
+        connInfo.id === activeWorkspace.connectionId
+      );
+    }) ?? null;
+
+  useEffect(() => {
+    let foundNewMessages = false;
+
+    // Fill in connection info for newly created messages as soon as possible so
+    // that all tool calls will use the correct connection even if the user
+    // navigates around while the assistant is responding.
+    const newMessages: AssistantMessage[] = chat.messages.map((message) => {
+      if (message.metadata?.connectionInfo !== undefined) {
+        // If it is set or null, then we have already processed this message
+        return { ...message };
+      }
+      const connectionInfo = activeConnection
+        ? {
+            id: activeConnection.id,
+            name: getConnectionTitle(activeConnection),
+          }
+        : null;
+
+      if (!connectionInfo) {
+        // leave the message unchanged
+        return { ...message };
+      }
+
+      foundNewMessages = true;
+
+      return {
+        ...message,
+        metadata: {
+          ...message.metadata,
+          connectionInfo,
+        },
+      };
+    });
+
+    if (foundNewMessages) {
+      setMessages(() => newMessages);
+    }
+  }, [activeConnection, chat, setMessages]);
 
   const handleMessageSend = useCallback(
     async ({ text, metadata }: SendMessageOptions) => {
@@ -368,8 +464,30 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
     [ensureOptInAndSend, setMessages, track]
   );
 
+  const toolsController = useToolsController();
+
   const handleToolApproval = useCallback(
-    (approvalId: string, approved: boolean) => {
+    ({
+      message,
+      toolCallId,
+      type,
+      approvalId,
+      approved,
+    }: {
+      message: AssistantMessage;
+      toolCallId: string;
+      type: string;
+      approvalId: string;
+      approved: boolean;
+    }) => {
+      // TODO: we can probably move this to a useEffect() similar to where we
+      // fill in the message connection info and then it will work even when we
+      // auto-approve a tool call
+      toolsController.setConnectionIdForToolCall({
+        toolCallId,
+        connectionId: message.metadata?.connectionInfo?.id ?? null,
+      });
+
       void addToolApprovalResponse({
         id: approvalId,
         approved,
@@ -377,15 +495,20 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
 
       track('Assistant Tool Call Approval', {
         approved,
+        type,
         approval_id: approvalId,
       });
     },
-    [addToolApprovalResponse, track]
+    [addToolApprovalResponse, toolsController, track]
   );
 
   const visibleMessages = messages.filter(
     (message) => !message.metadata?.isSystemContext
   );
+
+  const isLoading =
+    status === 'submitted' ||
+    (status === 'streaming' && lastMessageIsEmpty(visibleMessages));
 
   return (
     <div
@@ -408,7 +531,7 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
                 const { id, role, metadata, parts } = message;
                 const seenTitles = new Set<string>();
                 const sources = [];
-                const toolCalls: ToolCallPart[] = [];
+                const toolCalls: ToolUIPart[] = [];
 
                 for (const part of parts) {
                   // Related sources are type source-url. We want to only
@@ -426,8 +549,8 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
                   }
 
                   // Detect tool call parts (they have a "tool-" prefix or a toolCallId)
-                  if (part.type.startsWith('tool-') || 'toolCallId' in part) {
-                    toolCalls.push(part as ToolCallPart);
+                  if (partIsToolUI(part)) {
+                    toolCalls.push(part);
                   }
                 }
 
@@ -438,7 +561,7 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
 
                   return (
                     <ConfirmationMessage
-                      key={id}
+                      key={`${id}-confirmation`}
                       // Show as rejected if it's not the last message
                       state={
                         !isLastMessage && state === 'pending'
@@ -462,24 +585,39 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
 
                 const isSender = role === 'user';
 
+                const messageConnection =
+                  message.metadata?.connectionInfo ?? null;
+
                 // Render tool calls and text content together
                 return (
-                  <React.Fragment key={id}>
+                  <React.Fragment key={`${id}-${index}`}>
                     {/* Show tool calls if present */}
                     {toolCalls.map((toolCall, index) => {
                       const toolCallId =
-                        toolCall.toolCallId ||
-                        `${id}-${toolCall.type}-${index}`;
+                        toolCall.toolCallId || `${id}-${toolCall.type}`;
 
                       return (
                         <ToolCallMessage
-                          key={toolCallId}
+                          connection={messageConnection}
+                          key={`${toolCallId}-${index}`}
                           toolCall={toolCall}
                           onApprove={(approvalId) =>
-                            handleToolApproval(approvalId, true)
+                            handleToolApproval({
+                              message,
+                              toolCallId,
+                              type: toolCall.type,
+                              approvalId,
+                              approved: true,
+                            })
                           }
                           onDeny={(approvalId) =>
-                            handleToolApproval(approvalId, false)
+                            handleToolApproval({
+                              message,
+                              toolCallId,
+                              type: toolCall.type,
+                              approvalId,
+                              approved: false,
+                            })
                           }
                         />
                       );
@@ -547,14 +685,14 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
           <InputBar
             data-testid="assistant-chat-input"
             onMessageSend={(text) => void handleMessageSend({ text })}
-            state={status === 'submitted' ? 'loading' : undefined}
+            state={isLoading ? 'loading' : undefined}
             textareaProps={inputBarTextareaProps}
             onClickStopButton={() => void chat.stop()}
           >
             {isToolCallingEnabled && (
               <InputBar.AdditionalActions>
                 <div className={toolToggleContainerStyles}>
-                  <ToolToggle />
+                  <ToolToggle allowSavingPreferences={allowSavingPreferences} />
                 </div>
               </InputBar.AdditionalActions>
             )}
