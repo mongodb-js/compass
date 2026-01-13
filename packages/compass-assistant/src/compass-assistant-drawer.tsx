@@ -55,7 +55,13 @@ export const CompassAssistantDrawer: React.FunctionComponent<{
   appName: string;
   autoOpen?: boolean;
   hasNonGenuineConnections?: boolean;
-}> = ({ appName, autoOpen, hasNonGenuineConnections = false }) => {
+  allowSavingPreferences?: boolean;
+}> = ({
+  appName,
+  autoOpen,
+  hasNonGenuineConnections = false,
+  allowSavingPreferences = false,
+}) => {
   const chat = useContext(AssistantContext);
 
   const enableAIAssistant = usePreference('enableAIAssistant');
@@ -98,6 +104,7 @@ export const CompassAssistantDrawer: React.FunctionComponent<{
       <AssistantChat
         chat={chat}
         hasNonGenuineConnections={hasNonGenuineConnections}
+        allowSavingPreferences={allowSavingPreferences}
       />
     </DrawerSection>
   );

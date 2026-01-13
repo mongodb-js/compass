@@ -171,7 +171,11 @@ export const AVAILABLE_TOOLS = [
   },
 ];
 
-export const ToolToggle: React.FunctionComponent = () => {
+export const ToolToggle: React.FunctionComponent<{
+  // TODO(COMPASS-10239, COMPASS-10237): this will likely go away once we allow
+  // DE users to toggle the feature
+  allowSavingPreferences?: boolean;
+}> = ({ allowSavingPreferences }) => {
   const enableToolCalling = usePreference('enableGenAIToolCalling');
   const preferences = usePreferencesContext();
   const [popoverOpen, setPopoverOpen] = useState(false);
@@ -202,7 +206,7 @@ export const ToolToggle: React.FunctionComponent = () => {
             ref={ref}
             data-testid="tool-toggle-button"
             onClick={onClick}
-            aria-label="Configure database tool calling"
+            aria-label="Configure tool calling"
             aria-expanded={popoverOpen}
             darkMode={darkMode}
             size="small"
@@ -230,6 +234,7 @@ export const ToolToggle: React.FunctionComponent = () => {
                   checked={enableToolCalling}
                   onChange={handleToggle}
                   data-testid="tool-toggle-switch"
+                  disabled={!allowSavingPreferences}
                 />
               </div>
               <Description>

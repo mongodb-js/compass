@@ -9,6 +9,7 @@ export function CompassAssistantDrawerWithConnections({
   appName,
 }: {
   appName: string;
+  allowSavingPreferences?: boolean;
 }) {
   const hasNonGenuineConnections = useHasNonGenuineConnections();
 
@@ -16,6 +17,7 @@ export function CompassAssistantDrawerWithConnections({
     <CompassAssistantDrawer
       appName={appName}
       hasNonGenuineConnections={hasNonGenuineConnections}
+      allowSavingPreferences={true}
     />
   );
 }
