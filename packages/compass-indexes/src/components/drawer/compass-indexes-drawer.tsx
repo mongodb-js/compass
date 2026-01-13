@@ -6,7 +6,7 @@ import {
   useIndexesDrawerActions,
 } from './compass-indexes-provider';
 import { IndexesListPage } from './pages/indexes-list-page';
-import {useActiveWorkspace} from "@mongodb-js/compass-workspaces/provider";
+import { useActiveWorkspace } from '@mongodb-js/compass-workspaces/provider';
 
 const indexesTitleStyles = css({
   display: 'flex',
@@ -21,7 +21,6 @@ const indexesTitleTextStyles = css({
 /**
  * CompassIndexesDrawer component that wraps search indexes management in a DrawerSection.
  * This component is rendered at the app level but only shows when inside a Collection workspace.
- * It relies on the ConnectionInfoProvider and NamespaceProvider from WorkspaceTabContextProvider.
  */
 export const CompassIndexesDrawer: React.FunctionComponent<{
   autoOpen?: boolean;
@@ -58,4 +57,3 @@ export const CompassIndexesDrawer: React.FunctionComponent<{
     </DrawerSection>
   );
 };
-
