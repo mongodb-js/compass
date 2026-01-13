@@ -10,6 +10,13 @@ export function buildPerformanceMetricsUrl({
   return `${url}#/host/${metricsType}/${metricsId}/realtime/panel`;
 }
 
+export function buildProjectSettingsUrl({
+  projectId,
+}: Pick<AtlasClusterMetadata, 'projectId'>): string {
+  const url = new URL(`/v2/${projectId}`, window.location.origin);
+  return `${url}#/settings/groupSettings`;
+}
+
 export function buildMonitoringUrl({
   projectId,
   metricsType,
