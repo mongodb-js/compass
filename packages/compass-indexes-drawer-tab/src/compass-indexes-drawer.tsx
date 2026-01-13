@@ -6,6 +6,7 @@ import {
   useIndexesDrawerActions,
 } from './compass-indexes-provider';
 import { IndexesListPage } from './components/indexes-list-page';
+import { useIndexesDrawerGlobalState } from './indexes-drawer-global-state';
 
 const indexesTitleStyles = css({
   display: 'flex',
@@ -25,10 +26,14 @@ const indexesTitleTextStyles = css({
 export const CompassIndexesDrawer: React.FunctionComponent<{
   autoOpen?: boolean;
 }> = ({ autoOpen = false }) => {
+  const drawerGlobalState = useIndexesDrawerGlobalState();
   const drawerState = useContext(IndexesDrawerContext);
   const { getIsIndexesDrawerEnabled } = useIndexesDrawerActions();
 
-  if (!getIsIndexesDrawerEnabled()) {
+  if (
+    !getIsIndexesDrawerEnabled() ||
+    drawerGlobalState.activeWorkspace?.type !== 'Collection'
+  ) {
     return null;
   }
 
@@ -39,22 +44,20 @@ export const CompassIndexesDrawer: React.FunctionComponent<{
   }
 
   return (
-    drawerState.activeWorkspace?.type === 'Collection' && (
-      <DrawerSection
-        id={INDEXES_DRAWER_ID}
-        title={
-          <div className={indexesTitleStyles}>
-            <span className={indexesTitleTextStyles}>Indexes</span>
-          </div>
-        }
-        label="Indexes"
-        glyph={'SearchIndex'}
-        autoOpen={autoOpen}
-      >
-        <div>
-          {drawerState.currentPage === 'indexes-list' && <IndexesListPage />}
+    <DrawerSection
+      id={INDEXES_DRAWER_ID}
+      title={
+        <div className={indexesTitleStyles}>
+          <span className={indexesTitleTextStyles}>Indexes</span>
         </div>
-      </DrawerSection>
-    )
+      }
+      label="Indexes"
+      glyph="SearchIndex"
+      autoOpen={autoOpen}
+    >
+      <div>
+        {drawerState.currentPage === 'indexes-list' && <IndexesListPage />}
+      </div>
+    </DrawerSection>
   );
 };
