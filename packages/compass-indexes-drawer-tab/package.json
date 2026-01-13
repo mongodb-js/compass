@@ -21,13 +21,13 @@
   ],
   "license": "SSPL",
   "main": "dist/index.js",
-  "compass:main": "src/index.ts",
+  "compass:main": "src/index.tsx",
   "exports": {
     "import": "./dist/.esm-wrapper.mjs",
     "require": "./dist/index.js"
   },
   "compass:exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.tsx"
   },
   "types": "./dist/index.d.ts",
   "scripts": {
