@@ -602,7 +602,7 @@ export function getModelFromReanalysis(
     }
     return {
       ...collection,
-      displayPosition: [position.x, position.y],
+      displayPosition: [position.x, position.y] as [number, number],
     };
   });
 
