@@ -293,6 +293,11 @@ export default connect(
       newSelectedCollections,
     } = state.reselectCollections;
 
+    const numSelectedCollections =
+      newSelectedCollections.length +
+      // Among selected collections, only count those that belong to the current database
+      selectedCollections.filter((x) => databaseCollections.includes(x)).length;
+
     return {
       isOpen,
       currentStep,
@@ -305,8 +310,7 @@ export default connect(
         databaseCollections.length === 0 ||
         newSelectedCollections.length === 0 ||
         selectIsAnalysisInProgress(state),
-      numSelectedCollections:
-        newSelectedCollections.length + selectedCollections.length,
+      numSelectedCollections,
       numTotalCollections: databaseCollections.length,
       selectedDatabaseName: selectedDatabase || '',
       isConnecting,
