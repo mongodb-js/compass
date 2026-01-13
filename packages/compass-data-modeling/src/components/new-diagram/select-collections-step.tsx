@@ -4,7 +4,7 @@ import {
   toggleInferRelationships,
 } from '../../store/generate-diagram-wizard';
 import type { DataModelingState } from '../../store/reducer';
-import { SelectCollections } from './select-collection';
+import { SelectCollectionsList } from '../select-collections-list';
 
 export default connect(
   (state: DataModelingState) => {
@@ -26,4 +26,4 @@ export default connect(
     onCollectionsSelect: selectCollections,
     onAutomaticallyInferRelationshipsToggle: toggleInferRelationships,
   }
-)(SelectCollections);
+)(SelectCollectionsList);

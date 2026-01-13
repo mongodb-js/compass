@@ -24,7 +24,7 @@ import {
   selectConnection,
   startRedoAnalysis,
 } from '../store/reselect-collections-wizard';
-import { SelectCollections } from './new-diagram/select-collection';
+import { SelectCollectionsList } from './select-collections-list';
 import { useSavedConnections } from '../utils/use-saved-connections';
 
 const footerStyles = css({
@@ -56,7 +56,7 @@ const SelectCollectionsStep = connect(
     onCollectionsSelect: selectCollections,
     onAutomaticallyInferRelationshipsToggle: toggleInferRelationships,
   }
-)(SelectCollections);
+)(SelectCollectionsList);
 
 const FormStepContainer: React.FunctionComponent<{
   title: string;

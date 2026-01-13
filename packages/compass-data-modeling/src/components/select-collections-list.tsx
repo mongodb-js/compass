@@ -28,7 +28,7 @@ const selectListStyles = css({
   overflow: 'scroll',
 });
 
-type SelectCollectionsStepProps = {
+type SelectCollectionsListProps = {
   collections: string[];
   selectedCollections: string[];
   disabledCollections?: string[];
@@ -45,8 +45,8 @@ type SelectCollectionItem = {
   disabled?: boolean;
 };
 
-export const SelectCollections: React.FunctionComponent<
-  SelectCollectionsStepProps
+export const SelectCollectionsList: React.FunctionComponent<
+  SelectCollectionsListProps
 > = ({
   automaticallyInferRelationships,
   collections,
