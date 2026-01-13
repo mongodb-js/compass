@@ -984,28 +984,28 @@ functions:
       params:
         <<: *save-artifact-params
         local_file: src/.sbom/purls.txt
-        remote_file: compass-dev/${revision}_${revision_order_id}/${task_id}/purls.txt
+        remote_file: compass-dev/${revision}_${revision_order_id}/${compass_distribution}-${build_variant}/purls.txt
         content_type: text/plain
         optional: true
     - command: s3.put
       params:
         <<: *save-artifact-params
         local_file: src/.sbom/sbom-lite.json
-        remote_file: compass-dev/${revision}_${revision_order_id}/${task_id}/sbom-lite.json
+        remote_file: compass-dev/${revision}_${revision_order_id}/${compass_distribution}-${build_variant}/sbom-lite.json
         content_type: application/json
         optional: true
     - command: s3.put
       params:
         <<: *save-artifact-params
         local_file: src/.sbom/sbom.json
-        remote_file: compass-dev/${revision}_${revision_order_id}/${task_id}/sbom.json
+        remote_file: compass-dev/${revision}_${revision_order_id}/${compass_distribution}-${build_variant}/sbom.json
         content_type: application/json
         optional: true
     - command: s3.put
       params:
         <<: *save-artifact-params
         local_file: src/.sbom/first-party-deps.json
-        remote_file: compass-dev/${revision}_${revision_order_id}/first-party-deps-${compass_distribution}-${build_variant}.json
+        remote_file: compass-dev/${revision}_${revision_order_id}/${compass_distribution}-${build_variant}/first-party-deps.json
         content_type: application/json
         optional: true
 

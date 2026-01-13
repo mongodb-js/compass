@@ -1330,50 +1330,50 @@ tasks:
       - func: install
       - func: get_first_party_dependency_list
         vars:
-          filename: first-party-deps-compass-package-ubuntu.json
+          filename: compass-package-ubuntu/first-party-deps.json
       - func: get_first_party_dependency_list
         vars:
-          filename: first-party-deps-compass-package-windows.json
+          filename: compass-package-windows/first-party-deps.json
       - func: get_first_party_dependency_list
         vars:
-          filename: first-party-deps-compass-package-rhel.json
+          filename: compass-package-rhel/first-party-deps.json
       - func: get_first_party_dependency_list
         vars:
-          filename: first-party-deps-compass-package-macos-x64.json
+          filename: compass-package-macos-x64/first-party-deps.json
       - func: get_first_party_dependency_list
         vars:
-          filename: first-party-deps-compass-package-macos-arm.json
+          filename: compass-package-macos-arm/first-party-deps.json
       - func: get_first_party_dependency_list
         vars:
-          filename: first-party-deps-compass-isolated-package-ubuntu.json
+          filename: compass-isolated-package-ubuntu/first-party-deps.json
       - func: get_first_party_dependency_list
         vars:
-          filename: first-party-deps-compass-isolated-package-windows.json
+          filename: compass-isolated-package-windows/first-party-deps.json
       - func: get_first_party_dependency_list
         vars:
-          filename: first-party-deps-compass-isolated-package-rhel.json
+          filename: compass-isolated-package-rhel/first-party-deps.json
       - func: get_first_party_dependency_list
         vars:
-          filename: first-party-deps-compass-isolated-package-macos-x64.json
+          filename: compass-isolated-package-macos-x64/first-party-deps.json
       - func: get_first_party_dependency_list
         vars:
-          filename: first-party-deps-compass-isolated-package-macos-arm.json
+          filename: compass-isolated-package-macos-arm/first-party-deps.json
       - func: get_first_party_dependency_list
         vars:
-          filename: first-party-deps-compass-readonly-package-ubuntu.json
+          filename: compass-readonly-package-ubuntu/first-party-deps.json
       - func: get_first_party_dependency_list
         vars:
-          filename: first-party-deps-compass-readonly-package-windows.json
+          filename: compass-readonly-package-windows/first-party-deps.json
       - func: get_first_party_dependency_list
         vars:
-          filename: first-party-deps-compass-readonly-package-rhel.json
+          filename: compass-readonly-package-rhel/first-party-deps.json
       - func: get_first_party_dependency_list
         vars:
-          filename: first-party-deps-compass-readonly-package-macos-x64.json
+          filename: compass-readonly-package-macos-x64/first-party-deps.json
       - func: get_first_party_dependency_list
         vars:
-          filename: first-party-deps-compass-readonly-package-macos-arm.json
+          filename: compass-readonly-package-macos-arm/first-party-deps.json
       - func: create_static_analysis_report
         vars:
           first_party_dependency_filenames: >-
-            .sbom/first-party-deps-compass-package-ubuntu.json,.sbom/first-party-deps-compass-package-windows.json,.sbom/first-party-deps-compass-package-rhel.json,.sbom/first-party-deps-compass-package-macos-x64.json,.sbom/first-party-deps-compass-package-macos-arm.json,.sbom/first-party-deps-compass-isolated-package-ubuntu.json,.sbom/first-party-deps-compass-isolated-package-windows.json,.sbom/first-party-deps-compass-isolated-package-rhel.json,.sbom/first-party-deps-compass-isolated-package-macos-x64.json,.sbom/first-party-deps-compass-isolated-package-macos-arm.json,.sbom/first-party-deps-compass-readonly-package-ubuntu.json,.sbom/first-party-deps-compass-readonly-package-windows.json,.sbom/first-party-deps-compass-readonly-package-rhel.json,.sbom/first-party-deps-compass-readonly-package-macos-x64.json,.sbom/first-party-deps-compass-readonly-package-macos-arm.json
+            .sbom/compass-package-ubuntu/first-party-deps.json,.sbom/compass-package-windows/first-party-deps.json,.sbom/compass-package-rhel/first-party-deps.json,.sbom/compass-package-macos-x64/first-party-deps.json,.sbom/compass-package-macos-arm/first-party-deps.json,.sbom/compass-isolated-package-ubuntu/first-party-deps.json,.sbom/compass-isolated-package-windows/first-party-deps.json,.sbom/compass-isolated-package-rhel/first-party-deps.json,.sbom/compass-isolated-package-macos-x64/first-party-deps.json,.sbom/compass-isolated-package-macos-arm/first-party-deps.json,.sbom/compass-readonly-package-ubuntu/first-party-deps.json,.sbom/compass-readonly-package-windows/first-party-deps.json,.sbom/compass-readonly-package-rhel/first-party-deps.json,.sbom/compass-readonly-package-macos-x64/first-party-deps.json,.sbom/compass-readonly-package-macos-arm/first-party-deps.json

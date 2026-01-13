@@ -24,7 +24,7 @@ const builder = {
   },
 };
 
-const run = async function run (argv) {
+const run = async function run(argv) {
   argv.version = argv.version.replace(/^v/, '');
 
   const assets = Target.getAssetsForVersion(argv.dir, argv.version);
@@ -33,23 +33,31 @@ const run = async function run (argv) {
   const assetsToDownload = assets.flatMap(({ assets }) => {
     return assets;
   });
-  const attestations = getBuildAttestations(argv.dir);
-  const downloads = [...assetsToDownload, ...attestations].map(async (asset) => {
-    const shortPath = path.relative(root, asset.path);
-    cli.info(
-      `${asset.name}: download from evg bucket started (path: ${shortPath})`
-    );
-    await downloadAssetFromEvergreen(asset);
-    cli.info(`${asset.name}: download from evg bucket complete`);
+  const attestations = getBuildAttestations(argv.dir, argv.version);
+  const attestationsToDownload = attestations.map((attestation) => {
+    return {
+      name: attestation.downloadKey,
+      path: attestation.localPath,
+    };
   });
+  const downloads = [...assetsToDownload, ...attestationsToDownload].map(
+    async (asset) => {
+      const shortPath = path.relative(root, asset.path);
+      cli.info(
+        `${asset.name}: download from evg bucket started (path: ${shortPath})`
+      );
+      await downloadAssetFromEvergreen(asset);
+      cli.info(`${asset.name}: download from evg bucket complete`);
+    }
+  );
 
-  return Promise.all(downloads)
-}
+  return Promise.all(downloads);
+};
 
 const handler = function handler(argv) {
   cli.argv = argv;
   run(argv).catch(abortIfError);
-}
+};
 
 module.exports = {
   command,
