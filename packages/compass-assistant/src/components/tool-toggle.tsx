@@ -98,7 +98,6 @@ const toolItemStyles = css({
 });
 
 const toolNameStyles = css({
-  fontFamily: fontFamilies.default,
   fontSize: '13px',
   fontWeight: 600,
   fontFamily: "'Source Code Pro', monospace",
