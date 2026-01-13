@@ -8,7 +8,8 @@ ignores:
  - '@types/react'
  - '@types/react-dom'
  - 'p-queue'
-  # mongodb-mcp-server will be used by the upcoming 
- - 'mongodb-mcp-server'
+  # mongodb-connection-string-url is used by mongodb-mcp-server
+  # specifying it helps force NPM resolve to the correct version
+ - 'mongodb-connection-string-url'
 ignore-patterns:
  - 'dist'
