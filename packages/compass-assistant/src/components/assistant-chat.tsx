@@ -555,7 +555,7 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
           )}
           <SuggestedPrompts chat={chat} onMessageSend={handleMessageSend} />
 
-          {!dismissedAssistantToolsIntro && (
+          {!dismissedAssistantToolsIntro && messages.length === 0 && (
             <ToolsIntroCard onDismiss={handleDismissIntroCard} />
           )}
 
