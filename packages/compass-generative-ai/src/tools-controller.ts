@@ -1,4 +1,4 @@
-import { tool } from 'ai';
+import { tool, zodSchema } from 'ai';
 import type { ToolSet } from 'ai';
 import type { Logger } from '@mongodb-js/compass-logging';
 import z from 'zod';
@@ -16,7 +16,6 @@ import { createConnectionErrorHandler } from './tools-connection-error-handler';
 import { ToolsLogger } from './tools-logger';
 import { ToolsConnectionManager } from './tools-connection-manager';
 import type { ToolsConnectParams } from './tools-connection-manager';
-import { removeZodTransforms } from './remove-zod-transforms';
 
 export type ToolGroup = 'querybar' | 'aggregation-builder' | 'db-read';
 

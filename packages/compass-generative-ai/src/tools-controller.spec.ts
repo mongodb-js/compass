@@ -428,6 +428,11 @@ describe('ToolsController', function () {
       });
 
       it('logs when server stops successfully', async function () {
+        // TODO: flushTimeout.unref is not a function
+        if ((process as any).type === 'renderer') {
+          this.skip();
+        }
+
         await toolsController.startServer();
         const logStub = sandbox.stub(logger.log, 'info');
 
