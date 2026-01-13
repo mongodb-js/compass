@@ -225,7 +225,11 @@ export function reselectCollections(): DataModelingThunkAction<
       const connection = connections.getConnectionById(
         selectedConnection || ''
       );
-      if (!connection || connection.status !== 'connected') {
+      if (
+        !selectedConnection ||
+        !connection ||
+        connection.status !== 'connected'
+      ) {
         dispatch({
           type: ReselectCollectionsWizardActionTypes.SHOW_WIZARD,
           step: 'SELECT_CONNECTION',
@@ -240,7 +244,7 @@ export function reselectCollections(): DataModelingThunkAction<
 
       // We want to fetch the collections of the selected database
       const databases = await getDatabasesFromConnection(
-        selectedConnection!,
+        selectedConnection,
         connections,
         instanceManager
       );
@@ -250,7 +254,7 @@ export function reselectCollections(): DataModelingThunkAction<
         );
       }
       const databaseCollections = await getCollectionsForDatabase(
-        selectedConnection!,
+        selectedConnection,
         selectedDatabase,
         connections,
         instanceManager
@@ -392,14 +396,19 @@ export function startRedoAnalysis(): DataModelingThunkAction<
     if (!diagram) {
       throw new Error('Can not start analysis when there is no diagram');
     }
+    if (!selectedConnectionId || !selectedDatabase) {
+      throw new Error(
+        'Can not start analysis when connection or database is not selected'
+      );
+    }
     dispatch({
       type: ReselectCollectionsWizardActionTypes.START_ANALYSIS,
     });
     void dispatch(
       redoAnalysis(
         diagramName,
-        selectedConnectionId!,
-        selectedDatabase!,
+        selectedConnectionId,
+        selectedDatabase,
         [...newSelectedCollections, ...selectedCollections],
         {
           automaticallyInferRelations,
