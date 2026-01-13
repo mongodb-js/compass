@@ -50,7 +50,7 @@ export const CompassIndexesDrawer: React.FunctionComponent<{
           </div>
         }
         label="Indexes"
-        glyph={'SearchIndex'}
+        glyph="SearchIndex"
         autoOpen={autoOpen}
       >
         <div>
