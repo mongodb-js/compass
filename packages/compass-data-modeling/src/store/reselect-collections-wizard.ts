@@ -341,7 +341,7 @@ export function establishConnection(): DataModelingThunkAction<
       });
     } catch (err) {
       logger.log.error(
-        logger.mongoLogId(1_001_000_348),
+        logger.mongoLogId(1_001_000_392),
         'DataModeling',
         'Failed to connect',
         { err }

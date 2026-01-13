@@ -107,10 +107,10 @@ describe('analysis-process', function () {
         ];
         const newModel = getModelFromReanalysis(
           edits as [Edit, ...Edit[]],
-          [],
+          [getMockedCollection('db.collection4')],
           relationships
         );
-        expect(newModel.collections).to.deep.equal(model.collections);
+        expect(newModel.collections).to.have.lengthOf(4);
         expect(newModel.relationships).to.deep.equal(relationships);
       });
       it('should retain any edits', function () {
@@ -132,10 +132,10 @@ describe('analysis-process', function () {
         ];
         const newModel = getModelFromReanalysis(
           edits as [Edit, ...Edit[]],
-          [],
+          [getMockedCollection('db.collection4')],
           relationships
         );
-        expect(newModel.collections).to.deep.equal(model.collections);
+        expect(newModel.collections).to.have.lengthOf(4);
         expect(newModel.relationships).to.deep.equal([
           {
             ...model.relationships[0],
@@ -183,11 +183,10 @@ describe('analysis-process', function () {
         ];
         const newModel = getModelFromReanalysis(
           edits as [Edit, ...Edit[]],
-          [],
+          [getMockedCollection('db.collection4')],
           relationships
         );
-        expect(newModel.collections).to.deep.equal(model.collections);
-
+        expect(newModel.collections).to.have.lengthOf(4);
         // Added via dispatch (createNewRelationship)
         const indexOfAddedRelation = newModel.relationships.findIndex(
           (rel) =>

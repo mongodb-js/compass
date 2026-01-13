@@ -20,7 +20,6 @@ import {
 } from '../utils/nodes-and-edges';
 import { inferForeignToLocalRelationshipsForCollection } from './relationships';
 import { mongoLogId } from '@mongodb-js/compass-logging/provider';
-import { isEqual } from 'lodash';
 
 type AnalyzedCollection = {
   ns: string;
@@ -584,7 +583,6 @@ export function getModelFromReanalysis(
 
   const currentModel = getCurrentModel(edits as [Edit, ...Edit[]]);
 
-  const initialRelationships = currentModel.relationships;
   const initialCollections = currentModel.collections;
 
   const newCollections = collections
@@ -602,26 +600,14 @@ export function getModelFromReanalysis(
       shardKey: undefined,
       isExpanded: collection.isExpanded,
     }));
+  // Only consider the relations that involve at least one newly added collection
+  const newCollectionNamespaces = new Set(newCollections.map((c) => c.ns));
   const newRelations = relations.filter((relation) => {
-    // Unlike collections, the algorithm may infer relationships that maybe were removed
-    // by the user. So we compare the initial SetModel state and the current model.
-    // If the `relation` exists in SetModel phase and does not exist in current model, it means
-    // the user removed it, so we don't add it back.
-    const existsInSetModel = lastSetModelEdit.model.relationships.find((x) =>
-      isEqual(x.relationship, relation.relationship)
+    const [local, foreign] = relation.relationship;
+    return (
+      newCollectionNamespaces.has(local.ns!) ||
+      newCollectionNamespaces.has(foreign.ns!)
     );
-    const existsInCurrentModel = initialRelationships.find((x) =>
-      isEqual(x.relationship, relation.relationship)
-    );
-    // Currently exists
-    if (existsInCurrentModel) {
-      return false;
-    }
-    // User removed it
-    if (existsInSetModel && !existsInCurrentModel) {
-      return false;
-    }
-    return true;
   });
 
   return {
