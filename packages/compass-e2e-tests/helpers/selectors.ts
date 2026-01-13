@@ -1436,10 +1436,6 @@ export const CreateDataModelConfirmButton = `${CreateDataModelModal} [data-testi
 export const CreateDataModelNameInput = `${CreateDataModelModal} [data-testid="new-diagram-name-input"]`;
 export const CreateDataModelConnectionSelector = `${CreateDataModelModal} [data-testid="new-diagram-connection-selector"]`;
 export const CreateDataModelDatabaseSelector = `${CreateDataModelModal} [data-testid="new-diagram-database-selector"]`;
-export const CreateDataModelCollectionCheckbox = (
-  collectionName: string
-): string =>
-  `${CreateDataModelModal} [data-testid="new-diagram-collection-checkbox-${collectionName}"]`;
 export const DataModelEditor = '[data-testid="diagram-editor-container"]';
 export const DataModelZoomOutButton = `${DataModelEditor} [aria-label="Minus Icon"]`;
 export const DataModelZoomInButton = `${DataModelEditor} [aria-label="Plus Icon"]`;

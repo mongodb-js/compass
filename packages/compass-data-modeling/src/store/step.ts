@@ -37,9 +37,6 @@ export const stepReducer: Reducer<StepState> = (
   ) {
     return 'EDITING';
   }
-  if (isAction(action, DiagramActionTypes.OPEN_DIAGRAM)) {
-    return 'EDITING';
-  }
   if (
     isAction(action, GenerateDiagramWizardActionTypes.CANCEL_CREATE_NEW_DIAGRAM)
   ) {

@@ -9,7 +9,7 @@ import {
   WarningSummary,
 } from '@mongodb-js/compass-components';
 import { usePreference } from 'compass-preferences-model/provider';
-import React from 'react';
+import React, { useCallback } from 'react';
 import { useMemo, useState } from 'react';
 
 const loadingStyles = css({
@@ -39,6 +39,12 @@ type SelectCollectionsStepProps = {
   onAutomaticallyInferRelationshipsToggle: (newVal: boolean) => void;
 };
 
+type SelectCollectionItem = {
+  id: string;
+  selected: boolean;
+  disabled?: boolean;
+};
+
 export const SelectCollections: React.FunctionComponent<
   SelectCollectionsStepProps
 > = ({
@@ -64,6 +70,34 @@ export const SelectCollections: React.FunctionComponent<
     }
   }, [collections, searchTerm]);
 
+  const onChangeSelection = useCallback(
+    (items: SelectCollectionItem[]) => {
+      // When a user is searching, less collections are shown to the user
+      // and we need to keep existing selected collections selected.
+      const currentSelectedItems = selectedCollections.filter((collName) => {
+        if (disabledCollections.includes(collName)) {
+          return false;
+        }
+        const item = items.find((x) => x.id === collName);
+        // The already selected item was not shown to the user (using search),
+        // and we have to keep it selected.
+        return item ? item.selected : true;
+      });
+
+      const newSelectedItems = items
+        .filter((item) => {
+          return item.selected;
+        })
+        .map((item) => {
+          return item.id;
+        });
+      onCollectionsSelect(
+        Array.from(new Set([...newSelectedItems, ...currentSelectedItems]))
+      );
+    },
+    [selectedCollections, disabledCollections, onCollectionsSelect]
+  );
+
   if (isFetchingCollections) {
     return (
       <div className={loadingStyles}>
@@ -87,7 +121,6 @@ export const SelectCollections: React.FunctionComponent<
         <SearchInput
           aria-label="Search collections"
           value={searchTerm}
-          data-testid="new-diagram-search-collections"
           onChange={(e) => {
             setSearchTerm(e.target.value);
           }}
@@ -96,43 +129,15 @@ export const SelectCollections: React.FunctionComponent<
       <FormFieldContainer>
         <SelectList
           className={selectListStyles}
-          items={filteredCollections.map((collName) => {
+          items={filteredCollections.map((collName): SelectCollectionItem => {
             return {
               id: collName,
               selected: selectedCollections.includes(collName),
-              'data-testid': `new-diagram-collection-checkbox-${collName}`,
               disabled: disabledCollections.includes(collName),
             };
           })}
           label={{ displayLabelKey: 'id', name: 'Collection Name' }}
-          onChange={(items) => {
-            // When a user is searching, less collections are shown to the user
-            // and we need to keep existing selected collections selected.
-            const currentSelectedItems = selectedCollections.filter(
-              (collName) => {
-                if (disabledCollections.includes(collName)) {
-                  return false;
-                }
-                const item = items.find((x) => x.id === collName);
-                // The already selected item was not shown to the user (using search),
-                // and we have to keep it selected.
-                return item ? item.selected : true;
-              }
-            );
-
-            const newSelectedItems = items
-              .filter((item) => {
-                return item.selected;
-              })
-              .map((item) => {
-                return item.id;
-              });
-            onCollectionsSelect(
-              Array.from(
-                new Set([...newSelectedItems, ...currentSelectedItems])
-              )
-            );
-          }}
+          onChange={onChangeSelection}
         ></SelectList>
       </FormFieldContainer>
       {showAutoInferOption && (
