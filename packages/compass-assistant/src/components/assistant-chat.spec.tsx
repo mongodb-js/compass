@@ -87,7 +87,11 @@ describe('AssistantChat', function () {
         <AssistantActionsContext.Provider
           value={assistantActionsContext as any}
         >
-          <AssistantChat chat={chat} hasNonGenuineConnections={false} />
+          <AssistantChat
+            chat={chat}
+            hasNonGenuineConnections={false}
+            allowSavingPreferences={true}
+          />
         </AssistantActionsContext.Provider>
       </ToolsControllerProvider>,
       {
@@ -211,7 +215,11 @@ describe('AssistantChat', function () {
       const chat = createMockChat({ messages: [] });
       render(
         <ToolsControllerProvider>
-          <AssistantChat chat={chat} hasNonGenuineConnections={true} />
+          <AssistantChat
+            chat={chat}
+            hasNonGenuineConnections={true}
+            allowSavingPreferences={true}
+          />
         </ToolsControllerProvider>
       );
 
@@ -228,7 +236,11 @@ describe('AssistantChat', function () {
       const chat = createMockChat({ messages: [] });
       render(
         <ToolsControllerProvider>
-          <AssistantChat chat={chat} hasNonGenuineConnections={false} />
+          <AssistantChat
+            chat={chat}
+            hasNonGenuineConnections={false}
+            allowSavingPreferences={true}
+          />
         </ToolsControllerProvider>,
         {
           connections: [],
@@ -245,7 +257,11 @@ describe('AssistantChat', function () {
       const chat = createMockChat({ messages: [] });
       const { rerender } = render(
         <ToolsControllerProvider>
-          <AssistantChat chat={chat} hasNonGenuineConnections={true} />
+          <AssistantChat
+            chat={chat}
+            hasNonGenuineConnections={true}
+            allowSavingPreferences={true}
+          />
         </ToolsControllerProvider>,
         {}
       );
@@ -258,7 +274,11 @@ describe('AssistantChat', function () {
 
       rerender(
         <ToolsControllerProvider>
-          <AssistantChat chat={chat} hasNonGenuineConnections={false} />
+          <AssistantChat
+            chat={chat}
+            hasNonGenuineConnections={false}
+            allowSavingPreferences={true}
+          />
         </ToolsControllerProvider>
       );
 

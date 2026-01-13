@@ -9,7 +9,7 @@ import { DATABASE_TOOLS, ToolToggle } from './tool-toggle';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
-describe.only('ToolToggle', function () {
+describe('ToolToggle', function () {
   describe('rendering', function () {
     it('shows disabled icon when tool calling is disabled', function () {
       render(<ToolToggle allowSavingPreferences={true} />, {
