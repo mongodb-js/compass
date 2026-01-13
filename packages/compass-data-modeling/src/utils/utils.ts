@@ -3,11 +3,14 @@ import type { FieldPath, Relationship } from '../services/data-model-storage';
 export const isIdField = (fieldPath: FieldPath): boolean =>
   fieldPath.length === 1 && fieldPath[0] === '_id';
 
+export const serializeFieldPath = (fieldPath: FieldPath): string =>
+  JSON.stringify(fieldPath);
+
 export function areFieldPathsEqual(
   fieldA: FieldPath,
   fieldB: FieldPath
 ): boolean {
-  return JSON.stringify(fieldA) === JSON.stringify(fieldB);
+  return serializeFieldPath(fieldA) === serializeFieldPath(fieldB);
 }
 
 export function isSameFieldOrAncestor(

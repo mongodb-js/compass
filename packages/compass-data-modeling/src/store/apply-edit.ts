@@ -1,5 +1,4 @@
 import {
-  DEFAULT_IS_EXPANDED,
   type DataModelCollection,
   type Edit,
   type Relationship,
@@ -9,6 +8,7 @@ import { updateSchema } from '../utils/schema-traversal';
 import {
   isRelationshipInvolvingField,
   isSameFieldOrAncestor,
+  serializeFieldPath,
 } from '../utils/utils';
 
 function renameFieldInRelationshipSide(
@@ -61,7 +61,6 @@ export function applyEdit(edit: Edit, model?: StaticModel): StaticModel {
         jsonSchema: edit.initialSchema,
         displayPosition: edit.position,
         indexes: [],
-        isExpanded: DEFAULT_IS_EXPANDED,
       };
       return {
         ...model,
@@ -292,6 +291,7 @@ export function applyEdit(edit: Edit, model?: StaticModel): StaticModel {
       };
     }
     case 'ToggleExpandCollection': {
+      assertCollectionExists(model.collections, edit.ns);
       return {
         ...model,
         collections: model.collections.map((collection) => {
@@ -300,7 +300,33 @@ export function applyEdit(edit: Edit, model?: StaticModel): StaticModel {
           }
           return {
             ...collection,
-            isExpanded: !collection.isExpanded,
+            expansionState: {
+              global: edit.expanded,
+              overrides: new Set(),
+            },
+          };
+        }),
+      };
+    }
+    case 'ToggleExpandField': {
+      assertCollectionExists(model.collections, edit.ns);
+      return {
+        ...model,
+        collections: model.collections.map((collection) => {
+          if (collection.ns !== edit.ns) return collection;
+          const overrides = new Set(collection.expansionState.overrides);
+          const fieldPath = serializeFieldPath(edit.field);
+          if (!overrides.has(fieldPath)) {
+            overrides.add(fieldPath);
+          } else {
+            overrides.delete(fieldPath);
+          }
+          return {
+            ...collection,
+            expansionState: {
+              ...collection.expansionState,
+              overrides,
+            },
           };
         }),
       };

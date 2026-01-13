@@ -8,7 +8,7 @@ import type {
   Relationship,
 } from '../services/data-model-storage';
 import {
-  DEFAULT_IS_EXPANDED,
+  InitialExpansionState,
   validateEdit,
   type Edit,
   type MongoDBDataModelDescription,
@@ -195,7 +195,7 @@ export const diagramReducer: Reducer<DiagramState> = (
                 ] as const,
                 indexes: [],
                 shardKey: undefined,
-                isExpanded: collection.isExpanded,
+                expansionState: collection.expansionState,
               })),
               relationships: action.relations,
             },
@@ -449,8 +449,16 @@ export function selectBackground(): DiagramBackgroundSelectedAction {
   };
 }
 
-export function toggleCollectionExpanded(namespace: string) {
-  return applyEdit({ type: 'ToggleExpandCollection', ns: namespace });
+export function toggleCollectionExpanded(namespace: string, expanded: boolean) {
+  return applyEdit({ type: 'ToggleExpandCollection', ns: namespace, expanded });
+}
+
+export function toggleFieldExpanded(namespace: string, fieldPath: FieldPath) {
+  return applyEdit({
+    type: 'ToggleExpandField',
+    ns: namespace,
+    field: fieldPath,
+  });
 }
 
 export function createNewRelationship({
@@ -910,7 +918,7 @@ function getPositionForNewCollection(
     ns: newCollection.ns,
     jsonSchema: newCollection.jsonSchema,
     displayPosition: [0, 0],
-    isExpanded: newCollection.isExpanded,
+    expansionState: newCollection.expansionState,
   });
   const xyposition = getCoordinatesForNewNode(existingNodes, newNode);
   return [xyposition.x, xyposition.y];
@@ -949,7 +957,7 @@ export function addCollection(
         ns,
         jsonSchema: {} as MongoDBJSONSchema,
         indexes: [],
-        isExpanded: DEFAULT_IS_EXPANDED,
+        expansionState: InitialExpansionState,
       });
     }
 

@@ -29,6 +29,17 @@ export type Relationship = z.output<typeof RelationshipSchema>;
 
 export const DEFAULT_IS_EXPANDED = true;
 
+export const InitialExpansionState = {
+  global: DEFAULT_IS_EXPANDED,
+  overrides: new Set<string>(),
+};
+
+const ExpansionStateSchema = z.object({
+  global: z.boolean().default(DEFAULT_IS_EXPANDED),
+  overrides: z.set(z.string()),
+});
+export type ExpansionState = z.output<typeof ExpansionStateSchema>;
+
 const CollectionSchema = z.object({
   ns: z.string(),
   jsonSchema: z.custom<MongoDBJSONSchema>((value) => {
@@ -39,7 +50,7 @@ const CollectionSchema = z.object({
   shardKey: z.record(z.unknown()).optional(),
   displayPosition: z.tuple([z.number(), z.number()]),
   note: z.string().optional(),
-  isExpanded: z.boolean().default(DEFAULT_IS_EXPANDED),
+  expansionState: ExpansionStateSchema.default(InitialExpansionState),
 });
 
 export type DataModelCollection = z.output<typeof CollectionSchema>;
@@ -143,6 +154,12 @@ const EditSchemaVariants = z.discriminatedUnion('type', [
   z.object({
     type: z.literal('ToggleExpandCollection'),
     ns: z.string(),
+    expanded: z.boolean(),
+  }),
+  z.object({
+    type: z.literal('ToggleExpandField'),
+    ns: z.string(),
+    field: FieldPathSchema,
   }),
 ]);
 

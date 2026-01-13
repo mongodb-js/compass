@@ -26,7 +26,10 @@ describe('DiagramCard', () => {
                 displayPosition: [0, 0],
                 shardKey: {},
                 jsonSchema: { bsonType: 'object' },
-                isExpanded: true,
+                expansionState: {
+                  global: true,
+                  overrides: new Set(),
+                },
               },
             ],
             relationships: [],

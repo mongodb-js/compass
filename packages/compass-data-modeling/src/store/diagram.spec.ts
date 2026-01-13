@@ -32,7 +32,10 @@ const model: StaticModel = {
       displayPosition: [0, 0],
       shardKey: {},
       jsonSchema: { bsonType: 'object' },
-      isExpanded: true,
+      expansionState: {
+        global: true,
+        overrides: new Set(),
+      },
     },
     {
       ns: 'db.collection2',
@@ -40,7 +43,10 @@ const model: StaticModel = {
       displayPosition: [1, 1],
       shardKey: {},
       jsonSchema: { bsonType: 'object' },
-      isExpanded: true,
+      expansionState: {
+        global: true,
+        overrides: new Set(),
+      },
     },
   ],
   relationships: [
@@ -94,13 +100,19 @@ describe('Data Modeling store', function () {
             ns: 'db.collection1',
             schema: model.collections[0].jsonSchema,
             position: { x: 0, y: 0 },
-            isExpanded: true,
+            expansionState: {
+              global: true,
+              overrides: new Set(),
+            },
           },
           {
             ns: 'db.collection2',
             schema: model.collections[1].jsonSchema,
             position: { x: 0, y: 0 },
-            isExpanded: true,
+            expansionState: {
+              global: true,
+              overrides: new Set(),
+            },
           },
         ],
         relations: model.relationships,
@@ -164,7 +176,10 @@ describe('Data Modeling store', function () {
               displayPosition: [0, 0],
               shardKey: {},
               jsonSchema: { bsonType: 'object' },
-              isExpanded: true,
+              expansionState: {
+                global: true,
+                overrides: new Set(),
+              },
             },
           ] as StaticModel['collections'],
           relationships: [] as StaticModel['relationships'],
@@ -499,7 +514,10 @@ describe('Data Modeling store', function () {
                     field3: { bsonType: 'int' },
                   },
                 },
-                isExpanded: true,
+                expansionState: {
+                  global: true,
+                  overrides: new Set(),
+                },
               },
             ],
             relationships: [],
@@ -526,7 +544,10 @@ describe('Data Modeling store', function () {
                 indexes: [],
                 displayPosition: [0, 0],
                 shardKey: {},
-                isExpanded: true,
+                expansionState: {
+                  global: true,
+                  overrides: new Set(),
+                },
                 jsonSchema: {
                   bsonType: 'object',
                   properties: {

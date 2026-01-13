@@ -9,11 +9,18 @@ import type { MongoDBJSONSchema } from 'mongodb-schema';
 import type { SelectedItems } from '../store/diagram';
 import type {
   DataModelCollection,
+  ExpansionState,
   FieldPath,
   Relationship,
 } from '../services/data-model-storage';
 import { traverseSchema } from './schema-traversal';
-import { areFieldPathsEqual, isIdField, isRelationshipValid } from './utils';
+import {
+  areFieldPathsEqual,
+  isIdField,
+  isRelationshipValid,
+  serializeFieldPath,
+} from './utils';
+import { serialize } from 'bson';
 
 const NO_HIGHLIGHTED_FIELDS = {};
 
@@ -59,10 +66,8 @@ const getBaseNodeField = (
  */
 export const getBaseFieldsFromSchema = ({
   jsonSchema,
-  isExpanded = true,
 }: {
   jsonSchema: MongoDBJSONSchema;
-  isExpanded?: boolean;
 }): BaseNodeField[] => {
   if (!jsonSchema || !jsonSchema.properties) {
     return [];
@@ -72,9 +77,7 @@ export const getBaseFieldsFromSchema = ({
   traverseSchema({
     jsonSchema,
     visitor: ({ fieldPath, fieldTypes }) => {
-      if (isExpanded || fieldPath.length === 1) {
-        fields.push(getBaseNodeField(fieldPath, fieldTypes));
-      }
+      fields.push(getBaseNodeField(fieldPath, fieldTypes));
     },
   });
 
@@ -85,45 +88,52 @@ const KEY_GLYPH: NodeGlyph[] = ['key'];
 const NO_GLYPH: NodeGlyph[] = [];
 
 type ExtendedNodeField = BaseNodeField &
-  Required<Pick<NodeField, 'glyphs' | 'selectable' | 'selected' | 'editable'>> &
+  Required<
+    Pick<
+      NodeField,
+      'glyphs' | 'selectable' | 'selected' | 'editable' | 'expanded'
+    >
+  > &
   Pick<NodeField, 'variant'>;
 
 export const getExtendedFieldsFromSchema = ({
   jsonSchema,
   highlightedFields = [],
   selectedField,
-  isExpanded = true,
+  expansionState,
 }: {
   jsonSchema: MongoDBJSONSchema;
   highlightedFields?: FieldPath[];
   selectedField?: FieldPath;
-  isExpanded?: boolean;
+  expansionState: ExpansionState;
 }): ExtendedNodeField[] => {
   if (!jsonSchema || !jsonSchema.properties) {
     return [];
   }
 
-  return getBaseFieldsFromSchema({
-    jsonSchema,
-    isExpanded,
-  }).map((field): ExtendedNodeField => {
-    return {
-      ...field,
-      glyphs: field.type === 'objectId' ? KEY_GLYPH : NO_GLYPH,
-      selectable: true,
-      selected:
-        !!selectedField?.length &&
-        areFieldPathsEqual(field.path, selectedField),
-      editable: !isIdField(field.path),
-      variant:
-        highlightedFields.length &&
-        highlightedFields.some((highlightedField) =>
-          areFieldPathsEqual(field.path, highlightedField)
-        )
-          ? 'preview'
-          : undefined,
-    };
-  });
+  return getBaseFieldsFromSchema({ jsonSchema }).map(
+    (field): ExtendedNodeField => {
+      return {
+        ...field,
+        glyphs: field.type === 'objectId' ? KEY_GLYPH : NO_GLYPH,
+        selectable: true,
+        selected:
+          !!selectedField?.length &&
+          areFieldPathsEqual(field.path, selectedField),
+        editable: !isIdField(field.path),
+        variant:
+          highlightedFields.length &&
+          highlightedFields.some((highlightedField) =>
+            areFieldPathsEqual(field.path, highlightedField)
+          )
+            ? 'preview'
+            : undefined,
+        expanded: expansionState?.overrides.has(serializeFieldPath(field.path))
+          ? !expansionState.global
+          : expansionState.global,
+      };
+    }
+  );
 };
 
 /**
@@ -133,10 +143,10 @@ export function collectionToBaseNodeForLayout({
   ns,
   jsonSchema,
   displayPosition,
-  isExpanded,
+  expansionState,
 }: Pick<
   DataModelCollection,
-  'ns' | 'jsonSchema' | 'displayPosition' | 'isExpanded'
+  'ns' | 'jsonSchema' | 'displayPosition' | 'expansionState'
 >): Pick<NodeProps, 'id' | 'position' | 'fields'> {
   return {
     id: ns,
@@ -144,13 +154,13 @@ export function collectionToBaseNodeForLayout({
       x: displayPosition[0],
       y: displayPosition[1],
     },
-    fields: getBaseFieldsFromSchema({ jsonSchema, isExpanded }),
+    fields: getBaseFieldsFromSchema({ jsonSchema, expansionState }),
   };
 }
 
 type CollectionWithRenderOptions = Pick<
   DataModelCollection,
-  'ns' | 'jsonSchema' | 'displayPosition' | 'isExpanded'
+  'ns' | 'jsonSchema' | 'displayPosition' | 'expansionState'
 > & {
   highlightedFields: Record<string, FieldPath[] | undefined>;
   selectedField?: FieldPath;
@@ -168,7 +178,7 @@ export function collectionToDiagramNode({
   selected,
   isInRelationshipDrawingMode,
   relationships,
-  isExpanded,
+  expansionState,
 }: CollectionWithRenderOptions): NodeProps {
   let variant: NodeProps['variant'] = undefined;
   if (relationships.some((r) => !isRelationshipValid(r))) {
@@ -189,7 +199,7 @@ export function collectionToDiagramNode({
       jsonSchema: jsonSchema,
       highlightedFields: highlightedFields[ns] ?? undefined,
       selectedField,
-      isExpanded,
+      expansionState,
     }),
     selected,
     connectable: isInRelationshipDrawingMode,
