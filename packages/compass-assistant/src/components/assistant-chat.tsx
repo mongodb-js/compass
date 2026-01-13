@@ -16,6 +16,7 @@ import {
   palette,
   useDarkMode,
   Icon,
+  usePersistedState,
 } from '@mongodb-js/compass-components';
 import { ConfirmationMessage } from './confirmation-message';
 import { ToolCallMessage } from './tool-call-message';
@@ -25,10 +26,7 @@ import { NON_GENUINE_WARNING_MESSAGE } from '../preset-messages';
 import { SuggestedPrompts } from './suggested-prompts';
 import { ToolToggle } from './tool-toggle';
 import { ToolsIntroCard } from './tools-intro-card';
-import {
-  usePreference,
-  usePreferencesContext,
-} from 'compass-preferences-model/provider';
+import { usePreference } from 'compass-preferences-model/provider';
 
 const { ChatWindow } = LgChatChatWindow;
 const { LeafyGreenChatProvider } = LgChatLeafygreenChatProvider;
@@ -205,17 +203,18 @@ const toolToggleContainerStyles = css({
   paddingRight: spacing[50],
 });
 
+const DISMISSED_ASSISTANT_TOOLS_INTRO_LOCAL_STORAGE_KEY =
+  'mongodb_compass_dismissedAssistantToolsIntro' as const;
+
 export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
   chat,
   hasNonGenuineConnections,
 }) => {
   const track = useTelemetry();
   const darkMode = useDarkMode();
-  const preferences = usePreferencesContext();
   const isToolCallingEnabled = usePreference('enableToolCalling');
-  const dismissedAssistantToolsIntro = usePreference(
-    'dismissedAssistantToolsIntro'
-  );
+  const [dismissedAssistantToolsIntro, setDismissedAssistantToolsIntro] =
+    usePersistedState(DISMISSED_ASSISTANT_TOOLS_INTRO_LOCAL_STORAGE_KEY, false);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const previousLastMessageId = useRef<string | undefined>(undefined);
   const { id: lastMessageId, role: lastMessageRole } =
@@ -392,8 +391,8 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
   );
 
   const handleDismissIntroCard = useCallback(() => {
-    void preferences.savePreferences({ dismissedAssistantToolsIntro: true });
-  }, [preferences]);
+    setDismissedAssistantToolsIntro(true);
+  }, [setDismissedAssistantToolsIntro]);
 
   const visibleMessages = messages.filter(
     (message) => !message.metadata?.isSystemContext

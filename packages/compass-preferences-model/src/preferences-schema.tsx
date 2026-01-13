@@ -122,7 +122,6 @@ export type UserConfigurablePreferences = PermanentFeatureFlags &
  */
 export type InternalUserPreferences = {
   showedNetworkOptIn: boolean; // Has the settings dialog been shown before.
-  dismissedAssistantToolsIntro: boolean; // Has the assistant tools intro card been dismissed.
   id: string;
   cloudFeatureRolloutAccess?: {
     GEN_AI_COMPASS?: boolean;
@@ -230,10 +229,7 @@ export type PreferenceDefinition<K extends keyof AllPreferences> = {
   /** Whether the preference can be modified through the Settings UI */
   ui: K extends keyof UserConfigurablePreferences ? true : false;
   /** Whether the preference can be set on the command line */
-  cli: K extends keyof Omit<
-    InternalUserPreferences,
-    'showedNetworkOptIn' | 'dismissedAssistantToolsIntro'
-  >
+  cli: K extends keyof Omit<InternalUserPreferences, 'showedNetworkOptIn'>
     ? false
     : K extends keyof CliOnlyPreferences
     ? true
@@ -369,19 +365,6 @@ export const storedUserPreferencesProps: Required<{
    * the user already.
    */
   showedNetworkOptIn: {
-    ui: false,
-    cli: true,
-    global: false,
-    description: null,
-    omitFromHelp: true,
-    validator: z.boolean().default(false),
-    type: 'boolean',
-  },
-  /**
-   * Stores whether or not the assistant tools intro card has been shown and
-   * dismissed by the user.
-   */
-  dismissedAssistantToolsIntro: {
     ui: false,
     cli: true,
     global: false,
