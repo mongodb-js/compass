@@ -86,6 +86,10 @@ export const ToolsIntroCard: React.FunctionComponent<ToolsIntroCardProps> = ({
 }) => {
   const projectId = useAssistantProjectId();
 
+  const settingsText = projectId
+    ? 'project-wide in Project Settings'
+    : 'in Settings';
+
   return (
     <div className={shimmerBorderStyles}>
       <Card className={cx(cardStyles)} data-testid="tools-intro-card">
@@ -107,7 +111,7 @@ export const ToolsIntroCard: React.FunctionComponent<ToolsIntroCardProps> = ({
         <Description className={descriptionStyles}>
           Explore your data effortlessly with natural language. These read-only
           tools never make changes and only run with your approval. Toggle them
-          for this chat or manage them project-wide in Project Settings.
+          for this chat or manage them {settingsText}.
         </Description>
 
         <div className={actionsStyles}>

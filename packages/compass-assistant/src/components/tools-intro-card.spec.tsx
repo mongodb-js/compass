@@ -64,11 +64,26 @@ describe('ToolsIntroCard', function () {
     expect(screen.getByText('New')).to.exist;
   });
 
-  it('renders the description text', function () {
+  it('mentions settings in the description text when projectId is not provided', function () {
     renderWithProvider();
 
     expect(
       screen.getByText(/Explore your data effortlessly with natural language/)
+    ).to.exist;
+    expect(screen.getByText(/for this chat or manage them in Settings/)).to
+      .exist;
+  });
+
+  it('mentions project settings in the description text when projectId is provided', function () {
+    renderWithProvider({ ...defaultProps }, { projectId: 'test-project-id' });
+
+    expect(
+      screen.getByText(/Explore your data effortlessly with natural language/)
+    ).to.exist;
+    expect(
+      screen.getByText(
+        /for this chat or manage them project-wide in Project Settings/
+      )
     ).to.exist;
   });
 
