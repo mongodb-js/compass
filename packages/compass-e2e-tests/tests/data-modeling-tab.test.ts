@@ -876,7 +876,7 @@ describe('Data Modeling tab', function () {
     });
 
     it('adding a new database collection from the toolbar', async function () {
-      const dataModelName = 'Test Edit New Collection';
+      const dataModelName = 'Test Edit New Database Collection';
       await setupDiagram(browser, {
         diagramName: dataModelName,
         connectionName: DEFAULT_CONNECTION_NAME_1,
