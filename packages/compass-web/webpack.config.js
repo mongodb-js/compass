@@ -151,7 +151,6 @@ module.exports = (env, args) => {
         socks: localPolyfill('throwError'),
         aws4: localPolyfill('throwError'),
 
-        'mongodb-client-encryption/package.json': localPolyfill('throwError'),
         'mongodb-client-encryption': localPolyfill('throwError'),
 
         // mongodb-mcp-server polyfills
