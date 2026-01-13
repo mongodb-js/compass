@@ -9,14 +9,24 @@ import { UUID } from 'bson';
 import { getModelFromReanalysis } from './analysis-process';
 import { type DataModelingStore, setupStore } from '../../test/setup-store';
 import {
+  addNewFieldToCollection,
   createNewRelationship,
   deleteCollection,
   deleteRelationship,
-  moveCollection,
   openDiagram,
   updateRelationship,
+  getCurrentModel,
 } from './diagram';
 
+const mockSchema = {
+  bsonType: 'object',
+  required: ['_id'],
+  properties: {
+    _id: {
+      bsonType: 'objectId',
+    },
+  },
+};
 function getMockedCollection(ns: string) {
   return {
     ns,
@@ -24,7 +34,7 @@ function getMockedCollection(ns: string) {
       x: Math.floor(Math.random() * 100),
       y: Math.floor(Math.random() * 100),
     },
-    schema: { bsonType: 'object' },
+    schema: mockSchema,
     isExpanded: true,
   };
 }
@@ -58,7 +68,7 @@ const model: StaticModel = {
       indexes: [],
       displayPosition: [1, 1],
       shardKey: {},
-      jsonSchema: { bsonType: 'object' },
+      jsonSchema: mockSchema,
       isExpanded: true,
     },
     {
@@ -66,7 +76,7 @@ const model: StaticModel = {
       indexes: [],
       displayPosition: [2, 2],
       shardKey: {},
-      jsonSchema: { bsonType: 'object' },
+      jsonSchema: mockSchema,
       isExpanded: true,
     },
     {
@@ -74,7 +84,7 @@ const model: StaticModel = {
       indexes: [],
       displayPosition: [3, 3],
       shardKey: {},
-      jsonSchema: { bsonType: 'object' },
+      jsonSchema: mockSchema,
       isExpanded: true,
     },
   ],
@@ -107,7 +117,12 @@ describe('analysis-process', function () {
         ];
         const newModel = getModelFromReanalysis(
           edits as [Edit, ...Edit[]],
-          [getMockedCollection('db.collection4')],
+          [
+            getMockedCollection('db.collection1'),
+            getMockedCollection('db.collection2'),
+            getMockedCollection('db.collection3'),
+            getMockedCollection('db.collection4'),
+          ],
           relationships
         );
         expect(newModel.collections).to.have.lengthOf(4);
@@ -132,7 +147,12 @@ describe('analysis-process', function () {
         ];
         const newModel = getModelFromReanalysis(
           edits as [Edit, ...Edit[]],
-          [getMockedCollection('db.collection4')],
+          [
+            getMockedCollection('db.collection1'),
+            getMockedCollection('db.collection2'),
+            getMockedCollection('db.collection3'),
+            getMockedCollection('db.collection4'),
+          ],
           relationships
         );
         expect(newModel.collections).to.have.lengthOf(4);
@@ -162,10 +182,14 @@ describe('analysis-process', function () {
         ];
         const newModel = getModelFromReanalysis(
           edits as [Edit, ...Edit[]],
-          [],
+          [
+            getMockedCollection('db.collection1'),
+            getMockedCollection('db.collection2'),
+            getMockedCollection('db.collection3'),
+          ],
           relationships
         );
-        expect(newModel.collections).to.deep.equal(model.collections);
+        expect(newModel.collections).to.have.lengthOf(3);
         expect(newModel.relationships).to.deep.equal([]);
       });
       it('should retain a relation that was added after SetModel edit', function () {
@@ -183,7 +207,12 @@ describe('analysis-process', function () {
         ];
         const newModel = getModelFromReanalysis(
           edits as [Edit, ...Edit[]],
-          [getMockedCollection('db.collection4')],
+          [
+            getMockedCollection('db.collection1'),
+            getMockedCollection('db.collection2'),
+            getMockedCollection('db.collection3'),
+            getMockedCollection('db.collection4'),
+          ],
           relationships
         );
         expect(newModel.collections).to.have.lengthOf(4);
@@ -206,55 +235,76 @@ describe('analysis-process', function () {
       });
     });
     context('collections', function () {
-      it('should retain deletes', function () {
+      it('should retain deletes - when user does not select deleted collection', function () {
         store.dispatch(deleteCollection(model.collections[2].ns));
         const edits = store.getState().diagram?.edits.current;
-        const collections = [getMockedCollection('db.collection4')];
+        const collections = [
+          getMockedCollection('db.collection1'),
+          getMockedCollection('db.collection2'),
+          // db.collection3 is deleted one
+          getMockedCollection('db.collection4'),
+        ];
         const newModel = getModelFromReanalysis(
           edits as Edit[],
           collections,
           []
         );
         expect(newModel.relationships).to.deep.equal(model.relationships);
-        expect(newModel.collections).to.deep.equal([
-          model.collections[0],
-          model.collections[1],
-          ...collections.map((c) => ({
-            ns: c.ns,
-            indexes: [],
-            displayPosition: [c.position.x, c.position.y],
-            shardKey: undefined,
-            jsonSchema: c.schema,
-            isExpanded: true,
-          })),
-        ]);
+
+        expect(newModel.collections.map((c) => c.ns)).to.have.members(
+          collections.map((c) => c.ns)
+        );
+      });
+      it('should include collection when user reselects it after deleting', function () {
+        store.dispatch(deleteCollection(model.collections[2].ns));
+        const edits = store.getState().diagram?.edits.current;
+        const collections = [
+          getMockedCollection('db.collection1'),
+          getMockedCollection('db.collection2'),
+          getMockedCollection('db.collection3'),
+          getMockedCollection('db.collection4'),
+        ];
+        const newModel = getModelFromReanalysis(
+          edits as Edit[],
+          collections,
+          []
+        );
+        expect(newModel.relationships).to.deep.equal(model.relationships);
+
+        expect(newModel.collections.map((c) => c.ns)).to.have.members(
+          collections.map((c) => c.ns)
+        );
       });
       it('should retain any edits', function () {
-        store.dispatch(moveCollection(model.collections[0].ns, [10, 10]));
+        store.dispatch(
+          addNewFieldToCollection(model.collections[0].ns, 'diagram')
+        );
         const edits = store.getState().diagram?.edits.current;
-        const collections = [getMockedCollection('db.collection4')];
+        const currentModel = getCurrentModel(edits as [Edit, ...Edit[]]);
+        const newFields = Object.keys(
+          currentModel.collections.find((c) => c.ns === model.collections[0].ns)
+            ?.jsonSchema?.properties || {}
+        );
+
+        const collections = [
+          getMockedCollection('db.collection1'),
+          getMockedCollection('db.collection2'),
+          getMockedCollection('db.collection3'),
+          getMockedCollection('db.collection4'),
+        ];
         const newModel = getModelFromReanalysis(
           edits as Edit[],
           collections,
           []
         );
         expect(newModel.relationships).to.deep.equal(model.relationships);
-        expect(newModel.collections).to.deep.equal([
-          {
-            ...model.collections[0],
-            displayPosition: [10, 10],
-          },
-          model.collections[1],
-          model.collections[2],
-          ...collections.map((c) => ({
-            ns: c.ns,
-            indexes: [],
-            displayPosition: [c.position.x, c.position.y],
-            shardKey: undefined,
-            jsonSchema: c.schema,
-            isExpanded: true,
-          })),
-        ]);
+        expect(newModel.collections).to.have.lengthOf(4);
+
+        const updateCollectionFields = Object.keys(
+          newModel.collections.find((c) => c.ns === model.collections[0].ns)
+            ?.jsonSchema?.properties || {}
+        );
+        expect(updateCollectionFields).to.deep.equal(newFields);
       });
     });
   });

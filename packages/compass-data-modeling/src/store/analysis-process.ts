@@ -571,24 +571,16 @@ export function analyzeCollections({
 // Exported for tests only
 export function getModelFromReanalysis(
   edits: Edit[],
-  collections: AnalyzedCollection[],
-  relations: Relationship[]
+  analyzedCollections: AnalyzedCollection[],
+  inferredRelations: Relationship[]
 ) {
-  const lastSetModelEdit = [...edits]
-    .reverse()
-    .find((edit) => edit.type === 'SetModel');
-  if (!lastSetModelEdit) {
-    throw new Error('Invalid diagram state.');
-  }
-
   const currentModel = getCurrentModel(edits as [Edit, ...Edit[]]);
+  const initialCollectionsSet = new Set(
+    currentModel.collections.map((c) => c.ns)
+  );
 
-  const initialCollections = currentModel.collections;
-
-  const newCollections = collections
-    .filter((collection) => {
-      return !initialCollections.find((x) => x.ns === collection.ns);
-    })
+  const newCollections = analyzedCollections
+    .filter((collection) => !initialCollectionsSet.has(collection.ns))
     .map((collection) => ({
       ns: collection.ns,
       jsonSchema: collection.schema,
@@ -600,18 +592,32 @@ export function getModelFromReanalysis(
       shardKey: undefined,
       isExpanded: collection.isExpanded,
     }));
+  const existingCollections = currentModel.collections.map((collection) => {
+    // We want to ensure we have the latest position from analysis
+    const position = analyzedCollections.find(
+      (c) => c.ns === collection.ns
+    )?.position;
+    if (!position) {
+      return collection;
+    }
+    return {
+      ...collection,
+      displayPosition: [position.x, position.y],
+    };
+  });
+
   // Only consider the relations that involve at least one newly added collection
   const newCollectionNamespaces = new Set(newCollections.map((c) => c.ns));
-  const newRelations = relations.filter((relation) => {
+  const newRelations = inferredRelations.filter((relation) => {
     const [local, foreign] = relation.relationship;
     return (
       newCollectionNamespaces.has(local.ns!) ||
       newCollectionNamespaces.has(foreign.ns!)
     );
   });
-
+  const existingRelations = currentModel.relationships;
   return {
-    collections: [...currentModel.collections, ...newCollections],
-    relationships: [...currentModel.relationships, ...newRelations],
+    collections: [...existingCollections, ...newCollections],
+    relationships: [...existingRelations, ...newRelations],
   };
 }
