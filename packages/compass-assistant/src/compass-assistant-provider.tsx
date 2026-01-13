@@ -18,6 +18,7 @@ import {
   useInitialValue,
 } from '@mongodb-js/compass-components';
 import {
+  APP_NAMES_FOR_PROMPT,
   buildConnectionErrorPrompt,
   buildContextPrompt,
   buildExplainPlanPrompt,
@@ -172,10 +173,10 @@ export const compassAssistantServiceLocator = createServiceLocator(() => {
   getIsAssistantEnabledRef.current = actions.getIsAssistantEnabled;
 
   return {
-    interpretConnectionError: (options: {
-      connectionInfo: ConnectionInfo;
-      error: Error;
-    }) => interpretConnectionErrorRef.current?.(options),
+    interpretConnectionError: interpretConnectionErrorRef.current
+      ? (options: { connectionInfo: ConnectionInfo; error: Error }) =>
+          interpretConnectionErrorRef.current?.(options)
+      : undefined,
     getIsAssistantEnabled: () => {
       return getIsAssistantEnabledRef.current();
     },
@@ -183,7 +184,7 @@ export const compassAssistantServiceLocator = createServiceLocator(() => {
 }, 'compassAssistantLocator');
 
 export type CompassAssistantService = {
-  interpretConnectionError: (options: {
+  interpretConnectionError?: (options: {
     connectionInfo: ConnectionInfo;
     error: Error;
   }) => void;
@@ -208,7 +209,14 @@ export const AssistantProvider: React.FunctionComponent<
     toolsController: ToolsController;
     preferences: PreferencesAccess;
   }>
-> = ({ chat, atlasAiService, toolsController, preferences, children }) => {
+> = ({
+  appNameForPrompt,
+  chat,
+  atlasAiService,
+  toolsController,
+  preferences,
+  children,
+}) => {
   const { openDrawer } = useDrawerActions();
   const track = useTelemetry();
 
@@ -337,10 +345,14 @@ export const AssistantProvider: React.FunctionComponent<
       'explain plan',
       buildExplainPlanPrompt
     ),
-    interpretConnectionError: createEntryPointHandler(
-      'connection error',
-      buildConnectionErrorPrompt
-    ),
+    // interpretConnectionError is not available in Data Explorer
+    interpretConnectionError:
+      appNameForPrompt === APP_NAMES_FOR_PROMPT.DataExplorer
+        ? undefined
+        : createEntryPointHandler(
+            'connection error',
+            buildConnectionErrorPrompt
+          ),
     tellMoreAboutInsight: createEntryPointHandler(
       'performance insights',
       buildProactiveInsightsPrompt

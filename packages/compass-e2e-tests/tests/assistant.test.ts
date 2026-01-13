@@ -10,6 +10,7 @@ import {
   screenshotIfFailed,
   DEFAULT_CONNECTION_NAME_1,
   screenshotPathName,
+  skipForWeb,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
@@ -242,6 +243,8 @@ describe('MongoDB Assistant', function () {
 
     describe('entry points', function () {
       it('should display opt-in modal for connection error entry point', async function () {
+        skipForWeb(this, 'connection errors not meant to be shown in DE');
+
         await browser.connectWithConnectionString(
           'mongodb-invalid://localhost:27017',
           { connectionStatus: 'failure' }
@@ -509,6 +512,8 @@ describe('MongoDB Assistant', function () {
         });
 
         it('opens assistant with error message view prompt when clicking "Debug"', async function () {
+          skipForWeb(this, 'connection errors not meant to be shown in DE');
+
           await browser.connectWithConnectionString(
             'mongodb-invalid://localhost:27017',
             { connectionStatus: 'failure' }

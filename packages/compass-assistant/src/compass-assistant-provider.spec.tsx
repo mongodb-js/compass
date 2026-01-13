@@ -146,7 +146,10 @@ const TestComponent: React.FunctionComponent<{
 };
 
 describe('useAssistantActions', function () {
-  const createWrapper = (chat: Chat<AssistantMessage>) => {
+  const createWrapper = (
+    chat: Chat<AssistantMessage>,
+    appNameForPrompt = 'MongoDB Compass'
+  ) => {
     function TestWrapper({ children }: { children: React.ReactNode }) {
       const MockedProvider = createMockProvider();
 
@@ -156,7 +159,7 @@ describe('useAssistantActions', function () {
           {/* eslint-disable-next-line react-hooks/static-components */}
           <MockedProvider
             originForPrompt="mongodb-compass"
-            appNameForPrompt="MongoDB Compass"
+            appNameForPrompt={appNameForPrompt}
             chat={chat}
           >
             {children}
@@ -228,6 +231,26 @@ describe('useAssistantActions', function () {
     expect(Object.keys(result.current)).to.have.length.greaterThan(0);
     expect(result.current.interpretExplainPlan).to.be.a('function');
     expect(result.current.interpretConnectionError).to.be.a('function');
+    expect(result.current.tellMoreAboutInsight).to.be.a('function');
+  });
+
+  it('does not include interpretConnectionError when using Data Explorer', function () {
+    const { result } = renderHook(() => useAssistantActions(), {
+      wrapper: createWrapper(
+        createMockChat({ messages: [] }),
+        'MongoDB Atlas Data Explorer'
+      ),
+      preferences: {
+        enableAIAssistant: true,
+        enableGenAIFeatures: true,
+        enableGenAIFeaturesAtlasOrg: true,
+        cloudFeatureRolloutAccess: { GEN_AI_COMPASS: true },
+        enableToolCalling: true,
+      },
+    });
+
+    expect(result.current.interpretExplainPlan).to.be.a('function');
+    expect(result.current.interpretConnectionError).to.be.undefined;
     expect(result.current.tellMoreAboutInsight).to.be.a('function');
   });
 });
