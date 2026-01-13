@@ -5,27 +5,23 @@ import {
   screen,
   userEvent,
   waitFor,
-  within,
 } from '@mongodb-js/testing-library-compass';
 import {
   CompassIndexesDrawerProvider,
   IndexesDrawerProvider,
   useIndexesDrawerActions,
   useIndexesDrawerContext,
-  INDEXES_DRAWER_ID,
   type IndexesDrawerContextType,
 } from './compass-indexes-provider';
 import { expect } from 'chai';
-import sinon from 'sinon';
 import {
   DrawerAnchor,
   DrawerContentProvider,
 } from '@mongodb-js/compass-components';
 import { CompassIndexesDrawer } from './compass-indexes-drawer';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
-import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import type { WorkspaceTab } from '@mongodb-js/workspace-info';
-import type { CollectionMetadata } from 'mongodb-collection-model';
+import { useSyncIndexesDrawerGlobalState } from './indexes-drawer-global-state';
 
 function createMockProvider() {
   return CompassIndexesDrawerProvider.withMockServices({
@@ -44,9 +40,6 @@ const mockCollectionWorkspace: WorkspaceTab = {
 const GlobalStateSetup: React.FunctionComponent<{
   children: React.ReactNode;
 }> = ({ children }) => {
-  const {
-    useSyncIndexesDrawerGlobalState,
-  } = require('./indexes-drawer-global-state');
   useSyncIndexesDrawerGlobalState('activeWorkspace', mockCollectionWorkspace);
   return <>{children}</>;
 };

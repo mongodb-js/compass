@@ -6,15 +6,11 @@ import {
 } from '@mongodb-js/compass-app-registry';
 import {
   useDrawerActions,
-  useDrawerState,
   useInitialValue,
 } from '@mongodb-js/compass-components';
 import { usePreference } from 'compass-preferences-model/provider';
 import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
-import {
-  IndexesDrawerGlobalStateProvider,
-  useIndexesDrawerGlobalState,
-} from './indexes-drawer-global-state';
+import { IndexesDrawerGlobalStateProvider } from './indexes-drawer-global-state';
 
 export const INDEXES_DRAWER_ID = 'compass-indexes-drawer';
 

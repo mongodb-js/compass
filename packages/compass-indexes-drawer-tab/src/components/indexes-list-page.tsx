@@ -1,9 +1,9 @@
 import React from 'react';
 import { useIndexesDrawerGlobalState } from '../indexes-drawer-global-state';
 
-export type IndexesListPageProps = {};
+export type IndexesListPageProps = Record<string, never>;
 
-const IndexesListPage: React.FunctionComponent<IndexesListPageProps> = ({}) => {
+const IndexesListPage: React.FunctionComponent<IndexesListPageProps> = () => {
   const indexesDrawerGlobalState = useIndexesDrawerGlobalState();
 
   return (
