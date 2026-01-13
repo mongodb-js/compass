@@ -12,6 +12,14 @@ const {
 const Target = require('../lib/target');
 
 describe('build-attestations', function () {
+  let env;
+  beforeEach(() => {
+    env = { ...process.env };
+  });
+
+  afterEach(() => {
+    process.env = { ...env };
+  });
   const ROOT = path.resolve(__dirname, '..', '..');
   const VERSION = '1.2.3';
   context('getBuildVersion', function () {
@@ -19,22 +27,16 @@ describe('build-attestations', function () {
       expect(getBuildVersion('2.3.4')).to.equal('2.3.4');
     });
     it('should return version from HADRON_APP_VERSION when its not set', function () {
-      const initialHadronAppVersion = process.env.HADRON_APP_VERSION;
       process.env.HADRON_APP_VERSION = '2.3.5';
       expect(getBuildVersion()).to.equal('2.3.5');
-      process.env.HADRON_APP_VERSION = initialHadronAppVersion;
     });
     it('should return version from DEV_VERSION_IDENTIFIER when its on dev channel', function () {
-      const initialDevVersionIdentifier = process.env.DEV_VERSION_IDENTIFIER;
       process.env.DEV_VERSION_IDENTIFIER = '2.3.5-dev.10';
       expect(getBuildVersion('2.3.5-dev.10')).to.equal('2.3.5-dev.10');
-      process.env.DEV_VERSION_IDENTIFIER = initialDevVersionIdentifier;
     });
     it('should does not account DEV_VERSION_IDENTIFIER when its not on dev channel', function () {
-      const initialDevVersionIdentifier = process.env.DEV_VERSION_IDENTIFIER;
       process.env.DEV_VERSION_IDENTIFIER = '2.3.5-dev.10';
       expect(getBuildVersion('1.1.1')).to.equal('1.1.1');
-      process.env.DEV_VERSION_IDENTIFIER = initialDevVersionIdentifier;
     });
   });
   context('getBuildSpecificAttestations', function () {
