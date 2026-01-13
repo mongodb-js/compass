@@ -87,7 +87,7 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
   const editorInitialValueRef = useRef<string>(pipelineText);
   const editorCurrentValueRef = useCurrentValueRef<string>(pipelineText);
 
-  useSyncAssistantGlobalState('currentAggregation', pipelineText);
+  useSyncAssistantGlobalState('currentPipeline', pipelineText);
 
   const { utmSource, utmMedium } = useRequiredURLSearchParams();
 

@@ -6,7 +6,7 @@
 > the tracking plan for the specific Compass version you can use the following
 > URL: `https://github.com/mongodb-js/compass/blob/<compass version>/docs/tracking-plan.md`
 
-Generated on Mon, Jan 12, 2026
+Generated on Tue, Jan 13, 2026
 
 ## Table of Contents
 
@@ -2279,6 +2279,7 @@ This event is fired when a user clicks on the Performance Advisor CTA.
 
 **Properties**:
 
+- **type** (required): `string`
 - **approved** (required): `boolean`
 - **approval_id** (required): `string`
 - **is_compass_web** (optional): `true | undefined`

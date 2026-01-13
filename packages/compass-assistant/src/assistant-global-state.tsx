@@ -1,3 +1,4 @@
+import { type DevtoolsConnectOptions } from '@mongosh/service-provider-node-driver';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import type {
   WorkspaceTab,
@@ -6,12 +7,16 @@ import type {
 import type { CollectionMetadata } from 'mongodb-collection-model';
 import React, { useEffect } from 'react';
 
+export type ActiveConnectionInfo = ConnectionInfo & {
+  connectOptions: DevtoolsConnectOptions | null;
+};
+
 export type GlobalState = {
-  activeConnections: ConnectionInfo[];
+  activeConnections: ActiveConnectionInfo[];
   activeWorkspace: WorkspaceTab | null;
   activeCollectionMetadata: CollectionMetadata | null;
   currentQuery: string | null;
-  currentAggregation: string | null;
+  currentPipeline: string | null;
   activeCollectionSubTab: CollectionSubtab | null;
 };
 
@@ -20,7 +25,7 @@ const INITIAL_STATE: GlobalState = {
   activeWorkspace: null,
   activeCollectionMetadata: null,
   currentQuery: null,
-  currentAggregation: null,
+  currentPipeline: null,
   activeCollectionSubTab: null,
 };
 
