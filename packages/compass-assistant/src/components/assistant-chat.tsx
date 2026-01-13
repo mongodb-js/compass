@@ -24,7 +24,11 @@ import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import { NON_GENUINE_WARNING_MESSAGE } from '../preset-messages';
 import { SuggestedPrompts } from './suggested-prompts';
 import { ToolToggle } from './tool-toggle';
-import { usePreference } from 'compass-preferences-model/provider';
+import { ToolsIntroCard } from './tools-intro-card';
+import {
+  usePreference,
+  usePreferencesContext,
+} from 'compass-preferences-model/provider';
 
 const { ChatWindow } = LgChatChatWindow;
 const { LeafyGreenChatProvider } = LgChatLeafygreenChatProvider;
@@ -207,7 +211,11 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
 }) => {
   const track = useTelemetry();
   const darkMode = useDarkMode();
+  const preferences = usePreferencesContext();
   const isToolCallingEnabled = usePreference('enableToolCalling');
+  const dismissedAssistantToolsIntro = usePreference(
+    'dismissedAssistantToolsIntro'
+  );
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const previousLastMessageId = useRef<string | undefined>(undefined);
   const { id: lastMessageId, role: lastMessageRole } =
@@ -383,6 +391,10 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
     [addToolApprovalResponse, track]
   );
 
+  const handleDismissIntroCard = useCallback(() => {
+    void preferences.savePreferences({ dismissedAssistantToolsIntro: true });
+  }, [preferences]);
+
   const visibleMessages = messages.filter(
     (message) => !message.metadata?.isSystemContext
   );
@@ -543,6 +555,10 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
             </div>
           )}
           <SuggestedPrompts chat={chat} onMessageSend={handleMessageSend} />
+
+          {!dismissedAssistantToolsIntro && (
+            <ToolsIntroCard onDismiss={handleDismissIntroCard} />
+          )}
 
           <InputBar
             data-testid="assistant-chat-input"

@@ -127,6 +127,7 @@ const suggestedPromptsStyles = css({
   paddingLeft: spacing[400],
   paddingRight: spacing[400],
   paddingBottom: spacing[200],
+  width: '100%',
 });
 
 export const SuggestedPrompts: React.FunctionComponent<{
