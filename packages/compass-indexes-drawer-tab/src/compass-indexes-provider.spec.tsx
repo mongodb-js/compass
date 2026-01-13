@@ -41,6 +41,16 @@ const mockCollectionWorkspace: WorkspaceTab = {
   id: 'test-workspace-id',
 } as WorkspaceTab;
 
+const GlobalStateSetup: React.FunctionComponent<{
+  children: React.ReactNode;
+}> = ({ children }) => {
+  const {
+    useSyncIndexesDrawerGlobalState,
+  } = require('./indexes-drawer-global-state');
+  useSyncIndexesDrawerGlobalState('activeWorkspace', mockCollectionWorkspace);
+  return <>{children}</>;
+};
+
 // Test component that renders CompassIndexesDrawerProvider with children
 const TestComponent: React.FunctionComponent<{
   autoOpen?: boolean;
@@ -54,10 +64,12 @@ const TestComponent: React.FunctionComponent<{
       {/* eslint-disable-next-line react-hooks/static-components */}
       <MockedProvider>
         <IndexesDrawerProvider initialState={initialState}>
-          <DrawerAnchor>
-            <div data-testid="provider-children">Provider children</div>
-            <CompassIndexesDrawer autoOpen={autoOpen} />
-          </DrawerAnchor>
+          <GlobalStateSetup>
+            <DrawerAnchor>
+              <div data-testid="provider-children">Provider children</div>
+              <CompassIndexesDrawer autoOpen={autoOpen} />
+            </DrawerAnchor>
+          </GlobalStateSetup>
         </IndexesDrawerProvider>
       </MockedProvider>
     </DrawerContentProvider>
