@@ -98,6 +98,10 @@ import {
 import { createServiceProvider } from '@mongodb-js/compass-app-registry';
 import { CompassAssistantProvider } from '@mongodb-js/compass-assistant';
 import { CompassAssistantDrawerWithConnections } from './compass-assistant-drawer';
+import {
+  CompassIndexesDrawer,
+  CompassIndexesDrawerProvider,
+} from '@mongodb-js/compass-indexes-drawer-tab';
 import { APP_NAMES_FOR_PROMPT } from '@mongodb-js/compass-assistant';
 import { assertsUserDataType } from '@mongodb-js/compass-user-data';
 
@@ -374,6 +378,7 @@ function CompassWorkspace({
                   <DropNamespacePlugin></DropNamespacePlugin>
                   <RenameCollectionPlugin></RenameCollectionPlugin>
                   <CompassAssistantDrawerWithConnections appName="Data Explorer" />
+                  <CompassIndexesDrawer></CompassIndexesDrawer>
                 </>
               );
             }}
@@ -560,64 +565,68 @@ const CompassWeb = ({
                             originForPrompt="atlas-data-explorer"
                             appNameForPrompt={APP_NAMES_FOR_PROMPT.DataExplorer}
                           >
-                            <CompassConnections
-                              appName={appName ?? 'Compass Web'}
-                              onFailToLoadConnections={onFailToLoadConnections}
-                              onExtraConnectionDataRequest={() => {
-                                return Promise.resolve([{}, null] as [
-                                  Record<string, unknown>,
-                                  null
-                                ]);
-                              }}
-                              onAutoconnectInfoRequest={(connectionStore) => {
-                                if (autoconnectId) {
-                                  return connectionStore.loadAll().then(
-                                    (connections) => {
-                                      return connections.find(
-                                        (connectionInfo) =>
-                                          connectionInfo.id === autoconnectId
-                                      );
-                                    },
-                                    (err) => {
-                                      const { log, mongoLogId } = logger;
-                                      log.warn(
-                                        mongoLogId(1_001_000_329),
-                                        'Compass Web',
-                                        'Could not load connections when trying to autoconnect',
-                                        { err: err.message }
-                                      );
-                                      return undefined;
-                                    }
-                                  );
+                            <CompassIndexesDrawerProvider>
+                              <CompassConnections
+                                appName={appName ?? 'Compass Web'}
+                                onFailToLoadConnections={
+                                  onFailToLoadConnections
                                 }
-                                return Promise.resolve(undefined);
-                              }}
-                            >
-                              <CompassInstanceStorePlugin>
-                                <FieldStorePlugin>
-                                  <WithConnectionsStore>
-                                    <CompassWorkspace
-                                      initialWorkspaceTabs={
-                                        initialWorkspaceTabs
+                                onExtraConnectionDataRequest={() => {
+                                  return Promise.resolve([{}, null] as [
+                                    Record<string, unknown>,
+                                    null
+                                  ]);
+                                }}
+                                onAutoconnectInfoRequest={(connectionStore) => {
+                                  if (autoconnectId) {
+                                    return connectionStore.loadAll().then(
+                                      (connections) => {
+                                        return connections.find(
+                                          (connectionInfo) =>
+                                            connectionInfo.id === autoconnectId
+                                        );
+                                      },
+                                      (err) => {
+                                        const { log, mongoLogId } = logger;
+                                        log.warn(
+                                          mongoLogId(1_001_000_329),
+                                          'Compass Web',
+                                          'Could not load connections when trying to autoconnect',
+                                          { err: err.message }
+                                        );
+                                        return undefined;
                                       }
-                                      onActiveWorkspaceTabChange={
-                                        onActiveWorkspaceTabChange
-                                      }
-                                      onOpenConnectViaModal={
-                                        onOpenConnectViaModal
-                                      }
-                                      onBeforeUnloadCallbackRequest={
-                                        onBeforeUnloadCallbackRequest
-                                      }
-                                    ></CompassWorkspace>
-                                  </WithConnectionsStore>
-                                </FieldStorePlugin>
-                                <CompassGenerativeAIPlugin
-                                  projectId={projectId}
-                                  isCloudOptIn={true}
-                                />
-                              </CompassInstanceStorePlugin>
-                            </CompassConnections>
+                                    );
+                                  }
+                                  return Promise.resolve(undefined);
+                                }}
+                              >
+                                <CompassInstanceStorePlugin>
+                                  <FieldStorePlugin>
+                                    <WithConnectionsStore>
+                                      <CompassWorkspace
+                                        initialWorkspaceTabs={
+                                          initialWorkspaceTabs
+                                        }
+                                        onActiveWorkspaceTabChange={
+                                          onActiveWorkspaceTabChange
+                                        }
+                                        onOpenConnectViaModal={
+                                          onOpenConnectViaModal
+                                        }
+                                        onBeforeUnloadCallbackRequest={
+                                          onBeforeUnloadCallbackRequest
+                                        }
+                                      ></CompassWorkspace>
+                                    </WithConnectionsStore>
+                                  </FieldStorePlugin>
+                                  <CompassGenerativeAIPlugin
+                                    projectId={projectId}
+                                    isCloudOptIn={true}
+                                  />
+                                </CompassInstanceStorePlugin>
+                              </CompassConnections>
+                            </CompassIndexesDrawerProvider>
                           </CompassAssistantProvider>
                         </ToolsControllerProvider>
                       </AtlasCloudConnectionStorageProvider>
