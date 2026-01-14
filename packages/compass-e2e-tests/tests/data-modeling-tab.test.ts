@@ -482,7 +482,7 @@ describe('Data Modeling tab', function () {
                   },
                 },
                 names: {
-                  bsonType: 'objcet',
+                  bsonType: 'object',
                   properties: {
                     firstName: {
                       bsonType: 'string',
@@ -490,8 +490,8 @@ describe('Data Modeling tab', function () {
                     lastName: {
                       bsonType: 'string',
                     },
-                    required: ['firstName', 'lastName'],
                   },
+                  required: ['firstName', 'lastName'],
                 },
                 phoneNumbers: {
                   bsonType: 'array',
