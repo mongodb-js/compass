@@ -12,7 +12,7 @@ export type FieldSchema = z.output<typeof FieldSchema>;
 
 export const RelationshipSideSchema = z.object({
   ns: z.string().nullable(),
-  cardinality: z.number(),
+  cardinality: z.number().nullable(),
   fields: z.array(z.string()).nullable(),
 });
 

@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import { connect } from 'react-redux';
 import type { DataModelingState } from '../../store/reducer';
 import {
@@ -11,6 +11,9 @@ import {
   palette,
   TextArea,
   useCurrentValueRef,
+  cx,
+  Icon,
+  Link,
 } from '@mongodb-js/compass-components';
 import {
   deleteRelationship,
@@ -27,6 +30,7 @@ import {
   DMFormFieldContainer,
 } from './drawer-section-components';
 import { useChangeOnBlur } from './use-change-on-blur';
+const nbsp = '\u00a0';
 
 type RelationshipDrawerContentProps = {
   relationshipId: string;
@@ -38,12 +42,17 @@ type RelationshipDrawerContentProps = {
 type RelationshipFormFields = {
   localCollection: string;
   localField: string;
-  localCardinality: string;
+  localCardinality: number | null;
   foreignCollection: string;
   foreignField: string;
-  foreignCardinality: string;
+  foreignCardinality: number | null;
   note: string;
 };
+
+type OnFieldChange = <T extends keyof RelationshipFormFields>(
+  key: T,
+  value: RelationshipFormFields[T]
+) => void;
 
 const FIELD_DIVIDER = '~~##$$##~~';
 
@@ -51,7 +60,7 @@ function useRelationshipFormFields(
   relationship: Relationship,
   onRelationshipChange: (relationship: Relationship) => void
 ): RelationshipFormFields & {
-  onFieldChange: (key: keyof RelationshipFormFields, value: string) => void;
+  onFieldChange: OnFieldChange;
 } {
   const onRelationshipChangeRef = useCurrentValueRef(onRelationshipChange);
   const [local, foreign] = relationship.relationship;
@@ -59,36 +68,41 @@ function useRelationshipFormFields(
   // Leafygreen select / combobox only supports string fields, so we stringify
   // the value for the form, and then will convert it back on update
   const localField = local.fields?.join(FIELD_DIVIDER) ?? '';
-  const localCardinality = String(local.cardinality);
+  const localCardinality = local.cardinality;
   const foreignCollection = foreign.ns ?? '';
   const foreignField = foreign.fields?.join(FIELD_DIVIDER) ?? '';
-  const foreignCardinality = String(foreign.cardinality);
-  const onFieldChange = useCallback(
-    (key: keyof RelationshipFormFields, value: string) => {
+  const foreignCardinality = foreign.cardinality;
+  const onFieldChange: OnFieldChange = useCallback(
+    (key, value) => {
       const newRelationship = cloneDeep(relationship);
       switch (key) {
+        // "as string | number" because ts can't correlate value type with key type here
         case 'localCollection':
-          newRelationship.relationship[0].ns = value;
+          newRelationship.relationship[0].ns = value as string;
           newRelationship.relationship[0].fields = null;
           break;
         case 'localField':
-          newRelationship.relationship[0].fields = value.split(FIELD_DIVIDER);
+          newRelationship.relationship[0].fields = (value as string).split(
+            FIELD_DIVIDER
+          );
           break;
         case 'localCardinality':
-          newRelationship.relationship[0].cardinality = Number(value);
+          newRelationship.relationship[0].cardinality = value as number;
           break;
         case 'foreignCollection':
-          newRelationship.relationship[1].ns = value;
+          newRelationship.relationship[1].ns = value as string;
           newRelationship.relationship[1].fields = null;
           break;
         case 'foreignField':
-          newRelationship.relationship[1].fields = value.split(FIELD_DIVIDER);
+          newRelationship.relationship[1].fields = (value as string).split(
+            FIELD_DIVIDER
+          );
           break;
         case 'foreignCardinality':
-          newRelationship.relationship[1].cardinality = Number(value);
+          newRelationship.relationship[1].cardinality = value as number;
           break;
         case 'note':
-          newRelationship.note = value;
+          newRelationship.note = value as string;
           break;
       }
       onRelationshipChangeRef.current(newRelationship);
@@ -107,26 +121,85 @@ function useRelationshipFormFields(
   };
 }
 
-const cardinalityTagStyle = css({
+const cardinalityLabelContainerStyles = css({
+  display: 'flex',
+  justifyContent: 'space-between',
+  gap: spacing[100],
+});
+const hiddenStyles = css({
+  display: 'none',
+});
+const cardinalityLabelStyles = css({
   color: palette.gray.base,
   fontWeight: 'bold',
 });
 
-const CardinalityLabel: React.FunctionComponent<{
-  value: number;
-  tag: string;
-}> = ({ value, tag }) => (
-  <>
-    <span className={cardinalityTagStyle}>{tag}</span>&nbsp;{value}
-  </>
-);
+const cardinalityInfoContainerStyles = css({
+  marginTop: spacing[400],
+  display: 'flex',
+  gap: spacing[200],
+});
+const infoIconStyles = css({ marginTop: spacing[100] });
 
 const CARDINALITY_OPTIONS = [
-  { tag: 'One', value: 1 },
-  { tag: 'Many', value: 10 },
-  { tag: 'Many', value: 100 },
-  { tag: 'Many', value: 1000 },
+  { tag: 'One', label: '1', value: 1 },
+  { tag: 'Many', label: 'N/A', value: null },
+  { tag: 'Many', label: '10', value: 10 },
+  { tag: 'Many', label: '100', value: 100 },
+  { tag: 'Many', label: '1000+', value: 1000 },
 ];
+
+const CardinalitySelect = ({
+  label,
+  value,
+  onChange,
+}: {
+  value: number | null;
+  label: string;
+  onChange: (value: number | null) => void;
+}) => {
+  const selectRef = useRef<HTMLDivElement>(null);
+
+  // Currently LG Select does not support custom rendering for selected value
+  // and it shows the label of the selected option. When user has selected
+  // "Many N/A", we dont want to show "N/A" as the selected value.
+  useEffect(() => {
+    const selectLabelElem = selectRef.current?.querySelector(
+      'button .cardinality-option-label'
+    );
+    if (!selectLabelElem) {
+      return;
+    }
+    selectLabelElem.classList.toggle(hiddenStyles, !value);
+    return () => {
+      selectLabelElem.classList.remove(hiddenStyles);
+    };
+  }, [value]);
+
+  return (
+    <Select
+      ref={selectRef}
+      size="small"
+      label={label}
+      value={String(value ?? 'null')}
+      allowDeselect={false}
+      onChange={(val) => onChange(val === 'null' ? null : Number(val))}
+    >
+      {CARDINALITY_OPTIONS.map(({ tag, value, label }) => (
+        <Option key={value} value={String(value)}>
+          <div className={cardinalityLabelContainerStyles}>
+            {tag}
+            <span
+              className={cx(cardinalityLabelStyles, 'cardinality-option-label')}
+            >
+              {label}
+            </span>
+          </div>
+        </Option>
+      ))}
+    </Select>
+  );
+};
 
 const configurationContainerStyles = css({
   width: '100%',
@@ -232,24 +305,11 @@ const RelationshipDrawerContent: React.FunctionComponent<
               </Combobox>
             </DMFormFieldContainer>
             <DMFormFieldContainer>
-              <Select
-                size="small"
+              <CardinalitySelect
                 label="Local cardinality"
                 value={localCardinality}
-                onChange={(val) => {
-                  if (val) {
-                    onFieldChange('localCardinality', val);
-                  }
-                }}
-              >
-                {CARDINALITY_OPTIONS.map(({ tag, value }) => {
-                  return (
-                    <Option key={value} value={String(value)}>
-                      <CardinalityLabel value={value} tag={tag} />
-                    </Option>
-                  );
-                })}
-              </Select>
+                onChange={(val) => onFieldChange('localCardinality', val)}
+              />
             </DMFormFieldContainer>
           </div>
 
@@ -306,26 +366,23 @@ const RelationshipDrawerContent: React.FunctionComponent<
             </DMFormFieldContainer>
 
             <DMFormFieldContainer>
-              <Select
-                size="small"
+              <CardinalitySelect
                 label="Foreign cardinality"
                 value={foreignCardinality}
-                onChange={(val) => {
-                  if (val) {
-                    onFieldChange('foreignCardinality', val);
-                  }
-                }}
-              >
-                {CARDINALITY_OPTIONS.map(({ tag, value }) => {
-                  return (
-                    <Option key={value} value={String(value)}>
-                      <CardinalityLabel value={value} tag={tag} />
-                    </Option>
-                  );
-                })}
-              </Select>
+                onChange={(val) => onFieldChange('foreignCardinality', val)}
+              />
             </DMFormFieldContainer>
           </div>
+        </div>
+        <div className={cardinalityInfoContainerStyles}>
+          <Icon glyph="InfoWithCircle" className={infoIconStyles} />
+          <span>
+            Relationship cardinality can inform whether you embed or reference.
+            {nbsp}
+            <Link href="https://www.mongodb.com/docs/manual/applications/data-models-relationships">
+              Learn more
+            </Link>
+          </span>
         </div>
       </DMDrawerSection>
 
