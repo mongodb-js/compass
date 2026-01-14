@@ -154,6 +154,9 @@ module.exports = (env, args) => {
         'mongodb-client-encryption/package.json': localPolyfill('throwError'),
         'mongodb-client-encryption': localPolyfill('throwError'),
 
+        // We want to use the cjs dist instead of esm to make sure that no dynamic
+        // import code from mcp-server ends up in compass bundle
+        'mongodb-mcp-server': require.resolve('mongodb-mcp-server'),
         // mongodb-mcp-server polyfills
         // This is only used by StreamableHttpTransport which we do not use.
         express: false,
