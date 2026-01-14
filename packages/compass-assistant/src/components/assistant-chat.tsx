@@ -672,7 +672,7 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
                   </React.Fragment>
                 );
               })}
-            </div>{' '}
+            </div>
             {messages.length === 0 && (
               <>
                 <div>
