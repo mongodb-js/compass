@@ -53,7 +53,7 @@ export async function stopChat(chat: Chat<AssistantMessage>) {
       parts: message.parts.map((part) => {
         if (partIsToolUI(part) && getToolState(part.state) === 'running') {
           // Create a new tool part with error state
-          const { ...basePart } = part as any;
+          const { ...basePart } = part;
           return {
             ...basePart,
             state: 'output-error' as const,
