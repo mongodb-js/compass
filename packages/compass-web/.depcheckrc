@@ -22,7 +22,5 @@ ignores:
 # compass-web is on the same version as other package in the monorepo
  - 'mongodb'
  - 'bson'
-# Not a direct dependency, but used in webpack config to resolve module path
- - 'mongodb-mcp-server'
 ignore-patterns:
  - 'dist'
