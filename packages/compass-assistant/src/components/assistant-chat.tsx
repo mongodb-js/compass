@@ -695,12 +695,12 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
                 Ask any question about MongoDB to receive expert guidance and
                 documentation.
               </p>
-            </div>
-          )}
-          <SuggestedPrompts chat={chat} onMessageSend={handleMessageSend} />
+              <SuggestedPrompts chat={chat} onMessageSend={handleMessageSend} />
 
-          {!dismissedAssistantToolsIntro && messages.length === 0 && (
-            <ToolsIntroCard onDismiss={handleDismissIntroCard} />
+              {!dismissedAssistantToolsIntro && (
+                <ToolsIntroCard onDismiss={handleDismissIntroCard} />
+              )}
+            </div>
           )}
 
           <InputBar
