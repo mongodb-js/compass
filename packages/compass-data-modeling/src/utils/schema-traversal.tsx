@@ -199,7 +199,13 @@ type UpdateOperationParameters =
   | ExistingFieldOperationParameters;
 
 type BulkUpdateOperationParameters = {
-  updateFn: (fieldData: FieldData) => FieldData;
+  updateFn: ({
+    fieldSchema,
+    fieldPath,
+  }: {
+    fieldSchema: FieldData;
+    fieldPath: FieldPath;
+  }) => FieldData;
 };
 /**
  * Adds a new field to a MongoDB JSON schema.
@@ -441,7 +447,10 @@ export function bulkUpdateSchema({
       Object.entries(newSchema.properties).map(([fieldName, fieldSchema]) => [
         fieldName,
         bulkUpdateSchema({
-          jsonSchema: updateParameters.updateFn(fieldSchema as FieldData),
+          jsonSchema: updateParameters.updateFn({
+            fieldSchema: fieldSchema as FieldData,
+            fieldPath: [...parentPath, fieldName],
+          }),
           parentPath: [...parentPath, fieldName],
           updateParameters,
         }),
@@ -451,7 +460,7 @@ export function bulkUpdateSchema({
   if (newSchema.anyOf) {
     newSchema.anyOf = newSchema.anyOf.map((variant) =>
       bulkUpdateSchema({
-        jsonSchema: updateParameters.updateFn(variant as FieldData),
+        jsonSchema: variant,
         parentPath,
         updateParameters,
       })
@@ -460,14 +469,14 @@ export function bulkUpdateSchema({
   if (newSchema.items) {
     if (!Array.isArray(newSchema.items)) {
       newSchema.items = bulkUpdateSchema({
-        jsonSchema: updateParameters.updateFn(newSchema.items as FieldData),
+        jsonSchema: newSchema.items,
         parentPath,
         updateParameters,
       });
     } else {
       newSchema.items = newSchema.items.map((item) =>
         bulkUpdateSchema({
-          jsonSchema: updateParameters.updateFn(item as FieldData),
+          jsonSchema: item,
           parentPath,
           updateParameters,
         })

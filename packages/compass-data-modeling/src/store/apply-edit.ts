@@ -308,7 +308,7 @@ export function applyEdit(edit: Edit, model?: StaticModel): StaticModel {
             fieldData: bulkUpdateSchema({
               jsonSchema: collection.fieldData,
               updateParameters: {
-                updateFn: (fieldSchema: FieldData) => ({
+                updateFn: ({ fieldSchema }) => ({
                   ...fieldSchema,
                   expanded: edit.expanded,
                 }),

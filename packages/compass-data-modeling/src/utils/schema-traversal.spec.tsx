@@ -1,4 +1,4 @@
-import { expect } from 'chai';
+import { expect, version } from 'chai';
 import {
   traverseSchema,
   getFieldFromSchema,
@@ -1799,7 +1799,7 @@ describe('getSchemaWithNewTypes', function () {
   });
 });
 
-describe.only('bulkUpdateSchema', function () {
+describe('bulkUpdateSchema', function () {
   it('applies update function to a all fields in a flat schema', function () {
     const schema = {
       bsonType: 'object',
@@ -1824,6 +1824,183 @@ describe.only('bulkUpdateSchema', function () {
       properties: {
         name: { bsonType: 'string', version: 'v2' },
         age: { bsonType: 'int', version: 'v2' },
+      },
+    });
+  });
+
+  it('applies update function to a all fields in a nested schema', function () {
+    const schema = {
+      bsonType: 'object',
+      required: ['name'],
+      properties: {
+        address: {
+          bsonType: 'object',
+          properties: {
+            street: { bsonType: 'string' },
+            city: { bsonType: 'string' },
+            country: {
+              bsonType: 'object',
+              properties: {
+                name: { bsonType: 'string' },
+                code: { bsonType: 'string' },
+              },
+            },
+          },
+        },
+      },
+    };
+    const result = bulkUpdateSchema({
+      jsonSchema: schema,
+      updateParameters: {
+        updateFn: ({ fieldSchema, fieldPath }) => ({
+          ...fieldSchema,
+          version: 'v2',
+          id: fieldPath,
+        }),
+      },
+    });
+    expect(result).to.deep.equal({
+      bsonType: 'object',
+      required: ['name'],
+      properties: {
+        address: {
+          bsonType: 'object',
+          id: ['address'],
+          version: 'v2',
+          properties: {
+            street: {
+              bsonType: 'string',
+              id: ['address', 'street'],
+              version: 'v2',
+            },
+            city: {
+              bsonType: 'string',
+              id: ['address', 'city'],
+              version: 'v2',
+            },
+            country: {
+              bsonType: 'object',
+              id: ['address', 'country'],
+              version: 'v2',
+              properties: {
+                name: {
+                  bsonType: 'string',
+                  id: ['address', 'country', 'name'],
+                  version: 'v2',
+                },
+                code: {
+                  bsonType: 'string',
+                  id: ['address', 'country', 'code'],
+                  version: 'v2',
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+  });
+
+  it('applies update function to a all fields in a mixed schema', function () {
+    const schema = {
+      bsonType: 'object',
+      properties: {
+        name: { bsonType: 'string' },
+        age: {
+          anyOf: [
+            { bsonType: 'int' },
+            {
+              bsonType: 'object',
+              properties: {
+                years: {
+                  bsonType: 'int',
+                },
+              },
+            },
+          ],
+        },
+      },
+    };
+    const result = bulkUpdateSchema({
+      jsonSchema: schema,
+      updateParameters: {
+        updateFn: ({ fieldSchema, fieldPath }) => ({
+          ...fieldSchema,
+          id: fieldPath,
+        }),
+      },
+    });
+    expect(result).to.deep.equal({
+      bsonType: 'object',
+      properties: {
+        name: { bsonType: 'string', id: ['name'] },
+        age: {
+          id: ['age'],
+          anyOf: [
+            { bsonType: 'int' },
+            {
+              bsonType: 'object',
+              properties: {
+                years: {
+                  bsonType: 'int',
+                  id: ['age', 'years'],
+                },
+              },
+            },
+          ],
+        },
+      },
+    });
+  });
+
+  it('applies update function to all fields in a nested array of objects', function () {
+    const schema = {
+      bsonType: 'object',
+      properties: {
+        obj: {
+          bsonType: 'object',
+          properties: {
+            arr: {
+              bsonType: 'array',
+              items: {
+                properties: {
+                  prop1: { bsonType: 'string' },
+                  prop2: { bsonType: 'int' },
+                },
+              },
+            },
+          },
+        },
+      },
+    };
+    const result = bulkUpdateSchema({
+      jsonSchema: schema,
+      updateParameters: {
+        updateFn: ({ fieldSchema, fieldPath }) => ({
+          ...fieldSchema,
+          id: fieldPath,
+        }),
+      },
+    });
+    expect(result).to.deep.equal({
+      bsonType: 'object',
+      properties: {
+        obj: {
+          bsonType: 'object',
+          id: ['obj'],
+          properties: {
+            arr: {
+              bsonType: 'array',
+              id: ['obj', 'arr'],
+              items: {
+                properties: {
+                  prop1: { bsonType: 'string', id: ['obj', 'arr', 'prop1'] },
+                  prop2: { bsonType: 'int', id: ['obj', 'arr', 'prop2'] },
+                },
+              },
+            },
+          },
+        },
       },
     });
   });
