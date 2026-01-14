@@ -4,6 +4,7 @@ import {
   type ToolSet,
   type UIMessageChunk,
   convertToModelMessages,
+  stepCountIs,
   streamText,
 } from 'ai';
 import type { AssistantMessage } from './compass-assistant-provider';
@@ -69,6 +70,7 @@ export class DocsProviderTransport implements ChatTransport<AssistantMessage> {
 
     const result = streamText({
       model: this.model,
+      stopWhen: stepCountIs(5),
       messages: await (lastMessage.metadata?.sendWithoutHistory
         ? convertToModelMessages([lastMessage])
         : convertToModelMessages(filteredMessages)),

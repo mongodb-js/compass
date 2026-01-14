@@ -43,7 +43,7 @@ function getToolDescription(toolName: string): string | undefined {
 }
 
 // Map our tool call states to LeafyGreen ToolCardState
-function mapToolCallStateToCardState(
+export function mapToolCallStateToCardState(
   toolCallState?: ToolUIPart['state']
 ): ToolCardStateValue {
   switch (toolCallState) {
