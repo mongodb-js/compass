@@ -25,11 +25,6 @@ export type Relationship = z.output<typeof RelationshipSchema>;
 
 export const DEFAULT_IS_EXPANDED = true;
 
-export const InitialExpansionState = {
-  global: DEFAULT_IS_EXPANDED,
-  overrides: new Set<string>(),
-};
-
 export type FieldData = Exclude<
   MongoDBJSONSchema,
   'properties' | 'items' | 'anyOf'
@@ -48,10 +43,7 @@ const FieldDataSchema = z.custom<FieldData>((value) => {
 const CollectionSchema = z.preprocess(
   (val) => {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { expanded, expansionState, jsonSchema, ...rest } = val as Record<
-      string,
-      unknown
-    >;
+    const { expanded, jsonSchema, ...rest } = val as Record<string, unknown>;
     const collection = {
       ...rest,
     };
