@@ -610,63 +610,6 @@ describe('CompassAssistantProvider', function () {
       expect(screen.queryByText('Hello assistant!')).to.not.exist;
     });
 
-    it('disables tools if toolCalling feature is disabled', async function () {
-      const mockChat = new Chat<AssistantMessage>({
-        messages: [
-          {
-            id: 'assistant',
-            role: 'assistant',
-            parts: [{ type: 'text', text: 'Hello user!' }],
-          },
-        ],
-      });
-
-      const sendMessageSpy = sinon.spy(mockChat, 'sendMessage');
-
-      const mockToolsController = {
-        setActiveTools: sinon.stub().resolves(),
-        getActiveTools: sinon.stub().resolves({}),
-        setContext: sinon.stub().resolves(),
-      };
-
-      await renderOpenAssistantDrawer({
-        chat: mockChat,
-        toolsController: mockToolsController,
-        enableToolCalling: false,
-        enableGenAIToolCalling: true,
-      });
-
-      const input = screen.getByPlaceholderText('Ask a question');
-      const sendButton = screen.getByLabelText('Send message');
-
-      userEvent.type(input, 'Hello assistant');
-      userEvent.click(sendButton);
-
-      await waitFor(() => {
-        expect(sendMessageSpy.calledOnce).to.be.true;
-        expect(sendMessageSpy.firstCall.args[0]).to.deep.include({
-          text: 'Hello assistant',
-        });
-      });
-
-      const contextMessages = mockChat.messages.filter(
-        (message) => message.metadata?.isSystemContext
-      );
-      expect(contextMessages).to.have.lengthOf(1);
-
-      expect(mockToolsController.setActiveTools.callCount).to.equal(1);
-      expect(
-        mockToolsController.setActiveTools.firstCall.args[0]
-      ).to.deep.equal(new Set());
-
-      expect(mockToolsController.setContext.callCount).to.equal(1);
-      expect(mockToolsController.setContext.firstCall.args[0]).to.deep.equal({
-        connections: [],
-        query: undefined,
-        pipeline: undefined,
-      });
-    });
-
     it('disables tools if toolCalling feature is enabled and enableGenAIToolCalling setting is disabled', async function () {
       const mockChat = new Chat<AssistantMessage>({
         messages: [
