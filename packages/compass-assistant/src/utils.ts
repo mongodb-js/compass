@@ -59,7 +59,8 @@ export async function stopChat(chat: Chat<AssistantMessage>) {
             state: 'output-error' as const,
             output: undefined,
             errorText: 'Tool execution was cancelled',
-          } satisfies ToolUIPart;
+            // This type does not resolve correctly.
+          } as unknown as ToolUIPart;
         }
         return part;
       }),
