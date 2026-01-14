@@ -4,7 +4,6 @@ import {
   type ToolSet,
   type UIMessageChunk,
   convertToModelMessages,
-  stepCountIs,
   streamText,
 } from 'ai';
 import type { AssistantMessage } from './compass-assistant-provider';
