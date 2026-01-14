@@ -927,7 +927,7 @@ describe('CompassAssistantProvider', function () {
         userEvent.click(screen.getByLabelText('Send message'));
 
         await waitFor(() => {
-          expect(screen.getByText(/Test connection error/)).to.exist;
+          expect(screen.getByText(/An error occurred/)).to.exist;
         });
 
         expect(track).to.have.been.calledWith('Assistant Response Failed', {

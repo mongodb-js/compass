@@ -8,15 +8,20 @@ import {
 } from '@mongodb-js/testing-library-compass';
 import { AssistantChat } from './assistant-chat';
 import { expect } from 'chai';
-import { createBrokenChat, createMockChat } from '../../test/utils';
+import {
+  createBrokenChat,
+  createMockChat,
+  createSlowTool,
+  createMockToolsTransport,
+} from '../../test/utils';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import {
   AssistantActionsContext,
   type AssistantMessage,
 } from '../compass-assistant-provider';
 import sinon from 'sinon';
-import type { SourceUrlUIPart, TextPart } from 'ai';
-import type { Chat } from '../@ai-sdk/react/chat-react';
+import type { ChatTransport, SourceUrlUIPart, TextPart } from 'ai';
+import { Chat } from '../@ai-sdk/react/chat-react';
 import { ToolsControllerProvider } from '@mongodb-js/compass-generative-ai/provider';
 
 describe('AssistantChat', function () {
@@ -375,6 +380,69 @@ describe('AssistantChat', function () {
       await waitFor(() => {
         expect(stopSpy).to.have.been.calledOnce;
       });
+    });
+
+    it('aborts slow-running tools when stop button is clicked', async function () {
+      // Create a slow-running tool with tracking
+      const { tool: slowTool, tracking } = createSlowTool();
+
+      // Create a transport that executes our slow tool
+      const mockTransport = createMockToolsTransport([slowTool]);
+
+      // Create a chat with the mock transport
+      const chat = new Chat<AssistantMessage>({
+        messages: [],
+        transport: mockTransport as ChatTransport<AssistantMessage>,
+      });
+
+      // Create messages with a tool call in progress
+      const messagesWithRunningTool: AssistantMessage[] = [
+        {
+          id: 'assistant-with-tool',
+          role: 'assistant',
+          parts: [
+            {
+              type: 'tool-input-available',
+              toolCallId: 'slow-tool-call-id',
+              toolName: 'slow-tool',
+              input: {},
+              state: 'approval-responded',
+              approval: {
+                id: 'slow-tool-approval-id',
+                approved: true,
+              },
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            } as any,
+          ],
+        },
+      ];
+
+      chat.messages = messagesWithRunningTool;
+
+      renderWithChat(chat);
+      const message = chat.sendMessage(undefined);
+
+      // Wait for the tool message to render with "Running" state
+      await waitFor(() => {
+        expect(screen.getByText(/Running/)).to.exist;
+      });
+
+      // Click the stop button
+      const stopButton = screen.getByLabelText('Stop message');
+      userEvent.click(stopButton);
+
+      // Wait for the abort to happen
+      await waitFor(() => {
+        expect(tracking.wasAborted).to.be.true;
+        expect(tracking.abortSignal?.aborted).to.be.true;
+        expect(tracking.result).to.be.undefined;
+      });
+
+      // Message sending execution should be complete
+      await message;
+
+      // Verify that the tool call was updated to show cancellation
+      expect(screen.getByText(/Tool execution was cancelled/)).to.exist;
     });
   });
 
@@ -960,8 +1028,8 @@ describe('AssistantChat', function () {
       userEvent.click(sendButton);
 
       await waitFor(() => {
-        expect(screen.getByText(/Test connection error. Try clearing the chat/))
-          .to.exist;
+        expect(screen.getByText(/An error occurred. Try clearing the chat/)).to
+          .exist;
       });
     });
 
@@ -978,8 +1046,8 @@ describe('AssistantChat', function () {
       userEvent.click(sendButton);
 
       await waitFor(() => {
-        expect(screen.getByText(/Test connection error. Try clearing the chat/))
-          .to.exist;
+        expect(screen.getByText(/An error occurred. Try clearing the chat/)).to
+          .exist;
       });
 
       const closeButton = screen.getByLabelText('Close Message');
@@ -988,9 +1056,8 @@ describe('AssistantChat', function () {
       expect(clearErrorSpy).to.have.been.calledOnce;
 
       await waitFor(() => {
-        expect(
-          screen.queryByText(/Test connection error. Try clearing the chat/)
-        ).to.not.exist;
+        expect(screen.queryByText(/An error occurred. Try clearing the chat/))
+          .to.not.exist;
       });
     });
   });
