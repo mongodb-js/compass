@@ -12,7 +12,7 @@ import sinon from 'sinon';
 describe('ToolToggle', function () {
   describe('rendering', function () {
     it('shows disabled icon when tool calling is disabled', function () {
-      render(<ToolToggle allowSavingPreferences={true} />, {
+      render(<ToolToggle />, {
         preferences: {
           enableGenAIToolCalling: false,
         },
@@ -25,7 +25,7 @@ describe('ToolToggle', function () {
     });
 
     it('shows active icon when tool calling is enabled', function () {
-      render(<ToolToggle allowSavingPreferences={true} />, {
+      render(<ToolToggle />, {
         preferences: {
           enableGenAIToolCalling: true,
         },
@@ -40,7 +40,7 @@ describe('ToolToggle', function () {
 
   describe('popover behavior', function () {
     it('opens popover when button is clicked', async function () {
-      render(<ToolToggle allowSavingPreferences={true} />, {
+      render(<ToolToggle />, {
         preferences: {
           enableGenAIToolCalling: false,
         },
@@ -57,7 +57,7 @@ describe('ToolToggle', function () {
     });
 
     it('displays the toggle switch in the popover', async function () {
-      render(<ToolToggle allowSavingPreferences={true} />, {
+      render(<ToolToggle />, {
         preferences: {
           enableGenAIToolCalling: false,
         },
@@ -74,7 +74,7 @@ describe('ToolToggle', function () {
     });
 
     it('displays the Learn more link', async function () {
-      render(<ToolToggle allowSavingPreferences={true} />, {
+      render(<ToolToggle />, {
         preferences: {
           enableGenAIToolCalling: false,
         },
@@ -95,7 +95,7 @@ describe('ToolToggle', function () {
     });
 
     it('displays all available tools in the list', async function () {
-      render(<ToolToggle allowSavingPreferences={true} />, {
+      render(<ToolToggle />, {
         preferences: {
           enableGenAIToolCalling: false,
         },
@@ -115,7 +115,7 @@ describe('ToolToggle', function () {
 
   describe('preference toggling', function () {
     it('toggle switch reflects current preference state - disabled', async function () {
-      render(<ToolToggle allowSavingPreferences={true} />, {
+      render(<ToolToggle />, {
         preferences: {
           enableGenAIToolCalling: false,
         },
@@ -132,7 +132,7 @@ describe('ToolToggle', function () {
     });
 
     it('toggle switch reflects current preference state - enabled', async function () {
-      render(<ToolToggle allowSavingPreferences={true} />, {
+      render(<ToolToggle />, {
         preferences: {
           enableGenAIToolCalling: true,
         },
@@ -149,14 +149,11 @@ describe('ToolToggle', function () {
     });
 
     it('clicking toggle switch enables tool calling when disabled', async function () {
-      const { preferences } = render(
-        <ToolToggle allowSavingPreferences={true} />,
-        {
-          preferences: {
-            enableGenAIToolCalling: false,
-          },
-        }
-      );
+      const { preferences } = render(<ToolToggle />, {
+        preferences: {
+          enableGenAIToolCalling: false,
+        },
+      });
 
       const savePreferencesSpy = sinon.spy(preferences, 'savePreferences');
 
@@ -180,14 +177,11 @@ describe('ToolToggle', function () {
     });
 
     it('clicking toggle switch disables tool calling when enabled', async function () {
-      const { preferences } = render(
-        <ToolToggle allowSavingPreferences={true} />,
-        {
-          preferences: {
-            enableGenAIToolCalling: true,
-          },
-        }
-      );
+      const { preferences } = render(<ToolToggle />, {
+        preferences: {
+          enableGenAIToolCalling: true,
+        },
+      });
 
       const savePreferencesSpy = sinon.spy(preferences, 'savePreferences');
 
@@ -211,14 +205,11 @@ describe('ToolToggle', function () {
     });
 
     it('updates button icon after preference is toggled', async function () {
-      const { preferences } = render(
-        <ToolToggle allowSavingPreferences={true} />,
-        {
-          preferences: {
-            enableGenAIToolCalling: false,
-          },
-        }
-      );
+      const { preferences } = render(<ToolToggle />, {
+        preferences: {
+          enableGenAIToolCalling: false,
+        },
+      });
 
       const savePreferencesSpy = sinon.spy(preferences, 'savePreferences');
 

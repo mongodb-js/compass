@@ -41,7 +41,6 @@ const { InputBar } = LgChatInputBar;
 interface AssistantChatProps {
   chat: Chat<AssistantMessage>;
   hasNonGenuineConnections: boolean;
-  allowSavingPreferences: boolean;
 }
 
 export type SendMessageOptions = {
@@ -258,7 +257,6 @@ function isToolRunning(messages: AssistantMessage[]): boolean {
 export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
   chat,
   hasNonGenuineConnections,
-  allowSavingPreferences,
 }) => {
   const track = useTelemetry();
   const darkMode = useDarkMode();
@@ -723,7 +721,7 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
             {isToolCallingEnabled && (
               <InputBar.AdditionalActions>
                 <div className={toolToggleContainerStyles}>
-                  <ToolToggle allowSavingPreferences={allowSavingPreferences} />
+                  <ToolToggle />
                 </div>
               </InputBar.AdditionalActions>
             )}

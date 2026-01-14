@@ -159,7 +159,6 @@ const TestComponent: React.FunctionComponent<{
                 appName="Compass"
                 autoOpen={autoOpen}
                 hasNonGenuineConnections={hasNonGenuineConnections}
-                allowSavingPreferences={true}
               />
             </DrawerAnchor>
             <FakeStateSetterComponent />
