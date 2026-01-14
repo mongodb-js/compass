@@ -36,7 +36,7 @@ export async function stopChat(chat: Chat<AssistantMessage>) {
   // However, it will not update the message UI state and will actually retry sending the message by default.
   // In practice, this means it will keep re-running the tool call we're cancelling.
   // So we first set all existing tool calls to an error state before continuing with chat.stop()
-  chat.messages = chat.messages.map((message) => {
+  chat.messages = chat.messages.map((message): AssistantMessage => {
     const hasRunningTools = message.parts.some(
       (part) =>
         partIsToolUI(part) &&
@@ -59,7 +59,7 @@ export async function stopChat(chat: Chat<AssistantMessage>) {
             state: 'output-error' as const,
             output: undefined,
             errorText: 'Tool execution was cancelled',
-          };
+          } satisfies ToolUIPart;
         }
         return part;
       }),
