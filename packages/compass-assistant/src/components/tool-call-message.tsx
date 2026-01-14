@@ -13,18 +13,9 @@ import {
 import type { ToolUIPart } from 'ai';
 import type { BasicConnectionInfo } from '../compass-assistant-provider';
 import { AVAILABLE_TOOLS } from './tool-toggle';
+import { getToolState } from '../utils';
 
 const { Message } = LgChatMessage;
-
-export const ToolCardState = {
-  Idle: 'idle',
-  Running: 'running',
-  Success: 'success',
-  Error: 'error',
-  Canceled: 'canceled',
-} as const;
-
-type ToolCardStateValue = (typeof ToolCardState)[keyof typeof ToolCardState];
 
 interface ToolCallMessageProps {
   connection: BasicConnectionInfo | null;
@@ -40,28 +31,6 @@ function getToolDisplayName(type: string): string {
 
 function getToolDescription(toolName: string): string | undefined {
   return AVAILABLE_TOOLS.find((tool) => tool.name === toolName)?.description;
-}
-
-// Map our tool call states to LeafyGreen ToolCardState
-export function mapToolCallStateToCardState(
-  toolCallState?: ToolUIPart['state']
-): ToolCardStateValue {
-  switch (toolCallState) {
-    case 'approval-requested':
-      return ToolCardState.Idle;
-    case 'approval-responded':
-      return ToolCardState.Running;
-    case 'input-available':
-      return ToolCardState.Running;
-    case 'output-available':
-      return ToolCardState.Success;
-    case 'output-error':
-      return ToolCardState.Error;
-    case 'output-denied':
-      return ToolCardState.Canceled;
-    default:
-      return ToolCardState.Idle;
-  }
 }
 
 const toolCallMessageStyles = css({
@@ -115,7 +84,7 @@ export const ToolCallMessage: React.FunctionComponent<ToolCallMessageProps> = ({
 
   const toolName = getToolDisplayName(toolCall.type);
   const toolDescription = getToolDescription(toolName);
-  const toolCallState = mapToolCallStateToCardState(toolCall.state);
+  const toolCallState = getToolState(toolCall.state);
 
   const inputJSON = JSON.stringify(toolCall.input || {}, null, 2);
 

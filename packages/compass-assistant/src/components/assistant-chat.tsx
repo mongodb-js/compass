@@ -18,25 +18,18 @@ import {
   Icon,
 } from '@mongodb-js/compass-components';
 import { ConfirmationMessage } from './confirmation-message';
-import {
-  mapToolCallStateToCardState,
-  ToolCallMessage,
-} from './tool-call-message';
+import { ToolCallMessage } from './tool-call-message';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import { NON_GENUINE_WARNING_MESSAGE } from '../preset-messages';
 import { SuggestedPrompts } from './suggested-prompts';
-import {
-  type ToolUIPart,
-  type UIDataTypes,
-  type UIMessagePart,
-  type UITools,
-} from 'ai';
+import { type ToolUIPart } from 'ai';
 import { useAssistantGlobalState } from '../assistant-global-state';
 import type { WorkspaceTab } from '@mongodb-js/workspace-info';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
 import { ToolToggle } from './tool-toggle';
 import { usePreference } from 'compass-preferences-model/provider';
 import { useToolsController } from '@mongodb-js/compass-generative-ai/provider';
+import { getToolState, partIsToolUI } from '../utils';
 
 const { ChatWindow } = LgChatChatWindow;
 const { LeafyGreenChatProvider } = LgChatLeafygreenChatProvider;
@@ -209,13 +202,6 @@ const inputBarTextareaProps = {
   placeholder: 'Ask a question',
 };
 
-// Type guard to check if a message part is a ToolUIPart
-function partIsToolUI(
-  part: UIMessagePart<UIDataTypes, UITools>
-): part is ToolUIPart {
-  return part.type.startsWith('tool-') || 'toolCallId' in part;
-}
-
 // Type guard to check if activeWorkspace has a connectionId property
 function hasConnectionId(
   obj: WorkspaceTab | null
@@ -254,8 +240,7 @@ function isToolRunning(messages: AssistantMessage[]): boolean {
   return messages.some((message) => {
     return message.parts.some((part) => {
       if (partIsToolUI(part)) {
-        const toolState = mapToolCallStateToCardState(part.state);
-        console.log(part);
+        const toolState = getToolState(part.state);
         return toolState == 'running';
       }
       return false;
@@ -524,48 +509,7 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
     [addToolApprovalResponse, toolsController, track]
   );
 
-  const handleStopButtonClick = useCallback(() => {
-    // chat.stop() will cancel pending tool operations through its AbortSignal.
-    // However, it will not update the message UI state and will actually retry sending the message by default.
-    // In practice, this means it will keep re-running the tool call we're cancelling.
-    // So we first set all existing tool calls to an error state before continuing with chat.stop()
-    setMessages((currentMessages) => {
-      return currentMessages.map((message) => {
-        const hasRunningTools = message.parts.some(
-          (part) =>
-            partIsToolUI(part) &&
-            (part.state === 'approval-responded' ||
-              part.state === 'input-available')
-        );
-
-        if (!hasRunningTools) {
-          return message;
-        }
-
-        return {
-          ...message,
-          parts: message.parts.map((part) => {
-            if (
-              partIsToolUI(part) &&
-              mapToolCallStateToCardState(part.state) === 'running'
-            ) {
-              // Create a new tool part with error state
-              const { output, approval, ...basePart } = part as any;
-              return {
-                ...basePart,
-                state: 'output-error' as const,
-                output: undefined,
-                errorText: 'Tool execution was cancelled',
-              };
-            }
-            return part;
-          }),
-        };
-      });
-    });
-
-    void chat.stop();
-  }, [chat]);
+  const handleStopButtonClick = useCallback(() => {}, [chat]);
 
   const visibleMessages = messages.filter(
     (message) => !message.metadata?.isSystemContext
