@@ -180,6 +180,9 @@ export const ToolToggle: React.FunctionComponent = () => {
     'enableGenAIToolCallingAtlasProject'
   );
   const enableGenAIToolCalling = usePreference('enableGenAIToolCalling');
+
+  const areToolCallsEnabled =
+    !!enableGenAIToolCallingAtlasProject && enableGenAIToolCalling;
   const preferences = usePreferencesContext();
   const [popoverOpen, setPopoverOpen] = useState(false);
   const darkMode = useDarkMode();
@@ -234,16 +237,14 @@ export const ToolToggle: React.FunctionComponent = () => {
                   id="enable-tool-calling-toggle"
                   aria-labelledby="enable-tool-calling-label"
                   size="small"
-                  checked={
-                    enableGenAIToolCallingAtlasProject && enableGenAIToolCalling
-                  }
+                  checked={areToolCallsEnabled}
                   onChange={handleToggle}
                   data-testid="tool-toggle-switch"
                   disabled={!enableGenAIToolCallingAtlasProject}
                 />
               </div>
               <Description>
-                {enableGenAIToolCalling
+                {areToolCallsEnabled
                   ? 'These are currently enabled and require approval. You can use natural language to explore data and generate queries.'
                   : 'These are currently disabled. Enable them to use natural language to explore data and generate queries.'}
               </Description>

@@ -119,6 +119,74 @@ describe('ToolToggle', function () {
     });
   });
 
+  describe('description text based on enableGenAIToolCallingAtlasProject', function () {
+    it('shows "currently enabled and require approval" text when both preferences are enabled', async function () {
+      render(<ToolToggle />, {
+        preferences: {
+          enableGenAIToolCallingAtlasProject: true,
+          enableGenAIToolCalling: true,
+        },
+      });
+
+      const button = screen.getByTestId('tool-toggle-button');
+      userEvent.click(button);
+
+      await waitFor(() => {
+        expect(
+          screen.getByText(/These are currently enabled and require approval/i)
+        ).to.exist;
+      });
+    });
+
+    it('shows "currently disabled" text when enableGenAIToolCalling is false', async function () {
+      render(<ToolToggle />, {
+        preferences: {
+          enableGenAIToolCallingAtlasProject: true,
+          enableGenAIToolCalling: false,
+        },
+      });
+
+      const button = screen.getByTestId('tool-toggle-button');
+      userEvent.click(button);
+
+      await waitFor(() => {
+        expect(screen.getByText(/These are currently disabled/i)).to.exist;
+      });
+    });
+
+    it('shows "currently disabled" text when enableGenAIToolCallingAtlasProject is false', async function () {
+      render(<ToolToggle />, {
+        preferences: {
+          enableGenAIToolCallingAtlasProject: false,
+          enableGenAIToolCalling: true,
+        },
+      });
+
+      const button = screen.getByTestId('tool-toggle-button');
+      userEvent.click(button);
+
+      await waitFor(() => {
+        expect(screen.getByText(/These are currently disabled/i)).to.exist;
+      });
+    });
+
+    it('shows "currently disabled" when both preferences are false', async function () {
+      render(<ToolToggle />, {
+        preferences: {
+          enableGenAIToolCallingAtlasProject: false,
+          enableGenAIToolCalling: false,
+        },
+      });
+
+      const button = screen.getByTestId('tool-toggle-button');
+      userEvent.click(button);
+
+      await waitFor(() => {
+        expect(screen.getByText(/These are currently disabled/i)).to.exist;
+      });
+    });
+  });
+
   describe('preference toggling', function () {
     it('toggle switch is disabled if enableGenAIToolCallingAtlasProject is false', async function () {
       render(<ToolToggle />, {
