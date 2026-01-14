@@ -53,6 +53,7 @@
     "@mongodb-js/prettier-config-compass": "^1.2.9",
     "@mongodb-js/testing-library-compass": "^1.4.3",
     "@mongodb-js/tsconfig-compass": "^1.2.13",
+    "@mongodb-js/workspace-info": "^0.73.0",
     "chai": "^4.2.0",
     "depcheck": "^1.4.1",
     "electron": "^37.10.3",
