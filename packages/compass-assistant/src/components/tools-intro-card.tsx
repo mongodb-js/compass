@@ -27,7 +27,7 @@ const shimmerBorderStyles = css({
   animation: `3s ease-in-out infinite shimmer-border`,
   borderRadius: '8px',
 
-  margin: `0 ${spacing[400]}px ${spacing[400]}px ${spacing[400]}px`,
+  margin: `${spacing[100]}px ${spacing[400]}px 0px ${spacing[400]}px`,
   padding: '1px',
 });
 
