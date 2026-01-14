@@ -148,8 +148,7 @@ const messageFeedFixesStyles = css({
   flexDirection: 'column-reverse',
   overflowY: 'auto',
   wordBreak: 'break-word',
-  padding: spacing[400],
-  gap: spacing[400],
+  paddingTop: spacing[400],
   width: '100%',
 
   // TODO(COMPASS-9751): We're setting the font weight to 600 here as the LG styling for the Assistant header isn't set
@@ -181,6 +180,9 @@ const messagesWrapStyles = css({
   display: 'flex',
   flexDirection: 'column',
   gap: spacing[400],
+  paddingLeft: spacing[400],
+  paddingRight: spacing[400],
+  paddingBottom: spacing[400],
 });
 
 const welcomeHeadingStyles = css({
@@ -671,6 +673,35 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
                 );
               })}
             </div>
+            {messages.length === 0 && (
+              <>
+                <div>
+                  <div className={welcomeMessageStyles}>
+                    <h4 className={welcomeHeadingStyles}>
+                      <Icon
+                        glyph="Sparkle"
+                        size="large"
+                        style={sparkleIconOverrideStyle}
+                      />
+                      <span>MongoDB Assistant</span>
+                    </h4>
+                    <p className={welcomeTextStyles}>
+                      Welcome to the MongoDB Assistant!
+                      <br />
+                      Ask any question about MongoDB to receive expert guidance
+                      and documentation.
+                    </p>
+                  </div>
+                  <SuggestedPrompts
+                    chat={chat}
+                    onMessageSend={handleMessageSend}
+                  />
+                  {!dismissedAssistantToolsIntro && (
+                    <ToolsIntroCard onDismiss={handleDismissIntroCard} />
+                  )}
+                </div>
+              </>
+            )}
           </div>
           {error && (
             <div className={errorBannerWrapperStyles}>
@@ -678,29 +709,6 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
                 {makeErrorMessage()}
               </Banner>
             </div>
-          )}
-          {messages.length === 0 && (
-            <div className={welcomeMessageStyles}>
-              <h4 className={welcomeHeadingStyles}>
-                <Icon
-                  glyph="Sparkle"
-                  size="large"
-                  style={sparkleIconOverrideStyle}
-                />
-                <span>MongoDB Assistant</span>
-              </h4>
-              <p className={welcomeTextStyles}>
-                Welcome to the MongoDB Assistant!
-                <br />
-                Ask any question about MongoDB to receive expert guidance and
-                documentation.
-              </p>
-            </div>
-          )}
-          <SuggestedPrompts chat={chat} onMessageSend={handleMessageSend} />
-
-          {!dismissedAssistantToolsIntro && messages.length === 0 && (
-            <ToolsIntroCard onDismiss={handleDismissIntroCard} />
           )}
 
           <InputBar
