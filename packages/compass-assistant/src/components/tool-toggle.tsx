@@ -17,6 +17,7 @@ import {
   usePreference,
   usePreferencesContext,
 } from 'compass-preferences-model/provider';
+import { useAssistantProjectId } from '../compass-assistant-provider';
 
 const popoverContentStyles = css({
   padding: spacing[400],
@@ -179,6 +180,10 @@ export const ToolToggle: React.FunctionComponent = () => {
   const enableGenAIToolCallingAtlasProject = usePreference(
     'enableGenAIToolCallingAtlasProject'
   );
+  const projectId = useAssistantProjectId();
+  const learnMoreUrl = projectId
+    ? 'https://www.mongodb.com/docs/atlas/atlas-ui/query-with-natural-language/data-explorer-ai-assistant/'
+    : 'https://www.mongodb.com/docs/compass/query-with-natural-language/compass-ai-assistant/';
   const enableGenAIToolCalling = usePreference('enableGenAIToolCalling');
 
   const areToolCallsEnabled =
@@ -249,10 +254,7 @@ export const ToolToggle: React.FunctionComponent = () => {
                   : 'These are currently disabled. Enable them to use natural language to explore data and generate queries.'}
               </Description>
             </div>
-            <Link
-              href="https://www.mongodb.com/docs/compass/query-with-natural-language/compass-ai-assistant/"
-              target="_blank"
-            >
+            <Link href={learnMoreUrl} target="_blank">
               Learn more
             </Link>
             <div className={toolsContainerStyles}>
