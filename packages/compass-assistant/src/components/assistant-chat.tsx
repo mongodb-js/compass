@@ -670,36 +670,39 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
                   </React.Fragment>
                 );
               })}
-            </div>
+            </div>{' '}
+            {messages.length === 0 && (
+              <div className={welcomeMessageStyles}>
+                <h4 className={welcomeHeadingStyles}>
+                  <Icon
+                    glyph="Sparkle"
+                    size="large"
+                    style={sparkleIconOverrideStyle}
+                  />
+                  <span>MongoDB Assistant</span>
+                </h4>
+                <p className={welcomeTextStyles}>
+                  Welcome to the MongoDB Assistant!
+                  <br />
+                  Ask any question about MongoDB to receive expert guidance and
+                  documentation.
+                </p>
+                <SuggestedPrompts
+                  chat={chat}
+                  onMessageSend={handleMessageSend}
+                />
+
+                {!dismissedAssistantToolsIntro && (
+                  <ToolsIntroCard onDismiss={handleDismissIntroCard} />
+                )}
+              </div>
+            )}
           </div>
           {error && (
             <div className={errorBannerWrapperStyles}>
               <Banner variant="danger" dismissible onClose={clearError}>
                 {makeErrorMessage()}
               </Banner>
-            </div>
-          )}
-          {messages.length === 0 && (
-            <div className={welcomeMessageStyles}>
-              <h4 className={welcomeHeadingStyles}>
-                <Icon
-                  glyph="Sparkle"
-                  size="large"
-                  style={sparkleIconOverrideStyle}
-                />
-                <span>MongoDB Assistant</span>
-              </h4>
-              <p className={welcomeTextStyles}>
-                Welcome to the MongoDB Assistant!
-                <br />
-                Ask any question about MongoDB to receive expert guidance and
-                documentation.
-              </p>
-              <SuggestedPrompts chat={chat} onMessageSend={handleMessageSend} />
-
-              {!dismissedAssistantToolsIntro && (
-                <ToolsIntroCard onDismiss={handleDismissIntroCard} />
-              )}
             </div>
           )}
 
