@@ -79,6 +79,10 @@ const EditSchemaVariants = z.discriminatedUnion('type', [
     newPosition: z.tuple([z.number(), z.number()]),
   }),
   z.object({
+    type: z.literal('MoveMultipleCollections'),
+    newPositions: z.record(z.string(), z.tuple([z.number(), z.number()])),
+  }),
+  z.object({
     type: z.literal('RemoveCollection'),
     ns: z.string(),
   }),

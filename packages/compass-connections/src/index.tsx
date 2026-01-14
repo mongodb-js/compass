@@ -17,6 +17,7 @@ import {
   configureStore,
   disconnect,
   loadConnections,
+  getDataServiceForConnection,
 } from './stores/connections-store-redux';
 import {
   ConnectionsStoreContext,
@@ -79,7 +80,13 @@ const ConnectionsComponent: React.FunctionComponent<{
   });
   const activeConnectionsInfo = useMemo(() => {
     return activeConnections.map((connection) => {
-      return connection.info;
+      return {
+        ...connection.info,
+        connectOptions:
+          getDataServiceForConnection(
+            connection.info.id
+          )?.getMongoClientConnectionOptions()?.options ?? null,
+      };
     });
   }, [activeConnections]);
   useSyncAssistantGlobalState('activeConnections', activeConnectionsInfo);

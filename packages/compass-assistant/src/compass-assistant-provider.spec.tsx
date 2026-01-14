@@ -25,16 +25,23 @@ import type { AtlasAuthService } from '@mongodb-js/atlas-service/provider';
 import type { AtlasService } from '@mongodb-js/atlas-service/provider';
 import { CompassAssistantDrawer } from './compass-assistant-drawer';
 import { createBrokenTransport, createMockChat } from '../test/utils';
-import type {
-  AtlasAiService,
-  ToolsController,
+import {
+  ToolsControllerProvider,
+  type AtlasAiService,
+  type ToolsController,
 } from '@mongodb-js/compass-generative-ai/provider';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
+import type { ActiveConnectionInfo } from './assistant-global-state';
 import {
   AssistantGlobalStateProvider,
   useSyncAssistantGlobalState,
 } from './assistant-global-state';
+import type {
+  CollectionSubtab,
+  WorkspaceTab,
+} from '@mongodb-js/workspace-info';
+import type { CollectionMetadata } from 'mongodb-collection-model';
 
 function createMockProvider({
   mockAtlasService,
@@ -67,9 +74,12 @@ function createMockProvider({
 
   if (!mockToolsController) {
     mockToolsController = {
-      setActiveTools: sinon.stub().resolves(),
-      getActiveTools: sinon.stub().resolves({}),
-      setContext: sinon.stub().resolves(),
+      setActiveTools: sinon.stub(),
+      getActiveTools: sinon.stub(),
+      setContext: sinon.stub(),
+      startServer: sinon.stub().resolves(),
+      stopServer: sinon.stub().resolves(),
+      setConnectionIdForToolCall: sinon.stub(),
     };
   }
 
@@ -91,7 +101,11 @@ const TestComponent: React.FunctionComponent<{
   mockToolsController?: any;
   hasNonGenuineConnections?: boolean;
   currentQuery?: string;
-  currentAggregation?: string;
+  currentPipeline?: string;
+  connections?: ActiveConnectionInfo[];
+  activeWorkspace?: WorkspaceTab;
+  collectionMetadata?: CollectionMetadata;
+  currentTab?: CollectionSubtab;
 }> = ({
   chat,
   autoOpen,
@@ -101,7 +115,11 @@ const TestComponent: React.FunctionComponent<{
   mockToolsController,
   hasNonGenuineConnections,
   currentQuery,
-  currentAggregation,
+  currentPipeline,
+  connections,
+  activeWorkspace,
+  collectionMetadata,
+  currentTab,
 }) => {
   const MockedProvider = createMockProvider({
     mockAtlasService: mockAtlasService as unknown as AtlasService,
@@ -111,11 +129,15 @@ const TestComponent: React.FunctionComponent<{
   });
 
   const FakeStateSetterComponent = () => {
-    useSyncAssistantGlobalState('currentQuery', currentQuery ?? null);
+    useSyncAssistantGlobalState('activeConnections', connections ?? []);
+    useSyncAssistantGlobalState('activeWorkspace', activeWorkspace ?? null);
     useSyncAssistantGlobalState(
-      'currentAggregation',
-      currentAggregation ?? null
+      'activeCollectionMetadata',
+      collectionMetadata ?? null
     );
+    useSyncAssistantGlobalState('activeCollectionSubTab', currentTab ?? null);
+    useSyncAssistantGlobalState('currentQuery', currentQuery ?? null);
+    useSyncAssistantGlobalState('currentPipeline', currentPipeline ?? null);
 
     return null;
   };
@@ -123,23 +145,26 @@ const TestComponent: React.FunctionComponent<{
   return (
     <AssistantGlobalStateProvider>
       <DrawerContentProvider>
-        {/* Breaking this rule is fine while none of the tests try to re-render the content */}
-        {/* eslint-disable-next-line react-hooks/static-components */}
-        <MockedProvider
-          originForPrompt="mongodb-compass"
-          appNameForPrompt="MongoDB Compass"
-          chat={chat}
-        >
-          <DrawerAnchor>
-            <div data-testid="provider-children">Provider children</div>
-            <CompassAssistantDrawer
-              appName="Compass"
-              autoOpen={autoOpen}
-              hasNonGenuineConnections={hasNonGenuineConnections}
-            />
-          </DrawerAnchor>
-          <FakeStateSetterComponent />
-        </MockedProvider>
+        <ToolsControllerProvider>
+          {/* Breaking this rule is fine while none of the tests try to re-render the content */}
+          {/* eslint-disable-next-line react-hooks/static-components */}
+          <MockedProvider
+            originForPrompt="mongodb-compass"
+            appNameForPrompt="MongoDB Compass"
+            chat={chat}
+          >
+            <DrawerAnchor>
+              <div data-testid="provider-children">Provider children</div>
+              <CompassAssistantDrawer
+                appName="Compass"
+                autoOpen={autoOpen}
+                hasNonGenuineConnections={hasNonGenuineConnections}
+                allowSavingPreferences={true}
+              />
+            </DrawerAnchor>
+            <FakeStateSetterComponent />
+          </MockedProvider>
+        </ToolsControllerProvider>
       </DrawerContentProvider>
     </AssistantGlobalStateProvider>
   );
@@ -342,16 +367,26 @@ describe('CompassAssistantProvider', function () {
       toolsController,
       hasNonGenuineConnections,
       enableToolCalling = true,
+      enableGenAIToolCalling = true,
       query,
-      aggregation,
+      pipeline,
+      connections,
+      activeWorkspace,
+      collectionMetadata,
+      currentTab,
     }: {
       chat: Chat<AssistantMessage>;
       atlastAiService?: Partial<AtlasAiService>;
       toolsController?: Partial<ToolsController>;
       hasNonGenuineConnections?: boolean;
       enableToolCalling?: boolean;
+      enableGenAIToolCalling?: boolean;
       query?: string;
-      aggregation?: string;
+      pipeline?: string;
+      connections?: ActiveConnectionInfo[];
+      activeWorkspace?: WorkspaceTab;
+      collectionMetadata?: CollectionMetadata;
+      currentTab?: CollectionSubtab;
     }): Promise<ReturnType<typeof render>> {
       const result = render(
         <TestComponent
@@ -361,7 +396,11 @@ describe('CompassAssistantProvider', function () {
           autoOpen={true}
           hasNonGenuineConnections={hasNonGenuineConnections}
           currentQuery={query}
-          currentAggregation={aggregation}
+          currentPipeline={pipeline}
+          connections={connections}
+          activeWorkspace={activeWorkspace}
+          collectionMetadata={collectionMetadata}
+          currentTab={currentTab}
         />,
         {
           preferences: {
@@ -370,6 +409,7 @@ describe('CompassAssistantProvider', function () {
             enableGenAIFeaturesAtlasOrg: true,
             cloudFeatureRolloutAccess: { GEN_AI_COMPASS: true },
             enableToolCalling,
+            enableGenAIToolCalling,
           },
         }
       );
@@ -495,7 +535,7 @@ describe('CompassAssistantProvider', function () {
           parts: [
             {
               type: 'text',
-              text: 'The user does not have any tabs open.',
+              text: "The user does not have any tabs open.\n\n<abilities>\nYou CAN:\n1. Access user database information, such as collection schemas, etc.\n2. Query MongoDB directly.\n3. Access the user's current query or aggregation pipeline.\n</abilities>",
             },
           ],
         },
@@ -570,7 +610,7 @@ describe('CompassAssistantProvider', function () {
       expect(screen.queryByText('Hello assistant!')).to.not.exist;
     });
 
-    it('disables tools if toolCalling feature is disabled', async function () {
+    it('disables tools if toolCalling feature is enabled and enableGenAIToolCalling setting is disabled', async function () {
       const mockChat = new Chat<AssistantMessage>({
         messages: [
           {
@@ -584,75 +624,24 @@ describe('CompassAssistantProvider', function () {
       const sendMessageSpy = sinon.spy(mockChat, 'sendMessage');
 
       const mockToolsController = {
-        setActiveTools: sinon.stub().resolves(),
-        getActiveTools: sinon.stub().resolves({}),
-        setContext: sinon.stub().resolves(),
-      };
-
-      await renderOpenAssistantDrawer({
-        chat: mockChat,
-        toolsController: mockToolsController,
-        enableToolCalling: false,
-      });
-
-      const input = screen.getByPlaceholderText('Ask a question');
-      const sendButton = screen.getByLabelText('Send message');
-
-      userEvent.type(input, 'Hello assistant');
-      userEvent.click(sendButton);
-
-      await waitFor(() => {
-        expect(sendMessageSpy.calledOnce).to.be.true;
-        expect(sendMessageSpy.firstCall.args[0]).to.deep.include({
-          text: 'Hello assistant',
-        });
-      });
-
-      const contextMessages = mockChat.messages.filter(
-        (message) => message.metadata?.isSystemContext
-      );
-      expect(contextMessages).to.have.lengthOf(1);
-
-      expect(mockToolsController.setActiveTools.callCount).to.equal(1);
-      expect(
-        mockToolsController.setActiveTools.firstCall.args[0]
-      ).to.deep.equal(new Set());
-
-      expect(mockToolsController.setContext.callCount).to.equal(1);
-      expect(mockToolsController.setContext.firstCall.args[0]).to.deep.equal({
-        query: undefined,
-        aggregation: undefined,
-      });
-    });
-
-    it('enables tools if toolCalling feature is enabled', async function () {
-      const mockChat = new Chat<AssistantMessage>({
-        messages: [
-          {
-            id: 'assistant',
-            role: 'assistant',
-            parts: [{ type: 'text', text: 'Hello user!' }],
-          },
-        ],
-      });
-
-      const sendMessageSpy = sinon.spy(mockChat, 'sendMessage');
-
-      const mockToolsController = {
-        setActiveTools: sinon.stub().resolves(),
-        getActiveTools: sinon.stub().resolves({}),
-        setContext: sinon.stub().resolves(),
+        setActiveTools: sinon.stub(),
+        getActiveTools: sinon.stub(),
+        setContext: sinon.stub(),
+        startServer: sinon.stub().resolves(),
+        stopServer: sinon.stub().resolves(),
+        setConnectionIdForToolCall: sinon.stub(),
       };
 
       const query = 'This is a fake query';
-      const aggregation = 'This is a fake aggregation';
+      const pipeline = 'This is a fake aggregation';
 
       await renderOpenAssistantDrawer({
         chat: mockChat,
         toolsController: mockToolsController,
         enableToolCalling: true,
+        enableGenAIToolCalling: false,
         query,
-        aggregation,
+        pipeline,
       });
 
       const input = screen.getByPlaceholderText('Ask a question');
@@ -676,12 +665,179 @@ describe('CompassAssistantProvider', function () {
       expect(mockToolsController.setActiveTools.callCount).to.equal(1);
       expect(
         mockToolsController.setActiveTools.firstCall.args[0]
-      ).to.deep.equal(new Set(['compass']));
+      ).to.deep.equal(new Set([]));
 
       expect(mockToolsController.setContext.callCount).to.equal(1);
       expect(mockToolsController.setContext.firstCall.args[0]).to.deep.equal({
+        connections: [],
         query,
-        aggregation,
+        pipeline,
+      });
+    });
+
+    it('enables tools if toolCalling feature is enabled and enableGenAIToolCalling setting is enabled', async function () {
+      const mockChat = new Chat<AssistantMessage>({
+        messages: [
+          {
+            id: 'assistant',
+            role: 'assistant',
+            parts: [{ type: 'text', text: 'Hello user!' }],
+          },
+        ],
+      });
+
+      const sendMessageSpy = sinon.spy(mockChat, 'sendMessage');
+
+      const mockToolsController = {
+        setActiveTools: sinon.stub(),
+        getActiveTools: sinon.stub(),
+        setContext: sinon.stub(),
+        startServer: sinon.stub().resolves(),
+        stopServer: sinon.stub().resolves(),
+        setConnectionIdForToolCall: sinon.stub(),
+      };
+
+      const query = 'This is a fake query';
+      const pipeline = 'This is a fake aggregation';
+
+      await renderOpenAssistantDrawer({
+        chat: mockChat,
+        toolsController: mockToolsController,
+        enableToolCalling: true,
+        enableGenAIToolCalling: true,
+        query,
+        pipeline,
+        activeWorkspace: {
+          id: 'workspace-1',
+          type: 'Collection',
+          connectionId: 'connection-1',
+          namespace: 'foo.foo',
+          subTab: 'Aggregations',
+        },
+        currentTab: 'Aggregations',
+      });
+
+      const input = screen.getByPlaceholderText('Ask a question');
+      const sendButton = screen.getByLabelText('Send message');
+
+      userEvent.type(input, 'Hello assistant');
+      userEvent.click(sendButton);
+
+      await waitFor(() => {
+        expect(sendMessageSpy.calledOnce).to.be.true;
+        expect(sendMessageSpy.firstCall.args[0]).to.deep.include({
+          text: 'Hello assistant',
+        });
+      });
+
+      const contextMessages = mockChat.messages.filter(
+        (message) => message.metadata?.isSystemContext
+      );
+      expect(contextMessages).to.have.lengthOf(1);
+
+      expect(mockToolsController.setActiveTools.callCount).to.equal(1);
+      expect(
+        mockToolsController.setActiveTools.firstCall.args[0]
+      ).to.deep.equal(new Set(['aggregation-builder']));
+
+      expect(mockToolsController.setContext.callCount).to.equal(1);
+      expect(mockToolsController.setContext.firstCall.args[0]).to.deep.equal({
+        connections: [],
+        query,
+        pipeline,
+      });
+    });
+
+    it('enables database tools if toolCalling feature and enableGenAIToolCalling setting are enabled and there is a focused connection', async function () {
+      const mockChat = new Chat<AssistantMessage>({
+        messages: [
+          {
+            id: 'assistant',
+            role: 'assistant',
+            parts: [{ type: 'text', text: 'Hello user!' }],
+          },
+        ],
+      });
+
+      const sendMessageSpy = sinon.spy(mockChat, 'sendMessage');
+
+      const mockToolsController = {
+        setActiveTools: sinon.stub(),
+        getActiveTools: sinon.stub(),
+        setContext: sinon.stub(),
+        startServer: sinon.stub().resolves(),
+        stopServer: sinon.stub().resolves(),
+        setConnectionIdForToolCall: sinon.stub(),
+      };
+
+      const query = 'This is a fake query';
+      const pipeline = 'This is a fake aggregation';
+      const connections: ActiveConnectionInfo[] = [
+        {
+          id: 'connection-1',
+          connectionOptions: {
+            connectionString: 'mongodb://localhost:27017',
+          },
+          connectOptions: {
+            productName: 'test',
+            productDocsLink: 'https://example.com/docs',
+          },
+        },
+      ];
+      const activeWorkspace: WorkspaceTab = {
+        id: 'workspace-1',
+        type: 'Databases',
+        connectionId: connections[0]?.id,
+      };
+
+      await renderOpenAssistantDrawer({
+        chat: mockChat,
+        toolsController: mockToolsController,
+        enableToolCalling: true,
+        enableGenAIToolCalling: true,
+        query,
+        pipeline,
+        connections,
+        activeWorkspace,
+      });
+
+      const input = screen.getByPlaceholderText('Ask a question');
+      const sendButton = screen.getByLabelText('Send message');
+
+      userEvent.type(input, 'Hello assistant');
+      userEvent.click(sendButton);
+
+      await waitFor(() => {
+        expect(sendMessageSpy.calledOnce).to.be.true;
+        expect(sendMessageSpy.firstCall.args[0]).to.deep.include({
+          text: 'Hello assistant',
+        });
+      });
+
+      const contextMessages = mockChat.messages.filter(
+        (message) => message.metadata?.isSystemContext
+      );
+      expect(contextMessages).to.have.lengthOf(1);
+
+      expect(mockToolsController.setActiveTools.callCount).to.equal(1);
+      expect(
+        mockToolsController.setActiveTools.firstCall.args[0]
+      ).to.deep.equal(new Set(['db-read']));
+
+      expect(mockToolsController.setContext.callCount).to.equal(1);
+      expect(mockToolsController.setContext.firstCall.args[0]).to.deep.equal({
+        connections: [
+          {
+            connectionId: 'connection-1',
+            connectionString: 'mongodb://localhost:27017',
+            connectOptions: {
+              productName: 'test',
+              productDocsLink: 'https://example.com/docs',
+            },
+          },
+        ],
+        query,
+        pipeline,
       });
     });
 
@@ -714,7 +870,7 @@ describe('CompassAssistantProvider', function () {
         userEvent.click(screen.getByLabelText('Send message'));
 
         await waitFor(() => {
-          expect(screen.getByText(/Test connection error/)).to.exist;
+          expect(screen.getByText(/An error occurred/)).to.exist;
         });
 
         expect(track).to.have.been.calledWith('Assistant Response Failed', {

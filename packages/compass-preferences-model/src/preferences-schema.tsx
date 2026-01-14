@@ -104,7 +104,7 @@ export type UserConfigurablePreferences = PermanentFeatureFlags &
     enableAggregationBuilderRunPipeline: boolean;
     enableAggregationBuilderExtraOptions: boolean;
     enableGenAISampleDocumentPassing: boolean;
-    enableGenAIDatabaseToolCalling: boolean;
+    enableGenAIToolCalling: boolean;
     enablePerformanceAdvisorBanner: boolean;
     maximumNumberOfActiveConnections?: number;
     defaultSortOrder: SORT_ORDERS;
@@ -965,7 +965,7 @@ export const storedUserPreferencesProps: Required<{
     type: 'boolean',
   },
 
-  enableGenAIDatabaseToolCalling: {
+  enableGenAIToolCalling: {
     ui: true,
     cli: true,
     global: true,
@@ -985,7 +985,7 @@ export const storedUserPreferencesProps: Required<{
         </>
       ),
     },
-    validator: z.boolean().default(false),
+    validator: z.boolean().default(true),
     type: 'boolean',
   },
 
