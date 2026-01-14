@@ -168,7 +168,7 @@ const noWrapFixesStyles = css({
   whiteSpace: 'nowrap',
 });
 
-function makeErrorMessage(message: string) {
+function makeErrorMessage() {
   return `An error occurred. Try clearing the chat if the error persists.`;
 }
 
@@ -246,7 +246,7 @@ function isToolRunning(messages: AssistantMessage[]): boolean {
     return message.parts.some((part) => {
       if (partIsToolUI(part)) {
         const toolState = getToolState(part.state);
-        return toolState == 'running';
+        return toolState === 'running';
       }
       return false;
     });
@@ -675,7 +675,7 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
           {error && (
             <div className={errorBannerWrapperStyles}>
               <Banner variant="danger" dismissible onClose={clearError}>
-                {makeErrorMessage(error.message)}
+                {makeErrorMessage()}
               </Banner>
             </div>
           )}
@@ -708,7 +708,9 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
             onMessageSend={(text) => void handleMessageSend({ text })}
             state={shouldDisplayThinking ? 'loading' : undefined}
             textareaProps={inputBarTextareaProps}
-            onClickStopButton={handleStopButtonClick}
+            onClickStopButton={() => {
+              void handleStopButtonClick();
+            }}
           >
             {isToolCallingEnabled && (
               <InputBar.AdditionalActions>
