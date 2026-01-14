@@ -89,6 +89,9 @@ export const ToolsIntroCard: React.FunctionComponent<ToolsIntroCardProps> = ({
   const settingsText = projectId
     ? 'project-wide in Project Settings'
     : 'in Settings';
+  const learnMoreUrl = projectId
+    ? 'https://www.mongodb.com/docs/atlas/atlas-ui/query-with-natural-language/data-explorer-ai-assistant/'
+    : 'https://www.mongodb.com/docs/compass/query-with-natural-language/compass-ai-assistant/';
 
   return (
     <div className={shimmerBorderStyles}>
@@ -127,10 +130,7 @@ export const ToolsIntroCard: React.FunctionComponent<ToolsIntroCardProps> = ({
               View Settings
             </Button>
           )}
-          <Link
-            href="https://www.mongodb.com/docs/compass/query-with-natural-language/compass-ai-assistant/"
-            data-testid="tools-intro-card-learn-more"
-          >
+          <Link href={learnMoreUrl} data-testid="tools-intro-card-learn-more">
             Learn more
           </Link>
         </div>

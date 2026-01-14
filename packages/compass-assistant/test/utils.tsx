@@ -1,6 +1,19 @@
 import { Chat } from '../src/@ai-sdk/react/chat-react';
 import sinon from 'sinon';
-import type { AssistantMessage } from '../src/compass-assistant-provider';
+import {
+  CompassAssistantProvider,
+  type AssistantMessage,
+} from '../src/compass-assistant-provider';
+import {
+  type AtlasAuthService,
+  type AtlasService,
+} from '@mongodb-js/atlas-service/provider';
+import {
+  type AtlasAiService,
+  type ToolsController,
+} from '@mongodb-js/compass-generative-ai/provider';
+import { render } from '@mongodb-js/testing-library-compass';
+import React from 'react';
 
 export const createMockChat = ({
   messages,
@@ -181,4 +194,54 @@ export function createMockToolsTransport(tools: MockTool[]) {
   };
 
   return transport;
+}
+
+export function renderWithProvider(
+  component: React.ReactElement,
+  preferences?: Partial<{
+    enableGenAIToolCallingAtlasProject: boolean;
+    enableGenAIToolCalling: boolean;
+  }>,
+  { projectId }: { projectId?: string } = {}
+) {
+  const mockAtlasService = {
+    assistantApiEndpoint: sinon
+      .stub()
+      .returns('https://example.com/assistant/api/v1'),
+  };
+  const mockAtlasAiService = {
+    ensureAiFeatureAccess: sinon.stub().resolves(),
+  };
+  const mockToolsController = {
+    setActiveTools: sinon.stub().resolves(),
+    getActiveTools: sinon.stub().returns({}),
+    setContext: sinon.stub().resolves(),
+  };
+  const mockAtlasAuthService = {
+    getOrganizationId: sinon.stub().returns('test-org-id'),
+  };
+
+  const Provider = CompassAssistantProvider.withMockServices({
+    atlasService: mockAtlasService as unknown as AtlasService,
+    atlasAiService: mockAtlasAiService as unknown as AtlasAiService,
+    toolsController: mockToolsController as unknown as ToolsController,
+    atlasAuthService: mockAtlasAuthService as unknown as AtlasAuthService,
+  });
+
+  return render(
+    <Provider
+      projectId={projectId}
+      appNameForPrompt="Test"
+      originForPrompt="test"
+    >
+      {component}
+    </Provider>,
+    {
+      preferences: {
+        enableGenAIToolCallingAtlasProject: true,
+        enableGenAIToolCalling: false,
+        ...preferences,
+      },
+    }
+  );
 }
