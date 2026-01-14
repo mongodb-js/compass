@@ -369,8 +369,6 @@ export function startAnalysis(
           : undefined,
       });
 
-      console.log('New diagram', getCurrentDiagramFromState(getState()));
-
       void dataModelStorage.save(getCurrentDiagramFromState(getState()));
     } catch (err) {
       if (cancelController.signal.aborted) {

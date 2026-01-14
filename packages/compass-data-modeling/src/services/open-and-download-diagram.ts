@@ -83,7 +83,6 @@ export async function getDiagramContentsFromFile(file: File): Promise<{
           database: parsedContent.database,
         });
       } catch (error) {
-        console.log('Error parsing diagram file:', error);
         const message =
           error instanceof z.ZodError
             ? 'Failed to parse diagram file: Invalid diagram data.'

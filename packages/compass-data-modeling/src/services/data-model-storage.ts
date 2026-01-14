@@ -197,7 +197,6 @@ export const validateEdit = (
     EditSchema.parse(edit);
     return { result: true };
   } catch (e) {
-    console.log('Edit validation error:', e);
     return {
       result: false,
       errors: (e as z.ZodError).issues.map(({ path, message }) =>
