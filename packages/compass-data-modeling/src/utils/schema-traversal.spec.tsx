@@ -4,9 +4,10 @@ import {
   getFieldFromSchema,
   updateSchema,
   getSchemaWithNewTypes,
+  bulkUpdateSchema,
 } from './schema-traversal';
 import Sinon from 'sinon';
-import type { FieldPath } from '../services/data-model-storage';
+import type { FieldData, FieldPath } from '../services/data-model-storage';
 
 describe('traverseSchema', function () {
   let sandbox: Sinon.SinonSandbox;
@@ -1794,6 +1795,36 @@ describe('getSchemaWithNewTypes', function () {
         expect(result).not.to.have.property('anyOf');
         expect(result).to.deep.equal(oldSchema.anyOf[0]);
       });
+    });
+  });
+});
+
+describe.only('bulkUpdateSchema', function () {
+  it('applies update function to a all fields in a flat schema', function () {
+    const schema = {
+      bsonType: 'object',
+      required: ['name'],
+      properties: {
+        name: { bsonType: 'string' },
+        age: { bsonType: 'int' },
+      },
+    };
+    const result = bulkUpdateSchema({
+      jsonSchema: schema,
+      updateParameters: {
+        updateFn: (fieldSchema: FieldData) => ({
+          ...fieldSchema,
+          version: 'v2',
+        }),
+      },
+    });
+    expect(result).to.deep.equal({
+      bsonType: 'object',
+      required: ['name'],
+      properties: {
+        name: { bsonType: 'string', version: 'v2' },
+        age: { bsonType: 'int', version: 'v2' },
+      },
     });
   });
 });

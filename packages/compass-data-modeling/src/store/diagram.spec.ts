@@ -31,22 +31,14 @@ const model: StaticModel = {
       indexes: [],
       displayPosition: [0, 0],
       shardKey: {},
-      jsonSchema: { bsonType: 'object' },
-      expansionState: {
-        global: true,
-        overrides: new Set(),
-      },
+      fieldData: { bsonType: 'object' },
     },
     {
       ns: 'db.collection2',
       indexes: [],
       displayPosition: [1, 1],
       shardKey: {},
-      jsonSchema: { bsonType: 'object' },
-      expansionState: {
-        global: true,
-        overrides: new Set(),
-      },
+      fieldData: { bsonType: 'object' },
     },
   ],
   relationships: [
@@ -98,21 +90,13 @@ describe('Data Modeling store', function () {
         collections: [
           {
             ns: 'db.collection1',
-            schema: model.collections[0].jsonSchema,
+            schema: model.collections[0].fieldData,
             position: { x: 0, y: 0 },
-            expansionState: {
-              global: true,
-              overrides: new Set(),
-            },
           },
           {
             ns: 'db.collection2',
-            schema: model.collections[1].jsonSchema,
+            schema: model.collections[1].fieldData,
             position: { x: 0, y: 0 },
-            expansionState: {
-              global: true,
-              overrides: new Set(),
-            },
           },
         ],
         relations: model.relationships,
@@ -135,12 +119,12 @@ describe('Data Modeling store', function () {
       >;
       expect(initialEdit.model.collections[0]).to.deep.include({
         ns: newDiagram.collections[0].ns,
-        jsonSchema: newDiagram.collections[0].schema,
+        fieldData: newDiagram.collections[0].schema,
         displayPosition: [0, 0],
       });
       expect(initialEdit.model.collections[1]).to.deep.include({
         ns: newDiagram.collections[1].ns,
-        jsonSchema: newDiagram.collections[1].schema,
+        fieldData: newDiagram.collections[1].schema,
         displayPosition: [0, 0],
       });
       expect(initialEdit.model.relationships).to.deep.equal(
@@ -175,11 +159,7 @@ describe('Data Modeling store', function () {
               indexes: [],
               displayPosition: [0, 0],
               shardKey: {},
-              jsonSchema: { bsonType: 'object' },
-              expansionState: {
-                global: true,
-                overrides: new Set(),
-              },
+              fieldData: { bsonType: 'object' },
             },
           ] as StaticModel['collections'],
           relationships: [] as StaticModel['relationships'],
@@ -506,17 +486,13 @@ describe('Data Modeling store', function () {
                 indexes: [],
                 displayPosition: [0, 0],
                 shardKey: {},
-                jsonSchema: {
+                fieldData: {
                   bsonType: 'object',
                   properties: {
                     field1: { bsonType: 'string' },
                     field2: { bsonType: 'int' },
                     field3: { bsonType: 'int' },
                   },
-                },
-                expansionState: {
-                  global: true,
-                  overrides: new Set(),
                 },
               },
             ],
@@ -544,11 +520,7 @@ describe('Data Modeling store', function () {
                 indexes: [],
                 displayPosition: [0, 0],
                 shardKey: {},
-                expansionState: {
-                  global: true,
-                  overrides: new Set(),
-                },
-                jsonSchema: {
+                fieldData: {
                   bsonType: 'object',
                   properties: {
                     prop1: { bsonType: 'string' },

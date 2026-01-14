@@ -6,10 +6,6 @@ export const FieldPathSchema = z.array(z.string());
 
 export type FieldPath = z.output<typeof FieldPathSchema>;
 
-export const FieldSchema = z.custom<MongoDBJSONSchema>();
-
-export type FieldSchema = z.output<typeof FieldSchema>;
-
 export const RelationshipSideSchema = z.object({
   ns: z.string().nullable(),
   cardinality: z.number(),
@@ -34,24 +30,45 @@ export const InitialExpansionState = {
   overrides: new Set<string>(),
 };
 
-const ExpansionStateSchema = z.object({
-  global: z.boolean().default(DEFAULT_IS_EXPANDED),
-  overrides: z.set(z.string()),
-});
-export type ExpansionState = z.output<typeof ExpansionStateSchema>;
+export type FieldData = Exclude<
+  MongoDBJSONSchema,
+  'properties' | 'items' | 'anyOf'
+> & {
+  properties?: Record<string, FieldData>;
+  items?: FieldData | FieldData[];
+  anyOf?: FieldData[];
+  expanded?: boolean;
+};
 
-const CollectionSchema = z.object({
-  ns: z.string(),
-  jsonSchema: z.custom<MongoDBJSONSchema>((value) => {
-    const isObject = typeof value === 'object' && value !== null;
-    return isObject && 'bsonType' in value;
-  }),
-  indexes: z.array(z.record(z.unknown())),
-  shardKey: z.record(z.unknown()).optional(),
-  displayPosition: z.tuple([z.number(), z.number()]),
-  note: z.string().optional(),
-  expansionState: ExpansionStateSchema.default(InitialExpansionState),
+const FieldDataSchema = z.custom<FieldData>((value) => {
+  const isObject = typeof value === 'object' && value !== null;
+  return isObject && 'bsonType' in value;
 });
+
+const CollectionSchema = z.preprocess(
+  (val) => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { expanded, expansionState, jsonSchema, ...rest } = val as Record<
+      string,
+      unknown
+    >;
+    const collection = {
+      ...rest,
+    };
+    if (jsonSchema) {
+      collection.fieldData = jsonSchema;
+    }
+    return collection;
+  },
+  z.object({
+    ns: z.string(),
+    fieldData: FieldDataSchema,
+    indexes: z.array(z.record(z.unknown())),
+    shardKey: z.record(z.unknown()).optional(),
+    displayPosition: z.tuple([z.number(), z.number()]),
+    note: z.string().optional(),
+  })
+);
 
 export type DataModelCollection = z.output<typeof CollectionSchema>;
 
@@ -129,14 +146,14 @@ const EditSchemaVariants = z.discriminatedUnion('type', [
     type: z.literal('ChangeFieldType'),
     ns: z.string(),
     field: FieldPathSchema,
-    from: FieldSchema,
-    to: FieldSchema,
+    from: FieldDataSchema,
+    to: FieldDataSchema,
   }),
   z.object({
     type: z.literal('AddField'),
     ns: z.string(),
     field: FieldPathSchema,
-    jsonSchema: FieldSchema,
+    jsonSchema: FieldDataSchema,
   }),
   z.object({
     type: z.literal('DuplicateField'),
@@ -149,7 +166,7 @@ const EditSchemaVariants = z.discriminatedUnion('type', [
     targetNS: z.string(),
     targetField: FieldPathSchema,
     field: FieldPathSchema,
-    jsonSchema: z.custom<MongoDBJSONSchema>(),
+    jsonSchema: FieldDataSchema,
   }),
   z.object({
     type: z.literal('ToggleExpandCollection'),
@@ -188,6 +205,7 @@ export const validateEdit = (
     EditSchema.parse(edit);
     return { result: true };
   } catch (e) {
+    console.log('Edit validation error:', e);
     return {
       result: false,
       errors: (e as z.ZodError).issues.map(({ path, message }) =>

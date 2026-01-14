@@ -272,7 +272,6 @@ const DiagramContent: React.FunctionComponent<{
         selected,
         isInRelationshipDrawingMode,
         relationships,
-        expansionState: coll.expansionState,
       });
     });
   }, [

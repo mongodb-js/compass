@@ -237,16 +237,16 @@ export default connect(
   ) => {
     const diagram = getCurrentDiagramFromState(state);
     const model = selectCurrentModel(diagram.edits);
-    const collectionSchema = model.collections.find(
+    const fieldData = model.collections.find(
       (collection) => collection.ns === ownProps.namespace
-    )?.jsonSchema;
-    if (!collectionSchema) {
+    )?.fieldData;
+    if (!fieldData) {
       throw new Error('Collection not found');
     }
     return {
       types:
         getFieldFromSchema({
-          jsonSchema: collectionSchema,
+          jsonSchema: fieldData,
           fieldPath: ownProps.fieldPath,
         })?.fieldTypes ?? [],
       fieldPaths: selectFieldsForCurrentModel(diagram.edits)[

@@ -4,10 +4,7 @@ import type { DataModelingThunkAction } from './reducer';
 import { analyzeDocuments, type MongoDBJSONSchema } from 'mongodb-schema';
 import { getCurrentDiagramFromState } from './diagram';
 import { UUID } from 'bson';
-import {
-  type ExpansionState,
-  type Relationship,
-} from '../services/data-model-storage';
+import { type Relationship } from '../services/data-model-storage';
 import { applyLayout } from '@mongodb-js/compass-components';
 import {
   collectionToBaseNodeForLayout,
@@ -87,7 +84,6 @@ export type AnalysisFinishedAction = {
     ns: string;
     schema: MongoDBJSONSchema;
     position: { x: number; y: number };
-    expansionState: ExpansionState;
   }[];
   relations: Relationship[];
 };
@@ -195,7 +191,6 @@ async function getInitialLayout({
   collections: {
     ns: string;
     schema: MongoDBJSONSchema;
-    expansionState: ExpansionState;
   }[];
   relations: Relationship[];
 }) {
@@ -203,9 +198,8 @@ async function getInitialLayout({
   const nodes = collections.map((coll) => {
     return collectionToBaseNodeForLayout({
       ns: coll.ns,
-      jsonSchema: coll.schema,
+      fieldData: coll.schema,
       displayPosition: [0, 0],
-      expansionState: coll.expansionState,
     });
   });
   return await applyLayout({
@@ -296,7 +290,7 @@ export function startAnalysis(
             type: AnalysisProcessActionTypes.NAMESPACE_SCHEMA_ANALYZED,
           });
 
-          return { ns, schema, sample, expansionState };
+          return { ns, schema, sample };
         })
       );
 
@@ -374,6 +368,8 @@ export function startAnalysis(
           ? relations.length
           : undefined,
       });
+
+      console.log('New diagram', getCurrentDiagramFromState(getState()));
 
       void dataModelStorage.save(getCurrentDiagramFromState(getState()));
     } catch (err) {

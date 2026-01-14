@@ -4,11 +4,11 @@ import { isAction } from './util';
 import type {
   DataModelCollection,
   EditAction,
+  FieldData,
   FieldPath,
   Relationship,
 } from '../services/data-model-storage';
 import {
-  InitialExpansionState,
   validateEdit,
   type Edit,
   type MongoDBDataModelDescription,
@@ -27,7 +27,6 @@ import {
   getDiagramContentsFromFile,
   getDiagramName,
 } from '../services/open-and-download-diagram';
-import type { MongoDBJSONSchema } from 'mongodb-schema';
 import { collectionToBaseNodeForLayout } from '../utils/nodes-and-edges';
 import {
   getFieldFromSchema,
@@ -188,14 +187,13 @@ export const diagramReducer: Reducer<DiagramState> = (
             model: {
               collections: action.collections.map((collection) => ({
                 ns: collection.ns,
-                jsonSchema: collection.schema,
+                fieldData: collection.schema,
                 displayPosition: [
                   collection.position.x,
                   collection.position.y,
                 ] as const,
                 indexes: [],
                 shardKey: undefined,
-                expansionState: collection.expansionState,
               })),
               relationships: action.relations,
             },
@@ -536,7 +534,7 @@ export function onAddNestedField(
       // Use the first unique field name we can use.
       field: [
         ...parentFieldPath,
-        getNewUnusedFieldName(collection.jsonSchema, parentFieldPath),
+        getNewUnusedFieldName(collection.fieldData, parentFieldPath),
       ],
       jsonSchema: {
         bsonType: 'string',
@@ -570,7 +568,7 @@ export function addNewFieldToCollection(
       type: 'AddField',
       ns,
       // Use the first unique field name we can use.
-      field: [getNewUnusedFieldName(collection.jsonSchema)],
+      field: [getNewUnusedFieldName(collection.fieldData)],
       jsonSchema: {
         bsonType: 'string',
       },
@@ -877,12 +875,12 @@ export function changeFieldType({
   source: 'side_panel' | 'diagram';
 }): DataModelingThunkAction<void, ApplyEditAction | RevertFailedEditAction> {
   return (dispatch, getState, { track }) => {
-    const collectionSchema = selectCurrentModelFromState(
-      getState()
-    ).collections.find((collection) => collection.ns === ns)?.jsonSchema;
-    if (!collectionSchema) throw new Error('Collection not found in model');
+    const fieldData = selectCurrentModelFromState(getState()).collections.find(
+      (collection) => collection.ns === ns
+    )?.fieldData;
+    if (!fieldData) throw new Error('Collection not found in model');
     const field = getFieldFromSchema({
-      jsonSchema: collectionSchema,
+      jsonSchema: fieldData,
       fieldPath: fieldPath,
     });
     if (!field) throw new Error('Field not found in schema');
@@ -916,9 +914,8 @@ function getPositionForNewCollection(
   );
   const newNode = collectionToBaseNodeForLayout({
     ns: newCollection.ns,
-    jsonSchema: newCollection.jsonSchema,
+    fieldData: newCollection.fieldData,
     displayPosition: [0, 0],
-    expansionState: newCollection.expansionState,
   });
   const xyposition = getCoordinatesForNewNode(existingNodes, newNode);
   return [xyposition.x, xyposition.y];
@@ -955,9 +952,8 @@ export function addCollection(
     if (!position) {
       position = getPositionForNewCollection(existingCollections, {
         ns,
-        jsonSchema: {} as MongoDBJSONSchema,
+        fieldData: {} as FieldData,
         indexes: [],
-        expansionState: InitialExpansionState,
       });
     }
 
@@ -1051,7 +1047,7 @@ export const selectCurrentModelFromState = (state: DataModelingState) => {
   return selectCurrentModel(selectCurrentDiagramFromState(state).edits);
 };
 
-function extractFieldsFromSchema(parentSchema: MongoDBJSONSchema): FieldPath[] {
+function extractFieldsFromFieldData(parentSchema: FieldData): FieldPath[] {
   const fields: FieldPath[] = [];
   traverseSchema({
     jsonSchema: parentSchema,
@@ -1068,7 +1064,7 @@ function getFieldsForCurrentModel(
   const model = selectCurrentModel(edits);
   const fields = Object.fromEntries(
     model.collections.map((collection) => {
-      return [collection.ns, extractFieldsFromSchema(collection.jsonSchema)];
+      return [collection.ns, extractFieldsFromFieldData(collection.fieldData)];
     })
   );
   return fields;

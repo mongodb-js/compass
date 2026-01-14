@@ -1,14 +1,19 @@
 import {
+  DEFAULT_IS_EXPANDED,
+  type FieldData,
   type DataModelCollection,
   type Edit,
   type Relationship,
   type StaticModel,
 } from '../services/data-model-storage';
-import { updateSchema } from '../utils/schema-traversal';
+import {
+  bulkUpdateSchema,
+  getFieldFromSchema,
+  updateSchema,
+} from '../utils/schema-traversal';
 import {
   isRelationshipInvolvingField,
   isSameFieldOrAncestor,
-  serializeFieldPath,
 } from '../utils/utils';
 
 function renameFieldInRelationshipSide(
@@ -58,7 +63,7 @@ export function applyEdit(edit: Edit, model?: StaticModel): StaticModel {
     case 'AddCollection': {
       const newCollection: DataModelCollection = {
         ns: edit.ns,
-        jsonSchema: edit.initialSchema,
+        fieldData: edit.initialSchema,
         displayPosition: edit.position,
         indexes: [],
       };
@@ -195,8 +200,8 @@ export function applyEdit(edit: Edit, model?: StaticModel): StaticModel {
           if (collection.ns === edit.ns) {
             return {
               ...collection,
-              jsonSchema: updateSchema({
-                jsonSchema: collection.jsonSchema,
+              fieldData: updateSchema({
+                jsonSchema: collection.fieldData,
                 fieldPath: edit.field.slice(0, -1),
                 updateParameters: {
                   update: 'addField',
@@ -226,8 +231,8 @@ export function applyEdit(edit: Edit, model?: StaticModel): StaticModel {
           if (collection.ns !== edit.ns) return collection;
           return {
             ...collection,
-            jsonSchema: updateSchema({
-              jsonSchema: collection.jsonSchema,
+            fieldData: updateSchema({
+              jsonSchema: collection.fieldData,
               fieldPath: edit.field,
               updateParameters: { update: 'removeField' },
             }),
@@ -258,8 +263,8 @@ export function applyEdit(edit: Edit, model?: StaticModel): StaticModel {
           if (collection.ns !== edit.ns) return collection;
           return {
             ...collection,
-            jsonSchema: updateSchema({
-              jsonSchema: collection.jsonSchema,
+            fieldData: updateSchema({
+              jsonSchema: collection.fieldData,
               fieldPath: edit.field,
               updateParameters: {
                 update: 'renameField',
@@ -278,8 +283,8 @@ export function applyEdit(edit: Edit, model?: StaticModel): StaticModel {
           if (collection.ns !== edit.ns) return collection;
           return {
             ...collection,
-            jsonSchema: updateSchema({
-              jsonSchema: collection.jsonSchema,
+            fieldData: updateSchema({
+              jsonSchema: collection.fieldData,
               fieldPath: edit.field,
               updateParameters: {
                 update: 'changeFieldSchema',
@@ -300,33 +305,43 @@ export function applyEdit(edit: Edit, model?: StaticModel): StaticModel {
           }
           return {
             ...collection,
-            expansionState: {
-              global: edit.expanded,
-              overrides: new Set(),
-            },
+            fieldData: bulkUpdateSchema({
+              jsonSchema: collection.fieldData,
+              updateParameters: {
+                updateFn: (fieldSchema: FieldData) => ({
+                  ...fieldSchema,
+                  expanded: edit.expanded,
+                }),
+              },
+            }),
           };
         }),
       };
     }
     case 'ToggleExpandField': {
       assertCollectionExists(model.collections, edit.ns);
+      const fieldSchema = getFieldFromSchema({
+        jsonSchema: model.collections.find((c) => c.ns === edit.ns)!.fieldData,
+        fieldPath: edit.field,
+      })?.jsonSchema;
+      const isExpanded = fieldSchema?.expanded ?? DEFAULT_IS_EXPANDED;
       return {
         ...model,
         collections: model.collections.map((collection) => {
           if (collection.ns !== edit.ns) return collection;
-          const overrides = new Set(collection.expansionState.overrides);
-          const fieldPath = serializeFieldPath(edit.field);
-          if (!overrides.has(fieldPath)) {
-            overrides.add(fieldPath);
-          } else {
-            overrides.delete(fieldPath);
-          }
           return {
             ...collection,
-            expansionState: {
-              ...collection.expansionState,
-              overrides,
-            },
+            fieldData: updateSchema({
+              jsonSchema: collection.fieldData,
+              fieldPath: edit.field,
+              updateParameters: {
+                update: 'changeFieldSchema',
+                newFieldSchema: {
+                  ...fieldSchema,
+                  expanded: !isExpanded,
+                },
+              },
+            }),
           };
         }),
       };

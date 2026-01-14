@@ -25,11 +25,7 @@ describe('DiagramCard', () => {
                 indexes: [],
                 displayPosition: [0, 0],
                 shardKey: {},
-                jsonSchema: { bsonType: 'object' },
-                expansionState: {
-                  global: true,
-                  overrides: new Set(),
-                },
+                fieldData: { bsonType: 'object' },
               },
             ],
             relationships: [],

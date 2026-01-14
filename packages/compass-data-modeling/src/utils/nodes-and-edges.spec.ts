@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import {
-  getExtendedFieldsFromSchema,
+  getExtendedFields,
   relationshipToDiagramEdge,
 } from './nodes-and-edges';
 import { type Relationship } from '../services/data-model-storage';
@@ -8,13 +8,13 @@ import { type Relationship } from '../services/data-model-storage';
 describe('getFieldsFromSchema', function () {
   describe('flat schema', function () {
     it('return empty array for empty schema', function () {
-      const result = getExtendedFieldsFromSchema({ jsonSchema: {} });
+      const result = getExtendedFields({ fieldData: {} });
       expect(result).to.deep.equal([]);
     });
 
     it('returns fields for a simple schema, with non editable _id', function () {
-      const result = getExtendedFieldsFromSchema({
-        jsonSchema: {
+      const result = getExtendedFields({
+        fieldData: {
           bsonType: 'object',
           properties: {
             _id: { bsonType: 'objectId' },
@@ -64,8 +64,8 @@ describe('getFieldsFromSchema', function () {
     });
 
     it('returns mixed fields', function () {
-      const result = getExtendedFieldsFromSchema({
-        jsonSchema: {
+      const result = getExtendedFields({
+        fieldData: {
           bsonType: 'object',
           properties: {
             age: { bsonType: ['int', 'string'] },
@@ -87,8 +87,8 @@ describe('getFieldsFromSchema', function () {
     });
 
     it('highlights the correct field', function () {
-      const result = getExtendedFieldsFromSchema({
-        jsonSchema: {
+      const result = getExtendedFields({
+        fieldData: {
           bsonType: 'object',
           properties: {
             name: { bsonType: 'string' },
@@ -139,8 +139,8 @@ describe('getFieldsFromSchema', function () {
     });
 
     it('highlights multiple fields', function () {
-      const result = getExtendedFieldsFromSchema({
-        jsonSchema: {
+      const result = getExtendedFields({
+        fieldData: {
           bsonType: 'object',
           properties: {
             name: { bsonType: 'string' },
@@ -193,8 +193,8 @@ describe('getFieldsFromSchema', function () {
 
   describe('nested schema', function () {
     it('returns fields for a nested schema', function () {
-      const result = getExtendedFieldsFromSchema({
-        jsonSchema: {
+      const result = getExtendedFields({
+        fieldData: {
           bsonType: 'object',
           properties: {
             person: {
@@ -278,8 +278,8 @@ describe('getFieldsFromSchema', function () {
     });
 
     it('highlights a field for a nested schema', function () {
-      const result = getExtendedFieldsFromSchema({
-        jsonSchema: {
+      const result = getExtendedFields({
+        fieldData: {
           bsonType: 'object',
           properties: {
             person: {
@@ -364,8 +364,8 @@ describe('getFieldsFromSchema', function () {
     });
 
     it('highlights multiple fields for a nested schema', function () {
-      const result = getExtendedFieldsFromSchema({
-        jsonSchema: {
+      const result = getExtendedFields({
+        fieldData: {
           bsonType: 'object',
           properties: {
             person: {
@@ -496,8 +496,8 @@ describe('getFieldsFromSchema', function () {
     });
 
     it('returns fields for an array of objects', function () {
-      const result = getExtendedFieldsFromSchema({
-        jsonSchema: {
+      const result = getExtendedFields({
+        fieldData: {
           bsonType: 'object',
           properties: {
             todos: {
@@ -554,8 +554,8 @@ describe('getFieldsFromSchema', function () {
     });
 
     it('returns fields for a mixed schema with objects', function () {
-      const result = getExtendedFieldsFromSchema({
-        jsonSchema: {
+      const result = getExtendedFields({
+        fieldData: {
           bsonType: 'object',
           properties: {
             name: {
@@ -613,8 +613,8 @@ describe('getFieldsFromSchema', function () {
     });
 
     it('returns fields for an array of mixed (including objects)', function () {
-      const result = getExtendedFieldsFromSchema({
-        jsonSchema: {
+      const result = getExtendedFields({
+        fieldData: {
           bsonType: 'object',
           properties: {
             todos: {
