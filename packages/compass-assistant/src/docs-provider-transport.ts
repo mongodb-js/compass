@@ -70,7 +70,6 @@ export class DocsProviderTransport implements ChatTransport<AssistantMessage> {
 
     const result = streamText({
       model: this.model,
-      stopWhen: stepCountIs(5),
       messages: await (lastMessage.metadata?.sendWithoutHistory
         ? convertToModelMessages([lastMessage])
         : convertToModelMessages(filteredMessages)),
