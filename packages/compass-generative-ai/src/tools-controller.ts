@@ -162,11 +162,7 @@ export class ToolsController {
       };
     }
 
-    if (this.toolGroups.has('db-read')) {
-      if (!this.runner.server) {
-        throw new Error('MCP server is not started');
-      }
-
+    if (this.toolGroups.has('db-read') && this.runner.server) {
       if (this.runner.server.tools.length === 0) {
         this.runner.server.registerTools();
       }
