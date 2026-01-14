@@ -198,16 +198,14 @@ describe('ToolsController', function () {
         toolsController.setActiveTools(new Set(['db-read']));
       });
 
-      it('throws error when server is not started', function () {
+      it('ignores db tools if the server is not started', function () {
         const newController = new ToolsController({
           logger,
           getTelemetryAnonymousId,
         });
         newController.setActiveTools(new Set(['db-read']));
 
-        expect(() => newController.getActiveTools()).to.throw(
-          'MCP server is not started'
-        );
+        expect(newController.getActiveTools()).to.be.empty;
       });
 
       it('includes readonly database tools', function () {

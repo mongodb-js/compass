@@ -1,6 +1,5 @@
 import React, { useCallback, useContext } from 'react';
 import {
-  Badge,
   css,
   DrawerSection,
   Icon,
@@ -84,7 +83,6 @@ export const CompassAssistantDrawer: React.FunctionComponent<{
         <div className={assistantTitleStyles}>
           <div className={assistantTitleTextWrapperStyles}>
             <span className={assistantTitleTextStyles}>MongoDB Assistant</span>
-            <Badge variant="blue">Preview</Badge>
           </div>
           <ClearChatButton chat={chat} />
         </div>
