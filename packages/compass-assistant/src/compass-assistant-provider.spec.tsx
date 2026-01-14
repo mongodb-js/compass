@@ -366,6 +366,7 @@ describe('CompassAssistantProvider', function () {
       toolsController,
       hasNonGenuineConnections,
       enableToolCalling = true,
+      enableGenAIToolCallingAtlasProject = true,
       enableGenAIToolCalling = true,
       query,
       pipeline,
@@ -379,6 +380,7 @@ describe('CompassAssistantProvider', function () {
       toolsController?: Partial<ToolsController>;
       hasNonGenuineConnections?: boolean;
       enableToolCalling?: boolean;
+      enableGenAIToolCallingAtlasProject?: boolean;
       enableGenAIToolCalling?: boolean;
       query?: string;
       pipeline?: string;
@@ -408,6 +410,7 @@ describe('CompassAssistantProvider', function () {
             enableGenAIFeaturesAtlasOrg: true,
             cloudFeatureRolloutAccess: { GEN_AI_COMPASS: true },
             enableToolCalling,
+            enableGenAIToolCallingAtlasProject,
             enableGenAIToolCalling,
           },
         }
@@ -609,7 +612,73 @@ describe('CompassAssistantProvider', function () {
       expect(screen.queryByText('Hello assistant!')).to.not.exist;
     });
 
-    it('disables tools if toolCalling feature is enabled and enableGenAIToolCalling setting is disabled', async function () {
+    it('disables tools if enableToolCalling and enableGenAIToolCalling are enabled, but enableGenAIToolCallingAtlasProject is disabled', async function () {
+      const mockChat = new Chat<AssistantMessage>({
+        messages: [
+          {
+            id: 'assistant',
+            role: 'assistant',
+            parts: [{ type: 'text', text: 'Hello user!' }],
+          },
+        ],
+      });
+
+      const sendMessageSpy = sinon.spy(mockChat, 'sendMessage');
+
+      const mockToolsController = {
+        setActiveTools: sinon.stub(),
+        getActiveTools: sinon.stub(),
+        setContext: sinon.stub(),
+        startServer: sinon.stub().resolves(),
+        stopServer: sinon.stub().resolves(),
+        setConnectionIdForToolCall: sinon.stub(),
+      };
+
+      const query = 'This is a fake query';
+      const pipeline = 'This is a fake aggregation';
+
+      await renderOpenAssistantDrawer({
+        chat: mockChat,
+        toolsController: mockToolsController,
+        enableToolCalling: true,
+        enableGenAIToolCalling: true,
+        enableGenAIToolCallingAtlasProject: false,
+        query,
+        pipeline,
+      });
+
+      const input = screen.getByPlaceholderText('Ask a question');
+      const sendButton = screen.getByLabelText('Send message');
+
+      userEvent.type(input, 'Hello assistant');
+      userEvent.click(sendButton);
+
+      await waitFor(() => {
+        expect(sendMessageSpy.calledOnce).to.be.true;
+        expect(sendMessageSpy.firstCall.args[0]).to.deep.include({
+          text: 'Hello assistant',
+        });
+      });
+
+      const contextMessages = mockChat.messages.filter(
+        (message) => message.metadata?.isSystemContext
+      );
+      expect(contextMessages).to.have.lengthOf(1);
+
+      expect(mockToolsController.setActiveTools.callCount).to.equal(1);
+      expect(
+        mockToolsController.setActiveTools.firstCall.args[0]
+      ).to.deep.equal(new Set([]));
+
+      expect(mockToolsController.setContext.callCount).to.equal(1);
+      expect(mockToolsController.setContext.firstCall.args[0]).to.deep.equal({
+        connections: [],
+        query,
+        pipeline,
+      });
+    });
+
+    it('disables tools if enableToolCalling and enableGenAIToolCallingAtlasProject are enabled but enableGenAIToolCalling setting is disabled', async function () {
       const mockChat = new Chat<AssistantMessage>({
         messages: [
           {
@@ -674,7 +743,7 @@ describe('CompassAssistantProvider', function () {
       });
     });
 
-    it('enables tools if toolCalling feature is enabled and enableGenAIToolCalling setting is enabled', async function () {
+    it('enables tools if enableToolCalling, enableGenAIToolCallingAtlasProject and enableGenAIToolCalling are all enabled', async function () {
       const mockChat = new Chat<AssistantMessage>({
         messages: [
           {

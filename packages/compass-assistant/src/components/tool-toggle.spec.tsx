@@ -14,6 +14,7 @@ describe('ToolToggle', function () {
     it('shows disabled icon when tool calling is disabled', function () {
       render(<ToolToggle />, {
         preferences: {
+          enableGenAIToolCallingAtlasProject: true,
           enableGenAIToolCalling: false,
         },
       });
@@ -27,6 +28,7 @@ describe('ToolToggle', function () {
     it('shows active icon when tool calling is enabled', function () {
       render(<ToolToggle />, {
         preferences: {
+          enableGenAIToolCallingAtlasProject: true,
           enableGenAIToolCalling: true,
         },
       });
@@ -42,6 +44,7 @@ describe('ToolToggle', function () {
     it('opens popover when button is clicked', async function () {
       render(<ToolToggle />, {
         preferences: {
+          enableGenAIToolCallingAtlasProject: true,
           enableGenAIToolCalling: false,
         },
       });
@@ -59,6 +62,7 @@ describe('ToolToggle', function () {
     it('displays the toggle switch in the popover', async function () {
       render(<ToolToggle />, {
         preferences: {
+          enableGenAIToolCallingAtlasProject: true,
           enableGenAIToolCalling: false,
         },
       });
@@ -76,6 +80,7 @@ describe('ToolToggle', function () {
     it('displays the Learn more link', async function () {
       render(<ToolToggle />, {
         preferences: {
+          enableGenAIToolCallingAtlasProject: true,
           enableGenAIToolCalling: false,
         },
       });
@@ -97,6 +102,7 @@ describe('ToolToggle', function () {
     it('displays all available tools in the list', async function () {
       render(<ToolToggle />, {
         preferences: {
+          enableGenAIToolCallingAtlasProject: true,
           enableGenAIToolCalling: false,
         },
       });
@@ -114,9 +120,31 @@ describe('ToolToggle', function () {
   });
 
   describe('preference toggling', function () {
+    it('toggle switch is disabled if enableGenAIToolCallingAtlasProject is false', async function () {
+      render(<ToolToggle />, {
+        preferences: {
+          enableGenAIToolCallingAtlasProject: false,
+          enableGenAIToolCalling: true,
+        },
+      });
+
+      const button = screen.getByTestId('tool-toggle-button');
+      userEvent.click(button);
+
+      await waitFor(() => {
+        const toggle = screen.getByTestId('tool-toggle-switch');
+        expect(toggle).to.exist;
+        expect(toggle.getAttribute('aria-disabled')).to.equal('true');
+
+        // and also unchecked even though enableGenAIToolCalling is true
+        expect(toggle.getAttribute('aria-checked')).to.equal('false');
+      });
+    });
+
     it('toggle switch reflects current preference state - disabled', async function () {
       render(<ToolToggle />, {
         preferences: {
+          enableGenAIToolCallingAtlasProject: true,
           enableGenAIToolCalling: false,
         },
       });
@@ -134,6 +162,7 @@ describe('ToolToggle', function () {
     it('toggle switch reflects current preference state - enabled', async function () {
       render(<ToolToggle />, {
         preferences: {
+          enableGenAIToolCallingAtlasProject: true,
           enableGenAIToolCalling: true,
         },
       });
@@ -151,6 +180,7 @@ describe('ToolToggle', function () {
     it('clicking toggle switch enables tool calling when disabled', async function () {
       const { preferences } = render(<ToolToggle />, {
         preferences: {
+          enableGenAIToolCallingAtlasProject: true,
           enableGenAIToolCalling: false,
         },
       });
@@ -179,6 +209,7 @@ describe('ToolToggle', function () {
     it('clicking toggle switch disables tool calling when enabled', async function () {
       const { preferences } = render(<ToolToggle />, {
         preferences: {
+          enableGenAIToolCallingAtlasProject: true,
           enableGenAIToolCalling: true,
         },
       });
@@ -207,6 +238,7 @@ describe('ToolToggle', function () {
     it('updates button icon after preference is toggled', async function () {
       const { preferences } = render(<ToolToggle />, {
         preferences: {
+          enableGenAIToolCallingAtlasProject: true,
           enableGenAIToolCalling: false,
         },
       });
