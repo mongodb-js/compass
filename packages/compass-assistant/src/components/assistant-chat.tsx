@@ -16,6 +16,7 @@ import {
   palette,
   useDarkMode,
   Icon,
+  usePersistedState,
 } from '@mongodb-js/compass-components';
 import { ConfirmationMessage } from './confirmation-message';
 import { ToolCallMessage } from './tool-call-message';
@@ -32,6 +33,7 @@ import { useAssistantGlobalState } from '../assistant-global-state';
 import type { WorkspaceTab } from '@mongodb-js/workspace-info';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
 import { ToolToggle } from './tool-toggle';
+import { ToolsIntroCard } from './tools-intro-card';
 import { usePreference } from 'compass-preferences-model/provider';
 import { useToolsController } from '@mongodb-js/compass-generative-ai/provider';
 
@@ -229,6 +231,9 @@ const toolToggleContainerStyles = css({
   paddingRight: spacing[50],
 });
 
+const DISMISSED_ASSISTANT_TOOLS_INTRO_LOCAL_STORAGE_KEY =
+  'mongodb_compass_dismissedAssistantToolsIntro' as const;
+
 function lastMessageIsEmpty(messages: AssistantMessage[]): boolean {
   if (messages.length === 0) {
     return true;
@@ -255,6 +260,8 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
   const track = useTelemetry();
   const darkMode = useDarkMode();
   const isToolCallingEnabled = usePreference('enableToolCalling');
+  const [dismissedAssistantToolsIntro, setDismissedAssistantToolsIntro] =
+    usePersistedState(DISMISSED_ASSISTANT_TOOLS_INTRO_LOCAL_STORAGE_KEY, false);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const previousLastMessageId = useRef<string | undefined>(undefined);
   const { id: lastMessageId, role: lastMessageRole } =
@@ -502,6 +509,10 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
     [addToolApprovalResponse, toolsController, track]
   );
 
+  const handleDismissIntroCard = useCallback(() => {
+    setDismissedAssistantToolsIntro(true);
+  }, [setDismissedAssistantToolsIntro]);
+
   const visibleMessages = messages.filter(
     (message) => !message.metadata?.isSystemContext
   );
@@ -681,6 +692,10 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
             </div>
           )}
           <SuggestedPrompts chat={chat} onMessageSend={handleMessageSend} />
+
+          {!dismissedAssistantToolsIntro && messages.length === 0 && (
+            <ToolsIntroCard onDismiss={handleDismissIntroCard} />
+          )}
 
           <InputBar
             data-testid="assistant-chat-input"
