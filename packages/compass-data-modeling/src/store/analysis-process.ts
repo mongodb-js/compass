@@ -385,7 +385,7 @@ export function startAnalysis(
         });
         track('Data Modeling Diagram Creation Cancelled', {
           num_collections: collections.length,
-          analysis_time_ms: Date.now() - analysisStartTime,
+          analysis_time_ms,
         });
       } else {
         logger.log.error(
@@ -401,7 +401,7 @@ export function startAnalysis(
         });
         track('Data Modeling Diagram Creation Failed', {
           num_collections: collections.length,
-          analysis_time_ms: Date.now() - analysisStartTime,
+          analysis_time_ms,
         });
       }
     } finally {
