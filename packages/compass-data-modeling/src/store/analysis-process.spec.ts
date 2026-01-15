@@ -123,7 +123,7 @@ describe('analysis-process', function () {
             getMockedCollection('db.collection3'),
             getMockedCollection('db.collection4'),
           ],
-          relationships
+          [...model.relationships, ...relationships]
         );
         expect(newModel.collections).to.have.lengthOf(4);
         expect(newModel.relationships).to.deep.equal(relationships);
@@ -153,7 +153,7 @@ describe('analysis-process', function () {
             getMockedCollection('db.collection3'),
             getMockedCollection('db.collection4'),
           ],
-          relationships
+          [...model.relationships, ...relationships]
         );
         expect(newModel.collections).to.have.lengthOf(4);
         expect(newModel.relationships).to.deep.equal([
@@ -187,7 +187,7 @@ describe('analysis-process', function () {
             getMockedCollection('db.collection2'),
             getMockedCollection('db.collection3'),
           ],
-          relationships
+          [...model.relationships, ...relationships]
         );
         expect(newModel.collections).to.have.lengthOf(3);
         expect(newModel.relationships).to.deep.equal([]);
@@ -213,7 +213,7 @@ describe('analysis-process', function () {
             getMockedCollection('db.collection3'),
             getMockedCollection('db.collection4'),
           ],
-          relationships
+          [...model.relationships, ...relationships]
         );
         expect(newModel.collections).to.have.lengthOf(4);
         // Added via dispatch (createNewRelationship)
@@ -247,7 +247,7 @@ describe('analysis-process', function () {
         const newModel = getModelFromReanalysis(
           edits as Edit[],
           collections,
-          []
+          model.relationships
         );
         expect(newModel.relationships).to.deep.equal(model.relationships);
 
@@ -267,7 +267,7 @@ describe('analysis-process', function () {
         const newModel = getModelFromReanalysis(
           edits as Edit[],
           collections,
-          []
+          model.relationships
         );
         expect(newModel.relationships).to.deep.equal(model.relationships);
 
@@ -295,7 +295,7 @@ describe('analysis-process', function () {
         const newModel = getModelFromReanalysis(
           edits as Edit[],
           collections,
-          []
+          model.relationships
         );
         expect(newModel.relationships).to.deep.equal(model.relationships);
         expect(newModel.collections).to.have.lengthOf(4);
