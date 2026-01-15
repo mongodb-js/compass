@@ -119,22 +119,24 @@ const getExpansionStatus = ({
   if (isExpanded) return true;
   if (
     selectedField &&
-    isSameFieldOrAncestor(fieldPath, selectedField.slice(0, -1))
+    isSameFieldOrAncestor(fieldPath, selectedField) &&
+    fieldPath.length < selectedField.length
   ) {
-    console.log('expanding for selected field', selectedField, fieldPath);
     // this field is an ancestor of the selected field - we expand it to ensure the selected field is visible
     return true;
   }
   if (
     highlightedFields &&
-    highlightedFields.some((highlightedField: FieldPath) =>
-      isSameFieldOrAncestor(fieldPath, highlightedField.slice(0, -1))
+    highlightedFields.some(
+      (highlightedField: FieldPath) =>
+        isSameFieldOrAncestor(fieldPath, highlightedField) &&
+        fieldPath.length < highlightedField.length
     )
   ) {
     // this field is an ancestor of a highlighted field - we expand it to ensure the highlighted field is visible
     return true;
   }
-  return false;
+  return isExpanded;
 };
 
 export const getExtendedFields = ({
