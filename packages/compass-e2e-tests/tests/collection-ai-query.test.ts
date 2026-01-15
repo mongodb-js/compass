@@ -1,99 +1,78 @@
 import { expect } from 'chai';
 
 import type { CompassBrowser } from '../helpers/compass-browser';
-import { startTelemetryServer } from '../helpers/telemetry';
-import type { Telemetry } from '../helpers/telemetry';
 import {
   init,
   cleanup,
   screenshotIfFailed,
-  skipForWeb,
-  TEST_COMPASS_WEB,
   DEFAULT_CONNECTION_NAME_1,
+  screenshotPathName,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
 import { createNumbersCollection } from '../helpers/insert-data';
-import { startMockAtlasServiceServer } from '../helpers/atlas-service';
-import type { MockAtlasServerResponse } from '../helpers/atlas-service';
+import { startMockAssistantServer } from '../helpers/assistant-service';
 
-describe('Collection ai query', function () {
+async function setup(
+  browser: CompassBrowser,
+  dbName: string,
+  collName: string
+) {
+  await createNumbersCollection();
+  await browser.setupDefaultConnections();
+  await browser.connectToDefaults();
+  await browser.navigateToCollectionTab(
+    DEFAULT_CONNECTION_NAME_1,
+    dbName,
+    collName,
+    'Documents'
+  );
+
+  await browser.setFeature('enableGenAIFeatures', true);
+  await browser.setFeature('enableGenAISampleDocumentPassing', true);
+  await browser.setFeature('optInGenAIFeatures', true);
+}
+
+describe('Collection ai query (with mocked backend)', function () {
+  const dbName = 'test';
+  const collName = 'numbers';
   let compass: Compass;
   let browser: CompassBrowser;
-  let telemetry: Telemetry;
-  let setMockAtlasServerResponse: (response: MockAtlasServerResponse) => void;
-  let stopMockAtlasServer: () => Promise<void>;
-  let getRequests: () => any[];
-  let clearRequests: () => void;
+
+  let mockAssistantServer: Awaited<ReturnType<typeof startMockAssistantServer>>;
 
   before(async function () {
-    skipForWeb(this, 'ai queries not yet available in compass-web');
-
-    process.env.COMPASS_E2E_SKIP_AI_OPT_IN = 'true';
-
-    // Start a mock server to pass an ai response.
-    const {
-      endpoint,
-      getRequests: _getRequests,
-      clearRequests: _clearRequests,
-      setMockAtlasServerResponse: _setMockAtlasServerResponse,
-      stop,
-    } = await startMockAtlasServiceServer();
-
-    stopMockAtlasServer = stop;
-    getRequests = _getRequests;
-    clearRequests = _clearRequests;
-    setMockAtlasServerResponse = _setMockAtlasServerResponse;
-
-    process.env.COMPASS_ATLAS_SERVICE_UNAUTH_BASE_URL_OVERRIDE = endpoint;
-
-    telemetry = await startTelemetryServer();
+    mockAssistantServer = await startMockAssistantServer();
     compass = await init(this.test?.fullTitle());
     browser = compass.browser;
-    await browser.setupDefaultConnections();
-  });
 
-  beforeEach(async function () {
-    await createNumbersCollection();
-    await browser.disconnectAll();
-    await browser.connectToDefaults();
-    await browser.navigateToCollectionTab(
-      DEFAULT_CONNECTION_NAME_1,
-      'test',
-      'numbers',
-      'Documents'
+    await browser.setEnv(
+      'COMPASS_ASSISTANT_BASE_URL_OVERRIDE',
+      mockAssistantServer.endpoint
     );
   });
 
   after(async function () {
-    if (TEST_COMPASS_WEB) {
-      return;
-    }
-
-    await stopMockAtlasServer();
-
-    delete process.env.COMPASS_E2E_SKIP_AI_OPT_IN;
-
+    await mockAssistantServer.stop();
     await cleanup(compass);
-    await telemetry.stop();
   });
 
   afterEach(async function () {
-    clearRequests();
     await screenshotIfFailed(compass, this.currentTest);
+    try {
+      mockAssistantServer.clearRequests();
+    } catch (err) {
+      await browser.screenshot(screenshotPathName('afterEach-GenAi-Query'));
+      throw err;
+    }
   });
 
   describe('when the ai model response is valid', function () {
-    beforeEach(function () {
-      setMockAtlasServerResponse({
+    beforeEach(async function () {
+      await setup(browser, dbName, collName);
+      mockAssistantServer.setResponse({
         status: 200,
-        body: {
-          content: {
-            query: {
-              filter: '{i: {$gt: 50}}',
-            },
-          },
-        },
+        body: '<filter>{i: {$gt: 50}}</filter>',
       });
     });
 
@@ -116,25 +95,30 @@ describe('Collection ai query', function () {
         const queryBarFilterContent = await browser.getCodemirrorEditorText(
           Selectors.queryBarOptionInputFilter('Documents')
         );
-        return queryBarFilterContent === '{i: {$gt: 50}}';
+        return queryBarFilterContent === '{i:{$gt:50}}';
       });
 
       // Check that the request was made with the correct parameters.
-      const requests = getRequests();
+      const requests = mockAssistantServer.getRequests();
       expect(requests.length).to.equal(1);
 
       const queryRequest = requests[0];
-      const queryURL = new URL(
-        queryRequest.req.url,
-        `http://${queryRequest.req.headers.host}`
+      expect(queryRequest.req.headers).to.have.property('x-client-request-id');
+      expect(queryRequest.req.headers).to.have.property('entrypoint');
+      expect(queryRequest.content.model).to.equal('mongodb-slim-latest');
+      expect(queryRequest.content.instructions).to.be.a('string');
+      expect(queryRequest.content.metadata).to.have.property('userId');
+      expect(queryRequest.content.metadata.store).to.have.equal('true');
+      expect(queryRequest.content.metadata.sensitiveStorage).to.have.equal(
+        'sensitive'
       );
-      expect([...new Set(queryURL.searchParams.keys())].length).to.equal(1);
-      const requestId = queryURL.searchParams.get('request_id');
-      expect((requestId?.match(/-/g) || []).length).to.equal(4); // Is uuid like.
-      expect(queryRequest.content.userInput).to.equal(testUserInput);
-      expect(queryRequest.content.collectionName).to.equal('numbers');
-      expect(queryRequest.content.databaseName).to.equal('test');
-      expect(queryRequest.content.schema).to.exist;
+      expect(queryRequest.content.input).to.be.an('array').of.length(1);
+
+      const message = queryRequest.content.input[0];
+      expect(message.role).to.equal('user');
+      expect(message.content).to.be.an('array').of.length(1);
+      expect(message.content[0]).to.have.property('type');
+      expect(message.content[0]).to.have.property('text');
 
       // Run it and check that the correct documents are shown.
       await browser.runFind('Documents', true);
@@ -143,13 +127,12 @@ describe('Collection ai query', function () {
     });
   });
 
-  describe('when the Atlas service request errors', function () {
-    beforeEach(function () {
-      setMockAtlasServerResponse({
+  describe('when the chatbot api request errors', function () {
+    beforeEach(async function () {
+      await setup(browser, dbName, collName);
+      mockAssistantServer.setResponse({
         status: 500,
-        body: {
-          content: 'error',
-        },
+        body: '',
       });
     });
 

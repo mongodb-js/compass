@@ -38,13 +38,13 @@ async function closeTab(
 
       if (autoConfirmTabClose) {
         // Tabs in "dirty" state can't be closed without confirmation
-        if (await browser.$(Selectors.ConfirmTabCloseModal).isExisting()) {
+        if (await browser.isModalOpen(Selectors.ConfirmTabCloseModal)) {
           await browser.clickVisible(
             browser.$(Selectors.ConfirmTabCloseModal).$('button=Close tab')
           );
-          await browser
-            .$(Selectors.ConfirmTabCloseModal)
-            .waitForDisplayed({ reverse: true });
+          await browser.waitForOpenModal(Selectors.ConfirmTabCloseModal, {
+            reverse: true,
+          });
         }
       }
       return (

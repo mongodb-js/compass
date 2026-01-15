@@ -7,6 +7,7 @@ import {
 
 import {
   Body,
+  Button,
   DropdownMenuButton,
   Icon,
   IconButton,
@@ -21,10 +22,12 @@ import {
   useContextMenuGroups,
   usePersistedState,
   AtlasSkillsBanner,
+  Tooltip,
+  WorkspaceContainer,
 } from '@mongodb-js/compass-components';
 import type { MenuAction, Signal } from '@mongodb-js/compass-components';
 import { ViewSwitcher } from './view-switcher';
-import type { DocumentView } from '../stores/crud-store';
+import { type DocumentView } from '../stores/crud-store';
 import { AddDataMenu } from './add-data-menu';
 import { usePreference } from 'compass-preferences-model/provider';
 import UpdateMenu from './update-data-menu';
@@ -74,6 +77,13 @@ const exportCollectionButtonStyles = css({
   whiteSpace: 'nowrap',
 });
 
+const exportCodeButtonTextStyles = css({
+  [`@container ${WorkspaceContainer.toolbarContainerQueryName} (width < ${DOCUMENT_NARROW_ICON_BREAKPOINT})`]:
+    {
+      display: 'none',
+    },
+});
+
 const outputOptionsButtonStyles = css({
   whiteSpace: 'nowrap',
 });
@@ -85,6 +95,12 @@ const docsPerPageOptionStyles = css({
 const loaderContainerStyles = css({
   paddingLeft: spacing[200],
   paddingRight: spacing[200],
+});
+
+const countUnavailableTextStyles = css({
+  textDecoration: 'underline',
+  textDecorationStyle: 'dotted',
+  textUnderlineOffset: '3px',
 });
 
 type ExportDataOption = 'export-query' | 'export-full-collection';
@@ -109,6 +125,9 @@ const ERROR_CODE_OPERATION_TIMED_OUT = 50;
 const INCREASE_MAX_TIME_MS_HINT =
   'Operation exceeded time limit. Please try increasing the maxTimeMS for the query in the expanded filter options.';
 
+const countUnavailableTooltipText = (maxTimeMS: number) =>
+  `The count is not available for this query. This can happen when the count operation fails or exceeds the maxTimeMS of ${maxTimeMS}.`;
+
 type ErrorWithPossibleCode = Error & {
   code?: {
     value: number;
@@ -132,6 +151,7 @@ export type CrudToolbarProps = {
   instanceDescription: string;
   isWritable: boolean;
   isFetching: boolean;
+  lastCountRunMaxTimeMS: number;
   loadingCount: boolean;
   onApplyClicked: () => void;
   onResetClicked: () => void;
@@ -140,6 +160,7 @@ export type CrudToolbarProps = {
   onExpandAllClicked: () => void;
   onCollapseAllClicked: () => void;
   openExportFileDialog: (exportFullCollection?: boolean) => void;
+  onOpenExportToLanguage: () => void;
   outdated: boolean;
   page: number;
   readonly: boolean;
@@ -164,6 +185,7 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
   instanceDescription,
   isWritable,
   isFetching,
+  lastCountRunMaxTimeMS,
   loadingCount,
   onApplyClicked,
   onResetClicked,
@@ -172,6 +194,7 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
   onExpandAllClicked,
   onCollapseAllClicked,
   openExportFileDialog,
+  onOpenExportToLanguage,
   outdated,
   page,
   readonly,
@@ -196,11 +219,6 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
   // @experiment Skills in Atlas  | Jira Epic: CLOUDP-346311
   const { shouldShowAtlasSkillsBanner } = useAtlasSkillsBanner(
     SkillsBannerContextEnum.Documents
-  );
-
-  const displayedDocumentCount = useMemo(
-    () => (loadingCount ? '' : `${count ?? 'N/A'}`),
-    [loadingCount, count]
   );
 
   const onClickRefreshDocuments = useCallback(() => {
@@ -352,22 +370,6 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
               instanceDescription={instanceDescription}
             />
           )}
-          {isImportExportEnabled && (
-            <DropdownMenuButton<ExportDataOption>
-              data-testid="crud-export-collection"
-              actions={exportDataActions}
-              onAction={(action: ExportDataOption) =>
-                openExportFileDialog(action === 'export-full-collection')
-              }
-              buttonText="Export Data"
-              buttonProps={{
-                className: exportCollectionButtonStyles,
-                size: 'xsmall',
-                leftGlyph: <Icon glyph="Export" />,
-              }}
-              narrowBreakpoint={DOCUMENT_NARROW_ICON_BREAKPOINT}
-            />
-          )}
           {!readonly && (
             <UpdateMenu
               isWritable={isWritable && !shouldDisableBulkOp}
@@ -390,10 +392,38 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
               onClick={onDeleteButtonClicked}
             ></DeleteMenu>
           )}
+          {isImportExportEnabled && (
+            <DropdownMenuButton<ExportDataOption>
+              data-testid="crud-export-collection"
+              actions={exportDataActions}
+              onAction={(action: ExportDataOption) =>
+                openExportFileDialog(action === 'export-full-collection')
+              }
+              buttonText="Export Data"
+              buttonProps={{
+                className: exportCollectionButtonStyles,
+                size: 'xsmall',
+                leftGlyph: <Icon glyph="Export" />,
+              }}
+              narrowBreakpoint={DOCUMENT_NARROW_ICON_BREAKPOINT}
+            />
+          )}
+          <Button
+            onClick={onOpenExportToLanguage}
+            title="Export query to language"
+            aria-label="Export query to language"
+            data-testid="crud-export-to-language-button"
+            className={exportCollectionButtonStyles}
+            size="xsmall"
+            leftGlyph={<Icon glyph="Code" />}
+          >
+            <span className={exportCodeButtonTextStyles}>Export Code</span>
+          </Button>
           {insights && <SignalPopover signals={insights} />}
         </div>
         <div className={toolbarRightActionStyles}>
           <Select
+            data-testid="crud-document-per-page-selector"
             size="xsmall"
             disabled={isFetching}
             allowDeselect={false}
@@ -416,7 +446,27 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
           </Select>
           <Body data-testid="crud-document-count-display">
             {start} – {end}{' '}
-            {displayedDocumentCount && `of ${displayedDocumentCount}`}
+            {!loadingCount && (
+              <span>
+                {'of '}
+                {count ?? (
+                  <Tooltip
+                    trigger={
+                      <span
+                        data-testid="crud-document-count-unavailable"
+                        className={countUnavailableTextStyles}
+                      >
+                        N/A
+                      </span>
+                    }
+                  >
+                    <Body>
+                      {countUnavailableTooltipText(lastCountRunMaxTimeMS)}
+                    </Body>
+                  </Tooltip>
+                )}
+              </span>
+            )}
           </Body>
           {loadingCount && (
             <div className={loaderContainerStyles}>

@@ -43,18 +43,26 @@ export const initialState: AIPipelineState = {
   isAggregationGeneratedFromQuery: false,
 };
 
-export const enum AIPipelineActionTypes {
-  AIPipelineStarted = 'compass-aggregations/pipeline-builder/pipeline-ai/AIPipelineStarted',
-  AIPipelineCancelled = 'compass-aggregations/pipeline-builder/pipeline-ai/AIPipelineCancelled',
-  AIPipelineFailed = 'compass-aggregations/pipeline-builder/pipeline-ai/AIPipelineFailed',
-  CancelAIPipelineGeneration = 'compass-aggregations/pipeline-builder/pipeline-ai/CancelAIPipelineGeneration',
-  resetIsAggregationGeneratedFromQuery = 'compass-aggregations/pipeline-builder/pipeline-ai/resetIsAggregationGeneratedFromQuery',
-  ShowInput = 'compass-aggregations/pipeline-builder/pipeline-ai/ShowInput',
-  HideInput = 'compass-aggregations/pipeline-builder/pipeline-ai/HideInput',
-  ChangeAIPromptText = 'compass-aggregations/pipeline-builder/pipeline-ai/ChangeAIPromptText',
-  LoadGeneratedPipeline = 'compass-aggregations/pipeline-builder/pipeline-ai/LoadGeneratedPipeline',
-  PipelineGeneratedFromQuery = 'compass-aggregations/pipeline-builder/pipeline-ai/PipelineGeneratedFromQuery',
-}
+export const AIPipelineActionTypes = {
+  AIPipelineStarted:
+    'compass-aggregations/pipeline-builder/pipeline-ai/AIPipelineStarted',
+  AIPipelineCancelled:
+    'compass-aggregations/pipeline-builder/pipeline-ai/AIPipelineCancelled',
+  AIPipelineFailed:
+    'compass-aggregations/pipeline-builder/pipeline-ai/AIPipelineFailed',
+  CancelAIPipelineGeneration:
+    'compass-aggregations/pipeline-builder/pipeline-ai/CancelAIPipelineGeneration',
+  resetIsAggregationGeneratedFromQuery:
+    'compass-aggregations/pipeline-builder/pipeline-ai/resetIsAggregationGeneratedFromQuery',
+  ShowInput: 'compass-aggregations/pipeline-builder/pipeline-ai/ShowInput',
+  HideInput: 'compass-aggregations/pipeline-builder/pipeline-ai/HideInput',
+  ChangeAIPromptText:
+    'compass-aggregations/pipeline-builder/pipeline-ai/ChangeAIPromptText',
+  LoadGeneratedPipeline:
+    'compass-aggregations/pipeline-builder/pipeline-ai/LoadGeneratedPipeline',
+  PipelineGeneratedFromQuery:
+    'compass-aggregations/pipeline-builder/pipeline-ai/PipelineGeneratedFromQuery',
+} as const;
 
 const NUM_DOCUMENTS_TO_SAMPLE = 4;
 
@@ -78,15 +86,15 @@ function cleanupAbortSignal(id: string) {
 }
 
 type ShowInputAction = {
-  type: AIPipelineActionTypes.ShowInput;
+  type: typeof AIPipelineActionTypes.ShowInput;
 };
 
 type HideInputAction = {
-  type: AIPipelineActionTypes.HideInput;
+  type: typeof AIPipelineActionTypes.HideInput;
 };
 
 type ChangeAIPromptTextAction = {
-  type: AIPipelineActionTypes.ChangeAIPromptText;
+  type: typeof AIPipelineActionTypes.ChangeAIPromptText;
   text: string;
 };
 
@@ -96,7 +104,7 @@ export const changeAIPromptText = (text: string): ChangeAIPromptTextAction => ({
 });
 
 export type LoadGeneratedPipelineAction = {
-  type: AIPipelineActionTypes.LoadGeneratedPipeline;
+  type: typeof AIPipelineActionTypes.LoadGeneratedPipeline;
   pipelineText: string;
   pipeline: Document[] | null;
   syntaxErrors: PipelineParserError[];
@@ -133,19 +141,19 @@ export const generateAggregationFromQuery = ({
 };
 
 type AIPipelineStartedAction = {
-  type: AIPipelineActionTypes.AIPipelineStarted;
+  type: typeof AIPipelineActionTypes.AIPipelineStarted;
   requestId: string;
 };
 
 type AIPipelineFailedAction = {
-  type: AIPipelineActionTypes.AIPipelineFailed;
+  type: typeof AIPipelineActionTypes.AIPipelineFailed;
   errorMessage: string;
   statusCode?: number;
   errorCode?: string;
 };
 
 export type PipelineGeneratedFromQueryAction = {
-  type: AIPipelineActionTypes.PipelineGeneratedFromQuery;
+  type: typeof AIPipelineActionTypes.PipelineGeneratedFromQuery;
   text: string;
   stages: Stage[];
   pipelineText: string;
@@ -217,6 +225,7 @@ export const runAIPipelineGeneration = (
       logger: { log, mongoLogId },
       track,
       connectionInfoRef,
+      collection,
     }
   ) => {
     const {
@@ -278,6 +287,9 @@ export const runAIPipelineGeneration = (
           }
         )) || [];
       const schema = await getSimplifiedSchema(sampleDocuments);
+      const { isFLE } = await collection.fetchMetadata({
+        dataService: dataService!,
+      });
 
       const { collection: collectionName, database: databaseName } =
         toNS(namespace);
@@ -295,6 +307,7 @@ export const runAIPipelineGeneration = (
               }
             : undefined),
           requestId,
+          enableStorage: !isFLE,
         },
         connectionInfo
       );
@@ -409,7 +422,7 @@ export const runAIPipelineGeneration = (
 };
 
 type CancelAIPipelineGenerationAction = {
-  type: AIPipelineActionTypes.CancelAIPipelineGeneration;
+  type: typeof AIPipelineActionTypes.CancelAIPipelineGeneration;
 };
 
 export const cancelAIPipelineGeneration = (): PipelineBuilderThunkAction<
@@ -431,7 +444,7 @@ export const cancelAIPipelineGeneration = (): PipelineBuilderThunkAction<
 };
 
 type ResetIsAggregationGeneratedFromQueryAction = {
-  type: AIPipelineActionTypes.resetIsAggregationGeneratedFromQuery;
+  type: typeof AIPipelineActionTypes.resetIsAggregationGeneratedFromQuery;
 };
 
 export const resetIsAggregationGeneratedFromQuery =

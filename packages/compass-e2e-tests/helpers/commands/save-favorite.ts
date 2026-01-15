@@ -20,6 +20,5 @@ export async function saveFavorite(
   });
 
   await browser.clickVisible(Selectors.ConnectionModalSaveButton);
-  await browser.$(Selectors.ConnectionModal).waitForExist({ reverse: true });
-  return;
+  await browser.waitForOpenModal(Selectors.ConnectionModal, { reverse: true });
 }

@@ -19,7 +19,7 @@ const indexTypeToIndexSelectOption: Record<IndexType, string> = {
   '-1': '-1 (desc)',
   '2dsphere': '2dsphere',
   text: 'text (full text search)',
-};
+} as const;
 
 export async function createIndex(
   browser: CompassBrowser,
@@ -51,15 +51,14 @@ export async function createIndex(
   } else {
     await browser.clickVisible(Selectors.CreateIndexButton);
   }
-  const createModal = browser.$(Selectors.CreateIndexModal);
-  await createModal.waitForDisplayed();
+
+  await browser.waitForOpenModal(Selectors.CreateIndexModal);
 
   // Select / type field name
-  await browser.setValueVisible(
+  await browser.setComboBoxValue(
     Selectors.createIndexModalFieldNameSelectInput(createRowIndex),
     fieldName
   );
-  await browser.keys(['Enter']);
 
   // Select field type
   const fieldTypeSelect = browser.$(
@@ -115,7 +114,7 @@ export async function createIndex(
   await browser.clickVisible(Selectors.CreateIndexConfirmButton);
 
   // Assert that modal goes away
-  await createModal.waitForDisplayed({ reverse: true });
+  await browser.waitForOpenModal(Selectors.CreateIndexModal, { reverse: true });
 
   // Assert that index does come in table
   const indexComponentSelector = Selectors.indexComponent(indexName);

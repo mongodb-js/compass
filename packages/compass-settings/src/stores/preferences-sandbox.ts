@@ -15,12 +15,18 @@ export class PreferencesSandbox {
     }
     return this._sandbox;
   }
+  private preferences: Pick<
+    PreferencesAccess,
+    'createSandbox' | 'getPreferences' | 'savePreferences'
+  >;
   constructor(
-    private preferences: Pick<
+    preferences: Pick<
       PreferencesAccess,
       'createSandbox' | 'getPreferences' | 'savePreferences'
     >
-  ) {}
+  ) {
+    this.preferences = preferences;
+  }
 
   async setupSandbox() {
     this._sandbox = await this.preferences.createSandbox();

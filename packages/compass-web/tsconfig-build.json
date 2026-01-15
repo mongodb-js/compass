@@ -1,5 +1,10 @@
 {
   "extends": "./tsconfig.json",
+  "compilerOptions": {
+    // reversing options that are not relevant for the build
+    "allowImportingTsExtensions": false,
+    "noEmit": false
+  },
   "include": ["src/**/*"],
   "exclude": ["./src/**/*.spec.*"]
 }

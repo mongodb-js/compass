@@ -70,7 +70,7 @@ const COLOR_CODES_TO_UI_COLORS_DARK_THEME_MAP: Record<ColorCode, string> = {
   color8: palette.purple.light2,
   color9: palette.gray.base,
   color10: palette.gray.light1,
-};
+} as const;
 
 export const COLOR_CODE_TO_NAME: Record<ColorCode, string> = {
   color1: 'Green',
@@ -83,7 +83,7 @@ export const COLOR_CODE_TO_NAME: Record<ColorCode, string> = {
   color8: 'Orange',
   color9: 'Yellow',
   color10: 'Gray',
-};
+} as const;
 
 export const CONNECTION_COLOR_CODES = Object.keys(
   COLOR_CODES_TO_UI_COLORS_DARK_THEME_MAP

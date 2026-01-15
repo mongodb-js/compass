@@ -168,6 +168,7 @@ export type ExecutionOptions = {
 
 export type ExplainExecuteOptions = ExecutionOptions & {
   explainVerbosity?: keyof typeof ExplainVerbosity;
+  maxTimeMS?: number;
 };
 
 export type SampleOptions = {
@@ -375,10 +376,12 @@ export interface DataService {
    *
    * @param databaseName - The database name.
    * @param collectionName - The collection name.
+   * @param collectionType - The collection type ('collection', 'view', or 'timeseries').
    */
   collectionStats(
     databaseName: string,
-    collectionName: string
+    collectionName: string,
+    collectionType: 'collection' | 'view' | 'timeseries'
   ): Promise<CollectionStats>;
 
   /**
@@ -1182,56 +1185,88 @@ class DataServiceImpl extends WithLogContext implements DataService {
   })
   async collectionStats(
     databaseName: string,
-    collectionName: string
+    collectionName: string,
+    collectionType: 'collection' | 'view' | 'timeseries'
   ): Promise<CollectionStats> {
     const ns = `${databaseName}.${collectionName}`;
 
     try {
       const coll = this._collection(ns, 'CRUD');
+
+      // Build the aggregation pipeline dynamically based on collection type
+      const groupStage: {
+        _id: null;
+        capped: { $first: string };
+        count: { $sum: string };
+        size: { $sum: { $toDouble: string } };
+        storageSize: { $sum: { $toDouble: string } };
+        totalIndexSize: { $sum: { $toDouble: string } };
+        freeStorageSize: { $sum: { $toDouble: string } };
+        unscaledCollSize: { $sum: { $multiply: unknown[] } };
+        nindexes: { $max: string };
+        timeseriesBucketCount?: { $first: string };
+        timeseriesAvgBucketSize?: { $first: string };
+      } = {
+        _id: null,
+        capped: { $first: '$storageStats.capped' },
+        count: { $sum: '$storageStats.count' },
+        size: { $sum: { $toDouble: '$storageStats.size' } },
+        storageSize: {
+          $sum: { $toDouble: '$storageStats.storageSize' },
+        },
+        totalIndexSize: {
+          $sum: { $toDouble: '$storageStats.totalIndexSize' },
+        },
+        freeStorageSize: {
+          $sum: { $toDouble: '$storageStats.freeStorageSize' },
+        },
+        unscaledCollSize: {
+          $sum: {
+            $multiply: [
+              { $toDouble: '$storageStats.avgObjSize' },
+              { $toDouble: '$storageStats.count' },
+            ],
+          },
+        },
+        nindexes: { $max: '$storageStats.nindexes' },
+      };
+
+      // Only extract bucket statistics for time series collections
+      if (collectionType === 'timeseries') {
+        groupStage.timeseriesBucketCount = {
+          $first: '$storageStats.timeseries.bucketCount',
+        };
+        groupStage.timeseriesAvgBucketSize = {
+          $first: '$storageStats.timeseries.avgBucketSize',
+        };
+      }
+
+      const addFieldsStage: Record<string, unknown> = {
+        // `avgObjSize` is the average of per-shard `avgObjSize` weighted by `count`
+        __proto__: null,
+        avgObjSize: {
+          $cond: {
+            if: { $ne: ['$count', 0] },
+            then: {
+              $divide: ['$unscaledCollSize', { $toDouble: '$count' }],
+            },
+            else: 0,
+          },
+        },
+      };
+
+      // Only calculate bucket stats for time series collections
+      if (collectionType === 'timeseries') {
+        addFieldsStage.bucket_count = '$timeseriesBucketCount';
+        addFieldsStage.avg_bucket_size = '$timeseriesAvgBucketSize';
+      }
+
       const collStats = await coll
         .aggregate(
           [
             { $collStats: { storageStats: {} } },
-            {
-              $group: {
-                _id: null,
-                capped: { $first: '$storageStats.capped' },
-                count: { $sum: '$storageStats.count' },
-                size: { $sum: { $toDouble: '$storageStats.size' } },
-                storageSize: {
-                  $sum: { $toDouble: '$storageStats.storageSize' },
-                },
-                totalIndexSize: {
-                  $sum: { $toDouble: '$storageStats.totalIndexSize' },
-                },
-                freeStorageSize: {
-                  $sum: { $toDouble: '$storageStats.freeStorageSize' },
-                },
-                unscaledCollSize: {
-                  $sum: {
-                    $multiply: [
-                      { $toDouble: '$storageStats.avgObjSize' },
-                      { $toDouble: '$storageStats.count' },
-                    ],
-                  },
-                },
-                nindexes: { $max: '$storageStats.nindexes' },
-              },
-            },
-            {
-              $addFields: {
-                // `avgObjSize` is the average of per-shard `avgObjSize` weighted by `count`
-                avgObjSize: {
-                  $cond: {
-                    if: { $ne: ['$count', 0] },
-                    then: {
-                      $divide: ['$unscaledCollSize', { $toDouble: '$count' }],
-                    },
-                    else: 0,
-                  },
-                },
-              },
-            },
+            { $group: groupStage },
+            { $addFields: addFieldsStage },
           ],
           { enableUtf8Validation: false }
         )
@@ -2084,7 +2119,10 @@ class DataServiceImpl extends WithLogContext implements DataService {
           ...options,
           session,
         });
-        const results = await cursor.explain(verbosity);
+        const results = await cursor.explain({
+          verbosity,
+          maxTimeMS: executionOptions?.maxTimeMS,
+        });
         void cursor.close();
         return results;
       },
@@ -2116,7 +2154,10 @@ class DataServiceImpl extends WithLogContext implements DataService {
           ...options,
           session,
         });
-        const results = await cursor.explain(verbosity);
+        const results = await cursor.explain({
+          verbosity,
+          maxTimeMS: executionOptions?.maxTimeMS,
+        });
         void cursor.close();
         return results;
       },
@@ -2995,6 +3036,8 @@ class DataServiceImpl extends WithLogContext implements DataService {
       free_storage_size: data.freeStorageSize ?? 0,
       index_count: data.nindexes ?? 0,
       index_size: data.totalIndexSize ?? 0,
+      bucket_count: data.bucket_count,
+      avg_bucket_size: data.avg_bucket_size,
     };
   }
 

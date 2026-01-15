@@ -7,9 +7,12 @@ type WindowWithIntercomGlobals = Window &
     attachEvent?: (...args: any[]) => any;
   };
 
-export enum IntercomTrackingEvent {
-  submittedNlPrompt = 'submitted-nl-prompt',
-}
+export const IntercomTrackingEvents = {
+  submittedNlPrompt: 'submitted-nl-prompt',
+} as const;
+
+export type IntercomTrackingEvent =
+  (typeof IntercomTrackingEvents)[keyof typeof IntercomTrackingEvents];
 
 export function intercomTrack(
   event: IntercomTrackingEvent,

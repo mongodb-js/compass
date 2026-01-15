@@ -1,6 +1,6 @@
 {
   "name": "@mongodb-js/eslint-config-compass",
-  "version": "1.4.12",
+  "version": "1.4.15",
   "description": "Shared Compass eslint configuration",
   "license": "SSPL",
   "main": "index.js",
@@ -16,10 +16,11 @@
   "dependencies": {
     "@babel/core": "^7.24.3",
     "@babel/eslint-parser": "^7.14.3",
-    "@mongodb-js/eslint-config-devtools": "^0.9.9",
-    "@mongodb-js/eslint-plugin-compass": "^1.2.17",
-    "@typescript-eslint/eslint-plugin": "^8.43.0",
-    "@typescript-eslint/parser": "^8.43.0",
+    "@mongodb-js/eslint-config-devtools": "^0.11.2",
+    "@mongodb-js/eslint-plugin-compass": "^1.2.20",
+    "@mongodb-js/eslint-plugin-devtools": "^0.3.2",
+    "@typescript-eslint/eslint-plugin": "^8.53.0",
+    "@typescript-eslint/parser": "^8.53.0",
     "eslint": "^8.57.1",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-chai-friendly": "^1.1.0",
@@ -27,7 +28,7 @@
     "eslint-plugin-jsx-a11y": "^6.10.2",
     "eslint-plugin-mocha": "^8.0.0",
     "eslint-plugin-react": "^7.37.5",
-    "eslint-plugin-react-hooks": "^5.2.0"
+    "eslint-plugin-react-hooks": "^7.0.1"
   },
   "scripts": {
     "prettier": "prettier-compass",

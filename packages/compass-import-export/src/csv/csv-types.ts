@@ -57,7 +57,9 @@ export const parsableFieldTypes = [
 ] as const;
 export type CSVParsableFieldType = (typeof parsableFieldTypes)[number];
 
-export const CSVFieldTypeLabels: Record<CSVParsableFieldType, string> = {
+export const CSVFieldTypeLabels: Readonly<
+  Record<CSVParsableFieldType, string>
+> = {
   int: 'Int32',
   long: 'Long',
   double: 'Double',

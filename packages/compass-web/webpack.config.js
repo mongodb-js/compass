@@ -95,7 +95,12 @@ module.exports = (env, args) => {
         // ),
 
         // Things that are easier to polyfill than to deal with their usage
+        'process/browser': require.resolve('process/browser'),
+        process: localPolyfill('process'),
+
+        'stream/promises': localPolyfill('stream/promises'),
         stream: require.resolve('readable-stream'),
+
         path: require.resolve('path-browserify'),
         // The `/` so that we are resolving the installed polyfill version with
         // the same name as Node.js built-in, not a built-in Node.js one
@@ -136,14 +141,30 @@ module.exports = (env, args) => {
         // "polyfill" that throws in module scope on import. See
         // https://github.com/mongodb/node-mongodb-native/blob/main/src/deps.ts
         // for the full list of dependencies that fall under that rule
+        'kerberos/package.json': localPolyfill('throwError'),
         kerberos: localPolyfill('throwError'),
+
         '@mongodb-js/zstd': localPolyfill('throwError'),
         '@aws-sdk/credential-providers': localPolyfill('throwError'),
         'gcp-metadata': localPolyfill('throwError'),
         snappy: localPolyfill('throwError'),
         socks: localPolyfill('throwError'),
         aws4: localPolyfill('throwError'),
+
+        'mongodb-client-encryption/package.json': localPolyfill('throwError'),
         'mongodb-client-encryption': localPolyfill('throwError'),
+
+        // We want to use the cjs dist instead of esm to make sure that no dynamic
+        // import code from mcp-server ends up in compass bundle
+        'mongodb-mcp-server': require.resolve('mongodb-mcp-server'),
+        // mongodb-mcp-server polyfills
+        // This is only used by StreamableHttpTransport which we do not use.
+        express: false,
+        http2: false,
+        // Only used by Atlas Local tools which we do not currently use.
+        '@mongodb-js/atlas-local': localPolyfill('throwError'),
+        // Only used by Atlas tools which we do not currently use.
+        'node-fetch': false,
       },
     },
     plugins: [
@@ -151,20 +172,10 @@ module.exports = (env, args) => {
         // Can be either `web` or `webdriverio`, helpful if we need special
         // behavior for tests in sandbox
         'process.env.APP_ENV': JSON.stringify(process.env.APP_ENV ?? 'web'),
-        ...(process.env.COMPASS_ASSISTANT_BASE_URL_OVERRIDE
-          ? {
-              'process.env.COMPASS_ASSISTANT_BASE_URL_OVERRIDE': JSON.stringify(
-                process.env.COMPASS_ASSISTANT_BASE_URL_OVERRIDE
-              ),
-            }
-          : {}),
-        ...(process.env.COMPASS_OVERRIDE_ENABLE_AI_FEATURES
-          ? {
-              'process.env.COMPASS_OVERRIDE_ENABLE_AI_FEATURES': JSON.stringify(
-                process.env.COMPASS_OVERRIDE_ENABLE_AI_FEATURES
-              ),
-            }
-          : {}),
+        // NB: DefinePlugin completely replaces matched string with a provided
+        // value, in most cases WE DO NOT WANT THAT and process variables in the
+        // code are added to be able to change them in runtime. Do not add new
+        // records unless you're super sure it's needed
       }),
 
       new webpack.ProvidePlugin({
@@ -172,6 +183,40 @@ module.exports = (env, args) => {
         // Required by the driver to function in browser environment
         process: [localPolyfill('process'), 'process'],
       }),
+
+      // Plugin to collect entrypoint filename information and save it in a
+      // manifest file
+      function (compiler) {
+        compiler.hooks.emit.tap('manifest', function (compilation) {
+          const stats = compilation.getStats().toJson({
+            all: false,
+            outputPath: true,
+            entrypoints: true,
+          });
+
+          if (!('index' in stats.entrypoints)) {
+            throw new Error('Missing expected entrypoint in the stats object');
+          }
+
+          const assets = JSON.stringify(
+            stats.entrypoints.index.assets
+              .map((asset) => {
+                return asset.name;
+              })
+              // The root entrypoint is at the end of the assets list, but
+              // we'd want to preload it first, reversing here puts the
+              // manifest list in the load order we want
+              .reverse(),
+            null,
+            2
+          );
+
+          compilation.emitAsset(
+            'assets-manifest.json',
+            new webpack.sources.RawSource(assets)
+          );
+        });
+      },
 
       // Only applied when running webpack in --watch mode. In this mode we want
       // to constantly rebuild d.ts files when source changes, we also don't
@@ -191,6 +236,36 @@ module.exports = (env, args) => {
             }
           });
         });
+      },
+
+      /**
+       * Plug into the normalModuleFactory to remove the `node:` schema from
+       * imports: webpack doesn't handle node: schema for web and doesn't allow
+       * to alias imports with the schema so we clean them up before we can get
+       * to the aliasing flow.
+       *
+       * @see {@link https://github.com/webpack/webpack/issues/14166}
+       */
+      function (compiler) {
+        compiler.hooks.normalModuleFactory.tap(
+          'RemoveNodeSchemaPlugin',
+          (factory) => {
+            factory.hooks.beforeResolve.tap(
+              'RemoveNodeSchemaPlugin',
+              (data) => {
+                // Remove the `node:` prefix and allow a "normal" webpack
+                // resolution mechanism to do the rest
+                if (data.request.startsWith('node:')) {
+                  data.request = data.request.replace('node:', '');
+                  for (const dep of data.dependencies) {
+                    dep.request = dep.request.replace('node:', '');
+                    dep.userRequest = dep.userRequest.replace('node:', '');
+                  }
+                }
+              }
+            );
+          }
+        );
       },
     ],
     performance: {
@@ -261,7 +336,9 @@ module.exports = (env, args) => {
   config.output = {
     path: config.output.path,
     filename: (pathData) => {
-      return pathData.chunk.hasEntryModule() ? 'compass-web.mjs' : '[name].mjs';
+      return pathData.chunk.hasEntryModule()
+        ? 'compass-web.mjs'
+        : '[name].[contenthash].mjs';
     },
     library: {
       type: 'module',

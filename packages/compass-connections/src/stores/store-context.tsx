@@ -42,6 +42,7 @@ import {
 import { createServiceLocator } from '@mongodb-js/compass-app-registry';
 import { isEqual } from 'lodash';
 import type { ImportConnectionOptions } from '@mongodb-js/connection-storage/provider';
+import { useInitialValue } from '@mongodb-js/compass-components';
 
 type ConnectionsStore = ReturnType<typeof configureStore> extends Store<
   infer S,
@@ -210,14 +211,14 @@ export function useConnectionsListRef(): {
 function useConnections() {
   const actions = useConnectionActions();
   const connectionsListRef = useConnectionsListRef();
-  return useRef({
+  return useInitialValue({
     ...actions,
     ...connectionsListRef,
     getDataServiceForConnection,
     on: connectionsEventEmitter.on,
     off: connectionsEventEmitter.off,
     removeListener: connectionsEventEmitter.removeListener,
-  }).current;
+  });
 }
 
 export type ConnectionsService = ReturnType<typeof useConnections>;

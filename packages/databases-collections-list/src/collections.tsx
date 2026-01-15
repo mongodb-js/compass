@@ -41,7 +41,7 @@ const CollectionBadges: React.FunctionComponent = ({ children }) => {
 
 const collectionBadgeStyles = css({
   gap: spacing[100],
-  'white-space': 'nowrap',
+  whiteSpace: 'nowrap',
 });
 
 const viewOnStyles = css({
@@ -142,8 +142,31 @@ function collectionPropertyToBadge(
       };
     case 'capped':
       return { id, name: id, variant: 'darkgray' };
-    case 'timeseries':
-      return { id, name: id, variant: 'darkgray', icon: 'TimeSeries' };
+    case 'timeseries': {
+      let hint: React.ReactNode = undefined;
+      if (
+        collection.bucket_count !== undefined ||
+        collection.avg_bucket_size !== undefined
+      ) {
+        hint = (
+          <>
+            {collection.bucket_count !== undefined && (
+              <div>
+                <strong>Bucket count:</strong>{' '}
+                {compactNumber(collection.bucket_count)}
+              </div>
+            )}
+            {collection.avg_bucket_size !== undefined && (
+              <div>
+                <strong>Avg. bucket size:</strong>{' '}
+                {compactBytes(collection.avg_bucket_size)}
+              </div>
+            )}
+          </>
+        );
+      }
+      return { id, name: id, variant: 'darkgray', icon: 'TimeSeries', hint };
+    }
     case 'fle2':
       return {
         id,
@@ -415,7 +438,7 @@ function collectionColumns({
         }
 
         const type = collection.type as string;
-        if (type === 'view' || type === 'timeseries') {
+        if (type === 'view') {
           return '-';
         }
 
@@ -436,7 +459,7 @@ function collectionColumns({
           return <Placeholder maxChar={10}></Placeholder>;
         }
 
-        if (collection.type === 'view' || collection.type === 'timeseries') {
+        if (collection.type === 'view') {
           return '-';
         }
 

@@ -10,6 +10,7 @@ import type { DataModelingState } from '../store/reducer';
 import {
   addNewFieldToCollection,
   moveCollection,
+  moveMultipleCollections,
   onAddNestedField,
   selectCollection,
   selectRelationship,
@@ -23,6 +24,7 @@ import {
   deleteRelationship,
   removeField,
   renameField,
+  changeFieldType,
   toggleCollectionExpanded,
 } from '../store/diagram';
 import type {
@@ -33,7 +35,6 @@ import type {
 } from '@mongodb-js/compass-components';
 import {
   Banner,
-  CancelLoader,
   WorkspaceContainer,
   css,
   spacing,
@@ -46,10 +47,10 @@ import {
   Diagram,
   useDiagram,
   useHotkeys,
-  FocusState,
   useFocusStateIncludingUnfocused,
+  FocusStates,
 } from '@mongodb-js/compass-components';
-import { cancelAnalysis, retryAnalysis } from '../store/analysis-process';
+import { retryAnalysis } from '../store/analysis-process';
 import type { FieldPath, StaticModel } from '../services/data-model-storage';
 import DiagramEditorToolbar from './diagram-editor-toolbar';
 import ExportDiagramModal from './export-diagram-modal';
@@ -60,17 +61,10 @@ import {
   relationshipToDiagramEdge,
 } from '../utils/nodes-and-edges';
 import toNS from 'mongodb-ns';
+import { FIELD_TYPES } from '../utils/field-types';
 import { getNamespaceRelationships } from '../utils/utils';
 import { usePreference } from 'compass-preferences-model/provider';
-
-const loadingContainerStyles = css({
-  width: '100%',
-  paddingTop: spacing[1800] * 3,
-});
-
-const loaderStyles = css({
-  margin: '0 auto',
-});
+import AnalysisProgressStatus from './analysis-progress-status';
 
 const errorBannerStyles = css({
   margin: spacing[200],
@@ -161,17 +155,39 @@ const DiagramContent: React.FunctionComponent<{
   model: StaticModel | null;
   isInRelationshipDrawingMode: boolean;
   newCollection?: string;
-  onAddFieldToObjectField: (ns: string, parentPath: string[]) => void;
-  onAddNewFieldToCollection: (ns: string) => void;
+  onAddFieldToObjectField: (
+    ns: string,
+    parentPath: string[],
+    source: 'side_panel' | 'diagram'
+  ) => void;
+  onAddNewFieldToCollection: (
+    ns: string,
+    source: 'side_panel' | 'diagram'
+  ) => void;
   onMoveCollection: (ns: string, newPosition: [number, number]) => void;
+  onMoveMultipleCollections: (
+    newPositions: Record<string, [number, number]>
+  ) => void;
   onCollectionSelect: (namespace: string) => void;
   onRelationshipSelect: (rId: string) => void;
   onFieldSelect: (namespace: string, fieldPath: FieldPath) => void;
-  onRenameField: (
-    namespace: string,
-    fieldPath: FieldPath,
-    newName: string
-  ) => void;
+  onRenameField: ({
+    ns,
+    field,
+    newName,
+    source,
+  }: {
+    ns: string;
+    field: FieldPath;
+    newName: string;
+    source: 'diagram';
+  }) => void;
+  onChangeFieldType: (data: {
+    ns: string;
+    fieldPath: FieldPath;
+    newTypes: string[];
+    source: 'diagram';
+  }) => void;
   onDiagramBackgroundClicked: () => void;
   onDeleteCollection: (ns: string) => void;
   onDeleteRelationship: (rId: string) => void;
@@ -197,10 +213,12 @@ const DiagramContent: React.FunctionComponent<{
   onAddFieldToObjectField,
   onAddNewFieldToCollection,
   onMoveCollection,
+  onMoveMultipleCollections,
   onCollectionSelect,
   onRelationshipSelect,
   onFieldSelect,
   onRenameField,
+  onChangeFieldType,
   onDiagramBackgroundClicked,
   onCreateNewRelationship,
   onRelationshipDrawn,
@@ -267,9 +285,9 @@ const DiagramContent: React.FunctionComponent<{
         !!selectedItems &&
         selectedItems.type === 'relationship' &&
         selectedItems.id === relationship.id;
-      return relationshipToDiagramEdge(relationship, selected, nodes);
+      return relationshipToDiagramEdge(relationship, selected);
     });
-  }, [model?.relationships, selectedItems, nodes]);
+  }, [model?.relationships, selectedItems]);
 
   // Fit to view on initial mount
   useEffect(() => {
@@ -369,10 +387,20 @@ const DiagramContent: React.FunctionComponent<{
   );
 
   const onNodeDragStop = useCallback(
-    (evt: React.MouseEvent, node: NodeProps) => {
-      onMoveCollection(node.id, [node.position.x, node.position.y]);
+    (evt: React.MouseEvent, node: NodeProps, nodes: NodeProps[]) => {
+      if (nodes.length === 1) {
+        onMoveCollection(node.id, [node.position.x, node.position.y]);
+      } else {
+        const newPositions = Object.fromEntries(
+          nodes.map((node): [string, [number, number]] => [
+            node.id,
+            [node.position.x, node.position.y],
+          ])
+        );
+        onMoveMultipleCollections(newPositions);
+      }
     },
-    [onMoveCollection]
+    [onMoveCollection, onMoveMultipleCollections]
   );
 
   const onPaneClick = useCallback(() => {
@@ -389,16 +417,28 @@ const DiagramContent: React.FunctionComponent<{
   const onClickAddFieldToCollection = useCallback(
     (event: React.MouseEvent<Element>, ns: string) => {
       event.stopPropagation();
-      onAddNewFieldToCollection(ns);
+      onAddNewFieldToCollection(ns, 'diagram');
     },
     [onAddNewFieldToCollection]
   );
 
   const onClickAddFieldToObjectField = useCallback(
     (event: React.MouseEvent, nodeId: string, parentPath: string[]) => {
-      onAddFieldToObjectField(nodeId, parentPath);
+      onAddFieldToObjectField(nodeId, parentPath, 'diagram');
     },
     [onAddFieldToObjectField]
+  );
+
+  const onFieldTypeChange = useCallback(
+    (ns: string, fieldPath: FieldPath, newTypes: string[]) => {
+      onChangeFieldType({
+        ns,
+        fieldPath,
+        newTypes,
+        source: 'diagram',
+      });
+    },
+    [onChangeFieldType]
   );
 
   const deleteItem = useCallback(() => {
@@ -448,12 +488,15 @@ const DiagramContent: React.FunctionComponent<{
         onPaneClick,
         onEdgeClick,
         onFieldClick,
-        onFieldNameChange: onRenameField,
+        onFieldNameChange: (ns, field, newName) =>
+          onRenameField({ ns, field, newName, source: 'diagram' }),
+        onFieldTypeChange,
         onNodeDragStop,
         onConnect,
         onNodeExpandToggle: isCollapseFlagEnabled
           ? handleNodeExpandedToggle
           : undefined,
+        fieldTypes: FIELD_TYPES,
       } satisfies DiagramProps),
     [
       isDarkMode,
@@ -467,6 +510,7 @@ const DiagramContent: React.FunctionComponent<{
       onEdgeClick,
       onFieldClick,
       onRenameField,
+      onFieldTypeChange,
       onNodeDragStop,
       onConnect,
       handleNodeExpandedToggle,
@@ -494,7 +538,7 @@ const DiagramContent: React.FunctionComponent<{
             <h4>Questions about your data?</h4>
             This diagram was generated based on a sample of documents from{' '}
             {database ?? 'a database'}. Changes made to the diagram will not
-            impact your data
+            impact your data.
           </Banner>
         )}
         <DiagramComponent
@@ -529,10 +573,12 @@ const ConnectedDiagramContent = connect(
     onAddNewFieldToCollection: addNewFieldToCollection,
     onAddFieldToObjectField: onAddNestedField,
     onMoveCollection: moveCollection,
+    onMoveMultipleCollections: moveMultipleCollections,
     onCollectionSelect: selectCollection,
     onRelationshipSelect: selectRelationship,
     onFieldSelect: selectField,
     onRenameField: renameField,
+    onChangeFieldType: changeFieldType,
     onDiagramBackgroundClicked: selectBackground,
     onCreateNewRelationship: createNewRelationship,
     onDeleteCollection: deleteCollection,
@@ -546,14 +592,12 @@ const DiagramEditor: React.FunctionComponent<{
   step: DataModelingState['step'];
   diagramId?: string;
   onRetryClick: () => void;
-  onCancelClick: () => void;
   onAddCollectionClick: () => void;
   DiagramComponent?: typeof Diagram;
 }> = ({
   step,
   diagramId,
   onRetryClick,
-  onCancelClick,
   onAddCollectionClick,
   DiagramComponent = Diagram,
 }) => {
@@ -583,16 +627,7 @@ const DiagramEditor: React.FunctionComponent<{
   }
 
   if (step === 'ANALYZING') {
-    content = (
-      <div className={loadingContainerStyles}>
-        <CancelLoader
-          className={loaderStyles}
-          progressText="Analyzing …"
-          cancelText="Cancel"
-          onCancel={onCancelClick}
-        ></CancelLoader>
-      </div>
-    );
+    content = <AnalysisProgressStatus />;
   }
 
   if (step === 'ANALYSIS_FAILED') {
@@ -627,7 +662,7 @@ const DiagramEditor: React.FunctionComponent<{
       <WorkspaceContainer
         toolbar={
           <DiagramEditorToolbar
-            diagramEditorHasFocus={focusState !== FocusState.NoFocus}
+            diagramEditorHasFocus={focusState !== FocusStates.NoFocus}
             onRelationshipDrawingToggle={handleRelationshipDrawingToggle}
             isInRelationshipDrawingMode={isInRelationshipDrawingMode}
             onAddCollectionClick={handleAddCollectionClick}
@@ -651,7 +686,6 @@ export default connect(
   },
   {
     onRetryClick: retryAnalysis,
-    onCancelClick: cancelAnalysis,
     onAddCollectionClick: addCollection,
   }
 )(DiagramEditor);

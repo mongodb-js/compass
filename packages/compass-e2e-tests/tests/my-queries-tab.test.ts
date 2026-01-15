@@ -44,8 +44,8 @@ async function openMenuForQueryItem(
   await browser.$(Selectors.SavedItemMenu).waitForDisplayed();
 }
 
-const knownQueryNames: Record<string, true> = {};
-const knownQueryFilters: Record<string, true> = {};
+const knownQueryNames: Record<string, true> = Object.create(null);
+const knownQueryFilters: Record<string, true> = Object.create(null);
 
 async function saveQuery(
   browser: CompassBrowser,
@@ -133,8 +133,7 @@ async function saveAggregation(
   await browser.clickVisible(Selectors.SavePipelineSaveAsAction);
 
   // wait for the modal to appear
-  const savePipelineModal = browser.$(Selectors.SavePipelineModal);
-  await savePipelineModal.waitForDisplayed();
+  await browser.waitForOpenModal(Selectors.SavePipelineModal);
 
   // set aggregation name
   await browser.waitForAnimations(Selectors.SavePipelineNameInput);
@@ -145,8 +144,10 @@ async function saveAggregation(
 
   // click save button
   const createButton = browser.$(Selectors.SavePipelineModal).$('button=Save');
-
   await createButton.click();
+  await browser.waitForOpenModal(Selectors.SavePipelineModal, {
+    reverse: true,
+  });
 }
 
 describe('My Queries tab', function () {
@@ -241,15 +242,16 @@ describe('My Queries tab', function () {
 
         // rename the query
         await browser.clickVisible(Selectors.SavedItemMenuItemRename);
-        const renameModal = browser.$(Selectors.RenameSavedItemModal);
-        await renameModal.waitForDisplayed();
+        await browser.waitForOpenModal(Selectors.RenameSavedItemModal);
 
         await browser.setValueVisible(
           Selectors.RenameSavedItemModalTextInput,
           newFavoriteQueryName
         );
         await browser.clickVisible(Selectors.RenameSavedItemModalSubmit);
-        await renameModal.waitForDisplayed({ reverse: true });
+        await browser.waitForOpenModal(Selectors.RenameSavedItemModal, {
+          reverse: true,
+        });
 
         // rename the collection associated with the query to force the open item modal
         await client_1
@@ -271,8 +273,8 @@ describe('My Queries tab', function () {
         );
 
         // the open item modal - select a new collection
-        const openModal = browser.$(Selectors.OpenSavedItemModal);
-        await openModal.waitForDisplayed();
+        await browser.waitForOpenModal(Selectors.OpenSavedItemModal);
+
         await browser.selectOption({
           selectSelector: `${Selectors.OpenSavedItemDatabaseField} button`,
           optionText: 'test',
@@ -282,7 +284,9 @@ describe('My Queries tab', function () {
           optionText: 'numbers-renamed',
         });
         await browser.clickVisible(Selectors.OpenSavedItemModalConfirmButton);
-        await openModal.waitForDisplayed({ reverse: true });
+        await browser.waitForOpenModal(Selectors.OpenSavedItemModal, {
+          reverse: true,
+        });
 
         // we should eventually arrive on the collection
         const namespace = await browser.getActiveTabNamespace();
@@ -399,8 +403,7 @@ describe('My Queries tab', function () {
         await browser.clickVisible(Selectors.myQueriesItem(favoriteQueryName));
 
         // the open item modal - select a new collection
-        const openModal = browser.$(Selectors.OpenSavedItemModal);
-        await openModal.waitForDisplayed();
+        await browser.waitForOpenModal(Selectors.OpenSavedItemModal);
         await browser.selectOption({
           selectSelector: `${Selectors.OpenSavedItemDatabaseField} button`,
           optionText: 'test',
@@ -415,7 +418,9 @@ describe('My Queries tab', function () {
         );
 
         await browser.clickVisible(Selectors.OpenSavedItemModalConfirmButton);
-        await openModal.waitForDisplayed({ reverse: true });
+        await browser.waitForOpenModal(Selectors.OpenSavedItemModal, {
+          reverse: true,
+        });
 
         await browser.navigateToMyQueries();
 
@@ -513,8 +518,7 @@ describe('My Queries tab', function () {
         await browser.clickVisible(Selectors.myQueriesItem(favoriteQueryName));
 
         // the open item modal - select a new connection, database and collection
-        const openModal = browser.$(Selectors.OpenSavedItemModal);
-        await openModal.waitForDisplayed();
+        await browser.waitForOpenModal(Selectors.OpenSavedItemModal);
         await browser.selectOption({
           selectSelector: `${Selectors.OpenSavedItemConnectionField} button`,
           optionText: DEFAULT_CONNECTION_NAME_2,
@@ -530,7 +534,9 @@ describe('My Queries tab', function () {
 
         await browser.clickVisible(Selectors.OpenSavedItemModalConfirmButton);
 
-        await openModal.waitForDisplayed({ reverse: true });
+        await browser.waitForOpenModal(Selectors.OpenSavedItemModal, {
+          reverse: true,
+        });
 
         // we should land on connection-2 because that's the one we just selected
         await browser.waitUntil(async () => {
@@ -577,8 +583,7 @@ describe('My Queries tab', function () {
         await browser.clickVisible(Selectors.myQueriesItem(favoriteQueryName));
 
         // the open item modal - select a new connection, database and collection
-        const selectModal = browser.$(Selectors.SelectConnectionModal);
-        await selectModal.waitForDisplayed();
+        await browser.waitForOpenModal(Selectors.SelectConnectionModal);
 
         const connectionId = await browser.getConnectionIdByName(
           DEFAULT_CONNECTION_NAME_2
@@ -595,7 +600,9 @@ describe('My Queries tab', function () {
           Selectors.SelectConnectionModalConfirmButton
         );
 
-        await selectModal.waitForDisplayed({ reverse: true });
+        await browser.waitForOpenModal(Selectors.SelectConnectionModal, {
+          reverse: true,
+        });
 
         // we should land on connection-2 because that's the one we just selected
         await browser.waitUntil(async () => {

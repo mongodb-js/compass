@@ -17,6 +17,8 @@ import AddStage from '../../add-stage';
 import UseCaseDroppableArea from '../../use-case-droppable-area';
 import type { StageIdAndType } from '../../../modules/pipeline-builder/stage-editor';
 import PipelineBuilderDndWrapper from './dnd-wrapper';
+import { prettify } from '../../../modules/pipeline-builder/pipeline-parser/utils';
+import { useSyncAssistantGlobalState } from '@mongodb-js/compass-assistant';
 
 const pipelineWorkspaceContainerStyles = css({
   position: 'relative',
@@ -36,6 +38,7 @@ const pipelineWorkspaceStyles = css({
 
 export type PipelineBuilderUIWorkspaceProps = {
   stagesIdAndType: StageIdAndType[];
+  pipelineText: string;
   isSidePanelOpen: boolean;
   onStageMoveEnd: (from: number, to: number) => void;
   onStageAddAfterEnd: (after?: number) => void;
@@ -50,11 +53,14 @@ export const PipelineBuilderUIWorkspace: React.FunctionComponent<
   PipelineBuilderUIWorkspaceProps
 > = ({
   stagesIdAndType,
+  pipelineText,
   isSidePanelOpen,
   onStageMoveEnd,
   onStageAddAfterEnd,
   onUseCaseDropped,
 }) => {
+  useSyncAssistantGlobalState('currentPipeline', pipelineText);
+
   return (
     <PipelineBuilderDndWrapper
       stagesIdAndType={stagesIdAndType}
@@ -99,9 +105,30 @@ export const PipelineBuilderUIWorkspace: React.FunctionComponent<
   );
 };
 
+type Stage = {
+  disabled?: boolean;
+  syntaxError: Error | null;
+  stageOperator: string | null;
+  value: string | null;
+};
+
+function getPipelineTextFromStages(stages: Stage[]): string {
+  const code = `[${stages
+    .filter(
+      (stage) =>
+        stage.stageOperator !== null && stage.value !== null && !stage.disabled
+    )
+    .map((stage) => `{ ${stage.stageOperator}: ${stage.value} }`)
+    .join(',\n')}\n]`;
+  return prettify(code);
+}
+
 const mapState = (state: RootState) => {
   return {
     stagesIdAndType: state.pipelineBuilder.stageEditor.stagesIdAndType,
+    pipelineText: getPipelineTextFromStages(
+      state.pipelineBuilder.stageEditor.stages
+    ),
     isSidePanelOpen: state.sidePanel.isPanelOpen,
   };
 };

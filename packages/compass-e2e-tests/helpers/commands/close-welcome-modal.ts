@@ -4,17 +4,13 @@ import * as Selectors from '../selectors';
 export async function closeWelcomeModal(
   browser: CompassBrowser
 ): Promise<void> {
-  if (!(await browser.existsEventually(Selectors.WelcomeModal))) {
+  if (!(await browser.isModalEventuallyOpen(Selectors.WelcomeModal))) {
     return;
   }
 
-  const welcomeModalElement = browser.$(Selectors.WelcomeModal);
-  await welcomeModalElement.waitForDisplayed();
-
+  await browser.waitForOpenModal(Selectors.WelcomeModal);
   await browser.clickVisible(Selectors.CloseWelcomeModalButton);
-  await welcomeModalElement.waitForDisplayed({
-    reverse: true,
-  });
+  await browser.waitForOpenModal(Selectors.WelcomeModal, { reverse: true });
 
   // By setting a feature after closing the welcome modal we know that
   // preferences will have been saved to disk and therefore showedNetworkOptIn

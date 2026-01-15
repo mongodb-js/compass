@@ -560,8 +560,7 @@ describe('CSFLE / QE', function () {
         await browser.clickVisible(Selectors.InsertDocumentOption);
 
         // wait for the modal to appear
-        const insertDialog = browser.$(Selectors.InsertDialog);
-        await insertDialog.waitForDisplayed();
+        await browser.waitForOpenModal(Selectors.InsertDialog);
 
         // set the text in the editor
         await browser.setCodemirrorEditorValue(
@@ -582,7 +581,9 @@ describe('CSFLE / QE', function () {
         await browser.clickVisible(Selectors.InsertConfirm);
 
         // wait for the modal to go away
-        await insertDialog.waitForDisplayed({ reverse: true });
+        await browser.waitForOpenModal(Selectors.InsertDialog, {
+          reverse: true,
+        });
 
         const result = await browser.getFirstListDocument();
 
@@ -773,6 +774,10 @@ describe('CSFLE / QE', function () {
           "{ phoneNumber: '10101010' }"
         );
 
+        // Wait for the documents to be shown
+        // (switching from json view to list view).
+        await browser.$(Selectors.DocumentListEntry).waitForDisplayed();
+
         const modifiedResult = await browser.getFirstListDocument();
         expect(modifiedResult.phoneNumber).to.be.equal('"10101010"');
       });
@@ -901,8 +906,7 @@ describe('CSFLE / QE', function () {
         await browser.clickVisible(Selectors.CloneDocumentButton);
 
         // wait for the modal to appear
-        const insertDialog = browser.$(Selectors.InsertDialog);
-        await insertDialog.waitForDisplayed();
+        await browser.waitForOpenModal(Selectors.InsertDialog);
 
         // set the text in the editor
         await browser.setCodemirrorEditorValue(
@@ -923,7 +927,9 @@ describe('CSFLE / QE', function () {
         await browser.clickVisible(Selectors.InsertConfirm);
 
         // wait for the modal to go away
-        await insertDialog.waitForDisplayed({ reverse: true });
+        await browser.waitForOpenModal(Selectors.InsertDialog, {
+          reverse: true,
+        });
 
         await browser.runFindOperation('Documents', "{ name: 'Third' }");
 
@@ -993,14 +999,14 @@ describe('CSFLE / QE', function () {
           )
         );
 
-        await browser.$(Selectors.CSFLEConnectionModal).waitForDisplayed();
+        await browser.waitForOpenModal(Selectors.CSFLEConnectionModal);
 
         await browser.clickVisible(Selectors.SetCSFLEEnabledLabel);
 
         await browser.clickVisible(Selectors.CSFLEConnectionModalCloseButton);
-        await browser
-          .$(Selectors.CSFLEConnectionModal)
-          .waitForDisplayed({ reverse: true });
+        await browser.waitForOpenModal(Selectors.CSFLEConnectionModal, {
+          reverse: true,
+        });
 
         const encryptedResult = await browser.getFirstListDocument();
 
@@ -1019,14 +1025,14 @@ describe('CSFLE / QE', function () {
           )
         );
 
-        await browser.$(Selectors.CSFLEConnectionModal).waitForDisplayed();
+        await browser.waitForOpenModal(Selectors.CSFLEConnectionModal);
 
         await browser.clickVisible(Selectors.SetCSFLEEnabledLabel);
 
         await browser.clickVisible(Selectors.CSFLEConnectionModalCloseButton);
-        await browser
-          .$(Selectors.CSFLEConnectionModal)
-          .waitForDisplayed({ reverse: true });
+        await browser.waitForOpenModal(Selectors.CSFLEConnectionModal, {
+          reverse: true,
+        });
 
         decryptedResult = await browser.getFirstListDocument();
 

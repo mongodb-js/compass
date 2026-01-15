@@ -84,7 +84,12 @@ describe('createStageAutocompleter', function () {
       fields,
       stageOperator: '$match',
     });
-    expect(meta(await completions)).to.deep.eq(['bson', 'query', 'field']);
+    expect(meta(await completions)).to.deep.eq([
+      'bson',
+      'bson-legacy-uuid',
+      'query',
+      'field',
+    ]);
   });
 
   ['$project', '$group'].forEach((stageOperator) => {

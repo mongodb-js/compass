@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, userEvent } from '@mongodb-js/testing-library-compass';
-import { CodemirrorInlineEditor } from './editor';
+import { CodemirrorInlineEditor, CodemirrorMultilineEditor } from './editor';
 import type { EditorRef } from './types';
 import { expect } from 'chai';
 
@@ -53,6 +53,27 @@ describe('Editor', function () {
       expect(lines[2].textContent).to.equal('}');
 
       expect(editorRef.current?.editorContents).to.equal('{\n  \n}');
+    });
+  });
+
+  context('CodemirrorMultilineEditor', function () {
+    it('does not take focus when omitting autoFocus', function () {
+      const editorRef = React.createRef<EditorRef>();
+      render(<CodemirrorMultilineEditor text={'{}'} ref={editorRef} />);
+      expect(document.activeElement).to.not.equal(
+        editorRef.current?.editor?.contentDOM
+      );
+    });
+
+    it('takes focus when autoFocus passed', function () {
+      const editorRef = React.createRef<EditorRef>();
+      render(
+        /* eslint-disable-next-line jsx-a11y/no-autofocus */
+        <CodemirrorMultilineEditor text={'{}'} autoFocus ref={editorRef} />
+      );
+      expect(document.activeElement).to.equal(
+        editorRef.current?.editor?.contentDOM
+      );
     });
   });
 });

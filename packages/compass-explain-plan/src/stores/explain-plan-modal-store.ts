@@ -14,31 +14,34 @@ export function isAction<A extends AnyAction>(
 
 export type SerializedExplainPlan = ReturnType<ExplainPlan['serialize']>;
 
-enum ExplainPlanModalActionTypes {
-  CloseExplainPlanModal = 'compass-explain-plan-modal/CloseExplainPlanModal',
-  FetchExplainPlanModalLoading = 'compass-explain-plan-modal/FetchExplainPlanModalLoading',
-  FetchExplainPlanModalSuccess = 'compass-explain-plan-modal/FetchExplainPlanModalSuccess',
-  FetchExplainPlanModalError = 'compass-explain-plan-modal/FetchExplainPlanModalError',
-}
+const ExplainPlanModalActionTypes = {
+  CloseExplainPlanModal: 'compass-explain-plan-modal/CloseExplainPlanModal',
+  FetchExplainPlanModalLoading:
+    'compass-explain-plan-modal/FetchExplainPlanModalLoading',
+  FetchExplainPlanModalSuccess:
+    'compass-explain-plan-modal/FetchExplainPlanModalSuccess',
+  FetchExplainPlanModalError:
+    'compass-explain-plan-modal/FetchExplainPlanModalError',
+} as const;
 
 type CloseExplainPlanModalAction = {
-  type: ExplainPlanModalActionTypes.CloseExplainPlanModal;
+  type: typeof ExplainPlanModalActionTypes.CloseExplainPlanModal;
 };
 
 type FetchExplainPlanModalLoadingAction = {
-  type: ExplainPlanModalActionTypes.FetchExplainPlanModalLoading;
+  type: typeof ExplainPlanModalActionTypes.FetchExplainPlanModalLoading;
   id: number;
   operationType: 'query' | 'aggregation';
 };
 
 type FetchExplainPlanModalSuccessAction = {
-  type: ExplainPlanModalActionTypes.FetchExplainPlanModalSuccess;
+  type: typeof ExplainPlanModalActionTypes.FetchExplainPlanModalSuccess;
   explainPlan: SerializedExplainPlan;
   rawExplainPlan: unknown;
 };
 
 type FetchExplainPlanModalErrorAction = {
-  type: ExplainPlanModalActionTypes.FetchExplainPlanModalError;
+  type: typeof ExplainPlanModalActionTypes.FetchExplainPlanModalError;
   error: string;
   rawExplainPlan: unknown;
 };
@@ -221,18 +224,16 @@ export const openExplainPlanModal = (
           return !isOutputStage(stage);
         });
 
-        const explainOptions = {
-          maxTimeMS: capMaxTimeMSAtPreferenceLimit(
-            preferences,
-            maxTimeMS ?? DEFAULT_MAX_TIME_MS
-          ),
-        };
+        const maxTimeMSValue = capMaxTimeMSAtPreferenceLimit(
+          preferences,
+          maxTimeMS ?? DEFAULT_MAX_TIME_MS
+        );
 
         rawExplainPlan = await dataService.explainAggregate(
           namespace,
           pipeline,
-          { ...explainOptions, collation },
-          { explainVerbosity, abortSignal: signal }
+          { collation, maxTimeMS: maxTimeMSValue },
+          { explainVerbosity, maxTimeMS: maxTimeMSValue, abortSignal: signal }
         );
 
         try {
@@ -258,21 +259,18 @@ export const openExplainPlanModal = (
       }
 
       if (event.query) {
-        const { filter, ...options } = event.query;
+        const { filter, maxTimeMS: queryMaxTimeMS, ...options } = event.query;
 
-        const explainOptions = {
-          ...options,
-          maxTimeMS: capMaxTimeMSAtPreferenceLimit(
-            preferences,
-            options.maxTimeMS ?? DEFAULT_MAX_TIME_MS
-          ),
-        };
+        const maxTimeMSValue = capMaxTimeMSAtPreferenceLimit(
+          preferences,
+          queryMaxTimeMS ?? DEFAULT_MAX_TIME_MS
+        );
 
         rawExplainPlan = await dataService.explainFind(
           namespace,
           filter,
-          explainOptions,
-          { explainVerbosity, abortSignal: signal }
+          { ...options, maxTimeMS: maxTimeMSValue },
+          { explainVerbosity, maxTimeMS: maxTimeMSValue, abortSignal: signal }
         );
 
         try {

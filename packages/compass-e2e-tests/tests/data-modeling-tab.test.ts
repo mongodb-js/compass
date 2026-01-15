@@ -89,14 +89,12 @@ async function setupDiagram(
     Selectors.CreateDataModelNameInput,
     options.diagramName
   );
-  await browser.clickVisible(Selectors.CreateDataModelConfirmButton);
 
   // Select existing connection
   await browser.selectOption({
     selectSelector: Selectors.CreateDataModelConnectionSelector,
     optionText: options.connectionName,
   });
-  await browser.clickVisible(Selectors.CreateDataModelConfirmButton);
 
   // Select a database
   await browser.selectOption({
@@ -429,8 +427,7 @@ describe('Data Modeling tab', function () {
       });
 
       await browser.clickVisible(Selectors.DataModelExportButton);
-      const exportModal = browser.$(Selectors.DataModelExportModal);
-      await exportModal.waitForDisplayed();
+      await browser.waitForOpenModal(Selectors.DataModelExportModal);
 
       await browser.clickParent(Selectors.DataModelExportJsonOption);
       await browser.clickVisible(Selectors.DataModelExportModalConfirmButton);
@@ -505,8 +502,7 @@ describe('Data Modeling tab', function () {
       });
 
       await browser.clickVisible(Selectors.DataModelExportButton);
-      const exportModal = browser.$(Selectors.DataModelExportModal);
-      await exportModal.waitForDisplayed();
+      await browser.waitForOpenModal(Selectors.DataModelExportModal);
 
       await browser.clickParent(Selectors.DataModelExportPngOption);
       await browser.clickVisible(Selectors.DataModelExportModalConfirmButton);
@@ -558,8 +554,7 @@ describe('Data Modeling tab', function () {
       await browser.waitForAnimations(dataModelEditor);
 
       await browser.clickVisible(Selectors.DataModelExportButton);
-      const exportModal = browser.$(Selectors.DataModelExportModal);
-      await exportModal.waitForDisplayed();
+      await browser.waitForOpenModal(Selectors.DataModelExportModal);
 
       await browser.clickParent(Selectors.DataModelExportDiagramOption);
       await browser.clickVisible(Selectors.DataModelExportModalConfirmButton);
@@ -827,7 +822,7 @@ describe('Data Modeling tab', function () {
     });
 
     it('adding a new collection from the toolbar', async function () {
-      const dataModelName = 'Test Edit Collection';
+      const dataModelName = 'Test Edit New Collection';
       await setupDiagram(browser, {
         diagramName: dataModelName,
         connectionName: DEFAULT_CONNECTION_NAME_1,

@@ -16,7 +16,10 @@ const initialCollectionName = 'csv-file';
 const newCollectionName = 'renamed';
 
 class RenameCollectionModal {
-  constructor(private browser: CompassBrowser) {}
+  private browser: CompassBrowser;
+  constructor(browser: CompassBrowser) {
+    this.browser = browser;
+  }
   get confirmationScreen() {
     return this.browser.$(Selectors.RenameCollectionModalConfirmationScreen);
   }
@@ -37,13 +40,11 @@ class RenameCollectionModal {
   }
 
   async isVisible() {
-    const modal = this.browser.$(Selectors.RenameCollectionModal);
-    await modal.waitForDisplayed();
+    await this.browser.waitForOpenModal(Selectors.RenameCollectionModal);
   }
 
   async isNotVisible() {
-    const modal = this.browser.$(Selectors.RenameCollectionModal);
-    return modal.waitForDisplayed({
+    await this.browser.waitForOpenModal(Selectors.RenameCollectionModal, {
       reverse: true,
     });
   }

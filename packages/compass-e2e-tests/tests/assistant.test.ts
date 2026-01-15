@@ -9,15 +9,13 @@ import {
   cleanup,
   screenshotIfFailed,
   DEFAULT_CONNECTION_NAME_1,
-  skipForWeb,
   screenshotPathName,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
-import { startMockAtlasServiceServer } from '../helpers/atlas-service';
+import { startMockAtlasServiceServer } from '../helpers/mock-atlas-service';
 import { startMockAssistantServer } from '../helpers/assistant-service';
 import type { MockAssistantResponse } from '../helpers/assistant-service';
-import { isTestingWeb } from '../helpers/test-runner-context';
 
 import { context } from '../helpers/test-runner-context';
 
@@ -53,11 +51,21 @@ describe('MongoDB Assistant', function () {
       mockAtlasServer = await startMockAtlasServiceServer();
       mockAssistantServer = await startMockAssistantServer();
 
-      process.env.COMPASS_ATLAS_SERVICE_UNAUTH_BASE_URL_OVERRIDE =
-        mockAtlasServer.endpoint;
-
       telemetry = await startTelemetryServer();
       compass = await init(this.test?.fullTitle());
+
+      await compass.browser.setEnv(
+        'COMPASS_ATLAS_SERVICE_UNAUTH_BASE_URL_OVERRIDE',
+        mockAtlasServer.endpoint
+      );
+      await compass.browser.setEnv(
+        'COMPASS_CLOUD_BASE_URL_OVERRIDE',
+        mockAtlasServer.endpoint
+      );
+      await compass.browser.setEnv(
+        'COMPASS_ASSISTANT_BASE_URL_OVERRIDE',
+        mockAssistantServer.endpoint
+      );
 
       sendMessage = async (
         text: string,
@@ -126,13 +134,8 @@ describe('MongoDB Assistant', function () {
       };
 
       setAIFeatures = async (newValue: boolean) => {
-        if (isTestingWeb()) {
-          await browser.setEnv(
-            'COMPASS_OVERRIDE_ENABLE_AI_FEATURES',
-            newValue ? 'true' : 'false'
-          );
-        }
         await browser.setFeature('enableGenAIFeatures', newValue);
+        await browser.setFeature('enableGenAISampleDocumentPassing', newValue);
 
         if (newValue) {
           await browser.$(Selectors.AssistantDrawerButton).waitForDisplayed();
@@ -144,26 +147,6 @@ describe('MongoDB Assistant', function () {
       };
 
       setAIOptIn = async (newValue: boolean) => {
-        if (
-          isTestingWeb() ||
-          ((await browser.getFeature('optInGenAIFeatures')) === true &&
-            newValue === false)
-        ) {
-          await cleanup(compass);
-          // Reseting the opt-in to false can be tricky so it's best to start over in this case.
-          compass = await init(this.test?.fullTitle(), { firstRun: true });
-          await setup();
-
-          if (isTestingWeb()) {
-            await setAIFeatures(true);
-          }
-          await browser.setFeature(
-            'optInGenAIFeatures',
-            newValue ? 'true' : 'false'
-          );
-          return;
-        }
-
         await browser.setFeature('optInGenAIFeatures', newValue);
       };
 
@@ -177,16 +160,12 @@ describe('MongoDB Assistant', function () {
   after(async function () {
     await mockAtlasServer.stop();
     await mockAssistantServer.stop();
-
-    delete process.env.COMPASS_ATLAS_SERVICE_UNAUTH_BASE_URL_OVERRIDE;
-
     await cleanup(compass);
     await telemetry.stop();
   });
 
   afterEach(async function () {
     await screenshotIfFailed(compass, this.currentTest);
-
     try {
       mockAssistantServer.clearRequests();
       await clearChat(browser);
@@ -195,6 +174,13 @@ describe('MongoDB Assistant', function () {
         screenshotPathName('afterEach-MongoDB-Assistant')
       );
       throw err;
+    }
+
+    // Close the drawer if open to provide a clean environment for the next test
+    const drawerCloseButton = browser.$(Selectors.AssistantDrawerCloseButton);
+    if (await drawerCloseButton.isDisplayed()) {
+      await browser.clickVisible(drawerCloseButton);
+      await drawerCloseButton.waitForDisplayed({ reverse: true });
     }
   });
 
@@ -208,12 +194,7 @@ describe('MongoDB Assistant', function () {
     });
 
     it('does not show the assistant drawer button when AI features are disabled', async function () {
-      // we cannot opt back out on web because it is stored server-side
-      skipForWeb(
-        this,
-        'E2E testing for assistant drawer visibility on compass-web is not yet implemented'
-      );
-
+      await setAIOptIn(false);
       await setAIFeatures(false);
 
       const drawerButton = browser.$(Selectors.AssistantDrawerButton);
@@ -238,12 +219,7 @@ describe('MongoDB Assistant', function () {
   });
 
   describe('before opt-in', function () {
-    // we cannot opt back out on web because it is stored server-side
     before(async function () {
-      skipForWeb(
-        this,
-        'E2E testing for opt-in on compass-web is not yet implemented'
-      );
       await setAIOptIn(false);
     });
 
@@ -254,8 +230,7 @@ describe('MongoDB Assistant', function () {
 
       await browser.clickVisible(Selectors.AIOptInModalDeclineLink);
 
-      const optInModal = browser.$(Selectors.AIOptInModal);
-      await optInModal.waitForDisplayed({ reverse: true });
+      await browser.waitForOpenModal(Selectors.AIOptInModal, { reverse: true });
 
       const chatInput = browser.$(Selectors.AssistantChatInputTextArea);
       expect(await chatInput.getValue()).not.to.equal(testMessage);
@@ -275,40 +250,38 @@ describe('MongoDB Assistant', function () {
           browser.$(Selectors.ConnectionToastErrorDebugButton)
         );
 
-        const optInModal = browser.$(Selectors.AIOptInModal);
-        await optInModal.waitForDisplayed();
-        expect(await optInModal.isDisplayed()).to.be.true;
+        await browser.waitForOpenModal(Selectors.AIOptInModal);
 
         await browser.clickVisible(Selectors.AIOptInModalDeclineLink);
 
-        await optInModal.waitForDisplayed({ reverse: true });
+        await browser.waitForOpenModal(Selectors.AIOptInModal, {
+          reverse: true,
+        });
 
-        expect(await getDisplayedMessages(browser)).to.deep.equal([]);
+        expect(
+          await browser.$(Selectors.AssistantChatMessages).isDisplayed()
+        ).to.equal(false);
       });
 
       it('should display opt-in modal for explain plan entry point', async function () {
-        await useExplainPlanEntryPoint(browser);
+        await useExplainPlanEntryPoint(browser, { waitForMessages: false });
 
-        const optInModal = browser.$(Selectors.AIOptInModal);
-        await optInModal.waitForDisplayed();
-        expect(await optInModal.isDisplayed()).to.be.true;
+        await browser.waitForOpenModal(Selectors.AIOptInModal);
 
         await browser.clickVisible(Selectors.AIOptInModalDeclineLink);
+        await browser.waitForOpenModal(Selectors.AIOptInModal, {
+          reverse: true,
+        });
 
-        await optInModal.waitForDisplayed({ reverse: true });
-
-        expect(await getDisplayedMessages(browser)).to.deep.equal([]);
+        expect(
+          await browser.$(Selectors.AssistantChatMessages).isDisplayed()
+        ).to.equal(false);
       });
     });
   });
 
   describe('opting in', function () {
     before(async function () {
-      // we cannot opt back out on web because it is stored server-side
-      skipForWeb(
-        this,
-        'E2E testing for opt-in on compass-web is not yet implemented'
-      );
       try {
         await setAIOptIn(false);
         await openAssistantDrawer(browser);
@@ -321,13 +294,10 @@ describe('MongoDB Assistant', function () {
     it('sends the message if the user opts in', async function () {
       await sendMessage(testMessage, { expectedResult: 'opt-in' });
 
-      const optInModal = browser.$(Selectors.AIOptInModal);
-      await optInModal.waitForDisplayed();
-      expect(await optInModal.isDisplayed()).to.be.true;
+      await browser.waitForOpenModal(Selectors.AIOptInModal);
 
       await browser.clickVisible(Selectors.AIOptInModalAcceptButton);
-
-      await optInModal.waitForDisplayed({ reverse: true });
+      await browser.waitForOpenModal(Selectors.AIOptInModal, { reverse: true });
 
       const chatInput = browser.$(Selectors.AssistantChatInputTextArea);
       expect(await chatInput.getValue()).to.equal('');
@@ -348,6 +318,10 @@ describe('MongoDB Assistant', function () {
         await browser.screenshot(screenshotPathName('before-after-opting-in'));
         throw err;
       }
+    });
+
+    beforeEach(async function () {
+      await openAssistantDrawer(browser);
     });
 
     describe('clear chat button', function () {
@@ -481,7 +455,7 @@ describe('MongoDB Assistant', function () {
           }
         });
 
-        it('opens assistant with explain plan prompt when clicking "Interpret for me"', async function () {
+        it('opens assistant with explain plan prompt when clicking "Interpret"', async function () {
           await useExplainPlanEntryPoint(browser);
 
           await browser.clickVisible('button*=Confirm');
@@ -534,7 +508,7 @@ describe('MongoDB Assistant', function () {
           });
         });
 
-        it('opens assistant with error message view prompt when clicking "Debug for me"', async function () {
+        it('opens assistant with error message view prompt when clicking "Debug"', async function () {
           await browser.connectWithConnectionString(
             'mongodb-invalid://localhost:27017',
             { connectionStatus: 'failure' }
@@ -562,7 +536,10 @@ describe('MongoDB Assistant', function () {
 });
 
 async function openAssistantDrawer(browser: CompassBrowser) {
-  await browser.clickVisible(Selectors.AssistantDrawerButton);
+  if (!(await browser.$(Selectors.AssistantDrawerCloseButton).isDisplayed())) {
+    await browser.clickVisible(Selectors.AssistantDrawerButton);
+  }
+  await browser.$(Selectors.AssistantDrawerCloseButton).waitForDisplayed();
 }
 
 async function clearChat(browser: CompassBrowser) {
@@ -632,14 +609,19 @@ async function waitForMessages(
   }
 }
 
-async function useExplainPlanEntryPoint(browser: CompassBrowser) {
+async function useExplainPlanEntryPoint(
+  browser: CompassBrowser,
+  { waitForMessages = true } = {}
+) {
   await browser.clickVisible(Selectors.AggregationExplainButton);
 
   await browser.clickVisible(Selectors.ExplainPlanInterpretButton);
 
-  await browser.$(Selectors.AggregationExplainModal).waitForDisplayed({
+  await browser.waitForOpenModal(Selectors.AggregationExplainModal, {
     reverse: true,
   });
 
-  await browser.$(Selectors.AssistantChatMessages).waitForDisplayed();
+  if (waitForMessages) {
+    await browser.$(Selectors.AssistantChatMessages).waitForDisplayed();
+  }
 }

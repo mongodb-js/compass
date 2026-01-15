@@ -17,10 +17,10 @@ export type WelcomeModalThunkAction<
   A
 >;
 
-enum WelcomeModalActionTypes {
-  ModalClosed = 'compass-welcome/welcome-modal/ModalClosed',
-  OpenSettingsClicked = 'compass-welcome/welcome-modal/OpenSettingsClicked',
-}
+const WelcomeModalActionTypes = {
+  ModalClosed: 'compass-welcome/welcome-modal/ModalClosed',
+  OpenSettingsClicked: 'compass-welcome/welcome-modal/OpenSettingsClicked',
+} as const;
 
 export const closeModal = (): WelcomeModalThunkAction<void> => {
   return (dispatch, _getState, { preferences }) => {

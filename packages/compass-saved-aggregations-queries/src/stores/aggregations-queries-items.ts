@@ -6,12 +6,12 @@ import type { SavedQueryAggregationThunkAction } from '.';
 import type { Actions as DeleteItemActions } from './delete-item';
 import { ActionTypes as DeleteItemActionTypes } from './delete-item';
 
-export enum ActionTypes {
-  ITEMS_FETCHED = 'compass-saved-aggregations-queries/itemsFetched',
-}
+export const ActionTypes = {
+  ITEMS_FETCHED: 'compass-saved-aggregations-queries/itemsFetched',
+} as const;
 
 export type Actions = {
-  type: ActionTypes.ITEMS_FETCHED;
+  type: typeof ActionTypes.ITEMS_FETCHED;
   payload: Item[];
 };
 
@@ -75,8 +75,12 @@ export const fetchItems = (): SavedQueryAggregationThunkAction<
     { pipelineStorage, queryStorage }
   ): Promise<void> => {
     const payload = await Promise.allSettled([
-      (await pipelineStorage?.loadAll())?.map(mapAggregationToItem) ?? [],
-      (await queryStorage?.loadAll())?.map(mapQueryToItem) ?? [],
+      pipelineStorage?.loadAll().then((items) => {
+        return items.map(mapAggregationToItem);
+      }) ?? Promise.resolve([]),
+      queryStorage?.loadAll().then((items) => {
+        return items.map(mapQueryToItem);
+      }) ?? Promise.resolve([]),
     ]);
     dispatch({
       type: ActionTypes.ITEMS_FETCHED,

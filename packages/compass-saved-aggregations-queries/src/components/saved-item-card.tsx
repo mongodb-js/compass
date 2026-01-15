@@ -13,7 +13,8 @@ import {
   useFocusState,
   useHoverState,
   mergeProps,
-  FocusState,
+  FocusStates,
+  type FocusState,
   ItemActionMenu,
   useFormattedDate,
 } from '@mongodb-js/compass-components';
@@ -218,9 +219,12 @@ export const SavedItemCard: React.FunctionComponent<
             itemId={id}
             isVisible={
               isHovered ||
-              [FocusState.FocusVisible, FocusState.FocusWithinVisible].includes(
-                focusState
-              )
+              (
+                [
+                  FocusStates.FocusVisible,
+                  FocusStates.FocusWithinVisible,
+                ] as FocusState[]
+              ).includes(focusState)
             }
             onAction={onAction}
           ></CardActions>

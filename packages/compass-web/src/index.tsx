@@ -1,16 +1,16 @@
 export { CompassWeb } from './entrypoint';
 export type { CompassWebProps, TrackFunction } from './entrypoint';
 export * from './url-builder';
-export type {
-  OpenWorkspaceOptions,
-  WorkspaceTab,
-} from '@mongodb-js/compass-workspaces';
+export type { WorkspaceTab } from '@mongodb-js/workspace-info';
+export type { OpenWorkspaceOptions } from '@mongodb-js/compass-workspaces';
 export {
   CompassExperimentationProvider,
-  ExperimentTestName,
-  ExperimentTestGroup,
+  ExperimentTestNames,
+  ExperimentTestGroups,
+  type ExperimentTestName,
+  type ExperimentTestGroup,
 } from '@mongodb-js/compass-telemetry';
-export type { CollectionTabInfo } from '@mongodb-js/compass-workspaces';
+export type { CollectionTabInfo } from '@mongodb-js/workspace-info';
 export type {
   AllPreferences,
   AtlasCloudFeatureFlags,

@@ -141,6 +141,11 @@ function createStore({
         dataService: {} as any,
         connectionInfoRef,
         connectionScopedAppRegistry,
+        collection: {
+          fetchMetadata() {
+            return Promise.resolve({ isFLE: false });
+          },
+        } as any,
       })
     )
   );

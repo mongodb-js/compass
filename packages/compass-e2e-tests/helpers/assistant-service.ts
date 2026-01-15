@@ -140,7 +140,6 @@ function sendStreamingResponse(res: http.ServerResponse, content: string) {
   sendChunk();
 }
 
-export const MOCK_ASSISTANT_SERVER_PORT = 27097;
 export async function startMockAssistantServer(
   {
     response: _response,
@@ -157,26 +156,27 @@ export async function startMockAssistantServer(
   getResponse: () => MockAssistantResponse;
   setResponse: (response: MockAssistantResponse) => void;
   getRequests: () => {
-    content: any;
-    req: any;
+    content: Record<string, any>;
+    req: http.IncomingMessage;
   }[];
   endpoint: string;
   server: http.Server;
   stop: () => Promise<void>;
 }> {
   let requests: {
-    content: any;
-    req: any;
+    content: Record<string, any>;
+    req: http.IncomingMessage;
   }[] = [];
   let response = _response;
   const server = http
     .createServer((req, res) => {
-      res.setHeader('Access-Control-Allow-Origin', '*');
+      res.setHeader('Access-Control-Allow-Origin', req.headers.origin || '*');
       res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
       res.setHeader(
         'Access-Control-Allow-Headers',
-        'Content-Type, Authorization, X-Request-Origin, User-Agent'
+        'Content-Type, Authorization, X-Request-Origin, User-Agent, X-CSRF-Token, X-CSRF-Time, Entrypoint, X-Client-Request-Id'
       );
+      res.setHeader('Access-Control-Allow-Credentials', 'true');
 
       // Handle preflight requests
       if (req.method === 'OPTIONS') {
@@ -213,8 +213,8 @@ export async function startMockAssistantServer(
           });
 
           if (response.status !== 200) {
-            res.writeHead(response.status);
             res.setHeader('Content-Type', 'application/json');
+            res.writeHead(response.status);
             return res.end(JSON.stringify({ error: response.body }));
           }
 
@@ -222,7 +222,7 @@ export async function startMockAssistantServer(
           return sendStreamingResponse(res, response.body);
         });
     })
-    .listen(MOCK_ASSISTANT_SERVER_PORT);
+    .listen(0);
   await once(server, 'listening');
 
   // address() returns either a string or AddressInfo.

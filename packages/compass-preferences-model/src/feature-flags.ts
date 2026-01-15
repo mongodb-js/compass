@@ -151,29 +151,6 @@ export const FEATURE_FLAG_DEFINITIONS = [
     },
   },
 
-  /**
-   * Feature flags for Early Journey Indexes Guidance & Awareness  | Jira Epic: CLOUDP-239367
-   * These are passed from MMS and not editable by user
-   */
-  {
-    name: 'enableIndexesGuidanceExp',
-    stage: 'development',
-    atlasCloudFeatureFlagName: null,
-    description: {
-      short: 'Enable Indexes Guidance Experiment',
-    },
-  },
-
-  {
-    name: 'showIndexesGuidanceVariant',
-    stage: 'development',
-    atlasCloudFeatureFlagName: null,
-    description: {
-      short:
-        'Used to check if user is in the Indexes Guidance Experiment Variant',
-    },
-  },
-
   {
     name: 'enableContextMenus',
     stage: 'released',
@@ -217,14 +194,14 @@ export const FEATURE_FLAG_DEFINITIONS = [
   },
 
   /*
-   * Feature flag for AI Assistant's performance insight entrypoints.
+   * Feature flag for AI Assistant's tool calling feature.
    */
   {
-    name: 'enablePerformanceInsightsEntrypoints',
-    stage: 'development',
-    atlasCloudFeatureFlagName: null,
+    name: 'enableToolCalling',
+    stage: 'released',
+    atlasCloudFeatureFlagName: 'DATA_EXPLORER_ENABLE_TOOL_CALLING',
     description: {
-      short: 'Enable the performance insights AI Assistant entrypoints',
+      short: 'Enable tool calling in the AI Assistant',
     },
   },
 
@@ -245,6 +222,14 @@ export const FEATURE_FLAG_DEFINITIONS = [
     description: {
       short:
         'Enable automatic relationship inference during data model generation',
+    },
+  },
+  {
+    name: 'enableChatbotEndpointForGenAI',
+    stage: 'released',
+    atlasCloudFeatureFlagName: null,
+    description: {
+      short: 'Enable Chatbot API for Generative AI',
     },
   },
 ] as const satisfies ReadonlyArray<FeatureFlagDefinition>;

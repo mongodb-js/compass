@@ -74,7 +74,7 @@ jobs:
         include:
           # MacOS
           - package: osx_dmg
-            runs-on: macos-13
+            runs-on: macos-15-intel
             arch: x64
             hadron-platform: darwin
           - package: osx_zip
@@ -181,7 +181,7 @@ jobs:
       DEBUG: compass:smoketests:*,compass-e2e-tests:*
       # Similar to total task timeout, setting these higher than the default
       # value to account for very slow windows machines
-      COMPASS_E2E_MOCHA_TIMEOUT: 720000 # 12min
+      COMPASS_E2E_MOCHA_TIMEOUT: 1200000 # 20min
       COMPASS_E2E_WEBDRIVER_WAITFOR_TIMEOUT: 600000 # 10min
     steps:
       - name: Checkout
@@ -189,7 +189,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22.15.1
+          node-version: 22.21.1
           cache: 'npm'
 
       - name: Run post-checkout command

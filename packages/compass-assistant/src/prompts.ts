@@ -1,4 +1,12 @@
-import type { ConnectionInfo } from '@mongodb-js/connection-info';
+import {
+  getConnectionTitle,
+  type ConnectionInfo,
+} from '@mongodb-js/connection-info';
+import type {
+  CollectionSubtab,
+  WorkspaceTab,
+} from '@mongodb-js/workspace-info';
+import type { CollectionMetadata } from 'mongodb-collection-model';
 import { redactConnectionString } from 'mongodb-connection-string-url';
 import type { AssistantMessage } from './compass-assistant-provider';
 
@@ -36,13 +44,6 @@ You are able to:
 1. Answer technical questions
 </abilities>
 
-<inabilities>
-You CANNOT:
-
-1. Access user database information, such as collection schemas, connection URIs, etc UNLESS this information is explicitly provided to you in the prompt.
-2. Query MongoDB directly or execute code.
-3. Access the current state of the UI
-</inabilities>
 `;
 };
 
@@ -161,11 +162,8 @@ export const buildProactiveInsightsPrompt = (
   switch (context.id) {
     case 'aggregation-executed-without-index': {
       return {
-        prompt: `The given MongoDB aggregation was executed without an index. Provide a concise human readable explanation that explains why it might degrade performance to not use an index. 
-
-Please suggest whether an existing index can be used to improve the performance of this query, or if a new index must be created, and describe how it can be accomplished in MongoDB Compass. Do not advise users to create indexes without weighing the pros and cons. 
-
-Respond with as much concision and clarity as possible. 
+        prompt: `Provide a concise, human-readable explanation of why not using an index for this aggregation can degrade performance. Do not refer to the specifics of the explain plan output, but use it to contextualize your recommendations. Assess whether any existing indexes could optimize this operation, or if a new index could improve performance. Do not ever explicitly instruct to create an index. If a new index might help, mention important pros and cons of adding an index, not just benefits, and briefly describe how to create it in MongoDB Compass.
+Consider the type of collection (e.g. view v. not). If tools are available, use the \`explain\` tool to get the explain plan output, use the \`list-indexes\` tool to get the list of indexes for this collection.
 
 <input>
 ${context.stages.join('\n')}
@@ -225,3 +223,169 @@ ${connectionError}`,
     },
   };
 };
+
+export function buildContextPrompt({
+  activeWorkspace,
+  activeConnection,
+  activeCollectionMetadata,
+  activeCollectionSubTab,
+  enableToolCalling = false,
+  enableGenAIToolCalling = false,
+}: {
+  activeWorkspace: WorkspaceTab | null;
+  activeConnection: Pick<ConnectionInfo, 'connectionOptions'> | null;
+  activeCollectionMetadata: Pick<
+    CollectionMetadata,
+    | 'isTimeSeries'
+    | 'sourceName'
+    | 'isClustered'
+    | 'isFLE'
+    | 'isSearchIndexesSupported'
+    | 'isDataLake'
+    | 'isAtlas'
+    | 'serverVersion'
+  > | null;
+  activeCollectionSubTab: CollectionSubtab | null;
+  enableToolCalling?: boolean;
+  enableGenAIToolCalling?: boolean;
+}): AssistantMessage {
+  const parts: string[] = [];
+
+  if (activeConnection) {
+    const connectionName = getConnectionTitle(activeConnection);
+    const redactedConnectionString = redactConnectionString(
+      activeConnection.connectionOptions.connectionString
+    );
+    parts.push(
+      `The connection is named "${connectionName}". The redacted connection string is "${redactedConnectionString}".`
+    );
+  }
+
+  if (activeWorkspace) {
+    const isNamespaceTab = hasNamespace(activeWorkspace);
+    const tabName = activeCollectionSubTab || activeWorkspace.type;
+    const namespacePart = isNamespaceTab
+      ? ` for the "${activeWorkspace.namespace}" namespace`
+      : '';
+    const lines = [`The user is on the "${tabName}" tab${namespacePart}.`];
+    if (isNamespaceTab && activeConnection && activeCollectionMetadata) {
+      const collectionDetails: string[] = [];
+      if (activeCollectionMetadata.isTimeSeries) {
+        collectionDetails.push('is a time-series collection');
+      }
+
+      if (activeCollectionMetadata.sourceName) {
+        collectionDetails.push(
+          `is a view on the "${activeCollectionMetadata.sourceName}" collection`
+        );
+      }
+
+      if (activeCollectionMetadata.isClustered) {
+        collectionDetails.push('is a clustered collection');
+      }
+
+      if (activeCollectionMetadata.isFLE) {
+        collectionDetails.push('has encrypted fields');
+      }
+
+      if (activeCollectionMetadata.isSearchIndexesSupported) {
+        collectionDetails.push('supports Atlas Search indexes');
+      } else {
+        collectionDetails.push('does not support Atlas Search indexes');
+      }
+
+      if (collectionDetails.length > 0) {
+        lines.push(
+          `"${activeWorkspace.namespace}" ${collectionDetails.join(', ')}.`
+        );
+      }
+
+      // Instance metadata
+      const instanceDetails: string[] = [];
+      if (activeCollectionMetadata.isDataLake) {
+        instanceDetails.push('Data Lake');
+      }
+      if (activeCollectionMetadata.isAtlas) {
+        instanceDetails.push('Atlas');
+      }
+
+      if (instanceDetails.length > 0) {
+        lines.push(`The instance is ${instanceDetails.join(' and ')}.`);
+      }
+      lines.push(`Server version: ${activeCollectionMetadata.serverVersion}`);
+    }
+    parts.push(lines.join(' '));
+  } else {
+    parts.push(`The user does not have any tabs open.`);
+  }
+
+  if (enableToolCalling) {
+    let abilityNum = 1;
+    const abilities = [];
+    abilities.push('<abilities>');
+    abilities.push('You CAN:');
+    if (enableGenAIToolCalling) {
+      abilities.push(
+        `${abilityNum++}. Access user database information, such as collection schemas, etc.`
+      );
+      abilities.push(`${abilityNum++}. Query MongoDB directly.`);
+    }
+    abilities.push(
+      `${abilityNum++}. Access the user's current query or aggregation pipeline.`
+    );
+    abilities.push('</abilities>');
+
+    parts.push(abilities.join('\n'));
+  }
+
+  if (!enableToolCalling || !enableGenAIToolCalling) {
+    let inabilityNum = 1;
+    const inabilities = [];
+    inabilities.push('<inabilities>');
+    inabilities.push('You CANNOT:');
+    if (!enableGenAIToolCalling) {
+      inabilities.push(
+        `${inabilityNum++}. Access user database information, such as collection schemas, etc UNLESS this information is explicitly provided to you in the prompt.`
+      );
+      inabilities.push(
+        `${inabilityNum++}. Query MongoDB directly or execute code.`
+      );
+    }
+    if (!enableToolCalling) {
+      inabilities.push(
+        `${inabilityNum++}. Access the user's current query or aggregation pipeline.`
+      );
+    }
+    inabilities.push('</inabilities>');
+
+    parts.push(inabilities.join('\n'));
+  }
+
+  const text = parts.join('\n\n');
+
+  const prompt: AssistantMessage = {
+    id: `system-context-${Date.now()}`,
+    parts: [
+      {
+        type: 'text',
+        text,
+      },
+    ],
+    metadata: {
+      isSystemContext: true,
+    },
+    role: 'system',
+  };
+
+  return prompt;
+}
+
+function hasNamespace(
+  workspaceTab: WorkspaceTab | null
+): workspaceTab is WorkspaceTab & { namespace: string } {
+  if (!workspaceTab) {
+    return false;
+  }
+
+  return !!(workspaceTab as WorkspaceTab & { namespace?: string }).namespace;
+}

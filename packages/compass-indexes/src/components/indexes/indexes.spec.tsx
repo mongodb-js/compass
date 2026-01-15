@@ -22,7 +22,7 @@ import { searchIndexes } from '../../../test/fixtures/search-indexes';
 import type { RootState } from '../../modules';
 import type { Document } from 'mongodb';
 import { CompassExperimentationProvider } from '@mongodb-js/compass-telemetry';
-import { ExperimentTestGroup } from '@mongodb-js/compass-telemetry/provider';
+import { ExperimentTestGroups } from '@mongodb-js/compass-telemetry/provider';
 
 const renderIndexes = async (
   options: Partial<IndexesPluginOptions> = {},
@@ -133,7 +133,7 @@ describe('Indexes Component', function () {
 
     expect(() => {
       screen.getByTestId('indexes-list');
-    }).to.throw;
+    }).to.throw();
   });
 
   context('regular indexes', function () {
@@ -458,7 +458,7 @@ describe('Indexes Component', function () {
           mockUseAssignment.returns({
             assignment: {
               assignmentData: {
-                variant: ExperimentTestGroup.atlasSkillsVariant,
+                variant: ExperimentTestGroups.atlasSkillsVariant,
               },
             },
             ...commonAsyncStatus,
@@ -467,7 +467,7 @@ describe('Indexes Component', function () {
           mockUseAssignment.returns({
             assignment: {
               assignmentData: {
-                variant: ExperimentTestGroup.atlasSkillsControl,
+                variant: ExperimentTestGroups.atlasSkillsControl,
               },
             },
             ...commonAsyncStatus,

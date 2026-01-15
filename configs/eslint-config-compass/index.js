@@ -5,6 +5,11 @@ const shared = require('@mongodb-js/eslint-config-devtools');
 const common = require('@mongodb-js/eslint-config-devtools/common');
 const chaiFriendly = require('eslint-plugin-chai-friendly');
 
+// TODO(COMPASS-9459): disabling a bunch of new rules to unblock automatic updates
+const tempNewEslintRulesDisabled = {
+  '@typescript-eslint/no-unsafe-enum-comparison': 'off',
+};
+
 const extraTsRules = {
   // Newly converted plugins use `any` quite a lot, we can't enable the rule,
   // but we can warn so we can eventually address this
@@ -31,6 +36,8 @@ const extraTsRules = {
 const tsRules = {
   ...common.tsRules,
   ...extraTsRules,
+
+  ...tempNewEslintRulesDisabled,
 };
 
 const tsOverrides = {
@@ -47,6 +54,8 @@ const tsxRules = {
       additionalHooks: '(useTrackOnChange|useContextMenuGroups)',
     },
   ],
+
+  ...tempNewEslintRulesDisabled,
 };
 
 const tsxOverrides = {
@@ -68,6 +77,16 @@ const commonTestOverrides = {
       ],
     },
   ],
+  '@mongodb-js/devtools/no-expect-method-without-call': [
+    'error',
+    {
+      // 'open' and 'closed' are custom chai properties defined in
+      // testing-library-compass.
+      properties: ['open', 'closed'],
+    },
+  ],
+
+  ...tempNewEslintRulesDisabled,
 };
 
 const testJsOverrides = {

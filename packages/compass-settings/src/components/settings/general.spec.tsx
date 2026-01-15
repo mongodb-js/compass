@@ -36,12 +36,13 @@ describe('GeneralSettings', function () {
     cleanup();
   });
 
-  [
+  const settings: (keyof ReturnType<typeof getSettings>)[] = [
     'readOnly',
     'enableShell',
     'protectConnectionStrings',
     'showKerberosPasswordField',
-  ].forEach((option) => {
+  ];
+  settings.forEach((option) => {
     it(`renders ${option}`, function () {
       expect(within(container).getByTestId(option)).to.exist;
     });
@@ -63,6 +64,19 @@ describe('GeneralSettings', function () {
     within(container).getByTestId('defaultSortOrder').click();
     within(container).getByText('_id: 1').click();
     expect(getSettings()).to.have.property('defaultSortOrder', '{ _id: 1 }');
+  });
+
+  it('renders legacyUUIDDisplayEncoding', function () {
+    expect(within(container).getByTestId('legacyUUIDDisplayEncoding')).to.exist;
+  });
+
+  it('changes legacyUUIDDisplayEncoding value when selecting an option', function () {
+    within(container).getByTestId('legacyUUIDDisplayEncoding').click();
+    within(container).getByText('Legacy Java UUID').click();
+    expect(getSettings()).to.have.property(
+      'legacyUUIDDisplayEncoding',
+      'LegacyJavaUUID'
+    );
   });
 
   ['maxTimeMS'].forEach((option) => {

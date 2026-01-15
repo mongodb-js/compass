@@ -1,10 +1,4 @@
-import React, {
-  Fragment,
-  useCallback,
-  useEffect,
-  useState,
-  useRef,
-} from 'react';
+import React, { Fragment, useCallback, useState, useRef } from 'react';
 import {
   InlineInfoLink,
   Label,
@@ -13,6 +7,7 @@ import {
   spacing,
   css,
   showConfirmation,
+  useSyncStateOnPropChange,
 } from '@mongodb-js/compass-components';
 import { redactConnectionString } from 'mongodb-connection-string-url';
 import type { UpdateConnectionFormField } from '../hooks/use-connect-form';
@@ -92,23 +87,15 @@ function ConnectionStringInput({
   const textAreaEl = useRef<HTMLTextAreaElement>(null);
   const [editingConnectionString, setEditingConnectionString] =
     useState(connectionString);
+  const [isTextAreaFocused, setIsTextAreaFocused] = useState(false);
 
-  const [isTextAreaFocussed, setIsTextAreaFocussed] = useState(false);
-
-  useEffect(() => {
-    // If the user isn't actively editing the connection string and it
-    // changes (form action/new connection) we update the string.
-    if (
-      editingConnectionString !== connectionString &&
-      (!textAreaEl.current || textAreaEl.current !== document.activeElement)
-    ) {
+  // If the user isn't actively editing the connection string and it changes
+  // (form action/new connection) we update the string
+  useSyncStateOnPropChange(() => {
+    if (!isTextAreaFocused && connectionString !== editingConnectionString) {
       setEditingConnectionString(connectionString);
     }
-  }, [
-    connectionString,
-    enableEditingConnectionString,
-    editingConnectionString,
-  ]);
+  }, [isTextAreaFocused, connectionString, editingConnectionString]);
 
   const onKeyPressedConnectionString = useCallback(
     (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -138,7 +125,7 @@ function ConnectionStringInput({
   );
 
   const displayedConnectionString =
-    enableEditingConnectionString && isTextAreaFocussed
+    enableEditingConnectionString && isTextAreaFocused
       ? editingConnectionString
       : hidePasswordInConnectionString(editingConnectionString);
 
@@ -158,7 +145,7 @@ function ConnectionStringInput({
       }
       setEnableEditingConnectionString(true);
     },
-    [setEnableEditingConnectionString, showConfirmation]
+    [setEnableEditingConnectionString]
   );
 
   return (
@@ -198,8 +185,8 @@ function ConnectionStringInput({
       </div>
       <div className={textAreaContainerStyle}>
         <TextArea
-          onBlur={() => setIsTextAreaFocussed(false)}
-          onFocus={() => setIsTextAreaFocussed(true)}
+          onBlur={() => setIsTextAreaFocused(false)}
+          onFocus={() => setIsTextAreaFocused(true)}
           onChange={onChangeConnectionString}
           onKeyPress={onKeyPressedConnectionString}
           value={displayedConnectionString}

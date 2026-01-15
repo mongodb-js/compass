@@ -13,6 +13,7 @@ on:
           - eslint
           - typescript
           - mongosh
+          - leafygreen
           - all
         required: true
   schedule:
@@ -36,7 +37,7 @@ jobs:
           echo "Configuring matrix (inputs.group_name=${{ inputs.group_name }})"
           if [[ "$SHOULD_INCLUDE_ALL_GROUPS" = "true" ]]; then
             # When adding new group, don't forget to update the `workflow_dispatch`
-            echo 'group_name=["electron","eslint","typescript","mongosh"]' >> "$GITHUB_OUTPUT"
+            echo 'group_name=["electron","eslint","typescript","mongosh","leafygreen"]' >> "$GITHUB_OUTPUT"
           else
             echo 'group_name=["${{ inputs.group_name }}"]' >> "$GITHUB_OUTPUT"
           fi
@@ -46,6 +47,7 @@ jobs:
     needs: configure_matrix
     env:
       UPDATE_BRANCH_NAME: ci/update-${{ matrix.group_name }}
+    continue-on-error: true
     strategy:
       matrix:
         group_name: ${{ fromJSON(needs.configure_matrix.outputs.group_name) }}
@@ -65,7 +67,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 22.15.1
+          node-version: 22.21.1
           cache: 'npm'
 
       - name: Install npm@10.2.4

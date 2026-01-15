@@ -25,8 +25,8 @@ export const SettingsInputElement = (settingName: string): string => {
 };
 
 // LG Modals
-export const LGModal = '[data-testid="lg-modal"]';
-export const LGModalClose = '[data-testid="lg-modal-close_button"]';
+export const LGModal = '[data-lgid="lg-modal"]';
+export const LGModalClose = '[data-lgid="lg-modal-close"]';
 
 // LG Toasts container (these test ids are used by LG in the toast and are not in the code anywhere).
 export const LGToastContainer = '[data-testid="lg-toast-scroll-container"]';
@@ -255,7 +255,7 @@ export const ConnectionsTitle = '[data-testid="connections-header"]';
 export const SidebarNewConnectionButton = '[data-action="add-new-connection"]';
 export const ConnectButton =
   '[data-testid="sidebar-navigation-item-actions-connection-connect-action"]';
-export const ConnectDropdownButton = `${ConnectButton} [data-testid="lg-split_button-trigger"]`;
+export const ConnectDropdownButton = `[data-testid="lg-split_button-trigger"]`;
 export const ConnectInNewWindowButton =
   '[data-action="connection-connect-in-new-window"]';
 export const ConnectionMenu = '[data-testid="sidebar-navigation-item-actions"]';
@@ -843,7 +843,7 @@ export const AggregationSettingsApplyButton =
   '[data-testid="aggregation-settings-apply"]';
 export const AddStageButton = '[data-testid="add-stage"]';
 export const ExportAggregationToLanguage =
-  '[data-testid="pipeline-toolbar-export-button"]';
+  '[data-testid="pipeline-toolbar-export-code-button"]';
 export const CreateNewPipelineButton =
   '[data-testid="pipeline-toolbar-create-new-button"]';
 export const NewPipelineActions = '#new-pipeline-actions';
@@ -863,7 +863,7 @@ export const AggregationErrorDetailsBtn =
 export const RunPipelineButton = `[data-testid="pipeline-toolbar-run-button"]`;
 export const EditPipelineButton = `[data-testid="pipeline-toolbar-edit-button"]`;
 export const GoToCollectionButton = `[data-testid="pipeline-results-go-to-collection"]`;
-export const ExportAggregationResultsButton = `[data-testid="pipeline-toolbar-export-aggregation-button"]`;
+export const ExportAggregationResultsButton = `[data-testid="pipeline-toolbar-export-data-button"]`;
 
 export const AggregationOpenSavedPipelinesButton = `[data-testid="pipeline-toolbar-open-pipelines-button"]`;
 export const AggregationSavedPipelinesPopover = `[data-testid="saved-pipelines"]`;
@@ -1232,7 +1232,7 @@ export const queryBarResetFilterButton = (tabName: string): string => {
 };
 export const queryBarExportToLanguageButton = (tabName: string): string => {
   const tabSelector = collectionContent(tabName);
-  return `${tabSelector} [data-testid="query-bar-open-export-to-language-button"]`;
+  return `${tabSelector} [data-testid="crud-export-to-language-button"]`;
 };
 export const GenAIEntryButton = '[data-testid="open-ai-query-entry-button"]';
 export const GenAITextInput = '[data-testid="ai-user-text-input"]';
@@ -1330,11 +1330,11 @@ export const ConfirmationModalInput = `${ConfirmationModal} input`;
 
 export const confirmationModalConfirmButton = (
   modalSelector = ConfirmationModal
-) => `${modalSelector} [role=dialog] [data-testid*="confirm_button"]`;
+) => `${modalSelector} [data-testid*="confirm_button"]`;
 
 export const confirmationModalCancelButton = (
   modalSelector = ConfirmationModal
-) => `${modalSelector} [role=dialog] [data-testid*="cancel_button"]`;
+) => `${modalSelector} [data-testid*="cancel_button"]`;
 
 // New pipeline from text modal
 export const NewPipelineFromTextModal = '[data-testid="import-pipeline-modal"]';
@@ -1460,7 +1460,7 @@ export const DataModelExportButton = 'button[aria-label="Export"]';
 export const DataModelExportModal = '[data-testid="export-diagram-modal"]';
 export const DataModelExportPngOption = `${DataModelExportModal} input[aria-label="PNG"]`;
 export const DataModelExportJsonOption = `${DataModelExportModal} input[aria-label="JSON"]`;
-export const DataModelExportDiagramOption = `${DataModelExportModal} input[aria-label="Diagram File"]`;
+export const DataModelExportDiagramOption = `${DataModelExportModal} input[aria-label="MDM File"]`;
 export const DataModelExportModalConfirmButton =
   '[data-testid="export-button"]';
 export const DataModelsListItem = (diagramName?: string) => {

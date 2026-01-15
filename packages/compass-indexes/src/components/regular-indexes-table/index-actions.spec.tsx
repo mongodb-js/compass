@@ -346,7 +346,7 @@ describe('IndexActions Component', function () {
         } else {
           expect(() =>
             within(actionsGroup).getByLabelText('Hide Index version_test')
-          ).to.throw;
+          ).to.throw();
         }
       });
     });

@@ -41,6 +41,14 @@ export const SORT_ORDER_VALUES = [
 
 export type SORT_ORDERS = (typeof SORT_ORDER_VALUES)[number];
 
+export const LEGACY_UUID_ENCODINGS = [
+  '',
+  'LegacyJavaUUID',
+  'LegacyCSharpUUID',
+  'LegacyPythonUUID',
+] as const;
+export type LEGACY_UUID_ENCODINGS = (typeof LEGACY_UUID_ENCODINGS)[number];
+
 export type PermanentFeatureFlags = {
   showDevFeatureFlags?: boolean;
   enableDebugUseCsfleSchemaMap?: boolean;
@@ -72,6 +80,7 @@ export type UserConfigurablePreferences = PermanentFeatureFlags &
     maxTimeMS?: number;
     installURLHandlers: boolean;
     protectConnectionStringsForNewConnections: boolean;
+    legacyUUIDDisplayEncoding: LEGACY_UUID_ENCODINGS;
     // This preference is not a great fit for user preferences, but everything
     // except for user preferences doesn't allow required preferences to be
     // defined, so we are sticking it here
@@ -95,6 +104,7 @@ export type UserConfigurablePreferences = PermanentFeatureFlags &
     enableAggregationBuilderRunPipeline: boolean;
     enableAggregationBuilderExtraOptions: boolean;
     enableGenAISampleDocumentPassing: boolean;
+    enableGenAIToolCalling: boolean;
     enablePerformanceAdvisorBanner: boolean;
     maximumNumberOfActiveConnections?: number;
     defaultSortOrder: SORT_ORDERS;
@@ -172,8 +182,7 @@ export type AtlasOrgPreferences = {
 
 export type AllPreferences = UserPreferences &
   CliOnlyPreferences &
-  NonUserPreferences &
-  PermanentFeatureFlags;
+  NonUserPreferences;
 
 // Types related to PreferenceDefinition
 type PostProcessFunction<T> = (
@@ -375,6 +384,7 @@ export const storedUserPreferencesProps: Required<{
       short: 'Compass UI Theme',
     },
     validator: z
+
       .effect(z.enum(THEMES_VALUES), {
         type: 'preprocess',
         transform: (val) =>
@@ -955,6 +965,30 @@ export const storedUserPreferencesProps: Required<{
     type: 'boolean',
   },
 
+  enableGenAIToolCalling: {
+    ui: true,
+    cli: true,
+    global: true,
+    description: {
+      short: 'Enable read-only tools in the MongoDB Assistant',
+      long: 'Allow the MongoDB Assistant to interact with your databases. All actions require your approval before running.',
+      longReact: (
+        <>
+          Allow the MongoDB Assistant to interact with your databases. All
+          actions require your approval before running. Learn more about{' '}
+          <Link
+            href="https://www.mongodb.com/docs/compass/query-with-natural-language/compass-ai-assistant/"
+            target="_blank"
+          >
+            MongoDB database tools
+          </Link>
+        </>
+      ),
+    },
+    validator: z.boolean().default(true),
+    type: 'boolean',
+  },
+
   enablePerformanceAdvisorBanner: {
     ui: true,
     cli: true,
@@ -1099,6 +1133,42 @@ export const storedUserPreferencesProps: Required<{
     },
     validator: z.number().min(0).default(0),
     type: 'number',
+  },
+
+  // There are a good amount of folks who still use the legacy UUID
+  // binary subtype 3, so we provide an option to control how those
+  // values are displayed in Compass.
+  legacyUUIDDisplayEncoding: {
+    ui: true,
+    cli: true,
+    global: true,
+    description: {
+      short: 'Encoding for Displaying Legacy UUID Values',
+      long: 'Select the encoding to be used when displaying legacy UUID of the binary subtype 3.',
+      options: {
+        '': {
+          label: 'Raw data (no encoding)',
+          description: 'Display legacy UUIDs as raw binary data',
+        },
+        LegacyJavaUUID: {
+          label: 'Legacy Java UUID',
+          description:
+            'Display legacy UUIDs using Java UUID encoding. LegacyJavaUUID("UUID_STRING")',
+        },
+        LegacyCSharpUUID: {
+          label: 'Legacy C# UUID',
+          description:
+            'Display legacy UUIDs using C# UUID encoding. LegacyCSharpUUID("UUID_STRING")',
+        },
+        LegacyPythonUUID: {
+          label: 'Legacy Python UUID',
+          description:
+            'Display legacy UUIDs using Python UUID encoding. LegacyPythonUUID("UUID_STRING")',
+        },
+      },
+    },
+    validator: z.enum(LEGACY_UUID_ENCODINGS).default(''),
+    type: 'string',
   },
 
   ...allFeatureFlagsProps,

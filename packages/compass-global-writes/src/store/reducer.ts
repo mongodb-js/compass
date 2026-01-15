@@ -24,149 +24,151 @@ export type CreateShardKeyData = Pick<
   | 'presplitHashedZones'
 >;
 
-enum GlobalWritesActionTypes {
-  ManagedNamespaceFetched = 'global-writes/ManagedNamespaceFetched',
-  NamespaceShardingErrorFetched = 'global-writes/NamespaceShardingErrorFetched',
-  NamespaceShardKeyFetched = 'global-writes/NamespaceShardKeyFetched',
+const GlobalWritesActionTypes = {
+  ManagedNamespaceFetched: 'global-writes/ManagedNamespaceFetched',
+  NamespaceShardingErrorFetched: 'global-writes/NamespaceShardingErrorFetched',
+  NamespaceShardKeyFetched: 'global-writes/NamespaceShardKeyFetched',
 
-  ShardZonesFetched = 'global-writes/ShardZonesFetched',
-  ShardZonesFetchedError = 'global-writes/ShardZonesFetchedError',
+  ShardZonesFetched: 'global-writes/ShardZonesFetched',
+  ShardZonesFetchedError: 'global-writes/ShardZonesFetchedError',
 
-  SubmittingForShardingStarted = 'global-writes/SubmittingForShardingStarted',
-  SubmittingForShardingFinished = 'global-writes/SubmittingForShardingFinished',
-  SubmittingForShardingErrored = 'global-writes/SubmittingForShardingErrored',
+  SubmittingForShardingStarted: 'global-writes/SubmittingForShardingStarted',
+  SubmittingForShardingFinished: 'global-writes/SubmittingForShardingFinished',
+  SubmittingForShardingErrored: 'global-writes/SubmittingForShardingErrored',
 
-  CancellingShardingStarted = 'global-writes/CancellingShardingStarted',
-  CancellingShardingFinished = 'global-writes/CancellingShardingFinished',
-  CancellingShardingErrored = 'global-writes/CancellingShardingErrored',
+  CancellingShardingStarted: 'global-writes/CancellingShardingStarted',
+  CancellingShardingFinished: 'global-writes/CancellingShardingFinished',
+  CancellingShardingErrored: 'global-writes/CancellingShardingErrored',
 
-  UnmanagingNamespaceStarted = 'global-writes/UnmanagingNamespaceStarted',
-  UnmanagingNamespaceFinished = 'global-writes/UnmanagingNamespaceFinished',
-  UnmanagingNamespaceErrored = 'global-writes/UnmanagingNamespaceErrored',
+  UnmanagingNamespaceStarted: 'global-writes/UnmanagingNamespaceStarted',
+  UnmanagingNamespaceFinished: 'global-writes/UnmanagingNamespaceFinished',
+  UnmanagingNamespaceErrored: 'global-writes/UnmanagingNamespaceErrored',
 
-  LoadingFailed = 'global-writes/LoadingFailed',
-}
+  LoadingFailed: 'global-writes/LoadingFailed',
+} as const;
 
 type ManagedNamespaceFetchedAction = {
-  type: GlobalWritesActionTypes.ManagedNamespaceFetched;
+  type: typeof GlobalWritesActionTypes.ManagedNamespaceFetched;
   managedNamespace?: ManagedNamespace;
 };
 
 type LoadingFailedAction = {
-  type: GlobalWritesActionTypes.LoadingFailed;
+  type: typeof GlobalWritesActionTypes.LoadingFailed;
   error: string;
 };
 
 type NamespaceShardingErrorFetchedAction = {
-  type: GlobalWritesActionTypes.NamespaceShardingErrorFetched;
+  type: typeof GlobalWritesActionTypes.NamespaceShardingErrorFetched;
   error: string;
 };
 
 type NamespaceShardKeyFetchedAction = {
-  type: GlobalWritesActionTypes.NamespaceShardKeyFetched;
+  type: typeof GlobalWritesActionTypes.NamespaceShardKeyFetched;
   shardKey?: ShardKey;
 };
 
 type ShardZonesFetchedAction = {
-  type: GlobalWritesActionTypes.ShardZonesFetched;
+  type: typeof GlobalWritesActionTypes.ShardZonesFetched;
   shardZones: ShardZoneData[];
 };
 
 type ShardZonesFetchedErrorAction = {
-  type: GlobalWritesActionTypes.ShardZonesFetchedError;
+  type: typeof GlobalWritesActionTypes.ShardZonesFetchedError;
 };
 
 type SubmittingForShardingStartedAction = {
-  type: GlobalWritesActionTypes.SubmittingForShardingStarted;
+  type: typeof GlobalWritesActionTypes.SubmittingForShardingStarted;
 };
 
 type SubmittingForShardingFinishedAction = {
-  type: GlobalWritesActionTypes.SubmittingForShardingFinished;
+  type: typeof GlobalWritesActionTypes.SubmittingForShardingFinished;
   managedNamespace?: ManagedNamespace;
 };
 
 type SubmittingForShardingErroredAction = {
-  type: GlobalWritesActionTypes.SubmittingForShardingErrored;
+  type: typeof GlobalWritesActionTypes.SubmittingForShardingErrored;
 };
 
 type CancellingShardingStartedAction = {
-  type: GlobalWritesActionTypes.CancellingShardingStarted;
+  type: typeof GlobalWritesActionTypes.CancellingShardingStarted;
 };
 
 type CancellingShardingFinishedAction = {
-  type: GlobalWritesActionTypes.CancellingShardingFinished;
+  type: typeof GlobalWritesActionTypes.CancellingShardingFinished;
   managedNamespace?: ManagedNamespace;
 };
 
 type CancellingShardingErroredAction = {
-  type: GlobalWritesActionTypes.CancellingShardingErrored;
+  type: typeof GlobalWritesActionTypes.CancellingShardingErrored;
 };
 
 type UnmanagingNamespaceStartedAction = {
-  type: GlobalWritesActionTypes.UnmanagingNamespaceStarted;
+  type: typeof GlobalWritesActionTypes.UnmanagingNamespaceStarted;
 };
 
 type UnmanagingNamespaceFinishedAction = {
-  type: GlobalWritesActionTypes.UnmanagingNamespaceFinished;
+  type: typeof GlobalWritesActionTypes.UnmanagingNamespaceFinished;
 };
 
 type UnmanagingNamespaceErroredAction = {
-  type: GlobalWritesActionTypes.UnmanagingNamespaceErrored;
+  type: typeof GlobalWritesActionTypes.UnmanagingNamespaceErrored;
 };
 
-export enum ShardingStatuses {
+export const ShardingStatuses = {
   /**
    * Initial status, no information available yet.
    */
-  NOT_READY = 'NOT_READY',
+  NOT_READY: 'NOT_READY',
 
   /**
    * The status could not be determined because loading failed
    */
-  LOADING_ERROR = 'LOADING_ERROR',
+  LOADING_ERROR: 'LOADING_ERROR',
 
   /**
    * Namespace is not geo-sharded.
    */
-  UNSHARDED = 'UNSHARDED',
+  UNSHARDED: 'UNSHARDED',
 
   /**
    * Incomplete sharding setup
    * sharding key exists but namespace is not managed
    * (can happen when already sharded namespace is unmanaged)
    */
-  INCOMPLETE_SHARDING_SETUP = 'INCOMPLETE_SHARDING_SETUP',
+  INCOMPLETE_SHARDING_SETUP: 'INCOMPLETE_SHARDING_SETUP',
 
   /**
    * Namespace is being sharded.
    */
-  SHARDING = 'SHARDING',
+  SHARDING: 'SHARDING',
 
   /**
    * Sharding failed.
    */
-  SHARDING_ERROR = 'SHARDING_ERROR',
+  SHARDING_ERROR: 'SHARDING_ERROR',
 
   /**
    * If the first key is not valid location key or the key is not compound.
    */
-  SHARD_KEY_INVALID = 'SHARD_KEY_INVALID',
+  SHARD_KEY_INVALID: 'SHARD_KEY_INVALID',
 
   /**
    * If the first key is valid (location key) and second key is not valid.
    * The second key valid means that it matches with the managedNamespace's
    * customShardKey and is of the correct type.
    */
-  SHARD_KEY_MISMATCH = 'SHARD_KEY_MISMATCH',
+  SHARD_KEY_MISMATCH: 'SHARD_KEY_MISMATCH',
 
   /**
    * Namespace is geo-sharded. Both, first key is valid
    * location key and second key is valid custom key.
    */
-  SHARD_KEY_CORRECT = 'SHARD_KEY_CORRECT',
-}
+  SHARD_KEY_CORRECT: 'SHARD_KEY_CORRECT',
+} as const;
 
-export type ShardingStatus = keyof typeof ShardingStatuses;
+export type ShardingStatus =
+  (typeof ShardingStatuses)[keyof typeof ShardingStatuses];
+
 export type ShardKey = {
   fields: Array<{
     type: 'HASHED' | 'RANGE';
@@ -189,7 +191,7 @@ export type RootState = {
   shardZones: ShardZoneData[];
 } & (
   | {
-      status: ShardingStatuses.LOADING_ERROR;
+      status: typeof ShardingStatuses.LOADING_ERROR;
       shardKey?: ShardKey;
       loadingError: string;
       //////////////
@@ -197,7 +199,7 @@ export type RootState = {
       shardingError?: never;
     }
   | {
-      status: ShardingStatuses.NOT_READY;
+      status: typeof ShardingStatuses.NOT_READY;
       //////////////
       userActionInProgress?: never;
       shardKey?: never;
@@ -205,7 +207,7 @@ export type RootState = {
       loadingError?: never;
     }
   | {
-      status: ShardingStatuses.UNSHARDED;
+      status: typeof ShardingStatuses.UNSHARDED;
       userActionInProgress?: 'submitForSharding';
       //////////////
       shardKey?: never;
@@ -213,7 +215,7 @@ export type RootState = {
       loadingError?: never;
     }
   | {
-      status: ShardingStatuses.SHARDING;
+      status: typeof ShardingStatuses.SHARDING;
       userActionInProgress?: 'cancelSharding';
       /**
        * note: shardKey might exist
@@ -225,7 +227,7 @@ export type RootState = {
       loadingError?: never;
     }
   | {
-      status: ShardingStatuses.SHARDING_ERROR;
+      status: typeof ShardingStatuses.SHARDING_ERROR;
       userActionInProgress?: 'cancelSharding' | 'submitForSharding';
       shardingError: string;
       //////////////
@@ -234,8 +236,8 @@ export type RootState = {
     }
   | {
       status:
-        | ShardingStatuses.SHARD_KEY_CORRECT
-        | ShardingStatuses.SHARD_KEY_MISMATCH;
+        | typeof ShardingStatuses.SHARD_KEY_CORRECT
+        | typeof ShardingStatuses.SHARD_KEY_MISMATCH;
       userActionInProgress?: 'unmanageNamespace';
       shardKey: ShardKey;
       //////////////
@@ -243,7 +245,7 @@ export type RootState = {
       loadingError?: never;
     }
   | {
-      status: ShardingStatuses.SHARD_KEY_INVALID;
+      status: typeof ShardingStatuses.SHARD_KEY_INVALID;
       shardKey: ShardKey;
       //////////////
       userActionInProgress?: never;
@@ -251,7 +253,7 @@ export type RootState = {
       loadingError?: never;
     }
   | {
-      status: ShardingStatuses.INCOMPLETE_SHARDING_SETUP;
+      status: typeof ShardingStatuses.INCOMPLETE_SHARDING_SETUP;
       userActionInProgress?: 'cancelSharding' | 'submitForSharding';
       shardKey: ShardKey;
       //////////////

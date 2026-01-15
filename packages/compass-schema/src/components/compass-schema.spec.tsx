@@ -9,7 +9,7 @@ import {
 } from '@mongodb-js/testing-library-compass';
 import { Provider } from 'react-redux';
 import { CompassExperimentationProvider } from '@mongodb-js/compass-telemetry';
-import { ExperimentTestGroup } from '@mongodb-js/compass-telemetry/provider';
+import { ExperimentTestGroups } from '@mongodb-js/compass-telemetry/provider';
 import QueryBarPlugin from '@mongodb-js/compass-query-bar';
 import {
   createElectronFavoriteQueryStorage,
@@ -50,7 +50,7 @@ const MockQueryBarPlugin = QueryBarPlugin.withMockServices({
     getConnectionString() {
       return { hosts: [] } as any;
     },
-  },
+  } as any,
   instance: { on() {}, removeListener() {} } as any,
   favoriteQueryStorageAccess: {
     getStorage: () =>
@@ -61,6 +61,9 @@ const MockQueryBarPlugin = QueryBarPlugin.withMockServices({
       createElectronRecentQueryStorage({ basepath: '/tmp/test' }),
   },
   atlasAiService: {} as any,
+  collection: {
+    fetchMetadata: () => Promise.resolve({} as any),
+  } as any,
 });
 
 describe('CompassSchema Component', function () {
@@ -97,7 +100,7 @@ describe('CompassSchema Component', function () {
         mockUseAssignment.returns({
           assignment: {
             assignmentData: {
-              variant: ExperimentTestGroup.atlasSkillsVariant,
+              variant: ExperimentTestGroups.atlasSkillsVariant,
             },
           },
           ...commonAsyncStatus,
@@ -106,7 +109,7 @@ describe('CompassSchema Component', function () {
         mockUseAssignment.returns({
           assignment: {
             assignmentData: {
-              variant: ExperimentTestGroup.atlasSkillsControl,
+              variant: ExperimentTestGroups.atlasSkillsControl,
             },
           },
           ...commonAsyncStatus,

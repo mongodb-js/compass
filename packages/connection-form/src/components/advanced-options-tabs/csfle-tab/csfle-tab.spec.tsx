@@ -385,19 +385,26 @@ describe('In-Use Encryption', function () {
         );
       }
 
-      const selector = within(card).getByTestId('csfle-kms-card-name');
+      const selector = within(card).getByTestId<HTMLInputElement>(
+        'csfle-kms-card-name'
+      );
       userEvent.clear(selector);
       if (value !== '') {
         userEvent.type(selector, value);
       }
       userEvent.keyboard('{enter}');
+
+      expect(selector.value).equals(
+        value,
+        'Expected the input to have the updated value'
+      );
     }
 
     it('allows to have multiple KMS providers from same type', async function () {
       fireEvent.click(screen.getByText('Local KMS'));
       fireEvent.click(screen.getByText('Add item'));
 
-      const kmsProviders: Record<string, any> = {};
+      const kmsProviders: Record<string, any> = Object.create(null);
 
       for (const kmsProviderName of ['local', 'local:1'] as const) {
         const kmsCard = screen.getByTestId(`${kmsProviderName}-kms-card-item`);
@@ -445,7 +452,7 @@ describe('In-Use Encryption', function () {
       renameKMSProvider('local', 'new_name_1');
       renameKMSProvider('local:1', 'new_name_2');
 
-      const kmsProviders: Record<string, any> = {};
+      const kmsProviders: Record<string, any> = Object.create(null);
 
       for (const kmsProviderName of [
         'local:new_name_1',
@@ -521,7 +528,7 @@ describe('In-Use Encryption', function () {
         within(card1).getByRole('button', {
           name: /Remove KMS provider/i,
         })
-      ).to.throw;
+      ).to.throw();
 
       fireEvent.click(screen.getByText('Add item'));
 
@@ -540,7 +547,7 @@ describe('In-Use Encryption', function () {
         })
       );
 
-      expect(() => card1).to.throw;
+      expect(screen.queryByTestId('local-kms-card-item')).to.not.exist;
     });
   });
 

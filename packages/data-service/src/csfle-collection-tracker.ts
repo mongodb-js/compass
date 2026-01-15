@@ -241,14 +241,18 @@ function isOlderThan1Minute(oldDate: Date): boolean {
 
 export class CSFLECollectionTrackerImpl implements CSFLECollectionTracker {
   _nsToInfo = new Map<string, CSFLECollectionInfo>();
-
+  private _dataService: Pick<DataService, 'on' | 'listCollections'>;
+  private _crudClient: MongoClient;
+  private _logger?: UnboundDataServiceImplLogger;
   constructor(
-    private _dataService: Pick<DataService, 'on' | 'listCollections'>,
-    private _crudClient: MongoClient,
-    private _logger?: UnboundDataServiceImplLogger
+    _dataService: Pick<DataService, 'on' | 'listCollections'>,
+    _crudClient: MongoClient,
+    _logger?: UnboundDataServiceImplLogger
   ) {
+    this._dataService = _dataService;
+    this._crudClient = _crudClient;
+    this._logger = _logger;
     this._processClientSchemaDefinitions();
-
     const { autoEncrypter } = this._crudClient as any;
     if (autoEncrypter) {
       this._logger?.info(

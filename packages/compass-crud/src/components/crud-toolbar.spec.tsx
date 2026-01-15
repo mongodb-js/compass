@@ -6,13 +6,14 @@ import {
   within,
   userEvent,
   renderWithConnections,
+  waitFor,
 } from '@mongodb-js/testing-library-compass';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 import { CrudToolbar } from './crud-toolbar';
 import { renderWithQueryBar } from '../../test/render-with-query-bar';
 import { CompassExperimentationProvider } from '@mongodb-js/compass-telemetry';
-import { ExperimentTestGroup } from '@mongodb-js/compass-telemetry/provider';
+import { ExperimentTestGroups } from '@mongodb-js/compass-telemetry/provider';
 
 const noop = () => {
   /* noop */
@@ -20,6 +21,7 @@ const noop = () => {
 
 const testOutdatedMessageId = 'crud-outdated-message-id';
 const testErrorMessageId = 'document-list-error-summary';
+const testDocumentsPerPageId = 'crud-document-per-page-selector';
 
 const addDataText = 'Add Data';
 const updateDataText = 'Update';
@@ -37,6 +39,7 @@ describe('CrudToolbar Component', function () {
         count={55}
         end={20}
         getPage={noop}
+        lastCountRunMaxTimeMS={12345}
         insertDataHandler={noop}
         loadingCount={false}
         isFetching={false}
@@ -50,6 +53,7 @@ describe('CrudToolbar Component', function () {
         onExpandAllClicked={noop}
         onCollapseAllClicked={noop}
         openExportFileDialog={noop}
+        onOpenExportToLanguage={noop}
         outdated={false}
         page={0}
         readonly={false}
@@ -480,22 +484,51 @@ describe('CrudToolbar Component', function () {
   });
 
   describe('documents per page select', function () {
-    it('should render a select to update documents fetched per page', function () {
+    it('should render a select to update documents fetched per page', async function () {
       renderCrudToolbar();
-      expect(screen.getByLabelText('Update number of documents per page')).to.be
-        .visible;
+
+      await waitFor(
+        () => expect(screen.getByTestId(testDocumentsPerPageId)).to.be.visible
+      );
     });
 
-    it('should call updateDocumentsPerPage when select value changes', function () {
+    it('should call updateDocumentsPerPage when select value changes', async function () {
       const stub = sinon.stub();
       renderCrudToolbar({
         updateMaxDocumentsPerPage: stub,
       });
-      userEvent.click(
-        screen.getByLabelText('Update number of documents per page')
-      );
+
+      const selector = screen.getByTestId(testDocumentsPerPageId);
+
+      await waitFor(() => expect(selector).to.be.visible);
+      userEvent.click(selector);
       userEvent.click(screen.getByText('75'));
       expect(stub).to.be.calledWithExactly(75);
+    });
+  });
+
+  describe('when count the count is unavailable', function () {
+    it('shows N/A with the count maxTimeMS', async function () {
+      renderCrudToolbar({
+        count: undefined,
+      });
+      expect(screen.getByText('N/A')).to.be.visible;
+
+      const naText = screen.getByTestId('crud-document-count-unavailable');
+      expect(naText).to.be.visible;
+      userEvent.hover(naText);
+
+      await waitFor(
+        function () {
+          expect(screen.getByRole('tooltip')).to.exist;
+        },
+        {
+          timeout: 5000,
+        }
+      );
+
+      const tooltipText = screen.getByRole('tooltip').textContent;
+      expect(tooltipText).to.include('maxTimeMS of 12345.');
     });
   });
 
@@ -854,7 +887,7 @@ describe('CrudToolbar Component', function () {
           mockUseAssignment.returns({
             assignment: {
               assignmentData: {
-                variant: ExperimentTestGroup.atlasSkillsVariant,
+                variant: ExperimentTestGroups.atlasSkillsVariant,
               },
             },
             ...commonAsyncStatus,
@@ -863,7 +896,7 @@ describe('CrudToolbar Component', function () {
           mockUseAssignment.returns({
             assignment: {
               assignmentData: {
-                variant: ExperimentTestGroup.atlasSkillsControl,
+                variant: ExperimentTestGroups.atlasSkillsControl,
               },
             },
             ...commonAsyncStatus,
@@ -897,6 +930,7 @@ describe('CrudToolbar Component', function () {
             isFetching={false}
             docsPerPage={25}
             isWritable
+            lastCountRunMaxTimeMS={1234}
             instanceDescription=""
             onApplyClicked={noop}
             onResetClicked={noop}
@@ -905,6 +939,7 @@ describe('CrudToolbar Component', function () {
             onExpandAllClicked={noop}
             onCollapseAllClicked={noop}
             openExportFileDialog={noop}
+            onOpenExportToLanguage={noop}
             outdated={false}
             page={0}
             readonly={false}

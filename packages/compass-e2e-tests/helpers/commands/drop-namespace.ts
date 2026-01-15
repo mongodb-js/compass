@@ -5,8 +5,7 @@ export async function dropNamespace(
   browser: CompassBrowser,
   collectionName: string
 ): Promise<void> {
-  const dropModalElement = browser.$(Selectors.DropNamespaceModal);
-  await dropModalElement.waitForDisplayed();
+  await browser.waitForOpenModal(Selectors.DropNamespaceModal);
   await browser.setValueVisible(
     Selectors.DropNamespaceConfirmNameInput,
     collectionName
@@ -15,6 +14,9 @@ export async function dropNamespace(
   await confirmButton.waitForEnabled();
 
   await confirmButton.click();
+  await browser.waitForOpenModal(Selectors.DropNamespaceModal, {
+    reverse: true,
+  });
 
   const successToast = browser.$(Selectors.DropNamespaceSuccessToast);
   await successToast.waitForDisplayed();

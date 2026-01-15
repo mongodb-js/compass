@@ -65,72 +65,73 @@ export type DiagramState =
     })
   | null; // null when no diagram is currently open
 
-export enum DiagramActionTypes {
-  OPEN_DIAGRAM = 'data-modeling/diagram/OPEN_DIAGRAM',
-  DELETE_DIAGRAM = 'data-modeling/diagram/DELETE_DIAGRAM',
-  RENAME_DIAGRAM = 'data-modeling/diagram/RENAME_DIAGRAM',
-  APPLY_INITIAL_LAYOUT = 'data-modeling/diagram/APPLY_INITIAL_LAYOUT',
-  APPLY_EDIT = 'data-modeling/diagram/APPLY_EDIT',
-  UNDO_EDIT = 'data-modeling/diagram/UNDO_EDIT',
-  REDO_EDIT = 'data-modeling/diagram/REDO_EDIT',
-  REVERT_FAILED_EDIT = 'data-modeling/diagram/REVERT_FAILED_EDIT',
-  COLLECTION_SELECTED = 'data-modeling/diagram/COLLECTION_SELECTED',
-  RELATIONSHIP_SELECTED = 'data-modeling/diagram/RELATIONSHIP_SELECTED',
-  FIELD_SELECTED = 'data-modeling/diagram/FIELD_SELECTED',
-  DIAGRAM_BACKGROUND_SELECTED = 'data-modeling/diagram/DIAGRAM_BACKGROUND_SELECTED',
-}
+export const DiagramActionTypes = {
+  OPEN_DIAGRAM: 'data-modeling/diagram/OPEN_DIAGRAM',
+  DELETE_DIAGRAM: 'data-modeling/diagram/DELETE_DIAGRAM',
+  RENAME_DIAGRAM: 'data-modeling/diagram/RENAME_DIAGRAM',
+  APPLY_INITIAL_LAYOUT: 'data-modeling/diagram/APPLY_INITIAL_LAYOUT',
+  APPLY_EDIT: 'data-modeling/diagram/APPLY_EDIT',
+  UNDO_EDIT: 'data-modeling/diagram/UNDO_EDIT',
+  REDO_EDIT: 'data-modeling/diagram/REDO_EDIT',
+  REVERT_FAILED_EDIT: 'data-modeling/diagram/REVERT_FAILED_EDIT',
+  COLLECTION_SELECTED: 'data-modeling/diagram/COLLECTION_SELECTED',
+  RELATIONSHIP_SELECTED: 'data-modeling/diagram/RELATIONSHIP_SELECTED',
+  FIELD_SELECTED: 'data-modeling/diagram/FIELD_SELECTED',
+  DIAGRAM_BACKGROUND_SELECTED:
+    'data-modeling/diagram/DIAGRAM_BACKGROUND_SELECTED',
+} as const;
 
 export type OpenDiagramAction = {
-  type: DiagramActionTypes.OPEN_DIAGRAM;
+  type: typeof DiagramActionTypes.OPEN_DIAGRAM;
   diagram: MongoDBDataModelDescription;
 };
 
 export type DeleteDiagramAction = {
-  type: DiagramActionTypes.DELETE_DIAGRAM;
+  type: typeof DiagramActionTypes.DELETE_DIAGRAM;
   isCurrent: boolean; // technically a derived state, but we don't have access to this in some slices
 };
 
 export type RenameDiagramAction = {
-  type: DiagramActionTypes.RENAME_DIAGRAM;
+  type: typeof DiagramActionTypes.RENAME_DIAGRAM;
   id: string;
   name: string;
 };
 
 export type ApplyEditAction = {
-  type: DiagramActionTypes.APPLY_EDIT;
+  type: typeof DiagramActionTypes.APPLY_EDIT;
   edit: Edit;
 };
 
 export type UndoEditAction = {
-  type: DiagramActionTypes.UNDO_EDIT;
+  type: typeof DiagramActionTypes.UNDO_EDIT;
 };
 
 export type RevertFailedEditAction = {
-  type: DiagramActionTypes.REVERT_FAILED_EDIT;
+  type: typeof DiagramActionTypes.REVERT_FAILED_EDIT;
 };
 
 export type RedoEditAction = {
-  type: DiagramActionTypes.REDO_EDIT;
+  type: typeof DiagramActionTypes.REDO_EDIT;
 };
 
 export type CollectionSelectedAction = {
-  type: DiagramActionTypes.COLLECTION_SELECTED;
+  type: typeof DiagramActionTypes.COLLECTION_SELECTED;
   namespace: string;
 };
 
 export type RelationSelectedAction = {
-  type: DiagramActionTypes.RELATIONSHIP_SELECTED;
+  type: typeof DiagramActionTypes.RELATIONSHIP_SELECTED;
   relationshipId: string;
 };
 
 export type FieldSelectedAction = {
-  type: DiagramActionTypes.FIELD_SELECTED;
+  type: typeof DiagramActionTypes.FIELD_SELECTED;
   namespace: string;
   fieldPath: FieldPath;
 };
 
 export type DiagramBackgroundSelectedAction = {
-  type: DiagramActionTypes.DIAGRAM_BACKGROUND_SELECTED;
+  type: typeof DiagramActionTypes.DIAGRAM_BACKGROUND_SELECTED;
 };
 
 export type DiagramActions =
@@ -507,9 +508,10 @@ export function redoEdit(): DataModelingThunkAction<void, RedoEditAction> {
 
 export function onAddNestedField(
   ns: string,
-  parentFieldPath: string[]
+  parentFieldPath: string[],
+  source: 'side_panel' | 'diagram'
 ): DataModelingThunkAction<void, ApplyEditAction | RevertFailedEditAction> {
-  return (dispatch, getState) => {
+  return (dispatch, getState, { track }) => {
     const modelState = selectCurrentModelFromState(getState());
 
     const collection = modelState.collections.find((c) => c.ns === ns);
@@ -533,14 +535,19 @@ export function onAddNestedField(
       },
     };
 
+    track('Data Modeling Field Added', {
+      source,
+    });
+
     return dispatch(applyEdit(edit));
   };
 }
 
 export function addNewFieldToCollection(
-  ns: string
+  ns: string,
+  source: 'side_panel' | 'diagram'
 ): DataModelingThunkAction<void, ApplyEditAction | RevertFailedEditAction> {
-  return (dispatch, getState) => {
+  return (dispatch, getState, { track }) => {
     const modelState = selectCurrentModelFromState(getState());
 
     const collection = modelState.collections.find((c) => c.ns === ns);
@@ -561,6 +568,10 @@ export function addNewFieldToCollection(
       },
     };
 
+    track('Data Modeling Field Added', {
+      source,
+    });
+
     return dispatch(applyEdit(edit));
   };
 }
@@ -576,6 +587,19 @@ export function moveCollection(
     type: 'MoveCollection',
     ns,
     newPosition,
+  };
+  return applyEdit(edit);
+}
+
+export function moveMultipleCollections(
+  newPositions: Record<string, [number, number]>
+): DataModelingThunkAction<void, ApplyEditAction | RevertFailedEditAction> {
+  const edit: Omit<
+    Extract<Edit, { type: 'MoveMultipleCollections' }>,
+    'id' | 'timestamp'
+  > = {
+    type: 'MoveMultipleCollections',
+    newPositions,
   };
   return applyEdit(edit);
 }
@@ -663,7 +687,7 @@ export function deleteDiagram(
   return async (dispatch, getState, { dataModelStorage }) => {
     const confirmed = await showConfirmation({
       title: 'Are you sure you want to delete this diagram?',
-      description: 'This action can not be undone',
+      description: 'This action can not be undone.',
       variant: 'danger',
     });
     if (!confirmed) {
@@ -791,14 +815,20 @@ export function removeField(
   };
 }
 
-export function renameField(
-  ns: string,
-  field: FieldPath,
-  newName: string
-): DataModelingThunkAction<void, ApplyEditAction | RevertFailedEditAction> {
+export function renameField({
+  ns,
+  field,
+  newName,
+  source,
+}: {
+  ns: string;
+  field: FieldPath;
+  newName: string;
+  source: 'side_panel' | 'diagram';
+}): DataModelingThunkAction<void, ApplyEditAction | RevertFailedEditAction> {
   return (dispatch, getState, { track }) => {
     track('Data Modeling Field Renamed', {
-      source: 'side_panel',
+      source,
     });
 
     dispatch(applyEdit({ type: 'RenameField', ns, field, newName }));
@@ -830,13 +860,13 @@ export function getTypeNameForTelemetry(
 export function changeFieldType({
   ns,
   fieldPath,
-  oldTypes,
   newTypes,
+  source,
 }: {
   ns: string;
   fieldPath: FieldPath;
-  oldTypes: string[];
   newTypes: string[];
+  source: 'side_panel' | 'diagram';
 }): DataModelingThunkAction<void, ApplyEditAction | RevertFailedEditAction> {
   return (dispatch, getState, { track }) => {
     const collectionSchema = selectCurrentModelFromState(
@@ -848,10 +878,11 @@ export function changeFieldType({
       fieldPath: fieldPath,
     });
     if (!field) throw new Error('Field not found in schema');
+    const oldTypes = field.fieldTypes;
     const to = getSchemaWithNewTypes(field.jsonSchema, newTypes);
 
     track('Data Modeling Field Type Changed', {
-      source: 'side_panel',
+      source,
       from: getTypeNameForTelemetry(oldTypes),
       to: getTypeNameForTelemetry(newTypes),
     });

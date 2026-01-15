@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import {
   FormFieldContainer,
   Label,
@@ -6,6 +6,7 @@ import {
   RadioBoxGroup,
   RadioBox,
   Checkbox,
+  useSyncStateOnPropChange,
 } from '@mongodb-js/compass-components';
 
 import type ConnectionStringUrl from 'mongodb-connection-string-url';
@@ -29,7 +30,7 @@ const GSSAPI_CANONICALIZE_HOST_NAME_OPTIONS: Record<
     label: 'Forward and reverse',
     value: 'forwardAndReverse',
   },
-};
+} as const;
 
 function AuthenticationGSSAPI({
   errors,
@@ -54,17 +55,18 @@ function AuthenticationGSSAPI({
   const canonicalizeHostname =
     authMechanismProperties.get('CANONICALIZE_HOST_NAME') || 'none';
 
-  const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [showPassword, setShowPassword] = useState<boolean>(() => {
+    return password.length > 0;
+  });
+  useSyncStateOnPropChange(() => {
+    if (!showPassword && password.length > 0) {
+      setShowPassword(true);
+    }
+  }, [showPassword, password]);
 
   const showKerberosPasswordField = !!useConnectionFormSetting(
     'showKerberosPasswordField'
   );
-
-  useEffect(() => {
-    if (!showPassword && password.length) {
-      setShowPassword(true);
-    }
-  }, [password, showPassword, updateConnectionFormField]);
 
   return (
     <>

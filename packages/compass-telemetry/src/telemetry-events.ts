@@ -1683,6 +1683,19 @@ type PipelineAiFeedbackEvent = ConnectionScopedEvent<{
   };
 }>;
 
+/*
+ * This event is fired when a tool call was either approved or rejected by the
+ * user.
+ */
+type AssistantToolCallApprovalEvent = CommonEvent<{
+  name: 'Assistant Tool Call Approval';
+  payload: {
+    type: string;
+    approved: boolean;
+    approval_id: string;
+  };
+}>;
+
 /**
  * This event is fired when user filters queries using db / coll filter.
  *
@@ -2858,21 +2871,6 @@ export type CreateIndexModalContext = 'Create Index Modal';
 type CreateIndexButtonClickedEvent = CommonEvent<{
   name: 'Create Index Button Clicked';
   payload: {
-    flow: 'Start with Query' | 'Start with Index' | undefined;
-    context: CreateIndexModalContext;
-  };
-}>;
-
-type CreateIndexErrorParsingQueryEvent = CommonEvent<{
-  name: 'Error parsing query';
-  payload: {
-    context: CreateIndexModalContext;
-  };
-}>;
-
-type CreateIndexErrorGettingCoveredQueriesEvent = CommonEvent<{
-  name: 'Error generating covered queries';
-  payload: {
     context: CreateIndexModalContext;
   };
 }>;
@@ -2899,42 +2897,6 @@ type CreateIndexOptionsClicked = CommonEvent<{
   };
 }>;
 
-type CreateIndexCoveredQueriesButtonClicked = CommonEvent<{
-  name: 'Covered Queries Button Clicked';
-  payload: {
-    context: CreateIndexModalContext;
-  };
-}>;
-
-type CreateIndexSuggestedIndexButtonClicked = CommonEvent<{
-  name: 'Suggested Index Button Clicked';
-  payload: {
-    context: CreateIndexModalContext;
-  };
-}>;
-
-type CreateIndexIndexTabClicked = CommonEvent<{
-  name: 'Start with an Index Tab Clicked';
-  payload: {
-    context: CreateIndexModalContext;
-  };
-}>;
-
-type CreateIndexQueryTabClicked = CommonEvent<{
-  name: 'Start with a Query Tab Clicked';
-  payload: {
-    context: CreateIndexModalContext;
-  };
-}>;
-
-type CreateIndexCodeEquivalentToggled = CommonEvent<{
-  name: 'Code Equivalent Toggled';
-  payload: {
-    context: CreateIndexModalContext;
-    toggled: 'On' | 'Off';
-  };
-}>;
-
 type CreateIndexModalClosed = CommonEvent<{
   name: 'Create Index Modal Closed';
   payload: {
@@ -2944,48 +2906,6 @@ type CreateIndexModalClosed = CommonEvent<{
 
 type CreateIndexModalCancelled = CommonEvent<{
   name: 'Cancel Button Clicked';
-  payload: {
-    context: CreateIndexModalContext;
-  };
-}>;
-
-type CreateIndexProgrammingLanguageLinkClicked = CommonEvent<{
-  name: 'View Programming Language Syntax Clicked';
-  payload: {
-    context: CreateIndexModalContext;
-  };
-}>;
-
-type CreateIndexCoveredQueriesLearnMoreClicked = CommonEvent<{
-  name: 'Covered Queries Learn More Clicked';
-  payload: {
-    context: CreateIndexModalContext;
-  };
-}>;
-
-type CreateIndexESRLearnMoreClicked = CommonEvent<{
-  name: 'ESR Learn More Clicked';
-  payload: {
-    context: CreateIndexModalContext;
-  };
-}>;
-
-type CreateIndexInputIndexCopied = CommonEvent<{
-  name: 'Input Index Copied';
-  payload: {
-    context: CreateIndexModalContext;
-  };
-}>;
-
-type CreateIndexIndexSuggestionsCopied = CommonEvent<{
-  name: 'Index Suggestions Copied';
-  payload: {
-    context: CreateIndexModalContext;
-  };
-}>;
-
-type CreateIndexStrategiesDocumentationClicked = CommonEvent<{
-  name: 'Index Strategies Documentation Clicked';
   payload: {
     context: CreateIndexModalContext;
   };
@@ -3036,6 +2956,7 @@ type DataModelingDiagramCreated = CommonEvent<{
   name: 'Data Modeling Diagram Created';
   payload: {
     num_collections: number;
+    num_relations_inferred?: number;
   };
 }>;
 
@@ -3064,6 +2985,18 @@ type DataModelingDiagramFieldRemoved = CommonEvent<{
 }>;
 
 /**
+ * This event is fired when user adds a field in a data modeling diagram.
+ *
+ * @category Data Modeling
+ */
+type DataModelingDiagramFieldAdded = CommonEvent<{
+  name: 'Data Modeling Field Added';
+  payload: {
+    source: 'side_panel' | 'diagram';
+  };
+}>;
+
+/**
  * This event is fired when user renames a field in a data modeling diagram.
  *
  * @category Data Modeling
@@ -3071,7 +3004,7 @@ type DataModelingDiagramFieldRemoved = CommonEvent<{
 type DataModelingDiagramFieldRenamed = CommonEvent<{
   name: 'Data Modeling Field Renamed';
   payload: {
-    source: 'side_panel';
+    source: 'side_panel' | 'diagram';
   };
 }>;
 
@@ -3083,7 +3016,7 @@ type DataModelingDiagramFieldRenamed = CommonEvent<{
 type DataModelingDiagramFieldTypeChanged = CommonEvent<{
   name: 'Data Modeling Field Type Changed';
   payload: {
-    source: 'side_panel';
+    source: 'side_panel' | 'diagram';
     from?: string;
     to?: string;
   };
@@ -3321,6 +3254,36 @@ type MockDataScriptCopiedEvent = CommonEvent<{
   };
 }>;
 
+/**
+ * This event is fired when a user clicks the link to Atlas Search in the Indexes tab for a view.
+ *
+ * @category Indexes
+ */
+type AtlasSearchIndexesForViewLinkClickedEvent = CommonEvent<{
+  name: 'Atlas Search Indexes for View Link Clicked';
+  payload: {
+    /**
+     * The context/screen from which the link was clicked.
+     */
+    context: 'Indexes Tab';
+  };
+}>;
+
+/**
+ * This event is fired when a user clicks the button to create a search index for a view.
+ *
+ * @category Indexes
+ */
+type CreateSearchIndexForViewClickedEvent = CommonEvent<{
+  name: 'Create Search Index for View Clicked';
+  payload: {
+    /**
+     * The context/screen from which the link was clicked.
+     */
+    context: 'Indexes Tab';
+  };
+}>;
+
 export type TelemetryEvent =
   | AggregationCanceledEvent
   | AggregationCopiedEvent
@@ -3351,6 +3314,7 @@ export type TelemetryEvent =
   | AiResponseGeneratedEvent
   | ApplicationLaunchedEvent
   | AtlasLinkClickedEvent
+  | AtlasSearchIndexesForViewLinkClickedEvent
   | AtlasSkillsCtaClickedEvent
   | AtlasSkillsCtaDismissedEvent
   | AtlasSignInErrorEvent
@@ -3374,6 +3338,7 @@ export type TelemetryEvent =
   | ConnectionFailedEvent
   | ConnectionImportedEvent
   | ConnectionRemovedEvent
+  | CreateSearchIndexForViewClickedEvent
   | CurrentOpShowOperationDetailsEvent
   | DatabaseCreatedEvent
   | DataModelingDiagramCollectionAdded
@@ -3381,6 +3346,7 @@ export type TelemetryEvent =
   | DataModelingDiagramCollectionRenamed
   | DataModelingDiagramCreated
   | DataModelingDiagramExported
+  | DataModelingDiagramFieldAdded
   | DataModelingDiagramFieldRemoved
   | DataModelingDiagramFieldRenamed
   | DataModelingDiagramFieldTypeChanged
@@ -3426,6 +3392,7 @@ export type TelemetryEvent =
   | PerformancePausedEvent
   | PerformanceResumedEvent
   | PipelineAiFeedbackEvent
+  | AssistantToolCallApprovalEvent
   | QueryEditedEvent
   | QueryExecutedEvent
   | QueryExportedEvent
@@ -3468,23 +3435,10 @@ export type TelemetryEvent =
   | TimeToFirstByteEvent
   | ExperimentViewedEvent
   | CreateIndexButtonClickedEvent
-  | CreateIndexErrorParsingQueryEvent
-  | CreateIndexErrorGettingCoveredQueriesEvent
-  | CreateIndexCodeEquivalentToggled
-  | CreateIndexCoveredQueriesButtonClicked
-  | CreateIndexCoveredQueriesLearnMoreClicked
-  | CreateIndexESRLearnMoreClicked
-  | CreateIndexIndexTabClicked
   | CreateIndexModalCancelled
   | CreateIndexModalClosed
   | CreateIndexNewFieldAdded
   | CreateIndexOptionsClicked
-  | CreateIndexProgrammingLanguageLinkClicked
-  | CreateIndexQueryTabClicked
-  | CreateIndexSuggestedIndexButtonClicked
-  | CreateIndexInputIndexCopied
-  | CreateIndexIndexSuggestionsCopied
-  | CreateIndexStrategiesDocumentationClicked
   | UUIDEncounteredEvent
   | ContextMenuOpened
   | ContextMenuItemClicked

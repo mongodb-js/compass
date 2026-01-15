@@ -1,8 +1,9 @@
-import React, { useRef } from 'react';
+import React from 'react';
 import { AtlasUserData, type IUserData } from '@mongodb-js/compass-user-data';
 import { WorkspacesStorageServiceContext } from './workspaces-storage';
-import { WorkspacesStateSchema } from '../types';
+import { WorkspacesStateSchema } from '@mongodb-js/workspace-info';
 import { EJSON } from 'bson';
+import { useInitialValue } from '@mongodb-js/compass-components';
 
 export const WorkspacesStorageServiceProviderWeb: React.FunctionComponent<{
   orgId: string;
@@ -13,7 +14,7 @@ export const WorkspacesStorageServiceProviderWeb: React.FunctionComponent<{
     options?: RequestInit
   ) => Promise<Response>;
 }> = ({ orgId, projectId, getResourceUrl, authenticatedFetch, children }) => {
-  const storageRef = useRef<IUserData<typeof WorkspacesStateSchema>>(
+  const storageRef = useInitialValue<IUserData<typeof WorkspacesStateSchema>>(
     new AtlasUserData(WorkspacesStateSchema, 'WorkspacesState', {
       orgId,
       projectId,
@@ -27,7 +28,7 @@ export const WorkspacesStorageServiceProviderWeb: React.FunctionComponent<{
     })
   );
   return (
-    <WorkspacesStorageServiceContext.Provider value={storageRef.current}>
+    <WorkspacesStorageServiceContext.Provider value={storageRef}>
       {children}
     </WorkspacesStorageServiceContext.Provider>
   );

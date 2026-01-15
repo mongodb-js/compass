@@ -18,7 +18,8 @@ import {
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import toNS from 'mongodb-ns';
 import { generateScript } from './script-generation-utils';
-import { DataGenerationStep, type FakerSchema } from './types';
+import type { DataGenerationStep } from './types';
+import { DataGenerationSteps, type FakerSchema } from './types';
 import type { ArrayLengthMap } from './script-generation-utils';
 import type { CollectionState } from '../../modules/collection-tab';
 import { SCHEMA_ANALYSIS_STATE_COMPLETE } from '../../schema-analysis-types';
@@ -177,10 +178,10 @@ const ScriptScreen = ({
             <Copyable
               className={copyableStyles}
               onCopy={() =>
-                onScriptCopy({ step: DataGenerationStep.INSTALL_FAKERJS })
+                onScriptCopy({ step: DataGenerationSteps.INSTALL_FAKERJS })
               }
             >
-              npm install @faker-js/faker
+              npm install @faker-js/faker@9
             </Copyable>
           </li>
         </ul>
@@ -190,15 +191,15 @@ const ScriptScreen = ({
           1. Create a .js file with the following script
         </Body>
         <Body className={sectionInstructionStyles}>
-          In the directory that you created, create a file named
-          mockdatascript.js (or any name you&apos;d like).
+          In the directory that you created, create a file named{' '}
+          <strong>mockdatascript.js</strong> (or any name you&apos;d like).
         </Body>
         <Code
           copyButtonAppearance={scriptResult.success ? 'hover' : 'persist'}
           language={Language.JavaScript}
           className={scriptCodeBlockStyles}
           onCopy={() =>
-            onScriptCopy({ step: DataGenerationStep.CREATE_JS_FILE })
+            onScriptCopy({ step: DataGenerationSteps.CREATE_JS_FILE })
           }
         >
           {scriptResult.success
@@ -221,7 +222,7 @@ const ScriptScreen = ({
         </Body>
         <Code
           language={Language.Bash}
-          onCopy={() => onScriptCopy({ step: DataGenerationStep.RUN_SCRIPT })}
+          onCopy={() => onScriptCopy({ step: DataGenerationSteps.RUN_SCRIPT })}
         >
           {RUN_SCRIPT_COMMAND(connectionString)}
         </Code>

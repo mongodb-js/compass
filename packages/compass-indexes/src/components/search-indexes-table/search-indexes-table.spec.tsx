@@ -28,7 +28,6 @@ const renderIndexList = (
       indexes={indexes}
       status="READY"
       isWritable={true}
-      readOnly={false}
       isReadonlyView={false}
       onDropIndexClick={noop}
       onEditIndexClick={noop}
@@ -106,7 +105,7 @@ describe('SearchIndexesTable Component', function () {
 
       expect(() => {
         screen.getByTestId('search-indexes-list');
-      }).to.throw;
+      }).to.throw();
     });
   }
 
@@ -119,7 +118,7 @@ describe('SearchIndexesTable Component', function () {
 
     expect(() => {
       screen.getByTestId('search-indexes-list');
-    }).to.throw;
+    }).to.throw();
 
     const button = screen.getByTestId('create-atlas-search-index-button');
     expect(button).to.exist;
@@ -144,7 +143,7 @@ describe('SearchIndexesTable Component', function () {
 
     expect(() => {
       screen.getByTestId('search-indexes-list');
-    }).to.throw;
+    }).to.throw();
 
     const button = screen.getByTestId('create-atlas-search-index-button');
     expect(button).to.exist;

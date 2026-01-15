@@ -115,7 +115,7 @@ export const ExplainPlanModal: React.FunctionComponent<
   return (
     <Modal
       data-testid="explain-plan-modal"
-      contentClassName={explainPlanModalContentStyles}
+      className={explainPlanModalContentStyles}
       open={isModalOpen}
       setOpen={onModalClose}
       fullScreen={true}
@@ -158,7 +158,7 @@ export const ExplainPlanModal: React.FunctionComponent<
               }}
               disabled={status !== 'ready'}
             >
-              Interpret for me
+              Interpret
             </Button>
             <Tooltip
               triggerEvent="hover"

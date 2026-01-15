@@ -44,6 +44,7 @@ import treeKill from 'tree-kill';
 import { downloadPath } from './downloads';
 import path from 'path';
 import { globalFixturesAbortController } from './test-runner-global-fixtures';
+import { dialogOpenLocator } from './dialog-open-locator-strategy';
 
 const killAsync = async (pid: number, signal?: string) => {
   return new Promise<void>((resolve, reject) => {
@@ -199,6 +200,9 @@ export class Compass {
         return result;
       }
     );
+
+    // Adding a custom locator strategy to help locate open dialogs from a selector synchronously
+    browser.addLocatorStrategy('dialogOpen', dialogOpenLocator);
 
     this.addDebugger();
   }
@@ -489,13 +493,18 @@ function execFileIgnoreError(
   stderr: string;
 }> {
   return new Promise((resolve) => {
-    execFile(path, args, opts, function (error, stdout, stderr) {
-      resolve({
-        error,
-        stdout,
-        stderr,
-      });
-    });
+    execFile(
+      path,
+      args,
+      { ...opts, encoding: 'utf8' },
+      function (error, stdout, stderr) {
+        resolve({
+          error,
+          stdout,
+          stderr,
+        });
+      }
+    );
   });
 }
 
@@ -816,7 +825,7 @@ export async function startBrowser(
         },
       },
     },
-  };
+  } as const;
 
   // webdriverio removed RemoteOptions. It is now
   // Capabilities.WebdriverIOConfig, but Capabilities is not exported
