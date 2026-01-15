@@ -1,4 +1,4 @@
-import { expect, version } from 'chai';
+import { expect } from 'chai';
 import {
   traverseSchema,
   getFieldFromSchema,
@@ -1812,7 +1812,7 @@ describe('bulkUpdateSchema', function () {
     const result = bulkUpdateSchema({
       jsonSchema: schema,
       updateParameters: {
-        updateFn: (fieldSchema: FieldData) => ({
+        updateFn: ({ fieldSchema }: { fieldSchema: FieldData }) => ({
           ...fieldSchema,
           version: 'v2',
         }),

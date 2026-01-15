@@ -1,6 +1,5 @@
 import {
   DEFAULT_IS_EXPANDED,
-  type FieldData,
   type DataModelCollection,
   type Edit,
   type Relationship,
