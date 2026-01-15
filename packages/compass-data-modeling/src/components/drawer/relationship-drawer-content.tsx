@@ -159,7 +159,7 @@ export const CardinalitySelect = ({
   label: string;
   onChange: (value: number | null) => void;
 }) => {
-  const selectRef = useRef<HTMLDivElement>(null);
+  const selectRef = useRef<React.ElementRef<typeof Select>>(null);
 
   // Currently LG Select does not support custom rendering for selected value
   // and it shows the label of the selected option. When user has selected
@@ -187,7 +187,7 @@ export const CardinalitySelect = ({
       onChange={(val) => onChange(val === 'null' ? null : Number(val))}
     >
       {CARDINALITY_OPTIONS.map(({ tag, value, label }) => (
-        <Option key={value} value={String(value)}>
+        <Option key={String(value)} value={String(value)}>
           <div className={cardinalityLabelContainerStyles}>
             {tag}
             <span
