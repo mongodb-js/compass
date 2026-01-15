@@ -124,7 +124,6 @@ export function mapFieldDataToJsonSchema(
   fieldData: FieldData
 ): MongoDBJSONSchema {
   // we need to deep omit 'expanded' property
-  console.log('Mapping field data to JSON schema, input:', fieldData);
   const newFieldData = cloneDeepWith(fieldData, (value) => {
     if (!value) return value;
     if (typeof value === 'object' && 'expanded' in value) {
