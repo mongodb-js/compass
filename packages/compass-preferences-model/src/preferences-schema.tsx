@@ -174,6 +174,7 @@ export type NonUserPreferences = {
 
 export type AtlasProjectPreferences = {
   enableGenAIFeaturesAtlasProject: boolean;
+  enableGenAIToolCallingAtlasProject: boolean;
 };
 
 export type AtlasOrgPreferences = {
@@ -1096,6 +1097,16 @@ export const storedUserPreferencesProps: Required<{
     global: true,
     description: {
       short: 'Enable Gen AI Features on Atlas Org Level',
+    },
+    validator: z.boolean().default(true),
+    type: 'boolean',
+  },
+  enableGenAIToolCallingAtlasProject: {
+    ui: false,
+    cli: true,
+    global: true,
+    description: {
+      short: 'Enable Gen AI Tool Calling on Atlas Project Level',
     },
     validator: z.boolean().default(true),
     type: 'boolean',
