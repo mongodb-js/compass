@@ -43,10 +43,6 @@ export const READ_ONLY_DATABASE_TOOLS = [
     description: 'Provides execution statistics and query plan information.',
   },
   {
-    name: 'export',
-    description: 'Exports query or aggregation results in EJSON format.',
-  },
-  {
     name: 'mongodb-logs',
     description: 'Returns the most recent logged mongod events.',
   },
