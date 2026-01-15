@@ -149,7 +149,8 @@ const CARDINALITY_OPTIONS = [
   { tag: 'Many', label: '1000+', value: 1000 },
 ];
 
-const CardinalitySelect = ({
+// Exported for tests
+export const CardinalitySelect = ({
   label,
   value,
   onChange,
