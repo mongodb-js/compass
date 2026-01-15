@@ -35,6 +35,7 @@ describe('getFieldsFromSchema', function () {
           selected: false,
           variant: undefined,
           editable: false,
+          expanded: true,
         },
         {
           name: 'name',
@@ -47,6 +48,7 @@ describe('getFieldsFromSchema', function () {
           selected: false,
           variant: undefined,
           editable: true,
+          expanded: true,
         },
         {
           name: 'age',
@@ -59,6 +61,7 @@ describe('getFieldsFromSchema', function () {
           selected: false,
           variant: undefined,
           editable: true,
+          expanded: true,
         },
       ]);
     });
@@ -83,6 +86,7 @@ describe('getFieldsFromSchema', function () {
         type: ['int', 'string'],
         variant: undefined,
         editable: true,
+        expanded: true,
       });
     });
 
@@ -110,6 +114,7 @@ describe('getFieldsFromSchema', function () {
           selected: false,
           variant: undefined,
           editable: true,
+          expanded: true,
         },
         {
           name: 'age',
@@ -122,6 +127,7 @@ describe('getFieldsFromSchema', function () {
           selected: false,
           variant: 'preview',
           editable: true,
+          expanded: true,
         },
         {
           name: 'profession',
@@ -134,6 +140,7 @@ describe('getFieldsFromSchema', function () {
           selected: false,
           variant: undefined,
           editable: true,
+          expanded: true,
         },
       ]);
     });
@@ -162,6 +169,7 @@ describe('getFieldsFromSchema', function () {
           selected: false,
           variant: undefined,
           editable: true,
+          expanded: true,
         },
         {
           name: 'age',
@@ -174,6 +182,7 @@ describe('getFieldsFromSchema', function () {
           selected: false,
           variant: 'preview',
           editable: true,
+          expanded: true,
         },
         {
           name: 'profession',
@@ -186,6 +195,7 @@ describe('getFieldsFromSchema', function () {
           selected: false,
           variant: 'preview',
           editable: true,
+          expanded: true,
         },
       ]);
     });
@@ -225,6 +235,7 @@ describe('getFieldsFromSchema', function () {
           selected: false,
           variant: undefined,
           editable: true,
+          expanded: true,
         },
         {
           name: 'name',
@@ -237,6 +248,7 @@ describe('getFieldsFromSchema', function () {
           selected: false,
           variant: undefined,
           editable: true,
+          expanded: true,
         },
         {
           name: 'address',
@@ -249,6 +261,7 @@ describe('getFieldsFromSchema', function () {
           selected: false,
           variant: undefined,
           editable: true,
+          expanded: true,
         },
         {
           name: 'street',
@@ -261,6 +274,7 @@ describe('getFieldsFromSchema', function () {
           selected: false,
           variant: undefined,
           editable: true,
+          expanded: true,
         },
         {
           name: 'city',
@@ -273,6 +287,7 @@ describe('getFieldsFromSchema', function () {
           selected: false,
           variant: undefined,
           editable: true,
+          expanded: true,
         },
       ]);
     });
@@ -311,6 +326,7 @@ describe('getFieldsFromSchema', function () {
           selected: false,
           variant: undefined,
           editable: true,
+          expanded: true,
         },
         {
           name: 'name',
@@ -323,6 +339,7 @@ describe('getFieldsFromSchema', function () {
           selected: false,
           variant: undefined,
           editable: true,
+          expanded: true,
         },
         {
           name: 'address',
@@ -335,6 +352,7 @@ describe('getFieldsFromSchema', function () {
           selected: false,
           variant: undefined,
           editable: true,
+          expanded: true,
         },
         {
           name: 'street',
@@ -347,6 +365,7 @@ describe('getFieldsFromSchema', function () {
           selected: false,
           variant: 'preview',
           editable: true,
+          expanded: true,
         },
         {
           name: 'city',
@@ -359,6 +378,7 @@ describe('getFieldsFromSchema', function () {
           selected: false,
           variant: undefined,
           editable: true,
+          expanded: true,
         },
       ]);
     });
@@ -407,6 +427,7 @@ describe('getFieldsFromSchema', function () {
           selected: false,
           variant: undefined,
           editable: true,
+          expanded: true,
         },
         {
           name: 'name',
@@ -419,6 +440,7 @@ describe('getFieldsFromSchema', function () {
           selected: false,
           variant: undefined,
           editable: true,
+          expanded: true,
         },
         {
           name: 'address',
@@ -431,6 +453,7 @@ describe('getFieldsFromSchema', function () {
           selected: false,
           variant: undefined,
           editable: true,
+          expanded: true,
         },
         {
           name: 'street',
@@ -443,6 +466,7 @@ describe('getFieldsFromSchema', function () {
           selected: false,
           variant: 'preview',
           editable: true,
+          expanded: true,
         },
         {
           name: 'city',
@@ -455,6 +479,7 @@ describe('getFieldsFromSchema', function () {
           selected: false,
           variant: undefined,
           editable: true,
+          expanded: true,
         },
         {
           name: 'billingAddress',
@@ -467,6 +492,7 @@ describe('getFieldsFromSchema', function () {
           selected: false,
           variant: undefined,
           editable: true,
+          expanded: true,
         },
         {
           name: 'street',
@@ -479,6 +505,7 @@ describe('getFieldsFromSchema', function () {
           selected: false,
           variant: undefined,
           editable: true,
+          expanded: true,
         },
         {
           name: 'city',
@@ -491,6 +518,7 @@ describe('getFieldsFromSchema', function () {
           selected: false,
           variant: 'preview',
           editable: true,
+          expanded: true,
         },
       ]);
     });
@@ -525,6 +553,7 @@ describe('getFieldsFromSchema', function () {
           selected: false,
           variant: undefined,
           editable: true,
+          expanded: true,
         },
         {
           name: 'title',
@@ -537,6 +566,7 @@ describe('getFieldsFromSchema', function () {
           selected: false,
           variant: undefined,
           editable: true,
+          expanded: true,
         },
         {
           name: 'completed',
@@ -549,6 +579,7 @@ describe('getFieldsFromSchema', function () {
           selected: false,
           variant: undefined,
           editable: true,
+          expanded: true,
         },
       ]);
     });
@@ -585,6 +616,7 @@ describe('getFieldsFromSchema', function () {
         selected: false,
         variant: undefined,
         editable: true,
+        expanded: true,
       });
       expect(result[1]).to.deep.equal({
         name: 'first',
@@ -597,6 +629,7 @@ describe('getFieldsFromSchema', function () {
         selected: false,
         variant: undefined,
         editable: true,
+        expanded: true,
       });
       expect(result[2]).to.deep.equal({
         name: 'last',
@@ -609,6 +642,7 @@ describe('getFieldsFromSchema', function () {
         selected: false,
         variant: undefined,
         editable: true,
+        expanded: true,
       });
     });
 
@@ -647,6 +681,7 @@ describe('getFieldsFromSchema', function () {
           selected: false,
           variant: undefined,
           editable: true,
+          expanded: true,
         },
         {
           name: 'title',
@@ -659,6 +694,7 @@ describe('getFieldsFromSchema', function () {
           selected: false,
           variant: undefined,
           editable: true,
+          expanded: true,
         },
         {
           name: 'completed',
@@ -671,6 +707,7 @@ describe('getFieldsFromSchema', function () {
           selected: false,
           variant: undefined,
           editable: true,
+          expanded: true,
         },
       ]);
     });
