@@ -381,7 +381,6 @@ export function startAnalysis(
       if (cancelController.signal.aborted) {
         dispatch({
           type: AnalysisProcessActionTypes.ANALYSIS_CANCELED,
-          analysis_time_ms,
         });
         track('Data Modeling Diagram Creation Cancelled', {
           num_collections: collections.length,
@@ -397,7 +396,6 @@ export function startAnalysis(
         dispatch({
           type: AnalysisProcessActionTypes.ANALYSIS_FAILED,
           error: err as Error,
-          analysis_time_ms,
         });
         track('Data Modeling Diagram Creation Failed', {
           num_collections: collections.length,
