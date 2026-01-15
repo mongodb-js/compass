@@ -23,7 +23,6 @@ import path from 'path';
 import os from 'os';
 import fs from 'fs/promises';
 import { Key, type ChainablePromiseElement } from 'webdriverio';
-import { number, required } from 'yargs';
 
 type Node = {
   id: string;
