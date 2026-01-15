@@ -109,7 +109,14 @@ To connect, choose a connection from Compass's connection sidebar - https://www.
     try {
       const serviceProvider = await NodeDriverServiceProvider.connect(
         connectionString,
-        connectOptions
+        {
+          timeoutMS: 30_000,
+          readPreference: 'secondaryPreferred',
+          readConcern: {
+            level: 'local',
+          },
+          ...connectOptions,
+        }
       );
       this.activeConnection = {
         id: connectionId,

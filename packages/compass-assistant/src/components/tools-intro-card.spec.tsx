@@ -122,4 +122,28 @@ describe('ToolsIntroCard', function () {
       expect(onDismiss.calledOnce).to.be.true;
     });
   });
+
+  describe('Learn more link based on project ID', function () {
+    it('shows Atlas docs link when projectId is provided', function () {
+      renderWithProvider({ ...defaultProps }, { projectId: 'test-project-id' });
+
+      const link = screen.getByTestId('tools-intro-card-learn-more');
+      expect(link).to.exist;
+      expect(link).to.have.attribute(
+        'href',
+        'https://www.mongodb.com/docs/atlas/atlas-ui/query-with-natural-language/data-explorer-ai-assistant/'
+      );
+    });
+
+    it('shows Compass docs link when projectId is not provided', function () {
+      renderWithProvider({ ...defaultProps });
+
+      const link = screen.getByTestId('tools-intro-card-learn-more');
+      expect(link).to.exist;
+      expect(link).to.have.attribute(
+        'href',
+        'https://www.mongodb.com/docs/compass/query-with-natural-language/compass-ai-assistant/'
+      );
+    });
+  });
 });
