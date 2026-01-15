@@ -14,7 +14,11 @@ describe('RelationshipDrawerContent', function () {
   context('CardinalitySelect', function () {
     it('renders list with correct options', function () {
       render(
-        <CardinalitySelect label="Cardinality" value={1} onChange={() => {}} />
+        <CardinalitySelect
+          label="Cardinality"
+          value={100}
+          onChange={() => {}}
+        />
       );
       userEvent.click(screen.getByRole('button', { name: /Cardinality/i }));
       const listbox = screen.getByRole('listbox');
@@ -23,17 +27,21 @@ describe('RelationshipDrawerContent', function () {
       expect(optionValues).to.deep.equal([
         'One1',
         'ManyN/A',
-        'Many10',
         'Many100',
-        'Many1000+',
+        'Many1000',
+        'Many10000+',
       ]);
     });
     it('handles cardinality label when selected', function () {
       const { rerender } = render(
-        <CardinalitySelect label="Cardinality" value={1} onChange={() => {}} />
+        <CardinalitySelect
+          label="Cardinality"
+          value={100}
+          onChange={() => {}}
+        />
       );
       const button = screen.getByRole('button', { name: /Cardinality/i });
-      const tag = within(button).queryByText('1');
+      const tag = within(button).queryByText('100');
       if (!tag) {
         throw new Error('Tag not found');
       }
@@ -59,7 +67,7 @@ describe('RelationshipDrawerContent', function () {
       render(
         <CardinalitySelect
           label="Cardinality"
-          value={1}
+          value={100}
           onChange={onChangeSpy}
         />
       );
@@ -76,7 +84,7 @@ describe('RelationshipDrawerContent', function () {
       render(
         <CardinalitySelect
           label="Cardinality"
-          value={1}
+          value={100}
           onChange={onChangeSpy}
         />
       );

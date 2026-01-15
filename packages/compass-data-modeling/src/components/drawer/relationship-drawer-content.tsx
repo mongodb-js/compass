@@ -144,9 +144,9 @@ const infoIconStyles = css({ marginTop: spacing[100] });
 const CARDINALITY_OPTIONS = [
   { tag: 'One', label: '1', value: 1 },
   { tag: 'Many', label: 'N/A', value: null },
-  { tag: 'Many', label: '10', value: 10 },
   { tag: 'Many', label: '100', value: 100 },
-  { tag: 'Many', label: '1000+', value: 1000 },
+  { tag: 'Many', label: '1000', value: 1000 },
+  { tag: 'Many', label: '10000+', value: 10000 },
 ];
 
 // Exported for tests
