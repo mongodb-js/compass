@@ -2,17 +2,9 @@ import React, { useMemo } from 'react';
 import { connect } from 'react-redux';
 import type { DataModelingState } from '../store/reducer';
 import {
-  Body,
-  Button,
   Combobox,
   ComboboxOption,
-  css,
   Modal,
-  ModalBody,
-  ModalFooter,
-  ModalHeader,
-  spacing,
-  SpinLoader,
 } from '@mongodb-js/compass-components';
 import { selectIsAnalysisInProgress } from '../store/analysis-process';
 import type { ReselectCollectionsWizardState } from '../store/reselect-collections-wizard';
@@ -26,13 +18,7 @@ import {
 } from '../store/reselect-collections-wizard';
 import { SelectCollectionsList } from './select-collections-list';
 import { useSavedConnections } from '../utils/use-saved-connections';
-
-const footerStyles = css({
-  flexDirection: 'row',
-  alignItems: 'center',
-});
-const footerTextStyles = css({ marginRight: 'auto' });
-const footerActionsStyles = css({ display: 'flex', gap: spacing[200] });
+import { ModalStepContainer } from './model-step-container';
 
 const SelectCollectionsStep = connect(
   (state: DataModelingState) => {
@@ -57,66 +43,6 @@ const SelectCollectionsStep = connect(
     onAutomaticallyInferRelationshipsToggle: toggleInferRelationships,
   }
 )(SelectCollectionsList);
-
-const FormStepContainer: React.FunctionComponent<{
-  title: string;
-  description?: string;
-  onNextClick: () => void;
-  onPreviousClick: () => void;
-  isNextDisabled: boolean;
-  isLoading?: boolean;
-  nextLabel: string;
-  previousLabel: string;
-  step: string;
-  footerText?: React.ReactNode;
-}> = ({
-  title,
-  description,
-  onPreviousClick,
-  onNextClick,
-  isNextDisabled,
-  nextLabel,
-  previousLabel,
-  children,
-  step,
-  footerText,
-  isLoading,
-}) => {
-  return (
-    <>
-      <ModalHeader title={title} subtitle={description}></ModalHeader>
-      <ModalBody>
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            onNextClick();
-          }}
-        >
-          {children}
-        </form>
-      </ModalBody>
-      <ModalFooter className={footerStyles}>
-        <Body className={footerTextStyles}>{footerText}</Body>
-        <div className={footerActionsStyles}>
-          <Button onClick={onPreviousClick} key={`${step}-previous`}>
-            {previousLabel}
-          </Button>
-          <Button
-            onClick={onNextClick}
-            disabled={isNextDisabled}
-            data-testid="reselect-collections-confirm-button"
-            variant="primary"
-            loadingIndicator={<SpinLoader />}
-            key={`${step}-next`}
-            isLoading={isLoading}
-          >
-            {nextLabel}
-          </Button>
-        </div>
-      </ModalFooter>
-    </>
-  );
-};
 
 function SelectConnection({
   selectedConnectionId,
@@ -243,7 +169,7 @@ const ReselectCollectionsModal: React.FunctionComponent<
           ),
         };
       default:
-        throw new Error('Unknown diagram generation step');
+        throw new Error(`Unknown diagram generation step: "${currentStep}"`);
     }
   }, [
     currentStep,
@@ -268,13 +194,13 @@ const ReselectCollectionsModal: React.FunctionComponent<
         }
       }}
     >
-      <FormStepContainer {...formStepProps}>
+      <ModalStepContainer {...formStepProps}>
         {currentStep === 'SELECT_CONNECTION' ? (
           <SelectConnectionStep />
         ) : currentStep === 'SELECT_COLLECTIONS' ? (
           <SelectCollectionsStep />
         ) : null}
-      </FormStepContainer>
+      </ModalStepContainer>
     </Modal>
   );
 };
