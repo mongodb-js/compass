@@ -1,7 +1,16 @@
 import { useConnectionsList } from '@mongodb-js/compass-connections/provider';
 import { useMemo } from 'react';
 
-export function useSavedConnections() {
+type SavedConnection = {
+  id: string;
+  name: string;
+  description?: string;
+};
+
+/**
+ * Hook to get the list of saved connections, with active connections first.
+ */
+export function useSavedConnections(): SavedConnection[] {
   const connections = useConnectionsList();
   return useMemo(() => {
     const active = [];

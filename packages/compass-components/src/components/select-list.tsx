@@ -65,6 +65,8 @@ export function SelectList<T extends SelectItem>(
   const selectAll = items.every((item) => item.selected);
   const selectNone = items.every((item) => !item.selected);
 
+  const allOptionsDisabled = items.every((item) => item.disabled);
+
   const handleSelectAllChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       onChange(
@@ -100,7 +102,7 @@ export function SelectList<T extends SelectItem>(
           onChange={handleSelectAllChange}
           checked={selectAll}
           indeterminate={!selectAll && !selectNone}
-          disabled={disabled}
+          disabled={disabled || allOptionsDisabled}
         />
         <div className={selectAllLabelStyles}>{label.name}</div>
       </div>

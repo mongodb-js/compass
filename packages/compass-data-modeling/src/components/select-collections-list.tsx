@@ -1,4 +1,5 @@
 import {
+  Body,
   Checkbox,
   css,
   FormFieldContainer,
@@ -23,8 +24,8 @@ const errorStyles = css({
   marginBottom: spacing[600],
 });
 
-const selectListStyles = css({
-  maxHeight: 200,
+const collectionListStyles = css({
+  height: 200,
   overflow: 'scroll',
 });
 
@@ -63,8 +64,9 @@ export const SelectCollectionsList: React.FunctionComponent<
   const [searchTerm, setSearchTerm] = useState('');
   const filteredCollections = useMemo(() => {
     try {
-      const regex = new RegExp(searchTerm, 'i');
-      return collections.filter((x) => regex.test(x));
+      return collections.filter((x) =>
+        x.toLowerCase().includes(searchTerm.toLowerCase())
+      );
     } catch {
       return collections;
     }
@@ -102,7 +104,7 @@ export const SelectCollectionsList: React.FunctionComponent<
     return (
       <div className={loadingStyles}>
         <SpinLoaderWithLabel progressText="">
-          Fetching collections ...
+          Fetching collections …
         </SpinLoaderWithLabel>
       </div>
     );
@@ -126,19 +128,24 @@ export const SelectCollectionsList: React.FunctionComponent<
           }}
         />
       </FormFieldContainer>
-      <FormFieldContainer>
-        <SelectList
-          className={selectListStyles}
-          items={filteredCollections.map((collName): SelectCollectionItem => {
-            return {
-              id: collName,
-              selected: selectedCollections.includes(collName),
-              disabled: disabledCollections.includes(collName),
-            };
-          })}
-          label={{ displayLabelKey: 'id', name: 'Collection Name' }}
-          onChange={onChangeSelection}
-        ></SelectList>
+      <FormFieldContainer className={collectionListStyles}>
+        {collections.length === 0 ? (
+          <Body>This database has no collections.</Body>
+        ) : filteredCollections.length === 0 ? (
+          <Body>No collections match your search.</Body>
+        ) : (
+          <SelectList
+            items={filteredCollections.map((collName): SelectCollectionItem => {
+              return {
+                id: collName,
+                selected: selectedCollections.includes(collName),
+                disabled: disabledCollections.includes(collName),
+              };
+            })}
+            label={{ displayLabelKey: 'id', name: 'Collection Name' }}
+            onChange={onChangeSelection}
+          />
+        )}
       </FormFieldContainer>
       {showAutoInferOption && (
         <FormFieldContainer>
