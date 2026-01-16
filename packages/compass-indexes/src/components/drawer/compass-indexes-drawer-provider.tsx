@@ -14,8 +14,11 @@ export type IndexesDrawerPage =
   | 'create-search-index'
   | 'edit-search-index';
 
+export type SearchIndexType = 'search' | 'vectorSearch';
+
 export type IndexesDrawerContextType = {
   currentPage: IndexesDrawerPage;
+  currentIndexType: SearchIndexType | null;
   currentIndexName: string | null;
 };
 
@@ -28,7 +31,7 @@ export function useIndexesDrawerContext(): IndexesDrawerContextType | null {
 
 type IndexesDrawerActionsContextType = {
   openIndexesListPage?: () => void;
-  openCreateSearchIndexPage?: () => void;
+  openCreateSearchIndexPage?: (currentIndexType: SearchIndexType) => void;
   openEditSearchIndexPage?: (currentIndexName: string) => void;
 };
 
@@ -79,8 +82,8 @@ export const compassIndexesDrawerServiceLocator = createServiceLocator(() => {
     openIndexesListPage: () => {
       openIndexesListPageRef.current?.();
     },
-    openCreateSearchIndexPage: () => {
-      openCreateSearchIndexPageRef.current?.();
+    openCreateSearchIndexPage: (currentIndexType: SearchIndexType) => {
+      openCreateSearchIndexPageRef.current?.(currentIndexType);
     },
     openEditSearchIndexPage: (currentIndexName: string) => {
       openEditSearchIndexPageRef.current?.(currentIndexName);
@@ -90,7 +93,7 @@ export const compassIndexesDrawerServiceLocator = createServiceLocator(() => {
 
 export type CompassIndexesDrawerService = {
   openIndexesListPage: () => void;
-  openCreateSearchIndexPage: () => void;
+  openCreateSearchIndexPage: (currentIndexType: SearchIndexType) => void;
   openEditSearchIndexPage: (currentIndexName: string) => void;
 };
 
@@ -104,6 +107,7 @@ export const IndexesDrawerProvider: React.FunctionComponent<
   const [drawerState, setDrawerState] =
     React.useState<IndexesDrawerContextType>({
       currentPage: initialState?.currentPage ?? 'indexes-list',
+      currentIndexType: initialState?.currentIndexType ?? null,
       currentIndexName: initialState?.currentIndexName ?? null,
     });
 
@@ -116,10 +120,11 @@ export const IndexesDrawerProvider: React.FunctionComponent<
         }));
         openDrawer(INDEXES_DRAWER_ID);
       },
-      openCreateSearchIndexPage: () => {
+      openCreateSearchIndexPage: (currentIndexType: SearchIndexType) => {
         setDrawerState((drawerState: IndexesDrawerContextType) => ({
           ...drawerState,
           currentPage: 'create-search-index',
+          currentIndexType,
         }));
         openDrawer(INDEXES_DRAWER_ID);
       },
