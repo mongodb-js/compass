@@ -10,14 +10,10 @@ import {
   IndexesDrawerProvider,
   useIndexesDrawerActions,
   useIndexesDrawerContext,
-  type IndexesDrawerContextType,
 } from './compass-indexes-drawer-provider';
 import { CompassIndexesDrawerPlugin } from './compass-indexes-drawer';
 import { expect } from 'chai';
-import {
-  DrawerAnchor,
-  DrawerContentProvider,
-} from '@mongodb-js/compass-components';
+import { DrawerAnchor } from '@mongodb-js/compass-components';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import { WorkspacesServiceProvider } from '@mongodb-js/compass-workspaces/provider';
 import type { WorkspaceTab } from '@mongodb-js/workspace-info';
@@ -107,7 +103,7 @@ function createMockWorkspaceService(activeWorkspace?: WorkspaceTab | null) {
   } as any;
 }
 
-function createWrapper(preferences?: Record<string, any>) {
+function createWrapper() {
   function TestWrapper({ children }: { children: React.ReactNode }) {
     return <IndexesDrawerProvider>{children}</IndexesDrawerProvider>;
   }
@@ -117,9 +113,7 @@ function createWrapper(preferences?: Record<string, any>) {
 describe('useIndexesDrawerActions', function () {
   it('provides getIsIndexesDrawerEnabled action', function () {
     const { result } = renderHook(() => useIndexesDrawerActions(), {
-      wrapper: createWrapper({
-        enableSearchActivationProgramP1: true,
-      }),
+      wrapper: createWrapper(),
     });
 
     expect(result.current).to.not.be.null;
