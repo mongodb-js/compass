@@ -382,6 +382,8 @@ describe('Data Modeling tab', function () {
 
     it('allows undo after opening a diagram', async function () {
       const dataModelName = 'Test Data Model - Undo After Open';
+      const oldName = 'testCollection-flat';
+      const newName = 'testCollection-renamed';
       await setupDiagram(browser, {
         diagramName: dataModelName,
         connectionName: DEFAULT_CONNECTION_NAME_1,
@@ -391,26 +393,35 @@ describe('Data Modeling tab', function () {
       const dataModelEditor = browser.$(Selectors.DataModelEditor);
       await dataModelEditor.waitForDisplayed();
 
-      await dragNode(
-        browser,
-        Selectors.DataModelPreviewCollection('test.testCollection-flat'),
-        { x: 100, y: 0 }
+      // Apply change to the diagram
+      await browser.debug();
+      await selectCollectionOnTheDiagram(browser, `test.${oldName}`);
+      const drawer = browser.$(Selectors.SideDrawer);
+      await browser.setValueVisible(
+        browser.$(Selectors.DataModelNameInput),
+        newName
       );
-      await browser.waitForAnimations(dataModelEditor);
+      await drawer.click();
 
       // Open the saved diagram in new tab
       await browser.openNewTab();
       await browser.clickVisible(Selectors.DataModelsListItem(dataModelName));
       await browser.$(Selectors.DataModelEditor).waitForDisplayed();
 
-      // Ensure that undo button is enabled
+      // Verify that the change is applied and the undo button is enabled
+      await browser
+        .$(Selectors.DataModelPreviewCollection(`test.${newName}`))
+        .waitForDisplayed();
       await browser.waitForAriaDisabled(Selectors.DataModelUndoButton, false);
 
       // Undo the change
       await browser.clickVisible(Selectors.DataModelUndoButton);
       await browser.waitForAnimations(dataModelEditor);
 
-      // Ensure that undo button is now disabled and redo is enabled
+      // Verify that the change is reverted, undo is disabled and redo is enabled
+      await browser
+        .$(Selectors.DataModelPreviewCollection(`test.${oldName}`))
+        .waitForDisplayed();
       await browser.waitForAriaDisabled(Selectors.DataModelUndoButton, true);
       await browser.waitForAriaDisabled(Selectors.DataModelRedoButton, false);
     });
