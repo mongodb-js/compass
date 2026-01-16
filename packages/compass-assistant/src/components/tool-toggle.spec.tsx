@@ -5,7 +5,8 @@ import {
   userEvent,
   waitFor,
 } from '@mongodb-js/testing-library-compass';
-import { DATABASE_TOOLS, ToolToggle } from './tool-toggle';
+import { ToolToggle } from './tool-toggle';
+import { AVAILABLE_TOOLS } from '@mongodb-js/compass-generative-ai';
 import { expect } from 'chai';
 import sinon from 'sinon';
 import { CompassAssistantProvider } from '../compass-assistant-provider';
@@ -109,10 +110,28 @@ describe('ToolToggle', function () {
       userEvent.click(button);
 
       await waitFor(() => {
-        // Check for a sample of the tools
-        for (const tool of DATABASE_TOOLS) {
+        // Check that all tools from AVAILABLE_TOOLS are displayed
+        for (const tool of AVAILABLE_TOOLS) {
           expect(screen.getByText(tool.name)).to.exist;
+          expect(screen.getByText(tool.description)).to.exist;
         }
+      });
+    });
+
+    it('displays the correct count of available tools', async function () {
+      renderWithProvider(<ToolToggle />, {
+        enableGenAIToolCallingAtlasProject: true,
+        enableGenAIToolCalling: false,
+      });
+
+      const button = screen.getByTestId('tool-toggle-button');
+      userEvent.click(button);
+
+      await waitFor(() => {
+        const countText = screen.getByText(`(${AVAILABLE_TOOLS.length})`, {
+          exact: false,
+        });
+        expect(countText).to.exist;
       });
     });
   });
