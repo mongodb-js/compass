@@ -21,6 +21,7 @@ type ProjectParams = {
   enableGenAISampleDocumentPassing: boolean;
   enableGenAIFeaturesAtlasOrg: boolean;
   optInGenAIFeatures: boolean;
+  enableGenAIToolCallingAtlasProject: boolean;
   userRoles: Record<string, boolean>;
 };
 
@@ -148,6 +149,8 @@ export function useAtlasProxySignIn(): AtlasLoginReturnValue {
             enableGenAIFeaturesAtlasProject: groupEnabledFeatureFlags.includes(
               'ENABLE_DATA_EXPLORER_GEN_AI_FEATURES'
             ),
+            // TODO: use real flag once available
+            enableGenAIToolCallingAtlasProject: true,
             userRoles,
           });
           setStatus('signed-in');

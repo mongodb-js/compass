@@ -17,6 +17,7 @@ import {
   usePreference,
   usePreferencesContext,
 } from 'compass-preferences-model/provider';
+import { useAssistantProjectId } from '../compass-assistant-provider';
 
 const popoverContentStyles = css({
   padding: spacing[400],
@@ -175,12 +176,18 @@ export const AVAILABLE_TOOLS = [
   },
 ];
 
-export const ToolToggle: React.FunctionComponent<{
-  // TODO(COMPASS-10239, COMPASS-10237): this will likely go away once we allow
-  // DE users to toggle the feature
-  allowSavingPreferences?: boolean;
-}> = ({ allowSavingPreferences }) => {
-  const enableToolCalling = usePreference('enableGenAIToolCalling');
+export const ToolToggle: React.FunctionComponent = () => {
+  const enableGenAIToolCallingAtlasProject = usePreference(
+    'enableGenAIToolCallingAtlasProject'
+  );
+  const projectId = useAssistantProjectId();
+  const learnMoreUrl = projectId
+    ? 'https://www.mongodb.com/docs/atlas/atlas-ui/query-with-natural-language/data-explorer-ai-assistant/'
+    : 'https://www.mongodb.com/docs/compass/query-with-natural-language/compass-ai-assistant/';
+  const enableGenAIToolCalling = usePreference('enableGenAIToolCalling');
+
+  const areToolCallsEnabled =
+    !!enableGenAIToolCallingAtlasProject && enableGenAIToolCalling;
   const preferences = usePreferencesContext();
   const [popoverOpen, setPopoverOpen] = useState(false);
   const darkMode = useDarkMode();
@@ -215,7 +222,7 @@ export const ToolToggle: React.FunctionComponent<{
             darkMode={darkMode}
             size="small"
             leftGlyph={
-              enableToolCalling ? <ActiveBoltIcon /> : <DisabledBoltIcon />
+              enableGenAIToolCalling ? <ActiveBoltIcon /> : <DisabledBoltIcon />
             }
           >
             Tools
@@ -235,22 +242,19 @@ export const ToolToggle: React.FunctionComponent<{
                   id="enable-tool-calling-toggle"
                   aria-labelledby="enable-tool-calling-label"
                   size="small"
-                  checked={enableToolCalling}
+                  checked={areToolCallsEnabled}
                   onChange={handleToggle}
                   data-testid="tool-toggle-switch"
-                  disabled={!allowSavingPreferences}
+                  disabled={!enableGenAIToolCallingAtlasProject}
                 />
               </div>
               <Description>
-                {enableToolCalling
+                {areToolCallsEnabled
                   ? 'These are currently enabled and require approval. You can use natural language to explore data and generate queries.'
                   : 'These are currently disabled. Enable them to use natural language to explore data and generate queries.'}
               </Description>
             </div>
-            <Link
-              href="https://www.mongodb.com/docs/compass/query-with-natural-language/compass-ai-assistant/"
-              target="_blank"
-            >
+            <Link href={learnMoreUrl} target="_blank">
               Learn more
             </Link>
             <div className={toolsContainerStyles}>
