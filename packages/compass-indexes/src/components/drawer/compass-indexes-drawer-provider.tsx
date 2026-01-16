@@ -1,8 +1,6 @@
 import React, { type PropsWithChildren, useRef } from 'react';
 import { createContext, useContext } from 'react';
-import {
-  createServiceLocator,
-} from '@mongodb-js/compass-app-registry';
+import { createServiceLocator } from '@mongodb-js/compass-app-registry';
 import {
   useDrawerActions,
   useInitialValue,

@@ -1,4 +1,4 @@
-import React, { type PropsWithChildren, useContext } from 'react';
+import React, { useContext } from 'react';
 import { css, DrawerSection, spacing } from '@mongodb-js/compass-components';
 import {
   INDEXES_DRAWER_ID,
@@ -11,7 +11,6 @@ import { useActiveWorkspace } from '@mongodb-js/compass-workspaces/provider';
 import {
   activateIndexesPlugin,
   type IndexesDataServiceProps,
-  IndexesPluginOptions,
 } from '../../stores/store';
 import {
   connectionInfoRefLocator,
@@ -80,7 +79,7 @@ const CompassIndexesDrawer: React.FunctionComponent<{
 export const CompassIndexesDrawerPlugin = registerCompassPlugin(
   {
     name: 'CompassIndexesDrawer',
-    component: ({}: PropsWithChildren<IndexesPluginOptions>) => {
+    component: () => {
       return (
         <IndexesDrawerProvider>
           <CompassIndexesDrawer />

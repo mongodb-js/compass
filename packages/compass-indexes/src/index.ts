@@ -51,7 +51,6 @@ export const CompassIndexesPlugin = {
 // Export drawer components
 export { CompassIndexesDrawerPlugin } from './components/drawer/compass-indexes-drawer';
 export {
-  IndexesDrawerProvider,
   useIndexesDrawerActions,
   useIndexesDrawerContext,
   compassIndexesDrawerServiceLocator,

@@ -3,7 +3,6 @@ import {
   render,
   renderHook,
   screen,
-  userEvent,
   waitFor,
 } from '@mongodb-js/testing-library-compass';
 import {
@@ -14,7 +13,6 @@ import {
 } from './compass-indexes-drawer-provider';
 import { CompassIndexesDrawerPlugin } from './compass-indexes-drawer';
 import { expect } from 'chai';
-import sinon from 'sinon';
 import {
   DrawerAnchor,
   DrawerContentProvider,
@@ -126,7 +124,7 @@ function createWrapper() {
 const TestComponent: React.FunctionComponent<{
   autoOpen?: boolean;
   initialState?: Partial<IndexesDrawerContextType>;
-}> = ({ autoOpen, initialState }) => {
+}> = () => {
   const MockedProvider = createMockProvider();
 
   const mockPluginProps = {
