@@ -6,6 +6,7 @@ import {
   applySetModelEdit,
   getCurrentDiagramFromState,
   getCurrentModel,
+  selectCurrentModel,
 } from './diagram';
 import { UUID } from 'bson';
 import {
@@ -247,7 +248,7 @@ export function startAnalysis(
   name: string,
   connectionId: string,
   database: string,
-  dbCollections: string[],
+  selectedCollections: string[],
   options: Omit<AnalysisOptions, 'abortSignal'>
 ): DataModelingThunkAction<
   Promise<void>,
@@ -282,7 +283,7 @@ export function startAnalysis(
           name,
           connectionId,
           database,
-          dbCollections,
+          selectedCollections,
           options: {
             ...options,
             abortSignal: cancelController.signal,
@@ -290,13 +291,24 @@ export function startAnalysis(
         })
       );
 
+      const positioned = await getInitialLayout({
+        collections,
+        relations,
+      });
+
       dispatch({
         type: AnalysisProcessActionTypes.ANALYSIS_FINISHED,
         name,
         connectionId,
         database,
-        collections,
         relations,
+        collections: collections.map((coll) => {
+          const node = positioned.nodes.find((node) => {
+            return node.id === coll.ns;
+          });
+          const position = node ? node.position : { x: 0, y: 0 };
+          return { ...coll, position };
+        }),
       });
 
       const willInferRelations =
@@ -367,7 +379,7 @@ export function redoAnalysis(
   name: string,
   connectionId: string,
   database: string,
-  dbCollections: string[],
+  selectedCollections: string[],
   options: Omit<AnalysisOptions, 'abortSignal'>
 ): DataModelingThunkAction<
   Promise<void>,
@@ -384,28 +396,40 @@ export function redoAnalysis(
     getState,
     { cancelAnalysisControllerRef, logger }
   ) => {
-    const { diagram } = getState();
     // Analysis is in progress, don't start a new one unless user canceled it
-    if (cancelAnalysisControllerRef.current || !diagram) {
+    if (cancelAnalysisControllerRef.current) {
       return;
     }
+    const diagram = getCurrentDiagramFromState(getState());
     const cancelController = (cancelAnalysisControllerRef.current =
       new AbortController());
     try {
+      // If we don't want to infer relationship, then let's cut the existing collections
+      // from the selected collections list to avoid re-analyzing them for schema.
+      const currentModel = selectCurrentModel(diagram.edits);
+      const currentCollections = new Set(
+        currentModel.collections.map((c) => c.ns)
+      );
+      const collectionsToBeInferred = options.automaticallyInferRelations
+        ? selectedCollections
+        : selectedCollections.filter((c) => !currentCollections.has(c));
       const { collections, relations } = await dispatch(
         analyzeCollections({
           name,
           connectionId,
           database,
-          dbCollections,
+          selectedCollections: collectionsToBeInferred,
           options: {
             ...options,
             abortSignal: cancelController.signal,
           },
         })
       );
-      const edits = diagram.edits.current;
-      const model = getModelFromReanalysis(edits, collections, relations);
+      const model = await getModelFromReanalysis(
+        diagram.edits,
+        collections,
+        relations
+      );
       void dispatch(applySetModelEdit(model));
       dispatch({
         type: AnalysisProcessActionTypes.REDO_ANALYSIS_FINISHED,
@@ -435,16 +459,19 @@ export function analyzeCollections({
   name,
   connectionId,
   database,
-  dbCollections,
+  selectedCollections,
   options,
 }: {
   name: string;
   connectionId: string;
   database: string;
-  dbCollections: string[];
+  selectedCollections: string[];
   options: AnalysisOptions;
 }): DataModelingThunkAction<
-  Promise<{ collections: AnalyzedCollection[]; relations: Relationship[] }>,
+  Promise<{
+    collections: Omit<AnalyzedCollection, 'position'>[];
+    relations: Relationship[];
+  }>,
   | AnalyzingCollectionsStartAction
   | NamespaceSampleFetchedAction
   | NamespaceSchemaAnalyzedAction
@@ -454,7 +481,7 @@ export function analyzeCollections({
   | AnalysisFailedAction
 > {
   return async (dispatch, _getState, { connections, logger, preferences }) => {
-    const namespaces = dbCollections.map((collName) => {
+    const namespaces = selectedCollections.map((collName) => {
       return `${database}.${collName}`;
     });
     const willInferRelations =
@@ -465,7 +492,7 @@ export function analyzeCollections({
       name,
       connectionId,
       database,
-      collections: dbCollections,
+      collections: selectedCollections,
       options,
       willInferRelations,
     });
@@ -552,28 +579,14 @@ export function analyzeCollections({
       throw options.abortSignal.reason;
     }
 
-    const positioned = await getInitialLayout({
-      collections,
-      relations,
-    });
-
-    return {
-      collections: collections.map((coll) => {
-        const node = positioned.nodes.find((node) => {
-          return node.id === coll.ns;
-        });
-        const position = node ? node.position : { x: 0, y: 0 };
-        return { ...coll, position };
-      }),
-      relations,
-    };
+    return { collections, relations };
   };
 }
 
 // Exported for tests only
-export function getModelFromReanalysis(
+export async function getModelFromReanalysis(
   edits: Edit[],
-  analyzedCollections: AnalyzedCollection[],
+  analyzedCollections: Omit<AnalyzedCollection, 'position'>[],
   inferredRelations: Relationship[]
 ) {
   const currentModel = getCurrentModel(edits as [Edit, ...Edit[]]);
@@ -586,26 +599,25 @@ export function getModelFromReanalysis(
     .map((collection) => ({
       ns: collection.ns,
       jsonSchema: collection.schema,
-      displayPosition: [collection.position.x, collection.position.y] as [
-        number,
-        number
-      ],
       indexes: [],
       shardKey: undefined,
       isExpanded: collection.isExpanded,
     }));
-  const existingCollections = currentModel.collections.map((collection) => {
-    // We want to ensure we have the latest position from analysis
-    const position = analyzedCollections.find(
-      (c) => c.ns === collection.ns
-    )?.position;
-    if (!position) {
-      return collection;
-    }
-    return {
-      ...collection,
-      displayPosition: [position.x, position.y] as [number, number],
-    };
+  // We will reposition in the next step, so lets ignore displayPosition
+  const existingCollections = currentModel.collections.map(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    ({ displayPosition, ...coll }) => coll
+  );
+
+  const allCollections = [...existingCollections, ...newCollections];
+
+  const positioned = await getInitialLayout({
+    collections: allCollections.map((x) => ({
+      isExpanded: x.isExpanded,
+      ns: x.ns,
+      schema: x.jsonSchema,
+    })),
+    relations: inferredRelations,
   });
 
   // Only consider the relations that involve at least one newly added collection
@@ -649,7 +661,17 @@ export function getModelFromReanalysis(
   });
   const existingRelations = currentModel.relationships;
   return {
-    collections: [...existingCollections, ...newCollections],
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    collections: allCollections.map((coll) => {
+      const node = positioned.nodes.find((node) => {
+        return node.id === coll.ns;
+      });
+      const position = node ? node.position : { x: 0, y: 0 };
+      return {
+        ...coll,
+        displayPosition: [position.x, position.y] as [number, number],
+      };
+    }),
     relationships: [...existingRelations, ...newRelations],
   };
 }

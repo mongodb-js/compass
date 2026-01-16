@@ -109,13 +109,13 @@ describe('analysis-process', function () {
       store.dispatch(openDiagram(mockDiagram));
     });
     context('relationships', function () {
-      it('should retain deletes', function () {
+      it('should retain deletes', async function () {
         store.dispatch(deleteRelationship(model.relationships[0].id));
         const edits = store.getState().diagram?.edits.current;
         const relationships = [
           getMockedRelationship('db.collection3', 'db.collection4'),
         ];
-        const newModel = getModelFromReanalysis(
+        const newModel = await getModelFromReanalysis(
           edits as [Edit, ...Edit[]],
           [
             getMockedCollection('db.collection1'),
@@ -128,7 +128,7 @@ describe('analysis-process', function () {
         expect(newModel.collections).to.have.lengthOf(4);
         expect(newModel.relationships).to.deep.equal(relationships);
       });
-      it('should retain any edits', function () {
+      it('should retain any edits', async function () {
         store.dispatch(
           updateRelationship({
             ...model.relationships[0],
@@ -145,7 +145,7 @@ describe('analysis-process', function () {
         const relationships = [
           getMockedRelationship('db.collection3', 'db.collection4'),
         ];
-        const newModel = getModelFromReanalysis(
+        const newModel = await getModelFromReanalysis(
           edits as [Edit, ...Edit[]],
           [
             getMockedCollection('db.collection1'),
@@ -170,7 +170,7 @@ describe('analysis-process', function () {
           ...relationships,
         ]);
       });
-      it('should not include a relation that was added in SetModel and then removed', function () {
+      it('should not include a relation that was added in SetModel and then removed', async function () {
         store.dispatch(deleteRelationship(model.relationships[0].id));
         const edits = store.getState().diagram?.edits.current;
         const relationships = [
@@ -180,7 +180,7 @@ describe('analysis-process', function () {
             model.relationships[0].relationship[1].ns!
           ),
         ];
-        const newModel = getModelFromReanalysis(
+        const newModel = await getModelFromReanalysis(
           edits as [Edit, ...Edit[]],
           [
             getMockedCollection('db.collection1'),
@@ -192,7 +192,7 @@ describe('analysis-process', function () {
         expect(newModel.collections).to.have.lengthOf(3);
         expect(newModel.relationships).to.deep.equal([]);
       });
-      it('should retain a relation that was added after SetModel edit', function () {
+      it('should retain a relation that was added after SetModel edit', async function () {
         store.dispatch(
           createNewRelationship({
             localNamespace: 'db.collection6',
@@ -205,7 +205,7 @@ describe('analysis-process', function () {
         const relationships = [
           getMockedRelationship('db.collection3', 'db.collection4'),
         ];
-        const newModel = getModelFromReanalysis(
+        const newModel = await getModelFromReanalysis(
           edits as [Edit, ...Edit[]],
           [
             getMockedCollection('db.collection1'),
@@ -235,7 +235,7 @@ describe('analysis-process', function () {
       });
     });
     context('collections', function () {
-      it('should retain deletes - when user does not select deleted collection', function () {
+      it('should retain deletes - when user does not select deleted collection', async function () {
         store.dispatch(deleteCollection(model.collections[2].ns));
         const edits = store.getState().diagram?.edits.current;
         const collections = [
@@ -244,7 +244,7 @@ describe('analysis-process', function () {
           // db.collection3 is deleted one
           getMockedCollection('db.collection4'),
         ];
-        const newModel = getModelFromReanalysis(
+        const newModel = await getModelFromReanalysis(
           edits as Edit[],
           collections,
           model.relationships
@@ -255,7 +255,7 @@ describe('analysis-process', function () {
           collections.map((c) => c.ns)
         );
       });
-      it('should include collection when user reselects it after deleting', function () {
+      it('should include collection when user reselects it after deleting', async function () {
         store.dispatch(deleteCollection(model.collections[2].ns));
         const edits = store.getState().diagram?.edits.current;
         const collections = [
@@ -264,7 +264,7 @@ describe('analysis-process', function () {
           getMockedCollection('db.collection3'),
           getMockedCollection('db.collection4'),
         ];
-        const newModel = getModelFromReanalysis(
+        const newModel = await getModelFromReanalysis(
           edits as Edit[],
           collections,
           model.relationships
@@ -275,7 +275,7 @@ describe('analysis-process', function () {
           collections.map((c) => c.ns)
         );
       });
-      it('should retain any edits', function () {
+      it('should retain any edits', async function () {
         store.dispatch(
           addNewFieldToCollection(model.collections[0].ns, 'diagram')
         );
@@ -292,7 +292,7 @@ describe('analysis-process', function () {
           getMockedCollection('db.collection3'),
           getMockedCollection('db.collection4'),
         ];
-        const newModel = getModelFromReanalysis(
+        const newModel = await getModelFromReanalysis(
           edits as Edit[],
           collections,
           model.relationships
