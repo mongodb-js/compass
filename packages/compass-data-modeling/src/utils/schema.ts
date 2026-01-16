@@ -1,5 +1,10 @@
 import type { MongoDBJSONSchema } from 'mongodb-schema';
-import { getDirectChildren, getFieldFromSchema } from './schema-traversal';
+import {
+  getDirectChildren,
+  getFieldFromSchema,
+  traverseSchema,
+} from './schema-traversal';
+import type { FieldPath } from '../services/data-model-storage';
 
 export function getNewUnusedFieldName(
   jsonSchema: MongoDBJSONSchema,
@@ -30,4 +35,17 @@ export function getNewUnusedFieldName(
   }
 
   return fieldName;
+}
+
+export function extractFieldsFromSchema(
+  parentSchema: MongoDBJSONSchema
+): FieldPath[] {
+  const fields: FieldPath[] = [];
+  traverseSchema({
+    jsonSchema: parentSchema,
+    visitor: ({ fieldPath }) => {
+      fields.push(fieldPath);
+    },
+  });
+  return fields;
 }

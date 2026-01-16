@@ -49,12 +49,12 @@ function getMockedRelationship(
       {
         ns: sourceNs,
         cardinality: 1,
-        fields: ['field1'],
+        fields: ['_id'],
       },
       {
         ns: targetNs,
         cardinality: 1,
-        fields: ['field2'],
+        fields: ['_id'],
       },
     ],
     isInferred: false,

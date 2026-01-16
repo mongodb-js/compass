@@ -32,10 +32,12 @@ import { collectionToBaseNodeForLayout } from '../utils/nodes-and-edges';
 import {
   getFieldFromSchema,
   getSchemaWithNewTypes,
-  traverseSchema,
 } from '../utils/schema-traversal';
 import { applyEdit as _applyEdit } from './apply-edit';
-import { getNewUnusedFieldName } from '../utils/schema';
+import {
+  extractFieldsFromSchema,
+  getNewUnusedFieldName,
+} from '../utils/schema';
 
 function isNonEmptyArray<T>(arr: T[]): arr is [T, ...T[]] {
   return Array.isArray(arr) && arr.length > 0;
@@ -1040,17 +1042,6 @@ export const selectCurrentModel = memoize(getCurrentModel);
 export const selectCurrentModelFromState = (state: DataModelingState) => {
   return selectCurrentModel(selectCurrentDiagramFromState(state).edits);
 };
-
-function extractFieldsFromSchema(parentSchema: MongoDBJSONSchema): FieldPath[] {
-  const fields: FieldPath[] = [];
-  traverseSchema({
-    jsonSchema: parentSchema,
-    visitor: ({ fieldPath }) => {
-      fields.push(fieldPath);
-    },
-  });
-  return fields;
-}
 
 function getFieldsForCurrentModel(
   edits: MongoDBDataModelDescription['edits']

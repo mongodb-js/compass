@@ -20,6 +20,8 @@ import {
 } from '../utils/nodes-and-edges';
 import { inferForeignToLocalRelationshipsForCollection } from './relationships';
 import { mongoLogId } from '@mongodb-js/compass-logging/provider';
+import { extractFieldsFromSchema } from '../utils/schema';
+import { isEqual } from 'lodash';
 
 type AnalyzedCollection = {
   ns: string;
@@ -607,13 +609,43 @@ export function getModelFromReanalysis(
   });
 
   // Only consider the relations that involve at least one newly added collection
-  const newCollectionNamespaces = new Set(newCollections.map((c) => c.ns));
+  // and if it relates to an existing collection, we want to make sure the fields
+  // in the relationship still exist in the existing collection's schema
+  const existingCollectionsFieldMap = new Map(
+    Array.from(
+      existingCollections.map((coll) => [
+        coll.ns,
+        extractFieldsFromSchema(coll.jsonSchema),
+      ])
+    )
+  );
   const newRelations = inferredRelations.filter((relation) => {
     const [local, foreign] = relation.relationship;
-    return (
-      newCollectionNamespaces.has(local.ns!) ||
-      newCollectionNamespaces.has(foreign.ns!)
+
+    const isLocalCollectionNew = !existingCollectionsFieldMap.has(local.ns!);
+    const isForeignCollectionNew = !existingCollectionsFieldMap.has(
+      foreign.ns!
     );
+
+    // Must involve at least one newly added collection
+    const hasNewCollection = isLocalCollectionNew || isForeignCollectionNew;
+
+    // If its an existing collection, verify its fields exist in the schema
+    const isLocalFieldsValid =
+      isLocalCollectionNew ||
+      (existingCollectionsFieldMap
+        .get(local.ns!)
+        ?.some((fieldPath) => isEqual(fieldPath, local.fields)) ??
+        false);
+
+    const isForeignFieldsValid =
+      isForeignCollectionNew ||
+      (existingCollectionsFieldMap
+        .get(foreign.ns!)
+        ?.some((fieldPath) => isEqual(fieldPath, foreign.fields)) ??
+        false);
+
+    return hasNewCollection && isLocalFieldsValid && isForeignFieldsValid;
   });
   const existingRelations = currentModel.relationships;
   return {
