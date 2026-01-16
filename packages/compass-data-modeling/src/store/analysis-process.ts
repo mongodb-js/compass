@@ -4,10 +4,7 @@ import type { DataModelingThunkAction } from './reducer';
 import { analyzeDocuments, type MongoDBJSONSchema } from 'mongodb-schema';
 import { getCurrentDiagramFromState } from './diagram';
 import { UUID } from 'bson';
-import {
-  DEFAULT_IS_EXPANDED,
-  type Relationship,
-} from '../services/data-model-storage';
+import { type Relationship } from '../services/data-model-storage';
 import { applyLayout } from '@mongodb-js/compass-components';
 import {
   collectionToBaseNodeForLayout,
@@ -87,7 +84,6 @@ export type AnalysisFinishedAction = {
     ns: string;
     schema: MongoDBJSONSchema;
     position: { x: number; y: number };
-    isExpanded: boolean;
   }[];
   relations: Relationship[];
 };
@@ -192,16 +188,18 @@ async function getInitialLayout({
   collections,
   relations,
 }: {
-  collections: { ns: string; schema: MongoDBJSONSchema; isExpanded: boolean }[];
+  collections: {
+    ns: string;
+    schema: MongoDBJSONSchema;
+  }[];
   relations: Relationship[];
 }) {
   const hasRelations = relations.length > 0;
   const nodes = collections.map((coll) => {
     return collectionToBaseNodeForLayout({
       ns: coll.ns,
-      jsonSchema: coll.schema,
+      fieldData: coll.schema,
       displayPosition: [0, 0],
-      isExpanded: coll.isExpanded,
     });
   });
   return await applyLayout({
@@ -292,7 +290,7 @@ export function startAnalysis(
             type: AnalysisProcessActionTypes.NAMESPACE_SCHEMA_ANALYZED,
           });
 
-          return { ns, schema, sample, isExpanded: DEFAULT_IS_EXPANDED };
+          return { ns, schema, sample };
         })
       );
 
