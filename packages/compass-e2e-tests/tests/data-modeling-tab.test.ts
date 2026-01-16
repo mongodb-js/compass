@@ -394,7 +394,6 @@ describe('Data Modeling tab', function () {
       await dataModelEditor.waitForDisplayed();
 
       // Apply change to the diagram
-      await browser.debug();
       await selectCollectionOnTheDiagram(browser, `test.${oldName}`);
       const drawer = browser.$(Selectors.SideDrawer);
       await browser.setValueVisible(
