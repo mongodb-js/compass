@@ -1,12 +1,32 @@
-import React, { useContext } from 'react';
+import React, { type PropsWithChildren, useContext } from 'react';
 import { css, DrawerSection, spacing } from '@mongodb-js/compass-components';
 import {
   INDEXES_DRAWER_ID,
   IndexesDrawerContext,
+  IndexesDrawerProvider,
   useIndexesDrawerActions,
-} from './compass-indexes-provider';
-import { IndexesListPage } from './pages/indexes-list-page';
+} from './compass-indexes-drawer-provider';
+import IndexesListPage from './pages/indexes-list-page';
 import { useActiveWorkspace } from '@mongodb-js/compass-workspaces/provider';
+import {
+  activateIndexesPlugin,
+  type IndexesDataServiceProps,
+  IndexesPluginOptions,
+} from '../../stores/store';
+import {
+  connectionInfoRefLocator,
+  type DataServiceLocator,
+  dataServiceLocator,
+} from '@mongodb-js/compass-connections/provider';
+import {
+  collectionModelLocator,
+  mongoDBInstanceLocator,
+} from '@mongodb-js/compass-app-stores/provider';
+import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
+import { telemetryLocator } from '@mongodb-js/compass-telemetry/provider';
+import { atlasServiceLocator } from '@mongodb-js/atlas-service/provider';
+import { preferencesLocator } from 'compass-preferences-model/provider';
+import { registerCompassPlugin } from '@mongodb-js/compass-app-registry';
 
 const indexesTitleStyles = css({
   display: 'flex',
@@ -20,9 +40,8 @@ const indexesTitleTextStyles = css({
 
 /**
  * CompassIndexesDrawer component that wraps search indexes management in a DrawerSection.
- * This component is rendered at the app level but only shows when inside a Collection workspace.
  */
-export const CompassIndexesDrawer: React.FunctionComponent<{
+const CompassIndexesDrawer: React.FunctionComponent<{
   autoOpen?: boolean;
 }> = ({ autoOpen = false }) => {
   const drawerState = useContext(IndexesDrawerContext);
@@ -57,3 +76,28 @@ export const CompassIndexesDrawer: React.FunctionComponent<{
     </DrawerSection>
   );
 };
+
+export const CompassIndexesDrawerPlugin = registerCompassPlugin(
+  {
+    name: 'CompassIndexesDrawer',
+    component: ({}: PropsWithChildren<IndexesPluginOptions>) => {
+      return (
+        <IndexesDrawerProvider>
+          <CompassIndexesDrawer />
+        </IndexesDrawerProvider>
+      );
+    },
+    activate: activateIndexesPlugin,
+  },
+  {
+    dataService:
+      dataServiceLocator as DataServiceLocator<IndexesDataServiceProps>,
+    connectionInfoRef: connectionInfoRefLocator,
+    instance: mongoDBInstanceLocator,
+    logger: createLoggerLocator('COMPASS-INDEXES-DRAWER'),
+    track: telemetryLocator,
+    collection: collectionModelLocator,
+    atlasService: atlasServiceLocator,
+    preferences: preferencesLocator,
+  }
+);

@@ -49,15 +49,15 @@ export const CompassIndexesPlugin = {
 };
 
 // Export drawer components
-export { CompassIndexesDrawerProvider } from './components/drawer/compass-indexes-provider';
-export { CompassIndexesDrawer } from './components/drawer/compass-indexes-drawer';
+export { CompassIndexesDrawerPlugin } from './components/drawer/compass-indexes-drawer';
 export {
+  IndexesDrawerProvider,
   useIndexesDrawerActions,
   useIndexesDrawerContext,
   compassIndexesDrawerServiceLocator,
   INDEXES_DRAWER_ID,
-} from './components/drawer/compass-indexes-provider';
+} from './components/drawer/compass-indexes-drawer-provider';
 export type {
   CompassIndexesDrawerService,
   IndexesDrawerContextType,
-} from './components/drawer/compass-indexes-provider';
+} from './components/drawer/compass-indexes-drawer-provider';

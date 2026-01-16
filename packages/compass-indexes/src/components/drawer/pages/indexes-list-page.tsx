@@ -1,14 +1,22 @@
 import React from 'react';
-import { useActiveWorkspace } from '@mongodb-js/compass-workspaces/provider';
+import { connect } from 'react-redux';
+import type { RootState } from '../../../modules';
 
-export type IndexesListPageProps = Record<string, never>;
-
-const IndexesListPage: React.FunctionComponent<IndexesListPageProps> = () => {
-  const activeWorkspace = useActiveWorkspace();
-  const namespace =
-    activeWorkspace?.type === 'Collection' ? activeWorkspace.namespace : '';
-
-  return <div>IndexesListPage for {namespace}</div>;
+type IndexesListPageProps = {
+  namespace: string;
 };
 
+const IndexesListPage: React.FunctionComponent<IndexesListPageProps> = ({
+  namespace,
+}) => {
+  return <div>Indexes list for {namespace}</div>;
+};
+
+const mapState = ({ namespace }: RootState) => ({
+  namespace,
+});
+
+const mapDispatch = {};
+
+export default connect(mapState, mapDispatch)(IndexesListPage);
 export { IndexesListPage };

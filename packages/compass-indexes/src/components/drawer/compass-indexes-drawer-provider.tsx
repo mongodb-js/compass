@@ -2,14 +2,12 @@ import React, { type PropsWithChildren, useRef } from 'react';
 import { createContext, useContext } from 'react';
 import {
   createServiceLocator,
-  registerCompassPlugin,
 } from '@mongodb-js/compass-app-registry';
 import {
   useDrawerActions,
   useInitialValue,
 } from '@mongodb-js/compass-components';
 import { usePreference } from 'compass-preferences-model/provider';
-import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
 
 export const INDEXES_DRAWER_ID = 'compass-indexes-drawer';
 
@@ -145,32 +143,3 @@ export const IndexesDrawerProvider: React.FunctionComponent<
     </IndexesDrawerContext.Provider>
   );
 };
-
-export const CompassIndexesDrawerProvider = registerCompassPlugin(
-  {
-    name: 'CompassIndexesDrawer',
-    component: ({
-      initialState,
-      children,
-    }: PropsWithChildren<{
-      initialState?: Partial<IndexesDrawerContextType>;
-    }>) => {
-      return (
-        <IndexesDrawerProvider initialState={initialState}>
-          {children}
-        </IndexesDrawerProvider>
-      );
-    },
-    activate: () => {
-      return {
-        store: {
-          state: {},
-        },
-        deactivate: () => {},
-      };
-    },
-  },
-  {
-    logger: createLoggerLocator('COMPASS-INDEXES-DRAWER'),
-  }
-);
