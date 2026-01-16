@@ -104,7 +104,7 @@ export const IndexesDrawerProvider: React.FunctionComponent<
   const [drawerState, setDrawerState] =
     React.useState<IndexesDrawerContextType>({
       currentPage: initialState?.currentPage ?? 'indexes-list',
-      currentIndexName: null,
+      currentIndexName: initialState?.currentIndexName ?? null,
     });
 
   const indexesDrawerActionsContext =

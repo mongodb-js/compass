@@ -4,6 +4,7 @@ import {
   renderHook,
   screen,
   waitFor,
+  userEvent,
 } from '@mongodb-js/testing-library-compass';
 import {
   IndexesDrawerProvider,
@@ -22,7 +23,7 @@ import { WorkspacesServiceProvider } from '@mongodb-js/compass-workspaces/provid
 import type { WorkspaceTab } from '@mongodb-js/workspace-info';
 import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
 
-function createMockProvider() {
+function createMockProvider(preferences?: Record<string, any>) {
   const mockDataService = {
     indexes: () => Promise.resolve([]),
     isConnected: () => true,
@@ -65,6 +66,11 @@ function createMockProvider() {
     on: () => {},
     off: () => {},
     removeListener: () => {},
+    toJSON: () => ({
+      _id: 'test.collection',
+      type: 'collection',
+      readonly: false,
+    }),
   };
 
   const mockConnectionInfoRef = {
@@ -78,6 +84,8 @@ function createMockProvider() {
   const mockPreferences = {
     getPreferences: () => ({
       enableRollingIndexes: false,
+      enableSearchActivationProgramP1: false,
+      ...preferences,
     }),
   };
 
@@ -99,60 +107,22 @@ function createMockWorkspaceService(activeWorkspace?: WorkspaceTab | null) {
   } as any;
 }
 
-function createWrapper() {
+function createWrapper(preferences?: Record<string, any>) {
   function TestWrapper({ children }: { children: React.ReactNode }) {
-    const MockedProvider = createMockProvider();
-
-    const mockPluginProps = {
-      namespace: 'test.collection',
-      serverVersion: '6.0.0',
-      isReadonly: false,
-      isSearchIndexesSupported: true,
-    };
-
-    return (
-      <DrawerContentProvider>
-        {/* Breaking this rule is fine while none of the tests try to re-render the content */}
-        {/* eslint-disable-next-line react-hooks/static-components */}
-        <MockedProvider {...mockPluginProps}>{children}</MockedProvider>
-      </DrawerContentProvider>
-    );
+    return <IndexesDrawerProvider>{children}</IndexesDrawerProvider>;
   }
   return TestWrapper;
 }
 
-const TestComponent: React.FunctionComponent<{
-  autoOpen?: boolean;
-  initialState?: Partial<IndexesDrawerContextType>;
-}> = () => {
-  const MockedProvider = createMockProvider();
-
-  const mockPluginProps = {
-    namespace: 'test.collection',
-    serverVersion: '6.0.0',
-    isReadonly: false,
-    isSearchIndexesSupported: true,
-  };
-
-  return (
-    <DrawerContentProvider>
-      {/* Breaking this rule is fine while none of the tests try to re-render the content */}
-      {/* eslint-disable-next-line react-hooks/static-components */}
-      <MockedProvider {...mockPluginProps}>
-        <DrawerAnchor>
-          <div data-testid="provider-children">Provider children</div>
-        </DrawerAnchor>
-      </MockedProvider>
-    </DrawerContentProvider>
-  );
-};
-
 describe('useIndexesDrawerActions', function () {
   it('provides getIsIndexesDrawerEnabled action', function () {
     const { result } = renderHook(() => useIndexesDrawerActions(), {
-      wrapper: createWrapper(),
+      wrapper: createWrapper({
+        enableSearchActivationProgramP1: true,
+      }),
     });
 
+    expect(result.current).to.not.be.null;
     expect(result.current).to.have.property('getIsIndexesDrawerEnabled');
     expect(result.current.getIsIndexesDrawerEnabled).to.be.a('function');
   });
@@ -175,22 +145,32 @@ describe('useIndexesDrawerContext', function () {
 
 describe('CompassIndexesDrawerPlugin', function () {
   it('always renders children', function () {
-    render(<TestComponent />, {
-      preferences: {
-        enableSearchActivationProgramP1: true,
-      },
-    });
+    render(
+      <IndexesDrawerProvider>
+        <div data-testid="provider-children">Provider children</div>
+      </IndexesDrawerProvider>,
+      {
+        preferences: {
+          enableSearchActivationProgramP1: true,
+        },
+      }
+    );
 
     expect(screen.getByTestId('provider-children')).to.exist;
   });
 
   describe('disabling the Indexes Drawer', function () {
     it('does not render indexes drawer when feature flag is disabled', function () {
-      render(<TestComponent />, {
-        preferences: {
-          enableSearchActivationProgramP1: false,
-        },
-      });
+      render(
+        <IndexesDrawerProvider>
+          <div data-testid="provider-children">Provider children</div>
+        </IndexesDrawerProvider>,
+        {
+          preferences: {
+            enableSearchActivationProgramP1: false,
+          },
+        }
+      );
 
       expect(screen.getByTestId('provider-children')).to.exist;
       expect(screen.queryByLabelText('Indexes')).to.not.exist;
@@ -249,7 +229,9 @@ describe('CompassIndexesDrawerPlugin', function () {
     });
 
     it('displays the drawer content when opened in a collection context', async function () {
-      const MockedProvider = createMockProvider();
+      const MockedProvider = createMockProvider({
+        enableSearchActivationProgramP1: true,
+      });
       const mockWorkspace = createMockWorkspaceService({
         type: 'Collection',
         namespace: 'test.collection',
@@ -263,13 +245,12 @@ describe('CompassIndexesDrawerPlugin', function () {
       };
 
       render(
-        <DrawerContentProvider>
-          <WorkspacesServiceProvider value={mockWorkspace}>
-            <MockedProvider {...mockPluginProps}>
-              <DrawerAnchor />
-            </MockedProvider>
-          </WorkspacesServiceProvider>
-        </DrawerContentProvider>,
+        <WorkspacesServiceProvider value={mockWorkspace}>
+          <DrawerAnchor />
+          <MockedProvider {...mockPluginProps}>
+            <CompassIndexesDrawerPlugin {...mockPluginProps} />
+          </MockedProvider>
+        </WorkspacesServiceProvider>,
         {
           preferences: {
             enableSearchActivationProgramP1: true,
@@ -277,13 +258,19 @@ describe('CompassIndexesDrawerPlugin', function () {
         }
       );
 
+      // Click the Indexes button to open the drawer
+      const indexesButton = screen.getByLabelText('Indexes');
+      userEvent.click(indexesButton);
+
       await waitFor(() => {
-        expect(screen.getByText('Indexes')).to.exist;
+        expect(screen.getByText(/Indexes list for/)).to.exist;
       });
     });
 
     it('does not render when feature flag is disabled', function () {
-      const MockedProvider = createMockProvider();
+      const MockedProvider = createMockProvider({
+        enableSearchActivationProgramP1: false,
+      });
       const mockWorkspace = createMockWorkspaceService({
         type: 'Collection',
         namespace: 'test.collection',
@@ -297,13 +284,13 @@ describe('CompassIndexesDrawerPlugin', function () {
       };
 
       render(
-        <DrawerContentProvider>
-          <WorkspacesServiceProvider value={mockWorkspace}>
-            <MockedProvider {...mockPluginProps}>
-              <DrawerAnchor />
-            </MockedProvider>
-          </WorkspacesServiceProvider>
-        </DrawerContentProvider>,
+        <WorkspacesServiceProvider value={mockWorkspace}>
+          <MockedProvider {...mockPluginProps}>
+            <DrawerAnchor>
+              <CompassIndexesDrawerPlugin {...mockPluginProps} />
+            </DrawerAnchor>
+          </MockedProvider>
+        </WorkspacesServiceProvider>,
         {
           preferences: {
             enableSearchActivationProgramP1: false,
@@ -315,7 +302,9 @@ describe('CompassIndexesDrawerPlugin', function () {
     });
 
     it('does not render when not in a collection context', function () {
-      const MockedProvider = createMockProvider();
+      const MockedProvider = createMockProvider({
+        enableSearchActivationProgramP1: true,
+      });
       const mockPluginProps = {
         namespace: 'test.collection',
         serverVersion: '6.0.0',
@@ -325,13 +314,13 @@ describe('CompassIndexesDrawerPlugin', function () {
       const mockWorkspace = createMockWorkspaceService(null);
 
       render(
-        <DrawerContentProvider>
-          <WorkspacesServiceProvider value={mockWorkspace}>
-            <MockedProvider {...mockPluginProps}>
-              <DrawerAnchor />
-            </MockedProvider>
-          </WorkspacesServiceProvider>
-        </DrawerContentProvider>,
+        <WorkspacesServiceProvider value={mockWorkspace}>
+          <MockedProvider {...mockPluginProps}>
+            <DrawerAnchor>
+              <CompassIndexesDrawerPlugin {...mockPluginProps} />
+            </DrawerAnchor>
+          </MockedProvider>
+        </WorkspacesServiceProvider>,
         {
           preferences: {
             enableSearchActivationProgramP1: true,
