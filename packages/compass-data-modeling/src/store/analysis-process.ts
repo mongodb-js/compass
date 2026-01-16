@@ -5,14 +5,13 @@ import { analyzeDocuments, type MongoDBJSONSchema } from 'mongodb-schema';
 import {
   applySetModelEdit,
   getCurrentDiagramFromState,
-  getCurrentModel,
   selectCurrentModel,
 } from './diagram';
 import { UUID } from 'bson';
 import {
   DEFAULT_IS_EXPANDED,
   type Relationship,
-  type Edit,
+  type StaticModel,
 } from '../services/data-model-storage';
 import { applyLayout } from '@mongodb-js/compass-components';
 import {
@@ -426,7 +425,7 @@ export function redoAnalysis(
         })
       );
       const model = await getModelFromReanalysis(
-        diagram.edits,
+        currentModel,
         collections,
         relations
       );
@@ -585,11 +584,10 @@ export function analyzeCollections({
 
 // Exported for tests only
 export async function getModelFromReanalysis(
-  edits: Edit[],
+  currentModel: StaticModel,
   analyzedCollections: Omit<AnalyzedCollection, 'position'>[],
   inferredRelations: Relationship[]
 ) {
-  const currentModel = getCurrentModel(edits as [Edit, ...Edit[]]);
   const initialCollectionsSet = new Set(
     currentModel.collections.map((c) => c.ns)
   );

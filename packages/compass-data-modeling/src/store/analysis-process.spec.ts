@@ -15,7 +15,7 @@ import {
   deleteRelationship,
   openDiagram,
   updateRelationship,
-  getCurrentModel,
+  selectCurrentModelFromState,
 } from './diagram';
 
 const mockSchema = {
@@ -111,12 +111,12 @@ describe('analysis-process', function () {
     context('relationships', function () {
       it('should retain deletes', async function () {
         store.dispatch(deleteRelationship(model.relationships[0].id));
-        const edits = store.getState().diagram?.edits.current;
+        const currentModel = selectCurrentModelFromState(store.getState());
         const relationships = [
           getMockedRelationship('db.collection3', 'db.collection4'),
         ];
         const newModel = await getModelFromReanalysis(
-          edits as [Edit, ...Edit[]],
+          currentModel,
           [
             getMockedCollection('db.collection1'),
             getMockedCollection('db.collection2'),
@@ -141,12 +141,12 @@ describe('analysis-process', function () {
             ],
           })
         );
-        const edits = store.getState().diagram?.edits.current;
+        const currentModel = selectCurrentModelFromState(store.getState());
         const relationships = [
           getMockedRelationship('db.collection3', 'db.collection4'),
         ];
         const newModel = await getModelFromReanalysis(
-          edits as [Edit, ...Edit[]],
+          currentModel,
           [
             getMockedCollection('db.collection1'),
             getMockedCollection('db.collection2'),
@@ -172,7 +172,7 @@ describe('analysis-process', function () {
       });
       it('should not include a relation that was added in SetModel and then removed', async function () {
         store.dispatch(deleteRelationship(model.relationships[0].id));
-        const edits = store.getState().diagram?.edits.current;
+        const currentModel = selectCurrentModelFromState(store.getState());
         const relationships = [
           // Let's add it back
           getMockedRelationship(
@@ -181,7 +181,7 @@ describe('analysis-process', function () {
           ),
         ];
         const newModel = await getModelFromReanalysis(
-          edits as [Edit, ...Edit[]],
+          currentModel,
           [
             getMockedCollection('db.collection1'),
             getMockedCollection('db.collection2'),
@@ -201,12 +201,12 @@ describe('analysis-process', function () {
             foreignFields: ['fieldB'],
           })
         );
-        const edits = store.getState().diagram?.edits.current;
+        const currentModel = selectCurrentModelFromState(store.getState());
         const relationships = [
           getMockedRelationship('db.collection3', 'db.collection4'),
         ];
         const newModel = await getModelFromReanalysis(
-          edits as [Edit, ...Edit[]],
+          currentModel,
           [
             getMockedCollection('db.collection1'),
             getMockedCollection('db.collection2'),
@@ -237,7 +237,7 @@ describe('analysis-process', function () {
     context('collections', function () {
       it('should retain deletes - when user does not select deleted collection', async function () {
         store.dispatch(deleteCollection(model.collections[2].ns));
-        const edits = store.getState().diagram?.edits.current;
+        const currentModel = selectCurrentModelFromState(store.getState());
         const collections = [
           getMockedCollection('db.collection1'),
           getMockedCollection('db.collection2'),
@@ -245,7 +245,7 @@ describe('analysis-process', function () {
           getMockedCollection('db.collection4'),
         ];
         const newModel = await getModelFromReanalysis(
-          edits as Edit[],
+          currentModel,
           collections,
           model.relationships
         );
@@ -257,7 +257,7 @@ describe('analysis-process', function () {
       });
       it('should include collection when user reselects it after deleting', async function () {
         store.dispatch(deleteCollection(model.collections[2].ns));
-        const edits = store.getState().diagram?.edits.current;
+        const currentModel = selectCurrentModelFromState(store.getState());
         const collections = [
           getMockedCollection('db.collection1'),
           getMockedCollection('db.collection2'),
@@ -265,7 +265,7 @@ describe('analysis-process', function () {
           getMockedCollection('db.collection4'),
         ];
         const newModel = await getModelFromReanalysis(
-          edits as Edit[],
+          currentModel,
           collections,
           model.relationships
         );
@@ -279,8 +279,7 @@ describe('analysis-process', function () {
         store.dispatch(
           addNewFieldToCollection(model.collections[0].ns, 'diagram')
         );
-        const edits = store.getState().diagram?.edits.current;
-        const currentModel = getCurrentModel(edits as [Edit, ...Edit[]]);
+        const currentModel = selectCurrentModelFromState(store.getState());
         const newFields = Object.keys(
           currentModel.collections.find((c) => c.ns === model.collections[0].ns)
             ?.jsonSchema?.properties || {}
@@ -293,7 +292,7 @@ describe('analysis-process', function () {
           getMockedCollection('db.collection4'),
         ];
         const newModel = await getModelFromReanalysis(
-          edits as Edit[],
+          currentModel,
           collections,
           model.relationships
         );
