@@ -1,0 +1,72 @@
+# Update compass-web entrypoint file with the one pointing to a certain commit
+name: Publish Compass Web
+
+on:
+  workflow_dispatch:
+    inputs:
+      publish_environment:
+        descript: 'Atlas Cloud environment to publish compass-web to'
+        type: choice
+        default: 'qa'
+        options:
+          - dev
+          - qa
+          - staging
+          - prod
+        required: true
+      dangerously_override_commit_hash:
+        descript: 'An override for the commit hash to be used for the release. Default is the tip of the selected branch. ONLY USE IF YOU KNOW WHAT YOU ARE DOING!'
+        default: ''
+        required: false
+      dry_run:
+        description: 'Run the publish process but do not upload the file. Useful for testing that the script is functioning correctly'
+        type: boolean
+        default: false
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  publish:
+    name: Upload compass-web entrypoint file to assets bucket
+    runs-on: ubuntu-latest
+    environment: compass-web
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js Environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.21.1
+          cache: 'npm'
+
+      - name: Install npm@10.2.4
+        run: |
+          npm install -g npm@10.2.4
+          npm -v
+
+      - name: Install Dependencies
+        run: |
+          npm ci
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@56d6a583f00f6bad6d19d91d53a7bc3b8143d0e9 # v5.1.1
+        with:
+          role-to-assume: arn:aws:iam::119629040606:role/s3-access.cdn-origin-compass
+          aws-region: us-east-1
+
+      - name: Upload updated entrypoint
+        env:
+          COMPASS_WEB_PUBLISH_DRY_RUN: ${{ inputs.dry_run }}
+          COMPASS_WEB_PUBLISH_ENVIRONMENT: ${{ inputs.publish_environment }}
+          COMPASS_WEB_RELEASE_COMMIT: ${{ inputs.dangerously_override_commit_hash }}
+          # Set by "Configure AWS Credentials" step
+          DOWNLOAD_CENTER_NEW_AWS_ACCESS_KEY_ID: '${{ env.AWS_ACCESS_KEY_ID }}'
+          DOWNLOAD_CENTER_NEW_AWS_SECRET_ACCESS_KEY: '${{ env.AWS_SECRET_ACCESS_KEY }}'
+          DOWNLOAD_CENTER_NEW_AWS_SESSION_TOKEN: '${{ env.AWS_SESSION_TOKEN }}'
+        run: |
+          # TODO(COMPASS-10227): trigger compass web with atlas tests for the
+          # provided publish environment
+          npm run --workspace @mongodb-js/compass-web upload-entrypoint

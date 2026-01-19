@@ -9,7 +9,6 @@ import {
 } from './diagram';
 import { UUID } from 'bson';
 import {
-  DEFAULT_IS_EXPANDED,
   type Relationship,
   type StaticModel,
 } from '../services/data-model-storage';
@@ -20,14 +19,13 @@ import {
 } from '../utils/nodes-and-edges';
 import { inferForeignToLocalRelationshipsForCollection } from './relationships';
 import { mongoLogId } from '@mongodb-js/compass-logging/provider';
-import { extractFieldsFromSchema } from '../utils/schema';
+import { extractFieldsFromFieldData } from '../utils/schema';
 import { isEqual } from 'lodash';
 
 type AnalyzedCollection = {
   ns: string;
   schema: MongoDBJSONSchema;
   position: { x: number; y: number };
-  isExpanded: boolean;
 };
 
 export type AnalysisStep =
@@ -224,16 +222,18 @@ async function getInitialLayout({
   collections,
   relations,
 }: {
-  collections: { ns: string; schema: MongoDBJSONSchema; isExpanded: boolean }[];
+  collections: {
+    ns: string;
+    schema: MongoDBJSONSchema;
+  }[];
   relations: Relationship[];
 }) {
   const hasRelations = relations.length > 0;
   const nodes = collections.map((coll) => {
     return collectionToBaseNodeForLayout({
       ns: coll.ns,
-      jsonSchema: coll.schema,
+      fieldData: coll.schema,
       displayPosition: [0, 0],
-      isExpanded: coll.isExpanded,
     });
   });
   return await applyLayout({
@@ -526,7 +526,7 @@ export function analyzeCollections({
           type: AnalysisProcessActionTypes.NAMESPACE_SCHEMA_ANALYZED,
         });
 
-        return { ns, schema, sample, isExpanded: DEFAULT_IS_EXPANDED };
+        return { ns, schema, sample };
       })
     );
 
@@ -596,10 +596,9 @@ export async function getModelFromReanalysis(
     .filter((collection) => !initialCollectionsSet.has(collection.ns))
     .map((collection) => ({
       ns: collection.ns,
-      jsonSchema: collection.schema,
+      fieldData: collection.schema,
       indexes: [],
       shardKey: undefined,
-      isExpanded: collection.isExpanded,
     }));
   // We will reposition in the next step, so lets ignore displayPosition
   const existingCollections = currentModel.collections.map(
@@ -611,9 +610,8 @@ export async function getModelFromReanalysis(
 
   const positioned = await getInitialLayout({
     collections: allCollections.map((x) => ({
-      isExpanded: x.isExpanded,
       ns: x.ns,
-      schema: x.jsonSchema,
+      schema: x.fieldData,
     })),
     relations: inferredRelations,
   });
@@ -625,7 +623,7 @@ export async function getModelFromReanalysis(
     Array.from(
       existingCollections.map((coll) => [
         coll.ns,
-        extractFieldsFromSchema(coll.jsonSchema),
+        extractFieldsFromFieldData(coll.fieldData),
       ])
     )
   );

@@ -1,159 +1,25 @@
-import React, { useState } from 'react';
+import React from 'react';
+import _ from 'lodash';
 import {
-  Icon,
-  Body,
-  Button,
-  ButtonVariant,
-  spacing,
   css,
-  cx,
-  palette,
+  LgChatMessage,
+  spacing,
   useDarkMode,
+  InlineDefinition,
+  ServerIcon,
+  palette,
+  cx,
 } from '@mongodb-js/compass-components';
+import type { ToolUIPart } from 'ai';
+import type { BasicConnectionInfo } from '../compass-assistant-provider';
+import { AVAILABLE_TOOLS } from '@mongodb-js/compass-generative-ai';
+import { getToolState } from '../utils';
 
-const toolCallCardStyles = css({
-  padding: spacing[200],
-  borderRadius: spacing[200],
-  backgroundColor: palette.gray.light3,
-  border: `1px solid ${palette.gray.light2}`,
-});
-
-const toolCallCardDarkModeStyles = css({
-  backgroundColor: palette.gray.dark3,
-  borderColor: palette.gray.dark2,
-});
-
-const toolHeaderStyles = css({
-  display: 'flex',
-  alignItems: 'center',
-  gap: spacing[200],
-  marginBottom: spacing[100],
-});
-
-const toolIconContainerStyles = css({
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  width: spacing[400],
-  height: spacing[400],
-  borderRadius: '4px',
-  backgroundColor: palette.white,
-});
-
-const toolIconContainerDarkModeStyles = css({
-  backgroundColor: palette.gray.dark2,
-});
-
-const toolNameStyles = css({
-  fontFamily: 'Source Code Pro, monospace',
-  fontWeight: 600,
-  fontSize: '12px',
-  lineHeight: '16px',
-});
-
-const inputLabelStyles = css({
-  fontWeight: 600,
-  fontSize: '12px',
-});
-
-const codeBlockStyles = css({
-  maxHeight: '200px',
-  overflowY: 'auto',
-  fontSize: '11px',
-  backgroundColor: palette.gray.light2,
-  padding: spacing[200],
-  borderRadius: '4px',
-  fontFamily: 'Source Code Pro, monospace',
-  whiteSpace: 'pre-wrap',
-  wordBreak: 'break-all',
-});
-
-const codeBlockDarkModeStyles = css({
-  backgroundColor: palette.gray.dark2,
-});
-
-const expandableHeaderStyles = css({
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'space-between',
-  cursor: 'pointer',
-  padding: spacing[200],
-  marginTop: spacing[100],
-  borderRadius: '4px',
-  backgroundColor: palette.gray.light2,
-  transition: 'background-color 0.2s ease-in-out, color 0.2s ease-in-out',
-  '&:hover': {
-    backgroundColor: palette.gray.light1,
-    color: palette.black,
-  },
-});
-
-const expandableHeaderDarkModeStyles = css({
-  backgroundColor: palette.gray.dark2,
-  '&:hover': {
-    backgroundColor: palette.gray.dark1,
-  },
-});
-
-const expandableContentStyles = css({
-  marginTop: spacing[100],
-  padding: spacing[100],
-  borderRadius: '4px',
-  backgroundColor: palette.gray.light2,
-});
-
-const expandableContentDarkModeStyles = css({
-  backgroundColor: palette.gray.dark2,
-});
-
-const buttonGroupStyles = css({
-  display: 'flex',
-  gap: spacing[200],
-  marginTop: spacing[300],
-  '> button': {
-    flex: 1,
-  },
-});
-
-const statusStyles = css({
-  display: 'flex',
-  alignItems: 'center',
-  gap: spacing[100],
-  marginTop: spacing[200],
-});
-
-const statusTextStyles = css({
-  color: palette.gray.dark1,
-  fontWeight: 500,
-  fontSize: '12px',
-});
-
-export interface ToolCallPart {
-  type: string;
-  toolCallId?: string;
-  state?:
-    | 'approval-requested'
-    | 'approval-responded'
-    | 'input-available'
-    | 'output-available'
-    | 'output-error'
-    | 'output-denied';
-  input?: Record<string, unknown>;
-  output?: {
-    content?: Array<{
-      type: string;
-      text?: string;
-    }>;
-  };
-  approval?: {
-    id: string;
-    approved?: boolean;
-    reason?: string;
-  };
-}
+const { Message } = LgChatMessage;
 
 interface ToolCallMessageProps {
-  toolCall: ToolCallPart;
+  connection: BasicConnectionInfo | null;
+  toolCall: ToolUIPart;
   onApprove?: (approvalId: string) => void;
   onDeny?: (approvalId: string) => void;
 }
@@ -163,167 +29,162 @@ function getToolDisplayName(type: string): string {
   return type.replace(/^tool-/, '');
 }
 
+function getToolDescription(toolName: string): string | undefined {
+  return AVAILABLE_TOOLS.find((tool) => tool.name === toolName)?.description;
+}
+
+const toolCallMessageStyles = css({
+  paddingTop: spacing[400],
+
+  // TODO(COMPASS-10000): This is a temporary fix to make the tool call message take the entire width of the chat message.
+  '> div': {
+    width: '100%',
+  },
+});
+
+const expandableContentStyles = css({
+  h3: {
+    lineHeight: '16px',
+    fontSize: '12px',
+    fontWeight: 600,
+    textTransform: 'uppercase',
+  },
+
+  pre: {
+    maxHeight: '200px',
+    overflow: 'auto',
+  },
+});
+const expandableContentStylesLight = css({
+  h3: {
+    color: palette.gray.dark1,
+  },
+});
+
+const expandableContentStylesDark = css({
+  h3: {
+    color: palette.gray.light1,
+  },
+});
+
 export const ToolCallMessage: React.FunctionComponent<ToolCallMessageProps> = ({
+  connection,
   toolCall,
   onApprove,
   onDeny,
 }) => {
   const darkMode = useDarkMode();
-  const [isInputExpanded, setIsInputExpanded] = useState(false);
-  const [isOutputExpanded, setIsOutputExpanded] = useState(false);
+
+  const chips = [];
+
+  // TODO: find a better way to only display this when the connection is relevant
+  if (connection && !toolCall.type.startsWith('tool-get-current-')) {
+    chips.push({ glyph: <ServerIcon />, label: connection.name });
+  }
 
   const toolName = getToolDisplayName(toolCall.type);
+  const toolDescription = getToolDescription(toolName);
+  const toolCallState = getToolState(toolCall.state);
+
   const inputJSON = JSON.stringify(toolCall.input || {}, null, 2);
 
-  // Extract output text if available
+  const hasOutput = !!(
+    toolCall.output &&
+    (toolCall.state === 'output-available' || toolCall.state === 'output-error')
+  );
+
   const outputText = toolCall.output
     ? JSON.stringify(toolCall.output, null, 2)
-    : 'No output available';
-  const hasOutput = toolCall.state === 'output-available';
+    : '';
 
   const isAwaitingApproval = toolCall.state === 'approval-requested';
-  const isApprovalResponded = toolCall.state === 'approval-responded';
-  const isDenied = toolCall.state === 'output-denied';
   const wasApproved = toolCall.approval?.approved === true;
+  const isDenied = toolCall.state === 'output-denied';
+  const didRun =
+    toolCall.state === 'output-available' || toolCall.state === 'output-error';
+
+  const expandableContent = [
+    `### Arguments
+
+\`\`\`json
+${inputJSON}
+\`\`\``,
+  ];
+
+  if (hasOutput) {
+    expandableContent.push(`### Response
+
+\`\`\`json
+${outputText}
+\`\`\``);
+  }
+
+  if (toolCall.errorText) {
+    expandableContent.push(`### Error
+
+\`\`\`
+${toolCall.errorText}
+\`\`\``);
+  }
+
+  const expandableContentText = expandableContent.join('\n\n');
+
+  const toolNameElement = toolDescription ? (
+    <InlineDefinition definition={toolDescription}>{toolName}</InlineDefinition>
+  ) : (
+    toolName
+  );
+
+  let title: React.ReactNode;
+  if (didRun) {
+    title = <>Ran {toolNameElement}</>;
+  } else if (wasApproved) {
+    title = <>Running {toolNameElement}</>;
+  } else if (isDenied) {
+    title = <>Cancelled {toolNameElement}</>;
+  } else {
+    title = <>Run {toolNameElement}?</>;
+  }
+
+  if (toolCall.state === 'input-streaming') {
+    // The tool call renders with undefined input or incomplete input and then
+    // soon after with an object. At that point even if there are no parameters
+    // for the tool call (think list-databases), the input will be {}. In order
+    // to have the tool card's initialIsExpanded work correctly, we therefore
+    // wait until the input is fully available which in our case is pretty much
+    // instantly because none of our tools take a large amount of input yet.
+    return null;
+  }
+
+  const initialIsExpanded = !_.isEmpty(toolCall.input);
 
   return (
-    <div
-      className={cx(toolCallCardStyles, darkMode && toolCallCardDarkModeStyles)}
-    >
-      <div className={toolHeaderStyles}>
-        <div
+    <div className={toolCallMessageStyles}>
+      <Message.ToolCard
+        initialIsExpanded={initialIsExpanded}
+        showExpandButton={true}
+        state={toolCallState}
+        title={title}
+        darkMode={darkMode}
+        chips={chips}
+      >
+        <Message.ToolCard.ExpandableContent
           className={cx(
-            toolIconContainerStyles,
-            darkMode && toolIconContainerDarkModeStyles
+            expandableContentStyles,
+            darkMode
+              ? expandableContentStylesDark
+              : expandableContentStylesLight
           )}
         >
-          <Icon glyph="Wrench" size="xsmall" />
-        </div>
-        <div className={toolNameStyles}>
-          <b>{toolName}</b>
-        </div>
-      </div>
-
-      {/* Input Section */}
-      <div>
-        <div
-          role="button"
-          tabIndex={0}
-          className={cx(
-            expandableHeaderStyles,
-            darkMode && expandableHeaderDarkModeStyles
-          )}
-          onClick={() => setIsInputExpanded(!isInputExpanded)}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
-              e.preventDefault();
-              setIsInputExpanded(!isInputExpanded);
-            }
-          }}
-        >
-          <span className={inputLabelStyles}>Input</span>
-          <Icon
-            glyph={isInputExpanded ? 'ChevronDown' : 'ChevronRight'}
-            size="xsmall"
+          {expandableContentText}
+        </Message.ToolCard.ExpandableContent>
+        {isAwaitingApproval && toolCall.approval && (
+          <Message.ToolCard.Actions
+            onClickCancel={() => onDeny?.(toolCall.approval.id)}
+            onClickRun={() => onApprove?.(toolCall.approval.id)}
           />
-        </div>
-        {isInputExpanded && (
-          <div
-            className={cx(
-              expandableContentStyles,
-              darkMode && expandableContentDarkModeStyles
-            )}
-          >
-            <div
-              className={cx(
-                codeBlockStyles,
-                darkMode && codeBlockDarkModeStyles
-              )}
-            >
-              {inputJSON}
-            </div>
-          </div>
         )}
-      </div>
-
-      {/* Output Section - only show if there's output */}
-      {hasOutput && (
-        <div>
-          <div
-            role="button"
-            tabIndex={0}
-            className={cx(
-              expandableHeaderStyles,
-              darkMode && expandableHeaderDarkModeStyles
-            )}
-            onClick={() => setIsOutputExpanded(!isOutputExpanded)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                setIsOutputExpanded(!isOutputExpanded);
-              }
-            }}
-          >
-            <span className={inputLabelStyles}>Output</span>
-            <Icon
-              glyph={isOutputExpanded ? 'ChevronDown' : 'ChevronRight'}
-              size="xsmall"
-            />
-          </div>
-          {isOutputExpanded && (
-            <div
-              className={cx(
-                expandableContentStyles,
-                darkMode && expandableContentDarkModeStyles
-              )}
-            >
-              <div
-                className={cx(
-                  codeBlockStyles,
-                  darkMode && codeBlockDarkModeStyles
-                )}
-              >
-                {outputText}
-              </div>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Approval buttons - show when approval is requested */}
-      {isAwaitingApproval && toolCall.approval && (
-        <div className={buttonGroupStyles}>
-          <Button
-            variant={ButtonVariant.Default}
-            onClick={() => onDeny?.(toolCall.approval!.id)}
-            size="xsmall"
-          >
-            Deny
-          </Button>
-          <Button
-            variant={ButtonVariant.Primary}
-            onClick={() => onApprove?.(toolCall.approval!.id)}
-            size="xsmall"
-          >
-            Allow
-          </Button>
-        </div>
-      )}
-
-      {/* Status indicator for responded/denied states */}
-      {(isApprovalResponded || isDenied) && toolCall.approval && (
-        <div className={statusStyles}>
-          <Icon
-            glyph={wasApproved ? 'CheckmarkWithCircle' : 'XWithCircle'}
-            color={palette.gray.dark1}
-            size="xsmall"
-          />
-          <Body className={statusTextStyles} weight="medium">
-            {wasApproved ? 'Tool call approved' : 'Tool call denied'}
-            {toolCall.approval.reason && ` - ${toolCall.approval.reason}`}
-          </Body>
-        </div>
-      )}
+      </Message.ToolCard>
     </div>
   );
 };

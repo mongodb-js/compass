@@ -104,8 +104,8 @@
       "cheerio": "1.0.0-rc.10"
     },
     "@mongodb-js/eslint-config-devtools": {
-      "@typescript-eslint/eslint-plugin": "^8.50.0",
-      "@typescript-eslint/parser": "^8.50.0",
+      "@typescript-eslint/eslint-plugin": "^8.53.0",
+      "@typescript-eslint/parser": "^8.53.0",
       "eslint": "^8.57.1",
       "eslint-plugin-jsx-a11y": "^6.10.2",
       "eslint-plugin-react": "^7.37.5",
@@ -120,6 +120,7 @@
     "@leafygreen-ui/select": "^17.0.2",
     "@leafygreen-ui/text-input": "^16.2.2",
     "@leafygreen-ui/tokens": "^4.2.1",
-    "@leafygreen-ui/typography": "^22.2.3"
+    "@leafygreen-ui/typography": "^22.2.3",
+    "kerberos": "^2.2.2"
   }
 }

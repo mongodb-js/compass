@@ -16,15 +16,22 @@ import {
   palette,
   useDarkMode,
   Icon,
+  usePersistedState,
 } from '@mongodb-js/compass-components';
 import { ConfirmationMessage } from './confirmation-message';
 import { ToolCallMessage } from './tool-call-message';
-import type { ToolCallPart } from './tool-call-message';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import { NON_GENUINE_WARNING_MESSAGE } from '../preset-messages';
 import { SuggestedPrompts } from './suggested-prompts';
+import { type ToolUIPart } from 'ai';
+import { useAssistantGlobalState } from '../assistant-global-state';
+import type { WorkspaceTab } from '@mongodb-js/workspace-info';
+import { getConnectionTitle } from '@mongodb-js/connection-info';
 import { ToolToggle } from './tool-toggle';
+import { ToolsIntroCard } from './tools-intro-card';
 import { usePreference } from 'compass-preferences-model/provider';
+import { useToolsController } from '@mongodb-js/compass-generative-ai/provider';
+import { getToolState, partIsToolUI, stopChat } from '../utils';
 
 const { ChatWindow } = LgChatChatWindow;
 const { LeafyGreenChatProvider } = LgChatLeafygreenChatProvider;
@@ -140,8 +147,7 @@ const messageFeedFixesStyles = css({
   flexDirection: 'column-reverse',
   overflowY: 'auto',
   wordBreak: 'break-word',
-  padding: spacing[400],
-  gap: spacing[400],
+  paddingTop: spacing[400],
   width: '100%',
 
   // TODO(COMPASS-9751): We're setting the font weight to 600 here as the LG styling for the Assistant header isn't set
@@ -160,19 +166,22 @@ const noWrapFixesStyles = css({
   whiteSpace: 'nowrap',
 });
 
-function makeErrorMessage(message: string) {
-  message = message || 'An error occurred';
-  return `${message}. Try clearing the chat if the error persists.`;
+function makeErrorMessage() {
+  return `An error occurred. Try clearing the chat if the error persists.`;
 }
 
 const errorBannerWrapperStyles = css({
-  margin: spacing[400],
+  padding: spacing[400],
+  maxWidth: '100%',
 });
 
 const messagesWrapStyles = css({
   display: 'flex',
   flexDirection: 'column',
   gap: spacing[400],
+  paddingLeft: spacing[400],
+  paddingRight: spacing[400],
+  paddingBottom: spacing[400],
 });
 
 const welcomeHeadingStyles = css({
@@ -196,10 +205,54 @@ const inputBarTextareaProps = {
   placeholder: 'Ask a question',
 };
 
+// Type guard to check if activeWorkspace has a connectionId property
+function hasConnectionId(
+  obj: WorkspaceTab | null
+): obj is WorkspaceTab & { connectionId: string } {
+  if (!obj) {
+    return false;
+  }
+  return !!(obj as WorkspaceTab & { connectionId: string }).connectionId;
+}
+
 const toolToggleContainerStyles = css({
   paddingLeft: spacing[50],
   paddingRight: spacing[50],
 });
+
+const DISMISSED_ASSISTANT_TOOLS_INTRO_LOCAL_STORAGE_KEY =
+  'mongodb_compass_dismissedAssistantToolsIntro' as const;
+
+function lastMessageIsEmptyOrTool(messages: AssistantMessage[]): boolean {
+  if (messages.length === 0) {
+    return true;
+  }
+
+  const message = messages[messages.length - 1];
+
+  if (message.parts.length === 0) {
+    return true;
+  }
+  const part = message.parts[message.parts.length - 1];
+  if (partIsToolUI(part) || (part.type === 'text' && part.text.trim() === '')) {
+    return true;
+  }
+
+  return false;
+}
+
+function isToolRunning(messages: AssistantMessage[]): boolean {
+  // Check if there are any running tools
+  return messages.some((message) => {
+    return message.parts.some((part) => {
+      if (partIsToolUI(part)) {
+        const toolState = getToolState(part.state);
+        return toolState === 'running';
+      }
+      return false;
+    });
+  });
+}
 
 export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
   chat,
@@ -208,6 +261,8 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
   const track = useTelemetry();
   const darkMode = useDarkMode();
   const isToolCallingEnabled = usePreference('enableToolCalling');
+  const [dismissedAssistantToolsIntro, setDismissedAssistantToolsIntro] =
+    usePersistedState(DISMISSED_ASSISTANT_TOOLS_INTRO_LOCAL_STORAGE_KEY, false);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const previousLastMessageId = useRef<string | undefined>(undefined);
   const { id: lastMessageId, role: lastMessageRole } =
@@ -223,6 +278,7 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
     addToolApprovalResponse,
   } = useChat({
     chat,
+    resume: false,
   });
 
   const scrollToBottom = useCallback(() => {
@@ -261,6 +317,60 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
       });
     }
   }, [hasNonGenuineConnections, chat, setMessages]);
+
+  const { activeConnections, activeWorkspace } = useAssistantGlobalState();
+
+  const activeConnection =
+    activeConnections.find((connInfo) => {
+      return (
+        hasConnectionId(activeWorkspace) &&
+        connInfo.id === activeWorkspace.connectionId
+      );
+    }) ?? null;
+
+  const shouldDisplayThinking =
+    status === 'submitted' ||
+    isToolRunning(messages) ||
+    (status === 'streaming' && lastMessageIsEmptyOrTool(messages));
+
+  useEffect(() => {
+    let foundNewMessages = false;
+
+    // Fill in connection info for newly created messages as soon as possible so
+    // that all tool calls will use the correct connection even if the user
+    // navigates around while the assistant is responding.
+    const newMessages: AssistantMessage[] = chat.messages.map((message) => {
+      if (message.metadata?.connectionInfo !== undefined) {
+        // If it is set or null, then we have already processed this message
+        return { ...message };
+      }
+      const connectionInfo = activeConnection
+        ? {
+            id: activeConnection.id,
+            name: getConnectionTitle(activeConnection),
+          }
+        : null;
+
+      if (!connectionInfo) {
+        // leave the message unchanged
+        return { ...message };
+      }
+
+      foundNewMessages = true;
+
+      return {
+        ...message,
+        metadata: {
+          ...message.metadata,
+          connectionInfo,
+        },
+      };
+    });
+
+    if (foundNewMessages) {
+      setMessages(() => newMessages);
+    }
+  }, [activeConnection, chat, setMessages]);
 
   const handleMessageSend = useCallback(
     async ({ text, metadata }: SendMessageOptions) => {
@@ -368,8 +478,30 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
     [ensureOptInAndSend, setMessages, track]
   );
 
+  const toolsController = useToolsController();
+
   const handleToolApproval = useCallback(
-    (approvalId: string, approved: boolean) => {
+    ({
+      message,
+      toolCallId,
+      type,
+      approvalId,
+      approved,
+    }: {
+      message: AssistantMessage;
+      toolCallId: string;
+      type: string;
+      approvalId: string;
+      approved: boolean;
+    }) => {
+      // TODO: we can probably move this to a useEffect() similar to where we
+      // fill in the message connection info and then it will work even when we
+      // auto-approve a tool call
+      toolsController.setConnectionIdForToolCall({
+        toolCallId,
+        connectionId: message.metadata?.connectionInfo?.id ?? null,
+      });
+
       void addToolApprovalResponse({
         id: approvalId,
         approved,
@@ -377,11 +509,19 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
 
       track('Assistant Tool Call Approval', {
         approved,
+        type,
         approval_id: approvalId,
       });
     },
-    [addToolApprovalResponse, track]
+    [addToolApprovalResponse, toolsController, track]
   );
+
+  const handleStopButtonClick = useCallback(async () => {
+    await stopChat(chat);
+  }, [chat]);
+  const handleDismissIntroCard = useCallback(() => {
+    setDismissedAssistantToolsIntro(true);
+  }, [setDismissedAssistantToolsIntro]);
 
   const visibleMessages = messages.filter(
     (message) => !message.metadata?.isSystemContext
@@ -408,7 +548,7 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
                 const { id, role, metadata, parts } = message;
                 const seenTitles = new Set<string>();
                 const sources = [];
-                const toolCalls: ToolCallPart[] = [];
+                const toolCalls: ToolUIPart[] = [];
 
                 for (const part of parts) {
                   // Related sources are type source-url. We want to only
@@ -426,8 +566,8 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
                   }
 
                   // Detect tool call parts (they have a "tool-" prefix or a toolCallId)
-                  if (part.type.startsWith('tool-') || 'toolCallId' in part) {
-                    toolCalls.push(part as ToolCallPart);
+                  if (partIsToolUI(part)) {
+                    toolCalls.push(part);
                   }
                 }
 
@@ -438,7 +578,7 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
 
                   return (
                     <ConfirmationMessage
-                      key={id}
+                      key={`${id}-confirmation`}
                       // Show as rejected if it's not the last message
                       state={
                         !isLastMessage && state === 'pending'
@@ -462,24 +602,39 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
 
                 const isSender = role === 'user';
 
+                const messageConnection =
+                  message.metadata?.connectionInfo ?? null;
+
                 // Render tool calls and text content together
                 return (
-                  <React.Fragment key={id}>
+                  <React.Fragment key={`${id}-${index}`}>
                     {/* Show tool calls if present */}
                     {toolCalls.map((toolCall, index) => {
                       const toolCallId =
-                        toolCall.toolCallId ||
-                        `${id}-${toolCall.type}-${index}`;
+                        toolCall.toolCallId || `${id}-${toolCall.type}`;
 
                       return (
                         <ToolCallMessage
-                          key={toolCallId}
+                          connection={messageConnection}
+                          key={`${toolCallId}-${index}`}
                           toolCall={toolCall}
                           onApprove={(approvalId) =>
-                            handleToolApproval(approvalId, true)
+                            handleToolApproval({
+                              message,
+                              toolCallId,
+                              type: toolCall.type,
+                              approvalId,
+                              approved: true,
+                            })
                           }
                           onDeny={(approvalId) =>
-                            handleToolApproval(approvalId, false)
+                            handleToolApproval({
+                              message,
+                              toolCallId,
+                              type: toolCall.type,
+                              approvalId,
+                              approved: false,
+                            })
                           }
                         />
                       );
@@ -516,39 +671,52 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
                 );
               })}
             </div>
+            {messages.length === 0 && (
+              <>
+                <div>
+                  <div className={welcomeMessageStyles}>
+                    <h4 className={welcomeHeadingStyles}>
+                      <Icon
+                        glyph="Sparkle"
+                        size="large"
+                        style={sparkleIconOverrideStyle}
+                      />
+                      <span>MongoDB Assistant</span>
+                    </h4>
+                    <p className={welcomeTextStyles}>
+                      Welcome to the MongoDB Assistant!
+                      <br />
+                      Ask any question about MongoDB to receive expert guidance
+                      and documentation.
+                    </p>
+                  </div>
+                  <SuggestedPrompts
+                    chat={chat}
+                    onMessageSend={handleMessageSend}
+                  />
+                  {!dismissedAssistantToolsIntro && (
+                    <ToolsIntroCard onDismiss={handleDismissIntroCard} />
+                  )}
+                </div>
+              </>
+            )}
           </div>
           {error && (
             <div className={errorBannerWrapperStyles}>
               <Banner variant="danger" dismissible onClose={clearError}>
-                {makeErrorMessage(error.message)}
+                {makeErrorMessage()}
               </Banner>
             </div>
           )}
-          {messages.length === 0 && (
-            <div className={welcomeMessageStyles}>
-              <h4 className={welcomeHeadingStyles}>
-                <Icon
-                  glyph="Sparkle"
-                  size="large"
-                  style={sparkleIconOverrideStyle}
-                />
-                <span>MongoDB Assistant</span>
-              </h4>
-              <p className={welcomeTextStyles}>
-                Welcome to the MongoDB Assistant!
-                <br />
-                Ask any question about MongoDB to receive expert guidance and
-                documentation.
-              </p>
-            </div>
-          )}
-          <SuggestedPrompts chat={chat} onMessageSend={handleMessageSend} />
 
           <InputBar
             data-testid="assistant-chat-input"
             onMessageSend={(text) => void handleMessageSend({ text })}
-            state={status === 'submitted' ? 'loading' : undefined}
+            state={shouldDisplayThinking ? 'loading' : undefined}
             textareaProps={inputBarTextareaProps}
+            onClickStopButton={() => {
+              void handleStopButtonClick();
+            }}
           >
             {isToolCallingEnabled && (
               <InputBar.AdditionalActions>
