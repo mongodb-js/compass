@@ -63,7 +63,7 @@ export const ModalStepContainer: React.FunctionComponent<{
           <Button
             onClick={onNextClick}
             disabled={isNextDisabled}
-            data-testid="reselect-collections-confirm-button"
+            data-testid="confirm-button"
             variant="primary"
             loadingIndicator={<SpinLoader />}
             key={`${step}-next`}

@@ -1432,7 +1432,7 @@ export const SidebarDataModelingTab = `${Sidebar} [aria-label="Data Modeling"]`;
 export const ImportDataModelInput = '[data-testid="import-diagram-file-input"]';
 export const CreateNewDataModelButton = '[data-testid="create-diagram-button"]';
 export const CreateDataModelModal = '[data-testid="new-diagram-modal"]';
-export const CreateDataModelConfirmButton = `${CreateDataModelModal} [data-testid="new-diagram-confirm-button"]`;
+export const CreateDataModelConfirmButton = `${CreateDataModelModal} [data-testid="confirm-button"]`;
 export const CreateDataModelNameInput = `${CreateDataModelModal} [data-testid="new-diagram-name-input"]`;
 export const CreateDataModelConnectionSelector = `${CreateDataModelModal} [data-testid="new-diagram-connection-selector"]`;
 export const CreateDataModelDatabaseSelector = `${CreateDataModelModal} [data-testid="new-diagram-database-selector"]`;
@@ -1479,7 +1479,7 @@ export const DataModelSelectFromDatabaseOption =
 export const DataModelSelectCollectionItem = (name: string) =>
   `[data-testid="select-list-item-${name}"] label`;
 export const DataModelReselectCollectionsModal = `[data-testid="reselect-collections-modal"]`;
-export const DataModelReselectCollectionsModalConfirmButton = `[data-testid="reselect-collections-confirm-button"]`;
+export const DataModelReselectCollectionsModalConfirmButton = `${DataModelReselectCollectionsModal} [data-testid="confirm-button"]`;
 export const DataModelNameInputLabel = '//label[text()="Name"]';
 export const DataModelFieldNameInputLabel = '//label[text()="Field name"]';
 export const DataModelNameInput =
