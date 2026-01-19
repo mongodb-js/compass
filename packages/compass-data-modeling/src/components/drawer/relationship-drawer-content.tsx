@@ -49,10 +49,14 @@ type RelationshipFormFields = {
   note: string;
 };
 
-type OnFieldChange = <T extends keyof RelationshipFormFields>(
-  key: T,
-  value: RelationshipFormFields[T]
-) => void;
+type RelationshipFieldChangeOption = {
+  [K in keyof RelationshipFormFields]: {
+    key: K;
+    value: RelationshipFormFields[K];
+  };
+}[keyof RelationshipFormFields];
+
+type OnFieldChange = (changeOption: RelationshipFieldChangeOption) => void;
 
 const FIELD_DIVIDER = '~~##$$##~~';
 
@@ -73,36 +77,31 @@ function useRelationshipFormFields(
   const foreignField = foreign.fields?.join(FIELD_DIVIDER) ?? '';
   const foreignCardinality = foreign.cardinality;
   const onFieldChange: OnFieldChange = useCallback(
-    (key, value) => {
+    ({ key, value }) => {
       const newRelationship = cloneDeep(relationship);
       switch (key) {
-        // "as string | number" because ts can't correlate value type with key type here
         case 'localCollection':
-          newRelationship.relationship[0].ns = value as string;
+          newRelationship.relationship[0].ns = value;
           newRelationship.relationship[0].fields = null;
           break;
         case 'localField':
-          newRelationship.relationship[0].fields = (value as string).split(
-            FIELD_DIVIDER
-          );
+          newRelationship.relationship[0].fields = value.split(FIELD_DIVIDER);
           break;
         case 'localCardinality':
-          newRelationship.relationship[0].cardinality = value as number;
+          newRelationship.relationship[0].cardinality = value;
           break;
         case 'foreignCollection':
-          newRelationship.relationship[1].ns = value as string;
+          newRelationship.relationship[1].ns = value;
           newRelationship.relationship[1].fields = null;
           break;
         case 'foreignField':
-          newRelationship.relationship[1].fields = (value as string).split(
-            FIELD_DIVIDER
-          );
+          newRelationship.relationship[1].fields = value.split(FIELD_DIVIDER);
           break;
         case 'foreignCardinality':
-          newRelationship.relationship[1].cardinality = value as number;
+          newRelationship.relationship[1].cardinality = value;
           break;
         case 'note':
-          newRelationship.note = value as string;
+          newRelationship.note = value;
           break;
       }
       onRelationshipChangeRef.current(newRelationship);
@@ -230,7 +229,10 @@ const RelationshipDrawerContent: React.FunctionComponent<
   } = useRelationshipFormFields(relationship, onRelationshipUpdate);
 
   const noteInputProps = useChangeOnBlur(note, (newNote) => {
-    onFieldChange('note', newNote);
+    onFieldChange({
+      key: 'note',
+      value: newNote,
+    });
   });
 
   const localFieldOptions = useMemo(() => {
@@ -251,9 +253,9 @@ const RelationshipDrawerContent: React.FunctionComponent<
                 size="small"
                 label="Local collection"
                 value={localCollection}
-                onChange={(val) => {
-                  if (val) {
-                    onFieldChange('localCollection', val);
+                onChange={(value) => {
+                  if (value) {
+                    onFieldChange({ key: 'localCollection', value });
                   }
                 }}
                 multiselect={false}
@@ -277,9 +279,9 @@ const RelationshipDrawerContent: React.FunctionComponent<
                 size="small"
                 label="Local field"
                 value={localField}
-                onChange={(val) => {
-                  if (val) {
-                    onFieldChange('localField', val);
+                onChange={(value) => {
+                  if (value) {
+                    onFieldChange({ key: 'localField', value });
                   }
                 }}
                 multiselect={false}
@@ -300,7 +302,9 @@ const RelationshipDrawerContent: React.FunctionComponent<
               <CardinalitySelect
                 label="Local cardinality"
                 value={localCardinality}
-                onChange={(val) => onFieldChange('localCardinality', val)}
+                onChange={(value) =>
+                  onFieldChange({ key: 'localCardinality', value })
+                }
               />
             </DMFormFieldContainer>
           </div>
@@ -311,9 +315,9 @@ const RelationshipDrawerContent: React.FunctionComponent<
                 size="small"
                 label="Foreign collection"
                 value={foreignCollection}
-                onChange={(val) => {
-                  if (val) {
-                    onFieldChange('foreignCollection', val);
+                onChange={(value) => {
+                  if (value) {
+                    onFieldChange({ key: 'foreignCollection', value });
                   }
                 }}
                 multiselect={false}
@@ -337,9 +341,9 @@ const RelationshipDrawerContent: React.FunctionComponent<
                 size="small"
                 label="Foreign field"
                 value={foreignField}
-                onChange={(val) => {
-                  if (val) {
-                    onFieldChange('foreignField', val);
+                onChange={(value) => {
+                  if (value) {
+                    onFieldChange({ key: 'foreignField', value });
                   }
                 }}
                 multiselect={false}
@@ -361,7 +365,9 @@ const RelationshipDrawerContent: React.FunctionComponent<
               <CardinalitySelect
                 label="Foreign cardinality"
                 value={foreignCardinality}
-                onChange={(val) => onFieldChange('foreignCardinality', val)}
+                onChange={(value) =>
+                  onFieldChange({ key: 'foreignCardinality', value })
+                }
               />
             </DMFormFieldContainer>
           </div>
