@@ -8,7 +8,18 @@ export type FieldPath = z.output<typeof FieldPathSchema>;
 
 export const RelationshipSideSchema = z.object({
   ns: z.string().nullable(),
-  cardinality: z.number(),
+  cardinality: z
+    .number()
+    .nullable()
+    .transform((val) => {
+      // Pre COMPASS-9844, we had an option of `10` for cardinality.
+      // With that gone away, we want to handle existing models that
+      // might have that value saved.
+      if (val === 10) {
+        return 100;
+      }
+      return val;
+    }),
   fields: z.array(z.string()).nullable(),
 });
 
