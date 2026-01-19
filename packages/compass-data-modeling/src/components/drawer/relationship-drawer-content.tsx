@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { connect } from 'react-redux';
 import type { DataModelingState } from '../../store/reducer';
 import {
@@ -126,9 +126,6 @@ const cardinalityLabelContainerStyles = css({
   justifyContent: 'space-between',
   gap: spacing[100],
 });
-const hiddenStyles = css({
-  display: 'none',
-});
 const cardinalityLabelStyles = css({
   color: palette.gray.base,
   fontWeight: 'bold',
@@ -140,6 +137,14 @@ const cardinalityInfoContainerStyles = css({
   gap: spacing[200],
 });
 const infoIconStyles = css({ marginTop: spacing[100] });
+const cardinalitySelectStyles = css({
+  // Currently LG Select does not support custom rendering for selected value
+  // and it shows the label of the selected option. When user has selected
+  // "Many N/A", we dont want to show "N/A" as the selected value.
+  'button .hidden-cardinality-option-label': {
+    display: 'none',
+  },
+});
 
 const CARDINALITY_OPTIONS = [
   { tag: 'One', label: '1', value: 1 },
@@ -159,39 +164,25 @@ export const CardinalitySelect = ({
   label: string;
   onChange: (value: number | null) => void;
 }) => {
-  const selectRef = useRef<React.ElementRef<typeof Select>>(null);
-
-  // Currently LG Select does not support custom rendering for selected value
-  // and it shows the label of the selected option. When user has selected
-  // "Many N/A", we dont want to show "N/A" as the selected value.
-  useEffect(() => {
-    const selectLabelElem = selectRef.current?.querySelector(
-      'button .cardinality-option-label'
-    );
-    if (!selectLabelElem) {
-      return;
-    }
-    selectLabelElem.classList.toggle(hiddenStyles, !value);
-    return () => {
-      selectLabelElem.classList.remove(hiddenStyles);
-    };
-  }, [value]);
-
   return (
     <Select
-      ref={selectRef}
       size="small"
       label={label}
       value={String(value ?? 'null')}
       allowDeselect={false}
       onChange={(val) => onChange(val === 'null' ? null : Number(val))}
+      className={cardinalitySelectStyles}
     >
       {CARDINALITY_OPTIONS.map(({ tag, value, label }) => (
         <Option key={String(value)} value={String(value)}>
           <div className={cardinalityLabelContainerStyles}>
             {tag}
             <span
-              className={cx(cardinalityLabelStyles, 'cardinality-option-label')}
+              className={cx(
+                cardinalityLabelStyles,
+                // Hide N/A label in selected value display
+                value === null && 'hidden-cardinality-option-label'
+              )}
             >
               {label}
             </span>

@@ -33,11 +33,6 @@ describe('RelationshipDrawerContent', function () {
       ]);
     });
     it('handles cardinality label when selected', function () {
-      // In test-electron, the class is applied correctly, but the computed style
-      // does not reflect it.
-      if ((process as any).type === 'renderer') {
-        this.skip();
-      }
       const { rerender } = render(
         <CardinalitySelect
           label="Cardinality"
@@ -50,7 +45,7 @@ describe('RelationshipDrawerContent', function () {
       if (!tag) {
         throw new Error('Tag not found');
       }
-      expect(window.getComputedStyle(tag).display).to.equal('');
+      expect(window.getComputedStyle(tag).display).to.not.equal('none');
 
       // Now rerender with null value and it should hide N/A
       rerender(
