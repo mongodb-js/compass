@@ -623,7 +623,7 @@ tasks:
 let firstPartyDepsFilenames = [];
 for (const compassDistribution of COMPASS_DISTRIBUTIONS) {
   const filenames = PACKAGE_BUILD_VARIANTS.map(
-    (variant) => `first-party-deps-${compassDistribution}-${variant.name}.json`
+    (variant) => `${compassDistribution}-${variant.name}/first-party-deps.json`
   );
 
   for (const filename of filenames) {
