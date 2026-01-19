@@ -249,6 +249,9 @@ export function startAnalysis(
     const willInferRelations =
       preferences.getPreferences().enableAutomaticRelationshipInference &&
       options.automaticallyInferRelations;
+
+    const analysisStartTime = Date.now();
+
     dispatch({
       type: AnalysisProcessActionTypes.ANALYZING_COLLECTIONS_START,
       name,
@@ -367,12 +370,20 @@ export function startAnalysis(
         num_relations_inferred: willInferRelations
           ? relations.length
           : undefined,
+        analysis_time_ms: Date.now() - analysisStartTime,
       });
 
       void dataModelStorage.save(getCurrentDiagramFromState(getState()));
     } catch (err) {
+      const analysis_time_ms = Date.now() - analysisStartTime;
       if (cancelController.signal.aborted) {
-        dispatch({ type: AnalysisProcessActionTypes.ANALYSIS_CANCELED });
+        dispatch({
+          type: AnalysisProcessActionTypes.ANALYSIS_CANCELED,
+        });
+        track('Data Modeling Diagram Creation Cancelled', {
+          num_collections: collections.length,
+          analysis_time_ms,
+        });
       } else {
         logger.log.error(
           mongoLogId(1_001_000_350),
@@ -383,6 +394,10 @@ export function startAnalysis(
         dispatch({
           type: AnalysisProcessActionTypes.ANALYSIS_FAILED,
           error: err as Error,
+        });
+        track('Data Modeling Diagram Creation Failed', {
+          num_collections: collections.length,
+          analysis_time_ms,
         });
       }
     } finally {
