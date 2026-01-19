@@ -276,6 +276,9 @@ export function startAnalysis(
     }
     const cancelController = (cancelAnalysisControllerRef.current =
       new AbortController());
+
+    const analysisStartTime = Date.now();
+
     try {
       const { collections, relations } = await dispatch(
         analyzeCollections({
@@ -315,15 +318,23 @@ export function startAnalysis(
         options.automaticallyInferRelations;
 
       track('Data Modeling Diagram Created', {
-        num_collections: collections.length,
+        num_collections: selectedCollections.length,
         num_relations_inferred: willInferRelations
           ? relations.length
           : undefined,
+        analysis_time_ms: Date.now() - analysisStartTime,
       });
       void dataModelStorage.save(getCurrentDiagramFromState(getState()));
     } catch (err) {
+      const analysis_time_ms = Date.now() - analysisStartTime;
       if (cancelController.signal.aborted) {
-        dispatch({ type: AnalysisProcessActionTypes.ANALYSIS_CANCELED });
+        dispatch({
+          type: AnalysisProcessActionTypes.ANALYSIS_CANCELED,
+        });
+        track('Data Modeling Diagram Creation Cancelled', {
+          num_collections: selectedCollections.length,
+          analysis_time_ms,
+        });
       } else {
         logger.log.error(
           mongoLogId(1_001_000_350),
@@ -334,6 +345,10 @@ export function startAnalysis(
         dispatch({
           type: AnalysisProcessActionTypes.ANALYSIS_FAILED,
           error: err as Error,
+        });
+        track('Data Modeling Diagram Creation Failed', {
+          num_collections: selectedCollections.length,
+          analysis_time_ms,
         });
       }
     } finally {
