@@ -69,7 +69,6 @@ export const AnalysisProcessActionTypes = {
 
 export type AnalysisOptions = {
   automaticallyInferRelations: boolean;
-  abortSignal?: AbortSignal;
 };
 
 export type AnalyzingCollectionsStartAction = {
@@ -248,7 +247,7 @@ export function startAnalysis(
   connectionId: string,
   database: string,
   selectedCollections: string[],
-  options: Omit<AnalysisOptions, 'abortSignal'>
+  options: AnalysisOptions
 ): DataModelingThunkAction<
   Promise<void>,
   | AnalyzingCollectionsStartAction
@@ -286,10 +285,7 @@ export function startAnalysis(
           connectionId,
           database,
           selectedCollections,
-          options: {
-            ...options,
-            abortSignal: cancelController.signal,
-          },
+          options,
         })
       );
 
@@ -394,7 +390,7 @@ export function redoAnalysis(
   connectionId: string,
   database: string,
   selectedCollections: string[],
-  options: Omit<AnalysisOptions, 'abortSignal'>
+  options: AnalysisOptions
 ): DataModelingThunkAction<
   Promise<void>,
   | AnalyzingCollectionsStartAction
@@ -433,10 +429,7 @@ export function redoAnalysis(
           connectionId,
           database,
           selectedCollections: collectionsToBeInferred,
-          options: {
-            ...options,
-            abortSignal: cancelController.signal,
-          },
+          options,
         })
       );
       const model = await getModelFromReanalysis(
@@ -494,7 +487,12 @@ export function analyzeCollections({
   | AnalysisCanceledAction
   | AnalysisFailedAction
 > {
-  return async (dispatch, _getState, { connections, logger, preferences }) => {
+  return async (
+    dispatch,
+    _getState,
+    { connections, logger, preferences, cancelAnalysisControllerRef }
+  ) => {
+    const abortSignal = cancelAnalysisControllerRef.current?.signal;
     const namespaces = selectedCollections.map((collName) => {
       return `${database}.${collName}`;
     });
@@ -520,7 +518,7 @@ export function analyzeCollections({
           { size: 100 },
           { promoteValues: false },
           {
-            abortSignal: options.abortSignal,
+            abortSignal,
             fallbackReadPreference: 'secondaryPreferred',
           }
         );
@@ -530,11 +528,11 @@ export function analyzeCollections({
         });
 
         const accessor = await analyzeDocuments(sample, {
-          signal: options.abortSignal,
+          signal: abortSignal,
         });
 
         const schema = await accessor.getMongoDBJsonSchema({
-          signal: options.abortSignal,
+          signal: abortSignal,
         });
 
         dispatch({
@@ -561,7 +559,7 @@ export function analyzeCollections({
                   sample,
                   collections,
                   dataService,
-                  options.abortSignal,
+                  abortSignal,
                   (err) => {
                     logger.log.warn(
                       mongoLogId(1_001_000_371),
@@ -589,8 +587,8 @@ export function analyzeCollections({
       });
     }
 
-    if (options.abortSignal?.aborted) {
-      throw options.abortSignal.reason;
+    if (abortSignal?.aborted) {
+      throw abortSignal.reason;
     }
 
     return { collections, relations };
