@@ -35,7 +35,6 @@ function getMockedCollection(ns: string) {
       y: Math.floor(Math.random() * 100),
     },
     schema: mockSchema,
-    isExpanded: true,
   };
 }
 
@@ -68,24 +67,21 @@ const model: StaticModel = {
       indexes: [],
       displayPosition: [1, 1],
       shardKey: {},
-      jsonSchema: mockSchema,
-      isExpanded: true,
+      fieldData: mockSchema,
     },
     {
       ns: 'db.collection2',
       indexes: [],
       displayPosition: [2, 2],
       shardKey: {},
-      jsonSchema: mockSchema,
-      isExpanded: true,
+      fieldData: mockSchema,
     },
     {
       ns: 'db.collection3',
       indexes: [],
       displayPosition: [3, 3],
       shardKey: {},
-      jsonSchema: mockSchema,
-      isExpanded: true,
+      fieldData: mockSchema,
     },
   ],
   relationships: [getMockedRelationship('db.collection1', 'db.collection2')],
@@ -282,7 +278,7 @@ describe('analysis-process', function () {
         const currentModel = selectCurrentModelFromState(store.getState());
         const newFields = Object.keys(
           currentModel.collections.find((c) => c.ns === model.collections[0].ns)
-            ?.jsonSchema?.properties || {}
+            ?.fieldData?.properties || {}
         );
 
         const collections = [
@@ -301,7 +297,7 @@ describe('analysis-process', function () {
 
         const updateCollectionFields = Object.keys(
           newModel.collections.find((c) => c.ns === model.collections[0].ns)
-            ?.jsonSchema?.properties || {}
+            ?.fieldData?.properties || {}
         );
         expect(updateCollectionFields).to.deep.equal(newFields);
       });
