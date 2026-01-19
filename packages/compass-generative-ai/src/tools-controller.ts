@@ -17,6 +17,7 @@ import { ToolsLogger } from './tools-logger';
 import { ToolsConnectionManager } from './tools-connection-manager';
 import type { ToolsConnectParams } from './tools-connection-manager';
 import { removeZodTransforms } from './remove-zod-transforms';
+import { READ_ONLY_DATABASE_TOOLS } from './available-tools';
 
 export type ToolGroup = 'querybar' | 'aggregation-builder' | 'db-read';
 
@@ -28,20 +29,6 @@ type CompassContext = {
 type ToolsContext = CompassContext & {
   connections: ToolsConnectParams[];
 };
-
-const readonlyTools = new Set<string>([
-  'find',
-  'aggregate',
-  'count',
-  'list-databases',
-  'list-collections',
-  'collection-indexes',
-  'collection-schema',
-  'explain',
-  'collection-storage-size',
-  'db-stats',
-  'mongodb-logs',
-]);
 
 /**
  * In-memory MCP runner that doesn't bind to any external transport.
@@ -164,13 +151,16 @@ export class ToolsController {
     }
 
     if (this.toolGroups.has('db-read') && this.runner.server) {
+      const readonlyDatabaseToolNames = READ_ONLY_DATABASE_TOOLS.map(
+        (tool) => tool.name
+      );
       if (this.runner.server.tools.length === 0) {
         this.runner.server.registerTools();
       }
 
       const availableTools = this.runner.server.tools ?? [];
       for (const toolBase of availableTools) {
-        if (!readonlyTools.has(toolBase.name)) {
+        if (!readonlyDatabaseToolNames.includes(toolBase.name)) {
           continue;
         }
 

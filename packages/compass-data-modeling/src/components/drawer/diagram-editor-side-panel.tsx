@@ -232,7 +232,7 @@ export default connect(
         (collection) => collection.ns === selected.namespace
       );
       const field = getFieldFromSchema({
-        jsonSchema: collection?.jsonSchema ?? {},
+        jsonSchema: collection?.fieldData ?? {},
         fieldPath: selected.fieldPath,
       });
       if (!field) {

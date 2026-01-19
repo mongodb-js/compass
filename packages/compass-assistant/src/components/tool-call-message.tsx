@@ -12,7 +12,7 @@ import {
 } from '@mongodb-js/compass-components';
 import type { ToolUIPart } from 'ai';
 import type { BasicConnectionInfo } from '../compass-assistant-provider';
-import { AVAILABLE_TOOLS } from './tool-toggle';
+import { AVAILABLE_TOOLS } from '@mongodb-js/compass-generative-ai';
 import { getToolState } from '../utils';
 
 const { Message } = LgChatMessage;

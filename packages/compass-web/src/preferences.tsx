@@ -56,6 +56,7 @@ const DEFAULT_COMPASS_WEB_PREFERENCES = {
   enableGenAIFeaturesAtlasProject: false,
   enableGenAISampleDocumentPassing: false,
   enableGenAIFeaturesAtlasOrg: false,
+  enableGenAIToolCallingAtlasProject: true,
   enablePerformanceAdvisorBanner: true,
   enableMyQueries: false,
   cloudFeatureRolloutAccess: {
