@@ -112,6 +112,12 @@ export const AssistantContext = createContext<AssistantContextType | null>(
   null
 );
 
+const AssistantProjectContext = createContext<string | undefined>(undefined);
+
+export function useAssistantProjectId(): string | undefined {
+  return useContext(AssistantProjectContext);
+}
+
 type SendMessage = Parameters<Chat<AssistantMessage>['sendMessage']>[0];
 type SendOptions = Parameters<Chat<AssistantMessage>['sendMessage']>[1];
 
@@ -225,8 +231,16 @@ export const AssistantProvider: React.FunctionComponent<
     atlasAiService: AtlasAiService;
     toolsController: ToolsController;
     preferences: PreferencesAccess;
+    projectId?: string;
   }>
-> = ({ chat, atlasAiService, toolsController, preferences, children }) => {
+> = ({
+  chat,
+  atlasAiService,
+  toolsController,
+  preferences,
+  projectId,
+  children,
+}) => {
   const { openDrawer } = useDrawerActions();
   const track = useTelemetry();
 
@@ -258,8 +272,12 @@ export const AssistantProvider: React.FunctionComponent<
       // place to do tracking.
       callback();
 
-      const { enableToolCalling, enableGenAIToolCalling } =
-        preferences.getPreferences();
+      const prefs = preferences.getPreferences();
+
+      const enableToolCalling = prefs.enableToolCalling;
+      const enableGenAIToolCalling =
+        prefs.enableGenAIToolCallingAtlasProject &&
+        prefs.enableGenAIToolCalling;
 
       if (enableToolCalling && enableGenAIToolCalling) {
         // Start the server once the first time both the feature flag and
@@ -406,7 +424,9 @@ export const AssistantProvider: React.FunctionComponent<
   return (
     <AssistantContext.Provider value={chat}>
       <AssistantActionsContext.Provider value={assistantActionsContext}>
-        {children}
+        <AssistantProjectContext.Provider value={projectId}>
+          {children}
+        </AssistantProjectContext.Provider>
       </AssistantActionsContext.Provider>
     </AssistantContext.Provider>
   );
@@ -421,6 +441,7 @@ export const CompassAssistantProvider = registerCompassPlugin(
       atlasAiService,
       toolsController,
       preferences,
+      projectId,
       children,
     }: PropsWithChildren<{
       appNameForPrompt: string;
@@ -429,6 +450,7 @@ export const CompassAssistantProvider = registerCompassPlugin(
       atlasAiService?: AtlasAiService;
       toolsController?: ToolsController;
       preferences?: PreferencesAccess;
+      projectId?: string;
     }>) => {
       if (!chat) {
         throw new Error('Chat was not provided by the state');
@@ -450,6 +472,7 @@ export const CompassAssistantProvider = registerCompassPlugin(
             atlasAiService={atlasAiService}
             toolsController={toolsController}
             preferences={preferences}
+            projectId={projectId}
           >
             {children}
           </AssistantProvider>
@@ -457,7 +480,7 @@ export const CompassAssistantProvider = registerCompassPlugin(
       );
     },
     activate: (
-      { chat: initialChat, originForPrompt, appNameForPrompt },
+      { chat: initialChat, originForPrompt, appNameForPrompt, projectId },
       {
         atlasService,
         atlasAiService,
@@ -480,7 +503,13 @@ export const CompassAssistantProvider = registerCompassPlugin(
 
       return {
         store: {
-          state: { chat, atlasAiService, toolsController, preferences },
+          state: {
+            chat,
+            atlasAiService,
+            toolsController,
+            preferences,
+            projectId,
+          },
         },
         deactivate: () => {},
       };

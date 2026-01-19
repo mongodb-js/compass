@@ -16,24 +16,22 @@ import {
   palette,
   useDarkMode,
   Icon,
+  usePersistedState,
 } from '@mongodb-js/compass-components';
 import { ConfirmationMessage } from './confirmation-message';
 import { ToolCallMessage } from './tool-call-message';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import { NON_GENUINE_WARNING_MESSAGE } from '../preset-messages';
 import { SuggestedPrompts } from './suggested-prompts';
-import {
-  type ToolUIPart,
-  type UIDataTypes,
-  type UIMessagePart,
-  type UITools,
-} from 'ai';
+import { type ToolUIPart } from 'ai';
 import { useAssistantGlobalState } from '../assistant-global-state';
 import type { WorkspaceTab } from '@mongodb-js/workspace-info';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
 import { ToolToggle } from './tool-toggle';
+import { ToolsIntroCard } from './tools-intro-card';
 import { usePreference } from 'compass-preferences-model/provider';
 import { useToolsController } from '@mongodb-js/compass-generative-ai/provider';
+import { getToolState, partIsToolUI, stopChat } from '../utils';
 
 const { ChatWindow } = LgChatChatWindow;
 const { LeafyGreenChatProvider } = LgChatLeafygreenChatProvider;
@@ -43,7 +41,6 @@ const { InputBar } = LgChatInputBar;
 interface AssistantChatProps {
   chat: Chat<AssistantMessage>;
   hasNonGenuineConnections: boolean;
-  allowSavingPreferences: boolean;
 }
 
 export type SendMessageOptions = {
@@ -150,8 +147,7 @@ const messageFeedFixesStyles = css({
   flexDirection: 'column-reverse',
   overflowY: 'auto',
   wordBreak: 'break-word',
-  padding: spacing[400],
-  gap: spacing[400],
+  paddingTop: spacing[400],
   width: '100%',
 
   // TODO(COMPASS-9751): We're setting the font weight to 600 here as the LG styling for the Assistant header isn't set
@@ -170,9 +166,8 @@ const noWrapFixesStyles = css({
   whiteSpace: 'nowrap',
 });
 
-function makeErrorMessage(message: string) {
-  message = message || 'An error occurred';
-  return `${message}. Try clearing the chat if the error persists.`;
+function makeErrorMessage() {
+  return `An error occurred. Try clearing the chat if the error persists.`;
 }
 
 const errorBannerWrapperStyles = css({
@@ -184,6 +179,9 @@ const messagesWrapStyles = css({
   display: 'flex',
   flexDirection: 'column',
   gap: spacing[400],
+  paddingLeft: spacing[400],
+  paddingRight: spacing[400],
+  paddingBottom: spacing[400],
 });
 
 const welcomeHeadingStyles = css({
@@ -207,13 +205,6 @@ const inputBarTextareaProps = {
   placeholder: 'Ask a question',
 };
 
-// Type guard to check if a message part is a ToolUIPart
-function partIsToolUI(
-  part: UIMessagePart<UIDataTypes, UITools>
-): part is ToolUIPart {
-  return part.type.startsWith('tool-') || 'toolCallId' in part;
-}
-
 // Type guard to check if activeWorkspace has a connectionId property
 function hasConnectionId(
   obj: WorkspaceTab | null
@@ -229,7 +220,10 @@ const toolToggleContainerStyles = css({
   paddingRight: spacing[50],
 });
 
-function lastMessageIsEmpty(messages: AssistantMessage[]): boolean {
+const DISMISSED_ASSISTANT_TOOLS_INTRO_LOCAL_STORAGE_KEY =
+  'mongodb_compass_dismissedAssistantToolsIntro' as const;
+
+function lastMessageIsEmptyOrTool(messages: AssistantMessage[]): boolean {
   if (messages.length === 0) {
     return true;
   }
@@ -247,14 +241,28 @@ function lastMessageIsEmpty(messages: AssistantMessage[]): boolean {
   return false;
 }
 
+function isToolRunning(messages: AssistantMessage[]): boolean {
+  // Check if there are any running tools
+  return messages.some((message) => {
+    return message.parts.some((part) => {
+      if (partIsToolUI(part)) {
+        const toolState = getToolState(part.state);
+        return toolState === 'running';
+      }
+      return false;
+    });
+  });
+}
+
 export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
   chat,
   hasNonGenuineConnections,
-  allowSavingPreferences,
 }) => {
   const track = useTelemetry();
   const darkMode = useDarkMode();
   const isToolCallingEnabled = usePreference('enableToolCalling');
+  const [dismissedAssistantToolsIntro, setDismissedAssistantToolsIntro] =
+    usePersistedState(DISMISSED_ASSISTANT_TOOLS_INTRO_LOCAL_STORAGE_KEY, false);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const previousLastMessageId = useRef<string | undefined>(undefined);
   const { id: lastMessageId, role: lastMessageRole } =
@@ -270,6 +278,7 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
     addToolApprovalResponse,
   } = useChat({
     chat,
+    resume: false,
   });
 
   const scrollToBottom = useCallback(() => {
@@ -318,6 +327,11 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
         connInfo.id === activeWorkspace.connectionId
       );
     }) ?? null;
+
+  const shouldDisplayThinking =
+    status === 'submitted' ||
+    isToolRunning(messages) ||
+    (status === 'streaming' && lastMessageIsEmptyOrTool(messages));
 
   useEffect(() => {
     let foundNewMessages = false;
@@ -502,13 +516,16 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
     [addToolApprovalResponse, toolsController, track]
   );
 
+  const handleStopButtonClick = useCallback(async () => {
+    await stopChat(chat);
+  }, [chat]);
+  const handleDismissIntroCard = useCallback(() => {
+    setDismissedAssistantToolsIntro(true);
+  }, [setDismissedAssistantToolsIntro]);
+
   const visibleMessages = messages.filter(
     (message) => !message.metadata?.isSystemContext
   );
-
-  const isLoading =
-    status === 'submitted' ||
-    (status === 'streaming' && lastMessageIsEmpty(visibleMessages));
 
   return (
     <div
@@ -654,45 +671,57 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
                 );
               })}
             </div>
+            {messages.length === 0 && (
+              <>
+                <div>
+                  <div className={welcomeMessageStyles}>
+                    <h4 className={welcomeHeadingStyles}>
+                      <Icon
+                        glyph="Sparkle"
+                        size="large"
+                        style={sparkleIconOverrideStyle}
+                      />
+                      <span>MongoDB Assistant</span>
+                    </h4>
+                    <p className={welcomeTextStyles}>
+                      Welcome to the MongoDB Assistant!
+                      <br />
+                      Ask any question about MongoDB to receive expert guidance
+                      and documentation.
+                    </p>
+                  </div>
+                  <SuggestedPrompts
+                    chat={chat}
+                    onMessageSend={handleMessageSend}
+                  />
+                  {!dismissedAssistantToolsIntro && (
+                    <ToolsIntroCard onDismiss={handleDismissIntroCard} />
+                  )}
+                </div>
+              </>
+            )}
           </div>
           {error && (
             <div className={errorBannerWrapperStyles}>
               <Banner variant="danger" dismissible onClose={clearError}>
-                {makeErrorMessage(error.message)}
+                {makeErrorMessage()}
               </Banner>
             </div>
           )}
-          {messages.length === 0 && (
-            <div className={welcomeMessageStyles}>
-              <h4 className={welcomeHeadingStyles}>
-                <Icon
-                  glyph="Sparkle"
-                  size="large"
-                  style={sparkleIconOverrideStyle}
-                />
-                <span>MongoDB Assistant</span>
-              </h4>
-              <p className={welcomeTextStyles}>
-                Welcome to the MongoDB Assistant!
-                <br />
-                Ask any question about MongoDB to receive expert guidance and
-                documentation.
-              </p>
-            </div>
-          )}
-          <SuggestedPrompts chat={chat} onMessageSend={handleMessageSend} />
 
           <InputBar
             data-testid="assistant-chat-input"
             onMessageSend={(text) => void handleMessageSend({ text })}
-            state={isLoading ? 'loading' : undefined}
+            state={shouldDisplayThinking ? 'loading' : undefined}
             textareaProps={inputBarTextareaProps}
-            onClickStopButton={() => void chat.stop()}
+            onClickStopButton={() => {
+              void handleStopButtonClick();
+            }}
           >
             {isToolCallingEnabled && (
               <InputBar.AdditionalActions>
                 <div className={toolToggleContainerStyles}>
-                  <ToolToggle allowSavingPreferences={allowSavingPreferences} />
+                  <ToolToggle />
                 </div>
               </InputBar.AdditionalActions>
             )}

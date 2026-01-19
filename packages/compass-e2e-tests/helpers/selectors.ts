@@ -1504,6 +1504,12 @@ export const DataModelAddFieldBtn = '[aria-label="Add Field"]';
 export const DataModelDiagramField = (fieldName: string) =>
   `//*[text()="${fieldName}"]`;
 export const DataModelDiagramFieldInput = 'input[title="Edit field name"]';
+export const DataModelCollapseAllButton = 'button[aria-label="Collapse all"]';
+export const DataModelExpandAllButton = 'button[aria-label="Expand all"]';
+export const DataModelCollapseFieldButton = (
+  collection: string,
+  fieldName: string
+) => `[data-testid="field-expand-toggle-${collection}-${fieldName}"]`;
 
 // Side drawer
 export const SideDrawer = `[data-testid="${getDrawerIds().root}"]`;

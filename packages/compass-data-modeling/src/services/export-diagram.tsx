@@ -12,6 +12,7 @@ import {
   getViewportForBounds,
 } from '@mongodb-js/compass-components';
 import { raceWithAbort } from '@mongodb-js/compass-utils';
+import { mapFieldDataToJsonSchema } from '../utils/utils';
 
 function moveSvgDefsToViewportElement(
   container: Element,
@@ -174,8 +175,8 @@ export function getExportJsonFromModel({
     collections: Object.fromEntries(
       collections.map((collection) => {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { ns, jsonSchema, ...ignoredProps } = collection;
-        return [ns, { ns, jsonSchema }];
+        const { ns, fieldData, ...ignoredProps } = collection;
+        return [ns, { ns, jsonSchema: mapFieldDataToJsonSchema(fieldData) }];
       })
     ),
     relationships,

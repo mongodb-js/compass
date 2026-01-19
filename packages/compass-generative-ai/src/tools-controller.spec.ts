@@ -5,6 +5,7 @@ import type { ToolGroup } from './tools-controller';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import type { Logger } from '@mongodb-js/compass-logging';
 import type { ToolsConnectParams } from './tools-connection-manager';
+import { READ_ONLY_DATABASE_TOOLS } from './available-tools';
 
 describe('ToolsController', function () {
   let sandbox: sinon.SinonSandbox;
@@ -198,16 +199,14 @@ describe('ToolsController', function () {
         toolsController.setActiveTools(new Set(['db-read']));
       });
 
-      it('throws error when server is not started', function () {
+      it('ignores db tools if the server is not started', function () {
         const newController = new ToolsController({
           logger,
           getTelemetryAnonymousId,
         });
         newController.setActiveTools(new Set(['db-read']));
 
-        expect(() => newController.getActiveTools()).to.throw(
-          'MCP server is not started'
-        );
+        expect(newController.getActiveTools()).to.be.empty;
       });
 
       it('includes readonly database tools', function () {
@@ -229,6 +228,36 @@ describe('ToolsController', function () {
         for (const toolName of readonlyToolNames) {
           expect(tools).to.have.property(toolName);
         }
+      });
+
+      it('ensures all read only database tools are retrievable from the server after initialization', function () {
+        expect(toolsController.server).to.not.be.undefined;
+        expect(toolsController.server?.tools).to.not.be.undefined;
+
+        if (
+          toolsController.server &&
+          toolsController.server.tools.length === 0
+        ) {
+          toolsController.server.registerTools();
+        }
+
+        const serverTools = toolsController.server?.tools ?? [];
+        const serverToolNames = serverTools.map((tool) => tool.name);
+
+        for (const tool of READ_ONLY_DATABASE_TOOLS) {
+          expect(
+            serverToolNames,
+            `Expected server to have tool: ${tool.name}`
+          ).to.include(tool.name);
+        }
+
+        // Verify the count matches
+        expect(
+          serverToolNames.filter((name) =>
+            READ_ONLY_DATABASE_TOOLS.map((t) => t.name).includes(name)
+          ).length,
+          'Expected all READ_ONLY_DATABASE_TOOLS to be in server tools'
+        ).to.equal(READ_ONLY_DATABASE_TOOLS.length);
       });
 
       it('does not include non-readonly tools', function () {

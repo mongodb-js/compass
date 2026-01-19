@@ -47,6 +47,7 @@ const App = () => {
     enableGenAISampleDocumentPassing,
     enableGenAIFeaturesAtlasOrg,
     optInGenAIFeatures,
+    enableGenAIToolCallingAtlasProject,
     userRoles,
   } = projectParams ?? {};
 
@@ -118,6 +119,8 @@ const App = () => {
               enableGenAISampleDocumentPassing:
                 !!enableGenAISampleDocumentPassing,
               optInGenAIFeatures: isAtlas ? !!optInGenAIFeatures : false,
+              enableGenAIToolCallingAtlasProject:
+                !isAtlas || !!enableGenAIToolCallingAtlasProject,
               enableDataModelingCollapse: true,
               enableMyQueries: isAtlas,
               ...groupRolePreferences,

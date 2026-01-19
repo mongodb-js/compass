@@ -1,4 +1,4 @@
-import { tool, zodSchema } from 'ai';
+import { tool } from 'ai';
 import type { ToolSet } from 'ai';
 import type { Logger } from '@mongodb-js/compass-logging';
 import z from 'zod';
@@ -16,6 +16,8 @@ import { createConnectionErrorHandler } from './tools-connection-error-handler';
 import { ToolsLogger } from './tools-logger';
 import { ToolsConnectionManager } from './tools-connection-manager';
 import type { ToolsConnectParams } from './tools-connection-manager';
+import { removeZodTransforms } from './remove-zod-transforms';
+import { READ_ONLY_DATABASE_TOOLS } from './available-tools';
 
 export type ToolGroup = 'querybar' | 'aggregation-builder' | 'db-read';
 
@@ -27,20 +29,6 @@ type CompassContext = {
 type ToolsContext = CompassContext & {
   connections: ToolsConnectParams[];
 };
-
-const readonlyTools = new Set<string>([
-  'find',
-  'aggregate',
-  'count',
-  'list-databases',
-  'list-collections',
-  'collection-indexes',
-  'collection-schema',
-  'explain',
-  'collection-storage-size',
-  'db-stats',
-  'mongodb-logs',
-]);
 
 /**
  * In-memory MCP runner that doesn't bind to any external transport.
@@ -162,24 +150,35 @@ export class ToolsController {
       };
     }
 
-    if (this.toolGroups.has('db-read')) {
-      if (!this.runner.server) {
-        throw new Error('MCP server is not started');
-      }
-
+    if (this.toolGroups.has('db-read') && this.runner.server) {
+      const readonlyDatabaseToolNames = READ_ONLY_DATABASE_TOOLS.map(
+        (tool) => tool.name
+      );
       if (this.runner.server.tools.length === 0) {
         this.runner.server.registerTools();
       }
 
       const availableTools = this.runner.server.tools ?? [];
       for (const toolBase of availableTools) {
-        if (!readonlyTools.has(toolBase.name)) {
+        if (!readonlyDatabaseToolNames.includes(toolBase.name)) {
           continue;
         }
 
         tools[toolBase.name] = tool({
           description: toolBase.description,
-          inputSchema: zodSchema(z.object(toolBase.argsShape)),
+          inputSchema: z.object(
+            Object.fromEntries(
+              Object.entries(toolBase.argsShape).map(([key, value]) => {
+                return [
+                  key,
+                  // TODO: MCP server applies transformations like toEJSON.
+                  // We should come up with a better solution for this but for now we recursively remove the transforms.
+                  // AI SDK applies transformations defined in the schema *before* sending the request to the model.
+                  removeZodTransforms(value),
+                ];
+              })
+            )
+          ),
           needsApproval: true,
           strict: true,
           execute: async (args, options) => {

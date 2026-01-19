@@ -1,11 +1,11 @@
-import type { MongoDBJSONSchema } from 'mongodb-schema';
+import type { FieldData } from '../services/data-model-storage';
 import { getDirectChildren, getFieldFromSchema } from './schema-traversal';
 
 export function getNewUnusedFieldName(
-  jsonSchema: MongoDBJSONSchema,
+  jsonSchema: FieldData,
   parentFieldPath: string[] = []
 ): string {
-  const parentJSONSchema: MongoDBJSONSchema | undefined =
+  const parentJSONSchema: FieldData | undefined =
     parentFieldPath.length > 0
       ? getFieldFromSchema({
           jsonSchema,

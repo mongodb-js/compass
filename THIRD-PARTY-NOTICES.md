@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **Mongodb Compass**.
-This document was automatically generated on Tue Jan 13 2026.
+This document was automatically generated on Sun Jan 18 2026.
 
 ## List of dependencies
 
@@ -428,7 +428,7 @@ This document was automatically generated on Tue Jan 13 2026.
 | **[mongodb-connection-string-url](#2e1146256a89ebd24e3398881e03807fe363d58444e6b7952ea50bd6108707bc)**                      | 3.0.1              | Apache-2.0                          |
 | **[mongodb-connection-string-url](#1fd70d8a07ac5222eca41b7f648d7e56e854e4947d54123daeca8614d050a545)**                      | 3.0.2              | Apache-2.0                          |
 | **[mongodb-log-writer](#43b453c1e7e71ec0e775dd6c05d9e651306812e7b0a3db7d2dc296747e6d8daf)**                                 | 2.5.4              | Apache-2.0                          |
-| **[mongodb-mcp-server](#79daf0c1010766771e10b4af89a90926601ffc4cfa51884433d0f4dbab9a20c7)**                                 | 1.4.1-prerelease.4 | Apache-2.0                          |
+| **[mongodb-mcp-server](#9056c1d47397d5c46a52a3465280945851d3c4453d1da2aa0e6a2116dcb977e3)**                                 | 1.4.1-prerelease.5 | Apache-2.0                          |
 | **[mongodb-ns](#1cd7eed8e558e278003bafc11ef70f899d5d7c2e4e604a3223e4fa11a0f85fa7)**                                         | 3.0.1              | Apache-2.0                          |
 | **[mongodb-ns](#15cc8a3da3a5e870e2d1230562cb9b6bbacd596d19d09daf5ad4d7bdbe331fa1)**                                         | 3.0.3              | Apache-2.0                          |
 | **[mongodb-query-parser](#d817d4187ec55ec7bda7f42ef2f56810a590ea061120a9b448c499b4a36ce7af)**                               | 4.6.0              | Apache-2.0                          |
@@ -29729,9 +29729,9 @@ License files:
       See the License for the specific language governing permissions and
       limitations under the License.
 
-<a id="79daf0c1010766771e10b4af89a90926601ffc4cfa51884433d0f4dbab9a20c7"></a>
+<a id="9056c1d47397d5c46a52a3465280945851d3c4453d1da2aa0e6a2116dcb977e3"></a>
 
-### [mongodb-mcp-server](https://www.npmjs.com/package/mongodb-mcp-server) (version 1.4.1-prerelease.4)
+### [mongodb-mcp-server](https://www.npmjs.com/package/mongodb-mcp-server) (version 1.4.1-prerelease.5)
 
 License tags: Apache-2.0
 
