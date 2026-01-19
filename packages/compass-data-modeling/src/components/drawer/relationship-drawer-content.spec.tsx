@@ -33,6 +33,11 @@ describe('RelationshipDrawerContent', function () {
       ]);
     });
     it('handles cardinality label when selected', function () {
+      // In test-electron, the class is applied correctly, but the computed style
+      // does not reflect it.
+      if ((process as any).type === 'renderer') {
+        this.skip();
+      }
       const { rerender } = render(
         <CardinalitySelect
           label="Cardinality"
