@@ -13,7 +13,6 @@ echo "PATH: $PATH"
 # these are super useful if you want to run the smoke tests locally
 echo "export DEV_VERSION_IDENTIFIER=$DEV_VERSION_IDENTIFIER"
 echo "export EVERGREEN_BUCKET_KEY_PREFIX=$EVERGREEN_BUCKET_KEY_PREFIX"
-echo "export EVERGREEN_BUCKET_NAME=$EVERGREEN_BUCKET_NAME"
 
 echo "IS_OSX: $IS_OSX"
 echo "IS_LINUX: $IS_LINUX"

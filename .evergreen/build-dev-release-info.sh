@@ -15,11 +15,11 @@ fi
 
 JSON_CONTENT=$( jq -n \
   --arg id "$DEV_VERSION_IDENTIFIER" \
-  --arg key "${EVERGREEN_REVISION}_${EVERGREEN_REVISION_ORDER_ID}" \
+  --arg key "${EVERGREEN_BUCKET_KEY_PREFIX}" \
   '{version: $id, bucket_key_prefix: $key}'
 )
 
-URL="https://mciuploads.s3.amazonaws.com/${EVERGREEN_PROJECT}/compass/dev/$1"
+URL="https://downloads.mongodb.com/compass-dev/$1"
 DATA=$(curl -sf "${URL}" || echo "$JSON_CONTENT")
 CURRENT_VERSION=$(echo "$DATA" | jq -r '.version')
 
