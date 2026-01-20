@@ -22,7 +22,7 @@ import FieldDrawerContent from './field-drawer-content';
 import type { FieldPath } from '../../services/data-model-storage';
 import { getFieldFromSchema } from '../../utils/schema-traversal';
 import { isIdField } from '../../utils/utils';
-import OverviewDrawerContent from './overview-drawer-content';
+import DiagramOverviewDrawerContent from './diagram-overview-drawer-content';
 
 export const DATA_MODELING_DRAWER_ID = 'data-modeling-drawer';
 
@@ -138,19 +138,8 @@ function DiagramEditorSidePanel({
 
     return {
       title: 'Data Model Overview',
-      content: <OverviewDrawerContent />,
-      actions: [
-        {
-          action: 'delete',
-          label: 'Delete Collection',
-          icon: 'Trash' as const,
-        },
-      ],
-      handleAction: (actionName: string) => {
-        if (actionName === 'delete') {
-          onRemn(selectedItems.id);
-        }
-      },
+      label: 'Data Model Overview',
+      content: <DiagramOverviewDrawerContent />,
     };
   }, [selectedItems, onDeleteCollection, onDeleteRelationship, onDeleteField]);
 
@@ -167,18 +156,20 @@ function DiagramEditorSidePanel({
             {title}
           </span>
 
-          <ItemActionControls
-            actions={actions}
-            data-testid="data-modeling-drawer-actions"
-            onAction={handleAction}
-            className={drawerTitleActionGroupStyles}
-            // Because the close button here is out of our control, we have do
-            // adjust the actions rendering in a bit of an unconventional way:
-            // if there's more than one action available, collapse it to "...",
-            // if it's just one, make sure button is not collapsed by setting
-            // collapseAfter to >0
-            collapseAfter={actions.length > 1 ? 0 : 1}
-          ></ItemActionControls>
+          {actions && actions.length > 0 && (
+            <ItemActionControls
+              actions={actions}
+              data-testid="data-modeling-drawer-actions"
+              onAction={handleAction}
+              className={drawerTitleActionGroupStyles}
+              // Because the close button here is out of our control, we have do
+              // adjust the actions rendering in a bit of an unconventional way:
+              // if there's more than one action available, collapse it to "...",
+              // if it's just one, make sure button is not collapsed by setting
+              // collapseAfter to >0
+              collapseAfter={actions.length > 1 ? 0 : 1}
+            ></ItemActionControls>
+          )}
         </div>
       }
       label={label}

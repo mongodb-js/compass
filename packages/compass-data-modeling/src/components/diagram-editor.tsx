@@ -75,17 +75,6 @@ const errorBannerStyles = css({
   },
 });
 
-const dataInfoBannerStyles = css({
-  margin: spacing[400],
-  position: 'absolute',
-  zIndex: 100,
-
-  h4: {
-    marginTop: 0,
-    marginBottom: 0,
-  },
-});
-
 const bannerButtonStyles = css({
   marginLeft: 'auto',
 });
@@ -152,7 +141,6 @@ type SelectedItems = NonNullable<DiagramState>['selectedItems'];
 const DiagramContent: React.FunctionComponent<{
   diagramLabel: string;
   database: string | null;
-  isNewlyCreatedDiagram?: boolean;
   model: StaticModel | null;
   isInRelationshipDrawingMode: boolean;
   newCollection?: string;
@@ -207,8 +195,6 @@ const DiagramContent: React.FunctionComponent<{
   onToggleFieldExpanded: (namespace: string, fieldPath: FieldPath) => void;
 }> = ({
   diagramLabel,
-  database,
-  isNewlyCreatedDiagram,
   model,
   isInRelationshipDrawingMode,
   newCollection,
@@ -237,9 +223,6 @@ const DiagramContent: React.FunctionComponent<{
   const diagram = useRef(useDiagram());
   const { openDrawer } = useDrawerActions();
   const { isDrawerOpen } = useDrawerState();
-  const [showDataInfoBanner, setshowDataInfoBanner] = useState(
-    isNewlyCreatedDiagram ?? false
-  );
 
   const setDiagramContainerRef = useCallback((ref: HTMLDivElement | null) => {
     if (ref) {
@@ -542,20 +525,6 @@ const DiagramContent: React.FunctionComponent<{
       data-testid="diagram-editor-container"
     >
       <div className={modelPreviewStyles} data-testid="model-preview">
-        {showDataInfoBanner && (
-          <Banner
-            variant="info"
-            dismissible
-            onClose={() => setshowDataInfoBanner(false)}
-            className={dataInfoBannerStyles}
-            data-testid="data-info-banner"
-          >
-            <h4>Questions about your data?</h4>
-            This diagram was generated based on a sample of documents from{' '}
-            {database ?? 'a database'}. Changes made to the diagram will not
-            impact your data.
-          </Banner>
-        )}
         <DiagramComponent
           {...throttledDiagramProps}
           // With threshold too low clicking sometimes gets confused with
@@ -578,7 +547,6 @@ const ConnectedDiagramContent = connect(
       diagramLabel: diagram?.name || 'Schema Preview',
       selectedItems: state.diagram?.selectedItems ?? null,
       newCollection: diagram?.draftCollection,
-      isNewlyCreatedDiagram: diagram?.isNewlyCreated,
       database: model?.collections[0]?.ns
         ? toNS(model.collections[0].ns).database
         : null, // TODO(COMPASS-9718): use diagram.database
