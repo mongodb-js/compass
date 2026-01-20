@@ -82,8 +82,8 @@ const CollectionDrawerContent: React.FunctionComponent<
     () =>
       getIsNewNameValid({
         newName: collectionName,
-        existingNames: namespaces,
-        currentName: namespace,
+        existingNames: namespaces.map((ns) => toNS(ns).collection),
+        currentName: toNS(namespace).collection,
         entity: 'Collection',
       }),
     [collectionName, namespaces, namespace]
