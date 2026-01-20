@@ -70,9 +70,10 @@ export function SelectList<T extends SelectItem>(
   const handleSelectAllChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       onChange(
-        items
-          .filter((x) => !x.disabled)
-          .map((item) => ({ ...item, selected: !!e.target.checked }))
+        items.map((item) => ({
+          ...item,
+          selected: item.disabled ? item.selected : !!e.target.checked,
+        }))
       );
     },
     [items, onChange]
@@ -80,13 +81,14 @@ export function SelectList<T extends SelectItem>(
   const handleSelectItemChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       onChange(
-        items
-          .filter((x) => !x.disabled)
-          .map((item) =>
-            e.target.name === `select-${item.id}`
-              ? { ...item, selected: !!e.target.checked }
-              : item
-          )
+        items.map((item) =>
+          e.target.name === `select-${item.id}`
+            ? {
+                ...item,
+                selected: item.disabled ? item.selected : !!e.target.checked,
+              }
+            : item
+        )
       );
     },
     [items, onChange]

@@ -88,7 +88,7 @@ export const SelectCollectionsList: React.FunctionComponent<
 
       const newSelectedItems = items
         .filter((item) => {
-          return item.selected;
+          return item.selected && !disabledCollections.includes(item.id);
         })
         .map((item) => {
           return item.id;
