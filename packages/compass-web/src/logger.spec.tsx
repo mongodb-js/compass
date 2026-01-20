@@ -4,24 +4,28 @@ import {
   LoggerProvider,
   useLogger,
 } from '@mongodb-js/compass-logging/provider';
-import type { DebugFunction, LogFunction } from './logger';
-import { useCompassWebLogger } from './logger';
+import type { DebugFunction, LogFunction, TrackFunction } from './logger';
+import { useCompassWebLoggerAndTelemetry } from './logger';
 import { renderHook } from '@mongodb-js/testing-library-compass';
 import Sinon from 'sinon';
 import { expect } from 'chai';
 
-describe('useCompassWebLogger', function () {
+describe('useCompassWebLoggerAndTelemetry', function () {
   function renderLoggerHook({
     onDebug,
     onLog,
+    onTrack,
   }: {
     onDebug?: DebugFunction;
     onLog?: LogFunction;
+    onTrack?: TrackFunction;
   } = {}) {
     const Wrapper: React.FunctionComponent = ({ children }) => {
-      const logger = useCompassWebLogger({
+      const { logger } = useCompassWebLoggerAndTelemetry({
         onDebug,
         onLog,
+        onTrack,
+        preferences: {} as any,
       });
 
       return <LoggerProvider value={logger}>{children}</LoggerProvider>;
