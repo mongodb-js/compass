@@ -378,6 +378,17 @@ describe('Data Modeling tab', function () {
       await browser
         .$(Selectors.DataModelsListItem(dataModelName))
         .waitForDisplayed({ reverse: true });
+
+      // Verify that the existing diagram is now no longer accessible
+      await browser.clickVisible(
+        Selectors.workspaceTab({ type: 'Data Modeling' })
+      );
+      await browser.waitUntil(async () => {
+        const text = await browser
+          .$(Selectors.WorkspaceTabsContainer)
+          .getText();
+        return text.includes('This data model has been deleted.');
+      });
     });
 
     it('allows undo after opening a diagram', async function () {
