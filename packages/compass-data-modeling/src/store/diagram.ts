@@ -724,9 +724,9 @@ export function deleteDiagram(
     if (!confirmed) {
       return;
     }
+    void dataModelStorage.delete(id);
     globalAppRegistry.emit('dm-diagram-deleted', id);
     dispatch({ type: DiagramActionTypes.DELETE_DIAGRAM, id });
-    void dataModelStorage.delete(id);
   };
 }
 
