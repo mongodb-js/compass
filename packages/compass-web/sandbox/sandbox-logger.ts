@@ -8,7 +8,10 @@ const kSandboxLoggingAndTelemetryAccess = Symbol.for(
   '@compass-web-sandbox-logging-and-telemetry-access'
 );
 
-(globalThis as any)[kSandboxLoggingAndTelemetryAccess] =
-  compassWebLoggingAndTrackingEvents;
+Object.defineProperty(globalThis, kSandboxLoggingAndTelemetryAccess, {
+  get() {
+    return compassWebLoggingAndTrackingEvents;
+  },
+});
 
 export const debug = createDebug(`mongodb-compass:compass-web-sandbox`);
