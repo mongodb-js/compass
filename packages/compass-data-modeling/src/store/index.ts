@@ -8,8 +8,12 @@ import { applyMiddleware, createStore } from 'redux';
 import reducer from './reducer';
 import type { DataModelingExtraArgs } from './reducer';
 import thunk from 'redux-thunk';
-import type { ActivateHelpers } from '@mongodb-js/compass-app-registry';
+import type {
+  ActivateHelpers,
+  AppRegistry,
+} from '@mongodb-js/compass-app-registry';
 import { openToast as _openToast } from '@mongodb-js/compass-components';
+import { DiagramActionTypes } from './diagram';
 
 export type DataModelingStoreOptions = {
   openToast?: typeof _openToast;
@@ -22,12 +26,13 @@ export type DataModelingStoreServices = {
   dataModelStorage: DataModelStorageService;
   track: TrackFunction;
   logger: Logger;
+  globalAppRegistry: AppRegistry;
 };
 
 export function activateDataModelingStore(
   { openToast = _openToast }: DataModelingStoreOptions,
-  services: DataModelingStoreServices,
-  { cleanup, addCleanup }: ActivateHelpers
+  { globalAppRegistry, ...services }: DataModelingStoreServices,
+  { on, cleanup, addCleanup }: ActivateHelpers
 ) {
   const cancelAnalysisControllerRef: DataModelingExtraArgs['cancelAnalysisControllerRef'] =
     { current: null };
@@ -38,12 +43,17 @@ export function activateDataModelingStore(
     applyMiddleware(
       thunk.withExtraArgument<DataModelingExtraArgs>({
         ...services,
+        globalAppRegistry,
         cancelAnalysisControllerRef,
         cancelExportControllerRef,
         openToast,
       })
     )
   );
+
+  on(globalAppRegistry, 'dm-diagram-deleted', (id: string) => {
+    store.dispatch({ type: DiagramActionTypes.DIAGRAM_DELETED, id });
+  });
 
   addCleanup(() => {
     // Abort any ongoing analysis and exporting when deactivated.

@@ -63,13 +63,15 @@ export type DiagramState =
       selectedItems: SelectedItems | null;
       isNewlyCreated: boolean;
       draftCollection?: string;
+      isDiagramDeleted?: boolean;
     })
   | null; // null when no diagram is currently open
 
 export const DiagramActionTypes = {
   OPEN_DIAGRAM: 'data-modeling/diagram/OPEN_DIAGRAM',
-  DELETE_DIAGRAM: 'data-modeling/diagram/DELETE_DIAGRAM',
   RENAME_DIAGRAM: 'data-modeling/diagram/RENAME_DIAGRAM',
+  DELETE_DIAGRAM: 'data-modeling/diagram/DELETE_DIAGRAM',
+  DIAGRAM_DELETED: 'data-modeling/diagram/DIAGRAM_DELETED',
   APPLY_INITIAL_LAYOUT: 'data-modeling/diagram/APPLY_INITIAL_LAYOUT',
   APPLY_EDIT: 'data-modeling/diagram/APPLY_EDIT',
   UNDO_EDIT: 'data-modeling/diagram/UNDO_EDIT',
@@ -87,15 +89,20 @@ export type OpenDiagramAction = {
   diagram: MongoDBDataModelDescription;
 };
 
-export type DeleteDiagramAction = {
-  type: typeof DiagramActionTypes.DELETE_DIAGRAM;
-  isCurrent: boolean; // technically a derived state, but we don't have access to this in some slices
-};
-
 export type RenameDiagramAction = {
   type: typeof DiagramActionTypes.RENAME_DIAGRAM;
   id: string;
   name: string;
+};
+
+export type DeleteDiagramAction = {
+  type: typeof DiagramActionTypes.DELETE_DIAGRAM;
+  id: string;
+};
+
+export type DiagramDeletedAction = {
+  type: typeof DiagramActionTypes.DIAGRAM_DELETED;
+  id: string;
 };
 
 export type ApplyEditAction = {
@@ -137,8 +144,9 @@ export type DiagramBackgroundSelectedAction = {
 
 export type DiagramActions =
   | OpenDiagramAction
-  | DeleteDiagramAction
   | RenameDiagramAction
+  | DeleteDiagramAction
+  | DiagramDeletedAction
   | ApplyEditAction
   | RevertFailedEditAction
   | UndoEditAction
@@ -219,6 +227,17 @@ export const diagramReducer: Reducer<DiagramState> = (
       updatedAt: new Date().toISOString(),
     };
   }
+
+  if (
+    isAction(action, DiagramActionTypes.DIAGRAM_DELETED) &&
+    state.id === action.id
+  ) {
+    return {
+      ...state,
+      isDiagramDeleted: true,
+    };
+  }
+
   if (
     isAction(action, DiagramActionTypes.APPLY_EDIT) &&
     state.draftCollection &&
@@ -692,7 +711,11 @@ export function openDiagram(
 export function deleteDiagram(
   id: string
 ): DataModelingThunkAction<Promise<void>, DeleteDiagramAction> {
-  return async (dispatch, getState, { dataModelStorage }) => {
+  return async (
+    dispatch,
+    getState,
+    { dataModelStorage, globalAppRegistry }
+  ) => {
     const confirmed = await showConfirmation({
       title: 'Are you sure you want to delete this diagram?',
       description: 'This action can not be undone.',
@@ -701,8 +724,8 @@ export function deleteDiagram(
     if (!confirmed) {
       return;
     }
-    const isCurrent = getState().diagram?.id === id;
-    dispatch({ type: DiagramActionTypes.DELETE_DIAGRAM, isCurrent });
+    globalAppRegistry.emit('dm-diagram-deleted', id);
+    dispatch({ type: DiagramActionTypes.DELETE_DIAGRAM, id });
     void dataModelStorage.delete(id);
   };
 }
