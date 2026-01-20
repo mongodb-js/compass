@@ -731,6 +731,13 @@ export function deleteDiagram(
 }
 
 export function renameDiagram(
+  id: string,
+  newName: string
+): RenameDiagramAction {
+  return { type: DiagramActionTypes.RENAME_DIAGRAM, id, name: newName };
+}
+
+export function showDiagramRenameModal(
   id: string // TODO maybe pass the whole thing here, we always have it when calling this, then we don't need to re-load storage
 ): DataModelingThunkAction<Promise<void>, RenameDiagramAction> {
   return async (dispatch, getState, { dataModelStorage }) => {

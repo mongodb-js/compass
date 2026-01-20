@@ -22,6 +22,7 @@ import FieldDrawerContent from './field-drawer-content';
 import type { FieldPath } from '../../services/data-model-storage';
 import { getFieldFromSchema } from '../../utils/schema-traversal';
 import { isIdField } from '../../utils/utils';
+import OverviewDrawerContent from './overview-drawer-content';
 
 export const DATA_MODELING_DRAWER_ID = 'data-modeling-drawer';
 
@@ -135,7 +136,22 @@ function DiagramEditorSidePanel({
       };
     }
 
-    return { content: null };
+    return {
+      title: 'Data Model Overview',
+      content: <OverviewDrawerContent />,
+      actions: [
+        {
+          action: 'delete',
+          label: 'Delete Collection',
+          icon: 'Trash' as const,
+        },
+      ],
+      handleAction: (actionName: string) => {
+        if (actionName === 'delete') {
+          onRemn(selectedItems.id);
+        }
+      },
+    };
   }, [selectedItems, onDeleteCollection, onDeleteRelationship, onDeleteField]);
 
   if (!content) {
