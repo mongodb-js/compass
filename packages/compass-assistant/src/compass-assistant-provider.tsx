@@ -44,6 +44,7 @@ import {
 import type {
   AtlasAiService,
   ToolsController,
+  ToolGroup,
 } from '@mongodb-js/compass-generative-ai/provider';
 import {
   atlasAiServiceLocator,
@@ -51,14 +52,26 @@ import {
 } from '@mongodb-js/compass-generative-ai/provider';
 import { buildConversationInstructionsPrompt } from './prompts';
 import { createOpenAI } from '@ai-sdk/openai';
+import type { ActiveConnectionInfo } from './assistant-global-state';
 import {
   AssistantGlobalStateProvider,
   useAssistantGlobalState,
 } from './assistant-global-state';
 import { lastAssistantMessageIsCompleteWithApprovalResponses } from 'ai';
-import type { ToolSet } from 'ai';
+import type { ToolSet, UIDataTypes, UIMessagePart, UITools } from 'ai';
+import type {
+  CollectionSubtab,
+  WorkspaceTab,
+} from '@mongodb-js/workspace-info';
 
 export const ASSISTANT_DRAWER_ID = 'compass-assistant-drawer';
+
+export type BasicConnectionInfo = {
+  id: string;
+  name: string;
+};
+
+export type ActiveTabType = CollectionSubtab | WorkspaceTab['type'] | null;
 
 export type AssistantMessage = UIMessage & {
   role?: 'user' | 'assistant' | 'system';
@@ -85,6 +98,11 @@ export type AssistantMessage = UIMessage & {
 
     /** Whether this is a message to the model that we don't want to display to the user*/
     isSystemContext?: boolean;
+
+    /** Just enough info so we can tell which connection this message is related
+     *  to (if any).
+     */
+    connectionInfo?: BasicConnectionInfo | null;
   };
 };
 
@@ -93,6 +111,12 @@ type AssistantContextType = Chat<AssistantMessage>;
 export const AssistantContext = createContext<AssistantContextType | null>(
   null
 );
+
+const AssistantProjectContext = createContext<string | undefined>(undefined);
+
+export function useAssistantProjectId(): string | undefined {
+  return useContext(AssistantProjectContext);
+}
 
 type SendMessage = Parameters<Chat<AssistantMessage>['sendMessage']>[0];
 type SendOptions = Parameters<Chat<AssistantMessage>['sendMessage']>[1];
@@ -207,8 +231,16 @@ export const AssistantProvider: React.FunctionComponent<
     atlasAiService: AtlasAiService;
     toolsController: ToolsController;
     preferences: PreferencesAccess;
+    projectId?: string;
   }>
-> = ({ chat, atlasAiService, toolsController, preferences, children }) => {
+> = ({
+  chat,
+  atlasAiService,
+  toolsController,
+  preferences,
+  projectId,
+  children,
+}) => {
   const { openDrawer } = useDrawerActions();
   const track = useTelemetry();
 
@@ -240,6 +272,47 @@ export const AssistantProvider: React.FunctionComponent<
       // place to do tracking.
       callback();
 
+      const prefs = preferences.getPreferences();
+
+      const enableToolCalling = prefs.enableToolCalling;
+      const enableGenAIToolCalling =
+        prefs.enableGenAIToolCallingAtlasProject &&
+        prefs.enableGenAIToolCalling;
+
+      if (enableToolCalling && enableGenAIToolCalling) {
+        // Start the server once the first time both the feature flag and
+        // setting are enabled, just before sending a message so that it will be
+        // there when we call getActiveTools(). It is just some one-time setup
+        // so we don't stop it again if the setting is turned off. It would just log
+        // a lot of things every time. Main reason to lazy-start it is to avoid
+        // all those logs appearing even if the feature flag and/or setting is
+        // off.
+        await toolsController.startServer();
+      }
+
+      // Automatically deny any pending tool approval requests in the chat before
+      // sending the new message because ai sdk does not allow leaving them.
+      let foundToolApprovalRequests = false;
+      for (const message of chat.messages) {
+        for (const part of message.parts) {
+          if (partIsApprovalRequest(part)) {
+            foundToolApprovalRequests = true;
+            await chat.addToolApprovalResponse({
+              id: part.approval.id,
+              approved: false,
+            });
+          }
+        }
+      }
+
+      if (foundToolApprovalRequests) {
+        // Even though we await the promise above, if we immediately send
+        // the message then ai sdk will throw because we haven't dealt with the
+        // approval requests. Maybe because chat.addToolApprovalResponse() does
+        // not always return a promise?
+        await new Promise((resolve) => setTimeout(resolve, 0));
+      }
+
       if (chat.status === 'streaming') {
         await chat.stop();
       }
@@ -252,14 +325,13 @@ export const AssistantProvider: React.FunctionComponent<
           );
         }) ?? null;
 
-      const { enableToolCalling } = preferences.getPreferences();
-
       const contextPrompt = buildContextPrompt({
         activeWorkspace,
         activeConnection,
         activeCollectionMetadata,
         activeCollectionSubTab,
         enableToolCalling,
+        enableGenAIToolCalling,
       });
 
       // use just the text so we have a stable reference to compare against
@@ -282,20 +354,21 @@ export const AssistantProvider: React.FunctionComponent<
         chat.messages = [...chat.messages, contextPrompt];
       }
 
-      if (enableToolCalling) {
-        toolsController.setActiveTools(new Set(['compass']));
-        toolsController.setContext({
-          query: assistantGlobalStateRef.current.currentQuery || undefined,
-          aggregation:
-            assistantGlobalStateRef.current.currentAggregation || undefined,
-        });
-      } else {
-        toolsController.setActiveTools(new Set([]));
-        toolsController.setContext({
-          query: undefined,
-          aggregation: undefined,
-        });
-      }
+      const query = assistantGlobalStateRef.current.currentQuery;
+      const pipeline = assistantGlobalStateRef.current.currentPipeline;
+      const activeTab: ActiveTabType = activeWorkspace
+        ? activeCollectionSubTab || activeWorkspace.type
+        : null;
+      setToolsContext(toolsController, {
+        activeConnection,
+        connections: activeConnections,
+        query,
+        pipeline,
+        enableToolCalling,
+        enableGenAIToolCalling,
+        activeTab,
+      });
+
       await chat.sendMessage(message, options);
     };
   });
@@ -351,7 +424,9 @@ export const AssistantProvider: React.FunctionComponent<
   return (
     <AssistantContext.Provider value={chat}>
       <AssistantActionsContext.Provider value={assistantActionsContext}>
-        {children}
+        <AssistantProjectContext.Provider value={projectId}>
+          {children}
+        </AssistantProjectContext.Provider>
       </AssistantActionsContext.Provider>
     </AssistantContext.Provider>
   );
@@ -366,6 +441,7 @@ export const CompassAssistantProvider = registerCompassPlugin(
       atlasAiService,
       toolsController,
       preferences,
+      projectId,
       children,
     }: PropsWithChildren<{
       appNameForPrompt: string;
@@ -374,6 +450,7 @@ export const CompassAssistantProvider = registerCompassPlugin(
       atlasAiService?: AtlasAiService;
       toolsController?: ToolsController;
       preferences?: PreferencesAccess;
+      projectId?: string;
     }>) => {
       if (!chat) {
         throw new Error('Chat was not provided by the state');
@@ -395,6 +472,7 @@ export const CompassAssistantProvider = registerCompassPlugin(
             atlasAiService={atlasAiService}
             toolsController={toolsController}
             preferences={preferences}
+            projectId={projectId}
           >
             {children}
           </AssistantProvider>
@@ -402,7 +480,7 @@ export const CompassAssistantProvider = registerCompassPlugin(
       );
     },
     activate: (
-      { chat: initialChat, originForPrompt, appNameForPrompt },
+      { chat: initialChat, originForPrompt, appNameForPrompt, projectId },
       {
         atlasService,
         atlasAiService,
@@ -425,7 +503,13 @@ export const CompassAssistantProvider = registerCompassPlugin(
 
       return {
         store: {
-          state: { chat, atlasAiService, toolsController, preferences },
+          state: {
+            chat,
+            atlasAiService,
+            toolsController,
+            preferences,
+            projectId,
+          },
         },
         deactivate: () => {},
       };
@@ -517,4 +601,70 @@ export function createDefaultChat({
       });
     },
   });
+}
+
+export function setToolsContext(
+  toolsController: ToolsController,
+  {
+    activeConnection,
+    connections,
+    query,
+    pipeline,
+    enableToolCalling,
+    enableGenAIToolCalling,
+    activeTab,
+  }: {
+    activeConnection: ActiveConnectionInfo | null;
+    connections: ActiveConnectionInfo[];
+    query?: string | null;
+    pipeline?: string | null;
+    enableToolCalling?: boolean;
+    enableGenAIToolCalling?: boolean;
+    activeTab?: ActiveTabType;
+  }
+) {
+  if (enableToolCalling) {
+    const toolGroups = new Set<ToolGroup>([]);
+    if (enableGenAIToolCalling) {
+      if (activeTab === 'Documents' || activeTab === 'Schema') {
+        toolGroups.add('querybar');
+      }
+      if (activeTab === 'Aggregations') {
+        toolGroups.add('aggregation-builder');
+      }
+      if (activeConnection) {
+        toolGroups.add('db-read');
+      }
+    }
+    toolsController.setActiveTools(toolGroups);
+    toolsController.setContext({
+      connections: connections.map((connection) => {
+        if (!connection.connectOptions) {
+          throw new Error(
+            `Connection ${connection.id} is missing connectOptions`
+          );
+        }
+        return {
+          connectionId: connection.id,
+          connectionString: connection.connectionOptions.connectionString,
+          connectOptions: connection.connectOptions,
+        };
+      }),
+      query: query || undefined,
+      pipeline: pipeline || undefined,
+    });
+  } else {
+    toolsController.setActiveTools(new Set([]));
+    toolsController.setContext({
+      connections: [],
+      query: undefined,
+      pipeline: undefined,
+    });
+  }
+}
+
+function partIsApprovalRequest(
+  part: UIMessagePart<UIDataTypes, UITools>
+): part is UIMessagePart<UIDataTypes, UITools> & { approval: { id: string } } {
+  return (part as { state?: string }).state === 'approval-requested';
 }

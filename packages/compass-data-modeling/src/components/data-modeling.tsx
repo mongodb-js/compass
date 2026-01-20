@@ -6,6 +6,7 @@ import NewDiagramFormModal from './new-diagram/new-diagram-modal';
 import type { DataModelingState } from '../store/reducer';
 import { DiagramProvider } from '@mongodb-js/compass-components';
 import DiagramEditorSidePanel from './drawer/diagram-editor-side-panel';
+import ReselectCollectionsModal from './reselect-collections-modal';
 
 type DataModelingProps = {
   showList: boolean;
@@ -25,6 +26,7 @@ const DataModeling: React.FunctionComponent<DataModelingProps> = ({
         </DiagramProvider>
       )}
       <NewDiagramFormModal></NewDiagramFormModal>
+      <ReselectCollectionsModal></ReselectCollectionsModal>
     </>
   );
 };

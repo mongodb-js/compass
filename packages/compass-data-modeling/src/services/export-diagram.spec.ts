@@ -13,7 +13,10 @@ describe('export-diagram', function () {
       const expectedCollections = Object.fromEntries(
         FlightModel.collections
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          .map(({ ns, jsonSchema, ...rest }) => [ns, { ns, jsonSchema }])
+          .map(({ ns, fieldData, ...rest }) => [
+            ns,
+            { ns, jsonSchema: fieldData },
+          ])
       );
       expect(json.collections).to.deep.equal(expectedCollections);
 

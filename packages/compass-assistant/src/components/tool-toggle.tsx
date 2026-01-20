@@ -11,11 +11,14 @@ import {
   Button,
   Link,
   useDarkMode,
+  fontFamilies,
 } from '@mongodb-js/compass-components';
 import {
   usePreference,
   usePreferencesContext,
 } from 'compass-preferences-model/provider';
+import { useAssistantProjectId } from '../compass-assistant-provider';
+import { AVAILABLE_TOOLS } from '@mongodb-js/compass-generative-ai';
 
 const popoverContentStyles = css({
   padding: spacing[400],
@@ -52,6 +55,7 @@ const toolsHeaderStyles = css({
 });
 
 const toolsHeaderTextStyles = css({
+  fontFamily: fontFamilies.default,
   fontSize: '13px',
   fontWeight: 600,
   color: palette.gray.light3,
@@ -59,6 +63,7 @@ const toolsHeaderTextStyles = css({
 });
 
 const toolsHeaderTextCountStyles = css({
+  fontFamily: fontFamilies.default,
   fontWeight: 400,
   color: palette.gray.light1,
 });
@@ -103,72 +108,25 @@ const toolNameStyles = css({
 });
 
 const toolDescriptionStyles = css({
+  fontFamily: fontFamilies.default,
   fontSize: '12px',
   lineHeight: '18px',
   color: palette.gray.light1,
   fontWeight: 300,
 });
 
-export const DATABASE_TOOLS = [
-  {
-    name: 'find',
-    description:
-      'Retrieves specific documents that match your search criteria.',
-  },
-  {
-    name: 'aggregate',
-    description:
-      'Performs complex data processing, grouping, and calculations.',
-  },
-  {
-    name: 'count',
-    description:
-      'Quickly returns the total number of documents matching a query.',
-  },
-  {
-    name: 'list-databases',
-    description: 'Displays all available databases in the connected cluster.',
-  },
-  {
-    name: 'list-collections',
-    description: 'Shows all collections within a specified database.',
-  },
-  {
-    name: 'collection-schema',
-    description: 'Describes the schema structure of a collection.',
-  },
-  {
-    name: 'collection-indexes',
-    description: 'Lists all indexes defined on a collection.',
-  },
-  {
-    name: 'collection-storage-size',
-    description: 'Returns the storage size information for a collection.',
-  },
-  {
-    name: 'db-stats',
-    description: 'Provides database statistics including size and usage.',
-  },
-  {
-    name: 'explain',
-    description: 'Provides execution statistics and query plan information.',
-  },
-  {
-    name: 'export',
-    description: 'Exports query or aggregation results in EJSON format.',
-  },
-];
-
-export const AVAILABLE_TOOLS = [
-  ...DATABASE_TOOLS,
-  {
-    name: 'get-compass-context',
-    description: 'Get the current query or aggregation.',
-  },
-];
-
 export const ToolToggle: React.FunctionComponent = () => {
-  const enableToolCalling = usePreference('enableGenAIDatabaseToolCalling');
+  const enableGenAIToolCallingAtlasProject = usePreference(
+    'enableGenAIToolCallingAtlasProject'
+  );
+  const projectId = useAssistantProjectId();
+  const learnMoreUrl = projectId
+    ? 'https://www.mongodb.com/docs/atlas/atlas-ui/query-with-natural-language/data-explorer-ai-assistant/'
+    : 'https://www.mongodb.com/docs/compass/query-with-natural-language/compass-ai-assistant/';
+  const enableGenAIToolCalling = usePreference('enableGenAIToolCalling');
+
+  const areToolCallsEnabled =
+    !!enableGenAIToolCallingAtlasProject && enableGenAIToolCalling;
   const preferences = usePreferencesContext();
   const [popoverOpen, setPopoverOpen] = useState(false);
   const darkMode = useDarkMode();
@@ -178,7 +136,7 @@ export const ToolToggle: React.FunctionComponent = () => {
   const handleToggle = useCallback(
     (checked: boolean) => {
       void preferences.savePreferences({
-        enableGenAIDatabaseToolCalling: checked,
+        enableGenAIToolCalling: checked,
       });
     },
     [preferences]
@@ -198,12 +156,12 @@ export const ToolToggle: React.FunctionComponent = () => {
             ref={ref}
             data-testid="tool-toggle-button"
             onClick={onClick}
-            aria-label="Configure database tool calling"
+            aria-label="Configure tool calling"
             aria-expanded={popoverOpen}
             darkMode={darkMode}
             size="small"
             leftGlyph={
-              enableToolCalling ? <ActiveBoltIcon /> : <DisabledBoltIcon />
+              enableGenAIToolCalling ? <ActiveBoltIcon /> : <DisabledBoltIcon />
             }
           >
             Tools
@@ -223,20 +181,19 @@ export const ToolToggle: React.FunctionComponent = () => {
                   id="enable-tool-calling-toggle"
                   aria-labelledby="enable-tool-calling-label"
                   size="small"
-                  checked={enableToolCalling}
+                  checked={areToolCallsEnabled}
                   onChange={handleToggle}
                   data-testid="tool-toggle-switch"
+                  disabled={!enableGenAIToolCallingAtlasProject}
                 />
               </div>
               <Description>
-                These are currently enabled and require approval. You can use
-                natural language to explore data and generate queries.
+                {areToolCallsEnabled
+                  ? 'These are currently enabled and require approval. You can use natural language to explore data and generate queries.'
+                  : 'These are currently disabled. Enable them to use natural language to explore data and generate queries.'}
               </Description>
             </div>
-            <Link
-              href="https://www.mongodb.com/docs/compass/query-with-natural-language/compass-ai-assistant/"
-              target="_blank"
-            >
+            <Link href={learnMoreUrl} target="_blank">
               Learn more
             </Link>
             <div className={toolsContainerStyles}>
@@ -244,12 +201,12 @@ export const ToolToggle: React.FunctionComponent = () => {
                 <div className={toolsHeaderTextStyles}>
                   Available tools{' '}
                   <span className={toolsHeaderTextCountStyles}>
-                    ({DATABASE_TOOLS.length})
+                    ({AVAILABLE_TOOLS.length})
                   </span>
                 </div>
               </div>
               <div className={`${toolListStyles}`}>
-                {DATABASE_TOOLS.map((tool) => (
+                {AVAILABLE_TOOLS.map((tool) => (
                   <div key={tool.name} className={toolItemStyles}>
                     <div className={toolNameStyles}>{tool.name}</div>
                     <div className={toolDescriptionStyles}>

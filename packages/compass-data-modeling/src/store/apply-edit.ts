@@ -5,7 +5,11 @@ import {
   type Relationship,
   type StaticModel,
 } from '../services/data-model-storage';
-import { updateSchema } from '../utils/schema-traversal';
+import {
+  bulkUpdateSchema,
+  getFieldFromSchema,
+  updateSchema,
+} from '../utils/schema-traversal';
 import {
   isRelationshipInvolvingField,
   isSameFieldOrAncestor,
@@ -58,10 +62,9 @@ export function applyEdit(edit: Edit, model?: StaticModel): StaticModel {
     case 'AddCollection': {
       const newCollection: DataModelCollection = {
         ns: edit.ns,
-        jsonSchema: edit.initialSchema,
+        fieldData: edit.initialSchema,
         displayPosition: edit.position,
         indexes: [],
-        isExpanded: DEFAULT_IS_EXPANDED,
       };
       return {
         ...model,
@@ -105,6 +108,24 @@ export function applyEdit(edit: Edit, model?: StaticModel): StaticModel {
             return {
               ...collection,
               displayPosition: edit.newPosition,
+            };
+          }
+          return collection;
+        }),
+      };
+    }
+    case 'MoveMultipleCollections': {
+      const movedCollections = new Set(Object.keys(edit.newPositions));
+      for (const ns of movedCollections) {
+        assertCollectionExists(model.collections, ns);
+      }
+      return {
+        ...model,
+        collections: model.collections.map((collection) => {
+          if (movedCollections.has(collection.ns)) {
+            return {
+              ...collection,
+              displayPosition: edit.newPositions[collection.ns],
             };
           }
           return collection;
@@ -178,8 +199,8 @@ export function applyEdit(edit: Edit, model?: StaticModel): StaticModel {
           if (collection.ns === edit.ns) {
             return {
               ...collection,
-              jsonSchema: updateSchema({
-                jsonSchema: collection.jsonSchema,
+              fieldData: updateSchema({
+                jsonSchema: collection.fieldData,
                 fieldPath: edit.field.slice(0, -1),
                 updateParameters: {
                   update: 'addField',
@@ -209,8 +230,8 @@ export function applyEdit(edit: Edit, model?: StaticModel): StaticModel {
           if (collection.ns !== edit.ns) return collection;
           return {
             ...collection,
-            jsonSchema: updateSchema({
-              jsonSchema: collection.jsonSchema,
+            fieldData: updateSchema({
+              jsonSchema: collection.fieldData,
               fieldPath: edit.field,
               updateParameters: { update: 'removeField' },
             }),
@@ -241,8 +262,8 @@ export function applyEdit(edit: Edit, model?: StaticModel): StaticModel {
           if (collection.ns !== edit.ns) return collection;
           return {
             ...collection,
-            jsonSchema: updateSchema({
-              jsonSchema: collection.jsonSchema,
+            fieldData: updateSchema({
+              jsonSchema: collection.fieldData,
               fieldPath: edit.field,
               updateParameters: {
                 update: 'renameField',
@@ -261,8 +282,8 @@ export function applyEdit(edit: Edit, model?: StaticModel): StaticModel {
           if (collection.ns !== edit.ns) return collection;
           return {
             ...collection,
-            jsonSchema: updateSchema({
-              jsonSchema: collection.jsonSchema,
+            fieldData: updateSchema({
+              jsonSchema: collection.fieldData,
               fieldPath: edit.field,
               updateParameters: {
                 update: 'changeFieldSchema',
@@ -274,6 +295,7 @@ export function applyEdit(edit: Edit, model?: StaticModel): StaticModel {
       };
     }
     case 'ToggleExpandCollection': {
+      assertCollectionExists(model.collections, edit.ns);
       return {
         ...model,
         collections: model.collections.map((collection) => {
@@ -282,7 +304,43 @@ export function applyEdit(edit: Edit, model?: StaticModel): StaticModel {
           }
           return {
             ...collection,
-            isExpanded: !collection.isExpanded,
+            fieldData: bulkUpdateSchema({
+              jsonSchema: collection.fieldData,
+              updateParameters: {
+                updateFn: ({ fieldSchema }) => ({
+                  ...fieldSchema,
+                  expanded: edit.expanded,
+                }),
+              },
+            }),
+          };
+        }),
+      };
+    }
+    case 'ToggleExpandField': {
+      assertCollectionExists(model.collections, edit.ns);
+      const fieldSchema = getFieldFromSchema({
+        jsonSchema: model.collections.find((c) => c.ns === edit.ns)!.fieldData,
+        fieldPath: edit.field,
+      })?.jsonSchema;
+      const isExpanded = fieldSchema?.expanded ?? DEFAULT_IS_EXPANDED;
+      return {
+        ...model,
+        collections: model.collections.map((collection) => {
+          if (collection.ns !== edit.ns) return collection;
+          return {
+            ...collection,
+            fieldData: updateSchema({
+              jsonSchema: collection.fieldData,
+              fieldPath: edit.field,
+              updateParameters: {
+                update: 'changeFieldSchema',
+                newFieldSchema: {
+                  ...fieldSchema,
+                  expanded: !isExpanded,
+                },
+              },
+            }),
           };
         }),
       };

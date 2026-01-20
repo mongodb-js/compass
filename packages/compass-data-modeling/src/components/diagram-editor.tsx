@@ -10,6 +10,7 @@ import type { DataModelingState } from '../store/reducer';
 import {
   addNewFieldToCollection,
   moveCollection,
+  moveMultipleCollections,
   onAddNestedField,
   selectCollection,
   selectRelationship,
@@ -25,6 +26,7 @@ import {
   renameField,
   changeFieldType,
   toggleCollectionExpanded,
+  toggleFieldExpanded,
 } from '../store/diagram';
 import type {
   EdgeProps,
@@ -164,6 +166,9 @@ const DiagramContent: React.FunctionComponent<{
     source: 'side_panel' | 'diagram'
   ) => void;
   onMoveCollection: (ns: string, newPosition: [number, number]) => void;
+  onMoveMultipleCollections: (
+    newPositions: Record<string, [number, number]>
+  ) => void;
   onCollectionSelect: (namespace: string) => void;
   onRelationshipSelect: (rId: string) => void;
   onFieldSelect: (namespace: string, fieldPath: FieldPath) => void;
@@ -198,7 +203,8 @@ const DiagramContent: React.FunctionComponent<{
   }) => void;
   onRelationshipDrawn: () => void;
   DiagramComponent?: typeof Diagram;
-  onToggleCollectionExpanded: (namespace: string) => void;
+  onToggleCollectionExpanded: (namespace: string, expanded: boolean) => void;
+  onToggleFieldExpanded: (namespace: string, fieldPath: FieldPath) => void;
 }> = ({
   diagramLabel,
   database,
@@ -209,6 +215,7 @@ const DiagramContent: React.FunctionComponent<{
   onAddFieldToObjectField,
   onAddNewFieldToCollection,
   onMoveCollection,
+  onMoveMultipleCollections,
   onCollectionSelect,
   onRelationshipSelect,
   onFieldSelect,
@@ -223,6 +230,7 @@ const DiagramContent: React.FunctionComponent<{
   selectedItems,
   DiagramComponent = Diagram,
   onToggleCollectionExpanded,
+  onToggleFieldExpanded,
 }) => {
   const isDarkMode = useDarkMode();
   const isCollapseFlagEnabled = usePreference('enableDataModelingCollapse');
@@ -264,7 +272,6 @@ const DiagramContent: React.FunctionComponent<{
         selected,
         isInRelationshipDrawingMode,
         relationships,
-        isExpanded: coll.isExpanded,
       });
     });
   }, [
@@ -382,10 +389,20 @@ const DiagramContent: React.FunctionComponent<{
   );
 
   const onNodeDragStop = useCallback(
-    (evt: React.MouseEvent, node: NodeProps) => {
-      onMoveCollection(node.id, [node.position.x, node.position.y]);
+    (evt: React.MouseEvent, node: NodeProps, nodes: NodeProps[]) => {
+      if (nodes.length === 1) {
+        onMoveCollection(node.id, [node.position.x, node.position.y]);
+      } else {
+        const newPositions = Object.fromEntries(
+          nodes.map((node): [string, [number, number]] => [
+            node.id,
+            [node.position.x, node.position.y],
+          ])
+        );
+        onMoveMultipleCollections(newPositions);
+      }
     },
-    [onMoveCollection]
+    [onMoveCollection, onMoveMultipleCollections]
   );
 
   const onPaneClick = useCallback(() => {
@@ -452,12 +469,21 @@ const DiagramContent: React.FunctionComponent<{
   );
 
   const handleNodeExpandedToggle = useCallback(
-    (evt: React.MouseEvent, nodeId: string) => {
+    (evt: React.MouseEvent, nodeId: string, expanded: boolean) => {
       evt.preventDefault();
       evt.stopPropagation();
-      onToggleCollectionExpanded(nodeId);
+      onToggleCollectionExpanded(nodeId, expanded);
     },
     [onToggleCollectionExpanded]
+  );
+
+  const handleFieldExpandedToggle = useCallback(
+    (evt: React.MouseEvent, nodeId: string, fieldPath: FieldPath) => {
+      evt.preventDefault();
+      evt.stopPropagation();
+      onToggleFieldExpanded(nodeId, fieldPath);
+    },
+    [onToggleFieldExpanded]
   );
 
   const diagramProps: DiagramProps = useMemo(
@@ -481,6 +507,9 @@ const DiagramContent: React.FunctionComponent<{
         onNodeExpandToggle: isCollapseFlagEnabled
           ? handleNodeExpandedToggle
           : undefined,
+        onFieldExpandToggle: isCollapseFlagEnabled
+          ? handleFieldExpandedToggle
+          : undefined,
         fieldTypes: FIELD_TYPES,
       } satisfies DiagramProps),
     [
@@ -499,6 +528,7 @@ const DiagramContent: React.FunctionComponent<{
       onNodeDragStop,
       onConnect,
       handleNodeExpandedToggle,
+      handleFieldExpandedToggle,
       isCollapseFlagEnabled,
     ]
   );
@@ -558,6 +588,7 @@ const ConnectedDiagramContent = connect(
     onAddNewFieldToCollection: addNewFieldToCollection,
     onAddFieldToObjectField: onAddNestedField,
     onMoveCollection: moveCollection,
+    onMoveMultipleCollections: moveMultipleCollections,
     onCollectionSelect: selectCollection,
     onRelationshipSelect: selectRelationship,
     onFieldSelect: selectField,
@@ -569,6 +600,7 @@ const ConnectedDiagramContent = connect(
     onDeleteRelationship: deleteRelationship,
     onDeleteField: removeField,
     onToggleCollectionExpanded: toggleCollectionExpanded,
+    onToggleFieldExpanded: toggleFieldExpanded,
   }
 )(DiagramContent);
 

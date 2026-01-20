@@ -1432,14 +1432,10 @@ export const SidebarDataModelingTab = `${Sidebar} [aria-label="Data Modeling"]`;
 export const ImportDataModelInput = '[data-testid="import-diagram-file-input"]';
 export const CreateNewDataModelButton = '[data-testid="create-diagram-button"]';
 export const CreateDataModelModal = '[data-testid="new-diagram-modal"]';
-export const CreateDataModelConfirmButton = `${CreateDataModelModal} [data-testid="new-diagram-confirm-button"]`;
+export const CreateDataModelConfirmButton = `${CreateDataModelModal} [data-testid="confirm-button"]`;
 export const CreateDataModelNameInput = `${CreateDataModelModal} [data-testid="new-diagram-name-input"]`;
 export const CreateDataModelConnectionSelector = `${CreateDataModelModal} [data-testid="new-diagram-connection-selector"]`;
 export const CreateDataModelDatabaseSelector = `${CreateDataModelModal} [data-testid="new-diagram-database-selector"]`;
-export const CreateDataModelCollectionCheckbox = (
-  collectionName: string
-): string =>
-  `${CreateDataModelModal} [data-testid="new-diagram-collection-checkbox-${collectionName}"]`;
 export const DataModelEditor = '[data-testid="diagram-editor-container"]';
 export const DataModelZoomOutButton = `${DataModelEditor} [aria-label="Minus Icon"]`;
 export const DataModelZoomInButton = `${DataModelEditor} [aria-label="Plus Icon"]`;
@@ -1474,7 +1470,16 @@ export const DataModelsListItemActions = (diagramName: string) =>
   `${DataModelsListItem(diagramName)} [aria-label="Show actions"]`;
 export const DataModelsListItemDeleteButton = `[data-action="delete"]`;
 export const DataModelAddRelationshipBtn = 'aria/Add Relationship';
-export const DataModelAddCollectionBtn = 'aria/Add Collection';
+export const DataModelAddCollectionMenuBtn = 'aria/Add Collection';
+export const DataModelAddCollectionMenu = '[data-testid="add-collection-menu"]';
+export const DataModelAddEmptyCollectionOption =
+  '[data-testid="add-collection-menu"] [data-testid="add-new-collection"]';
+export const DataModelSelectFromDatabaseOption =
+  '[data-testid="add-collection-menu"] [data-testid="select-from-database"]';
+export const DataModelSelectCollectionItem = (name: string) =>
+  `[data-testid="select-list-item-${name}"] label`;
+export const DataModelReselectCollectionsModal = `[data-testid="reselect-collections-modal"]`;
+export const DataModelReselectCollectionsModalConfirmButton = `${DataModelReselectCollectionsModal} [data-testid="confirm-button"]`;
 export const DataModelNameInputLabel = '//label[text()="Name"]';
 export const DataModelFieldNameInputLabel = '//label[text()="Field name"]';
 export const DataModelNameInput =
@@ -1504,6 +1509,12 @@ export const DataModelAddFieldBtn = '[aria-label="Add Field"]';
 export const DataModelDiagramField = (fieldName: string) =>
   `//*[text()="${fieldName}"]`;
 export const DataModelDiagramFieldInput = 'input[title="Edit field name"]';
+export const DataModelCollapseAllButton = 'button[aria-label="Collapse all"]';
+export const DataModelExpandAllButton = 'button[aria-label="Expand all"]';
+export const DataModelCollapseFieldButton = (
+  collection: string,
+  fieldName: string
+) => `[data-testid="field-expand-toggle-${collection}-${fieldName}"]`;
 
 // Side drawer
 export const SideDrawer = `[data-testid="${getDrawerIds().root}"]`;

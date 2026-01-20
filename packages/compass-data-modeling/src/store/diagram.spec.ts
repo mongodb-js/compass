@@ -31,16 +31,14 @@ const model: StaticModel = {
       indexes: [],
       displayPosition: [0, 0],
       shardKey: {},
-      jsonSchema: { bsonType: 'object' },
-      isExpanded: true,
+      fieldData: { bsonType: 'object' },
     },
     {
       ns: 'db.collection2',
       indexes: [],
       displayPosition: [1, 1],
       shardKey: {},
-      jsonSchema: { bsonType: 'object' },
-      isExpanded: true,
+      fieldData: { bsonType: 'object' },
     },
   ],
   relationships: [
@@ -92,15 +90,13 @@ describe('Data Modeling store', function () {
         collections: [
           {
             ns: 'db.collection1',
-            schema: model.collections[0].jsonSchema,
+            schema: model.collections[0].fieldData,
             position: { x: 0, y: 0 },
-            isExpanded: true,
           },
           {
             ns: 'db.collection2',
-            schema: model.collections[1].jsonSchema,
+            schema: model.collections[1].fieldData,
             position: { x: 0, y: 0 },
-            isExpanded: true,
           },
         ],
         relations: model.relationships,
@@ -123,12 +119,12 @@ describe('Data Modeling store', function () {
       >;
       expect(initialEdit.model.collections[0]).to.deep.include({
         ns: newDiagram.collections[0].ns,
-        jsonSchema: newDiagram.collections[0].schema,
+        fieldData: newDiagram.collections[0].schema,
         displayPosition: [0, 0],
       });
       expect(initialEdit.model.collections[1]).to.deep.include({
         ns: newDiagram.collections[1].ns,
-        jsonSchema: newDiagram.collections[1].schema,
+        fieldData: newDiagram.collections[1].schema,
         displayPosition: [0, 0],
       });
       expect(initialEdit.model.relationships).to.deep.equal(
@@ -163,8 +159,7 @@ describe('Data Modeling store', function () {
               indexes: [],
               displayPosition: [0, 0],
               shardKey: {},
-              jsonSchema: { bsonType: 'object' },
-              isExpanded: true,
+              fieldData: { bsonType: 'object' },
             },
           ] as StaticModel['collections'],
           relationships: [] as StaticModel['relationships'],
@@ -380,6 +375,45 @@ describe('Data Modeling store', function () {
       ]);
     });
 
+    it('should apply a valid MoveMultipleCollections edit', function () {
+      store.dispatch(openDiagram(loadedDiagram));
+
+      const newPosition0 = [
+        model.collections[0].displayPosition[0] + 20,
+        100,
+      ] as [number, number];
+      const newPosition1 = [
+        model.collections[1].displayPosition[0] + 20,
+        200,
+      ] as [number, number];
+      const edit: Omit<
+        Extract<Edit, { type: 'MoveMultipleCollections' }>,
+        'id' | 'timestamp'
+      > = {
+        type: 'MoveMultipleCollections',
+        newPositions: {
+          [model.collections[0].ns]: newPosition0,
+          [model.collections[1].ns]: newPosition1,
+        },
+      };
+      store.dispatch(applyEdit(edit));
+
+      const state = store.getState();
+      const diagram = getCurrentDiagramFromState(state);
+      expect(openToastSpy).not.to.have.been.called;
+      expect(diagram.edits).to.have.length(2);
+      expect(diagram.edits[0]).to.deep.equal(loadedDiagram.edits[0]);
+      expect(diagram.edits[1]).to.deep.include(edit);
+
+      const currentModel = getCurrentModel(diagram.edits);
+      expect(currentModel.collections[0].displayPosition).to.deep.equal(
+        newPosition0
+      );
+      expect(currentModel.collections[1].displayPosition).to.deep.equal(
+        newPosition1
+      );
+    });
+
     it('should not apply invalid MoveCollection edit', function () {
       store.dispatch(openDiagram(loadedDiagram));
 
@@ -407,35 +441,69 @@ describe('Data Modeling store', function () {
     });
   });
 
-  it('undo & redo', function () {
-    store.dispatch(openDiagram(loadedDiagram));
+  describe('Undo/Redo', function () {
+    it('Edit -> Undo -> Redo', function () {
+      store.dispatch(openDiagram(loadedDiagram));
 
-    const edit = {
-      type: 'SetModel',
-      model: {
-        ...model,
-        relationships: [] as StaticModel['relationships'],
-      },
-    } as Edit;
-    store.dispatch(applyEdit(edit));
+      const edit = {
+        type: 'SetModel',
+        model: {
+          ...model,
+          relationships: [] as StaticModel['relationships'],
+        },
+      } as Edit;
+      store.dispatch(applyEdit(edit));
 
-    const diagramAfterEdit = getCurrentDiagramFromState(store.getState());
-    expect(diagramAfterEdit.edits).to.have.length(2);
-    expect(diagramAfterEdit.edits[0]).to.deep.include(loadedDiagram.edits[0]);
-    expect(diagramAfterEdit.edits[1]).to.deep.include(edit);
+      const diagramAfterEdit = getCurrentDiagramFromState(store.getState());
+      expect(diagramAfterEdit.edits).to.have.length(2);
+      expect(diagramAfterEdit.edits[0]).to.deep.include(loadedDiagram.edits[0]);
+      expect(diagramAfterEdit.edits[1]).to.deep.include(edit);
 
-    store.dispatch(undoEdit());
+      store.dispatch(undoEdit());
 
-    const diagramAfterUndo = getCurrentDiagramFromState(store.getState());
-    expect(diagramAfterUndo.edits).to.have.length(1);
-    expect(diagramAfterUndo.edits[0]).to.deep.include(loadedDiagram.edits[0]);
+      const diagramAfterUndo = getCurrentDiagramFromState(store.getState());
+      expect(diagramAfterUndo.edits).to.have.length(1);
+      expect(diagramAfterUndo.edits[0]).to.deep.include(loadedDiagram.edits[0]);
 
-    store.dispatch(redoEdit());
+      store.dispatch(redoEdit());
 
-    const diagramAfterRedo = getCurrentDiagramFromState(store.getState());
-    expect(diagramAfterRedo.edits).to.have.length(2);
-    expect(diagramAfterRedo.edits[0]).to.deep.include(loadedDiagram.edits[0]);
-    expect(diagramAfterRedo.edits[1]).to.deep.include(edit);
+      const diagramAfterRedo = getCurrentDiagramFromState(store.getState());
+      expect(diagramAfterRedo.edits).to.have.length(2);
+      expect(diagramAfterRedo.edits[0]).to.deep.include(loadedDiagram.edits[0]);
+      expect(diagramAfterRedo.edits[1]).to.deep.include(edit);
+    });
+
+    it('Open diagram -> Undo -> Redo', function () {
+      const undoableEdit: Edit = {
+        type: 'RemoveCollection',
+        ns: 'db.collection1',
+        id: new UUID().toString(),
+        timestamp: new Date().toISOString(),
+      };
+      const diagramWithUndoableEdit: MongoDBDataModelDescription = {
+        ...loadedDiagram,
+        edits: [...loadedDiagram.edits, undoableEdit],
+      };
+      store.dispatch(openDiagram(diagramWithUndoableEdit));
+
+      const diagramAfterEdit = getCurrentDiagramFromState(store.getState());
+      expect(diagramAfterEdit.edits).to.have.length(2);
+      expect(diagramAfterEdit.edits[0]).to.deep.include(loadedDiagram.edits[0]);
+      expect(diagramAfterEdit.edits[1]).to.deep.include(undoableEdit);
+
+      store.dispatch(undoEdit());
+
+      const diagramAfterUndo = getCurrentDiagramFromState(store.getState());
+      expect(diagramAfterUndo.edits).to.have.length(1);
+      expect(diagramAfterUndo.edits[0]).to.deep.include(loadedDiagram.edits[0]);
+
+      store.dispatch(redoEdit());
+
+      const diagramAfterRedo = getCurrentDiagramFromState(store.getState());
+      expect(diagramAfterRedo.edits).to.have.length(2);
+      expect(diagramAfterRedo.edits[0]).to.deep.include(loadedDiagram.edits[0]);
+      expect(diagramAfterRedo.edits[1]).to.deep.include(undoableEdit);
+    });
   });
 
   describe('selectFieldsForCurrentModel', function () {
@@ -452,7 +520,7 @@ describe('Data Modeling store', function () {
                 indexes: [],
                 displayPosition: [0, 0],
                 shardKey: {},
-                jsonSchema: {
+                fieldData: {
                   bsonType: 'object',
                   properties: {
                     field1: { bsonType: 'string' },
@@ -460,7 +528,6 @@ describe('Data Modeling store', function () {
                     field3: { bsonType: 'int' },
                   },
                 },
-                isExpanded: true,
               },
             ],
             relationships: [],
@@ -487,8 +554,7 @@ describe('Data Modeling store', function () {
                 indexes: [],
                 displayPosition: [0, 0],
                 shardKey: {},
-                isExpanded: true,
-                jsonSchema: {
+                fieldData: {
                   bsonType: 'object',
                   properties: {
                     prop1: { bsonType: 'string' },

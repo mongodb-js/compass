@@ -6,7 +6,7 @@
 > the tracking plan for the specific Compass version you can use the following
 > URL: `https://github.com/mongodb-js/compass/blob/<compass version>/docs/tracking-plan.md`
 
-Generated on Thu, Jan 8, 2026
+Generated on Tue, Jan 20, 2026
 
 ## Table of Contents
 
@@ -88,6 +88,8 @@ Generated on Thu, Jan 8, 2026
 - [Data Modeling Collection Removed](#event--DataModelingDiagramCollectionRemoved)
 - [Data Modeling Collection Renamed](#event--DataModelingDiagramCollectionRenamed)
 - [Data Modeling Diagram Created](#event--DataModelingDiagramCreated)
+- [Data Modeling Diagram Creation Cancelled](#event--DataModelingDiagramCreationCancelled)
+- [Data Modeling Diagram Creation Failed](#event--DataModelingDiagramCreationFailed)
 - [Data Modeling Diagram Exported](#event--DataModelingDiagramExported)
 - [Data Modeling Field Added](#event--DataModelingDiagramFieldAdded)
 - [Data Modeling Field Removed](#event--DataModelingDiagramFieldRemoved)
@@ -1100,6 +1102,31 @@ This event is fired when a new data modeling diagram is created
 
 - **num_collections** (required): `number`
 - **num_relations_inferred** (optional): `number | undefined`
+- **analysis_time_ms** (required): `number`
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--DataModelingDiagramCreationCancelled"></a>
+
+### Data Modeling Diagram Creation Cancelled
+
+This event is fired when a new data modeling diagram creation is cancelled
+
+**Properties**:
+
+- **num_collections** (required): `number`
+- **analysis_time_ms** (required): `number`
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--DataModelingDiagramCreationFailed"></a>
+
+### Data Modeling Diagram Creation Failed
+
+This event is fired when a new data modeling diagram creation has failed
+
+**Properties**:
+
+- **num_collections** (required): `number`
+- **analysis_time_ms** (required): `number`
 - **is_compass_web** (optional): `true | undefined`
 
 <a name="event--DataModelingDiagramExported"></a>
@@ -2279,6 +2306,7 @@ This event is fired when a user clicks on the Performance Advisor CTA.
 
 **Properties**:
 
+- **type** (required): `string`
 - **approved** (required): `boolean`
 - **approval_id** (required): `string`
 - **is_compass_web** (optional): `true | undefined`

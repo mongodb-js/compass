@@ -44,12 +44,6 @@ You are able to:
 1. Answer technical questions
 </abilities>
 
-<inabilities>
-You CANNOT:
-
-1. Access user database information, such as collection schemas, etc UNLESS this information is explicitly provided to you in the prompt.
-2. Query MongoDB directly or execute code.
-</inabilities>
 `;
 };
 
@@ -236,8 +230,8 @@ export function buildContextPrompt({
   activeCollectionMetadata,
   activeCollectionSubTab,
   enableToolCalling = false,
-}: // TODO: enable database tool calling
-{
+  enableGenAIToolCalling = false,
+}: {
   activeWorkspace: WorkspaceTab | null;
   activeConnection: Pick<ConnectionInfo, 'connectionOptions'> | null;
   activeCollectionMetadata: Pick<
@@ -253,6 +247,7 @@ export function buildContextPrompt({
   > | null;
   activeCollectionSubTab: CollectionSubtab | null;
   enableToolCalling?: boolean;
+  enableGenAIToolCalling?: boolean;
 }): AssistantMessage {
   const parts: string[] = [];
 
@@ -325,27 +320,45 @@ export function buildContextPrompt({
   }
 
   if (enableToolCalling) {
-    // TODO: we'll probably want separate lines for get-compass-context and
-    // readonly database tools. (Also modify <inabilities> above)
-    if (activeWorkspace && hasNamespace(activeWorkspace)) {
-      if (activeCollectionSubTab === 'Documents') {
-        parts.push(
-          'Use the "get-compass-context" tool to get the current query from the query bar.'
-        );
-      } else if (activeCollectionSubTab === 'Aggregations') {
-        parts.push(
-          'Use the "get-compass-context" tool to get the current aggregation pipeline from the aggregation builder.'
-        );
-      }
+    let abilityNum = 1;
+    const abilities = [];
+    abilities.push('<abilities>');
+    abilities.push('You CAN:');
+    if (enableGenAIToolCalling) {
+      abilities.push(
+        `${abilityNum++}. Access user database information, such as collection schemas, etc.`
+      );
+      abilities.push(`${abilityNum++}. Query MongoDB directly.`);
     }
+    abilities.push(
+      `${abilityNum++}. Access the user's current query or aggregation pipeline.`
+    );
+    abilities.push('</abilities>');
+
+    parts.push(abilities.join('\n'));
   }
 
-  if (!enableToolCalling) {
-    // TODO: we'll probably want separate lines for get-compass-context and
-    // readonly database tools. (Also modify <inabilities> above)
-    parts.push(
-      "You cannot access the user's current query or aggregation pipeline."
-    );
+  if (!enableToolCalling || !enableGenAIToolCalling) {
+    let inabilityNum = 1;
+    const inabilities = [];
+    inabilities.push('<inabilities>');
+    inabilities.push('You CANNOT:');
+    if (!enableGenAIToolCalling) {
+      inabilities.push(
+        `${inabilityNum++}. Access user database information, such as collection schemas, etc UNLESS this information is explicitly provided to you in the prompt.`
+      );
+      inabilities.push(
+        `${inabilityNum++}. Query MongoDB directly or execute code.`
+      );
+    }
+    if (!enableToolCalling) {
+      inabilities.push(
+        `${inabilityNum++}. Access the user's current query or aggregation pipeline.`
+      );
+    }
+    inabilities.push('</inabilities>');
+
+    parts.push(inabilities.join('\n'));
   }
 
   const text = parts.join('\n\n');
@@ -367,11 +380,12 @@ export function buildContextPrompt({
   return prompt;
 }
 
-function hasNamespace(obj: unknown): obj is { namespace: string } {
-  return (
-    typeof obj === 'object' &&
-    obj !== null &&
-    'namespace' in obj &&
-    typeof (obj as any).namespace === 'string'
-  );
+function hasNamespace(
+  workspaceTab: WorkspaceTab | null
+): workspaceTab is WorkspaceTab & { namespace: string } {
+  if (!workspaceTab) {
+    return false;
+  }
+
+  return !!(workspaceTab as WorkspaceTab & { namespace?: string }).namespace;
 }
