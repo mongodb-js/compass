@@ -860,7 +860,7 @@ describe('Data Modeling tab', function () {
       expect(nodesPostDelete[0].id).to.equal('test.renamedOne');
     });
 
-    it('adding a new collection from the toolbar', async function () {
+    it('adding a new empty collection from the toolbar', async function () {
       const dataModelName = 'Test Edit New Collection';
       await setupDiagram(browser, {
         diagramName: dataModelName,
@@ -872,7 +872,11 @@ describe('Data Modeling tab', function () {
       await dataModelEditor.waitForDisplayed();
 
       // Click on the add collection button.
-      await browser.clickVisible(Selectors.DataModelAddCollectionBtn);
+      await browser.clickVisible(Selectors.DataModelAddCollectionMenuBtn);
+      const actionsMenu = browser.$(Selectors.DataModelAddCollectionMenu);
+      await actionsMenu.waitForDisplayed();
+
+      await browser.clickVisible(Selectors.DataModelAddEmptyCollectionOption);
 
       // Verify that the new collection is added to the diagram.
       const nodes = await getDiagramNodes(browser, 3);
@@ -906,6 +910,83 @@ describe('Data Modeling tab', function () {
       await getDiagramNodes(browser, 2);
       await browser.keys([Key.Command, Key.Shift, 'z']);
       await getDiagramNodes(browser, 3);
+      await browser.keys([Key.Command, 'z']);
+      await getDiagramNodes(browser, 2);
+    });
+
+    it('adding a new database collection from the toolbar', async function () {
+      const dataModelName = 'Test Edit New Database Collection';
+      await setupDiagram(browser, {
+        diagramName: dataModelName,
+        connectionName: DEFAULT_CONNECTION_NAME_1,
+        databaseName: 'test',
+      });
+
+      const dataModelEditor = browser.$(Selectors.DataModelEditor);
+      await dataModelEditor.waitForDisplayed();
+
+      // Add more collections
+      const collections = ['testCollection-three', 'testCollection-four'];
+      await Promise.all(
+        collections.map((coll) => createNumbersStringCollection(coll))
+      );
+
+      // Click on the add collection button.
+      await browser.clickVisible(Selectors.DataModelAddCollectionMenuBtn);
+      const actionsMenu = browser.$(Selectors.DataModelAddCollectionMenu);
+      await actionsMenu.waitForDisplayed();
+
+      await browser.clickVisible(Selectors.DataModelSelectFromDatabaseOption);
+
+      // Wait for modal to show up
+      await browser
+        .$(Selectors.DataModelReselectCollectionsModal)
+        .waitForDisplayed();
+
+      // Click on the connect button and wait for collections to show up
+      await browser
+        .$(Selectors.DataModelReselectCollectionsModalConfirmButton)
+        .click();
+
+      // Verify that user is able to see new collections in the list
+      // Since the list is scrollable, we need to ensure that the item is in view
+      // before we try to click on it.
+      for (const coll of collections) {
+        const collItem = Selectors.DataModelSelectCollectionItem(coll);
+        await browser.$(collItem).scrollIntoView();
+        await browser.$(collItem).waitForClickable();
+        await browser.$(collItem).click();
+      }
+
+      // Confirm adding the selected collections
+      await browser.clickVisible(
+        Selectors.DataModelReselectCollectionsModalConfirmButton
+      );
+
+      // Wait for the diagram editor to load
+      await browser.$(Selectors.DataModelEditor).waitForDisplayed();
+
+      // Close the info banner to get it out of the way
+      const infoBannerCloseBtn = browser.$(
+        Selectors.DataModelInfoBannerCloseBtn
+      );
+      await infoBannerCloseBtn.waitForClickable();
+      await browser.clickVisible(Selectors.DataModelInfoBannerCloseBtn);
+
+      // Verify that the new collection is added to the diagram.
+      const nodes = await getDiagramNodes(browser, 4);
+      const nodeIds = nodes.map((n) => n.id);
+      expect(nodeIds).to.include.members([
+        'test.testCollection-three',
+        'test.testCollection-four',
+      ]);
+
+      // Repeatedly Redo + Undo through keyboard shortcuts
+      // Two collections were added at once, so count changes by 2
+      await browser.keys([Key.Control, 'z']);
+      await getDiagramNodes(browser, 2); // I
+      await browser.keys([Key.Command, Key.Shift, 'z']);
+      await getDiagramNodes(browser, 4);
       await browser.keys([Key.Command, 'z']);
       await getDiagramNodes(browser, 2);
     });

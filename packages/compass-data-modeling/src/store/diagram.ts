@@ -31,10 +31,12 @@ import { collectionToBaseNodeForLayout } from '../utils/nodes-and-edges';
 import {
   getFieldFromSchema,
   getSchemaWithNewTypes,
-  traverseSchema,
 } from '../utils/schema-traversal';
 import { applyEdit as _applyEdit } from './apply-edit';
-import { getNewUnusedFieldName } from '../utils/schema';
+import {
+  extractFieldsFromFieldData,
+  getNewUnusedFieldName,
+} from '../utils/schema';
 
 function isNonEmptyArray<T>(arr: T[]): arr is [T, ...T[]] {
   return Array.isArray(arr) && arr.length > 0;
@@ -982,6 +984,17 @@ export function addCollection(
   };
 }
 
+export function applySetModelEdit(
+  model: Extract<Edit, { type: 'SetModel' }>['model']
+): DataModelingThunkAction<void, ApplyEditAction> {
+  const edit: Omit<Extract<Edit, { type: 'SetModel' }>, 'id' | 'timestamp'> = {
+    type: 'SetModel',
+    model,
+  };
+
+  return applyEdit(edit);
+}
+
 /**
  * @internal Exported for testing purposes only, use `selectCurrentModel` or
  * `selectCurrentModelFromState` instead
@@ -1046,17 +1059,6 @@ export const selectCurrentModel = memoize(getCurrentModel);
 export const selectCurrentModelFromState = (state: DataModelingState) => {
   return selectCurrentModel(selectCurrentDiagramFromState(state).edits);
 };
-
-function extractFieldsFromFieldData(parentSchema: FieldData): FieldPath[] {
-  const fields: FieldPath[] = [];
-  traverseSchema({
-    jsonSchema: parentSchema,
-    visitor: ({ fieldPath }) => {
-      fields.push(fieldPath);
-    },
-  });
-  return fields;
-}
 
 function getFieldsForCurrentModel(
   edits: MongoDBDataModelDescription['edits']
