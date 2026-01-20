@@ -25,7 +25,6 @@ import {
 import {
   CompassComponentsProvider,
   css,
-  useCurrentValueRef,
   useInitialValue,
 } from '@mongodb-js/compass-components';
 import {
@@ -74,9 +73,8 @@ import {
 import CompassConnections from '@mongodb-js/compass-connections';
 import { AtlasCloudConnectionStorageProvider } from './connection-storage';
 import { AtlasCloudAuthServiceProvider } from './atlas-auth-service';
-import type { DebugFunction, LogFunction } from './logger';
-import { useCompassWebLogger } from './logger';
-import { type TelemetryServiceOptions } from '@mongodb-js/compass-telemetry';
+import type { TrackFunction, DebugFunction, LogFunction } from './logger';
+import { useCompassWebLoggerAndTelemetry } from './logger';
 import { WebWorkspaceTab as WelcomeWorkspaceTab } from '@mongodb-js/compass-welcome';
 import { WorkspaceTab as MyQueriesWorkspace } from '@mongodb-js/compass-saved-aggregations-queries';
 import { useCompassWebPreferences } from './preferences';
@@ -100,12 +98,6 @@ import { CompassAssistantProvider } from '@mongodb-js/compass-assistant';
 import { CompassAssistantDrawerWithConnections } from './compass-assistant-drawer';
 import { APP_NAMES_FOR_PROMPT } from '@mongodb-js/compass-assistant';
 import { assertsUserDataType } from '@mongodb-js/compass-user-data';
-
-/** @public */
-export type TrackFunction = (
-  event: string,
-  properties: Record<string, any>
-) => void;
 
 const WithAtlasProviders: React.FC<{ children: React.ReactNode }> = ({
   children,
@@ -509,14 +501,18 @@ const CompassWeb = ({
   onBeforeUnloadCallbackRequest,
 }: CompassWebProps) => {
   const appRegistry = useInitialValue(new AppRegistry());
-  const logger = useCompassWebLogger({
-    onLog,
-    onDebug,
-  });
   const preferencesAccess = useCompassWebPreferences(
     initialPreferences,
     atlasCloudFeatureFlags
   );
+  const { logger, telemetry: telemetryOptions } =
+    useCompassWebLoggerAndTelemetry({
+      onLog,
+      onDebug,
+      onTrack,
+      preferences: preferencesAccess,
+    });
+
   // TODO (COMPASS-9565): My Queries feature flag will be used to conditionally provide storage providers
   const initialWorkspace = useInitialValue(_initialWorkspace);
   const initialWorkspaceTabs = useInitialValue(() =>
@@ -528,20 +524,10 @@ const CompassWeb = ({
       ? initialWorkspace.connectionId
       : initialAutoconnectId ?? undefined;
 
-  const onTrackRef = useCurrentValueRef(onTrack);
-
-  const telemetryOptions = useInitialValue<TelemetryServiceOptions>({
-    sendTrack: (event: string, properties: Record<string, any> | undefined) => {
-      void onTrackRef.current?.(event, properties || {});
-    },
-    logger,
-    preferences: preferencesAccess.current,
-  });
-
   return (
     <GlobalAppRegistryProvider value={appRegistry}>
       <AppRegistryProvider scopeName="Compass Web Root">
-        <PreferencesProvider value={preferencesAccess.current}>
+        <PreferencesProvider value={preferencesAccess}>
           <LoggerProvider value={logger}>
             <TelemetryProvider options={telemetryOptions}>
               <CompassComponentsProviderWeb darkMode={darkMode}>

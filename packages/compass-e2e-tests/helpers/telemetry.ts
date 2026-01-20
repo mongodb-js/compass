@@ -37,8 +37,13 @@ function startFakeTelemetry(): Promise<Telemetry> {
     },
     pollForEvents: async (browser: CompassBrowser): Promise<void> => {
       tracking = await browser.execute(function () {
-        // eslint-disable-next-line no-restricted-globals
-        return 'tracking' in window && (window.tracking as any);
+        const kSandboxLoggingAndTelemetryAccess = Symbol.for(
+          '@compass-web-sandbox-logging-and-telemetry-access'
+        );
+        return (
+          kSandboxLoggingAndTelemetryAccess in window &&
+          (window as any)[kSandboxLoggingAndTelemetryAccess].tracking
+        );
       });
 
       neverFetched = false;

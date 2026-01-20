@@ -1,14 +1,14 @@
 import createDebug from 'debug';
-import type { LogMessage } from '../src/logger';
+import { compassWebLoggingAndTrackingEvents } from '../src/logger';
 
-const logging: LogMessage[] = ((globalThis as any).logging = []);
+compassWebLoggingAndTrackingEvents.logging = [];
+compassWebLoggingAndTrackingEvents.tracking = [];
 
-const debug = createDebug(`mongodb-compass:compass-web-sandbox`);
+const kSandboxLoggingAndTelemetryAccess = Symbol.for(
+  '@compass-web-sandbox-logging-and-telemetry-access'
+);
 
-export const sandboxLogger = {
-  log: (event: any) => {
-    logging.push(event);
-  },
+(globalThis as any)[kSandboxLoggingAndTelemetryAccess] =
+  compassWebLoggingAndTrackingEvents;
 
-  debug,
-};
+export const debug = createDebug(`mongodb-compass:compass-web-sandbox`);
