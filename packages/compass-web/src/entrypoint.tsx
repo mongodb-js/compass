@@ -73,8 +73,12 @@ import {
 import CompassConnections from '@mongodb-js/compass-connections';
 import { AtlasCloudConnectionStorageProvider } from './connection-storage';
 import { AtlasCloudAuthServiceProvider } from './atlas-auth-service';
-import type { TrackFunction, DebugFunction, LogFunction } from './logger';
-import { useCompassWebLoggerAndTelemetry } from './logger';
+import type {
+  TrackFunction,
+  DebugFunction,
+  LogFunction,
+} from './logger-and-telemetry';
+import { useCompassWebLoggerAndTelemetry } from './logger-and-telemetry';
 import { WebWorkspaceTab as WelcomeWorkspaceTab } from '@mongodb-js/compass-welcome';
 import { WorkspaceTab as MyQueriesWorkspace } from '@mongodb-js/compass-saved-aggregations-queries';
 import { useCompassWebPreferences } from './preferences';

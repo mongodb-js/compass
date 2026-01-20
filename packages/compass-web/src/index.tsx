@@ -21,4 +21,4 @@ export type {
   LogMessage,
   DebugFunction,
   TrackFunction,
-} from './logger';
+} from './logger-and-telemetry';

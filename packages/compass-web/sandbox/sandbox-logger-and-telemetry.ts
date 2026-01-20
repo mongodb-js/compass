@@ -1,5 +1,5 @@
 import createDebug from 'debug';
-import { compassWebLoggingAndTrackingEvents } from '../src/logger';
+import { compassWebLoggingAndTrackingEvents } from '../src/logger-and-telemetry';
 
 compassWebLoggingAndTrackingEvents.logging = [];
 compassWebLoggingAndTrackingEvents.tracking = [];

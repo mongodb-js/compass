@@ -11,7 +11,7 @@ import { SandboxConnectionStorageProvider } from '../src/connection-storage';
 import { useAtlasProxySignIn } from './sandbox-atlas-sign-in';
 import { sandboxConnectionStorage } from './sandbox-connection-storage';
 import { useWorkspaceTabRouter } from './sandbox-workspace-tab-router';
-import { debug } from './sandbox-logger';
+import { debug } from './sandbox-logger-and-telemetry';
 import './sandbox-preferences';
 import './sandbox-process';
 
