@@ -12,91 +12,91 @@ import { getAtlasCloudSandboxDefaultConnections } from './compass-web-sandbox';
 const debug = Debug('compass-e2e-tests:context');
 
 function buildCommonArgs(yargs: Argv) {
-  return yargs
-    .option('disable-start-stop', {
-      type: 'boolean',
-      description:
-        'Disables automatically starting (and stopping) default local test mongodb servers and compass-web sandbox',
-    })
-    .option('test-groups', {
-      type: 'number',
-      description:
-        'Run tests in batches. Sets the total number of test groups to have',
-      default: 1,
-    })
-    .option('test-group', {
-      type: 'number',
-      description:
-        'Run tests in batches. Sets the current test group from the total number',
-      default: 1,
-    })
-    .option('test-filter', {
-      type: 'string',
-      description: 'Filter the spec files picked up for testing',
-      default: '*',
-    })
-    .option('webdriver-waitfor-timeout', {
-      type: 'number',
-      description: 'Set a custom default webdriver waitFor timeout',
-      default: 1000 * 60 * 2, // 2min, webdriver default is 3s
-    })
-    .option('webdriver-waitfor-interval', {
-      type: 'number',
-      description: 'Set a custom default webdriver waitFor interval',
-      default: 100, // webdriver default is 500ms
-    })
-    .option('mocha-timeout', {
-      type: 'number',
-      description: 'Set a custom default mocha timeout',
-      // 4min, kinda arbitrary, but longer than webdriver-waitfor-timeout so the
-      // test can fail before Mocha times out
-      default: 1000 * 60 * 4,
-    })
-    .option('mocha-bail', {
-      type: 'boolean',
-      description: 'Bail on the first failing test instead of continuing',
-    })
-    .option('hadron-distribution', {
-      type: 'string',
-      description:
-        'Configure hadron distribution that will be used when packaging compass for tests (has no effect when testing packaged app)',
-      default: 'compass',
-    })
-    .option('disable-clipboard-usage', {
-      type: 'boolean',
-      description: 'Disable tests that are relying on clipboard',
-      default: false,
-    });
-}
-
-function buildDesktopArgs(yargs: Argv) {
   return (
     yargs
-      .option('test-packaged-app', {
-        type: 'boolean',
-        description:
-          'Test a packaged binary instead of running compiled assets directly with electron binary',
-        default: false,
-      })
       // Skip this step if you are running tests consecutively and don't need to
-      // rebuild modules all the time. Also no need to ever recompile when testing
-      // compass-web.
+      // rebuild modules all the time. Also no need to ever recompile when
+      // testing compass-web.
       .option('compile', {
         type: 'boolean',
         description:
           'When not testing a packaged app, re-compile assets before running tests',
         default: true,
       })
-      .option('native-modules', {
+      .option('disable-start-stop', {
         type: 'boolean',
-        describe:
-          'When not testing a packaaged app, re-compile native modules before running tests',
-        default: true,
+        description:
+          'Disables automatically starting (and stopping) default local test mongodb servers and compass-web sandbox',
       })
-      .epilogue(
-        'All command line arguments can be also provided as env vars with `COMPASS_E2E_` prefix:\n\n  COMPASS_E2E_TEST_PACKAGED_APP=true compass-e2e-tests desktop'
-      )
+      .option('test-groups', {
+        type: 'number',
+        description:
+          'Run tests in batches. Sets the total number of test groups to have',
+        default: 1,
+      })
+      .option('test-group', {
+        type: 'number',
+        description:
+          'Run tests in batches. Sets the current test group from the total number',
+        default: 1,
+      })
+      .option('test-filter', {
+        type: 'string',
+        description: 'Filter the spec files picked up for testing',
+        default: '*',
+      })
+      .option('webdriver-waitfor-timeout', {
+        type: 'number',
+        description: 'Set a custom default webdriver waitFor timeout',
+        default: 1000 * 60 * 2, // 2min, webdriver default is 3s
+      })
+      .option('webdriver-waitfor-interval', {
+        type: 'number',
+        description: 'Set a custom default webdriver waitFor interval',
+        default: 100, // webdriver default is 500ms
+      })
+      .option('mocha-timeout', {
+        type: 'number',
+        description: 'Set a custom default mocha timeout',
+        // 4min, kinda arbitrary, but longer than webdriver-waitfor-timeout so the
+        // test can fail before Mocha times out
+        default: 1000 * 60 * 4,
+      })
+      .option('mocha-bail', {
+        type: 'boolean',
+        description: 'Bail on the first failing test instead of continuing',
+      })
+      .option('hadron-distribution', {
+        type: 'string',
+        description:
+          'Configure hadron distribution that will be used when packaging compass for tests (has no effect when testing packaged app)',
+        default: 'compass',
+      })
+      .option('disable-clipboard-usage', {
+        type: 'boolean',
+        description: 'Disable tests that are relying on clipboard',
+        default: false,
+      })
   );
+}
+
+function buildDesktopArgs(yargs: Argv) {
+  return yargs
+    .option('test-packaged-app', {
+      type: 'boolean',
+      description:
+        'Test a packaged binary instead of running compiled assets directly with electron binary',
+      default: false,
+    })
+    .option('native-modules', {
+      type: 'boolean',
+      describe:
+        'When not testing a packaaged app, re-compile native modules before running tests',
+      default: true,
+    })
+    .epilogue(
+      'All command line arguments can be also provided as env vars with `COMPASS_E2E_` prefix:\n\n  COMPASS_E2E_TEST_PACKAGED_APP=true compass-e2e-tests desktop'
+    );
 }
 
 const atlasCloudSandboxArgs = [
@@ -140,7 +140,7 @@ function buildWebArgs(yargs: Argv) {
       .option('test-atlas-cloud', {
         type: 'boolean',
         description:
-          'Run compass-web tests against a sandbox with a singed in Atlas Cloud user (allows to test Atlas-only functionality that is only available for Cloud UI backend)',
+          'Run compass-web tests against Atlas Cloud with a singed in Atlas Cloud user (allows to test Atlas-only functionality that is only available for Cloud UI backend)',
       })
       .options('atlas-cloud-environment', {
         choices: ['dev', 'qa', 'staging', 'prod'] as const,
@@ -291,8 +291,8 @@ const contextForPrinting = Object.fromEntries(
       return !k.includes('-');
     })
     .map(([k, v]) => {
-    return [k, /password/i.test(k) ? '<secret>' : v];
-  })
+      return [k, /password/i.test(k) ? '<secret>' : v];
+    })
 );
 
 debug('Running tests with the following arguments:', contextForPrinting);
@@ -356,3 +356,31 @@ export const DEFAULT_CONNECTIONS_SERVER_INFO: {
   version: string;
   enterprise: boolean;
 }[] = [];
+
+/**
+ * Hostname from which compass-web entrypoint will be loaded in Atlas Cloud
+ */
+export const COMPASS_WEB_ENTRYPOINT_HOST = 'downloads.mongodb.com';
+
+const CLOUD_URLS = {
+  dev: {
+    accountUrl: 'https://account-dev.mongodb.com',
+    cloudUrl: 'https://cloud-dev.mongodb.com',
+  },
+  qa: {
+    accountUrl: 'https://account-qa.mongodb.com',
+    cloudUrl: 'https://cloud-qa.mongodb.com',
+  },
+  staging: {
+    accountUrl: 'https://account-stage.mongodb.com',
+    cloudUrl: 'https://cloud-stage.mongodb.com',
+  },
+  prod: {
+    accountUrl: 'https://account.mongodb.com',
+    cloudUrl: 'https://cloud.mongodb.com',
+  },
+} as const;
+
+export function getCloudUrlsFromContext(context: AtlasCloudParsedArgs) {
+  return CLOUD_URLS[context.atlasCloudEnvironment as keyof typeof CLOUD_URLS];
+}

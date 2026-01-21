@@ -7,6 +7,7 @@ import { execFile } from 'child_process';
 import type { ExecFileOptions, ExecFileException } from 'child_process';
 import { promisify } from 'util';
 import zlib from 'zlib';
+import type { ChainablePromiseElement } from 'webdriverio';
 import { remote } from 'webdriverio';
 import { rebuild } from '@electron/rebuild';
 import type { RebuildOptions } from '@electron/rebuild';
@@ -45,6 +46,11 @@ import { downloadPath } from './downloads';
 import path from 'path';
 import { globalFixturesAbortController } from './test-runner-global-fixtures';
 import { dialogOpenLocator } from './dialog-open-locator-strategy';
+import { getExtension } from './redirect-extension';
+import {
+  getCloudUrlsFromContext,
+  COMPASS_WEB_ENTRYPOINT_HOST,
+} from './test-runner-context';
 
 const killAsync = async (pid: number, signal?: string) => {
   return new Promise<void>((resolve, reject) => {
@@ -810,40 +816,57 @@ export async function startBrowser(
   runCounter++;
   const { webdriverOptions, wdioOptions } = await processCommonOpts();
 
-  const browserCapabilities: Record<string, Record<string, unknown>> = {
-    chrome: {
-      'goog:chromeOptions': {
-        prefs: {
-          'download.default_directory': downloadPath,
-        },
-      },
-    },
-    firefox: {
-      'moz:firefoxOptions': {
-        prefs: {
-          'browser.download.dir': downloadPath,
-          'browser.download.folderList': 2,
-          'browser.download.manager.showWhenStarting': false,
-          'browser.helperApps.neverAsk.saveToDisk': '*/*',
-          // Hide the download (progress) panel
-          'browser.download.alwaysOpenPanel': false,
-        },
-      },
-    },
-  } as const;
+  const browserName = context.browserName as 'chrome' | 'firefox';
+  const redirectExtension = isTestingAtlasCloud(context)
+    ? await (async () => {
+        return getExtension(
+          COMPASS_WEB_ENTRYPOINT_HOST,
+          `${context.sandboxUrl}/compass-web.mjs`
+        );
+      })()
+    : null;
 
-  // webdriverio removed RemoteOptions. It is now
-  // Capabilities.WebdriverIOConfig, but Capabilities is not exported
-  const options = {
+  const browserCapabilities: WebdriverIO.Capabilities = {
+    'goog:chromeOptions': {
+      prefs: {
+        'download.default_directory': downloadPath,
+      },
+      args: isTestingAtlasCloud(context)
+        ? [
+            // We're going to be hitting localhost from remote domain, LNA needs
+            // to be disabled
+            '--disable-features=LocalNetworkAccessChecks',
+            // Allow to load extensions from cli and don't check when remote
+            // websites are accessing localhost
+            '--disable-features=DisableLoadExtensionCommandLineSwitch',
+            `--load-extension=${redirectExtension!.extensionPath}`,
+          ]
+        : [],
+    },
+    'moz:firefoxOptions': {
+      prefs: {
+        'browser.download.dir': downloadPath,
+        'browser.download.folderList': 2,
+        'browser.download.manager.showWhenStarting': false,
+        'browser.helperApps.neverAsk.saveToDisk': '*/*',
+        // Hide the download (progress) panel
+        'browser.download.alwaysOpenPanel': false,
+
+        ...(isTestingAtlasCloud(context) && {
+          // Need to disable LNA (see above)
+          'network.lna.skip-domains': '*.mongodb.com',
+        }),
+      },
+    },
+  };
+
+  const options: WebdriverIO.RemoteConfig = {
     capabilities: {
-      browserName: context.browserName,
+      browserName,
       ...(context.browserVersion && {
         browserVersion: context.browserVersion,
       }),
-      ...browserCapabilities[context.browserName],
-
-      // from https://github.com/webdriverio-community/wdio-electron-service/blob/32457f60382cb4970c37c7f0a19f2907aaa32443/packages/wdio-electron-service/src/launcher.ts#L102
-      'wdio:enforceWebDriverClassic': true,
+      ...browserCapabilities,
     },
     ...webdriverOptions,
     ...wdioOptions,
@@ -852,15 +875,124 @@ export async function startBrowser(
   debug('Starting browser via webdriverio with the following configuration:');
   debug(JSON.stringify(options, null, 2));
 
-  const browser: CompassBrowser = (await remote(options)) as CompassBrowser;
-
-  await browser.navigateTo(context.sandboxUrl);
+  const browser = (await remote(options)) as CompassBrowser;
 
   const compass = new Compass(name, browser, {
     mode: 'web',
     writeCoverage: false,
     needsCloseWelcomeModal: false,
   });
+
+  if (isTestingAtlasCloud(context)) {
+    // In firefox extension needs to be loaded via special Gecko command and
+    // should be provided as a base64 string with compressed extension
+    if (browserName === 'firefox') {
+      await browser.installAddOn(redirectExtension!.extension, true);
+    }
+
+    const urls = getCloudUrlsFromContext(context);
+
+    // TODO: move auth to its own command
+    await browser.navigateTo(urls.accountUrl);
+
+    // TODO: move this to its own commands file
+    const isLeafygreenEnabled = async (
+      browser: CompassBrowser,
+      el: string | ChainablePromiseElement
+    ) => {
+      el = typeof el === 'string' ? browser.$(el) : el;
+      return (
+        (await el.getAttribute('aria-disabled')) !== 'true' &&
+        (await el.isEnabled())
+      );
+    };
+
+    const waitForLeafygreenEnabled = async (
+      browser: CompassBrowser,
+      el: string | ChainablePromiseElement
+    ) => {
+      return await browser.waitUntil(async () => {
+        return await isLeafygreenEnabled(browser, el);
+      });
+    };
+
+    await waitForLeafygreenEnabled(browser, 'input[name="username"]');
+    await browser
+      .$('input[name="username"]')
+      .setValue(context.atlasCloudUsername);
+
+    await waitForLeafygreenEnabled(browser, 'button=Next');
+    await browser.$('button=Next').click();
+
+    await browser.$('input[name="password"]').waitForEnabled();
+    await browser
+      .$('input[name="password"]')
+      .setValue(context.atlasCloudPassword);
+
+    await browser.$('button=Login').waitForEnabled();
+    await browser.$('button=Login').click();
+
+    let authenticated = false;
+
+    // Atlas Cloud will periodically remind user to enable MFA (which we can't
+    // enable in e2e CI environment), so to account for that, in parallel to
+    // waiting for auth to finish, we'll wait for the MFA screen to show up and
+    // skip it if it appears
+    //
+    // TODO: there's some special test-only endpoint we can call to disable this
+    // for the user we're using
+    const [, authenticationPromiseSettled] = await Promise.allSettled([
+      (async () => {
+        const remindMeLaterButton = 'button*=Remind me later';
+
+        await browser.waitUntil(
+          async () => {
+            return (
+              authenticated ||
+              (await browser.$(remindMeLaterButton).isDisplayed())
+            );
+          },
+          // Takes awhile for the redirect to land on this reminder page when it
+          // happens, so no need to bombard the browser with displayed checks
+          { interval: 2000 }
+        );
+
+        if (authenticated) {
+          return;
+        }
+
+        await browser.clickVisible(remindMeLaterButton);
+      })(),
+      browser.waitUntil(
+        async () => {
+          const pageUrl = await browser.getUrl();
+          // We don't check the project id, just want to make sure we are in
+          // atlas cloud
+          return (authenticated = pageUrl.startsWith(`${urls.cloudUrl}/v2/`));
+        },
+        // See above
+        { interval: 2000 }
+      ),
+    ]);
+
+    if (authenticationPromiseSettled.status === 'rejected') {
+      throw authenticationPromiseSettled.reason;
+    }
+
+    // Disable temporary marketing modal before proceeding
+    await browser.execute(() => {
+      globalThis.localStorage.setItem(
+        'mdb.dataExplorer.hasShownNewDEModal',
+        'true'
+      );
+    });
+
+    await browser.navigateTo(
+      `${urls.cloudUrl}/v2/${context.atlasCloudProjectId}#/explorer`
+    );
+  } else {
+    await browser.navigateTo(context.sandboxUrl);
+  }
 
   return compass;
 }
