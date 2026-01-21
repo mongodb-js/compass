@@ -323,8 +323,9 @@ const DiagramContent: React.FunctionComponent<{
         foreignNamespace: target,
       });
       onRelationshipDrawn();
+      openDrawer(DATA_MODELING_DRAWER_ID);
     },
-    [onRelationshipDrawn, onCreateNewRelationship]
+    [onRelationshipDrawn, onCreateNewRelationship, openDrawer]
   );
 
   const onNodeClick = useCallback(
