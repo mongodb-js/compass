@@ -41,8 +41,8 @@ function startFakeTelemetry(): Promise<Telemetry> {
           '@compass-web-sandbox-logging-and-telemetry-access'
         );
         return (
-          kSandboxLoggingAndTelemetryAccess in window &&
-          (window as any)[kSandboxLoggingAndTelemetryAccess].tracking
+          kSandboxLoggingAndTelemetryAccess in globalThis &&
+          (globalThis as any)[kSandboxLoggingAndTelemetryAccess].tracking
         );
       });
 

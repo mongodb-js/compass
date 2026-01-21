@@ -429,8 +429,8 @@ export class Compass {
         '@compass-web-sandbox-logging-and-telemetry-access'
       );
       return (
-        kSandboxLoggingAndTelemetryAccess in window &&
-        (window as any)[kSandboxLoggingAndTelemetryAccess].logging
+        kSandboxLoggingAndTelemetryAccess in globalThis &&
+        (globalThis as any)[kSandboxLoggingAndTelemetryAccess].logging
       );
     });
     const lines = logging.map((log) => JSON.stringify(log));
