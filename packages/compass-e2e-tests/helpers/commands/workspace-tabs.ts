@@ -100,7 +100,7 @@ export async function closeLastTab(
   browser: CompassBrowser,
   selectorOptions?: WorkspaceTabSelectorOptions
 ) {
-  const tabs = await browser.$$(Selectors.workspaceTab(selectorOptions));
+  const tabs = browser.$$(Selectors.workspaceTab(selectorOptions));
   const lastTab = tabs[(await tabs.length) - 1];
   const id = await lastTab.getAttribute('id');
   await closeWorkspaceTab(browser, { id });
