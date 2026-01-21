@@ -96,6 +96,16 @@ export async function closeWorkspaceTab(
   await closeTab(browser, selectorOptions, true);
 }
 
+export async function closeLastTab(
+  browser: CompassBrowser,
+  selectorOptions?: WorkspaceTabSelectorOptions
+) {
+  const tabs = await browser.$$(Selectors.workspaceTab(selectorOptions));
+  const lastTab = tabs[(await tabs.length) - 1];
+  const id = await lastTab.getAttribute('id');
+  await closeWorkspaceTab(browser, { id });
+}
+
 export async function openNewTab(browser: CompassBrowser): Promise<void> {
   const countTabs = async () => {
     return await browser.$$(Selectors.workspaceTab()).length;

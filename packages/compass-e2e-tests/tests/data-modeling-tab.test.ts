@@ -380,9 +380,7 @@ describe('Data Modeling tab', function () {
         .waitForDisplayed({ reverse: true });
 
       // Verify that the existing diagram is now no longer accessible
-      await browser.clickVisible(
-        Selectors.workspaceTab({ type: 'Data Modeling' })
-      );
+      await browser.closeLastTab();
       await browser.waitUntil(async () => {
         const text = await browser
           .$(Selectors.WorkspaceTabsContainer)
