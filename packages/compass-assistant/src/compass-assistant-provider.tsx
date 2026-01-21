@@ -330,8 +330,7 @@ export const AssistantProvider: React.FunctionComponent<
         activeConnection,
         activeCollectionMetadata,
         activeCollectionSubTab,
-        enableToolCalling,
-        enableGenAIToolCalling,
+        enableGenAIToolCalling: enableToolCalling && enableGenAIToolCalling,
       });
 
       // use just the text so we have a stable reference to compare against
