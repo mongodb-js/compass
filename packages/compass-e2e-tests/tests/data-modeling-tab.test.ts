@@ -975,13 +975,6 @@ describe('Data Modeling tab', function () {
       // Wait for the diagram editor to load
       await browser.$(Selectors.DataModelEditor).waitForDisplayed();
 
-      // Close the info banner to get it out of the way
-      const infoBannerCloseBtn = browser.$(
-        Selectors.DataModelInfoBannerCloseBtn
-      );
-      await infoBannerCloseBtn.waitForClickable();
-      await browser.clickVisible(Selectors.DataModelInfoBannerCloseBtn);
-
       // Verify that the new collection is added to the diagram.
       const nodes = await getDiagramNodes(browser, 4);
       const nodeIds = nodes.map((n) => n.id);
