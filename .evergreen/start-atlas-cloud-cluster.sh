@@ -40,14 +40,14 @@ DOCKER_REGISTRY="${DOCKER_REGISTRY:-docker.io}"
 #     MCLI_ORG_ID           Org ID
 #     MCLI_PROJECT_ID       Project ID
 #
-#     COMPASS_E2E_ATLAS_CLOUD_SANDBOX_USERNAME  Cloud user you created
-#     COMPASS_E2E_ATLAS_CLOUD_SANDBOX_PASSWORD  Cloud user password
+#     COMPASS_E2E_ATLAS_CLOUD_USERNAME  Cloud user you created
+#     COMPASS_E2E_ATLAS_CLOUD_PASSWORD  Cloud user password
 #
 # - Source the script followed by running the tests to make sure that some
 #   variables exported from this script are available for the test env:
 #
 #   (ATLAS_CLOUD_TEST_CLUSTER_NAME="TestCluster" source .evergreen/start-atlas-cloud-cluster.sh \
-#     && npm run -w compass-e2e-tests test web -- --test-atlas-cloud-sandbox --test-filter="atlas-cloud/**/*")
+#     && npm run -w compass-e2e-tests test web -- --test-atlas-cloud --test-filter="atlas-cloud/**/*")
 
 _ATLAS_CLOUD_TEST_CLUSTER_NAME=${ATLAS_CLOUD_TEST_CLUSTER_NAME:-""}
 
@@ -101,8 +101,8 @@ atlascli dbusers create atlasAdmin \
   --password "$ATLAS_TEST_DB_PASSWORD" \
   --deleteAfter "$DELETE_AFTER" # so that it's autoremoved if cleaning up failed for some reason
 
-export COMPASS_E2E_ATLAS_CLOUD_SANDBOX_DBUSER_USERNAME="$ATLAS_TEST_DB_USERNAME"
-export COMPASS_E2E_ATLAS_CLOUD_SANDBOX_DBUSER_PASSWORD="$ATLAS_TEST_DB_PASSWORD"
+export COMPASS_E2E_ATLAS_CLOUD_DBUSER_USERNAME="$ATLAS_TEST_DB_USERNAME"
+export COMPASS_E2E_ATLAS_CLOUD_DBUSER_PASSWORD="$ATLAS_TEST_DB_PASSWORD"
 
 echo "Creating Atlas deployment \`$ATLAS_CLUSTER_NAME\` to test against..."
 (atlascli clusters create $ATLAS_CLUSTER_NAME \
@@ -117,7 +117,7 @@ atlascli clusters watch $ATLAS_CLUSTER_NAME
 echo "Getting connection string for provisioned cluster..."
 CONNECTION_STRINGS_JSON="$(atlascli clusters connectionStrings describe $ATLAS_CLUSTER_NAME -o json)"
 
-export COMPASS_E2E_ATLAS_CLOUD_SANDBOX_CLOUD_CONFIG=$(
+export COMPASS_E2E_ATLAS_CLOUD_ENVIRONMENT=$(
   if [[ "$MCLI_OPS_MANAGER_URL" =~ "-dev" ]]; then
     echo "dev"
   elif [[ "$MCLI_OPS_MANAGER_URL" =~ "-qa" ]]; then
@@ -126,7 +126,7 @@ export COMPASS_E2E_ATLAS_CLOUD_SANDBOX_CLOUD_CONFIG=$(
     echo "prod"
   fi
 )
-echo "Cloud config: $COMPASS_E2E_ATLAS_CLOUD_SANDBOX_CLOUD_CONFIG"
+echo "Cloud environment: $COMPASS_E2E_ATLAS_CLOUD_ENVIRONMENT"
 
-export COMPASS_E2E_ATLAS_CLOUD_SANDBOX_DEFAULT_CONNECTIONS="{\"$ATLAS_CLUSTER_NAME\": $CONNECTION_STRINGS_JSON}"
+export COMPASS_E2E_ATLAS_CLOUD_DEFAULT_CONNECTIONS="{\"$ATLAS_CLUSTER_NAME\": $CONNECTION_STRINGS_JSON}"
 echo "Cluster connections: $COMPASS_E2E_ATLAS_CLOUD_SANDBOX_DEFAULT_CONNECTIONS"

@@ -7,7 +7,6 @@ import yargs from 'yargs';
 import type { Argv, CamelCase } from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import Debug from 'debug';
-import fs from 'fs';
 import { getAtlasCloudSandboxDefaultConnections } from './compass-web-sandbox';
 
 const debug = Debug('compass-e2e-tests:context');
@@ -100,29 +99,14 @@ function buildDesktopArgs(yargs: Argv) {
   );
 }
 
-/**
- * Variables used by a special use-case of running e2e tests against a
- * cloud(-dev).mongodb.com URL. If you're changing anything related to these,
- * make sure that the tests in mms are also updated to account for that
- */
-const atlasCloudExternalArgs = [
-  'atlas-cloud-external-url',
-  'atlas-cloud-external-project-id',
-  'atlas-cloud-external-cookies-file',
-  'atlas-cloud-external-default-connections-file',
-] as const;
-
-type AtlasCloudExternalArgs =
-  | (typeof atlasCloudExternalArgs)[number]
-  | CamelCase<(typeof atlasCloudExternalArgs)[number]>;
-
 const atlasCloudSandboxArgs = [
-  'atlas-cloud-sandbox-cloud-config',
-  'atlas-cloud-sandbox-username',
-  'atlas-cloud-sandbox-password',
-  'atlas-cloud-sandbox-dbuser-username',
-  'atlas-cloud-sandbox-dbuser-password',
-  'atlas-cloud-sandbox-default-connections',
+  'atlas-cloud-environment',
+  'atlas-cloud-project-id',
+  'atlas-cloud-username',
+  'atlas-cloud-password',
+  'atlas-cloud-dbuser-username',
+  'atlas-cloud-dbuser-password',
+  'atlas-cloud-default-connections',
 ] as const;
 
 type AtlasCloudSandboxArgs =
@@ -153,72 +137,48 @@ function buildWebArgs(yargs: Argv) {
         description: 'Set compass-web sandbox URL',
         default: 'http://localhost:7777',
       })
-      .option('test-atlas-cloud-sandbox', {
+      .option('test-atlas-cloud', {
         type: 'boolean',
         description:
           'Run compass-web tests against a sandbox with a singed in Atlas Cloud user (allows to test Atlas-only functionality that is only available for Cloud UI backend)',
       })
-      .options('atlas-cloud-sandbox-cloud-config', {
-        choices: ['local', 'dev', 'qa', 'prod'] as const,
-        description: 'Atlas Cloud config preset for the sandbox',
+      .options('atlas-cloud-environment', {
+        choices: ['dev', 'qa', 'staging', 'prod'] as const,
+        default: 'qa',
+        description: 'Atlas Cloud environment to test against',
       })
-      .options('atlas-cloud-sandbox-username', {
+      .option('atlas-cloud-project-id', {
+        type: 'string',
+        description: 'Atlas project to test against',
+        default: process.env.MCLI_PROJECT_ID,
+      })
+      .options('atlas-cloud-username', {
         type: 'string',
         description:
           'Atlas Cloud username. Will be used to sign in to an account before running the tests',
       })
-      .options('atlas-cloud-sandbox-password', {
+      .options('atlas-cloud-password', {
         type: 'string',
         description:
           'Atlas Cloud user password. Will be used to sign in to an account before running the tests',
       })
-      .options('atlas-cloud-sandbox-dbuser-username', {
+      .options('atlas-cloud-dbuser-username', {
         type: 'string',
         description:
           'Atlas Cloud database username. Will be used to prepolulate cluster with data',
       })
-      .options('atlas-cloud-sandbox-dbuser-password', {
+      .options('atlas-cloud-dbuser-password', {
         type: 'string',
         description:
           'Atlas Cloud user database user password. Will be used to prepolulate cluster with data',
       })
-      .options('atlas-cloud-sandbox-default-connections', {
+      .options('atlas-cloud-default-connections', {
         type: 'string',
         description:
           'Stringified JSON with connections that are expected to be available in the Atlas project',
       })
       .implies({
-        'test-atlas-cloud-sandbox': atlasCloudSandboxArgs,
-      })
-      .option('test-atlas-cloud-external', {
-        type: 'boolean',
-        description:
-          'Run compass-web tests against an external Atlas Cloud URL (e.g., https://cloud-dev.mongodb.com)',
-      })
-      .option('atlas-cloud-external-url', {
-        type: 'string',
-        description: 'External URL to run the tests against',
-      })
-      .option('atlas-cloud-external-project-id', {
-        type: 'string',
-        description: 'Atlas `projectId` value',
-      })
-      .option('atlas-cloud-external-cookies-file', {
-        type: 'string',
-        description:
-          'File with a JSON array of cookie values that should contain Atlas Cloud auth cookies',
-      })
-      .option('atlas-cloud-external-default-connections-file', {
-        type: 'string',
-        description:
-          'File with JSON array of connections (following ConnectionInfo schema) that are expected to be available in the Atlas project',
-      })
-      .implies({
-        'test-atlas-cloud-external': atlasCloudExternalArgs,
-      })
-      .conflicts({
-        'test-atlas-cloud-external': 'test-atlas-cloud-sandbox',
-        'test-atlas-cloud-sandbox': 'test-atlas-cloud-external',
+        'test-atlas-cloud': atlasCloudSandboxArgs,
       })
       .epilogue(
         'All command line arguments can be also provided as env vars with `COMPASS_E2E_` prefix:\n\n  COMPASS_E2E_TEST_ATLAS_CLOUD_EXTERNAL=true compass-e2e-tests web'
@@ -257,6 +217,10 @@ type DesktopParsedArgs = CommonParsedArgs &
 
 type WebParsedArgs = CommonParsedArgs &
   BuilderCallbackParsedArgs<typeof buildWebArgs>;
+
+type AtlasCloudParsedArgs = WebParsedArgs & {
+  [K in AtlasCloudSandboxArgs]: NonNullable<WebParsedArgs[K]>;
+};
 
 if (!testEnv) {
   throw new Error('Test env was not selected');
@@ -305,28 +269,16 @@ export function assertTestingWeb(ctx = context): asserts ctx is WebParsedArgs {
   }
 }
 
-export function isTestingAtlasCloudExternal(
+export function isTestingAtlasCloud(
   ctx = context
-): ctx is WebParsedArgs & {
-  [K in AtlasCloudExternalArgs]: NonNullable<WebParsedArgs[K]>;
-} {
-  return isTestingWeb(ctx) && !!ctx.testAtlasCloudExternal;
+): ctx is AtlasCloudParsedArgs {
+  return isTestingWeb(ctx) && !!ctx.testAtlasCloud;
 }
 
-export function isTestingAtlasCloudSandbox(
+export function assertTestingAtlasCloud(
   ctx = context
-): ctx is WebParsedArgs & {
-  [K in AtlasCloudSandboxArgs]: NonNullable<WebParsedArgs[K]>;
-} {
-  return isTestingWeb(ctx) && !!ctx.testAtlasCloudSandbox;
-}
-
-export function assertTestingAtlasCloudSandbox(
-  ctx = context
-): asserts ctx is WebParsedArgs & {
-  [K in AtlasCloudSandboxArgs]: NonNullable<WebParsedArgs[K]>;
-} {
-  if (!isTestingAtlasCloudSandbox(ctx)) {
+): asserts ctx is WebParsedArgs & AtlasCloudParsedArgs {
+  if (!isTestingAtlasCloud(ctx)) {
     throw new Error(`Expected tested runtime to be web w/ Atlas Cloud account`);
   }
 }
@@ -342,22 +294,18 @@ debug('Running tests with the following arguments:', contextForPrinting);
 process.env.HADRON_DISTRIBUTION ??= context.hadronDistribution;
 
 process.env.COMPASS_WEB_HTTP_PROXY_CLOUD_CONFIG ??=
-  context.atlasCloudSandboxCloudConfig ?? 'dev';
+  context.atlasCloudEnvironment ?? 'dev';
 
 const testServerVersion =
   process.env.MONGODB_VERSION ?? process.env.MONGODB_RUNNER_VERSION;
 
 export const DEFAULT_CONNECTIONS: (ConnectionInfo & {
   testServer?: Partial<MongoClusterOptions>;
-})[] = isTestingAtlasCloudExternal(context)
-  ? JSON.parse(
-      fs.readFileSync(context.atlasCloudExternalDefaultConnectionsFile, 'utf-8')
-    )
-  : isTestingAtlasCloudSandbox(context)
+})[] = isTestingAtlasCloud(context)
   ? getAtlasCloudSandboxDefaultConnections(
-      context.atlasCloudSandboxDefaultConnections,
-      context.atlasCloudSandboxDbuserUsername,
-      context.atlasCloudSandboxDbuserPassword
+      context.atlasCloudDefaultConnections,
+      context.atlasCloudDbuserUsername,
+      context.atlasCloudDbuserPassword
     )
   : [
       {

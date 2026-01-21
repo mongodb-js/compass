@@ -29,7 +29,7 @@ import {
   isTestingDesktop,
   context,
   assertTestingWeb,
-  isTestingAtlasCloudExternal,
+  isTestingAtlasCloud,
 } from './test-runner-context';
 import {
   MONOREPO_ELECTRON_CHROMIUM_VERSION,
@@ -854,59 +854,7 @@ export async function startBrowser(
 
   const browser: CompassBrowser = (await remote(options)) as CompassBrowser;
 
-  if (isTestingAtlasCloudExternal(context)) {
-    const {
-      atlasCloudExternalCookiesFile,
-      atlasCloudExternalUrl,
-      atlasCloudExternalProjectId,
-    } = context;
-
-    // To be able to use `setCookies` method, we need to first open any page on
-    // the same domain as the cookies we are going to set
-    // https://webdriver.io/docs/api/browser/setCookies/
-    await browser.navigateTo(`${atlasCloudExternalUrl}/404`);
-
-    type StoredAtlasCloudCookies = {
-      name: string;
-      value: string;
-      domain: string;
-      path: string;
-      secure: boolean;
-      httpOnly: boolean;
-      expirationDate: number;
-    }[];
-
-    const cookies: StoredAtlasCloudCookies = JSON.parse(
-      await fs.readFile(atlasCloudExternalCookiesFile, 'utf8')
-    );
-
-    await browser.setCookies(
-      cookies
-        .filter((cookie) => {
-          // These are the relevant cookies for auth:
-          // https://github.com/10gen/mms/blob/6d27992a6ab9ab31471c8bcdaa4e347aa39f4013/server/src/features/com/xgen/svc/cukes/helpers/Client.java#L122-L130
-          return (
-            cookie.name.includes('mmsa-') ||
-            cookie.name.includes('mdb-sat') ||
-            cookie.name.includes('mdb-srt')
-          );
-        })
-        .map((cookie) => ({
-          name: cookie.name,
-          value: cookie.value,
-          domain: cookie.domain,
-          path: cookie.path,
-          secure: cookie.secure,
-          httpOnly: cookie.httpOnly,
-        }))
-    );
-
-    await browser.navigateTo(
-      `${atlasCloudExternalUrl}/v2/${atlasCloudExternalProjectId}#/explorer`
-    );
-  } else {
-    await browser.navigateTo(context.sandboxUrl);
-  }
+  await browser.navigateTo(context.sandboxUrl);
 
   const compass = new Compass(name, browser, {
     mode: 'web',

@@ -4,8 +4,7 @@ import {
   context,
   DEFAULT_CONNECTIONS,
   DEFAULT_CONNECTIONS_SERVER_INFO,
-  isTestingAtlasCloudExternal,
-  isTestingAtlasCloudSandbox,
+  isTestingAtlasCloud,
   isTestingDesktop,
   isTestingWeb,
 } from './test-runner-context';
@@ -90,14 +89,14 @@ export async function mochaGlobalSetup(this: Mocha.Runner) {
         throwIfAborted();
       }
 
-      if (isTestingWeb(context) && !isTestingAtlasCloudExternal(context)) {
+      if (isTestingWeb(context)) {
         debug('Starting Compass Web server ...');
 
-        if (isTestingAtlasCloudSandbox(context)) {
+        if (isTestingAtlasCloud(context)) {
           const compassWeb = await spawnCompassWebSandboxAndSignInToAtlas(
             {
-              username: context.atlasCloudSandboxUsername,
-              password: context.atlasCloudSandboxPassword,
+              username: context.atlasCloudUsername,
+              password: context.atlasCloudPassword,
               sandboxUrl: context.sandboxUrl,
               waitforTimeout: context.webdriverWaitforTimeout,
             },

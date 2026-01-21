@@ -775,8 +775,8 @@ functions:
           <<: *compass-env
           <<: *compass-e2e-secrets
           DEBUG: ${debug|}
-          COMPASS_E2E_ATLAS_CLOUD_SANDBOX_USERNAME: ${e2e_tests_compass_web_atlas_username}
-          COMPASS_E2E_ATLAS_CLOUD_SANDBOX_PASSWORD: ${e2e_tests_compass_web_atlas_password}
+          COMPASS_E2E_ATLAS_CLOUD_USERNAME: ${e2e_tests_compass_web_atlas_username}
+          COMPASS_E2E_ATLAS_CLOUD_PASSWORD: ${e2e_tests_compass_web_atlas_password}
           MCLI_PUBLIC_API_KEY: ${e2e_tests_mcli_public_api_key}
           MCLI_PRIVATE_API_KEY: ${e2e_tests_mcli_private_api_key}
           MCLI_ORG_ID: ${e2e_tests_mcli_org_id}
@@ -797,7 +797,7 @@ functions:
           # clusters in CI is both pricey and flakey, so we want to limit the
           # coverage to reduce those factors (at least for now)
           npm run --unsafe-perm --workspace compass-e2e-tests test-ci -- -- web \
-            --test-atlas-cloud-sandbox \
+            --test-atlas-cloud \
             --test-filter="atlas-cloud/**/*"
 
   test-connectivity:

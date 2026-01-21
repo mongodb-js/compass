@@ -9,8 +9,7 @@ import * as Selectors from '../selectors';
 import Debug from 'debug';
 import {
   DEFAULT_CONNECTION_NAMES,
-  isTestingAtlasCloudExternal,
-  isTestingAtlasCloudSandbox,
+  isTestingAtlasCloud,
 } from '../test-runner-context';
 
 const debug = Debug('compass-e2e-tests');
@@ -52,7 +51,7 @@ export async function connectWithConnectionString(
   // When testing Atlas Cloud, we can't really create a new connection, so just
   // assume a connection name was passed (with a fallback to a default one) and
   // try to use it
-  if (isTestingAtlasCloudExternal() || isTestingAtlasCloudSandbox()) {
+  if (isTestingAtlasCloud()) {
     await browser.connectByName(
       connectionStringOrName ?? DEFAULT_CONNECTION_NAME_1
     );
