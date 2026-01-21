@@ -6,6 +6,14 @@ import {
   useCurrentValueRef,
   useInitialValue,
 } from '@mongodb-js/compass-components';
+import type { TelemetryServiceOptions } from '@mongodb-js/compass-telemetry';
+import type { PreferencesAccess } from 'compass-preferences-model';
+
+/** @public */
+export type TrackFunction = (
+  event: string,
+  properties: Record<string, any>
+) => void;
 
 /** @public */
 export type LogMessage = {
@@ -55,6 +63,18 @@ function createCompassWebDebugger(
   );
 }
 
+/**
+ * @internal
+ * exported for the sandbox to be able to hook into these
+ */
+export const compassWebLoggingAndTrackingEvents: {
+  logging: unknown[] | null;
+  tracking: unknown[] | null;
+} = {
+  logging: null,
+  tracking: null,
+};
+
 export class CompassWebLogger implements Logger {
   log: Logger['log'];
   debug: Debugger;
@@ -78,7 +98,9 @@ export class CompassWebLogger implements Logger {
     this.callbackRef = callbackRef;
     const target = {
       write(line: string, callback: () => void) {
-        callbackRef.current.onLog?.(JSON.parse(line));
+        const parsedLine = JSON.parse(line);
+        compassWebLoggingAndTrackingEvents.logging?.push(parsedLine);
+        callbackRef.current.onLog?.(parsedLine);
         callback();
       },
       end(callback: () => void) {
@@ -98,13 +120,32 @@ export class CompassWebLogger implements Logger {
   };
 }
 
-export function useCompassWebLogger(callbacks: {
+export function useCompassWebLoggerAndTelemetry({
+  preferences,
+  ...callbacks
+}: {
   onLog?: LogFunction;
   onDebug?: DebugFunction;
-}): CompassWebLogger {
+  onTrack?: TrackFunction;
+  preferences: PreferencesAccess;
+}): {
+  logger: CompassWebLogger;
+  telemetry: Omit<TelemetryServiceOptions, 'logger'>;
+} {
   const callbackRef = useCurrentValueRef(callbacks);
-  const loggerAndTelemetry = useInitialValue<CompassWebLogger>(() => {
+  const logger = useInitialValue<CompassWebLogger>(() => {
     return new CompassWebLogger('COMPASS-WEB', callbackRef);
   });
-  return loggerAndTelemetry;
+  const telemetry = useInitialValue<TelemetryServiceOptions>({
+    sendTrack: (
+      event: string,
+      properties: Record<string, any> | undefined = {}
+    ) => {
+      compassWebLoggingAndTrackingEvents.tracking?.push({ event, properties });
+      void callbackRef.current.onTrack?.(event, properties);
+    },
+    logger,
+    preferences,
+  });
+  return { logger, telemetry };
 }

@@ -8,12 +8,11 @@ import {
 } from '@mongodb-js/compass-components';
 import { CompassWeb } from '../src/index';
 import { SandboxConnectionStorageProvider } from '../src/connection-storage';
-import { sandboxLogger } from './sandbox-logger';
-import { sandboxTelemetry } from './sandbox-telemetry';
 import { useAtlasProxySignIn } from './sandbox-atlas-sign-in';
 import { sandboxConnectionStorage } from './sandbox-connection-storage';
 import { useWorkspaceTabRouter } from './sandbox-workspace-tab-router';
-import { SandboxPreferencesGlobalAccessProvider } from '../src/preferences';
+import { debug } from './sandbox-logger-and-telemetry';
+import './sandbox-preferences';
 import './sandbox-process';
 
 const sandboxContainerStyles = css({
@@ -96,42 +95,38 @@ const App = () => {
     <SandboxConnectionStorageProvider
       value={isAtlas ? null : sandboxConnectionStorage}
     >
-      <SandboxPreferencesGlobalAccessProvider>
-        <Body as="div" className={sandboxContainerStyles}>
-          <CompassWeb
-            orgId={orgId ?? ''}
-            projectId={projectId ?? ''}
-            onActiveWorkspaceTabChange={updateCurrentTab}
-            initialWorkspace={currentTab ?? undefined}
-            initialPreferences={{
-              enableExportSchema: true,
-              enablePerformanceAdvisorBanner: isAtlas,
-              enableAtlasSearchIndexes: !isAtlas,
-              maximumNumberOfActiveConnections: isAtlas ? 10 : undefined,
-              atlasServiceBackendPreset: atlasServiceSandboxBackendVariant,
-              enableCreatingNewConnections: !isAtlas,
-              enableGlobalWrites: isAtlas,
-              enableRollingIndexes: isAtlas,
-              enableGenAIFeaturesAtlasOrg:
-                !isAtlas || !!enableGenAIFeaturesAtlasOrg,
-              enableGenAIFeaturesAtlasProject:
-                !isAtlas || !!enableGenAIFeaturesAtlasProject,
-              enableGenAISampleDocumentPassing:
-                !!enableGenAISampleDocumentPassing,
-              optInGenAIFeatures: isAtlas ? !!optInGenAIFeatures : false,
-              enableGenAIToolCallingAtlasProject:
-                !isAtlas || !!enableGenAIToolCallingAtlasProject,
-              enableDataModelingCollapse: true,
-              enableMyQueries: isAtlas,
-              ...groupRolePreferences,
-            }}
-            onTrack={sandboxTelemetry.track}
-            onDebug={sandboxLogger.debug}
-            onLog={sandboxLogger.log}
-            onFailToLoadConnections={onFailToLoadConnections}
-          ></CompassWeb>
-        </Body>
-      </SandboxPreferencesGlobalAccessProvider>
+      <Body as="div" className={sandboxContainerStyles}>
+        <CompassWeb
+          orgId={orgId ?? ''}
+          projectId={projectId ?? ''}
+          onActiveWorkspaceTabChange={updateCurrentTab}
+          initialWorkspace={currentTab ?? undefined}
+          initialPreferences={{
+            enableExportSchema: true,
+            enablePerformanceAdvisorBanner: isAtlas,
+            enableAtlasSearchIndexes: !isAtlas,
+            maximumNumberOfActiveConnections: isAtlas ? 10 : undefined,
+            atlasServiceBackendPreset: atlasServiceSandboxBackendVariant,
+            enableCreatingNewConnections: !isAtlas,
+            enableGlobalWrites: isAtlas,
+            enableRollingIndexes: isAtlas,
+            enableGenAIFeaturesAtlasOrg:
+              !isAtlas || !!enableGenAIFeaturesAtlasOrg,
+            enableGenAIFeaturesAtlasProject:
+              !isAtlas || !!enableGenAIFeaturesAtlasProject,
+            enableGenAISampleDocumentPassing:
+              !!enableGenAISampleDocumentPassing,
+            enableGenAIToolCallingAtlasProject:
+              !isAtlas || !!enableGenAIToolCallingAtlasProject,
+            optInGenAIFeatures: isAtlas ? !!optInGenAIFeatures : false,
+            enableDataModelingCollapse: true,
+            enableMyQueries: isAtlas,
+            ...groupRolePreferences,
+          }}
+          onDebug={debug}
+          onFailToLoadConnections={onFailToLoadConnections}
+        ></CompassWeb>
+      </Body>
     </SandboxConnectionStorageProvider>
   );
 };

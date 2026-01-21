@@ -425,8 +425,13 @@ export class Compass {
 
   async stopBrowser(): Promise<void> {
     const logging: any[] = await this.browser.execute(function () {
-      // eslint-disable-next-line no-restricted-globals
-      return 'logging' in window && (window.logging as any);
+      const kSandboxLoggingAndTelemetryAccess = Symbol.for(
+        '@compass-web-sandbox-logging-and-telemetry-access'
+      );
+      return (
+        kSandboxLoggingAndTelemetryAccess in globalThis &&
+        (globalThis as any)[kSandboxLoggingAndTelemetryAccess].logging
+      );
     });
     const lines = logging.map((log) => JSON.stringify(log));
     const text = lines.join('\n');
