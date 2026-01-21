@@ -58,6 +58,7 @@ type PipelineSettingsProps = {
   editViewName?: string;
   isExportToLanguageEnabled?: boolean;
   isExportDataEnabled?: boolean;
+  isMergeOrOutPipeline?: boolean;
   onExportToLanguage: () => void;
   onExportData: () => void;
   onCreateNewPipeline: () => void;
@@ -69,6 +70,7 @@ export const PipelineSettings: React.FunctionComponent<
   editViewName,
   isExportToLanguageEnabled,
   isExportDataEnabled,
+  isMergeOrOutPipeline,
   onExportToLanguage,
   onExportData,
   onCreateNewPipeline,
@@ -96,10 +98,11 @@ export const PipelineSettings: React.FunctionComponent<
             Create new
           </Button>
         )}
-        {enableImportExport && isExportDataEnabled && (
+        {enableImportExport && !isMergeOrOutPipeline && (
           <Button
             size="xsmall"
             leftGlyph={<Icon glyph="Export" />}
+            disabled={!isExportDataEnabled}
             onClick={onExportData}
             data-testid="pipeline-toolbar-export-data-button"
             title="Export pipeline results"
@@ -140,6 +143,7 @@ export default connect(
     return {
       editViewName: state.editViewName ?? undefined,
       isExportToLanguageEnabled: !hasSyntaxErrors && !isAIFetching,
+      isMergeOrOutPipeline: isMergeOrOutPipeline,
       isExportDataEnabled:
         !isMergeOrOutPipeline && !hasSyntaxErrors && !isAIFetching,
     };
