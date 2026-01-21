@@ -284,7 +284,13 @@ export function assertTestingAtlasCloud(
 }
 
 const contextForPrinting = Object.fromEntries(
-  Object.entries(context).map(([k, v]) => {
+  Object.entries(context)
+    .filter(([k]) => {
+      // Leave only camelCased values to avoid printing duplicates for
+      // readability
+      return !k.includes('-');
+    })
+    .map(([k, v]) => {
     return [k, /password/i.test(k) ? '<secret>' : v];
   })
 );
