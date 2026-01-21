@@ -113,11 +113,6 @@ async function setupDiagram(
   // Wait for the diagram editor to load
   const dataModelEditor = browser.$(Selectors.DataModelEditor);
   await dataModelEditor.waitForDisplayed();
-
-  // Close the info banner to get it out of the way
-  const infoBannerCloseBtn = browser.$(Selectors.DataModelInfoBannerCloseBtn);
-  await infoBannerCloseBtn.waitForClickable();
-  await browser.clickVisible(Selectors.DataModelInfoBannerCloseBtn);
 }
 
 async function closeDrawerIfOpen(browser: CompassBrowser) {
