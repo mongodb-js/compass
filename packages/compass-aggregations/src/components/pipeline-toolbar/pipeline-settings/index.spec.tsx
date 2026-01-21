@@ -122,7 +122,31 @@ describe('PipelineSettings', function () {
   describe('export data button disabled state', function () {
     afterEach(cleanup);
 
-    it('should hide export data button when isExportDataEnabled is false', async function () {
+    it('should hide export data button when isMergeOrOutPipeline is true', async function () {
+      const preferences = await createSandboxFromDefaultPreferences();
+      await preferences.savePreferences({
+        enableImportExport: true,
+      });
+
+      await renderWithStore(
+        <PreferencesProvider value={preferences}>
+          <PipelineSettings
+            isExportToLanguageEnabled={true}
+            isExportDataEnabled={false}
+            isMergeOrOutPipeline
+            onExportToLanguage={() => {}}
+            onExportData={() => {}}
+            onCreateNewPipeline={() => {}}
+          />
+        </PreferencesProvider>
+      );
+
+      // Button should not be rendered when isExportDataEnabled is false
+      expect(screen.queryByTestId('pipeline-toolbar-export-data-button')).to.not
+        .exist;
+    });
+
+    it('should disable export data button when isExportDataEnabled is false', async function () {
       const preferences = await createSandboxFromDefaultPreferences();
       await preferences.savePreferences({
         enableImportExport: true,
@@ -140,9 +164,8 @@ describe('PipelineSettings', function () {
         </PreferencesProvider>
       );
 
-      // Button should not be rendered when isExportDataEnabled is false
-      expect(screen.queryByTestId('pipeline-toolbar-export-data-button')).to.not
-        .exist;
+      const button = screen.getByTestId('pipeline-toolbar-export-data-button');
+      expect(button.getAttribute('aria-disabled')).to.equal('true');
     });
 
     it('should disable export code button when isExportToLanguageEnabled is false', async function () {
@@ -185,9 +208,11 @@ describe('PipelineSettings', function () {
         </PreferencesProvider>
       );
 
-      // Export data button should not be rendered
-      expect(screen.queryByTestId('pipeline-toolbar-export-data-button')).to.not
-        .exist;
+      // Export data button should be disabled.
+      const dataButton = screen.getByTestId(
+        'pipeline-toolbar-export-data-button'
+      );
+      expect(dataButton.getAttribute('aria-disabled')).to.equal('true');
 
       // Export code button should be disabled
       const codeButton = screen.getByTestId(
