@@ -6,6 +6,7 @@ import {
   css,
   DrawerSection,
   ItemActionControls,
+  spacing,
 } from '@mongodb-js/compass-components';
 import CollectionDrawerContent from './collection-drawer-content';
 import RelationshipDrawerContent from './relationship-drawer-content';
@@ -36,7 +37,9 @@ const drawerTitleTextStyles = css({
   textOverflow: 'ellipsis',
 });
 
-const drawerTitleActionGroupStyles = css({});
+const drawerTitleActionGroupStyles = css({
+  marginRight: spacing[200],
+});
 
 type DiagramEditorSidePanelProps = {
   selectedItems: (SelectedItems & { title: string }) | null;
@@ -150,7 +153,6 @@ function DiagramEditorSidePanel({
 
           <ItemActionControls
             actions={actions}
-            iconSize="small"
             data-testid="data-modeling-drawer-actions"
             onAction={handleAction}
             className={drawerTitleActionGroupStyles}
