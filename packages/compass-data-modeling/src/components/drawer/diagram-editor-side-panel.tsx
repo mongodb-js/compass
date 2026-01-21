@@ -43,6 +43,7 @@ const drawerTitleActionGroupStyles = css({
 });
 
 type DiagramEditorSidePanelProps = {
+  hasDiagram: boolean;
   selectedItems: (SelectedItems & { title: string }) | null;
   onDeleteCollection: (ns: string) => void;
   onDeleteRelationship: (rId: string) => void;
@@ -53,11 +54,18 @@ const getCollection = (namespace: string) => toNS(namespace).collection;
 
 function DiagramEditorSidePanel({
   selectedItems,
+  hasDiagram,
   onDeleteCollection,
   onDeleteRelationship,
   onDeleteField,
 }: DiagramEditorSidePanelProps) {
   const { content, label, actions, title, handleAction } = useMemo(() => {
+    if (!hasDiagram) {
+      return {
+        content: null,
+      };
+    }
+
     if (selectedItems?.type === 'collection') {
       return {
         title: selectedItems.title,
@@ -141,7 +149,13 @@ function DiagramEditorSidePanel({
       label: 'Data Model Overview',
       content: <DiagramOverviewDrawerContent />,
     };
-  }, [selectedItems, onDeleteCollection, onDeleteRelationship, onDeleteField]);
+  }, [
+    hasDiagram,
+    selectedItems,
+    onDeleteCollection,
+    onDeleteRelationship,
+    onDeleteField,
+  ]);
 
   if (!content) {
     return null;
@@ -183,10 +197,12 @@ function DiagramEditorSidePanel({
 
 export default connect(
   (state: DataModelingState) => {
+    const hasDiagram = !!state.diagram;
     const selected = state.diagram?.selectedItems;
 
-    if (!selected) {
+    if (!hasDiagram || !selected) {
       return {
+        hasDiagram,
         selectedItems: null,
       };
     }
@@ -202,11 +218,13 @@ export default connect(
         // TODO(COMPASS-9680): When the selected collection doesn't exist then we
         // don't show any selection. We can get into this state with undo/redo.
         return {
+          hasDiagram,
           selectedItems: null,
         };
       }
 
       return {
+        hasDiagram,
         selectedItems: {
           ...selected,
           title: getCollection(selected.id),
@@ -223,11 +241,13 @@ export default connect(
         // TODO(COMPASS-9680): When the selected relationship doesn't exist we don't
         // show any selection. We can get into this state with undo/redo.
         return {
+          hasDiagram,
           selectedItems: null,
         };
       }
 
       return {
+        hasDiagram,
         selectedItems: {
           ...selected,
           title: getDefaultRelationshipName(relationship.relationship),
@@ -246,11 +266,13 @@ export default connect(
       });
       if (!field) {
         return {
+          hasDiagram,
           selectedItems: null,
         };
       }
 
       return {
+        hasDiagram,
         selectedItems: {
           ...selected,
           title: `${getCollection(
