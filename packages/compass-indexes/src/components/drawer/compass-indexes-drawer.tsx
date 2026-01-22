@@ -1,11 +1,5 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { css, DrawerSection, spacing } from '@mongodb-js/compass-components';
-import {
-  INDEXES_DRAWER_ID,
-  IndexesDrawerContext,
-  IndexesDrawerProvider,
-  useIndexesDrawerActions,
-} from './compass-indexes-drawer-provider';
 import IndexesListPage from './pages/indexes-list-page';
 import { useActiveWorkspace } from '@mongodb-js/compass-workspaces/provider';
 import {
@@ -24,7 +18,10 @@ import {
 import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
 import { telemetryLocator } from '@mongodb-js/compass-telemetry/provider';
 import { atlasServiceLocator } from '@mongodb-js/atlas-service/provider';
-import { preferencesLocator } from 'compass-preferences-model/provider';
+import {
+  preferencesLocator,
+  usePreference,
+} from 'compass-preferences-model/provider';
 import { registerCompassPlugin } from '@mongodb-js/compass-app-registry';
 
 const indexesTitleStyles = css({
@@ -37,24 +34,21 @@ const indexesTitleTextStyles = css({
   marginRight: spacing[200],
 });
 
+const INDEXES_DRAWER_ID = 'compass-indexes-drawer';
+
 /**
  * CompassIndexesDrawer component that wraps search indexes management in a DrawerSection.
  */
 const CompassIndexesDrawer: React.FunctionComponent<{
   autoOpen?: boolean;
 }> = ({ autoOpen = false }) => {
-  const drawerState = useContext(IndexesDrawerContext);
-  const { getIsIndexesDrawerEnabled } = useIndexesDrawerActions();
+  const isIndexesDrawerEnabled = usePreference(
+    'enableSearchActivationProgramP1'
+  );
   const activeWorkspace = useActiveWorkspace();
 
-  if (!getIsIndexesDrawerEnabled() || activeWorkspace?.type !== 'Collection') {
+  if (!isIndexesDrawerEnabled || activeWorkspace?.type !== 'Collection') {
     return null;
-  }
-
-  if (!drawerState) {
-    throw new Error(
-      'CompassIndexesDrawer must be used within an IndexesDrawerProvider'
-    );
   }
 
   return (
@@ -70,7 +64,7 @@ const CompassIndexesDrawer: React.FunctionComponent<{
       autoOpen={autoOpen}
     >
       <div>
-        {drawerState.currentPage === 'indexes-list' && <IndexesListPage />}
+        <IndexesListPage />
       </div>
     </DrawerSection>
   );
@@ -79,13 +73,7 @@ const CompassIndexesDrawer: React.FunctionComponent<{
 export const CompassIndexesDrawerPlugin = registerCompassPlugin(
   {
     name: 'CompassIndexesDrawer',
-    component: () => {
-      return (
-        <IndexesDrawerProvider>
-          <CompassIndexesDrawer />
-        </IndexesDrawerProvider>
-      );
-    },
+    component: () => <CompassIndexesDrawer />,
     activate: activateIndexesPlugin,
   },
   {
