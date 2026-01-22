@@ -1,6 +1,6 @@
 import React from 'react';
 import { css, DrawerSection, spacing } from '@mongodb-js/compass-components';
-import IndexesListPage from './pages/indexes-list-page';
+import IndexesListPage from './tabs/indexes-list-drawer-tab';
 import { useActiveWorkspace } from '@mongodb-js/compass-workspaces/provider';
 import {
   activateIndexesPlugin,
