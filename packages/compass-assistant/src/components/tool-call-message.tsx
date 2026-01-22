@@ -9,6 +9,7 @@ import {
   ServerIcon,
   palette,
   cx,
+  Icon,
 } from '@mongodb-js/compass-components';
 import type { ToolUIPart } from 'ai';
 import type { BasicConnectionInfo } from '../compass-assistant-provider';
@@ -179,20 +180,21 @@ ${toolCall.errorText}
           {expandableContentText}
         </Message.ActionCard.ExpandableContent>
         {isAwaitingApproval && toolCall.approval && (
-          <>
-            <Message.ActionCard.Button
-              onClick={() => onDeny?.(toolCall.approval.id)}
-              variant="default"
-            >
-              Cancel
-            </Message.ActionCard.Button>
-            <Message.ActionCard.Button
-              onClick={() => onApprove?.(toolCall.approval.id)}
-              variant="primary"
-            >
-              Run
-            </Message.ActionCard.Button>
-          </>
+          <Message.ActionCard.Button
+            onClick={() => onDeny?.(toolCall.approval.id)}
+            variant="default"
+          >
+            Cancel
+          </Message.ActionCard.Button>
+        )}
+        {isAwaitingApproval && toolCall.approval && (
+          <Message.ActionCard.Button
+            onClick={() => onApprove?.(toolCall.approval.id)}
+            variant="primary"
+            rightGlyph={<Icon glyph="Return" />}
+          >
+            Run
+          </Message.ActionCard.Button>
         )}
       </Message.ActionCard>
     </div>
