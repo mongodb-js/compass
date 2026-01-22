@@ -5,7 +5,7 @@ import {
 } from './nodes-and-edges';
 import { type Relationship } from '../services/data-model-storage';
 
-describe('getFieldsFromSchema', function () {
+describe('getExtendedFields', function () {
   describe('flat schema', function () {
     it('return empty array for empty schema', function () {
       const result = getExtendedFields({ fieldData: {} });
@@ -379,6 +379,192 @@ describe('getFieldsFromSchema', function () {
           variant: undefined,
           editable: true,
           expanded: true,
+        },
+      ]);
+    });
+
+    it('ensures visibility for a highlighted field', function () {
+      const result = getExtendedFields({
+        fieldData: {
+          bsonType: 'object',
+          properties: {
+            person: {
+              bsonType: 'object',
+              expanded: false,
+              properties: {
+                name: { bsonType: 'string', expanded: false },
+                address: {
+                  bsonType: 'object',
+                  expanded: false,
+                  properties: {
+                    street: { bsonType: 'string', expanded: false },
+                    city: { bsonType: 'string', expanded: false },
+                  },
+                },
+              },
+            },
+          },
+        },
+        highlightedFields: [['person', 'name']],
+      });
+      expect(result).to.deep.equal([
+        {
+          name: 'person',
+          id: ['person'],
+          path: ['person'],
+          type: 'object',
+          depth: 0,
+          glyphs: [],
+          selectable: true,
+          selected: false,
+          variant: undefined,
+          editable: true,
+          expanded: true, // this one is expanded to show the highlighted field
+        },
+        {
+          name: 'name',
+          id: ['person', 'name'],
+          path: ['person', 'name'],
+          type: 'string',
+          depth: 1,
+          glyphs: [],
+          selectable: true,
+          selected: false,
+          variant: 'preview',
+          editable: true,
+          expanded: false,
+        },
+        {
+          name: 'address',
+          id: ['person', 'address'],
+          path: ['person', 'address'],
+          type: 'object',
+          depth: 1,
+          glyphs: [],
+          selectable: true,
+          selected: false,
+          variant: undefined,
+          editable: true,
+          expanded: false,
+        },
+        {
+          name: 'street',
+          id: ['person', 'address', 'street'],
+          path: ['person', 'address', 'street'],
+          type: 'string',
+          depth: 2,
+          glyphs: [],
+          selectable: true,
+          selected: false,
+          variant: undefined,
+          editable: true,
+          expanded: false,
+        },
+        {
+          name: 'city',
+          id: ['person', 'address', 'city'],
+          path: ['person', 'address', 'city'],
+          type: 'string',
+          depth: 2,
+          glyphs: [],
+          selectable: true,
+          selected: false,
+          variant: undefined,
+          editable: true,
+          expanded: false,
+        },
+      ]);
+    });
+
+    it('ensures visibility for a selected field', function () {
+      const result = getExtendedFields({
+        fieldData: {
+          bsonType: 'object',
+          properties: {
+            person: {
+              bsonType: 'object',
+              expanded: false,
+              properties: {
+                name: { bsonType: 'string', expanded: false },
+                address: {
+                  bsonType: 'object',
+                  expanded: false,
+                  properties: {
+                    street: { bsonType: 'string', expanded: false },
+                    city: { bsonType: 'string', expanded: false },
+                  },
+                },
+              },
+            },
+          },
+        },
+        selectedField: ['person', 'address', 'street'],
+      });
+      expect(result).to.deep.equal([
+        {
+          name: 'person',
+          id: ['person'],
+          path: ['person'],
+          type: 'object',
+          depth: 0,
+          glyphs: [],
+          selectable: true,
+          selected: false,
+          variant: undefined,
+          editable: true,
+          expanded: true, // this is expanded to show the selected field
+        },
+        {
+          name: 'name',
+          id: ['person', 'name'],
+          path: ['person', 'name'],
+          type: 'string',
+          depth: 1,
+          glyphs: [],
+          selectable: true,
+          selected: false,
+          variant: undefined,
+          editable: true,
+          expanded: false,
+        },
+        {
+          name: 'address',
+          id: ['person', 'address'],
+          path: ['person', 'address'],
+          type: 'object',
+          depth: 1,
+          glyphs: [],
+          selectable: true,
+          selected: false,
+          variant: undefined,
+          editable: true,
+          expanded: true, // this is expanded to show the selected field
+        },
+        {
+          name: 'street',
+          id: ['person', 'address', 'street'],
+          path: ['person', 'address', 'street'],
+          type: 'string',
+          depth: 2,
+          glyphs: [],
+          selectable: true,
+          selected: true,
+          variant: undefined,
+          editable: true,
+          expanded: false,
+        },
+        {
+          name: 'city',
+          id: ['person', 'address', 'city'],
+          path: ['person', 'address', 'city'],
+          type: 'string',
+          depth: 2,
+          glyphs: [],
+          selectable: true,
+          selected: false,
+          variant: undefined,
+          editable: true,
+          expanded: false,
         },
       ]);
     });

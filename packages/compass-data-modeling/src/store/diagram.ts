@@ -63,7 +63,6 @@ export type DiagramState =
       selectedItems: SelectedItems | null;
       isNewlyCreated: boolean;
       draftCollection?: string;
-      isDiagramDeleted?: boolean;
     })
   | null; // null when no diagram is currently open
 
@@ -71,7 +70,6 @@ export const DiagramActionTypes = {
   OPEN_DIAGRAM: 'data-modeling/diagram/OPEN_DIAGRAM',
   RENAME_DIAGRAM: 'data-modeling/diagram/RENAME_DIAGRAM',
   DELETE_DIAGRAM: 'data-modeling/diagram/DELETE_DIAGRAM',
-  DIAGRAM_DELETED: 'data-modeling/diagram/DIAGRAM_DELETED',
   APPLY_INITIAL_LAYOUT: 'data-modeling/diagram/APPLY_INITIAL_LAYOUT',
   APPLY_EDIT: 'data-modeling/diagram/APPLY_EDIT',
   UNDO_EDIT: 'data-modeling/diagram/UNDO_EDIT',
@@ -97,11 +95,6 @@ export type RenameDiagramAction = {
 
 export type DeleteDiagramAction = {
   type: typeof DiagramActionTypes.DELETE_DIAGRAM;
-  id: string;
-};
-
-export type DiagramDeletedAction = {
-  type: typeof DiagramActionTypes.DIAGRAM_DELETED;
   id: string;
 };
 
@@ -146,7 +139,6 @@ export type DiagramActions =
   | OpenDiagramAction
   | RenameDiagramAction
   | DeleteDiagramAction
-  | DiagramDeletedAction
   | ApplyEditAction
   | RevertFailedEditAction
   | UndoEditAction
@@ -225,16 +217,6 @@ export const diagramReducer: Reducer<DiagramState> = (
       ...state,
       name: action.name,
       updatedAt: new Date().toISOString(),
-    };
-  }
-
-  if (
-    isAction(action, DiagramActionTypes.DIAGRAM_DELETED) &&
-    state.id === action.id
-  ) {
-    return {
-      ...state,
-      isDiagramDeleted: true,
     };
   }
 
@@ -711,11 +693,7 @@ export function openDiagram(
 export function deleteDiagram(
   id: string
 ): DataModelingThunkAction<Promise<void>, DeleteDiagramAction> {
-  return async (
-    dispatch,
-    getState,
-    { dataModelStorage, globalAppRegistry }
-  ) => {
+  return async (dispatch, getState, { dataModelStorage }) => {
     const confirmed = await showConfirmation({
       title: 'Are you sure you want to delete this diagram?',
       description: 'This action can not be undone.',
@@ -725,7 +703,6 @@ export function deleteDiagram(
       return;
     }
     void dataModelStorage.delete(id);
-    globalAppRegistry.emit('dm-diagram-deleted', id);
     dispatch({ type: DiagramActionTypes.DELETE_DIAGRAM, id });
   };
 }

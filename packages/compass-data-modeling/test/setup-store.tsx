@@ -1,9 +1,7 @@
 import React from 'react';
 import type { RenderWithConnectionsResult } from '@mongodb-js/testing-library-compass';
 import { renderWithConnections } from '@mongodb-js/testing-library-compass';
-import AppRegistry, {
-  createActivateHelpers,
-} from '@mongodb-js/compass-app-registry';
+import { createActivateHelpers } from '@mongodb-js/compass-app-registry';
 import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import { TestMongoDBInstanceManager } from '@mongodb-js/compass-app-stores/provider';
@@ -149,7 +147,6 @@ export const setupStore = (
     {
       logger: createNoopLogger('TEST'),
       track: createNoopTrack(),
-      globalAppRegistry: new AppRegistry(),
       connections: {
         connect() {
           return Promise.resolve();
