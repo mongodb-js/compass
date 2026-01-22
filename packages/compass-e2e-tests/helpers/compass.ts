@@ -7,7 +7,6 @@ import { execFile } from 'child_process';
 import type { ExecFileOptions, ExecFileException } from 'child_process';
 import { promisify } from 'util';
 import zlib from 'zlib';
-import type { ChainablePromiseElement } from 'webdriverio';
 import { remote } from 'webdriverio';
 import { rebuild } from '@electron/rebuild';
 import type { RebuildOptions } from '@electron/rebuild';
@@ -892,92 +891,12 @@ export async function startBrowser(
 
     const urls = getCloudUrlsFromContext(context);
 
-    // TODO: move auth to its own command
-    await browser.navigateTo(urls.accountUrl);
-
-    // TODO: move this to its own commands file
-    const isLeafygreenEnabled = async (
-      browser: CompassBrowser,
-      el: string | ChainablePromiseElement
-    ) => {
-      el = typeof el === 'string' ? browser.$(el) : el;
-      return (
-        (await el.getAttribute('aria-disabled')) !== 'true' &&
-        (await el.isEnabled())
-      );
-    };
-
-    const waitForLeafygreenEnabled = async (
-      browser: CompassBrowser,
-      el: string | ChainablePromiseElement
-    ) => {
-      return await browser.waitUntil(async () => {
-        return await isLeafygreenEnabled(browser, el);
-      });
-    };
-
-    await waitForLeafygreenEnabled(browser, 'input[name="username"]');
-    await browser
-      .$('input[name="username"]')
-      .setValue(context.atlasCloudUsername);
-
-    await waitForLeafygreenEnabled(browser, 'button=Next');
-    await browser.$('button=Next').click();
-
-    await browser.$('input[name="password"]').waitForEnabled();
-    await browser
-      .$('input[name="password"]')
-      .setValue(context.atlasCloudPassword);
-
-    await browser.$('button=Login').waitForEnabled();
-    await browser.$('button=Login').click();
-
-    let authenticated = false;
-
-    // Atlas Cloud will periodically remind user to enable MFA (which we can't
-    // enable in e2e CI environment), so to account for that, in parallel to
-    // waiting for auth to finish, we'll wait for the MFA screen to show up and
-    // skip it if it appears
-    //
-    // TODO: there's some special test-only endpoint we can call to disable this
-    // for the user we're using
-    const [, authenticationPromiseSettled] = await Promise.allSettled([
-      (async () => {
-        const remindMeLaterButton = 'button*=Remind me later';
-
-        await browser.waitUntil(
-          async () => {
-            return (
-              authenticated ||
-              (await browser.$(remindMeLaterButton).isDisplayed())
-            );
-          },
-          // Takes awhile for the redirect to land on this reminder page when it
-          // happens, so no need to bombard the browser with displayed checks
-          { interval: 2000 }
-        );
-
-        if (authenticated) {
-          return;
-        }
-
-        await browser.clickVisible(remindMeLaterButton);
-      })(),
-      browser.waitUntil(
-        async () => {
-          const pageUrl = await browser.getUrl();
-          // We don't check the project id, just want to make sure we are in
-          // atlas cloud
-          return (authenticated = pageUrl.startsWith(`${urls.cloudUrl}/v2/`));
-        },
-        // See above
-        { interval: 2000 }
-      ),
-    ]);
-
-    if (authenticationPromiseSettled.status === 'rejected') {
-      throw authenticationPromiseSettled.reason;
-    }
+    await browser.signInToAtlasCloudAccount(
+      urls.accountUrl,
+      urls.cloudUrl,
+      context.atlasCloudUsername,
+      context.atlasCloudPassword
+    );
 
     // Disable temporary marketing modal before proceeding
     await browser.execute(() => {
