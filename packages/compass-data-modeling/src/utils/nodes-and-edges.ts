@@ -14,7 +14,13 @@ import {
   type Relationship,
 } from '../services/data-model-storage';
 import { traverseSchema } from './schema-traversal';
-import { areFieldPathsEqual, isIdField, isRelationshipValid } from './utils';
+import {
+  areFieldPathsEqual,
+  isIdField,
+  isRelationshipValid,
+  isSameFieldOrAncestor,
+  serializeFieldPath,
+} from './utils';
 
 const NO_HIGHLIGHTED_FIELDS = {};
 
@@ -98,10 +104,45 @@ type ExtendedNodeField = BaseNodeField &
   > &
   Pick<NodeField, 'variant'>;
 
+const getExpansionStatus = ({
+  fieldPath,
+  isExpanded: _isExpanded,
+  highlightedFields,
+  selectedField,
+}: {
+  fieldPath: FieldPath;
+  isExpanded?: boolean;
+  highlightedFields?: FieldPath[];
+  selectedField?: FieldPath;
+}): boolean => {
+  const isExpanded = _isExpanded ?? DEFAULT_IS_EXPANDED;
+  if (isExpanded) return true;
+  if (
+    selectedField &&
+    isSameFieldOrAncestor(fieldPath, selectedField) &&
+    fieldPath.length < selectedField.length
+  ) {
+    // this field is an ancestor of the selected field - we expand it to ensure the selected field is visible
+    return true;
+  }
+  if (
+    highlightedFields &&
+    highlightedFields.some(
+      (highlightedField: FieldPath) =>
+        isSameFieldOrAncestor(fieldPath, highlightedField) &&
+        fieldPath.length < highlightedField.length
+    )
+  ) {
+    // this field is an ancestor of a highlighted field - we expand it to ensure the highlighted field is visible
+    return true;
+  }
+  return isExpanded;
+};
+
 export const getExtendedFields = ({
   fieldData,
-  highlightedFields = [],
-  selectedField,
+  highlightedFields: _highlightedFields = [],
+  selectedField: _selectedField,
 }: {
   fieldData: FieldData;
   highlightedFields?: FieldPath[];
@@ -111,27 +152,45 @@ export const getExtendedFields = ({
     return [];
   }
 
-  return getBaseFieldsFromSchema({ fieldData }).map(
-    (field): ExtendedNodeField => {
-      return {
-        ...field,
-        glyphs: field.type === 'objectId' ? KEY_GLYPH : NO_GLYPH,
-        selectable: true,
-        selected:
-          !!selectedField?.length &&
-          areFieldPathsEqual(field.path, selectedField),
-        editable: !isIdField(field.path),
-        variant:
-          highlightedFields.length &&
-          highlightedFields.some((highlightedField) =>
-            areFieldPathsEqual(field.path, highlightedField)
-          )
-            ? 'preview'
-            : undefined,
-        expanded: field.expanded ?? DEFAULT_IS_EXPANDED,
-      };
-    }
+  const baseFields = getBaseFieldsFromSchema({ fieldData });
+
+  // we do not clean up selected/highlighted fields because they might be valid again after redo/undo operations
+  // so we just ignore them if they do not exist in the current field list
+  const existingFields = new Set<string>(
+    baseFields.map((f) => serializeFieldPath(f.path))
   );
+  const selectedField =
+    _selectedField && existingFields.has(serializeFieldPath(_selectedField))
+      ? _selectedField
+      : undefined;
+  const highlightedFields = _highlightedFields.filter((hf) =>
+    existingFields.has(serializeFieldPath(hf))
+  );
+
+  return baseFields.map((field): ExtendedNodeField => {
+    return {
+      ...field,
+      glyphs: field.type === 'objectId' ? KEY_GLYPH : NO_GLYPH,
+      selectable: true,
+      selected:
+        !!selectedField?.length &&
+        areFieldPathsEqual(field.path, selectedField),
+      editable: !isIdField(field.path),
+      variant:
+        highlightedFields.length &&
+        highlightedFields.some((highlightedField) =>
+          areFieldPathsEqual(field.path, highlightedField)
+        )
+          ? 'preview'
+          : undefined,
+      expanded: getExpansionStatus({
+        fieldPath: field.path,
+        isExpanded: field.expanded,
+        highlightedFields,
+        selectedField,
+      }),
+    };
+  });
 };
 
 /**
