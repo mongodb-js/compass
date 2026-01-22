@@ -28,7 +28,7 @@ const exportCodeButtonTextStyles = css({
     },
 });
 
-type PipelineSettingsProps = {
+type PipelineExportActionsProps = {
   isExportToLanguageEnabled?: boolean;
   isExportDataEnabled?: boolean;
   isMergeOrOutPipeline?: boolean;
@@ -37,7 +37,7 @@ type PipelineSettingsProps = {
 };
 
 export const PipelineExportActions: React.FunctionComponent<
-  PipelineSettingsProps
+  PipelineExportActionsProps
 > = ({
   isExportToLanguageEnabled,
   isExportDataEnabled,
