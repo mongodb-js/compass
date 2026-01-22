@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { connect } from 'react-redux';
 import DiagramEditor from './diagram-editor';
 import SavedDiagramsList from './saved-diagrams-list';
@@ -44,9 +44,13 @@ const DataModeling: React.FunctionComponent<DataModelingProps> = ({
   showList,
   currentDiagramId,
 }) => {
-  const showDeletedInfo = !useDataModelSavedItems().items.some(
-    (item) => item.id === currentDiagramId
-  );
+  const dataModels = useDataModelSavedItems();
+  const showDeletedInfo = useMemo(() => {
+    return (
+      currentDiagramId &&
+      !dataModels.items.some((item) => item.id === currentDiagramId)
+    );
+  }, [dataModels.items, currentDiagramId]);
   return (
     <>
       {showList ? (
