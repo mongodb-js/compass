@@ -1,11 +1,17 @@
 import React from 'react';
 import { Variant as ButtonVariant } from '@leafygreen-ui/button';
 import { Modal } from './modal';
-import { ModalFooter } from '../leafygreen';
+import { Button, ModalFooter } from '../leafygreen';
 
 import { ModalBody } from './modal-body';
 import { ModalHeader } from './modal-header';
-import { ModalFooterButton } from './modal-footer-button';
+import { css, spacing } from '../..';
+
+const footerStyles = css({
+  display: 'flex',
+  justifyContent: 'flex-end',
+  gap: spacing[2],
+});
 
 export const Variant = {
   Default: ButtonVariant.Primary,
@@ -53,22 +59,22 @@ function FormModal({
         <ModalBody variant={variant} scroll={scroll} minHeight={minBodyHeight}>
           {children}
         </ModalBody>
-        <ModalFooter>
-          <ModalFooterButton
+        <ModalFooter className={footerStyles}>
+          <Button
+            data-testid="cancel-button"
+            onClick={onCancel}
+            variant="default"
+          >
+            {cancelButtonText}
+          </Button>
+          <Button
             data-testid="submit-button"
             variant={variant}
             type="submit"
             disabled={submitDisabled}
           >
             {submitButtonText}
-          </ModalFooterButton>
-          <ModalFooterButton
-            data-testid="cancel-button"
-            onClick={onCancel}
-            variant="default"
-          >
-            {cancelButtonText}
-          </ModalFooterButton>
+          </Button>
         </ModalFooter>
       </form>
     </Modal>
