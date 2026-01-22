@@ -100,7 +100,6 @@ import {
 import { createServiceProvider } from '@mongodb-js/compass-app-registry';
 import { CompassAssistantProvider } from '@mongodb-js/compass-assistant';
 import { CompassAssistantDrawerWithConnections } from './compass-assistant-drawer';
-import { CompassIndexesDrawerPlugin } from '@mongodb-js/compass-indexes';
 import { APP_NAMES_FOR_PROMPT } from '@mongodb-js/compass-assistant';
 import { assertsUserDataType } from '@mongodb-js/compass-user-data';
 
@@ -344,7 +343,6 @@ function CompassWorkspace({
         modals={[
           ExplainPlanCollectionTabModal,
           ExportToLanguageCollectionTabModal,
-          CompassIndexesDrawerPlugin,
         ]}
       >
         <div

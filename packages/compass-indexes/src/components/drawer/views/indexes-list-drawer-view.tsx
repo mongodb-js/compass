@@ -6,7 +6,7 @@ type IndexesListPageProps = {
   namespace: string;
 };
 
-const IndexesListDrawerTab: React.FunctionComponent<IndexesListPageProps> = ({
+const IndexesListDrawerView: React.FunctionComponent<IndexesListPageProps> = ({
   namespace,
 }) => {
   return <div>Indexes list for {namespace}</div>;
@@ -18,5 +18,4 @@ const mapState = ({ namespace }: RootState) => ({
 
 const mapDispatch = {};
 
-export default connect(mapState, mapDispatch)(IndexesListDrawerTab);
-export { IndexesListDrawerTab };
+export default connect(mapState, mapDispatch)(IndexesListDrawerView);

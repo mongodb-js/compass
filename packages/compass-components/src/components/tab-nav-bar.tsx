@@ -42,6 +42,7 @@ type TabNavBarProps = {
     name: string;
     content: React.ReactNode;
     title: React.ReactNode;
+    drawer?: React.ReactNode;
   }>;
 };
 
@@ -99,6 +100,10 @@ function TabNavBar({
           );
         }
       })}
+      {/* Render the drawers from all tabs regardless of activeTabIndex */}
+      {tabs.map(({ drawer }) => (
+        <>{drawer}</>
+      ))}
     </div>
   );
 }

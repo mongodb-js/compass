@@ -41,7 +41,6 @@ import { getConnectionTitle } from '@mongodb-js/connection-info';
 import { useConnectionsListRef } from '@mongodb-js/compass-connections/provider';
 import { DataModelingWorkspaceTab } from '@mongodb-js/compass-data-modeling';
 import { CompassAssistantDrawerWithConnections } from './compass-assistant-drawer';
-import { CompassIndexesDrawerPlugin } from '@mongodb-js/compass-indexes';
 
 export default function Workspace({
   appName,
@@ -99,7 +98,6 @@ export default function Workspace({
         modals={[
           ExplainPlanCollectionTabModal,
           ExportToLanguageCollectionTabModal,
-          CompassIndexesDrawerPlugin,
         ]}
       >
         <WorkspacesPlugin
