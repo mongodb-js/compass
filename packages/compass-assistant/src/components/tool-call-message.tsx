@@ -160,7 +160,7 @@ ${toolCall.errorText}
 
   return (
     <div className={toolCallMessageStyles}>
-      <Message.ToolCard
+      <Message.ActionCard
         initialIsExpanded={initialIsExpanded}
         showExpandButton={true}
         state={toolCallState}
@@ -168,7 +168,7 @@ ${toolCall.errorText}
         darkMode={darkMode}
         chips={chips}
       >
-        <Message.ToolCard.ExpandableContent
+        <Message.ActionCard.ExpandableContent
           className={cx(
             expandableContentStyles,
             darkMode
@@ -177,14 +177,24 @@ ${toolCall.errorText}
           )}
         >
           {expandableContentText}
-        </Message.ToolCard.ExpandableContent>
+        </Message.ActionCard.ExpandableContent>
         {isAwaitingApproval && toolCall.approval && (
-          <Message.ToolCard.Actions
-            onClickCancel={() => onDeny?.(toolCall.approval.id)}
-            onClickRun={() => onApprove?.(toolCall.approval.id)}
-          />
+          <>
+            <Message.ActionCard.Button
+              onClick={() => onDeny?.(toolCall.approval.id)}
+              variant="default"
+            >
+              Cancel
+            </Message.ActionCard.Button>
+            <Message.ActionCard.Button
+              onClick={() => onApprove?.(toolCall.approval.id)}
+              variant="primary"
+            >
+              Run
+            </Message.ActionCard.Button>
+          </>
         )}
-      </Message.ToolCard>
+      </Message.ActionCard>
     </div>
   );
 };

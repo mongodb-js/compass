@@ -84,7 +84,7 @@
     "@lg-chat/chat-window": "^6.0.1",
     "@lg-chat/input-bar": "^12.2.0",
     "@lg-chat/leafygreen-chat-provider": "^6.0.0",
-    "@lg-chat/message": "^10.2.0",
+    "@lg-chat/message": "^11.0.0",
     "@lg-chat/message-prompts": "^4.2.1",
     "@mongodb-js/compass-context-menu": "^0.3.4",
     "@mongodb-js/diagramming": "^2.3.2",
