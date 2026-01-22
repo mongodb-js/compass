@@ -123,7 +123,6 @@ export function CreateShardKeyForm({
   isCancellingSharding,
   onCreateShardKey,
 }: CreateShardKeyFormProps) {
-  const [isAdvancedOptionsOpen, setIsAdvancedOptionsOpen] = useState(false);
   const [selectedAdvancedOption, setSelectedAdvancedOption] =
     useState<ShardingAdvancedOption>('default');
   const fields = useAutocompleteFields(namespace);
@@ -221,8 +220,6 @@ export function CreateShardKeyForm({
         <Accordion
           data-testid="advanced-shard-key-configuration"
           text="Advanced Shard Key Configuration"
-          open={isAdvancedOptionsOpen}
-          setOpen={setIsAdvancedOptionsOpen}
           className={accordionStyles}
         >
           <RadioGroup

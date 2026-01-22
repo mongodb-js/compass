@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback } from 'react';
 import { spacing } from '@leafygreen-ui/tokens';
 import { css, cx } from '@leafygreen-ui/emotion';
 import { palette } from '@leafygreen-ui/palette';
@@ -6,9 +6,8 @@ import { useId } from '@react-aria/utils';
 import { useDarkMode } from '../hooks/use-theme';
 
 import { Description, Icon } from './leafygreen';
-import { useCurrentValueRef } from '../hooks/use-current-value-ref';
 
-const buttonStyles = css({
+const summaryStyles = css({
   fontWeight: 'bold',
   display: 'flex',
   alignItems: 'center',
@@ -28,7 +27,7 @@ const buttonStyles = css({
   },
 });
 
-const buttonVariantStyles = {
+const summaryVariantStyles = {
   default: css({
     fontSize: 14,
     lineHeight: `${spacing[500]}px`,
@@ -44,26 +43,29 @@ const iconVariantSizes = {
   small: 14,
 };
 
-const buttonLightThemeStyles = css({
+const summaryLightThemeStyles = css({
   color: palette.gray.dark2,
 });
 
-const buttonDarkThemeStyles = css({
+const summaryDarkThemeStyles = css({
   color: palette.white,
 });
 
-const buttonIconContainerStyles = css({
+const summaryIconContainerStyles = css({
   fontSize: 0,
   lineHeight: 0,
   padding: 0,
   paddingRight: spacing[150],
+  'details[open] > summary & svg': {
+    transform: 'rotate(90deg)',
+  },
 });
 
-const buttonTextStyles = css({
+const summaryTextStyles = css({
   textAlign: 'left',
 });
 
-const buttonHintStyles = css({
+const summaryHintStyles = css({
   margin: 0,
   marginLeft: spacing[100],
   padding: 0,
@@ -71,14 +73,13 @@ const buttonHintStyles = css({
 });
 
 interface AccordionProps
-  extends Omit<React.HTMLProps<HTMLButtonElement>, 'size'> {
+  extends Omit<React.HTMLProps<HTMLDetailsElement>, 'size'> {
   text: string | React.ReactNode;
   hintText?: string;
   textClassName?: string;
-  buttonTextClassName?: string;
-  open?: boolean;
+  summaryTextClassName?: string;
   defaultOpen?: boolean;
-  setOpen?: (newValue: boolean) => void;
+  onOpenToggle?: (newValue: boolean) => void;
   size?: 'default' | 'small';
 }
 
@@ -86,61 +87,46 @@ function Accordion({
   text,
   hintText,
   textClassName,
-  buttonTextClassName,
-  open: _open,
-  setOpen: _setOpen,
+  summaryTextClassName,
   defaultOpen = false,
+  onOpenToggle,
   size = 'default',
   ...props
 }: React.PropsWithChildren<AccordionProps>): React.ReactElement {
   const darkMode = useDarkMode();
-  const [localOpen, setLocalOpen] = useState(_open ?? defaultOpen);
-  const setOpenRef = useCurrentValueRef(_setOpen);
-  const onOpenChange = useCallback(
-    (e: React.SyntheticEvent<HTMLElement>) => {
-      e.preventDefault();
-      setLocalOpen((prevValue) => {
-        const newValue = !prevValue;
-        setOpenRef.current?.(newValue);
-        return newValue;
-      });
-    },
-    [setOpenRef]
-  );
-  const regionId = useId();
   const labelId = useId();
-  const open = typeof _open !== 'undefined' ? _open : localOpen;
+  const handleToggle = useCallback(
+    (event: React.SyntheticEvent<HTMLElement>) => {
+      const isOpen = (event.target as HTMLDetailsElement).open;
+      onOpenToggle?.(isOpen);
+    },
+    [onOpenToggle]
+  );
   return (
-    <details open={open}>
+    <details open={defaultOpen} onToggle={handleToggle}>
       <summary
-        {...props}
         className={cx(
-          darkMode ? buttonDarkThemeStyles : buttonLightThemeStyles,
-          buttonStyles,
-          buttonVariantStyles[size],
+          darkMode ? summaryDarkThemeStyles : summaryLightThemeStyles,
+          summaryStyles,
+          summaryVariantStyles[size],
           textClassName
         )}
         id={labelId}
-        aria-expanded={open ? 'true' : 'false'}
-        aria-controls={regionId}
-        onClick={onOpenChange}
+        {...props}
       >
-        <span className={buttonIconContainerStyles}>
-          <Icon
-            glyph={open ? 'ChevronDown' : 'ChevronRight'}
-            size={iconVariantSizes[size]}
-          />
+        <span className={summaryIconContainerStyles}>
+          <Icon glyph={'ChevronRight'} size={iconVariantSizes[size]} />
         </span>
 
-        <div className={cx(buttonTextStyles, buttonTextClassName)}>
+        <div className={cx(summaryTextStyles, summaryTextClassName)}>
           {text}
           {hintText && (
-            <Description className={buttonHintStyles}>{hintText}</Description>
+            <Description className={summaryHintStyles}>{hintText}</Description>
           )}
         </div>
       </summary>
 
-      <div role="region" aria-labelledby={labelId} id={regionId}>
+      <div role="region" aria-labelledby={labelId}>
         {props.children}
       </div>
     </details>
