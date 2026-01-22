@@ -2,13 +2,13 @@ import React from 'react';
 import { connect } from 'react-redux';
 import type { RootState } from '../../../modules';
 
-type IndexesListPageProps = {
+type IndexesListDrawerViewProps = {
   namespace: string;
 };
 
-const IndexesListDrawerView: React.FunctionComponent<IndexesListPageProps> = ({
-  namespace,
-}) => {
+const IndexesListDrawerView: React.FunctionComponent<
+  IndexesListDrawerViewProps
+> = ({ namespace }) => {
   return <div>Indexes list for {namespace}</div>;
 };
 

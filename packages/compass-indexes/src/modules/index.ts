@@ -61,7 +61,7 @@ const reducer = combineReducers({
   // The stats for the collection
   collectionStats,
 
-  // The indexes drawer state (current drawer tab, index type, index name)
+  // The indexes drawer state (current drawer view, index type, index name)
   indexesDrawer,
 });
 
