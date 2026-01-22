@@ -80,10 +80,9 @@ post:
   - command: archive.targz_pack
     params:
       target: src/all-e2e-logs.tgz
-      source_dir: src/packages/compass-e2e-tests
+      source_dir: src/packages/compass-e2e-tests/.log
       include:
-        - '.log/**/*'
-        - '.nyc_output/**/*'
+        - '**'
   - command: archive.targz_pack
     params:
       target: src/all-npm-logs.tgz
@@ -108,9 +107,11 @@ post:
       <<: *save-artifact-params
       local_files_include_filter:
         - src/coverage.tgz
+        - src/packages/compass-e2e-tests/.nyc_output/coverage.json
         - src/all-e2e-logs.tgz
         - src/all-npm-logs.tgz
-        - src/all-test-server-logs.tgz
+        - src/all-testserver-logs.tgz
+        - src/all-docker-logs.tgz
       remote_file: compass-dev/${revision}_${revision_order_id}/${build_variant}/${task_name}
       content_type: text/plain
   - command: s3.put
