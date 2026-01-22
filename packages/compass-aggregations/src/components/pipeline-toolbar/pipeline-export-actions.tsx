@@ -85,7 +85,6 @@ export default connect(
     const hasSyntaxErrors = getIsPipelineInvalidFromBuilderState(state, false);
     const isAIFetching = state.pipelineBuilder.aiPipeline.status === 'fetching';
     return {
-      editViewName: state.editViewName ?? undefined,
       isExportToLanguageEnabled: !hasSyntaxErrors && !isAIFetching,
       isMergeOrOutPipeline: isMergeOrOutPipeline,
       isExportDataEnabled:
