@@ -48,15 +48,4 @@ export const CompassIndexesPlugin = {
   header: IndexesTabTitle as React.FunctionComponent,
 };
 
-// Export drawer components
 export { CompassIndexesDrawerPlugin } from './components/drawer/compass-indexes-drawer';
-export {
-  useIndexesDrawerActions,
-  useIndexesDrawerContext,
-  compassIndexesDrawerServiceLocator,
-  INDEXES_DRAWER_ID,
-} from './components/drawer/compass-indexes-drawer-provider';
-export type {
-  CompassIndexesDrawerService,
-  IndexesDrawerContextType,
-} from './components/drawer/compass-indexes-drawer-provider';
