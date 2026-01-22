@@ -242,7 +242,9 @@ function CSFLETab({
             return (
               <div className={accordionContainerStyles} key={kmsProviderType}>
                 <Accordion
-                  setOpen={(open) => onOpenAccordion(kmsProviderType, open)}
+                  onOpenToggle={(open) =>
+                    onOpenAccordion(kmsProviderType, open)
+                  }
                   data-testid={`csfle-kms-provider-${kmsProviderType}`}
                   text={accordionTitle}
                 >
