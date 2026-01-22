@@ -1,9 +1,4 @@
-import {
-  render,
-  screen,
-  fireEvent,
-  cleanup,
-} from '@mongodb-js/testing-library-compass';
+import { render, screen, userEvent } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import React from 'react';
 import sinon from 'sinon';
@@ -13,8 +8,8 @@ import { cloneDeep } from 'lodash';
 type TestItem = {
   id: string;
   selected: boolean;
-  col1: string;
-  col2: string;
+  disabled?: boolean;
+  label: string;
 };
 
 describe('SelectList', function () {
@@ -24,15 +19,11 @@ describe('SelectList', function () {
 
   beforeEach(function () {
     items = [
-      { id: 'id1', selected: true, col1: '1x1', col2: '1x2' },
-      { id: 'id2', selected: true, col1: '2x1', col2: '2x2' },
+      { id: 'id1', selected: true, label: '1x1' },
+      { id: 'id2', selected: true, label: '2x1' },
     ];
-    label = { displayLabelKey: 'col1', name: 'Column1' };
+    label = { displayLabelKey: 'label', name: 'Select Option' };
     onChange = sinon.stub();
-  });
-
-  afterEach(function () {
-    cleanup();
   });
 
   describe('render', function () {
@@ -104,6 +95,32 @@ describe('SelectList', function () {
         screen.getByTestId('select-id2').closest('input')?.checked
       ).to.equal(true);
     });
+
+    it('renders checkall checkbox as disabled - when all items are disabled', function () {
+      items[0].disabled = true;
+      items[1].disabled = true;
+      render(<SelectList items={items} label={label} onChange={onChange} />);
+
+      expect(
+        screen.getByTestId('select-list-all-checkbox').closest('input')
+          ?.ariaDisabled
+      ).to.equal('true');
+    });
+
+    it('renders checkall checkbox as disabled - when component prop is disabled', function () {
+      render(
+        <SelectList
+          items={items}
+          label={label}
+          onChange={onChange}
+          disabled={true}
+        />
+      );
+      expect(
+        screen.getByTestId('select-list-all-checkbox').closest('input')
+          ?.ariaDisabled
+      ).to.equal('true');
+    });
   });
 
   describe('updates', function () {
@@ -112,7 +129,9 @@ describe('SelectList', function () {
       items[0].selected = false;
       render(<SelectList items={items} label={label} onChange={onChange} />);
 
-      fireEvent.click(screen.getByTestId('select-id1'));
+      userEvent.click(screen.getByTestId('select-id1'), undefined, {
+        skipPointerEventsCheck: true,
+      });
       expect(onChange).to.have.been.calledWith(originalItems);
     });
 
@@ -121,7 +140,9 @@ describe('SelectList', function () {
       items[0].selected = false;
       render(<SelectList items={items} label={label} onChange={onChange} />);
 
-      fireEvent.click(screen.getByTestId('select-id1'));
+      userEvent.click(screen.getByTestId('select-id1'), undefined, {
+        skipPointerEventsCheck: true,
+      });
       expect(onChange).to.have.been.calledWith(expectedItems);
     });
 
@@ -131,7 +152,11 @@ describe('SelectList', function () {
       items[1].selected = false;
       render(<SelectList items={items} label={label} onChange={onChange} />);
 
-      fireEvent.click(screen.getByTestId('select-list-all-checkbox'));
+      userEvent.click(
+        screen.getByTestId('select-list-all-checkbox'),
+        undefined,
+        { skipPointerEventsCheck: true }
+      );
       expect(onChange).to.have.been.calledWith(originalItems);
     });
 
@@ -141,8 +166,50 @@ describe('SelectList', function () {
       items[1].selected = false;
       render(<SelectList items={items} label={label} onChange={onChange} />);
 
-      fireEvent.click(screen.getByTestId('select-list-all-checkbox'));
+      userEvent.click(
+        screen.getByTestId('select-list-all-checkbox'),
+        undefined,
+        { skipPointerEventsCheck: true }
+      );
       expect(onChange).to.have.been.calledWith(expectedItems);
+    });
+    it('calls onChange with disabled items left unchanged - using checkall box', function () {
+      const expectedItems = cloneDeep(items);
+      items[0].selected = false;
+      items[0].disabled = true;
+      items[1].selected = false;
+      render(<SelectList items={items} label={label} onChange={onChange} />);
+
+      userEvent.click(
+        screen.getByTestId('select-list-all-checkbox'),
+        undefined,
+        { skipPointerEventsCheck: true }
+      );
+
+      expect(onChange).to.have.been.calledWith([
+        { ...expectedItems[0], selected: false, disabled: true },
+        { ...expectedItems[1], selected: true },
+      ]);
+    });
+    it('calls onChange with disabled items left unchanged - using individual checkbox', function () {
+      const expectedItems = cloneDeep(items);
+      items[0].selected = false;
+      items[0].disabled = true;
+      items[1].selected = false;
+      render(<SelectList items={items} label={label} onChange={onChange} />);
+
+      userEvent.click(screen.getByTestId('select-id1'), undefined, {
+        skipPointerEventsCheck: true,
+      });
+      expect(onChange).to.not.have.been.called;
+
+      userEvent.click(screen.getByTestId('select-id2'), undefined, {
+        skipPointerEventsCheck: true,
+      });
+      expect(onChange).to.have.been.calledWith([
+        { ...expectedItems[0], selected: false, disabled: true },
+        { ...expectedItems[1], selected: true },
+      ]);
     });
   });
 });

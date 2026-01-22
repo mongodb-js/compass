@@ -45,7 +45,7 @@ export type WorkspacesService = {
   /**
    * Open "Data Modeling" workspace
    */
-  openDataModelingWorkspace(this: void): void;
+  openDataModelingWorkspace(this: void, options?: TabOptions): void;
 
   /**
    * Open "Shell" workspace
@@ -247,15 +247,15 @@ export const WorkspacesServiceProvider: React.FunctionComponent<{
           openWorkspaceAction({ type: 'My Queries' }, tabOptions)
         );
       },
-      openDataModelingWorkspace: () => {
+      openDataModelingWorkspace: (options = {}) => {
         return void store.dispatch(
           openWorkspaceAction(
             { type: 'Data Modeling' },
             {
-              // Data Modeling tab is a special case, we always want to open it
-              // in a new tab to make it easier for users to create / open new
+              // Data Modeling tab is a special case, we want to open it
+              // in a new tab by default to make it easier for users to create / open new
               // diagrams
-              newTab: true,
+              newTab: options.newTab ?? true,
             }
           )
         );

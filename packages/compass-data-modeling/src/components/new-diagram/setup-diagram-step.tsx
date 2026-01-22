@@ -9,7 +9,6 @@ import {
 import React, { useMemo } from 'react';
 import { connect } from 'react-redux';
 import type { DataModelingState } from '../../store/reducer';
-import { useConnectionsList } from '@mongodb-js/compass-connections/provider';
 import type { GenerateDiagramWizardState } from '../../store/generate-diagram-wizard';
 import {
   validateDiagramName,
@@ -17,6 +16,7 @@ import {
   selectConnection,
   selectDatabase,
 } from '../../store/generate-diagram-wizard';
+import { useSavedConnections } from '../../utils/use-saved-connections';
 
 const containerStyles = css({
   display: 'flex',
@@ -56,20 +56,7 @@ const SetupDiagramStep = ({
   onConnectionSelect,
   onDatabaseSelect,
 }: SetupDiagramStepProps) => {
-  const connections = useConnectionsList();
-  const [activeConnections, otherConnections] = useMemo(() => {
-    const active = [];
-    const other = [];
-    for (const connection of connections) {
-      if (connection.status === 'connected') {
-        active.push(connection);
-      } else {
-        other.push(connection);
-      }
-    }
-    return [active, other];
-  }, [connections]);
-
+  const connections = useSavedConnections();
   const connectionErrorMessage = useMemo(() => {
     if (selectedConnection.error) {
       return selectedConnection.error.message;
@@ -114,22 +101,13 @@ const SetupDiagramStep = ({
           state={connectionErrorMessage ? 'error' : undefined}
           errorMessage={connectionErrorMessage}
         >
-          {activeConnections.map((connection) => {
+          {connections.map((connection) => {
             return (
               <ComboboxOption
-                key={connection.info.id}
-                value={connection.info.id}
-                displayName={connection.title}
-                description="Active"
-              ></ComboboxOption>
-            );
-          })}
-          {otherConnections.map((connection) => {
-            return (
-              <ComboboxOption
-                key={connection.info.id}
-                value={connection.info.id}
-                displayName={connection.title}
+                key={connection.id}
+                value={connection.id}
+                displayName={connection.name}
+                description={connection.description}
               ></ComboboxOption>
             );
           })}

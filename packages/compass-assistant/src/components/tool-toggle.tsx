@@ -18,6 +18,7 @@ import {
   usePreferencesContext,
 } from 'compass-preferences-model/provider';
 import { useAssistantProjectId } from '../compass-assistant-provider';
+import { AVAILABLE_TOOLS } from '@mongodb-js/compass-generative-ai';
 
 const popoverContentStyles = css({
   padding: spacing[400],
@@ -113,68 +114,6 @@ const toolDescriptionStyles = css({
   color: palette.gray.light1,
   fontWeight: 300,
 });
-
-export const DATABASE_TOOLS = [
-  {
-    name: 'find',
-    description:
-      'Retrieves specific documents that match your search criteria.',
-  },
-  {
-    name: 'aggregate',
-    description:
-      'Performs complex data processing, grouping, and calculations.',
-  },
-  {
-    name: 'count',
-    description:
-      'Quickly returns the total number of documents matching a query.',
-  },
-  {
-    name: 'list-databases',
-    description: 'Displays all available databases in the connected cluster.',
-  },
-  {
-    name: 'list-collections',
-    description: 'Shows all collections within a specified database.',
-  },
-  {
-    name: 'collection-schema',
-    description: 'Describes the schema structure of a collection.',
-  },
-  {
-    name: 'collection-indexes',
-    description: 'Lists all indexes defined on a collection.',
-  },
-  {
-    name: 'collection-storage-size',
-    description: 'Returns the storage size information for a collection.',
-  },
-  {
-    name: 'db-stats',
-    description: 'Provides database statistics including size and usage.',
-  },
-  {
-    name: 'explain',
-    description: 'Provides execution statistics and query plan information.',
-  },
-  {
-    name: 'export',
-    description: 'Exports query or aggregation results in EJSON format.',
-  },
-];
-
-export const AVAILABLE_TOOLS = [
-  ...DATABASE_TOOLS,
-  {
-    name: 'get-current-query',
-    description: 'Get the current query from the querybar.',
-  },
-  {
-    name: 'get-current-pipeline',
-    description: 'Get the current pipeline from the aggregation builder.',
-  },
-];
 
 export const ToolToggle: React.FunctionComponent = () => {
   const enableGenAIToolCallingAtlasProject = usePreference(

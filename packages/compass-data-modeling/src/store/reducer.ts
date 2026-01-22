@@ -21,6 +21,11 @@ import type {
 } from './export-diagram';
 import { exportDiagramReducer } from './export-diagram';
 import { type openToast as _openToast } from '@mongodb-js/compass-components';
+import type {
+  ReselectCollectionsWizardActions,
+  ReselectCollectionsWizardActionTypes,
+} from './reselect-collections-wizard';
+import { reselectCollectionsWizardReducer } from './reselect-collections-wizard';
 
 const reducer = combineReducers({
   step: stepReducer,
@@ -28,18 +33,21 @@ const reducer = combineReducers({
   analysisProgress: analysisProcessReducer,
   diagram: diagramReducer,
   exportDiagram: exportDiagramReducer,
+  reselectCollections: reselectCollectionsWizardReducer,
 });
 
 export type DataModelingActions =
   | GenerateDiagramWizardActions
   | AnalysisProgressActions
   | DiagramActions
-  | ExportDiagramActions;
+  | ExportDiagramActions
+  | ReselectCollectionsWizardActions;
 
 type _ActionTypes = typeof GenerateDiagramWizardActionTypes &
   typeof AnalysisProcessActionTypes &
   typeof DiagramActionTypes &
-  typeof ExportDiagramActionTypes;
+  typeof ExportDiagramActionTypes &
+  typeof ReselectCollectionsWizardActionTypes;
 
 export type DataModelingActionTypes = _ActionTypes[keyof _ActionTypes];
 

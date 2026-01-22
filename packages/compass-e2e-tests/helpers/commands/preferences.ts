@@ -35,7 +35,10 @@ async function _waitUntilPreferencesAccessAvailable(
         const kSandboxPreferencesAccess = Symbol.for(
           '@compass-web-sandbox-preferences-access'
         );
-        return kSandboxPreferencesAccess in globalThis;
+        return (
+          kSandboxPreferencesAccess in globalThis &&
+          !!(globalThis as any)[kSandboxPreferencesAccess]
+        );
       });
     }, waitUntilOptions);
   }

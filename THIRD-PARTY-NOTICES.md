@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **Mongodb Compass**.
-This document was automatically generated on Wed Jan 14 2026.
+This document was automatically generated on Wed Jan 21 2026.
 
 ## List of dependencies
 
@@ -440,7 +440,7 @@ This document was automatically generated on Wed Jan 14 2026.
 | **[native-machine-id](#906056a6d58d5df99105901c8c819d7534e7035561494eadf8ab0b48d4e0c418)**                                  | 0.1.2              | Apache-2.0                          |
 | **[negotiator](#617fa350c7c0fe851efe2301be0dfe1e0a38808562f7dbd2e655d30b17730ccc)**                                         | 1.0.0              | MIT                                 |
 | **[netmask](#2bd5b8ff7fab9adace6c38d3fd32e7328484939fdd07836635b0155d0afc35b2)**                                            | 2.0.2              | MIT                                 |
-| **[node-abi](#8439498b871b0967513772928c8dcf9a61a3eda72f10609e7d521a6996ea0726)**                                           | 4.24.0             | MIT                                 |
+| **[node-abi](#705ae615bf60d7503c7e445c11b0ebf37e5114adab2122913652c9db2230c556)**                                           | 4.26.0             | MIT                                 |
 | **[node-addon-api](#af9f7588524ca4e68f4efe7b24aea46d9c8004263b1d7cf3b558f86d87a163e8)**                                     | 4.3.0              | MIT                                 |
 | **[node-cache](#7facc0b98aa570bf195800a761cbe85a8d5b639a49d16be0162f589f86ab6f4e)**                                         | 5.1.2              | MIT                                 |
 | **[node-domexception](#3c25065fd2bc1b6b56856e30ac5b8f34ddae33ca87b225854f8d855b0ccabfbe)**                                  | 1.0.0              | MIT                                 |
@@ -476,7 +476,6 @@ This document was automatically generated on Wed Jan 14 2026.
 | **[pump](#147f1bd3a6380306e696f0574feda0b1490121a1d12e4500e91ffb6e888ffa3a)**                                               | 3.0.0              | MIT                                 |
 | **[punycode](#3fe331f5536b72438f24d644ea9804b5e462f791a4c72a6d94f37193af1086aa)**                                           | 2.3.1              | MIT                                 |
 | **[pupa](#b05b7cc4c1bc01acd063dc811b9b1b0a1a4b3e0f17be77deaeaabade7dfeb095)**                                               | 2.1.1              | MIT                                 |
-| **[qs](#8033b41a5d88393af16efc6fe6f3cc561fd17f4a31b313b5431db45adb10ad24)**                                                 | 6.14.0             | BSD-3-Clause                        |
 | **[qs](#1ebbf0f553916f7c3d47d3fc76326849d0b3f3f0eb305406c75d9a6804dc6e92)**                                                 | 6.14.1             | BSD-3-Clause                        |
 | **[queue-tick](#23cdb5d09094b81fe3642ac1a40745edd5507057d0f76f1ac05ea66c99bc88a5)**                                         | 1.0.1              | MIT                                 |
 | **[range-parser](#e973789240fef3c00f359e6acc8570dd769b70ee8b29fdcb679897fa2d696bff)**                                       | 1.2.1              | MIT                                 |
@@ -31519,9 +31518,9 @@ License files:
 
 License tags: MIT
 
-<a id="8439498b871b0967513772928c8dcf9a61a3eda72f10609e7d521a6996ea0726"></a>
+<a id="705ae615bf60d7503c7e445c11b0ebf37e5114adab2122913652c9db2230c556"></a>
 
-### [node-abi](https://www.npmjs.com/package/node-abi) (version 4.24.0)
+### [node-abi](https://www.npmjs.com/package/node-abi) (version 4.26.0)
 
 License tags: MIT
 
@@ -38663,46 +38662,6 @@ License files:
       The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
       THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-<a id="8033b41a5d88393af16efc6fe6f3cc561fd17f4a31b313b5431db45adb10ad24"></a>
-
-### [qs](https://www.npmjs.com/package/qs) (version 6.14.0)
-
-License tags: BSD-3-Clause
-
-License files:
-
-- LICENSE.md:
-
-      BSD 3-Clause License
-
-      Copyright (c) 2014, Nathan LaFreniere and other [contributors](https://github.com/ljharb/qs/graphs/contributors)
-      All rights reserved.
-
-      Redistribution and use in source and binary forms, with or without
-      modification, are permitted provided that the following conditions are met:
-
-      1. Redistributions of source code must retain the above copyright notice, this
-         list of conditions and the following disclaimer.
-
-      2. Redistributions in binary form must reproduce the above copyright notice,
-         this list of conditions and the following disclaimer in the documentation
-         and/or other materials provided with the distribution.
-
-      3. Neither the name of the copyright holder nor the names of its
-         contributors may be used to endorse or promote products derived from
-         this software without specific prior written permission.
-
-      THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-      AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-      IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-      DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-      FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-      DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-      SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-      CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-      OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-      OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 <a id="1ebbf0f553916f7c3d47d3fc76326849d0b3f3f0eb305406c75d9a6804dc6e92"></a>
 

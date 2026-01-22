@@ -1,13 +1,22 @@
-import type { FieldPath, Relationship } from '../services/data-model-storage';
+import type { MongoDBJSONSchema } from 'mongodb-schema';
+import type {
+  FieldData,
+  FieldPath,
+  Relationship,
+} from '../services/data-model-storage';
+import { cloneDeepWith } from 'lodash';
 
 export const isIdField = (fieldPath: FieldPath): boolean =>
   fieldPath.length === 1 && fieldPath[0] === '_id';
+
+export const serializeFieldPath = (fieldPath: FieldPath): string =>
+  JSON.stringify(fieldPath);
 
 export function areFieldPathsEqual(
   fieldA: FieldPath,
   fieldB: FieldPath
 ): boolean {
-  return JSON.stringify(fieldA) === JSON.stringify(fieldB);
+  return serializeFieldPath(fieldA) === serializeFieldPath(fieldB);
 }
 
 export function isSameFieldOrAncestor(
@@ -109,4 +118,30 @@ export function isRelationshipValid(relationship: Relationship): boolean {
   }
 
   return true;
+}
+
+export function mapFieldDataToJsonSchema(
+  fieldData: FieldData
+): MongoDBJSONSchema {
+  // we need to deep omit 'expanded' property
+  const newFieldData = cloneDeepWith(fieldData, (value) => {
+    if (!value) return value;
+    if (typeof value === 'object' && 'expanded' in value) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { expanded: _expanded, ...rest } = value;
+      return rest;
+    }
+    if (Array.isArray(value)) {
+      return value.map((item) => {
+        if (typeof item === 'object' && 'expanded' in item) {
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          const { expanded: _expanded, ...rest } = item;
+          return rest;
+        }
+        return item;
+      });
+    }
+    return value;
+  });
+  return newFieldData;
 }

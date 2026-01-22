@@ -26,6 +26,7 @@ import {
   renameField,
   changeFieldType,
   toggleCollectionExpanded,
+  toggleFieldExpanded,
 } from '../store/diagram';
 import type {
   EdgeProps,
@@ -202,7 +203,8 @@ const DiagramContent: React.FunctionComponent<{
   }) => void;
   onRelationshipDrawn: () => void;
   DiagramComponent?: typeof Diagram;
-  onToggleCollectionExpanded: (namespace: string) => void;
+  onToggleCollectionExpanded: (namespace: string, expanded: boolean) => void;
+  onToggleFieldExpanded: (namespace: string, fieldPath: FieldPath) => void;
 }> = ({
   diagramLabel,
   database,
@@ -228,6 +230,7 @@ const DiagramContent: React.FunctionComponent<{
   selectedItems,
   DiagramComponent = Diagram,
   onToggleCollectionExpanded,
+  onToggleFieldExpanded,
 }) => {
   const isDarkMode = useDarkMode();
   const isCollapseFlagEnabled = usePreference('enableDataModelingCollapse');
@@ -269,7 +272,6 @@ const DiagramContent: React.FunctionComponent<{
         selected,
         isInRelationshipDrawingMode,
         relationships,
-        isExpanded: coll.isExpanded,
       });
     });
   }, [
@@ -467,12 +469,21 @@ const DiagramContent: React.FunctionComponent<{
   );
 
   const handleNodeExpandedToggle = useCallback(
-    (evt: React.MouseEvent, nodeId: string) => {
+    (evt: React.MouseEvent, nodeId: string, expanded: boolean) => {
       evt.preventDefault();
       evt.stopPropagation();
-      onToggleCollectionExpanded(nodeId);
+      onToggleCollectionExpanded(nodeId, expanded);
     },
     [onToggleCollectionExpanded]
+  );
+
+  const handleFieldExpandedToggle = useCallback(
+    (evt: React.MouseEvent, nodeId: string, fieldPath: FieldPath) => {
+      evt.preventDefault();
+      evt.stopPropagation();
+      onToggleFieldExpanded(nodeId, fieldPath);
+    },
+    [onToggleFieldExpanded]
   );
 
   const diagramProps: DiagramProps = useMemo(
@@ -496,6 +507,9 @@ const DiagramContent: React.FunctionComponent<{
         onNodeExpandToggle: isCollapseFlagEnabled
           ? handleNodeExpandedToggle
           : undefined,
+        onFieldExpandToggle: isCollapseFlagEnabled
+          ? handleFieldExpandedToggle
+          : undefined,
         fieldTypes: FIELD_TYPES,
       } satisfies DiagramProps),
     [
@@ -514,6 +528,7 @@ const DiagramContent: React.FunctionComponent<{
       onNodeDragStop,
       onConnect,
       handleNodeExpandedToggle,
+      handleFieldExpandedToggle,
       isCollapseFlagEnabled,
     ]
   );
@@ -585,6 +600,7 @@ const ConnectedDiagramContent = connect(
     onDeleteRelationship: deleteRelationship,
     onDeleteField: removeField,
     onToggleCollectionExpanded: toggleCollectionExpanded,
+    onToggleFieldExpanded: toggleFieldExpanded,
   }
 )(DiagramContent);
 

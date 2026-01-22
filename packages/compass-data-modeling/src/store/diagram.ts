@@ -4,11 +4,11 @@ import { isAction } from './util';
 import type {
   DataModelCollection,
   EditAction,
+  FieldData,
   FieldPath,
   Relationship,
 } from '../services/data-model-storage';
 import {
-  DEFAULT_IS_EXPANDED,
   validateEdit,
   type Edit,
   type MongoDBDataModelDescription,
@@ -27,15 +27,16 @@ import {
   getDiagramContentsFromFile,
   getDiagramName,
 } from '../services/open-and-download-diagram';
-import type { MongoDBJSONSchema } from 'mongodb-schema';
 import { collectionToBaseNodeForLayout } from '../utils/nodes-and-edges';
 import {
   getFieldFromSchema,
   getSchemaWithNewTypes,
-  traverseSchema,
 } from '../utils/schema-traversal';
 import { applyEdit as _applyEdit } from './apply-edit';
-import { getNewUnusedFieldName } from '../utils/schema';
+import {
+  extractFieldsFromFieldData,
+  getNewUnusedFieldName,
+} from '../utils/schema';
 
 function isNonEmptyArray<T>(arr: T[]): arr is [T, ...T[]] {
   return Array.isArray(arr) && arr.length > 0;
@@ -62,13 +63,15 @@ export type DiagramState =
       selectedItems: SelectedItems | null;
       isNewlyCreated: boolean;
       draftCollection?: string;
+      isDiagramDeleted?: boolean;
     })
   | null; // null when no diagram is currently open
 
 export const DiagramActionTypes = {
   OPEN_DIAGRAM: 'data-modeling/diagram/OPEN_DIAGRAM',
-  DELETE_DIAGRAM: 'data-modeling/diagram/DELETE_DIAGRAM',
   RENAME_DIAGRAM: 'data-modeling/diagram/RENAME_DIAGRAM',
+  DELETE_DIAGRAM: 'data-modeling/diagram/DELETE_DIAGRAM',
+  DIAGRAM_DELETED: 'data-modeling/diagram/DIAGRAM_DELETED',
   APPLY_INITIAL_LAYOUT: 'data-modeling/diagram/APPLY_INITIAL_LAYOUT',
   APPLY_EDIT: 'data-modeling/diagram/APPLY_EDIT',
   UNDO_EDIT: 'data-modeling/diagram/UNDO_EDIT',
@@ -86,15 +89,20 @@ export type OpenDiagramAction = {
   diagram: MongoDBDataModelDescription;
 };
 
-export type DeleteDiagramAction = {
-  type: typeof DiagramActionTypes.DELETE_DIAGRAM;
-  isCurrent: boolean; // technically a derived state, but we don't have access to this in some slices
-};
-
 export type RenameDiagramAction = {
   type: typeof DiagramActionTypes.RENAME_DIAGRAM;
   id: string;
   name: string;
+};
+
+export type DeleteDiagramAction = {
+  type: typeof DiagramActionTypes.DELETE_DIAGRAM;
+  id: string;
+};
+
+export type DiagramDeletedAction = {
+  type: typeof DiagramActionTypes.DIAGRAM_DELETED;
+  id: string;
 };
 
 export type ApplyEditAction = {
@@ -136,8 +144,9 @@ export type DiagramBackgroundSelectedAction = {
 
 export type DiagramActions =
   | OpenDiagramAction
-  | DeleteDiagramAction
   | RenameDiagramAction
+  | DeleteDiagramAction
+  | DiagramDeletedAction
   | ApplyEditAction
   | RevertFailedEditAction
   | UndoEditAction
@@ -155,7 +164,7 @@ export const diagramReducer: Reducer<DiagramState> = (
 ) => {
   if (isAction(action, DiagramActionTypes.OPEN_DIAGRAM)) {
     const current = action.diagram.edits;
-    const prev = current.map((_item, index, arr) => arr.slice(0, index + 1));
+    const prev = current.map((_item, index, arr) => arr.slice(0, index));
     prev.shift(); // Remove the first item, which is initial SetModel and there's no previous edit for it.
     return {
       ...action.diagram,
@@ -188,14 +197,13 @@ export const diagramReducer: Reducer<DiagramState> = (
             model: {
               collections: action.collections.map((collection) => ({
                 ns: collection.ns,
-                jsonSchema: collection.schema,
+                fieldData: collection.schema,
                 displayPosition: [
                   collection.position.x,
                   collection.position.y,
                 ] as const,
                 indexes: [],
                 shardKey: undefined,
-                isExpanded: collection.isExpanded,
               })),
               relationships: action.relations,
             },
@@ -219,6 +227,17 @@ export const diagramReducer: Reducer<DiagramState> = (
       updatedAt: new Date().toISOString(),
     };
   }
+
+  if (
+    isAction(action, DiagramActionTypes.DIAGRAM_DELETED) &&
+    state.id === action.id
+  ) {
+    return {
+      ...state,
+      isDiagramDeleted: true,
+    };
+  }
+
   if (
     isAction(action, DiagramActionTypes.APPLY_EDIT) &&
     state.draftCollection &&
@@ -449,8 +468,16 @@ export function selectBackground(): DiagramBackgroundSelectedAction {
   };
 }
 
-export function toggleCollectionExpanded(namespace: string) {
-  return applyEdit({ type: 'ToggleExpandCollection', ns: namespace });
+export function toggleCollectionExpanded(namespace: string, expanded: boolean) {
+  return applyEdit({ type: 'ToggleExpandCollection', ns: namespace, expanded });
+}
+
+export function toggleFieldExpanded(namespace: string, fieldPath: FieldPath) {
+  return applyEdit({
+    type: 'ToggleExpandField',
+    ns: namespace,
+    field: fieldPath,
+  });
 }
 
 export function createNewRelationship({
@@ -528,7 +555,7 @@ export function onAddNestedField(
       // Use the first unique field name we can use.
       field: [
         ...parentFieldPath,
-        getNewUnusedFieldName(collection.jsonSchema, parentFieldPath),
+        getNewUnusedFieldName(collection.fieldData, parentFieldPath),
       ],
       jsonSchema: {
         bsonType: 'string',
@@ -562,7 +589,7 @@ export function addNewFieldToCollection(
       type: 'AddField',
       ns,
       // Use the first unique field name we can use.
-      field: [getNewUnusedFieldName(collection.jsonSchema)],
+      field: [getNewUnusedFieldName(collection.fieldData)],
       jsonSchema: {
         bsonType: 'string',
       },
@@ -684,7 +711,11 @@ export function openDiagram(
 export function deleteDiagram(
   id: string
 ): DataModelingThunkAction<Promise<void>, DeleteDiagramAction> {
-  return async (dispatch, getState, { dataModelStorage }) => {
+  return async (
+    dispatch,
+    getState,
+    { dataModelStorage, globalAppRegistry }
+  ) => {
     const confirmed = await showConfirmation({
       title: 'Are you sure you want to delete this diagram?',
       description: 'This action can not be undone.',
@@ -693,9 +724,9 @@ export function deleteDiagram(
     if (!confirmed) {
       return;
     }
-    const isCurrent = getState().diagram?.id === id;
-    dispatch({ type: DiagramActionTypes.DELETE_DIAGRAM, isCurrent });
     void dataModelStorage.delete(id);
+    globalAppRegistry.emit('dm-diagram-deleted', id);
+    dispatch({ type: DiagramActionTypes.DELETE_DIAGRAM, id });
   };
 }
 
@@ -869,12 +900,12 @@ export function changeFieldType({
   source: 'side_panel' | 'diagram';
 }): DataModelingThunkAction<void, ApplyEditAction | RevertFailedEditAction> {
   return (dispatch, getState, { track }) => {
-    const collectionSchema = selectCurrentModelFromState(
-      getState()
-    ).collections.find((collection) => collection.ns === ns)?.jsonSchema;
-    if (!collectionSchema) throw new Error('Collection not found in model');
+    const fieldData = selectCurrentModelFromState(getState()).collections.find(
+      (collection) => collection.ns === ns
+    )?.fieldData;
+    if (!fieldData) throw new Error('Collection not found in model');
     const field = getFieldFromSchema({
-      jsonSchema: collectionSchema,
+      jsonSchema: fieldData,
       fieldPath: fieldPath,
     });
     if (!field) throw new Error('Field not found in schema');
@@ -908,9 +939,8 @@ function getPositionForNewCollection(
   );
   const newNode = collectionToBaseNodeForLayout({
     ns: newCollection.ns,
-    jsonSchema: newCollection.jsonSchema,
+    fieldData: newCollection.fieldData,
     displayPosition: [0, 0],
-    isExpanded: newCollection.isExpanded,
   });
   const xyposition = getCoordinatesForNewNode(existingNodes, newNode);
   return [xyposition.x, xyposition.y];
@@ -947,9 +977,8 @@ export function addCollection(
     if (!position) {
       position = getPositionForNewCollection(existingCollections, {
         ns,
-        jsonSchema: {} as MongoDBJSONSchema,
+        fieldData: {} as FieldData,
         indexes: [],
-        isExpanded: DEFAULT_IS_EXPANDED,
       });
     }
 
@@ -976,6 +1005,17 @@ export function addCollection(
     };
     dispatch(applyEdit(edit));
   };
+}
+
+export function applySetModelEdit(
+  model: Extract<Edit, { type: 'SetModel' }>['model']
+): DataModelingThunkAction<void, ApplyEditAction> {
+  const edit: Omit<Extract<Edit, { type: 'SetModel' }>, 'id' | 'timestamp'> = {
+    type: 'SetModel',
+    model,
+  };
+
+  return applyEdit(edit);
 }
 
 /**
@@ -1043,24 +1083,13 @@ export const selectCurrentModelFromState = (state: DataModelingState) => {
   return selectCurrentModel(selectCurrentDiagramFromState(state).edits);
 };
 
-function extractFieldsFromSchema(parentSchema: MongoDBJSONSchema): FieldPath[] {
-  const fields: FieldPath[] = [];
-  traverseSchema({
-    jsonSchema: parentSchema,
-    visitor: ({ fieldPath }) => {
-      fields.push(fieldPath);
-    },
-  });
-  return fields;
-}
-
 function getFieldsForCurrentModel(
   edits: MongoDBDataModelDescription['edits']
 ): Record<string, string[][]> {
   const model = selectCurrentModel(edits);
   const fields = Object.fromEntries(
     model.collections.map((collection) => {
-      return [collection.ns, extractFieldsFromSchema(collection.jsonSchema)];
+      return [collection.ns, extractFieldsFromFieldData(collection.fieldData)];
     })
   );
   return fields;
