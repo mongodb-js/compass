@@ -141,26 +141,35 @@ function useCollectionTabs(props: CollectionMetadata) {
       }
       return true;
     })
-    .map(({ name, content: Content, provider: Provider, header: Header }) => {
-      // `pluginTabs` never change in runtime so it's safe to call the hook here
-      // eslint-disable-next-line react-hooks/rules-of-hooks
-      Provider.useActivate(props);
-      return {
+    .map(
+      ({
         name,
-        content: (
-          <WithErrorBoundary name={name} type="content">
+        content: Content,
+        provider: Provider,
+        header: Header,
+        drawer: Drawer,
+      }) => {
+        // `pluginTabs` never change in runtime so it's safe to call the hook here
+        // eslint-disable-next-line react-hooks/rules-of-hooks
+        Provider.useActivate(props);
+        return {
+          name,
+          content: (
+            <WithErrorBoundary name={name} type="content">
+              <Provider {...props}>
+                <Content {...props} />
+              </Provider>
+            </WithErrorBoundary>
+          ),
+          title: (
             <Provider {...props}>
-              <Content {...props} />
+              <Header />
             </Provider>
-          </WithErrorBoundary>
-        ),
-        title: (
-          <Provider {...props}>
-            <Header />
-          </Provider>
-        ),
-      };
-    });
+          ),
+          drawer: Drawer,
+        };
+      }
+    );
 }
 
 const CollectionTabWithMetadata: React.FunctionComponent<
