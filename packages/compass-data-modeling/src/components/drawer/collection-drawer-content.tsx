@@ -22,6 +22,7 @@ import {
 import { useChangeOnBlur } from './use-change-on-blur';
 import { RelationshipsSection } from './relationships-section';
 import { getNamespaceRelationships } from '../../utils/utils';
+import { getIsNewNameValid } from './util';
 
 type CollectionDrawerContentProps = {
   namespace: string;
@@ -39,35 +40,6 @@ type CollectionDrawerContentProps = {
   onNoteChange: (namespace: string, note: string) => void;
   onRenameCollection: (fromNS: string, toNS: string) => void;
 };
-
-export function getIsCollectionNameValid(
-  collectionName: string,
-  namespaces: string[],
-  namespace: string
-): {
-  isValid: boolean;
-  errorMessage?: string;
-} {
-  if (collectionName.trim().length === 0) {
-    return {
-      isValid: false,
-      errorMessage: 'Collection name cannot be empty.',
-    };
-  }
-
-  const namespacesWithoutCurrent = namespaces.filter((ns) => ns !== namespace);
-
-  const isDuplicate = namespacesWithoutCurrent.some(
-    (ns) =>
-      ns.trim() ===
-      `${toNS(namespace).database}.${collectionName.trim()}`.trim()
-  );
-
-  return {
-    isValid: !isDuplicate,
-    errorMessage: isDuplicate ? 'Collection name must be unique.' : undefined,
-  };
-}
 
 const CollectionDrawerContent: React.FunctionComponent<
   CollectionDrawerContentProps
@@ -107,7 +79,13 @@ const CollectionDrawerContent: React.FunctionComponent<
     isValid: isCollectionNameValid,
     errorMessage: collectionNameEditErrorMessage,
   } = useMemo(
-    () => getIsCollectionNameValid(collectionName, namespaces, namespace),
+    () =>
+      getIsNewNameValid({
+        newName: collectionName,
+        existingNames: namespaces.map((ns) => toNS(ns).collection),
+        currentName: toNS(namespace).collection,
+        entity: 'Collection',
+      }),
     [collectionName, namespaces, namespace]
   );
 
