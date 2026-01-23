@@ -699,22 +699,22 @@ describe('Data Modeling tab', function () {
 
       // Select the other collection and see that the new relationship is listed
       await selectCollectionOnTheDiagram(browser, 'test.testCollection-nested');
-      const relationshipItem = drawer.$(
+      const secondCollectionRelationshipItem = drawer.$(
         Selectors.DataModelCollectionRelationshipItem(relationshipId)
       );
-      await relationshipItem.waitForDisplayed();
-      expect(await relationshipItem.getText()).to.include(
+      await secondCollectionRelationshipItem.waitForDisplayed();
+      expect(await secondCollectionRelationshipItem.getText()).to.include(
         'testCollection-flat'
       );
 
       // Edit the relationship
-      await relationshipItem
+      await secondCollectionRelationshipItem
         .$(Selectors.DataModelCollectionRelationshipItemEdit)
         .waitForDisplayed();
-      await relationshipItem
+      await secondCollectionRelationshipItem
         .$(Selectors.DataModelCollectionRelationshipItemEdit)
         .waitForClickable();
-      await relationshipItem
+      await secondCollectionRelationshipItem
         .$(Selectors.DataModelCollectionRelationshipItemEdit)
         .click();
 
@@ -739,16 +739,19 @@ describe('Data Modeling tab', function () {
 
       // Select the first collection again and delete the relationship
       await selectCollectionOnTheDiagram(browser, 'test.testCollection-flat');
-      await relationshipItem.waitForDisplayed();
-      await relationshipItem
+      const firstCollectionRelationshipItem = drawer.$(
+        Selectors.DataModelCollectionRelationshipItem(relationshipId)
+      );
+      await firstCollectionRelationshipItem.waitForDisplayed();
+      await firstCollectionRelationshipItem
         .$(Selectors.DataModelCollectionRelationshipItemDelete)
         .waitForClickable();
-      await relationshipItem
+      await firstCollectionRelationshipItem
         .$(Selectors.DataModelCollectionRelationshipItemDelete)
         .click();
 
       // Verify that the relationship is removed from the list and the diagram
-      await relationshipItem.waitForDisplayed({ reverse: true });
+      await firstCollectionRelationshipItem.waitForDisplayed({ reverse: true });
       await getDiagramEdges(browser, 0);
     });
 

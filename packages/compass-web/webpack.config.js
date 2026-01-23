@@ -346,6 +346,17 @@ module.exports = (env, args) => {
     clean: true,
   };
 
+  // Add code that exposes some internals of compass-web. Useful for e2e tests /
+  // local sync
+  if (process.env.COMPASS_WEB_EXPOSE_INTERNALS === 'true') {
+    config.entry.index = [
+      path.resolve(__dirname, 'sandbox', 'sandbox-process.ts'),
+      path.resolve(__dirname, 'sandbox', 'sandbox-preferences.ts'),
+      path.resolve(__dirname, 'sandbox', 'sandbox-logger-and-telemetry.ts'),
+      config.entry.index,
+    ];
+  }
+
   return merge(config, {
     module: {
       rules: [
