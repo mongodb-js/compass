@@ -103,7 +103,7 @@ function WithErrorBoundary({
 }: {
   children: React.ReactNode;
   name: string;
-  type: 'content' | 'header' | 'drawer';
+  type: 'content' | 'header';
 }) {
   const { log, mongoLogId } = useLogger('COMPASS-COLLECTION-TAB-UI');
   return (
@@ -162,18 +162,14 @@ function useCollectionTabs(props: CollectionMetadata) {
             </WithErrorBoundary>
           ),
           title: (
-            <WithErrorBoundary name={name} type="header">
-              <Provider {...props}>
-                <Header />
-              </Provider>
-            </WithErrorBoundary>
+            <Provider {...props}>
+              <Header />
+            </Provider>
           ),
           drawer: Drawer ? (
-            <WithErrorBoundary name={name} type="drawer">
-              <Provider {...props}>
-                <Drawer />
-              </Provider>
-            </WithErrorBoundary>
+            <Provider {...props}>
+              <Drawer />
+            </Provider>
           ) : null,
         };
       }
