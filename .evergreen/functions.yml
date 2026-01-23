@@ -83,17 +83,35 @@ post:
       source_dir: src/packages/compass-e2e-tests/.log
       include:
         - '**'
+  - command: archive.targz_pack
+    params:
+      target: src/all-npm-logs.tgz
+      source_dir: src/.deps/.npm/_logs
+      include:
+        - '**'
+  - command: archive.targz_pack
+    params:
+      target: src/all-testserver-logs.tgz
+      source_dir: src/.testserver/logs
+      include:
+        - '**'
+  - command: archive.targz_pack
+    params:
+      # This is coming from "test connectivity" test suite
+      target: src/all-docker-logs.tgz
+      source_dir: src/.evergreen/logs
+      include:
+        - '**'
   - command: s3.put
     params:
       <<: *save-artifact-params
       local_files_include_filter:
-        - src/.deps/.npm/_logs/*.log
-        - src/packages/compass-e2e-tests/.log/**/*
-        - src/packages/compass-e2e-tests/.nyc_output/coverage.json
         - src/coverage.tgz
-        - src/.testserver/logs/*
-        - src/.evergreen/logs/*
+        - src/packages/compass-e2e-tests/.nyc_output/coverage.json
         - src/all-e2e-logs.tgz
+        - src/all-npm-logs.tgz
+        - src/all-testserver-logs.tgz
+        - src/all-docker-logs.tgz
       remote_file: compass-dev/${revision}_${revision_order_id}/${build_variant}/${task_name}
       content_type: text/plain
   - command: s3.put
