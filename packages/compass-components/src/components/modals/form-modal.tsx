@@ -10,7 +10,7 @@ import { css, spacing } from '../..';
 const footerStyles = css({
   display: 'flex',
   justifyContent: 'flex-end',
-  gap: spacing[2],
+  gap: spacing[200],
 });
 
 export const Variant = {
