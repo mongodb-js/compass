@@ -168,7 +168,7 @@ function useCollectionTabs(props: CollectionMetadata) {
           ),
           drawer: Drawer ? (
             <Provider {...props}>
-              <Drawer />
+              <Drawer {...props} />
             </Provider>
           ) : null,
         };
@@ -216,6 +216,7 @@ const CollectionTabWithMetadata: React.FunctionComponent<
     pipelineText: initialPipelineText,
     query: initialQuery,
     editViewName: editViewName,
+    subTab: currentTab,
   };
 
   const tabs = useCollectionTabs(pluginProps);

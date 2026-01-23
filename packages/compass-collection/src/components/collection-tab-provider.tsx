@@ -9,7 +9,7 @@ export interface CollectionTabPlugin {
   provider: CompassPluginComponent<CollectionTabPluginMetadata, any, any>;
   content: React.FunctionComponent<CollectionTabPluginMetadata>;
   header: React.FunctionComponent;
-  drawer?: React.FunctionComponent;
+  drawer?: React.FunctionComponent<CollectionTabPluginMetadata>;
 }
 
 type CollectionTabComponentsProviderValue = {
