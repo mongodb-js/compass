@@ -92,7 +92,8 @@ const formFieldContainerStyles = css({
 
 const footerStyles = css({
   display: 'flex',
-  gap: spacing[200],
+  justifyContent: 'flex-end',
+  gap: spacing[2],
 });
 
 export const DEFAULT_INDEX_DEFINITION = `{
@@ -438,6 +439,9 @@ export const BaseSearchIndexModal: React.FunctionComponent<
         )}
       </ModalBody>
       <ModalFooter className={footerStyles}>
+        <Button variant="default" onClick={onClose}>
+          Cancel
+        </Button>
         <Button
           data-testid="search-index-submit-button"
           variant="primary"
@@ -445,9 +449,6 @@ export const BaseSearchIndexModal: React.FunctionComponent<
           disabled={isBusy || !!parsingError}
         >
           {mode === 'create' ? 'Create Search Index' : 'Save'}
-        </Button>
-        <Button variant="default" onClick={onClose}>
-          Cancel
         </Button>
       </ModalFooter>
     </Modal>

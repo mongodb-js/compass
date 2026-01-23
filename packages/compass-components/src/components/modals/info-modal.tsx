@@ -4,10 +4,9 @@ import { css, cx } from '@leafygreen-ui/emotion';
 import { spacing } from '@leafygreen-ui/tokens';
 
 import { Modal } from './modal';
-import { ModalFooter } from '../leafygreen';
+import { Button, ModalFooter } from '../leafygreen';
 import { ModalBody } from './modal-body';
 import { ModalHeader } from './modal-header';
-import { ModalFooterButton } from './modal-footer-button';
 
 const paddingBottomStyles = css({ paddingBottom: spacing[800] });
 
@@ -38,13 +37,13 @@ function InfoModal({
       <ModalBody>{children}</ModalBody>
       {showCloseButton && (
         <ModalFooter>
-          <ModalFooterButton
+          <Button
             data-testid="close-button"
             onClick={onClose}
             variant="default"
           >
             {closeButtonText}
-          </ModalFooterButton>
+          </Button>
         </ModalFooter>
       )}
     </Modal>

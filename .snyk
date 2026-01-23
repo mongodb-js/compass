@@ -81,15 +81,6 @@ ignore:
           expecting to be able to update to electron v36 soon
         expires: 2025-06-27T10:50:52.405Z
         created: 2025-05-28T10:50:52.409Z
-  SNYK-JS-QS-14724253:
-    - '*':
-        reason: >-
-          Not applicable: this is a resource allocation vulnerability that requires
-          untrusted user input to be passed to the qs.parse function. This is only
-          relevant to servers that parse untrusted connection strings. We are only
-          parsing query strings locally from the user themselves.
-        expires: 2026-03-30T21:09:24.372Z
-        created: 2025-12-31T21:09:24.380Z
 # patches apply the minimum changes required to fix a vulnerability
 patch:
   'npm:ms:20170412':

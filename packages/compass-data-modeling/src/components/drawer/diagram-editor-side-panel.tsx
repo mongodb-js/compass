@@ -6,6 +6,7 @@ import {
   css,
   DrawerSection,
   ItemActionControls,
+  spacing,
 } from '@mongodb-js/compass-components';
 import CollectionDrawerContent from './collection-drawer-content';
 import RelationshipDrawerContent from './relationship-drawer-content';
@@ -21,6 +22,7 @@ import FieldDrawerContent from './field-drawer-content';
 import type { FieldPath } from '../../services/data-model-storage';
 import { getFieldFromSchema } from '../../utils/schema-traversal';
 import { isIdField } from '../../utils/utils';
+import DiagramOverviewDrawerContent from './diagram-overview-drawer-content';
 
 export const DATA_MODELING_DRAWER_ID = 'data-modeling-drawer';
 
@@ -36,9 +38,12 @@ const drawerTitleTextStyles = css({
   textOverflow: 'ellipsis',
 });
 
-const drawerTitleActionGroupStyles = css({});
+const drawerTitleActionGroupStyles = css({
+  marginRight: spacing[200],
+});
 
 type DiagramEditorSidePanelProps = {
+  hasDiagram: boolean;
   selectedItems: (SelectedItems & { title: string }) | null;
   onDeleteCollection: (ns: string) => void;
   onDeleteRelationship: (rId: string) => void;
@@ -49,11 +54,18 @@ const getCollection = (namespace: string) => toNS(namespace).collection;
 
 function DiagramEditorSidePanel({
   selectedItems,
+  hasDiagram,
   onDeleteCollection,
   onDeleteRelationship,
   onDeleteField,
 }: DiagramEditorSidePanelProps) {
   const { content, label, actions, title, handleAction } = useMemo(() => {
+    if (!hasDiagram) {
+      return {
+        content: null,
+      };
+    }
+
     if (selectedItems?.type === 'collection') {
       return {
         title: selectedItems.title,
@@ -132,8 +144,18 @@ function DiagramEditorSidePanel({
       };
     }
 
-    return { content: null };
-  }, [selectedItems, onDeleteCollection, onDeleteRelationship, onDeleteField]);
+    return {
+      title: 'Data Model Overview',
+      label: 'Data Model Overview',
+      content: <DiagramOverviewDrawerContent />,
+    };
+  }, [
+    hasDiagram,
+    selectedItems,
+    onDeleteCollection,
+    onDeleteRelationship,
+    onDeleteField,
+  ]);
 
   if (!content) {
     return null;
@@ -148,19 +170,20 @@ function DiagramEditorSidePanel({
             {title}
           </span>
 
-          <ItemActionControls
-            actions={actions}
-            iconSize="small"
-            data-testid="data-modeling-drawer-actions"
-            onAction={handleAction}
-            className={drawerTitleActionGroupStyles}
-            // Because the close button here is out of our control, we have do
-            // adjust the actions rendering in a bit of an unconventional way:
-            // if there's more than one action available, collapse it to "...",
-            // if it's just one, make sure button is not collapsed by setting
-            // collapseAfter to >0
-            collapseAfter={actions.length > 1 ? 0 : 1}
-          ></ItemActionControls>
+          {actions && actions.length > 0 && (
+            <ItemActionControls
+              actions={actions}
+              data-testid="data-modeling-drawer-actions"
+              onAction={handleAction}
+              className={drawerTitleActionGroupStyles}
+              // Because the close button here is out of our control, we have do
+              // adjust the actions rendering in a bit of an unconventional way:
+              // if there's more than one action available, collapse it to "...",
+              // if it's just one, make sure button is not collapsed by setting
+              // collapseAfter to >0
+              collapseAfter={actions.length > 1 ? 0 : 1}
+            ></ItemActionControls>
+          )}
         </div>
       }
       label={label}
@@ -174,10 +197,12 @@ function DiagramEditorSidePanel({
 
 export default connect(
   (state: DataModelingState) => {
+    const hasDiagram = !!state.diagram;
     const selected = state.diagram?.selectedItems;
 
-    if (!selected) {
+    if (!hasDiagram || !selected) {
       return {
+        hasDiagram,
         selectedItems: null,
       };
     }
@@ -193,11 +218,13 @@ export default connect(
         // TODO(COMPASS-9680): When the selected collection doesn't exist then we
         // don't show any selection. We can get into this state with undo/redo.
         return {
+          hasDiagram,
           selectedItems: null,
         };
       }
 
       return {
+        hasDiagram,
         selectedItems: {
           ...selected,
           title: getCollection(selected.id),
@@ -214,11 +241,13 @@ export default connect(
         // TODO(COMPASS-9680): When the selected relationship doesn't exist we don't
         // show any selection. We can get into this state with undo/redo.
         return {
+          hasDiagram,
           selectedItems: null,
         };
       }
 
       return {
+        hasDiagram,
         selectedItems: {
           ...selected,
           title: getDefaultRelationshipName(relationship.relationship),
@@ -237,11 +266,13 @@ export default connect(
       });
       if (!field) {
         return {
+          hasDiagram,
           selectedItems: null,
         };
       }
 
       return {
+        hasDiagram,
         selectedItems: {
           ...selected,
           title: `${getCollection(

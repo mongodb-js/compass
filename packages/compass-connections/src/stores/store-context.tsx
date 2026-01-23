@@ -326,10 +326,13 @@ export function useConnectionForId(
  * Returns only connection info state and a title and subscribes to changes
  */
 export function useConnectionInfoForId(
-  connectionId: ConnectionId
+  connectionId?: ConnectionId
 ): (ConnectionInfo & { title: string }) | null {
   return useSelector(
     (state) => {
+      if (!connectionId) {
+        return null;
+      }
       const connection = state.connections.byId[connectionId];
       return connection
         ? { ...connection.info, title: getConnectionTitle(connection.info) }

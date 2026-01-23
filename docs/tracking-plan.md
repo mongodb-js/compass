@@ -6,7 +6,7 @@
 > the tracking plan for the specific Compass version you can use the following
 > URL: `https://github.com/mongodb-js/compass/blob/<compass version>/docs/tracking-plan.md`
 
-Generated on Mon, Jan 19, 2026
+Generated on Fri, Jan 23, 2026
 
 ## Table of Contents
 
@@ -1398,6 +1398,8 @@ This event is fired when user executes a query
 
 **Properties**:
 
+- **has_filter** (required): `boolean`
+  - Indicates whether the query includes a filter.
 - **has_projection** (required): `boolean`
   - Indicates whether the query includes a projection.
 - **has_skip** (required): `boolean`

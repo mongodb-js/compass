@@ -31,10 +31,12 @@ import { collectionToBaseNodeForLayout } from '../utils/nodes-and-edges';
 import {
   getFieldFromSchema,
   getSchemaWithNewTypes,
-  traverseSchema,
 } from '../utils/schema-traversal';
 import { applyEdit as _applyEdit } from './apply-edit';
-import { getNewUnusedFieldName } from '../utils/schema';
+import {
+  extractFieldsFromFieldData,
+  getNewUnusedFieldName,
+} from '../utils/schema';
 
 function isNonEmptyArray<T>(arr: T[]): arr is [T, ...T[]] {
   return Array.isArray(arr) && arr.length > 0;
@@ -59,15 +61,14 @@ export type DiagramState =
         next: Edit[][];
       };
       selectedItems: SelectedItems | null;
-      isNewlyCreated: boolean;
       draftCollection?: string;
     })
   | null; // null when no diagram is currently open
 
 export const DiagramActionTypes = {
   OPEN_DIAGRAM: 'data-modeling/diagram/OPEN_DIAGRAM',
-  DELETE_DIAGRAM: 'data-modeling/diagram/DELETE_DIAGRAM',
   RENAME_DIAGRAM: 'data-modeling/diagram/RENAME_DIAGRAM',
+  DELETE_DIAGRAM: 'data-modeling/diagram/DELETE_DIAGRAM',
   APPLY_INITIAL_LAYOUT: 'data-modeling/diagram/APPLY_INITIAL_LAYOUT',
   APPLY_EDIT: 'data-modeling/diagram/APPLY_EDIT',
   UNDO_EDIT: 'data-modeling/diagram/UNDO_EDIT',
@@ -85,15 +86,15 @@ export type OpenDiagramAction = {
   diagram: MongoDBDataModelDescription;
 };
 
-export type DeleteDiagramAction = {
-  type: typeof DiagramActionTypes.DELETE_DIAGRAM;
-  isCurrent: boolean; // technically a derived state, but we don't have access to this in some slices
-};
-
 export type RenameDiagramAction = {
   type: typeof DiagramActionTypes.RENAME_DIAGRAM;
   id: string;
   name: string;
+};
+
+export type DeleteDiagramAction = {
+  type: typeof DiagramActionTypes.DELETE_DIAGRAM;
+  id: string;
 };
 
 export type ApplyEditAction = {
@@ -135,8 +136,8 @@ export type DiagramBackgroundSelectedAction = {
 
 export type DiagramActions =
   | OpenDiagramAction
-  | DeleteDiagramAction
   | RenameDiagramAction
+  | DeleteDiagramAction
   | ApplyEditAction
   | RevertFailedEditAction
   | UndoEditAction
@@ -158,7 +159,6 @@ export const diagramReducer: Reducer<DiagramState> = (
     prev.shift(); // Remove the first item, which is initial SetModel and there's no previous edit for it.
     return {
       ...action.diagram,
-      isNewlyCreated: false,
       edits: {
         prev,
         current,
@@ -171,7 +171,6 @@ export const diagramReducer: Reducer<DiagramState> = (
   if (isAction(action, AnalysisProcessActionTypes.ANALYSIS_FINISHED)) {
     return {
       id: new UUID().toString(),
-      isNewlyCreated: true,
       name: action.name,
       connectionId: action.connectionId,
       database: action.database,
@@ -217,6 +216,7 @@ export const diagramReducer: Reducer<DiagramState> = (
       updatedAt: new Date().toISOString(),
     };
   }
+
   if (
     isAction(action, DiagramActionTypes.APPLY_EDIT) &&
     state.draftCollection &&
@@ -699,13 +699,19 @@ export function deleteDiagram(
     if (!confirmed) {
       return;
     }
-    const isCurrent = getState().diagram?.id === id;
-    dispatch({ type: DiagramActionTypes.DELETE_DIAGRAM, isCurrent });
     void dataModelStorage.delete(id);
+    dispatch({ type: DiagramActionTypes.DELETE_DIAGRAM, id });
   };
 }
 
 export function renameDiagram(
+  id: string,
+  newName: string
+): RenameDiagramAction {
+  return { type: DiagramActionTypes.RENAME_DIAGRAM, id, name: newName };
+}
+
+export function showDiagramRenameModal(
   id: string // TODO maybe pass the whole thing here, we always have it when calling this, then we don't need to re-load storage
 ): DataModelingThunkAction<Promise<void>, RenameDiagramAction> {
   return async (dispatch, getState, { dataModelStorage }) => {
@@ -982,6 +988,17 @@ export function addCollection(
   };
 }
 
+export function applySetModelEdit(
+  model: Extract<Edit, { type: 'SetModel' }>['model']
+): DataModelingThunkAction<void, ApplyEditAction> {
+  const edit: Omit<Extract<Edit, { type: 'SetModel' }>, 'id' | 'timestamp'> = {
+    type: 'SetModel',
+    model,
+  };
+
+  return applyEdit(edit);
+}
+
 /**
  * @internal Exported for testing purposes only, use `selectCurrentModel` or
  * `selectCurrentModelFromState` instead
@@ -1046,17 +1063,6 @@ export const selectCurrentModel = memoize(getCurrentModel);
 export const selectCurrentModelFromState = (state: DataModelingState) => {
   return selectCurrentModel(selectCurrentDiagramFromState(state).edits);
 };
-
-function extractFieldsFromFieldData(parentSchema: FieldData): FieldPath[] {
-  const fields: FieldPath[] = [];
-  traverseSchema({
-    jsonSchema: parentSchema,
-    visitor: ({ fieldPath }) => {
-      fields.push(fieldPath);
-    },
-  });
-  return fields;
-}
 
 function getFieldsForCurrentModel(
   edits: MongoDBDataModelDescription['edits']

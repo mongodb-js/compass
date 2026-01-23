@@ -9,6 +9,7 @@ import type {
 import type { CollectionMetadata } from 'mongodb-collection-model';
 import { redactConnectionString } from 'mongodb-connection-string-url';
 import type { AssistantMessage } from './compass-assistant-provider';
+import { AVAILABLE_TOOLS } from '@mongodb-js/compass-generative-ai';
 
 export type EntryPointMessage = {
   prompt: string;
@@ -36,6 +37,7 @@ You should:
    - Encourage the user to understand what they are doing before they act, e.g. by reading the official documentation or other related resources.
    - Avoid encouraging users to perform destructive operations without qualification. Instead, flag them as destructive operations, explain their implications, and encourage them to read the documentation.
 4. Always call the 'search_content' tool.
+5. When writing aggregations, remember that stage operators start with '$' (e.g., '$match', '$group', etc.).
 </instructions>
 
 <abilities>
@@ -229,7 +231,6 @@ export function buildContextPrompt({
   activeConnection,
   activeCollectionMetadata,
   activeCollectionSubTab,
-  enableToolCalling = false,
   enableGenAIToolCalling = false,
 }: {
   activeWorkspace: WorkspaceTab | null;
@@ -246,7 +247,6 @@ export function buildContextPrompt({
     | 'serverVersion'
   > | null;
   activeCollectionSubTab: CollectionSubtab | null;
-  enableToolCalling?: boolean;
   enableGenAIToolCalling?: boolean;
 }): AssistantMessage {
   const parts: string[] = [];
@@ -257,8 +257,20 @@ export function buildContextPrompt({
       activeConnection.connectionOptions.connectionString
     );
     parts.push(
-      `The connection is named "${connectionName}". The redacted connection string is "${redactedConnectionString}".`
+      `The focused connection is named "${connectionName}". The redacted connection string is "${redactedConnectionString}". Database tool calls will be made against this connection.`
     );
+  } else if (enableGenAIToolCalling) {
+    // Only add this message if tool calling is enabled, otherwise we'll have two near-identical ones.
+    const lines = [];
+    lines.push('<instructions>');
+    lines.push(
+      `Database tool calls require a focused connection. Tell the user to navigate to a connection if they try to use any of these tools:`
+    );
+    for (const tool of AVAILABLE_TOOLS) {
+      lines.push(`- ${tool.name}: ${tool.description}`);
+    }
+    lines.push('</instructions>');
+    parts.push(lines.join('\n'));
   }
 
   if (activeWorkspace) {
@@ -319,46 +331,59 @@ export function buildContextPrompt({
     parts.push(`The user does not have any tabs open.`);
   }
 
-  if (enableToolCalling) {
+  if (enableGenAIToolCalling) {
     let abilityNum = 1;
     const abilities = [];
     abilities.push('<abilities>');
-    abilities.push('You CAN:');
-    if (enableGenAIToolCalling) {
-      abilities.push(
-        `${abilityNum++}. Access user database information, such as collection schemas, etc.`
-      );
-      abilities.push(`${abilityNum++}. Query MongoDB directly.`);
-    }
+    abilities.push('IF the user has a focused connection you CAN:');
+    abilities.push(
+      `${abilityNum++}. Access user database information, such as collection schemas, etc.`
+    );
+    abilities.push(`${abilityNum++}. Query MongoDB directly.`);
     abilities.push(
       `${abilityNum++}. Access the user's current query or aggregation pipeline.`
     );
     abilities.push('</abilities>');
-
     parts.push(abilities.join('\n'));
-  }
 
-  if (!enableToolCalling || !enableGenAIToolCalling) {
+    let instructionNum = 1;
+    const instructions = [];
+    instructions.push('<instructions>');
+    instructions.push('You SHOULD:');
+    instructions.push(
+      `${instructionNum++}. Always offer to run a tool again if the user asks about data that requires it.`
+    );
+    instructions.push('</instructions>');
+    parts.push(instructions.join('\n'));
+  } else {
     let inabilityNum = 1;
     const inabilities = [];
     inabilities.push('<inabilities>');
     inabilities.push('You CANNOT:');
-    if (!enableGenAIToolCalling) {
-      inabilities.push(
-        `${inabilityNum++}. Access user database information, such as collection schemas, etc UNLESS this information is explicitly provided to you in the prompt.`
-      );
-      inabilities.push(
-        `${inabilityNum++}. Query MongoDB directly or execute code.`
-      );
-    }
-    if (!enableToolCalling) {
-      inabilities.push(
-        `${inabilityNum++}. Access the user's current query or aggregation pipeline.`
-      );
-    }
+    inabilities.push(
+      `${inabilityNum++}. Access user database information, such as collection schemas, etc. UNLESS this information is explicitly provided to you in the prompt.`
+    );
+    inabilities.push(
+      `${inabilityNum++}. Query MongoDB directly or execute code.`
+    );
+    inabilities.push(
+      `${inabilityNum++}. Access the user's current query or aggregation pipeline.`
+    );
     inabilities.push('</inabilities>');
-
     parts.push(inabilities.join('\n'));
+
+    let instructionNum = 1;
+    const instructions = [];
+    instructions.push('<instructions>');
+    instructions.push('You SHOULD:');
+    instructions.push(
+      `${instructionNum++}. Explain to the user that if they enable read-only tool access they will get access to these tools:`
+    );
+    for (const tool of AVAILABLE_TOOLS) {
+      instructions.push(`- ${tool.name}: ${tool.description}`);
+    }
+    instructions.push('</instructions>');
+    parts.push(instructions.join('\n'));
   }
 
   const text = parts.join('\n\n');
