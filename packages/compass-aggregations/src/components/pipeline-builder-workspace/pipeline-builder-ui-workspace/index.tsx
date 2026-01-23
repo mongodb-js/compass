@@ -112,14 +112,20 @@ type Stage = {
   value: string | null;
 };
 
-function getPipelineTextFromStages(stages: Stage[]): string {
-  const code = `[${stages
-    .filter(
-      (stage) =>
-        stage.stageOperator !== null && stage.value !== null && !stage.disabled
-    )
+// Exported for tests
+export function getPipelineTextFromStages(stages: Stage[]): string {
+  const nonEmptyStages = stages.filter(
+    (stage) =>
+      stage.stageOperator !== null && stage.value !== null && !stage.disabled
+  );
+  const code = `[${nonEmptyStages
     .map((stage) => `{ ${stage.stageOperator}: ${stage.value} }`)
     .join(',\n')}\n]`;
+
+  if (nonEmptyStages.some((stage) => stage.syntaxError)) {
+    return code;
+  }
+
   return prettify(code);
 }
 
