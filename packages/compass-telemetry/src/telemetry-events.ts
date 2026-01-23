@@ -1807,6 +1807,11 @@ type QueryExecutedEvent = ConnectionScopedEvent<{
   name: 'Query Executed';
   payload: {
     /**
+     * Indicates whether the query includes a filter.
+     */
+    has_filter: boolean;
+
+    /**
      * Indicates whether the query includes a projection.
      */
     has_projection: boolean;
