@@ -74,7 +74,8 @@
             "dev": "app-icons/darwin/mongodb-compass-logo-dev.icns"
           },
           "dmg_background": "app-icons/darwin/background.png",
-          "app_category_type": "public.app-category.productivity"
+          "app_category_type": "public.app-category.productivity",
+          "NSLocalNetworkUsageDescription": "MongoDB Compass needs access to your local network to discover and connect to MongoDB instances."
         },
         "linux": {
           "icon": {

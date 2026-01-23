@@ -610,6 +610,17 @@ class Target {
           CFBundleURLName: protocol.name,
           CFBundleURLSchemes: protocol.schemes,
         }));
+
+        // Add NSLocalNetworkUsageDescription if provided in darwin build config
+        const nsLocalNetworkUsageDescription = _.get(
+          platformSettings,
+          'NSLocalNetworkUsageDescription'
+        );
+        if (nsLocalNetworkUsageDescription) {
+          plistContents.NSLocalNetworkUsageDescription =
+            nsLocalNetworkUsageDescription;
+        }
+
         await fs.promises.writeFile(plistFilePath, plist.build(plistContents));
       }
 
