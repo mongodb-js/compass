@@ -22,7 +22,7 @@ import {
 import { useChangeOnBlur } from './use-change-on-blur';
 import { RelationshipsSection } from './relationships-section';
 import { getNamespaceRelationships } from '../../utils/utils';
-import { getIsNewNameValid } from './util';
+import { useNewNameValidation } from '../../utils/use-new-name-validation';
 
 type CollectionDrawerContentProps = {
   namespace: string;
@@ -78,16 +78,12 @@ const CollectionDrawerContent: React.FunctionComponent<
   const {
     isValid: isCollectionNameValid,
     errorMessage: collectionNameEditErrorMessage,
-  } = useMemo(
-    () =>
-      getIsNewNameValid({
-        newName: collectionName,
-        existingNames: namespaces.map((ns) => toNS(ns).collection),
-        currentName: toNS(namespace).collection,
-        entity: 'Collection',
-      }),
-    [collectionName, namespaces, namespace]
-  );
+  } = useNewNameValidation({
+    newName: collectionName,
+    existingNames: namespaces.map((ns) => toNS(ns).collection),
+    currentName: toNS(namespace).collection,
+    entity: 'Collection',
+  });
 
   const noteInputProps = useChangeOnBlur(note, (newNote) => {
     onNoteChange(namespace, newNote);

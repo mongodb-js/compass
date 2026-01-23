@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { connect } from 'react-redux';
 import DiagramEditor from './diagram-editor';
-import SavedDiagramsList from './saved-diagrams-list';
+import SavedDiagramsList from './list/saved-diagrams-list';
 import NewDiagramFormModal from './new-diagram/new-diagram-modal';
 import type { DataModelingState } from '../store/reducer';
 import { Button, css, DiagramProvider } from '@mongodb-js/compass-components';
@@ -9,10 +9,12 @@ import DiagramEditorSidePanel from './drawer/diagram-editor-side-panel';
 import ReselectCollectionsModal from './reselect-collections-modal';
 import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
 import { useDataModelSavedItems } from '../provider';
+import RenameDiagramModal from './list/rename-modal';
 
 type DataModelingProps = {
   showList: boolean;
   currentDiagramId?: string;
+  renameDiagramId?: string;
 };
 
 const deletedDiagramContainerStyles = css({
@@ -43,6 +45,7 @@ const DeletedDiagramInfo: React.FunctionComponent = () => {
 const DataModeling: React.FunctionComponent<DataModelingProps> = ({
   showList,
   currentDiagramId,
+  renameDiagramId,
 }) => {
   const dataModels = useDataModelSavedItems();
   const showDeletedInfo = useMemo(() => {
@@ -65,6 +68,7 @@ const DataModeling: React.FunctionComponent<DataModelingProps> = ({
       )}
       <NewDiagramFormModal></NewDiagramFormModal>
       <ReselectCollectionsModal></ReselectCollectionsModal>
+      <RenameDiagramModal key={renameDiagramId}></RenameDiagramModal>
     </>
   );
 };
@@ -73,5 +77,6 @@ export default connect((state: DataModelingState) => {
   return {
     showList: state.step === 'NO_DIAGRAM_SELECTED',
     currentDiagramId: state.diagram?.id,
+    renameDiagramId: state.renameDiagramModal?.diagramId,
   };
 })(DataModeling);
