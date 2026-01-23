@@ -114,10 +114,11 @@ async function setupDiagram(
   const dataModelEditor = browser.$(Selectors.DataModelEditor);
   await dataModelEditor.waitForDisplayed();
 
-  // Close the info banner to get it out of the way
-  const infoBannerCloseBtn = browser.$(Selectors.DataModelInfoBannerCloseBtn);
-  await infoBannerCloseBtn.waitForClickable();
-  await browser.clickVisible(Selectors.DataModelInfoBannerCloseBtn);
+  // Expect the overview drawer to be opened and close it
+  const drawer = browser.$(Selectors.SideDrawer);
+  await drawer.waitForDisplayed();
+  expect(await drawer.getText()).to.include('Data Model Overview');
+  await closeDrawerIfOpen(browser);
 }
 
 async function closeDrawerIfOpen(browser: CompassBrowser) {
@@ -300,9 +301,6 @@ describe('Data Modeling tab', function () {
       databaseName: 'test',
     });
 
-    const dataModelEditor = browser.$(Selectors.DataModelEditor);
-    await dataModelEditor.waitForDisplayed();
-
     const nodes = await getDiagramNodes(browser, 2);
     expect(nodes).to.have.lengthOf(2);
     expect(nodes[0].id).to.equal('test.testCollection-flat');
@@ -319,7 +317,6 @@ describe('Data Modeling tab', function () {
       });
 
       const dataModelEditor = browser.$(Selectors.DataModelEditor);
-      await dataModelEditor.waitForDisplayed();
 
       const nodes = await getDiagramNodes(browser, 2);
       expect(nodes).to.have.lengthOf(2);
@@ -400,7 +397,6 @@ describe('Data Modeling tab', function () {
       });
 
       const dataModelEditor = browser.$(Selectors.DataModelEditor);
-      await dataModelEditor.waitForDisplayed();
 
       // Apply change to the diagram
       await selectCollectionOnTheDiagram(browser, `test.${oldName}`);
@@ -589,7 +585,6 @@ describe('Data Modeling tab', function () {
       });
 
       const dataModelEditor = browser.$(Selectors.DataModelEditor);
-      await dataModelEditor.waitForDisplayed();
 
       await dragNode(
         browser,
@@ -659,9 +654,6 @@ describe('Data Modeling tab', function () {
         connectionName: DEFAULT_CONNECTION_NAME_1,
         databaseName: 'test',
       });
-
-      const dataModelEditor = browser.$(Selectors.DataModelEditor);
-      await dataModelEditor.waitForDisplayed();
 
       // There are no edges initially
       await getDiagramEdges(browser, 0);
@@ -822,9 +814,6 @@ describe('Data Modeling tab', function () {
         databaseName: 'test',
       });
 
-      const dataModelEditor = browser.$(Selectors.DataModelEditor);
-      await dataModelEditor.waitForDisplayed();
-
       // Click on the collection to open the drawer.
       await selectCollectionOnTheDiagram(browser, 'test.testCollection-flat');
 
@@ -877,9 +866,6 @@ describe('Data Modeling tab', function () {
         databaseName: 'test',
       });
 
-      const dataModelEditor = browser.$(Selectors.DataModelEditor);
-      await dataModelEditor.waitForDisplayed();
-
       // Click on the add collection button.
       await browser.clickVisible(Selectors.DataModelAddCollectionMenuBtn);
       const actionsMenu = browser.$(Selectors.DataModelAddCollectionMenu);
@@ -931,9 +917,6 @@ describe('Data Modeling tab', function () {
         databaseName: 'test',
       });
 
-      const dataModelEditor = browser.$(Selectors.DataModelEditor);
-      await dataModelEditor.waitForDisplayed();
-
       // Add more collections
       const collections = ['testCollection-three', 'testCollection-four'];
       await Promise.all(
@@ -975,13 +958,6 @@ describe('Data Modeling tab', function () {
       // Wait for the diagram editor to load
       await browser.$(Selectors.DataModelEditor).waitForDisplayed();
 
-      // Close the info banner to get it out of the way
-      const infoBannerCloseBtn = browser.$(
-        Selectors.DataModelInfoBannerCloseBtn
-      );
-      await infoBannerCloseBtn.waitForClickable();
-      await browser.clickVisible(Selectors.DataModelInfoBannerCloseBtn);
-
       // Verify that the new collection is added to the diagram.
       const nodes = await getDiagramNodes(browser, 4);
       const nodeIds = nodes.map((n) => n.id);
@@ -1007,9 +983,6 @@ describe('Data Modeling tab', function () {
         connectionName: DEFAULT_CONNECTION_NAME_1,
         databaseName: 'test',
       });
-
-      const dataModelEditor = browser.$(Selectors.DataModelEditor);
-      await dataModelEditor.waitForDisplayed();
 
       // Ensure that we see the collection
       const testCollection1 = browser.$(
@@ -1054,9 +1027,6 @@ describe('Data Modeling tab', function () {
         connectionName: DEFAULT_CONNECTION_NAME_1,
         databaseName: 'test',
       });
-
-      const dataModelEditor = browser.$(Selectors.DataModelEditor);
-      await dataModelEditor.waitForDisplayed();
 
       // Ensure that we see the collection
       const testCollection1 = browser.$(
