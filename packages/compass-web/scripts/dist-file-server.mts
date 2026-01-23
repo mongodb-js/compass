@@ -35,15 +35,9 @@ const server = http.createServer(async (req, res) => {
     );
   });
 
-  const url =
-    // This is a non-issue that Snyk codescanning gets triggered on for no good
-    // reason and there is no way to dismiss this alert as a false-positive, so
-    // I am reluctantly "fixing" it to make the bot go away
-    req.url?.replaceAll(/(\.|%2e)+\//g, '').replaceAll('\n', '') ?? '/';
-
   const requestedPath = path.join(
     distDir,
-    new URL(url, 'http://localhost').pathname
+    new URL(req.url ?? '/', 'http://localhost').pathname
   );
 
   if (req.method === 'OPTIONS') {
