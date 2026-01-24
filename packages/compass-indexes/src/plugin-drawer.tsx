@@ -4,7 +4,7 @@ import { usePreference } from 'compass-preferences-model/provider';
 import { connect } from 'react-redux';
 import type { RootState } from './modules';
 import IndexesListDrawerView from './components/drawer/views/indexes-list-drawer-view';
-import { CollectionSubtab } from '@mongodb-js/workspace-info';
+import type { CollectionSubtab } from '@mongodb-js/workspace-info';
 
 const indexesTitleStyles = css({
   display: 'flex',
