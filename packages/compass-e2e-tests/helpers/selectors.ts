@@ -487,8 +487,8 @@ export const createCollectionCustomCollationFieldMenu = (
 export const DropNamespaceModal =
   '[data-testid="drop-namespace-confirmation-modal"]';
 export const DropNamespaceConfirmNameInput = `${DropNamespaceModal} input`;
-export const DropNamespaceDropButton = `${DropNamespaceModal} button:first-of-type`;
-export const DropNamespaceCancelButton = `${DropNamespaceModal} button:last-of-type`;
+export const DropNamespaceDropButton = `${DropNamespaceModal} button:last-of-type`;
+export const DropNamespaceCancelButton = `${DropNamespaceModal} button:first-of-type`;
 export const DropNamespaceSuccessToast =
   '[data-testid="toast-drop-namespace-success"]';
 export const DropNamespaceSuccessToastCloseButton =
@@ -1150,7 +1150,7 @@ export const IndexesTableDropIndexButton =
   '[data-testid="index-actions-delete-action"]';
 export const DropIndexModal = '[data-testid="drop-index-modal"]';
 export const DropIndexModalConfirmNameInput = `${DropIndexModal} input`;
-export const DropIndexModalConfirmButton = `${DropIndexModal} button:first-of-type`;
+export const DropIndexModalConfirmButton = `${DropIndexModal} button:last-of-type`;
 
 export const HiddenIndexBadge = (indexName: string) =>
   `${indexComponent(indexName)} [data-testid="HIDDEN-badge"]`;
@@ -1504,7 +1504,6 @@ export const DataModelCollectionRelationshipItemEdit = `[aria-label="Edit relati
 export const DataModelCollectionRelationshipItemDelete = `[aria-label="Delete relationship"]`;
 export const DataModelCollectionSidebarItemDelete = `[aria-label="Delete collection"]`;
 export const DataModelCollectionSidebarItemDeleteButton = `[data-action="delete"]`;
-export const DataModelInfoBannerCloseBtn = `[data-testid="data-info-banner"] [aria-label="Close Message"]`;
 export const DataModelAddFieldBtn = '[aria-label="Add Field"]';
 export const DataModelDiagramField = (fieldName: string) =>
   `//*[text()="${fieldName}"]`;

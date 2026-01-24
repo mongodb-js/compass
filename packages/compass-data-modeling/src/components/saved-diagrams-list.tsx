@@ -18,7 +18,7 @@ import {
   deleteDiagram,
   openDiagram,
   openDiagramFromFile,
-  renameDiagram,
+  showDiagramRenameModal,
 } from '../store/diagram';
 import type { MongoDBDataModelDescription } from '../services/data-model-storage';
 import CollaborateIcon from './icons/collaborate';
@@ -263,6 +263,6 @@ export default connect(null, {
   onCreateDiagramClick: createNewDiagram,
   onOpenDiagramClick: openDiagram,
   onDiagramDeleteClick: deleteDiagram,
-  onDiagramRenameClick: renameDiagram,
+  onDiagramRenameClick: showDiagramRenameModal,
   onImportDiagramClick: openDiagramFromFile,
 })(SavedDiagramsList);

@@ -61,7 +61,6 @@ export type DiagramState =
         next: Edit[][];
       };
       selectedItems: SelectedItems | null;
-      isNewlyCreated: boolean;
       draftCollection?: string;
     })
   | null; // null when no diagram is currently open
@@ -160,7 +159,6 @@ export const diagramReducer: Reducer<DiagramState> = (
     prev.shift(); // Remove the first item, which is initial SetModel and there's no previous edit for it.
     return {
       ...action.diagram,
-      isNewlyCreated: false,
       edits: {
         prev,
         current,
@@ -173,7 +171,6 @@ export const diagramReducer: Reducer<DiagramState> = (
   if (isAction(action, AnalysisProcessActionTypes.ANALYSIS_FINISHED)) {
     return {
       id: new UUID().toString(),
-      isNewlyCreated: true,
       name: action.name,
       connectionId: action.connectionId,
       database: action.database,
@@ -708,6 +705,13 @@ export function deleteDiagram(
 }
 
 export function renameDiagram(
+  id: string,
+  newName: string
+): RenameDiagramAction {
+  return { type: DiagramActionTypes.RENAME_DIAGRAM, id, name: newName };
+}
+
+export function showDiagramRenameModal(
   id: string // TODO maybe pass the whole thing here, we always have it when calling this, then we don't need to re-load storage
 ): DataModelingThunkAction<Promise<void>, RenameDiagramAction> {
   return async (dispatch, getState, { dataModelStorage }) => {

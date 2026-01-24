@@ -1607,6 +1607,7 @@ class CrudStoreImpl
       this.track(
         'Query Executed',
         {
+          has_filter: !!query.filter && Object.keys(query.filter).length > 0,
           has_projection:
             !!query.project && Object.keys(query.project).length > 0,
           has_skip: (query.skip ?? 0) > 0,
