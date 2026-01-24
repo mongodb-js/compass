@@ -26,7 +26,7 @@ const Drawer = ({
   subTab,
 }: {
   indexesDrawer: RootState['indexesDrawer'];
-  subTab: CollectionSubtab;
+  subTab?: CollectionSubtab;
 }) => {
   const isIndexesDrawerEnabled = usePreference(
     'enableSearchActivationProgramP1'
