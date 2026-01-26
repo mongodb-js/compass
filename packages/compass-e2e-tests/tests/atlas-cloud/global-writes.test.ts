@@ -10,7 +10,7 @@ import type { CompassBrowser } from '../../helpers/compass-browser';
 import { createGeospatialCollection } from '../../helpers/insert-data';
 import {
   DEFAULT_CONNECTION_NAMES,
-  isTestingAtlasCloudSandbox,
+  isTestingAtlasCloud,
 } from '../../helpers/test-runner-context';
 
 type GeoShardingFormData = {
@@ -74,7 +74,7 @@ describe('Global writes', function () {
   let browser: CompassBrowser;
 
   before(function () {
-    if (!isTestingAtlasCloudSandbox()) {
+    if (!isTestingAtlasCloud()) {
       this.skip();
     }
   });
