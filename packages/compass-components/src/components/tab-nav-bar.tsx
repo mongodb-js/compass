@@ -100,10 +100,6 @@ function TabNavBar({
           );
         }
       })}
-      {/* Render the drawers from all tabs regardless of activeTabIndex */}
-      {tabs.map(({ drawer }) => (
-        <>{drawer}</>
-      ))}
     </div>
   );
 }
