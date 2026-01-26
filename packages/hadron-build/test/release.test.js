@@ -75,24 +75,6 @@ describe.skip('hadron-build::release', function () {
     assert.equal(config.CFBundleIdentifier, 'com.mongodb.hadron-testing.beta');
   });
 
-  it('sets the NSLocalNetworkUsageDescription', function () {
-    if (target.platform !== 'darwin') {
-      return this.skip();
-    }
-    const info = target.dest(
-      `${target.productName}-darwin-${target.arch}`,
-      `${target.productName}.app`,
-      'Contents',
-      'Info.plist'
-    );
-    // eslint-disable-next-line no-sync
-    const config = plist.parse(fs.readFileSync(info, 'utf8'));
-    assert.equal(
-      config.NSLocalNetworkUsageDescription,
-      'Hadron App needs access to your local network.'
-    );
-  });
-
   /**
    * TODO (imlucas) Compare from `CONFIG.icon` to
    * `path.join(CONFIG.resource, 'electron.icns')` (platform specific).

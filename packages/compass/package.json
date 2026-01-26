@@ -75,7 +75,7 @@
           },
           "dmg_background": "app-icons/darwin/background.png",
           "app_category_type": "public.app-category.productivity",
-          "NSLocalNetworkUsageDescription": "MongoDB Compass needs access to your local network to discover and connect to MongoDB instances."
+          "extra_plist_options": "./scripts/macos-plist-options.xml"
         },
         "linux": {
           "icon": {

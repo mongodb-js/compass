@@ -23,8 +23,7 @@
             "dev": "resources/darwin/hadron-app.icns"
           },
           "dmg_background": "resources/darwin/background.png",
-          "app_category_type": "public.app-category.productivity",
-          "NSLocalNetworkUsageDescription": "Hadron App needs access to your local network."
+          "app_category_type": "public.app-category.productivity"
         },
         "linux": {
           "icon": {

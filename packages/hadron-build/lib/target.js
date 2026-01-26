@@ -611,14 +611,17 @@ class Target {
           CFBundleURLSchemes: protocol.schemes,
         }));
 
-        // Compass desktop requires local network usage access on macOS (this can be triggered by any localhost dns resolution or tls connection). To make sure users are not confused by this, we are adding a description for why this happens. See <relevant link>
-        const nsLocalNetworkUsageDescription = _.get(
+        // Merge extra plist options if provided in darwin build config
+        const extraPlistOptionsPath = _.get(
           platformSettings,
-          'NSLocalNetworkUsageDescription'
+          'extra_plist_options'
         );
-        if (nsLocalNetworkUsageDescription) {
-          plistContents.NSLocalNetworkUsageDescription =
-            nsLocalNetworkUsageDescription;
+        if (extraPlistOptionsPath) {
+          const extraPlistFilePath = this.src(extraPlistOptionsPath);
+          const extraPlistContents = plist.parse(
+            await fs.promises.readFile(extraPlistFilePath, 'utf8')
+          );
+          Object.assign(plistContents, extraPlistContents);
         }
 
         await fs.promises.writeFile(plistFilePath, plist.build(plistContents));
