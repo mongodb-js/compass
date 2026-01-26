@@ -45,7 +45,6 @@ const DeletedDiagramInfo: React.FunctionComponent = () => {
 const DataModeling: React.FunctionComponent<DataModelingProps> = ({
   showList,
   currentDiagramId,
-  renameDiagramId,
 }) => {
   const dataModels = useDataModelSavedItems();
   const showDeletedInfo = useMemo(() => {
@@ -68,7 +67,7 @@ const DataModeling: React.FunctionComponent<DataModelingProps> = ({
       )}
       <NewDiagramFormModal></NewDiagramFormModal>
       <ReselectCollectionsModal></ReselectCollectionsModal>
-      <RenameDiagramModal key={renameDiagramId}></RenameDiagramModal>
+      <RenameDiagramModal></RenameDiagramModal>
     </>
   );
 };
@@ -77,6 +76,5 @@ export default connect((state: DataModelingState) => {
   return {
     showList: state.step === 'NO_DIAGRAM_SELECTED',
     currentDiagramId: state.diagram?.id,
-    renameDiagramId: state.renameDiagramModal?.diagramId,
   };
 })(DataModeling);
