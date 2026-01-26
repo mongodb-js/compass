@@ -6,7 +6,6 @@ import {
   ModalBody,
   ModalFooter,
   ModalHeader,
-  spacing,
   TextInput,
 } from '@mongodb-js/compass-components';
 import React, { useCallback, useMemo } from 'react';
