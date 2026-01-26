@@ -67,7 +67,12 @@ const RenameDiagramModal: React.FC<RenameDiagramModalProps> = ({
   });
 
   return (
-    <Modal open={isModalOpen} setOpen={onCloseClick}>
+    <Modal
+      open={isModalOpen}
+      setOpen={(open: boolean) => {
+        if (!open) onCloseClick();
+      }}
+    >
       <ModalHeader title="Rename diagram" />
       <ModalBody>
         <FormFieldContainer className={inputStyles}>
