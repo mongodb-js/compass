@@ -14,6 +14,10 @@ const tooltipContainerStyles = css({
   alignItems: 'center',
 });
 
+const addDataMenuButtonStyles = css({
+  whiteSpace: 'nowrap',
+});
+
 type AddDataMenuProps = {
   instanceDescription: string;
   insertDataHandler: (openInsertKey: AddDataOption) => void;
@@ -55,6 +59,7 @@ function AddDataMenuButton({
         variant: 'primary',
         leftGlyph: <Icon glyph="PlusWithCircle" />,
         disabled: isDisabled,
+        className: addDataMenuButtonStyles,
       }}
       narrowBreakpoint={DOCUMENT_NARROW_ICON_BREAKPOINT}
     ></DropdownMenuButton>

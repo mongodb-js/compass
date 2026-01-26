@@ -272,8 +272,12 @@ export const AssistantProvider: React.FunctionComponent<
       // place to do tracking.
       callback();
 
-      const { enableToolCalling, enableGenAIToolCalling } =
-        preferences.getPreferences();
+      const prefs = preferences.getPreferences();
+
+      const enableToolCalling = prefs.enableToolCalling;
+      const enableGenAIToolCalling =
+        prefs.enableGenAIToolCallingAtlasProject &&
+        prefs.enableGenAIToolCalling;
 
       if (enableToolCalling && enableGenAIToolCalling) {
         // Start the server once the first time both the feature flag and
@@ -326,8 +330,7 @@ export const AssistantProvider: React.FunctionComponent<
         activeConnection,
         activeCollectionMetadata,
         activeCollectionSubTab,
-        enableToolCalling,
-        enableGenAIToolCalling,
+        enableGenAIToolCalling: enableToolCalling && enableGenAIToolCalling,
       });
 
       // use just the text so we have a stable reference to compare against

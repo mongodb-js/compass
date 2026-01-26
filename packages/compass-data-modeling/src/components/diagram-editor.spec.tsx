@@ -4,9 +4,7 @@ import {
   createDefaultConnectionInfo,
   createPluginTestHelpers,
   screen,
-  userEvent,
   waitFor,
-  within,
 } from '@mongodb-js/testing-library-compass';
 import DiagramEditor from './diagram-editor';
 import type { DataModelingStore } from '../../test/setup-store';
@@ -43,16 +41,14 @@ const storageItems: MongoDBDataModelDescription[] = [
               indexes: [],
               displayPosition: [50, 50],
               shardKey: {},
-              jsonSchema: { bsonType: 'object' },
-              isExpanded: true,
+              fieldData: { bsonType: 'object' },
             },
             {
               ns: 'db1.collection2',
               indexes: [],
               displayPosition: [150, 150],
               shardKey: {},
-              jsonSchema: { bsonType: 'object' },
-              isExpanded: true,
+              fieldData: { bsonType: 'object' },
             },
           ],
           relationships: [],
@@ -79,16 +75,14 @@ const storageItems: MongoDBDataModelDescription[] = [
               indexes: [],
               displayPosition: [0, 0],
               shardKey: {},
-              jsonSchema: { bsonType: 'object' },
-              isExpanded: true,
+              fieldData: { bsonType: 'object' },
             },
             {
               ns: 'db1.collection2',
               indexes: [],
               displayPosition: [0, 0],
               shardKey: {},
-              jsonSchema: { bsonType: 'object' },
-              isExpanded: true,
+              fieldData: { bsonType: 'object' },
             },
           ],
           relationships: [],
@@ -271,20 +265,6 @@ describe('DiagramEditor', function () {
       await waitFor(() => {
         expect(screen.getByTestId('model-preview')).to.be.visible;
       });
-    });
-
-    it('shows the banner', function () {
-      expect(screen.getByText('Questions about your data?')).to.be.visible;
-    });
-
-    it('banner can be closed', function () {
-      const closeBtn = within(screen.getByTestId('data-info-banner')).getByRole(
-        'button',
-        { name: 'Close Message' }
-      );
-      expect(closeBtn).to.be.visible;
-      userEvent.click(closeBtn);
-      expect(screen.queryByText('Questions about your data?')).not.to.exist;
     });
   });
 });

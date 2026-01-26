@@ -1,50 +1,9 @@
-import React, { useCallback, useContext, useEffect, useRef } from 'react';
 import type {
   AllPreferences,
   AtlasCloudFeatureFlags,
-  PreferencesAccess,
 } from 'compass-preferences-model/provider';
 import { CompassWebPreferencesAccess } from 'compass-preferences-model/provider';
-
-type SandboxSetPreferencesGlobalAccess = (
-  preferences: PreferencesAccess
-) => () => void;
-
-const SandboxPreferencesGlobalAccessContext =
-  React.createContext<SandboxSetPreferencesGlobalAccess | null>(null);
-
-const kSandboxPreferencesAccess = Symbol.for(
-  '@compass-web-sandbox-preferences-access'
-);
-
-/**
- * Only used in the sandbox to provide a way to update preferences.
- * @internal
- */
-export const SandboxPreferencesGlobalAccessProvider = ({
-  children,
-}: {
-  children: React.ReactNode;
-}) => {
-  const setPreferencesAccess = useCallback((preferences) => {
-    (globalThis as any)[kSandboxPreferencesAccess] = preferences;
-    // eslint-disable-next-line no-console
-    console.info(
-      `[compass-web sandbox] call window[Symbol.for('@compass-web-sandbox-preferences-access')].savePreferences({}) to dynamically update preferences`
-    );
-    return () => {
-      delete (globalThis as any)[kSandboxPreferencesAccess];
-    };
-  }, []);
-
-  return (
-    <SandboxPreferencesGlobalAccessContext.Provider
-      value={setPreferencesAccess}
-    >
-      {children}
-    </SandboxPreferencesGlobalAccessContext.Provider>
-  );
-};
+import { useInitialValue } from '@mongodb-js/compass-components';
 
 const DEFAULT_COMPASS_WEB_PREFERENCES = {
   enableExplainPlan: true,
@@ -56,6 +15,7 @@ const DEFAULT_COMPASS_WEB_PREFERENCES = {
   enableGenAIFeaturesAtlasProject: false,
   enableGenAISampleDocumentPassing: false,
   enableGenAIFeaturesAtlasOrg: false,
+  enableGenAIToolCallingAtlasProject: true,
   enablePerformanceAdvisorBanner: true,
   enableMyQueries: false,
   cloudFeatureRolloutAccess: {
@@ -71,29 +31,30 @@ const DEFAULT_COMPASS_WEB_PREFERENCES = {
   maxTimeMSEnvLimit: 300_000, // 5 minutes limit for Data Explorer}
 };
 
+/**
+ * @internal
+ * exported for the sandbox to be able to hook into these
+ */
+export let compassWebPreferences: CompassWebPreferencesAccess | null = null;
+
 export function useCompassWebPreferences(
   initialPreferences: Partial<AllPreferences> = {},
   atlasCloudFeatureFlags: Partial<AtlasCloudFeatureFlags> = {}
-): React.MutableRefObject<CompassWebPreferencesAccess> {
-  const preferencesAccess = useRef(
-    new CompassWebPreferencesAccess(
+): CompassWebPreferencesAccess {
+  // We do want to keep a reference to current value of preferencesAccess in
+  // compass-web so that in can be exposed in the sandbox. In real production
+  // build this value just never leaves the module scope, so there's no way to
+  // access it
+  // eslint-disable-next-line react-hooks/globals
+  const preferencesAccess = (compassWebPreferences = useInitialValue(() => {
+    return new CompassWebPreferencesAccess(
       {
         ...DEFAULT_COMPASS_WEB_PREFERENCES,
         ...initialPreferences,
       },
       { atlasCloud: atlasCloudFeatureFlags }
-    )
-  );
-
-  const setPreferencesAccess = useContext(
-    SandboxPreferencesGlobalAccessContext
-  );
-
-  useEffect(() => {
-    // This is used by our sandbox so that we can call a global function in the
-    // browser from the sandbox / testing runtime to access preferences.
-    return setPreferencesAccess?.(preferencesAccess.current);
-  }, [setPreferencesAccess]);
+    );
+  }));
 
   return preferencesAccess;
 }

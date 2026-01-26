@@ -6,13 +6,20 @@ export const FieldPathSchema = z.array(z.string());
 
 export type FieldPath = z.output<typeof FieldPathSchema>;
 
-export const FieldSchema = z.custom<MongoDBJSONSchema>();
-
-export type FieldSchema = z.output<typeof FieldSchema>;
-
 export const RelationshipSideSchema = z.object({
   ns: z.string().nullable(),
-  cardinality: z.number(),
+  cardinality: z
+    .number()
+    .nullable()
+    .transform((val) => {
+      // Pre COMPASS-9844, we had an option of `10` for cardinality.
+      // With that gone away, we want to handle existing models that
+      // might have that value saved.
+      if (val === 10) {
+        return 100;
+      }
+      return val;
+    }),
   fields: z.array(z.string()).nullable(),
 });
 
@@ -29,18 +36,42 @@ export type Relationship = z.output<typeof RelationshipSchema>;
 
 export const DEFAULT_IS_EXPANDED = true;
 
-const CollectionSchema = z.object({
-  ns: z.string(),
-  jsonSchema: z.custom<MongoDBJSONSchema>((value) => {
-    const isObject = typeof value === 'object' && value !== null;
-    return isObject && 'bsonType' in value;
-  }),
-  indexes: z.array(z.record(z.unknown())),
-  shardKey: z.record(z.unknown()).optional(),
-  displayPosition: z.tuple([z.number(), z.number()]),
-  note: z.string().optional(),
-  isExpanded: z.boolean().default(DEFAULT_IS_EXPANDED),
+export type FieldData = Exclude<
+  MongoDBJSONSchema,
+  'properties' | 'items' | 'anyOf'
+> & {
+  properties?: Record<string, FieldData>;
+  items?: FieldData | FieldData[];
+  anyOf?: FieldData[];
+  expanded?: boolean;
+};
+
+const FieldDataSchema = z.custom<FieldData>((value) => {
+  const isObject = typeof value === 'object' && value !== null;
+  return isObject && 'bsonType' in value;
 });
+
+const CollectionSchema = z.preprocess(
+  (val) => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { expanded, jsonSchema, ...rest } = val as Record<string, unknown>;
+    const collection = {
+      ...rest,
+    };
+    if (jsonSchema) {
+      collection.fieldData = jsonSchema;
+    }
+    return collection;
+  },
+  z.object({
+    ns: z.string(),
+    fieldData: FieldDataSchema,
+    indexes: z.array(z.record(z.unknown())),
+    shardKey: z.record(z.unknown()).optional(),
+    displayPosition: z.tuple([z.number(), z.number()]),
+    note: z.string().optional(),
+  })
+);
 
 export type DataModelCollection = z.output<typeof CollectionSchema>;
 
@@ -118,14 +149,14 @@ const EditSchemaVariants = z.discriminatedUnion('type', [
     type: z.literal('ChangeFieldType'),
     ns: z.string(),
     field: FieldPathSchema,
-    from: FieldSchema,
-    to: FieldSchema,
+    from: FieldDataSchema,
+    to: FieldDataSchema,
   }),
   z.object({
     type: z.literal('AddField'),
     ns: z.string(),
     field: FieldPathSchema,
-    jsonSchema: FieldSchema,
+    jsonSchema: FieldDataSchema,
   }),
   z.object({
     type: z.literal('DuplicateField'),
@@ -138,11 +169,17 @@ const EditSchemaVariants = z.discriminatedUnion('type', [
     targetNS: z.string(),
     targetField: FieldPathSchema,
     field: FieldPathSchema,
-    jsonSchema: z.custom<MongoDBJSONSchema>(),
+    jsonSchema: FieldDataSchema,
   }),
   z.object({
     type: z.literal('ToggleExpandCollection'),
     ns: z.string(),
+    expanded: z.boolean(),
+  }),
+  z.object({
+    type: z.literal('ToggleExpandField'),
+    ns: z.string(),
+    field: FieldPathSchema,
   }),
 ]);
 

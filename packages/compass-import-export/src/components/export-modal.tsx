@@ -85,8 +85,10 @@ function useExport(): [
   ];
 }
 
-const closeButtonStyles = css({
-  marginRight: spacing[200],
+const footerStyles = css({
+  display: 'flex',
+  justifyContent: 'flex-end',
+  gap: spacing[2],
 });
 
 const messageBannerStyles = css({
@@ -306,7 +308,26 @@ function ExportModal({
           </>
         )}
       </ModalBody>
-      <ModalFooter>
+      <ModalFooter className={footerStyles}>
+        {((status === 'ready-to-export' &&
+          !exportFullCollection &&
+          !aggregation &&
+          !(query && queryHasProjection(query))) ||
+          status === 'select-fields-to-export') && (
+          <Button onClick={onClickBack}>Back</Button>
+        )}
+        {((status === 'ready-to-export' &&
+          (aggregation ||
+            exportFullCollection ||
+            (query && queryHasProjection(query)))) ||
+          status === 'select-field-options') && (
+          <Button
+            data-testid="export-close-export-button"
+            onClick={closeExport}
+          >
+            Cancel
+          </Button>
+        )}
         {status === 'select-field-options' && (
           <Button
             data-testid="export-next-step-button"
@@ -334,28 +355,6 @@ function ExportModal({
             variant="primary"
           >
             Export…
-          </Button>
-        )}
-        {((status === 'ready-to-export' &&
-          !exportFullCollection &&
-          !aggregation &&
-          !(query && queryHasProjection(query))) ||
-          status === 'select-fields-to-export') && (
-          <Button className={closeButtonStyles} onClick={onClickBack}>
-            Back
-          </Button>
-        )}
-        {((status === 'ready-to-export' &&
-          (aggregation ||
-            exportFullCollection ||
-            (query && queryHasProjection(query)))) ||
-          status === 'select-field-options') && (
-          <Button
-            data-testid="export-close-export-button"
-            className={closeButtonStyles}
-            onClick={closeExport}
-          >
-            Cancel
           </Button>
         )}
       </ModalFooter>

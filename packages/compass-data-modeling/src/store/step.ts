@@ -28,10 +28,13 @@ export const stepReducer: Reducer<StepState> = (
   if (isAction(action, AnalysisProcessActionTypes.ANALYSIS_CANCELED)) {
     return 'ANALYSIS_CANCELED';
   }
-  if (isAction(action, AnalysisProcessActionTypes.ANALYSIS_FINISHED)) {
-    return 'EDITING';
-  }
-  if (isAction(action, DiagramActionTypes.OPEN_DIAGRAM)) {
+  if (
+    isAction(action, AnalysisProcessActionTypes.ANALYSIS_FINISHED) ||
+    isAction(action, DiagramActionTypes.OPEN_DIAGRAM) ||
+    isAction(action, AnalysisProcessActionTypes.REDO_ANALYSIS_FINISHED) ||
+    isAction(action, AnalysisProcessActionTypes.REDO_ANALYSIS_FAILED) ||
+    isAction(action, AnalysisProcessActionTypes.REDO_ANALYSIS_CANCELED)
+  ) {
     return 'EDITING';
   }
   if (

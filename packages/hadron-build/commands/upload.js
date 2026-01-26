@@ -22,6 +22,7 @@ const {
   uploadAssetNew,
   uploadManifest,
 } = require('../lib/download-center');
+const { getBuildAttestations } = require('../lib/build-attestations');
 
 const cli = require('mongodb-js-cli')('hadron-build:upload');
 const abortIfError = cli.abortIfError.bind(cli);
@@ -215,19 +216,15 @@ async function publishGitHubRelease(assets, version, channel, dryRun) {
 }
 
 async function uploadAssetsToDownloadCenter(assets, channel, dryRun) {
-  const assetsToUpload = assets.flatMap((item) => {
-    return item.assets;
-  });
-
   cli.info('Uploading assets to download center…');
 
   await checkAssetsExist(
-    assetsToUpload.map((asset) => {
+    assets.map((asset) => {
       return asset.path;
     })
   );
 
-  const uploads = assetsToUpload.map(async (asset) => {
+  const uploads = assets.map(async (asset) => {
     cli.info(
       `${asset.name}: upload to download center started (path: ${path.relative(
         root,
@@ -454,7 +451,22 @@ const handler = function handler(argv) {
 
   publishGitHubRelease(assets, argv.version, channel, argv.dryRun)
     .then(() => {
-      return uploadAssetsToDownloadCenter(assets, channel, argv.dryRun);
+      // Build attestations are only uploaded to the download center
+      const attestations = getBuildAttestations(argv.dir, argv.version);
+      const attestationsToUpload = attestations.map((attestation) => {
+        return {
+          name: attestation.uploadKey,
+          path: attestation.localPath,
+        };
+      });
+      const assetsToUpload = assets.flatMap((item) => {
+        return item.assets;
+      });
+      return uploadAssetsToDownloadCenter(
+        [...assetsToUpload, ...attestationsToUpload],
+        channel,
+        argv.dryRun
+      );
     })
     .catch(abortIfError);
 };

@@ -10,7 +10,7 @@ import {
 import type { Compass } from '../../helpers/compass';
 import * as Selectors from '../../helpers/selectors';
 import { createNumbersCollection } from '../../helpers/insert-data';
-import { isTestingAtlasCloudSandbox } from '../../helpers/test-runner-context';
+import { isTestingAtlasCloud } from '../../helpers/test-runner-context';
 import { switchPipelineMode } from '../../helpers/commands/switch-pipeline-mode';
 
 describe('Collection ai query (with real Cloud backend)', function () {
@@ -18,7 +18,7 @@ describe('Collection ai query (with real Cloud backend)', function () {
   let browser: CompassBrowser;
 
   before(function () {
-    if (!isTestingAtlasCloudSandbox()) {
+    if (!isTestingAtlasCloud()) {
       this.skip();
     }
   });

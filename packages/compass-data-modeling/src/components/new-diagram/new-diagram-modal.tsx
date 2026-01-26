@@ -7,84 +7,11 @@ import {
   confirmSelectedCollections,
   gotoStep,
 } from '../../store/generate-diagram-wizard';
-import {
-  Body,
-  Button,
-  css,
-  Modal,
-  ModalBody,
-  ModalFooter,
-  ModalHeader,
-  spacing,
-  SpinLoader,
-} from '@mongodb-js/compass-components';
+import { Modal } from '@mongodb-js/compass-components';
 import SetupDiagramStep from './setup-diagram-step';
 import SelectCollectionsStep from './select-collections-step';
 import { selectIsAnalysisInProgress } from '../../store/analysis-process';
-
-const footerStyles = css({
-  flexDirection: 'row',
-  alignItems: 'center',
-});
-const footerTextStyles = css({ marginRight: 'auto' });
-const footerActionsStyles = css({ display: 'flex', gap: spacing[200] });
-
-const FormStepContainer: React.FunctionComponent<{
-  title: string;
-  description?: string;
-  onNextClick: () => void;
-  onPreviousClick: () => void;
-  isNextDisabled: boolean;
-  nextLabel: string;
-  previousLabel: string;
-  step: string;
-  footerText?: React.ReactNode;
-}> = ({
-  title,
-  description,
-  onPreviousClick,
-  onNextClick,
-  isNextDisabled,
-  nextLabel,
-  previousLabel,
-  children,
-  step,
-  footerText,
-}) => {
-  return (
-    <>
-      <ModalHeader title={title} subtitle={description}></ModalHeader>
-      <ModalBody>
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            onNextClick();
-          }}
-        >
-          {children}
-        </form>
-      </ModalBody>
-      <ModalFooter className={footerStyles}>
-        <Body className={footerTextStyles}>{footerText}</Body>
-        <div className={footerActionsStyles}>
-          <Button onClick={onPreviousClick} key={`${step}-previous`}>
-            {previousLabel}
-          </Button>
-          <Button
-            onClick={onNextClick}
-            disabled={isNextDisabled}
-            data-testid="new-diagram-confirm-button"
-            variant="primary"
-            loadingIndicator={<SpinLoader />}
-            key={`${step}-next`}
-          >
-            {nextLabel}
-          </Button>
-        </div>
-      </ModalFooter>
-    </>
-  );
-};
+import { ModalStepContainer } from '../model-step-container';
 
 type NewDiagramModalProps = {
   isOpen: boolean;
@@ -168,13 +95,13 @@ const NewDiagramModal: React.FunctionComponent<NewDiagramModalProps> = ({
         }
       }}
     >
-      <FormStepContainer {...formStepProps}>
+      <ModalStepContainer {...formStepProps}>
         {currentStep === 'SETUP_DIAGRAM' ? (
           <SetupDiagramStep />
         ) : currentStep === 'SELECT_COLLECTIONS' ? (
           <SelectCollectionsStep />
         ) : null}
-      </FormStepContainer>
+      </ModalStepContainer>
     </Modal>
   );
 };

@@ -45,6 +45,7 @@ const radioItemStyles = css({
 
 const footerStyles = css({
   display: 'flex',
+  justifyContent: 'flex-end',
   gap: spacing[200],
 });
 
@@ -122,6 +123,13 @@ const ExportDiagramModal = ({
       </ModalBody>
       <ModalFooter className={footerStyles}>
         <Button
+          variant="default"
+          onClick={onCloseClick}
+          data-testid="cancel-button"
+        >
+          Cancel
+        </Button>
+        <Button
           variant="primary"
           onClick={() => onExportDiagram(diagram)}
           data-testid="export-button"
@@ -130,13 +138,6 @@ const ExportDiagramModal = ({
           isLoading={isExporting}
         >
           Export
-        </Button>
-        <Button
-          variant="default"
-          onClick={onCloseClick}
-          data-testid="cancel-button"
-        >
-          Cancel
         </Button>
       </ModalFooter>
     </Modal>

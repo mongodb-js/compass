@@ -26,6 +26,7 @@ import {
   renameField,
   changeFieldType,
   toggleCollectionExpanded,
+  toggleFieldExpanded,
 } from '../store/diagram';
 import type {
   EdgeProps,
@@ -71,17 +72,6 @@ const errorBannerStyles = css({
   '& > div': {
     display: 'flex',
     alignItems: 'center',
-  },
-});
-
-const dataInfoBannerStyles = css({
-  margin: spacing[400],
-  position: 'absolute',
-  zIndex: 100,
-
-  h4: {
-    marginTop: 0,
-    marginBottom: 0,
   },
 });
 
@@ -151,7 +141,6 @@ type SelectedItems = NonNullable<DiagramState>['selectedItems'];
 const DiagramContent: React.FunctionComponent<{
   diagramLabel: string;
   database: string | null;
-  isNewlyCreatedDiagram?: boolean;
   model: StaticModel | null;
   isInRelationshipDrawingMode: boolean;
   newCollection?: string;
@@ -202,11 +191,10 @@ const DiagramContent: React.FunctionComponent<{
   }) => void;
   onRelationshipDrawn: () => void;
   DiagramComponent?: typeof Diagram;
-  onToggleCollectionExpanded: (namespace: string) => void;
+  onToggleCollectionExpanded: (namespace: string, expanded: boolean) => void;
+  onToggleFieldExpanded: (namespace: string, fieldPath: FieldPath) => void;
 }> = ({
   diagramLabel,
-  database,
-  isNewlyCreatedDiagram,
   model,
   isInRelationshipDrawingMode,
   newCollection,
@@ -228,15 +216,13 @@ const DiagramContent: React.FunctionComponent<{
   selectedItems,
   DiagramComponent = Diagram,
   onToggleCollectionExpanded,
+  onToggleFieldExpanded,
 }) => {
   const isDarkMode = useDarkMode();
   const isCollapseFlagEnabled = usePreference('enableDataModelingCollapse');
   const diagram = useRef(useDiagram());
   const { openDrawer } = useDrawerActions();
   const { isDrawerOpen } = useDrawerState();
-  const [showDataInfoBanner, setshowDataInfoBanner] = useState(
-    isNewlyCreatedDiagram ?? false
-  );
 
   const setDiagramContainerRef = useCallback((ref: HTMLDivElement | null) => {
     if (ref) {
@@ -269,7 +255,6 @@ const DiagramContent: React.FunctionComponent<{
         selected,
         isInRelationshipDrawingMode,
         relationships,
-        isExpanded: coll.isExpanded,
       });
     });
   }, [
@@ -338,8 +323,9 @@ const DiagramContent: React.FunctionComponent<{
         foreignNamespace: target,
       });
       onRelationshipDrawn();
+      openDrawer(DATA_MODELING_DRAWER_ID);
     },
-    [onRelationshipDrawn, onCreateNewRelationship]
+    [onRelationshipDrawn, onCreateNewRelationship, openDrawer]
   );
 
   const onNodeClick = useCallback(
@@ -467,12 +453,21 @@ const DiagramContent: React.FunctionComponent<{
   );
 
   const handleNodeExpandedToggle = useCallback(
-    (evt: React.MouseEvent, nodeId: string) => {
+    (evt: React.MouseEvent, nodeId: string, expanded: boolean) => {
       evt.preventDefault();
       evt.stopPropagation();
-      onToggleCollectionExpanded(nodeId);
+      onToggleCollectionExpanded(nodeId, expanded);
     },
     [onToggleCollectionExpanded]
+  );
+
+  const handleFieldExpandedToggle = useCallback(
+    (evt: React.MouseEvent, nodeId: string, fieldPath: FieldPath) => {
+      evt.preventDefault();
+      evt.stopPropagation();
+      onToggleFieldExpanded(nodeId, fieldPath);
+    },
+    [onToggleFieldExpanded]
   );
 
   const diagramProps: DiagramProps = useMemo(
@@ -496,6 +491,9 @@ const DiagramContent: React.FunctionComponent<{
         onNodeExpandToggle: isCollapseFlagEnabled
           ? handleNodeExpandedToggle
           : undefined,
+        onFieldExpandToggle: isCollapseFlagEnabled
+          ? handleFieldExpandedToggle
+          : undefined,
         fieldTypes: FIELD_TYPES,
       } satisfies DiagramProps),
     [
@@ -514,6 +512,7 @@ const DiagramContent: React.FunctionComponent<{
       onNodeDragStop,
       onConnect,
       handleNodeExpandedToggle,
+      handleFieldExpandedToggle,
       isCollapseFlagEnabled,
     ]
   );
@@ -527,20 +526,6 @@ const DiagramContent: React.FunctionComponent<{
       data-testid="diagram-editor-container"
     >
       <div className={modelPreviewStyles} data-testid="model-preview">
-        {showDataInfoBanner && (
-          <Banner
-            variant="info"
-            dismissible
-            onClose={() => setshowDataInfoBanner(false)}
-            className={dataInfoBannerStyles}
-            data-testid="data-info-banner"
-          >
-            <h4>Questions about your data?</h4>
-            This diagram was generated based on a sample of documents from{' '}
-            {database ?? 'a database'}. Changes made to the diagram will not
-            impact your data.
-          </Banner>
-        )}
         <DiagramComponent
           {...throttledDiagramProps}
           // With threshold too low clicking sometimes gets confused with
@@ -563,7 +548,6 @@ const ConnectedDiagramContent = connect(
       diagramLabel: diagram?.name || 'Schema Preview',
       selectedItems: state.diagram?.selectedItems ?? null,
       newCollection: diagram?.draftCollection,
-      isNewlyCreatedDiagram: diagram?.isNewlyCreated,
       database: model?.collections[0]?.ns
         ? toNS(model.collections[0].ns).database
         : null, // TODO(COMPASS-9718): use diagram.database
@@ -585,6 +569,7 @@ const ConnectedDiagramContent = connect(
     onDeleteRelationship: deleteRelationship,
     onDeleteField: removeField,
     onToggleCollectionExpanded: toggleCollectionExpanded,
+    onToggleFieldExpanded: toggleFieldExpanded,
   }
 )(DiagramContent);
 

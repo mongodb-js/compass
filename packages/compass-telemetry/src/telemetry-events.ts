@@ -1807,6 +1807,11 @@ type QueryExecutedEvent = ConnectionScopedEvent<{
   name: 'Query Executed';
   payload: {
     /**
+     * Indicates whether the query includes a filter.
+     */
+    has_filter: boolean;
+
+    /**
      * Indicates whether the query includes a projection.
      */
     has_projection: boolean;
@@ -2957,6 +2962,33 @@ type DataModelingDiagramCreated = CommonEvent<{
   payload: {
     num_collections: number;
     num_relations_inferred?: number;
+    analysis_time_ms: number;
+  };
+}>;
+
+/**
+ * This event is fired when a new data modeling diagram creation is cancelled
+ *
+ * @category Data Modeling
+ */
+type DataModelingDiagramCreationCancelled = CommonEvent<{
+  name: 'Data Modeling Diagram Creation Cancelled';
+  payload: {
+    num_collections: number;
+    analysis_time_ms: number;
+  };
+}>;
+
+/**
+ * This event is fired when a new data modeling diagram creation has failed
+ *
+ * @category Data Modeling
+ */
+type DataModelingDiagramCreationFailed = CommonEvent<{
+  name: 'Data Modeling Diagram Creation Failed';
+  payload: {
+    num_collections: number;
+    analysis_time_ms: number;
   };
 }>;
 
@@ -3345,6 +3377,8 @@ export type TelemetryEvent =
   | DataModelingDiagramCollectionRemoved
   | DataModelingDiagramCollectionRenamed
   | DataModelingDiagramCreated
+  | DataModelingDiagramCreationCancelled
+  | DataModelingDiagramCreationFailed
   | DataModelingDiagramExported
   | DataModelingDiagramFieldAdded
   | DataModelingDiagramFieldRemoved

@@ -159,7 +159,6 @@ const TestComponent: React.FunctionComponent<{
                 appName="Compass"
                 autoOpen={autoOpen}
                 hasNonGenuineConnections={hasNonGenuineConnections}
-                allowSavingPreferences={true}
               />
             </DrawerAnchor>
             <FakeStateSetterComponent />
@@ -367,6 +366,7 @@ describe('CompassAssistantProvider', function () {
       toolsController,
       hasNonGenuineConnections,
       enableToolCalling = true,
+      enableGenAIToolCallingAtlasProject = true,
       enableGenAIToolCalling = true,
       query,
       pipeline,
@@ -380,6 +380,7 @@ describe('CompassAssistantProvider', function () {
       toolsController?: Partial<ToolsController>;
       hasNonGenuineConnections?: boolean;
       enableToolCalling?: boolean;
+      enableGenAIToolCallingAtlasProject?: boolean;
       enableGenAIToolCalling?: boolean;
       query?: string;
       pipeline?: string;
@@ -409,6 +410,7 @@ describe('CompassAssistantProvider', function () {
             enableGenAIFeaturesAtlasOrg: true,
             cloudFeatureRolloutAccess: { GEN_AI_COMPASS: true },
             enableToolCalling,
+            enableGenAIToolCallingAtlasProject,
             enableGenAIToolCalling,
           },
         }
@@ -535,7 +537,7 @@ describe('CompassAssistantProvider', function () {
           parts: [
             {
               type: 'text',
-              text: "The user does not have any tabs open.\n\n<abilities>\nYou CAN:\n1. Access user database information, such as collection schemas, etc.\n2. Query MongoDB directly.\n3. Access the user's current query or aggregation pipeline.\n</abilities>",
+              text: "<instructions>\nDatabase tool calls require a focused connection. Tell the user to navigate to a connection if they try to use any of these tools:\n- find: Retrieves specific documents that match your search criteria.\n- aggregate: Performs complex data processing, grouping, and calculations.\n- count: Quickly returns the total number of documents matching a query.\n- list-databases: Displays all available databases in the connected cluster.\n- list-collections: Shows all collections within a specified database.\n- collection-schema: Describes the schema structure of a collection.\n- collection-indexes: Lists all indexes defined on a collection.\n- collection-storage-size: Returns the storage size information for a collection.\n- db-stats: Provides database statistics including size and usage.\n- explain: Provides execution statistics and query plan information.\n- mongodb-logs: Returns the most recent logged mongod events.\n- get-current-query: Get the current query from the querybar.\n- get-current-pipeline: Get the current pipeline from the aggregation builder.\n</instructions>\n\nThe user does not have any tabs open.\n\n<abilities>\nIF the user has a focused connection you CAN:\n1. Access user database information, such as collection schemas, etc.\n2. Query MongoDB directly.\n3. Access the user's current query or aggregation pipeline.\n</abilities>\n\n<instructions>\nYou SHOULD:\n1. Always offer to run a tool again if the user asks about data that requires it.\n</instructions>",
             },
           ],
         },
@@ -610,7 +612,73 @@ describe('CompassAssistantProvider', function () {
       expect(screen.queryByText('Hello assistant!')).to.not.exist;
     });
 
-    it('disables tools if toolCalling feature is enabled and enableGenAIToolCalling setting is disabled', async function () {
+    it('disables tools if enableToolCalling and enableGenAIToolCalling are enabled, but enableGenAIToolCallingAtlasProject is disabled', async function () {
+      const mockChat = new Chat<AssistantMessage>({
+        messages: [
+          {
+            id: 'assistant',
+            role: 'assistant',
+            parts: [{ type: 'text', text: 'Hello user!' }],
+          },
+        ],
+      });
+
+      const sendMessageSpy = sinon.spy(mockChat, 'sendMessage');
+
+      const mockToolsController = {
+        setActiveTools: sinon.stub(),
+        getActiveTools: sinon.stub(),
+        setContext: sinon.stub(),
+        startServer: sinon.stub().resolves(),
+        stopServer: sinon.stub().resolves(),
+        setConnectionIdForToolCall: sinon.stub(),
+      };
+
+      const query = 'This is a fake query';
+      const pipeline = 'This is a fake aggregation';
+
+      await renderOpenAssistantDrawer({
+        chat: mockChat,
+        toolsController: mockToolsController,
+        enableToolCalling: true,
+        enableGenAIToolCalling: true,
+        enableGenAIToolCallingAtlasProject: false,
+        query,
+        pipeline,
+      });
+
+      const input = screen.getByPlaceholderText('Ask a question');
+      const sendButton = screen.getByLabelText('Send message');
+
+      userEvent.type(input, 'Hello assistant');
+      userEvent.click(sendButton);
+
+      await waitFor(() => {
+        expect(sendMessageSpy.calledOnce).to.be.true;
+        expect(sendMessageSpy.firstCall.args[0]).to.deep.include({
+          text: 'Hello assistant',
+        });
+      });
+
+      const contextMessages = mockChat.messages.filter(
+        (message) => message.metadata?.isSystemContext
+      );
+      expect(contextMessages).to.have.lengthOf(1);
+
+      expect(mockToolsController.setActiveTools.callCount).to.equal(1);
+      expect(
+        mockToolsController.setActiveTools.firstCall.args[0]
+      ).to.deep.equal(new Set([]));
+
+      expect(mockToolsController.setContext.callCount).to.equal(1);
+      expect(mockToolsController.setContext.firstCall.args[0]).to.deep.equal({
+        connections: [],
+        query,
+        pipeline,
+      });
+    });
+
+    it('disables tools if enableToolCalling and enableGenAIToolCallingAtlasProject are enabled but enableGenAIToolCalling setting is disabled', async function () {
       const mockChat = new Chat<AssistantMessage>({
         messages: [
           {
@@ -675,7 +743,7 @@ describe('CompassAssistantProvider', function () {
       });
     });
 
-    it('enables tools if toolCalling feature is enabled and enableGenAIToolCalling setting is enabled', async function () {
+    it('enables tools if enableToolCalling, enableGenAIToolCallingAtlasProject and enableGenAIToolCalling are all enabled', async function () {
       const mockChat = new Chat<AssistantMessage>({
         messages: [
           {

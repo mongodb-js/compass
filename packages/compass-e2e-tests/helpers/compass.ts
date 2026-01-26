@@ -29,7 +29,7 @@ import {
   isTestingDesktop,
   context,
   assertTestingWeb,
-  isTestingAtlasCloudExternal,
+  isTestingAtlasCloud,
 } from './test-runner-context';
 import {
   MONOREPO_ELECTRON_CHROMIUM_VERSION,
@@ -45,6 +45,11 @@ import { downloadPath } from './downloads';
 import path from 'path';
 import { globalFixturesAbortController } from './test-runner-global-fixtures';
 import { dialogOpenLocator } from './dialog-open-locator-strategy';
+import { getExtension } from './redirect-extension';
+import {
+  getCloudUrlsFromContext,
+  COMPASS_WEB_ENTRYPOINT_HOST,
+} from './test-runner-context';
 
 const killAsync = async (pid: number, signal?: string) => {
   return new Promise<void>((resolve, reject) => {
@@ -425,8 +430,13 @@ export class Compass {
 
   async stopBrowser(): Promise<void> {
     const logging: any[] = await this.browser.execute(function () {
-      // eslint-disable-next-line no-restricted-globals
-      return 'logging' in window && (window.logging as any);
+      const kSandboxLoggingAndTelemetryAccess = Symbol.for(
+        '@compass-web-sandbox-logging-and-telemetry-access'
+      );
+      return (
+        kSandboxLoggingAndTelemetryAccess in globalThis &&
+        (globalThis as any)[kSandboxLoggingAndTelemetryAccess].logging
+      );
     });
     const lines = logging.map((log) => JSON.stringify(log));
     const text = lines.join('\n');
@@ -805,40 +815,57 @@ export async function startBrowser(
   runCounter++;
   const { webdriverOptions, wdioOptions } = await processCommonOpts();
 
-  const browserCapabilities: Record<string, Record<string, unknown>> = {
-    chrome: {
-      'goog:chromeOptions': {
-        prefs: {
-          'download.default_directory': downloadPath,
-        },
-      },
-    },
-    firefox: {
-      'moz:firefoxOptions': {
-        prefs: {
-          'browser.download.dir': downloadPath,
-          'browser.download.folderList': 2,
-          'browser.download.manager.showWhenStarting': false,
-          'browser.helperApps.neverAsk.saveToDisk': '*/*',
-          // Hide the download (progress) panel
-          'browser.download.alwaysOpenPanel': false,
-        },
-      },
-    },
-  } as const;
+  const browserName = context.browserName as 'chrome' | 'firefox';
+  const redirectExtension = isTestingAtlasCloud(context)
+    ? await (async () => {
+        return getExtension(
+          COMPASS_WEB_ENTRYPOINT_HOST,
+          `${context.sandboxUrl}/compass-web.mjs`
+        );
+      })()
+    : null;
 
-  // webdriverio removed RemoteOptions. It is now
-  // Capabilities.WebdriverIOConfig, but Capabilities is not exported
-  const options = {
+  const browserCapabilities: WebdriverIO.Capabilities = {
+    'goog:chromeOptions': {
+      prefs: {
+        'download.default_directory': downloadPath,
+      },
+      args: isTestingAtlasCloud(context)
+        ? [
+            // We're going to be hitting localhost from remote domain, LNA needs
+            // to be disabled
+            '--disable-features=LocalNetworkAccessChecks',
+            // Allow to load extensions from cli and don't check when remote
+            // websites are accessing localhost
+            '--disable-features=DisableLoadExtensionCommandLineSwitch',
+            `--load-extension=${redirectExtension!.extensionPath}`,
+          ]
+        : [],
+    },
+    'moz:firefoxOptions': {
+      prefs: {
+        'browser.download.dir': downloadPath,
+        'browser.download.folderList': 2,
+        'browser.download.manager.showWhenStarting': false,
+        'browser.helperApps.neverAsk.saveToDisk': '*/*',
+        // Hide the download (progress) panel
+        'browser.download.alwaysOpenPanel': false,
+
+        ...(isTestingAtlasCloud(context) && {
+          // Need to disable LNA (see above)
+          'network.lna.skip-domains': '*.mongodb.com',
+        }),
+      },
+    },
+  };
+
+  const options: WebdriverIO.RemoteConfig = {
     capabilities: {
-      browserName: context.browserName,
+      browserName,
       ...(context.browserVersion && {
         browserVersion: context.browserVersion,
       }),
-      ...browserCapabilities[context.browserName],
-
-      // from https://github.com/webdriverio-community/wdio-electron-service/blob/32457f60382cb4970c37c7f0a19f2907aaa32443/packages/wdio-electron-service/src/launcher.ts#L102
-      'wdio:enforceWebDriverClassic': true,
+      ...browserCapabilities,
     },
     ...webdriverOptions,
     ...wdioOptions,
@@ -847,67 +874,44 @@ export async function startBrowser(
   debug('Starting browser via webdriverio with the following configuration:');
   debug(JSON.stringify(options, null, 2));
 
-  const browser: CompassBrowser = (await remote(options)) as CompassBrowser;
-
-  if (isTestingAtlasCloudExternal(context)) {
-    const {
-      atlasCloudExternalCookiesFile,
-      atlasCloudExternalUrl,
-      atlasCloudExternalProjectId,
-    } = context;
-
-    // To be able to use `setCookies` method, we need to first open any page on
-    // the same domain as the cookies we are going to set
-    // https://webdriver.io/docs/api/browser/setCookies/
-    await browser.navigateTo(`${atlasCloudExternalUrl}/404`);
-
-    type StoredAtlasCloudCookies = {
-      name: string;
-      value: string;
-      domain: string;
-      path: string;
-      secure: boolean;
-      httpOnly: boolean;
-      expirationDate: number;
-    }[];
-
-    const cookies: StoredAtlasCloudCookies = JSON.parse(
-      await fs.readFile(atlasCloudExternalCookiesFile, 'utf8')
-    );
-
-    await browser.setCookies(
-      cookies
-        .filter((cookie) => {
-          // These are the relevant cookies for auth:
-          // https://github.com/10gen/mms/blob/6d27992a6ab9ab31471c8bcdaa4e347aa39f4013/server/src/features/com/xgen/svc/cukes/helpers/Client.java#L122-L130
-          return (
-            cookie.name.includes('mmsa-') ||
-            cookie.name.includes('mdb-sat') ||
-            cookie.name.includes('mdb-srt')
-          );
-        })
-        .map((cookie) => ({
-          name: cookie.name,
-          value: cookie.value,
-          domain: cookie.domain,
-          path: cookie.path,
-          secure: cookie.secure,
-          httpOnly: cookie.httpOnly,
-        }))
-    );
-
-    await browser.navigateTo(
-      `${atlasCloudExternalUrl}/v2/${atlasCloudExternalProjectId}#/explorer`
-    );
-  } else {
-    await browser.navigateTo(context.sandboxUrl);
-  }
+  const browser = (await remote(options)) as CompassBrowser;
 
   const compass = new Compass(name, browser, {
     mode: 'web',
     writeCoverage: false,
     needsCloseWelcomeModal: false,
   });
+
+  if (isTestingAtlasCloud(context)) {
+    // In firefox extension needs to be loaded via special Gecko command and
+    // should be provided as a base64 string with compressed extension
+    if (browserName === 'firefox') {
+      await browser.installAddOn(redirectExtension!.extension, true);
+    }
+
+    const urls = getCloudUrlsFromContext(context);
+
+    await browser.signInToAtlasCloudAccount(
+      urls.accountUrl,
+      urls.cloudUrl,
+      context.atlasCloudUsername,
+      context.atlasCloudPassword
+    );
+
+    // Disable temporary marketing modal before proceeding
+    await browser.execute(() => {
+      globalThis.localStorage.setItem(
+        'mdb.dataExplorer.hasShownNewDEModal',
+        'true'
+      );
+    });
+
+    await browser.navigateTo(
+      `${urls.cloudUrl}/v2/${context.atlasCloudProjectId}#/explorer`
+    );
+  } else {
+    await browser.navigateTo(context.sandboxUrl);
+  }
 
   return compass;
 }

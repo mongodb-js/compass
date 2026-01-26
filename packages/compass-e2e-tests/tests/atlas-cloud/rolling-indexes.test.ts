@@ -9,7 +9,7 @@ import type { CompassBrowser } from '../../helpers/compass-browser';
 import { createNumbersCollection } from '../../helpers/insert-data';
 import {
   DEFAULT_CONNECTION_NAMES,
-  isTestingAtlasCloudSandbox,
+  isTestingAtlasCloud,
 } from '../../helpers/test-runner-context';
 
 describe('Rolling indexes', function () {
@@ -17,7 +17,7 @@ describe('Rolling indexes', function () {
   let browser: CompassBrowser;
 
   before(function () {
-    if (!isTestingAtlasCloudSandbox()) {
+    if (!isTestingAtlasCloud()) {
       this.skip();
     }
   });

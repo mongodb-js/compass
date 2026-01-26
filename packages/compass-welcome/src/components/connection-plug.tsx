@@ -1,7 +1,7 @@
 import React, { useMemo, useState, useLayoutEffect, useRef } from 'react';
 import { useConnectionIds } from '@mongodb-js/compass-connections/provider';
 
-const CONNECT_ANIMATION_DURATION_MS = 600;
+const CONNECT_ANIMATION_DURATION_MS = 500;
 const DISCONNECT_ANIMATION_DURATION_MS = 200;
 
 // Only animate the sparks over last % of connection animation.
@@ -26,7 +26,7 @@ function useIsAConnectionConnected() {
 
 // Easing function for smoother animation, the slight pull back and accelerate.
 function easeWithSpring(t: number): number {
-  return t * t * (3.7 * t - 2.7);
+  return t * t * (5.7 * t - 4.7);
 }
 
 const LIGHTNING_COLOR = '#FFE212';

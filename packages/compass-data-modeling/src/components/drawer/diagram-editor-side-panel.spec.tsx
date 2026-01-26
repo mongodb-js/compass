@@ -24,6 +24,11 @@ import type {
   Relationship,
 } from '../../services/data-model-storage';
 import { DrawerAnchor, getDrawerIds } from '@mongodb-js/compass-components';
+import {
+  type DataModelStorageService,
+  DataModelStorageServiceProvider,
+} from '../../provider';
+import { type ConnectionInfo } from '@mongodb-js/compass-connections/provider';
 
 const drawerTestId = getDrawerIds().root;
 
@@ -100,14 +105,36 @@ describe('DiagramEditorSidePanel', function () {
     }
   });
 
+  const existingDiagrams: Partial<MongoDBDataModelDescription>[] = [
+    { id: '1', name: 'Existing One' },
+    { id: '2', name: 'Existing Two' },
+    { id: '3', name: 'Existing Three' },
+  ];
+
   function renderDrawer() {
     const { renderWithConnections } = createPluginTestHelpers(
       DataModelingWorkspaceTab.provider.withMockServices({})
     );
+    const mockDataModelStorage = {
+      status: 'READY',
+      error: null,
+      items: existingDiagrams,
+      loadAll: () => Promise.resolve(existingDiagrams),
+    } as unknown as DataModelStorageService;
+    const connections: ConnectionInfo[] = [
+      {
+        id: dataModel.connectionId,
+        connectionOptions: { connectionString: 'http://test' },
+        favorite: { name: 'Test connection' },
+      },
+    ];
     const result = renderWithConnections(
-      <DrawerAnchor>
-        <DiagramEditorSidePanel></DiagramEditorSidePanel>
-      </DrawerAnchor>
+      <DataModelStorageServiceProvider storage={mockDataModelStorage}>
+        <DrawerAnchor>
+          <DiagramEditorSidePanel></DiagramEditorSidePanel>
+        </DrawerAnchor>
+      </DataModelStorageServiceProvider>,
+      { connections }
     );
     result.plugin.store.dispatch(
       openDiagram(dataModel as MongoDBDataModelDescription)
@@ -115,12 +142,49 @@ describe('DiagramEditorSidePanel', function () {
     return result;
   }
 
-  it('should not render if no items are selected', function () {
-    renderDrawer();
-    expect(screen.queryByTestId(drawerTestId)).to.have.attribute(
-      'aria-hidden',
-      'true'
-    );
+  describe('when no item is selected', function () {
+    it('should render the data model overview drawer when no items are selected', async function () {
+      renderDrawer();
+
+      await waitForDrawerToOpen();
+
+      expect(screen.getByText('Data Model Overview')).to.be.visible;
+      expect(screen.getByLabelText('Diagram name')).to.have.value(
+        'Flights and countries'
+      ); // diagram.name
+      expect(screen.getByText('Test connection.flights')).to.be.visible; // connection.database
+    });
+
+    it('Allows changing the diagram name', async function () {
+      const result = renderDrawer();
+
+      await waitForDrawerToOpen();
+
+      updateInputWithBlur('Diagram name', 'new_name');
+
+      expect(screen.getByLabelText('Diagram name')).not.to.have.attribute(
+        'aria-invalid',
+        'true'
+      );
+
+      await waitFor(() => {
+        return result.plugin.store.getState().diagram!.name === 'new_name';
+      });
+    });
+
+    it('Does not allow changing the diagram name to a duplicate', async function () {
+      renderDrawer();
+
+      await waitForDrawerToOpen();
+
+      updateInputWithBlur('Diagram name', 'Existing One');
+
+      expect(screen.getByLabelText('Diagram name')).to.have.attribute(
+        'aria-invalid',
+        'true'
+      );
+      expect(screen.getByText('Diagram name must be unique.')).to.be.visible;
+    });
   });
 
   it('should render a relationship context drawer when relations is clicked', async function () {
@@ -225,10 +289,10 @@ describe('DiagramEditorSidePanel', function () {
       });
 
       expect(
-        modifiedCollection?.jsonSchema.properties?.airline.properties
+        modifiedCollection?.fieldData.properties?.airline.properties
       ).to.not.have.property('_id'); // deleted field
       expect(
-        modifiedCollection?.jsonSchema.properties?.airline.properties
+        modifiedCollection?.fieldData.properties?.airline.properties
       ).to.have.property('name'); // sibling field remains
     });
 
@@ -309,7 +373,7 @@ describe('DiagramEditorSidePanel', function () {
         return coll.ns === 'flights.routes';
       });
       expect(
-        modifiedCollection?.jsonSchema.properties?.airline?.properties?.name
+        modifiedCollection?.fieldData.properties?.airline?.properties?.name
           .bsonType
       ).to.have.members(['int', 'bool']);
     });
@@ -342,7 +406,7 @@ describe('DiagramEditorSidePanel', function () {
         });
         // type remains unchanged
         expect(
-          modifiedCollection?.jsonSchema.properties?.airline?.properties?.name
+          modifiedCollection?.fieldData.properties?.airline?.properties?.name
             .bsonType
         ).to.equal('string');
       });
@@ -361,7 +425,7 @@ describe('DiagramEditorSidePanel', function () {
         });
         // new type applied
         expect(
-          modifiedCollection?.jsonSchema.properties?.airline?.properties?.name
+          modifiedCollection?.fieldData.properties?.airline?.properties?.name
             .bsonType
         ).to.have.members(['bool', 'int']);
       });

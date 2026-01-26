@@ -44,8 +44,10 @@ import {
   type TrackFunction,
 } from '@mongodb-js/compass-telemetry/provider';
 
-const closeButtonStyles = css({
-  marginRight: spacing[200],
+const footerStyles = css({
+  display: 'flex',
+  justifyContent: 'flex-end',
+  gap: spacing[2],
 });
 
 const fieldsHeadingStyles = css({
@@ -243,7 +245,10 @@ function ImportModal({
           />
         )}
       </ModalBody>
-      <ModalFooter>
+      <ModalFooter className={footerStyles}>
+        <Button data-testid="cancel-button" onClick={handleClose}>
+          {FINISHED_STATUSES.includes(status) ? 'Close' : 'Cancel'}
+        </Button>
         <Button
           data-testid="import-button"
           onClick={startImport}
@@ -255,13 +260,6 @@ function ImportModal({
           variant="primary"
         >
           {status === STARTED ? 'Importing\u2026' : 'Import'}
-        </Button>
-        <Button
-          className={closeButtonStyles}
-          data-testid="cancel-button"
-          onClick={handleClose}
-        >
-          {FINISHED_STATUSES.includes(status) ? 'Close' : 'Cancel'}
         </Button>
       </ModalFooter>
     </Modal>

@@ -4,8 +4,7 @@ import {
   context,
   DEFAULT_CONNECTIONS,
   DEFAULT_CONNECTIONS_SERVER_INFO,
-  isTestingAtlasCloudExternal,
-  isTestingAtlasCloudSandbox,
+  isTestingAtlasCloud,
   isTestingDesktop,
   isTestingWeb,
 } from './test-runner-context';
@@ -23,9 +22,11 @@ import {
 } from './compass';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
 import {
+  buildCompassWebPackage,
   spawnCompassWebSandbox,
-  spawnCompassWebSandboxAndSignInToAtlas,
+  spawnCompassWebStaticServer,
   waitForCompassWebSandboxToBeReady,
+  waitForCompassWebStaticAssetsToBeReady,
 } from './compass-web-sandbox';
 
 export const globalFixturesAbortController = new AbortController();
@@ -90,37 +91,42 @@ export async function mochaGlobalSetup(this: Mocha.Runner) {
         throwIfAborted();
       }
 
-      if (isTestingWeb(context) && !isTestingAtlasCloudExternal(context)) {
-        debug('Starting Compass Web server ...');
-
-        if (isTestingAtlasCloudSandbox(context)) {
-          const compassWeb = await spawnCompassWebSandboxAndSignInToAtlas(
-            {
-              username: context.atlasCloudSandboxUsername,
-              password: context.atlasCloudSandboxPassword,
-              sandboxUrl: context.sandboxUrl,
-              waitforTimeout: context.webdriverWaitforTimeout,
-            },
-            globalFixturesAbortController.signal
-          );
-          cleanupFns.push(async () => {
-            await compassWeb.deleteSession({ shutdownDriver: true });
-          });
-        } else {
-          const compassWeb = spawnCompassWebSandbox();
-          cleanupFns.push(() => {
-            if (compassWeb.pid) {
-              debug(`Killing compass-web [${compassWeb.pid}]`);
-              kill(compassWeb.pid, 'SIGINT');
-            } else {
-              debug('No pid for compass-web');
-            }
-          });
-          await waitForCompassWebSandboxToBeReady(
-            context.sandboxUrl,
-            globalFixturesAbortController.signal
-          );
+      if (isTestingAtlasCloud(context)) {
+        if (context.compile) {
+          debug('Building compass-web library ...');
+          await buildCompassWebPackage(globalFixturesAbortController.signal);
         }
+
+        debug('Starting static server for the compass-web assets ...');
+        const staticServer = spawnCompassWebStaticServer(
+          globalFixturesAbortController.signal
+        );
+        cleanupFns.push(() => {
+          if (staticServer.pid) {
+            debug(`Killing static server [${staticServer.pid}]`);
+            kill(staticServer.pid, 'SIGINT');
+          }
+        });
+        await waitForCompassWebStaticAssetsToBeReady(
+          `${context.sandboxUrl}/assets-manifest.json`,
+          globalFixturesAbortController.signal
+        );
+      } else if (isTestingWeb(context)) {
+        debug('Starting compass-web sandbox ...');
+
+        const compassWeb = spawnCompassWebSandbox(
+          globalFixturesAbortController.signal
+        );
+        cleanupFns.push(() => {
+          if (compassWeb.pid) {
+            debug(`Killing compass-web [${compassWeb.pid}]`);
+            kill(compassWeb.pid, 'SIGINT');
+          }
+        });
+        await waitForCompassWebSandboxToBeReady(
+          context.sandboxUrl,
+          globalFixturesAbortController.signal
+        );
       }
     }
 
