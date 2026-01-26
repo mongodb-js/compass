@@ -42,7 +42,6 @@ type TabNavBarProps = {
     name: string;
     content: React.ReactNode;
     title: React.ReactNode;
-    drawer?: React.ReactNode;
   }>;
 };
 
