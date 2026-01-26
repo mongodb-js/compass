@@ -611,7 +611,7 @@ class Target {
           CFBundleURLSchemes: protocol.schemes,
         }));
 
-        // Add NSLocalNetworkUsageDescription if provided in darwin build config
+        // Compass desktop requires local network usage access on macOS (this can be triggered by any localhost dns resolution or tls connection). To make sure users are not confused by this, we are adding a description for why this happens. See <relevant link>
         const nsLocalNetworkUsageDescription = _.get(
           platformSettings,
           'NSLocalNetworkUsageDescription'
