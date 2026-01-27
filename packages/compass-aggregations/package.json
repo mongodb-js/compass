@@ -80,7 +80,7 @@
     "compass-preferences-model": "^2.72.0",
     "hadron-document": "^8.10.9",
     "hadron-type-checker": "^7.4.27",
-    "lodash": "^4.17.21",
+    "lodash": "^4.17.23",
     "mongodb": "^6.21.0",
     "mongodb-collection-model": "^5.38.2",
     "mongodb-data-service": "^22.37.2",

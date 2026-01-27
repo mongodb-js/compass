@@ -56,7 +56,7 @@
     "@mongodb-js/compass-logging": "^1.10.0",
     "@mongodb-js/compass-telemetry": "^1.23.0",
     "@mongodb-js/compass-app-registry": "^9.7.0",
-    "lodash": "^4.17.21",
+    "lodash": "^4.17.23",
     "@mongodb-js/compass-field-store": "^9.70.0",
     "mongodb-ns": "^3.0.1",
     "react": "^17.0.2",

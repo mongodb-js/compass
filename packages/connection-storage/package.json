@@ -65,7 +65,7 @@
     "electron": "^37.10.3",
     "hadron-ipc": "^3.5.26",
     "keytar": "^7.9.0",
-    "lodash": "^4.17.21",
+    "lodash": "^4.17.23",
     "mongodb-connection-string-url": "^3.0.1",
     "react": "^17.0.2"
   },

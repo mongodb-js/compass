@@ -63,7 +63,7 @@
     "electron": "^37.10.3",
     "hadron-document": "^8.10.9",
     "hadron-ipc": "^3.5.26",
-    "lodash": "^4.17.21",
+    "lodash": "^4.17.23",
     "mongodb": "^6.21.0",
     "mongodb-data-service": "^22.37.2",
     "mongodb-ns": "^3.0.1",
