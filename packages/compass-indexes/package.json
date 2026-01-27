@@ -80,7 +80,7 @@
     "@mongodb-js/connection-info": "^0.25.2",
     "bson": "^6.10.4",
     "compass-preferences-model": "^2.72.0",
-    "lodash": "^4.17.21",
+    "lodash": "^4.17.23",
     "mongodb": "^6.21.0",
     "mongodb-collection-model": "^5.38.2",
     "mongodb-data-service": "^22.37.2",

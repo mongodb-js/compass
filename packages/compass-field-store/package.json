@@ -70,7 +70,7 @@
     "@mongodb-js/compass-connections": "^1.95.0",
     "@mongodb-js/compass-logging": "^1.10.0",
     "@mongodb-js/compass-app-registry": "^9.7.0",
-    "lodash": "^4.17.21",
+    "lodash": "^4.17.23",
     "mongodb-schema": "^12.6.3",
     "react": "^17.0.2",
     "react-redux": "^8.1.3",

@@ -63,7 +63,7 @@
     "@mongodb-js/connection-info": "^0.25.2",
     "@mongodb-js/mongodb-constants": "^0.19.0",
     "compass-preferences-model": "^2.72.0",
-    "lodash": "^4.17.21",
+    "lodash": "^4.17.23",
     "mongodb": "^6.21.0",
     "mongodb-instance-model": "^12.65.0",
     "mongodb-ns": "^3.0.1",

@@ -96,7 +96,7 @@
     "hadron-document": "^8.10.9",
     "hadron-type-checker": "^7.4.27",
     "is-electron-renderer": "^2.0.1",
-    "lodash": "^4.17.21",
+    "lodash": "^4.17.23",
     "mongodb-query-util": "^2.5.16",
     "polished": "^4.2.2",
     "react": "^17.0.2",

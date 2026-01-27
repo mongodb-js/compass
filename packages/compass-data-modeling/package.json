@@ -69,7 +69,7 @@
     "bson": "^6.10.4",
     "compass-preferences-model": "^2.72.0",
     "html-to-image": "1.11.11",
-    "lodash": "^4.17.21",
+    "lodash": "^4.17.23",
     "mongodb": "^6.21.0",
     "mongodb-ns": "^3.0.1",
     "mongodb-schema": "^12.6.3",
