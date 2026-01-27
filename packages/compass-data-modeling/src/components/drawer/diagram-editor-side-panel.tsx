@@ -17,11 +17,10 @@ import {
   selectCurrentModelFromState,
   type SelectedItems,
 } from '../../store/diagram';
-import { getDefaultRelationshipName } from '../../utils';
 import FieldDrawerContent from './field-drawer-content';
 import type { FieldPath } from '../../services/data-model-storage';
 import { getFieldFromSchema } from '../../utils/schema-traversal';
-import { isIdField } from '../../utils/utils';
+import { getDefaultRelationshipName, isIdField } from '../../utils/utils';
 import DiagramOverviewDrawerContent from './diagram-overview-drawer-content';
 
 export const DATA_MODELING_DRAWER_ID = 'data-modeling-drawer';
