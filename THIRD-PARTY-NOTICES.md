@@ -382,7 +382,7 @@ This document was automatically generated on Tue Jan 27 2026.
 | **[leaflet](#0c77955158defdd249f5abf69232ca350038122d4fc768826d9d79ce402761f4)**                                            | 1.5.1              | BSD-2-Clause                        |
 | **[lodash-es](#a591ea211f9167d2f80166d42532d3c01f7843fafac380deb0bcf693cdf6fa1d)**                                          | 4.17.21            | MIT                                 |
 | **[lodash.merge](#996e40d63a94f1b8693d7c81e0cdfb874c6432d6bbd675976fc1b6b13652c8db)**                                       | 4.6.2              | MIT                                 |
-| **[lodash](#adaac4144887ebc2c1b682380ff385210f681fc58b4bc1ef3986148cf8dcd28a)**                                             | 4.17.21            | MIT                                 |
+| **[lodash](#22f51d3e8133cb84c9c410b8485c738362f6bf7ad6e2057f6eabc4b65442425f)**                                             | 4.17.23            | MIT                                 |
 | **[lottie-web](#1f97ad7c365ecbd3628b72df96e42dada0d2e9a4aa6d79b66e93911bdebb6ccd)**                                         | 5.13.0             | MIT                                 |
 | **[lru-cache](#d3f4eb0c34032c928ffe57f82a029cc3803fec746ffa57386e0c93259cd4bd82)**                                          | 11.2.4             | BlueOak-1.0.0                       |
 | **[lru-cache](#fe7f0a2f2cf4c92f13c3a2a63f14f80f20f6919979306dc054e4f947c1234651)**                                          | 5.1.1              | ISC                                 |
@@ -27650,9 +27650,9 @@ License files:
       licenses; we recommend you read them, as their terms may differ from the
       terms above.
 
-<a id="adaac4144887ebc2c1b682380ff385210f681fc58b4bc1ef3986148cf8dcd28a"></a>
+<a id="22f51d3e8133cb84c9c410b8485c738362f6bf7ad6e2057f6eabc4b65442425f"></a>
 
-### [lodash](https://www.npmjs.com/package/lodash) (version 4.17.21)
+### [lodash](https://www.npmjs.com/package/lodash) (version 4.17.23)
 
 License tags: MIT
 
