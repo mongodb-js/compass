@@ -2,20 +2,20 @@ import React from 'react';
 import { connect } from 'react-redux';
 import type { RootState } from '../../../modules';
 import { State as SearchIndexesState } from '../../../modules/search-indexes';
-import { State as IndexesDrawerState } from '../../../modules/indexes-drawer';
+import { SearchIndexType } from '../../../modules/indexes-drawer';
 
 type CreateSearchIndexViewProps = {
   namespace: string;
   searchIndexes: Pick<SearchIndexesState, 'indexes' | 'error' | 'status'>;
-  indexesDrawer: IndexesDrawerState;
+  currentIndexType: SearchIndexType | null;
 };
 
 const CreateSearchIndexView: React.FunctionComponent<
   CreateSearchIndexViewProps
-> = ({ namespace, searchIndexes, indexesDrawer }) => {
+> = ({ namespace, searchIndexes, currentIndexType }) => {
   return (
     <div>
-      Creating {indexesDrawer.currentIndexType} index for {namespace}
+      Creating {currentIndexType} index for {namespace}
     </div>
   );
 };
@@ -23,7 +23,7 @@ const CreateSearchIndexView: React.FunctionComponent<
 const mapState = ({ namespace, searchIndexes, indexesDrawer }: RootState) => ({
   namespace,
   searchIndexes,
-  indexesDrawer,
+  currentIndexType: indexesDrawer.currentIndexType,
 });
 
 const mapDispatch = {};
