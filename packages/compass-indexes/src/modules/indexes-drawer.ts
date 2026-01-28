@@ -1,6 +1,6 @@
 import type { AnyAction } from 'redux';
 
-export type IndexesDrawerView =
+export type IndexesDrawerViewType =
   | 'indexes-list'
   | 'create-search-index'
   | 'edit-search-index';
@@ -8,7 +8,7 @@ export type IndexesDrawerView =
 export type SearchIndexType = 'search' | 'vectorSearch';
 
 export type State = {
-  currentView: IndexesDrawerView;
+  currentView: IndexesDrawerViewType;
   currentIndexType: SearchIndexType | null;
   currentIndexName: string | null;
 };
