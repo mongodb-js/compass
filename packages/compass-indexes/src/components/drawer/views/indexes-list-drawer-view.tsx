@@ -4,15 +4,15 @@ import type { RootState } from '../../../modules';
 import {
   refreshRegularIndexes,
   startPollingRegularIndexes,
-  State as RegularIndexesState,
   stopPollingRegularIndexes,
 } from '../../../modules/regular-indexes';
+import type { State as RegularIndexesState } from '../../../modules/regular-indexes';
 import {
   refreshSearchIndexes,
   startPollingSearchIndexes,
-  State as SearchIndexesState,
   stopPollingSearchIndexes,
 } from '../../../modules/search-indexes';
+import type { State as SearchIndexesState } from '../../../modules/search-indexes';
 import {
   Button,
   css,
@@ -23,13 +23,11 @@ import {
   spacing,
   SpinLoader,
 } from '@mongodb-js/compass-components';
-import {
-  openCreateSearchIndexDrawerView,
-  SearchIndexType,
-} from '../../../modules/indexes-drawer';
+import { openCreateSearchIndexDrawerView } from '../../../modules/indexes-drawer';
+import type { SearchIndexType } from '../../../modules/indexes-drawer';
 import { createIndexOpened } from '../../../modules/create-index';
-import { CollectionStats } from '../../../modules/collection-stats';
-import { FetchStatus, FetchStatuses } from '../../../utils/fetch-status';
+import { FetchStatuses } from '../../../utils/fetch-status';
+import type { FetchStatus } from '../../../utils/fetch-status';
 
 const containerStyles = css({
   padding: spacing[400],
@@ -62,10 +60,8 @@ const spinnerStyles = css({ marginRight: spacing[200] });
 type IndexesListDrawerViewProps = {
   isSearchIndexesSupported: boolean;
   isReadonlyView: boolean;
-  serverVersion: string;
   regularIndexes: Pick<RegularIndexesState, 'indexes' | 'error' | 'status'>;
   searchIndexes: Pick<SearchIndexesState, 'indexes' | 'error' | 'status'>;
-  collectionStats: CollectionStats;
   refreshRegularIndexes: () => void;
   refreshSearchIndexes: () => void;
   createIndexOpened: () => void;
@@ -111,10 +107,8 @@ const IndexesListDrawerView: React.FunctionComponent<
 > = ({
   isSearchIndexesSupported,
   isReadonlyView,
-  serverVersion,
   regularIndexes,
   searchIndexes,
-  collectionStats,
   refreshRegularIndexes,
   refreshSearchIndexes,
   createIndexOpened,
@@ -281,17 +275,13 @@ const IndexesListDrawerView: React.FunctionComponent<
 const mapState = ({
   isSearchIndexesSupported,
   isReadonlyView,
-  serverVersion,
   regularIndexes,
   searchIndexes,
-  collectionStats,
 }: RootState) => ({
   isSearchIndexesSupported,
   isReadonlyView,
-  serverVersion,
   regularIndexes,
   searchIndexes,
-  collectionStats,
 });
 
 const mapDispatch = {

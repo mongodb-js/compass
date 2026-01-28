@@ -1,8 +1,8 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import type { RootState } from '../../../modules';
-import { State as SearchIndexesState } from '../../../modules/search-indexes';
-import { SearchIndexType } from '../../../modules/indexes-drawer';
+import type { State as SearchIndexesState } from '../../../modules/search-indexes';
+import type { SearchIndexType } from '../../../modules/indexes-drawer';
 
 type CreateSearchIndexViewProps = {
   namespace: string;
@@ -12,7 +12,7 @@ type CreateSearchIndexViewProps = {
 
 const CreateSearchIndexView: React.FunctionComponent<
   CreateSearchIndexViewProps
-> = ({ namespace, searchIndexes, currentIndexType }) => {
+> = ({ namespace, currentIndexType }) => {
   return (
     <div>
       Creating {currentIndexType} index for {namespace}

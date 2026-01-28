@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import type { RootState } from '../../../modules';
-import { State as SearchIndexesState } from '../../../modules/search-indexes';
+import type { State as SearchIndexesState } from '../../../modules/search-indexes';
 
 type EditSearchIndexViewProps = {
   namespace: string;
@@ -11,7 +11,7 @@ type EditSearchIndexViewProps = {
 
 const EditSearchIndexView: React.FunctionComponent<
   EditSearchIndexViewProps
-> = ({ namespace, searchIndexes, currentIndexName }) => {
+> = ({ namespace, currentIndexName }) => {
   return (
     <div>
       Editing {currentIndexName} index for {namespace}
