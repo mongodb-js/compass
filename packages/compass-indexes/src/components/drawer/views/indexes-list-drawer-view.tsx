@@ -205,7 +205,6 @@ const IndexesListDrawerView: React.FunctionComponent<
             return (
               <div>
                 <Button
-                  data-testid="add-stage-menu-button"
                   size="xsmall"
                   variant="primary"
                   rightGlyph={
