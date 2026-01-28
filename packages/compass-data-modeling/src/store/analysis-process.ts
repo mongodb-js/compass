@@ -615,7 +615,6 @@ export async function getModelFromReanalysis(
     }));
   // We will reposition in the next step, so lets ignore displayPosition
   const existingCollections = currentModel.collections.map(
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     ({ displayPosition, ...coll }) => coll
   );
 
@@ -670,7 +669,6 @@ export async function getModelFromReanalysis(
   });
   const existingRelations = currentModel.relationships;
   return {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     collections: allCollections.map((coll) => {
       const node = positioned.nodes.find((node) => {
         return node.id === coll.ns;

@@ -35,7 +35,6 @@ function getInitialPropsForWorkspace(tab: WorkspaceTab) {
     case 'Collections':
       return { namespace: tab.namespace };
     case 'Collection': {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { id, type, connectionId, ...collectionMetadata } = tab;
       return { tabId: id, ...collectionMetadata };
     }

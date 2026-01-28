@@ -334,7 +334,6 @@ const ExportToLanguageModal: React.FunctionComponent<
 const mapStateToProps = (
   state: ExportToLanguageState,
   // So that the connected component types are correctly derived
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   _ownProps: { namespace: string }
 ) => ({
   modalOpen: state.modalOpen,

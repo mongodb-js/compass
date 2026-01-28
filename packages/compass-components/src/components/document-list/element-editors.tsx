@@ -89,12 +89,10 @@ export const KeyEditor: React.FunctionComponent<{
             // preventDefault). Because of that we exclude them, so the tooltip
             // will still be visible, but only on hover or focus, which is okay
             // for our case
-            /* eslint-disable @typescript-eslint/no-unused-vars */
             onDragStart,
             onPointerUp,
             onPointerDown,
             onMouseDown,
-            /* eslint-enable @typescript-eslint/no-unused-vars */
             ...triggerProps
           }: React.HTMLProps<HTMLInputElement>) => {
             return (
@@ -232,12 +230,10 @@ export const ValueEditor: React.FunctionComponent<{
             className,
             children,
             // See above
-            /* eslint-disable @typescript-eslint/no-unused-vars */
             onDragStart,
             onPointerUp,
             onPointerDown,
             onMouseDown,
-            /* eslint-enable @typescript-eslint/no-unused-vars */
             ...triggerProps
           }: React.HTMLProps<HTMLElement>) => {
             // NB: Order is important, if triggerProps has onFocus / onBlur we

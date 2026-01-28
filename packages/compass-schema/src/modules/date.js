@@ -442,7 +442,6 @@ const minicharts_d3fns_date = (changeQueryFn) => {
   };
 
   chart.cleanup = function () {
-    // eslint-disable-next-line no-unused-vars
     for (const subchart of subcharts) {
       subchart.cleanup();
     }
