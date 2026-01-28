@@ -134,7 +134,6 @@ export const sourceMapLoader = (args: ConfigArgs) => ({
   ],
 });
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const nodeLoader = (_args: ConfigArgs) => ({
   test: /\.node$/,
   use: [{ loader: require.resolve('node-loader') }],
@@ -186,14 +185,12 @@ export const lessLoader = (args: ConfigArgs) => ({
   ],
 });
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const fontLoader = (_args: ConfigArgs) => ({
   test: /\.(woff|woff2|ttf|eot|otf)(\?.+?)?$/,
   // fonts are always big and should be emitted as a separate file
   type: 'asset/resource',
 });
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const imageLoader = (_args: ConfigArgs) => ({
   test: /\.(jpe?g|png|svg|gif)(\?.+?)?$/,
   // it's convenient to inline images as data-urls to make sure that publised
@@ -201,7 +198,6 @@ export const imageLoader = (_args: ConfigArgs) => ({
   type: 'asset/inline',
 });
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const resourceLoader = (_args: ConfigArgs) => ({
   test: /\.(jpe?g|png|svg|gif|woff|woff2|ttf|eot|otf)(\?.+?)?$/,
   // asset/resource always compiles imports to paths to files, this is a good
@@ -210,7 +206,6 @@ export const resourceLoader = (_args: ConfigArgs) => ({
   type: 'asset/resource',
 });
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const sharedObjectLoader = (_args: ConfigArgs) => ({
   test: /\.(dylib|so|dll)(\?.+?)?$/,
   // asset/resource always compiles imports to paths to files, this is a good

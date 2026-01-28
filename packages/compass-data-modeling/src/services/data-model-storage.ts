@@ -53,7 +53,6 @@ const FieldDataSchema = z.custom<FieldData>((value) => {
 
 const CollectionSchema = z.preprocess(
   (val) => {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { expanded, jsonSchema, ...rest } = val as Record<string, unknown>;
     const collection = {
       ...rest,

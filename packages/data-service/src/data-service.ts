@@ -3224,7 +3224,6 @@ class DataServiceImpl extends WithLogContext implements DataService {
     };
 
     const assertNoExtraProps = <T>(
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       _cls: new (...args: any[]) => NoExtraProps<DataService, T>
     ) => {
       // Checking that we are not exposing anything unexpected on our data service
