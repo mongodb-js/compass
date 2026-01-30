@@ -976,6 +976,41 @@ describe('Collection aggregations tab', function () {
     );
   });
 
+  it('recovers from MQL syntax errors', async function () {
+    await browser.selectStageOperator(0, '$match');
+    // Set invalid MQL
+    await browser.setCodemirrorEditorValue(
+      Selectors.stageEditor(0),
+      '{ prop1: }'
+    );
+
+    // Wait for the syntax error to be displayed
+    await browser
+      .$(Selectors.stageEditorSyntaxErrorMessage(0))
+      .waitForDisplayed();
+
+    // Open a new tab, and then close it to go back
+    await browser.clickVisible(Selectors.AggregationBuilderWorkspace); // click elsewhere to exit the editor, which catches the keyboard events
+    await browser.openNewTab();
+    await browser.closeLastTab();
+
+    // The syntax error message is still there
+    await browser
+      .$(Selectors.stageEditorSyntaxErrorMessage(0))
+      .waitForDisplayed();
+
+    // We can fix the MQL
+    await browser.setCodemirrorEditorValue(
+      Selectors.stageEditor(0),
+      '{ prop1: 123 }'
+    );
+
+    // Wait for the syntax error to go away
+    await browser
+      .$(Selectors.stageEditorSyntaxErrorMessage(0))
+      .waitForDisplayed({ reverse: true });
+  });
+
   it('supports exporting aggregation results', async function () {
     skipForWeb(this, 'export is not yet available in compass-web');
 
