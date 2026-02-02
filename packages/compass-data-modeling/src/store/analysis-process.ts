@@ -496,7 +496,7 @@ export function analyzeCollections({
   return async (
     dispatch,
     _getState,
-    { connections, logger, preferences, cancelAnalysisControllerRef }
+    { connections, logger, preferences, cancelAnalysisControllerRef, track }
   ) => {
     const abortSignal = cancelAnalysisControllerRef.current?.signal;
     const namespaces = selectedCollections.map((collName) => {
@@ -550,6 +550,9 @@ export function analyzeCollections({
     );
 
     if (willInferRelations) {
+      track('Data Modeling Diagram Creation Relationship Inferral Started', {
+        num_collections: selectedCollections.length,
+      });
       relations = (
         await Promise.all(
           collections.map(

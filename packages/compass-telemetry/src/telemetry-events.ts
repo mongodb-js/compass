@@ -2986,6 +2986,18 @@ type DataModelingDiagramCreationStarted = CommonEvent<{
 }>;
 
 /**
+ * This event is fired when the collections are analyzed and the relationship inferral is started
+ *
+ * @category Data Modeling
+ */
+type DataModelingDiagramCreationRelationshipInferralStarted = CommonEvent<{
+  name: 'Data Modeling Diagram Creation Relationship Inferral Started';
+  payload: {
+    num_collections: number;
+  };
+}>;
+
+/**
  * This event is fired when a new data modeling diagram is created
  *
  * @category Data Modeling
@@ -3411,6 +3423,7 @@ export type TelemetryEvent =
   | DataModelingDiagramCollectionRenamed
   | DataModelingCreateDiagramModalOpened
   | DataModelingDiagramCreationStarted
+  | DataModelingDiagramCreationRelationshipInferralStarted
   | DataModelingDiagramCreated
   | DataModelingDiagramCreationCancelled
   | DataModelingDiagramCreationFailed
