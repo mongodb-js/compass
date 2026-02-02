@@ -280,7 +280,7 @@ export function startAnalysis(
 
     track('Data Modeling Diagram Creation Started', {
       num_collections: selectedCollections.length,
-      automatically_infer_relations: options.automaticallyInferRelations,
+      automatically_infer_relations: willInferRelations,
     });
 
     const cancelController = (cancelAnalysisControllerRef.current =
