@@ -384,8 +384,14 @@ export function gotoStep(
   };
 }
 
-export function createNewDiagram(): CreateNewDiagramAction {
-  return { type: GenerateDiagramWizardActionTypes.CREATE_NEW_DIAGRAM };
+export function createNewDiagram(): DataModelingThunkAction<
+  void,
+  CreateNewDiagramAction
+> {
+  return (dispatch, getState, { track }) => {
+    track('Data Modeling Create Diagram Modal Opened', {});
+    dispatch({ type: GenerateDiagramWizardActionTypes.CREATE_NEW_DIAGRAM });
+  };
 }
 
 export function changeName(name: string): ChangeNameAction {

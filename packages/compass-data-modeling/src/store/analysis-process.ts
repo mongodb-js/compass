@@ -273,6 +273,16 @@ export function startAnalysis(
     if (cancelAnalysisControllerRef.current) {
       return;
     }
+
+    const willInferRelations =
+      preferences.getPreferences().enableAutomaticRelationshipInference &&
+      options.automaticallyInferRelations;
+
+    track('Data Modeling Diagram Creation Started', {
+      num_collections: selectedCollections.length,
+      automatically_infer_relations: options.automaticallyInferRelations,
+    });
+
     const cancelController = (cancelAnalysisControllerRef.current =
       new AbortController());
 
@@ -308,10 +318,6 @@ export function startAnalysis(
           return { ...coll, position };
         }),
       });
-
-      const willInferRelations =
-        preferences.getPreferences().enableAutomaticRelationshipInference &&
-        options.automaticallyInferRelations;
 
       track('Data Modeling Diagram Created', {
         num_collections: selectedCollections.length,
