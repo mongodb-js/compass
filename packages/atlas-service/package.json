@@ -82,7 +82,7 @@
     "compass-preferences-model": "^2.72.0",
     "electron": "^37.10.3",
     "hadron-ipc": "^3.5.26",
-    "lodash": "^4.17.21",
+    "lodash": "^4.17.23",
     "mongodb-ns": "^3.0.3",
     "react": "^17.0.2",
     "redux": "^4.2.1",

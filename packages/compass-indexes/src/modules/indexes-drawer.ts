@@ -1,0 +1,70 @@
+import type { AnyAction } from 'redux';
+
+export type IndexesDrawerView =
+  | 'indexes-list'
+  | 'create-search-index'
+  | 'edit-search-index';
+
+export type SearchIndexType = 'search' | 'vectorSearch';
+
+export type State = {
+  currentView: IndexesDrawerView;
+  currentIndexType: SearchIndexType | null;
+  currentIndexName: string | null;
+};
+
+export const INITIAL_STATE: State = {
+  currentView: 'indexes-list',
+  currentIndexType: null,
+  currentIndexName: null,
+};
+
+export const OPEN_INDEXES_LIST_DRAWER_VIEW =
+  'indexes/drawer/OPEN_INDEXES_LIST_DRAWER_VIEW' as const;
+export const OPEN_CREATE_SEARCH_INDEX_DRAWER_VIEW =
+  'indexes/drawer/OPEN_CREATE_SEARCH_INDEX_DRAWER_VIEW' as const;
+export const OPEN_EDIT_SEARCH_INDEX_DRAWER_VIEW =
+  'indexes/drawer/OPEN_EDIT_SEARCH_INDEX_DRAWER_VIEW' as const;
+
+export const openIndexesListDrawerView = () => ({
+  type: OPEN_INDEXES_LIST_DRAWER_VIEW,
+});
+
+export const openCreateSearchIndexDrawerView = (
+  currentIndexType: SearchIndexType
+) => ({
+  type: OPEN_CREATE_SEARCH_INDEX_DRAWER_VIEW,
+  currentIndexType,
+});
+
+export const openEditSearchIndexDrawerView = (currentIndexName: string) => ({
+  type: OPEN_EDIT_SEARCH_INDEX_DRAWER_VIEW,
+  currentIndexName,
+});
+
+export default function reducer(
+  state = INITIAL_STATE,
+  action: AnyAction
+): State {
+  switch (action.type) {
+    case OPEN_INDEXES_LIST_DRAWER_VIEW:
+      return {
+        ...state,
+        currentView: 'indexes-list',
+      };
+    case OPEN_CREATE_SEARCH_INDEX_DRAWER_VIEW:
+      return {
+        ...state,
+        currentView: 'create-search-index',
+        currentIndexType: action.currentIndexType,
+      };
+    case OPEN_EDIT_SEARCH_INDEX_DRAWER_VIEW:
+      return {
+        ...state,
+        currentView: 'edit-search-index',
+        currentIndexName: action.currentIndexName,
+      };
+    default:
+      return state;
+  }
+}

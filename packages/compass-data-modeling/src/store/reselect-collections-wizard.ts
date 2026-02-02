@@ -111,7 +111,6 @@ export const reselectCollectionsWizardReducer: Reducer<
   ReselectCollectionsWizardState
 > = (state = INITIAL_STATE, action) => {
   if (isAction(action, ReselectCollectionsWizardActionTypes.SHOW_WIZARD)) {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { type, ...restOfAction } = action;
     return {
       ...state,

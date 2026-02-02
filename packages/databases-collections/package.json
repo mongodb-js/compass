@@ -70,7 +70,7 @@
     "@mongodb-js/databases-collections-list": "^1.92.0",
     "@mongodb-js/my-queries-storage": "^0.54.0",
     "compass-preferences-model": "^2.72.0",
-    "lodash": "^4.17.21",
+    "lodash": "^4.17.23",
     "mongodb-collection-model": "^5.38.2",
     "mongodb-database-model": "^2.38.2",
     "mongodb-instance-model": "^12.65.0",

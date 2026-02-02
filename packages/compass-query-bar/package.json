@@ -81,7 +81,7 @@
     "@mongodb-js/my-queries-storage": "^0.54.0",
     "bson": "^6.10.4",
     "compass-preferences-model": "^2.72.0",
-    "lodash": "^4.17.21",
+    "lodash": "^4.17.23",
     "mongodb-collection-model": "^5.38.2",
     "mongodb": "^6.21.0",
     "mongodb-instance-model": "^12.65.0",

@@ -1117,6 +1117,10 @@ export type CollectionTabPluginMetadata = CollectionMetadata & {
    * `pipeline` options
    */
   editViewName?: string;
+  /**
+   * Subtab that is currently open
+   */
+  subTab?: CollectionSubtab;
 };
 
 export default reducer;

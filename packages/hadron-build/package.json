@@ -43,7 +43,7 @@
     "js-yaml": "^4.1.0",
     "json-diff": "^0.10.0",
     "jszip": "^3.5.0",
-    "lodash": "^4.17.21",
+    "lodash": "^4.17.23",
     "moment": "^2.29.4",
     "mongodb-js-cli": "^0.0.3",
     "node-abi": "^4.26.0",

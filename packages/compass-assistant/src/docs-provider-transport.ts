@@ -79,7 +79,7 @@ export class DocsProviderTransport implements ChatTransport<AssistantMessage> {
       tools: this.getTools(),
       providerOptions: {
         openai: {
-          store: false,
+          store: process.env.COMPASS_ASSISTANT_STORE === 'true' ? true : false,
           // If the last message has custom instructions, use them instead of the default
           instructions: lastMessage.metadata?.instructions ?? this.instructions,
         },

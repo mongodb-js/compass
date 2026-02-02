@@ -39,7 +39,7 @@
     "d3-timer": "^1.0.3",
     "debug": "^4.3.4",
     "@mongodb-js/compass-app-registry": "^9.7.0",
-    "lodash": "^4.17.21",
+    "lodash": "^4.17.23",
     "mongodb-ns": "^3.0.1",
     "prop-types": "^15.7.2",
     "react": "^17.0.2",
