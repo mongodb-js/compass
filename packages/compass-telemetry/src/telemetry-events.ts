@@ -2099,6 +2099,16 @@ type SchemaValidationAddedEvent = ConnectionScopedEvent<{
 }>;
 
 /**
+ * This event is fired when the schema analysis is started
+ *
+ * @category Schema
+ */
+type SchemaAnalysisStartedEvent = ConnectionScopedEvent<{
+  name: 'Schema Analysis Started';
+  payload: Record<string, never>;
+}>;
+
+/**
  * This event is fired when user analyzes the schema.
  *
  * @category Schema
@@ -2153,7 +2163,7 @@ type SchemaAnalyzedEvent = ConnectionScopedEvent<{
 }>;
 
 /**
- * This event is fired when user analyzes the schema.
+ * This event is fired when user cancels the schema analysis.
  *
  * @category Schema
  */
@@ -2953,7 +2963,7 @@ type DataModelingDiagramCollectionRenamed = CommonEvent<{
 }>;
 
 /**
- * This event is fired when a new data modeling diagram creation is started
+ * This event is fired when the modal to create a new data modeling diagram is opened
  *
  * @category Data Modeling
  */
@@ -3466,6 +3476,7 @@ export type TelemetryEvent =
   | QueryHistoryRecentEvent
   | QueryHistoryRecentUsedEvent
   | QueryResultsRefreshedEvent
+  | SchemaAnalysisStartedEvent
   | SchemaAnalysisCancelledEvent
   | SchemaAnalyzedEvent
   | SchemaExportedEvent
