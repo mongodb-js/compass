@@ -138,7 +138,6 @@ const IndexesListDrawerView: React.FunctionComponent<
             size: 'xsmall',
             variant: 'primary',
           }}
-          renderDarkMenu={false}
           actions={[
             {
               action: 'createRegularIndex',
