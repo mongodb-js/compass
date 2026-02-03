@@ -40,7 +40,7 @@ import { ZeroGraphic } from '../search-indexes-table/zero-graphic';
 import { ViewVersionIncompatibleBanner } from '../view-version-incompatible-banners/view-version-incompatible-banners';
 import type { SearchIndex } from 'mongodb-data-service';
 import type { CollectionStats } from '../../modules/collection-stats';
-import { isViewPipelineSearchQueryable as isViewPipelineSearchQueryableFn } from '../../utils/is-view-pipeline-search-queryable';
+import type { Document } from 'mongodb';
 
 // This constant is used as a trigger to show an insight whenever number of
 // indexes in a collection is more than what is specified here.
@@ -242,10 +242,12 @@ export function Indexes({
 
   const enableAtlasSearchIndexes = usePreference('enableAtlasSearchIndexes');
   const { atlasMetadata } = useConnectionInfo();
-  const isViewPipelineSearchQueryable = isViewPipelineSearchQueryableFn(
-    isReadonlyView,
-    collectionStats
-  );
+  const isViewPipelineSearchQueryable =
+    isReadonlyView && collectionStats?.pipeline
+      ? VIEW_PIPELINE_UTILS.isPipelineSearchQueryable(
+          collectionStats.pipeline as Document[]
+        )
+      : true;
 
   const getBanner = () => {
     if (isReadonlyView) {
