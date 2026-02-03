@@ -1,30 +1,25 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { connect } from 'react-redux';
 import type { RootState } from '../../../modules';
-import {
-  refreshRegularIndexes,
-  startPollingRegularIndexes,
-  stopPollingRegularIndexes,
-} from '../../../modules/regular-indexes';
 import type { State as RegularIndexesState } from '../../../modules/regular-indexes';
-import {
-  refreshSearchIndexes,
-  startPollingSearchIndexes,
-  stopPollingSearchIndexes,
-} from '../../../modules/search-indexes';
 import type { State as SearchIndexesState } from '../../../modules/search-indexes';
 import {
+  openCreateSearchIndexDrawerView,
+  refreshAllIndexes,
+  startPollingAllIndexes,
+  stopPollingAllIndexes,
+} from '../../../modules/indexes-drawer';
+import type { SearchIndexType } from '../../../modules/indexes-drawer';
+import {
+  Accordion,
   Button,
   css,
+  DropdownMenuButton,
   Icon,
-  Menu,
-  MenuItem,
   SearchInput,
   spacing,
   SpinLoader,
 } from '@mongodb-js/compass-components';
-import { openCreateSearchIndexDrawerView } from '../../../modules/indexes-drawer';
-import type { SearchIndexType } from '../../../modules/indexes-drawer';
 import { createIndexOpened } from '../../../modules/create-index';
 import { FetchStatuses } from '../../../utils/fetch-status';
 import type { FetchStatus } from '../../../utils/fetch-status';
@@ -38,62 +33,22 @@ const containerStyles = css({
 
 const buttonContainerStyles = css({
   display: 'flex',
-});
-
-const gapContainerStyles = css({
-  flexGrow: 1,
-});
-
-const collapsibleSectionHeaderStyles = css({
-  border: 'none',
-  boxShadow: 'none',
-  background: 'none',
-  '&:hover': {
-    border: 'none',
-    outline: 'none',
-    boxShadow: 'none',
-  },
+  alignItems: 'center',
+  justifyContent: 'space-between',
 });
 
 const spinnerStyles = css({ marginRight: spacing[200] });
 
 type IndexesListDrawerViewProps = {
-  isSearchIndexesSupported: boolean;
-  isReadonlyView: boolean;
+  isRegularIndexesEnabled: boolean;
+  isSearchIndexesEnabled: boolean;
   regularIndexes: Pick<RegularIndexesState, 'indexes' | 'error' | 'status'>;
   searchIndexes: Pick<SearchIndexesState, 'indexes' | 'error' | 'status'>;
-  refreshRegularIndexes: () => void;
-  refreshSearchIndexes: () => void;
-  createIndexOpened: () => void;
-  openCreateSearchIndexDrawerView: (searchIndexType: SearchIndexType) => void;
-  startPollingRegularIndexes: () => void;
-  stopPollingRegularIndexes: () => void;
-  startPollingSearchIndexes: () => void;
-  stopPollingSearchIndexes: () => void;
-};
-
-const CollapsibleSection: React.FunctionComponent<{
-  label: string;
-  children: React.ReactNode;
-}> = ({ label, children }) => {
-  const [isExpanded, setIsExpanded] = useState(true);
-
-  return (
-    <div>
-      <Button
-        onClick={() => setIsExpanded(!isExpanded)}
-        leftGlyph={
-          <Icon glyph={isExpanded ? 'ChevronDown' : 'ChevronRight'}></Icon>
-        }
-        variant="default"
-        size="xsmall"
-        className={collapsibleSectionHeaderStyles}
-      >
-        {label}
-      </Button>
-      {isExpanded && children}
-    </div>
-  );
+  onRefreshClick: () => void;
+  onCreateRegularIndexClick: () => void;
+  onCreateSearchIndexClick: (currentIndexType: SearchIndexType) => void;
+  onMount: () => void;
+  onUnmount: () => void;
 };
 
 function isRefreshingStatus(status: FetchStatus) {
@@ -105,46 +60,36 @@ function isRefreshingStatus(status: FetchStatus) {
 const IndexesListDrawerView: React.FunctionComponent<
   IndexesListDrawerViewProps
 > = ({
-  isSearchIndexesSupported,
-  isReadonlyView,
+  isRegularIndexesEnabled,
+  isSearchIndexesEnabled,
   regularIndexes,
   searchIndexes,
-  refreshRegularIndexes,
-  refreshSearchIndexes,
-  createIndexOpened,
-  openCreateSearchIndexDrawerView,
-  startPollingRegularIndexes,
-  stopPollingRegularIndexes,
-  startPollingSearchIndexes,
-  stopPollingSearchIndexes,
+  onRefreshClick,
+  onCreateRegularIndexClick,
+  onCreateSearchIndexClick,
+  onMount,
+  onUnmount,
 }) => {
-  const [menuOpen, setMenuOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState<string>('');
 
-  // TODO: determine correct conditions for when to show regular indexes section and search indexes section
-  // based on user preferences, server version, view or collection, compass vs DE etc
-  const isRegularIndexesEnabled = !isReadonlyView;
-  const isSearchIndexesEnabled = isReadonlyView || isSearchIndexesSupported;
-
   useEffect(() => {
-    if (isRegularIndexesEnabled) {
-      startPollingRegularIndexes();
-    }
-    if (isSearchIndexesEnabled) {
-      startPollingSearchIndexes();
-    }
-    return () => {
-      stopPollingRegularIndexes();
-      stopPollingSearchIndexes();
-    };
-  }, [
-    isRegularIndexesEnabled,
-    isSearchIndexesEnabled,
-    startPollingRegularIndexes,
-    startPollingSearchIndexes,
-    stopPollingRegularIndexes,
-    stopPollingSearchIndexes,
-  ]);
+    onMount();
+    return onUnmount;
+  }, [onMount, onUnmount]);
+
+  const onActionDispatch = useCallback(
+    (action: string) => {
+      switch (action) {
+        case 'createRegularIndex':
+          return onCreateRegularIndexClick();
+        case 'createSearchIndex':
+          return onCreateSearchIndexClick('search');
+        case 'createVectorSearchIndex':
+          return onCreateSearchIndexClick('vectorSearch');
+      }
+    },
+    [onCreateRegularIndexClick, onCreateSearchIndexClick]
+  );
 
   const isRefreshing =
     (isRegularIndexesEnabled && isRefreshingStatus(regularIndexes.status)) ||
@@ -154,16 +99,14 @@ const IndexesListDrawerView: React.FunctionComponent<
     if (!searchTerm) {
       return regularIndexes.indexes;
     }
-    const regex = new RegExp(searchTerm, 'i');
-    return regularIndexes.indexes.filter((x) => regex.test(x.name));
+    return regularIndexes.indexes.filter((x) => x.name.includes(searchTerm));
   }, [regularIndexes, searchTerm]);
 
   const filteredSearchIndexes = useMemo(() => {
     if (!searchTerm) {
       return searchIndexes.indexes;
     }
-    const regex = new RegExp(searchTerm, 'i');
-    return searchIndexes.indexes.filter((x) => regex.test(x.name));
+    return searchIndexes.indexes.filter((x) => x.name.includes(searchTerm));
   }, [searchIndexes, searchTerm]);
 
   const refreshButtonIcon = isRefreshing ? (
@@ -182,65 +125,39 @@ const IndexesListDrawerView: React.FunctionComponent<
             isRefreshing ||
             (!isRegularIndexesEnabled && !isSearchIndexesEnabled)
           }
-          onClick={() => {
-            if (isRegularIndexesEnabled) {
-              refreshRegularIndexes();
-            }
-            if (isSearchIndexesEnabled) {
-              refreshSearchIndexes();
-            }
-          }}
+          onClick={onRefreshClick}
           variant="default"
           size="xsmall"
           leftGlyph={refreshButtonIcon}
         >
           Refresh
         </Button>
-        <div className={gapContainerStyles}></div>
-        <Menu
-          open={menuOpen}
-          setOpen={setMenuOpen}
-          renderDarkMenu={false}
-          trigger={({ onClick, children }: any) => {
-            return (
-              <div>
-                <Button
-                  size="xsmall"
-                  variant="primary"
-                  rightGlyph={
-                    <Icon role="presentation" glyph="CaretDown"></Icon>
-                  }
-                  onClick={onClick}
-                >
-                  Create new
-                </Button>
-                {children}
-              </div>
-            );
+        <DropdownMenuButton
+          buttonText="Create new"
+          buttonProps={{
+            size: 'xsmall',
+            variant: 'primary',
           }}
-        >
-          <MenuItem
-            onClick={createIndexOpened}
-            data-text="Standard Index"
-            disabled={!isRegularIndexesEnabled}
-          >
-            Standard Index
-          </MenuItem>
-          <MenuItem
-            onClick={() => openCreateSearchIndexDrawerView('search')}
-            data-text="Search Index"
-            disabled={!isSearchIndexesEnabled}
-          >
-            Search Index
-          </MenuItem>
-          <MenuItem
-            onClick={() => openCreateSearchIndexDrawerView('vectorSearch')}
-            data-text="Vector Search Index"
-            disabled={!isSearchIndexesEnabled}
-          >
-            Vector Search Index
-          </MenuItem>
-        </Menu>
+          renderDarkMenu={false}
+          actions={[
+            {
+              action: 'createRegularIndex',
+              label: 'Standard Index',
+              isDisabled: !isRegularIndexesEnabled,
+            },
+            {
+              action: 'createSearchIndex',
+              label: 'Search Index',
+              isDisabled: !isSearchIndexesEnabled,
+            },
+            {
+              action: 'createVectorSearchIndex',
+              label: 'Vector Search Index',
+              isDisabled: !isSearchIndexesEnabled,
+            },
+          ]}
+          onAction={onActionDispatch}
+        />
       </div>
       <SearchInput
         aria-label="Indexes search"
@@ -249,7 +166,7 @@ const IndexesListDrawerView: React.FunctionComponent<
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
       />
-      <CollapsibleSection label="Standard">
+      <Accordion text="Standard" defaultOpen={true}>
         {isRegularIndexesEnabled ? (
           filteredRegularIndexes.map((index) => (
             <div key={index.name}>{index.name}</div>
@@ -257,8 +174,8 @@ const IndexesListDrawerView: React.FunctionComponent<
         ) : (
           <div>Standard indexes not enabled</div>
         )}
-      </CollapsibleSection>
-      <CollapsibleSection label="Search">
+      </Accordion>
+      <Accordion text="Search" defaultOpen={true}>
         {isSearchIndexesEnabled ? (
           filteredSearchIndexes.map((index) => (
             <div key={index.name}>{index.name}</div>
@@ -266,7 +183,7 @@ const IndexesListDrawerView: React.FunctionComponent<
         ) : (
           <div>Search indexes not enabled</div>
         )}
-      </CollapsibleSection>
+      </Accordion>
     </div>
   );
 };
@@ -277,21 +194,20 @@ const mapState = ({
   regularIndexes,
   searchIndexes,
 }: RootState) => ({
-  isSearchIndexesSupported,
-  isReadonlyView,
+  // TODO: determine correct conditions for when to show regular indexes section and search indexes section
+  // based on user preferences, server version, view or collection, compass vs DE etc
+  isRegularIndexesEnabled: !isReadonlyView,
+  isSearchIndexesEnabled: isReadonlyView || isSearchIndexesSupported,
   regularIndexes,
   searchIndexes,
 });
 
 const mapDispatch = {
-  refreshRegularIndexes,
-  refreshSearchIndexes,
-  createIndexOpened,
-  openCreateSearchIndexDrawerView,
-  startPollingRegularIndexes,
-  stopPollingRegularIndexes,
-  startPollingSearchIndexes,
-  stopPollingSearchIndexes,
+  onRefreshClick: refreshAllIndexes,
+  onCreateRegularIndexClick: () => createIndexOpened(),
+  onCreateSearchIndexClick: openCreateSearchIndexDrawerView,
+  onMount: startPollingAllIndexes,
+  onUnmount: stopPollingAllIndexes,
 };
 
 export default connect(mapState, mapDispatch)(IndexesListDrawerView);

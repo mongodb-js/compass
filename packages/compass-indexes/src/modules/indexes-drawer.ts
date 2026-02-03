@@ -1,4 +1,15 @@
 import type { AnyAction } from 'redux';
+import type { IndexesThunkAction } from './index';
+import {
+  refreshRegularIndexes,
+  startPollingRegularIndexes,
+  stopPollingRegularIndexes,
+} from './regular-indexes';
+import {
+  refreshSearchIndexes,
+  startPollingSearchIndexes,
+  stopPollingSearchIndexes,
+} from './search-indexes';
 
 export type IndexesDrawerViewType =
   | 'indexes-list'
@@ -41,6 +52,33 @@ export const openEditSearchIndexDrawerView = (currentIndexName: string) => ({
   type: OPEN_EDIT_SEARCH_INDEX_DRAWER_VIEW,
   currentIndexName,
 });
+
+export const refreshAllIndexes = (): IndexesThunkAction<void, AnyAction> => {
+  return (dispatch) => {
+    void dispatch(refreshRegularIndexes());
+    void dispatch(refreshSearchIndexes());
+  };
+};
+
+export const startPollingAllIndexes = (): IndexesThunkAction<
+  void,
+  AnyAction
+> => {
+  return (dispatch) => {
+    dispatch(startPollingRegularIndexes());
+    dispatch(startPollingSearchIndexes());
+  };
+};
+
+export const stopPollingAllIndexes = (): IndexesThunkAction<
+  void,
+  AnyAction
+> => {
+  return (dispatch) => {
+    dispatch(stopPollingRegularIndexes());
+    dispatch(stopPollingSearchIndexes());
+  };
+};
 
 export default function reducer(
   state = INITIAL_STATE,
