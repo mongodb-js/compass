@@ -273,6 +273,16 @@ export function startAnalysis(
     if (cancelAnalysisControllerRef.current) {
       return;
     }
+
+    const willInferRelations =
+      preferences.getPreferences().enableAutomaticRelationshipInference &&
+      options.automaticallyInferRelations;
+
+    track('Data Modeling Diagram Creation Started', {
+      num_collections: selectedCollections.length,
+      automatically_infer_relations: willInferRelations,
+    });
+
     const cancelController = (cancelAnalysisControllerRef.current =
       new AbortController());
 
@@ -308,10 +318,6 @@ export function startAnalysis(
           return { ...coll, position };
         }),
       });
-
-      const willInferRelations =
-        preferences.getPreferences().enableAutomaticRelationshipInference &&
-        options.automaticallyInferRelations;
 
       track('Data Modeling Diagram Created', {
         num_collections: selectedCollections.length,
@@ -490,7 +496,7 @@ export function analyzeCollections({
   return async (
     dispatch,
     _getState,
-    { connections, logger, preferences, cancelAnalysisControllerRef }
+    { connections, logger, preferences, cancelAnalysisControllerRef, track }
   ) => {
     const abortSignal = cancelAnalysisControllerRef.current?.signal;
     const namespaces = selectedCollections.map((collName) => {
@@ -544,6 +550,9 @@ export function analyzeCollections({
     );
 
     if (willInferRelations) {
+      track('Data Modeling Diagram Creation Relationship Inferral Started', {
+        num_collections: selectedCollections.length,
+      });
       relations = (
         await Promise.all(
           collections.map(
@@ -615,7 +624,6 @@ export async function getModelFromReanalysis(
     }));
   // We will reposition in the next step, so lets ignore displayPosition
   const existingCollections = currentModel.collections.map(
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     ({ displayPosition, ...coll }) => coll
   );
 
@@ -670,7 +678,6 @@ export async function getModelFromReanalysis(
   });
   const existingRelations = currentModel.relationships;
   return {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     collections: allCollections.map((coll) => {
       const node = positioned.nodes.find((node) => {
         return node.id === coll.ns;

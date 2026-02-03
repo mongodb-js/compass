@@ -2099,6 +2099,16 @@ type SchemaValidationAddedEvent = ConnectionScopedEvent<{
 }>;
 
 /**
+ * This event is fired when the schema analysis is started
+ *
+ * @category Schema
+ */
+type SchemaAnalysisStartedEvent = ConnectionScopedEvent<{
+  name: 'Schema Analysis Started';
+  payload: Record<string, never>;
+}>;
+
+/**
  * This event is fired when user analyzes the schema.
  *
  * @category Schema
@@ -2153,7 +2163,7 @@ type SchemaAnalyzedEvent = ConnectionScopedEvent<{
 }>;
 
 /**
- * This event is fired when user analyzes the schema.
+ * This event is fired when user cancels the schema analysis.
  *
  * @category Schema
  */
@@ -2953,6 +2963,41 @@ type DataModelingDiagramCollectionRenamed = CommonEvent<{
 }>;
 
 /**
+ * This event is fired when the modal to create a new data modeling diagram is opened
+ *
+ * @category Data Modeling
+ */
+type DataModelingCreateDiagramModalOpened = CommonEvent<{
+  name: 'Data Modeling Create Diagram Modal Opened';
+  payload: Record<string, never>;
+}>;
+
+/**
+ * This event is fired when a new data modeling diagram creation is started
+ *
+ * @category Data Modeling
+ */
+type DataModelingDiagramCreationStarted = CommonEvent<{
+  name: 'Data Modeling Diagram Creation Started';
+  payload: {
+    num_collections: number;
+    automatically_infer_relations: boolean;
+  };
+}>;
+
+/**
+ * This event is fired when the collections are analyzed and the relationship inferral is started
+ *
+ * @category Data Modeling
+ */
+type DataModelingDiagramCreationRelationshipInferralStarted = CommonEvent<{
+  name: 'Data Modeling Diagram Creation Relationship Inferral Started';
+  payload: {
+    num_collections: number;
+  };
+}>;
+
+/**
  * This event is fired when a new data modeling diagram is created
  *
  * @category Data Modeling
@@ -3376,6 +3421,9 @@ export type TelemetryEvent =
   | DataModelingDiagramCollectionAdded
   | DataModelingDiagramCollectionRemoved
   | DataModelingDiagramCollectionRenamed
+  | DataModelingCreateDiagramModalOpened
+  | DataModelingDiagramCreationStarted
+  | DataModelingDiagramCreationRelationshipInferralStarted
   | DataModelingDiagramCreated
   | DataModelingDiagramCreationCancelled
   | DataModelingDiagramCreationFailed
@@ -3441,6 +3489,7 @@ export type TelemetryEvent =
   | QueryHistoryRecentEvent
   | QueryHistoryRecentUsedEvent
   | QueryResultsRefreshedEvent
+  | SchemaAnalysisStartedEvent
   | SchemaAnalysisCancelledEvent
   | SchemaAnalyzedEvent
   | SchemaExportedEvent

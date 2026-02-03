@@ -127,14 +127,12 @@ export function mapFieldDataToJsonSchema(
   const newFieldData = cloneDeepWith(fieldData, (value) => {
     if (!value) return value;
     if (typeof value === 'object' && 'expanded' in value) {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { expanded: _expanded, ...rest } = value;
       return rest;
     }
     if (Array.isArray(value)) {
       return value.map((item) => {
         if (typeof item === 'object' && 'expanded' in item) {
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
           const { expanded: _expanded, ...rest } = item;
           return rest;
         }
