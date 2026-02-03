@@ -47,8 +47,8 @@ type IndexesListDrawerViewProps = {
   onRefreshClick: () => void;
   onCreateRegularIndexClick: () => void;
   onCreateSearchIndexClick: (currentIndexType: SearchIndexType) => void;
-  onMount: () => void;
-  onUnmount: () => void;
+  startPolling: () => void;
+  stopPolling: () => void;
 };
 
 function isRefreshingStatus(status: FetchStatus) {
@@ -67,15 +67,15 @@ const IndexesListDrawerView: React.FunctionComponent<
   onRefreshClick,
   onCreateRegularIndexClick,
   onCreateSearchIndexClick,
-  onMount,
-  onUnmount,
+  startPolling,
+  stopPolling,
 }) => {
   const [searchTerm, setSearchTerm] = useState<string>('');
 
   useEffect(() => {
-    onMount();
-    return onUnmount;
-  }, [onMount, onUnmount]);
+    startPolling();
+    return stopPolling;
+  }, [startPolling, stopPolling]);
 
   const onActionDispatch = useCallback(
     (action: string) => {
@@ -203,10 +203,10 @@ const mapState = ({
 
 const mapDispatch = {
   onRefreshClick: refreshAllIndexes,
-  onCreateRegularIndexClick: () => createIndexOpened(),
+  onCreateRegularIndexClick: createIndexOpened,
   onCreateSearchIndexClick: openCreateSearchIndexDrawerView,
-  onMount: startPollingAllIndexes,
-  onUnmount: stopPollingAllIndexes,
+  startPolling: startPollingAllIndexes,
+  stopPolling: stopPollingAllIndexes,
 };
 
 export default connect(mapState, mapDispatch)(IndexesListDrawerView);

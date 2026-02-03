@@ -34,7 +34,6 @@ export type CreateIndexFormProps = {
   onSelectFieldTypeClick: (idx: number, fType: string) => void;
   onAddFieldClick: () => void; // Plus icon.
   onRemoveFieldClick: (idx: number) => void; // Minus icon.
-  query: Document | null;
 };
 
 function CreateIndexForm({

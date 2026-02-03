@@ -5,12 +5,13 @@ import {
   startPollingRegularIndexes,
   stopPollingRegularIndexes,
 } from './regular-indexes';
+import type { FetchIndexesActions } from './regular-indexes';
 import {
   refreshSearchIndexes,
   startPollingSearchIndexes,
   stopPollingSearchIndexes,
 } from './search-indexes';
-
+import type { FetchSearchIndexesActions } from './search-indexes';
 export type IndexesDrawerViewType =
   | 'indexes-list'
   | 'create-search-index'
@@ -53,7 +54,10 @@ export const openEditSearchIndexDrawerView = (currentIndexName: string) => ({
   currentIndexName,
 });
 
-export const refreshAllIndexes = (): IndexesThunkAction<void, AnyAction> => {
+export const refreshAllIndexes = (): IndexesThunkAction<
+  void,
+  FetchSearchIndexesActions | FetchIndexesActions
+> => {
   return (dispatch) => {
     void dispatch(refreshRegularIndexes());
     void dispatch(refreshSearchIndexes());
@@ -62,7 +66,7 @@ export const refreshAllIndexes = (): IndexesThunkAction<void, AnyAction> => {
 
 export const startPollingAllIndexes = (): IndexesThunkAction<
   void,
-  AnyAction
+  FetchSearchIndexesActions | FetchIndexesActions
 > => {
   return (dispatch) => {
     dispatch(startPollingRegularIndexes());
@@ -70,10 +74,7 @@ export const startPollingAllIndexes = (): IndexesThunkAction<
   };
 };
 
-export const stopPollingAllIndexes = (): IndexesThunkAction<
-  void,
-  AnyAction
-> => {
+export const stopPollingAllIndexes = (): IndexesThunkAction<void, never> => {
   return (dispatch) => {
     dispatch(stopPollingRegularIndexes());
     dispatch(stopPollingSearchIndexes());

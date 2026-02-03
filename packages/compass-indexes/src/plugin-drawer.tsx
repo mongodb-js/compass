@@ -58,7 +58,7 @@ const Drawer = ({ currentView, subTab }: DrawerProps) => {
         </div>
       </DrawerSection>
       {/* The drawer tab will re-use this modal for creating regular indexes */}
-      <CreateIndexModal query={null} />
+      <CreateIndexModal />
     </>
   );
 };
