@@ -301,6 +301,9 @@ export const startAnalysis = (): SchemaThunkAction<
       debug('analysis already in progress. ignoring subsequent start');
       return;
     }
+
+    track('Schema Analysis Started', {}, connectionInfoRef.current);
+
     const query = queryBar.getLastAppliedQuery('schema');
 
     const sampleSize = query.limit

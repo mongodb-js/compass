@@ -273,6 +273,16 @@ export function startAnalysis(
     if (cancelAnalysisControllerRef.current) {
       return;
     }
+
+    const willInferRelations =
+      preferences.getPreferences().enableAutomaticRelationshipInference &&
+      options.automaticallyInferRelations;
+
+    track('Data Modeling Diagram Creation Started', {
+      num_collections: selectedCollections.length,
+      automatically_infer_relations: willInferRelations,
+    });
+
     const cancelController = (cancelAnalysisControllerRef.current =
       new AbortController());
 
@@ -308,10 +318,6 @@ export function startAnalysis(
           return { ...coll, position };
         }),
       });
-
-      const willInferRelations =
-        preferences.getPreferences().enableAutomaticRelationshipInference &&
-        options.automaticallyInferRelations;
 
       track('Data Modeling Diagram Created', {
         num_collections: selectedCollections.length,
@@ -490,7 +496,7 @@ export function analyzeCollections({
   return async (
     dispatch,
     _getState,
-    { connections, logger, preferences, cancelAnalysisControllerRef }
+    { connections, logger, preferences, cancelAnalysisControllerRef, track }
   ) => {
     const abortSignal = cancelAnalysisControllerRef.current?.signal;
     const namespaces = selectedCollections.map((collName) => {
@@ -544,6 +550,9 @@ export function analyzeCollections({
     );
 
     if (willInferRelations) {
+      track('Data Modeling Diagram Creation Relationship Inferral Started', {
+        num_collections: selectedCollections.length,
+      });
       relations = (
         await Promise.all(
           collections.map(
