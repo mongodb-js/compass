@@ -87,6 +87,9 @@ Generated on Tue, Feb 3, 2026
 - [Data Modeling Collection Added](#event--DataModelingDiagramCollectionAdded)
 - [Data Modeling Collection Removed](#event--DataModelingDiagramCollectionRemoved)
 - [Data Modeling Collection Renamed](#event--DataModelingDiagramCollectionRenamed)
+- [Data Modeling Create Diagram Modal Opened](#event--DataModelingCreateDiagramModalOpened)
+- [Data Modeling Diagram Creation Started](#event--DataModelingDiagramCreationStarted)
+- [Data Modeling Diagram Creation Relationship Inferral Started](#event--DataModelingDiagramCreationRelationshipInferralStarted)
 - [Data Modeling Diagram Created](#event--DataModelingDiagramCreated)
 - [Data Modeling Diagram Creation Cancelled](#event--DataModelingDiagramCreationCancelled)
 - [Data Modeling Diagram Creation Failed](#event--DataModelingDiagramCreationFailed)
@@ -232,6 +235,7 @@ Generated on Tue, Feb 3, 2026
 
 ### Schema
 
+- [Schema Analysis Started](#event--SchemaAnalysisStartedEvent)
 - [Schema Analysis Cancelled](#event--SchemaAnalysisCancelledEvent)
 - [Schema Analyzed](#event--SchemaAnalyzedEvent)
 - [Schema Exported](#event--SchemaExportedEvent)
@@ -1090,6 +1094,35 @@ This event is fired when user renames a collection in a data modeling diagram.
 **Properties**:
 
 - **source** (required): `"side_panel"`
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--DataModelingCreateDiagramModalOpened"></a>
+
+### Data Modeling Create Diagram Modal Opened
+
+This event is fired when the modal to create a new data modeling diagram is opened
+
+<a name="event--DataModelingDiagramCreationStarted"></a>
+
+### Data Modeling Diagram Creation Started
+
+This event is fired when a new data modeling diagram creation is started
+
+**Properties**:
+
+- **num_collections** (required): `number`
+- **automatically_infer_relations** (required): `boolean`
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--DataModelingDiagramCreationRelationshipInferralStarted"></a>
+
+### Data Modeling Diagram Creation Relationship Inferral Started
+
+This event is fired when the collections are analyzed and the relationship inferral is started
+
+**Properties**:
+
+- **num_collections** (required): `number`
 - **is_compass_web** (optional): `true | undefined`
 
 <a name="event--DataModelingDiagramCreated"></a>
@@ -2494,11 +2527,17 @@ This event is fired when signal icon badge is rendered on the screen visible to 
 
 ## Schema
 
+<a name="event--SchemaAnalysisStartedEvent"></a>
+
+### Schema Analysis Started
+
+This event is fired when the schema analysis is started
+
 <a name="event--SchemaAnalysisCancelledEvent"></a>
 
 ### Schema Analysis Cancelled
 
-This event is fired when user analyzes the schema.
+This event is fired when user cancels the schema analysis.
 
 **Properties**:
 
