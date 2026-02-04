@@ -23,6 +23,7 @@ import {
   Code,
   BSONSymbol,
   Timestamp,
+  UUID,
 } from 'bson';
 
 export type TypeCastMap = {
@@ -45,6 +46,10 @@ export type TypeCastMap = {
   BSONSymbol: BSONSymbol;
   Timestamp: Timestamp;
   Undefined: undefined;
+  UUID: Binary;
+  LegacyJavaUUID: Binary;
+  LegacyCSharpUUID: Binary;
+  LegacyPythonUUID: Binary;
 };
 
 export type TypeCastTypes = keyof TypeCastMap;
@@ -254,6 +259,138 @@ const toBinary = (object: unknown): Binary => {
   return new Binary(buffer, Binary.SUBTYPE_DEFAULT);
 };
 
+/**
+ * UUID regex pattern for validation (xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx).
+ */
+export const UUID_REGEX =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/**
+ * Validates a UUID string format.
+ */
+const validateUUIDString = (uuidString: string): void => {
+  if (!UUID_REGEX.test(uuidString)) {
+    throw new Error(
+      `'${uuidString}' is not a valid UUID string (expected format: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx)`
+    );
+  }
+};
+
+/**
+ * Converts a UUID string (with hyphens) to a hex string (without hyphens).
+ */
+const uuidStringToHex = (uuidString: string): string => {
+  return uuidString.replace(/-/g, '');
+};
+
+/**
+ * Generates a random UUID string in the format xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx.
+ */
+const generateRandomUUID = (): string => {
+  return new UUID().toString();
+};
+
+/**
+ * Converts to UUID (Binary subtype 4).
+ * If the input is empty, generates a random UUID.
+ */
+const toUUID = (object: unknown): Binary => {
+  const uuidString = toString(object).trim();
+  if (!uuidString) {
+    return new UUID().toBinary();
+  }
+  validateUUIDString(uuidString);
+  const hex = uuidStringToHex(uuidString);
+  return Binary.createFromHexString(hex, Binary.SUBTYPE_UUID);
+};
+
+/**
+ * Converts to Legacy Java UUID (Binary subtype 3).
+ * Java legacy format reverses byte order for both MSB and LSB.
+ * If the input is empty, generates a random UUID.
+ */
+const toLegacyJavaUUID = (object: unknown): Binary => {
+  let uuidString = toString(object).trim();
+  if (!uuidString) {
+    uuidString = generateRandomUUID();
+  } else {
+    validateUUIDString(uuidString);
+  }
+  const hex = uuidStringToHex(uuidString);
+
+  // Reverse byte order for Java legacy UUID format.
+  // Split into MSB (first 16 hex chars / 8 bytes) and LSB (last 16 hex chars / 8 bytes).
+  let msb = hex.substring(0, 16);
+  let lsb = hex.substring(16, 32);
+
+  // Reverse pairs of hex characters (bytes) for both MSB and LSB.
+  msb =
+    msb.substring(14, 16) +
+    msb.substring(12, 14) +
+    msb.substring(10, 12) +
+    msb.substring(8, 10) +
+    msb.substring(6, 8) +
+    msb.substring(4, 6) +
+    msb.substring(2, 4) +
+    msb.substring(0, 2);
+  lsb =
+    lsb.substring(14, 16) +
+    lsb.substring(12, 14) +
+    lsb.substring(10, 12) +
+    lsb.substring(8, 10) +
+    lsb.substring(6, 8) +
+    lsb.substring(4, 6) +
+    lsb.substring(2, 4) +
+    lsb.substring(0, 2);
+
+  return Binary.createFromHexString(msb + lsb, Binary.SUBTYPE_UUID_OLD);
+};
+
+/**
+ * Converts to Legacy C# UUID (Binary subtype 3).
+ * C# legacy format reverses byte order for first 3 groups only.
+ * If the input is empty, generates a random UUID.
+ */
+const toLegacyCSharpUUID = (object: unknown): Binary => {
+  let uuidString = toString(object).trim();
+  if (!uuidString) {
+    uuidString = generateRandomUUID();
+  } else {
+    validateUUIDString(uuidString);
+  }
+  const hex = uuidStringToHex(uuidString);
+
+  // Reverse byte order for C# legacy UUID format (first 3 groups only).
+  // Group a: first 4 bytes (8 hex chars), group b: next 2 bytes (4 hex chars),
+  // group c: next 2 bytes (4 hex chars), group d: remaining 8 bytes (16 hex chars).
+  const a =
+    hex.substring(6, 8) +
+    hex.substring(4, 6) +
+    hex.substring(2, 4) +
+    hex.substring(0, 2);
+  const b = hex.substring(10, 12) + hex.substring(8, 10);
+  const c = hex.substring(14, 16) + hex.substring(12, 14);
+  const d = hex.substring(16, 32);
+
+  return Binary.createFromHexString(a + b + c + d, Binary.SUBTYPE_UUID_OLD);
+};
+
+/**
+ * Converts to Legacy Python UUID (Binary subtype 3).
+ * Python legacy format uses direct byte order (no reversal).
+ * If the input is empty, generates a random UUID.
+ */
+const toLegacyPythonUUID = (object: unknown): Binary => {
+  let uuidString = toString(object).trim();
+  if (!uuidString) {
+    uuidString = generateRandomUUID();
+  } else {
+    validateUUIDString(uuidString);
+  }
+  const hex = uuidStringToHex(uuidString);
+  return Binary.createFromHexString(hex, Binary.SUBTYPE_UUID_OLD);
+};
+
 const toRegex = (object: unknown): BSONRegExp => {
   return new BSONRegExp(toString(object));
 };
@@ -296,6 +433,10 @@ const CASTERS: {
   BSONSymbol: toSymbol,
   Timestamp: toTimestamp,
   Undefined: toUndefined,
+  UUID: toUUID,
+  LegacyJavaUUID: toLegacyJavaUUID,
+  LegacyCSharpUUID: toLegacyCSharpUUID,
+  LegacyPythonUUID: toLegacyPythonUUID,
 };
 
 /**
@@ -367,8 +508,17 @@ class TypeChecker {
 
   /**
    * Get the type for the object.
+   * @param legacyUUIDEncoding - Optional encoding for legacy UUID (subtype 3).
+   *   If provided and the object is a Binary with subtype 3, returns the specific legacy UUID type.
+   *   Valid values: 'LegacyJavaUUID', 'LegacyCSharpUUID', 'LegacyPythonUUID'
    */
-  type(object: unknown): TypeCastTypes {
+  type(
+    object: unknown,
+    legacyUUIDEncoding?:
+      | 'LegacyJavaUUID'
+      | 'LegacyCSharpUUID'
+      | 'LegacyPythonUUID'
+  ): TypeCastTypes {
     if (hasIn(object, BSON_TYPE)) {
       const bsonObj = object as { _bsontype: string };
       if (bsonObj._bsontype === LONG) {
@@ -379,6 +529,20 @@ class TypeChecker {
       }
       if (bsonObj._bsontype === SYMBOL) {
         return 'BSONSymbol';
+      }
+      // Handle Binary UUID subtypes
+      if (bsonObj._bsontype === 'Binary') {
+        const binary = object as Binary;
+        if (binary.sub_type === Binary.SUBTYPE_UUID) {
+          return 'UUID';
+        }
+        if (
+          binary.sub_type === Binary.SUBTYPE_UUID_OLD &&
+          binary.buffer.length === 16 &&
+          legacyUUIDEncoding
+        ) {
+          return legacyUUIDEncoding;
+        }
       }
       return bsonObj._bsontype as TypeCastTypes;
     }

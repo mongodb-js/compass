@@ -77,6 +77,26 @@ export function objectToIdiomaticEJSON(
   );
 }
 
+/**
+ * Convert a base64 string to a UUID string (xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx).
+ */
+function base64ToUUIDString(base64: string): string {
+  // Decode base64 to bytes
+  const bytes = Buffer.from(base64, 'base64');
+  if (bytes.length !== 16) {
+    return ''; // Invalid UUID length
+  }
+  const hex = bytes.toString('hex');
+  // Format as UUID: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+  return [
+    hex.substring(0, 8),
+    hex.substring(8, 12),
+    hex.substring(12, 16),
+    hex.substring(16, 20),
+    hex.substring(20, 32),
+  ].join('-');
+}
+
 function makeEJSONIdiomatic(value: any): void {
   if (!value || typeof value !== 'object') return;
 
@@ -105,6 +125,18 @@ function makeEJSONIdiomatic(value: any): void {
       const number = entry.$date.$numberLong;
       if (number >= 0 && number <= maxFourYearDate) {
         entry.$date = new Date(+number).toISOString();
+      }
+    }
+    // Convert Binary subtype 04 (UUID) to $uuid format for better readability
+    if (
+      entry.$binary &&
+      entry.$binary.subType === '04' &&
+      entry.$binary.base64
+    ) {
+      const uuidString = base64ToUUIDString(entry.$binary.base64);
+      if (uuidString) {
+        value[key] = { $uuid: uuidString };
+        continue;
       }
     }
     makeEJSONIdiomatic(entry);

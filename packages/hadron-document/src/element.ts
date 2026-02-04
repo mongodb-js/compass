@@ -52,6 +52,18 @@ const UNEDITABLE_TYPES = [
   'DBRef',
 ];
 
+/**
+ * UUID type names for Binary subtypes 3 and 4.
+ */
+export const UUID_TYPES = [
+  'UUID',
+  'LegacyJavaUUID',
+  'LegacyCSharpUUID',
+  'LegacyPythonUUID',
+] as const;
+
+export type UUIDType = (typeof UUID_TYPES)[number];
+
 export const DEFAULT_VISIBLE_ELEMENTS = 25;
 export function isValueExpandable(
   value: BSONValue
@@ -247,6 +259,13 @@ export class Element extends EventEmitter {
           editor.complete();
         } else {
           this.edit(TypeChecker.cast(this.generateObject(), newType));
+          // For UUID types, explicitly set the currentType since TypeChecker.type()
+          // may not return the specific UUID type for legacy UUIDs (subtype 3)
+          if ((UUID_TYPES as readonly string[]).includes(newType)) {
+            this.currentType = newType;
+            // Fire another event to notify the UI of the type change
+            this._bubbleUp(ElementEvents.Edited, this);
+          }
         }
       } catch (e: unknown) {
         this.setInvalid(this.currentValue, newType, (e as Error).message);
@@ -651,9 +670,13 @@ export class Element extends EventEmitter {
    * @returns If the value is editable.
    */
   isValueEditable(): boolean {
+    // UUID types are editable even though Binary is in UNEDITABLE_TYPES
+    const isUUIDType = (UUID_TYPES as readonly string[]).includes(
+      this.currentType
+    );
     return (
       this._isKeyLegallyEditable() &&
-      !UNEDITABLE_TYPES.includes(this.currentType)
+      (isUUIDType || !UNEDITABLE_TYPES.includes(this.currentType))
     );
   }
 

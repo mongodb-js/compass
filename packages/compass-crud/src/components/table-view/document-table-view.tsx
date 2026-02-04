@@ -71,6 +71,7 @@ export type DocumentTableViewProps = {
   tz: string;
   className?: string;
   darkMode?: boolean;
+  legacyUUIDDisplayEncoding?: string;
   columnWidths: Record<string, number>;
   onColumnWidthChange: (newColumnWidths: Record<string, number>) => void;
 };
@@ -750,6 +751,7 @@ export class DocumentTableView extends React.Component<DocumentTableViewProps> {
         parentType: '',
         tz: this.props.tz,
         darkMode: this.props.darkMode,
+        legacyUUIDDisplayEncoding: this.props.legacyUUIDDisplayEncoding,
       },
       editable: false,
       cellEditorFramework: CellEditor,
@@ -823,6 +825,7 @@ export class DocumentTableView extends React.Component<DocumentTableViewProps> {
         parentType: parentType,
         tz: this.props.tz,
         darkMode: this.props.darkMode,
+        legacyUUIDDisplayEncoding: this.props.legacyUUIDDisplayEncoding,
       },
 
       editable: function (params) {
