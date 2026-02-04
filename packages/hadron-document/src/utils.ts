@@ -24,6 +24,10 @@ const UNCASTED_EMPTY_TYPE_VALUE: {
   Boolean: false,
   Undefined: undefined,
   Null: null,
+  UUID: '',
+  LegacyJavaUUID: '',
+  LegacyCSharpUUID: '',
+  LegacyPythonUUID: '',
 };
 
 const maxFourYearDate = new Date('9999-12-31T23:59:59.999Z').valueOf();
