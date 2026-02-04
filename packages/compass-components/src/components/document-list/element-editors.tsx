@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import type { Element as HadronElementType } from 'hadron-document';
 import type { TypeCastMap } from 'hadron-type-checker';
-import TypeChecker, { UUID_REGEX } from 'hadron-type-checker';
+import TypeChecker from 'hadron-type-checker';
 import { css, cx } from '@leafygreen-ui/emotion';
 import { palette } from '@leafygreen-ui/palette';
 import { spacing } from '@leafygreen-ui/tokens';
