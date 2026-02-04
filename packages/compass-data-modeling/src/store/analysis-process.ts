@@ -262,6 +262,7 @@ export function startAnalysis(
     dispatch,
     getState,
     {
+      connections,
       cancelAnalysisControllerRef,
       track,
       logger,
@@ -273,6 +274,22 @@ export function startAnalysis(
     if (cancelAnalysisControllerRef.current) {
       return;
     }
+
+    const connectionInfo = connections.getConnectionById(connectionId)?.info;
+
+    const willInferRelations =
+      preferences.getPreferences().enableAutomaticRelationshipInference &&
+      options.automaticallyInferRelations;
+
+    track(
+      'Data Modeling Diagram Creation Started',
+      {
+        num_collections: selectedCollections.length,
+        automatically_infer_relations: willInferRelations,
+      },
+      connectionInfo
+    );
+
     const cancelController = (cancelAnalysisControllerRef.current =
       new AbortController());
 
@@ -309,17 +326,17 @@ export function startAnalysis(
         }),
       });
 
-      const willInferRelations =
-        preferences.getPreferences().enableAutomaticRelationshipInference &&
-        options.automaticallyInferRelations;
-
-      track('Data Modeling Diagram Created', {
-        num_collections: selectedCollections.length,
-        num_relations_inferred: willInferRelations
-          ? relations.length
-          : undefined,
-        analysis_time_ms: Date.now() - analysisStartTime,
-      });
+      track(
+        'Data Modeling Diagram Created',
+        {
+          num_collections: selectedCollections.length,
+          num_relations_inferred: willInferRelations
+            ? relations.length
+            : undefined,
+          analysis_time_ms: Date.now() - analysisStartTime,
+        },
+        connectionInfo
+      );
       void dataModelStorage.save(getCurrentDiagramFromState(getState()));
     } catch (err) {
       const analysis_time_ms = Date.now() - analysisStartTime;
@@ -327,10 +344,14 @@ export function startAnalysis(
         dispatch({
           type: AnalysisProcessActionTypes.ANALYSIS_CANCELED,
         });
-        track('Data Modeling Diagram Creation Cancelled', {
-          num_collections: selectedCollections.length,
-          analysis_time_ms,
-        });
+        track(
+          'Data Modeling Diagram Creation Cancelled',
+          {
+            num_collections: selectedCollections.length,
+            analysis_time_ms,
+          },
+          connectionInfo
+        );
       } else {
         logger.log.error(
           mongoLogId(1_001_000_350),
@@ -342,10 +363,14 @@ export function startAnalysis(
           type: AnalysisProcessActionTypes.ANALYSIS_FAILED,
           error: err as Error,
         });
-        track('Data Modeling Diagram Creation Failed', {
-          num_collections: selectedCollections.length,
-          analysis_time_ms,
-        });
+        track(
+          'Data Modeling Diagram Creation Failed',
+          {
+            num_collections: selectedCollections.length,
+            analysis_time_ms,
+          },
+          connectionInfo
+        );
       }
     } finally {
       cancelAnalysisControllerRef.current = null;
@@ -490,7 +515,7 @@ export function analyzeCollections({
   return async (
     dispatch,
     _getState,
-    { connections, logger, preferences, cancelAnalysisControllerRef }
+    { connections, logger, preferences, cancelAnalysisControllerRef, track }
   ) => {
     const abortSignal = cancelAnalysisControllerRef.current?.signal;
     const namespaces = selectedCollections.map((collName) => {
@@ -544,6 +569,14 @@ export function analyzeCollections({
     );
 
     if (willInferRelations) {
+      const connectionInfo = connections.getConnectionById(connectionId)?.info;
+      track(
+        'Data Modeling Diagram Creation Relationship Inferral Started',
+        {
+          num_collections: selectedCollections.length,
+        },
+        connectionInfo
+      );
       relations = (
         await Promise.all(
           collections.map(
