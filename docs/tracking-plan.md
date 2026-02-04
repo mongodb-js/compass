@@ -1113,6 +1113,8 @@ This event is fired when a new data modeling diagram creation is started
 - **num_collections** (required): `number`
 - **automatically_infer_relations** (required): `boolean`
 - **is_compass_web** (optional): `true | undefined`
+- **connection_id** (optional): `string | undefined`
+  - The id of the connection associated to this event.
 
 <a name="event--DataModelingDiagramCreationRelationshipInferralStarted"></a>
 
@@ -1124,6 +1126,8 @@ This event is fired when the collections are analyzed and the relationship infer
 
 - **num_collections** (required): `number`
 - **is_compass_web** (optional): `true | undefined`
+- **connection_id** (optional): `string | undefined`
+  - The id of the connection associated to this event.
 
 <a name="event--DataModelingDiagramCreated"></a>
 
@@ -1137,6 +1141,8 @@ This event is fired when a new data modeling diagram is created
 - **num_relations_inferred** (optional): `number | undefined`
 - **analysis_time_ms** (required): `number`
 - **is_compass_web** (optional): `true | undefined`
+- **connection_id** (optional): `string | undefined`
+  - The id of the connection associated to this event.
 
 <a name="event--DataModelingDiagramCreationCancelled"></a>
 
@@ -1149,6 +1155,8 @@ This event is fired when a new data modeling diagram creation is cancelled
 - **num_collections** (required): `number`
 - **analysis_time_ms** (required): `number`
 - **is_compass_web** (optional): `true | undefined`
+- **connection_id** (optional): `string | undefined`
+  - The id of the connection associated to this event.
 
 <a name="event--DataModelingDiagramCreationFailed"></a>
 
@@ -1161,6 +1169,8 @@ This event is fired when a new data modeling diagram creation has failed
 - **num_collections** (required): `number`
 - **analysis_time_ms** (required): `number`
 - **is_compass_web** (optional): `true | undefined`
+- **connection_id** (optional): `string | undefined`
+  - The id of the connection associated to this event.
 
 <a name="event--DataModelingDiagramExported"></a>
 
