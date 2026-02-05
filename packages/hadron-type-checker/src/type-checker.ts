@@ -284,6 +284,67 @@ const uuidStringToHex = (uuidString: string): string => {
 };
 
 /**
+ * Converts a hex string (without hyphens) to UUID format with hyphens.
+ */
+export const uuidHexToString = (hex: string): string => {
+  return (
+    hex.substring(0, 8) +
+    '-' +
+    hex.substring(8, 12) +
+    '-' +
+    hex.substring(12, 16) +
+    '-' +
+    hex.substring(16, 20) +
+    '-' +
+    hex.substring(20, 32)
+  );
+};
+
+/**
+ * Reverses byte order for Java legacy UUID format (both MSB and LSB).
+ * Takes a 32-char hex string and returns a 32-char hex string with reversed byte order.
+ */
+export const reverseJavaUUIDBytes = (hex: string): string => {
+  let msb = hex.substring(0, 16);
+  let lsb = hex.substring(16, 32);
+  msb =
+    msb.substring(14, 16) +
+    msb.substring(12, 14) +
+    msb.substring(10, 12) +
+    msb.substring(8, 10) +
+    msb.substring(6, 8) +
+    msb.substring(4, 6) +
+    msb.substring(2, 4) +
+    msb.substring(0, 2);
+  lsb =
+    lsb.substring(14, 16) +
+    lsb.substring(12, 14) +
+    lsb.substring(10, 12) +
+    lsb.substring(8, 10) +
+    lsb.substring(6, 8) +
+    lsb.substring(4, 6) +
+    lsb.substring(2, 4) +
+    lsb.substring(0, 2);
+  return msb + lsb;
+};
+
+/**
+ * Reverses byte order for C# legacy UUID format (first 3 groups only).
+ * Takes a 32-char hex string and returns a 32-char hex string with reversed byte order.
+ */
+export const reverseCSharpUUIDBytes = (hex: string): string => {
+  const a =
+    hex.substring(6, 8) +
+    hex.substring(4, 6) +
+    hex.substring(2, 4) +
+    hex.substring(0, 2);
+  const b = hex.substring(10, 12) + hex.substring(8, 10);
+  const c = hex.substring(14, 16) + hex.substring(12, 14);
+  const d = hex.substring(16, 32);
+  return a + b + c + d;
+};
+
+/**
  * Generates a random UUID string in the format xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx.
  */
 const generateRandomUUID = (): string => {
@@ -317,33 +378,8 @@ const toLegacyJavaUUID = (object: unknown): Binary => {
     validateUUIDString(uuidString);
   }
   const hex = uuidStringToHex(uuidString);
-
-  // Reverse byte order for Java legacy UUID format.
-  // Split into MSB (first 16 hex chars / 8 bytes) and LSB (last 16 hex chars / 8 bytes).
-  let msb = hex.substring(0, 16);
-  let lsb = hex.substring(16, 32);
-
-  // Reverse pairs of hex characters (bytes) for both MSB and LSB.
-  msb =
-    msb.substring(14, 16) +
-    msb.substring(12, 14) +
-    msb.substring(10, 12) +
-    msb.substring(8, 10) +
-    msb.substring(6, 8) +
-    msb.substring(4, 6) +
-    msb.substring(2, 4) +
-    msb.substring(0, 2);
-  lsb =
-    lsb.substring(14, 16) +
-    lsb.substring(12, 14) +
-    lsb.substring(10, 12) +
-    lsb.substring(8, 10) +
-    lsb.substring(6, 8) +
-    lsb.substring(4, 6) +
-    lsb.substring(2, 4) +
-    lsb.substring(0, 2);
-
-  return Binary.createFromHexString(msb + lsb, Binary.SUBTYPE_UUID_OLD);
+  const reversedHex = reverseJavaUUIDBytes(hex);
+  return Binary.createFromHexString(reversedHex, Binary.SUBTYPE_UUID_OLD);
 };
 
 /**
@@ -359,20 +395,8 @@ const toLegacyCSharpUUID = (object: unknown): Binary => {
     validateUUIDString(uuidString);
   }
   const hex = uuidStringToHex(uuidString);
-
-  // Reverse byte order for C# legacy UUID format (first 3 groups only).
-  // Group a: first 4 bytes (8 hex chars), group b: next 2 bytes (4 hex chars),
-  // group c: next 2 bytes (4 hex chars), group d: remaining 8 bytes (16 hex chars).
-  const a =
-    hex.substring(6, 8) +
-    hex.substring(4, 6) +
-    hex.substring(2, 4) +
-    hex.substring(0, 2);
-  const b = hex.substring(10, 12) + hex.substring(8, 10);
-  const c = hex.substring(14, 16) + hex.substring(12, 14);
-  const d = hex.substring(16, 32);
-
-  return Binary.createFromHexString(a + b + c + d, Binary.SUBTYPE_UUID_OLD);
+  const reversedHex = reverseCSharpUUIDBytes(hex);
+  return Binary.createFromHexString(reversedHex, Binary.SUBTYPE_UUID_OLD);
 };
 
 /**
