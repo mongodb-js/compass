@@ -377,10 +377,17 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
       const trimmedMessageBody = text.trim();
       if (trimmedMessageBody) {
         await chat.stop();
+        const isConnectedToCsfleCluster = activeConnections.some(
+          (info) => info.connectionOptions.fleOptions
+        );
         void ensureOptInAndSend?.(
           {
             text: trimmedMessageBody,
-            metadata: { sendContext: true, ...metadata },
+            metadata: {
+              sendContext: true,
+              ...metadata,
+              disbleStorage: isConnectedToCsfleCluster,
+            },
           },
           {},
           () => {
@@ -391,7 +398,7 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
         );
       }
     },
-    [track, ensureOptInAndSend, chat]
+    [track, ensureOptInAndSend, chat, activeConnections]
   );
 
   const handleFeedback = useCallback(
@@ -526,6 +533,13 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
   const visibleMessages = messages.filter(
     (message) => !message.metadata?.isSystemContext
   );
+
+  console.log('Rendering AssistantChat', {
+    messages,
+    visibleMessages,
+    status,
+    error,
+  });
 
   return (
     <div

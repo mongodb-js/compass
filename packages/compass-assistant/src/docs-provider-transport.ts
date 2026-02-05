@@ -67,6 +67,10 @@ export class DocsProviderTransport implements ChatTransport<AssistantMessage> {
 
     const lastMessage = filteredMessages[filteredMessages.length - 1];
 
+    const disbleStorage = filteredMessages.some(
+      (message) => message.metadata?.disbleStorage
+    );
+
     const result = streamText({
       model: this.model,
       messages: await (lastMessage.metadata?.sendWithoutHistory
@@ -79,7 +83,7 @@ export class DocsProviderTransport implements ChatTransport<AssistantMessage> {
       tools: this.getTools(),
       providerOptions: {
         openai: {
-          store: process.env.COMPASS_ASSISTANT_STORE === 'true' ? true : false,
+          store: !disbleStorage,
           // If the last message has custom instructions, use them instead of the default
           instructions: lastMessage.metadata?.instructions ?? this.instructions,
         },
