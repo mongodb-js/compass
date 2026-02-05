@@ -250,6 +250,11 @@ export const ValueEditor: React.FunctionComponent<{
     return { width: `${Math.max(val.length, 1)}ch` };
   }, [val, type]);
 
+  const uuidInputStyle = useMemo(() => {
+    // UUID format is 36 characters (xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx)
+    return { width: `${Math.max(val.length, 36)}ch` };
+  }, [val]);
+
   return (
     <>
       {editing ? (
@@ -323,7 +328,7 @@ export const ValueEditor: React.FunctionComponent<{
                             : editorInvalidLightMode)
                       )}
                       spellCheck="false"
-                      style={{ width: `${Math.max(val.length, 36)}ch` }}
+                      style={uuidInputStyle}
                       {...(mergedProps as React.HTMLProps<HTMLInputElement>)}
                     ></input>
                     <span className={uuidEditorLabel}>&apos;)</span>
