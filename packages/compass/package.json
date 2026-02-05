@@ -253,7 +253,7 @@
     "clean-stack": "^2.0.0",
     "compass-preferences-model": "^2.72.0",
     "cross-spawn": "^7.0.5",
-    "debug": "^4.3.4",
+    "debug": "^4.4.3",
     "depcheck": "^1.4.1",
     "electron": "^37.10.3",
     "electron-devtools-installer": "^3.2.0",

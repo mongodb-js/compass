@@ -37,7 +37,7 @@
     "@types/node": "^20",
     "compass-e2e-tests": "^1.50.0",
     "depcheck": "^1.4.1",
-    "debug": "^4.3.4",
+    "debug": "^4.4.3",
     "hadron-build": "^25.8.25",
     "lodash": "^4.17.23",
     "typescript": "^5.9.3",

@@ -59,7 +59,7 @@
     "@mongodb-js/compass-workspaces": "^0.76.0",
     "bson": "^6.10.4",
     "compass-preferences-model": "^2.72.0",
-    "debug": "^4.3.4",
+    "debug": "^4.4.3",
     "electron": "^37.10.3",
     "hadron-document": "^8.10.9",
     "hadron-ipc": "^3.5.26",

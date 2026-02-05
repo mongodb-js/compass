@@ -52,7 +52,7 @@
     "reformat": "npm run eslint . -- --fix && npm run prettier -- --write ."
   },
   "dependencies": {
-    "debug": "^4.3.4",
+    "debug": "^4.4.3",
     "@mongodb-js/compass-app-registry": "^9.7.0",
     "hadron-ipc": "^3.5.26",
     "is-electron-renderer": "^2.0.1",

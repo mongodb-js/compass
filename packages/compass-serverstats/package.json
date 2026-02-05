@@ -37,7 +37,7 @@
     "@mongodb-js/workspace-info": "^1.4.0",
     "d3": "^3.5.17",
     "d3-timer": "^1.0.3",
-    "debug": "^4.3.4",
+    "debug": "^4.4.3",
     "@mongodb-js/compass-app-registry": "^9.7.0",
     "lodash": "^4.17.23",
     "mongodb-ns": "^3.0.1",

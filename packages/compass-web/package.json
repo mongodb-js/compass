@@ -125,7 +125,7 @@
     "chai": "^4.3.6",
     "compass-preferences-model": "^2.72.0",
     "crypto-browserify": "^3.12.0",
-    "debug": "^4.3.4",
+    "debug": "^4.4.3",
     "depcheck": "^1.4.1",
     "dns-query": "^0.11.2",
     "electron": "^37.10.3",
@@ -149,6 +149,6 @@
     "vm-browserify": "^1.1.2",
     "whatwg-url": "^13.0.0",
     "ws": "^8.16.0",
-    "mongodb-mcp-server": "1.4.1-prerelease.5"
+    "mongodb-mcp-server": "^1.5.0"
   }
 }
