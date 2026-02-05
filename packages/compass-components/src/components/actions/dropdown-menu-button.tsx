@@ -122,7 +122,7 @@ export function DropdownMenuButton<Action extends string>({
           return <MenuSeparator key={`separator-${idx}`} />;
         }
 
-        const { action, label, icon } = menuAction;
+        const { action, label, icon, isDisabled } = menuAction;
         return (
           <MenuItem
             active={activeAction === action}
@@ -134,6 +134,7 @@ export function DropdownMenuButton<Action extends string>({
               icon ? <ActionGlyph glyph={icon} size={iconSize} /> : undefined
             }
             onClick={onClick}
+            disabled={isDisabled}
           >
             {label}
           </MenuItem>

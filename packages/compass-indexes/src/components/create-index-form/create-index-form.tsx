@@ -11,7 +11,6 @@ import {
   useConnectionSupports,
 } from '@mongodb-js/compass-connections/provider';
 import { usePreference } from 'compass-preferences-model/provider';
-import type { Document } from 'mongodb';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 
 const createIndexModalFieldsStyles = css({
@@ -34,7 +33,6 @@ export type CreateIndexFormProps = {
   onSelectFieldTypeClick: (idx: number, fType: string) => void;
   onAddFieldClick: () => void; // Plus icon.
   onRemoveFieldClick: (idx: number) => void; // Minus icon.
-  query: Document | null;
 };
 
 function CreateIndexForm({
