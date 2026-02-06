@@ -17,7 +17,7 @@ export async function getAiQueryResponse(
       openai: {
         instructions,
         metadata: restOfMetadata,
-        store: store === 'true' ? true : false,
+        store,
       },
     },
     headers: {
