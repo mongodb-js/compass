@@ -352,11 +352,128 @@ const generateRandomUUID = (): string => {
 };
 
 /**
+ * Extracts the raw hex string from a Binary UUID (subtype 3 or 4).
+ * Returns the hex without any byte order reversal.
+ */
+const binaryToRawHex = (binary: Binary): string => {
+  return Buffer.from(binary.buffer).toString('hex');
+};
+
+/**
+ * Converts a Binary UUID to a standard UUID string, accounting for its encoding.
+ * For subtype 4 (standard UUID), returns the hex directly as UUID format.
+ * For subtype 3 (legacy UUID), we need to know the original encoding to reverse the bytes.
+ * If sourceEncoding is not provided, assumes Python encoding (no reversal).
+ */
+const binaryToUUIDStringWithEncoding = (
+  binary: Binary,
+  sourceEncoding?: 'Java' | 'CSharp' | 'Python'
+): string => {
+  const hex = binaryToRawHex(binary);
+
+  // For standard UUID (subtype 4), no byte reversal needed
+  if (binary.sub_type === Binary.SUBTYPE_UUID) {
+    return uuidHexToString(hex);
+  }
+
+  // For legacy UUID (subtype 3), reverse bytes based on source encoding
+  switch (sourceEncoding) {
+    case 'Java':
+      // Reverse Java encoding to get standard UUID
+      return uuidHexToString(reverseJavaUUIDBytes(hex));
+    case 'CSharp':
+      // Reverse C# encoding to get standard UUID
+      return uuidHexToString(reverseCSharpUUIDBytes(hex));
+    case 'Python':
+    default:
+      // Python uses standard byte order, no reversal needed
+      return uuidHexToString(hex);
+  }
+};
+
+/**
+ * Gets the UUID string from an object, handling Binary inputs specially.
+ * For Binary inputs, extracts and converts to UUID string format.
+ * For string inputs, returns as-is after trimming.
+ */
+const getUUIDStringFromObject = (
+  object: unknown,
+  sourceEncoding?: 'Java' | 'CSharp' | 'Python'
+): string => {
+  if (object instanceof Binary) {
+    if (
+      object.sub_type === Binary.SUBTYPE_UUID ||
+      object.sub_type === Binary.SUBTYPE_UUID_OLD
+    ) {
+      return binaryToUUIDStringWithEncoding(object, sourceEncoding);
+    }
+  }
+  return toString(object).trim();
+};
+
+/**
+ * Mapping from UUID type names to encoding names.
+ */
+const UUID_TYPE_TO_ENCODING: Record<
+  string,
+  'Java' | 'CSharp' | 'Python' | undefined
+> = {
+  UUID: undefined,
+  LegacyJavaUUID: 'Java',
+  LegacyCSharpUUID: 'CSharp',
+  LegacyPythonUUID: 'Python',
+};
+
+/**
+ * Converts a Binary UUID from one encoding to another.
+ * This is used when changing between UUID types in the document editor.
+ *
+ * @param binary - The source Binary UUID
+ * @param sourceType - The source UUID type (e.g., 'LegacyCSharpUUID')
+ * @param targetType - The target UUID type (e.g., 'LegacyJavaUUID')
+ * @returns A new Binary with the same UUID value but different encoding
+ */
+export const convertBinaryUUID = (
+  binary: Binary,
+  sourceType: string,
+  targetType: string
+): Binary => {
+  // Get the source encoding to decode the binary
+  const sourceEncoding = UUID_TYPE_TO_ENCODING[sourceType];
+
+  // Convert binary to standard UUID string using source encoding
+  const uuidString = binaryToUUIDStringWithEncoding(binary, sourceEncoding);
+
+  // Convert UUID string to binary using target encoding
+  const hex = uuidStringToHex(uuidString);
+
+  switch (targetType) {
+    case 'UUID':
+      return Binary.createFromHexString(hex, Binary.SUBTYPE_UUID);
+    case 'LegacyJavaUUID':
+      return Binary.createFromHexString(
+        reverseJavaUUIDBytes(hex),
+        Binary.SUBTYPE_UUID_OLD
+      );
+    case 'LegacyCSharpUUID':
+      return Binary.createFromHexString(
+        reverseCSharpUUIDBytes(hex),
+        Binary.SUBTYPE_UUID_OLD
+      );
+    case 'LegacyPythonUUID':
+      return Binary.createFromHexString(hex, Binary.SUBTYPE_UUID_OLD);
+    default:
+      throw new Error(`Unknown UUID type: ${targetType}`);
+  }
+};
+
+/**
  * Converts to UUID (Binary subtype 4).
  * If the input is empty, generates a random UUID.
+ * If the input is a Binary, extracts the UUID from it.
  */
 const toUUID = (object: unknown): Binary => {
-  const uuidString = toString(object).trim();
+  const uuidString = getUUIDStringFromObject(object);
   if (!uuidString) {
     return new UUID().toBinary();
   }
@@ -369,9 +486,10 @@ const toUUID = (object: unknown): Binary => {
  * Converts to Legacy Java UUID (Binary subtype 3).
  * Java legacy format reverses byte order for both MSB and LSB.
  * If the input is empty, generates a random UUID.
+ * If the input is a Binary, extracts the UUID from it.
  */
 const toLegacyJavaUUID = (object: unknown): Binary => {
-  let uuidString = toString(object).trim();
+  let uuidString = getUUIDStringFromObject(object, 'Java');
   if (!uuidString) {
     uuidString = generateRandomUUID();
   } else {
@@ -386,9 +504,10 @@ const toLegacyJavaUUID = (object: unknown): Binary => {
  * Converts to Legacy C# UUID (Binary subtype 3).
  * C# legacy format reverses byte order for first 3 groups only.
  * If the input is empty, generates a random UUID.
+ * If the input is a Binary, extracts the UUID from it.
  */
 const toLegacyCSharpUUID = (object: unknown): Binary => {
-  let uuidString = toString(object).trim();
+  let uuidString = getUUIDStringFromObject(object, 'CSharp');
   if (!uuidString) {
     uuidString = generateRandomUUID();
   } else {
@@ -403,9 +522,10 @@ const toLegacyCSharpUUID = (object: unknown): Binary => {
  * Converts to Legacy Python UUID (Binary subtype 3).
  * Python legacy format uses direct byte order (no reversal).
  * If the input is empty, generates a random UUID.
+ * If the input is a Binary, extracts the UUID from it.
  */
 const toLegacyPythonUUID = (object: unknown): Binary => {
-  let uuidString = toString(object).trim();
+  let uuidString = getUUIDStringFromObject(object, 'Python');
   if (!uuidString) {
     uuidString = generateRandomUUID();
   } else {
