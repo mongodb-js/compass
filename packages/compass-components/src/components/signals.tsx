@@ -22,7 +22,7 @@ const SIGNALS: Pick<
       </>
     ),
     learnMoreLink:
-      'https://www.mongodb.com/docs/v6.0/core/data-model-operations/#indexes',
+      'https://www.mongodb.com/docs/manual/data-modeling/schema-design-process/create-indexes/',
     primaryActionButtonLabel: 'Create index',
     primaryActionButtonIcon: 'Plus',
   },
@@ -102,7 +102,7 @@ const SIGNALS: Pick<
       </>
     ),
     learnMoreLink:
-      'https://www.mongodb.com/docs/v6.0/core/data-model-operations/#indexes',
+      'https://www.mongodb.com/docs/manual/data-modeling/schema-design-process/create-indexes/',
     primaryActionButtonLabel: 'Create index',
     primaryActionButtonIcon: 'Plus',
   },
@@ -133,7 +133,7 @@ const SIGNALS: Pick<
       </>
     ),
     learnMoreLink:
-      'https://www.mongodb.com/docs/v6.0/core/data-model-operations/#indexes',
+      'https://www.mongodb.com/docs/manual/data-modeling/schema-design-process/create-indexes/',
     primaryActionButtonLabel: 'Create index',
     primaryActionButtonIcon: 'Plus',
   },
@@ -143,7 +143,7 @@ const SIGNALS: Pick<
     description:
       'Consider reviewing your indexes to remove any that are unnecessary. Learn more about this anti-pattern',
     learnMoreLink:
-      'https://www.mongodb.com/docs/manual/core/data-model-operations/#indexes',
+      'https://www.mongodb.com/docs/manual/data-modeling/design-antipatterns/unnecessary-indexes/',
   },
   {
     id: 'too-many-collections',
@@ -151,7 +151,7 @@ const SIGNALS: Pick<
     description:
       "An excessive number of collections and their associated indexes can drain resources and impact your database's performance. In general, try to limit your replica set to 10,000 collections.",
     learnMoreLink:
-      'https://www.mongodb.com/docs/v6.0/core/data-model-operations/#large-number-of-collections',
+      'https://www.mongodb.com/docs/manual/data-modeling/design-antipatterns/reduce-collections/',
   },
   {
     id: 'unbound-array',
