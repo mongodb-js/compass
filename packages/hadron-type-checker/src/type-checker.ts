@@ -417,12 +417,12 @@ const getUUIDStringFromObject = (
 const UUID_TYPE_TO_ENCODING: Record<
   string,
   'Java' | 'CSharp' | 'Python' | undefined
-> = {
+> = Object.assign(Object.create(null), {
   UUID: undefined,
   LegacyJavaUUID: 'Java',
   LegacyCSharpUUID: 'CSharp',
   LegacyPythonUUID: 'Python',
-};
+});
 
 /**
  * Converts a Binary UUID from one encoding to another.
