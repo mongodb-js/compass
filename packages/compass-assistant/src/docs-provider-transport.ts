@@ -71,11 +71,58 @@ export class DocsProviderTransport implements ChatTransport<AssistantMessage> {
       (message) => message.metadata?.disbleStorage
     );
 
+    const modelMessages = await (lastMessage.metadata?.sendWithoutHistory
+      ? convertToModelMessages([lastMessage])
+      : convertToModelMessages(filteredMessages));
+
+    // EAI-1506 The chatbot API never forwards `store: true` to the OpenAI, as a
+    // result even when `store: true` is set the API response does not include a
+    // valid `itemId`. On client side (check openai > convertToOpenAIResponsesInput),
+    // it converts message to { type: 'item_reference', id: itemId } to reduce the
+    // payload size. This causes issues for the backend that relies on `itemId`.
+    // As a workaround, we are removing the `itemId` from the providerOptions
+    // before sending the messages to the model, so that the client side will not
+    // convert the content to an item reference and will keep the full message content.
+    const finalMessages = modelMessages.map((msg) => {
+      if (msg.role === 'assistant' && Array.isArray(msg.content)) {
+        const content = msg.content;
+        return {
+          ...msg,
+          content: content.map((part) => {
+            switch (part.type) {
+              case 'text':
+              case 'tool-call':
+              case 'tool-result':
+              case 'reasoning':
+              case 'file': {
+                const itemId = part.providerOptions?.openai?.itemId;
+                const newItemId =
+                  itemId === '0' || itemId === '' || !itemId
+                    ? undefined
+                    : itemId;
+                return {
+                  ...part,
+                  providerOptions: {
+                    ...part.providerOptions,
+                    openai: {
+                      ...part.providerOptions?.openai,
+                      itemId: newItemId,
+                    },
+                  },
+                };
+              }
+              default: {
+                return part;
+              }
+            }
+          }),
+        };
+      }
+      return msg;
+    });
     const result = streamText({
       model: this.model,
-      messages: await (lastMessage.metadata?.sendWithoutHistory
-        ? convertToModelMessages([lastMessage])
-        : convertToModelMessages(filteredMessages)),
+      messages: finalMessages,
       abortSignal: abortSignal,
       headers: {
         'X-Request-Origin': this.origin,
