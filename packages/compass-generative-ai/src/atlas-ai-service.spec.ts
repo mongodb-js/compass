@@ -856,10 +856,10 @@ describe('AtlasAiService', function () {
           const requestBody = JSON.parse(args[1].body as string);
           const { userId, ...restOfMetadata } = requestBody.metadata;
           expect(restOfMetadata).to.deep.equal({
-            store: 'true',
             sensitiveStorage: 'sensitive',
           });
           expect(userId).to.be.a('string').that.is.not.empty;
+          expect(requestBody.store).to.be.true;
           expect(requestBody.instructions).to.be.a('string');
           expect(requestBody.input).to.be.an('array');
 
