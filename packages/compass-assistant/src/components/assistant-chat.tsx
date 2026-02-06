@@ -534,13 +534,6 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
     (message) => !message.metadata?.isSystemContext
   );
 
-  console.log('Rendering AssistantChat', {
-    messages,
-    visibleMessages,
-    status,
-    error,
-  });
-
   return (
     <div
       data-testid="assistant-chat"
