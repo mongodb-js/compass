@@ -801,6 +801,10 @@ describe('TypeChecker', function () {
           'BSONSymbol',
           'Timestamp',
           'Undefined',
+          'UUID',
+          'LegacyJavaUUID',
+          'LegacyCSharpUUID',
+          'LegacyPythonUUID',
         ]);
       });
     });
@@ -826,6 +830,10 @@ describe('TypeChecker', function () {
           'BSONSymbol',
           'Timestamp',
           'Undefined',
+          'UUID',
+          'LegacyJavaUUID',
+          'LegacyCSharpUUID',
+          'LegacyPythonUUID',
         ]);
       });
     });

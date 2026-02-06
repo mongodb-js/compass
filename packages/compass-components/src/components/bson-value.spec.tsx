@@ -192,7 +192,7 @@ describe('BSONValue', function () {
       );
 
       expect(container.querySelector('.element-value')?.textContent).to.eq(
-        'LegacyJavaUUID("efcdab89-6745-2301-efcd-ab8967452301")'
+        "LegacyJavaUUID('efcdab89-6745-2301-efcd-ab8967452301')"
       );
     });
 
@@ -204,7 +204,7 @@ describe('BSONValue', function () {
       );
 
       expect(container.querySelector('.element-value')?.textContent).to.eq(
-        'LegacyCSharpUUID("67452301-ab89-efcd-0123-456789abcdef")'
+        "LegacyCSharpUUID('67452301-ab89-efcd-0123-456789abcdef')"
       );
     });
 
@@ -216,7 +216,7 @@ describe('BSONValue', function () {
       );
 
       expect(container.querySelector('.element-value')?.textContent).to.eq(
-        'LegacyPythonUUID("01234567-89ab-cdef-0123-456789abcdef")'
+        "LegacyPythonUUID('01234567-89ab-cdef-0123-456789abcdef')"
       );
     });
 
