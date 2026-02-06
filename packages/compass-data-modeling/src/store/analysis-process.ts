@@ -1,7 +1,7 @@
 import type { Reducer } from 'redux';
 import { isAction } from './util';
 import type { DataModelingThunkAction } from './reducer';
-import { analyzeDocuments, type MongoDBJSONSchema } from 'mongodb-schema';
+import type { MongoDBJSONSchema } from 'mongodb-schema';
 import {
   applySetModelEdit,
   getCurrentDiagramFromState,
@@ -21,6 +21,34 @@ import { inferForeignToLocalRelationshipsForCollection } from './relationships';
 import { mongoLogId } from '@mongodb-js/compass-logging/provider';
 import { extractFieldsFromFieldData } from '../utils/schema';
 import { isEqual } from 'lodash';
+
+/**
+ * Lazy-load WASM module (ESM module in CommonJS context).
+ * Returns the buildSchema function and WasmBuilderOptions class.
+ */
+async function getWasmModule() {
+  return await import('schema-builder-library');
+}
+
+/**
+ * Type representing the serialized SchemaResult from the WASM module.
+ * The Rust enum SchemaResult serializes with the variant name as a key.
+ */
+type WasmSchemaResult =
+  | { NamespaceOnly: WasmNamespaceInfo }
+  | { InitialSchema: WasmNamespaceInfoWithSchema }
+  | { FullSchema: WasmNamespaceInfoWithSchema };
+
+type WasmNamespaceInfo = {
+  db_name: string;
+  coll_or_view_name: string;
+  namespace_type: 'Collection' | 'View';
+};
+
+type WasmNamespaceInfoWithSchema = {
+  namespace_info: WasmNamespaceInfo;
+  namespace_schema: MongoDBJSONSchema;
+};
 
 type AnalyzedCollection = {
   ns: string;
@@ -468,6 +496,22 @@ export function redoAnalysis(
   };
 }
 
+/**
+ * Extract schema from a WASM SchemaResult.
+ * Returns the namespace info and schema if it's a FullSchema or InitialSchema variant.
+ */
+function extractSchemaFromResult(
+  result: WasmSchemaResult
+): WasmNamespaceInfoWithSchema | null {
+  if ('FullSchema' in result) {
+    return result.FullSchema;
+  }
+  if ('InitialSchema' in result) {
+    return result.InitialSchema;
+  }
+  return null;
+}
+
 export function analyzeCollections({
   name,
   connectionId,
@@ -517,7 +561,8 @@ export function analyzeCollections({
     let relations: Relationship[] = [];
     const dataService = connections.getDataServiceForConnection(connectionId);
 
-    const collections = await Promise.all(
+    // Step 1: Sample documents for each collection (needed for relationship inference)
+    const samples = await Promise.all(
       namespaces.map(async (ns) => {
         const sample = await dataService.sample(
           ns,
@@ -533,21 +578,60 @@ export function analyzeCollections({
           type: AnalysisProcessActionTypes.NAMESPACE_SAMPLE_FETCHED,
         });
 
-        const accessor = await analyzeDocuments(sample, {
-          signal: abortSignal,
-        });
-
-        const schema = await accessor.getMongoDBJsonSchema({
-          signal: abortSignal,
-        });
-
-        dispatch({
-          type: AnalysisProcessActionTypes.NAMESPACE_SCHEMA_ANALYZED,
-        });
-
-        return { ns, schema, sample };
+        return { ns, sample };
       })
     );
+
+    // Step 2: Build schemas using the WASM schema builder
+    const { buildSchema, WasmBuilderOptions } = await getWasmModule();
+    const { CompassDataServiceAdapter } = await import(
+      '../services/compass-data-service-adapter.js'
+    );
+    const adapter = new CompassDataServiceAdapter(dataService, abortSignal);
+    const wasmOptions = new WasmBuilderOptions();
+    // Set include list to only analyze the selected collections
+    wasmOptions.setIncludeList(
+      selectedCollections.map((coll) => `${database}.${coll}`)
+    );
+
+    const schemaResults: WasmSchemaResult[] = await buildSchema(
+      adapter,
+      wasmOptions
+    );
+
+    // Create a map of namespace -> schema for quick lookup
+    const schemaMap = new Map<string, MongoDBJSONSchema>();
+    for (const result of schemaResults) {
+      const schemaInfo = extractSchemaFromResult(result);
+      if (schemaInfo) {
+        const ns = `${schemaInfo.namespace_info.db_name}.${schemaInfo.namespace_info.coll_or_view_name}`;
+        schemaMap.set(ns, schemaInfo.namespace_schema);
+      }
+    }
+
+    // Step 3: Combine samples with schemas
+    const collections = samples.map(({ ns, sample }) => {
+      const schema = schemaMap.get(ns);
+      if (!schema) {
+        // If no schema was returned, use an empty object schema
+        logger.log.warn(
+          mongoLogId(1_001_000_389),
+          'DataModeling',
+          'No schema returned for collection',
+          { ns }
+        );
+      }
+
+      dispatch({
+        type: AnalysisProcessActionTypes.NAMESPACE_SCHEMA_ANALYZED,
+      });
+
+      return {
+        ns,
+        schema: schema ?? { bsonType: 'object', properties: {} },
+        sample,
+      };
+    });
 
     if (willInferRelations) {
       track('Data Modeling Diagram Creation Relationship Inferral Started', {
