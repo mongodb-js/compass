@@ -64,7 +64,7 @@
     "@mongodb-js/mongodb-constants": "^0.19.0",
     "compass-preferences-model": "^2.72.0",
     "lodash": "^4.17.23",
-    "mongodb": "^6.21.0",
+    "mongodb": "^7.1.0",
     "mongodb-instance-model": "^12.65.0",
     "mongodb-ns": "^3.0.1",
     "react": "^17.0.2",
