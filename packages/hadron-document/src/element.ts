@@ -689,9 +689,19 @@ export class Element extends EventEmitter {
     const isUUIDType = (UUID_TYPES as readonly string[]).includes(
       this.currentType
     );
+    // Also check for Binary values that are actually UUIDs (subtype 3 or 4)
+    // This handles the case where currentType is 'Binary' but it's actually a UUID
+    const isBinaryUUID =
+      this.currentType === 'Binary' &&
+      this.currentValue instanceof Binary &&
+      (this.currentValue.sub_type === Binary.SUBTYPE_UUID ||
+        (this.currentValue.sub_type === Binary.SUBTYPE_UUID_OLD &&
+          this.currentValue.buffer.length === 16));
     return (
       this._isKeyLegallyEditable() &&
-      (isUUIDType || !UNEDITABLE_TYPES.includes(this.currentType))
+      (isUUIDType ||
+        isBinaryUUID ||
+        !UNEDITABLE_TYPES.includes(this.currentType))
     );
   }
 

@@ -48,18 +48,23 @@ function getEditorByType(type: HadronElementType['type']) {
   }
 }
 
-function useElementEditor(el: HadronElementType) {
+function useElementEditor(
+  el: HadronElementType,
+  displayType: HadronElementType['type']
+) {
   return useMemo(
     () => {
-      const Editor = getEditorByType(el.currentType);
-      return new Editor(el);
+      // Use the display type for editor selection - this ensures that Binary UUIDs
+      // get the UUIDEditor even when el.currentType is 'Binary'
+      const Editor = getEditorByType(displayType);
+      return new Editor(el, displayType);
     },
-    // The list of deps is exhaustive, but we want `currentType` to be an
+    // The list of deps is exhaustive, but we want `displayType` to be an
     // explicit dependency of the memo to make sure that even if the `el`
-    // instance is the same, but `currentType` changed, we create a new editor
+    // instance is the same, but `displayType` changed, we create a new editor
     // instance
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [el, el.currentType]
+    [el, displayType]
   );
 }
 
@@ -104,7 +109,8 @@ function getDisplayType(
 function useHadronElement(el: HadronElementType) {
   const forceUpdate = useForceUpdate();
   const legacyUUIDEncoding = useLegacyUUIDDisplayContext();
-  const editor = useElementEditor(el);
+  const displayType = getDisplayType(el, legacyUUIDEncoding);
+  const editor = useElementEditor(el, displayType);
   // NB: Duplicate key state is kept local to the component and not derived on
   // every change so that only the changed key is highlighed as duplicate
   const [isDuplicateKey, setIsDuplicateKey] = useState(() => {
@@ -209,7 +215,7 @@ function useHadronElement(el: HadronElementType) {
       completeEdit: editor.complete.bind(editor),
     },
     type: {
-      value: getDisplayType(el, legacyUUIDEncoding),
+      value: displayType,
       change(newVal: HadronElementType['type']) {
         el.changeType(newVal);
       },

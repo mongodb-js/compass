@@ -57,12 +57,19 @@ const binaryToLegacyPythonUUIDString = (binary: Binary): string => {
 export default class UUIDEditor extends StandardEditor {
   uuidType: UUIDType;
 
-  constructor(element: Element) {
+  /**
+   * Create the UUID editor.
+   *
+   * @param element - The hadron document element.
+   * @param displayType - Optional display type override. Used when element.currentType
+   *                      is 'Binary' but the element should be treated as a UUID type.
+   */
+  constructor(element: Element, displayType?: string) {
     super(element);
-    this.uuidType = (UUID_TYPES as readonly string[]).includes(
-      element.currentType
-    )
-      ? (element.currentType as UUIDType)
+    // Use displayType if provided and it's a UUID type, otherwise fall back to element.currentType
+    const effectiveType = displayType ?? element.currentType;
+    this.uuidType = (UUID_TYPES as readonly string[]).includes(effectiveType)
+      ? (effectiveType as UUIDType)
       : 'UUID';
   }
 
@@ -112,6 +119,10 @@ export default class UUIDEditor extends StandardEditor {
   start(): void {
     super.start();
     if (this.element.isCurrentTypeValid()) {
+      // Update the currentType to the UUID type so the UI displays correctly
+      // This is needed because the element may have been created with currentType='Binary'
+      // but we want to edit it as a UUID type
+      this.element.currentType = this.uuidType;
       this.edit(this.value());
     }
   }
@@ -125,6 +136,9 @@ export default class UUIDEditor extends StandardEditor {
       this.element.edit(
         TypeChecker.cast(this.element.currentValue, this.uuidType)
       );
+      // Preserve the UUID type since element.edit() sets currentType to 'Binary'
+      // for Binary values (TypeChecker.type() returns 'Binary' for Binary objects)
+      this.element.currentType = this.uuidType;
     }
   }
 }
