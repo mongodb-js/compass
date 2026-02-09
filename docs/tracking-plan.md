@@ -6,7 +6,7 @@
 > the tracking plan for the specific Compass version you can use the following
 > URL: `https://github.com/mongodb-js/compass/blob/<compass version>/docs/tracking-plan.md`
 
-Generated on Mon, Feb 2, 2026
+Generated on Mon, Feb 9, 2026
 
 ## Table of Contents
 
@@ -87,9 +87,17 @@ Generated on Mon, Feb 2, 2026
 - [Data Modeling Collection Added](#event--DataModelingDiagramCollectionAdded)
 - [Data Modeling Collection Removed](#event--DataModelingDiagramCollectionRemoved)
 - [Data Modeling Collection Renamed](#event--DataModelingDiagramCollectionRenamed)
+- [Data Modeling Create Diagram Modal Opened](#event--DataModelingCreateDiagramModalOpened)
+- [Data Modeling Diagram Creation Started](#event--DataModelingDiagramCreationStarted)
+- [Data Modeling Diagram Creation Relationship Inferral Started](#event--DataModelingDiagramCreationRelationshipInferralStarted)
 - [Data Modeling Diagram Created](#event--DataModelingDiagramCreated)
 - [Data Modeling Diagram Creation Cancelled](#event--DataModelingDiagramCreationCancelled)
 - [Data Modeling Diagram Creation Failed](#event--DataModelingDiagramCreationFailed)
+- [Data Modeling Add DB Collections Modal Opened](#event--DataModelingAddDBCollectionsModalOpened)
+- [Data Modeling Add DB Collections Started](#event--DataModelingAddDBCollectionsStarted)
+- [Data Modeling Add DB Collections Succeeded](#event--DataModelingAddDBCollectionsSucceeded)
+- [Data Modeling Add DB Collections Failed](#event--DataModelingAddDBCollectionsFailed)
+- [Data Modeling Add DB Collections Cancelled](#event--DataModelingAddDBCollectionsCancelled)
 - [Data Modeling Diagram Exported](#event--DataModelingDiagramExported)
 - [Data Modeling Field Added](#event--DataModelingDiagramFieldAdded)
 - [Data Modeling Field Removed](#event--DataModelingDiagramFieldRemoved)
@@ -232,6 +240,7 @@ Generated on Mon, Feb 2, 2026
 
 ### Schema
 
+- [Schema Analysis Started](#event--SchemaAnalysisStartedEvent)
 - [Schema Analysis Cancelled](#event--SchemaAnalysisCancelledEvent)
 - [Schema Analyzed](#event--SchemaAnalyzedEvent)
 - [Schema Exported](#event--SchemaExportedEvent)
@@ -1092,6 +1101,39 @@ This event is fired when user renames a collection in a data modeling diagram.
 - **source** (required): `"side_panel"`
 - **is_compass_web** (optional): `true | undefined`
 
+<a name="event--DataModelingCreateDiagramModalOpened"></a>
+
+### Data Modeling Create Diagram Modal Opened
+
+This event is fired when the modal to create a new data modeling diagram is opened
+
+<a name="event--DataModelingDiagramCreationStarted"></a>
+
+### Data Modeling Diagram Creation Started
+
+This event is fired when a new data modeling diagram creation is started
+
+**Properties**:
+
+- **num_collections** (required): `number`
+- **automatically_infer_relations** (required): `boolean`
+- **is_compass_web** (optional): `true | undefined`
+- **connection_id** (optional): `string | undefined`
+  - The id of the connection associated to this event.
+
+<a name="event--DataModelingDiagramCreationRelationshipInferralStarted"></a>
+
+### Data Modeling Diagram Creation Relationship Inferral Started
+
+This event is fired when the collections are analyzed and the relationship inferral is started
+
+**Properties**:
+
+- **num_collections** (required): `number`
+- **is_compass_web** (optional): `true | undefined`
+- **connection_id** (optional): `string | undefined`
+  - The id of the connection associated to this event.
+
 <a name="event--DataModelingDiagramCreated"></a>
 
 ### Data Modeling Diagram Created
@@ -1104,6 +1146,8 @@ This event is fired when a new data modeling diagram is created
 - **num_relations_inferred** (optional): `number | undefined`
 - **analysis_time_ms** (required): `number`
 - **is_compass_web** (optional): `true | undefined`
+- **connection_id** (optional): `string | undefined`
+  - The id of the connection associated to this event.
 
 <a name="event--DataModelingDiagramCreationCancelled"></a>
 
@@ -1114,8 +1158,11 @@ This event is fired when a new data modeling diagram creation is cancelled
 **Properties**:
 
 - **num_collections** (required): `number`
+- **automatically_infer_relations** (required): `boolean`
 - **analysis_time_ms** (required): `number`
 - **is_compass_web** (optional): `true | undefined`
+- **connection_id** (optional): `string | undefined`
+  - The id of the connection associated to this event.
 
 <a name="event--DataModelingDiagramCreationFailed"></a>
 
@@ -1126,8 +1173,76 @@ This event is fired when a new data modeling diagram creation has failed
 **Properties**:
 
 - **num_collections** (required): `number`
+- **automatically_infer_relations** (required): `boolean`
 - **analysis_time_ms** (required): `number`
 - **is_compass_web** (optional): `true | undefined`
+- **connection_id** (optional): `string | undefined`
+  - The id of the connection associated to this event.
+
+<a name="event--DataModelingAddDBCollectionsModalOpened"></a>
+
+### Data Modeling Add DB Collections Modal Opened
+
+This event is fired when the modal to add DB collections to an existing data modeling diagram is opened
+
+<a name="event--DataModelingAddDBCollectionsStarted"></a>
+
+### Data Modeling Add DB Collections Started
+
+This event is fired when new collections from the database are to be added to an existing data modeling diagram
+
+**Properties**:
+
+- **num_collections** (required): `number`
+- **automatically_infer_relations** (required): `boolean`
+- **is_compass_web** (optional): `true | undefined`
+- **connection_id** (optional): `string | undefined`
+  - The id of the connection associated to this event.
+
+<a name="event--DataModelingAddDBCollectionsSucceeded"></a>
+
+### Data Modeling Add DB Collections Succeeded
+
+This event is fired when adding new collections from the database has succeeded
+
+**Properties**:
+
+- **num_collections** (required): `number`
+- **num_relations_inferred** (optional): `number | undefined`
+- **analysis_time_ms** (required): `number`
+- **is_compass_web** (optional): `true | undefined`
+- **connection_id** (optional): `string | undefined`
+  - The id of the connection associated to this event.
+
+<a name="event--DataModelingAddDBCollectionsFailed"></a>
+
+### Data Modeling Add DB Collections Failed
+
+This event is fired when adding new collections from the database has failed
+
+**Properties**:
+
+- **num_collections** (required): `number`
+- **automatically_infer_relations** (required): `boolean`
+- **analysis_time_ms** (required): `number`
+- **is_compass_web** (optional): `true | undefined`
+- **connection_id** (optional): `string | undefined`
+  - The id of the connection associated to this event.
+
+<a name="event--DataModelingAddDBCollectionsCancelled"></a>
+
+### Data Modeling Add DB Collections Cancelled
+
+This event is fired when adding new collections from the database has been cancelled
+
+**Properties**:
+
+- **num_collections** (required): `number`
+- **automatically_infer_relations** (required): `boolean`
+- **analysis_time_ms** (required): `number`
+- **is_compass_web** (optional): `true | undefined`
+- **connection_id** (optional): `string | undefined`
+  - The id of the connection associated to this event.
 
 <a name="event--DataModelingDiagramExported"></a>
 
@@ -2494,11 +2609,17 @@ This event is fired when signal icon badge is rendered on the screen visible to 
 
 ## Schema
 
+<a name="event--SchemaAnalysisStartedEvent"></a>
+
+### Schema Analysis Started
+
+This event is fired when the schema analysis is started
+
 <a name="event--SchemaAnalysisCancelledEvent"></a>
 
 ### Schema Analysis Cancelled
 
-This event is fired when user analyzes the schema.
+This event is fired when user cancels the schema analysis.
 
 **Properties**:
 

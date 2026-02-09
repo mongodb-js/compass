@@ -1,6 +1,18 @@
 import type { AnyAction } from 'redux';
-
-export type IndexesDrawerView =
+import type { IndexesThunkAction } from './index';
+import {
+  refreshRegularIndexes,
+  startPollingRegularIndexes,
+  stopPollingRegularIndexes,
+} from './regular-indexes';
+import type { FetchIndexesActions } from './regular-indexes';
+import {
+  refreshSearchIndexes,
+  startPollingSearchIndexes,
+  stopPollingSearchIndexes,
+} from './search-indexes';
+import type { FetchSearchIndexesActions } from './search-indexes';
+export type IndexesDrawerViewType =
   | 'indexes-list'
   | 'create-search-index'
   | 'edit-search-index';
@@ -8,7 +20,7 @@ export type IndexesDrawerView =
 export type SearchIndexType = 'search' | 'vectorSearch';
 
 export type State = {
-  currentView: IndexesDrawerView;
+  currentView: IndexesDrawerViewType;
   currentIndexType: SearchIndexType | null;
   currentIndexName: string | null;
 };
@@ -41,6 +53,33 @@ export const openEditSearchIndexDrawerView = (currentIndexName: string) => ({
   type: OPEN_EDIT_SEARCH_INDEX_DRAWER_VIEW,
   currentIndexName,
 });
+
+export const refreshAllIndexes = (): IndexesThunkAction<
+  void,
+  FetchSearchIndexesActions | FetchIndexesActions
+> => {
+  return (dispatch) => {
+    void dispatch(refreshRegularIndexes());
+    void dispatch(refreshSearchIndexes());
+  };
+};
+
+export const startPollingAllIndexes = (): IndexesThunkAction<
+  void,
+  FetchSearchIndexesActions | FetchIndexesActions
+> => {
+  return (dispatch) => {
+    dispatch(startPollingRegularIndexes());
+    dispatch(startPollingSearchIndexes());
+  };
+};
+
+export const stopPollingAllIndexes = (): IndexesThunkAction<void, never> => {
+  return (dispatch) => {
+    dispatch(stopPollingRegularIndexes());
+    dispatch(stopPollingSearchIndexes());
+  };
+};
 
 export default function reducer(
   state = INITIAL_STATE,
