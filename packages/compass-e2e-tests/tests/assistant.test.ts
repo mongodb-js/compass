@@ -565,9 +565,12 @@ async function getDisplayedMessages(
 
   for (const messageElement of messageElements) {
     const text = await messageElement.getText();
-    const role = (await messageElement.getAttribute('data-role')) as
-      | 'user'
-      | 'assistant';
+    const role = await messageElement.getAttribute('data-role');
+    if (role !== 'user' && role !== 'assistant') {
+      throw new Error(
+        `Expected data-role to be "user | assistant", got ${role}`
+      );
+    }
     displayedMessages.push({ text, role });
   }
 
