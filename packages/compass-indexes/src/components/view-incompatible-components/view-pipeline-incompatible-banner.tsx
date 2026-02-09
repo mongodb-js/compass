@@ -2,7 +2,6 @@ import { Banner, Link } from '@mongodb-js/compass-components';
 import React from 'react';
 import { connect } from 'react-redux';
 import type { RootState } from '../../modules';
-import { usePreference } from 'compass-preferences-model/provider';
 import type { SearchIndex } from 'mongodb-data-service';
 
 type ViewSearchIncompatibleBannerProps = {

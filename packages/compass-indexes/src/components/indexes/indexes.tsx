@@ -37,7 +37,6 @@ import CreateIndexModal from '../create-index-modal/create-index-modal';
 import ViewVersionIncompatibleBanner from '../view-incompatible-components/view-version-incompatible-banner';
 import ViewSearchIncompatibleBanner from '../view-incompatible-components/view-pipeline-incompatible-banner';
 import ViewStandardIndexesIncompatibleEmptyState from '../view-incompatible-components/view-standard-indexes-incompatible-empty-state';
-import type { CollectionStats } from '../../modules/collection-stats';
 import { useIsViewSearchCompatible } from '../../utils/is-view-search-compatible';
 import { useReadWriteAccess } from '../../utils/indexes-read-write-access';
 

@@ -7,7 +7,6 @@ import {
   fireEvent,
   within,
   userEvent,
-  waitFor,
 } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import sinon from 'sinon';

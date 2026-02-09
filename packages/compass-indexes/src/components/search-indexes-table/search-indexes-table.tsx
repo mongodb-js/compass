@@ -98,7 +98,7 @@ function ZeroState({
               data-testid="create-atlas-search-index-button"
               variant="primary"
               size="small"
-              disabled={!isViewPipelineSearchQueryable}
+              disabled={!isViewAndPipelineSearchNonQueryable}
             >
               Create Atlas Search Index
             </Button>

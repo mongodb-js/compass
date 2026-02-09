@@ -31,8 +31,8 @@ const ViewVersionIncompatibleBanner = ({
   const searchIndexOnViewsMinVersion = isAtlas ? '8.0' : '8.1';
   // if compass version matches min compatibility for DE, we recommend Atlas UI as well
   const recommendedCta = isAtlas
-      ? 'Upgrade your cluster or manage search indexes on views in the Atlas UI.'
-      : 'Upgrade your cluster to create search indexes on views.';
+    ? 'Upgrade your cluster or manage search indexes on views in the Atlas UI.'
+    : 'Upgrade your cluster to create search indexes on views.';
   return (
     <Banner
       variant={BannerVariant.Warning}
@@ -43,9 +43,8 @@ const ViewVersionIncompatibleBanner = ({
       <div className={viewContentStyles}>
         <span>
           Your MongoDB version is {serverVersion}. Creating and managing search
-          indexes on views {!isAtlas && 'in Compass'} is
-          supported on MongoDB version {searchIndexOnViewsMinVersion} or higher.{' '}
-          {recommendedCta}
+          indexes on views {!isAtlas && 'in Compass'} is supported on MongoDB
+          version {searchIndexOnViewsMinVersion} or higher. {recommendedCta}
         </span>
         {isAtlas && (
           <Button
