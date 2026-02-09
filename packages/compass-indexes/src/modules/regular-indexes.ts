@@ -22,6 +22,7 @@ import { hasColumnstoreIndex } from '../utils/columnstore-indexes';
 import type { AtlasIndexStats } from './rolling-indexes-service';
 import { connectionSupports } from '@mongodb-js/compass-connections';
 import { getIsRegularIndexesReadable } from '../utils/indexes-read-write-access';
+import isWritable from './is-writable';
 
 export type RegularIndex = Partial<IndexDefinition> &
   Pick<
@@ -401,11 +402,15 @@ const fetchIndexes = (
       isReadonlyView,
       namespace,
       regularIndexes: { status },
+      isWritable,
     } = getState();
 
     const isRegularIndexesReadable =
       getIsRegularIndexesReadable(isReadonlyView);
-    if (!isRegularIndexesReadable) {
+    if (
+      !isRegularIndexesReadable ||
+      !isWritable // offline-mode, cannot fetch
+    ) {
       dispatch(fetchIndexesSucceeded([]));
       return;
     }

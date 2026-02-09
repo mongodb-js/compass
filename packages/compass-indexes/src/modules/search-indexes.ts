@@ -619,6 +619,7 @@ const fetchIndexes = (
   ) => {
     const {
       isReadonlyView,
+      isWritable,
       namespace,
       serverVersion,
       isSearchIndexesSupported,
@@ -639,7 +640,10 @@ const fetchIndexes = (
       isSearchIndexesSupported
     );
 
-    if (!isSearchIndexesReadable) {
+    if (
+      !isSearchIndexesReadable ||
+      !isWritable // offline-mode, cannot fetch
+    ) {
       dispatch(fetchSearchIndexesSucceeded([]));
       return;
     }
