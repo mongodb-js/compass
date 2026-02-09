@@ -52,13 +52,14 @@ export async function scrollToVirtualItem(
   role: 'grid' | 'tree' | 'table'
 ): Promise<boolean> {
   if (role === 'table') {
+    const countStr = await browser
+      .$(`${containerSelector} table`)
+      .getAttribute('aria-rowcount');
     // we disable virtual scrolling for tables for now
-    const expectedRowCount = parseInt(
-      await browser
-        .$(`${containerSelector} table`)
-        .getAttribute('aria-rowcount'),
-      10
-    );
+    if (!countStr) {
+      throw new Error('Expected table to have an aria-rowcount attribute');
+    }
+    const expectedRowCount = parseInt(countStr, 10);
     const rowCount = await browser.$$('tbody tr').length;
 
     if (rowCount !== expectedRowCount) {
@@ -90,7 +91,7 @@ export async function scrollToVirtualItem(
   // scroll to the top and return the height of the scrollbar area and the
   // scroll content
   const [scrollHeight, totalHeight] = await browser.execute(
-    (selector, getScrollContainerString) => {
+    (selector, getScrollContainerString): [number, number] | [null, null] => {
       // eslint-disable-next-line no-restricted-globals
       const container = document.querySelector(selector);
       const scrollContainer = eval(getScrollContainerString)(container);
@@ -98,13 +99,7 @@ export async function scrollToVirtualItem(
       if (!heightContainer) {
         return [null, null];
       }
-
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
       scrollContainer.scrollTop = 0;
-
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
       return [scrollContainer.clientHeight, heightContainer.offsetHeight];
     },
     containerSelector,
