@@ -77,22 +77,6 @@ describe('search-indexes module', function () {
       expect(store.getState().searchIndexes.status).to.equal('READY');
     });
 
-    it('does nothing if isWritable is false (offline mode)', async function () {
-      // already loaded once
-      expect(store.getState().isWritable).to.equal(true);
-      expect(getSearchIndexesStub.callCount).to.equal(1);
-
-      store.dispatch(writeStateChanged(false));
-
-      expect(store.getState().isWritable).to.equal(false);
-      expect(getSearchIndexesStub.callCount).to.equal(1);
-
-      await store.dispatch(refreshSearchIndexes());
-
-      expect(getSearchIndexesStub.callCount).to.equal(1);
-      expect(store.getState().searchIndexes.status).to.equal('READY');
-    });
-
     it('fetches the indexes', async function () {
       // already loaded once
       expect(store.getState().searchIndexes.status).to.equal('READY');

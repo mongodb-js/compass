@@ -17,7 +17,8 @@ import type { FetchReason } from '../utils/fetch-reason';
 import type { IndexesThunkAction } from '.';
 import { switchToSearchIndexes } from './index-view';
 import type { IndexViewChangedAction } from './index-view';
-import { VIEW_PIPELINE_UTILS } from '@mongodb-js/mongodb-constants';
+import { getIsViewVersionSearchCompatible } from '../utils/is-view-search-compatible';
+import { getIsSearchIndexesReadable } from '../utils/indexes-read-write-access';
 
 const ATLAS_SEARCH_SERVER_ERRORS: Record<string, string> = {
   InvalidIndexSpecificationOption: 'Invalid index definition.',
@@ -611,23 +612,36 @@ export type FetchSearchIndexesActions =
 const fetchIndexes = (
   reason: FetchReason
 ): IndexesThunkAction<Promise<void>, FetchSearchIndexesActions> => {
-  return async (dispatch, getState, { dataService }) => {
+  return async (
+    dispatch,
+    getState,
+    { dataService, preferences, connectionInfoRef }
+  ) => {
     const {
       isReadonlyView,
-      isWritable,
       namespace,
       serverVersion,
+      isSearchIndexesSupported,
       searchIndexes: { status },
     } = getState();
 
-    if (
-      (isReadonlyView &&
-        !VIEW_PIPELINE_UTILS.isVersionSearchCompatibleForViewsCompass(
-          serverVersion
-        )) ||
-      !isWritable
-    ) {
-      return; // return if view is not search compatible
+    const { enableAtlasSearchIndexes } = preferences.getPreferences();
+    const { atlasMetadata } = connectionInfoRef.current;
+
+    const isViewVersionSearchCompatible = getIsViewVersionSearchCompatible(
+      serverVersion,
+      !!atlasMetadata
+    );
+    const isSearchIndexesReadable = getIsSearchIndexesReadable(
+      enableAtlasSearchIndexes,
+      isReadonlyView,
+      isViewVersionSearchCompatible,
+      isSearchIndexesSupported
+    );
+
+    if (!isSearchIndexesReadable) {
+      dispatch(fetchSearchIndexesSucceeded([]));
+      return;
     }
 
     // If we are already fetching indexes, we will wait for that

@@ -21,6 +21,7 @@ import type { CreateIndexesOptions, IndexDirection } from 'mongodb';
 import { hasColumnstoreIndex } from '../utils/columnstore-indexes';
 import type { AtlasIndexStats } from './rolling-indexes-service';
 import { connectionSupports } from '@mongodb-js/compass-connections';
+import { getIsRegularIndexesReadable } from '../utils/indexes-read-write-access';
 
 export type RegularIndex = Partial<IndexDefinition> &
   Pick<
@@ -402,7 +403,9 @@ const fetchIndexes = (
       regularIndexes: { status },
     } = getState();
 
-    if (isReadonlyView) {
+    const isRegularIndexesReadable =
+      getIsRegularIndexesReadable(isReadonlyView);
+    if (!isRegularIndexesReadable) {
       dispatch(fetchIndexesSucceeded([]));
       return;
     }

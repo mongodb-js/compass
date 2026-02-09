@@ -2,7 +2,6 @@ import React, { useMemo, useEffect } from 'react';
 import { connect } from 'react-redux';
 import type { Document } from 'mongodb';
 import type { SearchIndex, SearchIndexStatus } from 'mongodb-data-service';
-import { usePreference } from 'compass-preferences-model/provider';
 import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
 import {
   Badge,
@@ -39,16 +38,14 @@ import type { RootState } from '../../modules';
 import BadgeWithIconLink from '../indexes-table/badge-with-icon-link';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { useWorkspaceTabId } from '@mongodb-js/compass-workspaces/provider';
-import type { CollectionStats } from '../../modules/collection-stats';
-import { VIEW_PIPELINE_UTILS } from '@mongodb-js/mongodb-constants';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
+import { useReadWriteAccess } from '../../utils/indexes-read-write-access';
+import { useIsViewSearchCompatible } from '../../utils/is-view-search-compatible';
 
 type SearchIndexesTableProps = {
   namespace: string;
   indexes: SearchIndex[];
-  isWritable?: boolean;
   isReadonlyView: boolean;
-  collectionStats?: CollectionStats;
   status: FetchStatus;
   onDropIndexClick: (name: string) => void;
   onEditIndexClick: (name: string) => void;
@@ -67,12 +64,16 @@ function isReadyStatus(status: FetchStatus) {
 
 function ZeroState({
   onOpenCreateModalClick,
+  isReadonlyView,
   isViewPipelineSearchQueryable,
 }: {
   onOpenCreateModalClick: () => void;
+  isReadonlyView: boolean;
   isViewPipelineSearchQueryable: boolean;
 }) {
   const track = useTelemetry();
+  const isViewAndPipelineSearchNonQueryable =
+    isReadonlyView && !isViewPipelineSearchQueryable;
 
   return (
     <EmptyContent
@@ -81,16 +82,18 @@ function ZeroState({
       subTitle="Atlas Search is an embedded full-text search in MongoDB Atlas that gives you a seamless, scalable experience for building relevance-based app features."
       callToAction={
         <Tooltip
-          enabled={!isViewPipelineSearchQueryable}
+          enabled={!isViewAndPipelineSearchNonQueryable}
           align="top"
           justify="middle"
           trigger={
             <Button
               onClick={() => {
                 onOpenCreateModalClick();
-                track('Create Search Index for View Clicked', {
-                  context: 'Indexes Tab',
-                });
+                if (isReadonlyView) {
+                  track('Create Search Index for View Clicked', {
+                    context: 'Indexes Tab',
+                  });
+                }
               }}
               data-testid="create-atlas-search-index-button"
               variant="primary"
@@ -306,17 +309,14 @@ export const SearchIndexesTable: React.FunctionComponent<
 > = ({
   namespace,
   indexes,
-  isWritable,
-  collectionStats,
+  isReadonlyView,
   status,
   onOpenCreateModalClick,
   onEditIndexClick,
   onDropIndexClick,
   onSearchIndexesOpened,
   onSearchIndexesClosed,
-  isReadonlyView,
 }) => {
-  const preferencesReadWrite = usePreference('readWrite');
   const { openCollectionWorkspace } = useOpenWorkspace();
   const { id: connectionId } = useConnectionInfo();
 
@@ -328,12 +328,8 @@ export const SearchIndexesTable: React.FunctionComponent<
       onSearchIndexesClosed(tabId);
     };
   }, [tabId, onSearchIndexesOpened, onSearchIndexesClosed]);
-  const isViewPipelineSearchQueryable =
-    isReadonlyView && collectionStats?.pipeline
-      ? VIEW_PIPELINE_UTILS.isPipelineSearchQueryable(
-          collectionStats.pipeline as Document[]
-        )
-      : true;
+  const { isSearchIndexesWritable } = useReadWriteAccess();
+  const { isViewPipelineSearchQueryable } = useIsViewSearchCompatible();
 
   const data = useMemo<LGTableDataType<SearchIndexInfo>[]>(
     () =>
@@ -419,33 +415,24 @@ export const SearchIndexesTable: React.FunctionComponent<
     return (
       <ZeroState
         onOpenCreateModalClick={onOpenCreateModalClick}
+        isReadonlyView={isReadonlyView}
         isViewPipelineSearchQueryable={isViewPipelineSearchQueryable}
       />
     );
   }
 
-  const canModifyIndex = isWritable && !preferencesReadWrite;
-
   return (
     <IndexesTable
       id="search-indexes"
       data-testid="search-indexes"
-      columns={canModifyIndex ? COLUMNS_WITH_ACTIONS : COLUMNS}
+      columns={isSearchIndexesWritable ? COLUMNS_WITH_ACTIONS : COLUMNS}
       data={data}
     />
   );
 };
 
-const mapState = ({
-  searchIndexes,
-  isWritable,
+const mapState = ({ searchIndexes, namespace, isReadonlyView }: RootState) => ({
   namespace,
-  collectionStats,
-  isReadonlyView,
-}: RootState) => ({
-  namespace,
-  isWritable,
-  collectionStats,
   isReadonlyView,
   indexes: searchIndexes.indexes,
   status: searchIndexes.status,

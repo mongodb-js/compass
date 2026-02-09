@@ -6,8 +6,9 @@ import {
 } from '@mongodb-js/compass-components';
 import { getAtlasUpgradeClusterLink } from '../../utils/atlas-upgrade-cluster-link';
 import React from 'react';
-import type { AtlasClusterMetadata } from '@mongodb-js/connection-info';
-import { VIEW_PIPELINE_UTILS } from '@mongodb-js/mongodb-constants';
+import { connect } from 'react-redux';
+import type { RootState } from '../../modules';
+import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 
 const viewContentStyles = css({
   display: 'flex',
@@ -16,35 +17,20 @@ const viewContentStyles = css({
   width: '100%',
 });
 
-export const ViewVersionIncompatibleBanner = ({
-  serverVersion,
-  enableAtlasSearchIndexes,
-  atlasMetadata,
-}: {
+type ViewVersionIncompatibleBannerProps = {
   serverVersion: string;
-  enableAtlasSearchIndexes: boolean;
-  atlasMetadata: AtlasClusterMetadata | undefined;
-}) => {
-  // return if compatible, 8.1+ for compass and 8.0+ for data explorer
-  if (
-    VIEW_PIPELINE_UTILS.isVersionSearchCompatibleForViewsCompass(
-      serverVersion
-    ) ||
-    (VIEW_PIPELINE_UTILS.isVersionSearchCompatibleForViewsDataExplorer(
-      serverVersion
-    ) &&
-      !enableAtlasSearchIndexes)
-  ) {
-    return null;
-  }
+};
 
-  const searchIndexOnViewsMinVersion = enableAtlasSearchIndexes ? '8.1' : '8.0';
+const ViewVersionIncompatibleBanner = ({
+  serverVersion,
+}: ViewVersionIncompatibleBannerProps) => {
+  const { atlasMetadata } = useConnectionInfo();
+  const isAtlas = !!atlasMetadata;
+
+  // return if compatible, 8.1+ for compass and 8.0+ for data explorer
+  const searchIndexOnViewsMinVersion = isAtlas ? '8.0' : '8.1';
   // if compass version matches min compatibility for DE, we recommend Atlas UI as well
-  const recommendedCta =
-    enableAtlasSearchIndexes &&
-    VIEW_PIPELINE_UTILS.isVersionSearchCompatibleForViewsDataExplorer(
-      serverVersion
-    )
+  const recommendedCta = isAtlas
       ? 'Upgrade your cluster or manage search indexes on views in the Atlas UI.'
       : 'Upgrade your cluster to create search indexes on views.';
   return (
@@ -57,11 +43,11 @@ export const ViewVersionIncompatibleBanner = ({
       <div className={viewContentStyles}>
         <span>
           Your MongoDB version is {serverVersion}. Creating and managing search
-          indexes on views {enableAtlasSearchIndexes && 'in Compass'} is
+          indexes on views {!isAtlas && 'in Compass'} is
           supported on MongoDB version {searchIndexOnViewsMinVersion} or higher.{' '}
           {recommendedCta}
         </span>
-        {atlasMetadata && (
+        {isAtlas && (
           <Button
             size="xsmall"
             href={getAtlasUpgradeClusterLink({
@@ -76,3 +62,9 @@ export const ViewVersionIncompatibleBanner = ({
     </Banner>
   );
 };
+
+const mapState = ({ serverVersion }: RootState) => ({
+  serverVersion,
+});
+
+export default connect(mapState)(ViewVersionIncompatibleBanner);

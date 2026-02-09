@@ -169,6 +169,7 @@ export const setupStore = (
         getPreferences() {
           return {
             enableRollingIndexes: true,
+            enableAtlasSearchIndexes: true,
           };
         },
       } as any,
