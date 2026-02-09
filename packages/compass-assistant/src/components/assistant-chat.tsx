@@ -386,7 +386,7 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
             metadata: {
               sendContext: true,
               ...metadata,
-              disbleStorage: isConnectedToCsfleCluster,
+              disableStorage: isConnectedToCsfleCluster,
             },
           },
           {},

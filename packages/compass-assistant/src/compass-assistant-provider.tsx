@@ -104,7 +104,7 @@ export type AssistantMessage = UIMessage & {
      */
     connectionInfo?: BasicConnectionInfo | null;
     /** Whether to enable or disable storage of this message in chatapi. */
-    disbleStorage?: boolean;
+    disableStorage?: boolean;
   };
 };
 
