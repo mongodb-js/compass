@@ -5,6 +5,10 @@ import { connect } from 'react-redux';
 import type { RootState } from './modules';
 import IndexesListDrawerView from './components/drawer/views/indexes-list-drawer-view';
 import type { CollectionSubtab } from '@mongodb-js/workspace-info';
+import CreateSearchIndexView from './components/drawer/views/create-search-index-view';
+import EditSearchIndexView from './components/drawer/views/edit-search-index-view';
+import type { IndexesDrawerViewType } from './modules/indexes-drawer';
+import CreateIndexModal from './components/create-index-modal/create-index-modal';
 
 const indexesTitleStyles = css({
   display: 'flex',
@@ -18,16 +22,15 @@ const indexesTitleTextStyles = css({
 
 const INDEXES_DRAWER_ID = 'compass-indexes-drawer';
 
+type DrawerProps = {
+  currentView: IndexesDrawerViewType;
+  subTab?: CollectionSubtab;
+};
+
 /**
  * Drawer component that wraps search indexes management in a DrawerSection.
  */
-const Drawer = ({
-  indexesDrawer,
-  subTab,
-}: {
-  indexesDrawer: RootState['indexesDrawer'];
-  subTab?: CollectionSubtab;
-}) => {
+const Drawer = ({ currentView, subTab }: DrawerProps) => {
   const isIndexesDrawerEnabled = usePreference(
     'enableSearchActivationProgramP1'
   );
@@ -37,25 +40,31 @@ const Drawer = ({
   }
 
   return (
-    <DrawerSection
-      id={INDEXES_DRAWER_ID}
-      title={
-        <div className={indexesTitleStyles}>
-          <span className={indexesTitleTextStyles}>Indexes</span>
+    <>
+      <DrawerSection
+        id={INDEXES_DRAWER_ID}
+        title={
+          <div className={indexesTitleStyles}>
+            <span className={indexesTitleTextStyles}>Indexes</span>
+          </div>
+        }
+        label="Indexes"
+        glyph="SearchIndex"
+      >
+        <div>
+          {currentView === 'indexes-list' && <IndexesListDrawerView />}
+          {currentView === 'create-search-index' && <CreateSearchIndexView />}
+          {currentView === 'edit-search-index' && <EditSearchIndexView />}
         </div>
-      }
-      label="Indexes"
-      glyph="SearchIndex"
-    >
-      <div>
-        {indexesDrawer.currentView === 'indexes-list' && (
-          <IndexesListDrawerView />
-        )}
-      </div>
-    </DrawerSection>
+      </DrawerSection>
+      {/* The drawer tab will re-use this modal for creating regular indexes */}
+      <CreateIndexModal />
+    </>
   );
 };
 
-export const IndexesDrawer = connect(({ indexesDrawer }: RootState) => ({
-  indexesDrawer,
-}))(Drawer);
+const mapState = ({ indexesDrawer }: RootState) => ({
+  currentView: indexesDrawer.currentView,
+});
+
+export const IndexesDrawer = connect(mapState)(Drawer);

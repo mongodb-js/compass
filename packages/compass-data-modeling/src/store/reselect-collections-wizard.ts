@@ -205,7 +205,7 @@ export function reselectCollections(): DataModelingThunkAction<
   return async (
     dispatch,
     getState,
-    { connections, instanceManager, logger }
+    { connections, instanceManager, logger, track }
   ) => {
     const { diagram } = getState();
     if (!diagram) {
@@ -219,6 +219,8 @@ export function reselectCollections(): DataModelingThunkAction<
     const selectedCollections = model.collections.map(
       (c) => toNS(c.ns).collection
     );
+
+    track('Data Modeling Add DB Collections Modal Opened', {});
 
     try {
       const connection = connections.getConnectionById(
