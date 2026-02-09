@@ -348,6 +348,7 @@ export function startAnalysis(
           'Data Modeling Diagram Creation Cancelled',
           {
             num_collections: selectedCollections.length,
+            automatically_infer_relations: willInferRelations,
             analysis_time_ms,
           },
           connectionInfo
@@ -368,6 +369,7 @@ export function startAnalysis(
           {
             num_collections: selectedCollections.length,
             analysis_time_ms,
+            automatically_infer_relations: willInferRelations,
           },
           connectionInfo
         );
@@ -429,7 +431,7 @@ export function redoAnalysis(
   return async (
     dispatch,
     getState,
-    { cancelAnalysisControllerRef, logger }
+    { cancelAnalysisControllerRef, logger, track, connections }
   ) => {
     // Analysis is in progress, don't start a new one unless user canceled it
     if (cancelAnalysisControllerRef.current) {
@@ -438,6 +440,20 @@ export function redoAnalysis(
     const diagram = getCurrentDiagramFromState(getState());
     const cancelController = (cancelAnalysisControllerRef.current =
       new AbortController());
+
+    const connectionInfo = connections.getConnectionById(connectionId)?.info;
+    const willInferRelations = options.automaticallyInferRelations;
+
+    track(
+      'Data Modeling Add DB Collections Started',
+      {
+        num_collections: selectedCollections.length,
+        automatically_infer_relations: willInferRelations,
+      },
+      connectionInfo
+    );
+
+    const analysisStartTime = Date.now();
     try {
       // If we don't want to infer relationship, then let's cut the existing collections
       // from the selected collections list to avoid re-analyzing them for schema.
@@ -445,7 +461,7 @@ export function redoAnalysis(
       const currentCollections = new Set(
         currentModel.collections.map((c) => c.ns)
       );
-      const collectionsToBeInferred = options.automaticallyInferRelations
+      const collectionsToBeInferred = willInferRelations
         ? selectedCollections
         : selectedCollections.filter((c) => !currentCollections.has(c));
       const { collections, relations } = await dispatch(
@@ -466,9 +482,31 @@ export function redoAnalysis(
       dispatch({
         type: AnalysisProcessActionTypes.REDO_ANALYSIS_FINISHED,
       });
+
+      track(
+        'Data Modeling Add DB Collections Succeeded',
+        {
+          num_collections: selectedCollections.length,
+          num_relations_inferred: willInferRelations
+            ? relations.length
+            : undefined,
+          analysis_time_ms: Date.now() - analysisStartTime,
+        },
+        connectionInfo
+      );
     } catch (err) {
       if (cancelController.signal.aborted) {
         dispatch({ type: AnalysisProcessActionTypes.REDO_ANALYSIS_CANCELED });
+
+        track(
+          'Data Modeling Add DB Collections Cancelled',
+          {
+            num_collections: selectedCollections.length,
+            automatically_infer_relations: willInferRelations,
+            analysis_time_ms: Date.now() - analysisStartTime,
+          },
+          connectionInfo
+        );
       } else {
         logger.log.error(
           mongoLogId(1_001_000_388),
@@ -480,6 +518,16 @@ export function redoAnalysis(
           type: AnalysisProcessActionTypes.REDO_ANALYSIS_FAILED,
           error: err as Error,
         });
+
+        track(
+          'Data Modeling Add DB Collections Failed',
+          {
+            num_collections: selectedCollections.length,
+            automatically_infer_relations: willInferRelations,
+            analysis_time_ms: Date.now() - analysisStartTime,
+          },
+          connectionInfo
+        );
       }
     } finally {
       cancelAnalysisControllerRef.current = null;

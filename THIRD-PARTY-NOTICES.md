@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **Mongodb Compass**.
-This document was automatically generated on Wed Feb 04 2026.
+This document was automatically generated on Mon Feb 09 2026.
 
 ## List of dependencies
 
@@ -102,7 +102,7 @@ This document was automatically generated on Wed Feb 04 2026.
 | **[@floating-ui/react-dom](#efe6c567c3c1d938b8eca9f8ea0a574964195b9282179c8fe0af77c9b73d2257)**                             | 2.1.6              | MIT                                 |
 | **[@floating-ui/react](#1d4fb10fe29ebbe51aa464245053b41f86740a68be4c6ed53dc2072106a5381c)**                                 | 0.26.28            | MIT                                 |
 | **[@floating-ui/utils](#cb18d9d8dfd980ce2f266d23aa09fa1b5dfb5f0cca1cb1eccc9b9cce3e27e9d4)**                                 | 0.2.10             | MIT                                 |
-| **[@hono/node-server](#36b9651110fe4c01dfaecb3f53c4fe17f56070ec8d282ec834d6836c70ae0891)**                                  | 1.19.8             | MIT                                 |
+| **[@hono/node-server](#87a1ece5b9f2deaabb5d2ab69776ecf0d6cf450b3c6512db3c43c4f7595e9f44)**                                  | 1.19.9             | MIT                                 |
 | **[@jridgewell/gen-mapping](#1e660067f4d1364dc830c372517d8ec92eddc9af7eaa6b1e698d478b286abafa)**                            | 0.1.1              | MIT                                 |
 | **[@jridgewell/gen-mapping](#145bee95e17934f7606726323f25f7f35b66b3cd10c310665f6654cc43685ec4)**                            | 0.3.13             | MIT                                 |
 | **[@jridgewell/resolve-uri](#f356bc3bb9c04f5fe4e387a4eea4e74125aae03bb50f846d956d7d986d200f50)**                            | 3.1.0              | MIT                                 |
@@ -128,7 +128,7 @@ This document was automatically generated on Wed Feb 04 2026.
 | **[@lukeed/uuid](#82700fba068def47ea9842f28d700a387f59da805f74a6ed10a5eb7eece4cdab)**                                       | 2.0.1              | MIT                                 |
 | **[@marijn/find-cluster-break](#7a9878a3598d1e6be1f069dc757f1d31e30ce66d313f5025cfd2521d68a24243)**                         | 1.0.2              | MIT                                 |
 | **[@mcp-ui/server](#d70b4227f081adf5b4b417eead88ba4303ccb03fcbef8a6c5b943f67fa5ca487)**                                     | 5.16.3             | Apache-2.0                          |
-| **[@modelcontextprotocol/sdk](#13a14a6bc9ca62d61e546c8381157e0707f3342016088549dd3dff7aa72d2334)**                          | 1.25.2             | MIT                                 |
+| **[@modelcontextprotocol/sdk](#692ca6de754ae4871bf422c437cd8e3b0872e30e3cde51a0f78358ed1818f060)**                          | 1.26.0             | MIT                                 |
 | **[@opentelemetry/api](#78185a135ba748dc3c4764cf3f8bc9f1362c2de788184eb429e25fdbb6e4755a)**                                 | 1.9.0              | Apache-2.0                          |
 | **[@react-aria/interactions](#638eaf69f422aa3fbe2277f9e95b6b87e64569742134491d2653e9fc05c8f58a)**                           | 3.9.1              | Apache-2.0                          |
 | **[@react-aria/ssr](#d50578768741f1468c3d5dc0da1f585e37a01e7e13b44149ff094a0a5008d023)**                                    | 3.2.0              | Apache-2.0                          |
@@ -7718,9 +7718,9 @@ License files:
       IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
       CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-<a id="36b9651110fe4c01dfaecb3f53c4fe17f56070ec8d282ec834d6836c70ae0891"></a>
+<a id="87a1ece5b9f2deaabb5d2ab69776ecf0d6cf450b3c6512db3c43c4f7595e9f44"></a>
 
-### [@hono/node-server](https://www.npmjs.com/package/@hono/node-server) (version 1.19.8)
+### [@hono/node-server](https://www.npmjs.com/package/@hono/node-server) (version 1.19.9)
 
 License tags: MIT
 
@@ -10335,9 +10335,9 @@ License files:
 
 License tags: Apache-2.0
 
-<a id="13a14a6bc9ca62d61e546c8381157e0707f3342016088549dd3dff7aa72d2334"></a>
+<a id="692ca6de754ae4871bf422c437cd8e3b0872e30e3cde51a0f78358ed1818f060"></a>
 
-### [@modelcontextprotocol/sdk](https://www.npmjs.com/package/@modelcontextprotocol/sdk) (version 1.25.2)
+### [@modelcontextprotocol/sdk](https://www.npmjs.com/package/@modelcontextprotocol/sdk) (version 1.26.0)
 
 License tags: MIT
 
