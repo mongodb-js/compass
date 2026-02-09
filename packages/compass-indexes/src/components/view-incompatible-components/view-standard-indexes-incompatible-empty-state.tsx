@@ -2,16 +2,9 @@ import React from 'react';
 import { EmptyContent, Link } from '@mongodb-js/compass-components';
 import { ZeroGraphic } from '../search-indexes-table/zero-graphic';
 
-type ViewStandardIndexesIncompatibleEmptyStateProps = {
-  containerClassName?: string;
-};
-
-const ViewStandardIndexesIncompatibleEmptyState = ({
-  containerClassName,
-}: ViewStandardIndexesIncompatibleEmptyStateProps) => {
+const ViewStandardIndexesIncompatibleEmptyState = () => {
   return (
     <EmptyContent
-      containerClassName={containerClassName}
       icon={ZeroGraphic}
       title="No standard indexes"
       subTitle="Standard views use the indexes of the underlying collection. As a result, you
