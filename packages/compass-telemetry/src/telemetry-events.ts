@@ -3009,6 +3009,7 @@ type DataModelingDiagramCreated = ConnectionScopedEvent<{
     num_collections: number;
     num_relations_inferred?: number;
     analysis_time_ms: number;
+    relationship_inference_phase_ms?: number;
   };
 }>;
 
@@ -3023,6 +3024,7 @@ type DataModelingDiagramCreationCancelled = ConnectionScopedEvent<{
     num_collections: number;
     automatically_infer_relations: boolean;
     analysis_time_ms: number;
+    relationship_inference_phase_ms?: number;
   };
 }>;
 
@@ -3037,6 +3039,7 @@ type DataModelingDiagramCreationFailed = ConnectionScopedEvent<{
     num_collections: number;
     automatically_infer_relations: boolean;
     analysis_time_ms: number;
+    relationship_inference_phase_ms?: number;
   };
 }>;
 
@@ -3074,6 +3077,7 @@ type DataModelingAddDBCollectionsSucceeded = ConnectionScopedEvent<{
     num_collections: number;
     num_relations_inferred?: number;
     analysis_time_ms: number;
+    relationship_inference_phase_ms?: number;
   };
 }>;
 
@@ -3088,6 +3092,7 @@ type DataModelingAddDBCollectionsFailed = ConnectionScopedEvent<{
     num_collections: number;
     automatically_infer_relations: boolean;
     analysis_time_ms: number;
+    relationship_inference_phase_ms?: number;
   };
 }>;
 
@@ -3102,6 +3107,7 @@ type DataModelingAddDBCollectionsCancelled = ConnectionScopedEvent<{
     num_collections: number;
     automatically_infer_relations: boolean;
     analysis_time_ms: number;
+    relationship_inference_phase_ms?: number;
   };
 }>;
 

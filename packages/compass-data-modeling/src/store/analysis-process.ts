@@ -294,9 +294,10 @@ export function startAnalysis(
       new AbortController());
 
     const analysisStartTime = Date.now();
+    let relationsInferencePhaseMs: number | undefined;
 
     try {
-      const { collections, relations } = await dispatch(
+      const result = await dispatch(
         analyzeCollections({
           name,
           connectionId,
@@ -305,6 +306,8 @@ export function startAnalysis(
           options,
         })
       );
+      const { collections, relations } = result;
+      relationsInferencePhaseMs = result.relationsInferencePhaseMs;
 
       const positioned = await getInitialLayout({
         collections,
@@ -334,6 +337,7 @@ export function startAnalysis(
             ? relations.length
             : undefined,
           analysis_time_ms: Date.now() - analysisStartTime,
+          relationship_inference_phase_ms: relationsInferencePhaseMs,
         },
         connectionInfo
       );
@@ -350,6 +354,7 @@ export function startAnalysis(
             num_collections: selectedCollections.length,
             automatically_infer_relations: willInferRelations,
             analysis_time_ms,
+            relationship_inference_phase_ms: relationsInferencePhaseMs,
           },
           connectionInfo
         );
@@ -368,7 +373,8 @@ export function startAnalysis(
           'Data Modeling Diagram Creation Failed',
           {
             num_collections: selectedCollections.length,
-            analysis_time_ms,
+            analysis_time_ms: analysis_time_ms,
+            relationship_inference_phase_ms: relationsInferencePhaseMs,
             automatically_infer_relations: willInferRelations,
           },
           connectionInfo
@@ -454,6 +460,7 @@ export function redoAnalysis(
     );
 
     const analysisStartTime = Date.now();
+    let relationsInferencePhaseMs: number | undefined;
     try {
       // If we don't want to infer relationship, then let's cut the existing collections
       // from the selected collections list to avoid re-analyzing them for schema.
@@ -464,7 +471,7 @@ export function redoAnalysis(
       const collectionsToBeInferred = willInferRelations
         ? selectedCollections
         : selectedCollections.filter((c) => !currentCollections.has(c));
-      const { collections, relations } = await dispatch(
+      const result = await dispatch(
         analyzeCollections({
           name,
           connectionId,
@@ -473,6 +480,9 @@ export function redoAnalysis(
           options,
         })
       );
+      const { collections, relations } = result;
+      relationsInferencePhaseMs = result.relationsInferencePhaseMs;
+
       const model = await getModelFromReanalysis(
         currentModel,
         collections,
@@ -491,6 +501,7 @@ export function redoAnalysis(
             ? relations.length
             : undefined,
           analysis_time_ms: Date.now() - analysisStartTime,
+          relationship_inference_phase_ms: relationsInferencePhaseMs,
         },
         connectionInfo
       );
@@ -504,6 +515,7 @@ export function redoAnalysis(
             num_collections: selectedCollections.length,
             automatically_infer_relations: willInferRelations,
             analysis_time_ms: Date.now() - analysisStartTime,
+            relationship_inference_phase_ms: relationsInferencePhaseMs,
           },
           connectionInfo
         );
@@ -525,6 +537,7 @@ export function redoAnalysis(
             num_collections: selectedCollections.length,
             automatically_infer_relations: willInferRelations,
             analysis_time_ms: Date.now() - analysisStartTime,
+            relationship_inference_phase_ms: relationsInferencePhaseMs,
           },
           connectionInfo
         );
@@ -551,6 +564,7 @@ export function analyzeCollections({
   Promise<{
     collections: Omit<AnalyzedCollection, 'position'>[];
     relations: Relationship[];
+    relationsInferencePhaseMs?: number;
   }>,
   | AnalyzingCollectionsStartAction
   | NamespaceSampleFetchedAction
@@ -616,6 +630,7 @@ export function analyzeCollections({
       })
     );
 
+    const relationshipInferenceStartTime = Date.now();
     if (willInferRelations) {
       const connectionInfo = connections.getConnectionById(connectionId)?.info;
       track(
@@ -672,7 +687,13 @@ export function analyzeCollections({
       throw abortSignal.reason;
     }
 
-    return { collections, relations };
+    return {
+      collections,
+      relations,
+      relationsInferencePhaseMs: willInferRelations
+        ? Date.now() - relationshipInferenceStartTime
+        : undefined,
+    };
   };
 }
 
