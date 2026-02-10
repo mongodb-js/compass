@@ -41,7 +41,6 @@ Defining non-primitive values in render (in function body or as component props)
 const MyComponent = ({ userId }) => {
   return (
     <MemoizedChild
-      style={{ marginTop: 10 }}
       options={['edit', 'delete']}
       onClick={() => handleClick(userId)}
     />
@@ -69,14 +68,16 @@ export default connect((state) => ({
   activeItems: state.items.filter((item) => item.isActive),
 }))(MyComponent);
 
-// ✅ Use a memoized selector
-const selectActiveItems = createSelector(
-  (state) => state.items,
-  (items) => items.filter((item) => item.isActive)
-);
+// ✅ Use memo to ensure the same array instance is returned if the items haven't changed
+const MyComponent = ({ items }) => {
+  const activeItems = useMemo(
+    () => items.filter((item) => item.isActive),
+    [items]
+  );
+};
 
 export default connect((state) => ({
-  activeItems: selectActiveItems(state),
+  items: state.items,
 }))(MyComponent);
 ```
 
