@@ -48,15 +48,12 @@ const MyComponent = ({ userId }) => {
 };
 
 // ✅ Memoize or define outside render
-const style = { marginTop: 10 };
 const options = ['edit', 'delete'];
 
 const MyComponent = ({ userId }) => {
   const handleItemClick = useCallback(() => handleClick(userId), [userId]);
 
-  return (
-    <MemoizedChild style={style} options={options} onClick={handleItemClick} />
-  );
+  return <MemoizedChild options={options} onClick={handleItemClick} />;
 };
 ```
 
