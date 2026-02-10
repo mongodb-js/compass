@@ -868,6 +868,7 @@ export class DocumentTableView extends React.Component<DocumentTableViewProps> {
         drillDown: this.props.drillDown,
         tz: this.props.tz,
         darkMode: this.props.darkMode,
+        legacyUUIDDisplayEncoding: this.props.legacyUUIDDisplayEncoding,
       },
       resizable: true,
       width: this.props.columnWidths[String(path[path.length - 1])],

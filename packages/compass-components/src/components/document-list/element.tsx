@@ -54,10 +54,11 @@ function useElementEditor(
 ) {
   return useMemo(
     () => {
-      // Use the display type for editor selection - this ensures that Binary UUIDs
-      // get the UUIDEditor even when el.currentType is 'Binary'
+      // Set the displayType on the element so editors can read it.
+      // This ensures that Binary UUIDs get the UUIDEditor even when el.currentType is 'Binary'
+      el.displayType = displayType;
       const Editor = getEditorByType(displayType);
-      return new Editor(el, displayType);
+      return new Editor(el);
     },
     // The list of deps is exhaustive, but we want `displayType` to be an
     // explicit dependency of the memo to make sure that even if the `el`

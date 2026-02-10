@@ -22,9 +22,8 @@ export default class StandardEditor {
    * Create the editor with the element.
    *
    * @param element - The hadron document element.
-   * @param _displayType - Optional display type (used by subclasses like UUIDEditor).
    */
-  constructor(element: Element, _displayType?: string) {
+  constructor(element: Element) {
     this.element = element;
     this.type = element.currentType;
     this.editing = false;

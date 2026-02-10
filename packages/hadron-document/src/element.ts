@@ -98,6 +98,11 @@ export class Element extends EventEmitter {
   decrypted: boolean;
   expanded = false;
   maxVisibleElementsCount = DEFAULT_VISIBLE_ELEMENTS;
+  // Display type for the element. This is used by editors to determine
+  // how to display and edit the value. For example, a Binary with subtype 3
+  // might have displayType set to 'LegacyJavaUUID' to indicate it should be
+  // displayed and edited as a Java legacy UUID.
+  displayType?: TypeCastTypes;
 
   /**
    * Cancel any modifications to the element.

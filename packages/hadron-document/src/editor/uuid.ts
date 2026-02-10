@@ -61,13 +61,11 @@ export default class UUIDEditor extends StandardEditor {
    * Create the UUID editor.
    *
    * @param element - The hadron document element.
-   * @param displayType - Optional display type override. Used when element.currentType
-   *                      is 'Binary' but the element should be treated as a UUID type.
    */
-  constructor(element: Element, displayType?: string) {
+  constructor(element: Element) {
     super(element);
-    // Use displayType if provided and it's a UUID type, otherwise fall back to element.currentType
-    const effectiveType = displayType ?? element.currentType;
+    // Use element.displayType if set and it's a UUID type, otherwise fall back to element.currentType
+    const effectiveType = element.displayType ?? element.currentType;
     this.uuidType = (UUID_TYPES as readonly string[]).includes(effectiveType)
       ? (effectiveType as UUIDType)
       : 'UUID';
