@@ -279,16 +279,24 @@ export const BaseSearchIndexModal: React.FunctionComponent<
     ({ target: { value } }: React.ChangeEvent<HTMLInputElement>) => {
       setSearchIndexType(value as SearchIndexType);
 
-      // Set the template.
       if (value === 'vectorSearch') {
         setIndexDefinition(ATLAS_VECTOR_SEARCH_TEMPLATE.snippet);
         onChangeTemplate(ATLAS_VECTOR_SEARCH_TEMPLATE);
+
+        if (indexName === 'default') {
+          setIndexName('vector_index');
+        }
       } else {
         setIndexDefinition(ATLAS_SEARCH_TEMPLATES[0].snippet);
         onChangeTemplate(ATLAS_SEARCH_TEMPLATES[0]);
+
+        if (indexName === 'vector_index') {
+          setIndexName('default');
+        }
+
       }
     },
-    [setSearchIndexType, onChangeTemplate, setIndexDefinition]
+    [setSearchIndexType, onChangeTemplate, setIndexDefinition, setIndexName, indexName]
   );
 
   const fields = useAutocompleteFields(namespace);
