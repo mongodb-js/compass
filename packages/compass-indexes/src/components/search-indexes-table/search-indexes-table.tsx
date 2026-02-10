@@ -82,7 +82,7 @@ function ZeroState({
       subTitle="Atlas Search is an embedded full-text search in MongoDB Atlas that gives you a seamless, scalable experience for building relevance-based app features."
       callToAction={
         <Tooltip
-          enabled={!isViewAndPipelineSearchNonQueryable}
+          enabled={isViewAndPipelineSearchNonQueryable}
           align="top"
           justify="middle"
           trigger={
@@ -98,7 +98,7 @@ function ZeroState({
               data-testid="create-atlas-search-index-button"
               variant="primary"
               size="small"
-              disabled={!isViewAndPipelineSearchNonQueryable}
+              disabled={isViewAndPipelineSearchNonQueryable}
             >
               Create Atlas Search Index
             </Button>
