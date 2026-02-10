@@ -8,6 +8,7 @@ import { generateDiagramWizardReducer } from './generate-diagram-wizard';
 import type {
   AnalysisProgressActions,
   AnalysisProcessActionTypes,
+  SchemaBuilderService,
 } from './analysis-process';
 import { analysisProcessReducer } from './analysis-process';
 import type { DiagramActions, DiagramActionTypes } from './diagram';
@@ -53,7 +54,12 @@ export type DataModelingActionTypes = _ActionTypes[keyof _ActionTypes];
 
 export type DataModelingState = ReturnType<typeof reducer>;
 
-export type DataModelingExtraArgs = DataModelingStoreServices & {
+export type DataModelingExtraArgs = Omit<
+  DataModelingStoreServices,
+  'schemaBuilder'
+> & {
+  /** Schema builder service - always present in extra args (required, not optional) */
+  schemaBuilder: SchemaBuilderService;
   cancelAnalysisControllerRef: { current: AbortController | null };
   cancelExportControllerRef: { current: AbortController | null };
   openToast: typeof _openToast;

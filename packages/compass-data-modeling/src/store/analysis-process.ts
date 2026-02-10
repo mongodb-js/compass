@@ -21,20 +21,42 @@ import { inferForeignToLocalRelationshipsForCollection } from './relationships';
 import { mongoLogId } from '@mongodb-js/compass-logging/provider';
 import { extractFieldsFromFieldData } from '../utils/schema';
 import { isEqual } from 'lodash';
+import type { WasmDataService } from '../services/compass-data-service-adapter';
+import { CompassDataServiceAdapter } from '../services/compass-data-service-adapter';
 
-/**
- * Lazy-load WASM module (ESM module in CommonJS context).
- * Returns the buildSchema function and WasmBuilderOptions class.
- */
-async function getWasmModule() {
-  return await import('schema-builder-library');
+// WASM module lazy initialization
+// The bundler target's entry file handles WASM setup automatically
+// when webpack's asyncWebAssembly experiment is enabled.
+// Using dynamic import to load the module asynchronously.
+type WasmModule = {
+  buildSchema: (
+    dataService: WasmDataService,
+    options: {
+      setIncludeList: (namespaces: string[]) => void;
+      free: () => void;
+    }
+  ) => Promise<WasmSchemaResult[]>;
+  WasmBuilderOptions: new () => {
+    setIncludeList: (namespaces: string[]) => void;
+    free: () => void;
+  };
+};
+
+let wasmModulePromise: Promise<WasmModule> | null = null;
+
+function getWasmModule(): Promise<WasmModule> {
+  if (!wasmModulePromise) {
+    // Dynamic import - webpack will handle the WASM loading chain
+    wasmModulePromise = import('schema-builder-library') as Promise<WasmModule>;
+  }
+  return wasmModulePromise;
 }
 
 /**
  * Type representing the serialized SchemaResult from the WASM module.
  * The Rust enum SchemaResult serializes with the variant name as a key.
  */
-type WasmSchemaResult =
+export type WasmSchemaResult =
   | { NamespaceOnly: WasmNamespaceInfo }
   | { InitialSchema: WasmNamespaceInfoWithSchema }
   | { FullSchema: WasmNamespaceInfoWithSchema };
@@ -48,6 +70,82 @@ type WasmNamespaceInfo = {
 type WasmNamespaceInfoWithSchema = {
   namespace_info: WasmNamespaceInfo;
   namespace_schema: MongoDBJSONSchema;
+};
+
+/**
+ * Service interface for schema building.
+ * This allows the WASM-based schema builder to be mocked in tests.
+ */
+export interface SchemaBuilderService {
+  /**
+   * Build schemas for the given collections.
+   * @param dataService - Data service for accessing MongoDB
+   * @param database - Database name
+   * @param collections - List of collection names to analyze
+   * @returns Array of schema results
+   */
+  buildSchemas(
+    dataService: WasmDataService,
+    database: string,
+    collections: string[]
+  ): Promise<WasmSchemaResult[]>;
+}
+
+/**
+ * Default schema builder service using the WASM module.
+ */
+export const defaultSchemaBuilderService: SchemaBuilderService = {
+  async buildSchemas(
+    dataService: WasmDataService,
+    database: string,
+    collections: string[]
+  ): Promise<WasmSchemaResult[]> {
+    try {
+      const wasmModule = await getWasmModule();
+      console.log('WASM module loaded', { wasmModule });
+      const { buildSchema, WasmBuilderOptions } = wasmModule;
+
+      console.log({ buildSchema, WasmBuilderOptions });
+      const wasmOptions = new WasmBuilderOptions();
+      // Set include list to only analyze the selected collections
+      wasmOptions.setIncludeList(
+        collections.map((coll) => `${database}.${coll}`)
+      );
+
+      return await buildSchema(dataService, wasmOptions);
+    } catch (err) {
+      console.error('missing WASM module', err);
+    }
+  },
+};
+
+/**
+ * Mock schema builder service for testing.
+ * Returns empty schemas for all requested collections.
+ */
+export const mockSchemaBuilderService: SchemaBuilderService = {
+  buildSchemas(
+    _dataService: WasmDataService,
+    database: string,
+    collections: string[]
+  ): Promise<WasmSchemaResult[]> {
+    // Return FullSchema results with empty schemas for each collection
+    return Promise.resolve(
+      collections.map((coll) => ({
+        FullSchema: {
+          namespace_info: {
+            db_name: database,
+            coll_or_view_name: coll,
+            namespace_type: 'Collection' as const,
+          },
+          namespace_schema: {
+            bsonType: 'object' as const,
+            properties: {},
+          },
+        },
+      }))
+    );
+  },
 };
 
 type AnalyzedCollection = {
@@ -540,7 +638,14 @@ export function analyzeCollections({
   return async (
     dispatch,
     _getState,
-    { connections, logger, preferences, cancelAnalysisControllerRef, track }
+    {
+      connections,
+      logger,
+      preferences,
+      cancelAnalysisControllerRef,
+      track,
+      schemaBuilder,
+    }
   ) => {
     const abortSignal = cancelAnalysisControllerRef.current?.signal;
     const namespaces = selectedCollections.map((collName) => {
@@ -582,21 +687,12 @@ export function analyzeCollections({
       })
     );
 
-    // Step 2: Build schemas using the WASM schema builder
-    const { buildSchema, WasmBuilderOptions } = await getWasmModule();
-    const { CompassDataServiceAdapter } = await import(
-      '../services/compass-data-service-adapter.js'
-    );
+    // Step 2: Build schemas using the schema builder service
     const adapter = new CompassDataServiceAdapter(dataService, abortSignal);
-    const wasmOptions = new WasmBuilderOptions();
-    // Set include list to only analyze the selected collections
-    wasmOptions.setIncludeList(
-      selectedCollections.map((coll) => `${database}.${coll}`)
-    );
-
-    const schemaResults: WasmSchemaResult[] = await buildSchema(
+    const schemaResults: WasmSchemaResult[] = await schemaBuilder.buildSchemas(
       adapter,
-      wasmOptions
+      database,
+      selectedCollections
     );
 
     // Create a map of namespace -> schema for quick lookup

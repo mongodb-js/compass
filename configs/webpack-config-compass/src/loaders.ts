@@ -65,6 +65,10 @@ export const javascriptLoader = (args: ConfigArgs, web = false) => ({
     // Otherwise core-js will polyfill itself with core-js and this doesn't work
     // for obvious reasons
     /\bcore-js\b/,
+    // WASM packages built with wasm-pack already output modern JS that doesn't
+    // need transpilation, and Babel's core-js polyfills for async iterators
+    // cause issues with the generated code
+    /\bschema-builder-library\b/,
   ],
   use: {
     loader: require.resolve('babel-loader'),
@@ -226,6 +230,8 @@ export const sourceLoader = (args: ConfigArgs) => ({
     /\.(ejs|html)$/,
     // Handled nicely by Webpack by default, no need to load it as raw source
     /\.json$/,
+    // WASM files built with wasm-pack for bundler target should be handled with asset/resource type, not raw source
+    /\.wasm$/,
   ],
   type: 'asset/source',
 });
