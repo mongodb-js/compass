@@ -409,7 +409,10 @@ const fetchIndexes = (
       ...preferences.getPreferences(),
     })(getState());
 
-    if (!isRegularIndexesReadable || !isWritable) {
+    if (
+      !isRegularIndexesReadable ||
+      !isWritable // isWritable is false in offline mode
+    ) {
       dispatch(fetchIndexesSucceeded([]));
       return;
     }
