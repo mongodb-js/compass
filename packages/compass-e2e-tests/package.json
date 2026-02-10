@@ -42,7 +42,6 @@
     "@types/chai-as-promised": "^7.1.4",
     "@types/cross-spawn": "^6.0.2",
     "@types/yargs": "^17.0.33",
-    "@wdio/types": "^8.32.2",
     "bson": "^6.10.4",
     "chai": "^4.3.4",
     "chai-as-promised": "^7.1.1",
@@ -74,7 +73,7 @@
     "tesseract.js": "^6.0.1",
     "tree-kill": "^1.2.2",
     "ts-node": "^10.9.2",
-    "webdriverio": "^9.4.1",
+    "webdriverio": "^9.23.3",
     "why-is-node-running": "^2.3.0",
     "xvfb-maybe": "^0.2.1",
     "yargs": "^17.7.2"
