@@ -1,5 +1,5 @@
 import React from 'react';
-import { connect } from 'react-redux';
+import { connect, useSelector } from 'react-redux';
 import {
   Banner,
   Link,
@@ -30,15 +30,15 @@ import {
   UpdateSearchIndexModal,
 } from '../search-indexes-modals';
 import type { IndexView } from '../../modules/index-view';
-import { usePreference } from 'compass-preferences-model/provider';
+import { usePreferences } from 'compass-preferences-model/provider';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { getAtlasSearchIndexesLink } from '../../utils/atlas-search-indexes-link';
 import CreateIndexModal from '../create-index-modal/create-index-modal';
 import ViewVersionIncompatibleBanner from '../view-incompatible-components/view-version-incompatible-banner';
 import ViewSearchIncompatibleBanner from '../view-incompatible-components/view-pipeline-incompatible-banner';
 import ViewStandardIndexesIncompatibleEmptyState from '../view-incompatible-components/view-standard-indexes-incompatible-empty-state';
-import { useIsViewSearchCompatible } from '../../utils/is-view-search-compatible';
-import { useReadWriteAccess } from '../../utils/indexes-read-write-access';
+import { selectIsViewSearchCompatible } from '../../utils/is-view-search-compatible';
+import { selectReadWriteAccess } from '../../utils/indexes-read-write-access';
 
 // This constant is used as a trigger to show an insight whenever number of
 // indexes in a collection is more than what is specified here.
@@ -170,11 +170,23 @@ export function Indexes({
       ? refreshRegularIndexes
       : refreshSearchIndexes;
 
-  const enableAtlasSearchIndexes = usePreference('enableAtlasSearchIndexes');
+  const { atlasMetadata } = useConnectionInfo();
+  const isAtlas = !!atlasMetadata;
+  const { readOnly, readWrite, enableAtlasSearchIndexes } = usePreferences([
+    'readOnly',
+    'readWrite',
+    'enableAtlasSearchIndexes',
+  ]);
   const { isViewVersionSearchCompatible, isViewPipelineSearchQueryable } =
-    useIsViewSearchCompatible();
-  const { isRegularIndexesReadable, isSearchIndexesReadable } =
-    useReadWriteAccess();
+    useSelector(selectIsViewSearchCompatible(isAtlas));
+  const { isRegularIndexesReadable, isSearchIndexesReadable } = useSelector(
+    selectReadWriteAccess({
+      isAtlas,
+      readOnly,
+      readWrite,
+      enableAtlasSearchIndexes,
+    })
+  );
   const getBanner = () => {
     if (isReadonlyView) {
       if (!isViewVersionSearchCompatible) {

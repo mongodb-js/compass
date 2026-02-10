@@ -1,54 +1,37 @@
-import { useSelector } from 'react-redux';
-import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { VIEW_PIPELINE_UTILS } from '@mongodb-js/mongodb-constants';
 import type { RootState } from '../modules';
 import type { Document } from 'mongodb';
 
-export function useIsViewSearchCompatible(): {
-  isViewVersionSearchCompatible: boolean;
-  isViewPipelineSearchQueryable: boolean;
-} {
-  const { serverVersion, collectionStats } = useSelector(
-    (state: RootState) => ({
-      serverVersion: state.serverVersion,
-      collectionStats: state.collectionStats,
-    })
-  );
+/**
+ * Selector function that returns view search compatibility information.
+ * @param isAtlas - Whether the connection is to Atlas (from useConnectionInfo)
+ * @returns A selector function
+ */
+export function selectIsViewSearchCompatible(isAtlas: boolean) {
+  return (
+    state: RootState
+  ): {
+    isViewVersionSearchCompatible: boolean;
+    isViewPipelineSearchQueryable: boolean;
+  } => {
+    const { serverVersion, collectionStats } = state;
 
-  const { atlasMetadata } = useConnectionInfo();
-  const isAtlas = !!atlasMetadata;
+    const isViewVersionSearchCompatible = isAtlas
+      ? VIEW_PIPELINE_UTILS.isVersionSearchCompatibleForViewsDataExplorer(
+          serverVersion
+        )
+      : VIEW_PIPELINE_UTILS.isVersionSearchCompatibleForViewsCompass(
+          serverVersion
+        );
+    const isViewPipelineSearchQueryable = collectionStats?.pipeline
+      ? VIEW_PIPELINE_UTILS.isPipelineSearchQueryable(
+          collectionStats?.pipeline as Document[]
+        )
+      : true;
 
-  const isViewVersionSearchCompatible = getIsViewVersionSearchCompatible(
-    serverVersion,
-    isAtlas
-  );
-  const isViewPipelineSearchQueryable = getIsViewPipelineSearchQueryable(
-    collectionStats?.pipeline as Document[]
-  );
-
-  return {
-    isViewVersionSearchCompatible,
-    isViewPipelineSearchQueryable,
+    return {
+      isViewVersionSearchCompatible,
+      isViewPipelineSearchQueryable,
+    };
   };
-}
-
-export function getIsViewVersionSearchCompatible(
-  serverVersion: string,
-  isAtlas: boolean
-): boolean {
-  return isAtlas
-    ? VIEW_PIPELINE_UTILS.isVersionSearchCompatibleForViewsDataExplorer(
-        serverVersion
-      )
-    : VIEW_PIPELINE_UTILS.isVersionSearchCompatibleForViewsCompass(
-        serverVersion
-      );
-}
-
-export function getIsViewPipelineSearchQueryable(
-  pipeline?: Document[]
-): boolean {
-  return pipeline
-    ? VIEW_PIPELINE_UTILS.isPipelineSearchQueryable(pipeline)
-    : true;
 }

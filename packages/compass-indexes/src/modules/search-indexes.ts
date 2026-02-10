@@ -17,8 +17,7 @@ import type { FetchReason } from '../utils/fetch-reason';
 import type { IndexesThunkAction } from '.';
 import { switchToSearchIndexes } from './index-view';
 import type { IndexViewChangedAction } from './index-view';
-import { getIsViewVersionSearchCompatible } from '../utils/is-view-search-compatible';
-import { getIsSearchIndexesReadable } from '../utils/indexes-read-write-access';
+import { selectReadWriteAccess } from '../utils/indexes-read-write-access';
 
 const ATLAS_SEARCH_SERVER_ERRORS: Record<string, string> = {
   InvalidIndexSpecificationOption: 'Invalid index definition.',
@@ -618,32 +617,18 @@ const fetchIndexes = (
     { dataService, preferences, connectionInfoRef }
   ) => {
     const {
-      isReadonlyView,
       isWritable,
       namespace,
-      serverVersion,
-      isSearchIndexesSupported,
       searchIndexes: { status },
     } = getState();
 
-    const { enableAtlasSearchIndexes } = preferences.getPreferences();
     const { atlasMetadata } = connectionInfoRef.current;
+    const { isSearchIndexesReadable } = selectReadWriteAccess({
+      isAtlas: !!atlasMetadata,
+      ...preferences.getPreferences(),
+    })(getState());
 
-    const isViewVersionSearchCompatible = getIsViewVersionSearchCompatible(
-      serverVersion,
-      !!atlasMetadata
-    );
-    const isSearchIndexesReadable = getIsSearchIndexesReadable(
-      enableAtlasSearchIndexes,
-      isReadonlyView,
-      isViewVersionSearchCompatible,
-      isSearchIndexesSupported
-    );
-
-    if (
-      !isSearchIndexesReadable ||
-      !isWritable // offline-mode, cannot fetch
-    ) {
+    if (!isSearchIndexesReadable || !isWritable) {
       dispatch(fetchSearchIndexesSucceeded([]));
       return;
     }

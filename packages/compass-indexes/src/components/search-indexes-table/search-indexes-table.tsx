@@ -1,5 +1,5 @@
 import React, { useMemo, useEffect } from 'react';
-import { connect } from 'react-redux';
+import { connect, useSelector } from 'react-redux';
 import type { Document } from 'mongodb';
 import type { SearchIndex, SearchIndexStatus } from 'mongodb-data-service';
 import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
@@ -39,8 +39,9 @@ import BadgeWithIconLink from '../indexes-table/badge-with-icon-link';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { useWorkspaceTabId } from '@mongodb-js/compass-workspaces/provider';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
-import { useReadWriteAccess } from '../../utils/indexes-read-write-access';
-import { useIsViewSearchCompatible } from '../../utils/is-view-search-compatible';
+import { usePreferences } from 'compass-preferences-model/provider';
+import { selectReadWriteAccess } from '../../utils/indexes-read-write-access';
+import { selectIsViewSearchCompatible } from '../../utils/is-view-search-compatible';
 
 type SearchIndexesTableProps = {
   namespace: string;
@@ -318,9 +319,16 @@ export const SearchIndexesTable: React.FunctionComponent<
   onSearchIndexesClosed,
 }) => {
   const { openCollectionWorkspace } = useOpenWorkspace();
-  const { id: connectionId } = useConnectionInfo();
+  const { id: connectionId, atlasMetadata } = useConnectionInfo();
+  const isAtlas = !!atlasMetadata;
 
   const tabId = useWorkspaceTabId();
+
+  const { readOnly, readWrite, enableAtlasSearchIndexes } = usePreferences([
+    'readOnly',
+    'readWrite',
+    'enableAtlasSearchIndexes',
+  ]);
 
   useEffect(() => {
     onSearchIndexesOpened(tabId);
@@ -328,8 +336,17 @@ export const SearchIndexesTable: React.FunctionComponent<
       onSearchIndexesClosed(tabId);
     };
   }, [tabId, onSearchIndexesOpened, onSearchIndexesClosed]);
-  const { isSearchIndexesWritable } = useReadWriteAccess();
-  const { isViewPipelineSearchQueryable } = useIsViewSearchCompatible();
+  const { isSearchIndexesWritable } = useSelector(
+    selectReadWriteAccess({
+      isAtlas,
+      readOnly,
+      readWrite,
+      enableAtlasSearchIndexes,
+    })
+  );
+  const { isViewPipelineSearchQueryable } = useSelector(
+    selectIsViewSearchCompatible(isAtlas)
+  );
 
   const data = useMemo<LGTableDataType<SearchIndexInfo>[]>(
     () =>
