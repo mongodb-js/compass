@@ -1,6 +1,9 @@
 import React, { useMemo, useEffect } from 'react';
-import { connect } from 'react-redux';
-import { usePreference } from 'compass-preferences-model/provider';
+import { connect, useSelector } from 'react-redux';
+import {
+  usePreference,
+  usePreferences,
+} from 'compass-preferences-model/provider';
 import { useWorkspaceTabId } from '@mongodb-js/compass-workspaces/provider';
 import { IndexKeysBadge } from '@mongodb-js/compass-components';
 import type {
@@ -33,13 +36,14 @@ import type {
   InProgressIndex,
   RollingIndex,
 } from '../../modules/regular-indexes';
+import { selectReadWriteAccess } from '../../utils/indexes-read-write-access';
+import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 
 type RegularIndexesTableProps = {
   indexes: RegularIndex[];
   inProgressIndexes: InProgressIndex[];
   rollingIndexes: RollingIndex[];
   serverVersion: string;
-  isWritable?: boolean;
   onHideIndexClick: (name: string) => void;
   onUnhideIndexClick: (name: string) => void;
   onDeleteIndexClick: (name: string) => void;
@@ -386,7 +390,6 @@ function getRegularIndexInfo(
 export const RegularIndexesTable: React.FunctionComponent<
   RegularIndexesTableProps
 > = ({
-  isWritable,
   indexes,
   inProgressIndexes,
   rollingIndexes,
@@ -400,7 +403,20 @@ export const RegularIndexesTable: React.FunctionComponent<
   error,
 }) => {
   const tabId = useWorkspaceTabId();
-  const preferencesReadWrite = usePreference('readWrite');
+  const { atlasMetadata } = useConnectionInfo();
+  const { readOnly, readWrite, enableAtlasSearchIndexes } = usePreferences([
+    'readOnly',
+    'readWrite',
+    'enableAtlasSearchIndexes',
+  ]);
+  const { isRegularIndexesWritable } = useSelector(
+    selectReadWriteAccess({
+      isAtlas: !!atlasMetadata,
+      readOnly,
+      readWrite,
+      enableAtlasSearchIndexes,
+    })
+  );
 
   useEffect(() => {
     onRegularIndexesOpened(tabId);
@@ -462,24 +478,17 @@ export const RegularIndexesTable: React.FunctionComponent<
     return null;
   }
 
-  const canModifyIndex = isWritable && !preferencesReadWrite;
-
   return (
     <IndexesTable
       id="regular-indexes"
       data-testid="indexes"
-      columns={canModifyIndex ? COLUMNS_WITH_ACTIONS : COLUMNS}
+      columns={isRegularIndexesWritable ? COLUMNS_WITH_ACTIONS : COLUMNS}
       data={data}
     />
   );
 };
 
-const mapState = ({
-  serverVersion,
-  regularIndexes,
-  isWritable,
-}: RootState) => ({
-  isWritable,
+const mapState = ({ serverVersion, regularIndexes }: RootState) => ({
   serverVersion,
   indexes: regularIndexes.indexes,
   inProgressIndexes: regularIndexes.inProgressIndexes,

@@ -1,7 +1,8 @@
 import React from 'react';
+import { Provider } from 'react-redux';
 import {
   cleanup,
-  renderWithConnections,
+  render,
   screen,
   within,
   userEvent,
@@ -9,12 +10,15 @@ import {
 import { expect } from 'chai';
 
 import { RegularIndexesTable } from './regular-indexes-table';
+import { setupStore } from '../../../test/setup-store';
 import type {
   RegularIndex,
   InProgressIndex,
   RollingIndex,
 } from '../../modules/regular-indexes';
 import { mockRegularIndex } from '../../../test/helpers';
+import { SearchIndexesTable } from '../search-indexes-table/search-indexes-table';
+import type { RootState } from '../../modules';
 
 const indexes: RegularIndex[] = [
   {
@@ -155,23 +159,34 @@ const rollingIndexes: RollingIndex[] = [
 ];
 
 const renderIndexList = (
-  props: Partial<React.ComponentProps<typeof RegularIndexesTable>> = {}
+  props: Partial<React.ComponentProps<typeof RegularIndexesTable>> = {},
+  state?: Partial<RootState>
 ) => {
-  return renderWithConnections(
-    <RegularIndexesTable
-      indexes={[]}
-      inProgressIndexes={[]}
-      rollingIndexes={[]}
-      serverVersion="4.4.0"
-      isWritable={true}
-      onHideIndexClick={() => {}}
-      onUnhideIndexClick={() => {}}
-      onDeleteIndexClick={() => {}}
-      onDeleteFailedIndexClick={() => {}}
-      onRegularIndexesOpened={() => {}}
-      onRegularIndexesClosed={() => {}}
-      {...props}
-    />
+  const store = setupStore({
+    ...props,
+  });
+
+  if (state) {
+    const newState = { ...store.getState(), ...state };
+    Object.assign(store.getState(), newState);
+  }
+
+  render(
+    <Provider store={store}>
+      <RegularIndexesTable
+        indexes={[]}
+        inProgressIndexes={[]}
+        rollingIndexes={[]}
+        serverVersion="4.4.0"
+        onHideIndexClick={() => {}}
+        onUnhideIndexClick={() => {}}
+        onDeleteIndexClick={() => {}}
+        onDeleteFailedIndexClick={() => {}}
+        onRegularIndexesOpened={() => {}}
+        onRegularIndexesClosed={() => {}}
+        {...props}
+      />
+    </Provider>
   );
 };
 
@@ -189,7 +204,7 @@ describe('RegularIndexesTable Component', function () {
   afterEach(cleanup);
 
   it('renders regular indexes', function () {
-    renderIndexList({ isWritable: true, indexes: indexes });
+    renderIndexList({ indexes: indexes }, { isWritable: true });
 
     const indexesList = screen.getByTestId('indexes-list');
     expect(indexesList).to.exist;
@@ -245,10 +260,12 @@ describe('RegularIndexesTable Component', function () {
   });
 
   it('renders in-progress indexes', function () {
-    renderIndexList({
-      isWritable: true,
-      inProgressIndexes: inProgressIndexes,
-    });
+    renderIndexList(
+      {
+        inProgressIndexes: inProgressIndexes,
+      },
+      { isWritable: true }
+    );
 
     for (const index of inProgressIndexes) {
       const indexRow = screen.getByTestId(`indexes-row-${index.name}`);
@@ -271,10 +288,12 @@ describe('RegularIndexesTable Component', function () {
   });
 
   it('renders rolling indexes', function () {
-    renderIndexList({
-      isWritable: true,
-      rollingIndexes: rollingIndexes,
-    });
+    renderIndexList(
+      {
+        rollingIndexes: rollingIndexes,
+      },
+      { isWritable: true }
+    );
 
     for (const index of rollingIndexes) {
       const indexRow = screen.getByTestId(`indexes-row-${index.indexName}`);
@@ -325,10 +344,12 @@ describe('RegularIndexesTable Component', function () {
 
     // first do a sanity check to make sure that we would render it as a regular
     // index if it didn't also exist as a rolling index
-    renderIndexList({
-      isWritable: true,
-      indexes: indexesWithRollingIndex,
-    });
+    renderIndexList(
+      {
+        indexes: indexesWithRollingIndex,
+      },
+      { isWritable: true }
+    );
 
     let indexRow = screen.getByTestId(
       `indexes-row-${rollingIndexes[0].indexName}`
@@ -340,11 +361,13 @@ describe('RegularIndexesTable Component', function () {
 
     // then render it along with a rolling index to make sure it is not showing
     // up as a regular index too
-    renderIndexList({
-      isWritable: true,
-      indexes: indexesWithRollingIndex,
-      rollingIndexes,
-    });
+    renderIndexList(
+      {
+        indexes: indexesWithRollingIndex,
+        rollingIndexes,
+      },
+      { isWritable: true }
+    );
 
     indexRow = screen.getByTestId(`indexes-row-${rollingIndexes[0].indexName}`);
     expect(() => within(indexRow).getByTestId('index-ready')).to.throw();
@@ -352,11 +375,13 @@ describe('RegularIndexesTable Component', function () {
   });
 
   it('does not render the list if there is an error', function () {
-    renderIndexList({
-      isWritable: true,
-      indexes: indexes,
-      error: 'moo',
-    });
+    renderIndexList(
+      {
+        indexes: indexes,
+        error: 'moo',
+      },
+      { isWritable: true }
+    );
 
     expect(() => {
       screen.getByTestId('indexes-list');
@@ -364,7 +389,7 @@ describe('RegularIndexesTable Component', function () {
   });
 
   it('renders the delete and hide/unhide button when a user can modify indexes', function () {
-    renderIndexList({ isWritable: true, indexes: indexes });
+    renderIndexList({ indexes: indexes }, { isWritable: true });
     const indexesList = screen.getByTestId('indexes-list');
     expect(indexesList).to.exist;
     indexes.forEach((index) => {
@@ -382,7 +407,7 @@ describe('RegularIndexesTable Component', function () {
   });
 
   it('does not render delete and hide/unhide button when a user can not modify indexes (!isWritable)', function () {
-    renderIndexList({ isWritable: false, indexes: indexes });
+    renderIndexList({ indexes: indexes }, { isWritable: false });
     const indexesList = screen.getByTestId('indexes-list');
     expect(indexesList).to.exist;
     indexes.forEach((index) => {
