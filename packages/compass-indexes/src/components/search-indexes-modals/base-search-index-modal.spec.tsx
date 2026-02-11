@@ -220,7 +220,7 @@ describe('Base Search Index Modal', function () {
         });
       });
 
-      it('changes index name from "default" to "vector_index" when switching to vector search', async function () {
+      it('changes index name from "default" to "vector_index" when switching to vector search', function () {
         const inputText: HTMLInputElement = screen.getByTestId(
           'name-of-search-index'
         );
@@ -238,9 +238,7 @@ describe('Base Search Index Modal', function () {
         );
 
         // Index name should change to 'vector_index'
-        await waitFor(() => {
-          expect(inputText.value).to.equal('vector_index');
-        });
+        expect(inputText.value).to.equal('vector_index');
       });
 
       it('changes index name from "vector_index" to "default" when switching back to search', async function () {
@@ -261,6 +259,14 @@ describe('Base Search Index Modal', function () {
           expect(inputText.value).to.equal('vector_index');
         });
 
+        // Wait for the editor to reflect the type switch
+        await waitFor(() => {
+          const indexDef = getCodemirrorEditorValue(
+            'definition-of-search-index'
+          );
+          expect(indexDef).to.equal(ATLAS_VECTOR_SEARCH_TEMPLATE.snippet);
+        });
+
         // Switch back to search
         userEvent.click(
           screen.getByTestId('search-index-type-search-button'),
@@ -276,7 +282,7 @@ describe('Base Search Index Modal', function () {
         });
       });
 
-      it('does not change index name when switching to vector search if name is not "default"', async function () {
+      it('does not change index name when switching to vector search if name is not "default"', function () {
         const inputText: HTMLInputElement = screen.getByTestId(
           'name-of-search-index'
         );
@@ -285,9 +291,7 @@ describe('Base Search Index Modal', function () {
         userEvent.clear(inputText);
         userEvent.type(inputText, 'my_custom_index');
 
-        await waitFor(() => {
-          expect(inputText.value).to.equal('my_custom_index');
-        });
+        expect(inputText.value).to.equal('my_custom_index');
 
         // Switch to vector search
         userEvent.click(
@@ -299,9 +303,7 @@ describe('Base Search Index Modal', function () {
         );
 
         // Index name should remain unchanged
-        await waitFor(() => {
-          expect(inputText.value).to.equal('my_custom_index');
-        });
+        expect(inputText.value).to.equal('my_custom_index');
       });
 
       it('does not change index name when switching to search if name is not "vector_index"', async function () {
@@ -322,13 +324,19 @@ describe('Base Search Index Modal', function () {
           expect(inputText.value).to.equal('vector_index');
         });
 
+        // Wait for the editor to reflect the type switch
+        await waitFor(() => {
+          const indexDef = getCodemirrorEditorValue(
+            'definition-of-search-index'
+          );
+          expect(indexDef).to.equal(ATLAS_VECTOR_SEARCH_TEMPLATE.snippet);
+        });
+
         // Change the index name to something custom
         userEvent.clear(inputText);
         userEvent.type(inputText, 'my_vector_index');
 
-        await waitFor(() => {
-          expect(inputText.value).to.equal('my_vector_index');
-        });
+        expect(inputText.value).to.equal('my_vector_index');
 
         // Switch back to search
         userEvent.click(
@@ -340,9 +348,7 @@ describe('Base Search Index Modal', function () {
         );
 
         // Index name should remain unchanged
-        await waitFor(() => {
-          expect(inputText.value).to.equal('my_vector_index');
-        });
+        expect(inputText.value).to.equal('my_vector_index');
       });
     });
 
