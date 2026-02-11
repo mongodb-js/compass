@@ -13,6 +13,7 @@ import { MongoClient } from 'mongodb';
 
 import delay from '../helpers/delay';
 import type { ConnectFormState } from '../helpers/connect-form-state';
+import { startMockAssistantServer } from '../helpers/assistant-service';
 
 const CONNECTION_HOSTS = '127.0.0.1:27091';
 const CONNECTION_STRING = `mongodb://${CONNECTION_HOSTS}/`;
@@ -1348,6 +1349,131 @@ describe('CSFLE / QE', function () {
       decryptedResult = await browser.getFirstListDocument();
       delete decryptedResult.__safeContent__;
       expect(decryptedResult).to.deep.equal({ v: '"456"', _id: '"ghjk"' });
+    });
+  });
+
+  describe('compass assistant sets store:false in the api request ', function () {
+    const databaseName = 'fle-test-assistant';
+    const collectionName = 'ai-collection';
+
+    let compass: Compass;
+    let browser: CompassBrowser;
+    let plainMongo: MongoClient;
+    let mockAssistantServer: Awaited<
+      ReturnType<typeof startMockAssistantServer>
+    >;
+
+    before(async function () {
+      // Queryable Encryption v2 only available on 7.0+
+      if (!serverSatisfies('>= 7.0', true)) {
+        return this.skip();
+      }
+      compass = await init(this.test?.fullTitle());
+      browser = compass.browser;
+      mockAssistantServer = await startMockAssistantServer();
+      await browser.setEnv(
+        'COMPASS_ASSISTANT_BASE_URL_OVERRIDE',
+        mockAssistantServer.endpoint
+      );
+    });
+
+    beforeEach(async function () {
+      await browser.disconnectAll();
+      await browser.connectWithConnectionForm({
+        hosts: [CONNECTION_HOSTS],
+        fleKeyVaultNamespace: `${databaseName}.keyvault`,
+        kmsProviders: {
+          local: [
+            {
+              name: 'local',
+              key: 'A'.repeat(128),
+            },
+          ],
+        },
+        fleEncryptedFieldsMap: `{
+          '${databaseName}.${collectionName}': {
+            fields: [
+              {
+                path: 'phoneNumber',
+                keyId: UUID("28bbc608-524e-4717-9246-33633361788e"),
+                bsonType: 'string',
+                queries: { queryType: 'equality' }
+              }
+            ]
+          },
+        }`,
+        connectionName,
+      });
+      await browser.shellEval(connectionName, [
+        `use ${databaseName}`,
+        'db.keyvault.insertOne({' +
+          '"_id": UUID("28bbc608-524e-4717-9246-33633361788e"),' +
+          '"keyMaterial": BinData(0, "/yeYyj8IxowIIZGOs5iUcJaUm7KHhoBDAAzNxBz8c5mr2hwBIsBWtDiMU4nhx3fCBrrN3cqXG6jwPgR22gZDIiMZB5+xhplcE9EgNoEEBtRufBE2VjtacpXoqrMgW0+m4Dw76qWUCsF/k1KxYBJabM35KkEoD6+BI1QxU0rwRsR1rE/OLuBPKOEq6pmT5x74i+ursFlTld+5WiOySRDcZg=="),' +
+          '"creationDate": ISODate("2022-05-27T18:28:33.925Z"),' +
+          '"updateDate": ISODate("2022-05-27T18:28:33.925Z"),' +
+          '"status": 0,' +
+          '"masterKey": { "provider" : "local:local" }' +
+          '})',
+        // make sure there is a collection so we can navigate to the database
+        `db.getMongo().getDB('${databaseName}').createCollection('default')`,
+      ]);
+      await refresh(browser, connectionName);
+
+      plainMongo = await MongoClient.connect(CONNECTION_STRING);
+
+      await browser.setFeature('enableGenAIFeatures', true);
+      await browser.setFeature('enableGenAISampleDocumentPassing', true);
+      await browser.setFeature('optInGenAIFeatures', true);
+    });
+
+    after(async function () {
+      if (compass) {
+        await cleanup(compass);
+      }
+      await mockAssistantServer?.stop();
+    });
+
+    afterEach(async function () {
+      if (compass) {
+        await screenshotIfFailed(compass, this.currentTest);
+      }
+      await plainMongo.db(databaseName).dropDatabase();
+      await plainMongo.close();
+      mockAssistantServer?.clearRequests();
+    });
+
+    it('when sending message in assistant sidebar', async function () {
+      await browser.clickVisible(Selectors.AssistantDrawerButton);
+      await browser.$(Selectors.AssistantDrawerCloseButton).waitForDisplayed();
+
+      const chatInput = browser.$(Selectors.AssistantChatInputTextArea);
+      await chatInput.waitForDisplayed();
+      await chatInput.setValue('What is mongodb?');
+      await browser.clickVisible(Selectors.AssistantChatSubmitButton);
+
+      const requests = mockAssistantServer.getRequests();
+      expect(requests.length).to.equal(1);
+      expect(requests[0].content.store).to.equal(false);
+    });
+
+    it('when sending message from other entrypoint', async function () {
+      // We are already connected to fle/qe connection, let's try to connect
+      // to another invalid connection and trigger assistant from connection
+      // error toast (Debug button)
+
+      await browser.connectWithConnectionString(
+        'mongodb-invalid://localhost:27017',
+        { connectionStatus: 'failure' }
+      );
+      await browser.clickVisible(
+        browser.$(Selectors.ConnectionToastErrorDebugButton)
+      );
+
+      await browser.$(Selectors.AssistantChatMessages).isDisplayed();
+
+      const requests = mockAssistantServer.getRequests();
+      expect(requests.length).to.equal(1);
+      expect(requests[0].content.store).to.equal(false);
     });
   });
 });
