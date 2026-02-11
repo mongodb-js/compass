@@ -369,7 +369,7 @@ const fetchIndexesFailed = (error: string): FetchIndexesFailedAction => ({
   error,
 });
 
-type FetchIndexesActions =
+export type FetchIndexesActions =
   | FetchIndexesStartedAction
   | FetchIndexesSucceededAction
   | FetchIndexesFailedAction;

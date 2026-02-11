@@ -603,7 +603,7 @@ export const updateIndex = ({
   };
 };
 
-type FetchSearchIndexesActions =
+export type FetchSearchIndexesActions =
   | FetchSearchIndexesStartedAction
   | FetchSearchIndexesSucceededAction
   | FetchSearchIndexesFailedAction;

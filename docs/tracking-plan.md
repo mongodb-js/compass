@@ -6,7 +6,7 @@
 > the tracking plan for the specific Compass version you can use the following
 > URL: `https://github.com/mongodb-js/compass/blob/<compass version>/docs/tracking-plan.md`
 
-Generated on Wed, Feb 4, 2026
+Generated on Wed, Feb 11, 2026
 
 ## Table of Contents
 
@@ -93,6 +93,11 @@ Generated on Wed, Feb 4, 2026
 - [Data Modeling Diagram Created](#event--DataModelingDiagramCreated)
 - [Data Modeling Diagram Creation Cancelled](#event--DataModelingDiagramCreationCancelled)
 - [Data Modeling Diagram Creation Failed](#event--DataModelingDiagramCreationFailed)
+- [Data Modeling Add DB Collections Modal Opened](#event--DataModelingAddDBCollectionsModalOpened)
+- [Data Modeling Add DB Collections Started](#event--DataModelingAddDBCollectionsStarted)
+- [Data Modeling Add DB Collections Succeeded](#event--DataModelingAddDBCollectionsSucceeded)
+- [Data Modeling Add DB Collections Failed](#event--DataModelingAddDBCollectionsFailed)
+- [Data Modeling Add DB Collections Cancelled](#event--DataModelingAddDBCollectionsCancelled)
 - [Data Modeling Diagram Exported](#event--DataModelingDiagramExported)
 - [Data Modeling Field Added](#event--DataModelingDiagramFieldAdded)
 - [Data Modeling Field Removed](#event--DataModelingDiagramFieldRemoved)
@@ -1153,6 +1158,7 @@ This event is fired when a new data modeling diagram creation is cancelled
 **Properties**:
 
 - **num_collections** (required): `number`
+- **automatically_infer_relations** (required): `boolean`
 - **analysis_time_ms** (required): `number`
 - **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
@@ -1167,6 +1173,72 @@ This event is fired when a new data modeling diagram creation has failed
 **Properties**:
 
 - **num_collections** (required): `number`
+- **automatically_infer_relations** (required): `boolean`
+- **analysis_time_ms** (required): `number`
+- **is_compass_web** (optional): `true | undefined`
+- **connection_id** (optional): `string | undefined`
+  - The id of the connection associated to this event.
+
+<a name="event--DataModelingAddDBCollectionsModalOpened"></a>
+
+### Data Modeling Add DB Collections Modal Opened
+
+This event is fired when the modal to add DB collections to an existing data modeling diagram is opened
+
+<a name="event--DataModelingAddDBCollectionsStarted"></a>
+
+### Data Modeling Add DB Collections Started
+
+This event is fired when new collections from the database are to be added to an existing data modeling diagram
+
+**Properties**:
+
+- **num_collections** (required): `number`
+- **automatically_infer_relations** (required): `boolean`
+- **is_compass_web** (optional): `true | undefined`
+- **connection_id** (optional): `string | undefined`
+  - The id of the connection associated to this event.
+
+<a name="event--DataModelingAddDBCollectionsSucceeded"></a>
+
+### Data Modeling Add DB Collections Succeeded
+
+This event is fired when adding new collections from the database has succeeded
+
+**Properties**:
+
+- **num_collections** (required): `number`
+- **num_relations_inferred** (optional): `number | undefined`
+- **analysis_time_ms** (required): `number`
+- **is_compass_web** (optional): `true | undefined`
+- **connection_id** (optional): `string | undefined`
+  - The id of the connection associated to this event.
+
+<a name="event--DataModelingAddDBCollectionsFailed"></a>
+
+### Data Modeling Add DB Collections Failed
+
+This event is fired when adding new collections from the database has failed
+
+**Properties**:
+
+- **num_collections** (required): `number`
+- **automatically_infer_relations** (required): `boolean`
+- **analysis_time_ms** (required): `number`
+- **is_compass_web** (optional): `true | undefined`
+- **connection_id** (optional): `string | undefined`
+  - The id of the connection associated to this event.
+
+<a name="event--DataModelingAddDBCollectionsCancelled"></a>
+
+### Data Modeling Add DB Collections Cancelled
+
+This event is fired when adding new collections from the database has been cancelled
+
+**Properties**:
+
+- **num_collections** (required): `number`
+- **automatically_infer_relations** (required): `boolean`
 - **analysis_time_ms** (required): `number`
 - **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`

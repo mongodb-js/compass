@@ -117,7 +117,7 @@ async function setupDiagram(
   // Expect the overview drawer to be opened and close it
   const drawer = browser.$(Selectors.SideDrawer);
   await drawer.waitForDisplayed();
-  expect(await drawer.getText()).to.include('Data Model Overview');
+  await browser.$('span=Data Model Overview').waitForDisplayed();
   await closeDrawerIfOpen(browser);
 }
 
@@ -128,7 +128,7 @@ async function closeDrawerIfOpen(browser: CompassBrowser) {
     (await drawer.$(Selectors.SideDrawerCloseButton).isClickable())
   ) {
     await browser.clickVisible(Selectors.SideDrawerCloseButton);
-    await drawer.waitForDisplayed({ reverse: true });
+    await drawer.waitForDisplayed({ reverse: true, withinViewport: true });
   }
 }
 

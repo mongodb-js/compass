@@ -40,6 +40,11 @@ export async function removeAllConnections(
     const connectionName = await connectionItem.getAttribute(
       'data-connection-name'
     );
+    if (!connectionName) {
+      throw new Error(
+        'Expected connection item to have a data-connection-name attribute'
+      );
+    }
     await browser.removeConnectionByName(connectionName);
   }
 }

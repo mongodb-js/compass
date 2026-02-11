@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **Mongodb Compass**.
-This document was automatically generated on Wed Feb 04 2026.
+This document was automatically generated on Wed Feb 11 2026.
 
 ## List of dependencies
 
@@ -102,7 +102,7 @@ This document was automatically generated on Wed Feb 04 2026.
 | **[@floating-ui/react-dom](#efe6c567c3c1d938b8eca9f8ea0a574964195b9282179c8fe0af77c9b73d2257)**                             | 2.1.6              | MIT                                 |
 | **[@floating-ui/react](#1d4fb10fe29ebbe51aa464245053b41f86740a68be4c6ed53dc2072106a5381c)**                                 | 0.26.28            | MIT                                 |
 | **[@floating-ui/utils](#cb18d9d8dfd980ce2f266d23aa09fa1b5dfb5f0cca1cb1eccc9b9cce3e27e9d4)**                                 | 0.2.10             | MIT                                 |
-| **[@hono/node-server](#36b9651110fe4c01dfaecb3f53c4fe17f56070ec8d282ec834d6836c70ae0891)**                                  | 1.19.8             | MIT                                 |
+| **[@hono/node-server](#87a1ece5b9f2deaabb5d2ab69776ecf0d6cf450b3c6512db3c43c4f7595e9f44)**                                  | 1.19.9             | MIT                                 |
 | **[@jridgewell/gen-mapping](#1e660067f4d1364dc830c372517d8ec92eddc9af7eaa6b1e698d478b286abafa)**                            | 0.1.1              | MIT                                 |
 | **[@jridgewell/gen-mapping](#145bee95e17934f7606726323f25f7f35b66b3cd10c310665f6654cc43685ec4)**                            | 0.3.13             | MIT                                 |
 | **[@jridgewell/resolve-uri](#f356bc3bb9c04f5fe4e387a4eea4e74125aae03bb50f846d956d7d986d200f50)**                            | 3.1.0              | MIT                                 |
@@ -115,20 +115,20 @@ This document was automatically generated on Wed Feb 04 2026.
 | **[@lezer/json](#7869bdb7c09e2ae1e28909eb504f475477cc5ed0750dc8ccee42886961975253)**                                        | 1.0.0              | MIT                                 |
 | **[@lezer/lr](#1443872b0ea87b0af4967c9026094e634c83118fb811349742ca05bde397412b)**                                          | 1.4.1              | MIT                                 |
 | **[@lg-chat/chat-button](#10e1b38fc60caf31902c3aa991a2f621fad96685bd92e0483061e7f2e7838356)**                               | 0.2.2              | Apache-2.0                          |
-| **[@lg-chat/chat-window](#bc1d384dddf597eb8a847ac688b8165549437300bc0e69952d672fbed94b5fb8)**                               | 6.0.1              | Apache-2.0                          |
+| **[@lg-chat/chat-window](#cd97f9f2adc533da8504e6d4db3fc355698721926d3a7e1cfb8c98864d66b932)**                               | 6.0.2              | Apache-2.0                          |
 | **[@lg-chat/input-bar](#740a54e17dab9afaf140faeea2cbc16ae44cfcc7d1b3e9cbed0e402cf32d9425)**                                 | 12.2.2             | Apache-2.0                          |
 | **[@lg-chat/leafygreen-chat-provider](#a8334490cacefebae9b468ca1a993aa2f405dd31ef5fc79cdb92954e21201d3f)**                  | 6.0.0              | Apache-2.0                          |
 | **[@lg-chat/lg-markdown](#75a81936b9a13a1ac52e03a9e01daef9511b2e1f1a777db4f0528678d1e1b155)**                               | 5.0.3              | Apache-2.0                          |
 | **[@lg-chat/message-feedback](#183bdd3d1bd8bfc1e9515a6e0af1967ebc24cb5e7dbe0a851b4316c5ed03a433)**                          | 9.0.2              | Apache-2.0                          |
-| **[@lg-chat/message-prompts](#3e76732d95ccd74d3cca4cc248fcc639ed7062f1c2d86d7903c1ce4250277b8d)**                           | 4.2.1              | Apache-2.0                          |
+| **[@lg-chat/message-prompts](#64405630a8aa1f7dcfd66a7af652a246bb686b8bb249c9e72ee1c46728a451a2)**                           | 4.2.2              | Apache-2.0                          |
 | **[@lg-chat/message-rating](#ceb2f2206cad78346826792386cc71104e428b015a3021e03737ccb3eb3a9347)**                            | 7.1.2              | Apache-2.0                          |
-| **[@lg-chat/message](#c4a5b0b28ea9857af7b151114bcbadd588f83308441fb0512ff4fb4560a9592d)**                                   | 11.0.1             | Apache-2.0                          |
+| **[@lg-chat/message](#2ff1230ca46ba2063bad764f1f8fd5bcb24d80b4dd1e138f53a33a2159b50eee)**                                   | 12.0.0             | Apache-2.0                          |
 | **[@lg-chat/rich-links](#d7ebc3bb114db22789bb1426469e753d6e7df8fd4fcea54a2d4f4b16bef645c3)**                                | 4.0.8              | Apache-2.0                          |
 | **[@lg-chat/title-bar](#404942e5a46b8aa0c9ebdd089d281b043e08131d098cc35c047b5e4665507af4)**                                 | 5.0.2              | Apache-2.0                          |
 | **[@lukeed/uuid](#82700fba068def47ea9842f28d700a387f59da805f74a6ed10a5eb7eece4cdab)**                                       | 2.0.1              | MIT                                 |
 | **[@marijn/find-cluster-break](#7a9878a3598d1e6be1f069dc757f1d31e30ce66d313f5025cfd2521d68a24243)**                         | 1.0.2              | MIT                                 |
 | **[@mcp-ui/server](#d70b4227f081adf5b4b417eead88ba4303ccb03fcbef8a6c5b943f67fa5ca487)**                                     | 5.16.3             | Apache-2.0                          |
-| **[@modelcontextprotocol/sdk](#13a14a6bc9ca62d61e546c8381157e0707f3342016088549dd3dff7aa72d2334)**                          | 1.25.2             | MIT                                 |
+| **[@modelcontextprotocol/sdk](#692ca6de754ae4871bf422c437cd8e3b0872e30e3cde51a0f78358ed1818f060)**                          | 1.26.0             | MIT                                 |
 | **[@opentelemetry/api](#78185a135ba748dc3c4764cf3f8bc9f1362c2de788184eb429e25fdbb6e4755a)**                                 | 1.9.0              | Apache-2.0                          |
 | **[@react-aria/interactions](#638eaf69f422aa3fbe2277f9e95b6b87e64569742134491d2653e9fc05c8f58a)**                           | 3.9.1              | Apache-2.0                          |
 | **[@react-aria/ssr](#d50578768741f1468c3d5dc0da1f585e37a01e7e13b44149ff094a0a5008d023)**                                    | 3.2.0              | Apache-2.0                          |
@@ -7718,9 +7718,9 @@ License files:
       IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
       CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-<a id="36b9651110fe4c01dfaecb3f53c4fe17f56070ec8d282ec834d6836c70ae0891"></a>
+<a id="87a1ece5b9f2deaabb5d2ab69776ecf0d6cf450b3c6512db3c43c4f7595e9f44"></a>
 
-### [@hono/node-server](https://www.npmjs.com/package/@hono/node-server) (version 1.19.8)
+### [@hono/node-server](https://www.npmjs.com/package/@hono/node-server) (version 1.19.9)
 
 License tags: MIT
 
@@ -8267,9 +8267,9 @@ License files:
          See the License for the specific language governing permissions and
          limitations under the License.
 
-<a id="bc1d384dddf597eb8a847ac688b8165549437300bc0e69952d672fbed94b5fb8"></a>
+<a id="cd97f9f2adc533da8504e6d4db3fc355698721926d3a7e1cfb8c98864d66b932"></a>
 
-### [@lg-chat/chat-window](https://www.npmjs.com/package/@lg-chat/chat-window) (version 6.0.1)
+### [@lg-chat/chat-window](https://www.npmjs.com/package/@lg-chat/chat-window) (version 6.0.2)
 
 License tags: Apache-2.0
 
@@ -9272,9 +9272,9 @@ License files:
          See the License for the specific language governing permissions and
          limitations under the License.
 
-<a id="3e76732d95ccd74d3cca4cc248fcc639ed7062f1c2d86d7903c1ce4250277b8d"></a>
+<a id="64405630a8aa1f7dcfd66a7af652a246bb686b8bb249c9e72ee1c46728a451a2"></a>
 
-### [@lg-chat/message-prompts](https://www.npmjs.com/package/@lg-chat/message-prompts) (version 4.2.1)
+### [@lg-chat/message-prompts](https://www.npmjs.com/package/@lg-chat/message-prompts) (version 4.2.2)
 
 License tags: Apache-2.0
 
@@ -9674,9 +9674,9 @@ License files:
          See the License for the specific language governing permissions and
          limitations under the License.
 
-<a id="c4a5b0b28ea9857af7b151114bcbadd588f83308441fb0512ff4fb4560a9592d"></a>
+<a id="2ff1230ca46ba2063bad764f1f8fd5bcb24d80b4dd1e138f53a33a2159b50eee"></a>
 
-### [@lg-chat/message](https://www.npmjs.com/package/@lg-chat/message) (version 11.0.1)
+### [@lg-chat/message](https://www.npmjs.com/package/@lg-chat/message) (version 12.0.0)
 
 License tags: Apache-2.0
 
@@ -10335,9 +10335,9 @@ License files:
 
 License tags: Apache-2.0
 
-<a id="13a14a6bc9ca62d61e546c8381157e0707f3342016088549dd3dff7aa72d2334"></a>
+<a id="692ca6de754ae4871bf422c437cd8e3b0872e30e3cde51a0f78358ed1818f060"></a>
 
-### [@modelcontextprotocol/sdk](https://www.npmjs.com/package/@modelcontextprotocol/sdk) (version 1.25.2)
+### [@modelcontextprotocol/sdk](https://www.npmjs.com/package/@modelcontextprotocol/sdk) (version 1.26.0)
 
 License tags: MIT
 
