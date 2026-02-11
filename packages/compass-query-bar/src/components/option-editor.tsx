@@ -78,7 +78,6 @@ const editorWithErrorStyles = css({
 
 // Matches BaseEditor's default lineHeight prop value.
 const EDITOR_LINE_HEIGHT = 16;
-const DEFAULT_MAX_LINES = 10;
 const MAX_EDITOR_LINES = 50;
 
 // The initial rendered height of the editor container (single line of content
@@ -183,8 +182,8 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
   const darkMode = useDarkMode();
 
   // Tracks the user's manual resize height in pixels. When null, the editor
-  // uses default auto-grow behavior (up to DEFAULT_MAX_LINES). Once the user
-  // drags the resize grip, this holds the pixel height for the container.
+  // auto-grows with content (no cap). Once the user drags the resize grip,
+  // this holds the pixel height for the container.
   const [userHeight, setUserHeight] = useState<number | null>(null);
 
   const handleGripMouseDown = useCallback(() => {
@@ -233,10 +232,10 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
     }
   }, []);
 
-  // When the user hasn't resized, use default auto-grow (maxLines only).
-  // When resized, set maxLines high so the container's CSS height is the
-  // actual constraint, and the editor fills it via maxHeight: 100%.
-  const maxLines = userHeight !== null ? MAX_EDITOR_LINES : DEFAULT_MAX_LINES;
+  // When the user has manually resized, cap maxLines high so the container's
+  // CSS height is the actual constraint. Otherwise omit it to preserve the
+  // original auto-grow behavior (editor grows with content, no cap).
+  const maxLines = userHeight !== null ? MAX_EDITOR_LINES : undefined;
 
   const onApplyRef = useRef(onApply);
   onApplyRef.current = onApply;
