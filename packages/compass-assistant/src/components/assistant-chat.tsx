@@ -646,6 +646,7 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
                         sourceType="markdown"
                         isSender={isSender}
                         messageBody={displayText}
+                        data-role={message.role}
                         data-testid={`assistant-message-${id}`}
                       >
                         {isSender === false && (

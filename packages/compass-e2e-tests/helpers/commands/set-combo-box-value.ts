@@ -18,9 +18,12 @@ export async function setComboBoxValue(
       return false;
     }
   });
-  const controlledMenuId: string = await inputElement.getAttribute(
-    'aria-controls'
-  );
+  const controlledMenuId = await inputElement.getAttribute('aria-controls');
+  if (!controlledMenuId) {
+    throw new Error(
+      'Expected input element of the combobox to have an aria-controls attribute'
+    );
+  }
   const comboboxListSelectorElement = browser.$(
     `[id="${controlledMenuId}"][role="listbox"]`
   );

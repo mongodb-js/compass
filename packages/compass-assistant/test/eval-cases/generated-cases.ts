@@ -351,7 +351,6 @@ export const generatedEvalCases: SimpleEvalCase[] = [
     input: `What is the best index for this query?\n\nQuery or agg written, indexes on the collection \n\n[in response to “query executed without index” insight]`,
     expected: `In isolation, the index <new index> would support the inputted query <inputted query>. \n\nIndexes optimize reads but can slow down writes. Only index fields that appear frequently in queries or return sorted results. You may be able to modify <new index> rather than create a new index to support your query, if you anticipate running it frequently.`,
     expectedSources: [
-      'https://www.mongodb.com/docs/manual/core/data-model-operations/',
       'https://www.mongodb.com/docs/manual/data-modeling/schema-design-process/create-indexes/',
     ],
     tags: ['proactive-performance-insights'],
@@ -361,7 +360,6 @@ export const generatedEvalCases: SimpleEvalCase[] = [
     input: `When should I index a query? \n\n[in response to “query executed without index” insight]`,
     expected: `If your application is repeatedly running queries on the same fields, you can create an index on those fields to improve performance.\n\nFor collections with a high write-to-read ratio, indexes are expensive because each insert must also update any indexes. Only create indexes on fields that are frequently accessed or return sorted, to maintain write efficiency.`,
     expectedSources: [
-      'https://www.mongodb.com/docs/manual/core/data-model-operations/',
       'https://www.mongodb.com/docs/manual/data-modeling/schema-design-process/create-indexes/',
       'https://www.mongodb.com/docs/manual/indexes/',
     ],
