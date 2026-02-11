@@ -26,7 +26,11 @@ export async function getConnectFormConnectionString(
       return await inputElem.isFocused();
     });
   }
-  return await inputElem.getValue();
+  const val = await inputElem.getValue();
+  if (typeof val !== 'string') {
+    throw new TypeError(`Expected element value to be a string, got ${val}`);
+  }
+  return val;
 }
 
 type ConnectionResultOptions = {

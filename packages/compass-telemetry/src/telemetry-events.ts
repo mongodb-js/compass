@@ -3021,6 +3021,7 @@ type DataModelingDiagramCreationCancelled = ConnectionScopedEvent<{
   name: 'Data Modeling Diagram Creation Cancelled';
   payload: {
     num_collections: number;
+    automatically_infer_relations: boolean;
     analysis_time_ms: number;
   };
 }>;
@@ -3034,6 +3035,72 @@ type DataModelingDiagramCreationFailed = ConnectionScopedEvent<{
   name: 'Data Modeling Diagram Creation Failed';
   payload: {
     num_collections: number;
+    automatically_infer_relations: boolean;
+    analysis_time_ms: number;
+  };
+}>;
+
+/**
+ * This event is fired when the modal to add DB collections to an existing data modeling diagram is opened
+ *
+ * @category Data Modeling
+ */
+type DataModelingAddDBCollectionsModalOpened = CommonEvent<{
+  name: 'Data Modeling Add DB Collections Modal Opened';
+  payload: Record<string, never>;
+}>;
+
+/**
+ * This event is fired when new collections from the database are to be added to an existing data modeling diagram
+ *
+ * @category Data Modeling
+ */
+type DataModelingAddDBCollectionsStarted = ConnectionScopedEvent<{
+  name: 'Data Modeling Add DB Collections Started';
+  payload: {
+    num_collections: number;
+    automatically_infer_relations: boolean;
+  };
+}>;
+
+/**
+ * This event is fired when adding new collections from the database has succeeded
+ *
+ * @category Data Modeling
+ */
+type DataModelingAddDBCollectionsSucceeded = ConnectionScopedEvent<{
+  name: 'Data Modeling Add DB Collections Succeeded';
+  payload: {
+    num_collections: number;
+    num_relations_inferred?: number;
+    analysis_time_ms: number;
+  };
+}>;
+
+/**
+ * This event is fired when adding new collections from the database has failed
+ *
+ * @category Data Modeling
+ */
+type DataModelingAddDBCollectionsFailed = ConnectionScopedEvent<{
+  name: 'Data Modeling Add DB Collections Failed';
+  payload: {
+    num_collections: number;
+    automatically_infer_relations: boolean;
+    analysis_time_ms: number;
+  };
+}>;
+
+/**
+ * This event is fired when adding new collections from the database has been cancelled
+ *
+ * @category Data Modeling
+ */
+type DataModelingAddDBCollectionsCancelled = ConnectionScopedEvent<{
+  name: 'Data Modeling Add DB Collections Cancelled';
+  payload: {
+    num_collections: number;
+    automatically_infer_relations: boolean;
     analysis_time_ms: number;
   };
 }>;
@@ -3428,6 +3495,11 @@ export type TelemetryEvent =
   | DataModelingDiagramCreated
   | DataModelingDiagramCreationCancelled
   | DataModelingDiagramCreationFailed
+  | DataModelingAddDBCollectionsModalOpened
+  | DataModelingAddDBCollectionsStarted
+  | DataModelingAddDBCollectionsSucceeded
+  | DataModelingAddDBCollectionsFailed
+  | DataModelingAddDBCollectionsCancelled
   | DataModelingDiagramExported
   | DataModelingDiagramFieldAdded
   | DataModelingDiagramFieldRemoved

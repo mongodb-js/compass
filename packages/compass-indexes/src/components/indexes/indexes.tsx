@@ -343,7 +343,7 @@ export function Indexes({
       </WorkspaceContainer>
       <CreateSearchIndexModal />
       <UpdateSearchIndexModal />
-      <CreateIndexModal query={null} />
+      <CreateIndexModal />
     </div>
   );
 }
