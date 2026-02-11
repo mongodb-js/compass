@@ -1,9 +1,6 @@
 import React, { useMemo, useEffect } from 'react';
 import { connect, useSelector } from 'react-redux';
-import {
-  usePreference,
-  usePreferences,
-} from 'compass-preferences-model/provider';
+import { usePreferences } from 'compass-preferences-model/provider';
 import { useWorkspaceTabId } from '@mongodb-js/compass-workspaces/provider';
 import { IndexKeysBadge } from '@mongodb-js/compass-components';
 import type {

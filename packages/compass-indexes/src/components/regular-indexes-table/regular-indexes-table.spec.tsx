@@ -17,7 +17,6 @@ import type {
   RollingIndex,
 } from '../../modules/regular-indexes';
 import { mockRegularIndex } from '../../../test/helpers';
-import { SearchIndexesTable } from '../search-indexes-table/search-indexes-table';
 import type { RootState } from '../../modules';
 
 const indexes: RegularIndex[] = [
