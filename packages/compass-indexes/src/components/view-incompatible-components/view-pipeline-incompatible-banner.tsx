@@ -6,12 +6,13 @@ import type { SearchIndex } from 'mongodb-data-service';
 
 type ViewSearchIncompatibleBannerProps = {
   searchIndexes: SearchIndex[];
+  hasNoSearchIndexes: boolean;
 };
 
 const ViewPipelineIncompatibleBanner = ({
   searchIndexes,
+  hasNoSearchIndexes,
 }: ViewSearchIncompatibleBannerProps) => {
-  const hasNoSearchIndexes = searchIndexes.length === 0;
   return (
     <Banner
       variant={hasNoSearchIndexes ? 'warning' : 'danger'}
@@ -38,6 +39,7 @@ const ViewPipelineIncompatibleBanner = ({
 
 const mapState = ({ searchIndexes }: RootState) => ({
   searchIndexes: searchIndexes.indexes,
+  hasNoSearchIndexes: searchIndexes.indexes.length === 0,
 });
 
 export default connect(mapState)(ViewPipelineIncompatibleBanner);

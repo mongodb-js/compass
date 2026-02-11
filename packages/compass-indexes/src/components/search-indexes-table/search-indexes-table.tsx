@@ -99,6 +99,7 @@ function ZeroState({
               data-testid="create-atlas-search-index-button"
               variant="primary"
               size="small"
+              // TODO: COMPASS-10353 disable for other non-writable cases as well
               disabled={isViewAndPipelineSearchNonQueryable}
             >
               Create Atlas Search Index
