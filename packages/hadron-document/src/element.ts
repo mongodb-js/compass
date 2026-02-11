@@ -71,6 +71,20 @@ export function isUUIDType(type: string): type is UUIDType {
   return (UUID_TYPES as readonly string[]).includes(type);
 }
 
+/**
+ * Type guard to check if a value is a BSON Binary.
+ * Uses _bsontype property check instead of instanceof for cross-realm compatibility.
+ * TODO: Once we upgrade to bson@7.x, use value?.[bsonType] === 'Binary' instead.
+ */
+function isBinary(value: unknown): value is Binary {
+  return (
+    value !== null &&
+    typeof value === 'object' &&
+    '_bsontype' in value &&
+    value._bsontype === 'Binary'
+  );
+}
+
 export const DEFAULT_VISIBLE_ELEMENTS = 25;
 export function isValueExpandable(
   value: BSONValue
@@ -272,7 +286,7 @@ export class Element extends EventEmitter {
         } else if (
           isUUIDType(newType) &&
           isUUIDType(this.currentType) &&
-          this.currentValue instanceof Binary
+          isBinary(this.currentValue)
         ) {
           // Special handling for converting between UUID types
           // We need to use the source type to properly decode the binary
@@ -701,16 +715,16 @@ export class Element extends EventEmitter {
     const isCurrentTypeUUID = isUUIDType(this.currentType);
     // Also check for Binary values that are actually UUIDs (subtype 3 or 4)
     // This handles the case where currentType is 'Binary' but it's actually a UUID
-    const isBinaryUUID =
+    const isBinaryUUIDValue =
       this.currentType === 'Binary' &&
-      this.currentValue instanceof Binary &&
+      isBinary(this.currentValue) &&
       (this.currentValue.sub_type === Binary.SUBTYPE_UUID ||
         (this.currentValue.sub_type === Binary.SUBTYPE_UUID_OLD &&
           this.currentValue.buffer.length === 16));
     return (
       this._isKeyLegallyEditable() &&
       (isCurrentTypeUUID ||
-        isBinaryUUID ||
+        isBinaryUUIDValue ||
         !UNEDITABLE_TYPES.includes(this.currentType))
     );
   }
