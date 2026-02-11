@@ -5,9 +5,9 @@ import {
   init,
   cleanup,
   screenshotIfFailed,
-  DEFAULT_CONNECTION_STRING_1,
+  getDefaultConnectionStrings,
   skipForWeb,
-  DEFAULT_CONNECTION_NAME_1,
+  getDefaultConnectionNames,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
@@ -31,7 +31,7 @@ describe('Instance sidebar', function () {
     await browser.disconnectAll();
     await browser.connectToDefaults();
     connectionId = await browser.getConnectionIdByName(
-      DEFAULT_CONNECTION_NAME_1
+      getDefaultConnectionNames(0)
     );
   });
 
@@ -47,7 +47,7 @@ describe('Instance sidebar', function () {
     skipForWeb(this, "these actions don't exist in compass-web");
 
     await browser.selectConnectionMenuItem(
-      DEFAULT_CONNECTION_NAME_1,
+      getDefaultConnectionNames(0),
       Selectors.ClusterInfoItem
     );
 
@@ -154,13 +154,13 @@ describe('Instance sidebar', function () {
     // active/highlighted and then the add button and three dot menu will
     // display without needing to hover
     await browser.navigateToConnectionTab(
-      DEFAULT_CONNECTION_NAME_1,
+      getDefaultConnectionNames(0),
       'Databases'
     );
 
     // open the create database modal from the sidebar
     await browser.selectConnectionMenuItem(
-      DEFAULT_CONNECTION_NAME_1,
+      getDefaultConnectionNames(0),
       Selectors.CreateDatabaseButton,
       false
     );
@@ -182,7 +182,7 @@ describe('Instance sidebar', function () {
     );
     await collectionElement.waitForDisplayed();
 
-    await browser.dropDatabaseFromSidebar(DEFAULT_CONNECTION_NAME_1, dbName);
+    await browser.dropDatabaseFromSidebar(getDefaultConnectionNames(0), dbName);
   });
 
   it('can create a collection and drop it', async function () {
@@ -210,7 +210,7 @@ describe('Instance sidebar', function () {
     await browser.$(tabSelectedSelector).waitForDisplayed();
 
     await browser.dropCollectionFromSidebar(
-      DEFAULT_CONNECTION_NAME_1,
+      getDefaultConnectionNames(0),
       dbName,
       collectionName
     );
@@ -229,7 +229,7 @@ describe('Instance sidebar', function () {
     );
     await numbersCollectionElement.waitForDisplayed();
 
-    const mongoClient = new MongoClient(DEFAULT_CONNECTION_STRING_1);
+    const mongoClient = new MongoClient(getDefaultConnectionStrings(0));
     await mongoClient.connect();
     try {
       const database = mongoClient.db(db);
@@ -239,7 +239,7 @@ describe('Instance sidebar', function () {
     }
 
     await browser.selectConnectionMenuItem(
-      DEFAULT_CONNECTION_NAME_1,
+      getDefaultConnectionNames(0),
       Selectors.RefreshDatabasesItem,
       false
     );
