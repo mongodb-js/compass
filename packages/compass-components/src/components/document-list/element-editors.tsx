@@ -188,7 +188,8 @@ const uuidEditorLabel = css({
   whiteSpace: 'nowrap',
 });
 
-function isUUIDType(type: string): boolean {
+type UUIDType = (typeof UUID_TYPES)[number];
+export function isUUIDType(type: string): type is UUIDType {
   return (UUID_TYPES as readonly string[]).includes(type);
 }
 

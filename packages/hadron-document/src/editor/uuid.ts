@@ -7,7 +7,7 @@ import { Binary } from 'bson';
 import { ElementEvents } from '../element-events';
 import StandardEditor from './standard';
 import type { Element } from '../element';
-import { UUID_TYPES, type UUIDType } from '../element';
+import { isUUIDType, type UUIDType } from '../element';
 import type { BSONValue } from '../utils';
 
 /**
@@ -18,7 +18,7 @@ const binaryToUUIDString = (binary: Binary): string => {
     return binary.toUUID().toString();
   } catch {
     // Fallback to hex if toUUID fails
-    return Buffer.from(binary.buffer).toString('hex');
+    return binary.toString('hex');
   }
 };
 
@@ -27,7 +27,7 @@ const binaryToUUIDString = (binary: Binary): string => {
  * Java legacy format reverses byte order for both MSB and LSB.
  */
 const binaryToLegacyJavaUUIDString = (binary: Binary): string => {
-  const hex = Buffer.from(binary.buffer).toString('hex');
+  const hex = binary.toString('hex');
   const reversedHex = reverseJavaUUIDBytes(hex);
   return uuidHexToString(reversedHex);
 };
@@ -37,7 +37,7 @@ const binaryToLegacyJavaUUIDString = (binary: Binary): string => {
  * C# legacy format reverses byte order for first 3 groups only.
  */
 const binaryToLegacyCSharpUUIDString = (binary: Binary): string => {
-  const hex = Buffer.from(binary.buffer).toString('hex');
+  const hex = binary.toString('hex');
   const reversedHex = reverseCSharpUUIDBytes(hex);
   return uuidHexToString(reversedHex);
 };
@@ -47,7 +47,7 @@ const binaryToLegacyCSharpUUIDString = (binary: Binary): string => {
  * Python legacy format uses direct byte order (no reversal).
  */
 const binaryToLegacyPythonUUIDString = (binary: Binary): string => {
-  const hex = Buffer.from(binary.buffer).toString('hex');
+  const hex = binary.toString('hex');
   return uuidHexToString(hex);
 };
 
@@ -66,9 +66,7 @@ export default class UUIDEditor extends StandardEditor {
     super(element);
     // Use element.displayType if set and it's a UUID type, otherwise fall back to element.currentType
     const effectiveType = element.displayType ?? element.currentType;
-    this.uuidType = (UUID_TYPES as readonly string[]).includes(effectiveType)
-      ? (effectiveType as UUIDType)
-      : 'UUID';
+    this.uuidType = isUUIDType(effectiveType) ? effectiveType : 'UUID';
   }
 
   /**
@@ -81,17 +79,25 @@ export default class UUIDEditor extends StandardEditor {
       return val;
     }
     // If it's a Binary, convert to UUID string based on the type
-    if (val instanceof Binary) {
+    // Using _bsontype check instead of instanceof for cross-realm compatibility
+    // and future bson@7.x compatibility
+    if (
+      val &&
+      typeof val === 'object' &&
+      '_bsontype' in val &&
+      val._bsontype === 'Binary'
+    ) {
+      const binary = val as Binary;
       switch (this.uuidType) {
         case 'LegacyJavaUUID':
-          return binaryToLegacyJavaUUIDString(val);
+          return binaryToLegacyJavaUUIDString(binary);
         case 'LegacyCSharpUUID':
-          return binaryToLegacyCSharpUUIDString(val);
+          return binaryToLegacyCSharpUUIDString(binary);
         case 'LegacyPythonUUID':
-          return binaryToLegacyPythonUUIDString(val);
+          return binaryToLegacyPythonUUIDString(binary);
         case 'UUID':
         default:
-          return binaryToUUIDString(val);
+          return binaryToUUIDString(binary);
       }
     }
     return String(val);

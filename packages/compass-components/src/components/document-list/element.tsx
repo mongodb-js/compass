@@ -12,7 +12,12 @@ import {
 import { Binary } from 'bson';
 import BSONValue from '../bson-value';
 import { spacing } from '@leafygreen-ui/tokens';
-import { KeyEditor, ValueEditor, TypeEditor } from './element-editors';
+import {
+  KeyEditor,
+  ValueEditor,
+  TypeEditor,
+  isUUIDType,
+} from './element-editors';
 import { EditActions, AddFieldActions } from './element-actions';
 import { useAutoFocusContext } from './auto-focus-context';
 import { useForceUpdate } from './use-force-update';
@@ -38,12 +43,10 @@ function getEditorByType(type: HadronElementType['type']) {
     case 'Undefined':
     case 'ObjectId':
       return ElementEditor[`${type}Editor` as const];
-    case 'UUID':
-    case 'LegacyJavaUUID':
-    case 'LegacyCSharpUUID':
-    case 'LegacyPythonUUID':
-      return ElementEditor.UUIDEditor;
     default:
+      if (isUUIDType(type)) {
+        return ElementEditor.UUIDEditor;
+      }
       return ElementEditor.StandardEditor;
   }
 }
@@ -80,18 +83,21 @@ function getDisplayType(
   legacyUUIDEncoding: string
 ): HadronElementType['type'] {
   // If the element already has a specific UUID type, use it
-  if (
-    el.currentType === 'UUID' ||
-    el.currentType === 'LegacyJavaUUID' ||
-    el.currentType === 'LegacyCSharpUUID' ||
-    el.currentType === 'LegacyPythonUUID'
-  ) {
+  if (isUUIDType(el.currentType)) {
     return el.currentType;
   }
 
   // Check if this is a Binary that should be displayed as a UUID type
-  if (el.currentType === 'Binary' && el.currentValue instanceof Binary) {
-    const binary = el.currentValue;
+  // Using _bsontype check instead of instanceof for cross-realm compatibility
+  // and future bson@7.x compatibility
+  if (
+    el.currentType === 'Binary' &&
+    el.currentValue &&
+    typeof el.currentValue === 'object' &&
+    '_bsontype' in el.currentValue &&
+    el.currentValue._bsontype === 'Binary'
+  ) {
+    const binary = el.currentValue as Binary;
     if (binary.sub_type === Binary.SUBTYPE_UUID) {
       return 'UUID';
     }

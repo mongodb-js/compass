@@ -64,6 +64,13 @@ export const UUID_TYPES = [
 
 export type UUIDType = (typeof UUID_TYPES)[number];
 
+/**
+ * Type guard to check if a type string is a UUID type.
+ */
+export function isUUIDType(type: string): type is UUIDType {
+  return (UUID_TYPES as readonly string[]).includes(type);
+}
+
 export const DEFAULT_VISIBLE_ELEMENTS = 25;
 export function isValueExpandable(
   value: BSONValue
@@ -263,8 +270,8 @@ export class Element extends EventEmitter {
           editor.edit(this.generateObject());
           editor.complete();
         } else if (
-          (UUID_TYPES as readonly string[]).includes(newType) &&
-          (UUID_TYPES as readonly string[]).includes(this.currentType) &&
+          isUUIDType(newType) &&
+          isUUIDType(this.currentType) &&
           this.currentValue instanceof Binary
         ) {
           // Special handling for converting between UUID types
@@ -281,7 +288,7 @@ export class Element extends EventEmitter {
           this.edit(TypeChecker.cast(this.generateObject(), newType));
           // For UUID types, explicitly set the currentType since TypeChecker.type()
           // may not return the specific UUID type for legacy UUIDs (subtype 3)
-          if ((UUID_TYPES as readonly string[]).includes(newType)) {
+          if (isUUIDType(newType)) {
             this.currentType = newType;
             // Fire another event to notify the UI of the type change
             this._bubbleUp(ElementEvents.Edited, this);
@@ -691,9 +698,7 @@ export class Element extends EventEmitter {
    */
   isValueEditable(): boolean {
     // UUID types are editable even though Binary is in UNEDITABLE_TYPES
-    const isUUIDType = (UUID_TYPES as readonly string[]).includes(
-      this.currentType
-    );
+    const isCurrentTypeUUID = isUUIDType(this.currentType);
     // Also check for Binary values that are actually UUIDs (subtype 3 or 4)
     // This handles the case where currentType is 'Binary' but it's actually a UUID
     const isBinaryUUID =
@@ -704,7 +709,7 @@ export class Element extends EventEmitter {
           this.currentValue.buffer.length === 16));
     return (
       this._isKeyLegallyEditable() &&
-      (isUUIDType ||
+      (isCurrentTypeUUID ||
         isBinaryUUID ||
         !UNEDITABLE_TYPES.includes(this.currentType))
     );

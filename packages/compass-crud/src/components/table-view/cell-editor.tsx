@@ -81,11 +81,16 @@ function getDisplayType(
   }
 
   // Check if this is a Binary that should be displayed as a UUID type
+  // Using _bsontype check instead of instanceof for cross-realm compatibility
+  // and future bson@7.x compatibility
   if (
     element.currentType === 'Binary' &&
-    element.currentValue instanceof Binary
+    element.currentValue &&
+    typeof element.currentValue === 'object' &&
+    '_bsontype' in element.currentValue &&
+    element.currentValue._bsontype === 'Binary'
   ) {
-    const binary = element.currentValue;
+    const binary = element.currentValue as Binary;
     if (binary.sub_type === Binary.SUBTYPE_UUID) {
       return 'UUID';
     }

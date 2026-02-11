@@ -131,19 +131,19 @@ const ObjectIdValue: React.FunctionComponent<PropsByValueType<'ObjectId'>> = ({
 };
 
 const toLegacyJavaUUID = ({ value }: PropsByValueType<'Binary'>) => {
-  const hex = Buffer.from(value.buffer).toString('hex');
+  const hex = value.toString('hex');
   const reversedHex = reverseJavaUUIDBytes(hex);
   return "LegacyJavaUUID('" + uuidHexToString(reversedHex) + "')";
 };
 
 const toLegacyCSharpUUID = ({ value }: PropsByValueType<'Binary'>) => {
-  const hex = Buffer.from(value.buffer).toString('hex');
+  const hex = value.toString('hex');
   const reversedHex = reverseCSharpUUIDBytes(hex);
   return "LegacyCSharpUUID('" + uuidHexToString(reversedHex) + "')";
 };
 
 const toLegacyPythonUUID = ({ value }: PropsByValueType<'Binary'>) => {
-  const hex = Buffer.from(value.buffer).toString('hex');
+  const hex = value.toString('hex');
   return "LegacyPythonUUID('" + uuidHexToString(hex) + "')";
 };
 
@@ -197,9 +197,13 @@ const UUIDValue: React.FunctionComponent<PropsByValueType<'UUID'>> = ({
       return String(value);
     }
     try {
+      // Try to get the pretty hex version of the UUID
       return value.toUUID().toString();
     } catch {
-      return Buffer.from(value.buffer).toString('hex');
+      // If uuid is not following the uuid format (e.g., not exactly 16 bytes),
+      // converting it to UUID will fail. We don't want the UI to fail rendering
+      // it and instead will just display the "unformatted" hex value.
+      return value.toString('hex');
     }
   }, [value]);
 

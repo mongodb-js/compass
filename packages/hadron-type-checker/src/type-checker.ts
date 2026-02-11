@@ -303,6 +303,11 @@ export const uuidHexToString = (hex: string): string => {
 /**
  * Reverses byte order for Java legacy UUID format (both MSB and LSB).
  * Takes a 32-char hex string and returns a 32-char hex string with reversed byte order.
+ *
+ * This function is an involution (self-inverse), meaning applying it twice returns
+ * the original value. It can be used both to:
+ * - Convert from Java legacy binary format to standard UUID hex (for display)
+ * - Convert from standard UUID hex to Java legacy binary format (for storage)
  */
 export const reverseJavaUUIDBytes = (hex: string): string => {
   let msb = hex.substring(0, 16);
@@ -331,6 +336,11 @@ export const reverseJavaUUIDBytes = (hex: string): string => {
 /**
  * Reverses byte order for C# legacy UUID format (first 3 groups only).
  * Takes a 32-char hex string and returns a 32-char hex string with reversed byte order.
+ *
+ * This function is an involution (self-inverse), meaning applying it twice returns
+ * the original value. It can be used both to:
+ * - Convert from C# legacy binary format to standard UUID hex (for display)
+ * - Convert from standard UUID hex to C# legacy binary format (for storage)
  */
 export const reverseCSharpUUIDBytes = (hex: string): string => {
   const a =
@@ -352,14 +362,6 @@ const generateRandomUUID = (): string => {
 };
 
 /**
- * Extracts the raw hex string from a Binary UUID (subtype 3 or 4).
- * Returns the hex without any byte order reversal.
- */
-const binaryToRawHex = (binary: Binary): string => {
-  return Buffer.from(binary.buffer).toString('hex');
-};
-
-/**
  * Converts a Binary UUID to a standard UUID string, accounting for its encoding.
  * For subtype 4 (standard UUID), returns the hex directly as UUID format.
  * For subtype 3 (legacy UUID), we need to know the original encoding to reverse the bytes.
@@ -369,7 +371,7 @@ const binaryToUUIDStringWithEncoding = (
   binary: Binary,
   sourceEncoding?: 'Java' | 'CSharp' | 'Python'
 ): string => {
-  const hex = binaryToRawHex(binary);
+  const hex = binary.toString('hex');
 
   // For standard UUID (subtype 4), no byte reversal needed
   if (binary.sub_type === Binary.SUBTYPE_UUID) {
