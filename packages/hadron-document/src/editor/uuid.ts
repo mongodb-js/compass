@@ -3,7 +3,7 @@ import TypeChecker, {
   reverseJavaUUIDBytes,
   reverseCSharpUUIDBytes,
 } from 'hadron-type-checker';
-import { Binary } from 'bson';
+import type { Binary } from 'bson';
 import { ElementEvents } from '../element-events';
 import StandardEditor from './standard';
 import type { Element } from '../element';
@@ -87,7 +87,7 @@ export default class UUIDEditor extends StandardEditor {
       '_bsontype' in val &&
       val._bsontype === 'Binary'
     ) {
-      const binary = val as Binary;
+      const binary = val;
       switch (this.uuidType) {
         case 'LegacyJavaUUID':
           return binaryToLegacyJavaUUIDString(binary);
