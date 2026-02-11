@@ -293,10 +293,15 @@ export const BaseSearchIndexModal: React.FunctionComponent<
         if (indexName === 'vector_index') {
           setIndexName('default');
         }
-
       }
     },
-    [setSearchIndexType, onChangeTemplate, setIndexDefinition, setIndexName, indexName]
+    [
+      setSearchIndexType,
+      onChangeTemplate,
+      setIndexDefinition,
+      setIndexName,
+      indexName,
+    ]
   );
 
   const fields = useAutocompleteFields(namespace);
