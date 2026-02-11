@@ -62,7 +62,7 @@ class GridStoreImpl
   columns!: Record<string, Record<string, TableHeaderType>>; // field key -> oid -> type
   showing!: Record<string, TableHeaderType>;
   stageRemove!: Record<string, Record<string, boolean>>;
-  trigger!: (params: GridStoreTriggerParams) => void;
+  declare trigger: (params: GridStoreTriggerParams) => void;
 
   constructor(options: GridStoreOptions) {
     super(options);
