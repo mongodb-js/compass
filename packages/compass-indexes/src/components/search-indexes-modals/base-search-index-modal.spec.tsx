@@ -163,7 +163,7 @@ describe('Base Search Index Modal', function () {
           screen.getByRole('button', { name: 'Create Search Index' })
         );
         expect(onSubmitSpy).to.have.been.calledOnceWithExactly({
-          name: 'default',
+          name: 'vector_index',
           definition: VALID_ATLAS_SEARCH_INDEX_DEFINITION,
           type: 'vectorSearch',
         });
@@ -217,6 +217,131 @@ describe('Base Search Index Modal', function () {
           name: 'default',
           definition: { mappings: { dynamic: true } },
           type: 'search',
+        });
+      });
+
+      it('changes index name from "default" to "vector_index" when switching to vector search', async function () {
+        const inputText: HTMLInputElement = screen.getByTestId(
+          'name-of-search-index'
+        );
+
+        // Initially the index name should be 'default'
+        expect(inputText.value).to.equal('default');
+
+        // Switch to vector search
+        userEvent.click(
+          screen.getByTestId('search-index-type-vectorSearch-button'),
+          undefined,
+          {
+            skipPointerEventsCheck: true,
+          }
+        );
+
+        // Index name should change to 'vector_index'
+        await waitFor(() => {
+          expect(inputText.value).to.equal('vector_index');
+        });
+      });
+
+      it('changes index name from "vector_index" to "default" when switching back to search', async function () {
+        const inputText: HTMLInputElement = screen.getByTestId(
+          'name-of-search-index'
+        );
+
+        // Switch to vector search first
+        userEvent.click(
+          screen.getByTestId('search-index-type-vectorSearch-button'),
+          undefined,
+          {
+            skipPointerEventsCheck: true,
+          }
+        );
+
+        await waitFor(() => {
+          expect(inputText.value).to.equal('vector_index');
+        });
+
+        // Switch back to search
+        userEvent.click(
+          screen.getByTestId('search-index-type-search-button'),
+          undefined,
+          {
+            skipPointerEventsCheck: true,
+          }
+        );
+
+        // Index name should change back to 'default'
+        await waitFor(() => {
+          expect(inputText.value).to.equal('default');
+        });
+      });
+
+      it('does not change index name when switching to vector search if name is not "default"', async function () {
+        const inputText: HTMLInputElement = screen.getByTestId(
+          'name-of-search-index'
+        );
+
+        // Change the index name to something custom
+        userEvent.clear(inputText);
+        userEvent.type(inputText, 'my_custom_index');
+
+        await waitFor(() => {
+          expect(inputText.value).to.equal('my_custom_index');
+        });
+
+        // Switch to vector search
+        userEvent.click(
+          screen.getByTestId('search-index-type-vectorSearch-button'),
+          undefined,
+          {
+            skipPointerEventsCheck: true,
+          }
+        );
+
+        // Index name should remain unchanged
+        await waitFor(() => {
+          expect(inputText.value).to.equal('my_custom_index');
+        });
+      });
+
+      it('does not change index name when switching to search if name is not "vector_index"', async function () {
+        const inputText: HTMLInputElement = screen.getByTestId(
+          'name-of-search-index'
+        );
+
+        // Switch to vector search first
+        userEvent.click(
+          screen.getByTestId('search-index-type-vectorSearch-button'),
+          undefined,
+          {
+            skipPointerEventsCheck: true,
+          }
+        );
+
+        await waitFor(() => {
+          expect(inputText.value).to.equal('vector_index');
+        });
+
+        // Change the index name to something custom
+        userEvent.clear(inputText);
+        userEvent.type(inputText, 'my_vector_index');
+
+        await waitFor(() => {
+          expect(inputText.value).to.equal('my_vector_index');
+        });
+
+        // Switch back to search
+        userEvent.click(
+          screen.getByTestId('search-index-type-search-button'),
+          undefined,
+          {
+            skipPointerEventsCheck: true,
+          }
+        );
+
+        // Index name should remain unchanged
+        await waitFor(() => {
+          expect(inputText.value).to.equal('my_vector_index');
         });
       });
     });
