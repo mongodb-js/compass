@@ -77,8 +77,9 @@ export class DocsProviderTransport implements ChatTransport<AssistantMessage> {
 
     // EAI-1506 The chatbot API never forwards `store: true` to the OpenAI, as a
     // result even when `store: true` is set the API response does not include a
-    // valid `itemId`. On client side (check openai > convertToOpenAIResponsesInput),
-    // it converts message to { type: 'item_reference', id: itemId } to reduce the
+    // valid `itemId`. On client side (check
+    //  https://github.com/vercel/ai/blob/610b98ed4764407d5cc2bfe64b9ad27b740e1cf9/packages/openai/src/responses/convert-to-openai-responses-input.ts#L171-L175
+    // ), it converts message to { type: 'item_reference', id: itemId } to reduce the
     // payload size. This causes issues for the backend that relies on `itemId`.
     // As a workaround, we are removing the `itemId` from the providerOptions
     // before sending the messages to the model, so that the client side will not
@@ -89,32 +90,22 @@ export class DocsProviderTransport implements ChatTransport<AssistantMessage> {
         return {
           ...msg,
           content: content.map((part) => {
-            switch (part.type) {
-              case 'text':
-              case 'tool-call':
-              case 'tool-result':
-              case 'reasoning':
-              case 'file': {
-                const itemId = part.providerOptions?.openai?.itemId;
-                const newItemId =
-                  itemId === '0' || itemId === '' || !itemId
-                    ? undefined
-                    : itemId;
-                return {
-                  ...part,
-                  providerOptions: {
-                    ...part.providerOptions,
-                    openai: {
-                      ...part.providerOptions?.openai,
-                      itemId: newItemId,
-                    },
-                  },
-                };
-              }
-              default: {
-                return part;
-              }
+            if (!('providerOptions' in part)) {
+              return part;
             }
+            const itemId = part.providerOptions?.openai?.itemId;
+            const newItemId =
+              itemId === '0' || itemId === '' || !itemId ? undefined : itemId;
+            return {
+              ...part,
+              providerOptions: {
+                ...part.providerOptions,
+                openai: {
+                  ...part.providerOptions?.openai,
+                  itemId: newItemId,
+                },
+              },
+            };
           }),
         };
       }

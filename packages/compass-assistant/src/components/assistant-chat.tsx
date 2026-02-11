@@ -377,17 +377,10 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
       const trimmedMessageBody = text.trim();
       if (trimmedMessageBody) {
         await chat.stop();
-        const isConnectedToCsfleCluster = activeConnections.some(
-          (info) => info.connectionOptions.fleOptions
-        );
         void ensureOptInAndSend?.(
           {
             text: trimmedMessageBody,
-            metadata: {
-              sendContext: true,
-              ...metadata,
-              disableStorage: isConnectedToCsfleCluster,
-            },
+            metadata: { sendContext: true, ...metadata },
           },
           {},
           () => {
@@ -398,7 +391,7 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
         );
       }
     },
-    [track, ensureOptInAndSend, chat, activeConnections]
+    [track, ensureOptInAndSend, chat]
   );
 
   const handleFeedback = useCallback(

@@ -252,7 +252,7 @@ export const AssistantProvider: React.FunctionComponent<
 
   const ensureOptInAndSend = useInitialValue(() => {
     return async function (
-      message: SendMessage,
+      _message: SendMessage,
       options: SendOptions,
       callback: () => void
     ) {
@@ -344,6 +344,18 @@ export const AssistantProvider: React.FunctionComponent<
       const hasSystemContextMessage = chat.messages.some((message) => {
         return message.metadata?.isSystemContext;
       });
+
+      const message = _message
+        ? {
+            ..._message,
+            metadata: {
+              ..._message.metadata,
+              disableStorage: activeConnections.some(
+                (info) => info.connectionOptions.fleOptions
+              ),
+            },
+          }
+        : undefined;
 
       const shouldSendContextPrompt =
         message?.metadata?.sendContext &&
