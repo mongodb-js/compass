@@ -11,6 +11,13 @@ import { documentTypography } from './typography';
 import { Icon, Tooltip } from '../leafygreen';
 import { useDarkMode } from '../../hooks/use-theme';
 
+const UUID_TYPES = [
+  'UUID',
+  'LegacyJavaUUID',
+  'LegacyCSharpUUID',
+  'LegacyPythonUUID',
+] as const;
+
 const maxWidth = css({
   maxWidth: '100%',
   overflowX: 'hidden',
@@ -162,6 +169,30 @@ const editorTextarea = css({
   color: 'inherit',
 });
 
+// UUID editor container that shows: UUID(" <input> ")
+const uuidEditorContainer = css({
+  display: 'inline-flex',
+  alignItems: 'center',
+  maxWidth: '100%',
+});
+
+const uuidEditorInput = css({
+  display: 'inline-block',
+  whiteSpace: 'nowrap',
+  verticalAlign: 'top',
+  color: 'inherit',
+});
+
+const uuidEditorLabel = css({
+  userSelect: 'none',
+  whiteSpace: 'nowrap',
+});
+
+type UUIDType = (typeof UUID_TYPES)[number];
+export function isUUIDType(type: string): type is UUIDType {
+  return (UUID_TYPES as readonly string[]).includes(type);
+}
+
 export const ValueEditor: React.FunctionComponent<{
   editing?: boolean;
   onEditStart(): void;
@@ -220,6 +251,11 @@ export const ValueEditor: React.FunctionComponent<{
     return { width: `${Math.max(val.length, 1)}ch` };
   }, [val, type]);
 
+  const uuidInputStyle = useMemo(() => {
+    // UUID format is 36 characters (xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx)
+    return { width: `${Math.max(val.length, 36)}ch` };
+  }, [val]);
+
   return (
     <>
       {editing ? (
@@ -268,6 +304,36 @@ export const ValueEditor: React.FunctionComponent<{
                       {...(mergedProps as React.HTMLProps<HTMLTextAreaElement>)}
                     ></textarea>
                   </BSONValueContainer>
+                ) : isUUIDType(type) ? (
+                  <div className={uuidEditorContainer}>
+                    <span className={uuidEditorLabel}>{type}(&apos;</span>
+                    <input
+                      type="text"
+                      data-testid="hadron-document-value-editor"
+                      value={val}
+                      placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+                      onChange={(evt) => {
+                        onChange(evt.currentTarget.value);
+                      }}
+                      // See ./element.tsx
+                      // eslint-disable-next-line jsx-a11y/no-autofocus
+                      autoFocus={autoFocus}
+                      className={cx(
+                        editorReset,
+                        editorOutline,
+                        uuidEditorInput,
+                        !valid && editorInvalid,
+                        !valid &&
+                          (darkMode
+                            ? editorInvalidDarkMode
+                            : editorInvalidLightMode)
+                      )}
+                      spellCheck="false"
+                      style={uuidInputStyle}
+                      {...(mergedProps as React.HTMLProps<HTMLInputElement>)}
+                    ></input>
+                    <span className={uuidEditorLabel}>&apos;)</span>
+                  </div>
                 ) : (
                   <input
                     type="text"
