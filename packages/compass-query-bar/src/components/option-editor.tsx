@@ -376,8 +376,8 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
       />
       {!disabled && optionName === 'filter' && (
         <div
-          role="separator"
-          aria-orientation="horizontal"
+          role="slider"
+          aria-orientation="vertical"
           aria-valuenow={userHeight ?? MIN_EDITOR_HEIGHT}
           aria-valuemin={MIN_EDITOR_HEIGHT}
           aria-valuemax={MAX_EDITOR_HEIGHT}
