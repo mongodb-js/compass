@@ -157,6 +157,9 @@ module.exports = (_env, args) => {
         new webpack.EnvironmentPlugin(hadronEnvConfig),
         ...compileOnlyPlugins,
       ],
+      experiments: {
+        asyncWebAssembly: true,
+      },
     }),
   ];
 };
