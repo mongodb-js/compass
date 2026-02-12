@@ -21,7 +21,7 @@ export default class StandardEditor {
   /**
    * Create the editor with the element.
    *
-   * @param {Element} element - The hadron document element.
+   * @param element - The hadron document element.
    */
   constructor(element: Element) {
     this.element = element;
