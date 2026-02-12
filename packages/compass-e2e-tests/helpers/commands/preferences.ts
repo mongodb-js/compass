@@ -50,7 +50,9 @@ function _setFeatureWeb<K extends keyof UserPreferences>(
   value: UserPreferences[K]
 ): Promise<AllPreferences> {
   return browser.execute(
-    (_name, _value) => {
+    // @ts-expect-error generics in the browser.execute definition mess up with
+    // the multiple args we're passing here, so we have to just ignore the issue
+    (_name: K, _value: UserPreferences[K]): AllPreferences => {
       const kSandboxPreferencesAccess = Symbol.for(
         '@compass-web-sandbox-preferences-access'
       );
@@ -69,7 +71,8 @@ async function _setFeatureDesktop<K extends keyof UserPreferences>(
   value: UserPreferences[K]
 ): Promise<AllPreferences> {
   return await browser.execute(
-    async (_name, _value) => {
+    // @ts-expect-error see above
+    async (_name: K, _value: UserPreferences[K]): AllPreferences => {
       // eslint-disable-next-line @typescript-eslint/no-require-imports
       const newPreferences = await require('electron').ipcRenderer.invoke(
         'compass:save-preferences',

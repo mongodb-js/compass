@@ -315,7 +315,13 @@ async function getCheckedRadioValue(
   const elements = browser.$$(selector);
   for await (const element of elements) {
     if (await element.isSelected()) {
-      return element.getValue();
+      const val = await element.getValue();
+      if (typeof val !== 'string') {
+        throw new TypeError(
+          `Expected element value to be a string, got ${val}`
+        );
+      }
+      return val;
     }
   }
 
@@ -365,6 +371,9 @@ async function getValue(
   }
 
   const value = await element.getValue();
+  if (typeof value !== 'string') {
+    throw new TypeError(`Expected element value to be a string, got ${value}`);
+  }
   return value || null;
 }
 
@@ -374,7 +383,9 @@ async function getMultipleValues(
 ): Promise<string[] | null> {
   const results = (
     await browser.$$(selector).map((element) => element.getValue())
-  ).filter((result) => result !== '');
+  ).filter((result): result is string => {
+    return typeof result === 'string' && result !== '';
+  });
 
   return results.length ? results : null;
 }
