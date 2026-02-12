@@ -1,10 +1,11 @@
 import { assert, expect } from 'chai';
 
-import configureStore from './grid-store';
+import configureStore, { type GridStore } from './grid-store';
 import configureActions from '../actions';
+import type { TypeCastMap } from 'hadron-type-checker';
 
 describe('store', function () {
-  let store;
+  let store: GridStore;
   const actions = configureActions();
   const showing = {
     field1: 'Object',
@@ -24,7 +25,7 @@ describe('store', function () {
     0: { id1: 'String', id2: 'Int64' },
     1: { id1: 'Int64', id2: 'Double' },
     2: { id1: 'Int32' },
-  };
+  } as unknown as Record<string, Record<string, keyof TypeCastMap>>;
   const arrayShowing = {
     0: 'Mixed',
     1: 'Mixed',
