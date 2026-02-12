@@ -2,15 +2,12 @@ import { Banner, Link } from '@mongodb-js/compass-components';
 import React from 'react';
 import { connect } from 'react-redux';
 import type { RootState } from '../../modules';
-import type { SearchIndex } from 'mongodb-data-service';
 
 type ViewSearchIncompatibleBannerProps = {
-  searchIndexes: SearchIndex[];
   hasNoSearchIndexes: boolean;
 };
 
 const ViewPipelineIncompatibleBanner = ({
-  searchIndexes,
   hasNoSearchIndexes,
 }: ViewSearchIncompatibleBannerProps) => {
   return (
@@ -38,7 +35,6 @@ const ViewPipelineIncompatibleBanner = ({
 };
 
 const mapState = ({ searchIndexes }: RootState) => ({
-  searchIndexes: searchIndexes.indexes,
   hasNoSearchIndexes: searchIndexes.indexes.length === 0,
 });
 
