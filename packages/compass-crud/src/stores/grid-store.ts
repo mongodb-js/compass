@@ -59,9 +59,9 @@ class GridStoreImpl
   extends BaseRefluxStore<GridStoreOptions>
   implements GridActions
 {
-  columns!: Record<string, Record<string, TableHeaderType>>; // field key -> oid -> type
-  showing!: Record<string, TableHeaderType>;
-  stageRemove!: Record<string, Record<string, boolean>>;
+  declare columns: Record<string, Record<string, TableHeaderType>>; // field key -> oid -> type
+  declare showing: Record<string, TableHeaderType>;
+  declare stageRemove: Record<string, Record<string, boolean>>;
   declare trigger: (params: GridStoreTriggerParams) => void;
 
   constructor(options: GridStoreOptions) {
