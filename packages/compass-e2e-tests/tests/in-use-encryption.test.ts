@@ -1451,6 +1451,14 @@ describe('CSFLE / QE', function () {
       await chatInput.setValue('What is mongodb?');
       await browser.clickVisible(Selectors.AssistantChatSubmitButton);
 
+      // Wait for AssistantChatSubmitButton to be disabled
+      await browser.waitUntil(async () => {
+        const isDiabled = await browser
+          .$(Selectors.AssistantChatSubmitButton)
+          .getAttribute('aria-disabled');
+        return isDiabled === 'true';
+      });
+
       const requests = mockAssistantServer.getRequests();
       expect(requests.length).to.equal(1);
       expect(requests[0].content.store).to.equal(false);
