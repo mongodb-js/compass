@@ -28,18 +28,20 @@ import { CompassDataServiceAdapter } from '../services/compass-data-service-adap
 // The bundler target's entry file handles WASM setup automatically
 // when webpack's asyncWebAssembly experiment is enabled.
 // Using dynamic import to load the module asynchronously.
+type WasmBuilderOptionsInstance = {
+  setIncludeList: (namespaces: string[]) => void;
+  setExcludeList: (namespaces: string[]) => void;
+  setDryRun: (dryRun: boolean) => void;
+  setSchemaCollection: (schemaCollection: string) => void;
+  free: () => void;
+};
+
 type WasmModule = {
   buildSchema: (
     dataService: WasmDataService,
-    options: {
-      setIncludeList: (namespaces: string[]) => void;
-      free: () => void;
-    }
+    options: WasmBuilderOptionsInstance
   ) => Promise<WasmSchemaResult[]>;
-  WasmBuilderOptions: new () => {
-    setIncludeList: (namespaces: string[]) => void;
-    free: () => void;
-  };
+  WasmBuilderOptions: new () => WasmBuilderOptionsInstance;
 };
 
 let wasmModulePromise: Promise<WasmModule> | null = null;
@@ -47,7 +49,9 @@ let wasmModulePromise: Promise<WasmModule> | null = null;
 function getWasmModule(): Promise<WasmModule> {
   if (!wasmModulePromise) {
     // Dynamic import - webpack will handle the WASM loading chain
-    wasmModulePromise = import('schema-builder-library') as Promise<WasmModule>;
+    wasmModulePromise = import(
+      'schema-builder-library'
+    ) as unknown as Promise<WasmModule>;
   }
   return wasmModulePromise;
 }
@@ -73,22 +77,26 @@ type WasmNamespaceInfoWithSchema = {
 };
 
 /**
+ * Options for building schemas.
+ */
+export interface SchemaBuilderOptions {
+  /** Data service for accessing MongoDB */
+  dataService: WasmDataService;
+  /** List of namespaces to include (format: "database.collection") */
+  includeList: string[];
+}
+
+/**
  * Service interface for schema building.
  * This allows the WASM-based schema builder to be mocked in tests.
  */
 export interface SchemaBuilderService {
   /**
-   * Build schemas for the given collections.
-   * @param dataService - Data service for accessing MongoDB
-   * @param database - Database name
-   * @param collections - List of collection names to analyze
+   * Build schemas for the given namespaces.
+   * @param options - Schema builder options
    * @returns Array of schema results
    */
-  buildSchemas(
-    dataService: WasmDataService,
-    database: string,
-    collections: string[]
-  ): Promise<WasmSchemaResult[]>;
+  buildSchemas(options: SchemaBuilderOptions): Promise<WasmSchemaResult[]>;
 }
 
 /**
@@ -96,25 +104,20 @@ export interface SchemaBuilderService {
  */
 export const defaultSchemaBuilderService: SchemaBuilderService = {
   async buildSchemas(
-    dataService: WasmDataService,
-    database: string,
-    collections: string[]
+    options: SchemaBuilderOptions
   ): Promise<WasmSchemaResult[]> {
     try {
       const wasmModule = await getWasmModule();
-      console.log('WASM module loaded', { wasmModule });
       const { buildSchema, WasmBuilderOptions } = wasmModule;
 
-      console.log({ buildSchema, WasmBuilderOptions });
       const wasmOptions = new WasmBuilderOptions();
-      // Set include list to only analyze the selected collections
-      wasmOptions.setIncludeList(
-        collections.map((coll) => `${database}.${coll}`)
-      );
+      wasmOptions.setIncludeList(options.includeList);
 
-      return await buildSchema(dataService, wasmOptions);
+      return await buildSchema(options.dataService, wasmOptions);
     } catch (err) {
-      console.error('missing WASM module', err);
+      // eslint-disable-next-line no-console
+      console.error('Failed to load WASM module', err);
+      return [];
     }
   },
 };
@@ -124,26 +127,26 @@ export const defaultSchemaBuilderService: SchemaBuilderService = {
  * Returns empty schemas for all requested collections.
  */
 export const mockSchemaBuilderService: SchemaBuilderService = {
-  buildSchemas(
-    _dataService: WasmDataService,
-    database: string,
-    collections: string[]
-  ): Promise<WasmSchemaResult[]> {
-    // Return FullSchema results with empty schemas for each collection
+  buildSchemas(options: SchemaBuilderOptions): Promise<WasmSchemaResult[]> {
+    // Return FullSchema results with empty schemas for each namespace
     return Promise.resolve(
-      collections.map((coll) => ({
-        FullSchema: {
-          namespace_info: {
-            db_name: database,
-            coll_or_view_name: coll,
-            namespace_type: 'Collection' as const,
+      options.includeList.map((ns) => {
+        const [database, ...collParts] = ns.split('.');
+        const collection = collParts.join('.');
+        return {
+          FullSchema: {
+            namespace_info: {
+              db_name: database,
+              coll_or_view_name: collection,
+              namespace_type: 'Collection' as const,
+            },
+            namespace_schema: {
+              bsonType: 'object' as const,
+              properties: {},
+            },
           },
-          namespace_schema: {
-            bsonType: 'object' as const,
-            properties: {},
-          },
-        },
-      }))
+        };
+      })
     );
   },
 };
@@ -666,33 +669,16 @@ export function analyzeCollections({
     let relations: Relationship[] = [];
     const dataService = connections.getDataServiceForConnection(connectionId);
 
-    // Step 1: Sample documents for each collection (needed for relationship inference)
-    const samples = await Promise.all(
-      namespaces.map(async (ns) => {
-        const sample = await dataService.sample(
-          ns,
-          { size: 100 },
-          { promoteValues: false },
-          {
-            abortSignal,
-            fallbackReadPreference: 'secondaryPreferred',
-          }
-        );
-
-        dispatch({
-          type: AnalysisProcessActionTypes.NAMESPACE_SAMPLE_FETCHED,
-        });
-
-        return { ns, sample };
-      })
-    );
-
-    // Step 2: Build schemas using the schema builder service
+    // Step 1: Build schemas using the schema builder service
     const adapter = new CompassDataServiceAdapter(dataService, abortSignal);
-    const schemaResults: WasmSchemaResult[] = await schemaBuilder.buildSchemas(
-      adapter,
-      database,
-      selectedCollections
+    const schemaResults: WasmSchemaResult[] = await schemaBuilder.buildSchemas({
+      dataService: adapter,
+      includeList: selectedCollections.map((coll) => `${database}.${coll}`),
+    });
+    console.log(
+      'Schema results from WASM:',
+      schemaResults?.length,
+      schemaResults
     );
 
     // Create a map of namespace -> schema for quick lookup
@@ -703,10 +689,11 @@ export function analyzeCollections({
         const ns = `${schemaInfo.namespace_info.db_name}.${schemaInfo.namespace_info.coll_or_view_name}`;
         schemaMap.set(ns, schemaInfo.namespace_schema);
       }
+      console.log('Schema INFO from WASM', { result, schemaInfo });
     }
 
-    // Step 3: Combine samples with schemas
-    const collections = samples.map(({ ns, sample }) => {
+    // Step 2: Build collections array from schemas
+    const collections = namespaces.map((ns) => {
       const schema = schemaMap.get(ns);
       if (!schema) {
         // If no schema was returned, use an empty object schema
@@ -725,17 +712,47 @@ export function analyzeCollections({
       return {
         ns,
         schema: schema ?? { bsonType: 'object', properties: {} },
-        sample,
       };
     });
 
+    // Step 3: If inferring relations, fetch samples and infer relationships
     if (willInferRelations) {
+      // Fetch samples for each collection (needed for relationship inference)
+      const samples = await Promise.all(
+        namespaces.map(async (ns) => {
+          const sample = await dataService.sample(
+            ns,
+            { size: 100 },
+            { promoteValues: false },
+            {
+              abortSignal,
+              fallbackReadPreference: 'secondaryPreferred',
+            }
+          );
+
+          dispatch({
+            type: AnalysisProcessActionTypes.NAMESPACE_SAMPLE_FETCHED,
+          });
+
+          return { ns, sample };
+        })
+      );
+
+      // Combine schemas with samples for relationship inference
+      const collectionsWithSamples = collections.map((coll) => {
+        const sampleData = samples.find((s) => s.ns === coll.ns);
+        return {
+          ...coll,
+          sample: sampleData?.sample ?? [],
+        };
+      });
+
       track('Data Modeling Diagram Creation Relationship Inferral Started', {
         num_collections: selectedCollections.length,
       });
       relations = (
         await Promise.all(
-          collections.map(
+          collectionsWithSamples.map(
             async ({
               ns,
               schema,
@@ -746,7 +763,7 @@ export function analyzeCollections({
                   ns,
                   schema,
                   sample,
-                  collections,
+                  collectionsWithSamples,
                   dataService,
                   abortSignal,
                   (err) => {
