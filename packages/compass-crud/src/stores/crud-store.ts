@@ -376,9 +376,9 @@ class CrudStoreImpl
   listenables: unknown[];
 
   // Should this be readonly? The existence of setState would imply that...
-  // readonly state!: Readonly<CrudState>
-  state!: CrudState;
-  setState!: (newState: Partial<CrudState>) => void;
+  // readonly state: Readonly<CrudState>
+  declare state: CrudState;
+  declare setState: (newState: Partial<CrudState>) => void;
   dataService: DataService;
   preferences: PreferencesAccess;
   localAppRegistry: Pick<AppRegistry, 'on' | 'emit' | 'removeListener'>;

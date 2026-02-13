@@ -3000,6 +3000,9 @@ type DataModelingDiagramCreationRelationshipInferralStarted =
 
 /**
  * This event is fired when a new data modeling diagram is created
+ * analysis_time_ms is the total time taken to sample collections, build schemas and infer relationships, if applicable.
+ * relationship_inference_phase_ms is the time taken for just the relationship inference phase, if applicable.
+ * The first two phases overlap.
  *
  * @category Data Modeling
  */
@@ -3009,6 +3012,7 @@ type DataModelingDiagramCreated = ConnectionScopedEvent<{
     num_collections: number;
     num_relations_inferred?: number;
     analysis_time_ms: number;
+    relationship_inference_phase_ms?: number;
   };
 }>;
 
@@ -3023,6 +3027,7 @@ type DataModelingDiagramCreationCancelled = ConnectionScopedEvent<{
     num_collections: number;
     automatically_infer_relations: boolean;
     analysis_time_ms: number;
+    relationship_inference_phase_ms?: number;
   };
 }>;
 
@@ -3037,6 +3042,7 @@ type DataModelingDiagramCreationFailed = ConnectionScopedEvent<{
     num_collections: number;
     automatically_infer_relations: boolean;
     analysis_time_ms: number;
+    relationship_inference_phase_ms?: number;
   };
 }>;
 
@@ -3065,6 +3071,9 @@ type DataModelingAddDBCollectionsStarted = ConnectionScopedEvent<{
 
 /**
  * This event is fired when adding new collections from the database has succeeded
+ * analysis_time_ms is the total time taken to sample collections, build schemas and infer relationships, if applicable.
+ * relationship_inference_phase_ms is the time taken for just the relationship inference phase, if applicable.
+ * The first two phases overlap.
  *
  * @category Data Modeling
  */
@@ -3074,6 +3083,7 @@ type DataModelingAddDBCollectionsSucceeded = ConnectionScopedEvent<{
     num_collections: number;
     num_relations_inferred?: number;
     analysis_time_ms: number;
+    relationship_inference_phase_ms?: number;
   };
 }>;
 
@@ -3088,6 +3098,7 @@ type DataModelingAddDBCollectionsFailed = ConnectionScopedEvent<{
     num_collections: number;
     automatically_infer_relations: boolean;
     analysis_time_ms: number;
+    relationship_inference_phase_ms?: number;
   };
 }>;
 
@@ -3102,6 +3113,7 @@ type DataModelingAddDBCollectionsCancelled = ConnectionScopedEvent<{
     num_collections: number;
     automatically_infer_relations: boolean;
     analysis_time_ms: number;
+    relationship_inference_phase_ms?: number;
   };
 }>;
 
