@@ -622,15 +622,20 @@ const fetchIndexes = (
       searchIndexes: { status },
     } = getState();
 
+    const { readOnly, readWrite, enableAtlasSearchIndexes } =
+      preferences.getPreferences();
     const { atlasMetadata } = connectionInfoRef.current;
     const { isSearchIndexesReadable } = selectReadWriteAccess({
       isAtlas: !!atlasMetadata,
-      ...preferences.getPreferences(),
+      readOnly,
+      readWrite,
+      enableAtlasSearchIndexes,
     })(getState());
 
     if (
       !isSearchIndexesReadable ||
-      !isWritable // isWritable is false in offline mode
+      // TODO(COMPASS-10357): align on desired behavior for polling in offline-mode
+      !isWritable // isWritable is false in offline-mode
     ) {
       dispatch(fetchSearchIndexesSucceeded([]));
       return;
