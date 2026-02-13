@@ -77,6 +77,9 @@ export async function closeWorkspaceTabs(
       // are multiple tabs then another tab will immediately become active and
       // trip up the logic that checks that the tab you closed went away.
       const id = await currentActiveTab.getAttribute('id');
+      if (!id) {
+        throw new Error('Expected current active tab to have an id attribute');
+      }
       debug('closing tab', { numTabsStart, id });
       await closeTab(browser, { id }, autoConfirmTabClose);
 
@@ -103,6 +106,9 @@ export async function closeLastTab(
   const tabs = browser.$$(Selectors.workspaceTab(selectorOptions));
   const lastTab = tabs[(await tabs.length) - 1];
   const id = await lastTab.getAttribute('id');
+  if (!id) {
+    throw new Error('Expected current active tab to have an id attribute');
+  }
   await closeWorkspaceTab(browser, { id });
 }
 
