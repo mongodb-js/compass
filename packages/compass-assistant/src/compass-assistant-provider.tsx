@@ -33,9 +33,13 @@ import {
 } from 'compass-preferences-model/provider';
 import {
   createLoggerLocator,
+  useLogger,
   type Logger,
 } from '@mongodb-js/compass-logging/provider';
-import { type ConnectionInfo } from '@mongodb-js/connection-info';
+import {
+  getConnectionTitle,
+  type ConnectionInfo,
+} from '@mongodb-js/connection-info';
 import {
   telemetryLocator,
   type TrackFunction,
@@ -63,6 +67,8 @@ import type {
   CollectionSubtab,
   WorkspaceTab,
 } from '@mongodb-js/workspace-info';
+import { UUID } from 'bson';
+import { getHashedActiveUserId } from './utils';
 
 export const ASSISTANT_DRAWER_ID = 'compass-assistant-drawer';
 
@@ -105,6 +111,10 @@ export type AssistantMessage = UIMessage & {
     connectionInfo?: BasicConnectionInfo | null;
     /** Whether to enable or disable storage of this message in chatapi. */
     disableStorage?: boolean;
+    /** SHA-256 hashed User ID. */
+    userId?: string;
+    /** The request ID associated with this message. */
+    requestId?: string;
   };
 };
 
@@ -144,7 +154,10 @@ type AssistantActionsContextType = {
   ensureOptInAndSend?: (
     message: SendMessage,
     options: SendOptions,
-    callback: () => void
+    callback: (options: {
+      requestId: string;
+      connectionInfo?: BasicConnectionInfo;
+    }) => void
   ) => Promise<void>;
 };
 
@@ -245,6 +258,7 @@ export const AssistantProvider: React.FunctionComponent<
 }) => {
   const { openDrawer } = useDrawerActions();
   const track = useTelemetry();
+  const logger = useLogger('COMPASS-ASSISTANT');
 
   const assistantGlobalStateRef = useCurrentValueRef(useAssistantGlobalState());
 
@@ -254,7 +268,13 @@ export const AssistantProvider: React.FunctionComponent<
     return async function (
       _message: SendMessage,
       options: SendOptions,
-      callback: () => void
+      callback: ({
+        requestId,
+        connectionInfo,
+      }: {
+        requestId: string;
+        connectionInfo?: BasicConnectionInfo;
+      }) => void
     ) {
       const {
         activeWorkspace,
@@ -270,9 +290,25 @@ export const AssistantProvider: React.FunctionComponent<
         return;
       }
 
+      const activeConnection =
+        activeConnections.find((connInfo) => {
+          return (
+            hasConnectionId(activeWorkspace) &&
+            connInfo.id === activeWorkspace.connectionId
+          );
+        }) ?? null;
+
+      const requestId = new UUID().toString();
+      const connectionInfo = activeConnection
+        ? {
+            id: activeConnection.id,
+            name: getConnectionTitle(activeConnection),
+          }
+        : undefined;
+
       // Call the callback to indicate that the opt-in was successful. A good
       // place to do tracking.
-      callback();
+      callback({ requestId, connectionInfo });
 
       const prefs = preferences.getPreferences();
 
@@ -319,14 +355,6 @@ export const AssistantProvider: React.FunctionComponent<
         await chat.stop();
       }
 
-      const activeConnection =
-        activeConnections.find((connInfo) => {
-          return (
-            hasConnectionId(activeWorkspace) &&
-            connInfo.id === activeWorkspace.connectionId
-          );
-        }) ?? null;
-
       const contextPrompt = buildContextPrompt({
         activeWorkspace,
         activeConnection,
@@ -353,6 +381,9 @@ export const AssistantProvider: React.FunctionComponent<
               disableStorage: activeConnections.some(
                 (info) => info.connectionOptions.fleOptions
               ),
+              connectionInfo,
+              requestId,
+              userId: await getHashedActiveUserId(preferences, logger),
             },
           }
         : undefined;
@@ -383,6 +414,13 @@ export const AssistantProvider: React.FunctionComponent<
       });
 
       await chat.sendMessage(message, options);
+      track(
+        'Assistant Response Generated',
+        {
+          request_id: requestId,
+        },
+        connectionInfo
+      );
     };
   });
 
@@ -406,12 +444,17 @@ export const AssistantProvider: React.FunctionComponent<
             },
           },
           {},
-          () => {
+          ({ requestId, connectionInfo }) => {
             openDrawer(ASSISTANT_DRAWER_ID);
 
-            track('Assistant Entry Point Used', {
-              source: entryPointName,
-            });
+            track(
+              'Assistant Entry Point Used',
+              {
+                source: entryPointName,
+                request_id: requestId,
+              },
+              connectionInfo
+            );
           }
         );
       };

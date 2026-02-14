@@ -1463,7 +1463,7 @@ type IndexDroppedEvent = ConnectionScopedEvent<{
  * to it via the drawer toolbar or by opening the drawer and the first tab is
  * this drawer section.
  *
- * @category Gen AI
+ * @category Drawer
  */
 type DrawerSectionOpenedEvent = CommonEvent<{
   name: 'Drawer Section Opened';
@@ -1477,7 +1477,7 @@ type DrawerSectionOpenedEvent = CommonEvent<{
  * to another tab via the drawer toolbar or by closing the drawer when the
  * active tab is this drawer section.
  *
- * @category Gen AI
+ * @category Drawer
  */
 type DrawerSectionClosedEvent = CommonEvent<{
   name: 'Drawer Section Closed';
@@ -1490,24 +1490,26 @@ type DrawerSectionClosedEvent = CommonEvent<{
  * This event is fired when user enters a prompt in the assistant chat
  * and hits "enter".
  *
- * @category Gen AI
+ * @category Assistant
  */
-type AssistantPromptSubmittedEvent = CommonEvent<{
+type AssistantPromptSubmittedEvent = ConnectionScopedEvent<{
   name: 'Assistant Prompt Submitted';
   payload: {
     user_input_length?: number;
+    request_id?: string;
   };
 }>;
 
 /**
  * This event is fired when a user uses an assistant entry point.
  *
- * @category Gen AI
+ * @category Assistant
  */
-type AssistantEntryPointUsedEvent = CommonEvent<{
+type AssistantEntryPointUsedEvent = ConnectionScopedEvent<{
   name: 'Assistant Entry Point Used';
   payload: {
     source: 'explain plan' | 'performance insights' | 'connection error';
+    request_id?: string;
   };
 }>;
 
@@ -1516,12 +1518,12 @@ type AssistantEntryPointUsedEvent = CommonEvent<{
  *
  * @category Assistant
  */
-type AssistantFeedbackSubmittedEvent = CommonEvent<{
+type AssistantFeedbackSubmittedEvent = ConnectionScopedEvent<{
   name: 'Assistant Feedback Submitted';
   payload: {
     feedback: 'positive' | 'negative';
     text: string | undefined;
-    request_id: string | null;
+    request_id?: string;
     source: AssistantEntryPointUsedEvent['payload']['source'] | 'chat response';
   };
 }>;
@@ -1529,25 +1531,55 @@ type AssistantFeedbackSubmittedEvent = CommonEvent<{
 /**
  * This event is fired when a user confirms a confirmation message in the assistant chat.
  *
- * @category Gen AI
+ * @category Assistant
  */
-type AssistantConfirmationSubmittedEvent = CommonEvent<{
+type AssistantConfirmationSubmittedEvent = ConnectionScopedEvent<{
   name: 'Assistant Confirmation Submitted';
   payload: {
     status: 'confirmed' | 'rejected';
     source: AssistantEntryPointUsedEvent['payload']['source'] | 'chat response';
+    request_id?: string;
+  };
+}>;
+
+/**
+ * This event is fired when the AI response is generated.
+ *
+ * @category Assistant
+ */
+type AssistantResponseGeneratedEvent = ConnectionScopedEvent<{
+  name: 'Assistant Response Generated';
+  payload: {
+    request_id?: string;
   };
 }>;
 
 /**
  * This event is fired when the AI response encounters an error.
  *
- * @category Gen AI
+ * @category Assistant
  */
-type AssistantResponseFailedEvent = CommonEvent<{
+type AssistantResponseFailedEvent = ConnectionScopedEvent<{
   name: 'Assistant Response Failed';
   payload: {
     error_name?: string;
+    request_id?: string;
+  };
+}>;
+
+/*
+ * This event is fired when a tool call was either approved or rejected by the
+ * user.
+ *
+ * @category Assistant
+ */
+type AssistantToolCallApprovalEvent = ConnectionScopedEvent<{
+  name: 'Assistant Tool Call Approval';
+  payload: {
+    type: string;
+    approved: boolean;
+    approval_id: string;
+    request_id?: string;
   };
 }>;
 
@@ -1680,19 +1712,6 @@ type PipelineAiFeedbackEvent = ConnectionScopedEvent<{
      * The feedback comment left by the user.
      */
     text: string;
-  };
-}>;
-
-/*
- * This event is fired when a tool call was either approved or rejected by the
- * user.
- */
-type AssistantToolCallApprovalEvent = CommonEvent<{
-  name: 'Assistant Tool Call Approval';
-  payload: {
-    type: string;
-    approved: boolean;
-    approval_id: string;
   };
 }>;
 
@@ -3450,6 +3469,7 @@ export type TelemetryEvent =
   | AssistantFeedbackSubmittedEvent
   | AssistantEntryPointUsedEvent
   | AssistantConfirmationSubmittedEvent
+  | AssistantResponseGeneratedEvent
   | AiOptInModalShownEvent
   | AiOptInModalDismissedEvent
   | AiGenerateQueryClickedEvent
