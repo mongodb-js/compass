@@ -13,6 +13,7 @@ import PipelineToolbar from '../pipeline-toolbar';
 import PipelineBuilderWorkspace from '../pipeline-builder-workspace';
 import PipelineResultsWorkspace from '../pipeline-results-workspace';
 import FocusMode from '../focus-mode/focus-mode';
+import SearchIndexesPollingController from '../search-indexes-polling-controller';
 import {
   DEFAULT_MAX_TIME_MS,
   DEFAULT_SAMPLE_SIZE,
@@ -153,6 +154,9 @@ class Pipeline extends PureComponent<
           <FocusMode />
           {savingPipelineModal}
         </WorkspaceContainer>
+        {this.props.enableSearchActivationProgramP1 && (
+          <SearchIndexesPollingController />
+        )}
       </div>
     );
   }
