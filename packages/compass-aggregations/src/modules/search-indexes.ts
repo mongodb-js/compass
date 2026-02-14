@@ -7,7 +7,6 @@ const SearchIndexesStatuses = {
   INITIAL: 'INITIAL',
   LOADING: 'LOADING',
   POLLING: 'POLLING',
-  REFRESHING: 'REFRESHING',
   READY: 'READY',
   ERROR: 'ERROR',
 } as const;
@@ -17,7 +16,6 @@ export type SearchIndexesStatus = keyof typeof SearchIndexesStatuses;
 const FetchReasons = {
   INITIAL_FETCH: 'INITIAL_FETCH',
   POLL: 'POLL',
-  REFRESH: 'REFRESH',
 } as const;
 
 type FetchReason = (typeof FetchReasons)[keyof typeof FetchReasons];
@@ -26,7 +24,6 @@ type FetchReason = (typeof FetchReasons)[keyof typeof FetchReasons];
 const NOT_FETCHABLE_STATUSES: SearchIndexesStatus[] = [
   SearchIndexesStatuses.LOADING,
   SearchIndexesStatuses.POLLING,
-  SearchIndexesStatuses.REFRESHING,
 ];
 
 export const ActionTypes = {
@@ -77,8 +74,6 @@ const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
       status:
         action.reason === FetchReasons.POLL
           ? SearchIndexesStatuses.POLLING
-          : action.reason === FetchReasons.REFRESH
-          ? SearchIndexesStatuses.REFRESHING
           : SearchIndexesStatuses.LOADING,
     };
   }
@@ -97,7 +92,7 @@ const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
   if (
     isAction<FetchIndexesFailedAction>(action, ActionTypes.FetchIndexesFailed)
   ) {
-    // If fetch fails for refresh or polling, set the status to READY again
+    // If fetch fails for polling, set the status to READY again
     // and keep the previous list of indexes.
     return {
       ...state,
@@ -164,14 +159,6 @@ const fetchIndexesInternal = (
 export const fetchIndexes = (): PipelineBuilderThunkAction<Promise<void>> => {
   return async (dispatch) => {
     await dispatch(fetchIndexesInternal(FetchReasons.INITIAL_FETCH));
-  };
-};
-
-export const refreshSearchIndexes = (): PipelineBuilderThunkAction<
-  Promise<void>
-> => {
-  return async (dispatch) => {
-    await dispatch(fetchIndexesInternal(FetchReasons.REFRESH));
   };
 };
 

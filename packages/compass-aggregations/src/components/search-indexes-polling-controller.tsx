@@ -23,7 +23,7 @@ type SearchIndexesPollingControllerProps = {
  * this component will start polling for search index updates.
  * When there are no search stages, polling is stopped.
  */
-function SearchIndexesPollingController({
+export function SearchIndexesPollingController({
   hasSearchStage,
   isSearchIndexesSupported,
   startPollingSearchIndexes,

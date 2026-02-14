@@ -42,18 +42,7 @@ describe('search-indexes module', function () {
         status: 'POLLING',
       });
     });
-    it('returns state when refreshing starts', function () {
-      expect(
-        reducer(undefined, {
-          type: ActionTypes.FetchIndexesStarted,
-          reason: 'REFRESH',
-        } as AnyAction)
-      ).to.deep.equal({
-        isSearchIndexesSupported: false,
-        indexes: [],
-        status: 'REFRESHING',
-      });
-    });
+
     it('returns state when fetching succeeds', function () {
       expect(
         reducer(undefined, {
@@ -95,24 +84,6 @@ describe('search-indexes module', function () {
         }
       );
       expect(pollingState).to.deep.equal({
-        isSearchIndexesSupported: false,
-        indexes: [{ name: 'existing' }],
-        status: 'READY',
-      });
-    });
-    it('returns READY status when refresh fails (keeps previous indexes)', function () {
-      // First set status to REFRESHING
-      const refreshingState = reducer(
-        {
-          isSearchIndexesSupported: false,
-          indexes: [{ name: 'existing' }] as any,
-          status: 'REFRESHING',
-        },
-        {
-          type: ActionTypes.FetchIndexesFailed,
-        }
-      );
-      expect(refreshingState).to.deep.equal({
         isSearchIndexesSupported: false,
         indexes: [{ name: 'existing' }],
         status: 'READY',
@@ -207,11 +178,18 @@ describe('search-indexes module', function () {
         });
       });
 
-      it('fetchs indexes in error state', async function () {
-        // Set the status to ERROR
+      it('fetches indexes in error state', async function () {
+        // First set the status to LOADING, then fail to get ERROR state
+        store.dispatch({
+          type: ActionTypes.FetchIndexesStarted,
+          reason: 'INITIAL_FETCH',
+        });
         store.dispatch({
           type: ActionTypes.FetchIndexesFailed,
         });
+
+        // Verify we're in ERROR state
+        expect(store.getState().searchIndexes.status).to.equal('ERROR');
 
         getSearchIndexesStub.callsFake((ns: string) => {
           expect(ns).to.equal('test.listings');
