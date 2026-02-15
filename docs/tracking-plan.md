@@ -6,7 +6,7 @@
 > the tracking plan for the specific Compass version you can use the following
 > URL: `https://github.com/mongodb-js/compass/blob/<compass version>/docs/tracking-plan.md`
 
-Generated on Thu, Feb 12, 2026
+Generated on Sun, Feb 15, 2026
 
 ## Table of Contents
 
