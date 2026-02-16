@@ -117,7 +117,7 @@ export class DocsProviderTransport implements ChatTransport<AssistantMessage> {
       abortSignal: abortSignal,
       headers: {
         'X-Request-Origin': this.origin,
-        'X-Client-Request-Id': lastMessage.metadata?.requestId,
+        'X-Client-Request-Id': lastMessage.metadata?.requestId ?? '',
       },
       tools: this.getTools(),
       providerOptions: {
