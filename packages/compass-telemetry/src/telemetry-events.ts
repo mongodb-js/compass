@@ -1572,8 +1572,8 @@ type AssistantResponseFailedEvent = ConnectionScopedEvent<{
  *
  * @category Assistant
  */
-type AssistantChatFailedEvent = CommonEvent<{
-  name: 'Assistant Chat Failed';
+type AssistantFailedEvent = CommonEvent<{
+  name: 'Assistant Failed';
   payload: {
     error_name?: string;
   };
@@ -3478,7 +3478,7 @@ export type TelemetryEvent =
   | AggregationUseCaseSavedEvent
   | AssistantPromptSubmittedEvent
   | AssistantResponseFailedEvent
-  | AssistantChatFailedEvent
+  | AssistantFailedEvent
   | AssistantFeedbackSubmittedEvent
   | AssistantEntryPointUsedEvent
   | AssistantConfirmationSubmittedEvent

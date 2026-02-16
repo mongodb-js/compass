@@ -92,7 +92,7 @@ export async function getHashedActiveUserId(
     return hashHex;
   } catch (e) {
     logger.log.warn(
-      logger.mongoLogId(1_001_000_385),
+      logger.mongoLogId(1_001_000_417),
       'AtlasAiService',
       'Failed to hash user id for AI request',
       {

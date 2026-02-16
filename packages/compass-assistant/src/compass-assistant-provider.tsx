@@ -424,9 +424,9 @@ export const AssistantProvider: React.FunctionComponent<
         );
       } catch (err) {
         logger.log.error(
-          logger.mongoLogId(1_001_000_371),
+          logger.mongoLogId(1_001_000_418),
           'Assistant',
-          'Failed to send a message after opt-in',
+          'Failed to generate response',
           { err }
         );
         track(
@@ -670,7 +670,7 @@ export function createDefaultChat({
         'Failed to send a message',
         { err }
       );
-      track('Assistant Chat Failed', {
+      track('Assistant Failed', {
         error_name: err.name,
       });
     },
