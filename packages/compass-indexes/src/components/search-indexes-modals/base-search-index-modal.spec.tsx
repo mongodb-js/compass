@@ -12,6 +12,7 @@ import {
   cleanup,
   waitFor,
   userEvent,
+  wait,
 } from '@mongodb-js/testing-library-compass';
 
 import React from 'react';
@@ -266,6 +267,10 @@ describe('Base Search Index Modal', function () {
           );
           expect(indexDef).to.equal(ATLAS_VECTOR_SEARCH_TEMPLATE.snippet);
         });
+
+        // We do scheduled dispatches on codemirror, this makes the test flaky
+        // Wait a bit before switching back to ensure code mirror is settled
+        await wait(500);
 
         // Switch back to search
         userEvent.click(
