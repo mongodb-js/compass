@@ -413,14 +413,32 @@ export const AssistantProvider: React.FunctionComponent<
         activeTab,
       });
 
-      await chat.sendMessage(message, options);
-      track(
-        'Assistant Response Generated',
-        {
-          request_id: requestId,
-        },
-        connectionInfo
-      );
+      try {
+        await chat.sendMessage(message, options);
+        track(
+          'Assistant Response Generated',
+          {
+            request_id: requestId,
+          },
+          connectionInfo
+        );
+      } catch (err) {
+        logger.log.error(
+          logger.mongoLogId(1_001_000_371),
+          'Assistant',
+          'Failed to send a message after opt-in',
+          { err }
+        );
+        track(
+          'Assistant Response Failed',
+          {
+            error_name: (err as Error).name,
+            request_id: requestId,
+          },
+          connectionInfo
+        );
+        throw err;
+      }
     };
   });
 
@@ -652,7 +670,7 @@ export function createDefaultChat({
         'Failed to send a message',
         { err }
       );
-      track('Assistant Response Failed', {
+      track('Assistant Chat Failed', {
         error_name: err.name,
       });
     },

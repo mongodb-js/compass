@@ -1567,6 +1567,18 @@ type AssistantResponseFailedEvent = ConnectionScopedEvent<{
   };
 }>;
 
+/**
+ * This event is fired when the AI fails due to any error.
+ *
+ * @category Assistant
+ */
+type AssistantChatFailedEvent = CommonEvent<{
+  name: 'Assistant Chat Failed';
+  payload: {
+    error_name?: string;
+  };
+}>;
+
 /*
  * This event is fired when a tool call was either approved or rejected by the
  * user.
@@ -3466,6 +3478,7 @@ export type TelemetryEvent =
   | AggregationUseCaseSavedEvent
   | AssistantPromptSubmittedEvent
   | AssistantResponseFailedEvent
+  | AssistantChatFailedEvent
   | AssistantFeedbackSubmittedEvent
   | AssistantEntryPointUsedEvent
   | AssistantConfirmationSubmittedEvent
