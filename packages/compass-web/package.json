@@ -103,7 +103,7 @@
     "@mongodb-js/workspace-info": "^1.4.0",
     "@mongodb-js/connection-info": "^0.25.2",
     "@mongodb-js/connection-storage": "^0.69.0",
-    "@mongodb-js/devtools-proxy-support": "^0.7.2",
+    "@mongodb-js/devtools-proxy-support": "^0.7.5",
     "@mongodb-js/eslint-config-compass": "^1.4.16",
     "@mongodb-js/mocha-config-compass": "^1.7.5",
     "@mongodb-js/my-queries-storage": "^0.54.0",
@@ -120,7 +120,7 @@
     "@types/sinon-chai": "^3.2.5",
     "aws-sdk": "^2.1692.0",
     "browser-process-hrtime": "^1.0.0",
-    "bson": "^6.10.4",
+    "bson": "^7.2.0",
     "buffer": "^6.0.3",
     "chai": "^4.3.6",
     "compass-preferences-model": "^2.72.0",
@@ -134,7 +134,7 @@
     "express-http-proxy": "^2.0.0",
     "is-ip": "^5.0.1",
     "mocha": "^10.2.0",
-    "mongodb": "^6.21.0",
+    "mongodb": "^7.1.0",
     "mongodb-data-service": "^22.37.2",
     "mongodb-log-writer": "^2.3.4",
     "mongodb-ns": "^3.0.1",
@@ -149,6 +149,6 @@
     "vm-browserify": "^1.1.2",
     "whatwg-url": "^13.0.0",
     "ws": "^8.16.0",
-    "mongodb-mcp-server": "1.4.1-prerelease.5"
+    "mongodb-mcp-server": "1.6.1-prerelease.2"
   }
 }

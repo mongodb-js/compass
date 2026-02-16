@@ -3,6 +3,7 @@ import d3 from 'd3';
 import { groupBy, sortBy, map } from 'lodash';
 import many from './many';
 import shared from './shared';
+import { getBsonType } from 'hadron-type-checker';
 
 /**
  * extracts a Javascript number from a BSON type.
@@ -11,11 +12,12 @@ import shared from './shared';
  * @return {Number}       converted value
  */
 function extractNumericValueFromBSON(value) {
-  if (value && value._bsontype) {
-    if (['Decimal128', 'Long'].includes(value._bsontype)) {
+  const bsonType = getBsonType(value);
+  if (value && bsonType) {
+    if (['Decimal128', 'Long'].includes(bsonType)) {
       return parseFloat(value.toString(), 10);
     }
-    if (['Double', 'Int32'].includes(value._bsontype)) {
+    if (['Double', 'Int32'].includes(bsonType)) {
       return value.value;
     }
   }
