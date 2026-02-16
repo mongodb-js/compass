@@ -69,7 +69,7 @@
     "compass-preferences-model": "^2.72.0",
     "mongodb": "^6.21.0",
     "mongodb-mcp-server": "1.4.1-prerelease.5",
-    "mongodb-query-parser": "^4.6.0",
+    "mongodb-query-parser": "^4.7.6",
     "mongodb-schema": "^12.6.3",
     "react": "^17.0.2",
     "react-redux": "^8.1.3",

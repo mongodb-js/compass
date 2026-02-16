@@ -51,13 +51,13 @@
     "@mongodb-js/compass-components": "^1.62.0",
     "@mongodb-js/compass-editor": "^0.64.0",
     "@mongodb-js/connection-info": "^0.25.2",
-    "@mongodb-js/shell-bson-parser": "^1.4.0",
+    "@mongodb-js/shell-bson-parser": "^1.5.6",
     "lodash": "^4.17.23",
     "mongodb": "^6.21.0",
     "mongodb-build-info": "^1.8.1",
     "mongodb-connection-string-url": "^3.0.1",
     "mongodb-data-service": "^22.37.2",
-    "mongodb-query-parser": "^4.6.0",
+    "mongodb-query-parser": "^4.7.6",
     "react": "^17.0.2"
   },
   "devDependencies": {
