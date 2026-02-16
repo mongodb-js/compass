@@ -8,7 +8,7 @@ import {
   init,
   cleanup,
   screenshotIfFailed,
-  DEFAULT_CONNECTION_NAME_1,
+  getDefaultConnectionNames,
   screenshotPathName,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
@@ -119,14 +119,14 @@ describe('MongoDB Assistant', function () {
         await browser.setupDefaultConnections();
         await browser.connectToDefaults();
         await browser.selectConnectionMenuItem(
-          DEFAULT_CONNECTION_NAME_1,
+          getDefaultConnectionNames(0),
           Selectors.CreateDatabaseButton,
           false
         );
         await browser.addDatabase(dbName, collectionName);
 
         await browser.navigateToCollectionTab(
-          DEFAULT_CONNECTION_NAME_1,
+          getDefaultConnectionNames(0),
           dbName,
           collectionName,
           'Aggregations'
