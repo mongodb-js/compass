@@ -305,9 +305,13 @@ process.env.COMPASS_WEB_HTTP_PROXY_CLOUD_CONFIG ??=
 const testServerVersion =
   process.env.MONGODB_VERSION ?? process.env.MONGODB_RUNNER_VERSION;
 
-export const DEFAULT_CONNECTIONS: (ConnectionInfo & {
+type TestConnectionInfo = ConnectionInfo & {
   testServer?: Partial<MongoClusterOptions>;
-})[] = isTestingAtlasCloud(context)
+};
+
+export const DEFAULT_CONNECTIONS: TestConnectionInfo[] = isTestingAtlasCloud(
+  context
+)
   ? getAtlasCloudSandboxDefaultConnections(
       context.atlasCloudDefaultConnections,
       context.atlasCloudDbuserUsername,
@@ -344,13 +348,35 @@ export const DEFAULT_CONNECTIONS: (ConnectionInfo & {
       },
     ];
 
-export const DEFAULT_CONNECTION_STRINGS = DEFAULT_CONNECTIONS.map((info) => {
-  return info.connectionOptions.connectionString;
-});
+export function getDefaultConnectionStrings(): string[];
+export function getDefaultConnectionStrings(idx: number): string;
+export function getDefaultConnectionStrings(idx?: number): string | string[] {
+  const strings = DEFAULT_CONNECTIONS.map((info) => {
+    return info.connectionOptions.connectionString;
+  });
+  if (typeof idx === 'undefined') {
+    return strings;
+  }
+  if (!strings[idx]) {
+    throw new Error(`Default connection "${idx}" does not exist`);
+  }
+  return strings[idx];
+}
 
-export const DEFAULT_CONNECTION_NAMES = DEFAULT_CONNECTIONS.map((info) => {
-  return getConnectionTitle(info);
-});
+export function getDefaultConnectionNames(): string[];
+export function getDefaultConnectionNames(idx: number): string;
+export function getDefaultConnectionNames(idx?: number): string | string[] {
+  const names = DEFAULT_CONNECTIONS.map((info) => {
+    return getConnectionTitle(info);
+  });
+  if (typeof idx === 'undefined') {
+    return names;
+  }
+  if (!names[idx]) {
+    throw new Error(`Default connection "${idx}" does not exist`);
+  }
+  return names[idx];
+}
 
 export const DEFAULT_CONNECTIONS_SERVER_INFO: {
   version: string;

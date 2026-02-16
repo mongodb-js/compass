@@ -5,7 +5,7 @@ import {
   init,
   cleanup,
   screenshotIfFailed,
-  DEFAULT_CONNECTION_NAME_1,
+  getDefaultConnectionNames,
   screenshotPathName,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
@@ -22,7 +22,7 @@ async function setup(
   await browser.setupDefaultConnections();
   await browser.connectToDefaults();
   await browser.navigateToCollectionTab(
-    DEFAULT_CONNECTION_NAME_1,
+    getDefaultConnectionNames(0),
     dbName,
     collName,
     'Documents'

@@ -8,7 +8,7 @@ import {
   outputFilename,
   serverSatisfies,
   skipForWeb,
-  DEFAULT_CONNECTION_NAME_1,
+  getDefaultConnectionNames,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
@@ -126,7 +126,7 @@ describe('Collection aggregations tab', function () {
 
     // Some tests navigate away from the numbers collection aggregations tab
     await browser.navigateToCollectionTab(
-      DEFAULT_CONNECTION_NAME_1,
+      getDefaultConnectionNames(0),
       'test',
       'numbers',
       'Aggregations'
@@ -403,7 +403,7 @@ describe('Collection aggregations tab', function () {
 
     // choose Duplicate view
     await browser.selectCollectionMenuItem(
-      DEFAULT_CONNECTION_NAME_1,
+      getDefaultConnectionNames(0),
       'test',
       'my-view-from-pipeline',
       'duplicate-view'
@@ -430,7 +430,7 @@ describe('Collection aggregations tab', function () {
 
     // now select modify view of the non-duplicate
     await browser.selectCollectionMenuItem(
-      DEFAULT_CONNECTION_NAME_1,
+      getDefaultConnectionNames(0),
       'test',
       'my-view-from-pipeline',
       'modify-view'
@@ -608,13 +608,13 @@ describe('Collection aggregations tab', function () {
     const VALIDATED_OUT_COLLECTION = 'nestedDocs';
     beforeEach(async function () {
       await browser.setValidation({
-        connectionName: DEFAULT_CONNECTION_NAME_1,
+        connectionName: getDefaultConnectionNames(0),
         database: 'test',
         collection: VALIDATED_OUT_COLLECTION,
         validator: REQUIRE_PHONE_VALIDATOR,
       });
       await browser.navigateToCollectionTab(
-        DEFAULT_CONNECTION_NAME_1,
+        getDefaultConnectionNames(0),
         'test',
         'numbers',
         'Aggregations'
@@ -624,7 +624,7 @@ describe('Collection aggregations tab', function () {
 
     afterEach(async function () {
       await browser.setValidation({
-        connectionName: DEFAULT_CONNECTION_NAME_1,
+        connectionName: getDefaultConnectionNames(0),
         database: 'test',
         collection: VALIDATED_OUT_COLLECTION,
         validator: '{}',
@@ -1628,7 +1628,7 @@ describe('Collection aggregations tab', function () {
   describe('expanding and collapsing of documents', function () {
     beforeEach(async function () {
       await browser.navigateToCollectionTab(
-        DEFAULT_CONNECTION_NAME_1,
+        getDefaultConnectionNames(0),
         'test',
         'nestedDocs',
         'Aggregations'

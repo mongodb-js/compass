@@ -10,7 +10,7 @@ import {
   init,
   cleanup,
   screenshotIfFailed,
-  DEFAULT_CONNECTION_NAME_1,
+  getDefaultConnectionNames,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
@@ -133,7 +133,7 @@ describe('Collection documents tab', function () {
     await browser.disconnectAll();
     await browser.connectToDefaults();
     await browser.navigateToCollectionTab(
-      DEFAULT_CONNECTION_NAME_1,
+      getDefaultConnectionNames(0),
       'test',
       'numbers',
       'Documents'
@@ -636,7 +636,7 @@ FindIterable<Document> result = collection.find(filter);`);
   describe('expanding and collapsing of documents', function () {
     beforeEach(async function () {
       await browser.navigateToCollectionTab(
-        DEFAULT_CONNECTION_NAME_1,
+        getDefaultConnectionNames(0),
         'test',
         'nestedDocs',
         'Documents'
@@ -696,7 +696,7 @@ FindIterable<Document> result = collection.find(filter);`);
       '{ $jsonSchema: { bsonType: "object", required: [ "phone" ] } }';
     beforeEach(async function () {
       await browser.setValidation({
-        connectionName: DEFAULT_CONNECTION_NAME_1,
+        connectionName: getDefaultConnectionNames(0),
         database: 'test',
         collection: 'numbers',
         validator: REQUIRE_PHONE_VALIDATOR,
@@ -705,7 +705,7 @@ FindIterable<Document> result = collection.find(filter);`);
 
     it('Shows error info when inserting', async function () {
       await browser.navigateToCollectionTab(
-        DEFAULT_CONNECTION_NAME_1,
+        getDefaultConnectionNames(0),
         'test',
         'numbers',
         'Documents'

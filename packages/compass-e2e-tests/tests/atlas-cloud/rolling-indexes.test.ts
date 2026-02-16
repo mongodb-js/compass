@@ -8,7 +8,7 @@ import {
 import type { CompassBrowser } from '../../helpers/compass-browser';
 import { createNumbersCollection } from '../../helpers/insert-data';
 import {
-  DEFAULT_CONNECTION_NAMES,
+  getDefaultConnectionNames,
   isTestingAtlasCloud,
 } from '../../helpers/test-runner-context';
 
@@ -43,7 +43,7 @@ describe('Rolling indexes', function () {
     await createNumbersCollection(collName);
     await browser.connectToDefaults();
     await browser.navigateToCollectionTab(
-      DEFAULT_CONNECTION_NAMES[0],
+      getDefaultConnectionNames(0),
       'test',
       collName,
       'Indexes'
