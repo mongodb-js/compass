@@ -6,7 +6,7 @@
 > the tracking plan for the specific Compass version you can use the following
 > URL: `https://github.com/mongodb-js/compass/blob/<compass version>/docs/tracking-plan.md`
 
-Generated on Sun, Feb 8, 2026
+Generated on Sun, Feb 15, 2026
 
 ## Table of Contents
 
@@ -1139,12 +1139,16 @@ This event is fired when the collections are analyzed and the relationship infer
 ### Data Modeling Diagram Created
 
 This event is fired when a new data modeling diagram is created
+analysis_time_ms is the total time taken to sample collections, build schemas and infer relationships, if applicable.
+relationship_inference_phase_ms is the time taken for just the relationship inference phase, if applicable.
+The first two phases overlap.
 
 **Properties**:
 
 - **num_collections** (required): `number`
 - **num_relations_inferred** (optional): `number | undefined`
 - **analysis_time_ms** (required): `number`
+- **relationship_inference_phase_ms** (optional): `number | undefined`
 - **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
@@ -1160,6 +1164,7 @@ This event is fired when a new data modeling diagram creation is cancelled
 - **num_collections** (required): `number`
 - **automatically_infer_relations** (required): `boolean`
 - **analysis_time_ms** (required): `number`
+- **relationship_inference_phase_ms** (optional): `number | undefined`
 - **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
@@ -1175,6 +1180,7 @@ This event is fired when a new data modeling diagram creation has failed
 - **num_collections** (required): `number`
 - **automatically_infer_relations** (required): `boolean`
 - **analysis_time_ms** (required): `number`
+- **relationship_inference_phase_ms** (optional): `number | undefined`
 - **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
@@ -1204,12 +1210,16 @@ This event is fired when new collections from the database are to be added to an
 ### Data Modeling Add DB Collections Succeeded
 
 This event is fired when adding new collections from the database has succeeded
+analysis_time_ms is the total time taken to sample collections, build schemas and infer relationships, if applicable.
+relationship_inference_phase_ms is the time taken for just the relationship inference phase, if applicable.
+The first two phases overlap.
 
 **Properties**:
 
 - **num_collections** (required): `number`
 - **num_relations_inferred** (optional): `number | undefined`
 - **analysis_time_ms** (required): `number`
+- **relationship_inference_phase_ms** (optional): `number | undefined`
 - **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
@@ -1225,6 +1235,7 @@ This event is fired when adding new collections from the database has failed
 - **num_collections** (required): `number`
 - **automatically_infer_relations** (required): `boolean`
 - **analysis_time_ms** (required): `number`
+- **relationship_inference_phase_ms** (optional): `number | undefined`
 - **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
@@ -1240,6 +1251,7 @@ This event is fired when adding new collections from the database has been cance
 - **num_collections** (required): `number`
 - **automatically_infer_relations** (required): `boolean`
 - **analysis_time_ms** (required): `number`
+- **relationship_inference_phase_ms** (optional): `number | undefined`
 - **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
