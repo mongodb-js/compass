@@ -136,7 +136,14 @@ export class DocsProviderTransport implements ChatTransport<AssistantMessage> {
       result.toUIMessageStream({
         sendSources: true,
         messageMetadata() {
-          return lastMessage.metadata ?? {};
+          if (lastMessage.metadata) {
+            // Return the metadata that's relevant for telemetry tracking purposes.
+            const { requestId, connectionInfo } = lastMessage.metadata;
+            return {
+              requestId,
+              connectionInfo,
+            };
+          }
         },
       })
     );
