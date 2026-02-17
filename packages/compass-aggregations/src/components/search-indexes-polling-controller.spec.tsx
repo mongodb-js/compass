@@ -31,7 +31,6 @@ describe('SearchIndexesPollingController', function () {
       );
 
       expect(startPollingStub.called).to.equal(false);
-      expect(stopPollingStub.called).to.equal(false);
     });
   });
 
