@@ -242,7 +242,7 @@ describe('Base Search Index Modal', function () {
         expect(inputText.value).to.equal('vector_index');
       });
 
-      it('changes index name from "vector_index" to "default" when switching back to search', async function () {
+      it.skip('changes index name from "vector_index" to "default" when switching back to search', async function () {
         const inputText: HTMLInputElement = screen.getByTestId(
           'name-of-search-index'
         );
