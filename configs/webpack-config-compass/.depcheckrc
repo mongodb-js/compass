@@ -14,5 +14,7 @@ ignores:
   - 'browserslist'
   - '@babel/runtime'
   - 'babel-plugin-istanbul'
+  # used by mongodb-compass, here we just rely on it being present
+  - 'whatwg-url'
   # recursive
   - 'mongodb-compass'
