@@ -2,10 +2,8 @@ import React from 'react';
 import { connect } from 'react-redux';
 import type { RootState } from '../../../modules';
 import type { State as SearchIndexesState } from '../../../modules/search-indexes';
-import {
-  openIndexesListDrawerView,
-  SearchIndexType,
-} from '../../../modules/indexes-drawer';
+import { openIndexesListDrawerView } from '../../../modules/indexes-drawer';
+import type { SearchIndexType } from '../../../modules/indexes-drawer';
 import { Button } from '@mongodb-js/compass-components';
 
 type CreateSearchIndexViewProps = {

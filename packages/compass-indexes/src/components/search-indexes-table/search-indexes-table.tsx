@@ -496,6 +496,7 @@ export const SearchIndexesTable: React.FunctionComponent<
       connectionId,
       indexes,
       namespace,
+      context,
       onDropIndexClick,
       onEditIndexClick,
       openCollectionWorkspace,
