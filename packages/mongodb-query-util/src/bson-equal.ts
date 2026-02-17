@@ -4,12 +4,13 @@ import type { Double, Int32, ObjectId } from 'bson';
 
 export const bsonEqual = (value: any, other: any): boolean | undefined => {
   const bsontype = getBsonType(value);
+  const otherBsontype = getBsonType(other);
 
   if (!bsontype || typeof bsontype !== 'string') {
     return undefined;
   }
 
-  if (!getBsonType(other)) {
+  if (!otherBsontype || typeof otherBsontype !== 'string') {
     return undefined;
   }
 
