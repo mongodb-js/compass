@@ -74,6 +74,7 @@ export const AnalysisProcessActionTypes = {
 
 export type AnalysisOptions = {
   automaticallyInferRelations: boolean;
+  sampleSize: number;
 };
 
 export type AnalyzingCollectionsStartAction = {
@@ -167,6 +168,7 @@ export const analysisProcessReducer: Reducer<AnalysisProcessState> = (
         database: action.database,
         collections: action.collections,
         automaticallyInferRelations: action.options.automaticallyInferRelations,
+        sampleSize: action.options.sampleSize,
       },
       step: 'SAMPLING',
       willInferRelations: action.willInferRelations,
@@ -404,10 +406,12 @@ export function retryAnalysis(): DataModelingThunkAction<void, never> {
       database,
       collections,
       automaticallyInferRelations,
+      sampleSize,
     } = currentAnalysisOptions;
     void dispatch(
       startAnalysis(name, connectionId, database, collections, {
         automaticallyInferRelations,
+        sampleSize,
       })
     );
   };
@@ -707,7 +711,7 @@ export function analyzeCollections({
       namespaces.map(async (ns) => {
         const sample = await dataService.sample(
           ns,
-          { size: 100 },
+          { size: options.sampleSize },
           { promoteValues: false },
           {
             abortSignal,

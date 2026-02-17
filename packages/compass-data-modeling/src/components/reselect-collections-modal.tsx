@@ -11,6 +11,7 @@ import type { ReselectCollectionsWizardState } from '../store/reselect-collectio
 import {
   selectCollections,
   toggleInferRelationships,
+  changeSampleSize,
   hideReselectCollections,
   establishConnection,
   selectConnection,
@@ -27,6 +28,7 @@ const SelectCollectionsStep = connect(
       selectedCollections,
       error,
       automaticallyInferRelations,
+      sampleSize,
       newSelectedCollections,
     } = state.reselectCollections;
     return {
@@ -34,6 +36,7 @@ const SelectCollectionsStep = connect(
       selectedCollections: [...newSelectedCollections, ...selectedCollections],
       disabledCollections: selectedCollections,
       automaticallyInferRelationships: automaticallyInferRelations,
+      sampleSize,
       isFetchingCollections: false,
       error,
     };
@@ -41,6 +44,7 @@ const SelectCollectionsStep = connect(
   {
     onCollectionsSelect: selectCollections,
     onAutomaticallyInferRelationshipsToggle: toggleInferRelationships,
+    onSampleSizeChange: changeSampleSize,
   }
 )(SelectCollectionsList);
 

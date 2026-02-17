@@ -2,16 +2,21 @@ import {
   Body,
   Checkbox,
   css,
+  Description,
   FormFieldContainer,
+  Label,
   SearchInput,
   SelectList,
   spacing,
   SpinLoaderWithLabel,
+  TextInput,
   WarningSummary,
 } from '@mongodb-js/compass-components';
 import { usePreference } from 'compass-preferences-model/provider';
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { useMemo, useState } from 'react';
+
+export const DEFAULT_SAMPLE_SIZE = 100;
 
 const loadingStyles = css({
   textAlign: 'center',
@@ -29,15 +34,33 @@ const collectionListStyles = css({
   overflow: 'scroll',
 });
 
+const sampleSizeContainerStyles = css({
+  display: 'flex',
+  flexDirection: 'column',
+  gap: spacing[100],
+});
+
+const sampleSizeInputContainerStyles = css({
+  display: 'flex',
+  alignItems: 'center',
+  gap: spacing[200],
+});
+
+const sampleSizeInputStyles = css({
+  width: 100,
+});
+
 type SelectCollectionsListProps = {
   collections: string[];
   selectedCollections: string[];
   disabledCollections?: string[];
   automaticallyInferRelationships: boolean;
+  sampleSize: number;
   isFetchingCollections: boolean;
   error?: Error;
   onCollectionsSelect: (colls: string[]) => void;
   onAutomaticallyInferRelationshipsToggle: (newVal: boolean) => void;
+  onSampleSizeChange: (newVal: number) => void;
 };
 
 type SelectCollectionItem = {
@@ -53,15 +76,26 @@ export const SelectCollectionsList: React.FunctionComponent<
   collections,
   selectedCollections,
   disabledCollections = [],
+  sampleSize,
   isFetchingCollections,
   error,
   onCollectionsSelect,
   onAutomaticallyInferRelationshipsToggle,
+  onSampleSizeChange,
 }) => {
   const showAutoInferOption = usePreference(
     'enableAutomaticRelationshipInference'
   );
   const [searchTerm, setSearchTerm] = useState('');
+  const [sampleSizeInputValue, setSampleSizeInputValue] = useState(
+    `${sampleSize}`
+  );
+
+  // Sync local input value when the sampleSize prop changes
+  useEffect(() => {
+    setSampleSizeInputValue(`${sampleSize}`);
+  }, [sampleSize]);
+
   const filteredCollections = useMemo(() => {
     try {
       return collections.filter((x) =>
@@ -146,6 +180,43 @@ export const SelectCollectionsList: React.FunctionComponent<
             onChange={onChangeSelection}
           />
         )}
+      </FormFieldContainer>
+      <FormFieldContainer className={sampleSizeContainerStyles}>
+        <div className={sampleSizeInputContainerStyles}>
+          <Label htmlFor="sample-size-input" id="sample-size-input-label">
+            Maximum documents sampled per collection
+          </Label>
+          <TextInput
+            id="sample-size-input"
+            data-testid="sample-size-input"
+            aria-labelledby="sample-size-input-label"
+            aria-describedby="sample-size-description"
+            className={sampleSizeInputStyles}
+            type="number"
+            min={1}
+            value={sampleSizeInputValue}
+            onChange={(evt) => {
+              setSampleSizeInputValue(evt.target.value);
+            }}
+            onBlur={() => {
+              const value = parseInt(sampleSizeInputValue, 10);
+              if (!isNaN(value) && value > 0) {
+                onSampleSizeChange(value);
+              } else {
+                // Reset to default if invalid
+                setSampleSizeInputValue(`${DEFAULT_SAMPLE_SIZE}`);
+                onSampleSizeChange(DEFAULT_SAMPLE_SIZE);
+              }
+            }}
+          />
+        </div>
+        <Description id="sample-size-description">
+          Compass generates an entity-relationship diagram based on a small
+          sample of documents from each collection you select in your database.
+          Larger samples can improve accuracy but may take longer to generate,
+          while smaller samples are faster but may miss infrequent fields or
+          relationships.
+        </Description>
       </FormFieldContainer>
       {showAutoInferOption && (
         <FormFieldContainer>

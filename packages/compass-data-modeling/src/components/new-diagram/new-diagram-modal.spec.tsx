@@ -316,6 +316,150 @@ describe('NewDiagramModal', function () {
       });
     });
 
+    it('shows sample size input with default value of 100', async function () {
+      const preferences = await createSandboxFromDefaultPreferences();
+      const { store } = renderWithStore(<NewDiagramModal />, {
+        services: {
+          preferences,
+        },
+      });
+      await setSetupDiagramStep(store, {
+        connection: { id: 'two', name: 'Conn2' },
+        databaseName: 'sample_airbnb',
+        diagramName: 'diagram1',
+      });
+
+      userEvent.click(
+        screen.getByRole('button', {
+          name: /next/i,
+        })
+      );
+
+      const sampleSizeInput = screen.getByTestId('sample-size-input');
+      expect(sampleSizeInput).to.exist;
+      expect(sampleSizeInput).to.have.value('100');
+      expect(store.getState().generateDiagramWizard.sampleSize).to.equal(100);
+    });
+
+    it('allows user to change sample size', async function () {
+      const preferences = await createSandboxFromDefaultPreferences();
+      const { store } = renderWithStore(<NewDiagramModal />, {
+        services: {
+          preferences,
+        },
+      });
+      await setSetupDiagramStep(store, {
+        connection: { id: 'two', name: 'Conn2' },
+        databaseName: 'sample_airbnb',
+        diagramName: 'diagram1',
+      });
+
+      userEvent.click(
+        screen.getByRole('button', {
+          name: /next/i,
+        })
+      );
+
+      const sampleSizeInput = screen.getByTestId('sample-size-input');
+      userEvent.clear(sampleSizeInput);
+      userEvent.type(sampleSizeInput, '50');
+      userEvent.tab(); // Trigger blur to commit the value
+
+      await waitFor(() => {
+        expect(store.getState().generateDiagramWizard.sampleSize).to.equal(50);
+      });
+    });
+
+    it('resets sample size to default when invalid value is entered', async function () {
+      const preferences = await createSandboxFromDefaultPreferences();
+      const { store } = renderWithStore(<NewDiagramModal />, {
+        services: {
+          preferences,
+        },
+      });
+      await setSetupDiagramStep(store, {
+        connection: { id: 'two', name: 'Conn2' },
+        databaseName: 'sample_airbnb',
+        diagramName: 'diagram1',
+      });
+
+      userEvent.click(
+        screen.getByRole('button', {
+          name: /next/i,
+        })
+      );
+
+      const sampleSizeInput = screen.getByTestId('sample-size-input');
+      userEvent.clear(sampleSizeInput);
+      userEvent.type(sampleSizeInput, '0'); // Invalid: must be > 0
+      userEvent.tab(); // Trigger blur to commit the value
+
+      await waitFor(() => {
+        expect(store.getState().generateDiagramWizard.sampleSize).to.equal(100);
+        expect(sampleSizeInput).to.have.value('100');
+      });
+    });
+
+    it('resets sample size to default when negative value is entered', async function () {
+      const preferences = await createSandboxFromDefaultPreferences();
+      const { store } = renderWithStore(<NewDiagramModal />, {
+        services: {
+          preferences,
+        },
+      });
+      await setSetupDiagramStep(store, {
+        connection: { id: 'two', name: 'Conn2' },
+        databaseName: 'sample_airbnb',
+        diagramName: 'diagram1',
+      });
+
+      userEvent.click(
+        screen.getByRole('button', {
+          name: /next/i,
+        })
+      );
+
+      const sampleSizeInput = screen.getByTestId('sample-size-input');
+      userEvent.clear(sampleSizeInput);
+      userEvent.type(sampleSizeInput, '-5'); // Invalid: negative number
+      userEvent.tab(); // Trigger blur to commit the value
+
+      await waitFor(() => {
+        expect(store.getState().generateDiagramWizard.sampleSize).to.equal(100);
+        expect(sampleSizeInput).to.have.value('100');
+      });
+    });
+
+    it('resets sample size to default when non-numeric value is entered', async function () {
+      const preferences = await createSandboxFromDefaultPreferences();
+      const { store } = renderWithStore(<NewDiagramModal />, {
+        services: {
+          preferences,
+        },
+      });
+      await setSetupDiagramStep(store, {
+        connection: { id: 'two', name: 'Conn2' },
+        databaseName: 'sample_airbnb',
+        diagramName: 'diagram1',
+      });
+
+      userEvent.click(
+        screen.getByRole('button', {
+          name: /next/i,
+        })
+      );
+
+      const sampleSizeInput = screen.getByTestId('sample-size-input');
+      userEvent.clear(sampleSizeInput);
+      userEvent.type(sampleSizeInput, 'abc'); // Invalid: non-numeric text
+      userEvent.tab(); // Trigger blur to commit the value
+
+      await waitFor(() => {
+        expect(store.getState().generateDiagramWizard.sampleSize).to.equal(100);
+        expect(sampleSizeInput).to.have.value('100');
+      });
+    });
+
     it('shows error if it fails to fetch list of collections', async function () {
       const { store } = renderWithStore(<NewDiagramModal />, {
         services: {
