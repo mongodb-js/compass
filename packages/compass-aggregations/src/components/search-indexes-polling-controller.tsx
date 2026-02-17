@@ -31,6 +31,7 @@ export function SearchIndexesPollingController({
 }: SearchIndexesPollingControllerProps): null {
   useEffect(() => {
     if (!isSearchIndexesSupported) {
+      stopPollingSearchIndexes();
       return;
     }
 
@@ -39,6 +40,8 @@ export function SearchIndexesPollingController({
     } else {
       stopPollingSearchIndexes();
     }
+
+    return stopPollingSearchIndexes;
   }, [
     hasSearchStage,
     isSearchIndexesSupported,
