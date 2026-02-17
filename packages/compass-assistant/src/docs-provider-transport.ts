@@ -67,11 +67,53 @@ export class DocsProviderTransport implements ChatTransport<AssistantMessage> {
 
     const lastMessage = filteredMessages[filteredMessages.length - 1];
 
+    const disableStorage = filteredMessages.some(
+      (message) => message.metadata?.disableStorage
+    );
+
+    const modelMessages = await (lastMessage.metadata?.sendWithoutHistory
+      ? convertToModelMessages([lastMessage])
+      : convertToModelMessages(filteredMessages));
+
+    // EAI-1506 The chatbot API never forwards `store: true` to the OpenAI, as a
+    // result even when `store: true` is set the API response does not include a
+    // valid `itemId`. On client side (check
+    //  https://github.com/vercel/ai/blob/610b98ed4764407d5cc2bfe64b9ad27b740e1cf9/packages/openai/src/responses/convert-to-openai-responses-input.ts#L171-L175
+    // ), it converts message to { type: 'item_reference', id: itemId } to reduce the
+    // payload size. This causes issues for the backend that relies on `itemId`.
+    // As a workaround, we are removing the `itemId` from the providerOptions
+    // before sending the messages to the model, so that the client side will not
+    // convert the content to an item reference and will keep the full message content.
+    const finalMessages = modelMessages.map((msg) => {
+      if (msg.role === 'assistant' && Array.isArray(msg.content)) {
+        const content = msg.content;
+        return {
+          ...msg,
+          content: content.map((part) => {
+            if (!('providerOptions' in part)) {
+              return part;
+            }
+            const itemId = part.providerOptions?.openai?.itemId;
+            const newItemId =
+              itemId === '0' || itemId === '' || !itemId ? undefined : itemId;
+            return {
+              ...part,
+              providerOptions: {
+                ...part.providerOptions,
+                openai: {
+                  ...part.providerOptions?.openai,
+                  itemId: newItemId,
+                },
+              },
+            };
+          }),
+        };
+      }
+      return msg;
+    });
     const result = streamText({
       model: this.model,
-      messages: await (lastMessage.metadata?.sendWithoutHistory
-        ? convertToModelMessages([lastMessage])
-        : convertToModelMessages(filteredMessages)),
+      messages: finalMessages,
       abortSignal: abortSignal,
       headers: {
         'X-Request-Origin': this.origin,
@@ -79,7 +121,7 @@ export class DocsProviderTransport implements ChatTransport<AssistantMessage> {
       tools: this.getTools(),
       providerOptions: {
         openai: {
-          store: process.env.COMPASS_ASSISTANT_STORE === 'true' ? true : false,
+          store: !disableStorage,
           // If the last message has custom instructions, use them instead of the default
           instructions: lastMessage.metadata?.instructions ?? this.instructions,
         },
