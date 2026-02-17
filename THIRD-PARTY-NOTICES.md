@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **Mongodb Compass**.
-This document was automatically generated on Sun Feb 15 2026.
+This document was automatically generated on Tue Feb 17 2026.
 
 ## List of dependencies
 
@@ -190,7 +190,7 @@ This document was automatically generated on Sun Feb 15 2026.
 | **[ai](#3e11b3e4a5008c7fa797605968d61a4d90a7c5f26c955a8d05aa467fbdab4190)**                                                 | 5.0.121            | Apache-2.0                          |
 | **[ai](#17c8afbaf69a1852072b2593485c1319c0cff62b28227df679d70537c8e18425)**                                                 | 6.0.33             | Apache-2.0                          |
 | **[ajv-formats](#3081140538322aaf684c239fd5c532b47691d82b42e6cc4a5e60df5eaaab538a)**                                        | 3.0.1              | MIT                                 |
-| **[ajv](#b6703d5c862f2eb70cacbb70515140959bb8bd10f3237d5451202f68e22bc8b9)**                                                | 8.17.1             | MIT                                 |
+| **[ajv](#7a02da518ce891ffb2a58a3082692078140d0d99c3160a8f4c5daab467fb7bc2)**                                                | 8.18.0             | MIT                                 |
 | **[ampersand-class-extend](#e80e071b7daf67567df2ed06a0912550d865bb42f740c56f3ee13e4c9ada947b)**                             | 2.0.0              | MIT                                 |
 | **[ampersand-collection](#7ae90475872c8fb68869e0d81db8e343084b47fd30ab156865b4b22ae3578a37)**                               | 2.0.2              | MIT                                 |
 | **[ampersand-events](#5aa8f29a56511aafd27953d01cb603faa9aa7e2f92847c72f879c42646e7f3fa)**                                   | 2.0.2              | MIT                                 |
@@ -20226,9 +20226,9 @@ License files:
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
       SOFTWARE.
 
-<a id="b6703d5c862f2eb70cacbb70515140959bb8bd10f3237d5451202f68e22bc8b9"></a>
+<a id="7a02da518ce891ffb2a58a3082692078140d0d99c3160a8f4c5daab467fb7bc2"></a>
 
-### [ajv](https://www.npmjs.com/package/ajv) (version 8.17.1)
+### [ajv](https://www.npmjs.com/package/ajv) (version 8.18.0)
 
 License tags: MIT
 

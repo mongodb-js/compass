@@ -6,7 +6,7 @@ import {
   Selectors,
   skipForWeb,
   TEST_COMPASS_WEB,
-  DEFAULT_CONNECTION_STRING_1,
+  getDefaultConnectionStrings,
   connectionNameFromString,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
@@ -21,7 +21,7 @@ type Connection = {
 const connectionsWithNoSearchSupport: Connection[] = [
   {
     name: 'Local Connection',
-    connectionString: DEFAULT_CONNECTION_STRING_1,
+    connectionString: getDefaultConnectionStrings(0),
   },
   {
     name: 'Atlas Free Cluster',
