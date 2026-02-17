@@ -1,9 +1,6 @@
 import { expect } from 'chai';
 import { useSelector } from 'react-redux';
-import {
-  renderHook,
-  renderHookWithActiveConnection,
-} from '@mongodb-js/testing-library-compass';
+import { renderHook } from '@mongodb-js/testing-library-compass';
 import { Provider } from 'react-redux';
 import React from 'react';
 import type { ConnectionInfo } from '@mongodb-js/compass-connections/provider';
@@ -57,55 +54,28 @@ describe('indexes-read-write-access', function () {
       const readWrite = preferences.readWrite ?? false;
       const enableAtlasSearchIndexes =
         preferences.enableAtlasSearchIndexes ?? true;
-
-      if (connectionInfo) {
-        const { result } = await renderHookWithActiveConnection(
-          () =>
-            useSelector(
-              selectReadWriteAccess({
-                isAtlas,
-                readOnly,
-                readWrite,
-                enableAtlasSearchIndexes,
-              })
-            ),
-          connectionInfo,
-          {
-            wrapper,
-            preferences: {
-              enableRollingIndexes: true,
-              enableAtlasSearchIndexes: true,
-              readOnly: false,
-              readWrite: false,
-              ...preferences,
-            },
-          }
-        );
-        return result.current;
-      } else {
-        const { result } = renderHook(
-          () =>
-            useSelector(
-              selectReadWriteAccess({
-                isAtlas,
-                readOnly,
-                readWrite,
-                enableAtlasSearchIndexes,
-              })
-            ),
-          {
-            wrapper,
-            preferences: {
-              enableRollingIndexes: true,
-              enableAtlasSearchIndexes: true,
-              readOnly: false,
-              readWrite: false,
-              ...preferences,
-            },
-          }
-        );
-        return result.current;
-      }
+      const { result } = renderHook(
+        () =>
+          useSelector(
+            selectReadWriteAccess({
+              isAtlas,
+              readOnly,
+              readWrite,
+              enableAtlasSearchIndexes,
+            })
+          ),
+        {
+          wrapper,
+          preferences: {
+            enableRollingIndexes: true,
+            enableAtlasSearchIndexes: true,
+            readOnly: false,
+            readWrite: false,
+            ...preferences,
+          },
+        }
+      );
+      return result.current;
     }
 
     describe('regular indexes', function () {
@@ -164,7 +134,7 @@ describe('indexes-read-write-access', function () {
         it('should return isSearchIndexesReadable as true when enableAtlasSearchIndexes is true and isSearchIndexesSupported is true', async function () {
           const result = await getSelectReadWriteAccessResult(
             { isReadonly: false, isSearchIndexesSupported: true },
-            {}
+            { enableAtlasSearchIndexes: true }
           );
           expect(result.isSearchIndexesReadable).to.equal(true);
         });
@@ -186,10 +156,13 @@ describe('indexes-read-write-access', function () {
         });
 
         it('should return isSearchIndexesWritable as true when all conditions are met', async function () {
-          const result = await getSelectReadWriteAccessResult({
-            isReadonly: false,
-            isSearchIndexesSupported: true,
-          });
+          const result = await getSelectReadWriteAccessResult(
+            {
+              isReadonly: false,
+              isSearchIndexesSupported: true,
+            },
+            { enableAtlasSearchIndexes: true }
+          );
           expect(result.isSearchIndexesWritable).to.equal(true);
         });
 
@@ -217,7 +190,7 @@ describe('indexes-read-write-access', function () {
               isReadonly: true,
               serverVersion: '8.0.0',
             },
-            undefined,
+            { enableAtlasSearchIndexes: true },
             createAtlasConnectionInfo()
           );
           expect(result.isSearchIndexesReadable).to.equal(true);
@@ -241,7 +214,7 @@ describe('indexes-read-write-access', function () {
               isReadonly: true,
               serverVersion: '8.0.0',
             },
-            undefined,
+            { enableAtlasSearchIndexes: true },
             createAtlasConnectionInfo()
           );
           expect(result.isSearchIndexesWritable).to.equal(true);

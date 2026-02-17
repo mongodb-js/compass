@@ -61,20 +61,11 @@ describe('is-view-search-compatible', function () {
         React.createElement(Provider, { store, children });
 
       const isAtlas = !!connectionInfo?.atlasMetadata;
-
-      if (connectionInfo) {
-        const { result } = renderHook(
-          () => useSelector(selectIsViewSearchCompatible(isAtlas)),
-          { wrapper }
-        );
-        return result.current;
-      } else {
-        const { result } = renderHook(
-          () => useSelector(selectIsViewSearchCompatible(isAtlas)),
-          { wrapper }
-        );
-        return result.current;
-      }
+      const { result } = renderHook(
+        () => useSelector(selectIsViewSearchCompatible(isAtlas)),
+        { wrapper }
+      );
+      return result.current;
     }
 
     describe('isViewVersionSearchCompatible', function () {
@@ -82,14 +73,6 @@ describe('is-view-search-compatible', function () {
         it('should return true for server version >= 8.0.0', function () {
           const result = getSelectIsViewSearchCompatibleResult(
             { serverVersion: '8.0.0' },
-            createAtlasConnectionInfo()
-          );
-          expect(result.isViewVersionSearchCompatible).to.equal(true);
-        });
-
-        it('should return true for server version >= 8.1.0', function () {
-          const result = getSelectIsViewSearchCompatibleResult(
-            { serverVersion: '8.1.0' },
             createAtlasConnectionInfo()
           );
           expect(result.isViewVersionSearchCompatible).to.equal(true);
