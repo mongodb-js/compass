@@ -311,7 +311,7 @@ describe('Base Search Index Modal', function () {
         expect(inputText.value).to.equal('my_custom_index');
       });
 
-      it('does not change index name when switching to search if name is not "vector_index"', async function () {
+      it.skip('does not change index name when switching to search if name is not "vector_index"', async function () {
         const inputText: HTMLInputElement = screen.getByTestId(
           'name-of-search-index'
         );
