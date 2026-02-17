@@ -4,7 +4,7 @@ import {
   init,
   cleanup,
   screenshotIfFailed,
-  DEFAULT_CONNECTION_NAME_1,
+  getDefaultConnectionNames,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
@@ -297,7 +297,7 @@ describe('Data Modeling tab', function () {
     const dataModelName = 'Test Data Model';
     await setupDiagram(browser, {
       diagramName: dataModelName,
-      connectionName: DEFAULT_CONNECTION_NAME_1,
+      connectionName: getDefaultConnectionNames(0),
       databaseName: 'test',
     });
 
@@ -312,7 +312,7 @@ describe('Data Modeling tab', function () {
       const dataModelName = 'Test Data Model - Undo/Redo';
       await setupDiagram(browser, {
         diagramName: dataModelName,
-        connectionName: DEFAULT_CONNECTION_NAME_1,
+        connectionName: getDefaultConnectionNames(0),
         databaseName: 'test',
       });
 
@@ -392,7 +392,7 @@ describe('Data Modeling tab', function () {
       const newName = 'testCollection-renamed';
       await setupDiagram(browser, {
         diagramName: dataModelName,
-        connectionName: DEFAULT_CONNECTION_NAME_1,
+        connectionName: getDefaultConnectionNames(0),
         databaseName: 'test',
       });
 
@@ -437,7 +437,7 @@ describe('Data Modeling tab', function () {
       exportFileName = `${dataModelName}.json`;
       await setupDiagram(browser, {
         diagramName: dataModelName,
-        connectionName: DEFAULT_CONNECTION_NAME_1,
+        connectionName: getDefaultConnectionNames(0),
         databaseName: 'test',
       });
 
@@ -539,7 +539,7 @@ describe('Data Modeling tab', function () {
       exportFileName = `${dataModelName}.png`;
       await setupDiagram(browser, {
         diagramName: dataModelName,
-        connectionName: DEFAULT_CONNECTION_NAME_1,
+        connectionName: getDefaultConnectionNames(0),
         databaseName: 'test',
       });
 
@@ -580,7 +580,7 @@ describe('Data Modeling tab', function () {
       exportFileName = `${dataModelName}.mdm`;
       await setupDiagram(browser, {
         diagramName: dataModelName,
-        connectionName: DEFAULT_CONNECTION_NAME_1,
+        connectionName: getDefaultConnectionNames(0),
         databaseName,
       });
 
@@ -651,7 +651,7 @@ describe('Data Modeling tab', function () {
       const dataModelName = 'Test Add Relationship Manually';
       await setupDiagram(browser, {
         diagramName: dataModelName,
-        connectionName: DEFAULT_CONNECTION_NAME_1,
+        connectionName: getDefaultConnectionNames(0),
         databaseName: 'test',
       });
 
@@ -759,7 +759,7 @@ describe('Data Modeling tab', function () {
       const dataModelName = 'Test Relationship By Drawing';
       await setupDiagram(browser, {
         diagramName: dataModelName,
-        connectionName: DEFAULT_CONNECTION_NAME_1,
+        connectionName: getDefaultConnectionNames(0),
         databaseName: 'test',
       });
 
@@ -813,7 +813,7 @@ describe('Data Modeling tab', function () {
       const dataModelName = 'Test Edit Collection';
       await setupDiagram(browser, {
         diagramName: dataModelName,
-        connectionName: DEFAULT_CONNECTION_NAME_1,
+        connectionName: getDefaultConnectionNames(0),
         databaseName: 'test',
       });
 
@@ -865,7 +865,7 @@ describe('Data Modeling tab', function () {
       const dataModelName = 'Test Edit New Collection';
       await setupDiagram(browser, {
         diagramName: dataModelName,
-        connectionName: DEFAULT_CONNECTION_NAME_1,
+        connectionName: getDefaultConnectionNames(0),
         databaseName: 'test',
       });
 
@@ -916,7 +916,7 @@ describe('Data Modeling tab', function () {
       const dataModelName = 'Test Edit New Database Collection';
       await setupDiagram(browser, {
         diagramName: dataModelName,
-        connectionName: DEFAULT_CONNECTION_NAME_1,
+        connectionName: getDefaultConnectionNames(0),
         databaseName: 'test',
       });
 
@@ -983,7 +983,7 @@ describe('Data Modeling tab', function () {
       const dataModelName = 'Test Data Model - Fields via Diagram';
       await setupDiagram(browser, {
         diagramName: dataModelName,
-        connectionName: DEFAULT_CONNECTION_NAME_1,
+        connectionName: getDefaultConnectionNames(0),
         databaseName: 'test',
       });
 
@@ -1027,7 +1027,7 @@ describe('Data Modeling tab', function () {
       const dataModelName = 'Test Data Model - Collapse/Expand in Diagram';
       await setupDiagram(browser, {
         diagramName: dataModelName,
-        connectionName: DEFAULT_CONNECTION_NAME_1,
+        connectionName: getDefaultConnectionNames(0),
         databaseName: 'test',
       });
 

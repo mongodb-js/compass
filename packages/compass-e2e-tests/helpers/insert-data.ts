@@ -1,6 +1,6 @@
 import { MongoClient } from 'mongodb';
 import type { Db, MongoServerError } from 'mongodb';
-import { DEFAULT_CONNECTION_STRINGS } from './test-runner-context';
+import { getDefaultConnectionStrings } from './test-runner-context';
 import { redactConnectionString } from 'mongodb-connection-string-url';
 
 // This is a list of all the known database names that get created by tests so
@@ -49,7 +49,7 @@ export const beforeAll = async () => {
   // hopefully fail a test.
   // This should also mean that the database or collection name that we try and
   // use is always ambiguous, so we're forced to deal with it early in tests.
-  const connectionStrings = DEFAULT_CONNECTION_STRINGS;
+  const connectionStrings = getDefaultConnectionStrings();
   clients = connectionStrings.map(
     (connectionString) => new MongoClient(connectionString)
   );

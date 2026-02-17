@@ -103,6 +103,8 @@ export type AssistantMessage = UIMessage & {
      *  to (if any).
      */
     connectionInfo?: BasicConnectionInfo | null;
+    /** Whether to enable or disable storage of this message in chatapi. */
+    disableStorage?: boolean;
   };
 };
 
@@ -250,7 +252,7 @@ export const AssistantProvider: React.FunctionComponent<
 
   const ensureOptInAndSend = useInitialValue(() => {
     return async function (
-      message: SendMessage,
+      _message: SendMessage,
       options: SendOptions,
       callback: () => void
     ) {
@@ -342,6 +344,18 @@ export const AssistantProvider: React.FunctionComponent<
       const hasSystemContextMessage = chat.messages.some((message) => {
         return message.metadata?.isSystemContext;
       });
+
+      const message = _message
+        ? {
+            ..._message,
+            metadata: {
+              ..._message.metadata,
+              disableStorage: activeConnections.some(
+                (info) => info.connectionOptions.fleOptions
+              ),
+            },
+          }
+        : undefined;
 
       const shouldSendContextPrompt =
         message?.metadata?.sendContext &&

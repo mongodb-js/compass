@@ -7,7 +7,7 @@ import {
   screenshotIfFailed,
   skipForWeb,
   TEST_COMPASS_WEB,
-  DEFAULT_CONNECTION_NAME_1,
+  getDefaultConnectionNames,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
@@ -50,7 +50,7 @@ describe('Shell', function () {
   it('has an info modal', async function () {
     await browser.connectToDefaults();
 
-    await browser.openShell(DEFAULT_CONNECTION_NAME_1);
+    await browser.openShell(getDefaultConnectionNames(0));
     await browser.clickVisible(Selectors.ShellInfoButton);
 
     await browser.waitForOpenModal(Selectors.ShellInfoModal);
@@ -58,7 +58,7 @@ describe('Shell', function () {
     await browser.clickVisible(Selectors.ShellInfoModalCloseButton);
     await browser.waitForOpenModal(Selectors.ShellInfoModal, { reverse: true });
 
-    await browser.closeShell(DEFAULT_CONNECTION_NAME_1);
+    await browser.closeShell(getDefaultConnectionNames(0));
   });
 
   it('shows and hides shell based on settings', async function () {
@@ -66,7 +66,7 @@ describe('Shell', function () {
 
     expect(
       await browser.hasConnectionMenuItem(
-        DEFAULT_CONNECTION_NAME_1,
+        getDefaultConnectionNames(0),
         Selectors.OpenShellItem
       )
     ).to.be.equal(true);
@@ -82,7 +82,7 @@ describe('Shell', function () {
 
     expect(
       await browser.hasConnectionMenuItem(
-        DEFAULT_CONNECTION_NAME_1,
+        getDefaultConnectionNames(0),
         Selectors.OpenShellItem
       )
     ).to.be.equal(false);

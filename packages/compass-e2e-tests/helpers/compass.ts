@@ -22,8 +22,6 @@ import Debug from 'debug';
 import semver from 'semver';
 import { CHROME_STARTUP_FLAGS } from './chrome-startup-flags';
 import {
-  DEFAULT_CONNECTION_STRINGS,
-  DEFAULT_CONNECTION_NAMES,
   DEFAULT_CONNECTIONS_SERVER_INFO,
   isTestingWeb,
   isTestingDesktop,
@@ -49,6 +47,11 @@ import { getExtension } from './redirect-extension';
 import {
   getCloudUrlsFromContext,
   COMPASS_WEB_ENTRYPOINT_HOST,
+} from './test-runner-context';
+
+export {
+  getDefaultConnectionStrings,
+  getDefaultConnectionNames,
 } from './test-runner-context';
 
 const killAsync = async (pid: number, signal?: string) => {
@@ -101,16 +104,6 @@ export function skipForWeb(
     test.skip();
   }
 }
-
-export const DEFAULT_CONNECTION_STRING_1 = DEFAULT_CONNECTION_STRINGS[0];
-// NOTE: in browser.setupDefaultConnections() we don't give the first connection an
-// explicit name, so it gets a calculated one based off the connection string
-export const DEFAULT_CONNECTION_NAME_1 = DEFAULT_CONNECTION_NAMES[0];
-
-// for testing multiple connections
-export const DEFAULT_CONNECTION_STRING_2 = DEFAULT_CONNECTION_STRINGS[1];
-// NOTE: in browser.setupDefaultConnections() the second connection gets given an explicit name
-export const DEFAULT_CONNECTION_NAME_2 = DEFAULT_CONNECTION_NAMES[1];
 
 export const serverSatisfies = (
   semverCondition: string,
