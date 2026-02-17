@@ -24,6 +24,9 @@
 import { injectCSP } from './utils/csp';
 injectCSP();
 
+// Fix buggy whatwg-url
+import './utils/whatwg-url-parse-fix';
+
 // Setup paths and environment variables for electron globals
 import { setupHadronDistribution } from '../setup-hadron-distribution';
 setupHadronDistribution();

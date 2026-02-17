@@ -116,9 +116,13 @@ const sharedResolveOptions = (
   };
 };
 
+// require.resolve() is used here because otherwise, ProvidePlugin will
+// resolve the modules relative to each entry point (!!!), leading to
+// potentially mismatching versions of whatwg-url being used in different
+// parts of the bundle
 const providePlugin = new ProvidePlugin({
-  URL: ['whatwg-url', 'URL'],
-  URLSearchParams: ['whatwg-url', 'URLSearchParams'],
+  URL: [require.resolve('whatwg-url'), 'URL'],
+  URLSearchParams: [require.resolve('whatwg-url'), 'URLSearchParams'],
 });
 
 export function createElectronMainConfig(
