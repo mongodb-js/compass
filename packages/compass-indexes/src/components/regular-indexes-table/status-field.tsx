@@ -14,7 +14,6 @@ import type { InProgressIndex } from '../../modules/regular-indexes';
 const statusFieldStyles = css({
   display: 'flex',
   gap: spacing[100],
-  minWidth: spacing[400] * 7,
   alignItems: 'baseline',
 });
 

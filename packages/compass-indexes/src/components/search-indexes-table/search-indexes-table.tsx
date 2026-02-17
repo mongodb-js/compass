@@ -12,6 +12,7 @@ import {
   Link,
   Tooltip,
   css,
+  palette,
   spacing,
 } from '@mongodb-js/compass-components';
 import type {
@@ -30,11 +31,13 @@ import {
   startPollingSearchIndexes,
   stopPollingSearchIndexes,
 } from '../../modules/search-indexes';
+import { openEditSearchIndexDrawerView } from '../../modules/indexes-drawer';
+import type { SearchIndexType } from '../../modules/indexes-drawer';
 import type { FetchStatus } from '../../utils/fetch-status';
 import { IndexesTable } from '../indexes-table';
 import SearchIndexActions from './search-index-actions';
 import { ZeroGraphic } from './zero-graphic';
-import type { RootState } from '../../modules';
+import type { RootState, IndexesThunkDispatch } from '../../modules';
 import BadgeWithIconLink from '../indexes-table/badge-with-icon-link';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { useWorkspaceTabId } from '@mongodb-js/compass-workspaces/provider';
@@ -43,11 +46,14 @@ import { usePreferences } from 'compass-preferences-model/provider';
 import { selectReadWriteAccess } from '../../utils/indexes-read-write-access';
 import { selectIsViewSearchCompatible } from '../../utils/is-view-search-compatible';
 
+type IndexesTableContextType = 'indexes-tab' | 'indexes-drawer';
+
 type SearchIndexesTableProps = {
   namespace: string;
   indexes: SearchIndex[];
   isReadonlyView: boolean;
   status: FetchStatus;
+  context: IndexesTableContextType;
   onDropIndexClick: (name: string) => void;
   onEditIndexClick: (name: string) => void;
   onOpenCreateModalClick: () => void;
@@ -166,6 +172,14 @@ const searchIndexFieldStyles = css({
   gap: spacing[100],
 });
 
+const searchIndexDetailsForDrawerStyles = css({
+  display: 'flex',
+  flexDirection: 'column',
+  gap: spacing[100],
+  padding: spacing[200],
+  color: palette.gray.dark1,
+});
+
 function VectorSearchIndexDetails({ definition }: { definition: Document }) {
   return (
     <>
@@ -228,6 +242,27 @@ function SearchIndexDetails({ definition }: { definition: Document }) {
   );
 }
 
+function getIndexFields(definition: Document, isVectorSearchIndex: boolean) {
+  if (isVectorSearchIndex) {
+    return (definition.fields as { path: string }[])
+      .map((field) => `“${field.path}”`)
+      .join(', ');
+  }
+
+  const fields = [];
+  if (definition.mappings?.dynamic) {
+    fields.push('[dynamic]');
+  }
+
+  return fields
+    .concat(
+      Object.keys((definition.mappings?.fields as Document) || {}).map(
+        (field) => `“${field}”`
+      )
+    )
+    .join(', ');
+}
+
 type SearchIndexInfo = {
   id: string;
   name: string;
@@ -275,12 +310,7 @@ function sortByType(
   return 0;
 }
 
-const COLUMNS: LGColumnDef<SearchIndexInfo>[] = [
-  {
-    accessorKey: 'name',
-    header: 'Name and Fields',
-    enableSorting: true,
-  },
+const COLUMNS_COMMON: LGColumnDef<SearchIndexInfo>[] = [
   {
     accessorKey: 'type',
     header: 'Type',
@@ -297,8 +327,31 @@ const COLUMNS: LGColumnDef<SearchIndexInfo>[] = [
   },
 ];
 
+const COLUMNS: LGColumnDef<SearchIndexInfo>[] = [
+  {
+    accessorKey: 'name',
+    header: 'Name and Fields',
+    enableSorting: true,
+  },
+  ...COLUMNS_COMMON,
+];
+
 const COLUMNS_WITH_ACTIONS: LGColumnDef<SearchIndexInfo>[] = [
   ...COLUMNS,
+  {
+    accessorKey: 'actions',
+    header: '',
+    cell: (info) => info.getValue(),
+  },
+];
+
+const COLUMNS_FOR_DRAWER: LGColumnDef<SearchIndexInfo>[] = [
+  {
+    accessorKey: 'name',
+    header: 'Name',
+    enableSorting: true,
+  },
+  ...COLUMNS_COMMON,
   {
     accessorKey: 'actions',
     header: '',
@@ -313,6 +366,7 @@ export const SearchIndexesTable: React.FunctionComponent<
   indexes,
   isReadonlyView,
   status,
+  context,
   onOpenCreateModalClick,
   onEditIndexClick,
   onDropIndexClick,
@@ -365,7 +419,13 @@ export const SearchIndexesTable: React.FunctionComponent<
           ),
           type: (
             <SearchIndexType
-              type={isVectorSearchIndex ? 'Vector Search' : 'Search'}
+              type={
+                isVectorSearchIndex
+                  ? context === 'indexes-drawer'
+                    ? 'Vector'
+                    : 'Vector Search'
+                  : 'Search'
+              }
               link={
                 isVectorSearchIndex
                   ? 'https://www.mongodb.com/docs/atlas/atlas-vector-search/create-index/'
@@ -379,23 +439,43 @@ export const SearchIndexesTable: React.FunctionComponent<
               index={index}
               onDropIndex={onDropIndexClick}
               onEditIndex={onEditIndexClick}
-              onRunAggregateIndex={(name) => {
-                openCollectionWorkspace(connectionId, namespace, {
-                  newTab: true,
-                  ...(isVectorSearchIndex
-                    ? {
-                        initialPipelineText:
-                          getInitialVectorSearchIndexPipelineText(name),
-                      }
-                    : {
-                        initialPipeline: getInitialSearchIndexPipeline(name),
-                      }),
-                });
-              }}
+              onRunAggregateIndex={
+                context === 'indexes-tab'
+                  ? (name: string) => {
+                      openCollectionWorkspace(connectionId, namespace, {
+                        newTab: true,
+                        ...(isVectorSearchIndex
+                          ? {
+                              initialPipelineText:
+                                getInitialVectorSearchIndexPipelineText(name),
+                            }
+                          : {
+                              initialPipeline:
+                                getInitialSearchIndexPipeline(name),
+                            }),
+                      });
+                    }
+                  : undefined
+              }
             />
           ),
           renderExpandedContent() {
-            return (
+            return context === 'indexes-drawer' ? (
+              <div className={searchIndexDetailsForDrawerStyles}>
+                <div>
+                  <b>Status: </b>
+                  {index.status}
+                </div>
+                <div>
+                  <b>Index Fields: </b>
+                  {getIndexFields(index.latestDefinition, isVectorSearchIndex)}
+                </div>
+                <div>
+                  <b>Queryable: </b>
+                  {index.queryable.toString()}
+                </div>
+              </div>
+            ) : (
               <div
                 className={searchIndexDetailsStyles}
                 data-testid={`search-indexes-details-${index.name}`}
@@ -443,25 +523,47 @@ export const SearchIndexesTable: React.FunctionComponent<
     <IndexesTable
       id="search-indexes"
       data-testid="search-indexes"
-      columns={isSearchIndexesWritable ? COLUMNS_WITH_ACTIONS : COLUMNS}
+      columns={
+        context === 'indexes-drawer'
+          ? COLUMNS_FOR_DRAWER
+          : isSearchIndexesWritable
+          ? COLUMNS_WITH_ACTIONS
+          : COLUMNS
+      }
       data={data}
+      isDrawer={context === 'indexes-drawer'}
     />
   );
 };
 
-const mapState = ({ searchIndexes, namespace, isReadonlyView }: RootState) => ({
+type SearchIndexesTableOwnProps = {
+  indexes?: SearchIndex[];
+  context?: IndexesTableContextType;
+};
+
+const mapState = (
+  { searchIndexes, namespace, isReadonlyView }: RootState,
+  ownProps: SearchIndexesTableOwnProps
+) => ({
   namespace,
   isReadonlyView,
-  indexes: searchIndexes.indexes,
+  indexes: ownProps.indexes ?? searchIndexes.indexes,
   status: searchIndexes.status,
+  context: ownProps.context ?? 'indexes-drawer',
 });
 
-const mapDispatch = {
-  onDropIndexClick: dropSearchIndex,
-  onOpenCreateModalClick: createSearchIndexOpened,
-  onEditIndexClick: updateSearchIndexOpened,
-  onSearchIndexesOpened: startPollingSearchIndexes,
-  onSearchIndexesClosed: stopPollingSearchIndexes,
-};
+const mapDispatch = (
+  dispatch: IndexesThunkDispatch,
+  ownProps: SearchIndexesTableOwnProps
+) => ({
+  onDropIndexClick: (name: string) => dispatch(dropSearchIndex(name)),
+  onOpenCreateModalClick: () => dispatch(createSearchIndexOpened()),
+  onEditIndexClick: (name: string) =>
+    ownProps.context === 'indexes-drawer'
+      ? dispatch(openEditSearchIndexDrawerView(name))
+      : dispatch(updateSearchIndexOpened(name)),
+  onSearchIndexesOpened: () => dispatch(startPollingSearchIndexes()),
+  onSearchIndexesClosed: () => dispatch(stopPollingSearchIndexes()),
+});
 
 export default connect(mapState, mapDispatch)(SearchIndexesTable);

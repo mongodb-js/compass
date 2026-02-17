@@ -49,6 +49,7 @@ type EmptyContentProps = {
   titleClassName?: string;
   subTitle: React.ReactNode;
   subTitleClassName?: string;
+  containerClassName?: string;
   callToAction?: React.ReactNode;
   callToActionLink?: React.ReactNode;
 };
@@ -61,13 +62,17 @@ const EmptyContent: React.FunctionComponent<
   subTitle,
   callToAction,
   callToActionLink,
+  containerClassName,
   titleClassName,
   subTitleClassName,
 }) => {
   const darkMode = useDarkMode();
 
   return (
-    <div data-testid="empty-content" className={containerStyles}>
+    <div
+      data-testid="empty-content"
+      className={cx(containerStyles, containerClassName)}
+    >
       {Icon && (
         <div className={iconStyles}>
           <Icon />

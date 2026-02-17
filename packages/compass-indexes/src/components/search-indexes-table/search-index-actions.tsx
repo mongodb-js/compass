@@ -11,9 +11,9 @@ import type { SearchIndex } from 'mongodb-data-service';
 
 type IndexActionsProps = {
   index: SearchIndex;
-  onRunAggregateIndex: (name: string) => void;
   onDropIndex: (name: string) => void;
   onEditIndex: (name: string) => void;
+  onRunAggregateIndex?: (name: string) => void;
 };
 
 type SearchIndexAction = 'drop' | 'edit';
@@ -35,9 +35,9 @@ const notQueryableAggregateStyles = css({ visibility: 'hidden' });
 
 const IndexActions: React.FunctionComponent<IndexActionsProps> = ({
   index,
-  onRunAggregateIndex,
   onDropIndex,
   onEditIndex,
+  onRunAggregateIndex,
 }) => {
   const indexActions: GroupedItemAction<SearchIndexAction>[] = useMemo(() => {
     const actions: GroupedItemAction<SearchIndexAction>[] = [
@@ -69,17 +69,19 @@ const IndexActions: React.FunctionComponent<IndexActionsProps> = ({
 
   return (
     <div className={actionGroupStyles}>
-      <Button
-        data-testid="search-index-actions-aggregate-action"
-        className={cx(
-          runAggregateStyles,
-          !index.queryable && notQueryableAggregateStyles
-        )}
-        size="xsmall"
-        onClick={() => onRunAggregateIndex(index.name)}
-      >
-        Aggregate
-      </Button>
+      {onRunAggregateIndex && (
+        <Button
+          data-testid="search-index-actions-aggregate-action"
+          className={cx(
+            runAggregateStyles,
+            !index.queryable && notQueryableAggregateStyles
+          )}
+          size="xsmall"
+          onClick={() => onRunAggregateIndex(index.name)}
+        >
+          Aggregate
+        </Button>
+      )}
       <ItemActionGroup<SearchIndexAction>
         data-testid="search-index-actions"
         actions={indexActions}

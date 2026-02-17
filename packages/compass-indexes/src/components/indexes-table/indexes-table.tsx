@@ -80,11 +80,22 @@ const tableHeadCellStyles = css({
   },
 });
 
+const tableCellStylesForDrawer = css({
+  ':first-of-type': {
+    paddingLeft: 0,
+  },
+
+  ':last-of-type': {
+    paddingRight: 0,
+  },
+});
+
 export type IndexesTableProps<T> = {
   id: string;
   ['data-testid']: string;
   columns: LGColumnDef<T>[];
   data: LGTableDataType<T>[];
+  isDrawer?: boolean;
 };
 
 export function IndexesTable<T>({
@@ -92,6 +103,7 @@ export function IndexesTable<T>({
   ['data-testid']: dataTestId,
   columns,
   data,
+  isDrawer = false,
 }: IndexesTableProps<T>) {
   const [sorting, setSorting] = useTabState<SortingState>(
     `${id}-sorting-state`,
@@ -127,7 +139,10 @@ export function IndexesTable<T>({
               {headerGroup.headers.map((header) => {
                 return (
                   <HeaderCell
-                    className={tableHeadCellStyles}
+                    className={cx({
+                      tableHeadCellStyles,
+                      [tableCellStylesForDrawer]: isDrawer,
+                    })}
                     data-testid={`${dataTestId}-header-${header.id}`}
                     key={header.id}
                     header={header}
@@ -163,8 +178,9 @@ export function IndexesTable<T>({
                       id={cell.id}
                       cell={cell}
                       className={cx({
-                        [indexActionsCellClassName]: isActionsCell,
-                        [indexActionsCellStyles]: isActionsCell,
+                        [tableCellStylesForDrawer]: isDrawer,
+                        [indexActionsCellClassName]: isActionsCell && !isDrawer,
+                        [indexActionsCellStyles]: isActionsCell && !isDrawer,
                       })}
                       data-testid={`${dataTestId}-${cell.column.id}-field`}
                     >

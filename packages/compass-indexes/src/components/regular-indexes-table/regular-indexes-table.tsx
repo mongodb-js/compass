@@ -36,11 +36,14 @@ import type {
 import { selectReadWriteAccess } from '../../utils/indexes-read-write-access';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 
+type IndexesTableContextType = 'indexes-tab' | 'indexes-drawer';
+
 type RegularIndexesTableProps = {
   indexes: RegularIndex[];
   inProgressIndexes: InProgressIndex[];
   rollingIndexes: RollingIndex[];
   serverVersion: string;
+  context: IndexesTableContextType;
   onHideIndexClick: (name: string) => void;
   onUnhideIndexClick: (name: string) => void;
   onDeleteIndexClick: (name: string) => void;
@@ -224,6 +227,33 @@ const COLUMNS_WITH_ACTIONS: LGColumnDef<IndexInfo>[] = [
   },
 ];
 
+const COLUMNS_FOR_DRAWER: LGColumnDef<IndexInfo>[] = [
+  {
+    accessorKey: 'name',
+    header: 'Name',
+    enableSorting: true,
+  },
+  {
+    accessorKey: 'type',
+    header: 'Type',
+    cell: (info) => info.getValue(),
+    enableSorting: true,
+    sortingFn: sortFn,
+  },
+  {
+    accessorKey: 'status',
+    header: 'Status',
+    cell: (info) => info.getValue(),
+    sortingFn: sortFn,
+    enableSorting: true,
+  },
+  {
+    accessorKey: 'actions',
+    header: '',
+    cell: (info) => info.getValue(),
+  },
+];
+
 // compassIndexType because type is taken by RegularIndex. indexType is taken by AtlasIndexStats.
 type MappedRegularIndex = RegularIndex & { compassIndexType: 'regular-index' };
 type MappedInProgressIndex = InProgressIndex & {
@@ -391,6 +421,7 @@ export const RegularIndexesTable: React.FunctionComponent<
   inProgressIndexes,
   rollingIndexes,
   serverVersion,
+  context,
   onHideIndexClick,
   onUnhideIndexClick,
   onDeleteIndexClick,
@@ -466,6 +497,7 @@ export const RegularIndexesTable: React.FunctionComponent<
       onHideIndexClick,
       onUnhideIndexClick,
       serverVersion,
+      context,
     ]
   );
 
@@ -479,18 +511,34 @@ export const RegularIndexesTable: React.FunctionComponent<
     <IndexesTable
       id="regular-indexes"
       data-testid="indexes"
-      columns={isRegularIndexesWritable ? COLUMNS_WITH_ACTIONS : COLUMNS}
+      columns={
+        context === 'indexes-drawer'
+          ? COLUMNS_FOR_DRAWER
+          : isRegularIndexesWritable
+          ? COLUMNS_WITH_ACTIONS
+          : COLUMNS
+      }
       data={data}
+      isDrawer={context === 'indexes-drawer'}
     />
   );
 };
 
-const mapState = ({ serverVersion, regularIndexes }: RootState) => ({
+type OwnProps = {
+  indexes?: RegularIndex[];
+  context?: IndexesTableContextType;
+};
+
+const mapState = (
+  { serverVersion, regularIndexes }: RootState,
+  ownProps: OwnProps
+) => ({
   serverVersion,
-  indexes: regularIndexes.indexes,
+  indexes: ownProps.indexes ?? regularIndexes.indexes,
   inProgressIndexes: regularIndexes.inProgressIndexes,
   rollingIndexes: regularIndexes.rollingIndexes ?? [],
   error: regularIndexes.error,
+  context: ownProps.context ?? 'indexes-tab',
 });
 
 const mapDispatch = {
