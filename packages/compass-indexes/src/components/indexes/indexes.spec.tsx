@@ -392,7 +392,7 @@ describe('Indexes Component', function () {
         expect(screen.getByText('Create Atlas Search Index')).to.be.visible;
       });
 
-      it('renders correct empty state if 8.0 and has no indexes', async function () {
+      it('renders correct empty state if 8.0 and has no indexes in Compass', async function () {
         const getSearchIndexesStub = sinon.stub().resolves([]);
         const dataProvider = {
           getSearchIndexes: getSearchIndexesStub,
@@ -405,7 +405,7 @@ describe('Indexes Component', function () {
 
         expect(
           screen.queryByText(
-            /Upgrade your cluster or manage search indexes on views in the Atlas UI./i
+            /Upgrade your cluster to create search indexes on views./i
           )
         ).to.exist;
         expect(screen.queryByText('No standard indexes')).to.exist;

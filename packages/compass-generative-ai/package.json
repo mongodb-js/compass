@@ -53,7 +53,7 @@
     "eval": "braintrust eval tests/evals"
   },
   "dependencies": {
-    "@mongosh/service-provider-node-driver": "^5.0.0",
+    "@mongosh/service-provider-node-driver": "^5.0.1",
     "@mongosh/service-provider-core": "^5.0.0",
     "mongodb-build-info": "^1.8.1",
     "mongodb-connection-string-url": "^7.0.1",
