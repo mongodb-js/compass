@@ -52,7 +52,7 @@
     "@types/webpack-bundle-analyzer": "^4.7.0",
     "depcheck": "^1.4.1",
     "typescript": "^5.9.3",
-    "whatwg-url": "^16.0.1"
+    "whatwg-url": "14.0.0"
   },
   "dependencies": {
     "@babel/core": "^7.24.3",

@@ -124,6 +124,12 @@ const sharedResolveOptions = (
 // - https://issues.chromium.org/issues/40063064
 // - https://bugzilla.mozilla.org/show_bug.cgi?id=1326394
 // which have been resolved in 2024, so we should be able to remove them at some point.
+// For now, we have to pin whatwg-url to 14.0.0, because:
+// - 14.1.0 to 16.0.0 includes a buggy version of URL.parse()
+//   (https://github.com/jsdom/whatwg-url/issues/315)
+// - 16.0.0 and above depend on SharedArrayBuffer being available
+//   (github.com/jsdom/webidl-conversions/commit/83a1837ad80d341fba4da9209c8159b2d7fa2c30)
+//   which does not work for us (at least in tests).
 const providePlugin = new ProvidePlugin({
   URL: [require.resolve('whatwg-url'), 'URL'],
   URLSearchParams: [require.resolve('whatwg-url'), 'URLSearchParams'],
