@@ -262,12 +262,19 @@ export async function mochaGlobalSetup(this: Mocha.Runner) {
       }
 
       if (isTestingAtlasCloud(context)) {
-        await createAtlasCloudResources();
-
-        if (context.compile) {
-          debug('Building compass-web library ...');
-          await buildCompassWebPackage(globalFixturesAbortController.signal);
-        }
+        // Both tasks can take a decent amount of time and are not overlapping
+        // with each other, so we can run them in parallel
+        await Promise.all([
+          createAtlasCloudResources(),
+          (async () => {
+            if (context.compile) {
+              debug('Building compass-web library ...');
+              await buildCompassWebPackage(
+                globalFixturesAbortController.signal
+              );
+            }
+          })(),
+        ]);
 
         debug('Starting static server for the compass-web assets ...');
         const staticServer = spawnCompassWebStaticServer(
