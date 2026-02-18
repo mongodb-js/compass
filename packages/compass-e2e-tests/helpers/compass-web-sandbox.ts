@@ -120,26 +120,3 @@ export async function waitForCompassWebStaticAssetsToBeReady(
     'Compass-web assets are still not ready after 2 mins'
   );
 }
-
-export const getAtlasCloudSandboxDefaultConnections = (
-  connectionsString: string,
-  dbUser: string,
-  dbPassword: string
-) => {
-  type AtlasCloudSandboxDefaultConnections = Record<
-    string,
-    { standard: string; standardSrv: string }
-  >;
-  const connections: AtlasCloudSandboxDefaultConnections =
-    JSON.parse(connectionsString);
-  return Object.entries(connections).map(([name, cluster]): ConnectionInfo => {
-    const str = new ConnectionString(cluster.standardSrv ?? cluster.standard);
-    str.username = dbUser;
-    str.password = dbPassword;
-    return {
-      id: name,
-      connectionOptions: { connectionString: String(str) },
-      favorite: { name },
-    };
-  });
-};

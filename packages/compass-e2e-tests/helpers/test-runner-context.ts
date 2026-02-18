@@ -7,7 +7,15 @@ import yargs from 'yargs';
 import type { Argv, CamelCase } from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import Debug from 'debug';
-import { getAtlasCloudSandboxDefaultConnections } from './compass-web-sandbox';
+import { execFileSync } from 'child_process';
+
+export const RUN_ID = (() => {
+  const commitHash = execFileSync('git', ['rev-parse', '--short', 'HEAD'], {
+    encoding: 'utf8',
+  }).trim();
+  const epoch = Math.floor(Date.now() / 1000);
+  return `${epoch}-${commitHash}`;
+})();
 
 const debug = Debug('compass-e2e-tests:context');
 
@@ -99,19 +107,18 @@ function buildDesktopArgs(yargs: Argv) {
     );
 }
 
-const atlasCloudSandboxArgs = [
-  'atlas-cloud-environment',
-  'atlas-cloud-project-id',
-  'atlas-cloud-username',
-  'atlas-cloud-password',
-  'atlas-cloud-dbuser-username',
-  'atlas-cloud-dbuser-password',
-  'atlas-cloud-default-connections',
-] as const;
+type _AtlasCloudSandboxArgsKebabCase =
+  | 'atlas-cloud-environment'
+  | 'atlas-cloud-project-id'
+  | 'atlas-cloud-username'
+  | 'atlas-cloud-password'
+  | 'atlas-cloud-dbuser-username'
+  | 'atlas-cloud-dbuser-password'
+  | 'atlas-cloud-default-cluster';
 
 type AtlasCloudSandboxArgs =
-  | (typeof atlasCloudSandboxArgs)[number]
-  | CamelCase<(typeof atlasCloudSandboxArgs)[number]>;
+  | _AtlasCloudSandboxArgsKebabCase
+  | CamelCase<_AtlasCloudSandboxArgsKebabCase>;
 
 let testEnv: 'desktop' | 'web' | undefined;
 
@@ -139,8 +146,14 @@ function buildWebArgs(yargs: Argv) {
       })
       .option('test-atlas-cloud', {
         type: 'boolean',
+        default: false,
         description:
-          'Run compass-web tests against Atlas Cloud with a singed in Atlas Cloud user (allows to test Atlas-only functionality that is only available for Cloud UI backend)',
+          'Run compass-web tests against Atlas Cloud with a singed in Atlas Cloud ' +
+          'user (allows to test Atlas-only functionality that is only available ' +
+          'for Cloud UI backend). By default will create all required resources ' +
+          '(user, org, project, clusters, etc.) for the test as part of the test ' +
+          'run. If you want to use existing ones, you can provide these via the ' +
+          'optional `--atlas-cloud-*` arguments',
       })
       .options('atlas-cloud-environment', {
         choices: ['dev', 'qa', 'staging', 'prod'] as const,
@@ -150,7 +163,6 @@ function buildWebArgs(yargs: Argv) {
       .option('atlas-cloud-project-id', {
         type: 'string',
         description: 'Atlas project to test against',
-        default: process.env.MCLI_PROJECT_ID,
       })
       .options('atlas-cloud-username', {
         type: 'string',
@@ -172,13 +184,26 @@ function buildWebArgs(yargs: Argv) {
         description:
           'Atlas Cloud user database user password. Will be used to prepolulate cluster with data',
       })
-      .options('atlas-cloud-default-connections', {
+      .options('atlas-cloud-default-cluster', {
         type: 'string',
+        array: true,
+        default: [],
         description:
-          'Stringified JSON with connections that are expected to be available in the Atlas project',
+          'One or more cluster names in the project to be used for testing. At least one cluster name needs to be provided',
       })
       .implies({
-        'test-atlas-cloud': atlasCloudSandboxArgs,
+        'atlas-cloud-project-id': [
+          'atlas-cloud-username',
+          'atlas-cloud-password',
+        ],
+        'atlas-cloud-username': [
+          'atlas-cloud-project-id',
+          'atlas-cloud-password',
+        ],
+        'atlas-cloud-password': [
+          'atlas-cloud-project-id',
+          'atlas-cloud-username',
+        ],
       })
       .epilogue(
         'All command line arguments can be also provided as env vars with `COMPASS_E2E_` prefix:\n\n  COMPASS_E2E_TEST_ATLAS_CLOUD_EXTERNAL=true compass-e2e-tests web'
@@ -312,11 +337,7 @@ type TestConnectionInfo = ConnectionInfo & {
 export const DEFAULT_CONNECTIONS: TestConnectionInfo[] = isTestingAtlasCloud(
   context
 )
-  ? getAtlasCloudSandboxDefaultConnections(
-      context.atlasCloudDefaultConnections,
-      context.atlasCloudDbuserUsername,
-      context.atlasCloudDbuserPassword
-    )
+  ? []
   : [
       {
         id: 'test-connection-1',
@@ -407,6 +428,31 @@ const CLOUD_URLS = {
   },
 } as const;
 
-export function getCloudUrlsFromContext(context: AtlasCloudParsedArgs) {
+export function getCloudUrlsFromContext(ctx = context) {
+  assertTestingAtlasCloud(ctx);
   return CLOUD_URLS[context.atlasCloudEnvironment as keyof typeof CLOUD_URLS];
+}
+
+export const ATLAS_CLOUD_TEST_UTILS: {
+  registerUser: string;
+  deleteUser: string;
+  verifyEmail: string;
+  bypassEncouragement: string;
+  addRoles: string;
+  getCurrentGroup: string;
+  addPaymentMethod: string;
+  featureFlags: string;
+  refreshFeatureFlags: string;
+  testUserRoles: string[];
+  testUserUsernameTemplate: string;
+} = JSON.parse(
+  process.env.ATLAS_CLOUD_TEST_UTILS
+    ? Buffer.from(process.env.ATLAS_CLOUD_TEST_UTILS, 'base64').toString()
+    : 'null'
+);
+
+if (isTestingAtlasCloud() && !ATLAS_CLOUD_TEST_UTILS) {
+  throw new Error(
+    'Trying to test Atlas Cloud environment, but test utils config is not provided. Make sure that ATLAS_CLOUD_TEST_UTILS env variable is available'
+  );
 }
