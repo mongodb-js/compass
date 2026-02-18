@@ -1,0 +1,237 @@
+import { expect } from 'chai';
+import { useSelector } from 'react-redux';
+import { renderHook } from '@mongodb-js/testing-library-compass';
+import { Provider } from 'react-redux';
+import React from 'react';
+import type { ConnectionInfo } from '@mongodb-js/compass-connections/provider';
+import { selectReadWriteAccess } from './indexes-read-write-access';
+import { setupStore } from '../../test/setup-store';
+import type { IndexesPluginOptions } from '../stores/store';
+
+describe('indexes-read-write-access', function () {
+  describe('selectReadWriteAccess', function () {
+    function createAtlasConnectionInfo(): ConnectionInfo {
+      return {
+        id: 'TEST',
+        connectionOptions: {
+          connectionString: 'mongodb://localhost:27017',
+        },
+        atlasMetadata: {
+          orgId: 'test-org',
+          projectId: 'test-project',
+          clusterName: 'test-cluster',
+          clusterUniqueId: 'test-cluster-unique-id',
+          clusterType: 'REPLICASET' as const,
+          clusterState: 'IDLE' as const,
+          metricsId: 'test-metrics-id',
+          metricsType: 'replicaSet' as const,
+          regionalBaseUrl: null,
+          instanceSize: 'M10',
+          userConnectionString: 'mongodb://localhost:27017',
+          supports: {
+            globalWrites: false,
+            rollingIndexes: true,
+          },
+        },
+      };
+    }
+
+    function getSelectReadWriteAccessResult(
+      options: Partial<IndexesPluginOptions> = {},
+      preferences: {
+        readOnly?: boolean;
+        readWrite?: boolean;
+        enableAtlasSearchIndexes?: boolean;
+      } = {},
+      connectionInfo?: ConnectionInfo
+    ) {
+      const store = setupStore(options, {}, {});
+      const wrapper = ({ children }: { children: React.ReactNode }) =>
+        React.createElement(Provider, { store, children });
+
+      const isAtlas = !!connectionInfo?.atlasMetadata;
+      const readOnly = preferences.readOnly ?? false;
+      const readWrite = preferences.readWrite ?? false;
+      const enableAtlasSearchIndexes =
+        preferences.enableAtlasSearchIndexes ?? true;
+      const { result } = renderHook(
+        () =>
+          useSelector(
+            selectReadWriteAccess({
+              isAtlas,
+              readOnly,
+              readWrite,
+              enableAtlasSearchIndexes,
+            })
+          ),
+        {
+          wrapper,
+          preferences: {
+            enableRollingIndexes: true,
+            enableAtlasSearchIndexes: true,
+            readOnly: false,
+            readWrite: false,
+            ...preferences,
+          },
+        }
+      );
+      return result.current;
+    }
+
+    describe('regular indexes', function () {
+      context('when isReadonlyView is false', function () {
+        it('should return isRegularIndexesReadable as true', function () {
+          const result = getSelectReadWriteAccessResult({
+            isReadonly: false,
+          });
+          expect(result.isRegularIndexesReadable).to.equal(true);
+        });
+
+        it('should return isRegularIndexesWritable as true when isWritable is true and preferences allow', function () {
+          const result = getSelectReadWriteAccessResult(
+            { isReadonly: false },
+            {}
+          );
+          expect(result.isRegularIndexesWritable).to.equal(true);
+        });
+
+        it('should return isRegularIndexesWritable as false when readOnly preference is true', function () {
+          const result = getSelectReadWriteAccessResult(
+            { isReadonly: false },
+            { readOnly: true }
+          );
+          expect(result.isRegularIndexesWritable).to.equal(false);
+        });
+
+        it('should return isRegularIndexesWritable as false when readWrite preference is true', function () {
+          const result = getSelectReadWriteAccessResult(
+            { isReadonly: false },
+            { readWrite: true }
+          );
+          expect(result.isRegularIndexesWritable).to.equal(false);
+        });
+      });
+
+      context('when isReadonlyView is true', function () {
+        it('should return isRegularIndexesReadable as false', function () {
+          const result = getSelectReadWriteAccessResult({
+            isReadonly: true,
+          });
+          expect(result.isRegularIndexesReadable).to.equal(false);
+        });
+
+        it('should return isRegularIndexesWritable as false', function () {
+          const result = getSelectReadWriteAccessResult({
+            isReadonly: true,
+          });
+          expect(result.isRegularIndexesWritable).to.equal(false);
+        });
+      });
+    });
+
+    describe('search indexes', function () {
+      context('when isReadonlyView is false', function () {
+        it('should return isSearchIndexesReadable as true when enableAtlasSearchIndexes is true and isSearchIndexesSupported is true', function () {
+          const result = getSelectReadWriteAccessResult(
+            { isReadonly: false, isSearchIndexesSupported: true },
+            { enableAtlasSearchIndexes: true }
+          );
+          expect(result.isSearchIndexesReadable).to.equal(true);
+        });
+
+        it('should return isSearchIndexesReadable as false when enableAtlasSearchIndexes is false', function () {
+          const result = getSelectReadWriteAccessResult(
+            { isReadonly: false, isSearchIndexesSupported: true },
+            { enableAtlasSearchIndexes: false }
+          );
+          expect(result.isSearchIndexesReadable).to.equal(false);
+        });
+
+        it('should return isSearchIndexesReadable as false when isSearchIndexesSupported is false', function () {
+          const result = getSelectReadWriteAccessResult({
+            isReadonly: false,
+            isSearchIndexesSupported: false,
+          });
+          expect(result.isSearchIndexesReadable).to.equal(false);
+        });
+
+        it('should return isSearchIndexesWritable as true when all conditions are met', function () {
+          const result = getSelectReadWriteAccessResult(
+            {
+              isReadonly: false,
+              isSearchIndexesSupported: true,
+            },
+            { enableAtlasSearchIndexes: true }
+          );
+          expect(result.isSearchIndexesWritable).to.equal(true);
+        });
+
+        it('should return isSearchIndexesWritable as false when readOnly preference is true', function () {
+          const result = getSelectReadWriteAccessResult(
+            { isReadonly: false, isSearchIndexesSupported: true },
+            { readOnly: true }
+          );
+          expect(result.isSearchIndexesWritable).to.equal(false);
+        });
+
+        it('should return isSearchIndexesWritable as false when readWrite preference is true', function () {
+          const result = getSelectReadWriteAccessResult(
+            { isReadonly: false, isSearchIndexesSupported: true },
+            { readWrite: true }
+          );
+          expect(result.isSearchIndexesWritable).to.equal(false);
+        });
+      });
+
+      context('when isReadonlyView is true', function () {
+        it('should return isSearchIndexesReadable as true when view is search compatible', function () {
+          const result = getSelectReadWriteAccessResult(
+            {
+              isReadonly: true,
+              serverVersion: '8.0.0',
+            },
+            { enableAtlasSearchIndexes: true },
+            createAtlasConnectionInfo()
+          );
+          expect(result.isSearchIndexesReadable).to.equal(true);
+        });
+
+        it('should return isSearchIndexesReadable as false when enableAtlasSearchIndexes is false', function () {
+          const result = getSelectReadWriteAccessResult(
+            {
+              isReadonly: true,
+              serverVersion: '8.0.0',
+            },
+            { enableAtlasSearchIndexes: false },
+            createAtlasConnectionInfo()
+          );
+          expect(result.isSearchIndexesReadable).to.equal(false);
+        });
+
+        it('should return isSearchIndexesWritable as true when view is search compatible and pipeline is queryable', function () {
+          const result = getSelectReadWriteAccessResult(
+            {
+              isReadonly: true,
+              serverVersion: '8.0.0',
+            },
+            { enableAtlasSearchIndexes: true },
+            createAtlasConnectionInfo()
+          );
+          expect(result.isSearchIndexesWritable).to.equal(true);
+        });
+
+        it('should return isSearchIndexesWritable as false when readOnly preference is true', function () {
+          const result = getSelectReadWriteAccessResult(
+            {
+              isReadonly: true,
+              serverVersion: '7.0.0',
+            },
+            { readOnly: true },
+            createAtlasConnectionInfo()
+          );
+          expect(result.isSearchIndexesWritable).to.equal(false);
+        });
+      });
+    });
+  });
+});
