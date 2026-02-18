@@ -22,7 +22,7 @@ import {
 } from '../../modules/search-indexes';
 import { getPipelineStageOperatorsFromBuilderState } from '../../modules/pipeline-builder/builder-helpers';
 import { isSearchStage } from '../../utils/stage';
-import { VIEW_PIPELINE_UTILS, ATLAS } from '@mongodb-js/mongodb-constants';
+import { VIEW_PIPELINE_UTILS } from '@mongodb-js/mongodb-constants';
 
 import type { RootState } from '../../modules';
 import type { PipelineProps } from '../pipeline/pipeline';
@@ -69,8 +69,7 @@ const mapStateToProps = (state: RootState) => {
   const hasSearchStage = operators.some((op) => isSearchStage(op));
 
   const isReadonlyView = !!state.sourceName;
-  const isAtlas = state.env === ATLAS;
-  const isViewVersionSearchCompatible = isAtlas
+  const isViewVersionSearchCompatible = state.isCompassWeb
     ? VIEW_PIPELINE_UTILS.isVersionSearchCompatibleForViewsDataExplorer(
         state.serverVersion
       )

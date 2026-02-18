@@ -26,6 +26,7 @@ import updateViewError from './update-view';
 import aggregation from './aggregation';
 import countDocuments from './count-documents';
 import isDataLake from './is-datalake';
+import isCompassWeb from './is-compass-web';
 import workspace from './workspace';
 import aggregationWorkspaceId from './aggregation-workspace-id';
 import collectionStats from './collection-stats';
@@ -84,6 +85,7 @@ const rootReducer = combineReducers({
   countDocuments,
   aggregationWorkspaceId,
   isDataLake,
+  isCompassWeb,
   pipelineBuilder,
   focusMode,
   sidePanel,
