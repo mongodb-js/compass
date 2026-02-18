@@ -36,7 +36,7 @@ const indexes: RegularIndex[] = [
       },
     ],
     usageCount: 10,
-    buildProgress: 0,
+    buildProgress: { active: false },
   },
   {
     ns: 'db.coll',
@@ -60,7 +60,7 @@ const indexes: RegularIndex[] = [
       },
     ],
     usageCount: 15,
-    buildProgress: 0,
+    buildProgress: { active: false },
   },
   {
     ns: 'db.coll',
@@ -83,7 +83,7 @@ const indexes: RegularIndex[] = [
       },
     ],
     usageCount: 20,
-    buildProgress: 0,
+    buildProgress: { active: false },
   },
   {
     ns: 'db.coll',
@@ -106,7 +106,7 @@ const indexes: RegularIndex[] = [
       },
     ],
     usageCount: 25,
-    buildProgress: 0,
+    buildProgress: { active: false },
   },
 ];
 
@@ -125,7 +125,7 @@ const inProgressIndexes: InProgressIndex[] = [
       },
     ],
     status: 'creating',
-    buildProgress: 0,
+    buildProgress: { active: true },
   },
   {
     id: 'in-progress-2',
@@ -136,9 +136,9 @@ const inProgressIndexes: InProgressIndex[] = [
         value: 'text',
       },
     ],
-    status: 'creating',
+    status: 'failed',
     error: 'this is an error',
-    buildProgress: 0,
+    buildProgress: { active: false },
   },
 ];
 
@@ -275,10 +275,13 @@ describe('RegularIndexesTable Component', function () {
 
       expect(within(indexRow).queryByTestId('index-actions-hide-action')).to.not
         .exist;
+      // For creating indexes, the building spinner is shown (no regular actions)
+      // For failed indexes, the delete action is shown
       if (index.status === 'creating') {
-        expect(() =>
-          within(indexRow).getByTestId('index-actions-delete-action')
-        ).to.throw();
+        // Creating indexes show building spinner with cancel option,
+        // but the cancel action doesn't have the index-actions-delete-action test id
+        // since it's rendered inside the building progress UI
+        expect(within(indexRow).getByTestId('index-building-spinner')).to.exist;
       } else {
         expect(within(indexRow).getByTestId('index-actions-delete-action')).to
           .exist;
@@ -337,7 +340,7 @@ describe('RegularIndexesTable Component', function () {
         extra: {},
         size: 11111,
         relativeSize: 0,
-        buildProgress: 0,
+        buildProgress: { active: false },
       },
     ];
 

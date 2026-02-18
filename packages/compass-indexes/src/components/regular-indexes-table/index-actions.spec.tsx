@@ -30,15 +30,15 @@ describe('IndexActions Component', function () {
 
   describe('Critical Boundary Cases', function () {
     describe('buildProgress transition boundaries', function () {
-      it('boundary: buildProgress = 0 (exactly) shows ready actions', function () {
-        const exactlyZeroIndex = mockRegularIndex({
-          name: 'exactly_zero',
-          buildProgress: 0,
+      it('boundary: active = false shows ready actions', function () {
+        const readyIndex = mockRegularIndex({
+          name: 'ready_index',
+          buildProgress: { active: false },
         });
 
         render(
           <IndexActions
-            index={exactlyZeroIndex}
+            index={readyIndex}
             serverVersion="5.0.0"
             onDeleteIndexClick={onDeleteIndexClick}
             onHideIndexClick={onHideIndexClick}
@@ -49,14 +49,14 @@ describe('IndexActions Component', function () {
         // Should show ready actions, not building UI
         expect(screen.queryByTestId('index-building-spinner')).to.not.exist;
         expect(screen.getByTestId('index-actions')).to.exist;
-        expect(screen.getByLabelText('Drop Index exactly_zero')).to.exist;
-        expect(screen.getByLabelText('Hide Index exactly_zero')).to.exist;
+        expect(screen.getByLabelText('Drop Index ready_index')).to.exist;
+        expect(screen.getByLabelText('Hide Index ready_index')).to.exist;
       });
 
-      it('boundary: buildProgress = 0.000001 (just above 0) shows building UI', function () {
+      it('boundary: active = true with progress = 0.000001 (just above 0) shows building UI', function () {
         const barelyBuildingIndex = mockRegularIndex({
           name: 'barely_building',
-          buildProgress: 0.000001,
+          buildProgress: { active: true, progress: 0.000001 },
         });
 
         render(
@@ -73,10 +73,10 @@ describe('IndexActions Component', function () {
         expect(screen.getByLabelText('Cancel Index barely_building')).to.exist;
       });
 
-      it('boundary: buildProgress = 0.999999 (just below 1) shows building UI', function () {
+      it('boundary: active = true with progress = 0.999999 (just below 1) shows building UI', function () {
         const almostCompleteIndex = mockRegularIndex({
           name: 'almost_complete',
-          buildProgress: 0.999999,
+          buildProgress: { active: true, progress: 0.999999 },
         });
 
         render(
@@ -93,15 +93,15 @@ describe('IndexActions Component', function () {
         expect(screen.getByLabelText('Cancel Index almost_complete')).to.exist;
       });
 
-      it('boundary: buildProgress = 1 (exactly) shows ready actions', function () {
-        const exactlyOneIndex = mockRegularIndex({
-          name: 'exactly_one',
-          buildProgress: 1,
+      it('boundary: active = false (completed) shows ready actions', function () {
+        const completedIndex = mockRegularIndex({
+          name: 'completed_index',
+          buildProgress: { active: false },
         });
 
         render(
           <IndexActions
-            index={exactlyOneIndex}
+            index={completedIndex}
             serverVersion="5.0.0"
             onDeleteIndexClick={onDeleteIndexClick}
             onHideIndexClick={onHideIndexClick}
@@ -112,18 +112,18 @@ describe('IndexActions Component', function () {
         // Should show ready actions, not building UI
         expect(screen.queryByTestId('index-building-spinner')).to.not.exist;
         expect(screen.getByTestId('index-actions')).to.exist;
-        expect(screen.getByLabelText('Drop Index exactly_one')).to.exist;
-        expect(screen.getByLabelText('Hide Index exactly_one')).to.exist;
+        expect(screen.getByLabelText('Drop Index completed_index')).to.exist;
+        expect(screen.getByLabelText('Hide Index completed_index')).to.exist;
       });
     });
 
     describe('Permission handling (currentOp unavailable)', function () {
-      it('handles missing currentOp permission correctly (buildProgress defaults to 0)', function () {
+      it('handles missing currentOp permission correctly (shows ready actions)', function () {
         // This simulates what happens when currentOp permission is not available
-        // The index-detail-helper defaults buildProgress to 0
+        // but $indexStats reports building: false
         const noPermissionIndex = mockRegularIndex({
           name: 'no_permission_index',
-          buildProgress: 0, // This is what gets set when currentOp permission is unavailable
+          buildProgress: { active: false, progressNotPermitted: true },
         });
 
         render(
@@ -146,65 +146,63 @@ describe('IndexActions Component', function () {
       });
     });
 
-    describe('Extreme buildProgress values', function () {
-      it('handles negative buildProgress as ready', function () {
-        const negativeIndex = mockRegularIndex({
-          name: 'negative_progress',
-          buildProgress: -0.1,
+    describe('Edge cases for buildProgress object', function () {
+      it('handles active: true without progress property', function () {
+        const activeNoProgress = mockRegularIndex({
+          name: 'active_no_progress',
+          buildProgress: { active: true },
         });
 
         render(
           <IndexActions
-            index={negativeIndex}
+            index={activeNoProgress}
             serverVersion="5.0.0"
             onDeleteIndexClick={onDeleteIndexClick}
-            onHideIndexClick={onHideIndexClick}
-            onUnhideIndexClick={onUnhideIndexClick}
           />
         );
 
-        // Should treat as ready (negative should not show building UI)
-        expect(screen.queryByTestId('index-building-spinner')).to.not.exist;
-        expect(screen.getByTestId('index-actions')).to.exist;
+        // Should show building UI without percentage
+        expect(screen.getByTestId('index-building-spinner')).to.exist;
+        expect(screen.getByText('Building…')).to.exist;
+        expect(screen.getByLabelText('Cancel Index active_no_progress')).to
+          .exist;
       });
 
-      it('handles buildProgress > 1 as ready', function () {
-        const overOneIndex = mockRegularIndex({
-          name: 'over_one',
-          buildProgress: 1.1,
+      it('handles active: true with secsRunning but no progress', function () {
+        const activeWithTime = mockRegularIndex({
+          name: 'active_with_time',
+          buildProgress: { active: true, secsRunning: 120 },
         });
 
         render(
           <IndexActions
-            index={overOneIndex}
+            index={activeWithTime}
             serverVersion="5.0.0"
             onDeleteIndexClick={onDeleteIndexClick}
-            onHideIndexClick={onHideIndexClick}
-            onUnhideIndexClick={onUnhideIndexClick}
           />
         );
 
-        // Should treat as ready (>1 should not show building UI)
-        expect(screen.queryByTestId('index-building-spinner')).to.not.exist;
-        expect(screen.getByTestId('index-actions')).to.exist;
+        // Should show building UI with duration
+        expect(screen.getByTestId('index-building-spinner')).to.exist;
+        expect(screen.getByText(/Building For…/)).to.exist;
       });
     });
   });
 
   describe('Building State Tests', function () {
     const buildingIndexes = [
-      { buildProgress: 0.1, expectedPercent: '10' },
-      { buildProgress: 0.25, expectedPercent: '25' },
-      { buildProgress: 0.5, expectedPercent: '50' },
-      { buildProgress: 0.75, expectedPercent: '75' },
-      { buildProgress: 0.99, expectedPercent: '99' },
+      { progress: 0.1, expectedPercent: '10' },
+      { progress: 0.25, expectedPercent: '25' },
+      { progress: 0.5, expectedPercent: '50' },
+      { progress: 0.75, expectedPercent: '75' },
+      { progress: 0.99, expectedPercent: '99' },
     ];
 
-    buildingIndexes.forEach(({ buildProgress, expectedPercent }) => {
-      it(`shows building UI for buildProgress ${buildProgress} (${expectedPercent}%)`, function () {
+    buildingIndexes.forEach(({ progress, expectedPercent }) => {
+      it(`shows building UI for progress ${progress} (${expectedPercent}%)`, function () {
         const buildingIndex = mockRegularIndex({
           name: 'building_index',
-          buildProgress,
+          buildProgress: { active: true, progress },
         });
 
         render(
@@ -243,24 +241,22 @@ describe('IndexActions Component', function () {
         id: 'creating-index-id',
         name: 'creating_index',
         status: 'creating',
-        buildProgress: 0,
+        buildProgress: { active: true },
         fields: [{ field: 'test', value: 1 }],
       };
 
-      it('shows no actions for creating index', function () {
+      it('shows building spinner for creating index', function () {
         render(
           <IndexActions
             index={creatingIndex}
+            onDeleteIndexClick={onDeleteIndexClick}
             onDeleteFailedIndexClick={onDeleteFailedIndexClick}
           />
         );
 
-        // For creating indexes, there should be no actions group rendered at all
-        // since there are no actions available
-        expect(screen.queryByTestId('index-actions')).to.not.exist;
-
-        // Also should not show building spinner for creating state
-        expect(screen.queryByTestId('index-building-spinner')).to.not.exist;
+        // Creating indexes should show building spinner
+        expect(screen.getByTestId('index-building-spinner')).to.exist;
+        expect(screen.getByText('Building…')).to.exist;
       });
     });
 
@@ -270,7 +266,7 @@ describe('IndexActions Component', function () {
         name: 'failed_index',
         status: 'failed',
         error: 'Index creation failed',
-        buildProgress: 0,
+        buildProgress: { active: false },
         fields: [{ field: 'test', value: 1 }],
       };
 
@@ -310,7 +306,7 @@ describe('IndexActions Component', function () {
   describe('Server Version Compatibility', function () {
     const testIndex = mockRegularIndex({
       name: 'version_test',
-      buildProgress: 0,
+      buildProgress: { active: false },
     });
 
     const versionTestCases = [
@@ -355,7 +351,7 @@ describe('IndexActions Component', function () {
   describe('Action Event Handling', function () {
     const testIndex = mockRegularIndex({
       name: 'test_actions',
-      buildProgress: 0,
+      buildProgress: { active: false },
     });
 
     it('calls onDeleteIndexClick for regular index delete', function () {
@@ -378,7 +374,7 @@ describe('IndexActions Component', function () {
     it('calls onDeleteIndexClick for building index cancel (regular index)', function () {
       const buildingIndex = mockRegularIndex({
         name: 'test_actions',
-        buildProgress: 0.5,
+        buildProgress: { active: true, progress: 0.5 },
       });
 
       render(

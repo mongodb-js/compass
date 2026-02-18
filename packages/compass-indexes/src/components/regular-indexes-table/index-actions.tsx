@@ -170,6 +170,17 @@ function formatDuration(secs: number): string {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const DurationFormat = (Intl as any).DurationFormat;
 
+  // Fallback for environments that don't support Intl.DurationFormat (e.g. older Node versions in tests)
+  if (!DurationFormat) {
+    const parts: string[] = [];
+    if (weeks > 0) parts.push(`${weeks}w`);
+    if (days > 0) parts.push(`${days}d`);
+    if (hours > 0) parts.push(`${hours}h`);
+    if (minutes > 0) parts.push(`${minutes}m`);
+    if (seconds > 0 || parts.length === 0) parts.push(`${seconds}s`);
+    return parts.join(' ');
+  }
+
   return new DurationFormat(undefined, { style: 'narrow' }).format({
     weeks,
     days,
