@@ -6,7 +6,8 @@ import { selectCurrentModelFromState } from './diagram';
 import type { MongoDBInstancesManager } from '@mongodb-js/compass-app-stores/provider';
 import type { ConnectionsService } from '@mongodb-js/compass-connections/provider';
 import { redoAnalysis } from './analysis-process';
-import { DEFAULT_SAMPLE_SIZE } from '../components/select-collections-list';
+
+const DEFAULT_SAMPLE_SIZE = 100;
 
 export type ReselectCollectionsWizardState = {
   isOpen: boolean;
@@ -36,8 +37,8 @@ export const ReselectCollectionsWizardActionTypes = {
     'data-modeling/reselect-collections-wizard/CONNECT_TO_CONNECTION_FAILED',
   TOGGLE_INFER_RELATION_CLICKED:
     'data-modeling/reselect-collections-wizard/TOGGLE_INFER_RELATION_CLICKED',
-  CHANGE_SAMPLE_SIZE:
-    'data-modeling/reselect-collections-wizard/CHANGE_SAMPLE_SIZE',
+  CHANGE_SAMPLE_SIZE_CLICKED:
+    'data-modeling/reselect-collections-wizard/CHANGE_SAMPLE_SIZE_CLICKED',
   SELECT_COLLECTIONS_CLICKED:
     'data-modeling/reselect-collections-wizard/SELECT_COLLECTIONS_CLICKED',
   START_ANALYSIS: 'data-modeling/reselect-collections-wizard/START_ANALYSIS',
@@ -80,8 +81,8 @@ export type ToggleInferRelationsAction = {
   val: boolean;
 };
 
-export type ChangeSampleSizeAction = {
-  type: typeof ReselectCollectionsWizardActionTypes.CHANGE_SAMPLE_SIZE;
+export type ReselectCollectionsChangeSampleSizeAction = {
+  type: typeof ReselectCollectionsWizardActionTypes.CHANGE_SAMPLE_SIZE_CLICKED;
   sampleSize: number;
 };
 
@@ -102,7 +103,7 @@ export type ReselectCollectionsWizardActions =
   | ConnectToConnectionFailedAction
   | ConnectToConnectionSucceededAction
   | ToggleInferRelationsAction
-  | ChangeSampleSizeAction
+  | ReselectCollectionsChangeSampleSizeAction
   | SelectCollectionsAction
   | StartAnalysisAction;
 
@@ -188,12 +189,6 @@ export const reselectCollectionsWizardReducer: Reducer<
   }
 
   if (
-    isAction(action, ReselectCollectionsWizardActionTypes.CHANGE_SAMPLE_SIZE)
-  ) {
-    return { ...state, sampleSize: action.sampleSize };
-  }
-
-  if (
     isAction(
       action,
       ReselectCollectionsWizardActionTypes.SELECT_COLLECTIONS_CLICKED
@@ -204,6 +199,15 @@ export const reselectCollectionsWizardReducer: Reducer<
 
   if (isAction(action, ReselectCollectionsWizardActionTypes.START_ANALYSIS)) {
     return INITIAL_STATE;
+  }
+
+  if (
+    isAction(
+      action,
+      ReselectCollectionsWizardActionTypes.CHANGE_SAMPLE_SIZE_CLICKED
+    )
+  ) {
+    return { ...state, sampleSize: action.sampleSize };
   }
 
   return state;
@@ -386,13 +390,6 @@ export function toggleInferRelationships(
   };
 }
 
-export function changeSampleSize(sampleSize: number): ChangeSampleSizeAction {
-  return {
-    type: ReselectCollectionsWizardActionTypes.CHANGE_SAMPLE_SIZE,
-    sampleSize,
-  };
-}
-
 export function selectCollections(
   collections: string[]
 ): SelectCollectionsAction {
@@ -485,4 +482,13 @@ async function getCollectionsForDatabase(
     .filter((collName) => {
       return !toNS(collName).specialish;
     });
+}
+
+export function changeSampleSize(
+  sampleSize: number
+): ReselectCollectionsChangeSampleSizeAction {
+  return {
+    type: ReselectCollectionsWizardActionTypes.CHANGE_SAMPLE_SIZE_CLICKED,
+    sampleSize,
+  };
 }

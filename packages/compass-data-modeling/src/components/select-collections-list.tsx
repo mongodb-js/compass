@@ -2,21 +2,21 @@ import {
   Body,
   Checkbox,
   css,
-  Description,
   FormFieldContainer,
-  Label,
+  Icon,
+  palette,
   SearchInput,
   SelectList,
   spacing,
   SpinLoaderWithLabel,
   TextInput,
+  Tooltip,
   WarningSummary,
 } from '@mongodb-js/compass-components';
 import { usePreference } from 'compass-preferences-model/provider';
-import React, { useCallback, useEffect } from 'react';
-import { useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 
-export const DEFAULT_SAMPLE_SIZE = 100;
+const LARGE_SAMPLE_SIZE_THRESHOLD = 100;
 
 const loadingStyles = css({
   textAlign: 'center',
@@ -40,14 +40,41 @@ const sampleSizeContainerStyles = css({
   gap: spacing[100],
 });
 
-const sampleSizeInputContainerStyles = css({
+const sampleSizeLabelContainerStyles = css({
   display: 'flex',
   alignItems: 'center',
-  gap: spacing[200],
+  gap: spacing[100],
+});
+
+const sampleSizeInputRowStyles = css({
+  display: 'flex',
+  alignItems: 'center',
+  gap: spacing[100],
 });
 
 const sampleSizeInputStyles = css({
-  width: 100,
+  width: 70,
+});
+
+const warningTextStyles = css({
+  display: 'flex',
+  alignItems: 'center',
+  gap: spacing[100],
+  color: palette.yellow.dark2,
+  fontSize: 12,
+});
+
+const errorTextStyles = css({
+  display: 'flex',
+  alignItems: 'center',
+  gap: spacing[100],
+  color: palette.red.base,
+  fontSize: 12,
+});
+
+const infoIconStyles = css({
+  cursor: 'pointer',
+  color: palette.gray.base,
 });
 
 type SelectCollectionsListProps = {
@@ -91,10 +118,12 @@ export const SelectCollectionsList: React.FunctionComponent<
     `${sampleSize}`
   );
 
-  // Sync local input value when the sampleSize prop changes
-  useEffect(() => {
-    setSampleSizeInputValue(`${sampleSize}`);
-  }, [sampleSize]);
+  // Determine if the current input is invalid
+  const parsedValue = parseInt(sampleSizeInputValue, 10);
+  const isInvalidInput =
+    sampleSizeInputValue !== '' && (isNaN(parsedValue) || parsedValue <= 0);
+  const isLargeSampleSize =
+    !isInvalidInput && parsedValue > LARGE_SAMPLE_SIZE_THRESHOLD;
 
   const filteredCollections = useMemo(() => {
     try {
@@ -182,15 +211,28 @@ export const SelectCollectionsList: React.FunctionComponent<
         )}
       </FormFieldContainer>
       <FormFieldContainer className={sampleSizeContainerStyles}>
-        <div className={sampleSizeInputContainerStyles}>
-          <Label htmlFor="sample-size-input" id="sample-size-input-label">
-            Maximum documents sampled per collection
-          </Label>
+        <div className={sampleSizeLabelContainerStyles}>
+          <Body weight="medium">Sampling size</Body>
+          <Tooltip
+            align="top"
+            justify="middle"
+            trigger={
+              <span className={infoIconStyles}>
+                <Icon glyph="InfoWithCircle" size="small" />
+              </span>
+            }
+          >
+            Default sampling size is {LARGE_SAMPLE_SIZE_THRESHOLD}. Larger
+            samples take longer but improve accuracy on large or complex
+            datasets.
+          </Tooltip>
+        </div>
+        <div className={sampleSizeInputRowStyles}>
+          <Body>Sample</Body>
           <TextInput
             id="sample-size-input"
             data-testid="sample-size-input"
-            aria-labelledby="sample-size-input-label"
-            aria-describedby="sample-size-description"
+            aria-label="Sample size"
             className={sampleSizeInputStyles}
             type="number"
             min={1}
@@ -204,19 +246,27 @@ export const SelectCollectionsList: React.FunctionComponent<
                 onSampleSizeChange(value);
               } else {
                 // Reset to default if invalid
-                setSampleSizeInputValue(`${DEFAULT_SAMPLE_SIZE}`);
-                onSampleSizeChange(DEFAULT_SAMPLE_SIZE);
+                setSampleSizeInputValue(`${LARGE_SAMPLE_SIZE_THRESHOLD}`);
+                onSampleSizeChange(LARGE_SAMPLE_SIZE_THRESHOLD);
               }
             }}
           />
+          <Body>documents per collection.</Body>
         </div>
-        <Description id="sample-size-description">
-          Compass generates an entity-relationship diagram based on a small
-          sample of documents from each collection you select in your database.
-          Larger samples can improve accuracy but may take longer to generate,
-          while smaller samples are faster but may miss infrequent fields or
-          relationships.
-        </Description>
+        {isInvalidInput && (
+          <div className={errorTextStyles} data-testid="sample-size-warning">
+            <Icon glyph="Warning" size="small" />
+            <span>Invalid input</span>
+          </div>
+        )}
+        {isLargeSampleSize && (
+          <div className={warningTextStyles} data-testid="sample-size-warning">
+            <Icon glyph="Warning" size="small" />
+            <span>
+              Larger sample sizes may result in longer generation times.
+            </span>
+          </div>
+        )}
       </FormFieldContainer>
       {showAutoInferOption && (
         <FormFieldContainer>

@@ -4,7 +4,8 @@ import type { DataModelingThunkAction } from './reducer';
 import { startAnalysis } from './analysis-process';
 import toNS from 'mongodb-ns';
 import { getDiagramName } from '../services/open-and-download-diagram';
-import { DEFAULT_SAMPLE_SIZE } from '../components/select-collections-list';
+
+const DEFAULT_SAMPLE_SIZE = 100;
 
 type FormField<T = string> = {
   error?: Error;
@@ -137,7 +138,7 @@ export type ToggleInferRelationsAction = {
   newVal: boolean;
 };
 
-export type ChangeSampleSizeAction = {
+export type GenerateDiagramChangeSampleSizeAction = {
   type: typeof GenerateDiagramWizardActionTypes.CHANGE_SAMPLE_SIZE;
   sampleSize: number;
 };
@@ -160,7 +161,7 @@ export type GenerateDiagramWizardActions =
   | CollectionsFetchedAction
   | SelectCollectionsAction
   | ToggleInferRelationsAction
-  | ChangeSampleSizeAction
+  | GenerateDiagramChangeSampleSizeAction
   | ConfirmSelectedCollectionsAction
   | CollectionsFetchFailedAction
   | ConnectionFailedAction;
@@ -653,7 +654,9 @@ export function toggleInferRelationships(
   };
 }
 
-export function changeSampleSize(sampleSize: number): ChangeSampleSizeAction {
+export function changeSampleSize(
+  sampleSize: number
+): GenerateDiagramChangeSampleSizeAction {
   return {
     type: GenerateDiagramWizardActionTypes.CHANGE_SAMPLE_SIZE,
     sampleSize,
