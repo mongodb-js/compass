@@ -73,9 +73,6 @@ export type PipelineProps = Pick<
     stopPollingSearchIndexes: () => void;
   };
 
-/**
- * Render the pipeline component.
- */
 const Pipeline: React.FC<PipelineProps> = ({
   saveCurrentPipeline,
   savingPipelineNameChanged,
