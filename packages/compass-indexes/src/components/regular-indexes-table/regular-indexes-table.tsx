@@ -282,17 +282,38 @@ function mergeIndexes(
 type CommonIndexInfo = Omit<IndexInfo, 'renderExpandedContent'>;
 
 /**
- * Determines the display status for a regular index based on its build progress
+ * Determines the display status for a regular index based on its build progress.
+ * Status is determined from $indexStats.building and optionally enriched with
+ * detailed info from $currentOp (which requires permissions).
+ *
+ * - 'inprogress': Index is actively building (known from $indexStats.building or $currentOp)
+ * - 'ready': Index build is complete
+ * - 'unknown': Both $indexStats and $currentOp failed (can't determine status)
  */
 function determineRegularIndexStatus(
   index: RegularIndex
-): 'inprogress' | 'ready' {
-  // Build progress determines building vs ready
-  if (index.buildProgress > 0 && index.buildProgress < 1) {
+): 'inprogress' | 'ready' | 'unknown' {
+  // When both $indexStats and $currentOp failed, we truly don't know the status
+  if (
+    index.buildProgress.statsNotPermitted &&
+    index.buildProgress.progressNotPermitted
+  ) {
+    return 'unknown';
+  }
+  // Index is in progress if active flag is true (from $indexStats.building or $currentOp)
+  // or if progress is between 0 and 1
+  if (index.buildProgress.active) {
+    return 'inprogress';
+  }
+  if (
+    index.buildProgress.progress !== undefined &&
+    index.buildProgress.progress > 0 &&
+    index.buildProgress.progress < 1
+  ) {
     return 'inprogress';
   }
 
-  // Default to ready for completed indexes (buildProgress = 0 or 1)
+  // Default to ready for completed indexes
   return 'ready';
 }
 
@@ -371,7 +392,7 @@ function getRegularIndexInfo(
         properties={index.properties}
       />
     ),
-    status: <StatusField status={status} />,
+    status: <StatusField status={status} tooltip={index.buildProgress.msg} />,
     actions: index.name !== '_id_' && (
       <IndexActions
         index={index}

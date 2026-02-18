@@ -62,21 +62,24 @@ const isInProgressIndex = (
   return 'status' in index && !('type' in index);
 };
 
-// Helper: Get build progress from any index type
-const getBuildProgress = (index: IndexForActions): number => {
-  if (isRegularIndex(index)) {
-    return index.buildProgress;
-  }
-  if (isInProgressIndex(index)) {
-    return index.buildProgress || 0;
-  }
-  return 0;
+// Helper: Get build progress info from any index type
+const getBuildProgress = (index: IndexForActions) => {
+  // Both RegularIndex and InProgressIndex have buildProgress with the same type
+  return index.buildProgress;
 };
 
 // Helper: Determine if index is currently building
 const isIndexBuilding = (index: IndexForActions): boolean => {
-  const progress = getBuildProgress(index);
-  return progress > 0 && progress < 1;
+  // Index is building if active flag is true from $currentOp
+  // OR if it's an in-progress index that hasn't failed
+  if (index.buildProgress.active) {
+    return true;
+  }
+  if (isInProgressIndex(index)) {
+    // In-progress indexes that haven't failed are building
+    return index.status === 'creating';
+  }
+  return false;
 };
 
 // Helper: Determine if index can be deleted
@@ -152,6 +155,29 @@ const buildIndexActions = (
 
   return actions;
 };
+const SECONDS_PER_MINUTE = 60;
+const SECONDS_PER_HOUR = 60 * SECONDS_PER_MINUTE;
+const SECONDS_PER_DAY = 24 * SECONDS_PER_HOUR;
+const SECONDS_PER_WEEK = 7 * SECONDS_PER_DAY;
+
+function formatDuration(secs: number): string {
+  const seconds = secs % SECONDS_PER_MINUTE;
+  const minutes = Math.floor((secs % SECONDS_PER_HOUR) / SECONDS_PER_MINUTE);
+  const hours = Math.floor((secs % SECONDS_PER_DAY) / SECONDS_PER_HOUR);
+  const days = Math.floor((secs % SECONDS_PER_WEEK) / SECONDS_PER_DAY);
+  const weeks = Math.floor(secs / SECONDS_PER_WEEK);
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const DurationFormat = (Intl as any).DurationFormat;
+
+  return new DurationFormat(undefined, { style: 'narrow' }).format({
+    weeks,
+    days,
+    hours,
+    minutes,
+    seconds,
+  });
+}
 
 const IndexActions: React.FunctionComponent<IndexActionsProps> = ({
   index,
@@ -193,9 +219,28 @@ const IndexActions: React.FunctionComponent<IndexActionsProps> = ({
 
   // Show build progress UI for building indexes
   if (isIndexBuilding(index)) {
+    // Determine what text to show for build progress
+    // Prioritize secsRunning when progress is 0 or 1 (not meaningful progress info)
+    let progressText: string;
+    if (buildProgress.progressNotPermitted) {
+      // $currentOp failed, so we don't have detailed progress info
+      progressText = 'Building…';
+    } else if (
+      buildProgress.secsRunning !== undefined &&
+      (buildProgress.progress === undefined || buildProgress.progress === 0)
+    ) {
+      // Show seconds when progress is not available or at boundaries (0% or 100%)
+      progressText = `Building For… ${formatDuration(
+        buildProgress.secsRunning
+      )}`;
+    } else if (buildProgress.progress !== undefined) {
+      progressText = `Building… ${Math.trunc(buildProgress.progress * 100)}%`;
+    } else {
+      progressText = 'Building…';
+    }
     return (
       <div className={buildProgressStyles} data-testid="index-building-spinner">
-        <Body>Building… {Math.trunc(buildProgress * 100)}%</Body>
+        <Body>{progressText}</Body>
         <SpinLoader size={16} title="Index build in progress" />
         <ItemActionGroup<IndexAction>
           data-testid="index-actions"
