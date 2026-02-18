@@ -2,6 +2,7 @@ import TypeChecker, {
   uuidHexToString,
   reverseJavaUUIDBytes,
   reverseCSharpUUIDBytes,
+  getBsonType,
 } from 'hadron-type-checker';
 import type { Binary } from 'bson';
 import { ElementEvents } from '../element-events';
@@ -79,15 +80,8 @@ export default class UUIDEditor extends StandardEditor {
       return val;
     }
     // If it's a Binary, convert to UUID string based on the type
-    // Using _bsontype check instead of instanceof for cross-realm compatibility
-    // and future bson@7.x compatibility
-    if (
-      val &&
-      typeof val === 'object' &&
-      '_bsontype' in val &&
-      val._bsontype === 'Binary'
-    ) {
-      const binary = val;
+    if (getBsonType(val) === 'Binary') {
+      const binary = val as Binary;
       switch (this.uuidType) {
         case 'LegacyJavaUUID':
           return binaryToLegacyJavaUUIDString(binary);

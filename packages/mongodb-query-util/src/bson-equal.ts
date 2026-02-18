@@ -1,15 +1,16 @@
-import { get } from 'lodash';
+import { getBsonType } from 'hadron-type-checker';
 
 import type { Double, Int32, ObjectId } from 'bson';
 
 export const bsonEqual = (value: any, other: any): boolean | undefined => {
-  const bsontype = get(value, '_bsontype', undefined);
+  const bsontype = getBsonType(value);
+  const otherBsontype = getBsonType(other);
 
   if (!bsontype || typeof bsontype !== 'string') {
     return undefined;
   }
 
-  if (typeof other?._bsontype !== 'string') {
+  if (!otherBsontype || typeof otherBsontype !== 'string') {
     return undefined;
   }
 
