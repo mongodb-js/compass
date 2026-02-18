@@ -675,11 +675,6 @@ export function analyzeCollections({
       dataService: adapter,
       includeList: selectedCollections.map((coll) => `${database}.${coll}`),
     });
-    console.log(
-      'Schema results from WASM:',
-      schemaResults?.length,
-      schemaResults
-    );
 
     // Create a map of namespace -> schema for quick lookup
     const schemaMap = new Map<string, MongoDBJSONSchema>();
@@ -689,7 +684,6 @@ export function analyzeCollections({
         const ns = `${schemaInfo.namespace_info.db_name}.${schemaInfo.namespace_info.coll_or_view_name}`;
         schemaMap.set(ns, schemaInfo.namespace_schema);
       }
-      console.log('Schema INFO from WASM', { result, schemaInfo });
     }
 
     // Step 2: Build collections array from schemas

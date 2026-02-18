@@ -74,13 +74,10 @@ export class CompassDataServiceAdapter implements WasmDataService {
    * List all database names accessible to the current user.
    */
   async listDatabases(): Promise<string[]> {
-    console.log('[WASM Adapter] listDatabases called');
     const databases = await this.dataService.listDatabases({
       nameOnly: true,
     });
-    const result = databases.map((db) => db.name);
-    console.log('[WASM Adapter] listDatabases result:', result);
-    return result;
+    return databases.map((db) => db.name);
   }
 
   /**
@@ -88,10 +85,9 @@ export class CompassDataServiceAdapter implements WasmDataService {
    * Returns collection info with name, type, and options (for views).
    */
   async listCollections(dbName: string): Promise<WasmCollectionInfo[]> {
-    console.log('[WASM Adapter] listCollections called for:', dbName);
     const collections = await this.dataService.listCollections(dbName);
 
-    const result = collections.map((coll) => {
+    return collections.map((coll) => {
       const collInfo: WasmCollectionInfo = {
         name: coll.name,
         type: coll.type ?? 'collection',
@@ -115,8 +111,6 @@ export class CompassDataServiceAdapter implements WasmDataService {
 
       return collInfo;
     });
-    console.log('[WASM Adapter] listCollections result:', result);
-    return result;
   }
 
   /**
@@ -130,19 +124,8 @@ export class CompassDataServiceAdapter implements WasmDataService {
     ns: string,
     pipeline: BsonDocument[]
   ): Promise<BsonDocument[]> {
-    // Debug: inspect what's coming from WASM (EJSON format)
-    console.log('[WASM Adapter] aggregate called for:', ns);
-    console.log('[WASM Adapter] pipeline length:', pipeline?.length);
-    if (pipeline && pipeline.length > 0) {
-      console.log('[WASM Adapter] first stage:', pipeline[0]);
-    }
-
     // Convert EJSON pipeline from WASM to native BSON for DataService
     const nativePipeline = fromEJSON(pipeline);
-    console.log(
-      '[WASM Adapter] native pipeline first stage:',
-      nativePipeline[0]
-    );
 
     const result = await this.dataService.aggregate(
       ns,
@@ -152,8 +135,6 @@ export class CompassDataServiceAdapter implements WasmDataService {
         abortSignal: this.abortSignal,
       }
     );
-
-    console.log('[WASM Adapter] aggregate result count:', result.length);
 
     // Convert native BSON results to EJSON for WASM
     return toEJSON(result);
