@@ -550,7 +550,7 @@ const mapState = (
   isReadonlyView,
   indexes: ownProps.indexes ?? searchIndexes.indexes,
   status: searchIndexes.status,
-  context: ownProps.context ?? 'indexes-drawer',
+  context: ownProps.context ?? 'indexes-tab',
 });
 
 const mapDispatch = (
