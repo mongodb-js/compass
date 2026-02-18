@@ -64,7 +64,7 @@
     "@mongodb-js/workspace-info": "^1.4.0",
     "@mongosh/service-provider-node-driver": "^5.0.1",
     "ai": "^6.0.3",
-    "bson": "^6.10.4",
+    "bson": "^7.2.0",
     "compass-preferences-model": "^2.72.0",
     "lodash": "^4.17.21",
     "mongodb-collection-model": "^5.38.2",

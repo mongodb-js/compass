@@ -147,7 +147,7 @@
     "timers-browserify": "^2.0.12",
     "util": "^0.12.5",
     "vm-browserify": "^1.1.2",
-    "whatwg-url": "^13.0.0",
+    "whatwg-url": "^16.0.1",
     "ws": "^8.16.0",
     "mongodb-mcp-server": "1.6.1-prerelease.2"
   }
