@@ -3282,10 +3282,8 @@ type ContextMenuItemClicked = CommonEvent<{
 // Types for the Mock Data Generator events
 type MockDataGeneratorScreen =
   | 'SCHEMA_CONFIRMATION'
-  | 'SCHEMA_EDITOR'
-  | 'DOCUMENT_COUNT'
-  | 'PREVIEW_DATA'
-  | 'GENERATE_DATA';
+  | 'PREVIEW_AND_DOC_COUNT'
+  | 'SCRIPT_RESULT';
 type MongoDBJsonFieldType =
   | 'String'
   | 'Number'
