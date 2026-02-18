@@ -120,6 +120,10 @@ const sharedResolveOptions = (
 // resolve the modules relative to each entry point (!!!), leading to
 // potentially mismatching versions of whatwg-url being used in different
 // parts of the bundle
+// We use these plugins because of bugs like
+// - https://issues.chromium.org/issues/40063064
+// - https://bugzilla.mozilla.org/show_bug.cgi?id=1326394
+// which have been resolved in 2024, so we should be able to remove them at some point.
 const providePlugin = new ProvidePlugin({
   URL: [require.resolve('whatwg-url'), 'URL'],
   URLSearchParams: [require.resolve('whatwg-url'), 'URLSearchParams'],
