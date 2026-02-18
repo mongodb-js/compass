@@ -151,7 +151,6 @@ export function activateAggregationsPlugin(
       serverVersion: options.serverVersion,
       isTimeSeries: options.isTimeSeries,
       isDataLake: options.isDataLake,
-      isCompassWeb: !!connectionInfoRef.current?.atlasMetadata,
       env:
         // mms specifies options.env whereas we don't currently get this variable when
         // we use the aggregations plugin inside compass. In that use case we get it

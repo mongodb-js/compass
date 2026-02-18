@@ -27,6 +27,7 @@ import { VIEW_PIPELINE_UTILS } from '@mongodb-js/mongodb-constants';
 import type { RootState } from '../../modules';
 import type { PipelineProps } from '../pipeline/pipeline';
 import { css, palette } from '@mongodb-js/compass-components';
+import type { AtlasClusterMetadata } from '@mongodb-js/connection-info';
 
 const aggregationsStyles = css({
   display: 'flex',
@@ -56,20 +57,26 @@ class Aggregations extends Component<PipelineProps> {
   }
 }
 
+type OwnProps = {
+  atlasMetadata?: AtlasClusterMetadata;
+};
+
 /**
  * Map the store state to properties to pass to the components.
  *
  * @param {import('../../modules').RootState} state - The store state.
+ * @param {OwnProps} ownProps - The own props passed to the component.
  *
  * @returns {Object} The mapped properties.
  */
-const mapStateToProps = (state: RootState) => {
+const mapStateToProps = (state: RootState, ownProps: OwnProps) => {
   // Compute search indexes polling state
   const operators = getPipelineStageOperatorsFromBuilderState(state, false);
   const hasSearchStage = operators.some((op) => isSearchStage(op));
 
   const isReadonlyView = !!state.sourceName;
-  const isViewVersionSearchCompatible = state.isCompassWeb
+  const isCompassWeb = !!ownProps.atlasMetadata;
+  const isViewVersionSearchCompatible = isCompassWeb
     ? VIEW_PIPELINE_UTILS.isVersionSearchCompatibleForViewsDataExplorer(
         state.serverVersion
       )

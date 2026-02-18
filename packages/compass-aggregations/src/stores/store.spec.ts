@@ -92,7 +92,6 @@ describe('Aggregation Store', function () {
             workspace: INITIAL_STATE.workspace,
             countDocuments: INITIAL_STATE.countDocuments,
             isDataLake: INITIAL_STATE.isDataLake,
-            isCompassWeb: INITIAL_STATE.isCompassWeb,
             pipelineBuilder: INITIAL_STATE.pipelineBuilder,
             focusMode: INITIAL_STATE.focusMode,
             collectionStats: INITIAL_STATE.collectionStats,
