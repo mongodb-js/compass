@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React, { useEffect } from 'react';
 import {
   Banner,
   WorkspaceContainer,
@@ -7,21 +7,14 @@ import {
 
 import Settings from '../settings';
 import SavingPipelineModal from '../saving-pipeline-modal';
-
 import type { PipelineToolbarProps } from '../pipeline-toolbar';
 import PipelineToolbar from '../pipeline-toolbar';
 import PipelineBuilderWorkspace from '../pipeline-builder-workspace';
 import PipelineResultsWorkspace from '../pipeline-results-workspace';
 import FocusMode from '../focus-mode/focus-mode';
-import SearchIndexesPollingController from '../search-indexes-polling-controller';
-import {
-  DEFAULT_MAX_TIME_MS,
-  DEFAULT_SAMPLE_SIZE,
-  DEFAULT_LARGE_LIMIT,
-} from '../../constants';
+import { DEFAULT_SAMPLE_SIZE, DEFAULT_LARGE_LIMIT } from '../../constants';
 import type { SavingPipelineModalProps } from '../saving-pipeline-modal/saving-pipeline-modal';
 import type { SettingsProps } from '../settings/settings';
-import type { PipelineOutputOption } from '../pipeline-output-options-menu';
 import type { Workspace } from '../../modules/workspace';
 
 const pipelineStyles = css({
@@ -73,93 +66,125 @@ export type PipelineProps = Pick<
     maxTimeMS?: number | null;
     largeLimit?: number;
     enableSearchActivationProgramP1: boolean;
-  };
-class Pipeline extends PureComponent<
-  PipelineProps,
-  { pipelineOutputOption: PipelineOutputOption }
-> {
-  static displayName = 'PipelineComponent';
-
-  static defaultProps = {
-    maxTimeMS: DEFAULT_MAX_TIME_MS,
-    limit: DEFAULT_SAMPLE_SIZE,
-    largeLimit: DEFAULT_LARGE_LIMIT,
+    // Search indexes polling props
+    hasSearchStage: boolean;
+    isSearchIndexesSupported: boolean;
+    startPollingSearchIndexes: () => void;
+    stopPollingSearchIndexes: () => void;
   };
 
-  renderModifyingViewSourceError() {
-    if (this.props.updateViewError) {
-      return (
-        <div className={pipelineErrorBannerContainerStyles}>
-          <Banner
-            variant="danger"
-            dismissible
-            onClose={this.props.dismissViewError}
-          >
-            {this.props.updateViewError}
-          </Banner>
-        </div>
-      );
+/**
+ * Render the pipeline component.
+ */
+const Pipeline: React.FC<PipelineProps> = ({
+  saveCurrentPipeline,
+  savingPipelineNameChanged,
+  savingPipelineApply,
+  savingPipelineCancel,
+  clonePipeline,
+  showRunButton,
+  showExplainButton,
+  toggleSettingsIsExpanded,
+  toggleSettingsIsCommentMode,
+  setSettingsSampleSize,
+  setSettingsLimit,
+  isCommenting,
+  applySettings,
+  settings,
+  savingPipeline,
+  updateViewError,
+  dismissViewError,
+  workspace,
+  limit = DEFAULT_SAMPLE_SIZE,
+  largeLimit = DEFAULT_LARGE_LIMIT,
+  enableSearchActivationProgramP1,
+  hasSearchStage,
+  isSearchIndexesSupported,
+  startPollingSearchIndexes,
+  stopPollingSearchIndexes,
+}) => {
+  // Manage search indexes polling based on pipeline content
+  useEffect(() => {
+    if (!enableSearchActivationProgramP1) {
+      return;
     }
-  }
 
-  renderPipelineToolbar() {
-    return (
-      <PipelineToolbar
-        showRunButton={this.props.showRunButton}
-        showExplainButton={this.props.showExplainButton}
+    if (!isSearchIndexesSupported) {
+      stopPollingSearchIndexes();
+      return;
+    }
+
+    if (hasSearchStage) {
+      startPollingSearchIndexes();
+    } else {
+      stopPollingSearchIndexes();
+    }
+
+    return stopPollingSearchIndexes;
+  }, [
+    enableSearchActivationProgramP1,
+    hasSearchStage,
+    isSearchIndexesSupported,
+    startPollingSearchIndexes,
+    stopPollingSearchIndexes,
+  ]);
+
+  const pipelineToolbar = (
+    <PipelineToolbar
+      showRunButton={showRunButton}
+      showExplainButton={showExplainButton}
+    />
+  );
+
+  const modifyingViewSourceError = updateViewError ? (
+    <div className={pipelineErrorBannerContainerStyles}>
+      <Banner variant="danger" dismissible onClose={dismissViewError}>
+        {updateViewError}
+      </Banner>
+    </div>
+  ) : null;
+
+  const savingPipelineModal = (
+    <SavingPipelineModal
+      name={savingPipeline.name}
+      isOpen={savingPipeline.isOpen}
+      isSaveAs={savingPipeline.isSaveAs}
+      saveCurrentPipeline={saveCurrentPipeline}
+      savingPipelineNameChanged={savingPipelineNameChanged}
+      savingPipelineApply={savingPipelineApply}
+      savingPipelineCancel={savingPipelineCancel}
+      clonePipeline={clonePipeline}
+    />
+  );
+
+  return (
+    <div className={pipelineStyles}>
+      <Settings
+        isExpanded={settings.isExpanded}
+        toggleSettingsIsExpanded={toggleSettingsIsExpanded}
+        toggleSettingsIsCommentMode={toggleSettingsIsCommentMode}
+        setSettingsSampleSize={setSettingsSampleSize}
+        setSettingsLimit={setSettingsLimit}
+        isCommenting={isCommenting}
+        limit={limit}
+        largeLimit={largeLimit}
+        applySettings={applySettings}
+        settings={settings}
       />
-    );
-  }
-
-  /**
-   * Render the pipeline component.
-   *
-   * @returns {Component} The component.
-   */
-  render() {
-    const savingPipelineModal = (
-      <SavingPipelineModal
-        name={this.props.savingPipeline.name}
-        isOpen={this.props.savingPipeline.isOpen}
-        isSaveAs={this.props.savingPipeline.isSaveAs}
-        saveCurrentPipeline={this.props.saveCurrentPipeline}
-        savingPipelineNameChanged={this.props.savingPipelineNameChanged}
-        savingPipelineApply={this.props.savingPipelineApply}
-        savingPipelineCancel={this.props.savingPipelineCancel}
-        clonePipeline={this.props.clonePipeline}
-      />
-    );
-
-    return (
-      <div className={pipelineStyles}>
-        <Settings
-          isExpanded={this.props.settings.isExpanded}
-          toggleSettingsIsExpanded={this.props.toggleSettingsIsExpanded}
-          toggleSettingsIsCommentMode={this.props.toggleSettingsIsCommentMode}
-          setSettingsSampleSize={this.props.setSettingsSampleSize}
-          setSettingsLimit={this.props.setSettingsLimit}
-          isCommenting={this.props.isCommenting}
-          limit={this.props.limit!}
-          largeLimit={this.props.largeLimit!}
-          applySettings={this.props.applySettings}
-          settings={this.props.settings}
-        />
-        <WorkspaceContainer toolbar={this.renderPipelineToolbar()}>
-          {this.renderModifyingViewSourceError()}
-          {this.props.workspace === 'results' ? (
-            <PipelineResultsWorkspace />
-          ) : (
-            <PipelineBuilderWorkspace />
-          )}
-          <FocusMode />
-          {savingPipelineModal}
-        </WorkspaceContainer>
-        {this.props.enableSearchActivationProgramP1 && (
-          <SearchIndexesPollingController />
+      <WorkspaceContainer toolbar={pipelineToolbar}>
+        {modifyingViewSourceError}
+        {workspace === 'results' ? (
+          <PipelineResultsWorkspace />
+        ) : (
+          <PipelineBuilderWorkspace />
         )}
-      </div>
-    );
-  }
-}
+        <FocusMode />
+        {savingPipelineModal}
+      </WorkspaceContainer>
+    </div>
+  );
+};
 
-export default Pipeline;
+Pipeline.displayName = 'PipelineComponent';
+
+export default React.memo(Pipeline);

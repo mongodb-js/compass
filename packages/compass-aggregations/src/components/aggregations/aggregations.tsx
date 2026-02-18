@@ -16,6 +16,13 @@ import {
   savingPipelineCancel,
 } from '../../modules/saving-pipeline';
 import { dismissViewError } from '../../modules/update-view';
+import {
+  startPollingSearchIndexes,
+  stopPollingSearchIndexes,
+} from '../../modules/search-indexes';
+import { getPipelineStageOperatorsFromBuilderState } from '../../modules/pipeline-builder/builder-helpers';
+import { isSearchStage } from '../../utils/stage';
+import { VIEW_PIPELINE_UTILS, ATLAS } from '@mongodb-js/mongodb-constants';
 
 import type { RootState } from '../../modules';
 import type { PipelineProps } from '../pipeline/pipeline';
@@ -56,20 +63,41 @@ class Aggregations extends Component<PipelineProps> {
  *
  * @returns {Object} The mapped properties.
  */
-const mapStateToProps = (state: RootState) => ({
-  namespace: state.namespace,
-  name: state.name,
-  collationString: state.collationString,
-  isCommenting: state.comments,
-  isAutoPreviewing: state.autoPreview,
-  settings: state.settings,
-  limit: state.limit,
-  largeLimit: state.largeLimit,
-  maxTimeMS: state.maxTimeMS,
-  savingPipeline: state.savingPipeline,
-  updateViewError: state.updateViewError,
-  workspace: state.workspace,
-});
+const mapStateToProps = (state: RootState) => {
+  // Compute search indexes polling state
+  const operators = getPipelineStageOperatorsFromBuilderState(state, false);
+  const hasSearchStage = operators.some((op) => isSearchStage(op));
+
+  const isReadonlyView = !!state.sourceName;
+  const isAtlas = state.env === ATLAS;
+  const isViewVersionSearchCompatible = isAtlas
+    ? VIEW_PIPELINE_UTILS.isVersionSearchCompatibleForViewsDataExplorer(
+        state.serverVersion
+      )
+    : VIEW_PIPELINE_UTILS.isVersionSearchCompatibleForViewsCompass(
+        state.serverVersion
+      );
+  const isSearchIndexesSupported = isReadonlyView
+    ? isViewVersionSearchCompatible
+    : state.searchIndexes.isSearchIndexesSupported;
+
+  return {
+    namespace: state.namespace,
+    name: state.name,
+    collationString: state.collationString,
+    isCommenting: state.comments,
+    isAutoPreviewing: state.autoPreview,
+    settings: state.settings,
+    limit: state.limit,
+    largeLimit: state.largeLimit,
+    maxTimeMS: state.maxTimeMS,
+    savingPipeline: state.savingPipeline,
+    updateViewError: state.updateViewError,
+    workspace: state.workspace,
+    hasSearchStage,
+    isSearchIndexesSupported,
+  };
+};
 
 /**
  * Connect the redux store to the component.
@@ -87,6 +115,8 @@ const MappedAggregations = connect(mapStateToProps, {
   savingPipelineApply,
   savingPipelineCancel,
   dismissViewError,
+  startPollingSearchIndexes,
+  stopPollingSearchIndexes,
 })(Aggregations);
 
 export default MappedAggregations;
