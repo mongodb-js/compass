@@ -526,4 +526,99 @@ describe('RegularIndexesTable Component', function () {
       expect(getIndexNames()).to.deep.eq(['b', 'a', 'c']);
     });
   });
+
+  describe('Index Status and Permission Handling', function () {
+    it('shows "Ready" status for completed index', function () {
+      renderIndexList({
+        indexes: [
+          mockRegularIndex({
+            name: 'ready_index',
+            buildProgress: { active: false },
+          }),
+        ],
+      });
+
+      const indexRow = screen.getByTestId('indexes-row-ready_index');
+      expect(within(indexRow).getByTestId('index-ready')).to.exist;
+      expect(within(indexRow).getByText('Ready')).to.exist;
+    });
+
+    it('shows "In Progress" status for building index with progress', function () {
+      renderIndexList({
+        indexes: [
+          mockRegularIndex({
+            name: 'building_index',
+            buildProgress: {
+              active: true,
+              progress: 0.5,
+              msg: 'Index Build: inserting keys from external sorter',
+            },
+          }),
+        ],
+      });
+
+      const indexRow = screen.getByTestId('indexes-row-building_index');
+      expect(within(indexRow).getByTestId('index-in-progress')).to.exist;
+      expect(within(indexRow).getByText('In Progress')).to.exist;
+    });
+
+    it('shows "Unknown" status when both permissions are denied', function () {
+      renderIndexList({
+        indexes: [
+          mockRegularIndex({
+            name: 'unknown_status_index',
+            buildProgress: {
+              active: false,
+              statsNotPermitted: true,
+              progressNotPermitted: true,
+              msg: 'user is not authorized, user is not authorized',
+            },
+          }),
+        ],
+      });
+
+      const indexRow = screen.getByTestId('indexes-row-unknown_status_index');
+      expect(within(indexRow).getByTestId('index-unknown')).to.exist;
+      expect(within(indexRow).getByText('Unknown')).to.exist;
+    });
+
+    it('shows "Ready" when only statsNotPermitted but currentOp says not building', function () {
+      // When $indexStats fails but $currentOp works and shows no active build
+      renderIndexList({
+        indexes: [
+          mockRegularIndex({
+            name: 'stats_failed_index',
+            buildProgress: {
+              active: false,
+              statsNotPermitted: true,
+              progressNotPermitted: false,
+            },
+          }),
+        ],
+      });
+
+      const indexRow = screen.getByTestId('indexes-row-stats_failed_index');
+      expect(within(indexRow).getByTestId('index-ready')).to.exist;
+    });
+
+    it('shows "In Progress" when only progressNotPermitted but indexStats shows building', function () {
+      // When $currentOp fails but $indexStats shows building: true
+      renderIndexList({
+        indexes: [
+          mockRegularIndex({
+            name: 'progress_failed_index',
+            buildProgress: {
+              active: true,
+              progressNotPermitted: true,
+              statsNotPermitted: false,
+              msg: 'user is not authorized to run currentOp',
+            },
+          }),
+        ],
+      });
+
+      const indexRow = screen.getByTestId('indexes-row-progress_failed_index');
+      expect(within(indexRow).getByTestId('index-in-progress')).to.exist;
+    });
+  });
 });

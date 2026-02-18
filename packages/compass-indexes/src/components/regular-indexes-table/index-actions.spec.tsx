@@ -391,4 +391,171 @@ describe('IndexActions Component', function () {
       expect(onDeleteIndexClick).to.have.been.calledOnceWith('test_actions');
     });
   });
+
+  describe('Duration Formatting', function () {
+    const durationTestCases = [
+      { secsRunning: 30, expectedPattern: /30\s*s/ },
+      { secsRunning: 90, expectedPattern: /1\s*m.*30\s*s/ },
+      { secsRunning: 3661, expectedPattern: /1\s*h.*1\s*m.*1\s*s/ },
+      { secsRunning: 90061, expectedPattern: /1\s*d.*1\s*h.*1\s*m.*1\s*s/ },
+      {
+        secsRunning: 694861,
+        expectedPattern: /1\s*w.*1\s*d.*1\s*h.*1\s*m.*1\s*s/,
+      },
+    ];
+
+    durationTestCases.forEach(({ secsRunning, expectedPattern }) => {
+      it(`formats ${secsRunning} seconds correctly`, function () {
+        const index = mockRegularIndex({
+          name: 'duration_test',
+          buildProgress: { active: true, secsRunning },
+        });
+
+        render(
+          <IndexActions
+            index={index}
+            serverVersion="5.0.0"
+            onDeleteIndexClick={onDeleteIndexClick}
+          />
+        );
+
+        expect(screen.getByText(/Building For…/)).to.exist;
+        // The actual formatted text should contain the time units
+        const buildingText = screen.getByText(/Building For…/).textContent;
+        expect(buildingText).to.match(expectedPattern);
+      });
+    });
+
+    it('shows duration instead of 0% when progress is 0', function () {
+      const index = mockRegularIndex({
+        name: 'zero_progress_with_time',
+        buildProgress: { active: true, progress: 0, secsRunning: 120 },
+      });
+
+      render(
+        <IndexActions
+          index={index}
+          serverVersion="5.0.0"
+          onDeleteIndexClick={onDeleteIndexClick}
+        />
+      );
+
+      // Should show duration, not "0%"
+      expect(screen.getByText(/Building For…/)).to.exist;
+      expect(screen.queryByText(/0%/)).to.not.exist;
+    });
+  });
+
+  describe('Permission Error States', function () {
+    describe('progressNotPermitted only', function () {
+      it('shows building UI with "Building…" when active and progressNotPermitted', function () {
+        // $indexStats succeeded (shows building: true), but $currentOp failed
+        const index = mockRegularIndex({
+          name: 'progress_not_permitted',
+          buildProgress: {
+            active: true,
+            progressNotPermitted: true,
+          },
+        });
+
+        render(
+          <IndexActions
+            index={index}
+            serverVersion="5.0.0"
+            onDeleteIndexClick={onDeleteIndexClick}
+          />
+        );
+
+        expect(screen.getByTestId('index-building-spinner')).to.exist;
+        // Should show generic "Building…" without percentage or duration
+        expect(screen.getByText('Building…')).to.exist;
+        expect(screen.queryByText(/Building For…/)).to.not.exist;
+        expect(screen.queryByText(/%/)).to.not.exist;
+      });
+    });
+
+    describe('statsNotPermitted only', function () {
+      it('shows ready actions when index not building and statsNotPermitted', function () {
+        // $indexStats failed but $currentOp succeeded and shows no build in progress
+        const index = mockRegularIndex({
+          name: 'stats_not_permitted',
+          buildProgress: {
+            active: false,
+            statsNotPermitted: true,
+          },
+        });
+
+        render(
+          <IndexActions
+            index={index}
+            serverVersion="5.0.0"
+            onDeleteIndexClick={onDeleteIndexClick}
+            onHideIndexClick={onHideIndexClick}
+          />
+        );
+
+        // Should show ready actions
+        expect(screen.queryByTestId('index-building-spinner')).to.not.exist;
+        expect(screen.getByTestId('index-actions')).to.exist;
+        expect(screen.getByLabelText('Drop Index stats_not_permitted')).to
+          .exist;
+      });
+    });
+
+    describe('both statsNotPermitted and progressNotPermitted', function () {
+      it('shows ready actions when both permissions denied but not active', function () {
+        // Both $indexStats and $currentOp failed
+        const index = mockRegularIndex({
+          name: 'both_not_permitted',
+          buildProgress: {
+            active: false,
+            statsNotPermitted: true,
+            progressNotPermitted: true,
+            msg: 'user is not permitted, user is not permitted',
+          },
+        });
+
+        render(
+          <IndexActions
+            index={index}
+            serverVersion="5.0.0"
+            onDeleteIndexClick={onDeleteIndexClick}
+            onHideIndexClick={onHideIndexClick}
+          />
+        );
+
+        // When both fail and we can't determine status, we show ready actions
+        // (the "unknown" status badge is shown in the StatusField component, not here)
+        expect(screen.queryByTestId('index-building-spinner')).to.not.exist;
+        expect(screen.getByTestId('index-actions')).to.exist;
+      });
+    });
+  });
+
+  describe('Message (msg) Field Handling', function () {
+    it('includes msg in buildProgress for building index', function () {
+      // The msg field is passed to StatusField for tooltip display,
+      // but the IndexActions component uses it when progressNotPermitted is true
+      const index = mockRegularIndex({
+        name: 'index_with_msg',
+        buildProgress: {
+          active: true,
+          progress: 0.5,
+          msg: 'Index Build: draining writes received during build',
+        },
+      });
+
+      render(
+        <IndexActions
+          index={index}
+          serverVersion="5.0.0"
+          onDeleteIndexClick={onDeleteIndexClick}
+        />
+      );
+
+      // Should show building UI with progress
+      expect(screen.getByTestId('index-building-spinner')).to.exist;
+      expect(screen.getByText('Building… 50%')).to.exist;
+    });
+  });
 });
