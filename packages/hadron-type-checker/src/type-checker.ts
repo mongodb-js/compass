@@ -3,7 +3,6 @@ import {
   isArray,
   isString,
   isNumber,
-  hasIn,
   keys,
   without,
   toNumber,
@@ -24,7 +23,14 @@ import {
   BSONSymbol,
   Timestamp,
   UUID,
+  bsonType,
+  type BSONTypeTag,
 } from 'bson';
+
+export { bsonType, type BSONTypeTag };
+export function getBsonType(value: any): BSONTypeTag | undefined {
+  return value?.[bsonType];
+}
 
 export type TypeCastMap = {
   Array: unknown[];
@@ -84,13 +90,6 @@ const DOUBLE = 'Double';
 const DECIMAL_128 = 'Decimal128';
 const OBJECT_TYPE = '[object Object]';
 const EMPTY = '';
-const OBJECT_ID = 'ObjectID';
-const SYMBOL = 'Symbol';
-
-/**
- * The bson type field.
- */
-const BSON_TYPE = '_bsontype';
 
 /**
  * The match regex.
@@ -223,7 +222,6 @@ const toDouble = (object: unknown): Double => {
 };
 
 type BSONObject = {
-  _bsontype: string;
   toString(): string;
   valueOf(): number | string;
 };
@@ -233,14 +231,13 @@ const toDecimal128 = (object: unknown): Decimal128 => {
    If converting a BSON Object, extract the value before converting to a string.
    */
   if (
-    hasIn(object, BSON_TYPE) &&
-    NUMBER_TYPES.includes(
-      (object as BSONObject)._bsontype as (typeof NUMBER_TYPES)[number]
+    (NUMBER_TYPES as readonly (BSONTypeTag | undefined)[]).includes(
+      getBsonType(object)
     )
   ) {
     const bsonObj = object as BSONObject;
     object =
-      bsonObj._bsontype === LONG ? bsonObj.toString() : bsonObj.valueOf();
+      getBsonType(object) === LONG ? bsonObj.toString() : bsonObj.valueOf();
   }
   return Decimal128.fromString(toString(object));
 };
@@ -665,19 +662,13 @@ class TypeChecker {
       | 'LegacyCSharpUUID'
       | 'LegacyPythonUUID'
   ): TypeCastTypes {
-    if (hasIn(object, BSON_TYPE)) {
-      const bsonObj = object as { _bsontype: string };
-      if (bsonObj._bsontype === LONG) {
+    const bsonType = getBsonType(object);
+    if (bsonType) {
+      if (bsonType === LONG) {
         return INT_64;
       }
-      if (bsonObj._bsontype === OBJECT_ID) {
-        return 'ObjectId';
-      }
-      if (bsonObj._bsontype === SYMBOL) {
-        return 'BSONSymbol';
-      }
       // Handle Binary UUID subtypes
-      if (bsonObj._bsontype === 'Binary') {
+      if (bsonType === 'Binary') {
         const binary = object as Binary;
         if (binary.sub_type === Binary.SUBTYPE_UUID) {
           return 'UUID';
@@ -690,7 +681,7 @@ class TypeChecker {
           return legacyUUIDEncoding;
         }
       }
-      return bsonObj._bsontype as TypeCastTypes;
+      return bsonType as TypeCastTypes;
     }
     if (isNumber(object)) {
       return numberToBsonType(object);

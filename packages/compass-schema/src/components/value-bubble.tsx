@@ -12,6 +12,7 @@ import {
 import type { ChangeQueryFn } from '@mongodb-js/compass-query-bar';
 
 import constants from '../constants/schema';
+import { getBsonType, type BSONTypeTag } from 'hadron-type-checker';
 
 const { DECIMAL_128, DOUBLE, LONG, INT_32 } = constants;
 
@@ -45,11 +46,12 @@ const valueBubbleValueSelectedStyles = css({
  * BSON types as well.
  */
 function extractStringValue(value: any): string {
-  if (value?._bsontype) {
-    if ([DECIMAL_128, LONG].includes(value._bsontype)) {
+  const bsonType = getBsonType(value);
+  if (bsonType) {
+    if (([DECIMAL_128, LONG] as BSONTypeTag[]).includes(bsonType)) {
       return value.toString();
     }
-    if ([DOUBLE, INT_32].includes(value._bsontype)) {
+    if (([DOUBLE, INT_32] as BSONTypeTag[]).includes(bsonType)) {
       return String(value.value);
     }
   }

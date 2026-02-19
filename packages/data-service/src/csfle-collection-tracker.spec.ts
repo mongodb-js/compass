@@ -65,7 +65,7 @@ describe('CSFLECollectionTracker', function () {
             kmsProviders: { local: { key: 'A'.repeat(128) } },
             keyVaultNamespace: `${dbName}.kv`,
             extraOptions: {
-              cryptSharedLibPath: process.env.COMPASS_CRYPT_LIBRARY_PATH,
+              cryptSharedLibPath: process.env.COMPASS_CRYPT_LIBRARY_PATH as any,
             },
             ...autoEncryption,
           },

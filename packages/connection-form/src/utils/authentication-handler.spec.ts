@@ -248,7 +248,6 @@ describe('Authentication Handler', function () {
 
     it('should not set authSource=$external when not needed', function () {
       const externalAuthMechanisms: AuthMechanism[] = [
-        'MONGODB-CR',
         'DEFAULT',
         'SCRAM-SHA-1',
         'SCRAM-SHA-256',
