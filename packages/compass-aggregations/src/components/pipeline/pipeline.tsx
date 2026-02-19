@@ -107,7 +107,7 @@ const Pipeline: React.FC<PipelineProps> = ({
   stopPollingSearchIndexes,
 }) => {
   const { atlasMetadata } = useConnectionInfo();
-  const isViewVersionSearchCompatible = !!atlasMetadata
+  const isViewVersionSearchCompatible = atlasMetadata
     ? VIEW_PIPELINE_UTILS.isVersionSearchCompatibleForViewsDataExplorer(
         serverVersion
       )
