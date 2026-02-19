@@ -111,11 +111,13 @@ const disallowedConnectionStringOptions = [
 
 const allowedAuthMechanismProperties = [
   'CANONICALIZE_HOST_NAME',
-  'AWS_SESSION_TOKEN',
   'ENVIRONMENT',
   'TOKEN_RESOURCE',
   'AWS_CREDENTIAL_PROVIDER',
 ] as const;
+// AWS_SESSION_TOKEN is not supported by the driver anymore, but devtools-shared provides
+// it as a compatibility mechanism with pre-7.x driver behavior
+(allowedAuthMechanismProperties as any).push('AWS_SESSION_TOKEN');
 
 const disallowedAuthMechanismProperties = [
   'SERVICE_HOST',

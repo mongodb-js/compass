@@ -14,6 +14,8 @@ on:
           - typescript
           - mongosh
           - leafygreen
+          - devtools-shared-prod
+          - devtools-shared-dev
           - all
         required: true
   schedule:
@@ -37,7 +39,7 @@ jobs:
           echo "Configuring matrix (inputs.group_name=${{ inputs.group_name }})"
           if [[ "$SHOULD_INCLUDE_ALL_GROUPS" = "true" ]]; then
             # When adding new group, don't forget to update the `workflow_dispatch`
-            echo 'group_name=["electron","eslint","typescript","mongosh","leafygreen"]' >> "$GITHUB_OUTPUT"
+            echo 'group_name=["electron","eslint","typescript","mongosh","leafygreen","devtools-shared-prod","devtools-shared-dev"]' >> "$GITHUB_OUTPUT"
           else
             echo 'group_name=["${{ inputs.group_name }}"]' >> "$GITHUB_OUTPUT"
           fi

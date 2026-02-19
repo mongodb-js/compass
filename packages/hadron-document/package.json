@@ -50,11 +50,11 @@
     "typecheck": "echo \"TODO(COMPASS-9897): typecheck is failing in test files\" && tsc -p tsconfig-build.json --noEmit"
   },
   "dependencies": {
-    "bson": "^6.10.4",
+    "bson": "^7.2.0",
     "eventemitter3": "^4.0.0",
     "hadron-type-checker": "^7.4.27",
     "lodash": "^4.17.23",
-    "mongodb": "^6.21.0"
+    "mongodb": "^7.1.0"
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-compass": "^1.4.16",
