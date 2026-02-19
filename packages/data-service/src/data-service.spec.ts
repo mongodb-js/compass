@@ -1,5 +1,5 @@
 import assert from 'assert';
-import { Int32, ObjectId, UUID } from 'bson';
+import { bsonType, Int32, ObjectId, UUID } from 'bson';
 import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import type { Sort } from 'mongodb';
@@ -1581,7 +1581,7 @@ describe('DataService', function () {
         expect(session.constructor.name).to.equal('ClientSession');
 
         // used by killSessions, must be a bson UUID in order to work
-        expect(session.id!.id._bsontype).to.equal('Binary');
+        expect(session.id!.id[bsonType]).to.equal('Binary');
         expect(session.id!.id.sub_type).to.equal(4);
       });
     });
@@ -1969,7 +1969,7 @@ describe('DataService', function () {
 
         expect(changeset.changes).to.have.length(1);
         expect(changeset.changes[0].before).to.deep.equal(sampleDocument);
-        expect(changeset.changes[0].after.counter._bsontype).to.equal('Int32');
+        expect(changeset.changes[0].after.counter[bsonType]).to.equal('Int32');
         expect(changeset.changes[0].after).to.deep.equal({
           _id: sampleDocument._id,
           counter: new Int32(1),
