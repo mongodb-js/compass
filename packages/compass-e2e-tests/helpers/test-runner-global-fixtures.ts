@@ -15,7 +15,6 @@ import {
 import { E2E_WORKSPACE_PATH, LOG_PATH } from './test-runner-paths';
 import Debug from 'debug';
 import { startTestServer } from '@mongodb-js/compass-test-server';
-import kill from 'tree-kill';
 import { MongoClient } from 'mongodb';
 import { isEnterprise } from 'mongodb-build-info';
 import {
@@ -277,31 +276,20 @@ export async function mochaGlobalSetup(this: Mocha.Runner) {
         ]);
 
         debug('Starting static server for the compass-web assets ...');
-        const staticServer = spawnCompassWebStaticServer(
+        const cleanupServer = spawnCompassWebStaticServer(
           globalFixturesAbortController.signal
         );
-        cleanupFns.push(() => {
-          if (staticServer.pid) {
-            debug(`Killing static server [${staticServer.pid}]`);
-            kill(staticServer.pid, 'SIGINT');
-          }
-        });
+        cleanupFns.push(cleanupServer);
         await waitForCompassWebStaticAssetsToBeReady(
           `${context.sandboxUrl}/assets-manifest.json`,
           globalFixturesAbortController.signal
         );
       } else if (isTestingWeb(context)) {
         debug('Starting compass-web sandbox ...');
-
-        const compassWeb = spawnCompassWebSandbox(
+        const cleanupSandbox = spawnCompassWebSandbox(
           globalFixturesAbortController.signal
         );
-        cleanupFns.push(() => {
-          if (compassWeb.pid) {
-            debug(`Killing compass-web [${compassWeb.pid}]`);
-            kill(compassWeb.pid, 'SIGINT');
-          }
-        });
+        cleanupFns.push(cleanupSandbox);
         await waitForCompassWebSandboxToBeReady(
           context.sandboxUrl,
           globalFixturesAbortController.signal
@@ -348,6 +336,10 @@ export async function mochaGlobalSetup(this: Mocha.Runner) {
       removeUserDataDir();
     });
   } catch (err) {
+    // If we ended up here, something failed (or canceled) during initial setup.
+    // Mocha will not run the teardown in this case, so we have to do it
+    // ourselves to take care of all already registered cleanup functions
+    void mochaGlobalTeardown();
     if (globalFixturesAbortController.signal.aborted) {
       return;
     }
