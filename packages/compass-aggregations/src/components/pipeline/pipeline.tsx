@@ -134,7 +134,7 @@ const Pipeline: React.FC<PipelineProps> = ({
   }, [
     enableSearchActivationProgramP1,
     hasSearchStage,
-    isSearchIndexesSupported,
+    isSearchIndexesReadable,
     startPollingSearchIndexes,
     stopPollingSearchIndexes,
   ]);
