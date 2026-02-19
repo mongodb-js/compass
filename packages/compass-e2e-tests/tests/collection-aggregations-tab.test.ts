@@ -219,7 +219,7 @@ describe('Collection aggregations tab', function () {
   });
 
   it('shows atlas only stage preview', async function () {
-    if (serverSatisfies('<8.0.14')) {
+    if (!serverSatisfies('>=8.0.14')) {
       return this.skip();
     }
     await browser.selectStageOperator(0, '$rankFusion');
@@ -1189,7 +1189,7 @@ describe('Collection aggregations tab', function () {
     });
 
     it('previews atlas operators - $rankFusion', async function () {
-      if (serverSatisfies('<8.0.14')) {
+      if (!serverSatisfies('>=8.0.14')) {
         return this.skip();
       }
       await browser.selectStageOperator(0, '$match');
@@ -1537,7 +1537,7 @@ describe('Collection aggregations tab', function () {
     });
 
     it('handles atlas only operator', async function () {
-      if (serverSatisfies('<8.0.14')) {
+      if (!serverSatisfies('>=8.0.14')) {
         return this.skip();
       }
       await browser.selectStageOperator(0, '$rankFusion');
