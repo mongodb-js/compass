@@ -171,7 +171,6 @@ describe('Collection aggregations tab', function () {
       '$merge',
       '$out',
       '$project',
-      '$rankFusion',
       '$redact',
       '$replaceRoot',
       '$replaceWith',
@@ -220,6 +219,9 @@ describe('Collection aggregations tab', function () {
   });
 
   it('shows atlas only stage preview', async function () {
+    if (serverSatisfies('<8.0.14')) {
+      return this.skip();
+    }
     await browser.selectStageOperator(0, '$rankFusion');
 
     await browser.waitUntil(async function () {
@@ -1187,6 +1189,9 @@ describe('Collection aggregations tab', function () {
     });
 
     it('previews atlas operators - $rankFusion', async function () {
+      if (serverSatisfies('<8.0.14')) {
+        return this.skip();
+      }
       await browser.selectStageOperator(0, '$match');
       await browser.setCodemirrorEditorValue(
         Selectors.stageEditor(0),
@@ -1532,6 +1537,9 @@ describe('Collection aggregations tab', function () {
     });
 
     it('handles atlas only operator', async function () {
+      if (serverSatisfies('<8.0.14')) {
+        return this.skip();
+      }
       await browser.selectStageOperator(0, '$rankFusion');
       await browser.setCodemirrorEditorValue(Selectors.stageEditor(0), '{}');
 
