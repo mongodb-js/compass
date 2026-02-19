@@ -118,7 +118,6 @@
     "@leafygreen-ui/select": "^17.0.3",
     "@leafygreen-ui/text-input": "^16.2.3",
     "@leafygreen-ui/tokens": "^4.2.2",
-    "@leafygreen-ui/typography": "^22.2.4",
-    "kerberos": "^2.2.2"
+    "@leafygreen-ui/typography": "^22.2.4"
   }
 }

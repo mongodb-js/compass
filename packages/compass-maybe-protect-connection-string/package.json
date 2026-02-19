@@ -51,7 +51,7 @@
   },
   "dependencies": {
     "compass-preferences-model": "^2.72.0",
-    "mongodb-connection-string-url": "^3.0.1"
+    "mongodb-connection-string-url": "^7.0.1"
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-compass": "^1.4.16",

@@ -25,6 +25,7 @@ import type { ErrorJSON } from './import-types';
 import { guessFileType } from './guess-filetype';
 import { importJSON } from './import-json';
 import { mochaTestServer } from '@mongodb-js/compass-test-server';
+import { getBsonType } from 'hadron-type-checker';
 
 const { expect } = chai;
 chai.use(sinonChai);
@@ -128,7 +129,7 @@ describe('importJSON', function () {
 
         // these won't match when we compare below
         for (const doc of docs) {
-          if (doc._id && doc._id._bsontype === 'ObjectId') {
+          if (doc._id && getBsonType(doc._id) === 'ObjectId') {
             delete doc._id;
           }
         }

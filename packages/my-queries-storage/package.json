@@ -76,7 +76,7 @@
     "@mongodb-js/compass-app-registry": "^9.7.0",
     "@mongodb-js/compass-editor": "^0.64.0",
     "@mongodb-js/compass-user-data": "^0.15.0",
-    "bson": "^6.10.4",
+    "bson": "^7.2.0",
     "react": "^17.0.2"
   }
 }
