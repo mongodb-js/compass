@@ -2,8 +2,7 @@ import crossSpawn from 'cross-spawn';
 import { execFile } from 'child_process';
 import { promisify } from 'util';
 import Debug from 'debug';
-import type { ConnectionInfo } from '@mongodb-js/connection-info';
-import ConnectionString from 'mongodb-connection-string-url';
+import treeKill from 'tree-kill';
 
 const debug = Debug('compass-e2e-tests:compass-web-sandbox');
 
@@ -51,7 +50,13 @@ export function spawnCompassWebSandbox(signal: AbortSignal) {
   );
   proc.stdout.pipe(process.stdout);
   proc.stderr.pipe(process.stderr);
-  return proc;
+  return () => {
+    if (proc.pid) {
+      treeKill(proc.pid);
+    } else {
+      proc.kill();
+    }
+  };
 }
 
 export async function waitForCompassWebSandboxToBeReady(
@@ -97,7 +102,13 @@ export function spawnCompassWebStaticServer(signal: AbortSignal) {
   );
   proc.stdout.pipe(process.stdout);
   proc.stderr.pipe(process.stderr);
-  return proc;
+  return () => {
+    if (proc.pid) {
+      treeKill(proc.pid);
+    } else {
+      proc.kill();
+    }
+  };
 }
 
 export async function waitForCompassWebStaticAssetsToBeReady(

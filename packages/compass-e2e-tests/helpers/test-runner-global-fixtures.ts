@@ -22,6 +22,7 @@ import {
   compileCompassAssets,
   rebuildNativeModules,
   removeUserDataDir,
+  screenshotPathName,
   startBrowser,
 } from './compass';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
@@ -56,7 +57,7 @@ async function createAtlasCloudResources() {
   debug('Creating Atlas Cloud resources...');
 
   const compass = await startBrowser(
-    'beforeAll: creating atlas cloud resources'
+    'Global setup: creating Atlas Cloud resources'
   );
 
   cleanupFns.push(() => {
@@ -67,39 +68,46 @@ async function createAtlasCloudResources() {
 
   const usingExistingResources = !!context.atlasCloudProjectId;
 
-  if (!usingExistingResources) {
-    debug('Creating user...');
+  try {
+    if (!usingExistingResources) {
+      debug('Creating user...');
 
-    const atlasCloudUsername = template(
-      ATLAS_CLOUD_TEST_UTILS.testUserUsernameTemplate
-    )({ username: `compass-usr-${RUN_ID}` });
+      const atlasCloudUsername = template(
+        ATLAS_CLOUD_TEST_UTILS.testUserUsernameTemplate
+      )({ username: `compass-usr-${RUN_ID}` });
 
-    const atlasCloudPassword = randomBytes(20).toString('hex');
+      const atlasCloudPassword = randomBytes(20).toString('hex');
 
-    const { projectId: atlasCloudProjectId } =
-      await compass.browser.createAtlasUser(
+      const { projectId: atlasCloudProjectId } =
+        await compass.browser.createAtlasUser(
+          atlasCloudUsername,
+          atlasCloudPassword
+        );
+
+      cleanupFns.push(() => {
+        return compass.browser.deleteAtlasUser(atlasCloudUsername);
+      });
+
+      Object.assign(context, {
+        atlasCloudProjectId,
         atlasCloudUsername,
-        atlasCloudPassword
+        atlasCloudPassword,
+      });
+    } else {
+      // If user was provided, sign in before proceeding: some of the next
+      // commands will require auth
+      await compass.browser.signInToAtlas(
+        context.atlasCloudUsername,
+        context.atlasCloudPassword
       );
 
-    cleanupFns.push(() => {
-      return compass.browser.deleteAtlasUser(atlasCloudUsername);
-    });
-
-    Object.assign(context, {
-      atlasCloudProjectId,
-      atlasCloudUsername,
-      atlasCloudPassword,
-    });
-  } else {
-    // If user was provided, sign in before proceeding: some of the next
-    // commands will require auth
-    await compass.browser.signInToAtlas(
-      context.atlasCloudUsername,
-      context.atlasCloudPassword
+      throwIfAborted();
+    }
+  } catch (e) {
+    await compass.browser.screenshot(
+      screenshotPathName('Global setup: create Atlas user failed')
     );
-
-    throwIfAborted();
+    throw e;
   }
 
   debug('Navigate to project page');
@@ -137,7 +145,7 @@ async function createAtlasCloudResources() {
   );
 
   // TODO: remove when tests are accounting for this
-  debug('Disabling restore tabs feature flag...');
+  debug('Disabling "restoreWorkspaces" feature flag...');
 
   await compass.browser.changeConfigServiceFeatureFlag(
     'mms.featureFlag.dataExplorerCompassWeb.restoreWorkspaces',
@@ -164,47 +172,54 @@ async function createAtlasCloudResources() {
     atlasCloudDbuserPassword,
   });
 
-  if (context.atlasCloudDefaultCluster.length === 0) {
-    debug('Provisioning cluster...');
+  try {
+    if (context.atlasCloudDefaultCluster.length === 0) {
+      debug('Provisioning cluster...');
 
-    // Atlas limits the naming to something like /^[\w\d-]{,23}$/ (and will
-    // auto truncate if it's too long) so we're very limited in terms of how
-    // unique this name can be, it doesn't matter too much for CI runs where
-    // resources are provisioned automatically
-    const testClusterName = `e2e-${RUN_ID}`;
+      // Atlas limits the naming to something like /^[\w\d-]{,23}$/ (and will
+      // auto truncate if it's too long) so we're very limited in terms of how
+      // unique this name can be, it doesn't matter too much for CI runs where
+      // resources are provisioned automatically
+      const testClusterName = `e2e-${RUN_ID}`;
 
-    const connectionString =
-      await compass.browser.createAtlasClusterForDefaultProject(
-        atlasCloudDbuserUsername,
-        atlasCloudDbuserPassword,
-        testClusterName,
-        'GeoSharded' // Atlas cloud test suite currently requires a geosharded cluster
+      const connectionString =
+        await compass.browser.createAtlasClusterForDefaultProject(
+          atlasCloudDbuserUsername,
+          atlasCloudDbuserPassword,
+          testClusterName,
+          'GeoSharded' // Atlas cloud test suite currently requires a geosharded cluster
+        );
+
+      DEFAULT_CONNECTIONS.push({
+        id: testClusterName,
+        connectionOptions: { connectionString },
+        favorite: { name: testClusterName },
+      });
+    } else {
+      debug('Resolving connection strings for selected clusters...');
+
+      const connectionStrings =
+        await compass.browser.getClusterConnectionStringsFromNames(
+          context.atlasCloudDefaultCluster,
+          atlasCloudDbuserUsername,
+          atlasCloudDbuserPassword
+        );
+
+      DEFAULT_CONNECTIONS.push(
+        ...connectionStrings.map(([testClusterName, connectionString]) => {
+          return {
+            id: testClusterName,
+            connectionOptions: { connectionString },
+            favorite: { name: testClusterName },
+          };
+        })
       );
-
-    DEFAULT_CONNECTIONS.push({
-      id: testClusterName,
-      connectionOptions: { connectionString },
-      favorite: { name: testClusterName },
-    });
-  } else {
-    debug('Resolving connection strings for selected clusters...');
-
-    const connectionStrings =
-      await compass.browser.getClusterConnectionStringsFromNames(
-        context.atlasCloudDefaultCluster,
-        atlasCloudDbuserUsername,
-        atlasCloudDbuserPassword
-      );
-
-    DEFAULT_CONNECTIONS.push(
-      ...connectionStrings.map(([testClusterName, connectionString]) => {
-        return {
-          id: testClusterName,
-          connectionOptions: { connectionString },
-          favorite: { name: testClusterName },
-        };
-      })
+    }
+  } catch (e) {
+    await compass.browser.screenshot(
+      screenshotPathName('Global setup: Atlas cluster provisioning failed')
     );
+    throw e;
   }
 
   throwIfAborted();
