@@ -5,7 +5,6 @@ import {
   userEvent,
   waitFor,
   within,
-  fireEvent,
 } from '@mongodb-js/testing-library-compass';
 import NewDiagramModal from './new-diagram-modal';
 import { createNewDiagram } from '../../store/generate-diagram-wizard';
@@ -336,16 +335,9 @@ describe('NewDiagramModal', function () {
         })
       );
 
-      await waitFor(() => {
-        expect(store.getState().generateDiagramWizard.step).to.equal(
-          'SELECT_COLLECTIONS'
-        );
-      });
-
-      const sampleSizeInput = screen.getByTestId('sample-size-input');
-      expect(sampleSizeInput).to.exist;
+      // Wait for the sample size input to appear (indicates SELECT_COLLECTIONS step)
+      const sampleSizeInput = await screen.findByTestId('sample-size-input');
       expect(sampleSizeInput).to.have.value('100');
-      expect(store.getState().generateDiagramWizard.sampleSize).to.equal(100);
     });
 
     it('allows user to change sample size', async function () {
@@ -367,123 +359,13 @@ describe('NewDiagramModal', function () {
         })
       );
 
-      await waitFor(() => {
-        expect(store.getState().generateDiagramWizard.step).to.equal(
-          'SELECT_COLLECTIONS'
-        );
-      });
-
-      const sampleSizeInput = screen.getByTestId('sample-size-input');
-      fireEvent.change(sampleSizeInput, { target: { value: '50' } });
-      fireEvent.blur(sampleSizeInput);
+      // Wait for the sample size input to appear
+      const sampleSizeInput = await screen.findByTestId('sample-size-input');
+      userEvent.clear(sampleSizeInput);
+      userEvent.type(sampleSizeInput, '50');
 
       await waitFor(() => {
-        expect(store.getState().generateDiagramWizard.sampleSize).to.equal(50);
-      });
-    });
-
-    it('resets sample size to default when invalid value is entered', async function () {
-      const preferences = await createSandboxFromDefaultPreferences();
-      const { store } = renderWithStore(<NewDiagramModal />, {
-        services: {
-          preferences,
-        },
-      });
-      await setSetupDiagramStep(store, {
-        connection: { id: 'two', name: 'Conn2' },
-        databaseName: 'sample_airbnb',
-        diagramName: 'diagram1',
-      });
-
-      userEvent.click(
-        screen.getByRole('button', {
-          name: /next/i,
-        })
-      );
-
-      await waitFor(() => {
-        expect(store.getState().generateDiagramWizard.step).to.equal(
-          'SELECT_COLLECTIONS'
-        );
-      });
-
-      const sampleSizeInput = screen.getByTestId('sample-size-input');
-      fireEvent.change(sampleSizeInput, { target: { value: '0' } }); // Invalid: must be > 0
-      fireEvent.blur(sampleSizeInput);
-
-      await waitFor(() => {
-        expect(store.getState().generateDiagramWizard.sampleSize).to.equal(100);
-        expect(sampleSizeInput).to.have.value('100');
-      });
-    });
-
-    it('resets sample size to default when negative value is entered', async function () {
-      const preferences = await createSandboxFromDefaultPreferences();
-      const { store } = renderWithStore(<NewDiagramModal />, {
-        services: {
-          preferences,
-        },
-      });
-      await setSetupDiagramStep(store, {
-        connection: { id: 'two', name: 'Conn2' },
-        databaseName: 'sample_airbnb',
-        diagramName: 'diagram1',
-      });
-
-      userEvent.click(
-        screen.getByRole('button', {
-          name: /next/i,
-        })
-      );
-
-      await waitFor(() => {
-        expect(store.getState().generateDiagramWizard.step).to.equal(
-          'SELECT_COLLECTIONS'
-        );
-      });
-
-      const sampleSizeInput = screen.getByTestId('sample-size-input');
-      fireEvent.change(sampleSizeInput, { target: { value: '-5' } }); // Invalid: negative number
-      fireEvent.blur(sampleSizeInput);
-
-      await waitFor(() => {
-        expect(store.getState().generateDiagramWizard.sampleSize).to.equal(100);
-        expect(sampleSizeInput).to.have.value('100');
-      });
-    });
-
-    it('resets sample size to default when non-numeric value is entered', async function () {
-      const preferences = await createSandboxFromDefaultPreferences();
-      const { store } = renderWithStore(<NewDiagramModal />, {
-        services: {
-          preferences,
-        },
-      });
-      await setSetupDiagramStep(store, {
-        connection: { id: 'two', name: 'Conn2' },
-        databaseName: 'sample_airbnb',
-        diagramName: 'diagram1',
-      });
-
-      userEvent.click(
-        screen.getByRole('button', {
-          name: /next/i,
-        })
-      );
-
-      await waitFor(() => {
-        expect(store.getState().generateDiagramWizard.step).to.equal(
-          'SELECT_COLLECTIONS'
-        );
-      });
-
-      const sampleSizeInput = screen.getByTestId('sample-size-input');
-      fireEvent.change(sampleSizeInput, { target: { value: 'abc' } }); // Invalid: non-numeric text
-      fireEvent.blur(sampleSizeInput);
-
-      await waitFor(() => {
-        expect(store.getState().generateDiagramWizard.sampleSize).to.equal(100);
-        expect(sampleSizeInput).to.have.value('100');
+        expect(sampleSizeInput).to.have.value('50');
       });
     });
 

@@ -113,6 +113,7 @@ export default connect(
       step: currentStep,
       formFields,
       databaseCollections,
+      sampleSize,
     } = state.generateDiagramWizard;
 
     return {
@@ -126,6 +127,8 @@ export default connect(
       isGenerateDiagramDisabled:
         !formFields.selectedCollections.value ||
         formFields.selectedCollections.value.length === 0 ||
+        isNaN(sampleSize) ||
+        sampleSize <= 0 ||
         selectIsAnalysisInProgress(state),
       numSelectedCollections: formFields.selectedCollections.value?.length || 0,
       numTotalCollections: databaseCollections?.length || 0,

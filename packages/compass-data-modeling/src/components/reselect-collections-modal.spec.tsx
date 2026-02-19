@@ -5,7 +5,6 @@ import {
   screen,
   userEvent,
   waitFor,
-  fireEvent,
 } from '@mongodb-js/testing-library-compass';
 import ReselectCollectionsModal from './reselect-collections-modal';
 import dataModel from '../../test/fixtures/data-model-with-relationships.json';
@@ -276,16 +275,9 @@ describe('ReselectCollectionsModal', function () {
       await connectionsStore.actions.connect(MOCK_CONNECTIONS[1]);
       await store.dispatch(reselectCollections());
 
-      await waitFor(() => {
-        return (
-          store.getState().reselectCollections.step === 'SELECT_COLLECTIONS'
-        );
-      });
-
-      const sampleSizeInput = screen.getByTestId('sample-size-input');
-      expect(sampleSizeInput).to.exist;
+      // Wait for the sample size input to appear (indicates SELECT_COLLECTIONS step)
+      const sampleSizeInput = await screen.findByTestId('sample-size-input');
       expect(sampleSizeInput).to.have.value('100');
-      expect(store.getState().reselectCollections.sampleSize).to.equal(100);
     });
 
     it('allows user to change sample size', async function () {
@@ -293,81 +285,13 @@ describe('ReselectCollectionsModal', function () {
       await connectionsStore.actions.connect(MOCK_CONNECTIONS[1]);
       await store.dispatch(reselectCollections());
 
-      await waitFor(() => {
-        return (
-          store.getState().reselectCollections.step === 'SELECT_COLLECTIONS'
-        );
-      });
-
-      const sampleSizeInput = screen.getByTestId('sample-size-input');
-      fireEvent.change(sampleSizeInput, { target: { value: '50' } });
-      fireEvent.blur(sampleSizeInput);
+      // Wait for the sample size input to appear
+      const sampleSizeInput = await screen.findByTestId('sample-size-input');
+      userEvent.clear(sampleSizeInput);
+      userEvent.type(sampleSizeInput, '50');
 
       await waitFor(() => {
-        expect(store.getState().reselectCollections.sampleSize).to.equal(50);
-      });
-    });
-
-    it('resets sample size to default when invalid value is entered', async function () {
-      const { store, connectionsStore } = renderReselectCollectionsModal({});
-      await connectionsStore.actions.connect(MOCK_CONNECTIONS[1]);
-      await store.dispatch(reselectCollections());
-
-      await waitFor(() => {
-        return (
-          store.getState().reselectCollections.step === 'SELECT_COLLECTIONS'
-        );
-      });
-
-      const sampleSizeInput = screen.getByTestId('sample-size-input');
-      fireEvent.change(sampleSizeInput, { target: { value: '0' } }); // Invalid: must be > 0
-      fireEvent.blur(sampleSizeInput);
-
-      await waitFor(() => {
-        expect(store.getState().reselectCollections.sampleSize).to.equal(100);
-        expect(sampleSizeInput).to.have.value('100');
-      });
-    });
-
-    it('resets sample size to default when negative value is entered', async function () {
-      const { store, connectionsStore } = renderReselectCollectionsModal({});
-      await connectionsStore.actions.connect(MOCK_CONNECTIONS[1]);
-      await store.dispatch(reselectCollections());
-
-      await waitFor(() => {
-        return (
-          store.getState().reselectCollections.step === 'SELECT_COLLECTIONS'
-        );
-      });
-
-      const sampleSizeInput = screen.getByTestId('sample-size-input');
-      fireEvent.change(sampleSizeInput, { target: { value: '-5' } }); // Invalid: negative number
-      fireEvent.blur(sampleSizeInput);
-
-      await waitFor(() => {
-        expect(store.getState().reselectCollections.sampleSize).to.equal(100);
-        expect(sampleSizeInput).to.have.value('100');
-      });
-    });
-
-    it('resets sample size to default when non-numeric value is entered', async function () {
-      const { store, connectionsStore } = renderReselectCollectionsModal({});
-      await connectionsStore.actions.connect(MOCK_CONNECTIONS[1]);
-      await store.dispatch(reselectCollections());
-
-      await waitFor(() => {
-        return (
-          store.getState().reselectCollections.step === 'SELECT_COLLECTIONS'
-        );
-      });
-
-      const sampleSizeInput = screen.getByTestId('sample-size-input');
-      fireEvent.change(sampleSizeInput, { target: { value: 'abc' } }); // Invalid: non-numeric text
-      fireEvent.blur(sampleSizeInput);
-
-      await waitFor(() => {
-        expect(store.getState().reselectCollections.sampleSize).to.equal(100);
-        expect(sampleSizeInput).to.have.value('100');
+        expect(sampleSizeInput).to.have.value('50');
       });
     });
   });

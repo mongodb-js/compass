@@ -221,6 +221,7 @@ export default connect(
       selectedDatabase,
       selectedCollections,
       newSelectedCollections,
+      sampleSize,
     } = state.reselectCollections;
 
     const numSelectedCollections =
@@ -239,6 +240,8 @@ export default connect(
       isGenerateDiagramDisabled:
         databaseCollections.length === 0 ||
         newSelectedCollections.length === 0 ||
+        isNaN(sampleSize) ||
+        sampleSize <= 0 ||
         selectIsAnalysisInProgress(state),
       numSelectedCollections,
       numTotalCollections: databaseCollections.length,

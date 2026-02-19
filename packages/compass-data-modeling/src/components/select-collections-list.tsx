@@ -53,7 +53,7 @@ const sampleSizeInputRowStyles = css({
 });
 
 const sampleSizeInputStyles = css({
-  width: 70,
+  width: 100,
 });
 
 const warningTextStyles = css({
@@ -238,17 +238,9 @@ export const SelectCollectionsList: React.FunctionComponent<
             min={1}
             value={sampleSizeInputValue}
             onChange={(evt) => {
-              setSampleSizeInputValue(evt.target.value);
-            }}
-            onBlur={() => {
-              const value = parseInt(sampleSizeInputValue, 10);
-              if (!isNaN(value) && value > 0) {
-                onSampleSizeChange(value);
-              } else {
-                // Reset to default if invalid
-                setSampleSizeInputValue(`${LARGE_SAMPLE_SIZE_THRESHOLD}`);
-                onSampleSizeChange(LARGE_SAMPLE_SIZE_THRESHOLD);
-              }
+              const inputValue = evt.target.value;
+              setSampleSizeInputValue(inputValue);
+              onSampleSizeChange(parseInt(inputValue, 10));
             }}
           />
           <Body>documents per collection.</Body>
