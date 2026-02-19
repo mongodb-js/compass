@@ -1,7 +1,11 @@
 import React from 'react';
 import { expect } from 'chai';
-import { render, cleanup } from '@mongodb-js/testing-library-compass';
+import {
+  renderWithActiveConnection,
+  cleanup,
+} from '@mongodb-js/testing-library-compass';
 import sinon from 'sinon';
+import type { ConnectionInfo } from '@mongodb-js/connection-info';
 
 import Pipeline from './pipeline';
 import type { PipelineProps } from './pipeline';
@@ -34,11 +38,46 @@ const createMockPipelineProps = (
   workspace: 'builder',
   enableSearchActivationProgramP1: true,
   hasSearchStage: false,
+  isReadonlyView: false,
+  serverVersion: '7.0.0',
   isSearchIndexesSupported: true,
   startPollingSearchIndexes: sinon.stub(),
   stopPollingSearchIndexes: sinon.stub(),
   ...overrides,
 });
+
+// Non-Atlas connection (no atlasMetadata)
+const mockNonAtlasConnectionInfo: ConnectionInfo = {
+  id: 'TEST-NON-ATLAS',
+  connectionOptions: {
+    connectionString: 'mongodb://localhost:27020',
+  },
+};
+
+// Atlas connection (with atlasMetadata)
+const mockAtlasConnectionInfo: ConnectionInfo = {
+  id: 'TEST-ATLAS',
+  connectionOptions: {
+    connectionString: 'mongodb+srv://cluster.mongodb.net',
+  },
+  atlasMetadata: {
+    orgId: 'testOrg',
+    projectId: 'testProject',
+    clusterName: 'testCluster',
+    clusterUniqueId: 'testClusterUniqueId',
+    clusterType: 'REPLICASET',
+    clusterState: 'IDLE',
+    metricsId: 'testMetricsId',
+    metricsType: 'replicaSet',
+    regionalBaseUrl: null,
+    instanceSize: 'M10',
+    supports: {
+      globalWrites: false,
+      rollingIndexes: true,
+    },
+    userConnectionString: 'mongodb+srv://cluster.mongodb.net',
+  },
+};
 
 describe('Pipeline search indexes polling', function () {
   let startPollingStub: sinon.SinonStub;
@@ -55,8 +94,8 @@ describe('Pipeline search indexes polling', function () {
   });
 
   describe('when enableSearchActivationProgramP1 is false', function () {
-    it('does not call any polling functions', function () {
-      render(
+    it('does not call any polling functions', async function () {
+      await renderWithActiveConnection(
         <Pipeline
           {...createMockPipelineProps({
             enableSearchActivationProgramP1: false,
@@ -65,7 +104,8 @@ describe('Pipeline search indexes polling', function () {
             startPollingSearchIndexes: startPollingStub,
             stopPollingSearchIndexes: stopPollingStub,
           })}
-        />
+        />,
+        mockNonAtlasConnectionInfo
       );
 
       expect(startPollingStub.called).to.equal(false);
@@ -73,54 +113,231 @@ describe('Pipeline search indexes polling', function () {
     });
   });
 
-  describe('when search indexes are not supported', function () {
-    it('does not call startPollingSearchIndexes even when hasSearchStage is true', function () {
-      render(
-        <Pipeline
-          {...createMockPipelineProps({
-            hasSearchStage: true,
-            isSearchIndexesSupported: false,
-            startPollingSearchIndexes: startPollingStub,
-            stopPollingSearchIndexes: stopPollingStub,
-          })}
-        />
-      );
+  describe('when not a readonly view (regular collection)', function () {
+    describe('when search indexes are not supported', function () {
+      it('does not call startPollingSearchIndexes even when hasSearchStage is true', async function () {
+        await renderWithActiveConnection(
+          <Pipeline
+            {...createMockPipelineProps({
+              isReadonlyView: false,
+              hasSearchStage: true,
+              isSearchIndexesSupported: false,
+              startPollingSearchIndexes: startPollingStub,
+              stopPollingSearchIndexes: stopPollingStub,
+            })}
+          />,
+          mockNonAtlasConnectionInfo
+        );
 
-      expect(startPollingStub.called).to.equal(false);
+        expect(startPollingStub.called).to.equal(false);
+        expect(stopPollingStub.called).to.equal(false);
+      });
+    });
+
+    describe('when search indexes are supported', function () {
+      it('calls startPollingSearchIndexes when hasSearchStage is true', async function () {
+        await renderWithActiveConnection(
+          <Pipeline
+            {...createMockPipelineProps({
+              isReadonlyView: false,
+              hasSearchStage: true,
+              isSearchIndexesSupported: true,
+              startPollingSearchIndexes: startPollingStub,
+              stopPollingSearchIndexes: stopPollingStub,
+            })}
+          />,
+          mockNonAtlasConnectionInfo
+        );
+
+        expect(startPollingStub.calledOnce).to.equal(true);
+        expect(stopPollingStub.called).to.equal(false);
+      });
+
+      it('calls stopPollingSearchIndexes when hasSearchStage is false', async function () {
+        await renderWithActiveConnection(
+          <Pipeline
+            {...createMockPipelineProps({
+              isReadonlyView: false,
+              hasSearchStage: false,
+              isSearchIndexesSupported: true,
+              startPollingSearchIndexes: startPollingStub,
+              stopPollingSearchIndexes: stopPollingStub,
+            })}
+          />,
+          mockNonAtlasConnectionInfo
+        );
+
+        expect(startPollingStub.called).to.equal(false);
+        expect(stopPollingStub.calledOnce).to.equal(true);
+      });
     });
   });
 
-  describe('when search indexes are supported', function () {
-    it('calls startPollingSearchIndexes when hasSearchStage is true', function () {
-      render(
-        <Pipeline
-          {...createMockPipelineProps({
-            hasSearchStage: true,
-            isSearchIndexesSupported: true,
-            startPollingSearchIndexes: startPollingStub,
-            stopPollingSearchIndexes: stopPollingStub,
-          })}
-        />
-      );
+  describe('when readonly view with non-Atlas connection', function () {
+    // Non-Atlas (Compass) requires server version >= 8.1.0 for view search compatibility
 
-      expect(startPollingStub.calledOnce).to.equal(true);
-      expect(stopPollingStub.called).to.equal(false);
+    describe('when server version < 8.1.0 (not compatible)', function () {
+      it('does not poll when hasSearchStage is true and serverVersion is 7.0.0', async function () {
+        await renderWithActiveConnection(
+          <Pipeline
+            {...createMockPipelineProps({
+              isReadonlyView: true,
+              hasSearchStage: true,
+              serverVersion: '7.0.0',
+              isSearchIndexesSupported: true,
+              startPollingSearchIndexes: startPollingStub,
+              stopPollingSearchIndexes: stopPollingStub,
+            })}
+          />,
+          mockNonAtlasConnectionInfo
+        );
+
+        expect(startPollingStub.called).to.equal(false);
+        expect(stopPollingStub.called).to.equal(false);
+      });
+
+      it('does not poll when hasSearchStage is true and serverVersion is 8.0.0', async function () {
+        await renderWithActiveConnection(
+          <Pipeline
+            {...createMockPipelineProps({
+              isReadonlyView: true,
+              hasSearchStage: true,
+              serverVersion: '8.0.0',
+              isSearchIndexesSupported: true,
+              startPollingSearchIndexes: startPollingStub,
+              stopPollingSearchIndexes: stopPollingStub,
+            })}
+          />,
+          mockNonAtlasConnectionInfo
+        );
+
+        expect(startPollingStub.called).to.equal(false);
+        expect(stopPollingStub.called).to.equal(false);
+      });
     });
 
-    it('calls stopPollingSearchIndexes when hasSearchStage is false', function () {
-      render(
-        <Pipeline
-          {...createMockPipelineProps({
-            hasSearchStage: false,
-            isSearchIndexesSupported: true,
-            startPollingSearchIndexes: startPollingStub,
-            stopPollingSearchIndexes: stopPollingStub,
-          })}
-        />
-      );
+    describe('when server version >= 8.1.0 (compatible)', function () {
+      it('calls startPollingSearchIndexes when hasSearchStage is true and serverVersion is 8.1.0', async function () {
+        await renderWithActiveConnection(
+          <Pipeline
+            {...createMockPipelineProps({
+              isReadonlyView: true,
+              hasSearchStage: true,
+              serverVersion: '8.1.0',
+              isSearchIndexesSupported: true,
+              startPollingSearchIndexes: startPollingStub,
+              stopPollingSearchIndexes: stopPollingStub,
+            })}
+          />,
+          mockNonAtlasConnectionInfo
+        );
 
-      expect(startPollingStub.called).to.equal(false);
-      expect(stopPollingStub.calledOnce).to.equal(true);
+        expect(startPollingStub.calledOnce).to.equal(true);
+        expect(stopPollingStub.called).to.equal(false);
+      });
+
+      it('calls stopPollingSearchIndexes when hasSearchStage is false', async function () {
+        await renderWithActiveConnection(
+          <Pipeline
+            {...createMockPipelineProps({
+              isReadonlyView: true,
+              hasSearchStage: false,
+              serverVersion: '8.1.0',
+              isSearchIndexesSupported: true,
+              startPollingSearchIndexes: startPollingStub,
+              stopPollingSearchIndexes: stopPollingStub,
+            })}
+          />,
+          mockNonAtlasConnectionInfo
+        );
+
+        expect(startPollingStub.called).to.equal(false);
+        expect(stopPollingStub.calledOnce).to.equal(true);
+      });
+    });
+  });
+
+  describe('when readonly view with Atlas connection', function () {
+    // Atlas (Data Explorer) requires server version >= 8.0.0 for view search compatibility
+
+    describe('when server version < 8.0.0 (not compatible)', function () {
+      it('does not poll when hasSearchStage is true and serverVersion is 7.0.0', async function () {
+        await renderWithActiveConnection(
+          <Pipeline
+            {...createMockPipelineProps({
+              isReadonlyView: true,
+              hasSearchStage: true,
+              serverVersion: '7.0.0',
+              isSearchIndexesSupported: true,
+              startPollingSearchIndexes: startPollingStub,
+              stopPollingSearchIndexes: stopPollingStub,
+            })}
+          />,
+          mockAtlasConnectionInfo
+        );
+
+        expect(startPollingStub.called).to.equal(false);
+        expect(stopPollingStub.called).to.equal(false);
+      });
+    });
+
+    describe('when server version >= 8.0.0 (compatible)', function () {
+      it('calls startPollingSearchIndexes when hasSearchStage is true and serverVersion is 8.0.0', async function () {
+        await renderWithActiveConnection(
+          <Pipeline
+            {...createMockPipelineProps({
+              isReadonlyView: true,
+              hasSearchStage: true,
+              serverVersion: '8.0.0',
+              isSearchIndexesSupported: true,
+              startPollingSearchIndexes: startPollingStub,
+              stopPollingSearchIndexes: stopPollingStub,
+            })}
+          />,
+          mockAtlasConnectionInfo
+        );
+
+        expect(startPollingStub.calledOnce).to.equal(true);
+        expect(stopPollingStub.called).to.equal(false);
+      });
+
+      it('calls startPollingSearchIndexes when hasSearchStage is true and serverVersion is 8.1.0', async function () {
+        await renderWithActiveConnection(
+          <Pipeline
+            {...createMockPipelineProps({
+              isReadonlyView: true,
+              hasSearchStage: true,
+              serverVersion: '8.1.0',
+              isSearchIndexesSupported: true,
+              startPollingSearchIndexes: startPollingStub,
+              stopPollingSearchIndexes: stopPollingStub,
+            })}
+          />,
+          mockAtlasConnectionInfo
+        );
+
+        expect(startPollingStub.calledOnce).to.equal(true);
+        expect(stopPollingStub.called).to.equal(false);
+      });
+
+      it('calls stopPollingSearchIndexes when hasSearchStage is false', async function () {
+        await renderWithActiveConnection(
+          <Pipeline
+            {...createMockPipelineProps({
+              isReadonlyView: true,
+              hasSearchStage: false,
+              serverVersion: '8.0.0',
+              isSearchIndexesSupported: true,
+              startPollingSearchIndexes: startPollingStub,
+              stopPollingSearchIndexes: stopPollingStub,
+            })}
+          />,
+          mockAtlasConnectionInfo
+        );
+
+        expect(startPollingStub.called).to.equal(false);
+        expect(stopPollingStub.calledOnce).to.equal(true);
+      });
     });
   });
 });

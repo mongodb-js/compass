@@ -16,6 +16,8 @@ import { DEFAULT_SAMPLE_SIZE, DEFAULT_LARGE_LIMIT } from '../../constants';
 import type { SavingPipelineModalProps } from '../saving-pipeline-modal/saving-pipeline-modal';
 import type { SettingsProps } from '../settings/settings';
 import type { Workspace } from '../../modules/workspace';
+import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
+import { VIEW_PIPELINE_UTILS } from '@mongodb-js/mongodb-constants';
 
 const pipelineStyles = css({
   display: 'flex',
@@ -68,6 +70,8 @@ export type PipelineProps = Pick<
     enableSearchActivationProgramP1: boolean;
     // Search indexes polling props
     hasSearchStage: boolean;
+    isReadonlyView: boolean;
+    serverVersion: string;
     isSearchIndexesSupported: boolean;
     startPollingSearchIndexes: () => void;
     stopPollingSearchIndexes: () => void;
@@ -96,18 +100,27 @@ const Pipeline: React.FC<PipelineProps> = ({
   largeLimit = DEFAULT_LARGE_LIMIT,
   enableSearchActivationProgramP1,
   hasSearchStage,
+  isReadonlyView,
+  serverVersion,
   isSearchIndexesSupported,
   startPollingSearchIndexes,
   stopPollingSearchIndexes,
 }) => {
+  const { atlasMetadata } = useConnectionInfo();
+  const isViewVersionSearchCompatible = !!atlasMetadata
+    ? VIEW_PIPELINE_UTILS.isVersionSearchCompatibleForViewsDataExplorer(
+        serverVersion
+      )
+    : VIEW_PIPELINE_UTILS.isVersionSearchCompatibleForViewsCompass(
+        serverVersion
+      );
+  const isSearchIndexesReadable = isReadonlyView
+    ? isViewVersionSearchCompatible
+    : isSearchIndexesSupported;
+
   // Manage search indexes polling based on pipeline content
   useEffect(() => {
-    if (!enableSearchActivationProgramP1) {
-      return;
-    }
-
-    if (!isSearchIndexesSupported) {
-      stopPollingSearchIndexes();
+    if (!enableSearchActivationProgramP1 || !isSearchIndexesReadable) {
       return;
     }
 
