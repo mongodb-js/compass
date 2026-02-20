@@ -1,14 +1,51 @@
 import React from 'react';
 import { expect } from 'chai';
 import {
-  renderWithActiveConnection,
   cleanup,
+  createPluginTestHelpers,
 } from '@mongodb-js/testing-library-compass';
 import sinon from 'sinon';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
 
 import Pipeline from './pipeline';
 import type { PipelineProps } from './pipeline';
+import { CompassAggregationsPlugin } from '../../index';
+import { mockDataService } from '../../../test/mocks/data-service';
+
+class MockAtlasAiService {
+  async getAggregationFromUserInput() {
+    return Promise.resolve({});
+  }
+  async getQueryFromUserInput() {
+    return Promise.resolve({});
+  }
+  async ensureAiFeatureAccess() {
+    return Promise.resolve();
+  }
+}
+
+const { renderWithActiveConnection } = createPluginTestHelpers(
+  CompassAggregationsPlugin.provider.withMockServices({
+    atlasAiService: new MockAtlasAiService(),
+    collection: {
+      fetchMetadata: () => ({}),
+      toJSON: () => ({}),
+      on: () => {},
+      removeListener: () => {},
+    } as any,
+  } as any),
+  {
+    namespace: 'test.test',
+    isReadonly: false,
+    isTimeSeries: false,
+    isClustered: false,
+    isFLE: false,
+    isSearchIndexesSupported: false,
+    isDataLake: false,
+    isAtlas: false,
+    serverVersion: '4.0.0',
+  }
+);
 
 const createMockPipelineProps = (
   overrides: Partial<PipelineProps> = {}
@@ -105,7 +142,8 @@ describe('Pipeline search indexes polling', function () {
             stopPollingSearchIndexes: stopPollingStub,
           })}
         />,
-        mockNonAtlasConnectionInfo
+        mockNonAtlasConnectionInfo,
+        { connectFn: () => mockDataService() }
       );
 
       expect(startPollingStub.called).to.equal(false);
@@ -126,7 +164,8 @@ describe('Pipeline search indexes polling', function () {
               stopPollingSearchIndexes: stopPollingStub,
             })}
           />,
-          mockNonAtlasConnectionInfo
+          mockNonAtlasConnectionInfo,
+          { connectFn: () => mockDataService() }
         );
 
         expect(startPollingStub.called).to.equal(false);
@@ -146,7 +185,8 @@ describe('Pipeline search indexes polling', function () {
               stopPollingSearchIndexes: stopPollingStub,
             })}
           />,
-          mockNonAtlasConnectionInfo
+          mockNonAtlasConnectionInfo,
+          { connectFn: () => mockDataService() }
         );
 
         expect(startPollingStub.calledOnce).to.equal(true);
@@ -164,7 +204,8 @@ describe('Pipeline search indexes polling', function () {
               stopPollingSearchIndexes: stopPollingStub,
             })}
           />,
-          mockNonAtlasConnectionInfo
+          mockNonAtlasConnectionInfo,
+          { connectFn: () => mockDataService() }
         );
 
         expect(startPollingStub.called).to.equal(false);
@@ -189,7 +230,8 @@ describe('Pipeline search indexes polling', function () {
               stopPollingSearchIndexes: stopPollingStub,
             })}
           />,
-          mockNonAtlasConnectionInfo
+          mockNonAtlasConnectionInfo,
+          { connectFn: () => mockDataService() }
         );
 
         expect(startPollingStub.called).to.equal(false);
@@ -208,7 +250,8 @@ describe('Pipeline search indexes polling', function () {
               stopPollingSearchIndexes: stopPollingStub,
             })}
           />,
-          mockNonAtlasConnectionInfo
+          mockNonAtlasConnectionInfo,
+          { connectFn: () => mockDataService() }
         );
 
         expect(startPollingStub.called).to.equal(false);
@@ -229,7 +272,8 @@ describe('Pipeline search indexes polling', function () {
               stopPollingSearchIndexes: stopPollingStub,
             })}
           />,
-          mockNonAtlasConnectionInfo
+          mockNonAtlasConnectionInfo,
+          { connectFn: () => mockDataService() }
         );
 
         expect(startPollingStub.calledOnce).to.equal(true);
@@ -248,7 +292,8 @@ describe('Pipeline search indexes polling', function () {
               stopPollingSearchIndexes: stopPollingStub,
             })}
           />,
-          mockNonAtlasConnectionInfo
+          mockNonAtlasConnectionInfo,
+          { connectFn: () => mockDataService() }
         );
 
         expect(startPollingStub.called).to.equal(false);
@@ -273,7 +318,8 @@ describe('Pipeline search indexes polling', function () {
               stopPollingSearchIndexes: stopPollingStub,
             })}
           />,
-          mockAtlasConnectionInfo
+          mockAtlasConnectionInfo,
+          { connectFn: () => mockDataService() }
         );
 
         expect(startPollingStub.called).to.equal(false);
@@ -294,7 +340,8 @@ describe('Pipeline search indexes polling', function () {
               stopPollingSearchIndexes: stopPollingStub,
             })}
           />,
-          mockAtlasConnectionInfo
+          mockAtlasConnectionInfo,
+          { connectFn: () => mockDataService() }
         );
 
         expect(startPollingStub.calledOnce).to.equal(true);
@@ -313,7 +360,8 @@ describe('Pipeline search indexes polling', function () {
               stopPollingSearchIndexes: stopPollingStub,
             })}
           />,
-          mockAtlasConnectionInfo
+          mockAtlasConnectionInfo,
+          { connectFn: () => mockDataService() }
         );
 
         expect(startPollingStub.calledOnce).to.equal(true);
@@ -332,7 +380,8 @@ describe('Pipeline search indexes polling', function () {
               stopPollingSearchIndexes: stopPollingStub,
             })}
           />,
-          mockAtlasConnectionInfo
+          mockAtlasConnectionInfo,
+          { connectFn: () => mockDataService() }
         );
 
         expect(startPollingStub.called).to.equal(false);
