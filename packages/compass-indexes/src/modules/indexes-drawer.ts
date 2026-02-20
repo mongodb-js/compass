@@ -12,6 +12,7 @@ import {
   stopPollingSearchIndexes,
 } from './search-indexes';
 import type { FetchSearchIndexesActions } from './search-indexes';
+
 export type IndexesDrawerViewType =
   | 'indexes-list'
   | 'create-search-index'
@@ -31,6 +32,8 @@ export const INITIAL_STATE: State = {
   currentIndexName: null,
 };
 
+export const INDEXES_DRAWER_ID = 'compass-indexes-drawer';
+
 export const OPEN_INDEXES_LIST_DRAWER_VIEW =
   'indexes/drawer/OPEN_INDEXES_LIST_DRAWER_VIEW' as const;
 export const OPEN_CREATE_SEARCH_INDEX_DRAWER_VIEW =
@@ -38,21 +41,52 @@ export const OPEN_CREATE_SEARCH_INDEX_DRAWER_VIEW =
 export const OPEN_EDIT_SEARCH_INDEX_DRAWER_VIEW =
   'indexes/drawer/OPEN_EDIT_SEARCH_INDEX_DRAWER_VIEW' as const;
 
-export const openIndexesListDrawerView = () => ({
-  type: OPEN_INDEXES_LIST_DRAWER_VIEW,
-});
+type OpenIndexesListDrawerViewAction = {
+  type: typeof OPEN_INDEXES_LIST_DRAWER_VIEW;
+};
+
+type OpenCreateSearchIndexDrawerViewAction = {
+  type: typeof OPEN_CREATE_SEARCH_INDEX_DRAWER_VIEW;
+  currentIndexType: SearchIndexType;
+};
+
+type OpenEditSearchIndexDrawerViewAction = {
+  type: typeof OPEN_EDIT_SEARCH_INDEX_DRAWER_VIEW;
+  currentIndexName: string;
+};
+
+export type IndexesDrawerActions =
+  | OpenIndexesListDrawerViewAction
+  | OpenCreateSearchIndexDrawerViewAction
+  | OpenEditSearchIndexDrawerViewAction;
+
+export const openIndexesListDrawerView = (): IndexesThunkAction<
+  void,
+  OpenIndexesListDrawerViewAction
+> => {
+  return (dispatch, _getState, { openDrawer }) => {
+    dispatch({ type: OPEN_INDEXES_LIST_DRAWER_VIEW });
+    openDrawer(INDEXES_DRAWER_ID);
+  };
+};
 
 export const openCreateSearchIndexDrawerView = (
   currentIndexType: SearchIndexType
-) => ({
-  type: OPEN_CREATE_SEARCH_INDEX_DRAWER_VIEW,
-  currentIndexType,
-});
+): IndexesThunkAction<void, OpenCreateSearchIndexDrawerViewAction> => {
+  return (dispatch, _getState, { openDrawer }) => {
+    dispatch({ type: OPEN_CREATE_SEARCH_INDEX_DRAWER_VIEW, currentIndexType });
+    openDrawer(INDEXES_DRAWER_ID);
+  };
+};
 
-export const openEditSearchIndexDrawerView = (currentIndexName: string) => ({
-  type: OPEN_EDIT_SEARCH_INDEX_DRAWER_VIEW,
-  currentIndexName,
-});
+export const openEditSearchIndexDrawerView = (
+  currentIndexName: string
+): IndexesThunkAction<void, OpenEditSearchIndexDrawerViewAction> => {
+  return (dispatch, _getState, { openDrawer }) => {
+    dispatch({ type: OPEN_EDIT_SEARCH_INDEX_DRAWER_VIEW, currentIndexName });
+    openDrawer(INDEXES_DRAWER_ID);
+  };
+};
 
 export const refreshAllIndexes = (): IndexesThunkAction<
   void,

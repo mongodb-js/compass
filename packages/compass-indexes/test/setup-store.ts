@@ -173,6 +173,10 @@ export const setupStore = (
           };
         },
       } as any,
+      drawerActions: {
+        openDrawer: () => {},
+        closeDrawer: () => {},
+      },
       ...services,
     },
     createActivateHelpers()

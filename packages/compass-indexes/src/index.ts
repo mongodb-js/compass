@@ -12,6 +12,7 @@ import {
 } from '@mongodb-js/compass-connections/provider';
 import {
   collectionModelLocator,
+  drawerActionsLocator,
   mongoDBInstanceLocator,
 } from '@mongodb-js/compass-app-stores/provider';
 import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
@@ -39,6 +40,7 @@ export const CompassIndexesPluginProvider = registerCompassPlugin(
     collection: collectionModelLocator,
     atlasService: atlasServiceLocator,
     preferences: preferencesLocator,
+    drawerActions: drawerActionsLocator,
   }
 );
 

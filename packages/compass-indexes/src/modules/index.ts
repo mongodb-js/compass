@@ -82,6 +82,7 @@ export type IndexesExtraArgs = {
     searchIndexes: ReturnType<typeof setInterval> | null;
   };
   preferences: PreferencesAccess;
+  openDrawer: (id: string) => void;
 };
 export type IndexesThunkDispatch<A extends Action = AnyAction> = ThunkDispatch<
   RootState,

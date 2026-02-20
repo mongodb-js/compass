@@ -34,6 +34,7 @@ import {
 import type { AtlasService } from '@mongodb-js/atlas-service/provider';
 import { RollingIndexesService } from '../modules/rolling-indexes-service';
 import type { PreferencesAccess } from 'compass-preferences-model';
+import { openIndexesListDrawerView } from '../modules/indexes-drawer';
 
 export type IndexesDataServiceProps =
   | 'indexes'
@@ -64,6 +65,7 @@ export type IndexesPluginServices = {
   track: TrackFunction;
   atlasService: AtlasService;
   preferences: PreferencesAccess;
+  drawerActions: { openDrawer: (id: string) => void; closeDrawer: () => void };
 };
 
 export type IndexesPluginOptions = {
@@ -90,6 +92,7 @@ export function activateIndexesPlugin(
     collection: collectionModel,
     atlasService,
     preferences,
+    drawerActions,
   }: IndexesPluginServices,
   { on, cleanup, addCleanup }: ActivateHelpers
 ) {
@@ -125,6 +128,7 @@ export function activateIndexesPlugin(
         ),
         pollingIntervalRef,
         preferences,
+        openDrawer: drawerActions.openDrawer,
       })
     )
   );
@@ -139,6 +143,10 @@ export function activateIndexesPlugin(
 
   on(localAppRegistry, 'open-create-search-index-modal', () => {
     store.dispatch(createSearchIndexOpened());
+  });
+
+  on(localAppRegistry, 'open-indexes-list-drawer-view', () => {
+    store.dispatch(openIndexesListDrawerView());
   });
 
   on(globalAppRegistry, 'refresh-data', () => {
