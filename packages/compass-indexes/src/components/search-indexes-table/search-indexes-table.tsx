@@ -36,7 +36,7 @@ import type { SearchIndexType } from '../../modules/indexes-drawer';
 import type { FetchStatus } from '../../utils/fetch-status';
 import { IndexesTable } from '../indexes-table';
 import SearchIndexActions from './search-index-actions';
-import { ZeroGraphic } from './zero-graphic';
+import { ZeroRegularIndexesGraphic } from '../icons/zero-regular-indexes-graphic';
 import type { RootState, IndexesThunkDispatch } from '../../modules';
 import BadgeWithIconLink from '../indexes-table/badge-with-icon-link';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
@@ -84,7 +84,7 @@ function ZeroState({
 
   return (
     <EmptyContent
-      icon={ZeroGraphic}
+      icon={ZeroRegularIndexesGraphic}
       title="No search indexes yet"
       subTitle="Atlas Search is an embedded full-text search in MongoDB Atlas that gives you a seamless, scalable experience for building relevance-based app features."
       callToAction={
@@ -352,6 +352,10 @@ const COLUMNS_FOR_DRAWER: LGColumnDef<SearchIndexInfo>[] = [
     enableSorting: true,
   },
   ...COLUMNS_COMMON,
+];
+
+const COLUMNS_FOR_DRAWER_WITH_ACTIONS: LGColumnDef<SearchIndexInfo>[] = [
+  ...COLUMNS_FOR_DRAWER,
   {
     accessorKey: 'actions',
     header: '',
@@ -526,7 +530,9 @@ export const SearchIndexesTable: React.FunctionComponent<
       data-testid="search-indexes"
       columns={
         context === 'indexes-drawer'
-          ? COLUMNS_FOR_DRAWER
+          ? isSearchIndexesWritable
+            ? COLUMNS_FOR_DRAWER_WITH_ACTIONS
+            : COLUMNS_FOR_DRAWER
           : isSearchIndexesWritable
           ? COLUMNS_WITH_ACTIONS
           : COLUMNS

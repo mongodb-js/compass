@@ -247,6 +247,10 @@ const COLUMNS_FOR_DRAWER: LGColumnDef<IndexInfo>[] = [
     sortingFn: sortFn,
     enableSorting: true,
   },
+];
+
+const COLUMNS_FOR_DRAWER_WITH_ACTIONS: LGColumnDef<IndexInfo>[] = [
+  ...COLUMNS_FOR_DRAWER,
   {
     accessorKey: 'actions',
     header: '',
@@ -497,7 +501,6 @@ export const RegularIndexesTable: React.FunctionComponent<
       onHideIndexClick,
       onUnhideIndexClick,
       serverVersion,
-      context,
     ]
   );
 
@@ -513,7 +516,9 @@ export const RegularIndexesTable: React.FunctionComponent<
       data-testid="indexes"
       columns={
         context === 'indexes-drawer'
-          ? COLUMNS_FOR_DRAWER
+          ? isRegularIndexesWritable
+            ? COLUMNS_FOR_DRAWER_WITH_ACTIONS
+            : COLUMNS_FOR_DRAWER
           : isRegularIndexesWritable
           ? COLUMNS_WITH_ACTIONS
           : COLUMNS

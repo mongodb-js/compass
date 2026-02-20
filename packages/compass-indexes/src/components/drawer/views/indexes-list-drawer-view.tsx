@@ -28,13 +28,14 @@ import type { FetchStatus } from '../../../utils/fetch-status';
 import ViewVersionIncompatibleBanner from '../../view-incompatible-components/view-version-incompatible-banner';
 import ViewPipelineIncompatibleBanner from '../../view-incompatible-components/view-pipeline-incompatible-banner';
 import ViewStandardIndexesIncompatibleEmptyState from '../../view-incompatible-components/view-standard-indexes-incompatible-empty-state';
-import { NoSearchIndexesFoundGraphic } from './no-search-indexes-found-graphic';
+import { ZeroSearchIndexesGraphic } from '../../icons/zero-search-indexes-graphic';
 import { selectIsViewSearchCompatible } from '../../../utils/is-view-search-compatible';
 import { selectReadWriteAccess } from '../../../utils/indexes-read-write-access';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { usePreferences } from 'compass-preferences-model/provider';
 import RegularIndexesTable from '../../regular-indexes-table/regular-indexes-table';
 import SearchIndexesTable from '../../search-indexes-table/search-indexes-table';
+import { ZeroRegularIndexesGraphic } from '../../icons/zero-regular-indexes-graphic';
 
 const containerStyles = css({
   padding: spacing[400],
@@ -54,6 +55,96 @@ const emptyContentStyles = css({
 });
 
 const spinnerStyles = css({ marginRight: spacing[200] });
+
+type NoStandardIndexesEmptyContentProps = {
+  isRegularIndexesWritable: boolean;
+  onCreateRegularIndexClick: () => void;
+};
+
+const NoStandardIndexesEmptyContent: React.FunctionComponent<
+  NoStandardIndexesEmptyContentProps
+> = ({ isRegularIndexesWritable, onCreateRegularIndexClick }) => {
+  return (
+    <EmptyContent
+      containerClassName={emptyContentStyles}
+      icon={ZeroRegularIndexesGraphic}
+      title="No standard indexes found"
+      callToActionLink={
+        <Button
+          disabled={!isRegularIndexesWritable}
+          onClick={onCreateRegularIndexClick}
+          size="xsmall"
+        >
+          Create index
+        </Button>
+      }
+      subTitle={
+        <Link
+          href="https://www.mongodb.com/docs/manual/core/views/"
+          target="_blank"
+        >
+          Learn more about views
+        </Link>
+      }
+    />
+  );
+};
+
+type NoSearchIndexesEmptyContentProps = {
+  isSearchIndexesWritable: boolean;
+  onActionDispatch: (action: string) => void;
+};
+
+const NoSearchIndexesEmptyContent: React.FunctionComponent<
+  NoSearchIndexesEmptyContentProps
+> = ({ isSearchIndexesWritable, onActionDispatch }) => {
+  return (
+    <EmptyContent
+      containerClassName={emptyContentStyles}
+      icon={ZeroSearchIndexesGraphic}
+      title="No search indexes found"
+      subTitle={
+        <span>
+          Define a{' '}
+          <Link
+            // TODO(COMPASS-10427): add url
+            target="_blank"
+          >
+            search
+          </Link>{' '}
+          or{' '}
+          <Link
+            // TODO(COMPASS-10427): add url
+            target="_blank"
+          >
+            vector search index
+          </Link>{' '}
+          to start using $search or $vectorSearch.
+        </span>
+      }
+      callToActionLink={
+        <DropdownMenuButton
+          buttonText="Create a search index"
+          buttonProps={{
+            size: 'xsmall',
+            disabled: !isSearchIndexesWritable,
+          }}
+          actions={[
+            {
+              action: 'createSearchIndex',
+              label: 'Search Index',
+            },
+            {
+              action: 'createVectorSearchIndex',
+              label: 'Vector Search Index',
+            },
+          ]}
+          onAction={onActionDispatch}
+        />
+      }
+    />
+  );
+};
 
 type IndexesListDrawerViewProps = {
   isReadonlyView: boolean;
@@ -217,10 +308,15 @@ const IndexesListDrawerView: React.FunctionComponent<
       />
       <Accordion text="Standard" defaultOpen={true}>
         {isRegularIndexesReadable ? (
-          filteredRegularIndexes.length > 0 && (
+          filteredRegularIndexes.length > 0 ? (
             <RegularIndexesTable
               indexes={filteredRegularIndexes}
               context="indexes-drawer"
+            />
+          ) : (
+            <NoStandardIndexesEmptyContent
+              isRegularIndexesWritable={isRegularIndexesWritable}
+              onCreateRegularIndexClick={onCreateRegularIndexClick}
             />
           )
         ) : (
@@ -236,55 +332,12 @@ const IndexesListDrawerView: React.FunctionComponent<
             indexes={filteredSearchIndexes}
             context="indexes-drawer"
           />
-        ) : isSearchIndexesWritable ? (
-          <EmptyContent
-            containerClassName={emptyContentStyles}
-            icon={NoSearchIndexesFoundGraphic}
-            title="No search indexes found"
-            subTitle={
-              <span>
-                Define a{' '}
-                <Link
-                  // TODO: url
-                  href="https://www.mongodb.com/docs/manual/core/views/"
-                  target="_blank"
-                >
-                  search
-                </Link>{' '}
-                or{' '}
-                <Link
-                  // TODO: url
-                  href="https://www.mongodb.com/docs/manual/core/views/"
-                  target="_blank"
-                >
-                  vector search index
-                </Link>{' '}
-                to start using $search or $vectorSearch.
-              </span>
-            }
-            callToActionLink={
-              <DropdownMenuButton
-                buttonText="Create a search index"
-                buttonProps={{
-                  size: 'xsmall',
-                }}
-                actions={[
-                  {
-                    action: 'createSearchIndex',
-                    label: 'Search Index',
-                    isDisabled: !isSearchIndexesWritable,
-                  },
-                  {
-                    action: 'createVectorSearchIndex',
-                    label: 'Vector Search Index',
-                    isDisabled: !isSearchIndexesWritable,
-                  },
-                ]}
-                onAction={onActionDispatch}
-              />
-            }
+        ) : (
+          <NoSearchIndexesEmptyContent
+            isSearchIndexesWritable={isSearchIndexesWritable}
+            onActionDispatch={onActionDispatch}
           />
-        ) : null}
+        )}
       </Accordion>
     </div>
   );

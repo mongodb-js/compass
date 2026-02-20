@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 
 import { palette, useDarkMode } from '@mongodb-js/compass-components';
 
-const NoSearchIndexesFoundGraphic: React.FunctionComponent = () => {
+const ZeroSearchIndexesGraphic: React.FunctionComponent = () => {
   const darkMode = useDarkMode();
   const strokeColor = useMemo(
     () => (darkMode ? palette.white : palette.black),
@@ -61,4 +61,4 @@ const NoSearchIndexesFoundGraphic: React.FunctionComponent = () => {
   );
 };
 
-export { NoSearchIndexesFoundGraphic };
+export { ZeroSearchIndexesGraphic };
