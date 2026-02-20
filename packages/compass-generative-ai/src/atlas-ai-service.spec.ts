@@ -859,7 +859,7 @@ describe('AtlasAiService', function () {
             sensitiveStorage: 'sensitive',
           });
           expect(userId).to.be.a('string').that.is.not.empty;
-          expect(requestBody.store).to.be.true;
+          expect(requestBody.store).to.be.false;
           expect(requestBody.instructions).to.be.a('string');
           expect(requestBody.input).to.be.an('array');
 
