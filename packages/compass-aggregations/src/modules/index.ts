@@ -112,6 +112,9 @@ export type PipelineBuilderExtraArgs = {
     'open-export' | 'view-edited' | 'agg-pipeline-out-executed'
   >;
   collection: Collection;
+  pollingIntervalRef: {
+    searchIndexes: ReturnType<typeof setInterval> | null;
+  };
 };
 
 export type PipelineBuilderThunkDispatch<A extends Action = AnyAction> =

@@ -32,6 +32,7 @@
   },
   "license": "SSPL",
   "devDependencies": {
+    "@mongodb-js/connection-info": "^0.26.0",
     "@mongodb-js/eslint-config-compass": "^1.4.17",
     "@mongodb-js/mocha-config-compass": "^1.7.5",
     "@mongodb-js/prettier-config-compass": "^1.2.9",
