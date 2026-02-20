@@ -854,12 +854,9 @@ describe('AtlasAiService', function () {
             'natural-language-to-mql'
           );
           const requestBody = JSON.parse(args[1].body as string);
-          const { userId, ...restOfMetadata } = requestBody.metadata;
-          expect(restOfMetadata).to.deep.equal({
-            sensitiveStorage: 'sensitive',
-          });
+          const { userId } = requestBody.metadata;
           expect(userId).to.be.a('string').that.is.not.empty;
-          expect(requestBody.store).to.be.true;
+          expect(requestBody.store).to.be.false;
           expect(requestBody.instructions).to.be.a('string');
           expect(requestBody.input).to.be.an('array');
 

@@ -67,10 +67,6 @@ export class DocsProviderTransport implements ChatTransport<AssistantMessage> {
 
     const lastMessage = filteredMessages[filteredMessages.length - 1];
 
-    const disableStorage = filteredMessages.some(
-      (message) => message.metadata?.disableStorage
-    );
-
     const modelMessages = await (lastMessage.metadata?.sendWithoutHistory
       ? convertToModelMessages([lastMessage])
       : convertToModelMessages(filteredMessages));
@@ -122,7 +118,7 @@ export class DocsProviderTransport implements ChatTransport<AssistantMessage> {
       tools: this.getTools(),
       providerOptions: {
         openai: {
-          store: !disableStorage,
+          store: false,
           // If the last message has custom instructions, use them instead of the default
           instructions: lastMessage.metadata?.instructions ?? this.instructions,
           metadata: {
