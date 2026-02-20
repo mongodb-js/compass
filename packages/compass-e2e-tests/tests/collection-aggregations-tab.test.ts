@@ -29,6 +29,21 @@ const MERGE_STAGE_PREVIEW_TEXT =
   'The $merge operator will cause the pipeline to persist the results to the specified location.';
 const STAGE_WIZARD_GUIDE_CUE_STORAGE_KEY = 'has_seen_stage_wizard_guide_cue';
 
+const RANK_FUSION_EXAMPLE_VALUE = `{
+      input: {
+        pipelines: {
+          p1: [
+            {
+              $search: {
+                index: "default",
+                text: { query: "foo", path: "field" }
+              }
+            }
+          ]
+        }
+      }
+    }`;
+
 async function waitForAnyText(
   browser: CompassBrowser,
   element: ChainablePromiseElement
@@ -223,6 +238,10 @@ describe('Collection aggregations tab', function () {
       return this.skip();
     }
     await browser.selectStageOperator(0, '$rankFusion');
+    await browser.setCodemirrorEditorValue(
+      Selectors.stageEditor(0),
+      RANK_FUSION_EXAMPLE_VALUE
+    );
 
     await browser.waitUntil(async function () {
       const textElement = browser.$(Selectors.stagePreview(0));
@@ -1201,7 +1220,7 @@ describe('Collection aggregations tab', function () {
 
       await browser.setCodemirrorEditorValue(
         Selectors.AggregationAsTextEditor,
-        '[{$rankFusion: {}}]'
+        `[{$rankFusion: ${RANK_FUSION_EXAMPLE_VALUE}}]`
       );
 
       const preview = browser.$(
@@ -1541,7 +1560,10 @@ describe('Collection aggregations tab', function () {
         return this.skip();
       }
       await browser.selectStageOperator(0, '$rankFusion');
-      await browser.setCodemirrorEditorValue(Selectors.stageEditor(0), '{}');
+      await browser.setCodemirrorEditorValue(
+        Selectors.stageEditor(0),
+        RANK_FUSION_EXAMPLE_VALUE
+      );
 
       await browser.clickVisible(Selectors.stageFocusModeButton(0));
       await browser.waitForOpenModal(Selectors.FocusModeModal);
