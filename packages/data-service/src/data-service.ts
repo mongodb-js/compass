@@ -2244,6 +2244,13 @@ class DataServiceImpl extends WithLogContext implements DataService {
         },
       },
       {
+        // ensure deterministic ordering so grouping chooses latest message
+        $sort: {
+          'command.indexes.name': 1,
+          secs_running: -1,
+        },
+      },
+      {
         // explode the "indexes" array for each createIndexes command
         $unwind: '$command.indexes',
       },
@@ -2253,7 +2260,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
           _id: '$command.indexes.name',
           active: { $max: '$active' },
           secsRunning: { $max: '$secs_running' },
-          msg: { $max: '$msg' },
+          msg: { $first: '$msg' },
           progress: {
             $first: {
               $cond: {
@@ -2264,7 +2271,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
                   ],
                 },
                 then: { $divide: ['$progress.done', '$progress.total'] },
-                else: 0,
+                else: '$$REMOVE',
               },
             },
           },
@@ -2374,27 +2381,27 @@ class DataServiceImpl extends WithLogContext implements DataService {
     const maxSize = Math.max(...Object.values(indexSizes));
 
     // Handle the index stats result - $indexStats may not work for permissions reasons or server version reasons
-    const statsNotPermitted = indexStatsResult.status === 'rejected';
+    const statsUnavailable = indexStatsResult.status === 'rejected';
+    const statsErrorMessage =
+      indexStatsResult.status === 'rejected'
+        ? indexStatsResult.reason.message
+        : undefined;
     const indexStats =
       indexStatsResult.status === 'fulfilled' ? indexStatsResult.value : {};
 
     // Handle the index progress result - currentOp may not work for permissions reasons
-    const progressNotPermitted = indexProgressResult.status === 'rejected';
+    const progressUnavailable = indexProgressResult.status === 'rejected';
     const progressErrorMessage =
       indexProgressResult.status === 'rejected'
-        ? indexProgressResult.reason.message
-        : undefined;
-    const statsErrorMessage =
-      indexStatsResult.status === 'rejected'
-        ? indexStatsResult.reason.message
+        ? indexProgressResult.reason?.message
         : undefined;
     const indexProgress =
       indexProgressResult.status === 'fulfilled'
         ? indexProgressResult.value
         : {};
 
-    // If both $indexStats and $currentOp are not permitted, we can't determine build status
-    const bothNotPermitted = statsNotPermitted && progressNotPermitted;
+    // If both $indexStats and $currentOp are unavailable, we can't determine build status
+    const bothUnavailable = statsUnavailable && progressUnavailable;
     const errorMessage = [statsErrorMessage, progressErrorMessage].join(', ');
 
     return indexes
@@ -2408,17 +2415,17 @@ class DataServiceImpl extends WithLogContext implements DataService {
         const isBuilding = stats?.building === true;
 
         const buildProgress: IndexBuildProgress = {
-          ...(bothNotPermitted
+          ...(bothUnavailable
             ? { active: false, msg: errorMessage }
             : indexProgress[name] ?? {
                 active: isBuilding,
                 msg:
-                  progressNotPermitted && isBuilding
+                  progressUnavailable && isBuilding
                     ? progressErrorMessage
                     : undefined,
               }),
-          statsNotPermitted,
-          progressNotPermitted,
+          statsUnavailable,
+          progressUnavailable,
         };
 
         return createIndexDefinition(

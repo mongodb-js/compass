@@ -295,8 +295,8 @@ function determineRegularIndexStatus(
 ): 'inprogress' | 'ready' | 'unknown' {
   // When both $indexStats and $currentOp failed, we truly don't know the status
   if (
-    index.buildProgress.statsNotPermitted &&
-    index.buildProgress.progressNotPermitted
+    index.buildProgress.statsUnavailable &&
+    index.buildProgress.progressUnavailable
   ) {
     return 'unknown';
   }

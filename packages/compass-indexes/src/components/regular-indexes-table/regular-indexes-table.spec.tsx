@@ -569,8 +569,8 @@ describe('RegularIndexesTable Component', function () {
             name: 'unknown_status_index',
             buildProgress: {
               active: false,
-              statsNotPermitted: true,
-              progressNotPermitted: true,
+              statsUnavailable: true,
+              progressUnavailable: true,
               msg: 'user is not authorized, user is not authorized',
             },
           }),
@@ -582,7 +582,7 @@ describe('RegularIndexesTable Component', function () {
       expect(within(indexRow).getByText('Unknown')).to.exist;
     });
 
-    it('shows "Ready" when only statsNotPermitted but currentOp says not building', function () {
+    it('shows "Ready" when only statsUnavailable but currentOp says not building', function () {
       // When $indexStats fails but $currentOp works and shows no active build
       renderIndexList({
         indexes: [
@@ -590,8 +590,8 @@ describe('RegularIndexesTable Component', function () {
             name: 'stats_failed_index',
             buildProgress: {
               active: false,
-              statsNotPermitted: true,
-              progressNotPermitted: false,
+              statsUnavailable: true,
+              progressUnavailable: false,
             },
           }),
         ],
@@ -601,7 +601,7 @@ describe('RegularIndexesTable Component', function () {
       expect(within(indexRow).getByTestId('index-ready')).to.exist;
     });
 
-    it('shows "In Progress" when only progressNotPermitted but indexStats shows building', function () {
+    it('shows "In Progress" when only progressUnavailable but indexStats shows building', function () {
       // When $currentOp fails but $indexStats shows building: true
       renderIndexList({
         indexes: [
@@ -609,8 +609,8 @@ describe('RegularIndexesTable Component', function () {
             name: 'progress_failed_index',
             buildProgress: {
               active: true,
-              progressNotPermitted: true,
-              statsNotPermitted: false,
+              progressUnavailable: true,
+              statsUnavailable: false,
               msg: 'user is not authorized to run currentOp',
             },
           }),

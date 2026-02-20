@@ -52,15 +52,20 @@ export type IndexBuildProgress = {
    */
   msg?: string;
   /**
-   * If true, the user does not have permission to run $indexStats,
-   * so we can't determine the index usage stats or building status from that source.
+   * If true, $indexStats-based statistics (including usage and building status)
+   * are not available. This commonly happens when the user does not have
+   * permission to run $indexStats, but can also occur on servers that do not
+   * support the required pipeline stages or for other server-side limitations.
    */
-  statsNotPermitted?: boolean;
+  statsUnavailable?: boolean;
   /**
-   * If true, the user does not have permission to run $currentOp,
-   * so we can't get detailed progress info (percentage, seconds running, msg).
+   * If true, $currentOp-based progress information (percentage, seconds
+   * running, msg) is not available. This commonly happens when the user does
+   * not have permission to run $currentOp, but can also occur on servers that
+   * do not support the required pipeline stages or for other server-side
+   * limitations.
    */
-  progressNotPermitted?: boolean;
+  progressUnavailable?: boolean;
 };
 
 export type IndexDefinition = {
@@ -229,6 +234,6 @@ export function createIndexDefinition(
     properties: getIndexProperties(index, collectionShardKey),
     size: indexSize,
     relativeSize: (indexSize / maxSize) * 100,
-    buildProgress: buildProgress ?? DEFAULT_BUILD_PROGRESS,
+    buildProgress: buildProgress ?? { ...DEFAULT_BUILD_PROGRESS },
   };
 }

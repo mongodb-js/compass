@@ -123,7 +123,7 @@ describe('IndexActions Component', function () {
         // but $indexStats reports building: false
         const noPermissionIndex = mockRegularIndex({
           name: 'no_permission_index',
-          buildProgress: { active: false, progressNotPermitted: true },
+          buildProgress: { active: false, progressUnavailable: true },
         });
 
         render(
@@ -447,14 +447,14 @@ describe('IndexActions Component', function () {
   });
 
   describe('Permission Error States', function () {
-    describe('progressNotPermitted only', function () {
-      it('shows building UI with "Building…" when active and progressNotPermitted', function () {
+    describe('progressUnavailable only', function () {
+      it('shows building UI with "Building…" when active and progressUnavailable', function () {
         // $indexStats succeeded (shows building: true), but $currentOp failed
         const index = mockRegularIndex({
           name: 'progress_not_permitted',
           buildProgress: {
             active: true,
-            progressNotPermitted: true,
+            progressUnavailable: true,
           },
         });
 
@@ -474,14 +474,14 @@ describe('IndexActions Component', function () {
       });
     });
 
-    describe('statsNotPermitted only', function () {
-      it('shows ready actions when index not building and statsNotPermitted', function () {
+    describe('statsUnavailable only', function () {
+      it('shows ready actions when index not building and statsUnavailable', function () {
         // $indexStats failed but $currentOp succeeded and shows no build in progress
         const index = mockRegularIndex({
           name: 'stats_not_permitted',
           buildProgress: {
             active: false,
-            statsNotPermitted: true,
+            statsUnavailable: true,
           },
         });
 
@@ -502,15 +502,15 @@ describe('IndexActions Component', function () {
       });
     });
 
-    describe('both statsNotPermitted and progressNotPermitted', function () {
+    describe('both statsUnavailable and progressUnavailable', function () {
       it('shows ready actions when both permissions denied but not active', function () {
         // Both $indexStats and $currentOp failed
         const index = mockRegularIndex({
           name: 'both_not_permitted',
           buildProgress: {
             active: false,
-            statsNotPermitted: true,
-            progressNotPermitted: true,
+            statsUnavailable: true,
+            progressUnavailable: true,
             msg: 'user is not permitted, user is not permitted',
           },
         });
@@ -535,7 +535,7 @@ describe('IndexActions Component', function () {
   describe('Message (msg) Field Handling', function () {
     it('includes msg in buildProgress for building index', function () {
       // The msg field is passed to StatusField for tooltip display,
-      // but the IndexActions component uses it when progressNotPermitted is true
+      // but the IndexActions component uses it when progressUnavailable is true
       const index = mockRegularIndex({
         name: 'index_with_msg',
         buildProgress: {

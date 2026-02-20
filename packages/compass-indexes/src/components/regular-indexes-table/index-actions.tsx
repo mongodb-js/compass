@@ -71,16 +71,12 @@ const getBuildProgress = (index: IndexForActions) => {
 
 // Helper: Determine if index is currently building
 const isIndexBuilding = (index: IndexForActions): boolean => {
-  // Index is building if active flag is true from $currentOp
-  // OR if it's an in-progress index that hasn't failed
-  if (index.buildProgress.active) {
-    return true;
-  }
   if (isInProgressIndex(index)) {
-    // In-progress indexes that haven't failed are building
+    // For in-progress indexes, status is the source of truth
     return index.status === 'creating';
   }
-  return false;
+  // Regular indexes rely on currentOp/build stats active flag
+  return !!index.buildProgress.active;
 };
 
 // Helper: Determine if index can be deleted
@@ -170,6 +166,20 @@ const IndexActions: React.FunctionComponent<IndexActionsProps> = ({
     [index, serverVersion]
   );
 
+  const hasActionHandler = useMemo(() => {
+    return (
+      !!onDeleteIndexClick ||
+      !!onDeleteFailedIndexClick ||
+      !!onHideIndexClick ||
+      !!onUnhideIndexClick
+    );
+  }, [
+    onDeleteFailedIndexClick,
+    onDeleteIndexClick,
+    onHideIndexClick,
+    onUnhideIndexClick,
+  ]);
+
   const onAction = useCallback(
     (action: IndexAction) => {
       if (action === 'delete') {
@@ -198,18 +208,23 @@ const IndexActions: React.FunctionComponent<IndexActionsProps> = ({
   // Show build progress UI for building indexes
   if (isIndexBuilding(index)) {
     // Determine what text to show for build progress
-    // Prioritize secsRunning when progress is 0 or 1 (not meaningful progress info)
+    // Prioritize secsRunning when progress is missing or not meaningful
     let progressText: string;
-    if (buildProgress.progressNotPermitted) {
+    const hasDuration = buildProgress.secsRunning !== undefined;
+    if (buildProgress.progressUnavailable) {
       // $currentOp failed, so we don't have detailed progress info
-      progressText = 'Building…';
-    } else if (
-      buildProgress.secsRunning !== undefined &&
-      (buildProgress.progress === undefined || buildProgress.progress === 0)
-    ) {
-      // Show seconds when progress is not available or at boundaries (0% or 100%)
+      progressText = hasDuration
+        ? `Building For… ${formatDuration(buildProgress.secsRunning!)}`
+        : 'Building…';
+    } else if (hasDuration && buildProgress.progress === undefined) {
+      // Progress disappeared but we still know it's running
       progressText = `Building For… ${formatDuration(
-        buildProgress.secsRunning
+        buildProgress.secsRunning!
+      )}`;
+    } else if (hasDuration && buildProgress.progress === 0) {
+      // Prefer duration instead of an unhelpful 0%
+      progressText = `Building For… ${formatDuration(
+        buildProgress.secsRunning!
       )}`;
     } else if (buildProgress.progress !== undefined) {
       progressText = `Building… ${Math.trunc(buildProgress.progress * 100)}%`;
@@ -220,24 +235,26 @@ const IndexActions: React.FunctionComponent<IndexActionsProps> = ({
       <div className={buildProgressStyles} data-testid="index-building-spinner">
         <Body>{progressText}</Body>
         <SpinLoader size={16} title="Index build in progress" />
-        <ItemActionGroup<IndexAction>
-          data-testid="index-actions"
-          actions={indexActions}
-          onAction={onAction}
-        />
+        {hasActionHandler && indexActions.length > 0 ? (
+          <ItemActionGroup<IndexAction>
+            data-testid="index-actions"
+            actions={indexActions}
+            onAction={onAction}
+          />
+        ) : null}
       </div>
     );
   }
 
   // Standard actions layout for completed/failed indexes
-  return (
+  return hasActionHandler && indexActions.length > 0 ? (
     <ItemActionGroup<IndexAction>
       data-testid="index-actions"
       className={styles}
       actions={indexActions}
       onAction={onAction}
     />
-  );
+  ) : null;
 };
 
 export default IndexActions;
