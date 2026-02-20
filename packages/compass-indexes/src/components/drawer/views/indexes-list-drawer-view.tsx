@@ -78,14 +78,6 @@ const NoStandardIndexesEmptyContent: React.FunctionComponent<
           Create index
         </Button>
       }
-      subTitle={
-        <Link
-          href="https://www.mongodb.com/docs/manual/core/views/"
-          target="_blank"
-        >
-          Learn more about views
-        </Link>
-      }
     />
   );
 };
