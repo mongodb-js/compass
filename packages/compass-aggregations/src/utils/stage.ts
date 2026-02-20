@@ -297,6 +297,8 @@ export const isMissingAtlasStageSupport = (
       31082,
       // "Search stages are only allowed on MongoDB Atlas"
       6047400, 6047401,
+      // "Query Feature Not Allowed"
+      224,
     ].includes(Number(serverError?.code ?? -1))
   );
 };

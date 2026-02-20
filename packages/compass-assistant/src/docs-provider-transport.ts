@@ -67,10 +67,6 @@ export class DocsProviderTransport implements ChatTransport<AssistantMessage> {
 
     const lastMessage = filteredMessages[filteredMessages.length - 1];
 
-    const disableStorage = filteredMessages.some(
-      (message) => message.metadata?.disableStorage
-    );
-
     const modelMessages = await (lastMessage.metadata?.sendWithoutHistory
       ? convertToModelMessages([lastMessage])
       : convertToModelMessages(filteredMessages));
@@ -117,18 +113,36 @@ export class DocsProviderTransport implements ChatTransport<AssistantMessage> {
       abortSignal: abortSignal,
       headers: {
         'X-Request-Origin': this.origin,
+        'X-Client-Request-Id': lastMessage.metadata?.requestId ?? '',
       },
       tools: this.getTools(),
       providerOptions: {
         openai: {
-          store: !disableStorage,
+          store: false,
           // If the last message has custom instructions, use them instead of the default
           instructions: lastMessage.metadata?.instructions ?? this.instructions,
+          metadata: {
+            userId: lastMessage.metadata?.userId,
+          },
         },
       },
     });
 
-    return Promise.resolve(result.toUIMessageStream({ sendSources: true }));
+    return Promise.resolve(
+      result.toUIMessageStream({
+        sendSources: true,
+        messageMetadata() {
+          if (lastMessage.metadata) {
+            // Return the metadata that's relevant for telemetry tracking purposes.
+            const { requestId, connectionInfo } = lastMessage.metadata;
+            return {
+              requestId,
+              connectionInfo,
+            };
+          }
+        },
+      })
+    );
   }
 
   reconnectToStream(): Promise<ReadableStream<UIMessageChunk> | null> {

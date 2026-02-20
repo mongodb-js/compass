@@ -69,8 +69,12 @@ describe('AssistantChat', function () {
     chat: Chat<AssistantMessage>,
     {
       connections,
+      trackingOptions = {},
     }: {
       connections?: ConnectionInfo[];
+      trackingOptions?: {
+        requestId?: string;
+      };
     } = {}
   ) {
     // The chat component does not use chat.sendMessage() directly, it uses
@@ -79,7 +83,7 @@ describe('AssistantChat', function () {
       .stub()
       .callsFake(async (message, options, callback) => {
         // call the callback so we can test the tracking
-        callback();
+        callback(trackingOptions);
 
         await chat.sendMessage(message, options);
       });
@@ -277,8 +281,10 @@ describe('AssistantChat', function () {
   });
 
   it('calls sendMessage when form is submitted', async function () {
+    const trackingOptions = { requestId: 'test-request-id' };
     const { result, ensureOptInAndSendStub } = renderWithChat(
-      createMockChat({ messages: [] })
+      createMockChat({ messages: [] }),
+      { trackingOptions }
     );
     const { track } = result;
     const inputField = screen.getByPlaceholderText('Ask a question');
@@ -291,6 +297,7 @@ describe('AssistantChat', function () {
       expect(ensureOptInAndSendStub.called).to.be.true;
       expect(track).to.have.been.calledWith('Assistant Prompt Submitted', {
         user_input_length: 'What is aggregation?'.length,
+        request_id: 'test-request-id',
       });
     });
   });
@@ -312,7 +319,8 @@ describe('AssistantChat', function () {
 
   it('trims whitespace from input before sending', async function () {
     const { ensureOptInAndSendStub, result } = renderWithChat(
-      createMockChat({ messages: [] })
+      createMockChat({ messages: [] }),
+      { trackingOptions: { requestId: 'test-request-id' } }
     );
     const { track } = result;
 
@@ -325,6 +333,7 @@ describe('AssistantChat', function () {
       expect(ensureOptInAndSendStub.called).to.be.true;
       expect(track).to.have.been.calledWith('Assistant Prompt Submitted', {
         user_input_length: 'What is sharding?'.length,
+        request_id: 'test-request-id',
       });
     });
   });
@@ -551,7 +560,7 @@ describe('AssistantChat', function () {
         expect(track).to.have.been.calledWith('Assistant Feedback Submitted', {
           feedback: 'positive',
           text: undefined,
-          request_id: null,
+          request_id: undefined,
           source: 'performance insights',
         });
       });
@@ -580,7 +589,7 @@ describe('AssistantChat', function () {
         expect(track).to.have.been.calledWith('Assistant Feedback Submitted', {
           feedback: 'negative',
           text: undefined,
-          request_id: null,
+          request_id: undefined,
           source: 'performance insights',
         });
       });
@@ -619,14 +628,14 @@ describe('AssistantChat', function () {
         expect(track).to.have.been.calledWith('Assistant Feedback Submitted', {
           feedback: 'negative',
           text: undefined,
-          request_id: null,
+          request_id: undefined,
           source: 'performance insights',
         });
 
         expect(track).to.have.been.calledWith('Assistant Feedback Submitted', {
           feedback: 'negative',
           text: 'This response was not helpful',
-          request_id: null,
+          request_id: undefined,
           source: 'performance insights',
         });
       });
@@ -658,7 +667,7 @@ describe('AssistantChat', function () {
         expect(track).to.have.been.calledWith('Assistant Feedback Submitted', {
           feedback: 'negative',
           text: undefined,
-          request_id: null,
+          request_id: undefined,
           source: 'chat response',
         });
       });
@@ -944,6 +953,7 @@ describe('AssistantChat', function () {
           {
             status: 'confirmed',
             source: 'performance insights',
+            request_id: undefined,
           }
         );
       });
@@ -964,6 +974,7 @@ describe('AssistantChat', function () {
           {
             status: 'rejected',
             source: 'performance insights',
+            request_id: undefined,
           }
         );
       });
@@ -991,7 +1002,11 @@ describe('AssistantChat', function () {
       await waitFor(() => {
         expect(track).to.have.been.calledWith(
           'Assistant Confirmation Submitted',
-          { status: 'confirmed', source: 'chat response' }
+          {
+            status: 'confirmed',
+            source: 'chat response',
+            request_id: undefined,
+          }
         );
       });
     });
