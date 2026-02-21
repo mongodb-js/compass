@@ -11,7 +11,7 @@ import {
 import { ReadOnlyPreferenceAccess } from 'compass-preferences-model/provider';
 
 const renderStageToolbar = async (
-  pipeline = [{ $match: { _id: 1 } }, { $limit: 10 }, { $out: 'out' }],
+  pipeline: any[] = [{ $match: { _id: 1 } }, { $limit: 10 }, { $out: 'out' }],
   preferences?: ReadOnlyPreferenceAccess
 ) => {
   const result = await renderWithStore(
@@ -19,6 +19,7 @@ const renderStageToolbar = async (
     {
       pipeline,
     },
+    undefined,
     preferences ? { preferences } : undefined
   );
   return result.plugin.store;
