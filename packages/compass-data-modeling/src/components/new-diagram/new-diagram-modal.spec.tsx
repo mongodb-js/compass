@@ -316,6 +316,59 @@ describe('NewDiagramModal', function () {
       });
     });
 
+    it('shows sample size input with default value of 100', async function () {
+      const preferences = await createSandboxFromDefaultPreferences();
+      const { store } = renderWithStore(<NewDiagramModal />, {
+        services: {
+          preferences,
+        },
+      });
+      await setSetupDiagramStep(store, {
+        connection: { id: 'two', name: 'Conn2' },
+        databaseName: 'sample_airbnb',
+        diagramName: 'diagram1',
+      });
+
+      userEvent.click(
+        screen.getByRole('button', {
+          name: /next/i,
+        })
+      );
+
+      // Wait for the sample size input to appear (indicates SELECT_COLLECTIONS step)
+      const sampleSizeInput = await screen.findByTestId('sample-size-input');
+      expect(sampleSizeInput).to.have.value('100');
+    });
+
+    it('allows user to change sample size', async function () {
+      const preferences = await createSandboxFromDefaultPreferences();
+      const { store } = renderWithStore(<NewDiagramModal />, {
+        services: {
+          preferences,
+        },
+      });
+      await setSetupDiagramStep(store, {
+        connection: { id: 'two', name: 'Conn2' },
+        databaseName: 'sample_airbnb',
+        diagramName: 'diagram1',
+      });
+
+      userEvent.click(
+        screen.getByRole('button', {
+          name: /next/i,
+        })
+      );
+
+      // Wait for the sample size input to appear
+      const sampleSizeInput = await screen.findByTestId('sample-size-input');
+      userEvent.clear(sampleSizeInput);
+      userEvent.type(sampleSizeInput, '50');
+
+      await waitFor(() => {
+        expect(sampleSizeInput).to.have.value('50');
+      });
+    });
+
     it('shows error if it fails to fetch list of collections', async function () {
       const { store } = renderWithStore(<NewDiagramModal />, {
         services: {
