@@ -3013,6 +3013,7 @@ type DataModelingDiagramCreationStarted = ConnectionScopedEvent<{
   payload: {
     num_collections: number;
     automatically_infer_relations: boolean;
+    sample_size: number;
   };
 }>;
 
@@ -3044,6 +3045,7 @@ type DataModelingDiagramCreated = ConnectionScopedEvent<{
     num_relations_inferred?: number;
     analysis_time_ms: number;
     relationship_inference_phase_ms?: number;
+    sample_size: number;
   };
 }>;
 
@@ -3059,6 +3061,7 @@ type DataModelingDiagramCreationCancelled = ConnectionScopedEvent<{
     automatically_infer_relations: boolean;
     analysis_time_ms: number;
     relationship_inference_phase_ms?: number;
+    sample_size: number;
   };
 }>;
 
@@ -3074,6 +3077,7 @@ type DataModelingDiagramCreationFailed = ConnectionScopedEvent<{
     automatically_infer_relations: boolean;
     analysis_time_ms: number;
     relationship_inference_phase_ms?: number;
+    sample_size: number;
   };
 }>;
 
@@ -3097,6 +3101,7 @@ type DataModelingAddDBCollectionsStarted = ConnectionScopedEvent<{
   payload: {
     num_collections: number;
     automatically_infer_relations: boolean;
+    sample_size: number;
   };
 }>;
 
@@ -3115,6 +3120,7 @@ type DataModelingAddDBCollectionsSucceeded = ConnectionScopedEvent<{
     num_relations_inferred?: number;
     analysis_time_ms: number;
     relationship_inference_phase_ms?: number;
+    sample_size: number;
   };
 }>;
 
@@ -3130,6 +3136,7 @@ type DataModelingAddDBCollectionsFailed = ConnectionScopedEvent<{
     automatically_infer_relations: boolean;
     analysis_time_ms: number;
     relationship_inference_phase_ms?: number;
+    sample_size: number;
   };
 }>;
 
@@ -3145,6 +3152,7 @@ type DataModelingAddDBCollectionsCancelled = ConnectionScopedEvent<{
     automatically_infer_relations: boolean;
     analysis_time_ms: number;
     relationship_inference_phase_ms?: number;
+    sample_size: number;
   };
 }>;
 

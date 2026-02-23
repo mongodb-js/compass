@@ -293,6 +293,7 @@ export function startAnalysis(
       {
         num_collections: selectedCollections.length,
         automatically_infer_relations: willInferRelations,
+        sample_size: options.sampleSize,
       },
       connectionInfo
     );
@@ -342,6 +343,7 @@ export function startAnalysis(
             : undefined,
           analysis_time_ms: Date.now() - analysisStartTime,
           relationship_inference_phase_ms: relationsInferencePhaseMs,
+          sample_size: options.sampleSize,
         },
         connectionInfo
       );
@@ -363,6 +365,7 @@ export function startAnalysis(
             automatically_infer_relations: willInferRelations,
             analysis_time_ms,
             relationship_inference_phase_ms: relationsInferencePhaseMs,
+            sample_size: options.sampleSize,
           },
           connectionInfo
         );
@@ -384,6 +387,7 @@ export function startAnalysis(
             analysis_time_ms: analysis_time_ms,
             relationship_inference_phase_ms: relationsInferencePhaseMs,
             automatically_infer_relations: willInferRelations,
+            sample_size: options.sampleSize,
           },
           connectionInfo
         );
@@ -465,6 +469,7 @@ export function redoAnalysis(
       {
         num_collections: selectedCollections.length,
         automatically_infer_relations: willInferRelations,
+        sample_size: options.sampleSize,
       },
       connectionInfo
     );
@@ -510,6 +515,7 @@ export function redoAnalysis(
             : undefined,
           analysis_time_ms: Date.now() - analysisStartTime,
           relationship_inference_phase_ms: relationsInferencePhaseMs,
+          sample_size: options.sampleSize,
         },
         connectionInfo
       );
@@ -528,6 +534,7 @@ export function redoAnalysis(
             automatically_infer_relations: willInferRelations,
             analysis_time_ms: Date.now() - analysisStartTime,
             relationship_inference_phase_ms: relationsInferencePhaseMs,
+            sample_size: options.sampleSize,
           },
           connectionInfo
         );
@@ -550,6 +557,7 @@ export function redoAnalysis(
             automatically_infer_relations: willInferRelations,
             analysis_time_ms: Date.now() - analysisStartTime,
             relationship_inference_phase_ms: relationsInferencePhaseMs,
+            sample_size: options.sampleSize,
           },
           connectionInfo
         );
