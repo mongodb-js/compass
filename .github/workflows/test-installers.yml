@@ -114,6 +114,7 @@ jobs:
               dnf config-manager --set-enabled devel
               dnf update -y
               dnf install -y compat-openssl11
+              git config --global --add safe.directory /compass
             container:
               image: rockylinux:9
               volumes:
