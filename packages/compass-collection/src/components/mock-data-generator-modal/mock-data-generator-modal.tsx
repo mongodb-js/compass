@@ -83,6 +83,7 @@ const MockDataGeneratorModal = ({
       case MockDataGeneratorSteps.SCHEMA_CONFIRMATION:
         return <RawSchemaConfirmationScreen />;
       case MockDataGeneratorSteps.PREVIEW_AND_DOC_COUNT:
+        // TODO: CLOUDP-381907 - Create Preview and Doc Count Screen
         return (
           <div data-testid="preview-and-doc-count">Preview and Doc Count</div>
         );
@@ -91,6 +92,7 @@ const MockDataGeneratorModal = ({
     }
   }, [currentStep]);
 
+  // TODO: CLOUDP-381913 - Update Mock Data Generator Analytics Calls
   useTrackOnChange(
     (track) => {
       if (isOpen) {
