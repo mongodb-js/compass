@@ -68,7 +68,7 @@ describe('StageToolbar', function () {
     it('does not render when enableSearchActivationProgramP1 is disabled', async function () {
       await renderStageToolbar([{ $search: { index: 'default' } }]);
       expect(
-        screen.queryByTestId('stage-toolbar-search-index-edit-button')
+        screen.queryByTestId('stage-toolbar-view-indexes-button')
       ).to.not.exist;
     });
     it('does not render when stage is not a search stage', async function () {
@@ -77,7 +77,7 @@ describe('StageToolbar', function () {
       });
       await renderStageToolbar([{ $match: { _id: 1 } }], preferences);
       expect(
-        screen.queryByTestId('stage-toolbar-search-index-edit-button')
+        screen.queryByTestId('stage-toolbar-view-indexes-button')
       ).to.not.exist;
     });
     it('renders when enableSearchActivationProgramP1 is enabled and stage is $search', async function () {
@@ -88,9 +88,29 @@ describe('StageToolbar', function () {
         [{ $search: { index: 'default' } }],
         preferences
       );
-      expect(
-        screen.getByTestId('stage-toolbar-search-index-edit-button')
-      ).to.exist;
+      expect(screen.getByTestId('stage-toolbar-view-indexes-button')).to.exist;
+      expect(screen.getByText('View Indexes')).to.exist;
+    });
+    it('renders when enableSearchActivationProgramP1 is enabled and stage is $searchMeta', async function () {
+      const preferences = new ReadOnlyPreferenceAccess({
+        enableSearchActivationProgramP1: true,
+      });
+      await renderStageToolbar(
+        [{ $searchMeta: { index: 'default' } }],
+        preferences
+      );
+      expect(screen.getByTestId('stage-toolbar-view-indexes-button')).to.exist;
+      expect(screen.getByText('View Indexes')).to.exist;
+    });
+    it('renders when enableSearchActivationProgramP1 is enabled and stage is $vectorSearch', async function () {
+      const preferences = new ReadOnlyPreferenceAccess({
+        enableSearchActivationProgramP1: true,
+      });
+      await renderStageToolbar(
+        [{ $vectorSearch: { index: 'default' } }],
+        preferences
+      );
+      expect(screen.getByTestId('stage-toolbar-view-indexes-button')).to.exist;
       expect(screen.getByText('View Indexes')).to.exist;
     });
   });

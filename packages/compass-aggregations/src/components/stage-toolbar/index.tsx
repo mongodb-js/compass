@@ -169,7 +169,7 @@ export function StageToolbar({
         {enableSearchActivationProgramP1 &&
           isSearchStage(stage.stageOperator) && (
             <Button
-              data-testid="stage-toolbar-search-index-edit-button"
+              data-testid="stage-toolbar-view-indexes-button"
               size="xsmall"
               className={viewIndexesButtonStyles}
               onClick={onClickViewSearchIndexes}
