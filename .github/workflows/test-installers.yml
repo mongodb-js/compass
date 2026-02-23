@@ -107,7 +107,7 @@ jobs:
             arch: x64
             hadron-platform: linux
             distro-id: rhel80
-            post-checkout-command: |
+            prepare-container: |
               dnf clean all && dnf update -y --refresh
               dnf install -y gcc gcc-c++ make git nss dbus xorg-x11-server-Xvfb yum-utils
               # Enable the devel repo to install compat-openssl11 (bringing libcrupto.so.1.1 to run mongod)
@@ -180,6 +180,9 @@ jobs:
       COMPASS_E2E_MOCHA_TIMEOUT: 1200000 # 20min
       COMPASS_E2E_WEBDRIVER_WAITFOR_TIMEOUT: 600000 # 10min
     steps:
+      - name: Run prepare-container command
+        if: matrix.prepare-container
+        run: ${{ matrix.prepare-container }}
       - name: Checkout
         uses: actions/checkout@v2
       - name: Setup Node.js
@@ -187,10 +190,6 @@ jobs:
         with:
           node-version: 22.21.1
           cache: 'npm'
-
-      - name: Run post-checkout command
-        if: matrix.post-checkout-command
-        run: ${{ matrix.post-checkout-command }}
 
       - name: Cache downloads
         uses: actions/cache@v4
