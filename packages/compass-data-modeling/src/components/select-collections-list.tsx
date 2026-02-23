@@ -82,12 +82,12 @@ type SelectCollectionsListProps = {
   selectedCollections: string[];
   disabledCollections?: string[];
   automaticallyInferRelationships: boolean;
-  sampleSize: number;
+  sampleSize: string;
   isFetchingCollections: boolean;
   error?: Error;
   onCollectionsSelect: (colls: string[]) => void;
   onAutomaticallyInferRelationshipsToggle: (newVal: boolean) => void;
-  onSampleSizeChange: (newVal: number) => void;
+  onSampleSizeChange: (newVal: string) => void;
 };
 
 type SelectCollectionItem = {
@@ -115,10 +115,12 @@ export const SelectCollectionsList: React.FunctionComponent<
   );
   const [searchTerm, setSearchTerm] = useState('');
 
-  // Derive validation from sampleSize prop
-  const isInvalidInput = isNaN(sampleSize) || sampleSize <= 0;
+  // Derive validation from sampleSize prop (which is now a string)
+  const parsedSampleSize = parseInt(sampleSize, 10);
+  const isInvalidInput =
+    sampleSize === '' || isNaN(parsedSampleSize) || parsedSampleSize <= 0;
   const isLargeSampleSize =
-    !isInvalidInput && sampleSize > LARGE_SAMPLE_SIZE_THRESHOLD;
+    !isInvalidInput && parsedSampleSize > LARGE_SAMPLE_SIZE_THRESHOLD;
 
   const filteredCollections = useMemo(() => {
     try {
@@ -231,9 +233,9 @@ export const SelectCollectionsList: React.FunctionComponent<
             className={sampleSizeInputStyles}
             type="number"
             min={1}
-            value={isNaN(sampleSize) ? '' : String(sampleSize)}
+            value={sampleSize}
             onChange={(evt) => {
-              onSampleSizeChange(parseInt(evt.target.value, 10));
+              onSampleSizeChange(evt.target.value);
             }}
           />
           <Body>documents per collection.</Body>

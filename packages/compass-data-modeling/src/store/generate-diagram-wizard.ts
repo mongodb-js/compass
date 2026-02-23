@@ -5,7 +5,7 @@ import { startAnalysis } from './analysis-process';
 import toNS from 'mongodb-ns';
 import { getDiagramName } from '../services/open-and-download-diagram';
 
-const DEFAULT_SAMPLE_SIZE = 100;
+const DEFAULT_SAMPLE_SIZE = '100';
 
 type FormField<T = string> = {
   error?: Error;
@@ -28,7 +28,7 @@ export type GenerateDiagramWizardState = {
   connectionDatabases: string[] | null;
   databaseCollections: string[] | null;
   automaticallyInferRelations: boolean;
-  sampleSize: number;
+  sampleSize: string;
 };
 
 export const GenerateDiagramWizardActionTypes = {
@@ -140,7 +140,7 @@ export type ToggleInferRelationsAction = {
 
 export type GenerateDiagramChangeSampleSizeAction = {
   type: typeof GenerateDiagramWizardActionTypes.CHANGE_SAMPLE_SIZE;
-  sampleSize: number;
+  sampleSize: string;
 };
 
 export type ConfirmSelectedCollectionsAction = {
@@ -635,7 +635,7 @@ export function confirmSelectedCollections(): DataModelingThunkAction<
         selectedConnection.value,
         selectedDatabase.value,
         selectedCollections.value,
-        { automaticallyInferRelations, sampleSize }
+        { automaticallyInferRelations, sampleSize: parseInt(sampleSize, 10) }
       )
     );
   };
@@ -655,7 +655,7 @@ export function toggleInferRelationships(
 }
 
 export function changeSampleSize(
-  sampleSize: number
+  sampleSize: string
 ): GenerateDiagramChangeSampleSizeAction {
   return {
     type: GenerateDiagramWizardActionTypes.CHANGE_SAMPLE_SIZE,

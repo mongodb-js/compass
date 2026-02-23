@@ -7,7 +7,7 @@ import type { MongoDBInstancesManager } from '@mongodb-js/compass-app-stores/pro
 import type { ConnectionsService } from '@mongodb-js/compass-connections/provider';
 import { redoAnalysis } from './analysis-process';
 
-const DEFAULT_SAMPLE_SIZE = 100;
+const DEFAULT_SAMPLE_SIZE = '100';
 
 export type ReselectCollectionsWizardState = {
   isOpen: boolean;
@@ -19,7 +19,7 @@ export type ReselectCollectionsWizardState = {
   selectedCollections: string[];
   newSelectedCollections: string[];
   automaticallyInferRelations: boolean;
-  sampleSize: number;
+  sampleSize: string;
   isConnecting: boolean;
   error?: Error;
 };
@@ -83,7 +83,7 @@ export type ToggleInferRelationsAction = {
 
 export type ReselectCollectionsChangeSampleSizeAction = {
   type: typeof ReselectCollectionsWizardActionTypes.CHANGE_SAMPLE_SIZE_CLICKED;
-  sampleSize: number;
+  sampleSize: string;
 };
 
 export type SelectCollectionsAction = {
@@ -435,7 +435,7 @@ export function startRedoAnalysis(): DataModelingThunkAction<
         [...newSelectedCollections, ...selectedCollections],
         {
           automaticallyInferRelations,
-          sampleSize,
+          sampleSize: parseInt(sampleSize, 10),
         }
       )
     );
@@ -485,7 +485,7 @@ async function getCollectionsForDatabase(
 }
 
 export function changeSampleSize(
-  sampleSize: number
+  sampleSize: string
 ): ReselectCollectionsChangeSampleSizeAction {
   return {
     type: ReselectCollectionsWizardActionTypes.CHANGE_SAMPLE_SIZE_CLICKED,

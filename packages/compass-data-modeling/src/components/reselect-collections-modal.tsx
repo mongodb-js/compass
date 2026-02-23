@@ -240,8 +240,9 @@ export default connect(
       isGenerateDiagramDisabled:
         databaseCollections.length === 0 ||
         newSelectedCollections.length === 0 ||
-        isNaN(sampleSize) ||
-        sampleSize <= 0 ||
+        sampleSize === '' ||
+        isNaN(parseInt(sampleSize, 10)) ||
+        parseInt(sampleSize, 10) <= 0 ||
         selectIsAnalysisInProgress(state),
       numSelectedCollections,
       numTotalCollections: databaseCollections.length,
