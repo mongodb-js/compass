@@ -114,16 +114,11 @@ export const SelectCollectionsList: React.FunctionComponent<
     'enableAutomaticRelationshipInference'
   );
   const [searchTerm, setSearchTerm] = useState('');
-  const [sampleSizeInputValue, setSampleSizeInputValue] = useState(
-    `${sampleSize}`
-  );
 
-  // Determine if the current input is invalid
-  const parsedValue = parseInt(sampleSizeInputValue, 10);
-  const isInvalidInput =
-    sampleSizeInputValue !== '' && (isNaN(parsedValue) || parsedValue <= 0);
+  // Derive validation from sampleSize prop
+  const isInvalidInput = isNaN(sampleSize) || sampleSize <= 0;
   const isLargeSampleSize =
-    !isInvalidInput && parsedValue > LARGE_SAMPLE_SIZE_THRESHOLD;
+    !isInvalidInput && sampleSize > LARGE_SAMPLE_SIZE_THRESHOLD;
 
   const filteredCollections = useMemo(() => {
     try {
@@ -236,11 +231,9 @@ export const SelectCollectionsList: React.FunctionComponent<
             className={sampleSizeInputStyles}
             type="number"
             min={1}
-            value={sampleSizeInputValue}
+            value={isNaN(sampleSize) ? '' : String(sampleSize)}
             onChange={(evt) => {
-              const inputValue = evt.target.value;
-              setSampleSizeInputValue(inputValue);
-              onSampleSizeChange(parseInt(inputValue, 10));
+              onSampleSizeChange(parseInt(evt.target.value, 10));
             }}
           />
           <Body>documents per collection.</Body>
