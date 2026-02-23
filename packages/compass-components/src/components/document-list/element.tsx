@@ -30,6 +30,7 @@ import { hasDistinctValue } from 'mongodb-query-util';
 import { useContextMenuGroups } from '../context-menu';
 import { useSyncStateOnPropChange } from '../../hooks/use-sync-state-on-prop-change';
 import { useLegacyUUIDDisplayContext } from './legacy-uuid-format-context';
+import { getBsonType } from 'hadron-type-checker';
 
 function getEditorByType(type: HadronElementType['type']) {
   switch (type) {
@@ -88,14 +89,9 @@ function getDisplayType(
   }
 
   // Check if this is a Binary that should be displayed as a UUID type
-  // Using _bsontype check instead of instanceof for cross-realm compatibility
-  // and future bson@7.x compatibility
   if (
     el.currentType === 'Binary' &&
-    el.currentValue &&
-    typeof el.currentValue === 'object' &&
-    '_bsontype' in el.currentValue &&
-    el.currentValue._bsontype === 'Binary'
+    getBsonType(el.currentValue) === 'Binary'
   ) {
     const binary = el.currentValue as Binary;
     if (binary.sub_type === Binary.SUBTYPE_UUID) {

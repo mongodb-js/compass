@@ -29,6 +29,21 @@ const MERGE_STAGE_PREVIEW_TEXT =
   'The $merge operator will cause the pipeline to persist the results to the specified location.';
 const STAGE_WIZARD_GUIDE_CUE_STORAGE_KEY = 'has_seen_stage_wizard_guide_cue';
 
+const RANK_FUSION_EXAMPLE_VALUE = `{
+      input: {
+        pipelines: {
+          p1: [
+            {
+              $search: {
+                index: "default",
+                text: { query: "foo", path: "field" }
+              }
+            }
+          ]
+        }
+      }
+    }`;
+
 async function waitForAnyText(
   browser: CompassBrowser,
   element: ChainablePromiseElement
@@ -219,13 +234,20 @@ describe('Collection aggregations tab', function () {
   });
 
   it('shows atlas only stage preview', async function () {
-    await browser.selectStageOperator(0, '$search');
+    if (!serverSatisfies('>=8.0.14')) {
+      return this.skip();
+    }
+    await browser.selectStageOperator(0, '$rankFusion');
+    await browser.setCodemirrorEditorValue(
+      Selectors.stageEditor(0),
+      RANK_FUSION_EXAMPLE_VALUE
+    );
 
     await browser.waitUntil(async function () {
       const textElement = browser.$(Selectors.stagePreview(0));
       const text = await textElement.getText();
       return text.includes(
-        'The $search stage is only available with MongoDB Atlas.'
+        'The $rankFusion stage is only available with MongoDB Atlas.'
       );
     });
   });
@@ -1185,7 +1207,10 @@ describe('Collection aggregations tab', function () {
       );
     });
 
-    it('previews atlas operators - $search', async function () {
+    it('previews atlas operators - $rankFusion', async function () {
+      if (!serverSatisfies('>=8.0.14')) {
+        return this.skip();
+      }
       await browser.selectStageOperator(0, '$match');
       await browser.setCodemirrorEditorValue(
         Selectors.stageEditor(0),
@@ -1195,7 +1220,7 @@ describe('Collection aggregations tab', function () {
 
       await browser.setCodemirrorEditorValue(
         Selectors.AggregationAsTextEditor,
-        '[{$search: {}}]'
+        `[{$rankFusion: ${RANK_FUSION_EXAMPLE_VALUE}}]`
       );
 
       const preview = browser.$(
@@ -1203,29 +1228,7 @@ describe('Collection aggregations tab', function () {
       );
       await preview.waitForDisplayed();
       expect(await preview.getText()).to.include(
-        'The $search stage is only available with MongoDB Atlas'
-      );
-    });
-
-    it('previews atlas operators - $searchMeta', async function () {
-      await browser.selectStageOperator(0, '$match');
-      await browser.setCodemirrorEditorValue(
-        Selectors.stageEditor(0),
-        '{ i: 5 }'
-      );
-      await switchPipelineMode(browser, 'as-text');
-
-      await browser.setCodemirrorEditorValue(
-        Selectors.AggregationAsTextEditor,
-        '[{$searchMeta: {}}]'
-      );
-
-      const preview = browser.$(
-        Selectors.AggregationAsTextPreviewAtlasOperator
-      );
-      await preview.waitForDisplayed();
-      expect(await preview.getText()).to.include(
-        'The $searchMeta stage is only available with MongoDB Atlas'
+        'The $rankFusion stage is only available with MongoDB Atlas'
       );
     });
 
@@ -1553,8 +1556,14 @@ describe('Collection aggregations tab', function () {
     });
 
     it('handles atlas only operator', async function () {
-      await browser.selectStageOperator(0, '$search');
-      await browser.setCodemirrorEditorValue(Selectors.stageEditor(0), '{}');
+      if (!serverSatisfies('>=8.0.14')) {
+        return this.skip();
+      }
+      await browser.selectStageOperator(0, '$rankFusion');
+      await browser.setCodemirrorEditorValue(
+        Selectors.stageEditor(0),
+        RANK_FUSION_EXAMPLE_VALUE
+      );
 
       await browser.clickVisible(Selectors.stageFocusModeButton(0));
       await browser.waitForOpenModal(Selectors.FocusModeModal);
@@ -1563,7 +1572,7 @@ describe('Collection aggregations tab', function () {
         const outputElem = browser.$(Selectors.FocusModeStageOutput);
         const text = await outputElem.getText();
         return text.includes(
-          'The $search stage is only available with MongoDB Atlas.'
+          'The $rankFusion stage is only available with MongoDB Atlas.'
         );
       });
     });

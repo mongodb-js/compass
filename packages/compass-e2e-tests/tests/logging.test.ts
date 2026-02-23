@@ -221,7 +221,7 @@ describe('Logging and Telemetry integration', function () {
           msg: 'Initiating connection attempt',
           attr: (actual: any) => {
             expect(actual.uri).to.match(/^mongodb:\/\/127.0.0.1:27091/);
-            expect(actual.driver.name).to.equal('mongodb-js');
+            expect(actual.driver.name).to.equal('nodejs');
           },
         },
         {

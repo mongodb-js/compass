@@ -26,6 +26,7 @@ import type {
   CSVValue,
   CSVFieldTypeInfo,
 } from './csv-types';
+import { getBsonType } from 'hadron-type-checker';
 
 export function formatCSVValue(
   value: string,
@@ -83,7 +84,7 @@ export function stringifyCSVValue(
     return '';
   }
 
-  const bsonType = value._bsontype;
+  const bsonType = getBsonType(value);
 
   if (!bsonType) {
     // Even when parsing with relaxed: false string values remain strings
@@ -111,7 +112,7 @@ export function stringifyCSVValue(
     }
 
     // Arrays and plain objects that somehow made it here plus unforeseen things
-    // that don't have a _bsontype.
+    // that don't have a bson type tag.
     return formatCSVValue(EJSON.stringify(value, { relaxed: false }), {
       delimiter,
     });
@@ -321,12 +322,10 @@ export function placeValue(
     // an array, c) an object all in the same CSV row. That's not possible in
     // the database and it therefore shouldn't be possible in files we generate
     // on export, but it is possible to hand-craft a broken file like that.
-    // (Also checking _bsontype because `new Int32()` also results in an object,
+    // (Also checking getBsonType because `new Int32()` also results in an object,
     // but that's not what we mean.)
     assert(
-      _.isObject(parent) &&
-        !(parent as Document)._bsontype &&
-        !Array.isArray(parent),
+      _.isObject(parent) && !getBsonType(parent) && !Array.isArray(parent),
       'parent must be an object'
     );
 

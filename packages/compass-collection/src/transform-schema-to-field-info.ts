@@ -17,8 +17,8 @@ import type {
   BSONSymbol,
   Long,
   Decimal128,
-  BSONValue,
 } from 'bson';
+import { getBsonType } from 'hadron-type-checker';
 
 /**
  * This module transforms mongodb-schema output into a flat, LLM-friendly format using
@@ -100,19 +100,6 @@ export class ProcessSchemaValidationError extends Error {
 }
 
 /**
- * Type guard to check if a value is a BSON object using _bsontype property
- */
-function isBSONValue(value: unknown): value is BSONValue {
-  return (
-    value !== null &&
-    value !== undefined &&
-    typeof value === 'object' &&
-    '_bsontype' in value &&
-    typeof (value as { _bsontype: unknown })._bsontype === 'string'
-  );
-}
-
-/**
  * Converts a BSON value to its primitive JavaScript equivalent
  */
 function convertBSONToPrimitive(value: unknown): SampleValue {
@@ -122,40 +109,38 @@ function convertBSONToPrimitive(value: unknown): SampleValue {
   }
 
   // Keep Date as-is
-  if (value instanceof Date) {
-    return value;
+  if (Object.prototype.toString.call(value) === '[object Date]') {
+    return value as Date;
   }
 
-  // Convert BSON objects to primitives using _bsontype
-  if (isBSONValue(value)) {
-    switch (value._bsontype) {
-      case 'ObjectId':
-        return (value as ObjectId).toString();
-      case 'Binary':
-        // Binary data should never be processed because sample values are skipped for binary fields
-        throw new ProcessSchemaUnsupportedStateError(
-          'Binary data encountered in sample value conversion. Binary fields should be excluded from sample value processing.'
-        );
-      case 'BSONRegExp':
-        return (value as BSONRegExp).pattern;
-      case 'Code':
-        return (value as Code).code;
-      case 'Timestamp':
-        return (value as Timestamp).toNumber();
-      case 'MaxKey':
-        return 'MaxKey';
-      case 'MinKey':
-        return 'MinKey';
-      case 'BSONSymbol':
-        return (value as BSONSymbol).toString();
-      case 'Long':
-        return (value as Long).toNumber();
-      case 'Decimal128':
-        return parseFloat((value as Decimal128).toString());
-      default:
-        // Unknown BSON type, continue to other checks
-        break;
-    }
+  // Convert BSON objects to primitives using their bson type tag
+  switch (getBsonType(value)) {
+    case 'ObjectId':
+      return (value as ObjectId).toString();
+    case 'Binary':
+      // Binary data should never be processed because sample values are skipped for binary fields
+      throw new ProcessSchemaUnsupportedStateError(
+        'Binary data encountered in sample value conversion. Binary fields should be excluded from sample value processing.'
+      );
+    case 'BSONRegExp':
+      return (value as BSONRegExp).pattern;
+    case 'Code':
+      return (value as Code).code;
+    case 'Timestamp':
+      return (value as Timestamp).toNumber();
+    case 'MaxKey':
+      return 'MaxKey';
+    case 'MinKey':
+      return 'MinKey';
+    case 'BSONSymbol':
+      return (value as BSONSymbol).toString();
+    case 'Long':
+      return (value as Long).toNumber();
+    case 'Decimal128':
+      return parseFloat((value as Decimal128).toString());
+    default:
+      // Unknown BSON type, continue to other checks
+      break;
   }
 
   // Handle objects with valueOf method (numeric types)

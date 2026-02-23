@@ -16,10 +16,16 @@ import {
   savingPipelineCancel,
 } from '../../modules/saving-pipeline';
 import { dismissViewError } from '../../modules/update-view';
+import {
+  startPollingSearchIndexes,
+  stopPollingSearchIndexes,
+} from '../../modules/search-indexes';
 
 import type { RootState } from '../../modules';
 import type { PipelineProps } from '../pipeline/pipeline';
 import { css, palette } from '@mongodb-js/compass-components';
+import { getPipelineStageOperatorsFromBuilderState } from '../../modules/pipeline-builder/builder-helpers';
+import { isSearchStage } from '../../utils/stage';
 
 const aggregationsStyles = css({
   display: 'flex',
@@ -69,6 +75,12 @@ const mapStateToProps = (state: RootState) => ({
   savingPipeline: state.savingPipeline,
   updateViewError: state.updateViewError,
   workspace: state.workspace,
+  hasSearchStage: getPipelineStageOperatorsFromBuilderState(state, false).some(
+    (op) => isSearchStage(op)
+  ),
+  isReadonlyView: !!state.sourceName,
+  serverVersion: state.serverVersion,
+  isSearchIndexesSupported: state.searchIndexes.isSearchIndexesSupported,
 });
 
 /**
@@ -87,6 +99,8 @@ const MappedAggregations = connect(mapStateToProps, {
   savingPipelineApply,
   savingPipelineCancel,
   dismissViewError,
+  startPollingSearchIndexes,
+  stopPollingSearchIndexes,
 })(Aggregations);
 
 export default MappedAggregations;
