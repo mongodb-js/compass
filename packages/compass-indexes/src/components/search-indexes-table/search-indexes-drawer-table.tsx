@@ -45,6 +45,15 @@ const emptyContentStyles = css({
   marginTop: 0,
 });
 
+const drawerCellStyles = css({
+  ':first-of-type': {
+    paddingLeft: 0,
+  },
+  ':last-of-type': {
+    paddingRight: 0,
+  },
+});
+
 type ZeroStateProps = {
   isSearchIndexesWritable: boolean;
   onActionDispatch: (action: string) => void;
@@ -217,7 +226,8 @@ export const SearchIndexesDrawerTable: React.FunctionComponent<
           : COLUMNS_FOR_DRAWER
       }
       data={data}
-      isDrawer={true}
+      cellClassName={drawerCellStyles}
+      showActionsOnHover={false}
     />
   );
 };

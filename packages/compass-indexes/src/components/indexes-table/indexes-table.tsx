@@ -80,22 +80,13 @@ const tableHeadCellStyles = css({
   },
 });
 
-const tableCellStylesForDrawer = css({
-  ':first-of-type': {
-    paddingLeft: 0,
-  },
-
-  ':last-of-type': {
-    paddingRight: 0,
-  },
-});
-
 export type IndexesTableProps<T> = {
   id: string;
   ['data-testid']: string;
   columns: LGColumnDef<T>[];
   data: LGTableDataType<T>[];
-  isDrawer?: boolean;
+  cellClassName?: string;
+  showActionsOnHover?: boolean;
 };
 
 export function IndexesTable<T>({
@@ -103,7 +94,8 @@ export function IndexesTable<T>({
   ['data-testid']: dataTestId,
   columns,
   data,
-  isDrawer = false,
+  cellClassName,
+  showActionsOnHover = true,
 }: IndexesTableProps<T>) {
   const [sorting, setSorting] = useTabState<SortingState>(
     `${id}-sorting-state`,
@@ -139,10 +131,7 @@ export function IndexesTable<T>({
               {headerGroup.headers.map((header) => {
                 return (
                   <HeaderCell
-                    className={cx({
-                      tableHeadCellStyles,
-                      [tableCellStylesForDrawer]: isDrawer,
-                    })}
+                    className={cx(tableHeadCellStyles, cellClassName)}
                     data-testid={`${dataTestId}-header-${header.id}`}
                     key={header.id}
                     header={header}
@@ -177,10 +166,11 @@ export function IndexesTable<T>({
                       key={cell.id}
                       id={cell.id}
                       cell={cell}
-                      className={cx({
-                        [tableCellStylesForDrawer]: isDrawer,
-                        [indexActionsCellClassName]: isActionsCell && !isDrawer,
-                        [indexActionsCellStyles]: isActionsCell && !isDrawer,
+                      className={cx(cellClassName, {
+                        [indexActionsCellClassName]:
+                          isActionsCell && showActionsOnHover,
+                        [indexActionsCellStyles]:
+                          isActionsCell && showActionsOnHover,
                       })}
                       data-testid={`${dataTestId}-${cell.column.id}-field`}
                     >
