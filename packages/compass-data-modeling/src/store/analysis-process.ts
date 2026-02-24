@@ -293,6 +293,7 @@ export function startAnalysis(
       {
         num_collections: selectedCollections.length,
         automatically_infer_relations: willInferRelations,
+        sample_size: options.sampleSize,
       },
       connectionInfo
     );
@@ -342,6 +343,7 @@ export function startAnalysis(
             : undefined,
           analysis_time_ms: Date.now() - analysisStartTime,
           relationship_inference_phase_ms: relationsInferencePhaseMs,
+          sample_size: options.sampleSize,
         },
         connectionInfo
       );
@@ -363,6 +365,7 @@ export function startAnalysis(
             automatically_infer_relations: willInferRelations,
             analysis_time_ms,
             relationship_inference_phase_ms: relationsInferencePhaseMs,
+            sample_size: options.sampleSize,
           },
           connectionInfo
         );
@@ -384,6 +387,7 @@ export function startAnalysis(
             analysis_time_ms: analysis_time_ms,
             relationship_inference_phase_ms: relationsInferencePhaseMs,
             automatically_infer_relations: willInferRelations,
+            sample_size: options.sampleSize,
           },
           connectionInfo
         );
@@ -465,6 +469,7 @@ export function redoAnalysis(
       {
         num_collections: selectedCollections.length,
         automatically_infer_relations: willInferRelations,
+        sample_size: options.sampleSize,
       },
       connectionInfo
     );
@@ -510,6 +515,7 @@ export function redoAnalysis(
             : undefined,
           analysis_time_ms: Date.now() - analysisStartTime,
           relationship_inference_phase_ms: relationsInferencePhaseMs,
+          sample_size: options.sampleSize,
         },
         connectionInfo
       );
@@ -528,6 +534,7 @@ export function redoAnalysis(
             automatically_infer_relations: willInferRelations,
             analysis_time_ms: Date.now() - analysisStartTime,
             relationship_inference_phase_ms: relationsInferencePhaseMs,
+            sample_size: options.sampleSize,
           },
           connectionInfo
         );
@@ -550,6 +557,7 @@ export function redoAnalysis(
             automatically_infer_relations: willInferRelations,
             analysis_time_ms: Date.now() - analysisStartTime,
             relationship_inference_phase_ms: relationsInferencePhaseMs,
+            sample_size: options.sampleSize,
           },
           connectionInfo
         );
@@ -579,6 +587,7 @@ async function getInferredRelations({
   collections,
   dataService,
   abortSignal,
+  sampleSize,
 }: {
   track: TrackFunction;
   logger: Logger;
@@ -588,6 +597,7 @@ async function getInferredRelations({
   collections: { ns: string; schema: MongoDBJSONSchema; sample: Document[] }[];
   dataService: DataService;
   abortSignal?: AbortSignal;
+  sampleSize: number;
 }): Promise<{
   relations: Relationship[];
   relationsInferencePhaseMs: number;
@@ -600,6 +610,7 @@ async function getInferredRelations({
       'Data Modeling Diagram Creation Relationship Inferral Started',
       {
         num_collections: selectedCollections.length,
+        sample_size: sampleSize,
       },
       connectionInfo
     );
@@ -750,6 +761,7 @@ export function analyzeCollections({
         collections,
         dataService,
         abortSignal,
+        sampleSize: options.sampleSize,
       });
       relations = inferenceResult.relations;
       relationsInferencePhaseMs = inferenceResult.relationsInferencePhaseMs;
