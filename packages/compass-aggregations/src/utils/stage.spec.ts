@@ -191,8 +191,14 @@ describe('utils', function () {
   context('findAtlasOperator', function () {
     it('returns atlas only stage operator', function () {
       expect(
-        findAtlasOperator(['$search', '$match', '$out', '$searchMeta'])
-      ).to.deep.equal('$search');
+        findAtlasOperator([
+          '$search',
+          '$rankFusion',
+          '$match',
+          '$out',
+          '$searchMeta',
+        ])
+      ).to.deep.equal('$rankFusion');
     });
 
     it('returns undefined when operators do not have atlas operator', function () {

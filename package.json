@@ -67,8 +67,8 @@
   },
   "//": "See depcheck for why we have some of these dependencies at the root of the monorepo",
   "devDependencies": {
-    "@mongodb-js/monorepo-tools": "^1.1.16",
-    "@mongodb-js/sbom-tools": "^0.7.2",
+    "@mongodb-js/monorepo-tools": "^1.4.6",
+    "@mongodb-js/sbom-tools": "^0.10.5",
     "@testing-library/dom": "^8.20.1",
     "husky": "^8.0.3",
     "js-yaml": "^4.1.0",
@@ -118,7 +118,6 @@
     "@leafygreen-ui/select": "^17.0.3",
     "@leafygreen-ui/text-input": "^16.2.3",
     "@leafygreen-ui/tokens": "^4.2.2",
-    "@leafygreen-ui/typography": "^22.2.4",
-    "kerberos": "^2.2.2"
+    "@leafygreen-ui/typography": "^22.2.4"
   }
 }

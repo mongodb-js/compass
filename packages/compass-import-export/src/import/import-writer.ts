@@ -127,7 +127,6 @@ export class ImportWriter {
         ),
         {
           ordered: this.stopOnErrors,
-          retryWrites: false,
           checkKeys: false,
         }
       );

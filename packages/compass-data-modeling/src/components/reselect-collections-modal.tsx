@@ -11,6 +11,7 @@ import type { ReselectCollectionsWizardState } from '../store/reselect-collectio
 import {
   selectCollections,
   toggleInferRelationships,
+  changeSampleSize,
   hideReselectCollections,
   establishConnection,
   selectConnection,
@@ -27,6 +28,7 @@ const SelectCollectionsStep = connect(
       selectedCollections,
       error,
       automaticallyInferRelations,
+      sampleSize,
       newSelectedCollections,
     } = state.reselectCollections;
     return {
@@ -34,6 +36,7 @@ const SelectCollectionsStep = connect(
       selectedCollections: [...newSelectedCollections, ...selectedCollections],
       disabledCollections: selectedCollections,
       automaticallyInferRelationships: automaticallyInferRelations,
+      sampleSize,
       isFetchingCollections: false,
       error,
     };
@@ -41,6 +44,7 @@ const SelectCollectionsStep = connect(
   {
     onCollectionsSelect: selectCollections,
     onAutomaticallyInferRelationshipsToggle: toggleInferRelationships,
+    onSampleSizeChange: changeSampleSize,
   }
 )(SelectCollectionsList);
 
@@ -217,6 +221,7 @@ export default connect(
       selectedDatabase,
       selectedCollections,
       newSelectedCollections,
+      sampleSize,
     } = state.reselectCollections;
 
     const numSelectedCollections =
@@ -235,6 +240,9 @@ export default connect(
       isGenerateDiagramDisabled:
         databaseCollections.length === 0 ||
         newSelectedCollections.length === 0 ||
+        sampleSize === '' ||
+        isNaN(parseInt(sampleSize, 10)) ||
+        parseInt(sampleSize, 10) <= 0 ||
         selectIsAnalysisInProgress(state),
       numSelectedCollections,
       numTotalCollections: databaseCollections.length,

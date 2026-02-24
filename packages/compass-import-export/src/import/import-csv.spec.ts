@@ -27,6 +27,7 @@ import { formatCSVHeaderName } from '../csv/csv-utils';
 import type { CSVParsableFieldType, PathPart } from '../csv/csv-types';
 import type { ErrorJSON } from '../import/import-types';
 import { mochaTestServer } from '@mongodb-js/compass-test-server';
+import { getBsonType } from 'hadron-type-checker';
 
 temp.track();
 
@@ -156,7 +157,7 @@ describe('importCSV', function () {
 
         // these won't match when we compare below
         for (const doc of docs) {
-          if (doc._id && doc._id._bsontype === 'ObjectId') {
+          if (doc._id && getBsonType(doc._id) === 'ObjectId') {
             delete doc._id;
           }
         }
@@ -272,7 +273,7 @@ describe('importCSV', function () {
           delete doc._id;
 
           for (const [key, value] of Object.entries(doc)) {
-            if (key === '_id' && value._bsontype === 'ObjectId') {
+            if (key === '_id' && getBsonType(value) === 'ObjectId') {
               continue;
             }
             if (['something', 'something_else', 'notes'].includes(key)) {
@@ -961,7 +962,7 @@ function checkType(path: PathPart[], value: any, type: string) {
     return;
   }
 
-  if (_.isPlainObject(value) && !value._bsontype) {
+  if (_.isPlainObject(value) && !getBsonType(value)) {
     if (type !== 'ejson') {
       for (const [name, child] of Object.entries(value)) {
         checkType([...path, { type: 'field', name }], child, type);
@@ -988,42 +989,42 @@ function checkType(path: PathPart[], value: any, type: string) {
       break;
 
     case 'double':
-      expect(value._bsontype, joinedPath).to.equal('Double');
+      expect(getBsonType(value), joinedPath).to.equal('Double');
       break;
 
     case 'int':
-      expect(value._bsontype, joinedPath).to.equal('Int32');
+      expect(getBsonType(value), joinedPath).to.equal('Int32');
       break;
 
     case 'long':
-      expect(value._bsontype, joinedPath).to.equal('Long');
+      expect(getBsonType(value), joinedPath).to.equal('Long');
       break;
 
     case 'binData':
-      expect(value._bsontype, joinedPath).to.equal('Binary');
+      expect(getBsonType(value), joinedPath).to.equal('Binary');
       expect(value.sub_type, joinedPath).to.equal(0); // generic
       break;
 
     case 'uuid':
-      expect(value._bsontype, joinedPath).to.equal('Binary');
+      expect(getBsonType(value), joinedPath).to.equal('Binary');
       expect(value.sub_type, joinedPath).to.equal(4);
       break;
 
     case 'md5':
-      expect(value._bsontype, joinedPath).to.equal('Binary');
+      expect(getBsonType(value), joinedPath).to.equal('Binary');
       expect(value.sub_type, joinedPath).to.equal(5);
       break;
 
     case 'decimal':
-      expect(value._bsontype, joinedPath).to.equal('Decimal128');
+      expect(getBsonType(value), joinedPath).to.equal('Decimal128');
       break;
 
     case 'objectId':
-      expect(value._bsontype, joinedPath).to.equal('ObjectId');
+      expect(getBsonType(value), joinedPath).to.equal('ObjectId');
       break;
 
     case 'timestamp':
-      expect(value._bsontype, joinedPath).to.equal('Timestamp');
+      expect(getBsonType(value), joinedPath).to.equal('Timestamp');
       break;
 
     case 'regex':
@@ -1031,11 +1032,11 @@ function checkType(path: PathPart[], value: any, type: string) {
       break;
 
     case 'minKey':
-      expect(value._bsontype, joinedPath).to.equal('MinKey');
+      expect(getBsonType(value), joinedPath).to.equal('MinKey');
       break;
 
     case 'maxKey':
-      expect(value._bsontype, joinedPath).to.equal('MaxKey');
+      expect(getBsonType(value), joinedPath).to.equal('MaxKey');
       break;
 
     case 'null':
@@ -1045,12 +1046,12 @@ function checkType(path: PathPart[], value: any, type: string) {
     case 'ejson':
       // simple objects and arrays are already checked recursively above, so
       // only bson values should end up here
-      expect(value, joinedPath).to.have.property('_bsontype');
+      expect(getBsonType(value), joinedPath).to.not.equal(undefined);
       break;
 
     case 'number': // useful for the mixed numbers test
       expect(['Double', 'Int32', 'Long'], joinedPath).to.include(
-        value._bsontype
+        getBsonType(value)
       );
       break;
 
@@ -1062,9 +1063,9 @@ function checkType(path: PathPart[], value: any, type: string) {
         expect(Object.prototype.toString.call(value), joinedPath).to.equal(
           '[object Date]'
         );
-      } else if (value._bsontype) {
+      } else if (getBsonType(value)) {
         expect(['Double', 'Int32', 'Long'], joinedPath).to.include(
-          value._bsontype
+          getBsonType(value)
         );
       } else {
         expect(['boolean', 'string']).to.include(typeof value);
@@ -1076,7 +1077,7 @@ function checkType(path: PathPart[], value: any, type: string) {
         joinedPath,
         value,
         typeof value,
-        value._bsontype,
+        getBsonType(value),
         Object.keys(value)
       );
       throw new Error(`No check for ${type} at ${joinedPath}.`);
