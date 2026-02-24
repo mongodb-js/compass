@@ -72,7 +72,6 @@ const leftStyles = css({
   alignItems: 'center',
   justifyContent: 'flex-start',
   gap: spacing[100] * 3,
-  width: '388px', // default width of the stage editor
 });
 
 const shortSpacedStyles = css({
