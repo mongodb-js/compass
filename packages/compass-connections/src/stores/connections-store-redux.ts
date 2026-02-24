@@ -875,7 +875,9 @@ const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
               }),
           status: 'connecting',
           error: null,
-        }
+        },
+        // Completely replace the connection info with the new one on save
+        { shallowMerge: action.options.forceSave }
       ),
       isEditingConnectionInfoModalOpen:
         // Close the modal when connection starts for edited connection
