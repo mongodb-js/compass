@@ -74,6 +74,7 @@ export const AnalysisProcessActionTypes = {
 
 export type AnalysisOptions = {
   automaticallyInferRelations: boolean;
+  sampleSize: number;
 };
 
 export type AnalyzingCollectionsStartAction = {
@@ -167,6 +168,7 @@ export const analysisProcessReducer: Reducer<AnalysisProcessState> = (
         database: action.database,
         collections: action.collections,
         automaticallyInferRelations: action.options.automaticallyInferRelations,
+        sampleSize: action.options.sampleSize,
       },
       step: 'SAMPLING',
       willInferRelations: action.willInferRelations,
@@ -291,6 +293,7 @@ export function startAnalysis(
       {
         num_collections: selectedCollections.length,
         automatically_infer_relations: willInferRelations,
+        sample_size: options.sampleSize,
       },
       connectionInfo
     );
@@ -340,6 +343,7 @@ export function startAnalysis(
             : undefined,
           analysis_time_ms: Date.now() - analysisStartTime,
           relationship_inference_phase_ms: relationsInferencePhaseMs,
+          sample_size: options.sampleSize,
         },
         connectionInfo
       );
@@ -361,6 +365,7 @@ export function startAnalysis(
             automatically_infer_relations: willInferRelations,
             analysis_time_ms,
             relationship_inference_phase_ms: relationsInferencePhaseMs,
+            sample_size: options.sampleSize,
           },
           connectionInfo
         );
@@ -382,6 +387,7 @@ export function startAnalysis(
             analysis_time_ms: analysis_time_ms,
             relationship_inference_phase_ms: relationsInferencePhaseMs,
             automatically_infer_relations: willInferRelations,
+            sample_size: options.sampleSize,
           },
           connectionInfo
         );
@@ -404,10 +410,12 @@ export function retryAnalysis(): DataModelingThunkAction<void, never> {
       database,
       collections,
       automaticallyInferRelations,
+      sampleSize,
     } = currentAnalysisOptions;
     void dispatch(
       startAnalysis(name, connectionId, database, collections, {
         automaticallyInferRelations,
+        sampleSize,
       })
     );
   };
@@ -461,6 +469,7 @@ export function redoAnalysis(
       {
         num_collections: selectedCollections.length,
         automatically_infer_relations: willInferRelations,
+        sample_size: options.sampleSize,
       },
       connectionInfo
     );
@@ -506,6 +515,7 @@ export function redoAnalysis(
             : undefined,
           analysis_time_ms: Date.now() - analysisStartTime,
           relationship_inference_phase_ms: relationsInferencePhaseMs,
+          sample_size: options.sampleSize,
         },
         connectionInfo
       );
@@ -524,6 +534,7 @@ export function redoAnalysis(
             automatically_infer_relations: willInferRelations,
             analysis_time_ms: Date.now() - analysisStartTime,
             relationship_inference_phase_ms: relationsInferencePhaseMs,
+            sample_size: options.sampleSize,
           },
           connectionInfo
         );
@@ -546,6 +557,7 @@ export function redoAnalysis(
             automatically_infer_relations: willInferRelations,
             analysis_time_ms: Date.now() - analysisStartTime,
             relationship_inference_phase_ms: relationsInferencePhaseMs,
+            sample_size: options.sampleSize,
           },
           connectionInfo
         );
@@ -575,6 +587,7 @@ async function getInferredRelations({
   collections,
   dataService,
   abortSignal,
+  sampleSize,
 }: {
   track: TrackFunction;
   logger: Logger;
@@ -584,6 +597,7 @@ async function getInferredRelations({
   collections: { ns: string; schema: MongoDBJSONSchema; sample: Document[] }[];
   dataService: DataService;
   abortSignal?: AbortSignal;
+  sampleSize: number;
 }): Promise<{
   relations: Relationship[];
   relationsInferencePhaseMs: number;
@@ -596,6 +610,7 @@ async function getInferredRelations({
       'Data Modeling Diagram Creation Relationship Inferral Started',
       {
         num_collections: selectedCollections.length,
+        sample_size: sampleSize,
       },
       connectionInfo
     );
@@ -707,7 +722,7 @@ export function analyzeCollections({
       namespaces.map(async (ns) => {
         const sample = await dataService.sample(
           ns,
-          { size: 100 },
+          { size: options.sampleSize },
           { promoteValues: false },
           {
             abortSignal,
@@ -746,6 +761,7 @@ export function analyzeCollections({
         collections,
         dataService,
         abortSignal,
+        sampleSize: options.sampleSize,
       });
       relations = inferenceResult.relations;
       relationsInferencePhaseMs = inferenceResult.relationsInferencePhaseMs;
