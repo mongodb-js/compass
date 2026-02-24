@@ -587,6 +587,7 @@ async function getInferredRelations({
   collections,
   dataService,
   abortSignal,
+  sampleSize,
 }: {
   track: TrackFunction;
   logger: Logger;
@@ -596,6 +597,7 @@ async function getInferredRelations({
   collections: { ns: string; schema: MongoDBJSONSchema; sample: Document[] }[];
   dataService: DataService;
   abortSignal?: AbortSignal;
+  sampleSize: number;
 }): Promise<{
   relations: Relationship[];
   relationsInferencePhaseMs: number;
@@ -608,6 +610,7 @@ async function getInferredRelations({
       'Data Modeling Diagram Creation Relationship Inferral Started',
       {
         num_collections: selectedCollections.length,
+        sample_size: sampleSize,
       },
       connectionInfo
     );
@@ -758,6 +761,7 @@ export function analyzeCollections({
         collections,
         dataService,
         abortSignal,
+        sampleSize: options.sampleSize,
       });
       relations = inferenceResult.relations;
       relationsInferencePhaseMs = inferenceResult.relationsInferencePhaseMs;

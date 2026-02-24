@@ -3027,6 +3027,7 @@ type DataModelingDiagramCreationRelationshipInferralStarted =
     name: 'Data Modeling Diagram Creation Relationship Inferral Started';
     payload: {
       num_collections: number;
+      sample_size: number;
     };
   }>;
 
