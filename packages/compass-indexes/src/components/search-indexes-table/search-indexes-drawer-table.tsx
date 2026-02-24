@@ -7,7 +7,6 @@ import {
   EmptyContent,
   LGTableDataType,
   Link,
-  spacing,
 } from '@mongodb-js/compass-components';
 
 import { FetchStatuses } from '../../utils/fetch-status';
@@ -20,7 +19,7 @@ import {
 import type { FetchStatus } from '../../utils/fetch-status';
 import { IndexesTable } from '../indexes-table';
 import SearchIndexActions from './search-index-actions';
-import type { RootState, IndexesThunkDispatch } from '../../modules';
+import type { RootState } from '../../modules';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { usePreferences } from 'compass-preferences-model/provider';
 import { selectReadWriteAccess } from '../../utils/indexes-read-write-access';

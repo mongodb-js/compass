@@ -15,9 +15,7 @@ import {
   Button,
   css,
   DropdownMenuButton,
-  EmptyContent,
   Icon,
-  Link,
   SearchInput,
   spacing,
   SpinLoader,
@@ -28,7 +26,6 @@ import type { FetchStatus } from '../../../utils/fetch-status';
 import ViewVersionIncompatibleBanner from '../../view-incompatible-components/view-version-incompatible-banner';
 import ViewPipelineIncompatibleBanner from '../../view-incompatible-components/view-pipeline-incompatible-banner';
 import ViewStandardIndexesIncompatibleEmptyState from '../../view-incompatible-components/view-standard-indexes-incompatible-empty-state';
-import { ZeroSearchIndexesGraphic } from '../../icons/zero-search-indexes-graphic';
 import { selectIsViewSearchCompatible } from '../../../utils/is-view-search-compatible';
 import { selectReadWriteAccess } from '../../../utils/indexes-read-write-access';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
@@ -47,6 +44,10 @@ const buttonContainerStyles = css({
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',
+});
+
+const emptyContentStyles = css({
+  marginTop: 0,
 });
 
 const spinnerStyles = css({ marginRight: spacing[200] });
