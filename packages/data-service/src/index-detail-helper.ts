@@ -27,45 +27,38 @@ export type IndexStats = {
 type IndexSize = number;
 
 /**
- * Represents the build progress of an index being created.
- * This type captures information from $currentOp about in-progress index builds.
+ * Raw per-index data from $currentOp about an in-progress index build.
+ */
+export type CurrentOpProgress = {
+  active: boolean;
+  progress?: number;
+  secsRunning?: number;
+  msg?: string;
+};
+
+/**
+ * Build progress information for an index, containing raw data from
+ * the $currentOp and $indexStats pipelines plus their error states.
+ * The data service returns this as-is; consumers decide how to interpret it.
  */
 export type IndexBuildProgress = {
   /**
-   * Whether the index build operation is currently active.
-   * If true and progress is undefined, the index is building but we don't have progress info.
+   * Raw per-index data from $currentOp.
+   * Undefined when $currentOp failed or had no entry for this index.
    */
-  active: boolean;
+  currentOp?: CurrentOpProgress;
   /**
-   * The progress of the index build as a fraction between 0 and 1.
-   * May be undefined if the progress object is not available from $currentOp.
+   * Error message if $indexStats failed (e.g. insufficient permissions).
+   * When set, index usage stats and the `building` flag from $indexStats
+   * are unavailable.
    */
-  progress?: number;
+  statsError?: string;
   /**
-   * How long the index build has been running in seconds.
-   * Useful when progress is not available.
+   * Error message if $currentOp failed (e.g. insufficient permissions).
+   * When set, detailed progress info (percentage, seconds running, msg)
+   * is unavailable.
    */
-  secsRunning?: number;
-  /**
-   * The current operation message from $currentOp (e.g. "Index Build: draining writes received during build").
-   * Can be shown in a tooltip to provide additional context.
-   */
-  msg?: string;
-  /**
-   * If true, $indexStats-based statistics (including usage and building status)
-   * are not available. This commonly happens when the user does not have
-   * permission to run $indexStats, but can also occur on servers that do not
-   * support the required pipeline stages or for other server-side limitations.
-   */
-  statsUnavailable?: boolean;
-  /**
-   * If true, $currentOp-based progress information (percentage, seconds
-   * running, msg) is not available. This commonly happens when the user does
-   * not have permission to run $currentOp, but can also occur on servers that
-   * do not support the required pipeline stages or for other server-side
-   * limitations.
-   */
-  progressUnavailable?: boolean;
+  progressError?: string;
 };
 
 export type IndexDefinition = {
@@ -187,9 +180,9 @@ export function getIndexType(
 }
 
 /**
- * Default build progress indicating a completed/ready index
+ * Default build progress indicating no errors and no currentOp data.
  */
-const DEFAULT_BUILD_PROGRESS: IndexBuildProgress = { active: false };
+const DEFAULT_BUILD_PROGRESS: IndexBuildProgress = {};
 
 export function createIndexDefinition(
   ns: string,

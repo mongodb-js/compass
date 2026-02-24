@@ -293,23 +293,22 @@ type CommonIndexInfo = Omit<IndexInfo, 'renderExpandedContent'>;
 function determineRegularIndexStatus(
   index: RegularIndex
 ): 'inprogress' | 'ready' | 'unknown' {
+  const hasStats = !index.buildProgress.statsError;
+  const hasProgress = !index.buildProgress.progressError;
+
   // When both $indexStats and $currentOp failed, we truly don't know the status
-  if (
-    index.buildProgress.statsUnavailable &&
-    index.buildProgress.progressUnavailable
-  ) {
+  if (!hasStats && !hasProgress) {
     return 'unknown';
   }
-  // Index is in progress if active flag is true (from $indexStats.building or $currentOp)
-  // or if progress is between 0 and 1
-  if (index.buildProgress.active) {
+
+  // Index is in progress if $indexStats.building is true or $currentOp reports active
+  if (index.building === true || index.buildProgress.currentOp?.active) {
     return 'inprogress';
   }
-  if (
-    index.buildProgress.progress !== undefined &&
-    index.buildProgress.progress > 0 &&
-    index.buildProgress.progress < 1
-  ) {
+
+  // Also in progress if we have a partial progress fraction
+  const progress = index.buildProgress.currentOp?.progress;
+  if (progress !== undefined && progress > 0 && progress < 1) {
     return 'inprogress';
   }
 
@@ -392,7 +391,12 @@ function getRegularIndexInfo(
         properties={index.properties}
       />
     ),
-    status: <StatusField status={status} tooltip={index.buildProgress.msg} />,
+    status: (
+      <StatusField
+        status={status}
+        tooltip={index.buildProgress.currentOp?.msg}
+      />
+    ),
     actions: index.name !== '_id_' && (
       <IndexActions
         index={index}

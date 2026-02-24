@@ -33,7 +33,7 @@ describe('IndexActions Component', function () {
       it('boundary: active = false shows ready actions', function () {
         const readyIndex = mockRegularIndex({
           name: 'ready_index',
-          buildProgress: { active: false },
+          buildProgress: {},
         });
 
         render(
@@ -56,7 +56,7 @@ describe('IndexActions Component', function () {
       it('boundary: active = true with progress = 0.000001 (just above 0) shows building UI', function () {
         const barelyBuildingIndex = mockRegularIndex({
           name: 'barely_building',
-          buildProgress: { active: true, progress: 0.000001 },
+          buildProgress: { currentOp: { active: true, progress: 0.000001 } },
         });
 
         render(
@@ -76,7 +76,7 @@ describe('IndexActions Component', function () {
       it('boundary: active = true with progress = 0.999999 (just below 1) shows building UI', function () {
         const almostCompleteIndex = mockRegularIndex({
           name: 'almost_complete',
-          buildProgress: { active: true, progress: 0.999999 },
+          buildProgress: { currentOp: { active: true, progress: 0.999999 } },
         });
 
         render(
@@ -96,7 +96,7 @@ describe('IndexActions Component', function () {
       it('boundary: active = false (completed) shows ready actions', function () {
         const completedIndex = mockRegularIndex({
           name: 'completed_index',
-          buildProgress: { active: false },
+          buildProgress: {},
         });
 
         render(
@@ -123,7 +123,7 @@ describe('IndexActions Component', function () {
         // but $indexStats reports building: false
         const noPermissionIndex = mockRegularIndex({
           name: 'no_permission_index',
-          buildProgress: { active: false, progressUnavailable: true },
+          buildProgress: { progressError: 'user is not permitted' },
         });
 
         render(
@@ -150,7 +150,7 @@ describe('IndexActions Component', function () {
       it('handles active: true without progress property', function () {
         const activeNoProgress = mockRegularIndex({
           name: 'active_no_progress',
-          buildProgress: { active: true },
+          buildProgress: { currentOp: { active: true } },
         });
 
         render(
@@ -171,7 +171,7 @@ describe('IndexActions Component', function () {
       it('handles active: true with secsRunning but no progress', function () {
         const activeWithTime = mockRegularIndex({
           name: 'active_with_time',
-          buildProgress: { active: true, secsRunning: 120 },
+          buildProgress: { currentOp: { active: true, secsRunning: 120 } },
         });
 
         render(
@@ -202,7 +202,7 @@ describe('IndexActions Component', function () {
       it(`shows building UI for progress ${progress} (${expectedPercent}%)`, function () {
         const buildingIndex = mockRegularIndex({
           name: 'building_index',
-          buildProgress: { active: true, progress },
+          buildProgress: { currentOp: { active: true, progress } },
         });
 
         render(
@@ -241,7 +241,7 @@ describe('IndexActions Component', function () {
         id: 'creating-index-id',
         name: 'creating_index',
         status: 'creating',
-        buildProgress: { active: true },
+        buildProgress: {},
         fields: [{ field: 'test', value: 1 }],
       };
 
@@ -266,7 +266,7 @@ describe('IndexActions Component', function () {
         name: 'failed_index',
         status: 'failed',
         error: 'Index creation failed',
-        buildProgress: { active: false },
+        buildProgress: {},
         fields: [{ field: 'test', value: 1 }],
       };
 
@@ -306,7 +306,7 @@ describe('IndexActions Component', function () {
   describe('Server Version Compatibility', function () {
     const testIndex = mockRegularIndex({
       name: 'version_test',
-      buildProgress: { active: false },
+      buildProgress: {},
     });
 
     const versionTestCases = [
@@ -351,7 +351,7 @@ describe('IndexActions Component', function () {
   describe('Action Event Handling', function () {
     const testIndex = mockRegularIndex({
       name: 'test_actions',
-      buildProgress: { active: false },
+      buildProgress: {},
     });
 
     it('calls onDeleteIndexClick for regular index delete', function () {
@@ -374,7 +374,7 @@ describe('IndexActions Component', function () {
     it('calls onDeleteIndexClick for building index cancel (regular index)', function () {
       const buildingIndex = mockRegularIndex({
         name: 'test_actions',
-        buildProgress: { active: true, progress: 0.5 },
+        buildProgress: { currentOp: { active: true, progress: 0.5 } },
       });
 
       render(
@@ -408,7 +408,7 @@ describe('IndexActions Component', function () {
       it(`formats ${secsRunning} seconds correctly`, function () {
         const index = mockRegularIndex({
           name: 'duration_test',
-          buildProgress: { active: true, secsRunning },
+          buildProgress: { currentOp: { active: true, secsRunning } },
         });
 
         render(
@@ -429,7 +429,9 @@ describe('IndexActions Component', function () {
     it('shows duration instead of 0% when progress is 0', function () {
       const index = mockRegularIndex({
         name: 'zero_progress_with_time',
-        buildProgress: { active: true, progress: 0, secsRunning: 120 },
+        buildProgress: {
+          currentOp: { active: true, progress: 0, secsRunning: 120 },
+        },
       });
 
       render(
@@ -447,14 +449,14 @@ describe('IndexActions Component', function () {
   });
 
   describe('Permission Error States', function () {
-    describe('progressUnavailable only', function () {
-      it('shows building UI with "Building…" when active and progressUnavailable', function () {
+    describe('progressError only', function () {
+      it('shows building UI with "Building…" when building and progressError', function () {
         // $indexStats succeeded (shows building: true), but $currentOp failed
         const index = mockRegularIndex({
           name: 'progress_not_permitted',
+          building: true,
           buildProgress: {
-            active: true,
-            progressUnavailable: true,
+            progressError: 'user is not permitted',
           },
         });
 
@@ -474,14 +476,14 @@ describe('IndexActions Component', function () {
       });
     });
 
-    describe('statsUnavailable only', function () {
-      it('shows ready actions when index not building and statsUnavailable', function () {
+    describe('statsError only', function () {
+      it('shows ready actions when index not building and statsError', function () {
         // $indexStats failed but $currentOp succeeded and shows no build in progress
         const index = mockRegularIndex({
           name: 'stats_not_permitted',
           buildProgress: {
-            active: false,
-            statsUnavailable: true,
+            currentOp: { active: false },
+            statsError: 'user is not permitted',
           },
         });
 
@@ -502,16 +504,14 @@ describe('IndexActions Component', function () {
       });
     });
 
-    describe('both statsUnavailable and progressUnavailable', function () {
+    describe('both statsError and progressError', function () {
       it('shows ready actions when both permissions denied but not active', function () {
         // Both $indexStats and $currentOp failed
         const index = mockRegularIndex({
           name: 'both_not_permitted',
           buildProgress: {
-            active: false,
-            statsUnavailable: true,
-            progressUnavailable: true,
-            msg: 'user is not permitted, user is not permitted',
+            statsError: 'user is not permitted',
+            progressError: 'user is not permitted',
           },
         });
 
@@ -535,13 +535,15 @@ describe('IndexActions Component', function () {
   describe('Message (msg) Field Handling', function () {
     it('includes msg in buildProgress for building index', function () {
       // The msg field is passed to StatusField for tooltip display,
-      // but the IndexActions component uses it when progressUnavailable is true
+      // and lives inside the currentOp sub-object
       const index = mockRegularIndex({
         name: 'index_with_msg',
         buildProgress: {
-          active: true,
-          progress: 0.5,
-          msg: 'Index Build: draining writes received during build',
+          currentOp: {
+            active: true,
+            progress: 0.5,
+            msg: 'Index Build: draining writes received during build',
+          },
         },
       });
 

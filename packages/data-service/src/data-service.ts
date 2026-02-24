@@ -103,6 +103,7 @@ import {
   isCancelError,
 } from '@mongodb-js/compass-utils';
 import type {
+  CurrentOpProgress,
   IndexBuildProgress,
   IndexDefinition,
   IndexStats,
@@ -2222,7 +2223,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
 
   private async _indexProgress(
     ns: string
-  ): Promise<Record<string, IndexBuildProgress>> {
+  ): Promise<Record<string, CurrentOpProgress>> {
     type IndexProgressResult = {
       _id: string;
       active: boolean;
@@ -2286,7 +2287,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
         .aggregate(pipeline)
         .toArray()) as IndexProgressResult[];
 
-      const indexToProgress: Record<string, IndexBuildProgress> =
+      const indexToProgress: Record<string, CurrentOpProgress> =
         Object.create(null);
 
       for (const { _id, active, secsRunning, msg, progress } of currentOps) {
@@ -2301,7 +2302,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
         .aggregate(pipeline)
         .toArray()) as IndexProgressResult[];
 
-      const indexToProgress: Record<string, IndexBuildProgress> =
+      const indexToProgress: Record<string, CurrentOpProgress> =
         Object.create(null);
       for (const { _id, active, secsRunning, msg, progress } of currentOps) {
         indexToProgress[_id] = { active, progress, secsRunning, msg };
@@ -2380,18 +2381,14 @@ class DataServiceImpl extends WithLogContext implements DataService {
 
     const maxSize = Math.max(...Object.values(indexSizes));
 
-    // Handle the index stats result - $indexStats may not work for permissions reasons or server version reasons
-    const statsUnavailable = indexStatsResult.status === 'rejected';
-    const statsErrorMessage =
+    const statsError =
       indexStatsResult.status === 'rejected'
         ? indexStatsResult.reason.message
         : undefined;
     const indexStats =
       indexStatsResult.status === 'fulfilled' ? indexStatsResult.value : {};
 
-    // Handle the index progress result - currentOp may not work for permissions reasons
-    const progressUnavailable = indexProgressResult.status === 'rejected';
-    const progressErrorMessage =
+    const progressError =
       indexProgressResult.status === 'rejected'
         ? indexProgressResult.reason?.message
         : undefined;
@@ -2400,39 +2397,24 @@ class DataServiceImpl extends WithLogContext implements DataService {
         ? indexProgressResult.value
         : {};
 
-    // If both $indexStats and $currentOp are unavailable, we can't determine build status
-    const bothUnavailable = statsUnavailable && progressUnavailable;
-    const errorMessage = [statsErrorMessage, progressErrorMessage].join(', ');
-
     return indexes
       .filter((index): index is IndexDescriptionInfo & { name: string } => {
         return !!index.name;
       })
       .map((index) => {
         const name = index.name;
-        const stats = indexStats[name];
-        // $indexStats tells us if an index is building (building: true) or ready (building: absent)
-        const isBuilding = stats?.building === true;
 
         const buildProgress: IndexBuildProgress = {
-          ...(bothUnavailable
-            ? { active: false, msg: errorMessage }
-            : indexProgress[name] ?? {
-                active: isBuilding,
-                msg:
-                  progressUnavailable && isBuilding
-                    ? progressErrorMessage
-                    : undefined,
-              }),
-          statsUnavailable,
-          progressUnavailable,
+          currentOp: indexProgress[name],
+          ...(statsError && { statsError }),
+          ...(progressError && { progressError }),
         };
 
         return createIndexDefinition(
           ns,
           shardKey ?? null,
           index,
-          stats,
+          indexStats[name],
           indexSizes[name],
           maxSize,
           buildProgress

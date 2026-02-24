@@ -36,7 +36,7 @@ const indexes: RegularIndex[] = [
       },
     ],
     usageCount: 10,
-    buildProgress: { active: false },
+    buildProgress: {},
   },
   {
     ns: 'db.coll',
@@ -60,7 +60,7 @@ const indexes: RegularIndex[] = [
       },
     ],
     usageCount: 15,
-    buildProgress: { active: false },
+    buildProgress: {},
   },
   {
     ns: 'db.coll',
@@ -83,7 +83,7 @@ const indexes: RegularIndex[] = [
       },
     ],
     usageCount: 20,
-    buildProgress: { active: false },
+    buildProgress: {},
   },
   {
     ns: 'db.coll',
@@ -106,7 +106,7 @@ const indexes: RegularIndex[] = [
       },
     ],
     usageCount: 25,
-    buildProgress: { active: false },
+    buildProgress: {},
   },
 ];
 
@@ -125,7 +125,7 @@ const inProgressIndexes: InProgressIndex[] = [
       },
     ],
     status: 'creating',
-    buildProgress: { active: true },
+    buildProgress: {},
   },
   {
     id: 'in-progress-2',
@@ -138,7 +138,7 @@ const inProgressIndexes: InProgressIndex[] = [
     ],
     status: 'failed',
     error: 'this is an error',
-    buildProgress: { active: false },
+    buildProgress: {},
   },
 ];
 
@@ -340,7 +340,7 @@ describe('RegularIndexesTable Component', function () {
         extra: {},
         size: 11111,
         relativeSize: 0,
-        buildProgress: { active: false },
+        buildProgress: {},
       },
     ];
 
@@ -533,7 +533,7 @@ describe('RegularIndexesTable Component', function () {
         indexes: [
           mockRegularIndex({
             name: 'ready_index',
-            buildProgress: { active: false },
+            buildProgress: {},
           }),
         ],
       });
@@ -549,9 +549,11 @@ describe('RegularIndexesTable Component', function () {
           mockRegularIndex({
             name: 'building_index',
             buildProgress: {
-              active: true,
-              progress: 0.5,
-              msg: 'Index Build: inserting keys from external sorter',
+              currentOp: {
+                active: true,
+                progress: 0.5,
+                msg: 'Index Build: inserting keys from external sorter',
+              },
             },
           }),
         ],
@@ -568,10 +570,8 @@ describe('RegularIndexesTable Component', function () {
           mockRegularIndex({
             name: 'unknown_status_index',
             buildProgress: {
-              active: false,
-              statsUnavailable: true,
-              progressUnavailable: true,
-              msg: 'user is not authorized, user is not authorized',
+              statsError: 'user is not authorized',
+              progressError: 'user is not authorized',
             },
           }),
         ],
@@ -582,16 +582,15 @@ describe('RegularIndexesTable Component', function () {
       expect(within(indexRow).getByText('Unknown')).to.exist;
     });
 
-    it('shows "Ready" when only statsUnavailable but currentOp says not building', function () {
+    it('shows "Ready" when only statsError but currentOp says not building', function () {
       // When $indexStats fails but $currentOp works and shows no active build
       renderIndexList({
         indexes: [
           mockRegularIndex({
             name: 'stats_failed_index',
             buildProgress: {
-              active: false,
-              statsUnavailable: true,
-              progressUnavailable: false,
+              currentOp: { active: false },
+              statsError: 'user is not authorized',
             },
           }),
         ],
@@ -601,17 +600,15 @@ describe('RegularIndexesTable Component', function () {
       expect(within(indexRow).getByTestId('index-ready')).to.exist;
     });
 
-    it('shows "In Progress" when only progressUnavailable but indexStats shows building', function () {
+    it('shows "In Progress" when only progressError but indexStats shows building', function () {
       // When $currentOp fails but $indexStats shows building: true
       renderIndexList({
         indexes: [
           mockRegularIndex({
             name: 'progress_failed_index',
+            building: true,
             buildProgress: {
-              active: true,
-              progressUnavailable: true,
-              statsUnavailable: false,
-              msg: 'user is not authorized to run currentOp',
+              progressError: 'user is not authorized to run currentOp',
             },
           }),
         ],

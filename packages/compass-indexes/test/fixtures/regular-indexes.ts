@@ -19,7 +19,7 @@ export const indexesList: IndexDefinition[] = [
     ns: 'foo',
     fields: [],
     relativeSize: 1,
-    buildProgress: { active: false },
+    buildProgress: {},
   },
   {
     name: 'CCCC',
@@ -38,7 +38,7 @@ export const indexesList: IndexDefinition[] = [
     ns: 'foo',
     fields: [],
     relativeSize: 1,
-    buildProgress: { active: false },
+    buildProgress: {},
   },
   {
     name: 'AAAA',
@@ -57,7 +57,7 @@ export const indexesList: IndexDefinition[] = [
     ns: 'foo',
     fields: [],
     relativeSize: 1,
-    buildProgress: { active: false },
+    buildProgress: {},
   },
   {
     name: 'BBBB',
@@ -76,7 +76,7 @@ export const indexesList: IndexDefinition[] = [
     ns: 'foo',
     fields: [],
     relativeSize: 1,
-    buildProgress: { active: false },
+    buildProgress: {},
   },
 ];
 
@@ -100,7 +100,7 @@ export const defaultSortedIndexes: IndexDefinition[] = [
 
     fields: [],
     relativeSize: 1,
-    buildProgress: { active: false },
+    buildProgress: {},
   },
   {
     ns: 'citibike.trips',
@@ -131,7 +131,7 @@ export const defaultSortedIndexes: IndexDefinition[] = [
 
     fields: [],
     relativeSize: 1,
-    buildProgress: { active: false },
+    buildProgress: {},
   },
   {
     ns: 'citibike.trips',
@@ -149,7 +149,7 @@ export const defaultSortedIndexes: IndexDefinition[] = [
 
     fields: [],
     relativeSize: 1,
-    buildProgress: { active: false },
+    buildProgress: {},
   },
 ];
 
@@ -174,7 +174,7 @@ export const usageSortedIndexes: IndexDefinition[] = [
 
     fields: [],
     relativeSize: 1,
-    buildProgress: { active: false },
+    buildProgress: {},
   },
   {
     name: 'CCCC',
@@ -193,7 +193,7 @@ export const usageSortedIndexes: IndexDefinition[] = [
 
     fields: [],
     relativeSize: 1,
-    buildProgress: { active: false },
+    buildProgress: {},
   },
   {
     name: '_id_',
@@ -212,7 +212,7 @@ export const usageSortedIndexes: IndexDefinition[] = [
 
     fields: [],
     relativeSize: 1,
-    buildProgress: { active: false },
+    buildProgress: {},
   },
   {
     name: 'BBBB',
@@ -244,7 +244,7 @@ export const usageSortedIndexes: IndexDefinition[] = [
 
     fields: [],
     relativeSize: 1,
-    buildProgress: { active: false },
+    buildProgress: {},
   },
 ];
 
@@ -255,7 +255,7 @@ export const inProgressIndexes: InProgressIndex[] = [
     //version: 2,
     fields: [],
     status: 'creating',
-    buildProgress: { active: true },
+    buildProgress: {},
   },
   {
     id: 'in-progress-2',
@@ -267,6 +267,6 @@ export const inProgressIndexes: InProgressIndex[] = [
       },
     ],
     status: 'creating',
-    buildProgress: { active: true },
+    buildProgress: {},
   },
 ];

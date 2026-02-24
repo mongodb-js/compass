@@ -87,7 +87,7 @@ export const prepareInProgressIndex = (
     fields: inProgressIndexFields,
     name: inProgressIndexName,
     // Locally created in-progress indexes start with active: true, no progress info yet
-    buildProgress: { active: true },
+    buildProgress: { currentOp: { active: true } },
     // TODO(COMPASS-8335): we never mapped properties and the table does have
     // room to display them
   };

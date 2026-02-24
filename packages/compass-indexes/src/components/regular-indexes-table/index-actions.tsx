@@ -75,8 +75,8 @@ const isIndexBuilding = (index: IndexForActions): boolean => {
     // For in-progress indexes, status is the source of truth
     return index.status === 'creating';
   }
-  // Regular indexes rely on currentOp/build stats active flag
-  return !!index.buildProgress.active;
+  // Regular indexes: check $indexStats.building or $currentOp.active
+  return !!index.building || !!index.buildProgress.currentOp?.active;
 };
 
 // Helper: Determine if index can be deleted
@@ -209,25 +209,26 @@ const IndexActions: React.FunctionComponent<IndexActionsProps> = ({
   if (isIndexBuilding(index)) {
     // Determine what text to show for build progress
     // Prioritize secsRunning when progress is missing or not meaningful
+    const currentOp = buildProgress.currentOp;
+    const progressUnavailable = !!buildProgress.progressError;
+    const secsRunning = currentOp?.secsRunning;
+    const progress = currentOp?.progress;
+
     let progressText: string;
-    const hasDuration = buildProgress.secsRunning !== undefined;
-    if (buildProgress.progressUnavailable) {
+    const hasDuration = secsRunning !== undefined;
+    if (progressUnavailable) {
       // $currentOp failed, so we don't have detailed progress info
       progressText = hasDuration
-        ? `Building For… ${formatDuration(buildProgress.secsRunning!)}`
+        ? `Building For… ${formatDuration(secsRunning!)}`
         : 'Building…';
-    } else if (hasDuration && buildProgress.progress === undefined) {
+    } else if (hasDuration && progress === undefined) {
       // Progress disappeared but we still know it's running
-      progressText = `Building For… ${formatDuration(
-        buildProgress.secsRunning!
-      )}`;
-    } else if (hasDuration && buildProgress.progress === 0) {
+      progressText = `Building For… ${formatDuration(secsRunning!)}`;
+    } else if (hasDuration && progress === 0) {
       // Prefer duration instead of an unhelpful 0%
-      progressText = `Building For… ${formatDuration(
-        buildProgress.secsRunning!
-      )}`;
-    } else if (buildProgress.progress !== undefined) {
-      progressText = `Building… ${Math.trunc(buildProgress.progress * 100)}%`;
+      progressText = `Building For… ${formatDuration(secsRunning!)}`;
+    } else if (progress !== undefined) {
+      progressText = `Building… ${Math.trunc(progress * 100)}%`;
     } else {
       progressText = 'Building…';
     }
