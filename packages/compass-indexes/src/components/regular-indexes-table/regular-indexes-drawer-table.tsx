@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { connect, useSelector } from 'react-redux';
 import { usePreferences } from 'compass-preferences-model/provider';
 
@@ -25,6 +25,40 @@ import {
   COLUMNS_FOR_DRAWER,
   COLUMNS_FOR_DRAWER_WITH_ACTIONS,
 } from './regular-indexes-columns';
+import { Button, css, EmptyContent } from '@mongodb-js/compass-components';
+import { ZeroRegularIndexesGraphic } from '../icons/zero-regular-indexes-graphic';
+import { createIndexOpened } from '../../modules/create-index';
+
+const emptyContentStyles = css({
+  marginTop: 0,
+});
+
+type ZeroStateProps = {
+  isRegularIndexesWritable: boolean;
+  onCreateRegularIndexClick: () => void;
+};
+
+const ZeroState: React.FunctionComponent<ZeroStateProps> = ({
+  isRegularIndexesWritable,
+  onCreateRegularIndexClick,
+}) => {
+  return (
+    <EmptyContent
+      containerClassName={emptyContentStyles}
+      icon={ZeroRegularIndexesGraphic}
+      title="No standard indexes found"
+      callToActionLink={
+        <Button
+          disabled={!isRegularIndexesWritable}
+          onClick={onCreateRegularIndexClick}
+          size="xsmall"
+        >
+          Create index
+        </Button>
+      }
+    />
+  );
+};
 
 type RegularIndexesDrawerTableProps = {
   indexes: RegularIndex[];
@@ -35,7 +69,9 @@ type RegularIndexesDrawerTableProps = {
   onUnhideIndexClick: (name: string) => void;
   onDeleteIndexClick: (name: string) => void;
   onDeleteFailedIndexClick: (name: string) => void;
+  onCreateRegularIndexClick: () => void;
   error?: string | null;
+  searchTerm?: string;
 };
 
 export const RegularIndexesDrawerTable: React.FunctionComponent<
@@ -49,7 +85,9 @@ export const RegularIndexesDrawerTable: React.FunctionComponent<
   onUnhideIndexClick,
   onDeleteIndexClick,
   onDeleteFailedIndexClick,
+  onCreateRegularIndexClick,
   error,
+  searchTerm,
 }) => {
   const { atlasMetadata } = useConnectionInfo();
   const { readOnly, readWrite, enableAtlasSearchIndexes } = usePreferences([
@@ -66,10 +104,26 @@ export const RegularIndexesDrawerTable: React.FunctionComponent<
     })
   );
 
+  // Filter all index types based on search term
+  const filteredIndexes = useMemo(() => {
+    if (!searchTerm) {
+      return { indexes, inProgressIndexes, rollingIndexes };
+    }
+    return {
+      indexes: indexes.filter((x) => x.name.includes(searchTerm)),
+      inProgressIndexes: inProgressIndexes.filter((x) =>
+        x.name.includes(searchTerm)
+      ),
+      rollingIndexes: rollingIndexes.filter((x) =>
+        x.indexName.includes(searchTerm)
+      ),
+    };
+  }, [indexes, inProgressIndexes, rollingIndexes, searchTerm]);
+
   const { data } = useRegularIndexesTable({
-    indexes,
-    inProgressIndexes,
-    rollingIndexes,
+    indexes: filteredIndexes.indexes,
+    inProgressIndexes: filteredIndexes.inProgressIndexes,
+    rollingIndexes: filteredIndexes.rollingIndexes,
     serverVersion,
     onHideIndexClick,
     onUnhideIndexClick,
@@ -79,6 +133,16 @@ export const RegularIndexesDrawerTable: React.FunctionComponent<
 
   if (error) {
     return null;
+  }
+
+  // Show empty content if no indexes match the filter
+  if (data.length === 0) {
+    return (
+      <ZeroState
+        isRegularIndexesWritable={isRegularIndexesWritable}
+        onCreateRegularIndexClick={onCreateRegularIndexClick}
+      />
+    );
   }
 
   return (
@@ -98,6 +162,7 @@ export const RegularIndexesDrawerTable: React.FunctionComponent<
 
 const mapState = ({ serverVersion, regularIndexes }: RootState) => ({
   serverVersion,
+  indexes: regularIndexes.indexes,
   inProgressIndexes: regularIndexes.inProgressIndexes,
   rollingIndexes: regularIndexes.rollingIndexes ?? [],
   error: regularIndexes.error,
@@ -108,6 +173,7 @@ const mapDispatch = {
   onDeleteFailedIndexClick: dropFailedIndex,
   onHideIndexClick: hideIndex,
   onUnhideIndexClick: unhideIndex,
+  onCreateRegularIndexClick: createIndexOpened,
 };
 
 export default connect(mapState, mapDispatch)(RegularIndexesDrawerTable);

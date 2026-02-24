@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { connect, useSelector } from 'react-redux';
 import type { RootState } from '../../../modules';
 import type { State as RegularIndexesState } from '../../../modules/regular-indexes';
@@ -35,7 +35,6 @@ import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { usePreferences } from 'compass-preferences-model/provider';
 import RegularIndexesDrawerTable from '../../regular-indexes-table/regular-indexes-drawer-table';
 import SearchIndexesDrawerTable from '../../search-indexes-table/search-indexes-drawer-table';
-import { ZeroRegularIndexesGraphic } from '../../icons/zero-regular-indexes-graphic';
 
 const containerStyles = css({
   padding: spacing[400],
@@ -50,93 +49,7 @@ const buttonContainerStyles = css({
   justifyContent: 'space-between',
 });
 
-const emptyContentStyles = css({
-  marginTop: 0,
-});
-
 const spinnerStyles = css({ marginRight: spacing[200] });
-
-type NoStandardIndexesEmptyContentProps = {
-  isRegularIndexesWritable: boolean;
-  onCreateRegularIndexClick: () => void;
-};
-
-const NoStandardIndexesEmptyContent: React.FunctionComponent<
-  NoStandardIndexesEmptyContentProps
-> = ({ isRegularIndexesWritable, onCreateRegularIndexClick }) => {
-  return (
-    <EmptyContent
-      containerClassName={emptyContentStyles}
-      icon={ZeroRegularIndexesGraphic}
-      title="No standard indexes found"
-      callToActionLink={
-        <Button
-          disabled={!isRegularIndexesWritable}
-          onClick={onCreateRegularIndexClick}
-          size="xsmall"
-        >
-          Create index
-        </Button>
-      }
-    />
-  );
-};
-
-type NoSearchIndexesEmptyContentProps = {
-  isSearchIndexesWritable: boolean;
-  onActionDispatch: (action: string) => void;
-};
-
-const NoSearchIndexesEmptyContent: React.FunctionComponent<
-  NoSearchIndexesEmptyContentProps
-> = ({ isSearchIndexesWritable, onActionDispatch }) => {
-  return (
-    <EmptyContent
-      containerClassName={emptyContentStyles}
-      icon={ZeroSearchIndexesGraphic}
-      title="No search indexes found"
-      subTitle={
-        <span>
-          Define a{' '}
-          <Link
-            // TODO(COMPASS-10427): add url
-            target="_blank"
-          >
-            search
-          </Link>{' '}
-          or{' '}
-          <Link
-            // TODO(COMPASS-10427): add url
-            target="_blank"
-          >
-            vector search index
-          </Link>{' '}
-          to start using $search or $vectorSearch.
-        </span>
-      }
-      callToActionLink={
-        <DropdownMenuButton
-          buttonText="Create a search index"
-          buttonProps={{
-            size: 'xsmall',
-            disabled: !isSearchIndexesWritable,
-          }}
-          actions={[
-            {
-              action: 'createSearchIndex',
-              label: 'Search Index',
-            },
-            {
-              action: 'createVectorSearchIndex',
-              label: 'Vector Search Index',
-            },
-          ]}
-          onAction={onActionDispatch}
-        />
-      }
-    />
-  );
-};
 
 type IndexesListDrawerViewProps = {
   isReadonlyView: boolean;
@@ -228,20 +141,6 @@ const IndexesListDrawerView: React.FunctionComponent<
     (isRegularIndexesReadable && isRefreshingStatus(regularIndexes.status)) ||
     (isSearchIndexesReadable && isRefreshingStatus(searchIndexes.status));
 
-  const filteredRegularIndexes = useMemo(() => {
-    if (!searchTerm) {
-      return regularIndexes.indexes;
-    }
-    return regularIndexes.indexes.filter((x) => x.name.includes(searchTerm));
-  }, [regularIndexes, searchTerm]);
-
-  const filteredSearchIndexes = useMemo(() => {
-    if (!searchTerm) {
-      return searchIndexes.indexes;
-    }
-    return searchIndexes.indexes.filter((x) => x.name.includes(searchTerm));
-  }, [searchIndexes, searchTerm]);
-
   const refreshButtonIcon = isRefreshing ? (
     <div className={spinnerStyles}>
       <SpinLoader title="Refreshing Indexes" />
@@ -300,14 +199,7 @@ const IndexesListDrawerView: React.FunctionComponent<
       />
       <Accordion text="Standard" defaultOpen={true}>
         {isRegularIndexesReadable ? (
-          filteredRegularIndexes.length > 0 ? (
-            <RegularIndexesDrawerTable indexes={filteredRegularIndexes} />
-          ) : (
-            <NoStandardIndexesEmptyContent
-              isRegularIndexesWritable={isRegularIndexesWritable}
-              onCreateRegularIndexClick={onCreateRegularIndexClick}
-            />
-          )
+          <RegularIndexesDrawerTable searchTerm={searchTerm} />
         ) : (
           <ViewStandardIndexesIncompatibleEmptyState
             containerClassName={emptyContentStyles}
@@ -316,14 +208,7 @@ const IndexesListDrawerView: React.FunctionComponent<
       </Accordion>
       <Accordion text="Search" defaultOpen={true}>
         {getSearchIndexesBanner()}
-        {filteredSearchIndexes.length > 0 ? (
-          <SearchIndexesDrawerTable indexes={filteredSearchIndexes} />
-        ) : (
-          <NoSearchIndexesEmptyContent
-            isSearchIndexesWritable={isSearchIndexesWritable}
-            onActionDispatch={onActionDispatch}
-          />
-        )}
+        <SearchIndexesDrawerTable searchTerm={searchTerm} />
       </Accordion>
     </div>
   );

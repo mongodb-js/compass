@@ -1,11 +1,22 @@
-import React, { useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { connect, useSelector } from 'react-redux';
 import type { SearchIndex } from 'mongodb-data-service';
-import type { LGTableDataType } from '@mongodb-js/compass-components';
+import {
+  css,
+  DropdownMenuButton,
+  EmptyContent,
+  LGTableDataType,
+  Link,
+  spacing,
+} from '@mongodb-js/compass-components';
 
 import { FetchStatuses } from '../../utils/fetch-status';
 import { dropSearchIndex } from '../../modules/search-indexes';
-import { openEditSearchIndexDrawerView } from '../../modules/indexes-drawer';
+import {
+  openCreateSearchIndexDrawerView,
+  openEditSearchIndexDrawerView,
+  SearchIndexType,
+} from '../../modules/indexes-drawer';
 import type { FetchStatus } from '../../utils/fetch-status';
 import { IndexesTable } from '../indexes-table';
 import SearchIndexActions from './search-index-actions';
@@ -13,9 +24,8 @@ import type { RootState, IndexesThunkDispatch } from '../../modules';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { usePreferences } from 'compass-preferences-model/provider';
 import { selectReadWriteAccess } from '../../utils/indexes-read-write-access';
-
+import type { SearchIndexInfo } from './use-search-indexes-table';
 import {
-  type SearchIndexInfo,
   getIndexFields,
   searchIndexDetailsForDrawerStyles,
   useSearchIndexesTable,
@@ -24,6 +34,7 @@ import {
   COLUMNS_FOR_DRAWER,
   COLUMNS_FOR_DRAWER_WITH_ACTIONS,
 } from './search-indexes-columns';
+import { ZeroSearchIndexesGraphic } from '../icons/zero-search-indexes-graphic';
 
 function isReadyStatus(status: FetchStatus) {
   return (
@@ -33,18 +44,86 @@ function isReadyStatus(status: FetchStatus) {
   );
 }
 
+const emptyContentStyles = css({
+  marginTop: 0,
+});
+
+type ZeroStateProps = {
+  isSearchIndexesWritable: boolean;
+  onActionDispatch: (action: string) => void;
+};
+
+const ZeroState: React.FunctionComponent<ZeroStateProps> = ({
+  isSearchIndexesWritable,
+  onActionDispatch,
+}) => {
+  return (
+    <EmptyContent
+      containerClassName={emptyContentStyles}
+      icon={ZeroSearchIndexesGraphic}
+      title="No search indexes found"
+      subTitle={
+        <span>
+          Define a{' '}
+          <Link
+            // TODO(COMPASS-10427): add url
+            target="_blank"
+          >
+            search
+          </Link>{' '}
+          or{' '}
+          <Link
+            // TODO(COMPASS-10427): add url
+            target="_blank"
+          >
+            vector search index
+          </Link>{' '}
+          to start using $search or $vectorSearch.
+        </span>
+      }
+      callToActionLink={
+        <DropdownMenuButton
+          buttonText="Create a search index"
+          buttonProps={{
+            size: 'xsmall',
+            disabled: !isSearchIndexesWritable,
+          }}
+          actions={[
+            {
+              action: 'createSearchIndex',
+              label: 'Search Index',
+            },
+            {
+              action: 'createVectorSearchIndex',
+              label: 'Vector Search Index',
+            },
+          ]}
+          onAction={onActionDispatch}
+        />
+      }
+    />
+  );
+};
+
 type SearchIndexesDrawerTableProps = {
   indexes: SearchIndex[];
   status: FetchStatus;
   onDropIndexClick: (name: string) => void;
   onEditIndexClick: (name: string) => void;
-  onSearchIndexesOpened: (tabId: string) => void;
-  onSearchIndexesClosed: (tabId: string) => void;
+  onCreateSearchIndexClick: (indexType: SearchIndexType) => void;
+  searchTerm?: string;
 };
 
 export const SearchIndexesDrawerTable: React.FunctionComponent<
   SearchIndexesDrawerTableProps
-> = ({ indexes, status, onEditIndexClick, onDropIndexClick }) => {
+> = ({
+  indexes,
+  status,
+  searchTerm,
+  onEditIndexClick,
+  onDropIndexClick,
+  onCreateSearchIndexClick,
+}) => {
   const { atlasMetadata } = useConnectionInfo();
   const isAtlas = !!atlasMetadata;
 
@@ -63,8 +142,28 @@ export const SearchIndexesDrawerTable: React.FunctionComponent<
     })
   );
 
+  const onActionDispatch = useCallback(
+    (action: string) => {
+      switch (action) {
+        case 'createSearchIndex':
+          return onCreateSearchIndexClick('search');
+        case 'createVectorSearchIndex':
+          return onCreateSearchIndexClick('vectorSearch');
+      }
+    },
+    [onCreateSearchIndexClick]
+  );
+
+  // Filter indexes based on search term
+  const filteredIndexes = useMemo(() => {
+    if (!searchTerm) {
+      return indexes;
+    }
+    return indexes.filter((x) => x.name.includes(searchTerm));
+  }, [indexes, searchTerm]);
+
   const { data: baseData } = useSearchIndexesTable({
-    indexes,
+    indexes: filteredIndexes,
     vectorTypeLabel: 'Vector',
   });
 
@@ -109,8 +208,14 @@ export const SearchIndexesDrawerTable: React.FunctionComponent<
     return null;
   }
 
-  if (indexes.length === 0) {
-    return null;
+  // Show empty content if no indexes match the filter
+  if (data.length === 0) {
+    return (
+      <ZeroState
+        isSearchIndexesWritable={isSearchIndexesWritable}
+        onActionDispatch={onActionDispatch}
+      />
+    );
   }
 
   return (
@@ -130,11 +235,13 @@ export const SearchIndexesDrawerTable: React.FunctionComponent<
 
 const mapState = ({ searchIndexes }: RootState) => ({
   status: searchIndexes.status,
+  indexes: searchIndexes.indexes,
 });
 
-const mapDispatch = (dispatch: IndexesThunkDispatch) => ({
+const mapDispatch = {
   onDropIndexClick: dropSearchIndex,
   onEditIndexClick: openEditSearchIndexDrawerView,
-});
+  onCreateSearchIndexClick: openCreateSearchIndexDrawerView,
+};
 
 export default connect(mapState, mapDispatch)(SearchIndexesDrawerTable);
