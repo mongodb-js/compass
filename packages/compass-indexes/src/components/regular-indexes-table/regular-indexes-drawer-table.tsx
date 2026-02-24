@@ -104,32 +104,24 @@ export const RegularIndexesDrawerTable: React.FunctionComponent<
     })
   );
 
-  // Filter all index types based on search term
-  const filteredIndexes = useMemo(() => {
-    if (!searchTerm) {
-      return { indexes, inProgressIndexes, rollingIndexes };
-    }
-    return {
-      indexes: indexes.filter((x) => x.name.includes(searchTerm)),
-      inProgressIndexes: inProgressIndexes.filter((x) =>
-        x.name.includes(searchTerm)
-      ),
-      rollingIndexes: rollingIndexes.filter((x) =>
-        x.indexName.includes(searchTerm)
-      ),
-    };
-  }, [indexes, inProgressIndexes, rollingIndexes, searchTerm]);
-
-  const { data } = useRegularIndexesTable({
-    indexes: filteredIndexes.indexes,
-    inProgressIndexes: filteredIndexes.inProgressIndexes,
-    rollingIndexes: filteredIndexes.rollingIndexes,
+  const { data: allData } = useRegularIndexesTable({
+    indexes,
+    inProgressIndexes,
+    rollingIndexes,
     serverVersion,
     onHideIndexClick,
     onUnhideIndexClick,
     onDeleteIndexClick,
     onDeleteFailedIndexClick,
   });
+
+  // Filter data based on search term
+  const data = useMemo(() => {
+    if (!searchTerm) {
+      return allData;
+    }
+    return allData.filter((item) => item.name.includes(searchTerm));
+  }, [allData, searchTerm]);
 
   if (error) {
     return null;

@@ -1,4 +1,4 @@
-import React, { useMemo, useEffect } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { connect, useSelector } from 'react-redux';
 import type { SearchIndex } from 'mongodb-data-service';
 import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
@@ -8,7 +8,6 @@ import {
   Link,
   Tooltip,
 } from '@mongodb-js/compass-components';
-import type { LGTableDataType } from '@mongodb-js/compass-components';
 
 import { FetchStatuses } from '../../utils/fetch-status';
 import {
@@ -32,13 +31,7 @@ import { usePreferences } from 'compass-preferences-model/provider';
 import { selectReadWriteAccess } from '../../utils/indexes-read-write-access';
 import { selectIsViewSearchCompatible } from '../../utils/is-view-search-compatible';
 
-import {
-  type SearchIndexInfo,
-  VectorSearchIndexDetails,
-  SearchIndexDetails,
-  searchIndexDetailsStyles,
-  useSearchIndexesTable,
-} from './use-search-indexes-table';
+import { useSearchIndexesTable } from './use-search-indexes-table';
 import { COLUMNS, COLUMNS_WITH_ACTIONS } from './search-indexes-columns';
 
 type SearchIndexesTableProps = {
@@ -166,64 +159,39 @@ export const SearchIndexesTable: React.FunctionComponent<
     selectIsViewSearchCompatible(isAtlas)
   );
 
-  const { data: baseData } = useSearchIndexesTable({
+  const { data } = useSearchIndexesTable({
     indexes,
     vectorTypeLabel: 'Vector Search',
+    renderActions: useCallback(
+      (index: SearchIndex, isVectorSearchIndex: boolean) => (
+        <SearchIndexActions
+          index={index}
+          onDropIndex={onDropIndexClick}
+          onEditIndex={onEditIndexClick}
+          onRunAggregateIndex={(name: string) => {
+            openCollectionWorkspace(connectionId, namespace, {
+              newTab: true,
+              ...(isVectorSearchIndex
+                ? {
+                    initialPipelineText:
+                      getInitialVectorSearchIndexPipelineText(name),
+                  }
+                : {
+                    initialPipeline: getInitialSearchIndexPipeline(name),
+                  }),
+            });
+          }}
+        />
+      ),
+      [
+        connectionId,
+        namespace,
+        onDropIndexClick,
+        onEditIndexClick,
+        openCollectionWorkspace,
+      ]
+    ),
   });
-
-  // Extend base data with tab-specific actions and renderExpandedContent
-  const data = useMemo<LGTableDataType<SearchIndexInfo>[]>(
-    () =>
-      baseData.map((item) => ({
-        ...item,
-        actions: (
-          <SearchIndexActions
-            index={item.indexInfo}
-            onDropIndex={onDropIndexClick}
-            onEditIndex={onEditIndexClick}
-            onRunAggregateIndex={(name: string) => {
-              openCollectionWorkspace(connectionId, namespace, {
-                newTab: true,
-                ...(item.isVectorSearchIndex
-                  ? {
-                      initialPipelineText:
-                        getInitialVectorSearchIndexPipelineText(name),
-                    }
-                  : {
-                      initialPipeline: getInitialSearchIndexPipeline(name),
-                    }),
-              });
-            }}
-          />
-        ),
-        renderExpandedContent() {
-          return (
-            <div
-              className={searchIndexDetailsStyles}
-              data-testid={`search-indexes-details-${item.indexInfo.name}`}
-            >
-              {item.isVectorSearchIndex ? (
-                <VectorSearchIndexDetails
-                  definition={item.indexInfo.latestDefinition}
-                />
-              ) : (
-                <SearchIndexDetails
-                  definition={item.indexInfo.latestDefinition}
-                />
-              )}
-            </div>
-          );
-        },
-      })),
-    [
-      baseData,
-      connectionId,
-      namespace,
-      onDropIndexClick,
-      onEditIndexClick,
-      openCollectionWorkspace,
-    ]
-  );
 
   if (!isReadyStatus(status)) {
     // If there's an error or the search indexes are still pending or search

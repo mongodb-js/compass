@@ -125,9 +125,11 @@ function getRollingIndexInfo(index: MappedRollingIndex): CommonIndexInfo {
     id: `rollingIndex-${index.indexName}`,
     name: index.indexName,
     indexInfo: index,
+    // TODO(COMPASS-8335): check that label really is a regular index type
     type: <TypeField type={index.indexType.label as RegularIndex['type']} />,
     size: <SizeField size={0} relativeSize={0} />,
     usageCount: <UsageField usage={undefined} since={undefined} />,
+    // TODO(COMPASS-7589): add properties for rolling indexes
     properties: null,
     status: <StatusField status="building" />,
     actions: null,

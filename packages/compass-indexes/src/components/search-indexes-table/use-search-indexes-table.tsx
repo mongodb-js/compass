@@ -10,6 +10,7 @@ import {
   palette,
   spacing,
 } from '@mongodb-js/compass-components';
+import type { LGTableDataType } from '@mongodb-js/compass-components';
 
 import BadgeWithIconLink from '../indexes-table/badge-with-icon-link';
 
@@ -20,16 +21,6 @@ export type SearchIndexInfo = {
   status: React.ReactNode;
   type: React.ReactNode;
   actions: React.ReactNode;
-  renderExpandedContent: React.ReactNode;
-};
-
-// Base data returned by the hook (without actions and renderExpandedContent)
-export type BaseSearchIndexData = {
-  id: string;
-  name: string;
-  indexInfo: SearchIndex;
-  status: React.ReactNode;
-  type: React.ReactNode;
   isVectorSearchIndex: boolean;
 };
 
@@ -180,19 +171,30 @@ export function getIndexFields(
 
 export type UseSearchIndexesTableProps = {
   indexes: SearchIndex[];
+  renderActions: (
+    index: SearchIndex,
+    isVectorSearchIndex: boolean
+  ) => React.ReactNode;
   // Use "Vector" for drawer, "Vector Search" for tab
   vectorTypeLabel?: 'Vector' | 'Vector Search';
+  // Override the default expanded content renderer
+  renderExpandedContentOverride?: (
+    index: SearchIndex,
+    isVectorSearchIndex: boolean
+  ) => React.JSX.Element;
 };
 
 /**
- * Hook that returns base search index data for rendering in tables.
- * Each component can extend the returned data with its own actions and renderExpandedContent.
+ * Hook that returns search index data for rendering in tables.
+ * Provides default renderExpandedContent and actions that can be overridden.
  */
 export function useSearchIndexesTable({
   indexes,
+  renderActions,
   vectorTypeLabel = 'Vector Search',
+  renderExpandedContentOverride,
 }: UseSearchIndexesTableProps) {
-  const data = useMemo<BaseSearchIndexData[]>(
+  const data = useMemo<LGTableDataType<SearchIndexInfo>[]>(
     () =>
       indexes.map((index) => {
         const isVectorSearchIndex = index.type === 'vectorSearch';
@@ -218,9 +220,26 @@ export function useSearchIndexesTable({
           ),
           indexInfo: index,
           isVectorSearchIndex,
+          actions: renderActions(index, isVectorSearchIndex),
+          renderExpandedContent: renderExpandedContentOverride
+            ? () => renderExpandedContentOverride(index, isVectorSearchIndex)
+            : () => (
+                <div
+                  className={searchIndexDetailsStyles}
+                  data-testid={`search-indexes-details-${index.name}`}
+                >
+                  {isVectorSearchIndex ? (
+                    <VectorSearchIndexDetails
+                      definition={index.latestDefinition}
+                    />
+                  ) : (
+                    <SearchIndexDetails definition={index.latestDefinition} />
+                  )}
+                </div>
+              ),
         };
       }),
-    [indexes, vectorTypeLabel]
+    [indexes, vectorTypeLabel, renderExpandedContentOverride, renderActions]
   );
 
   return { data };

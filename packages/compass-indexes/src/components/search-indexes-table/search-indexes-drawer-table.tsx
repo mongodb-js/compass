@@ -7,7 +7,6 @@ import {
   EmptyContent,
   Link,
 } from '@mongodb-js/compass-components';
-import type { LGTableDataType } from '@mongodb-js/compass-components';
 
 import { FetchStatuses } from '../../utils/fetch-status';
 import { dropSearchIndex } from '../../modules/search-indexes';
@@ -23,7 +22,6 @@ import type { RootState } from '../../modules';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { usePreferences } from 'compass-preferences-model/provider';
 import { selectReadWriteAccess } from '../../utils/indexes-read-write-access';
-import type { SearchIndexInfo } from './use-search-indexes-table';
 import {
   getIndexFields,
   searchIndexDetailsForDrawerStyles,
@@ -153,55 +151,47 @@ export const SearchIndexesDrawerTable: React.FunctionComponent<
     [onCreateSearchIndexClick]
   );
 
-  // Filter indexes based on search term
-  const filteredIndexes = useMemo(() => {
-    if (!searchTerm) {
-      return indexes;
-    }
-    return indexes.filter((x) => x.name.includes(searchTerm));
-  }, [indexes, searchTerm]);
-
-  const { data: baseData } = useSearchIndexesTable({
-    indexes: filteredIndexes,
+  const { data: allData } = useSearchIndexesTable({
+    indexes,
     vectorTypeLabel: 'Vector',
+    renderActions: useCallback(
+      (index: SearchIndex) => (
+        <SearchIndexActions
+          index={index}
+          onDropIndex={onDropIndexClick}
+          onEditIndex={onEditIndexClick}
+        />
+      ),
+      [onDropIndexClick, onEditIndexClick]
+    ),
+    renderExpandedContentOverride: useCallback(
+      (index: SearchIndex, isVectorSearchIndex: boolean) => (
+        <div className={searchIndexDetailsForDrawerStyles}>
+          <div>
+            <b>Status: </b>
+            {index.status}
+          </div>
+          <div>
+            <b>Index Fields: </b>
+            {getIndexFields(index.latestDefinition, isVectorSearchIndex)}
+          </div>
+          <div>
+            <b>Queryable: </b>
+            {index.queryable.toString()}
+          </div>
+        </div>
+      ),
+      []
+    ),
   });
 
-  // Extend base data with drawer-specific actions and renderExpandedContent
-  const data = useMemo<LGTableDataType<SearchIndexInfo>[]>(
-    () =>
-      baseData.map((item) => ({
-        ...item,
-        actions: (
-          <SearchIndexActions
-            index={item.indexInfo}
-            onDropIndex={onDropIndexClick}
-            onEditIndex={onEditIndexClick}
-          />
-        ),
-        renderExpandedContent() {
-          return (
-            <div className={searchIndexDetailsForDrawerStyles}>
-              <div>
-                <b>Status: </b>
-                {item.indexInfo.status}
-              </div>
-              <div>
-                <b>Index Fields: </b>
-                {getIndexFields(
-                  item.indexInfo.latestDefinition,
-                  item.isVectorSearchIndex
-                )}
-              </div>
-              <div>
-                <b>Queryable: </b>
-                {item.indexInfo.queryable.toString()}
-              </div>
-            </div>
-          );
-        },
-      })),
-    [baseData, onDropIndexClick, onEditIndexClick]
-  );
+  // Filter data based on search term
+  const data = useMemo(() => {
+    if (!searchTerm) {
+      return allData;
+    }
+    return allData.filter((item) => item.name.includes(searchTerm));
+  }, [allData, searchTerm]);
 
   if (!isReadyStatus(status)) {
     return null;
