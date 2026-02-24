@@ -183,7 +183,6 @@ const renderIndexList = (
         onDeleteFailedIndexClick={() => {}}
         onRegularIndexesOpened={() => {}}
         onRegularIndexesClosed={() => {}}
-        context="indexes-tab"
         {...props}
       />
     </Provider>
@@ -414,60 +413,6 @@ describe('RegularIndexesTable Component', function () {
       const indexRow = screen.getByTestId(`indexes-row-${index.name}`);
       expect(within(indexRow).queryByTestId('indexes-actions-field')).to.not
         .exist;
-    });
-  });
-
-  describe('indexes-drawer context', function () {
-    it('renders simplified columns in drawer context', function () {
-      renderIndexList({ indexes: indexes, context: 'indexes-drawer' });
-
-      const indexesList = screen.getByTestId('indexes-list');
-      expect(indexesList).to.exist;
-
-      // Should render Name, Type, Status, Actions columns
-      expect(screen.getByTestId('indexes-header-name')).to.exist;
-      expect(screen.getByTestId('indexes-header-type')).to.exist;
-      expect(screen.getByTestId('indexes-header-status')).to.exist;
-      expect(screen.getByTestId('indexes-header-actions')).to.exist;
-
-      // Should NOT render Size, Usage, Properties columns
-      expect(screen.queryByTestId('indexes-header-size')).to.not.exist;
-      expect(screen.queryByTestId('indexes-header-usageCount')).to.not.exist;
-      expect(screen.queryByTestId('indexes-header-properties')).to.not.exist;
-    });
-
-    it('renders index rows with drawer-specific fields', function () {
-      renderIndexList(
-        { indexes: indexes, context: 'indexes-drawer' },
-        { isWritable: true }
-      );
-
-      for (const index of indexes) {
-        const indexRow = screen.getByTestId(`indexes-row-${index.name}`);
-        expect(indexRow).to.exist;
-
-        // Should have name, type, status, actions fields
-        expect(within(indexRow).getByTestId('indexes-name-field')).to.exist;
-        expect(within(indexRow).getByTestId('indexes-type-field')).to.exist;
-        expect(within(indexRow).getByTestId('indexes-status-field')).to.exist;
-        expect(within(indexRow).getByTestId('indexes-actions-field')).to.exist;
-
-        // Should NOT have size, usage, properties fields
-        expect(within(indexRow).queryByTestId('indexes-size-field')).to.not
-          .exist;
-        expect(within(indexRow).queryByTestId('indexes-usageCount-field')).to
-          .not.exist;
-        expect(within(indexRow).queryByTestId('indexes-properties-field')).to
-          .not.exist;
-      }
-    });
-
-    it('uses "Name" header instead of "Name & Definition" in drawer context', function () {
-      renderIndexList({ indexes: indexes, context: 'indexes-drawer' });
-
-      const nameHeader = screen.getByTestId('indexes-header-name');
-      expect(nameHeader.textContent).to.include('Name');
-      expect(nameHeader.textContent).to.not.include('Definition');
     });
   });
 

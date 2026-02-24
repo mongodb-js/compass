@@ -33,7 +33,7 @@ import { selectIsViewSearchCompatible } from '../../../utils/is-view-search-comp
 import { selectReadWriteAccess } from '../../../utils/indexes-read-write-access';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { usePreferences } from 'compass-preferences-model/provider';
-import RegularIndexesTable from '../../regular-indexes-table/regular-indexes-table';
+import RegularIndexesDrawerTable from '../../regular-indexes-table/regular-indexes-drawer-table';
 import SearchIndexesTable from '../../search-indexes-table/search-indexes-table';
 import { ZeroRegularIndexesGraphic } from '../../icons/zero-regular-indexes-graphic';
 
@@ -301,10 +301,7 @@ const IndexesListDrawerView: React.FunctionComponent<
       <Accordion text="Standard" defaultOpen={true}>
         {isRegularIndexesReadable ? (
           filteredRegularIndexes.length > 0 ? (
-            <RegularIndexesTable
-              indexes={filteredRegularIndexes}
-              context="indexes-drawer"
-            />
+            <RegularIndexesDrawerTable indexes={filteredRegularIndexes} />
           ) : (
             <NoStandardIndexesEmptyContent
               isRegularIndexesWritable={isRegularIndexesWritable}

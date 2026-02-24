@@ -1,7 +1,6 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { connect, useSelector } from 'react-redux';
 import { usePreferences } from 'compass-preferences-model/provider';
-import { useWorkspaceTabId } from '@mongodb-js/compass-workspaces/provider';
 
 import type { RootState } from '../../modules';
 import { IndexesTable } from '../indexes-table';
@@ -11,8 +10,6 @@ import {
   dropFailedIndex,
   hideIndex,
   unhideIndex,
-  startPollingRegularIndexes,
-  stopPollingRegularIndexes,
 } from '../../modules/regular-indexes';
 
 import type {
@@ -24,9 +21,12 @@ import { selectReadWriteAccess } from '../../utils/indexes-read-write-access';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 
 import { useRegularIndexesTable } from './use-regular-indexes-table';
-import { COLUMNS, COLUMNS_WITH_ACTIONS } from './regular-indexes-columns';
+import {
+  COLUMNS_FOR_DRAWER,
+  COLUMNS_FOR_DRAWER_WITH_ACTIONS,
+} from './regular-indexes-columns';
 
-type RegularIndexesTableProps = {
+type RegularIndexesDrawerTableProps = {
   indexes: RegularIndex[];
   inProgressIndexes: InProgressIndex[];
   rollingIndexes: RollingIndex[];
@@ -36,12 +36,10 @@ type RegularIndexesTableProps = {
   onDeleteIndexClick: (name: string) => void;
   onDeleteFailedIndexClick: (name: string) => void;
   error?: string | null;
-  onRegularIndexesOpened: (tabId: string) => void;
-  onRegularIndexesClosed: (tabId: string) => void;
 };
 
-export const RegularIndexesTable: React.FunctionComponent<
-  RegularIndexesTableProps
+export const RegularIndexesDrawerTable: React.FunctionComponent<
+  RegularIndexesDrawerTableProps
 > = ({
   indexes,
   inProgressIndexes,
@@ -51,11 +49,8 @@ export const RegularIndexesTable: React.FunctionComponent<
   onUnhideIndexClick,
   onDeleteIndexClick,
   onDeleteFailedIndexClick,
-  onRegularIndexesOpened,
-  onRegularIndexesClosed,
   error,
 }) => {
-  const tabId = useWorkspaceTabId();
   const { atlasMetadata } = useConnectionInfo();
   const { readOnly, readWrite, enableAtlasSearchIndexes } = usePreferences([
     'readOnly',
@@ -71,13 +66,6 @@ export const RegularIndexesTable: React.FunctionComponent<
     })
   );
 
-  useEffect(() => {
-    onRegularIndexesOpened(tabId);
-    return () => {
-      onRegularIndexesClosed(tabId);
-    };
-  }, [tabId, onRegularIndexesOpened, onRegularIndexesClosed]);
-
   const { data } = useRegularIndexesTable({
     indexes,
     inProgressIndexes,
@@ -90,8 +78,6 @@ export const RegularIndexesTable: React.FunctionComponent<
   });
 
   if (error) {
-    // We don't render the table if there is an error. The toolbar takes care of
-    // displaying it.
     return null;
   }
 
@@ -99,15 +85,19 @@ export const RegularIndexesTable: React.FunctionComponent<
     <IndexesTable
       id="regular-indexes"
       data-testid="indexes"
-      columns={isRegularIndexesWritable ? COLUMNS_WITH_ACTIONS : COLUMNS}
+      columns={
+        isRegularIndexesWritable
+          ? COLUMNS_FOR_DRAWER_WITH_ACTIONS
+          : COLUMNS_FOR_DRAWER
+      }
       data={data}
+      isDrawer={true}
     />
   );
 };
 
 const mapState = ({ serverVersion, regularIndexes }: RootState) => ({
   serverVersion,
-  indexes: regularIndexes.indexes,
   inProgressIndexes: regularIndexes.inProgressIndexes,
   rollingIndexes: regularIndexes.rollingIndexes ?? [],
   error: regularIndexes.error,
@@ -118,8 +108,6 @@ const mapDispatch = {
   onDeleteFailedIndexClick: dropFailedIndex,
   onHideIndexClick: hideIndex,
   onUnhideIndexClick: unhideIndex,
-  onRegularIndexesOpened: startPollingRegularIndexes,
-  onRegularIndexesClosed: stopPollingRegularIndexes,
 };
 
-export default connect(mapState, mapDispatch)(RegularIndexesTable);
+export default connect(mapState, mapDispatch)(RegularIndexesDrawerTable);
