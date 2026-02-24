@@ -59,21 +59,8 @@ export function formatDuration(secs: number): string {
   const days = Math.floor((secs % SECONDS_PER_WEEK) / SECONDS_PER_DAY);
   const weeks = Math.floor(secs / SECONDS_PER_WEEK);
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const DurationFormat = (Intl as any).DurationFormat;
-
-  // Fallback for environments that don't support Intl.DurationFormat (e.g. older Node versions in tests)
-  if (!DurationFormat) {
-    const parts: string[] = [];
-    if (weeks > 0) parts.push(`${weeks}w`);
-    if (days > 0) parts.push(`${days}d`);
-    if (hours > 0) parts.push(`${hours}h`);
-    if (minutes > 0) parts.push(`${minutes}m`);
-    if (seconds > 0 || parts.length === 0) parts.push(`${seconds}s`);
-    return parts.join(' ');
-  }
-
-  return new DurationFormat(undefined, { style: 'narrow' }).format({
+  // @ts-expect-error: DurationFormat is not in our target TS yet, this should fail when we update
+  return new Intl.DurationFormat(undefined, { style: 'narrow' }).format({
     weeks,
     days,
     hours,
