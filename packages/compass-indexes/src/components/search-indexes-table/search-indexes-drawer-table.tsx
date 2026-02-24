@@ -5,17 +5,17 @@ import {
   css,
   DropdownMenuButton,
   EmptyContent,
-  LGTableDataType,
   Link,
 } from '@mongodb-js/compass-components';
+import type { LGTableDataType } from '@mongodb-js/compass-components';
 
 import { FetchStatuses } from '../../utils/fetch-status';
 import { dropSearchIndex } from '../../modules/search-indexes';
 import {
   openCreateSearchIndexDrawerView,
   openEditSearchIndexDrawerView,
-  SearchIndexType,
 } from '../../modules/indexes-drawer';
+import type { SearchIndexType } from '../../modules/indexes-drawer';
 import type { FetchStatus } from '../../utils/fetch-status';
 import { IndexesTable } from '../indexes-table';
 import SearchIndexActions from './search-index-actions';

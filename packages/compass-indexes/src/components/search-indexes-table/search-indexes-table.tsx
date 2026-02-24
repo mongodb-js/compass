@@ -24,7 +24,7 @@ import type { FetchStatus } from '../../utils/fetch-status';
 import { IndexesTable } from '../indexes-table';
 import SearchIndexActions from './search-index-actions';
 import { ZeroRegularIndexesGraphic } from '../icons/zero-regular-indexes-graphic';
-import type { RootState, IndexesThunkDispatch } from '../../modules';
+import type { RootState } from '../../modules';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { useWorkspaceTabId } from '@mongodb-js/compass-workspaces/provider';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
