@@ -34,7 +34,7 @@ import { selectReadWriteAccess } from '../../../utils/indexes-read-write-access'
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { usePreferences } from 'compass-preferences-model/provider';
 import RegularIndexesDrawerTable from '../../regular-indexes-table/regular-indexes-drawer-table';
-import SearchIndexesTable from '../../search-indexes-table/search-indexes-table';
+import SearchIndexesDrawerTable from '../../search-indexes-table/search-indexes-drawer-table';
 import { ZeroRegularIndexesGraphic } from '../../icons/zero-regular-indexes-graphic';
 
 const containerStyles = css({
@@ -317,10 +317,7 @@ const IndexesListDrawerView: React.FunctionComponent<
       <Accordion text="Search" defaultOpen={true}>
         {getSearchIndexesBanner()}
         {filteredSearchIndexes.length > 0 ? (
-          <SearchIndexesTable
-            indexes={filteredSearchIndexes}
-            context="indexes-drawer"
-          />
+          <SearchIndexesDrawerTable indexes={filteredSearchIndexes} />
         ) : (
           <NoSearchIndexesEmptyContent
             isSearchIndexesWritable={isSearchIndexesWritable}

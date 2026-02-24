@@ -42,7 +42,6 @@ const renderIndexList = (
         indexes={indexes}
         status="READY"
         isReadonlyView={false}
-        context="indexes-tab"
         onDropIndexClick={noop}
         onEditIndexClick={noop}
         onOpenCreateModalClick={noop}
@@ -219,128 +218,6 @@ describe('SearchIndexesTable Component', function () {
       for (const path of ['plot_embedding', 'genres']) {
         expect(within(details).getAllByText(path)).to.exist;
       }
-    });
-  });
-
-  describe('indexes-drawer context', function () {
-    it('renders simplified columns in drawer context', function () {
-      renderIndexList({ indexes, context: 'indexes-drawer' });
-
-      const indexesList = screen.getByTestId('search-indexes-list');
-      expect(indexesList).to.exist;
-
-      // Should render Name header (not "Name and Fields")
-      const nameHeader = screen.getByTestId('search-indexes-header-name');
-      expect(nameHeader.textContent).to.include('Name');
-      expect(nameHeader.textContent).to.not.include('Fields');
-
-      // Should render Type, Status, Actions columns
-      expect(screen.getByTestId('search-indexes-header-type')).to.exist;
-      expect(screen.getByTestId('search-indexes-header-status')).to.exist;
-      expect(screen.getByTestId('search-indexes-header-actions')).to.exist;
-    });
-
-    it('does not render the Aggregate button in drawer context', function () {
-      renderIndexList({ indexes, context: 'indexes-drawer' });
-
-      // The Aggregate button should not be present in drawer context
-      expect(screen.queryByTestId('search-index-actions-aggregate-action')).to
-        .not.exist;
-    });
-
-    it('renders the Aggregate button in indexes-tab context', function () {
-      renderIndexList({ indexes, context: 'indexes-tab' });
-
-      // The Aggregate button should be present in tab context
-      const aggregateButtons = screen.getAllByTestId(
-        'search-index-actions-aggregate-action'
-      );
-      expect(aggregateButtons.length).to.be.greaterThan(0);
-    });
-
-    it('shows "Vector" instead of "Vector Search" for type in drawer context', function () {
-      renderIndexList({
-        indexes: vectorSearchIndexes,
-        context: 'indexes-drawer',
-      });
-
-      const typeFields = screen.getAllByTestId('search-indexes-type-field');
-      // Check that at least one type field contains "Vector" but not "Vector Search"
-      const hasVectorType = typeFields.some((field) => {
-        const text = field.textContent || '';
-        return text.includes('Vector') && !text.includes('Vector Search');
-      });
-      expect(hasVectorType).to.be.true;
-    });
-
-    it('shows "Vector Search" for type in indexes-tab context', function () {
-      renderIndexList({
-        indexes: vectorSearchIndexes,
-        context: 'indexes-tab',
-      });
-
-      const typeFields = screen.getAllByTestId('search-indexes-type-field');
-      // Check that at least one type field contains "Vector Search"
-      const hasVectorSearchType = typeFields.some((field) => {
-        const text = field.textContent || '';
-        return text.includes('Vector Search');
-      });
-      expect(hasVectorSearchType).to.be.true;
-    });
-
-    it('renders simplified expanded content in drawer context', function () {
-      renderIndexList({
-        indexes,
-        context: 'indexes-drawer',
-      });
-
-      const indexRow = screen
-        .getByText(indexes[0].name)
-        .closest('tr') as HTMLTableRowElement;
-
-      const expandButton = within(indexRow).getByLabelText('Expand row');
-      fireEvent.click(expandButton);
-
-      // In drawer context, should show simplified content with Status, Index Fields, Queryable
-      // and NOT the detailed search-indexes-details component
-      expect(screen.queryByTestId(`search-indexes-details-${indexes[0].name}`))
-        .to.not.exist;
-      expect(screen.getByText(/Status:/)).to.exist;
-      expect(screen.getByText(/Queryable:/)).to.exist;
-    });
-
-    it('renders detailed expanded content in indexes-tab context', function () {
-      renderIndexList({
-        indexes,
-        context: 'indexes-tab',
-      });
-
-      const indexRow = screen
-        .getByText(indexes[0].name)
-        .closest('tr') as HTMLTableRowElement;
-
-      const expandButton = within(indexRow).getByLabelText('Expand row');
-      fireEvent.click(expandButton);
-
-      // In tab context, should show the detailed search-indexes-details component
-      expect(screen.getByTestId(`search-indexes-details-${indexes[0].name}`)).to
-        .exist;
-    });
-
-    it('calls onEditIndexClick when edit action is clicked in drawer context', function () {
-      const onEditIndexSpy = sinon.spy();
-
-      renderIndexList({
-        indexes,
-        context: 'indexes-drawer',
-        onEditIndexClick: onEditIndexSpy,
-      });
-
-      const editIndexActions = screen.getAllByTestId(
-        'search-index-actions-edit-action'
-      );
-      editIndexActions[0].click();
-      expect(onEditIndexSpy.callCount).to.equal(1);
     });
   });
 
