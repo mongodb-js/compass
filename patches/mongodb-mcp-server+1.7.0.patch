@@ -1,0 +1,76 @@
+diff --git a/node_modules/mongodb-mcp-server/dist/cjs/tools/mongodb/read/aggregate.js b/node_modules/mongodb-mcp-server/dist/cjs/tools/mongodb/read/aggregate.js
+index ebb7d04..87eec54 100644
+--- a/node_modules/mongodb-mcp-server/dist/cjs/tools/mongodb/read/aggregate.js
++++ b/node_modules/mongodb-mcp-server/dist/cjs/tools/mongodb/read/aggregate.js
+@@ -58,10 +58,12 @@ Note to LLM: If the entire aggregation result is required, use the "export" tool
+ `),
+         };
+     }
+-    async execute({ database, collection, pipeline, responseBytesLimit }, { signal }) {
++    async execute({ database, collection, pipeline, responseBytesLimit }, context) {
+         let aggregationCursor = undefined;
+         try {
+             const provider = await this.ensureConnected();
++            const { signal, requestInfo } = context;
++            const maxTimeMS = requestInfo?.headers?.['x-compass-maxtimems'];
+             await this.assertOnlyUsesPermittedStages(pipeline);
+             if (await this.session.isSearchSupported()) {
+                 (0, assertVectorSearchFilterFieldsAreIndexed_js_1.assertVectorSearchFilterFieldsAreIndexed)({
+@@ -87,6 +89,7 @@ Note to LLM: If the entire aggregation result is required, use the "export" tool
+                                 return provider
+                                     .aggregate(database, collection, pipeline, {
+                                     signal,
++                                    ...(typeof maxTimeMS === 'number' ? { maxTimeMS } : {}),
+                                 }, { writeConcern: undefined })
+                                     .explain("queryPlanner");
+                             },
+@@ -110,6 +113,7 @@ Note to LLM: If the entire aggregation result is required, use the "export" tool
+                 // This is a write pipeline, so special-case it and don't attempt to apply limits or caps
+                 aggregationCursor = provider.aggregate(database, collection, pipeline, {
+                     signal,
++                    ...(typeof maxTimeMS === 'number' ? { maxTimeMS } : {}),
+                 });
+                 documents = await aggregationCursor.toArray();
+                 successMessage = "The aggregation pipeline executed successfully.";
+@@ -121,6 +125,7 @@ Note to LLM: If the entire aggregation result is required, use the "export" tool
+                 }
+                 aggregationCursor = provider.aggregate(database, collection, cappedResultsPipeline, {
+                     signal,
++                    ...(typeof maxTimeMS === 'number' ? { maxTimeMS } : {}),
+                 });
+                 const [totalDocuments, cursorResults] = await Promise.all([
+                     this.countAggregationResultDocuments({
+diff --git a/node_modules/mongodb-mcp-server/dist/cjs/tools/mongodb/read/find.js b/node_modules/mongodb-mcp-server/dist/cjs/tools/mongodb/read/find.js
+index 1da66a6..74fcb5b 100644
+--- a/node_modules/mongodb-mcp-server/dist/cjs/tools/mongodb/read/find.js
++++ b/node_modules/mongodb-mcp-server/dist/cjs/tools/mongodb/read/find.js
+@@ -40,10 +40,12 @@ Note to LLM: If the entire query result is required, use the "export" tool inste
+ `),
+         };
+     }
+-    async execute({ database, collection, filter, projection, limit, sort, responseBytesLimit }, { signal }) {
++    async execute({ database, collection, filter, projection, limit, sort, responseBytesLimit }, context) {
+         let findCursor = undefined;
+         try {
+             const provider = await this.ensureConnected();
++            const { signal, requestInfo } = context;
++            const maxTimeMS = requestInfo?.headers?.['x-compass-maxtimems'];
+             // Check if find operation uses an index if enabled
+             if (this.config.indexCheck) {
+                 await (0, indexCheck_js_1.checkIndexUsage)({
+@@ -57,6 +59,7 @@ Note to LLM: If the entire query result is required, use the "export" tool inste
+                             limit,
+                             sort,
+                             signal,
++                            ...(typeof maxTimeMS === 'number' ? { maxTimeMS } : {}),
+                         })
+                             .explain("queryPlanner");
+                     },
+@@ -69,6 +72,7 @@ Note to LLM: If the entire query result is required, use the "export" tool inste
+                 limit: limitOnFindCursor.limit,
+                 sort,
+                 signal,
++                ...(typeof maxTimeMS === 'number' ? { maxTimeMS } : {}),
+             });
+             const [queryResultsCount, cursorResults] = await Promise.all([
+                 (0, operationWithFallback_js_1.operationWithFallback)(() => provider.countDocuments(database, collection, filter, {

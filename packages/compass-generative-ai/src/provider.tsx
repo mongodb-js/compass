@@ -61,13 +61,15 @@ export const ToolsControllerProvider: React.FC = createServiceProvider(
     const logger = useLogger('TOOLS-CONTROLLER');
 
     const telemetryAnonymousId = usePreference('telemetryAnonymousId');
+    const preferences = preferencesLocator();
 
     const toolsController = useMemo(() => {
       return new ToolsController({
         logger,
         getTelemetryAnonymousId: () => telemetryAnonymousId ?? '',
+        getMaxTimeMS: () => preferences.getPreferences().maxTimeMS,
       });
-    }, [logger, telemetryAnonymousId]);
+    }, [logger, telemetryAnonymousId, preferences]);
 
     useEffect(() => {
       return () => {

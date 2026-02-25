@@ -55,6 +55,7 @@ class InMemoryRunner extends TransportRunnerBase {
 type ToolsControllerConfig = {
   logger: Logger;
   getTelemetryAnonymousId: () => string;
+  getMaxTimeMS?: () => number | undefined;
 };
 
 export class ToolsController {
@@ -65,9 +66,15 @@ export class ToolsController {
   private connectionManager: ToolsConnectionManager;
   private connectionIdByToolCallId: Record<string, string | null> =
     Object.create(null);
+  private getMaxTimeMS: () => number | undefined;
 
-  constructor({ logger, getTelemetryAnonymousId }: ToolsControllerConfig) {
+  constructor({
+    logger,
+    getTelemetryAnonymousId,
+    getMaxTimeMS,
+  }: ToolsControllerConfig) {
     this.logger = logger;
+    this.getMaxTimeMS = getMaxTimeMS ?? (() => undefined);
     const mcpConfig = UserConfigSchema.parse({
       disabledTools: ['connect'],
       loggers: ['mcp'],
@@ -230,8 +237,15 @@ export class ToolsController {
 
             let result: Awaited<ReturnType<typeof toolBase.invoke>>;
             try {
+              const maxTimeMS = this.getMaxTimeMS();
               result = await toolBase.invoke(args, {
                 signal: options.abortSignal ?? new AbortSignal(),
+                requestInfo: {
+                  headers:
+                    maxTimeMS !== undefined
+                      ? { 'x-compass-maxtimems': maxTimeMS }
+                      : {},
+                },
               });
             } finally {
               // disconnect

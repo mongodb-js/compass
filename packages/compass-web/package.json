@@ -149,6 +149,6 @@
     "vm-browserify": "^1.1.2",
     "whatwg-url": "14.0.0",
     "ws": "^8.16.0",
-    "mongodb-mcp-server": "1.6.1-prerelease.2"
+    "mongodb-mcp-server": "^1.7.0"
   }
 }
