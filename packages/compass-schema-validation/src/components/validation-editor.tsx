@@ -241,7 +241,7 @@ export const ValidationEditor: React.FunctionComponent<
 
   const onClickApplyValidation = useCallback(async () => {
     const confirmed = await showConfirmation({
-      title: 'confirm applying rules',
+      title: 'Confirm applying rules?',
       description:
         'These rules will be enforced on updates & inserts of your document. Please make sure you have reviewed the rules before applying them.',
     });
