@@ -103,7 +103,7 @@ function WithErrorBoundary({
 }: {
   children: React.ReactNode;
   name: string;
-  type: 'content' | 'header';
+  type: 'content' | 'header' | 'drawer';
 }) {
   const { log, mongoLogId } = useLogger('COMPASS-COLLECTION-TAB-UI');
   return (
@@ -141,26 +141,41 @@ function useCollectionTabs(props: CollectionMetadata) {
       }
       return true;
     })
-    .map(({ name, content: Content, provider: Provider, header: Header }) => {
-      // `pluginTabs` never change in runtime so it's safe to call the hook here
-      // eslint-disable-next-line react-hooks/rules-of-hooks
-      Provider.useActivate(props);
-      return {
+    .map(
+      ({
         name,
-        content: (
-          <WithErrorBoundary name={name} type="content">
+        content: Content,
+        provider: Provider,
+        header: Header,
+        drawer: Drawer,
+      }) => {
+        // `pluginTabs` never change in runtime so it's safe to call the hook here
+        // eslint-disable-next-line react-hooks/rules-of-hooks
+        Provider.useActivate(props);
+        return {
+          name,
+          content: (
+            <WithErrorBoundary name={name} type="content">
+              <Provider {...props}>
+                <Content {...props} />
+              </Provider>
+            </WithErrorBoundary>
+          ),
+          title: (
             <Provider {...props}>
-              <Content {...props} />
+              <Header />
             </Provider>
-          </WithErrorBoundary>
-        ),
-        title: (
-          <Provider {...props}>
-            <Header />
-          </Provider>
-        ),
-      };
-    });
+          ),
+          drawer: Drawer ? (
+            <WithErrorBoundary name={name} type="drawer">
+              <Provider {...props}>
+                <Drawer {...props} />
+              </Provider>
+            </WithErrorBoundary>
+          ) : null,
+        };
+      }
+    );
 }
 
 const CollectionTabWithMetadata: React.FunctionComponent<
@@ -203,6 +218,7 @@ const CollectionTabWithMetadata: React.FunctionComponent<
     pipelineText: initialPipelineText,
     query: initialQuery,
     editViewName: editViewName,
+    subTab: currentTab,
   };
 
   const tabs = useCollectionTabs(pluginProps);
@@ -233,6 +249,9 @@ const CollectionTabWithMetadata: React.FunctionComponent<
           return <ModalPlugin key={idx} {...pluginProps}></ModalPlugin>;
         })}
       </div>
+      {tabs.map(({ drawer }) => (
+        <>{drawer}</>
+      ))}
     </div>
   );
 };

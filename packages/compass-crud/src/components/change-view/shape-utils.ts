@@ -1,7 +1,9 @@
+import { getBsonType } from 'hadron-type-checker';
+
 export function isSimpleObject(value: any) {
   return (
     Object.prototype.toString.call(value) === '[object Object]' &&
-    !value._bsontype
+    !getBsonType(value)
   );
 }
 

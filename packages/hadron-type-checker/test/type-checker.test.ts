@@ -12,7 +12,7 @@ import {
   Int32,
   Decimal128,
 } from 'bson';
-import TypeChecker from '../src';
+import TypeChecker, { getBsonType } from '../src';
 
 describe('TypeChecker', function () {
   describe('#cast', function () {
@@ -52,7 +52,7 @@ describe('TypeChecker', function () {
           it('returns a corresponding binary object', function () {
             const value = 'yay 🎉';
 
-            expect(TypeChecker.cast(value, 'Binary')._bsontype).to.equal(
+            expect(getBsonType(TypeChecker.cast(value, 'Binary'))).to.equal(
               'Binary'
             );
             expect(TypeChecker.cast(value, 'Binary').toString()).to.equal(
@@ -590,7 +590,7 @@ describe('TypeChecker', function () {
       context('when casting to a binary', function () {
         it('returns an empty binary', function () {
           expect(
-            TypeChecker.cast({ test: 'value' }, 'Binary')._bsontype
+            getBsonType(TypeChecker.cast({ test: 'value' }, 'Binary'))
           ).to.equal('Binary');
         });
       });
@@ -801,6 +801,10 @@ describe('TypeChecker', function () {
           'BSONSymbol',
           'Timestamp',
           'Undefined',
+          'UUID',
+          'LegacyJavaUUID',
+          'LegacyCSharpUUID',
+          'LegacyPythonUUID',
         ]);
       });
     });
@@ -826,6 +830,10 @@ describe('TypeChecker', function () {
           'BSONSymbol',
           'Timestamp',
           'Undefined',
+          'UUID',
+          'LegacyJavaUUID',
+          'LegacyCSharpUUID',
+          'LegacyPythonUUID',
         ]);
       });
     });

@@ -1,6 +1,6 @@
 import React, { useState, useContext, createContext, useMemo } from 'react';
 import { type Document } from 'bson';
-import TypeChecker from 'hadron-type-checker';
+import TypeChecker, { getBsonType } from 'hadron-type-checker';
 
 import {
   BSONValue,
@@ -262,9 +262,7 @@ function ChangeArray({ obj, isOpen }: { obj: ArrayBranch; isOpen: boolean }) {
       obj.items.every((item) => {
         const value =
           item.changeType === 'added' ? item.right.value : item.left.value;
-        return (
-          getValueShape(value) === 'leaf' && value?._bsontype === undefined
-        );
+        return getValueShape(value) === 'leaf' && !getBsonType(value);
       })
     ) {
       // if it is an array containing just simple (ie. not bson) leaf values

@@ -177,11 +177,11 @@ export type AiQueryPrompt = {
     requestId: string;
   } & (
     | {
-        store: 'true';
+        store: true;
         sensitiveStorage: 'sensitive';
       }
     | {
-        store: 'false';
+        store: false;
       }
   );
 };
@@ -202,10 +202,10 @@ function buildMetadata({
     ...(enableStorage
       ? {
           sensitiveStorage: 'sensitive',
-          store: 'true',
+          store: true,
         }
       : {
-          store: 'false',
+          store: false,
         }),
   };
 }

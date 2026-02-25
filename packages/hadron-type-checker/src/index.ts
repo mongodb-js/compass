@@ -1,2 +1,12 @@
-export { default } from './type-checker';
-export type { TypeCastMap, TypeCastTypes } from './type-checker';
+export {
+  default,
+  UUID_REGEX,
+  uuidHexToString,
+  reverseJavaUUIDBytes,
+  reverseCSharpUUIDBytes,
+  convertBinaryUUID,
+  type BSONTypeTag,
+  getBsonType,
+  type TypeCastMap,
+  type TypeCastTypes,
+} from './type-checker';

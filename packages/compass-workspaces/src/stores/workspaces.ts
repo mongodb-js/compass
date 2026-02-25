@@ -232,9 +232,7 @@ const isWorkspaceEqual = (
   t1: WorkspaceTabProps & Partial<{ id: string; subTab: string }>,
   t2: WorkspaceTabProps & Partial<{ id: string; subTab: string }>
 ) => {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { id: _id1, subTab: _st1, ...ws1 } = t1;
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { id: _id2, subTab: _st2, ...ws2 } = t2;
   return isEqual(ws1, ws2);
 };
@@ -367,7 +365,6 @@ const reducer: Reducer<WorkspacesState, Action> = (
     if (!currentActiveTab) {
       newTab = getInitialTabState(action.defaultTab);
     } else {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { id: _id, ...tabProps } = currentActiveTab;
       newTab = getInitialTabState(tabProps);
     }
@@ -414,7 +411,6 @@ const reducer: Reducer<WorkspacesState, Action> = (
     const tabsBefore = state.tabs.slice(0, action.atIndex);
     const targetTab = state.tabs[action.atIndex];
     const tabsAfter = state.tabs.slice(action.atIndex + 1);
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { id: _id, ...tabProps } = targetTab;
     const newTab = getInitialTabState(tabProps);
     return {

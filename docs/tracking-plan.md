@@ -6,7 +6,7 @@
 > the tracking plan for the specific Compass version you can use the following
 > URL: `https://github.com/mongodb-js/compass/blob/<compass version>/docs/tracking-plan.md`
 
-Generated on Sun, Jan 25, 2026
+Generated on Tue, Feb 24, 2026
 
 ## Table of Contents
 
@@ -38,7 +38,13 @@ Generated on Sun, Jan 25, 2026
 
 ### Assistant
 
+- [Assistant Prompt Submitted](#event--AssistantPromptSubmittedEvent)
+- [Assistant Response Failed](#event--AssistantResponseFailedEvent)
+- [Assistant Failed](#event--AssistantFailedEvent)
 - [Assistant Feedback Submitted](#event--AssistantFeedbackSubmittedEvent)
+- [Assistant Entry Point Used](#event--AssistantEntryPointUsedEvent)
+- [Assistant Confirmation Submitted](#event--AssistantConfirmationSubmittedEvent)
+- [Assistant Response Generated](#event--AssistantResponseGeneratedEvent)
 
 ### Atlas
 
@@ -87,9 +93,17 @@ Generated on Sun, Jan 25, 2026
 - [Data Modeling Collection Added](#event--DataModelingDiagramCollectionAdded)
 - [Data Modeling Collection Removed](#event--DataModelingDiagramCollectionRemoved)
 - [Data Modeling Collection Renamed](#event--DataModelingDiagramCollectionRenamed)
+- [Data Modeling Create Diagram Modal Opened](#event--DataModelingCreateDiagramModalOpened)
+- [Data Modeling Diagram Creation Started](#event--DataModelingDiagramCreationStarted)
+- [Data Modeling Diagram Creation Relationship Inferral Started](#event--DataModelingDiagramCreationRelationshipInferralStarted)
 - [Data Modeling Diagram Created](#event--DataModelingDiagramCreated)
 - [Data Modeling Diagram Creation Cancelled](#event--DataModelingDiagramCreationCancelled)
 - [Data Modeling Diagram Creation Failed](#event--DataModelingDiagramCreationFailed)
+- [Data Modeling Add DB Collections Modal Opened](#event--DataModelingAddDBCollectionsModalOpened)
+- [Data Modeling Add DB Collections Started](#event--DataModelingAddDBCollectionsStarted)
+- [Data Modeling Add DB Collections Succeeded](#event--DataModelingAddDBCollectionsSucceeded)
+- [Data Modeling Add DB Collections Failed](#event--DataModelingAddDBCollectionsFailed)
+- [Data Modeling Add DB Collections Cancelled](#event--DataModelingAddDBCollectionsCancelled)
 - [Data Modeling Diagram Exported](#event--DataModelingDiagramExported)
 - [Data Modeling Field Added](#event--DataModelingDiagramFieldAdded)
 - [Data Modeling Field Removed](#event--DataModelingDiagramFieldRemoved)
@@ -114,6 +128,11 @@ Generated on Sun, Jan 25, 2026
 - [Document Inserted](#event--DocumentInsertedEvent)
 - [Document Updated](#event--DocumentUpdatedEvent)
 
+### Drawer
+
+- [Drawer Section Opened](#event--DrawerSectionOpenedEvent)
+- [Drawer Section Closed](#event--DrawerSectionClosedEvent)
+
 ### Explain
 
 - [Explain Plan Executed](#event--ExplainPlanExecutedEvent)
@@ -137,10 +156,6 @@ Generated on Sun, Jan 25, 2026
 
 ### Gen AI
 
-- [Assistant Prompt Submitted](#event--AssistantPromptSubmittedEvent)
-- [Assistant Response Failed](#event--AssistantResponseFailedEvent)
-- [Assistant Entry Point Used](#event--AssistantEntryPointUsedEvent)
-- [Assistant Confirmation Submitted](#event--AssistantConfirmationSubmittedEvent)
 - [AI Opt In Modal Shown](#event--AiOptInModalShownEvent)
 - [AI Opt In Modal Dismissed](#event--AiOptInModalDismissedEvent)
 - [AI Generate Query Clicked](#event--AiGenerateQueryClickedEvent)
@@ -148,8 +163,6 @@ Generated on Sun, Jan 25, 2026
 - [AI Query Feedback](#event--AiQueryFeedbackEvent)
 - [AI Response Failed](#event--AiResponseFailedEvent)
 - [AI Response Generated](#event--AiResponseGeneratedEvent)
-- [Drawer Section Opened](#event--DrawerSectionOpenedEvent)
-- [Drawer Section Closed](#event--DrawerSectionClosedEvent)
 - [PipelineAI Feedback](#event--PipelineAiFeedbackEvent)
 
 ### Guide Cues
@@ -232,6 +245,7 @@ Generated on Sun, Jan 25, 2026
 
 ### Schema
 
+- [Schema Analysis Started](#event--SchemaAnalysisStartedEvent)
 - [Schema Analysis Cancelled](#event--SchemaAnalysisCancelledEvent)
 - [Schema Analyzed](#event--SchemaAnalyzedEvent)
 - [Schema Exported](#event--SchemaExportedEvent)
@@ -637,6 +651,46 @@ builder.
 
 ## Assistant
 
+<a name="event--AssistantPromptSubmittedEvent"></a>
+
+### Assistant Prompt Submitted
+
+This event is fired when user enters a prompt in the assistant chat
+and hits "enter".
+
+**Properties**:
+
+- **user_input_length** (optional): `number | undefined`
+- **request_id** (optional): `string | undefined`
+- **is_compass_web** (optional): `true | undefined`
+- **connection_id** (optional): `string | undefined`
+  - The id of the connection associated to this event.
+
+<a name="event--AssistantResponseFailedEvent"></a>
+
+### Assistant Response Failed
+
+This event is fired when the AI response encounters an error.
+
+**Properties**:
+
+- **error_name** (optional): `string | undefined`
+- **request_id** (optional): `string | undefined`
+- **is_compass_web** (optional): `true | undefined`
+- **connection_id** (optional): `string | undefined`
+  - The id of the connection associated to this event.
+
+<a name="event--AssistantFailedEvent"></a>
+
+### Assistant Failed
+
+This event is fired when the AI fails due to any error.
+
+**Properties**:
+
+- **error_name** (optional): `string | undefined`
+- **is_compass_web** (optional): `true | undefined`
+
 <a name="event--AssistantFeedbackSubmittedEvent"></a>
 
 ### Assistant Feedback Submitted
@@ -647,9 +701,53 @@ This event is fired when a user submits feedback for the assistant.
 
 - **feedback** (required): `"positive" | "negative"`
 - **text** (optional): `string | undefined`
-- **request_id** (required): `string | null`
+- **request_id** (optional): `string | undefined`
 - **source** (required): `"explain plan" | "performance insights" | "connection error" | "chat response"`
 - **is_compass_web** (optional): `true | undefined`
+- **connection_id** (optional): `string | undefined`
+  - The id of the connection associated to this event.
+
+<a name="event--AssistantEntryPointUsedEvent"></a>
+
+### Assistant Entry Point Used
+
+This event is fired when a user uses an assistant entry point.
+
+**Properties**:
+
+- **source** (required): `"explain plan" | "performance insights" | "connection error"`
+- **request_id** (optional): `string | undefined`
+- **is_compass_web** (optional): `true | undefined`
+- **connection_id** (optional): `string | undefined`
+  - The id of the connection associated to this event.
+
+<a name="event--AssistantConfirmationSubmittedEvent"></a>
+
+### Assistant Confirmation Submitted
+
+This event is fired when a user confirms a confirmation message in the assistant chat.
+
+**Properties**:
+
+- **status** (required): `"confirmed" | "rejected"`
+- **source** (required): `"explain plan" | "performance insights" | "connection error" | "chat response"`
+- **request_id** (optional): `string | undefined`
+- **is_compass_web** (optional): `true | undefined`
+- **connection_id** (optional): `string | undefined`
+  - The id of the connection associated to this event.
+
+<a name="event--AssistantResponseGeneratedEvent"></a>
+
+### Assistant Response Generated
+
+This event is fired when the AI response is generated.
+
+**Properties**:
+
+- **request_id** (optional): `string | undefined`
+- **is_compass_web** (optional): `true | undefined`
+- **connection_id** (optional): `string | undefined`
+  - The id of the connection associated to this event.
 
 ## Atlas
 
@@ -1092,18 +1190,57 @@ This event is fired when user renames a collection in a data modeling diagram.
 - **source** (required): `"side_panel"`
 - **is_compass_web** (optional): `true | undefined`
 
+<a name="event--DataModelingCreateDiagramModalOpened"></a>
+
+### Data Modeling Create Diagram Modal Opened
+
+This event is fired when the modal to create a new data modeling diagram is opened
+
+<a name="event--DataModelingDiagramCreationStarted"></a>
+
+### Data Modeling Diagram Creation Started
+
+This event is fired when a new data modeling diagram creation is started
+
+**Properties**:
+
+- **num_collections** (required): `number`
+- **automatically_infer_relations** (required): `boolean`
+- **is_compass_web** (optional): `true | undefined`
+- **connection_id** (optional): `string | undefined`
+  - The id of the connection associated to this event.
+
+<a name="event--DataModelingDiagramCreationRelationshipInferralStarted"></a>
+
+### Data Modeling Diagram Creation Relationship Inferral Started
+
+This event is fired when the collections are analyzed and the relationship inferral is started
+
+**Properties**:
+
+- **num_collections** (required): `number`
+- **is_compass_web** (optional): `true | undefined`
+- **connection_id** (optional): `string | undefined`
+  - The id of the connection associated to this event.
+
 <a name="event--DataModelingDiagramCreated"></a>
 
 ### Data Modeling Diagram Created
 
 This event is fired when a new data modeling diagram is created
+analysis_time_ms is the total time taken to sample collections, build schemas and infer relationships, if applicable.
+relationship_inference_phase_ms is the time taken for just the relationship inference phase, if applicable.
+The first two phases overlap.
 
 **Properties**:
 
 - **num_collections** (required): `number`
 - **num_relations_inferred** (optional): `number | undefined`
 - **analysis_time_ms** (required): `number`
+- **relationship_inference_phase_ms** (optional): `number | undefined`
 - **is_compass_web** (optional): `true | undefined`
+- **connection_id** (optional): `string | undefined`
+  - The id of the connection associated to this event.
 
 <a name="event--DataModelingDiagramCreationCancelled"></a>
 
@@ -1114,8 +1251,12 @@ This event is fired when a new data modeling diagram creation is cancelled
 **Properties**:
 
 - **num_collections** (required): `number`
+- **automatically_infer_relations** (required): `boolean`
 - **analysis_time_ms** (required): `number`
+- **relationship_inference_phase_ms** (optional): `number | undefined`
 - **is_compass_web** (optional): `true | undefined`
+- **connection_id** (optional): `string | undefined`
+  - The id of the connection associated to this event.
 
 <a name="event--DataModelingDiagramCreationFailed"></a>
 
@@ -1126,8 +1267,83 @@ This event is fired when a new data modeling diagram creation has failed
 **Properties**:
 
 - **num_collections** (required): `number`
+- **automatically_infer_relations** (required): `boolean`
 - **analysis_time_ms** (required): `number`
+- **relationship_inference_phase_ms** (optional): `number | undefined`
 - **is_compass_web** (optional): `true | undefined`
+- **connection_id** (optional): `string | undefined`
+  - The id of the connection associated to this event.
+
+<a name="event--DataModelingAddDBCollectionsModalOpened"></a>
+
+### Data Modeling Add DB Collections Modal Opened
+
+This event is fired when the modal to add DB collections to an existing data modeling diagram is opened
+
+<a name="event--DataModelingAddDBCollectionsStarted"></a>
+
+### Data Modeling Add DB Collections Started
+
+This event is fired when new collections from the database are to be added to an existing data modeling diagram
+
+**Properties**:
+
+- **num_collections** (required): `number`
+- **automatically_infer_relations** (required): `boolean`
+- **is_compass_web** (optional): `true | undefined`
+- **connection_id** (optional): `string | undefined`
+  - The id of the connection associated to this event.
+
+<a name="event--DataModelingAddDBCollectionsSucceeded"></a>
+
+### Data Modeling Add DB Collections Succeeded
+
+This event is fired when adding new collections from the database has succeeded
+analysis_time_ms is the total time taken to sample collections, build schemas and infer relationships, if applicable.
+relationship_inference_phase_ms is the time taken for just the relationship inference phase, if applicable.
+The first two phases overlap.
+
+**Properties**:
+
+- **num_collections** (required): `number`
+- **num_relations_inferred** (optional): `number | undefined`
+- **analysis_time_ms** (required): `number`
+- **relationship_inference_phase_ms** (optional): `number | undefined`
+- **is_compass_web** (optional): `true | undefined`
+- **connection_id** (optional): `string | undefined`
+  - The id of the connection associated to this event.
+
+<a name="event--DataModelingAddDBCollectionsFailed"></a>
+
+### Data Modeling Add DB Collections Failed
+
+This event is fired when adding new collections from the database has failed
+
+**Properties**:
+
+- **num_collections** (required): `number`
+- **automatically_infer_relations** (required): `boolean`
+- **analysis_time_ms** (required): `number`
+- **relationship_inference_phase_ms** (optional): `number | undefined`
+- **is_compass_web** (optional): `true | undefined`
+- **connection_id** (optional): `string | undefined`
+  - The id of the connection associated to this event.
+
+<a name="event--DataModelingAddDBCollectionsCancelled"></a>
+
+### Data Modeling Add DB Collections Cancelled
+
+This event is fired when adding new collections from the database has been cancelled
+
+**Properties**:
+
+- **num_collections** (required): `number`
+- **automatically_infer_relations** (required): `boolean`
+- **analysis_time_ms** (required): `number`
+- **relationship_inference_phase_ms** (optional): `number | undefined`
+- **is_compass_web** (optional): `true | undefined`
+- **connection_id** (optional): `string | undefined`
+  - The id of the connection associated to this event.
 
 <a name="event--DataModelingDiagramExported"></a>
 
@@ -1356,6 +1572,34 @@ This event is fired when user updates a document
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
+## Drawer
+
+<a name="event--DrawerSectionOpenedEvent"></a>
+
+### Drawer Section Opened
+
+This event is fired when user opens a drawer section. Either by switching
+to it via the drawer toolbar or by opening the drawer and the first tab is
+this drawer section.
+
+**Properties**:
+
+- **sectionId** (required): `string`
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--DrawerSectionClosedEvent"></a>
+
+### Drawer Section Closed
+
+This event is fired when user closes a drawer section. Either by switching
+to another tab via the drawer toolbar or by closing the drawer when the
+active tab is this drawer section.
+
+**Properties**:
+
+- **sectionId** (required): `string`
+- **is_compass_web** (optional): `true | undefined`
+
 ## Explain
 
 <a name="event--ExplainPlanExecutedEvent"></a>
@@ -1560,52 +1804,6 @@ the query results.
 
 ## Gen AI
 
-<a name="event--AssistantPromptSubmittedEvent"></a>
-
-### Assistant Prompt Submitted
-
-This event is fired when user enters a prompt in the assistant chat
-and hits "enter".
-
-**Properties**:
-
-- **user_input_length** (optional): `number | undefined`
-- **is_compass_web** (optional): `true | undefined`
-
-<a name="event--AssistantResponseFailedEvent"></a>
-
-### Assistant Response Failed
-
-This event is fired when the AI response encounters an error.
-
-**Properties**:
-
-- **error_name** (optional): `string | undefined`
-- **is_compass_web** (optional): `true | undefined`
-
-<a name="event--AssistantEntryPointUsedEvent"></a>
-
-### Assistant Entry Point Used
-
-This event is fired when a user uses an assistant entry point.
-
-**Properties**:
-
-- **source** (required): `"explain plan" | "performance insights" | "connection error"`
-- **is_compass_web** (optional): `true | undefined`
-
-<a name="event--AssistantConfirmationSubmittedEvent"></a>
-
-### Assistant Confirmation Submitted
-
-This event is fired when a user confirms a confirmation message in the assistant chat.
-
-**Properties**:
-
-- **status** (required): `"confirmed" | "rejected"`
-- **source** (required): `"explain plan" | "performance insights" | "connection error" | "chat response"`
-- **is_compass_web** (optional): `true | undefined`
-
 <a name="event--AiOptInModalShownEvent"></a>
 
 ### AI Opt In Modal Shown
@@ -1698,32 +1896,6 @@ rendered in the UI.
 - **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
-
-<a name="event--DrawerSectionOpenedEvent"></a>
-
-### Drawer Section Opened
-
-This event is fired when user opens a drawer section. Either by switching
-to it via the drawer toolbar or by opening the drawer and the first tab is
-this drawer section.
-
-**Properties**:
-
-- **sectionId** (required): `string`
-- **is_compass_web** (optional): `true | undefined`
-
-<a name="event--DrawerSectionClosedEvent"></a>
-
-### Drawer Section Closed
-
-This event is fired when user closes a drawer section. Either by switching
-to another tab via the drawer toolbar or by closing the drawer when the
-active tab is this drawer section.
-
-**Properties**:
-
-- **sectionId** (required): `string`
-- **is_compass_web** (optional): `true | undefined`
 
 <a name="event--PipelineAiFeedbackEvent"></a>
 
@@ -2311,7 +2483,10 @@ This event is fired when a user clicks on the Performance Advisor CTA.
 - **type** (required): `string`
 - **approved** (required): `boolean`
 - **approval_id** (required): `string`
+- **request_id** (optional): `string | undefined`
 - **is_compass_web** (optional): `true | undefined`
+- **connection_id** (optional): `string | undefined`
+  - The id of the connection associated to this event.
 
 <a name="event--ScreenEvent"></a>
 
@@ -2494,11 +2669,17 @@ This event is fired when signal icon badge is rendered on the screen visible to 
 
 ## Schema
 
+<a name="event--SchemaAnalysisStartedEvent"></a>
+
+### Schema Analysis Started
+
+This event is fired when the schema analysis is started
+
 <a name="event--SchemaAnalysisCancelledEvent"></a>
 
 ### Schema Analysis Cancelled
 
-This event is fired when user analyzes the schema.
+This event is fired when user cancels the schema analysis.
 
 **Properties**:
 

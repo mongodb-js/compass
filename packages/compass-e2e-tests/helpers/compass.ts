@@ -22,14 +22,13 @@ import Debug from 'debug';
 import semver from 'semver';
 import { CHROME_STARTUP_FLAGS } from './chrome-startup-flags';
 import {
-  DEFAULT_CONNECTION_STRINGS,
-  DEFAULT_CONNECTION_NAMES,
   DEFAULT_CONNECTIONS_SERVER_INFO,
   isTestingWeb,
   isTestingDesktop,
   context,
   assertTestingWeb,
   isTestingAtlasCloud,
+  getCloudUrlsFromContext,
 } from './test-runner-context';
 import {
   MONOREPO_ELECTRON_CHROMIUM_VERSION,
@@ -46,9 +45,11 @@ import path from 'path';
 import { globalFixturesAbortController } from './test-runner-global-fixtures';
 import { dialogOpenLocator } from './dialog-open-locator-strategy';
 import { getExtension } from './redirect-extension';
-import {
-  getCloudUrlsFromContext,
-  COMPASS_WEB_ENTRYPOINT_HOST,
+import { COMPASS_WEB_ENTRYPOINT_HOST } from './test-runner-context';
+
+export {
+  getDefaultConnectionStrings,
+  getDefaultConnectionNames,
 } from './test-runner-context';
 
 const killAsync = async (pid: number, signal?: string) => {
@@ -101,16 +102,6 @@ export function skipForWeb(
     test.skip();
   }
 }
-
-export const DEFAULT_CONNECTION_STRING_1 = DEFAULT_CONNECTION_STRINGS[0];
-// NOTE: in browser.setupDefaultConnections() we don't give the first connection an
-// explicit name, so it gets a calculated one based off the connection string
-export const DEFAULT_CONNECTION_NAME_1 = DEFAULT_CONNECTION_NAMES[0];
-
-// for testing multiple connections
-export const DEFAULT_CONNECTION_STRING_2 = DEFAULT_CONNECTION_STRINGS[1];
-// NOTE: in browser.setupDefaultConnections() the second connection gets given an explicit name
-export const DEFAULT_CONNECTION_NAME_2 = DEFAULT_CONNECTION_NAMES[1];
 
 export const serverSatisfies = (
   semverCondition: string,
@@ -433,10 +424,9 @@ export class Compass {
       const kSandboxLoggingAndTelemetryAccess = Symbol.for(
         '@compass-web-sandbox-logging-and-telemetry-access'
       );
-      return (
-        kSandboxLoggingAndTelemetryAccess in globalThis &&
-        (globalThis as any)[kSandboxLoggingAndTelemetryAccess].logging
-      );
+      return kSandboxLoggingAndTelemetryAccess in globalThis
+        ? (globalThis as any)[kSandboxLoggingAndTelemetryAccess].logging
+        : [];
     });
     const lines = logging.map((log) => JSON.stringify(log));
     const text = lines.join('\n');
@@ -888,29 +878,6 @@ export async function startBrowser(
     if (browserName === 'firefox') {
       await browser.installAddOn(redirectExtension!.extension, true);
     }
-
-    const urls = getCloudUrlsFromContext(context);
-
-    await browser.signInToAtlasCloudAccount(
-      urls.accountUrl,
-      urls.cloudUrl,
-      context.atlasCloudUsername,
-      context.atlasCloudPassword
-    );
-
-    // Disable temporary marketing modal before proceeding
-    await browser.execute(() => {
-      globalThis.localStorage.setItem(
-        'mdb.dataExplorer.hasShownNewDEModal',
-        'true'
-      );
-    });
-
-    await browser.navigateTo(
-      `${urls.cloudUrl}/v2/${context.atlasCloudProjectId}#/explorer`
-    );
-  } else {
-    await browser.navigateTo(context.sandboxUrl);
   }
 
   return compass;
@@ -1149,11 +1116,34 @@ export async function init(
   // optional even though it always exists. So we have a lot of
   // this.test?.fullTitle() and therefore we hopefully won't end up with a lot
   // of dates in filenames in reality.
-  const compass = TEST_COMPASS_WEB
+  const compass = isTestingWeb()
     ? await startBrowser(name, opts)
     : await startCompassElectron(name, opts);
 
   const { browser } = compass;
+
+  if (isTestingAtlasCloud(context)) {
+    const urls = getCloudUrlsFromContext();
+
+    await browser.signInToAtlas(
+      context.atlasCloudUsername,
+      context.atlasCloudPassword
+    );
+
+    // Disable temporary marketing modal before proceeding
+    await browser.execute(() => {
+      globalThis.localStorage.setItem(
+        'mdb.dataExplorer.hasShownNewDEModal',
+        'true'
+      );
+    });
+
+    await browser.navigateTo(
+      `${urls.cloudUrl}/v2/${context.atlasCloudProjectId}#/explorer`
+    );
+  } else if (isTestingWeb(context)) {
+    await browser.navigateTo(context.sandboxUrl);
+  }
 
   await setSharedConfigOnStart(
     browser,

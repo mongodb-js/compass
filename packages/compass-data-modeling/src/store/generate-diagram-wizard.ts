@@ -5,6 +5,8 @@ import { startAnalysis } from './analysis-process';
 import toNS from 'mongodb-ns';
 import { getDiagramName } from '../services/open-and-download-diagram';
 
+const DEFAULT_SAMPLE_SIZE = '100';
+
 type FormField<T = string> = {
   error?: Error;
   value?: T;
@@ -26,6 +28,7 @@ export type GenerateDiagramWizardState = {
   connectionDatabases: string[] | null;
   databaseCollections: string[] | null;
   automaticallyInferRelations: boolean;
+  sampleSize: string;
 };
 
 export const GenerateDiagramWizardActionTypes = {
@@ -56,6 +59,8 @@ export const GenerateDiagramWizardActionTypes = {
     'data-modeling/generate-diagram-wizard/SELECT_COLLECTIONS',
   TOGGLE_INFER_RELATIONS:
     'data-modeling/generate-diagram-wizard/TOGGLE_INFER_RELATIONS',
+  CHANGE_SAMPLE_SIZE:
+    'data-modeling/generate-diagram-wizard/CHANGE_SAMPLE_SIZE',
   CONFIRM_SELECTED_COLLECTIONS:
     'data-modeling/generate-diagram-wizard/CONFIRM_SELECTED_COLLECTIONS',
 } as const;
@@ -133,6 +138,11 @@ export type ToggleInferRelationsAction = {
   newVal: boolean;
 };
 
+export type GenerateDiagramChangeSampleSizeAction = {
+  type: typeof GenerateDiagramWizardActionTypes.CHANGE_SAMPLE_SIZE;
+  sampleSize: string;
+};
+
 export type ConfirmSelectedCollectionsAction = {
   type: typeof GenerateDiagramWizardActionTypes.CONFIRM_SELECTED_COLLECTIONS;
 };
@@ -151,6 +161,7 @@ export type GenerateDiagramWizardActions =
   | CollectionsFetchedAction
   | SelectCollectionsAction
   | ToggleInferRelationsAction
+  | GenerateDiagramChangeSampleSizeAction
   | ConfirmSelectedCollectionsAction
   | CollectionsFetchFailedAction
   | ConnectionFailedAction;
@@ -167,6 +178,7 @@ const INITIAL_STATE: GenerateDiagramWizardState = {
   connectionDatabases: null,
   databaseCollections: null,
   automaticallyInferRelations: true,
+  sampleSize: DEFAULT_SAMPLE_SIZE,
 };
 
 export const generateDiagramWizardReducer: Reducer<
@@ -360,6 +372,12 @@ export const generateDiagramWizardReducer: Reducer<
       automaticallyInferRelations: action.newVal,
     };
   }
+  if (isAction(action, GenerateDiagramWizardActionTypes.CHANGE_SAMPLE_SIZE)) {
+    return {
+      ...state,
+      sampleSize: action.sampleSize,
+    };
+  }
   if (isAction(action, GenerateDiagramWizardActionTypes.GOTO_STEP)) {
     return {
       ...state,
@@ -384,8 +402,14 @@ export function gotoStep(
   };
 }
 
-export function createNewDiagram(): CreateNewDiagramAction {
-  return { type: GenerateDiagramWizardActionTypes.CREATE_NEW_DIAGRAM };
+export function createNewDiagram(): DataModelingThunkAction<
+  void,
+  CreateNewDiagramAction
+> {
+  return (dispatch, getState, { track }) => {
+    track('Data Modeling Create Diagram Modal Opened', {});
+    dispatch({ type: GenerateDiagramWizardActionTypes.CREATE_NEW_DIAGRAM });
+  };
 }
 
 export function changeName(name: string): ChangeNameAction {
@@ -592,6 +616,7 @@ export function confirmSelectedCollections(): DataModelingThunkAction<
         selectedCollections,
       },
       automaticallyInferRelations,
+      sampleSize,
     } = getState().generateDiagramWizard;
     if (
       !diagramName.value ||
@@ -610,7 +635,7 @@ export function confirmSelectedCollections(): DataModelingThunkAction<
         selectedConnection.value,
         selectedDatabase.value,
         selectedCollections.value,
-        { automaticallyInferRelations }
+        { automaticallyInferRelations, sampleSize: parseInt(sampleSize, 10) }
       )
     );
   };
@@ -626,5 +651,14 @@ export function toggleInferRelationships(
   return {
     type: GenerateDiagramWizardActionTypes.TOGGLE_INFER_RELATIONS,
     newVal,
+  };
+}
+
+export function changeSampleSize(
+  sampleSize: string
+): GenerateDiagramChangeSampleSizeAction {
+  return {
+    type: GenerateDiagramWizardActionTypes.CHANGE_SAMPLE_SIZE,
+    sampleSize,
   };
 }

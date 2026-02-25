@@ -17,7 +17,7 @@ import type { FetchReason } from '../utils/fetch-reason';
 import type { IndexesThunkAction } from '.';
 import { switchToSearchIndexes } from './index-view';
 import type { IndexViewChangedAction } from './index-view';
-import { VIEW_PIPELINE_UTILS } from '@mongodb-js/mongodb-constants';
+import { selectReadWriteAccess } from '../utils/indexes-read-write-access';
 
 const ATLAS_SEARCH_SERVER_ERRORS: Record<string, string> = {
   InvalidIndexSpecificationOption: 'Invalid index definition.',
@@ -603,7 +603,7 @@ export const updateIndex = ({
   };
 };
 
-type FetchSearchIndexesActions =
+export type FetchSearchIndexesActions =
   | FetchSearchIndexesStartedAction
   | FetchSearchIndexesSucceededAction
   | FetchSearchIndexesFailedAction;
@@ -611,23 +611,34 @@ type FetchSearchIndexesActions =
 const fetchIndexes = (
   reason: FetchReason
 ): IndexesThunkAction<Promise<void>, FetchSearchIndexesActions> => {
-  return async (dispatch, getState, { dataService }) => {
+  return async (
+    dispatch,
+    getState,
+    { dataService, preferences, connectionInfoRef }
+  ) => {
     const {
-      isReadonlyView,
       isWritable,
       namespace,
-      serverVersion,
       searchIndexes: { status },
     } = getState();
 
+    const { readOnly, readWrite, enableAtlasSearchIndexes } =
+      preferences.getPreferences();
+    const { atlasMetadata } = connectionInfoRef.current;
+    const { isSearchIndexesReadable } = selectReadWriteAccess({
+      isAtlas: !!atlasMetadata,
+      readOnly,
+      readWrite,
+      enableAtlasSearchIndexes,
+    })(getState());
+
     if (
-      (isReadonlyView &&
-        !VIEW_PIPELINE_UTILS.isVersionSearchCompatibleForViewsCompass(
-          serverVersion
-        )) ||
-      !isWritable
+      !isSearchIndexesReadable ||
+      // TODO(COMPASS-10357): align on desired behavior for polling in offline-mode
+      !isWritable // isWritable is false in offline-mode
     ) {
-      return; // return if view is not search compatible
+      dispatch(fetchSearchIndexesSucceeded([]));
+      return;
     }
 
     // If we are already fetching indexes, we will wait for that

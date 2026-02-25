@@ -4,13 +4,16 @@ import EventEmitter from 'eventemitter3';
 import { isPlainObject, isArray, isEqual, isString } from 'lodash';
 import type { ObjectGeneratorOptions } from './object-generator';
 import ObjectGenerator from './object-generator';
-import TypeChecker from 'hadron-type-checker';
-import { UUID } from 'bson';
+import TypeChecker, {
+  convertBinaryUUID,
+  getBsonType,
+} from 'hadron-type-checker';
+import { Binary, UUID } from 'bson';
 import DateEditor from './editor/date';
 import { ElementEvents, type ElementEventsType } from './element-events';
 import type { Document } from './document';
 import type { TypeCastTypes } from 'hadron-type-checker';
-import type { Binary, ObjectId } from 'bson';
+import type { ObjectId } from 'bson';
 import type {
   BSONArray,
   BSONObject,
@@ -52,6 +55,32 @@ const UNEDITABLE_TYPES = [
   'DBRef',
 ];
 
+/**
+ * UUID type names for Binary subtypes 3 and 4.
+ */
+export const UUID_TYPES = [
+  'UUID',
+  'LegacyJavaUUID',
+  'LegacyCSharpUUID',
+  'LegacyPythonUUID',
+] as const;
+
+export type UUIDType = (typeof UUID_TYPES)[number];
+
+/**
+ * Type guard to check if a type string is a UUID type.
+ */
+export function isUUIDType(type: string): type is UUIDType {
+  return (UUID_TYPES as readonly string[]).includes(type);
+}
+
+/**
+ * Type guard to check if a value is a BSON Binary.
+ */
+function isBinary(value: unknown): value is Binary {
+  return getBsonType(value) === 'Binary';
+}
+
 export const DEFAULT_VISIBLE_ELEMENTS = 25;
 export function isValueExpandable(
   value: BSONValue
@@ -86,6 +115,11 @@ export class Element extends EventEmitter {
   decrypted: boolean;
   expanded = false;
   maxVisibleElementsCount = DEFAULT_VISIBLE_ELEMENTS;
+  // Display type for the element. This is used by editors to determine
+  // how to display and edit the value. For example, a Binary with subtype 3
+  // might have displayType set to 'LegacyJavaUUID' to indicate it should be
+  // displayed and edited as a Java legacy UUID.
+  displayType?: TypeCastTypes;
 
   /**
    * Cancel any modifications to the element.
@@ -245,8 +279,30 @@ export class Element extends EventEmitter {
           const editor = new DateEditor(this);
           editor.edit(this.generateObject());
           editor.complete();
+        } else if (
+          isUUIDType(newType) &&
+          isUUIDType(this.currentType) &&
+          isBinary(this.currentValue)
+        ) {
+          // Special handling for converting between UUID types
+          // We need to use the source type to properly decode the binary
+          const convertedBinary = convertBinaryUUID(
+            this.currentValue,
+            this.currentType,
+            newType
+          );
+          this.edit(convertedBinary);
+          this.currentType = newType;
+          this._bubbleUp(ElementEvents.Edited, this);
         } else {
           this.edit(TypeChecker.cast(this.generateObject(), newType));
+          // For UUID types, explicitly set the currentType since TypeChecker.type()
+          // may not return the specific UUID type for legacy UUIDs (subtype 3)
+          if (isUUIDType(newType)) {
+            this.currentType = newType;
+            // Fire another event to notify the UI of the type change
+            this._bubbleUp(ElementEvents.Edited, this);
+          }
         }
       } catch (e: unknown) {
         this.setInvalid(this.currentValue, newType, (e as Error).message);
@@ -651,9 +707,21 @@ export class Element extends EventEmitter {
    * @returns If the value is editable.
    */
   isValueEditable(): boolean {
+    // UUID types are editable even though Binary is in UNEDITABLE_TYPES
+    const isCurrentTypeUUID = isUUIDType(this.currentType);
+    // Also check for Binary values that are actually UUIDs (subtype 3 or 4)
+    // This handles the case where currentType is 'Binary' but it's actually a UUID
+    const isBinaryUUIDValue =
+      this.currentType === 'Binary' &&
+      isBinary(this.currentValue) &&
+      (this.currentValue.sub_type === Binary.SUBTYPE_UUID ||
+        (this.currentValue.sub_type === Binary.SUBTYPE_UUID_OLD &&
+          this.currentValue.buffer.length === 16));
     return (
       this._isKeyLegallyEditable() &&
-      !UNEDITABLE_TYPES.includes(this.currentType)
+      (isCurrentTypeUUID ||
+        isBinaryUUIDValue ||
+        !UNEDITABLE_TYPES.includes(this.currentType))
     );
   }
 

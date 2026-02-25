@@ -8,7 +8,7 @@ import {
   outputFilename,
   serverSatisfies,
   skipForWeb,
-  DEFAULT_CONNECTION_NAME_1,
+  getDefaultConnectionNames,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
@@ -28,6 +28,21 @@ const OUT_STAGE_PREVIEW_TEXT =
 const MERGE_STAGE_PREVIEW_TEXT =
   'The $merge operator will cause the pipeline to persist the results to the specified location.';
 const STAGE_WIZARD_GUIDE_CUE_STORAGE_KEY = 'has_seen_stage_wizard_guide_cue';
+
+const RANK_FUSION_EXAMPLE_VALUE = `{
+      input: {
+        pipelines: {
+          p1: [
+            {
+              $search: {
+                index: "default",
+                text: { query: "foo", path: "field" }
+              }
+            }
+          ]
+        }
+      }
+    }`;
 
 async function waitForAnyText(
   browser: CompassBrowser,
@@ -126,7 +141,7 @@ describe('Collection aggregations tab', function () {
 
     // Some tests navigate away from the numbers collection aggregations tab
     await browser.navigateToCollectionTab(
-      DEFAULT_CONNECTION_NAME_1,
+      getDefaultConnectionNames(0),
       'test',
       'numbers',
       'Aggregations'
@@ -219,13 +234,20 @@ describe('Collection aggregations tab', function () {
   });
 
   it('shows atlas only stage preview', async function () {
-    await browser.selectStageOperator(0, '$search');
+    if (!serverSatisfies('>=8.0.14')) {
+      return this.skip();
+    }
+    await browser.selectStageOperator(0, '$rankFusion');
+    await browser.setCodemirrorEditorValue(
+      Selectors.stageEditor(0),
+      RANK_FUSION_EXAMPLE_VALUE
+    );
 
     await browser.waitUntil(async function () {
       const textElement = browser.$(Selectors.stagePreview(0));
       const text = await textElement.getText();
       return text.includes(
-        'The $search stage is only available with MongoDB Atlas.'
+        'The $rankFusion stage is only available with MongoDB Atlas.'
       );
     });
   });
@@ -403,7 +425,7 @@ describe('Collection aggregations tab', function () {
 
     // choose Duplicate view
     await browser.selectCollectionMenuItem(
-      DEFAULT_CONNECTION_NAME_1,
+      getDefaultConnectionNames(0),
       'test',
       'my-view-from-pipeline',
       'duplicate-view'
@@ -430,7 +452,7 @@ describe('Collection aggregations tab', function () {
 
     // now select modify view of the non-duplicate
     await browser.selectCollectionMenuItem(
-      DEFAULT_CONNECTION_NAME_1,
+      getDefaultConnectionNames(0),
       'test',
       'my-view-from-pipeline',
       'modify-view'
@@ -608,13 +630,13 @@ describe('Collection aggregations tab', function () {
     const VALIDATED_OUT_COLLECTION = 'nestedDocs';
     beforeEach(async function () {
       await browser.setValidation({
-        connectionName: DEFAULT_CONNECTION_NAME_1,
+        connectionName: getDefaultConnectionNames(0),
         database: 'test',
         collection: VALIDATED_OUT_COLLECTION,
         validator: REQUIRE_PHONE_VALIDATOR,
       });
       await browser.navigateToCollectionTab(
-        DEFAULT_CONNECTION_NAME_1,
+        getDefaultConnectionNames(0),
         'test',
         'numbers',
         'Aggregations'
@@ -624,7 +646,7 @@ describe('Collection aggregations tab', function () {
 
     afterEach(async function () {
       await browser.setValidation({
-        connectionName: DEFAULT_CONNECTION_NAME_1,
+        connectionName: getDefaultConnectionNames(0),
         database: 'test',
         collection: VALIDATED_OUT_COLLECTION,
         validator: '{}',
@@ -976,6 +998,41 @@ describe('Collection aggregations tab', function () {
     );
   });
 
+  it('recovers from MQL syntax errors', async function () {
+    await browser.selectStageOperator(0, '$match');
+    // Set invalid MQL
+    await browser.setCodemirrorEditorValue(
+      Selectors.stageEditor(0),
+      '{ prop1: }'
+    );
+
+    // Wait for the syntax error to be displayed
+    await browser
+      .$(Selectors.stageEditorSyntaxErrorMessage(0))
+      .waitForDisplayed();
+
+    // Open a new tab, and then close it to go back
+    await browser.clickVisible(Selectors.AggregationBuilderWorkspace); // click elsewhere to exit the editor, which catches the keyboard events
+    await browser.openNewTab();
+    await browser.closeLastTab();
+
+    // The syntax error message is still there
+    await browser
+      .$(Selectors.stageEditorSyntaxErrorMessage(0))
+      .waitForDisplayed();
+
+    // We can fix the MQL
+    await browser.setCodemirrorEditorValue(
+      Selectors.stageEditor(0),
+      '{ prop1: 123 }'
+    );
+
+    // Wait for the syntax error to go away
+    await browser
+      .$(Selectors.stageEditorSyntaxErrorMessage(0))
+      .waitForDisplayed({ reverse: true });
+  });
+
   it('supports exporting aggregation results', async function () {
     skipForWeb(this, 'export is not yet available in compass-web');
 
@@ -1150,7 +1207,10 @@ describe('Collection aggregations tab', function () {
       );
     });
 
-    it('previews atlas operators - $search', async function () {
+    it('previews atlas operators - $rankFusion', async function () {
+      if (!serverSatisfies('>=8.0.14')) {
+        return this.skip();
+      }
       await browser.selectStageOperator(0, '$match');
       await browser.setCodemirrorEditorValue(
         Selectors.stageEditor(0),
@@ -1160,7 +1220,7 @@ describe('Collection aggregations tab', function () {
 
       await browser.setCodemirrorEditorValue(
         Selectors.AggregationAsTextEditor,
-        '[{$search: {}}]'
+        `[{$rankFusion: ${RANK_FUSION_EXAMPLE_VALUE}}]`
       );
 
       const preview = browser.$(
@@ -1168,29 +1228,7 @@ describe('Collection aggregations tab', function () {
       );
       await preview.waitForDisplayed();
       expect(await preview.getText()).to.include(
-        'The $search stage is only available with MongoDB Atlas'
-      );
-    });
-
-    it('previews atlas operators - $searchMeta', async function () {
-      await browser.selectStageOperator(0, '$match');
-      await browser.setCodemirrorEditorValue(
-        Selectors.stageEditor(0),
-        '{ i: 5 }'
-      );
-      await switchPipelineMode(browser, 'as-text');
-
-      await browser.setCodemirrorEditorValue(
-        Selectors.AggregationAsTextEditor,
-        '[{$searchMeta: {}}]'
-      );
-
-      const preview = browser.$(
-        Selectors.AggregationAsTextPreviewAtlasOperator
-      );
-      await preview.waitForDisplayed();
-      expect(await preview.getText()).to.include(
-        'The $searchMeta stage is only available with MongoDB Atlas'
+        'The $rankFusion stage is only available with MongoDB Atlas'
       );
     });
 
@@ -1518,8 +1556,14 @@ describe('Collection aggregations tab', function () {
     });
 
     it('handles atlas only operator', async function () {
-      await browser.selectStageOperator(0, '$search');
-      await browser.setCodemirrorEditorValue(Selectors.stageEditor(0), '{}');
+      if (!serverSatisfies('>=8.0.14')) {
+        return this.skip();
+      }
+      await browser.selectStageOperator(0, '$rankFusion');
+      await browser.setCodemirrorEditorValue(
+        Selectors.stageEditor(0),
+        RANK_FUSION_EXAMPLE_VALUE
+      );
 
       await browser.clickVisible(Selectors.stageFocusModeButton(0));
       await browser.waitForOpenModal(Selectors.FocusModeModal);
@@ -1528,7 +1572,7 @@ describe('Collection aggregations tab', function () {
         const outputElem = browser.$(Selectors.FocusModeStageOutput);
         const text = await outputElem.getText();
         return text.includes(
-          'The $search stage is only available with MongoDB Atlas.'
+          'The $rankFusion stage is only available with MongoDB Atlas.'
         );
       });
     });
@@ -1593,7 +1637,7 @@ describe('Collection aggregations tab', function () {
   describe('expanding and collapsing of documents', function () {
     beforeEach(async function () {
       await browser.navigateToCollectionTab(
-        DEFAULT_CONNECTION_NAME_1,
+        getDefaultConnectionNames(0),
         'test',
         'nestedDocs',
         'Aggregations'

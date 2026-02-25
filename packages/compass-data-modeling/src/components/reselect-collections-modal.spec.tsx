@@ -269,5 +269,30 @@ describe('ReselectCollectionsModal', function () {
         store.getState().reselectCollections.newSelectedCollections
       ).to.have.members(['coupons', 'users']);
     });
+
+    it('shows sample size input with default value of 100', async function () {
+      const { store, connectionsStore } = renderReselectCollectionsModal({});
+      await connectionsStore.actions.connect(MOCK_CONNECTIONS[1]);
+      await store.dispatch(reselectCollections());
+
+      // Wait for the sample size input to appear (indicates SELECT_COLLECTIONS step)
+      const sampleSizeInput = await screen.findByTestId('sample-size-input');
+      expect(sampleSizeInput).to.have.value('100');
+    });
+
+    it('allows user to change sample size', async function () {
+      const { store, connectionsStore } = renderReselectCollectionsModal({});
+      await connectionsStore.actions.connect(MOCK_CONNECTIONS[1]);
+      await store.dispatch(reselectCollections());
+
+      // Wait for the sample size input to appear
+      const sampleSizeInput = await screen.findByTestId('sample-size-input');
+      userEvent.clear(sampleSizeInput);
+      userEvent.type(sampleSizeInput, '50');
+
+      await waitFor(() => {
+        expect(sampleSizeInput).to.have.value('50');
+      });
+    });
   });
 });

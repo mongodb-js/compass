@@ -8,7 +8,7 @@ import {
   init,
   cleanup,
   screenshotIfFailed,
-  DEFAULT_CONNECTION_NAME_1,
+  getDefaultConnectionNames,
   screenshotPathName,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
@@ -119,14 +119,14 @@ describe('MongoDB Assistant', function () {
         await browser.setupDefaultConnections();
         await browser.connectToDefaults();
         await browser.selectConnectionMenuItem(
-          DEFAULT_CONNECTION_NAME_1,
+          getDefaultConnectionNames(0),
           Selectors.CreateDatabaseButton,
           false
         );
         await browser.addDatabase(dbName, collectionName);
 
         await browser.navigateToCollectionTab(
-          DEFAULT_CONNECTION_NAME_1,
+          getDefaultConnectionNames(0),
           dbName,
           collectionName,
           'Aggregations'
@@ -564,20 +564,14 @@ async function getDisplayedMessages(
   const displayedMessages: Message[] = [];
 
   for (const messageElement of messageElements) {
-    const textElements = await messageElement.$$('p').getElements();
-    const isAssistantMessage =
-      textElements.length !== 1 &&
-      (await textElements[0].getText()) === 'MongoDB Assistant';
-    // Get the message text content.
-    // In case of Assistant messages, skip the MongoDB Assistant text.
-    const text = isAssistantMessage
-      ? await textElements[1].getText()
-      : await textElements[0].getText();
-
-    displayedMessages.push({
-      text: text,
-      role: isAssistantMessage ? ('assistant' as const) : ('user' as const),
-    });
+    const text = await messageElement.getText();
+    const role = await messageElement.getAttribute('data-role');
+    if (role !== 'user' && role !== 'assistant') {
+      throw new Error(
+        `Expected data-role to be "user | assistant", got ${role}`
+      );
+    }
+    displayedMessages.push({ text, role });
   }
 
   return displayedMessages;

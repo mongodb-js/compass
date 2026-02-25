@@ -184,7 +184,7 @@ export async function connectMongoClientDataService({
       ...options.autoEncryption,
       extraOptions: {
         ...options.autoEncryption?.extraOptions,
-        cryptSharedLibPath: process.env.COMPASS_CRYPT_LIBRARY_PATH,
+        cryptSharedLibPath: process.env.COMPASS_CRYPT_LIBRARY_PATH as any,
       },
     };
   }

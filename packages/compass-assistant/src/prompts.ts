@@ -211,17 +211,22 @@ export const buildConnectionErrorPrompt = ({
     connectionInfo.connectionOptions.connectionString
   );
   const connectionError = error.toString();
-  return {
-    prompt: `Given the error message below, please provide clear instructions to guide the user to debug their connection attempt from MongoDB Compass. If no auth mechanism is specified in the connection string, the default (username/password) is being used:
+  const productDisplayName = connectionInfo.atlasMetadata
+    ? 'Data Explorer'
+    : 'Compass';
+  const connectionDetailsSection = connectionInfo.atlasMetadata
+    ? ''
+    : ` If no auth mechanism is specified in the connection string, the default (username/password) is being used:
 
 Connection string (password redacted):
-${connectionString}
+${connectionString}`;
 
+  return {
+    prompt: `Given the error message below, please provide clear instructions to guide the user to debug their connection attempt from MongoDB ${productDisplayName}.${connectionDetailsSection}
 Error message:
 ${connectionError}`,
     metadata: {
-      displayText:
-        'Diagnose why my Compass connection is failing and help me debug it.',
+      displayText: `Diagnose why my ${productDisplayName} connection is failing and help me debug it.`,
     },
   };
 };

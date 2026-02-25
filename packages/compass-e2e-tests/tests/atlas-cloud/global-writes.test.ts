@@ -9,7 +9,7 @@ import {
 import type { CompassBrowser } from '../../helpers/compass-browser';
 import { createGeospatialCollection } from '../../helpers/insert-data';
 import {
-  DEFAULT_CONNECTION_NAMES,
+  getDefaultConnectionNames,
   isTestingAtlasCloud,
 } from '../../helpers/test-runner-context';
 
@@ -96,7 +96,7 @@ describe('Global writes', function () {
     await createGeospatialCollection(collName);
     await browser.connectToDefaults();
     await browser.navigateToCollectionTab(
-      DEFAULT_CONNECTION_NAMES[0],
+      getDefaultConnectionNames(0),
       'test',
       collName,
       'GlobalWrites'
@@ -146,7 +146,7 @@ describe('Global writes', function () {
     await createGeospatialCollection(collName);
     await browser.connectToDefaults();
     await browser.navigateToCollectionTab(
-      DEFAULT_CONNECTION_NAMES[0],
+      getDefaultConnectionNames(0),
       'test',
       collName,
       'GlobalWrites'

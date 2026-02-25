@@ -22,6 +22,7 @@ import { fixtures } from '../../test/fixtures';
 import { exportJSONFromQuery, exportJSONFromAggregation } from './export-json';
 import { mochaTestServer } from '@mongodb-js/compass-test-server';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
+import { getBsonType } from 'hadron-type-checker';
 
 const { expect } = chai;
 chai.use(sinonChai);
@@ -230,12 +231,12 @@ describe('exportJSON', function () {
         // Remove newly created _id's as they won't match when we compare below.
         if (!ejsonToInsertWithout_id[0]._id) {
           for (const doc of writtenResultDocs) {
-            if (doc._id && doc._id._bsontype === 'ObjectId') {
+            if (doc._id && getBsonType(doc._id) === 'ObjectId') {
               delete doc._id;
             }
           }
           for (const doc of ejsonToInsertWithout_id) {
-            if (doc._id && doc._id._bsontype === 'ObjectId') {
+            if (doc._id && getBsonType(doc._id) === 'ObjectId') {
               delete doc._id;
             }
           }

@@ -53,7 +53,6 @@ describe('Aggregation Store', function () {
 
         it('resets the rest of the state to initial state', function () {
           // Remove properties that we don't want to compare
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
           const { aggregationWorkspaceId, dataService, sidePanel, ...state } =
             store.getState();
 

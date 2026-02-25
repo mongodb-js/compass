@@ -27,7 +27,6 @@ import {
   type SchemaAnalysisError,
   type SchemaAnalysisState,
   type FieldInfo,
-  type MongoDBFieldType,
 } from '../schema-analysis-types';
 import { calculateSchemaDepth } from '../calculate-schema-depth';
 import {
@@ -155,8 +154,6 @@ export const CollectionActions = {
     'compass-collection/FakerMappingGenerationCompleted',
   FakerMappingGenerationFailed:
     'compass-collection/FakerMappingGenerationFailed',
-  FakerFieldTypeChanged: 'compass-collection/FakerFieldTypeChanged',
-  FakerFieldMethodChanged: 'compass-collection/FakerFieldMethodChanged',
 } as const;
 
 interface CollectionMetadataFetchedAction {
@@ -229,18 +226,6 @@ export interface FakerMappingGenerationFailedAction {
   type: typeof CollectionActions.FakerMappingGenerationFailed;
   error: string;
   requestId: string;
-}
-
-export interface FakerFieldTypeChangedAction {
-  type: typeof CollectionActions.FakerFieldTypeChanged;
-  fieldPath: string;
-  mongoType: MongoDBFieldType;
-}
-
-export interface FakerFieldMethodChangedAction {
-  type: typeof CollectionActions.FakerFieldMethodChanged;
-  fieldPath: string;
-  fakerMethod: string;
 }
 
 const reducer: Reducer<CollectionState, Action> = (
@@ -395,14 +380,8 @@ const reducer: Reducer<CollectionState, Action> = (
     let nextStep: MockDataGeneratorStep;
 
     switch (currentStep) {
-      case MockDataGeneratorSteps.SCHEMA_EDITOR:
-        nextStep = MockDataGeneratorSteps.DOCUMENT_COUNT;
-        break;
-      case MockDataGeneratorSteps.DOCUMENT_COUNT:
-        nextStep = MockDataGeneratorSteps.PREVIEW_DATA;
-        break;
-      case MockDataGeneratorSteps.PREVIEW_DATA:
-        nextStep = MockDataGeneratorSteps.GENERATE_DATA;
+      case MockDataGeneratorSteps.PREVIEW_AND_DOC_COUNT:
+        nextStep = MockDataGeneratorSteps.SCRIPT_RESULT;
         break;
       default:
         nextStep = currentStep; // Stay on current step if at end
@@ -431,7 +410,7 @@ const reducer: Reducer<CollectionState, Action> = (
         // TODO: Decide with product what we want behavior to be: close modal? Re-open disclaimer modal, if possible?
         previousStep = MockDataGeneratorSteps.SCHEMA_CONFIRMATION;
         break;
-      case MockDataGeneratorSteps.SCHEMA_EDITOR:
+      case MockDataGeneratorSteps.PREVIEW_AND_DOC_COUNT:
         return {
           ...state,
           fakerSchemaGeneration: {
@@ -442,14 +421,8 @@ const reducer: Reducer<CollectionState, Action> = (
             currentStep: MockDataGeneratorSteps.SCHEMA_CONFIRMATION,
           },
         };
-      case MockDataGeneratorSteps.DOCUMENT_COUNT:
-        previousStep = MockDataGeneratorSteps.SCHEMA_EDITOR;
-        break;
-      case MockDataGeneratorSteps.PREVIEW_DATA:
-        previousStep = MockDataGeneratorSteps.DOCUMENT_COUNT;
-        break;
-      case MockDataGeneratorSteps.GENERATE_DATA:
-        previousStep = MockDataGeneratorSteps.PREVIEW_DATA;
+      case MockDataGeneratorSteps.SCRIPT_RESULT:
+        previousStep = MockDataGeneratorSteps.PREVIEW_AND_DOC_COUNT;
         break;
       default:
         previousStep = currentStep; // Stay on current step if at beginning
@@ -494,12 +467,9 @@ const reducer: Reducer<CollectionState, Action> = (
       return state;
     }
 
+    // Stay on SCHEMA_CONFIRMATION - loading state is rendered on confirmation screen
     return {
       ...state,
-      mockDataGenerator: {
-        ...state.mockDataGenerator,
-        currentStep: MockDataGeneratorSteps.SCHEMA_EDITOR,
-      },
       fakerSchemaGeneration: {
         status: 'in-progress',
         requestId: action.requestId,
@@ -517,12 +487,16 @@ const reducer: Reducer<CollectionState, Action> = (
       return state;
     }
 
+    // Advance to PREVIEW_AND_DOC_COUNT on successful completion
     return {
       ...state,
+      mockDataGenerator: {
+        ...state.mockDataGenerator,
+        currentStep: MockDataGeneratorSteps.PREVIEW_AND_DOC_COUNT,
+      },
       fakerSchemaGeneration: {
         status: 'completed',
-        originalLlmResponse: action.fakerSchema,
-        editedFakerSchema: action.fakerSchema, // Initially same as LLM response
+        fakerSchema: action.fakerSchema,
         requestId: action.requestId,
       },
     };
@@ -548,84 +522,6 @@ const reducer: Reducer<CollectionState, Action> = (
       mockDataGenerator: {
         ...state.mockDataGenerator,
         currentStep: MockDataGeneratorSteps.SCHEMA_CONFIRMATION,
-      },
-    };
-  }
-
-  if (
-    isAction<FakerFieldTypeChangedAction>(
-      action,
-      CollectionActions.FakerFieldTypeChanged
-    )
-  ) {
-    if (state.fakerSchemaGeneration.status !== 'completed') {
-      return state;
-    }
-
-    const { fieldPath, mongoType } = action;
-    const currentMapping =
-      state.fakerSchemaGeneration.editedFakerSchema[fieldPath];
-
-    if (!currentMapping) {
-      return state;
-    }
-
-    return {
-      ...state,
-      fakerSchemaGeneration: {
-        ...state.fakerSchemaGeneration,
-        editedFakerSchema: {
-          ...state.fakerSchemaGeneration.editedFakerSchema,
-          [fieldPath]: {
-            ...currentMapping,
-            mongoType,
-            fakerArgs: [], // Reset args when type changes
-          },
-        },
-      },
-    };
-  }
-
-  if (
-    isAction<FakerFieldMethodChangedAction>(
-      action,
-      CollectionActions.FakerFieldMethodChanged
-    )
-  ) {
-    if (state.fakerSchemaGeneration.status !== 'completed') {
-      return state;
-    }
-
-    const { fieldPath, fakerMethod } = action;
-    const currentMapping =
-      state.fakerSchemaGeneration.editedFakerSchema[fieldPath];
-    const originalLlmMapping =
-      state.fakerSchemaGeneration.originalLlmResponse[fieldPath];
-
-    if (!currentMapping) {
-      return state;
-    }
-
-    const isRestoringOriginalMapping =
-      originalLlmMapping &&
-      currentMapping.mongoType === originalLlmMapping.mongoType &&
-      fakerMethod === originalLlmMapping.fakerMethod;
-    const updatedMapping = isRestoringOriginalMapping
-      ? originalLlmMapping
-      : {
-          ...currentMapping,
-          fakerMethod,
-          fakerArgs: [], // Reset args when method changes
-        };
-
-    return {
-      ...state,
-      fakerSchemaGeneration: {
-        ...state.fakerSchemaGeneration,
-        editedFakerSchema: {
-          ...state.fakerSchemaGeneration.editedFakerSchema,
-          [fieldPath]: updatedMapping,
-        },
       },
     };
   }
@@ -677,28 +573,6 @@ export const mockDataGeneratorDocumentCountChanged = (
   return {
     type: CollectionActions.MockDataGeneratorDocumentCountChanged,
     documentCount,
-  };
-};
-
-export const fakerFieldTypeChanged = (
-  fieldPath: string,
-  mongoType: MongoDBFieldType
-): FakerFieldTypeChangedAction => {
-  return {
-    type: CollectionActions.FakerFieldTypeChanged,
-    fieldPath,
-    mongoType,
-  };
-};
-
-export const fakerFieldMethodChanged = (
-  fieldPath: string,
-  fakerMethod: string
-): FakerFieldMethodChangedAction => {
-  return {
-    type: CollectionActions.FakerFieldMethodChanged,
-    fieldPath,
-    fakerMethod,
   };
 };
 
@@ -1117,6 +991,10 @@ export type CollectionTabPluginMetadata = CollectionMetadata & {
    * `pipeline` options
    */
   editViewName?: string;
+  /**
+   * Subtab that is currently open
+   */
+  subTab?: CollectionSubtab;
 };
 
 export default reducer;

@@ -1,14 +1,11 @@
-import {
-  DEFAULT_CONNECTION_STRING_1,
-  DEFAULT_CONNECTION_NAME_1,
-  connectionNameFromString,
-} from '../compass';
+import { connectionNameFromString } from '../compass';
 import type { CompassBrowser } from '../compass-browser';
 import type { ConnectFormState } from '../connect-form-state';
 import * as Selectors from '../selectors';
 import Debug from 'debug';
 import {
-  DEFAULT_CONNECTION_NAMES,
+  getDefaultConnectionNames,
+  getDefaultConnectionStrings,
   isTestingAtlasCloud,
 } from '../test-runner-context';
 
@@ -26,7 +23,11 @@ export async function getConnectFormConnectionString(
       return await inputElem.isFocused();
     });
   }
-  return await inputElem.getValue();
+  const val = await inputElem.getValue();
+  if (typeof val !== 'string') {
+    throw new TypeError(`Expected element value to be a string, got ${val}`);
+  }
+  return val;
 }
 
 type ConnectionResultOptions = {
@@ -53,12 +54,12 @@ export async function connectWithConnectionString(
   // try to use it
   if (isTestingAtlasCloud()) {
     await browser.connectByName(
-      connectionStringOrName ?? DEFAULT_CONNECTION_NAME_1
+      connectionStringOrName ?? getDefaultConnectionNames(0)
     );
     return;
   }
 
-  connectionStringOrName ??= DEFAULT_CONNECTION_STRING_1;
+  connectionStringOrName ??= getDefaultConnectionStrings(0);
 
   // if the modal is still animating away when we're connecting again, things
   // are going to get confused
@@ -203,7 +204,7 @@ export async function connectByName(
 }
 
 export async function connectToDefaults(browser: CompassBrowser) {
-  for (const name of DEFAULT_CONNECTION_NAMES) {
+  for (const name of getDefaultConnectionNames()) {
     // See setupDefaultConnections() for the details behind the thinking here.
     await browser.connectByName(name);
   }

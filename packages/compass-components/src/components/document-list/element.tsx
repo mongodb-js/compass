@@ -9,9 +9,15 @@ import {
   ElementEditor,
   DEFAULT_VISIBLE_ELEMENTS,
 } from 'hadron-document';
+import { Binary } from 'bson';
 import BSONValue from '../bson-value';
 import { spacing } from '@leafygreen-ui/tokens';
-import { KeyEditor, ValueEditor, TypeEditor } from './element-editors';
+import {
+  KeyEditor,
+  ValueEditor,
+  TypeEditor,
+  isUUIDType,
+} from './element-editors';
 import { EditActions, AddFieldActions } from './element-actions';
 import { useAutoFocusContext } from './auto-focus-context';
 import { useForceUpdate } from './use-force-update';
@@ -23,6 +29,8 @@ import VisibleFieldsToggle from './visible-field-toggle';
 import { hasDistinctValue } from 'mongodb-query-util';
 import { useContextMenuGroups } from '../context-menu';
 import { useSyncStateOnPropChange } from '../../hooks/use-sync-state-on-prop-change';
+import { useLegacyUUIDDisplayContext } from './legacy-uuid-format-context';
+import { getBsonType } from 'hadron-type-checker';
 
 function getEditorByType(type: HadronElementType['type']) {
   switch (type) {
@@ -37,28 +45,75 @@ function getEditorByType(type: HadronElementType['type']) {
     case 'ObjectId':
       return ElementEditor[`${type}Editor` as const];
     default:
+      if (isUUIDType(type)) {
+        return ElementEditor.UUIDEditor;
+      }
       return ElementEditor.StandardEditor;
   }
 }
 
-function useElementEditor(el: HadronElementType) {
+function useElementEditor(
+  el: HadronElementType,
+  displayType: HadronElementType['type']
+) {
   return useMemo(
     () => {
-      const Editor = getEditorByType(el.currentType);
+      // Set the displayType on the element so editors can read it.
+      // This ensures that Binary UUIDs get the UUIDEditor even when el.currentType is 'Binary'
+      el.displayType = displayType;
+      const Editor = getEditorByType(displayType);
       return new Editor(el);
     },
-    // The list of deps is exhaustive, but we want `currentType` to be an
+    // The list of deps is exhaustive, but we want `displayType` to be an
     // explicit dependency of the memo to make sure that even if the `el`
-    // instance is the same, but `currentType` changed, we create a new editor
+    // instance is the same, but `displayType` changed, we create a new editor
     // instance
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [el, el.currentType]
+    [el, displayType]
   );
+}
+
+/**
+ * Gets the display type for an element, considering legacy UUID encoding preference.
+ * For Binary subtype 3 (legacy UUID), returns the appropriate legacy UUID type based on context.
+ * For Binary subtype 4 (UUID), returns 'UUID'.
+ * For all other types, returns the element's currentType.
+ */
+function getDisplayType(
+  el: HadronElementType,
+  legacyUUIDEncoding: string
+): HadronElementType['type'] {
+  // If the element already has a specific UUID type, use it
+  if (isUUIDType(el.currentType)) {
+    return el.currentType;
+  }
+
+  // Check if this is a Binary that should be displayed as a UUID type
+  if (
+    el.currentType === 'Binary' &&
+    getBsonType(el.currentValue) === 'Binary'
+  ) {
+    const binary = el.currentValue as Binary;
+    if (binary.sub_type === Binary.SUBTYPE_UUID) {
+      return 'UUID';
+    }
+    if (
+      binary.sub_type === Binary.SUBTYPE_UUID_OLD &&
+      binary.buffer.length === 16 &&
+      legacyUUIDEncoding
+    ) {
+      return legacyUUIDEncoding as HadronElementType['type'];
+    }
+  }
+
+  return el.currentType;
 }
 
 function useHadronElement(el: HadronElementType) {
   const forceUpdate = useForceUpdate();
-  const editor = useElementEditor(el);
+  const legacyUUIDEncoding = useLegacyUUIDDisplayContext();
+  const displayType = getDisplayType(el, legacyUUIDEncoding);
+  const editor = useElementEditor(el, displayType);
   // NB: Duplicate key state is kept local to the component and not derived on
   // every change so that only the changed key is highlighed as duplicate
   const [isDuplicateKey, setIsDuplicateKey] = useState(() => {
@@ -163,7 +218,7 @@ function useHadronElement(el: HadronElementType) {
       completeEdit: editor.complete.bind(editor),
     },
     type: {
-      value: el.currentType,
+      value: displayType,
       change(newVal: HadronElementType['type']) {
         el.changeType(newVal);
       },

@@ -4,7 +4,7 @@ import {
   cleanup,
   screenshotIfFailed,
   skipForWeb,
-  DEFAULT_CONNECTION_NAME_1,
+  getDefaultConnectionNames,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import { startTelemetryServer } from '../helpers/telemetry';
@@ -30,9 +30,9 @@ describe('Logging and Telemetry integration', function () {
         // make sure we generate the screen event that the tests expect
         await browser.navigateToMyQueries();
 
-        await browser.shellEval(DEFAULT_CONNECTION_NAME_1, 'use test');
+        await browser.shellEval(getDefaultConnectionNames(0), 'use test');
         await browser.shellEval(
-          DEFAULT_CONNECTION_NAME_1,
+          getDefaultConnectionNames(0),
           'db.runCommand({ connectionStatus: 1 })'
         );
       } finally {
@@ -221,7 +221,7 @@ describe('Logging and Telemetry integration', function () {
           msg: 'Initiating connection attempt',
           attr: (actual: any) => {
             expect(actual.uri).to.match(/^mongodb:\/\/127.0.0.1:27091/);
-            expect(actual.driver.name).to.equal('mongodb-js');
+            expect(actual.driver.name).to.equal('nodejs');
           },
         },
         {

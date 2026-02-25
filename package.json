@@ -67,13 +67,13 @@
   },
   "//": "See depcheck for why we have some of these dependencies at the root of the monorepo",
   "devDependencies": {
-    "@mongodb-js/monorepo-tools": "^1.1.16",
-    "@mongodb-js/sbom-tools": "^0.7.2",
+    "@mongodb-js/monorepo-tools": "^1.4.6",
+    "@mongodb-js/sbom-tools": "^0.10.5",
     "@testing-library/dom": "^8.20.1",
     "husky": "^8.0.3",
     "js-yaml": "^4.1.0",
     "lerna": "^7.1.5",
-    "lodash": "^4.17.21",
+    "lodash": "^4.17.23",
     "node-gyp": "^10.2.0"
   },
   "engines": {
@@ -94,9 +94,6 @@
     "@types/react-dom": "^17.0.25",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
-    "webdriverio": {
-      "puppeteer-core": "^23.10.3"
-    },
     "enzyme": {
       "cheerio": "1.0.0-rc.10"
     },
@@ -105,8 +102,8 @@
     },
     "qs": "^6.14.1",
     "@mongodb-js/eslint-config-devtools": {
-      "@typescript-eslint/eslint-plugin": "^8.53.1",
-      "@typescript-eslint/parser": "^8.53.1",
+      "@typescript-eslint/eslint-plugin": "^8.56.0",
+      "@typescript-eslint/parser": "^8.56.0",
       "eslint": "^8.57.1",
       "eslint-plugin-jsx-a11y": "^6.10.2",
       "eslint-plugin-react": "^7.37.5",
@@ -121,7 +118,6 @@
     "@leafygreen-ui/select": "^17.0.3",
     "@leafygreen-ui/text-input": "^16.2.3",
     "@leafygreen-ui/tokens": "^4.2.2",
-    "@leafygreen-ui/typography": "^22.2.4",
-    "kerberos": "^2.2.2"
+    "@leafygreen-ui/typography": "^22.2.4"
   }
 }
