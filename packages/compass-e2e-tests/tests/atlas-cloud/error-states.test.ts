@@ -32,7 +32,7 @@ describe('Error states', function () {
     });
 
     await compass.browser
-      .$('*=An error occured while querying your MongoDB deployment')
+      .$('*=An error occurred while querying your MongoDB deployment')
       .waitForDisplayed();
   });
 });
