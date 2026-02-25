@@ -317,7 +317,7 @@ describe('MockDataGeneratorModal', () => {
 
       expect(screen.getByTestId('sample-values-banner')).to.exist;
 
-      // Find and click the dismiss button
+      // Click the dismiss button
       const banner = screen.getByTestId('sample-values-banner');
       const closeButton = banner
         .querySelector('[aria-label="X Icon"]')
@@ -327,6 +327,53 @@ describe('MockDataGeneratorModal', () => {
       await waitFor(() => {
         expect(screen.queryByTestId('sample-values-banner')).to.not.exist;
       });
+    });
+
+    it('opens project settings URL when settings button is clicked', async () => {
+      const windowOpenStub = sinon.stub(window, 'open');
+
+      try {
+        await renderModal({
+          enableGenAISampleDocumentPassing: false,
+          connectionInfo: {
+            id: 'test-connection-id',
+            connectionOptions: {
+              connectionString: 'mongodb://localhost:27017',
+            },
+            atlasMetadata: {
+              orgId: 'test-org-id',
+              projectId: 'test-project-id',
+              clusterName: 'test-cluster',
+              clusterType: 'REPLICASET' as const,
+              clusterState: 'IDLE' as const,
+              clusterUniqueId: 'test-cluster-unique-id',
+              metricsId: 'test-metrics-id',
+              metricsType: 'replicaSet' as const,
+              regionalBaseUrl: null,
+              instanceSize: 'M10',
+              supports: {
+                globalWrites: false,
+                rollingIndexes: true,
+              },
+              userConnectionString: 'mongodb+srv://localhost:27017',
+            },
+          },
+        });
+
+        // Click the settings button
+        const settingsButton = screen.getByTestId(
+          'sample-values-banner-settings-button'
+        );
+        userEvent.click(settingsButton);
+
+        expect(windowOpenStub).to.have.been.calledWith(
+          `${window.location.origin}/v2/test-project-id#/settings/groupSettings`,
+          '_blank',
+          'noopener noreferrer'
+        );
+      } finally {
+        windowOpenStub.restore();
+      }
     });
   });
 
