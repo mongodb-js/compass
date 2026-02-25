@@ -85,6 +85,7 @@ export type IndexesTableProps<T> = {
   ['data-testid']: string;
   columns: LGColumnDef<T>[];
   data: LGTableDataType<T>[];
+  tableWrapperClassName?: string;
   cellClassName?: string;
   showActionsOnHover?: boolean;
 };
@@ -94,6 +95,7 @@ export function IndexesTable<T>({
   ['data-testid']: dataTestId,
   columns,
   data,
+  tableWrapperClassName,
   cellClassName,
   showActionsOnHover = true,
 }: IndexesTableProps<T>) {
@@ -117,7 +119,7 @@ export function IndexesTable<T>({
   return (
     <div className={tableWrapperStyles}>
       <Table
-        className={tableStyles}
+        className={cx(tableStyles, tableWrapperClassName)}
         data-testid={`${dataTestId}-list`}
         table={table}
         shouldTruncate={false}

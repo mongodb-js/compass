@@ -51,9 +51,12 @@ type CommonIndexInfo = Omit<IndexInfo, 'renderExpandedContent'>;
 export function determineRegularIndexStatus(
   index: RegularIndex
 ): 'inprogress' | 'ready' {
+  // Build progress determines building vs ready
   if (index.buildProgress > 0 && index.buildProgress < 1) {
     return 'inprogress';
   }
+
+  // Default to ready for completed indexes (buildProgress = 0 or 1)
   return 'ready';
 }
 
@@ -67,6 +70,9 @@ export function mergeIndexes(
   );
 
   const mappedIndexes: MappedRegularIndex[] = indexes
+    // exclude partially-built indexes so that we don't include indexes that
+    // only exist on the primary node and then duplicate those as rolling
+    // builds in the same table
     .filter((index) => !rollingIndexNames.has(index.name))
     .map((index) => {
       return { ...index, compassIndexType: 'regular-index' };
@@ -109,6 +115,7 @@ function getInProgressIndexInfo(
     type: <TypeField type="unknown" />,
     size: <SizeField size={0} relativeSize={0} />,
     usageCount: <UsageField usage={undefined} since={undefined} />,
+    // TODO(COMPASS-8335): add properties for in-progress indexes
     properties: null,
     status: <StatusField status={index.status} error={index.error} />,
     actions: (
@@ -132,7 +139,7 @@ function getRollingIndexInfo(index: MappedRollingIndex): CommonIndexInfo {
     // TODO(COMPASS-7589): add properties for rolling indexes
     properties: null,
     status: <StatusField status="building" />,
-    actions: null,
+    actions: null, // Rolling indexes don't have actions
   };
 }
 

@@ -33,6 +33,10 @@ const emptyContentStyles = css({
   marginTop: 0,
 });
 
+const tableWrapperStyles = css({
+  overflowX: 'auto',
+});
+
 const drawerCellStyles = css({
   ':first-of-type': {
     paddingLeft: 0,
@@ -156,6 +160,7 @@ export const RegularIndexesDrawerTable: React.FunctionComponent<
           : COLUMNS_FOR_DRAWER
       }
       data={data}
+      tableWrapperClassName={tableWrapperStyles}
       cellClassName={drawerCellStyles}
       showActionsOnHover={false}
     />

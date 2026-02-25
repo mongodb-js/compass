@@ -7,6 +7,8 @@ import type { MergedIndex, IndexInfo } from './use-regular-indexes-table';
 import type { RegularIndex } from '../../modules/regular-indexes';
 
 function mergedIndexPropertyValue(index: MergedIndex): string {
+  // TODO(COMPASS-8335): right now only regular indexes have properties &
+  // cardinality
   if (index.compassIndexType !== 'regular-index') {
     return '';
   }
@@ -48,6 +50,7 @@ function mergedIndexFieldValue(
 ): string | number | undefined {
   if (index.compassIndexType === 'in-progress-index') {
     if (field === 'type') {
+      // TODO(COMPASS-8335): type should be supported by in-progress-index
       return 'unknown';
     }
     if (field === 'size' || field === 'usageCount') {
@@ -147,6 +150,8 @@ export const COLUMNS: LGColumnDef<IndexInfo>[] = [
     header: 'Usage',
     cell: (info) => info.getValue(),
     sortingFn: sortFn,
+    // The usage contains the date string so we
+    // want it to have a good amount of space.
     size: 300,
     enableSorting: true,
   },
