@@ -174,7 +174,7 @@ const RawSchemaConfirmationScreen = ({
                   }}
                   data-testid="sample-values-banner-settings-button"
                 >
-                  PROJECT SETTINGS
+                  Project Settings
                 </Button>
               </div>
             </Banner>
