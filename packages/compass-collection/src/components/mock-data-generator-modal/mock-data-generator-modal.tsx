@@ -61,6 +61,7 @@ interface Props {
   onConfirmSchema: () => Promise<void>;
   onPreviousStep: () => void;
   namespace: string;
+  fakerSchemaGenerationStatus: 'idle' | 'in-progress' | 'completed' | 'error';
 }
 
 const MockDataGeneratorModal = ({
@@ -71,6 +72,7 @@ const MockDataGeneratorModal = ({
   onConfirmSchema,
   onPreviousStep,
   namespace,
+  fakerSchemaGenerationStatus,
 }: Props) => {
   const track = useTelemetry();
   const isAIFeatureEnabled = useIsAIFeatureEnabled();
@@ -104,7 +106,9 @@ const MockDataGeneratorModal = ({
     [currentStep, isOpen]
   );
 
-  const isNextButtonDisabled = false; // TODO: CLOUDP-381905 - Loading state
+  const isNextButtonDisabled =
+    currentStep === MockDataGeneratorSteps.SCHEMA_CONFIRMATION &&
+    fakerSchemaGenerationStatus === 'in-progress';
 
   const handleNextClick = useCallback(() => {
     const nextStep = MOCK_DATA_GENERATOR_STEP_TO_NEXT_STEP_MAP[currentStep];
@@ -187,6 +191,7 @@ const mapStateToProps = (state: CollectionState) => ({
   isOpen: state.mockDataGenerator.isModalOpen,
   currentStep: state.mockDataGenerator.currentStep,
   namespace: state.namespace,
+  fakerSchemaGenerationStatus: state.fakerSchemaGeneration?.status ?? 'idle',
 });
 
 const ConnectedMockDataGeneratorModal = connect(mapStateToProps, {
