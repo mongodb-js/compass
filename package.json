@@ -9,6 +9,7 @@
   "shortcutFolderName": "MongoDB",
   "license": "SSPL",
   "scripts": {
+    "postinstall": "patch-package",
     "bootstrap": "npm install && lerna run bootstrap --stream",
     "postbootstrap": "npm run compile --workspace=@mongodb-js/testing-library-compass",
     "bootstrap-ci": "npm ci && lerna run bootstrap",
@@ -119,5 +120,8 @@
     "@leafygreen-ui/text-input": "^16.2.3",
     "@leafygreen-ui/tokens": "^4.2.2",
     "@leafygreen-ui/typography": "^22.2.4"
+  },
+  "dependencies": {
+    "mongodb-mcp-server": "^1.7.0"
   }
 }
