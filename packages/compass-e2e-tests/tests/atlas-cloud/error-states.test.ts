@@ -1,6 +1,5 @@
 import type { Compass } from '../../helpers/compass';
 import { cleanup, init, screenshotIfFailed } from '../../helpers/compass';
-import type { CompassBrowser } from '../../helpers/compass-browser';
 import {
   context,
   assertTestingAtlasCloud,
@@ -9,7 +8,6 @@ import {
 
 describe('Error states', function () {
   let compass: Compass;
-  let browser: CompassBrowser;
 
   before(function () {
     if (!isTestingAtlasCloud()) {
