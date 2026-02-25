@@ -55,8 +55,8 @@ const bannerStyles = css({
 const bannerContentStyles = css({
   display: 'flex',
   justifyContent: 'space-between',
-  alignItems: 'flex-start',
-  gap: spacing[400],
+  alignItems: 'flex-end',
+  gap: spacing[300],
 });
 
 const bannerTextStyles = css({
@@ -67,7 +67,6 @@ const loaderContainerStyles = css({
   display: 'flex',
   justifyContent: 'center',
   alignItems: 'center',
-  minHeight: '200px',
 });
 
 const RawSchemaConfirmationScreen = ({
@@ -163,10 +162,16 @@ const RawSchemaConfirmationScreen = ({
                   </Body>
                 </div>
                 <Button
-                  size="small"
-                  variant="default"
-                  href={projectSettingsUrl ?? undefined}
-                  target="_blank"
+                  size="xsmall"
+                  onClick={() => {
+                    if (projectSettingsUrl) {
+                      window.open(
+                        projectSettingsUrl,
+                        '_blank',
+                        'noopener noreferrer'
+                      );
+                    }
+                  }}
                   data-testid="sample-values-banner-settings-button"
                 >
                   PROJECT SETTINGS
