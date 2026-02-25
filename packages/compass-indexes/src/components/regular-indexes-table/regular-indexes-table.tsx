@@ -308,7 +308,7 @@ function determineRegularIndexStatus(
 
   // Also in progress if we have a partial progress fraction
   const progress = index.buildProgress.currentOp?.progress;
-  if (progress !== undefined && progress > 0 && progress < 1) {
+  if (progress && progress < 1) {
     return 'inprogress';
   }
 

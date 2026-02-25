@@ -210,25 +210,15 @@ const IndexActions: React.FunctionComponent<IndexActionsProps> = ({
     // Determine what text to show for build progress
     // Prioritize secsRunning when progress is missing or not meaningful
     const currentOp = buildProgress.currentOp;
-    const progressUnavailable = !!buildProgress.progressError;
     const secsRunning = currentOp?.secsRunning;
     const progress = currentOp?.progress;
 
     let progressText: string;
     const hasDuration = secsRunning !== undefined;
-    if (progressUnavailable) {
-      // $currentOp failed, so we don't have detailed progress info
-      progressText = hasDuration
-        ? `Building For… ${formatDuration(secsRunning!)}`
-        : 'Building…';
-    } else if (hasDuration && progress === undefined) {
-      // Progress disappeared but we still know it's running
-      progressText = `Building For… ${formatDuration(secsRunning!)}`;
-    } else if (hasDuration && progress === 0) {
-      // Prefer duration instead of an unhelpful 0%
-      progressText = `Building For… ${formatDuration(secsRunning!)}`;
-    } else if (progress !== undefined) {
+    if (progress) {
       progressText = `Building… ${Math.trunc(progress * 100)}%`;
+    } else if (hasDuration) {
+      progressText = `Building For… ${formatDuration(secsRunning)}`;
     } else {
       progressText = 'Building…';
     }

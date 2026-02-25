@@ -31,7 +31,7 @@ type IndexSize = number;
  */
 export type CurrentOpProgress = {
   active: boolean;
-  progress?: number;
+  progress?: number | null;
   secsRunning?: number;
   msg?: string;
 };
