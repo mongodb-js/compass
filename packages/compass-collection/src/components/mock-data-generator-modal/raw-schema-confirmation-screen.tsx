@@ -156,7 +156,7 @@ const RawSchemaConfirmationScreen = ({
                     Enable Sending Sample Field Values
                   </Body>
                   <Body>
-                    To improve mock data quality Project Owners can enable
+                    To improve mock data quality, Project Owners can enable
                     sending sample field values to the AI model. Refresh Data
                     Explorer for changes to take effect.
                   </Body>
