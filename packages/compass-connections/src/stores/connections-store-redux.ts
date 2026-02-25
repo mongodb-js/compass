@@ -194,7 +194,7 @@ export type State = {
           error: null;
         }
       | { status: 'loading' | 'refreshing'; error: Error | null }
-      | { status: 'error'; error: Error }
+      | { status: 'refreshing-error' | 'loading-error'; error: Error }
     );
 
   editingConnectionInfoId: ConnectionId | null;
@@ -212,7 +212,6 @@ type ThunkExtraArg = {
   ) => Promise<[ExtraConnectionDataForTelemetry, string | null]>;
   connectFn?: typeof devtoolsConnect;
   globalAppRegistry: Pick<AppRegistry, 'on' | 'emit' | 'removeListener'>;
-  onFailToLoadConnections: (error: Error) => void;
   compassAssistant: CompassAssistantService;
 };
 
@@ -757,7 +756,7 @@ const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
       ...state,
       connections: {
         ...state.connections,
-        status: 'error',
+        status: 'loading-error',
         error: action.error,
       },
     };
@@ -801,7 +800,7 @@ const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
       ...state,
       connections: {
         ...state.connections,
-        status: 'error',
+        status: 'refreshing-error',
         error: action.error,
       },
     };
@@ -1216,11 +1215,7 @@ export const loadConnections = (): ConnectionsThunkAction<
   | ConnectionsLoadSuccessAction
   | ConnectionsLoadErrorAction
 > => {
-  return async (
-    dispatch,
-    getState,
-    { connectionStorage, onFailToLoadConnections }
-  ) => {
+  return async (dispatch, getState, { connectionStorage }) => {
     if (getState().connections.status !== 'initial') {
       return;
     }
@@ -1229,8 +1224,12 @@ export const loadConnections = (): ConnectionsThunkAction<
       const connections = await connectionStorage.loadAll();
       dispatch({ type: ActionTypes.ConnectionsLoadSuccess, connections });
     } catch (err) {
+      openToast('failed-to-load-connections', {
+        title: 'Failed to load connections',
+        description: (err as Error).message,
+        variant: 'warning',
+      });
       dispatch({ type: ActionTypes.ConnectionsLoadError, error: err as any });
-      onFailToLoadConnections(err as Error);
     }
   };
 };
@@ -1244,7 +1243,8 @@ export const refreshConnections = (): ConnectionsThunkAction<
   return async (dispatch, getState, { connectionStorage }) => {
     if (
       getState().connections.status !== 'ready' &&
-      getState().connections.status !== 'error'
+      getState().connections.status !== 'loading-error' &&
+      getState().connections.status !== 'refreshing-error'
     ) {
       return;
     }

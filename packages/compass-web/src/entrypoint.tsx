@@ -301,11 +301,6 @@ export type CompassWebProps = {
   onOpenConnectViaModal?: (atlasMetadata?: AtlasClusterMetadata) => void;
 
   /**
-   * Callback prop called when connections fail to load
-   */
-  onFailToLoadConnections: (err: Error) => void;
-
-  /**
    * Callback that will get passed another callback function that, when called,
    * would return back true or false depending on whether or not tabs can be
    * safely closed without losing any important unsaved changes
@@ -501,7 +496,6 @@ const CompassWeb = ({
   onDebug,
   onTrack,
   onOpenConnectViaModal,
-  onFailToLoadConnections,
   onBeforeUnloadCallbackRequest,
 }: CompassWebProps) => {
   const appRegistry = useInitialValue(new AppRegistry());
@@ -553,7 +547,7 @@ const CompassWeb = ({
                           >
                             <CompassConnections
                               appName={appName ?? 'Compass Web'}
-                              onFailToLoadConnections={onFailToLoadConnections}
+                              showErrorStateOnConnectionLoadError
                               onExtraConnectionDataRequest={() => {
                                 return Promise.resolve([{}, null] as [
                                   Record<string, unknown>,
