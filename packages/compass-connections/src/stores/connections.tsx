@@ -53,11 +53,6 @@ export const ConnectionsComponent: React.FunctionComponent<{
    */
   preloadStorageConnectionInfos?: ConnectionInfo[];
   /**
-   * Whether or not the error state should be displayed when loading clusters
-   * failed
-   */
-  showErrorStateOnInitialConnectionLoadError?: boolean;
-  /**
    * List of active connections (used to sync to assistant global state)
    */
   activeConnections: ConnectionState[];
