@@ -137,8 +137,8 @@ const ClusterLoadError = () => {
     <div className={containerStyles}>
       <ErrorGraphic />
       <div className={contentStyles}>
-        <H3>An error occured while querying your MongoDB deployment</H3>
-        <Body>Please try again in few minutes.</Body>
+        <H3>An error occurred while querying your MongoDB deployment</H3>
+        <Body>Please try again in a few minutes.</Body>
         <Button as="a" href="#/clusters" variant="default">
           Back to Clusters
         </Button>
