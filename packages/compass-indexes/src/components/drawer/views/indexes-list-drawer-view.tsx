@@ -170,6 +170,7 @@ const IndexesListDrawerView: React.FunctionComponent<
           buttonProps={{
             size: 'xsmall',
             variant: 'primary',
+            disabled: !isRegularIndexesWritable && !isSearchIndexesWritable,
           }}
           actions={[
             {
@@ -209,7 +210,9 @@ const IndexesListDrawerView: React.FunctionComponent<
       </Accordion>
       <Accordion text="Search" defaultOpen={true}>
         {getSearchIndexesBanner()}
-        <SearchIndexesDrawerTable searchTerm={searchTerm} />
+        {isSearchIndexesReadable && (
+          <SearchIndexesDrawerTable searchTerm={searchTerm} />
+        )}
       </Accordion>
     </div>
   );
