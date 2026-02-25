@@ -21,7 +21,6 @@ import {
 } from '../../modules/search-indexes';
 import type { FetchStatus } from '../../utils/fetch-status';
 import { IndexesTable } from '../indexes-table';
-import SearchIndexActions from './search-index-actions';
 import { ZeroRegularIndexesGraphic } from '../icons/zero-regular-indexes-graphic';
 import type { RootState } from '../../modules';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
@@ -159,38 +158,29 @@ export const SearchIndexesTable: React.FunctionComponent<
     selectIsViewSearchCompatible(isAtlas)
   );
 
+  const onRunAggregateIndex = useCallback(
+    (name: string, isVectorSearchIndex: boolean) => {
+      openCollectionWorkspace(connectionId, namespace, {
+        newTab: true,
+        ...(isVectorSearchIndex
+          ? {
+              initialPipelineText:
+                getInitialVectorSearchIndexPipelineText(name),
+            }
+          : {
+              initialPipeline: getInitialSearchIndexPipeline(name),
+            }),
+      });
+    },
+    [connectionId, namespace, openCollectionWorkspace]
+  );
+
   const { data } = useSearchIndexesTable({
     indexes,
     vectorTypeLabel: 'Vector Search',
-    renderActions: useCallback(
-      (index: SearchIndex, isVectorSearchIndex: boolean) => (
-        <SearchIndexActions
-          index={index}
-          onDropIndex={onDropIndexClick}
-          onEditIndex={onEditIndexClick}
-          onRunAggregateIndex={(name: string) => {
-            openCollectionWorkspace(connectionId, namespace, {
-              newTab: true,
-              ...(isVectorSearchIndex
-                ? {
-                    initialPipelineText:
-                      getInitialVectorSearchIndexPipelineText(name),
-                  }
-                : {
-                    initialPipeline: getInitialSearchIndexPipeline(name),
-                  }),
-            });
-          }}
-        />
-      ),
-      [
-        connectionId,
-        namespace,
-        onDropIndexClick,
-        onEditIndexClick,
-        openCollectionWorkspace,
-      ]
-    ),
+    onDropIndex: onDropIndexClick,
+    onEditIndex: onEditIndexClick,
+    onRunAggregateIndex,
   });
 
   if (!isReadyStatus(status)) {
