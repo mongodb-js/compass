@@ -185,7 +185,7 @@ export const DiagramEditorToolbar: React.FunctionComponent<{
                     </IconButton>
                   }
                 >
-                  Add a new collection
+                  Add or select collections from the database
                 </Tooltip>
               );
             }}
