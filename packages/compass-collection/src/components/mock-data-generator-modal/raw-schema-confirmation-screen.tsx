@@ -181,7 +181,7 @@ const RawSchemaConfirmationScreen = ({
           )}
           {fakerSchemaGenerationStatus === 'error' && (
             <Banner
-              variant={BannerVariant.Danger}
+              variant={BannerVariant.Warning}
               className={bannerStyles}
               data-testid="error-banner"
             >
