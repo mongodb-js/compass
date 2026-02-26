@@ -4,7 +4,7 @@ import {
   cleanup,
   render,
   screen,
-  fireEvent,
+  userEvent,
   within,
 } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
@@ -17,19 +17,12 @@ import {
   vectorSearchIndexes,
 } from '../../../test/fixtures/search-indexes';
 import { setupStore } from '../../../test/setup-store';
-import type { RootState } from '../../modules';
 
 const renderIndexList = (
-  props: Partial<React.ComponentProps<typeof SearchIndexesDrawerTable>> = {},
-  state?: Partial<RootState>
+  props: Partial<React.ComponentProps<typeof SearchIndexesDrawerTable>> = {}
 ) => {
   const noop = () => {};
   const store = setupStore();
-
-  if (state) {
-    const newState = { ...store.getState(), ...state };
-    Object.assign(store.getState(), newState);
-  }
 
   render(
     <Provider store={store}>
@@ -113,6 +106,16 @@ describe('SearchIndexesDrawerTable Component', function () {
       editIndexActions[0].click();
       expect(onEditIndexSpy.callCount).to.equal(1);
     });
+
+    it('renders edit action as disabled when onEditIndexClick is not provided', function () {
+      renderIndexList({ onEditIndexClick: undefined });
+      const editIndexActions = screen.getAllByTestId(
+        'search-index-actions-edit-action'
+      );
+
+      expect(editIndexActions.length).to.equal(indexes.length);
+      expect(editIndexActions[0]).to.have.attribute('aria-disabled', 'true');
+    });
   });
 
   context('vector search index', function () {
@@ -125,7 +128,7 @@ describe('SearchIndexesDrawerTable Component', function () {
 
       const expandButton = within(indexRow).getByLabelText('Expand row');
       expect(expandButton).to.exist;
-      fireEvent.click(expandButton);
+      userEvent.click(expandButton);
 
       expect(screen.getByText('Status:')).to.exist;
       expect(screen.getByText('Index Fields:')).to.exist;

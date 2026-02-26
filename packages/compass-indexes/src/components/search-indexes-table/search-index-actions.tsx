@@ -55,7 +55,7 @@ const IndexActions: React.FunctionComponent<IndexActionsProps> = ({
     ];
 
     return actions;
-  }, [index]);
+  }, [index, onEditIndex]);
 
   const onAction = useCallback(
     (action: SearchIndexAction) => {
