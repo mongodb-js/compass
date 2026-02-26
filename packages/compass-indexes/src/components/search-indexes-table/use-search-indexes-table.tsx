@@ -13,7 +13,6 @@ import {
 import type { LGTableDataType } from '@mongodb-js/compass-components';
 
 import BadgeWithIconLink from '../indexes-table/badge-with-icon-link';
-import SearchIndexActions from './search-index-actions';
 
 export type SearchIndexInfo = {
   id: string;
@@ -172,10 +171,10 @@ export function getIndexFields(
 
 export type UseSearchIndexesTableProps = {
   indexes: SearchIndex[];
-  onDropIndex: (name: string) => void;
-  onEditIndex: (name: string) => void;
-  // Optional - only used in the main table view, not in the drawer
-  onRunAggregateIndex?: (name: string, isVectorSearchIndex: boolean) => void;
+  renderActions: (
+    index: SearchIndex,
+    isVectorSearchIndex: boolean
+  ) => React.ReactNode;
   // Use "Vector" for drawer, "Vector Search" for tab
   vectorTypeLabel?: 'Vector' | 'Vector Search';
   // Override the default expanded content renderer
@@ -187,13 +186,11 @@ export type UseSearchIndexesTableProps = {
 
 /**
  * Hook that returns search index data for rendering in tables.
- * Renders SearchIndexActions internally with the provided handlers.
+ * Provides default renderExpandedContent and actions that can be overridden.
  */
 export function useSearchIndexesTable({
   indexes,
-  onDropIndex,
-  onEditIndex,
-  onRunAggregateIndex,
+  renderActions,
   vectorTypeLabel = 'Vector Search',
   renderExpandedContentOverride,
 }: UseSearchIndexesTableProps) {
@@ -223,19 +220,7 @@ export function useSearchIndexesTable({
           ),
           indexInfo: index,
           isVectorSearchIndex,
-          actions: (
-            <SearchIndexActions
-              index={index}
-              onDropIndex={onDropIndex}
-              onEditIndex={onEditIndex}
-              onRunAggregateIndex={
-                onRunAggregateIndex
-                  ? (name: string) =>
-                      onRunAggregateIndex(name, isVectorSearchIndex)
-                  : undefined
-              }
-            />
-          ),
+          actions: renderActions(index, isVectorSearchIndex),
           renderExpandedContent: renderExpandedContentOverride
             ? () => renderExpandedContentOverride(index, isVectorSearchIndex)
             : () => (
@@ -254,14 +239,7 @@ export function useSearchIndexesTable({
               ),
         };
       }),
-    [
-      indexes,
-      vectorTypeLabel,
-      renderExpandedContentOverride,
-      onDropIndex,
-      onEditIndex,
-      onRunAggregateIndex,
-    ]
+    [indexes, vectorTypeLabel, renderExpandedContentOverride, renderActions]
   );
 
   return { data };

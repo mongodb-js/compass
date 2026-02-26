@@ -17,6 +17,7 @@ import {
 import type { SearchIndexType } from '../../modules/indexes-drawer';
 import type { FetchStatus } from '../../utils/fetch-status';
 import { IndexesTable } from '../indexes-table';
+import SearchIndexActions from './search-index-actions';
 import type { RootState } from '../../modules';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { usePreferences } from 'compass-preferences-model/provider';
@@ -163,32 +164,38 @@ export const SearchIndexesDrawerTable: React.FunctionComponent<
     [onCreateSearchIndexClick]
   );
 
-  const renderExpandedContentOverride = useCallback(
-    (index: SearchIndex, isVectorSearchIndex: boolean) => (
-      <div className={searchIndexDetailsForDrawerStyles}>
-        <div>
-          <b>Status: </b>
-          {index.status}
-        </div>
-        <div>
-          <b>Index Fields: </b>
-          {getIndexFields(index.latestDefinition, isVectorSearchIndex)}
-        </div>
-        <div>
-          <b>Queryable: </b>
-          {index.queryable.toString()}
-        </div>
-      </div>
-    ),
-    []
-  );
-
   const { data: allData } = useSearchIndexesTable({
     indexes,
     vectorTypeLabel: 'Vector',
-    onDropIndex: onDropIndexClick,
-    onEditIndex: onEditIndexClick,
-    renderExpandedContentOverride,
+    renderActions: useCallback(
+      (index: SearchIndex) => (
+        <SearchIndexActions
+          index={index}
+          onDropIndex={onDropIndexClick}
+          onEditIndex={onEditIndexClick}
+        />
+      ),
+      [onDropIndexClick, onEditIndexClick]
+    ),
+    renderExpandedContentOverride: useCallback(
+      (index: SearchIndex, isVectorSearchIndex: boolean) => (
+        <div className={searchIndexDetailsForDrawerStyles}>
+          <div>
+            <b>Status: </b>
+            {index.status}
+          </div>
+          <div>
+            <b>Index Fields: </b>
+            {getIndexFields(index.latestDefinition, isVectorSearchIndex)}
+          </div>
+          <div>
+            <b>Queryable: </b>
+            {index.queryable.toString()}
+          </div>
+        </div>
+      ),
+      []
+    ),
   });
 
   // Filter data based on search term
