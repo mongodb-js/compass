@@ -14,6 +14,7 @@ import type {
   configureStore,
   ConnectionId,
   ConnectionState,
+  State,
 } from './connections-store-redux';
 import {
   cancelEditConnection,
@@ -40,7 +41,7 @@ import {
   type ConnectionInfo,
 } from '@mongodb-js/connection-info';
 import { createServiceLocator } from '@mongodb-js/compass-app-registry';
-import { isEqual } from 'lodash';
+import { isEqual, memoize } from 'lodash';
 import type { ImportConnectionOptions } from '@mongodb-js/connection-storage/provider';
 import { useInitialValue } from '@mongodb-js/compass-components';
 
@@ -389,3 +390,11 @@ export function useConnectionsListLoadingStatus() {
     };
   }, isEqual);
 }
+
+export const selectActiveConnections = memoize(
+  (connectionsById: State['connections']['byId']) => {
+    return Object.values(connectionsById).filter((connection) => {
+      return connection.status === 'connected';
+    });
+  }
+);
