@@ -1,5 +1,5 @@
 import { isEqual, pick } from 'lodash';
-import type { IndexDefinition } from 'mongodb-data-service';
+import type { IndexBuildProgress, IndexDefinition } from 'mongodb-data-service';
 import type { AnyAction } from 'redux';
 import {
   openToast,
@@ -44,7 +44,7 @@ export type InProgressIndex = Pick<IndexDefinition, 'name' | 'fields'> & {
   id: string;
   status: 'creating' | 'failed';
   error?: string;
-  buildProgress: number;
+  buildProgress: IndexBuildProgress;
 };
 
 export type RollingIndex = Partial<AtlasIndexStats> &
@@ -86,7 +86,8 @@ export const prepareInProgressIndex = (
     status: 'creating',
     fields: inProgressIndexFields,
     name: inProgressIndexName,
-    buildProgress: 0,
+    // Locally created in-progress indexes start with active: true, no progress info yet
+    buildProgress: { currentOp: { active: true } },
     // TODO(COMPASS-8335): we never mapped properties and the table does have
     // room to display them
   };

@@ -7,6 +7,7 @@ import {
   SpinLoader,
   Body,
   spacing,
+  formatDuration,
 } from '@mongodb-js/compass-components';
 import type {
   RegularIndex,
@@ -62,21 +63,20 @@ const isInProgressIndex = (
   return 'status' in index && !('type' in index);
 };
 
-// Helper: Get build progress from any index type
-const getBuildProgress = (index: IndexForActions): number => {
-  if (isRegularIndex(index)) {
-    return index.buildProgress;
-  }
-  if (isInProgressIndex(index)) {
-    return index.buildProgress || 0;
-  }
-  return 0;
+// Helper: Get build progress info from any index type
+const getBuildProgress = (index: IndexForActions) => {
+  // Both RegularIndex and InProgressIndex have buildProgress with the same type
+  return index.buildProgress;
 };
 
 // Helper: Determine if index is currently building
 const isIndexBuilding = (index: IndexForActions): boolean => {
-  const progress = getBuildProgress(index);
-  return progress > 0 && progress < 1;
+  if (isInProgressIndex(index)) {
+    // For in-progress indexes, status is the source of truth
+    return index.status === 'creating';
+  }
+  // Regular indexes: check $indexStats.building or $currentOp.active
+  return !!index.building || !!index.buildProgress.currentOp?.active;
 };
 
 // Helper: Determine if index can be deleted
@@ -166,6 +166,20 @@ const IndexActions: React.FunctionComponent<IndexActionsProps> = ({
     [index, serverVersion]
   );
 
+  const hasActionHandler = useMemo(() => {
+    return (
+      !!onDeleteIndexClick ||
+      !!onDeleteFailedIndexClick ||
+      !!onHideIndexClick ||
+      !!onUnhideIndexClick
+    );
+  }, [
+    onDeleteFailedIndexClick,
+    onDeleteIndexClick,
+    onHideIndexClick,
+    onUnhideIndexClick,
+  ]);
+
   const onAction = useCallback(
     (action: IndexAction) => {
       if (action === 'delete') {
@@ -193,28 +207,45 @@ const IndexActions: React.FunctionComponent<IndexActionsProps> = ({
 
   // Show build progress UI for building indexes
   if (isIndexBuilding(index)) {
+    // Determine what text to show for build progress
+    // Prioritize secsRunning when progress is missing or not meaningful
+    const currentOp = buildProgress.currentOp;
+    const secsRunning = currentOp?.secsRunning;
+    const progress = currentOp?.progress;
+
+    let progressText: string;
+    const hasDuration = secsRunning !== undefined;
+    if (progress) {
+      progressText = `Building… ${Math.trunc(progress * 100)}%`;
+    } else if (hasDuration) {
+      progressText = `Building For… ${formatDuration(secsRunning)}`;
+    } else {
+      progressText = 'Building…';
+    }
     return (
       <div className={buildProgressStyles} data-testid="index-building-spinner">
-        <Body>Building… {Math.trunc(buildProgress * 100)}%</Body>
+        <Body>{progressText}</Body>
         <SpinLoader size={16} title="Index build in progress" />
-        <ItemActionGroup<IndexAction>
-          data-testid="index-actions"
-          actions={indexActions}
-          onAction={onAction}
-        />
+        {hasActionHandler && indexActions.length > 0 ? (
+          <ItemActionGroup<IndexAction>
+            data-testid="index-actions"
+            actions={indexActions}
+            onAction={onAction}
+          />
+        ) : null}
       </div>
     );
   }
 
   // Standard actions layout for completed/failed indexes
-  return (
+  return hasActionHandler && indexActions.length > 0 ? (
     <ItemActionGroup<IndexAction>
       data-testid="index-actions"
       className={styles}
       actions={indexActions}
       onAction={onAction}
     />
-  );
+  ) : null;
 };
 
 export default IndexActions;
