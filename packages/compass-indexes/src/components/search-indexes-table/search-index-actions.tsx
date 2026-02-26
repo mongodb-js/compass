@@ -12,7 +12,7 @@ import type { SearchIndex } from 'mongodb-data-service';
 type IndexActionsProps = {
   index: SearchIndex;
   onDropIndex: (name: string) => void;
-  onEditIndex: (name: string) => void;
+  onEditIndex?: (name: string) => void;
   onRunAggregateIndex?: (name: string) => void;
 };
 
@@ -45,6 +45,7 @@ const IndexActions: React.FunctionComponent<IndexActionsProps> = ({
         action: 'edit',
         label: `Edit Index ${index.name}`,
         icon: 'Edit',
+        isDisabled: !onEditIndex,
       },
       {
         action: 'drop',
@@ -61,7 +62,7 @@ const IndexActions: React.FunctionComponent<IndexActionsProps> = ({
       if (action === 'drop') {
         onDropIndex(index.name);
       } else if (action === 'edit') {
-        onEditIndex(index.name);
+        onEditIndex?.(index.name);
       }
     },
     [onDropIndex, onEditIndex, index]

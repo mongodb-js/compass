@@ -168,13 +168,17 @@ export const SearchIndexesDrawerTable: React.FunctionComponent<
     indexes,
     vectorTypeLabel: 'Vector',
     renderActions: useCallback(
-      (index: SearchIndex) => (
-        <SearchIndexActions
-          index={index}
-          onDropIndex={onDropIndexClick}
-          onEditIndex={onEditIndexClick}
-        />
-      ),
+      (index: SearchIndex) => {
+        return (
+          <SearchIndexActions
+            index={index}
+            onDropIndex={onDropIndexClick}
+            onEditIndex={
+              index.status === 'BUILDING' ? undefined : onEditIndexClick
+            }
+          />
+        );
+      },
       [onDropIndexClick, onEditIndexClick]
     ),
     renderExpandedContentOverride: useCallback(
