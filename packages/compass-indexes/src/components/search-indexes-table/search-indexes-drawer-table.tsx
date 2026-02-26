@@ -164,42 +164,46 @@ export const SearchIndexesDrawerTable: React.FunctionComponent<
     [onCreateSearchIndexClick]
   );
 
+  const renderActions = useCallback(
+    (index: SearchIndex) => {
+      return (
+        <SearchIndexActions
+          index={index}
+          onDropIndex={onDropIndexClick}
+          onEditIndex={
+            index.status === 'BUILDING' ? undefined : onEditIndexClick
+          }
+        />
+      );
+    },
+    [onDropIndexClick, onEditIndexClick]
+  );
+
+  const renderExpandedContentOverride = useCallback(
+    (index: SearchIndex, isVectorSearchIndex: boolean) => (
+      <div className={searchIndexDetailsForDrawerStyles}>
+        <div>
+          <b>Status: </b>
+          {index.status}
+        </div>
+        <div>
+          <b>Index Fields: </b>
+          {getIndexFields(index.latestDefinition, isVectorSearchIndex)}
+        </div>
+        <div>
+          <b>Queryable: </b>
+          {index.queryable.toString()}
+        </div>
+      </div>
+    ),
+    []
+  );
+
   const { data: allData } = useSearchIndexesTable({
     indexes,
     vectorTypeLabel: 'Vector',
-    renderActions: useCallback(
-      (index: SearchIndex) => {
-        return (
-          <SearchIndexActions
-            index={index}
-            onDropIndex={onDropIndexClick}
-            onEditIndex={
-              index.status === 'BUILDING' ? undefined : onEditIndexClick
-            }
-          />
-        );
-      },
-      [onDropIndexClick, onEditIndexClick]
-    ),
-    renderExpandedContentOverride: useCallback(
-      (index: SearchIndex, isVectorSearchIndex: boolean) => (
-        <div className={searchIndexDetailsForDrawerStyles}>
-          <div>
-            <b>Status: </b>
-            {index.status}
-          </div>
-          <div>
-            <b>Index Fields: </b>
-            {getIndexFields(index.latestDefinition, isVectorSearchIndex)}
-          </div>
-          <div>
-            <b>Queryable: </b>
-            {index.queryable.toString()}
-          </div>
-        </div>
-      ),
-      []
-    ),
+    renderActions,
+    renderExpandedContentOverride,
   });
 
   // Filter data based on search term

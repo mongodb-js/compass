@@ -159,38 +159,40 @@ export const SearchIndexesTable: React.FunctionComponent<
     selectIsViewSearchCompatible(isAtlas)
   );
 
+  const renderActions = useCallback(
+    (index: SearchIndex, isVectorSearchIndex: boolean) => (
+      <SearchIndexActions
+        index={index}
+        onDropIndex={onDropIndexClick}
+        onEditIndex={onEditIndexClick}
+        onRunAggregateIndex={(name: string) => {
+          openCollectionWorkspace(connectionId, namespace, {
+            newTab: true,
+            ...(isVectorSearchIndex
+              ? {
+                  initialPipelineText:
+                    getInitialVectorSearchIndexPipelineText(name),
+                }
+              : {
+                  initialPipeline: getInitialSearchIndexPipeline(name),
+                }),
+          });
+        }}
+      />
+    ),
+    [
+      connectionId,
+      namespace,
+      onDropIndexClick,
+      onEditIndexClick,
+      openCollectionWorkspace,
+    ]
+  );
+
   const { data } = useSearchIndexesTable({
     indexes,
     vectorTypeLabel: 'Vector Search',
-    renderActions: useCallback(
-      (index: SearchIndex, isVectorSearchIndex: boolean) => (
-        <SearchIndexActions
-          index={index}
-          onDropIndex={onDropIndexClick}
-          onEditIndex={onEditIndexClick}
-          onRunAggregateIndex={(name: string) => {
-            openCollectionWorkspace(connectionId, namespace, {
-              newTab: true,
-              ...(isVectorSearchIndex
-                ? {
-                    initialPipelineText:
-                      getInitialVectorSearchIndexPipelineText(name),
-                  }
-                : {
-                    initialPipeline: getInitialSearchIndexPipeline(name),
-                  }),
-            });
-          }}
-        />
-      ),
-      [
-        connectionId,
-        namespace,
-        onDropIndexClick,
-        onEditIndexClick,
-        openCollectionWorkspace,
-      ]
-    ),
+    renderActions,
   });
 
   if (!isReadyStatus(status)) {
