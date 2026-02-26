@@ -24,7 +24,7 @@ const renderIndexList = (
   state?: Partial<RootState>
 ) => {
   const noop = () => {};
-  const store = setupStore({ ...props });
+  const store = setupStore();
 
   if (state) {
     const newState = { ...store.getState(), ...state };
