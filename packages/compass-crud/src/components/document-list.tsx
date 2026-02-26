@@ -297,7 +297,6 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
     viewChanged,
     isWritable,
     instanceDescription,
-    refreshDocuments,
     resultId,
     isCollectionScan,
     isSearchIndexesSupported,
@@ -343,6 +342,10 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
 
   const onResetClicked = useCallback(() => {
     void store.refreshDocuments();
+  }, [store]);
+
+  const onRefreshDocuments = useCallback(() => {
+    void store.refreshDocuments({ refreshCollectionStats: true });
   }, [store]);
 
   const onCancelClicked = useCallback(() => {
@@ -594,7 +597,7 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
             viewSwitchHandler={handleViewChanged}
             isWritable={isWritable}
             instanceDescription={instanceDescription}
-            refreshDocuments={refreshDocuments}
+            refreshDocuments={onRefreshDocuments}
             resultId={resultId}
             querySkip={query.skip}
             queryLimit={query.limit}

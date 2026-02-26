@@ -328,6 +328,11 @@ export type BulkDeleteState = {
   affected?: number;
 };
 
+type RefreshDocumentsOptions = {
+  onApply?: boolean;
+  refreshCollectionStats?: boolean;
+};
+
 type CrudState = {
   ns: string;
   collection: string;
@@ -1581,10 +1586,35 @@ class CrudStoreImpl
     });
   }
 
+  refreshCollectionStats() {
+    if (!this.dataService.isConnected()) {
+      return;
+    }
+
+    void this.collection
+      .fetch({ dataService: this.dataService, force: true })
+      .catch((error) => {
+        this.logger.log.warn(
+          mongoLogId(1_001_000_289),
+          'Documents',
+          'Failed to refresh collection stats',
+          error
+        );
+      });
+  }
+
   /**
    * This function is called when the collection filter changes.
    */
-  async refreshDocuments(onApply = false) {
+  async refreshDocuments(options: boolean | RefreshDocumentsOptions = false) {
+    const { onApply, refreshCollectionStats } =
+      typeof options === 'boolean'
+        ? { onApply: options, refreshCollectionStats: false }
+        : {
+            onApply: options.onApply ?? false,
+            refreshCollectionStats: options.refreshCollectionStats ?? false,
+          };
+
     if (this.dataService && !this.dataService.isConnected()) {
       this.logger.log.warn(
         mongoLogId(1_001_000_072),
@@ -1599,6 +1629,10 @@ class CrudStoreImpl
 
     if (status === DOCUMENTS_STATUS_FETCHING) {
       return;
+    }
+
+    if (refreshCollectionStats) {
+      this.refreshCollectionStats();
     }
 
     if (onApply) {

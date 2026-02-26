@@ -1832,6 +1832,39 @@ describe('store', function () {
       });
     });
 
+    context('when refreshCollectionStats is requested', function () {
+      let store: CrudStore;
+      let collection: typeof mockCollection & { fetch: sinon.SinonStub };
+
+      beforeEach(async function () {
+        collection = {
+          ...mockCollection,
+          fetch: sinon.stub().resolves(),
+        };
+        const plugin = activatePlugin({}, { collection: collection as any });
+        store = plugin.store;
+        deactivate = () => plugin.deactivate();
+        await dataService.insertOne('compass-crud.test', { name: 'testing1' });
+      });
+
+      afterEach(function () {
+        return dataService.deleteMany('compass-crud.test', {});
+      });
+
+      it('refreshes collection stats in parallel', async function () {
+        const refreshPromise = store.refreshDocuments({
+          refreshCollectionStats: true,
+        });
+
+        expect(collection.fetch).to.have.been.calledOnceWithExactly({
+          dataService,
+          force: true,
+        });
+
+        await refreshPromise;
+      });
+    });
+
     context('when there is a shard key', function () {
       let store: CrudStore;
       beforeEach(async function () {
