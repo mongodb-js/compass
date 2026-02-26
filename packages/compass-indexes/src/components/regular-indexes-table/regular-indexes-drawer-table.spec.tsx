@@ -30,7 +30,7 @@ const indexes: RegularIndex[] = [
     properties: ['unique'],
     fields: [{ field: '_id', value: 1 }],
     usageCount: 10,
-    buildProgress: 0,
+    buildProgress: {},
   },
   {
     ns: 'db.coll',
@@ -46,7 +46,7 @@ const indexes: RegularIndex[] = [
       { field: 'artist_id', value: -1 },
     ],
     usageCount: 15,
-    buildProgress: 0,
+    buildProgress: {},
   },
 ];
 
@@ -59,7 +59,7 @@ const inProgressIndexes: InProgressIndex[] = [
       { field: 'b', value: -1 },
     ],
     status: 'creating',
-    buildProgress: 0,
+    buildProgress: {},
   },
 ];
 
