@@ -65,7 +65,6 @@ export type IndexesPluginServices = {
   track: TrackFunction;
   atlasService: AtlasService;
   preferences: PreferencesAccess;
-  drawerActions: { openDrawer: (id: string) => void; closeDrawer: () => void };
 };
 
 export type IndexesPluginOptions = {
@@ -92,7 +91,6 @@ export function activateIndexesPlugin(
     collection: collectionModel,
     atlasService,
     preferences,
-    drawerActions,
   }: IndexesPluginServices,
   { on, cleanup, addCleanup }: ActivateHelpers
 ) {
@@ -128,7 +126,6 @@ export function activateIndexesPlugin(
         ),
         pollingIntervalRef,
         preferences,
-        openDrawer: drawerActions.openDrawer,
       })
     )
   );

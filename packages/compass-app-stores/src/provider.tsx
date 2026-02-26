@@ -25,7 +25,6 @@ import type {
   AllPreferences,
   PreferencesAccess,
 } from 'compass-preferences-model';
-import { useDrawerActions } from '@mongodb-js/compass-components';
 
 export {
   MongoDBInstancesManagerEvents,
@@ -259,11 +258,6 @@ export const NamespaceProvider = createServiceProvider(
       </NamespaceModelContext.Provider>
     );
   }
-);
-
-export const drawerActionsLocator = createServiceLocator(
-  useDrawerActions,
-  'drawerActionsLocator'
 );
 
 export type { MongoDBInstance, Collection, Database };

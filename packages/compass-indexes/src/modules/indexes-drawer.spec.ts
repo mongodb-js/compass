@@ -1,5 +1,4 @@
 import { expect } from 'chai';
-import sinon from 'sinon';
 import type { IndexesStore } from '../stores/store';
 import { setupStore } from '../../test/setup-store';
 import reducer, {
@@ -14,24 +13,9 @@ import reducer, {
 
 describe('indexes-drawer module', function () {
   let store: IndexesStore;
-  let openDrawerSpy: sinon.SinonSpy;
 
   beforeEach(function () {
-    openDrawerSpy = sinon.spy();
-    store = setupStore(
-      {},
-      {},
-      {
-        drawerActions: {
-          openDrawer: openDrawerSpy,
-          closeDrawer: () => {},
-        },
-      }
-    );
-  });
-
-  afterEach(function () {
-    sinon.restore();
+    store = setupStore({}, {});
   });
 
   describe('reducer', function () {
@@ -111,14 +95,6 @@ describe('indexes-drawer module', function () {
           'indexes-list'
         );
       });
-
-      it('calls openDrawer with INDEXES_DRAWER_ID', function () {
-        store.dispatch(openIndexesListDrawerView());
-
-        expect(openDrawerSpy).to.have.been.calledOnceWithExactly(
-          'compass-indexes-drawer'
-        );
-      });
     });
 
     describe('openCreateSearchIndexDrawerView', function () {
@@ -143,14 +119,6 @@ describe('indexes-drawer module', function () {
           'vectorSearch'
         );
       });
-
-      it('calls openDrawer with INDEXES_DRAWER_ID', function () {
-        store.dispatch(openCreateSearchIndexDrawerView('search'));
-
-        expect(openDrawerSpy).to.have.been.calledOnceWithExactly(
-          'compass-indexes-drawer'
-        );
-      });
     });
 
     describe('openEditSearchIndexDrawerView', function () {
@@ -162,14 +130,6 @@ describe('indexes-drawer module', function () {
         );
         expect(store.getState().indexesDrawer.currentIndexName).to.equal(
           'my-index'
-        );
-      });
-
-      it('calls openDrawer with INDEXES_DRAWER_ID', function () {
-        store.dispatch(openEditSearchIndexDrawerView('my-index'));
-
-        expect(openDrawerSpy).to.have.been.calledOnceWithExactly(
-          'compass-indexes-drawer'
         );
       });
     });

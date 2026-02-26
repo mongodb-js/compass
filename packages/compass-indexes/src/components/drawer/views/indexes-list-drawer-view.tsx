@@ -8,6 +8,7 @@ import {
   refreshAllIndexes,
   startPollingAllIndexes,
   stopPollingAllIndexes,
+  INDEXES_DRAWER_ID,
 } from '../../../modules/indexes-drawer';
 import type { SearchIndexType } from '../../../modules/indexes-drawer';
 import {
@@ -19,6 +20,7 @@ import {
   SearchInput,
   spacing,
   SpinLoader,
+  useDrawerActions,
 } from '@mongodb-js/compass-components';
 import { createIndexOpened } from '../../../modules/create-index';
 import { FetchStatuses } from '../../../utils/fetch-status';
@@ -71,6 +73,7 @@ const IndexesListDrawerView: React.FunctionComponent<
   stopPolling,
 }) => {
   const [searchTerm, setSearchTerm] = useState<string>('');
+  const { openDrawer } = useDrawerActions();
 
   useEffect(() => {
     startPolling();
@@ -83,12 +86,16 @@ const IndexesListDrawerView: React.FunctionComponent<
         case 'createRegularIndex':
           return onCreateRegularIndexClick();
         case 'createSearchIndex':
-          return onCreateSearchIndexClick('search');
+          onCreateSearchIndexClick('search');
+          openDrawer(INDEXES_DRAWER_ID);
+          return;
         case 'createVectorSearchIndex':
-          return onCreateSearchIndexClick('vectorSearch');
+          onCreateSearchIndexClick('vectorSearch');
+          openDrawer(INDEXES_DRAWER_ID);
+          return;
       }
     },
-    [onCreateRegularIndexClick, onCreateSearchIndexClick]
+    [onCreateRegularIndexClick, onCreateSearchIndexClick, openDrawer]
   );
 
   const isRefreshing =

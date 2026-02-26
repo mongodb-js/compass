@@ -11,6 +11,7 @@ import {
   IconButton,
   SignalPopover,
   Button,
+  useDrawerActions,
 } from '@mongodb-js/compass-components';
 import type { RootState } from '../../modules';
 import ToggleStage from './toggle-stage';
@@ -135,6 +136,7 @@ export function StageToolbar({
     'enableSearchActivationProgramP1'
   );
   const darkMode = useDarkMode();
+  const { openDrawer } = useDrawerActions();
 
   const insight = useMemo(
     () =>
@@ -171,7 +173,10 @@ export function StageToolbar({
               data-testid="stage-toolbar-view-indexes-button"
               size="xsmall"
               className={viewIndexesButtonStyles}
-              onClick={onClickViewSearchIndexes}
+              onClick={() => {
+                openDrawer('compass-indexes-drawer');
+                onClickViewSearchIndexes();
+              }}
               title="View Indexes"
             >
               View Indexes
