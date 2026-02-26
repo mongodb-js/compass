@@ -37,3 +37,15 @@ export const NOT_FETCHABLE_STATUSES: FetchStatus[] = [
   'POLLING',
   'REFRESHING',
 ];
+
+/**
+ * Returns true if the status indicates we have a ready list of indexes
+ * (including when we're polling/refreshing an existing list).
+ */
+export function isReadyStatus(status: FetchStatus): boolean {
+  return (
+    status === FetchStatuses.READY ||
+    status === FetchStatuses.REFRESHING ||
+    status === FetchStatuses.POLLING
+  );
+}
