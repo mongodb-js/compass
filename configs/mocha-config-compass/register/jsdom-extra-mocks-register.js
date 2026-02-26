@@ -1,4 +1,8 @@
 'use strict';
+// Polyfill Intl.DurationFormat for Node.js versions that don't support it (used in tests)
+// Our target browsers/Node versions support it, but the test runner may not
+require('@formatjs/intl-durationformat/polyfill-force.js');
+
 // Not implemented in jsdom
 if (!window.matchMedia) {
   window.matchMedia = globalThis.matchMedia = (media) => {

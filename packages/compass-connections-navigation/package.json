@@ -11,7 +11,7 @@
     "email": "compass@mongodb.com"
   },
   "homepage": "https://github.com/mongodb-js/compass",
-  "version": "1.96.0",
+  "version": "1.96.2",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/compass.git"
@@ -48,23 +48,23 @@
     "reformat": "npm run eslint . -- --fix && npm run prettier -- --write ."
   },
   "dependencies": {
-    "@mongodb-js/compass-components": "^1.63.0",
-    "@mongodb-js/compass-connections": "^1.97.0",
-    "@mongodb-js/compass-context-menu": "^0.3.6",
-    "@mongodb-js/workspace-info": "^1.5.0",
-    "@mongodb-js/connection-form": "^1.79.1",
-    "@mongodb-js/connection-info": "^0.26.1",
-    "compass-preferences-model": "^2.73.0",
+    "@mongodb-js/compass-components": "^1.63.2",
+    "@mongodb-js/compass-connections": "^1.97.2",
+    "@mongodb-js/compass-context-menu": "^0.3.8",
+    "@mongodb-js/workspace-info": "^1.5.2",
+    "@mongodb-js/connection-form": "^1.79.3",
+    "@mongodb-js/connection-info": "^0.26.3",
+    "compass-preferences-model": "^2.73.2",
     "mongodb-build-info": "^1.8.1",
     "react": "^17.0.2",
     "react-virtualized-auto-sizer": "^1.0.6",
     "react-window": "^1.8.6"
   },
   "devDependencies": {
-    "@mongodb-js/eslint-config-compass": "^1.4.17",
-    "@mongodb-js/mocha-config-compass": "^1.7.5",
+    "@mongodb-js/eslint-config-compass": "^1.4.18",
+    "@mongodb-js/mocha-config-compass": "^1.7.6",
     "@mongodb-js/prettier-config-compass": "^1.2.9",
-    "@mongodb-js/testing-library-compass": "^1.5.0",
+    "@mongodb-js/testing-library-compass": "^1.5.2",
     "@mongodb-js/tsconfig-compass": "^1.2.14",
     "@types/chai": "^4.2.21",
     "@types/chai-dom": "^0.0.10",
