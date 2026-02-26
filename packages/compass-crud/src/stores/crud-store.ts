@@ -1589,8 +1589,19 @@ class CrudStoreImpl
   }
 
   collectionStatsFetched(model: Collection) {
+    const query = this.queryBar.getLastAppliedQuery('crud') ?? {};
+    const shouldSyncCount = this.shouldSyncCollectionStatsWithCount(query);
+    const stats = extractCollectionStats(model);
+    const documentCount =
+      shouldSyncCount && typeof this.state.count === 'number'
+        ? this.state.count
+        : stats.document_count;
+
     this.setState({
-      collectionStats: extractCollectionStats(model),
+      collectionStats: {
+        ...stats,
+        document_count: documentCount,
+      },
     });
   }
 

@@ -1985,6 +1985,35 @@ describe('store', function () {
     });
   });
 
+  describe('#collectionStatsFetched', function () {
+    let store: CrudStore;
+
+    beforeEach(function () {
+      const plugin = activatePlugin();
+      store = plugin.store;
+      deactivate = () => plugin.deactivate();
+    });
+
+    it('prefers the unfiltered count when available', async function () {
+      store.setState({ count: 0 });
+
+      const listener = waitForState(store, (state) => {
+        expect(state.collectionStats?.document_count).to.equal(0);
+      });
+
+      store.collectionStatsFetched({
+        toJSON: () => ({
+          document_count: 25,
+          storage_size: 20,
+          free_storage_size: 0,
+          avg_document_size: 1,
+        }),
+      } as any);
+
+      await listener;
+    });
+  });
+
   describe('#getPage', function () {
     let store: CrudStore;
     let findSpy;
