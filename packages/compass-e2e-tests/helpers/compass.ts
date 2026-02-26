@@ -452,6 +452,7 @@ interface StartCompassOptions {
   extraSpawnArgs?: string[];
   wrapBinary?: (binary: string) => Promise<string> | string;
   dangerouslySkipSharedConfigWaitFor?: boolean;
+  onBeforeNavigate?: (browser: CompassBrowser) => Promise<void> | void;
 }
 
 let defaultUserDataDir: string | undefined;
@@ -1123,8 +1124,6 @@ export async function init(
   const { browser } = compass;
 
   if (isTestingAtlasCloud(context)) {
-    const urls = getCloudUrlsFromContext();
-
     await browser.signInToAtlas(
       context.atlasCloudUsername,
       context.atlasCloudPassword
@@ -1137,12 +1136,19 @@ export async function init(
         'true'
       );
     });
+  }
 
-    await browser.navigateTo(
-      `${urls.cloudUrl}/v2/${context.atlasCloudProjectId}#/explorer`
-    );
-  } else if (isTestingWeb(context)) {
-    await browser.navigateTo(context.sandboxUrl);
+  if (isTestingWeb(context)) {
+    await opts.onBeforeNavigate?.(browser);
+
+    if (isTestingAtlasCloud(context)) {
+      const urls = getCloudUrlsFromContext();
+      await browser.navigateTo(
+        `${urls.cloudUrl}/v2/${context.atlasCloudProjectId}#/explorer`
+      );
+    } else {
+      await browser.navigateTo(context.sandboxUrl);
+    }
   }
 
   await setSharedConfigOnStart(

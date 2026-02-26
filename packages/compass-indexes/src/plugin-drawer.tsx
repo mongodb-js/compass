@@ -21,6 +21,7 @@ const indexesTitleTextStyles = css({
 });
 
 export const INDEXES_DRAWER_ID = 'compass-indexes-drawer';
+const INDEXES_DRAWER_ID_DISABLED = 'compass-indexes-drawer-disabled';
 
 type DrawerProps = {
   currentView: IndexesDrawerViewType;
@@ -35,21 +36,28 @@ const Drawer = ({ currentView, subTab }: DrawerProps) => {
     'enableSearchActivationProgramP1'
   );
 
-  if (!isIndexesDrawerEnabled || subTab === 'Indexes') {
+  if (!isIndexesDrawerEnabled) {
     return null;
   }
 
   return (
     <>
       <DrawerSection
-        id={INDEXES_DRAWER_ID}
+        id={
+          subTab === 'Indexes' ? INDEXES_DRAWER_ID_DISABLED : INDEXES_DRAWER_ID
+        }
         title={
           <div className={indexesTitleStyles}>
             <span className={indexesTitleTextStyles}>Indexes</span>
           </div>
         }
-        label="Indexes"
+        label={
+          subTab === 'Indexes'
+            ? 'You are already on the indexes page'
+            : 'Indexes'
+        }
         glyph="SearchIndex"
+        disabled={subTab === 'Indexes'}
       >
         <div>
           {currentView === 'indexes-list' && <IndexesListDrawerView />}
