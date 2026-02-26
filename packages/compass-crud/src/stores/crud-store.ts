@@ -1580,6 +1580,14 @@ class CrudStoreImpl
     );
   }
 
+  shouldSyncCollectionStatsWithCount(query: Query = {}): boolean {
+    const hasFilter = !isEmpty(query.filter);
+    const hasSkip = (query.skip ?? 0) > 0;
+    const hasLimit = (query.limit ?? 0) > 0;
+
+    return !hasFilter && !hasSkip && !hasLimit;
+  }
+
   collectionStatsFetched(model: Collection) {
     this.setState({
       collectionStats: extractCollectionStats(model),
@@ -1770,6 +1778,9 @@ class CrudStoreImpl
     }
 
     // Don't wait for the count to finish. Set the result asynchronously.
+    const shouldSyncCollectionStats =
+      this.shouldSyncCollectionStatsWithCount(query);
+
     countDocuments(
       this.dataService,
       this.preferences,
@@ -1785,7 +1796,28 @@ class CrudStoreImpl
         );
       }
     )
-      .then((count) => this.setState({ count, loadingCount: false }))
+      .then((count) => {
+        const nextState: Partial<CrudState> = {
+          count,
+          loadingCount: false,
+        };
+
+        if (shouldSyncCollectionStats && typeof count === 'number') {
+          const previousStats: CollectionStats =
+            this.state.collectionStats ?? {
+              document_count: undefined,
+              storage_size: undefined,
+              free_storage_size: undefined,
+              avg_document_size: undefined,
+            };
+          nextState.collectionStats = {
+            ...previousStats,
+            document_count: count,
+          };
+        }
+
+        this.setState(nextState);
+      })
       .catch((err) => {
         // countDocuments already swallows all db errors and returns null. The
         // only known error it can throw is AbortError. If

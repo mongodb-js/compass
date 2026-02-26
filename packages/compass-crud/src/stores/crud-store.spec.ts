@@ -1769,6 +1769,7 @@ describe('store', function () {
               expect(state.docs[0].doc.name).to.equal('testing1');
               expect(state.debouncingLoad).to.equal(false);
               expect(state.count).to.equal(2);
+              expect(state.collectionStats?.document_count).to.equal(2);
               expect(state.start).to.equal(1);
               expect(state.shardKeys).to.deep.equal({});
             },
