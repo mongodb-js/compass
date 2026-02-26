@@ -158,6 +158,7 @@ describe('Indexes Component', function () {
                 },
               ],
               usageCount: 20,
+              buildProgress: {},
             },
           ] as RegularIndex[],
           error: undefined,
@@ -193,7 +194,7 @@ describe('Indexes Component', function () {
                 },
               ],
               usageCount: 20,
-              buildProgress: 0,
+              buildProgress: {},
             },
           ],
           inProgressIndexes: [
@@ -207,7 +208,7 @@ describe('Indexes Component', function () {
                 },
               ],
               status: 'creating',
-              buildProgress: 0,
+              buildProgress: {},
             },
           ],
           error: undefined,
@@ -222,10 +223,11 @@ describe('Indexes Component', function () {
       )[1];
       expect(indexStatusField).to.contain.text('Creating');
 
-      const dropIndexButton = within(indexesList).queryByTestId(
-        'index-actions-delete-action'
+      // Creating indexes show a building spinner instead of regular delete action
+      const buildingSpinner = within(indexesList).getByTestId(
+        'index-building-spinner'
       );
-      expect(dropIndexButton).to.not.exist;
+      expect(buildingSpinner).to.exist;
     });
 
     it('renders indexes list with failed index', async function () {
@@ -250,7 +252,7 @@ describe('Indexes Component', function () {
                 },
               ],
               usageCount: 20,
-              buildProgress: 0,
+              buildProgress: {},
             },
           ],
           inProgressIndexes: [
@@ -265,7 +267,7 @@ describe('Indexes Component', function () {
               ],
               status: 'failed',
               error: 'Error message',
-              buildProgress: 0,
+              buildProgress: {},
             },
           ],
           error: undefined,

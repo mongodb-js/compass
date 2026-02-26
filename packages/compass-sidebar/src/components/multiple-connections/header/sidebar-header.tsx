@@ -5,8 +5,6 @@ import {
   css,
   type ItemAction,
   ItemActionControls,
-  Badge,
-  BadgeVariant,
 } from '@mongodb-js/compass-components';
 
 const sidebarHeaderStyles = css({
@@ -20,11 +18,6 @@ const sidebarHeaderStyles = css({
 const sidebarHeaderTextStyles = css({
   lineHeight: '32px',
   fontWeight: 600,
-});
-
-const badgeStyles = css({
-  verticalAlign: 'middle',
-  marginLeft: spacing[100],
 });
 
 type Action = 'open-compass-settings';
@@ -48,15 +41,6 @@ export function SidebarHeader({
     <div className={sidebarHeaderStyles} data-testid="sidebar-header">
       <Subtitle className={sidebarHeaderTextStyles}>
         {isCompassWeb ? 'Data Explorer' : 'Compass'}
-        {isCompassWeb && (
-          <Badge
-            variant={BadgeVariant.Blue}
-            className={badgeStyles}
-            data-testid="sidebar-header-badge"
-          >
-            Preview
-          </Badge>
-        )}
       </Subtitle>
       {!isCompassWeb && (
         <ItemActionControls<Action>
