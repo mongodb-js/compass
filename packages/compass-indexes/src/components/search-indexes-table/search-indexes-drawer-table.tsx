@@ -8,7 +8,7 @@ import {
   Link,
 } from '@mongodb-js/compass-components';
 
-import { FetchStatuses } from '../../utils/fetch-status';
+import { isReadyStatus } from '../../utils/fetch-status';
 import { dropSearchIndex } from '../../modules/search-indexes';
 import {
   openCreateSearchIndexDrawerView,
@@ -32,14 +32,6 @@ import {
   COLUMNS_FOR_DRAWER_WITH_ACTIONS,
 } from './search-indexes-columns';
 import { ZeroSearchIndexesGraphic } from '../icons/zero-search-indexes-graphic';
-
-function isReadyStatus(status: FetchStatus) {
-  return (
-    status === FetchStatuses.READY ||
-    status === FetchStatuses.REFRESHING ||
-    status === FetchStatuses.POLLING
-  );
-}
 
 const emptyContentStyles = css({
   marginTop: 0,

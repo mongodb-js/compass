@@ -9,7 +9,7 @@ import {
   Tooltip,
 } from '@mongodb-js/compass-components';
 
-import { FetchStatuses } from '../../utils/fetch-status';
+import { isReadyStatus } from '../../utils/fetch-status';
 import {
   dropSearchIndex,
   getInitialSearchIndexPipeline,
@@ -45,14 +45,6 @@ type SearchIndexesTableProps = {
   onSearchIndexesOpened: (tabId: string) => void;
   onSearchIndexesClosed: (tabId: string) => void;
 };
-
-function isReadyStatus(status: FetchStatus) {
-  return (
-    status === FetchStatuses.READY ||
-    status === FetchStatuses.REFRESHING ||
-    status === FetchStatuses.POLLING
-  );
-}
 
 function ZeroState({
   onOpenCreateModalClick,

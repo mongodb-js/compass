@@ -46,21 +46,41 @@ export type IndexInfo = {
 type CommonIndexInfo = Omit<IndexInfo, 'renderExpandedContent'>;
 
 /**
- * Determines the display status for a regular index based on its build progress
+ * Determines the display status for a regular index based on its build progress.
+ * Status is determined from $indexStats.building and optionally enriched with
+ * detailed info from $currentOp (which requires permissions).
+ *
+ * - 'inprogress': Index is actively building (known from $indexStats.building or $currentOp)
+ * - 'ready': Index build is complete
+ * - 'unknown': Both $indexStats and $currentOp failed (can't determine status)
  */
 export function determineRegularIndexStatus(
   index: RegularIndex
-): 'inprogress' | 'ready' {
-  // Build progress determines building vs ready
-  if (index.buildProgress > 0 && index.buildProgress < 1) {
+): 'inprogress' | 'ready' | 'unknown' {
+  const hasStats = !index.buildProgress.statsError;
+  const hasProgress = !index.buildProgress.progressError;
+
+  // When both $indexStats and $currentOp failed, we truly don't know the status
+  if (!hasStats && !hasProgress) {
+    return 'unknown';
+  }
+
+  // Index is in progress if $indexStats.building is true or $currentOp reports active
+  if (index.building === true || index.buildProgress.currentOp?.active) {
     return 'inprogress';
   }
 
-  // Default to ready for completed indexes (buildProgress = 0 or 1)
+  // Also in progress if we have a partial progress fraction
+  const progress = index.buildProgress.currentOp?.progress;
+  if (progress && progress < 1) {
+    return 'inprogress';
+  }
+
+  // Default to ready for completed indexes
   return 'ready';
 }
 
-export function mergeIndexes(
+function mergeIndexes(
   indexes: RegularIndex[],
   inProgressIndexes: InProgressIndex[],
   rollingIndexes: RollingIndex[]
@@ -175,7 +195,12 @@ function getRegularIndexInfo(
         properties={index.properties}
       />
     ),
-    status: <StatusField status={status} />,
+    status: (
+      <StatusField
+        status={status}
+        tooltip={index.buildProgress.currentOp?.msg}
+      />
+    ),
     actions: index.name !== '_id_' && (
       <IndexActions
         index={index}

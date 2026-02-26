@@ -3,8 +3,11 @@ import type {
   LeafyGreenTableRow,
 } from '@mongodb-js/compass-components';
 
-import type { MergedIndex, IndexInfo } from './use-regular-indexes-table';
-import type { RegularIndex } from '../../modules/regular-indexes';
+import {
+  determineRegularIndexStatus,
+  type MergedIndex,
+  type IndexInfo,
+} from './use-regular-indexes-table';
 
 function mergedIndexPropertyValue(index: MergedIndex): string {
   // TODO(COMPASS-8335): right now only regular indexes have properties &
@@ -31,18 +34,6 @@ function sortByProperties(a: MergedIndex, b: MergedIndex) {
 }
 
 type SortableField = 'name' | 'type' | 'size' | 'usageCount' | 'status';
-
-/**
- * Determines the display status for a regular index based on its build progress
- */
-function determineRegularIndexStatus(
-  index: RegularIndex
-): 'inprogress' | 'ready' {
-  if (index.buildProgress > 0 && index.buildProgress < 1) {
-    return 'inprogress';
-  }
-  return 'ready';
-}
 
 function mergedIndexFieldValue(
   index: MergedIndex,
