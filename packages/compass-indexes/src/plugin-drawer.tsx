@@ -7,7 +7,6 @@ import IndexesListDrawerView from './components/drawer/views/indexes-list-drawer
 import type { CollectionSubtab } from '@mongodb-js/workspace-info';
 import CreateSearchIndexView from './components/drawer/views/create-search-index-view';
 import EditSearchIndexView from './components/drawer/views/edit-search-index-view';
-import { INDEXES_DRAWER_ID } from './modules/indexes-drawer';
 import type { IndexesDrawerViewType } from './modules/indexes-drawer';
 import CreateIndexModal from './components/create-index-modal/create-index-modal';
 
@@ -20,6 +19,8 @@ const indexesTitleStyles = css({
 const indexesTitleTextStyles = css({
   marginRight: spacing[200],
 });
+
+export const INDEXES_DRAWER_ID = 'compass-indexes-drawer';
 
 type DrawerProps = {
   currentView: IndexesDrawerViewType;

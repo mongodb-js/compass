@@ -8,7 +8,6 @@ import {
   refreshAllIndexes,
   startPollingAllIndexes,
   stopPollingAllIndexes,
-  INDEXES_DRAWER_ID,
 } from '../../../modules/indexes-drawer';
 import type { SearchIndexType } from '../../../modules/indexes-drawer';
 import {
@@ -25,6 +24,7 @@ import {
 import { createIndexOpened } from '../../../modules/create-index';
 import { FetchStatuses } from '../../../utils/fetch-status';
 import type { FetchStatus } from '../../../utils/fetch-status';
+import { INDEXES_DRAWER_ID } from '../../../plugin-drawer';
 
 const containerStyles = css({
   padding: spacing[400],

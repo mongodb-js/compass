@@ -12,7 +12,6 @@ import {
   stopPollingSearchIndexes,
 } from './search-indexes';
 import type { FetchSearchIndexesActions } from './search-indexes';
-
 export type IndexesDrawerViewType =
   | 'indexes-list'
   | 'create-search-index'
@@ -31,8 +30,6 @@ export const INITIAL_STATE: State = {
   currentIndexType: null,
   currentIndexName: null,
 };
-
-export const INDEXES_DRAWER_ID = 'compass-indexes-drawer';
 
 export const OPEN_INDEXES_LIST_DRAWER_VIEW =
   'indexes/drawer/OPEN_INDEXES_LIST_DRAWER_VIEW' as const;
