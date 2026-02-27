@@ -703,7 +703,7 @@ async function getSampleForNamespace({
       ns,
       {},
       { promoteValues: false },
-      { abortSignal }
+      { abortSignal, fallbackReadPreference: 'secondaryPreferred' }
     );
   }
   return await dataService.sample(
