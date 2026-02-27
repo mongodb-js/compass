@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { connect } from 'react-redux';
 
 import {
@@ -8,10 +8,12 @@ import {
   Banner,
   BannerVariant,
   Body,
+  Button,
   DocumentList,
   useDarkMode,
   cx,
   Link,
+  SpinLoaderWithLabel,
 } from '@mongodb-js/compass-components';
 
 import { usePreference } from 'compass-preferences-model/provider';
@@ -43,21 +45,28 @@ const documentStyles = css({
 });
 
 const descriptionStyles = css({
-  marginBottom: spacing[200],
-});
-
-const projectSettingsInfoStyles = css({
   marginBottom: spacing[400],
-  color: palette.gray.dark1,
 });
 
-const errorBannerStyles = css({
+const bannerStyles = css({
   marginTop: spacing[400],
-  marginBottom: spacing[400],
 });
 
-const errorBannerTextStyles = css({
-  color: palette.red.dark2,
+const bannerContentStyles = css({
+  display: 'flex',
+  justifyContent: 'space-between',
+  alignItems: 'flex-end',
+  gap: spacing[300],
+});
+
+const bannerTextStyles = css({
+  flex: 1,
+});
+
+const loaderContainerStyles = css({
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'center',
 });
 
 const RawSchemaConfirmationScreen = ({
@@ -69,51 +78,52 @@ const RawSchemaConfirmationScreen = ({
   );
   const isDarkMode = useDarkMode();
   const connectionInfo = useConnectionInfo();
-
-  const subtitleText = enableSampleDocumentPassing
-    ? 'Sample Documents Collected'
-    : 'Document Schema Identified';
-
-  const descriptionText = enableSampleDocumentPassing
-    ? 'A sample of documents from your collection will be sent to an LLM for processing.'
-    : 'We have identified the following schema from your documents. This schema will be sent to an LLM for processing.';
+  const [isBannerDismissed, setIsBannerDismissed] = useState(false);
 
   const projectId = connectionInfo.atlasMetadata?.projectId;
-  const projectSettingsLink = projectId ? (
-    <Link
-      href={`${window.location.origin}/v2/${projectId}#/settings/groupSettings`}
-      target="_blank"
-      hideExternalIcon
-    >
-      Project Settings
-    </Link>
-  ) : (
-    'Project Settings'
-  );
+  const projectSettingsUrl = projectId
+    ? `${window.location.origin}/v2/${projectId}#/settings/groupSettings`
+    : null;
+
+  // Show sample values banner when:
+  // - Sample document passing is NOT enabled
+  // - Project ID is available (so we can link to settings)
+  // - User hasn't dismissed the banner
+  const shouldShowSampleValuesBanner =
+    !enableSampleDocumentPassing && projectId && !isBannerDismissed;
+
+  // Show loading state when LLM request is in progress
+  if (fakerSchemaGenerationStatus === 'in-progress') {
+    return (
+      <div
+        data-testid="raw-schema-confirmation"
+        className={loaderContainerStyles}
+      >
+        <SpinLoaderWithLabel
+          data-testid="raw-schema-confirmation-loader"
+          progressText="Generating mock data mappings..."
+        />
+      </div>
+    );
+  }
 
   return (
     <div data-testid="raw-schema-confirmation">
       {schemaAnalysis.status === 'complete' ? (
         <>
-          <Body as="h2" baseFontSize={16} weight="medium">
-            {subtitleText}
-          </Body>
-          <Body className={descriptionStyles}>{descriptionText}</Body>
-          <Body className={projectSettingsInfoStyles}>
-            To improve mock data quality, Project Owners can enable sending
-            sample field values to the AI model in {projectSettingsLink}.
-            Refresh Data Explorer for changes to take effect.
-          </Body>
-          {fakerSchemaGenerationStatus === 'error' && (
-            <Banner
-              variant={BannerVariant.Danger}
-              className={errorBannerStyles}
+          <Body className={descriptionStyles}>
+            We&apos;ll use the identified schema to generate a mock data script
+            for your collection. You can customize the script and its{' '}
+            <Link
+              href="https://fakerjs.dev/api/"
+              target="_blank"
+              hideExternalIcon
             >
-              <Body className={errorBannerTextStyles}>
-                LLM Request failed. Please confirm again.
-              </Body>
-            </Banner>
-          )}
+              Faker functions
+            </Link>{' '}
+            before running it and/or reuse it for your other clusters and
+            collections.
+          </Body>
           <div
             className={cx(
               documentContainerStyles,
@@ -132,6 +142,52 @@ const RawSchemaConfirmationScreen = ({
               }
             />
           </div>
+          {shouldShowSampleValuesBanner && (
+            <Banner
+              variant={BannerVariant.Info}
+              className={bannerStyles}
+              dismissible
+              onClose={() => setIsBannerDismissed(true)}
+              data-testid="sample-values-banner"
+            >
+              <div className={bannerContentStyles}>
+                <div className={bannerTextStyles}>
+                  <Body weight="medium">
+                    Enable Sending Sample Field Values
+                  </Body>
+                  <Body>
+                    To improve mock data quality, Project Owners can enable
+                    sending sample field values to the AI model. Refresh Data
+                    Explorer for changes to take effect.
+                  </Body>
+                </div>
+                <Button
+                  size="xsmall"
+                  onClick={() => {
+                    if (projectSettingsUrl) {
+                      window.open(
+                        projectSettingsUrl,
+                        '_blank',
+                        'noopener noreferrer'
+                      );
+                    }
+                  }}
+                  data-testid="sample-values-banner-settings-button"
+                >
+                  Project Settings
+                </Button>
+              </div>
+            </Banner>
+          )}
+          {fakerSchemaGenerationStatus === 'error' && (
+            <Banner
+              variant={BannerVariant.Warning}
+              className={bannerStyles}
+              data-testid="error-banner"
+            >
+              LLM Request failed. Please confirm again.
+            </Banner>
+          )}
         </>
       ) : (
         // Not reachable since schema analysis must be finished before the modal can be opened
