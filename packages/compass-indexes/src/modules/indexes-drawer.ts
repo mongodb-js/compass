@@ -38,18 +38,40 @@ export const OPEN_CREATE_SEARCH_INDEX_DRAWER_VIEW =
 export const OPEN_EDIT_SEARCH_INDEX_DRAWER_VIEW =
   'indexes/drawer/OPEN_EDIT_SEARCH_INDEX_DRAWER_VIEW' as const;
 
-export const openIndexesListDrawerView = () => ({
-  type: OPEN_INDEXES_LIST_DRAWER_VIEW,
-});
+type OpenIndexesListDrawerViewAction = {
+  type: typeof OPEN_INDEXES_LIST_DRAWER_VIEW;
+};
+
+type OpenCreateSearchIndexDrawerViewAction = {
+  type: typeof OPEN_CREATE_SEARCH_INDEX_DRAWER_VIEW;
+  currentIndexType: SearchIndexType;
+};
+
+type OpenEditSearchIndexDrawerViewAction = {
+  type: typeof OPEN_EDIT_SEARCH_INDEX_DRAWER_VIEW;
+  currentIndexName: string;
+};
+
+export type IndexesDrawerActions =
+  | OpenIndexesListDrawerViewAction
+  | OpenCreateSearchIndexDrawerViewAction
+  | OpenEditSearchIndexDrawerViewAction;
+
+export const openIndexesListDrawerView =
+  (): OpenIndexesListDrawerViewAction => ({
+    type: OPEN_INDEXES_LIST_DRAWER_VIEW,
+  });
 
 export const openCreateSearchIndexDrawerView = (
   currentIndexType: SearchIndexType
-) => ({
+): OpenCreateSearchIndexDrawerViewAction => ({
   type: OPEN_CREATE_SEARCH_INDEX_DRAWER_VIEW,
   currentIndexType,
 });
 
-export const openEditSearchIndexDrawerView = (currentIndexName: string) => ({
+export const openEditSearchIndexDrawerView = (
+  currentIndexName: string
+): OpenEditSearchIndexDrawerViewAction => ({
   type: OPEN_EDIT_SEARCH_INDEX_DRAWER_VIEW,
   currentIndexName,
 });

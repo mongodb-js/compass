@@ -1,5 +1,5 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { connect } from 'react-redux';
+import React, { useCallback, useEffect, useState } from 'react';
+import { connect, useSelector } from 'react-redux';
 import type { RootState } from '../../../modules';
 import type { State as RegularIndexesState } from '../../../modules/regular-indexes';
 import type { State as SearchIndexesState } from '../../../modules/search-indexes';
@@ -19,10 +19,21 @@ import {
   SearchInput,
   spacing,
   SpinLoader,
+  useDrawerActions,
 } from '@mongodb-js/compass-components';
 import { createIndexOpened } from '../../../modules/create-index';
 import { FetchStatuses } from '../../../utils/fetch-status';
 import type { FetchStatus } from '../../../utils/fetch-status';
+import { INDEXES_DRAWER_ID } from '../../../plugin-drawer';
+import ViewVersionIncompatibleBanner from '../../view-incompatible-components/view-version-incompatible-banner';
+import ViewPipelineIncompatibleBanner from '../../view-incompatible-components/view-pipeline-incompatible-banner';
+import ViewStandardIndexesIncompatibleEmptyState from '../../view-incompatible-components/view-standard-indexes-incompatible-empty-state';
+import { selectIsViewSearchCompatible } from '../../../utils/is-view-search-compatible';
+import { selectReadWriteAccess } from '../../../utils/indexes-read-write-access';
+import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
+import { usePreferences } from 'compass-preferences-model/provider';
+import RegularIndexesDrawerTable from '../../regular-indexes-table/regular-indexes-drawer-table';
+import SearchIndexesDrawerTable from '../../search-indexes-table/search-indexes-drawer-table';
 
 const containerStyles = css({
   padding: spacing[400],
@@ -37,11 +48,14 @@ const buttonContainerStyles = css({
   justifyContent: 'space-between',
 });
 
+const emptyContentStyles = css({
+  marginTop: 0,
+});
+
 const spinnerStyles = css({ marginRight: spacing[200] });
 
 type IndexesListDrawerViewProps = {
-  isRegularIndexesEnabled: boolean;
-  isSearchIndexesEnabled: boolean;
+  isReadonlyView: boolean;
   regularIndexes: Pick<RegularIndexesState, 'indexes' | 'error' | 'status'>;
   searchIndexes: Pick<SearchIndexesState, 'indexes' | 'error' | 'status'>;
   onRefreshClick: () => void;
@@ -60,8 +74,7 @@ function isRefreshingStatus(status: FetchStatus) {
 const IndexesListDrawerView: React.FunctionComponent<
   IndexesListDrawerViewProps
 > = ({
-  isRegularIndexesEnabled,
-  isSearchIndexesEnabled,
+  isReadonlyView,
   regularIndexes,
   searchIndexes,
   onRefreshClick,
@@ -71,6 +84,30 @@ const IndexesListDrawerView: React.FunctionComponent<
   stopPolling,
 }) => {
   const [searchTerm, setSearchTerm] = useState<string>('');
+  const { openDrawer } = useDrawerActions();
+
+  const { atlasMetadata } = useConnectionInfo();
+  const isAtlas = !!atlasMetadata;
+  const { readOnly, readWrite, enableAtlasSearchIndexes } = usePreferences([
+    'readOnly',
+    'readWrite',
+    'enableAtlasSearchIndexes',
+  ]);
+  const { isViewVersionSearchCompatible, isViewPipelineSearchQueryable } =
+    useSelector(selectIsViewSearchCompatible(isAtlas));
+  const {
+    isRegularIndexesReadable,
+    isRegularIndexesWritable,
+    isSearchIndexesReadable,
+    isSearchIndexesWritable,
+  } = useSelector(
+    selectReadWriteAccess({
+      isAtlas,
+      readOnly,
+      readWrite,
+      enableAtlasSearchIndexes,
+    })
+  );
 
   useEffect(() => {
     startPolling();
@@ -83,31 +120,34 @@ const IndexesListDrawerView: React.FunctionComponent<
         case 'createRegularIndex':
           return onCreateRegularIndexClick();
         case 'createSearchIndex':
-          return onCreateSearchIndexClick('search');
+          onCreateSearchIndexClick('search');
+          openDrawer(INDEXES_DRAWER_ID);
+          return;
         case 'createVectorSearchIndex':
-          return onCreateSearchIndexClick('vectorSearch');
+          onCreateSearchIndexClick('vectorSearch');
+          openDrawer(INDEXES_DRAWER_ID);
+          return;
       }
     },
-    [onCreateRegularIndexClick, onCreateSearchIndexClick]
+    [onCreateRegularIndexClick, onCreateSearchIndexClick, openDrawer]
   );
 
+  const getSearchIndexesBanner = () => {
+    if (isReadonlyView) {
+      if (!isViewVersionSearchCompatible) {
+        return <ViewVersionIncompatibleBanner />;
+      }
+      if (!isViewPipelineSearchQueryable) {
+        return <ViewPipelineIncompatibleBanner />;
+      }
+    }
+
+    return null;
+  };
+
   const isRefreshing =
-    (isRegularIndexesEnabled && isRefreshingStatus(regularIndexes.status)) ||
-    (isSearchIndexesEnabled && isRefreshingStatus(searchIndexes.status));
-
-  const filteredRegularIndexes = useMemo(() => {
-    if (!searchTerm) {
-      return regularIndexes.indexes;
-    }
-    return regularIndexes.indexes.filter((x) => x.name.includes(searchTerm));
-  }, [regularIndexes, searchTerm]);
-
-  const filteredSearchIndexes = useMemo(() => {
-    if (!searchTerm) {
-      return searchIndexes.indexes;
-    }
-    return searchIndexes.indexes.filter((x) => x.name.includes(searchTerm));
-  }, [searchIndexes, searchTerm]);
+    (isRegularIndexesReadable && isRefreshingStatus(regularIndexes.status)) ||
+    (isSearchIndexesReadable && isRefreshingStatus(searchIndexes.status));
 
   const refreshButtonIcon = isRefreshing ? (
     <div className={spinnerStyles}>
@@ -123,7 +163,7 @@ const IndexesListDrawerView: React.FunctionComponent<
         <Button
           disabled={
             isRefreshing ||
-            (!isRegularIndexesEnabled && !isSearchIndexesEnabled)
+            (!isRegularIndexesReadable && !isSearchIndexesReadable)
           }
           onClick={onRefreshClick}
           variant="default"
@@ -137,22 +177,23 @@ const IndexesListDrawerView: React.FunctionComponent<
           buttonProps={{
             size: 'xsmall',
             variant: 'primary',
+            disabled: !isRegularIndexesWritable && !isSearchIndexesWritable,
           }}
           actions={[
             {
               action: 'createRegularIndex',
               label: 'Standard Index',
-              isDisabled: !isRegularIndexesEnabled,
+              isDisabled: !isRegularIndexesWritable,
             },
             {
               action: 'createSearchIndex',
               label: 'Search Index',
-              isDisabled: !isSearchIndexesEnabled,
+              isDisabled: !isSearchIndexesWritable,
             },
             {
               action: 'createVectorSearchIndex',
               label: 'Vector Search Index',
-              isDisabled: !isSearchIndexesEnabled,
+              isDisabled: !isSearchIndexesWritable,
             },
           ]}
           onAction={onActionDispatch}
@@ -166,21 +207,18 @@ const IndexesListDrawerView: React.FunctionComponent<
         onChange={(e) => setSearchTerm(e.target.value)}
       />
       <Accordion text="Standard" defaultOpen={true}>
-        {isRegularIndexesEnabled ? (
-          filteredRegularIndexes.map((index) => (
-            <div key={index.name}>{index.name}</div>
-          ))
+        {isRegularIndexesReadable ? (
+          <RegularIndexesDrawerTable searchTerm={searchTerm} />
         ) : (
-          <div>Standard indexes not enabled</div>
+          <ViewStandardIndexesIncompatibleEmptyState
+            containerClassName={emptyContentStyles}
+          />
         )}
       </Accordion>
       <Accordion text="Search" defaultOpen={true}>
-        {isSearchIndexesEnabled ? (
-          filteredSearchIndexes.map((index) => (
-            <div key={index.name}>{index.name}</div>
-          ))
-        ) : (
-          <div>Search indexes not enabled</div>
+        {getSearchIndexesBanner()}
+        {isSearchIndexesReadable && (
+          <SearchIndexesDrawerTable searchTerm={searchTerm} />
         )}
       </Accordion>
     </div>
@@ -188,15 +226,11 @@ const IndexesListDrawerView: React.FunctionComponent<
 };
 
 const mapState = ({
-  isSearchIndexesSupported,
   isReadonlyView,
   regularIndexes,
   searchIndexes,
 }: RootState) => ({
-  // TODO: determine correct conditions for when to show regular indexes section and search indexes section
-  // based on user preferences, server version, view or collection, compass vs DE etc
-  isRegularIndexesEnabled: !isReadonlyView,
-  isSearchIndexesEnabled: isReadonlyView || isSearchIndexesSupported,
+  isReadonlyView,
   regularIndexes,
   searchIndexes,
 });
