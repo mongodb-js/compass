@@ -1,20 +1,26 @@
 import {
   Body,
-  Checkbox,
   css,
   FormFieldContainer,
   Icon,
+  Label,
   palette,
+  Radio,
+  RadioGroup,
   SearchInput,
   SelectList,
   spacing,
   SpinLoaderWithLabel,
   TextInput,
-  Tooltip,
+  Toggle,
   WarningSummary,
 } from '@mongodb-js/compass-components';
 import { usePreference } from 'compass-preferences-model/provider';
 import React, { useCallback, useMemo, useState } from 'react';
+import {
+  areSamplingOptionsValid,
+  type SamplingOptions,
+} from '../store/sampling-options';
 
 const LARGE_SAMPLE_SIZE_THRESHOLD = 100;
 
@@ -31,7 +37,7 @@ const errorStyles = css({
 
 const collectionListStyles = css({
   height: 200,
-  overflow: 'scroll',
+  overflow: 'auto',
 });
 
 const sampleSizeContainerStyles = css({
@@ -40,16 +46,23 @@ const sampleSizeContainerStyles = css({
   gap: spacing[100],
 });
 
-const sampleSizeLabelContainerStyles = css({
+const sampleSizeRadioStyles = css({
   display: 'flex',
   alignItems: 'center',
   gap: spacing[100],
 });
 
-const sampleSizeInputRowStyles = css({
+const sampleSizeLabelStyles = css({
   display: 'flex',
   alignItems: 'center',
-  gap: spacing[100],
+  gap: spacing[200],
+});
+
+const radioGroupStyles = css({
+  flexDirection: 'row',
+  gap: spacing[400],
+  alignItems: 'center',
+  marginTop: spacing[200],
 });
 
 const sampleSizeInputStyles = css({
@@ -61,7 +74,6 @@ const warningTextStyles = css({
   alignItems: 'center',
   gap: spacing[100],
   color: palette.yellow.dark2,
-  fontSize: 12,
 });
 
 const errorTextStyles = css({
@@ -69,12 +81,14 @@ const errorTextStyles = css({
   alignItems: 'center',
   gap: spacing[100],
   color: palette.red.base,
-  fontSize: 12,
 });
 
-const infoIconStyles = css({
-  cursor: 'pointer',
-  color: palette.gray.base,
+const warningTextContainerStyles = css({
+  marginTop: spacing[200],
+});
+
+const warningIconStyles = css({
+  alignSelf: 'flex-start',
 });
 
 type SelectCollectionsListProps = {
@@ -82,12 +96,12 @@ type SelectCollectionsListProps = {
   selectedCollections: string[];
   disabledCollections?: string[];
   automaticallyInferRelationships: boolean;
-  sampleSize: string;
+  samplingOptions: SamplingOptions;
   isFetchingCollections: boolean;
   error?: Error;
   onCollectionsSelect: (colls: string[]) => void;
   onAutomaticallyInferRelationshipsToggle: (newVal: boolean) => void;
-  onSampleSizeChange: (newVal: string) => void;
+  onSamplingOptionsChange: (newVal: SamplingOptions) => void;
 };
 
 type SelectCollectionItem = {
@@ -96,6 +110,16 @@ type SelectCollectionItem = {
   disabled?: boolean;
 };
 
+const InferRelationshipsHeaderStyles = css({
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  marginBottom: spacing[200],
+});
+
+const inferRelationshipLabelId = 'infer-relationships-label';
+const inferRelationshipToggleId = 'infer-relationships-toggle';
+
 export const SelectCollectionsList: React.FunctionComponent<
   SelectCollectionsListProps
 > = ({
@@ -103,24 +127,57 @@ export const SelectCollectionsList: React.FunctionComponent<
   collections,
   selectedCollections,
   disabledCollections = [],
-  sampleSize,
+  samplingOptions,
   isFetchingCollections,
   error,
   onCollectionsSelect,
   onAutomaticallyInferRelationshipsToggle,
-  onSampleSizeChange,
+  onSamplingOptionsChange,
 }) => {
   const showAutoInferOption = usePreference(
     'enableAutomaticRelationshipInference'
   );
   const [searchTerm, setSearchTerm] = useState('');
 
-  // Derive validation from sampleSize prop (which is now a string)
-  const parsedSampleSize = parseInt(sampleSize, 10);
-  const isInvalidInput =
-    sampleSize === '' || isNaN(parsedSampleSize) || parsedSampleSize <= 0;
-  const isLargeSampleSize =
-    !isInvalidInput && parsedSampleSize > LARGE_SAMPLE_SIZE_THRESHOLD;
+  const handleSamplingOptionChange = useCallback(
+    (change: Partial<SamplingOptions>) => {
+      onSamplingOptionsChange({
+        ...samplingOptions,
+        ...change,
+      });
+    },
+    [onSamplingOptionsChange, samplingOptions]
+  );
+
+  const handleRadioGroupChange = useCallback(
+    (evt: React.ChangeEvent<HTMLInputElement>) => {
+      handleSamplingOptionChange({
+        allDocuments: evt.target.value === 'allDocuments',
+      });
+    },
+    [handleSamplingOptionChange]
+  );
+
+  const handleSampleSizeInputChange = useCallback(
+    (evt: React.ChangeEvent<HTMLInputElement>) => {
+      handleSamplingOptionChange({
+        sampleSize: parseInt(evt.target.value, 10),
+      });
+    },
+    [handleSamplingOptionChange]
+  );
+
+  const areSamplingOptionsInvalid = useMemo(
+    () => !areSamplingOptionsValid(samplingOptions),
+    [samplingOptions]
+  );
+  const isLargeSampleSize = useMemo(
+    () =>
+      !areSamplingOptionsInvalid &&
+      (samplingOptions.allDocuments ||
+        samplingOptions.sampleSize > LARGE_SAMPLE_SIZE_THRESHOLD),
+    [samplingOptions, areSamplingOptionsInvalid]
+  );
 
   const filteredCollections = useMemo(() => {
     try {
@@ -188,98 +245,106 @@ export const SelectCollectionsList: React.FunctionComponent<
           }}
         />
       </FormFieldContainer>
-      <FormFieldContainer className={collectionListStyles}>
-        {collections.length === 0 ? (
-          <Body>This database has no collections.</Body>
-        ) : filteredCollections.length === 0 ? (
-          <Body>No collections match your search.</Body>
-        ) : (
-          <SelectList
-            items={filteredCollections.map((collName): SelectCollectionItem => {
-              return {
-                id: collName,
-                selected: selectedCollections.includes(collName),
-                disabled: disabledCollections.includes(collName),
-              };
-            })}
-            label={{ displayLabelKey: 'id', name: 'Collection Name' }}
-            onChange={onChangeSelection}
-          />
-        )}
-      </FormFieldContainer>
-      <FormFieldContainer className={sampleSizeContainerStyles}>
-        <div className={sampleSizeLabelContainerStyles}>
-          <Body weight="medium">Sampling size</Body>
-          <Tooltip
-            align="top"
-            justify="middle"
-            trigger={
-              <span className={infoIconStyles}>
-                <Icon glyph="InfoWithCircle" size="small" />
-              </span>
-            }
-          >
-            Default sampling size is {LARGE_SAMPLE_SIZE_THRESHOLD}. Larger
-            samples take longer but improve accuracy on large or complex
-            datasets.
-          </Tooltip>
-        </div>
-        <div className={sampleSizeInputRowStyles}>
-          <Body>Sample</Body>
-          <TextInput
-            id="sample-size-input"
-            data-testid="sample-size-input"
-            aria-label="Sample size"
-            className={sampleSizeInputStyles}
-            type="number"
-            min={1}
-            value={sampleSize}
-            onChange={(evt) => {
-              onSampleSizeChange(evt.target.value);
-            }}
-          />
-          <Body>documents per collection.</Body>
-        </div>
-        {isInvalidInput && (
-          <div className={errorTextStyles} data-testid="sample-size-warning">
-            <Icon glyph="Warning" size="small" />
-            <span>Invalid input</span>
-          </div>
-        )}
-        {isLargeSampleSize && (
-          <div className={warningTextStyles} data-testid="sample-size-warning">
-            <Icon glyph="Warning" size="small" />
-            <span>
-              Larger sample sizes may result in longer generation times.
-            </span>
-          </div>
-        )}
-      </FormFieldContainer>
-      {showAutoInferOption && (
-        <FormFieldContainer>
-          <Checkbox
-            checked={automaticallyInferRelationships}
-            onChange={(evt) => {
-              onAutomaticallyInferRelationshipsToggle(
-                evt.currentTarget.checked
-              );
-            }}
-            label="Automatically infer relationships"
-            // @ts-expect-error Element is accepted, but not typed correctly
-            description={
-              <>
-                Analysis process will try to automatically discover
-                relationships in selected collections. This operation will run
-                multiple find requests against indexed fields of the collections
-                and{' '}
-                <strong>
-                  will take additional time per collection being analyzed.
-                </strong>
-              </>
-            }
-          ></Checkbox>
-        </FormFieldContainer>
+      {collections.length === 0 ? (
+        <Body>This database has no collections.</Body>
+      ) : filteredCollections.length === 0 ? (
+        <Body>No collections match your search.</Body>
+      ) : (
+        <SelectList
+          className={collectionListStyles}
+          items={filteredCollections.map((collName): SelectCollectionItem => {
+            return {
+              id: collName,
+              selected: selectedCollections.includes(collName),
+              disabled: disabledCollections.includes(collName),
+            };
+          })}
+          label={{ displayLabelKey: 'id', name: 'Collection Name' }}
+          onChange={onChangeSelection}
+        />
       )}
+
+      {showAutoInferOption && (
+        <>
+          <div className={InferRelationshipsHeaderStyles}>
+            <Label
+              id={inferRelationshipLabelId}
+              htmlFor={inferRelationshipToggleId}
+            >
+              Automatically infer relationships
+            </Label>
+            <Toggle
+              id={inferRelationshipToggleId}
+              aria-labelledby={inferRelationshipLabelId}
+              checked={automaticallyInferRelationships}
+              onChange={(checked) => {
+                onAutomaticallyInferRelationshipsToggle(checked);
+              }}
+              size="small"
+            ></Toggle>
+          </div>
+          Analysis process will try to automatically discover relationships in
+          selected collections. This operation will run multiple find requests
+          against indexed fields of the collections and{' '}
+          <strong>
+            will take additional time per collection being analyzed.
+          </strong>
+        </>
+      )}
+      <FormFieldContainer className={sampleSizeContainerStyles}>
+        <Body weight="bold">Document sampling</Body>
+        By default, diagrams are generated from a small sample per collection.
+        Larger samples improve accuracy but increase analysis time and memory
+        usage, while smaller samples are faster but may miss infrequent fields
+        or relationships.
+        <RadioGroup
+          className={radioGroupStyles}
+          onChange={handleRadioGroupChange}
+        >
+          <Radio value="sampleSize" className={sampleSizeRadioStyles} default>
+            <div className={sampleSizeLabelStyles}>
+              <TextInput
+                id="sample-size-input"
+                data-testid="sample-size-input"
+                aria-label="Sample size"
+                className={sampleSizeInputStyles}
+                type="number"
+                min={1}
+                value={samplingOptions.sampleSize.toString()}
+                onChange={handleSampleSizeInputChange}
+              />
+              <Body>documents per collection.</Body>
+            </div>
+          </Radio>
+          <Radio value="allDocuments">
+            <Body>All documents</Body>
+          </Radio>
+        </RadioGroup>
+        <div className={warningTextContainerStyles}>
+          {areSamplingOptionsInvalid && (
+            <div className={errorTextStyles} data-testid="sample-size-warning">
+              <Icon glyph="Warning" size="large" />
+              <span>Invalid input</span>
+            </div>
+          )}
+          {isLargeSampleSize && (
+            <div
+              className={warningTextStyles}
+              data-testid="sample-size-warning"
+            >
+              <Icon
+                glyph="Warning"
+                size="large"
+                className={warningIconStyles}
+              />
+              <span>
+                <strong>Warning:</strong> Consider your dataset size and the
+                available resources on the device or browser running Compass.
+              </span>
+            </div>
+          )}
+        </div>
+      </FormFieldContainer>
     </>
   );
 };

@@ -11,15 +11,16 @@ import type { ReselectCollectionsWizardState } from '../store/reselect-collectio
 import {
   selectCollections,
   toggleInferRelationships,
-  changeSampleSize,
   hideReselectCollections,
   establishConnection,
   selectConnection,
   startRedoAnalysis,
+  changeSamplingOptions,
 } from '../store/reselect-collections-wizard';
 import { SelectCollectionsList } from './select-collections-list';
 import { useSavedConnections } from '../utils/use-saved-connections';
 import { ModalStepContainer } from './model-step-container';
+import { areSamplingOptionsValid } from '../store/sampling-options';
 
 const SelectCollectionsStep = connect(
   (state: DataModelingState) => {
@@ -28,7 +29,7 @@ const SelectCollectionsStep = connect(
       selectedCollections,
       error,
       automaticallyInferRelations,
-      sampleSize,
+      samplingOptions,
       newSelectedCollections,
     } = state.reselectCollections;
     return {
@@ -36,7 +37,7 @@ const SelectCollectionsStep = connect(
       selectedCollections: [...newSelectedCollections, ...selectedCollections],
       disabledCollections: selectedCollections,
       automaticallyInferRelationships: automaticallyInferRelations,
-      sampleSize,
+      samplingOptions,
       isFetchingCollections: false,
       error,
     };
@@ -44,7 +45,7 @@ const SelectCollectionsStep = connect(
   {
     onCollectionsSelect: selectCollections,
     onAutomaticallyInferRelationshipsToggle: toggleInferRelationships,
-    onSampleSizeChange: changeSampleSize,
+    onSamplingOptionsChange: changeSamplingOptions,
   }
 )(SelectCollectionsList);
 
@@ -221,7 +222,7 @@ export default connect(
       selectedDatabase,
       selectedCollections,
       newSelectedCollections,
-      sampleSize,
+      samplingOptions,
     } = state.reselectCollections;
 
     const numSelectedCollections =
@@ -240,14 +241,13 @@ export default connect(
       isGenerateDiagramDisabled:
         databaseCollections.length === 0 ||
         newSelectedCollections.length === 0 ||
-        sampleSize === '' ||
-        isNaN(parseInt(sampleSize, 10)) ||
-        parseInt(sampleSize, 10) <= 0 ||
+        !areSamplingOptionsValid(samplingOptions) ||
         selectIsAnalysisInProgress(state),
       numSelectedCollections,
       numTotalCollections: databaseCollections.length,
       selectedDatabaseName: selectedDatabase || '',
       isConnecting,
+      samplingOptions,
     };
   },
   {

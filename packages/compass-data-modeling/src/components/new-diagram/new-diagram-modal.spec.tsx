@@ -361,12 +361,59 @@ describe('NewDiagramModal', function () {
 
       // Wait for the sample size input to appear
       const sampleSizeInput = await screen.findByTestId('sample-size-input');
-      userEvent.clear(sampleSizeInput);
-      userEvent.type(sampleSizeInput, '50');
+
+      // The TextInput is nested inside a Radio component's Label, which
+      // intercepts click events from userEvent. We use type() with skipClick
+      // and manually position the cursor to type over the existing value.
+      sampleSizeInput.focus();
+      // Move cursor to end and delete existing content
+      userEvent.type(sampleSizeInput, '{backspace}{backspace}{backspace}50', {
+        skipClick: true,
+      });
 
       await waitFor(() => {
         expect(sampleSizeInput).to.have.value('50');
       });
+    });
+
+    it('allows user to select all documents option', async function () {
+      const preferences = await createSandboxFromDefaultPreferences();
+      const { store } = renderWithStore(<NewDiagramModal />, {
+        services: {
+          preferences,
+        },
+      });
+      await setSetupDiagramStep(store, {
+        connection: { id: 'two', name: 'Conn2' },
+        databaseName: 'sample_airbnb',
+        diagramName: 'diagram1',
+      });
+
+      userEvent.click(
+        screen.getByRole('button', {
+          name: /next/i,
+        })
+      );
+
+      // Wait for the select collections step
+      await screen.findByTestId('sample-size-input');
+
+      // Default should be sample size, not all documents
+      expect(
+        store.getState().generateDiagramWizard.samplingOptions.allDocuments
+      ).to.be.false;
+
+      // Click the "All documents" radio
+      userEvent.click(screen.getByText('All documents'));
+
+      await waitFor(() => {
+        expect(
+          store.getState().generateDiagramWizard.samplingOptions.allDocuments
+        ).to.be.true;
+      });
+
+      // Shows a warning when all documents is selected
+      expect(screen.getByTestId('sample-size-warning')).to.exist;
     });
 
     it('shows error if it fails to fetch list of collections', async function () {

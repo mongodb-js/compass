@@ -2,7 +2,7 @@ import { connect } from 'react-redux';
 import {
   selectCollections,
   toggleInferRelationships,
-  changeSampleSize,
+  changeSamplingOptions,
 } from '../../store/generate-diagram-wizard';
 import type { DataModelingState } from '../../store/reducer';
 import { SelectCollectionsList } from '../select-collections-list';
@@ -13,14 +13,14 @@ export default connect(
       formFields: { selectedCollections },
       databaseCollections,
       automaticallyInferRelations,
-      sampleSize,
+      samplingOptions,
     } = state.generateDiagramWizard;
 
     return {
       collections: databaseCollections ?? [],
       selectedCollections: selectedCollections.value ?? [],
       automaticallyInferRelationships: automaticallyInferRelations,
-      sampleSize,
+      samplingOptions,
       isFetchingCollections: Boolean(selectedCollections.isFetchingCollections),
       error: selectedCollections.error,
     };
@@ -28,6 +28,6 @@ export default connect(
   {
     onCollectionsSelect: selectCollections,
     onAutomaticallyInferRelationshipsToggle: toggleInferRelationships,
-    onSampleSizeChange: changeSampleSize,
+    onSamplingOptionsChange: changeSamplingOptions,
   }
 )(SelectCollectionsList);

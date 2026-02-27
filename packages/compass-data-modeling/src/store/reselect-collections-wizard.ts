@@ -6,8 +6,10 @@ import { selectCurrentModelFromState } from './diagram';
 import type { MongoDBInstancesManager } from '@mongodb-js/compass-app-stores/provider';
 import type { ConnectionsService } from '@mongodb-js/compass-connections/provider';
 import { redoAnalysis } from './analysis-process';
-
-const DEFAULT_SAMPLE_SIZE = '100';
+import {
+  DEFAULT_SAMPLING_OPTIONS,
+  type SamplingOptions,
+} from './sampling-options';
 
 export type ReselectCollectionsWizardState = {
   isOpen: boolean;
@@ -19,7 +21,7 @@ export type ReselectCollectionsWizardState = {
   selectedCollections: string[];
   newSelectedCollections: string[];
   automaticallyInferRelations: boolean;
-  sampleSize: string;
+  samplingOptions: SamplingOptions;
   isConnecting: boolean;
   error?: Error;
 };
@@ -37,8 +39,8 @@ export const ReselectCollectionsWizardActionTypes = {
     'data-modeling/reselect-collections-wizard/CONNECT_TO_CONNECTION_FAILED',
   TOGGLE_INFER_RELATION_CLICKED:
     'data-modeling/reselect-collections-wizard/TOGGLE_INFER_RELATION_CLICKED',
-  CHANGE_SAMPLE_SIZE_CLICKED:
-    'data-modeling/reselect-collections-wizard/CHANGE_SAMPLE_SIZE_CLICKED',
+  CHANGE_SAMPLING_OPTIONS:
+    'data-modeling/reselect-collections-wizard/CHANGE_SAMPLING_OPTIONS',
   SELECT_COLLECTIONS_CLICKED:
     'data-modeling/reselect-collections-wizard/SELECT_COLLECTIONS_CLICKED',
   START_ANALYSIS: 'data-modeling/reselect-collections-wizard/START_ANALYSIS',
@@ -81,9 +83,9 @@ export type ToggleInferRelationsAction = {
   val: boolean;
 };
 
-export type ReselectCollectionsChangeSampleSizeAction = {
-  type: typeof ReselectCollectionsWizardActionTypes.CHANGE_SAMPLE_SIZE_CLICKED;
-  sampleSize: string;
+export type ReselectCollectionsChangeSamplingOptionsAction = {
+  type: typeof ReselectCollectionsWizardActionTypes.CHANGE_SAMPLING_OPTIONS;
+  samplingOptions: ReselectCollectionsWizardState['samplingOptions'];
 };
 
 export type SelectCollectionsAction = {
@@ -103,7 +105,7 @@ export type ReselectCollectionsWizardActions =
   | ConnectToConnectionFailedAction
   | ConnectToConnectionSucceededAction
   | ToggleInferRelationsAction
-  | ReselectCollectionsChangeSampleSizeAction
+  | ReselectCollectionsChangeSamplingOptionsAction
   | SelectCollectionsAction
   | StartAnalysisAction;
 
@@ -114,7 +116,7 @@ const INITIAL_STATE: ReselectCollectionsWizardState = {
   selectedCollections: [],
   newSelectedCollections: [],
   automaticallyInferRelations: true,
-  sampleSize: DEFAULT_SAMPLE_SIZE,
+  samplingOptions: DEFAULT_SAMPLING_OPTIONS,
   isConnecting: false,
   databaseCollections: [],
 };
@@ -204,10 +206,10 @@ export const reselectCollectionsWizardReducer: Reducer<
   if (
     isAction(
       action,
-      ReselectCollectionsWizardActionTypes.CHANGE_SAMPLE_SIZE_CLICKED
+      ReselectCollectionsWizardActionTypes.CHANGE_SAMPLING_OPTIONS
     )
   ) {
-    return { ...state, sampleSize: action.sampleSize };
+    return { ...state, samplingOptions: action.samplingOptions };
   }
 
   return state;
@@ -412,7 +414,7 @@ export function startRedoAnalysis(): DataModelingThunkAction<
         newSelectedCollections,
         selectedCollections,
         automaticallyInferRelations,
-        sampleSize,
+        samplingOptions,
       },
       diagram,
     } = getState();
@@ -435,7 +437,7 @@ export function startRedoAnalysis(): DataModelingThunkAction<
         [...newSelectedCollections, ...selectedCollections],
         {
           automaticallyInferRelations,
-          sampleSize: parseInt(sampleSize, 10),
+          samplingOptions: samplingOptions ?? DEFAULT_SAMPLING_OPTIONS,
         }
       )
     );
@@ -484,11 +486,11 @@ async function getCollectionsForDatabase(
     });
 }
 
-export function changeSampleSize(
-  sampleSize: string
-): ReselectCollectionsChangeSampleSizeAction {
+export function changeSamplingOptions(
+  samplingOptions: ReselectCollectionsWizardState['samplingOptions']
+): ReselectCollectionsChangeSamplingOptionsAction {
   return {
-    type: ReselectCollectionsWizardActionTypes.CHANGE_SAMPLE_SIZE_CLICKED,
-    sampleSize,
+    type: ReselectCollectionsWizardActionTypes.CHANGE_SAMPLING_OPTIONS,
+    samplingOptions,
   };
 }
