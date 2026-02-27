@@ -33,6 +33,19 @@ const mockConnections = [
     },
     savedConnectionType: 'favorite' as const,
   },
+  {
+    id: 'grapes',
+    connectionOptions: {
+      connectionString: 'mongodb://grapes',
+      oidc: {
+        enableUntrustedEndpoints: true,
+      },
+    },
+    favorite: {
+      name: 'grapes',
+    },
+    savedConnectionType: 'favorite' as const,
+  },
 ];
 
 const connectionInfoWithAtlasMetadata = {
@@ -435,6 +448,35 @@ describe('CompassConnections store', function () {
       expect(
         screen.getByText(`Connected to ${mockConnections[0].favorite.name}`)
       ).to.exist;
+    });
+
+    it('shallow merges', async function () {
+      const { connectionsStore } = renderCompassConnections({
+        connections: mockConnections,
+      });
+
+      expect(
+        connectionsStore.getState().connections.byId[mockConnections[2].id].info
+          .connectionOptions.oidc
+      ).to.deep.equal({
+        enableUntrustedEndpoints: true,
+      });
+
+      const updatedConnection = {
+        ...mockConnections[2],
+        connectionOptions: {
+          ...mockConnections[2].connectionOptions,
+          oidc: {},
+        },
+        savedConnectionType: 'recent' as const,
+      };
+
+      await connectionsStore.actions.saveAndConnect(updatedConnection);
+
+      expect(
+        connectionsStore.getState().connections.byId[updatedConnection.id].info
+          .connectionOptions.oidc
+      ).to.deep.equal({});
     });
   });
 
