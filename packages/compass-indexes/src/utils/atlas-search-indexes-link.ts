@@ -7,9 +7,13 @@ import toNS from 'mongodb-ns';
 export function getAtlasSearchIndexesLink({
   clusterName,
   namespace,
+  indexName,
+  view,
 }: {
   clusterName: string;
   namespace: string;
+  indexName?: string;
+  view?: 'StatusDetails';
 }) {
   const { database, collection } = toNS(namespace);
   // Atlas Search URL params are parsed from hash, they are not real search
@@ -19,6 +23,12 @@ export function getAtlasSearchIndexesLink({
     url +=
       `?database=${encodeURIComponent(database)}` +
       `&collectionName=${encodeURIComponent(collection)}`;
+  }
+  if (indexName) {
+    url += `&indexName=${encodeURIComponent(indexName)}`;
+  }
+  if (view) {
+    url += `&view=${encodeURIComponent(view)}`;
   }
   return url;
 }
