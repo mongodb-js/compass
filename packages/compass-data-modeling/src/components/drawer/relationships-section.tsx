@@ -13,8 +13,10 @@ import {
   useDarkMode,
 } from '@mongodb-js/compass-components';
 import type { Relationship } from '../../services/data-model-storage';
-import { getDefaultRelationshipName } from '../../utils';
-import { isRelationshipValid } from '../../utils/utils';
+import {
+  getDefaultRelationshipName,
+  isRelationshipValid,
+} from '../../utils/utils';
 
 const titleBtnStyles = css({
   marginLeft: 'auto',

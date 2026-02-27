@@ -1,15 +1,17 @@
 import React from 'react';
 import { expect } from 'chai';
+import sinon from 'sinon';
 import {
   screen,
   userEvent,
   waitFor,
 } from '@mongodb-js/testing-library-compass';
 import SavedDiagramsList from './saved-diagrams-list';
-import { renderWithStore } from '../../test/setup-store';
-import type { DataModelingStore } from '../../test/setup-store';
-import { DataModelStorageServiceProvider } from '../provider';
-import type { MongoDBDataModelDescription } from '../services/data-model-storage';
+import { renderWithStore } from '../../../test/setup-store';
+import type { DataModelingStore } from '../../../test/setup-store';
+import { DataModelStorageServiceProvider } from '../../provider';
+import type { MongoDBDataModelDescription } from '../../services/data-model-storage';
+import RenameModal from './rename-modal';
 
 const storageItems: MongoDBDataModelDescription[] = [
   {
@@ -97,16 +99,16 @@ const storageItems: MongoDBDataModelDescription[] = [
 
 const renderSavedDiagramsList = ({
   items = storageItems,
+  onSave = () => Promise.resolve(false),
 }: {
   items?: MongoDBDataModelDescription[];
+  onSave?: (diagram: MongoDBDataModelDescription) => Promise<boolean>;
 } = {}) => {
   const mockDataModelStorage = {
     status: 'READY',
     error: null,
     items,
-    save: () => {
-      return Promise.resolve(false);
-    },
+    save: onSave,
     delete: () => {
       return Promise.resolve(false);
     },
@@ -118,6 +120,7 @@ const renderSavedDiagramsList = ({
   return renderWithStore(
     <DataModelStorageServiceProvider storage={mockDataModelStorage}>
       <SavedDiagramsList />
+      <RenameModal />
     </DataModelStorageServiceProvider>,
     {
       services: {
@@ -158,9 +161,13 @@ describe('SavedDiagramsList', function () {
 
   context('when there are diagrams', function () {
     let store: DataModelingStore;
+    let saveSpy: sinon.SinonSpy;
 
     beforeEach(async function () {
-      const result = renderSavedDiagramsList();
+      saveSpy = sinon.spy();
+      const result = renderSavedDiagramsList({
+        onSave: saveSpy,
+      });
       store = result.store;
 
       // wait till the list is loaded
@@ -185,6 +192,55 @@ describe('SavedDiagramsList', function () {
       expect(createDiagramButton).to.be.visible;
       userEvent.click(createDiagramButton);
       expect(store.getState().generateDiagramWizard.inProgress).to.be.true;
+    });
+
+    it('allows renaming a diagram', async function () {
+      const actionsBtns = screen.getAllByRole('button', {
+        name: 'Show actions',
+      });
+      expect(actionsBtns.length).to.equal(3);
+
+      // Open actions menu for the first diagram
+      userEvent.click(actionsBtns[0]);
+
+      // Click Rename
+      const renameBtn = screen.getByRole('menuitem', { name: 'Rename' });
+      expect(renameBtn).to.be.visible;
+      userEvent.click(renameBtn);
+
+      // Wait for the modal to open
+      await waitFor(() => {
+        expect(screen.getByText('Rename diagram')).to.be.visible;
+      });
+
+      const nameInput = screen.getByLabelText('Name');
+      const submitButton = screen.getByRole('button', { name: 'Rename' });
+      expect(nameInput).to.have.attribute('aria-invalid', 'false');
+
+      // Empty is disabled
+      userEvent.clear(nameInput);
+      expect(nameInput).to.have.attribute('aria-invalid', 'true');
+      expect(submitButton).to.have.attribute('aria-disabled', 'true');
+
+      // Duplicate is disabled
+      userEvent.type(nameInput, 'Two');
+      expect(nameInput).to.have.attribute('aria-invalid', 'true');
+      expect(submitButton).to.have.attribute('aria-disabled', 'true');
+
+      // Valid name enables the Rename button
+      userEvent.clear(nameInput);
+      userEvent.type(nameInput, 'New Name');
+      expect(nameInput).to.have.attribute('aria-invalid', 'false');
+      expect(submitButton).to.have.attribute('aria-disabled', 'false');
+      userEvent.click(submitButton);
+
+      // Wait for the modal to close
+      await waitFor(() => {
+        expect(screen.queryByText('Rename diagram')).to.not.exist;
+        expect(saveSpy).to.have.been.calledOnceWith(
+          sinon.match.has('name', 'New Name')
+        );
+      });
     });
 
     describe('search', function () {
