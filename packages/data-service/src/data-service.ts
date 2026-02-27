@@ -600,7 +600,9 @@ export interface DataService {
     ns: string,
     filter: Filter<Document>,
     options?: FindOptions,
-    executionOptions?: ExecutionOptions
+    executionOptions?: ExecutionOptions & {
+      fallbackReadPreference?: ReadPreferenceMode;
+    }
   ): Promise<Document[]>;
 
   /**
@@ -2030,15 +2032,23 @@ class DataServiceImpl extends WithLogContext implements DataService {
     ns: string,
     filter: Filter<Document>,
     options: FindOptions = {},
-    executionOptions?: ExecutionOptions
+    executionOptions?: ExecutionOptions & {
+      fallbackReadPreference?: ReadPreferenceMode;
+    }
   ): Promise<Document[]> {
     let cursor: FindCursor;
     return this._cancellableOperation(
       async (session?: ClientSession) => {
-        cursor = this._collection(ns, 'CRUD').find(filter, {
-          ...options,
-          session,
-        });
+        cursor = this._collection(ns, 'CRUD').find(
+          filter,
+          this._getOptionsWithFallbackReadPreference(
+            {
+              ...options,
+              session,
+            },
+            executionOptions
+          )
+        );
         const results = await cursor.toArray();
         void cursor.close();
         return results;
