@@ -369,6 +369,46 @@ describe('NewDiagramModal', function () {
       });
     });
 
+    it('allows user to select all documents option', async function () {
+      const preferences = await createSandboxFromDefaultPreferences();
+      const { store } = renderWithStore(<NewDiagramModal />, {
+        services: {
+          preferences,
+        },
+      });
+      await setSetupDiagramStep(store, {
+        connection: { id: 'two', name: 'Conn2' },
+        databaseName: 'sample_airbnb',
+        diagramName: 'diagram1',
+      });
+
+      userEvent.click(
+        screen.getByRole('button', {
+          name: /next/i,
+        })
+      );
+
+      // Wait for the select collections step
+      await screen.findByTestId('sample-size-input');
+
+      // Default should be sample size, not all documents
+      expect(
+        store.getState().generateDiagramWizard.samplingOptions.allDocuments
+      ).to.be.false;
+
+      // Click the "All documents" radio
+      userEvent.click(screen.getByText('All documents'));
+
+      await waitFor(() => {
+        expect(
+          store.getState().generateDiagramWizard.samplingOptions.allDocuments
+        ).to.be.true;
+      });
+
+      // Shows a warning when all documents is selected
+      expect(screen.getByTestId('sample-size-warning')).to.exist;
+    });
+
     it('shows error if it fails to fetch list of collections', async function () {
       const { store } = renderWithStore(<NewDiagramModal />, {
         services: {

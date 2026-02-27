@@ -337,6 +337,7 @@ describe('Data Modeling tab', function () {
     // We're now on the select collections step
     // Verify that sample size input is visible with default value of 100
     const sampleSizeInput = browser.$(Selectors.DataModelSampleSizeInput);
+    await sampleSizeInput.scrollIntoView();
     await sampleSizeInput.waitForDisplayed();
     expect(await sampleSizeInput.getValue()).to.equal('100');
 
@@ -347,11 +348,59 @@ describe('Data Modeling tab', function () {
     // Change to a larger sample size (> 100) and verify warning appears
     await sampleSizeInput.setValue('200');
     await warning.waitForDisplayed();
-    expect(await warning.getText()).to.include('Larger sample sizes');
+    expect(await warning.getText()).to.include('Consider your dataset size');
 
     // Change back to a smaller value and verify warning disappears
     await sampleSizeInput.setValue('50');
     await warning.waitForDisplayed({ reverse: true });
+
+    // Proceed to create the diagram
+    await browser.clickVisible(Selectors.CreateDataModelConfirmButton);
+
+    // Wait for the diagram editor to load
+    const dataModelEditor = browser.$(Selectors.DataModelEditor);
+    await dataModelEditor.waitForDisplayed();
+
+    // Verify the diagram was created successfully
+    const nodes = await getDiagramNodes(browser, 2);
+    expect(nodes).to.have.lengthOf(2);
+  });
+
+  it('allows getting all documents during diagram creation', async function () {
+    const dataModelName = 'Test Data Model - All Documents';
+
+    await browser.navigateToDataModeling();
+
+    // Click on create new data model button
+    await browser.clickVisible(Selectors.CreateNewDataModelButton);
+
+    // Fill in model details
+    await browser.setValueVisible(
+      Selectors.CreateDataModelNameInput,
+      dataModelName
+    );
+
+    // Select existing connection
+    await browser.selectOption({
+      selectSelector: Selectors.CreateDataModelConnectionSelector,
+      optionText: getDefaultConnectionNames(0),
+    });
+
+    // Select a database
+    await browser.selectOption({
+      selectSelector: Selectors.CreateDataModelDatabaseSelector,
+      optionText: 'test',
+    });
+    await browser.clickVisible(Selectors.CreateDataModelConfirmButton);
+
+    // We're now on the select collections step
+    // Change to a all documents
+    const allDocumentsOption = browser.$(Selectors.DataModelAllDocumentsOption);
+    await allDocumentsOption.scrollIntoView();
+    await browser.clickVisible(allDocumentsOption);
+    const warning = browser.$(Selectors.DataModelSampleSizeWarning);
+    await warning.waitForDisplayed();
+    expect(await warning.getText()).to.include('Consider your dataset size');
 
     // Proceed to create the diagram
     await browser.clickVisible(Selectors.CreateDataModelConfirmButton);
