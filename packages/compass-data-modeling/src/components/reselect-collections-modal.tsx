@@ -240,9 +240,7 @@ export default connect(
       isGenerateDiagramDisabled:
         databaseCollections.length === 0 ||
         newSelectedCollections.length === 0 ||
-        ((samplingOptions?.sampleSize === undefined ||
-          samplingOptions?.sampleSize <= 0) &&
-          samplingOptions.allDocuments === undefined) ||
+        (samplingOptions.sampleSize <= 0 && !samplingOptions.allDocuments) ||
         selectIsAnalysisInProgress(state),
       numSelectedCollections,
       numTotalCollections: databaseCollections.length,
