@@ -20,6 +20,7 @@ import {
 import { SelectCollectionsList } from './select-collections-list';
 import { useSavedConnections } from '../utils/use-saved-connections';
 import { ModalStepContainer } from './model-step-container';
+import { areSamplingOptionsValid } from '../store/sampling-options';
 
 const SelectCollectionsStep = connect(
   (state: DataModelingState) => {
@@ -240,7 +241,7 @@ export default connect(
       isGenerateDiagramDisabled:
         databaseCollections.length === 0 ||
         newSelectedCollections.length === 0 ||
-        (samplingOptions.sampleSize <= 0 && !samplingOptions.allDocuments) ||
+        !areSamplingOptionsValid(samplingOptions) ||
         selectIsAnalysisInProgress(state),
       numSelectedCollections,
       numTotalCollections: databaseCollections.length,
