@@ -72,7 +72,7 @@
     "react-dom": "^17.0.2"
   },
   "devDependencies": {
-    "@microsoft/api-extractor": "^7.57.1",
+    "@microsoft/api-extractor": "^7.57.6",
     "@mongodb-js/atlas-service": "^0.81.2",
     "@mongodb-js/compass-aggregations": "^9.101.2",
     "@mongodb-js/compass-app-registry": "^9.8.2",
