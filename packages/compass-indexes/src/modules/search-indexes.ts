@@ -18,6 +18,7 @@ import type { IndexesThunkAction } from '.';
 import { switchToSearchIndexes } from './index-view';
 import type { IndexViewChangedAction } from './index-view';
 import { selectReadWriteAccess } from '../utils/indexes-read-write-access';
+import { showIndexStatusChangeToasts } from '../utils/search-index-status-toasts';
 
 const ATLAS_SEARCH_SERVER_ERRORS: Record<string, string> = {
   InvalidIndexSpecificationOption: 'Invalid index definition.',
@@ -619,11 +620,15 @@ const fetchIndexes = (
     const {
       isWritable,
       namespace,
-      searchIndexes: { status },
+      searchIndexes: { status, indexes: previousIndexes },
     } = getState();
 
-    const { readOnly, readWrite, enableAtlasSearchIndexes } =
-      preferences.getPreferences();
+    const {
+      readOnly,
+      readWrite,
+      enableAtlasSearchIndexes,
+      enableSearchActivationProgramP1,
+    } = preferences.getPreferences();
     const { atlasMetadata } = connectionInfoRef.current;
     const { isSearchIndexesReadable } = selectReadWriteAccess({
       isAtlas: !!atlasMetadata,
@@ -650,6 +655,19 @@ const fetchIndexes = (
       dispatch(fetchSearchIndexesStarted(reason));
       const indexes = await dataService.getSearchIndexes(namespace);
       dispatch(fetchSearchIndexesSucceeded(indexes));
+
+      // Show toasts for status changes (only on poll and refresh, not initial fetch)
+      if (
+        enableSearchActivationProgramP1 &&
+        reason !== FetchReasons.INITIAL_FETCH
+      ) {
+        showIndexStatusChangeToasts(
+          previousIndexes,
+          indexes,
+          atlasMetadata,
+          namespace
+        );
+      }
     } catch (err) {
       dispatch(fetchSearchIndexesFailed((err as Error).message));
     }
