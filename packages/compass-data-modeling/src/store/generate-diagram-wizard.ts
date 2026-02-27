@@ -4,8 +4,10 @@ import type { DataModelingThunkAction } from './reducer';
 import { startAnalysis } from './analysis-process';
 import toNS from 'mongodb-ns';
 import { getDiagramName } from '../services/open-and-download-diagram';
-
-const DEFAULT_SAMPLE_SIZE = '100';
+import {
+  DEFAULT_SAMPLING_OPTIONS,
+  type SamplingOptions,
+} from './sampling-options';
 
 type FormField<T = string> = {
   error?: Error;
@@ -28,7 +30,7 @@ export type GenerateDiagramWizardState = {
   connectionDatabases: string[] | null;
   databaseCollections: string[] | null;
   automaticallyInferRelations: boolean;
-  sampleSize: string;
+  samplingOptions: SamplingOptions;
 };
 
 export const GenerateDiagramWizardActionTypes = {
@@ -138,9 +140,9 @@ export type ToggleInferRelationsAction = {
   newVal: boolean;
 };
 
-export type GenerateDiagramChangeSampleSizeAction = {
+export type GenerateDiagramChangeSamplingOptionsAction = {
   type: typeof GenerateDiagramWizardActionTypes.CHANGE_SAMPLE_SIZE;
-  sampleSize: string;
+  samplingOptions: GenerateDiagramWizardState['samplingOptions'];
 };
 
 export type ConfirmSelectedCollectionsAction = {
@@ -161,7 +163,7 @@ export type GenerateDiagramWizardActions =
   | CollectionsFetchedAction
   | SelectCollectionsAction
   | ToggleInferRelationsAction
-  | GenerateDiagramChangeSampleSizeAction
+  | GenerateDiagramChangeSamplingOptionsAction
   | ConfirmSelectedCollectionsAction
   | CollectionsFetchFailedAction
   | ConnectionFailedAction;
@@ -178,7 +180,7 @@ const INITIAL_STATE: GenerateDiagramWizardState = {
   connectionDatabases: null,
   databaseCollections: null,
   automaticallyInferRelations: true,
-  sampleSize: DEFAULT_SAMPLE_SIZE,
+  samplingOptions: DEFAULT_SAMPLING_OPTIONS,
 };
 
 export const generateDiagramWizardReducer: Reducer<
@@ -375,7 +377,7 @@ export const generateDiagramWizardReducer: Reducer<
   if (isAction(action, GenerateDiagramWizardActionTypes.CHANGE_SAMPLE_SIZE)) {
     return {
       ...state,
-      sampleSize: action.sampleSize,
+      samplingOptions: action.samplingOptions,
     };
   }
   if (isAction(action, GenerateDiagramWizardActionTypes.GOTO_STEP)) {
@@ -616,7 +618,7 @@ export function confirmSelectedCollections(): DataModelingThunkAction<
         selectedCollections,
       },
       automaticallyInferRelations,
-      sampleSize,
+      samplingOptions,
     } = getState().generateDiagramWizard;
     if (
       !diagramName.value ||
@@ -635,7 +637,10 @@ export function confirmSelectedCollections(): DataModelingThunkAction<
         selectedConnection.value,
         selectedDatabase.value,
         selectedCollections.value,
-        { automaticallyInferRelations, sampleSize: parseInt(sampleSize, 10) }
+        {
+          automaticallyInferRelations,
+          samplingOptions: samplingOptions ?? DEFAULT_SAMPLING_OPTIONS,
+        }
       )
     );
   };
@@ -654,11 +659,11 @@ export function toggleInferRelationships(
   };
 }
 
-export function changeSampleSize(
-  sampleSize: string
-): GenerateDiagramChangeSampleSizeAction {
+export function changeSamplingOptions(
+  samplingOptions: GenerateDiagramWizardState['samplingOptions']
+): GenerateDiagramChangeSamplingOptionsAction {
   return {
     type: GenerateDiagramWizardActionTypes.CHANGE_SAMPLE_SIZE,
-    sampleSize,
+    samplingOptions,
   };
 }
