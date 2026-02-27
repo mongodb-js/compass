@@ -19,10 +19,12 @@ import {
   SearchInput,
   spacing,
   SpinLoader,
+  useDrawerActions,
 } from '@mongodb-js/compass-components';
 import { createIndexOpened } from '../../../modules/create-index';
 import { FetchStatuses } from '../../../utils/fetch-status';
 import type { FetchStatus } from '../../../utils/fetch-status';
+import { INDEXES_DRAWER_ID } from '../../../plugin-drawer';
 import ViewVersionIncompatibleBanner from '../../view-incompatible-components/view-version-incompatible-banner';
 import ViewPipelineIncompatibleBanner from '../../view-incompatible-components/view-pipeline-incompatible-banner';
 import ViewStandardIndexesIncompatibleEmptyState from '../../view-incompatible-components/view-standard-indexes-incompatible-empty-state';
@@ -82,6 +84,7 @@ const IndexesListDrawerView: React.FunctionComponent<
   stopPolling,
 }) => {
   const [searchTerm, setSearchTerm] = useState<string>('');
+  const { openDrawer } = useDrawerActions();
 
   const { atlasMetadata } = useConnectionInfo();
   const isAtlas = !!atlasMetadata;
@@ -117,12 +120,16 @@ const IndexesListDrawerView: React.FunctionComponent<
         case 'createRegularIndex':
           return onCreateRegularIndexClick();
         case 'createSearchIndex':
-          return onCreateSearchIndexClick('search');
+          onCreateSearchIndexClick('search');
+          openDrawer(INDEXES_DRAWER_ID);
+          return;
         case 'createVectorSearchIndex':
-          return onCreateSearchIndexClick('vectorSearch');
+          onCreateSearchIndexClick('vectorSearch');
+          openDrawer(INDEXES_DRAWER_ID);
+          return;
       }
     },
-    [onCreateRegularIndexClick, onCreateSearchIndexClick]
+    [onCreateRegularIndexClick, onCreateSearchIndexClick, openDrawer]
   );
 
   const getSearchIndexesBanner = () => {

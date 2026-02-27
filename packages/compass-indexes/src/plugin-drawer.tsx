@@ -20,7 +20,7 @@ const indexesTitleTextStyles = css({
   marginRight: spacing[200],
 });
 
-const INDEXES_DRAWER_ID = 'compass-indexes-drawer';
+export const INDEXES_DRAWER_ID = 'compass-indexes-drawer';
 const INDEXES_DRAWER_ID_DISABLED = 'compass-indexes-drawer-disabled';
 
 type DrawerProps = {

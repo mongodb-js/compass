@@ -10,19 +10,24 @@ import {
   useDarkMode,
   IconButton,
   SignalPopover,
+  Button,
+  useDrawerActions,
 } from '@mongodb-js/compass-components';
 import type { RootState } from '../../modules';
 import ToggleStage from './toggle-stage';
 import StageCollapser from './stage-collapser';
 import StageOperatorSelect from './stage-operator-select';
-import { hasSyntaxError } from '../../utils/stage';
+import { hasSyntaxError, isSearchStage } from '../../utils/stage';
 import { enableFocusMode } from '../../modules/focus-mode';
 import OptionMenu from './option-menu';
 import type { StoreStage } from '../../modules/pipeline-builder/stage-editor';
 import { getInsightForStage } from '../../utils/insights';
 import { usePreference } from 'compass-preferences-model/provider';
 import type { ServerEnvironment } from '../../modules/env';
-import { createSearchIndex } from '../../modules/search-indexes';
+import {
+  createSearchIndex,
+  openIndexesListDrawerView,
+} from '../../modules/search-indexes';
 
 const toolbarStyles = css({
   width: '100%',
@@ -68,13 +73,16 @@ const leftStyles = css({
   alignItems: 'center',
   justifyContent: 'flex-start',
   gap: spacing[100] * 3,
-  width: '388px', // default width of the stage editor
 });
 
 const shortSpacedStyles = css({
   display: 'flex',
   alignItems: 'center',
   gap: spacing[100],
+  whiteSpace: 'nowrap',
+});
+
+const viewIndexesButtonStyles = css({
   whiteSpace: 'nowrap',
 });
 
@@ -96,18 +104,17 @@ const rightStyles = css({
 
 type StageToolbarProps = {
   index: number;
-
   stage: StoreStage;
   env: ServerEnvironment;
   isSearchIndexesSupported: boolean;
   onCreateSearchIndex: () => void;
-
   onOpenFocusMode: (index: number) => void;
   onStageOperatorChange?: (
     index: number,
     name: string | null,
     snippet?: string
   ) => void;
+  onClickViewSearchIndexes: () => void;
 };
 
 const DISABLED_TEXT = 'Stage disabled. Results not passed in the pipeline.';
@@ -122,9 +129,14 @@ export function StageToolbar({
   onCreateSearchIndex,
   onOpenFocusMode,
   onStageOperatorChange,
+  onClickViewSearchIndexes,
 }: StageToolbarProps) {
   const showInsights = usePreference('showInsights');
+  const enableSearchActivationProgramP1 = usePreference(
+    'enableSearchActivationProgramP1'
+  );
   const darkMode = useDarkMode();
+  const { openDrawer } = useDrawerActions();
 
   const insight = useMemo(
     () =>
@@ -155,6 +167,21 @@ export function StageToolbar({
           <StageOperatorSelect onChange={onStageOperatorChange} index={index} />
         </div>
         <ToggleStage index={index} />
+        {enableSearchActivationProgramP1 &&
+          isSearchStage(stage.stageOperator) && (
+            <Button
+              data-testid="stage-toolbar-view-indexes-button"
+              size="xsmall"
+              className={viewIndexesButtonStyles}
+              onClick={() => {
+                openDrawer('compass-indexes-drawer');
+                onClickViewSearchIndexes();
+              }}
+              title="View Indexes"
+            >
+              View Indexes
+            </Button>
+          )}
         {showInsights && insight && <SignalPopover signals={insight} />}
       </div>
       <div className={textStyles}>
@@ -201,5 +228,6 @@ export default connect(
   {
     onOpenFocusMode: enableFocusMode,
     onCreateSearchIndex: createSearchIndex,
+    onClickViewSearchIndexes: openIndexesListDrawerView,
   }
 )(StageToolbar);
