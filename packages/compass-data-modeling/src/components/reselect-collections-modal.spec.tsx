@@ -287,8 +287,15 @@ describe('ReselectCollectionsModal', function () {
 
       // Wait for the sample size input to appear
       const sampleSizeInput = await screen.findByTestId('sample-size-input');
-      userEvent.clear(sampleSizeInput);
-      userEvent.type(sampleSizeInput, '50');
+
+      // The TextInput is nested inside a Radio component's Label, which
+      // intercepts click events from userEvent. We use type() with skipClick
+      // and manually position the cursor to type over the existing value.
+      sampleSizeInput.focus();
+      // Move cursor to end and delete existing content
+      userEvent.type(sampleSizeInput, '{backspace}{backspace}{backspace}50', {
+        skipClick: true,
+      });
 
       await waitFor(() => {
         expect(sampleSizeInput).to.have.value('50');
