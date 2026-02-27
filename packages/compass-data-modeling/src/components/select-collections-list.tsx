@@ -17,7 +17,10 @@ import {
 } from '@mongodb-js/compass-components';
 import { usePreference } from 'compass-preferences-model/provider';
 import React, { useCallback, useMemo, useState } from 'react';
-import type { SamplingOptions } from '../store/sampling-options';
+import {
+  areSamplingOptionsValid,
+  type SamplingOptions,
+} from '../store/sampling-options';
 
 const LARGE_SAMPLE_SIZE_THRESHOLD = 100;
 
@@ -164,18 +167,16 @@ export const SelectCollectionsList: React.FunctionComponent<
     [handleSamplingOptionChange]
   );
 
-  const isInvalidInput = useMemo(
-    () =>
-      samplingOptions?.sampleSize === undefined ||
-      samplingOptions?.sampleSize <= 0,
+  const areSamplingOptionsInvalid = useMemo(
+    () => !areSamplingOptionsValid(samplingOptions),
     [samplingOptions]
   );
   const isLargeSampleSize = useMemo(
     () =>
-      !isInvalidInput &&
+      !areSamplingOptionsInvalid &&
       (samplingOptions.allDocuments ||
-        samplingOptions?.sampleSize > LARGE_SAMPLE_SIZE_THRESHOLD),
-    [samplingOptions, isInvalidInput]
+        samplingOptions.sampleSize > LARGE_SAMPLE_SIZE_THRESHOLD),
+    [samplingOptions, areSamplingOptionsInvalid]
   );
 
   const filteredCollections = useMemo(() => {
@@ -320,7 +321,7 @@ export const SelectCollectionsList: React.FunctionComponent<
           </Radio>
         </RadioGroup>
         <div className={warningTextContainerStyles}>
-          {isInvalidInput && (
+          {areSamplingOptionsInvalid && (
             <div className={errorTextStyles} data-testid="sample-size-warning">
               <Icon glyph="Warning" size="large" />
               <span>Invalid input</span>

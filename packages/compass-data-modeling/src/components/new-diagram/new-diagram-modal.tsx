@@ -12,6 +12,7 @@ import SetupDiagramStep from './setup-diagram-step';
 import SelectCollectionsStep from './select-collections-step';
 import { selectIsAnalysisInProgress } from '../../store/analysis-process';
 import { ModalStepContainer } from '../model-step-container';
+import { areSamplingOptionsValid } from '../../store/sampling-options';
 
 type NewDiagramModalProps = {
   isOpen: boolean;
@@ -127,7 +128,7 @@ export default connect(
       isGenerateDiagramDisabled:
         !formFields.selectedCollections.value ||
         formFields.selectedCollections.value.length === 0 ||
-        (samplingOptions.sampleSize <= 0 && !samplingOptions.allDocuments) ||
+        !areSamplingOptionsValid(samplingOptions) ||
         selectIsAnalysisInProgress(state),
       numSelectedCollections: formFields.selectedCollections.value?.length || 0,
       numTotalCollections: databaseCollections?.length || 0,
