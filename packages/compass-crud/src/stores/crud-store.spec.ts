@@ -169,6 +169,7 @@ const mockCollection = {
   fetchMetadata() {
     return Promise.resolve(defaultMetadata);
   },
+  fetch: sinon.stub().resolves(),
   toJSON() {
     return this;
   },
@@ -286,6 +287,7 @@ describe('store', function () {
 
     sinon.restore();
 
+    mockCollection.fetch.resetHistory();
     mockQueryBar.getLastAppliedQuery.returns({});
   });
 
@@ -1769,6 +1771,7 @@ describe('store', function () {
               expect(state.docs[0].doc.name).to.equal('testing1');
               expect(state.debouncingLoad).to.equal(false);
               expect(state.count).to.equal(2);
+              expect(state.collectionStats?.document_count).to.equal(2);
               expect(state.start).to.equal(1);
               expect(state.shardKeys).to.deep.equal({});
             },
@@ -1829,6 +1832,39 @@ describe('store', function () {
 
           await listener;
         });
+      });
+    });
+
+    context('when refreshCollectionStats is requested', function () {
+      let store: CrudStore;
+      let collection: typeof mockCollection & { fetch: sinon.SinonStub };
+
+      beforeEach(async function () {
+        collection = {
+          ...mockCollection,
+          fetch: sinon.stub().resolves(),
+        };
+        const plugin = activatePlugin({}, { collection: collection as any });
+        store = plugin.store;
+        deactivate = () => plugin.deactivate();
+        await dataService.insertOne('compass-crud.test', { name: 'testing1' });
+      });
+
+      afterEach(function () {
+        return dataService.deleteMany('compass-crud.test', {});
+      });
+
+      it('refreshes collection stats in parallel', async function () {
+        const refreshPromise = store.refreshDocuments({
+          refreshCollectionStats: true,
+        });
+
+        expect(collection.fetch).to.have.been.calledOnceWithExactly({
+          dataService,
+          force: true,
+        });
+
+        await refreshPromise;
       });
     });
 
@@ -1948,6 +1984,55 @@ describe('store', function () {
         const opts = spy.args[0][2];
         expect(opts?.hint).to.equal('_id_');
       });
+    });
+  });
+
+  describe('refresh-data event', function () {
+    let store: CrudStore;
+
+    beforeEach(function () {
+      const plugin = activatePlugin();
+      store = plugin.store;
+      deactivate = () => plugin.deactivate();
+    });
+
+    it('refreshes documents and collection stats', function () {
+      const refreshSpy = sinon.stub(store, 'refreshDocuments');
+
+      globalAppRegistry.emit('refresh-data');
+
+      expect(refreshSpy).to.have.been.calledOnceWithExactly({
+        refreshCollectionStats: true,
+      });
+    });
+  });
+
+  describe('#collectionStatsFetched', function () {
+    let store: CrudStore;
+
+    beforeEach(function () {
+      const plugin = activatePlugin();
+      store = plugin.store;
+      deactivate = () => plugin.deactivate();
+    });
+
+    it('prefers the unfiltered count when available', async function () {
+      store.setState({ count: 0 });
+
+      const listener = waitForState(store, (state) => {
+        expect(state.collectionStats?.document_count).to.equal(0);
+      });
+
+      store.collectionStatsFetched({
+        toJSON: () => ({
+          document_count: 25,
+          storage_size: 20,
+          free_storage_size: 0,
+          avg_document_size: 1,
+        }),
+      } as any);
+
+      await listener;
     });
   });
 

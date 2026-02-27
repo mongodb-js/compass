@@ -328,6 +328,11 @@ export type BulkDeleteState = {
   affected?: number;
 };
 
+type RefreshDocumentsOptions = {
+  onApply?: boolean;
+  refreshCollectionStats?: boolean;
+};
+
 type CrudState = {
   ns: string;
   collection: string;
@@ -1575,16 +1580,60 @@ class CrudStoreImpl
     );
   }
 
+  shouldSyncCollectionStatsWithCount(query: Query = {}): boolean {
+    const hasFilter = !isEmpty(query.filter);
+    const hasSkip = (query.skip ?? 0) > 0;
+    const hasLimit = (query.limit ?? 0) > 0;
+
+    return !hasFilter && !hasSkip && !hasLimit;
+  }
+
   collectionStatsFetched(model: Collection) {
+    const query = this.queryBar.getLastAppliedQuery('crud') ?? {};
+    const shouldSyncCount = this.shouldSyncCollectionStatsWithCount(query);
+    const stats = extractCollectionStats(model);
+    const documentCount =
+      shouldSyncCount && typeof this.state.count === 'number'
+        ? this.state.count
+        : stats.document_count;
+
     this.setState({
-      collectionStats: extractCollectionStats(model),
+      collectionStats: {
+        ...stats,
+        document_count: documentCount,
+      },
     });
+  }
+
+  refreshCollectionStats() {
+    if (!this.dataService.isConnected()) {
+      return;
+    }
+
+    void this.collection
+      .fetch({ dataService: this.dataService, force: true })
+      .catch((error) => {
+        this.logger.log.warn(
+          mongoLogId(1_001_000_289),
+          'Documents',
+          'Failed to refresh collection stats',
+          error
+        );
+      });
   }
 
   /**
    * This function is called when the collection filter changes.
    */
-  async refreshDocuments(onApply = false) {
+  async refreshDocuments(options: boolean | RefreshDocumentsOptions = false) {
+    const { onApply, refreshCollectionStats } =
+      typeof options === 'boolean'
+        ? { onApply: options, refreshCollectionStats: false }
+        : {
+            onApply: options.onApply ?? false,
+            refreshCollectionStats: options.refreshCollectionStats ?? false,
+          };
+
     if (this.dataService && !this.dataService.isConnected()) {
       this.logger.log.warn(
         mongoLogId(1_001_000_072),
@@ -1599,6 +1648,10 @@ class CrudStoreImpl
 
     if (status === DOCUMENTS_STATUS_FETCHING) {
       return;
+    }
+
+    if (refreshCollectionStats) {
+      this.refreshCollectionStats();
     }
 
     if (onApply) {
@@ -1736,6 +1789,9 @@ class CrudStoreImpl
     }
 
     // Don't wait for the count to finish. Set the result asynchronously.
+    const shouldSyncCollectionStats =
+      this.shouldSyncCollectionStatsWithCount(query);
+
     countDocuments(
       this.dataService,
       this.preferences,
@@ -1751,7 +1807,28 @@ class CrudStoreImpl
         );
       }
     )
-      .then((count) => this.setState({ count, loadingCount: false }))
+      .then((count) => {
+        const nextState: Partial<CrudState> = {
+          count,
+          loadingCount: false,
+        };
+
+        if (shouldSyncCollectionStats && typeof count === 'number') {
+          const previousStats: CollectionStats =
+            this.state.collectionStats ?? {
+              document_count: undefined,
+              storage_size: undefined,
+              free_storage_size: undefined,
+              avg_document_size: undefined,
+            };
+          nextState.collectionStats = {
+            ...previousStats,
+            document_count: count,
+          };
+        }
+
+        this.setState(nextState);
+      })
       .catch((err) => {
         // countDocuments already swallows all db errors and returns null. The
         // only known error it can throw is AbortError. If
@@ -2135,7 +2212,7 @@ export function activateDocumentsPlugin(
   });
 
   on(globalAppRegistry, 'refresh-data', () => {
-    void store.refreshDocuments();
+    void store.refreshDocuments({ refreshCollectionStats: true });
   });
 
   on(
