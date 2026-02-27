@@ -169,6 +169,7 @@ const mockCollection = {
   fetchMetadata() {
     return Promise.resolve(defaultMetadata);
   },
+  fetch: sinon.stub().resolves(),
   toJSON() {
     return this;
   },
@@ -286,6 +287,7 @@ describe('store', function () {
 
     sinon.restore();
 
+    mockCollection.fetch.resetHistory();
     mockQueryBar.getLastAppliedQuery.returns({});
   });
 
@@ -1981,6 +1983,26 @@ describe('store', function () {
         expect(spy.callCount).to.equal(1);
         const opts = spy.args[0][2];
         expect(opts?.hint).to.equal('_id_');
+      });
+    });
+  });
+
+  describe('refresh-data event', function () {
+    let store: CrudStore;
+
+    beforeEach(function () {
+      const plugin = activatePlugin();
+      store = plugin.store;
+      deactivate = () => plugin.deactivate();
+    });
+
+    it('refreshes documents and collection stats', function () {
+      const refreshSpy = sinon.stub(store, 'refreshDocuments');
+
+      globalAppRegistry.emit('refresh-data');
+
+      expect(refreshSpy).to.have.been.calledOnceWithExactly({
+        refreshCollectionStats: true,
       });
     });
   });

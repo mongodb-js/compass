@@ -2212,7 +2212,7 @@ export function activateDocumentsPlugin(
   });
 
   on(globalAppRegistry, 'refresh-data', () => {
-    void store.refreshDocuments();
+    void store.refreshDocuments({ refreshCollectionStats: true });
   });
 
   on(
