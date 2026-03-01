@@ -6,7 +6,7 @@
     "email": "compass@mongodb.com"
   },
   "private": true,
-  "version": "6.100.2",
+  "version": "6.101.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/compass.git"
@@ -50,7 +50,7 @@
   "devDependencies": {
     "@mongodb-js/eslint-config-compass": "^1.4.18",
     "@mongodb-js/mocha-config-compass": "^1.7.6",
-    "@mongodb-js/my-queries-storage": "^0.55.3",
+    "@mongodb-js/my-queries-storage": "^0.56.0",
     "@mongodb-js/prettier-config-compass": "^1.2.9",
     "@mongodb-js/testing-library-compass": "^1.5.2",
     "@mongodb-js/tsconfig-compass": "^1.2.14",
@@ -72,18 +72,18 @@
     "xvfb-maybe": "^0.2.1"
   },
   "dependencies": {
-    "@mongodb-js/compass-app-registry": "^9.8.2",
-    "@mongodb-js/compass-collection": "^4.98.2",
-    "@mongodb-js/compass-components": "^1.63.2",
-    "@mongodb-js/compass-connections": "^1.97.2",
-    "@mongodb-js/compass-editor": "^0.65.3",
-    "@mongodb-js/compass-field-store": "^9.72.2",
-    "@mongodb-js/compass-logging": "^1.11.2",
-    "@mongodb-js/compass-query-bar": "^8.100.2",
-    "@mongodb-js/compass-telemetry": "^1.25.2",
-    "@mongodb-js/connection-storage": "^0.71.2",
+    "@mongodb-js/compass-app-registry": "^9.9.0",
+    "@mongodb-js/compass-collection": "^4.99.0",
+    "@mongodb-js/compass-components": "^1.64.0",
+    "@mongodb-js/compass-connections": "^1.98.0",
+    "@mongodb-js/compass-editor": "^0.66.0",
+    "@mongodb-js/compass-field-store": "^9.73.0",
+    "@mongodb-js/compass-logging": "^1.12.0",
+    "@mongodb-js/compass-query-bar": "^8.101.0",
+    "@mongodb-js/compass-telemetry": "^1.26.0",
+    "@mongodb-js/connection-storage": "^0.72.0",
     "bson": "^7.2.0",
-    "compass-preferences-model": "^2.73.2",
+    "compass-preferences-model": "^2.74.0",
     "d3": "^3.5.17",
     "hadron-document": "^8.11.1",
     "hadron-type-checker": "^7.5.1",
