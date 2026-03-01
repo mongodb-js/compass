@@ -194,9 +194,9 @@ const ToastAreaMountedContext = React.createContext(false);
 
 export const ToastArea: React.FunctionComponent = ({ children }) => {
   const stackedContext = useStackedComponent();
-  // We always want to show the toast over modal or other stacked components that may hide the toast and hence +1
-  const stackedElemStyles = useMemo(() => {
-    const zIndex = stackedContext?.zIndex ? stackedContext.zIndex + 1 : 1;
+  // We always want to show the toast under the modal
+  const toastPortalStyles = useMemo(() => {
+    const zIndex = stackedContext?.zIndex ? stackedContext.zIndex - 1 : 0;
     return css({ zIndex });
   }, [stackedContext]);
 
@@ -206,7 +206,7 @@ export const ToastArea: React.FunctionComponent = ({ children }) => {
 
   return (
     <ToastAreaMountedContext.Provider value={true}>
-      <ToastProvider portalClassName={stackedElemStyles}>
+      <ToastProvider portalClassName={toastPortalStyles}>
         <ToastStateHandler>{children}</ToastStateHandler>
       </ToastProvider>
     </ToastAreaMountedContext.Provider>
