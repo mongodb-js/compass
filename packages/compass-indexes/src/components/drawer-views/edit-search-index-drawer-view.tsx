@@ -8,10 +8,10 @@ import React, {
 import { connect } from 'react-redux';
 import type { RootState } from '../../modules';
 import {
-  State as SearchIndexesState,
   updateIndex,
   updateSearchIndexClosed,
 } from '../../modules/search-indexes';
+import type { State as SearchIndexesState } from '../../modules/search-indexes';
 import {
   openIndexesListDrawerView,
   setIsEditing,
@@ -181,7 +181,7 @@ const EditSearchIndexDrawerView: React.FunctionComponent<
         {error && <ErrorSummary errors={error} />}
       </div>
       <div className={buttonContainerStyles}>
-        <Button variant="default" onClick={onCancelClick}>
+        <Button variant="default" onClick={() => void onCancelClick()}>
           Cancel
         </Button>
         <Button

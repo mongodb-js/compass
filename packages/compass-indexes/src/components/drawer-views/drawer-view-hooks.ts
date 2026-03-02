@@ -58,11 +58,10 @@ export function useIndexDefinitionChange(
 
       try {
         parseShellBSON(newDefinition);
-      } catch (ex) {
+        setIndexDefinition(newDefinition);
+      } catch {
         // Parsing error handled elsewhere if needed
       }
-
-      setIndexDefinition(newDefinition);
     },
     [setIndexDefinition, onIndexDefinitionEdit]
   );
