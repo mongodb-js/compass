@@ -297,6 +297,7 @@ export default function reducer(
         ...state.updateIndex,
         isBusy: false,
         isModalOpen: false,
+        error: undefined,
       },
     };
   }
@@ -313,6 +314,7 @@ export default function reducer(
         ...state.updateIndex,
         isModalOpen: false,
         isBusy: false,
+        error: undefined,
       },
     };
   }
@@ -486,12 +488,21 @@ export const createIndex = ({
     getState,
     { track, connectionInfoRef, dataService }
   ) {
-    const { namespace } = getState();
+    const { namespace, searchIndexes } = getState();
 
     dispatch(createSearchIndexStarted());
 
     if (name === '') {
       dispatch(createSearchIndexFailed('Please enter the name of the index.'));
+      return;
+    }
+
+    if (searchIndexes.indexes.some((x) => x.name === name)) {
+      dispatch(
+        createSearchIndexFailed(
+          ATLAS_SEARCH_SERVER_ERRORS['IndexAlreadyExists']
+        )
+      );
       return;
     }
 

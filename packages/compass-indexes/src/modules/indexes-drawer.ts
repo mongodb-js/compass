@@ -21,14 +21,16 @@ export type SearchIndexType = 'search' | 'vectorSearch';
 
 export type State = {
   currentView: IndexesDrawerViewType;
-  currentIndexType: SearchIndexType | null;
-  currentIndexName: string | null;
+  currentIndexType: SearchIndexType;
+  currentIndexName: string;
+  isEditing: boolean;
 };
 
 export const INITIAL_STATE: State = {
   currentView: 'indexes-list',
-  currentIndexType: null,
-  currentIndexName: null,
+  currentIndexType: 'search',
+  currentIndexName: '',
+  isEditing: false,
 };
 
 export const OPEN_INDEXES_LIST_DRAWER_VIEW =
@@ -37,6 +39,7 @@ export const OPEN_CREATE_SEARCH_INDEX_DRAWER_VIEW =
   'indexes/drawer/OPEN_CREATE_SEARCH_INDEX_DRAWER_VIEW' as const;
 export const OPEN_EDIT_SEARCH_INDEX_DRAWER_VIEW =
   'indexes/drawer/OPEN_EDIT_SEARCH_INDEX_DRAWER_VIEW' as const;
+export const SET_IS_EDITING = 'indexes/drawer/SET_IS_EDITING' as const;
 
 type OpenIndexesListDrawerViewAction = {
   type: typeof OPEN_INDEXES_LIST_DRAWER_VIEW;
@@ -52,10 +55,16 @@ type OpenEditSearchIndexDrawerViewAction = {
   currentIndexName: string;
 };
 
+type SetIsEditingIndexDrawerAction = {
+  type: typeof SET_IS_EDITING;
+  isEditing: boolean;
+};
+
 export type IndexesDrawerActions =
   | OpenIndexesListDrawerViewAction
   | OpenCreateSearchIndexDrawerViewAction
-  | OpenEditSearchIndexDrawerViewAction;
+  | OpenEditSearchIndexDrawerViewAction
+  | SetIsEditingIndexDrawerAction;
 
 export const openIndexesListDrawerView =
   (): OpenIndexesListDrawerViewAction => ({
@@ -74,6 +83,13 @@ export const openEditSearchIndexDrawerView = (
 ): OpenEditSearchIndexDrawerViewAction => ({
   type: OPEN_EDIT_SEARCH_INDEX_DRAWER_VIEW,
   currentIndexName,
+});
+
+export const setIsEditing = (
+  isEditing: boolean
+): SetIsEditingIndexDrawerAction => ({
+  type: SET_IS_EDITING,
+  isEditing,
 });
 
 export const refreshAllIndexes = (): IndexesThunkAction<
@@ -124,6 +140,11 @@ export default function reducer(
         ...state,
         currentView: 'edit-search-index',
         currentIndexName: action.currentIndexName,
+      };
+    case SET_IS_EDITING:
+      return {
+        ...state,
+        isEditing: action.isEditing,
       };
     default:
       return state;
