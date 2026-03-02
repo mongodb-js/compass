@@ -38,10 +38,8 @@ import {
   editorContainerStyles,
 } from './drawer-view-styles';
 import { IndexStatus } from '../search-indexes-table/use-search-indexes-table';
-import {
-  CodemirrorMultilineEditor,
-  type EditorRef,
-} from '@mongodb-js/compass-editor';
+import { CodemirrorMultilineEditor } from '@mongodb-js/compass-editor';
+import type { EditorRef } from '@mongodb-js/compass-editor';
 import type { Document } from 'mongodb';
 import { parseShellBSON } from '../../utils/parse-shell-bson';
 

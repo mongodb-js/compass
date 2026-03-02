@@ -36,10 +36,8 @@ import {
   editorContainerStyles,
 } from './drawer-view-styles';
 import type { Document } from 'mongodb';
-import {
-  CodemirrorMultilineEditor,
-  EditorRef,
-} from '@mongodb-js/compass-editor';
+import { CodemirrorMultilineEditor } from '@mongodb-js/compass-editor';
+import type { EditorRef } from '@mongodb-js/compass-editor';
 import { parseShellBSON } from '../../utils/parse-shell-bson';
 import {
   ATLAS_SEARCH_TEMPLATES,
