@@ -18,7 +18,7 @@ import type { IndexesThunkAction } from '.';
 import { switchToSearchIndexes } from './index-view';
 import type { IndexViewChangedAction } from './index-view';
 import { selectReadWriteAccess } from '../utils/indexes-read-write-access';
-import { showIndexStatusChangeToasts } from '../utils/search-index-status-toasts';
+import { showSearchIndexStatusChangeToasts } from '../utils/search-index-status-toasts';
 
 const ATLAS_SEARCH_SERVER_ERRORS: Record<string, string> = {
   InvalidIndexSpecificationOption: 'Invalid index definition.',
@@ -661,7 +661,7 @@ const fetchIndexes = (
         enableSearchActivationProgramP1 &&
         reason !== FetchReasons.INITIAL_FETCH
       ) {
-        showIndexStatusChangeToasts(
+        showSearchIndexStatusChangeToasts(
           previousIndexes,
           indexes,
           atlasMetadata,
