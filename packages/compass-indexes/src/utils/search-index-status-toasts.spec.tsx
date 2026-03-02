@@ -1,7 +1,7 @@
 import sinon from 'sinon';
 import { expect } from 'chai';
 import * as compassComponents from '@mongodb-js/compass-components';
-import { showIndexStatusChangeToasts } from './search-index-status-toasts';
+import { showSearchIndexStatusChangeToasts } from './search-index-status-toasts';
 import { mockSearchIndex } from '../../test/helpers';
 import type { AtlasClusterMetadata } from '@mongodb-js/connection-info';
 
@@ -10,7 +10,7 @@ const ATLAS_METADATA = {
   clusterName: 'MyCluster',
 } as AtlasClusterMetadata;
 
-describe('showIndexStatusChangeToasts', function () {
+describe('showSearchIndexStatusChangeToasts', function () {
   let openToastStub: sinon.SinonStub;
 
   beforeEach(function () {
@@ -29,7 +29,7 @@ describe('showIndexStatusChangeToasts', function () {
     it('shows a "build in progress" toast when a new index appears in BUILDING state', function () {
       const newIndex = mockSearchIndex({ name: 'myIndex', status: 'BUILDING' });
 
-      showIndexStatusChangeToasts([], [newIndex], undefined, NAMESPACE);
+      showSearchIndexStatusChangeToasts([], [newIndex], undefined, NAMESPACE);
 
       expect(openToastStub).to.have.been.calledOnce;
       expect(openToastStub.firstCall.args[0]).to.equal(
@@ -50,7 +50,7 @@ describe('showIndexStatusChangeToasts', function () {
       });
       const newIndex = mockSearchIndex({ name: 'myIndex', status: 'BUILDING' });
 
-      showIndexStatusChangeToasts(
+      showSearchIndexStatusChangeToasts(
         [previousIndex],
         [newIndex],
         undefined,
@@ -72,7 +72,7 @@ describe('showIndexStatusChangeToasts', function () {
       });
       const newIndex = mockSearchIndex({ name: 'myIndex', status: 'BUILDING' });
 
-      showIndexStatusChangeToasts(
+      showSearchIndexStatusChangeToasts(
         [previousIndex],
         [newIndex],
         undefined,
@@ -89,7 +89,7 @@ describe('showIndexStatusChangeToasts', function () {
         type: 'vectorSearch',
       });
 
-      showIndexStatusChangeToasts([], [newIndex], undefined, NAMESPACE);
+      showSearchIndexStatusChangeToasts([], [newIndex], undefined, NAMESPACE);
 
       expect(openToastStub.firstCall.args[1].description).to.include(
         'Vector search index'
@@ -104,7 +104,7 @@ describe('showIndexStatusChangeToasts', function () {
       });
       const newIndex = mockSearchIndex({ name: 'myIndex', status: 'BUILDING' });
 
-      showIndexStatusChangeToasts(
+      showSearchIndexStatusChangeToasts(
         [previousIndex],
         [newIndex],
         undefined,
@@ -129,7 +129,7 @@ describe('showIndexStatusChangeToasts', function () {
         queryable: false,
       });
 
-      showIndexStatusChangeToasts(
+      showSearchIndexStatusChangeToasts(
         [previousIndex],
         [newIndex],
         undefined,
@@ -150,7 +150,7 @@ describe('showIndexStatusChangeToasts', function () {
       });
       const newIndex = mockSearchIndex({ name: 'myIndex', status: 'FAILED' });
 
-      showIndexStatusChangeToasts(
+      showSearchIndexStatusChangeToasts(
         [previousIndex],
         [newIndex],
         undefined,
@@ -163,7 +163,7 @@ describe('showIndexStatusChangeToasts', function () {
     it('shows a "build failed" toast for a new index that appears already FAILED', function () {
       const newIndex = mockSearchIndex({ name: 'myIndex', status: 'FAILED' });
 
-      showIndexStatusChangeToasts([], [newIndex], undefined, NAMESPACE);
+      showSearchIndexStatusChangeToasts([], [newIndex], undefined, NAMESPACE);
 
       expect(openToastStub).to.have.been.calledOnce;
       expect(openToastStub.firstCall.args[1].variant).to.equal('warning');
@@ -178,7 +178,7 @@ describe('showIndexStatusChangeToasts', function () {
       });
       const newIndex = mockSearchIndex({ name: 'myIndex', status: 'READY' });
 
-      showIndexStatusChangeToasts(
+      showSearchIndexStatusChangeToasts(
         [previousIndex],
         [newIndex],
         undefined,
@@ -200,7 +200,7 @@ describe('showIndexStatusChangeToasts', function () {
       });
       const newIndex = mockSearchIndex({ name: 'myIndex', status: 'READY' });
 
-      showIndexStatusChangeToasts(
+      showSearchIndexStatusChangeToasts(
         [previousIndex],
         [newIndex],
         undefined,
@@ -222,7 +222,7 @@ describe('showIndexStatusChangeToasts', function () {
         type: 'vectorSearch',
       });
 
-      showIndexStatusChangeToasts(
+      showSearchIndexStatusChangeToasts(
         [previousIndex],
         [newIndex],
         undefined,
@@ -243,7 +243,7 @@ describe('showIndexStatusChangeToasts', function () {
       });
       const newIndex = mockSearchIndex({ name: 'myIndex', status: 'FAILED' });
 
-      showIndexStatusChangeToasts(
+      showSearchIndexStatusChangeToasts(
         [previousIndex],
         [newIndex],
         undefined,
@@ -263,7 +263,7 @@ describe('showIndexStatusChangeToasts', function () {
       });
       const newIndex = mockSearchIndex({ name: 'myIndex', status: 'FAILED' });
 
-      showIndexStatusChangeToasts(
+      showSearchIndexStatusChangeToasts(
         [previousIndex],
         [newIndex],
         ATLAS_METADATA,
@@ -291,7 +291,7 @@ describe('showIndexStatusChangeToasts', function () {
         mockSearchIndex({ name: 'idx2', status: 'FAILED' }),
       ];
 
-      showIndexStatusChangeToasts(
+      showSearchIndexStatusChangeToasts(
         previousIndexes,
         newIndexes,
         undefined,
@@ -317,7 +317,7 @@ describe('showIndexStatusChangeToasts', function () {
         mockSearchIndex({ name: 'idx2', status: 'BUILDING' }),
       ];
 
-      showIndexStatusChangeToasts(
+      showSearchIndexStatusChangeToasts(
         previousIndexes,
         newIndexes,
         undefined,
