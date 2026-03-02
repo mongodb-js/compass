@@ -102,7 +102,12 @@ import {
   createCancelError,
   isCancelError,
 } from '@mongodb-js/compass-utils';
-import type { IndexDefinition, IndexStats } from './index-detail-helper';
+import type {
+  CurrentOpProgress,
+  IndexBuildProgress,
+  IndexDefinition,
+  IndexStats,
+} from './index-detail-helper';
 import { createIndexDefinition } from './index-detail-helper';
 import type { SearchIndex } from './search-index-detail-helper';
 import type {
@@ -2167,30 +2172,24 @@ class DataServiceImpl extends WithLogContext implements DataService {
   }
 
   private async _indexStats(ns: string) {
-    try {
-      const stats = await this.aggregate<IndexStats>(ns, [
-        { $indexStats: {} },
-        {
-          $project: {
-            name: 1,
-            usageHost: '$host',
-            usageCount: '$accesses.ops',
-            usageSince: '$accesses.since',
-          },
+    const stats = await this.aggregate<IndexStats>(ns, [
+      { $indexStats: {} },
+      {
+        $project: {
+          name: 1,
+          usageHost: '$host',
+          usageCount: '$accesses.ops',
+          usageSince: '$accesses.since',
+          building: 1,
         },
-      ]);
+      },
+    ]);
 
-      return Object.fromEntries(
-        stats.map((index) => {
-          return [index.name, index];
-        })
-      );
-    } catch (err) {
-      if (isNotAuthorized(err) || isNotSupportedPipelineStage(err)) {
-        return {};
-      }
-      throw err;
-    }
+    return Object.fromEntries(
+      stats.map((index) => {
+        return [index.name, index];
+      })
+    );
   }
 
   private async _indexSizes(ns: string): Promise<Record<string, number>> {
@@ -2222,10 +2221,15 @@ class DataServiceImpl extends WithLogContext implements DataService {
     }
   }
 
-  private async _indexProgress(ns: string): Promise<Record<string, number>> {
+  private async _indexProgress(
+    ns: string
+  ): Promise<Record<string, CurrentOpProgress>> {
     type IndexProgressResult = {
       _id: string;
-      progress: number;
+      active: boolean;
+      secsRunning?: number;
+      msg?: string;
+      progress?: number;
     };
 
     const currentOp = { $currentOp: { allUsers: true, localOps: false } };
@@ -2233,11 +2237,18 @@ class DataServiceImpl extends WithLogContext implements DataService {
       // get all ops
       currentOp,
       {
-        // filter for createIndexes commands
+        // filter for active createIndexes commands
         $match: {
           ns,
-          progress: { $type: 'object' },
+          active: true,
           'command.createIndexes': { $exists: true },
+        },
+      },
+      {
+        // ensure deterministic ordering so grouping chooses latest message
+        $sort: {
+          'command.indexes.name': 1,
+          secs_running: -1,
         },
       },
       {
@@ -2248,12 +2259,20 @@ class DataServiceImpl extends WithLogContext implements DataService {
         // group on index name
         $group: {
           _id: '$command.indexes.name',
+          active: { $max: '$active' },
+          secsRunning: { $max: '$secs_running' },
+          msg: { $first: '$msg' },
           progress: {
             $first: {
               $cond: {
-                if: { $gt: ['$progress.total', 0] },
+                if: {
+                  $and: [
+                    { $eq: [{ $type: '$progress' }, 'object'] },
+                    { $gt: ['$progress.total', 0] },
+                  ],
+                },
                 then: { $divide: ['$progress.done', '$progress.total'] },
-                else: 0,
+                else: '$$REMOVE',
               },
             },
           },
@@ -2261,31 +2280,35 @@ class DataServiceImpl extends WithLogContext implements DataService {
       },
     ];
 
-    let currentOps: IndexProgressResult[] = [];
     const db = this._database('admin', 'META');
 
     try {
-      currentOps = (await db
+      const currentOps = (await db
         .aggregate(pipeline)
         .toArray()) as IndexProgressResult[];
+
+      const indexToProgress: Record<string, CurrentOpProgress> =
+        Object.create(null);
+
+      for (const { _id, active, secsRunning, msg, progress } of currentOps) {
+        indexToProgress[_id] = { active, progress, secsRunning, msg };
+      }
+
+      return indexToProgress;
     } catch {
       // Try limiting the permissions needed:
       currentOp.$currentOp.allUsers = false;
-      try {
-        currentOps = (await db
-          .aggregate(pipeline)
-          .toArray()) as IndexProgressResult[];
-      } catch {
-        // ignore errors
+      const currentOps = (await db
+        .aggregate(pipeline)
+        .toArray()) as IndexProgressResult[];
+
+      const indexToProgress: Record<string, CurrentOpProgress> =
+        Object.create(null);
+      for (const { _id, active, secsRunning, msg, progress } of currentOps) {
+        indexToProgress[_id] = { active, progress, secsRunning, msg };
       }
+      return indexToProgress;
     }
-
-    const indexToProgress = Object.create(null);
-    for (const { _id, progress } of currentOps) {
-      indexToProgress[_id] = progress;
-    }
-
-    return indexToProgress;
   }
 
   @op(mongoLogId(1_001_000_381))
@@ -2344,16 +2367,35 @@ class DataServiceImpl extends WithLogContext implements DataService {
       });
     }
 
-    const [indexes, indexStats, indexSizes, indexProgress, shardKey] =
-      await Promise.all([
-        this._collection(ns, 'CRUD').indexes({ ...options, full: true }),
-        this._indexStats(ns),
-        this._indexSizes(ns),
-        this._indexProgress(ns),
-        this._fetchShardKeyWithSilentFail(ns),
-      ]);
+    const [
+      indexes,
+      indexSizes,
+      [indexStatsResult, indexProgressResult],
+      shardKey,
+    ] = await Promise.all([
+      this._collection(ns, 'CRUD').indexes({ ...options, full: true }),
+      this._indexSizes(ns),
+      Promise.allSettled([this._indexStats(ns), this._indexProgress(ns)]),
+      this._fetchShardKeyWithSilentFail(ns),
+    ]);
 
     const maxSize = Math.max(...Object.values(indexSizes));
+
+    const statsError =
+      indexStatsResult.status === 'rejected'
+        ? indexStatsResult.reason.message
+        : undefined;
+    const indexStats =
+      indexStatsResult.status === 'fulfilled' ? indexStatsResult.value : {};
+
+    const progressError =
+      indexProgressResult.status === 'rejected'
+        ? indexProgressResult.reason?.message
+        : undefined;
+    const indexProgress =
+      indexProgressResult.status === 'fulfilled'
+        ? indexProgressResult.value
+        : {};
 
     return indexes
       .filter((index): index is IndexDescriptionInfo & { name: string } => {
@@ -2361,6 +2403,13 @@ class DataServiceImpl extends WithLogContext implements DataService {
       })
       .map((index) => {
         const name = index.name;
+
+        const buildProgress: IndexBuildProgress = {
+          currentOp: indexProgress[name],
+          ...(statsError && { statsError }),
+          ...(progressError && { progressError }),
+        };
+
         return createIndexDefinition(
           ns,
           shardKey ?? null,
@@ -2368,7 +2417,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
           indexStats[name],
           indexSizes[name],
           maxSize,
-          indexProgress[name]
+          buildProgress
         );
       });
   }

@@ -12,7 +12,7 @@ export function mockRegularIndex(info: Partial<RegularIndex>): RegularIndex {
     relativeSize: 0,
     cardinality: 'single',
     properties: [],
-    buildProgress: 0,
+    buildProgress: {},
     usageCount: 0,
     ...info,
     extra: {

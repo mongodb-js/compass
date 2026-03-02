@@ -53,13 +53,21 @@ const BadgeWithTooltip: React.FunctionComponent<{
 };
 
 type StatusFieldProps = {
-  status: InProgressIndex['status'] | 'ready' | 'building' | 'inprogress';
+  status:
+    | InProgressIndex['status']
+    | 'ready'
+    | 'building'
+    | 'inprogress'
+    | 'unknown';
   error?: InProgressIndex['error'];
+  /** Optional tooltip to show on the status badge (used when detailed progress unavailable) */
+  tooltip?: string;
 };
 
 const StatusField: React.FunctionComponent<StatusFieldProps> = ({
   status,
   error,
+  tooltip,
 }) => {
   const darkMode = useDarkMode();
 
@@ -82,9 +90,14 @@ const StatusField: React.FunctionComponent<StatusFieldProps> = ({
       )}
 
       {status === 'inprogress' && (
-        <Badge data-testid="index-in-progress" variant={BadgeVariant.Blue}>
+        <BadgeWithTooltip
+          data-testid="index-in-progress"
+          variant={BadgeVariant.Blue}
+          tooltip={tooltip}
+          darkMode={darkMode}
+        >
           In Progress
-        </Badge>
+        </BadgeWithTooltip>
       )}
 
       {status === 'creating' && (
@@ -101,6 +114,19 @@ const StatusField: React.FunctionComponent<StatusFieldProps> = ({
           variant={BadgeVariant.Red}
         >
           Failed
+        </BadgeWithTooltip>
+      )}
+
+      {status === 'unknown' && (
+        <BadgeWithTooltip
+          data-testid="index-unknown"
+          tooltip={
+            tooltip || 'Build status unavailable (insufficient permissions)'
+          }
+          darkMode={darkMode}
+          variant={BadgeVariant.Yellow}
+        >
+          Unknown
         </BadgeWithTooltip>
       )}
     </div>

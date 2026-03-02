@@ -16,9 +16,50 @@ export type IndexStats = {
   usageCount?: number;
   usageHost?: string;
   usageSince?: Date;
+  /**
+   * Whether the index is currently being built.
+   * This comes from $indexStats and is present (true) when the index is building,
+   * or absent/undefined when the index is ready.
+   */
+  building?: boolean;
 };
 
 type IndexSize = number;
+
+/**
+ * Raw per-index data from $currentOp about an in-progress index build.
+ */
+export type CurrentOpProgress = {
+  active: boolean;
+  progress?: number | null;
+  secsRunning?: number;
+  msg?: string;
+};
+
+/**
+ * Build progress information for an index, containing raw data from
+ * the $currentOp and $indexStats pipelines plus their error states.
+ * The data service returns this as-is; consumers decide how to interpret it.
+ */
+export type IndexBuildProgress = {
+  /**
+   * Raw per-index data from $currentOp.
+   * Undefined when $currentOp failed or had no entry for this index.
+   */
+  currentOp?: CurrentOpProgress;
+  /**
+   * Error message if $indexStats failed (e.g. insufficient permissions).
+   * When set, index usage stats and the `building` flag from $indexStats
+   * are unavailable.
+   */
+  statsError?: string;
+  /**
+   * Error message if $currentOp failed (e.g. insufficient permissions).
+   * When set, detailed progress info (percentage, seconds running, msg)
+   * is unavailable.
+   */
+  progressError?: string;
+};
 
 export type IndexDefinition = {
   ns: string;
@@ -46,7 +87,7 @@ export type IndexDefinition = {
   extra: Record<string, string | number | boolean | Record<string, any>>;
   size: IndexSize;
   relativeSize: number;
-  buildProgress: number;
+  buildProgress: IndexBuildProgress;
 } & IndexStats;
 
 export function getIndexCardinality(
@@ -138,6 +179,11 @@ export function getIndexType(
   return 'regular';
 }
 
+/**
+ * Default build progress indicating no errors and no currentOp data.
+ */
+const DEFAULT_BUILD_PROGRESS: IndexBuildProgress = {};
+
 export function createIndexDefinition(
   ns: string,
   collectionShardKey: unknown,
@@ -152,7 +198,7 @@ export function createIndexDefinition(
   indexStats?: IndexStats,
   indexSize?: number,
   maxSize?: number,
-  buildProgress?: number
+  buildProgress?: IndexBuildProgress
 ): IndexDefinition {
   indexStats ??= {
     name,
@@ -181,6 +227,6 @@ export function createIndexDefinition(
     properties: getIndexProperties(index, collectionShardKey),
     size: indexSize,
     relativeSize: (indexSize / maxSize) * 100,
-    buildProgress: buildProgress ?? 0,
+    buildProgress: buildProgress ?? { ...DEFAULT_BUILD_PROGRESS },
   };
 }
