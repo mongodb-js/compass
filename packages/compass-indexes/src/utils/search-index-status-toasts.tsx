@@ -7,7 +7,7 @@ import { getAtlasSearchIndexesLink } from './atlas-search-indexes-link';
 /**
  * Detects search indexes that transitioned statuses and shows appropriate toast notifications.
  */
-export function showIndexStatusChangeToasts(
+export function showSearchIndexStatusChangeToasts(
   previousIndexes: SearchIndex[],
   newIndexes: SearchIndex[],
   atlasMetadata: AtlasClusterMetadata | undefined,
