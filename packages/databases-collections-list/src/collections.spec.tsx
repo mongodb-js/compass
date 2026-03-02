@@ -218,6 +218,7 @@ describe('Collections', () => {
       'Collection name',
       'Properties',
       'Storage size',
+      'Data size',
       'Documents',
       'Avg. document size',
       'Indexes',
@@ -469,16 +470,16 @@ describe('Collections', () => {
 
     const result = inspectTable(screen, 'collections-list');
     expect(result.table).to.deep.equal([
-      ['foo', '-', '-', '-', '-', '-', '-', ''],
-      ['garply', '-', '-', '-', '-', '-', '-', ''],
-      ['bar', 'view', '-', '-', '-', '-', '-', ''],
-      ['baz', 'timeseries', '-', '-', '-', '-', '-', ''],
-      ['qux', 'capped', '-', '-', '-', '-', '-', ''],
-      ['quux', 'collation', '-', '-', '-', '-', '-', ''],
-      ['corge', 'clustered', '-', '-', '-', '-', '-', ''],
-      ['grault', 'Queryable Encryption', '-', '-', '-', '-', '-', ''],
-      ['waldo', '-', '-', '-', '-', '-', '-', ''],
-      ['fred', '-', '-', '-', '-', '-', '-', ''],
+      ['foo', '-', '-', '-', '-', '-', '-', '-', ''],
+      ['garply', '-', '-', '-', '-', '-', '-', '-', ''],
+      ['bar', 'view', '-', '-', '-', '-', '-', '-', ''],
+      ['baz', 'timeseries', '-', '-', '-', '-', '-', '-', ''],
+      ['qux', 'capped', '-', '-', '-', '-', '-', '-', ''],
+      ['quux', 'collation', '-', '-', '-', '-', '-', '-', ''],
+      ['corge', 'clustered', '-', '-', '-', '-', '-', '-', ''],
+      ['grault', 'Queryable Encryption', '-', '-', '-', '-', '-', '-', ''],
+      ['waldo', '-', '-', '-', '-', '-', '-', '-', ''],
+      ['fred', '-', '-', '-', '-', '-', '-', '-', ''],
     ]);
   });
 
@@ -491,20 +492,20 @@ describe('Collections', () => {
 
     const result = inspectTable(screen, 'collections-list');
     expect(result.table).to.deep.equal([
-      ['foo', '', '', '', '', '', '', ''],
-      ['garply', '', '', '', '', '', '', ''],
-      ['bar', '', '', '', '', '', '', ''],
-      ['baz', '', '', '', '', '', '', ''],
-      ['qux', '', '', '', '', '', '', ''],
-      ['quux', '', '', '', '', '', '', ''],
-      ['corge', '', '', '', '', '', '', ''],
-      ['grault', '', '', '', '', '', '', ''],
-      ['waldo', '', '', '', '', '', '', ''],
-      ['fred', '', '', '', '', '', '', ''],
+      ['foo', '', '', '', '', '', '', '', ''],
+      ['garply', '', '', '', '', '', '', '', ''],
+      ['bar', '', '', '', '', '', '', '', ''],
+      ['baz', '', '', '', '', '', '', '', ''],
+      ['qux', '', '', '', '', '', '', '', ''],
+      ['quux', '', '', '', '', '', '', '', ''],
+      ['corge', '', '', '', '', '', '', '', ''],
+      ['grault', '', '', '', '', '', '', '', ''],
+      ['waldo', '', '', '', '', '', '', '', ''],
+      ['fred', '', '', '', '', '', '', '', ''],
     ]);
     expect(
       result.list.querySelectorAll('[data-testid="placeholder"]')
-    ).to.have.lengthOf(60);
+    ).to.have.lengthOf(70);
   });
 
   it('renders a tooltip when inferred_from_privileges is true', async function () {
@@ -617,6 +618,6 @@ describe('Collections', () => {
     expect(tooltipText).to.include('1.00 kB');
     expect(tooltipText).to.include('Used:');
     expect(tooltipText).to.include('Free:');
-    expect(tooltipText).to.include('Data Size:');
+    expect(tooltipText).to.not.include('Data Size:');
   });
 });
