@@ -397,7 +397,7 @@ describe('Data Modeling tab', function () {
     // Change to a all documents
     const allDocumentsOption = browser.$(Selectors.DataModelAllDocumentsOption);
     await allDocumentsOption.scrollIntoView();
-    await browser.clickVisible(allDocumentsOption);
+    await browser.clickParent(allDocumentsOption);
     const warning = browser.$(Selectors.DataModelSampleSizeWarning);
     await warning.waitForDisplayed();
     expect(await warning.getText()).to.include('Consider your dataset size');
