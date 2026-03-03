@@ -39,13 +39,12 @@ export const ReselectCollectionsWizardActionTypes = {
     'data-modeling/reselect-collections-wizard/CONNECT_TO_CONNECTION_FAILED',
   TOGGLE_INFER_RELATION_CLICKED:
     'data-modeling/reselect-collections-wizard/TOGGLE_INFER_RELATION_CLICKED',
-  CHANGE_SAMPLING_OPTIONS:
+  RESELECT_CHANGE_SAMPLING_OPTIONS:
     'data-modeling/reselect-collections-wizard/CHANGE_SAMPLING_OPTIONS',
   SELECT_COLLECTIONS_CLICKED:
     'data-modeling/reselect-collections-wizard/SELECT_COLLECTIONS_CLICKED',
   START_ANALYSIS: 'data-modeling/reselect-collections-wizard/START_ANALYSIS',
-  RESELECT_GOTO_STEP:
-    'data-modeling/reselect-collections-wizard/RESELECT_GOTO_STEP',
+  RESELECT_GOTO_STEP: 'data-modeling/reselect-collections-wizard/GOTO_STEP',
 } as const;
 
 export type ShowReselectCollectionWizardAction = {
@@ -86,7 +85,7 @@ export type ToggleInferRelationsAction = {
 };
 
 export type ReselectCollectionsChangeSamplingOptionsAction = {
-  type: typeof ReselectCollectionsWizardActionTypes.CHANGE_SAMPLING_OPTIONS;
+  type: typeof ReselectCollectionsWizardActionTypes.RESELECT_CHANGE_SAMPLING_OPTIONS;
   samplingOptions: ReselectCollectionsWizardState['samplingOptions'];
 };
 
@@ -214,7 +213,7 @@ export const reselectCollectionsWizardReducer: Reducer<
   if (
     isAction(
       action,
-      ReselectCollectionsWizardActionTypes.CHANGE_SAMPLING_OPTIONS
+      ReselectCollectionsWizardActionTypes.RESELECT_CHANGE_SAMPLING_OPTIONS
     )
   ) {
     return { ...state, samplingOptions: action.samplingOptions };
@@ -504,7 +503,7 @@ export function changeSamplingOptions(
   samplingOptions: ReselectCollectionsWizardState['samplingOptions']
 ): ReselectCollectionsChangeSamplingOptionsAction {
   return {
-    type: ReselectCollectionsWizardActionTypes.CHANGE_SAMPLING_OPTIONS,
+    type: ReselectCollectionsWizardActionTypes.RESELECT_CHANGE_SAMPLING_OPTIONS,
     samplingOptions,
   };
 }

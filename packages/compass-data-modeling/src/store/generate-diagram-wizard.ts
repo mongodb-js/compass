@@ -26,11 +26,11 @@ export type GenerateDiagramWizardState = {
     selectedCollections: FormField<string[]> & {
       isFetchingCollections?: boolean;
     };
+    samplingOptions: FormField<SamplingOptions> & { value: SamplingOptions };
   };
   connectionDatabases: string[] | null;
   databaseCollections: string[] | null;
   automaticallyInferRelations: boolean;
-  samplingOptions: SamplingOptions;
 };
 
 export const GenerateDiagramWizardActionTypes = {
@@ -61,8 +61,8 @@ export const GenerateDiagramWizardActionTypes = {
     'data-modeling/generate-diagram-wizard/SELECT_COLLECTIONS',
   TOGGLE_INFER_RELATIONS:
     'data-modeling/generate-diagram-wizard/TOGGLE_INFER_RELATIONS',
-  CHANGE_SAMPLE_SIZE:
-    'data-modeling/generate-diagram-wizard/CHANGE_SAMPLE_SIZE',
+  CHANGE_SAMPLING_OPTIONS:
+    'data-modeling/generate-diagram-wizard/CHANGE_SAMPLING_OPTIONS',
   CONFIRM_SELECTED_COLLECTIONS:
     'data-modeling/generate-diagram-wizard/CONFIRM_SELECTED_COLLECTIONS',
 } as const;
@@ -141,8 +141,8 @@ export type ToggleInferRelationsAction = {
 };
 
 export type GenerateDiagramChangeSamplingOptionsAction = {
-  type: typeof GenerateDiagramWizardActionTypes.CHANGE_SAMPLE_SIZE;
-  samplingOptions: GenerateDiagramWizardState['samplingOptions'];
+  type: typeof GenerateDiagramWizardActionTypes.CHANGE_SAMPLING_OPTIONS;
+  samplingOptions: SamplingOptions;
 };
 
 export type ConfirmSelectedCollectionsAction = {
@@ -176,11 +176,13 @@ const INITIAL_STATE: GenerateDiagramWizardState = {
     selectedConnection: {},
     selectedDatabase: {},
     selectedCollections: {},
+    samplingOptions: {
+      value: DEFAULT_SAMPLING_OPTIONS,
+    },
   },
   connectionDatabases: null,
   databaseCollections: null,
   automaticallyInferRelations: true,
-  samplingOptions: DEFAULT_SAMPLING_OPTIONS,
 };
 
 export const generateDiagramWizardReducer: Reducer<
@@ -374,10 +376,18 @@ export const generateDiagramWizardReducer: Reducer<
       automaticallyInferRelations: action.newVal,
     };
   }
-  if (isAction(action, GenerateDiagramWizardActionTypes.CHANGE_SAMPLE_SIZE)) {
+  if (
+    isAction(action, GenerateDiagramWizardActionTypes.CHANGE_SAMPLING_OPTIONS)
+  ) {
     return {
       ...state,
-      samplingOptions: action.samplingOptions,
+      formFields: {
+        ...state.formFields,
+        samplingOptions: {
+          ...state.formFields.samplingOptions,
+          value: action.samplingOptions,
+        },
+      },
     };
   }
   if (isAction(action, GenerateDiagramWizardActionTypes.GOTO_STEP)) {
@@ -616,9 +626,9 @@ export function confirmSelectedCollections(): DataModelingThunkAction<
         selectedConnection,
         selectedDatabase,
         selectedCollections,
+        samplingOptions,
       },
       automaticallyInferRelations,
-      samplingOptions,
     } = getState().generateDiagramWizard;
     if (
       !diagramName.value ||
@@ -639,7 +649,7 @@ export function confirmSelectedCollections(): DataModelingThunkAction<
         selectedCollections.value,
         {
           automaticallyInferRelations,
-          samplingOptions: samplingOptions ?? DEFAULT_SAMPLING_OPTIONS,
+          samplingOptions: samplingOptions.value ?? DEFAULT_SAMPLING_OPTIONS,
         }
       )
     );
@@ -660,10 +670,10 @@ export function toggleInferRelationships(
 }
 
 export function changeSamplingOptions(
-  samplingOptions: GenerateDiagramWizardState['samplingOptions']
+  samplingOptions: SamplingOptions
 ): GenerateDiagramChangeSamplingOptionsAction {
   return {
-    type: GenerateDiagramWizardActionTypes.CHANGE_SAMPLE_SIZE,
+    type: GenerateDiagramWizardActionTypes.CHANGE_SAMPLING_OPTIONS,
     samplingOptions,
   };
 }

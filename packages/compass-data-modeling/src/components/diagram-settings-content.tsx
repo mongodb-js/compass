@@ -98,6 +98,7 @@ const InferRelationshipsHeaderStyles = css({
   alignItems: 'center',
   justifyContent: 'space-between',
   marginBottom: spacing[200],
+  marginTop: spacing[600],
 });
 
 const inferRelationshipLabelId = 'infer-relationships-label';
@@ -212,6 +213,7 @@ export const DiagramSettingsContent: React.FunctionComponent<
         <RadioGroup
           className={radioGroupStyles}
           onChange={handleRadioGroupChange}
+          value={samplingOptions.allDocuments ? 'allDocuments' : 'sampleSize'}
         >
           <Radio value="sampleSize" className={sampleSizeRadioStyles} default>
             <div className={sampleSizeLabelStyles}>

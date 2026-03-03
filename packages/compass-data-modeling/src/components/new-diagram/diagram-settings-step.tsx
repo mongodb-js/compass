@@ -9,14 +9,13 @@ import { DiagramSettingsContent } from '../diagram-settings-content';
 export default connect(
   (state: DataModelingState) => {
     const {
-      formFields: { selectedCollections },
+      formFields: { selectedCollections, samplingOptions },
       automaticallyInferRelations,
-      samplingOptions,
     } = state.generateDiagramWizard;
 
     return {
       automaticallyInferRelationships: automaticallyInferRelations,
-      samplingOptions,
+      samplingOptions: samplingOptions.value,
       isFetchingCollections: Boolean(selectedCollections.isFetchingCollections),
       error: selectedCollections.error,
     };
