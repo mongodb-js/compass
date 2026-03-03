@@ -1022,7 +1022,7 @@ describe('Data Modeling tab', function () {
 
       // Confirm the settings
       expect(
-        await browser.$(Selectors.CreateDataModelModal).getText()
+        await browser.$(Selectors.DataModelReselectCollectionsModal).getText()
       ).to.contain('Diagram settings');
 
       await browser.clickVisible(
