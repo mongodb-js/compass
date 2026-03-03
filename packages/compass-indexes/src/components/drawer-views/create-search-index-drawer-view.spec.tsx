@@ -138,7 +138,7 @@ describe('CreateSearchIndexDrawerView', function () {
       const nameInput = screen.getByTestId(
         'create-search-index-drawer-view-name-input'
       );
-      await userEvent.clear(nameInput);
+      userEvent.clear(nameInput);
 
       expect(screen.getByText('Please enter the name of the index.')).to.exist;
     });
