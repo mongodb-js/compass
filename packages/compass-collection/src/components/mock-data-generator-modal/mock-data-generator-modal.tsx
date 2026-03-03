@@ -27,6 +27,7 @@ import {
 } from '../../modules/collection-tab';
 
 import RawSchemaConfirmationScreen from './raw-schema-confirmation-screen';
+import PreviewAndDocCountScreen from './preview-and-doc-count-screen';
 import ScriptScreen from './script-screen';
 import {
   useTelemetry,
@@ -85,10 +86,7 @@ const MockDataGeneratorModal = ({
       case MockDataGeneratorSteps.SCHEMA_CONFIRMATION:
         return <RawSchemaConfirmationScreen />;
       case MockDataGeneratorSteps.PREVIEW_AND_DOC_COUNT:
-        // TODO: CLOUDP-381907 - Create Preview and Doc Count Screen
-        return (
-          <div data-testid="preview-and-doc-count">Preview and Doc Count</div>
-        );
+        return <PreviewAndDocCountScreen />;
       case MockDataGeneratorSteps.SCRIPT_RESULT:
         return <ScriptScreen />;
     }
