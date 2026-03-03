@@ -16,6 +16,7 @@ import {
   selectConnection,
   startRedoAnalysis,
   changeSamplingOptions,
+  gotoStep,
 } from '../store/reselect-collections-wizard';
 import { SelectCollectionsList } from './select-collections-list';
 import { useSavedConnections } from '../utils/use-saved-connections';
@@ -121,6 +122,7 @@ type ReselectCollectionsModalProps = {
   selectedDatabaseName: string;
   onCancel: () => void;
   onConnect: () => void;
+  onStep: (step: ReselectCollectionsWizardState['step']) => void;
   onGenerate: () => void;
 };
 
@@ -137,6 +139,7 @@ const ReselectCollectionsModal: React.FunctionComponent<
   selectedDatabaseName,
   onCancel,
   onConnect,
+  onStep,
   onGenerate,
 }) => {
   const formStepProps = useMemo(() => {
@@ -159,9 +162,9 @@ const ReselectCollectionsModal: React.FunctionComponent<
           title: `Select collections for ${selectedDatabaseName}`,
           description:
             'These collections will be included in your generated diagram.',
-          onNextClick: onGenerate,
+          onNextClick: () => onStep('DIAGRAM_SETTINGS'),
           onPreviousClick: onCancel,
-          nextLabel: 'Generate',
+          nextLabel: 'Next',
           previousLabel: 'Cancel',
           isNextDisabled: isGenerateDiagramDisabled,
           step: currentStep,
@@ -204,6 +207,7 @@ const ReselectCollectionsModal: React.FunctionComponent<
     selectedDatabaseName,
     onCancel,
     onConnect,
+    onStep,
     onGenerate,
     isConnecting,
   ]);
@@ -274,6 +278,7 @@ export default connect(
   {
     onCancel: hideReselectCollections,
     onConnect: establishConnection,
+    onStep: gotoStep,
     onGenerate: startRedoAnalysis,
   }
 )(ReselectCollectionsModal);

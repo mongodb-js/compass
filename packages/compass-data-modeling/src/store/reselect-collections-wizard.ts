@@ -44,6 +44,8 @@ export const ReselectCollectionsWizardActionTypes = {
   SELECT_COLLECTIONS_CLICKED:
     'data-modeling/reselect-collections-wizard/SELECT_COLLECTIONS_CLICKED',
   START_ANALYSIS: 'data-modeling/reselect-collections-wizard/START_ANALYSIS',
+  RESELECT_GOTO_STEP:
+    'data-modeling/reselect-collections-wizard/RESELECT_GOTO_STEP',
 } as const;
 
 export type ShowReselectCollectionWizardAction = {
@@ -97,6 +99,11 @@ export type StartAnalysisAction = {
   type: typeof ReselectCollectionsWizardActionTypes.START_ANALYSIS;
 };
 
+export type GotoStepAction = {
+  type: typeof ReselectCollectionsWizardActionTypes.RESELECT_GOTO_STEP;
+  step: ReselectCollectionsWizardState['step'];
+};
+
 export type ReselectCollectionsWizardActions =
   | ShowReselectCollectionWizardAction
   | HideReselectCollectionWizardAction
@@ -107,7 +114,8 @@ export type ReselectCollectionsWizardActions =
   | ToggleInferRelationsAction
   | ReselectCollectionsChangeSamplingOptionsAction
   | SelectCollectionsAction
-  | StartAnalysisAction;
+  | StartAnalysisAction
+  | GotoStepAction;
 
 const INITIAL_STATE: ReselectCollectionsWizardState = {
   isOpen: false,
@@ -210,6 +218,12 @@ export const reselectCollectionsWizardReducer: Reducer<
     )
   ) {
     return { ...state, samplingOptions: action.samplingOptions };
+  }
+
+  if (
+    isAction(action, ReselectCollectionsWizardActionTypes.RESELECT_GOTO_STEP)
+  ) {
+    return { ...state, step: action.step };
   }
 
   return state;
@@ -492,5 +506,20 @@ export function changeSamplingOptions(
   return {
     type: ReselectCollectionsWizardActionTypes.CHANGE_SAMPLING_OPTIONS,
     samplingOptions,
+  };
+}
+
+export function gotoStep(
+  step: ReselectCollectionsWizardState['step']
+): DataModelingThunkAction<void, GotoStepAction> {
+  return (dispatch, getState) => {
+    const currentStep = getState().reselectCollections.step;
+    if (currentStep === step) {
+      return;
+    }
+    dispatch({
+      type: ReselectCollectionsWizardActionTypes.RESELECT_GOTO_STEP,
+      step,
+    });
   };
 }
