@@ -50,7 +50,8 @@
     "test-ci-electron": "npm run test-electron",
     "reformat": "npm run eslint . -- --fix && npm run prettier -- --write .",
     "convert-eval-cases": "ts-node scripts/convert-csv-to-eval-cases.ts && npm run reformat",
-    "eval": "braintrust eval test/assistant.eval.ts --verbose"
+    "eval": "braintrust eval test/assistant.eval.ts --verbose",
+    "eval:tool-calls": "braintrust eval test/tool-calls.eval.ts --verbose --external-packages @mongodb-js/atlas-local pac-proxy-agent electron hadron-ipc"
   },
   "dependencies": {
     "@ai-sdk/openai": "^3.0.1",
