@@ -23,16 +23,18 @@ import {
 } from './drawer-view-hooks';
 import type { SearchIndexType } from '../../modules/indexes-drawer';
 import {
+  Body,
   Button,
   ErrorSummary,
+  SpinLoader,
+  Subtitle,
   TextInput,
+  useDarkMode,
 } from '@mongodb-js/compass-components';
 import {
   containerStyles,
   contentStyles,
   buttonContainerStyles,
-  titleStyles,
-  descriptionStyles,
   editorContainerStyles,
 } from './drawer-view-styles';
 import type { Document } from 'mongodb';
@@ -100,10 +102,12 @@ const CreateSearchIndexDrawerView: React.FunctionComponent<
       onResetCreateState();
       onIndexDefinitionEdit(false);
     };
-  }, []);
+  }, [onResetCreateState, onIndexDefinitionEdit]);
 
   // Navigate back to list when create succeeds
   useOnAsyncSuccess(isBusy, error, onClose);
+
+  const darkMode = useDarkMode();
 
   const onChangeText = useIndexDefinitionChange(
     setIndexDefinition,
@@ -127,12 +131,10 @@ const CreateSearchIndexDrawerView: React.FunctionComponent<
   return (
     <div className={containerStyles}>
       <div className={contentStyles}>
-        <div className={titleStyles}>
+        <Subtitle>
           Create {indexLabel} for {namespace}
-        </div>
-        <div className={descriptionStyles}>
-          For semantic search and AI applications.
-        </div>
+        </Subtitle>
+        <Body>For semantic search and AI applications.</Body>
         <TextInput
           value={name}
           onChange={(e) => setName(e.target.value)}
@@ -143,12 +145,12 @@ const CreateSearchIndexDrawerView: React.FunctionComponent<
             name === '' ? 'Please enter the name of the index.' : ''
           }
         />
-        <div className={descriptionStyles}>
+        <Body>
           By default, your {indexLabel.toLowerCase()} will have the following
           configurations. We recommend starting with this and refining it later
           if you need to.
-        </div>
-        <div className={editorContainerStyles}>
+        </Body>
+        <div className={editorContainerStyles(darkMode)}>
           <CodemirrorMultilineEditor
             ref={editorRef}
             id="definition-of-search-index"
@@ -167,6 +169,8 @@ const CreateSearchIndexDrawerView: React.FunctionComponent<
         </Button>
         <Button
           variant="primary"
+          isLoading={isBusy}
+          loadingIndicator={<SpinLoader />}
           disabled={!isCreateEnabled}
           onClick={onCreateClick}
         >

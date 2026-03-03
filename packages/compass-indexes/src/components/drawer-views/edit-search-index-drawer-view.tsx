@@ -28,13 +28,15 @@ import {
   css,
   spacing,
   ErrorSummary,
+  SpinLoader,
+  Subtitle,
+  Body,
+  useDarkMode,
 } from '@mongodb-js/compass-components';
 import {
   containerStyles,
   contentStyles,
   buttonContainerStyles,
-  titleStyles,
-  descriptionStyles,
   editorContainerStyles,
 } from './drawer-view-styles';
 import { IndexStatus } from '../search-indexes-table/use-search-indexes-table';
@@ -113,10 +115,12 @@ const EditSearchIndexDrawerView: React.FunctionComponent<
       onResetUpdateState();
       onIndexDefinitionEdit(false);
     };
-  }, []);
+  }, [onResetUpdateState, onIndexDefinitionEdit]);
 
   // Navigate back to list when update succeeds
   useOnAsyncSuccess(isBusy, error, onClose);
+
+  const darkMode = useDarkMode();
 
   const onChangeText = useIndexDefinitionChange(
     setIndexDefinition,
@@ -143,7 +147,7 @@ const EditSearchIndexDrawerView: React.FunctionComponent<
   return (
     <div className={containerStyles}>
       <div className={contentStyles}>
-        <div className={titleStyles}>Edit {indexLabel}</div>
+        <Subtitle>Edit {indexLabel}</Subtitle>
         <div className={scrollContainerStyles}>
           <div className={headerContainerStyles}>
             {currentIndexName}
@@ -163,11 +167,11 @@ const EditSearchIndexDrawerView: React.FunctionComponent<
             </Badge>
           </div>
         </div>
-        <div className={descriptionStyles}>
+        <Body>
           This {indexLabel.toLowerCase()} parses the data in <b>{namespace}</b>{' '}
           and has the following configurations.
-        </div>
-        <div className={editorContainerStyles}>
+        </Body>
+        <div className={editorContainerStyles(darkMode)}>
           <CodemirrorMultilineEditor
             ref={editorRef}
             id="definition-of-search-index"
@@ -186,6 +190,8 @@ const EditSearchIndexDrawerView: React.FunctionComponent<
         </Button>
         <Button
           variant="primary"
+          isLoading={isBusy}
+          loadingIndicator={<SpinLoader />}
           disabled={!isSaveEnabled}
           onClick={onSaveClick}
         >

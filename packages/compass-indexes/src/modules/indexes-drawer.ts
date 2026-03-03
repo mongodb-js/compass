@@ -1,5 +1,6 @@
 import type { AnyAction } from 'redux';
 import type { IndexesThunkAction } from './index';
+import { isAction } from '../utils/is-action';
 import {
   refreshRegularIndexes,
   startPollingRegularIndexes,
@@ -123,30 +124,50 @@ export default function reducer(
   state = INITIAL_STATE,
   action: AnyAction
 ): State {
-  switch (action.type) {
-    case OPEN_INDEXES_LIST_DRAWER_VIEW:
-      return {
-        ...state,
-        currentView: 'indexes-list',
-      };
-    case OPEN_CREATE_SEARCH_INDEX_DRAWER_VIEW:
-      return {
-        ...state,
-        currentView: 'create-search-index',
-        currentIndexType: action.currentIndexType,
-      };
-    case OPEN_EDIT_SEARCH_INDEX_DRAWER_VIEW:
-      return {
-        ...state,
-        currentView: 'edit-search-index',
-        currentIndexName: action.currentIndexName,
-      };
-    case SET_IS_EDITING:
-      return {
-        ...state,
-        isEditing: action.isEditing,
-      };
-    default:
-      return state;
+  if (
+    isAction<OpenIndexesListDrawerViewAction>(
+      action,
+      OPEN_INDEXES_LIST_DRAWER_VIEW
+    )
+  ) {
+    return {
+      ...state,
+      currentView: 'indexes-list',
+    };
   }
+
+  if (
+    isAction<OpenCreateSearchIndexDrawerViewAction>(
+      action,
+      OPEN_CREATE_SEARCH_INDEX_DRAWER_VIEW
+    )
+  ) {
+    return {
+      ...state,
+      currentView: 'create-search-index',
+      currentIndexType: action.currentIndexType,
+    };
+  }
+
+  if (
+    isAction<OpenEditSearchIndexDrawerViewAction>(
+      action,
+      OPEN_EDIT_SEARCH_INDEX_DRAWER_VIEW
+    )
+  ) {
+    return {
+      ...state,
+      currentView: 'edit-search-index',
+      currentIndexName: action.currentIndexName,
+    };
+  }
+
+  if (isAction<SetIsEditingIndexDrawerAction>(action, SET_IS_EDITING)) {
+    return {
+      ...state,
+      isEditing: action.isEditing,
+    };
+  }
+
+  return state;
 }
