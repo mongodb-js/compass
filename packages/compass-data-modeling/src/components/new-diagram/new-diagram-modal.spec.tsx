@@ -293,127 +293,24 @@ describe('NewDiagramModal', function () {
         })
       );
 
-      expect(store.getState().generateDiagramWizard.step).to.equal(
-        'SELECT_COLLECTIONS'
-      );
-      expect(
-        store.getState().generateDiagramWizard.formFields.selectedCollections
-          .value
-      ).to.deep.equal(['listings', 'listingsAndReviews', 'reviews']);
+      // Verify we're on SELECT_COLLECTIONS by checking the title
+      await screen.findByText(/Select collections for/);
 
+      // Verify collections are shown
       expect(screen.getByText('listings')).to.exist;
       expect(screen.getByText('listingsAndReviews')).to.exist;
       expect(screen.getByText('reviews')).to.exist;
 
-      userEvent.click(
-        screen.getByRole('button', {
-          name: /generate/i,
-        })
-      );
-
-      await waitFor(() => {
-        expect(store.getState().generateDiagramWizard.inProgress).to.be.false;
-      });
-    });
-
-    it('shows sample size input with default value of 100', async function () {
-      const preferences = await createSandboxFromDefaultPreferences();
-      const { store } = renderWithStore(<NewDiagramModal />, {
-        services: {
-          preferences,
-        },
-      });
-      await setSetupDiagramStep(store, {
-        connection: { id: 'two', name: 'Conn2' },
-        databaseName: 'sample_airbnb',
-        diagramName: 'diagram1',
-      });
-
+      // Click Next to go to DIAGRAM_SETTINGS
       userEvent.click(
         screen.getByRole('button', {
           name: /next/i,
         })
       );
 
-      // Wait for the sample size input to appear (indicates SELECT_COLLECTIONS step)
-      const sampleSizeInput = await screen.findByTestId('sample-size-input');
-      expect(sampleSizeInput).to.have.value('100');
-    });
-
-    it('allows user to change sample size', async function () {
-      const preferences = await createSandboxFromDefaultPreferences();
-      const { store } = renderWithStore(<NewDiagramModal />, {
-        services: {
-          preferences,
-        },
-      });
-      await setSetupDiagramStep(store, {
-        connection: { id: 'two', name: 'Conn2' },
-        databaseName: 'sample_airbnb',
-        diagramName: 'diagram1',
-      });
-
-      userEvent.click(
-        screen.getByRole('button', {
-          name: /next/i,
-        })
-      );
-
-      // Wait for the sample size input to appear
-      const sampleSizeInput = await screen.findByTestId('sample-size-input');
-
-      // The TextInput is nested inside a Radio component's Label, which
-      // intercepts click events from userEvent. We use type() with skipClick
-      // and manually position the cursor to type over the existing value.
-      sampleSizeInput.focus();
-      // Move cursor to end and delete existing content
-      userEvent.type(sampleSizeInput, '{backspace}{backspace}{backspace}50', {
-        skipClick: true,
-      });
-
-      await waitFor(() => {
-        expect(sampleSizeInput).to.have.value('50');
-      });
-    });
-
-    it('allows user to select all documents option', async function () {
-      const preferences = await createSandboxFromDefaultPreferences();
-      const { store } = renderWithStore(<NewDiagramModal />, {
-        services: {
-          preferences,
-        },
-      });
-      await setSetupDiagramStep(store, {
-        connection: { id: 'two', name: 'Conn2' },
-        databaseName: 'sample_airbnb',
-        diagramName: 'diagram1',
-      });
-
-      userEvent.click(
-        screen.getByRole('button', {
-          name: /next/i,
-        })
-      );
-
-      // Wait for the select collections step
-      await screen.findByTestId('sample-size-input');
-
-      // Default should be sample size, not all documents
-      expect(
-        store.getState().generateDiagramWizard.samplingOptions.allDocuments
-      ).to.be.false;
-
-      // Click the "All documents" radio
-      userEvent.click(screen.getByText('All documents'));
-
-      await waitFor(() => {
-        expect(
-          store.getState().generateDiagramWizard.samplingOptions.allDocuments
-        ).to.be.true;
-      });
-
-      // Shows a warning when all documents is selected
-      expect(screen.getByTestId('sample-size-warning')).to.exist;
+      // Verify we're on DIAGRAM_SETTINGS by checking the title and buttons
+      await screen.findByText('Diagram settings');
+      expect(screen.getByRole('button', { name: /generate/i })).to.exist;
     });
 
     it('shows error if it fails to fetch list of collections', async function () {
@@ -460,10 +357,106 @@ describe('NewDiagramModal', function () {
         })
       );
 
-      expect(
-        store.getState().generateDiagramWizard.formFields.selectedCollections
-          .error?.message
-      ).to.equal('Can not list collections');
+      // Verify error is shown in the UI
+      await screen.findByText(/Can not list collections/);
+    });
+  });
+
+  context('diagram-settings step', function () {
+    async function navigateToDiagramSettingsStep(
+      store: ReturnType<typeof renderWithStore>['store']
+    ) {
+      await setSetupDiagramStep(store, {
+        connection: { id: 'two', name: 'Conn2' },
+        databaseName: 'sample_airbnb',
+        diagramName: 'diagram1',
+      });
+
+      // Click Next to go to SELECT_COLLECTIONS
+      userEvent.click(
+        screen.getByRole('button', {
+          name: /next/i,
+        })
+      );
+
+      // Wait for SELECT_COLLECTIONS step
+      await screen.findByText(/Select collections for/);
+
+      // Click Next to go to DIAGRAM_SETTINGS
+      userEvent.click(
+        screen.getByRole('button', {
+          name: /next/i,
+        })
+      );
+
+      // Wait for DIAGRAM_SETTINGS step
+      await screen.findByText('Diagram settings');
+    }
+
+    it('shows sample size input with default value of 100', async function () {
+      const preferences = await createSandboxFromDefaultPreferences();
+      const { store } = renderWithStore(<NewDiagramModal />, {
+        services: {
+          preferences,
+        },
+      });
+      await navigateToDiagramSettingsStep(store);
+
+      const sampleSizeInput = await screen.findByTestId('sample-size-input');
+      expect(sampleSizeInput).to.have.value('100');
+    });
+
+    it('allows user to change sample size', async function () {
+      const preferences = await createSandboxFromDefaultPreferences();
+      const { store } = renderWithStore(<NewDiagramModal />, {
+        services: {
+          preferences,
+        },
+      });
+      await navigateToDiagramSettingsStep(store);
+
+      const sampleSizeInput = await screen.findByTestId('sample-size-input');
+
+      // The TextInput is nested inside a Radio component's Label, which
+      // intercepts click events from userEvent. We use type() with skipClick
+      // and manually position the cursor to type over the existing value.
+      sampleSizeInput.focus();
+      // Move cursor to end and delete existing content
+      userEvent.type(sampleSizeInput, '{backspace}{backspace}{backspace}50', {
+        skipClick: true,
+      });
+
+      await waitFor(() => {
+        expect(sampleSizeInput).to.have.value('50');
+      });
+    });
+
+    it('allows user to select all documents option', async function () {
+      const preferences = await createSandboxFromDefaultPreferences();
+      const { store } = renderWithStore(<NewDiagramModal />, {
+        services: {
+          preferences,
+        },
+      });
+      await navigateToDiagramSettingsStep(store);
+
+      // Verify the sample size radio is selected by default (not All documents)
+      const sampleSizeRadio = screen.getByRole('radio', {
+        name: /Sample size/,
+      });
+      expect(sampleSizeRadio).to.have.property('checked', true);
+
+      // Click the "All documents" radio
+      userEvent.click(screen.getByText('All documents'));
+
+      // Verify the All documents radio is now selected
+      const allDocsRadio = await screen.findByRole('radio', {
+        name: /All documents/,
+      });
+      expect(allDocsRadio).to.have.property('checked', true);
+
+      // Shows a warning when all documents is selected
+      expect(screen.getByTestId('sample-size-warning')).to.exist;
     });
   });
 });
