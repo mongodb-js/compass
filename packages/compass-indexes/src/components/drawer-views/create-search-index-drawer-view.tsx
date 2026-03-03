@@ -92,7 +92,7 @@ const CreateSearchIndexDrawerView: React.FunctionComponent<
       // If current definition is invalid, don't enable create
       return false;
     }
-  }, [indexDefinition]);
+  }, [indexDefinition, isBusy]);
 
   // Reset states on unmount
   useEffect(() => {
