@@ -129,13 +129,17 @@ const CreateSearchIndexDrawerView: React.FunctionComponent<
       : 'Search Index';
 
   return (
-    <div className={containerStyles}>
+    <div
+      className={containerStyles}
+      data-testid="create-search-index-drawer-view"
+    >
       <div className={contentStyles}>
-        <Subtitle>
+        <Subtitle data-testid="create-search-index-drawer-view-title">
           Create {indexLabel} for {namespace}
         </Subtitle>
         <Body>For semantic search and AI applications.</Body>
         <TextInput
+          data-testid="create-search-index-drawer-view-name-input"
           value={name}
           onChange={(e) => setName(e.target.value)}
           label="Index Name"
@@ -153,8 +157,8 @@ const CreateSearchIndexDrawerView: React.FunctionComponent<
         <div className={editorContainerStyles(darkMode)}>
           <CodemirrorMultilineEditor
             ref={editorRef}
-            id="definition-of-search-index"
-            data-testid="definition-of-search-index"
+            id="create-search-index-drawer-view-editor"
+            data-testid="create-search-index-drawer-view-editor"
             text={indexDefinition}
             onChangeText={onChangeText}
             minLines={16}
@@ -164,10 +168,15 @@ const CreateSearchIndexDrawerView: React.FunctionComponent<
         {error && <ErrorSummary errors={error} />}
       </div>
       <div className={buttonContainerStyles}>
-        <Button variant="default" onClick={() => void onCancelClick()}>
+        <Button
+          data-testid="create-search-index-drawer-view-cancel-button"
+          variant="default"
+          onClick={() => void onCancelClick()}
+        >
           Cancel
         </Button>
         <Button
+          data-testid="create-search-index-drawer-view-submit-button"
           variant="primary"
           isLoading={isBusy}
           loadingIndicator={<SpinLoader />}
