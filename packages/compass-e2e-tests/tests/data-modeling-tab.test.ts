@@ -77,7 +77,8 @@ async function setupDiagram(
     diagramName: string;
     connectionName: string;
     databaseName: string;
-  }
+  },
+  stopAtStep?: 'newDiagramSetup' | 'collectionsSelection' | 'diagramSettings'
 ) {
   await browser.navigateToDataModeling();
 
@@ -101,13 +102,27 @@ async function setupDiagram(
     selectSelector: Selectors.CreateDataModelDatabaseSelector,
     optionText: options.databaseName,
   });
+  if (stopAtStep === 'newDiagramSetup') {
+    return;
+  }
   await browser.clickVisible(Selectors.CreateDataModelConfirmButton);
 
   // Ensure that all the collections are selected by default
   const text = await browser.$(Selectors.CreateDataModelModal).getText();
   // 2 is based on the collections we create in beforeEach hook
   expect(text).to.contain('2/2 total collections selected.');
+  if (stopAtStep === 'collectionsSelection') {
+    return;
+  }
+  await browser.clickVisible(Selectors.CreateDataModelConfirmButton);
 
+  // Pass the diagram settings step without changes
+  expect(await browser.$(Selectors.CreateDataModelModal).getText()).to.contain(
+    'Diagram settings'
+  );
+  if (stopAtStep === 'diagramSettings') {
+    return;
+  }
   await browser.clickVisible(Selectors.CreateDataModelConfirmButton);
 
   // Wait for the diagram editor to load
@@ -310,29 +325,15 @@ describe('Data Modeling tab', function () {
   it('allows configuring the sample size during diagram creation', async function () {
     const dataModelName = 'Test Data Model - Sample Size';
 
-    await browser.navigateToDataModeling();
-
-    // Click on create new data model button
-    await browser.clickVisible(Selectors.CreateNewDataModelButton);
-
-    // Fill in model details
-    await browser.setValueVisible(
-      Selectors.CreateDataModelNameInput,
-      dataModelName
+    await setupDiagram(
+      browser,
+      {
+        diagramName: dataModelName,
+        connectionName: getDefaultConnectionNames(0),
+        databaseName: 'test',
+      },
+      'diagramSettings'
     );
-
-    // Select existing connection
-    await browser.selectOption({
-      selectSelector: Selectors.CreateDataModelConnectionSelector,
-      optionText: getDefaultConnectionNames(0),
-    });
-
-    // Select a database
-    await browser.selectOption({
-      selectSelector: Selectors.CreateDataModelDatabaseSelector,
-      optionText: 'test',
-    });
-    await browser.clickVisible(Selectors.CreateDataModelConfirmButton);
 
     // We're now on the select collections step
     // Verify that sample size input is visible with default value of 100
@@ -366,57 +367,10 @@ describe('Data Modeling tab', function () {
     expect(nodes).to.have.lengthOf(2);
   });
 
-  it('allows getting all documents during diagram creation', async function () {
-    const dataModelName = 'Test Data Model - All Documents';
-
-    await browser.navigateToDataModeling();
-
-    // Click on create new data model button
-    await browser.clickVisible(Selectors.CreateNewDataModelButton);
-
-    // Fill in model details
-    await browser.setValueVisible(
-      Selectors.CreateDataModelNameInput,
-      dataModelName
-    );
-
-    // Select existing connection
-    await browser.selectOption({
-      selectSelector: Selectors.CreateDataModelConnectionSelector,
-      optionText: getDefaultConnectionNames(0),
-    });
-
-    // Select a database
-    await browser.selectOption({
-      selectSelector: Selectors.CreateDataModelDatabaseSelector,
-      optionText: 'test',
-    });
-    await browser.clickVisible(Selectors.CreateDataModelConfirmButton);
-
-    // We're now on the select collections step
-    // Change to a all documents
-    const allDocumentsOption = browser.$(Selectors.DataModelAllDocumentsOption);
-    await allDocumentsOption.scrollIntoView();
-    await browser.clickParent(allDocumentsOption);
-    const warning = browser.$(Selectors.DataModelSampleSizeWarning);
-    await warning.waitForDisplayed();
-    expect(await warning.getText()).to.include('Consider your dataset size');
-
-    // Proceed to create the diagram
-    await browser.clickVisible(Selectors.CreateDataModelConfirmButton);
-
-    // Wait for the diagram editor to load
-    const dataModelEditor = browser.$(Selectors.DataModelEditor);
-    await dataModelEditor.waitForDisplayed();
-
-    // Verify the diagram was created successfully
-    const nodes = await getDiagramNodes(browser, 2);
-    expect(nodes).to.have.lengthOf(2);
-  });
-
   context('Undo/Redo and Storage', function () {
     it('actions are undoable and persist after re-opening', async function () {
       const dataModelName = 'Test Data Model - Undo/Redo';
+
       await setupDiagram(browser, {
         diagramName: dataModelName,
         connectionName: getDefaultConnectionNames(0),
