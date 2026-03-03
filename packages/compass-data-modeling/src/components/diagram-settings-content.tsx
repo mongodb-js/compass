@@ -8,7 +8,6 @@ import {
   Radio,
   RadioGroup,
   spacing,
-  SpinLoaderWithLabel,
   TextInput,
   Toggle,
   WarningSummary,
@@ -21,12 +20,6 @@ import {
 } from '../store/sampling-options';
 
 const LARGE_SAMPLE_SIZE_THRESHOLD = 100;
-
-const loadingStyles = css({
-  textAlign: 'center',
-  marginTop: spacing[1800],
-  marginBottom: spacing[1800],
-});
 
 const errorStyles = css({
   marginTop: spacing[600],
@@ -87,7 +80,6 @@ const warningIconStyles = css({
 type DiagramSettingsContentProps = {
   automaticallyInferRelationships: boolean;
   samplingOptions: SamplingOptions;
-  isFetchingCollections: boolean;
   error?: Error;
   onAutomaticallyInferRelationshipsToggle: (newVal: boolean) => void;
   onSamplingOptionsChange: (newVal: SamplingOptions) => void;
@@ -109,7 +101,6 @@ export const DiagramSettingsContent: React.FunctionComponent<
 > = ({
   automaticallyInferRelationships,
   samplingOptions,
-  isFetchingCollections,
   error,
   onAutomaticallyInferRelationshipsToggle,
   onSamplingOptionsChange,
@@ -157,16 +148,6 @@ export const DiagramSettingsContent: React.FunctionComponent<
         samplingOptions.sampleSize > LARGE_SAMPLE_SIZE_THRESHOLD),
     [samplingOptions, areSamplingOptionsInvalid]
   );
-
-  if (isFetchingCollections) {
-    return (
-      <div className={loadingStyles}>
-        <SpinLoaderWithLabel progressText="">
-          Fetching collections …
-        </SpinLoaderWithLabel>
-      </div>
-    );
-  }
 
   if (error) {
     return (

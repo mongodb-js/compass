@@ -13,7 +13,7 @@ import SelectCollectionsStep from './select-collections-step';
 import { selectIsAnalysisInProgress } from '../../store/analysis-process';
 import { ModalStepContainer } from '../model-step-container';
 import { areSamplingOptionsValid } from '../../store/sampling-options';
-import DiagramSettingsStep from './diagram-settings-step';
+import DiagramSettingsStep from './new-diagram-settings-step';
 
 type NewDiagramModalProps = {
   isOpen: boolean;

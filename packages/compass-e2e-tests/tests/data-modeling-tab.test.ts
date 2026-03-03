@@ -123,6 +123,7 @@ async function setupDiagram(
   if (stopAtStep === 'diagramSettings') {
     return;
   }
+  await browser.$(Selectors.CreateDataModelConfirmButton).isClickable();
   await browser.clickVisible(Selectors.CreateDataModelConfirmButton);
 
   // Wait for the diagram editor to load
@@ -1015,6 +1016,15 @@ describe('Data Modeling tab', function () {
       }
 
       // Confirm adding the selected collections
+      await browser.clickVisible(
+        Selectors.DataModelReselectCollectionsModalConfirmButton
+      );
+
+      // Confirm the settings
+      expect(
+        await browser.$(Selectors.CreateDataModelModal).getText()
+      ).to.contain('Diagram settings');
+
       await browser.clickVisible(
         Selectors.DataModelReselectCollectionsModalConfirmButton
       );

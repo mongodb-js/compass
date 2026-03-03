@@ -22,7 +22,7 @@ import { SelectCollectionsList } from './select-collections-list';
 import { useSavedConnections } from '../utils/use-saved-connections';
 import { ModalStepContainer } from './model-step-container';
 import { areSamplingOptionsValid } from '../store/sampling-options';
-import DiagramSettingsStep from './new-diagram/diagram-settings-step';
+import { DiagramSettingsContent } from './diagram-settings-content';
 
 const SelectCollectionsStep = connect(
   (state: DataModelingState) => {
@@ -50,6 +50,21 @@ const SelectCollectionsStep = connect(
     onSamplingOptionsChange: changeSamplingOptions,
   }
 )(SelectCollectionsList);
+
+const DiagramSettingsStep = connect(
+  (state: DataModelingState) => {
+    const { automaticallyInferRelations, samplingOptions } =
+      state.reselectCollections;
+    return {
+      automaticallyInferRelationships: automaticallyInferRelations,
+      samplingOptions: samplingOptions,
+    };
+  },
+  {
+    onAutomaticallyInferRelationshipsToggle: toggleInferRelationships,
+    onSamplingOptionsChange: changeSamplingOptions,
+  }
+)(DiagramSettingsContent);
 
 function SelectConnection({
   selectedConnectionId,

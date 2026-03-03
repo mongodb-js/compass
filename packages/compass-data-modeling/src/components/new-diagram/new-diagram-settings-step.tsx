@@ -16,7 +16,6 @@ export default connect(
     return {
       automaticallyInferRelationships: automaticallyInferRelations,
       samplingOptions: samplingOptions.value,
-      isFetchingCollections: Boolean(selectedCollections.isFetchingCollections),
       error: selectedCollections.error,
     };
   },
