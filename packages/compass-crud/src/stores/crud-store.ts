@@ -1814,13 +1814,12 @@ class CrudStoreImpl
         };
 
         if (shouldSyncCollectionStats && typeof count === 'number') {
-          const previousStats: CollectionStats =
-            this.state.collectionStats ?? {
-              document_count: undefined,
-              storage_size: undefined,
-              free_storage_size: undefined,
-              avg_document_size: undefined,
-            };
+          const previousStats: CollectionStats = this.state.collectionStats ?? {
+            document_count: undefined,
+            storage_size: undefined,
+            free_storage_size: undefined,
+            avg_document_size: undefined,
+          };
           nextState.collectionStats = {
             ...previousStats,
             document_count: count,
