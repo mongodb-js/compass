@@ -1,9 +1,10 @@
 import React from 'react';
 import {
   cleanup,
-  fireEvent,
+  userEvent,
   render,
   screen,
+  within,
 } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import { Element } from 'hadron-document';
@@ -52,15 +53,31 @@ describe('TypesDropdown', function () {
 
   selectableTypes.forEach((type) => {
     it(`allows to select ${type}`, function () {
-      fireEvent.click(screen.getByTestId('table-view-types-dropdown-select')); // Click select button
+      userEvent.click(
+        screen.getByTestId('table-view-types-dropdown-select'),
+        undefined,
+        { skipPointerEventsCheck: true }
+      ); // Click select button
       expect(screen.getByText(type)).to.exist;
     });
   });
 
   describe('when a type is selected', function () {
     beforeEach(function () {
-      fireEvent.click(screen.getByTestId('table-view-types-dropdown-select')); // Click select button
-      fireEvent.click(screen.getByText('String')); // Click type
+      const selectButton = screen.getByTestId(
+        'table-view-types-dropdown-select'
+      );
+      userEvent.click(selectButton, undefined, {
+        skipPointerEventsCheck: true,
+      }); // Click select button
+      const menuId = selectButton.getAttribute('aria-controls');
+      const listbox = document.querySelector(
+        `[id="${menuId}"][role="listbox"]`
+      ) as HTMLElement;
+      const stringOption = within(listbox).getByText('String');
+      userEvent.click(stringOption, undefined, {
+        skipPointerEventsCheck: true,
+      }); // Click type
     });
 
     it('changes the element current type', function () {

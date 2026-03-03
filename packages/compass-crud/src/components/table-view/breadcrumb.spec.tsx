@@ -1,124 +1,113 @@
 import React from 'react';
-import { mount } from 'enzyme';
+import { render, screen, cleanup } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
+import sinon from 'sinon';
+import userEvent from '@testing-library/user-event';
 
-import { getActions, notCalledExcept } from '../../../test/aggrid-helper';
 import BreadcrumbComponent from './breadcrumb';
 
 describe('<BreadcrumbComponent />', function () {
-  describe('#render', function () {
-    const actions = getActions();
-    let component;
-    let tabs;
+  afterEach(cleanup);
 
+  describe('#render', function () {
     describe('empty path', function () {
-      before(function (done) {
-        component = mount(
+      it('renders the breadcrumb container with collection name and home icon', function () {
+        const pathChanged = sinon.spy();
+        render(
           <BreadcrumbComponent
             collection={'compass-crud'}
-            pathChanged={actions.pathChanged}
+            pathChanged={pathChanged}
             path={[]}
             types={[]}
           />
         );
-        done();
-      });
-      it('renders the breadcrumb container', function () {
-        const wrapper = component.find('.ag-header-breadcrumb-container');
-        expect(wrapper).to.be.present();
-      });
-      it('renders one tab with the collection name and home icon', function () {
-        tabs = component.find('.ag-header-breadcrumb-tab');
+
+        const container = document.querySelector(
+          '.ag-header-breadcrumb-container'
+        );
+        expect(container).to.exist;
+
+        const tabs = screen.getAllByRole('button');
         expect(tabs).to.have.length(1);
-        expect(tabs.text()).to.equal('compass-crud');
-        expect(tabs.find('.ag-header-breadcrumb-home-icon')).to.be.present();
+        expect(tabs[0]).to.have.text('compass-crud');
+
+        const homeIcon = container?.querySelector(
+          '.ag-header-breadcrumb-home-icon'
+        );
+        expect(homeIcon).to.exist;
       });
     });
 
     describe('large path', function () {
-      before(function (done) {
-        component = mount(
+      it('renders tabs for each path segment with correct names and types', function () {
+        const pathChanged = sinon.spy();
+        render(
           <BreadcrumbComponent
             collection={'compass-crud'}
-            pathChanged={actions.pathChanged}
+            pathChanged={pathChanged}
             path={['a', 'b', 1]}
             types={['Object', 'Array', 'Object']}
           />
         );
-        tabs = component.find('.ag-header-breadcrumb-tab');
-        expect(tabs).to.be.present();
-        done();
-      });
-      it('renders the first tab with the collection name and home icon', function () {
-        const tab = tabs.at(0);
-        expect(tab.text()).to.equal('compass-crud');
-        expect(tab.find('.ag-header-breadcrumb-home-icon')).to.be.present();
-      });
-      it('renders 2nd tab with the correct name and type', function () {
-        const tab = tabs.at(1);
-        expect(tab.text()).to.equal('a { }');
-      });
-      it('renders 3rd tab with the correct name and type', function () {
-        const tab = tabs.at(2);
-        expect(tab.text()).to.equal('b [ ]');
-      });
-      it('renders 4th tab with the correct name and type', function () {
-        const tab = tabs.at(3);
-        expect(tab.text()).to.equal('b.1 { }');
-        expect(tab.is('.ag-header-breadcrumb-tab-active')).to.equal(true);
+
+        const tabs = screen.getAllByRole('button');
+        expect(tabs).to.have.length(4);
+
+        // First tab: collection name with home icon
+        expect(tabs[0]).to.have.text('compass-crud');
+        expect(tabs[0].querySelector('.ag-header-breadcrumb-home-icon')).to
+          .exist;
+
+        // 2nd tab: 'a' with Object type
+        expect(tabs[1]).to.have.text('a { }');
+
+        // 3rd tab: 'b' with Array type
+        expect(tabs[2]).to.have.text('b [ ]');
+
+        // 4th tab: 'b.1' with Object type, should be active
+        expect(tabs[3]).to.have.text('b.1 { }');
+        expect(tabs[3].classList.contains('ag-header-breadcrumb-tab-active')).to
+          .be.true;
       });
     });
   });
 
   describe('#actions', function () {
-    let component;
-    let tabs;
-    let actions;
-    describe('clicking on the home button triggers correctly', function () {
-      before(function (done) {
-        actions = getActions();
-        component = mount(
-          <BreadcrumbComponent
-            collection={'compass-crud'}
-            pathChanged={actions.pathChanged}
-            path={['a', 'b', 1]}
-            types={['Object', 'Array', 'Object']}
-          />
-        );
-        tabs = component.find('.ag-header-breadcrumb-tab');
-        expect(tabs).to.be.present();
-        tabs.at(0).simulate('click');
-        done();
-      });
-      it('triggers the pathChanged action', function () {
-        expect(actions.pathChanged.callCount).to.equal(1);
-        expect(actions.pathChanged.alwaysCalledWithExactly([], []));
-        notCalledExcept(actions, 'pathChanged');
-      });
+    it('clicking on the home button calls pathChanged with empty arrays', function () {
+      const pathChanged = sinon.spy();
+      render(
+        <BreadcrumbComponent
+          collection={'compass-crud'}
+          pathChanged={pathChanged}
+          path={['a', 'b', 1]}
+          types={['Object', 'Array', 'Object']}
+        />
+      );
+
+      const tabs = screen.getAllByRole('button');
+      userEvent.click(tabs[0]);
+
+      expect(pathChanged.callCount).to.equal(1);
+      expect(pathChanged.calledWith([], [])).to.be.true;
     });
 
-    describe('clicking on a tab triggers correctly', function () {
-      before(function (done) {
-        actions = getActions();
-        component = mount(
-          <BreadcrumbComponent
-            collection={'compass-crud'}
-            pathChanged={actions.pathChanged}
-            path={['a', 'b', 1]}
-            types={['Object', 'Array', 'Object']}
-          />
-        );
-        tabs = component.find('.ag-header-breadcrumb-tab');
-        expect(tabs).to.be.present();
-        expect(tabs.at(1).text()).to.equal('a { }');
-        tabs.at(1).simulate('click');
-        done();
-      });
-      it('triggers the pathChanged action', function () {
-        expect(actions.pathChanged.callCount).to.equal(1);
-        expect(actions.pathChanged.alwaysCalledWithExactly(['a'], ['Object']));
-        notCalledExcept(actions, 'pathChanged');
-      });
+    it('clicking on a tab triggers pathChanged with correct path slice', function () {
+      const pathChanged = sinon.spy();
+      render(
+        <BreadcrumbComponent
+          collection={'compass-crud'}
+          pathChanged={pathChanged}
+          path={['a', 'b', 1]}
+          types={['Object', 'Array', 'Object']}
+        />
+      );
+
+      const tabs = screen.getAllByRole('button');
+      expect(tabs[1]).to.have.text('a { }');
+      userEvent.click(tabs[1]);
+
+      expect(pathChanged.callCount).to.equal(1);
+      expect(pathChanged.calledWith(['a'], ['Object'])).to.be.true;
     });
   });
 });
