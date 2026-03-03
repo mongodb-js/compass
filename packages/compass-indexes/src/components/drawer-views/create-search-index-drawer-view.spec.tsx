@@ -132,7 +132,7 @@ describe('CreateSearchIndexDrawerView', function () {
   });
 
   describe('form validation', function () {
-    it('shows error when index name is empty', async function () {
+    it('shows error when index name is empty', function () {
       renderCreateSearchIndexDrawerView();
 
       const nameInput = screen.getByTestId(
