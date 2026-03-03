@@ -21,6 +21,7 @@ import { SelectCollectionsList } from './select-collections-list';
 import { useSavedConnections } from '../utils/use-saved-connections';
 import { ModalStepContainer } from './model-step-container';
 import { areSamplingOptionsValid } from '../store/sampling-options';
+import DiagramSettingsStep from './new-diagram/diagram-settings-step';
 
 const SelectCollectionsStep = connect(
   (state: DataModelingState) => {
@@ -173,6 +174,24 @@ const ReselectCollectionsModal: React.FunctionComponent<
             </>
           ),
         };
+      case 'DIAGRAM_SETTINGS':
+        return {
+          title: `Diagram settings`,
+          onNextClick: onGenerate,
+          onPreviousClick: () => onStep('SELECT_COLLECTIONS'),
+          nextLabel: 'Generate',
+          previousLabel: 'Back',
+          isNextDisabled: isGenerateDiagramDisabled,
+          step: currentStep,
+          footerText: numTotalCollections > 0 && (
+            <>
+              <strong>{numSelectedCollections}</strong>/
+              <strong>{numTotalCollections}</strong> total{' '}
+              {numTotalCollections === 1 ? 'collection' : 'collections'}{' '}
+              selected.
+            </>
+          ),
+        };
       default:
         throw new Error(`Unknown diagram generation step: "${currentStep}"`);
     }
@@ -204,6 +223,8 @@ const ReselectCollectionsModal: React.FunctionComponent<
           <SelectConnectionStep />
         ) : currentStep === 'SELECT_COLLECTIONS' ? (
           <SelectCollectionsStep />
+        ) : currentStep === 'DIAGRAM_SETTINGS' ? (
+          <DiagramSettingsStep />
         ) : null}
       </ModalStepContainer>
     </Modal>

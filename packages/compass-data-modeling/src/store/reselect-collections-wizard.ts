@@ -13,7 +13,7 @@ import {
 
 export type ReselectCollectionsWizardState = {
   isOpen: boolean;
-  step: 'SELECT_CONNECTION' | 'SELECT_COLLECTIONS';
+  step: 'SELECT_CONNECTION' | 'SELECT_COLLECTIONS' | 'DIAGRAM_SETTINGS';
   diagramName: string;
   selectedConnectionId?: string;
   selectedDatabase?: string;

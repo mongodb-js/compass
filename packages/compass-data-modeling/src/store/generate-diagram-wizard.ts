@@ -18,7 +18,7 @@ export type GenerateDiagramWizardState = {
   // Overall progress of the wizard, kept separate from the step so that closing
   // the wizard can preserve the last step if needed
   inProgress: boolean;
-  step: 'SETUP_DIAGRAM' | 'SELECT_COLLECTIONS';
+  step: 'SETUP_DIAGRAM' | 'SELECT_COLLECTIONS' | 'DIAGRAM_SETTINGS';
   formFields: {
     diagramName: FormField;
     selectedConnection: FormField & { isConnecting?: boolean };

@@ -13,6 +13,7 @@ import SelectCollectionsStep from './select-collections-step';
 import { selectIsAnalysisInProgress } from '../../store/analysis-process';
 import { ModalStepContainer } from '../model-step-container';
 import { areSamplingOptionsValid } from '../../store/sampling-options';
+import DiagramSettingsStep from './diagram-settings-step';
 
 type NewDiagramModalProps = {
   isOpen: boolean;
@@ -23,7 +24,9 @@ type NewDiagramModalProps = {
   numTotalCollections: number;
   selectedDatabaseName: string;
   onCancel: () => void;
-  onStep: (step: 'SETUP_DIAGRAM' | 'SELECT_COLLECTIONS') => void;
+  onStep: (
+    step: 'SETUP_DIAGRAM' | 'SELECT_COLLECTIONS' | 'DIAGRAM_SETTINGS'
+  ) => void;
   onGenerate: () => void;
 };
 
@@ -56,8 +59,26 @@ const NewDiagramModal: React.FunctionComponent<NewDiagramModalProps> = ({
           title: `Select collections for ${selectedDatabaseName}`,
           description:
             'These collections will be included in your generated diagram.',
-          onNextClick: onGenerate,
+          onNextClick: () => onStep('DIAGRAM_SETTINGS'),
           onPreviousClick: () => onStep('SETUP_DIAGRAM'),
+          nextLabel: 'Next',
+          previousLabel: 'Back',
+          isNextDisabled: isGenerateDiagramDisabled,
+          step: currentStep,
+          footerText: numTotalCollections > 0 && (
+            <>
+              <strong>{numSelectedCollections}</strong>/
+              <strong>{numTotalCollections}</strong> total{' '}
+              {numTotalCollections === 1 ? 'collection' : 'collections'}{' '}
+              selected.
+            </>
+          ),
+        };
+      case 'DIAGRAM_SETTINGS':
+        return {
+          title: `Diagram settings`,
+          onNextClick: onGenerate,
+          onPreviousClick: () => onStep('SELECT_COLLECTIONS'),
           nextLabel: 'Generate',
           previousLabel: 'Back',
           isNextDisabled: isGenerateDiagramDisabled,
@@ -101,6 +122,8 @@ const NewDiagramModal: React.FunctionComponent<NewDiagramModalProps> = ({
           <SetupDiagramStep />
         ) : currentStep === 'SELECT_COLLECTIONS' ? (
           <SelectCollectionsStep />
+        ) : currentStep === 'DIAGRAM_SETTINGS' ? (
+          <DiagramSettingsStep />
         ) : null}
       </ModalStepContainer>
     </Modal>
