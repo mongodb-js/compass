@@ -1614,7 +1614,7 @@ class CrudStoreImpl
       .fetch({ dataService: this.dataService, force: true })
       .catch((error) => {
         this.logger.log.warn(
-          mongoLogId(1_001_000_289),
+          mongoLogId(1_001_000_999),
           'Documents',
           'Failed to refresh collection stats',
           error
