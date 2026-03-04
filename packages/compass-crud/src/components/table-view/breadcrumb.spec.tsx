@@ -1,8 +1,12 @@
 import React from 'react';
-import { render, screen, cleanup } from '@mongodb-js/testing-library-compass';
+import {
+  render,
+  screen,
+  cleanup,
+  userEvent,
+} from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import sinon from 'sinon';
-import userEvent from '@testing-library/user-event';
 
 import BreadcrumbComponent from './breadcrumb';
 

@@ -1,8 +1,12 @@
 import React from 'react';
-import { render, screen, cleanup } from '@mongodb-js/testing-library-compass';
+import {
+  render,
+  screen,
+  cleanup,
+  userEvent,
+} from '@mongodb-js/testing-library-compass';
 import { ObjectId } from 'bson';
 import { expect } from 'chai';
-import userEvent from '@testing-library/user-event';
 
 import {
   getNode,
