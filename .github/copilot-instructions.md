@@ -25,6 +25,30 @@ When reviewing code, focus on:
 - Ensure tests are meaningful, maintainable, and cover edge cases.
 - Avoid false positive tests.
 
+#### Testing components, not the store
+
+Follow the guiding principles from Redux and Testing Library. See [Redux Guiding Principles](https://redux.js.org/usage/writing-tests#guiding-principles) and [Testing Library Guiding Principles](https://testing-library.com/docs/guiding-principles/).
+
+The tests should resemble the way the software is used, not the way it's implemented.
+
+- Prefer integration tests with everything working together (React + Redux) over unit tests of individual reducers or selectors.
+- Avoid testing or asserting on Redux internals (store state, selector calls, hook usage). Focus on user-visible behavior.
+- Avoid writing dedicated unit tests for every reducer, selector, or action creator; in many cases they are implementation details already covered by integration tests.
+
+To ease testing fully integrated Compass components, use the helper methods built on top of Testing Library that handle required wiring when rendering components inside plugins. See the docs at https://github.com/mongodb-js/compass/tree/main/configs/testing-library-compass.
+
+```tsx
+// ❌ Asserting on Redux store internals
+render(<ItemList />);
+userEvent.click(screen.getByText(/buy milk/i));
+expect(store.getState().items.selectedId).toBe('1');
+
+// ✅ Asserting on what the user sees
+render(<ItemList />);
+userEvent.click(screen.getByText(/buy milk/i));
+expect(screen.getByRole('heading')).toHaveTextContent(/buy milk/i);
+```
+
 ### React
 
 - Follow React patterns and naming conventions when designing components, “think in React”.
