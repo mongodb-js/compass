@@ -1,26 +1,15 @@
-import React, { useMemo, useEffect } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { connect, useSelector } from 'react-redux';
-import type { Document } from 'mongodb';
-import type { SearchIndex, SearchIndexStatus } from 'mongodb-data-service';
+import type { SearchIndex } from 'mongodb-data-service';
 import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
 import {
-  Badge,
-  BadgeVariant,
   Button,
-  Disclaimer,
   EmptyContent,
   Link,
   Tooltip,
-  css,
-  spacing,
-} from '@mongodb-js/compass-components';
-import type {
-  LGColumnDef,
-  LeafyGreenTableRow,
-  LGTableDataType,
 } from '@mongodb-js/compass-components';
 
-import { FetchStatuses } from '../../utils/fetch-status';
+import { isReadyStatus } from '../../utils/fetch-status';
 import {
   dropSearchIndex,
   getInitialSearchIndexPipeline,
@@ -33,15 +22,17 @@ import {
 import type { FetchStatus } from '../../utils/fetch-status';
 import { IndexesTable } from '../indexes-table';
 import SearchIndexActions from './search-index-actions';
-import { ZeroGraphic } from './zero-graphic';
+import { ZeroRegularIndexesGraphic } from '../icons/zero-regular-indexes-graphic';
 import type { RootState } from '../../modules';
-import BadgeWithIconLink from '../indexes-table/badge-with-icon-link';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { useWorkspaceTabId } from '@mongodb-js/compass-workspaces/provider';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import { usePreferences } from 'compass-preferences-model/provider';
 import { selectReadWriteAccess } from '../../utils/indexes-read-write-access';
 import { selectIsViewSearchCompatible } from '../../utils/is-view-search-compatible';
+
+import { useSearchIndexesTable } from './use-search-indexes-table';
+import { COLUMNS, COLUMNS_WITH_ACTIONS } from './search-indexes-columns';
 
 type SearchIndexesTableProps = {
   namespace: string;
@@ -54,14 +45,6 @@ type SearchIndexesTableProps = {
   onSearchIndexesOpened: (tabId: string) => void;
   onSearchIndexesClosed: (tabId: string) => void;
 };
-
-function isReadyStatus(status: FetchStatus) {
-  return (
-    status === FetchStatuses.READY ||
-    status === FetchStatuses.REFRESHING ||
-    status === FetchStatuses.POLLING
-  );
-}
 
 function ZeroState({
   onOpenCreateModalClick,
@@ -78,7 +61,7 @@ function ZeroState({
 
   return (
     <EmptyContent
-      icon={ZeroGraphic}
+      icon={ZeroRegularIndexesGraphic}
       title="No search indexes yet"
       subTitle="Atlas Search is an embedded full-text search in MongoDB Atlas that gives you a seamless, scalable experience for building relevance-based app features."
       callToAction={
@@ -125,187 +108,6 @@ function ZeroState({
   );
 }
 
-const statusBadgeVariants: Record<SearchIndexStatus, BadgeVariant> = {
-  BUILDING: BadgeVariant.Blue,
-  FAILED: BadgeVariant.Red,
-  PENDING: BadgeVariant.Yellow,
-  READY: BadgeVariant.Green,
-  STALE: BadgeVariant.LightGray,
-  DELETING: BadgeVariant.Red,
-} as const;
-
-function IndexStatus({
-  status,
-  'data-testid': dataTestId,
-}: {
-  status: SearchIndexStatus;
-  'data-testid': string;
-}) {
-  const variant = statusBadgeVariants[status];
-  return (
-    <Badge variant={variant} data-testid={dataTestId}>
-      {status}
-    </Badge>
-  );
-}
-
-function SearchIndexType({ type, link }: { type: string; link: string }) {
-  return <BadgeWithIconLink text={type} link={link} />;
-}
-
-const searchIndexDetailsStyles = css({
-  display: 'inline-flex',
-  gap: spacing[100],
-  marginBottom: spacing[200],
-  padding: `0px ${spacing[1600]}px`,
-});
-
-const searchIndexFieldStyles = css({
-  // Override LeafyGreen's uppercase styles as we want to keep the case sensitivity of the key.
-  textTransform: 'none',
-  gap: spacing[100],
-});
-
-function VectorSearchIndexDetails({ definition }: { definition: Document }) {
-  return (
-    <>
-      {!definition.fields || definition.fields.length === 0 ? (
-        <Disclaimer>No fields in the index definition.</Disclaimer>
-      ) : (
-        definition.fields.map((field: { path: string }) => (
-          <Tooltip
-            align="top"
-            key={field.path}
-            justify="middle"
-            trigger={({
-              children: tooltipChildren,
-              ...tooltipTriggerProps
-            }: React.HTMLProps<HTMLDivElement>) => (
-              <div {...tooltipTriggerProps}>
-                <Badge className={searchIndexFieldStyles}>{field.path}</Badge>
-                {tooltipChildren}
-              </div>
-            )}
-          >
-            {JSON.stringify(field, null, 2)}
-          </Tooltip>
-        ))
-      )}
-    </>
-  );
-}
-
-function SearchIndexDetails({ definition }: { definition: Document }) {
-  const badges: { name: string; className?: string }[] = [];
-
-  if (definition.mappings?.dynamic) {
-    badges.push({
-      name: 'Dynamic Mappings',
-      className: undefined,
-    });
-  }
-
-  if (definition.mappings?.fields) {
-    badges.push(
-      ...Object.keys(definition.mappings.fields as Document).map((name) => ({
-        name,
-        className: searchIndexFieldStyles,
-      }))
-    );
-  }
-  return (
-    <>
-      {badges.length === 0 ? (
-        <Disclaimer>No mappings in the index definition.</Disclaimer>
-      ) : (
-        badges.map((badge) => (
-          <Badge key={badge.name} className={badge.className}>
-            {badge.name}
-          </Badge>
-        ))
-      )}
-    </>
-  );
-}
-
-type SearchIndexInfo = {
-  id: string;
-  name: string;
-  indexInfo: SearchIndex;
-  status: React.ReactNode;
-  actions: React.ReactNode;
-  renderExpandedContent: React.ReactNode;
-};
-
-function sortByStatus(
-  rowA: LeafyGreenTableRow<SearchIndexInfo>,
-  rowB: LeafyGreenTableRow<SearchIndexInfo>
-) {
-  if (typeof rowB.original.indexInfo.status === 'undefined') {
-    return -1;
-  }
-  if (typeof rowA.original.indexInfo.status === 'undefined') {
-    return 1;
-  }
-  if (rowA.original.indexInfo.status > rowB.original.indexInfo.status) {
-    return -1;
-  }
-  if (rowA.original.indexInfo.status < rowB.original.indexInfo.status) {
-    return 1;
-  }
-  return 0;
-}
-
-function sortByType(
-  rowA: LeafyGreenTableRow<SearchIndexInfo>,
-  rowB: LeafyGreenTableRow<SearchIndexInfo>
-) {
-  if (typeof rowB.original.indexInfo.type === 'undefined') {
-    return -1;
-  }
-  if (typeof rowA.original.indexInfo.type === 'undefined') {
-    return 1;
-  }
-  if (rowA.original.indexInfo.type > rowB.original.indexInfo.type) {
-    return -1;
-  }
-  if (rowA.original.indexInfo.type < rowB.original.indexInfo.type) {
-    return 1;
-  }
-  return 0;
-}
-
-const COLUMNS: LGColumnDef<SearchIndexInfo>[] = [
-  {
-    accessorKey: 'name',
-    header: 'Name and Fields',
-    enableSorting: true,
-  },
-  {
-    accessorKey: 'type',
-    header: 'Type',
-    cell: (info) => info.getValue(),
-    sortingFn: sortByType,
-    enableSorting: true,
-  },
-  {
-    accessorKey: 'status',
-    header: 'Status',
-    cell: (info) => info.getValue(),
-    sortingFn: sortByStatus,
-    enableSorting: true,
-  },
-];
-
-const COLUMNS_WITH_ACTIONS: LGColumnDef<SearchIndexInfo>[] = [
-  ...COLUMNS,
-  {
-    accessorKey: 'actions',
-    header: '',
-    cell: (info) => info.getValue(),
-  },
-];
-
 export const SearchIndexesTable: React.FunctionComponent<
   SearchIndexesTableProps
 > = ({
@@ -349,78 +151,41 @@ export const SearchIndexesTable: React.FunctionComponent<
     selectIsViewSearchCompatible(isAtlas)
   );
 
-  const data = useMemo<LGTableDataType<SearchIndexInfo>[]>(
-    () =>
-      indexes.map((index) => {
-        const isVectorSearchIndex = index.type === 'vectorSearch';
-
-        return {
-          id: index.name,
-          name: index.name,
-          status: (
-            <IndexStatus
-              status={index.status}
-              data-testid={`search-indexes-status-${index.name}`}
-            />
-          ),
-          type: (
-            <SearchIndexType
-              type={isVectorSearchIndex ? 'Vector Search' : 'Search'}
-              link={
-                isVectorSearchIndex
-                  ? 'https://www.mongodb.com/docs/atlas/atlas-vector-search/create-index/'
-                  : 'https://www.mongodb.com/docs/atlas/atlas-search/create-index/'
-              }
-            />
-          ),
-          indexInfo: index,
-          actions: (
-            <SearchIndexActions
-              index={index}
-              onDropIndex={onDropIndexClick}
-              onEditIndex={onEditIndexClick}
-              onRunAggregateIndex={(name) => {
-                openCollectionWorkspace(connectionId, namespace, {
-                  newTab: true,
-                  ...(isVectorSearchIndex
-                    ? {
-                        initialPipelineText:
-                          getInitialVectorSearchIndexPipelineText(name),
-                      }
-                    : {
-                        initialPipeline: getInitialSearchIndexPipeline(name),
-                      }),
-                });
-              }}
-            />
-          ),
-          renderExpandedContent() {
-            return (
-              <div
-                className={searchIndexDetailsStyles}
-                data-testid={`search-indexes-details-${index.name}`}
-              >
-                {isVectorSearchIndex ? (
-                  <VectorSearchIndexDetails
-                    definition={index.latestDefinition}
-                  />
-                ) : (
-                  <SearchIndexDetails definition={index.latestDefinition} />
-                )}
-              </div>
-            );
-          },
-        };
-      }),
+  const renderActions = useCallback(
+    (index: SearchIndex, isVectorSearchIndex: boolean) => (
+      <SearchIndexActions
+        index={index}
+        onDropIndex={onDropIndexClick}
+        onEditIndex={onEditIndexClick}
+        onRunAggregateIndex={(name: string) => {
+          openCollectionWorkspace(connectionId, namespace, {
+            newTab: true,
+            ...(isVectorSearchIndex
+              ? {
+                  initialPipelineText:
+                    getInitialVectorSearchIndexPipelineText(name),
+                }
+              : {
+                  initialPipeline: getInitialSearchIndexPipeline(name),
+                }),
+          });
+        }}
+      />
+    ),
     [
       connectionId,
-      indexes,
       namespace,
       onDropIndexClick,
       onEditIndexClick,
       openCollectionWorkspace,
     ]
   );
+
+  const { data } = useSearchIndexesTable({
+    indexes,
+    vectorTypeLabel: 'Vector Search',
+    renderActions,
+  });
 
   if (!isReadyStatus(status)) {
     // If there's an error or the search indexes are still pending or search
