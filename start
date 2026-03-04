@@ -1,4 +1,0 @@
-> node --experimental-strip-types --disable-warning=ExperimentalWarning scripts/start.mts
-
-node: bad option: --experimental-strip-typesh
-   npm run start
