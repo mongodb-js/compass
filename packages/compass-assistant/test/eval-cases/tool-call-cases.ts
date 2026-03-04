@@ -7,33 +7,15 @@
  */
 
 // ---------------------------------------------------------------------------
-// Types
+// Types — tool call expectations use AEL schema types
 // ---------------------------------------------------------------------------
 
-export interface ToolCallArgument {
-  name: string;
-  type?: 'string' | 'array' | 'object' | 'boolean' | 'number';
-  value?:
-    | string
-    | number
-    | boolean
-    | (string | number | boolean)[]
-    | Record<string, unknown>;
-  /** Only valid when type is "string" */
-  matchRegex?: string;
-}
+import type { ExpectedToolCallMessage as ExpectedOutputMessage } from 'mongodb-assistant-eval/schema';
 
-export interface ExpectedToolCall {
-  name: string;
-  arguments?: ToolCallArgument[];
-}
-
-export interface ExpectedOutputMessage {
-  role: 'assistant-tool';
-  toolCalls: ExpectedToolCall[];
-}
+export type { ExpectedOutputMessage };
 
 export interface CompassAssistantCustomInput {
+  [key: string]: unknown;
   clusterUid: string;
   databaseName: string;
   collectionName: string;
@@ -153,7 +135,9 @@ const listCollectionsCases: ToolCallEvalCase[] = [
           toolCalls: [
             {
               name: 'list-collections',
-              arguments: [{ name: 'database', value: 'sample_mflix' }],
+              arguments: [
+                { name: 'database', type: 'string', value: 'sample_mflix' },
+              ],
             },
           ],
         },
@@ -176,7 +160,9 @@ const listCollectionsCases: ToolCallEvalCase[] = [
           toolCalls: [
             {
               name: 'list-collections',
-              arguments: [{ name: 'database', value: 'sample_mflix' }],
+              arguments: [
+                { name: 'database', type: 'string', value: 'sample_mflix' },
+              ],
             },
           ],
         },
@@ -202,7 +188,9 @@ const listCollectionsCases: ToolCallEvalCase[] = [
           toolCalls: [
             {
               name: 'list-collections',
-              arguments: [{ name: 'database', value: 'sample_airbnb' }],
+              arguments: [
+                { name: 'database', type: 'string', value: 'sample_airbnb' },
+              ],
             },
           ],
         },
@@ -235,8 +223,8 @@ const collectionSchemaCases: ToolCallEvalCase[] = [
             {
               name: 'collection-schema',
               arguments: [
-                { name: 'database', value: 'sample_mflix' },
-                { name: 'collection', value: 'movies' },
+                { name: 'database', type: 'string', value: 'sample_mflix' },
+                { name: 'collection', type: 'string', value: 'movies' },
               ],
             },
           ],
@@ -264,8 +252,12 @@ const collectionSchemaCases: ToolCallEvalCase[] = [
             {
               name: 'collection-schema',
               arguments: [
-                { name: 'database', value: 'sample_airbnb' },
-                { name: 'collection', value: 'listingsAndReviews' },
+                { name: 'database', type: 'string', value: 'sample_airbnb' },
+                {
+                  name: 'collection',
+                  type: 'string',
+                  value: 'listingsAndReviews',
+                },
               ],
             },
           ],
@@ -293,8 +285,8 @@ const collectionSchemaCases: ToolCallEvalCase[] = [
             {
               name: 'collection-schema',
               arguments: [
-                { name: 'database', value: 'sample_mflix' },
-                { name: 'collection', value: 'movies' },
+                { name: 'database', type: 'string', value: 'sample_mflix' },
+                { name: 'collection', type: 'string', value: 'movies' },
               ],
             },
           ],
@@ -327,8 +319,8 @@ const collectionIndexesCases: ToolCallEvalCase[] = [
             {
               name: 'collection-indexes',
               arguments: [
-                { name: 'database', value: 'sample_mflix' },
-                { name: 'collection', value: 'movies' },
+                { name: 'database', type: 'string', value: 'sample_mflix' },
+                { name: 'collection', type: 'string', value: 'movies' },
               ],
             },
           ],
@@ -356,8 +348,12 @@ const collectionIndexesCases: ToolCallEvalCase[] = [
             {
               name: 'collection-indexes',
               arguments: [
-                { name: 'database', value: 'sample_airbnb' },
-                { name: 'collection', value: 'listingsAndReviews' },
+                { name: 'database', type: 'string', value: 'sample_airbnb' },
+                {
+                  name: 'collection',
+                  type: 'string',
+                  value: 'listingsAndReviews',
+                },
               ],
             },
           ],
@@ -382,8 +378,8 @@ const collectionIndexesCases: ToolCallEvalCase[] = [
             {
               name: 'collection-indexes',
               arguments: [
-                { name: 'database', value: 'sample_mflix' },
-                { name: 'collection', value: 'movies' },
+                { name: 'database', type: 'string', value: 'sample_mflix' },
+                { name: 'collection', type: 'string', value: 'movies' },
               ],
             },
           ],
@@ -411,8 +407,8 @@ const findCases: ToolCallEvalCase[] = [
             {
               name: 'find',
               arguments: [
-                { name: 'database', value: 'sample_mflix' },
-                { name: 'collection', value: 'movies' },
+                { name: 'database', type: 'string', value: 'sample_mflix' },
+                { name: 'collection', type: 'string', value: 'movies' },
                 { name: 'filter', type: 'object', value: { year: 1994 } },
               ],
             },
@@ -438,8 +434,12 @@ const findCases: ToolCallEvalCase[] = [
             {
               name: 'find',
               arguments: [
-                { name: 'database', value: 'sample_airbnb' },
-                { name: 'collection', value: 'listingsAndReviews' },
+                { name: 'database', type: 'string', value: 'sample_airbnb' },
+                {
+                  name: 'collection',
+                  type: 'string',
+                  value: 'listingsAndReviews',
+                },
               ],
             },
           ],
@@ -464,8 +464,8 @@ const findCases: ToolCallEvalCase[] = [
             {
               name: 'find',
               arguments: [
-                { name: 'database', value: 'sample_mflix' },
-                { name: 'collection', value: 'movies' },
+                { name: 'database', type: 'string', value: 'sample_mflix' },
+                { name: 'collection', type: 'string', value: 'movies' },
               ],
             },
           ],
@@ -490,8 +490,8 @@ const findCases: ToolCallEvalCase[] = [
             {
               name: 'find',
               arguments: [
-                { name: 'database', value: 'sample_mflix' },
-                { name: 'collection', value: 'movies' },
+                { name: 'database', type: 'string', value: 'sample_mflix' },
+                { name: 'collection', type: 'string', value: 'movies' },
               ],
             },
           ],
@@ -521,8 +521,8 @@ const aggregateCases: ToolCallEvalCase[] = [
             {
               name: 'aggregate',
               arguments: [
-                { name: 'database', value: 'sample_mflix' },
-                { name: 'collection', value: 'movies' },
+                { name: 'database', type: 'string', value: 'sample_mflix' },
+                { name: 'collection', type: 'string', value: 'movies' },
               ],
             },
           ],
@@ -551,8 +551,12 @@ const aggregateCases: ToolCallEvalCase[] = [
             {
               name: 'aggregate',
               arguments: [
-                { name: 'database', value: 'sample_airbnb' },
-                { name: 'collection', value: 'listingsAndReviews' },
+                { name: 'database', type: 'string', value: 'sample_airbnb' },
+                {
+                  name: 'collection',
+                  type: 'string',
+                  value: 'listingsAndReviews',
+                },
               ],
             },
           ],
@@ -581,8 +585,8 @@ const aggregateCases: ToolCallEvalCase[] = [
             {
               name: 'aggregate',
               arguments: [
-                { name: 'database', value: 'sample_mflix' },
-                { name: 'collection', value: 'movies' },
+                { name: 'database', type: 'string', value: 'sample_mflix' },
+                { name: 'collection', type: 'string', value: 'movies' },
               ],
             },
           ],
@@ -607,8 +611,12 @@ const aggregateCases: ToolCallEvalCase[] = [
             {
               name: 'aggregate',
               arguments: [
-                { name: 'database', value: 'sample_airbnb' },
-                { name: 'collection', value: 'listingsAndReviews' },
+                { name: 'database', type: 'string', value: 'sample_airbnb' },
+                {
+                  name: 'collection',
+                  type: 'string',
+                  value: 'listingsAndReviews',
+                },
               ],
             },
           ],
@@ -638,8 +646,8 @@ const countCases: ToolCallEvalCase[] = [
             {
               name: 'count',
               arguments: [
-                { name: 'database', value: 'sample_mflix' },
-                { name: 'collection', value: 'movies' },
+                { name: 'database', type: 'string', value: 'sample_mflix' },
+                { name: 'collection', type: 'string', value: 'movies' },
               ],
             },
           ],
@@ -667,8 +675,12 @@ const countCases: ToolCallEvalCase[] = [
             {
               name: 'count',
               arguments: [
-                { name: 'database', value: 'sample_airbnb' },
-                { name: 'collection', value: 'listingsAndReviews' },
+                { name: 'database', type: 'string', value: 'sample_airbnb' },
+                {
+                  name: 'collection',
+                  type: 'string',
+                  value: 'listingsAndReviews',
+                },
               ],
             },
           ],
@@ -693,8 +705,8 @@ const countCases: ToolCallEvalCase[] = [
             {
               name: 'count',
               arguments: [
-                { name: 'database', value: 'sample_mflix' },
-                { name: 'collection', value: 'movies' },
+                { name: 'database', type: 'string', value: 'sample_mflix' },
+                { name: 'collection', type: 'string', value: 'movies' },
               ],
             },
           ],
@@ -723,7 +735,9 @@ const dbStatsCases: ToolCallEvalCase[] = [
           toolCalls: [
             {
               name: 'db-stats',
-              arguments: [{ name: 'database', value: 'sample_mflix' }],
+              arguments: [
+                { name: 'database', type: 'string', value: 'sample_mflix' },
+              ],
             },
           ],
         },
@@ -746,7 +760,9 @@ const dbStatsCases: ToolCallEvalCase[] = [
           toolCalls: [
             {
               name: 'db-stats',
-              arguments: [{ name: 'database', value: 'sample_mflix' }],
+              arguments: [
+                { name: 'database', type: 'string', value: 'sample_mflix' },
+              ],
             },
           ],
         },
@@ -772,7 +788,9 @@ const dbStatsCases: ToolCallEvalCase[] = [
           toolCalls: [
             {
               name: 'db-stats',
-              arguments: [{ name: 'database', value: 'sample_airbnb' }],
+              arguments: [
+                { name: 'database', type: 'string', value: 'sample_airbnb' },
+              ],
             },
           ],
         },
@@ -804,8 +822,8 @@ const collectionStorageSizeCases: ToolCallEvalCase[] = [
             {
               name: 'collection-storage-size',
               arguments: [
-                { name: 'database', value: 'sample_mflix' },
-                { name: 'collection', value: 'movies' },
+                { name: 'database', type: 'string', value: 'sample_mflix' },
+                { name: 'collection', type: 'string', value: 'movies' },
               ],
             },
           ],
@@ -833,8 +851,12 @@ const collectionStorageSizeCases: ToolCallEvalCase[] = [
             {
               name: 'collection-storage-size',
               arguments: [
-                { name: 'database', value: 'sample_airbnb' },
-                { name: 'collection', value: 'listingsAndReviews' },
+                { name: 'database', type: 'string', value: 'sample_airbnb' },
+                {
+                  name: 'collection',
+                  type: 'string',
+                  value: 'listingsAndReviews',
+                },
               ],
             },
           ],
@@ -862,8 +884,8 @@ const collectionStorageSizeCases: ToolCallEvalCase[] = [
             {
               name: 'collection-storage-size',
               arguments: [
-                { name: 'database', value: 'sample_mflix' },
-                { name: 'collection', value: 'movies' },
+                { name: 'database', type: 'string', value: 'sample_mflix' },
+                { name: 'collection', type: 'string', value: 'movies' },
               ],
             },
           ],
@@ -896,8 +918,8 @@ const explainCases: ToolCallEvalCase[] = [
             {
               name: 'explain',
               arguments: [
-                { name: 'database', value: 'sample_mflix' },
-                { name: 'collection', value: 'movies' },
+                { name: 'database', type: 'string', value: 'sample_mflix' },
+                { name: 'collection', type: 'string', value: 'movies' },
               ],
             },
           ],
@@ -925,8 +947,8 @@ const explainCases: ToolCallEvalCase[] = [
             {
               name: 'explain',
               arguments: [
-                { name: 'database', value: 'sample_mflix' },
-                { name: 'collection', value: 'movies' },
+                { name: 'database', type: 'string', value: 'sample_mflix' },
+                { name: 'collection', type: 'string', value: 'movies' },
               ],
             },
           ],
@@ -955,8 +977,8 @@ const explainCases: ToolCallEvalCase[] = [
             {
               name: 'explain',
               arguments: [
-                { name: 'database', value: 'sample_mflix' },
-                { name: 'collection', value: 'movies' },
+                { name: 'database', type: 'string', value: 'sample_mflix' },
+                { name: 'collection', type: 'string', value: 'movies' },
               ],
             },
           ],
@@ -1257,8 +1279,8 @@ const multiToolCases: ToolCallEvalCase[] = [
             {
               name: 'collection-schema',
               arguments: [
-                { name: 'database', value: 'sample_mflix' },
-                { name: 'collection', value: 'movies' },
+                { name: 'database', type: 'string', value: 'sample_mflix' },
+                { name: 'collection', type: 'string', value: 'movies' },
               ],
             },
           ],
@@ -1269,8 +1291,8 @@ const multiToolCases: ToolCallEvalCase[] = [
             {
               name: 'find',
               arguments: [
-                { name: 'database', value: 'sample_mflix' },
-                { name: 'collection', value: 'movies' },
+                { name: 'database', type: 'string', value: 'sample_mflix' },
+                { name: 'collection', type: 'string', value: 'movies' },
               ],
             },
           ],
@@ -1327,8 +1349,8 @@ const multiToolCases: ToolCallEvalCase[] = [
             {
               name: 'collection-indexes',
               arguments: [
-                { name: 'database', value: 'sample_mflix' },
-                { name: 'collection', value: 'movies' },
+                { name: 'database', type: 'string', value: 'sample_mflix' },
+                { name: 'collection', type: 'string', value: 'movies' },
               ],
             },
           ],
@@ -1339,8 +1361,8 @@ const multiToolCases: ToolCallEvalCase[] = [
             {
               name: 'explain',
               arguments: [
-                { name: 'database', value: 'sample_mflix' },
-                { name: 'collection', value: 'movies' },
+                { name: 'database', type: 'string', value: 'sample_mflix' },
+                { name: 'collection', type: 'string', value: 'movies' },
               ],
             },
           ],

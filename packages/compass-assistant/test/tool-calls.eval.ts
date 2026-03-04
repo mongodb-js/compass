@@ -5,16 +5,11 @@
  * Evaluates whether the assistant generates the correct MCP tool calls
  * (right tool name, right arguments, right order) in response to user prompts.
  *
- * Phase 1: Tool calls are captured but NOT executed against a database.
- * Phase 2 (future): Tool calls execute against a seeded local MongoDB.
- *
  * Run with: npm run eval:tool-calls
  */
 
 import { createOpenAI } from '@ai-sdk/openai';
 import { streamText } from 'ai';
-import { Eval } from 'braintrust';
-import type { EvalCase } from 'braintrust';
 import type { ToolSet, ToolCallPart } from 'ai';
 import {
   ToolsController,
@@ -25,38 +20,24 @@ import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import {
   toolCallEvalCases,
   type CompassAssistantCustomInput,
-  type ExpectedOutputMessage,
 } from './eval-cases/tool-call-cases';
-
-import { ToolCallScorers } from './scorers/tool-call-scorers';
 
 import {
   buildConversationInstructionsPrompt,
   buildContextPrompt,
 } from '../src/prompts';
 
-type ToolCallEvalInput = {
-  messages: { role: 'user'; content: string }[];
-  custom: CompassAssistantCustomInput;
-  instructions: string;
-};
+import { runConversationEval } from 'mongodb-assistant-eval/eval';
+import type {
+  ConversationEvalCaseInput,
+  ConversationTaskOutput,
+  BraintrustConversationEvalCaseWithCustom,
+} from 'mongodb-assistant-eval/eval';
+import { ToolCallScorers } from 'mongodb-assistant-eval/scorers';
 
-type ToolCallTaskOutput = {
-  toolCalls: ToolCallPart[];
-  text: string;
-};
-
-type ToolCallEvalExpected = {
-  outputMessages: ExpectedOutputMessage[];
-};
-
-type ToolCallBraintrustCase = EvalCase<
-  ToolCallEvalInput,
-  ToolCallEvalExpected,
-  unknown
-> & {
-  name: string;
-};
+// ---------------------------------------------------------------------------
+// Types
+// ---------------------------------------------------------------------------
 
 type ConnectionConfig = {
   connectionId: string;
@@ -65,6 +46,46 @@ type ConnectionConfig = {
     productDocsLink: string;
     productName: string;
   };
+};
+
+type AssistantApiConfig = {
+  baseURL: string;
+  apiKey: string;
+  requestOrigin: string;
+  userAgent: string;
+};
+
+type EvalTaskConfig = {
+  apiConfig: AssistantApiConfig;
+  connectionConfig: ConnectionConfig;
+};
+
+// ---------------------------------------------------------------------------
+// Constants
+// ---------------------------------------------------------------------------
+
+const EVAL_TARGET = 'MongoDB Compass';
+const EVAL_MODEL = 'mongodb-chat-latest';
+const EVAL_WORKSPACE_TYPE = 'Collections' as const;
+const EVAL_WORKSPACE_TAB_ID = 'eval-workspace-tab';
+const EVAL_PROJECT_NAME = 'Compass Tool Calls';
+const EVAL_EXPERIMENT_NAME = `tool-calls-${Date.now()}`;
+
+const DEFAULT_EVAL_TASK_CONFIG: EvalTaskConfig = {
+  apiConfig: {
+    baseURL: 'https://eval.knowledge-dev.mongodb.com/api/v1/',
+    apiKey: '',
+    requestOrigin: 'compass-eval-suite',
+    userAgent: 'mongodb-compass/x.x.x',
+  },
+  connectionConfig: {
+    connectionId: 'eval-test-cluster',
+    connectionString: 'mongodb://localhost:27017',
+    connectOptions: {
+      productDocsLink: 'https://www.mongodb.com/docs/compass/',
+      productName: 'MongoDB Compass Eval',
+    },
+  },
 };
 
 // ---------------------------------------------------------------------------
@@ -123,13 +144,8 @@ function getToolsForCase({
 }
 
 // ---------------------------------------------------------------------------
-// Data function — convert eval cases to Braintrust format
+// Helpers
 // ---------------------------------------------------------------------------
-
-const EVAL_TARGET = 'MongoDB Compass';
-const EVAL_MODEL = 'mongodb-chat-latest';
-const EVAL_WORKSPACE_TYPE = 'Collections' as const;
-const EVAL_WORKSPACE_TAB_ID = 'eval-workspace-tab';
 
 const instructions = buildConversationInstructionsPrompt({
   target: EVAL_TARGET,
@@ -165,7 +181,34 @@ function buildContextPromptText({
   return firstPart.type === 'text' ? firstPart.text : '';
 }
 
-function makeToolCallEvalCases(): ToolCallBraintrustCase[] {
+/**
+ * Converts AI SDK ToolCallParts to the OpenAI ChatCompletionMessageToolCall
+ * format that the AEL's ToolCallScorers expect on ConversationTaskOutput.messages.
+ */
+function toolCallPartsToAssistantMessages(
+  toolCalls: ToolCallPart[]
+): ConversationTaskOutput['messages'] {
+  return toolCalls.map((tc) => ({
+    role: 'assistant' as const,
+    content: '',
+    toolCalls: [
+      {
+        id: tc.toolCallId,
+        type: 'function' as const,
+        function: {
+          name: tc.toolName,
+          arguments: JSON.stringify(tc.input ?? {}),
+        },
+      },
+    ],
+  }));
+}
+
+// ---------------------------------------------------------------------------
+// Data function — convert eval cases to AEL format
+// ---------------------------------------------------------------------------
+
+function makeToolCallEvalCases(): BraintrustConversationEvalCaseWithCustom<CompassAssistantCustomInput>[] {
   return toolCallEvalCases
     .filter((c) => !c.skip)
     .map((c) => ({
@@ -173,13 +216,11 @@ function makeToolCallEvalCases(): ToolCallBraintrustCase[] {
       input: {
         messages: c.input.messages,
         custom: c.input.custom,
-        instructions,
       },
       expected: {
         outputMessages: c.expected.outputMessages,
       },
       tags: c.tags,
-      metadata: {},
     }));
 }
 
@@ -187,45 +228,17 @@ function makeToolCallEvalCases(): ToolCallBraintrustCase[] {
 // Task function — call the assistant and capture tool calls
 // ---------------------------------------------------------------------------
 
-type AssistantApiConfig = {
-  baseURL: string;
-  apiKey: string;
-  requestOrigin: string;
-  userAgent: string;
-};
-
-type EvalTaskConfig = {
-  apiConfig: AssistantApiConfig;
-  connectionConfig: ConnectionConfig;
-};
-
-const DEFAULT_EVAL_TASK_CONFIG: EvalTaskConfig = {
-  apiConfig: {
-    baseURL: 'https://eval.knowledge-dev.mongodb.com/api/v1/',
-    apiKey: '',
-    requestOrigin: 'compass-eval-suite',
-    userAgent: 'mongodb-compass/x.x.x',
-  },
-  connectionConfig: {
-    connectionId: 'eval-test-cluster',
-    connectionString: 'mongodb://localhost:27017',
-    connectOptions: {
-      productDocsLink: 'https://www.mongodb.com/docs/compass/',
-      productName: 'MongoDB Compass Eval',
-    },
-  },
-};
-
 function createToolCallAssistantTask(
   config: EvalTaskConfig = DEFAULT_EVAL_TASK_CONFIG
 ) {
   const { apiConfig, connectionConfig } = config;
 
   return async function makeToolCallAssistantCall(
-    input: ToolCallEvalInput
-  ): Promise<ToolCallTaskOutput> {
-    // Initialize the MCP server on first call
+    input: ConversationEvalCaseInput & { custom?: CompassAssistantCustomInput }
+  ): Promise<ConversationTaskOutput> {
     await ensureToolsInitialized();
+
+    const custom = input.custom as CompassAssistantCustomInput;
 
     const openai = createOpenAI({
       baseURL: apiConfig.baseURL,
@@ -236,32 +249,24 @@ function createToolCallAssistantTask(
       },
     });
 
-    // Configure and get tools for this eval case — same path as the Compass assistant
     const tools = getToolsForCase({
-      input: input.custom,
+      input: custom,
       connectionConfig,
     });
 
-    // Build context prompt using the connection string from config
     const contextPrompt = buildContextPromptText({
-      custom: input.custom,
+      custom,
       connectionString: connectionConfig.connectionString,
     });
 
-    // Build messages matching the real assistant flow:
-    // system context prompt + user message(s)
-    const messages = [
-      { role: 'system' as const, content: contextPrompt },
-      ...input.messages,
-    ];
-
     const result = streamText({
       model: openai.responses(EVAL_MODEL),
-      messages,
+      system: contextPrompt,
+      prompt: input.messages.map((m) => m.content).join('\n'),
       tools,
       providerOptions: {
         openai: {
-          instructions: input.instructions,
+          instructions,
           store: false,
         },
       },
@@ -271,21 +276,21 @@ function createToolCallAssistantTask(
     const toolCalls = await result.toolCalls;
 
     return {
-      toolCalls,
-      text,
+      messages: toolCallPartsToAssistantMessages(toolCalls),
+      assistantMessageContent: text,
+      allowedQuery: true,
     };
   };
 }
 
 // ---------------------------------------------------------------------------
-// Eval entry point
+// Eval entry point — uses AEL's runConversationEval
 // ---------------------------------------------------------------------------
 
-void Eval<ToolCallEvalInput, ToolCallTaskOutput, ToolCallEvalExpected>(
-  'Compass Tool Calls',
-  {
-    data: makeToolCallEvalCases,
-    task: createToolCallAssistantTask(),
-    scores: ToolCallScorers,
-  }
-);
+void runConversationEval<CompassAssistantCustomInput>({
+  projectName: EVAL_PROJECT_NAME,
+  experimentName: EVAL_EXPERIMENT_NAME,
+  evalCases: makeToolCallEvalCases(),
+  task: createToolCallAssistantTask(),
+  scorers: [ToolCallScorers],
+});
