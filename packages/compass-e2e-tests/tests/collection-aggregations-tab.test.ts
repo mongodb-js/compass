@@ -15,7 +15,7 @@ import * as Selectors from '../helpers/selectors';
 import {
   createNestedDocumentsCollection,
   createNumbersCollection,
-} from '../helpers/insert-data';
+} from '../helpers/mongo-clients';
 import { saveAggregationPipeline } from '../helpers/commands/save-aggregation-pipeline';
 import type { ChainablePromiseElement } from 'webdriverio';
 import { switchPipelineMode } from '../helpers/commands/switch-pipeline-mode';

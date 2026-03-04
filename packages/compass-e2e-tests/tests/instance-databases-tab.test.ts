@@ -13,7 +13,7 @@ import * as Selectors from '../helpers/selectors';
 import {
   createDummyCollections,
   createNumbersCollection,
-} from '../helpers/insert-data';
+} from '../helpers/mongo-clients';
 
 const INITIAL_DATABASE_NAMES = ['admin', 'config', 'local', 'test'];
 

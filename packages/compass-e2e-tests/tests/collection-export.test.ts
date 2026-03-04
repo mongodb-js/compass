@@ -20,7 +20,7 @@ import * as Selectors from '../helpers/selectors';
 import {
   createNumbersCollection,
   createNumbersStringCollection,
-} from '../helpers/insert-data';
+} from '../helpers/mongo-clients';
 
 async function selectExportFileTypeCSV(browser: CompassBrowser) {
   await browser.clickParent(Selectors.FileTypeCSV);

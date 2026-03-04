@@ -17,7 +17,7 @@ import * as Selectors from '../helpers/selectors';
 import {
   createNestedDocumentsCollection,
   createNumbersCollection,
-} from '../helpers/insert-data';
+} from '../helpers/mongo-clients';
 import {
   isTestingWeb,
   context as testRunnerContext,
