@@ -1,19 +1,19 @@
 import React, { useMemo } from 'react';
 import { connect } from 'react-redux';
+import HadronDocument from 'hadron-document';
 
 import {
   css,
   spacing,
   Body,
   Description,
+  DocumentList,
   Link,
   TextInput,
   Banner,
   BannerVariant,
   compactBytes,
 } from '@mongodb-js/compass-components';
-
-import { CodemirrorMultilineEditor } from '@mongodb-js/compass-editor';
 
 import type { CollectionState } from '../../modules/collection-tab';
 import { mockDataGeneratorDocumentCountChanged } from '../../modules/collection-tab';
@@ -44,9 +44,16 @@ const previewTitleStyles = css({
   fontWeight: 600,
 });
 
-const previewEditorStyles = css({
-  maxHeight: '300px',
-  overflow: 'auto',
+const documentContainerStyles = css({
+  display: 'flex',
+  flexDirection: 'column',
+  gap: spacing[300],
+});
+
+const documentWrapperStyles = css({
+  border: '1px solid #E8EDEB',
+  borderRadius: '6px',
+  padding: spacing[200],
 });
 
 // Document count section styles
@@ -131,28 +138,19 @@ const PreviewAndDocCountScreen = ({
     onDocumentCountChanged(event.target.value);
   };
 
-  const previewDocuments = useMemo(() => {
+  const sampleDocuments = useMemo(() => {
     if (!fakerSchema) {
       return [];
     }
-    const docs = [];
+    const documents = [];
     for (let i = 0; i < NUM_PREVIEW_DOCUMENTS; i++) {
-      docs.push(generateDocument(fakerSchema, arrayLengthMap));
+      const plainDoc = generateDocument(fakerSchema, arrayLengthMap);
+      const hadronDoc = new HadronDocument(plainDoc);
+      hadronDoc.expand();
+      documents.push(hadronDoc);
     }
-    return docs;
+    return documents;
   }, [fakerSchema, arrayLengthMap]);
-
-  const previewJson = useMemo(() => {
-    if (previewDocuments.length === 0) {
-      return '// No preview available';
-    }
-    return previewDocuments
-      .map((doc, index) => {
-        const separator = `// --- Document ${index + 1} ---`;
-        return `${separator}\n${JSON.stringify(doc, null, 2)}`;
-      })
-      .join('\n\n');
-  }, [previewDocuments]);
 
   return (
     <div className={containerStyles} data-testid="preview-and-doc-count-screen">
@@ -169,15 +167,16 @@ const PreviewAndDocCountScreen = ({
           are being used to generate the documents) you can do so in the next
           step.
         </Body>
-        {fakerSchema ? (
-          <div className={previewEditorStyles}>
-            <CodemirrorMultilineEditor
-              id="preview-documents"
-              text={previewJson}
-              language="json"
-              readOnly
-              data-testid="preview-documents-editor"
-            />
+        {sampleDocuments.length > 0 ? (
+          <div
+            className={documentContainerStyles}
+            data-testid="preview-documents"
+          >
+            {sampleDocuments.map((doc, index) => (
+              <div key={index} className={documentWrapperStyles}>
+                <DocumentList.Document value={doc} />
+              </div>
+            ))}
           </div>
         ) : (
           <Banner variant={BannerVariant.Warning}>
