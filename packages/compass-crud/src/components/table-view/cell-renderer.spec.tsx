@@ -66,7 +66,7 @@ describe('<CellRenderer />', function () {
             context={context}
           />
         );
-        expect(screen.queryByLabelText('Expand')).to.not.exist;
+        expect(screen.queryByLabelText('Undo change')).to.not.exist;
       });
     });
 
