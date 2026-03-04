@@ -1,18 +1,14 @@
 import { Key } from 'webdriverio';
 import type { CompassBrowser } from '../compass-browser';
 import type { ChainablePromiseElement } from 'webdriverio';
+import { resolveElement } from '../utils';
 
 export async function setValueVisible(
   browser: CompassBrowser,
   selector: string | ChainablePromiseElement,
   value: string
 ): Promise<void> {
-  // The hardest thing in computer science? Reliably setting a text form field's
-  // value in an E2E test.
-  function getElement() {
-    return typeof selector === 'string' ? browser.$(selector) : selector;
-  }
-  const element = getElement();
+  const element = resolveElement(browser, selector);
 
   await browser.waitForAnimations(element);
 

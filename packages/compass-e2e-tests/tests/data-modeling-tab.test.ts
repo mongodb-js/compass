@@ -77,7 +77,8 @@ async function setupDiagram(
     diagramName: string;
     connectionName: string;
     databaseName: string;
-  }
+  },
+  stopAtStep?: 'newDiagramSetup' | 'collectionsSelection' | 'diagramSettings'
 ) {
   await browser.navigateToDataModeling();
 
@@ -101,13 +102,28 @@ async function setupDiagram(
     selectSelector: Selectors.CreateDataModelDatabaseSelector,
     optionText: options.databaseName,
   });
+  if (stopAtStep === 'newDiagramSetup') {
+    return;
+  }
   await browser.clickVisible(Selectors.CreateDataModelConfirmButton);
 
   // Ensure that all the collections are selected by default
   const text = await browser.$(Selectors.CreateDataModelModal).getText();
   // 2 is based on the collections we create in beforeEach hook
   expect(text).to.contain('2/2 total collections selected.');
+  if (stopAtStep === 'collectionsSelection') {
+    return;
+  }
+  await browser.clickVisible(Selectors.CreateDataModelConfirmButton);
 
+  // Pass the diagram settings step without changes
+  expect(await browser.$(Selectors.CreateDataModelModal).getText()).to.contain(
+    'Diagram settings'
+  );
+  if (stopAtStep === 'diagramSettings') {
+    return;
+  }
+  await browser.$(Selectors.CreateDataModelConfirmButton).isClickable();
   await browser.clickVisible(Selectors.CreateDataModelConfirmButton);
 
   // Wait for the diagram editor to load
@@ -310,33 +326,20 @@ describe('Data Modeling tab', function () {
   it('allows configuring the sample size during diagram creation', async function () {
     const dataModelName = 'Test Data Model - Sample Size';
 
-    await browser.navigateToDataModeling();
-
-    // Click on create new data model button
-    await browser.clickVisible(Selectors.CreateNewDataModelButton);
-
-    // Fill in model details
-    await browser.setValueVisible(
-      Selectors.CreateDataModelNameInput,
-      dataModelName
+    await setupDiagram(
+      browser,
+      {
+        diagramName: dataModelName,
+        connectionName: getDefaultConnectionNames(0),
+        databaseName: 'test',
+      },
+      'diagramSettings'
     );
-
-    // Select existing connection
-    await browser.selectOption({
-      selectSelector: Selectors.CreateDataModelConnectionSelector,
-      optionText: getDefaultConnectionNames(0),
-    });
-
-    // Select a database
-    await browser.selectOption({
-      selectSelector: Selectors.CreateDataModelDatabaseSelector,
-      optionText: 'test',
-    });
-    await browser.clickVisible(Selectors.CreateDataModelConfirmButton);
 
     // We're now on the select collections step
     // Verify that sample size input is visible with default value of 100
     const sampleSizeInput = browser.$(Selectors.DataModelSampleSizeInput);
+    await sampleSizeInput.scrollIntoView();
     await sampleSizeInput.waitForDisplayed();
     expect(await sampleSizeInput.getValue()).to.equal('100');
 
@@ -347,7 +350,7 @@ describe('Data Modeling tab', function () {
     // Change to a larger sample size (> 100) and verify warning appears
     await sampleSizeInput.setValue('200');
     await warning.waitForDisplayed();
-    expect(await warning.getText()).to.include('Larger sample sizes');
+    expect(await warning.getText()).to.include('Consider your dataset size');
 
     // Change back to a smaller value and verify warning disappears
     await sampleSizeInput.setValue('50');
@@ -368,6 +371,7 @@ describe('Data Modeling tab', function () {
   context('Undo/Redo and Storage', function () {
     it('actions are undoable and persist after re-opening', async function () {
       const dataModelName = 'Test Data Model - Undo/Redo';
+
       await setupDiagram(browser, {
         diagramName: dataModelName,
         connectionName: getDefaultConnectionNames(0),
@@ -1012,6 +1016,15 @@ describe('Data Modeling tab', function () {
       }
 
       // Confirm adding the selected collections
+      await browser.clickVisible(
+        Selectors.DataModelReselectCollectionsModalConfirmButton
+      );
+
+      // Confirm the settings
+      expect(
+        await browser.$(Selectors.DataModelReselectCollectionsModal).getText()
+      ).to.contain('Diagram settings');
+
       await browser.clickVisible(
         Selectors.DataModelReselectCollectionsModalConfirmButton
       );
