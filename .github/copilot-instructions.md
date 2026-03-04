@@ -35,7 +35,7 @@ The tests should resemble the way the software is used, not the way it's impleme
 - Avoid testing or asserting on Redux internals (store state, selector calls, hook usage). Focus on user-visible behavior.
 - Avoid writing dedicated unit tests for every reducer, selector, or action creator; in many cases they are implementation details already covered by integration tests.
 
-To ease testing fully integrated Compass components, use the helper methods built on top of Testing Library that handle required wiring when rendering components inside plugins. See the docs at https://github.com/mongodb-js/compass/tree/main/configs/testing-library-compass.
+To ease testing fully integrated Compass components, use the helper methods built on top of Testing Library that handle required wiring when rendering components inside plugins. See the docs at [Compass Testing Library helpers documentation](https://github.com/mongodb-js/compass/tree/main/configs/testing-library-compass).
 
 ```tsx
 // ❌ Asserting on Redux store internals
