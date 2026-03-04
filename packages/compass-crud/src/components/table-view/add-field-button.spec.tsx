@@ -35,11 +35,7 @@ function renderButtonAndOpenMenu(props) {
 
   render(<AddFieldButton {...defaultProps} {...props} />);
 
-  userEvent.click(
-    screen.getByTestId('table-view-cell-editor-add-field-button'),
-    undefined,
-    { skipPointerEventsCheck: true }
-  );
+  userEvent.click(screen.getByRole('button', { name: 'Add field' }));
 }
 
 describe('<AddFieldButton />', function () {
@@ -100,14 +96,8 @@ describe('<AddFieldButton />', function () {
         />
       );
 
-      userEvent.click(
-        screen.getByTestId('table-view-cell-editor-add-field-button'),
-        undefined,
-        { skipPointerEventsCheck: true }
-      );
-      userEvent.click(screen.getByTestId('add-field-after'), undefined, {
-        skipPointerEventsCheck: true,
-      });
+      userEvent.click(screen.getByRole('button', { name: 'Add field' }));
+      userEvent.click(screen.getByTestId('add-field-after'));
 
       expect(actions.addColumn.callCount).to.equal(1);
       expect(actions.addColumn.args[0]).to.deep.equal([
@@ -145,14 +135,8 @@ describe('<AddFieldButton />', function () {
         />
       );
 
-      userEvent.click(
-        screen.getByTestId('table-view-cell-editor-add-field-button'),
-        undefined,
-        { skipPointerEventsCheck: true }
-      );
-      userEvent.click(screen.getByTestId('add-field-after'), undefined, {
-        skipPointerEventsCheck: true,
-      });
+      userEvent.click(screen.getByRole('button', { name: 'Add field' }));
+      userEvent.click(screen.getByTestId('add-field-after'));
 
       expect(value.nextElement.currentKey).to.equal('$new');
     });
@@ -181,14 +165,8 @@ describe('<AddFieldButton />', function () {
         />
       );
 
-      userEvent.click(
-        screen.getByTestId('table-view-cell-editor-add-field-button'),
-        undefined,
-        { skipPointerEventsCheck: true }
-      );
-      userEvent.click(screen.getByTestId('add-field-after'), undefined, {
-        skipPointerEventsCheck: true,
-      });
+      userEvent.click(screen.getByRole('button', { name: 'Add field' }));
+      userEvent.click(screen.getByTestId('add-field-after'));
 
       expect(actions.addColumn.callCount).to.equal(1);
       expect(actions.addColumn.args[0]).to.deep.equal([
@@ -229,14 +207,8 @@ describe('<AddFieldButton />', function () {
         />
       );
 
-      userEvent.click(
-        screen.getByTestId('table-view-cell-editor-add-field-button'),
-        undefined,
-        { skipPointerEventsCheck: true }
-      );
-      userEvent.click(screen.getByTestId('add-child-to-object'), undefined, {
-        skipPointerEventsCheck: true,
-      });
+      userEvent.click(screen.getByRole('button', { name: 'Add field' }));
+      userEvent.click(screen.getByTestId('add-child-to-object'));
 
       expect(actions.drillDown.callCount).to.equal(1);
       expect(actions.drillDown.args[0][0]).to.equal(
@@ -278,14 +250,8 @@ describe('<AddFieldButton />', function () {
         />
       );
 
-      userEvent.click(
-        screen.getByTestId('table-view-cell-editor-add-field-button'),
-        undefined,
-        { skipPointerEventsCheck: true }
-      );
-      userEvent.click(screen.getByTestId('add-element-to-array'), undefined, {
-        skipPointerEventsCheck: true,
-      });
+      userEvent.click(screen.getByRole('button', { name: 'Add field' }));
+      userEvent.click(screen.getByTestId('add-element-to-array'));
 
       expect(actions.drillDown.callCount).to.equal(1);
       expect(actions.drillDown.args[0][0]).to.equal(

@@ -93,7 +93,7 @@ describe('<CellRenderer />', function () {
         expect(screen.getByText('"value"')).to.exist;
         expect(container.querySelector('.table-view-cell-is-added')).to.exist;
         // Undo button should be present for added elements
-        expect(screen.getByLabelText('Expand')).to.exist;
+        expect(screen.getByLabelText('Undo change')).to.exist;
       });
     });
 
@@ -120,7 +120,7 @@ describe('<CellRenderer />', function () {
         expect(screen.getByText('"a new value"')).to.exist;
         expect(container.querySelector('.table-view-cell-is-edited')).to.exist;
         // Undo button should be present for modified elements
-        expect(screen.getByLabelText('Expand')).to.exist;
+        expect(screen.getByLabelText('Undo change')).to.exist;
       });
     });
 
@@ -147,7 +147,7 @@ describe('<CellRenderer />', function () {
         expect(container.querySelector('.table-view-cell-is-deleted')).to.exist;
         expect(screen.getByText('Deleted field')).to.exist;
         // Undo button should be present for removed elements
-        expect(screen.getByLabelText('Expand')).to.exist;
+        expect(screen.getByLabelText('Undo change')).to.exist;
       });
     });
 
@@ -314,7 +314,7 @@ describe('<CellRenderer />', function () {
         );
         expect(screen.getByText('{} 1 fields')).to.exist;
         // Expand button should be present for expandable elements
-        expect(screen.getByLabelText('Expand')).to.exist;
+        expect(screen.getByLabelText('Expand field')).to.exist;
       });
     });
 
@@ -366,7 +366,8 @@ describe('<CellRenderer />', function () {
         // Both undo button (with left position) and expand button should be present
         expect(container.querySelector('.table-view-cell-circle-button-left'))
           .to.exist;
-        expect(screen.getAllByLabelText('Expand')).to.have.length(2);
+        expect(screen.getByLabelText('Undo change')).to.exist;
+        expect(screen.getByLabelText('Expand field')).to.exist;
       });
     });
   });
@@ -382,7 +383,7 @@ describe('<CellRenderer />', function () {
         const value = rowNode.data.hadronDocument.get('field1');
         const api = getApi();
         const actions = getActions();
-        const { container } = render(
+        render(
           <CellRenderer
             api={api}
             column={column}
@@ -397,13 +398,9 @@ describe('<CellRenderer />', function () {
             context={context}
           />
         );
-        const undoButton = container.querySelector(
-          '.table-view-cell-circle-button'
-        );
+        const undoButton = screen.getByRole('button', { name: 'Undo change' });
         expect(undoButton).to.exist;
-        userEvent.click(undoButton!, undefined, {
-          skipPointerEventsCheck: true,
-        });
+        userEvent.click(undoButton);
         // After undo, element should not be modified
         expect(value.isModified()).to.equal(false);
         // Renders the original element
@@ -416,7 +413,7 @@ describe('<CellRenderer />', function () {
         const value = rowNode.data.hadronDocument.get('field1');
         const api = getApi();
         const actions = getActions();
-        const { container } = render(
+        render(
           <CellRenderer
             api={api}
             column={column}
@@ -431,12 +428,8 @@ describe('<CellRenderer />', function () {
             context={context}
           />
         );
-        const undoButton = container.querySelector(
-          '.table-view-cell-circle-button'
-        );
-        userEvent.click(undoButton!, undefined, {
-          skipPointerEventsCheck: true,
-        });
+        const undoButton = screen.getByRole('button', { name: 'Undo change' });
+        userEvent.click(undoButton);
         expect(actions.elementRemoved.callCount).to.equal(1);
         expect(
           actions.elementRemoved.alwaysCalledWithExactly('field1', '1', false)
@@ -453,7 +446,7 @@ describe('<CellRenderer />', function () {
         const value = rowNode.data.hadronDocument.get('field1');
         const api = getApi();
         const actions = getActions();
-        const { container } = render(
+        render(
           <CellRenderer
             api={api}
             column={column}
@@ -468,12 +461,8 @@ describe('<CellRenderer />', function () {
             context={context}
           />
         );
-        const undoButton = container.querySelector(
-          '.table-view-cell-circle-button'
-        );
-        userEvent.click(undoButton!, undefined, {
-          skipPointerEventsCheck: true,
-        });
+        const undoButton = screen.getByRole('button', { name: 'Undo change' });
+        userEvent.click(undoButton);
         expect(actions.elementTypeChanged.callCount).to.equal(1);
         expect(
           actions.elementTypeChanged.alwaysCalledWithExactly(
@@ -494,7 +483,7 @@ describe('<CellRenderer />', function () {
         const value = rowNode.data.hadronDocument.get('field1');
         const api = getApi();
         const actions = getActions();
-        const { container } = render(
+        render(
           <CellRenderer
             api={api}
             column={column}
@@ -509,12 +498,8 @@ describe('<CellRenderer />', function () {
             context={context}
           />
         );
-        const undoButton = container.querySelector(
-          '.table-view-cell-circle-button'
-        );
-        userEvent.click(undoButton!, undefined, {
-          skipPointerEventsCheck: true,
-        });
+        const undoButton = screen.getByRole('button', { name: 'Undo change' });
+        userEvent.click(undoButton);
         expect(actions.elementAdded.callCount).to.equal(1);
         expect(
           actions.elementAdded.alwaysCalledWithExactly('field1', 'String', '1')
@@ -532,7 +517,7 @@ describe('<CellRenderer />', function () {
         const actions = getActions();
         const rowNode = getNode({ field1: { subfield1: 1 } });
         const value = rowNode.data.hadronDocument.get('field1');
-        const { container } = render(
+        render(
           <CellRenderer
             api={api}
             column={column}
@@ -547,12 +532,10 @@ describe('<CellRenderer />', function () {
             context={context}
           />
         );
-        const expandButton = container.querySelector(
-          '.table-view-cell-circle-button'
-        );
-        userEvent.click(expandButton!, undefined, {
-          skipPointerEventsCheck: true,
+        const expandButton = screen.getByRole('button', {
+          name: 'Expand field',
         });
+        userEvent.click(expandButton);
         expect(actions.drillDown.callCount).to.equal(1);
         expect(
           actions.drillDown.alwaysCalledWithExactly(
@@ -587,7 +570,7 @@ describe('<CellRenderer />', function () {
           />
         );
         const cell = container.querySelector('.table-view-cell');
-        userEvent.click(cell!, undefined, { skipPointerEventsCheck: true });
+        userEvent.click(cell!);
         notCalledExcept(actions, []);
         notCalledExcept(api, []);
       });
@@ -616,7 +599,7 @@ describe('<CellRenderer />', function () {
           />
         );
         const cell = container.querySelector('.table-view-cell');
-        userEvent.click(cell!, undefined, { skipPointerEventsCheck: true });
+        userEvent.click(cell!);
         expect(api.startEditingCell.callCount).to.equal(1);
         expect(
           api.startEditingCell.alwaysCalledWithExactly({

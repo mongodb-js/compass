@@ -384,13 +384,11 @@ describe('<CellEditor />', function () {
           expect(value.currentType).to.equal('String');
 
           // Click on the type dropdown select button
-          const selectButton = screen.getByTestId(
-            'table-view-types-dropdown-select'
-          );
-          expect(selectButton).to.exist;
-          userEvent.click(selectButton, undefined, {
-            skipPointerEventsCheck: true,
+          const selectButton = screen.getByRole('button', {
+            name: /Field type/,
           });
+          expect(selectButton).to.exist;
+          userEvent.click(selectButton);
 
           // Get the listbox menu that appears
           const menuId = selectButton.getAttribute('aria-controls');
@@ -401,9 +399,7 @@ describe('<CellEditor />', function () {
 
           // Click on Int32 option to change the type
           const int32Option = within(listbox).getByText('Int32');
-          userEvent.click(int32Option, undefined, {
-            skipPointerEventsCheck: true,
-          });
+          userEvent.click(int32Option);
 
           // Verify the type was changed on the element
           expect(value.currentType).to.equal('Int32');
@@ -439,13 +435,11 @@ describe('<CellEditor />', function () {
           />
         );
 
-        const trashButton = screen.getByTestId(
-          'table-view-cell-editor-remove-field-button'
-        ) as HTMLElement;
-        expect(trashButton).to.exist;
-        userEvent.click(trashButton, undefined, {
-          skipPointerEventsCheck: true,
+        const trashButton = screen.getByRole('button', {
+          name: 'Remove field',
         });
+        expect(trashButton).to.exist;
+        userEvent.click(trashButton);
 
         // Element is marked as removed
         expect(value.isRemoved()).to.equal(true);
@@ -483,13 +477,11 @@ describe('<CellEditor />', function () {
           />
         );
 
-        const trashButton = screen.getByTestId(
-          'table-view-cell-editor-remove-field-button'
-        ) as HTMLElement;
-        expect(trashButton).to.exist;
-        userEvent.click(trashButton, undefined, {
-          skipPointerEventsCheck: true,
+        const trashButton = screen.getByRole('button', {
+          name: 'Remove field',
         });
+        expect(trashButton).to.exist;
+        userEvent.click(trashButton);
 
         // Element is marked as removed
         expect(value.isRemoved()).to.equal(true);
@@ -750,13 +742,11 @@ describe('<CellEditor />', function () {
           />
         );
 
-        const expandButton = screen.getByTestId(
-          'table-view-cell-editor-expand-button'
-        ) as HTMLElement;
-        expect(expandButton).to.exist;
-        userEvent.click(expandButton, undefined, {
-          skipPointerEventsCheck: true,
+        const expandButton = screen.getByRole('button', {
+          name: 'Expand field',
         });
+        expect(expandButton).to.exist;
+        userEvent.click(expandButton);
 
         // drillDown action is called
         expect(actions.drillDown.callCount).to.equal(1);

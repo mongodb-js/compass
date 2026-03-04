@@ -325,6 +325,7 @@ class AddFieldButton extends React.Component<
             <Button
               size="xsmall"
               data-testid="table-view-cell-editor-add-field-button"
+              aria-label="Add field"
               onClick={onClick}
               {...props}
             >

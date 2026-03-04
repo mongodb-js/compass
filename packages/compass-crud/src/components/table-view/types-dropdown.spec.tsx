@@ -44,7 +44,7 @@ describe('TypesDropdown', function () {
   });
 
   it('should render a dropdown with types', function () {
-    expect(screen.getByTestId('table-view-types-dropdown-select')).to.exist;
+    expect(screen.getByRole('button', { name: /Field type/ })).to.exist;
   });
 
   it('should show the initial type', function () {
@@ -53,31 +53,21 @@ describe('TypesDropdown', function () {
 
   selectableTypes.forEach((type) => {
     it(`allows to select ${type}`, function () {
-      userEvent.click(
-        screen.getByTestId('table-view-types-dropdown-select'),
-        undefined,
-        { skipPointerEventsCheck: true }
-      ); // Click select button
+      userEvent.click(screen.getByRole('button', { name: /Field type/ })); // Click select button
       expect(screen.getByText(type)).to.exist;
     });
   });
 
   describe('when a type is selected', function () {
     beforeEach(function () {
-      const selectButton = screen.getByTestId(
-        'table-view-types-dropdown-select'
-      );
-      userEvent.click(selectButton, undefined, {
-        skipPointerEventsCheck: true,
-      }); // Click select button
+      const selectButton = screen.getByRole('button', { name: /Field type/ });
+      userEvent.click(selectButton); // Click select button
       const menuId = selectButton.getAttribute('aria-controls');
       const listbox = document.querySelector(
         `[id="${menuId}"][role="listbox"]`
       ) as HTMLElement;
       const stringOption = within(listbox).getByText('String');
-      userEvent.click(stringOption, undefined, {
-        skipPointerEventsCheck: true,
-      }); // Click type
+      userEvent.click(stringOption); // Click type
     });
 
     it('changes the element current type', function () {
