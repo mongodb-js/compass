@@ -201,7 +201,180 @@ describe('MockDataGeneratorModal', () => {
       });
     });
 
-    // TODO: CLOUDP-381905 - Loading state tests
+    it('shows loading spinner when faker schema generation is in progress', async () => {
+      await renderModal({
+        fakerSchemaGeneration: {
+          status: 'in-progress',
+          requestId: 'test-request-id',
+        },
+      });
+
+      expect(screen.getByTestId('raw-schema-confirmation-loader')).to.exist;
+      expect(screen.getByText('Generating mock data mappings...')).to.exist;
+    });
+
+    it('disables the Confirm button when faker schema generation is in progress', async () => {
+      await renderModal({
+        fakerSchemaGeneration: {
+          status: 'in-progress',
+          requestId: 'test-request-id',
+        },
+      });
+
+      expect(
+        screen
+          .getByRole('button', { name: 'Confirm' })
+          .getAttribute('aria-disabled')
+      ).to.equal('true');
+    });
+
+    it('shows sample values banner when sample document passing is disabled and projectId is available', async () => {
+      await renderModal({
+        enableGenAISampleDocumentPassing: false,
+        connectionInfo: {
+          id: 'test-connection-id',
+          connectionOptions: { connectionString: 'mongodb://localhost:27017' },
+          atlasMetadata: {
+            orgId: 'test-org-id',
+            projectId: 'test-project-id',
+            clusterName: 'test-cluster',
+            clusterType: 'REPLICASET' as const,
+            clusterState: 'IDLE' as const,
+            clusterUniqueId: 'test-cluster-unique-id',
+            metricsId: 'test-metrics-id',
+            metricsType: 'replicaSet' as const,
+            regionalBaseUrl: null,
+            instanceSize: 'M10',
+            supports: {
+              globalWrites: false,
+              rollingIndexes: true,
+            },
+            userConnectionString: 'mongodb+srv://localhost:27017',
+          },
+        },
+      });
+
+      expect(screen.getByTestId('sample-values-banner')).to.exist;
+      expect(screen.getByText('Enable Sending Sample Field Values')).to.exist;
+      expect(screen.getByTestId('sample-values-banner-settings-button')).to
+        .exist;
+    });
+
+    it('hides sample values banner when sample document passing is enabled', async () => {
+      await renderModal({
+        enableGenAISampleDocumentPassing: true,
+        connectionInfo: {
+          id: 'test-connection-id',
+          connectionOptions: { connectionString: 'mongodb://localhost:27017' },
+          atlasMetadata: {
+            orgId: 'test-org-id',
+            projectId: 'test-project-id',
+            clusterName: 'test-cluster',
+            clusterType: 'REPLICASET' as const,
+            clusterState: 'IDLE' as const,
+            clusterUniqueId: 'test-cluster-unique-id',
+            metricsId: 'test-metrics-id',
+            metricsType: 'replicaSet' as const,
+            regionalBaseUrl: null,
+            instanceSize: 'M10',
+            supports: {
+              globalWrites: false,
+              rollingIndexes: true,
+            },
+            userConnectionString: 'mongodb+srv://localhost:27017',
+          },
+        },
+      });
+
+      expect(screen.queryByTestId('sample-values-banner')).to.not.exist;
+    });
+
+    it('dismisses sample values banner when close button is clicked', async () => {
+      await renderModal({
+        enableGenAISampleDocumentPassing: false,
+        connectionInfo: {
+          id: 'test-connection-id',
+          connectionOptions: { connectionString: 'mongodb://localhost:27017' },
+          atlasMetadata: {
+            orgId: 'test-org-id',
+            projectId: 'test-project-id',
+            clusterName: 'test-cluster',
+            clusterType: 'REPLICASET' as const,
+            clusterState: 'IDLE' as const,
+            clusterUniqueId: 'test-cluster-unique-id',
+            metricsId: 'test-metrics-id',
+            metricsType: 'replicaSet' as const,
+            regionalBaseUrl: null,
+            instanceSize: 'M10',
+            supports: {
+              globalWrites: false,
+              rollingIndexes: true,
+            },
+            userConnectionString: 'mongodb+srv://localhost:27017',
+          },
+        },
+      });
+
+      expect(screen.getByTestId('sample-values-banner')).to.exist;
+
+      // Click the dismiss button
+      const banner = screen.getByTestId('sample-values-banner');
+      const closeButton = banner
+        .querySelector('[aria-label="X Icon"]')
+        ?.closest('button') as HTMLElement;
+      userEvent.click(closeButton);
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('sample-values-banner')).to.not.exist;
+      });
+    });
+
+    it('opens project settings URL when settings button is clicked', async () => {
+      const windowOpenStub = sinon.stub(window, 'open');
+
+      try {
+        await renderModal({
+          enableGenAISampleDocumentPassing: false,
+          connectionInfo: {
+            id: 'test-connection-id',
+            connectionOptions: {
+              connectionString: 'mongodb://localhost:27017',
+            },
+            atlasMetadata: {
+              orgId: 'test-org-id',
+              projectId: 'test-project-id',
+              clusterName: 'test-cluster',
+              clusterType: 'REPLICASET' as const,
+              clusterState: 'IDLE' as const,
+              clusterUniqueId: 'test-cluster-unique-id',
+              metricsId: 'test-metrics-id',
+              metricsType: 'replicaSet' as const,
+              regionalBaseUrl: null,
+              instanceSize: 'M10',
+              supports: {
+                globalWrites: false,
+                rollingIndexes: true,
+              },
+              userConnectionString: 'mongodb+srv://localhost:27017',
+            },
+          },
+        });
+
+        // Click the settings button
+        const settingsButton = screen.getByTestId(
+          'sample-values-banner-settings-button'
+        );
+        userEvent.click(settingsButton);
+
+        expect(windowOpenStub).to.have.been.calledWith(
+          `${window.location.origin}/v2/test-project-id#/settings/groupSettings`,
+          '_blank',
+          'noopener noreferrer'
+        );
+      } finally {
+        windowOpenStub.restore();
+      }
+    });
   });
 
   describe('on the schema confirmation step', () => {
@@ -220,27 +393,22 @@ describe('MockDataGeneratorModal', () => {
       expect(screen.getByText('test.collection')).to.exist;
     });
 
-    it('uses the appropriate copy when Generative AI sample document passing is enabled', async () => {
+    it('displays the description copy with Faker functions link', async () => {
+      await renderModal();
+      expect(screen.getByText(/We'll use the identified schema to generate/)).to
+        .exist;
+      expect(screen.getByRole('link', { name: 'Faker functions' })).to.exist;
+    });
+
+    it('displays sample document when sample document passing is enabled', async () => {
       await renderModal({ enableGenAISampleDocumentPassing: true });
-      expect(screen.getByText('Sample Documents Collected')).to.exist;
-      expect(
-        screen.getByText(
-          'A sample of documents from your collection will be sent to an LLM for processing.'
-        )
-      ).to.exist;
       // fragment from { "name": "John" }
       expect(screen.getByText('"John"')).to.exist;
       expect(screen.queryByText('"String"')).to.not.exist;
     });
 
-    it('uses the appropriate copy when Generative AI sample document passing is disabled', async () => {
+    it('displays schema when sample document passing is disabled', async () => {
       await renderModal();
-      expect(screen.getByText('Document Schema Identified')).to.exist;
-      expect(
-        screen.queryByText(
-          'We have identified the following schema from your documents. This schema will be sent to an LLM for processing.'
-        )
-      ).to.exist;
       // fragment from { "name": "String" }
       expect(screen.getByText('"String"')).to.exist;
       expect(screen.queryByText('"John"')).to.not.exist;
