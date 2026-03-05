@@ -20,6 +20,7 @@ import { saveAggregationPipeline } from '../helpers/commands/save-aggregation-pi
 import type { ChainablePromiseElement } from 'webdriverio';
 import { switchPipelineMode } from '../helpers/commands/switch-pipeline-mode';
 import { isTestingWeb } from '../helpers/test-runner-context';
+import { allowServerWarnings } from '../helpers/test-runner-global-fixtures';
 
 const { expect } = chai;
 
@@ -472,6 +473,15 @@ describe('Collection aggregations tab', function () {
 
   describe('maxTimeMS', function () {
     let maxTimeMSBefore: any;
+    let unsubscribeWarnings: () => void;
+
+    before(function () {
+      unsubscribeWarnings = allowServerWarnings(8996500); // Allow "$function is deprecated" warning
+    });
+
+    after(function () {
+      unsubscribeWarnings();
+    });
 
     beforeEach(async function () {
       maxTimeMSBefore = await browser.getFeature('maxTimeMS');
@@ -951,6 +961,7 @@ describe('Collection aggregations tab', function () {
   });
 
   it('supports cancelling long-running aggregations', async function () {
+    const unsubscribeAllowWarning = allowServerWarnings(8996500); // Allo "$function is deprecated" warning
     const slowQuery = `{
       sleep: {
         $function: {
@@ -976,6 +987,8 @@ describe('Collection aggregations tab', function () {
     // load anything and dismissed "Loading" banner)
     const emptyResultsBanner = browser.$(Selectors.AggregationEmptyResults);
     await emptyResultsBanner.waitForDisplayed();
+
+    unsubscribeAllowWarning();
   });
 
   it('handles errors in aggregations', async function () {
