@@ -533,6 +533,7 @@ class CellEditor
     return (
       <Button
         data-testid="table-view-cell-editor-expand-button"
+        aria-label="Expand field"
         size="xsmall"
         onClick={this.handleDrillDown.bind(this)}
       >
@@ -556,6 +557,7 @@ class CellEditor
     return (
       <Button
         data-testid="table-view-cell-editor-remove-field-button"
+        aria-label="Remove field"
         size="xsmall"
         onClick={this.handleRemoveField.bind(this)}
       >
