@@ -24,7 +24,9 @@ const DEFAULT_ALLOWED_WARNINGS: WarningFilter[] = [
     }
     return (
       l.id === 23799 &&
-      ['CommandNotSupportedOnView'].includes(l.attr?.error?.codeName)
+      ['NamespaceNotFound', 'CommandNotSupportedOnView'].includes(
+        l.attr?.error?.codeName
+      )
     );
   },
 ];
