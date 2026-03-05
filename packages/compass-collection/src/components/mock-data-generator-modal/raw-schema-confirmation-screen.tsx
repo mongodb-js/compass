@@ -33,6 +33,9 @@ const documentContainerStyles = css({
   backgroundColor: palette.gray.light3,
   border: `1px solid ${palette.gray.light2}`,
   borderRadius: spacing[400],
+  minHeight: '100px',
+  maxHeight: '300px',
+  overflow: 'auto',
 });
 const documentContainerDarkStyles = css({
   backgroundColor: palette.gray.dark3,
