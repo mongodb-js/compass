@@ -1,6 +1,11 @@
 import React from 'react';
 import { Provider } from 'react-redux';
-import { cleanup, render, screen } from '@mongodb-js/testing-library-compass';
+import {
+  cleanup,
+  render,
+  screen,
+  act,
+} from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
@@ -59,7 +64,9 @@ const renderEditSearchIndexDrawerView = (
 
 describe('EditSearchIndexDrawerView', function () {
   afterEach(function () {
-    cleanup();
+    act(() => {
+      cleanup();
+    });
     sinon.restore();
   });
 
@@ -196,32 +203,7 @@ describe('EditSearchIndexDrawerView', function () {
 
   describe('save button state', function () {
     it('disables submit button when definition has not changed', function () {
-      renderEditSearchIndexDrawerView({
-        searchIndexes: {
-          status: 'READY',
-          indexes: [
-            mockSearchIndex({
-              name: 'testIndex',
-              status: 'READY',
-              queryable: true,
-              latestDefinition: {
-                mappings: {
-                  dynamic: true,
-                },
-              },
-            }),
-          ],
-          createIndex: {
-            isModalOpen: false,
-            isBusy: false,
-          },
-          updateIndex: {
-            isModalOpen: false,
-            isBusy: false,
-            indexName: 'testIndex',
-          },
-        },
-      });
+      renderEditSearchIndexDrawerView();
 
       const submitButton = screen.getByTestId(
         'edit-search-index-drawer-view-submit-button'
