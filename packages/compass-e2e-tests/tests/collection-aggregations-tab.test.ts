@@ -21,6 +21,7 @@ import type { ChainablePromiseElement } from 'webdriverio';
 import { switchPipelineMode } from '../helpers/commands/switch-pipeline-mode';
 import { isTestingWeb } from '../helpers/test-runner-context';
 import { allowServerWarnings } from '../helpers/test-runner-global-fixtures';
+import type { LogEntry } from '@mongodb-js/compass-test-server';
 
 const { expect } = chai;
 
@@ -476,7 +477,12 @@ describe('Collection aggregations tab', function () {
     let unsubscribeWarnings: () => void;
 
     before(function () {
-      unsubscribeWarnings = allowServerWarnings(8996500); // Allow "$function is deprecated" warning
+      unsubscribeWarnings = allowServerWarnings(8996500, (l: LogEntry) => {
+        return (
+          l.id === 23798 &&
+          ['MaxTimeMSExpired'].includes(l.attr?.error?.codeName)
+        );
+      }); // Allow "$function is deprecated" warning
     });
 
     after(function () {
