@@ -1,18 +1,15 @@
 import _ from 'lodash';
 import type { ChainablePromiseElement } from 'webdriverio';
 import type { CompassBrowser } from '../compass-browser';
+import { resolveElement } from '../utils';
 
 export async function waitForAnimations(
   browser: CompassBrowser,
   selector: string | ChainablePromiseElement,
   options?: { timeout?: number }
 ): Promise<void> {
-  function getElement() {
-    return typeof selector === 'string' ? browser.$(selector) : selector;
-  }
-
   try {
-    const initialElement = getElement();
+    const initialElement = resolveElement(browser, selector);
 
     let previousResult = {
       location: await initialElement.getLocation(),
@@ -23,7 +20,7 @@ export async function waitForAnimations(
       // before the first check and between each two checks
       await browser.pause(50);
 
-      const currentElement = getElement();
+      const currentElement = resolveElement(browser, selector);
 
       const result = {
         location: await currentElement.getLocation(),
