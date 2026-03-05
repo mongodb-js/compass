@@ -28,7 +28,7 @@ const renderCreateSearchIndexDrawerView = (
       ...state.indexesDrawer,
       currentView: 'create-search-index' as const,
       currentIndexType: 'search' as const,
-      isEditing: false,
+      isDirty: false,
     },
     searchIndexes: {
       ...state.searchIndexes,
@@ -103,7 +103,7 @@ describe('CreateSearchIndexDrawerView', function () {
           currentView: 'create-search-index',
           currentIndexType: 'vectorSearch',
           currentIndexName: '',
-          isEditing: false,
+          isDirty: false,
         },
       });
 
@@ -122,7 +122,7 @@ describe('CreateSearchIndexDrawerView', function () {
           currentView: 'create-search-index',
           currentIndexType: 'vectorSearch',
           currentIndexName: '',
-          isEditing: false,
+          isDirty: false,
         },
       });
 

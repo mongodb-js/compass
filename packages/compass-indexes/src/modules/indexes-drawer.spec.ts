@@ -6,12 +6,13 @@ import reducer, {
   OPEN_INDEXES_LIST_DRAWER_VIEW,
   OPEN_CREATE_SEARCH_INDEX_DRAWER_VIEW,
   OPEN_EDIT_SEARCH_INDEX_DRAWER_VIEW,
-  SET_IS_EDITING,
+  SET_IS_DIRTY,
   openIndexesListDrawerView,
   openCreateSearchIndexDrawerView,
   openEditSearchIndexDrawerView,
-  setIsEditing,
+  setIsDirty,
 } from './indexes-drawer';
+import { ActionTypes as SearchIndexesActionTypes } from './search-indexes';
 
 describe('indexes-drawer module', function () {
   let store: IndexesStore;
@@ -41,7 +42,7 @@ describe('indexes-drawer module', function () {
           currentView: 'create-search-index' as const,
           currentIndexType: 'search' as const,
           currentIndexName: 'test-index',
-          isEditing: false,
+          isDirty: false,
         };
 
         const state = reducer(previousState, {
@@ -51,7 +52,7 @@ describe('indexes-drawer module', function () {
         expect(state.currentView).to.equal('indexes-list');
         expect(state.currentIndexType).to.equal('search');
         expect(state.currentIndexName).to.equal('test-index');
-        expect(state.isEditing).to.equal(false);
+        expect(state.isDirty).to.equal(false);
       });
     });
 
@@ -90,27 +91,27 @@ describe('indexes-drawer module', function () {
     });
 
     describe('SET_IS_EDITING', function () {
-      it('sets isEditing to true', function () {
+      it('sets isDirty to true', function () {
         const state = reducer(INITIAL_STATE, {
-          type: SET_IS_EDITING,
-          isEditing: true,
+          type: SET_IS_DIRTY,
+          isDirty: true,
         });
 
-        expect(state.isEditing).to.equal(true);
+        expect(state.isDirty).to.equal(true);
       });
 
-      it('sets isEditing to false', function () {
+      it('sets isDirty to false', function () {
         const previousState = {
           ...INITIAL_STATE,
-          isEditing: true,
+          isDirty: true,
         };
 
         const state = reducer(previousState, {
-          type: SET_IS_EDITING,
-          isEditing: false,
+          type: SET_IS_DIRTY,
+          isDirty: false,
         });
 
-        expect(state.isEditing).to.equal(false);
+        expect(state.isDirty).to.equal(false);
       });
 
       it('preserves other state properties', function () {
@@ -118,18 +119,84 @@ describe('indexes-drawer module', function () {
           currentView: 'edit-search-index' as const,
           currentIndexType: 'vectorSearch' as const,
           currentIndexName: 'test-index',
-          isEditing: false,
+          isDirty: false,
         };
 
         const state = reducer(previousState, {
-          type: SET_IS_EDITING,
-          isEditing: true,
+          type: SET_IS_DIRTY,
+          isDirty: true,
         });
 
-        expect(state.isEditing).to.equal(true);
+        expect(state.isDirty).to.equal(true);
         expect(state.currentView).to.equal('edit-search-index');
         expect(state.currentIndexType).to.equal('vectorSearch');
         expect(state.currentIndexName).to.equal('test-index');
+      });
+    });
+
+    describe('CreateSearchIndexClosed', function () {
+      it('resets isDirty to false', function () {
+        const previousState = {
+          ...INITIAL_STATE,
+          isDirty: true,
+        };
+
+        const state = reducer(previousState, {
+          type: SearchIndexesActionTypes.CreateSearchIndexClosed,
+        });
+
+        expect(state.isDirty).to.equal(false);
+      });
+
+      it('preserves other state properties', function () {
+        const previousState = {
+          currentView: 'create-search-index' as const,
+          currentIndexType: 'vectorSearch' as const,
+          currentIndexName: 'test-index',
+          isDirty: true,
+        };
+
+        const state = reducer(previousState, {
+          type: SearchIndexesActionTypes.CreateSearchIndexClosed,
+        });
+
+        expect(state.isDirty).to.equal(false);
+        expect(state.currentView).to.equal('create-search-index');
+        expect(state.currentIndexType).to.equal('vectorSearch');
+        expect(state.currentIndexName).to.equal('test-index');
+      });
+    });
+
+    describe('UpdateSearchIndexClosed', function () {
+      it('resets isDirty to false', function () {
+        const previousState = {
+          ...INITIAL_STATE,
+          isDirty: true,
+        };
+
+        const state = reducer(previousState, {
+          type: SearchIndexesActionTypes.UpdateSearchIndexClosed,
+        });
+
+        expect(state.isDirty).to.equal(false);
+      });
+
+      it('preserves other state properties', function () {
+        const previousState = {
+          currentView: 'edit-search-index' as const,
+          currentIndexType: 'search' as const,
+          currentIndexName: 'my-index',
+          isDirty: true,
+        };
+
+        const state = reducer(previousState, {
+          type: SearchIndexesActionTypes.UpdateSearchIndexClosed,
+        });
+
+        expect(state.isDirty).to.equal(false);
+        expect(state.currentView).to.equal('edit-search-index');
+        expect(state.currentIndexType).to.equal('search');
+        expect(state.currentIndexName).to.equal('my-index');
       });
     });
   });
@@ -182,18 +249,18 @@ describe('indexes-drawer module', function () {
       });
     });
 
-    describe('setIsEditing', function () {
-      it('dispatches SET_IS_EDITING action with true', function () {
-        store.dispatch(setIsEditing(true));
+    describe('setIsDirty', function () {
+      it('dispatches SET_IS_DIRTY action with true', function () {
+        store.dispatch(setIsDirty(true));
 
-        expect(store.getState().indexesDrawer.isEditing).to.equal(true);
+        expect(store.getState().indexesDrawer.isDirty).to.equal(true);
       });
 
-      it('dispatches SET_IS_EDITING action with false', function () {
-        store.dispatch(setIsEditing(true));
-        store.dispatch(setIsEditing(false));
+      it('dispatches SET_IS_DIRTY action with false', function () {
+        store.dispatch(setIsDirty(true));
+        store.dispatch(setIsDirty(false));
 
-        expect(store.getState().indexesDrawer.isEditing).to.equal(false);
+        expect(store.getState().indexesDrawer.isDirty).to.equal(false);
       });
     });
   });

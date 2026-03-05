@@ -9,10 +9,12 @@ import {
 import type { FetchIndexesActions } from './regular-indexes';
 import {
   ActionTypes as SearchIndexesActionTypes,
-  CreateSearchIndexClosedAction,
   refreshSearchIndexes,
   startPollingSearchIndexes,
   stopPollingSearchIndexes,
+} from './search-indexes';
+import type {
+  CreateSearchIndexClosedAction,
   UpdateSearchIndexClosedAction,
 } from './search-indexes';
 import type { FetchSearchIndexesActions } from './search-indexes';

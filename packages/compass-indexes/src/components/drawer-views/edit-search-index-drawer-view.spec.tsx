@@ -22,7 +22,7 @@ const renderEditSearchIndexDrawerView = (
       ...state.indexesDrawer,
       currentView: 'edit-search-index' as const,
       currentIndexName: 'testIndex',
-      isEditing: false,
+      isDirty: false,
     },
     searchIndexes: {
       ...state.searchIndexes,
@@ -142,7 +142,7 @@ describe('EditSearchIndexDrawerView', function () {
           currentView: 'edit-search-index',
           currentIndexName: 'vectorIndex',
           currentIndexType: 'search',
-          isEditing: false,
+          isDirty: false,
         },
       });
 
@@ -164,7 +164,7 @@ describe('EditSearchIndexDrawerView', function () {
           currentView: 'edit-search-index',
           currentIndexName: 'nonExistentIndex',
           currentIndexType: 'search',
-          isEditing: false,
+          isDirty: false,
         },
       });
 
