@@ -166,12 +166,6 @@ const CreateSearchIndexDrawerView: React.FunctionComponent<
           data-testid="create-search-index-drawer-view-title"
         >
           Create {indexLabel} for {namespace}
-          {namespace}
-          {namespace}
-          {namespace}
-          {namespace}
-          {namespace}
-          {namespace}
         </Subtitle>
         <Body>For semantic search and AI applications.</Body>
         <TextInput
