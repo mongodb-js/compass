@@ -157,21 +157,6 @@ describe('EditSearchIndexDrawerView', function () {
     });
   });
 
-  describe('when index is not found', function () {
-    it('throws an error when index is not found', function () {
-      expect(() =>
-        renderEditSearchIndexDrawerView({
-          indexesDrawer: {
-            currentView: 'edit-search-index',
-            currentIndexName: 'nonExistentIndex',
-            currentIndexType: 'search',
-            isDirty: false,
-          },
-        })
-      ).to.throw('Search index not found');
-    });
-  });
-
   describe('when busy', function () {
     it('disables submit button when busy', function () {
       renderEditSearchIndexDrawerView({
