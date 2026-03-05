@@ -8,9 +8,12 @@ import {
 } from './regular-indexes';
 import type { FetchIndexesActions } from './regular-indexes';
 import {
+  ActionTypes as SearchIndexesActionTypes,
+  CreateSearchIndexClosedAction,
   refreshSearchIndexes,
   startPollingSearchIndexes,
   stopPollingSearchIndexes,
+  UpdateSearchIndexClosedAction,
 } from './search-indexes';
 import type { FetchSearchIndexesActions } from './search-indexes';
 export type IndexesDrawerViewType =
@@ -24,14 +27,14 @@ export type State = {
   currentView: IndexesDrawerViewType;
   currentIndexType: SearchIndexType;
   currentIndexName: string;
-  isEditing: boolean;
+  isDirty: boolean;
 };
 
 export const INITIAL_STATE: State = {
   currentView: 'indexes-list',
   currentIndexType: 'search',
   currentIndexName: '',
-  isEditing: false,
+  isDirty: false,
 };
 
 export const OPEN_INDEXES_LIST_DRAWER_VIEW =
@@ -40,7 +43,7 @@ export const OPEN_CREATE_SEARCH_INDEX_DRAWER_VIEW =
   'indexes/drawer/OPEN_CREATE_SEARCH_INDEX_DRAWER_VIEW' as const;
 export const OPEN_EDIT_SEARCH_INDEX_DRAWER_VIEW =
   'indexes/drawer/OPEN_EDIT_SEARCH_INDEX_DRAWER_VIEW' as const;
-export const SET_IS_EDITING = 'indexes/drawer/SET_IS_EDITING' as const;
+export const SET_IS_DIRTY = 'indexes/drawer/SET_IS_DIRTY' as const;
 
 type OpenIndexesListDrawerViewAction = {
   type: typeof OPEN_INDEXES_LIST_DRAWER_VIEW;
@@ -56,16 +59,16 @@ type OpenEditSearchIndexDrawerViewAction = {
   currentIndexName: string;
 };
 
-type SetIsEditingIndexDrawerAction = {
-  type: typeof SET_IS_EDITING;
-  isEditing: boolean;
+type SetIsDirtyIndexDrawerAction = {
+  type: typeof SET_IS_DIRTY;
+  isDirty: boolean;
 };
 
 export type IndexesDrawerActions =
   | OpenIndexesListDrawerViewAction
   | OpenCreateSearchIndexDrawerViewAction
   | OpenEditSearchIndexDrawerViewAction
-  | SetIsEditingIndexDrawerAction;
+  | SetIsDirtyIndexDrawerAction;
 
 export const openIndexesListDrawerView =
   (): OpenIndexesListDrawerViewAction => ({
@@ -86,11 +89,9 @@ export const openEditSearchIndexDrawerView = (
   currentIndexName,
 });
 
-export const setIsEditing = (
-  isEditing: boolean
-): SetIsEditingIndexDrawerAction => ({
-  type: SET_IS_EDITING,
-  isEditing,
+export const setIsDirty = (isDirty: boolean): SetIsDirtyIndexDrawerAction => ({
+  type: SET_IS_DIRTY,
+  isDirty,
 });
 
 export const refreshAllIndexes = (): IndexesThunkAction<
@@ -162,10 +163,34 @@ export default function reducer(
     };
   }
 
-  if (isAction<SetIsEditingIndexDrawerAction>(action, SET_IS_EDITING)) {
+  if (isAction<SetIsDirtyIndexDrawerAction>(action, SET_IS_DIRTY)) {
     return {
       ...state,
-      isEditing: action.isEditing,
+      isDirty: action.isDirty,
+    };
+  }
+
+  if (
+    isAction<CreateSearchIndexClosedAction>(
+      action,
+      SearchIndexesActionTypes.CreateSearchIndexClosed
+    )
+  ) {
+    return {
+      ...state,
+      isDirty: false,
+    };
+  }
+
+  if (
+    isAction<UpdateSearchIndexClosedAction>(
+      action,
+      SearchIndexesActionTypes.UpdateSearchIndexClosed
+    )
+  ) {
+    return {
+      ...state,
+      isDirty: false,
     };
   }
 

@@ -13,7 +13,7 @@ import {
 } from '../../modules/search-indexes';
 import {
   openIndexesListDrawerView,
-  setIsEditing,
+  setIsDirty,
 } from '../../modules/indexes-drawer';
 import {
   useOnAsyncSuccess,
@@ -24,6 +24,7 @@ import type { SearchIndexType } from '../../modules/indexes-drawer';
 import {
   Body,
   Button,
+  css,
   cx,
   ErrorSummary,
   SpinLoader,
@@ -66,10 +67,16 @@ export const getNextAvailableIndexName = (
   return `${defaultIndexName}_${counter}`;
 };
 
+const titleStyles = css({
+  overflowWrap: 'anywhere',
+  textWrap: 'wrap',
+});
+
 type CreateSearchIndexViewProps = {
+  namespace: string;
   searchIndexes: SearchIndex[];
   currentIndexType: SearchIndexType;
-  isEditing: boolean;
+  isDirty: boolean;
   isBusy: boolean;
   error?: string;
   onClose: () => void;
@@ -79,15 +86,16 @@ type CreateSearchIndexViewProps = {
     definition: Document;
     type?: string;
   }) => void;
-  onIndexDefinitionEdit: (isEditing: boolean) => void;
+  onIndexDefinitionEdit: (isDirty: boolean) => void;
 };
 
 const CreateSearchIndexDrawerView: React.FunctionComponent<
   CreateSearchIndexViewProps
 > = ({
+  namespace,
   searchIndexes,
   currentIndexType,
-  isEditing,
+  isDirty,
   isBusy,
   error,
   onClose,
@@ -118,13 +126,10 @@ const CreateSearchIndexDrawerView: React.FunctionComponent<
     }
   }, [indexDefinition, isBusy]);
 
-  // Reset states on unmount
+  // Reset state on unmount
   useEffect(() => {
-    return () => {
-      onResetCreateState();
-      onIndexDefinitionEdit(false);
-    };
-  }, [onResetCreateState, onIndexDefinitionEdit]);
+    return () => onResetCreateState();
+  }, [onResetCreateState]);
 
   // Navigate back to list when create succeeds
   useOnAsyncSuccess(isBusy, error, onClose);
@@ -135,7 +140,7 @@ const CreateSearchIndexDrawerView: React.FunctionComponent<
     setIndexDefinition,
     onIndexDefinitionEdit
   );
-  const onCancelClick = useConfirmCancel(isEditing, onClose);
+  const onCancelClick = useConfirmCancel(isDirty, onClose);
 
   const onCreateClick = useCallback(() => {
     createIndex({
@@ -156,9 +161,17 @@ const CreateSearchIndexDrawerView: React.FunctionComponent<
       data-testid="create-search-index-drawer-view"
     >
       <div className={contentStyles}>
-        <Subtitle data-testid="create-search-index-drawer-view-title">
-          Create {indexLabel} for
-          asdljfas;lfkjasldkfjsdlakfj.aklsjdfhaklsjdfhaksdjh
+        <Subtitle
+          className={titleStyles}
+          data-testid="create-search-index-drawer-view-title"
+        >
+          Create {indexLabel} for {namespace}
+          {namespace}
+          {namespace}
+          {namespace}
+          {namespace}
+          {namespace}
+          {namespace}
         </Subtitle>
         <Body>For semantic search and AI applications.</Body>
         <TextInput
@@ -218,10 +231,11 @@ const CreateSearchIndexDrawerView: React.FunctionComponent<
   );
 };
 
-const mapState = ({ searchIndexes, indexesDrawer }: RootState) => ({
+const mapState = ({ namespace, searchIndexes, indexesDrawer }: RootState) => ({
+  namespace,
   searchIndexes: searchIndexes.indexes,
   currentIndexType: indexesDrawer.currentIndexType,
-  isEditing: indexesDrawer.isEditing,
+  isDirty: indexesDrawer.isDirty,
   isBusy: searchIndexes.createIndex.isBusy,
   error: searchIndexes.createIndex.error,
 });
@@ -230,7 +244,7 @@ const mapDispatch = {
   onClose: openIndexesListDrawerView,
   onResetCreateState: createSearchIndexClosed,
   createIndex,
-  onIndexDefinitionEdit: setIsEditing,
+  onIndexDefinitionEdit: setIsDirty,
 };
 
 export default connect(mapState, mapDispatch)(CreateSearchIndexDrawerView);

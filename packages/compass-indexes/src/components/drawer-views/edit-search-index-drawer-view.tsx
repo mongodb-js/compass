@@ -13,7 +13,7 @@ import {
 } from '../../modules/search-indexes';
 import {
   openIndexesListDrawerView,
-  setIsEditing,
+  setIsDirty,
 } from '../../modules/indexes-drawer';
 import {
   useOnAsyncSuccess,
@@ -60,23 +60,23 @@ const headerContainerStyles = css({
 
 type EditSearchIndexViewProps = {
   namespace: string;
-  isEditing: boolean;
+  searchIndex: SearchIndex;
+  isDirty: boolean;
   isBusy: boolean;
-  searchIndex?: SearchIndex;
   error?: string;
   onClose: () => void;
   onResetUpdateState: () => void;
   updateIndex: (index: { name: string; definition: Document }) => void;
-  onIndexDefinitionEdit: (isEditing: boolean) => void;
+  onIndexDefinitionEdit: (isDirty: boolean) => void;
 };
 
 const EditSearchIndexDrawerView: React.FunctionComponent<
   EditSearchIndexViewProps
 > = ({
   namespace,
-  isEditing,
-  isBusy,
   searchIndex,
+  isDirty,
+  isBusy,
   error,
   onClose,
   onResetUpdateState,
@@ -84,12 +84,9 @@ const EditSearchIndexDrawerView: React.FunctionComponent<
   onIndexDefinitionEdit,
 }) => {
   const editorRef = useRef<EditorRef>(null);
-  const initialDefinition = JSON.stringify(
-    searchIndex?.latestDefinition,
-    null,
-    2
+  const [indexDefinition, setIndexDefinition] = useState(
+    JSON.stringify(searchIndex?.latestDefinition, null, 2)
   );
-  const [indexDefinition, setIndexDefinition] = useState(initialDefinition);
 
   const isSaveEnabled = useMemo(() => {
     try {
@@ -105,13 +102,10 @@ const EditSearchIndexDrawerView: React.FunctionComponent<
     }
   }, [indexDefinition, searchIndex?.latestDefinition, isBusy]);
 
-  // Reset states on unmount
+  // Reset state on unmount
   useEffect(() => {
-    return () => {
-      onResetUpdateState();
-      onIndexDefinitionEdit(false);
-    };
-  }, [onResetUpdateState, onIndexDefinitionEdit]);
+    return () => onResetUpdateState();
+  }, [onResetUpdateState]);
 
   // Navigate back to list when update succeeds
   useOnAsyncSuccess(isBusy, error, onClose);
@@ -122,7 +116,7 @@ const EditSearchIndexDrawerView: React.FunctionComponent<
     setIndexDefinition,
     onIndexDefinitionEdit
   );
-  const onCancelClick = useConfirmCancel(isEditing, onClose);
+  const onCancelClick = useConfirmCancel(isDirty, onClose);
 
   const onSaveClick = useCallback(() => {
     if (searchIndex?.name) {
@@ -223,21 +217,30 @@ const EditSearchIndexDrawerView: React.FunctionComponent<
   );
 };
 
-const mapState = ({ namespace, searchIndexes, indexesDrawer }: RootState) => ({
-  namespace,
-  searchIndex: searchIndexes.indexes.find(
+const mapState = ({ namespace, searchIndexes, indexesDrawer }: RootState) => {
+  const searchIndex = searchIndexes.indexes.find(
     (x) => x.name === indexesDrawer.currentIndexName
-  ),
-  isEditing: indexesDrawer.isEditing,
-  isBusy: searchIndexes.updateIndex.isBusy,
-  error: searchIndexes.updateIndex.error,
-});
+  );
+
+  // Should not happen as we navigate to edit view only if index is found
+  if (!searchIndex) {
+    throw new Error('Search index not found');
+  }
+
+  return {
+    namespace,
+    searchIndex,
+    isDirty: indexesDrawer.isDirty,
+    isBusy: searchIndexes.updateIndex.isBusy,
+    error: searchIndexes.updateIndex.error,
+  };
+};
 
 const mapDispatch = {
   onClose: openIndexesListDrawerView,
   onResetUpdateState: updateSearchIndexClosed,
   updateIndex,
-  onIndexDefinitionEdit: setIsEditing,
+  onIndexDefinitionEdit: setIsDirty,
 };
 
 export default connect(mapState, mapDispatch)(EditSearchIndexDrawerView);

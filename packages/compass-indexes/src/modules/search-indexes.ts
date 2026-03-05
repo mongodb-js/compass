@@ -92,7 +92,7 @@ type CreateSearchIndexSucceededAction = {
   type: typeof ActionTypes.CreateSearchIndexSucceeded;
 };
 
-type CreateSearchIndexClosedAction = {
+export type CreateSearchIndexClosedAction = {
   type: typeof ActionTypes.CreateSearchIndexClosed;
 };
 
@@ -114,7 +114,7 @@ type UpdateSearchIndexSucceededAction = {
   type: typeof ActionTypes.UpdateSearchIndexSucceeded;
 };
 
-type UpdateSearchIndexClosedAction = {
+export type UpdateSearchIndexClosedAction = {
   type: typeof ActionTypes.UpdateSearchIndexClosed;
 };
 

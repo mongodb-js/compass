@@ -182,7 +182,7 @@ export function activateIndexesPlugin(
   });
 
   const onCloseOrReplace = () => {
-    return !store.getState().indexesDrawer.isEditing;
+    return !store.getState().indexesDrawer.isDirty;
   };
 
   addCleanup(workspaces.onTabReplace?.(onCloseOrReplace));
