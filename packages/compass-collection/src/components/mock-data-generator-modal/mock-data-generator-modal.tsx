@@ -18,6 +18,7 @@ import {
   MOCK_DATA_GENERATOR_STEP_TO_NEXT_STEP_MAP,
   StepButtonLabelMap,
 } from './constants';
+import { validateDocumentCount } from './utils';
 import type { CollectionState } from '../../modules/collection-tab';
 import {
   mockDataGeneratorModalClosed,
@@ -63,6 +64,7 @@ interface Props {
   onPreviousStep: () => void;
   namespace: string;
   fakerSchemaGenerationStatus: 'idle' | 'in-progress' | 'completed' | 'error';
+  documentCount: string;
 }
 
 const MockDataGeneratorModal = ({
@@ -74,6 +76,7 @@ const MockDataGeneratorModal = ({
   onPreviousStep,
   namespace,
   fakerSchemaGenerationStatus,
+  documentCount,
 }: Props) => {
   const track = useTelemetry();
   const isAIFeatureEnabled = useIsAIFeatureEnabled();
@@ -105,8 +108,10 @@ const MockDataGeneratorModal = ({
   );
 
   const isNextButtonDisabled =
-    currentStep === MockDataGeneratorSteps.SCHEMA_CONFIRMATION &&
-    fakerSchemaGenerationStatus === 'in-progress';
+    (currentStep === MockDataGeneratorSteps.SCHEMA_CONFIRMATION &&
+      fakerSchemaGenerationStatus === 'in-progress') ||
+    (currentStep === MockDataGeneratorSteps.PREVIEW_AND_DOC_COUNT &&
+      !validateDocumentCount(documentCount).isValid);
 
   const handleNextClick = useCallback(() => {
     const nextStep = MOCK_DATA_GENERATOR_STEP_TO_NEXT_STEP_MAP[currentStep];
@@ -190,6 +195,7 @@ const mapStateToProps = (state: CollectionState) => ({
   currentStep: state.mockDataGenerator.currentStep,
   namespace: state.namespace,
   fakerSchemaGenerationStatus: state.fakerSchemaGeneration?.status ?? 'idle',
+  documentCount: state.mockDataGenerator.documentCount,
 });
 
 const ConnectedMockDataGeneratorModal = connect(mapStateToProps, {

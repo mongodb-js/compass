@@ -531,6 +531,48 @@ describe('MockDataGeneratorModal', () => {
       // Default 1000 docs * 500 bytes = 500,000 bytes = 500.0 kB (SI units)
       expect(screen.getByText(/500.*kB/)).to.exist;
     });
+
+    it('disables Generate Script button when document count is invalid', async () => {
+      await renderModal({
+        currentStep: MockDataGeneratorSteps.PREVIEW_AND_DOC_COUNT,
+        fakerSchemaGeneration: createCompletedFakerSchema({
+          name: {
+            fakerMethod: 'person.firstName',
+            fakerArgs: [],
+            probability: 1.0,
+            mongoType: 'String',
+          },
+        }),
+        documentCount: '0', // Invalid: below minimum
+      });
+
+      expect(
+        screen
+          .getByRole('button', { name: 'Generate Script' })
+          .getAttribute('aria-disabled')
+      ).to.equal('true');
+    });
+
+    it('enables Generate Script button when document count is valid', async () => {
+      await renderModal({
+        currentStep: MockDataGeneratorSteps.PREVIEW_AND_DOC_COUNT,
+        fakerSchemaGeneration: createCompletedFakerSchema({
+          name: {
+            fakerMethod: 'person.firstName',
+            fakerArgs: [],
+            probability: 1.0,
+            mongoType: 'String',
+          },
+        }),
+        documentCount: '1000', // Valid
+      });
+
+      expect(
+        screen
+          .getByRole('button', { name: 'Generate Script' })
+          .getAttribute('aria-disabled')
+      ).to.not.equal('true');
+    });
   });
 
   describe('on the script result step', () => {
