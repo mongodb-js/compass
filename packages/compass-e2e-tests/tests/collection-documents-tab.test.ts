@@ -24,6 +24,7 @@ import {
 } from '../helpers/test-runner-context';
 import type { ChainablePromiseElement } from 'webdriverio';
 import { tryToInsertDocument } from '../helpers/commands/try-to-insert-document';
+import { allowServerWarnings } from '../helpers/test-runner-global-fixtures';
 
 const { expect } = chai;
 
@@ -237,91 +238,105 @@ describe('Collection documents tab', function () {
     }
   });
 
-  it('supports cancelling a find and then running another query', async function () {
-    // execute a query that will take a long time
-    await browser.runFindOperation(
-      'Documents',
-      '{ $where: function() { return sleep(10000) || true; } }',
-      {
-        waitForResult: false,
-      }
-    );
+  context('$where', function () {
+    let unsubscribeWhereWarningFilter: () => void;
 
-    // stop it
-    const documentListFetchingElement = browser.$(
-      Selectors.DocumentListFetching
-    );
-    await documentListFetchingElement.waitForDisplayed();
+    before(function () {
+      unsubscribeWhereWarningFilter = allowServerWarnings(
+        8996500 // allow "$where is deprecated" warnings
+      );
+    });
 
-    await browser.clickVisible(Selectors.DocumentListFetchingStopButton);
-
-    const documentListErrorElement = browser.$(Selectors.DocumentListError);
-    await documentListErrorElement.waitForDisplayed();
-
-    const errorText = await documentListErrorElement.getText();
-    expect(errorText).to.equal('This operation was aborted');
-
-    // execute another (small, fast) query
-    await browser.runFindOperation('Documents', '{ i: 5 }');
-    const documentListActionBarMessageElement = browser.$(
-      Selectors.DocumentListActionBarMessage
-    );
-
-    const displayText = await documentListActionBarMessageElement.getText();
-    expect(displayText).to.equal('1 – 1 of 1');
-
-    if (!isTestingWeb()) {
-      // no query history in compass-web yet
-      const queries = await getRecentQueries(browser, true);
-      expect(queries).to.deep.include.members([
-        {
-          Filter:
-            "{\n  $where: 'function() { return sleep(10000) || true; }'\n}",
-        },
-      ]);
-    }
-  });
-
-  for (const maxTimeMSMode of ['ui', 'preference'] as const) {
-    it(`supports maxTimeMS (set via ${maxTimeMSMode})`, async function () {
-      if (maxTimeMSMode === 'preference') {
-        if (isTestingWeb()) {
-          await browser.setFeature('maxTimeMS', 1);
-        } else {
-          await browser.openSettingsModal();
-          await browser.waitForOpenModal(Selectors.SettingsModal);
-          await browser.clickVisible(Selectors.GeneralSettingsButton);
-
-          await browser.setValueVisible(
-            Selectors.SettingsInputElement('maxTimeMS'),
-            '1'
-          );
-          await browser.clickVisible(Selectors.SaveSettingsButton);
-          await browser.waitForOpenModal(Selectors.SettingsModal, {
-            reverse: true,
-          });
-        }
-      }
-
-      // execute a query that will take a long time, but set a maxTimeMS shorter than that
+    it('supports cancelling a find and then running another query', async function () {
+      // execute a query that will take a long time
       await browser.runFindOperation(
         'Documents',
         '{ $where: function() { return sleep(10000) || true; } }',
         {
-          ...(maxTimeMSMode === 'ui' ? { maxTimeMS: '1' } : {}),
           waitForResult: false,
         }
       );
+
+      // stop it
+      const documentListFetchingElement = browser.$(
+        Selectors.DocumentListFetching
+      );
+      await documentListFetchingElement.waitForDisplayed();
+
+      await browser.clickVisible(Selectors.DocumentListFetchingStopButton);
 
       const documentListErrorElement = browser.$(Selectors.DocumentListError);
       await documentListErrorElement.waitForDisplayed();
 
       const errorText = await documentListErrorElement.getText();
-      expect(errorText).to.include(
-        'Operation exceeded time limit. Please try increasing the maxTimeMS for the query in the expanded filter options.'
+      expect(errorText).to.equal('This operation was aborted');
+
+      // execute another (small, fast) query
+      await browser.runFindOperation('Documents', '{ i: 5 }');
+      const documentListActionBarMessageElement = browser.$(
+        Selectors.DocumentListActionBarMessage
       );
+
+      const displayText = await documentListActionBarMessageElement.getText();
+      expect(displayText).to.equal('1 – 1 of 1');
+
+      if (!isTestingWeb()) {
+        // no query history in compass-web yet
+        const queries = await getRecentQueries(browser, true);
+        expect(queries).to.deep.include.members([
+          {
+            Filter:
+              "{\n  $where: 'function() { return sleep(10000) || true; }'\n}",
+          },
+        ]);
+      }
     });
-  }
+
+    for (const maxTimeMSMode of ['ui', 'preference'] as const) {
+      it(`supports maxTimeMS (set via ${maxTimeMSMode})`, async function () {
+        if (maxTimeMSMode === 'preference') {
+          if (isTestingWeb()) {
+            await browser.setFeature('maxTimeMS', 1);
+          } else {
+            await browser.openSettingsModal();
+            await browser.waitForOpenModal(Selectors.SettingsModal);
+            await browser.clickVisible(Selectors.GeneralSettingsButton);
+
+            await browser.setValueVisible(
+              Selectors.SettingsInputElement('maxTimeMS'),
+              '1'
+            );
+            await browser.clickVisible(Selectors.SaveSettingsButton);
+            await browser.waitForOpenModal(Selectors.SettingsModal, {
+              reverse: true,
+            });
+          }
+        }
+
+        // execute a query that will take a long time, but set a maxTimeMS shorter than that
+        await browser.runFindOperation(
+          'Documents',
+          '{ $where: function() { return sleep(10000) || true; } }',
+          {
+            ...(maxTimeMSMode === 'ui' ? { maxTimeMS: '1' } : {}),
+            waitForResult: false,
+          }
+        );
+
+        const documentListErrorElement = browser.$(Selectors.DocumentListError);
+        await documentListErrorElement.waitForDisplayed();
+
+        const errorText = await documentListErrorElement.getText();
+        expect(errorText).to.include(
+          'Operation exceeded time limit. Please try increasing the maxTimeMS for the query in the expanded filter options.'
+        );
+      });
+    }
+
+    after(function () {
+      unsubscribeWhereWarningFilter();
+    });
+  });
 
   it('keeps the query when navigating to schema', async function () {
     await browser.runFindOperation('Documents', '{ i: 5 }');

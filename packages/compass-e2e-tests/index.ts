@@ -10,7 +10,7 @@ import {
   mochaGlobalSetup,
   mochaGlobalTeardown,
 } from './helpers/test-runner-global-fixtures';
-import { mochaRootHooks } from './helpers/insert-data';
+import { mochaRootHooks } from './helpers/mongo-clients';
 // @ts-expect-error no types for this package
 import logRunning from 'why-is-node-running';
 

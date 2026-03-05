@@ -14,7 +14,11 @@ import {
 } from './test-runner-context';
 import { E2E_WORKSPACE_PATH, LOG_PATH } from './test-runner-paths';
 import Debug from 'debug';
-import { startTestServer } from '@mongodb-js/compass-test-server';
+import {
+  startTestServer,
+  ServerLogsChecker,
+  type LogEntry,
+} from '@mongodb-js/compass-test-server';
 import { MongoClient } from 'mongodb';
 import { isEnterprise } from 'mongodb-build-info';
 import {
@@ -50,6 +54,30 @@ export let abortRunner: (() => void) | undefined;
 const debug = Debug('compass-e2e-tests:mocha-global-fixtures');
 
 const cleanupFns: (() => Promise<void> | void)[] = [];
+
+export const serverLogsCheckers: ServerLogsChecker[] = [];
+
+export function noServerWarningsCheckpoint() {
+  for (const checker of serverLogsCheckers) {
+    checker.noServerWarningsCheckpoint();
+  }
+}
+
+type WarningFilter = number | ((entry: LogEntry) => boolean);
+
+export function allowServerWarnings(...filters: WarningFilter[]): () => void {
+  const unsubscribeFns: (() => void)[] = [];
+  for (const filter of filters) {
+    for (const checker of serverLogsCheckers) {
+      unsubscribeFns.push(checker.allowWarning(filter));
+    }
+  }
+  return () => {
+    for (const fn of unsubscribeFns) {
+      fn();
+    }
+  };
+}
 
 async function createAtlasCloudResources() {
   assertTestingAtlasCloud(context);
@@ -264,6 +292,7 @@ export async function mochaGlobalSetup(this: Mocha.Runner) {
             getConnectionTitle(connectionInfo)
           );
           const server = await startTestServer(connectionInfo.testServer);
+          serverLogsCheckers.push(new ServerLogsChecker(server));
           cleanupFns.push(() => {
             debug(
               'Stopping server for connection %s',
@@ -364,6 +393,13 @@ export async function mochaGlobalSetup(this: Mocha.Runner) {
 
 export async function mochaGlobalTeardown() {
   debug('Cleaning up after the tests ...');
+
+  // Close server log checkers
+  for (const checker of serverLogsCheckers) {
+    checker.close();
+  }
+  serverLogsCheckers.length = 0;
+
   await Promise.allSettled(
     cleanupFns.map((fn) => {
       // We get a mix of sync and non-sync functions here. Awaiting even the
