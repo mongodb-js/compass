@@ -25,6 +25,7 @@ import {
 import type { ChainablePromiseElement } from 'webdriverio';
 import { tryToInsertDocument } from '../helpers/commands/try-to-insert-document';
 import { allowServerWarnings } from '../helpers/test-runner-global-fixtures';
+import type { LogEntry } from '@mongodb-js/compass-test-server';
 
 const { expect } = chai;
 
@@ -238,12 +239,18 @@ describe('Collection documents tab', function () {
     }
   });
 
-  context('$where', function () {
-    let unsubscribeWhereWarningFilter: () => void;
+  context('cancel and maxTimeMS', function () {
+    let unsubscribeWarningsFilter: () => void;
 
     before(function () {
-      unsubscribeWhereWarningFilter = allowServerWarnings(
-        8996500 // allow "$where is deprecated" warnings
+      unsubscribeWarningsFilter = allowServerWarnings(
+        8996500, // allow "$where is deprecated" warnings
+        (l: LogEntry) => {
+          return (
+            l.id === 23798 &&
+            ['MaxTimeMSExpired'].includes(l.attr?.error?.codeName)
+          );
+        }
       );
     });
 
@@ -334,7 +341,7 @@ describe('Collection documents tab', function () {
     }
 
     after(function () {
-      unsubscribeWhereWarningFilter();
+      unsubscribeWarningsFilter();
     });
   });
 
@@ -751,7 +758,22 @@ FindIterable<Document> result = collection.find(filter);`);
       });
     });
 
-    describe('Editing', function () {
+    describe('Error info when editing', function () {
+      let unsubscribeWarningsFilter: () => void;
+
+      before(function () {
+        unsubscribeWarningsFilter = allowServerWarnings((l: LogEntry) => {
+          return (
+            l.id === 7267501 &&
+            ['DocumentValidationFailure'].includes(l.attr?.error?.codeName)
+          );
+        });
+      });
+
+      after(function () {
+        unsubscribeWarningsFilter();
+      });
+
       beforeEach(async function () {
         await browser.navigateWithinCurrentCollectionTabs('Documents');
         await tryToInsertDocument(browser, `{ "phone": 12345 }`);

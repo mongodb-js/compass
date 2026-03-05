@@ -14,6 +14,19 @@ const DEFAULT_ALLOWED_WARNINGS: WarningFilter[] = [
     // "Use of deprecated server parameter name" (FTDC)
     return (l.id === 636300 || l.id === 23803) && l.context === 'ftdc';
   },
+  (l: LogEntry) => {
+    // "Aggregate command executor error"
+    if (l.id === 23799) {
+      console.log('Aggregate command executor error', l.attr.error);
+    }
+    if (l.id === 23798 || l.id === 7267501) {
+      console.log('Plan executor error', l.id, l.attr.error);
+    }
+    return (
+      l.id === 23799 &&
+      ['CommandNotSupportedOnView'].includes(l.attr?.error?.codeName)
+    );
+  },
 ];
 
 /**
