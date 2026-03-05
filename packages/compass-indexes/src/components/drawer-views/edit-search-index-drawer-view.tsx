@@ -85,13 +85,13 @@ const EditSearchIndexDrawerView: React.FunctionComponent<
 }) => {
   const editorRef = useRef<EditorRef>(null);
   const [indexDefinition, setIndexDefinition] = useState(
-    JSON.stringify(searchIndex?.latestDefinition, null, 2)
+    JSON.stringify(searchIndex.latestDefinition, null, 2)
   );
 
   const isSaveEnabled = useMemo(() => {
     try {
       const currentParsed = parseShellBSON(indexDefinition);
-      const initialParsed = searchIndex?.latestDefinition;
+      const initialParsed = searchIndex.latestDefinition;
       return (
         !isBusy &&
         JSON.stringify(currentParsed) !== JSON.stringify(initialParsed)
@@ -100,7 +100,7 @@ const EditSearchIndexDrawerView: React.FunctionComponent<
       // If current definition is invalid, don't enable save
       return false;
     }
-  }, [indexDefinition, searchIndex?.latestDefinition, isBusy]);
+  }, [indexDefinition, searchIndex.latestDefinition, isBusy]);
 
   // Reset state on unmount
   useEffect(() => {
@@ -119,17 +119,11 @@ const EditSearchIndexDrawerView: React.FunctionComponent<
   const onCancelClick = useConfirmCancel(isDirty, onClose);
 
   const onSaveClick = useCallback(() => {
-    if (searchIndex?.name) {
-      updateIndex({
-        name: searchIndex.name,
-        definition: parseShellBSON(indexDefinition),
-      });
-    }
+    updateIndex({
+      name: searchIndex.name,
+      definition: parseShellBSON(indexDefinition),
+    });
   }, [searchIndex, indexDefinition, updateIndex]);
-
-  if (!searchIndex) {
-    return null;
-  }
 
   const indexLabel =
     searchIndex.type === 'vectorSearch'
@@ -222,7 +216,7 @@ const mapState = ({ namespace, searchIndexes, indexesDrawer }: RootState) => {
     (x) => x.name === indexesDrawer.currentIndexName
   );
 
-  // Should not happen as we navigate to edit view only if index is found
+  // Should not happen in theory as we navigate to edit view only if index is found
   if (!searchIndex) {
     throw new Error('Search index not found');
   }
