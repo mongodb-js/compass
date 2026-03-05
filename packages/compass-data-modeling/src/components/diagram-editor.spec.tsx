@@ -256,7 +256,10 @@ describe('DiagramEditor', function () {
           collections: ['collection1', 'collection2'],
           analysisOptions: {
             automaticallyInferRelations: false,
-            sampleSize: 100,
+            samplingOptions: {
+              sampleSize: 100,
+              allDocuments: false,
+            },
           },
         },
       });

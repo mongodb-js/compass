@@ -1,22 +1,14 @@
 import {
   Body,
-  Checkbox,
   css,
   FormFieldContainer,
-  Icon,
-  palette,
   SearchInput,
   SelectList,
   spacing,
   SpinLoaderWithLabel,
-  TextInput,
-  Tooltip,
   WarningSummary,
 } from '@mongodb-js/compass-components';
-import { usePreference } from 'compass-preferences-model/provider';
 import React, { useCallback, useMemo, useState } from 'react';
-
-const LARGE_SAMPLE_SIZE_THRESHOLD = 100;
 
 const loadingStyles = css({
   textAlign: 'center',
@@ -31,63 +23,16 @@ const errorStyles = css({
 
 const collectionListStyles = css({
   height: 200,
-  overflow: 'scroll',
-});
-
-const sampleSizeContainerStyles = css({
-  display: 'flex',
-  flexDirection: 'column',
-  gap: spacing[100],
-});
-
-const sampleSizeLabelContainerStyles = css({
-  display: 'flex',
-  alignItems: 'center',
-  gap: spacing[100],
-});
-
-const sampleSizeInputRowStyles = css({
-  display: 'flex',
-  alignItems: 'center',
-  gap: spacing[100],
-});
-
-const sampleSizeInputStyles = css({
-  width: 100,
-});
-
-const warningTextStyles = css({
-  display: 'flex',
-  alignItems: 'center',
-  gap: spacing[100],
-  color: palette.yellow.dark2,
-  fontSize: 12,
-});
-
-const errorTextStyles = css({
-  display: 'flex',
-  alignItems: 'center',
-  gap: spacing[100],
-  color: palette.red.base,
-  fontSize: 12,
-});
-
-const infoIconStyles = css({
-  cursor: 'pointer',
-  color: palette.gray.base,
+  overflow: 'auto',
 });
 
 type SelectCollectionsListProps = {
   collections: string[];
   selectedCollections: string[];
   disabledCollections?: string[];
-  automaticallyInferRelationships: boolean;
-  sampleSize: string;
   isFetchingCollections: boolean;
   error?: Error;
   onCollectionsSelect: (colls: string[]) => void;
-  onAutomaticallyInferRelationshipsToggle: (newVal: boolean) => void;
-  onSampleSizeChange: (newVal: string) => void;
 };
 
 type SelectCollectionItem = {
@@ -99,28 +44,14 @@ type SelectCollectionItem = {
 export const SelectCollectionsList: React.FunctionComponent<
   SelectCollectionsListProps
 > = ({
-  automaticallyInferRelationships,
   collections,
   selectedCollections,
   disabledCollections = [],
-  sampleSize,
   isFetchingCollections,
   error,
   onCollectionsSelect,
-  onAutomaticallyInferRelationshipsToggle,
-  onSampleSizeChange,
 }) => {
-  const showAutoInferOption = usePreference(
-    'enableAutomaticRelationshipInference'
-  );
   const [searchTerm, setSearchTerm] = useState('');
-
-  // Derive validation from sampleSize prop (which is now a string)
-  const parsedSampleSize = parseInt(sampleSize, 10);
-  const isInvalidInput =
-    sampleSize === '' || isNaN(parsedSampleSize) || parsedSampleSize <= 0;
-  const isLargeSampleSize =
-    !isInvalidInput && parsedSampleSize > LARGE_SAMPLE_SIZE_THRESHOLD;
 
   const filteredCollections = useMemo(() => {
     try {
@@ -188,97 +119,23 @@ export const SelectCollectionsList: React.FunctionComponent<
           }}
         />
       </FormFieldContainer>
-      <FormFieldContainer className={collectionListStyles}>
-        {collections.length === 0 ? (
-          <Body>This database has no collections.</Body>
-        ) : filteredCollections.length === 0 ? (
-          <Body>No collections match your search.</Body>
-        ) : (
-          <SelectList
-            items={filteredCollections.map((collName): SelectCollectionItem => {
-              return {
-                id: collName,
-                selected: selectedCollections.includes(collName),
-                disabled: disabledCollections.includes(collName),
-              };
-            })}
-            label={{ displayLabelKey: 'id', name: 'Collection Name' }}
-            onChange={onChangeSelection}
-          />
-        )}
-      </FormFieldContainer>
-      <FormFieldContainer className={sampleSizeContainerStyles}>
-        <div className={sampleSizeLabelContainerStyles}>
-          <Body weight="medium">Sampling size</Body>
-          <Tooltip
-            align="top"
-            justify="middle"
-            trigger={
-              <span className={infoIconStyles}>
-                <Icon glyph="InfoWithCircle" size="small" />
-              </span>
-            }
-          >
-            Default sampling size is {LARGE_SAMPLE_SIZE_THRESHOLD}. Larger
-            samples take longer but improve accuracy on large or complex
-            datasets.
-          </Tooltip>
-        </div>
-        <div className={sampleSizeInputRowStyles}>
-          <Body>Sample</Body>
-          <TextInput
-            id="sample-size-input"
-            data-testid="sample-size-input"
-            aria-label="Sample size"
-            className={sampleSizeInputStyles}
-            type="number"
-            min={1}
-            value={sampleSize}
-            onChange={(evt) => {
-              onSampleSizeChange(evt.target.value);
-            }}
-          />
-          <Body>documents per collection.</Body>
-        </div>
-        {isInvalidInput && (
-          <div className={errorTextStyles} data-testid="sample-size-warning">
-            <Icon glyph="Warning" size="small" />
-            <span>Invalid input</span>
-          </div>
-        )}
-        {isLargeSampleSize && (
-          <div className={warningTextStyles} data-testid="sample-size-warning">
-            <Icon glyph="Warning" size="small" />
-            <span>
-              Larger sample sizes may result in longer generation times.
-            </span>
-          </div>
-        )}
-      </FormFieldContainer>
-      {showAutoInferOption && (
-        <FormFieldContainer>
-          <Checkbox
-            checked={automaticallyInferRelationships}
-            onChange={(evt) => {
-              onAutomaticallyInferRelationshipsToggle(
-                evt.currentTarget.checked
-              );
-            }}
-            label="Automatically infer relationships"
-            // @ts-expect-error Element is accepted, but not typed correctly
-            description={
-              <>
-                Analysis process will try to automatically discover
-                relationships in selected collections. This operation will run
-                multiple find requests against indexed fields of the collections
-                and{' '}
-                <strong>
-                  will take additional time per collection being analyzed.
-                </strong>
-              </>
-            }
-          ></Checkbox>
-        </FormFieldContainer>
+      {collections.length === 0 ? (
+        <Body>This database has no collections.</Body>
+      ) : filteredCollections.length === 0 ? (
+        <Body>No collections match your search.</Body>
+      ) : (
+        <SelectList
+          className={collectionListStyles}
+          items={filteredCollections.map((collName): SelectCollectionItem => {
+            return {
+              id: collName,
+              selected: selectedCollections.includes(collName),
+              disabled: disabledCollections.includes(collName),
+            };
+          })}
+          label={{ displayLabelKey: 'id', name: 'Collection Name' }}
+          onChange={onChangeSelection}
+        />
       )}
     </>
   );
