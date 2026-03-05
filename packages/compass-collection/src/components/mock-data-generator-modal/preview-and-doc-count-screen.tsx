@@ -33,38 +33,16 @@ const containerStyles = css({
   gap: spacing[600],
 });
 
-// Preview section styles
-const previewSectionStyles = css({
-  display: 'flex',
-  flexDirection: 'column',
-  gap: spacing[200],
-});
-
-const previewTitleStyles = css({
+const sectionTitleStyles = css({
   fontWeight: 600,
+  fontSize: '16px',
+  lineHeight: '28px',
 });
 
-const documentContainerStyles = css({
-  display: 'flex',
-  flexDirection: 'column',
-  gap: spacing[300],
-});
-
-const documentWrapperStyles = css({
-  border: '1px solid #E8EDEB',
-  borderRadius: '6px',
-  padding: spacing[200],
-});
-
-// Document count section styles
 const docCountSectionStyles = css({
   display: 'flex',
   flexDirection: 'column',
   gap: spacing[200],
-});
-
-const docCountTitleStyles = css({
-  fontWeight: 600,
 });
 
 const docCountDescriptionStyles = css({
@@ -85,6 +63,24 @@ const estimatedDiskSizeLabelStyles = css({
 const estimatedDiskSizeValueStyles = css({
   fontSize: '13px',
   marginTop: spacing[100],
+});
+
+const previewSectionStyles = css({
+  display: 'flex',
+  flexDirection: 'column',
+  gap: spacing[200],
+});
+
+const documentContainerStyles = css({
+  display: 'flex',
+  flexDirection: 'column',
+  gap: spacing[300],
+});
+
+const documentWrapperStyles = css({
+  border: '1px solid #E8EDEB',
+  borderRadius: '6px',
+  padding: spacing[200],
 });
 
 const NUM_PREVIEW_DOCUMENTS = 3;
@@ -154,40 +150,8 @@ const PreviewAndDocCountScreen = ({
 
   return (
     <div className={containerStyles} data-testid="preview-and-doc-count-screen">
-      {/* Preview Section */}
-      <section className={previewSectionStyles}>
-        <Body className={previewTitleStyles}>Preview Mock Data</Body>
-        <Body>
-          Below are examples of documents that will be generated when you run
-          your script. If you&apos;d like to make any changes to the script (for
-          ex. what{' '}
-          <Link href={FAKER_FUNCTIONS_URL} target="_blank">
-            faker functions
-          </Link>{' '}
-          are being used to generate the documents) you can do so in the next
-          step.
-        </Body>
-        {sampleDocuments.length > 0 ? (
-          <div
-            className={documentContainerStyles}
-            data-testid="preview-documents"
-          >
-            {sampleDocuments.map((doc, index) => (
-              <div key={index} className={documentWrapperStyles}>
-                <DocumentList.Document value={doc} />
-              </div>
-            ))}
-          </div>
-        ) : (
-          <Banner variant={BannerVariant.Warning}>
-            No faker schema available. Please go back and confirm your schema.
-          </Banner>
-        )}
-      </section>
-
-      {/* Document Count Section */}
       <section className={docCountSectionStyles}>
-        <Body className={docCountTitleStyles}>
+        <Body className={sectionTitleStyles}>
           Specify Number of Documents to Generate
         </Body>
         <Description className={docCountDescriptionStyles}>
@@ -220,6 +184,35 @@ const PreviewAndDocCountScreen = ({
             </Body>
           </div>
         </div>
+      </section>
+      <section className={previewSectionStyles}>
+        <Body className={sectionTitleStyles}>Preview Mock Data</Body>
+        <Body>
+          Below are examples of documents that will be generated when you run
+          your script. If you&apos;d like to make any changes to the script (for
+          ex. what{' '}
+          <Link href={FAKER_FUNCTIONS_URL} target="_blank">
+            faker functions
+          </Link>{' '}
+          are being used to generate the documents) you can do so in the next
+          step.
+        </Body>
+        {sampleDocuments.length > 0 ? (
+          <div
+            className={documentContainerStyles}
+            data-testid="preview-documents"
+          >
+            {sampleDocuments.map((doc, index) => (
+              <div key={index} className={documentWrapperStyles}>
+                <DocumentList.Document value={doc} />
+              </div>
+            ))}
+          </div>
+        ) : (
+          <Banner variant={BannerVariant.Warning}>
+            No faker schema available. Please go back and confirm your schema.
+          </Banner>
+        )}
       </section>
     </div>
   );
