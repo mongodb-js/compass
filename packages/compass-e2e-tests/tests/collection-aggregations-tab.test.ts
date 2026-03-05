@@ -478,10 +478,10 @@ describe('Collection aggregations tab', function () {
 
     before(function () {
       unsubscribeWarnings = allowServerWarnings(
-        8996500, // Allow "$function is deprecated" warning
+        8996503, // Allow "$function is deprecated" warning
         (l: LogEntry) => {
           return (
-            l.id === 23798 &&
+            l.id === 23799 &&
             ['MaxTimeMSExpired'].includes(l.attr?.error?.codeName)
           );
         }

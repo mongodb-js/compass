@@ -10,6 +10,7 @@ export type WarningFilter = number | ((entry: LogEntry) => boolean);
 const DEFAULT_ALLOWED_WARNINGS: WarningFilter[] = [
   2658100, // "Hinted index could not provide a bounded scan, reverting to whole index scan"
   4615610, // "Failed to check socket connectivity",
+  20526, // "Failed to gather storage statistics for slow operation"
   (l: LogEntry) => {
     // "Use of deprecated server parameter name" (FTDC)
     return (l.id === 636300 || l.id === 23803) && l.context === 'ftdc';

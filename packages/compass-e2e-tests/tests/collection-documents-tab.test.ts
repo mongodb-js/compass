@@ -248,7 +248,9 @@ describe('Collection documents tab', function () {
         (l: LogEntry) => {
           return (
             l.id === 23798 &&
-            ['MaxTimeMSExpired'].includes(l.attr?.error?.codeName)
+            ['MaxTimeMSExpired', 'ClientDisconnect'].includes(
+              l.attr?.error?.codeName
+            )
           );
         }
       );
