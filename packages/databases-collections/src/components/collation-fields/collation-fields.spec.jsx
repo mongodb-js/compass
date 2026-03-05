@@ -1,31 +1,44 @@
 import React from 'react';
-import { mount } from 'enzyme';
+import { render, screen, cleanup } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import sinon from 'sinon';
-import { Select } from '@mongodb-js/compass-components';
 
 import Collation from '.';
 
 describe('CollationFields [Component]', function () {
-  let component;
   let changeCollationOptionSpy;
 
   beforeEach(function () {
     changeCollationOptionSpy = sinon.spy();
-    component = mount(
+  });
+
+  afterEach(function () {
+    changeCollationOptionSpy = null;
+    cleanup();
+  });
+
+  it('renders the collation option dropdowns', function () {
+    render(
       <Collation
         collation={{}}
         changeCollationOption={changeCollationOptionSpy}
       />
     );
-  });
-
-  afterEach(function () {
-    changeCollationOptionSpy = null;
-    component = null;
-  });
-
-  it('renders the collation option dropdowns', function () {
-    expect(component.find(Select)).to.have.length(9);
+    // There are 9 collation option Select dropdowns
+    // Each Select has a button with the collation field name as its accessible name
+    const collationFields = [
+      'locale',
+      'strength',
+      'caseLevel',
+      'caseFirst',
+      'numericOrdering',
+      'alternate',
+      'maxVariable',
+      'backwards',
+      'normalization',
+    ];
+    for (const field of collationFields) {
+      expect(screen.getByRole('button', { name: field })).to.exist;
+    }
   });
 });
