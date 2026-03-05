@@ -3,10 +3,8 @@ import { createOpenAI } from '@ai-sdk/openai';
 import { streamText } from 'ai';
 import { Eval } from 'braintrust';
 import type { EvalCase } from 'braintrust';
-import { OpenAI } from 'openai';
 import { evalCases } from './eval-cases';
 import { makeEntrypointCases } from './entrypoints';
-import { buildConversationInstructionsPrompt } from '../src/prompts';
 import type {
   ConversationEvalCaseInput,
   ConversationEvalCaseExpected,
@@ -15,16 +13,9 @@ import type {
 import {
   makeFactuality,
   makeBinaryNdcgAtK,
-  type JudgeModelConfig,
 } from 'mongodb-assistant-eval/scorers';
 
-// ---------------------------------------------------------------------------
-// Constants
-// ---------------------------------------------------------------------------
-
-const EVAL_TARGET = 'MongoDB Compass';
-const EVAL_MODEL = 'mongodb-chat-latest';
-const BRAINTRUST_PROXY_ENDPOINT = 'https://api.braintrust.dev/v1/proxy';
+import { EVAL_MODEL, instructions, judgeConfig } from './eval-config';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -64,23 +55,6 @@ type CompassEvalCase = EvalCase<
 };
 
 // ---------------------------------------------------------------------------
-// Judge model config for LLM-as-a-judge scorers
-// ---------------------------------------------------------------------------
-
-const judgeConfig: JudgeModelConfig = {
-  modelId: 'gpt-4.1',
-  embeddingModel: 'text-embedding-3-small',
-  client: new OpenAI({
-    baseURL: BRAINTRUST_PROXY_ENDPOINT,
-    apiKey: process.env.BRAINTRUST_API_KEY!,
-  }),
-  braintrustProxy: {
-    apiKey: process.env.BRAINTRUST_API_KEY!,
-    endpoint: BRAINTRUST_PROXY_ENDPOINT,
-  },
-};
-
-// ---------------------------------------------------------------------------
 // Scorers
 // ---------------------------------------------------------------------------
 
@@ -101,10 +75,6 @@ function getChatTemperature(): number | undefined {
 // ---------------------------------------------------------------------------
 // Data function — convert eval cases to Braintrust format
 // ---------------------------------------------------------------------------
-
-const instructions = buildConversationInstructionsPrompt({
-  target: EVAL_TARGET,
-});
 
 function makeEvalCases(): CompassEvalCase[] {
   const mapCase = (c: SimpleEvalCase): CompassEvalCase => ({

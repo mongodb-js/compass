@@ -22,10 +22,7 @@ import {
   type CompassAssistantCustomInput,
 } from './eval-cases/tool-call-cases';
 
-import {
-  buildConversationInstructionsPrompt,
-  buildContextPrompt,
-} from '../src/prompts';
+import { buildContextPrompt } from '../src/prompts';
 
 import { runConversationEval } from 'mongodb-assistant-eval/eval';
 import type {
@@ -60,12 +57,12 @@ type EvalTaskConfig = {
   connectionConfig: ConnectionConfig;
 };
 
+import { EVAL_MODEL, instructions } from './eval-config';
+
 // ---------------------------------------------------------------------------
 // Constants
 // ---------------------------------------------------------------------------
 
-const EVAL_TARGET = 'MongoDB Compass';
-const EVAL_MODEL = 'mongodb-chat-latest';
 const EVAL_WORKSPACE_TYPE = 'Collections' as const;
 const EVAL_WORKSPACE_TAB_ID = 'eval-workspace-tab';
 const EVAL_PROJECT_NAME = 'Compass Tool Calls';
@@ -146,10 +143,6 @@ function getToolsForCase({
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
-
-const instructions = buildConversationInstructionsPrompt({
-  target: EVAL_TARGET,
-});
 
 function buildContextPromptText({
   custom,
