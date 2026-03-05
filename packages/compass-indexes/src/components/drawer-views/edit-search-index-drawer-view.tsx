@@ -11,7 +11,6 @@ import {
   updateIndex,
   updateSearchIndexClosed,
 } from '../../modules/search-indexes';
-import type { State as SearchIndexesState } from '../../modules/search-indexes';
 import {
   openIndexesListDrawerView,
   setIsEditing,
@@ -32,18 +31,21 @@ import {
   Subtitle,
   Body,
   useDarkMode,
+  cx,
 } from '@mongodb-js/compass-components';
 import {
   containerStyles,
   contentStyles,
   buttonContainerStyles,
   editorContainerStyles,
+  editorContainerDarkModeStyles,
 } from './drawer-view-styles';
 import { IndexStatus } from '../search-indexes-table/use-search-indexes-table';
 import { CodemirrorMultilineEditor } from '@mongodb-js/compass-editor';
 import type { EditorRef } from '@mongodb-js/compass-editor';
 import type { Document } from 'mongodb';
 import { parseShellBSON } from '../../utils/parse-shell-bson';
+import { SearchIndex } from 'mongodb-data-service';
 
 const scrollContainerStyles = css({
   overflowX: 'auto',
@@ -58,10 +60,9 @@ const headerContainerStyles = css({
 
 type EditSearchIndexViewProps = {
   namespace: string;
-  searchIndexes: Pick<SearchIndexesState, 'indexes' | 'error' | 'status'>;
-  currentIndexName: string;
   isEditing: boolean;
   isBusy: boolean;
+  searchIndex?: SearchIndex;
   error?: string;
   onClose: () => void;
   onResetUpdateState: () => void;
@@ -73,20 +74,15 @@ const EditSearchIndexDrawerView: React.FunctionComponent<
   EditSearchIndexViewProps
 > = ({
   namespace,
-  searchIndexes,
-  currentIndexName,
   isEditing,
   isBusy,
+  searchIndex,
   error,
   onClose,
   onResetUpdateState,
   updateIndex,
   onIndexDefinitionEdit,
 }) => {
-  const searchIndex = searchIndexes.indexes.find(
-    (x) => x.name === currentIndexName
-  );
-
   const editorRef = useRef<EditorRef>(null);
   const initialDefinition = JSON.stringify(
     searchIndex?.latestDefinition,
@@ -129,11 +125,12 @@ const EditSearchIndexDrawerView: React.FunctionComponent<
   const onCancelClick = useConfirmCancel(isEditing, onClose);
 
   const onSaveClick = useCallback(() => {
-    updateIndex({
-      name: currentIndexName,
-      definition: parseShellBSON(indexDefinition),
-    });
-  }, [currentIndexName, indexDefinition, updateIndex]);
+    searchIndex?.name &&
+      updateIndex({
+        name: searchIndex.name,
+        definition: parseShellBSON(indexDefinition),
+      });
+  }, [searchIndex, indexDefinition, updateIndex]);
 
   if (!searchIndex) {
     return null;
@@ -156,7 +153,7 @@ const EditSearchIndexDrawerView: React.FunctionComponent<
         <div className={scrollContainerStyles}>
           <div className={headerContainerStyles}>
             <span data-testid="edit-search-index-drawer-view-index-name">
-              {currentIndexName}
+              {searchIndex.name}
             </span>
             <Badge
               data-testid="edit-search-index-drawer-view-index-type-badge"
@@ -184,7 +181,12 @@ const EditSearchIndexDrawerView: React.FunctionComponent<
           This {indexLabel.toLowerCase()} parses the data in <b>{namespace}</b>{' '}
           and has the following configurations.
         </Body>
-        <div className={editorContainerStyles(darkMode)}>
+        <div
+          className={cx(
+            editorContainerStyles,
+            darkMode && editorContainerDarkModeStyles
+          )}
+        >
           <CodemirrorMultilineEditor
             ref={editorRef}
             id="edit-search-index-drawer-view-editor"
@@ -222,8 +224,9 @@ const EditSearchIndexDrawerView: React.FunctionComponent<
 
 const mapState = ({ namespace, searchIndexes, indexesDrawer }: RootState) => ({
   namespace,
-  searchIndexes,
-  currentIndexName: indexesDrawer.currentIndexName,
+  searchIndex: searchIndexes.indexes.find(
+    (x) => x.name === indexesDrawer.currentIndexName
+  ),
   isEditing: indexesDrawer.isEditing,
   isBusy: searchIndexes.updateIndex.isBusy,
   error: searchIndexes.updateIndex.error,

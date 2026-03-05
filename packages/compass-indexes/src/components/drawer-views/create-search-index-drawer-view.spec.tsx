@@ -9,7 +9,9 @@ import {
 import { expect } from 'chai';
 import sinon from 'sinon';
 
-import CreateSearchIndexDrawerView from './create-search-index-drawer-view';
+import CreateSearchIndexDrawerView, {
+  getNextAvailableIndexName,
+} from './create-search-index-drawer-view';
 import { setupStore } from '../../../test/setup-store';
 import type { RootState } from '../../modules';
 
@@ -191,5 +193,59 @@ describe('CreateSearchIndexDrawerView', function () {
       );
       expect(submitButton).to.have.attribute('aria-disabled', 'false');
     });
+  });
+});
+
+describe('getNextAvailableIndexName', function () {
+  it('returns the default name when no indexes exist', function () {
+    expect(getNextAvailableIndexName([], 'default')).to.equal('default');
+  });
+
+  it('returns the default name when it is not taken', function () {
+    const indexes = [{ name: 'other_index' }] as any;
+    expect(getNextAvailableIndexName(indexes, 'default')).to.equal('default');
+  });
+
+  it('returns default_1 when default is taken', function () {
+    const indexes = [{ name: 'default' }] as any;
+    expect(getNextAvailableIndexName(indexes, 'default')).to.equal('default_1');
+  });
+
+  it('returns default_2 when default and default_1 are taken', function () {
+    const indexes = [{ name: 'default' }, { name: 'default_1' }] as any;
+    expect(getNextAvailableIndexName(indexes, 'default')).to.equal('default_2');
+  });
+
+  it('returns the next available number in sequence', function () {
+    const indexes = [
+      { name: 'default' },
+      { name: 'default_1' },
+      { name: 'default_2' },
+      { name: 'default_3' },
+    ] as any;
+    expect(getNextAvailableIndexName(indexes, 'default')).to.equal('default_4');
+  });
+
+  it('fills gaps in the sequence', function () {
+    const indexes = [
+      { name: 'default' },
+      { name: 'default_2' },
+      { name: 'default_3' },
+    ] as any;
+    expect(getNextAvailableIndexName(indexes, 'default')).to.equal('default_1');
+  });
+
+  it('works with vector_index as default name', function () {
+    const indexes = [{ name: 'vector_index' }] as any;
+    expect(getNextAvailableIndexName(indexes, 'vector_index')).to.equal(
+      'vector_index_1'
+    );
+  });
+
+  it('works with custom default names', function () {
+    const indexes = [{ name: 'my_index' }, { name: 'my_index_1' }] as any;
+    expect(getNextAvailableIndexName(indexes, 'my_index')).to.equal(
+      'my_index_2'
+    );
   });
 });

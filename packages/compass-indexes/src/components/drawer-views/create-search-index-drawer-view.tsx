@@ -11,7 +11,6 @@ import {
   createIndex,
   createSearchIndexClosed,
 } from '../../modules/search-indexes';
-import type { State as SearchIndexesState } from '../../modules/search-indexes';
 import {
   openIndexesListDrawerView,
   setIsEditing,
@@ -25,6 +24,7 @@ import type { SearchIndexType } from '../../modules/indexes-drawer';
 import {
   Body,
   Button,
+  cx,
   ErrorSummary,
   SpinLoader,
   Subtitle,
@@ -36,6 +36,7 @@ import {
   contentStyles,
   buttonContainerStyles,
   editorContainerStyles,
+  editorContainerDarkModeStyles,
 } from './drawer-view-styles';
 import type { Document } from 'mongodb';
 import { CodemirrorMultilineEditor } from '@mongodb-js/compass-editor';
@@ -45,10 +46,28 @@ import {
   ATLAS_SEARCH_TEMPLATES,
   ATLAS_VECTOR_SEARCH_TEMPLATE,
 } from '@mongodb-js/mongodb-constants';
+import { SearchIndex } from 'mongodb-data-service';
+
+export const getNextAvailableIndexName = (
+  indexes: SearchIndex[],
+  defaultIndexName: string
+): string => {
+  const existingNames = new Set(indexes.map((index) => index.name));
+
+  if (!existingNames.has(defaultIndexName)) {
+    return defaultIndexName;
+  }
+
+  let counter = 1;
+  while (existingNames.has(`${defaultIndexName}_${counter}`)) {
+    counter++;
+  }
+
+  return `${defaultIndexName}_${counter}`;
+};
 
 type CreateSearchIndexViewProps = {
-  namespace: string;
-  searchIndexes: Pick<SearchIndexesState, 'indexes' | 'error' | 'status'>;
+  searchIndexes: SearchIndex[];
   currentIndexType: SearchIndexType;
   isEditing: boolean;
   isBusy: boolean;
@@ -66,7 +85,7 @@ type CreateSearchIndexViewProps = {
 const CreateSearchIndexDrawerView: React.FunctionComponent<
   CreateSearchIndexViewProps
 > = ({
-  namespace,
+  searchIndexes,
   currentIndexType,
   isEditing,
   isBusy,
@@ -83,7 +102,10 @@ const CreateSearchIndexDrawerView: React.FunctionComponent<
       : ATLAS_SEARCH_TEMPLATES[0].snippet
   );
   const [name, setName] = useState(
-    currentIndexType === 'vectorSearch' ? 'vector_index' : 'default'
+    getNextAvailableIndexName(
+      searchIndexes,
+      currentIndexType === 'vectorSearch' ? 'vector_index' : 'default'
+    )
   );
 
   const isCreateEnabled = useMemo(() => {
@@ -135,7 +157,8 @@ const CreateSearchIndexDrawerView: React.FunctionComponent<
     >
       <div className={contentStyles}>
         <Subtitle data-testid="create-search-index-drawer-view-title">
-          Create {indexLabel} for {namespace}
+          Create {indexLabel} for
+          asdljfas;lfkjasldkfjsdlakfj.aklsjdfhaklsjdfhaksdjh
         </Subtitle>
         <Body>For semantic search and AI applications.</Body>
         <TextInput
@@ -154,7 +177,12 @@ const CreateSearchIndexDrawerView: React.FunctionComponent<
           configurations. We recommend starting with this and refining it later
           if you need to.
         </Body>
-        <div className={editorContainerStyles(darkMode)}>
+        <div
+          className={cx(
+            editorContainerStyles,
+            darkMode && editorContainerDarkModeStyles
+          )}
+        >
           <CodemirrorMultilineEditor
             ref={editorRef}
             id="create-search-index-drawer-view-editor"
@@ -191,8 +219,7 @@ const CreateSearchIndexDrawerView: React.FunctionComponent<
 };
 
 const mapState = ({ namespace, searchIndexes, indexesDrawer }: RootState) => ({
-  namespace,
-  searchIndexes,
+  searchIndexes: searchIndexes.indexes,
   currentIndexType: indexesDrawer.currentIndexType,
   isEditing: indexesDrawer.isEditing,
   isBusy: searchIndexes.createIndex.isBusy,
