@@ -158,18 +158,17 @@ describe('EditSearchIndexDrawerView', function () {
   });
 
   describe('when index is not found', function () {
-    it('renders nothing when index is not found', function () {
-      renderEditSearchIndexDrawerView({
-        indexesDrawer: {
-          currentView: 'edit-search-index',
-          currentIndexName: 'nonExistentIndex',
-          currentIndexType: 'search',
-          isDirty: false,
-        },
-      });
-
-      expect(screen.queryByTestId('edit-search-index-drawer-view')).to.not
-        .exist;
+    it('throws an error when index is not found', function () {
+      expect(() =>
+        renderEditSearchIndexDrawerView({
+          indexesDrawer: {
+            currentView: 'edit-search-index',
+            currentIndexName: 'nonExistentIndex',
+            currentIndexType: 'search',
+            isDirty: false,
+          },
+        })
+      ).to.throw('Search index not found');
     });
   });
 
