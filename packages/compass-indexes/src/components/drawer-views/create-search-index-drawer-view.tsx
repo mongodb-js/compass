@@ -46,7 +46,7 @@ import {
   ATLAS_SEARCH_TEMPLATES,
   ATLAS_VECTOR_SEARCH_TEMPLATE,
 } from '@mongodb-js/mongodb-constants';
-import { SearchIndex } from 'mongodb-data-service';
+import type { SearchIndex } from 'mongodb-data-service';
 
 export const getNextAvailableIndexName = (
   indexes: SearchIndex[],
@@ -218,7 +218,7 @@ const CreateSearchIndexDrawerView: React.FunctionComponent<
   );
 };
 
-const mapState = ({ namespace, searchIndexes, indexesDrawer }: RootState) => ({
+const mapState = ({ searchIndexes, indexesDrawer }: RootState) => ({
   searchIndexes: searchIndexes.indexes,
   currentIndexType: indexesDrawer.currentIndexType,
   isEditing: indexesDrawer.isEditing,

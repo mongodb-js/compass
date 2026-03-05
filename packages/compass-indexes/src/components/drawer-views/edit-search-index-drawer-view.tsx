@@ -45,7 +45,7 @@ import { CodemirrorMultilineEditor } from '@mongodb-js/compass-editor';
 import type { EditorRef } from '@mongodb-js/compass-editor';
 import type { Document } from 'mongodb';
 import { parseShellBSON } from '../../utils/parse-shell-bson';
-import { SearchIndex } from 'mongodb-data-service';
+import type { SearchIndex } from 'mongodb-data-service';
 
 const scrollContainerStyles = css({
   overflowX: 'auto',
@@ -125,11 +125,12 @@ const EditSearchIndexDrawerView: React.FunctionComponent<
   const onCancelClick = useConfirmCancel(isEditing, onClose);
 
   const onSaveClick = useCallback(() => {
-    searchIndex?.name &&
+    if (searchIndex?.name) {
       updateIndex({
         name: searchIndex.name,
         definition: parseShellBSON(indexDefinition),
       });
+    }
   }, [searchIndex, indexDefinition, updateIndex]);
 
   if (!searchIndex) {
