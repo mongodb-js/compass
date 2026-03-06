@@ -18,13 +18,12 @@ import {
 import type { CollectionState } from '../../modules/collection-tab';
 import { mockDataGeneratorDocumentCountChanged } from '../../modules/collection-tab';
 import { SCHEMA_ANALYSIS_STATE_COMPLETE } from '../../schema-analysis-types';
-import { MAX_DOCUMENT_COUNT } from './constants';
+import { FAKER_API_LINK, MAX_DOCUMENT_COUNT } from './constants';
 import type { FakerSchema } from './types';
 import type { ArrayLengthMap } from './script-generation-utils';
 import { generateDocument } from './script-generation-utils';
 import { validateDocumentCount } from './utils';
 
-const FAKER_FUNCTIONS_URL = 'https://fakerjs.dev/api/';
 const BYTE_PRECISION_THRESHOLD = 1000;
 
 const containerStyles = css({
@@ -54,10 +53,6 @@ const inputContainerStyles = css({
   flexDirection: 'row',
   gap: spacing[600],
   marginTop: spacing[200],
-});
-
-const estimatedDiskSizeLabelStyles = css({
-  fontWeight: 600,
 });
 
 const estimatedDiskSizeValueStyles = css({
@@ -173,9 +168,7 @@ const PreviewAndDocCountScreen = ({
             data-testid="document-count-input"
           />
           <div>
-            <Body className={estimatedDiskSizeLabelStyles}>
-              Estimated Disk Size
-            </Body>
+            <Body weight="medium">Estimated Disk Size</Body>
             <Body
               className={estimatedDiskSizeValueStyles}
               data-testid="estimated-disk-size"
@@ -191,7 +184,7 @@ const PreviewAndDocCountScreen = ({
           Below are examples of documents that will be generated when you run
           your script. If you&apos;d like to make any changes to the script (for
           ex. what{' '}
-          <Link href={FAKER_FUNCTIONS_URL} target="_blank">
+          <Link href={FAKER_API_LINK} target="_blank">
             faker functions
           </Link>{' '}
           are being used to generate the documents) you can do so in the next

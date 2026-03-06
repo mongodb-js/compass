@@ -23,6 +23,7 @@ import type { CollectionState } from '../../modules/collection-tab';
 import type { SchemaAnalysisState } from '../../schema-analysis-types';
 import type { MockDataGeneratorState } from './types';
 import HadronDocument from 'hadron-document';
+import { FAKER_API_LINK } from './constants';
 
 interface RawSchemaConfirmationScreenProps {
   schemaAnalysis: SchemaAnalysisState;
@@ -117,11 +118,7 @@ const RawSchemaConfirmationScreen = ({
           <Body className={descriptionStyles}>
             We&apos;ll use the identified schema to generate a mock data script
             for your collection. You can customize the script and its{' '}
-            <Link
-              href="https://fakerjs.dev/api/"
-              target="_blank"
-              hideExternalIcon
-            >
+            <Link href={FAKER_API_LINK} target="_blank" hideExternalIcon>
               Faker functions
             </Link>{' '}
             before running it and/or reuse it for your other clusters and
