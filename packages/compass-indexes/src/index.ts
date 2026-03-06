@@ -20,6 +20,7 @@ import { IndexesTabTitle } from './plugin-title';
 import { atlasServiceLocator } from '@mongodb-js/atlas-service/provider';
 import { preferencesLocator } from 'compass-preferences-model/provider';
 import { IndexesDrawer } from './plugin-drawer';
+import { workspacesServiceLocator } from '@mongodb-js/compass-workspaces/provider';
 
 export const CompassIndexesPluginProvider = registerCompassPlugin(
   {
@@ -39,6 +40,7 @@ export const CompassIndexesPluginProvider = registerCompassPlugin(
     collection: collectionModelLocator,
     atlasService: atlasServiceLocator,
     preferences: preferencesLocator,
+    workspaces: workspacesServiceLocator,
   }
 );
 
