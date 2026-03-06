@@ -1,15 +1,15 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { connect, useSelector } from 'react-redux';
-import type { RootState } from '../../../modules';
-import type { State as RegularIndexesState } from '../../../modules/regular-indexes';
-import type { State as SearchIndexesState } from '../../../modules/search-indexes';
+import type { RootState } from '../../modules';
+import type { State as RegularIndexesState } from '../../modules/regular-indexes';
+import type { State as SearchIndexesState } from '../../modules/search-indexes';
 import {
   openCreateSearchIndexDrawerView,
   refreshAllIndexes,
   startPollingAllIndexes,
   stopPollingAllIndexes,
-} from '../../../modules/indexes-drawer';
-import type { SearchIndexType } from '../../../modules/indexes-drawer';
+} from '../../modules/indexes-drawer';
+import type { SearchIndexType } from '../../modules/indexes-drawer';
 import {
   Accordion,
   Button,
@@ -21,19 +21,19 @@ import {
   SpinLoader,
   useDrawerActions,
 } from '@mongodb-js/compass-components';
-import { createIndexOpened } from '../../../modules/create-index';
-import { FetchStatuses } from '../../../utils/fetch-status';
-import type { FetchStatus } from '../../../utils/fetch-status';
-import { INDEXES_DRAWER_ID } from '../../../plugin-drawer';
-import ViewVersionIncompatibleBanner from '../../view-incompatible-components/view-version-incompatible-banner';
-import ViewPipelineIncompatibleBanner from '../../view-incompatible-components/view-pipeline-incompatible-banner';
-import ViewStandardIndexesIncompatibleEmptyState from '../../view-incompatible-components/view-standard-indexes-incompatible-empty-state';
-import { selectIsViewSearchCompatible } from '../../../utils/is-view-search-compatible';
-import { selectReadWriteAccess } from '../../../utils/indexes-read-write-access';
+import { createIndexOpened } from '../../modules/create-index';
+import { FetchStatuses } from '../../utils/fetch-status';
+import type { FetchStatus } from '../../utils/fetch-status';
+import { INDEXES_DRAWER_ID } from '../../plugin-drawer';
+import ViewVersionIncompatibleBanner from '../view-incompatible-components/view-version-incompatible-banner';
+import ViewPipelineIncompatibleBanner from '../view-incompatible-components/view-pipeline-incompatible-banner';
+import ViewStandardIndexesIncompatibleEmptyState from '../view-incompatible-components/view-standard-indexes-incompatible-empty-state';
+import { selectIsViewSearchCompatible } from '../../utils/is-view-search-compatible';
+import { selectReadWriteAccess } from '../../utils/indexes-read-write-access';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { usePreferences } from 'compass-preferences-model/provider';
-import RegularIndexesDrawerTable from '../../regular-indexes-table/regular-indexes-drawer-table';
-import SearchIndexesDrawerTable from '../../search-indexes-table/search-indexes-drawer-table';
+import RegularIndexesDrawerTable from '../regular-indexes-table/regular-indexes-drawer-table';
+import SearchIndexesDrawerTable from '../search-indexes-table/search-indexes-drawer-table';
 
 const containerStyles = css({
   padding: spacing[400],
