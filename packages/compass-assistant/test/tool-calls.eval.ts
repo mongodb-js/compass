@@ -11,26 +11,28 @@
 import { createOpenAI } from '@ai-sdk/openai';
 import { streamText } from 'ai';
 import type { ToolSet, ToolCallPart } from 'ai';
+import { MongoClient } from 'mongodb';
 import {
   ToolsController,
   type ToolGroup,
 } from '@mongodb-js/compass-generative-ai/provider';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
-
+import { startTestServer } from '@mongodb-js/compass-test-server';
 import {
   toolCallEvalCases,
   type CompassAssistantCustomInput,
 } from './eval-cases/tool-call-cases';
-
 import { buildContextPrompt } from '../src/prompts';
-
 import { runConversationEval } from 'mongodb-assistant-eval/eval';
 import type {
-  ConversationEvalCaseInput,
+  ConversationEvalCaseInputWithCustom,
   ConversationTaskOutput,
   BraintrustConversationEvalCaseWithCustom,
 } from 'mongodb-assistant-eval/eval';
 import { ToolCallScorers } from 'mongodb-assistant-eval/scorers';
+import { seedServer } from './fixtures/databases/seed-server';
+import { seedDatabases } from './fixtures/databases';
+import { strict as assert } from 'assert';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -57,7 +59,7 @@ type EvalTaskConfig = {
   connectionConfig: ConnectionConfig;
 };
 
-import { EVAL_MODEL, instructions } from './eval-config';
+import { EVAL_CLUSTER_UID, EVAL_MODEL, instructions } from './eval-config';
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -76,8 +78,8 @@ const DEFAULT_EVAL_TASK_CONFIG: EvalTaskConfig = {
     userAgent: 'mongodb-compass/x.x.x',
   },
   connectionConfig: {
-    connectionId: 'eval-test-cluster',
-    connectionString: 'mongodb://localhost:27017',
+    connectionId: EVAL_CLUSTER_UID,
+    connectionString: '',
     connectOptions: {
       productDocsLink: 'https://www.mongodb.com/docs/compass/',
       productName: 'MongoDB Compass Eval',
@@ -221,17 +223,17 @@ function makeToolCallEvalCases(): BraintrustConversationEvalCaseWithCustom<Compa
 // Task function — call the assistant and capture tool calls
 // ---------------------------------------------------------------------------
 
-function createToolCallAssistantTask(
-  config: EvalTaskConfig = DEFAULT_EVAL_TASK_CONFIG
-) {
+function createToolCallAssistantTask(config: EvalTaskConfig) {
   const { apiConfig, connectionConfig } = config;
 
   return async function makeToolCallAssistantCall(
-    input: ConversationEvalCaseInput & { custom?: CompassAssistantCustomInput }
+    input: ConversationEvalCaseInputWithCustom<CompassAssistantCustomInput>
   ): Promise<ConversationTaskOutput> {
     await ensureToolsInitialized();
 
-    const custom = input.custom as CompassAssistantCustomInput;
+    // custom is always provided by every eval case
+    const custom = input.custom;
+    assert(custom, 'custom is required');
 
     const openai = createOpenAI({
       baseURL: apiConfig.baseURL,
@@ -277,13 +279,42 @@ function createToolCallAssistantTask(
 }
 
 // ---------------------------------------------------------------------------
-// Eval entry point — uses AEL's runConversationEval
+// Eval entry point — starts a seeded MongoDB, runs evals, cleans up
 // ---------------------------------------------------------------------------
 
-void runConversationEval<CompassAssistantCustomInput>({
-  projectName: EVAL_PROJECT_NAME,
-  experimentName: EVAL_EXPERIMENT_NAME,
-  evalCases: makeToolCallEvalCases(),
-  task: createToolCallAssistantTask(),
-  scorers: [ToolCallScorers],
-});
+async function main() {
+  const cluster = await startTestServer();
+  cluster.unref();
+  const client = new MongoClient(cluster.connectionString);
+  await client.connect();
+  await seedServer(client, seedDatabases);
+
+  const config: EvalTaskConfig = {
+    ...DEFAULT_EVAL_TASK_CONFIG,
+    connectionConfig: {
+      ...DEFAULT_EVAL_TASK_CONFIG.connectionConfig,
+      connectionString: cluster.connectionString,
+    },
+  };
+
+  try {
+    console.log('Running eval...');
+    await runConversationEval<CompassAssistantCustomInput>({
+      projectName: EVAL_PROJECT_NAME,
+      experimentName: EVAL_EXPERIMENT_NAME,
+      evalCases: makeToolCallEvalCases(),
+      task: createToolCallAssistantTask(config),
+      scorers: [ToolCallScorers],
+    });
+  } finally {
+    await toolsController.stopServer();
+    await client.close();
+    await cluster.close();
+    // FIXME: We need to have this otherwise the process hangs.
+    // It'd be better if we could exit gracefully without this,
+    // but I'm not sure how to do that.
+    process.exit(0);
+  }
+}
+
+void main();

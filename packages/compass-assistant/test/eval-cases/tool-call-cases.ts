@@ -11,6 +11,7 @@
 // ---------------------------------------------------------------------------
 
 import type { ExpectedToolCallMessage as ExpectedOutputMessage } from 'mongodb-assistant-eval/schema';
+import { EVAL_CLUSTER_UID } from '../eval-config';
 
 export type { ExpectedOutputMessage };
 
@@ -48,13 +49,13 @@ export interface ToolCallEvalCase {
 // ---------------------------------------------------------------------------
 
 const mflixCustomInput: CompassAssistantCustomInput = {
-  clusterUid: 'eval-test-cluster',
+  clusterUid: EVAL_CLUSTER_UID,
   databaseName: 'sample_mflix',
   collectionName: 'movies',
 };
 
 const airbnbCustomInput: CompassAssistantCustomInput = {
-  clusterUid: 'eval-test-cluster',
+  clusterUid: EVAL_CLUSTER_UID,
   databaseName: 'sample_airbnb',
   collectionName: 'listingsAndReviews',
 };

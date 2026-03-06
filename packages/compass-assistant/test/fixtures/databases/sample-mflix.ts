@@ -1,8 +1,9 @@
+import { ObjectId } from 'mongodb';
 import type { SeedDatabase } from '../../types/seed-data';
 
 const moviesDocuments: Record<string, unknown>[] = [
   {
-    _id: { $oid: '573b864df29313caabe354ed' },
+    _id: new ObjectId('573b864df29313caabe354ed'),
     title: 'Dinosaur Planet',
     year: 2003,
     genres: ['Documentary', 'Animation'],
@@ -16,7 +17,7 @@ const moviesDocuments: Record<string, unknown>[] = [
     languages: ['English'],
   },
   {
-    _id: { $oid: '573b864df29313caabe354ef' },
+    _id: new ObjectId('573b864df29313caabe354ef'),
     title: 'Isle of Man TT 2004 Review',
     year: 2004,
     genres: ['Documentary', 'Sport'],
@@ -30,7 +31,7 @@ const moviesDocuments: Record<string, unknown>[] = [
     languages: ['English'],
   },
   {
-    _id: { $oid: '573b864df29313caabe354f0' },
+    _id: new ObjectId('573b864df29313caabe354f0'),
     title: "Paula Abdul's Get Up & Dance",
     year: 1994,
     genres: ['Short'],
@@ -44,7 +45,7 @@ const moviesDocuments: Record<string, unknown>[] = [
     languages: ['English'],
   },
   {
-    _id: { $oid: '573b864df29313caabe354f1' },
+    _id: new ObjectId('573b864df29313caabe354f1'),
     title: 'The Rise and Fall of ECW',
     year: 2004,
     genres: ['Documentary', 'Sport'],
@@ -58,7 +59,7 @@ const moviesDocuments: Record<string, unknown>[] = [
     languages: ['English'],
   },
   {
-    _id: { $oid: '573b864df29313caabe354f2' },
+    _id: new ObjectId('573b864df29313caabe354f2'),
     title: 'Sick',
     year: 1997,
     genres: ['Drama'],
@@ -72,7 +73,7 @@ const moviesDocuments: Record<string, unknown>[] = [
     languages: ['English'],
   },
   {
-    _id: { $oid: '573b864df29313caabe354f3' },
+    _id: new ObjectId('573b864df29313caabe354f3'),
     title: '8 Man',
     year: 1992,
     genres: ['Animation', 'Action', 'Sci-Fi'],
@@ -86,7 +87,7 @@ const moviesDocuments: Record<string, unknown>[] = [
     languages: ['Japanese'],
   },
   {
-    _id: { $oid: '573b864df29313caabe35500' },
+    _id: new ObjectId('573b864df29313caabe35500'),
     title: 'Aliens',
     year: 1986,
     genres: ['Action', 'Sci-Fi', 'Horror'],
@@ -100,7 +101,7 @@ const moviesDocuments: Record<string, unknown>[] = [
     languages: ['English'],
   },
   {
-    _id: { $oid: '573b864df29313caabe35501' },
+    _id: new ObjectId('573b864df29313caabe35501'),
     title: 'The Shawshank Redemption',
     year: 1994,
     genres: ['Drama'],
