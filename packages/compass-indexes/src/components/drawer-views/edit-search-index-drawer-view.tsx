@@ -237,4 +237,5 @@ const mapDispatch = {
   onIndexDefinitionEdit: setIsDirty,
 };
 
+export { EditSearchIndexDrawerView };
 export default connect(mapState, mapDispatch)(EditSearchIndexDrawerView);

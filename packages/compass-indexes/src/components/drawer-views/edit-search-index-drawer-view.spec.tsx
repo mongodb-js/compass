@@ -1,72 +1,46 @@
 import React from 'react';
-import { Provider } from 'react-redux';
-import {
-  cleanup,
-  render,
-  screen,
-  act,
-} from '@mongodb-js/testing-library-compass';
+import { cleanup, render, screen } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
-import EditSearchIndexDrawerView from './edit-search-index-drawer-view';
-import { setupStore } from '../../../test/setup-store';
-import type { RootState } from '../../modules';
+import { EditSearchIndexDrawerView } from './edit-search-index-drawer-view';
 import { mockSearchIndex } from '../../../test/helpers';
+import type { SearchIndex } from 'mongodb-data-service';
 
-const renderEditSearchIndexDrawerView = (
-  stateOverrides: Partial<RootState> = {}
-) => {
-  const store = setupStore();
+const defaultSearchIndex = mockSearchIndex({
+  name: 'testIndex',
+  status: 'READY',
+  queryable: true,
+  latestDefinition: {
+    mappings: {
+      dynamic: true,
+    },
+  },
+});
 
-  // Apply state overrides
-  const state = store.getState();
-  const newState = {
-    ...state,
-    indexesDrawer: {
-      ...state.indexesDrawer,
-      currentView: 'edit-search-index' as const,
-      currentIndexName: 'testIndex',
-      isDirty: false,
-    },
-    searchIndexes: {
-      ...state.searchIndexes,
-      indexes: [
-        mockSearchIndex({
-          name: 'testIndex',
-          status: 'READY',
-          queryable: true,
-          latestDefinition: {
-            mappings: {
-              dynamic: true,
-            },
-          },
-        }),
-      ],
-      updateIndex: {
-        isModalOpen: false,
-        isBusy: false,
-        indexName: 'testIndex',
-      },
-    },
-    ...stateOverrides,
+const noop = () => {};
+
+function renderEditSearchIndexDrawerView(
+  props: Partial<React.ComponentProps<typeof EditSearchIndexDrawerView>> = {}
+) {
+  const defaultProps: React.ComponentProps<typeof EditSearchIndexDrawerView> = {
+    namespace: 'test.collection',
+    searchIndex: defaultSearchIndex as SearchIndex,
+    isDirty: false,
+    isBusy: false,
+    error: undefined,
+    onClose: noop,
+    onResetUpdateState: noop,
+    updateIndex: noop,
+    onIndexDefinitionEdit: noop,
   };
-  Object.assign(store.getState(), newState);
 
-  render(
-    <Provider store={store}>
-      <EditSearchIndexDrawerView />
-    </Provider>
-  );
-
-  return store;
-};
+  render(<EditSearchIndexDrawerView {...defaultProps} {...props} />);
+}
 
 describe('EditSearchIndexDrawerView', function () {
   afterEach(function () {
-    act(() => {
-      cleanup();
-    });
+    cleanup();
     sinon.restore();
   });
 
@@ -121,36 +95,18 @@ describe('EditSearchIndexDrawerView', function () {
 
   describe('when rendered for vector search index', function () {
     it('renders the edit vector search index form', function () {
+      const vectorSearchIndex = mockSearchIndex({
+        name: 'vectorIndex',
+        type: 'vectorSearch',
+        status: 'READY',
+        queryable: true,
+        latestDefinition: {
+          fields: [],
+        },
+      });
+
       renderEditSearchIndexDrawerView({
-        searchIndexes: {
-          status: 'READY',
-          indexes: [
-            mockSearchIndex({
-              name: 'vectorIndex',
-              type: 'vectorSearch',
-              status: 'READY',
-              queryable: true,
-              latestDefinition: {
-                fields: [],
-              },
-            }),
-          ],
-          createIndex: {
-            isModalOpen: false,
-            isBusy: false,
-          },
-          updateIndex: {
-            isModalOpen: false,
-            isBusy: false,
-            indexName: 'vectorIndex',
-          },
-        },
-        indexesDrawer: {
-          currentView: 'edit-search-index',
-          currentIndexName: 'vectorIndex',
-          currentIndexType: 'search',
-          isDirty: false,
-        },
+        searchIndex: vectorSearchIndex as SearchIndex,
       });
 
       expect(screen.getByTestId('edit-search-index-drawer-view')).to.exist;
@@ -167,30 +123,7 @@ describe('EditSearchIndexDrawerView', function () {
   describe('when busy', function () {
     it('disables submit button when busy', function () {
       renderEditSearchIndexDrawerView({
-        searchIndexes: {
-          status: 'READY',
-          indexes: [
-            mockSearchIndex({
-              name: 'testIndex',
-              status: 'READY',
-              queryable: true,
-              latestDefinition: {
-                mappings: {
-                  dynamic: true,
-                },
-              },
-            }),
-          ],
-          createIndex: {
-            isModalOpen: false,
-            isBusy: false,
-          },
-          updateIndex: {
-            isModalOpen: false,
-            isBusy: true,
-            indexName: 'testIndex',
-          },
-        },
+        isBusy: true,
       });
 
       const submitButton = screen.getByTestId(

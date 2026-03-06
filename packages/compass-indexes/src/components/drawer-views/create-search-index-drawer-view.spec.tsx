@@ -1,5 +1,4 @@
 import React from 'react';
-import { Provider } from 'react-redux';
 import {
   cleanup,
   render,
@@ -9,46 +8,33 @@ import {
 import { expect } from 'chai';
 import sinon from 'sinon';
 
-import CreateSearchIndexDrawerView, {
+import {
+  CreateSearchIndexDrawerView,
   getNextAvailableIndexName,
 } from './create-search-index-drawer-view';
-import { setupStore } from '../../../test/setup-store';
-import type { RootState } from '../../modules';
+import type { SearchIndexType } from '../../modules/indexes-drawer';
 
-const renderCreateSearchIndexDrawerView = (
-  stateOverrides: Partial<RootState> = {}
-) => {
-  const store = setupStore();
+const noop = () => {};
 
-  // Apply state overrides
-  const state = store.getState();
-  const newState = {
-    ...state,
-    indexesDrawer: {
-      ...state.indexesDrawer,
-      currentView: 'create-search-index' as const,
-      currentIndexType: 'search' as const,
+function renderCreateSearchIndexDrawerView(
+  props: Partial<React.ComponentProps<typeof CreateSearchIndexDrawerView>> = {}
+) {
+  const defaultProps: React.ComponentProps<typeof CreateSearchIndexDrawerView> =
+    {
+      namespace: 'test.collection',
+      searchIndexes: [],
+      currentIndexType: 'search' as SearchIndexType,
       isDirty: false,
-    },
-    searchIndexes: {
-      ...state.searchIndexes,
-      createIndex: {
-        isModalOpen: false,
-        isBusy: false,
-      },
-    },
-    ...stateOverrides,
-  };
-  Object.assign(store.getState(), newState);
+      isBusy: false,
+      error: undefined,
+      onClose: noop,
+      onResetCreateState: noop,
+      createIndex: noop,
+      onIndexDefinitionEdit: noop,
+    };
 
-  render(
-    <Provider store={store}>
-      <CreateSearchIndexDrawerView />
-    </Provider>
-  );
-
-  return store;
-};
+  render(<CreateSearchIndexDrawerView {...defaultProps} {...props} />);
+}
 
 describe('CreateSearchIndexDrawerView', function () {
   afterEach(function () {
@@ -99,12 +85,7 @@ describe('CreateSearchIndexDrawerView', function () {
   describe('when rendered for vector search index', function () {
     it('renders the create vector search index form', function () {
       renderCreateSearchIndexDrawerView({
-        indexesDrawer: {
-          currentView: 'create-search-index',
-          currentIndexType: 'vectorSearch',
-          currentIndexName: '',
-          isDirty: false,
-        },
+        currentIndexType: 'vectorSearch',
       });
 
       expect(screen.getByTestId('create-search-index-drawer-view')).to.exist;
@@ -118,12 +99,7 @@ describe('CreateSearchIndexDrawerView', function () {
 
     it('has default index name set to "vector_index"', function () {
       renderCreateSearchIndexDrawerView({
-        indexesDrawer: {
-          currentView: 'create-search-index',
-          currentIndexType: 'vectorSearch',
-          currentIndexName: '',
-          isDirty: false,
-        },
+        currentIndexType: 'vectorSearch',
       });
 
       const nameInput = screen.getByTestId(
@@ -149,19 +125,7 @@ describe('CreateSearchIndexDrawerView', function () {
   describe('when busy', function () {
     it('disables submit button when busy', function () {
       renderCreateSearchIndexDrawerView({
-        searchIndexes: {
-          status: 'READY',
-          indexes: [],
-          createIndex: {
-            isModalOpen: false,
-            isBusy: true,
-          },
-          updateIndex: {
-            isModalOpen: false,
-            isBusy: false,
-            indexName: '',
-          },
-        },
+        isBusy: true,
       });
 
       const submitButton = screen.getByTestId(
@@ -173,19 +137,7 @@ describe('CreateSearchIndexDrawerView', function () {
 
     it('enables submit button when not busy', function () {
       renderCreateSearchIndexDrawerView({
-        searchIndexes: {
-          status: 'READY',
-          indexes: [],
-          createIndex: {
-            isModalOpen: false,
-            isBusy: false,
-          },
-          updateIndex: {
-            isModalOpen: false,
-            isBusy: false,
-            indexName: '',
-          },
-        },
+        isBusy: false,
       });
 
       const submitButton = screen.getByTestId(
