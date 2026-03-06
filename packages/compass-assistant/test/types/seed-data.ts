@@ -1,8 +1,5 @@
 /**
  * Types for seed data used in tool call evaluations.
- *
- * Phase 1: Used as prompt context only (schema + sample docs derived in-memory).
- * Phase 2: Loaded into a local MongoDB via compass-test-server for tool execution.
  */
 
 export interface SeedCollectionIndex {
