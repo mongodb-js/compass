@@ -55,6 +55,10 @@ const inputContainerStyles = css({
   marginTop: spacing[200],
 });
 
+const documentCountInputStyles = css({
+  width: '325px',
+});
+
 const estimatedDiskSizeValueStyles = css({
   fontSize: '13px',
   marginTop: spacing[100],
@@ -155,6 +159,7 @@ const PreviewAndDocCountScreen = ({
         <div className={inputContainerStyles}>
           <TextInput
             id="document-count-input"
+            className={documentCountInputStyles}
             label="Documents to generate in current collection"
             type="number"
             value={documentCount}
