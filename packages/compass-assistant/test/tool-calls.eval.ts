@@ -216,6 +216,7 @@ function makeToolCallEvalCases(): BraintrustConversationEvalCaseWithCustom<Compa
         outputMessages: c.expected.outputMessages,
       },
       tags: c.tags,
+      metadata: c.metadata ?? {},
     }));
 }
 
@@ -257,7 +258,12 @@ function createToolCallAssistantTask(config: EvalTaskConfig) {
     const result = streamText({
       model: openai.responses(EVAL_MODEL),
       system: contextPrompt,
-      prompt: input.messages.map((m) => m.content).join('\n'),
+      prompt: input.messages
+        .map(
+          (m) =>
+            `${m.role === 'assistant' ? 'Assistant' : 'User'}: ${m.content}`
+        )
+        .join('\n\n'),
       tools,
       providerOptions: {
         openai: {
@@ -298,7 +304,6 @@ async function main() {
   };
 
   try {
-    console.log('Running eval...');
     await runConversationEval<CompassAssistantCustomInput>({
       projectName: EVAL_PROJECT_NAME,
       experimentName: EVAL_EXPERIMENT_NAME,

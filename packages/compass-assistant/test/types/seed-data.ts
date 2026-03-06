@@ -1,10 +1,12 @@
+import type { CreateIndexesOptions, IndexDirection } from 'mongodb';
+
 /**
  * Types for seed data used in tool call evaluations.
  */
 
 export interface SeedCollectionIndex {
-  key: Record<string, 1 | -1 | '2dsphere' | 'text'>;
-  options?: Record<string, unknown>;
+  key: Record<string, IndexDirection>;
+  options?: CreateIndexesOptions;
 }
 
 export interface SeedCollectionConfig {
