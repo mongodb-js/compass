@@ -124,6 +124,8 @@ To connect, choose a connection from Compass's connection sidebar - https://www.
       };
       return void this.changeState('connection-success', {
         tag: 'connected',
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore Duplicate @mongosh/service-provider-node-driver in node_modules
         serviceProvider,
         // TODO(COMPASS-10214): implement if needed
         isSearchSupported: () => Promise.resolve(false),
