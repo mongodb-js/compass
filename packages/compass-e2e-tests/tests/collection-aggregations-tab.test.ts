@@ -675,6 +675,21 @@ describe('Collection aggregations tab', function () {
       });
     });
 
+    let unsubscribeAllowWarnings: () => void;
+
+    before(function () {
+      unsubscribeAllowWarnings = allowServerWarnings((l: LogEntry) => {
+        return (
+          l.id === 23799 &&
+          ['DocumentValidationFailure'].includes(l.attr?.error?.codeName)
+        );
+      });
+    });
+
+    after(function () {
+      unsubscribeAllowWarnings();
+    });
+
     it('Shows error info when inserting', async function () {
       await browser.selectStageOperator(0, '$out');
       await browser.setCodemirrorEditorValue(
