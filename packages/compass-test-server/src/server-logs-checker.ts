@@ -23,7 +23,6 @@ const DEFAULT_ALLOWED_WARNINGS: WarningFilter[] = [
       [
         'NamespaceNotFound',
         'CommandNotSupportedOnView', // Compass probing views for stats/schema
-        'CommandNotSupported', // Compass probing for search indexes on older enterprise versions
       ].includes(l.attr?.error?.codeName)
     );
   },

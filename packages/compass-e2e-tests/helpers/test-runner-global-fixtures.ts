@@ -27,6 +27,7 @@ import {
   rebuildNativeModules,
   removeUserDataDir,
   screenshotPathName,
+  serverSatisfies,
   startBrowser,
 } from './compass';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
@@ -343,6 +344,17 @@ export async function mochaGlobalSetup(this: Mocha.Runner) {
 
     debug('Getting mongodb server info');
     await updateMongoDBServerInfo();
+    if (serverSatisfies('< 8.0', true)) {
+      for (const checker of serverLogsCheckers) {
+        checker.allowWarning((l: LogEntry) => {
+          // "Aggregate command executor error" with CommandNotSupported
+          // This happens when Compass probes for search index support on older non-Atlas servers
+          return (
+            l.id === 23799 && l.attr?.error?.codeName === 'CommandNotSupported'
+          );
+        });
+      }
+    }
 
     throwIfAborted();
 
