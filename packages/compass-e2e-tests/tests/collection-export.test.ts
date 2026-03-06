@@ -22,6 +22,7 @@ import {
   createNumbersStringCollection,
 } from '../helpers/mongo-clients';
 import { allowServerWarnings } from '../helpers/test-runner-global-fixtures';
+import type { LogEntry } from '@mongodb-js/compass-test-server';
 
 async function selectExportFileTypeCSV(browser: CompassBrowser) {
   await browser.clickParent(Selectors.FileTypeCSV);
@@ -584,16 +585,22 @@ describe('Collection export', function () {
     });
 
     describe('aborting exports', function () {
-      let unsubscribeWarningsFilter: () => void;
+      let unsubscribeAllowWarningsFilter: () => void;
 
       before(function () {
-        unsubscribeWarningsFilter = allowServerWarnings(
-          8996500 // allow "$where is deprecated" warnings
+        unsubscribeAllowWarningsFilter = allowServerWarnings(
+          8996500, // allow "$where is deprecated" warnings
+          (l: LogEntry) => {
+            return (
+              l.id === 23798 &&
+              ['QueryPlanKilled'].includes(l.attr?.error?.codeName)
+            );
+          }
         );
       });
 
       after(function () {
-        unsubscribeWarningsFilter();
+        unsubscribeAllowWarningsFilter();
       });
 
       it('can abort an in progress CSV export', async function () {

@@ -240,10 +240,10 @@ describe('Collection documents tab', function () {
   });
 
   context('cancel and maxTimeMS', function () {
-    let unsubscribeWarningsFilter: () => void;
+    let unsubscribeAllowWarningsFilter: () => void;
 
     before(function () {
-      unsubscribeWarningsFilter = allowServerWarnings(
+      unsubscribeAllowWarningsFilter = allowServerWarnings(
         8996500, // allow "$where is deprecated" warnings
         (l: LogEntry) => {
           return (
@@ -343,7 +343,7 @@ describe('Collection documents tab', function () {
     }
 
     after(function () {
-      unsubscribeWarningsFilter();
+      unsubscribeAllowWarningsFilter();
     });
   });
 
@@ -761,10 +761,10 @@ FindIterable<Document> result = collection.find(filter);`);
     });
 
     describe('Error info when editing', function () {
-      let unsubscribeWarningsFilter: () => void;
+      let unsubscribeAllowWarningsFilter: () => void;
 
       before(function () {
-        unsubscribeWarningsFilter = allowServerWarnings((l: LogEntry) => {
+        unsubscribeAllowWarningsFilter = allowServerWarnings((l: LogEntry) => {
           return (
             l.id === 7267501 &&
             ['DocumentValidationFailure'].includes(l.attr?.error?.codeName)
@@ -773,7 +773,7 @@ FindIterable<Document> result = collection.find(filter);`);
       });
 
       after(function () {
-        unsubscribeWarningsFilter();
+        unsubscribeAllowWarningsFilter();
       });
 
       beforeEach(async function () {

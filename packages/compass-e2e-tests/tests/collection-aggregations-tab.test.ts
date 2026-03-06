@@ -474,10 +474,10 @@ describe('Collection aggregations tab', function () {
 
   describe('maxTimeMS', function () {
     let maxTimeMSBefore: any;
-    let unsubscribeWarnings: () => void;
+    let unsubscribeAllowWarnings: () => void;
 
     before(function () {
-      unsubscribeWarnings = allowServerWarnings(
+      unsubscribeAllowWarnings = allowServerWarnings(
         8996503, // Allow "$function is deprecated" warning
         (l: LogEntry) => {
           return (
@@ -489,7 +489,7 @@ describe('Collection aggregations tab', function () {
     });
 
     after(function () {
-      unsubscribeWarnings();
+      unsubscribeAllowWarnings();
     });
 
     beforeEach(async function () {
@@ -970,7 +970,14 @@ describe('Collection aggregations tab', function () {
   });
 
   it('supports cancelling long-running aggregations', async function () {
-    const unsubscribeAllowWarning = allowServerWarnings(8996500); // Allo "$function is deprecated" warning
+    const unsubscribeAllowWarnings = allowServerWarnings(
+      8996503, // Allow "$function is deprecated" warning
+      (l: LogEntry) => {
+        return (
+          l.id === 23799 && ['Interrupted'].includes(l.attr?.error?.codeName)
+        );
+      }
+    );
     const slowQuery = `{
       sleep: {
         $function: {
@@ -997,7 +1004,7 @@ describe('Collection aggregations tab', function () {
     const emptyResultsBanner = browser.$(Selectors.AggregationEmptyResults);
     await emptyResultsBanner.waitForDisplayed();
 
-    unsubscribeAllowWarning();
+    unsubscribeAllowWarnings();
   });
 
   it('handles errors in aggregations', async function () {
