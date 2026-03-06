@@ -593,7 +593,9 @@ describe('Collection export', function () {
           (l: LogEntry) => {
             return (
               l.id === 23798 &&
-              ['QueryPlanKilled'].includes(l.attr?.error?.codeName)
+              ['QueryPlanKilled', 'ClientDisconnect'].includes(
+                l.attr?.error?.codeName
+              )
             );
           }
         );

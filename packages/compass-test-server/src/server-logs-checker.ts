@@ -18,17 +18,13 @@ const DEFAULT_ALLOWED_WARNINGS: WarningFilter[] = [
   },
   (l: LogEntry) => {
     // "Aggregate command executor error"
-    if (l.id === 23799) {
-      console.log('Aggregate command executor error', l.attr.error);
-    }
-    if (l.id === 23798 || l.id === 7267501) {
-      console.log('Plan executor error', l.id, l.attr.error);
-    }
     return (
       l.id === 23799 &&
-      ['NamespaceNotFound', 'CommandNotSupportedOnView'].includes(
-        l.attr?.error?.codeName
-      )
+      [
+        'NamespaceNotFound',
+        'CommandNotSupportedOnView', // Compass probing views for stats/schema
+        'CommandNotSupported', // Compass probing for search indexes on older enterprise versions
+      ].includes(l.attr?.error?.codeName)
     );
   },
 ];
