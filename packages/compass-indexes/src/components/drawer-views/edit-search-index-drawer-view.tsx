@@ -39,6 +39,7 @@ import {
   buttonContainerStyles,
   editorContainerStyles,
   editorContainerDarkModeStyles,
+  overflowWrapStyles,
 } from './drawer-view-styles';
 import { IndexStatus } from '../search-indexes-table/use-search-indexes-table';
 import { CodemirrorMultilineEditor } from '@mongodb-js/compass-editor';
@@ -166,7 +167,7 @@ const EditSearchIndexDrawerView: React.FunctionComponent<
             </Badge>
           </div>
         </div>
-        <Body>
+        <Body className={overflowWrapStyles}>
           This {indexLabel.toLowerCase()} parses the data in <b>{namespace}</b>{' '}
           and has the following configurations.
         </Body>

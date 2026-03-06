@@ -24,7 +24,6 @@ import type { SearchIndexType } from '../../modules/indexes-drawer';
 import {
   Body,
   Button,
-  css,
   cx,
   ErrorSummary,
   SpinLoader,
@@ -38,6 +37,7 @@ import {
   buttonContainerStyles,
   editorContainerStyles,
   editorContainerDarkModeStyles,
+  overflowWrapStyles,
 } from './drawer-view-styles';
 import type { Document } from 'mongodb';
 import { CodemirrorMultilineEditor } from '@mongodb-js/compass-editor';
@@ -66,11 +66,6 @@ export const getNextAvailableIndexName = (
 
   return `${defaultIndexName}_${counter}`;
 };
-
-const titleStyles = css({
-  overflowWrap: 'anywhere',
-  textWrap: 'wrap',
-});
 
 type CreateSearchIndexViewProps = {
   namespace: string;
@@ -162,7 +157,7 @@ const CreateSearchIndexDrawerView: React.FunctionComponent<
     >
       <div className={contentStyles}>
         <Subtitle
-          className={titleStyles}
+          className={overflowWrapStyles}
           data-testid="create-search-index-drawer-view-title"
         >
           Create {indexLabel} for {namespace}

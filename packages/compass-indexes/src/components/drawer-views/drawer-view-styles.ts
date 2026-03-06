@@ -33,3 +33,8 @@ export const editorContainerDarkModeStyles = css({
   border: `1px solid ${palette.gray.dark2}`,
   background: palette.gray.dark3,
 });
+
+export const overflowWrapStyles = css({
+  overflowWrap: 'anywhere',
+  textWrap: 'wrap',
+});
