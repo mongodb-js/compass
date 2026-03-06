@@ -480,9 +480,12 @@ describe('Collection aggregations tab', function () {
       unsubscribeAllowWarnings = allowServerWarnings(
         8996503, // Allow "$function is deprecated" warning
         (l: LogEntry) => {
+          // 23798 = "Plan executor error", 23799 = "Aggregate command executor error"
           return (
             l.id === 23799 &&
-            ['MaxTimeMSExpired'].includes(l.attr?.error?.codeName)
+            ['MaxTimeMSExpired', 'Interrupted'].includes(
+              l.attr?.error?.codeName
+            )
           );
         }
       );
