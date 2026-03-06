@@ -65,7 +65,7 @@ describe('GenAI Prompts', function () {
       'includes date instruction'
     );
     expect(metadata.userId).to.equal(OPTIONS.userId);
-    expect(metadata.store).to.equal('false');
+    expect(metadata.store).to.equal(false);
     expect(metadata.requestId).to.equal(OPTIONS.requestId);
 
     expect(prompt).to.be.a('string');
@@ -110,7 +110,7 @@ describe('GenAI Prompts', function () {
       'includes date instruction'
     );
     expect(metadata.userId).to.equal(OPTIONS.userId);
-    expect(metadata.store).to.equal('false');
+    expect(metadata.store).to.equal(false);
     expect(metadata.requestId).to.equal(OPTIONS.requestId);
 
     expect(prompt).to.be.a('string');
@@ -211,7 +211,7 @@ describe('GenAI Prompts', function () {
         ...OPTIONS,
         enableStorage: true,
       });
-      expect(metadata.store).to.equal('true');
+      expect(metadata.store).to.equal(true);
       expect((metadata as any).sensitiveStorage).to.equal('sensitive');
     });
     it('sets store to true in metadata when building aggregate query prompt', function () {
@@ -219,7 +219,7 @@ describe('GenAI Prompts', function () {
         ...OPTIONS,
         enableStorage: true,
       });
-      expect(metadata.store).to.equal('true');
+      expect(metadata.store).to.equal(true);
       expect((metadata as any).sensitiveStorage).to.equal('sensitive');
     });
   });

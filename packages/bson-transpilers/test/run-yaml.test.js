@@ -7,6 +7,7 @@ const expect = chai.expect;
 const yaml = require('js-yaml');
 const vm = require('vm');
 const bson = require('bson');
+const { getBsonType } = require('hadron-type-checker');
 
 const transpiler = require('../index');
 
@@ -122,12 +123,10 @@ fs.readdirSync(testpath).map((file) => {
                     const actual = transpiler[input].object.compile(
                       test.input[input]
                     );
-                    if (
-                      expected &&
-                      typeof expected === 'object' &&
-                      '_bsontype' in expected
-                    ) {
-                      expect(actual._bsontype).to.equal(expected._bsontype);
+                    if (getBsonType(expected)) {
+                      expect(getBsonType(actual)).to.equal(
+                        getBsonType(expected)
+                      );
                       expect(actual.value).to.equal(expected.value);
                     } else if (
                       test.description &&

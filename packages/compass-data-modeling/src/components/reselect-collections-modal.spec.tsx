@@ -269,5 +269,101 @@ describe('ReselectCollectionsModal', function () {
         store.getState().reselectCollections.newSelectedCollections
       ).to.have.members(['coupons', 'users']);
     });
+
+    it('navigates to DIAGRAM_SETTINGS step when Next is clicked', async function () {
+      const { store, connectionsStore } = renderReselectCollectionsModal({});
+      await connectionsStore.actions.connect(MOCK_CONNECTIONS[1]);
+      await store.dispatch(reselectCollections());
+
+      // Wait for SELECT_COLLECTIONS step to appear
+      await screen.findByText(/Select collections for/);
+
+      // Select a new collection to enable the Next button
+      userEvent.click(
+        screen.getByRole('checkbox', { name: 'users' }),
+        undefined,
+        {
+          skipPointerEventsCheck: true,
+        }
+      );
+
+      // Click Next to go to DIAGRAM_SETTINGS
+      userEvent.click(screen.getByRole('button', { name: /next/i }));
+
+      // Verify we're on the DIAGRAM_SETTINGS step by checking for the title and buttons
+      await screen.findByText('Diagram settings');
+      expect(screen.getByRole('button', { name: /generate/i })).to.exist;
+      expect(screen.getByRole('button', { name: /back/i })).to.exist;
+    });
+  });
+
+  context('DIAGRAM_SETTINGS step', function () {
+    async function navigateToDiagramSettingsStep(
+      store: ReturnType<typeof renderReselectCollectionsModal>['store'],
+      connectionsStore: ReturnType<
+        typeof renderReselectCollectionsModal
+      >['connectionsStore']
+    ) {
+      await connectionsStore.actions.connect(MOCK_CONNECTIONS[1]);
+      await store.dispatch(reselectCollections());
+
+      // Wait for SELECT_COLLECTIONS step to appear
+      await screen.findByText(/Select collections for/);
+
+      // Select a new collection to enable the Next button
+      userEvent.click(
+        screen.getByRole('checkbox', { name: 'users' }),
+        undefined,
+        {
+          skipPointerEventsCheck: true,
+        }
+      );
+
+      // Click Next to go to DIAGRAM_SETTINGS
+      userEvent.click(screen.getByRole('button', { name: /next/i }));
+
+      // Wait for DIAGRAM_SETTINGS step
+      await screen.findByText('Diagram settings');
+    }
+
+    it('shows sample size input with default value of 100', async function () {
+      const { store, connectionsStore } = renderReselectCollectionsModal({});
+      await navigateToDiagramSettingsStep(store, connectionsStore);
+
+      const sampleSizeInput = await screen.findByTestId('sample-size-input');
+      expect(sampleSizeInput).to.have.value('100');
+    });
+
+    it('allows user to change sample size', async function () {
+      const { store, connectionsStore } = renderReselectCollectionsModal({});
+      await navigateToDiagramSettingsStep(store, connectionsStore);
+
+      const sampleSizeInput = await screen.findByTestId('sample-size-input');
+
+      // The TextInput is nested inside a Radio component's Label, which
+      // intercepts click events from userEvent. We use type() with skipClick
+      // and manually position the cursor to type over the existing value.
+      sampleSizeInput.focus();
+      // Move cursor to end and delete existing content
+      userEvent.type(sampleSizeInput, '{backspace}{backspace}{backspace}50', {
+        skipClick: true,
+      });
+
+      await waitFor(() => {
+        expect(sampleSizeInput).to.have.value('50');
+      });
+    });
+
+    it('navigates back to SELECT_COLLECTIONS when Back is clicked', async function () {
+      const { store, connectionsStore } = renderReselectCollectionsModal({});
+      await navigateToDiagramSettingsStep(store, connectionsStore);
+
+      // Click Back to go to SELECT_COLLECTIONS
+      userEvent.click(screen.getByRole('button', { name: /back/i }));
+
+      // Verify we're back on SELECT_COLLECTIONS step by checking for the title
+      await screen.findByText(/Select collections for/);
+      expect(screen.getByRole('button', { name: /next/i })).to.exist;
+    });
   });
 });

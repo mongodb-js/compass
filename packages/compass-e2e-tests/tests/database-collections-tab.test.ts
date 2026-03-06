@@ -6,8 +6,8 @@ import {
   cleanup,
   screenshotIfFailed,
   serverSatisfies,
-  DEFAULT_CONNECTION_STRING_1,
-  DEFAULT_CONNECTION_NAME_1,
+  getDefaultConnectionStrings,
+  getDefaultConnectionNames,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
@@ -61,7 +61,7 @@ describe('Database collections tab', function () {
     await browser.disconnectAll();
     await browser.connectToDefaults();
     await browser.navigateToDatabaseCollectionsTab(
-      DEFAULT_CONNECTION_NAME_1,
+      getDefaultConnectionNames(0),
       'test'
     );
   });
@@ -132,7 +132,7 @@ describe('Database collections tab', function () {
     );
 
     await browser.navigateToDatabaseCollectionsTab(
-      DEFAULT_CONNECTION_NAME_1,
+      getDefaultConnectionNames(0),
       'test'
     );
 
@@ -170,7 +170,10 @@ describe('Database collections tab', function () {
 
     // the app should still be on the database Collections tab because there are
     // other collections in this database
-    await browser.waitUntilActiveDatabaseTab(DEFAULT_CONNECTION_NAME_1, 'test');
+    await browser.waitUntilActiveDatabaseTab(
+      getDefaultConnectionNames(0),
+      'test'
+    );
   });
 
   it('can create a collection with custom collation', async function () {
@@ -198,7 +201,7 @@ describe('Database collections tab', function () {
     );
 
     await browser.navigateToDatabaseCollectionsTab(
-      DEFAULT_CONNECTION_NAME_1,
+      getDefaultConnectionNames(0),
       'test'
     );
 
@@ -230,7 +233,7 @@ describe('Database collections tab', function () {
     );
 
     await browser.navigateToDatabaseCollectionsTab(
-      DEFAULT_CONNECTION_NAME_1,
+      getDefaultConnectionNames(0),
       'test'
     );
 
@@ -267,7 +270,7 @@ describe('Database collections tab', function () {
     );
 
     await browser.navigateToDatabaseCollectionsTab(
-      DEFAULT_CONNECTION_NAME_1,
+      getDefaultConnectionNames(0),
       'test'
     );
 
@@ -298,7 +301,7 @@ describe('Database collections tab', function () {
     );
 
     await browser.navigateToDatabaseCollectionsTab(
-      DEFAULT_CONNECTION_NAME_1,
+      getDefaultConnectionNames(0),
       'test'
     );
 
@@ -310,7 +313,7 @@ describe('Database collections tab', function () {
     );
 
     await browser.navigateToCollectionTab(
-      DEFAULT_CONNECTION_NAME_1,
+      getDefaultConnectionNames(0),
       'test',
       collectionName,
       'Indexes'
@@ -329,7 +332,7 @@ describe('Database collections tab', function () {
     const coll = `zcoll-${Date.now()}`;
 
     // Create the collection and refresh
-    const mongoClient = new MongoClient(DEFAULT_CONNECTION_STRING_1);
+    const mongoClient = new MongoClient(getDefaultConnectionStrings(0));
     await mongoClient.connect();
     try {
       const database = mongoClient.db(db);
@@ -339,7 +342,7 @@ describe('Database collections tab', function () {
     }
 
     await browser.navigateToDatabaseCollectionsTab(
-      DEFAULT_CONNECTION_NAME_1,
+      getDefaultConnectionNames(0),
       db
     );
     await browser.clickVisible(Selectors.DatabaseRefreshCollectionButton);

@@ -4,7 +4,10 @@ import EventEmitter from 'eventemitter3';
 import { isPlainObject, isArray, isEqual, isString } from 'lodash';
 import type { ObjectGeneratorOptions } from './object-generator';
 import ObjectGenerator from './object-generator';
-import TypeChecker, { convertBinaryUUID } from 'hadron-type-checker';
+import TypeChecker, {
+  convertBinaryUUID,
+  getBsonType,
+} from 'hadron-type-checker';
 import { Binary, UUID } from 'bson';
 import DateEditor from './editor/date';
 import { ElementEvents, type ElementEventsType } from './element-events';
@@ -73,16 +76,9 @@ export function isUUIDType(type: string): type is UUIDType {
 
 /**
  * Type guard to check if a value is a BSON Binary.
- * Uses _bsontype property check instead of instanceof for cross-realm compatibility.
- * TODO: Once we upgrade to bson@7.x, use value?.[bsonType] === 'Binary' instead.
  */
 function isBinary(value: unknown): value is Binary {
-  return (
-    value !== null &&
-    typeof value === 'object' &&
-    '_bsontype' in value &&
-    value._bsontype === 'Binary'
-  );
+  return getBsonType(value) === 'Binary';
 }
 
 export const DEFAULT_VISIBLE_ELEMENTS = 25;

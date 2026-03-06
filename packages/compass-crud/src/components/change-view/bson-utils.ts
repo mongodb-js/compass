@@ -1,6 +1,7 @@
 import { EJSON } from 'bson';
 
 import { getValueShape } from './shape-utils';
+import { getBsonType } from 'hadron-type-checker';
 
 export function stringifyBSON(value: any) {
   if (value?.inspect) {
@@ -26,7 +27,7 @@ export function unBSON(value: any): any {
       mapped[k] = unBSON(v);
     }
     return mapped;
-  } else if (value?._bsontype) {
+  } else if (getBsonType(value)) {
     return stringifyBSON(value);
   } else if (Object.prototype.toString.call(value) === '[object RegExp]') {
     // make sure these match when diffing

@@ -2,7 +2,7 @@ import {
   init,
   cleanup,
   screenshotIfFailed,
-  DEFAULT_CONNECTION_NAME_1,
+  getDefaultConnectionNames,
 } from '../helpers/compass';
 import { expect } from 'chai';
 import * as Selectors from '../helpers/selectors';
@@ -77,37 +77,41 @@ describe('readOnly: true / Read-Only Edition', function () {
     // active/highlighted and then the add button and three dot menu will
     // display without needing to hover
     await browser.navigateToConnectionTab(
-      DEFAULT_CONNECTION_NAME_1,
+      getDefaultConnectionNames(0),
       'Databases'
     );
 
     expect(
       await browser.hasConnectionMenuItem(
-        DEFAULT_CONNECTION_NAME_1,
+        getDefaultConnectionNames(0),
         Selectors.CreateDatabaseButton,
         false
       )
     ).to.be.equal(
       false,
-      `Expected connection ${DEFAULT_CONNECTION_NAME_1} to NOT have "Create Database" button`
+      `Expected connection ${getDefaultConnectionNames(
+        0
+      )} to NOT have "Create Database" button`
     );
 
     await setReadOnlyFeatureViaSettingsModal(browser, false);
 
     await browser.navigateToConnectionTab(
-      DEFAULT_CONNECTION_NAME_1,
+      getDefaultConnectionNames(0),
       'Databases'
     );
 
     expect(
       await browser.hasConnectionMenuItem(
-        DEFAULT_CONNECTION_NAME_1,
+        getDefaultConnectionNames(0),
         Selectors.CreateDatabaseButton,
         false
       )
     ).to.be.equal(
       true,
-      `Expected connection ${DEFAULT_CONNECTION_NAME_1} to have "Create Database" button`
+      `Expected connection ${getDefaultConnectionNames(
+        0
+      )} to have "Create Database" button`
     );
   });
 
@@ -116,7 +120,7 @@ describe('readOnly: true / Read-Only Edition', function () {
     await browser.connectToDefaults();
 
     const connectionId = await browser.getConnectionIdByName(
-      DEFAULT_CONNECTION_NAME_1
+      getDefaultConnectionNames(0)
     );
 
     const dbName = 'test'; // existing db
@@ -153,7 +157,7 @@ describe('readOnly: true / Read-Only Edition', function () {
     await browser.connectToDefaults();
 
     await browser.navigateToConnectionTab(
-      DEFAULT_CONNECTION_NAME_1,
+      getDefaultConnectionNames(0),
       'Databases'
     );
 
@@ -185,7 +189,7 @@ describe('readOnly: true / Read-Only Edition', function () {
     await browser.connectToDefaults();
 
     await browser.navigateToDatabaseCollectionsTab(
-      DEFAULT_CONNECTION_NAME_1,
+      getDefaultConnectionNames(0),
       'test'
     );
 
@@ -217,7 +221,7 @@ describe('readOnly: true / Read-Only Edition', function () {
     await browser.connectToDefaults();
 
     await browser.navigateToCollectionTab(
-      DEFAULT_CONNECTION_NAME_1,
+      getDefaultConnectionNames(0),
       'test',
       'numbers',
       'Documents'
@@ -246,7 +250,7 @@ describe('readOnly: true / Read-Only Edition', function () {
 
     // Some tests navigate away from the numbers collection aggregations tab
     await browser.navigateToCollectionTab(
-      DEFAULT_CONNECTION_NAME_1,
+      getDefaultConnectionNames(0),
       'test',
       'numbers',
       'Aggregations'
@@ -279,7 +283,7 @@ describe('readOnly: true / Read-Only Edition', function () {
     await browser.connectToDefaults();
 
     await browser.navigateToCollectionTab(
-      DEFAULT_CONNECTION_NAME_1,
+      getDefaultConnectionNames(0),
       'test',
       'numbers',
       'Indexes'
@@ -311,7 +315,7 @@ describe('readOnly: true / Read-Only Edition', function () {
     await browser.connectToDefaults();
 
     await browser.navigateToCollectionTab(
-      DEFAULT_CONNECTION_NAME_1,
+      getDefaultConnectionNames(0),
       'test',
       'numbers',
       'Validation'

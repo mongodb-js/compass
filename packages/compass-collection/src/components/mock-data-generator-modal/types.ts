@@ -4,10 +4,8 @@ import type { MongoDBFieldType } from '../../schema-analysis-types';
 
 export const MockDataGeneratorSteps = {
   SCHEMA_CONFIRMATION: 'SCHEMA_CONFIRMATION',
-  SCHEMA_EDITOR: 'SCHEMA_EDITOR',
-  DOCUMENT_COUNT: 'DOCUMENT_COUNT',
-  PREVIEW_DATA: 'PREVIEW_DATA',
-  GENERATE_DATA: 'GENERATE_DATA',
+  PREVIEW_AND_DOC_COUNT: 'PREVIEW_AND_DOC_COUNT',
+  SCRIPT_RESULT: 'SCRIPT_RESULT',
 } as const;
 
 export type MockDataGeneratorStep =
@@ -24,8 +22,7 @@ type MockDataGeneratorInProgressState = {
 
 type MockDataGeneratorCompletedState = {
   status: 'completed';
-  originalLlmResponse: Readonly<FakerSchema>; // Immutable LLM response
-  editedFakerSchema: FakerSchema; // User-modified version
+  fakerSchema: Readonly<FakerSchema>;
   requestId: string;
 };
 

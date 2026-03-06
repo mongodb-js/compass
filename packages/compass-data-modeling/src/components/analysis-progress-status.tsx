@@ -89,6 +89,7 @@ export const AnalysisProgressStatus: React.FC<AnalysisProgressStatusProps> = ({
       variant="success"
       cancelText="Cancel"
       onCancel={onCancelClick}
+      description="This might take a few minutes."
       {...getProgressPropsFromStatus({
         step,
         sampledCollections,

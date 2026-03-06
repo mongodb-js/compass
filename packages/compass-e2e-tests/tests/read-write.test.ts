@@ -2,7 +2,7 @@ import {
   init,
   cleanup,
   screenshotIfFailed,
-  DEFAULT_CONNECTION_NAME_1,
+  getDefaultConnectionNames,
 } from '../helpers/compass';
 import { expect } from 'chai';
 import * as Selectors from '../helpers/selectors';
@@ -22,7 +22,7 @@ describe('readWrite: true', function () {
     await browser.setupDefaultConnections();
     await createNumbersCollection('numbers', 1000, true);
     await browser.connectToDefaults();
-    connId = await browser.getConnectionIdByName(DEFAULT_CONNECTION_NAME_1);
+    connId = await browser.getConnectionIdByName(getDefaultConnectionNames(0));
   });
 
   afterEach(async function () {
@@ -93,7 +93,7 @@ describe('readWrite: true', function () {
   describe('in view workspace', function () {
     it('should hide "Edit Pipeline" button', async function () {
       await browser.navigateToCollectionTab(
-        DEFAULT_CONNECTION_NAME_1,
+        getDefaultConnectionNames(0),
         'test',
         'numbers_view',
         'Documents'
@@ -117,7 +117,7 @@ describe('readWrite: true', function () {
   describe('in Indexes collection sub tab', function () {
     it('should hide "Create Index" controls', async function () {
       await browser.navigateToCollectionTab(
-        DEFAULT_CONNECTION_NAME_1,
+        getDefaultConnectionNames(0),
         'test',
         'numbers',
         'Indexes'
@@ -151,7 +151,7 @@ describe('readWrite: true', function () {
   describe('when "no index" insight is displayed', function () {
     it('should not show the Create Index button on Documents page', async function () {
       await browser.navigateToCollectionTab(
-        DEFAULT_CONNECTION_NAME_1,
+        getDefaultConnectionNames(0),
         'test',
         'numbers',
         'Documents'
@@ -176,7 +176,7 @@ describe('readWrite: true', function () {
 
     it('should not show the Create Index button on Aggregations page', async function () {
       await browser.navigateToCollectionTab(
-        DEFAULT_CONNECTION_NAME_1,
+        getDefaultConnectionNames(0),
         'test',
         'numbers',
         'Aggregations'

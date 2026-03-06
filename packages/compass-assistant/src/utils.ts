@@ -1,6 +1,8 @@
 import type { ToolUIPart, UIDataTypes, UIMessagePart, UITools } from 'ai';
 import type { AssistantMessage } from './compass-assistant-provider';
 import type { Chat } from './@ai-sdk/react/chat-react';
+import type { PreferencesAccess } from 'compass-preferences-model/provider';
+import type { Logger } from '@mongodb-js/compass-logging/provider';
 
 export type ToolState = 'idle' | 'running' | 'success' | 'error' | 'canceled';
 
@@ -68,4 +70,35 @@ export async function stopChat(chat: Chat<AssistantMessage>) {
   });
 
   await chat.stop();
+}
+
+export async function getHashedActiveUserId(
+  preferences: Pick<PreferencesAccess, 'getPreferences'>,
+  logger: Logger
+): Promise<string> {
+  const { currentUserId, telemetryAnonymousId, telemetryAtlasUserId } =
+    preferences.getPreferences();
+  const userId = currentUserId ?? telemetryAnonymousId ?? telemetryAtlasUserId;
+  if (!userId) {
+    return 'unknown';
+  }
+  try {
+    const data = new TextEncoder().encode(userId);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    const hashHex = hashArray
+      .map((b) => b.toString(16).padStart(2, '0'))
+      .join('');
+    return hashHex;
+  } catch (e) {
+    logger.log.warn(
+      logger.mongoLogId(1_001_000_417),
+      'Assistant',
+      'Failed to hash user id for AI request',
+      {
+        error: (e as Error).message,
+      }
+    );
+    return 'unknown';
+  }
 }

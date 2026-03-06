@@ -473,6 +473,37 @@ describe('CompassAssistantProvider', function () {
       });
     });
 
+    it('correctly builds metadata of the message', async function () {
+      const mockChat = new Chat<AssistantMessage>({
+        messages: [
+          {
+            id: 'assistant',
+            role: 'assistant',
+            parts: [{ type: 'text', text: 'Hello user!' }],
+          },
+        ],
+      });
+
+      const sendMessageSpy = sinon.spy(mockChat, 'sendMessage');
+
+      await renderOpenAssistantDrawer({ chat: mockChat });
+
+      const input = screen.getByPlaceholderText('Ask a question');
+      const sendButton = screen.getByLabelText('Send message');
+
+      userEvent.type(input, 'Hello assistant');
+      userEvent.click(sendButton);
+
+      await waitFor(() => {
+        expect(sendMessageSpy.calledOnce).to.be.true;
+      });
+      const firstCallArgs = sendMessageSpy.firstCall.args[0];
+      expect(firstCallArgs?.metadata?.requestId).to.be.a('string');
+      expect(firstCallArgs?.metadata?.userId).to.be.a('string');
+      expect(firstCallArgs?.metadata?.connectionInfo).to.be.undefined;
+      expect(firstCallArgs?.metadata?.disableStorage).to.be.false;
+    });
+
     it('new messages are added to the chat feed when the send button is clicked', async function () {
       const mockChat = new Chat<AssistantMessage>({
         messages: [
@@ -941,7 +972,7 @@ describe('CompassAssistantProvider', function () {
           expect(screen.getByText(/An error occurred/)).to.exist;
         });
 
-        expect(track).to.have.been.calledWith('Assistant Response Failed', {
+        expect(track).to.have.been.calledWith('Assistant Failed', {
           error_name: 'ConnectionError',
         });
       });

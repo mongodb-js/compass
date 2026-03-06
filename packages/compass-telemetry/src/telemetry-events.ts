@@ -1463,7 +1463,7 @@ type IndexDroppedEvent = ConnectionScopedEvent<{
  * to it via the drawer toolbar or by opening the drawer and the first tab is
  * this drawer section.
  *
- * @category Gen AI
+ * @category Drawer
  */
 type DrawerSectionOpenedEvent = CommonEvent<{
   name: 'Drawer Section Opened';
@@ -1477,7 +1477,7 @@ type DrawerSectionOpenedEvent = CommonEvent<{
  * to another tab via the drawer toolbar or by closing the drawer when the
  * active tab is this drawer section.
  *
- * @category Gen AI
+ * @category Drawer
  */
 type DrawerSectionClosedEvent = CommonEvent<{
   name: 'Drawer Section Closed';
@@ -1490,24 +1490,26 @@ type DrawerSectionClosedEvent = CommonEvent<{
  * This event is fired when user enters a prompt in the assistant chat
  * and hits "enter".
  *
- * @category Gen AI
+ * @category Assistant
  */
-type AssistantPromptSubmittedEvent = CommonEvent<{
+type AssistantPromptSubmittedEvent = ConnectionScopedEvent<{
   name: 'Assistant Prompt Submitted';
   payload: {
     user_input_length?: number;
+    request_id?: string;
   };
 }>;
 
 /**
  * This event is fired when a user uses an assistant entry point.
  *
- * @category Gen AI
+ * @category Assistant
  */
-type AssistantEntryPointUsedEvent = CommonEvent<{
+type AssistantEntryPointUsedEvent = ConnectionScopedEvent<{
   name: 'Assistant Entry Point Used';
   payload: {
     source: 'explain plan' | 'performance insights' | 'connection error';
+    request_id?: string;
   };
 }>;
 
@@ -1516,12 +1518,12 @@ type AssistantEntryPointUsedEvent = CommonEvent<{
  *
  * @category Assistant
  */
-type AssistantFeedbackSubmittedEvent = CommonEvent<{
+type AssistantFeedbackSubmittedEvent = ConnectionScopedEvent<{
   name: 'Assistant Feedback Submitted';
   payload: {
     feedback: 'positive' | 'negative';
     text: string | undefined;
-    request_id: string | null;
+    request_id?: string;
     source: AssistantEntryPointUsedEvent['payload']['source'] | 'chat response';
   };
 }>;
@@ -1529,25 +1531,67 @@ type AssistantFeedbackSubmittedEvent = CommonEvent<{
 /**
  * This event is fired when a user confirms a confirmation message in the assistant chat.
  *
- * @category Gen AI
+ * @category Assistant
  */
-type AssistantConfirmationSubmittedEvent = CommonEvent<{
+type AssistantConfirmationSubmittedEvent = ConnectionScopedEvent<{
   name: 'Assistant Confirmation Submitted';
   payload: {
     status: 'confirmed' | 'rejected';
     source: AssistantEntryPointUsedEvent['payload']['source'] | 'chat response';
+    request_id?: string;
+  };
+}>;
+
+/**
+ * This event is fired when the AI response is generated.
+ *
+ * @category Assistant
+ */
+type AssistantResponseGeneratedEvent = ConnectionScopedEvent<{
+  name: 'Assistant Response Generated';
+  payload: {
+    request_id?: string;
   };
 }>;
 
 /**
  * This event is fired when the AI response encounters an error.
  *
- * @category Gen AI
+ * @category Assistant
  */
-type AssistantResponseFailedEvent = CommonEvent<{
+type AssistantResponseFailedEvent = ConnectionScopedEvent<{
   name: 'Assistant Response Failed';
   payload: {
     error_name?: string;
+    request_id?: string;
+  };
+}>;
+
+/**
+ * This event is fired when the AI fails due to any error.
+ *
+ * @category Assistant
+ */
+type AssistantFailedEvent = CommonEvent<{
+  name: 'Assistant Failed';
+  payload: {
+    error_name?: string;
+  };
+}>;
+
+/*
+ * This event is fired when a tool call was either approved or rejected by the
+ * user.
+ *
+ * @category Assistant
+ */
+type AssistantToolCallApprovalEvent = ConnectionScopedEvent<{
+  name: 'Assistant Tool Call Approval';
+  payload: {
+    type: string;
+    approved: boolean;
+    approval_id: string;
+    request_id?: string;
   };
 }>;
 
@@ -1680,19 +1724,6 @@ type PipelineAiFeedbackEvent = ConnectionScopedEvent<{
      * The feedback comment left by the user.
      */
     text: string;
-  };
-}>;
-
-/*
- * This event is fired when a tool call was either approved or rejected by the
- * user.
- */
-type AssistantToolCallApprovalEvent = CommonEvent<{
-  name: 'Assistant Tool Call Approval';
-  payload: {
-    type: string;
-    approved: boolean;
-    approval_id: string;
   };
 }>;
 
@@ -2982,6 +3013,7 @@ type DataModelingDiagramCreationStarted = ConnectionScopedEvent<{
   payload: {
     num_collections: number;
     automatically_infer_relations: boolean;
+    sample_size: number | 'all_documents';
   };
 }>;
 
@@ -2995,11 +3027,15 @@ type DataModelingDiagramCreationRelationshipInferralStarted =
     name: 'Data Modeling Diagram Creation Relationship Inferral Started';
     payload: {
       num_collections: number;
+      sample_size: number | 'all_documents';
     };
   }>;
 
 /**
  * This event is fired when a new data modeling diagram is created
+ * analysis_time_ms is the total time taken to sample collections, build schemas and infer relationships, if applicable.
+ * relationship_inference_phase_ms is the time taken for just the relationship inference phase, if applicable.
+ * The first two phases overlap.
  *
  * @category Data Modeling
  */
@@ -3009,6 +3045,8 @@ type DataModelingDiagramCreated = ConnectionScopedEvent<{
     num_collections: number;
     num_relations_inferred?: number;
     analysis_time_ms: number;
+    relationship_inference_phase_ms?: number;
+    sample_size: number | 'all_documents';
   };
 }>;
 
@@ -3023,6 +3061,8 @@ type DataModelingDiagramCreationCancelled = ConnectionScopedEvent<{
     num_collections: number;
     automatically_infer_relations: boolean;
     analysis_time_ms: number;
+    relationship_inference_phase_ms?: number;
+    sample_size: number | 'all_documents';
   };
 }>;
 
@@ -3037,6 +3077,8 @@ type DataModelingDiagramCreationFailed = ConnectionScopedEvent<{
     num_collections: number;
     automatically_infer_relations: boolean;
     analysis_time_ms: number;
+    relationship_inference_phase_ms?: number;
+    sample_size: number | 'all_documents';
   };
 }>;
 
@@ -3060,11 +3102,15 @@ type DataModelingAddDBCollectionsStarted = ConnectionScopedEvent<{
   payload: {
     num_collections: number;
     automatically_infer_relations: boolean;
+    sample_size: number | 'all_documents';
   };
 }>;
 
 /**
  * This event is fired when adding new collections from the database has succeeded
+ * analysis_time_ms is the total time taken to sample collections, build schemas and infer relationships, if applicable.
+ * relationship_inference_phase_ms is the time taken for just the relationship inference phase, if applicable.
+ * The first two phases overlap.
  *
  * @category Data Modeling
  */
@@ -3074,6 +3120,8 @@ type DataModelingAddDBCollectionsSucceeded = ConnectionScopedEvent<{
     num_collections: number;
     num_relations_inferred?: number;
     analysis_time_ms: number;
+    relationship_inference_phase_ms?: number;
+    sample_size: number | 'all_documents';
   };
 }>;
 
@@ -3088,6 +3136,8 @@ type DataModelingAddDBCollectionsFailed = ConnectionScopedEvent<{
     num_collections: number;
     automatically_infer_relations: boolean;
     analysis_time_ms: number;
+    relationship_inference_phase_ms?: number;
+    sample_size: number | 'all_documents';
   };
 }>;
 
@@ -3102,6 +3152,8 @@ type DataModelingAddDBCollectionsCancelled = ConnectionScopedEvent<{
     num_collections: number;
     automatically_infer_relations: boolean;
     analysis_time_ms: number;
+    relationship_inference_phase_ms?: number;
+    sample_size: number | 'all_documents';
   };
 }>;
 
@@ -3239,10 +3291,8 @@ type ContextMenuItemClicked = CommonEvent<{
 // Types for the Mock Data Generator events
 type MockDataGeneratorScreen =
   | 'SCHEMA_CONFIRMATION'
-  | 'SCHEMA_EDITOR'
-  | 'DOCUMENT_COUNT'
-  | 'PREVIEW_DATA'
-  | 'GENERATE_DATA';
+  | 'PREVIEW_AND_DOC_COUNT'
+  | 'SCRIPT_RESULT';
 type MongoDBJsonFieldType =
   | 'String'
   | 'Number'
@@ -3447,9 +3497,11 @@ export type TelemetryEvent =
   | AggregationUseCaseSavedEvent
   | AssistantPromptSubmittedEvent
   | AssistantResponseFailedEvent
+  | AssistantFailedEvent
   | AssistantFeedbackSubmittedEvent
   | AssistantEntryPointUsedEvent
   | AssistantConfirmationSubmittedEvent
+  | AssistantResponseGeneratedEvent
   | AiOptInModalShownEvent
   | AiOptInModalDismissedEvent
   | AiGenerateQueryClickedEvent

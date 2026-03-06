@@ -15,10 +15,14 @@ import {
   establishConnection,
   selectConnection,
   startRedoAnalysis,
+  changeSamplingOptions,
+  gotoStep,
 } from '../store/reselect-collections-wizard';
 import { SelectCollectionsList } from './select-collections-list';
 import { useSavedConnections } from '../utils/use-saved-connections';
 import { ModalStepContainer } from './model-step-container';
+import { areSamplingOptionsValid } from '../store/sampling-options';
+import { DiagramSettingsContent } from './diagram-settings-content';
 
 const SelectCollectionsStep = connect(
   (state: DataModelingState) => {
@@ -27,6 +31,7 @@ const SelectCollectionsStep = connect(
       selectedCollections,
       error,
       automaticallyInferRelations,
+      samplingOptions,
       newSelectedCollections,
     } = state.reselectCollections;
     return {
@@ -34,6 +39,7 @@ const SelectCollectionsStep = connect(
       selectedCollections: [...newSelectedCollections, ...selectedCollections],
       disabledCollections: selectedCollections,
       automaticallyInferRelationships: automaticallyInferRelations,
+      samplingOptions,
       isFetchingCollections: false,
       error,
     };
@@ -41,8 +47,24 @@ const SelectCollectionsStep = connect(
   {
     onCollectionsSelect: selectCollections,
     onAutomaticallyInferRelationshipsToggle: toggleInferRelationships,
+    onSamplingOptionsChange: changeSamplingOptions,
   }
 )(SelectCollectionsList);
+
+const DiagramSettingsStep = connect(
+  (state: DataModelingState) => {
+    const { automaticallyInferRelations, samplingOptions } =
+      state.reselectCollections;
+    return {
+      automaticallyInferRelationships: automaticallyInferRelations,
+      samplingOptions: samplingOptions,
+    };
+  },
+  {
+    onAutomaticallyInferRelationshipsToggle: toggleInferRelationships,
+    onSamplingOptionsChange: changeSamplingOptions,
+  }
+)(DiagramSettingsContent);
 
 function SelectConnection({
   selectedConnectionId,
@@ -115,6 +137,7 @@ type ReselectCollectionsModalProps = {
   selectedDatabaseName: string;
   onCancel: () => void;
   onConnect: () => void;
+  onStep: (step: ReselectCollectionsWizardState['step']) => void;
   onGenerate: () => void;
 };
 
@@ -131,6 +154,7 @@ const ReselectCollectionsModal: React.FunctionComponent<
   selectedDatabaseName,
   onCancel,
   onConnect,
+  onStep,
   onGenerate,
 }) => {
   const formStepProps = useMemo(() => {
@@ -153,10 +177,28 @@ const ReselectCollectionsModal: React.FunctionComponent<
           title: `Select collections for ${selectedDatabaseName}`,
           description:
             'These collections will be included in your generated diagram.',
-          onNextClick: onGenerate,
+          onNextClick: () => onStep('DIAGRAM_SETTINGS'),
           onPreviousClick: onCancel,
-          nextLabel: 'Generate',
+          nextLabel: 'Next',
           previousLabel: 'Cancel',
+          isNextDisabled: isGenerateDiagramDisabled,
+          step: currentStep,
+          footerText: numTotalCollections > 0 && (
+            <>
+              <strong>{numSelectedCollections}</strong>/
+              <strong>{numTotalCollections}</strong> total{' '}
+              {numTotalCollections === 1 ? 'collection' : 'collections'}{' '}
+              selected.
+            </>
+          ),
+        };
+      case 'DIAGRAM_SETTINGS':
+        return {
+          title: `Diagram settings`,
+          onNextClick: onGenerate,
+          onPreviousClick: () => onStep('SELECT_COLLECTIONS'),
+          nextLabel: 'Generate',
+          previousLabel: 'Back',
           isNextDisabled: isGenerateDiagramDisabled,
           step: currentStep,
           footerText: numTotalCollections > 0 && (
@@ -180,6 +222,7 @@ const ReselectCollectionsModal: React.FunctionComponent<
     selectedDatabaseName,
     onCancel,
     onConnect,
+    onStep,
     onGenerate,
     isConnecting,
   ]);
@@ -199,6 +242,8 @@ const ReselectCollectionsModal: React.FunctionComponent<
           <SelectConnectionStep />
         ) : currentStep === 'SELECT_COLLECTIONS' ? (
           <SelectCollectionsStep />
+        ) : currentStep === 'DIAGRAM_SETTINGS' ? (
+          <DiagramSettingsStep />
         ) : null}
       </ModalStepContainer>
     </Modal>
@@ -217,6 +262,7 @@ export default connect(
       selectedDatabase,
       selectedCollections,
       newSelectedCollections,
+      samplingOptions,
     } = state.reselectCollections;
 
     const numSelectedCollections =
@@ -235,16 +281,19 @@ export default connect(
       isGenerateDiagramDisabled:
         databaseCollections.length === 0 ||
         newSelectedCollections.length === 0 ||
+        !areSamplingOptionsValid(samplingOptions) ||
         selectIsAnalysisInProgress(state),
       numSelectedCollections,
       numTotalCollections: databaseCollections.length,
       selectedDatabaseName: selectedDatabase || '',
       isConnecting,
+      samplingOptions,
     };
   },
   {
     onCancel: hideReselectCollections,
     onConnect: establishConnection,
+    onStep: gotoStep,
     onGenerate: startRedoAnalysis,
   }
 )(ReselectCollectionsModal);

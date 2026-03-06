@@ -1514,6 +1514,9 @@ export const DataModelCollapseFieldButton = (
   collection: string,
   fieldName: string
 ) => `[data-testid="field-expand-toggle-${collection}-${fieldName}"]`;
+export const DataModelSampleSizeInput = `${CreateDataModelModal} [data-testid="sample-size-input"]`;
+export const DataModelSampleSizeWarning = `${CreateDataModelModal} [data-testid="sample-size-warning"]`;
+export const DataModelAllDocumentsOption = `${CreateDataModelModal} input[type="radio"][value="allDocuments"]`;
 
 // Side drawer
 export const SideDrawer = `[data-testid="${getDrawerIds().root}"]`;

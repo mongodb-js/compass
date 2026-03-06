@@ -3,8 +3,7 @@ import {
   init,
   cleanup,
   screenshotIfFailed,
-  DEFAULT_CONNECTION_NAME_1,
-  DEFAULT_CONNECTION_NAME_2,
+  getDefaultConnectionNames,
   TEST_COMPASS_WEB,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
@@ -45,7 +44,7 @@ describe('Global Tabs', function () {
   it('should open tabs over each other when not modified', async function () {
     for (const collName of collections) {
       await browser.navigateToCollectionTab(
-        DEFAULT_CONNECTION_NAME_1,
+        getDefaultConnectionNames(0),
         'test',
         collName,
         'Documents',
@@ -58,7 +57,7 @@ describe('Global Tabs', function () {
   it('should open new tabs when modified', async function () {
     for (const collName of collections) {
       await browser.navigateToCollectionTab(
-        DEFAULT_CONNECTION_NAME_1,
+        getDefaultConnectionNames(0),
         'test',
         collName,
         'Documents',
@@ -75,7 +74,7 @@ describe('Global Tabs', function () {
   it('should close tabs without warning even when "modified" by interacting with the tab', async function () {
     for (const collName of collections) {
       await browser.navigateToCollectionTab(
-        DEFAULT_CONNECTION_NAME_1,
+        getDefaultConnectionNames(0),
         'test',
         collName,
         'Documents',
@@ -92,7 +91,7 @@ describe('Global Tabs', function () {
 
   it('should ask for confirmation when closing modified Aggregations tab', async function () {
     await browser.navigateToCollectionTab(
-      DEFAULT_CONNECTION_NAME_1,
+      getDefaultConnectionNames(0),
       'test',
       'a',
       'Aggregations'
@@ -109,7 +108,7 @@ describe('Global Tabs', function () {
 
     await browser.hover(
       Selectors.workspaceTab({
-        connectionName: DEFAULT_CONNECTION_NAME_1,
+        connectionName: getDefaultConnectionNames(0),
         namespace: 'test.a',
       })
     );
@@ -128,7 +127,7 @@ describe('Global Tabs', function () {
 
     await browser.hover(
       Selectors.workspaceTab({
-        connectionName: DEFAULT_CONNECTION_NAME_1,
+        connectionName: getDefaultConnectionNames(0),
         namespace: 'test.a',
       })
     );
@@ -149,7 +148,7 @@ describe('Global Tabs', function () {
   it("should close a connection's tabs when disconnecting", async function () {
     // workspace 1: connection 1, Documents tab
     await browser.navigateToCollectionTab(
-      DEFAULT_CONNECTION_NAME_1,
+      getDefaultConnectionNames(0),
       'test',
       'a',
       'Documents',
@@ -163,7 +162,7 @@ describe('Global Tabs', function () {
 
     // workspace 2: connection 2, Documents tab
     await browser.navigateToCollectionTab(
-      DEFAULT_CONNECTION_NAME_2,
+      getDefaultConnectionNames(1),
       'test',
       'a',
       'Documents',
@@ -182,7 +181,7 @@ describe('Global Tabs', function () {
     }
 
     const workspace1Options = {
-      connectionName: DEFAULT_CONNECTION_NAME_1,
+      connectionName: getDefaultConnectionNames(0),
       type: 'Collection',
       namespace: 'test.a',
     };
@@ -194,7 +193,7 @@ describe('Global Tabs', function () {
     ).to.be.true;
 
     const workspace2Options = {
-      connectionName: DEFAULT_CONNECTION_NAME_2,
+      connectionName: getDefaultConnectionNames(1),
       type: 'Collection',
       namespace: 'test.a',
     };
@@ -215,7 +214,7 @@ describe('Global Tabs', function () {
 
     // disconnect one connection
 
-    await browser.disconnectByName(DEFAULT_CONNECTION_NAME_1);
+    await browser.disconnectByName(getDefaultConnectionNames(0));
 
     // the workspace for connection 1 should go away
     await browser.waitUntil(async () => {

@@ -3,8 +3,8 @@ import type { Store, StoreDefinition } from 'reflux';
 // Helper for reflux stores in TS
 export abstract class BaseRefluxStore<Options> implements StoreDefinition {
   options: Options;
-  listenTo!: Store['listenTo'];
-  trigger!: Store['trigger'];
+  declare listenTo: Store['listenTo'];
+  declare trigger: Store['trigger'];
 
   constructor(options: Options) {
     this.options = options;

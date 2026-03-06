@@ -1,7 +1,7 @@
 import TypeChecker from 'hadron-type-checker';
 import { sortedUniqBy, sortBy } from 'lodash';
 
-import type { TypeCastTypes } from 'hadron-type-checker';
+import { type TypeCastTypes, getBsonType } from 'hadron-type-checker';
 import type { Document } from 'mongodb';
 
 export type FieldSchema = {
@@ -50,7 +50,7 @@ const getSchemaForObject = (
     } else if (
       typeof value === 'object' &&
       value !== null &&
-      !value._bsontype
+      !getBsonType(value)
     ) {
       const valueSchema = getSchemaForObject(value, seen).map(
         toFieldSchemaWithPrefix(key)
@@ -73,7 +73,7 @@ const getSchemaForArray = (
     } else if (
       typeof record === 'object' &&
       record !== null &&
-      !record._bsontype
+      !getBsonType(record)
     ) {
       schema.push(...getSchemaForObject(record, seen));
     }

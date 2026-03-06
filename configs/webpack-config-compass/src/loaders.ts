@@ -83,7 +83,12 @@ export const javascriptLoader = (args: ConfigArgs, web = false) => ({
           },
         ],
         require.resolve('@babel/preset-react'),
-        require.resolve('@babel/preset-typescript'),
+        [
+          require.resolve('@babel/preset-typescript'),
+          {
+            allowDeclareFields: true,
+          },
+        ],
       ],
       plugins: [
         [

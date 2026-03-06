@@ -1,5 +1,5 @@
 import React from 'react';
-import { connect } from 'react-redux';
+import { connect, useSelector } from 'react-redux';
 import {
   Banner,
   Link,
@@ -7,7 +7,6 @@ import {
   css,
   spacing,
   usePersistedState,
-  EmptyContent,
   Body,
   AtlasSkillsBanner,
 } from '@mongodb-js/compass-components';
@@ -21,7 +20,6 @@ import RegularIndexesTable from '../regular-indexes-table/regular-indexes-table'
 import SearchIndexesTable from '../search-indexes-table/search-indexes-table';
 import { refreshRegularIndexes } from '../../modules/regular-indexes';
 import { refreshSearchIndexes } from '../../modules/search-indexes';
-import { VIEW_PIPELINE_UTILS } from '@mongodb-js/mongodb-constants';
 import type { State as RegularIndexesState } from '../../modules/regular-indexes';
 import type { State as SearchIndexesState } from '../../modules/search-indexes';
 import { FetchStatuses } from '../../utils/fetch-status';
@@ -32,15 +30,15 @@ import {
   UpdateSearchIndexModal,
 } from '../search-indexes-modals';
 import type { IndexView } from '../../modules/index-view';
-import { usePreference } from 'compass-preferences-model/provider';
+import { usePreferences } from 'compass-preferences-model/provider';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { getAtlasSearchIndexesLink } from '../../utils/atlas-search-indexes-link';
 import CreateIndexModal from '../create-index-modal/create-index-modal';
-import { ZeroGraphic } from '../search-indexes-table/zero-graphic';
-import { ViewVersionIncompatibleBanner } from '../view-version-incompatible-banners/view-version-incompatible-banners';
-import type { SearchIndex } from 'mongodb-data-service';
-import type { CollectionStats } from '../../modules/collection-stats';
-import type { Document } from 'mongodb';
+import ViewVersionIncompatibleBanner from '../view-incompatible-components/view-version-incompatible-banner';
+import ViewSearchIncompatibleBanner from '../view-incompatible-components/view-pipeline-incompatible-banner';
+import ViewStandardIndexesIncompatibleEmptyState from '../view-incompatible-components/view-standard-indexes-incompatible-empty-state';
+import { selectIsViewSearchCompatible } from '../../utils/is-view-search-compatible';
+import { selectReadWriteAccess } from '../../utils/indexes-read-write-access';
 
 // This constant is used as a trigger to show an insight whenever number of
 // indexes in a collection is more than what is specified here.
@@ -59,70 +57,6 @@ const linkTitle = 'Search and Vector Search.';
 
 const DISMISSED_SEARCH_INDEXES_BANNER_LOCAL_STORAGE_KEY =
   'mongodb_compass_dismissedSearchIndexesBanner' as const;
-
-const ViewVersionIncompatibleEmptyState = ({
-  serverVersion,
-  enableAtlasSearchIndexes,
-}: {
-  serverVersion: string;
-  enableAtlasSearchIndexes: boolean;
-}) => {
-  if (
-    VIEW_PIPELINE_UTILS.isVersionSearchCompatibleForViewsCompass(
-      serverVersion
-    ) &&
-    enableAtlasSearchIndexes
-  ) {
-    return null;
-  }
-  return (
-    <EmptyContent
-      icon={ZeroGraphic}
-      title="No standard indexes"
-      subTitle="Standard views use the indexes of the underlying collection. As a result, you
-           cannot create, drop or re-build indexes on a standard view directly, nor get a list of indexes on the view."
-      callToActionLink={
-        <Link
-          href="https://www.mongodb.com/docs/manual/core/views/"
-          target="_blank"
-        >
-          Learn more about views
-        </Link>
-      }
-    />
-  );
-};
-
-const ViewNotSearchCompatibleBanner = ({
-  searchIndexes,
-  enableAtlasSearchIndexes,
-}: {
-  searchIndexes: SearchIndex[];
-  enableAtlasSearchIndexes: boolean;
-}) => {
-  const hasNoSearchIndexes = searchIndexes.length === 0;
-  const variant =
-    hasNoSearchIndexes || !enableAtlasSearchIndexes ? 'warning' : 'danger';
-  return (
-    <Banner variant={variant} data-testid="view-not-search-compatible-banner">
-      {!enableAtlasSearchIndexes && (
-        <>
-          <b>Looking for search indexes?</b> <br />
-        </>
-      )}
-      This view is incompatible with search indexes. Only views containing
-      $match stages with the $expr operator, $addFields, or $set are compatible
-      with search indexes.{' '}
-      {!hasNoSearchIndexes && 'Edit the view to rebuild search indexes.'}{' '}
-      <Link
-        href={'https://www.mongodb.com/docs/atlas/atlas-search/view-support/'}
-        hideExternalIcon
-      >
-        Learn more.
-      </Link>
-    </Banner>
-  );
-};
 
 const AtlasIndexesBanner = ({
   namespace,
@@ -176,8 +110,6 @@ type IndexesProps = {
   currentIndexesView: IndexView;
   refreshRegularIndexes: () => void;
   refreshSearchIndexes: () => void;
-  serverVersion: string;
-  collectionStats: CollectionStats;
 };
 
 function isRefreshingStatus(status: FetchStatus) {
@@ -203,8 +135,6 @@ export function Indexes({
   currentIndexesView,
   refreshRegularIndexes,
   refreshSearchIndexes,
-  serverVersion,
-  collectionStats,
 }: IndexesProps) {
   const track = useTelemetry();
   const [atlasBannerDismissed, setDismissed] = usePersistedState(
@@ -240,37 +170,30 @@ export function Indexes({
       ? refreshRegularIndexes
       : refreshSearchIndexes;
 
-  const enableAtlasSearchIndexes = usePreference('enableAtlasSearchIndexes');
   const { atlasMetadata } = useConnectionInfo();
-  const isViewPipelineSearchQueryable =
-    isReadonlyView && collectionStats?.pipeline
-      ? VIEW_PIPELINE_UTILS.isPipelineSearchQueryable(
-          collectionStats.pipeline as Document[]
-        )
-      : true;
-
+  const isAtlas = !!atlasMetadata;
+  const { readOnly, readWrite, enableAtlasSearchIndexes } = usePreferences([
+    'readOnly',
+    'readWrite',
+    'enableAtlasSearchIndexes',
+  ]);
+  const { isViewVersionSearchCompatible, isViewPipelineSearchQueryable } =
+    useSelector(selectIsViewSearchCompatible(isAtlas));
+  const { isRegularIndexesReadable, isSearchIndexesReadable } = useSelector(
+    selectReadWriteAccess({
+      isAtlas,
+      readOnly,
+      readWrite,
+      enableAtlasSearchIndexes,
+    })
+  );
   const getBanner = () => {
     if (isReadonlyView) {
-      if (
-        !VIEW_PIPELINE_UTILS.isVersionSearchCompatibleForViewsCompass(
-          serverVersion
-        )
-      ) {
-        return (
-          <ViewVersionIncompatibleBanner
-            serverVersion={serverVersion}
-            enableAtlasSearchIndexes={enableAtlasSearchIndexes}
-            atlasMetadata={atlasMetadata}
-          />
-        );
+      if (!isViewVersionSearchCompatible) {
+        return <ViewVersionIncompatibleBanner />;
       }
       if (!isViewPipelineSearchQueryable) {
-        return (
-          <ViewNotSearchCompatibleBanner
-            searchIndexes={searchIndexes.indexes}
-            enableAtlasSearchIndexes={enableAtlasSearchIndexes}
-          />
-        );
+        return <ViewSearchIncompatibleBanner />;
       }
     }
 
@@ -324,20 +247,12 @@ export function Indexes({
               });
             }}
           />
-          {!isReadonlyView && currentIndexesView === 'regular-indexes' && (
-            <RegularIndexesTable />
-          )}
-          {(!isReadonlyView ||
-            (VIEW_PIPELINE_UTILS.isVersionSearchCompatibleForViewsCompass(
-              serverVersion
-            ) &&
-              enableAtlasSearchIndexes)) &&
+          {isRegularIndexesReadable &&
+            currentIndexesView === 'regular-indexes' && <RegularIndexesTable />}
+          {isSearchIndexesReadable &&
             currentIndexesView === 'search-indexes' && <SearchIndexesTable />}
-          {isReadonlyView && searchIndexes.indexes.length === 0 && (
-            <ViewVersionIncompatibleEmptyState
-              serverVersion={serverVersion}
-              enableAtlasSearchIndexes={enableAtlasSearchIndexes}
-            />
+          {isReadonlyView && !isSearchIndexesReadable && (
+            <ViewStandardIndexesIncompatibleEmptyState />
           )}
         </div>
       </WorkspaceContainer>
@@ -354,16 +269,12 @@ const mapState = ({
   regularIndexes,
   searchIndexes,
   indexView,
-  serverVersion,
-  collectionStats,
 }: RootState) => ({
   namespace,
   isReadonlyView,
   regularIndexes,
   searchIndexes,
   currentIndexesView: indexView,
-  serverVersion,
-  collectionStats,
 });
 
 const mapDispatch = {

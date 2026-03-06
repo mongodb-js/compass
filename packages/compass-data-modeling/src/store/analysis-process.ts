@@ -7,7 +7,7 @@ import {
   getCurrentDiagramFromState,
   selectCurrentModel,
 } from './diagram';
-import { UUID } from 'bson';
+import { type Document, UUID } from 'bson';
 import {
   type Relationship,
   type StaticModel,
@@ -18,9 +18,15 @@ import {
   relationshipToDiagramEdge,
 } from '../utils/nodes-and-edges';
 import { inferForeignToLocalRelationshipsForCollection } from './relationships';
-import { mongoLogId } from '@mongodb-js/compass-logging/provider';
+import { type Logger, mongoLogId } from '@mongodb-js/compass-logging/provider';
 import { extractFieldsFromFieldData } from '../utils/schema';
 import { isEqual } from 'lodash';
+import type { TrackFunction } from '@mongodb-js/compass-telemetry/provider';
+import type {
+  ConnectionsService,
+  DataService,
+} from '@mongodb-js/compass-connections/provider';
+import type { SamplingOptions } from './sampling-options';
 
 type AnalyzedCollection = {
   ns: string;
@@ -69,6 +75,7 @@ export const AnalysisProcessActionTypes = {
 
 export type AnalysisOptions = {
   automaticallyInferRelations: boolean;
+  samplingOptions: SamplingOptions;
 };
 
 export type AnalyzingCollectionsStartAction = {
@@ -162,6 +169,7 @@ export const analysisProcessReducer: Reducer<AnalysisProcessState> = (
         database: action.database,
         collections: action.collections,
         automaticallyInferRelations: action.options.automaticallyInferRelations,
+        samplingOptions: action.options.samplingOptions,
       },
       step: 'SAMPLING',
       willInferRelations: action.willInferRelations,
@@ -286,6 +294,9 @@ export function startAnalysis(
       {
         num_collections: selectedCollections.length,
         automatically_infer_relations: willInferRelations,
+        sample_size: options.samplingOptions.allDocuments
+          ? 'all_documents'
+          : options.samplingOptions.sampleSize,
       },
       connectionInfo
     );
@@ -294,17 +305,17 @@ export function startAnalysis(
       new AbortController());
 
     const analysisStartTime = Date.now();
-
     try {
-      const { collections, relations } = await dispatch(
-        analyzeCollections({
-          name,
-          connectionId,
-          database,
-          selectedCollections,
-          options,
-        })
-      );
+      const { collections, relations, relationsInferencePhaseMs } =
+        await dispatch(
+          analyzeCollections({
+            name,
+            connectionId,
+            database,
+            selectedCollections,
+            options,
+          })
+        );
 
       const positioned = await getInitialLayout({
         collections,
@@ -334,12 +345,20 @@ export function startAnalysis(
             ? relations.length
             : undefined,
           analysis_time_ms: Date.now() - analysisStartTime,
+          relationship_inference_phase_ms: relationsInferencePhaseMs,
+          sample_size: options.samplingOptions.allDocuments
+            ? 'all_documents'
+            : options.samplingOptions.sampleSize,
         },
         connectionInfo
       );
       void dataModelStorage.save(getCurrentDiagramFromState(getState()));
     } catch (err) {
       const analysis_time_ms = Date.now() - analysisStartTime;
+      let relationsInferencePhaseMs: number | undefined;
+      if (err instanceof RelationshipInferenceError) {
+        relationsInferencePhaseMs = err.relationshipInferencePhaseMs;
+      }
       if (cancelController.signal.aborted) {
         dispatch({
           type: AnalysisProcessActionTypes.ANALYSIS_CANCELED,
@@ -350,6 +369,10 @@ export function startAnalysis(
             num_collections: selectedCollections.length,
             automatically_infer_relations: willInferRelations,
             analysis_time_ms,
+            relationship_inference_phase_ms: relationsInferencePhaseMs,
+            sample_size: options.samplingOptions.allDocuments
+              ? 'all_documents'
+              : options.samplingOptions.sampleSize,
           },
           connectionInfo
         );
@@ -368,8 +391,12 @@ export function startAnalysis(
           'Data Modeling Diagram Creation Failed',
           {
             num_collections: selectedCollections.length,
-            analysis_time_ms,
+            analysis_time_ms: analysis_time_ms,
+            relationship_inference_phase_ms: relationsInferencePhaseMs,
             automatically_infer_relations: willInferRelations,
+            sample_size: options.samplingOptions.allDocuments
+              ? 'all_documents'
+              : options.samplingOptions.sampleSize,
           },
           connectionInfo
         );
@@ -392,10 +419,12 @@ export function retryAnalysis(): DataModelingThunkAction<void, never> {
       database,
       collections,
       automaticallyInferRelations,
+      samplingOptions,
     } = currentAnalysisOptions;
     void dispatch(
       startAnalysis(name, connectionId, database, collections, {
         automaticallyInferRelations,
+        samplingOptions,
       })
     );
   };
@@ -449,6 +478,9 @@ export function redoAnalysis(
       {
         num_collections: selectedCollections.length,
         automatically_infer_relations: willInferRelations,
+        sample_size: options.samplingOptions.allDocuments
+          ? 'all_documents'
+          : options.samplingOptions.sampleSize,
       },
       connectionInfo
     );
@@ -464,15 +496,17 @@ export function redoAnalysis(
       const collectionsToBeInferred = willInferRelations
         ? selectedCollections
         : selectedCollections.filter((c) => !currentCollections.has(c));
-      const { collections, relations } = await dispatch(
-        analyzeCollections({
-          name,
-          connectionId,
-          database,
-          selectedCollections: collectionsToBeInferred,
-          options,
-        })
-      );
+      const { collections, relations, relationsInferencePhaseMs } =
+        await dispatch(
+          analyzeCollections({
+            name,
+            connectionId,
+            database,
+            selectedCollections: collectionsToBeInferred,
+            options,
+          })
+        );
+
       const model = await getModelFromReanalysis(
         currentModel,
         collections,
@@ -491,10 +525,18 @@ export function redoAnalysis(
             ? relations.length
             : undefined,
           analysis_time_ms: Date.now() - analysisStartTime,
+          relationship_inference_phase_ms: relationsInferencePhaseMs,
+          sample_size: options.samplingOptions.allDocuments
+            ? 'all_documents'
+            : options.samplingOptions.sampleSize,
         },
         connectionInfo
       );
     } catch (err) {
+      let relationsInferencePhaseMs: number | undefined;
+      if (err instanceof RelationshipInferenceError) {
+        relationsInferencePhaseMs = err.relationshipInferencePhaseMs;
+      }
       if (cancelController.signal.aborted) {
         dispatch({ type: AnalysisProcessActionTypes.REDO_ANALYSIS_CANCELED });
 
@@ -504,6 +546,10 @@ export function redoAnalysis(
             num_collections: selectedCollections.length,
             automatically_infer_relations: willInferRelations,
             analysis_time_ms: Date.now() - analysisStartTime,
+            relationship_inference_phase_ms: relationsInferencePhaseMs,
+            sample_size: options.samplingOptions.allDocuments
+              ? 'all_documents'
+              : options.samplingOptions.sampleSize,
           },
           connectionInfo
         );
@@ -525,6 +571,10 @@ export function redoAnalysis(
             num_collections: selectedCollections.length,
             automatically_infer_relations: willInferRelations,
             analysis_time_ms: Date.now() - analysisStartTime,
+            relationship_inference_phase_ms: relationsInferencePhaseMs,
+            sample_size: options.samplingOptions.allDocuments
+              ? 'all_documents'
+              : options.samplingOptions.sampleSize,
           },
           connectionInfo
         );
@@ -533,6 +583,138 @@ export function redoAnalysis(
       cancelAnalysisControllerRef.current = null;
     }
   };
+}
+
+export class RelationshipInferenceError extends Error {
+  public relationshipInferencePhaseMs?: number;
+
+  constructor(cause: Error, relationshipInferencePhaseMs?: number) {
+    super(cause.message, { cause });
+    this.name = 'RelationshipInferenceError';
+    this.relationshipInferencePhaseMs = relationshipInferencePhaseMs;
+  }
+}
+
+async function getInferredRelations({
+  track,
+  logger,
+  connections,
+  connectionId,
+  selectedCollections,
+  collections,
+  dataService,
+  abortSignal,
+  samplingOptions,
+}: {
+  track: TrackFunction;
+  logger: Logger;
+  connections: ConnectionsService;
+  connectionId: string;
+  selectedCollections: string[];
+  collections: { ns: string; schema: MongoDBJSONSchema; sample: Document[] }[];
+  dataService: DataService;
+  abortSignal?: AbortSignal;
+  samplingOptions: SamplingOptions;
+}): Promise<{
+  relations: Relationship[];
+  relationsInferencePhaseMs: number;
+}> {
+  const relationsInferenceStartTime = Date.now();
+  let relations: Relationship[] = [];
+  try {
+    const connectionInfo = connections.getConnectionById(connectionId)?.info;
+    track(
+      'Data Modeling Diagram Creation Relationship Inferral Started',
+      {
+        num_collections: selectedCollections.length,
+        sample_size: samplingOptions.allDocuments
+          ? 'all_documents'
+          : samplingOptions.sampleSize,
+      },
+      connectionInfo
+    );
+    relations = (
+      await Promise.all(
+        collections.map(
+          async ({
+            ns,
+            schema,
+            sample,
+          }): Promise<Relationship['relationship'][]> => {
+            const relations =
+              await inferForeignToLocalRelationshipsForCollection(
+                ns,
+                schema,
+                sample,
+                collections,
+                dataService,
+                abortSignal,
+                (err) => {
+                  logger.log.warn(
+                    mongoLogId(1_001_000_371),
+                    'DataModeling',
+                    'Failed to identify relationship for collection',
+                    { ns, error: err.message }
+                  );
+                }
+              );
+            return relations;
+          }
+        )
+      )
+    ).flatMap((relationships) => {
+      return relationships.map((relationship) => {
+        return {
+          id: new UUID().toHexString(),
+          relationship,
+          isInferred: true,
+        };
+      });
+    });
+    return {
+      relations,
+      relationsInferencePhaseMs: Date.now() - relationsInferenceStartTime,
+    };
+  } catch (err) {
+    const relationshipInferencePhaseMs = relationsInferenceStartTime
+      ? Date.now() - relationsInferenceStartTime
+      : undefined;
+
+    throw new RelationshipInferenceError(
+      err as Error,
+      relationshipInferencePhaseMs
+    );
+  }
+}
+
+async function getSampleForNamespace({
+  samplingOptions,
+  dataService,
+  ns,
+  abortSignal,
+}: {
+  samplingOptions: SamplingOptions;
+  dataService: DataService;
+  ns: string;
+  abortSignal?: AbortSignal;
+}): Promise<Document[]> {
+  if (samplingOptions.allDocuments) {
+    return await dataService.find(
+      ns,
+      {},
+      { promoteValues: false },
+      { abortSignal, fallbackReadPreference: 'secondaryPreferred' }
+    );
+  }
+  return await dataService.sample(
+    ns,
+    { size: samplingOptions.sampleSize },
+    { promoteValues: false },
+    {
+      abortSignal,
+      fallbackReadPreference: 'secondaryPreferred',
+    }
+  );
 }
 
 export function analyzeCollections({
@@ -551,6 +733,7 @@ export function analyzeCollections({
   Promise<{
     collections: Omit<AnalyzedCollection, 'position'>[];
     relations: Relationship[];
+    relationsInferencePhaseMs?: number;
   }>,
   | AnalyzingCollectionsStartAction
   | NamespaceSampleFetchedAction
@@ -586,15 +769,12 @@ export function analyzeCollections({
 
     const collections = await Promise.all(
       namespaces.map(async (ns) => {
-        const sample = await dataService.sample(
+        const sample = await getSampleForNamespace({
+          samplingOptions: options.samplingOptions,
+          dataService,
           ns,
-          { size: 100 },
-          { promoteValues: false },
-          {
-            abortSignal,
-            fallbackReadPreference: 'secondaryPreferred',
-          }
-        );
+          abortSignal,
+        });
 
         dispatch({
           type: AnalysisProcessActionTypes.NAMESPACE_SAMPLE_FETCHED,
@@ -616,63 +796,42 @@ export function analyzeCollections({
       })
     );
 
+    let relationsInferencePhaseMs: number | undefined;
     if (willInferRelations) {
-      const connectionInfo = connections.getConnectionById(connectionId)?.info;
-      track(
-        'Data Modeling Diagram Creation Relationship Inferral Started',
-        {
-          num_collections: selectedCollections.length,
-        },
-        connectionInfo
-      );
-      relations = (
-        await Promise.all(
-          collections.map(
-            async ({
-              ns,
-              schema,
-              sample,
-            }): Promise<Relationship['relationship'][]> => {
-              const relationships =
-                await inferForeignToLocalRelationshipsForCollection(
-                  ns,
-                  schema,
-                  sample,
-                  collections,
-                  dataService,
-                  abortSignal,
-                  (err) => {
-                    logger.log.warn(
-                      mongoLogId(1_001_000_371),
-                      'DataModeling',
-                      'Failed to identify relationship for collection',
-                      { ns, error: err.message }
-                    );
-                  }
-                );
-              dispatch({
-                type: AnalysisProcessActionTypes.NAMESPACE_RELATIONS_INFERRED,
-              });
-              return relationships;
-            }
-          )
-        )
-      ).flatMap((relationships) => {
-        return relationships.map((relationship) => {
-          return {
-            id: new UUID().toHexString(),
-            relationship,
-            isInferred: true,
-          };
-        });
+      const inferenceResult = await getInferredRelations({
+        track,
+        logger,
+        connections,
+        connectionId,
+        selectedCollections,
+        collections,
+        dataService,
+        abortSignal,
+        samplingOptions: options.samplingOptions,
+      });
+      relations = inferenceResult.relations;
+      relationsInferencePhaseMs = inferenceResult.relationsInferencePhaseMs;
+
+      dispatch({
+        type: AnalysisProcessActionTypes.NAMESPACE_RELATIONS_INFERRED,
       });
     }
 
     if (abortSignal?.aborted) {
+      if (relationsInferencePhaseMs !== undefined) {
+        throw new RelationshipInferenceError(
+          abortSignal.reason,
+          relationsInferencePhaseMs
+        );
+      }
       throw abortSignal.reason;
     }
 
-    return { collections, relations };
+    return {
+      collections,
+      relations,
+      relationsInferencePhaseMs,
+    };
   };
 }
 

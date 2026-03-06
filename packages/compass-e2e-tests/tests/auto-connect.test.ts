@@ -12,7 +12,7 @@ import * as Selectors from '../helpers/selectors';
 import os from 'os';
 import path from 'path';
 import { promises as fs } from 'fs';
-import { DEFAULT_CONNECTION_NAMES } from '../helpers/test-runner-context';
+import { getDefaultConnectionNames } from '../helpers/test-runner-context';
 
 const connectionStringSuccess = 'mongodb://127.0.0.1:27091/test';
 const connectionNameSuccess = 'Success';
@@ -27,7 +27,7 @@ async function createDefaultConnectionAndClose(name: string | undefined) {
   try {
     const { browser } = compass;
     await browser.setupDefaultConnections();
-    const connectionName = DEFAULT_CONNECTION_NAMES[0];
+    const connectionName = getDefaultConnectionNames(0);
     const connectionId = await browser.getConnectionIdByName(connectionName);
     if (!connectionId) {
       throw new Error('Expected a connection id');

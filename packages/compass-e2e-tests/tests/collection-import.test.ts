@@ -9,7 +9,7 @@ import {
   screenshotIfFailed,
   skipForWeb,
   TEST_COMPASS_WEB,
-  DEFAULT_CONNECTION_NAME_1,
+  getDefaultConnectionNames,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
@@ -134,7 +134,7 @@ describe('Collection import', function () {
 
   it('supports single JSON objects', async function () {
     await browser.navigateToCollectionTab(
-      DEFAULT_CONNECTION_NAME_1,
+      getDefaultConnectionNames(0),
       'test',
       'json-array',
       'Documents'
@@ -212,7 +212,7 @@ describe('Collection import', function () {
 
   it('supports single objects in document view mode', async function () {
     await browser.navigateToCollectionTab(
-      DEFAULT_CONNECTION_NAME_1,
+      getDefaultConnectionNames(0),
       'test',
       'json-array',
       'Documents'
@@ -299,7 +299,7 @@ describe('Collection import', function () {
 
   it('supports JSON arrays', async function () {
     await browser.navigateToCollectionTab(
-      DEFAULT_CONNECTION_NAME_1,
+      getDefaultConnectionNames(0),
       'test',
       'json-array',
       'Documents'
@@ -357,7 +357,7 @@ describe('Collection import', function () {
 
   it('displays an error for a malformed JSON array', async function () {
     await browser.navigateToCollectionTab(
-      DEFAULT_CONNECTION_NAME_1,
+      getDefaultConnectionNames(0),
       'test',
       'json-array',
       'Documents'
@@ -396,7 +396,7 @@ describe('Collection import', function () {
     const jsonPath = path.resolve(__dirname, '..', 'fixtures', 'listings.json');
 
     await browser.navigateToCollectionTab(
-      DEFAULT_CONNECTION_NAME_1,
+      getDefaultConnectionNames(0),
       'test',
       'json-file',
       'Documents'
@@ -444,7 +444,7 @@ describe('Collection import', function () {
     );
 
     await browser.navigateToCollectionTab(
-      DEFAULT_CONNECTION_NAME_1,
+      getDefaultConnectionNames(0),
       'test',
       'extended-json-file',
       'Documents'
@@ -493,7 +493,7 @@ describe('Collection import', function () {
     );
 
     await browser.navigateToCollectionTab(
-      DEFAULT_CONNECTION_NAME_1,
+      getDefaultConnectionNames(0),
       'test',
       'extended-json-file',
       'Documents'
@@ -538,7 +538,7 @@ describe('Collection import', function () {
       const FAILING_VALIDATOR =
         '{ $jsonSchema: { bsonType: "object", required: [ "abcdefgh" ] } }';
       await browser.setValidation({
-        connectionName: DEFAULT_CONNECTION_NAME_1,
+        connectionName: getDefaultConnectionNames(0),
         database: 'test',
         collection: 'extended-json-file',
         validator: FAILING_VALIDATOR,
@@ -673,7 +673,7 @@ describe('Collection import', function () {
     const csvPath = path.resolve(__dirname, '..', 'fixtures', 'listings.csv');
 
     await browser.navigateToCollectionTab(
-      DEFAULT_CONNECTION_NAME_1,
+      getDefaultConnectionNames(0),
       'test',
       'csv-file',
       'Documents'
@@ -802,7 +802,7 @@ describe('Collection import', function () {
     );
 
     await browser.navigateToCollectionTab(
-      DEFAULT_CONNECTION_NAME_1,
+      getDefaultConnectionNames(0),
       'test',
       'array-documents',
       'Documents'
@@ -963,7 +963,7 @@ describe('Collection import', function () {
     );
 
     await browser.navigateToCollectionTab(
-      DEFAULT_CONNECTION_NAME_1,
+      getDefaultConnectionNames(0),
       'test',
       'bom-csv-file',
       'Documents'
@@ -1054,7 +1054,7 @@ describe('Collection import', function () {
     const csvPath = path.resolve(__dirname, '..', 'fixtures', 'listings.csv');
 
     await browser.navigateToCollectionTab(
-      DEFAULT_CONNECTION_NAME_1,
+      getDefaultConnectionNames(0),
       'test',
       'csv-file',
       'Documents'
@@ -1114,7 +1114,7 @@ describe('Collection import', function () {
     );
 
     await browser.navigateToCollectionTab(
-      DEFAULT_CONNECTION_NAME_1,
+      getDefaultConnectionNames(0),
       'test',
       'broken-delimiter',
       'Documents'
@@ -1201,7 +1201,7 @@ describe('Collection import', function () {
     );
 
     await browser.navigateToCollectionTab(
-      DEFAULT_CONNECTION_NAME_1,
+      getDefaultConnectionNames(0),
       'test',
       'import-stop-first-error',
       'Documents'
@@ -1258,7 +1258,7 @@ describe('Collection import', function () {
     const jsonPath = path.resolve(__dirname, '..', 'fixtures', fileName);
 
     await browser.navigateToCollectionTab(
-      DEFAULT_CONNECTION_NAME_1,
+      getDefaultConnectionNames(0),
       'test',
       'import-with-errors',
       'Documents'
@@ -1336,7 +1336,7 @@ describe('Collection import', function () {
       );
 
       await browser.navigateToCollectionTab(
-        DEFAULT_CONNECTION_NAME_1,
+        getDefaultConnectionNames(0),
         'test',
         'compass-import-abort-e2e-test',
         'Documents'
@@ -1410,7 +1410,7 @@ describe('Collection import', function () {
       );
 
       await browser.navigateToCollectionTab(
-        DEFAULT_CONNECTION_NAME_1,
+        getDefaultConnectionNames(0),
         'test',
         'compass-import-abort-e2e-test',
         'Documents'
@@ -1481,7 +1481,7 @@ describe('Collection import', function () {
       );
 
       await browser.navigateToCollectionTab(
-        DEFAULT_CONNECTION_NAME_1,
+        getDefaultConnectionNames(0),
         'test',
         'compass-import-abort-e2e-test',
         'Documents'

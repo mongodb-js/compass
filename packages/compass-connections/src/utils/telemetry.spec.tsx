@@ -9,8 +9,6 @@ import { expect } from 'chai';
 import type { ConnectionInfo } from '@mongodb-js/connection-storage/renderer';
 import { createIpcTrack } from '@mongodb-js/compass-telemetry';
 
-type ErrorWithCause = Error & { cause?: ErrorWithCause };
-
 describe('Connections telemetry', function () {
   const connectionInfo: ConnectionInfo = {
     id: 'TEST',
@@ -88,18 +86,18 @@ describe('Connections telemetry', function () {
     });
 
     it('should return an array of error codes from the cause chain', function () {
-      const error: ErrorWithCause & { code?: number } = new Error('Test error');
+      const error: Error & { code?: number } = new Error('Test error');
       error.code = 123;
 
       // No code / codeName on error two.
-      const errorTwo: ErrorWithCause = new Error('Test error two');
+      const errorTwo: Error = new Error('Test error two');
 
-      const errorThree: ErrorWithCause & { codeName?: string } = new Error(
+      const errorThree: Error & { codeName?: string } = new Error(
         'Test error three'
       );
       errorThree.codeName = 'PINEAPPLE';
 
-      const errorFour: ErrorWithCause & {
+      const errorFour: Error & {
         code?: number;
       } = new Error('Test error four');
       errorFour.code = 1111;

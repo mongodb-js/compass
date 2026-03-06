@@ -5,7 +5,7 @@ import {
   cleanup,
   screenshotIfFailed,
   TEST_COMPASS_WEB,
-  DEFAULT_CONNECTION_NAME_1,
+  getDefaultConnectionNames,
 } from '../helpers/compass';
 import type { CompassBrowser } from '../helpers/compass-browser';
 import { createDummyCollections } from '../helpers/insert-data';
@@ -95,7 +95,7 @@ describe('Collection Rename Modal', () => {
     await browser.connectToDefaults();
 
     connectionId = await browser.getConnectionIdByName(
-      DEFAULT_CONNECTION_NAME_1
+      getDefaultConnectionNames(0)
     );
   });
 
@@ -115,7 +115,7 @@ describe('Collection Rename Modal', () => {
     it('collection rename shows up on collection view', async () => {
       // open a collection tab
       await browser.navigateToCollectionTab(
-        DEFAULT_CONNECTION_NAME_1,
+        getDefaultConnectionNames(0),
         databaseName,
         initialCollectionName
       );
@@ -125,7 +125,7 @@ describe('Collection Rename Modal', () => {
       await browser.$(headerSelector).waitForDisplayed();
 
       await browser.selectCollectionMenuItem(
-        DEFAULT_CONNECTION_NAME_1,
+        getDefaultConnectionNames(0),
         databaseName,
         initialCollectionName,
         'rename-collection'
@@ -164,7 +164,7 @@ describe('Collection Rename Modal', () => {
 
     it('collection rename can be retried after an error renaming the collection', async () => {
       await browser.selectCollectionMenuItem(
-        DEFAULT_CONNECTION_NAME_1,
+        getDefaultConnectionNames(0),
         databaseName,
         initialCollectionName,
         'rename-collection'
@@ -199,7 +199,7 @@ describe('Collection Rename Modal', () => {
   describe('modal dismiss', () => {
     it('clears modal state when dismissed', async () => {
       await browser.selectCollectionMenuItem(
-        DEFAULT_CONNECTION_NAME_1,
+        getDefaultConnectionNames(0),
         databaseName,
         initialCollectionName,
         'rename-collection'
@@ -216,7 +216,7 @@ describe('Collection Rename Modal', () => {
 
       // re-open the modal
       await browser.selectCollectionMenuItem(
-        DEFAULT_CONNECTION_NAME_1,
+        getDefaultConnectionNames(0),
         databaseName,
         initialCollectionName,
         'rename-collection'

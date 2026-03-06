@@ -17,7 +17,6 @@ import {
   useDarkMode,
   compactBytes,
   compactNumber,
-  InlineDefinition,
 } from '@mongodb-js/compass-components';
 
 const databaseNameWrapStyles = css({
@@ -134,36 +133,9 @@ function databaseColumns({
           return '-';
         }
 
-        const storageSize = database.storage_size;
-        const dataSize = database.data_size;
-        const displayValue = compactBytes(storageSize);
-
-        const definition = (
-          <div>
-            <div>
-              <strong>Storage Size:</strong> {compactBytes(storageSize)} (total
-              allocated)
-            </div>
-            {dataSize !== undefined && (
-              <div>
-                <strong>Data Size:</strong> {compactBytes(dataSize)}{' '}
-                (uncompressed)
-              </div>
-            )}
-          </div>
-        );
-
-        return (
-          <InlineDefinition
-            definition={definition}
-            tooltipProps={{ align: 'top', justify: 'start' }}
-          >
-            {displayValue}
-          </InlineDefinition>
-        );
+        return compactBytes(database.storage_size);
       },
     },
-    /*
     {
       accessorKey: 'data_size',
       header: 'Data size',
@@ -181,7 +153,6 @@ function databaseColumns({
           : '-';
       },
     },
-    */
     {
       accessorKey: 'collectionsLength',
       header: 'Collections',

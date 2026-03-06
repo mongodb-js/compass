@@ -1,5 +1,5 @@
 import React from 'react';
-import type { TypeCastTypes } from 'hadron-type-checker';
+import { getBsonType, type TypeCastTypes } from 'hadron-type-checker';
 import type { Editor, Element } from 'hadron-document';
 import type Document from 'hadron-document';
 import {
@@ -81,14 +81,9 @@ function getDisplayType(
   }
 
   // Check if this is a Binary that should be displayed as a UUID type
-  // Using _bsontype check instead of instanceof for cross-realm compatibility
-  // and future bson@7.x compatibility
   if (
     element.currentType === 'Binary' &&
-    element.currentValue &&
-    typeof element.currentValue === 'object' &&
-    '_bsontype' in element.currentValue &&
-    element.currentValue._bsontype === 'Binary'
+    getBsonType(element.currentValue) === 'Binary'
   ) {
     const binary = element.currentValue as Binary;
     if (binary.sub_type === Binary.SUBTYPE_UUID) {
@@ -538,6 +533,7 @@ class CellEditor
     return (
       <Button
         data-testid="table-view-cell-editor-expand-button"
+        aria-label="Expand field"
         size="xsmall"
         onClick={this.handleDrillDown.bind(this)}
       >
@@ -561,6 +557,7 @@ class CellEditor
     return (
       <Button
         data-testid="table-view-cell-editor-remove-field-button"
+        aria-label="Remove field"
         size="xsmall"
         onClick={this.handleRemoveField.bind(this)}
       >

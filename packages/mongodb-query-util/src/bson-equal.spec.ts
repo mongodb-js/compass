@@ -100,7 +100,7 @@ describe('#bsonEqual', function () {
       });
     });
 
-    context('when the other value has no _bsontype', function () {
+    context('when the other value has no bson type tag', function () {
       const first = new Int32(12);
       const second = {};
 
@@ -109,9 +109,9 @@ describe('#bsonEqual', function () {
       });
     });
 
-    context("when the other value's _bsontype is not a string", function () {
+    context("when the other value's type tag is not a string", function () {
       const first = new Int32(12);
-      const second = { _bsontype: 12 };
+      const second = { [Symbol.for('@@mdb.bson.type')]: 12 };
 
       it('returns undefined', function () {
         expect(bsonEqual(first, second)).to.equal(undefined);

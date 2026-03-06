@@ -158,6 +158,7 @@ describe('Indexes Component', function () {
                 },
               ],
               usageCount: 20,
+              buildProgress: {},
             },
           ] as RegularIndex[],
           error: undefined,
@@ -193,7 +194,7 @@ describe('Indexes Component', function () {
                 },
               ],
               usageCount: 20,
-              buildProgress: 0,
+              buildProgress: {},
             },
           ],
           inProgressIndexes: [
@@ -207,7 +208,7 @@ describe('Indexes Component', function () {
                 },
               ],
               status: 'creating',
-              buildProgress: 0,
+              buildProgress: {},
             },
           ],
           error: undefined,
@@ -222,10 +223,11 @@ describe('Indexes Component', function () {
       )[1];
       expect(indexStatusField).to.contain.text('Creating');
 
-      const dropIndexButton = within(indexesList).queryByTestId(
-        'index-actions-delete-action'
+      // Creating indexes show a building spinner instead of regular delete action
+      const buildingSpinner = within(indexesList).getByTestId(
+        'index-building-spinner'
       );
-      expect(dropIndexButton).to.not.exist;
+      expect(buildingSpinner).to.exist;
     });
 
     it('renders indexes list with failed index', async function () {
@@ -250,7 +252,7 @@ describe('Indexes Component', function () {
                 },
               ],
               usageCount: 20,
-              buildProgress: 0,
+              buildProgress: {},
             },
           ],
           inProgressIndexes: [
@@ -265,7 +267,7 @@ describe('Indexes Component', function () {
               ],
               status: 'failed',
               error: 'Error message',
-              buildProgress: 0,
+              buildProgress: {},
             },
           ],
           error: undefined,
@@ -392,7 +394,7 @@ describe('Indexes Component', function () {
         expect(screen.getByText('Create Atlas Search Index')).to.be.visible;
       });
 
-      it('renders correct empty state if 8.0 and has no indexes', async function () {
+      it('renders correct empty state if 8.0 and has no indexes in Compass', async function () {
         const getSearchIndexesStub = sinon.stub().resolves([]);
         const dataProvider = {
           getSearchIndexes: getSearchIndexesStub,
@@ -405,7 +407,7 @@ describe('Indexes Component', function () {
 
         expect(
           screen.queryByText(
-            /Upgrade your cluster or manage search indexes on views in the Atlas UI./i
+            /Upgrade your cluster to create search indexes on views./i
           )
         ).to.exist;
         expect(screen.queryByText('No standard indexes')).to.exist;

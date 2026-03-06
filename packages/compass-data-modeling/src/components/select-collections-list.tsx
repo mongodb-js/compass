@@ -1,6 +1,5 @@
 import {
   Body,
-  Checkbox,
   css,
   FormFieldContainer,
   SearchInput,
@@ -9,9 +8,7 @@ import {
   SpinLoaderWithLabel,
   WarningSummary,
 } from '@mongodb-js/compass-components';
-import { usePreference } from 'compass-preferences-model/provider';
-import React, { useCallback } from 'react';
-import { useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 
 const loadingStyles = css({
   textAlign: 'center',
@@ -26,18 +23,16 @@ const errorStyles = css({
 
 const collectionListStyles = css({
   height: 200,
-  overflow: 'scroll',
+  overflow: 'auto',
 });
 
 type SelectCollectionsListProps = {
   collections: string[];
   selectedCollections: string[];
   disabledCollections?: string[];
-  automaticallyInferRelationships: boolean;
   isFetchingCollections: boolean;
   error?: Error;
   onCollectionsSelect: (colls: string[]) => void;
-  onAutomaticallyInferRelationshipsToggle: (newVal: boolean) => void;
 };
 
 type SelectCollectionItem = {
@@ -49,19 +44,15 @@ type SelectCollectionItem = {
 export const SelectCollectionsList: React.FunctionComponent<
   SelectCollectionsListProps
 > = ({
-  automaticallyInferRelationships,
   collections,
   selectedCollections,
   disabledCollections = [],
   isFetchingCollections,
   error,
   onCollectionsSelect,
-  onAutomaticallyInferRelationshipsToggle,
 }) => {
-  const showAutoInferOption = usePreference(
-    'enableAutomaticRelationshipInference'
-  );
   const [searchTerm, setSearchTerm] = useState('');
+
   const filteredCollections = useMemo(() => {
     try {
       return collections.filter((x) =>
@@ -128,49 +119,23 @@ export const SelectCollectionsList: React.FunctionComponent<
           }}
         />
       </FormFieldContainer>
-      <FormFieldContainer className={collectionListStyles}>
-        {collections.length === 0 ? (
-          <Body>This database has no collections.</Body>
-        ) : filteredCollections.length === 0 ? (
-          <Body>No collections match your search.</Body>
-        ) : (
-          <SelectList
-            items={filteredCollections.map((collName): SelectCollectionItem => {
-              return {
-                id: collName,
-                selected: selectedCollections.includes(collName),
-                disabled: disabledCollections.includes(collName),
-              };
-            })}
-            label={{ displayLabelKey: 'id', name: 'Collection Name' }}
-            onChange={onChangeSelection}
-          />
-        )}
-      </FormFieldContainer>
-      {showAutoInferOption && (
-        <FormFieldContainer>
-          <Checkbox
-            checked={automaticallyInferRelationships}
-            onChange={(evt) => {
-              onAutomaticallyInferRelationshipsToggle(
-                evt.currentTarget.checked
-              );
-            }}
-            label="Automatically infer relationships"
-            // @ts-expect-error Element is accepted, but not typed correctly
-            description={
-              <>
-                Analysis process will try to automatically discover
-                relationships in selected collections. This operation will run
-                multiple find requests against indexed fields of the collections
-                and{' '}
-                <strong>
-                  will take additional time per collection being analyzed.
-                </strong>
-              </>
-            }
-          ></Checkbox>
-        </FormFieldContainer>
+      {collections.length === 0 ? (
+        <Body>This database has no collections.</Body>
+      ) : filteredCollections.length === 0 ? (
+        <Body>No collections match your search.</Body>
+      ) : (
+        <SelectList
+          className={collectionListStyles}
+          items={filteredCollections.map((collName): SelectCollectionItem => {
+            return {
+              id: collName,
+              selected: selectedCollections.includes(collName),
+              disabled: disabledCollections.includes(collName),
+            };
+          })}
+          label={{ displayLabelKey: 'id', name: 'Collection Name' }}
+          onChange={onChangeSelection}
+        />
       )}
     </>
   );

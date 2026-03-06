@@ -1,9 +1,10 @@
 import React from 'react';
 import {
   cleanup,
-  fireEvent,
+  userEvent,
   render,
   screen,
+  within,
 } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import { Element } from 'hadron-document';
@@ -43,7 +44,7 @@ describe('TypesDropdown', function () {
   });
 
   it('should render a dropdown with types', function () {
-    expect(screen.getByTestId('table-view-types-dropdown-select')).to.exist;
+    expect(screen.getByRole('button', { name: /Field type/ })).to.exist;
   });
 
   it('should show the initial type', function () {
@@ -52,15 +53,21 @@ describe('TypesDropdown', function () {
 
   selectableTypes.forEach((type) => {
     it(`allows to select ${type}`, function () {
-      fireEvent.click(screen.getByTestId('table-view-types-dropdown-select')); // Click select button
+      userEvent.click(screen.getByRole('button', { name: /Field type/ })); // Click select button
       expect(screen.getByText(type)).to.exist;
     });
   });
 
   describe('when a type is selected', function () {
     beforeEach(function () {
-      fireEvent.click(screen.getByTestId('table-view-types-dropdown-select')); // Click select button
-      fireEvent.click(screen.getByText('String')); // Click type
+      const selectButton = screen.getByRole('button', { name: /Field type/ });
+      userEvent.click(selectButton); // Click select button
+      const menuId = selectButton.getAttribute('aria-controls');
+      const listbox = document.querySelector(
+        `[id="${menuId}"][role="listbox"]`
+      ) as HTMLElement;
+      const stringOption = within(listbox).getByText('String');
+      userEvent.click(stringOption); // Click type
     });
 
     it('changes the element current type', function () {

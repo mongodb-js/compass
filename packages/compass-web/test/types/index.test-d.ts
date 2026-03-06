@@ -6,7 +6,6 @@ const basicProps = {
   orgId: 'test-org',
   projectId: 'test-project',
   onActiveWorkspaceTabChange: () => {},
-  onFailToLoadConnections: () => {},
 };
 
 // Test that the component can be called with basic props

@@ -1,8 +1,5 @@
 import { connect } from 'react-redux';
-import {
-  selectCollections,
-  toggleInferRelationships,
-} from '../../store/generate-diagram-wizard';
+import { selectCollections } from '../../store/generate-diagram-wizard';
 import type { DataModelingState } from '../../store/reducer';
 import { SelectCollectionsList } from '../select-collections-list';
 
@@ -11,19 +8,16 @@ export default connect(
     const {
       formFields: { selectedCollections },
       databaseCollections,
-      automaticallyInferRelations,
     } = state.generateDiagramWizard;
 
     return {
       collections: databaseCollections ?? [],
       selectedCollections: selectedCollections.value ?? [],
-      automaticallyInferRelationships: automaticallyInferRelations,
       isFetchingCollections: Boolean(selectedCollections.isFetchingCollections),
       error: selectedCollections.error,
     };
   },
   {
     onCollectionsSelect: selectCollections,
-    onAutomaticallyInferRelationshipsToggle: toggleInferRelationships,
   }
 )(SelectCollectionsList);

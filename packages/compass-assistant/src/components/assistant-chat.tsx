@@ -383,10 +383,15 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
             metadata: { sendContext: true, ...metadata },
           },
           {},
-          () => {
-            track('Assistant Prompt Submitted', {
-              user_input_length: trimmedMessageBody.length,
-            });
+          ({ requestId, connectionInfo }) => {
+            track(
+              'Assistant Prompt Submitted',
+              {
+                user_input_length: trimmedMessageBody.length,
+                request_id: requestId,
+              },
+              connectionInfo
+            );
           }
         );
       }
@@ -418,12 +423,16 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
       const feedback: 'positive' | 'negative' =
         rating === 'liked' ? 'positive' : 'negative';
 
-      track('Assistant Feedback Submitted', {
-        feedback,
-        text: textFeedback,
-        request_id: null,
-        source: message.metadata?.source ?? 'chat response',
-      });
+      track(
+        'Assistant Feedback Submitted',
+        {
+          feedback,
+          text: textFeedback,
+          request_id: message.metadata?.requestId,
+          source: message.metadata?.source ?? 'chat response',
+        },
+        message.metadata?.connectionInfo ?? undefined
+      );
     },
     [track]
   );
@@ -466,10 +475,15 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
         }
         return newMessages;
       });
-      track('Assistant Confirmation Submitted', {
-        status: newState,
-        source: confirmedMessage.metadata?.source ?? 'chat response',
-      });
+      track(
+        'Assistant Confirmation Submitted',
+        {
+          status: newState,
+          source: confirmedMessage.metadata?.source ?? 'chat response',
+          request_id: confirmedMessage.metadata?.requestId,
+        },
+        confirmedMessage.metadata?.connectionInfo ?? undefined
+      );
       if (newState === 'confirmed') {
         // Force the new message request to be sent
         void ensureOptInAndSend?.(undefined, {}, () => {});
@@ -507,11 +521,16 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
         approved,
       });
 
-      track('Assistant Tool Call Approval', {
-        approved,
-        type,
-        approval_id: approvalId,
-      });
+      track(
+        'Assistant Tool Call Approval',
+        {
+          approved,
+          type,
+          approval_id: approvalId,
+          request_id: message.metadata?.requestId,
+        },
+        message.metadata?.connectionInfo ?? undefined
+      );
     },
     [addToolApprovalResponse, toolsController, track]
   );

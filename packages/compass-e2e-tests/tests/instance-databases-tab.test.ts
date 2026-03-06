@@ -5,8 +5,8 @@ import {
   init,
   cleanup,
   screenshotIfFailed,
-  DEFAULT_CONNECTION_STRING_1,
-  DEFAULT_CONNECTION_NAME_1,
+  getDefaultConnectionStrings,
+  getDefaultConnectionNames,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
@@ -33,7 +33,7 @@ describe('Instance databases tab', function () {
     await browser.disconnectAll();
     await browser.connectToDefaults();
     await browser.navigateToConnectionTab(
-      DEFAULT_CONNECTION_NAME_1,
+      getDefaultConnectionNames(0),
       'Databases'
     );
   });
@@ -101,7 +101,7 @@ describe('Instance databases tab', function () {
     );
 
     await browser.navigateToConnectionTab(
-      DEFAULT_CONNECTION_NAME_1,
+      getDefaultConnectionNames(0),
       'Databases'
     );
 
@@ -137,7 +137,7 @@ describe('Instance databases tab', function () {
 
     // the app should stay on the instance Databases tab.
     await browser.waitUntilActiveConnectionTab(
-      DEFAULT_CONNECTION_NAME_1,
+      getDefaultConnectionNames(0),
       'Databases'
     );
   });
@@ -148,7 +148,7 @@ describe('Instance databases tab', function () {
 
     // Browse to the databases tab
     await browser.navigateToConnectionTab(
-      DEFAULT_CONNECTION_NAME_1,
+      getDefaultConnectionNames(0),
       'Databases'
     );
 
@@ -168,7 +168,7 @@ describe('Instance databases tab', function () {
     });
 
     // Drop the database using the driver
-    const mongoClient = new MongoClient(DEFAULT_CONNECTION_STRING_1);
+    const mongoClient = new MongoClient(getDefaultConnectionStrings(0));
     await mongoClient.connect();
     try {
       const database = mongoClient.db(db);

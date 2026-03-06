@@ -272,7 +272,7 @@ const mapStateToProps = (state: CollectionState) => {
   return {
     fakerSchema:
       fakerSchemaGeneration.status === 'completed'
-        ? fakerSchemaGeneration.editedFakerSchema
+        ? fakerSchemaGeneration.fakerSchema
         : null,
     namespace,
     arrayLengthMap:

@@ -1,5 +1,5 @@
 import { isEqual, pick } from 'lodash';
-import type { IndexDefinition } from 'mongodb-data-service';
+import type { IndexBuildProgress, IndexDefinition } from 'mongodb-data-service';
 import type { AnyAction } from 'redux';
 import {
   openToast,
@@ -21,6 +21,7 @@ import type { CreateIndexesOptions, IndexDirection } from 'mongodb';
 import { hasColumnstoreIndex } from '../utils/columnstore-indexes';
 import type { AtlasIndexStats } from './rolling-indexes-service';
 import { connectionSupports } from '@mongodb-js/compass-connections';
+import { selectReadWriteAccess } from '../utils/indexes-read-write-access';
 
 export type RegularIndex = Partial<IndexDefinition> &
   Pick<
@@ -43,7 +44,7 @@ export type InProgressIndex = Pick<IndexDefinition, 'name' | 'fields'> & {
   id: string;
   status: 'creating' | 'failed';
   error?: string;
-  buildProgress: number;
+  buildProgress: IndexBuildProgress;
 };
 
 export type RollingIndex = Partial<AtlasIndexStats> &
@@ -85,7 +86,8 @@ export const prepareInProgressIndex = (
     status: 'creating',
     fields: inProgressIndexFields,
     name: inProgressIndexName,
-    buildProgress: 0,
+    // Locally created in-progress indexes start with active: true, no progress info yet
+    buildProgress: { currentOp: { active: true } },
     // TODO(COMPASS-8335): we never mapped properties and the table does have
     // room to display them
   };
@@ -397,12 +399,26 @@ const fetchIndexes = (
     }
   ) => {
     const {
-      isReadonlyView,
       namespace,
       regularIndexes: { status },
+      isWritable,
     } = getState();
 
-    if (isReadonlyView) {
+    const { readOnly, readWrite, enableAtlasSearchIndexes } =
+      preferences.getPreferences();
+    const { atlasMetadata } = connectionInfoRef.current;
+    const { isRegularIndexesReadable } = selectReadWriteAccess({
+      isAtlas: !!atlasMetadata,
+      readOnly,
+      readWrite,
+      enableAtlasSearchIndexes,
+    })(getState());
+
+    if (
+      !isRegularIndexesReadable ||
+      // TODO(COMPASS-10357): align on desired behavior for polling in offline-mode
+      !isWritable // isWritable is false in offline-mode
+    ) {
       dispatch(fetchIndexesSucceeded([]));
       return;
     }

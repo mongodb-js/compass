@@ -146,6 +146,9 @@ function createStore({
             return Promise.resolve({ isFLE: false });
           },
         } as any,
+        pollingIntervalRef: {
+          searchIndexes: null,
+        },
       })
     )
   );

@@ -42,8 +42,20 @@ module.exports = {
     'socks',
     'mongodb-client-encryption',
   ],
-  // TODO(COMPASS-9443): Update update-* github actions to handle all groups as
-  // a matrix inside one action instead of having separate action for every
-  // group and add more groups following the ones in _dependabot
-  // 'devtools-shared-prod': [],
+  'devtools-shared-prod': [
+    '@mongodb-js/get-os-info',
+    '@mongodb-js/mongodb-constants',
+    '@mongodb-js/device-id',
+    '@mongodb-js/shell-bson-parser',
+    'mongodb-cloud-info',
+    'mongodb-query-parser',
+  ],
+  'devtools-shared-dev': [
+    '@mongodb-js/dl-center',
+    '@mongodb-js/mongodb-downloader',
+    '@mongodb-js/monorepo-tools',
+    '@mongodb-js/sbom-tools',
+    '@mongodb-js/signing-utils',
+    'mongodb-runner',
+  ],
 };

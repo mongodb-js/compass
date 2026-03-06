@@ -14,16 +14,13 @@ import {
   skipForWeb,
   TEST_COMPASS_WEB,
   connectionNameFromString,
-  DEFAULT_CONNECTION_NAME_1,
-  DEFAULT_CONNECTION_STRING_1,
+  getDefaultConnectionNames,
+  getDefaultConnectionStrings,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import type { ConnectFormState } from '../helpers/connect-form-state';
 import * as Selectors from '../helpers/selectors';
-import {
-  DEFAULT_CONNECTION_NAMES,
-  isTestingWeb,
-} from '../helpers/test-runner-context';
+import { isTestingWeb } from '../helpers/test-runner-context';
 import { tryToInsertDocument } from '../helpers/commands/try-to-insert-document';
 
 async function disconnect(browser: CompassBrowser) {
@@ -292,7 +289,7 @@ describe('Connection string', function () {
     await browser.connectWithConnectionString();
     if (!TEST_COMPASS_WEB) {
       const result = await browser.shellEval(
-        DEFAULT_CONNECTION_NAME_1,
+        getDefaultConnectionNames(0),
         'db.runCommand({ connectionStatus: 1 })',
         true
       );
@@ -302,7 +299,7 @@ describe('Connection string', function () {
   });
 
   it('fails for authentication errors', async function () {
-    const [protocol, url] = DEFAULT_CONNECTION_STRING_1.split('://');
+    const [protocol, url] = getDefaultConnectionStrings(0).split('://');
     // connect
     await browser.connectWithConnectionString(`${protocol}://a:b@${url}`, {
       connectionStatus: 'failure',
@@ -642,7 +639,7 @@ describe('Connect in a new window', () => {
     // TODO: Remove this as part of COMPASS-8970.
     skipForWeb(this, 'connecting in new window is not supported on web');
 
-    const connectionName = DEFAULT_CONNECTION_NAMES[0];
+    const connectionName = getDefaultConnectionNames(0);
     const connectionSelector = Selectors.sidebarConnection(connectionName);
     await browser.hover(connectionSelector);
 
@@ -668,7 +665,7 @@ describe('Connect in a new window', () => {
   });
 
   it('shows correct connect button', async function (this) {
-    const connectionName = DEFAULT_CONNECTION_NAMES[0];
+    const connectionName = getDefaultConnectionNames(0);
     const connectionSelector = Selectors.sidebarConnection(connectionName);
     await browser.hover(connectionSelector);
 

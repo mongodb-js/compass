@@ -22,7 +22,10 @@ import {
   setCollections,
 } from '../modules/collections-fields';
 import type { CollectionInfo } from '../modules/collections-fields';
-import { INITIAL_STATE as SEARCH_INDEXES_INITIAL_STATE } from '../modules/search-indexes';
+import {
+  INITIAL_STATE as SEARCH_INDEXES_INITIAL_STATE,
+  stopPollingSearchIndexes,
+} from '../modules/search-indexes';
 import { INITIAL_PANEL_OPEN_LOCAL_STORAGE_KEY } from '../modules/side-panel';
 import type { DataService } from '../modules/data-service';
 import type { WorkspacesService } from '@mongodb-js/compass-workspaces/provider';
@@ -135,6 +138,10 @@ export function activateAggregationsPlugin(
 
   const stagesIdAndType = mapStoreStagesToStageIdAndType(stages);
 
+  const pollingIntervalRef = {
+    searchIndexes: null as ReturnType<typeof setInterval> | null,
+  };
+
   const store = createStore(
     reducer,
     {
@@ -189,6 +196,7 @@ export function activateAggregationsPlugin(
         connectionScopedAppRegistry,
         dataService,
         collection: collectionModel,
+        pollingIntervalRef,
       })
     )
   );
@@ -264,6 +272,10 @@ export function activateAggregationsPlugin(
   addCleanup(workspaces.onTabReplace?.(onCloseOrReplace));
 
   addCleanup(workspaces.onTabClose?.(onCloseOrReplace));
+
+  addCleanup(() => {
+    store.dispatch(stopPollingSearchIndexes());
+  });
 
   return {
     store,

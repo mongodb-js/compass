@@ -45,11 +45,11 @@ const CSFLE_DIRECTORY = path.resolve(PACKAGE_ROOT, 'src', 'deps', 'csfle');
     downloadOptions.distro = 'rhel8';
   }
 
-  const { downloadedBinDir, version } = await downloadMongoDbWithVersionInfo(
-    CACHE_DIR,
-    'continuous',
-    downloadOptions
-  );
+  const { downloadedBinDir, version } = await downloadMongoDbWithVersionInfo({
+    directory: CACHE_DIR,
+    version: 'continuous',
+    downloadOptions,
+  });
   await fs.mkdir(CSFLE_DIRECTORY, { recursive: true });
   await fs.cp(path.dirname(downloadedBinDir), CSFLE_DIRECTORY, {
     force: true,

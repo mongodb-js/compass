@@ -67,6 +67,7 @@ variables:
     E2E_TESTS_ATLAS_SPECIFICPERMISSION_STRING: ${e2e_tests_atlas_specificpermission_string}
     E2E_TESTS_ATLAS_CS_WITHOUT_SEARCH: ${e2e_tests_atlas_cs_without_search}
     E2E_TESTS_ATLAS_CS_WITH_SEARCH: ${e2e_tests_atlas_cs_with_search}
+    ATLAS_CLOUD_TEST_UTILS: ${atlas_cloud_test_utils}
 
 parameters:
   - key: compass_web_publish_environment
@@ -793,22 +794,14 @@ functions:
           <<: *compass-env
           <<: *compass-e2e-secrets
           DEBUG: ${debug|}
-          COMPASS_E2E_ATLAS_CLOUD_USERNAME: ${e2e_tests_compass_web_atlas_username}
-          COMPASS_E2E_ATLAS_CLOUD_PASSWORD: ${e2e_tests_compass_web_atlas_password}
-          MCLI_PUBLIC_API_KEY: ${e2e_tests_mcli_public_api_key}
-          MCLI_PRIVATE_API_KEY: ${e2e_tests_mcli_private_api_key}
-          MCLI_ORG_ID: ${e2e_tests_mcli_org_id}
-          MCLI_PROJECT_ID: ${e2e_tests_mcli_project_id}
-          MCLI_OPS_MANAGER_URL: ${e2e_tests_mcli_ops_manager_url}
-          # CCS connection / op running time is slower than allowed timeouts
+          COMPASS_E2E_ATLAS_CLOUD_ENVIRONMENT: '${compass_web_publish_environment}'
+          # CCS connection / op running time is slower than default timeouts
           COMPASS_E2E_MOCHA_TIMEOUT: '1440000' # 24 min
           COMPASS_E2E_WEBDRIVER_WAITFOR_TIMEOUT: '960000' # 16 min
         script: |
           set -e
           # Load environment variables
           eval $(.evergreen/print-compass-env.sh)
-          # Create Atlas cluster for test project
-          source .evergreen/start-atlas-cloud-cluster.sh
           # Run the tests
           echo "Starting e2e tests..."
           # We're only running a special subset of tests as provisioning atlas
@@ -816,6 +809,7 @@ functions:
           # coverage to reduce those factors (at least for now)
           npm run --unsafe-perm --workspace compass-e2e-tests test-ci -- -- web \
             --test-atlas-cloud \
+            --test-filter="time-to-first-query" \
             --test-filter="atlas-cloud/**/*"
 
   test-connectivity:

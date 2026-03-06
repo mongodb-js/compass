@@ -5,7 +5,7 @@ import {
   init,
   cleanup,
   screenshotIfFailed,
-  DEFAULT_CONNECTION_NAME_1,
+  getDefaultConnectionNames,
 } from '../../helpers/compass';
 import type { Compass } from '../../helpers/compass';
 import * as Selectors from '../../helpers/selectors';
@@ -37,7 +37,7 @@ describe('Collection ai query (with real Cloud backend)', function () {
       await createNumbersCollection();
       await browser.connectToDefaults();
       await browser.navigateToCollectionTab(
-        DEFAULT_CONNECTION_NAME_1,
+        getDefaultConnectionNames(0),
         'test',
         'numbers',
         'Documents'
@@ -52,7 +52,7 @@ describe('Collection ai query (with real Cloud backend)', function () {
     describe('on the documents tab', function () {
       beforeEach(async function () {
         await browser.navigateToCollectionTab(
-          DEFAULT_CONNECTION_NAME_1,
+          getDefaultConnectionNames(0),
           'test',
           'numbers',
           'Documents'
@@ -94,7 +94,7 @@ describe('Collection ai query (with real Cloud backend)', function () {
     describe('on the aggregations tab', function () {
       beforeEach(async function () {
         await browser.navigateToCollectionTab(
-          DEFAULT_CONNECTION_NAME_1,
+          getDefaultConnectionNames(0),
           'test',
           'numbers',
           'Aggregations'
@@ -155,7 +155,7 @@ describe('Collection ai query (with real Cloud backend)', function () {
       await createNumbersCollection();
       await browser.connectToDefaults();
       await browser.navigateToCollectionTab(
-        DEFAULT_CONNECTION_NAME_1,
+        getDefaultConnectionNames(0),
         'test',
         'numbers',
         'Documents'
