@@ -996,33 +996,38 @@ describe('Collection aggregations tab', function () {
         );
       }
     );
-    const slowQuery = `{
-      sleep: {
-        $function: {
-          body: function () {
-            return sleep(10000) || true;
+    try {
+      const slowQuery = `{
+        sleep: {
+          $function: {
+            body: function () {
+              return sleep(10000) || true;
+            },
+            args: [],
+            lang: "js",
           },
-          args: [],
-          lang: "js",
         },
-      },
-    }`;
+      }`;
 
-    // Set first stage to a very slow $addFields
-    await browser.selectStageOperator(0, '$addFields');
-    await browser.setCodemirrorEditorValue(Selectors.stageEditor(0), slowQuery);
+      // Set first stage to a very slow $addFields
+      await browser.selectStageOperator(0, '$addFields');
+      await browser.setCodemirrorEditorValue(
+        Selectors.stageEditor(0),
+        slowQuery
+      );
 
-    // Run and wait for results
-    await goToRunAggregation(browser);
+      // Run and wait for results
+      await goToRunAggregation(browser);
 
-    // Cancel aggregation run
-    await browser.clickVisible(Selectors.AggregationResultsCancelButton);
-    // Wait for the empty results banner (this is our indicator that we didn't
-    // load anything and dismissed "Loading" banner)
-    const emptyResultsBanner = browser.$(Selectors.AggregationEmptyResults);
-    await emptyResultsBanner.waitForDisplayed();
-
-    unsubscribeAllowWarnings();
+      // Cancel aggregation run
+      await browser.clickVisible(Selectors.AggregationResultsCancelButton);
+      // Wait for the empty results banner (this is our indicator that we didn't
+      // load anything and dismissed "Loading" banner)
+      const emptyResultsBanner = browser.$(Selectors.AggregationEmptyResults);
+      await emptyResultsBanner.waitForDisplayed();
+    } finally {
+      unsubscribeAllowWarnings();
+    }
   });
 
   it('handles errors in aggregations', async function () {

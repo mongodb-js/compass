@@ -18,6 +18,7 @@ import {
   startTestServer,
   ServerLogsChecker,
   type LogEntry,
+  type WarningFilter,
 } from '@mongodb-js/compass-test-server';
 import { MongoClient } from 'mongodb';
 import { isEnterprise } from 'mongodb-build-info';
@@ -63,8 +64,6 @@ export function noServerWarningsCheckpoint() {
     checker.noServerWarningsCheckpoint();
   }
 }
-
-type WarningFilter = number | ((entry: LogEntry) => boolean);
 
 export function allowServerWarnings(...filters: WarningFilter[]): () => void {
   const unsubscribeFns: (() => void)[] = [];
