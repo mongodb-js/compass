@@ -287,7 +287,7 @@ class CellRenderer
         className={undoButtonClass}
         // @ts-expect-error TODO: size="small" is not an acceptable size
         size="small"
-        aria-label="Expand"
+        aria-label="Undo change"
         onClick={this.handleUndo.bind(this)}
       >
         <Icon glyph="Undo"></Icon>
@@ -305,7 +305,7 @@ class CellRenderer
           className={BUTTON_CLASS}
           // @ts-expect-error TODO: size="small" is not an acceptable size
           size="small"
-          aria-label="Expand"
+          aria-label="Expand field"
           onClick={this.handleDrillDown.bind(this)}
         >
           <Icon glyph="OpenNewTab" size="xsmall" />

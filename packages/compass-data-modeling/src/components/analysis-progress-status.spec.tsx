@@ -25,7 +25,10 @@ describe('AnalysisProgressStatus', () => {
         testConnections[0].id,
         'testDB',
         ['coll1', 'coll2', 'coll3'],
-        { automaticallyInferRelations, sampleSize: 100 }
+        {
+          automaticallyInferRelations,
+          samplingOptions: { sampleSize: 100, allDocuments: false },
+        }
       )
     );
     return store;
