@@ -1,11 +1,13 @@
 ignores:
  - '@mongodb-js/prettier-config-compass'
  - '@mongodb-js/tsconfig-compass'
+ - '@mongodb-js/compass-test-server'
  - '@types/chai'
  - '@types/sinon-chai'
  - 'sinon'
  - '@types/chai-dom'
  - '@types/react'
  - '@types/react-dom'
+ - 'mongodb'
 ignore-patterns:
  - 'dist'
