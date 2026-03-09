@@ -21,7 +21,7 @@ const UNIT_TESTS_BUILD_VARIANTS = [
     // We only have gui variants of the macos 15, so both unit tests will be
     // running on it. We will not be running those on patches to save resources
     run_on: 'macos-15-arm64-gui', 
-    patchable: false,
+    run_on_prs: false,
   }
 ];
 
@@ -87,7 +87,7 @@ const TEST_PACKAGED_APP_BUILD_VARIANTS = [
     name: 'test-packaged-app-macos-11-x64',
     display_name: 'MacOS x64 11',
     run_on: 'macos-11-gui',
-    patchable: false,
+    run_on_prs: false,
     depends_on: 'package-macos-x64'
   },
   {
@@ -100,7 +100,7 @@ const TEST_PACKAGED_APP_BUILD_VARIANTS = [
     name: 'test-packaged-app-macos-15-x64',
     display_name: 'MacOS x64 15',
     run_on: 'macos-15-amd64-gui',
-    patchable: false,
+    run_on_prs: false,
     depends_on: 'package-macos-x64'
   }
 ];
@@ -141,6 +141,8 @@ const E2E_TEST_GROUPS = Array.from({ length: E2E_TEST_GROUPS_NUMBER }).map((_, i
 #
 buildvariants:
   - name: check
+    tags:
+      - run-on-pr
     display_name: Check
     run_on: ubuntu2204-large
     tasks:
@@ -149,10 +151,12 @@ buildvariants:
   # unit-tests
 <% for (const buildVariant of UNIT_TESTS_BUILD_VARIANTS) { %>
   - name: <%= buildVariant.name %>
-
+  <% if (buildVariant.run_on_prs ?? true) { %>
+    tags:
+      - run-on-pr
+  <% } %>
     display_name: <%= buildVariant.display_name %>
     run_on: <%= buildVariant.run_on %>
-    patchable: <%= buildVariant.patchable ?? true %>
     tasks:
     - name: test
     - name: test-electron
@@ -164,6 +168,8 @@ buildvariants:
   # package
 <% for (const buildVariant of PACKAGE_BUILD_VARIANTS) { %>
   - name: <%= buildVariant.name %>
+    tags:
+      - run-on-pr
     expansions:
       target_platform: <%= buildVariant.target_platform %>
     display_name: <%= buildVariant.display_name %>
@@ -175,6 +181,8 @@ buildvariants:
 <% } %>
 
   - name: smoketest-packaged-app
+    tags:
+      - run-on-pr
     display_name: Smoke Test via GitHub Actions
     run_on: ubuntu2204-large
     depends_on:
@@ -190,7 +198,6 @@ buildvariants:
   - name: test-eol-servers
     display_name: Test EoL Servers
     run_on: ubuntu2004-large
-    patchable: false
     depends_on:
       - name: package-compass
         variant: package-ubuntu
@@ -202,9 +209,10 @@ buildvariants:
     <% } %>
 
   - name: test-maintained-servers
+    tags:
+      - run-on-pr
     display_name: Test Maintained Servers
     run_on: ubuntu2204-large
-    patchable: true
     depends_on:
       - name: package-compass
         variant: package-ubuntu
@@ -218,7 +226,6 @@ buildvariants:
   - name: test-latest-alpha
     display_name: Test Latest Alpha Server
     run_on: ubuntu2204-large
-    patchable: false
     depends_on:
       - name: package-compass
         variant: package-ubuntu
@@ -231,9 +238,12 @@ buildvariants:
   # test-packaged-app
 <% for (const buildVariant of TEST_PACKAGED_APP_BUILD_VARIANTS) { %>
   - name: <%= buildVariant.name %>
+  <% if (buildVariant.run_on_prs ?? true) { %>
+    tags:
+      - run-on-pr
+  <% } %>
     display_name: Test Packaged App <%= buildVariant.display_name %>
     run_on: <%= buildVariant.run_on %>
-    patchable: <%= buildVariant.patchable ?? true %>
     depends_on:
       - name: package-compass
         variant: <%= buildVariant.depends_on %>
@@ -248,26 +258,37 @@ buildvariants:
 <% } %>
 
   - name: publish
+    tags:
+      - run-on-pr
     display_name: Publish Artifacts
     run_on: ubuntu2204-large
     tasks:
+      # On PRs does a dry-run: doesn't actually publishes, but checks that all
+      # files exist and we are not trying to do a "broken" publish
       - name: publish
+      # Publish both on PRs and on main (if it gets too noisy and won't be used
+      # much we can probably disable for PRs)
       - name: publish-web
-      - name: publish-dev-release-info
 
   - name: static-analysis
+    tags:
+      - run-on-pr
     display_name: Create Static Analysis Report
     run_on: ubuntu2004-large
     tasks:
       - name: create_static_analysis_report
 
   - name: connectivity-tests
+    tags:
+      - run-on-pr
     display_name: Connectivity Tests
     run_on: ubuntu2204-large
     tasks:
       - name: test-connectivity
 
   - name: e2e-coverage
+    tags:
+      - run-on-pr
     display_name: E2E Coverage
     run_on: ubuntu2204-large
     tasks:
@@ -276,35 +297,45 @@ buildvariants:
     <% } %>
 
   - name: csfle-tests
+    tags:
+      - run-on-pr
     display_name: CSFLE Tests
     run_on: ubuntu2204-large
     tasks:
       - name: test-csfle
 
   - name: test-web-sandbox
+    tags:
+      - run-on-pr
     display_name: Test Web Sandbox
     # DEVPROD-22850: On ubuntu24.02, AppArmor blocks electron proxy used in web tests.
     run_on: ubuntu2204-large
     tasks:
     <% for (const browser of BROWSERS) { %>
-    <% for(const group of E2E_TEST_GROUPS) { %>
+    <% for (const group of E2E_TEST_GROUPS) { %>
     - name: test-web-sandbox-<%= browser %>-<%= group.number %>
     <% } %>
     <% } %>
 
   - name: test-can-bundle-compass-web
+    tags:
+      - run-on-pr
     display_name: Test Can Bundle Compass Web
     run_on: ubuntu2204-large
     tasks:
       - name: test-can-bundle-compass-web
 
   - name: test-web-sandbox-atlas-cloud
+    tags:
+      - run-on-pr
     display_name: Test Web Sandbox (w/ Atlas Cloud login)
     run_on: ubuntu2204-large
     tasks:
       - name: test-web-sandbox-atlas-cloud
 
   - name: generate-vulnerability-report
+    tags:
+      - run-on-pr
     display_name: Vulnerability Report
     run_on: ubuntu2204-large
     tasks:
@@ -315,7 +346,8 @@ buildvariants:
 #
 tasks:
   - name: check
-    tags: ['required-for-publish', 'run-on-pr']
+    tags:
+      - required-for-publish
     commands:
       - func: prepare
       - func: install
@@ -325,7 +357,6 @@ tasks:
   - name: test
     tags:
       - required-for-publish
-      - run-on-pr
       - assigned_to_jira_team_compass_compass
       - foliage_creates_breaking_commit
     commands:
@@ -338,7 +369,8 @@ tasks:
           mongodb_version: <%= LATEST_MAINTAINED_SERVER_VERSION.version %>
 
   - name: test-electron
-    tags: ['required-for-publish', 'run-on-pr']
+    tags:
+      - required-for-publish
     commands:
       - func: prepare
       - func: install
@@ -349,7 +381,8 @@ tasks:
           mongodb_version: <%= LATEST_MAINTAINED_SERVER_VERSION.version %>
 
   - name: test-connectivity
-    tags: ['required-for-publish', 'run-on-pr']
+    tags:
+      - required-for-publish
     commands:
       - func: clone
       - func: test-connectivity
@@ -358,7 +391,8 @@ tasks:
           mongodb_version: <%= LATEST_MAINTAINED_SERVER_VERSION.version %>
 
   - name: test-csfle
-    tags: ['required-for-publish', 'run-on-pr']
+    tags:
+      - required-for-publish
     commands:
       - func: prepare
       - func: install
@@ -370,7 +404,8 @@ tasks:
 
 <% for(const group of E2E_TEST_GROUPS) { %>
   - name: e2e-coverage-<%= group.number %>
-    tags: ['required-for-publish', 'run-on-pr']
+    tags:
+      - required-for-publish
     commands:
       - func: prepare
       - func: install
@@ -384,7 +419,8 @@ tasks:
 <% } %>
 
   - name: generate-vulnerability-report
-    tags: ['required-for-publish', 'run-on-pr']
+    tags:
+      - required-for-publish
     commands:
       - func: prepare
       - func: install
@@ -396,9 +432,6 @@ tasks:
   # Publish happens in one go to make sure we are not creating multiple github
   # releases in parallel
   - name: publish
-    # Does a dry-run: doesn't actually publishes, but checks that all files
-    # exist and we are not trying to do a "broken" publish
-    tags: ['run-on-pr']
     depends_on:
       - name: '.required-for-publish'
         variant: '*'
@@ -412,9 +445,6 @@ tasks:
       - func: publish
 
   - name: publish-web
-    # Publish both on PRs and on main (if it gets too noisy and won't be used
-    # much we can probably disable for PRs)
-    tags: ['run-on-pr']
     depends_on:
       - name: '.required-for-publish'
         variant: '*'
@@ -427,18 +457,11 @@ tasks:
       - func: upload-web
       - func: publish-web
 
-  - name: publish-dev-release-info
-    tags: []
-    depends_on:
-      - name: 'publish'
-        variant: '*'
-    commands:
-      - func: prepare
-      - func: publish-dev-release-info
-
 <% for (const distribution of COMPASS_DISTRIBUTIONS) { %>
   - name: package-<%= distribution %>
-    tags: ['required-for-publish', 'run-on-pr', 'package-task']
+    tags:
+      - required-for-publish
+      - package-task
     commands:
       - func: prepare
       - func: install
@@ -460,7 +483,8 @@ tasks:
   <% } %>
 
   - name: smoketest-packaged-app
-    tags: ['required-for-publish', 'run-on-pr']
+    tags:
+      - required-for-publish
     commands:
       - func: prepare
       - func: install
@@ -475,8 +499,7 @@ tasks:
   <% for(const group of E2E_TEST_GROUPS) { %>
   - name: test-server-<%= serverVersion.name %>-<%= group.number %>
     tags:
-    - required-for-publish
-    - run-on-pr
+      - required-for-publish
     commands:
       - func: prepare
       - func: install
@@ -503,7 +526,6 @@ tasks:
   - name: test-packaged-app-<%= group.number %>
     tags:
       - required-for-publish
-      - run-on-pr
       - assigned_to_jira_team_compass_compass
       - foliage_check_task_only
     commands:
@@ -529,7 +551,6 @@ tasks:
   - name: test-packaged-app-macos-11-<%= group.number %>
     tags:
       - required-for-publish
-      - run-on-pr
       - assigned_to_jira_team_compass_compass
       - foliage_check_task_only
     commands:
@@ -558,7 +579,6 @@ tasks:
   - name: test-web-sandbox-<%= browser %>-<%= group.number %>
     tags:
       - required-for-publish
-      - run-on-pr
       - assigned_to_jira_team_compass_compass
       - foliage_check_task_only
     commands:
@@ -583,7 +603,7 @@ tasks:
 
   - name: test-can-bundle-compass-web
     tags:
-      - run-on-pr
+      - required-for-publish
       - assigned_to_jira_team_compass_compass
       - foliage_check_task_only
     commands:
@@ -597,11 +617,8 @@ tasks:
   - name: test-web-sandbox-atlas-cloud
     tags:
       - required-for-publish
-      - run-on-pr
       - assigned_to_jira_team_compass_compass
       - foliage_check_task_only
-    # These tests are expensive (literally) and shouldn't be running on PRs
-    patchable: false
     commands:
       - func: prepare
       - func: install
@@ -612,7 +629,9 @@ tasks:
           debug: 'compass-e2e-tests*,electron*,hadron*,mongo*'
 
   - name: create_static_analysis_report
-    tags: ['required-for-publish', 'run-on-pr']
+    tags:
+      - required-for-publish
+      - run-on-pr
     depends_on:
       - name: ".package-task"
         variant: "*"
