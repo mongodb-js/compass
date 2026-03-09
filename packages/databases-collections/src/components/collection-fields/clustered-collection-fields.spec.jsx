@@ -1,20 +1,11 @@
 import React from 'react';
-import {
-  render,
-  screen,
-  cleanup,
-  userEvent,
-} from '@mongodb-js/testing-library-compass';
+import { render, screen, userEvent } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
 import ClusteredCollectionFields from './clustered-collection-fields';
 
 describe('ClusteredCollectionFields [Component]', function () {
-  afterEach(function () {
-    cleanup();
-  });
-
   context('when isClustered prop is true', function () {
     it('renders the form field containers', function () {
       render(

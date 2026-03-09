@@ -2,7 +2,6 @@ import React from 'react';
 import {
   render,
   screen,
-  cleanup,
   userEvent,
   within,
 } from '@mongodb-js/testing-library-compass';
@@ -12,10 +11,6 @@ import sinon from 'sinon';
 import CollectionFields from '.';
 
 describe('CollectionFields [Component]', function () {
-  afterEach(function () {
-    cleanup();
-  });
-
   context('when withDatabase prop is true', function () {
     it('renders a database name input field', function () {
       render(

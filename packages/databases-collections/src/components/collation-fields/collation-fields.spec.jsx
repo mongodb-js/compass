@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, cleanup } from '@mongodb-js/testing-library-compass';
+import { render, screen } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
@@ -14,7 +14,6 @@ describe('CollationFields [Component]', function () {
 
   afterEach(function () {
     changeCollationOptionSpy = null;
-    cleanup();
   });
 
   it('renders the collation option dropdowns', function () {

@@ -1,20 +1,11 @@
 import React from 'react';
-import {
-  render,
-  screen,
-  cleanup,
-  userEvent,
-} from '@mongodb-js/testing-library-compass';
+import { render, screen, userEvent } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
 import FLE2Fields from './fle2-fields';
 
 describe('FLE2Fields [Component]', function () {
-  afterEach(function () {
-    cleanup();
-  });
-
   context('when isFLE2 prop is true', function () {
     it('renders the form field containers', function () {
       render(

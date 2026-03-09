@@ -2,7 +2,6 @@ import React from 'react';
 import {
   render,
   screen,
-  cleanup,
   userEvent,
   within,
 } from '@mongodb-js/testing-library-compass';
@@ -12,10 +11,6 @@ import sinon from 'sinon';
 import TimeSeriesFields from './time-series-fields';
 
 describe('TimeSeriesFields [Component]', function () {
-  afterEach(function () {
-    cleanup();
-  });
-
   context('when isTimeSeries prop is true', function () {
     it('renders the form field containers', function () {
       render(
