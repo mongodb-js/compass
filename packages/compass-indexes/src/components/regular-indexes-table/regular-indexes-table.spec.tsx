@@ -36,7 +36,7 @@ const indexes: RegularIndex[] = [
       },
     ],
     usageCount: 10,
-    buildProgress: 0,
+    buildProgress: {},
   },
   {
     ns: 'db.coll',
@@ -60,7 +60,7 @@ const indexes: RegularIndex[] = [
       },
     ],
     usageCount: 15,
-    buildProgress: 0,
+    buildProgress: {},
   },
   {
     ns: 'db.coll',
@@ -83,7 +83,7 @@ const indexes: RegularIndex[] = [
       },
     ],
     usageCount: 20,
-    buildProgress: 0,
+    buildProgress: {},
   },
   {
     ns: 'db.coll',
@@ -106,7 +106,7 @@ const indexes: RegularIndex[] = [
       },
     ],
     usageCount: 25,
-    buildProgress: 0,
+    buildProgress: {},
   },
 ];
 
@@ -125,7 +125,7 @@ const inProgressIndexes: InProgressIndex[] = [
       },
     ],
     status: 'creating',
-    buildProgress: 0,
+    buildProgress: {},
   },
   {
     id: 'in-progress-2',
@@ -136,9 +136,9 @@ const inProgressIndexes: InProgressIndex[] = [
         value: 'text',
       },
     ],
-    status: 'creating',
+    status: 'failed',
     error: 'this is an error',
-    buildProgress: 0,
+    buildProgress: {},
   },
 ];
 
@@ -275,10 +275,13 @@ describe('RegularIndexesTable Component', function () {
 
       expect(within(indexRow).queryByTestId('index-actions-hide-action')).to.not
         .exist;
+      // For creating indexes, the building spinner is shown (no regular actions)
+      // For failed indexes, the delete action is shown
       if (index.status === 'creating') {
-        expect(() =>
-          within(indexRow).getByTestId('index-actions-delete-action')
-        ).to.throw();
+        // Creating indexes show building spinner with cancel option,
+        // but the cancel action doesn't have the index-actions-delete-action test id
+        // since it's rendered inside the building progress UI
+        expect(within(indexRow).getByTestId('index-building-spinner')).to.exist;
       } else {
         expect(within(indexRow).getByTestId('index-actions-delete-action')).to
           .exist;
@@ -337,7 +340,7 @@ describe('RegularIndexesTable Component', function () {
         extra: {},
         size: 11111,
         relativeSize: 0,
-        buildProgress: 0,
+        buildProgress: {},
       },
     ];
 
@@ -521,6 +524,98 @@ describe('RegularIndexesTable Component', function () {
 
       clickSort('Properties');
       expect(getIndexNames()).to.deep.eq(['b', 'a', 'c']);
+    });
+  });
+
+  describe('Index Status and Permission Handling', function () {
+    it('shows "Ready" status for completed index', function () {
+      renderIndexList({
+        indexes: [
+          mockRegularIndex({
+            name: 'ready_index',
+            buildProgress: {},
+          }),
+        ],
+      });
+
+      const indexRow = screen.getByTestId('indexes-row-ready_index');
+      expect(within(indexRow).getByTestId('index-ready')).to.exist;
+      expect(within(indexRow).getByText('Ready')).to.exist;
+    });
+
+    it('shows "In Progress" status for building index with progress', function () {
+      renderIndexList({
+        indexes: [
+          mockRegularIndex({
+            name: 'building_index',
+            buildProgress: {
+              currentOp: {
+                active: true,
+                progress: 0.5,
+                msg: 'Index Build: inserting keys from external sorter',
+              },
+            },
+          }),
+        ],
+      });
+
+      const indexRow = screen.getByTestId('indexes-row-building_index');
+      expect(within(indexRow).getByTestId('index-in-progress')).to.exist;
+      expect(within(indexRow).getByText('In Progress')).to.exist;
+    });
+
+    it('shows "Unknown" status when both permissions are denied', function () {
+      renderIndexList({
+        indexes: [
+          mockRegularIndex({
+            name: 'unknown_status_index',
+            buildProgress: {
+              statsError: 'user is not authorized',
+              progressError: 'user is not authorized',
+            },
+          }),
+        ],
+      });
+
+      const indexRow = screen.getByTestId('indexes-row-unknown_status_index');
+      expect(within(indexRow).getByTestId('index-unknown')).to.exist;
+      expect(within(indexRow).getByText('Unknown')).to.exist;
+    });
+
+    it('shows "Ready" when only statsError but currentOp says not building', function () {
+      // When $indexStats fails but $currentOp works and shows no active build
+      renderIndexList({
+        indexes: [
+          mockRegularIndex({
+            name: 'stats_failed_index',
+            buildProgress: {
+              currentOp: { active: false },
+              statsError: 'user is not authorized',
+            },
+          }),
+        ],
+      });
+
+      const indexRow = screen.getByTestId('indexes-row-stats_failed_index');
+      expect(within(indexRow).getByTestId('index-ready')).to.exist;
+    });
+
+    it('shows "In Progress" when only progressError but indexStats shows building', function () {
+      // When $currentOp fails but $indexStats shows building: true
+      renderIndexList({
+        indexes: [
+          mockRegularIndex({
+            name: 'progress_failed_index',
+            building: true,
+            buildProgress: {
+              progressError: 'user is not authorized to run currentOp',
+            },
+          }),
+        ],
+      });
+
+      const indexRow = screen.getByTestId('indexes-row-progress_failed_index');
+      expect(within(indexRow).getByTestId('index-in-progress')).to.exist;
     });
   });
 });

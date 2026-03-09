@@ -1,11 +1,6 @@
-import React, { useCallback, useLayoutEffect } from 'react';
+import React, { useLayoutEffect } from 'react';
 import ReactDOM from 'react-dom';
-import {
-  Body,
-  css,
-  openToast,
-  resetGlobalCSS,
-} from '@mongodb-js/compass-components';
+import { Body, css, resetGlobalCSS } from '@mongodb-js/compass-components';
 import { CompassWeb } from '../src/index';
 import { SandboxConnectionStorageProvider } from '../src/connection-storage';
 import { useAtlasProxySignIn } from './sandbox-atlas-sign-in';
@@ -64,14 +59,6 @@ const App = () => {
     getMetaEl('csrf-time').setAttribute('content', csrfTime ?? '');
   }, [csrfToken, csrfTime]);
 
-  const onFailToLoadConnections = useCallback((error: Error) => {
-    openToast('failed-to-load-connections', {
-      title: 'Failed to load connections',
-      description: error.message,
-      variant: 'warning',
-    });
-  }, []);
-
   if (status === 'checking') {
     return null;
   }
@@ -124,7 +111,6 @@ const App = () => {
             ...groupRolePreferences,
           }}
           onDebug={debug}
-          onFailToLoadConnections={onFailToLoadConnections}
         ></CompassWeb>
       </Body>
     </SandboxConnectionStorageProvider>
