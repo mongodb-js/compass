@@ -212,7 +212,7 @@ describe('GenAI Prompts', function () {
         enableStorage: true,
       });
       expect(metadata.store).to.equal(true);
-      expect((metadata as any).sensitiveStorage).to.equal('sensitive');
+      expect((metadata as any).sensitiveStorage).to.equal('true');
     });
     it('sets store to true in metadata when building aggregate query prompt', function () {
       const { metadata } = buildAggregateQueryPrompt({
@@ -220,7 +220,7 @@ describe('GenAI Prompts', function () {
         enableStorage: true,
       });
       expect(metadata.store).to.equal(true);
-      expect((metadata as any).sensitiveStorage).to.equal('sensitive');
+      expect((metadata as any).sensitiveStorage).to.equal('true');
     });
   });
 

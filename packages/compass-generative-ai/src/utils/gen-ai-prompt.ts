@@ -178,7 +178,7 @@ export type AiQueryPrompt = {
   } & (
     | {
         store: true;
-        sensitiveStorage: 'sensitive';
+        sensitiveStorage: 'true';
       }
     | {
         store: false;
@@ -201,7 +201,7 @@ function buildMetadata({
     requestId,
     ...(enableStorage
       ? {
-          sensitiveStorage: 'sensitive',
+          sensitiveStorage: 'true',
           store: true,
         }
       : {
