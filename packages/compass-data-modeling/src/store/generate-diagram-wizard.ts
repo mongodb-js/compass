@@ -4,8 +4,10 @@ import type { DataModelingThunkAction } from './reducer';
 import { startAnalysis } from './analysis-process';
 import toNS from 'mongodb-ns';
 import { getDiagramName } from '../services/open-and-download-diagram';
-
-const DEFAULT_SAMPLE_SIZE = '100';
+import {
+  DEFAULT_SAMPLING_OPTIONS,
+  type SamplingOptions,
+} from './sampling-options';
 
 type FormField<T = string> = {
   error?: Error;
@@ -16,7 +18,7 @@ export type GenerateDiagramWizardState = {
   // Overall progress of the wizard, kept separate from the step so that closing
   // the wizard can preserve the last step if needed
   inProgress: boolean;
-  step: 'SETUP_DIAGRAM' | 'SELECT_COLLECTIONS';
+  step: 'SETUP_DIAGRAM' | 'SELECT_COLLECTIONS' | 'DIAGRAM_SETTINGS';
   formFields: {
     diagramName: FormField;
     selectedConnection: FormField & { isConnecting?: boolean };
@@ -24,11 +26,11 @@ export type GenerateDiagramWizardState = {
     selectedCollections: FormField<string[]> & {
       isFetchingCollections?: boolean;
     };
+    samplingOptions: FormField<SamplingOptions> & { value: SamplingOptions };
   };
   connectionDatabases: string[] | null;
   databaseCollections: string[] | null;
   automaticallyInferRelations: boolean;
-  sampleSize: string;
 };
 
 export const GenerateDiagramWizardActionTypes = {
@@ -59,8 +61,8 @@ export const GenerateDiagramWizardActionTypes = {
     'data-modeling/generate-diagram-wizard/SELECT_COLLECTIONS',
   TOGGLE_INFER_RELATIONS:
     'data-modeling/generate-diagram-wizard/TOGGLE_INFER_RELATIONS',
-  CHANGE_SAMPLE_SIZE:
-    'data-modeling/generate-diagram-wizard/CHANGE_SAMPLE_SIZE',
+  CHANGE_SAMPLING_OPTIONS:
+    'data-modeling/generate-diagram-wizard/CHANGE_SAMPLING_OPTIONS',
   CONFIRM_SELECTED_COLLECTIONS:
     'data-modeling/generate-diagram-wizard/CONFIRM_SELECTED_COLLECTIONS',
 } as const;
@@ -138,9 +140,9 @@ export type ToggleInferRelationsAction = {
   newVal: boolean;
 };
 
-export type GenerateDiagramChangeSampleSizeAction = {
-  type: typeof GenerateDiagramWizardActionTypes.CHANGE_SAMPLE_SIZE;
-  sampleSize: string;
+export type GenerateDiagramChangeSamplingOptionsAction = {
+  type: typeof GenerateDiagramWizardActionTypes.CHANGE_SAMPLING_OPTIONS;
+  samplingOptions: SamplingOptions;
 };
 
 export type ConfirmSelectedCollectionsAction = {
@@ -161,7 +163,7 @@ export type GenerateDiagramWizardActions =
   | CollectionsFetchedAction
   | SelectCollectionsAction
   | ToggleInferRelationsAction
-  | GenerateDiagramChangeSampleSizeAction
+  | GenerateDiagramChangeSamplingOptionsAction
   | ConfirmSelectedCollectionsAction
   | CollectionsFetchFailedAction
   | ConnectionFailedAction;
@@ -174,11 +176,13 @@ const INITIAL_STATE: GenerateDiagramWizardState = {
     selectedConnection: {},
     selectedDatabase: {},
     selectedCollections: {},
+    samplingOptions: {
+      value: DEFAULT_SAMPLING_OPTIONS,
+    },
   },
   connectionDatabases: null,
   databaseCollections: null,
   automaticallyInferRelations: true,
-  sampleSize: DEFAULT_SAMPLE_SIZE,
 };
 
 export const generateDiagramWizardReducer: Reducer<
@@ -372,10 +376,18 @@ export const generateDiagramWizardReducer: Reducer<
       automaticallyInferRelations: action.newVal,
     };
   }
-  if (isAction(action, GenerateDiagramWizardActionTypes.CHANGE_SAMPLE_SIZE)) {
+  if (
+    isAction(action, GenerateDiagramWizardActionTypes.CHANGE_SAMPLING_OPTIONS)
+  ) {
     return {
       ...state,
-      sampleSize: action.sampleSize,
+      formFields: {
+        ...state.formFields,
+        samplingOptions: {
+          ...state.formFields.samplingOptions,
+          value: action.samplingOptions,
+        },
+      },
     };
   }
   if (isAction(action, GenerateDiagramWizardActionTypes.GOTO_STEP)) {
@@ -614,9 +626,9 @@ export function confirmSelectedCollections(): DataModelingThunkAction<
         selectedConnection,
         selectedDatabase,
         selectedCollections,
+        samplingOptions,
       },
       automaticallyInferRelations,
-      sampleSize,
     } = getState().generateDiagramWizard;
     if (
       !diagramName.value ||
@@ -635,7 +647,10 @@ export function confirmSelectedCollections(): DataModelingThunkAction<
         selectedConnection.value,
         selectedDatabase.value,
         selectedCollections.value,
-        { automaticallyInferRelations, sampleSize: parseInt(sampleSize, 10) }
+        {
+          automaticallyInferRelations,
+          samplingOptions: samplingOptions.value ?? DEFAULT_SAMPLING_OPTIONS,
+        }
       )
     );
   };
@@ -654,11 +669,11 @@ export function toggleInferRelationships(
   };
 }
 
-export function changeSampleSize(
-  sampleSize: string
-): GenerateDiagramChangeSampleSizeAction {
+export function changeSamplingOptions(
+  samplingOptions: SamplingOptions
+): GenerateDiagramChangeSamplingOptionsAction {
   return {
-    type: GenerateDiagramWizardActionTypes.CHANGE_SAMPLE_SIZE,
-    sampleSize,
+    type: GenerateDiagramWizardActionTypes.CHANGE_SAMPLING_OPTIONS,
+    samplingOptions,
   };
 }

@@ -20,6 +20,8 @@ export const MOCK_DATA_GENERATOR_STEP_TO_NEXT_STEP_MAP: Readonly<
   [MockDataGeneratorSteps.SCRIPT_RESULT]: 'finish',
 };
 
+export const FAKER_API_LINK = 'https://v10.fakerjs.dev/api/';
+
 export const DEFAULT_DOCUMENT_COUNT = 1000;
 export const MAX_DOCUMENT_COUNT = 100000;
 

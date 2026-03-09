@@ -3,10 +3,10 @@ import { css, DrawerSection, spacing } from '@mongodb-js/compass-components';
 import { usePreference } from 'compass-preferences-model/provider';
 import { connect } from 'react-redux';
 import type { RootState } from './modules';
-import IndexesListDrawerView from './components/drawer/views/indexes-list-drawer-view';
+import IndexesListDrawerView from './components/drawer-views/indexes-list-drawer-view';
 import type { CollectionSubtab } from '@mongodb-js/workspace-info';
-import CreateSearchIndexView from './components/drawer/views/create-search-index-view';
-import EditSearchIndexView from './components/drawer/views/edit-search-index-view';
+import CreateSearchIndexView from './components/drawer-views/create-search-index-drawer-view';
+import EditSearchIndexView from './components/drawer-views/edit-search-index-drawer-view';
 import type { IndexesDrawerViewType } from './modules/indexes-drawer';
 import CreateIndexModal from './components/create-index-modal/create-index-modal';
 
@@ -59,11 +59,9 @@ const Drawer = ({ currentView, subTab }: DrawerProps) => {
         glyph="SearchIndex"
         disabled={subTab === 'Indexes'}
       >
-        <div>
-          {currentView === 'indexes-list' && <IndexesListDrawerView />}
-          {currentView === 'create-search-index' && <CreateSearchIndexView />}
-          {currentView === 'edit-search-index' && <EditSearchIndexView />}
-        </div>
+        {currentView === 'indexes-list' && <IndexesListDrawerView />}
+        {currentView === 'create-search-index' && <CreateSearchIndexView />}
+        {currentView === 'edit-search-index' && <EditSearchIndexView />}
       </DrawerSection>
       {/* The drawer tab will re-use this modal for creating regular indexes */}
       <CreateIndexModal />

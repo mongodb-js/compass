@@ -201,7 +201,180 @@ describe('MockDataGeneratorModal', () => {
       });
     });
 
-    // TODO: CLOUDP-381905 - Loading state tests
+    it('shows loading spinner when faker schema generation is in progress', async () => {
+      await renderModal({
+        fakerSchemaGeneration: {
+          status: 'in-progress',
+          requestId: 'test-request-id',
+        },
+      });
+
+      expect(screen.getByTestId('raw-schema-confirmation-loader')).to.exist;
+      expect(screen.getByText('Generating mock data mappings...')).to.exist;
+    });
+
+    it('disables the Confirm button when faker schema generation is in progress', async () => {
+      await renderModal({
+        fakerSchemaGeneration: {
+          status: 'in-progress',
+          requestId: 'test-request-id',
+        },
+      });
+
+      expect(
+        screen
+          .getByRole('button', { name: 'Confirm' })
+          .getAttribute('aria-disabled')
+      ).to.equal('true');
+    });
+
+    it('shows sample values banner when sample document passing is disabled and projectId is available', async () => {
+      await renderModal({
+        enableGenAISampleDocumentPassing: false,
+        connectionInfo: {
+          id: 'test-connection-id',
+          connectionOptions: { connectionString: 'mongodb://localhost:27017' },
+          atlasMetadata: {
+            orgId: 'test-org-id',
+            projectId: 'test-project-id',
+            clusterName: 'test-cluster',
+            clusterType: 'REPLICASET' as const,
+            clusterState: 'IDLE' as const,
+            clusterUniqueId: 'test-cluster-unique-id',
+            metricsId: 'test-metrics-id',
+            metricsType: 'replicaSet' as const,
+            regionalBaseUrl: null,
+            instanceSize: 'M10',
+            supports: {
+              globalWrites: false,
+              rollingIndexes: true,
+            },
+            userConnectionString: 'mongodb+srv://localhost:27017',
+          },
+        },
+      });
+
+      expect(screen.getByTestId('sample-values-banner')).to.exist;
+      expect(screen.getByText('Enable Sending Sample Field Values')).to.exist;
+      expect(screen.getByTestId('sample-values-banner-settings-button')).to
+        .exist;
+    });
+
+    it('hides sample values banner when sample document passing is enabled', async () => {
+      await renderModal({
+        enableGenAISampleDocumentPassing: true,
+        connectionInfo: {
+          id: 'test-connection-id',
+          connectionOptions: { connectionString: 'mongodb://localhost:27017' },
+          atlasMetadata: {
+            orgId: 'test-org-id',
+            projectId: 'test-project-id',
+            clusterName: 'test-cluster',
+            clusterType: 'REPLICASET' as const,
+            clusterState: 'IDLE' as const,
+            clusterUniqueId: 'test-cluster-unique-id',
+            metricsId: 'test-metrics-id',
+            metricsType: 'replicaSet' as const,
+            regionalBaseUrl: null,
+            instanceSize: 'M10',
+            supports: {
+              globalWrites: false,
+              rollingIndexes: true,
+            },
+            userConnectionString: 'mongodb+srv://localhost:27017',
+          },
+        },
+      });
+
+      expect(screen.queryByTestId('sample-values-banner')).to.not.exist;
+    });
+
+    it('dismisses sample values banner when close button is clicked', async () => {
+      await renderModal({
+        enableGenAISampleDocumentPassing: false,
+        connectionInfo: {
+          id: 'test-connection-id',
+          connectionOptions: { connectionString: 'mongodb://localhost:27017' },
+          atlasMetadata: {
+            orgId: 'test-org-id',
+            projectId: 'test-project-id',
+            clusterName: 'test-cluster',
+            clusterType: 'REPLICASET' as const,
+            clusterState: 'IDLE' as const,
+            clusterUniqueId: 'test-cluster-unique-id',
+            metricsId: 'test-metrics-id',
+            metricsType: 'replicaSet' as const,
+            regionalBaseUrl: null,
+            instanceSize: 'M10',
+            supports: {
+              globalWrites: false,
+              rollingIndexes: true,
+            },
+            userConnectionString: 'mongodb+srv://localhost:27017',
+          },
+        },
+      });
+
+      expect(screen.getByTestId('sample-values-banner')).to.exist;
+
+      // Click the dismiss button
+      const banner = screen.getByTestId('sample-values-banner');
+      const closeButton = banner
+        .querySelector('[aria-label="X Icon"]')
+        ?.closest('button') as HTMLElement;
+      userEvent.click(closeButton);
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('sample-values-banner')).to.not.exist;
+      });
+    });
+
+    it('opens project settings URL when settings button is clicked', async () => {
+      const windowOpenStub = sinon.stub(window, 'open');
+
+      try {
+        await renderModal({
+          enableGenAISampleDocumentPassing: false,
+          connectionInfo: {
+            id: 'test-connection-id',
+            connectionOptions: {
+              connectionString: 'mongodb://localhost:27017',
+            },
+            atlasMetadata: {
+              orgId: 'test-org-id',
+              projectId: 'test-project-id',
+              clusterName: 'test-cluster',
+              clusterType: 'REPLICASET' as const,
+              clusterState: 'IDLE' as const,
+              clusterUniqueId: 'test-cluster-unique-id',
+              metricsId: 'test-metrics-id',
+              metricsType: 'replicaSet' as const,
+              regionalBaseUrl: null,
+              instanceSize: 'M10',
+              supports: {
+                globalWrites: false,
+                rollingIndexes: true,
+              },
+              userConnectionString: 'mongodb+srv://localhost:27017',
+            },
+          },
+        });
+
+        // Click the settings button
+        const settingsButton = screen.getByTestId(
+          'sample-values-banner-settings-button'
+        );
+        userEvent.click(settingsButton);
+
+        expect(windowOpenStub).to.have.been.calledWith(
+          `${window.location.origin}/v2/test-project-id#/settings/groupSettings`,
+          '_blank',
+          'noopener noreferrer'
+        );
+      } finally {
+        windowOpenStub.restore();
+      }
+    });
   });
 
   describe('on the schema confirmation step', () => {
@@ -220,27 +393,22 @@ describe('MockDataGeneratorModal', () => {
       expect(screen.getByText('test.collection')).to.exist;
     });
 
-    it('uses the appropriate copy when Generative AI sample document passing is enabled', async () => {
+    it('displays the description copy with Faker functions link', async () => {
+      await renderModal();
+      expect(screen.getByText(/We'll use the identified schema to generate/)).to
+        .exist;
+      expect(screen.getByRole('link', { name: 'Faker functions' })).to.exist;
+    });
+
+    it('displays sample document when sample document passing is enabled', async () => {
       await renderModal({ enableGenAISampleDocumentPassing: true });
-      expect(screen.getByText('Sample Documents Collected')).to.exist;
-      expect(
-        screen.getByText(
-          'A sample of documents from your collection will be sent to an LLM for processing.'
-        )
-      ).to.exist;
       // fragment from { "name": "John" }
       expect(screen.getByText('"John"')).to.exist;
       expect(screen.queryByText('"String"')).to.not.exist;
     });
 
-    it('uses the appropriate copy when Generative AI sample document passing is disabled', async () => {
+    it('displays schema when sample document passing is disabled', async () => {
       await renderModal();
-      expect(screen.getByText('Document Schema Identified')).to.exist;
-      expect(
-        screen.queryByText(
-          'We have identified the following schema from your documents. This schema will be sent to an LLM for processing.'
-        )
-      ).to.exist;
       // fragment from { "name": "String" }
       expect(screen.getByText('"String"')).to.exist;
       expect(screen.queryByText('"John"')).to.not.exist;
@@ -250,11 +418,11 @@ describe('MockDataGeneratorModal', () => {
       await renderModal();
 
       expect(screen.getByTestId('raw-schema-confirmation')).to.exist;
-      expect(screen.queryByTestId('preview-and-doc-count')).to.not.exist;
+      expect(screen.queryByTestId('preview-and-doc-count-screen')).to.not.exist;
       userEvent.click(screen.getByText('Confirm'));
       await waitFor(() => {
         expect(screen.queryByTestId('raw-schema-confirmation')).to.not.exist;
-        expect(screen.getByTestId('preview-and-doc-count')).to.exist;
+        expect(screen.getByTestId('preview-and-doc-count-screen')).to.exist;
       });
     });
 
@@ -265,15 +433,145 @@ describe('MockDataGeneratorModal', () => {
       await renderModal({ mockServices });
 
       expect(screen.getByTestId('raw-schema-confirmation')).to.exist;
-      expect(screen.queryByTestId('preview-and-doc-count')).to.not.exist;
+      expect(screen.queryByTestId('preview-and-doc-count-screen')).to.not.exist;
       userEvent.click(screen.getByText('Confirm'));
       await waitFor(() => {
         expect(screen.getByTestId('raw-schema-confirmation')).to.exist;
-        expect(screen.queryByTestId('preview-and-doc-count')).to.not.exist;
+        expect(screen.queryByTestId('preview-and-doc-count-screen')).to.not
+          .exist;
       });
 
       expect(screen.getByText('LLM Request failed. Please confirm again.')).to
         .exist;
+    });
+  });
+
+  describe('on the preview and doc count step', () => {
+    it('renders the document count input with default value', async () => {
+      await renderModal({
+        currentStep: MockDataGeneratorSteps.PREVIEW_AND_DOC_COUNT,
+        fakerSchemaGeneration: createCompletedFakerSchema({
+          name: {
+            fakerMethod: 'person.firstName',
+            fakerArgs: [],
+            probability: 1.0,
+            mongoType: 'String',
+          },
+        }),
+      });
+
+      const input = screen.getByTestId('document-count-input');
+      expect(input).to.exist;
+      expect(input).to.have.value(DEFAULT_DOCUMENT_COUNT.toString());
+    });
+
+    it('renders the preview section with sample documents', async () => {
+      await renderModal({
+        currentStep: MockDataGeneratorSteps.PREVIEW_AND_DOC_COUNT,
+        fakerSchemaGeneration: createCompletedFakerSchema({
+          name: {
+            fakerMethod: 'person.firstName',
+            fakerArgs: [],
+            probability: 1.0,
+            mongoType: 'String',
+          },
+        }),
+      });
+
+      expect(screen.getByText('Preview Mock Data')).to.exist;
+      expect(
+        screen.getByText(
+          /Below are examples of documents that will be generated/
+        )
+      ).to.exist;
+    });
+
+    it('enables the Back button', async () => {
+      await renderModal({
+        currentStep: MockDataGeneratorSteps.PREVIEW_AND_DOC_COUNT,
+        fakerSchemaGeneration: createCompletedFakerSchema({
+          name: {
+            fakerMethod: 'person.firstName',
+            fakerArgs: [],
+            probability: 1.0,
+            mongoType: 'String',
+          },
+        }),
+      });
+
+      expect(
+        screen
+          .getByRole('button', { name: 'Back' })
+          .getAttribute('aria-disabled')
+      ).to.not.equal('true');
+    });
+
+    it('displays estimated disk size when avgDocumentSize is available', async () => {
+      await renderModal({
+        currentStep: MockDataGeneratorSteps.PREVIEW_AND_DOC_COUNT,
+        fakerSchemaGeneration: createCompletedFakerSchema({
+          name: {
+            fakerMethod: 'person.firstName',
+            fakerArgs: [],
+            probability: 1.0,
+            mongoType: 'String',
+          },
+        }),
+        schemaAnalysis: {
+          ...defaultSchemaAnalysisState,
+          schemaMetadata: {
+            ...defaultSchemaAnalysisState.schemaMetadata,
+            avgDocumentSize: 500,
+          },
+        },
+      });
+
+      expect(screen.getByTestId('estimated-disk-size')).to.exist;
+      expect(screen.getByText('Estimated Disk Size')).to.exist;
+      // Default 1000 docs * 500 bytes = 500,000 bytes = 500.0 kB (SI units)
+      expect(screen.getByText(/500.*kB/)).to.exist;
+    });
+
+    it('disables Generate Script button when document count is invalid', async () => {
+      await renderModal({
+        currentStep: MockDataGeneratorSteps.PREVIEW_AND_DOC_COUNT,
+        fakerSchemaGeneration: createCompletedFakerSchema({
+          name: {
+            fakerMethod: 'person.firstName',
+            fakerArgs: [],
+            probability: 1.0,
+            mongoType: 'String',
+          },
+        }),
+        documentCount: '0', // Invalid: below minimum
+      });
+
+      expect(
+        screen
+          .getByRole('button', { name: 'Generate Script' })
+          .getAttribute('aria-disabled')
+      ).to.equal('true');
+    });
+
+    it('enables Generate Script button when document count is valid', async () => {
+      await renderModal({
+        currentStep: MockDataGeneratorSteps.PREVIEW_AND_DOC_COUNT,
+        fakerSchemaGeneration: createCompletedFakerSchema({
+          name: {
+            fakerMethod: 'person.firstName',
+            fakerArgs: [],
+            probability: 1.0,
+            mongoType: 'String',
+          },
+        }),
+        documentCount: '1000', // Valid
+      });
+
+      expect(
+        screen
+          .getByRole('button', { name: 'Generate Script' })
+          .getAttribute('aria-disabled')
+      ).to.not.equal('true');
     });
   });
 

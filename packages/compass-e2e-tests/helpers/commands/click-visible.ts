@@ -1,5 +1,6 @@
 import type { CompassBrowser } from '../compass-browser';
 import type { ChainablePromiseElement } from 'webdriverio';
+import { resolveElement } from '../utils';
 
 interface ClickOptions {
   timeout?: number;
@@ -14,11 +15,7 @@ export async function clickVisible(
 ): Promise<void> {
   const waitOptions = { timeout: options?.timeout };
 
-  function getElement() {
-    return typeof selector === 'string' ? browser.$(selector) : selector;
-  }
-
-  const displayElement = getElement();
+  const displayElement = resolveElement(browser, selector);
 
   await displayElement.waitForDisplayed(waitOptions);
 
@@ -26,7 +23,7 @@ export async function clickVisible(
   await browser.waitForAnimations(selector, waitOptions);
 
   if (options?.scroll) {
-    const scrollElement = getElement();
+    const scrollElement = resolveElement(browser, selector);
     await scrollElement.scrollIntoView();
     await browser.pause(1000);
   }
@@ -34,6 +31,6 @@ export async function clickVisible(
   if (options?.screenshot) {
     await browser.screenshot(options.screenshot);
   }
-  const clickElement = getElement();
+  const clickElement = resolveElement(browser, selector);
   await clickElement.click();
 }
