@@ -344,7 +344,7 @@ export async function mochaGlobalSetup(this: Mocha.Runner) {
 
     debug('Getting mongodb server info');
     await updateMongoDBServerInfo();
-    if (serverSatisfies('< 8.0', true)) {
+    if (serverSatisfies('< 8.2')) {
       for (const checker of serverLogsCheckers) {
         checker.allowWarning((l: LogEntry) => {
           // "Aggregate command executor error" with CommandNotSupported
