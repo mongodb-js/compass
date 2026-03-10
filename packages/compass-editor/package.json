@@ -74,9 +74,12 @@
     "@lezer/highlight": "^1.2.1",
     "@mongodb-js/compass-components": "^1.64.0",
     "@mongodb-js/mongodb-constants": "^0.20.1",
+    "json-schema": "^0.4.0",
     "mongodb-query-parser": "^4.7.6",
     "polished": "^4.2.2",
     "prettier": "^2.7.1",
-    "react": "^17.0.2"
+    "react": "^17.0.2",
+    "vscode-json-languageservice": "^5.7.2",
+    "vscode-languageserver-textdocument": "^1.0.12"
   }
 }

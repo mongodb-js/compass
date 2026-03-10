@@ -47,9 +47,13 @@ import type { EditorRef } from '@mongodb-js/compass-editor';
 import type { Document } from 'mongodb';
 import { parseShellBSON } from '../../utils/parse-shell-bson';
 import type { SearchIndex } from 'mongodb-data-service';
+import searchIndexSchema from '@mongodb-js/search-index-schema/output/search/index_jsonEditor.json';
+import vectorSearchIndexSchema from '@mongodb-js/search-index-schema/output/vectorSearch/index_jsonEditor.json';
+import type { JSONSchema7 } from 'json-schema';
 
 const scrollContainerStyles = css({
   overflowX: 'auto',
+  flexShrink: 0,
 });
 
 const headerContainerStyles = css({
@@ -88,8 +92,17 @@ const EditSearchIndexDrawerView: React.FunctionComponent<
   const [indexDefinition, setIndexDefinition] = useState(
     JSON.stringify(searchIndex.latestDefinition, null, 2)
   );
+  const [hasSchemaErrors, setHasSchemaErrors] = useState(false);
+
+  const onValidationChange = useCallback((hasErrors: boolean) => {
+    setHasSchemaErrors(hasErrors);
+  }, []);
 
   const isSaveEnabled = useMemo(() => {
+    if (hasSchemaErrors) {
+      return false;
+    }
+
     try {
       const currentParsed = parseShellBSON(indexDefinition);
       const initialParsed = searchIndex.latestDefinition;
@@ -101,7 +114,7 @@ const EditSearchIndexDrawerView: React.FunctionComponent<
       // If current definition is invalid, don't enable save
       return false;
     }
-  }, [indexDefinition, searchIndex.latestDefinition, isBusy]);
+  }, [indexDefinition, searchIndex.latestDefinition, isBusy, hasSchemaErrors]);
 
   // Reset state on unmount
   useEffect(() => {
@@ -183,8 +196,14 @@ const EditSearchIndexDrawerView: React.FunctionComponent<
             data-testid="edit-search-index-drawer-view-editor"
             text={indexDefinition}
             onChangeText={onChangeText}
+            onValidationChange={onValidationChange}
             minLines={16}
             showLineNumbers={true}
+            jsonSchema={
+              (searchIndex.type === 'vectorSearch'
+                ? vectorSearchIndexSchema
+                : searchIndexSchema) as JSONSchema7
+            }
           />
         </div>
         {error && <ErrorSummary errors={error} />}

@@ -48,6 +48,9 @@ import {
   ATLAS_VECTOR_SEARCH_TEMPLATE,
 } from '@mongodb-js/mongodb-constants';
 import type { SearchIndex } from 'mongodb-data-service';
+import searchIndexSchema from '@mongodb-js/search-index-schema/output/search/index_jsonEditor.json';
+import vectorSearchIndexSchema from '@mongodb-js/search-index-schema/output/vectorSearch/index_jsonEditor.json';
+import type { JSONSchema7 } from 'json-schema';
 
 export const getNextAvailableIndexName = (
   indexes: SearchIndex[],
@@ -110,8 +113,17 @@ const CreateSearchIndexDrawerView: React.FunctionComponent<
       currentIndexType === 'vectorSearch' ? 'vector_index' : 'default'
     )
   );
+  const [hasSchemaErrors, setHasSchemaErrors] = useState(false);
+
+  const onValidationChange = useCallback((hasErrors: boolean) => {
+    setHasSchemaErrors(hasErrors);
+  }, []);
 
   const isCreateEnabled = useMemo(() => {
+    if (hasSchemaErrors) {
+      return false;
+    }
+
     try {
       parseShellBSON(indexDefinition);
       return !isBusy;
@@ -119,7 +131,7 @@ const CreateSearchIndexDrawerView: React.FunctionComponent<
       // If current definition is invalid, don't enable create
       return false;
     }
-  }, [indexDefinition, isBusy]);
+  }, [indexDefinition, isBusy, hasSchemaErrors]);
 
   // Reset state on unmount
   useEffect(() => {
@@ -191,8 +203,14 @@ const CreateSearchIndexDrawerView: React.FunctionComponent<
             data-testid="create-search-index-drawer-view-editor"
             text={indexDefinition}
             onChangeText={onChangeText}
+            onValidationChange={onValidationChange}
             minLines={16}
             showLineNumbers={true}
+            jsonSchema={
+              (currentIndexType === 'vectorSearch'
+                ? vectorSearchIndexSchema
+                : searchIndexSchema) as JSONSchema7
+            }
           />
         </div>
         {error && <ErrorSummary errors={error} />}

@@ -38,7 +38,11 @@ import {
   indentWithTab,
 } from '@codemirror/commands';
 import type { Diagnostic } from '@codemirror/lint';
-import { lintGutter, setDiagnosticsEffect } from '@codemirror/lint';
+import {
+  lintGutter,
+  setDiagnosticsEffect,
+  diagnosticCount,
+} from '@codemirror/lint';
 import type { CompletionSource } from '@codemirror/autocomplete';
 import {
   acceptCompletion,
@@ -75,6 +79,8 @@ import { prettify as _prettify } from './prettify';
 import type { Action } from './action-button';
 import { ActionsContainer } from './actions-container';
 import type { EditorRef } from './types';
+import type { JSONSchema7 } from 'json-schema';
+import { createJsonSchemaServiceExtension } from './json-schema-languageservice';
 
 const editorStyle = css({
   fontSize: 13,
@@ -556,6 +562,7 @@ type EditorProps = {
   onFocus?: (event: React.FocusEvent<HTMLDivElement>) => void;
   onBlur?: (editor: React.FocusEvent<HTMLDivElement>) => void;
   onPaste?: (editor: React.ClipboardEvent<HTMLDivElement>) => void;
+  onValidationChange?: (hasErrors: boolean) => void;
   darkMode?: boolean;
   disabled?: boolean;
   showLineNumbers?: boolean;
@@ -574,6 +581,7 @@ type EditorProps = {
   commands?: readonly KeyBinding[];
   initialJSONFoldAll?: boolean;
   autoFocus?: boolean;
+  jsonSchema?: JSONSchema7;
 } & (
   | { text: string; initialText?: never }
   | { text?: never; initialText: string }
@@ -701,11 +709,43 @@ function useCodemirrorExtensionCompartment<T>(
   return initialExtensionRef.current;
 }
 
+/**
+ * Creates extensions for JSON schema-based autocompletion, validation, and hover tooltips.
+ * Uses vscode-json-languageservice for full JSON Schema support.
+ */
+function useJsonSchemaLanguageServiceExtensions(
+  jsonSchema: JSONSchema7 | undefined,
+  editorViewRef: React.RefObject<EditorView | undefined>
+): Extension {
+  const [extensionCreator, setExtensionCreator] = useState<
+    ((schema: JSONSchema7) => Extension) | null
+  >(null);
+
+  useEffect(() => {
+    // Load the extension creator asynchronously
+    void createJsonSchemaServiceExtension().then((creator) => {
+      setExtensionCreator(() => creator);
+    });
+  }, []);
+
+  return useCodemirrorExtensionCompartment(
+    () => {
+      if (!jsonSchema || !extensionCreator) {
+        return [];
+      }
+      return [extensionCreator(jsonSchema)];
+    },
+    [jsonSchema, extensionCreator],
+    editorViewRef
+  );
+}
+
 const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
   {
     initialText: _initialText,
     text,
     onChangeText,
+    onValidationChange,
     language = 'json',
     showLineNumbers = true,
     showFoldGutter = true,
@@ -735,6 +775,7 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
     lineHeight = 16,
     placeholder,
     commands,
+    jsonSchema,
     initialJSONFoldAll: _initialJSONFoldAll = true,
     autoFocus = false,
     ...props
@@ -743,6 +784,7 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
 ) {
   const darkMode = useDarkMode(_darkMode);
   const onChangeTextRef = useRef(onChangeText);
+  const onValidationChangeRef = useRef(onValidationChange);
   const onLoadRef = useRef(onLoad);
   const onFocusRef = useRef(onFocus);
   const onBlurRef = useRef(onBlur);
@@ -761,6 +803,7 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
 
   // Always keep the latest reference of the callbacks
   onChangeTextRef.current = onChangeText;
+  onValidationChangeRef.current = onValidationChange;
   onLoadRef.current = onLoad;
   onFocusRef.current = onFocus;
   onBlurRef.current = onBlur;
@@ -958,6 +1001,23 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
     editorViewRef
   );
 
+  // Extensions required to enable autocompletion.
+  // If jsonSchema is specified, we use vscode-json-languageservice (which includes autocompletion, validation, hover).
+  // Otherwise, we use the custom completer-based autocompletion with language extension.
+  // These are mutually exclusive and managed by compartments.
+  const jsonSchemaExtension = useJsonSchemaLanguageServiceExtensions(
+    jsonSchema,
+    editorViewRef
+  );
+
+  const customAutocompletionExtension = useCodemirrorExtensionCompartment(
+    () => {
+      return jsonSchema ? [] : [autocompletionExtension, languageExtension];
+    },
+    [jsonSchema, autocompletionExtension, languageExtension],
+    editorViewRef
+  );
+
   const updateEditorContentHeight = useCallback(() => {
     editorViewRef.current?.requestMeasure({
       read(view) {
@@ -1000,8 +1060,6 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
         indentOnInput(),
         bracketMatching(),
         closeBrackets(),
-        autocompletionExtension,
-        languageExtension,
         syntaxHighlighting(highlightStyles['light']),
         syntaxHighlighting(highlightStyles['dark']),
         activeLineExtension,
@@ -1046,6 +1104,18 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
           if (update.docChanged) {
             onChangeTextRef.current?.(editorText, update);
           }
+
+          // Check for diagnostic changes and notify via callback
+          if (onValidationChangeRef.current) {
+            // Only fire when diagnostics actually change (linter dispatches setDiagnosticsEffect)
+            const hasDiagnosticChange = update.transactions.some((tr) =>
+              tr.effects.some((effect) => effect.is(setDiagnosticsEffect))
+            );
+            if (hasDiagnosticChange) {
+              const hasErrors = diagnosticCount(update.state) > 0;
+              onValidationChangeRef.current(hasErrors);
+            }
+          }
         }),
         /**
          * EditorView.domEventHandlers use real DOM events. However,
@@ -1070,6 +1140,8 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
             );
           },
         }),
+        jsonSchemaExtension,
+        customAutocompletionExtension,
       ],
       parent: domNode,
     }));
@@ -1117,16 +1189,16 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
     // initial render and so will not re-trigger this effect
     annotationsGutterExtension,
     foldGutterExtension,
-    languageExtension,
     lineNumbersExtension,
     readOnlyExtension,
     themeConfigExtension,
-    autocompletionExtension,
     lineHeightExtension,
     activeLineExtension,
     placeholderExtension,
     commandsExtension,
     updateEditorContentHeight,
+    jsonSchemaExtension,
+    customAutocompletionExtension,
   ]);
 
   useEffect(() => {

@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useRef } from 'react';
 import { showConfirmation } from '@mongodb-js/compass-components';
-import { parseShellBSON } from '../../utils/parse-shell-bson';
 
 /**
  * Hook that calls `onSuccess` when an async operation completes successfully.
@@ -55,13 +54,7 @@ export function useIndexDefinitionChange(
   return useCallback(
     (newDefinition: string) => {
       onIndexDefinitionEdit(true);
-
-      try {
-        parseShellBSON(newDefinition);
-        setIndexDefinition(newDefinition);
-      } catch {
-        // Parsing error handled elsewhere if needed
-      }
+      setIndexDefinition(newDefinition);
     },
     [setIndexDefinition, onIndexDefinitionEdit]
   );
