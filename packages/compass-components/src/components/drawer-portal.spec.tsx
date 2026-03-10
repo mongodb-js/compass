@@ -343,7 +343,7 @@ describe('DrawerSection', function () {
 
   describe('beforeSectionHide', function () {
     it('prevents drawer from closing when beforeSectionHide returns false', async function () {
-      const beforeSectionHideSpy = sinon.stub().returns(false);
+      const beforeSectionHideSpy = sinon.stub().resolves(false);
 
       render(
         <DrawerContentProvider>
@@ -379,7 +379,7 @@ describe('DrawerSection', function () {
     });
 
     it('allows drawer to close when beforeSectionHide returns true', async function () {
-      const beforeSectionHideSpy = sinon.stub().returns(true);
+      const beforeSectionHideSpy = sinon.stub().resolves(true);
 
       render(
         <DrawerContentProvider>
@@ -413,7 +413,7 @@ describe('DrawerSection', function () {
     });
 
     it('handles async beforeSectionHide that resolves to false', async function () {
-      const beforeSectionHideSpy = sinon.stub().returns(Promise.resolve(false));
+      const beforeSectionHideSpy = sinon.stub().resolves(false);
 
       render(
         <DrawerContentProvider>
@@ -449,7 +449,7 @@ describe('DrawerSection', function () {
     });
 
     it('handles async beforeSectionHide that resolves to true', async function () {
-      const beforeSectionHideSpy = sinon.stub().returns(Promise.resolve(true));
+      const beforeSectionHideSpy = sinon.stub().resolves(true);
 
       render(
         <DrawerContentProvider>
@@ -482,8 +482,8 @@ describe('DrawerSection', function () {
       });
     });
 
-    it('prevents switching to another section when beforeSectionHide returns false', async function () {
-      const beforeSectionHideSpy = sinon.stub().returns(false);
+    it('prevents switching to another section when beforeSectionHide resolves to false', async function () {
+      const beforeSectionHideSpy = sinon.stub().resolves(false);
 
       render(
         <DrawerContentProvider>
@@ -527,8 +527,8 @@ describe('DrawerSection', function () {
       expect(screen.queryByText('This is section 2')).not.to.exist;
     });
 
-    it('allows switching to another section when beforeSectionHide returns true', async function () {
-      const beforeSectionHideSpy = sinon.stub().returns(true);
+    it('allows switching to another section when beforeSectionHide resolves to true', async function () {
+      const beforeSectionHideSpy = sinon.stub().resolves(true);
 
       render(
         <DrawerContentProvider>
@@ -571,8 +571,8 @@ describe('DrawerSection', function () {
       expect(screen.queryByText('This is section 1')).not.to.exist;
     });
 
-    it('prevents programmatic closeDrawer when beforeSectionHide returns false', async function () {
-      const beforeSectionHideSpy = sinon.stub().returns(false);
+    it('prevents programmatic closeDrawer when beforeSectionHide resolves to false', async function () {
+      const beforeSectionHideSpy = sinon.stub().resolves(false);
 
       const ControlElement = () => {
         const { closeDrawer } = useDrawerActions();
@@ -617,8 +617,8 @@ describe('DrawerSection', function () {
       expect(screen.getByText('This is a test section')).to.be.visible;
     });
 
-    it('allows programmatic closeDrawer when beforeSectionHide returns true', async function () {
-      const beforeSectionHideSpy = sinon.stub().returns(true);
+    it('allows programmatic closeDrawer when beforeSectionHide resolves to true', async function () {
+      const beforeSectionHideSpy = sinon.stub().resolves(true);
 
       const ControlElement = () => {
         const { closeDrawer } = useDrawerActions();
@@ -661,8 +661,8 @@ describe('DrawerSection', function () {
       });
     });
 
-    it('prevents programmatic openDrawer to different section when beforeSectionHide returns false', async function () {
-      const beforeSectionHideSpy = sinon.stub().returns(false);
+    it('prevents programmatic openDrawer to different section when beforeSectionHide resolves to false', async function () {
+      const beforeSectionHideSpy = sinon.stub().resolves(false);
 
       const ControlElement = () => {
         const { openDrawer } = useDrawerActions();
@@ -719,8 +719,8 @@ describe('DrawerSection', function () {
       expect(screen.queryByText('This is section 2')).not.to.exist;
     });
 
-    it('allows programmatic openDrawer to different section when beforeSectionHide returns true', async function () {
-      const beforeSectionHideSpy = sinon.stub().returns(true);
+    it('allows programmatic openDrawer to different section when beforeSectionHide resolves to true', async function () {
+      const beforeSectionHideSpy = sinon.stub().resolves(true);
 
       const ControlElement = () => {
         const { openDrawer } = useDrawerActions();

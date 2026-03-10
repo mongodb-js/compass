@@ -46,7 +46,7 @@ type DrawerSectionProps = Omit<SectionData, 'content' | 'onClick'> & {
    * If the callback returns `false` or a Promise that resolves to `false`,
    * the drawer will not be hidden.
    */
-  beforeSectionHide?: () => Promise<boolean> | boolean;
+  beforeSectionHide?: () => Promise<boolean>;
 };
 
 type DrawerOpenStateContextValue = boolean;
@@ -95,9 +95,9 @@ const DrawerActionsContext = React.createContext<DrawerActionsContextValue>({
 
 type BeforeSectionHideContextValue = {
   callbacks: React.MutableRefObject<
-    Record<string, (() => Promise<boolean> | boolean) | undefined>
+    Record<string, (() => Promise<boolean>) | undefined>
   >;
-  register: (id: string, callback: () => Promise<boolean> | boolean) => void;
+  register: (id: string, callback: () => Promise<boolean>) => void;
   unregister: (id: string) => void;
   /**
    * Check if the current drawer section allows hiding. Returns true if hiding
@@ -186,7 +186,7 @@ export const DrawerContentProvider: React.FunctionComponent<{
   });
 
   const beforeSectionHideCallbacksRef = useRef<
-    Record<string, (() => Promise<boolean> | boolean) | undefined>
+    Record<string, (() => Promise<boolean>) | undefined>
   >({});
 
   const beforeSectionHideContextValue =
@@ -207,11 +207,7 @@ export const DrawerContentProvider: React.FunctionComponent<{
           if (!callback) {
             return true; // No callback registered, allow
           }
-          const result = callback();
-          if (result instanceof Promise) {
-            return result;
-          }
-          return result;
+          return callback();
         },
       };
     }, []);
@@ -422,6 +418,17 @@ export const DrawerAnchor: React.FunctionComponent = ({ children }) => {
           return;
         }
 
+        // Ensure the button is within the drawer toolbar/header area (not in content)
+        // LeafyGreen drawer toolbar has data-lgid ending with "-toolbar"
+        // The close button may be in a different area, so also check for close button lgid
+        const isInToolbarOrHeader =
+          button.closest('[data-lgid$="-toolbar"]') ||
+          button.matches('[data-lgid$="-close_button"]') ||
+          button.closest('[data-lgid$="-close_button"]');
+        if (!isInToolbarOrHeader) {
+          return;
+        }
+
         // Determine what action this button triggers
         const label = button.getAttribute('aria-label');
         const clickedToolbarItem = toolbarData.find(
@@ -430,7 +437,7 @@ export const DrawerAnchor: React.FunctionComponent = ({ children }) => {
         const isCloseButton = label === 'Close drawer';
 
         if (!clickedToolbarItem && !isCloseButton) {
-          return; // Not a drawer control button
+          return;
         }
 
         // Check if the currently open drawer has a beforeSectionHide callback
