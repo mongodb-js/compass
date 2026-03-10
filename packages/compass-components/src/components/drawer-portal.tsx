@@ -111,7 +111,7 @@ const BeforeSectionHideContext =
     callbacks: { current: {} },
     register: () => {},
     unregister: () => {},
-    checkBeforeHide: async () => true,
+    checkBeforeHide: () => Promise.resolve(true),
   });
 
 /**
@@ -417,9 +417,7 @@ export const DrawerAnchor: React.FunctionComponent = ({ children }) => {
       const handleClick = (event: Event) => {
         // Find the clicked button
         const target = event.target as HTMLElement;
-        const button = target.closest(
-          'button[aria-label]'
-        ) as HTMLButtonElement | null;
+        const button = target.closest<HTMLButtonElement>('button[aria-label]');
         if (!button) {
           return;
         }
@@ -484,7 +482,13 @@ export const DrawerAnchor: React.FunctionComponent = ({ children }) => {
         drawerEl.removeEventListener('click', handleClick, true);
       };
     },
-    [toolbarData, currentDrawerTab, beforeSectionHideCallbacks, checkBeforeHide]
+    [
+      toolbarData,
+      currentDrawerTab,
+      beforeSectionHideCallbacks,
+      checkBeforeHide,
+      actions,
+    ]
   );
 
   useLayoutEffect(
@@ -646,8 +650,9 @@ export const DrawerSection: React.FunctionComponent<DrawerSectionProps> = ({
     };
   }, [props.id]);
   useEffect(() => {
+    const actionsRef = actions.current;
     return () => {
-      actions.current.removeToolbarData(props.id);
+      actionsRef.removeToolbarData(props.id);
     };
   }, [actions, props.id]);
 
@@ -676,27 +681,31 @@ export function useDrawerActions() {
   const { checkBeforeHide } = useContext(BeforeSectionHideContext);
 
   const currentDrawerTabRef = useRef(currentDrawerTab);
-  currentDrawerTabRef.current = currentDrawerTab;
+  useLayoutEffect(() => {
+    currentDrawerTabRef.current = currentDrawerTab;
+  }, [currentDrawerTab]);
 
   const stableActions = useInitialValue({
     openDrawer: (id: string) => {
-      rafraf(async () => {
+      rafraf(() => {
         // If switching to a different drawer, check if current one allows hiding
         if (currentDrawerTabRef.current && currentDrawerTabRef.current !== id) {
-          const canHide = await checkBeforeHide(currentDrawerTabRef.current);
-          if (!canHide) {
-            return;
-          }
+          void checkBeforeHide(currentDrawerTabRef.current).then((canHide) => {
+            if (canHide) {
+              actions.current.openDrawer(id);
+            }
+          });
+        } else {
+          actions.current.openDrawer(id);
         }
-        actions.current.openDrawer(id);
       });
     },
-    closeDrawer: async () => {
-      const canHide = await checkBeforeHide(currentDrawerTabRef.current);
-      if (!canHide) {
-        return;
-      }
-      actions.current.closeDrawer();
+    closeDrawer: () => {
+      void checkBeforeHide(currentDrawerTabRef.current).then((canHide) => {
+        if (canHide) {
+          actions.current.closeDrawer();
+        }
+      });
     },
   });
   return stableActions;
