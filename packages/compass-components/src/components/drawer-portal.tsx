@@ -99,6 +99,11 @@ type BeforeSectionHideContextValue = {
   >;
   register: (id: string, callback: () => Promise<boolean> | boolean) => void;
   unregister: (id: string) => void;
+  /**
+   * Check if the current drawer section allows hiding. Returns true if hiding
+   * is allowed, false if it should be prevented.
+   */
+  checkBeforeHide: (currentTabId: string | null) => Promise<boolean>;
 };
 
 const BeforeSectionHideContext =
@@ -106,6 +111,7 @@ const BeforeSectionHideContext =
     callbacks: { current: {} },
     register: () => {},
     unregister: () => {},
+    checkBeforeHide: async () => true,
   });
 
 /**
@@ -192,6 +198,20 @@ export const DrawerContentProvider: React.FunctionComponent<{
         },
         unregister: (id) => {
           delete beforeSectionHideCallbacksRef.current[id];
+        },
+        checkBeforeHide: async (currentTabId) => {
+          if (!currentTabId) {
+            return true; // No drawer open, allow
+          }
+          const callback = beforeSectionHideCallbacksRef.current[currentTabId];
+          if (!callback) {
+            return true; // No callback registered, allow
+          }
+          const result = callback();
+          if (result instanceof Promise) {
+            return result;
+          }
+          return result;
         },
       };
     }, []);
@@ -338,7 +358,7 @@ export const DrawerAnchor: React.FunctionComponent = ({ children }) => {
   const actions = useContext(DrawerActionsContext);
   const drawerSectionItems = useContext(DrawerStateContext);
   const currentDrawerTab = useContext(DrawerCurrentTabStateContext);
-  const { callbacks: beforeSectionHideCallbacks } = useContext(
+  const { callbacks: beforeSectionHideCallbacks, checkBeforeHide } = useContext(
     BeforeSectionHideContext
   );
   const prevDrawerSectionItems = useRef<DrawerSectionProps[]>([]);
@@ -386,10 +406,7 @@ export const DrawerAnchor: React.FunctionComponent = ({ children }) => {
     Record<string, HTMLButtonElement | undefined>
   >({});
 
-  // Track if we're currently showing a confirmation dialog to prevent re-entrance
-  const isCheckingBeforeSectionHideRef = useRef(false);
-
-  // Intercept clicks on toolbar buttons and close button to check beforeSectionHide
+  // Intercept clicks on toolbar buttons and close button to route through guarded functions
   useLayoutEffect(
     function () {
       const drawerEl = document.querySelector('.compass-drawer-anchor');
@@ -398,11 +415,6 @@ export const DrawerAnchor: React.FunctionComponent = ({ children }) => {
       }
 
       const handleClick = (event: Event) => {
-        // Don't intercept if we're already handling a beforeSectionHide check
-        if (isCheckingBeforeSectionHideRef.current) {
-          return;
-        }
-
         // Find the clicked button
         const target = event.target as HTMLElement;
         const button = target.closest(
@@ -412,51 +424,56 @@ export const DrawerAnchor: React.FunctionComponent = ({ children }) => {
           return;
         }
 
-        // Find if the clicked button is a toolbar button or close button
+        // Determine what action this button triggers
         const label = button.getAttribute('aria-label');
-        const isToolbarButton = toolbarData.find(
+        const clickedToolbarItem = toolbarData.find(
           (item) => item.label === label
         );
         const isCloseButton = label === 'Close drawer';
-        if (!isToolbarButton && !isCloseButton) {
-          return;
+
+        if (!clickedToolbarItem && !isCloseButton) {
+          return; // Not a drawer control button
         }
 
         // Check if the currently open drawer has a beforeSectionHide callback
         if (!currentDrawerTab) {
           return;
         }
+
         const beforeHideCallback =
           beforeSectionHideCallbacks.current[currentDrawerTab];
         if (!beforeHideCallback) {
           return;
         }
 
-        // Prevent the default LeafyGreen behavior while we check
+        // Prevent LeafyGreen from handling - we'll call our guarded functions instead
         event.stopPropagation();
         event.preventDefault();
 
-        // Set is checking flag
-        isCheckingBeforeSectionHideRef.current = true;
-
-        // Call the beforeSectionHide callback
-        const result = beforeHideCallback();
-
-        const handleResult = (canHide: boolean) => {
-          if (canHide) {
-            // Re-trigger the click now that we've confirmed it's okay
-            button.click();
-          }
-          // Reset flag
-          isCheckingBeforeSectionHideRef.current = false;
-        };
-
-        if (result instanceof Promise) {
-          result.then(handleResult).catch(() => {
-            isCheckingBeforeSectionHideRef.current = false;
+        // Determine which guarded action to call
+        if (isCloseButton) {
+          // Close drawer
+          void checkBeforeHide(currentDrawerTab).then((canHide) => {
+            if (canHide) {
+              actions.current.closeDrawer();
+            }
           });
-        } else {
-          handleResult(result);
+        } else if (clickedToolbarItem) {
+          if (clickedToolbarItem.id === currentDrawerTab) {
+            // Clicking the same tab closes the drawer
+            void checkBeforeHide(currentDrawerTab).then((canHide) => {
+              if (canHide) {
+                actions.current.closeDrawer();
+              }
+            });
+          } else {
+            // Switching to a different tab
+            void checkBeforeHide(currentDrawerTab).then((canHide) => {
+              if (canHide) {
+                actions.current.openDrawer(clickedToolbarItem.id);
+              }
+            });
+          }
         }
       };
 
@@ -467,7 +484,7 @@ export const DrawerAnchor: React.FunctionComponent = ({ children }) => {
         drawerEl.removeEventListener('click', handleClick, true);
       };
     },
-    [toolbarData, currentDrawerTab, beforeSectionHideCallbacks]
+    [toolbarData, currentDrawerTab, beforeSectionHideCallbacks, checkBeforeHide]
   );
 
   useLayoutEffect(
@@ -655,13 +672,30 @@ export { DrawerDisplayMode };
 
 export function useDrawerActions() {
   const actions = useContext(DrawerActionsContext);
+  const currentDrawerTab = useContext(DrawerCurrentTabStateContext);
+  const { checkBeforeHide } = useContext(BeforeSectionHideContext);
+
+  const currentDrawerTabRef = useRef(currentDrawerTab);
+  currentDrawerTabRef.current = currentDrawerTab;
+
   const stableActions = useInitialValue({
     openDrawer: (id: string) => {
-      rafraf(() => {
+      rafraf(async () => {
+        // If switching to a different drawer, check if current one allows hiding
+        if (currentDrawerTabRef.current && currentDrawerTabRef.current !== id) {
+          const canHide = await checkBeforeHide(currentDrawerTabRef.current);
+          if (!canHide) {
+            return;
+          }
+        }
         actions.current.openDrawer(id);
       });
     },
-    closeDrawer: () => {
+    closeDrawer: async () => {
+      const canHide = await checkBeforeHide(currentDrawerTabRef.current);
+      if (!canHide) {
+        return;
+      }
       actions.current.closeDrawer();
     },
   });
