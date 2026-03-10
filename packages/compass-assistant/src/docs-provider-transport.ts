@@ -126,7 +126,7 @@ export class DocsProviderTransport implements ChatTransport<AssistantMessage> {
           // If the last message has custom instructions, use them instead of the default
           instructions: lastMessage.metadata?.instructions ?? this.instructions,
           metadata: {
-            userId: lastMessage.metadata?.userId,
+            analytics_id: lastMessage.metadata?.analyticsId,
             ...(!disableStorage ? { sensitive_storage: 'true' } : {}),
           },
         },

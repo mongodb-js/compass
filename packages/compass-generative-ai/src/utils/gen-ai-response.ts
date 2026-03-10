@@ -8,7 +8,7 @@ export async function getAiQueryResponse(
   message: AiQueryPrompt,
   abortSignal: AbortSignal
 ): Promise<string> {
-  const { instructions, requestId, store, userId, ...restOfMetadata } =
+  const { instructions, requestId, store, analyticsId, ...restOfMetadata } =
     message.metadata;
   const response = streamText({
     model,
@@ -17,7 +17,7 @@ export async function getAiQueryResponse(
       openai: {
         instructions,
         metadata: {
-          userId,
+          analytics_id: analyticsId,
           ...('sensitiveStorage' in restOfMetadata
             ? { sensitive_storage: restOfMetadata.sensitiveStorage }
             : {}),
@@ -27,6 +27,7 @@ export async function getAiQueryResponse(
     },
     headers: {
       'X-Client-Request-Id': requestId,
+      'X-Assistant-Entrypoint': 'natural-language-to-mql',
     },
     abortSignal,
   }).toUIMessageStream();

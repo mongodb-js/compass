@@ -112,7 +112,7 @@ export type AssistantMessage = UIMessage & {
     /** Whether to enable or disable storage of this message in chatapi. */
     disableStorage?: boolean;
     /** SHA-256 hashed User ID. */
-    userId?: string;
+    analyticsId?: string;
     /** The request ID associated with this message. */
     requestId?: string;
   };
@@ -383,7 +383,7 @@ export const AssistantProvider: React.FunctionComponent<
               ),
               connectionInfo,
               requestId,
-              userId: await getHashedActiveUserId(preferences, logger),
+              analyticsId: await getHashedActiveUserId(preferences, logger),
             },
           }
         : undefined;

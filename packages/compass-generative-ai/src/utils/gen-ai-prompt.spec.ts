@@ -13,7 +13,7 @@ const OPTIONS: PromptContextOptions = {
   userInput: 'Find all users older than 30',
   databaseName: 'airbnb',
   collectionName: 'listings',
-  userId: 'test-user-id',
+  analyticsId: 'test-user-id',
   enableStorage: false,
   requestId: 'test-request-id',
   schema: {
@@ -64,7 +64,7 @@ describe('GenAI Prompts', function () {
       'The current date is',
       'includes date instruction'
     );
-    expect(metadata.userId).to.equal(OPTIONS.userId);
+    expect(metadata.analyticsId).to.equal(OPTIONS.analyticsId);
     expect(metadata.store).to.equal(false);
     expect(metadata.requestId).to.equal(OPTIONS.requestId);
 
@@ -109,7 +109,7 @@ describe('GenAI Prompts', function () {
       'The current date is',
       'includes date instruction'
     );
-    expect(metadata.userId).to.equal(OPTIONS.userId);
+    expect(metadata.analyticsId).to.equal(OPTIONS.analyticsId);
     expect(metadata.store).to.equal(false);
     expect(metadata.requestId).to.equal(OPTIONS.requestId);
 

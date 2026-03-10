@@ -850,15 +850,15 @@ describe('AtlasAiService', function () {
           expect(requestHeaders['x-client-request-id']).to.equal(
             input.requestId
           );
-          expect(requestHeaders['entrypoint']).to.equal(
+          expect(requestHeaders['x-assistant-entrypoint']).to.equal(
             'natural-language-to-mql'
           );
           const requestBody = JSON.parse(args[1].body as string);
-          const { userId, ...restOfMetadata } = requestBody.metadata;
+          const { analytics_id, ...restOfMetadata } = requestBody.metadata;
           expect(restOfMetadata).to.deep.equal({
             sensitive_storage: 'true',
           });
-          expect(userId).to.be.a('string').that.is.not.empty;
+          expect(analytics_id).to.be.a('string').that.is.not.empty;
           expect(requestBody.store).to.be.true;
           expect(requestBody.instructions).to.be.a('string');
           expect(requestBody.input).to.be.an('array');

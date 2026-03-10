@@ -104,11 +104,13 @@ describe('Collection ai query (with mocked backend)', function () {
 
       const queryRequest = requests[0];
       expect(queryRequest.req.headers).to.have.property('x-client-request-id');
-      expect(queryRequest.req.headers).to.have.property('entrypoint');
+      expect(queryRequest.req.headers).to.have.property(
+        'x-assistant-entrypoint'
+      );
       expect(queryRequest.content.model).to.equal('mongodb-slim-latest');
       expect(queryRequest.content.instructions).to.be.a('string');
       expect(queryRequest.content.store).to.equal(true);
-      expect(queryRequest.content.metadata).to.have.property('userId');
+      expect(queryRequest.content.metadata).to.have.property('analytics_id');
       expect(queryRequest.content.metadata.sensitive_storage).to.have.equal(
         'true'
       );

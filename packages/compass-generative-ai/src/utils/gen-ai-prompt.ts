@@ -65,7 +65,7 @@ type BuildPromptOptions = {
 };
 
 type BuildMetadataOptions = {
-  userId: string;
+  analyticsId: string;
   enableStorage: boolean;
   requestId: string;
   type: 'find' | 'aggregate';
@@ -173,7 +173,7 @@ export type AiQueryPrompt = {
   prompt: string;
   metadata: {
     instructions: string;
-    userId: string;
+    analyticsId: string;
     requestId: string;
   } & (
     | {
@@ -188,7 +188,7 @@ export type AiQueryPrompt = {
 
 function buildMetadata({
   type,
-  userId,
+  analyticsId,
   requestId,
   enableStorage,
 }: BuildMetadataOptions): AiQueryPrompt['metadata'] {
@@ -197,7 +197,7 @@ function buildMetadata({
       type === 'find'
         ? buildInstructionsForFindQuery()
         : buildInstructionsForAggregateQuery(),
-    userId,
+    analyticsId,
     requestId,
     ...(enableStorage
       ? {
@@ -211,7 +211,7 @@ function buildMetadata({
 }
 
 export function buildFindQueryPrompt({
-  userId,
+  analyticsId,
   enableStorage,
   requestId,
   ...restOfTheOptions
@@ -225,7 +225,7 @@ export function buildFindQueryPrompt({
     prompt,
     metadata: buildMetadata({
       type,
-      userId,
+      analyticsId,
       requestId,
       enableStorage,
     }),
@@ -233,7 +233,7 @@ export function buildFindQueryPrompt({
 }
 
 export function buildAggregateQueryPrompt({
-  userId,
+  analyticsId,
   enableStorage,
   requestId,
   ...restOfTheOptions
@@ -245,6 +245,6 @@ export function buildAggregateQueryPrompt({
   });
   return {
     prompt,
-    metadata: buildMetadata({ type, userId, requestId, enableStorage }),
+    metadata: buildMetadata({ type, analyticsId, requestId, enableStorage }),
   };
 }
