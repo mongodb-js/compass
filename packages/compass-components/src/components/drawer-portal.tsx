@@ -93,12 +93,20 @@ const DrawerActionsContext = React.createContext<DrawerActionsContextValue>({
   },
 });
 
-type BeforeSectionHideCallbacks = {
-  current: Record<string, (() => Promise<boolean> | boolean) | undefined>;
+type BeforeSectionHideContextValue = {
+  callbacks: React.MutableRefObject<
+    Record<string, (() => Promise<boolean> | boolean) | undefined>
+  >;
+  register: (id: string, callback: () => Promise<boolean> | boolean) => void;
+  unregister: (id: string) => void;
 };
 
 const BeforeSectionHideContext =
-  React.createContext<BeforeSectionHideCallbacks>({ current: {} });
+  React.createContext<BeforeSectionHideContextValue>({
+    callbacks: { current: {} },
+    register: () => {},
+    unregister: () => {},
+  });
 
 /**
  * Drawer component that keeps track of drawer rendering state and provides
@@ -171,9 +179,22 @@ export const DrawerContentProvider: React.FunctionComponent<{
     },
   });
 
-  const beforeSectionHideCallbacks = useRef<
-    BeforeSectionHideCallbacks['current']
+  const beforeSectionHideCallbacksRef = useRef<
+    Record<string, (() => Promise<boolean> | boolean) | undefined>
   >({});
+
+  const beforeSectionHideContextValue =
+    useMemo<BeforeSectionHideContextValue>(() => {
+      return {
+        callbacks: beforeSectionHideCallbacksRef,
+        register: (id, callback) => {
+          beforeSectionHideCallbacksRef.current[id] = callback;
+        },
+        unregister: (id) => {
+          delete beforeSectionHideCallbacksRef.current[id];
+        },
+      };
+    }, []);
 
   const prevDrawerCurrentTabRef = React.useRef<string | null>(null);
 
@@ -202,7 +223,7 @@ export const DrawerContentProvider: React.FunctionComponent<{
             <DrawerSetCurrentTabContext.Provider value={setDrawerCurrentTab}>
               <DrawerActionsContext.Provider value={drawerActions}>
                 <BeforeSectionHideContext.Provider
-                  value={beforeSectionHideCallbacks}
+                  value={beforeSectionHideContextValue}
                 >
                   {children}
                 </BeforeSectionHideContext.Provider>
@@ -317,7 +338,9 @@ export const DrawerAnchor: React.FunctionComponent = ({ children }) => {
   const actions = useContext(DrawerActionsContext);
   const drawerSectionItems = useContext(DrawerStateContext);
   const currentDrawerTab = useContext(DrawerCurrentTabStateContext);
-  const beforeSectionHideCallbacks = useContext(BeforeSectionHideContext);
+  const { callbacks: beforeSectionHideCallbacks } = useContext(
+    BeforeSectionHideContext
+  );
   const prevDrawerSectionItems = useRef<DrawerSectionProps[]>([]);
   useEffect(() => {
     const prevIds = new Set(
@@ -612,15 +635,15 @@ export const DrawerSection: React.FunctionComponent<DrawerSectionProps> = ({
   }, [actions, props.id]);
 
   // Register/unregister beforeSectionHide callback
-  const beforeSectionHideCallbacks = useContext(BeforeSectionHideContext);
+  const { register, unregister } = useContext(BeforeSectionHideContext);
   useEffect(() => {
     if (props.beforeSectionHide) {
-      beforeSectionHideCallbacks.current[props.id] = props.beforeSectionHide;
+      register(props.id, props.beforeSectionHide);
     }
     return () => {
-      delete beforeSectionHideCallbacks.current[props.id];
+      unregister(props.id);
     };
-  }, [beforeSectionHideCallbacks, props.id, props.beforeSectionHide]);
+  }, [register, unregister, props.id, props.beforeSectionHide]);
 
   if (portalNode) {
     return ReactDOM.createPortal(children, portalNode);
