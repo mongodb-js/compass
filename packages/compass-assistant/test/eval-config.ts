@@ -24,7 +24,6 @@ export const instructions = buildConversationInstructionsPrompt({
 
 export const judgeConfig: JudgeModelConfig = {
   modelId: 'gpt-4.1',
-  embeddingModel: 'text-embedding-3-small',
   client: new OpenAI({
     baseURL: BRAINTRUST_PROXY_ENDPOINT,
     apiKey: braintrustApiKey,
