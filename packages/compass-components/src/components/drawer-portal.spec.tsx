@@ -342,7 +342,7 @@ describe('DrawerSection', function () {
   });
 
   describe('beforeSectionHide', function () {
-    it('prevents drawer from closing when beforeSectionHide returns false', async function () {
+    it('prevents drawer from closing when beforeSectionHide resolves to false', async function () {
       const beforeSectionHideSpy = sinon.stub().resolves(false);
 
       render(
@@ -378,77 +378,7 @@ describe('DrawerSection', function () {
       expect(screen.getByText('This is a test section')).to.be.visible;
     });
 
-    it('allows drawer to close when beforeSectionHide returns true', async function () {
-      const beforeSectionHideSpy = sinon.stub().resolves(true);
-
-      render(
-        <DrawerContentProvider>
-          <DrawerAnchor>
-            <DrawerSection
-              id="test-section"
-              label="Test section"
-              title="Test section"
-              glyph="Trash"
-              autoOpen
-              beforeSectionHide={beforeSectionHideSpy}
-            >
-              This is a test section
-            </DrawerSection>
-          </DrawerAnchor>
-        </DrawerContentProvider>
-      );
-
-      await waitFor(() => {
-        expect(screen.getByText('This is a test section')).to.be.visible;
-      });
-
-      // Try to close the drawer
-      userEvent.click(screen.getByRole('button', { name: 'Close drawer' }));
-
-      // Callback should have been called and drawer should close
-      await waitFor(() => {
-        expect(beforeSectionHideSpy).to.have.been.calledOnce;
-        expect(screen.queryByText('This is a test section')).not.to.exist;
-      });
-    });
-
-    it('handles async beforeSectionHide that resolves to false', async function () {
-      const beforeSectionHideSpy = sinon.stub().resolves(false);
-
-      render(
-        <DrawerContentProvider>
-          <DrawerAnchor>
-            <DrawerSection
-              id="test-section"
-              label="Test section"
-              title="Test section"
-              glyph="Trash"
-              autoOpen
-              beforeSectionHide={beforeSectionHideSpy}
-            >
-              This is a test section
-            </DrawerSection>
-          </DrawerAnchor>
-        </DrawerContentProvider>
-      );
-
-      await waitFor(() => {
-        expect(screen.getByText('This is a test section')).to.be.visible;
-      });
-
-      // Try to close the drawer
-      userEvent.click(screen.getByRole('button', { name: 'Close drawer' }));
-
-      // Callback should have been called
-      await waitFor(() => {
-        expect(beforeSectionHideSpy).to.have.been.calledOnce;
-      });
-
-      // Drawer should still be open
-      expect(screen.getByText('This is a test section')).to.be.visible;
-    });
-
-    it('handles async beforeSectionHide that resolves to true', async function () {
+    it('allows drawer to close when beforeSectionHide resolves to true', async function () {
       const beforeSectionHideSpy = sinon.stub().resolves(true);
 
       render(

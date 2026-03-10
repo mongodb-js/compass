@@ -43,8 +43,7 @@ type DrawerSectionProps = Omit<SectionData, 'content' | 'onClick'> & {
   guideCue?: GuideCueProps<HTMLButtonElement>;
   /**
    * Called before the drawer section is hidden (closed or switched away from).
-   * If the callback returns `false` or a Promise that resolves to `false`,
-   * the drawer will not be hidden.
+   * If the callback resolves to `false`, the drawer will not be hidden.
    */
   beforeSectionHide?: () => Promise<boolean>;
 };
@@ -201,13 +200,17 @@ export const DrawerContentProvider: React.FunctionComponent<{
         },
         checkBeforeHide: async (currentTabId) => {
           if (!currentTabId) {
-            return true; // No drawer open, allow
+            return true;
           }
           const callback = beforeSectionHideCallbacksRef.current[currentTabId];
           if (!callback) {
-            return true; // No callback registered, allow
+            return true;
           }
-          return callback();
+          try {
+            return await callback();
+          } catch {
+            return true; // default to allowing hide if the callback throws
+          }
         },
       };
     }, []);
