@@ -2,6 +2,7 @@ import type { MongoClient } from 'mongodb';
 import type { SeedDatabase } from '../../types/seed-data';
 
 const INDEX_POLL_INTERVAL_MS = 100;
+const INDEX_BUILD_TIMEOUT_MS = 30_000;
 
 /**
  * Waits until no index builds are in progress on the server.
@@ -9,6 +10,7 @@ const INDEX_POLL_INTERVAL_MS = 100;
  */
 async function waitForIndexBuilds(client: MongoClient): Promise<void> {
   const admin = client.db('admin');
+  const deadline = Date.now() + INDEX_BUILD_TIMEOUT_MS;
 
   // eslint-disable-next-line no-constant-condition
   while (true) {
@@ -21,6 +23,12 @@ async function waitForIndexBuilds(client: MongoClient): Promise<void> {
     const activeBuilds = (result.inprog ?? []).length;
     if (activeBuilds === 0) {
       return;
+    }
+
+    if (Date.now() >= deadline) {
+      throw new Error(
+        `Timed out after ${INDEX_BUILD_TIMEOUT_MS}ms waiting for ${activeBuilds} active index build(s) to finish`
+      );
     }
 
     await new Promise((resolve) => setTimeout(resolve, INDEX_POLL_INTERVAL_MS));

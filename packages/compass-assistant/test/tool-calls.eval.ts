@@ -107,6 +107,9 @@ let toolsInitialized = false;
 async function ensureToolsInitialized(): Promise<void> {
   if (toolsInitialized) return;
   await toolsController.startServer();
+  if (!toolsController.server) {
+    throw new Error('Failed to start ToolsController server for eval tools');
+  }
   toolsInitialized = true;
 }
 
