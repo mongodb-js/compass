@@ -41,6 +41,12 @@ type DrawerSectionProps = Omit<SectionData, 'content' | 'onClick'> & {
    */
   order?: number;
   guideCue?: GuideCueProps<HTMLButtonElement>;
+  /**
+   * Called before the drawer section is hidden (closed or switched away from).
+   * If the callback returns `false` or a Promise that resolves to `false`,
+   * the drawer will not be hidden.
+   */
+  beforeSectionHide?: () => Promise<boolean> | boolean;
 };
 
 type DrawerOpenStateContextValue = boolean;
@@ -86,6 +92,13 @@ const DrawerActionsContext = React.createContext<DrawerActionsContextValue>({
     setCurrent: () => undefined,
   },
 });
+
+type BeforeSectionHideCallbacks = {
+  current: Record<string, (() => Promise<boolean> | boolean) | undefined>;
+};
+
+const BeforeSectionHideContext =
+  React.createContext<BeforeSectionHideCallbacks>({ current: {} });
 
 /**
  * Drawer component that keeps track of drawer rendering state and provides
@@ -158,6 +171,10 @@ export const DrawerContentProvider: React.FunctionComponent<{
     },
   });
 
+  const beforeSectionHideCallbacks = useRef<
+    BeforeSectionHideCallbacks['current']
+  >({});
+
   const prevDrawerCurrentTabRef = React.useRef<string | null>(null);
 
   useEffect(() => {
@@ -184,7 +201,11 @@ export const DrawerContentProvider: React.FunctionComponent<{
           <DrawerCurrentTabStateContext.Provider value={drawerCurrentTab}>
             <DrawerSetCurrentTabContext.Provider value={setDrawerCurrentTab}>
               <DrawerActionsContext.Provider value={drawerActions}>
-                {children}
+                <BeforeSectionHideContext.Provider
+                  value={beforeSectionHideCallbacks}
+                >
+                  {children}
+                </BeforeSectionHideContext.Provider>
               </DrawerActionsContext.Provider>
             </DrawerSetCurrentTabContext.Provider>
           </DrawerCurrentTabStateContext.Provider>
@@ -295,6 +316,8 @@ const drawerTitleGroupStyles = css({
 export const DrawerAnchor: React.FunctionComponent = ({ children }) => {
   const actions = useContext(DrawerActionsContext);
   const drawerSectionItems = useContext(DrawerStateContext);
+  const currentDrawerTab = useContext(DrawerCurrentTabStateContext);
+  const beforeSectionHideCallbacks = useContext(BeforeSectionHideContext);
   const prevDrawerSectionItems = useRef<DrawerSectionProps[]>([]);
   useEffect(() => {
     const prevIds = new Set(
@@ -339,6 +362,90 @@ export const DrawerAnchor: React.FunctionComponent = ({ children }) => {
   const [toolbarIconNodes, setToolbarIconNodes] = useState<
     Record<string, HTMLButtonElement | undefined>
   >({});
+
+  // Track if we're currently showing a confirmation dialog to prevent re-entrance
+  const isCheckingBeforeSectionHideRef = useRef(false);
+
+  // Intercept clicks on toolbar buttons and close button to check beforeSectionHide
+  useLayoutEffect(
+    function () {
+      const drawerEl = document.querySelector('.compass-drawer-anchor');
+      if (!drawerEl) {
+        return;
+      }
+
+      const handleClick = (event: Event) => {
+        // Don't intercept if we're already handling a beforeSectionHide check
+        if (isCheckingBeforeSectionHideRef.current) {
+          return;
+        }
+
+        // Find the clicked button
+        const target = event.target as HTMLElement;
+        const button = target.closest(
+          'button[aria-label]'
+        ) as HTMLButtonElement | null;
+        if (!button) {
+          return;
+        }
+
+        // Find if the clicked button is a toolbar button or close button
+        const label = button.getAttribute('aria-label');
+        const isToolbarButton = toolbarData.find(
+          (item) => item.label === label
+        );
+        const isCloseButton = label === 'Close drawer';
+        if (!isToolbarButton && !isCloseButton) {
+          return;
+        }
+
+        // Check if the currently open drawer has a beforeSectionHide callback
+        if (!currentDrawerTab) {
+          return;
+        }
+        const beforeHideCallback =
+          beforeSectionHideCallbacks.current[currentDrawerTab];
+        if (!beforeHideCallback) {
+          return;
+        }
+
+        // Prevent the default LeafyGreen behavior while we check
+        event.stopPropagation();
+        event.preventDefault();
+
+        // Set is checking flag
+        isCheckingBeforeSectionHideRef.current = true;
+
+        // Call the beforeSectionHide callback
+        const result = beforeHideCallback();
+
+        const handleResult = (canHide: boolean) => {
+          if (canHide) {
+            // Re-trigger the click now that we've confirmed it's okay
+            button.click();
+          }
+          // Reset flag
+          isCheckingBeforeSectionHideRef.current = false;
+        };
+
+        if (result instanceof Promise) {
+          result.then(handleResult).catch(() => {
+            isCheckingBeforeSectionHideRef.current = false;
+          });
+        } else {
+          handleResult(result);
+        }
+      };
+
+      // Use capture phase to intercept before LeafyGreen handles the click
+      drawerEl.addEventListener('click', handleClick, true);
+
+      return () => {
+        drawerEl.removeEventListener('click', handleClick, true);
+      };
+    },
+    [toolbarData, currentDrawerTab, beforeSectionHideCallbacks]
+  );
 
   useLayoutEffect(
     function () {
@@ -503,6 +610,18 @@ export const DrawerSection: React.FunctionComponent<DrawerSectionProps> = ({
       actions.current.removeToolbarData(props.id);
     };
   }, [actions, props.id]);
+
+  // Register/unregister beforeSectionHide callback
+  const beforeSectionHideCallbacks = useContext(BeforeSectionHideContext);
+  useEffect(() => {
+    if (props.beforeSectionHide) {
+      beforeSectionHideCallbacks.current[props.id] = props.beforeSectionHide;
+    }
+    return () => {
+      delete beforeSectionHideCallbacks.current[props.id];
+    };
+  }, [beforeSectionHideCallbacks, props.id, props.beforeSectionHide]);
+
   if (portalNode) {
     return ReactDOM.createPortal(children, portalNode);
   }
