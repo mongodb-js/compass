@@ -631,7 +631,6 @@ tasks:
   - name: create_static_analysis_report
     tags:
       - required-for-publish
-      - run-on-pr
     depends_on:
       - name: ".package-task"
         variant: "*"
