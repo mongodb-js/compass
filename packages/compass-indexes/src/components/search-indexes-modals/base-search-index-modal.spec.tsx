@@ -2,6 +2,8 @@ import {
   ATLAS_SEARCH_TEMPLATES,
   ATLAS_VECTOR_SEARCH_TEMPLATE,
 } from '@mongodb-js/mongodb-constants';
+import type { AllPreferences } from 'compass-preferences-model';
+import { ATLAS_VECTOR_AUTO_EMBED_TEMPLATE } from '../search-index-template-dropdown/vector-search-index-template-dropdown';
 import { expect } from 'chai';
 import { BaseSearchIndexModal } from './base-search-index-modal';
 import sinon from 'sinon';
@@ -13,6 +15,7 @@ import {
   waitFor,
   userEvent,
   wait,
+  within,
 } from '@mongodb-js/testing-library-compass';
 
 import React from 'react';
@@ -31,6 +34,10 @@ function normalizedTemplateNamed(name: string) {
   return snippet.replace(/\${\d+:([^}]+)}/gm, '$1');
 }
 
+function normalizeSnippetPlaceholders(snippet: string) {
+  return snippet.replace(/\${\d+:([^}]+)}/gm, '$1');
+}
+
 const VALID_ATLAS_SEARCH_INDEX_DEFINITION = {
   fields: [
     {
@@ -46,7 +53,8 @@ const VALID_ATLAS_SEARCH_INDEX_DEFINITION_STRING = JSON.stringify(
 );
 
 function renderBaseSearchIndexModal(
-  props?: Partial<React.ComponentProps<typeof BaseSearchIndexModal>>
+  props?: Partial<React.ComponentProps<typeof BaseSearchIndexModal>>,
+  renderOptions?: { preferences?: Partial<AllPreferences> }
 ) {
   return render(
     <BaseSearchIndexModal
@@ -61,7 +69,8 @@ function renderBaseSearchIndexModal(
       onClose={sinon.fake()}
       error={'Invalid index definition.'}
       {...props}
-    />
+    />,
+    renderOptions
   );
 }
 
@@ -103,6 +112,62 @@ describe('Base Search Index Modal', function () {
 
       it('shows vector search radio option', function () {
         expect(screen.getByText('Vector Search')).to.be.visible;
+      });
+
+      it('does not show vector template dropdown when auto-embedding preview flag is off', function () {
+        cleanup();
+        renderBaseSearchIndexModal(
+          {
+            onSubmit: onSubmitSpy,
+            onClose: onCloseSpy,
+          },
+          { preferences: { enableAutoEmbeddingPublicPreview: false } }
+        );
+        userEvent.click(
+          screen.getByTestId('search-index-type-vectorSearch-button'),
+          undefined,
+          { skipPointerEventsCheck: true }
+        );
+        const modal = screen.getByTestId('search-index-modal');
+        expect(within(modal).queryByTestId('vector-search-index-template')).to
+          .be.null;
+        expect(within(modal).queryByTestId('auto-embedding-cost-banner')).to.be
+          .null;
+      });
+
+      it('shows vector template dropdown when auto-embedding preview flag is on', async function () {
+        cleanup();
+        renderBaseSearchIndexModal(
+          {
+            onSubmit: onSubmitSpy,
+            onClose: onCloseSpy,
+          },
+          { preferences: { enableAutoEmbeddingPublicPreview: true } }
+        );
+        userEvent.click(
+          screen.getByTestId('search-index-type-vectorSearch-button'),
+          undefined,
+          { skipPointerEventsCheck: true }
+        );
+        const modal = screen.getByTestId('search-index-modal');
+        expect(within(modal).getByTestId('vector-search-index-template')).to.be
+          .visible;
+        await waitFor(() => {
+          expect(
+            getCodemirrorEditorValue('definition-of-search-index')
+          ).to.equal(
+            normalizeSnippetPlaceholders(
+              ATLAS_VECTOR_AUTO_EMBED_TEMPLATE.snippet
+            )
+          );
+        });
+        const costBanner = within(modal).getByTestId(
+          'auto-embedding-cost-banner'
+        );
+        expect(costBanner).to.be.visible;
+        expect(costBanner.textContent).to.include(
+          'Automated Embedding uses embedding models, which incur usage-based costs'
+        );
       });
     });
 
@@ -389,6 +454,41 @@ describe('Base Search Index Modal', function () {
         expect(
           screen.queryByRole('option', { name: 'KNN Vector field mapping' })
         ).to.not.exist;
+      });
+
+      it('replaces the index editor with automated embedding when that vector template is selected', async function () {
+        cleanup();
+        renderBaseSearchIndexModal(
+          {
+            onSubmit: onSubmitSpy,
+            onClose: onCloseSpy,
+          },
+          { preferences: { enableAutoEmbeddingPublicPreview: true } }
+        );
+        userEvent.click(
+          screen.getByTestId('search-index-type-vectorSearch-button'),
+          undefined,
+          { skipPointerEventsCheck: true }
+        );
+        await waitFor(() => {
+          expect(
+            getCodemirrorEditorValue('definition-of-search-index')?.length
+          ).to.be.gt(0);
+        });
+        userEvent.click(screen.getByRole('button', { name: 'Template' }));
+        userEvent.click(
+          await screen.findByRole('option', { name: 'Automated embedding' })
+        );
+        await waitFor(() => {
+          const indexDef = getCodemirrorEditorValue(
+            'definition-of-search-index'
+          );
+          expect(indexDef).to.equal(
+            normalizeSnippetPlaceholders(
+              ATLAS_VECTOR_AUTO_EMBED_TEMPLATE.snippet
+            )
+          );
+        });
       });
     });
   });

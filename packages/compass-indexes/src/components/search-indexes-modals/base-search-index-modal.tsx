@@ -30,10 +30,16 @@ import type { EditorRef } from '@mongodb-js/compass-editor';
 import type { Document } from 'mongodb';
 import { SearchIndexTemplateDropdown } from '../search-index-template-dropdown';
 import {
+  ATLAS_VECTOR_AUTO_EMBED_TEMPLATE,
+  VectorSearchIndexTemplateDropdown,
+  type VectorIndexTemplateChoice,
+} from '../search-index-template-dropdown/vector-search-index-template-dropdown';
+import {
   ATLAS_SEARCH_TEMPLATES,
   ATLAS_VECTOR_SEARCH_TEMPLATE,
   type SearchTemplate,
 } from '@mongodb-js/mongodb-constants';
+import { usePreferences } from 'compass-preferences-model/provider';
 import { useAutocompleteFields } from '@mongodb-js/compass-field-store';
 import {
   useTrackOnChange,
@@ -132,6 +138,7 @@ type SearchIndexEditorState = {
   indexName: string;
   indexDefinition: string;
   parsingError: ParsingError | undefined;
+  vectorTemplateChoice: VectorIndexTemplateChoice;
 };
 
 export const BaseSearchIndexModal: React.FunctionComponent<
@@ -155,8 +162,19 @@ export const BaseSearchIndexModal: React.FunctionComponent<
       : 'search';
   const editorRef = useRef<EditorRef>(null);
   const connectionInfoRef = useConnectionInfoRef();
+  const { enableAutoEmbeddingPublicPreview } = usePreferences([
+    'enableAutoEmbeddingPublicPreview',
+  ]);
+  const defaultVectorTemplateChoice: VectorIndexTemplateChoice =
+    enableAutoEmbeddingPublicPreview ? 'autoEmbed' : 'bringYourOwn';
   const [
-    { indexType: searchIndexType, indexName, indexDefinition, parsingError },
+    {
+      indexType: searchIndexType,
+      indexName,
+      indexDefinition,
+      parsingError,
+      vectorTemplateChoice,
+    },
     setSearchIndexEditorState,
   ] = useState<SearchIndexEditorState>(() => {
     return {
@@ -164,6 +182,7 @@ export const BaseSearchIndexModal: React.FunctionComponent<
       indexName: initialIndexName,
       indexDefinition: initialIndexDefinition,
       parsingError: undefined,
+      vectorTemplateChoice: defaultVectorTemplateChoice,
     };
   });
 
@@ -221,6 +240,7 @@ export const BaseSearchIndexModal: React.FunctionComponent<
         indexName: initialIndexName,
         indexDefinition: initialIndexDefinition,
         parsingError: undefined,
+        vectorTemplateChoice: defaultVectorTemplateChoice,
       });
     }
   }, [isModalOpen]);
@@ -279,17 +299,37 @@ export const BaseSearchIndexModal: React.FunctionComponent<
     [editorRef]
   );
 
+  const onVectorTemplateChoice = useCallback(
+    (_choice: VectorIndexTemplateChoice, template: SearchTemplate) => {
+      setSearchIndexEditorState((prevState) => {
+        return {
+          ...prevState,
+          vectorTemplateChoice: _choice,
+          parsingError: undefined,
+        };
+      });
+      onChangeTemplate(template);
+    },
+    [onChangeTemplate]
+  );
+
   const onChangeSearchIndexType = useCallback(
     ({ target: { value: newType } }: React.ChangeEvent<HTMLInputElement>) => {
       const newDefinitionTemplate =
         newType === 'vectorSearch'
-          ? ATLAS_VECTOR_SEARCH_TEMPLATE
+          ? enableAutoEmbeddingPublicPreview
+            ? ATLAS_VECTOR_AUTO_EMBED_TEMPLATE
+            : ATLAS_VECTOR_SEARCH_TEMPLATE
           : ATLAS_SEARCH_TEMPLATES[0];
 
       setSearchIndexEditorState((prevState) => {
         return {
           ...prevState,
           parsingError: undefined,
+          vectorTemplateChoice:
+            newType === 'vectorSearch'
+              ? defaultVectorTemplateChoice
+              : 'bringYourOwn',
           // Reset index name, but only if it's still a default one for the
           // previous index type
           indexName:
@@ -307,7 +347,11 @@ export const BaseSearchIndexModal: React.FunctionComponent<
       // value
       onChangeTemplate(newDefinitionTemplate);
     },
-    [onChangeTemplate]
+    [
+      onChangeTemplate,
+      enableAutoEmbeddingPublicPreview,
+      defaultVectorTemplateChoice,
+    ]
   );
 
   const fields = useAutocompleteFields(namespace);
@@ -439,6 +483,17 @@ export const BaseSearchIndexModal: React.FunctionComponent<
                   />
                 </div>
               )}
+              {searchIndexType === 'vectorSearch' &&
+                !isEditingVectorSearchIndex &&
+                enableAutoEmbeddingPublicPreview && (
+                  <div className={templateToolbarDropdownStyles}>
+                    <VectorSearchIndexTemplateDropdown
+                      value={vectorTemplateChoice}
+                      tooltip="Selecting a new template will replace your existing index definition in the code editor."
+                      onTemplateChoice={onVectorTemplateChoice}
+                    />
+                  </div>
+                )}
             </section>
             <CodemirrorMultilineEditor
               key={searchIndexType}
@@ -451,6 +506,13 @@ export const BaseSearchIndexModal: React.FunctionComponent<
               minLines={16}
               completer={completer}
             />
+            {searchIndexType === 'vectorSearch' &&
+              enableAutoEmbeddingPublicPreview &&
+              vectorTemplateChoice === 'autoEmbed' && (
+                <Banner data-testid="auto-embedding-cost-banner">
+                  {`Automated Embedding uses embedding models, which incur usage-based costs. The generated vector embeddings are stored in your MongoDB cluster. The model inference platform runs on MongoDB's infrastructure in GCP cloud in a US region.`}
+                </Banner>
+              )}
           </div>
         </div>
         {parsingError && <WarningSummary warnings={parsingError.message} />}
