@@ -4,8 +4,8 @@ import type {
   JSONDocument,
   LanguageService,
   TextDocument,
+  LanguageServiceParams,
 } from 'vscode-json-languageservice';
-import { getLanguageService } from 'vscode-json-languageservice';
 import type { LintSource, Diagnostic as CMDiagnostic } from '@codemirror/lint';
 import { linter } from '@codemirror/lint';
 import type { CompletionSource, Completion } from '@codemirror/autocomplete';
@@ -18,7 +18,6 @@ import {
 import type { HoverTooltipSource, TooltipView } from '@codemirror/view';
 import { hoverTooltip, EditorView } from '@codemirror/view';
 import { json } from '@codemirror/lang-json';
-import { TextDocument as LSPTextDocument } from 'vscode-languageserver-textdocument';
 import { css, spacing } from '@mongodb-js/compass-components';
 
 // CompletionItemKind and InsertTextFormat are numeric enums in LSP
@@ -76,9 +75,11 @@ const lintTooltipTheme = EditorView.theme({
 
 /**
  * Cache for parsed JSON documents to avoid re-parsing on every keystroke.
- * Uses WeakMap so documents can be garbage collected when no longer referenced.
+ * Keyed by content string since TextDocument instances are created fresh each time.
+ * Only caches the last document since we operate on a single editor.
  */
-const jsonDocumentCache = new WeakMap<TextDocument, JSONDocument>();
+let lastDocContent: string | null = null;
+let lastJsonDoc: JSONDocument | null = null;
 
 /**
  * Gets a cached JSON document from a text document, parsing it if necessary.
@@ -87,18 +88,23 @@ function getJsonDocument(
   languageService: LanguageService,
   document: TextDocument
 ): JSONDocument {
-  let jsonDocument = jsonDocumentCache.get(document);
-  if (!jsonDocument) {
-    jsonDocument = languageService.parseJSONDocument(document);
-    jsonDocumentCache.set(document, jsonDocument);
+  const content = document.getText();
+  if (lastDocContent === content && lastJsonDoc) {
+    return lastJsonDoc;
   }
-  return jsonDocument;
+  lastJsonDoc = languageService.parseJSONDocument(document);
+  lastDocContent = content;
+  return lastJsonDoc;
 }
 
 /**
  * Creates a JSON language service configured with the provided schema.
+ * Takes getLanguageService as a parameter to support dynamic imports.
  */
-function createJsonLanguageService(schema: JSONSchema7): LanguageService {
+function createJsonLanguageService(
+  schema: JSONSchema7,
+  getLanguageService: (params: LanguageServiceParams) => LanguageService
+): LanguageService {
   const schemaContent = JSON.stringify(schema);
 
   const languageService = getLanguageService({
@@ -170,24 +176,38 @@ function fromCompletionItemKind(kind: number | undefined): string | undefined {
  * This provides full JSON Schema support including allOf/oneOf/anyOf,
  * which is the same engine Monaco/VS Code uses.
  *
+ * Dependencies (vscode-json-languageservice, vscode-languageserver-textdocument) are
+ * dynamically imported to enable code-splitting - they're only loaded when jsonSchema
+ * is actually provided to the editor.
+ *
  * @returns A Promise that resolves to a function that creates the extension for a given schema
  */
-export function createJsonSchemaServiceExtension(): Promise<
+export async function createJsonSchemaServiceExtension(): Promise<
   (schema: JSONSchema7) => Extension
 > {
-  // Return a Promise that resolves to a function that creates extensions for a specific schema
-  return Promise.resolve((schema: JSONSchema7): Extension => {
-    const languageService = createJsonLanguageService(schema);
+  // Dynamically import heavy dependencies for code-splitting
+  const [{ getLanguageService }, { TextDocument: LSPTextDocument }] =
+    await Promise.all([
+      import('vscode-json-languageservice'),
+      import('vscode-languageserver-textdocument'),
+    ]);
 
-    // Helper to create a TextDocument from CodeMirror state
-    const createTextDoc = (content: string, version: number): TextDocument => {
-      return LSPTextDocument.create(DOCUMENT_URI, 'json', version, content);
+  // Return a function that creates extensions for a specific schema
+  return (schema: JSONSchema7): Extension => {
+    const languageService = createJsonLanguageService(
+      schema,
+      getLanguageService
+    );
+
+    // Helper to create a TextDocument from content
+    const createTextDoc = (content: string): TextDocument => {
+      return LSPTextDocument.create(DOCUMENT_URI, 'json', 0, content);
     };
 
     // Create lint source for validation
     const lintSource: LintSource = async (view) => {
       const content = view.state.doc.toString();
-      const textDoc = createTextDoc(content, 0);
+      const textDoc = createTextDoc(content);
       const jsonDocument = getJsonDocument(languageService, textDoc);
       const diagnostics = await languageService.doValidation(
         textDoc,
@@ -236,7 +256,7 @@ export function createJsonSchemaServiceExtension(): Promise<
       }
 
       const content = context.state.doc.toString();
-      const textDoc = createTextDoc(content, 0);
+      const textDoc = createTextDoc(content);
       const jsonDocument = getJsonDocument(languageService, textDoc);
 
       // Calculate LSP position from CodeMirror position
@@ -322,7 +342,7 @@ export function createJsonSchemaServiceExtension(): Promise<
     // Create hover tooltip source
     const hoverSource: HoverTooltipSource = async (view, pos) => {
       const content = view.state.doc.toString();
-      const textDoc = createTextDoc(content, 0);
+      const textDoc = createTextDoc(content);
       const jsonDocument = getJsonDocument(languageService, textDoc);
 
       // Calculate LSP position from CodeMirror position
@@ -371,6 +391,7 @@ export function createJsonSchemaServiceExtension(): Promise<
         dom: (() => {
           const div = document.createElement('div');
           div.className = hoverTooltipStyles;
+          div.dataset.testid = 'json-schema-hover-tooltip';
           div.textContent = hoverText;
           return div;
         })(),
@@ -421,5 +442,5 @@ export function createJsonSchemaServiceExtension(): Promise<
       }),
       hoverTooltip(hoverSource),
     ];
-  });
+  };
 }
