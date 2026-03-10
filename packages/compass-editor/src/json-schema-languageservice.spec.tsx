@@ -51,21 +51,50 @@ const oneOfSchema: JSONSchema7 = {
   ],
 };
 
-function renderEditorWithSchema(
+/**
+ * Helper to render editor with schema and wait for validation callback.
+ * Uses onValidationChange for deterministic waiting instead of setTimeout.
+ */
+function renderEditorWithSchemaAndWaitForValidation(
   schema: JSONSchema7,
-  initialText = '{}'
-): { editorRef: React.RefObject<EditorRef> } {
+  initialText = '{}',
+  expectedHasErrors?: boolean
+): {
+  editorRef: React.RefObject<EditorRef>;
+  waitForValidation: () => Promise<boolean>;
+} {
   const editorRef = React.createRef<EditorRef>();
+  let resolveValidation: ((hasErrors: boolean) => void) | null = null;
+  const validationPromise = new Promise<boolean>((resolve) => {
+    resolveValidation = resolve;
+  });
+
+  const onValidationChange = (hasErrors: boolean) => {
+    // If expectedHasErrors is specified, only resolve when we get that state
+    // This handles cases where validation fires multiple times
+    if (expectedHasErrors === undefined || hasErrors === expectedHasErrors) {
+      if (resolveValidation) {
+        resolveValidation(hasErrors);
+        resolveValidation = null;
+      }
+    }
+  };
+
   render(
     <CodemirrorMultilineEditor
       text={initialText}
       ref={editorRef}
       jsonSchema={schema}
+      onValidationChange={onValidationChange}
       /* eslint-disable-next-line jsx-a11y/no-autofocus */
       autoFocus
     />
   );
-  return { editorRef };
+
+  return {
+    editorRef,
+    waitForValidation: () => validationPromise,
+  };
 }
 
 describe('json-schema-languageservice', function () {
@@ -76,18 +105,19 @@ describe('json-schema-languageservice', function () {
   describe('validation', function () {
     it('shows no errors for valid JSON matching schema', async function () {
       const validJson = '{"name": "test", "count": 42}';
-      const { editorRef } = renderEditorWithSchema(testSchema, validJson);
+      const { editorRef, waitForValidation } =
+        renderEditorWithSchemaAndWaitForValidation(
+          testSchema,
+          validJson,
+          false
+        );
 
-      // Wait for the editor to initialize and linting to complete
-      await waitFor(
-        () => {
-          expect(editorRef.current?.editor).to.exist;
-        },
-        { timeout: 2000 }
-      );
+      await waitFor(() => {
+        expect(editorRef.current?.editor).to.exist;
+      });
 
-      // Wait for linter (300ms delay) and check for no error markers
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      const hasErrors = await waitForValidation();
+      expect(hasErrors).to.equal(false);
 
       const errorMarkers = document.querySelectorAll('.cm-lintRange-error');
       expect(errorMarkers.length).to.equal(0);
@@ -95,83 +125,81 @@ describe('json-schema-languageservice', function () {
 
     it('shows error for invalid JSON (missing required field)', async function () {
       const invalidJson = '{"count": 42}'; // missing required 'name'
-      const { editorRef } = renderEditorWithSchema(testSchema, invalidJson);
+      const { editorRef, waitForValidation } =
+        renderEditorWithSchemaAndWaitForValidation(
+          testSchema,
+          invalidJson,
+          true
+        );
 
-      await waitFor(
-        () => {
-          expect(editorRef.current?.editor).to.exist;
-        },
-        { timeout: 2000 }
-      );
+      await waitFor(() => {
+        expect(editorRef.current?.editor).to.exist;
+      });
 
-      // Wait for linter to run - check for any lint range (error or warning)
-      await waitFor(
-        () => {
-          // vscode-json-languageservice may report missing required as warning
-          const lintMarkers = document.querySelectorAll(
-            '.cm-lintRange-error, .cm-lintRange-warning'
-          );
-          expect(lintMarkers.length).to.be.greaterThan(0);
-        },
-        { timeout: 2000 }
+      const hasErrors = await waitForValidation();
+      expect(hasErrors).to.equal(true);
+
+      const lintMarkers = document.querySelectorAll(
+        '.cm-lintRange-error, .cm-lintRange-warning'
       );
+      expect(lintMarkers.length).to.be.greaterThan(0);
     });
 
     it('shows error for type mismatch', async function () {
       const invalidJson = '{"name": 123}'; // name should be string, not number
-      const { editorRef } = renderEditorWithSchema(testSchema, invalidJson);
+      const { editorRef, waitForValidation } =
+        renderEditorWithSchemaAndWaitForValidation(
+          testSchema,
+          invalidJson,
+          true
+        );
 
-      await waitFor(
-        () => {
-          expect(editorRef.current?.editor).to.exist;
-        },
-        { timeout: 2000 }
-      );
+      await waitFor(() => {
+        expect(editorRef.current?.editor).to.exist;
+      });
 
-      await waitFor(
-        () => {
-          const lintMarkers = document.querySelectorAll(
-            '.cm-lintRange-error, .cm-lintRange-warning'
-          );
-          expect(lintMarkers.length).to.be.greaterThan(0);
-        },
-        { timeout: 2000 }
+      const hasErrors = await waitForValidation();
+      expect(hasErrors).to.equal(true);
+
+      const lintMarkers = document.querySelectorAll(
+        '.cm-lintRange-error, .cm-lintRange-warning'
       );
+      expect(lintMarkers.length).to.be.greaterThan(0);
     });
 
     it('shows error for additional properties when not allowed', async function () {
       const invalidJson = '{"name": "test", "unknown": true}';
-      const { editorRef } = renderEditorWithSchema(testSchema, invalidJson);
+      const { editorRef, waitForValidation } =
+        renderEditorWithSchemaAndWaitForValidation(
+          testSchema,
+          invalidJson,
+          true
+        );
 
-      await waitFor(
-        () => {
-          expect(editorRef.current?.editor).to.exist;
-        },
-        { timeout: 2000 }
-      );
+      await waitFor(() => {
+        expect(editorRef.current?.editor).to.exist;
+      });
 
-      await waitFor(
-        () => {
-          const lintMarkers = document.querySelectorAll(
-            '.cm-lintRange-error, .cm-lintRange-warning'
-          );
-          expect(lintMarkers.length).to.be.greaterThan(0);
-        },
-        { timeout: 2000 }
+      const hasErrors = await waitForValidation();
+      expect(hasErrors).to.equal(true);
+
+      const lintMarkers = document.querySelectorAll(
+        '.cm-lintRange-error, .cm-lintRange-warning'
       );
+      expect(lintMarkers.length).to.be.greaterThan(0);
     });
   });
 
   describe('autocompletion', function () {
     it('provides property completions inside object', async function () {
-      const { editorRef } = renderEditorWithSchema(testSchema, '{}');
+      const { editorRef, waitForValidation } =
+        renderEditorWithSchemaAndWaitForValidation(testSchema, '{}');
 
-      await waitFor(
-        () => {
-          expect(editorRef.current?.editor).to.exist;
-        },
-        { timeout: 2000 }
-      );
+      await waitFor(() => {
+        expect(editorRef.current?.editor).to.exist;
+      });
+
+      await waitForValidation();
 
       // Position cursor inside the object and trigger typing
       editorRef.current?.focus();
@@ -182,16 +210,13 @@ describe('json-schema-languageservice', function () {
       // Type a quote to trigger completion
       userEvent.keyboard('"');
 
-      // Wait for autocompletion popup
-      await waitFor(
-        () => {
-          const completionList = document.querySelector(
-            '.cm-tooltip-autocomplete'
-          );
-          expect(completionList).to.exist;
-        },
-        { timeout: 2000 }
-      );
+      // Wait for autocompletion popup (deterministic DOM check)
+      await waitFor(() => {
+        const completionList = document.querySelector(
+          '.cm-tooltip-autocomplete'
+        );
+        expect(completionList).to.exist;
+      });
 
       // Check that property names from schema are suggested
       const completionOptions = document.querySelectorAll(
@@ -207,19 +232,20 @@ describe('json-schema-languageservice', function () {
 
   describe('oneOf schema support', function () {
     it('validates against oneOf alternatives', async function () {
-      // Valid JSON matching first alternative
       const validJson = '{"type": "text", "analyzer": "standard"}';
-      const { editorRef } = renderEditorWithSchema(oneOfSchema, validJson);
+      const { editorRef, waitForValidation } =
+        renderEditorWithSchemaAndWaitForValidation(
+          oneOfSchema,
+          validJson,
+          false
+        );
 
-      await waitFor(
-        () => {
-          expect(editorRef.current?.editor).to.exist;
-        },
-        { timeout: 2000 }
-      );
+      await waitFor(() => {
+        expect(editorRef.current?.editor).to.exist;
+      });
 
-      // Wait for linter
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      const hasErrors = await waitForValidation();
+      expect(hasErrors).to.equal(false);
 
       const errorMarkers = document.querySelectorAll('.cm-lintRange-error');
       expect(errorMarkers.length).to.equal(0);
@@ -229,8 +255,17 @@ describe('json-schema-languageservice', function () {
   describe('onValidationChange callback', function () {
     it('fires callback when validation state changes', async function () {
       const validationStates: boolean[] = [];
+      let resolveFirstValidation: (() => void) | null = null;
+      const firstValidationPromise = new Promise<void>((resolve) => {
+        resolveFirstValidation = resolve;
+      });
+
       const onValidationChange = (hasErrors: boolean) => {
         validationStates.push(hasErrors);
+        if (resolveFirstValidation) {
+          resolveFirstValidation();
+          resolveFirstValidation = null;
+        }
       };
 
       const editorRef = React.createRef<EditorRef>();
@@ -245,15 +280,11 @@ describe('json-schema-languageservice', function () {
         />
       );
 
-      await waitFor(
-        () => {
-          expect(editorRef.current?.editor).to.exist;
-        },
-        { timeout: 2000 }
-      );
+      await waitFor(() => {
+        expect(editorRef.current?.editor).to.exist;
+      });
 
-      // Wait for initial validation
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      await firstValidationPromise;
 
       // The initial valid JSON should result in hasErrors: false being called
       expect(validationStates).to.include(false);

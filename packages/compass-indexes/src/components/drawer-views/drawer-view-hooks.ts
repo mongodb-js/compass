@@ -45,7 +45,6 @@ export function useConfirmCancel(
 
 /**
  * Hook that returns a text change handler for the index definition editor.
- * Marks the form as editing and validates the definition.
  */
 export function useIndexDefinitionChange(
   setIndexDefinition: (definition: string) => void,

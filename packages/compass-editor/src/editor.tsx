@@ -41,7 +41,7 @@ import type { Diagnostic } from '@codemirror/lint';
 import {
   lintGutter,
   setDiagnosticsEffect,
-  diagnosticCount,
+  forEachDiagnostic,
 } from '@codemirror/lint';
 import type { CompletionSource } from '@codemirror/autocomplete';
 import {
@@ -722,11 +722,14 @@ function useJsonSchemaLanguageServiceExtensions(
   >(null);
 
   useEffect(() => {
-    // Load the extension creator asynchronously
+    if (!jsonSchema) {
+      return;
+    }
+
     void createJsonSchemaServiceExtension().then((creator) => {
       setExtensionCreator(() => creator);
     });
-  }, []);
+  }, [jsonSchema]);
 
   return useCodemirrorExtensionCompartment(
     () => {
@@ -1112,7 +1115,10 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
               tr.effects.some((effect) => effect.is(setDiagnosticsEffect))
             );
             if (hasDiagnosticChange) {
-              const hasErrors = diagnosticCount(update.state) > 0;
+              // Check for error-severity diagnostics only, not warnings/hints
+              const diagnostics: Diagnostic[] = [];
+              forEachDiagnostic(update.state, (d) => diagnostics.push(d));
+              const hasErrors = diagnostics.some((d) => d.severity === 'error');
               onValidationChangeRef.current(hasErrors);
             }
           }

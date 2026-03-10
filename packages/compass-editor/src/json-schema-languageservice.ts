@@ -6,6 +6,9 @@ import type {
   TextDocument,
   LanguageServiceParams,
 } from 'vscode-json-languageservice';
+// Type import to satisfy dependency checker - the value is dynamically imported for code-splitting
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import type { TextDocument as _LSPTextDocumentType } from 'vscode-languageserver-textdocument';
 import type { LintSource, Diagnostic as CMDiagnostic } from '@codemirror/lint';
 import { linter } from '@codemirror/lint';
 import type { CompletionSource, Completion } from '@codemirror/autocomplete';
