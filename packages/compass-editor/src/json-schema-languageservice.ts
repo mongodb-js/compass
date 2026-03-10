@@ -425,10 +425,7 @@ export async function createJsonSchemaServiceExtension(): Promise<
           insertedText.startsWith('\n');
 
         if (shouldTrigger) {
-          // Small delay to let the document update settle
-          setTimeout(() => {
-            startCompletion(update.view);
-          }, 10);
+          startCompletion(update.view);
         }
       });
     });

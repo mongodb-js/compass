@@ -726,9 +726,25 @@ function useJsonSchemaLanguageServiceExtensions(
       return;
     }
 
-    void createJsonSchemaServiceExtension().then((creator) => {
-      setExtensionCreator(() => creator);
-    });
+    let aborted = false;
+
+    createJsonSchemaServiceExtension()
+      .then((creator) => {
+        if (!aborted) {
+          setExtensionCreator(() => creator);
+        }
+      })
+      .catch((error) => {
+        if (!aborted) {
+          // Log but don't crash - editor will work without schema support
+          // eslint-disable-next-line no-console
+          console.error('Failed to load JSON schema service:', error);
+        }
+      });
+
+    return () => {
+      aborted = true;
+    };
   }, [jsonSchema]);
 
   return useCodemirrorExtensionCompartment(
@@ -1015,9 +1031,9 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
 
   const customAutocompletionExtension = useCodemirrorExtensionCompartment(
     () => {
-      return jsonSchema ? [] : [autocompletionExtension, languageExtension];
+      return jsonSchema ? [] : [autocompletionExtension];
     },
-    [jsonSchema, autocompletionExtension, languageExtension],
+    [jsonSchema, autocompletionExtension],
     editorViewRef
   );
 
@@ -1063,6 +1079,7 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
         indentOnInput(),
         bracketMatching(),
         closeBrackets(),
+        languageExtension,
         syntaxHighlighting(highlightStyles['light']),
         syntaxHighlighting(highlightStyles['dark']),
         activeLineExtension,
@@ -1116,9 +1133,10 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
             );
             if (hasDiagnosticChange) {
               // Check for error-severity diagnostics only, not warnings/hints
-              const diagnostics: Diagnostic[] = [];
-              forEachDiagnostic(update.state, (d) => diagnostics.push(d));
-              const hasErrors = diagnostics.some((d) => d.severity === 'error');
+              let hasErrors = false;
+              forEachDiagnostic(update.state, (d) => {
+                hasErrors = hasErrors || d.severity === 'error';
+              });
               onValidationChangeRef.current(hasErrors);
             }
           }

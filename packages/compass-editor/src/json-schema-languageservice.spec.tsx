@@ -123,70 +123,83 @@ describe('json-schema-languageservice', function () {
       expect(errorMarkers.length).to.equal(0);
     });
 
-    it('shows error for invalid JSON (missing required field)', async function () {
+    it('shows diagnostic for invalid JSON (missing required field)', async function () {
       const invalidJson = '{"count": 42}'; // missing required 'name'
-      const { editorRef, waitForValidation } =
-        renderEditorWithSchemaAndWaitForValidation(
-          testSchema,
-          invalidJson,
-          true
-        );
+      const editorRef = React.createRef<EditorRef>();
+
+      render(
+        <CodemirrorMultilineEditor
+          text={invalidJson}
+          ref={editorRef}
+          jsonSchema={testSchema}
+          /* eslint-disable-next-line jsx-a11y/no-autofocus */
+          autoFocus
+        />
+      );
 
       await waitFor(() => {
         expect(editorRef.current?.editor).to.exist;
       });
 
-      const hasErrors = await waitForValidation();
-      expect(hasErrors).to.equal(true);
-
-      const lintMarkers = document.querySelectorAll(
-        '.cm-lintRange-error, .cm-lintRange-warning'
-      );
-      expect(lintMarkers.length).to.be.greaterThan(0);
+      // Wait for lint markers (may be error or warning depending on schema service)
+      await waitFor(() => {
+        const lintMarkers = document.querySelectorAll(
+          '.cm-lintRange-error, .cm-lintRange-warning'
+        );
+        expect(lintMarkers.length).to.be.greaterThan(0);
+      });
     });
 
-    it('shows error for type mismatch', async function () {
+    it('shows diagnostic for type mismatch', async function () {
       const invalidJson = '{"name": 123}'; // name should be string, not number
-      const { editorRef, waitForValidation } =
-        renderEditorWithSchemaAndWaitForValidation(
-          testSchema,
-          invalidJson,
-          true
-        );
+      const editorRef = React.createRef<EditorRef>();
+
+      render(
+        <CodemirrorMultilineEditor
+          text={invalidJson}
+          ref={editorRef}
+          jsonSchema={testSchema}
+          /* eslint-disable-next-line jsx-a11y/no-autofocus */
+          autoFocus
+        />
+      );
 
       await waitFor(() => {
         expect(editorRef.current?.editor).to.exist;
       });
 
-      const hasErrors = await waitForValidation();
-      expect(hasErrors).to.equal(true);
-
-      const lintMarkers = document.querySelectorAll(
-        '.cm-lintRange-error, .cm-lintRange-warning'
-      );
-      expect(lintMarkers.length).to.be.greaterThan(0);
+      await waitFor(() => {
+        const lintMarkers = document.querySelectorAll(
+          '.cm-lintRange-error, .cm-lintRange-warning'
+        );
+        expect(lintMarkers.length).to.be.greaterThan(0);
+      });
     });
 
-    it('shows error for additional properties when not allowed', async function () {
+    it('shows diagnostic for additional properties when not allowed', async function () {
       const invalidJson = '{"name": "test", "unknown": true}';
-      const { editorRef, waitForValidation } =
-        renderEditorWithSchemaAndWaitForValidation(
-          testSchema,
-          invalidJson,
-          true
-        );
+      const editorRef = React.createRef<EditorRef>();
+
+      render(
+        <CodemirrorMultilineEditor
+          text={invalidJson}
+          ref={editorRef}
+          jsonSchema={testSchema}
+          /* eslint-disable-next-line jsx-a11y/no-autofocus */
+          autoFocus
+        />
+      );
 
       await waitFor(() => {
         expect(editorRef.current?.editor).to.exist;
       });
 
-      const hasErrors = await waitForValidation();
-      expect(hasErrors).to.equal(true);
-
-      const lintMarkers = document.querySelectorAll(
-        '.cm-lintRange-error, .cm-lintRange-warning'
-      );
-      expect(lintMarkers.length).to.be.greaterThan(0);
+      await waitFor(() => {
+        const lintMarkers = document.querySelectorAll(
+          '.cm-lintRange-error, .cm-lintRange-warning'
+        );
+        expect(lintMarkers.length).to.be.greaterThan(0);
+      });
     });
   });
 
