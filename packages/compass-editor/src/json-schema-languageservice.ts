@@ -20,7 +20,6 @@ import {
 } from '@codemirror/autocomplete';
 import type { HoverTooltipSource, TooltipView } from '@codemirror/view';
 import { hoverTooltip, EditorView } from '@codemirror/view';
-import { json } from '@codemirror/lang-json';
 import { css, spacing } from '@mongodb-js/compass-components';
 
 // CompletionItemKind and InsertTextFormat are numeric enums in LSP
