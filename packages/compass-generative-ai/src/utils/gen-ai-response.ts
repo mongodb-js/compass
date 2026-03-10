@@ -8,7 +8,7 @@ export async function getAiQueryResponse(
   message: AiQueryPrompt,
   abortSignal: AbortSignal
 ): Promise<string> {
-  const { instructions, requestId, store, analyticsId, ...restOfMetadata } =
+  const { instructions, requestId, analyticsId, sensitiveStorage } =
     message.metadata;
   const response = streamText({
     model,
@@ -18,11 +18,9 @@ export async function getAiQueryResponse(
         instructions,
         metadata: {
           analytics_id: analyticsId,
-          ...('sensitiveStorage' in restOfMetadata
-            ? { sensitive_storage: restOfMetadata.sensitiveStorage }
-            : {}),
+          sensitive_storage: sensitiveStorage,
         },
-        store,
+        store: false,
       },
     },
     headers: {

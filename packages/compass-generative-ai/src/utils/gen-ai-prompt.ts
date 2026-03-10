@@ -175,15 +175,8 @@ export type AiQueryPrompt = {
     instructions: string;
     analyticsId: string;
     requestId: string;
-  } & (
-    | {
-        store: true;
-        sensitiveStorage: 'true';
-      }
-    | {
-        store: false;
-      }
-  );
+    sensitiveStorage: 'true' | 'false';
+  };
 };
 
 function buildMetadata({
@@ -199,14 +192,7 @@ function buildMetadata({
         : buildInstructionsForAggregateQuery(),
     analyticsId,
     requestId,
-    ...(enableStorage
-      ? {
-          sensitiveStorage: 'true',
-          store: true,
-        }
-      : {
-          store: false,
-        }),
+    sensitiveStorage: enableStorage ? 'true' : 'false',
   };
 }
 

@@ -216,7 +216,7 @@ describe('DocsProviderTransport', function () {
             'X-Client-Request-Id': 'test-request-id',
           });
           expect(callArgs.providerOptions.openai).to.deep.include({
-            store: true,
+            store: false, // always false
             metadata: {
               analytics_id: 'test-user-id',
               sensitive_storage: 'true',
@@ -253,12 +253,9 @@ describe('DocsProviderTransport', function () {
             store: false,
             metadata: {
               analytics_id: 'test-user-id',
+              sensitive_storage: 'false',
             },
           });
-          // It should not include sensitive_storage when storage is disabled
-          expect(callArgs.providerOptions.openai.metadata).to.not.have.property(
-            'sensitive_storage'
-          );
         });
       });
     });

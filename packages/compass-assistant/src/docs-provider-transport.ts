@@ -122,12 +122,12 @@ export class DocsProviderTransport implements ChatTransport<AssistantMessage> {
       tools: this.getTools(),
       providerOptions: {
         openai: {
-          store: !disableStorage,
+          store: false,
           // If the last message has custom instructions, use them instead of the default
           instructions: lastMessage.metadata?.instructions ?? this.instructions,
           metadata: {
             analytics_id: lastMessage.metadata?.analyticsId,
-            ...(!disableStorage ? { sensitive_storage: 'true' } : {}),
+            sensitive_storage: disableStorage ? 'false' : 'true',
           },
         },
       },
