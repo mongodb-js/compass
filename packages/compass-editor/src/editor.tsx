@@ -728,11 +728,15 @@ function useJsonSchemaLanguageServiceExtensions(
 
     let aborted = false;
 
-    createJsonSchemaServiceExtension().then((creator) => {
-      if (!aborted) {
-        setExtensionCreator(() => creator);
-      }
-    });
+    createJsonSchemaServiceExtension()
+      .then((creator) => {
+        if (!aborted) {
+          setExtensionCreator(() => creator);
+        }
+      })
+      .catch(() => {
+        // continue without schema support
+      });
 
     return () => {
       aborted = true;
