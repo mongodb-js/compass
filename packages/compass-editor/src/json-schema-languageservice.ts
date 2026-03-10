@@ -115,7 +115,7 @@ function createJsonLanguageService(
       if (uri === SCHEMA_URI) {
         return Promise.resolve(schemaContent);
       }
-      return Promise.reject(`Unable to load schema at ${uri}`);
+      return Promise.reject(new Error(`Unable to load schema at ${uri}`));
     },
   });
 
@@ -432,7 +432,6 @@ export async function createJsonSchemaServiceExtension(): Promise<
 
     // Return all extensions bundled together
     return [
-      json(),
       linter(lintSource),
       lintTooltipTheme,
       triggerCompletionOnType,

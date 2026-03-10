@@ -728,19 +728,11 @@ function useJsonSchemaLanguageServiceExtensions(
 
     let aborted = false;
 
-    createJsonSchemaServiceExtension()
-      .then((creator) => {
-        if (!aborted) {
-          setExtensionCreator(() => creator);
-        }
-      })
-      .catch((error) => {
-        if (!aborted) {
-          // Log but don't crash - editor will work without schema support
-          // eslint-disable-next-line no-console
-          console.error('Failed to load JSON schema service:', error);
-        }
-      });
+    createJsonSchemaServiceExtension().then((creator) => {
+      if (!aborted) {
+        setExtensionCreator(() => creator);
+      }
+    });
 
     return () => {
       aborted = true;
