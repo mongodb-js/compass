@@ -111,10 +111,7 @@ describe('Collection ai query (with mocked backend)', function () {
       expect(queryRequest.content.instructions).to.be.a('string');
       expect(queryRequest.content.store).to.equal(true);
       expect(queryRequest.content.metadata).to.have.property('analytics_id');
-      expect(queryRequest.content.metadata.sensitive_storage).to.have.equal(
-        'true'
-      );
-
+      expect(queryRequest.content.metadata.sensitive_storage).to.equal('true');
       expect(queryRequest.content.input).to.be.an('array').of.length(1);
 
       const message = queryRequest.content.input[0];
