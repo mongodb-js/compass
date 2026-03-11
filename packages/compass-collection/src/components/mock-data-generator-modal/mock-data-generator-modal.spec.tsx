@@ -596,6 +596,27 @@ describe('MockDataGeneratorModal', () => {
       ).to.not.equal('true');
     });
 
+    it('renders the title and description', async () => {
+      await renderModal({
+        currentStep: MockDataGeneratorSteps.SCRIPT_RESULT,
+        fakerSchemaGeneration: createCompletedFakerSchema({
+          name: {
+            fakerMethod: 'person.firstName',
+            fakerArgs: [],
+            probability: 1.0,
+            mongoType: 'String',
+          },
+        }),
+      });
+
+      expect(screen.getByText('Generate Mock Data Script')).to.exist;
+      expect(
+        screen.getByText(
+          /We've created the following script for your use\. Edit the DB_NAME and COLL_NAME constants at the top of the script to generate mock data for any collection you specify\./
+        )
+      ).to.exist;
+    });
+
     it('renders the main sections: Prerequisites, steps, and Resources', async () => {
       await renderModal({
         currentStep: MockDataGeneratorSteps.SCRIPT_RESULT,
