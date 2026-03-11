@@ -70,7 +70,6 @@ type CreateSearchIndexViewProps = {
   namespace: string;
   searchIndexes: SearchIndex[];
   currentIndexType: SearchIndexType;
-  isDirty: boolean;
   isBusy: boolean;
   error?: string;
   onClose: () => void;
@@ -89,7 +88,6 @@ const CreateSearchIndexDrawerView: React.FunctionComponent<
   namespace,
   searchIndexes,
   currentIndexType,
-  isDirty,
   isBusy,
   error,
   onClose,
@@ -222,7 +220,6 @@ const mapState = ({ namespace, searchIndexes, indexesDrawer }: RootState) => ({
   namespace,
   searchIndexes: searchIndexes.indexes,
   currentIndexType: indexesDrawer.currentIndexType,
-  isDirty: indexesDrawer.isDirty,
   isBusy: searchIndexes.createIndex.isBusy,
   error: searchIndexes.createIndex.error,
 });

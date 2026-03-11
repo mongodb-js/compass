@@ -61,7 +61,6 @@ const headerContainerStyles = css({
 type EditSearchIndexViewProps = {
   namespace: string;
   searchIndex: SearchIndex;
-  isDirty: boolean;
   isBusy: boolean;
   error?: string;
   onClose: () => void;
@@ -75,7 +74,6 @@ const EditSearchIndexDrawerView: React.FunctionComponent<
 > = ({
   namespace,
   searchIndex,
-  isDirty,
   isBusy,
   error,
   onClose,
@@ -223,7 +221,6 @@ const mapState = ({ namespace, searchIndexes, indexesDrawer }: RootState) => {
   return {
     namespace,
     searchIndex,
-    isDirty: indexesDrawer.isDirty,
     isBusy: searchIndexes.updateIndex.isBusy,
     error: searchIndexes.updateIndex.error,
   };
