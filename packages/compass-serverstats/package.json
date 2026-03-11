@@ -30,6 +30,7 @@
   },
   "license": "SSPL",
   "dependencies": {
+    "@mongodb-js/compass-app-registry": "^9.9.0",
     "@mongodb-js/compass-app-stores": "^7.85.0",
     "@mongodb-js/compass-components": "^1.64.0",
     "@mongodb-js/compass-connections": "^1.99.0",
@@ -38,7 +39,6 @@
     "d3": "^3.5.17",
     "d3-timer": "^1.0.3",
     "debug": "^4.3.4",
-    "@mongodb-js/compass-app-registry": "^9.9.0",
     "lodash": "^4.17.23",
     "mongodb-ns": "^3.0.1",
     "prop-types": "^15.7.2",
@@ -55,7 +55,6 @@
     "chai": "^4.1.2",
     "depcheck": "^1.4.1",
     "electron-mocha": "^12.2.0",
-    "enzyme": "^3.11.0",
     "mocha": "^10.2.0",
     "react-dom": "^17.0.2",
     "typescript": "^5.9.3",
