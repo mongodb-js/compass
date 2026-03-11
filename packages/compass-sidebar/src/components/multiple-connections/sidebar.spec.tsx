@@ -469,6 +469,19 @@ describe('Multiple Connections Sidebar Component', function () {
           expect(screen.queryByTestId(recentConnectionId)).to.be.visible;
         });
 
+        it('should display "No results found." when search filter matches nothing', async function () {
+          await renderAndWaitForNavigationTree();
+
+          const searchInput = screen.getByTestId('sidebar-filter-input');
+          userEvent.type(searchInput, 'zzz_no_match_zzz');
+
+          await waitFor(() => {
+            expect(screen.getByTestId('no-search-results')).to.be.visible;
+          });
+          expect(screen.getByText('No results found.')).to.be.visible;
+          expect(() => screen.getByRole('tree')).to.throw();
+        });
+
         context('and performing actions', function () {
           beforeEach(async function () {
             await renderAndWaitForNavigationTree({
