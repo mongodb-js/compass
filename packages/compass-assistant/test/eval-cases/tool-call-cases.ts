@@ -2832,7 +2832,7 @@ const getCurrentPipelineCases: ToolCallEvalCase[] = [
 
 const multiToolCases: ToolCallEvalCase[] = [
   {
-    name: 'multi: schema then find',
+    name: 'schema then find',
     description:
       'User wants to explore data - assistant should check schema first, then query.',
     input: {
@@ -2877,7 +2877,7 @@ const multiToolCases: ToolCallEvalCase[] = [
     metadata: { difficulty: 'medium' },
   },
   {
-    name: 'multi: list dbs then list collections',
+    name: 'list dbs then list collections',
     description: 'User exploring the cluster from scratch.',
     input: {
       messages: [
@@ -2905,7 +2905,7 @@ const multiToolCases: ToolCallEvalCase[] = [
     metadata: { difficulty: 'medium' },
   },
   {
-    name: 'multi: indexes then explain',
+    name: 'indexes then explain',
     description: 'User investigating query performance.',
     input: {
       messages: [
