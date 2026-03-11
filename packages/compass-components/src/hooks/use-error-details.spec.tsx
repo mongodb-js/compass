@@ -42,5 +42,17 @@ describe('use-error-details', function () {
       expect(confirmElement).to.exist;
       expect(confirmElement.parentElement).to.equal(document.activeElement);
     });
+
+    it('renders error details JSON in a code block', function () {
+      const codeElement = within(modal).getByTestId('error-details-json');
+      expect(codeElement).to.exist;
+      expect(codeElement.textContent).to.include('oh');
+      expect(codeElement.textContent).to.include('noes');
+    });
+
+    it('renders the JSON in a pre element within the code block', function () {
+      const preElement = within(modal).getByTestId('error-details-json');
+      expect(preElement.tagName).to.equal('PRE');
+    });
   });
 });
