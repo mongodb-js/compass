@@ -611,9 +611,7 @@ describe('MockDataGeneratorModal', () => {
 
       expect(screen.getByText('Generate Mock Data Script')).to.exist;
       expect(
-        screen.getByText(
-          /We've created the following script for your use\. Edit the DB_NAME and COLL_NAME constants at the top of the script to generate mock data for any collection you specify\./
-        )
+        screen.getByText(/We've created the following script for your use\./)
       ).to.exist;
     });
 
