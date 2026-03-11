@@ -187,7 +187,7 @@ const listDatabasesCases: ToolCallEvalCase[] = [
     metadata: { difficulty: 'easy' },
   },
   {
-    name: 'v2 hard: portuguese list databases request',
+    name: 'portuguese list databases request',
     input: {
       messages: [
         {
@@ -364,7 +364,7 @@ const listCollectionsCases: ToolCallEvalCase[] = [
     metadata: { difficulty: 'easy' },
   },
   {
-    name: 'v2 medium: use prompt database over current context',
+    name: 'use prompt database over current context',
     input: {
       messages: [
         {
@@ -692,7 +692,7 @@ const collectionIndexesCases: ToolCallEvalCase[] = [
     metadata: { difficulty: 'easy' },
   },
   {
-    name: 'v2 medium: check index coverage for borough and cuisine queries',
+    name: 'check index coverage for borough and cuisine queries',
     input: {
       messages: [
         {
@@ -1023,7 +1023,7 @@ const findCases: ToolCallEvalCase[] = [
     metadata: { difficulty: 'hard' },
   },
   {
-    name: 'v2 hard: use users collection despite current context',
+    name: 'use users collection despite current context',
     input: {
       messages: [
         { role: 'user', content: 'Run a find query on the users collection.' },
@@ -1050,7 +1050,7 @@ const findCases: ToolCallEvalCase[] = [
     metadata: { difficulty: 'hard' },
   },
   {
-    name: 'v2 hard: choose find for most recent movies',
+    name: 'choose find for most recent movies',
     input: {
       messages: [
         { role: 'user', content: 'Show me the 5 most recent movies.' },
@@ -1083,7 +1083,7 @@ const findCases: ToolCallEvalCase[] = [
     metadata: { difficulty: 'hard' },
   },
   {
-    name: 'v2 hard: find by nested cleanliness score',
+    name: 'find by nested cleanliness score',
     input: {
       messages: [
         {
@@ -1125,7 +1125,7 @@ const findCases: ToolCallEvalCase[] = [
     metadata: { difficulty: 'hard' },
   },
   {
-    name: 'v2 hard: use all operator for multiple genres',
+    name: 'use all operator for multiple genres',
     input: {
       messages: [
         {
@@ -1160,7 +1160,7 @@ const findCases: ToolCallEvalCase[] = [
     metadata: { difficulty: 'hard' },
   },
   {
-    name: 'v2 hard: projection for newest movies',
+    name: 'projection for newest movies',
     input: {
       messages: [
         {
@@ -1202,7 +1202,7 @@ const findCases: ToolCallEvalCase[] = [
     metadata: { difficulty: 'hard' },
   },
   {
-    name: 'v2 hard: compound find with sort stays find',
+    name: 'compound find with sort stays find',
     input: {
       messages: [
         {
@@ -1247,7 +1247,7 @@ const findCases: ToolCallEvalCase[] = [
     metadata: { difficulty: 'hard' },
   },
   {
-    name: 'v2 harder: xor action and comedy genres',
+    name: 'xor action and comedy genres',
     input: {
       messages: [
         {
@@ -1285,7 +1285,7 @@ const findCases: ToolCallEvalCase[] = [
     metadata: { difficulty: 'hard' },
   },
   {
-    name: 'v2 harder: most recent movies without aggregation',
+    name: 'most recent movies without aggregation',
     input: {
       messages: [
         {
@@ -1639,7 +1639,7 @@ const aggregateCases: ToolCallEvalCase[] = [
     metadata: { difficulty: 'hard' },
   },
   {
-    name: 'v2 medium: average imdb rating per genre',
+    name: 'average imdb rating per genre',
     input: {
       messages: [
         { role: 'user', content: "What's the average IMDB rating per genre?" },
@@ -1679,7 +1679,7 @@ const aggregateCases: ToolCallEvalCase[] = [
     metadata: { difficulty: 'medium' },
   },
   {
-    name: 'v2 hard: lookup top commented movies',
+    name: 'lookup top commented movies',
     input: {
       messages: [
         {
@@ -1737,7 +1737,7 @@ const aggregateCases: ToolCallEvalCase[] = [
     metadata: { difficulty: 'hard' },
   },
   {
-    name: 'v2 hard: most common sales item tags',
+    name: 'most common sales item tags',
     input: {
       messages: [
         {
@@ -1783,7 +1783,7 @@ const aggregateCases: ToolCallEvalCase[] = [
     metadata: { difficulty: 'hard' },
   },
   {
-    name: 'v2 hard: bucket airbnb listings by price range',
+    name: 'bucket airbnb listings by price range',
     input: {
       messages: [
         {
@@ -1831,7 +1831,7 @@ const aggregateCases: ToolCallEvalCase[] = [
     metadata: { difficulty: 'hard' },
   },
   {
-    name: 'v2 harder: aggregate top genres with explicit no-find constraint',
+    name: 'aggregate top genres with explicit no-find constraint',
     input: {
       messages: [
         {
@@ -2284,7 +2284,7 @@ const collectionStorageSizeCases: ToolCallEvalCase[] = [
     metadata: { difficulty: 'easy' },
   },
   {
-    name: 'v2 hard: ambiguous collection size question',
+    name: 'ambiguous collection size question',
     input: {
       messages: [{ role: 'user', content: 'How big is this?' }],
       custom: mflixCustomInput,
@@ -2505,7 +2505,7 @@ const mongodbLogsCases: ToolCallEvalCase[] = [
     metadata: { difficulty: 'easy' },
   },
   {
-    name: 'v2 medium: infer logs from slow database question',
+    name: 'infer logs from slow database question',
     input: {
       messages: [
         {
@@ -2625,7 +2625,7 @@ const getCurrentQueryCases: ToolCallEvalCase[] = [
     metadata: { difficulty: 'easy' },
   },
   {
-    name: 'v2 medium: retrieve current query for rewrite help',
+    name: 'retrieve current query for rewrite help',
     input: {
       messages: [
         {
@@ -2772,7 +2772,7 @@ const getCurrentPipelineCases: ToolCallEvalCase[] = [
     metadata: { difficulty: 'medium' },
   },
   {
-    name: 'v2 medium: retrieve current pipeline before optimization',
+    name: 'retrieve current pipeline before optimization',
     input: {
       messages: [
         { role: 'user', content: 'Can you make this pipeline faster?' },
@@ -2797,7 +2797,7 @@ const getCurrentPipelineCases: ToolCallEvalCase[] = [
     metadata: { difficulty: 'medium' },
   },
   {
-    name: 'v2 medium: count stages in current pipeline',
+    name: 'count stages in current pipeline',
     input: {
       messages: [
         {
@@ -2949,7 +2949,7 @@ const multiToolCases: ToolCallEvalCase[] = [
     metadata: { difficulty: 'medium' },
   },
   {
-    name: 'v2 medium: infer explain from slow query question',
+    name: 'infer explain from slow query question',
     input: {
       messages: [{ role: 'user', content: 'Why is this query slow?' }],
       custom: {
@@ -2983,7 +2983,7 @@ const multiToolCases: ToolCallEvalCase[] = [
     metadata: { difficulty: 'medium' },
   },
   {
-    name: 'v2 medium: schema and indexes for sales collection',
+    name: 'schema and indexes for sales collection',
     input: {
       messages: [
         {
@@ -3026,7 +3026,7 @@ const multiToolCases: ToolCallEvalCase[] = [
     metadata: { difficulty: 'medium' },
   },
   {
-    name: 'v2 medium: compare collection and database storage',
+    name: 'compare collection and database storage',
     input: {
       messages: [
         {
@@ -3068,7 +3068,7 @@ const multiToolCases: ToolCallEvalCase[] = [
     metadata: { difficulty: 'medium' },
   },
   {
-    name: 'v2 medium: explore available data after connecting',
+    name: 'explore available data after connecting',
     input: {
       messages: [
         {
@@ -3101,7 +3101,7 @@ const multiToolCases: ToolCallEvalCase[] = [
     metadata: { difficulty: 'medium' },
   },
   {
-    name: 'v2 medium: inspect schema before querying restaurants',
+    name: 'inspect schema before querying restaurants',
     input: {
       messages: [
         {
@@ -3166,7 +3166,7 @@ const multiToolCases: ToolCallEvalCase[] = [
     metadata: { difficulty: 'medium' },
   },
   {
-    name: 'v2 hard: broad weather collection overview',
+    name: 'broad weather collection overview',
     input: {
       messages: [
         {
@@ -3249,7 +3249,7 @@ const multiToolCases: ToolCallEvalCase[] = [
     metadata: { difficulty: 'hard' },
   },
   {
-    name: 'v2 hard: debug current pipeline with follow-up inspection',
+    name: 'debug current pipeline with follow-up inspection',
     input: {
       messages: [
         {
@@ -3290,7 +3290,7 @@ const multiToolCases: ToolCallEvalCase[] = [
     metadata: { difficulty: 'hard' },
   },
   {
-    name: 'v2 harder: inspect current query before checking sort index',
+    name: 'inspect current query before checking sort index',
     input: {
       messages: [
         {
@@ -3331,7 +3331,7 @@ const multiToolCases: ToolCallEvalCase[] = [
     metadata: { difficulty: 'hard' },
   },
   {
-    name: 'v2 harder: ground cleanliness query with schema first',
+    name: 'ground cleanliness query with schema first',
     input: {
       messages: [
         {
@@ -3389,7 +3389,7 @@ const multiToolCases: ToolCallEvalCase[] = [
     metadata: { difficulty: 'hard' },
   },
   {
-    name: 'v2 harder: adapt current pipeline with extra filter',
+    name: 'adapt current pipeline with extra filter',
     input: {
       messages: [
         {
@@ -3446,7 +3446,7 @@ const multiToolCases: ToolCallEvalCase[] = [
     metadata: { difficulty: 'hard' },
   },
   {
-    name: 'v2 harder: pre-query collection overview',
+    name: 'pre-query collection overview',
     input: {
       messages: [
         {
@@ -3494,7 +3494,7 @@ const multiToolCases: ToolCallEvalCase[] = [
 
 const multiTurnCases: ToolCallEvalCase[] = [
   {
-    name: 'v2 multi-turn: schema then query follow-up',
+    name: 'schema then query follow-up',
     input: {
       messages: [
         {
@@ -3538,7 +3538,7 @@ const multiTurnCases: ToolCallEvalCase[] = [
     metadata: { difficulty: 'medium' },
   },
   {
-    name: 'v2 multi-turn: correction flow to different collection',
+    name: 'correction flow to different collection',
     input: {
       messages: [
         {
@@ -3581,7 +3581,7 @@ const multiTurnCases: ToolCallEvalCase[] = [
     metadata: { difficulty: 'hard' },
   },
   {
-    name: 'v2 multi-turn: drill-down exploration to count',
+    name: 'drill-down exploration to count',
     input: {
       messages: [
         {
@@ -3629,7 +3629,7 @@ const multiTurnCases: ToolCallEvalCase[] = [
     metadata: { difficulty: 'medium' },
   },
   {
-    name: 'v2 multi-turn: query refinement',
+    name: 'query refinement',
     input: {
       messages: [
         {
@@ -3675,7 +3675,7 @@ const multiTurnCases: ToolCallEvalCase[] = [
     metadata: { difficulty: 'hard' },
   },
   {
-    name: 'v2 multi-turn: performance investigation follow-up',
+    name: 'performance investigation follow-up',
     input: {
       messages: [
         {
@@ -3714,7 +3714,7 @@ const multiTurnCases: ToolCallEvalCase[] = [
     metadata: { difficulty: 'medium' },
   },
   {
-    name: 'v2 multi-turn: pipeline build-up',
+    name: 'pipeline build-up',
     input: {
       messages: [
         {
@@ -3761,7 +3761,7 @@ const multiTurnCases: ToolCallEvalCase[] = [
     metadata: { difficulty: 'hard' },
   },
   {
-    name: 'v2 multi-turn: context switch mid-conversation',
+    name: 'context switch mid-conversation',
     input: {
       messages: [
         {
@@ -3805,7 +3805,7 @@ const multiTurnCases: ToolCallEvalCase[] = [
   {
     // TODO: The current tool-call scorers only verify that no extra tool call happens.
     // Add a scorer for answer quality on multi-turn advice-only follow-ups.
-    name: 'v2 multi-turn: diagnostic advice after current query inspection',
+    name: 'diagnostic advice after current query inspection',
     input: {
       messages: [
         {
@@ -3845,7 +3845,7 @@ const noToolCases: ToolCallEvalCase[] = [
   {
     // TODO: The current tool-call scorers under-reward correct no-tool refusals.
     // Add a dedicated no-tool / refusal scorer before treating this as stable.
-    name: 'v2 hard: refuse delete request',
+    name: 'refuse delete request',
     input: {
       messages: [
         { role: 'user', content: 'Delete all movies from before 1950.' },
@@ -3861,7 +3861,7 @@ const noToolCases: ToolCallEvalCase[] = [
   {
     // TODO: The current tool-call scorers under-reward correct no-tool refusals.
     // Add a dedicated no-tool / refusal scorer before treating this as stable.
-    name: 'v2 hard: refuse insert request',
+    name: 'refuse insert request',
     input: {
       messages: [
         {
@@ -3880,7 +3880,7 @@ const noToolCases: ToolCallEvalCase[] = [
   {
     // TODO: The current tool-call scorers under-reward correct no-tool answers.
     // Add a dedicated no-tool / knowledge-answer scorer for docs-style prompts.
-    name: 'v2 hard: docs question should not use tools',
+    name: 'docs question should not use tools',
     input: {
       messages: [
         {
@@ -3900,7 +3900,7 @@ const noToolCases: ToolCallEvalCase[] = [
   {
     // TODO: The current tool-call scorers under-reward correct no-tool refusals.
     // Add a dedicated no-tool / refusal scorer before treating this as stable.
-    name: 'v2 harder: refuse create index request',
+    name: 'refuse create index request',
     input: {
       messages: [
         {
@@ -3922,7 +3922,7 @@ const noToolCases: ToolCallEvalCase[] = [
   {
     // TODO: The current tool-call scorers under-reward correct no-tool answers.
     // Add a dedicated no-tool / unsupported-request scorer before treating this as stable.
-    name: 'v2 harder: unsupported query history comparison',
+    name: 'unsupported query history comparison',
     input: {
       messages: [
         {
