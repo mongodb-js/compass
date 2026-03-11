@@ -203,8 +203,8 @@ describe('indexes-drawer module', function () {
 
   describe('action creators', function () {
     describe('openIndexesListDrawerView', function () {
-      it('dispatches OPEN_INDEXES_LIST_DRAWER_VIEW action', function () {
-        store.dispatch(openIndexesListDrawerView());
+      it('dispatches OPEN_INDEXES_LIST_DRAWER_VIEW action', async function () {
+        await store.dispatch(openIndexesListDrawerView());
 
         expect(store.getState().indexesDrawer.currentView).to.equal(
           'indexes-list'
@@ -213,8 +213,8 @@ describe('indexes-drawer module', function () {
     });
 
     describe('openCreateSearchIndexDrawerView', function () {
-      it('dispatches OPEN_CREATE_SEARCH_INDEX_DRAWER_VIEW action with search type', function () {
-        store.dispatch(openCreateSearchIndexDrawerView('search'));
+      it('dispatches OPEN_CREATE_SEARCH_INDEX_DRAWER_VIEW action with search type', async function () {
+        await store.dispatch(openCreateSearchIndexDrawerView('search'));
 
         expect(store.getState().indexesDrawer.currentView).to.equal(
           'create-search-index'
@@ -224,8 +224,8 @@ describe('indexes-drawer module', function () {
         );
       });
 
-      it('dispatches OPEN_CREATE_SEARCH_INDEX_DRAWER_VIEW action with vectorSearch type', function () {
-        store.dispatch(openCreateSearchIndexDrawerView('vectorSearch'));
+      it('dispatches OPEN_CREATE_SEARCH_INDEX_DRAWER_VIEW action with vectorSearch type', async function () {
+        await store.dispatch(openCreateSearchIndexDrawerView('vectorSearch'));
 
         expect(store.getState().indexesDrawer.currentView).to.equal(
           'create-search-index'
@@ -237,8 +237,8 @@ describe('indexes-drawer module', function () {
     });
 
     describe('openEditSearchIndexDrawerView', function () {
-      it('dispatches OPEN_EDIT_SEARCH_INDEX_DRAWER_VIEW action', function () {
-        store.dispatch(openEditSearchIndexDrawerView('my-index'));
+      it('dispatches OPEN_EDIT_SEARCH_INDEX_DRAWER_VIEW action', async function () {
+        await store.dispatch(openEditSearchIndexDrawerView('my-index'));
 
         expect(store.getState().indexesDrawer.currentView).to.equal(
           'edit-search-index'

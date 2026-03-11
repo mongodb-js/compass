@@ -17,7 +17,6 @@ import {
 } from '../../modules/indexes-drawer';
 import {
   useOnAsyncSuccess,
-  useConfirmCancel,
   useIndexDefinitionChange,
 } from './drawer-view-hooks';
 import {
@@ -117,7 +116,6 @@ const EditSearchIndexDrawerView: React.FunctionComponent<
     setIndexDefinition,
     onIndexDefinitionEdit
   );
-  const onCancelClick = useConfirmCancel(isDirty, onClose);
 
   const onSaveClick = useCallback(() => {
     updateIndex({
@@ -193,7 +191,7 @@ const EditSearchIndexDrawerView: React.FunctionComponent<
         <Button
           data-testid="edit-search-index-drawer-view-cancel-button"
           variant="default"
-          onClick={() => void onCancelClick()}
+          onClick={onClose}
         >
           Cancel
         </Button>

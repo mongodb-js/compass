@@ -17,7 +17,6 @@ import {
 } from '../../modules/indexes-drawer';
 import {
   useOnAsyncSuccess,
-  useConfirmCancel,
   useIndexDefinitionChange,
 } from './drawer-view-hooks';
 import type { SearchIndexType } from '../../modules/indexes-drawer';
@@ -135,7 +134,6 @@ const CreateSearchIndexDrawerView: React.FunctionComponent<
     setIndexDefinition,
     onIndexDefinitionEdit
   );
-  const onCancelClick = useConfirmCancel(isDirty, onClose);
 
   const onCreateClick = useCallback(() => {
     createIndex({
@@ -201,7 +199,7 @@ const CreateSearchIndexDrawerView: React.FunctionComponent<
         <Button
           data-testid="create-search-index-drawer-view-cancel-button"
           variant="default"
-          onClick={() => void onCancelClick()}
+          onClick={onClose}
         >
           Cancel
         </Button>
