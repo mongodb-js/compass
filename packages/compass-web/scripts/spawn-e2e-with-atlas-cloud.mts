@@ -19,10 +19,10 @@ if (!EVG_USER || !EVG_API_KEY) {
 
 const OS = os.type().toLowerCase();
 const ARCH = os.arch();
-const CLI_DIR = path.join(os.tmpdir(), 'evergreen-cli');
+const CLI_DIR = path.join(os.tmpdir(), crypto.randomUUID());
 const EVERGREEN_CONFIG = path.join(CLI_DIR, '.evergreen.yml');
 
-await fs.promises.mkdir(CLI_DIR, { recursive: true });
+await fs.promises.mkdir(CLI_DIR, { recursive: true, mode: 0o700 });
 
 function cleanup() {
   console.debug('cleaning up...');
@@ -105,7 +105,7 @@ await fetch(`https://evergreen.mongodb.com/clients/${OS}_${ARCH}/evergreen`, {
   );
 });
 
-spawnSync('chmod', ['+x', EVERGREEN_CLI_BIN]);
+await fs.promises.chmod(EVERGREEN_CLI_BIN, 0o700);
 
 console.debug(spawnEvergreenSync(['--version']).stdout.trimEnd());
 
