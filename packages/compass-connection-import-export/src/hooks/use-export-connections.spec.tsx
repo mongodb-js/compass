@@ -55,16 +55,16 @@ describe('useExportConnections', function () {
   });
 
   // Security-relevant test -- description is in the protect-connection-strings e2e test.
-  it('sets removeSecrets if protectConnectionStrings is set', function () {
+  it('defaults to removeSecrets and keeps it enabled when protectConnectionStrings is set', function () {
     const { result } = renderUseExportConnectionsHook();
 
-    expect(result.current.state.removeSecrets).to.equal(false);
+    expect(result.current.state.removeSecrets).to.equal(true);
     act(() => {
       result.current.onChangeRemoveSecrets({
-        target: { checked: true },
+        target: { checked: false },
       } as any);
     });
-    expect(result.current.state.removeSecrets).to.equal(true);
+    expect(result.current.state.removeSecrets).to.equal(false);
     cleanup();
 
     const { result: resultInProtectedMode } = renderUseExportConnectionsHook(
@@ -193,6 +193,9 @@ describe('useExportConnections', function () {
       .resolves(fileContents);
 
     act(() => {
+      result.current.onChangeRemoveSecrets({
+        target: { checked: false },
+      } as any);
       result.current.onChangeFilename(filename);
       result.current.onChangePassphrase('s3cr3t');
     });

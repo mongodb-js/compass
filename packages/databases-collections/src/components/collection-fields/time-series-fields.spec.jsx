@@ -1,17 +1,19 @@
 import React from 'react';
-import { mount } from 'enzyme';
+import {
+  render,
+  screen,
+  userEvent,
+  within,
+} from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import sinon from 'sinon';
-import { FormFieldContainer, Select } from '@mongodb-js/compass-components';
 
 import TimeSeriesFields from './time-series-fields';
 
 describe('TimeSeriesFields [Component]', function () {
   context('when isTimeSeries prop is true', function () {
-    let component;
-
-    beforeEach(function () {
-      component = mount(
+    it('renders the form field containers', function () {
+      render(
         <TimeSeriesFields
           isTimeSeries
           isClustered={false}
@@ -23,22 +25,19 @@ describe('TimeSeriesFields [Component]', function () {
           expireAfterSeconds=""
         />
       );
-    });
-
-    afterEach(function () {
-      component = null;
-    });
-
-    it('renders the form field containers', function () {
-      expect(component.find(FormFieldContainer).length).to.equal(5);
+      // When expanded, there should be: timeField, metaField, granularity (Select), expireAfterSeconds
+      expect(screen.getByRole('textbox', { name: /timeField/i })).to.exist;
+      expect(screen.getByRole('textbox', { name: /metaField/i })).to.exist;
+      expect(screen.getByRole('button', { name: /granularity/i })).to.exist;
+      expect(
+        screen.getByRole('spinbutton', { name: /expireAfterSeconds/i })
+      ).to.exist;
     });
   });
 
   context('when isTimeSeries prop is false', function () {
-    let component;
-
-    beforeEach(function () {
-      component = mount(
+    it('does not render the fields', function () {
+      render(
         <TimeSeriesFields
           isTimeSeries={false}
           isClustered={false}
@@ -50,28 +49,38 @@ describe('TimeSeriesFields [Component]', function () {
           expireAfterSeconds=""
         />
       );
-    });
-
-    afterEach(function () {
-      component = null;
-    });
-
-    it('does not render the fields', function () {
-      expect(component.find(FormFieldContainer).length).to.equal(1);
+      // When collapsed, the text inputs should not be visible
+      expect(
+        screen.queryByRole('textbox', { name: /timeField/i })
+      ).to.not.exist;
+      expect(
+        screen.queryByRole('textbox', { name: /metaField/i })
+      ).to.not.exist;
     });
 
     it('has the time-series checkbox enabled', function () {
-      expect(component.find('Checkbox').props().disabled).to.equal(false);
+      render(
+        <TimeSeriesFields
+          isTimeSeries={false}
+          isClustered={false}
+          isFLE2={false}
+          supportsFlexibleBucketConfiguration={false}
+          onChangeIsTimeSeries={() => {}}
+          onChangeField={() => {}}
+          timeSeries={{}}
+          expireAfterSeconds=""
+        />
+      );
+      const checkbox = screen.getByRole('checkbox', { name: /Time-Series/i });
+      expect(checkbox).to.exist;
+      expect(checkbox).to.not.have.attribute('aria-disabled', 'true');
     });
   });
 
   describe('when the time series checkbox is clicked', function () {
-    let component;
-    let onChangeSpy;
-
-    beforeEach(function () {
-      onChangeSpy = sinon.spy();
-      component = mount(
+    it('calls the onchange with time series collection on', function () {
+      const onChangeSpy = sinon.spy();
+      render(
         <TimeSeriesFields
           isTimeSeries={false}
           isClustered={false}
@@ -83,19 +92,9 @@ describe('TimeSeriesFields [Component]', function () {
           expireAfterSeconds=""
         />
       );
-      component
-        .find('input[type="checkbox"]')
-        .at(0)
-        .simulate('change', { target: { checked: true } });
-      component.update();
-    });
+      const checkbox = screen.getByRole('checkbox', { name: /Time-Series/i });
+      userEvent.click(checkbox, undefined, { skipPointerEventsCheck: true });
 
-    afterEach(function () {
-      component = null;
-      onChangeSpy = null;
-    });
-
-    it('calls the onchange with time series collection on', function () {
       expect(onChangeSpy.callCount).to.equal(1);
       expect(onChangeSpy.firstCall.args[0]).to.deep.equal(true);
     });
@@ -103,7 +102,7 @@ describe('TimeSeriesFields [Component]', function () {
 
   describe('when supportsFlexibleBucketConfiguration is true', function () {
     it('renders flexible bucketing options', function () {
-      const component = mount(
+      render(
         <TimeSeriesFields
           isTimeSeries={true}
           isClustered={false}
@@ -115,51 +114,44 @@ describe('TimeSeriesFields [Component]', function () {
           expireAfterSeconds=""
         />
       );
-      expect(
-        component.find('input[name="timeSeries.bucketMaxSpanSeconds"]')
-      ).to.have.lengthOf(1);
-      expect(
-        component.find('input[name="timeSeries.bucketRoundingSeconds"]')
-      ).to.have.lengthOf(1);
+      expect(screen.getByRole('spinbutton', { name: /bucketMaxSpanSeconds/i }))
+        .to.exist;
+      expect(screen.getByRole('spinbutton', { name: /bucketRoundingSeconds/i }))
+        .to.exist;
     });
   });
 
   context('when rendered', function () {
-    let component;
-    let onChangeSpy;
-    let onChangeFieldSpy;
-
-    beforeEach(function () {
-      onChangeSpy = sinon.spy();
-      onChangeFieldSpy = sinon.spy();
-
-      component = mount(
-        <TimeSeriesFields
-          isTimeSeries
-          isClustered={false}
-          isFLE2={false}
-          supportsFlexibleBucketConfiguration={false}
-          onChangeIsTimeSeries={onChangeSpy}
-          onChangeField={onChangeFieldSpy}
-          timeSeries={{}}
-          expireAfterSeconds=""
-        />
-      );
-    });
-
-    afterEach(function () {
-      component = null;
-      onChangeSpy = null;
-      onChangeFieldSpy = null;
-    });
-
     describe('when a granularity is chosen', function () {
-      beforeEach(function () {
-        component.find(Select).at(0).props().onChange('hours');
-        component.update();
-      });
-
       it('calls the onchange with granularity set', function () {
+        const onChangeFieldSpy = sinon.spy();
+        render(
+          <TimeSeriesFields
+            isTimeSeries
+            isClustered={false}
+            isFLE2={false}
+            supportsFlexibleBucketConfiguration={false}
+            onChangeIsTimeSeries={() => {}}
+            onChangeField={onChangeFieldSpy}
+            timeSeries={{}}
+            expireAfterSeconds=""
+          />
+        );
+        // Click the granularity dropdown button
+        const granularityButton = screen.getByRole('button', {
+          name: /granularity/i,
+        });
+        userEvent.click(granularityButton, undefined, {
+          skipPointerEventsCheck: true,
+        });
+
+        // Select 'hours' option from the listbox
+        const listbox = screen.getByRole('listbox');
+        const hoursOption = within(listbox).getByText('hours');
+        userEvent.click(hoursOption, undefined, {
+          skipPointerEventsCheck: true,
+        });
+
         expect(onChangeFieldSpy.callCount).to.equal(1);
         expect(onChangeFieldSpy.firstCall.args[0]).to.deep.equal(
           'timeSeries.granularity'

@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **Mongodb Compass**.
-This document was automatically generated on Sun Mar 08 2026.
+This document was automatically generated on Tue Mar 10 2026.
 
 ## List of dependencies
 
@@ -103,7 +103,7 @@ This document was automatically generated on Sun Mar 08 2026.
 | **[@floating-ui/react-dom](#efe6c567c3c1d938b8eca9f8ea0a574964195b9282179c8fe0af77c9b73d2257)**                             | 2.1.6              | MIT                                 |
 | **[@floating-ui/react](#1d4fb10fe29ebbe51aa464245053b41f86740a68be4c6ed53dc2072106a5381c)**                                 | 0.26.28            | MIT                                 |
 | **[@floating-ui/utils](#cb18d9d8dfd980ce2f266d23aa09fa1b5dfb5f0cca1cb1eccc9b9cce3e27e9d4)**                                 | 0.2.10             | MIT                                 |
-| **[@hono/node-server](#87a1ece5b9f2deaabb5d2ab69776ecf0d6cf450b3c6512db3c43c4f7595e9f44)**                                  | 1.19.9             | MIT                                 |
+| **[@hono/node-server](#c8c09e016b342dc1b4f7144f8ca54fe679ddfb0611d61de38e24515afce1546d)**                                  | 1.19.11            | MIT                                 |
 | **[@jridgewell/gen-mapping](#1e660067f4d1364dc830c372517d8ec92eddc9af7eaa6b1e698d478b286abafa)**                            | 0.1.1              | MIT                                 |
 | **[@jridgewell/gen-mapping](#145bee95e17934f7606726323f25f7f35b66b3cd10c310665f6654cc43685ec4)**                            | 0.3.13             | MIT                                 |
 | **[@jridgewell/resolve-uri](#f356bc3bb9c04f5fe4e387a4eea4e74125aae03bb50f846d956d7d986d200f50)**                            | 3.1.0              | MIT                                 |
@@ -7899,11 +7899,37 @@ License files:
       IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
       CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-<a id="87a1ece5b9f2deaabb5d2ab69776ecf0d6cf450b3c6512db3c43c4f7595e9f44"></a>
+<a id="c8c09e016b342dc1b4f7144f8ca54fe679ddfb0611d61de38e24515afce1546d"></a>
 
-### [@hono/node-server](https://www.npmjs.com/package/@hono/node-server) (version 1.19.9)
+### [@hono/node-server](https://www.npmjs.com/package/@hono/node-server) (version 1.19.11)
 
 License tags: MIT
+
+License files:
+
+- LICENSE:
+
+      MIT License
+
+      Copyright (c) 2022 - present, Yusuke Wada and Hono contributors
+
+      Permission is hereby granted, free of charge, to any person obtaining a copy
+      of this software and associated documentation files (the "Software"), to deal
+      in the Software without restriction, including without limitation the rights
+      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+      copies of the Software, and to permit persons to whom the Software is
+      furnished to do so, subject to the following conditions:
+
+      The above copyright notice and this permission notice shall be included in all
+      copies or substantial portions of the Software.
+
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+      SOFTWARE.
 
 <a id="1e660067f4d1364dc830c372517d8ec92eddc9af7eaa6b1e698d478b286abafa"></a>
 
