@@ -131,9 +131,9 @@ const patchInfoStr = spawnEvergreenSync([
   '--project',
   '10gen-compass-main',
   '--variants',
-  'check',
+  'test-web-sandbox-atlas-cloud',
   '--tasks',
-  'check',
+  'test-web-sandbox-atlas-cloud',
   '--description',
   process.env.COMPASS_WEB_E2E_TEST_EVERGREEN_PATCH_DESCRIPTION ??
     `Test compass-web with Atlas Cloud against ${ATLAS_CLOUD_ENV} environment`,
