@@ -41,6 +41,7 @@ type DrawerSectionProps = Omit<SectionData, 'content' | 'onClick'> & {
    */
   order?: number;
   guideCue?: GuideCueProps<HTMLButtonElement>;
+  // TODO(COMPASS-10475): Cleanup workaround for drawer beforeSectionHide
   /**
    * Called before the drawer section is hidden (closed or switched away from).
    * If the callback resolves to `false`, the drawer will not be hidden.
@@ -92,6 +93,7 @@ const DrawerActionsContext = React.createContext<DrawerActionsContextValue>({
   },
 });
 
+// TODO(COMPASS-10475): Cleanup workaround for drawer beforeSectionHide
 type BeforeSectionHideContextValue = {
   callbacks: React.MutableRefObject<
     Record<string, (() => Promise<boolean>) | undefined>
@@ -184,6 +186,7 @@ export const DrawerContentProvider: React.FunctionComponent<{
     },
   });
 
+  // TODO(COMPASS-10475): Cleanup workaround for drawer beforeSectionHide
   const beforeSectionHideCallbacksRef = useRef<
     Record<string, (() => Promise<boolean>) | undefined>
   >({});
@@ -405,6 +408,7 @@ export const DrawerAnchor: React.FunctionComponent = ({ children }) => {
     Record<string, HTMLButtonElement | undefined>
   >({});
 
+  // TODO(COMPASS-10475): Cleanup workaround for drawer beforeSectionHide
   // Intercept clicks on toolbar buttons and close button to route through guarded functions
   useLayoutEffect(
     function () {
@@ -659,6 +663,8 @@ export const DrawerSection: React.FunctionComponent<DrawerSectionProps> = ({
       mutationObserver.disconnect();
     };
   }, [props.id]);
+
+  // TODO(COMPASS-10475): Cleanup workaround for drawer beforeSectionHide
   useEffect(() => {
     const actionsRef = actions.current;
     return () => {
@@ -687,6 +693,7 @@ export { DrawerDisplayMode };
 
 export function useDrawerActions() {
   const actions = useContext(DrawerActionsContext);
+  // TODO(COMPASS-10475): Cleanup workaround for drawer beforeSectionHide
   const currentDrawerTab = useContext(DrawerCurrentTabStateContext);
   const { checkBeforeHide } = useContext(BeforeSectionHideContext);
 
