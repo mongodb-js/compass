@@ -6,18 +6,15 @@ import React from 'react';
 
 const errorDetailsCodeStyles = css({
   marginTop: spacing[200],
-  '& pre': {
-    maxHeight: 'calc(100vh - 320px)',
-    overflowY: 'auto',
-  },
+  maxHeight: 'calc(100vh - 320px)',
+  overflow: 'auto',
 });
 
 export const showErrorDetails = function showErrorDetails({
   details,
-  closeAction,
 }: {
   details: Record<string, unknown>;
-  closeAction: 'back' | 'close';
+  closeAction?: 'back' | 'close';
 }) {
   void showConfirmation({
     title: 'Error details',
@@ -32,7 +29,7 @@ export const showErrorDetails = function showErrorDetails({
       </Code>
     ),
     hideCancelButton: true,
-    buttonText: closeAction.replace(/\b\w/g, (c) => c.toUpperCase()),
+    buttonText: 'Close',
     variant: ConfirmationModalVariant.Default,
   });
 };
