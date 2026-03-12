@@ -22,6 +22,7 @@ describe('use-error-details', function () {
             onClick={() => {
               showErrorDetails({
                 details: { oh: 'noes' },
+                closeAction: 'back',
               });
             }}
           >
@@ -35,9 +36,9 @@ describe('use-error-details', function () {
       });
     });
 
-    it('renders modal with close button focused', function () {
+    it('renders modal with cancel button focused', function () {
       expect(within(modal).getByText('Error details')).to.exist;
-      const confirmElement = within(modal).getByText('Close');
+      const confirmElement = within(modal).getByText('Back');
       expect(confirmElement).to.exist;
       expect(confirmElement.parentElement).to.equal(document.activeElement);
     });

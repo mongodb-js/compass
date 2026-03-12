@@ -12,9 +12,10 @@ const errorDetailsCodeStyles = css({
 
 export const showErrorDetails = function showErrorDetails({
   details,
+  closeAction,
 }: {
   details: Record<string, unknown>;
-  closeAction?: 'back' | 'close';
+  closeAction: 'back' | 'close';
 }) {
   void showConfirmation({
     title: 'Error details',
@@ -29,7 +30,7 @@ export const showErrorDetails = function showErrorDetails({
       </Code>
     ),
     hideCancelButton: true,
-    buttonText: 'Close',
+    buttonText: closeAction.replace(/\b\w/g, (c) => c.toUpperCase()),
     variant: ConfirmationModalVariant.Default,
   });
 };
