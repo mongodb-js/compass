@@ -336,13 +336,7 @@ export class AtlasAiService {
           PLACEHOLDER_BASE_URL,
           this.atlasService.assistantApiEndpoint()
         );
-        return this.atlasService.authenticatedFetch(uri, {
-          ...init,
-          headers: {
-            ...(init?.headers ?? {}),
-            entrypoint: 'natural-language-to-mql',
-          },
-        });
+        return this.atlasService.authenticatedFetch(uri, init);
       },
     }).responses('mongodb-slim-latest');
   }
@@ -483,7 +477,7 @@ export class AtlasAiService {
     if (this.preferences.getPreferences().enableChatbotEndpointForGenAI) {
       const message = buildAggregateQueryPrompt({
         ...input,
-        userId: await getHashedActiveUserId(this.preferences, this.logger),
+        analyticsId: await getHashedActiveUserId(this.preferences, this.logger),
       });
       return this.generateQueryUsingChatbot(
         message,
@@ -508,7 +502,7 @@ export class AtlasAiService {
     if (this.preferences.getPreferences().enableChatbotEndpointForGenAI) {
       const message = buildFindQueryPrompt({
         ...input,
-        userId: await getHashedActiveUserId(this.preferences, this.logger),
+        analyticsId: await getHashedActiveUserId(this.preferences, this.logger),
       });
       return this.generateQueryUsingChatbot(message, validateAIQueryResponse, {
         signal: input.signal,

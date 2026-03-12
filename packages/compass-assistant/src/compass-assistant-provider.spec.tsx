@@ -499,7 +499,7 @@ describe('CompassAssistantProvider', function () {
       });
       const firstCallArgs = sendMessageSpy.firstCall.args[0];
       expect(firstCallArgs?.metadata?.requestId).to.be.a('string');
-      expect(firstCallArgs?.metadata?.userId).to.be.a('string');
+      expect(firstCallArgs?.metadata?.analyticsId).to.be.a('string');
       expect(firstCallArgs?.metadata?.connectionInfo).to.be.undefined;
       expect(firstCallArgs?.metadata?.disableStorage).to.be.false;
     });

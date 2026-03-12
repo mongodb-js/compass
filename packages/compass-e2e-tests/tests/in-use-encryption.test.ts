@@ -1462,6 +1462,7 @@ describe('CSFLE / QE', function () {
       const requests = mockAssistantServer.getRequests();
       expect(requests.length).to.equal(1);
       expect(requests[0].content.store).to.equal(false);
+      expect(requests[0].content.metadata.sensitive_storage).to.equal('false');
     });
 
     it('when sending message from other entrypoint', async function () {
@@ -1482,6 +1483,7 @@ describe('CSFLE / QE', function () {
       const requests = mockAssistantServer.getRequests();
       expect(requests.length).to.equal(1);
       expect(requests[0].content.store).to.equal(false);
+      expect(requests[0].content.metadata.sensitive_storage).to.equal('false');
     });
   });
 });

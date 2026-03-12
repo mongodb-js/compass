@@ -13,7 +13,7 @@ const OPTIONS: PromptContextOptions = {
   userInput: 'Find all users older than 30',
   databaseName: 'airbnb',
   collectionName: 'listings',
-  userId: 'test-user-id',
+  analyticsId: 'test-user-id',
   enableStorage: false,
   requestId: 'test-request-id',
   schema: {
@@ -64,9 +64,9 @@ describe('GenAI Prompts', function () {
       'The current date is',
       'includes date instruction'
     );
-    expect(metadata.userId).to.equal(OPTIONS.userId);
-    expect(metadata.store).to.equal(false);
+    expect(metadata.analyticsId).to.equal(OPTIONS.analyticsId);
     expect(metadata.requestId).to.equal(OPTIONS.requestId);
+    expect(metadata.sensitiveStorage).to.equal('false');
 
     expect(prompt).to.be.a('string');
     expect(prompt).to.include(
@@ -109,8 +109,8 @@ describe('GenAI Prompts', function () {
       'The current date is',
       'includes date instruction'
     );
-    expect(metadata.userId).to.equal(OPTIONS.userId);
-    expect(metadata.store).to.equal(false);
+    expect(metadata.analyticsId).to.equal(OPTIONS.analyticsId);
+    expect(metadata.sensitiveStorage).to.equal('false');
     expect(metadata.requestId).to.equal(OPTIONS.requestId);
 
     expect(prompt).to.be.a('string');
@@ -211,16 +211,16 @@ describe('GenAI Prompts', function () {
         ...OPTIONS,
         enableStorage: true,
       });
-      expect(metadata.store).to.equal(true);
-      expect((metadata as any).sensitiveStorage).to.equal('sensitive');
+      expect(metadata.sensitiveStorage).to.equal('true');
+      expect((metadata as any).sensitiveStorage).to.equal('true');
     });
     it('sets store to true in metadata when building aggregate query prompt', function () {
       const { metadata } = buildAggregateQueryPrompt({
         ...OPTIONS,
         enableStorage: true,
       });
-      expect(metadata.store).to.equal(true);
-      expect((metadata as any).sensitiveStorage).to.equal('sensitive');
+      expect(metadata.sensitiveStorage).to.equal('true');
+      expect((metadata as any).sensitiveStorage).to.equal('true');
     });
   });
 
