@@ -260,7 +260,7 @@ export const DiagramSettingsContent: React.FunctionComponent<
               />
               <span>
                 <strong>Warning:</strong> Consider your dataset size and the
-                available resources on the your device or browser.
+                available resources on your device or browser.
               </span>
             </div>
           )}
