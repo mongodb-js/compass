@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { connect, useSelector } from 'react-redux';
+import { connect, useSelector, shallowEqual } from 'react-redux';
 import type { RootState } from '../../modules';
 import type { State as RegularIndexesState } from '../../modules/regular-indexes';
 import type { State as SearchIndexesState } from '../../modules/search-indexes';
@@ -94,7 +94,7 @@ const IndexesListDrawerView: React.FunctionComponent<
     'enableAtlasSearchIndexes',
   ]);
   const { isViewVersionSearchCompatible, isViewPipelineSearchQueryable } =
-    useSelector(selectIsViewSearchCompatible(isAtlas));
+    useSelector(selectIsViewSearchCompatible(isAtlas), shallowEqual);
   const {
     isRegularIndexesReadable,
     isRegularIndexesWritable,
@@ -106,7 +106,8 @@ const IndexesListDrawerView: React.FunctionComponent<
       readOnly,
       readWrite,
       enableAtlasSearchIndexes,
-    })
+    }),
+    shallowEqual
   );
 
   useEffect(() => {
