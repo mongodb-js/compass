@@ -9,6 +9,7 @@ import { CodemirrorMultilineEditor } from './editor';
 import type { EditorRef } from './types';
 import { expect } from 'chai';
 import type { JSONSchema7 } from 'json-schema';
+import { normalizeRelaxedJson } from './json-schema-languageservice';
 
 // Simple JSON schema for testing
 const testSchema: JSONSchema7 = {
@@ -301,6 +302,121 @@ describe('json-schema-languageservice', function () {
 
       // The initial valid JSON should result in hasErrors: false being called
       expect(validationStates).to.include(false);
+    });
+  });
+
+  describe('normalizeRelaxedJson', function () {
+    it('returns unchanged content for already valid JSON', function () {
+      const content = '{"name": "test", "count": 42}';
+      const { normalized } = normalizeRelaxedJson(content);
+      expect(normalized).to.equal(content);
+    });
+
+    it('adds quotes around single unquoted property key', function () {
+      const content = '{ name: "test" }';
+      const { normalized } = normalizeRelaxedJson(content);
+      expect(normalized).to.equal('{ "name": "test" }');
+    });
+
+    it('adds quotes around multiple unquoted property keys', function () {
+      const content = '{ name: "test", count: 42 }';
+      const { normalized } = normalizeRelaxedJson(content);
+      expect(normalized).to.equal('{ "name": "test", "count": 42 }');
+    });
+
+    it('handles nested objects with unquoted keys', function () {
+      const content = '{ outer: { inner: "value" } }';
+      const { normalized } = normalizeRelaxedJson(content);
+      expect(normalized).to.equal('{ "outer": { "inner": "value" } }');
+    });
+
+    it('handles mixed quoted and unquoted keys', function () {
+      const content = '{ name: "test", "count": 42, active: true }';
+      const { normalized } = normalizeRelaxedJson(content);
+      expect(normalized).to.equal(
+        '{ "name": "test", "count": 42, "active": true }'
+      );
+    });
+
+    it('handles keys with underscores and dollars', function () {
+      const content = '{ _private: 1, $special: 2, normal_key: 3 }';
+      const { normalized } = normalizeRelaxedJson(content);
+      expect(normalized).to.equal(
+        '{ "_private": 1, "$special": 2, "normal_key": 3 }'
+      );
+    });
+
+    describe('mapPosition (original to normalized)', function () {
+      it('maps position before any keys unchanged', function () {
+        const content = '{ foo: 1 }';
+        const { mapPosition } = normalizeRelaxedJson(content);
+        // Position 0 is before everything
+        expect(mapPosition(0)).to.equal(0);
+        // Position 1 is at the space after {
+        expect(mapPosition(1)).to.equal(1);
+      });
+
+      it('maps position at key start to after opening quote', function () {
+        const content = '{ foo: 1 }';
+        const { mapPosition } = normalizeRelaxedJson(content);
+        // 'foo' starts at position 2 in original
+        // In normalized '{ "foo": 1 }', 'foo' starts at position 3 (after ")
+        expect(mapPosition(2)).to.equal(3);
+      });
+
+      it('maps position after key to account for added quotes', function () {
+        const content = '{ foo: 1 }';
+        const { mapPosition } = normalizeRelaxedJson(content);
+        // Position after 'foo:' in original is 6
+        // In normalized, it's 6 + 2 = 8 (for the two quotes added)
+        expect(mapPosition(6)).to.equal(8);
+      });
+
+      it('maps positions correctly with multiple keys', function () {
+        const content = '{ a: 1, b: 2 }';
+        const { mapPosition } = normalizeRelaxedJson(content);
+        // 'a' at pos 2 -> pos 3 (after first ")
+        expect(mapPosition(2)).to.equal(3);
+        // 'b' at pos 8 in original -> pos 8 + 2 (for "a") + 1 = 11 in normalized
+        expect(mapPosition(8)).to.equal(11);
+      });
+    });
+
+    describe('mapPositionBack (normalized to original)', function () {
+      it('maps position before any keys unchanged', function () {
+        const content = '{ foo: 1 }';
+        const { mapPositionBack } = normalizeRelaxedJson(content);
+        expect(mapPositionBack(0)).to.equal(0);
+        expect(mapPositionBack(1)).to.equal(1);
+      });
+
+      it('maps position inside quoted key back to original key position', function () {
+        const content = '{ foo: 1 }';
+        const { mapPositionBack } = normalizeRelaxedJson(content);
+        // In normalized '{ "foo": 1 }', 'f' is at position 3
+        // In original '{ foo: 1 }', 'f' is at position 2
+        expect(mapPositionBack(3)).to.equal(2);
+      });
+
+      it('maps position after quoted key back correctly', function () {
+        const content = '{ foo: 1 }';
+        const { mapPositionBack } = normalizeRelaxedJson(content);
+        // Original:   '{ foo: 1 }' - ':' is at position 5
+        //              0123456789
+        // Normalized: '{ "foo": 1 }' - ':' is at position 7
+        //              012345678901
+        expect(mapPositionBack(7)).to.equal(5);
+      });
+
+      it('maps positions correctly with multiple keys', function () {
+        const content = '{ a: 1, b: 2 }';
+        const { mapPositionBack } = normalizeRelaxedJson(content);
+        // Normalized: '{ "a": 1, "b": 2 }'
+        // 'a' in normalized is at pos 3, in original at pos 2
+        expect(mapPositionBack(3)).to.equal(2);
+        // 'b' in normalized is at pos 11, in original at pos 8
+        expect(mapPositionBack(11)).to.equal(8);
+      });
     });
   });
 });

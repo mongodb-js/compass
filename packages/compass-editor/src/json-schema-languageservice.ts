@@ -124,6 +124,104 @@ function getJsonDocument(
 }
 
 /**
+ * Normalizes relaxed JSON (with unquoted property keys) to strict JSON
+ * by adding double quotes around unquoted property keys.
+ * This allows vscode-json-languageservice to parse and provide completions
+ * for documents with unquoted keys.
+ *
+ * @returns An object with the normalized content and functions to map positions
+ */
+export function normalizeRelaxedJson(content: string): {
+  normalized: string;
+  mapPosition: (pos: number) => number;
+  mapPositionBack: (pos: number) => number;
+} {
+  // Track position adjustments caused by adding quotes
+  // Each adjustment records: original position of key start, and cumulative delta before this key
+  const adjustments: {
+    originalPos: number;
+    normalizedPos: number;
+    keyLength: number;
+  }[] = [];
+  let cumulativeDelta = 0;
+
+  // Match unquoted property keys: identifier followed by colon
+  // This regex finds: start of object or comma, optional whitespace, unquoted identifier,
+  // optional whitespace, colon
+  // It handles: { foo: 1 }, { foo: 1, bar : 2 }, nested objects, etc.
+  const normalized = content.replace(
+    /([{,]\s*)([a-zA-Z_$][a-zA-Z0-9_$]*)(\s*:)/g,
+    (_match, prefix, key, suffix, offset) => {
+      // Record the position adjustment
+      // The key starts after the prefix
+      const keyStart = offset + prefix.length;
+      const normalizedKeyStart = keyStart + cumulativeDelta + 1; // +1 for the opening quote
+      adjustments.push({
+        originalPos: keyStart,
+        normalizedPos: normalizedKeyStart,
+        keyLength: key.length,
+      });
+
+      // We're adding 2 characters (the quotes) around the key
+      cumulativeDelta += 2;
+
+      return `${prefix}"${key}"${suffix}`;
+    }
+  );
+
+  // Function to map a position in the original content to the normalized content
+  const mapPosition = (originalPos: number): number => {
+    let delta = 0;
+    for (const adj of adjustments) {
+      if (originalPos > adj.originalPos) {
+        // Position is after this adjustment point
+        delta += 2; // Include the 2 chars we added
+      } else if (originalPos === adj.originalPos) {
+        // Position is exactly at the start of a key that got quoted
+        // Map it to after the opening quote
+        delta += 1;
+        break;
+      } else {
+        break;
+      }
+    }
+    return originalPos + delta;
+  };
+
+  // Function to map a position from normalized content back to original content
+  const mapPositionBack = (normalizedPos: number): number => {
+    let delta = 0;
+    for (const adj of adjustments) {
+      const normalizedKeyEnd = adj.normalizedPos + adj.keyLength;
+      // Check if position is within the quoted key region in normalized content
+      // The quoted key in normalized: " + key + "
+      // adj.normalizedPos points to the key start (after opening quote)
+      const quotedStart = adj.normalizedPos - 1; // opening quote position
+      const closingQuotePos = normalizedKeyEnd; // position of closing quote
+
+      if (normalizedPos <= quotedStart) {
+        // Before this key's opening quote
+        break;
+      } else if (normalizedPos < normalizedKeyEnd) {
+        // Inside the key itself (between quotes) - account for opening quote only
+        delta += 1;
+        break;
+      } else if (normalizedPos === closingQuotePos) {
+        // At the closing quote position - account for opening quote only
+        delta += 1;
+        break;
+      } else {
+        // After the closing quote - account for both quotes
+        delta += 2;
+      }
+    }
+    return normalizedPos - delta;
+  };
+
+  return { normalized, mapPosition, mapPositionBack };
+}
+
+/**
  * Creates a JSON language service configured with the provided schema.
  * Takes getLanguageService as a parameter to support dynamic imports.
  */
@@ -233,21 +331,30 @@ export async function createJsonSchemaServiceExtension(): Promise<
     // Create lint source for validation
     const lintSource: LintSource = async (view) => {
       const content = view.state.doc.toString();
-      const textDoc = createTextDoc(content);
-      const jsonDocument = getJsonDocument(languageService, textDoc);
+
+      // Normalize relaxed JSON (unquoted keys) to strict JSON for validation
+      const { normalized, mapPositionBack } = normalizeRelaxedJson(content);
+      const normalizedTextDoc = createTextDoc(normalized);
+      const jsonDocument = getJsonDocument(languageService, normalizedTextDoc);
       const diagnostics = await languageService.doValidation(
-        textDoc,
+        normalizedTextDoc,
         jsonDocument
       );
 
       const results: CMDiagnostic[] = [];
       for (const diagnostic of diagnostics) {
         const { message, range, severity } = diagnostic;
-        const from =
+
+        // Calculate positions in normalized content
+        const normalizedFrom =
           view.state.doc.line(range.start.line + 1).from +
           range.start.character;
-        const to =
+        const normalizedTo =
           view.state.doc.line(range.end.line + 1).from + range.end.character;
+
+        // Map positions back to original content
+        const from = mapPositionBack(normalizedFrom);
+        const to = mapPositionBack(normalizedTo);
 
         results.push({
           message,
@@ -282,18 +389,28 @@ export async function createJsonSchemaServiceExtension(): Promise<
       }
 
       const content = context.state.doc.toString();
-      const textDoc = createTextDoc(content);
-      const jsonDocument = getJsonDocument(languageService, textDoc);
 
-      // Calculate LSP position from CodeMirror position
+      // Normalize relaxed JSON (unquoted keys) to strict JSON for the language service
+      const { normalized, mapPosition } = normalizeRelaxedJson(content);
+      const normalizedTextDoc = createTextDoc(normalized);
+      const jsonDocument = getJsonDocument(languageService, normalizedTextDoc);
+
+      // Calculate LSP position in the normalized content
       const line = context.state.doc.lineAt(context.pos);
+      const lineStart = line.from;
+
+      // Map the position to the normalized content
+      const normalizedPos = mapPosition(context.pos);
+      const normalizedLineStart = mapPosition(lineStart);
+      const normalizedCharacter = normalizedPos - normalizedLineStart;
+
       const position = {
         line: line.number - 1,
-        character: context.pos - line.from,
+        character: normalizedCharacter,
       };
 
       const completions = await languageService.doComplete(
-        textDoc,
+        normalizedTextDoc,
         position,
         jsonDocument
       );
@@ -323,25 +440,53 @@ export async function createJsonSchemaServiceExtension(): Promise<
         };
 
         if (textEdit && 'range' in textEdit) {
-          const range = textEdit.range;
-          const from =
-            context.state.doc.line(range.start.line + 1).from +
-            range.start.character;
-          const to =
-            context.state.doc.line(range.end.line + 1).from +
-            range.end.character;
-
+          // The textEdit range is in the normalized content, but we need to apply
+          // it to the original content. For property key completions, we use
+          // the current cursor position as the insertion point.
           const insert = textEdit.newText;
           const insertTextFormat = item.insertTextFormat;
 
           completion.apply = (view) => {
-            // Check if there's an auto-paired closing quote right after the 'to' position.
+            // Find what the user has typed so far (for filtering)
+            const currentContent = view.state.doc.toString();
+            const cursorPos = view.state.selection.main.head;
+
+            // Look back to find the start of what user is typing
+            let from = cursorPos;
+            const textBefore = currentContent.slice(0, cursorPos);
+
+            // Check if we're completing a property key (after { or ,)
+            const propertyKeyMatch = textBefore.match(
+              /[{,]\s*"?([a-zA-Z_$][a-zA-Z0-9_$]*)?$/
+            );
+            if (propertyKeyMatch) {
+              // Find start of the partial key (including any opening quote)
+              const matchStart = cursorPos - (propertyKeyMatch[1]?.length || 0);
+              const hasQuote = textBefore[matchStart - 1] === '"';
+              from = hasQuote ? matchStart - 1 : matchStart;
+            } else {
+              // Check if we're completing a value (after :)
+              // This handles cases like typing 't' after ':' to get 'true'
+              const valueMatch = textBefore.match(
+                /:\s*"?([a-zA-Z_$][a-zA-Z0-9_$]*)?$/
+              );
+              if (valueMatch) {
+                const matchStart = cursorPos - (valueMatch[1]?.length || 0);
+                const hasQuote = textBefore[matchStart - 1] === '"';
+                from = hasQuote ? matchStart - 1 : matchStart;
+              }
+            }
+
+            // Check if there's an auto-paired closing quote right after the cursor.
             // If so, remove it since the completion from the language service already
             // includes proper quoting/structure.
-            let adjustedTo = to;
-            const charAfterTo = view.state.sliceDoc(to, to + 1);
-            if (charAfterTo === '"' || charAfterTo === "'") {
-              adjustedTo = to + 1;
+            let to = cursorPos;
+            const charAfterCursor = view.state.sliceDoc(
+              cursorPos,
+              cursorPos + 1
+            );
+            if (charAfterCursor === '"' || charAfterCursor === "'") {
+              to = cursorPos + 1;
             }
 
             if (insertTextFormat === InsertTextFormatMap.Snippet) {
@@ -349,12 +494,10 @@ export async function createJsonSchemaServiceExtension(): Promise<
                 view,
                 completion,
                 from,
-                adjustedTo
+                to
               );
             } else {
-              view.dispatch(
-                insertCompletionText(view.state, insert, from, adjustedTo)
-              );
+              view.dispatch(insertCompletionText(view.state, insert, from, to));
             }
 
             // Close the completion popup to prevent it from re-triggering
@@ -454,17 +597,28 @@ export async function createJsonSchemaServiceExtension(): Promise<
       if (!update.docChanged) return;
 
       // Check what character was just typed
-      update.changes.iterChanges((_fromA, _toA, _fromB, _toB, inserted) => {
+      update.changes.iterChanges((_fromA, _toA, fromB, _toB, inserted) => {
         const insertedText = inserted.toString();
 
         // Trigger completion after typing these characters in JSON:
         // " - starting a property name or string value (may be "" due to auto-pairing)
         // : - after a property name, suggesting values
         // newline - on a new line, suggest properties (may include auto-indent spaces)
-        const shouldTrigger =
+        let shouldTrigger =
           insertedText.startsWith('"') ||
           insertedText === ':' ||
           insertedText.startsWith('\n');
+
+        // Check if we're starting an unquoted property key (letter after { or ,)
+        if (!shouldTrigger && /^[a-zA-Z_$]$/.test(insertedText)) {
+          // Look at the text before this character to see if we're in a position
+          // where a property key could start (after { or , with only whitespace)
+          const textBefore = update.state.sliceDoc(0, fromB);
+          const trimmed = textBefore.trimEnd();
+          if (trimmed.endsWith('{') || trimmed.endsWith(',')) {
+            shouldTrigger = true;
+          }
+        }
 
         if (shouldTrigger) {
           startCompletion(update.view);
