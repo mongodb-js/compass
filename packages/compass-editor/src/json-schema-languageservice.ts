@@ -19,6 +19,7 @@ import type { HoverTooltipSource, TooltipView } from '@codemirror/view';
 import { hoverTooltip, EditorView } from '@codemirror/view';
 import { css, spacing } from '@mongodb-js/compass-components';
 import MarkdownIt from 'markdown-it';
+import { json } from '@codemirror/lang-json';
 
 // CompletionItemKind and InsertTextFormat are numeric enums in LSP
 // Values from https://microsoft.github.io/language-server-protocol/specifications/specification-current/
@@ -453,6 +454,7 @@ export async function createJsonSchemaServiceExtension(): Promise<
 
     // Return all extensions bundled together
     return [
+      json(),
       linter(lintSource),
       tooltipTheme,
       triggerCompletionOnType,
