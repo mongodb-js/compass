@@ -11,6 +11,7 @@ import { linter } from '@codemirror/lint';
 import type { CompletionSource, Completion } from '@codemirror/autocomplete';
 import {
   autocompletion,
+  closeCompletion,
   insertCompletionText,
   snippet,
   startCompletion,
@@ -334,16 +335,31 @@ export async function createJsonSchemaServiceExtension(): Promise<
           const insertTextFormat = item.insertTextFormat;
 
           completion.apply = (view) => {
+            // Check if there's an auto-paired closing quote right after the 'to' position.
+            // If so, remove it since the completion from the language service already
+            // includes proper quoting/structure.
+            let adjustedTo = to;
+            const charAfterTo = view.state.sliceDoc(to, to + 1);
+            if (charAfterTo === '"' || charAfterTo === "'") {
+              adjustedTo = to + 1;
+            }
+
             if (insertTextFormat === InsertTextFormatMap.Snippet) {
               snippet(insert.replaceAll(/\$(\d+)/g, '$${$1}'))(
                 view,
                 completion,
                 from,
-                to
+                adjustedTo
               );
             } else {
-              view.dispatch(insertCompletionText(view.state, insert, from, to));
+              view.dispatch(
+                insertCompletionText(view.state, insert, from, adjustedTo)
+              );
             }
+
+            // Close the completion popup to prevent it from re-triggering
+            // immediately after applying.
+            closeCompletion(view);
           };
         } else if (insertText) {
           completion.apply = insertText;
@@ -352,15 +368,19 @@ export async function createJsonSchemaServiceExtension(): Promise<
         options.push(completion);
       }
 
-      // Use context.pos as 'from' so CodeMirror's filtering uses empty string.
-      // This prevents filtering issues when cursor is inside quotes (e.g., after typing "
-      // which auto-pairs to ""). The actual text replacement uses the correct range
-      // from the LSP textEdit via the custom 'apply' function on each completion.
+      // Calculate the 'from' position for filtering.
+      // The labels from vscode-json-languageservice are property names without quotes
+      // (e.g., "name" not "\"name\""), so we should NOT include any leading quote
+      // in the 'from' position. This ensures CodeMirror filters based on the
+      // word characters only.
+      const word = context.matchBefore(/[\w$]*$/);
+      const from = word ? word.from : context.pos;
+
       return {
-        from: context.pos,
+        from,
         options,
         // Allow filtering to continue working as user types
-        validFor: /^["'\w]*$/,
+        validFor: /^[\w$]*$/,
       };
     };
 
