@@ -1,6 +1,7 @@
 import {
   Body,
   css,
+  cx,
   FormFieldContainer,
   Icon,
   Label,
@@ -10,6 +11,7 @@ import {
   spacing,
   TextInput,
   Toggle,
+  useDarkMode,
   WarningSummary,
 } from '@mongodb-js/compass-components';
 import { usePreference } from 'compass-preferences-model/provider';
@@ -77,6 +79,14 @@ const warningIconStyles = css({
   alignSelf: 'flex-start',
 });
 
+const infoTextStyles = css({
+  color: palette.gray.dark1,
+});
+
+const infoTextStylesDark = css({
+  color: palette.gray.light1,
+});
+
 type DiagramSettingsContentProps = {
   automaticallyInferRelationships: boolean;
   samplingOptions: SamplingOptions;
@@ -95,6 +105,8 @@ const InferRelationshipsHeaderStyles = css({
 
 const inferRelationshipLabelId = 'infer-relationships-label';
 const inferRelationshipToggleId = 'infer-relationships-toggle';
+const inferRelationshipDescriptionId = 'infer-relationships-description';
+const samplingOptionsDescriptionId = 'sampling-options-description';
 
 export const DiagramSettingsContent: React.FunctionComponent<
   DiagramSettingsContentProps
@@ -149,6 +161,8 @@ export const DiagramSettingsContent: React.FunctionComponent<
     [samplingOptions, areSamplingOptionsInvalid]
   );
 
+  const darkMode = useDarkMode();
+
   if (error) {
     return (
       <div className={errorStyles}>
@@ -170,6 +184,7 @@ export const DiagramSettingsContent: React.FunctionComponent<
             <Toggle
               id={inferRelationshipToggleId}
               aria-labelledby={inferRelationshipLabelId}
+              aria-describedby={inferRelationshipDescriptionId}
               checked={automaticallyInferRelationships}
               onChange={(checked) => {
                 onAutomaticallyInferRelationshipsToggle(checked);
@@ -177,24 +192,35 @@ export const DiagramSettingsContent: React.FunctionComponent<
               size="small"
             ></Toggle>
           </div>
-          Analysis process will try to automatically discover relationships in
-          selected collections. This operation will run multiple find requests
-          against indexed fields of the collections and{' '}
-          <strong>
-            will take additional time per collection being analyzed.
-          </strong>
+          <div
+            id={inferRelationshipDescriptionId}
+            className={cx(infoTextStyles, darkMode && infoTextStylesDark)}
+          >
+            Analysis process will try to automatically discover relationships in
+            selected collections. This operation will run multiple find requests
+            against indexed fields of the collections and{' '}
+            <strong>
+              will take additional time per collection being analyzed.
+            </strong>
+          </div>
         </>
       )}
       <FormFieldContainer className={sampleSizeContainerStyles}>
         <Body weight="bold">Document sampling</Body>
-        By default, diagrams are generated from a small sample per collection.
-        Larger samples improve accuracy but increase analysis time and memory
-        usage, while smaller samples are faster but may miss infrequent fields
-        or relationships.
+        <div
+          id={samplingOptionsDescriptionId}
+          className={cx(infoTextStyles, darkMode && infoTextStylesDark)}
+        >
+          By default, diagrams are generated from a small sample per collection.
+          Larger samples improve accuracy but increase analysis time and memory
+          usage, while smaller samples are faster but may miss infrequent fields
+          or relationships.
+        </div>
         <RadioGroup
           className={radioGroupStyles}
           onChange={handleRadioGroupChange}
           value={samplingOptions.allDocuments ? 'allDocuments' : 'sampleSize'}
+          aria-describedby={samplingOptionsDescriptionId}
         >
           <Radio value="sampleSize" className={sampleSizeRadioStyles} default>
             <div className={sampleSizeLabelStyles}>
@@ -234,7 +260,7 @@ export const DiagramSettingsContent: React.FunctionComponent<
               />
               <span>
                 <strong>Warning:</strong> Consider your dataset size and the
-                available resources on the device or browser running Compass.
+                available resources on the your device or browser.
               </span>
             </div>
           )}
