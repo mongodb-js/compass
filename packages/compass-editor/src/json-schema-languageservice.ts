@@ -6,9 +6,6 @@ import type {
   TextDocument,
   LanguageServiceParams,
 } from 'vscode-json-languageservice';
-// Type import to satisfy dependency checker - the value is dynamically imported for code-splitting
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import type { TextDocument as _LSPTextDocumentType } from 'vscode-languageserver-textdocument';
 import type { LintSource, Diagnostic as CMDiagnostic } from '@codemirror/lint';
 import { linter } from '@codemirror/lint';
 import type { CompletionSource, Completion } from '@codemirror/autocomplete';
@@ -21,6 +18,7 @@ import {
 import type { HoverTooltipSource, TooltipView } from '@codemirror/view';
 import { hoverTooltip, EditorView } from '@codemirror/view';
 import { css, spacing } from '@mongodb-js/compass-components';
+import MarkdownIt from 'markdown-it';
 
 // CompletionItemKind and InsertTextFormat are numeric enums in LSP
 // Values from https://microsoft.github.io/language-server-protocol/specifications/specification-current/
@@ -64,16 +62,40 @@ const DOCUMENT_URI = 'file:///json-schema-document.json';
 const tooltipStyles = {
   padding: spacing[200],
   maxWidth: '300px',
-  whiteSpace: 'pre-wrap' as const,
-  wordBreak: 'break-word' as const,
+  whiteSpace: 'pre-wrap',
+  wordBreak: 'break-word',
 };
 
 const hoverTooltipStyles = css(tooltipStyles);
 
-// Theme extension to style lint tooltips consistently with hover tooltips
-const lintTooltipTheme = EditorView.theme({
+// Theme extension to style tooltips - override fixed height on parent container
+const tooltipTheme = EditorView.theme({
+  '.cm-tooltip-hover': {
+    height: 'auto !important',
+  },
   '.cm-tooltip-lint': tooltipStyles,
 });
+
+const markdownParser = new MarkdownIt();
+
+// Override link renderer to open links in new tab
+const defaultLinkRender =
+  markdownParser.renderer.rules.link_open ||
+  function (tokens, idx, options, _env, self) {
+    return self.renderToken(tokens, idx, options);
+  };
+
+markdownParser.renderer.rules.link_open = function (
+  tokens,
+  idx,
+  options,
+  env,
+  self
+) {
+  tokens[idx].attrSet('target', '_blank');
+  tokens[idx].attrSet('rel', 'noopener noreferrer');
+  return defaultLinkRender(tokens, idx, options, env, self);
+};
 
 /**
  * Cache for parsed JSON documents to avoid re-parsing on every keystroke.
@@ -394,7 +416,7 @@ export async function createJsonSchemaServiceExtension(): Promise<
           const div = document.createElement('div');
           div.className = hoverTooltipStyles;
           div.dataset.testid = 'json-schema-hover-tooltip';
-          div.textContent = hoverText;
+          div.innerHTML = markdownParser.renderInline(hoverText);
           return div;
         })(),
       };
@@ -432,7 +454,7 @@ export async function createJsonSchemaServiceExtension(): Promise<
     // Return all extensions bundled together
     return [
       linter(lintSource),
-      lintTooltipTheme,
+      tooltipTheme,
       triggerCompletionOnType,
       autocompletion({
         override: [completionSource],
