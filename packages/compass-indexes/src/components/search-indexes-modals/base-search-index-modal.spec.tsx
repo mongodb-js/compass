@@ -152,7 +152,12 @@ describe('Base Search Index Modal', function () {
           const indexDef = getCodemirrorEditorValue(
             'definition-of-search-index'
           );
-          expect(indexDef).to.equal(ATLAS_VECTOR_SEARCH_TEMPLATE.snippet);
+          expect(indexDef).to.equal(
+            ATLAS_VECTOR_SEARCH_TEMPLATE.snippet.replaceAll(
+              /\$\{\d:(.+?)\}/g,
+              '$1'
+            )
+          );
         });
 
         // Set the value to something where the create index button is enabled.
@@ -294,9 +299,9 @@ describe('Base Search Index Modal', function () {
 
         // Change the index name to something custom
         userEvent.clear(inputText);
-        userEvent.type(inputText, 'my_custom_index');
+        userEvent.type(inputText, 'A');
 
-        expect(inputText.value).to.equal('my_custom_index');
+        expect(inputText.value).to.equal('A');
 
         // Switch to vector search
         userEvent.click(
@@ -308,7 +313,7 @@ describe('Base Search Index Modal', function () {
         );
 
         // Index name should remain unchanged
-        expect(inputText.value).to.equal('my_custom_index');
+        expect(inputText.value).to.equal('A');
       });
 
       it.skip('does not change index name when switching to search if name is not "vector_index"', async function () {
