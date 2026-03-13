@@ -537,23 +537,6 @@ functions:
           eval $(.evergreen/print-compass-env.sh)
           echo "Uploading release assets to S3 and GitHub if needed..."
           npm run --workspace mongodb-compass upload
-    - command: shell.exec
-      params:
-        working_dir: src
-        shell: bash
-        env:
-          <<: *compass-env
-        script: |
-          eval $(.evergreen/print-compass-env.sh)
-          .evergreen/build-dev-release-info.sh release.json
-    - command: s3.put
-      params:
-        <<: *save-artifact-params
-        local_file: src/release.json
-        remote_file: compass-dev/release.json
-        content_type: application/json
-        display_name: release.json
-        optional: true
 
   upload-web:
     - command: ec2.assume_role
@@ -596,6 +579,25 @@ functions:
           else 
             echo "Skipping publish: wrong project ($EVERGREEN_PROJECT) or patch ($EVERGREEN_IS_PATCH)"
           fi
+
+  publish-dev-release-info:
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        env:
+          <<: *compass-env
+        script: |
+          eval $(.evergreen/print-compass-env.sh)
+          .evergreen/build-dev-release-info.sh release.json
+    - command: s3.put
+      params:
+        <<: *save-artifact-params
+        local_file: src/release.json
+        remote_file: compass-dev/release.json
+        content_type: application/json
+        display_name: release.json
+        optional: true
 
   get-packaged-app:
     - command: s3.get
