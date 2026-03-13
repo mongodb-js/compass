@@ -1027,9 +1027,9 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
 
   const customAutocompletionExtension = useCodemirrorExtensionCompartment(
     () => {
-      return jsonSchema ? [] : [languageExtension, autocompletionExtension];
+      return jsonSchema ? [] : [autocompletionExtension];
     },
-    [jsonSchema, languageExtension, autocompletionExtension],
+    [jsonSchema, autocompletionExtension],
     editorViewRef
   );
 
@@ -1075,6 +1075,7 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
         indentOnInput(),
         bracketMatching(),
         closeBrackets(),
+        languageExtension,
         syntaxHighlighting(highlightStyles['light']),
         syntaxHighlighting(highlightStyles['dark']),
         activeLineExtension,
