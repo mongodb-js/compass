@@ -126,19 +126,7 @@ const CreateSearchIndexDrawerView: React.FunctionComponent<
   const { completer, extensions, annotations, hasErrors } =
     useJsonSchemaAutocomplete(jsonSchema, indexDefinition);
 
-  const isCreateEnabled = useMemo(() => {
-    if (hasErrors) {
-      return false;
-    }
-
-    try {
-      parseShellBSON(indexDefinition);
-      return !isBusy;
-    } catch {
-      // If current definition is invalid, don't enable create
-      return false;
-    }
-  }, [indexDefinition, isBusy, hasErrors]);
+  const isCreateEnabled = !hasErrors && !isBusy;
 
   // Reset state on unmount
   useEffect(() => {
