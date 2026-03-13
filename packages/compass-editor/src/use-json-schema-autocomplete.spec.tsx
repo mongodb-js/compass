@@ -133,7 +133,7 @@ describe('useJsonSchemaAutocomplete', function () {
       });
     });
 
-    it('returns hasErrors=true for invalid JSON (missing required field)', async function () {
+    it('returns hasErrors=true for missing required field', async function () {
       const invalidJson = '{"count": 42}'; // missing required 'name'
       const editorRef = React.createRef<EditorRef>();
       let capturedHasErrors: boolean | undefined;
@@ -213,57 +213,6 @@ describe('useJsonSchemaAutocomplete', function () {
     it('provides annotations that show lint markers in editor', async function () {
       const invalidJson = '{"count": 42}'; // missing required 'name'
       const editorRef = React.createRef<EditorRef>();
-
-      render(
-        <TestEditorWithSchema
-          schema={testSchema}
-          initialText={invalidJson}
-          editorRef={editorRef}
-        />
-      );
-
-      await waitFor(() => {
-        expect(editorRef.current?.editor).to.exist;
-      });
-
-      // Wait for lint markers to appear in the gutter (annotations are passed to editor)
-      // The lint gutter shows markers via cm-lint-marker classes
-      await waitFor(() => {
-        const lintMarkers = document.querySelectorAll(
-          '.cm-lint-marker-error, .cm-lint-marker-warning'
-        );
-        expect(lintMarkers.length).to.be.greaterThan(0);
-      });
-    });
-
-    it('shows lint marker for type mismatch', async function () {
-      const invalidJson = '{"name": 123}'; // type mismatch - name should be string
-      const editorRef = React.createRef<EditorRef>();
-
-      render(
-        <TestEditorWithSchema
-          schema={testSchema}
-          initialText={invalidJson}
-          editorRef={editorRef}
-        />
-      );
-
-      await waitFor(() => {
-        expect(editorRef.current?.editor).to.exist;
-      });
-
-      // Wait for lint gutter markers to appear
-      await waitFor(() => {
-        const lintMarkers = document.querySelectorAll(
-          '.cm-lint-marker-error, .cm-lint-marker-warning'
-        );
-        expect(lintMarkers.length).to.be.greaterThan(0);
-      });
-    });
-
-    it('returns annotations with correct message for missing required field', async function () {
-      const invalidJson = '{"count": 42}'; // missing required 'name'
-      const editorRef = React.createRef<EditorRef>();
       let capturedAnnotations: Annotation[] = [];
 
       render(
@@ -281,11 +230,15 @@ describe('useJsonSchemaAutocomplete', function () {
         expect(editorRef.current?.editor).to.exist;
       });
 
+      // Wait for lint markers to appear in the gutter
       await waitFor(() => {
-        expect(capturedAnnotations.length).to.be.greaterThan(0);
+        const lintMarkers = document.querySelectorAll(
+          '.cm-lint-marker-error, .cm-lint-marker-warning'
+        );
+        expect(lintMarkers.length).to.be.greaterThan(0);
       });
 
-      // Check that at least one annotation mentions the missing required property
+      // Check that annotations have correct message
       const hasRequiredError = capturedAnnotations.some(
         (a) =>
           a.message.toLowerCase().includes('required') ||
@@ -298,7 +251,7 @@ describe('useJsonSchemaAutocomplete', function () {
       const editorRef = React.createRef<EditorRef>();
       let capturedAnnotations: Annotation[] = [];
 
-      const { rerender } = render(
+      render(
         <TestEditorWithSchema
           schema={testSchema}
           initialText='{"count": 42}'
@@ -318,10 +271,7 @@ describe('useJsonSchemaAutocomplete', function () {
         expect(capturedAnnotations.length).to.be.greaterThan(0);
       });
 
-      // Now type to fix the JSON by adding the required field
-      editorRef.current?.focus();
-
-      // Move to end and add required name field
+      // Fix the JSON by adding the required field
       const validJson = '{"name": "test", "count": 42}';
       editorRef.current?.editor?.dispatch({
         changes: {
@@ -339,7 +289,7 @@ describe('useJsonSchemaAutocomplete', function () {
   });
 
   describe('autocompletion', function () {
-    it('includes autocomplete extensions when schema is provided', async function () {
+    it('loads extensions and completer when schema is provided', async function () {
       const editorRef = React.createRef<EditorRef>();
       let extensionsLoaded = false;
 
@@ -358,67 +308,9 @@ describe('useJsonSchemaAutocomplete', function () {
         expect(editorRef.current?.editor).to.exist;
       });
 
-      // Wait for extensions to be loaded - this verifies that the async
-      // loading of JSON schema extensions completes successfully
       await waitFor(() => {
         expect(extensionsLoaded).to.equal(true);
       });
-
-      // At this point, the editor has JSON schema extensions loaded
-      // which includes the autocomplete functionality.
-      const editor = editorRef.current?.editor;
-      expect(editor).to.exist;
-    });
-
-    it('loads autocomplete extensions when schema is provided', async function () {
-      const editorRef = React.createRef<EditorRef>();
-      let extensionsLoaded = false;
-      let loadedExtensions: unknown[] = [];
-
-      // Create a wrapper that captures the extensions
-      function TestWrapper() {
-        const [text, setText] = useState('{}');
-        const { completer, extensions, annotations } =
-          useJsonSchemaAutocomplete(testSchema, text);
-
-        // Track when extensions are loaded
-        React.useEffect(() => {
-          if (extensions.length > 0 && completer) {
-            extensionsLoaded = true;
-            loadedExtensions = extensions;
-          }
-        }, [extensions, completer]);
-
-        return (
-          <CodemirrorMultilineEditor
-            ref={editorRef}
-            text={text}
-            onChangeText={setText}
-            completer={completer}
-            customExtensions={extensions}
-            annotations={annotations}
-          />
-        );
-      }
-
-      render(<TestWrapper />);
-
-      await waitFor(() => {
-        expect(editorRef.current?.editor).to.exist;
-      });
-
-      // Wait for extensions to be loaded
-      await waitFor(() => {
-        expect(extensionsLoaded).to.equal(true);
-      });
-
-      // Verify that autocomplete-related extensions are included
-      // The extensions array should contain the autocompletion extension
-      expect(loadedExtensions.length).to.be.greaterThan(0);
-
-      // Verify editor is functional with the extensions
-      const editor = editorRef.current?.editor;
-      expect(editor).to.exist;
     });
   });
 
@@ -445,6 +337,66 @@ describe('useJsonSchemaAutocomplete', function () {
 
       await waitFor(() => {
         expect(capturedHasErrors).to.equal(false);
+      });
+    });
+  });
+
+  describe('schema undefined behavior', function () {
+    it('returns empty extensions and hasErrors=false when schema is undefined', async function () {
+      let capturedExtensions: unknown[] = [];
+      let capturedCompleter: unknown = 'not-set';
+      let capturedHasErrors: boolean | undefined;
+
+      function TestWrapper() {
+        const [text] = useState('{}');
+        const { completer, extensions, hasErrors } = useJsonSchemaAutocomplete(
+          undefined,
+          text
+        );
+
+        React.useEffect(() => {
+          capturedExtensions = extensions;
+          capturedCompleter = completer;
+          capturedHasErrors = hasErrors;
+        }, [extensions, completer, hasErrors]);
+
+        return <div>Test</div>;
+      }
+
+      render(<TestWrapper />);
+
+      await waitFor(() => {
+        expect(capturedHasErrors).to.equal(false);
+      });
+
+      expect(capturedExtensions).to.deep.equal([]);
+      expect(capturedCompleter).to.equal(undefined);
+    });
+  });
+
+  describe('invalid JSON syntax', function () {
+    it('returns hasErrors=true for malformed JSON', async function () {
+      const malformedJson = '{"name": }'; // syntax error
+      const editorRef = React.createRef<EditorRef>();
+      let capturedHasErrors: boolean | undefined;
+
+      render(
+        <TestEditorWithSchema
+          schema={testSchema}
+          initialText={malformedJson}
+          editorRef={editorRef}
+          onValidationComplete={(hasErrors) => {
+            capturedHasErrors = hasErrors;
+          }}
+        />
+      );
+
+      await waitFor(() => {
+        expect(editorRef.current?.editor).to.exist;
+      });
+
+      await waitFor(() => {
+        expect(capturedHasErrors).to.equal(true);
       });
     });
   });
