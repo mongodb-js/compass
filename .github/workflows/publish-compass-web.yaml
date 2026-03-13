@@ -36,8 +36,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
+          # Evergreen CLI needs the full history
           ref: ${{ github.head_ref }}
           fetch-depth: '0'
+
+      - name: Setup git user
+        run: |
+          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
 
       - name: Setup Node.js Environment
         uses: actions/setup-node@v4
