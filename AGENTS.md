@@ -180,3 +180,7 @@ export default connect((state) => ({
   data: state.something,
 }))(MyComponent);
 ```
+
+## Commits and pull requests
+
+When drafting git commit messages or GitHub pull requests for this repository, follow the conventions described in `COMMIT_MESSAGES.md`.
