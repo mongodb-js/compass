@@ -5,10 +5,8 @@ import { css } from '@leafygreen-ui/emotion';
 import { spacing } from '@leafygreen-ui/tokens';
 
 const codeStyles = css({
-  '& pre': {
-    maxHeight: '40vh',
-    overflowY: 'auto',
-  },
+  maxHeight: '40vh',
+  overflow: 'auto',
 });
 
 const descriptionStyles = css({
