@@ -40,7 +40,10 @@ import {
   overflowWrapStyles,
 } from './drawer-view-styles';
 import type { Document } from 'mongodb';
-import { CodemirrorMultilineEditor } from '@mongodb-js/compass-editor';
+import {
+  CodemirrorMultilineEditor,
+  useJsonSchemaAutocomplete,
+} from '@mongodb-js/compass-editor';
 import type { EditorRef } from '@mongodb-js/compass-editor';
 import { parseShellBSON } from '../../utils/parse-shell-bson';
 import {
@@ -113,14 +116,18 @@ const CreateSearchIndexDrawerView: React.FunctionComponent<
       currentIndexType === 'vectorSearch' ? 'vector_index' : 'default'
     )
   );
-  const [hasSchemaErrors, setHasSchemaErrors] = useState(false);
 
-  const onValidationChange = useCallback((hasErrors: boolean) => {
-    setHasSchemaErrors(hasErrors);
-  }, []);
+  // Use the JSON schema autocomplete hook for validation and autocomplete
+  const jsonSchema = (
+    currentIndexType === 'vectorSearch'
+      ? vectorSearchIndexSchema
+      : searchIndexSchema
+  ) as JSONSchema7;
+  const { completer, extensions, annotations, hasErrors } =
+    useJsonSchemaAutocomplete(jsonSchema, indexDefinition);
 
   const isCreateEnabled = useMemo(() => {
-    if (hasSchemaErrors) {
+    if (hasErrors) {
       return false;
     }
 
@@ -131,7 +138,7 @@ const CreateSearchIndexDrawerView: React.FunctionComponent<
       // If current definition is invalid, don't enable create
       return false;
     }
-  }, [indexDefinition, isBusy, hasSchemaErrors]);
+  }, [indexDefinition, isBusy, hasErrors]);
 
   // Reset state on unmount
   useEffect(() => {
@@ -203,16 +210,13 @@ const CreateSearchIndexDrawerView: React.FunctionComponent<
             data-testid="create-search-index-drawer-view-editor"
             text={indexDefinition}
             onChangeText={onChangeText}
-            onValidationChange={onValidationChange}
             minLines={16}
             showLineNumbers={true}
             language={'json'}
             initialJSONFoldAll={false}
-            jsonSchema={
-              (currentIndexType === 'vectorSearch'
-                ? vectorSearchIndexSchema
-                : searchIndexSchema) as JSONSchema7
-            }
+            completer={completer}
+            customExtensions={extensions}
+            annotations={annotations}
           />
         </div>
         {error && <ErrorSummary errors={error} />}

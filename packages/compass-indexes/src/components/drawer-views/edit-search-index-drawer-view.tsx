@@ -42,7 +42,10 @@ import {
   overflowWrapStyles,
 } from './drawer-view-styles';
 import { IndexStatus } from '../search-indexes-table/use-search-indexes-table';
-import { CodemirrorMultilineEditor } from '@mongodb-js/compass-editor';
+import {
+  CodemirrorMultilineEditor,
+  useJsonSchemaAutocomplete,
+} from '@mongodb-js/compass-editor';
 import type { EditorRef } from '@mongodb-js/compass-editor';
 import type { Document } from 'mongodb';
 import { parseShellBSON } from '../../utils/parse-shell-bson';
@@ -92,14 +95,18 @@ const EditSearchIndexDrawerView: React.FunctionComponent<
   const [indexDefinition, setIndexDefinition] = useState(
     JSON.stringify(searchIndex.latestDefinition, null, 2)
   );
-  const [hasSchemaErrors, setHasSchemaErrors] = useState(false);
 
-  const onValidationChange = useCallback((hasErrors: boolean) => {
-    setHasSchemaErrors(hasErrors);
-  }, []);
+  // Use the JSON schema autocomplete hook for validation and autocomplete
+  const jsonSchema = (
+    searchIndex.type === 'vectorSearch'
+      ? vectorSearchIndexSchema
+      : searchIndexSchema
+  ) as JSONSchema7;
+  const { completer, extensions, annotations, hasErrors } =
+    useJsonSchemaAutocomplete(jsonSchema, indexDefinition);
 
   const isSaveEnabled = useMemo(() => {
-    if (hasSchemaErrors) {
+    if (hasErrors) {
       return false;
     }
 
@@ -114,7 +121,7 @@ const EditSearchIndexDrawerView: React.FunctionComponent<
       // If current definition is invalid, don't enable save
       return false;
     }
-  }, [indexDefinition, searchIndex.latestDefinition, isBusy, hasSchemaErrors]);
+  }, [indexDefinition, searchIndex.latestDefinition, isBusy, hasErrors]);
 
   // Reset state on unmount
   useEffect(() => {
@@ -196,16 +203,13 @@ const EditSearchIndexDrawerView: React.FunctionComponent<
             data-testid="edit-search-index-drawer-view-editor"
             text={indexDefinition}
             onChangeText={onChangeText}
-            onValidationChange={onValidationChange}
             minLines={16}
             showLineNumbers={true}
             language={'json'}
             initialJSONFoldAll={false}
-            jsonSchema={
-              (searchIndex.type === 'vectorSearch'
-                ? vectorSearchIndexSchema
-                : searchIndexSchema) as JSONSchema7
-            }
+            completer={completer}
+            customExtensions={extensions}
+            annotations={annotations}
           />
         </div>
         {error && <ErrorSummary errors={error} />}
