@@ -111,100 +111,144 @@ describe('useJsonSchemaAutocomplete', function () {
     it('returns hasErrors=false for valid JSON matching schema', async function () {
       const validJson = '{"name": "test", "count": 42}';
       const editorRef = React.createRef<EditorRef>();
+      let extensionsLoaded = false;
       let capturedHasErrors: boolean | undefined;
+      let capturedAnnotations: Annotation[] = [];
 
       render(
         <TestEditorWithSchema
           schema={testSchema}
           initialText={validJson}
           editorRef={editorRef}
+          onExtensionsLoaded={() => {
+            extensionsLoaded = true;
+          }}
           onValidationComplete={(hasErrors) => {
             capturedHasErrors = hasErrors;
+          }}
+          onAnnotationsChange={(annotations) => {
+            capturedAnnotations = annotations;
           }}
         />
       );
 
+      // Wait for schema validation infrastructure to be ready
       await waitFor(() => {
-        expect(editorRef.current?.editor).to.exist;
+        expect(extensionsLoaded).to.equal(true);
       });
 
+      // Now verify validation ran and found no issues
       await waitFor(() => {
         expect(capturedHasErrors).to.equal(false);
+        expect(capturedAnnotations).to.have.length(0);
       });
     });
 
     it('returns hasErrors=true for missing required field', async function () {
       const invalidJson = '{"count": 42}'; // missing required 'name'
       const editorRef = React.createRef<EditorRef>();
+      let extensionsLoaded = false;
       let capturedHasErrors: boolean | undefined;
+      let capturedAnnotations: Annotation[] = [];
 
       render(
         <TestEditorWithSchema
           schema={testSchema}
           initialText={invalidJson}
           editorRef={editorRef}
+          onExtensionsLoaded={() => {
+            extensionsLoaded = true;
+          }}
           onValidationComplete={(hasErrors) => {
             capturedHasErrors = hasErrors;
+          }}
+          onAnnotationsChange={(annotations) => {
+            capturedAnnotations = annotations;
           }}
         />
       );
 
+      // Wait for schema validation infrastructure to be ready
       await waitFor(() => {
-        expect(editorRef.current?.editor).to.exist;
+        expect(extensionsLoaded).to.equal(true);
       });
 
+      // Verify validation ran and found errors
       await waitFor(() => {
         expect(capturedHasErrors).to.equal(true);
+        expect(capturedAnnotations.length).to.be.greaterThan(0);
       });
     });
 
     it('returns hasErrors=true for type mismatch', async function () {
       const invalidJson = '{"name": 123}'; // name should be string, not number
       const editorRef = React.createRef<EditorRef>();
+      let extensionsLoaded = false;
       let capturedHasErrors: boolean | undefined;
+      let capturedAnnotations: Annotation[] = [];
 
       render(
         <TestEditorWithSchema
           schema={testSchema}
           initialText={invalidJson}
           editorRef={editorRef}
+          onExtensionsLoaded={() => {
+            extensionsLoaded = true;
+          }}
           onValidationComplete={(hasErrors) => {
             capturedHasErrors = hasErrors;
+          }}
+          onAnnotationsChange={(annotations) => {
+            capturedAnnotations = annotations;
           }}
         />
       );
 
+      // Wait for schema validation infrastructure to be ready
       await waitFor(() => {
-        expect(editorRef.current?.editor).to.exist;
+        expect(extensionsLoaded).to.equal(true);
       });
 
+      // Verify validation ran and found errors
       await waitFor(() => {
         expect(capturedHasErrors).to.equal(true);
+        expect(capturedAnnotations.length).to.be.greaterThan(0);
       });
     });
 
     it('returns hasErrors=true for additional properties when not allowed', async function () {
       const invalidJson = '{"name": "test", "unknown": true}';
       const editorRef = React.createRef<EditorRef>();
+      let extensionsLoaded = false;
       let capturedHasErrors: boolean | undefined;
+      let capturedAnnotations: Annotation[] = [];
 
       render(
         <TestEditorWithSchema
           schema={testSchema}
           initialText={invalidJson}
           editorRef={editorRef}
+          onExtensionsLoaded={() => {
+            extensionsLoaded = true;
+          }}
           onValidationComplete={(hasErrors) => {
             capturedHasErrors = hasErrors;
+          }}
+          onAnnotationsChange={(annotations) => {
+            capturedAnnotations = annotations;
           }}
         />
       );
 
+      // Wait for schema validation infrastructure to be ready
       await waitFor(() => {
-        expect(editorRef.current?.editor).to.exist;
+        expect(extensionsLoaded).to.equal(true);
       });
 
+      // Verify validation ran and found errors
       await waitFor(() => {
         expect(capturedHasErrors).to.equal(true);
+        expect(capturedAnnotations.length).to.be.greaterThan(0);
       });
     });
   });
@@ -318,25 +362,36 @@ describe('useJsonSchemaAutocomplete', function () {
     it('validates against oneOf alternatives', async function () {
       const validJson = '{"type": "text", "analyzer": "standard"}';
       const editorRef = React.createRef<EditorRef>();
+      let extensionsLoaded = false;
       let capturedHasErrors: boolean | undefined;
+      let capturedAnnotations: Annotation[] = [];
 
       render(
         <TestEditorWithSchema
           schema={oneOfSchema}
           initialText={validJson}
           editorRef={editorRef}
+          onExtensionsLoaded={() => {
+            extensionsLoaded = true;
+          }}
           onValidationComplete={(hasErrors) => {
             capturedHasErrors = hasErrors;
+          }}
+          onAnnotationsChange={(annotations) => {
+            capturedAnnotations = annotations;
           }}
         />
       );
 
+      // Wait for schema validation infrastructure to be ready
       await waitFor(() => {
-        expect(editorRef.current?.editor).to.exist;
+        expect(extensionsLoaded).to.equal(true);
       });
 
+      // Verify validation ran and found no issues
       await waitFor(() => {
         expect(capturedHasErrors).to.equal(false);
+        expect(capturedAnnotations).to.have.length(0);
       });
     });
   });
@@ -378,25 +433,36 @@ describe('useJsonSchemaAutocomplete', function () {
     it('returns hasErrors=true for malformed JSON', async function () {
       const malformedJson = '{"name": }'; // syntax error
       const editorRef = React.createRef<EditorRef>();
+      let extensionsLoaded = false;
       let capturedHasErrors: boolean | undefined;
+      let capturedAnnotations: Annotation[] = [];
 
       render(
         <TestEditorWithSchema
           schema={testSchema}
           initialText={malformedJson}
           editorRef={editorRef}
+          onExtensionsLoaded={() => {
+            extensionsLoaded = true;
+          }}
           onValidationComplete={(hasErrors) => {
             capturedHasErrors = hasErrors;
+          }}
+          onAnnotationsChange={(annotations) => {
+            capturedAnnotations = annotations;
           }}
         />
       );
 
+      // Wait for schema validation infrastructure to be ready
       await waitFor(() => {
-        expect(editorRef.current?.editor).to.exist;
+        expect(extensionsLoaded).to.equal(true);
       });
 
+      // Verify validation ran and found errors
       await waitFor(() => {
         expect(capturedHasErrors).to.equal(true);
+        expect(capturedAnnotations.length).to.be.greaterThan(0);
       });
     });
   });

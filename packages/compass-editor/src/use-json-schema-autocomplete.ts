@@ -78,26 +78,28 @@ const InsertTextFormatMap = {
 
 /**
  * Cache for parsed JSON documents to avoid re-parsing on every keystroke.
- * Keyed by content string since TextDocument instances are created fresh each time.
- * Only caches the last document since we operate on a single editor.
+ * Each hook instance maintains its own cache via useRef.
  */
-let lastDocContent: string | null = null;
-let lastJsonDoc: JSONDocument | null = null;
+interface JsonDocumentCache {
+  content: string | null;
+  jsonDoc: JSONDocument | null;
+}
 
 /**
  * Gets a cached JSON document from a text document, parsing it if necessary.
  */
 function getJsonDocument(
   languageService: LanguageService,
-  document: TextDocument
+  document: TextDocument,
+  cache: JsonDocumentCache
 ): JSONDocument {
   const content = document.getText();
-  if (lastDocContent === content && lastJsonDoc) {
-    return lastJsonDoc;
+  if (cache.content === content && cache.jsonDoc) {
+    return cache.jsonDoc;
   }
-  lastJsonDoc = languageService.parseJSONDocument(document);
-  lastDocContent = content;
-  return lastJsonDoc;
+  cache.jsonDoc = languageService.parseJSONDocument(document);
+  cache.content = content;
+  return cache.jsonDoc;
 }
 
 /**
@@ -217,6 +219,12 @@ export function useJsonSchemaAutocomplete(
   const languageServiceRef = useRef<LanguageService | null>(null);
   const markdownParserRef = useRef<any>(null);
 
+  // Per-instance cache for parsed JSON documents in case we need to support multiple editors
+  const jsonDocCacheRef = useRef<JsonDocumentCache>({
+    content: null,
+    jsonDoc: null,
+  });
+
   // Load extensions and language service when schema changes
   useEffect(() => {
     if (!schema) {
@@ -230,13 +238,19 @@ export function useJsonSchemaAutocomplete(
 
     async function loadExtensions() {
       // Dynamically import ESM-only dependencies (remark/rehype ecosystem)
-      const [{ unified }, remarkParse, remarkRehype, rehypeStringify] =
-        await Promise.all([
-          import('unified'),
-          import('remark-parse'),
-          import('remark-rehype'),
-          import('rehype-stringify'),
-        ]);
+      const [
+        { unified },
+        remarkParse,
+        remarkRehype,
+        rehypeSanitize,
+        rehypeStringify,
+      ] = await Promise.all([
+        import('unified'),
+        import('remark-parse'),
+        import('remark-rehype'),
+        import('rehype-sanitize'),
+        import('rehype-stringify'),
+      ]);
 
       if (aborted) return;
 
@@ -276,6 +290,7 @@ export function useJsonSchemaAutocomplete(
             );
           };
         })
+        .use(rehypeSanitize.default)
         .use(rehypeStringify.default);
 
       markdownParserRef.current = markdownParser;
@@ -283,6 +298,9 @@ export function useJsonSchemaAutocomplete(
       // schema is already checked above in the if(!schema) guard
       const languageService = createJsonLanguageService(schema!);
       languageServiceRef.current = languageService;
+
+      // Capture cache reference for use in closures
+      const jsonDocCache = jsonDocCacheRef.current;
 
       // Helper to create a TextDocument from content
       const createTextDoc = (content: string): TextDocument => {
@@ -305,7 +323,11 @@ export function useJsonSchemaAutocomplete(
 
         const content = context.state.doc.toString();
         const textDoc = createTextDoc(content);
-        const jsonDocument = getJsonDocument(languageService, textDoc);
+        const jsonDocument = getJsonDocument(
+          languageService,
+          textDoc,
+          jsonDocCache
+        );
 
         // Calculate LSP position
         const line = context.state.doc.lineAt(context.pos);
@@ -390,7 +412,11 @@ export function useJsonSchemaAutocomplete(
       const hoverSource: HoverTooltipSource = async (view, pos) => {
         const content = view.state.doc.toString();
         const textDoc = createTextDoc(content);
-        const jsonDocument = getJsonDocument(languageService, textDoc);
+        const jsonDocument = getJsonDocument(
+          languageService,
+          textDoc,
+          jsonDocCache
+        );
 
         // Calculate LSP position
         const line = view.state.doc.lineAt(pos);
@@ -498,7 +524,11 @@ export function useJsonSchemaAutocomplete(
       if (!languageService) return;
 
       const textDoc = LSPTextDocument.create(DOCUMENT_URI, 'json', 0, text);
-      const jsonDocument = getJsonDocument(languageService, textDoc);
+      const jsonDocument = getJsonDocument(
+        languageService,
+        textDoc,
+        jsonDocCacheRef.current
+      );
       const diagnostics = await languageService.doValidation(
         textDoc,
         jsonDocument
