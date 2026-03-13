@@ -44,7 +44,7 @@ import {
 import { IndexStatus } from '../search-indexes-table/use-search-indexes-table';
 import {
   CodemirrorMultilineEditor,
-  useJsonSchemaAutocomplete,
+  useJsonSchemaAutocompleter,
 } from '@mongodb-js/compass-editor';
 import type { EditorRef } from '@mongodb-js/compass-editor';
 import type { Document } from 'mongodb';
@@ -103,7 +103,7 @@ const EditSearchIndexDrawerView: React.FunctionComponent<
       : searchIndexSchema
   ) as JSONSchema7;
   const { completer, extensions, annotations, hasErrors } =
-    useJsonSchemaAutocomplete(jsonSchema, indexDefinition);
+    useJsonSchemaAutocompleter(jsonSchema, indexDefinition);
 
   const isSaveEnabled = useMemo(() => {
     if (hasErrors) {

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { render, waitFor, cleanup } from '@mongodb-js/testing-library-compass';
 import { CodemirrorMultilineEditor } from './editor';
-import { useJsonSchemaAutocomplete } from './use-json-schema-autocomplete';
+import { useJsonSchemaAutocompleter } from './use-json-schema-autocompleter';
 import type { EditorRef } from './types';
 import { expect } from 'chai';
 import type { JSONSchema7 } from 'json-schema';
@@ -65,7 +65,7 @@ function TestEditorWithSchema({
 }) {
   const [text, setText] = useState(initialText);
   const { completer, extensions, annotations, hasErrors } =
-    useJsonSchemaAutocomplete(schema, text);
+    useJsonSchemaAutocompleter(schema, text);
 
   // Notify parent when extensions are loaded (completer is also loaded at the same time)
   React.useEffect(() => {
@@ -102,7 +102,7 @@ function TestEditorWithSchema({
   );
 }
 
-describe('useJsonSchemaAutocomplete', function () {
+describe('useJsonSchemaAutocompleter', function () {
   afterEach(function () {
     cleanup();
   });
@@ -404,7 +404,7 @@ describe('useJsonSchemaAutocomplete', function () {
 
       function TestWrapper() {
         const [text] = useState('{}');
-        const { completer, extensions, hasErrors } = useJsonSchemaAutocomplete(
+        const { completer, extensions, hasErrors } = useJsonSchemaAutocompleter(
           undefined,
           text
         );

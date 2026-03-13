@@ -20,5 +20,5 @@ export {
   type SavedQuery,
 } from './codemirror/query-history-autocompleter';
 export { createQueryWithHistoryAutocompleter } from './codemirror/query-autocompleter-with-history';
-export { useJsonSchemaAutocomplete } from './use-json-schema-autocomplete';
-export type { JsonSchemaAutocompleteResult } from './use-json-schema-autocomplete';
+export { useJsonSchemaAutocompleter } from './use-json-schema-autocompleter';
+export type { JsonSchemaAutocompleterResult } from './use-json-schema-autocompleter';

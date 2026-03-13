@@ -42,7 +42,7 @@ import {
 import type { Document } from 'mongodb';
 import {
   CodemirrorMultilineEditor,
-  useJsonSchemaAutocomplete,
+  useJsonSchemaAutocompleter,
 } from '@mongodb-js/compass-editor';
 import type { EditorRef } from '@mongodb-js/compass-editor';
 import { parseShellBSON } from '../../utils/parse-shell-bson';
@@ -124,7 +124,7 @@ const CreateSearchIndexDrawerView: React.FunctionComponent<
       : searchIndexSchema
   ) as JSONSchema7;
   const { completer, extensions, annotations, hasErrors } =
-    useJsonSchemaAutocomplete(jsonSchema, indexDefinition);
+    useJsonSchemaAutocompleter(jsonSchema, indexDefinition);
 
   const isCreateEnabled = !hasErrors && !isBusy;
 

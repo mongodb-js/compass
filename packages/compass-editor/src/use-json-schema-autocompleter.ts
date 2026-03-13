@@ -169,7 +169,7 @@ function fromCompletionItemKind(kind: number | undefined): string | undefined {
   }
 }
 
-export type JsonSchemaAutocompleteResult = {
+export type JsonSchemaAutocompleterResult = {
   /** Completer to pass to the editor's completer prop */
   completer: CompletionSource | undefined;
   /** Extensions to pass to the editor's customExtensions prop (hover tooltips, etc.) */
@@ -192,7 +192,7 @@ export type JsonSchemaAutocompleteResult = {
  *
  * @example
  * ```tsx
- * const { completer, extensions, annotations, hasErrors } = useJsonSchemaAutocomplete(schema, text);
+ * const { completer, extensions, annotations, hasErrors } = useJsonSchemaAutocompleter(schema, text);
  * return (
  *   <>
  *     <CodemirrorMultilineEditor
@@ -206,10 +206,10 @@ export type JsonSchemaAutocompleteResult = {
  * );
  * ```
  */
-export function useJsonSchemaAutocomplete(
+export function useJsonSchemaAutocompleter(
   schema: JSONSchema7 | undefined,
   text: string
-): JsonSchemaAutocompleteResult {
+): JsonSchemaAutocompleterResult {
   const [completer, setCompleter] = useState<CompletionSource | undefined>(
     undefined
   );
