@@ -219,6 +219,16 @@ export async function createJsonSchemaServiceExtension(
         },
       },
     })
+    .use(() => {
+      // Custom rehype plugin to unwrap paragraph tags (render inline without <p>)
+      return (tree: import('hast').Root) => {
+        tree.children = tree.children.flatMap((node) =>
+          node.type === 'element' && node.tagName === 'p'
+            ? node.children
+            : [node]
+        );
+      };
+    })
     .use(rehypeStringify.default);
 
   const languageService = createJsonLanguageService(schema);
