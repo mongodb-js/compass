@@ -313,8 +313,6 @@ buildvariants:
     tasks:
       - name: test-can-bundle-compass-web
   - name: test-web-sandbox-atlas-cloud
-    tags:
-      - run-on-pr
     display_name: Test Web Sandbox (w/ Atlas Cloud login)
     run_on: ubuntu2204-large
     tasks:
@@ -432,6 +430,7 @@ tasks:
     depends_on:
       - name: .required-for-publish
         variant: '*'
+        patch_optional: true
     commands:
       - func: prepare
       - func: install
@@ -444,6 +443,7 @@ tasks:
     depends_on:
       - name: .required-for-publish
         variant: '*'
+        patch_optional: true
     commands:
       - func: prepare
       - func: install
