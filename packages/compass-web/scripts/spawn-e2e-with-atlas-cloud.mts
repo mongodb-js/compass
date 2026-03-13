@@ -18,7 +18,7 @@ if (!EVG_USER || !EVG_API_KEY) {
 }
 
 const OS = os.type().toLowerCase();
-const ARCH = os.arch();
+const ARCH = os.arch() === 'x64' ? 'amd64' : os.arch();
 const CLI_DIR = path.join(os.tmpdir(), crypto.randomUUID());
 const EVERGREEN_CONFIG = path.join(CLI_DIR, '.evergreen.yml');
 
