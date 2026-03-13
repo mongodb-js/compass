@@ -51,6 +51,15 @@ jobs:
         run: |
           npm ci
 
+      - name: Test compass-web with Atlas Cloud
+        env:
+          EVG_USER: ${{ secrets.EVERGREEN_SERVICE_USER_USERNAME }}
+          EVG_API_KEY: ${{ secrets.EVERGREEN_SERVICE_USER_API_KEY }}
+          COMPASS_E2E_ATLAS_CLOUD_ENVIRONMENT: ${{ inputs.publish_environment }}
+          COMPASS_WEB_E2E_TEST_EVERGREEN_PATCH_DESCRIPTION: 'Test compass-web against Atlas ${{ inputs.publish_environment }} env before release (GHA: https://github.com/mongodb-js/compass/actions/runs/${{ github.run_id }})'
+        run: |
+          npm run --workspace @mongodb-js/compass-web test-e2e-atlas
+
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@56d6a583f00f6bad6d19d91d53a7bc3b8143d0e9 # v5.1.1
         with:
@@ -67,6 +76,4 @@ jobs:
           DOWNLOAD_CENTER_NEW_AWS_SECRET_ACCESS_KEY: '${{ env.AWS_SECRET_ACCESS_KEY }}'
           DOWNLOAD_CENTER_NEW_AWS_SESSION_TOKEN: '${{ env.AWS_SESSION_TOKEN }}'
         run: |
-          # TODO(COMPASS-10227): trigger compass web with atlas tests for the
-          # provided publish environment
           npm run --workspace @mongodb-js/compass-web upload-entrypoint
