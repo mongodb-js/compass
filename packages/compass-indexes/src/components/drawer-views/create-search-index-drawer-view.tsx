@@ -206,6 +206,8 @@ const CreateSearchIndexDrawerView: React.FunctionComponent<
             onValidationChange={onValidationChange}
             minLines={16}
             showLineNumbers={true}
+            language={'json'}
+            initialJSONFoldAll={false}
             jsonSchema={
               (currentIndexType === 'vectorSearch'
                 ? vectorSearchIndexSchema

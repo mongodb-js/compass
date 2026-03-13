@@ -4,6 +4,5 @@ ignores:
  - '@types/chai'
  - '@types/sinon-chai'
  - 'sinon'
- - 'vscode-languageserver-textdocument'
 ignore-patterns:
  - 'dist'

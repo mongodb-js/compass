@@ -717,25 +717,26 @@ function useJsonSchemaLanguageServiceExtensions(
   jsonSchema: JSONSchema7 | undefined,
   editorViewRef: React.RefObject<EditorView | undefined>
 ): Extension {
-  const [extensionCreator, setExtensionCreator] = useState<
-    ((schema: JSONSchema7) => Extension) | null
-  >(null);
+  const [schemaExtension, setSchemaExtension] = useState<Extension | null>(
+    null
+  );
 
   useEffect(() => {
     if (!jsonSchema) {
+      setSchemaExtension(null);
       return;
     }
 
     let aborted = false;
 
-    createJsonSchemaServiceExtension()
-      .then((creator) => {
+    createJsonSchemaServiceExtension(jsonSchema)
+      .then((extension) => {
         if (!aborted) {
-          setExtensionCreator(() => creator);
+          setSchemaExtension(extension);
         }
       })
       .catch(() => {
-        // continue without schema support
+        // Continue without schema support
       });
 
     return () => {
@@ -745,12 +746,12 @@ function useJsonSchemaLanguageServiceExtensions(
 
   return useCodemirrorExtensionCompartment(
     () => {
-      if (!jsonSchema || !extensionCreator) {
+      if (!schemaExtension) {
         return [];
       }
-      return [extensionCreator(jsonSchema)];
+      return [schemaExtension];
     },
-    [jsonSchema, extensionCreator],
+    [schemaExtension],
     editorViewRef
   );
 }
