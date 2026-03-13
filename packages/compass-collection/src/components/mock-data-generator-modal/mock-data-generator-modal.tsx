@@ -158,7 +158,7 @@ const MockDataGeneratorModal = ({
       }}
       data-testid="generate-mock-data-modal"
     >
-      <ModalHeader title="Generate Mock Data" />
+      <ModalHeader title="Generate Mock Data Script" />
       <ModalBody>
         {shouldShowNamespace && (
           <Body className={namespaceStyles}>{namespace}</Body>

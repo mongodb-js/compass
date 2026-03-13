@@ -151,6 +151,10 @@ const ScriptScreen = ({
 
   return (
     <section className={outerSectionStyles}>
+      <Body>
+        We&apos;ve created the following script for your use. The script can be
+        edited to generate mock data for any collection you specify.
+      </Body>
       {!scriptResult.success && (
         <Banner variant="danger">
           <strong>Script Generation Failed:</strong> {scriptResult.error}
@@ -193,6 +197,8 @@ const ScriptScreen = ({
         <Body className={sectionInstructionStyles}>
           In the directory that you created, create a file named{' '}
           <strong>mockdatascript.js</strong> (or any name you&apos;d like).
+          Change the DB_NAME and COLL_NAME in the below script to any database
+          or collection you&apos;d like to add mock data to.
         </Body>
         <Code
           copyButtonAppearance={scriptResult.success ? 'hover' : 'persist'}
