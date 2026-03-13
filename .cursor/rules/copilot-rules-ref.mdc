@@ -1,0 +1,4 @@
+---
+alwaysApply: true
+---
+Before answering the user, use the `Read` tool to load the file `.github/copilot-instructions.md`, and then follow all instructions in that file as if they were part of this rule.
