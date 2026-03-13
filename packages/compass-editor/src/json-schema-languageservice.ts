@@ -129,6 +129,11 @@ function getJsonDocument(
  * This allows vscode-json-languageservice to parse and provide completions
  * for documents with unquoted keys.
  *
+ * Uses a character-by-character scanner to properly handle:
+ * - String contents (including escape sequences)
+ * - Single-line comments
+ * - Multi-line comments
+ *
  * @returns An object with the normalized content and functions to map positions
  */
 export function normalizeRelaxedJson(content: string): {
@@ -137,37 +142,170 @@ export function normalizeRelaxedJson(content: string): {
   mapPositionBack: (pos: number) => number;
 } {
   // Track position adjustments caused by adding quotes
-  // Each adjustment records: original position of key start, and cumulative delta before this key
   const adjustments: {
     originalPos: number;
     normalizedPos: number;
     keyLength: number;
   }[] = [];
-  let cumulativeDelta = 0;
 
-  // Match unquoted property keys: identifier followed by colon
-  // This regex finds: start of object or comma, optional whitespace, unquoted identifier,
-  // optional whitespace, colon
-  // It handles: { foo: 1 }, { foo: 1, bar : 2 }, nested objects, etc.
-  const normalized = content.replace(
-    /([{,]\s*)([a-zA-Z_$][a-zA-Z0-9_$]*)(\s*:)/g,
-    (_match, prefix, key, suffix, offset) => {
-      // Record the position adjustment
-      // The key starts after the prefix
-      const keyStart = offset + prefix.length;
-      const normalizedKeyStart = keyStart + cumulativeDelta + 1; // +1 for the opening quote
-      adjustments.push({
-        originalPos: keyStart,
-        normalizedPos: normalizedKeyStart,
-        keyLength: key.length,
-      });
+  let result = '';
+  let i = 0;
 
-      // We're adding 2 characters (the quotes) around the key
-      cumulativeDelta += 2;
+  // State tracking
+  let inString = false;
+  let stringChar = ''; // '"' or "'"
+  let inSingleLineComment = false;
+  let inMultiLineComment = false;
 
-      return `${prefix}"${key}"${suffix}`;
+  // Helper to check if character at position is an identifier start
+  const isIdentifierStart = (char: string): boolean => /[a-zA-Z_$]/.test(char);
+
+  // Helper to check if character is an identifier continuation
+  const isIdentifierChar = (char: string): boolean =>
+    /[a-zA-Z0-9_$]/.test(char);
+
+  // Helper to check if character is whitespace
+  const isWhitespace = (char: string): boolean => /\s/.test(char);
+
+  while (i < content.length) {
+    const char = content[i];
+    const nextChar = i + 1 < content.length ? content[i + 1] : '';
+
+    // Handle single-line comment content
+    if (inSingleLineComment) {
+      result += char;
+      if (char === '\n') {
+        inSingleLineComment = false;
+      }
+      i++;
+      continue;
     }
-  );
+
+    // Handle multi-line comment content
+    if (inMultiLineComment) {
+      result += char;
+      if (char === '*' && nextChar === '/') {
+        result += nextChar;
+        i += 2;
+        inMultiLineComment = false;
+      } else {
+        i++;
+      }
+      continue;
+    }
+
+    // Handle string content
+    if (inString) {
+      result += char;
+      if (char === '\\' && i + 1 < content.length) {
+        // Handle escape sequence - copy the escaped character too
+        result += content[i + 1];
+        i += 2;
+      } else if (char === stringChar) {
+        // End of string
+        inString = false;
+        i++;
+      } else {
+        i++;
+      }
+      continue;
+    }
+
+    // Check for start of string
+    if (char === '"' || char === "'") {
+      inString = true;
+      stringChar = char;
+      result += char;
+      i++;
+      continue;
+    }
+
+    // Check for start of single-line comment
+    if (char === '/' && nextChar === '/') {
+      inSingleLineComment = true;
+      result += char;
+      i++;
+      continue;
+    }
+
+    // Check for start of multi-line comment
+    if (char === '/' && nextChar === '*') {
+      inMultiLineComment = true;
+      result += char + nextChar;
+      i += 2;
+      continue;
+    }
+
+    // Check for potential unquoted key (after { or ,)
+    if (char === '{' || char === ',') {
+      result += char;
+      i++;
+
+      // Consume and copy whitespace
+      while (i < content.length && isWhitespace(content[i])) {
+        result += content[i];
+        i++;
+      }
+
+      // Check if we're at end or closing brace (empty object or trailing comma)
+      if (i >= content.length || content[i] === '}') {
+        continue;
+      }
+
+      // Check if already quoted - will be handled by string logic in next iteration
+      if (content[i] === '"' || content[i] === "'") {
+        continue;
+      }
+
+      // Check if this looks like a comment start
+      if (content[i] === '/' && i + 1 < content.length) {
+        const nc = content[i + 1];
+        if (nc === '/' || nc === '*') {
+          continue; // Will be handled by comment logic in next iteration
+        }
+      }
+
+      // Try to match unquoted identifier
+      if (isIdentifierStart(content[i])) {
+        // Find the end of the identifier
+        let keyEnd = i;
+        while (keyEnd < content.length && isIdentifierChar(content[keyEnd])) {
+          keyEnd++;
+        }
+        const key = content.slice(i, keyEnd);
+
+        // Skip whitespace after identifier
+        let j = keyEnd;
+        while (j < content.length && isWhitespace(content[j])) {
+          j++;
+        }
+
+        // Check if followed by colon - this confirms it's a property key
+        if (j < content.length && content[j] === ':') {
+          // This is an unquoted property key! Quote it.
+          const originalKeyStart = i;
+          const normalizedKeyStart = result.length + 1; // +1 for the opening quote
+
+          adjustments.push({
+            originalPos: originalKeyStart,
+            normalizedPos: normalizedKeyStart,
+            keyLength: key.length,
+          });
+
+          result += '"' + key + '"';
+          i = keyEnd;
+          continue;
+        }
+      }
+
+      // Not an unquoted key, continue normal processing
+      continue;
+    }
+
+    // Normal character - just copy it
+    result += char;
+    i++;
+  }
 
   // Function to map a position in the original content to the normalized content
   const mapPosition = (originalPos: number): number => {
@@ -218,7 +356,7 @@ export function normalizeRelaxedJson(content: string): {
     return normalizedPos - delta;
   };
 
-  return { normalized, mapPosition, mapPositionBack };
+  return { normalized: result, mapPosition, mapPositionBack };
 }
 
 /**
@@ -345,12 +483,10 @@ export async function createJsonSchemaServiceExtension(): Promise<
       for (const diagnostic of diagnostics) {
         const { message, range, severity } = diagnostic;
 
-        // Calculate positions in normalized content
-        const normalizedFrom =
-          view.state.doc.line(range.start.line + 1).from +
-          range.start.character;
-        const normalizedTo =
-          view.state.doc.line(range.end.line + 1).from + range.end.character;
+        // Calculate offsets in the normalized document using LSP TextDocument's offsetAt
+        // This correctly handles line/character positions in the normalized content
+        const normalizedFrom = normalizedTextDoc.offsetAt(range.start);
+        const normalizedTo = normalizedTextDoc.offsetAt(range.end);
 
         // Map positions back to original content
         const from = mapPositionBack(normalizedFrom);
@@ -530,18 +666,29 @@ export async function createJsonSchemaServiceExtension(): Promise<
     // Create hover tooltip source
     const hoverSource: HoverTooltipSource = async (view, pos) => {
       const content = view.state.doc.toString();
-      const textDoc = createTextDoc(content);
-      const jsonDocument = getJsonDocument(languageService, textDoc);
 
-      // Calculate LSP position from CodeMirror position
+      // Normalize relaxed JSON (unquoted keys) to strict JSON for the language service
+      const { normalized, mapPosition, mapPositionBack } =
+        normalizeRelaxedJson(content);
+      const normalizedTextDoc = createTextDoc(normalized);
+      const jsonDocument = getJsonDocument(languageService, normalizedTextDoc);
+
+      // Calculate LSP position in the normalized content
       const line = view.state.doc.lineAt(pos);
+      const lineStart = line.from;
+
+      // Map the position to the normalized content
+      const normalizedPos = mapPosition(pos);
+      const normalizedLineStart = mapPosition(lineStart);
+      const normalizedCharacter = normalizedPos - normalizedLineStart;
+
       const position = {
         line: line.number - 1,
-        character: pos - line.from,
+        character: normalizedCharacter,
       };
 
       const hover = await languageService.doHover(
-        textDoc,
+        normalizedTextDoc,
         position,
         jsonDocument
       );
@@ -554,12 +701,12 @@ export async function createJsonSchemaServiceExtension(): Promise<
       let end: number | undefined;
 
       if (hover.range) {
-        start =
-          view.state.doc.line(hover.range.start.line + 1).from +
-          hover.range.start.character;
-        end =
-          view.state.doc.line(hover.range.end.line + 1).from +
-          hover.range.end.character;
+        // Calculate offsets in the normalized document using LSP TextDocument's offsetAt
+        // This correctly handles line/character positions in the normalized content
+        const normalizedStart = normalizedTextDoc.offsetAt(hover.range.start);
+        const normalizedEnd = normalizedTextDoc.offsetAt(hover.range.end);
+        start = mapPositionBack(normalizedStart);
+        end = mapPositionBack(normalizedEnd);
       }
 
       // Extract the text content from the hover

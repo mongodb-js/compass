@@ -346,6 +346,133 @@ describe('json-schema-languageservice', function () {
       );
     });
 
+    describe('string handling', function () {
+      it('does not modify content inside double-quoted strings', function () {
+        const content = '{ name: "a, foo: b" }';
+        const { normalized } = normalizeRelaxedJson(content);
+        // 'foo:' inside the string should NOT be quoted
+        expect(normalized).to.equal('{ "name": "a, foo: b" }');
+      });
+
+      it('does not modify content inside single-quoted strings', function () {
+        const content = "{ name: 'a, foo: b' }";
+        const { normalized } = normalizeRelaxedJson(content);
+        expect(normalized).to.equal('{ "name": \'a, foo: b\' }');
+      });
+
+      it('handles escaped quotes inside strings', function () {
+        const content = '{ name: "test \\" , foo: bar" }';
+        const { normalized } = normalizeRelaxedJson(content);
+        // The escaped quote should not end the string, so 'foo:' stays inside
+        expect(normalized).to.equal('{ "name": "test \\" , foo: bar" }');
+      });
+
+      it('handles escaped backslashes inside strings', function () {
+        const content = '{ path: "C:\\\\Users\\\\test", name: "value" }';
+        const { normalized } = normalizeRelaxedJson(content);
+        expect(normalized).to.equal(
+          '{ "path": "C:\\\\Users\\\\test", "name": "value" }'
+        );
+      });
+
+      it('handles colons in string values (URLs)', function () {
+        const content = '{ url: "http://example.com:8080" }';
+        const { normalized } = normalizeRelaxedJson(content);
+        expect(normalized).to.equal('{ "url": "http://example.com:8080" }');
+      });
+
+      it('handles empty strings', function () {
+        const content = '{ empty: "", name: "test" }';
+        const { normalized } = normalizeRelaxedJson(content);
+        expect(normalized).to.equal('{ "empty": "", "name": "test" }');
+      });
+    });
+
+    describe('comment handling', function () {
+      it('does not modify content inside single-line comments', function () {
+        const content = '{ name: "test" // foo: bar\n}';
+        const { normalized } = normalizeRelaxedJson(content);
+        expect(normalized).to.equal('{ "name": "test" // foo: bar\n}');
+      });
+
+      it('does not modify content inside multi-line comments', function () {
+        const content = '{ name: "test" /* foo: bar */ }';
+        const { normalized } = normalizeRelaxedJson(content);
+        expect(normalized).to.equal('{ "name": "test" /* foo: bar */ }');
+      });
+
+      it('does not treat comment markers inside strings as comments', function () {
+        const content = '{ comment: "// not a comment, foo: bar" }';
+        const { normalized } = normalizeRelaxedJson(content);
+        expect(normalized).to.equal(
+          '{ "comment": "// not a comment, foo: bar" }'
+        );
+      });
+    });
+
+    describe('edge cases', function () {
+      it('handles empty objects', function () {
+        const content = '{}';
+        const { normalized } = normalizeRelaxedJson(content);
+        expect(normalized).to.equal('{}');
+      });
+
+      it('handles objects with only whitespace', function () {
+        const content = '{  }';
+        const { normalized } = normalizeRelaxedJson(content);
+        expect(normalized).to.equal('{  }');
+      });
+
+      it('handles trailing commas', function () {
+        const content = '{ name: "test", }';
+        const { normalized } = normalizeRelaxedJson(content);
+        expect(normalized).to.equal('{ "name": "test", }');
+      });
+
+      it('handles whitespace before colons', function () {
+        const content = '{ name : "test" }';
+        const { normalized } = normalizeRelaxedJson(content);
+        expect(normalized).to.equal('{ "name" : "test" }');
+      });
+
+      it('handles no whitespace around keys', function () {
+        const content = '{name:"test"}';
+        const { normalized } = normalizeRelaxedJson(content);
+        expect(normalized).to.equal('{"name":"test"}');
+      });
+
+      it('handles arrays containing objects', function () {
+        const content = '[{ foo: 1 }, { bar: 2 }]';
+        const { normalized } = normalizeRelaxedJson(content);
+        expect(normalized).to.equal('[{ "foo": 1 }, { "bar": 2 }]');
+      });
+
+      it('does not quote numeric keys', function () {
+        // Numeric keys are not valid identifiers, leave them as-is
+        const content = '{ 123: "value" }';
+        const { normalized } = normalizeRelaxedJson(content);
+        expect(normalized).to.equal('{ 123: "value" }');
+      });
+
+      it('handles deeply nested structures', function () {
+        const content = '{ a: { b: { c: { d: 1 } } } }';
+        const { normalized } = normalizeRelaxedJson(content);
+        expect(normalized).to.equal('{ "a": { "b": { "c": { "d": 1 } } } }');
+      });
+
+      it('handles newlines and multiline content', function () {
+        const content = '{\n  name: "test",\n  count: 42\n}';
+        const { normalized } = normalizeRelaxedJson(content);
+        expect(normalized).to.equal('{\n  "name": "test",\n  "count": 42\n}');
+      });
+
+      it('handles keys that look like keywords', function () {
+        const content = '{ true: 1, false: 2, null: 3 }';
+        const { normalized } = normalizeRelaxedJson(content);
+        expect(normalized).to.equal('{ "true": 1, "false": 2, "null": 3 }');
+      });
+    });
+
     describe('mapPosition (original to normalized)', function () {
       it('maps position before any keys unchanged', function () {
         const content = '{ foo: 1 }';
