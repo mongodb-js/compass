@@ -4,5 +4,10 @@ ignores:
  - '@types/chai'
  - '@types/sinon-chai'
  - 'sinon'
+ - 'unified'
+ - 'remark-parse'
+ - 'remark-rehype'
+ - 'rehype-sanitize'
+ - 'rehype-stringify'
 ignore-patterns:
  - 'dist'

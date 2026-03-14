@@ -19,6 +19,7 @@ import type { HoverTooltipSource, TooltipView } from '@codemirror/view';
 import { hoverTooltip, EditorView } from '@codemirror/view';
 import { css, spacing } from '@mongodb-js/compass-components';
 import type { Annotation } from './editor';
+import type { Element, ElementContent, Root } from 'hast';
 
 // The URI we use for the schema
 const SCHEMA_URI = 'inmemory://json-schema.json';
@@ -261,7 +262,7 @@ export function useJsonSchemaAutocompleter(
           handlers: {
             // Custom handler for links to add target="_blank" and rel="noopener noreferrer"
             link(state: unknown, node: { url: string; title?: string }) {
-              const result: import('hast').Element = {
+              const result: Element = {
                 type: 'element',
                 tagName: 'a',
                 properties: {
@@ -272,7 +273,7 @@ export function useJsonSchemaAutocompleter(
                 },
                 children: (
                   state as {
-                    all: (n: unknown) => import('hast').ElementContent[];
+                    all: (n: unknown) => ElementContent[];
                   }
                 ).all(node),
               };
@@ -282,7 +283,7 @@ export function useJsonSchemaAutocompleter(
         })
         .use(() => {
           // Custom rehype plugin to unwrap paragraph tags (render inline without <p>)
-          return (tree: import('hast').Root) => {
+          return (tree: Root) => {
             tree.children = tree.children.flatMap((node) =>
               node.type === 'element' && node.tagName === 'p'
                 ? node.children
