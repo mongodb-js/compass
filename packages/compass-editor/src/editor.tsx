@@ -5,6 +5,7 @@ import React, {
   useImperativeHandle,
   useRef,
   useState,
+  useMemo,
 } from 'react';
 import type { Command, KeyBinding } from '@codemirror/view';
 import {
@@ -960,11 +961,19 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
     editorViewRef
   );
 
+  // Wrap customExtensions in an object to avoid useMemo dependency array size change warning
+  // When passing an array directly to useEffectOnChange, the array items become the dependency array
+  // which triggers React warnings when the array length changes (e.g., [] -> [ext1, ext2, ext3])
+  const customExtensionsWrapper = useMemo(
+    () => ({ extensions: customExtensions ?? [] }),
+    [customExtensions]
+  );
+
   const customExtensionsCompartment = useCodemirrorExtensionCompartment(
     () => {
-      return customExtensions ?? [];
+      return customExtensionsWrapper.extensions;
     },
-    customExtensions,
+    customExtensionsWrapper,
     editorViewRef
   );
 

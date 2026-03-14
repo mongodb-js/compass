@@ -28,7 +28,7 @@ const DOCUMENT_URI = 'file:///json-schema-document.json';
 
 // Shared tooltip styles for hover and lint tooltips
 const tooltipStyles = {
-  padding: spacing[200],
+  padding: `${spacing[200]}px`,
   maxWidth: '300px',
   whiteSpace: 'pre-wrap',
   wordBreak: 'break-word',
