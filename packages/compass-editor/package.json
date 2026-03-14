@@ -60,10 +60,6 @@
     "depcheck": "^1.4.1",
     "mocha": "^10.2.0",
     "nyc": "^15.1.0",
-    "rehype-sanitize": "^6.0.0",
-    "rehype-stringify": "^10.0.1",
-    "remark-parse": "^11.0.0",
-    "remark-rehype": "^11.1.2",
     "sinon": "^9.2.3",
     "typescript": "^5.9.3",
     "unified": "^11.0.5"
@@ -86,6 +82,10 @@
     "polished": "^4.2.2",
     "prettier": "^2.7.1",
     "react": "^17.0.2",
+    "rehype-sanitize": "^6.0.0",
+    "rehype-stringify": "^10.0.1",
+    "remark-parse": "^11.0.0",
+    "remark-rehype": "^11.1.2",
     "vscode-json-languageservice": "^5.7.2",
     "vscode-languageserver-textdocument": "^1.0.12"
   }
