@@ -18,6 +18,10 @@ on:
         descript: 'An override for the commit hash to be used for the release. Default is the tip of the selected branch. ONLY USE IF YOU KNOW WHAT YOU ARE DOING!'
         default: ''
         required: false
+      dangerously_skip_e2e_tests:
+        descript: 'Skips the e2e tests and starts the publishing process immediately. ONLY USE IF YOU KNOW WHAT YOU ARE DOING!'
+        type: boolean
+        default: false
       dry_run:
         description: 'Run the publish process but do not upload the file. Useful for testing that the script is functioning correctly'
         type: boolean
@@ -61,6 +65,7 @@ jobs:
           npm ci
 
       - name: Test compass-web with Atlas Cloud
+        if: ${{ !inputs.dangerously_skip_e2e_tests }}
         env:
           EVG_USER: ${{ secrets.EVERGREEN_SERVICE_USER_USERNAME }}
           EVG_API_KEY: ${{ secrets.EVERGREEN_SERVICE_USER_API_KEY }}
