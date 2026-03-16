@@ -715,7 +715,7 @@ export const storedUserPreferencesProps: Required<{
         },
         '{ _id: -1 }': {
           label: '_id: -1',
-          description: 'Return documents in in descending order by id',
+          description: 'Return documents in descending order by id',
         },
         '{ $natural: -1 }': {
           label: '$natural: -1',
