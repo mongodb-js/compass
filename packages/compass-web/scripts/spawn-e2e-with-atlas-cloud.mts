@@ -13,6 +13,10 @@ const {
   EVG_UI_SERVER = 'https://evergreen.mongodb.com',
 } = process.env;
 
+const RELEASE_COMMIT =
+  process.env.COMPASS_WEB_RELEASE_COMMIT ||
+  spawnSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).stdout.trim();
+
 if (!EVG_USER || !EVG_API_KEY) {
   throw new Error('Evergreen credentials missing');
 }
@@ -152,7 +156,8 @@ const patchInfoStr = spawnEvergreenSync([
     `Test compass-web with Atlas Cloud against ${ATLAS_CLOUD_ENV} environment`,
   '--param',
   `compass_web_publish_environment=${ATLAS_CLOUD_ENV}`,
-  '--uncommitted',
+  '--ref',
+  RELEASE_COMMIT,
   '--json',
   '--finalize',
 ]).stdout;

@@ -66,6 +66,7 @@ jobs:
           EVG_API_KEY: ${{ secrets.EVERGREEN_SERVICE_USER_API_KEY }}
           COMPASS_E2E_ATLAS_CLOUD_ENVIRONMENT: ${{ inputs.publish_environment }}
           COMPASS_WEB_E2E_TEST_EVERGREEN_PATCH_DESCRIPTION: 'Test compass-web against Atlas ${{ inputs.publish_environment }} env before release (GHA: https://github.com/mongodb-js/compass/actions/runs/${{ github.run_id }})'
+          COMPASS_WEB_RELEASE_COMMIT: ${{ inputs.dangerously_override_commit_hash }}
         run: |
           npm run --workspace @mongodb-js/compass-web test-e2e-atlas
 
