@@ -17,8 +17,17 @@ if (!EVG_USER || !EVG_API_KEY) {
   throw new Error('Evergreen credentials missing');
 }
 
+function mapArchNameToEvgAssetName(arch = os.arch()) {
+  switch (arch) {
+    case 'x64':
+      return 'amd64';
+    default:
+      return arch;
+  }
+}
+
 const OS = os.type().toLowerCase();
-const ARCH = os.arch() === 'x64' ? 'amd64' : os.arch();
+const ARCH = mapArchNameToEvgAssetName(os.arch());
 const CLI_DIR = path.join(os.tmpdir(), crypto.randomUUID());
 const EVERGREEN_CONFIG = path.join(CLI_DIR, '.evergreen.yml');
 
@@ -49,14 +58,27 @@ function spawnEvergreenSync(
   args: string[],
   extraOptions?: Omit<SpawnSyncOptions, 'encoding'>
 ) {
-  const res = spawnSync(EVERGREEN_CLI_BIN, args, {
-    encoding: 'utf-8',
-    env: {
-      ...process.env,
-      ...extraOptions?.env,
-    },
-    ...extraOptions,
-  });
+  const res = spawnSync(
+    EVERGREEN_CLI_BIN,
+    [
+      '--level',
+      'error', // Only allow important logs to reduce the output noise
+      ...args,
+    ],
+    {
+      encoding: 'utf-8',
+      ...extraOptions,
+      env: {
+        ...process.env,
+        // in theory there is a `--config` flag, but it doesn't seem to work
+        // specifically with the `user` commands, so we override the HOME to
+        // make sure that our config is picked up from the "default" dir
+        // correctly for all cases
+        HOME: CLI_DIR,
+        ...extraOptions?.env,
+      },
+    }
+  );
   if (res.error) {
     throw res.error;
   }
@@ -111,22 +133,13 @@ console.debug(spawnEvergreenSync(['--version']).stdout.trimEnd());
 
 console.debug(
   'current user: %s',
-  spawnEvergreenSync(['client', 'user'], {
-    env: {
-      // in theory there is a `--config` flag, but it doesn't seem to work
-      // specifically with the `user` commands, so we override the HOME to make
-      // sure that our config is picked up from the "default" dir correctly
-      HOME: CLI_DIR,
-    },
-  }).stdout.trimEnd()
+  spawnEvergreenSync(['client', 'user']).stdout.trimEnd()
 );
 
 const ATLAS_CLOUD_ENV =
   process.env.COMPASS_E2E_ATLAS_CLOUD_ENVIRONMENT ?? 'dev';
 
 const patchInfoStr = spawnEvergreenSync([
-  '--config',
-  EVERGREEN_CONFIG,
   'patch',
   '--project',
   '10gen-compass-main',
