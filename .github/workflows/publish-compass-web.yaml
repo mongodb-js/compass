@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
     inputs:
       publish_environment:
-        descript: 'Atlas Cloud environment to publish compass-web to'
+        description: 'Atlas Cloud environment to publish compass-web to'
         type: choice
         default: 'qa'
         options:
@@ -15,11 +15,11 @@ on:
           - prod
         required: true
       dangerously_override_commit_hash:
-        descript: 'An override for the commit hash to be used for the release. Default is the tip of the selected branch. ONLY USE IF YOU KNOW WHAT YOU ARE DOING!'
+        description: 'An override for the commit hash to be used for the release. Default is the tip of the selected branch. ONLY USE IF YOU KNOW WHAT YOU ARE DOING!'
         default: ''
         required: false
       dangerously_skip_e2e_tests:
-        descript: 'Skips the e2e tests and starts the publishing process immediately. ONLY USE IF YOU KNOW WHAT YOU ARE DOING!'
+        description: 'Skips the e2e tests and starts the publishing process immediately. ONLY USE IF YOU KNOW WHAT YOU ARE DOING!'
         type: boolean
         default: false
       dry_run:
