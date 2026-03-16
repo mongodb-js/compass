@@ -160,7 +160,7 @@ const patchInfoStr = spawnEvergreenSync([
 const patchInfo = JSON.parse(patchInfoStr);
 
 console.debug(
-  'created evergreen patch (url: https://evergreen.mongodb.com/version/%s)',
+  'created evergreen patch https://evergreen.mongodb.com/version/%s',
   patchInfo.patch_id
 );
 
