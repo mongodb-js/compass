@@ -9,9 +9,11 @@ import {
 import type { FetchIndexesActions } from './regular-indexes';
 import {
   ActionTypes as SearchIndexesActionTypes,
+  CreateSearchIndexSucceededAction,
   refreshSearchIndexes,
   startPollingSearchIndexes,
   stopPollingSearchIndexes,
+  UpdateSearchIndexSucceededAction,
 } from './search-indexes';
 import type {
   CreateSearchIndexClosedAction,
@@ -101,7 +103,6 @@ export const openIndexesListDrawerView = (): IndexesThunkAction<
       return;
     }
     dispatch({ type: OPEN_INDEXES_LIST_DRAWER_VIEW });
-    dispatch(setIsDirty(false));
   };
 };
 
@@ -118,7 +119,6 @@ export const openCreateSearchIndexDrawerView = (
       return;
     }
     dispatch({ type: OPEN_CREATE_SEARCH_INDEX_DRAWER_VIEW, currentIndexType });
-    dispatch(setIsDirty(false));
   };
 };
 
@@ -135,7 +135,6 @@ export const openEditSearchIndexDrawerView = (
       return;
     }
     dispatch({ type: OPEN_EDIT_SEARCH_INDEX_DRAWER_VIEW, currentIndexName });
-    dispatch(setIsDirty(false));
   };
 };
 
@@ -217,6 +216,30 @@ export default function reducer(
     return {
       ...state,
       isDirty: action.isDirty,
+    };
+  }
+
+  if (
+    isAction<CreateSearchIndexSucceededAction>(
+      action,
+      SearchIndexesActionTypes.CreateSearchIndexSucceeded
+    )
+  ) {
+    return {
+      ...state,
+      isDirty: false,
+    };
+  }
+
+  if (
+    isAction<UpdateSearchIndexSucceededAction>(
+      action,
+      SearchIndexesActionTypes.UpdateSearchIndexSucceeded
+    )
+  ) {
+    return {
+      ...state,
+      isDirty: false,
     };
   }
 
