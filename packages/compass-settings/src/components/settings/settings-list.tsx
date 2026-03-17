@@ -24,6 +24,7 @@ import {
 import { changeFieldValue } from '../../stores/settings';
 import type { RootState } from '../../stores';
 import { connect } from 'react-redux';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 
 const ENUM_PREFERENCE_CONFIG = {
   defaultSortOrder: SORT_ORDER_VALUES,
@@ -309,8 +310,20 @@ function SettingsInput({
   stateLabel = '',
   disabled = false,
   required = false,
-  ...props
+  ...rawProps
 }: SettingsInputProps): React.ReactElement {
+  const track = useTelemetry();
+
+  const trackedOnChange = useCallback(
+    (field: string, value: unknown) => {
+      track('Setting Changed', { setting: field });
+      rawProps.onChange(field, value);
+    },
+    [rawProps.onChange, track]
+  );
+
+  const props = { ...rawProps, onChange: trackedOnChange };
+
   if (!isSupported(props)) {
     throw new Error(
       `Do not know how to render type ${String(props.type)} for preference ${
