@@ -14,12 +14,7 @@ import {
   makeFactuality,
   makeBinaryNdcgAtK,
 } from 'mongodb-assistant-eval/scorers';
-
 import { EVAL_MODEL, instructions, judgeConfig } from './eval-config';
-
-// ---------------------------------------------------------------------------
-// Types
-// ---------------------------------------------------------------------------
 
 export type SimpleEvalCase = {
   name: string;
@@ -54,16 +49,8 @@ type CompassEvalCase = EvalCase<
   name: string;
 };
 
-// ---------------------------------------------------------------------------
-// Scorers
-// ---------------------------------------------------------------------------
-
 const Factuality = makeFactuality(judgeConfig);
 const BinaryNdcgAt5 = makeBinaryNdcgAtK([5]);
-
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
 
 function getChatTemperature(): number | undefined {
   if (process.env.CHAT_TEMPERATURE) {
@@ -71,10 +58,6 @@ function getChatTemperature(): number | undefined {
   }
   return undefined;
 }
-
-// ---------------------------------------------------------------------------
-// Data function — convert eval cases to Braintrust format
-// ---------------------------------------------------------------------------
 
 function makeEvalCases(): CompassEvalCase[] {
   const mapCase = (c: SimpleEvalCase): CompassEvalCase => ({
@@ -95,10 +78,6 @@ function makeEvalCases(): CompassEvalCase[] {
 
   return [...entrypointCases, ...userCases];
 }
-
-// ---------------------------------------------------------------------------
-// Task function — call the assistant and capture response
-// ---------------------------------------------------------------------------
 
 async function makeAssistantCall(
   input: ConversationEvalCaseInput
@@ -128,22 +107,15 @@ async function makeAssistantCall(
     },
   });
 
-  const chunks: string[] = [];
+  const text = await result.text;
 
-  for await (const chunk of result.toUIMessageStream()) {
-    const t = ((chunk as any).delta as string) || '';
-    if (t) {
-      chunks.push(t);
+  const resolvedSources = await result.sources;
+  const urls: string[] = [];
+  for (const source of resolvedSources) {
+    if (source.sourceType === 'url') {
+      urls.push(source.url);
     }
   }
-  const text = chunks.join('');
-
-  // TODO: something's up with this type. url does exist on it.
-  const resolvedSources = (await result.sources) as { url: string }[];
-
-  const urls = resolvedSources
-    .map((source) => source.url)
-    .filter((url) => !!url);
 
   return {
     messages: [{ role: 'assistant', content: text }],
@@ -152,10 +124,6 @@ async function makeAssistantCall(
     allowedQuery: true,
   };
 }
-
-// ---------------------------------------------------------------------------
-// Eval entry point
-// ---------------------------------------------------------------------------
 
 void Eval<
   ConversationEvalCaseInput,

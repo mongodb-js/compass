@@ -6,11 +6,10 @@
  * against these expectations using assertion-based scorers.
  */
 
-// ---------------------------------------------------------------------------
-// Types — tool call expectations use AEL schema types
-// ---------------------------------------------------------------------------
-
-import type { ExpectedToolCallMessage as ExpectedOutputMessage } from 'mongodb-assistant-eval/schema';
+import type {
+  ConversationExpectedMessages,
+  ExpectedToolCallMessage as ExpectedOutputMessage,
+} from 'mongodb-assistant-eval/schema';
 import { EVAL_CLUSTER_UID } from '../eval-config';
 
 export type { ExpectedOutputMessage };
@@ -56,7 +55,7 @@ export interface ToolCallEvalCase {
     custom: CompassAssistantCustomInput;
   };
   expected: {
-    outputMessages: ExpectedOutputMessage[];
+    outputMessages: ConversationExpectedMessages;
   };
   tags: ToolCallEvalCaseTag[];
   metadata?: Record<string, unknown> & {
@@ -65,40 +64,9 @@ export interface ToolCallEvalCase {
   skip?: boolean;
 }
 
-type DeepExpectedToolArgument = {
-  name: string;
-  type?: 'string' | 'array' | 'object' | 'boolean' | 'number';
-  value?: unknown;
-  matchRegex?: string;
-  size?: {
-    gt?: number;
-    gte?: number;
-    lt?: number;
-    lte?: number;
-    eq?: number;
-    neq?: number;
-  };
-};
-
-type DeepExpectedOutputMessage = Omit<ExpectedOutputMessage, 'toolCalls'> & {
-  toolCalls: Array<{
-    name: string;
-    arguments?: DeepExpectedToolArgument[];
-  }>;
-};
-
-// The scorer can compare nested objects/arrays, but the exported schema type
-// only models shallow argument values. Use this helper when we want to assert
-// full `pipeline` or `method` payloads.
-function expectedToolMessage(
-  message: DeepExpectedOutputMessage
-): ExpectedOutputMessage {
-  return message as ExpectedOutputMessage;
-}
-
-// ---------------------------------------------------------------------------
-// Eval cases
-// ---------------------------------------------------------------------------
+const noToolExpectedOutputMessages = [
+  { role: 'assistant' },
+] satisfies ConversationExpectedMessages;
 
 const mflixCustomInput: CompassAssistantCustomInput = {
   clusterUid: EVAL_CLUSTER_UID,
@@ -129,8 +97,6 @@ const weatherDataCustomInput: CompassAssistantCustomInput = {
   databaseName: 'sample_weatherdata',
   collectionName: 'data',
 };
-
-// --- list-databases --------------------------------------------------------
 
 const listDatabasesCases: ToolCallEvalCase[] = [
   {
@@ -209,8 +175,6 @@ const listDatabasesCases: ToolCallEvalCase[] = [
     metadata: { difficulty: 'hard' },
   },
 ];
-
-// --- list-collections ------------------------------------------------------
 
 const listCollectionsCases: ToolCallEvalCase[] = [
   {
@@ -394,8 +358,6 @@ const listCollectionsCases: ToolCallEvalCase[] = [
   },
 ];
 
-// --- collection-schema -----------------------------------------------------
-
 const collectionSchemaCases: ToolCallEvalCase[] = [
   {
     name: 'collection-schema: describe schema',
@@ -523,8 +485,6 @@ const collectionSchemaCases: ToolCallEvalCase[] = [
     metadata: { difficulty: 'easy' },
   },
 ];
-
-// --- collection-indexes ----------------------------------------------------
 
 const collectionIndexesCases: ToolCallEvalCase[] = [
   {
@@ -731,8 +691,6 @@ const collectionIndexesCases: ToolCallEvalCase[] = [
     metadata: { difficulty: 'medium' },
   },
 ];
-
-// --- find ------------------------------------------------------------------
 
 const findCases: ToolCallEvalCase[] = [
   {
@@ -1096,7 +1054,7 @@ const findCases: ToolCallEvalCase[] = [
     },
     expected: {
       outputMessages: [
-        expectedToolMessage({
+        {
           role: 'assistant-tool',
           toolCalls: [
             {
@@ -1118,7 +1076,7 @@ const findCases: ToolCallEvalCase[] = [
               ],
             },
           ],
-        }),
+        } as ExpectedOutputMessage,
       ],
     },
     tags: ['hard', 'find', 'nested-field'],
@@ -1137,7 +1095,7 @@ const findCases: ToolCallEvalCase[] = [
     },
     expected: {
       outputMessages: [
-        expectedToolMessage({
+        {
           role: 'assistant-tool',
           toolCalls: [
             {
@@ -1153,7 +1111,7 @@ const findCases: ToolCallEvalCase[] = [
               ],
             },
           ],
-        }),
+        } as ExpectedOutputMessage,
       ],
     },
     tags: ['hard', 'find', 'array-operator'],
@@ -1215,7 +1173,7 @@ const findCases: ToolCallEvalCase[] = [
     },
     expected: {
       outputMessages: [
-        expectedToolMessage({
+        {
           role: 'assistant-tool',
           toolCalls: [
             {
@@ -1240,7 +1198,7 @@ const findCases: ToolCallEvalCase[] = [
               ],
             },
           ],
-        }),
+        } as ExpectedOutputMessage,
       ],
     },
     tags: ['hard', 'find', 'compound-filter', 'find-vs-aggregate'],
@@ -1259,7 +1217,7 @@ const findCases: ToolCallEvalCase[] = [
     },
     expected: {
       outputMessages: [
-        expectedToolMessage({
+        {
           role: 'assistant-tool',
           toolCalls: [
             {
@@ -1278,7 +1236,7 @@ const findCases: ToolCallEvalCase[] = [
               ],
             },
           ],
-        }),
+        } as ExpectedOutputMessage,
       ],
     },
     tags: ['hard', 'find', 'logical-operators'],
@@ -1321,8 +1279,6 @@ const findCases: ToolCallEvalCase[] = [
     metadata: { difficulty: 'hard' },
   },
 ];
-
-// --- aggregate -------------------------------------------------------------
 
 const aggregateCases: ToolCallEvalCase[] = [
   {
@@ -1470,7 +1426,7 @@ const aggregateCases: ToolCallEvalCase[] = [
     },
     expected: {
       outputMessages: [
-        expectedToolMessage({
+        {
           role: 'assistant-tool',
           toolCalls: [
             {
@@ -1493,7 +1449,7 @@ const aggregateCases: ToolCallEvalCase[] = [
               ],
             },
           ],
-        }),
+        } as ExpectedOutputMessage,
       ],
     },
     tags: ['aggregate', 'single-tool'],
@@ -1512,7 +1468,7 @@ const aggregateCases: ToolCallEvalCase[] = [
     },
     expected: {
       outputMessages: [
-        expectedToolMessage({
+        {
           role: 'assistant-tool',
           toolCalls: [
             {
@@ -1539,7 +1495,7 @@ const aggregateCases: ToolCallEvalCase[] = [
               ],
             },
           ],
-        }),
+        } as ExpectedOutputMessage,
       ],
     },
     tags: ['aggregate', 'single-tool'],
@@ -1558,7 +1514,7 @@ const aggregateCases: ToolCallEvalCase[] = [
     },
     expected: {
       outputMessages: [
-        expectedToolMessage({
+        {
           role: 'assistant-tool',
           toolCalls: [
             {
@@ -1586,7 +1542,7 @@ const aggregateCases: ToolCallEvalCase[] = [
               ],
             },
           ],
-        }),
+        } as ExpectedOutputMessage,
       ],
     },
     tags: ['aggregate', 'single-tool'],
@@ -1605,7 +1561,7 @@ const aggregateCases: ToolCallEvalCase[] = [
     },
     expected: {
       outputMessages: [
-        expectedToolMessage({
+        {
           role: 'assistant-tool',
           toolCalls: [
             {
@@ -1632,7 +1588,7 @@ const aggregateCases: ToolCallEvalCase[] = [
               ],
             },
           ],
-        }),
+        } as ExpectedOutputMessage,
       ],
     },
     tags: ['aggregate', 'single-tool'],
@@ -1648,7 +1604,7 @@ const aggregateCases: ToolCallEvalCase[] = [
     },
     expected: {
       outputMessages: [
-        expectedToolMessage({
+        {
           role: 'assistant-tool',
           toolCalls: [
             {
@@ -1672,7 +1628,7 @@ const aggregateCases: ToolCallEvalCase[] = [
               ],
             },
           ],
-        }),
+        } as ExpectedOutputMessage,
       ],
     },
     tags: ['aggregate', 'medium', 'natural-language-query'],
@@ -1692,7 +1648,7 @@ const aggregateCases: ToolCallEvalCase[] = [
     },
     expected: {
       outputMessages: [
-        expectedToolMessage({
+        {
           role: 'assistant-tool',
           toolCalls: [
             {
@@ -1730,7 +1686,7 @@ const aggregateCases: ToolCallEvalCase[] = [
               ],
             },
           ],
-        }),
+        } as ExpectedOutputMessage,
       ],
     },
     tags: ['hard', 'aggregate', 'lookup', 'cross-collection'],
@@ -1749,7 +1705,7 @@ const aggregateCases: ToolCallEvalCase[] = [
     },
     expected: {
       outputMessages: [
-        expectedToolMessage({
+        {
           role: 'assistant-tool',
           toolCalls: [
             {
@@ -1776,7 +1732,7 @@ const aggregateCases: ToolCallEvalCase[] = [
               ],
             },
           ],
-        }),
+        } as ExpectedOutputMessage,
       ],
     },
     tags: ['hard', 'aggregate', 'unwind', 'array-field'],
@@ -1796,7 +1752,7 @@ const aggregateCases: ToolCallEvalCase[] = [
     },
     expected: {
       outputMessages: [
-        expectedToolMessage({
+        {
           role: 'assistant-tool',
           toolCalls: [
             {
@@ -1824,7 +1780,7 @@ const aggregateCases: ToolCallEvalCase[] = [
               ],
             },
           ],
-        }),
+        } as ExpectedOutputMessage,
       ],
     },
     tags: ['hard', 'aggregate', 'bucket'],
@@ -1844,7 +1800,7 @@ const aggregateCases: ToolCallEvalCase[] = [
     },
     expected: {
       outputMessages: [
-        expectedToolMessage({
+        {
           role: 'assistant-tool',
           toolCalls: [
             {
@@ -1870,15 +1826,13 @@ const aggregateCases: ToolCallEvalCase[] = [
               ],
             },
           ],
-        }),
+        } as ExpectedOutputMessage,
       ],
     },
     tags: ['hard', 'aggregate', 'negative-constraint'],
     metadata: { difficulty: 'hard' },
   },
 ];
-
-// --- count -----------------------------------------------------------------
 
 const countCases: ToolCallEvalCase[] = [
   {
@@ -2040,8 +1994,6 @@ const countCases: ToolCallEvalCase[] = [
   },
 ];
 
-// --- db-stats --------------------------------------------------------------
-
 const dbStatsCases: ToolCallEvalCase[] = [
   {
     name: 'db-stats: database size',
@@ -2151,8 +2103,6 @@ const dbStatsCases: ToolCallEvalCase[] = [
     metadata: { difficulty: 'easy' },
   },
 ];
-
-// --- collection-storage-size -----------------------------------------------
 
 const collectionStorageSizeCases: ToolCallEvalCase[] = [
   {
@@ -2310,8 +2260,6 @@ const collectionStorageSizeCases: ToolCallEvalCase[] = [
   },
 ];
 
-// --- explain ---------------------------------------------------------------
-
 const explainCases: ToolCallEvalCase[] = [
   {
     name: 'explain: query performance',
@@ -2417,7 +2365,7 @@ const explainCases: ToolCallEvalCase[] = [
     },
     expected: {
       outputMessages: [
-        expectedToolMessage({
+        {
           role: 'assistant-tool',
           toolCalls: [
             {
@@ -2436,15 +2384,13 @@ const explainCases: ToolCallEvalCase[] = [
               ],
             },
           ],
-        }),
+        },
       ],
     },
     tags: ['explain', 'single-tool'],
     metadata: { difficulty: 'medium' },
   },
 ];
-
-// --- mongodb-logs ----------------------------------------------------------
 
 const mongodbLogsCases: ToolCallEvalCase[] = [
   {
@@ -2528,8 +2474,6 @@ const mongodbLogsCases: ToolCallEvalCase[] = [
     metadata: { difficulty: 'medium' },
   },
 ];
-
-// --- get-current-query -----------------------------------------------------
 
 const getCurrentQueryCases: ToolCallEvalCase[] = [
   {
@@ -2655,8 +2599,6 @@ const getCurrentQueryCases: ToolCallEvalCase[] = [
     metadata: { difficulty: 'medium' },
   },
 ];
-
-// --- get-current-pipeline --------------------------------------------------
 
 const getCurrentPipelineCases: ToolCallEvalCase[] = [
   {
@@ -2828,8 +2770,6 @@ const getCurrentPipelineCases: ToolCallEvalCase[] = [
   },
 ];
 
-// --- Multi-tool sequences --------------------------------------------------
-
 const multiToolCases: ToolCallEvalCase[] = [
   {
     name: 'schema then find',
@@ -2870,7 +2810,7 @@ const multiToolCases: ToolCallEvalCase[] = [
               ],
             },
           ],
-        },
+        } as ExpectedOutputMessage,
       ],
     },
     tags: ['collection-schema', 'find', 'multi-tool'],
@@ -3283,7 +3223,7 @@ const multiToolCases: ToolCallEvalCase[] = [
               ],
             },
           ],
-        },
+        } as ExpectedOutputMessage,
       ],
     },
     tags: ['hard', 'multi-tool', 'debugging'],
@@ -3360,7 +3300,7 @@ const multiToolCases: ToolCallEvalCase[] = [
             },
           ],
         },
-        expectedToolMessage({
+        {
           role: 'assistant-tool',
           toolCalls: [
             {
@@ -3382,7 +3322,7 @@ const multiToolCases: ToolCallEvalCase[] = [
               ],
             },
           ],
-        }),
+        } as ExpectedOutputMessage,
       ],
     },
     tags: ['hard', 'multi-tool', 'schema-grounding', 'nested-field'],
@@ -3413,7 +3353,7 @@ const multiToolCases: ToolCallEvalCase[] = [
           role: 'assistant-tool',
           toolCalls: [{ name: 'get-current-pipeline' }],
         },
-        expectedToolMessage({
+        {
           role: 'assistant-tool',
           toolCalls: [
             {
@@ -3439,7 +3379,7 @@ const multiToolCases: ToolCallEvalCase[] = [
               ],
             },
           ],
-        }),
+        } as ExpectedOutputMessage,
       ],
     },
     tags: ['hard', 'multi-tool', 'current-pipeline', 'transformation'],
@@ -3489,8 +3429,6 @@ const multiToolCases: ToolCallEvalCase[] = [
     metadata: { difficulty: 'hard' },
   },
 ];
-
-// --- multi-turn ------------------------------------------------------------
 
 const multiTurnCases: ToolCallEvalCase[] = [
   {
@@ -3649,7 +3587,7 @@ const multiTurnCases: ToolCallEvalCase[] = [
     },
     expected: {
       outputMessages: [
-        expectedToolMessage({
+        {
           role: 'assistant-tool',
           toolCalls: [
             {
@@ -3668,7 +3606,7 @@ const multiTurnCases: ToolCallEvalCase[] = [
               ],
             },
           ],
-        }),
+        },
       ],
     },
     tags: ['multi-turn', 'find', 'refinement'],
@@ -3738,7 +3676,7 @@ const multiTurnCases: ToolCallEvalCase[] = [
     },
     expected: {
       outputMessages: [
-        expectedToolMessage({
+        {
           role: 'assistant-tool',
           toolCalls: [
             {
@@ -3754,7 +3692,7 @@ const multiTurnCases: ToolCallEvalCase[] = [
               ],
             },
           ],
-        }),
+        } as ExpectedOutputMessage,
       ],
     },
     tags: ['multi-turn', 'aggregate', 'get-current-pipeline'],
@@ -3832,19 +3770,15 @@ const multiTurnCases: ToolCallEvalCase[] = [
       },
     },
     expected: {
-      outputMessages: [],
+      outputMessages: noToolExpectedOutputMessages,
     },
     tags: ['multi-turn', 'get-current-query', 'advice', 'no-tool'],
     metadata: { difficulty: 'hard' },
   },
 ];
 
-// --- no-tool ---------------------------------------------------------------
-
 const noToolCases: ToolCallEvalCase[] = [
   {
-    // TODO: The current tool-call scorers under-reward correct no-tool refusals.
-    // Add a dedicated no-tool / refusal scorer before treating this as stable.
     name: 'refuse delete request',
     input: {
       messages: [
@@ -3853,14 +3787,12 @@ const noToolCases: ToolCallEvalCase[] = [
       custom: mflixCustomInput,
     },
     expected: {
-      outputMessages: [],
+      outputMessages: noToolExpectedOutputMessages,
     },
     tags: ['hard', 'refusal', 'no-tool'],
     metadata: { difficulty: 'hard' },
   },
   {
-    // TODO: The current tool-call scorers under-reward correct no-tool refusals.
-    // Add a dedicated no-tool / refusal scorer before treating this as stable.
     name: 'refuse insert request',
     input: {
       messages: [
@@ -3872,14 +3804,12 @@ const noToolCases: ToolCallEvalCase[] = [
       custom: mflixCustomInput,
     },
     expected: {
-      outputMessages: [],
+      outputMessages: noToolExpectedOutputMessages,
     },
     tags: ['hard', 'refusal', 'no-tool'],
     metadata: { difficulty: 'hard' },
   },
   {
-    // TODO: The current tool-call scorers under-reward correct no-tool answers.
-    // Add a dedicated no-tool / knowledge-answer scorer for docs-style prompts.
     name: 'docs question should not use tools',
     input: {
       messages: [
@@ -3892,14 +3822,12 @@ const noToolCases: ToolCallEvalCase[] = [
       custom: mflixCustomInput,
     },
     expected: {
-      outputMessages: [],
+      outputMessages: noToolExpectedOutputMessages,
     },
     tags: ['hard', 'no-tool', 'docs-question'],
     metadata: { difficulty: 'hard' },
   },
   {
-    // TODO: The current tool-call scorers under-reward correct no-tool refusals.
-    // Add a dedicated no-tool / refusal scorer before treating this as stable.
     name: 'refuse create index request',
     input: {
       messages: [
@@ -3914,14 +3842,12 @@ const noToolCases: ToolCallEvalCase[] = [
       },
     },
     expected: {
-      outputMessages: [],
+      outputMessages: noToolExpectedOutputMessages,
     },
     tags: ['hard', 'no-tool', 'refusal', 'write-request'],
     metadata: { difficulty: 'hard' },
   },
   {
-    // TODO: The current tool-call scorers under-reward correct no-tool answers.
-    // Add a dedicated no-tool / unsupported-request scorer before treating this as stable.
     name: 'unsupported query history comparison',
     input: {
       messages: [
@@ -3937,16 +3863,12 @@ const noToolCases: ToolCallEvalCase[] = [
       },
     },
     expected: {
-      outputMessages: [],
+      outputMessages: noToolExpectedOutputMessages,
     },
     tags: ['hard', 'no-tool', 'unsupported'],
     metadata: { difficulty: 'hard' },
   },
 ];
-
-// ---------------------------------------------------------------------------
-// Export all cases
-// ---------------------------------------------------------------------------
 
 export const toolCallEvalCases: ToolCallEvalCase[] = [
   ...listDatabasesCases,

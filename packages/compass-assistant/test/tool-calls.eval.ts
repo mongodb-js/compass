@@ -22,6 +22,7 @@ import {
   toolCallEvalCases,
   type CompassAssistantCustomInput,
 } from './eval-cases/tool-call-cases';
+import type { ConnectionConfig, EvalTaskConfig } from './tool-call-eval-types';
 import { buildContextPrompt } from '../src/prompts';
 import { runConversationEval } from 'mongodb-assistant-eval/eval';
 import type {
@@ -34,36 +35,7 @@ import { seedServer } from './fixtures/databases/seed-server';
 import { seedDatabases } from './fixtures/databases';
 import { strict as assert } from 'assert';
 
-// ---------------------------------------------------------------------------
-// Types
-// ---------------------------------------------------------------------------
-
-type ConnectionConfig = {
-  connectionId: string;
-  connectionString: string;
-  connectOptions: {
-    productDocsLink: string;
-    productName: string;
-  };
-};
-
-type AssistantApiConfig = {
-  baseURL: string;
-  apiKey: string;
-  requestOrigin: string;
-  userAgent: string;
-};
-
-type EvalTaskConfig = {
-  apiConfig: AssistantApiConfig;
-  connectionConfig: ConnectionConfig;
-};
-
 import { EVAL_CLUSTER_UID, EVAL_MODEL, instructions } from './eval-config';
-
-// ---------------------------------------------------------------------------
-// Constants
-// ---------------------------------------------------------------------------
 
 const EVAL_WORKSPACE_TYPE = 'Collections' as const;
 const EVAL_WORKSPACE_TAB_ID = 'eval-workspace-tab';
@@ -86,10 +58,6 @@ const DEFAULT_EVAL_TASK_CONFIG: EvalTaskConfig = {
     },
   },
 };
-
-// ---------------------------------------------------------------------------
-// ToolsController setup — uses the real MCP server from compass-generative-ai
-// ---------------------------------------------------------------------------
 
 const logger = createNoopLogger('EVAL-TOOLS-CONTROLLER');
 
@@ -145,10 +113,6 @@ function getToolsForCase({
   return toolsController.getActiveTools();
 }
 
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
 function buildContextPromptText({
   custom,
   connectionString,
@@ -202,10 +166,6 @@ function toolCallPartsToAssistantMessages(
   }));
 }
 
-// ---------------------------------------------------------------------------
-// Data function — convert eval cases to AEL format
-// ---------------------------------------------------------------------------
-
 function makeToolCallEvalCases(): BraintrustConversationEvalCaseWithCustom<CompassAssistantCustomInput>[] {
   return toolCallEvalCases
     .filter((c) => !c.skip)
@@ -222,10 +182,6 @@ function makeToolCallEvalCases(): BraintrustConversationEvalCaseWithCustom<Compa
       metadata: c.metadata ?? {},
     }));
 }
-
-// ---------------------------------------------------------------------------
-// Task function — call the assistant and capture tool calls
-// ---------------------------------------------------------------------------
 
 function createToolCallAssistantTask(config: EvalTaskConfig) {
   const { apiConfig, connectionConfig } = config;
@@ -287,10 +243,6 @@ function createToolCallAssistantTask(config: EvalTaskConfig) {
   };
 }
 
-// ---------------------------------------------------------------------------
-// Eval entry point — starts a seeded MongoDB, runs evals, cleans up
-// ---------------------------------------------------------------------------
-
 async function main() {
   const cluster = await startTestServer();
   cluster.unref();
@@ -318,7 +270,7 @@ async function main() {
     await toolsController.stopServer();
     await client.close();
     await cluster.close();
-    // FIXME: We need to have this otherwise the process hangs.
+    // FIXME(COMPASS-10486): We need to have this otherwise the process hangs.
     // It'd be better if we could exit gracefully without this,
     // but I'm not sure how to do that.
     process.exit(0);
