@@ -37,7 +37,7 @@ const INSERT_INVALID_MESSAGE =
   'Insert not permitted while document contains errors.';
 
 const INSERT_INVALID_JSON_MESSAGE =
-  'Insert not permitted while document contains errors: strict Extended JSON (EJSON) format is required. Ensure all field names and string values are double-quoted.';
+  'Insert not permitted while document contains errors: strict Extended JSON (EJSON) format is required.';
 
 const documentViewId = 'insert-document-view';
 
