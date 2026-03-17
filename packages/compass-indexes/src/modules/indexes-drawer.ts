@@ -94,7 +94,7 @@ const confirmViewChangeIfDirty = async (isDirty: boolean): Promise<boolean> => {
 
 export const openIndexesListDrawerView = (): IndexesThunkAction<
   Promise<void>,
-  OpenIndexesListDrawerViewAction | SetIsDirtyIndexDrawerAction
+  OpenIndexesListDrawerViewAction
 > => {
   return async (dispatch, getState) => {
     const { isDirty } = getState().indexesDrawer;
@@ -108,10 +108,7 @@ export const openIndexesListDrawerView = (): IndexesThunkAction<
 
 export const openCreateSearchIndexDrawerView = (
   currentIndexType: SearchIndexType
-): IndexesThunkAction<
-  Promise<void>,
-  OpenCreateSearchIndexDrawerViewAction | SetIsDirtyIndexDrawerAction
-> => {
+): IndexesThunkAction<Promise<void>, OpenCreateSearchIndexDrawerViewAction> => {
   return async (dispatch, getState) => {
     const { isDirty } = getState().indexesDrawer;
     const confirmed = await confirmViewChangeIfDirty(isDirty);
@@ -124,10 +121,7 @@ export const openCreateSearchIndexDrawerView = (
 
 export const openEditSearchIndexDrawerView = (
   currentIndexName: string
-): IndexesThunkAction<
-  Promise<void>,
-  OpenEditSearchIndexDrawerViewAction | SetIsDirtyIndexDrawerAction
-> => {
+): IndexesThunkAction<Promise<void>, OpenEditSearchIndexDrawerViewAction> => {
   return async (dispatch, getState) => {
     const { isDirty } = getState().indexesDrawer;
     const confirmed = await confirmViewChangeIfDirty(isDirty);
