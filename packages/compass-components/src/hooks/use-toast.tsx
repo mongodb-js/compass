@@ -196,7 +196,7 @@ export const ToastArea: React.FunctionComponent = ({ children }) => {
   const stackedContext = useStackedComponent();
   // We always want to show the toast under the modal
   const toastPortalStyles = useMemo(() => {
-    const zIndex = stackedContext?.zIndex ? stackedContext.zIndex - 1 : 0;
+    const zIndex = stackedContext?.zIndex ? stackedContext.zIndex - 1 : 1;
     return css({ zIndex });
   }, [stackedContext]);
 
