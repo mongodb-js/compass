@@ -64,7 +64,7 @@ export async function generateGenAiEvalCases() {
         databaseName,
         enableStorage: false,
         requestId: new UUID().toString(),
-        userId: 'compass-eval-tests-user',
+        analyticsId: 'compass-eval-tests-user',
       };
       const {
         metadata: { instructions },

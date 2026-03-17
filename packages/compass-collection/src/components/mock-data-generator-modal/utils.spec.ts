@@ -1,9 +1,14 @@
 import { expect } from 'chai';
-import { areFakerArgsValid, isValidFakerMethod } from './utils';
+import {
+  areFakerArgsValid,
+  isValidFakerMethod,
+  validateDocumentCount,
+} from './utils';
 
 import Sinon from 'sinon';
 import { faker } from '@faker-js/faker/locale/en';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
+import { MAX_DOCUMENT_COUNT } from './constants';
 
 describe('Mock Data Generator Utils', () => {
   const sandbox = Sinon.createSandbox();
@@ -246,6 +251,89 @@ describe('Mock Data Generator Utils', () => {
       const result = isValidFakerMethod('person.firstName', [], logger);
       expect(result.isValid).to.be.false;
       expect(result.fakerArgs).to.deep.equal([]);
+    });
+  });
+
+  describe('validateDocumentCount', () => {
+    it('returns error for undefined input', () => {
+      const result = validateDocumentCount(undefined);
+      expect(result.isValid).to.be.false;
+      expect(result.errorMessage).to.equal('Document count is required');
+    });
+
+    it('returns error for empty string', () => {
+      const result = validateDocumentCount('');
+      expect(result.isValid).to.be.false;
+      expect(result.errorMessage).to.equal('Document count is required');
+    });
+
+    it('returns error for whitespace-only string', () => {
+      const result = validateDocumentCount('   ');
+      expect(result.isValid).to.be.false;
+      expect(result.errorMessage).to.equal('Document count is required');
+    });
+
+    it('returns error for non-numeric input', () => {
+      const result = validateDocumentCount('abc');
+      expect(result.isValid).to.be.false;
+      expect(result.errorMessage).to.equal('Please enter a valid number');
+    });
+
+    it('returns error for decimal numbers', () => {
+      const result = validateDocumentCount('10.5');
+      expect(result.isValid).to.be.false;
+      expect(result.errorMessage).to.equal('Please enter a whole number');
+    });
+
+    it('returns error for numbers below 1', () => {
+      const result = validateDocumentCount('0');
+      expect(result.isValid).to.be.false;
+      expect(result.errorMessage).to.equal(
+        `Document count must be between 1 and ${MAX_DOCUMENT_COUNT}`
+      );
+    });
+
+    it('returns error for negative numbers', () => {
+      const result = validateDocumentCount('-5');
+      expect(result.isValid).to.be.false;
+      expect(result.errorMessage).to.equal(
+        `Document count must be between 1 and ${MAX_DOCUMENT_COUNT}`
+      );
+    });
+
+    it('returns error for numbers above MAX_DOCUMENT_COUNT', () => {
+      const result = validateDocumentCount(`${MAX_DOCUMENT_COUNT + 1}`);
+      expect(result.isValid).to.be.false;
+      expect(result.errorMessage).to.equal(
+        `Document count must be between 1 and ${MAX_DOCUMENT_COUNT}`
+      );
+    });
+
+    it('returns valid for minimum boundary (1)', () => {
+      const result = validateDocumentCount('1');
+      expect(result.isValid).to.be.true;
+      expect(result.parsedValue).to.equal(1);
+      expect(result.errorMessage).to.be.undefined;
+    });
+
+    it('returns valid for maximum boundary', () => {
+      const result = validateDocumentCount(`${MAX_DOCUMENT_COUNT}`);
+      expect(result.isValid).to.be.true;
+      expect(result.parsedValue).to.equal(MAX_DOCUMENT_COUNT);
+      expect(result.errorMessage).to.be.undefined;
+    });
+
+    it('returns valid for typical values', () => {
+      const result = validateDocumentCount('1000');
+      expect(result.isValid).to.be.true;
+      expect(result.parsedValue).to.equal(1000);
+      expect(result.errorMessage).to.be.undefined;
+    });
+
+    it('handles string with leading/trailing whitespace as valid number', () => {
+      const result = validateDocumentCount(' 100 ');
+      expect(result.isValid).to.be.true;
+      expect(result.parsedValue).to.equal(100);
     });
   });
 });

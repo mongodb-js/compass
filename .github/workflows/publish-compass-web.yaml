@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
     inputs:
       publish_environment:
-        descript: 'Atlas Cloud environment to publish compass-web to'
+        description: 'Atlas Cloud environment to publish compass-web to'
         type: choice
         default: 'qa'
         options:
@@ -15,9 +15,13 @@ on:
           - prod
         required: true
       dangerously_override_commit_hash:
-        descript: 'An override for the commit hash to be used for the release. Default is the tip of the selected branch. ONLY USE IF YOU KNOW WHAT YOU ARE DOING!'
+        description: 'An override for the commit hash to be used for the release. Default is the tip of the selected branch. ONLY USE IF YOU KNOW WHAT YOU ARE DOING!'
         default: ''
         required: false
+      dangerously_skip_e2e_tests:
+        description: 'Skips the e2e tests and starts the publishing process immediately. ONLY USE IF YOU KNOW WHAT YOU ARE DOING!'
+        type: boolean
+        default: false
       dry_run:
         description: 'Run the publish process but do not upload the file. Useful for testing that the script is functioning correctly'
         type: boolean
@@ -35,6 +39,15 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          # Evergreen CLI needs the full history
+          ref: ${{ github.head_ref }}
+          fetch-depth: '0'
+
+      - name: Setup git user
+        run: |
+          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
 
       - name: Setup Node.js Environment
         uses: actions/setup-node@v4
@@ -50,6 +63,17 @@ jobs:
       - name: Install Dependencies
         run: |
           npm ci
+
+      - name: Test compass-web with Atlas Cloud
+        if: ${{ !inputs.dangerously_skip_e2e_tests }}
+        env:
+          EVG_USER: ${{ secrets.EVERGREEN_SERVICE_USER_USERNAME }}
+          EVG_API_KEY: ${{ secrets.EVERGREEN_SERVICE_USER_API_KEY }}
+          COMPASS_E2E_ATLAS_CLOUD_ENVIRONMENT: ${{ inputs.publish_environment }}
+          COMPASS_WEB_E2E_TEST_EVERGREEN_PATCH_DESCRIPTION: 'Test compass-web against Atlas ${{ inputs.publish_environment }} env before release (GHA: https://github.com/mongodb-js/compass/actions/runs/${{ github.run_id }})'
+          COMPASS_WEB_RELEASE_COMMIT: ${{ inputs.dangerously_override_commit_hash }}
+        run: |
+          npm run --workspace @mongodb-js/compass-web test-e2e-atlas
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@56d6a583f00f6bad6d19d91d53a7bc3b8143d0e9 # v5.1.1
@@ -67,6 +91,4 @@ jobs:
           DOWNLOAD_CENTER_NEW_AWS_SECRET_ACCESS_KEY: '${{ env.AWS_SECRET_ACCESS_KEY }}'
           DOWNLOAD_CENTER_NEW_AWS_SESSION_TOKEN: '${{ env.AWS_SESSION_TOKEN }}'
         run: |
-          # TODO(COMPASS-10227): trigger compass web with atlas tests for the
-          # provided publish environment
           npm run --workspace @mongodb-js/compass-web upload-entrypoint

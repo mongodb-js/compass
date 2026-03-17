@@ -60,16 +60,16 @@ export function generateScript(
 
     // Generate unformatted script
     const unformattedScript = `// Mock Data Generator Script
-// Generated for database: ${options.databaseName.replace(
-      /[\r\n]/g, // Prevent newlines in names that could break the comment
-      ' '
-    )}; collection: ${options.collectionName.replace(/[\r\n]/g, ' ')}
 // Document count: ${options.documentCount}
 
 const { faker } = require('@faker-js/faker');
 
+// Database and collection configuration - edit these to target a different location
+const DB_NAME = ${JSON.stringify(options.databaseName)};
+const COLL_NAME = ${JSON.stringify(options.collectionName)};
+
 // Connect to database
-use(${JSON.stringify(options.databaseName)});
+use(DB_NAME);
 
 // Document generation function
 function generateDocument() {
@@ -80,10 +80,7 @@ const BATCH_SIZE = 1000; // Number of documents to insert per batch
 const TOTAL_DOCUMENTS = ${options.documentCount};
 const numBatches = Math.ceil(TOTAL_DOCUMENTS / BATCH_SIZE);
 
-console.log(\`Starting mock data generation for ${options.databaseName.replace(
-      /[\\`$]/g,
-      '\\$&'
-    )}.${options.collectionName.replace(/[\\`$]/g, '\\$&')}\`);
+console.log(\`Starting mock data generation for \${DB_NAME}.\${COLL_NAME}\`);
 console.log(\`Total documents to generate: \${TOTAL_DOCUMENTS} documents\`);
 console.log(\`Batch size: \${BATCH_SIZE} documents per batch\`);
 
@@ -102,9 +99,7 @@ for (let batchStart = 0; batchStart < TOTAL_DOCUMENTS; batchStart += BATCH_SIZE)
   }
 
   // Insert the batch
-  db.getCollection(${JSON.stringify(
-    options.collectionName
-  )}).insertMany(batchDocuments);
+  db.getCollection(COLL_NAME).insertMany(batchDocuments);
 
   console.log(\`Batch inserted successfully.\`);
 }
@@ -114,10 +109,7 @@ const duration = ((endTime - startTime) / 1000).toFixed(2);
 
 console.log(\`\\n=== Mock Data Generation Complete ===\`);
 console.log(\`Total time: \${duration} seconds\`);
-console.log(\`Collection: ${options.databaseName.replace(
-      /[\\`$]/g,
-      '\\$&'
-    )}.${options.collectionName.replace(/[\\`$]/g, '\\$&')}\`);`;
+console.log(\`Collection: \${DB_NAME}.\${COLL_NAME}\`);`;
 
     // Format the script using prettier
     const script = prettify(unformattedScript, 'javascript');
