@@ -298,9 +298,10 @@ describe('Connection Import / Export', function () {
             filename
           );
 
-          if (variant === 'protected') {
+          if (variant === 'plaintext') {
             await browser.clickParent(Selectors.ExportConnectionsRemoveSecrets);
           } else if (variant === 'encrypted') {
+            await browser.clickParent(Selectors.ExportConnectionsRemoveSecrets);
             await browser.setValueVisible(
               Selectors.ExportConnectionsPassphrase,
               's3cr3t'

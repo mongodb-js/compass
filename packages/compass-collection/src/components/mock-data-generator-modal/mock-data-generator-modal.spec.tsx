@@ -418,11 +418,11 @@ describe('MockDataGeneratorModal', () => {
       await renderModal();
 
       expect(screen.getByTestId('raw-schema-confirmation')).to.exist;
-      expect(screen.queryByTestId('preview-and-doc-count')).to.not.exist;
+      expect(screen.queryByTestId('preview-and-doc-count-screen')).to.not.exist;
       userEvent.click(screen.getByText('Confirm'));
       await waitFor(() => {
         expect(screen.queryByTestId('raw-schema-confirmation')).to.not.exist;
-        expect(screen.getByTestId('preview-and-doc-count')).to.exist;
+        expect(screen.getByTestId('preview-and-doc-count-screen')).to.exist;
       });
     });
 
@@ -433,15 +433,145 @@ describe('MockDataGeneratorModal', () => {
       await renderModal({ mockServices });
 
       expect(screen.getByTestId('raw-schema-confirmation')).to.exist;
-      expect(screen.queryByTestId('preview-and-doc-count')).to.not.exist;
+      expect(screen.queryByTestId('preview-and-doc-count-screen')).to.not.exist;
       userEvent.click(screen.getByText('Confirm'));
       await waitFor(() => {
         expect(screen.getByTestId('raw-schema-confirmation')).to.exist;
-        expect(screen.queryByTestId('preview-and-doc-count')).to.not.exist;
+        expect(screen.queryByTestId('preview-and-doc-count-screen')).to.not
+          .exist;
       });
 
       expect(screen.getByText('LLM Request failed. Please confirm again.')).to
         .exist;
+    });
+  });
+
+  describe('on the preview and doc count step', () => {
+    it('renders the document count input with default value', async () => {
+      await renderModal({
+        currentStep: MockDataGeneratorSteps.PREVIEW_AND_DOC_COUNT,
+        fakerSchemaGeneration: createCompletedFakerSchema({
+          name: {
+            fakerMethod: 'person.firstName',
+            fakerArgs: [],
+            probability: 1.0,
+            mongoType: 'String',
+          },
+        }),
+      });
+
+      const input = screen.getByTestId('document-count-input');
+      expect(input).to.exist;
+      expect(input).to.have.value(DEFAULT_DOCUMENT_COUNT.toString());
+    });
+
+    it('renders the preview section with sample documents', async () => {
+      await renderModal({
+        currentStep: MockDataGeneratorSteps.PREVIEW_AND_DOC_COUNT,
+        fakerSchemaGeneration: createCompletedFakerSchema({
+          name: {
+            fakerMethod: 'person.firstName',
+            fakerArgs: [],
+            probability: 1.0,
+            mongoType: 'String',
+          },
+        }),
+      });
+
+      expect(screen.getByText('Preview Mock Data')).to.exist;
+      expect(
+        screen.getByText(
+          /Below are examples of documents that will be generated/
+        )
+      ).to.exist;
+    });
+
+    it('enables the Back button', async () => {
+      await renderModal({
+        currentStep: MockDataGeneratorSteps.PREVIEW_AND_DOC_COUNT,
+        fakerSchemaGeneration: createCompletedFakerSchema({
+          name: {
+            fakerMethod: 'person.firstName',
+            fakerArgs: [],
+            probability: 1.0,
+            mongoType: 'String',
+          },
+        }),
+      });
+
+      expect(
+        screen
+          .getByRole('button', { name: 'Back' })
+          .getAttribute('aria-disabled')
+      ).to.not.equal('true');
+    });
+
+    it('displays estimated disk size when avgDocumentSize is available', async () => {
+      await renderModal({
+        currentStep: MockDataGeneratorSteps.PREVIEW_AND_DOC_COUNT,
+        fakerSchemaGeneration: createCompletedFakerSchema({
+          name: {
+            fakerMethod: 'person.firstName',
+            fakerArgs: [],
+            probability: 1.0,
+            mongoType: 'String',
+          },
+        }),
+        schemaAnalysis: {
+          ...defaultSchemaAnalysisState,
+          schemaMetadata: {
+            ...defaultSchemaAnalysisState.schemaMetadata,
+            avgDocumentSize: 500,
+          },
+        },
+      });
+
+      expect(screen.getByTestId('estimated-disk-size')).to.exist;
+      expect(screen.getByText('Estimated Disk Size')).to.exist;
+      // Default 1000 docs * 500 bytes = 500,000 bytes = 500.0 kB (SI units)
+      expect(screen.getByText(/500.*kB/)).to.exist;
+    });
+
+    it('disables Generate Script button when document count is invalid', async () => {
+      await renderModal({
+        currentStep: MockDataGeneratorSteps.PREVIEW_AND_DOC_COUNT,
+        fakerSchemaGeneration: createCompletedFakerSchema({
+          name: {
+            fakerMethod: 'person.firstName',
+            fakerArgs: [],
+            probability: 1.0,
+            mongoType: 'String',
+          },
+        }),
+        documentCount: '0', // Invalid: below minimum
+      });
+
+      expect(
+        screen
+          .getByRole('button', { name: 'Generate Script' })
+          .getAttribute('aria-disabled')
+      ).to.equal('true');
+    });
+
+    it('enables Generate Script button when document count is valid', async () => {
+      await renderModal({
+        currentStep: MockDataGeneratorSteps.PREVIEW_AND_DOC_COUNT,
+        fakerSchemaGeneration: createCompletedFakerSchema({
+          name: {
+            fakerMethod: 'person.firstName',
+            fakerArgs: [],
+            probability: 1.0,
+            mongoType: 'String',
+          },
+        }),
+        documentCount: '1000', // Valid
+      });
+
+      expect(
+        screen
+          .getByRole('button', { name: 'Generate Script' })
+          .getAttribute('aria-disabled')
+      ).to.not.equal('true');
     });
   });
 
@@ -464,6 +594,25 @@ describe('MockDataGeneratorModal', () => {
           .getByRole('button', { name: 'Back' })
           .getAttribute('aria-disabled')
       ).to.not.equal('true');
+    });
+
+    it('renders the title and description', async () => {
+      await renderModal({
+        currentStep: MockDataGeneratorSteps.SCRIPT_RESULT,
+        fakerSchemaGeneration: createCompletedFakerSchema({
+          name: {
+            fakerMethod: 'person.firstName',
+            fakerArgs: [],
+            probability: 1.0,
+            mongoType: 'String',
+          },
+        }),
+      });
+
+      expect(screen.getByText('Generate Mock Data Script')).to.exist;
+      expect(
+        screen.getByText(/We've created the following script for your use\./)
+      ).to.exist;
     });
 
     it('renders the main sections: Prerequisites, steps, and Resources', async () => {

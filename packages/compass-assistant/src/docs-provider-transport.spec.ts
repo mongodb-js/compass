@@ -190,6 +190,74 @@ describe('DocsProviderTransport', function () {
           });
         });
       });
+
+      it('sends message with correct request data - with storage enabled', async function () {
+        const messages: AssistantMessage[] = [
+          {
+            id: 'included1',
+            role: 'user',
+            parts: [{ type: 'text', text: 'User message' }],
+            metadata: {
+              analyticsId: 'test-user-id',
+              requestId: 'test-request-id',
+              disableStorage: false,
+            },
+          },
+        ];
+
+        await sendMessages({
+          messages,
+        });
+
+        await waitFor(() => {
+          expect(doStream).to.have.been.calledOnce;
+          const callArgs = doStream.firstCall.args[0];
+          expect(callArgs.headers).to.deep.include({
+            'X-Client-Request-Id': 'test-request-id',
+          });
+          expect(callArgs.providerOptions.openai).to.deep.include({
+            store: false, // always false
+            metadata: {
+              analytics_id: 'test-user-id',
+              sensitive_storage: 'true',
+            },
+          });
+        });
+      });
+
+      it('sends message with correct request data - with storage disabled', async function () {
+        const messages: AssistantMessage[] = [
+          {
+            id: 'included1',
+            role: 'user',
+            parts: [{ type: 'text', text: 'User message' }],
+            metadata: {
+              analyticsId: 'test-user-id',
+              requestId: 'test-request-id',
+              disableStorage: true,
+            },
+          },
+        ];
+
+        await sendMessages({
+          messages,
+        });
+
+        await waitFor(() => {
+          expect(doStream).to.have.been.calledOnce;
+          const callArgs = doStream.firstCall.args[0];
+          expect(callArgs.headers).to.deep.include({
+            'X-Client-Request-Id': 'test-request-id',
+          });
+          expect(callArgs.providerOptions.openai).to.deep.include({
+            store: false,
+            metadata: {
+              analytics_id: 'test-user-id',
+              sensitive_storage: 'false',
+            },
+          });
+        });
+      });
     });
 
     // We currently do not support reconnecting to streams but we may want to in the future

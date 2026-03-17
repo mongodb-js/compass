@@ -114,7 +114,8 @@ type _AtlasCloudSandboxArgsKebabCase =
   | 'atlas-cloud-password'
   | 'atlas-cloud-dbuser-username'
   | 'atlas-cloud-dbuser-password'
-  | 'atlas-cloud-default-cluster';
+  | 'atlas-cloud-default-cluster'
+  | 'atlas-cloud-default-cluster-type';
 
 type AtlasCloudSandboxArgs =
   | _AtlasCloudSandboxArgsKebabCase
@@ -190,6 +191,13 @@ function buildWebArgs(yargs: Argv) {
         default: [],
         description:
           'One or more cluster names in the project to be used for testing. At least one cluster name needs to be provided',
+      })
+      .options('atlas-cloud-default-cluster-type', {
+        type: 'string',
+        default: 'GeoSharded',
+        choices: ['GeoSharded', 'Free', 'Flex', 'Dedicated'],
+        description:
+          'Cluster type to provision. Default is GeoSharded as this is a requirement for "Global Writes" testing',
       })
       .implies({
         'atlas-cloud-project-id': [
