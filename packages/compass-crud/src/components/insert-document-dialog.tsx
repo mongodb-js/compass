@@ -36,6 +36,9 @@ import type { WriteError } from '../stores/crud-store';
 const INSERT_INVALID_MESSAGE =
   'Insert not permitted while document contains errors.';
 
+const INSERT_INVALID_JSON_MESSAGE =
+  'Insert not permitted while document contains errors: strict Extended JSON (EJSON) format is required. Ensure all field names and string values are double-quoted.';
+
 const documentViewId = 'insert-document-view';
 
 const toolbarStyles = css({
@@ -173,6 +176,9 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
         HadronDocument.FromEJSON(jsonDoc);
         return false;
       } catch (e) {
+        if (e instanceof SyntaxError) {
+          return INSERT_INVALID_JSON_MESSAGE;
+        }
         return (e as Error).message;
       }
     }

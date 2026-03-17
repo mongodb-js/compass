@@ -56,4 +56,40 @@ describe('InsertDocumentDialog', function () {
     );
     expect(errorMessage).to.exist;
   });
+
+  it('shows strict JSON format hint for JSON syntax errors', async function () {
+    let jsonDoc = '{}';
+    const doc = new HadronDocument({});
+    doc.editing = true;
+    function updateJsonDoc(value: string | null) {
+      doc.setModifiedEJSONString(value);
+      jsonDoc = value ?? '{}';
+    }
+    const { rerender } = render(
+      <InsertDocumentDialog
+        {...defaultProps}
+        doc={doc}
+        jsonDoc={jsonDoc}
+        updateJsonDoc={updateJsonDoc}
+        jsonView
+      />
+    );
+    await setCodemirrorEditorValue(
+      screen.getByTestId('insert-document-json-editor'),
+      "{ unquoted_key: 'value' }"
+    );
+    rerender(
+      <InsertDocumentDialog
+        {...defaultProps}
+        doc={doc}
+        jsonDoc={jsonDoc}
+        updateJsonDoc={updateJsonDoc}
+        jsonView
+      />
+    );
+    const errorMessage = await screen.findByText(
+      /strict Extended JSON \(EJSON\) format is required/i
+    );
+    expect(errorMessage).to.exist;
+  });
 });
