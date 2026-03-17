@@ -36,6 +36,7 @@ import {
 import { template } from 'lodash';
 import { randomBytes } from 'crypto';
 import { isAtlasCloudPage } from './commands/atlas-cloud/utils';
+import type { ClusterTypes } from './commands';
 
 export const globalFixturesAbortController = new AbortController();
 
@@ -187,7 +188,7 @@ async function createAtlasCloudResources() {
           atlasCloudDbuserUsername,
           atlasCloudDbuserPassword,
           testClusterName,
-          'GeoSharded' // Atlas cloud test suite currently requires a geosharded cluster
+          context.atlasCloudDefaultClusterType as ClusterTypes
         );
 
       DEFAULT_CONNECTIONS.push({

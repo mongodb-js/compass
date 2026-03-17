@@ -90,12 +90,14 @@ const clusterTypeToTemplate = {
   GeoSharded: 'geoSharded3Zone',
 } as const;
 
+export type ClusterTypes = keyof typeof clusterTypeToTemplate;
+
 export async function createAtlasClusterForDefaultProject(
   browser: CompassBrowser,
   dbuserUsername: string,
   dbuserPassword: string,
   clusterName: string,
-  clusterType: keyof typeof clusterTypeToTemplate = 'Free'
+  clusterType: ClusterTypes = 'Free'
 ): Promise<string> {
   const { cloudUrl } = getCloudUrlsFromContext();
 
